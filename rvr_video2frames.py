@@ -1,4 +1,3 @@
-#from concurrent.futures import ProcessPoolExecutor, as_completed
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import cv2
 import multiprocessing
@@ -84,7 +83,7 @@ def extract_frames(video_path, frames_dir, overwrite=False, start=-1, end=-1, ev
     return saved_count  # and return the count of the images we saved
 
 
-def video_to_frames_2(video_path, frames_dir, overwrite=False,start_frame_number=-1, end_frame_number=-1, every=1, chunk_size=1000):
+def rvr_video2frames(video_path, frames_dir, overwrite=False,start_frame_number=-1, end_frame_number=-1, every=1, chunk_size=1000):
     """
     Extracts the frames from a video using multiprocessing
     :param end_frame_number:
@@ -123,7 +122,6 @@ def video_to_frames_2(video_path, frames_dir, overwrite=False,start_frame_number
     prefix_str = "Extracting frames from {}".format(video_filename)  # a prefix string to be printed in progress bar
 
     # execute across multiple cpu cores to speed up processing, get the count automatically
-    #with ProcessPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
     with ThreadPoolExecutor(max_workers=multiprocessing.cpu_count()) as executor:
 
         futures = [executor.submit(extract_frames, video_path, frames_dir, overwrite, f[0], f[1], every)
@@ -137,4 +135,4 @@ def video_to_frames_2(video_path, frames_dir, overwrite=False,start_frame_number
 
 if __name__ == '__main__':
     # test it
-    video_to_frames_2(video_path='test.mp4', frames_dir='test_frames', overwrite=False, start_frame_number=-1, end_frame_number=-1,every=5, chunk_size=1000)
+    rvr_video2frames(video_path='test.mp4', frames_dir='test_frames', overwrite=False, start_frame_number=-1, end_frame_number=-1,every=5, chunk_size=1000)
