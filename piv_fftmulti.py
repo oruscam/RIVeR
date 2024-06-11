@@ -33,7 +33,7 @@ def piv_fftmulti(image1, image2, interrogationarea, step, subpixfinder, mask_inp
         yroi = 0
         image1_roi = np.float64(image1)
         image2_roi = np.float64(image2)
-    del image1, image2
+    # del image1, image2
 
     gen_image1_roi = image1_roi
     gen_image2_roi = image2_roi
@@ -472,9 +472,7 @@ def piv_fftmulti(image1, image2, interrogationarea, step, subpixfinder, mask_inp
     image2_cut = re.selective_indexing(image2_crop_i1_aux, ss2, image2_crop_i1_aux.shape)
     del image2_crop_i1_aux
 
-    # Hacemos transformadas
-    # En el parametro axes ponemos un vector con los ejes sobre los cuales
-    # queremos operar. Por defecto toma los ultimos dos.
+
     temp_fftim1 = np.conj(np.fft.fft2(image1_cut, axes=[0, 1]))
     temp_fftim2 = np.fft.fft2(image2_cut, axes=[0, 1])
     result_conv = temp_fftim1 * temp_fftim2
@@ -521,7 +519,6 @@ def piv_fftmulti(image1, image2, interrogationarea, step, subpixfinder, mask_inp
     typevector[jj[0], jj[1]] = 0
     result_conv[:, :, ii] = 0
 
-    # x,y,z le sumamos uno para que coincida con Matlab, pero tener en cuenta que son indices!!
     result_conv_flat = np.reshape(result_conv, -1, order='F')
     indices = np.flatnonzero(result_conv_flat == 255)
     indices = np.unravel_index(indices, result_conv.shape, order='F')
