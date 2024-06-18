@@ -41,6 +41,7 @@ import shutil
 from intersection import intersection
 from rvr_piv_loop import piv_loop
 from concurrent.futures.thread import ThreadPoolExecutor
+import sys
 
 
 def main(argv):
