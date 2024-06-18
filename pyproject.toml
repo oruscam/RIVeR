@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "RIVeR"
-version = "0.1.0"
+version = "3.0.0"
 description = "A CLI application that performs."
 # readme = "README.md"
 authors = [
