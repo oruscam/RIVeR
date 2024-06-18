@@ -1,0 +1,25 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=65.5.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "RIVeR"
+version = "0.1.0"
+description = "A CLI application that performs."
+# readme = "README.md"
+authors = [
+    { name = "Antoine Patalano", email = "antoine.patalano@unc.edu.ar" },
+    { name = "Nicolas Stefani", email = "nicolas471@gmail.com" },
+    { name = "Tomas Stefani", email = "tomyste02@gmail.com" },
+]
+dependencies = [
+    "click >= 8.1.3",
+]
+
+[project.scripts]
+river_cli = "river.cli.__main__:cli"
+
+[tool.setuptools]
+packages = ["river", "river.core", 'river.cli']
