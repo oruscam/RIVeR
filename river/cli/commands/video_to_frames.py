@@ -8,7 +8,7 @@ from river.core.video_to_frames import video_to_frames as vtf
 
 @click.command(help="Transforms the given video to frames and return the initial frame path.")
 @click.argument("video-path", type=click.Path(exists=True))
-@click.argument("frames-dir", type=click.Path())
+@click.argument("frames-dir", type=click.Path(dir_okay=True, writable=True))
 @click.option("--start-frame", type=int, default=0, help="Frame number to start.")
 @click.option("--end-frame", type=int, default=None, help="Frame number to end.")
 @click.option("--every", type=int, default=1, help="Step to extract frames.")
@@ -41,9 +41,14 @@ def video_to_frames(
 	if ctx.obj["verbose"]:
 		click.echo(f"Extracting frames from '{video_path}' ...")
 
+	frames_dir = Path(frames_dir)
+
+	if not frames_dir.exists():
+		frames_dir.mkdir()
+
 	initial_frame: Path = vtf(
 		video_path=Path(video_path),
-		frames_dir=Path(frames_dir),
+		frames_dir=frames_dir,
 		start_frame_number=start_frame,
 		end_frame_number=end_frame,
 		every=every,

@@ -6,6 +6,8 @@ from typing import Optional
 
 import cv2
 
+from river.core.exceptions import VideoHasNoFrames
+
 
 def extract_frames(
 	video_path: Path, frames_dir: Path, every: int, start: int, end: Optional[int] = None, overwrite: bool = False
@@ -80,6 +82,9 @@ def video_to_frames(
 		every (int, optional): Extract every this many frames. Defaults to 1.
 		chunk_size (int, optional): How many frames to split into chunks (one chunk per cpu core process). Defaults to 100.
 
+	Raises:
+		VideoHasNoFrames: When opencv can't split into fremes.
+
 	Returns:
 		str: Path to the directory where the frames were saved, or None if fails
 	"""
@@ -93,9 +98,7 @@ def video_to_frames(
 	capture.release()  # release the capture straight away
 
 	if total < 1:  # if video has no frames, might be and opencv error
-		print("Video has no frames. Check your OpenCV + ffmpeg installation")
-		# TODO: this should raise an exception
-		return None  # return None
+		raise VideoHasNoFrames("Video has no frames. Check your OpenCV + ffmpeg installation")
 
 	frame_chunks = [
 		[i, i + chunk_size] for i in range(start_frame_number, end_frame_number, chunk_size)
