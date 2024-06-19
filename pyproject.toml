@@ -16,6 +16,7 @@ authors = [
 ]
 dependencies = [
     "click >= 8.1.3",
+    "opencv-python-headless >= 4.10.0.84"
 ]
 
 [project.scripts]
