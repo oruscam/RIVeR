@@ -1,16 +1,17 @@
 import click
-from river.core.utils import say_hello_to
+
+from river.cli.commands.video_to_frames import video_to_frames
 
 
 @click.group
-def cli():
-	pass
+@click.option("-v", "--verbose", is_flag=True, help="Activate verbose mode.")
+@click.pass_context
+def cli(ctx: click.Context, verbose: bool):
+	ctx.ensure_object(dict)
+	ctx.obj["verbose"] = verbose
 
 
-@cli.command
-def hello():
-	click.echo(say_hello_to("RIVeR"))
-
+cli.add_command(video_to_frames)
 
 if __name__ == "__main__":
 	cli()
