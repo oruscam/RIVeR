@@ -1,16 +1,15 @@
 import { VideoPlayer } from '../components/VideoPlayer/VideoPlayer'
-import { useUiSlice } from '../hooks/useUiSlice'
 import { FormVideo } from '../components/Forms/FormVideo'
 import { WizardButtons } from '../components/WizzardButtons'
 import { Error } from '../components/Error'
 import { FormVideoExtra } from '../components/Forms/FormVideoExtra'
 import { useState } from 'react'
+import { useDataSlice } from '../hooks'
 
 export const Step3 = () => {
-  const { video } = useUiSlice()
   const [formStep, setFormStep] = useState(1)
-  const blob = video ? video.blob : null;
-
+  const { video } = useDataSlice()
+  const blob = video.data.blob 
 
   return (
     <div className='regular-page'>

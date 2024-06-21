@@ -1,23 +1,23 @@
 import { WizardButtons } from '../components/WizzardButtons.js';
 import { useTranslation } from 'react-i18next';
-import { useForm, SubmitHandler } from 'react-hook-form';
+import { useForm, FieldValues } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
-import { useUiSlice } from '../hooks/useUiSlice.js';
 import { Icon } from '../components/Icon.js';
 import { drone, ipcam } from '../assets/icons/icons.js';
 import './pages.css';
+import { useDataSlice } from '../hooks/useDataSlice.js';
 
 export const Step2 = () => {
     const { handleSubmit, register, watch } = useForm();
-    const { onUploadFile } = useUiSlice();
+    const { onSetVideoData } = useDataSlice();
     const { nextStep } = useWizard();
     const formId = 'form-step-2';
     const { t } = useTranslation();
     const watchDrone = watch("droneFile");
 
-    const onSubmit: SubmitHandler<{ droneFile: FileList }> = async (data) => {
+    const onSubmit = async (data: FieldValues) => {
         if (data.droneFile) {
-            await onUploadFile(data.droneFile[0]);
+            await onSetVideoData(data.droneFile[0]);
             nextStep();
         }
     };

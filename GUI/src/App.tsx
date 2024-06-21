@@ -18,14 +18,12 @@ export const App: React.FC = () => {
   return (
     <div className='App' data-theme={darkMode ? "dark" : "light"}>
       <Wizard>
-        {/* <HomePage></HomePage> */}
+        <HomePage></HomePage>
         <Step2></Step2>
         {isLoading ? <h1>Loading</h1> : <Step3></Step3>}
-        {/* <Step3></Step3> */}
         {isLoading ? <h1>Loading</h1> : <Step4></Step4>}
 
-        {/* <Step4></Step4>  */}
-        {/* <Step5></Step5> */}
+        <Step5></Step5>
       </Wizard>
     </div>
   )

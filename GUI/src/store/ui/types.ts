@@ -1,21 +1,5 @@
 // * Archivo para almacenar los tipos e interfaces.
 
-interface VideoData {
-  name: string;
-  path: string;
-  width: number;
-  height: number;
-  fps: number;
-  blob: string;
-  duration: number;
-  firstFrame: string;
-}
-
-interface VideoForm {
-  step: number;
-  start: number;
-  end: number;
-}
 
 interface Point {
   x: number;

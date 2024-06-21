@@ -97,10 +97,9 @@ ipcMain.handle('video-metadata', async( _event, arg: string) => {
   }
 })
 
+// * Lanza el script video_to_frame
 
-ipcMain.handle('first-frame', async( event, args: any) => {
-  console.log("EN FIRST FRAME")
-  console.log(args)
+ipcMain.handle('first-frame', async( _event, args: any) => {
   const folder = '/home/tomy_ste/Desktop/RIVeR/example'
   const options = {
     pythonPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/venv/bin/python3',
@@ -116,18 +115,21 @@ ipcMain.handle('first-frame', async( event, args: any) => {
     ],
   }
 
-  const pyshell = new PythonShell('__main__.py', options)
+  return new Promise((resolve, reject) => {
+    const pyshell = new PythonShell('__main__.py', options);
 
-  pyshell.on('message', (message) => {
+    pyshell.on('message', (message) => {
       console.log(message);
-      event.sender.send('first-frame-output', message)
+      resolve(message); // Resuelve la promesa con el mensaje recibido
     });
 
-   pyshell.end((err) => {
-    console.log("pyshell error")
-    console.log(err)
-  }
-   )
-
+    pyshell.end((err) => {
+      if (err) {
+        console.log("pyshell error");
+        console.log(err);
+        reject(err); // Rechaza la promesa si hay un error
+      }
+    });
+  });
 })
 

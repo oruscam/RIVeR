@@ -6,18 +6,19 @@ import { useTranslation } from 'react-i18next'
 import { useUiSlice } from '../../hooks/useUiSlice';
 import { useWizard } from 'react-use-wizard';
 import { getValidationRules } from '../../helpers/validationRules'
+import { useDataSlice } from '../../hooks';
 
 
 export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateAction<number>> }) => {
   const { handleSubmit, register, setValue, getValues, watch} = useForm()
   const { t } = useTranslation()
   const [video, setVideo] = useState<HTMLVideoElement | null>(null)
-  const { onSetErrorMessage } = useUiSlice()
   const {nextStep} = useWizard()
+  const { onSetVideoParameters, video: videoData } = useDataSlice()
+  const { onSetErrorMessage } = useUiSlice()
 
   const watchStep = watch('step')
-  const { video: videoData, onSetVideoForm,} = useUiSlice()
-  const duration = videoData ? videoData.duration : 0
+  const duration = videoData.data.duration
 
   const validationRules = getValidationRules(t, getValues, duration)
 
@@ -35,7 +36,8 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
           
   const onSubmit = ( data: FieldValues ) => {
     console.log("SUBMIT FORMVIDEO")
-    onSetVideoForm(data)
+    onSetVideoParameters(data)
+
     nextStep()
   }
 
