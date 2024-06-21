@@ -1,0 +1,251 @@
+.theme-toggle{
+    font-size: 40px;
+    position: absolute;
+    right: 40px;
+    bottom: 25px;
+}
+
+.language-selector{
+    margin-top: auto;
+    margin-bottom: 45px;
+    display: flex;
+    width: 120px;
+    justify-content: space-between;
+}
+
+.language-selector-icon{
+    width: 30px;
+    height: 30px;
+}
+
+.language-selector-select{
+    background-color: transparent;
+    border: none;
+    font-size: 18px;
+    color: var(--primary-text-color);
+}
+
+.language-selector-select:focus{
+    background-color: var(--on-hover);
+}
+
+.wizard-container{
+    width: 90%;
+    display: flex;
+    justify-content: space-between;    
+    align-self: center;
+    margin-top: auto;
+    margin-bottom: 20px;
+    
+}
+
+.media-container{
+    height: 98vh;
+    width: 73%;
+    background-color: var(--secondary-background-color);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+    margin-right: 5px;
+    overflow-y: hidden;
+}
+
+
+
+.video-player{
+    margin-top: 5%;
+    width: 95%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.video{
+    border-radius: 20px;
+    width: 100%;
+    max-height: 700px;
+}
+
+
+.video-controls{
+    width: 94%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.video-player-time{
+    align-self: flex-start;
+    width: 30%;
+    margin-top: 8px;
+    margin-bottom: 5px;
+    font-size: 20px;
+    font-weight: 500;
+    margin-left: 20px;
+}
+
+.video-player-buttons{
+    display: flex;
+    justify-content: space-between;
+    width: 98%;
+    margin-top: 8px;
+}
+
+
+.video-player-seekbar{
+    --bg-track-color: rgba(255,255,255,0.2);
+    --buffered-track-color: rgba(255,255,255, 0.4);
+    --progress-track-color: #0678BE;
+    --thumb-color: #fff;
+    --seekbar-thumb-size: 15px;
+    --seekbar-height: 12px;
+    --seekbar-parent-height: var(--seekbar-thumb-size);
+    --border-radius: 2px;
+
+    height: var(--seekbar-parent-height);
+    position: relative;
+    width: 99%;
+    cursor: pointer;
+    align-self: center;
+    margin-bottom: 3px;
+    margin-top: 2px;
+}
+
+#background-track {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: 2;
+    display: block;
+    height: var(--seekbar-height);
+    width: 100%;
+    border-radius: var(--border-radius);
+    background-color: var(--bg-track-color);
+    pointer-events: none;
+    transform: translateY(-50%);
+
+}
+
+#buffered-track {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: 3;
+    display: block;
+    height: var(--seekbar-height);
+    background-color: var(--buffered-track-color);
+    width: var(--buffer, 0);
+    border-radius: var(--border-radius);
+    pointer-events: 0;
+    transform: translateY(-50%);
+}
+
+#progress-track {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    z-index: 3;
+    display: block;
+    height: var(--seekbar-height);
+    background-color: var(--progress-track-color);
+    width: var(--progress, 0);
+    border-radius: var(--border-radius);
+    pointer-events: 0;
+    transform: translateY(-50%);
+}
+
+#thumb {
+    width: var(--seekbar-thumb-size);
+    height: var(--seekbar-thumb-size);
+    display: block;
+    background-color: var(--thumb-color);
+    position: absolute;
+    top: 50%;
+    left: var(--progress, 0);
+    z-index: 6;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    opacity: 0;
+    pointer-events: none;    
+}
+
+#time {
+    background-color: var(--secondary-background-color);
+    opacity: 0;
+    width: 60px;
+    height: 30px;
+    font-size: 18px;
+    left: var(--progress, 0);
+    bottom: 5px;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 7;
+    pointer-events: 0;
+    border-radius: 5px;
+    text-align: center;
+
+}
+
+.video-player-seekbar:hover #thumb {
+    opacity: 1;
+}
+
+.video-player-seekbar:hover #time {
+    opacity: 1;
+}
+
+
+.error{
+    background-color: var(--background-error);
+    width: 100%;
+    min-height: 35px;
+    height: auto;
+    margin-top: auto;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: first baseline;
+    padding: 5px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    
+}
+
+.error-text {
+    margin-left: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 1px;
+    height: auto;
+}
+
+.image-with-marks{
+    background-color: gray;
+    margin-top: 10%;
+
+}
+
+@media screen and (max-width: 1580px) {
+    .image-with-marks{
+        margin-top: 20%;
+    }
+}
+
+@media screen and (max-width: 1280px) {
+    .image-with-marks{
+        margin-top: 30%;
+    }
+}
+
+
+/* Chart Cross Sections */
+
+.chart-cross-sections-container{
+    width: 98%;
+    height: 100%;
+}

@@ -1,0 +1,38 @@
+import { useTranslation } from 'react-i18next'
+import { useUiSlice } from '../../hooks/useUiSlice'
+
+
+export const FormVideoExtra: React.FC<{ step: number }> = ({ step }) => {
+    const { t } = useTranslation()
+    const { video } = useUiSlice()
+    const { name, width, height, duration, fps } = video || {} 
+
+    const getTimeBetweenFrames = (): string => {
+        return ((1 / (fps || 0)) * step).toFixed(2); // Add null check for 'fps' and provide default value of 0
+    }
+
+    return (
+        <div className='form-video-extra-info'>
+            <div className='form-video-extra-info-row'>
+                <p>{t("Step3.ExtraInfo.fileName")}</p>
+                <p>{name}</p>
+            </div>
+            <div className='form-video-extra-info-row'>
+                <p>{t("Step3.ExtraInfo.totalLenght")}</p>
+                <p>{(duration || 0).toFixed(2)}s</p>
+            </div>
+            <div className='form-video-extra-info-row'>
+                <p>{t("Step3.ExtraInfo.timeBetweenFrame")}</p>
+                <p>{getTimeBetweenFrames()}s</p>
+            </div>
+            <div className='form-video-extra-info-row'>
+                <p>{t("Step3.ExtraInfo.resolution")}</p>
+                <p>{`${width} x ${height}`}</p>
+            </div>
+            <div className='form-video-extra-info-row'>
+                <p>FPS: </p>
+                <p>{fps}</p>
+            </div>
+        </div>
+    )
+}

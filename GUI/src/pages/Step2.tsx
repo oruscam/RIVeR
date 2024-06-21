@@ -1,0 +1,50 @@
+import { WizardButtons } from '../components/WizzardButtons.js';
+import { useTranslation } from 'react-i18next';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import { useWizard } from 'react-use-wizard';
+import { useUiSlice } from '../hooks/useUiSlice.js';
+import { Icon } from '../components/Icon.js';
+import { drone, ipcam } from '../assets/icons/icons.js';
+import './pages.css';
+
+export const Step2 = () => {
+    const { handleSubmit, register, watch } = useForm();
+    const { onUploadFile } = useUiSlice();
+    const { nextStep } = useWizard();
+    const formId = 'form-step-2';
+    const { t } = useTranslation();
+    const watchDrone = watch("droneFile");
+
+    const onSubmit: SubmitHandler<{ droneFile: FileList }> = async (data) => {
+        if (data.droneFile) {
+            await onUploadFile(data.droneFile[0]);
+            nextStep();
+        }
+    };
+
+    return (
+        <div className='App'>
+            <h2 className='step-2-title'> {t("Step-2.title")} </h2>
+            <form className='file-upload-container' onSubmit={handleSubmit(onSubmit)} id={formId}>
+                <input
+                    type="file"
+                    className="hidden-file-input"
+                    id='drone-input'
+                    accept='video/.mp4, video/.avi, video/.mov, video/*'
+                    {...register("droneFile", { required: "Se debe cargar un archivo" })}
+                />
+                <label htmlFor='drone-input' className='drone-upload'>
+                    <Icon path={drone}></Icon>
+                </label>
+                <input type="file" className="hidden-file-input" id='camera-input' disabled />
+                <label htmlFor='camera-input' className='camera-upload'>
+                    <Icon path={ipcam}></Icon>
+                </label>
+            </form>
+            {
+                watchDrone !== undefined && watchDrone.length !== 0 ? <p className='file-name'> {watchDrone[0].name} </p> : null
+            }
+            <WizardButtons canFollow={watchDrone?.length !== 0 && undefined !== watchDrone?.length} formId={formId}></WizardButtons>
+        </div>
+    );
+}

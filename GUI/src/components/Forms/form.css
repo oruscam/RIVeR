@@ -1,0 +1,248 @@
+.form-container{
+    max-width: 500px;
+    min-width: 400px;
+    height: 98vh;
+    background-color: var(--secondary-background-color);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    flex-shrink: 0;
+}
+
+.form-title{
+    margin-top: 120px;
+}
+
+
+.form-base{
+    margin-top: 20px;
+    padding: 90px;
+    padding-top: 20px;
+    padding-bottom: 10px;
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 15px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+
+.ghost{
+    width: 10px;
+}
+
+.read-only{
+    background-color: var(--input-background);
+    color: var(--primary-text-color);
+    border: solid 0.1px;
+    font-size: 22px;
+    text-align: center;
+    line-height: 50px;
+    border-radius: 20px;
+    width: 150px;
+    height: 50px;
+    word-wrap: break-word;
+    font-size: auto;
+    white-space: nowrap; /* Asegura que el texto se mantenga en una sola línea */
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bg-transparent{
+    background-color: transparent;
+    border: none;
+}
+
+.form-video-extra-info{
+    display: flex;
+    flex-direction: column;
+    margin-top: 60px;
+    width: 65%;
+}
+
+.form-video-extra-info-row{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+    font-size: 20px;
+}
+
+
+.form-cross-sections{
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    margin-top: 30px;
+}
+
+.simple-mode{
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 15px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+    padding: 90px;
+    padding-top: 10px;
+    height: 90%;
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+.hard-mode{
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 15px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    width: 100%;
+    padding: 90px;
+    padding-top: 0px;
+}
+
+.bathimetry-button p {
+    text-align: center;
+    margin-top: 10px;
+}
+
+.bathimetry{
+    grid-column: 1 /-1;
+    width: 140%;
+    margin-left: -90px;
+    height: 300px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+}
+
+
+.btn-lock-container{
+    grid-column: 1 / -1;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    }
+    
+    
+.form-subtitle{
+    grid-column: 1 / -1;
+}
+
+@media screen and (max-height : 1150px) {
+    .simple-mode{
+        height: 88%;
+    }
+    .btn-lock-container{
+        margin-bottom: 0px;
+    }
+    
+}
+
+@media screen and (max-height : 900px) {
+    .simple-mode{
+        margin-top: 20px;
+        height: 85%;
+    }
+
+}
+
+
+/* button lock */
+
+.btn-lock {
+    top: calc(90% - 32px);
+    left: calc(90% - 32px);
+    display: inline-block;
+    width: 64px;
+    height: 64px;
+    box-sizing: border-box;
+    padding: 12px 0 0 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+
+
+
+.btn-lock svg {
+fill: none;
+transform: translate3d(0, 0, 0);
+}
+
+.btn-lock svg .bling {
+stroke: #fff;
+stroke-width: 2.5;
+stroke-linecap: round;
+stroke-dasharray: 3;
+stroke-dashoffset: 15;
+transition: all 0.3s ease;
+}
+
+.btn-lock svg .lock {
+stroke: #fff;
+stroke-width: 4;
+stroke-linejoin: round;
+stroke-linecap: round;
+stroke-dasharray: 36;
+transition: all 0.4s ease;
+}
+
+.btn-lock svg .lockb {
+fill: #fff;
+fill-rule: evenodd;
+clip-rule: evenodd;
+transform: rotate(8deg);
+transform-origin: 14px 20px;
+transition: all 0.2s ease;
+}
+
+#inpLock {
+display: none;
+}
+
+
+#inpLock:checked + label svg {
+opacity: 1;
+}
+
+#inpLock:checked + label svg .bling {
+animation: bling6132 0.3s linear forwards;
+animation-delay: 0.2s;
+}
+
+#inpLock:checked + label svg .lock {
+stroke-dasharray: 48;
+animation: locked 0.3s linear forwards;
+}
+
+#inpLock:checked + label svg .lockb {
+transform: rotate(0);
+transform-origin: 14px 22px;
+}
+
+@keyframes bling6132 {
+50% {
+    stroke-dasharray: 3;
+    stroke-dashoffset: 12;
+}
+
+100% {
+    stroke-dasharray: 3;
+    stroke-dashoffset: 9;
+}
+}
+
+@keyframes locked {
+50% {
+    transform: translateY(1px);
+}
+}

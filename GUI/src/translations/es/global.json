@@ -1,0 +1,46 @@
+{
+    "MainPage" : {
+        "start" : "Iniciar",
+        "loadProject": "Cargar Proyecto",
+        "spanish" : "Español",
+        "english" : "Ingles"
+    },
+    "Step-2" : {
+        "title" : "Selecciona el tipo de video"
+    },
+    "Wizard" : {
+        "back" : "Volver",
+        "next" : "Seguir"
+    },
+    "Step3":{
+        "title": "Rango de video",
+        "start": "Inicio",
+        "end": "Fin",
+        "step": "Paso",
+        "Errors": {
+            "start1": "Selección de Tiempo Invalida: El valor de 'Inicio' no puede ser menor a 0. Por favor ingresa un valor valido.",
+            "end1": "Selección de Tiempo Invalida: El valor de 'Fin' no puede ser mayor a la duración total del video. Por favor ingresa un valor valido.",
+            "end2" : "Selección de Tiempo Invalida: El valor de 'Fin' no puede ser menor o igual que 0. Por favor ingresa un valor valido.",
+            "end3" : "Selección de Tiempo Invalida:  El valor 'Fin' value no puede ser menor o igual al valor 'Inicio'. Por favor ingresa un valor valido.",
+            "step" : "Selección de Tiempo Invalida: El parametro 'Paso' debe ser un entero mayor o igual a 1. Por favor ingresa un valor valido.",
+            "required" : "Todos los campos son obligatorios. Por favor revisa el formulario Rango de Video.",
+            "formatInput" : "Formato Incorrecto: Los valores 'Inicio' y 'Fin' deben ser en el formato '00.00'"
+        },
+        "ExtraInfo" : {
+            "fileName" : "Nombre de archivo:",
+            "totalLenght": "Duración: ",
+            "timeBetweenFrame" : "Tiempro entre cuadros: ",
+            "resolution" : "Resolución: "
+        }
+    },
+    "Step4": {
+        "title": "Tamaño de Pixel",
+        "lineLength": "Largo de la linea",
+        "pixelSize" : "Tamaño del pixel",
+        "drawLine": "Dibujar Linea",
+        "Errors" : {
+            "required" : "Todos los campos son obligatorios. Por favor revisa el formulario Tamaño de Pixel.",
+            "lineLength" : "Formato Incorrecto: Los valores 'Ancho' y 'Alto' deben ser enteros mayores a 0. Por favor ingresa un valor valido."
+        }
+    }
+}

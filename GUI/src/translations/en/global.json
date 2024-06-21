@@ -1,0 +1,46 @@
+{
+    "MainPage" : {
+        "start": "Start",
+        "loadProject": "Load Project",
+        "spanish" : "Spanish",
+        "english" : "English"
+    },
+    "Step-2" : {
+        "title" : "Select the kind of footage"
+    },
+    "Wizard" : {
+        "back" : "Back",
+        "next" : "Next"
+    },
+    "Step3":{
+        "title": "Video Range",
+        "start": "Start",
+        "end": "End",
+        "step": "Step",
+        "Errors": {
+            "start1": "Invalid Time Selection: The Start time cannot be less than 0. Please enter a valid value.",
+            "end1": "Invalid Time Selection:  The 'End' value cannot be larger than the total length of the video. Please enter a valid value.",
+            "end2" : "Invalid Time Selection: The 'End' value cannot be 0 or less. Please enter a valid value.",
+            "end3" : "Invalid Time Selection:  The 'End' value cannot be equal or less than 'Start' value. Please enter a valid value.",
+            "step" : "Invalid Step Selection: The 'Step' parameter must be a integer greater than 1. Please enter a valid value.",
+            "required" : "All the fields are obligatory. Please check video range form.",
+            "formatInput" : "Incorrect format. 'Start' and 'End' values must be in '00.00' format."
+        },
+        "ExtraInfo" : {
+            "fileName" : "File Name:",
+            "totalLenght": "Total Lenght: ",
+            "timeBetweenFrame" : "Time Between Frames: ",
+            "resolution" : "Resolution: "
+        }
+    },
+    "Step4": {
+        "title": "Pixel Size",
+        "lineLength": "Line Length",
+        "pixelSize": "Pixel Size",  
+        "drawLine": "Draw Line",
+        "Errors": {
+            "required": "All the fields are obligatory. Please check Pixel Size form.",
+            "lineLength" : "Invalid Line Length: The line length must be a positive number, which can include decimals. Please enter a valid value."
+        }
+    }
+}
