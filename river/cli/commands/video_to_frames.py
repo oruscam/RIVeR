@@ -1,8 +1,8 @@
-import json
 from pathlib import Path
 
 import click
 
+from river.cli.commands.utils import render_response
 from river.core.video_to_frames import video_to_frames as vtf
 
 
@@ -15,6 +15,7 @@ from river.core.video_to_frames import video_to_frames as vtf
 @click.option("--chunk-size", type=int, default=100, help="Size of the frames chunk.")
 @click.option("--overwrite", is_flag=True, help="Overwrite frames if exists.")
 @click.pass_context
+@render_response
 def video_to_frames(
 	ctx: click.Context,
 	video_path: Path,
@@ -24,7 +25,7 @@ def video_to_frames(
 	every: int,
 	chunk_size: int,
 	overwrite: bool,
-):
+) -> dict:
 	"""Command to process the given video into frames.
 
 	Args:
@@ -55,4 +56,4 @@ def video_to_frames(
 		chunk_size=chunk_size,
 		overwrite=overwrite,
 	)
-	click.echo(json.dumps({"initial_frame": str(initial_frame)}))
+	return {"initial_frame": str(initial_frame)}
