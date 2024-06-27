@@ -2,13 +2,16 @@ import { defineConfig } from 'vite'
 import path from 'node:path'
 import electron from 'vite-plugin-electron/simple'
 import react from '@vitejs/plugin-react'
+import * as os from 'os'
+
+const userDir = os.homedir();
 
 // https://vitejs.dev/config/
 export default defineConfig({
   server : {
     fs : {
       // ! PROVISIONAL
-      allow: ['/home/tomy_ste']
+      allow: [userDir]
     }
   },
   plugins: [

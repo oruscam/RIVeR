@@ -82,3 +82,11 @@ export interface Metadata {
     duration: number;
   }[];
 }
+
+export interface FirstFrameArgs {
+  video_path: string;
+  start_frame: string;
+  end_frame: string;
+  step: string;
+  directory: string;
+}

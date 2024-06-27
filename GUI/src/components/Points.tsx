@@ -2,7 +2,7 @@ import { Image } from 'react-konva'
 import { pinRed, pinGreen, pin }from '../assets/icons/icons'
 import useImage from 'use-image'
 import { KonvaEventObject } from 'konva/lib/Node';
-import { useUiSlice } from '../hooks';
+import { useDataSlice, useUiSlice } from '../hooks';
 import sortPointsByX from '../helpers/sortPoints';
 
 
@@ -12,18 +12,21 @@ interface PointsProps {
     setLocalPoints: (points: { x: number; y: number }[]) => void;
     draggable: boolean;
     isPixelSize: boolean;
+    factor: {
+        x: number;
+        y: number;
+    }
 }
 
-export const Points = ({ localPoints = [], setLocalPoints, draggable, isPixelSize }: PointsProps) => {
-    const { onSetPoints } = useUiSlice()
+export const Points = ({ localPoints = [], setLocalPoints, draggable, isPixelSize, factor }: PointsProps) => {
+    const { onSetPoints } = useDataSlice()
     const [iconRed] = useImage(pinRed) 
     const [iconGreen] = useImage(pinGreen) 
     const [icon] = useImage(pin)
 
 
-
     //  CAMBIA EL ESTILO DEL POINTER CUANDO PASA POR ENCIMA DE UN PUNTO
-    const handleCursorEnter = (event: KonvaEventObject<MouseEvent>) => {
+    const handleCursorEnter = ( event: KonvaEventObject<MouseEvent> ) => {
         const stage = event.target.getStage();
         if( stage ){
             stage.container().style.cursor = 'move';
@@ -31,7 +34,7 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable, isPixelSiz
     }
     
         //  CAMBIA EL ESTILO DEL POINTER CUANDO PASA POR ENCIMA DE UN PUNTO
-    const handleCursorLeave = ( event: KonvaEventObject<MouseEvent>) => {
+    const handleCursorLeave = ( event: KonvaEventObject<MouseEvent> ) => {
         const stage = event.target.getStage();
         if( stage ){
             stage.container().style.cursor = 'default';
@@ -43,7 +46,7 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable, isPixelSiz
         newPoints[index] = { x: event.target.x(), y: event.target.y() };
         newPoints = sortPointsByX(newPoints);
         setLocalPoints(newPoints);
-        onSetPoints(newPoints)
+        onSetPoints(newPoints, factor.x, factor.y)
       }
 
 

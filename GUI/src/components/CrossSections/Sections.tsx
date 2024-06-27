@@ -1,10 +1,10 @@
 import { useEffect } from "react"
 import { FieldValues, useForm } from "react-hook-form"
-import { useUiSlice } from "../../hooks"
+import { useDataSlice } from "../../hooks"
 
 export const Sections = () => {
-    const { register, handleSubmit } = useForm()
-    const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onChangeNameSection } = useUiSlice()
+    const { register, handleSubmit, setValues } = useForm()
+    const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onChangeNameSection } = useDataSlice()
 
 
     // Set the active section, and logic for scrolling to the next section
@@ -59,7 +59,7 @@ export const Sections = () => {
         }
         const element = document.getElementById("scroll-right")
         element?.scrollIntoView({behavior: "smooth"})
-    }, [ , sections.length])
+    }, [sections.length])
         
 
   return (

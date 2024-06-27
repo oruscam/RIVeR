@@ -17,7 +17,8 @@ export const Step2 = () => {
 
     const onSubmit = async (data: FieldValues) => {
         if (data.droneFile) {
-            await onSetVideoData(data.droneFile[0]);
+            console.log(data.droneFile[0])
+            await onSetVideoData(data.droneFile[0], 'uav');
             nextStep();
         }
     };

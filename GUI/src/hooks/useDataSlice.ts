@@ -1,34 +1,22 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { clearPoints, setPoints, setVideoParameters, setVideoData } from '../store/data/dataSlice';
+import { setVideoParameters, setVideoData, setSectionsPoints, setDrawLine, addSection, deleteSection, changeNameSection, setActiveSection, setProjectDirectory, setBathimetryFile, setBathimetryLevel } from '../store/data/dataSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 
+
 export const useDataSlice = () => {
-    const { points, video } = useSelector((state: RootState) => state.data);
+    const { points, video, sections, activeSection, projectDirectory } = useSelector((state: RootState) => state.data);
     const dispatch = useDispatch();
 
-    const onSetPoints = (points: { x: number; y: number }[], factorX: number, factorY: number, image: string) => {
-        const newPoints = points.map(point => {
-            return {
-                x: point.x * factorX,
-                y: point.y * factorY
-            };
-        });
-        dispatch(setPoints(newPoints));
-    }
 
-    const onClearPoints = () => {
-        dispatch(clearPoints())
-    }
-    
-    const onSetVideoData = (video: File) => {
+    const onSetVideoData = (video: File, type: string) => {
         console.log("onSetVideoData")
         dispatch(setLoading(true))
         const blob = URL.createObjectURL(video);
         const ipcRenderer = window.ipcRenderer;
-        const result = ipcRenderer.invoke('video-metadata', video.path).then(result => {
-            const videoData = {
+        const result = ipcRenderer.invoke('video-metadata', {path: video.path, name: video.name, type: type}).then(result => {
+        const videoData = {
                 name: video.name,
                 path: video.path,
                 width: result.width,
@@ -37,19 +25,20 @@ export const useDataSlice = () => {
                 blob: blob,
                 duration: result.duration,
                 firstFrame: false
-                };
-                dispatch(setVideoData(videoData));
-                dispatch(setLoading(false));
-                
-                return true;
-                }).catch((error) => {
-                    console.log("Error en setVideoData (uploadFile)");
-                    console.log(error);
-                    
+            };
+            dispatch(setVideoData(videoData));
+            dispatch(setProjectDirectory(result.directory));
+            dispatch(setLoading(false));
+
+            return true;
+        }).catch((error) => {
+            console.log("Error en setVideoData (uploadFile)");
+            console.log(error);
+
             return false;
-            });
+        });
         return result;
-        }
+    }
 
 
     const onSetVideoParameters = async (data: FieldValues) => {
@@ -61,46 +50,118 @@ export const useDataSlice = () => {
             startFrame: Math.floor(parseFloat(data.start) * video.data.fps).toString(),
             endFrame: Math.floor(parseFloat(data.end) * video.data.fps).toString(),
         }
-        const commands = {
+        const args = {
             video_path: video.data.path,
             start_frame: parameters.startFrame,
             end_frame: parameters.endFrame,
-            step: parameters.step
+            step: parameters.step,
+            directory: projectDirectory
         }
-        
+
         const ipcRenderer = window.ipcRenderer;
-        await ipcRenderer.invoke('first-frame', commands)
-        .then((message) => {
-            const messageObj = JSON.parse(message);
-            const firstFramePath = '/@fs' + messageObj.initial_frame;
-            dispatch(setVideoParameters({...parameters, firstFramePath: firstFramePath}))
-            dispatch(setLoading(false))
-        })
-        .catch((error) => {
-            console.log(error)
+        await ipcRenderer.invoke('first-frame', args)
+            .then((message) => {
+                const messageObj = JSON.parse(message);
+                const firstFramePath = '/@fs' + messageObj.initial_frame;
+                dispatch(setVideoParameters({ ...parameters, firstFramePath: firstFramePath }))
+                dispatch(setLoading(false))
+            })
+            .catch((error) => {
+                console.log(error)
         });
+        
 
-        // ipcRenderer.on('first-frame-output', (_event, message) => {            
-        //     try {
-        //         const messageObj = JSON.parse(message);
-        //         const firstFramePath = '/@fs' + messageObj.initial_frame;
-        //         dispatch(setVideoParameters({...parameters, firstFramePath: firstFramePath}))
-        //         dispatch(setLoading(false))
-
-        //     } catch (error) {
-        //         console.error("Error parsing message JSON:", error);
-        //     }
-        // })
     }
 
-    return { 
+
+    interface Point {
+        x: number;
+        y: number;
+    }
+
+    const onSetPoints = (points: Point[], factorX: number, factorY: number) => {
+        const newPoints = points.map(point => {
+            return {
+                x: point.x * factorX,
+                y: point.y * factorY
+            };
+        });
+        dispatch(setSectionsPoints(newPoints));
+    }
+
+    const onSetDrawLine = () => {
+        dispatch(setDrawLine())
+    }
+
+    const onAddSection = () => {
+        let str = `CS_default-${sections.length}`
+        sections.map((section) => {
+            if (section.name === str) {
+                str = `CS_default-${sections.length}`
+            }
+        })
+        const section = {
+            name: str,
+            drawLine: false,
+            points: [],
+            click: false,
+            bathimetry: {
+                blob: "",
+                path: "",
+                level: 0
+            },
+            pixelSize: false,
+            hardMode: false
+        }
+        dispatch(addSection(section))
+    }
+
+    const onDeleteSection = () => {
+        dispatch(deleteSection())
+    }
+
+    const onChangeNameSection = (name: string) => {
+        dispatch(changeNameSection(name))
+    }
+
+    const onSetActiveSection = (index: number) => {
+        dispatch(setActiveSection(index))
+    }
+
+    const onSetPixelSize = (data: any) => {
+        console.log("onSendPixelSize", data)
+        console.log(sections[activeSection].points)
+        dispatch(setActiveSection(activeSection + 1))
+
+    }
+
+    const onSetBathimetryFile = ( file: File | '' ) => {
+        if (file === '') return 
+        const blob = URL.createObjectURL(file)
+        dispatch(setBathimetryFile({blob: blob, path: file.path}))
+    }
+
+    const onSetBathimetryLevel = (level: number) => {
+        dispatch(setBathimetryLevel(level))
+    }
+
+    return {    
         points,
         video,
+        sections,
+        activeSection,
 
 
         onSetVideoData,
+        onSetVideoParameters,
         onSetPoints,
-        onClearPoints,
-        onSetVideoParameters
-     };
+        onSetDrawLine,
+        onAddSection,
+        onDeleteSection,
+        onChangeNameSection,
+        onSetActiveSection,
+        onSetPixelSize,
+        onSetBathimetryFile,
+        onSetBathimetryLevel
+    };
 };

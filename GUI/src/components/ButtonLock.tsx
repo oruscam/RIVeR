@@ -4,10 +4,11 @@ interface ButtonLockProps {
     setExtraFields: React.Dispatch<React.SetStateAction<boolean>>,
     footerElementID: string,
     headerElementID: string,
+    disabled: boolean
 }
 
 
-export const ButtonLock = ({extraFields, setExtraFields, footerElementID= '', headerElementID = ''  }: ButtonLockProps) => {
+export const ButtonLock = ({extraFields, setExtraFields, footerElementID = '', headerElementID = '', disabled  }: ButtonLockProps) => {
     const handleOnChange = () => {
         if(extraFields){
             const headerElement = document.getElementById(headerElementID)
@@ -22,7 +23,7 @@ export const ButtonLock = ({extraFields, setExtraFields, footerElementID= '', he
     
   return (
     <div className="btn-lock-container">
-        <input id="inpLock" type="checkbox" defaultChecked onChange={handleOnChange}/>
+        <input id="inpLock" type="checkbox" defaultChecked onChange={handleOnChange} disabled={disabled}/>
         <label className="btn-lock" htmlFor="inpLock">
             <svg width="36" height="40" viewBox="0 0 36 40">
                 <path className="lockb" d="M27 27C27 34.1797 21.1797 40 14 40C6.8203 40 1 34.1797 1 27C1 19.8203 6.8203 14 14 14C21.1797 14 27 19.8203 27 27ZM15.6298 26.5191C16.4544 25.9845 17 25.056 17 24C17 22.3431 15.6569 21 14 21C12.3431 21 11 22.3431 11 24C11 25.056 11.5456 25.9845 12.3702 26.5191L11 32H17L15.6298 26.5191Z"></path>

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import './components.css';
 import { useWizard } from 'react-use-wizard';
+import { useDataSlice } from '../hooks';
 
 type Props = {
   canFollow: boolean;
@@ -10,13 +11,24 @@ type Props = {
 };
 
 export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClick }: Partial<Props> = {}) => {
-  const { previousStep, isFirstStep } = useWizard();
+  const { previousStep, isFirstStep, activeStep } = useWizard();
+  const { onSetActiveSection} = useDataSlice()
   const { t } = useTranslation();
+
+  const handlePreviuos = () => {
+    if( activeStep === 4){
+      onSetActiveSection(0)
+      previousStep()
+    }else{
+      previousStep()
+    }
+  }
+
   return (
     <div className='wizard-container'>
       <button
         className='wizard-button button-1'
-        onClick={previousStep}
+        onClick={handlePreviuos}
         disabled={isFirstStep}
       >
         {t('Wizard.back')}

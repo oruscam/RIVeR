@@ -20,21 +20,24 @@
 // }
 
 
-// TODO: DEBO CORROBORAR EN QUE RESOLUCION VIENE LA IMAGEN; PUEDE HABER CASOS EN LOS QUE NO TENGA QUE HACER NADA. USAR LA IMAGEN COMO ESTA
 export const getNewImageResolution = (screenWidth: number, imageWidth: number, imageHeight: number ) => {
+
     let scaleFactorX: number;
     let scaleFactorY: number;
     let newImageWidth: number;
     let newImageHeight: number;
 
-    if(screenWidth >= 1820){
+    if(imageWidth <= 500){
+        scaleFactorX = 1;
+        scaleFactorY = 1
+    } else if(screenWidth >= 1820){
         if(imageWidth < 1280){
             scaleFactorX = 1;
             scaleFactorY = 1;
-        } else{
+        } else {
             scaleFactorX = imageWidth / 1280;
             scaleFactorY = imageHeight / 720;
-        }
+    }
     } else if(screenWidth >= 1580){
         scaleFactorX = imageWidth / 1024;
         scaleFactorY = imageHeight / 720;
@@ -49,16 +52,23 @@ export const getNewImageResolution = (screenWidth: number, imageWidth: number, i
     newImageWidth = imageWidth / scaleFactorX;
     newImageHeight = imageHeight / scaleFactorY;
 
+
     return {
         width: newImageWidth,
         height: newImageHeight,
-        factorX: scaleFactorX,
-        factorY: scaleFactorY
+        factor: {
+            x: scaleFactorX,
+            y: scaleFactorY
+        }
     };
 }
 
+interface Points {
+    x: number;
+    y: number;
+}
 // Calcula la distancia entre 2 puntos y la retorna
-export const getDistanceBetweenPoints = ( points: number[] ) => {
+export const getDistanceBetweenPoints = ( points: Points[] ) => {
     if (points.length === 2) {
       const xDiff = points[1].x - points[0].x;
       const yDiff = points[1].y - points[0].y;

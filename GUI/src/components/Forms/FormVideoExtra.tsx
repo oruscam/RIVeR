@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
-import { useUiSlice } from '../../hooks/useUiSlice'
+import { useDataSlice } from '../../hooks'
 
 
 export const FormVideoExtra: React.FC<{ step: number }> = ({ step }) => {
     const { t } = useTranslation()
-    const { video } = useUiSlice()
-    const { name, width, height, duration, fps } = video || {} 
+    const { video } = useDataSlice()
+    const { name, width, height, duration, fps } = video.data;
 
     const getTimeBetweenFrames = (): string => {
         return ((1 / (fps || 0)) * step).toFixed(2); // Add null check for 'fps' and provide default value of 0
@@ -19,7 +19,7 @@ export const FormVideoExtra: React.FC<{ step: number }> = ({ step }) => {
             </div>
             <div className='form-video-extra-info-row'>
                 <p>{t("Step3.ExtraInfo.totalLenght")}</p>
-                <p>{(duration || 0).toFixed(2)}s</p>
+                <p>{duration.toFixed(2)}s</p>
             </div>
             <div className='form-video-extra-info-row'>
                 <p>{t("Step3.ExtraInfo.timeBetweenFrame")}</p>

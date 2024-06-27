@@ -1,15 +1,14 @@
-import { app, BrowserWindow, dialog, ipcMain } from 'electron'
-import { createRequire } from 'node:module'
+import { app, BrowserWindow, ipcMain } from 'electron'
 import { fileURLToPath } from 'node:url'
-import path from 'node:path'
+import * as path from 'node:path'
+import * as os from 'os'
 import { PythonShell } from 'python-shell'
 
-const require = createRequire(import.meta.url)
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const userDir = os.homedir();
 
-const ffmpeg = require('fluent-ffmpeg');
-import { Metadata, FFProbeData } from './interfaces'
-import { rejects } from 'node:assert'
+import { videoMetadataHandler } from './ipcMainHandlers/videoMetadataHandler.js'
+import { firstFrameHandler } from './ipcMainHandlers/firstFrameHandler.js'
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -69,67 +68,9 @@ app.on('activate', () => {
 
 app.whenReady().then(() => {
   createWindow();
-
+  videoMetadataHandler(userDir);
+  firstFrameHandler();
 })
 
-ipcMain.handle('video-metadata', async( _event, arg: string) => {
-  console.log("Event video-metadata en main" , arg)
 
-  try {
-    const metadata: Metadata = await new Promise((resolve, reject) => {
-      ffmpeg.ffprobe(arg, (err: Error | null, data: FFProbeData): void => {
-        if (err) reject(err);
-        else resolve(data);
-      });
-    });
-
-    const { width, height, r_frame_rate, duration } = metadata.streams[0];
-   
-    return {
-      width: width,
-      height: height,
-      fps: parseInt(r_frame_rate),
-      duration: duration
-    };
-  } catch (error) {
-    console.log(error)
-    throw new Error('Error en la obtención de metadatos del video:');
-  }
-})
-
-// * Lanza el script video_to_frame
-
-ipcMain.handle('first-frame', async( _event, args: any) => {
-  const folder = '/home/tomy_ste/Desktop/RIVeR/example'
-  const options = {
-    pythonPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/venv/bin/python3',
-    scriptPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/river/cli/',
-    args: [
-      'video-to-frames',
-      args.video_path,
-      folder,
-      '--start-frame', args.start_frame,
-      '--end-frame', args.end_frame,
-      '--every', args.step,
-      '--overwrite'
-    ],
-  }
-
-  return new Promise((resolve, reject) => {
-    const pyshell = new PythonShell('__main__.py', options);
-
-    pyshell.on('message', (message) => {
-      console.log(message);
-      resolve(message); // Resuelve la promesa con el mensaje recibido
-    });
-
-    pyshell.end((err) => {
-      if (err) {
-        console.log("pyshell error");
-        console.log(err);
-        reject(err); // Rechaza la promesa si hay un error
-      }
-    });
-  });
-})
 

@@ -5,6 +5,52 @@ interface Point {
     y: number;
 }
 
+interface BathFile {
+    blob: string | Blob;
+    path: string
+}
+
+interface Bathimetry {
+    blob: string | Blob;
+    level: number;
+    path: string;
+}
+
+interface PixelSize {
+    size: number;
+    rw_lenght: number;
+}
+
+interface RealWord {
+    eastLeft: number,
+    northLeft: number,
+    eastRight: number,
+    northRight: number
+}
+
+interface PixelCoordinates {
+    xLeft: number,
+    YLeft: number,
+    xRight: number,
+    yRight: number
+}
+
+interface HardMode {
+    realWord: RealWord;
+    pixelCoordinates: PixelCoordinates;
+}
+
+
+interface Section {
+    name: string;
+    drawLine: boolean;
+    points: Point[];
+    bathimetry: Bathimetry
+    pixelSize: PixelSize | boolean;
+    hardMode: HardMode | boolean;
+}
+
+
 interface VideoData {
     name: string;
     path: string;
@@ -24,16 +70,18 @@ interface VideoParameters {
     firstFramePath: string
 }
 
-
 interface Video {
     data: VideoData;
     parameters: VideoParameters;
-  }
 
+}
 
 interface DataState {
+    projectDirectory: string;
     points: Point[];
     video: Video;
+    sections: Section[];
+    activeSection: number;
 }
 
 const defaultVideo = {
@@ -47,41 +95,102 @@ const defaultVideo = {
         duration: 0
     },
     parameters: {
-        step: 0,
-        startTime: 0,
-        endTime: 0,
+        step: "",
+        startTime: "",
+        endTime: "",
         startFrame: "",
         endFrame: "",
         firstFramePath: ""
     }
 }
 
-const initialState: DataState = {
+const defaultSections = [{
+    name: "pixel_size",
+    drawLine: false,
     points: [],
-    video: defaultVideo
+    bathimetry: {
+        blob: '',
+        level: 0,
+        path: ''
+    },
+    pixelSize: false,
+    hardMode: false
+    },
+    {
+    name: "CS_default-1",
+    drawLine: false,
+    points: [],
+    bathimetry: {
+        blob: '',
+        level: 0,
+        path: ''
+    },
+    pixelSize: false,
+    hardMode: false
+    }
+]
+
+const initialState: DataState = {
+    projectDirectory: "",
+    points: [],
+    video: defaultVideo,
+    sections: defaultSections,
+    activeSection: 0
 };
 
 const dataSlice = createSlice({
     name: 'data',
     initialState,
     reducers: {
+        setProjectDirectory: (state, action: PayloadAction<string>) => {
+            state.projectDirectory = action.payload;
+        },
         setVideoData: (state, action: PayloadAction<VideoData>) => {
             state.video.data = action.payload;
         },
         setVideoParameters: (state, action: PayloadAction<VideoParameters>) => {   
             state.video.parameters = action.payload;
         },
+        
+        // ** Interaction with PixelSize.
+        setPixelSize: (state, action: PayloadAction<PixelSize>) => {
+            state.sections[0].pixelSize = action.payload;
+        }, 
 
+        // ** Interaction with sections.
 
-
-        setPoints: (state, action: PayloadAction<Point[]>) => {
-            state.points = action.payload;
+        setSectionsPoints: (state, action: PayloadAction<Point[]>) => {
+            state.sections[state.activeSection].points = action.payload;
         },
-        clearPoints: (state) => {
-            state.points = [];
+        setDrawLine: (state) => {
+            state.sections[state.activeSection].drawLine = !state.sections[state.activeSection].drawLine;
+        },
+        addSection: (state, action: PayloadAction<Section>) => {
+            state.sections.push(action.payload);
+            state.activeSection = state.sections.length - 1;
+        },
+        deleteSection: (state) => {
+            const newActive = state.activeSection - 1;
+            state.sections.splice(state.activeSection, 1);
+            state.activeSection = newActive
+        },
+        setActiveSection: (state, action: PayloadAction<number>) => {
+            state.activeSection = action.payload;
+        },
+        changeNameSection: (state, action: PayloadAction<string>) => {
+            state.sections[state.activeSection].name = action.payload
         },
 
+        setBathimetryFile: ( state, action: PayloadAction<BathFile>) => {
+            state.sections[state.activeSection].bathimetry.blob = action.payload.blob;
+            state.sections[state.activeSection].bathimetry.path = action.payload.path
+        },
+        
+        setBathimetryLevel: ( state, action: PayloadAction<number>) => {
+            state.sections[state.activeSection].bathimetry.level = action.payload;
+        }
 
+        // *******************************
 
 
         // setVideoParameters: (state, action: PayloadAction<VideoParameters>) => {
@@ -90,5 +199,19 @@ const dataSlice = createSlice({
     },
 });
 
-export const { setPoints, clearPoints, setVideoParameters, setVideoData } = dataSlice.actions;
+export const { 
+    setProjectDirectory, 
+    setVideoParameters, 
+    setVideoData, 
+    setSectionsPoints, 
+    setDrawLine, 
+    setActiveSection, 
+    addSection, 
+    deleteSection, 
+    changeNameSection, 
+    setPixelSize,
+    setBathimetryFile,
+    setBathimetryLevel
+ } = dataSlice.actions;
+
 export default dataSlice.reducer;

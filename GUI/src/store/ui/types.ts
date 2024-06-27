@@ -11,7 +11,6 @@ interface Bathimetry {
   level: number;
 }
 
-
 interface Section {
   name: string;
   drawLine: boolean;

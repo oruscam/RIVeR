@@ -11,12 +11,12 @@ export const LineAndText = ({imagePoints, name, isPixelSize}: LineAndTextProps) 
     <>
         <Line
             points={[imagePoints[0].x, imagePoints[0].y, imagePoints[1].x, imagePoints[1].y]}
-            stroke={isPixelSize ? "#054A74" : "#F5BF61"}
+            stroke={isPixelSize ? "#6CD4FF" : "#F5BF61"}
             strokeWidth={2}
             lineCap="round"
         />
         {
-          !isPixelSize && (
+          !isPixelSize ? (
             <Text
                 x={(imagePoints[1].x + 10)}
                 y={(imagePoints[1].y - 10 )}
@@ -24,8 +24,19 @@ export const LineAndText = ({imagePoints, name, isPixelSize}: LineAndTextProps) 
                 fontSize={18}
                 fill="#F5BF61"
             /> 
-          ) 
-        }
+          ) : imagePoints.map((point, index) => {
+            return (
+              <Text
+                key={index}
+                x={(point.x - 4)}
+                y={(point.y - 35 )}
+                text={index === 0 ? "2" : "1"}
+                fontSize={15}
+                fill="#000"
+                />
+          )})
+
+          }
     </>
   )
 }

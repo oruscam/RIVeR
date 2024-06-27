@@ -246,6 +246,20 @@
 /* Chart Cross Sections */
 
 .chart-cross-sections-container{
-    width: 98%;
-    height: 100%;
+    width: 100%;
+    height: 90%;
+}
+
+.loader{
+    border: 10px solid var(--primary-text-color);
+    border-radius: 50%;
+    border-top: 10px solid var(--secondary-background-color);
+    width: 80px;
+    height: 80px;
+    animation: spin 1.5s linear infinite;    
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
