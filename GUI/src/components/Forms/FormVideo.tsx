@@ -55,7 +55,7 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
   return (
     <>
       <h2 className='form-title'>{t("Step3.title")}</h2>
-      <form onSubmit={handleSubmit(onSubmit, onError)} id='form-video' className='form-base'>
+      <form onSubmit={handleSubmit(onSubmit, onError)} id='form-video' className='form-base mt-2'>
           <button type='button' onClick={handleClick} className='wizard-button form-button' id='start'> {t("Step3.start")}</button>
           <input
             className='input-field'

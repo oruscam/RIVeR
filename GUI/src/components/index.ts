@@ -7,6 +7,7 @@ import { LineAndText } from './LineAndText'
 import { Points } from './Points'
 import { ImageWithMarks } from './ImageWithMarks'
 import { Loading } from './Loading'
+import { Progress } from './Progress'
 
 export {
     Error,
@@ -17,5 +18,6 @@ export {
     WizardButtons,
     LineAndText,
     Points,
-    Loading
+    Loading, 
+    Progress
 }

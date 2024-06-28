@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useUiSlice } from "../../hooks";
 
 export const EyeBall = () => {
-    const [lidClass, setLidClass] = useState('lid lid--close');
-    const [pupilClass, setPupilClass] = useState('pupil pupil--close pupil--shadow');
+    const [lidClass, setLidClass] = useState('lid lid--open');
+    const [pupilClass, setPupilClass] = useState('pupil pupil--open pupil-shadow');
     const { onSetSeeAll, seeAll } = useUiSlice()
 
     const handleClick = () => {

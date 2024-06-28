@@ -1,7 +1,7 @@
 import { FieldValues, FormProvider, useForm } from 'react-hook-form'
 import { useWizard } from 'react-use-wizard'
 import { FormPixelSize } from '../components/Forms/index'
-import { WizardButtons, Error, ImageWithMarks } from '../components/index'
+import { WizardButtons, Error, ImageWithMarks, Progress } from '../components/index'
 import { getNewImageResolution } from '../helpers/resolution'
 import { useDataSlice, useUiSlice } from '../hooks/index'
 
@@ -9,7 +9,7 @@ import './pages.css'
 
 export const Step4 = () => {
   const methods = useForm()
-  const { nextStep } = useWizard()
+  const { nextStep  } = useWizard()
   
   const { onSetErrorMessage, screenSizes } = useUiSlice()
   const { video, onSetPixelSize, sections } = useDataSlice()
@@ -36,6 +36,7 @@ export const Step4 = () => {
         <Error/>
       </div>
       <div className='form-container'>
+        <Progress/>
         <FormProvider {...methods}>
           <FormPixelSize 
             onSubmit={methods.handleSubmit(onSubmit, onError)}

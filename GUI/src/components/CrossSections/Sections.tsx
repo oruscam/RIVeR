@@ -1,9 +1,9 @@
-import { useEffect } from "react"
+import React, { useEffect } from "react"
 import { FieldValues, useForm } from "react-hook-form"
 import { useDataSlice } from "../../hooks"
 
 export const Sections = () => {
-    const { register, handleSubmit, setValues } = useForm()
+    const { register, unregister, getValues} = useForm()
     const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onChangeNameSection } = useDataSlice()
 
 
@@ -43,15 +43,24 @@ export const Sections = () => {
     }
 
     
-    const handleInputSubmit = (data: FieldValues, index:number) => {
-        const input = document.getElementById(`${sections[index].name}-input`) as HTMLInputElement
-        if(input !== null){
-            input.readOnly = true
-        }
-        const nextElement = document.getElementById(`${sections[index].name}-DRAW_LINE`)
-        nextElement?.focus()
-        onChangeNameSection(data[`${sections[index].name}-input`])
+    const handleInputNameSection = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>, index: number ) => {
+        if ((event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" || event.type === "blur"){
+            const input = event.currentTarget
+            const value = input.value
+            if( value === "" ){
+                input.value = sections[index].name
+                input.readOnly = true
+            }else if ( value !== sections[index].name ){
+                input.readOnly = true
+                onChangeNameSection(value)
+            }
+    
+            const nextElement = document.getElementById(`${sections[index].name}-DRAW_LINE`)
+            nextElement?.focus()
+                    
+        }       
     }
+
         
     useEffect(() => {
         if(activeSection === 0){
@@ -75,7 +84,7 @@ export const Sections = () => {
                                          id={section.name} 
                                          onClick={() => onClickSection(index)}
                                          >
-                                        <form onSubmit={handleSubmit((data) => handleInputSubmit(data, index))}>
+
                                             <input
                                                 type="text" 
                                                 className="input-section"
@@ -84,9 +93,11 @@ export const Sections = () => {
                                                 {...register(`${section.name}-input`, { required: true })}
                                                 readOnly
                                                 onDoubleClick={handleDoubleClick}
+                                                onKeyDown={(event) => handleInputNameSection(event, index)}
+                                                onBlur={(event) => handleInputNameSection(event, index)}
                                             />
     
-                                        </form>
+
                                         <button 
                                             className="section-button1" 
                                             id="delete" 

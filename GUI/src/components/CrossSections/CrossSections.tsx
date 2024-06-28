@@ -21,7 +21,7 @@ export const CrossSections = ({ factor } : {x: number, y: number}) => {
         <>
             <div className="cross-section-header">        
                 <EyeBall></EyeBall>              
-                <h2 className="cross-sections-title"> Cross Sections</h2>
+                <h2 className="cross-sections-title"> Cross Sections </h2>
                 <span></span>
             </div>
             <Sections></Sections>

@@ -23,6 +23,7 @@ export const Step2 = () => {
         }
     };
 
+
     return (
         <div className='App'>
             <h2 className='step-2-title'> {t("Step-2.title")} </h2>

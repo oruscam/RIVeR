@@ -10,15 +10,15 @@ import sortPointsByX from '../helpers/sortPoints';
 interface PointsProps {
     localPoints: { x: number; y: number }[];
     setLocalPoints: (points: { x: number; y: number }[]) => void;
-    draggable: boolean;
-    isPixelSize: boolean;
-    factor: {
+    draggable?: boolean;
+    isPixelSize?: boolean;
+    factor?: {
         x: number;
         y: number;
-    }
+    };
 }
 
-export const Points = ({ localPoints = [], setLocalPoints, draggable, isPixelSize, factor }: PointsProps) => {
+export const Points = ({ localPoints = [], setLocalPoints, draggable = false, isPixelSize = false, factor = {x: 0, y: 0} }: PointsProps) => {
     const { onSetPoints } = useDataSlice()
     const [iconRed] = useImage(pinRed) 
     const [iconGreen] = useImage(pinGreen) 
@@ -28,7 +28,7 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable, isPixelSiz
     //  CAMBIA EL ESTILO DEL POINTER CUANDO PASA POR ENCIMA DE UN PUNTO
     const handleCursorEnter = ( event: KonvaEventObject<MouseEvent> ) => {
         const stage = event.target.getStage();
-        if( stage ){
+        if( stage && draggable ){
             stage.container().style.cursor = 'move';
         }
     }
@@ -66,7 +66,7 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable, isPixelSiz
                     onMouseLeave={handleCursorLeave}
                     draggable={draggable}
                     onDragEnd={(event) => handleDragPoint(event, index)}
-                />
+                    />
             ))}
         </>
     );

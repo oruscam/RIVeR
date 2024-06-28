@@ -84,12 +84,15 @@ export const Bathimetry = ({ setBathimetryLimits }: { setBathimetryLimits: (limi
     }, [level])
 
   return (
-    <div className='chart-cross-sections-container'>
-        {
-            blob !== '' ? (
-                <Line data={chartData} options={options}/>
-            ) : null
-        }
+    <div className='bathimetry mt-1'>
+        <div className='chart-cross-sections-container'>
+            {
+                blob !== '' ? (
+                    <Line data={chartData} options={options}/>
+                ) : null
+            }
+        </div>
+
     </div>
   )
 }

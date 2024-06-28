@@ -89,6 +89,7 @@
 
 .section-add{
     flex-shrink: 0;
+
 }
 
 .section-button1:hover{
@@ -108,7 +109,7 @@
 }
 
 .cross-section-header{
-    margin-top: 80px;
+    margin-top: 35px;
     display: flex;
     width: 90%;
     justify-content: space-between;

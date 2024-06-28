@@ -130,7 +130,12 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
       }
     }, [activeSection, drawLine, factor.x, factor.y])
 
-
+    // useEffect(() => {
+    //   if(!drawLine){
+    //     onSetPoints([], factor.x, factor.y)
+    //     setLocalPoints([])
+    //   }
+    // }, [drawLine])
 
   // * Limpiar un poco el return, pero la funcionalidad esta lista.  
   return (
@@ -147,7 +152,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
         <Layer>
           <Image image={image} width={width} height={height}></Image>
           {
-            !seeAll || activeSection === 0 ? (
+            seeAll || activeSection === 0 ? (
               <Group>
                 <Points localPoints={localPoints} setLocalPoints={setLocalPoints} draggable={true} isPixelSize={activeSection === 0} factor={factor}></Points>
                 {
@@ -175,12 +180,15 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
             })
           }
           {mousePressed && localPoints.length === 1 && (
-              <Line
-                points={[localPoints[0].x, localPoints[0].y, currentMousePosition.x, currentMousePosition.y]}
-                stroke={activeSection === 0 ? "#6CD4FF" : "#F5BF61"}
-                strokeWidth={2}
-                lineCap="round"
-              />
+              <Group>
+                <Points setLocalPoints={setLocalPoints} localPoints={localPoints} isPixelSize={activeSection === 0}></Points>
+                <Line
+                  points={[localPoints[0].x, localPoints[0].y, currentMousePosition.x, currentMousePosition.y]}
+                  stroke={activeSection === 0 ? "#6CD4FF" : "#F5BF61"}
+                  strokeWidth={2}
+                  lineCap="round"
+                />
+              </Group>
             )}
         </Layer>
       </Stage>

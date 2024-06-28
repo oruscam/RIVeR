@@ -40,6 +40,7 @@ export const WizardButtons = ({ canFollow = true, formId = '', button = false, o
         form={formId}
         onClick={onClick}
         type={ button ? "button" : "submit"}
+        id='wizard-next'
       >
         {t('Wizard.next')}
       </button>

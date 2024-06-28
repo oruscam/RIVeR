@@ -81,9 +81,11 @@
 }
 
 .file-name{
-    width: 20%;
+    width: auto;
     height: 30px;
-    font-size: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 1.3rem;
     background-color: var(--secondary-background-color);
     border-radius: 5px;
     align-items: center;

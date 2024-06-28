@@ -13,6 +13,7 @@
   --secondary-text-color: #797979;
   --on-hover: #232222;
   --input-background: #323232;
+  --secondary-input-background: #646464;
   --disabled-button: #808080;
   --background-error: #ED6B57;
 
@@ -151,6 +152,10 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
   transform: scale(0.9);
 } */
 
+.mt-1{
+  margin-top: 15px;
+}
+
 .mt-2{
   margin-top: 25px;
 }
@@ -176,6 +181,16 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
 .mb-2{
   margin-bottom: 25px;
 }
+
+
+.me-1{
+  margin-right: 15px;
+}
+
+.me-2{
+  margin-right: 25px;
+}
+
 
 .red{
   color: #ED6B57;
@@ -212,3 +227,57 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
   background: var(--secondary-text-color);
 
 } 
+
+/* * TOGGLE SWITCH */
+.switch {
+  position: relative;
+  display: inline-block;
+  margin-left: 30px;
+  width: 70px;
+  height: 34px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider{
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--input-background);
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+    
+}
+
+.slider:before{
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 6px;
+    bottom: 4px;
+    background-color: #FFFFFF;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider{
+    background-color: #0678BE;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(33px);
+}

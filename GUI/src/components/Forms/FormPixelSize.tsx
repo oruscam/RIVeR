@@ -5,7 +5,8 @@ import { useEffect, useState } from 'react'
 import { useDataSlice } from '../../hooks'
 import { ButtonLock } from '../ButtonLock'
 import { getDistanceBetweenPoints } from '../../helpers/resolution'
-import { HardMode } from './HardMode'
+import { HardModeCoordinates } from './index'
+import { InfoPixelSize } from '../InfoPixelSize'
 
 interface FormPixelSizeProps {
   onSubmit: (data: FieldValues) => void,
@@ -40,19 +41,18 @@ export const FormPixelSize = ({onSubmit, onError, factor}: FormPixelSizeProps ) 
         }, [lineLengthWatch, distanceBetweenPoints])
 
     // * Para manejar los cambios en los campos de coordenadas
-        
-    
-
-
+  
   return (
     <>
-      <h2 className='form-title'>{t("Step4.title")}</h2>
-      <form onSubmit={onSubmit} onError={onError} className='mt-2 test' id='form-pixel-size' style={{overflowY: `${!extraFields ? "hidden" : "auto"}`}}>
-        <span id='pixel-size-HEADER'></span>
-        <div className='container-test'>
+      <h2 className='form-title'> {t('Step4.title')}</h2>
+      <form onSubmit={onSubmit} onError={onError} className='mt-5' id='form-pixel-size' style={{overflowY: `${!extraFields ? "hidden" : "auto"}`}}>
+        <span id='pixel_size-HEADER'></span>
+        <div className='simple-mode-container'>
           <div className='simple-mode'>
             <button className={`wizard-button form-button ${sections[0].drawLine ? "wizard-button-active" : ""}`} onClick={onClickDrawLine} type='button'>{t("Step4.drawLine")}</button>
-            <span className='ghost'></span>
+            <InfoPixelSize animation={'click-drag-drop'}></InfoPixelSize>
+
+
             <label className='read-only'>{t("Step4.lineLength")}</label>
             <input className='input-field' 
               defaultValue={0} 
@@ -78,10 +78,10 @@ export const FormPixelSize = ({onSubmit, onError, factor}: FormPixelSizeProps ) 
                   />
           </div>
           <span className='space'/>
-          <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID='pixel-size-HARD_MODE' headerElementID='pixel-size-HEADER' disabled={sections[0].points.length === 0}/>
+          <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID='pixel_size-HARD_MODE' headerElementID='pixel_size-HEADER' disabled={sections[0].points.length === 0}/>
         </div>
         
-        <HardMode modeName={'pixel_size'} factor={factor}></HardMode>
+        <HardModeCoordinates modeName={'pixel_size'} factor={factor}></HardModeCoordinates>
       </form>
     </>
   )

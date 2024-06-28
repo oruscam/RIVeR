@@ -82,8 +82,8 @@ export const useDataSlice = () => {
     const onSetPoints = (points: Point[], factorX: number, factorY: number) => {
         const newPoints = points.map(point => {
             return {
-                x: point.x * factorX,
-                y: point.y * factorY
+                x: parseFloat((point.x * factorX).toFixed(2)),
+                y: parseFloat((point.y * factorY).toFixed(2))
             };
         });
         dispatch(setSectionsPoints(newPoints));
@@ -130,7 +130,6 @@ export const useDataSlice = () => {
 
     const onSetPixelSize = (data: any) => {
         console.log("onSendPixelSize", data)
-        console.log(sections[activeSection].points)
         dispatch(setActiveSection(activeSection + 1))
 
     }

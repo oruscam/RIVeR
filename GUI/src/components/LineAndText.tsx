@@ -32,7 +32,7 @@ export const LineAndText = ({imagePoints, name, isPixelSize}: LineAndTextProps) 
                 y={(point.y - 35 )}
                 text={index === 0 ? "2" : "1"}
                 fontSize={15}
-                fill="#000"
+                fill="#FFFFFF"
                 />
           )})
 

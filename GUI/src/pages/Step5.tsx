@@ -1,4 +1,4 @@
-import { WizardButtons, ImageWithMarks, Error } from "../components"
+import { WizardButtons, ImageWithMarks, Error, Progress } from "../components"
 import { useDataSlice, useUiSlice } from "../hooks"
 import { getNewImageResolution } from "../helpers/resolution"
 import { CrossSections } from "../components/CrossSections/index"
@@ -21,6 +21,7 @@ export const Step5 = () => {
           <Error></Error>
         </div>
         <div className="form-container">
+            <Progress/>
             <CrossSections factor={values.factor}></CrossSections>
             <WizardButtons formId="cross-section"></WizardButtons>
         </div>
