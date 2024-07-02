@@ -9,7 +9,6 @@ export const useDataSlice = () => {
     const { points, video, sections, activeSection, projectDirectory } = useSelector((state: RootState) => state.data);
     const dispatch = useDispatch();
 
-
     const onSetVideoData = (video: File, type: string) => {
         console.log("onSetVideoData")
         dispatch(setLoading(true))
@@ -98,8 +97,8 @@ export const useDataSlice = () => {
         dispatch(setDrawLine())
     }
 
-    const onAddSection = () => {
-        let str = `CS_default-${sections.length}`
+    const onAddSection = (sectionNumber: number) => {
+        let str = `CS_default-${sectionNumber}`
         sections.map((section) => {
             if (section.name === str) {
                 str = `CS_default-${sections.length}`

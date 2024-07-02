@@ -31,14 +31,13 @@ export const FormCrossSections = ({ onSubmit, name}: FormCrossSectionsProps) => 
   
   const [rwCoordinates, setRwCoordinates] = useState<Point[]>([{x: 0, y: 0}, {x: 0, y: 0}])    
 
-
   const bathWatch = watch(`${name}-CS_BATHIMETRY`)
 
   const handleButtonDrawLine = () => {
     onSetDrawLine()
   }
   
-  const handleKeyDownBathLevel = (event, nextFieldId) => {
+  const handleKeyDownBathLevel = (event: React.KeyboardEvent<HTMLInputElement>, nextFieldId: string) => {
     if(event.key === 'Enter'){
       event.preventDefault()
       document.getElementById(nextFieldId)?.focus()
@@ -78,7 +77,9 @@ export const FormCrossSections = ({ onSubmit, name}: FormCrossSectionsProps) => 
               
               
               <input type="file" id={`${name}-CS_BATHIMETRY`} className="hidden-file-input" accept=".csv"
-              {...register(`${name}-CS_BATHIMETRY`)}
+              {...register(`${name}-CS_BATHIMETRY`, {
+                required: "Bathimetry is required",
+              })}
               ></input>
               <label 
                 className={`wizard-button form-button bathimetry-button mt-2 ${ bathimetry.blob ? "wizard-button-active" : ""}`} 

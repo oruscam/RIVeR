@@ -5,7 +5,7 @@ import { useDataSlice } from "../../hooks"
 export const Sections = () => {
     const { register, unregister, getValues} = useForm()
     const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onChangeNameSection } = useDataSlice()
-
+    const [sectionNumber, setSectionNumber] = React.useState(2)
 
     // Set the active section, and logic for scrolling to the next section
     const onClickSection = ( index: number ) => {
@@ -30,7 +30,8 @@ export const Sections = () => {
     const onClickButtonSection = ( event: React.MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation()
         if (event.currentTarget.id === "add"){
-            onAddSection()
+            onAddSection(sectionNumber)
+            setSectionNumber(sectionNumber + 1)
         }
         if ( event.currentTarget.id === "delete"){
             onDeleteSection()
