@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setVideoParameters, setVideoData, setSectionsPoints, setDrawLine, addSection, deleteSection, changeNameSection, setActiveSection, setProjectDirectory, setBathimetryFile, setBathimetryLevel } from '../store/data/dataSlice';
+import { setVideoParameters, setVideoData, setSectionsPoints, setDrawLine, addSection, deleteSection, changeNameSection, setActiveSection, setProjectDirectory, setBathimetryFile, setBathimetryLevel, setPixelSize } from '../store/data/dataSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 
@@ -70,7 +70,6 @@ export const useDataSlice = () => {
                 console.log(error)
         });
         
-
     }
 
 
@@ -90,6 +89,11 @@ export const useDataSlice = () => {
     }
 
     const onSetDrawLine = () => {
+        // SI EL DRAW LINE PASA DE TRUE A FALSE, LIMPIO LOS PUNTOS DE LA SECCION.
+        if(sections[activeSection].drawLine){
+            dispatch(setSectionsPoints([]))
+        }
+         
         dispatch(setDrawLine())
     }
 
@@ -128,10 +132,29 @@ export const useDataSlice = () => {
         dispatch(setActiveSection(index))
     }
 
-    const onSetPixelSize = (data: any) => {
-        console.log("onSendPixelSize", data)
-        dispatch(setActiveSection(activeSection + 1))
+    const onSetPixelSize = (data: FieldValues) => {
+        const {pixel_size_LINE_LENGTH: lineLength, pixel_size_PIXEL_SIZE: pixelSize, pixel_size_EAST_point_1: east1, pixel_size_EAST_point_2: east2, pixel_size_NORTH_point_1: north1, pixel_size_NORTH_point_2: north2} = data
+        
+        const { points } = sections[0]
+        const pixelPoints = [points[0].x, points[0].y, points[1].x, points[1].y]
+        const rwPoints = [parseFloat(east1), parseFloat(north1), parseFloat(east2), parseFloat(north2)]
 
+        const args = {
+            pixelPoints: pixelPoints,
+            rwPoints: rwPoints,
+            pixelSize: pixelSize,
+            rw_length: lineLength,
+            directory: projectDirectory
+        }
+        const ipcRenderer = window.ipcRenderer;
+
+        ipcRenderer.invoke('pixel-size', args)
+            .then(( message) => {
+                console.log(message)
+            })
+
+        dispatch(setPixelSize({ size: pixelSize, rw_lenght: lineLength}))
+        dispatch(setActiveSection(activeSection + 1))
     }
 
     const onSetBathimetryFile = ( file: File | '' ) => {

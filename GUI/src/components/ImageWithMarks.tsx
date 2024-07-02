@@ -4,7 +4,6 @@ import { Group, Image, Layer, Line, Stage } from 'react-konva'
 import { KonvaEventObject } from 'konva/lib/Node'
 import { useDataSlice, useUiSlice } from '../hooks'
 import { Points, LineAndText } from './index'
-import sortPointsByX from '../helpers/sortPoints'
 
 type Point = { x: number; y: number };
 
@@ -96,7 +95,6 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
       const pointerPosition = getRelativePointerPosition(stage);
       let newPoints = [...localPoints]
       newPoints.push(pointerPosition)
-      newPoints = sortPointsByX(newPoints);
 
       setLocalPoints(newPoints);
       onSetPoints(newPoints, factor.x, factor.y);
@@ -124,18 +122,9 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
       }else {
         setLocalPoints([])
       }
-      if(!drawLine){
-        onSetPoints([], factor.x, factor.y)
-        setLocalPoints([])
-      }
-    }, [activeSection, drawLine, factor.x, factor.y])
 
-    // useEffect(() => {
-    //   if(!drawLine){
-    //     onSetPoints([], factor.x, factor.y)
-    //     setLocalPoints([])
-    //   }
-    // }, [drawLine])
+    }, [activeSection, points, factor.x, factor.y])
+
 
   // * Limpiar un poco el return, pero la funcionalidad esta lista.  
   return (

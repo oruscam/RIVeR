@@ -28,16 +28,10 @@ interface RealWord {
     northRight: number
 }
 
-interface PixelCoordinates {
-    xLeft: number,
-    YLeft: number,
-    xRight: number,
-    yRight: number
-}
+
 
 interface HardMode {
     realWord: RealWord;
-    pixelCoordinates: PixelCoordinates;
 }
 
 

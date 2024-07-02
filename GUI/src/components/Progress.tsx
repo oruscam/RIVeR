@@ -5,9 +5,8 @@ export const Progress = () => {
   return (
     <div className='progress-indicator-container' style={{ width: `${stepCount - 2 <= 6 ? "80%": "95%"} ` }}>
         {
-            Array.from({ length: stepCount - 2 }, (_, i) => (
-                <div className={`progress-indicator ${i <= activeStep - 2 ? 'progress-indicator-active' : ''}`}
-                />
+            Array.from({ length: stepCount - 2 }, (_, index) => (
+                <div className={`progress-indicator ${index <= activeStep - 2 ? 'progress-indicator-active' : ''}`} key={index}/>
             ))
         }
     </div>

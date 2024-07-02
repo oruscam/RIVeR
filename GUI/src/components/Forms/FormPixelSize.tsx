@@ -2,11 +2,12 @@ import './form.css'
 import { useTranslation } from 'react-i18next'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import { useEffect, useState } from 'react'
-import { useDataSlice } from '../../hooks'
+import { useDataSlice, useUiSlice } from '../../hooks'
 import { ButtonLock } from '../ButtonLock'
-import { getDistanceBetweenPoints } from '../../helpers/resolution'
-import { HardModeCoordinates } from './index'
+import { getDistanceBetweenPoints, computePixelSize } from '../../helpers/index.ts'
+import { PixelCoordinates, RealWorldCoordinates } from './index'
 import { InfoPixelSize } from '../InfoPixelSize'
+
 
 interface FormPixelSizeProps {
   onSubmit: (data: FieldValues) => void,
@@ -17,31 +18,62 @@ interface FormPixelSizeProps {
   }
 }
 
-export const FormPixelSize = ({onSubmit, onError, factor}: FormPixelSizeProps ) => {
-    const { t } = useTranslation()
-    const { watch, register } = useFormContext()
-    const [pixelSize, setPixelSize] = useState(0)
-    const lineLengthWatch = watch('pixel-size-LINE_LENGTH')
-    const {onSetDrawLine, sections}= useDataSlice()
-    const [extraFields, setExtraFields] = useState(false)
-    
+interface Point {
+  x: number, y: number
+}
 
-    const distanceBetweenPoints = getDistanceBetweenPoints(sections[0].points)
-    const onClickDrawLine = () => {
-      onSetDrawLine()
+export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
+    const { t } = useTranslation()
+    const { register, setValue } = useFormContext()
+    const [extraFields, setExtraFields] = useState(false)
+    const [rwCoordinates, setRwCoordinates] = useState<Point[]>([{x: 0, y: 0}, {x: 0, y: 0}])    
+
+    const { onSetErrorMessage } = useUiSlice()
+    const {onSetDrawLine, sections}= useDataSlice()
+
+    const points = sections[0].points
+
+    
+    const handleLineLengthInput = ( event: React.KeyboardEvent<HTMLInputElement> |  React.FocusEvent<HTMLInputElement>  ) => {
+      if( ((event as React.KeyboardEvent<HTMLInputElement>).key  === 'Enter' || event.type === 'blur')){
+        event.preventDefault()
+        const value = parseFloat(event.currentTarget.value)
+        if( value > 0) {
+          setRwCoordinates([{x: 0, y:0}, {x: value, y: 0}])
+          setValue('pixel_size_EAST_point_1', 0)
+          setValue('pixel_size_EAST_point_2', value)
+          setValue('pixel_size_NORTH_point_1', 0)
+          setValue('pixel_size_NORTH_point_2', 0)
+
+        } else {
+          setValue('pixel_size_EAST_point_2', 0)
+          setValue('pixel_size_LINE_LENGTH', 0)
+          const error = {
+            "pixel_size_LINE_LENGTH": {
+              type: "required",
+              message: t("Step4.Errors.lineLength")
+            }
+          }
+          onSetErrorMessage(error)
+        }
+        
+        (event.target as HTMLInputElement).blur()
+      }
     }
 
     useEffect(() => {
-      if(lineLengthWatch !== undefined && lineLengthWatch !== "" && distanceBetweenPoints !== 0){
-          const number = parseFloat((lineLengthWatch / distanceBetweenPoints).toFixed(4))
-          setPixelSize(number)
+      const pSize = computePixelSize(points, rwCoordinates)
+      const lineLength = getDistanceBetweenPoints(rwCoordinates)
+      setValue('pixel_size_LINE_LENGTH', lineLength)
+      if(pSize){
+        setValue('pixel_size_PIXEL_SIZE', pSize)
+      } else {
+        setValue('pixel_size_PIXEL_SIZE', 0)
       }
-        
-        
-        }, [lineLengthWatch, distanceBetweenPoints])
+    }, [points, rwCoordinates])
+    
 
-    // * Para manejar los cambios en los campos de coordenadas
-  
+
   return (
     <>
       <h2 className='form-title'> {t('Step4.title')}</h2>
@@ -49,8 +81,9 @@ export const FormPixelSize = ({onSubmit, onError, factor}: FormPixelSizeProps ) 
         <span id='pixel_size-HEADER'></span>
         <div className='simple-mode-container'>
           <div className='simple-mode'>
-            <button className={`wizard-button form-button ${sections[0].drawLine ? "wizard-button-active" : ""}`} onClick={onClickDrawLine} type='button'>{t("Step4.drawLine")}</button>
-            <InfoPixelSize animation={'click-drag-drop'}></InfoPixelSize>
+            <button className={`wizard-button form-button ${sections[0].drawLine ? "wizard-button-active" : ""}`} onClick={() => onSetDrawLine()} type='button'>{t("Step4.drawLine")}</button>
+            {/* <InfoPixelSize animation={'click-drag-drop'}></InfoPixelSize> */}
+            <span className='ghost'></span>
 
 
             <label className='read-only'>{t("Step4.lineLength")}</label>
@@ -58,8 +91,9 @@ export const FormPixelSize = ({onSubmit, onError, factor}: FormPixelSizeProps ) 
               defaultValue={0} 
               disabled={sections[0].points.length === 0}
               type='number' 
-              id='pixel-size-LINE_LENGTH'
-              {...register('pixel-size-LINE_LENGTH', {
+              step="any"
+              id='pixel_size-LINE_LENGTH'
+              {...register('pixel_size_LINE_LENGTH', {
                 required: t("Step4.Errors.required"),
                 validate: (value: string) => {
                   if ( parseFloat(value) <= 0){
@@ -68,21 +102,29 @@ export const FormPixelSize = ({onSubmit, onError, factor}: FormPixelSizeProps ) 
                   return true
                 }
               })}
+              onKeyDown={handleLineLengthInput}
+              onBlur={handleLineLengthInput}
               ></input>
             <label className='read-only'>{t("Step4.pixelSize")}</label>
             <input className='input-field'
-                  {...register('pixel-size-PIXEL_SIZE')} 
-                  type='number' value={pixelSize}  
-                  id='pixel-size-PIXEL_SIZE'
+                  {...register('pixel_size_PIXEL_SIZE')} 
+                  type='number' 
+                  readOnly={true}
+                  id='pixel_size-PIXEL_SIZE'
                   disabled={sections[0].points.length === 0}
+                  step="any"
                   />
           </div>
           <span className='space'/>
           <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID='pixel_size-HARD_MODE' headerElementID='pixel_size-HEADER' disabled={sections[0].points.length === 0}/>
         </div>
-        
-        <HardModeCoordinates modeName={'pixel_size'} factor={factor}></HardModeCoordinates>
+
+        <div className='hard-mode' id='pixel_size-HARD_MODE'>
+          <RealWorldCoordinates modeName='pixel_size' rwCoordinates={rwCoordinates} setRwCoordinates={setRwCoordinates}/>
+          <PixelCoordinates modeName='pixel_size'/> 
+        </div>
       </form>
     </>
   )
-}
+  }
+  

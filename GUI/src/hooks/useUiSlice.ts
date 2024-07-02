@@ -22,7 +22,6 @@ export const useUiSlice = () => {
                 arrayOfErrors.push(value.message);
             }
         });
-        console.log(arrayOfErrors);
         dispatch(setErrorMessage(arrayOfErrors));
         setTimeout(() => {
             dispatch(clearErrorMessage());

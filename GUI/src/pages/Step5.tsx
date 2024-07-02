@@ -1,6 +1,6 @@
 import { WizardButtons, ImageWithMarks, Error, Progress } from "../components"
 import { useDataSlice, useUiSlice } from "../hooks"
-import { getNewImageResolution } from "../helpers/resolution"
+import { getNewImageResolution } from "../helpers/getNewImageResolution"
 import { CrossSections } from "../components/CrossSections/index"
 
 export const Step5 = () => {

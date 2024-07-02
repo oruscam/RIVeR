@@ -9,6 +9,7 @@ const userDir = os.homedir();
 
 import { videoMetadataHandler } from './ipcMainHandlers/videoMetadataHandler.js'
 import { firstFrameHandler } from './ipcMainHandlers/firstFrameHandler.js'
+import { pixelSizeHandler } from './ipcMainHandlers/pixelSizeHandler.js'
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -70,6 +71,7 @@ app.whenReady().then(() => {
   createWindow();
   videoMetadataHandler(userDir);
   firstFrameHandler();
+  pixelSizeHandler();
 })
 
 

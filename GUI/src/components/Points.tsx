@@ -44,7 +44,6 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
     const handleDragPoint = (event: any, index: number) => {
         let newPoints = [...localPoints];
         newPoints[index] = { x: event.target.x(), y: event.target.y() };
-        newPoints = sortPointsByX(newPoints);
         setLocalPoints(newPoints);
         onSetPoints(newPoints, factor.x, factor.y)
       }
@@ -55,7 +54,7 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
             {localPoints.map((point, index) => (
                 <Image
                     key={index}
-                    image={isPixelSize ? icon : (index === 1 ? iconRed : iconGreen)}
+                    image={isPixelSize ? icon : (index === 0 ? iconRed : iconGreen)}
                     x={point.x}
                     y={point.y}
                     width={40} 

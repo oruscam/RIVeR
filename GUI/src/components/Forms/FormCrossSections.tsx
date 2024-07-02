@@ -3,7 +3,8 @@ import { useFormContext } from "react-hook-form"
 import { ButtonLock } from "../ButtonLock"
 import { useDataSlice } from "../../hooks"
 import { Bathimetry } from "../Bathimetry"
-import { HardModeCoordinates } from "./index"
+import { RealWorldCoordinates } from "./RealWorldCoordinates"
+import { PixelCoordinates } from "./PixelCoordinates"
 
 interface FormCrossSectionsProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void,
@@ -14,8 +15,12 @@ interface FormCrossSectionsProps {
   }
 
 }
+interface Point {
+  x: number, y: number
+}
 
-export const FormCrossSections = ({ onSubmit, name, factor}: FormCrossSectionsProps) => {
+
+export const FormCrossSections = ({ onSubmit, name}: FormCrossSectionsProps) => {
   const {register, watch, setValue } = useFormContext()
   const [extraFields, setExtraFields] = useState(false)
   
@@ -24,6 +29,8 @@ export const FormCrossSections = ({ onSubmit, name, factor}: FormCrossSectionsPr
   const {onSetDrawLine, sections, activeSection, onSetBathimetryFile, onSetBathimetryLevel} = useDataSlice()
   const {drawLine, bathimetry} = sections[activeSection]
   
+  const [rwCoordinates, setRwCoordinates] = useState<Point[]>([{x: 0, y: 0}, {x: 0, y: 0}])    
+
 
   const bathWatch = watch(`${name}-CS_BATHIMETRY`)
 
@@ -87,33 +94,11 @@ export const FormCrossSections = ({ onSubmit, name, factor}: FormCrossSectionsPr
             <Bathimetry setBathimetryLimits={setBathimetryLimits}/>
             <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID={`${name}-HARD_MODE`} headerElementID={`${name}-HEADER`} disabled={false}></ButtonLock>
           </div>
-        
-        
-          {/* <div className="hard-mode" id={`${name}-HARD_MODE`}>
-            <h2 className="form-subtitle mt-5 mb-1" id="REAL_WORD">Real Word Coordinates</h2>
 
-            <label className="read-only red" htmlFor="EAST_LEFT"> East Left </label>
-            <input type="number" className="input-field" {...register(`${name}-EAST_LEFT`)} defaultValue={0} id="EAST_LEFT"></input>
-            <label className="read-only red" htmlFor="NORTH_LEFT"> North Left </label>
-            <input type="number" className="input-field" {...register(`${name}-NORTH_LEFT`)} defaultValue={0} id="NORTH_LEFT"></input>
-
-            <label className="read-only green" htmlFor="EAST_RIGHT"> East Right </label>
-            <input type="number" className="input-field" {...register(`${name}-EAST_RIGHT`)} defaultValue={0} id="EAST_RIGHT"></input>
-            <label className="read-only green" htmlFor="NORTH_RIGHT"> North Right </label>
-            <input type="number" className="input-field" {...register(`${name}-NORTH_RIGHT`)} defaultValue={0} id="NORTH_RIGHT"></input>
-
-            <h2 className="form-subtitle mt-2 mb-1"> Pixel Coordinates</h2>
-            <label className="read-only red" htmlFor="X_LEFT"> X Left</label>
-            <input type="number" className="input-field"{...register(`${name}-X_LEFT`)} defaultValue={0} id="X_LEFT"></input>
-            <label className="read-only red" htmlFor="Y_LEFT"> Y Left</label>
-            <input type="number" className="input-field"{...register(`${name}-Y_LEFT`)} defaultValue={0} id="Y_LEFT"></input>
-
-            <label className="read-only green" htmlFor="X_RIGHT"> X Right</label>
-            <input type="number" className="input-field"{...register(`${name}-X_RIGHT`)} defaultValue={0} id="X_RIGHT"></input>
-            <label className="read-only green" htmlFor="Y_RIGHT"> Y Right</label>
-            <input type="number" className="input-field"{...register(`${name}-Y_RIGHT`)} defaultValue={0} id="Y_RIGHT"></input> 
-          </div> */}
-          <HardModeCoordinates modeName={name} factor={factor}></HardModeCoordinates>
+          <div className="hard-mode" id={`${name}-HARD_MODE`}>
+            <RealWorldCoordinates modeName={name} rwCoordinates={rwCoordinates} setRwCoordinates={setRwCoordinates}/>
+            <PixelCoordinates modeName={name}/>
+          </div>
         </form>
     </>
   )

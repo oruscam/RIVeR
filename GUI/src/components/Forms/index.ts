@@ -3,7 +3,8 @@ import { FormVideo } from "./FormVideo";
 import { FormPixelSize } from "./FormPixelSize";
 import { FormCrossSections } from "./FormCrossSections";
 import { FormProcessing } from "./FormProcessing";
-import { HardModeCoordinates } from "./HardModeCoordinates";
+import { PixelCoordinates } from "./PixelCoordinates";
+import { RealWorldCoordinates } from "./RealWorldCoordinates";
 
 export {
     FormVideoExtra,
@@ -11,5 +12,6 @@ export {
     FormPixelSize,
     FormCrossSections,
     FormProcessing,
-    HardModeCoordinates 
+    PixelCoordinates,
+    RealWorldCoordinates
 }

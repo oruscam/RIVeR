@@ -48,9 +48,5 @@ export function firstFrameHandler(){
                 }
             });
         });
-
-        
-
-
     }
 )}

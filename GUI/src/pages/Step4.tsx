@@ -2,7 +2,7 @@ import { FieldValues, FormProvider, useForm } from 'react-hook-form'
 import { useWizard } from 'react-use-wizard'
 import { FormPixelSize } from '../components/Forms/index'
 import { WizardButtons, Error, ImageWithMarks, Progress } from '../components/index'
-import { getNewImageResolution } from '../helpers/resolution'
+import { getNewImageResolution } from '../helpers/index.js'
 import { useDataSlice, useUiSlice } from '../hooks/index'
 
 import './pages.css'
@@ -26,6 +26,7 @@ export const Step4 = () => {
   }
   
   const onError = (error: FieldValues) => {
+    console.log("ERROR",error)
     onSetErrorMessage(error)
   }
 
