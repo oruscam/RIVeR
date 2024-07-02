@@ -1,20 +1,21 @@
-import json
 from pathlib import Path
 
 import click
 
+from river.cli.commands.utils import render_response
 from river.core.video_to_frames import video_to_frames as vtf
 
 
 @click.command(help="Transforms the given video to frames and return the initial frame path.")
 @click.argument("video-path", type=click.Path(exists=True))
-@click.argument("frames-dir", type=click.Path())
+@click.argument("frames-dir", type=click.Path(dir_okay=True, writable=True))
 @click.option("--start-frame", type=int, default=0, help="Frame number to start.")
 @click.option("--end-frame", type=int, default=None, help="Frame number to end.")
 @click.option("--every", type=int, default=1, help="Step to extract frames.")
 @click.option("--chunk-size", type=int, default=100, help="Size of the frames chunk.")
 @click.option("--overwrite", is_flag=True, help="Overwrite frames if exists.")
 @click.pass_context
+@render_response
 def video_to_frames(
 	ctx: click.Context,
 	video_path: Path,
@@ -24,7 +25,7 @@ def video_to_frames(
 	every: int,
 	chunk_size: int,
 	overwrite: bool,
-):
+) -> dict:
 	"""Command to process the given video into frames.
 
 	Args:
@@ -41,13 +42,18 @@ def video_to_frames(
 	if ctx.obj["verbose"]:
 		click.echo(f"Extracting frames from '{video_path}' ...")
 
+	frames_dir = Path(frames_dir)
+
+	if not frames_dir.exists():
+		frames_dir.mkdir()
+
 	initial_frame: Path = vtf(
 		video_path=Path(video_path),
-		frames_dir=Path(frames_dir),
+		frames_dir=frames_dir,
 		start_frame_number=start_frame,
 		end_frame_number=end_frame,
 		every=every,
 		chunk_size=chunk_size,
 		overwrite=overwrite,
 	)
-	click.echo(json.dumps({"initial_frame": str(initial_frame)}))
+	return {"initial_frame": str(initial_frame)}
