@@ -62,7 +62,8 @@ export const useDataSlice = () => {
         await ipcRenderer.invoke('first-frame', args)
             .then((message) => {
                 const messageObj = JSON.parse(message);
-                const firstFramePath = '/@fs' + messageObj.initial_frame;
+                console.log(messageObj)
+                const firstFramePath = '/@fs' + messageObj.data.initial_frame;
                 dispatch(setVideoParameters({ ...parameters, firstFramePath: firstFramePath }))
                 dispatch(setLoading(false))
             })
