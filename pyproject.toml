@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [project.scripts]
-river_cli = "river.cli.__main__:cli"
+river-cli = "river.cli.__main__:cli"
 
 [tool.setuptools]
 packages = ["river", "river.core", 'river.cli']
