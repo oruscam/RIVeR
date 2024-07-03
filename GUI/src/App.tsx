@@ -24,7 +24,7 @@ export const App: React.FC = () => {
         <Step2></Step2>
         {isLoading ? <Loading/> : <Step3></Step3>}
         {isLoading ? <Loading/> : <Step4></Step4>}
-        <Step5></Step5>
+        {isLoading ? <Loading/> : <Step5></Step5>}
         <Step6></Step6>
         <div> step 7 </div>
         <div> step 8</div>

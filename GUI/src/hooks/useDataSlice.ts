@@ -133,6 +133,7 @@ export const useDataSlice = () => {
     }
 
     const onSetPixelSize = (data: FieldValues) => {
+        dispatch(setLoading(true))
         const {pixel_size_LINE_LENGTH: lineLength, pixel_size_PIXEL_SIZE: pixelSize, pixel_size_EAST_point_1: east1, pixel_size_EAST_point_2: east2, pixel_size_NORTH_point_1: north1, pixel_size_NORTH_point_2: north2} = data
         
         const { points } = sections[0]
@@ -151,6 +152,10 @@ export const useDataSlice = () => {
         ipcRenderer.invoke('pixel-size', args)
             .then(( message) => {
                 console.log(message)
+                dispatch(setLoading(false))
+            }).catch((error) => { 
+                console.log("ERROR EN SETPIXELSIZE")
+                console.log(error)
             })
 
         dispatch(setPixelSize({ size: pixelSize, rw_lenght: lineLength}))
