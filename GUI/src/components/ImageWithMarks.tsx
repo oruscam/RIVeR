@@ -24,8 +24,8 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
   const [mousePressed, setMousePressed] = useState(false)
   const [currentMousePosition, setCurrentMousePosition] = useState<Point>({ x: 0, y: 0 })
 
-  const { firstFramePath } = video.parameters 
-  const [image] = useImage(firstFramePath)
+  const { firstFramePath } = video
+  const [image] = useImage('/@fs' + firstFramePath)
 
   // * Funcion para obtener la posicion del mouse en el canvas, en relacion a la imagen y al Zoom.
   const getRelativePointerPosition = (node: any) => {

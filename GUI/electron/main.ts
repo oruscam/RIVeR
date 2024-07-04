@@ -1,15 +1,17 @@
-import { app, BrowserWindow, ipcMain } from 'electron'
+import { app, BrowserWindow, ipcMain, net, protocol } from 'electron'
 import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
 import * as os from 'os'
-import { PythonShell } from 'python-shell'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
 
-import { videoMetadataHandler } from './ipcMainHandlers/videoMetadataHandler.js'
+import { initProject } from './ipcMainHandlers/initProject.js'
 import { firstFrameHandler } from './ipcMainHandlers/firstFrameHandler.js'
 import { pixelSizeHandler } from './ipcMainHandlers/pixelSizeHandler.js'
+import { getImages } from './ipcMainHandlers/getImages.js'
+import { setSections } from './ipcMainHandlers/setSections.js'
+import { loadProject } from './ipcMainHandlers/loadProject.js'
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -67,11 +69,16 @@ app.on('activate', () => {
   }
 })
 
+
+
 app.whenReady().then(() => {
   createWindow();
-  videoMetadataHandler(userDir);
+  initProject(userDir);
+  loadProject();
   firstFrameHandler();
   pixelSizeHandler();
+  getImages();
+  setSections();
 })
 
 

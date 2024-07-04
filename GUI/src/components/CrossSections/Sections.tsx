@@ -1,9 +1,9 @@
 import React, { useEffect } from "react"
-import { FieldValues, useForm } from "react-hook-form"
+import {  useForm } from "react-hook-form"
 import { useDataSlice } from "../../hooks"
 
-export const Sections = () => {
-    const { register, unregister, getValues} = useForm()
+export const Sections = ({ setDeletedSections }) => {
+    const { register} = useForm()
     const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onChangeNameSection } = useDataSlice()
     const [sectionNumber, setSectionNumber] = React.useState(2)
 
@@ -34,6 +34,7 @@ export const Sections = () => {
             setSectionNumber(sectionNumber + 1)
         }
         if ( event.currentTarget.id === "delete"){
+            setDeletedSections(sections[activeSection].name)
             onDeleteSection()
         }
     }

@@ -321,3 +321,15 @@
     border-radius: 5px;
 
 }
+
+.carousel-container{
+    height: auto;
+    width: 1250px;
+}
+
+.img-carousel{
+    width: 1250px;
+    height: 720px;
+
+}
+

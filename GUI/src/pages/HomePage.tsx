@@ -4,26 +4,42 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { LanguageSelector } from '../components/LanguageSelector';
 import image from '../assets/RIVeR-logo.png';
 import './pages.css';
+import { useDataSlice, useUiSlice } from '../hooks';
 
 export const HomePage: React.FC = () => {
   const { t } = useTranslation();
-  const { nextStep } = useWizard();
+  const { nextStep, goToStep } = useWizard();
+  const { onLoadProject } = useDataSlice();
+  const { onSetErrorMessage, error} = useUiSlice();
 
-  const handleClick = () => {
-    nextStep();
+  const handleNewProjectClick = async ( event ) => {
+    if( event.currentTarget.id === 'new-project'){
+      nextStep();
+    }else{
+      const result = await onLoadProject();
+      if( typeof result === 'number'){
+        goToStep(result)
+      } else {
+        onSetErrorMessage(result)
+      }
+    }
   };
+
 
   return (
     <div className='App'>
       <img src={image} className='home-page-image' alt='RIVeR Logo' />
       <div className='home-page-buttons'>
-        <button className='button-1' onClick={handleClick}>
+        <button className='button-1' onClick={handleNewProjectClick} id='new-project'>
           {t('MainPage.start')}
         </button>
-        <button className='button-1'>{t('MainPage.loadProject')}</button>
+        <button className='button-1' onClick={handleNewProjectClick} id='load-project'>{t('MainPage.loadProject')}</button>
       </div>
+      { error && <h4 className='home-page-error'>{error}</h4>}
+
       <LanguageSelector />
       <ThemeToggle />
     </div>
   );
 };
+

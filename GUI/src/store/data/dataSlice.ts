@@ -46,27 +46,27 @@ interface Section {
 
 
 interface VideoData {
-    name: string;
+    name: string | null;
     path: string;
     width: number;
     height: number;
     fps: number;
-    blob: string;
+    blob: string | null;
     duration: number;
 }
 
 interface VideoParameters {
     step: string;
-    startTime: string;
-    endTime: string;
+    startTime: string | null;
+    endTime: string | null;
     startFrame: string;
     endFrame: string;
-    firstFramePath: string
 }
 
 interface Video {
     data: VideoData;
     parameters: VideoParameters;
+    firstFramePath: string
 
 }
 
@@ -94,8 +94,8 @@ const defaultVideo = {
         endTime: "",
         startFrame: "",
         endFrame: "",
-        firstFramePath: ""
-    }
+    },
+    firstFramePath: ""
 }
 
 const defaultSections = [{
@@ -111,7 +111,7 @@ const defaultSections = [{
     hardMode: false
     },
     {
-    name: "CS_default-1",
+    name: "CS_default_1",
     drawLine: false,
     points: [],
     bathimetry: {
@@ -144,6 +144,9 @@ const dataSlice = createSlice({
         },
         setVideoParameters: (state, action: PayloadAction<VideoParameters>) => {   
             state.video.parameters = action.payload;
+        },
+        setFirstFramePath: (state, action: PayloadAction<string>) => {
+            state.video.firstFramePath = action.payload;
         },
         
         // ** Interaction with PixelSize.
@@ -205,7 +208,8 @@ export const {
     changeNameSection, 
     setPixelSize,
     setBathimetryFile,
-    setBathimetryLevel
+    setBathimetryLevel,
+    setFirstFramePath
  } = dataSlice.actions;
 
 export default dataSlice.reducer;

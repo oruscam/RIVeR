@@ -33,7 +33,6 @@ export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
 
     const points = sections[0].points
 
-    
     const handleLineLengthInput = ( event: React.KeyboardEvent<HTMLInputElement> |  React.FocusEvent<HTMLInputElement>  ) => {
       if( ((event as React.KeyboardEvent<HTMLInputElement>).key  === 'Enter' || event.type === 'blur')){
         event.preventDefault()
@@ -72,7 +71,6 @@ export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
       }
     }, [points, rwCoordinates])
     
-
 
   return (
     <>

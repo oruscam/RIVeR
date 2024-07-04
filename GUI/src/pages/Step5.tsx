@@ -22,7 +22,7 @@ export const Step5 = () => {
         </div>
         <div className="form-container">
             <Progress/>
-            <CrossSections factor={values.factor}></CrossSections>
+            <CrossSections></CrossSections>
             <WizardButtons formId="cross-section"></WizardButtons>
         </div>
     </div>

@@ -9,12 +9,8 @@ import { PixelCoordinates } from "./PixelCoordinates"
 interface FormCrossSectionsProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void,
   name: string,
-  factor: {
-    x: number,
-    y: number
-  }
-
 }
+
 interface Point {
   x: number, y: number
 }
@@ -31,7 +27,7 @@ export const FormCrossSections = ({ onSubmit, name}: FormCrossSectionsProps) => 
   
   const [rwCoordinates, setRwCoordinates] = useState<Point[]>([{x: 0, y: 0}, {x: 0, y: 0}])    
 
-  const bathWatch = watch(`${name}-CS_BATHIMETRY`)
+  const bathWatch = watch(`${name}_CS_BATHIMETRY`)
 
   const handleButtonDrawLine = () => {
     onSetDrawLine()
@@ -57,7 +53,7 @@ export const FormCrossSections = ({ onSubmit, name}: FormCrossSectionsProps) => 
       }
     }
     if(bathimetryLimits.max !== 0){
-      setValue(`${name}-LEVEL`, bathimetryLimits.max)
+      setValue(`${name}_LEVEL`, bathimetryLimits.max)
       onSetBathimetryLevel(bathimetryLimits.max)
     }
   }, [bathWatch, bathimetryLimits])
@@ -73,23 +69,23 @@ export const FormCrossSections = ({ onSubmit, name}: FormCrossSectionsProps) => 
               <button className={`wizard-button form-button ${drawLine ? "wizard-button-active" : ""}`} type="button" id={`${name}-DRAW_LINE`} onClick={handleButtonDrawLine}> Draw Line </button>
               <span className="ghost"></span>
               <label className="read-only" htmlFor="CS_LENGTH"> CS Length</label>
-              <input type="number" className="input-field" {...register(`${name}-CS_LENGTH`)} defaultValue={0} id="CS_LENGTH"></input>
+              <input type="number" className="input-field" {...register(`${name}_CS_LENGTH`)} defaultValue={0} id="CS_LENGTH" readOnly={true}></input>
               
               
-              <input type="file" id={`${name}-CS_BATHIMETRY`} className="hidden-file-input" accept=".csv"
-              {...register(`${name}-CS_BATHIMETRY`, {
+              <input type="file" id={`${name}_CS_BATHIMETRY`} className="hidden-file-input" accept=".csv"
+              {...register(`${name}_CS_BATHIMETRY`, {
                 required: "Bathimetry is required",
               })}
               ></input>
               <label 
                 className={`wizard-button form-button bathimetry-button mt-2 ${ bathimetry.blob ? "wizard-button-active" : ""}`} 
-                htmlFor={`${name}-CS_BATHIMETRY`}>
+                htmlFor={`${name}_CS_BATHIMETRY`}>
                 <p> Import Bath</p>
               </label>
               <label className="read-only bg-transparent mt-2"> {bathWatch?.length === 1 ? bathWatch[0].name : ''} </label>
 
               <label className="read-only" htmlFor="LEVEL"> Level</label>
-              <input type="number" step='any' className="input-field" {...register(`${name}-LEVEL`, {max: bathimetryLimits.max, min: bathimetryLimits.min})} defaultValue={bathimetryLimits.max} id="LEVEL" onKeyDown={(event) => handleKeyDownBathLevel(event, 'wizard-next')}></input>
+              <input type="number" step='any' className="input-field" {...register(`${name}_LEVEL`, {max: bathimetryLimits.max, min: bathimetryLimits.min})} defaultValue={bathimetryLimits.max} id="LEVEL" onKeyDown={(event) => handleKeyDownBathLevel(event, 'wizard-next')}></input>
             </div>
             
             <Bathimetry setBathimetryLimits={setBathimetryLimits}/>

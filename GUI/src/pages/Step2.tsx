@@ -9,7 +9,7 @@ import { useDataSlice } from '../hooks/useDataSlice.js';
 
 export const Step2 = () => {
     const { handleSubmit, register, watch } = useForm();
-    const { onSetVideoData } = useDataSlice();
+    const { onInitProject } = useDataSlice();
     const { nextStep } = useWizard();
     const formId = 'form-step-2';
     const { t } = useTranslation();
@@ -18,8 +18,12 @@ export const Step2 = () => {
     const onSubmit = async (data: FieldValues) => {
         if (data.droneFile) {
             console.log(data.droneFile[0])
-            await onSetVideoData(data.droneFile[0], 'uav');
-            nextStep();
+            try {
+                await onInitProject(data.droneFile[0], 'uav');
+                nextStep();
+            } catch (error){
+                console.log("intentalo de nuevo")
+            }
         }
     };
 

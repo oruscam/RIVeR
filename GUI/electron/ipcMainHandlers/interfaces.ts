@@ -79,7 +79,7 @@ export interface Metadata {
     width: number;
     height: number;
     r_frame_rate: string;
-    duration: number;
+    duration: string;
   }[];
 }
 

@@ -10,12 +10,12 @@ import { Progress } from '../components'
 export const Step3 = () => {
   const [formStep, setFormStep] = useState(1)
   const { video } = useDataSlice()
-  const blob = video.data.blob 
+  const { path }= video.data
 
   return (
     <div className='regular-page'>
         <div className='media-container'>
-          {blob && <VideoPlayer fileURL={blob}></VideoPlayer>}
+          {path && <VideoPlayer fileURL={'/@fs' + path}></VideoPlayer>}
           <Error></Error>
         </div>
         <div className='form-container'>

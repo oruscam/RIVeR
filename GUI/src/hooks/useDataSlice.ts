@@ -1,21 +1,24 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setVideoParameters, setVideoData, setSectionsPoints, setDrawLine, addSection, deleteSection, changeNameSection, setActiveSection, setProjectDirectory, setBathimetryFile, setBathimetryLevel, setPixelSize } from '../store/data/dataSlice';
+import { setVideoParameters, setVideoData, setSectionsPoints, setDrawLine, addSection, deleteSection, changeNameSection, setActiveSection, setProjectDirectory, setBathimetryFile, setBathimetryLevel, setPixelSize, setFirstFramePath } from '../store/data/dataSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
+import { convertInputData } from '../helpers/convertInputData';
 
 
 export const useDataSlice = () => {
     const { points, video, sections, activeSection, projectDirectory } = useSelector((state: RootState) => state.data);
     const dispatch = useDispatch();
 
-    const onSetVideoData = (video: File, type: string) => {
-        console.log("onSetVideoData")
+    const onInitProject = async (video: File, type: string) => {
+        console.log("onInitProject")
         dispatch(setLoading(true))
         const blob = URL.createObjectURL(video);
         const ipcRenderer = window.ipcRenderer;
-        const result = ipcRenderer.invoke('video-metadata', {path: video.path, name: video.name, type: type}).then(result => {
-        const videoData = {
+
+        try {
+            const result = await ipcRenderer.invoke('init-project', {path: video.path, name: video.name, type: type})
+            const videoData = {
                 name: video.name,
                 path: video.path,
                 width: result.width,
@@ -23,20 +26,15 @@ export const useDataSlice = () => {
                 fps: result.fps,
                 blob: blob,
                 duration: result.duration,
-                firstFrame: false
             };
             dispatch(setVideoData(videoData));
             dispatch(setProjectDirectory(result.directory));
             dispatch(setLoading(false));
-
-            return true;
-        }).catch((error) => {
-            console.log("Error en setVideoData (uploadFile)");
-            console.log(error);
-
-            return false;
-        });
-        return result;
+        } catch (error) {
+            console.log("Error en setVideoData (video-metadata)");
+            dispatch(setLoading(false));
+            throw error
+        }
     }
 
 
@@ -58,18 +56,16 @@ export const useDataSlice = () => {
         }
 
         const ipcRenderer = window.ipcRenderer;
-        await ipcRenderer.invoke('first-frame', args)
-            .then((message) => {
-                const messageObj = JSON.parse(message);
-                console.log(messageObj)
-                const firstFramePath = '/@fs' + messageObj.data.initial_frame;
-                dispatch(setVideoParameters({ ...parameters, firstFramePath: firstFramePath }))
-                dispatch(setLoading(false))
-            })
-            .catch((error) => {
-                console.log(error)
-        });
-        
+        try {
+            const result = await ipcRenderer.invoke('first-frame', args)
+            const messageJson = JSON.parse(result)
+            const firstFramePath = messageJson.data.initial_frame;
+            dispatch(setVideoParameters(parameters))
+            dispatch(setFirstFramePath(firstFramePath))
+            dispatch(setLoading(false))
+        } catch (error) {
+            console.log(error)
+        }        
     }
 
 
@@ -96,14 +92,38 @@ export const useDataSlice = () => {
          
         dispatch(setDrawLine())
     }
+    
+    const onSetPixelSize = async (data: FieldValues) => {
+        dispatch(setLoading(true))
+        const { pixel_size_LINE_LENGTH: lineLength, pixel_size_PIXEL_SIZE: pixelSize, pixel_size_EAST_point_1: east1, pixel_size_EAST_point_2: east2, pixel_size_NORTH_point_1: north1, pixel_size_NORTH_point_2: north2} = data
+        
+        const { points } = sections[0]
+        const pixelPoints = [points[0].x, points[0].y, points[1].x, points[1].y]
+        const rwPoints = [parseFloat(east1), parseFloat(north1), parseFloat(east2), parseFloat(north2)]
 
+        const args = {
+            pixelPoints: pixelPoints,
+            rwPoints: rwPoints,
+            pixelSize: pixelSize,
+            rw_length: lineLength,
+            directory: projectDirectory
+        }
+        const ipcRenderer = window.ipcRenderer;
+
+        try {
+            const result = await ipcRenderer.invoke('pixel-size', args)
+            console.log(result)
+            dispatch(setLoading(false))
+            dispatch(setPixelSize({ size: pixelSize, rw_lenght: lineLength}))
+            dispatch(setActiveSection(activeSection + 1))
+        } catch (error) {
+            console.log("ERROR EN SETPIXELSIZE")
+                console.log(error)
+        }
+    }
+    
     const onAddSection = (sectionNumber: number) => {
-        let str = `CS_default-${sectionNumber}`
-        sections.map((section) => {
-            if (section.name === str) {
-                str = `CS_default-${sections.length}`
-            }
-        })
+        let str = `CS_default_${sectionNumber}`
         const section = {
             name: str,
             drawLine: false,
@@ -132,35 +152,6 @@ export const useDataSlice = () => {
         dispatch(setActiveSection(index))
     }
 
-    const onSetPixelSize = (data: FieldValues) => {
-        dispatch(setLoading(true))
-        const {pixel_size_LINE_LENGTH: lineLength, pixel_size_PIXEL_SIZE: pixelSize, pixel_size_EAST_point_1: east1, pixel_size_EAST_point_2: east2, pixel_size_NORTH_point_1: north1, pixel_size_NORTH_point_2: north2} = data
-        
-        const { points } = sections[0]
-        const pixelPoints = [points[0].x, points[0].y, points[1].x, points[1].y]
-        const rwPoints = [parseFloat(east1), parseFloat(north1), parseFloat(east2), parseFloat(north2)]
-
-        const args = {
-            pixelPoints: pixelPoints,
-            rwPoints: rwPoints,
-            pixelSize: pixelSize,
-            rw_length: lineLength,
-            directory: projectDirectory
-        }
-        const ipcRenderer = window.ipcRenderer;
-
-        ipcRenderer.invoke('pixel-size', args)
-            .then(( message) => {
-                console.log(message)
-                dispatch(setLoading(false))
-            }).catch((error) => { 
-                console.log("ERROR EN SETPIXELSIZE")
-                console.log(error)
-            })
-
-        dispatch(setPixelSize({ size: pixelSize, rw_lenght: lineLength}))
-        dispatch(setActiveSection(activeSection + 1))
-    }
 
     const onSetBathimetryFile = ( file: File | '' ) => {
         if (file === '') return 
@@ -172,14 +163,95 @@ export const useDataSlice = () => {
         dispatch(setBathimetryLevel(level))
     }
 
+    const onSetSections = async (formData: FieldValues) => {
+        const csNames: string[] = []
+        sections.map((section, index) => {
+            if(index > 0){
+                csNames.push(section.name)
+            }
+        })
+        const data = convertInputData(formData, csNames)
+        const ipcRenderer = window.ipcRenderer;
+        try {
+            const result = await ipcRenderer.invoke('set-sections', {projectDirectory, data})
+            console.log(result)
+        } catch (error) {
+            console.log("ERROR EN SETSECTIONS")
+            console.log(error)
+        }
+    }
+
+    // * v1.0.0
+
+    const onLoadProject = async () => {
+        console.log("onLoadProject")
+        console.log(sections)
+        dispatch(setLoading(true))
+        const ipcRenderer = window.ipcRenderer;
+        try {
+            const result = await ipcRenderer.invoke('load-project')
+            
+            if( result.success ){
+                console.log(result.message)
+                const { data, projectDirectory, videoMetadata, firstFrame } = result.message 
+                
+                dispatch(setProjectDirectory(projectDirectory))
+                dispatch(setVideoData({
+                    width: videoMetadata.width,
+                    height: videoMetadata.height,
+                    fps: videoMetadata.fps,
+                    path: data.filepath,
+                    duration: videoMetadata.duration,
+                    name: null,
+                    blob: null
+                }))
+                if(firstFrame !== ''){
+                    dispatch(setFirstFramePath(firstFrame))
+                }
+
+                // dispatch(setLoading(false))
+                if(data.pixel_size){
+                    const { x1, y1, x2, y2} = data.pixel_size
+                    dispatch(setSectionsPoints([{x: x1, y: y1}, {x: x2, y: y2}]))
+                    dispatch(setDrawLine())
+                    return 4
+                } else if(data.video_range){
+                    const { step, start, end } = data.video_range
+                    dispatch(setVideoParameters({
+                        step: step,
+                        startFrame: start,
+                        endFrame: end,
+                        startTime: null,
+                        endTime: null
+                    }))
+                    return 3
+                } else {
+                    return 2
+                }
+
+            } else{
+                console.log(result.message)
+                dispatch(setLoading(false))
+                return result.message
+            }
+
+        } catch (error) {
+            console.log("Error EN onLoadProject")
+            console.log(error)
+            
+        }
+    }
+
+
     return {    
         points,
         video,
         sections,
         activeSection,
+        projectDirectory,
 
 
-        onSetVideoData,
+        onInitProject,
         onSetVideoParameters,
         onSetPoints,
         onSetDrawLine,
@@ -189,6 +261,10 @@ export const useDataSlice = () => {
         onSetActiveSection,
         onSetPixelSize,
         onSetBathimetryFile,
-        onSetBathimetryLevel
+        onSetBathimetryLevel,
+        onSetSections,
+        onLoadProject
     };
 };
+
+

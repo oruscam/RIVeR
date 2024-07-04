@@ -13,7 +13,7 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
   const { handleSubmit, register, setValue, getValues, watch} = useForm()
   const { t } = useTranslation()
   const [video, setVideo] = useState<HTMLVideoElement | null>(null)
-  const {nextStep} = useWizard()
+  const {nextStep, activeStep} = useWizard()
   const { onSetVideoParameters, video: videoData } = useDataSlice()
   const { onSetErrorMessage } = useUiSlice()
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 // * PROVISIONAL 
-export const InfoPixelSize = ({ animation }: string) => {
+export const InfoPixelSize = ({ animation }: { animation: string }) => {
     const [showInfo, setShowInfo] = useState(false)
     const [animationPath, setAnimationPath] = useState('')
     let timer: NodeJS.Timeout; 

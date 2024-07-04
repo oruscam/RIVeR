@@ -29,6 +29,11 @@
     justify-content: space-between;
     min-height: 130px;
 }
+
+.home-page-error{
+    color: var(--background-error)
+}
+
 /* 
 .home-page-footer{
     align-self: flex-end;

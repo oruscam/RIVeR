@@ -12,17 +12,25 @@ export const useUiSlice = () => {
     };
 
 
-    const onSetErrorMessage = (error: Record<string, { type: string, message: string }>) => {
-        let arrayOfErrors: string[] = [];
-        Object.entries(error).every(([, value]) => {
-            if (value.type === 'required') {
-                arrayOfErrors = [value.message];
-                return false;
-            } else {
-                arrayOfErrors.push(value.message);
+    const onSetErrorMessage = (error: Record<string, { type: string, message: string } | string>) => {
+        if(typeof error === 'string'){
+            dispatch(setErrorMessage([error]));
+        } else {
+            let arrayOfErrors: string[] = [];
+            if( error !== undefined) {
+                Object.entries(error).every(([, value]) => {
+                    if (typeof value === 'string') {
+                        arrayOfErrors.push(value);
+                    } else if (value.type === 'required') {
+                        arrayOfErrors = [value.message];
+                        return false;
+                    } else {
+                        arrayOfErrors.push(value.message);
+                    }
+                });
+                dispatch(setErrorMessage(arrayOfErrors));
             }
-        });
-        dispatch(setErrorMessage(arrayOfErrors));
+            }
         setTimeout(() => {
             dispatch(clearErrorMessage());
         }, 4000);
