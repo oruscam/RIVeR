@@ -1,9 +1,16 @@
+import json
+from io import TextIOWrapper
 from typing import Optional
 
 import click
+import numpy as np
 
 import river.core.coordinate_transform as ct
 from river.cli.commands.utils import render_response
+
+UAV_TYPE = "uav"
+
+MATRIX_SIZE_MAP = {UAV_TYPE: 9}
 
 
 @click.command(help="Compute the transformation matrix from pixel to real-world coordinates from 2 points")
@@ -26,3 +33,67 @@ def get_uav_transformation_matrix(
 	"""
 	matrix = ct.get_uav_transformation_matrix(*pix_coordinates, *rw_coordinates, pixel_size=pixel_size)
 	return {"uav_matrix": matrix.tolist()}
+
+
+@click.command(help="Transform pixel coordinates to real-world coordinates.")
+@click.argument("x-pix", type=click.FLOAT)
+@click.argument("y-pix", type=click.FLOAT)
+@click.argument("transformation-matrix", envvar="TRANSFORMATION_MATRIX", type=click.File())
+@click.option("-t", "--matrix-type", default=UAV_TYPE, type=click.Choice([UAV_TYPE]))
+@render_response
+def transform_pixel_to_real_world(
+	x_pix: float, y_pix: float, transformation_matrix: TextIOWrapper, matrix_type: str
+) -> dict:
+	"""Transform pixel coordinates to real-world coordinates.
+
+	Args:
+		x_pix (float): X coordinate to transform.
+		y_pix (float): Y coordinate to transform.
+		transformation_matrix (TextIOWrapper): File stream to read the transformation matrix.
+		matrix_type (str): Indicates the type of matrix (UAV, etc).
+
+	Returns:
+		dict: Containing the real world coordinates.
+	"""
+	transformation_matrix = np.array(json.loads(transformation_matrix.read()))
+
+	# TODO: Add validation for the matrix size
+	# if transformation_matrix.size != MATRIX_SIZE_MAP[matrix_type]:
+	# 	raise ValueError(
+	# 		"Wrong size of the transformation matrix. "
+	# 		f"The expected size for the '{matrix_type}' is {MATRIX_SIZE_MAP[matrix_type]}."
+	# 	)
+
+	return {"rw_coordinates": ct.transform_pixel_to_real_world(x_pix, y_pix, transformation_matrix).tolist()}
+
+
+@click.command(help="Transform real-world coordinates to pixel coordinates.")
+@click.argument("x-pix", type=click.FLOAT)
+@click.argument("y-pix", type=click.FLOAT)
+@click.argument("transformation-matrix", envvar="TRANSFORMATION_MATRIX", type=click.File())
+@click.option("-t", "--matrix-type", default=UAV_TYPE, type=click.Choice([UAV_TYPE]))
+@render_response
+def transform_real_world_to_pixel(
+	x_pix: float, y_pix: float, transformation_matrix: TextIOWrapper, matrix_type: str
+) -> dict:
+	"""Transform real-world coordinates to pixel coordinates.
+
+	Args:
+		x_pix (float): X coordinate to transform.
+		y_pix (float): Y coordinate to transform.
+		transformation_matrix (TextIOWrapper): File stream to read the transformation matrix.
+		matrix_type (str): Indicates the type of matrix (UAV, etc).
+
+	Returns:
+		dict: Containing the real world coordinates.
+	"""
+	transformation_matrix = np.array(json.loads(transformation_matrix.read()))
+
+	# TODO: Add validation for the matrix size
+	# if transformation_matrix.size != MATRIX_SIZE_MAP[matrix_type]:
+	# 	raise ValueError(
+	# 		"Wrong size of the transformation matrix. "
+	# 		f"The expected size for the '{matrix_type}' is {MATRIX_SIZE_MAP[matrix_type]}."
+	# 	)
+
+	return {"pix_coordinates": ct.transform_real_world_to_pixel(x_pix, y_pix, transformation_matrix).tolist()}
