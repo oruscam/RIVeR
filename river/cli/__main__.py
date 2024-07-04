@@ -1,6 +1,6 @@
 import click
 
-from river.cli.commands.coordinate_transform import get_uav_transformation_matrix
+import river.cli.commands.coordinate_transform as ct
 from river.cli.commands.video_to_frames import video_to_frames
 
 
@@ -13,7 +13,9 @@ def cli(ctx: click.Context, verbose: bool):
 
 
 cli.add_command(video_to_frames)
-cli.add_command(get_uav_transformation_matrix)
+cli.add_command(ct.get_uav_transformation_matrix)
+cli.add_command(ct.transform_pixel_to_real_world)
+cli.add_command(ct.transform_real_world_to_pixel)
 
 if __name__ == "__main__":
 	cli()
