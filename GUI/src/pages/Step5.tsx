@@ -5,7 +5,7 @@ import { CrossSections } from "../components/CrossSections/index"
 
 export const Step5 = () => {
   const { screenSizes } = useUiSlice()
-  const { video } = useDataSlice()
+  const { video, sections } = useDataSlice()
   
   const {width: windowWidth} = screenSizes
   const { data } = video
@@ -13,6 +13,7 @@ export const Step5 = () => {
 
   const values = getNewImageResolution(windowWidth, data.width, data.height)
   
+  console.log(sections)
 
   return (
     <div className="regular-page">

@@ -1,18 +1,22 @@
 import { ipcMain } from "electron";
-import { FirstFrameArgs } from "./interfaces";
+import { FirstFrameArgs, ProjectConfig } from "./interfaces";
 import { PythonShell } from "python-shell";
 import * as fs from 'fs'
 
-export function firstFrameHandler(){
+export function firstFrame(PROJECT_CONFIG: ProjectConfig){
+
     ipcMain.handle('first-frame', async( _event, args: FirstFrameArgs) => {
-        const folder = args.directory + '/frames';
+        PROJECT_CONFIG.framesPath = PROJECT_CONFIG.directory + '/frames';
+        const {videoPath, framesPath} = PROJECT_CONFIG
+
+
         const options = {
             pythonPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/venv/bin/python3',
             scriptPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/river/cli/',
             args: [
                 'video-to-frames',
-                args.video_path,
-                folder,
+                videoPath,
+                framesPath,
                 '--start-frame', args.start_frame,
                 '--end-frame', args.end_frame,
                 '--every', args.step,
@@ -20,7 +24,7 @@ export function firstFrameHandler(){
             ],
         }
 
-        const json = await fs.promises.readFile(args.directory + '/config.json', 'utf-8');
+        const json = await fs.promises.readFile(PROJECT_CONFIG.jsonPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
 
         jsonParsed.video_range = {
@@ -30,14 +34,14 @@ export function firstFrameHandler(){
         }
         
         const updatedContent = JSON.stringify(jsonParsed, null, 4);
-        await fs.promises.writeFile(args.directory + '/config.json', updatedContent, 'utf-8');
+        await fs.promises.writeFile(PROJECT_CONFIG.jsonPath, updatedContent, 'utf-8');
 
 
         return new Promise((resolve, reject) => {
             const pyshell = new PythonShell('__main__.py', options);
             pyshell.on('message', (message: string) => {
-                console.log(message);
-                resolve(message); // Resuelve la promesa con el mensaje recibido
+                const messageParsed = JSON.parse(message); 
+                resolve(messageParsed.data); // Resuelve la promesa con el mensaje recibido
             });
 
             pyshell.end((err: Error) => {

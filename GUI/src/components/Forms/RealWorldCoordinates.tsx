@@ -1,6 +1,7 @@
 import { useFormContext } from "react-hook-form";
 import { getPointNames } from "../../helpers/index";
-import { useUiSlice } from "../../hooks";
+import { useDataSlice, useUiSlice } from "../../hooks";
+import { useEffect } from "react";
 
 interface RealWorldCoordinatesProps {
     modeName: string;
@@ -12,6 +13,7 @@ export const RealWorldCoordinates = ({ modeName, rwCoordinates, setRwCoordinates
     const { pointName1, pointName2 } = getPointNames(modeName);
     const { register, setValue } = useFormContext()  
     const { onSetErrorMessage } = useUiSlice()
+    const { sections, activeSection } = useDataSlice()
 
 
     const handleInputField = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement> , nextFieldId: string ) => {
@@ -24,7 +26,6 @@ export const RealWorldCoordinates = ({ modeName, rwCoordinates, setRwCoordinates
           const target = event.target as HTMLInputElement;
           let error = {}
 
-            
           switch (target.id) {
             case `EAST_${pointName1}`:
                 if( value >= 0){

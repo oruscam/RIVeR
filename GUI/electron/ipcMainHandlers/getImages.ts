@@ -1,9 +1,9 @@
-import { IpcMain, ipcMain } from "electron";
+import { ipcMain } from "electron";
 import * as fs from 'fs/promises'
 
 
 export function getImages(){
-    ipcMain.handle('get-images', async (event, args) => {
+    ipcMain.handle('get-images', async (_event, args) => {
         console.log("ESTAMOS EN get-images")
         
         try {

@@ -84,9 +84,23 @@ export interface Metadata {
 }
 
 export interface FirstFrameArgs {
-  video_path: string;
   start_frame: string;
   end_frame: string;
   step: string;
+}
+
+export interface ProjectConfig {
   directory: string;
+  type: string;
+  videoPath: string;
+  matrixPath: string;
+  jsonPath: string;
+  framesPath: string
+}
+
+export interface pixelSizeHandleArgs {
+  pixelPoints: number[];
+  rwPoints: number[];
+  pixelSize: number;
+  rw_length: number;
 }

@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setVideoParameters, setVideoData, setSectionsPoints, setDrawLine, addSection, deleteSection, changeNameSection, setActiveSection, setProjectDirectory, setBathimetryFile, setBathimetryLevel, setPixelSize, setFirstFramePath } from '../store/data/dataSlice';
+import { setVideoParameters, setVideoData, setSectionPoints, setDrawLine, addSection, deleteSection, changeNameSection, setActiveSection, setProjectDirectory, setBathimetryFile, setBathimetryLevel, setPixelSize, setFirstFramePath, setVideoType, setSectionRealWorld } from '../store/data/dataSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { convertInputData } from '../helpers/convertInputData';
@@ -27,8 +27,12 @@ export const useDataSlice = () => {
                 blob: blob,
                 duration: result.duration,
             };
+            
             dispatch(setVideoData(videoData));
             dispatch(setProjectDirectory(result.directory));
+            dispatch(setVideoType(type));
+
+
             dispatch(setLoading(false));
         } catch (error) {
             console.log("Error en setVideoData (video-metadata)");
@@ -47,52 +51,47 @@ export const useDataSlice = () => {
             startFrame: Math.floor(parseFloat(data.start) * video.data.fps).toString(),
             endFrame: Math.floor(parseFloat(data.end) * video.data.fps).toString(),
         }
-        const args = {
-            video_path: video.data.path,
-            start_frame: parameters.startFrame,
-            end_frame: parameters.endFrame,
-            step: parameters.step,
-            directory: projectDirectory
-        }
 
         const ipcRenderer = window.ipcRenderer;
         try {
-            const result = await ipcRenderer.invoke('first-frame', args)
-            const messageJson = JSON.parse(result)
-            const firstFramePath = messageJson.data.initial_frame;
+            const result = await ipcRenderer.invoke('first-frame', {
+                start_frame: parameters.startFrame,
+                end_frame: parameters.endFrame,
+                step: parameters.step,
+            })
+            
             dispatch(setVideoParameters(parameters))
-            dispatch(setFirstFramePath(firstFramePath))
+            dispatch(setFirstFramePath(result.initial_frame))
             dispatch(setLoading(false))
+
         } catch (error) {
             console.log(error)
         }        
     }
-
 
     interface Point {
         x: number;
         y: number;
     }
 
-    const onSetPoints = (points: Point[], factorX: number, factorY: number) => {
+    const onSetPoints = async (points: Point[], factorX: number, factorY: number) => {
+        console.log(sections[activeSection].points)
+        console.log(video.type)
+
+        if( activeSection !== 0){
+            const result = await window.ipcRenderer.invoke('pixel-to-real-world', {points: points[0]})
+            console.log(result)
+        }
         const newPoints = points.map(point => {
             return {
                 x: parseFloat((point.x * factorX).toFixed(2)),
                 y: parseFloat((point.y * factorY).toFixed(2))
             };
         });
-        dispatch(setSectionsPoints(newPoints));
+        dispatch(setSectionPoints(newPoints));
     }
 
-    const onSetDrawLine = () => {
-        // SI EL DRAW LINE PASA DE TRUE A FALSE, LIMPIO LOS PUNTOS DE LA SECCION.
-        if(sections[activeSection].drawLine){
-            dispatch(setSectionsPoints([]))
-        }
-         
-        dispatch(setDrawLine())
-    }
-    
+
     const onSetPixelSize = async (data: FieldValues) => {
         dispatch(setLoading(true))
         const { pixel_size_LINE_LENGTH: lineLength, pixel_size_PIXEL_SIZE: pixelSize, pixel_size_EAST_point_1: east1, pixel_size_EAST_point_2: east2, pixel_size_NORTH_point_1: north1, pixel_size_NORTH_point_2: north2} = data
@@ -106,7 +105,6 @@ export const useDataSlice = () => {
             rwPoints: rwPoints,
             pixelSize: pixelSize,
             rw_length: lineLength,
-            directory: projectDirectory
         }
         const ipcRenderer = window.ipcRenderer;
 
@@ -115,12 +113,24 @@ export const useDataSlice = () => {
             console.log(result)
             dispatch(setLoading(false))
             dispatch(setPixelSize({ size: pixelSize, rw_lenght: lineLength}))
+            dispatch(setSectionRealWorld([{x: east1, y: north1}, {x: east2, y: north2}]))
             dispatch(setActiveSection(activeSection + 1))
+
         } catch (error) {
             console.log("ERROR EN SETPIXELSIZE")
                 console.log(error)
         }
     }
+
+    const onSetDrawLine = () => {
+        // SI EL DRAW LINE PASA DE TRUE A FALSE, LIMPIO LOS PUNTOS DE LA SECCION.
+        if(sections[activeSection].drawLine){
+            dispatch(setSectionPoints([]))
+        }
+         
+        dispatch(setDrawLine())
+    }
+    
     
     const onAddSection = (sectionNumber: number) => {
         let str = `CS_default_${sectionNumber}`
@@ -135,7 +145,7 @@ export const useDataSlice = () => {
                 level: 0
             },
             pixelSize: false,
-            hardMode: false
+            realWorld: []
         }
         dispatch(addSection(section))
     }
@@ -181,7 +191,7 @@ export const useDataSlice = () => {
         }
     }
 
-    // * v1.0.0
+    // * v0.0.1
 
     const onLoadProject = async () => {
         console.log("onLoadProject")
@@ -196,6 +206,7 @@ export const useDataSlice = () => {
                 const { data, projectDirectory, videoMetadata, firstFrame } = result.message 
                 
                 dispatch(setProjectDirectory(projectDirectory))
+                dispatch(setVideoType(data.type))
                 dispatch(setVideoData({
                     width: videoMetadata.width,
                     height: videoMetadata.height,
@@ -212,7 +223,7 @@ export const useDataSlice = () => {
                 // dispatch(setLoading(false))
                 if(data.pixel_size){
                     const { x1, y1, x2, y2} = data.pixel_size
-                    dispatch(setSectionsPoints([{x: x1, y: y1}, {x: x2, y: y2}]))
+                    dispatch(setSectionPoints([{x: x1, y: y1}, {x: x2, y: y2}]))
                     dispatch(setDrawLine())
                     return 4
                 } else if(data.video_range){

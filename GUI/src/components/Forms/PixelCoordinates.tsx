@@ -7,7 +7,7 @@ import { getPointNames } from "../../helpers/index.ts";
 export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
     const { register, setValue} = useFormContext();
     const { onSetErrorMessage } = useUiSlice();
-    const { sections, activeSection, onSetPoints} = useDataSlice();
+    const { sections, activeSection, onSetPoints, projectDirectory } = useDataSlice();
     const { points } = sections[activeSection]
     
     const { pointName1, pointName2 } = getPointNames(modeName);

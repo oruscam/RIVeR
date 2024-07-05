@@ -7,11 +7,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
 
 import { initProject } from './ipcMainHandlers/initProject.js'
-import { firstFrameHandler } from './ipcMainHandlers/firstFrameHandler.js'
+import { firstFrame } from './ipcMainHandlers/firstFrame.js'
 import { pixelSizeHandler } from './ipcMainHandlers/pixelSizeHandler.js'
 import { getImages } from './ipcMainHandlers/getImages.js'
 import { setSections } from './ipcMainHandlers/setSections.js'
 import { loadProject } from './ipcMainHandlers/loadProject.js'
+import pixelToRealWorld from './ipcMainHandlers/pixelToRealWorld.js'
+import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -69,16 +71,27 @@ app.on('activate', () => {
   }
 })
 
-
+const PROJECT_CONFIG: ProjectConfig = {
+  directory: "",
+  type: "",
+  videoPath: "",
+  jsonPath: "",
+  framesPath: "",
+  matrixPath: "",
+}
 
 app.whenReady().then(() => {
   createWindow();
-  initProject(userDir);
+  initProject(userDir, PROJECT_CONFIG);
   loadProject();
-  firstFrameHandler();
-  pixelSizeHandler();
-  getImages();
+
+  firstFrame(PROJECT_CONFIG);
+  pixelSizeHandler(PROJECT_CONFIG);
+  pixelToRealWorld(PROJECT_CONFIG);
+
+
   setSections();
+  getImages();
 })
 
 

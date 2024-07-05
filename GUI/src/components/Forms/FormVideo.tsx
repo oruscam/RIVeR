@@ -10,15 +10,22 @@ import { useDataSlice } from '../../hooks';
 
 
 export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateAction<number>> }) => {
-  const { handleSubmit, register, setValue, getValues, watch} = useForm()
-  const { t } = useTranslation()
-  const [video, setVideo] = useState<HTMLVideoElement | null>(null)
-  const {nextStep, activeStep} = useWizard()
   const { onSetVideoParameters, video: videoData } = useDataSlice()
+  const { startTime, endTime, step } = videoData.parameters
+  const { handleSubmit, register, setValue, getValues, watch} = useForm({
+    defaultValues: {
+      start: startTime,
+      end: endTime,
+      step: 
+    }
+  })
+  const [video, setVideo] = useState<HTMLVideoElement | null>(null)
+  const { t } = useTranslation()
+  const {nextStep } = useWizard()
   const { onSetErrorMessage } = useUiSlice()
 
   const watchStep = watch('step')
-  const duration = videoData.data.duration
+  const { duration } = videoData.data
 
   const validationRules = getValidationRules(t, getValues, duration)
 
