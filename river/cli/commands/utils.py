@@ -5,6 +5,7 @@ from typing import Callable
 
 import click
 
+from river.cli.commands.exceptions import RiverCLIException
 from river.core.exceptions import RiverCoreException
 
 
@@ -28,7 +29,7 @@ def render_response(func: Callable[..., dict]):
 	def inner(*args, **kwargs):
 		try:
 			response = RiverResponse(data=func(*args, **kwargs))
-		except RiverCoreException as river_err:
+		except (RiverCoreException, RiverCLIException) as river_err:
 			response = RiverResponse(error={"message": str(river_err)})
 		except Exception as err:
 			message = f"Unexpected error: {err}"
