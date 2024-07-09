@@ -1,0 +1,119 @@
+import { FormCrossSections } from "../Forms"
+import { FieldValues, FormProvider, useForm} from "react-hook-form"
+import { Sections } from "./Sections"
+import './crossSections.css'
+import { useDataSlice, useUiSlice } from "../../hooks"
+import { EyeBall } from "./EyeBall"
+import { useWizard } from "react-use-wizard"
+import { useEffect, useState } from "react"
+
+
+
+interface Section {
+    name: string;
+    drawLine: boolean;
+    points: Point[];
+    bathimetry: Bathimetry
+    pixelSize: PixelSize
+    realWorld: Point[];
+}
+
+const createInitialState = (sections: Section[]) => {
+    let defaultValues = {};
+  
+    sections.forEach((section) => {
+        if ( section.name !== 'pixel_size'){
+            const {name, points, realWorld, pixelSize, bathimetry} = section
+            const baseKey = name;
+            defaultValues = {
+                ...defaultValues,
+                [`${baseKey}_CS_LENGTH`]: pixelSize.rw_lenght,
+                [`${baseKey}_CS_BATHIMETRY`]: { "blob": bathimetry.blob, "path": bathimetry.path, "name": bathimetry.name},
+                [`${baseKey}_LEVEL`]: bathimetry.level,
+                [`${baseKey}_EAST_Left`]: realWorld[0].x.toFixed(4),
+                [`${baseKey}_NORTH_Left`]: realWorld[0].y.toFixed(4),
+                [`${baseKey}_EAST_Right`]: realWorld[1].x.toFixed(4),
+                [`${baseKey}_NORTH_Right`]: realWorld[1].y.toFixed(4),
+                [`${baseKey}_X_Left`]: points.length === 0 ? 0 : points[0].x.toFixed(4),
+                [`${baseKey}_Y_Left`]: points.length === 0 ? 0 : points[0].y.toFixed(4),
+                [`${baseKey}_X_Right`]: points.length === 0 ? 0 : points[1].x.toFixed(4),
+                [`${baseKey}_Y_Right`]: points.length === 0 ? 0 : points[1].y.toFixed(4),
+            };
+
+        }
+    });
+  
+    return defaultValues;
+  };
+
+export const CrossSections = () => {
+    const { sections, activeSection, onSetSections }= useDataSlice() // Wrap the sections variable inside an array
+    const { onSetErrorMessage } = useUiSlice();
+    const [ deletedSections, setDeletedSections] = useState('')
+    const methods = useForm({defaultValues: createInitialState(sections)})
+    const { nextStep } = useWizard()
+
+
+    const unregisterFieldsStartingWith = (prefix: string) => {
+        const allValues = methods.getValues(); // Obtiene todos los campos registrados y sus valores
+        const fieldNames = Object.keys(allValues); // Obtiene los nombres de todos los campos
+    
+        // Filtra los nombres de los campos que comienzan con el prefijo deseado
+        const fieldsToUnregister = fieldNames.filter(fieldName => fieldName.startsWith(prefix));
+    
+        // Desregistra cada campo que coincide
+        fieldsToUnregister.forEach(fieldName => methods.unregister(fieldName));
+      };
+
+    const onSubmit = ( data: FieldValues ) => {
+        // PROVISIONAL
+        onSetSections(data)
+        // nextStep()
+    }
+
+    const onError = ( errors: any ) => {
+        onSetErrorMessage(errors)
+    }
+
+    // * Desregistra las secciones eliminadas
+
+    useEffect(() => {
+        if( deletedSections !== '' ){
+            unregisterFieldsStartingWith(deletedSections)
+        }
+        setDeletedSections('')
+
+    }, [deletedSections])
+
+    // * Actualiza el formulario
+    useEffect(() => {
+        methods.reset(createInitialState(sections))
+    }, [sections[activeSection]])
+
+
+    // console.log(sections[activeSection].realWorld)
+
+    return (
+        <>
+            <div className="cross-section-header">        
+                <EyeBall></EyeBall>              
+                <h2 className="cross-sections-title"> Cross Sections </h2>
+                <span></span>
+            </div>
+            <Sections setDeletedSections={setDeletedSections} deletedSections={deletedSections}></Sections>
+            <FormProvider {...methods}>
+            {
+                sections.map((section, index: number) => {
+                    if (activeSection === (index) && index >= 1) {
+                        return (
+                            <FormCrossSections key={section.name} onSubmit={methods.handleSubmit(onSubmit, onError)} name={section.name}/>
+                        )
+                    } else {
+                        return null;
+                    }
+                })
+            }
+            </FormProvider>
+        </>
+    )
+}
