@@ -134,7 +134,7 @@ def create_mask_and_bbox(image, json_path, height_roi, transformation_matrix):
                                             coordinates to pixel coordinates.
 
     Returns:
-        tuple: Combined mask and bounding box coordinates in pixel units.
+         tuple: Combined mask and bounding box coordinates in pixel units (x, y, width, height).
     """
     with open(json_path, 'r') as file:
         data = json.load(file)
@@ -165,7 +165,9 @@ def create_mask_and_bbox(image, json_path, height_roi, transformation_matrix):
     min_y = np.clip(min_y, 0, image.shape[0] - 1)
     max_y = np.clip(max_y, 0, image.shape[0] - 1)
 
-    bounding_box = np.array([[min_x, min_y], [max_x, min_y], [max_x, max_y], [min_x, max_y]], dtype=np.int32)
+    width = max_x - min_x
+    height = max_y - min_y
+    bounding_box = [min_x, min_y, width, height]
 
     return combined_mask, bounding_box
 
@@ -316,11 +318,9 @@ def recommend_height_roi(json_path, window_size, transformation_matrix):
 #
 # lenghts_bbox = calculate_side_lengths(bbox)
 #
-# min_x, min_y, max_x, max_y = bounding_box[0][0], bounding_box[0][1], bounding_box[2][0], bounding_box[2][1]
-# box_width = max_x - min_x
-# box_height = max_y - min_y
+# combined_mask, bbox = create_mask_and_bbox(image, json_path, height_roi, T)
 #
 #
 #
-# rect = patches.Rectangle((min_x, min_y), box_width, box_height, linewidth=2, edgecolor='red', facecolor='none')
+# rect = patches.Rectangle((bbox[0],bbox[1]),bbox[2],bbox[3], linewidth=2, edgecolor='red', facecolor='none')
 # ax.add_patch(rect)
