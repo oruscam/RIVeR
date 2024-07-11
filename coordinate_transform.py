@@ -83,12 +83,12 @@ def uav_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_r
 
     # Step 4: Translate the first pixel point to the origin
     translated_x1 = x1_rw - (x1_pix * pixel_size * cos_theta - y1_pix * pixel_size * sin_theta)
-    translated_y1 = y1_rw - (x1_pix * pixel_size * sin_theta + y1_pix * pixel_size * cos_theta)
+    translated_y1 = y1_rw - (-x1_pix * pixel_size * sin_theta - y1_pix * pixel_size * cos_theta)
 
     # Step 5: Create the scaling and translation matrix
     scale_translation_matrix = np.array([
         [pixel_size, 0, translated_x1],
-        [0, pixel_size, translated_y1],
+        [0, -pixel_size, translated_y1],
         [0, 0, 1]
     ])
 
@@ -156,13 +156,18 @@ def real_world_to_pixel(x_rw, y_rw, transformation_matrix):
 # I = cv2.imread(
 #     '/Users/antoine/Dropbox/04_Auto_Entrepreneur/01_Actual/03_Contrats/20191103_Canada/05_Training/Case_1/DJI_0083/DJI_0083_seq1_00002.jpg')
 #
-# x1_pix, y1_pix = 1700, 1345
-# x2_pix, y2_pix = 2474, 841
+# x1_pix, y1_pix = 1700, 1000
+# x2_pix, y2_pix = 2474, 900
 # x1_rw, y1_rw = 25, 0
 # x2_rw, y2_rw = 0, 0
 #
-# T, scale = ct.uav_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_rw, y2_rw)
+# plt.imshow(I)
+# plt.plot((x1_pix, x2_pix ),(y1_pix, y2_pix))
 #
+# T, scale = uav_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_rw, y2_rw)
+#
+# pt = real_world_to_pixel(5, 5, T)
+# plt.plot(pt[0], pt[1], 'r+', markersize=10)
 #
 # height_roi, width_roi = 10, 25
 # x0_rw, y0_rw = 0, -height_roi / 2

@@ -1,7 +1,7 @@
+#define_roi_masks.py
+import matplotlib.pyplot as plt
 import numpy as np
 import cv2
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 import coordinate_transform as ct
 import json
 import scipy.optimize as opt
@@ -273,52 +273,64 @@ def recommend_height_roi(json_path, window_size, transformation_matrix):
     return recommended_height_roi
 
 # Example usage:
-# # Input coordinates of the line and height of the rectangle
-# east_left = 0
-# north_left = 0
-# east_right = 100
-# north_right = 0
-# height_roi = 20
-#
-# # Create the rectangular box and get the image with the box
-# rw_box = create_rw_box(east_left, north_left, east_right, north_right, height_roi)
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+# SCALING
+x1_pix, y1_pix = 990, 1394
+x2_pix, y2_pix = 2000, 1394
+x1_rw, y1_rw = 0, 0
+x2_rw, y2_rw = 100, 0
+
+T, scale = ct.uav_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_rw, y2_rw)
+
+
+# Input coordinates of the line and height of the rectangle CS
+east_left = 10
+north_left = -10
+east_right = 100
+north_right = 0
+height_roi = 20
+
+# Create the rectangular box and get the image with the box
+rw_box = create_rw_box(east_left, north_left, east_right, north_right, height_roi)
 #
 # fig, ax = plt.subplots(1)
 #
-# ax.plot([east_left, east_right], [north_left, north_right], color='red', linewidth=2, label='Line')
+# ax.plot([east_left, east_right], [north_left, north_right], color='blue', linewidth=2, label='Line')
 # # Create a polygon for the rectangle
-# polygon = patches.Polygon(rw_box, closed=True, edgecolor='blue', facecolor='none', linewidth=2, label='Rectangular Box')
+# polygon = patches.Polygon(rw_box, closed=True, edgecolor='green', facecolor='none', linewidth=2, label='Rectangular Box')
 # ax.add_patch(polygon)
+
+
+image = plt.imread('/Users/antoine/Dropbox/04_Auto_Entrepreneur/01_Actual/03_Contrats/20191103_Canada/05_Training/Case_1/DJI_0083/DJI_0083_seq1_00003.jpg')
+plt.imshow(image)
+
+
 #
+pixel_box = rw_box_to_pixel(rw_box, T)
+fig, ax = plt.subplots(1)
+ax.imshow(image)
+ax.plot([x1_pix, x2_pix], [y1_pix, y2_pix], color='red', linewidth=2, label='Line')
+# Create a polygon for the rectangle
+polygon = patches.Polygon(pixel_box, closed=True, edgecolor='blue', facecolor='none', linewidth=2, label='Rectangular Box')
+ax.add_patch(polygon)
+
+
+
+
+
+mask = create_mask(image, pixel_box)
+ax.imshow(mask)
 #
-# image = plt.imread('/Users/antoine/Dropbox/04_Auto_Entrepreneur/01_Actual/03_Contrats/20191103_Canada/05_Training/Case_1/DJI_0083/DJI_0083_seq1_00003.jpg')
-# plt.imshow(image)
-# x1_pix, y1_pix = 990, 1394
-# x2_pix, y2_pix = 2902, 1280
-# x1_rw, y1_rw = 100, 0
-# x2_rw, y2_rw = 0, 0
-# #
-# T, scale = ct.uav_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_rw, y2_rw)
-#
-# pixel_box = rw_box_to_pixel(rw_box, T)
-# fig, ax = plt.subplots(1)
-# ax.imshow(image)
-# ax.plot([x1_pix, x2_pix], [y1_pix, y2_pix], color='red', linewidth=2, label='Line')
-# # Create a polygon for the rectangle
-# polygon = patches.Polygon(pixel_box, closed=True, edgecolor='blue', facecolor='none', linewidth=2, label='Rectangular Box')
-# ax.add_patch(polygon)
-#
-# mask = create_mask(image, pixel_box)
-# ax.imshow(mask)
-#
-# json_path = '/Users/antoine/river/sections.json'
-# combined_mask, bbox = create_mask_and_bbox(image, json_path, height_roi, T)
-# fig, ax = plt.subplots()
-# ax.imshow(combined_mask, cmap='gray')
-#
+json_path = '/Users/antoine/river/sections.json'
+combined_mask, bbox = create_mask_and_bbox(image, json_path, height_roi, transformation_matrix)
+fig, ax = plt.subplots()
+ax.imshow(combined_mask, cmap='gray')
+
 # lenghts_bbox = calculate_side_lengths(bbox)
 #
-# combined_mask, bbox = create_mask_and_bbox(image, json_path, height_roi, T)
+combined_mask, bbox = create_mask_and_bbox(image, json_path, height_roi, transformation_matrix)
+plt.imshow(combined_mask)
 #
 #
 #

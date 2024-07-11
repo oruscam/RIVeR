@@ -8,7 +8,7 @@
             "yl": 785,
             "east_l": 0,
             "north_l": 0,
-            "east_r": 100,
+            "east_r": 30,
             "north_r": 0
         },
         "CS_02": {
@@ -17,10 +17,10 @@
             "yl": 210,
             "xr": 1000,
             "yl": 820,
-            "east_l": 10,
-            "north_l": 136,
-            "east_r": 50,
-            "north_r": 25
+            "east_l": -1,
+            "north_l": -5,
+            "east_r": 40,
+            "north_r": 7
         }
     }
 }
