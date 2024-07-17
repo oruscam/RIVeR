@@ -1,9 +1,31 @@
 import { useState } from "react"
 import { ButtonLock } from "../ButtonLock"
 import { HardModeProcessing } from "./HardModeProcessing"
+import { useForm } from "react-hook-form"
+import { useDataSlice } from "../../hooks"
 
 export const FormProcessing = () => {
   const [extraFields, setExtraFields] = useState(false)
+  const { processing, onUpdateProccesing } = useDataSlice();
+  const { step1 } = processing
+  const { register, reset } = useForm({defaultValues: {
+    "step_1": step1,
+    "step_2": step1 / 2
+  }})
+
+  const handleInputStep = ( event: { key: string; type: string; preventDefault: () => void; target: { value: string } } ) => {
+    if(event.key === "Enter" || event.type === "blur"){
+        event.preventDefault()
+        const value = parseInt(event.target.value)
+        if( value >= 64 && value <= 512 && (value & (value -1 )) === 0 ){
+            onUpdateProccesing({step1: value})
+            reset({step_1: value, step_2: value / 2})
+        } else{
+            reset({step_1: step1})
+        }
+    } 
+  }
+
 
   return (
     <>
@@ -24,12 +46,17 @@ export const FormProcessing = () => {
 
                 <div className="input-container">
                     <label className="read-only me-1" htmlFor="processing-STEP_1"> Step 1 </label>
-                    <input className="input-field" id="processing-STEP_1"></input>
+                    <input  className="input-field"
+                            id="processing-STEP_1" 
+                            type="number" 
+                            {...register('step_1')}
+                            onKeyDown={handleInputStep}
+                            onBlur={handleInputStep}
+                            ></input>
                 </div>
                 <div className="input-container">
                     <label className="read-only me-1" htmlFor="processing-STEP_2"> Step 2 </label>
-                    <input className="input-field" id="processing-STEP_2"></input>
-
+                    <input className="input-field" id="processing-STEP_2" readOnly {...register('step_2')}></input>
                 </div>
 
                 <button className="wizard-button form-button mt-2"> Test </button>

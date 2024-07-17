@@ -59,12 +59,20 @@ interface Video {
     type: string;
 }
 
+interface Processing {
+    par: string[];
+    step1: number;
+}
+
 interface DataState {
     projectDirectory: string;
     video: Video;
     sections: Section[];
     activeSection: number;
+    processing: Processing;
 }
+
+
 
 const defaultVideo = {
     data : {
@@ -94,7 +102,8 @@ const defaultSections = [{
     bathimetry: {
         blob: '',
         level: 0,
-        path: ''
+        path: '',
+        name: ''
     },
     pixelSize: {size: 0, rw_lenght: 0},
     realWorld: [{x: 0, y: 0}, {x: 0, y: 0}]
@@ -106,25 +115,27 @@ const defaultSections = [{
     bathimetry: {
         blob: '',
         level: 0,
-        path: ''
+        path: '',
+        name: ''
     },
     pixelSize: {size: 0, rw_lenght: 0},
     realWorld: [{x: 0, y: 0}, {x: 0, y: 0}]
     }
 ]
 
+
 const initialState: DataState = {
     projectDirectory: "",
     video: defaultVideo,
     sections: defaultSections,
-    activeSection: 0
+    activeSection: 0,
+    processing: { par: ['', "1", '', "2"], step1: 128 }
 };
 
 const dataSlice = createSlice({
     name: 'data',
     initialState,
     reducers: {
-
         //  TODO: UNIFICAR 
         setProjectDirectory: (state, action: PayloadAction<string>) => {
             state.projectDirectory = action.payload;
@@ -142,6 +153,7 @@ const dataSlice = createSlice({
         },
         setFirstFramePath: (state, action: PayloadAction<string>) => {
             state.video.firstFramePath = action.payload;
+            state.processing.par[0] = action.payload;
         },
         
         // ** Interaction with PixelSize.
@@ -149,20 +161,16 @@ const dataSlice = createSlice({
             state.sections[state.activeSection].pixelSize = action.payload;
         }, 
 
-        // ** Interaction with sections.
+        // ** Interaction with sections points.
 
         setSectionPoints: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].points = action.payload;
         },
 
-
         setSectionRealWorld: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].realWorld = action.payload;
         },
 
-        setDrawLine: (state) => {
-            state.sections[state.activeSection].drawLine = !state.sections[state.activeSection].drawLine;
-        },
         addSection: (state, action: PayloadAction<Section>) => {
             state.sections.push(action.payload);
             state.activeSection = state.sections.length - 1;
@@ -176,31 +184,18 @@ const dataSlice = createSlice({
         setActiveSection: (state, action: PayloadAction<number>) => {
             state.activeSection = action.payload;
         },
-        changeNameSection: (state, action: PayloadAction<string>) => {
-            state.sections[state.activeSection].name = action.payload
-        },
 
-        setBathimetryFile: ( state, action: PayloadAction<BathFile>) => {
-            state.sections[state.activeSection].bathimetry.blob = action.payload.blob;
-            state.sections[state.activeSection].bathimetry.path = action.payload.path
-        },
-        
-        setBathimetryLevel: ( state, action: PayloadAction<number>) => {
-            state.sections[state.activeSection].bathimetry.level = action.payload;
-        },
 
         updateSection: (state, action: PayloadAction<Section>) => {
             state.sections[state.activeSection] = action.payload
         },
 
+        updateProcessing: (state, action: PayloadAction<Processing>) => {
+            state.processing = action.payload
+        }
 
 
-        // *******************************
 
-
-        // setVideoParameters: (state, action: PayloadAction<VideoParameters>) => {
-        //     state.video.parameters = action.payload;
-        // }
     },
 });
 
@@ -209,18 +204,15 @@ export const {
     setVideoParameters, 
     setVideoData, 
     setSectionPoints, 
-    setDrawLine, 
+    setSectionRealWorld,
     setActiveSection, 
     addSection, 
     deleteSection, 
-    changeNameSection, 
     setPixelSize,
-    setBathimetryFile,
-    setBathimetryLevel,
     setFirstFramePath,
     setVideoType,
-    setSectionRealWorld,
-    updateSection
+    updateSection,
+    updateProcessing
  } = dataSlice.actions;
 
 export default dataSlice.reducer;

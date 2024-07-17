@@ -32,10 +32,10 @@ export const Step4 = () => {
   const { nextStep  } = useWizard()
   const { onSetErrorMessage, screenSizes } = useUiSlice()
   
-  const { width: windowWidth } = screenSizes
+  const { width: windowWidth, height: windowHeight } = screenSizes
   const { data } = video 
 
-  const values = getNewImageResolution(windowWidth, data.width, data.height)
+  const { height, width, factor } = getNewImageResolution(windowWidth, windowHeight, data.width, data.height)
 
 
   const onSubmit = (data: FieldValues) => {
@@ -67,7 +67,7 @@ export const Step4 = () => {
   return (
     <div className='regular-page'>
       <div className='media-container'>
-        <ImageWithMarks height={values.height} width={values.width} factor={values.factor}></ImageWithMarks>
+        <ImageWithMarks height={height} width={width} factor={factor}></ImageWithMarks>
         <Error/>
       </div>
       <div className='form-container'>
@@ -76,7 +76,7 @@ export const Step4 = () => {
           <FormPixelSize 
             onSubmit={methods.handleSubmit(onSubmit, onError)}
             onError={onError}
-            factor={values.factor}
+            factor={factor}
           />
         </FormProvider>
         <WizardButtons canFollow={sections[0].points.length === 2} formId='form-pixel-size'/>

@@ -30,14 +30,14 @@ const createInitialState = (sections: Section[]) => {
                 [`${baseKey}_CS_LENGTH`]: pixelSize.rw_lenght,
                 [`${baseKey}_CS_BATHIMETRY`]: { "blob": bathimetry.blob, "path": bathimetry.path, "name": bathimetry.name},
                 [`${baseKey}_LEVEL`]: bathimetry.level,
-                [`${baseKey}_EAST_Left`]: realWorld[0].x.toFixed(4),
-                [`${baseKey}_NORTH_Left`]: realWorld[0].y.toFixed(4),
-                [`${baseKey}_EAST_Right`]: realWorld[1].x.toFixed(4),
-                [`${baseKey}_NORTH_Right`]: realWorld[1].y.toFixed(4),
-                [`${baseKey}_X_Left`]: points.length === 0 ? 0 : points[0].x.toFixed(4),
-                [`${baseKey}_Y_Left`]: points.length === 0 ? 0 : points[0].y.toFixed(4),
-                [`${baseKey}_X_Right`]: points.length === 0 ? 0 : points[1].x.toFixed(4),
-                [`${baseKey}_Y_Right`]: points.length === 0 ? 0 : points[1].y.toFixed(4),
+                [`${baseKey}_EAST_Left`]: realWorld[0].x.toFixed(2),
+                [`${baseKey}_NORTH_Left`]: realWorld[0].y.toFixed(2),
+                [`${baseKey}_EAST_Right`]: realWorld[1].x.toFixed(2),
+                [`${baseKey}_NORTH_Right`]: realWorld[1].y.toFixed(2),
+                [`${baseKey}_X_Left`]: points.length === 0 ? 0 : points[0].x.toFixed(1),
+                [`${baseKey}_Y_Left`]: points.length === 0 ? 0 : points[0].y.toFixed(1),
+                [`${baseKey}_X_Right`]: points.length === 0 ? 0 : points[1].x.toFixed(1),
+                [`${baseKey}_Y_Right`]: points.length === 0 ? 0 : points[1].y.toFixed(1),
             };
 
         }
@@ -66,9 +66,8 @@ export const CrossSections = () => {
       };
 
     const onSubmit = ( data: FieldValues ) => {
-        // PROVISIONAL
         onSetSections(data)
-        // nextStep()
+        nextStep()
     }
 
     const onError = ( errors: any ) => {

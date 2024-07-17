@@ -8,6 +8,9 @@ import { Points } from './Points'
 import { ImageWithMarks } from './ImageWithMarks'
 import { Loading } from './Loading'
 import { Progress } from './Progress'
+import { SimpleImage } from './SimpleImage'
+import { DrawSections } from './DrawSections'
+import { Carousel } from './Carousel'
 
 export {
     Error,
@@ -19,5 +22,8 @@ export {
     LineAndText,
     Points,
     Loading, 
-    Progress
+    Progress,
+    SimpleImage,
+    DrawSections,
+    Carousel
 }

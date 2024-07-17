@@ -25,10 +25,7 @@ export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
 
     const { register} = useFormContext()
 
-
-    
     const [extraFields, setExtraFields] = useState(false)
-
     const { onSetErrorMessage } = useUiSlice()
 
 

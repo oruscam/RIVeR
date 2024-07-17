@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setVideoParameters, setVideoData, setSectionPoints, setDrawLine, addSection, deleteSection, changeNameSection, setActiveSection, setProjectDirectory, setBathimetryFile, setBathimetryLevel, setPixelSize, setFirstFramePath, setVideoType, setSectionRealWorld, updateSection } from '../store/data/dataSlice';
+import { setVideoParameters, setVideoData, setSectionPoints, addSection, deleteSection, setActiveSection, setProjectDirectory,   setPixelSize, setFirstFramePath, setVideoType, setSectionRealWorld, updateSection, updateProcessing } from '../store/data/dataSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { convertInputData } from '../helpers/convertInputData';
@@ -8,7 +8,7 @@ import { computePixelSize } from '../helpers';
 
 
 export const useDataSlice = () => {
-    const { video, sections, activeSection, projectDirectory } = useSelector((state: RootState) => state.data);
+    const { video, sections, activeSection, projectDirectory, processing } = useSelector((state: RootState) => state.data);
     const dispatch = useDispatch();
 
     const onInitProject = async (video: File, type: string) => {
@@ -75,19 +75,6 @@ export const useDataSlice = () => {
         y: number;
     }
 
-   
-
-    // const onSetPoints = (points: Point[], factor: {x: number, y: number}) => {
-
-    //     const newPoints = points.map(point => {
-    //         return {
-    //             x: parseFloat((point.x * factor.x).toFixed(2)),
-    //             y: parseFloat((point.y * factor.y).toFixed(2))
-    //         };
-    //     });
-    //     dispatch(setSectionPoints(newPoints));
-    // }
-
     interface CanvasPoint {
         points: Point[];
         factor: {x: number, y: number};
@@ -103,7 +90,9 @@ export const useDataSlice = () => {
         console.log("ON SET POINTS")
         const { realWorld, points } = sections[activeSection];
         
-        //*  Las banderas las utilizo para no hacer calculos que ya estan hechos. Identifico que punto se esta modificando y solo hago ese calculo.
+        // Las banderas las utilizo para no hacer calculos que ya estan hechos. 
+        // Identifico que punto se esta modificando y solo hago el calculo para el punto en cuestion.
+
         let flag1 = false;
         let flag2 = false
         
@@ -119,8 +108,8 @@ export const useDataSlice = () => {
             } else { flag2 = true }
             newPoints = canvasPoints.map((point) => {
                 return {
-                    x: parseFloat((point.x * factor.x).toFixed(2)),
-                    y: parseFloat((point.y * factor.y).toFixed(2))
+                    x: parseFloat((point.x * factor.x).toFixed(1)),
+                    y: parseFloat((point.y * factor.y).toFixed(1))
                 }
             })
         }
@@ -173,14 +162,8 @@ export const useDataSlice = () => {
             } else {
                 const {size, rw_lenght} = computePixelSize(newPoints as Point[], realWorld)
                 dispatch(setPixelSize({size, rw_lenght}))
-            }
-    
-        
-    
+            }    
     }
-
-    
-
 
     const onSetRealWorld = async (point: string | number, position: string) => {
         const { realWorld, points } = sections[activeSection];
@@ -239,11 +222,11 @@ export const useDataSlice = () => {
             pixelSize: pixelSize.size,
             rw_length: pixelSize.rw_lenght,
         }
-
         const ipcRenderer = window.ipcRenderer;
 
         try {
             const result = await ipcRenderer.invoke('pixel-size', args)
+            console.log(result)
             dispatch(setLoading(false))
             dispatch(setActiveSection(activeSection + 1))
 
@@ -337,7 +320,8 @@ export const useDataSlice = () => {
             bathimetry: {
                 blob: "",
                 path: "",
-                level: 0
+                level: 0,
+                name: ""
             },
             pixelSize: {size: 0, rw_lenght: 0},
             realWorld: [{x: 0, y: 0}, {x: 0, y: 0}]
@@ -348,6 +332,28 @@ export const useDataSlice = () => {
     const onDeleteSection = () => {
         dispatch(deleteSection())
     }
+
+
+    // const onSetProcessingImages = (images: string[]) => {
+    //     dispatch(setProcessingImages(images))
+    // }
+
+    interface Processing {
+        images?: string[];
+        step1?: number;
+    }
+
+    const onUpdateProccesing = ( value: Processing) => {
+        if( value.images){
+            dispatch(updateProcessing({...processing, par: value.images}))
+        }
+        if(value.step1){
+            console.log("OMD")
+            dispatch(updateProcessing({...processing, step1: value.step1}))
+        }
+    }
+
+
 
     // * v0.0.1
 
@@ -382,7 +388,7 @@ export const useDataSlice = () => {
                 if(data.pixel_size){
                     const { x1, y1, x2, y2} = data.pixel_size
                     dispatch(setSectionPoints([{x: x1, y: y1}, {x: x2, y: y2}]))
-                    dispatch(setDrawLine())
+                    // dispatch(setDrawLine())
                     return 4
                 } else if(data.video_range){
                     const { step, start, end } = data.video_range
@@ -417,6 +423,7 @@ export const useDataSlice = () => {
         sections,
         activeSection,
         projectDirectory,
+        processing,
 
 
         onInitProject,
@@ -431,7 +438,8 @@ export const useDataSlice = () => {
         onSetSections,
         onLoadProject,
         onSetRealWorld,
-        onUpdateSection
+        onUpdateSection,
+        onUpdateProccesing
     };
 };
 
