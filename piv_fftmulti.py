@@ -1,5 +1,6 @@
 """
-Project Name: PIV Analysis with FFT
+File Name: piv_fftmulti.py
+Project Name: RIVeR-LAC
 Description: Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
 
 Created Date: 2024-07-18
@@ -15,6 +16,26 @@ import numpy as np
 from scipy.sparse import coo_matrix
 from scipy import interpolate
 import matlab_smoothn as smoothn
+
+# Example of usage
+# import define_roi_masks as drm
+# from matplotlib import pyplot as plt
+# import cv2
+#
+# image1 = cv2.imread('0000000001.jpg', cv2.IMREAD_GRAYSCALE)
+# image2 = cv2.imread('0000000003.jpg', cv2.IMREAD_GRAYSCALE)
+# interrogationarea = 128
+# json_transformation = 'uav_transformation_matrix.json'
+# json_settings = 'sections.json'
+# height_roi = 5
+#
+# mask, bbox = drm.create_mask_and_bbox(image1, json_settings, json_transformation, height_roi)
+# xtable, ytable, utable, vtable, typevector = piv_fftmulti(image1, image2, mask, bbox, interrogationarea)
+#
+# fig, ax = plt.subplots(1)
+# ax.imshow(image1)
+# ax.imshow(mask, alpha=0.5)
+# ax.quiver(xtable[typevector==1], ytable[typevector==1], utable[typevector==1], -vtable[typevector==1])
 
 def piv_fftmulti(image1, image2, mask, bbox, interrogationarea, int2=None,
                  mask_auto=True, multipass=True, std_filter=True, stdthresh=4,
@@ -360,43 +381,6 @@ def selective_indexing(image, index_matrix, n):
     index_matrix_aux = np.unravel_index(index_matrix.astype(int), n, order='F')
     image_cut = image[index_matrix_aux]
     return image_cut
-
-
-# def generate_ssn(miniy, maxiy, minix, maxix, step, interrogationarea, numelementsy, numelementsx, image_height):
-#     """
-#     Generate the ss1 indexing array.
-#
-#     Parameters:
-#     miniy (int): Minimum y-coordinate.
-#     maxiy (int): Maximum y-coordinate.
-#     minix (int): Minimum x-coordinate.
-#     maxix (int): Maximum x-coordinate.
-#     step (int): Step size for the grid.
-#     interrogationarea (int): Size of the interrogation area.
-#     numelementsy (int): Number of elements in y-direction.
-#     numelementsx (int): Number of elements in x-direction.
-#     image_height (int): Height of the image.
-#
-#     Returns:
-#     numpy.ndarray: The ss1 array used for indexing.
-#     """
-#     temp_yvector = np.arange(miniy, maxiy + 1, step)
-#     temp_xvector = np.arange(minix, maxix + 1, step) - 1
-#     temp_yvector = temp_yvector[:, np.newaxis] - 1
-#     temp_xvector = temp_xvector * image_height
-#
-#     s0 = (np.tile(temp_yvector, (1, numelementsx)) + np.tile(temp_xvector, (numelementsy, 1))).T
-#     s0 = s0.reshape(-1, order='F')
-#     s0 = s0[:, np.newaxis, np.newaxis]
-#     s0 = np.transpose(s0, (1, 2, 0))
-#
-#     temp = np.arange(1, interrogationarea + 1, 1)[:, np.newaxis]
-#     temp2 = (np.arange(1, interrogationarea + 1, 1) - 1) * image_height
-#     s1 = np.tile(temp, (1, interrogationarea)) + np.tile(temp2, (interrogationarea, 1))
-#     s1 = s1[:, :, np.newaxis]
-#     ss1 = np.tile(s1, (1, 1, s0.shape[2])) + np.tile(s0, (interrogationarea, interrogationarea, 1))
-#
-#     return ss1
 
 def generate_ssn(miniy, maxiy, minix, maxix, step, interrogationarea, numelementsy, numelementsx, image_height,
                  xb=None, yb=None):
@@ -1102,22 +1086,3 @@ def deform_window(X, Y, U, V, image2_roi):
 
     return image2_crop_i1, xb, yb
 
-# Example of usage
-# import define_roi_masks as drm
-# from matplotlib import pyplot as plt
-# import cv2
-#
-# image1 = cv2.imread('0000000001.jpg', cv2.IMREAD_GRAYSCALE)
-# image2 = cv2.imread('0000000003.jpg', cv2.IMREAD_GRAYSCALE)
-# interrogationarea = 128
-# json_transformation = 'uav_transformation_matrix.json'
-# json_settings = 'sections.json'
-# height_roi = 5
-#
-# mask, bbox = drm.create_mask_and_bbox(image1, json_settings, json_transformation, height_roi)
-# xtable, ytable, utable, vtable, typevector = piv_fftmulti(image1, image2, mask, bbox, interrogationarea)
-#
-# fig, ax = plt.subplots(1)
-# ax.imshow(image1)
-# ax.imshow(mask, alpha=0.5)
-# ax.quiver(xtable[typevector==1], ytable[typevector==1], utable[typevector==1], -vtable[typevector==1])
