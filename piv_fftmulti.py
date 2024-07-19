@@ -18,9 +18,9 @@ from scipy import interpolate
 import matlab_smoothn as smoothn
 
 # Example of usage
-# import define_roi_masks as drm
-# from matplotlib import pyplot as plt
-# import cv2
+import define_roi_masks as drm
+from matplotlib import pyplot as plt
+import cv2
 #
 # image1 = cv2.imread('0000000001.jpg', cv2.IMREAD_GRAYSCALE)
 # image2 = cv2.imread('0000000003.jpg', cv2.IMREAD_GRAYSCALE)
@@ -30,17 +30,17 @@ import matlab_smoothn as smoothn
 # height_roi = 5
 #
 # mask, bbox = drm.create_mask_and_bbox(image1, json_settings, json_transformation, height_roi)
-# xtable, ytable, utable, vtable, typevector = piv_fftmulti(image1, image2, mask, bbox, interrogationarea)
+# xtable, ytable, utable, vtable, typevector, gradient = piv_fftmulti(image1, image2, mask, bbox, interrogationarea)
 #
 # fig, ax = plt.subplots(1)
 # ax.imshow(image1)
 # ax.imshow(mask, alpha=0.5)
-# ax.quiver(xtable[typevector==1], ytable[typevector==1], utable[typevector==1], -vtable[typevector==1])
+# ax.quiver(xtable[typevector == 1], ytable[typevector == 1], utable[typevector == 1], -vtable[typevector == 1])
 
 def piv_fftmulti(image1, image2, mask, bbox, interrogationarea, int2=None,
                  mask_auto=True, multipass=True, std_filter=True, stdthresh=4,
                  median_test_filter=True, epsilon=0.02, thresh=2,
-                 step=None):
+                 seeding_filter=True, step=None):
     """
     Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
 
@@ -69,6 +69,8 @@ def piv_fftmulti(image1, image2, mask, bbox, interrogationarea, int2=None,
         The epsilon value for median test filtering. Default is 0.02.
     thresh : float, optional
         The threshold value for median test filtering. Default is 2.
+    seeding_filter : bool, optional
+        Whether to apply seeding filtering. Default is True.
     step : int, optional
         The step size for grid calculations. Default is interrogationarea / 2.
 
@@ -119,7 +121,7 @@ def piv_fftmulti(image1, image2, mask, bbox, interrogationarea, int2=None,
 
     # Process the convolution results to obtain displacement vectors
     typevector = np.ones((numelementsy, numelementsx))
-    xtable, ytable, utable, vtable, typevector = process_result_conv(result_conv, 1 - mask_pad, ss1, interrogationarea,
+    xtable, ytable, utable, vtable, typevector, ii_bckup = process_result_conv(result_conv, 1 - mask_pad, ss1, interrogationarea,
                                                                      step, miniy, maxiy, minix, maxix, typevector,
                                                                      subpixoffset)
 
@@ -138,6 +140,9 @@ def piv_fftmulti(image1, image2, mask, bbox, interrogationarea, int2=None,
     # Apply smoothing to the displacement vectors
     utable = smoothn.smoothn(utable, s=0.0307)
     vtable = smoothn.smoothn(vtable, s=0.0307)
+
+    # Initialize gradient_sum_result to None
+    gradient_sum_result = None
 
     # Perform a second pass if multipass is True
     if multipass:
@@ -194,7 +199,7 @@ def piv_fftmulti(image1, image2, mask, bbox, interrogationarea, int2=None,
 
     # Process the convolution results to obtain displacement vectors
     typevector = np.ones((numelementsy, numelementsx))
-    xtable, ytable, utable, vtable, typevector = process_result_conv(result_conv, 1 - mask_pad, ss1, interrogationarea,
+    xtable, ytable, utable, vtable, typevector, ii_bckup = process_result_conv(result_conv, 1 - mask_pad, ss1, interrogationarea,
                                                                      step, miniy, maxiy, minix, maxix, typevector,
                                                                      subpixoffset, utable, vtable)
 
@@ -205,6 +210,9 @@ def piv_fftmulti(image1, image2, mask, bbox, interrogationarea, int2=None,
     # Apply median test filtering to remove outliers if median_test_filter is True
     if median_test_filter:
         utable, vtable = filter_fluctiations(utable, vtable, epsilon=epsilon, thresh=thresh)
+
+    if seeding_filter:
+        gradient_sum_result = calculate_gradient(image1_cut, image2_cut, image1_roi, utable, ii_bckup)
 
     # # Optionally replace NaN values in utable and vtable with interpolated values
     # utable = inpaint_nans(utable)
@@ -218,7 +226,9 @@ def piv_fftmulti(image1, image2, mask, bbox, interrogationarea, int2=None,
     xtable = xtable + bbox[0] - half_ia
     ytable = ytable + bbox[1] - half_ia
 
-    return xtable, ytable, utable, vtable, typevector
+    return xtable, ytable, utable, vtable, typevector, gradient_sum_result
+
+
 def rvr_round(x):
     '''
     Round the given value to the nearest integer.
@@ -381,6 +391,7 @@ def selective_indexing(image, index_matrix, n):
     index_matrix_aux = np.unravel_index(index_matrix.astype(int), n, order='F')
     image_cut = image[index_matrix_aux]
     return image_cut
+
 
 def generate_ssn(miniy, maxiy, minix, maxix, step, interrogationarea, numelementsy, numelementsx, image_height,
                  xb=None, yb=None):
@@ -728,11 +739,12 @@ def process_result_conv(result_conv, mask_pad, ss1, interrogationarea, step, min
 
 
     Returns:
-    tuple: Contains xtable, ytable, utable, vtable representing the displacement vectors on the grid.
+    tuple: Contains xtable, ytable, utable, vtable, typevector representing the displacement vectors on the grid.
     """
     half_ia = math.ceil(interrogationarea / 2)
     ii_temp = ss1[int(round(half_ia + 1)), int(round(half_ia + 1)), :]
     ii = selective_indexing(mask_pad, ii_temp, mask_pad.shape)
+    ii_bckup = ii.copy()
     ii = np.flatnonzero(ii)
 
     vect_ind1 = (np.arange(miniy, maxiy + 1, step) + round(half_ia) - 1).astype(np.intp)
@@ -778,7 +790,7 @@ def process_result_conv(result_conv, mask_pad, ss1, interrogationarea, step, min
     utable += vector[:, :, 0].astype(float)
     vtable += vector[:, :, 1].astype(float)
 
-    return xtable, ytable, utable, vtable, typevector
+    return xtable, ytable, utable, vtable, typevector, ii_bckup
 
 
 def filter_std(utable, vtable, stdthresh=4):
@@ -1086,3 +1098,51 @@ def deform_window(X, Y, U, V, image2_roi):
 
     return image2_crop_i1, xb, yb
 
+def calculate_gradient(image1_cut, image2_cut, image1_roi,utable, ii_bckup):
+    """
+    Calculate the gradient of the combined images with respect to image1_roi.
+
+    Parameters:
+    image1_cut : np.ndarray
+        The sub-regions of the first image.
+    image2_cut : np.ndarray
+        The sub-regions of the second image.
+    image1_roi : np.ndarray
+        The region of interest from the first image.
+    utable : np.ndarray
+        The displacement vectors for the x-direction. This should be a 2D array representing the grid of
+        displacement vectors.
+    ii_bckup : list of int
+        The indices of the slices or regions where gradient values should be set to NaN. This is used to
+        exclude certain regions from the gradient calculation.
+
+    Returns:
+    np.ndarray
+        The sum of gradients for each displacement vector, adjusted for NaN values where specified by ii_bckup.
+        The output is reshaped to match the dimensions of utable and transposed to align with expected output format.
+    """
+    # Combine images
+    combined_image = image1_cut.astype(np.float64) + image2_cut.astype(np.float64)
+
+    # Divide by the max of image1_roi along axes 0 and 1
+    combined_image /= np.max(image1_roi, axis=(0, 1))
+
+    # Compute gradients gx and gy
+    gx = np.diff(combined_image, axis=1)
+    gx = np.pad(gx, ((0, 0), (0, 1), (0, 0)), mode='edge')
+
+    gy = np.diff(combined_image, axis=0)
+    gy = np.pad(gy, ((0, 1), (0, 0), (0, 0)), mode='edge')
+
+    gradient_sum = np.abs(gx) + np.abs(gy)
+
+    # Sum gradients
+    gradient_sum_result = np.sum(gradient_sum, axis=(0, 1))
+
+    # Set the ii_bckup-th slice to NaN
+    gradient_sum_result[ii_bckup] = np.nan
+
+    # Reshape gradient_sum_result
+    gradient_sum_result = gradient_sum_result.reshape((utable.shape[0], utable.shape[1]))
+
+    return gradient_sum_result
