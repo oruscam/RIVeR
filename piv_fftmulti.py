@@ -40,7 +40,7 @@ import cv2
 def piv_fftmulti(image1, image2, mask, bbox, interrogationarea, int2=None,
                  mask_auto=True, multipass=True, std_filter=True, stdthresh=4,
                  median_test_filter=True, epsilon=0.02, thresh=2,
-                 seeding_filter=True, step=None):
+                 seeding_filter=False, step=None):
     """
     Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
 
@@ -76,7 +76,7 @@ def piv_fftmulti(image1, image2, mask, bbox, interrogationarea, int2=None,
 
     Returns:
     tuple
-        Contains xtable, ytable, utable, vtable, typevector representing the displacement vectors on the grid.
+        Contains xtable, ytable, utable, vtable, typevector, gradient_sum_result representing the displacement vectors on the grid.
     """
     if int2 is None:
         int2 = interrogationarea / 2
