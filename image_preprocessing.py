@@ -1,8 +1,36 @@
+"""
+File Name: image_preprocessing.py
+Project Name: RIVeR-LAC
+Description: Perform image filtering before Particle Image Velocimetry (PIV).
+
+Created Date: 2024-07-22
+Author: Antoine Patalano
+Email: antoine.patalano@unc.edu.ar
+Company: UNC / ORUS
+
+This script contains functions for processing and analyzing PIV images.
+"""
+
 import os
 import numpy as np
 import cv2
 from concurrent.futures import ThreadPoolExecutor
 
+def preprocess_image(image_path, filt_grayscale, filt_clahe, clipLimit_clahe, filt_sub_backgnd, backgnd):
+
+    if filt_grayscale:
+        image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+    else:
+        image = cv2.imread(image_path)
+
+    if filt_sub_backgnd and filt_grayscale:
+        image = subtract_background(image, backgnd)
+
+    if filt_clahe and filt_grayscale:
+        clahe = create_clahe(clipLimit_clahe)
+        image = clahe.apply(image)
+
+    return image
 
 def convert_to_grayscale(image):
     """Convert an image to grayscale."""
@@ -41,7 +69,6 @@ def calculate_average(image_folder):
     # Use ThreadPoolExecutor to process images in parallel
     with ThreadPoolExecutor() as executor:
         grayscale_images = list(executor.map(load_and_process_image, image_files))
-
     # Sum all the grayscale images
     for grayscale_image in grayscale_images:
         if sum_image is None:

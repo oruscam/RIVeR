@@ -155,7 +155,7 @@ def create_mask_and_bbox(image, json_path, json_transformation, height_roi):
     combined_mask = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
     pixel_boxes = []
 
-    xsections = data["xsections"]
+    xsections = data["x_sections"]
 
     for section_data in xsections.values():
         east_left = section_data["east_l"]
@@ -224,7 +224,7 @@ def objective_function(height_roi, json_path, transformation_matrix, window_size
         desired_length = 4 * window_size
         min_side_length = float('inf')
 
-        xsections = data["xsections"]
+        xsections = data["x_sections"]
 
         for section_data in xsections.values():
             east_left = section_data["east_l"]
@@ -262,7 +262,7 @@ def recommend_height_roi(json_path, window_size, transformation_matrix):
     with open(json_path, 'r') as file:
         data = json.load(file)
 
-    xsections = data["xsections"]
+    xsections = data["x_sections"]
     max_rw_length = float('inf')
     for section_data in xsections.values():
         rw_length = section_data["rw_length"]
