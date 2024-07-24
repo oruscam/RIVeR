@@ -9,6 +9,7 @@ Email: antoine.patalano@unc.edu.ar
 Company: UNC / ORUS
 
 This script contains functions for processing and analyzing PIV images.
+See examples of use at the end
 """
 import cv2
 import image_preprocessing as impp
@@ -19,46 +20,7 @@ import glob
 import multiprocessing
 from concurrent.futures.thread import ThreadPoolExecutor
 from piv_loop import piv_loop
-import time
-
-
-image1_path = '0000000001.jpg'
-image2_path = '0000000003.jpg'
-
-import define_roi_masks as drm
-from matplotlib import pyplot as plt
-json_transformation = 'uav_transformation_matrix.json'
-json_settings = 'sections.json'
-json_path = 'sections.json'
-height_roi = 5
-image1 = cv2.imread(image1_path)
-mask, bbox = drm.create_mask_and_bbox(image1, json_settings, json_transformation, height_roi)
-xtable, ytable, utable, vtable, typevector, gradient = run_test(image1_path, image2_path, mask, bbox, seeding_filter=False, filt_sub_backgnd=True)
-fig, ax = plt.subplots(1)
-ax.imshow(cv2.imread(image1_path, cv2.IMREAD_GRAYSCALE))
-ax.imshow(mask, alpha=0.2)
-ax.quiver(xtable[typevector==1], ytable[typevector==1], utable[typevector==1], -vtable[typevector==1], color='red')
-# ax.quiver(xtable[typevector==1], ytable[typevector==1], utable[typevector==1], -vtable[typevector==1], color='red')
-
-images_location ='/Users/antoine/Dropbox/04_Auto_Entrepreneur/01_Actual/03_Contrats/20191103_Canada/05_Training/Case_5_MAC/DJI_0036'
-
-start_time = time.perf_counter()
-xtable, ytable, dict_cumul = run_analyze_all(images_location, mask=mask, bbox=bbox, seeding_filter=True,filt_sub_backgnd=False)
-end_time = time.perf_counter()
-elapsed_time = end_time - start_time
-print(f"Elapsed time: {elapsed_time:.6f} seconds")
-
-# calculate median velocity field
-U = np.nanmedian(dict_cumul['u'], 1).reshape(xtable.shape[0], xtable.shape[1])
-V = np.nanmedian(dict_cumul['v'], 1).reshape(xtable.shape[0], xtable.shape[1])
-X = xtable
-Y = ytable
-fig, ax = plt.subplots(1)
-ax.imshow(cv2.imread(image1_path, cv2.IMREAD_GRAYSCALE))
-# ax.quiver(X[typevector==1], Y[typevector==1], U[typevector==1], -V[typevector==1],color='red')
-ax.quiver(X, Y, U, -V,color='blue')
-
-
+# import json
 
 
 def run_test(image1_path, image2_path, mask=None, bbox=None, interrogationarea=128, int2=None,
@@ -110,8 +72,9 @@ def run_test(image1_path, image2_path, mask=None, bbox=None, interrogationarea=1
         Whether to subtract background. Default is False.
 
     Returns:
-    tuple
-        Contains xtable, ytable, utable, vtable, typevector representing the displacement vectors on the grid.
+    dict
+        A dictionary containing results such as 'shape', 'x', 'y', 'u', 'v' and 'typevector'.
+
     """
     backgnd = None
 
@@ -137,13 +100,27 @@ def run_test(image1_path, image2_path, mask=None, bbox=None, interrogationarea=1
         epsilon=epsilon, thresh=thresh, seeding_filter=seeding_filter, step=step
     )
 
-    return xtable, ytable, utable, vtable, typevector, gradient
+    results = {
+        'shape': xtable.shape,
+        'x': xtable.flatten().tolist(),
+        'y': ytable.flatten().tolist(),
+        'u': utable.flatten().tolist(),
+        'v': vtable.flatten().tolist(),
+        'typevector': typevector.flatten().tolist()
+    }
+
+    # # Save the results
+    # json_file_path = os.path.join(image_folder, 'test_piv.json')
+    # with open(json_file_path, 'w') as json_file:
+    #     json.dump(results, json_file)
+
+    return results
 
 def run_analyze_all(images_location, mask=None, bbox=None, interrogationarea=128, int2=None,
                     mask_auto=True, multipass=True, std_filter=True, stdthresh=4,
                     median_test_filter=True, epsilon=0.02, thresh=2,
                     seeding_filter=False, step=None, filt_grayscale=True, filt_clahe=True,
-                    clipLimit_clahe=5, filt_sub_backgnd=False):
+                    clipLimit_clahe=5, filt_sub_backgnd=False, save_backgnd=True):
     """
     Run PIV analysis on all images in the specified location.
 
@@ -186,8 +163,9 @@ def run_analyze_all(images_location, mask=None, bbox=None, interrogationarea=128
         Whether to subtract background. Default is False.
 
     Returns:
-    tuple
-        Contains xtable, ytable, typevector, and dict_cumul representing the displacement vectors on the grid.
+    dict
+        A dictionary containing results such as 'shape', 'x', 'y', 'u_median', 'v_median', 'u', 'v', 'typevector',
+        and 'gradient' (if seeding_filter is True).
     """
     backgnd = None
     path_images = glob.glob(os.path.join(images_location, "*.jpg"))
@@ -209,10 +187,18 @@ def run_analyze_all(images_location, mask=None, bbox=None, interrogationarea=128
     chunks = [[i, i + chunk_size] for i in range(0, len(path_images) - 1, chunk_size)]
     chunks[-1][-1] = min(chunks[-1][-1], len(path_images) - 1)
 
+    # Create the folder to save the results
+    parent_directory = os.path.dirname(images_location)
+    results_directory_path = os.path.join(parent_directory, 'results')
+    if not os.path.exists(results_directory_path):
+        os.makedirs(results_directory_path)
+
     if filt_sub_backgnd:
         filt_grayscale = True  # forces to work with grayscale images if filt_sub_backgnd
         backgnd = impp.calculate_average(images_location)
-
+        if save_backgnd:
+            save_path = os.path.join(results_directory_path, 'background.jpg')
+            cv2.imwrite(save_path, backgnd)
 
     with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = [
@@ -228,6 +214,7 @@ def run_analyze_all(images_location, mask=None, bbox=None, interrogationarea=128
                       'typevector': futures[0].result()["typevector"]}
         if seeding_filter:
             dict_cumul['gradient'] = futures[0].result()["gradient"]
+
         xtable = futures[0].result()["x"]
         ytable = futures[0].result()["y"]
 
@@ -238,8 +225,70 @@ def run_analyze_all(images_location, mask=None, bbox=None, interrogationarea=128
             if seeding_filter:
                 dict_cumul['gradient'] = np.hstack((dict_cumul['gradient'], futures[f].result()["gradient"]))
 
-    return xtable, ytable, dict_cumul
+
+    # Calculate the median
+    u_median = np.nanmedian(dict_cumul['u'], 1)
+    v_median = np.nanmedian(dict_cumul['v'], 1)
+
+    results = {
+        'shape': xtable.shape,
+        'x': xtable.flatten().tolist(),
+        'y': ytable.flatten().tolist(),
+        'u_median': u_median.tolist(),
+        'v_median': v_median.tolist(),
+        'u': dict_cumul['u'].T.tolist(),
+        'v': dict_cumul['v'].T.tolist(),
+        'typevector': dict_cumul['typevector'].T.tolist()
+    }
+
+    if seeding_filter:
+        results['gradient'] = dict_cumul['gradient'].T.tolist()
+
+    # Save the results
+    # json_file_path = os.path.join(results_directory_path, 'results_piv.json')
+    # with open(json_file_path, 'w') as json_file:
+    #     json.dump(results, json_file)
+
+    return results
 
 
+# # Example of use of run_test
+# import define_roi_masks as drm
+# from matplotlib import pyplot as plt
+# image1_path = '0000000001.jpg'
+# image2_path = '0000000003.jpg'
+# json_transformation = 'uav_transformation_matrix.json'
+# json_settings = 'sections.json'
+# json_path = 'sections.json'
+# height_roi = 5
+# image1 = cv2.imread(image1_path)
+# mask, bbox = drm.create_mask_and_bbox(image1, json_settings, json_transformation, height_roi)
+# results = run_test(image1_path, image2_path, mask, bbox, seeding_filter=False, filt_sub_backgnd=False)
+# xtable = np.array(results['x']).reshape(results['shape'])
+# ytable = np.array(results['y']).reshape(results['shape'])
+# utable = np.array(results['u']).reshape(results['shape'])
+# vtable = np.array(results['v']).reshape(results['shape'])
+# typevector = np.array(results['typevector']).reshape(results['shape'])
+# fig, ax = plt.subplots(1)
+# ax.imshow(cv2.imread(image1_path, cv2.IMREAD_GRAYSCALE),cmap='grey')
+# ax.imshow(mask, alpha=0.2,cmap='grey')
+# ax.quiver(xtable[typevector==1], ytable[typevector==1], utable[typevector==1], -vtable[typevector==1], color='blue')
+#
+# # Example of use of run_analyze_all
+# images_location ='/Users/antoine/Dropbox/04_Auto_Entrepreneur/01_Actual/03_Contrats/20191103_Canada/05_Training/Case_5_MAC/DJI_0036'
+# results = run_analyze_all(images_location, mask=mask, bbox=bbox, seeding_filter=True,filt_sub_backgnd=True)
+# xtable = np.array(results['x']).reshape(results['shape'])
+# ytable = np.array(results['y']).reshape(results['shape'])
+# #Calculte the median velocity field
+# u_median = np.array(results['u_median']).reshape(results['shape'])
+# v_median = np.array(results['v_median']).reshape(results['shape'])
+# #Calculte the velocity field #75
+# u_75 = np.array(results['u'][75]).reshape(results['shape'])
+# v_75 = np.array(results['v'][75]).reshape(results['shape'])
+# fig, ax = plt.subplots(1)
+# ax.imshow(cv2.imread(image1_path, cv2.IMREAD_GRAYSCALE))
+# ax.imshow(mask, alpha=0.2,cmap='grey')
+# ax.quiver(xtable, ytable, u_median, -v_median, color='red')
+# ax.quiver(xtable, ytable, u_75, -v_75, color='green')
 
 
