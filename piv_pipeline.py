@@ -258,11 +258,10 @@ def run_analyze_all(images_location, mask=None, bbox=None, interrogationarea=128
 # image1_path = '0000000001.jpg'
 # image2_path = '0000000003.jpg'
 # json_transformation = 'uav_transformation_matrix.json'
-# json_settings = 'sections.json'
-# json_path = 'sections.json'
+# json_sections = 'x_sections.json'
 # height_roi = 5
 # image1 = cv2.imread(image1_path)
-# mask, bbox = drm.create_mask_and_bbox(image1, json_settings, json_transformation, height_roi)
+# mask, bbox = drm.create_mask_and_bbox(image1, json_sections, json_transformation, height_roi)
 # results = run_test(image1_path, image2_path, mask, bbox, seeding_filter=False, filt_sub_backgnd=False)
 # xtable = np.array(results['x']).reshape(results['shape'])
 # ytable = np.array(results['y']).reshape(results['shape'])

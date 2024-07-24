@@ -26,7 +26,7 @@ import cv2
 # image2 = cv2.imread('0000000003.jpg', cv2.IMREAD_GRAYSCALE)
 # interrogationarea = 128
 # json_transformation = 'uav_transformation_matrix.json'
-# json_settings = 'sections.json'
+# json_settings = 'settings.json'
 # height_roi = 5
 #
 # mask, bbox = drm.create_mask_and_bbox(image1, json_settings, json_transformation, height_roi)
