@@ -4,3 +4,7 @@ class RiverCoreException(Exception):
 
 class VideoHasNoFrames(RiverCoreException):
 	pass
+
+
+class ObjectiveFunctionError(RiverCoreException):
+	pass
