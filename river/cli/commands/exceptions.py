@@ -4,3 +4,7 @@ class RiverCLIException(Exception):
 
 class WrongSizeTransformationMatrix(RiverCLIException):
 	pass
+
+
+class MissingWorkdir(RiverCLIException):
+	pass
