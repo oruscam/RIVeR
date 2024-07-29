@@ -3,6 +3,22 @@ from typing import Optional
 import numpy as np
 
 
+def calculate_real_world_distance(x1_rw: float, y1_rw: float, x2_rw: float, y2_rw: float) -> float:
+	"""
+	Calculate the Euclidean distance between two points in real-world coordinates.
+
+	Parameters:
+	    x1_rw (float): X coordinate of the first point in real-world units.
+	    y1_rw (float): Y coordinate of the first point in real-world units.
+	    x2_rw (float): X coordinate of the second point in real-world units.
+	    y2_rw (float): Y coordinate of the second point in real-world units.
+
+	Returns:
+	    float: Distance between the two points in real-world units.
+	"""
+	return np.sqrt((x2_rw - x1_rw) ** 2 + (y2_rw - y1_rw) ** 2)
+
+
 def get_pixel_size(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_rw, y2_rw):
 	"""
 	Compute the pixel size based on known distances in both pixel and real-world units.
@@ -73,10 +89,10 @@ def get_uav_transformation_matrix(
 
 	# Step 4: Translate the first pixel point to the origin
 	translated_x1 = x1_rw - (x1_pix * pixel_size * cos_theta - y1_pix * pixel_size * sin_theta)
-	translated_y1 = y1_rw - (x1_pix * pixel_size * sin_theta + y1_pix * pixel_size * cos_theta)
+	translated_y1 = y1_rw - (-x1_pix * pixel_size * sin_theta - y1_pix * pixel_size * cos_theta)
 
 	# Step 5: Create the scaling and translation matrix
-	scale_translation_matrix = np.array([[pixel_size, 0, translated_x1], [0, pixel_size, translated_y1], [0, 0, 1]])
+	scale_translation_matrix = np.array([[pixel_size, 0, translated_x1], [0, -pixel_size, translated_y1], [0, 0, 1]])
 
 	# Step 6: Combine rotation and scaling/translation matrices
 	transformation_matrix = np.dot(scale_translation_matrix, rotation_matrix)

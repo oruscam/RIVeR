@@ -6,11 +6,15 @@ import click
 import numpy as np
 
 import river.core.coordinate_transform as ct
+from river.cli.commands.exceptions import WrongSizeTransformationMatrix
 from river.cli.commands.utils import render_response
 
 UAV_TYPE = "uav"
 
 MATRIX_SIZE_MAP = {UAV_TYPE: 9}
+WRONG_SIZE_TRANSFORMATION_MATRIX_MESSAGE = (
+	"Wrong size of the transformation matrix. The expected size for the '{}' type is {}."
+)
 
 
 @click.command(help="Compute the transformation matrix from pixel to real-world coordinates from 2 points")
@@ -57,12 +61,10 @@ def transform_pixel_to_real_world(
 	"""
 	transformation_matrix = np.array(json.loads(transformation_matrix.read()))
 
-	# TODO: Add validation for the matrix size
-	# if transformation_matrix.size != MATRIX_SIZE_MAP[matrix_type]:
-	# 	raise ValueError(
-	# 		"Wrong size of the transformation matrix. "
-	# 		f"The expected size for the '{matrix_type}' is {MATRIX_SIZE_MAP[matrix_type]}."
-	# 	)
+	if transformation_matrix.size != MATRIX_SIZE_MAP[matrix_type]:
+		raise WrongSizeTransformationMatrix(
+			WRONG_SIZE_TRANSFORMATION_MATRIX_MESSAGE.format(matrix_type, MATRIX_SIZE_MAP[matrix_type])
+		)
 
 	return {"rw_coordinates": ct.transform_pixel_to_real_world(x_pix, y_pix, transformation_matrix).tolist()}
 
@@ -89,11 +91,9 @@ def transform_real_world_to_pixel(
 	"""
 	transformation_matrix = np.array(json.loads(transformation_matrix.read()))
 
-	# TODO: Add validation for the matrix size
-	# if transformation_matrix.size != MATRIX_SIZE_MAP[matrix_type]:
-	# 	raise ValueError(
-	# 		"Wrong size of the transformation matrix. "
-	# 		f"The expected size for the '{matrix_type}' is {MATRIX_SIZE_MAP[matrix_type]}."
-	# 	)
+	if transformation_matrix.size != MATRIX_SIZE_MAP[matrix_type]:
+		raise WrongSizeTransformationMatrix(
+			WRONG_SIZE_TRANSFORMATION_MATRIX_MESSAGE.format(matrix_type, MATRIX_SIZE_MAP[matrix_type])
+		)
 
 	return {"pix_coordinates": ct.transform_real_world_to_pixel(x_pix, y_pix, transformation_matrix).tolist()}
