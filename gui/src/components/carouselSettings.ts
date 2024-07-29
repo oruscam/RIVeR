@@ -40,7 +40,6 @@ export const carouselSettings = (
         lazyLoad: true,
         initialSlide: 0,
         infinite:true,
-        swipeToSlide: true,
         afterChange: () => setUpdateCount(updateCount + 1),
         beforeChange: (_current, next) => setSlideIndex(next),
         responsive: [

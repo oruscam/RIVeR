@@ -4,9 +4,9 @@ import { useWizard } from 'react-use-wizard';
 import { useDataSlice } from '../hooks';
 
 type Props = {
-  canFollow: boolean;
-  formId: string;
-  button: boolean;
+  canFollow?: boolean;
+  formId?: string;
+  button?: boolean;
   onClick: () => void;
 };
 

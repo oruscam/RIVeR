@@ -56,13 +56,11 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
         }
       }
 
-
-
   return (
     <>
         <h2 className="form-subtitle mt-2 mb-1" id="pixel-coordinates"> Pixel Coordinates </h2>
 
-        <label className="read-only red" htmlFor={`X_${pointName1}`}> {`X_${pointName1}`} </label>
+        <label className="read-only red" htmlFor={`X_${pointName1}`}> {`X ${pointName1}`} </label>
         <input  type="number"
                 step="any"
                 className="input-field"

@@ -44,6 +44,8 @@ export const VideoPlayer = ({ fileURL }: { fileURL: string }) => {
     }
   }
 
+  
+
   return (
     <>
       {fileURL ? (

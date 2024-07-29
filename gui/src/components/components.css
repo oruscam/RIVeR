@@ -44,33 +44,28 @@
     width: 74%;
     background-color: var(--secondary-background-color);
     border-radius: 20px;
+    margin-right: 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-right: 5px;
     overflow-y: hidden;
     overflow-x: hidden;
-
 }
-
-
 
 .video-player{
     width: 95%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 10%;
+    margin-top: 5%;
 }
 
 .video{
-    border-radius: 20px;
     width: 100%;
-    max-height: 700px;
 }
 
 .video-controls{
-    width: 94%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -226,9 +221,6 @@
     margin-top: 10%;
 }
 
-
-
-
 /* Chart Cross Sections */
 
 .chart-cross-sections-container{
@@ -323,7 +315,7 @@
     align-self: flex-end;
     margin-right: 50px;
     margin-bottom: 10px;
-    margin-top: -15px;
+    margin-top: -35px;
     display: flex;
     justify-content: first baseline;
     justify-content: flex-end;
@@ -349,10 +341,6 @@
     border: 4px solid #6CD4FF;
 }
 
-.carousel-load-more{
-    align-self: center;
-    margin-top: 20px;
-}
 
 .img-container{
     position: relative;
@@ -381,14 +369,49 @@
     text-align: center;
 }
 
-.simple-image-container{
+.image-with-mask-container{
     margin-top: 5%;
 }
 
-.simple-image{
-    border-radius: 20px;
+
+/* .simple-image-container{
+    position: relative;
+    width: 1280px;
+    height: 720px;
 }
 
+.simple-image-container img{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+} */
+
+.quiver-plot{
+    position: relative;
+    width: 1280px;
+    height: 720px;
+}
+
+.default-image{
+    width: 100%;
+    height: 100%;
+}
+
+.quiver{
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.simple-image{
+    border: solid;  
+    
+}
 
 
 @media screen and (max-width: 1580px) {
@@ -398,6 +421,7 @@
     .video-player{
         margin-top: 15%;
     }
+
 }
 
 @media screen and (max-width: 1280px) {
@@ -407,4 +431,12 @@
     .video-player{
         margin-top: 20%;
     }
+
 }
+
+@media screen and (max-height: 1010px){
+    .image-with-mask-container{
+        margin-top: 1%;
+    }
+}
+

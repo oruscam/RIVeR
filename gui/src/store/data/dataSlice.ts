@@ -193,9 +193,6 @@ const dataSlice = createSlice({
         updateProcessing: (state, action: PayloadAction<Processing>) => {
             state.processing = action.payload
         }
-
-
-
     },
 });
 

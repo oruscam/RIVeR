@@ -215,15 +215,14 @@ export const useDataSlice = () => {
         dispatch(setLoading(true))
         
         const { points: pixelPoints, realWorld: realWorldPoints, pixelSize } = sections[0]
-
         const args = {
             pixelPoints: pixelPoints,
             rwPoints: realWorldPoints,
             pixelSize: pixelSize.size,
             rw_length: pixelSize.rw_lenght,
         }
-        const ipcRenderer = window.ipcRenderer;
 
+        const ipcRenderer = window.ipcRenderer;
         try {
             const result = await ipcRenderer.invoke('pixel-size', args)
             console.log(result)
@@ -236,25 +235,11 @@ export const useDataSlice = () => {
         }
     }
 
-
     const onSetActiveSection = (index: number) => {
         dispatch(setActiveSection(index))
     }
 
     // * ON UPDTATE SECTION 
-
-
-    const onSetBathimetryFile = ( file: File | '' ) => {
-        if (file === '') return 
-        const blob = URL.createObjectURL(file)
-        dispatch(setBathimetryFile({blob: blob, path: file.path}))
-    }
-
-    // * ON UPDTATE SECTION 
-
-    const onSetBathimetryLevel = (level: number) => {
-        dispatch(setBathimetryLevel(level))
-    }
 
     const onSetSections = async (formData: FieldValues) => {
         console.log(formData)
@@ -433,8 +418,6 @@ export const useDataSlice = () => {
         onDeleteSection,
         onSetActiveSection,
         onSetPixelSize,
-        onSetBathimetryFile,
-        onSetBathimetryLevel,
         onSetSections,
         onLoadProject,
         onSetRealWorld,

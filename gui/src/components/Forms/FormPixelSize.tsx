@@ -49,10 +49,18 @@ export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
       }
     }
 
+    //* Desactiva la opcion de adelantar campos con el tabulador, cuando extraFields es false. 
+    //* Porque sino se puede adelantar a los campos de la siguiente seccion
+    const handleTab = ( event: React.KeyboardEvent<HTMLInputElement> ) => {
+      if( event.key === 'Tab' && !extraFields){
+        event.preventDefault()
+      }
+    }
+
   return (
     <>
       <h2 className='form-title'> {t('Step4.title')}</h2>
-      <form onSubmit={onSubmit} onError={onError} className='mt-5' id='form-pixel-size' style={{overflowY: `${!extraFields ? "hidden" : "auto"}`}}>
+      <form onSubmit={onSubmit} onError={onError} className='mt-5' id='form-pixel-size' style={{overflowY: `${!extraFields ? "hidden" : "auto"}`}} >
         <span id='pixel_size-HEADER'></span>
         <div className='simple-mode-container'>
           <div className='simple-mode'>
@@ -87,6 +95,7 @@ export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
                   id='pixel_size-PIXEL_SIZE'
                   disabled={sections[0].points.length === 0}
                   step="any"
+                  onKeyDown={handleTab}
                   />
           </div>
           <span className='space'/>

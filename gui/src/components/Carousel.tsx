@@ -86,7 +86,7 @@ export const Carousel = () => {
                     }
                     return (
                     <div key={index} onClick={( event) => handleOnClickImage( event, index, src)} className='img-container'>
-                        <img src={'@fs/' + src} alt={`Slide ${index}`} className={className} />
+                        <img src={'/@fs/' + src} alt={`Slide ${index}`} className={className} />
                         <div className='img-water-mark'> {index + 1} </div>
                     </div>
                 )})}

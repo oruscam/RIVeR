@@ -8,7 +8,7 @@ import { Points } from './Points'
 import { ImageWithMarks } from './ImageWithMarks'
 import { Loading } from './Loading'
 import { Progress } from './Progress'
-import { SimpleImage } from './SimpleImage'
+import { ImageWithMask } from './ImageWithMask'
 import { DrawSections } from './DrawSections'
 import { Carousel } from './Carousel'
 
@@ -23,7 +23,7 @@ export {
     Points,
     Loading, 
     Progress,
-    SimpleImage,
+    ImageWithMask,
     DrawSections,
     Carousel
 }

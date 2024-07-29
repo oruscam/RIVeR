@@ -1,4 +1,4 @@
-import { Progress, SimpleImage, WizardButtons } from "../components"
+import { Error, Progress, ImageWithMask, WizardButtons } from "../components"
 import { Carousel } from "../components/index"
 import { FormProcessing } from "../components/Forms"
 import { getNewImageResolution } from "../helpers"
@@ -15,13 +15,14 @@ export const Step6 = () => {
   return (
     <div className="regular-page">
         <div className="media-container">
-            <SimpleImage height={height} width={width} factor={factor}></SimpleImage>
+            <ImageWithMask height={height} width={width} factor={factor}></ImageWithMask>
             <Carousel></Carousel>
+            <Error></Error>
         </div>
         <div className="form-container">
             <Progress/>
             <FormProcessing />
-            <WizardButtons></WizardButtons>
+            <WizardButtons canFollow={true} formId="form-processing"></WizardButtons>
         </div>
     </div>
   )

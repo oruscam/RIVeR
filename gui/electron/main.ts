@@ -1,20 +1,16 @@
-import { app, BrowserWindow, ipcMain, net, protocol } from 'electron'
+import { app, BrowserWindow, net, protocol } from 'electron'
 import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
 import * as os from 'os'
+import * as fs from 'fs'  
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
 
-import { initProject } from './ipcMainHandlers/initProject.js'
-import { firstFrame } from './ipcMainHandlers/firstFrame.js'
-import { pixelSizeHandler } from './ipcMainHandlers/pixelSizeHandler.js'
-import { getImages } from './ipcMainHandlers/getImages.js'
-import { setSections } from './ipcMainHandlers/setSections.js'
-import { loadProject } from './ipcMainHandlers/loadProject.js'
-import pixelToRealWorld from './ipcMainHandlers/pixelToRealWorld.js'
+
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
-import realWorldToPixel from './ipcMainHandlers/realWorldToPixel.js'
+import { initProject, firstFrame, pixelSizeHandler, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel} from './ipcMainHandlers/index.js'
+
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -26,6 +22,18 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
 let win: BrowserWindow | null
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'resources',
+    privileges: {
+      bypassCSP: true,
+      stream: true,
+      standard: true,
+    }
+  }
+])
+
 
 function createWindow() {
   win = new BrowserWindow({
@@ -82,10 +90,18 @@ const PROJECT_CONFIG: ProjectConfig = {
 }
 
 app.whenReady().then(() => {
+  protocol.handle('resources', function(request){
+    const filePath = request.url.slice('resources://'.length);
+    const fileUrl = new URL(`file://${filePath}`).toString();
+    return net.fetch(fileUrl)
+  })
+  
+  
+
   createWindow();
   initProject(userDir, PROJECT_CONFIG);
   loadProject();
-
+  // HandleMask(userDir);
   firstFrame(PROJECT_CONFIG);
   pixelSizeHandler(PROJECT_CONFIG);
   pixelToRealWorld(PROJECT_CONFIG);

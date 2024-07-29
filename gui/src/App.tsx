@@ -5,6 +5,7 @@ import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
 import { useDataSlice } from './hooks'
+import { Quiver } from './components/Quiver'
 
 export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice()
@@ -30,8 +31,8 @@ export const App: React.FC = () => {
         {isLoading ? <Loading/> : <Step4/>}
         {isLoading ? <Loading/> : <Step5/>}
         {isLoading ? <Loading/> : <Step6/>}
-        <div> step 7 </div>
-        <div> step 8</div>
+        {/* {<Quiver></Quiver>} */}
+        {/* <div> step 8</div> */}
       </Wizard>
     </div>
   )

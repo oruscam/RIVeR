@@ -34,6 +34,9 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
         onUpdateSection({ level: bathimetryLimits.max })
       }
     }
+    if( event.key === 'Tab' && !extraFields){
+      event.preventDefault()
+    }
   }
 
   useEffect(() => {
@@ -53,7 +56,7 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
   return (
     <>
       <form className="form-cross-sections" style={{ overflowY: `${!extraFields ? "hidden" : "auto"}` }} onSubmit={onSubmit} id="cross-section">
-        <span id={`${name}-HEADER`}></span>
+        <span id={`${name}-HEADER`}/>
         <div className="simple-mode-container">
           <div className="simple-mode">
             <button className={`wizard-button form-button ${drawLine ? "wizard-button-active" : ""}`}
@@ -67,22 +70,28 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
               className="input-field"
               {...register(`${name}_CS_LENGTH`)}
               id="CS_LENGTH" readOnly={true}
-            ></input>
+            />
 
             <input type="file" id={`${name}_CS_BATHIMETRY`}
               className="hidden-file-input"
               accept=".csv"
               {...register(`${name}_CS_BATHIMETRY`)}
-            ></input>
+            />
             <label
               className={`wizard-button form-button bathimetry-button mt-2 ${bathimetry.blob ? "wizard-button-active" : ""}`}
               htmlFor={`${name}_CS_BATHIMETRY`}>
-              <p> Import Bath</p>
+              <p> Import Bath </p>
             </label>
             <label className="read-only bg-transparent mt-2"> {bathimetry.name !== "" ? bathimetry.name : ''} </label>
 
             <label className="read-only" htmlFor="LEVEL"> Level</label>
-            <input type="number" step='any' className="input-field" {...register(`${name}_LEVEL`, { max: bathimetryLimits.max, min: bathimetryLimits.min })} defaultValue={bathimetryLimits.max} id="LEVEL" onKeyDown={(event) => handleKeyDownBathLevel(event, 'wizard-next')}></input>
+            <input  type="number" 
+                    step='any' 
+                    className="input-field" 
+                    {...register(`${name}_LEVEL`, { max: bathimetryLimits.max, min: bathimetryLimits.min })} 
+                    defaultValue={bathimetryLimits.max} 
+                    id="LEVEL" onKeyDown={(event) => handleKeyDownBathLevel(event, 'wizard-next')}
+                    />
           </div>
 
           <Bathimetry setBathimetryLimits={setBathimetryLimits} />

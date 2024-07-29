@@ -11,7 +11,7 @@ export const Step3 = () => {
   const [formStep, setFormStep] = useState(1)
   const { video } = useDataSlice()
   const { path }= video.data
-
+  console.log(path)
   return (
     <div className='regular-page'>
         <div className='media-container'>
