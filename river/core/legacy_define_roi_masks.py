@@ -1,5 +1,15 @@
-#define_roi_masks.py
-import matplotlib.pyplot as plt
+"""
+File Name: define_roi_masks.py
+Project Name: RIVeR-LAC
+Description: Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
+
+Created Date: 2024-07-04
+Author: Antoine Patalano
+Email: antoine.patalano@unc.edu.ar
+Company: UNC / ORUS
+
+This script contains functions for roi and mask creation
+"""
 import numpy as np
 import cv2
 import coordinate_transform as ct
@@ -140,12 +150,10 @@ def create_mask_and_bbox(image, json_path, json_transformation, height_roi):
         transformation_matrix = np.array(data)
 
     with open(json_path, 'r') as file:
-        data = json.load(file)
+        xsections = json.load(file)
 
     combined_mask = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
     pixel_boxes = []
-
-    xsections = data["xsections"]
 
     for section_data in xsections.values():
         east_left = section_data["east_l"]
@@ -209,12 +217,10 @@ def objective_function(height_roi, json_path, transformation_matrix, window_size
     """
     try:
         with open(json_path, 'r') as file:
-            data = json.load(file)
+            xsections = json.load(file)
 
         desired_length = 4 * window_size
         min_side_length = float('inf')
-
-        xsections = data["xsections"]
 
         for section_data in xsections.values():
             east_left = section_data["east_l"]
@@ -250,9 +256,8 @@ def recommend_height_roi(json_path, window_size, transformation_matrix):
         float: The recommended height_roi value.
     """
     with open(json_path, 'r') as file:
-        data = json.load(file)
+        xsections = json.load(file)
 
-    xsections = data["xsections"]
     max_rw_length = float('inf')
     for section_data in xsections.values():
         rw_length = section_data["rw_length"]
@@ -325,7 +330,7 @@ def recommend_height_roi(json_path, window_size, transformation_matrix):
 # mask = create_mask(image, pixel_box)
 # ax.imshow(mask)
 # #
-# json_path = '/Users/antoine/river/sections.json'
+# json_path = '/Users/antoine/river/x_sections.json'
 # combined_mask, bbox = create_mask_and_bbox(image, json_path, height_roi, transformation_matrix)
 # fig, ax = plt.subplots()
 # ax.imshow(combined_mask, cmap='gray')
