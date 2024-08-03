@@ -75,7 +75,6 @@ export const CrossSections = () => {
     }
 
     // * Desregistra las secciones eliminadas
-
     useEffect(() => {
         if( deletedSections !== '' ){
             unregisterFieldsStartingWith(deletedSections)
@@ -89,8 +88,6 @@ export const CrossSections = () => {
         methods.reset(createInitialState(sections))
     }, [sections[activeSection]])
 
-
-    // console.log(sections[activeSection].realWorld)
 
     return (
         <>

@@ -4,17 +4,13 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { ProjectConfig, pixelSizeHandleArgs } from "./interfaces";
 
-
-
-
 export function pixelSizeHandler( PROJECT_CONFIG: ProjectConfig ) {
     ipcMain.handle('pixel-size', async (_event, args: pixelSizeHandleArgs) => {
         console.log('En pixel-size event', args);
-        const { directory, jsonPath } = PROJECT_CONFIG;
-        
+        const { directory, settingsPath } = PROJECT_CONFIG;
         const { pixelPoints, rwPoints, pixelSize, rw_length } = args 
 
-        const json = await fs.promises.readFile(jsonPath, 'utf-8');
+        const json = await fs.promises.readFile(settingsPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
         
         jsonParsed.pixel_size = {
@@ -51,7 +47,6 @@ export function pixelSizeHandler( PROJECT_CONFIG: ProjectConfig ) {
         return new Promise((resolve, reject) => {
             const pyshell = new PythonShell('__main__.py', options);
             pyshell.on('message', async(message: string) => {
-                
                 await createUavMatrix(message, directory).then((matrixPath) => {
                     jsonParsed.pixel_size.uav_transformation_matrix = matrixPath;
                     PROJECT_CONFIG.matrixPath = matrixPath;
@@ -59,7 +54,7 @@ export function pixelSizeHandler( PROJECT_CONFIG: ProjectConfig ) {
                 }).catch((err) => { console.log(err)});
                 
                 const updatedContent = JSON.stringify(jsonParsed, null, 4);
-                await fs.promises.writeFile(jsonPath, updatedContent , 'utf-8');
+                await fs.promises.writeFile(settingsPath, updatedContent , 'utf-8');
                 resolve("La matriz ha sido creada con su respectivo JSON"); // Resuelve la promesa con el mensaje recib
             });
 

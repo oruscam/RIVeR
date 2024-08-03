@@ -176,17 +176,34 @@
 }
 
 .simple-mode-processing{
-    min-height: 340px;
-    padding-left: 30px;
-    padding-right: 30px;
+    min-height: 400px;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
 }
 
+.test-container{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: 70px;
+}
 
 .hard-mode-processing{
     width: 100%;
     padding: 50px;
     padding-top: 0px;
+    display: flex;
+    flex-direction: column;
 }
+
+.switch-container{
+    display: flex;
+    justify-content: space-between;
+
+}
+
+
 
 .input-container{
     grid-column: 1 / -1;

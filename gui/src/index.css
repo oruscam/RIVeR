@@ -13,10 +13,10 @@
   --secondary-text-color: #797979;
   --on-hover: #232222;
   --input-background: #323232;
+  --input-background-disabled: #191919;
   --secondary-input-background: #646464;
   --disabled-button: #808080;
   --background-error: #ED6B57;
-
 }
 
 *{
@@ -113,8 +113,54 @@
   
 }
 
-.input-field:active{
-  border-color: blue;
+
+.input-field-little{
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 15px;
+  width: 90px;
+  height: 35px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.input-field-read-only{
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 20px;
+  width: 150px;
+  height: 50px;
+}
+
+.input-field-read-only:focus{
+    outline: none;
+}
+
+.input-field-little-read-only{
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 15px;
+  width: 90px;
+  height: 35px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.input-field-little-read-only:focus{
+    outline: none;
+}
+
+.input-field-little:disabled{
+  background-color: var(--input-background-disabled);
 }
 
 .form-button{
@@ -238,9 +284,9 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
 .switch {
   position: relative;
   display: inline-block;
-  margin-left: 30px;
-  width: 70px;
-  height: 34px;
+  margin-left: 20px;
+  width: 56px;
+  height: 26px;
 }
 
 .switch input { 
@@ -259,17 +305,17 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
     background-color: var(--input-background);
     -webkit-transition: .4s;
     transition: .4s;
-    border-radius: 34px;
+    border-radius: 30px;
     
 }
 
 .slider:before{
     position: absolute;
     content: "";
-    height: 26px;
-    width: 26px;
-    left: 6px;
-    bottom: 4px;
+    height: 19px;
+    width: 19px;
+    left: 5px;
+    bottom: 3.5px;
     background-color: #FFFFFF;
     -webkit-transition: .4s;
     transition: .4s;
@@ -285,5 +331,5 @@ input:focus + .slider {
 }
 
 input:checked + .slider:before {
-    transform: translateX(33px);
+    transform: translateX(27px);
 }

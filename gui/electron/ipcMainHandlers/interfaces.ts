@@ -94,8 +94,9 @@ export interface ProjectConfig {
   type: string;
   videoPath: string;
   matrixPath: string;
-  jsonPath: string;
-  framesPath: string
+  settingsPath: string;
+  framesPath: string,
+  xsectionsPath: string
 }
 
 interface Point {

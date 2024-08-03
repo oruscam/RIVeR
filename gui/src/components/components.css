@@ -52,6 +52,8 @@
     overflow-x: hidden;
 }
 
+
+
 .video-player{
     width: 95%;
     display: flex;
@@ -242,6 +244,20 @@
     100% { transform: rotate(360deg); }
 }
 
+.loader-little{
+    border: 5px solid var(--primary-text-color);
+    border-radius: 50%;
+    border-top: 5px solid var(--secondary-background-color);
+    width: 40px;
+    height: 40px;
+    animation: spin 1.5s linear infinite;    
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 
 .progress-indicator-container{
     margin-top: 15px;
@@ -369,40 +385,12 @@
     text-align: center;
 }
 
-.image-with-mask-container{
-    margin-top: 5%;
-}
-
-
-/* .simple-image-container{
+.image-with-data-container{
+    margin-top: 10px;
     position: relative;
-    width: 1280px;
-    height: 720px;
-}
-
-.simple-image-container img{
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-} */
-
-.quiver-plot{
-    position: relative;
-    width: 1280px;
-    height: 720px;
-}
-
-.default-image{
-    width: 100%;
-    height: 100%;
 }
 
 .quiver{
-    width: 100%;
-    height: 100%;
-    z-index: 100;
     position: absolute;
     top: 0;
     left: 0;

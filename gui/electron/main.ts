@@ -10,6 +10,9 @@ const userDir = os.homedir();
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
 import { initProject, firstFrame, pixelSizeHandler, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel} from './ipcMainHandlers/index.js'
+import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
+import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
+import { getQuiverTest } from './ipcMainHandlers/getQuiverTest.js'
 
 
 process.env.APP_ROOT = path.join(__dirname, '..')
@@ -84,12 +87,14 @@ const PROJECT_CONFIG: ProjectConfig = {
   directory: "",
   type: "",
   videoPath: "",
-  jsonPath: "",
+  settingsPath: "",
   framesPath: "",
   matrixPath: "",
+  xsectionsPath: ""
 }
 
 app.whenReady().then(() => {
+  // ! DONT WORK
   protocol.handle('resources', function(request){
     const filePath = request.url.slice('resources://'.length);
     const fileUrl = new URL(`file://${filePath}`).toString();
@@ -97,20 +102,17 @@ app.whenReady().then(() => {
   })
   
   
-
   createWindow();
   initProject(userDir, PROJECT_CONFIG);
-  loadProject();
-  // HandleMask(userDir);
+  loadProject(PROJECT_CONFIG);
   firstFrame(PROJECT_CONFIG);
   pixelSizeHandler(PROJECT_CONFIG);
   pixelToRealWorld(PROJECT_CONFIG);
   realWorldToPixel(PROJECT_CONFIG);
-
-
-  setSections();
+  setSections(PROJECT_CONFIG);
+  recommendRoiHeight(PROJECT_CONFIG);
+  createMaskAndBbox(PROJECT_CONFIG);
+  getQuiverTest(PROJECT_CONFIG);
   getImages();
 })
-
-
 

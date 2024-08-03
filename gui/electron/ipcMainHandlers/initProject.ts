@@ -16,7 +16,7 @@ export function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
         PROJECT_CONFIG.directory = newPath
         PROJECT_CONFIG.type = arg.type
         PROJECT_CONFIG.videoPath = arg.path
-        PROJECT_CONFIG.jsonPath = path.join(newPath, 'config.json')
+        PROJECT_CONFIG.settingsPath = path.join(newPath, 'settings.json')
 
         try {
             const result = await getVideoMetadata(arg.path)

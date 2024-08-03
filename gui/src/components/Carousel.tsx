@@ -57,7 +57,6 @@ export const Carousel = () => {
     // ! images es un array de strings con las rutas completas de las imagenes.
     // * QUIZAS AHÍ SE PUEDE HACER ALGO PARA NO CARGAR TODAS LAS IMAGENES DE UNA.
     useEffect(() => {
-        console.log("useEffect carousel")
         const ipcRenderer = window.ipcRenderer
         ipcRenderer.invoke('get-images', { folder: folder }).then((result) => {
             setImagePaths(result)

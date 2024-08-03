@@ -61,7 +61,20 @@ interface Video {
 
 interface Processing {
     par: string[];
+    maskPath?: string;
     step1: number;
+    heightRoi: number;
+    grayscale: boolean;
+    removeBackground: boolean;
+    clahe: boolean;
+    clipLimit: number;
+    stdFiltering: boolean;
+    threshold1: number;
+    medianTest: boolean;
+    epsilon: number;
+    threshold2: number;
+    test: boolean;
+    artificialSeeding: boolean
 }
 
 interface DataState {
@@ -123,13 +136,29 @@ const defaultSections = [{
     }
 ]
 
+const defaultProcessing: Processing = {
+    par: ['', "1", '', "2"],
+    step1: 128,
+    heightRoi: 0,
+    grayscale: true,
+    removeBackground: false,
+    clahe: false,
+    clipLimit: 0,
+    stdFiltering: false,
+    threshold1: 0,
+    medianTest: false,
+    epsilon: 0,
+    threshold2: 0,
+    test: false,
+    artificialSeeding: true
+}
 
 const initialState: DataState = {
     projectDirectory: "",
     video: defaultVideo,
     sections: defaultSections,
     activeSection: 0,
-    processing: { par: ['', "1", '', "2"], step1: 128 }
+    processing: defaultProcessing
 };
 
 const dataSlice = createSlice({
@@ -184,7 +213,6 @@ const dataSlice = createSlice({
         setActiveSection: (state, action: PayloadAction<number>) => {
             state.activeSection = action.payload;
         },
-
 
         updateSection: (state, action: PayloadAction<Section>) => {
             state.sections[state.activeSection] = action.payload

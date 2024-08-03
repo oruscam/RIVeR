@@ -7,13 +7,12 @@ import store from './store/store';
 import './index.css';
 import './translations/i18n';
 
+// ! STRICT MODE DESACTIVADO
 
 createRoot(document.getElementById('root') ?? document.createElement('div')).render(
-  <React.StrictMode>
     <Provider store={store}>
       <App />
     </Provider>
-  </React.StrictMode>
 );
 
 // Use contextBridge

@@ -19,7 +19,7 @@ import { FieldValues } from "react-hook-form";
     * en un objeto con la siguiente estructura:
     * {
         "CS_default_1": {
-            "rw_lenght": 0,
+            "rw_length": 0,
             "bath": "/path/to/file",
             "east_l": 0,
             "north_l": 0,
@@ -51,7 +51,7 @@ export function convertInputData(data: FieldValues, csNames: string[]){
             let fieldName = match[2].toLowerCase(); // Mantener en minúsculas para empezar
             // Mapeo de nombres de campo a los deseados
             const fieldMap = {
-                "cs_length": "rw_lenght",
+                "cs_length": "rw_length",
                 "cs_bathimetry": "bath",
                 "level": "level", // Asumiendo que "level" se mapea directamente
                 "east_left": "east_l",

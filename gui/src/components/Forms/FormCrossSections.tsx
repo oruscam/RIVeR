@@ -67,8 +67,10 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
             <span className="ghost"></span>
             <label className="read-only" htmlFor="CS_LENGTH"> CS Length </label>
             <input type="number"
-              className="input-field"
-              {...register(`${name}_CS_LENGTH`)}
+              className="input-field-read-only"
+              {...register(`${name}_CS_LENGTH`, {
+                validate: value => value != 0 || 'El valor no puede ser 0'
+              })}
               id="CS_LENGTH" readOnly={true}
             />
 

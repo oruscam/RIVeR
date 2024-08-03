@@ -1,23 +1,31 @@
 import { ipcMain } from "electron";
 import * as path from 'node:path'
 import * as fs from 'fs'
+import { ProjectConfig } from "./interfaces";
 
 interface setSectionsHandleArgs {
-    projectDirectory: string,
     data: any
 }
-
-export function setSections(){
+// 🚧 setSections -> solo setea el setting.json con la nueva direccion a xsettings -> archivo de secciones.
+export function setSections(PROJECT_CONFIG: ProjectConfig){
     ipcMain.handle('set-sections', async (_event, args: setSectionsHandleArgs) => {
-        const file = path.join(args.projectDirectory, 'config.json')
-        
-        const json = await fs.promises.readFile(file, 'utf-8')
-        const jsonParsed = JSON.parse(json)
-        jsonParsed.x_sections = args.data;
-        
-        const updatedContent = JSON.stringify(jsonParsed, null, 4)
+        console.log('set-sections')
+
+        const { directory, settingsPath } = PROJECT_CONFIG; 
+        const xsectionsPath = path.join(directory, 'xsections.json')
+        PROJECT_CONFIG.xsectionsPath = xsectionsPath;
+        const xsectionsJson = JSON.stringify(args.data, null, 4)
+
+        const settingsJson = await fs.promises.readFile(settingsPath, 'utf-8')
+        const settingsJsonParsed = JSON.parse(settingsJson)
+
+        settingsJsonParsed.xsections = xsectionsPath;
+        const updatedSettings = JSON.stringify(settingsJsonParsed, null, 4)
+
         try {
-            await fs.promises.writeFile(file, updatedContent, 'utf-8')
+            await fs.promises.writeFile(settingsPath, updatedSettings, 'utf-8')
+            await fs.promises.writeFile(xsectionsPath, xsectionsJson, 'utf-8')
+
             return "Sections saved"
         } catch(error){
             console.log("ERROR ESCRIBIENDO JSON DE SECCIONES")

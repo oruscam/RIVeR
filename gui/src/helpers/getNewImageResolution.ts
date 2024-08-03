@@ -6,7 +6,7 @@ export const getNewImageResolution = (screenWidth: number, screenHeight: number,
     let newImageWidth: number;
     let newImageHeight: number;
 
-    console.log(screenWidth * 0.72)
+    console.log(screenWidth, screenHeight)
 
     if(imageWidth <= 500){
         scaleFactorX = 1;
@@ -22,7 +22,8 @@ export const getNewImageResolution = (screenWidth: number, screenHeight: number,
     } else if ( screenWidth >= 1820 && screenHeight >= 1000){
         scaleFactorX = (imageWidth / 1260);
         scaleFactorY = (imageHeight / 700);
-    } else if(screenWidth >= 1580 && screenHeight >= 1000){
+    } 
+    else if(screenWidth >= 1580 && screenHeight >= 980){
         scaleFactorX = imageWidth / 1120;
         scaleFactorY = imageHeight / 700;
     } else if(screenWidth >= 1320 && screenHeight >= 900){

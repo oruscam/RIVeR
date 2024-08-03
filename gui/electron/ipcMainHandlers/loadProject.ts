@@ -2,13 +2,14 @@ import { dialog, ipcMain } from "electron";
 import * as fs from 'fs'
 import * as path from 'path'
 import { getVideoMetadata } from "./utils/getVideoMetadata";
+import { ProjectConfig } from "./interfaces";
 
 
-export function loadProject(){
+export function loadProject(PROJECT_CONFIG: ProjectConfig){
     const options: Electron.OpenDialogOptions = {
         properties: ['openFile'],
         filters: [
-            { name: 'config', extensions: ['json']}
+            { name: 'settings', extensions: ['json']}
         ]
     }
 
@@ -21,7 +22,12 @@ export function loadProject(){
                 const folderPath = filePath.substring(0, filePath.lastIndexOf('/'));
                 const framesPath = path.join(folderPath, 'frames')
                 let firstFrame = ""
-                if (fileName === 'config.json') {
+                if (fileName === 'settings.json') {
+                    // * assign the project configuration
+                    PROJECT_CONFIG.directory = folderPath;
+                    PROJECT_CONFIG.settingsPath = filePath;
+                    PROJECT_CONFIG.framesPath = framesPath;
+
                     const images = await fs.promises.readdir(framesPath);
                     
                     if( images.length > 0){

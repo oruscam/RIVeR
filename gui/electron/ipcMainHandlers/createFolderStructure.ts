@@ -29,7 +29,7 @@ export async function createFolderStructure (newDirPath: string, type: string, v
         }
     }
 
-    const jsonPath = path.join(newDirPath, 'config.json');
+    const jsonPath = path.join(newDirPath, 'settings.json');
     const jsonData = {
         creation_date: getFormattedDate(),
         footage: type,

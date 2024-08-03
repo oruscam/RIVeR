@@ -6,10 +6,7 @@ import { ProjectConfig } from "./interfaces";
 export async function pixelToRealWorld(PROJECT_CONFIG: ProjectConfig){
     ipcMain.handle('pixel-to-real-world', async (_event, args) => {
         console.log("Pixel to Real World")
-        console.log(args)
-
-        console.log(PROJECT_CONFIG)
-
+        
         const options = {
             pythonPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/venv/bin/python3',
             scriptPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/river/cli/',

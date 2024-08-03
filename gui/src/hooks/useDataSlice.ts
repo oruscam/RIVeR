@@ -242,6 +242,7 @@ export const useDataSlice = () => {
     // * ON UPDTATE SECTION 
 
     const onSetSections = async (formData: FieldValues) => {
+        dispatch(setLoading(true))
         console.log(formData)
         const csNames: string[] = []
         sections.map((section, index) => {
@@ -252,8 +253,12 @@ export const useDataSlice = () => {
         const data = convertInputData(formData, csNames)
         const ipcRenderer = window.ipcRenderer;
         try {
-            const result = await ipcRenderer.invoke('set-sections', {projectDirectory, data})
-            console.log(result)
+            await ipcRenderer.invoke('set-sections', {data})
+            const { height_roi } = await ipcRenderer.invoke('recommend-roi-height')
+            const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', {height_roi: height_roi})
+            dispatch(updateProcessing({...processing, heightRoi: height_roi, maskPath: maskPath}))
+            dispatch(setLoading(false))
+
         } catch (error) {
             console.log("ERROR EN SETSECTIONS")
             console.log(error)
@@ -338,10 +343,7 @@ export const useDataSlice = () => {
         }
     }
 
-
-
     // * v0.0.1
-
     const onLoadProject = async () => {
         console.log("onLoadProject")
         console.log(sections)
@@ -371,9 +373,8 @@ export const useDataSlice = () => {
 
                 dispatch(setLoading(false))
                 if(data.pixel_size){
-                    const { x1, y1, x2, y2} = data.pixel_size
+                    const { x1, y1, x2, y2 } = data.pixel_size
                     dispatch(setSectionPoints([{x: x1, y: y1}, {x: x2, y: y2}]))
-                    // dispatch(setDrawLine())
                     return 4
                 } else if(data.video_range){
                     const { step, start, end } = data.video_range
@@ -402,6 +403,20 @@ export const useDataSlice = () => {
         }
     }
 
+    // ? PROVISIONAL
+    const onTest = async () => {
+        if(processing.test){
+            dispatch(updateProcessing({...processing, test: false}))
+        }else{
+            setTimeout(() => {
+                dispatch(updateProcessing({...processing, test: true}))
+                
+            }, 2000)
+        }
+    };
+
+        
+
 
     return {    
         video,
@@ -422,7 +437,8 @@ export const useDataSlice = () => {
         onLoadProject,
         onSetRealWorld,
         onUpdateSection,
-        onUpdateProccesing
+        onUpdateProccesing,
+        onTest
     };
 };
 

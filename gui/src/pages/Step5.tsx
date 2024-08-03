@@ -13,7 +13,6 @@ export const Step5 = () => {
 
   const values = getNewImageResolution(windowWidth, windowHeight, data.width, data.height)
   
-
   return (
     <div className="regular-page">
         <div className="media-container">

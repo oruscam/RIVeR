@@ -24,7 +24,7 @@ export function firstFrame(PROJECT_CONFIG: ProjectConfig){
             ],
         }
 
-        const json = await fs.promises.readFile(PROJECT_CONFIG.jsonPath, 'utf-8');
+        const json = await fs.promises.readFile(PROJECT_CONFIG.settingsPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
 
         jsonParsed.video_range = {
@@ -34,7 +34,7 @@ export function firstFrame(PROJECT_CONFIG: ProjectConfig){
         }
         
         const updatedContent = JSON.stringify(jsonParsed, null, 4);
-        await fs.promises.writeFile(PROJECT_CONFIG.jsonPath, updatedContent, 'utf-8');
+        await fs.promises.writeFile(PROJECT_CONFIG.settingsPath, updatedContent, 'utf-8');
 
 
         return new Promise((resolve, reject) => {
