@@ -2,7 +2,7 @@ import { Image } from 'react-konva'
 import { pinRed, pinGreen, pin }from '../assets/icons/icons'
 import useImage from 'use-image'
 import { KonvaEventObject } from 'konva/lib/Node';
-import { useDataSlice } from '../hooks';
+import { useSectionSlice } from '../hooks';
 
 
 
@@ -18,7 +18,7 @@ interface PointsProps {
 }
 
 export const Points = ({ localPoints = [], setLocalPoints, draggable = false, isPixelSize = false, factor = {x: 0, y: 0} }: PointsProps) => {
-    const { onSetPoints } = useDataSlice()
+    const { onSetPoints } = useSectionSlice()
     const [iconRed] = useImage(pinRed) 
     const [iconGreen] = useImage(pinGreen) 
     const [icon] = useImage(pin)

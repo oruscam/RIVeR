@@ -1,10 +1,10 @@
 import React, { useEffect } from "react"
 import {  useForm } from "react-hook-form"
-import { useDataSlice } from "../../hooks"
+import { useSectionSlice } from "../../hooks"
 
 export const Sections = ({ setDeletedSections }: { setDeletedSections: React.Dispatch<React.SetStateAction<any>> }) => {
     const { register} = useForm()
-    const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onUpdateSection } = useDataSlice()
+    const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onUpdateSection } = useSectionSlice()
     const [sectionNumber, setSectionNumber] = React.useState(2)
 
     // Set the active section, and logic for scrolling to the next section

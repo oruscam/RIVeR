@@ -2,11 +2,10 @@ import { FormCrossSections } from "../Forms"
 import { FieldValues, FormProvider, useForm} from "react-hook-form"
 import { Sections } from "./Sections"
 import './crossSections.css'
-import { useDataSlice, useUiSlice } from "../../hooks"
+import { useSectionSlice, useUiSlice } from "../../hooks"
 import { EyeBall } from "./EyeBall"
 import { useWizard } from "react-use-wizard"
 import { useEffect, useState } from "react"
-
 
 
 interface Section {
@@ -27,7 +26,7 @@ const createInitialState = (sections: Section[]) => {
             const baseKey = name;
             defaultValues = {
                 ...defaultValues,
-                [`${baseKey}_CS_LENGTH`]: pixelSize.rw_lenght,
+                [`${baseKey}_CS_LENGTH`]: pixelSize.rw_length,
                 [`${baseKey}_CS_BATHIMETRY`]: { "blob": bathimetry.blob, "path": bathimetry.path, "name": bathimetry.name},
                 [`${baseKey}_LEVEL`]: bathimetry.level,
                 [`${baseKey}_EAST_Left`]: realWorld[0].x.toFixed(2),
@@ -47,7 +46,7 @@ const createInitialState = (sections: Section[]) => {
   };
 
 export const CrossSections = () => {
-    const { sections, activeSection, onSetSections }= useDataSlice() // Wrap the sections variable inside an array
+    const { sections, activeSection, onSetSections }= useSectionSlice() // Wrap the sections variable inside an array
     const { onSetErrorMessage } = useUiSlice();
     const [ deletedSections, setDeletedSections] = useState('')
     const methods = useForm({defaultValues: createInitialState(sections)})

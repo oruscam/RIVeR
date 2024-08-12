@@ -4,7 +4,7 @@ import { RootState } from "../store/store";
 import { ScreenSizes } from '../store/ui/types'
 
 export const useUiSlice = () => {
-    const { darkMode, video, error, isLoading, seeAll, screenSizes} = useSelector((state: RootState) => state.ui);
+    const { darkMode, error, isLoading, seeAll, screenSizes} = useSelector((state: RootState) => state.ui);
     const dispatch = useDispatch();
 
     const onChangeTheme = () => {
@@ -45,11 +45,9 @@ export const useUiSlice = () => {
     }
 
 
-
     return {
         // ATRIBUTES
         darkMode,
-        video,
         error,
         isLoading,
         seeAll,

@@ -1,4 +1,5 @@
 import { SetStateAction } from "react"
+import { LazyLoadTypes } from "react-slick";
 
 
 interface CarouselSettings {
@@ -8,10 +9,9 @@ interface CarouselSettings {
     slidesToScroll: number;
     speed: number;
     focusOnSelect: boolean;
-    lazyLoad: boolean;
+    lazyLoad: LazyLoadTypes;
     initialSlide: number;
     infinite: boolean;
-    swipeToSlide: boolean;
     afterChange: () => void;
     beforeChange: (current: number, next: number) => void;
     responsive: ResponsiveSetting[];
@@ -28,17 +28,17 @@ interface ResponsiveSetting {
 export const carouselSettings = (
     updateCount: number,
     setUpdateCount: React.Dispatch<SetStateAction<number>>,
-    setSlideIndex: React.Dispatch<SetStateAction<number>>
+    setSlideIndex: React.Dispatch<SetStateAction<number>>,
 ): CarouselSettings => {
     return {
         className: "center",
         centerMode: true,
         slidesToShow: 4.25,
         slidesToScroll: 1,
-        speed: 200,
+        speed: 500,
         focusOnSelect: true,
-        lazyLoad: true,
-        initialSlide: 0,
+        lazyLoad: 'ondemand',
+        initialSlide: 1,
         infinite:true,
         afterChange: () => setUpdateCount(updateCount + 1),
         beforeChange: (_current, next) => setSlideIndex(next),

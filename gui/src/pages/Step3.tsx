@@ -4,14 +4,14 @@ import { WizardButtons } from '../components/WizzardButtons'
 import { Error } from '../components/Error'
 import { FormVideoExtra } from '../components/Forms/FormVideoExtra'
 import { useState } from 'react'
-import { useDataSlice } from '../hooks'
 import { Progress } from '../components'
+import { useProjectSlice } from '../hooks'
 
 export const Step3 = () => {
   const [formStep, setFormStep] = useState(1)
-  const { video } = useDataSlice()
+  const { video } = useProjectSlice();
   const { path }= video.data
-  console.log(path)
+  
   return (
     <div className='regular-page'>
         <div className='media-container'>
@@ -21,6 +21,7 @@ export const Step3 = () => {
         <div className='form-container'>
           <Progress></Progress>
           <FormVideo setStep={setFormStep}></FormVideo>
+          {/* EXTRA INFO */}
           <FormVideoExtra step={formStep}></FormVideoExtra>
           <WizardButtons formId='form-video' canFollow={true}></WizardButtons>
         </div>

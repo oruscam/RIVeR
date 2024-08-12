@@ -15,14 +15,14 @@ function getDistanceBetweenPoints(points: Points[]): number {
 // * Compute the pixel size based on the real world coordinates and the pixel coordinates.
 // * Return the size of a pixel in the real world units.
 
-function computePixelSize(pixelPoints: Points[], rwPoints: Points[]): { size: number, rw_lenght: number } {
+function computePixelSize(pixelPoints: Points[], rwPoints: Points[]): { size: number, rw_length: number } {
     const pixelDistance = getDistanceBetweenPoints(pixelPoints);
     const rwDistance = getDistanceBetweenPoints(rwPoints);
 
     const pSize = Number((rwDistance / pixelDistance).toFixed(2))
     const lineLength = Number(rwDistance.toFixed(2))
 
-    return { size: pSize, rw_lenght: lineLength };
+    return { size: pSize, rw_length: lineLength };
 }
 
 

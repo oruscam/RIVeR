@@ -1,10 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import uiReducer from "./ui/uiSlice";
+import sectionReducer from "./section/sectionSlice";
+import projectReducer from "./project/projectSlice";
 import dataReducer from "./data/dataSlice";
 
 const store = configureStore({
     reducer: {
         ui: uiReducer,
+        project: projectReducer,
+        section: sectionReducer,
         data: dataReducer
     },
 });

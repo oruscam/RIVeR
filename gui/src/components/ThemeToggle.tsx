@@ -9,8 +9,8 @@ export const ThemeToggle: React.FC = () => {
   return (
     <div>
       <Classic toggled={!darkMode}
-        toggle={onChangeTheme} 
-        className='primary-color'>          
+      toggle={onChangeTheme}
+      className='primary-color' placeholder={undefined} onPointerEnterCapture={undefined} onPointerLeaveCapture={undefined}>          
         </Classic>
     </div>
   );

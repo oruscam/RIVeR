@@ -6,8 +6,6 @@ export const getNewImageResolution = (screenWidth: number, screenHeight: number,
     let newImageWidth: number;
     let newImageHeight: number;
 
-    console.log(screenWidth, screenHeight)
-
     if(imageWidth <= 500){
         scaleFactorX = 1;
         scaleFactorY = 1

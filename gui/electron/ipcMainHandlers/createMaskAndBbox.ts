@@ -40,7 +40,7 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig) {
             await fs.promises.writeFile(maskArrayPath, maskJson, 'utf-8')
             await fs.promises.writeFile(bboxArrayPath, bboxJson, 'utf-8')
             
-            const maskPngPath = path.join(directory, 'mask.png')
+            const maskPngPath = path.join('/@fs', directory, 'mask.png')
             return { maskPath: maskPngPath }
         } catch (error) {
             console.log("ERROR EN CREATE MASK AND BBOX")

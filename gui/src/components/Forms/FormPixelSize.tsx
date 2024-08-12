@@ -2,10 +2,9 @@ import './form.css'
 import { useTranslation } from 'react-i18next'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import {  useState } from 'react'
-import { useDataSlice, useUiSlice } from '../../hooks'
+import { useSectionSlice, useUiSlice } from '../../hooks'
 import { ButtonLock } from '../ButtonLock'
 import { PixelCoordinates, RealWorldCoordinates } from './index'
-import { InfoPixelSize } from '../InfoPixelSize'
 
 
 interface FormPixelSizeProps {
@@ -17,11 +16,9 @@ interface FormPixelSizeProps {
   }
 }
 
-
-
 export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
     const { t } = useTranslation()
-    const {sections, onUpdateSection}= useDataSlice()
+    const {sections, onUpdateSection} = useSectionSlice()
 
     const { register} = useFormContext()
 

@@ -4,15 +4,15 @@ import { ThemeToggle } from '../components/ThemeToggle';
 import { LanguageSelector } from '../components/LanguageSelector';
 import image from '../assets/RIVeR-logo.png';
 import './pages.css';
-import { useDataSlice, useUiSlice } from '../hooks';
+import { useProjectSlice, useUiSlice } from '../hooks';
 
 export const HomePage: React.FC = () => {
   const { t } = useTranslation();
   const { nextStep, goToStep } = useWizard();
-  const { onLoadProject } = useDataSlice();
+  const { onLoadProject } = useProjectSlice();
   const { onSetErrorMessage, error} = useUiSlice();
 
-  const handleNewProjectClick = async ( event ) => {
+  const handleNewProjectClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     if( event.currentTarget.id === 'new-project'){
       nextStep();
     }else{
@@ -25,7 +25,6 @@ export const HomePage: React.FC = () => {
     }
   };
 
-
   return (
     <div className='App'>
       <img src={image} className='home-page-image' alt='RIVeR Logo' />
@@ -35,7 +34,7 @@ export const HomePage: React.FC = () => {
         </button>
         <button className='button-1' onClick={handleNewProjectClick} id='load-project'>{t('MainPage.loadProject')}</button>
       </div>
-      { error && <h4 className='home-page-error'>{error}</h4>}
+      { error && <h4 className='home-page-error'> {error} </h4>}
 
       <LanguageSelector />
       <ThemeToggle />

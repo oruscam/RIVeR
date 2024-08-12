@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
-import { useDataSlice } from '../../hooks'
+import { useProjectSlice } from '../../hooks'
 
 
 export const FormVideoExtra: React.FC<{ step: number }> = ({ step }) => {
     const { t } = useTranslation()
-    const { video } = useDataSlice()
+    const { video } = useProjectSlice()
     const { name, width, height, duration, fps } = video.data;
 
     const getTimeBetweenFrames = (): string => {

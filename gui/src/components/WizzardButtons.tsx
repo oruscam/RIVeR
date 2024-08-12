@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import './components.css';
 import { useWizard } from 'react-use-wizard';
-import { useDataSlice } from '../hooks';
+import { useSectionSlice } from '../hooks';
 
 type Props = {
   canFollow?: boolean;
@@ -12,7 +12,7 @@ type Props = {
 
 export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClick }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep } = useWizard();
-  const { onSetActiveSection} = useDataSlice()
+  const { onSetActiveSection} = useSectionSlice()
   const { t } = useTranslation();
 
   const handlePreviuos = () => {

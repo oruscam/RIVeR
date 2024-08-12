@@ -3,14 +3,15 @@ import { useWizard } from 'react-use-wizard'
 import { FormPixelSize } from '../components/Forms/index'
 import { WizardButtons, Error, ImageWithMarks, Progress } from '../components/index'
 import { getNewImageResolution } from '../helpers/index.js'
-import { useDataSlice, useUiSlice } from '../hooks/index'
+import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks/index'
 
 
 import './pages.css'
 import { useEffect } from 'react'
 
 export const Step4 = () => {
-  const { video, onSetPixelSize, sections } = useDataSlice()
+  const { video } = useProjectSlice();
+  const { onSetPixelSize, sections } = useSectionSlice()
   const { points, realWorld, pixelSize } = sections[0]
   
   // * Estado inicial del formulario
@@ -50,7 +51,7 @@ export const Step4 = () => {
 
   useEffect(() => {
     methods.reset({
-      pixel_size_LINE_LENGTH: pixelSize.rw_lenght,
+      pixel_size_LINE_LENGTH: pixelSize.rw_length,
       pixel_size_PIXEL_SIZE: pixelSize.size,
       pixel_size_EAST_point_1: realWorld[0].x,
       pixel_size_EAST_point_2: realWorld[1].x,

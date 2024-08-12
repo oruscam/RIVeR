@@ -9,10 +9,10 @@ const userDir = os.homedir();
 
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
-import { initProject, firstFrame, pixelSizeHandler, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel} from './ipcMainHandlers/index.js'
+import { initProject, firstFrame, pixelSizeHandler, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver} from './ipcMainHandlers/index.js'
 import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
 import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
-import { getQuiverTest } from './ipcMainHandlers/getQuiverTest.js'
+import { getQuiverTest } from './ipcMainHandlers/getQuiver.js'
 
 
 process.env.APP_ROOT = path.join(__dirname, '..')
@@ -94,14 +94,13 @@ const PROJECT_CONFIG: ProjectConfig = {
 }
 
 app.whenReady().then(() => {
-  // ! DONT WORK
+  // ! DONT WORK. En develop usamos /@fs, en produccion usamos file://
   protocol.handle('resources', function(request){
     const filePath = request.url.slice('resources://'.length);
     const fileUrl = new URL(`file://${filePath}`).toString();
     return net.fetch(fileUrl)
   })
-  
-  
+   
   createWindow();
   initProject(userDir, PROJECT_CONFIG);
   loadProject(PROJECT_CONFIG);
@@ -112,7 +111,11 @@ app.whenReady().then(() => {
   setSections(PROJECT_CONFIG);
   recommendRoiHeight(PROJECT_CONFIG);
   createMaskAndBbox(PROJECT_CONFIG);
-  getQuiverTest(PROJECT_CONFIG);
-  getImages();
+  getQuiver(PROJECT_CONFIG);
+  getImages(PROJECT_CONFIG);
 })
 
+
+setInterval(() => {
+  console.log(PROJECT_CONFIG);
+}, 5000);  

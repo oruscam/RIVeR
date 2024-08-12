@@ -4,17 +4,16 @@ import { HardModeProcessing } from "./HardModeProcessing"
 import { FieldValues, FormProvider, useForm } from "react-hook-form"
 import { useDataSlice, useUiSlice } from "../../hooks"
 import { useWizard } from "react-use-wizard"
-import { Loading } from "../Loading"
 
 export const FormProcessing = () => {
   const [extraFields, setExtraFields] = useState(false)
   const { nextStep } = useWizard()
   
   const { onSetErrorMessage } = useUiSlice()
-  const { processing, onUpdateProccesing, onTest } = useDataSlice();
-  const { artificialSeeding, step1, heightRoi, grayscale, removeBackground, clahe, clipLimit, stdFiltering, threshold1, medianTest, epsilon, threshold2, test  } = processing
+  const { processing, onUpdateProccesing, onSetQuiverTest, onSetQuiverAll } = useDataSlice()
+  const { artificialSeeding, step1, heightRoi, grayscale, removeBackground, clahe, clipLimit, stdFiltering, stdThreshold, medianTestThreshold, medianTestEpsilon, medianTestFiltering } = processing.form
   
-  const [buttonTest, setButtonTest] = useState(false)
+  const [buttonTest, _setButtonTest] = useState(false)
 
   const methods = useForm({defaultValues: {
     "step_1": step1,
@@ -25,10 +24,10 @@ export const FormProcessing = () => {
     "clahe": clahe,
     "clip_limit": clipLimit,
     "std_filtering": stdFiltering,
-    "threshold_1": threshold1,
-    "median_test": medianTest,
-    "epsilon": epsilon,
-    "threshold_2": threshold2,
+    "std_threshold": stdThreshold,
+    "median_test": medianTestFiltering,
+    "median_epsilon": medianTestEpsilon,
+    "median_threshold": medianTestThreshold,
     "artificial_seeding": artificialSeeding
   }})
   const { register, handleSubmit, reset } = methods
@@ -49,17 +48,13 @@ export const FormProcessing = () => {
   }
   // * Simulacion de llamada a onTest
   const handleOnClickTest = ( event ) => {
-    onTest()
-    if( !buttonTest && !test ){
-      setButtonTest(true)
-    }
-    if(buttonTest && test){
-      setButtonTest(false)
-    }
+    event.preventDefault()
+    onSetQuiverTest()
   }
 
   const onSubmit = (data: FieldValues) => {
     console.log(data)
+    onSetQuiverAll()
     nextStep()
   }
 
@@ -100,7 +95,7 @@ export const FormProcessing = () => {
 
                   <div className="test-container">
                     <button className={`wizard-button form-button ${buttonTest ? "wizard-button-active" : ""}`} onClick={handleOnClickTest}> Test </button>
-                    { buttonTest && !test && <div className="loader-little"></div> }
+                    { processing.test && <div className="loader-little"></div> }
                   </div>
               </div>
               <span className="space2"></span>

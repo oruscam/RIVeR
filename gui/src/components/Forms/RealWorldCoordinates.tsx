@@ -1,14 +1,13 @@
 import { useFormContext } from "react-hook-form";
 import { getPointNames } from "../../helpers/index";
-import { useDataSlice, useUiSlice } from "../../hooks";
+import { useSectionSlice } from "../../hooks";
 
 
 
 export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
     const { pointName1, pointName2 } = getPointNames(modeName);
-    const { register, resetField} = useFormContext()  
-    const { onSetErrorMessage } = useUiSlice()
-    const { onSetRealWorld } = useDataSlice()
+    const { register } = useFormContext()  
+    const { onSetRealWorld } = useSectionSlice()
 
 
     const handleInputField = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement> , nextFieldId: string ) => {

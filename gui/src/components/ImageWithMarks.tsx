@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import useImage from 'use-image'
 import { Group, Image, Layer, Line, Stage } from 'react-konva'
 import { KonvaEventObject } from 'konva/lib/Node'
-import { useDataSlice, useUiSlice } from '../hooks'
+import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks'
 import { Points, LineAndText } from './index'
 
 type Point = { x: number; y: number };
@@ -17,14 +17,14 @@ interface ImageWithMarksProps {
 
 export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) => {
   const { seeAll } = useUiSlice()
-  const { onSetPoints, sections, activeSection, video } = useDataSlice()
+  const { onSetPoints, sections, activeSection} = useSectionSlice()
+  const { firstFramePath } = useProjectSlice(); 
   const {drawLine, points, name} = sections[activeSection]
 
   const [localPoints, setLocalPoints] = useState<Point[]>([])
   const [mousePressed, setMousePressed] = useState(false)
   const [currentMousePosition, setCurrentMousePosition] = useState<Point>({ x: 0, y: 0 })
 
-  const { firstFramePath } = video
   const [image] = useImage('/@fs' + firstFramePath)
 
   // * Funcion para obtener la posicion del mouse en el canvas, en relacion a la imagen y al Zoom.

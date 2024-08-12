@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {UIState, VideoData, Section, Point, ScreenSizes, Bathimetry, VideoForm} from './types'
-
-
+import {UIState, ScreenSizes } from './types'
 
 const initialState: UIState = {
     screenSizes: {
@@ -9,7 +7,6 @@ const initialState: UIState = {
         height: window.innerHeight, 
     },
     darkMode: true,
-    video: null,
     error: [],
     isLoading: false,
     seeAll: false,
@@ -39,7 +36,6 @@ const uiSlice = createSlice({
         setSeeAll: (state) => {
             state.seeAll = !state.seeAll;
         },
-
     }
 });
 

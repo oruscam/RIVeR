@@ -6,11 +6,11 @@ import { useTranslation } from 'react-i18next'
 import { useUiSlice } from '../../hooks/useUiSlice';
 import { useWizard } from 'react-use-wizard';
 import { getValidationRules } from '../../helpers/validationRules'
-import { useDataSlice } from '../../hooks';
+import { useProjectSlice } from '../../hooks';
 
 
 export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateAction<number>> }) => {
-  const { onSetVideoParameters, video: videoData } = useDataSlice()
+  const { onSetVideoParameters, video: videoData } = useProjectSlice()
   const { startTime, endTime, step } = videoData.parameters
   const { handleSubmit, register, setValue, getValues, watch} = useForm({
     defaultValues: {
@@ -42,14 +42,14 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
     }
           
   const onSubmit = ( data: FieldValues ) => {
-    console.log("SUBMIT FORMVIDEO")
+    console.log("Submit Form Video")
     onSetVideoParameters(data)
 
     nextStep()
   }
 
   const onError = ( error: any ) => {
-    console.log("ON FORM VIDEO ERROR")
+    console.log("On Form Video Error")
     onSetErrorMessage( error )
   }
 

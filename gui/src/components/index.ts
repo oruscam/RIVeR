@@ -23,7 +23,7 @@ export {
     Points,
     Loading, 
     Progress,
-    ImageWithData as ImageWithMask,
+    ImageWithData ,
     DrawSections,
     Carousel
 }

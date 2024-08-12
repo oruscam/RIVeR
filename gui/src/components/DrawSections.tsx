@@ -1,9 +1,9 @@
 import { Group, Line, Rect } from "react-konva"
-import { useDataSlice } from "../hooks"
 import { getDistanceBetweenPoints } from "../helpers"
+import { useSectionSlice } from "../hooks"
 
 export const DrawSections = ({ factor } : { factor: {x: number, y: number }}) => {
-    const { sections } = useDataSlice()
+    const { sections } = useSectionSlice()
 
     const getAngle = ( points: { x: number, y: number }[] ) => {
         const angle = Math.atan2(points[1].y - points[0].y, points[1].x - points[0].x) * (180 / Math.PI)

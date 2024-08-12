@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { ButtonLock } from "../ButtonLock"
-import { useDataSlice } from "../../hooks"
+import { useSectionSlice } from "../../hooks"
 import { Bathimetry } from "../Bathimetry"
 import { RealWorldCoordinates } from "./RealWorldCoordinates"
 import { PixelCoordinates } from "./PixelCoordinates"
@@ -16,7 +16,7 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
 
   const [bathimetryLimits, setBathimetryLimits] = useState({ min: 0, max: 0 })
 
-  const { sections, activeSection, onUpdateSection } = useDataSlice()
+  const { sections, activeSection, onUpdateSection } = useSectionSlice()
   const { drawLine, bathimetry } = sections[activeSection]
   const { register, watch, setValue } = useFormContext()
   const bathWatch = watch(`${name}_CS_BATHIMETRY`)

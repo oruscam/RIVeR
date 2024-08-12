@@ -1,12 +1,12 @@
 import { useFormContext } from "react-hook-form"
-import { useDataSlice, useUiSlice } from "../../hooks";
+import { useSectionSlice, useUiSlice } from "../../hooks";
 import { getPointNames } from "../../helpers/index.ts";
 
 
 export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
     const { register, resetField } = useFormContext();
     const { onSetErrorMessage } = useUiSlice();
-    const { onSetPoints } = useDataSlice();
+    const { onSetPoints } = useSectionSlice();
     
     const { pointName1, pointName2 } = getPointNames(modeName);
 

@@ -14,7 +14,7 @@ import { Chart as ChartJS,
         Legend, 
         Filler
     } from 'chart.js';
-import { useDataSlice } from '../hooks';
+import { useSectionSlice } from '../hooks';
 import options from './bathimetry.options';
 import getBathimetryLimits from '../helpers/getBathimetryLimits';
 
@@ -28,7 +28,7 @@ type Bathimetry = {
 
 
 export const Bathimetry = ({ setBathimetryLimits }: { setBathimetryLimits: (limits: { min: number, max: number }) => void }) => {
-    const {sections, activeSection} = useDataSlice()
+    const {sections, activeSection} = useSectionSlice();
     const { blob, level } = sections[activeSection].bathimetry as Bathimetry;
     
     const [chartData, setChartData] = useState({
@@ -57,17 +57,17 @@ export const Bathimetry = ({ setBathimetryLimits }: { setBathimetryLimits: (limi
                 const data = getBathimetryLimits(results.data)
                 setBathimetryLimits({min: data.min, max: data.max})
                 setChartData({
-                    labels: data.stations,
+                    labels: data.stations.map(Number),
                     datasets: [
-                    {
-                        ...chartData.datasets[0],
-                        data: data.stages,
-                        fill: {
-                            above: "transparent",
-                            below: "rgba(70, 70, 70,1)",
-                            value: data.max
-                        },  
-                    },
+                        {
+                            ...chartData.datasets[0],
+                            data: data.stages,
+                            fill: {
+                                above: "transparent",
+                                below: "rgba(70, 70, 70,1)",
+                                value: data.max
+                            },  
+                        },
                     ],
                 });
                 },

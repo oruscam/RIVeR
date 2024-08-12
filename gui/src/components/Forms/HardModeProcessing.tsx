@@ -46,7 +46,7 @@ export const HardModeProcessing = () => {
         </div>
         <div className="switch-container">
           <h3 className="field-title"> Threshold </h3>
-          <input className="input-field-little {...register('threshold_1')}"></input>
+          <input className="input-field-little" {...register('std_threshold')}></input>
         </div>
         <div className="switch-container">
           <h3 className="field-title"> Median test filtering </h3>
@@ -57,11 +57,11 @@ export const HardModeProcessing = () => {
         </div>
         <div className="switch-container">
           <h3 className="field-title"> Epsilon </h3>
-          <input className="input-field-little" {...register('epsilon')}></input>
+          <input className="input-field-little" {...register('median_epsilon')}></input>
         </div>
         <div className="switch-container">
           <h3 className="field-title"> Threshold </h3>
-          <input className="input-field-little" {...register('threshold_1')}></input>
+          <input className="input-field-little" {...register('median_threshold')}></input>
         </div>
         {/* <span className="space3"></span> */}
 
