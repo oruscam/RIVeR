@@ -9,17 +9,17 @@ interface QuiverProps {
   height: number;
   factor: {x: number, y: number};
   activeStep: number;
+  showMedian?: boolean;
 }
 
-export const Quiver = ({ width, height, factor, activeStep }: QuiverProps) => {
+export const Quiver = ({ width, height, factor, activeStep, showMedian }: QuiverProps) => {
   const svgRef = useRef(null)
-  const { images, quiver, processing } = useDataSlice();
+  const { images, quiver } = useDataSlice();
 
-  console.log(quiver)
-  console.log(processing.test)
+  console.log(images.active)
 
   if(quiver){
-    const { x, y, u, v, typevector } = quiver;
+    const { x, y, u, v, typevector, u_median, v_median } = quiver;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); // Limpiar el SVG antes de dibujar
@@ -30,8 +30,17 @@ export const Quiver = ({ width, height, factor, activeStep }: QuiverProps) => {
 
     const flatXTable = x.map((d, i) => typevector[i] === 1 ? d : -10000); 
     const flatYTable = y.map((d, _i) => {return d});
-    const uTable = u[activeStep === PROCESSING_STEP_NUMBER ? 0 : images.active]; // [counter]
-    const vTable = v[activeStep === PROCESSING_STEP_NUMBER ? 0 : images.active]; // [counter]
+    
+    let uTable: number[] = [];
+    let vTable: number[] = [];
+
+    if( showMedian ){
+      uTable = u_median || [];
+      vTable = v_median || [];
+    }else {
+      uTable = u[activeStep === PROCESSING_STEP_NUMBER ? 0 : images.active]; // [counter]
+      vTable = v[activeStep === PROCESSING_STEP_NUMBER ? 0 : images.active]; // [counter]
+    }
 
 
     svg.selectAll('line')
@@ -42,7 +51,7 @@ export const Quiver = ({ width, height, factor, activeStep }: QuiverProps) => {
         .attr('y1', (_d: string, i: number) => flatYTable[i] / factor.y)
         .attr('x2', (_d: string, i: number) => flatXTable[i] / factor.x + uTable[i] * 20)
         .attr('y2', (_d: string, i: number) => flatYTable[i] / factor.y + vTable[i] * 20)
-        .attr('stroke', 'black')
+        .attr('stroke', '#0678BE')
         .attr('stroke-width', 1.8)
         .attr('marker-end', 'url(#arrow)')
 
@@ -58,7 +67,7 @@ export const Quiver = ({ width, height, factor, activeStep }: QuiverProps) => {
         .attr("orient", "auto-start-reverse")
       .append("path")
         .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", "black");
+        .attr("fill", "#0678BE")
   }
 
   return (

@@ -2,7 +2,6 @@ import { app, BrowserWindow, net, protocol } from 'electron'
 import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
 import * as os from 'os'
-import * as fs from 'fs'  
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
@@ -12,7 +11,6 @@ import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
 import { initProject, firstFrame, pixelSizeHandler, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver} from './ipcMainHandlers/index.js'
 import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
 import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
-import { getQuiverTest } from './ipcMainHandlers/getQuiver.js'
 
 
 process.env.APP_ROOT = path.join(__dirname, '..')
@@ -45,6 +43,7 @@ function createWindow() {
     height: 1000,
     minWidth: 1100,
     minHeight: 850,
+    resizable: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
@@ -116,6 +115,6 @@ app.whenReady().then(() => {
 })
 
 
-setInterval(() => {
-  console.log(PROJECT_CONFIG);
-}, 5000);  
+// setInterval(() => {
+//   console.log(PROJECT_CONFIG);
+// }, 5000);  

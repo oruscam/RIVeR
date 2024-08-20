@@ -41,7 +41,7 @@
 
 .media-container{
     height: 98vh;
-    width: 74%;
+    width: 70%;
     background-color: var(--secondary-background-color);
     border-radius: 20px;
     margin-right: 5px;
@@ -51,8 +51,6 @@
     overflow-y: hidden;
     overflow-x: hidden;
 }
-
-
 
 .video-player{
     width: 95%;
@@ -225,10 +223,6 @@
 
 /* Chart Cross Sections */
 
-.chart-cross-sections-container{
-    width: 100%;
-    height: 90%;
-}
 
 .loader{
     border: 10px solid var(--primary-text-color);
@@ -244,19 +238,7 @@
     100% { transform: rotate(360deg); }
 }
 
-.loader-little{
-    border: 5px solid var(--primary-text-color);
-    border-radius: 50%;
-    border-top: 5px solid var(--secondary-background-color);
-    width: 40px;
-    height: 40px;
-    animation: spin 1.5s linear infinite;    
-}
 
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
 
 
 .progress-indicator-container{
@@ -300,7 +282,6 @@
     transform: scaleY(1.1);
 }
 
-
 .info-animation{
     position: relative;
     position: absolute;
@@ -317,50 +298,38 @@
 
 }
 
-
 .carousel-container{
     width: 90%;
-    margin-top: 30px;
-    height: 250px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: end;
 }
 
 .carousel-info{
     align-self: flex-end;
-    margin-right: 50px;
-    margin-bottom: 10px;
-    margin-top: -35px;
     display: flex;
-    justify-content: first baseline;
-    justify-content: flex-end;
+    margin-bottom: 5px;
+}
+
+.carousel-info input{
+    font-size: 1.5rem;
+    background-color: var(--input-background);
+    border-radius: 8px;
+    width: 50px;
+    border: none;
+    color: var(--primary-text-color);
+    text-align: end;
+    padding-right: 5px;
+    margin-right: 5px;
+    font-weight: bold;
+}
+
+.carousel-info input:focus{    outline: none;
 }
 
 .carousel-info p{
-    margin-right: 5px;
-    font-size: 1.8rem;
-}
-
-.img-carousel{
-    width: 275px;
-    height: 175px;
-    border-radius: 20px;
-    z-index: 1;
-}
-
-.img-carousel-active{
-    border: 4px solid var(--primary-text-color);
-}
-
-.img-carousel-second{
-    border: 4px solid #6CD4FF;
-}
-
-
-.img-container{
-    position: relative;
-    display: inline-block;
+    font-size: 1.5rem;
+    
 }
 
 .carousel-input{
@@ -374,28 +343,52 @@
     border: none;
 }
 
+.img-carousel-active{
+    border: 4px solid var(--primary-text-color);
+}
 
+.img-carousel-second{
+    border: 4px solid #6CD4FF;
+}
+
+.img-carousel-container{
+    position: relative;
+    display: inline-block;
+    width: 275px;
+    height: 175px;
+}
+
+.img-carousel{
+    width: 98%;
+    height: 100%;
+    border-radius: 20px;
+    z-index: 1;
+}
 
 .img-water-mark{
     position: absolute;
-    left: 83px;
-    top: 60px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     font-size: 50px;
     font-weight: 900;
     color: rgba(255,255,255,0.5);
-    width: 100px;
+    width: 100%;
     text-align: center;
+    white-space: nowrap; 
 }
 
 .image-with-data-container{
-    margin-top: 10px;
+    margin-top: 90px;
     position: relative;
+    background-color: transparent;
 }
 
 .simple-image{
     width: 100%;
     height: 100%;
 }
+
 
 .mask{
     position: absolute;
@@ -405,20 +398,21 @@
     height: 100%;
 }
 
-.data-stage{
+.konva-data-container{
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 10;
+    width: 100%;
+    height: 100%;
 }
 
 .quiver{
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 1;
 }
-
-
-
 
 @media screen and (max-width: 1580px) {
     .image-with-marks{
@@ -446,3 +440,20 @@
     }
 }
 
+/* Grid  */
+
+.grid-container{
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto; 
+    margin-bottom: 300px;   
+}
+
+.centered-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%; /* Asegura que el contenido ocupe toda la altura de la celda */
+    text-align: center; /* Alinea el texto en el centro */
+    background-color: transparent;
+}

@@ -1,8 +1,10 @@
 .sections{
     width: 100%;
-    margin-top: 25px;
-    height: 70px;
+    height: 50px;
     overflow-x: auto;
+    overflow-y: hidden;
+    margin-bottom: 25px;
+    flex-shrink: 0;
 }
 
 .sections-layer{
@@ -28,7 +30,7 @@
     padding-right: 8px;    
     border-bottom: solid 1px white;
     flex-shrink: 1;
-    }
+}
     
 .input-section{
     border: none;

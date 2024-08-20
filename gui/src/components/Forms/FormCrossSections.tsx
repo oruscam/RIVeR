@@ -2,9 +2,9 @@ import { useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { ButtonLock } from "../ButtonLock"
 import { useSectionSlice } from "../../hooks"
-import { Bathimetry } from "../Bathimetry"
 import { RealWorldCoordinates } from "./RealWorldCoordinates"
 import { PixelCoordinates } from "./PixelCoordinates"
+import { Bathimetry } from "../Graphs"
 
 interface FormCrossSectionsProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void,
@@ -21,6 +21,7 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
   const { register, watch, setValue } = useFormContext()
   const bathWatch = watch(`${name}_CS_BATHIMETRY`)
 
+  console.log(extraFields)
 
   const handleKeyDownBathLevel = (event: React.KeyboardEvent<HTMLInputElement>, nextFieldId: string) => {
     if (event.key === 'Enter') {
@@ -39,6 +40,7 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
     }
   }
 
+
   useEffect(() => {
     if (bathWatch?.length) {
       if (bathimetry.path === "" || bathWatch[0].path !== bathimetry.path) {
@@ -55,56 +57,65 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
 
   return (
     <>
-      <form className="form-cross-sections" style={{ overflowY: `${!extraFields ? "hidden" : "auto"}` }} onSubmit={onSubmit} id="cross-section">
+      <form className="form-scroll" onSubmit={onSubmit} id="cross-section">
         <span id={`${name}-HEADER`}/>
-        <div className="simple-mode-container">
-          <div className="simple-mode">
-            <button className={`wizard-button form-button ${drawLine ? "wizard-button-active" : ""}`}
-              type="button" id={`${name}-DRAW_LINE`}
-              onClick={() => onUpdateSection({ drawLine: true })}
-            > Draw Line </button>
+        <div className="form-base-2 mt-2">
+            
+            <div className="input-container-2">
+              <button className={`wizard-button form-button me-1 ${drawLine ? "wizard-button-active" : ""}`}
+                type="button" id={`${name}-DRAW_LINE`}
+                onClick={() => onUpdateSection({ drawLine: true })}
+              > Draw Line </button>
+              <span className="read-only bg-transparent"></span>
+            </div>
+            
+            <div className="input-container-2 mt-1">
+              <label className="read-only me-1" htmlFor="CS_LENGTH"> CS Length </label>
+              <input type="number"
+                className="input-field-read-only"
+                {...register(`${name}_CS_LENGTH`, {
+                  validate: value => value != 0 || 'El valor no puede ser 0'
+                })}
+                id="CS_LENGTH" readOnly={true}
+              />
+            </div>
 
-            <span className="ghost"></span>
-            <label className="read-only" htmlFor="CS_LENGTH"> CS Length </label>
-            <input type="number"
-              className="input-field-read-only"
-              {...register(`${name}_CS_LENGTH`, {
-                validate: value => value != 0 || 'El valor no puede ser 0'
-              })}
-              id="CS_LENGTH" readOnly={true}
-            />
+            <div className="input-container-2 mt-1"> 
+              <input type="file" id={`${name}_CS_BATHIMETRY`}
+                className="hidden-file-input"
+                accept=".csv"
+                {...register(`${name}_CS_BATHIMETRY`)}
+              />
+              <label
+                className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.blob ? "wizard-button-active" : ""}`}
+                htmlFor={`${name}_CS_BATHIMETRY`}>
+                <p> Import Bath </p>
+              </label>
+              <label className="read-only bg-transparent mt-1"> {bathimetry.name !== "" ? bathimetry.name : ''} </label>
+            </div>
+            
+            <div className="input-container-2 mt-1 mb-5">
+              <label className="read-only me-1" htmlFor="LEVEL"> Level</label>
+              <input  type="number" 
+                      step='any' 
+                      className="input-field" 
+                      {...register(`${name}_LEVEL`, { max: bathimetryLimits.max, min: bathimetryLimits.min })} 
+                      defaultValue={bathimetryLimits.max} 
+                      id="LEVEL" onKeyDown={(event) => handleKeyDownBathLevel(event, 'wizard-next')}
+                      />
+            </div>
 
-            <input type="file" id={`${name}_CS_BATHIMETRY`}
-              className="hidden-file-input"
-              accept=".csv"
-              {...register(`${name}_CS_BATHIMETRY`)}
-            />
-            <label
-              className={`wizard-button form-button bathimetry-button mt-2 ${bathimetry.blob ? "wizard-button-active" : ""}`}
-              htmlFor={`${name}_CS_BATHIMETRY`}>
-              <p> Import Bath </p>
-            </label>
-            <label className="read-only bg-transparent mt-2"> {bathimetry.name !== "" ? bathimetry.name : ''} </label>
-
-            <label className="read-only" htmlFor="LEVEL"> Level</label>
-            <input  type="number" 
-                    step='any' 
-                    className="input-field" 
-                    {...register(`${name}_LEVEL`, { max: bathimetryLimits.max, min: bathimetryLimits.min })} 
-                    defaultValue={bathimetryLimits.max} 
-                    id="LEVEL" onKeyDown={(event) => handleKeyDownBathLevel(event, 'wizard-next')}
-                    />
+          <Bathimetry setBathimetryLimits={setBathimetryLimits}/>
+          
+          <div className={extraFields ? '' : 'hidden'}>
+            <RealWorldCoordinates modeName={name} />
+            <PixelCoordinates modeName={name} />
+            
           </div>
-
-          <Bathimetry setBathimetryLimits={setBathimetryLimits} />
-          <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID={`${name}-HARD_MODE`} headerElementID={`${name}-HEADER`} disabled={false}></ButtonLock>
-        </div>
-
-        <div className="hard-mode" id={`${name}-HARD_MODE`}>
-          <RealWorldCoordinates modeName={name} />
-          <PixelCoordinates modeName={name} />
         </div>
       </form>
+      <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID={`REAL_WORLD`} headerElementID={`${name}-HEADER`} disabled={sections[activeSection].points.length === 0}></ButtonLock>
+
     </>
   )
 }

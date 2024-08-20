@@ -1,6 +1,6 @@
 /**
  * @file useSectionSlice.ts
- * This file contains the custom hook to interact with the section slice.
+ * @description This file contains the custom hook to interact with the section slice.
  */
 
 import { useSelector, useDispatch } from 'react-redux';
@@ -353,7 +353,6 @@ export const useSectionSlice = () => {
      */
 
     const onUpdateSection = ( value: Update ) => {
-        console.log("onUpdateSection")
         const section = sections[activeSection]
 
         if( value.drawLine ){
@@ -370,7 +369,7 @@ export const useSectionSlice = () => {
             dispatch(updateSection({...section, name: value.sectionName }))
         }
         if( value.file ){
-            console.log("value.file", value.file)
+            console.log(value.file)
             const blob = URL.createObjectURL(value.file)
             dispatch(updateSection({...section, bathimetry: {blob: blob, path: value.file.path, level: 0, name: value.file.name,}}))
         }

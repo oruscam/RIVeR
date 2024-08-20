@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SectionState, PixelSize, Point, Processing, Section } from './types';
+import { SectionState, PixelSize, Point, Section } from './types';
 
 const defaultSections = [{
     name: "pixel_size",
@@ -9,7 +9,8 @@ const defaultSections = [{
         blob: '',
         level: 0,
         path: '',
-        name: ''
+        name: '',
+        type: ''
     },
     pixelSize: {size: 0, rw_length: 0},
     realWorld: [{x: 0, y: 0}, {x: 0, y: 0}]
@@ -19,37 +20,22 @@ const defaultSections = [{
     drawLine: false,
     points: [],
     bathimetry: {
-        blob: '',
-        level: 0,
-        path: '',
-        name: ''
+        blob: '/@fs/home/tomy_ste/Desktop/bath1.csv',
+        level: 650,
+        path: '/@fs/home/tomy_ste/Desktop/bath1.csv',
+        name: '',
+        type: '',
     },
     pixelSize: {size: 0, rw_length: 0},
     realWorld: [{x: 0, y: 0}, {x: 0, y: 0}]
     }
 ]
 
-const defaultProcessing: Processing = {
-    par: ['', "1", '', "2"],
-    step1: 128,
-    heightRoi: 0,
-    grayscale: true,
-    removeBackground: false,
-    clahe: false,
-    clipLimit: 0,
-    stdFiltering: false,
-    threshold1: 0,
-    medianTest: false,
-    epsilon: 0,
-    threshold2: 0,
-    test: false,
-    artificialSeeding: true
-}
+
 
 const initialState: SectionState = {
     sections: defaultSections,
     activeSection: 0,
-    processing: defaultProcessing
 };
 
 const sectionSlice = createSlice({

@@ -62,36 +62,44 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
   return (
     <>
       <h2 className='form-title'>{t("Step3.title")}</h2>
-      <form onSubmit={handleSubmit(onSubmit, onError)} id='form-video' className='form-base mt-2'>
-          <button type='button' onClick={handleClick} className='wizard-button form-button' id='start'> {t("Step3.start")}</button>
-          <input
-            className='input-field'
-            defaultValue={0}
-            id='start'
-            type='number'
-            step="0.0001"
-            { ...register("start", validationRules.start) }
-            >
-            </input>
+      <form onSubmit={handleSubmit(onSubmit, onError)} id='form-video' className='form-base-2 mt-2'>
+          
+          <div className='input-container-2 mt-2'>
+            <button type='button' onClick={handleClick} className='wizard-button form-button me-1' id='start'> {t("Step3.start")}</button>
+            <input
+              className='input-field'
+              defaultValue={0}
+              id='start'
+              type='number'
+              step="0.0001"
+              { ...register("start", validationRules.start) }
+              >
+              </input>
 
-          <button type='button' className='wizard-button form-button' onClick={handleClick} id='end'> {t("Step3.end")} </button>
-          <input
-             type='number'
-             step="0.0001"
-             className='input-field'
-             defaultValue={1}
-             id='end'
-             { ...register('end', validationRules.end) }
-             ></input>
+          </div>
+          <div className='input-container-2 mt-1'>
+            <button type='button' className='wizard-button form-button me-1' onClick={handleClick} id='end'> {t("Step3.end")} </button>
+            <input
+              type='number'
+              step="0.0001"
+              className='input-field'
+              defaultValue={1}
+              id='end'
+              { ...register('end', validationRules.end) }
+              ></input>
+          </div>
+          <div className='input-container-2 mt-1'>
+            <label className='read-only me-1'> {t("Step3.step")} </label>
+            <input
+              type='number'
+              id='input-step'
+              defaultValue={1}
+              className='input-field'
+              { ...register('step', validationRules.step)}
+              ></input>
 
-          <label className='read-only'> {t("Step3.step")} </label>
-          <input
-            type='number'
-            id='input-step'
-            defaultValue={1}
-            className='input-field'
-            { ...register('step', validationRules.step)}
-            ></input>
+          </div>
+
       </form>
     </>
   )

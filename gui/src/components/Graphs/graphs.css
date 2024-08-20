@@ -1,0 +1,19 @@
+#velocity-vector-container{
+    position: relative;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+#velocity-vector{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+
+}
+
+.graph-container{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}

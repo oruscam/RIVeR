@@ -2,7 +2,12 @@ import React, { useEffect } from "react"
 import {  useForm } from "react-hook-form"
 import { useSectionSlice } from "../../hooks"
 
-export const Sections = ({ setDeletedSections }: { setDeletedSections: React.Dispatch<React.SetStateAction<any>> }) => {
+interface Sections {
+    setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
+    canEdit: boolean;
+}
+
+export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
     const { register} = useForm()
     const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onUpdateSection } = useSectionSlice()
     const [sectionNumber, setSectionNumber] = React.useState(2)
@@ -33,7 +38,7 @@ export const Sections = ({ setDeletedSections }: { setDeletedSections: React.Dis
             onAddSection(sectionNumber)
             setSectionNumber(sectionNumber + 1)
         }
-        if ( event.currentTarget.id === "delete"){
+        if ( event.currentTarget.id === "delete" && setDeletedSections){
             setDeletedSections(sections[activeSection].name)
             onDeleteSection()
         }
@@ -74,7 +79,7 @@ export const Sections = ({ setDeletedSections }: { setDeletedSections: React.Dis
         
 
   return (
-    <div className="sections">
+    <div className="sections mt-2">
         <div className="sections-layer">
             <span className="section"/>
                     {
@@ -99,26 +104,31 @@ export const Sections = ({ setDeletedSections }: { setDeletedSections: React.Dis
                                                 onBlur={(event) => handleInputNameSection(event, index)}
                                             />
     
-
-                                        <button 
-                                            className="section-button1" 
-                                            id="delete" 
-                                            onClick={onClickButtonSection}
-                                            disabled={!(activeSection === index ) || sections.length === 2}
-                                        >x</button>
+                                        {
+                                            canEdit && (
+                                                <button 
+                                                    className="section-button1" 
+                                                    id="delete" 
+                                                    onClick={onClickButtonSection}
+                                                    disabled={!(activeSection === index ) || sections.length === 2}
+                                                >x</button>
+                                            )
+                                        }
                                     </div>
                                 )
                             }
                         })
                     }
             
-            <div className="section section-add">
-                <button className="section-button2"
-                        id="add"
-                        onClick={onClickButtonSection}
-                        > + </button>
-                {/* <p> Add New </p> */}
-            </div>
+            {
+                canEdit && (<div className="section section-add">
+                    <button className="section-button2"
+                            id="add"
+                            onClick={onClickButtonSection}
+                            > + </button>
+                    {/* <p> Add New </p> */}
+                </div>)
+            }
             <span id="scroll-right"></span>
         </div>
     </div>

@@ -60,47 +60,55 @@ export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
 
   return (
     <>
-        <h2 className='form-subtitle mt-5 mb-1' id='REAL_WORLD'> Real World Coordinates </h2>
+        <h2 className='form-subtitle mt-5 only-one-item' id='REAL_WORLD'> Real World Coordinates </h2>
 
-        <label className='read-only red' htmlFor={`EAST_${pointName1}`}> {`East ${pointName1}`}</label>
-        <input  type='number' 
-                step="any" 
-                className='input-field' 
-                {...register(`${modeName}_EAST_${pointName1}`)} 
-                id={`EAST_${pointName1}`} 
-                onKeyDown={(event) => handleInputField(event, `NORTH_${pointName1}`)}
-                onBlur={(event) => handleInputField(event, `NORTH_${pointName1}`)}
-        />
-        
-        <label className='read-only red' htmlFor={`NORTH_${pointName1}`}> {`North ${pointName1}`}</label>
-        <input  type='number' 
-                step="any" 
-                className='input-field' 
-                {...register(`${modeName}_NORTH_${pointName1}`)} 
-                id={`NORTH_${pointName1}`}
-                onKeyDown={( event ) => handleInputField(event,`EAST_${pointName2}` )}
-                onBlur={(event) => handleInputField(event, `EAST_${pointName2}`)}
-        />
+        <div className="input-container-2 mt-2">
+          <label className='read-only red me-1' htmlFor={`EAST_${pointName1}`}> {`East ${pointName1}`}</label>
+          <input  type='number' 
+                  step="any" 
+                  className='input-field' 
+                  {...register(`${modeName}_EAST_${pointName1}`)} 
+                  id={`EAST_${pointName1}`} 
+                  onKeyDown={(event) => handleInputField(event, `NORTH_${pointName1}`)}
+                  onBlur={(event) => handleInputField(event, `NORTH_${pointName1}`)}
+          />
+        </div>
 
-        <label className='read-only green' htmlFor={`EAST_${pointName2}`}> {`East ${pointName2}`}</label>
-        <input  type='number' 
-                step="any" 
-                className='input-field' 
-                {...register(`${modeName}_EAST_${pointName2}`)} 
-                id={`EAST_${pointName2}`} 
-                onKeyDown={( event ) => handleInputField(event,`NORTH_${pointName2}`)}
-                onBlur={(event) => handleInputField(event, `NORTH_${pointName2}`)}
-        />
+        <div className="input-container-2 mt-1">
+          <label className='read-only red me-1' htmlFor={`NORTH_${pointName1}`}> {`North ${pointName1}`}</label>
+          <input  type='number' 
+                  step="any" 
+                  className='input-field' 
+                  {...register(`${modeName}_NORTH_${pointName1}`)} 
+                  id={`NORTH_${pointName1}`}
+                  onKeyDown={( event ) => handleInputField(event,`EAST_${pointName2}` )}
+                  onBlur={(event) => handleInputField(event, `EAST_${pointName2}`)}
+          />
+        </div>
+
+        <div className="input-container-2 mt-1">
+          <label className='read-only green me-1' htmlFor={`EAST_${pointName2}`}> {`East ${pointName2}`}</label>
+          <input  type='number' 
+                  step="any" 
+                  className='input-field' 
+                  {...register(`${modeName}_EAST_${pointName2}`)} 
+                  id={`EAST_${pointName2}`} 
+                  onKeyDown={( event ) => handleInputField(event,`NORTH_${pointName2}`)}
+                  onBlur={(event) => handleInputField(event, `NORTH_${pointName2}`)}
+          />
+        </div>
         
-        <label className='read-only green' htmlFor={`NORTH_${pointName2}`}> {`North ${pointName2}`}</label>
-        <input  type='number' 
-                step="any" 
-                className='input-field' 
-                {...register(`${modeName}_NORTH_${pointName2}`)} 
-                id={`NORTH_${pointName2}`}
-                onKeyDown={( event ) => handleInputField(event,'pixel-coordinates')}
-                onBlur={(event) => handleInputField(event, 'pixel-coordinates')}
-        />
+        <div className="input-container-2 mt-1">
+          <label className='read-only green me-1' htmlFor={`NORTH_${pointName2}`}> {`North ${pointName2}`}</label>
+          <input  type='number' 
+                  step="any" 
+                  className='input-field' 
+                  {...register(`${modeName}_NORTH_${pointName2}`)} 
+                  id={`NORTH_${pointName2}`}
+                  onKeyDown={( event ) => handleInputField(event,'pixel-coordinates')}
+                  onBlur={(event) => handleInputField(event, 'pixel-coordinates')}
+          />
+        </div>
     </>
   )
 }

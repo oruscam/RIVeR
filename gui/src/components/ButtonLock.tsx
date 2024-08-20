@@ -4,18 +4,21 @@ interface ButtonLockProps {
     setExtraFields: React.Dispatch<React.SetStateAction<boolean>>,
     footerElementID: string,
     headerElementID: string,
-    disabled: boolean
+    disabled: boolean,
 }
 
 
-export const ButtonLock = ({extraFields, setExtraFields, footerElementID = '', headerElementID = '', disabled  }: ButtonLockProps) => {
+export const ButtonLock = ({extraFields, setExtraFields, footerElementID = '', headerElementID = '', disabled }: ButtonLockProps) => {
     const handleOnChange = () => {
         if(extraFields){
             const headerElement = document.getElementById(headerElementID)
             headerElement?.scrollIntoView({behavior: "smooth"})
         }else{
             const footerElement = document.getElementById(footerElementID)
-            footerElement?.scrollIntoView({behavior: "smooth"})
+            setTimeout(() => {
+                footerElement?.scrollIntoView({behavior: "smooth"})
+
+            }, 50)
         }
         setExtraFields(!extraFields)
     }

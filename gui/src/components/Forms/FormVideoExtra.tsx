@@ -12,7 +12,7 @@ export const FormVideoExtra: React.FC<{ step: number }> = ({ step }) => {
     }
 
     return (
-        <div className='form-video-extra-info'>
+        <div className='form-video-extra-info mt-4'>
             <div className='form-video-extra-info-row'>
                 <p>{t("Step3.ExtraInfo.fileName")}</p>
                 <p>{name}</p>

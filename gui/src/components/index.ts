@@ -11,6 +11,7 @@ import { Progress } from './Progress'
 import { ImageWithData } from './ImageWithData'
 import { DrawSections } from './DrawSections'
 import { Carousel } from './Carousel'
+import { Grid } from './Grid'
 
 export {
     Error,
@@ -25,5 +26,6 @@ export {
     Progress,
     ImageWithData ,
     DrawSections,
-    Carousel
+    Carousel,
+    Grid
 }

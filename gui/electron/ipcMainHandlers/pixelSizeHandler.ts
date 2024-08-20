@@ -44,6 +44,7 @@ export function pixelSizeHandler( PROJECT_CONFIG: ProjectConfig ) {
             ]
         }
 
+
         return new Promise((resolve, reject) => {
             const pyshell = new PythonShell('__main__.py', options);
             pyshell.on('message', async(message: string) => {

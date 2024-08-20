@@ -32,8 +32,8 @@ interface Quiver {
     u: [[number]];
     v: [[number]];
     typevector: number[];
-    median_u?: [[number]];
-    median_v?: [[number]];
+    u_median?: number[];
+    v_median?: number[];
 }
 
 interface DataState {

@@ -7,9 +7,11 @@ import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks/index'
 
 
 import './pages.css'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import { ButtonLock } from '../components/ButtonLock.js'
 
 export const Step4 = () => {
+  const [extraFields, setExtraFields] = useState(false)
   const { video } = useProjectSlice();
   const { onSetPixelSize, sections } = useSectionSlice()
   const { points, realWorld, pixelSize } = sections[0]
@@ -17,7 +19,7 @@ export const Step4 = () => {
   // * Estado inicial del formulario
   const methods = useForm({
     defaultValues: {
-      pixel_size_LINE_LENGTH: pixelSize.rw_lenght,
+      pixel_size_LINE_LENGTH: pixelSize.rw_length,
       pixel_size_PIXEL_SIZE: pixelSize.size,
       pixel_size_EAST_point_1: realWorld[0].x,
       pixel_size_EAST_point_2: realWorld[1].x,
@@ -78,8 +80,11 @@ export const Step4 = () => {
             onSubmit={methods.handleSubmit(onSubmit, onError)}
             onError={onError}
             factor={factor}
+            extraFields={extraFields}
           />
         </FormProvider>
+        <ButtonLock footerElementID='span-footer' headerElementID='pixel_size-HEADER' extraFields={extraFields} setExtraFields={setExtraFields} disabled={sections[0].points.length === 0}
+        ></ButtonLock>
         <WizardButtons canFollow={sections[0].points.length === 2} formId='form-pixel-size'/>
       </div>
     </div>

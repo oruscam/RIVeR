@@ -33,17 +33,16 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
 
         try {
             const data = await fs.promises.readFile(quiverAllPath, 'utf-8')
-            const { x, y, u, v, typevector } = JSON.parse(data) 
-
-            console.log(data)
-
+            const { x, y, u, v, typevector, v_median, u_median } = JSON.parse(data) 
             
             return {
                 x,
                 y,
                 u,
                 v,
-                typevector: typevector[0]
+                typevector: typevector[0],
+                v_median,
+                u_median
             }
 
         } catch (error) {

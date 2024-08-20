@@ -1,4 +1,6 @@
 import { Line, Text } from 'react-konva';
+import { useWizard } from 'react-use-wizard';
+import { STEP_4, STEP_5, STEP_6, STEP_7, STEP_8 } from '../constants/constants';
 
 interface LineAndTextProps {
     imagePoints: { x: number; y: number }[];
@@ -7,11 +9,34 @@ interface LineAndTextProps {
 }
 
 export const LineAndText = ({imagePoints, name, isPixelSize}: LineAndTextProps) => {
+  const { activeStep } = useWizard();
+  let lineColor : string = ''
+  let textColor : string = ''
+
+  switch (activeStep) {
+    case STEP_4:
+      lineColor = "#6CD4FF"
+      textColor = "#FFFFFF"
+      break;
+    case STEP_5:
+      lineColor = "#F5BF61"
+      textColor = "#F5BF61"
+      break;
+
+    // case STEP_8:
+    //   lineColor = "#F5BF61"
+    //   break;
+    default:
+      lineColor = "#545454"
+      textColor = "#000000"
+  }
+
+
   return (
     <>
         <Line
             points={[imagePoints[0].x, imagePoints[0].y, imagePoints[1].x, imagePoints[1].y]}
-            stroke={isPixelSize ? "#6CD4FF" : "#F5BF61"}
+            stroke={lineColor}
             strokeWidth={2}
             lineCap="round"
         />
@@ -22,7 +47,7 @@ export const LineAndText = ({imagePoints, name, isPixelSize}: LineAndTextProps) 
                 y={(imagePoints[0].y - 10 )}
                 text={name}
                 fontSize={18}
-                fill="#F5BF61"
+                fill={textColor}
             /> 
           ) : imagePoints.map((point, index) => {
             return (
@@ -32,7 +57,7 @@ export const LineAndText = ({imagePoints, name, isPixelSize}: LineAndTextProps) 
                 y={(point.y - 35 )}
                 text={index === 0 ? "1" : "2"}
                 fontSize={15}
-                fill="#FFFFFF"
+                fill={textColor}
                 />
           )})
 

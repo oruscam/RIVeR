@@ -1,6 +1,6 @@
 /**
  * @file useProjectSlice.ts
- * This file contains the custom hook to interact with the project slice.
+ * @description This file contains the custom hook to interact with the project slice.
  */
 
 import { useSelector, useDispatch } from "react-redux";

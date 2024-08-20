@@ -1,6 +1,6 @@
 import './form.css'
 import { useTranslation } from 'react-i18next'
-import { FieldValues, useFormContext } from 'react-hook-form'
+import { FieldValues, set, useFormContext } from 'react-hook-form'
 import {  useState } from 'react'
 import { useSectionSlice, useUiSlice } from '../../hooks'
 import { ButtonLock } from '../ButtonLock'
@@ -13,16 +13,16 @@ interface FormPixelSizeProps {
   factor: {
     x: number,
     y: number
-  }
+  },
+  extraFields: boolean,
 }
 
-export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
+export const FormPixelSize = ({onSubmit, onError, extraFields }: FormPixelSizeProps ) => {
     const { t } = useTranslation()
     const {sections, onUpdateSection} = useSectionSlice()
 
     const { register} = useFormContext()
 
-    const [extraFields, setExtraFields] = useState(false)
     const { onSetErrorMessage } = useUiSlice()
 
 
@@ -53,56 +53,66 @@ export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
         event.preventDefault()
       }
     }
+  
+  console.log(extraFields)
 
   return (
     <>
       <h2 className='form-title'> {t('Step4.title')}</h2>
-      <form onSubmit={onSubmit} onError={onError} className='mt-5' id='form-pixel-size' style={{overflowY: `${!extraFields ? "hidden" : "auto"}`}} >
+      <form onSubmit={onSubmit} onError={onError} className='mt-5 form-scroll' id='form-pixel-size' >
         <span id='pixel_size-HEADER'></span>
-        <div className='simple-mode-container'>
-          <div className='simple-mode'>
-            <button className={`wizard-button form-button ${sections[0].drawLine ? "wizard-button-active" : ""}`} onClick={() => onUpdateSection({drawLine: true})} type='button'>{t("Step4.drawLine")}</button>
+        <div className='form-base-2'>
+
+            <div className='input-container-2'>
+              <button className={`wizard-button form-button me-1 ${sections[0].drawLine ? "wizard-button-active" : ""}`} onClick={() => onUpdateSection({drawLine: true})} type='button'>{t("Step4.drawLine")}</button>
+              <span className='read-only bg-transparent'></span>
+            </div>
             {/* <InfoPixelSize animation={'click-drag-drop'}></InfoPixelSize> */}
-            <span className='ghost'></span>
-
-
-            <label className='read-only'>{t("Step4.lineLength")}</label>
-            <input className='input-field' 
-              disabled={sections[0].points.length === 0}
-              type='number' 
-              step="any"
-              id='pixel_size-LINE_LENGTH'
-              {...register('pixel_size_LINE_LENGTH', {
-                required: t("Step4.Errors.required"),
-                validate: (value: string) => {
-                  if ( parseFloat(value) <= 0){
-                    return t("Step4.Errors.lineLength")
-                  } 
-                  return true
-                }
-              })}
-              onKeyDown={handleLineLengthInput}
-              onBlur={handleLineLengthInput}
-              ></input>
-            <label className='read-only'>{t("Step4.pixelSize")}</label>
-            <input className='input-field'
-                  {...register('pixel_size_PIXEL_SIZE')} 
-                  type='number' 
-                  readOnly={true}
-                  id='pixel_size-PIXEL_SIZE'
+            
+              <div className='input-container-2 mt-2'>
+                <label className='read-only me-1'>{t("Step4.lineLength")}</label>
+                <input className='input-field' 
                   disabled={sections[0].points.length === 0}
+                  type='number' 
                   step="any"
-                  onKeyDown={handleTab}
-                  />
-          </div>
-          <span className='space'/>
-          <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID='pixel_size-HARD_MODE' headerElementID='pixel_size-HEADER' disabled={sections[0].points.length === 0}/>
-        </div>
+                  id='pixel_size-LINE_LENGTH'
+                  {...register('pixel_size_LINE_LENGTH', {
+                    required: t("Step4.Errors.required"),
+                    validate: (value: string) => {
+                      if ( parseFloat(value) <= 0){
+                        return t("Step4.Errors.lineLength")
+                      } 
+                      return true
+                    }
+                  })}
+                  onKeyDown={handleLineLengthInput}
+                  onBlur={handleLineLengthInput}
+                  ></input>
+              </div>
 
-        <div className='hard-mode' id='pixel_size-HARD_MODE'>
-          <RealWorldCoordinates modeName='pixel_size'/>
-          <PixelCoordinates modeName='pixel_size'/> 
-        </div>
+              <div className='input-container-2 mt-1 mb-2'>
+                <label className='read-only me-1'>{t("Step4.pixelSize")}</label>
+                <input className='input-field'
+                      {...register('pixel_size_PIXEL_SIZE')} 
+                      type='number' 
+                      readOnly={true}
+                      id='pixel_size-PIXEL_SIZE'
+                      disabled={sections[0].points.length === 0}
+                      step="any"
+                      onKeyDown={handleTab}
+                      />
+              </div>
+
+              {/* <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID='span-footer' headerElementID='pixel_size-HEADER' disabled={sections[0].points.length === 0}/> */}
+
+
+          <div className={extraFields ? '' : 'hidden'}>
+            <RealWorldCoordinates modeName='pixel_size'/>
+            <PixelCoordinates modeName='pixel_size'/> 
+            <span id='span-footer'></span>
+          </div>
+          
+          </div>
       </form>
     </>
   )

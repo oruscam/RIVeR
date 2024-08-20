@@ -5,6 +5,7 @@ import { FormCrossSections } from "./FormCrossSections";
 import { FormProcessing } from "./FormProcessing";
 import { PixelCoordinates } from "./PixelCoordinates";
 import { RealWorldCoordinates } from "./RealWorldCoordinates";
+import { FormResults } from "./FormResults";
 
 export {
     FormVideoExtra,
@@ -13,5 +14,6 @@ export {
     FormCrossSections,
     FormProcessing,
     PixelCoordinates,
-    RealWorldCoordinates
+    RealWorldCoordinates,
+    FormResults
 }

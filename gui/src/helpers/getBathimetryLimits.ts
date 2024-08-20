@@ -1,37 +1,33 @@
 interface Bathimetry{
-    station: string;
-    stage: string;
+    x: number;
+    y: number;
 }
 
 interface Limits {
-    stations: string[];
-    stages: number[];
     max: number;
     min: number;
 }
 
-function getBathimetryLimits( results: Bathimetry[]): Limits{
-    const { stations, stages } = results.reduce((acc, { station, stage }) => {
-        if (station && stage) {
-            acc.stations.push(parseFloat(station).toFixed(2));
-            acc.stages.push(parseFloat(stage));
+const getBathimetryLimits = ( results: Bathimetry[]): Limits => {
+    const { xs, ys } = results.reduce((acc, { x, y }) => {
+        if (x && y) {
+            acc.xs.push(x);
+            acc.ys.push(y);
         }
         return acc;
-    }, { stations: [] as number[], stages: [] as number[] });
-    const min = Math.min(...stages);
+    }, { xs: [] as number[], ys: [] as number[] });
+    const min = Math.min(...ys);
     let max;
-    if (stages[0] >= stages[stages.length - 1]) {
-        max = stages[stages.length - 1];
+    if (ys[0] >= ys[ys.length - 1]) {
+        max = ys[ys.length - 1];
     } else {
-        max = stages[0];
+        max = ys[0];
     }
 
     return {
-        stations: stations,
-        stages: stages,
         max: max,
         min: min
     };
 }
 
-export default getBathimetryLimits
+export default getBathimetryLimits;

@@ -3,7 +3,7 @@ import useImage from 'use-image'
 import { Group, Image, Layer, Line, Stage } from 'react-konva'
 import { KonvaEventObject } from 'konva/lib/Node'
 import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks'
-import { Points, LineAndText } from './index'
+import { Points, LineAndText, DrawSections } from './index'
 
 type Point = { x: number; y: number };
 
@@ -20,6 +20,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
   const { onSetPoints, sections, activeSection} = useSectionSlice()
   const { firstFramePath } = useProjectSlice(); 
   const {drawLine, points, name} = sections[activeSection]
+
 
   const [localPoints, setLocalPoints] = useState<Point[]>([])
   const [mousePressed, setMousePressed] = useState(false)
@@ -141,32 +142,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
         <Layer>
           <Image image={image} width={width} height={height}></Image>
           {
-            seeAll || activeSection === 0 ? (
-              <Group>
-                <Points localPoints={localPoints} setLocalPoints={setLocalPoints} draggable={true} isPixelSize={activeSection === 0} factor={factor}></Points>
-                {
-                  localPoints.length === 2 && drawLine && (
-                    <LineAndText name={name} imagePoints={localPoints} isPixelSize={activeSection === 0}></LineAndText>
-                  )
-                }
-              </Group>
-            ) : sections.map((section, index) => {
-              if( section.points.length === 0 || section.name === 'pixel_size') return null
-
-              const reducedPoints = section.points.map(point => {
-                return {
-                  x: point.x / factor.x,
-                  y: point.y / factor.y
-                }
-              })
-
-              return (
-                <Group key={index}>
-                  <Points localPoints={reducedPoints} setLocalPoints={setLocalPoints} draggable={index === activeSection} isPixelSize={false} factor={factor}></Points>
-                  <LineAndText name={section.name} imagePoints={reducedPoints} isPixelSize={false}></LineAndText>
-                </Group>
-              )
-            })
+            seeAll || activeSection === 0 ? (<DrawSections localPoints={localPoints} setLocalPoints={setLocalPoints} factor={factor} draggable={true}/>) : (<DrawSections factor={factor} setLocalPoints={setLocalPoints} draggable={true}></DrawSections>)
           }
           {mousePressed && localPoints.length === 1 && (
               <Group>

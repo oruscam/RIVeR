@@ -4,10 +4,11 @@ interface Point {
 }
 
 interface Bathimetry {
-    blob: string | Blob;
-    level: number;
+    blob?: Blob;
     path: string;
+    level: number;
     name: string;
+    type: string;
 }
 
 interface PixelSize {
@@ -45,7 +46,6 @@ interface Processing {
 interface SectionState {
     sections: Section[];
     activeSection: number;
-    processing: Processing;
 }
 
 export type { SectionState, Section, Point, Bathimetry, PixelSize, Processing }

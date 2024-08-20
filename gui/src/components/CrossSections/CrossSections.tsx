@@ -95,7 +95,7 @@ export const CrossSections = () => {
                 <h2 className="cross-sections-title"> Cross Sections </h2>
                 <span></span>
             </div>
-            <Sections setDeletedSections={setDeletedSections} deletedSections={deletedSections}></Sections>
+            <Sections setDeletedSections={setDeletedSections} canEdit={true} ></Sections>
             <FormProvider {...methods}>
             {
                 sections.map((section, index: number) => {

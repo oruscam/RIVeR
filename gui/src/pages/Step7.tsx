@@ -1,12 +1,18 @@
+import { useState } from "react"
 import { Carousel, ImageWithData, Progress, WizardButtons } from "../components"
+import { FormAnalizing } from "../components/Forms/FormAnalizing"
 import { getNewImageResolution } from "../helpers"
 import { useProjectSlice, useUiSlice } from "../hooks"
+import { useWizard } from "react-use-wizard"
 
 export const Step7 = () => {
     const { screenSizes } = useUiSlice()
     const { width: windowWidth, height: windowHeight } = screenSizes
     const { video } = useProjectSlice();
     const { data } = video 
+    const { nextStep } = useWizard();
+
+    const [showMedian, setShowMedian] = useState(false)
 
     const { height, width, factor } = getNewImageResolution(windowWidth, windowHeight, data.width, data.height)
 
@@ -14,13 +20,13 @@ export const Step7 = () => {
   return (
     <div className="regular-page">
         <div className="media-container">
-            <ImageWithData height={height} width={width} factor={factor}></ImageWithData>
-            <Carousel></Carousel>
+            <ImageWithData height={height} width={width} factor={factor} showMedian={showMedian}></ImageWithData>
+            <Carousel showMedian={showMedian} setShowMedian={setShowMedian}></Carousel>
         </div>
         <div className="form-container">
             <Progress/>
-            <h1 className="form-title">Analizing</h1>
-            <WizardButtons></WizardButtons>
+            <FormAnalizing/>
+            <WizardButtons onClick={nextStep}></WizardButtons>
         </div>
     </div>
   )

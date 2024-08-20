@@ -1,7 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { DataState, FormProcessing, Quiver } from "./types";
-import { updateProcessing } from "../section/sectionSlice";
-import { M } from "vite/dist/node/types.d-aGj9QkWt";
 
 const defaultFormProcessing = {
     artificialSeeding: false,
@@ -23,14 +21,14 @@ const defaultProcessing = {
     test: false,
     form: defaultFormProcessing,
     parImages: ['', '1', '', '2'],
-    maskPath: ''
+    maskPath: '/@fs/home/tomy_ste/River/DJI_0036123123_123123/mask.png'
 }
 
 const initialState: DataState = {
     processing: defaultProcessing,
     images: {
         paths: [],
-        active: 0
+        active: 1
     },
     analizing: false
 }

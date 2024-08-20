@@ -8,7 +8,7 @@ import { useSectionSlice } from '../hooks';
 
 interface PointsProps {
     localPoints: { x: number; y: number }[];
-    setLocalPoints: (points: { x: number; y: number }[]) => void;
+    setLocalPoints?: (points: { x: number; y: number }[]) => void;
     draggable?: boolean;
     isPixelSize?: boolean;
     factor?: {
@@ -41,11 +41,14 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
     }
 
     const handleDragPoint = (event: any, index: number) => {
-        let newPoints = [...localPoints];
-        newPoints[index] = { x: event.target.x(), y: event.target.y() };
-        setLocalPoints(newPoints);
-        onSetPoints({points: newPoints, factor, index}, null)
-      }
+        if( draggable === false ) return; 
+        if( setLocalPoints ){
+            let newPoints = [...localPoints];
+            newPoints[index] = { x: event.target.x(), y: event.target.y() };
+            setLocalPoints(newPoints);
+            onSetPoints({points: newPoints, factor, index}, null)
+        }
+    }
 
 
     return (
@@ -60,8 +63,8 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
                     height={40} 
                     offsetX={20}
                     offsetY={39}
-                    onMouseEnter={handleCursorEnter}
-                    onMouseLeave={handleCursorLeave}
+                    onMouseEnter={draggable ? handleCursorEnter : undefined}
+                    onMouseLeave={draggable ? handleCursorLeave: undefined}
                     draggable={draggable}
                     onDragEnd={(event) => handleDragPoint(event, index)}
                     />

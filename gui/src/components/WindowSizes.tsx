@@ -1,4 +1,4 @@
-import { Layer, Rect, Stage } from 'react-konva'
+import { Group, Layer, Rect, Stage } from 'react-konva'
 import { useDataSlice } from '../hooks';
 
 export const WindowSizes = ({ width, height } : {width: number, height: number}) => {
@@ -6,8 +6,7 @@ export const WindowSizes = ({ width, height } : {width: number, height: number})
     const { step1 } = processing.form
     
   return (
-    <Stage width={width} height={height} className="data-stage">
-        <Layer>
+    <Group>
         <Rect
             x={width / 2 - step1/2}
             y={height / 2 - step1/2}
@@ -26,7 +25,6 @@ export const WindowSizes = ({ width, height } : {width: number, height: number})
             strokeWidth={2.5}
             dash={[5, 3]}
         />
-        </Layer>
-  </Stage>
+  </Group>
   )
 }

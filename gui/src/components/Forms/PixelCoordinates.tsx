@@ -58,46 +58,52 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
 
   return (
     <>
-        <h2 className="form-subtitle mt-2 mb-1" id="pixel-coordinates"> Pixel Coordinates </h2>
+        <h2 className="form-subtitle mt-2 " id="pixel-coordinates"> Pixel Coordinates </h2>
 
-        <label className="read-only red" htmlFor={`X_${pointName1}`}> {`X ${pointName1}`} </label>
-        <input  type="number"
-                step="any"
-                className="input-field"
-                id={`X_${pointName1}`}
-                {...register(`${modeName}_X_${pointName1}`)} 
-                onKeyDown={(event) => handleInputField(event, `Y_${pointName1}`)}
-                onBlur={(event) => handleInputField(event, `Y_${pointName1}`)}
-        />
+        <div className="input-container-2 mt-2">
+            <label className="read-only red me-1" htmlFor={`X_${pointName1}`}> {`X ${pointName1}`} </label>
+            <input  type="number"
+                    step="any"
+                    className="input-field"
+                    id={`X_${pointName1}`}
+                    {...register(`${modeName}_X_${pointName1}`)} 
+                    onKeyDown={(event) => handleInputField(event, `Y_${pointName1}`)}
+                    onBlur={(event) => handleInputField(event, `Y_${pointName1}`)}
+            />
+        </div>
 
-        <label className='read-only red' htmlFor={`Y_${pointName1}`}> {`Y ${pointName1}`}</label>
-        <input  type='number' 
-                step="any" className='input-field' 
-                {...register(`${modeName}_Y_${pointName1}`)} 
-                id={`Y_${pointName1}`} 
-                onKeyDown={(event) => handleInputField(event, `X_${pointName2}`)}
-                onBlur={(event) => handleInputField(event, `X_${pointName2}`)}
+        <div className="input-container-2 mt-1">
+            <label className='read-only red me-1' htmlFor={`Y_${pointName1}`}> {`Y ${pointName1}`}</label>
+            <input  type='number' 
+                    step="any" className='input-field' 
+                    {...register(`${modeName}_Y_${pointName1}`)} 
+                    id={`Y_${pointName1}`} 
+                    onKeyDown={(event) => handleInputField(event, `X_${pointName2}`)}
+                    onBlur={(event) => handleInputField(event, `X_${pointName2}`)}
+            />
+        </div>
 
-        />
+        <div className="input-container-2 mt-1">
+            <label className='read-only green me-1' htmlFor={`X_${pointName2}`}> {`X ${pointName2}`}</label> 
+            <input  type='number' 
+                    step="any" className='input-field' 
+                    {...register(`${modeName}_X_${pointName2}`)} 
+                    id={`X_${pointName2}`} 
+                    onKeyDown={(event) => handleInputField(event, `Y_${pointName2}`)}
+                    onBlur={(event) => handleInputField(event, `Y_${pointName2}`)}
+            />
+        </div>
 
-        <label className='read-only green' htmlFor={`X_${pointName2}`}> {`X ${pointName2}`}</label> 
-        <input type='number' 
-                step="any" className='input-field' 
-                {...register(`${modeName}_X_${pointName2}`)} 
-                id={`X_${pointName2}`} 
-                onKeyDown={(event) => handleInputField(event, `Y_${pointName2}`)}
-                onBlur={(event) => handleInputField(event, `Y_${pointName2}`)}
-
-        />
-
-        <label className='read-only green' htmlFor={`Y_${pointName2}`}> {`Y ${pointName2}`}</label>
-        <input  type='number' 
+        <div className="input-container-2 mt-1 mb-2">
+            <label className='read-only green me-1' htmlFor={`Y_${pointName2}`}> {`Y ${pointName2}`}</label>
+            <input  type='number' 
                     step="any" className='input-field' 
                     {...register(`${modeName}_Y_${pointName2}`)} 
                     id={`Y_${pointName2}`} 
                     onKeyDown={(event) => handleInputField(event, 'wizard-next')}
                     onBlur={(event) => handleInputField(event, 'wizard-next')}   
-        />
+            />
+        </div>        
     </>
   )
 }

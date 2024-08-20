@@ -34,7 +34,7 @@ export const FormProcessing = () => {
 
 
   const handleInputStep = ( event: React.KeyboardEvent<HTMLInputElement> |  React.FocusEvent<HTMLInputElement> ) => {
-    if(event.key === "Enter" || event.type === "blur"){
+    if((event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" || event.type === "blur"){
         event.preventDefault()
         const value = parseInt((event.target as HTMLInputElement).value)
         if( value >= 64 && value <= 512 && (value & (value -1 )) === 0 ){
@@ -54,58 +54,59 @@ export const FormProcessing = () => {
 
   const onSubmit = (data: FieldValues) => {
     console.log(data)
-    onSetQuiverAll()
     nextStep()
   }
 
 
   return (
     <>
-    <h1 className="form-title"> Processing </h1>
-    <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className="mt-4" id="form-processing" style={{overflowY: `${!extraFields ? "hidden" : "auto"}`}}>
-          <span id="processing-HEADER"></span>
-          <div className="simple-mode-container">
-              <div className="simple-mode simple-mode-processing">
-                  <div className="switch-container seeding">
-                    <h3 className="field-title">Artificial Seeding </h3>
-                    <label className="switch">
-                        <input type="checkbox" {...register('artificial_seeding')}/>
-                        <span className="slider"></span>
-                    </label>
-
-                  </div>
-                  
-                  <h2 className="form-subtitle mt-1"> Window sizes </h2>
-
-                  <div className="input-container">
-                      <label className="read-only me-1" htmlFor="processing-STEP_1"> Step 1 </label>
-                      <input  className="input-field"
-                              id="processing-STEP_1" 
-                              type="number" 
-                              {...register('step_1')}
-                              onKeyDown={handleInputStep}
-                              onBlur={handleInputStep}
-                              ></input>
-                  </div>
-                  <div className="input-container">
-                      <label className="read-only me-1" htmlFor="processing-STEP_2"> Step 2 </label>
-                      <input className="input-field-read-only" id="processing-STEP_2" readOnly {...register('step_2')}></input>
-                  </div>
-
-                  <div className="test-container">
-                    <button className={`wizard-button form-button ${buttonTest ? "wizard-button-active" : ""}`} onClick={handleOnClickTest}> Test </button>
-                    { processing.test && <div className="loader-little"></div> }
-                  </div>
+      <h1 className="form-title"> Processing </h1>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)} className="form-scroll mt-1" id="form-processing" style={{overflowY: `${!extraFields ? "hidden" : "auto"}`}}>
+            <span id="processing-HEADER"></span>
+            <div className="form-base-2">
+              
+              <div className="switch-container-2 mt-2">
+                <h3 className="field-title">Artificial Seeding </h3>
+                <label className="switch">
+                    <input type="checkbox" {...register('artificial_seeding')}/>
+                    <span className="slider"></span>
+                </label>
               </div>
-              <span className="space2"></span>
-              <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID="processing-HARD_MODE" headerElementID="processing-HEADER" disabled={false}></ButtonLock>
-          </div>
-          <div>
-              <HardModeProcessing></HardModeProcessing>
-          </div>
-      </form>
-    </FormProvider>
+
+              
+              <h2 className="form-subtitle mt-2"> Window sizes </h2>
+
+              <div className="input-container-2 mt-2">
+                  <label className="read-only me-1" htmlFor="processing-STEP_1"> Step 1 </label>
+                  <input  className="input-field"
+                          id="processing-STEP_1" 
+                          type="number" 
+                          {...register('step_1')}
+                          onKeyDown={handleInputStep}
+                          onBlur={handleInputStep}
+                          ></input>
+              </div>
+              <div className="input-container-2 mt-1">
+                  <label className="read-only me-1" htmlFor="processing-STEP_2"> Step 2 </label>
+                  <input className="input-field-read-only" id="processing-STEP_2" readOnly {...register('step_2')}></input>
+              </div>
+
+              <div className="input-container-2 mt-2">
+                <button className={`button-with-loader ${processing.test? "button-with-loader-active" : ""}`} onClick={handleOnClickTest}>
+                  <p className='button-name'> Test </p>
+                  {
+                      processing.test && <span className='loader-little'></span>
+                  }
+                </button>
+                <span className="read-only bg-transparent"></span>
+              </div>
+            </div>
+            
+            <HardModeProcessing></HardModeProcessing>
+        </form>
+      </FormProvider>
+      <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID="processing-HARD_MODE" headerElementID="processing-HEADER" disabled={false}></ButtonLock>
     </>
   )
 }
