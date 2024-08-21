@@ -9,7 +9,6 @@ interface CarouselSettings {
     slidesToScroll: number;
     speed: number;
     focusOnSelect: boolean;
-    lazyLoad: LazyLoadTypes;
     initialSlide: number;
     infinite: boolean;
     afterChange: () => void;
@@ -37,7 +36,6 @@ export const carouselSettings = (
         slidesToScroll: 1,
         speed: 500,
         focusOnSelect: true,
-        lazyLoad: 'ondemand',
         initialSlide: 1,
         infinite:true,
         afterChange: () => setUpdateCount(updateCount + 1),

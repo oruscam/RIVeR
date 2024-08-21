@@ -105,6 +105,7 @@ export const useProjectSlice = () => {
             const result = await ipcRenderer.invoke('load-project')
             if(result.success){
                 const { data, projectDirectory, videoMetadata, firstFrame, xsections } = result.message
+                console.log(data)
                 dispatch(setProjectDirectory(projectDirectory))
                 dispatch(setProjectType(data.type)) 
                 dispatch(setVideoData({
@@ -120,8 +121,7 @@ export const useProjectSlice = () => {
                     dispatch(setFirstFramePath(firstFrame))
                 }
                 dispatch(setLoading(false))
-                
-
+            
                 if(data.xsections){
                     onLoadPixelSize(data.pixel_size, sections[0], dispatch, updateSection)
                     onLoadVideoParameters(data.video_range, dispatch, setVideoParameters)
@@ -158,7 +158,7 @@ export const useProjectSlice = () => {
         } catch (error) {
             console.log("Error en Load Project")
             dispatch(setLoading(false))
-            return "Elige un archivo settings.json"
+            return "Elige un directorio válido"
         }
     }
     

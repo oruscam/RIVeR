@@ -31,7 +31,6 @@ export const LineAndText = ({imagePoints, name, isPixelSize}: LineAndTextProps) 
       textColor = "#000000"
   }
 
-
   return (
     <>
         <Line

@@ -1,5 +1,5 @@
 import { useWizard } from "react-use-wizard";
-import {useDataSlice, useSectionSlice } from "../hooks"
+import {useDataSlice } from "../hooks"
 import { WindowSizes } from "./WindowSizes";
 import { Quiver } from "./Quiver";
 import { PROCESSING_STEP_NUMBER } from "../constants/constants";
@@ -11,10 +11,7 @@ export const ImageWithData = ({ width, height, factor, showMedian }: {width: num
   const { processing, images } = useDataSlice();
   const { activeStep } = useWizard();
   const { paths, active } = images 
-  const { sections } = useSectionSlice();
 
-  console.log(activeStep)
-  console.log(sections)
 
   return (
     <div className="image-with-data-container" style={{width: width, height: height}}>

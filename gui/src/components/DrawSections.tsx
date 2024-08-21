@@ -39,7 +39,6 @@ export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints} :
                             y: point.y / factor.y
                         }
                     })
-
                     return (
                         <Group key={index}>
                             {

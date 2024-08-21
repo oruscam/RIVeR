@@ -218,7 +218,8 @@
 }
 
 .image-with-marks{
-    margin-top: 10%;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 /* Chart Cross Sections */
@@ -299,6 +300,7 @@
 }
 
 .carousel-container{
+    margin-top: 5px;
     width: 90%;
     display: flex;
     flex-direction: column;
@@ -355,7 +357,7 @@
     position: relative;
     display: inline-block;
     width: 275px;
-    height: 175px;
+    height: 160px;
 }
 
 .img-carousel{
@@ -379,9 +381,10 @@
 }
 
 .image-with-data-container{
-    margin-top: 90px;
     position: relative;
     background-color: transparent;
+    flex-shrink: 0;
+    margin-top: 20px;
 }
 
 .simple-image{

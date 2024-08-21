@@ -16,7 +16,6 @@ export const Quiver = ({ width, height, factor, activeStep, showMedian }: Quiver
   const svgRef = useRef(null)
   const { images, quiver } = useDataSlice();
 
-  console.log(images.active)
 
   if(quiver){
     const { x, y, u, v, typevector, u_median, v_median } = quiver;

@@ -3,7 +3,7 @@ import useImage from 'use-image'
 import { Group, Image, Layer, Line, Stage } from 'react-konva'
 import { KonvaEventObject } from 'konva/lib/Node'
 import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks'
-import { Points, LineAndText, DrawSections } from './index'
+import { Points, DrawSections } from './index'
 
 type Point = { x: number; y: number };
 
@@ -19,7 +19,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
   const { seeAll } = useUiSlice()
   const { onSetPoints, sections, activeSection} = useSectionSlice()
   const { firstFramePath } = useProjectSlice(); 
-  const {drawLine, points, name} = sections[activeSection]
+  const { drawLine, points } = sections[activeSection]
 
 
   const [localPoints, setLocalPoints] = useState<Point[]>([])

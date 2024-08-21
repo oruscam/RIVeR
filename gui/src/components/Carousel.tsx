@@ -42,7 +42,6 @@ export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, se
 
     const handleOnClickImage = (_event: React.MouseEvent<HTMLDivElement>,index: number) => {
         if( index !== paths.length -1 ) {
-            setShowMedian(false)
             onSetActiveImage(index)
             setDefautValue(index +1)
         }

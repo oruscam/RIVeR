@@ -21,7 +21,6 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
   const { register, watch, setValue } = useFormContext()
   const bathWatch = watch(`${name}_CS_BATHIMETRY`)
 
-  console.log(extraFields)
 
   const handleKeyDownBathLevel = (event: React.KeyboardEvent<HTMLInputElement>, nextFieldId: string) => {
     if (event.key === 'Enter') {

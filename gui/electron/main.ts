@@ -115,6 +115,6 @@ app.whenReady().then(() => {
 })
 
 
-// setInterval(() => {
-//   console.log(PROJECT_CONFIG);
-// }, 5000);  
+setInterval(() => {
+  console.log(PROJECT_CONFIG);
+}, 5000);  
