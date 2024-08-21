@@ -2,7 +2,6 @@ import { WizardButtons, ImageWithMarks, Error, Progress } from "../components"
 import { useProjectSlice, useUiSlice } from "../hooks"
 import { getNewImageResolution } from "../helpers/getNewImageResolution"
 import { CrossSections } from "../components/CrossSections/index"
-import { useState } from "react"
 
 export const Step5 = () => {
   const { screenSizes } = useUiSlice()
