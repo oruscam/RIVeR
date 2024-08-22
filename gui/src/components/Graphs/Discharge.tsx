@@ -4,6 +4,8 @@ import { useEffect, useRef } from 'react'
 export const Discharge = () => {
     const svgRef = useRef<SVGSVGElement>(null)
     const data = [10, 10, 13, 16, 19, 22, 28, 22, 30, 36, 30, 19, 19]
+    const xdata = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
+
     
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
@@ -14,7 +16,7 @@ export const Discharge = () => {
             const margin = { top: 8, right: 30, bottom: 5, left: 40 };
 
             const x = d3.scaleBand()
-                .domain(data.map((d, i) => i.toString()))
+                .domain(xdata.map((_d, i) => i.toString()))
                 .range([margin.left, width - margin.right])
                 .padding(0.4);
 
@@ -40,32 +42,19 @@ export const Discharge = () => {
                         return '#ED6B57'
                     }
                 })
-                .on("mouseover", function(event, d) {
-                    d3.select(this)
-                        .attr("fill", "orange");
 
-                    svg.append("text")
-                        .attr("class", "tooltip")
-                        .attr("x", parseFloat(d3.select(this).attr("x")) + x.bandwidth() / 2)
-                        .attr("y", parseFloat(d3.select(this).attr("y")) - 5)
-                        .attr("text-anchor", "middle")
-                        .attr("fill", "white")
-                        .text(d);
-                })
-                .on("mouseout", function(event, d) {
-                    d3.select(this)
-                        .attr("fill", (_d, i) => {
-                            if ( i < 6 || i === 7 || i > 10){
-                                return '#62C655'
-                            } else if ( i === 6 || i === 10){
-                                return '#F5BF61'
-                            } else {
-                                return '#ED6B57'
-                            }
-                        });
-
-                    svg.selectAll(".tooltip").remove();
-                });
+            .on("mouseover", (event, d) => {
+                svg.append("text")
+                    .attr("class", "tooltip")
+                    .attr("x", parseFloat(d3.select(event.currentTarget).attr("x")) + x.bandwidth() / 2)
+                    .attr("y", parseFloat(d3.select(event.currentTarget).attr("y")) - 5)
+                    .attr("text-anchor", "middle")
+                    .attr("fill", "white")
+                    .text(d);
+            })
+            .on("mouseout", () => {
+                svg.selectAll(".tooltip").remove();
+            })
 
             svg.append('text')
                 .attr('class', 'y-axis-label')

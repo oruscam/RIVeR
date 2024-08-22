@@ -17,11 +17,9 @@ export const Bathimetry = ({ setBathimetryLimits }: { setBathimetryLimits?: (lim
                         const { max, min } = getBathimetryLimits(data);
                         setBathimetryLimits({ min, max });
                     }
-                    
                     if (svgRef.current) {
                         createBathymetryChart(svgRef.current, data, level);
                     }
-
                 }
             })
         }

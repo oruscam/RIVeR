@@ -1,4 +1,5 @@
 import { Bathimetry, Discharge, Velocity } from "../Graphs"
+import { AllInOne } from "../Graphs/AllInOne"
 import { Grid } from "../index"
 
 export const FormResults = () => {
@@ -21,9 +22,12 @@ export const FormResults = () => {
         ></input>
       </div>
 
-      <Discharge></Discharge>
-      <Velocity></Velocity>
-      <Bathimetry ></Bathimetry>
+      {/* <Discharge></Discharge> */}
+      {/* <Velocity></Velocity> */}
+      {/* <Bathimetry></Bathimetry> */}
+      <AllInOne></AllInOne>
+
+
       <span className="mt-1"></span>
 
       <div className="switch-container-2 mt-5">

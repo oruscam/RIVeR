@@ -13,9 +13,9 @@ export const Step8 = () => {
 
   return (
     <div className='regular-page'>
-        <div className='media-container'>
+        {/* <div className='media-container'>
           <VelocityVector width={width} height={height} factor={factor}></VelocityVector>
-        </div>
+        </div> */}
         <div className='form-container'>
             <h1 className='form-title'>Results</h1>
             <Sections canEdit={false}></Sections>

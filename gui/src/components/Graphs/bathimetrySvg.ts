@@ -62,7 +62,7 @@ export const createBathymetryChart = (svgElement: SVGSVGElement, data: DataPoint
             .tickSize(-height + margin.top + margin.bottom)
             .tickFormat('' as any))
         .attr('stroke', 'grey')
-        .attr('stroke-width', 0.2);
+        .attr('stroke-width', 0.05);
 
     svg.append('g')
         .attr('class', 'grid')
@@ -71,7 +71,7 @@ export const createBathymetryChart = (svgElement: SVGSVGElement, data: DataPoint
             .tickSize(-width + margin.left + margin.right)
             .tickFormat('' as any))
         .attr('stroke', 'grey')
-        .attr('stroke-width', 0.2);
+        .attr('stroke-width', 0.05);
 
     // Sombrear el área entre la línea horizontal y la gráfica original
     const area = d3.area<{ x: number, y: number }>()

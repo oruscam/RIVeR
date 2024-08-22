@@ -44,6 +44,9 @@ export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, se
         if( index !== paths.length -1 ) {
             onSetActiveImage(index)
             setDefautValue(index +1)
+            if(setShowMedian){
+                setShowMedian(false)
+            }
         }
     }
 

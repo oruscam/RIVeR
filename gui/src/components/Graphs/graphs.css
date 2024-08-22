@@ -18,3 +18,8 @@
     justify-content: center;
     margin-bottom: 25px;
 }
+
+.all-in-one-container{
+    display: flex;
+    justify-content: center;
+}
