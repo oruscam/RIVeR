@@ -12,100 +12,135 @@ Email: antoine.patalano@unc.edu.ar
 Company: UNC / ORUS
 """
 
-from piv_fftmulti import piv_fftmulti
-import image_preprocessing as impp
+from pathlib import Path
+
 import numpy as np
 
+import river.core.image_preprocessing as impp
+from river.core.piv_fftmulti import piv_fftmulti
 
-def piv_loop(path_images, mask, bbox, interrogationarea, int2,
-             mask_auto, multipass, std_filter, stdthresh, median_test_filter,
-             epsilon, thresh, seeding_filter, step, filt_grayscale,
-             filt_clahe, clipLimit_clahe, filt_sub_backgnd, backgnd, start, end):
-    """
-    Perform PIV analysis over a range of frames.
 
-    Parameters:
-    path_images : list of str
-        List of paths to the images.
-    mask : np.ndarray
-        Mask for the region of interest.
-    bbox : list of int
-        Bounding box for the region of interest as (x0, y0, x1, y1).
-    interrogationarea : int
-        Size of the interrogation area.
-    int2 : int, optional
-        Size of the second interrogation area.
-    mask_auto : bool
-        Whether to automatically apply a mask.
-    multipass : bool
-        Whether to use multiple passes.
-    std_filter : bool
-        Whether to apply standard deviation filtering.
-    stdthresh : float
-        Threshold for standard deviation filtering.
-    median_test_filter : bool
-        Whether to apply median test filtering.
-    epsilon : float
-        Epsilon value for median test filtering.
-    thresh : float
-        Threshold value for median test filtering.
-    seeding_filter : bool
-        Whether to apply seeding filtering.
-    step : int
-        Step size for grid calculations.
-    filt_grayscale : bool
-        Whether to convert images to grayscale.
-    filt_clahe : bool
-        Whether to apply CLAHE filtering.
-    clipLimit_clahe : int
-        Clip limit for CLAHE.
-    filt_sub_backgnd : bool
-        Whether to subtract background.
-    backgnd : np.ndarray
-        Background image for subtraction.
-    start : int
-        Starting frame index.
-    end : int
-        Ending frame index.
+def piv_loop(
+	path_images: Path,
+	mask: np.ndarray,
+	bbox: list,
+	interrogation_area_1,
+	interrogation_area_2,
+	mask_auto: bool,
+	multipass: bool,
+	standard_filter: bool,
+	standard_threshold: bool,
+	median_test_filter: bool,
+	epsilon: float,
+	threshold: float,
+	seeding_filter: bool,
+	step: int,
+	filter_grayscale: bool,
+	filter_clahe: bool,
+	clip_limit_clahe: int,
+	filter_sub_background: bool,
+	background: np.ndarray,
+	start: int,
+	end: int,
+) -> dict:
+	"""
+	Perform PIV analysis over a range of frames.
 
-    Returns:
-    dict
-        Dictionary containing cumulative results of PIV analysis.
-    """
+	Parameters:
+	path_images : Path
+	    List of paths to the images.
+	mask : np.ndarray
+	    Mask for the region of interest.
+	bbox : list of int
+	    Bounding box for the region of interest as (x0, y0, x1, y1).
+	interrogation_area_1 : int
+	    Size of the interrogation area.
+	interrogation_area_1 : int, optional
+	    Size of the second interrogation area.
+	mask_auto : bool
+	    Whether to automatically apply a mask.
+	multipass : bool
+	    Whether to use multiple passes.
+	standard_filter : bool
+	    Whether to apply standard deviation filtering.
+	standard_threshold : float
+	    Threshold for standard deviation filtering.
+	median_test_filter : bool
+	    Whether to apply median test filtering.
+	epsilon : float
+	    Epsilon value for median test filtering.
+	threshold : float
+	    Threshold value for median test filtering.
+	seeding_filter : bool
+	    Whether to apply seeding filtering.
+	step : int
+	    Step size for grid calculations.
+	filter_grayscale : bool
+	    Whether to convert images to grayscale.
+	filter_clahe : bool
+	    Whether to apply CLAHE filtering.
+	clip_limit_clahe : int
+	    Clip limit for CLAHE.
+	filter_sub_background : bool
+	    Whether to subtract background.
+	background : np.ndarray
+	    Background image for subtraction.
+	start : int
+	    Starting frame index.
+	end : int
+	    Ending frame index.
 
-    fr = start
-    last_fr = end
-    dict_cumul = {'u': 0, 'v': 0, 'x': 0, 'y': 0}
+	Returns:
+	dict
+	    Dictionary containing cumulative results of PIV analysis.
+	"""
 
-    while fr < last_fr:
-        image1 = impp.preprocess_image(path_images[fr], filt_grayscale, filt_clahe,
-                                       clipLimit_clahe, filt_sub_backgnd, backgnd)
-        image2 = impp.preprocess_image(path_images[fr + 1], filt_grayscale, filt_clahe,
-                                       clipLimit_clahe, filt_sub_backgnd, backgnd)
+	fr = start
+	last_fr = end
+	dict_cumul = {"u": 0, "v": 0, "x": 0, "y": 0}
 
-        xtable, ytable, utable, vtable, typevector, gradient = piv_fftmulti(
-            image1, image2, mask=mask, bbox=bbox, interrogationarea=interrogationarea, int2=int2,
-            mask_auto=mask_auto, multipass=multipass, std_filter=std_filter,
-            stdthresh=stdthresh, median_test_filter=median_test_filter,
-            epsilon=epsilon, thresh=thresh, seeding_filter=seeding_filter, step=step
-        )
+	while fr < last_fr:
+		image1 = impp.preprocess_image(
+			path_images[fr], filter_grayscale, filter_clahe, clip_limit_clahe, filter_sub_background, background
+		)
+		image2 = impp.preprocess_image(
+			path_images[fr + 1], filter_grayscale, filter_clahe, clip_limit_clahe, filter_sub_background, background
+		)
 
-        try:
-            dict_cumul['u'] = np.hstack((dict_cumul['u'], utable.reshape(-1, 1)))
-            dict_cumul['v'] = np.hstack((dict_cumul['v'], vtable.reshape(-1, 1)))
-            dict_cumul['typevector'] = np.hstack((dict_cumul['typevector'], typevector.reshape(-1, 1)))
-            if seeding_filter:
-                dict_cumul['gradient'] = np.hstack((dict_cumul['gradient'], gradient.reshape(-1, 1)))
+		xtable, ytable, utable, vtable, typevector, gradient = piv_fftmulti(
+			image1,
+			image2,
+			mask=mask,
+			bbox=bbox,
+			interrogation_area_1=interrogation_area_1,
+			interrogation_area_2=interrogation_area_2,
+			mask_auto=mask_auto,
+			multipass=multipass,
+			standard_filter=standard_filter,
+			standard_threshold=standard_threshold,
+			median_test_filter=median_test_filter,
+			epsilon=epsilon,
+			threshold=threshold,
+			seeding_filter=seeding_filter,
+			step=step,
+		)
 
-        except ValueError:
-            dict_cumul['u'] = utable.reshape(-1, 1)
-            dict_cumul['v'] = vtable.reshape(-1, 1)
-            dict_cumul['typevector'] = typevector.reshape(-1, 1)
-            if seeding_filter:
-                dict_cumul['gradient'] = gradient.reshape(-1, 1)
-            dict_cumul['x'] = xtable
-            dict_cumul['y'] = ytable
+		try:
+			dict_cumul["u"] = np.hstack((dict_cumul["u"], utable.reshape(-1, 1)))
+			dict_cumul["v"] = np.hstack((dict_cumul["v"], vtable.reshape(-1, 1)))
+			dict_cumul["typevector"] = np.hstack((dict_cumul["typevector"], typevector.reshape(-1, 1)))
+			if seeding_filter:
+				dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], gradient.reshape(-1, 1)))
 
-        fr += 1
+		except ValueError:
+			dict_cumul["u"] = utable.reshape(-1, 1)
+			dict_cumul["v"] = vtable.reshape(-1, 1)
+			dict_cumul["typevector"] = typevector.reshape(-1, 1)
+			if seeding_filter:
+				dict_cumul["gradient"] = gradient.reshape(-1, 1)
+			dict_cumul["x"] = xtable
+			dict_cumul["y"] = ytable
 
-    return dict_cumul
+		fr += 1
+
+	return dict_cumul
