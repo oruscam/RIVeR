@@ -1,4 +1,15 @@
-# define_roi_masks.py
+"""
+File Name: define_roi_masks.py
+Project Name: RIVeR-LAC
+Description: Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
+
+Created Date: 2024-07-04
+Author: Antoine Patalano
+Email: antoine.patalano@unc.edu.ar
+Company: UNC / ORUS
+
+This script contains functions for roi and mask creation
+"""
 
 from logging import getLogger
 
