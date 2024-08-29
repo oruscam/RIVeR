@@ -6,7 +6,7 @@ import { CrossSections } from "../components/CrossSections/index"
 export const Step5 = () => {
   const { screenSizes } = useUiSlice()
   const { video } = useProjectSlice()
-  
+
   const {width: windowWidth, height: windowHeight} = screenSizes
   const { data } = video
   

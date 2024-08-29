@@ -12,8 +12,7 @@ interface DataPoint {
  * @param level - The level value for shading the area between the horizontal line and the original graph.
  */
 
-export const createBathymetryChart = (svgElement: SVGSVGElement, data: DataPoint[], level: number) => {
-    d3.select(svgElement).selectAll('*').remove();
+export const createBathymetryChart = (svgElement: SVGSVGElement, data: DataPoint[], level: number, lineColor: string) => {
     const svg = d3.select(svgElement);
     const width = +svg.attr('width');
     const height = +svg.attr('height');
@@ -107,10 +106,10 @@ export const createBathymetryChart = (svgElement: SVGSVGElement, data: DataPoint
     svg.append('path')
         .datum(data)
         .attr('fill', 'none')
-        .attr('stroke', 'rgba(255,255,255,0.9)')
+        .attr('stroke', lineColor)
         .attr('stroke-width', 1.5)
-        .attr('d', line);
-    
+        .attr('d', line)
+  
 
 }   
 

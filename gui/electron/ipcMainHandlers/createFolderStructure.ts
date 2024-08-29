@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path'
 
 
-export async function createFolderStructure (newDirPath: string, type: string, videoPath: string) {
+export async function createFolderStructure (newDirPath: string, type: string, videoPath: string, videoName: string,  result: { width: number; height: number; fps: number; duration: string }) {
 
     try {
         await fs.promises.access(newDirPath, fs.constants.F_OK);
@@ -34,6 +34,14 @@ export async function createFolderStructure (newDirPath: string, type: string, v
         creation_date: getFormattedDate(),
         footage: type,
         filepath: videoPath,
+        video_name: videoName,
+        total_length: result.duration,
+        time_between_frames: parseFloat((1 / result.fps).toFixed(2)),
+        resolution : {
+            width: result.width,
+            height: result.height
+        },
+        fps: result.fps
     }
 
     try{

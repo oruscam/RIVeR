@@ -4,11 +4,10 @@ interface Point {
 }
 
 interface Bathimetry {
-    blob?: Blob;
+    blob?: Blob | string;
     path: string;
     level: number;
     name: string;
-    type: string;
 }
 
 interface PixelSize {

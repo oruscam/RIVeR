@@ -4,6 +4,11 @@
   --primary-text-color: #000000;
   --secondary-text-color: #ffffff;
   --on-hover: #4d4b4b;
+
+/* REPORT COLORS */
+  --report-gradient-1: #0678BE;
+  --report-gradient-2: #033858;
+
 }
 
 [data-theme="dark"]{

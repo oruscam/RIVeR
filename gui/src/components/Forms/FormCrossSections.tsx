@@ -9,17 +9,17 @@ import { Bathimetry } from "../Graphs"
 interface FormCrossSectionsProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void,
   name: string,
+  index: number,
 }
 
-export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) => {
+export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsProps) => {
   const [extraFields, setExtraFields] = useState(false)
 
   const [bathimetryLimits, setBathimetryLimits] = useState({ min: 0, max: 0 })
 
   const { sections, activeSection, onUpdateSection } = useSectionSlice()
   const { drawLine, bathimetry } = sections[activeSection]
-  const { register, watch, setValue } = useFormContext()
-  const bathWatch = watch(`${name}_CS_BATHIMETRY`)
+  const { register, setValue } = useFormContext()
 
 
   const handleKeyDownBathLevel = (event: React.KeyboardEvent<HTMLInputElement>, nextFieldId: string) => {
@@ -39,23 +39,23 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
     }
   }
 
-
-  useEffect(() => {
-    if (bathWatch?.length) {
-      if (bathimetry.path === "" || bathWatch[0].path !== bathimetry.path) {
-        onUpdateSection({ file: bathWatch[0] })
-      }
+  const onFileBathChange = ( event ) => {
+    const file = event.target.files[0]
+    if(file){
+      onUpdateSection({ file })
     }
-  }, [bathWatch])
+  }
 
   useEffect(() => {
-    if (bathimetryLimits.max !== 0) {
+    
+    if (bathimetryLimits.max !== 0 && bathimetry.level === 0) {
       onUpdateSection({ level: bathimetryLimits.max })
     }
   }, [bathimetryLimits])
 
+
   return (
-    <>
+    <div id="form-section-div" className={activeSection !== index ? "hidden" : ""}>
       <form className="form-scroll" onSubmit={onSubmit} id="cross-section">
         <span id={`${name}-HEADER`}/>
         <div className="form-base-2 mt-2">
@@ -73,7 +73,7 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
               <input type="number"
                 className="input-field-read-only"
                 {...register(`${name}_CS_LENGTH`, {
-                  validate: value => value != 0 || 'El valor no puede ser 0'
+                  validate: value => value != 0 || `The value of CS Length can not be 0 in ${name}`
                 })}
                 id="CS_LENGTH" readOnly={true}
               />
@@ -83,7 +83,15 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
               <input type="file" id={`${name}_CS_BATHIMETRY`}
                 className="hidden-file-input"
                 accept=".csv"
-                {...register(`${name}_CS_BATHIMETRY`)}
+                {...register(`${name}_CS_BATHIMETRY`, { 
+                  validate: value => {
+                    if (sections[index].bathimetry.path === "" && value.length === 0) {
+                      return `Bathimetry is required in ${name}`
+                    }
+                    return true
+                  },
+                  onChange: onFileBathChange
+                })}
               />
               <label
                 className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.blob ? "wizard-button-active" : ""}`}
@@ -98,7 +106,11 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
               <input  type="number" 
                       step='any' 
                       className="input-field" 
-                      {...register(`${name}_LEVEL`, { max: bathimetryLimits.max, min: bathimetryLimits.min })} 
+                      {...register(`${name}_LEVEL`, { 
+                        validate: () => {
+                          if( bathimetry.level !== 0) return true;
+                        }
+                       })} 
                       defaultValue={bathimetryLimits.max} 
                       id="LEVEL" onKeyDown={(event) => handleKeyDownBathLevel(event, 'wizard-next')}
                       />
@@ -113,8 +125,8 @@ export const FormCrossSections = ({ onSubmit, name }: FormCrossSectionsProps) =>
           </div>
         </div>
       </form>
-      <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID={`REAL_WORLD`} headerElementID={`${name}-HEADER`} disabled={sections[activeSection].points.length === 0}></ButtonLock>
+        <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID={`REAL_WORLD`} headerElementID={`${name}-HEADER`} disabled={sections[activeSection].points.length === 0}></ButtonLock>
 
-    </>
+    </div>
   )
 }

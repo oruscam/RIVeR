@@ -97,7 +97,6 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
               className='input-field'
               { ...register('step', validationRules.step)}
               ></input>
-
           </div>
 
       </form>

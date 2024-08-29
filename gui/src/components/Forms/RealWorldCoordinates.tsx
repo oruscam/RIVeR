@@ -1,13 +1,14 @@
 import { useFormContext } from "react-hook-form";
 import { getPointNames } from "../../helpers/index";
-import { useSectionSlice } from "../../hooks";
+import { useSectionSlice, useUiSlice } from "../../hooks";
 
 
 
 export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
     const { pointName1, pointName2 } = getPointNames(modeName);
-    const { register } = useFormContext()  
+    const { register, resetField } = useFormContext()  
     const { onSetRealWorld } = useSectionSlice()
+    const { onSetErrorMessage } = useUiSlice()
 
 
     const handleInputField = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement> , nextFieldId: string ) => {
@@ -19,19 +20,19 @@ export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
           const value = parseFloat((event.target as HTMLInputElement).value);
           const target = event.target as HTMLInputElement;
 
-          // if( value < 0){
-          //   const error = {
-          //       [target.id]: {
-          //       type: "required",     
-          //       message: `The value ${target.id} must be greater than 0`
-          //           }
-          //       };
+          if( value < 0 || isNaN(value)){
+            const error = {
+                [target.id]: {
+                type: "required",     
+                message: `The value ${target.id} must be greater than 0`
+                    }
+                };
 
-          //   onSetErrorMessage(error)
-          //   const fieldName = `${modeName}_${target.id}`
-          //   resetField(fieldName)
-          //   return
-          // }
+            onSetErrorMessage(error)
+            const fieldName = `${modeName}_${target.id}`
+            resetField(fieldName)
+            return
+          }
 
           switch (target.id) {
             case `EAST_${pointName1}`:

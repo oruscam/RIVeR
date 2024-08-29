@@ -11,15 +11,16 @@ export function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
         const [ videoName ] = arg.name.split('.');
         const newPath = path.join(userDir, 'River', videoName);
 
-        createFolderStructure(newPath, arg.type, arg.path)
-
-        PROJECT_CONFIG.directory = newPath
-        PROJECT_CONFIG.type = arg.type
-        PROJECT_CONFIG.videoPath = arg.path
-        PROJECT_CONFIG.settingsPath = path.join(newPath, 'settings.json')
 
         try {
             const result = await getVideoMetadata(arg.path)
+
+            createFolderStructure(newPath, arg.type, arg.path, arg.name, result)
+
+            PROJECT_CONFIG.directory = newPath
+            PROJECT_CONFIG.type = arg.type
+            PROJECT_CONFIG.videoPath = arg.path
+            PROJECT_CONFIG.settingsPath = path.join(newPath, 'settings.json')
             return {
                 ...result,
                 directory: newPath

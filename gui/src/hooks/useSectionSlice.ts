@@ -46,7 +46,6 @@ export const useSectionSlice = () => {
      * @param formPoint | null - Object with the real world coordinates and the position to update. This can be passed in formPixelSize or formCrossSections, by the child component pixelCoordinates.
      */
     const onSetPoints = async ( canvasPoint: CanvasPoint | null, formPoint: FormPoint | null  ) => {
-        console.log("ON SET POINTS")
         const { realWorld, points } = sections[activeSection];
 
         /**
@@ -123,10 +122,20 @@ export const useSectionSlice = () => {
         }
 
         /**
-         * The new points are stored in the section slice.
+         * The new points are stored in the section slice, if the points are different from the current points.
          */
+        if(newPoints){
+            if (newPoints[0].x === newPoints[1].x && newPoints[0].y === newPoints[1].y) {
+                console.error("Los puntos no pueden ser iguales.");
+                newPoints = points; // Revertir a los puntos originales
+                flag1 = false;
+                flag2 = false;
+                dispatch(setSectionPoints(newPoints as Point[]))
+            } else {
+                dispatch(setSectionPoints(newPoints as Point[]))
+            }
 
-        dispatch(setSectionPoints(newPoints as Point[]))
+        }
 
         /**
          * If the active section is greater than 0, the real world coordinates are calculated.
@@ -207,8 +216,16 @@ export const useSectionSlice = () => {
         /**
          * The new real world coordinates are stored in the section slice.
          */
-
-        dispatch(setSectionRealWorld(newPoints))
+        if(newPoints){
+            if( newPoints[0].x === newPoints[1].x && newPoints[0].y === newPoints[1].y){
+                console.error("Los puntos no pueden ser iguales.");
+                newPoints = realWorld;
+                flag1 = false;
+                flag2 = false;
+            } else {
+                dispatch(setSectionRealWorld(newPoints))
+            }
+        }
 
         /**
          * If the active section is greater than 0, the pixel coordinates are calculated.
@@ -296,12 +313,15 @@ export const useSectionSlice = () => {
          */
 
         const csNames: string[] = []
+        const bahtsPaths: string[] = []
         sections.map((section, index) => {
             if(index > 0){
                 csNames.push(section.name)
+                bahtsPaths.push(section.bathimetry.path)
             }
         })
-        const data = convertInputData(formData, csNames)
+
+        const data = convertInputData(formData, csNames, bahtsPaths)
         const ipcRenderer = window.ipcRenderer;
 
         /**
@@ -356,7 +376,10 @@ export const useSectionSlice = () => {
         const section = sections[activeSection]
 
         if( value.drawLine ){
-            dispatch(updateSection({...section, drawLine: !section.drawLine, points: []}))
+            dispatch(updateSection({...section, drawLine: !section.drawLine, points: [], pixelSize: {
+                rw_length: 0,
+                size: 0
+            }}))
         }
         if( value.lineLength ){
             const { points } = section
@@ -388,6 +411,10 @@ export const useSectionSlice = () => {
 
     const onAddSection = (sectionNumber: number) => {
         let str = `CS_default_${sectionNumber}`
+        while(sections.map(section => section.name).includes(str)){
+            sectionNumber += 1
+            str = `CS_default_${sectionNumber}`
+        }
         const section = {
             name: str,
             drawLine: false,

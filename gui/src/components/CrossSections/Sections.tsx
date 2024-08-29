@@ -1,6 +1,7 @@
 import React, { useEffect } from "react"
 import {  useForm } from "react-hook-form"
-import { useSectionSlice } from "../../hooks"
+import { useSectionSlice, useUiSlice } from "../../hooks"
+import { isValidString } from "../../helpers/regex";
 
 interface Sections {
     setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -10,7 +11,7 @@ interface Sections {
 export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
     const { register} = useForm()
     const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onUpdateSection } = useSectionSlice()
-    const [sectionNumber, setSectionNumber] = React.useState(2)
+    const { onSetErrorMessage } = useUiSlice()
 
     // Set the active section, and logic for scrolling to the next section
     const onClickSection = ( index: number ) => {
@@ -35,8 +36,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
     const onClickButtonSection = ( event: React.MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation()
         if (event.currentTarget.id === "add"){
-            onAddSection(sectionNumber)
-            setSectionNumber(sectionNumber + 1)
+            onAddSection(sections.length)
         }
         if ( event.currentTarget.id === "delete" && setDeletedSections){
             setDeletedSections(sections[activeSection].name)
@@ -51,17 +51,33 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
 
     
     const handleInputNameSection = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>, index: number ) => {
-        if ((event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" || event.type === "blur"){
+        const inputElement = event.target as HTMLInputElement;
+        if (((event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" || event.type === "blur") && inputElement.readOnly === false){
             const input = event.currentTarget
             const value = input.value
-            if( value === "" ){
+            if( value === ""){
                 input.value = sections[index].name
                 input.readOnly = true
-            }else if ( value !== sections[index].name ){
+                onSetErrorMessage({
+                    message: 'Section name can not be empty',
+                })
+            } else if( !isValidString(value) ){
+                input.value = sections[index].name
+                input.readOnly = true
+                onSetErrorMessage({
+                    message: 'Section name can only contain letters, numbers, and under scores',
+                })
+            } else if ( sections.map(section => section.name).includes(value) ){
+                input.value = sections[index].name
+                input.readOnly = true
+                onSetErrorMessage({
+                    message: 'Section name already exists',
+                })
+            } else {
                 input.readOnly = true
                 onUpdateSection({sectionName: value})
             }
-    
+            input.readOnly = true
             const nextElement = document.getElementById(`${sections[index].name}-DRAW_LINE`)
             nextElement?.focus()
                     

@@ -110,7 +110,7 @@
 
 }
 
-.cross-section-header{
+.sections-header{
     margin-top: 35px;
     display: flex;
     width: 90%;
@@ -118,7 +118,7 @@
     align-items: center;
 }
 
-.cross-sections-title{
+.sections-title{
     margin-left: -15px;
 }
 

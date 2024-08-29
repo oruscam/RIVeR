@@ -27,7 +27,7 @@ const createInitialState = (sections: Section[]) => {
             defaultValues = {
                 ...defaultValues,
                 [`${baseKey}_CS_LENGTH`]: pixelSize.rw_length,
-                [`${baseKey}_CS_BATHIMETRY`]: { "blob": bathimetry.blob, "path": bathimetry.path, "name": bathimetry.name},
+                [`${baseKey}_CS_BATHIMETRY`]: undefined,
                 [`${baseKey}_LEVEL`]: bathimetry.level,
                 [`${baseKey}_EAST_Left`]: realWorld[0].x.toFixed(2),
                 [`${baseKey}_NORTH_Left`]: realWorld[0].y.toFixed(2),
@@ -52,7 +52,6 @@ export const CrossSections = () => {
     const methods = useForm({defaultValues: createInitialState(sections)})
     const { nextStep } = useWizard()
 
-
     const unregisterFieldsStartingWith = (prefix: string) => {
         const allValues = methods.getValues(); // Obtiene todos los campos registrados y sus valores
         const fieldNames = Object.keys(allValues); // Obtiene los nombres de todos los campos
@@ -70,6 +69,7 @@ export const CrossSections = () => {
     }
 
     const onError = ( errors: any ) => {
+        console.log(errors)
         onSetErrorMessage(errors)
     }
 
@@ -90,18 +90,18 @@ export const CrossSections = () => {
 
     return (
         <>
-            <div className="cross-section-header">        
+            <div className="sections-header">        
                 <EyeBall></EyeBall>              
-                <h2 className="cross-sections-title"> Cross Sections </h2>
+                <h1 className="sections-title"> Cross Sections </h1>
                 <span></span>
             </div>
             <Sections setDeletedSections={setDeletedSections} canEdit={true} ></Sections>
             <FormProvider {...methods}>
             {
                 sections.map((section, index: number) => {
-                    if (activeSection === (index) && index >= 1) {
+                    if ( index >= 1 ) {
                         return (
-                            <FormCrossSections key={section.name} onSubmit={methods.handleSubmit(onSubmit, onError)} name={section.name}/>
+                            <FormCrossSections key={section.name} onSubmit={methods.handleSubmit(onSubmit, onError)} name={section.name} index={index}/>
                         )
                     } else {
                         return null;

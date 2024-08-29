@@ -10,7 +10,6 @@ const defaultSections = [{
         level: 0,
         path: '',
         name: '',
-        type: ''
     },
     pixelSize: {size: 0, rw_length: 0},
     realWorld: [{x: 0, y: 0}, {x: 0, y: 0}]
@@ -21,10 +20,10 @@ const defaultSections = [{
     points: [],
     bathimetry: {
         blob: '/@fs/home/tomy_ste/Desktop/bath1.csv',
-        level: 650,
+        level: 0,
         path: '/@fs/home/tomy_ste/Desktop/bath1.csv',
+        // path: '',
         name: '',
-        type: '',
     },
     pixelSize: {size: 0, rw_length: 0},
     realWorld: [{x: 0, y: 0}, {x: 0, y: 0}]
@@ -35,7 +34,7 @@ const defaultSections = [{
 
 const initialState: SectionState = {
     sections: defaultSections,
-    activeSection: 0,
+    activeSection: 1,
 };
 
 const sectionSlice = createSlice({

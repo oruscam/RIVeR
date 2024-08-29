@@ -66,6 +66,7 @@ const onLoadCrossSections = (xsections: XSections, dispatch: any, updateSection:
             flag = false
             dispatch(updateSection({
                 ...sections[1],
+                name: key,
                 drawLine: true,
                 points: [{x: xl, y: yl}, {x: xr, y: yr}],
                 realWorld: [{x: east_l, y: north_l}, {x: east_r, y: north_r}],

@@ -13,6 +13,7 @@ async function getVideoMetadata(path: string): Promise<{ width: number; height: 
             });
         });
         const { width, height, r_frame_rate, duration } = metadata.streams[0];
+        
         // Convert FPS from a string like "30/1" to a number
         const [numerator, denominator] = r_frame_rate.split('/').map(Number);
         const fps = Math.round(numerator / denominator);

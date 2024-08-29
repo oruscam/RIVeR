@@ -23,6 +23,11 @@ export const LineAndText = ({imagePoints, name, isPixelSize}: LineAndTextProps) 
       textColor = "#F5BF61"
       break;
 
+    case STEP_8:
+      lineColor = "#F5BF61"
+      textColor = "#F5BF61"
+      break;
+
     // case STEP_8:
     //   lineColor = "#F5BF61"
     //   break;
@@ -36,7 +41,7 @@ export const LineAndText = ({imagePoints, name, isPixelSize}: LineAndTextProps) 
         <Line
             points={[imagePoints[0].x, imagePoints[0].y, imagePoints[1].x, imagePoints[1].y]}
             stroke={lineColor}
-            strokeWidth={2}
+            strokeWidth={1.3}
             lineCap="round"
         />
         {

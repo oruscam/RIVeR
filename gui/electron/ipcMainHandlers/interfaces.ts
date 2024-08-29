@@ -36,7 +36,7 @@ interface Stream {
     start_pts: number;
     start_time: number;
     duration_ts: number;
-    duration: number;
+    duration: 'string';
     bit_rate: number;
     max_bit_rate: string;
     bits_per_raw_sample: number;
@@ -110,3 +110,4 @@ export interface pixelSizeHandleArgs {
   pixelSize: number;
   rw_length: number;
 }
+

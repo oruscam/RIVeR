@@ -18,13 +18,14 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
             }
 
             const value = parseFloat((event.target as HTMLInputElement).value);
+            console.log(value)
             const target = event.target as HTMLInputElement;
 
-            if( value < 0){
+            if( value < 0 || isNaN(value)){
                 const error = {
                     [target.id]: {
                     type: "required",     
-                    message: `The value ${target.id} must be greater than 0`
+                    message: `The value ${target.id} must be greater than 0 and can't be empty`
                     }
                 };
                 onSetErrorMessage(error)

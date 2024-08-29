@@ -1,8 +1,8 @@
 import { ReactSVG } from 'react-svg'
 
-export const Icon = ({ path, className = '' }: { path: string, className?: string }) => {
+export const Icon = ({ path, className = '', id }: { path: string, className?: string, id?: string }) => {
 
   return (
-    <ReactSVG src={path} className={`svg-icon ${className}`}></ReactSVG>
+    <ReactSVG src={path} className={`svg-icon ${className}`} id={id}></ReactSVG>
   )
 }

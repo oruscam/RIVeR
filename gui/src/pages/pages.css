@@ -1,5 +1,4 @@
-
-.home-page{
+.home-page {
     height: 100vh;
     width: 100%;
     overflow-x: hidden;
@@ -10,18 +9,19 @@
     justify-content: center;
 }
 
-.home-page-image-div{
+.home-page-image-div {
     justify-self: start;
 }
 
-.home-page-image{
+.home-page-image {
     margin-top: 130px;
     width: 500px;
     height: 293px;
     left: 506px;
-    
+
 }
-.home-page-buttons{
+
+.home-page-buttons {
     margin-top: 5%;
     margin-bottom: 40px;
     display: flex;
@@ -30,7 +30,7 @@
     min-height: 130px;
 }
 
-.home-page-error{
+.home-page-error {
     color: var(--background-error)
 }
 
@@ -47,23 +47,24 @@
 
 } */
 
-.step-2{
+.step-2 {
     display: flex;
     flex-direction: column;
     align-items: center;
     width: 100%;
     height: 100vh;
 }
-.step-2-title{
+
+.step-2-title {
     margin-top: 200px;
     font-size: 35px;
 }
 
-.hidden-file-input{
+.hidden-file-input {
     display: none;
 }
 
-.file-upload-container{
+.file-upload-container {
     margin-top: 100px;
     display: flex;
     align-items: center;
@@ -71,21 +72,21 @@
     width: 600px;
 }
 
-.drone-upload{
+.drone-upload {
     font-size: 125px;
     transition: transform 0.3s;
 }
 
-.drone-upload:hover{
+.drone-upload:hover {
     transform: scale(1.1);
 }
 
 /* Cuando utilizemos las 2 opciones, usar una sola clase */
-.camera-upload{
+.camera-upload {
     font-size: 125px;
 }
 
-.file-name{
+.file-name {
     width: auto;
     height: 30px;
     padding-left: 10px;
@@ -99,8 +100,8 @@
 }
 
 
-.regular-page{
-    width:100%;
+.regular-page {
+    width: 100%;
     height: 100vh;
     display: flex;
     align-items: center;
@@ -110,29 +111,62 @@
 
 
 /* PARA MOSTRAR LA IMAGEN, DESPUES BORRAR */
-.stage-step5{
+.stage-step5 {
     overflow: auto;
     width: 100%;
     height: 100%;
 }
 
-.step5-overflow{
+.step5-overflow {
     overflow-x: scroll;
 }
 
 
 @media screen and (max-width: 1300px) {
-    .step-3{
+    .step-3 {
         width: 100%;
     }
 }
 
 @media screen and (max-width: 900px) {
-    .file-upload-container{
+    .file-upload-container {
         width: 400px;
         transition: ease 0.9s;
     }
 }
 
+.report-container {
+    overflow-y: auto;
+    overflow-x: auto;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
 
+#download-button{
+    position: absolute;
+    height: 60px;
+    width: 100px;
+    top: 10px;
+    right: 200px;
 
+}
+
+.page {
+    width: 1240px;
+    height: 1754px;
+    background-color: whitesmoke;
+    color: black;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 40px;
+    padding-bottom: 40px;
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+#text-report{
+    margin-top: 40px;
+    width: 80%;
+}

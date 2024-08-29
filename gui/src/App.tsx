@@ -4,11 +4,12 @@ import { HomePage, Step2, Step3, Step4, Step5, Step6, Step7, Step8 } from './pag
 import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
+import { Report } from './pages/Report'
 
 export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice()
-
-
+  
+  
   useEffect(() => {
     window.addEventListener('resize', () => {
       const width = window.innerWidth
@@ -27,12 +28,10 @@ export const App: React.FC = () => {
         {isLoading ? <Loading/> : <Step4/>}
         {isLoading ? <Loading/> : <Step5/>}
         {isLoading ? <Loading/> : <Step6/>}
-        {isLoading ? <Loading/> : <Step7/>} */}
-        {isLoading ? <Loading/> : <Step8/>}
+        {isLoading ? <Loading/> : <Step7/>}
+        {isLoading ? <Loading/> : <Step8/>} */}
       </Wizard>
+      <Report/>
     </div>
   )
 }
-
-
-

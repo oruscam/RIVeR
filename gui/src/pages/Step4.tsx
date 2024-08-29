@@ -5,7 +5,6 @@ import { WizardButtons, Error, ImageWithMarks, Progress } from '../components/in
 import { getNewImageResolution } from '../helpers/index.js'
 import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks/index'
 
-
 import './pages.css'
 import { useEffect, useState } from 'react'
 import { ButtonLock } from '../components/ButtonLock.js'
@@ -64,7 +63,7 @@ export const Step4 = () => {
       pixel_size_X_point_2: points.length === 0 ? 0 : points[1].x,
       pixel_size_Y_point_2: points.length === 0 ? 0 : points[1].y 
     })
-  }, [points, realWorld])
+  }, [points, realWorld, sections[0]])
 
 
   return (

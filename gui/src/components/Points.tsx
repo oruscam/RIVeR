@@ -32,7 +32,7 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
         }
     }
     
-        //  CAMBIA EL ESTILO DEL POINTER CUANDO PASA POR ENCIMA DE UN PUNTO
+    //  CAMBIA EL ESTILO DEL POINTER CUANDO PASA POR ENCIMA DE UN PUNTO
     const handleCursorLeave = ( event: KonvaEventObject<MouseEvent> ) => {
         const stage = event.target.getStage();
         if( stage ){

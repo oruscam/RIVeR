@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 import * as d3 from 'd3'
 
-export const Velocity = () => {
+export const Velocity = ({lineColor}: {lineColor: string}) => {
   const svgRef = useRef<SVGSVGElement>(null)
   const x = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60]
   const y = [1, 5, 10, 16, 19, 22, 28, 25, 30, 36, 30, 19, 17]
@@ -29,7 +29,7 @@ export const Velocity = () => {
       svg.append("path")
         .datum(y)
         .attr("fill", "none")
-        .attr("stroke", "white")
+        .attr("stroke", lineColor)
         .attr("stroke-width", 2)
         .attr("d", line)
 
@@ -38,12 +38,12 @@ export const Velocity = () => {
 
       focus.append("circle")
         .attr("r", 4.5)
-        .attr("fill", "white")
+        .attr("fill", lineColor)
 
       focus.append("text")
         .attr("x", 9)
         .attr("dy", ".35em")
-        .attr("fill", "white")
+        .attr("fill", lineColor)
 
       svg.append("rect")
         .attr("width", width)
@@ -73,7 +73,7 @@ export const Velocity = () => {
         .attr('y', margin.left / 2 )
         .attr('dy', '.75em')
         .attr('transform', 'rotate(-90)')
-        .attr('fill', 'white')
+        .attr('fill', lineColor)
         .text('Velocity');
     }
   }, [x, y])

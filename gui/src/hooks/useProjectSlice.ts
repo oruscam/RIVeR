@@ -14,7 +14,6 @@ import { setImages } from "../store/data/dataSlice";
 import { onLoadCrossSections, onLoadPixelSize, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
 
 
-
 /**
  * Interface to define the methods and attributes to interact with the project slice, and access to the sections slice.
  * @returns - Object with the methods and attributes to interact with the project slice

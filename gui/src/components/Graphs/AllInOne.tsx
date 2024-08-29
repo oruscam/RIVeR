@@ -25,7 +25,6 @@ export const AllInOne = () => {
         d3.select(svgRef.current).selectAll('*').remove()
         bathParser('/@fs/home/tomy_ste/Desktop/bath1.csv', 'csv').then(data => {
             if(svgRef.current){
-                console.log(data)
                 const svg = d3.select(svgRef.current)
                 const width = +svg.attr('width')
                 const height = +svg.attr('height')
@@ -44,9 +43,6 @@ export const AllInOne = () => {
                 .y(d => yScale(d.y))
 
                 const xAxis = d3.axisBottom(xScale).ticks(5)
-
-
-
 
                 svg.append('g')
                     .attr('transform', `translate(0,${height - margin.bottom})`)
@@ -177,12 +173,39 @@ export const AllInOne = () => {
                     .attr('class', 'y-axis y-axis-3')
                     .attr('transform', `translate(${margin.left},0)`)
                     .call(yAxis3);
+
+                svg.append('text')
+                    .attr('class', 'y-axis-label')
+                    .attr('text-anchor', 'start')
+                    .attr('x', -height / 2 - 180)
+                    .attr('dy', '.75em')
+                    .attr('transform', 'rotate(-90)')
+                    .attr('fill', 'white')
+                    .text('Bathimetry');
+
+                svg.append('text')
+                    .attr('class', 'y-axis-label')
+                    .attr('text-anchor', 'start')
+                    .attr('x', -height / 2)
+                    .attr('dy', '.75em')
+                    .attr('transform', 'rotate(-90)')
+                    .attr('fill', 'white')
+                    .text('Velocity');
+
+                svg.append('text')
+                    .attr('class', 'y-axis-label')
+                    .attr('text-anchor', 'start')
+                    .attr('x', -height / 2 + 160)
+                    .attr('dy', '.75em')
+                    .attr('transform', 'rotate(-90)')
+                    .attr('fill', 'white')
+                    .text('Discharge');
             }
         })
     }, [])
 
   return (
-    <div className='all-in-one-container'>
+    <div className='all-in-one-container mt-3'>
         <svg ref={svgRef} width={420} height={570}></svg>
     </div>
   )

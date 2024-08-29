@@ -1,9 +1,7 @@
 import './form.css'
 import { useTranslation } from 'react-i18next'
-import { FieldValues, set, useFormContext } from 'react-hook-form'
-import {  useState } from 'react'
+import { FieldValues, useFormContext } from 'react-hook-form'
 import { useSectionSlice, useUiSlice } from '../../hooks'
-import { ButtonLock } from '../ButtonLock'
 import { PixelCoordinates, RealWorldCoordinates } from './index'
 
 
@@ -54,7 +52,6 @@ export const FormPixelSize = ({onSubmit, onError, extraFields }: FormPixelSizePr
       }
     }
   
-  console.log(extraFields)
 
   return (
     <>

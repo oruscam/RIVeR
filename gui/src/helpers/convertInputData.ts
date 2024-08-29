@@ -36,12 +36,13 @@ import { FieldValues } from "react-hook-form";
     * @returns result Objeto con los datos convertidos
 */
 
-
-export function convertInputData(data: FieldValues, csNames: string[]){
+export function convertInputData(data: FieldValues, csNames: string[], bathsPath: string[]){
     const result: { [key: string]: any } = {};
     
-    csNames.forEach(csName => {
-        result[csName] = {}; // Inicializa cada CS en el resultado
+    csNames.forEach((csName, index) => {
+        result[csName] = {
+            bath: bathsPath[index],
+        }; // Inicializa cada CS en el resultado
     });
     
     Object.keys(data).forEach(key => {
@@ -67,14 +68,11 @@ export function convertInputData(data: FieldValues, csNames: string[]){
             fieldName = fieldMap[fieldName] || fieldName; // Usar el mapeo si está disponible
     
             // Casos especiales
-            if (fieldName === "bath") {
-                // Asumiendo que el path se obtiene de una manera específica
-                result[csName][fieldName] = data[key][0]?.path || "no exist";
-            } else {
-                // Convertir el valor a número si es posible
+            if (fieldName !== "bath") {
+                /** Asigno los valores como numeros */
                 const value = isNaN(Number(data[key])) ? data[key] : Number(data[key]);
                 result[csName][fieldName] = value;
-            }
+            } 
         }
     });
     

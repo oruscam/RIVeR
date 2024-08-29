@@ -30,7 +30,7 @@ export const FormResults = () => {
 
       <span className="mt-1"></span>
 
-      <div className="switch-container-2 mt-5">
+      <div className="switch-container-2 mt-2">
         <h3 className="field-title me-2 mt-3"> Station Number</h3>
         <input className="input-field-little mt-3" defaultValue={15}></input>
       </div>

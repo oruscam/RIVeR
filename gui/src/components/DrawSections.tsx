@@ -1,5 +1,5 @@
 import { Group } from "react-konva"
-import { useSectionSlice } from "../hooks"
+import { useSectionSlice, useUiSlice } from "../hooks"
 import { Points } from "./Points"
 import { LineAndText } from "./LineAndText"
 
@@ -8,12 +8,14 @@ interface DrawSections {
     factor: { x: number; y: number }
     setLocalPoints?: (points: { x: number; y: number }[]) => void,
     draggable: boolean,
-    localPoints?: { x: number; y: number }[]
+    localPoints?: { x: number; y: number }[],
+    drawPins? : boolean
 }
 
-export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints} : DrawSections) => {
+export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints, drawPins} : DrawSections) => {
     const { sections, activeSection } = useSectionSlice();
     const { drawLine, name } = sections[activeSection]
+    const { seeAll } = useUiSlice();
 
     return (
         <>
@@ -31,8 +33,8 @@ export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints} :
                     </Group>
                 )             
                 : sections.map((section, index) => {
-                    if( section.points.length === 0 || section.name === 'pixel_size') return null
-
+                    if( section.points.length === 0 || section.name === 'pixel_size') return;
+                    if(seeAll && activeSection !== index) return;
                     const reducedPoints = section.points.map(point => {
                         return {
                             x: point.x / factor.x,
@@ -42,7 +44,7 @@ export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints} :
                     return (
                         <Group key={index}>
                             {
-                                setLocalPoints && (
+                                setLocalPoints || drawPins && (
                                     <Points localPoints={reducedPoints} setLocalPoints={setLocalPoints} draggable={draggable? index === activeSection : false} isPixelSize={activeSection === 0} factor={factor}></Points>
                                 )
                             }
