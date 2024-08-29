@@ -114,7 +114,6 @@ def run_test(
 		height, width = image_1.shape[:2]
 		bbox = [0, 0, width, height]
 
-	# TODO: Continuar aca
 	xtable, ytable, utable, vtable, typevector, _ = piv_fftmulti(
 		image_1,
 		image_2,
@@ -148,7 +147,7 @@ def run_test(
 def run_analyze_all(
 	images_location: Path,
 	mask: Optional[np.ndarray] = None,
-	bbox: Optional[np.ndarray] = None,
+	bbox: Optional[list] = None,
 	interrogation_area_1: int = 128,
 	interrogation_area_2: Optional[int] = None,
 	mask_auto: bool = True,
@@ -165,6 +164,7 @@ def run_analyze_all(
 	clip_limit_clahe: int = 5,
 	filter_sub_background: bool = False,
 	save_background: bool = True,
+	workdir: Optional[Path] = None,
 ) -> dict:
 	"""
 	Run PIV analysis on all images in the specified location.
@@ -206,6 +206,10 @@ def run_analyze_all(
 	    The clip limit for CLAHE. Default is 5.
 	filter_sub_background : bool, optional
 	    Whether to subtract background. Default is False.
+	save_background: bool, optional.
+		Whether to save the background image. Default is True.
+	workdir: Path, optional.
+		The workdir to save the background image. Default is None.
 
 	Returns:
 	dict
@@ -230,15 +234,17 @@ def run_analyze_all(
 	chunks = [[i, i + chunk_size] for i in range(0, len(images) - 1, chunk_size)]
 	chunks[-1][-1] = min(chunks[-1][-1], len(images) - 1)
 
-	# Create the folder to save the results
-	results_directory_path = images_location.parent.joinpath("results")
-	results_directory_path.mkdir(exist_ok=True)
-
 	if filter_sub_background:
 		filter_grayscale = True  # forces to work with grayscale images if filt_sub_backgnd
 		background = impp.calculate_average(images_location)
 		if save_background:
-			save_path = results_directory_path.joinpath("background.jpg")
+			if workdir is not None:
+				save_path = workdir.joinpath("background.jpg")
+			else:
+				# Create the folder to save the results
+				results_directory_path = images_location.parent.joinpath("results")
+				results_directory_path.mkdir(exist_ok=True)
+				save_path = results_directory_path.joinpath("background.jpg")
 			cv2.imwrite(save_path, background)
 
 	with ThreadPoolExecutor(max_workers=max_workers) as executor:
