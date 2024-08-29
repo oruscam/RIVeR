@@ -155,7 +155,6 @@ def piv_fftmulti(
 	vtable = inpaint_nans(vtable)
 
 	# Apply smoothing to the displacement vectors
-	# TODO: Check this functions
 	utable = smoothn.smoothn(utable, s=0.0307)
 	vtable = smoothn.smoothn(vtable, s=0.0307)
 
