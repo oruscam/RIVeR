@@ -1,24 +1,26 @@
 {
     "creation_date": "20240704T1440",
     "footage": "uav",
-    "filepath": "/home/tomy_ste/Downloads/DJI_0036123123_123123.MP4",
+    "filepath": "/Users/antoine/Dropbox/04_Auto_Entrepreneur/01_Actual/03_Contrats/20191103_Canada/05_Training/Case_5_MAC/DJI_0036.MP4",
     "video_range": {
-        "start": "0",
-        "end": "30",
-        "step": "1"
+        "start": 0,
+        "end": 30,
+        "step": 1,
+        "fps": 29.99
     },
     "pixel_size": {
-        "size": 0.0098,
-        "rw_length": 10,
-        "x1": 1417.2,
-        "y1": 515.63,
-        "x2": 409.2,
-        "y2": 681.78,
+        "size": 0.03142841167717812,
+        "rw_length": 15,
+        "x1": 324.7,
+        "y1": 492.4,
+        "x2": 1610.6,
+        "y2": 496.5,
         "east1": 0,
         "north1": 0,
-        "east2": 10,
+        "east2": 40.414,
         "north2": 0,
-        "uav_transformation_matrix": "/home/tomy_ste/River/DJI_0036123123_123123/uav_transformation_matrix.json"
+        "uav_transformation_matrix": "/Users/antoine/river/uav_transformation_matrix.json"
     },
-    "x_sections": "/home/tomy_ste/River/DJI_0036123123_123123/x_sections"
+    "x_sections": "/Users/antoine/river/x_sections.json",
+    "results_piv": "/Users/antoine/river/results.json"
 }

@@ -1,28 +1,33 @@
 {
     "CS_default_1": {
-        "rw_length": 0,
-        "bath": "/home/tomy_ste/Downloads/XS1_DistElev(1).csv",
-        "level": 5.134,
-        "xl": 99,
-        "yl": 105,
-        "xr": 985,
-        "yl": 785,
-        "east_l": 0,
-        "north_l": -5,
-        "east_r": 30,
-        "north_r": 0
+        "rw_length": 15,
+        "bath": "/Users/antoine/Dropbox/04_Auto_Entrepreneur/01_Actual/03_Contrats/20191103_Canada/05_Training/Case_5_MAC/XS1_DistElev.csv",
+        "level": 3.672,
+        "xl": 392,
+        "yl": 530.05,
+        "xr": 1432,
+        "east_l": 2.11889915,
+        "north_l": -1.17810118,
+        "east_r": 34.80427614,
+        "north_r": -1.07231477,
+        "left_station": 5.267312936522388,
+        "num_stations": 15,
+        "alpha": 0.85
+
     },
     "CS_default_2": {
-        "rw_length": 0,
-        "bath": "/home/tomy_ste/Downloads/CS3_Bath.csv",
-        "level": 652.996,
-        "xl": 150,
-        "yl": 210,
-        "xr": 1000,
-        "yl": 820,
-        "east_l": 30,
-        "north_l": -5,
-        "east_r": 0,
-        "north_r": -10
+        "rw_length": 20,
+        "bath": "/Users/antoine/Dropbox/04_Auto_Entrepreneur/01_Actual/03_Contrats/20191103_Canada/05_Training/Case_5_MAC/XS1_DistElev.csv",
+        "level": 3.672,
+        "xl": 392,
+        "yl": 530.05,
+        "xr": 1432,
+        "east_l": 2.11889915,
+        "north_l": -1.17810118,
+        "east_r": 34.80427614,
+        "north_r": -1.07231477,
+        "left_station": 5.267312936522388,
+        "num_stations": 15,
+        "alpha": 0.9
     }
 }
