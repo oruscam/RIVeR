@@ -539,27 +539,28 @@ def get_single_piv_result(results, num='median'):
 #
 #     return settings
 
-# def get_streamwise_magnitud(X, Y, U, V, table_results):
-#     # Convert displacement field to real-world coordinates
-#     EAST, NORTH, Displacement_EAST, Displacement_NORTH = ct.convert_displacement_field(
-#         X, Y, U, V, transformation_matrix
-#     )
-#
-#     displacement_east, displacement_north = get_cs_displacements(
-#         table_results['east'], table_results['north'], EAST, NORTH,
-#         Displacement_EAST, Displacement_NORTH
-#     )
-#
-#     # Calculate streamwise and cross-stream velocities
-#     streamwise_east, streamwise_north, crosswise_east, crosswise_north = get_stream_cross_velocities(
-#         displacement_east, displacement_north, time_between_frames, east_l, north_l, east_r, north_r
-#     )
-#
-#     # Calculate the streamwise magnitude and sign
-#     streamwise_magnitude = get_streamwise_magnitude_and_sign(
-#         streamwise_east, streamwise_north, east_l, north_l, east_r, north_r
-#     )
-#     return streamwise_vel_magnitude
+def get_streamwise_magnitud(X, Y, U, V, table_results,  east_l, north_l, east_r, north_r,
+                       transformation_matrix, time_between_frames):
+    # Convert displacement field to real-world coordinates
+    EAST, NORTH, Displacement_EAST, Displacement_NORTH = ct.convert_displacement_field(
+        X, Y, U, V, transformation_matrix
+    )
+
+    displacement_east, displacement_north = get_cs_displacements(
+        table_results['east'], table_results['north'], EAST, NORTH,
+        Displacement_EAST, Displacement_NORTH
+    )
+
+    # Calculate streamwise and cross-stream velocities
+    streamwise_east, streamwise_north, crosswise_east, crosswise_north = get_stream_cross_velocities(
+        displacement_east, displacement_north, time_between_frames, east_l, north_l, east_r, north_r
+    )
+
+    # Calculate the streamwise magnitude and sign
+    streamwise_vel_magnitude = get_streamwise_magnitude_and_sign(
+        streamwise_east, streamwise_north, east_l, north_l, east_r, north_r
+    )
+    return streamwise_vel_magnitude
 
 
 def convert_arrays_to_lists(data):
@@ -623,6 +624,50 @@ def calculate_river_section_properties(stages, station, level):
     # Return the results as a dictionary
     return wet_area, width, max_depth, average_depth
 
+def add_statistics(
+        results, table_results, east_l, north_l, east_r, north_r,
+        transformation_matrix, time_between_frames):
+    """
+    Add statistical metrics to the table_results based on PIV results.
+
+    Parameters:
+        results (dict): A dictionary containing the PIV processing results.
+        table_results (dict): A dictionary summary to which the statistics will be added.
+        east_l, north_l (float): Coordinates of the left bank.
+        east_r, north_r (float): Coordinates of the right bank.
+        transformation_matrix (ndarray): Transformation matrix for converting coordinates.
+        time_between_frames (float): Time interval between frames in the PIV processing.
+
+    Returns:
+        dict: The updated table_results dictionary with added statistical fields.
+    """
+    streamwise_vel_magnitude_list = []
+
+    # Iterate over the results to calculate streamwise velocities
+    for num in range(len(results['u'])):
+        X, Y, U, V = get_single_piv_result(results, num=num)
+
+        streamwise_vel_magnitude = get_streamwise_magnitud(
+            X, Y, U, V, table_results, east_l, north_l, east_r, north_r,
+            transformation_matrix, time_between_frames
+        )
+
+        # Append the result to the list
+        streamwise_vel_magnitude_list.append(streamwise_vel_magnitude)
+
+    # Convert the list of arrays to a 2D NumPy array
+    streamwise_vel_magnitude_array = np.array(streamwise_vel_magnitude_list)
+
+    # Calculate the standard deviation along the 0th axis (across the different 'num' values)
+    streamwise_vel_magnitude_std = np.std(streamwise_vel_magnitude_array, axis=0)
+    table_results['minus_std'] = table_results['streamwise_magnitude'] - streamwise_vel_magnitude_std
+    table_results['plus_std'] = table_results['streamwise_magnitude'] + streamwise_vel_magnitude_std
+
+    # Calculate the 5th and 95th percentiles along the 0th axis
+    table_results['5th_percentile'] = np.percentile(streamwise_vel_magnitude_array, 5, axis=0)
+    table_results['95th_percentile'] = np.percentile(streamwise_vel_magnitude_array, 95, axis=0)
+
+    return table_results
 def update_current_x_section(
         path_x_sections, path_results_piv, path_transformation_matrix,
         step, fps, id_section, interpolate=None):
@@ -733,11 +778,15 @@ def update_current_x_section(
     else:
         table_results = add_w_a_q(table_results, alpha, 'original')
 
+    # Add statistics on streamwise velocity
+    table_results = add_statistics(results, table_results, east_l, north_l, east_r, north_r, transformation_matrix,
+                                   time_between_frames)
+
     # Calculate additional properties for the river section
     total_q = np.nansum(table_results['Q'])
     table_results['total_Q'] = total_q
-    table_results['measured_Q'] = np.nansum(table_results['Q'][checked_results])
-    table_results['interpolated_Q'] = np.nansum(table_results['Q'][~checked_results])
+    table_results['measured_Q'] = np.nansum(table_results['Q'][checked_results]) / total_q
+    table_results['interpolated_Q'] = np.nansum(table_results['Q'][~checked_results]) / total_q
 
     total_a, total_w, max_depth, average_depth = calculate_river_section_properties(
         stages, stations, level
@@ -774,6 +823,6 @@ def update_current_x_section(
 # step = settings['video_range']['step']
 # path_transformation_matrix = settings['pixel_size']['uav_transformation_matrix']
 # fps = settings['video_range']['fps']
-# id_section = 0
+# id_section = 1
 # # update_current_x_section(path_x_sections,path_results_piv,path_transformation_matrix,step, fps, id_section)
-# update_current_x_section(path_x_sections,path_results_piv,path_transformation_matrix,step, fps, id_section, interpolate = False)
+# update_current_x_section(path_x_sections,path_results_piv,path_transformation_matrix,step, fps, id_section, interpolate = True)
