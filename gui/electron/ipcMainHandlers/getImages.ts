@@ -10,7 +10,7 @@ export function getImages(PROJECT_CONFIG: ProjectConfig) {
         try {
             const files = await fs.readdir(framesPath);
             const images = files.map((file) => {
-                return path.join('/@fs', framesPath, file)
+                return path.join(framesPath, file)
             })
             return images
         } catch (error) {

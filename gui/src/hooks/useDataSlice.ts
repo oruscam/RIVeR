@@ -5,9 +5,9 @@
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { updateProcessingPar, setActiveImage, updateProcessingForm, setProcessingTest, setQuiver } from "../store/data/dataSlice";
+import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver } from "../store/data/dataSlice";
+import { clearErrorMessage, setErrorMessage } from "../store/ui/uiSlice";
 import { Quiver } from "../store/data/types";
-import { setLoading } from "../store/ui/uiSlice";
 
 /**
  * @returns - Object with the methods and attributes to interact with the data slice
@@ -16,10 +16,22 @@ import { setLoading } from "../store/ui/uiSlice";
 export const useDataSlice = () => {
     const dispatch = useDispatch();
     const { processing, images, quiver } = useSelector((state: RootState) => state.data);
-
+    
+    
     interface ProcessingValues {
+        artificialSeeding?: boolean;
+        clahe?: boolean;
+        clipLimit?: string;
+        grayscale?: boolean;
         images?: string[];
+        medianTestEpsilon?: string;
+        medianTestFiltering?: boolean;
+        medianTestThreshold?: string;
+        removeBackground?: boolean;
+        stdFiltering?: boolean;
+        stdThreshold?: number;
         step1?: number;
+        step2?: number;
     }
 
     /**
@@ -28,12 +40,20 @@ export const useDataSlice = () => {
      * @param value - Object with the values to update the processing slice
      */
 
-    const onUpdateProccesing = (value: ProcessingValues) => {
+    const onUpdateProcessing = (value: ProcessingValues) => {
+        const updatedForm = { ...processing.form };
+
+        Object.keys(value).forEach(key => {
+            const typedKey = key as keyof ProcessingValues;
+            if (value[typedKey] !== undefined) {
+                updatedForm[typedKey] = value[typedKey];
+            }
+        });
+    
+        dispatch(updateProcessingForm(updatedForm));
+
         if (value.images) {
             dispatch(updateProcessingPar(value.images));
-        }
-        if (value.step1) {
-            dispatch(updateProcessingForm({ ...processing.form, step1: value.step1 }));
         }
     }
 
@@ -55,16 +75,42 @@ export const useDataSlice = () => {
      */
 
     const onSetQuiverTest = async () => {
-        dispatch(setProcessingTest(true))
+        dispatch(setBackendWorkingFlag(true))
         const ipcRenderer = window.ipcRenderer;
 
-        try {
-            const data: Quiver = await ipcRenderer.invoke('get-quiver-test')
+        const { paths, active } = images;
+        const framesToTest = [paths[active], paths[active + 1]]
 
-            dispatch(setQuiver(data))
-            dispatch(setProcessingTest(false))
+        try {
+            const { data, error } = await ipcRenderer.invoke('get-quiver-test', {framesToTest: framesToTest, formValues: processing.form})
+
+            if ( error.message ){
+                dispatch(setErrorMessage([error.message]))
+                setTimeout(() => {
+                    dispatch(clearErrorMessage())
+                }, 4000)
+            } else {
+                dispatch(setQuiver(
+                    {
+                        x: data.x,
+                        y: data.y,
+                        u: data.u,
+                        v: data.v,
+                        typevector: data.typevector,
+                        u_median: data.u_median,
+                        v_median: data.v_median
+                    }
+                ))
+            }
+
+            dispatch(setBackendWorkingFlag(false))
         } catch (error) {
             console.log(error)
+            dispatch(setBackendWorkingFlag(false))
+            dispatch(setErrorMessage(["Sorry, something went wrong"]))
+            setTimeout(() => {
+                dispatch(clearErrorMessage())
+            }, 4000)
         }
     }
 
@@ -77,23 +123,53 @@ export const useDataSlice = () => {
      */
 
     const onSetQuiverAll = async () => {
-        dispatch(setLoading(true))
+        dispatch(setBackendWorkingFlag(true))
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const data: Quiver = await ipcRenderer.invoke('get-quiver-all')
-            
-            if( quiver?.x ){
-                dispatch(setQuiver({
-                    ...quiver, u: data.u, v: data.v, u_median: data.u_median, v_median: data.v_median
-                }))
+            const { data, error} = await ipcRenderer.invoke('get-quiver-all', {formValues: processing.form})
+
+            console.log(data)
+            console.log(error)
+
+            if ( error.message ){
+                dispatch(setErrorMessage([error.message]))
+                setTimeout(() => {
+                    dispatch(clearErrorMessage())
+                }, 4000)
             } else {
-                dispatch(setQuiver(data))
+                dispatch(setQuiver(
+                    {
+                        x: data.x,
+                        y: data.y,
+                        u: data.u,
+                        v: data.v,
+                        typevector: data.typevector,
+                        u_median: data.u_median,
+                        v_median: data.v_median
+                    }
+                ))
             }
-            dispatch(setLoading(false))
+
+            dispatch(setBackendWorkingFlag(false))
         } catch (error) {
             console.log(error)
+            dispatch(setBackendWorkingFlag(false))
+            dispatch(setErrorMessage(["Sorry, something went wrong"]))
+            setTimeout(() => {
+                dispatch(clearErrorMessage())
+            }, 4000)
         }
+    }
+
+    const onKillBackend = async () => {
+        const ipcRenderer = window.ipcRenderer;
+        await ipcRenderer.invoke('kill-python-shell')
+        dispatch(setBackendWorkingFlag(false))
+    }
+
+    const onClearQuiver = () => {
+        dispatch(setQuiver(undefined))
     }
 
 
@@ -105,7 +181,9 @@ export const useDataSlice = () => {
         // METHODS
         onSetActiveImage,
         onSetQuiverTest,
-        onUpdateProccesing,
-        onSetQuiverAll
+        onUpdateProcessing,
+        onSetQuiverAll,
+        onClearQuiver,
+        onKillBackend
     }
 }

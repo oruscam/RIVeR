@@ -8,7 +8,7 @@ const userDir = os.homedir();
 
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
-import { initProject, firstFrame, pixelSizeHandler, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver} from './ipcMainHandlers/index.js'
+import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver} from './ipcMainHandlers/index.js'
 import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
 import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
 
@@ -89,7 +89,9 @@ const PROJECT_CONFIG: ProjectConfig = {
   settingsPath: "",
   framesPath: "",
   matrixPath: "",
-  xsectionsPath: ""
+  xsectionsPath: "",
+  bboxPath: "",
+  maskPath: "",
 }
 
 app.whenReady().then(() => {
@@ -104,7 +106,7 @@ app.whenReady().then(() => {
   initProject(userDir, PROJECT_CONFIG);
   loadProject(PROJECT_CONFIG);
   firstFrame(PROJECT_CONFIG);
-  pixelSizeHandler(PROJECT_CONFIG);
+  pixelSize(PROJECT_CONFIG);
   pixelToRealWorld(PROJECT_CONFIG);
   realWorldToPixel(PROJECT_CONFIG);
   setSections(PROJECT_CONFIG);
@@ -114,7 +116,3 @@ app.whenReady().then(() => {
   getImages(PROJECT_CONFIG);
 })
 
-
-// setInterval(() => {
-//   console.log(PROJECT_CONFIG);
-// }, 5000);  

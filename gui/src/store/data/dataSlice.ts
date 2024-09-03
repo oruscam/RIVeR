@@ -18,17 +18,17 @@ const defaultFormProcessing = {
 }
 
 const defaultProcessing = {
-    test: false,
+    isBackendWorking: false,
     form: defaultFormProcessing,
     parImages: ['', '1', '', '2'],
-    maskPath: '/@fs/home/tomy_ste/River/DJI_0036123123_123123/mask.png'
+    maskPath: ''
 }
 
 const initialState: DataState = {
     processing: defaultProcessing,
     images: {
         paths: [],
-        active: 1
+        active: 0
     },
     analizing: false
 }
@@ -43,11 +43,11 @@ const dataSlice = createSlice({
         updateProcessingPar: (state, action: PayloadAction<string[]>) => {
             state.processing.parImages = action.payload
         },
-        setProcessingTest: (state, action: PayloadAction<boolean>) => { 
-            state.processing.test = action.payload
+        setBackendWorkingFlag: (state, action: PayloadAction<boolean>) => { 
+            state.processing.isBackendWorking = action.payload
         },
         setProcessingMask: (state, action: PayloadAction<string>) => {
-            state.processing.maskPath = action.payload
+            state.processing.maskPath = action.payload  + `?t=${new Date().getTime()}`;
         },
         setImages: (state, action: PayloadAction<string[]>) => {
             state.images.paths = action.payload
@@ -55,7 +55,7 @@ const dataSlice = createSlice({
         setActiveImage: ( state, action: PayloadAction<number>) => {
             state.images.active = action.payload
         },
-        setQuiver: (state, action: PayloadAction<Quiver>) => {
+        setQuiver: (state, action: PayloadAction<Quiver | undefined>) => {
             state.quiver = action.payload
         },
         updateAnalizing: (state, action: PayloadAction<boolean>) => {
@@ -68,7 +68,7 @@ export const {
     setActiveImage,
     setImages,
     setProcessingMask,
-    setProcessingTest,
+    setBackendWorkingFlag,
     setQuiver,
     updateProcessingForm,
     updateProcessingPar,

@@ -96,7 +96,9 @@ export interface ProjectConfig {
   matrixPath: string;
   settingsPath: string;
   framesPath: string,
-  xsectionsPath: string
+  xsectionsPath: string, 
+  bboxPath: string,
+  maskPath: string,
 }
 
 interface Point {

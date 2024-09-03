@@ -2,7 +2,7 @@ import { createFolderStructure } from "./createFolderStructure";
 import { getImages } from "./getImages";
 import { initProject } from "./initProject";
 import { loadProject } from "./loadProject";
-import { pixelSizeHandler } from "./pixelSizeHandler";
+import { pixelSize } from "./pixelSize";
 import { realWorldToPixel } from "./realWorldToPixel";
 import { pixelToRealWorld } from "./pixelToRealWorld";
 import { setSections } from "./setSections";    
@@ -14,7 +14,7 @@ export {
     getImages,
     initProject,
     loadProject,
-    pixelSizeHandler,
+    pixelSize,
     realWorldToPixel,
     setSections,
     firstFrame,

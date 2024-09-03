@@ -17,7 +17,8 @@ async function recommendRoiHeight(PROJECT_CONFIG: ProjectConfig){
 
 
         try {
-            const { data }: { data: any } = await executePythonShell(options)
+            // const { data }: { data: any } = await executePythonShell(options)
+            const { data } = await executePythonShell(options)
             return { height_roi: (data as any).height_roi }
         } catch (error) {
             console.log("ERROR EN RECOMMEND ROI HEIGHT")

@@ -5,7 +5,7 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setSectionPoints, addSection, deleteSection, setActiveSection, setPixelSize, setSectionRealWorld, updateSection, updateProcessing } from '../store/section/sectionSlice';
+import { setSectionPoints, addSection, deleteSection, setActiveSection, setPixelSize, setSectionRealWorld, updateSection, } from '../store/section/sectionSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { convertInputData } from '../helpers/convertInputData';
@@ -342,7 +342,6 @@ export const useSectionSlice = () => {
             dispatch(setImages(images))
             dispatch(updateProcessingForm({...processing.form, heightRoi: height_roi}))
             dispatch(setProcessingMask(maskPath))
-            
             dispatch(setLoading(false))
         } catch (error) {
             console.log("ERROR EN SETSECTIONS")

@@ -34,7 +34,7 @@ const defaultSections = [{
 
 const initialState: SectionState = {
     sections: defaultSections,
-    activeSection: 1,
+    activeSection: 0,
 };
 
 const sectionSlice = createSlice({

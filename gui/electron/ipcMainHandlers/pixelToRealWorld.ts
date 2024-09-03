@@ -1,42 +1,28 @@
 import { ipcMain } from "electron";
-import { PythonShell } from "python-shell";
 import { ProjectConfig } from "./interfaces";
+import { executePythonShell } from "./utils/executePythonShell";
 
 
 export async function pixelToRealWorld(PROJECT_CONFIG: ProjectConfig){
     ipcMain.handle('pixel-to-real-world', async (_event, args) => {
         console.log("Pixel to Real World")
         
-        const options = {
-            pythonPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/venv/bin/python3',
-            scriptPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/river/cli/',
-            args: [
-                'transform-pixel-to-real-world',
-                '--',
-                args.points.x,
-                args.points.y,
-                PROJECT_CONFIG.matrixPath
-            ],
+        const options = [
+            'transform-pixel-to-real-world',
+            '--',
+            args.points.x,
+            args.points.y,
+            PROJECT_CONFIG.matrixPath
+        ]
+            
+        try {
+            const { data } = await executePythonShell(options) as any
+            return data;
+
+        } catch (error) {
+            console.log("Error en pixel-to-real-world")
+            console.log(error)
         }
-
-        const pyshell = new PythonShell('__main__.py', options);
-        
-        return new Promise((resolve, reject) => {
-            pyshell.on('message', (message: string) => {
-                const messageParsed = JSON.parse(message);
-                resolve(messageParsed.data);
-            });
-
-            pyshell.end((err: Error) => {
-                if (err) {
-                    console.log("pyshell error");
-                    console.log(err);
-                    reject(err);
-                }
-            });
-        
-        })
-
     })
 }
 

@@ -5,21 +5,19 @@ import 'slick-carousel/slick/slick-theme.css'
 import Slider from 'react-slick'
 import { carouselSettings } from './carouselSettings'
 import { useWizard } from 'react-use-wizard'
-import { STEP_7 } from '../constants/constants'
+import { ANALIZING_STEP_NUMBER } from '../constants/constants'
 
 export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, setShowMedian?: any}) => {
     const sliderRef = useRef<Slider | null>(null);
-    const { images, onSetActiveImage} = useDataSlice();
+    const { images, onSetActiveImage, processing, quiver} = useDataSlice();
     const { paths, active } = images;
+    const { isBackendWorking } = processing;
     
     const [defaultValue, setDefautValue] = React.useState<string | number>( active as string | number);
     const [_slideIndex, setSlideIndex] = useState<number>(Number(defaultValue));
     const [updateCount, setUpdateCount] = useState<number>(0);
     
-
     const { activeStep } = useWizard();
-
-
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setDefautValue(event.currentTarget.value);
@@ -41,7 +39,7 @@ export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, se
     }
 
     const handleOnClickImage = (_event: React.MouseEvent<HTMLDivElement>,index: number) => {
-        if( index !== paths.length -1 ) {
+        if( index !== paths.length -1 && !isBackendWorking){
             onSetActiveImage(index)
             setDefautValue(index +1)
             if(setShowMedian){
@@ -52,30 +50,30 @@ export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, se
 
 
     return (
-        <div className='carousel-container'>
+        <div className={`carousel-container mt-1 ${activeStep === ANALIZING_STEP_NUMBER && !quiver ? 'disabled' : ''}`}>
             <div className='carousel-info'>                
-                <input value={defaultValue} onChange={handleInputChange} onKeyDown={handleKeyDown}></input>
+                <input value={defaultValue} onChange={handleInputChange} onKeyDown={handleKeyDown} disabled={isBackendWorking}></input>
                 <p> / { paths.length - 1 } </p>
             </div>
-            <Slider ref={sliderRef} {...carouselSettings(updateCount, setSlideIndex, setUpdateCount)} >
+            <Slider ref={sliderRef} {...carouselSettings(updateCount, setSlideIndex, setUpdateCount)} sho>
                 
-                { activeStep === STEP_7 ? (
+                { activeStep === ANALIZING_STEP_NUMBER ? (
                     <div className='img-carousel-container' onClick={() => setShowMedian(!showMedian)}>
-                        <img src={paths[0]} className={`img-carousel ${showMedian ? 'img-carousel-active': ''}`}></img>
+                        <img src={'/@fs/' + paths[0]} className={`img-carousel ${showMedian ? 'img-carousel-active': ''}`}></img>
                         <div className='img-water-mark' id='water-mark-median'> Median </div>
                     </div>
                 ): null}
 
                 {paths.map((src, index) => {
                     let className = 'img-carousel'
-                    if( index === active ){
+                    if( index === active && !showMedian ){
                         className = 'img-carousel-active img-carousel'
-                    } else  if ( index === active +1 ) {
+                    } else  if ( index === active + 1 && !showMedian ) {
                         className = 'img-carousel-second img-carousel'
                     }
                     return ( 
                         <div key={index} className='img-carousel-container' onClick={(event) => handleOnClickImage(event, index)}>
-                            <img src={src} alt={`Slide ${index}`} className={className}></img>
+                            <img src={'/@fs/' + src} alt={`Slide ${index}`} className={className}></img>
                             <div className='img-water-mark'> {index + 1} </div>
                         </div>
                     )

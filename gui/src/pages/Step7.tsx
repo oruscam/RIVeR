@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Carousel, ImageWithData, Progress, WizardButtons } from "../components"
+import { Carousel, Error, ImageWithData, Progress, WizardButtons } from "../components"
 import { FormAnalizing } from "../components/Forms/FormAnalizing"
 import { getNewImageResolution } from "../helpers"
 import { useProjectSlice, useUiSlice } from "../hooks"
@@ -22,6 +22,7 @@ export const Step7 = () => {
         <div className="media-container">
             <ImageWithData height={height} width={width} factor={factor} showMedian={showMedian}></ImageWithData>
             <Carousel showMedian={showMedian} setShowMedian={setShowMedian}></Carousel>
+            <Error></Error>
         </div>
         <div className="form-container">
             <Progress/>

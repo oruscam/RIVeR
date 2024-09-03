@@ -15,7 +15,7 @@ interface FormProcessing {
 }
 
 interface Processing {
-    test: boolean;
+    isBackendWorking: boolean;
     form: FormProcessing;
     parImages: string[];
     maskPath: string;
@@ -29,8 +29,8 @@ interface Images {
 interface Quiver {
     x: number[];
     y: number[];
-    u: [[number]];
-    v: [[number]];
+    u: number[][] | number[];
+    v: number[][] | number[];
     typevector: number[];
     u_median?: number[];
     v_median?: number[];

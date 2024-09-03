@@ -10,7 +10,7 @@ export const FormProcessing = () => {
   const { nextStep } = useWizard()
   
   const { onSetErrorMessage } = useUiSlice()
-  const { processing, onUpdateProccesing, onSetQuiverTest, onSetQuiverAll } = useDataSlice()
+  const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver } = useDataSlice()
   const { artificialSeeding, step1, heightRoi, grayscale, removeBackground, clahe, clipLimit, stdFiltering, stdThreshold, medianTestThreshold, medianTestEpsilon, medianTestFiltering } = processing.form
   
   const [buttonTest, _setButtonTest] = useState(false)
@@ -52,8 +52,9 @@ export const FormProcessing = () => {
     onSetQuiverTest()
   }
 
-  const onSubmit = (data: FieldValues) => {
+  const onSubmit = ( data: FieldValues ) => {
     console.log(data)
+    onClearQuiver()
     nextStep()
   }
 
@@ -69,7 +70,7 @@ export const FormProcessing = () => {
               <div className="switch-container-2 mt-2">
                 <h3 className="field-title">Artificial Seeding </h3>
                 <label className="switch">
-                    <input type="checkbox" {...register('artificial_seeding')}/>
+                    <input type="checkbox" {...register('artificial_seeding')} onChange={(event) => onUpdateProcessing({artificialSeeding: event.currentTarget.checked})}/>
                     <span className="slider"></span>
                 </label>
               </div>
@@ -93,10 +94,10 @@ export const FormProcessing = () => {
               </div>
 
               <div className="input-container-2 mt-2">
-                <button className={`button-with-loader ${processing.test? "button-with-loader-active" : ""}`} onClick={handleOnClickTest}>
+                <button className={`button-with-loader ${processing.isBackendWorking? "button-with-loader-active" : ""}`} onClick={handleOnClickTest}>
                   <p className='button-name'> Test </p>
                   {
-                      processing.test && <span className='loader-little'></span>
+                      processing.isBackendWorking && <span className='loader-little'></span>
                   }
                 </button>
                 <span className="read-only bg-transparent"></span>

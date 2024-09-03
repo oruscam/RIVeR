@@ -9,7 +9,7 @@ import { Report } from './pages/Report'
 export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice()
   
-  
+ 
   useEffect(() => {
     window.addEventListener('resize', () => {
       const width = window.innerWidth
@@ -22,16 +22,16 @@ export const App: React.FC = () => {
   return (
     <div className='App' data-theme={darkMode ? "dark" : "light"}>
       <Wizard>
-        {/* {isLoading ? <Loading/> :<HomePage/> }
+        {isLoading ? <Loading/> :<HomePage/> }
         <Step2></Step2> 
         {isLoading ? <Loading/> : <Step3/>}
         {isLoading ? <Loading/> : <Step4/>}
         {isLoading ? <Loading/> : <Step5/>}
         {isLoading ? <Loading/> : <Step6/>}
         {isLoading ? <Loading/> : <Step7/>}
-        {isLoading ? <Loading/> : <Step8/>} */}
+        {isLoading ? <Loading/> : <Step8/>}
       </Wizard>
-      <Report/>
+      {/* <Report/> */}
     </div>
   )
 }

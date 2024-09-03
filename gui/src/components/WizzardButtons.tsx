@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import './components.css';
 import { useWizard } from 'react-use-wizard';
-import { useSectionSlice } from '../hooks';
+import { useDataSlice, useSectionSlice } from '../hooks';
+import { ANALIZING_STEP_NUMBER, CROSS_SECTIONS_STEP_NUMBER, PROCESSING_STEP_NUMBER } from '../constants/constants';
 
 type Props = {
   canFollow?: boolean;
@@ -13,14 +14,28 @@ type Props = {
 export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClick }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep } = useWizard();
   const { onSetActiveSection } = useSectionSlice()
+  const { onClearQuiver } = useDataSlice()
   const { t } = useTranslation();
 
   const handlePreviuos = () => {
-    if( activeStep === 4){
-      onSetActiveSection(0)
-      previousStep()
-    }else{
-      previousStep()
+    switch(activeStep){
+      case CROSS_SECTIONS_STEP_NUMBER:
+        onSetActiveSection(0)
+        previousStep()
+        break;
+      
+      case PROCESSING_STEP_NUMBER:
+        onClearQuiver()
+        previousStep()
+        break;
+
+      case ANALIZING_STEP_NUMBER:
+        previousStep()
+        onClearQuiver()
+        break;
+      
+      default:
+        previousStep()
     }
   }
 

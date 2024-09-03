@@ -1,7 +1,7 @@
 import { ipcMain } from "electron";
 import { FirstFrameArgs, ProjectConfig } from "./interfaces";
-import { PythonShell } from "python-shell";
 import * as fs from 'fs'
+import { executePythonShell } from "./utils/executePythonShell";
 
 export function firstFrame(PROJECT_CONFIG: ProjectConfig){
 
@@ -10,10 +10,7 @@ export function firstFrame(PROJECT_CONFIG: ProjectConfig){
         const {videoPath, framesPath} = PROJECT_CONFIG
 
 
-        const options = {
-            pythonPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/venv/bin/python3',
-            scriptPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/river/cli/',
-            args: [
+        const options = [
                 'video-to-frames',
                 videoPath,
                 framesPath,
@@ -21,8 +18,8 @@ export function firstFrame(PROJECT_CONFIG: ProjectConfig){
                 '--end-frame', args.end_frame,
                 '--every', args.step,
                 '--overwrite'
-            ],
-        }
+            ]
+        
 
         const json = await fs.promises.readFile(PROJECT_CONFIG.settingsPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
@@ -36,21 +33,11 @@ export function firstFrame(PROJECT_CONFIG: ProjectConfig){
         const updatedContent = JSON.stringify(jsonParsed, null, 4);
         await fs.promises.writeFile(PROJECT_CONFIG.settingsPath, updatedContent, 'utf-8');
 
-
-        return new Promise((resolve, reject) => {
-            const pyshell = new PythonShell('__main__.py', options);
-            pyshell.on('message', (message: string) => {
-                const messageParsed = JSON.parse(message); 
-                resolve(messageParsed.data); // Resuelve la promesa con el mensaje recibido
-            });
-
-            pyshell.end((err: Error) => {
-                if (err) {
-                    console.log("pyshell error");
-                    console.log(err);
-                    reject(err); // Rechaza la promesa si hay un error
-                }
-            });
-        });
+        try {
+            const { data } = await executePythonShell(options) as any
+            return data
+        } catch (error) {
+            
+        }
     }
 )}

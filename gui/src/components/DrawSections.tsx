@@ -44,7 +44,7 @@ export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints, d
                     return (
                         <Group key={index}>
                             {
-                                setLocalPoints || drawPins && (
+                                (setLocalPoints || drawPins) && (
                                     <Points localPoints={reducedPoints} setLocalPoints={setLocalPoints} draggable={draggable? index === activeSection : false} isPixelSize={activeSection === 0} factor={factor}></Points>
                                 )
                             }

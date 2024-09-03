@@ -1,23 +1,28 @@
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import './components.css'
-import { useDataSlice } from '../hooks'
-import { PROCESSING_STEP_NUMBER } from '../constants/constants'
+import { useDataSlice, useUiSlice } from '../hooks'
 
 interface QuiverProps {
   width: number;
   height: number;
   factor: {x: number, y: number};
-  activeStep: number;
   showMedian?: boolean;
 }
 
-export const Quiver = ({ width, height, factor, activeStep, showMedian }: QuiverProps) => {
+export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
   const svgRef = useRef(null)
-  const { images, quiver } = useDataSlice();
+  const { images, quiver, processing } = useDataSlice();
+  const { onSetErrorMessage } = useUiSlice();
 
+  useEffect(() =>{
+    if (processing.error) {
+      onSetErrorMessage({message: processing.error});
+      return;
+    }
 
-  if(quiver){
+    if (!quiver) return;
+
     const { x, y, u, v, typevector, u_median, v_median } = quiver;
 
     const svg = d3.select(svgRef.current);
@@ -27,29 +32,38 @@ export const Quiver = ({ width, height, factor, activeStep, showMedian }: Quiver
        .attr("height", height)
        .style("background-color", "transparent");
 
-    const flatXTable = x.map((d, i) => typevector[i] === 1 ? d : -10000); 
-    const flatYTable = y.map((d, _i) => {return d});
+    const filteredXTable = x.map((d, i) => typevector[i] === 1 ? d : -10000); 
     
-    let uTable: number[] = [];
-    let vTable: number[] = [];
+    let uTable: number[];
+    let vTable: number[];
 
     if( showMedian ){
       uTable = u_median || [];
       vTable = v_median || [];
     }else {
-      uTable = u[activeStep === PROCESSING_STEP_NUMBER ? 0 : images.active]; // [counter]
-      vTable = v[activeStep === PROCESSING_STEP_NUMBER ? 0 : images.active]; // [counter]
+      if( Array.isArray(u[0]) ){
+        uTable = u[images.active] as number[];
+        vTable = v[images.active] as number[];
+      } else {
+        uTable = u as number[];
+        vTable = v as number[];
+      }
     }
 
-
     svg.selectAll('line')
-      .data(flatXTable)
+      .data(filteredXTable)
       .enter()
       .append('line')
-        .attr('x1', (_d: string, i: number) => flatXTable[i] / factor.x)
-        .attr('y1', (_d: string, i: number) => flatYTable[i] / factor.y)
-        .attr('x2', (_d: string, i: number) => flatXTable[i] / factor.x + uTable[i] * 20)
-        .attr('y2', (_d: string, i: number) => flatYTable[i] / factor.y + vTable[i] * 20)
+        .attr('x1', (_d: number, i: number) => filteredXTable[i] / factor.x)
+        .attr('y1', (_d: number, i: number) => y[i] / factor.y)
+        .attr('x2', (_d: number, i: number) => {
+          if (isNaN(uTable[i])) return null;
+          return filteredXTable[i] / factor.x + uTable[i] * 20;
+        })
+        .attr('y2', (_d: number, i: number) => {
+          if (isNaN(vTable[i])) return null;
+          return y[i] / factor.y + vTable[i] * 20;
+        })
         .attr('stroke', '#0678BE')
         .attr('stroke-width', 1.8)
         .attr('marker-end', 'url(#arrow)')
@@ -67,7 +81,7 @@ export const Quiver = ({ width, height, factor, activeStep, showMedian }: Quiver
       .append("path")
         .attr("d", "M0,-5L10,0L0,5")
         .attr("fill", "#0678BE")
-  }
+  }, [quiver?.u, quiver?.v, quiver?.u_median, quiver?.v_median, images.active, showMedian, factor.x, factor.y])
 
   return (
     <svg ref={svgRef} className='quiver' style={{width: `${width}`, height: `${height}`}}></svg>
