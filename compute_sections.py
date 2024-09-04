@@ -404,13 +404,13 @@ def add_interpolated_velocity(results,check):
 
     return results
 
-def add_w_a_q(results, alpha, vel_type):
+def add_w_a_q(table_results, alpha, vel_type= 'original'):
     """
     Calculate widths (W), areas (A), discharges (Q), and discharge portions (Q_portion)
-    and add them to the results dictionary.
+    and add them to the table_results dictionary.
 
     Parameters:
-        results (dict): Dictionary containing 'distance' (x-coordinates),
+        table_results (dict): Dictionary containing 'distance' (x-coordinates),
                         'streamwise_magnitude' (velocities), and 'depth' (depths).
         alpha (float): Coefficient between the superficial velocity obtained with LSPIV
                        and the mean velocity of the section.
@@ -418,12 +418,14 @@ def add_w_a_q(results, alpha, vel_type):
                         'filled_streamwise_magnitude' for velocity.
 
     Returns:
-        dict: Updated results dictionary with keys 'W' (widths), 'A' (areas), 'Q' (discharges), and 'Q_portion'.
+        dict: Updated table_results dictionary with keys 'W' (widths), 'A' (areas), 'Q' (discharges), and 'Q_portion'.
     """
-    x = results['distance']
+    x = table_results['distance']
     # Select velocity type based on the provided `vel_type`
-    v = results['streamwise_magnitude'] if vel_type == 'original' else results['filled_streamwise_magnitude']
-    d = results['depth']
+    v = table_results['streamwise_magnitude'] if vel_type == 'original' else table_results['filled_streamwise_magnitude']
+    v_minus_std = table_results['minus_std']
+    v_plus_std = table_results['plus_std']
+    d = table_results['depth']
 
     num_stations = len(x)
 
@@ -443,20 +445,25 @@ def add_w_a_q(results, alpha, vel_type):
 
     # Calculate discharges (Q) considering the alpha coefficient for velocity correction
     q = a * v * alpha
+    q_minus_std = a * v_minus_std * alpha
+    q_plus_std = a * v_plus_std * alpha
 
-    # Add W, A, and Q to the results dictionary
-    results['W'] = w
-    results['A'] = a
-    results['Q'] = q
+    # Add W, A, and Q to the table_results dictionary
+    table_results['W'] = w
+    table_results['A'] = a
+    table_results['Q'] = q
+    table_results['Q_minus_std'] = q_minus_std
+    table_results['Q_plus_std'] = q_plus_std
 
     # Calculate total discharge and discharge portions (Q_portion)
     total_q = np.nansum(q)  # Use nansum to handle NaNs in discharge values
     q_portion = q / total_q if total_q != 0 else np.zeros_like(q)
 
-    # Add Q_portion to the results dictionary
-    results['Q_portion'] = q_portion
+    # Add Q_portion to the table_results dictionary
+    table_results['Q_portion'] = q_portion
 
-    return results
+    return table_results
+
 def get_single_piv_result(results, num='median'):
     """
     Retrieve a single set of PIV results for quiver plotting.
@@ -818,6 +825,10 @@ def update_current_x_section(
     else:
         checked_results = np.array(x_sections[current_x_section]['check'])
 
+    # Add statistics on streamwise velocity
+    table_results = add_statistics(results, table_results, east_l, north_l, east_r, north_r, transformation_matrix,
+                                   time_between_frames)
+
     if interpolate:
         # Interpolate velocity and discharge data if required
         table_results = add_interpolated_velocity(table_results,checked_results)
@@ -828,13 +839,15 @@ def update_current_x_section(
         table_results = add_w_a_q(table_results, alpha, 'original')
         table_results = add_displacement_pixel_streamwise(table_results, transformation_matrix, 'original')
 
-    # Add statistics on streamwise velocity
-    table_results = add_statistics(results, table_results, east_l, north_l, east_r, north_r, transformation_matrix,
-                                   time_between_frames)
+
 
     # Calculate additional properties for the river section
     total_q = np.nansum(table_results['Q'])
+    total_q_minus_std = np.nansum(table_results['Q_minus_std'])
+    total_q_plus_std = np.nansum(table_results['Q_plus_std'])
+    total_q_std = (total_q_plus_std - total_q)
     table_results['total_Q'] = total_q
+    table_results['total_q_std'] = total_q_std #with total_q_minus_std it should be about the same
     table_results['measured_Q'] = np.nansum(table_results['Q'][checked_results]) / total_q
     table_results['interpolated_Q'] = np.nansum(table_results['Q'][~checked_results]) / total_q
 
