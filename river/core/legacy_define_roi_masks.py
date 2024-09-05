@@ -284,10 +284,10 @@ def recommend_height_roi(json_path, window_size, transformation_matrix):
 # import matplotlib.pyplot as plt
 # import matplotlib.patches as patches
 # # SCALING
-# x1_pix, y1_pix = 990, 1394
-# x2_pix, y2_pix = 2000, 1394
+# x1_pix, y1_pix = 324.7, 492.4
+# x2_pix, y2_pix = 1610.6, 496.5
 # x1_rw, y1_rw = 0, 0
-# x2_rw, y2_rw = 100, 0
+# x2_rw, y2_rw = 40.414, 0
 #
 # T, scale = ct.uav_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_rw, y2_rw)
 #
@@ -310,7 +310,7 @@ def recommend_height_roi(json_path, window_size, transformation_matrix):
 # # ax.add_patch(polygon)
 #
 #
-# image = plt.imread('/Users/antoine/Dropbox/04_Auto_Entrepreneur/01_Actual/03_Contrats/20191103_Canada/05_Training/Case_1/DJI_0083/DJI_0083_seq1_00003.jpg')
+# image = plt.imread('/Users/antoine/river/0000000003.jpg')
 # fig, ax = plt.subplots(1)
 # ax.imshow(image)
 #
@@ -330,7 +330,10 @@ def recommend_height_roi(json_path, window_size, transformation_matrix):
 # mask = create_mask(image, pixel_box)
 # ax.imshow(mask)
 # #
+#
+# transformation_matrix= '/Users/antoine/river/uav_transformation_matrix.json'
 # json_path = '/Users/antoine/river/x_sections.json'
+# height_roi =17
 # combined_mask, bbox = create_mask_and_bbox(image, json_path, height_roi, transformation_matrix)
 # fig, ax = plt.subplots()
 # ax.imshow(combined_mask, cmap='gray')
@@ -344,3 +347,5 @@ def recommend_height_roi(json_path, window_size, transformation_matrix):
 #
 # rect = patches.Rectangle((bbox[0],bbox[1]),bbox[2],bbox[3], linewidth=2, edgecolor='red', facecolor='none')
 # ax.add_patch(rect)
+#
+# recommend_height_roi(json_path, 128, transformation_matrix)
