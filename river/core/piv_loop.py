@@ -24,8 +24,8 @@ def piv_loop(
 	path_images: Path,
 	mask: np.ndarray,
 	bbox: list,
-	interrogation_area_1,
-	interrogation_area_2,
+	interrogation_area_1: int,
+	interrogation_area_2: int,
 	mask_auto: bool,
 	multipass: bool,
 	standard_filter: bool,
@@ -55,7 +55,7 @@ def piv_loop(
 	    Bounding box for the region of interest as (x0, y0, x1, y1).
 	interrogation_area_1 : int
 	    Size of the interrogation area.
-	interrogation_area_1 : int, optional
+	interrogation_area_2 : int, optional
 	    Size of the second interrogation area.
 	mask_auto : bool
 	    Whether to automatically apply a mask.
