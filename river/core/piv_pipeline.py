@@ -216,6 +216,7 @@ def run_analyze_all(
 	    A dictionary containing results such as 'shape', 'x', 'y', 'u_median', 'v_median', 'u', 'v', 'typevector',
 	    and 'gradient' (if seeding_filter is True).
 	"""
+	background = None
 	images = sorted(images_location.glob("*.jpg"))
 	total_frames = len(images)
 
