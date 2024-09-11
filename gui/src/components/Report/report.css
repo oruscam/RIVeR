@@ -55,12 +55,14 @@
     font-size: 1.7em;
 }
 
-
-#report-video-info-container {
+#report-video-info-container{
     width: 100%;
-    margin-top: 20px;
     border: solid;
     border-radius: 20px;
+    margin-top: 25px;
+}
+
+.report-grid-1 {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     grid-template-rows: auto 1px auto; /* Añade una fila para la línea divisoria */
@@ -72,22 +74,194 @@
     padding-bottom: 5px;
 }
 
-#video-info-container::before {
+.report-grid-1::before {
     content: "";
     grid-column: 1 / -1; /* Ocupa todas las columnas */
     grid-row: 2; /* Segunda fila */
-    height: 0.5px;
-    background-color: #000; /* Color de la línea divisoria */
+    height: 0.3px;
+    background-color: #00000054; /* Color de la línea divisoria */
 }
 
-.video-info-item {
+.report-info-item {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 30px;
 }
 
-.video-info-item:nth-child(-n+5) {
+.report-info-item:nth-child(-n+5) {
     grid-row: 1; /* Primera fila */
 }
 
+#report-processed-range-container{
+    width: 100%;
+    border: solid;
+    border-radius: 20px;
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+
+#report-carousel{
+    align-self: center;
+    margin-top: 20px;
+    width: 95%;
+}
+
+.report-carousel-img{
+    width: calc(100% / 5);
+    height: 130px;
+}
+
+#first-img-carousel{
+    border-top-left-radius: 20px;
+    border-bottom-left-radius: 20px;
+}
+
+#last-img-carousel{
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+}
+
+#report-carousel-footer{
+    display: flex;
+    width: 95%;
+    align-self: center;
+}
+
+#report-carousel-footer p{
+    width: calc(100% / 5);
+    text-align: center;
+}
+
+#report-section-container{
+    width: 100%;
+    margin-top: 25px;
+    background: linear-gradient(to right, #0678BE, #0A5A8A);    
+    display: flex;
+    align-items: center;
+    color: var(--primary-text-color);
+    border-radius: 20px;
+    padding-top: 20px;
+    padding-left: 40px;
+    padding-right: 40px;
+    padding-bottom: 10px;
+}
+
+
+
+
+#report-section-left-container{
+    width: 50%;
+    height: 100%;
+    padding-left: 90px;
+    padding-top: 30px;
+}
+
+#report-section-discharge-label{
+    margin-top: 8px;
+    font-weight: 480;
+}
+
+.report-section-title-1{
+    font-size: 20px;
+    font-weight: 500;
+}
+
+#report-section-img {
+    width: 80%;
+    height: auto;
+    border-radius: 20px;
+    margin-left: 20px;
+}
+
+#report-section-left-container h4{
+    font-size: 16px;
+    font-weight: 400;
+}
+
+#report-section-right-container{
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-right: 50px;
+    padding-top: 30px;
+}
+
+#report-section-velocity{
+    margin-top: -70px;
+    margin-left: -30px
+}
+
+#report-section-discharge{
+    margin-left: -30px
+}
+
+#report-section-bath{
+    margin-top: -50px;
+    margin-left: -26px
+}
+
+
+#report-section-table {
+    margin-top: 20px;
+    text-align: center; /* Centra el contenido del contenedor */
+    width: 90%;
+}
+
+#report-section-table table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto; /* Centra la tabla horizontalmente */
+}
+
+#report-section-table th, #report-section-table td {
+    border: none;
+    padding: 2px;
+    text-align: center; /* Centra el texto en las celdas */
+}
+
+#report-section-table thead {
+    border-bottom: 2px solid;
+}
+
+#report-section-table tbody tr {
+    border: none;
+}
+
+#report-section-table tbody tr td {
+    border: none;
+}
+
+#report-section-table th div {
+    display: block;
+    text-align: center;
+  }
+  
+#report-section-table th div:first-child {
+    font-weight: bold;
+    font-size: 1.2em; /* Opcional: para resaltar la 'x' */
+ }
+
+#report-section-table th div:last-child {
+    font-size: 0.9em; /* Opcional: para hacer la 'm' más pequeña */
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+.mt--1{
+    margin-top: -20px;
+}
+
+/* @media print {
+
+
+    .report-section-container {
+        page-break-inside: avoid;
+    }
+}
+ */

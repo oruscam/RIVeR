@@ -1,0 +1,172 @@
+:root {
+    --background-color: #000000;
+    --secondary-background-color: #141414;
+    --primary-text-color: #ffffff;
+    --secondary-text-color: #797979;
+    --on-hover: #232222;
+    --input-background: #323232;
+    --input-background-disabled: #191919;
+    --secondary-input-background: #646464;
+    --disabled-button: #808080;
+    --background-error: #ED6B57;
+  
+  }
+
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--primary-text-color)
+}
+
+#finish-modal-window{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+}
+
+#form-modal-container{
+    padding-top: 10px;
+    padding-bottom: 20px;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-text-color);
+
+}
+
+.form-modal-field-container{
+    display: flex;
+    flex-direction: column;
+    width: 65%;
+    margin-top: 15px;
+}
+
+.form-modal-field-container label{
+    font-size: 20px;
+    font-weight: 500;
+
+}
+
+.form-modal-field-container input{
+    width: 100%;
+    height: 40px;
+    border-radius: 5px;
+    border: none;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    background-color: var(--input-background);
+    color: var(--primary-text-color);
+}
+.form-modal-field-container input:focus{
+    outline: none;
+    border-bottom: 4px solid var(--background-error);
+
+}
+.form-modal-field-radio{
+    align-self: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 25px;
+    width: 70%;
+    background-color: transparent;
+
+}
+
+#label-unit-sistem{
+    margin-bottom: 15px;
+    align-self: center;
+}
+
+.form-modal-field-radio label{
+    margin-right: 20px;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.form-modal-field-radio input{
+    width: 20px;
+}
+
+#form-modal-field-date{
+    font-size: 17px;
+}
+
+#form-modal-field-date::-webkit-calendar-picker-indicator {
+    filter: invert(100%);
+}
+
+
+.custom-datepicker{
+    color: var(--primary-text-color);
+    background-color: white;
+    background-color: transparent;
+
+}
+
+
+
+/* Estilos personalizados para el DatePicker */
+.react-datepicker {
+    background-color: var(--secondary-background-color);
+    color: var(--primary-text-color);
+    border: 1px solid var(--input-background);
+}
+
+.react-datepicker__header {
+    background-color: var(--secondary-background-color);
+    border-bottom: 1px solid var(--input-background);
+    color: var(--primary-text-color);
+
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker__time-name {
+    color: var(--primary-text-color);
+}
+
+.react-datepicker__day,
+.react-datepicker__day-name,
+.react-datepicker__time-name {
+    color: var(--primary-text-color);
+}
+
+.react-datepicker__day:hover,
+.react-datepicker__day--selected {
+    background-color: var(--on-hover);
+    color: var(--primary-text-color);
+}
+
+
+#button-send {
+    width: 150px;
+    height: 50px;
+    background-color: var(--input-background);
+    color: var(--primary-text-color);
+    border: none;
+    border-radius: 10px;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+#button-send:hover {
+    background-color: var(--on-hover);
+}
+
+#button-send:active {
+    background-color: var(--on-hover);
+    transform: scale(0.95);
+}

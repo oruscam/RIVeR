@@ -6,7 +6,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { setLoading } from "../store/ui/uiSlice";
-import { setProjectDirectory, setProjectType, setVideoData, setFirstFramePath, setVideoParameters } from "../store/project/projectSlice";
+import { setProjectDirectory, setProjectType, setVideoData, setFirstFramePath, setVideoParameters, setProjectDetails } from "../store/project/projectSlice";
 import { FieldValues } from "react-hook-form";
 import { addSection, setActiveSection, updateSection } from "../store/section/sectionSlice";
 import { STEP_3, STEP_4, STEP_5, STEP_6 } from "../constants/constants";
@@ -21,7 +21,7 @@ import { onLoadCrossSections, onLoadPixelSize, onLoadVideoParameters } from "../
 
 export const useProjectSlice = () => {
     const dispatch = useDispatch();
-    const { projectDirectory, video, type, firstFramePath } = useSelector((state: RootState) => state.project);
+    const { projectDirectory, video, type, firstFramePath, projectDetails } = useSelector((state: RootState) => state.project);
     const { sections } = useSelector((state: RootState) => state.section);
 
     /**
@@ -30,20 +30,36 @@ export const useProjectSlice = () => {
      * @param type | string
      */
 
-    const onInitProject = async (video: File, type: string) => {
-        dispatch(setLoading(true));
-        const blob = URL.createObjectURL(video);
+    const onGetVideo = async () => {
         const ipcRenderer = window.ipcRenderer;
-       
         try {
-            const result = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: type });
+            const result = await ipcRenderer.invoke('get-video');
+            return result
+        } catch (error) {
+            console.log("Error en Get Video")
+            console.log(error)
+            return error        
+        }
+    }
+
+
+    const onInitProject = async (video: { path: string, name: string, type: string}) => {
+        dispatch(setLoading(true));
+        console.log("onInitProject")
+        console.log(video)
+        const ipcRenderer = window.ipcRenderer;
+        // const blob = URL.createObjectURL(video);
+        
+        try {
+            const result = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type });
             const videoData = {
                 name: video.name,
                 path: video.path,
                 width: result.width,
                 height: result.height,
                 fps: result.fps,
-                blob: blob,
+                creation: result.creation,
+                // blob: blob,
                 duration: result.duration
             }
 
@@ -68,9 +84,9 @@ export const useProjectSlice = () => {
         dispatch(setLoading(true));
         
         const parameters = {
-            step: data.step,
-            startTime: data.start,
-            endTime: data.end,
+            step: parseFloat(data.step),
+            startTime: parseFloat(data.start),
+            endTime: parseFloat(data.end),
             startFrame: Math.floor(parseFloat(data.start) * video.data.fps).toString(),
             endFrame: Math.floor(parseFloat(data.end) * video.data.fps).toString(),
         }
@@ -102,6 +118,7 @@ export const useProjectSlice = () => {
         const ipcRenderer = window.ipcRenderer
         try {
             const result = await ipcRenderer.invoke('load-project')
+            console.log(result)
             if(result.success){
                 const { data, projectDirectory, videoMetadata, firstFrame, xsections } = result.message
                 console.log(data)
@@ -113,6 +130,7 @@ export const useProjectSlice = () => {
                     fps: videoMetadata.fps,
                     path: data.filepath,
                     duration: videoMetadata.duration,
+                    creation: videoMetadata.creation,
                     name: null,
                     blob: null
                 }))
@@ -156,14 +174,42 @@ export const useProjectSlice = () => {
             }
         } catch (error) {
             console.log("Error en Load Project")
+            console.log(error)
             dispatch(setLoading(false))
             return "Elige un directorio válido"
         }
     }
     
+    /**
+     * Handles the click event for the "Finish" button.
+     * 
+     * @param nextStep - The function to be called after successfully handling the click event.
+     */
+
+    const onClickFinish = async( nextStep: () => void  ) => {
+        dispatch(setLoading(true))  
+        const ipcRenderer = window.ipcRenderer;
+        try {
+
+            const data = await ipcRenderer.invoke('open-modal-window', {creationDate: video.data.creation})
+            console.log(data)
+            dispatch(setProjectDetails(data))
+
+            // Si todo sale bien, nextStep()
+            nextStep();
+            dispatch(setLoading(false))
+        } catch (error) {
+            console.log("Error en onClickFinish")
+            console.log(error)
+        }
+    }
+
+    
+
     return {
         // ATRIBUTES
         firstFramePath,
+        projectDetails,
         projectDirectory,
         type,
         video,
@@ -172,6 +218,8 @@ export const useProjectSlice = () => {
         // METHODS
         onInitProject,
         onLoadProject,
-        onSetVideoParameters
+        onSetVideoParameters,
+        onGetVideo,
+        onClickFinish
     }
 }

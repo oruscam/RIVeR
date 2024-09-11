@@ -59,6 +59,7 @@ export function loadProject(PROJECT_CONFIG: ProjectConfig){
                         if( images.length > 0){
                             firstFrame = path.join(framesPath, images[0])
                         }
+                        console.log('antes del try')
                         try {
                             const videoMetadata = await getVideoMetadata(dataParsed.filepath);
                             return {
@@ -72,6 +73,7 @@ export function loadProject(PROJECT_CONFIG: ProjectConfig){
                                 },
                             };
                         } catch (error) {
+                            console.log(error)
                             throw error;
                         }
                     }

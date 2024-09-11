@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SectionState, PixelSize, Point, Section } from './types';
+import { SectionState, PixelSize, Point, Section, SectionData } from './types';
 
 const defaultSections = [{
     name: "pixel_size",
@@ -12,22 +12,25 @@ const defaultSections = [{
         name: '',
     },
     pixelSize: {size: 0, rw_length: 0},
-    realWorld: [{x: 0, y: 0}, {x: 0, y: 0}]
+    realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
+    extraFields: false
     },
     {
     name: "CS_default_1",
     drawLine: false,
     points: [],
     bathimetry: {
-        blob: '/@fs/home/tomy_ste/Desktop/bath1.csv',
+        blob: '/@fs/home/tomy_ste/Desktop/XS1_DistElev.csv',
         level: 0,
-        path: '/@fs/home/tomy_ste/Desktop/bath1.csv',
+        path: '/@fs/home/tomy_ste/Desktop/XS1_DistElev.csv',
         // path: '',
         name: '',
     },
     pixelSize: {size: 0, rw_length: 0},
-    realWorld: [{x: 0, y: 0}, {x: 0, y: 0}]
+    realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
+    extraFields: false
     }
+    
 ]
 
 
@@ -63,7 +66,6 @@ const sectionSlice = createSlice({
             state.sections.splice(state.activeSection, 1);
             state.activeSection = newActive
         },
-
         setActiveSection: (state, action: PayloadAction<number>) => {
             state.activeSection = action.payload;
         },
@@ -71,6 +73,13 @@ const sectionSlice = createSlice({
         updateSection: (state, action: PayloadAction<Section>) => {
             state.sections[state.activeSection] = action.payload
         },
+        
+        setSectionData: (state, action: PayloadAction<{sectionIndex: number, sectionData: SectionData}>) => {
+            state.sections[action.payload.sectionIndex].data = action.payload.sectionData;
+        },
+        changeSectionData : (state, action: PayloadAction<SectionData>) => {
+            state.sections[state.activeSection].data = action.payload;
+        }
 
     },
 });
@@ -83,6 +92,8 @@ export const {
     deleteSection, 
     setPixelSize,
     updateSection,
+    setSectionData,
+    changeSectionData
  } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

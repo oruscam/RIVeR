@@ -7,9 +7,7 @@ export const FormVideoExtra: React.FC<{ step: number }> = ({ step }) => {
     const { video } = useProjectSlice()
     const { name, width, height, duration, fps } = video.data;
 
-    const getTimeBetweenFrames = (): string => {
-        return ((1 / (fps || 0)) * step).toFixed(2); // Add null check for 'fps' and provide default value of 0
-    }
+    const timeBetweenFrames = (((1 / (fps || 0)) * step) * 1000).toFixed(2)
 
     return (
         <div className='form-video-extra-info mt-1'>
@@ -23,7 +21,7 @@ export const FormVideoExtra: React.FC<{ step: number }> = ({ step }) => {
             </div>
             <div className='form-video-extra-info-row'>
                 <p>{t("Step3.ExtraInfo.timeBetweenFrame")}</p>
-                <p>{getTimeBetweenFrames()}s</p>
+                <p>{timeBetweenFrames}ms</p>
             </div>
             <div className='form-video-extra-info-row'>
                 <p>{t("Step3.ExtraInfo.resolution")}</p>

@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Carousel, Error, ImageWithData, Progress, WizardButtons } from "../components"
 import { FormAnalizing } from "../components/Forms/FormAnalizing"
 import { getNewImageResolution } from "../helpers"
-import { useProjectSlice, useUiSlice } from "../hooks"
+import { useDataSlice, useProjectSlice, useUiSlice } from "../hooks"
 import { useWizard } from "react-use-wizard"
 
 export const Step7 = () => {
@@ -11,11 +11,16 @@ export const Step7 = () => {
     const { video } = useProjectSlice();
     const { data } = video 
     const { nextStep } = useWizard();
+    const { onGetResultData } = useDataSlice()
 
     const [showMedian, setShowMedian] = useState(false)
 
     const { height, width, factor } = getNewImageResolution(windowWidth, windowHeight, data.width, data.height)
 
+    const handleNext = async () => {
+        await onGetResultData()
+        nextStep()
+    }
 
   return (
     <div className="regular-page">
@@ -27,7 +32,7 @@ export const Step7 = () => {
         <div className="form-container">
             <Progress/>
             <FormAnalizing/>
-            <WizardButtons onClick={nextStep}></WizardButtons>
+            <WizardButtons onClickNext={handleNext}></WizardButtons>
         </div>
     </div>
   )

@@ -12,20 +12,24 @@ import { ImageWithData } from './ImageWithData'
 import { DrawSections } from './DrawSections'
 import { Carousel } from './Carousel'
 import { Grid } from './Grid'
+import { SectionsHeader } from './SectionsHeader'
+import { Results } from './Results'
 
 export {
+    Carousel,
+    DrawSections,
     Error,
-    ImageWithMarks,
+    Grid,
     Icon,
+    ImageWithData ,
+    ImageWithMarks,
     LanguageSelector,
+    LineAndText,
+    Loading, 
+    Points,
+    Progress,
+    Results,
+    SectionsHeader,
     ThemeToggle,
     WizardButtons,
-    LineAndText,
-    Points,
-    Loading, 
-    Progress,
-    ImageWithData ,
-    DrawSections,
-    Carousel,
-    Grid
 }

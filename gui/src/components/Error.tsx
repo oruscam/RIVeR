@@ -8,7 +8,7 @@ export const Error = () => {
     <div className="error" style={{ opacity: error.length !== 0 ? 1 : 0 }}>
       {error.map((value, key) => (
         <div key={key} className="error-text">
-          - {value}
+          - { value }
         </div>
       ))}
     </div>

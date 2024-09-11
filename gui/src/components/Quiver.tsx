@@ -13,20 +13,19 @@ interface QuiverProps {
 export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
   const svgRef = useRef(null)
   const { images, quiver, processing } = useDataSlice();
-  const { onSetErrorMessage } = useUiSlice();
 
   useEffect(() =>{
-    if (processing.error) {
-      onSetErrorMessage({message: processing.error});
-      return;
-    }
-
+    const svg = d3.select(svgRef.current);
+    svg.selectAll("*").remove(); // Limpiar el SVG antes de dibujar
+    // if (processing.error) {
+    //   onSetErrorMessage({message: processing.error});
+    //   return;
+    // }
+    
     if (!quiver) return;
 
     const { x, y, u, v, typevector, u_median, v_median } = quiver;
 
-    const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove(); // Limpiar el SVG antes de dibujar
 
     svg.attr("width", width)
        .attr("height", height)
@@ -81,7 +80,7 @@ export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
       .append("path")
         .attr("d", "M0,-5L10,0L0,5")
         .attr("fill", "#0678BE")
-  }, [quiver?.u, quiver?.v, quiver?.u_median, quiver?.v_median, images.active, showMedian, factor.x, factor.y])
+  }, [quiver, images.active, showMedian, factor.x, factor.y])
 
   return (
     <svg ref={svgRef} className='quiver' style={{width: `${width}`, height: `${height}`}}></svg>

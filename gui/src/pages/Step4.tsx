@@ -10,7 +10,6 @@ import { useEffect, useState } from 'react'
 import { ButtonLock } from '../components/ButtonLock.js'
 
 export const Step4 = () => {
-  const [extraFields, setExtraFields] = useState(false)
   const { video } = useProjectSlice();
   const { onSetPixelSize, sections } = useSectionSlice()
   const { points, realWorld, pixelSize } = sections[0]
@@ -79,10 +78,10 @@ export const Step4 = () => {
             onSubmit={methods.handleSubmit(onSubmit, onError)}
             onError={onError}
             factor={factor}
-            extraFields={extraFields}
+            
           />
         </FormProvider>
-        <ButtonLock footerElementID='span-footer' headerElementID='pixel_size-HEADER' extraFields={extraFields} setExtraFields={setExtraFields} disabled={sections[0].points.length === 0}
+        <ButtonLock footerElementID='span-footer' headerElementID='pixel_size-HEADER' disabled={sections[0].points.length === 0}
         ></ButtonLock>
         <WizardButtons canFollow={sections[0].points.length === 2} formId='form-pixel-size'/>
       </div>

@@ -22,7 +22,7 @@ export const VideoPlayerSeekBar = ({ bufferAmount, progressAmount, setProgressAm
           setControl(prevControl => ({...prevControl, play: true}))
           videoRef.current.pause();
         }
-        let progress = Math.min(
+        const progress = Math.min(
           Math.max(
             ((event.clientX - seekBar.current.offsetLeft) * 100) / seekBar.current.clientWidth,
             0
@@ -35,7 +35,7 @@ export const VideoPlayerSeekBar = ({ bufferAmount, progressAmount, setProgressAm
   
     const onScrub = (event: MouseEvent) => {
       if (seekBar.current && scrubbing){
-        let progress = Math.min(
+        const progress = Math.min(
           Math.max(
             ((event.clientX - seekBar.current.offsetLeft) * 100 ) / seekBar.current.clientWidth, 0 
           ), 100
@@ -48,12 +48,12 @@ export const VideoPlayerSeekBar = ({ bufferAmount, progressAmount, setProgressAm
       if (seekBar.current && scrubbing){
         setScrubbing(false)
         if(videoRef.current){
-          let percentage = Math.min(
+          const percentage = Math.min(
             Math.max(
               (event.clientX - seekBar.current.offsetLeft) / seekBar.current.clientWidth , 0
             ), 1
           );
-          let time = percentage * videoRef.current.duration;
+          const time = percentage * videoRef.current.duration;
           videoRef.current.currentTime = time;
           if( videoRef.current && !control.play){
             setControl(prevControl => ({...prevControl, play: true}))

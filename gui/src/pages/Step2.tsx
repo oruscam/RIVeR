@@ -6,22 +6,27 @@ import { useProjectSlice } from '../hooks/index.js';
 import { Icon } from '../components/Icon.js';
 import { drone, ipcam } from '../assets/icons/icons.js';
 import './pages.css';
+import { useState } from 'react';
 
-
+type Video = {
+    name: string;
+    path: string;
+    type: string;
+}
 
 export const Step2 = () => {
     const { handleSubmit, register, watch } = useForm();
-    const { onInitProject } = useProjectSlice();
+    const { onInitProject, onGetVideo } = useProjectSlice();
     const { nextStep } = useWizard();
     const formId = 'form-step-2';
     const { t } = useTranslation();
-    const watchDrone = watch("droneFile");
+
+    const [ video, setVideo ] = useState<Video>();
 
     const onSubmit = async (data: FieldValues) => {
-        if (data.droneFile) {
-            console.log(data.droneFile[0])
+        if (video) {
             try {
-                await onInitProject(data.droneFile[0], 'uav');
+                await onInitProject(video);
                 nextStep();
             } catch (error){
                 console.log("intentalo de nuevo")
@@ -29,30 +34,26 @@ export const Step2 = () => {
         }
     };
 
+    const onClickDrone = async () => {
+        const { path, name } = await onGetVideo();
+        setVideo({name, path, type: 'uav'});
+    }
+
 
     return (
         <div className='App'>
             <h2 className='step-2-title'> {t("Step-2.title")} </h2>
             <form className='file-upload-container' onSubmit={handleSubmit(onSubmit)} id={formId}>
-                <input
-                    type="file"
-                    className="hidden-file-input"
-                    id='drone-input'
-                    accept='video/.mp4, video/.avi, video/.mov, video/*'
-                    {...register("droneFile", { required: "Se debe cargar un archivo" })}
-                />
-                <label htmlFor='drone-input' className='drone-upload'>
+                <button className='button-transparent' onClick={onClickDrone}>
                     <Icon path={drone}></Icon>
-                </label>
-                <input type="file" className="hidden-file-input" id='camera-input' disabled />
-                <label htmlFor='camera-input' className='camera-upload'>
-                    <Icon path={ipcam}></Icon>
-                </label>
+                </button>
+                <Icon path={ipcam}></Icon>
             </form>
             {
-                watchDrone !== undefined && watchDrone.length !== 0 ? <p className='file-name'> {watchDrone[0].name} </p> : null
+                video !== undefined ? <p className='file-name'> {video.name} </p> : null
             }
-            <WizardButtons canFollow={watchDrone?.length !== 0 && undefined !== watchDrone?.length} formId={formId}></WizardButtons>
+            {/* <WizardButtons canFollow={watchDrone?.length !== 0 && undefined !== watchDrone?.length} formId={formId}></WizardButtons> */}
+            <WizardButtons canFollow={true} formId={formId}></WizardButtons>
         </div>
     );
 }

@@ -6,6 +6,8 @@ import { Step5 } from "./Step5";
 import { Step6 } from "./Step6";
 import { Step7 } from "./Step7";
 import { Step8 } from "./Step8";
+import { FinishModalWindow } from "./FinishModalWindow";
+import { Report } from "./Report";
 
-export { HomePage, Step2, Step3, Step4, Step5, Step6, Step7, Step8 };
+export { HomePage, Step2, Step3, Step4, Step5, Step6, Step7, Step8, FinishModalWindow, Report };
 

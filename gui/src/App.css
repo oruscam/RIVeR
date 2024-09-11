@@ -9,9 +9,7 @@
   background-color: var(--background-color);
   color: var(--primary-text-color);
   transition: background-color 0.25s ease-in-out;
-  overflow: hidden;
 }
 
 
-/* PROVISORIO */
 

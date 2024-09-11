@@ -50,6 +50,15 @@
   transform: translateY(-10px);
 }
 
+.button-transparent {
+  background-color: transparent;
+  border: none;
+  transition: transform 0.3s ease; /* Añade una transición suave */
+}
+
+.button-transparent:hover {
+  transform: scale(1.1); /* Escala el botón al 110% de su tamaño original */
+}
 
 .button-1{
   width: 232px;
@@ -411,4 +420,8 @@ input:checked + .slider:before {
 .button-with-loader-active{
   background-color: var(--primary-text-color);
   color: var(--background-color);
+}
+
+.hidden{
+  display: none;
 }

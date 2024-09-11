@@ -139,8 +139,10 @@
     overflow-y: auto;
     overflow-x: auto;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
+
 }
 
 #download-button{
@@ -153,9 +155,10 @@
 }
 
 .page {
+    margin-top: 20px;
     width: 1240px;
     height: 1754px;
-    background-color: whitesmoke;
+    background-color: white;
     color: black;
     display: flex;
     flex-direction: column;
@@ -164,6 +167,17 @@
     padding-bottom: 40px;
     padding-right: 20px;
     padding-left: 20px;
+}
+
+
+@media print {
+    .page { 
+        page-break-after: always;
+    }
+
+    .report-section-container {
+        page-break-inside: avoid;
+    }
 }
 
 #text-report{

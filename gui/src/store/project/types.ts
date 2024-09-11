@@ -4,14 +4,15 @@ interface VideoData {
     width: number;
     height: number;
     fps: number;
-    blob: string | null;
+    blob?: string | null;
     duration: number;
+    creation: string;
 }
 
 interface VideoParameters {
-    step: string;
-    startTime: string | null;
-    endTime: string | null;
+    step: number | string;
+    startTime: number | string;
+    endTime: number | string;
     startFrame: string;
     endFrame: string;
 }
@@ -22,16 +23,25 @@ interface Video {
     parameters: VideoParameters;
 }
 
+interface ProjectDetails {
+    riverName: string;
+    site: string;
+    unitSistem: string;
+    meditionDate: string;
+}
+
 interface ProjectState {
     projectDirectory: string;
     video: Video;
     type: string;
     firstFramePath: string;
+    projectDetails: ProjectDetails;
 }
 
 export type {
     ProjectState,
     VideoData,
     VideoParameters,
-    Video
+    Video, 
+    ProjectDetails
 }

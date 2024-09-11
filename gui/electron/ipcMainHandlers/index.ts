@@ -8,6 +8,8 @@ import { pixelToRealWorld } from "./pixelToRealWorld";
 import { setSections } from "./setSections";    
 import { firstFrame } from "./firstFrame";
 import { getQuiver } from "./getQuiver";
+import { getVideo } from "./getVideo";
+
 
 export {
     createFolderStructure,
@@ -19,5 +21,6 @@ export {
     setSections,
     firstFrame,
     pixelToRealWorld,
-    getQuiver
+    getQuiver,
+    getVideo
 }

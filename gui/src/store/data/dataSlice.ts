@@ -21,7 +21,7 @@ const defaultProcessing = {
     isBackendWorking: false,
     form: defaultFormProcessing,
     parImages: ['', '1', '', '2'],
-    maskPath: ''
+    maskPath: '/@fs/home/tomy_ste/River/DJI_0036/mask.png'
 }
 
 const initialState: DataState = {
@@ -60,7 +60,8 @@ const dataSlice = createSlice({
         },
         updateAnalizing: (state, action: PayloadAction<boolean>) => {
             state.analizing = action.payload
-        }
+        },
+
     }
 })
 

@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { ProjectState, VideoData, VideoParameters } from "./types";
+import { ProjectDetails, ProjectState, VideoData, VideoParameters } from "./types";
 
 const defaultVideo = {
     data : {
@@ -9,7 +9,8 @@ const defaultVideo = {
         height: 0,
         fps: 0,
         blob: "",
-        duration: 0
+        duration: 0,
+        creation: "",
     },
     parameters: {
         step: "1",
@@ -25,6 +26,12 @@ const initialState: ProjectState = {
     video: defaultVideo,
     type: '',
     firstFramePath: '',
+    projectDetails: {
+        riverName: '',
+        site: '',
+        unitSistem: '',
+        meditionDate: '',
+    }
 }
 
 const projectSlice = createSlice({
@@ -46,15 +53,20 @@ const projectSlice = createSlice({
         setFirstFramePath: (state, action: PayloadAction<string>) => {
             state.firstFramePath = action.payload;
         },
+        setProjectDetails: (state, action: PayloadAction<ProjectDetails>) => {
+            state.projectDetails = action.payload;
+        }
+        
     }
 });
 
 export const {
+    setFirstFramePath,
+    setProjectDetails,
     setProjectDirectory,
-    setVideoData,
     setProjectType,
+    setVideoData,
     setVideoParameters,
-    setFirstFramePath
 } = projectSlice.actions;
 
 export default projectSlice.reducer;

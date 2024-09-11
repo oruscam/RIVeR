@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { act, useEffect, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { ButtonLock } from "../ButtonLock"
 import { useSectionSlice } from "../../hooks"
@@ -13,13 +13,13 @@ interface FormCrossSectionsProps {
 }
 
 export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsProps) => {
-  const [extraFields, setExtraFields] = useState(false)
 
   const [bathimetryLimits, setBathimetryLimits] = useState({ min: 0, max: 0 })
 
   const { sections, activeSection, onUpdateSection } = useSectionSlice()
-  const { drawLine, bathimetry } = sections[activeSection]
+  const { drawLine, bathimetry, extraFields } = sections[activeSection]
   const { register, setValue } = useFormContext()
+
 
 
   const handleKeyDownBathLevel = (event: React.KeyboardEvent<HTMLInputElement>, nextFieldId: string) => {
@@ -27,6 +27,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       event.preventDefault()
       document.getElementById(nextFieldId)?.focus()
       const value = parseFloat((event.target as HTMLInputElement).value)
+      if (value === bathimetry.level) return ;
       if (bathimetryLimits.min <= value && value <= bathimetryLimits.max) {
         onUpdateSection({ level: value })
       } else{
@@ -39,15 +40,30 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
     }
   }
 
-  const onFileBathChange = ( event ) => {
-    const file = event.target.files[0]
+  const onFileBathChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
     if(file){
       onUpdateSection({ file })
     }
   }
 
+  const handleLeftBankInput = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement> ) => { 
+    if ( (event as React.KeyboardEvent<HTMLInputElement>).key  === 'Enter' || event.type === 'blur' ) {
+      event.preventDefault()
+
+      const value = parseFloat((event.target as HTMLInputElement).value);
+      
+      if( !isNaN(value) ) {
+        document.getElementById('wizard-next')?.focus()
+        onUpdateSection({leftBank: value})
+      } else {
+        setValue(`${name}_LEFT_BANK`, bathimetry.leftBank)
+      }
+
+    }
+  }
+
   useEffect(() => {
-    
     if (bathimetryLimits.max !== 0 && bathimetry.level === 0) {
       onUpdateSection({ level: bathimetryLimits.max })
     }
@@ -56,7 +72,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
 
   return (
     <div id="form-section-div" className={activeSection !== index ? "hidden" : ""}>
-      <form className="form-scroll" onSubmit={onSubmit} id="cross-section">
+      <form className="form-scroll" onSubmit={onSubmit} id="form-cross-section">
         <span id={`${name}-HEADER`}/>
         <div className="form-base-2 mt-2">
             
@@ -101,7 +117,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               <label className="read-only bg-transparent mt-1"> {bathimetry.name !== "" ? bathimetry.name : ''} </label>
             </div>
             
-            <div className="input-container-2 mt-1 mb-5">
+            <div className="input-container-2 mt-1 mb-1">
               <label className="read-only me-1" htmlFor="LEVEL"> Level</label>
               <input  type="number" 
                       step='any' 
@@ -116,17 +132,23 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                       />
             </div>
 
-          <Bathimetry setBathimetryLimits={setBathimetryLimits}/>
+          <Bathimetry setBathimetryLimits={setBathimetryLimits} lineColor="#ffffff" leftBank={bathimetry.leftBank} showLeftBank={true}/>
+
+          <div className="input-container-2 mt-1 mb-4" id="left-bank-station-container">
+            <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label"> Left bank station </label>
+            <input type="number" className="input-field" step='any' id="left-bank-station-input" {...register(`${name}_LEFT_BANK`)} onKeyDown={handleLeftBankInput} onBlur={handleLeftBankInput}/>
+          </div>
           
           <div className={extraFields ? '' : 'hidden'}>
             <RealWorldCoordinates modeName={name} />
             <PixelCoordinates modeName={name} />
-            
+            <span id={`span-footer-${name}`}></span>
           </div>
         </div>
       </form>
-        <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID={`REAL_WORLD`} headerElementID={`${name}-HEADER`} disabled={sections[activeSection].points.length === 0}></ButtonLock>
-
+      {
+        activeSection === index && <ButtonLock disabled={sections[activeSection].points.length === 0} footerElementID={`span-footer-${name}`} headerElementID={`${name}-HEADER`}></ButtonLock>
+      }                 
     </div>
   )
 }

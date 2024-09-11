@@ -7,6 +7,7 @@ import { FieldValues } from "react-hook-form";
     "CS_default_1_CS_BATHIMETRY": {
         "0": {}
     },
+    "CS_default_1_LEFT_BANK" : "15"
     "CS_default_1_EAST_Left": "0",
     "CS_default_1_NORTH_Left": "0",
     "CS_default_1_EAST_Right": "0",
@@ -21,6 +22,7 @@ import { FieldValues } from "react-hook-form";
         "CS_default_1": {
             "rw_length": 0,
             "bath": "/path/to/file",
+            "left_station": 15
             "east_l": 0,
             "north_l": 0,
             "east_r": 0,
@@ -77,4 +79,4 @@ export function convertInputData(data: FieldValues, csNames: string[], bathsPath
     });
     
     return result;
-};
+}

@@ -5,9 +5,9 @@
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver } from "../store/data/dataSlice";
-import { clearErrorMessage, setErrorMessage } from "../store/ui/uiSlice";
-import { Quiver } from "../store/data/types";
+import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask } from "../store/data/dataSlice";
+import { clearErrorMessage, setErrorMessage, setLoading } from "../store/ui/uiSlice";
+import { setSectionData } from "../store/section/sectionSlice";
 
 /**
  * @returns - Object with the methods and attributes to interact with the data slice
@@ -16,6 +16,7 @@ import { Quiver } from "../store/data/types";
 export const useDataSlice = () => {
     const dispatch = useDispatch();
     const { processing, images, quiver } = useSelector((state: RootState) => state.data);
+    const { sections } = useSelector((state: RootState) => state.section);
     
     
     interface ProcessingValues {
@@ -32,6 +33,7 @@ export const useDataSlice = () => {
         stdThreshold?: number;
         step1?: number;
         step2?: number;
+        heightRoi?: number;
     }
 
     /**
@@ -129,9 +131,6 @@ export const useDataSlice = () => {
         try {
             const { data, error} = await ipcRenderer.invoke('get-quiver-all', {formValues: processing.form})
 
-            console.log(data)
-            console.log(error)
-
             if ( error.message ){
                 dispatch(setErrorMessage([error.message]))
                 setTimeout(() => {
@@ -150,7 +149,6 @@ export const useDataSlice = () => {
                     }
                 ))
             }
-
             dispatch(setBackendWorkingFlag(false))
         } catch (error) {
             console.log(error)
@@ -164,17 +162,57 @@ export const useDataSlice = () => {
 
     const onKillBackend = async () => {
         const ipcRenderer = window.ipcRenderer;
-        await ipcRenderer.invoke('kill-python-shell')
-        dispatch(setBackendWorkingFlag(false))
+        
+        try {
+            await ipcRenderer.invoke('kill-python-shell')
+            dispatch(setBackendWorkingFlag(false))
+            return true
+        } catch (error) {
+            console.log(error)
+            return false
+        }
+    }
+
+    const onGetResultData = async () => {
+        dispatch(setLoading(true))
+        const ipcRenderer = window.ipcRenderer;
+
+        try {
+            const data = await ipcRenderer.invoke('get-result-data', {})
+            
+            sections.map(( section, index ) => {
+                if ( data[section.name] ){
+                    dispatch(setSectionData({sectionIndex: index, sectionData: data[section.name]}))
+            }})
+            
+            dispatch(setLoading(false))
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     const onClearQuiver = () => {
         dispatch(setQuiver(undefined))
     }
 
+    const onReCalculateMask = async ( value: number ) => {
+        dispatch(setBackendWorkingFlag(true))
+        const ipcRenderer = window.ipcRenderer;
+        onClearQuiver()
+
+        try {
+            const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value })
+
+            dispatch(setProcessingMask(maskPath))
+            dispatch(setBackendWorkingFlag(false))
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
 
     return {
-        // ATRIBUTES
+        // ATRIBUTES]
         images,
         processing,
         quiver,
@@ -184,6 +222,10 @@ export const useDataSlice = () => {
         onUpdateProcessing,
         onSetQuiverAll,
         onClearQuiver,
-        onKillBackend
+        onKillBackend,
+        onGetResultData,
+        onReCalculateMask,
     }
 }
+
+

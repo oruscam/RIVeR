@@ -5,7 +5,7 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setSectionPoints, addSection, deleteSection, setActiveSection, setPixelSize, setSectionRealWorld, updateSection, } from '../store/section/sectionSlice';
+import { setSectionPoints, addSection, deleteSection, setActiveSection, setPixelSize, setSectionRealWorld, updateSection, setExtraField, changeSectionData, } from '../store/section/sectionSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { convertInputData } from '../helpers/convertInputData';
@@ -355,7 +355,8 @@ export const useSectionSlice = () => {
         sectionName?: string,
         index?: number,
         file?: File,
-        level?:number
+        level?: number,
+        leftBank?: number,
     }
 
     /**
@@ -379,24 +380,22 @@ export const useSectionSlice = () => {
                 rw_length: 0,
                 size: 0
             }}))
-        }
-        if( value.lineLength ){
+        } else if( value.lineLength ){
             const { points } = section
             const resetRealWorld = [{x: 0, y: 0}, {x: value.lineLength, y: 0}]
             const { size, rw_length } = computePixelSize(points, resetRealWorld)
             dispatch(setPixelSize({size, rw_length}))
             dispatch(setSectionRealWorld(resetRealWorld))
-        }
-        if( value.sectionName ){
+        } else if( value.sectionName ){
             dispatch(updateSection({...section, name: value.sectionName }))
-        }
-        if( value.file ){
+        } else if( value.file ){
             console.log(value.file)
             const blob = URL.createObjectURL(value.file)
             dispatch(updateSection({...section, bathimetry: {blob: blob, path: value.file.path, level: 0, name: value.file.name,}}))
-        }
-        if( value.level ){
+        } else if( value.level ){
             dispatch(updateSection({...section, bathimetry: {...section.bathimetry, level: value.level}}))
+        } else if ( value.leftBank ){
+            dispatch(updateSection({...section, bathimetry: {...section.bathimetry, leftBank: parseFloat(value.leftBank.toFixed(2))}}))
         }
     }
 
@@ -425,7 +424,8 @@ export const useSectionSlice = () => {
                 name: ""
             },
             pixelSize: {size: 0, rw_length: 0},
-            realWorld: [{x: 0, y: 0}, {x: 0, y: 0}]
+            realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
+            extraFields: false
         }
         dispatch(addSection(section))
     }
@@ -437,6 +437,31 @@ export const useSectionSlice = () => {
 
     const onDeleteSection = () => {
         dispatch(deleteSection())
+    }
+
+
+
+    const onSetExtraFields = () => {
+        const section = sections[activeSection]
+        dispatch(updateSection({...section, extraFields: !section.extraFields}))
+    }
+
+
+    interface ChangeDataValues {
+        type: string;
+        rowIndex?: number;
+        data?: any;
+    }
+
+    const onChangeDataValues = ( object : ChangeDataValues ) => {
+        const { data } = sections[activeSection]
+        if ( object.type === 'check' && data){
+            const { check } = data
+            const updatedCheck = [...check];
+            updatedCheck[object.rowIndex] = !check[object.rowIndex];
+            
+            dispatch(changeSectionData({...data, check: updatedCheck}));
+        }
     }
 
     return {    
@@ -453,6 +478,9 @@ export const useSectionSlice = () => {
         onSetSections,
         onSetRealWorld,
         onUpdateSection,
+        onSetExtraFields,
+        onChangeDataValues
+
     };
 };
 

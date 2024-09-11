@@ -61,7 +61,7 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
 
 function createOptions(mode: string, PROJECT_CONFIG: ProjectConfig, framesToTest: string[], formValues: FormProcessing) {
     const { bboxPath, maskPath, directory, framesPath } = PROJECT_CONFIG;
-    const { artificialSeeding, clahe, clipLimit, grayscale, heightRoi, medianTestEpsilon, medianTestFiltering, medianTestThreshold, removeBackground, stdFiltering, stdThreshold, step1, step2 } = formValues;
+    const { artificialSeeding, clahe, clipLimit, grayscale, medianTestEpsilon, medianTestFiltering, medianTestThreshold, removeBackground, stdFiltering, stdThreshold, step1, step2 } = formValues;
 
     const options = [
         mode === 'test' ? 'piv-test' : 'piv-analyze',
@@ -88,8 +88,5 @@ function createOptions(mode: string, PROJECT_CONFIG: ProjectConfig, framesToTest
 
     return options.filter(item => item !== '');
 }
-
-
-
 
 export { getQuiver }

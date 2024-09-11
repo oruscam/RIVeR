@@ -12,13 +12,13 @@ interface FormPixelSizeProps {
     x: number,
     y: number
   },
-  extraFields: boolean,
 }
 
-export const FormPixelSize = ({onSubmit, onError, extraFields }: FormPixelSizeProps ) => {
+export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
     const { t } = useTranslation()
     const {sections, onUpdateSection} = useSectionSlice()
-
+    const { extraFields } = sections[0]
+    
     const { register} = useFormContext()
 
     const { onSetErrorMessage } = useUiSlice()

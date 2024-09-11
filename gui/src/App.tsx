@@ -5,9 +5,17 @@ import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
 import { Report } from './pages/Report'
+import { useProjectSlice, useSectionSlice } from './hooks'
 
 export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice()
+  const { sections, activeSection } = useSectionSlice();
+  const { video } = useProjectSlice();
+
+  console.log(video)
+  console.log(sections)
+
+  // console.log(sections[activeSection].data?.check)
   
  
   useEffect(() => {
@@ -30,8 +38,10 @@ export const App: React.FC = () => {
         {isLoading ? <Loading/> : <Step6/>}
         {isLoading ? <Loading/> : <Step7/>}
         {isLoading ? <Loading/> : <Step8/>}
+        <Report/>
       </Wizard>
-      {/* <Report/> */}
     </div>
   )
 }
+
+

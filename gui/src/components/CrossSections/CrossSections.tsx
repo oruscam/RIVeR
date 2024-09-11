@@ -3,25 +3,18 @@ import { FieldValues, FormProvider, useForm} from "react-hook-form"
 import { Sections } from "./Sections"
 import './crossSections.css'
 import { useSectionSlice, useUiSlice } from "../../hooks"
-import { EyeBall } from "./EyeBall"
 import { useWizard } from "react-use-wizard"
 import { useEffect, useState } from "react"
+import { Section } from "../../store/section/types"
+import { SectionsHeader } from "../SectionsHeader"
 
 
-interface Section {
-    name: string;
-    drawLine: boolean;
-    points: Point[];
-    bathimetry: Bathimetry
-    pixelSize: PixelSize
-    realWorld: Point[];
-}
 
 const createInitialState = (sections: Section[]) => {
     let defaultValues = {};
   
-    sections.forEach((section) => {
-        if ( section.name !== 'pixel_size'){
+    sections.forEach((section, index) => {
+        if ( index !== 0){
             const {name, points, realWorld, pixelSize, bathimetry} = section
             const baseKey = name;
             defaultValues = {
@@ -29,6 +22,7 @@ const createInitialState = (sections: Section[]) => {
                 [`${baseKey}_CS_LENGTH`]: pixelSize.rw_length,
                 [`${baseKey}_CS_BATHIMETRY`]: undefined,
                 [`${baseKey}_LEVEL`]: bathimetry.level,
+                [`${baseKey}_LEFT_BANK`]: bathimetry.leftBank,
                 [`${baseKey}_EAST_Left`]: realWorld[0].x.toFixed(2),
                 [`${baseKey}_NORTH_Left`]: realWorld[0].y.toFixed(2),
                 [`${baseKey}_EAST_Right`]: realWorld[1].x.toFixed(2),
@@ -83,6 +77,7 @@ export const CrossSections = () => {
     }, [deletedSections])
 
     // * Actualiza el formulario
+    
     useEffect(() => {
         methods.reset(createInitialState(sections))
     }, [sections[activeSection]])
@@ -90,22 +85,17 @@ export const CrossSections = () => {
 
     return (
         <>
-            <div className="sections-header">        
-                <EyeBall></EyeBall>              
-                <h1 className="sections-title"> Cross Sections </h1>
-                <span></span>
-            </div>
+            <SectionsHeader title='Cross Sections'></SectionsHeader>
             <Sections setDeletedSections={setDeletedSections} canEdit={true} ></Sections>
             <FormProvider {...methods}>
             {
                 sections.map((section, index: number) => {
-                    if ( index >= 1 ) {
-                        return (
-                            <FormCrossSections key={section.name} onSubmit={methods.handleSubmit(onSubmit, onError)} name={section.name} index={index}/>
-                        )
-                    } else {
-                        return null;
-                    }
+                    if ( index === 0 ) return null
+                     
+                    return (
+                        <FormCrossSections key={section.name} onSubmit={methods.handleSubmit(onSubmit, onError)} name={section.name} index={index}/>
+                    )
+
                 })
             }
             </FormProvider>

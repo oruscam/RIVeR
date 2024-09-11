@@ -1,15 +1,23 @@
 import './form.css'
 import { useDataSlice } from '../../hooks'
+import { useState } from 'react'
 
 export const FormAnalizing = () => {
     const { onSetQuiverAll, processing, onKillBackend } = useDataSlice()
+    const [ showMessage, setShowMessage ] = useState(false)
 
     const handleAnalize = () => {
         onSetQuiverAll();
     }
 
-    const handleStop = () => {
-        onKillBackend();
+    const handleStop = async() => {
+        const state = await onKillBackend();
+        if(state){
+            setShowMessage(true)
+            setTimeout(() => {
+                setShowMessage(false)
+            }, 3000)
+        }
     }
 
   return (
@@ -27,8 +35,7 @@ export const FormAnalizing = () => {
                 </button>
                 <span className='read-only bg-transparent'></span>
             </div>
-            
-
+            { showMessage && <h4 id='analize-message' className='mt-3'> piv analysis was successfully canceled</h4>}
             <button id='stop-analize' className={`danger-button  'danger-button-active' : ''}`} onClick={handleStop}> Stop</button>
         </div>
     </>

@@ -8,10 +8,10 @@ type Props = {
   canFollow?: boolean;
   formId?: string;
   button?: boolean;
-  onClick: () => void;
+  onClickNext: () => void;
 };
 
-export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClick }: Partial<Props> = {}) => {
+export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClickNext }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep } = useWizard();
   const { onSetActiveSection } = useSectionSlice()
   const { onClearQuiver } = useDataSlice()
@@ -39,6 +39,7 @@ export const WizardButtons = ({ canFollow = true, formId = '', button = false, o
     }
   }
 
+
   return (
     <div className='wizard-container'>
       <button
@@ -53,7 +54,7 @@ export const WizardButtons = ({ canFollow = true, formId = '', button = false, o
         className='wizard-button button-1'
         disabled={!canFollow}
         form={formId}
-        onClick={onClick}
+        onClick={onClickNext}
         type={ button ? "button" : "submit"}
         id='wizard-next'
       >

@@ -30,9 +30,9 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
 
   // * Funcion para obtener la posicion del mouse en el canvas, en relacion a la imagen y al Zoom.
   const getRelativePointerPosition = (node: any) => {
-    var transform = node.getAbsoluteTransform().copy();
+    const transform = node.getAbsoluteTransform().copy();
     transform.invert();
-    var pos = node.getStage().getPointerPosition();
+    const pos = node.getStage().getPointerPosition();
     return transform.point(pos);
   }
   
@@ -94,7 +94,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
       if (!mousePressed) return;
       const stage = event.target.getStage();
       const pointerPosition = getRelativePointerPosition(stage);
-      let newPoints = [...localPoints]
+      const newPoints = [...localPoints]
       newPoints.push(pointerPosition)
 
       setLocalPoints(newPoints);
@@ -113,7 +113,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
 
     useEffect(() => {
       if(points.length !== 0){
-        let newPoints = points.map(point => {
+        const newPoints = points.map(point => {
           return {
             x: point.x / factor.x,
             y: point.y / factor.y

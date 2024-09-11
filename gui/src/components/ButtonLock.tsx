@@ -1,16 +1,20 @@
+import { useSectionSlice } from "../hooks"
 
 interface ButtonLockProps {
-    extraFields: boolean,
-    setExtraFields: React.Dispatch<React.SetStateAction<boolean>>,
+    localExtraFields?: boolean;
+    localSetExtraFields?: any;
     footerElementID: string,
     headerElementID: string,
     disabled: boolean,
 }
 
 
-export const ButtonLock = ({extraFields, setExtraFields, footerElementID = '', headerElementID = '', disabled }: ButtonLockProps) => {
+export const ButtonLock = ({localExtraFields, localSetExtraFields, footerElementID = '', headerElementID = '', disabled}: ButtonLockProps) => {
+    const { onSetExtraFields, sections, activeSection } = useSectionSlice();
+    const { extraFields } = sections[activeSection]
+    
     const handleOnChange = () => {
-        if(extraFields){
+        if(extraFields  || localExtraFields){
             const headerElement = document.getElementById(headerElementID)
             headerElement?.scrollIntoView({behavior: "smooth"})
         }else{
@@ -20,13 +24,18 @@ export const ButtonLock = ({extraFields, setExtraFields, footerElementID = '', h
 
             }, 50)
         }
-        setExtraFields(!extraFields)
+
+        if ( localSetExtraFields ) {
+            localSetExtraFields(!localExtraFields)
+        } else (
+            onSetExtraFields()
+        )
     }
 
-    
+
   return (
     <div className="btn-lock-container">
-        <input id="inpLock" type="checkbox" defaultChecked onChange={handleOnChange} disabled={disabled}/>
+        <input id="inpLock" type="checkbox" defaultChecked={!extraFields} onChange={handleOnChange} disabled={disabled}/>
         <label className="btn-lock" htmlFor="inpLock">
             <svg width="36" height="40" viewBox="0 0 36 40">
                 <path className="lockb" d="M27 27C27 34.1797 21.1797 40 14 40C6.8203 40 1 34.1797 1 27C1 19.8203 6.8203 14 14 14C21.1797 14 27 19.8203 27 27ZM15.6298 26.5191C16.4544 25.9845 17 25.056 17 24C17 22.3431 15.6569 21 14 21C12.3431 21 11 22.3431 11 24C11 25.056 11.5456 25.9845 12.3702 26.5191L11 32H17L15.6298 26.5191Z"></path>

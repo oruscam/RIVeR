@@ -3,14 +3,32 @@ import { useDataSlice } from "../../hooks"
 
 export const HardModeProcessing = () => {
   const { register } = useFormContext() 
-  const { processing, onUpdateProcessing } = useDataSlice()
-  const { medianTestFiltering, medianTestEpsilon, medianTestThreshold, clahe, clipLimit, stdFiltering } = processing.form
+  const { processing, onUpdateProcessing, onReCalculateMask } = useDataSlice()
+  const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form
+
+  const handleHeightRoiInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
+      if((event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" || event.type === "blur"){
+          event.preventDefault()
+          const value = parseInt((event.target as HTMLInputElement).value)
+          if ( value !== heightRoi){
+            onReCalculateMask(value)
+            onUpdateProcessing({heightRoi: value})
+            document.getElementById('processing-HEADER')?.focus()
+          }
+          
+      }  
+  }
 
   return (
     <div className="hard-mode-processing mt-5" id="processing-HARD_MODE">
         <div className="input-container mb-2">
             <label className="read-only me-1">ROI height</label>
-            <input className="input-field" {...register('roi_height')}></input>
+            <input 
+              className="input-field" 
+              {...register('roi_height')}
+              onKeyDown={(event) => handleHeightRoiInput(event)}
+              onBlur={(event) => handleHeightRoiInput(event)}
+            ></input>
         </div>
 
         <h2 className="field-title mb-1"> Pre-Processing filtering</h2>

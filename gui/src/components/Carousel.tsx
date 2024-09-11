@@ -50,7 +50,7 @@ export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, se
 
 
     return (
-        <div className={`carousel-container mt-1 ${activeStep === ANALIZING_STEP_NUMBER && !quiver ? 'disabled' : ''}`}>
+        <div className={`carousel-container mt-1 ${activeStep === ANALIZING_STEP_NUMBER && !quiver || isBackendWorking ? 'disabled' : ''}`}>
             <div className='carousel-info'>                
                 <input value={defaultValue} onChange={handleInputChange} onKeyDown={handleKeyDown} disabled={isBackendWorking}></input>
                 <p> / { paths.length - 1 } </p>

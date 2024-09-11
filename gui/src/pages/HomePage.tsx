@@ -9,19 +9,20 @@ import { useProjectSlice, useUiSlice } from '../hooks';
 export const HomePage: React.FC = () => {
   const { t } = useTranslation();
   const { nextStep, goToStep } = useWizard();
-  const { onLoadProject } = useProjectSlice();
+  const { onLoadProject, onClickFinish } = useProjectSlice();
   const { onSetErrorMessage, error} = useUiSlice();
 
   const handleNewProjectClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     if( event.currentTarget.id === 'new-project'){
       nextStep();
     }else{
-      const result = await onLoadProject();
-      if( typeof result === 'number'){
-        goToStep(result)
-      } else {
-        onSetErrorMessage(result)
-      }
+      onClickFinish()
+      // const result = await onLoadProject();
+      // if( typeof result === 'number'){
+      //   goToStep(result)
+      // } else {
+      //   onSetErrorMessage(result)
+      // }
     }
   };
 
@@ -37,7 +38,7 @@ export const HomePage: React.FC = () => {
       { error && <h4 className='home-page-error'> {error} </h4>}
 
       <LanguageSelector />
-      <ThemeToggle />
+      {/* <ThemeToggle /> */}
     </div>
   );
 };

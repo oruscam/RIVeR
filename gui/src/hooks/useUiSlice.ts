@@ -32,24 +32,25 @@ export const useUiSlice = () => {
      */
 
     const onSetErrorMessage = (error: Record<string, { type: string, message: string } | string>) => {
-        if(typeof error === 'string'){
+        if (typeof error === 'string') {
             dispatch(setErrorMessage([error]));
         } else {
             let arrayOfErrors: string[] = [];
-            if( error !== undefined) {
+            if (error !== undefined) {
                 Object.entries(error).every(([, value]) => {
                     if (typeof value === 'string') {
                         arrayOfErrors.push(value);
-                    } else if (value.type === 'required') {
+                    } else if (value && value.type === 'required') {
                         arrayOfErrors = [value.message];
                         return false;
-                    } else {
+                    } else if (value) {
                         arrayOfErrors.push(value.message);
                     }
+                    return true;
                 });
                 dispatch(setErrorMessage(arrayOfErrors));
             }
-            }
+        }
         setTimeout(() => {
             dispatch(clearErrorMessage());
         }, 4000);

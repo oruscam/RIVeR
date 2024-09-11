@@ -43,7 +43,7 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
     const handleDragPoint = (event: any, index: number) => {
         if( draggable === false ) return; 
         if( setLocalPoints ){
-            let newPoints = [...localPoints];
+            const newPoints = [...localPoints];
             newPoints[index] = { x: event.target.x(), y: event.target.y() };
             setLocalPoints(newPoints);
             onSetPoints({points: newPoints, factor, index}, null)
