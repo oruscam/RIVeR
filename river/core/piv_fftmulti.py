@@ -93,7 +93,7 @@ def piv_fftmulti(
 	    Contains xtable, ytable, utable, vtable, typevector, gradient_sum_result representing the displacement vectors on the grid.
 	"""
 	if interrogation_area_2 is None:
-		int2 = interrogation_area_1 / 2
+		interrogation_area_2 = interrogation_area_1 / 2
 	if step is None:
 		step = interrogation_area_1 / 2
 
@@ -163,7 +163,7 @@ def piv_fftmulti(
 
 	# Perform a second pass if multipass is True
 	if multipass:
-		interrogation_area_1 = int(round(int2 / 2) * 2)
+		interrogation_area_1 = int(round(interrogation_area_2 / 2) * 2)
 		half_ia = math.ceil(interrogation_area_1 / 2)
 		step = half_ia
 

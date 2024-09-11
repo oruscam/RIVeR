@@ -133,3 +133,45 @@ def transform_real_world_to_pixel(x_rw: float, y_rw: float, transformation_matri
 	real_world_vector = np.array([x_rw, y_rw, 1])
 	pixel_vector = np.dot(inv_transformation_matrix, real_world_vector)
 	return pixel_vector[:2]
+
+
+def convert_displacement_field(
+	X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray, transformation_matrix: np.ndarray
+) -> tuple:
+	"""
+	Convert pixel displacement field to real-world displacement field.
+
+	Parameters:
+	    X, Y (2D np.ndarray): Pixel coordinates.
+	    U, V (2D np.ndarray): Pixel displacements.
+	    transformation_matrix (np.ndarray): Transformation matrix from pixel to real-world coordinates.
+
+	Returns:
+	    EAST, NORTH, Displacement_EAST, Displacement_NORTH (all 2D np.ndarrays): Real-world coordinates and displacements.
+	"""
+	# Get the shape of the input matrices
+	rows, cols = X.shape
+
+	# Initialize the output matrices
+	EAST = np.zeros((rows, cols))
+	NORTH = np.zeros((rows, cols))
+	Displacement_EAST = np.zeros((rows, cols))
+	Displacement_NORTH = np.zeros((rows, cols))
+
+	# Iterate through each point in the matrices
+	for i in range(rows):
+		for j in range(cols):
+			# Convert pixel coordinates (X, Y) to real-world coordinates (EAST, NORTH)
+			east_north = transform_pixel_to_real_world(X[i, j], Y[i, j], transformation_matrix)
+			EAST[i, j], NORTH[i, j] = east_north
+
+			# Convert the displaced pixel coordinates (X + U, Y + V) to real-world coordinates
+			displaced_east_north = transform_pixel_to_real_world(
+				X[i, j] + U[i, j], Y[i, j] + V[i, j], transformation_matrix
+			)
+
+			# Calculate the real-world displacement
+			Displacement_EAST[i, j] = displaced_east_north[0] - east_north[0]
+			Displacement_NORTH[i, j] = displaced_east_north[1] - east_north[1]
+
+	return EAST, NORTH, Displacement_EAST, Displacement_NORTH
