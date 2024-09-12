@@ -738,7 +738,7 @@ def update_current_x_section(
 	interpolate: bool = False,
 ) -> dict:
 	"""
-	Update the current cross-section with the PIV results and other parameters.
+	Enrich the cross-section data with the PIV results and other parameters.
 
 	Parameters:
 	    x_sections (dict): Dict containing cross-section data.
