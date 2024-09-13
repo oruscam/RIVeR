@@ -855,7 +855,8 @@ def update_current_x_section(
 	table_results["average_depth"] = average_depth
 
 	# Calculate mean velocities
-	table_results["mean_V"] = total_q / total_a
+	with np.errstate(divide="ignore"):
+		table_results["mean_V"] = total_q / total_a
 	table_results["mean_Vs"] = (
 		np.nanmean(table_results["filled_streamwise_magnitude"])
 		if interpolate
