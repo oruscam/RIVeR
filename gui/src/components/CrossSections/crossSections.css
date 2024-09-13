@@ -47,7 +47,7 @@
     border-top: solid 1px ;
     border-left: solid 1px ;
     border-right: solid 1px ;
-    border-bottom: solid 1px var(--secondary-background-color);
+    border-bottom: solid 2px var(--secondary-background-color);
     flex-shrink: 0;
 }
 

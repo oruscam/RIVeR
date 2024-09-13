@@ -1,12 +1,11 @@
 import { csv, tsv } from 'd3' 
 
-
-
-const bathParser = async (path: string | Blob, type: string): Promise<{x: number, y: number}[] | undefined> => {
+const bathParser = async (path: string, type: string): Promise<{x: number, y: number}[] | undefined> => {
     let parser = csv;
     if(type === 'tsv'){
         parser = tsv;
     }
+
 
     try {
         const data = await parser(path);
@@ -22,9 +21,8 @@ const bathParser = async (path: string | Blob, type: string): Promise<{x: number
             console.error('No se encontraron datos válidos en el archivo CSV.')
             return undefined;
         }
-        
-        return processedData;
 
+        return processedData;
     } catch (error) {
         console.log(error)
     }

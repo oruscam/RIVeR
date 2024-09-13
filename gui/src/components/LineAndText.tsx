@@ -41,7 +41,7 @@ export const LineAndText = ({imagePoints, name, isPixelSize}: LineAndTextProps) 
         <Line
             points={[imagePoints[0].x, imagePoints[0].y, imagePoints[1].x, imagePoints[1].y]}
             stroke={lineColor}
-            strokeWidth={1.3}
+            strokeWidth={4}
             lineCap="round"
         />
         {

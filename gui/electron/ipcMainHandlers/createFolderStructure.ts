@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path'
 
 
-export async function createFolderStructure (newDirPath: string, type: string, videoPath: string, videoName: string,  result: { width: number; height: number; fps: number; duration: string }) {
+async function createFolderStructure (newDirPath: string, type: string, videoPath: string, videoName: string,  result: { width: number; height: number; fps: number; duration: string }) {
 
     try {
         await fs.promises.access(newDirPath, fs.constants.F_OK);
@@ -66,3 +66,5 @@ function getFormattedDate() {
 
   return `${year}${month}${day}T${hours}${minutes}`;
 }
+
+export { createFolderStructure}

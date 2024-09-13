@@ -5,7 +5,7 @@ import { getVideoMetadata } from "./utils/getVideoMetadata";
 import { ProjectConfig } from "./interfaces";
 
 
-export function loadProject(PROJECT_CONFIG: ProjectConfig){
+function loadProject(PROJECT_CONFIG: ProjectConfig){
     const options: Electron.OpenDialogOptions = {
         properties: ['openDirectory'],
     }
@@ -87,3 +87,5 @@ export function loadProject(PROJECT_CONFIG: ProjectConfig){
         }
     });
 }
+
+export { loadProject }

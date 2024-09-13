@@ -61,7 +61,7 @@ export const VelocityVector = ({ height, width, factor }: VelocityVectorProps ) 
                     .attr('x2', (d, i) => (d.x - (displacementXFiltered[i]) * VECTOR_FACTOR) / factor.x)
                     .attr('y2', (d,i) => (d.y - (displacementYFiltered[i]) * VECTOR_FACTOR)/ factor.y)
                     .attr('stroke', d => d.color)
-                    .attr('stroke-width', 2)
+                    .attr('stroke-width', 2.8)
                     .attr('marker-end', (_d, i) => `url(#arrow-${sectionIndex}-${i})`);
 
                 vectors.forEach((vector, index) => {

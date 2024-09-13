@@ -2,10 +2,9 @@ import { ipcMain } from "electron";
 import { createFolderStructure } from "./createFolderStructure";
 import * as path from 'path'
 import { getVideoMetadata } from "./utils/getVideoMetadata";
-import { ProjectConfig } from "./interfaces";
+import { ProjectConfig } from "./interface";
 
-
-export function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
+function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
     ipcMain.handle('init-project', async( _event, arg: {path: string, name: string, type: string}) => {
         console.log("Event video-metadata en main" , arg)
         const [ videoName ] = arg.name.split('.');
@@ -34,4 +33,4 @@ export function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
     )
 }
 
-
+export { initProject }

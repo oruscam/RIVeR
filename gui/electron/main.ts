@@ -9,7 +9,7 @@ const userDir = os.homedir();
 
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
-import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver, getVideo} from './ipcMainHandlers/index.js'
+import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver, getVideo, getBathimetry} from './ipcMainHandlers/index.js'
 import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
 import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
 import { getResultData } from './ipcMainHandlers/getResultData.js'
@@ -179,6 +179,7 @@ app.whenReady().then(() => {
   getQuiver(PROJECT_CONFIG);
   getImages(PROJECT_CONFIG);
   getResultData(PROJECT_CONFIG);
+  getBathimetry();
 
   ipcMain.handle('open-modal-window', async (event, args) => {
     const result = createModalWindow(args.creationDate);

@@ -9,7 +9,7 @@ export const VideoInfo = () => {
 
   return (
     <>
-        <h2 className='report-title-field mt-3'> Video Information </h2>      
+        <h2 className='report-title-field mt-2'> Video Information </h2>      
         <div id='report-video-info-container'>
           <div className='report-grid-1'>
             <div className='report-info-item'><span>Name</span></div>

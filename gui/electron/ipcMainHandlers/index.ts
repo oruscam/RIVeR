@@ -9,18 +9,20 @@ import { setSections } from "./setSections";
 import { firstFrame } from "./firstFrame";
 import { getQuiver } from "./getQuiver";
 import { getVideo } from "./getVideo";
+import { getBathimetry } from "./getBathimety";
 
 
 export {
     createFolderStructure,
+    firstFrame,
+    getBathimetry,
     getImages,
+    getQuiver,
+    getVideo,
     initProject,
     loadProject,
     pixelSize,
+    pixelToRealWorld,
     realWorldToPixel,
     setSections,
-    firstFrame,
-    pixelToRealWorld,
-    getQuiver,
-    getVideo
 }

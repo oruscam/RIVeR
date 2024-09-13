@@ -20,7 +20,7 @@ const createInitialState = (sections: Section[]) => {
             defaultValues = {
                 ...defaultValues,
                 [`${baseKey}_CS_LENGTH`]: pixelSize.rw_length,
-                [`${baseKey}_CS_BATHIMETRY`]: undefined,
+                [`${baseKey}_CS_BATHIMETRY`]: bathimetry.path,
                 [`${baseKey}_LEVEL`]: bathimetry.level,
                 [`${baseKey}_LEFT_BANK`]: bathimetry.leftBank,
                 [`${baseKey}_EAST_Left`]: realWorld[0].x.toFixed(2),

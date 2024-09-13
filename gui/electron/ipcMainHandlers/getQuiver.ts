@@ -8,6 +8,8 @@ import { FormProcessing } from "../../src/store/data/types";
 async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
     ipcMain.handle('get-quiver-test', async (_event, args) => {
         const { framesToTest, formValues } = args
+
+        console.log(formValues)
         
         const options = createOptions('test', PROJECT_CONFIG, framesToTest, formValues)
         console.log(options)
@@ -69,8 +71,8 @@ function createOptions(mode: string, PROJECT_CONFIG: ProjectConfig, framesToTest
         mode !== 'test' ? directory : '',
         '--bbox', bboxPath,
         '--mask', maskPath,
-        // '--interrogation-area-1', step1,
-        // '--interrogation-area-2', step2,
+        '--interrogation-area-1', step1,
+        '--interrogation-area-2', step1 / 2,
         stdFiltering ? '--standard-threshold' : '--no-standard-filter',
         stdFiltering ? stdThreshold : '',
         medianTestFiltering ? '--epsilon' : '--no-median-test-filter',

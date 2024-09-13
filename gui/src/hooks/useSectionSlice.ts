@@ -11,6 +11,7 @@ import { FieldValues } from 'react-hook-form';
 import { convertInputData } from '../helpers/convertInputData';
 import { computePixelSize } from '../helpers';
 import { setImages, setProcessingMask, updateProcessingForm } from '../store/data/dataSlice';
+import bathParser from '../helpers/bathimetryParser';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -374,7 +375,6 @@ export const useSectionSlice = () => {
 
     const onUpdateSection = ( value: Update ) => {
         const section = sections[activeSection]
-
         if( value.drawLine ){
             dispatch(updateSection({...section, drawLine: !section.drawLine, points: [], pixelSize: {
                 rw_length: 0,
@@ -389,12 +389,11 @@ export const useSectionSlice = () => {
         } else if( value.sectionName ){
             dispatch(updateSection({...section, name: value.sectionName }))
         } else if( value.file ){
-            console.log(value.file)
-            const blob = URL.createObjectURL(value.file)
-            dispatch(updateSection({...section, bathimetry: {blob: blob, path: value.file.path, level: 0, name: value.file.name,}}))
+            dispatch(updateSection({...section, bathimetry: {path: value.file.path, level: 0, name: value.file.name,}}))
         } else if( value.level ){
             dispatch(updateSection({...section, bathimetry: {...section.bathimetry, level: value.level}}))
-        } else if ( value.leftBank ){
+        } else if ( value.leftBank !== null && value.leftBank !== undefined ){
+            console.log('left-bank value', value.leftBank)
             dispatch(updateSection({...section, bathimetry: {...section.bathimetry, leftBank: parseFloat(value.leftBank.toFixed(2))}}))
         }
     }
@@ -425,7 +424,7 @@ export const useSectionSlice = () => {
             },
             pixelSize: {size: 0, rw_length: 0},
             realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
-            extraFields: false
+            extraFields: false,
         }
         dispatch(addSection(section))
     }
@@ -455,12 +454,41 @@ export const useSectionSlice = () => {
 
     const onChangeDataValues = ( object : ChangeDataValues ) => {
         const { data } = sections[activeSection]
-        if ( object.type === 'check' && data){
+        if ( object.type === 'check' && data && object.rowIndex !== undefined){
             const { check } = data
             const updatedCheck = [...check];
             updatedCheck[object.rowIndex] = !check[object.rowIndex];
             
             dispatch(changeSectionData({...data, check: updatedCheck}));
+        }
+        if ( object.type === 'showVelocityStd' ){
+            if( data ){
+                dispatch(changeSectionData({...data, showVelocityStd: !data.showVelocityStd}));
+            }
+        }
+        if ( object.type === 'show95Percentile' ){
+            if( data ){
+                dispatch(changeSectionData({...data, show95Percentile: !data.show95Percentile}));
+            }
+        }
+    
+    }
+
+    const onGetBathimetry = async () => {
+        const ipcRenderer = window.ipcRenderer;
+
+        try {
+            const data = await ipcRenderer.invoke('get-bathimetry')
+
+            if ( data.path !== "" && data.path !== sections[activeSection].bathimetry.path){
+                const result = await bathParser('/@fs' + data.path, data.type)
+
+                dispatch(updateSection({...sections[activeSection], bathimetry: {path: data.path, level: 0, name: data.name, line: result}}))
+            }
+
+        } catch (error) {
+            console.log(error)
+            dispatch(updateSection({...sections[activeSection], bathimetry: {path: "", level: 0, name: ""}}))
         }
     }
 
@@ -479,7 +507,8 @@ export const useSectionSlice = () => {
         onSetRealWorld,
         onUpdateSection,
         onSetExtraFields,
-        onChangeDataValues
+        onChangeDataValues,
+        onGetBathimetry
 
     };
 };

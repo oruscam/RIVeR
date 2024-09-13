@@ -1,7 +1,6 @@
 import { useFormContext } from "react-hook-form";
 import { useSectionSlice } from "../../hooks";
-import { Bathimetry } from "../Graphs"
-import { VelocityAndDischarge } from "../Graphs/VelocityAndDischarge"
+import { AllInOne } from "../Graphs/AllInOne"
 import { Grid } from "../index"
 
 interface FormResultProps {
@@ -10,9 +9,18 @@ interface FormResultProps {
 }
 
 export const FormResults = ({ onSubmit, index } : FormResultProps) => {
-  const { register, getValues } = useFormContext();
-  const { sections, activeSection } = useSectionSlice();
+  const { register } = useFormContext();
+  const { sections, activeSection, onChangeDataValues } = useSectionSlice();
   const { name, data } = sections[activeSection]
+
+  const handleOnChangeShowVelocityStd = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const id = e.target.id
+    if ( id === 'show-95-percentile' ) {
+      onChangeDataValues({ type: 'show95Percentile' })
+    } else if ( id === 'show-velocity-std' ){
+      onChangeDataValues({ type: 'showVelocityStd' })
+    }
+  }
   
 
   return (
@@ -36,9 +44,10 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
             {...register(`${name}_ALPHA`)}
           ></input>
         </div>
-
-        <VelocityAndDischarge></VelocityAndDischarge>
-        <Bathimetry lineColor="white" showLeftBank={false} ></Bathimetry>
+        
+        <div style={{ width: '100%', height: '800px'}}>
+          <AllInOne isReport={false}></AllInOne>
+        </div>
 
 
         <span className="mt-1"></span>
@@ -52,7 +61,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         <div className="switch-container-2 mt-1 ">
           <h3 className="field-title"> Show Vel.std </h3>
           <label className="switch">
-            <input type="checkbox" {...register(`${name}_SHOW_VELOCITY_STD`)} defaultChecked={getValues(`${name}_SHOW_VELOCITY_STD`)}/>
+            <input type="checkbox" {...register(`${name}_SHOW_VELOCITY_STD`)} defaultChecked={data?.showVelocityStd} onChange={handleOnChangeShowVelocityStd} id="show-velocity-std"/>
             <span className="slider"></span>
           </label>
         </div>
@@ -60,7 +69,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         <div className="switch-container-2 mt-1 ">
           <h3 className="field-title"> Show 5% | 95% </h3>
           <label className="switch">
-            <input type="checkbox" {...register(`${name}_SHOW_95_PERCENTILE`)} defaultChecked={getValues(`${name}_SHOW_95_PERCENTILE`)}/>
+            <input type="checkbox" {...register(`${name}_SHOW_95_PERCENTILE`)} defaultChecked={data?.show95Percentile} onChange={handleOnChangeShowVelocityStd} id="show-95-percentile"/>
             <span className="slider"></span>
           </label>
         </div>
@@ -68,13 +77,12 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         <div className="switch-container-2 mt-1 ">
           <h3 className="field-title"> Interpolate profile </h3>
           <label className="switch">
-            <input type="checkbox" {...register(`${name}_SHOW_INTERPOLATE_PROFILE`)} defaultChecked={getValues(`${name}_SHOW_INTERPOLATE_PROFILE`)}/>
+            <input type="checkbox" {...register(`${name}_SHOW_INTERPOLATE_PROFILE`)} defaultChecked={data?.showInterpolateProfile}/>
             <span className="slider"></span>
           </label>
         </div>
 
-        
-
+      
         <Grid></Grid>
         <span className="space3 mt-2"></span>
       </form>

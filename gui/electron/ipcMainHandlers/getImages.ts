@@ -4,7 +4,7 @@ import * as path from 'path'
 import { ProjectConfig } from "./interfaces";
 
 
-export function getImages(PROJECT_CONFIG: ProjectConfig) {
+function getImages(PROJECT_CONFIG: ProjectConfig) {
     ipcMain.handle('get-images', async (_event, _args) => {
         const { framesPath } = PROJECT_CONFIG
         try {
@@ -20,3 +20,6 @@ export function getImages(PROJECT_CONFIG: ProjectConfig) {
     }
     )
 }   
+
+
+export { getImages }

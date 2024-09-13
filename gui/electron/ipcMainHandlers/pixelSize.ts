@@ -4,7 +4,7 @@ import * as path from 'path'
 import { ProjectConfig, pixelSizeHandleArgs } from "./interfaces";
 import { executePythonShell } from "./utils/executePythonShell";
 
-export function pixelSize( PROJECT_CONFIG: ProjectConfig ) {
+function pixelSize( PROJECT_CONFIG: ProjectConfig ) {
     ipcMain.handle('pixel-size', async (_event, args: pixelSizeHandleArgs) => {
         console.log('En pixel-size event', args);
         const { directory, settingsPath } = PROJECT_CONFIG;
@@ -72,3 +72,5 @@ function createUavMatrix(message: string, directory: string): Promise<string>{
         });
     })
 }
+
+export { pixelSize }

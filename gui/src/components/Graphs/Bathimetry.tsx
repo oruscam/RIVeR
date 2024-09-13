@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { useSectionSlice, useUiSlice } from '../../hooks';
 import getBathimetryLimits from '../../helpers/getBathimetryLimits';
-import bathParser from '../../helpers/bathimetryParser';
 import { createBathymetryChart } from './bathimetrySvg';
 import * as d3 from 'd3';
 
 interface BathimetryProps {
     setBathimetryLimits?: (limits: { min: number, max: number }) => void;
+    bathimetryLimits?: { min: number, max: number };
     lineColor: string;
     leftBank?: number;
     showLeftBank: boolean;
@@ -15,47 +15,44 @@ interface BathimetryProps {
     drawGrid?: boolean;
 }
 
-export const Bathimetry = ({ setBathimetryLimits, lineColor, leftBank, showLeftBank, width = 450, height = 250, drawGrid = true }: BathimetryProps) => {
+export const Bathimetry = ({ setBathimetryLimits, bathimetryLimits, leftBank, showLeftBank, width = 500, height = 320, drawGrid = true }: BathimetryProps) => {
     const { sections, activeSection, onUpdateSection } = useSectionSlice()
     const { onSetErrorMessage } = useUiSlice(); 
-    const { blob, level, path } = sections[activeSection].bathimetry;
+    const { level, path, line } = sections[activeSection].bathimetry;
+    const {rw_length} = sections[activeSection].pixelSize;
     const svgRef = useRef<SVGSVGElement>(null);
     
 
-    const data = useMemo(() => {
-        if(path !== '' || blob !== ''){
-            return bathParser(blob ? blob : path, 'csv')
-        }
-        return null
-    }, [path, blob]);
-
-
-
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
-        if ( data ) {
-            data.then(data => {
-                if(setBathimetryLimits){
-                    const { max, min } = getBathimetryLimits(data || []);
-                    setBathimetryLimits({ min, max });
-                }
-                if (svgRef.current) {
-                    const { intersectionX, error  } = createBathymetryChart(svgRef.current, data, level, lineColor, showLeftBank, drawGrid, leftBank);
-    
-                    if( intersectionX ){
-                        onUpdateSection({ leftBank: intersectionX });
-                    }   
-                    if ( error !== '' ){
-                        onSetErrorMessage({error});
-                    }
-                }
+        if ( line ) {
+            if(setBathimetryLimits && bathimetryLimits?.max === bathimetryLimits?.min){ 
+                const { max, min } = getBathimetryLimits(line);
+                setBathimetryLimits({ min, max });
+            }
+            if (svgRef.current) {
+                const { intersectionX, error  } = createBathymetryChart({
+                    svgElement: svgRef.current,
+                    data: line,
+                    level,
+                    showLeftBank,
+                    drawGrid,
+                    leftBank,
+                    rightBank: rw_length,
+                });
 
-            })
+                if( intersectionX ){
+                    onUpdateSection({ leftBank: intersectionX });
+                }   
+                if ( error !== '' ){
+                    onSetErrorMessage({error});
+                }
+            }
         }
-    }, [data, level, leftBank])
+    }, [path, line, level, leftBank, rw_length])
 
     return (
-        <div className={`graph-container ${path === '' && blob === '' ? 'hidden' : ''}`}>
+        <div className={`${path === '' ? 'hidden' : ''}`}>
             <svg ref={svgRef} id="bathimetry" width={width} height={height}></svg>
         </div>
     );

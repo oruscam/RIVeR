@@ -9,6 +9,7 @@ interface Limits {
 }
 
 const getBathimetryLimits = ( results: Bathimetry[]): Limits => {
+    console.log('bat linmitasd')
     const { xs, ys } = results.reduce((acc, { x, y }) => {
         if (x && y) {
             acc.xs.push(x);

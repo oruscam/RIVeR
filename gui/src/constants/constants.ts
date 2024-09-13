@@ -11,7 +11,7 @@ export const VIDEO_RANGE_STEP_NUMBER = 2
 
 
 /**
- * Constants for the steps in the wizard
+ * Steps in the wizard
  */
 export const STEP_8 = 7
 export const STEP_7 = 6
@@ -23,7 +23,7 @@ export const STEP_3 = 2
 
 
 /**
- * Constants for colors
+ * Colors
  */
 
 export const RED = '#ED6B57'
@@ -31,10 +31,23 @@ export const GREEN = '#62C655'
 export const YELLOW = '#F5BF61'
 export const BLUE = '#0678BE'
 export const WHITE = '#FFFFFF'
+export const TRANSPARENT_WHITE = 'rgba(255, 255, 255, 0.5)'
 
 
 /**
- * Constants for velocity vector
+ * Constants for GRAPHS
+ */
+
+export const PERCENTILE_AREA_COLOR = 'rgba(237, 107, 87, 40%)'
+export const STD_AREA_COLOR = 'rgba(51, 150, 191, 40%)'
+export const BAR_PADDING = 0.4
+
+
+
+
+
+/**
+ * Velocity Vector
  */
 
 export const VECTOR_FACTOR = 2.5

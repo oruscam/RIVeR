@@ -14,14 +14,14 @@ const createInitialState = (sections: Section[]) => {
         if ( index !== 0){
             if( section.data ){
                 const baseKey = section.name;
-                const { alpha, num_stations } = section.data;
+                const { alpha, num_stations, show95Percentile, showInterpolateProfile, showVelocityStd } = section.data;
                 defaultValues = {
                     ...defaultValues,
                     [`${baseKey}_ALPHA`]: alpha,
                     [`${baseKey}_STATIONS_NUMBER`]: num_stations,
-                    [`${baseKey}_SHOW_VELOCITY_STD`]: ['on'],
-                    [`${baseKey}_SHOW_95_PERCENTILE`]: ['on'],
-                    [`${baseKey}_SHOW_INTERPOLATE_PROFILE`]: ['on'],
+                    [`${baseKey}_SHOW_VELOCITY_STD`]: showVelocityStd ? ['on'] : ['off'],
+                    [`${baseKey}_SHOW_95_PERCENTILE`]: show95Percentile ? ['on'] : ['off'],
+                    [`${baseKey}_SHOW_INTERPOLATE_PROFILE`]: showInterpolateProfile ? ['on'] : ['off'],
                 };
             }
         }

@@ -53,7 +53,7 @@ export const useUiSlice = () => {
         }
         setTimeout(() => {
             dispatch(clearErrorMessage());
-        }, 4000);
+        }, 8000);
     };
 
     /**

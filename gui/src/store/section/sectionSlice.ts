@@ -2,33 +2,31 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { SectionState, PixelSize, Point, Section, SectionData } from './types';
 
 const defaultSections = [{
-    name: "pixel_size",
-    drawLine: false,
-    points: [],
-    bathimetry: {
-        blob: '',
-        level: 0,
-        path: '',
-        name: '',
-    },
-    pixelSize: {size: 0, rw_length: 0},
-    realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
-    extraFields: false
+        name: "pixel_size",
+        drawLine: false,
+        points: [],
+        bathimetry: {
+            level: 0,
+            path: '',
+            name: '',
+        },
+        pixelSize: {size: 0, rw_length: 0},
+        realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
+        extraFields: false
     },
     {
-    name: "CS_default_1",
-    drawLine: false,
-    points: [],
-    bathimetry: {
-        blob: '/@fs/home/tomy_ste/Desktop/XS1_DistElev.csv',
-        level: 0,
-        path: '/@fs/home/tomy_ste/Desktop/XS1_DistElev.csv',
-        // path: '',
-        name: '',
-    },
-    pixelSize: {size: 0, rw_length: 0},
-    realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
-    extraFields: false
+        name: "CS_default_1",
+        drawLine: false,
+        points: [],
+        bathimetry: {
+            level: 0,
+            path: '/@fs/home/tomy_ste/Desktop/XS1_DistElev.csv',
+            // path: '',
+            name: '',
+        },
+        pixelSize: {size: 0, rw_length: 0},
+        realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
+        extraFields: false,
     }
     
 ]
@@ -79,7 +77,13 @@ const sectionSlice = createSlice({
         },
         changeSectionData : (state, action: PayloadAction<SectionData>) => {
             state.sections[state.activeSection].data = action.payload;
+        },
+        setBathimetry: (state, action: PayloadAction<{path: string, name: string, data: Point[]}>) => {
+            state.sections[state.activeSection].bathimetry.path = action.payload.path;
+            state.sections[state.activeSection].bathimetry.name = action.payload.name;
+            state.sections[state.activeSection].bathimetry.line = action.payload.data;
         }
+        ,
 
     },
 });
@@ -93,7 +97,8 @@ export const {
     setPixelSize,
     updateSection,
     setSectionData,
-    changeSectionData
+    changeSectionData,
+    setBathimetry
  } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

@@ -33,19 +33,26 @@ export const FormProcessing = () => {
   const { register, handleSubmit, reset } = methods
 
 
-  const handleInputStep = ( event: React.KeyboardEvent<HTMLInputElement> |  React.FocusEvent<HTMLInputElement> ) => {
-    if((event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" || event.type === "blur"){
-        event.preventDefault()
-        const value = parseInt((event.target as HTMLInputElement).value)
-        if( value >= 64 && value <= 512 && (value & (value -1 )) === 0 ){
-            onUpdateProccesing({step1: value})
-            reset({step_1: value, step_2: value / 2})
-        } else{
-            reset({step_1: step1})
-            onSetErrorMessage({message: "Processing step must be a power of 2 between 64 and 512"})
-        }
-    } 
+  // const handleInputStep = ( event: React.KeyboardEvent<HTMLInputElement> |  React.FocusEvent<HTMLInputElement> ) => {
+  //   if((event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" || event.type === "blur"){
+  //       event.preventDefault()
+  //       const value = parseInt((event.target as HTMLInputElement).value)
+  //       if( value >= 64 && value <= 512 && (value & (value -1 )) === 0 ){
+  //           onUpdateProcessing({step1: value})
+  //           reset({step_1: value, step_2: value / 2})
+  //       } else{
+  //           reset({step_1: step1})
+  //           onSetErrorMessage({message: "Processing step must be a power of 2 between 64 and 512"})
+  //       }
+  //   } 
+  // }
+
+  const handleOnChangeSelect = ( event: React.ChangeEvent<HTMLSelectElement> ) => {
+    const value = parseInt(event.target.value)
+    onUpdateProcessing({step1: value})
+    reset({step_1: value, step_2: value / 2})
   }
+
   // * Simulacion de llamada a onTest
   const handleOnClickTest = ( event ) => {
     event.preventDefault()
@@ -80,13 +87,23 @@ export const FormProcessing = () => {
 
               <div className="input-container-2 mt-2">
                   <label className="read-only me-1" htmlFor="processing-STEP_1"> Step 1 </label>
-                  <input  className="input-field"
+                  <select className="input-field input-field-select"
+                    id="processing-STEP_1"
+                    {...register('step_1')}
+                    onChange={handleOnChangeSelect}
+                    >
+                      <option value="512">512</option>
+                      <option value="256">256</option>
+                      <option value="128">128</option>
+                      <option value="64">64</option>
+                  </select>
+                  {/* <input  className="input-field"
                           id="processing-STEP_1" 
                           type="number" 
                           {...register('step_1')}
                           onKeyDown={handleInputStep}
                           onBlur={handleInputStep}
-                          ></input>
+                          ></input> */}
               </div>
               <div className="input-container-2 mt-1">
                   <label className="read-only me-1" htmlFor="processing-STEP_2"> Step 2 </label>

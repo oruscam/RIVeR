@@ -59,7 +59,7 @@
     width: 100%;
     border: solid;
     border-radius: 20px;
-    margin-top: 25px;
+    margin-top: 20px;
 }
 
 .report-grid-1 {
@@ -97,7 +97,7 @@
     width: 100%;
     border: solid;
     border-radius: 20px;
-    margin-top: 25px;
+    margin-top: 20px;
     display: flex;
     flex-direction: column;
     padding-top: 10px;
@@ -106,7 +106,7 @@
 
 #report-carousel{
     align-self: center;
-    margin-top: 20px;
+    margin-top: 10px;
     width: 95%;
 }
 
@@ -141,6 +141,7 @@
     margin-top: 25px;
     background: linear-gradient(to right, #0678BE, #0A5A8A);    
     display: flex;
+    flex-direction: column;
     align-items: center;
     color: var(--primary-text-color);
     border-radius: 20px;
@@ -150,15 +151,23 @@
     padding-bottom: 10px;
 }
 
-
-
-
-#report-section-left-container{
-    width: 50%;
-    height: 100%;
-    padding-left: 90px;
-    padding-top: 30px;
+#report-section-top-container{
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
 }
+
+
+#report-section-top-left-container{
+    width: 50%;
+}
+
+#report-section-top-right-container{
+    margin-right: 60px;
+    margin-top: 10px;
+}
+
 
 #report-section-discharge-label{
     margin-top: 8px;
@@ -171,26 +180,17 @@
 }
 
 #report-section-img {
+    margin-top: 20px;
     width: 80%;
     height: auto;
     border-radius: 20px;
-    margin-left: 20px;
 }
 
-#report-section-left-container h4{
+#report-section-top-left-container h4{
     font-size: 16px;
     font-weight: 400;
 }
 
-#report-section-right-container{
-    width: 50%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    padding-right: 50px;
-    padding-top: 30px;
-}
 
 #report-section-velocity{
     margin-top: -70px;
@@ -208,16 +208,21 @@
 
 
 #report-section-table {
-    margin-top: 20px;
+    margin-top: 10px;
     text-align: center; /* Centra el contenido del contenedor */
-    width: 90%;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
 }
 
+
 #report-section-table table {
-    width: 100%;
+    width: 45%;
     border-collapse: collapse;
     margin: 0 auto; /* Centra la tabla horizontalmente */
 }
+
 
 #report-section-table th, #report-section-table td {
     border: none;
@@ -244,13 +249,17 @@
   
 #report-section-table th div:first-child {
     font-weight: bold;
-    font-size: 1.2em; /* Opcional: para resaltar la 'x' */
+    font-size: 1.5em; /* Opcional: para resaltar la 'x' */
  }
 
 #report-section-table th div:last-child {
-    font-size: 0.9em; /* Opcional: para hacer la 'm' más pequeña */
+    font-size: 1.1em; /* Opcional: para hacer la 'm' más pequeña */
     font-weight: 400;
     margin-top: 2px;
+}
+
+#report-section-table td {
+    font-size: 1.2em;
 }
 
 .mt--1{

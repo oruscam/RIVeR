@@ -3,7 +3,7 @@ import { ProjectConfig } from "./interfaces";
 import { executePythonShell } from "./utils/executePythonShell";
 
 
-export async function realWorldToPixel(PROJECT_CONFIG: ProjectConfig){
+async function realWorldToPixel(PROJECT_CONFIG: ProjectConfig){
     ipcMain.handle('real-world-to-pixel', async (_event, args) => {
         console.log("Real World To Pixel")
 
@@ -26,3 +26,4 @@ export async function realWorldToPixel(PROJECT_CONFIG: ProjectConfig){
     })
 }
 
+export { realWorldToPixel }

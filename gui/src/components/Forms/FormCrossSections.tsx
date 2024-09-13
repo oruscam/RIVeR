@@ -16,11 +16,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
 
   const [bathimetryLimits, setBathimetryLimits] = useState({ min: 0, max: 0 })
 
-  const { sections, activeSection, onUpdateSection } = useSectionSlice()
+  const { sections, activeSection, onUpdateSection, onGetBathimetry } = useSectionSlice()
   const { drawLine, bathimetry, extraFields } = sections[activeSection]
   const { register, setValue } = useFormContext()
-
-
 
   const handleKeyDownBathLevel = (event: React.KeyboardEvent<HTMLInputElement>, nextFieldId: string) => {
     if (event.key === 'Enter') {
@@ -40,11 +38,10 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
     }
   }
 
-  const onFileBathChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if(file){
-      onUpdateSection({ file })
-    }
+  const handleImportBath = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault()
+    setBathimetryLimits({ min: 0, max: 0 })
+    onGetBathimetry()
   }
 
   const handleLeftBankInput = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement> ) => { 
@@ -52,10 +49,12 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       event.preventDefault()
 
       const value = parseFloat((event.target as HTMLInputElement).value);
-      
+
       if( !isNaN(value) ) {
+        console.log('inside left bank input')
         document.getElementById('wizard-next')?.focus()
         onUpdateSection({leftBank: value})
+
       } else {
         setValue(`${name}_LEFT_BANK`, bathimetry.leftBank)
       }
@@ -68,6 +67,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       onUpdateSection({ level: bathimetryLimits.max })
     }
   }, [bathimetryLimits])
+
 
 
   return (
@@ -105,19 +105,14 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                       return `Bathimetry is required in ${name}`
                     }
                     return true
-                  },
-                  onChange: onFileBathChange
+                  }
                 })}
               />
-              <label
-                className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.blob ? "wizard-button-active" : ""}`}
-                htmlFor={`${name}_CS_BATHIMETRY`}>
-                <p> Import Bath </p>
-              </label>
+              <button className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`} onClick={handleImportBath}> Import bath</button>
               <label className="read-only bg-transparent mt-1"> {bathimetry.name !== "" ? bathimetry.name : ''} </label>
             </div>
             
-            <div className="input-container-2 mt-1 mb-1">
+            <div className="input-container-2 mt-1 mb-3">
               <label className="read-only me-1" htmlFor="LEVEL"> Level</label>
               <input  type="number" 
                       step='any' 
@@ -132,9 +127,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                       />
             </div>
 
-          <Bathimetry setBathimetryLimits={setBathimetryLimits} lineColor="#ffffff" leftBank={bathimetry.leftBank} showLeftBank={true}/>
+          <Bathimetry setBathimetryLimits={setBathimetryLimits}  leftBank={bathimetry.leftBank} showLeftBank={true} bathimetryLimits={bathimetryLimits}/>
 
-          <div className="input-container-2 mt-1 mb-4" id="left-bank-station-container">
+          <div className="input-container-2 mt-3 mb-4" id="left-bank-station-container">
             <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label"> Left bank station </label>
             <input type="number" className="input-field" step='any' id="left-bank-station-input" {...register(`${name}_LEFT_BANK`)} onKeyDown={handleLeftBankInput} onBlur={handleLeftBankInput}/>
           </div>

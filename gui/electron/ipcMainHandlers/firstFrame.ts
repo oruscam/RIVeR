@@ -3,7 +3,7 @@ import { FirstFrameArgs, ProjectConfig } from "./interfaces";
 import * as fs from 'fs'
 import { executePythonShell } from "./utils/executePythonShell";
 
-export function firstFrame(PROJECT_CONFIG: ProjectConfig){
+function firstFrame(PROJECT_CONFIG: ProjectConfig){
 
     ipcMain.handle('first-frame', async( _event, args: FirstFrameArgs) => {
         PROJECT_CONFIG.framesPath = PROJECT_CONFIG.directory + '/frames';
@@ -41,3 +41,5 @@ export function firstFrame(PROJECT_CONFIG: ProjectConfig){
         }
     }
 )}
+
+export { firstFrame }

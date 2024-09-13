@@ -1,5 +1,6 @@
 import { dialog, ipcMain } from "electron";
 import * as path from 'path'
+import { ProjectConfig } from "./interfaces";
 
 async function getVideo(PROJECT_CONFIG: ProjectConfig) {
     const options: Electron.OpenDialogOptions = {
@@ -16,7 +17,6 @@ async function getVideo(PROJECT_CONFIG: ProjectConfig) {
             const videoName = path.basename(videoPath);
 
             PROJECT_CONFIG.videoPath = videoPath;
-            PROJECT_CONFIG.videoName = videoName;
 
             return { path: videoPath, name: videoName };
         } catch (error) {

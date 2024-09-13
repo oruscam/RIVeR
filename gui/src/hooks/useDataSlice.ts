@@ -49,6 +49,9 @@ export const useDataSlice = () => {
             const typedKey = key as keyof ProcessingValues;
             if (value[typedKey] !== undefined) {
                 updatedForm[typedKey] = value[typedKey];
+                if ( typedKey === 'step1' ) {
+                    updatedForm['step2'] = value[typedKey] / 2
+                }
             }
         });
     
@@ -182,7 +185,15 @@ export const useDataSlice = () => {
             
             sections.map(( section, index ) => {
                 if ( data[section.name] ){
-                    dispatch(setSectionData({sectionIndex: index, sectionData: data[section.name]}))
+                    dispatch(setSectionData({
+                        sectionIndex: index,
+                        sectionData: {
+                            ...data[section.name],
+                            show95Percentile: true,
+                            showInterpolateProfile: true, 
+                            showVelocityStd: true
+                        }
+                    }))
             }})
             
             dispatch(setLoading(false))

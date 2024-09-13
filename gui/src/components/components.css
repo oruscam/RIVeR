@@ -472,6 +472,8 @@
     height: 100%; /* Asegura que el contenido ocupe toda la altura de la celda */
     text-align: center; /* Alinea el texto en el centro */
     background-color: black;
+    font-size: 1.3rem;
+
 }
 
 .select-cell {

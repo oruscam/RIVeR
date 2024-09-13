@@ -4,14 +4,14 @@ interface Point {
 }
 
 interface Bathimetry {
-    blob?: Blob | string;
     path: string;
     level: number;
     name: string;
     leftBank?: number; 
+    line?: Point[];
 }
 
-interface PixelSize {
+interface   PixelSize {
     size: number;
     rw_length: number;
 }
@@ -63,6 +63,9 @@ interface SectionData {
     Q_minus_std: number[];
     Q_plus_std: number[];
     total_q_std: number;
+    showVelocityStd: boolean;
+    show95Percentile: boolean;
+    showInterpolateProfile: boolean;
 }
 
 
@@ -76,6 +79,7 @@ interface Section {
     realWorld: Point[];
     extraFields: boolean;
     data?: SectionData;
+
 }
 
 interface Processing {

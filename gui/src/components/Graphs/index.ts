@@ -1,7 +1,5 @@
 import { Bathimetry } from "./Bathimetry";
 import { VelocityVector } from "./VelocityVector";
-import { VelocityAndDischarge } from "./VelocityAndDischarge";
-import { VelocitySmall } from "./VelocitySmall";
-import { DischargeSmall } from "./DischargeSmall";
+import { AllInOne } from "./AllInOne";
 
-export { Bathimetry, VelocityAndDischarge , VelocityVector, VelocitySmall, DischargeSmall };
+export { Bathimetry, VelocityVector, AllInOne };

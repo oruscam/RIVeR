@@ -328,10 +328,10 @@ transform-origin: 14px 22px;
 
 
 #result-info{
-    padding-right: 70px;
-    padding-left: 70px;
     display: flex;
-    margin-left: 10px;
+    align-self: flex-start;
+    margin-bottom: 30px;
+    margin-left: 20px;
 }
 
 #result-info #result-number{
@@ -436,6 +436,7 @@ transform-origin: 14px 22px;
 
 #form-section-div{
     height: 72%;
+    width: 80%;
 }
 
 #left-bank-station-label{
@@ -454,4 +455,25 @@ transform-origin: 14px 22px;
 
 #analize-message{
     font-size: 1.2rem;
+}
+
+
+.input-field-select {
+    padding-left: 10px;
+    appearance: none; /* Elimina el estilo nativo del select */
+    /* La imagen SVG es una flecha hacia abajo, ajusta la posición según sea necesario */
+  }
+  
+.input-field-select::-ms-expand {
+    display: none; /* Oculta la flecha en IE */
+  }
+
+#form-analizing{
+    display: flex;
+    flex-direction: column;
+
+}
+
+#analize-div{
+    padding-left: 0px;
 }
