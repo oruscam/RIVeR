@@ -45,8 +45,8 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
           ></input>
         </div>
         
-        <div style={{ width: '100%', height: '800px'}}>
-          <AllInOne isReport={false}></AllInOne>
+        <div className="mt-2" style={{ width: '100%', height: '800px'}}>
+          <AllInOne isReport={false} width={500} height={700}></AllInOne>
         </div>
 
 

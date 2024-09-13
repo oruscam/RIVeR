@@ -31,7 +31,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
 
     const yScale = d3.scaleLinear()
         .domain([d3.min(Q)!, d3.max(Q)!])
-        .range([graphHeight, margin.top + (isReport ? 20 : 0)]);
+        .range([graphHeight - 10, margin.top + (isReport ? 20 : 0)]);
     
     const yAxis = d3.axisLeft(yScale)
         .ticks(5)

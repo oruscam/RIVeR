@@ -121,7 +121,6 @@ function createModalWindow( creationDate ): Promise<string> {
     });
 
     ipcMain.once('close-modal-window', (event, value) => {
-      console.log('hola')
       resolve(value);
     });
   });
@@ -168,7 +167,7 @@ app.whenReady().then(() => {
   createWindow();
   getVideo(PROJECT_CONFIG);
   initProject(userDir, PROJECT_CONFIG);
-  loadProject(PROJECT_CONFIG);
+  loadProject(PROJECT_CONFIG)
   firstFrame(PROJECT_CONFIG);
   pixelSize(PROJECT_CONFIG);
   pixelToRealWorld(PROJECT_CONFIG);

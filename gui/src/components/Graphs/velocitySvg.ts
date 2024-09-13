@@ -108,12 +108,12 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
                 .attr('y', 10) // posición inicial
                 .attr('visibility', 'hidden') // oculto por defecto
                 .attr('font-size', '15px')
-                .attr('fill', 'white');
+                .attr('fill', PERCENTILE_AREA_COLOR);
 
             // Agregar eventos de mouseover y mouseout
             areaPath.on('mouseover', function(_event) {
                 legend.attr('visibility', 'visible')
-                    .text('5% - 95%');
+                    .text('5% | 95% percentile');
             });
 
             areaPath.on('mousemove', function(event) {
@@ -172,13 +172,13 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
                 .attr('y', 10) // posición inicial
                 .attr('visibility', 'hidden') // oculto por defecto
                 .attr('font-size', '15px')
-                .attr('fill', 'white');
+                .attr('fill', STD_AREA_COLOR);
 
             // Agregar eventos de mouseover y mouseout
             
             areaPath.on('mouseover', function(_event) {
                 legend.attr('visibility', 'visible')
-                    .text('Vel std');
+                    .text('± std');
             });
 
             areaPath.on('mousemove', function(event) {
