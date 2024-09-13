@@ -154,6 +154,7 @@ const PROJECT_CONFIG: ProjectConfig = {
   xsectionsPath: "",
   bboxPath: "",
   maskPath: "",
+  resultsPath: "",
 }
 
 app.whenReady().then(() => {

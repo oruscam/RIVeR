@@ -52,6 +52,7 @@ export function convertInputData(data: FieldValues, csNames: string[], bathsPath
         if (match) {
             const csName = match[1];
             let fieldName = match[2].toLowerCase(); // Mantener en minúsculas para empezar
+            
             // Mapeo de nombres de campo a los deseados
             const fieldMap = {
                 "cs_length": "rw_length",
@@ -64,7 +65,10 @@ export function convertInputData(data: FieldValues, csNames: string[], bathsPath
                 "x_left": "xl",
                 "y_left": "yl",
                 "x_right": "xr",
-                "y_right": "yr"
+                "y_right": "yr",
+                "num_stations": "num_stations",
+                "left_bank": "left_station",
+                "alpha": "alpha"
             };
     
             fieldName = fieldMap[fieldName] || fieldName; // Usar el mapeo si está disponible

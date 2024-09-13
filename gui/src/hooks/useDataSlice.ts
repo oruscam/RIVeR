@@ -17,6 +17,7 @@ export const useDataSlice = () => {
     const dispatch = useDispatch();
     const { processing, images, quiver } = useSelector((state: RootState) => state.data);
     const { sections } = useSelector((state: RootState) => state.section);
+    const { video } = useSelector((state: RootState) => state.project);
     
     
     interface ProcessingValues {
@@ -181,20 +182,20 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const data = await ipcRenderer.invoke('get-result-data', {})
-            
-            sections.map(( section, index ) => {
-                if ( data[section.name] ){
-                    dispatch(setSectionData({
-                        sectionIndex: index,
-                        sectionData: {
-                            ...data[section.name],
-                            show95Percentile: true,
-                            showInterpolateProfile: true, 
-                            showVelocityStd: true
-                        }
-                    }))
-            }})
+            await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps})
+            // console.log(data)
+            // sections.map(( section, index ) => {
+            //     if ( data[section.name] ){
+            //         dispatch(setSectionData({
+            //             sectionIndex: index,
+            //             sectionData: {
+            //                 ...data[section.name],
+            //                 show95Percentile: true,
+            //                 showInterpolateProfile: true, 
+            //                 showVelocityStd: true
+            //             }
+            //         }))
+            // }})
             
             dispatch(setLoading(false))
         } catch (error) {

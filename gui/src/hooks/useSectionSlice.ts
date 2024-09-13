@@ -322,8 +322,11 @@ export const useSectionSlice = () => {
             }
         })
 
+        
+
         const data = convertInputData(formData, csNames, bahtsPaths)
         const ipcRenderer = window.ipcRenderer;
+
 
         /**
          * The sections are stored in the section slice.
@@ -334,7 +337,7 @@ export const useSectionSlice = () => {
          */
 
         try {
-            await ipcRenderer.invoke('set-sections', {data})
+            await ipcRenderer.invoke('set-sections', { data })
             const { height_roi } = await ipcRenderer.invoke('recommend-roi-height')
             const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi })
 

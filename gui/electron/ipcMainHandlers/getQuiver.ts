@@ -33,8 +33,10 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
         console.log(options)
 
         try {
-            const { data, error} = await executePythonShell(options) as any;
+            const { data, error } = await executePythonShell(options) as any;
             const { results_path } = data
+            PROJECT_CONFIG.resultsPath = results_path
+
             const dataQuiver = await fs.promises.readFile(results_path, 'utf-8')
             const { x, y, u, v, typevector, v_median, u_median } = JSON.parse(dataQuiver.replace(/\bNaN\b/g, "null")) 
             

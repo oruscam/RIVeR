@@ -99,6 +99,7 @@ export interface ProjectConfig {
   xsectionsPath: string, 
   bboxPath: string,
   maskPath: string,
+  resultsPath: string,
 }
 
 interface Point {
