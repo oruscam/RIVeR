@@ -1,28 +1,27 @@
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
-import { ThemeToggle } from '../components/ThemeToggle';
 import { LanguageSelector } from '../components/LanguageSelector';
 import image from '../assets/RIVeR-logo.png';
 import './pages.css';
 import { useProjectSlice, useUiSlice } from '../hooks';
+// import { ThemeToggle } from '../components/ThemeToggle';
 
 export const HomePage: React.FC = () => {
   const { t } = useTranslation();
   const { nextStep, goToStep } = useWizard();
-  const { onLoadProject, onClickFinish } = useProjectSlice();
+  const { onLoadProject } = useProjectSlice();
   const { onSetErrorMessage, error} = useUiSlice();
 
   const handleNewProjectClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     if( event.currentTarget.id === 'new-project'){
       nextStep();
     }else{
-      onClickFinish()
-      // const result = await onLoadProject();
-      // if( typeof result === 'number'){
-      //   goToStep(result)
-      // } else {
-      //   onSetErrorMessage(result)
-      // }
+      const result = await onLoadProject();
+      if( typeof result === 'number'){
+        goToStep(result)
+      } else {
+        onSetErrorMessage(result)
+      }
     }
   };
 

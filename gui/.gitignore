@@ -14,6 +14,8 @@ dist-electron
 release
 *.local
 
+.env
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

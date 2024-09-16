@@ -1,13 +1,14 @@
 import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
 import * as fs from 'fs'
+import { config } from 'dotenv'
+config()
 
 async function getResultData(PROJECT_CONFIG: ProjectConfig){
     ipcMain.handle('get-result-data', async (_event, _args) => {
-        const filePath = '/home/tomy_ste/River/files/x_sections(3).json'
 
         try {
-            const data = await fs.promises.readFile(filePath, 'utf-8')
+            const data = await fs.promises.readFile(process.env.X_SECTIONS_DATA, 'utf-8')
             const dataParsed = JSON.parse(data.replace(/\bNaN\b/g, "null"))
 
             return transformData(dataParsed)    

@@ -3,10 +3,9 @@ import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
 import * as os from 'os'
 import * as fs from 'fs'
-
+import { config } from 'dotenv'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
-
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
 import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver, getVideo, getBathimetry} from './ipcMainHandlers/index.js'
@@ -14,7 +13,7 @@ import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
 import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
 import { getResultData } from './ipcMainHandlers/getResultData.js'
 
-
+config()
 process.env.APP_ROOT = path.join(__dirname, '..')
 
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x

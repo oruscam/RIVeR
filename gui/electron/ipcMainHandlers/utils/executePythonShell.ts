@@ -5,8 +5,11 @@
  */
 
 import { exec } from "child_process";
+import { config } from "dotenv";
 import { ipcMain } from "electron";
 import { Options, PythonShell } from "python-shell";
+
+config()
 
 /**
  * Function to execute the python shell with the given arguments.
@@ -18,6 +21,7 @@ let currentPyShell: PythonShell | null = null;
 
 async function executePythonShell(args: (string | number)[]){
     
+
     /**
      * Options to execute the python shell.
      * pythonPath: Path to the python executable
@@ -27,8 +31,8 @@ async function executePythonShell(args: (string | number)[]){
 
     const options: Options = {
         mode: 'json',
-        pythonPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/venv/bin/python3',
-        scriptPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/river/cli/',
+        pythonPath: process.env.PYTHON_PATH,
+        scriptPath: process.env.RIVER_CLI_PATH,
         args: args.map(arg => arg.toString())
     }
     console.log('executePythonShell')

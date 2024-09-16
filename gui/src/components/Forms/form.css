@@ -459,7 +459,6 @@ transform-origin: 14px 22px;
 
 
 .input-field-select {
-    padding-left: 10px;
     appearance: none; /* Elimina el estilo nativo del select */
     /* La imagen SVG es una flecha hacia abajo, ajusta la posición según sea necesario */
   }

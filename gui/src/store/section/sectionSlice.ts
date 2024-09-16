@@ -20,8 +20,7 @@ const defaultSections = [{
         points: [],
         bathimetry: {
             level: 0,
-            path: '/home/tomy_ste/Desktop/XS1_DistElev.csv',
-            // path: '',
+            path: '',
             name: '',
         },
         pixelSize: {size: 0, rw_length: 0},
