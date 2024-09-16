@@ -16,6 +16,8 @@ RIVeR desktop has been developed in Python 3.7.7
 
 5 - Ejecutar -> yarn
 
+6 -> Crear archivo .env en la raiz de gui, RIVeR/gui/.env siguiendo el .env.example.
+
 6 - Al finalizar, -> yarn dev
 
 Listo, app corriendo.
