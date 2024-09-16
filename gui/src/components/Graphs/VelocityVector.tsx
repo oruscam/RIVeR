@@ -22,6 +22,7 @@ export const VelocityVector = ({ height, width, factor }: VelocityVectorProps ) 
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
         const { data } = sections[activeSection]
+        if ( !data ) return;
         if (svgRef.current && data) {
             
             const svg = d3.select(svgRef.current);
@@ -35,6 +36,7 @@ export const VelocityVector = ({ height, width, factor }: VelocityVectorProps ) 
                 
                 const { x, y, displacement_x_streamwise, displacement_y_streamwise, check } = data;
 
+                if ( !x || !y || !displacement_x_streamwise || !displacement_y_streamwise || !check ) return;
 
                 const xFiltered = x.filter((d, _i) => d !== null);
                 const yFiltered = y.filter((d, _i) => d !== null);
@@ -80,7 +82,7 @@ export const VelocityVector = ({ height, width, factor }: VelocityVectorProps ) 
 
             });
         }
-    }, [factor.x, factor.y, sections, activeSection, seeAll]);
+    }, [factor.x, factor.y, sections, activeSection, seeAll, activeSection]);
 
     return (
         <div id="velocity-vector-container" style={{ width: width, height: height }}>

@@ -182,20 +182,20 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps})
-            // console.log(data)
-            // sections.map(( section, index ) => {
-            //     if ( data[section.name] ){
-            //         dispatch(setSectionData({
-            //             sectionIndex: index,
-            //             sectionData: {
-            //                 ...data[section.name],
-            //                 show95Percentile: true,
-            //                 showInterpolateProfile: true, 
-            //                 showVelocityStd: true
-            //             }
-            //         }))
-            // }})
+            const data = await ipcRenderer.invoke('get-result-data', {step: video.parameters.step, fps: video.data.fps})
+            console.log(data)
+            sections.map(( section, index ) => {
+                if ( data[section.name] ){
+                    dispatch(setSectionData({
+                        sectionIndex: index,
+                        sectionData: {
+                            ...data[section.name],
+                            show95Percentile: true,
+                            showInterpolateProfile: true, 
+                            showVelocityStd: true
+                        }
+                    }))
+            }})
             
             dispatch(setLoading(false))
         } catch (error) {

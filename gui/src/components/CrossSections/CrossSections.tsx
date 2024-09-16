@@ -33,7 +33,6 @@ const createInitialState = (sections: Section[]) => {
                 [`${baseKey}_Y_Right`]: points.length === 0 ? 0 : points[1].y.toFixed(1),
                 [`${baseKey}_NUM_STATIONS`]: 15,
                 [`${baseKey}_ALPHA`]: 0.85,
-
             };
 
         }

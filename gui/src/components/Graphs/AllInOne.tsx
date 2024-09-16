@@ -23,7 +23,7 @@ export const AllInOne = ({ width = 450, height = 520, index, isReport  } : {widt
         if(svgRef.current === null) return
 
             if(data){
-                
+                console.log(data)
                 const svg = d3.select(svgRef.current)
                 const width = +svg.attr('width')
                 const height = +svg.attr('height')
