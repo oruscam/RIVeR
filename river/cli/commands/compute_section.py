@@ -17,6 +17,8 @@ from river.core.compute_section import update_current_x_section
 	"-i", "--id-section", type=int, required=True, help="Index of the current cross-section in the list of sections."
 )
 @click.option("-in", "--interpolate", is_flag=True, help="Whether to interpolate velocity and discharge results.")
+@click.option("-a", "--alpha", type=float, default=0.85, help="TBD")
+@click.option("-ns", "--num-stations", type=int, default=15, help="TBD")
 @render_response
 def update_xsection(
 	xsections: TextIOWrapper,
@@ -26,6 +28,8 @@ def update_xsection(
 	fps: float,
 	id_section: int,
 	interpolate: bool,
+	alpha: float,
+	num_stations: int,
 ) -> dict:
 	"""
 	Update the current cross-section with the PIV results and other parameters.
@@ -38,6 +42,8 @@ def update_xsection(
 	    fps (float): Frames per second of the video used in PIV processing.
 	    id_section (int): Index of the current cross-section in the list of sections.
 	    interpolate (bool): Whether to interpolate velocity and discharge results.
+	    alpha (float): TBD.
+	    num_stations (bool): TBD.
 	Returns:
 	    dict: Containing the updated xsections.
 	"""
@@ -46,4 +52,6 @@ def update_xsection(
 	piv_results = json.loads(piv_results.read())
 	transformation_matrix = json.loads(transformation_matrix.read())
 
-	return update_current_x_section(xsections, piv_results, transformation_matrix, step, fps, id_section, interpolate)
+	return update_current_x_section(
+		xsections, piv_results, transformation_matrix, step, fps, id_section, interpolate, alpha, num_stations
+	)

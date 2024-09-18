@@ -1,4 +1,5 @@
 import csv
+from typing import Optional
 
 import numpy as np
 from scipy.interpolate import griddata
@@ -736,6 +737,8 @@ def update_current_x_section(
 	fps: float,
 	id_section: int,
 	interpolate: bool = False,
+	alpha: Optional[float] = None,
+	num_stations: Optional[int] = None,
 ) -> dict:
 	"""
 	Enrich the cross-section data with the PIV results and other parameters.
@@ -748,6 +751,8 @@ def update_current_x_section(
 	    fps (float): Frames per second of the video used in PIV processing.
 	    id_section (int): Index of the current cross-section in the list of sections.
 	    interpolate (bool, optional): Whether to interpolate velocity and discharge results.
+		alpha (Optional[float], optional): _description_. Defaults to None.
+		num_stations (Optional[int], optional): _description_. Defaults to None.
 
 	Returns:
 	    dict: The updated cross-section data.
@@ -764,14 +769,21 @@ def update_current_x_section(
 
 	# Calculate the time between frames using the given step and frames per second
 	time_between_frames = step / fps
-	num_stations = x_sections[current_x_section]["num_stations"]
+
+	if num_stations is None:
+		num_stations = x_sections[current_x_section]["num_stations"]
+	else:
+		x_sections[current_x_section]["num_stations"] = num_stations
 
 	# Retrieve bathymetry file path and the left station position
 	bath_file_path = x_sections[current_x_section]["bath"]
 	left_station = x_sections[current_x_section]["left_station"]
 
 	# Retrieve the alpha coefficient
-	alpha = x_sections[current_x_section]["alpha"]
+	if alpha is None:
+		alpha = x_sections[current_x_section]["alpha"]
+	else:
+		x_sections[current_x_section]["alpha"] = alpha
 
 	# Initialize lists for stations and stages
 	stations = []
