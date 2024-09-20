@@ -9,8 +9,7 @@ export const FormProcessing = () => {
   const [extraFields, setExtraFields] = useState(false)
   const { nextStep } = useWizard()
   
-  const { onSetErrorMessage } = useUiSlice()
-  const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver } = useDataSlice()
+  const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver, analizing } = useDataSlice()
   const { artificialSeeding, step1, heightRoi, grayscale, removeBackground, clahe, clipLimit, stdFiltering, stdThreshold, medianTestThreshold, medianTestEpsilon, medianTestFiltering } = processing.form
   
   const [buttonTest, _setButtonTest] = useState(false)
@@ -111,10 +110,10 @@ export const FormProcessing = () => {
               </div>
 
               <div className="input-container-2 mt-2">
-                <button className={`button-with-loader ${processing.isBackendWorking? "button-with-loader-active" : ""}`} onClick={handleOnClickTest}>
+                <button className={`button-with-loader ${analizing? "button-with-loader-active" : ""}`} onClick={handleOnClickTest}>
                   <p className='button-name'> Test </p>
                   {
-                      processing.isBackendWorking && <span className='loader-little'></span>
+                      analizing && <span className='loader-little'></span>
                   }
                 </button>
                 <span className="read-only bg-transparent"></span>

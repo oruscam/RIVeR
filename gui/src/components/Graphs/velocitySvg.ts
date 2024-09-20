@@ -33,11 +33,12 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
     const minDomainValue = Math.min(d3.min(percentile5)!, d3.min(minusStd)!);
     const maxDomainValue = Math.max(d3.max(percentile95)!, d3.max(plusStd)!);
 
+
     // y Scale
 
     const yScale = d3.scaleLinear()
         .domain([minDomainValue, maxDomainValue])
-        .range([graphHeight * 2, graphHeight + (isReport ? 30 : 0)]);
+        .range([graphHeight * 2 + ( isReport ? -20 : -20), graphHeight + (isReport ? 30 : -10)]);
 
     // y Axis
 
@@ -108,7 +109,7 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
                 .attr('y', 10) // posición inicial
                 .attr('visibility', 'hidden') // oculto por defecto
                 .attr('font-size', '15px')
-                .attr('fill', PERCENTILE_AREA_COLOR);
+                .attr('fill', WHITE);
 
             // Agregar eventos de mouseover y mouseout
             areaPath.on('mouseover', function(_event) {
@@ -172,7 +173,7 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
                 .attr('y', 10) // posición inicial
                 .attr('visibility', 'hidden') // oculto por defecto
                 .attr('font-size', '15px')
-                .attr('fill', STD_AREA_COLOR);
+                .attr('fill', WHITE);
 
             // Agregar eventos de mouseover y mouseout
             
@@ -207,13 +208,11 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
     svg.append('text')
         .attr('class', 'y-axis-label')
         .attr('text-anchor', 'middle')
-        .attr('x', - (height - 60) / 2)
+        .attr('x', - (graphHeight *2) + (isReport ? 90 : 110))
         .attr('y', margin.left - 35)
         .attr('transform', 'rotate(-90)')
         .attr('fill', 'white')
         .attr('font-size', '20px')
         .text('Velocity');
-
-
 
 }

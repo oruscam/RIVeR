@@ -14,7 +14,7 @@ type Props = {
 export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClickNext }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep } = useWizard();
   const { onSetActiveSection } = useSectionSlice()
-  const { onClearQuiver } = useDataSlice()
+  const { onClearQuiver, analizing } = useDataSlice()
   const { t } = useTranslation();
 
   const handlePreviuos = () => {
@@ -39,20 +39,21 @@ export const WizardButtons = ({ canFollow = true, formId = '', button = false, o
     }
   }
 
+  console.log(analizing)
 
   return (
     <div className='wizard-container'>
       <button
         className='wizard-button button-1'
         onClick={handlePreviuos}
-        disabled={isFirstStep}
+        disabled={isFirstStep || analizing}
       >
         {t('Wizard.back')}
       </button>
 
       <button
         className='wizard-button button-1'
-        disabled={!canFollow}
+        disabled={!canFollow || analizing}
         form={formId}
         onClick={onClickNext}
         type={ button ? "button" : "submit"}

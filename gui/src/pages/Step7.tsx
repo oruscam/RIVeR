@@ -18,7 +18,7 @@ export const Step7 = () => {
     const { height, width, factor } = getNewImageResolution(windowWidth, windowHeight, data.width, data.height)
 
     const handleNext = async () => {
-        await onGetResultData()
+        await onGetResultData('all')
         nextStep()
     }
 

@@ -17,7 +17,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   const [bathimetryLimits, setBathimetryLimits] = useState({ min: 0, max: 0 })
 
   const { sections, activeSection, onUpdateSection, onGetBathimetry } = useSectionSlice()
-  const { drawLine, bathimetry, extraFields } = sections[activeSection]
+  const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection]
   const { register, setValue } = useFormContext()
 
   const handleKeyDownBathLevel = (event: React.KeyboardEvent<HTMLInputElement>, nextFieldId: string) => {
@@ -108,7 +108,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                   }
                 })}
               />
-              <button className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`} onClick={handleImportBath}> Import bath</button>
+              <button className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`} onClick={handleImportBath} disabled={pixelSize.rw_length === 0}> Import bath</button>
               <label className="read-only bg-transparent mt-1"> {bathimetry.name !== "" ? bathimetry.name : ''} </label>
             </div>
             

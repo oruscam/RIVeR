@@ -50,6 +50,12 @@
   transform: translateY(-10px);
 }
 
+.danger-button:disabled{
+  background-color: var(--disabled-button);
+  color: var(--background-color);
+  transform: none;
+}
+
 .button-transparent {
   background-color: transparent;
   border: none;
@@ -424,4 +430,45 @@ input:checked + .slider:before {
 
 .hidden{
   display: none;
+}
+
+
+.custom-datepicker{
+  color: var(--primary-text-color);
+  background-color: white;
+
+}
+
+
+
+/* Estilos personalizados para el DatePicker */
+.react-datepicker {
+  background-color: var(--secondary-background-color);
+  color: var(--primary-text-color);
+  border: 1px solid var(--input-background);
+}
+
+.react-datepicker__header {
+  background-color: var(--secondary-background-color);
+  border-bottom: 1px solid var(--input-background);
+  color: var(--primary-text-color);
+
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker__time-name {
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__day,
+.react-datepicker__day-name,
+.react-datepicker__time-name {
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__day:hover,
+.react-datepicker__day--selected {
+  background-color: var(--on-hover);
+  color: var(--primary-text-color);
 }

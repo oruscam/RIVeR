@@ -12,6 +12,8 @@ import { convertInputData } from '../helpers/convertInputData';
 import { computePixelSize } from '../helpers';
 import { setImages, setProcessingMask, updateProcessingForm } from '../store/data/dataSlice';
 import bathParser from '../helpers/bathimetryParser';
+import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_REAL_WORLD } from '../constants/constants';
+import { interpolate } from 'd3-interpolate';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -361,6 +363,9 @@ export const useSectionSlice = () => {
         file?: File,
         level?: number,
         leftBank?: number,
+        numStations?: number,
+        alpha?: number,
+        interpolated?: string
     }
 
     /**
@@ -398,6 +403,12 @@ export const useSectionSlice = () => {
         } else if ( value.leftBank !== null && value.leftBank !== undefined ){
             console.log('left-bank value', value.leftBank)
             dispatch(updateSection({...section, bathimetry: {...section.bathimetry, leftBank: parseFloat(value.leftBank.toFixed(2))}}))
+        } else if ( value.alpha ){
+            dispatch(updateSection({...section, alpha: parseFloat(value.alpha.toFixed(2))}))
+        } else if ( value.numStations ){
+            dispatch(updateSection({...section, numStations: value.numStations}))
+        } else if ( value.interpolated !== undefined ){
+            dispatch(updateSection({...section, interpolated: !section.interpolated}))
         }
     }
 
@@ -426,8 +437,11 @@ export const useSectionSlice = () => {
                 name: ""
             },
             pixelSize: {size: 0, rw_length: 0},
-            realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
+            realWorld: DEFAULT_REAL_WORLD,
             extraFields: false,
+            numStations: DEFAULT_NUM_STATIONS,
+            alpha: DEFAULT_ALPHA,
+            interpolated: true,
         }
         dispatch(addSection(section))
     }
@@ -440,8 +454,6 @@ export const useSectionSlice = () => {
     const onDeleteSection = () => {
         dispatch(deleteSection())
     }
-
-
 
     const onSetExtraFields = () => {
         const section = sections[activeSection]
@@ -474,7 +486,6 @@ export const useSectionSlice = () => {
                 dispatch(changeSectionData({...data, show95Percentile: !data.show95Percentile}));
             }
         }
-    
     }
 
     const onGetBathimetry = async () => {
@@ -488,7 +499,6 @@ export const useSectionSlice = () => {
 
                 dispatch(updateSection({...sections[activeSection], bathimetry: {path: data.path, level: 0, name: data.name, line: result}}))
             }
-
         } catch (error) {
             console.log(error)
             dispatch(updateSection({...sections[activeSection], bathimetry: {path: "", level: 0, name: ""}}))

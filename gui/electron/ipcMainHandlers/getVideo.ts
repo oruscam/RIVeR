@@ -18,11 +18,14 @@ async function getVideo(PROJECT_CONFIG: ProjectConfig) {
 
             PROJECT_CONFIG.videoPath = videoPath;
 
-            return { path: videoPath, name: videoName };
+            return { result : { path: videoPath, name: videoName }};
         } catch (error) {
-            console.log('Error in get-video')
-            console.log(error)
-            throw error
+            return { 
+                error: {
+                    type: 'user-selection-error',
+                    message: 'Please select a video file'
+                }
+            }
         }
     });
 

@@ -15,8 +15,8 @@ import { setSectionData } from "../store/section/sectionSlice";
 
 export const useDataSlice = () => {
     const dispatch = useDispatch();
-    const { processing, images, quiver } = useSelector((state: RootState) => state.data);
-    const { sections } = useSelector((state: RootState) => state.section);
+    const { processing, images, quiver, analizing } = useSelector((state: RootState) => state.data);
+    const { sections, activeSection } = useSelector((state: RootState) => state.section);
     const { video } = useSelector((state: RootState) => state.project);
     
     
@@ -177,29 +177,51 @@ export const useDataSlice = () => {
         }
     }
 
-    const onGetResultData = async () => {
-        dispatch(setLoading(true))
+    // type can be 'single' or 'all'
+
+    const onGetResultData = async ( type : string) => {
         const ipcRenderer = window.ipcRenderer;
 
-        try {
-            const data = await ipcRenderer.invoke('get-result-data', {step: video.parameters.step, fps: video.data.fps})
-            console.log(data)
-            sections.map(( section, index ) => {
-                if ( data[section.name] ){
-                    dispatch(setSectionData({
-                        sectionIndex: index,
-                        sectionData: {
-                            ...data[section.name],
-                            show95Percentile: true,
-                            showInterpolateProfile: true, 
-                            showVelocityStd: true
-                        }
-                    }))
-            }})
-            
-            dispatch(setLoading(false))
-        } catch (error) {
-            console.log(error)
+        if ( type === 'single' ){
+            const section = sections[activeSection]
+            try {
+                const data = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated})
+
+                dispatch(setSectionData({
+                    sectionIndex: activeSection,
+                    sectionData: {
+                        ...data[section.name],
+                        show95Percentile: true,
+                        showInterpolateProfile: true, 
+                        showVelocityStd: true
+                    }
+                }))
+            } catch ( error ){
+                console.log(error)
+            }
+        } else {
+            dispatch(setLoading(true))
+
+            try {
+                const data = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                sections.map(( section, index ) => {
+                    if ( data[section.name] ){
+                        dispatch(setSectionData({
+                            sectionIndex: index,
+                            sectionData: {
+                                ...data[section.name],
+                                show95Percentile: true,
+                                showInterpolateProfile: true, 
+                                showVelocityStd: true
+                            }
+                        }))
+                }})
+                
+                dispatch(setLoading(false))
+            } catch (error) {
+                console.log(error)
+            }
+
         }
     }
 
@@ -225,9 +247,12 @@ export const useDataSlice = () => {
 
     return {
         // ATRIBUTES]
+        analizing,
         images,
         processing,
         quiver,
+
+
         // METHODS
         onSetActiveImage,
         onSetQuiverTest,

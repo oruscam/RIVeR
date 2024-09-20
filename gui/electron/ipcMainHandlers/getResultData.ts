@@ -1,55 +1,112 @@
 import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
 import * as fs from 'fs'
-import { config } from 'dotenv'
-config()
+import { executePythonShell2 } from "./utils/executePythonShell";
 
 async function getResultData(PROJECT_CONFIG: ProjectConfig){
-    ipcMain.handle('get-result-data', async (_event, _args) => {
+
+
+    ipcMain.handle('get-results-single', async (_event, args) => {
+        console.log('get-results-single')
+        const xSections = PROJECT_CONFIG.xsectionsPath;
+        const transformationMatrix = PROJECT_CONFIG.matrixPath;
+        const pivResults = PROJECT_CONFIG.resultsPath;
+    
+        const xSectionsFile = await fs.promises.readFile(xSections, 'utf-8')
+        const xSectionsFileParsed = JSON.parse(xSectionsFile)
+        const { step, fps, sectionIndex, alpha, num_stations, interpolated } = args
+
+
+        const options = [
+            'update-xsection',
+            '--step',
+            parseInt(step),
+            '--fps',
+            parseFloat(fps),
+            '--id-section',
+            sectionIndex,
+            '--alpha',
+            alpha,
+            '--num-stations',
+            num_stations,
+            interpolated ? '--interpolate' : '',
+            xSections,
+            pivResults,
+            transformationMatrix,
+        ].filter( value => value !== '')
+
+        
+
 
         try {
-            const data = await fs.promises.readFile(process.env.X_SECTIONS_DATA, 'utf-8')
-            const dataParsed = JSON.parse(data.replace(/\bNaN\b/g, "null"))
+            const result = await executePythonShell2(options) as any
+            const parsedData = JSON.parse(result.replace(/\bNaN\b/g, "null"))
+            const { data } = parsedData
 
-            return transformData(dataParsed)    
+            for (const sectionKey in data) {
+                const section = data[sectionKey];
+                xSectionsFileParsed[sectionKey] = section
+            }
+            await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
+            return transformData(data)    
             
         } catch (error) {
             console.log(error)
         }
     })
 
-    // ipcMain.handle('get-results-all', async (_event, args) => {
-    //     console.log('get-results-all')
-    //     const xSections = PROJECT_CONFIG.xsectionsPath;
-    //     const transformationMatrix = PROJECT_CONFIG.matrixPath;
-    //     const pivResults = PROJECT_CONFIG.resultsPath;
+    ipcMain.handle('get-results-all', async (_event, args) => {
+        console.log('get-results-all')
+        const xSections = PROJECT_CONFIG.xsectionsPath;
+        const transformationMatrix = PROJECT_CONFIG.matrixPath;
+        const pivResults = PROJECT_CONFIG.resultsPath;
+    
+        const xSectionsFile = await fs.promises.readFile(xSections, 'utf-8')
+        const xSectionsFileParsed = JSON.parse(xSectionsFile)
 
-    //     const { step, fps } = args 
+        let updatedSections = {}
+
+        const { step, fps, numSections } = args 
         
-    //     const options = [
-    //         'update-xsection',
-    //         '--step',
-    //         parseInt(step),
-    //         '--fps',
-    //         parseFloat(fps),
-    //         '--id-section',
-    //         0,
-    //         xSections,
-    //         pivResults,
-    //         transformationMatrix,
-    //     ]
+        for (let i = 0; i < numSections; i++) {
+            const options = [
+                'update-xsection',
+                '--step',
+                parseInt(step),
+                '--fps',
+                parseFloat(fps),
+                '--id-section',
+                i,
+                xSections,
+                pivResults,
+                transformationMatrix,
+            ]
 
-    //     console.log(options)
+            try {
+                const result = await executePythonShell2(options) as any
+                const parsedData = JSON.parse(result.replace(/\bNaN\b/g, "null")) ;
+                const { data } = parsedData
+                
+                for (const sectionKey in data) {
+                    const sectionIndex = Object.keys(data).indexOf(sectionKey);
+                    if ( sectionIndex === i ){
+                        const section = data[sectionKey];
+                        updatedSections[sectionKey] = section
+                        xSectionsFileParsed[sectionKey] = section
+                    }
+                }
 
-    //     try {
-    //         const data = await executePythonShell2(options) as any
-    //         console.log(data)
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
 
+            } catch (error) {
+                console.log(error)
+            }
+        }
 
-    // })
+        await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
+
+        return transformData(updatedSections)
+        
+    })
 }
 
 const transformData = (data: any): Record<string, SectionData> => {

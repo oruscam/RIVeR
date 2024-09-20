@@ -93,7 +93,7 @@ async function executePythonShell2(args: (string | number)[]) {
         let output = '';
 
         pyshell.on('message', (message: string) => {
-            output += message;
+            resolve(message)
         });
 
         pyshell.end((err: Error) => {
@@ -101,22 +101,7 @@ async function executePythonShell2(args: (string | number)[]) {
                 console.log("pyshell error");
                 console.log(err);
                 reject(err);
-            } else {
-                console.log('Python shell output:', output); // Captura y revisa la salida del script de Python
-                try {
-                    // Filtrar la salida para obtener solo la parte JSON
-                    const jsonStartIndex = output.indexOf('{');
-                    const jsonEndIndex = output.lastIndexOf('}') + 1;
-                    const jsonString = output.substring(jsonStartIndex, jsonEndIndex);
-                    const parsedMessage = JSON.parse(jsonString, (key, value) => {
-                        return typeof value === 'number' && isNaN(value) ? null : value;
-                    });
-                    resolve(parsedMessage);
-                } catch (error) {
-                    console.error("Error parsing message to JSON:", error);
-                    reject(new Error('Invalid JSON output from Python script'));
-                }
-            }
+            } 
         });
     });
 }

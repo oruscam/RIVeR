@@ -18,7 +18,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                 // Direction to the folder where settings.json and the project data is located
                 const folderPath = result.filePaths[0];
 
-                // settings.json, only the name of the file
+                // settings.json, only the name of the settings file
                 const fileName = 'settings.json'
 
                 // Direction to settings.json
@@ -35,11 +35,17 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                     const dataParsed = JSON.parse(data);
 
 
-                    // * assign the project configuration
+                    // * Assign the project configuration
                     PROJECT_CONFIG.directory = folderPath;
                     PROJECT_CONFIG.settingsPath = filePath;
                     PROJECT_CONFIG.framesPath = framesPath;
                     PROJECT_CONFIG.videoPath = dataParsed.filepath;
+
+
+
+                    PROJECT_CONFIG.maskPath = path.join(folderPath, 'mask.json');
+                    PROJECT_CONFIG.bboxPath = path.join(folderPath, 'bbox.json');
+                    PROJECT_CONFIG.resultsPath = path.join(folderPath, 'piv_results.json');
 
                     if( dataParsed.footage === 'uav'){
                         PROJECT_CONFIG.type = 'uav';

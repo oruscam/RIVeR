@@ -14,14 +14,15 @@ const createInitialState = (sections: Section[]) => {
         if ( index !== 0){
             if( section.data ){
                 const baseKey = section.name;
-                const { alpha, num_stations, show95Percentile, showInterpolateProfile, showVelocityStd } = section.data;
+                const { alpha, numStations, interpolated } = section;
+                const { show95Percentile, showVelocityStd } = section.data;
                 defaultValues = {
                     ...defaultValues,
                     [`${baseKey}_ALPHA`]: alpha,
-                    [`${baseKey}_STATIONS_NUMBER`]: num_stations,
+                    [`${baseKey}_STATIONS_NUMBER`]: numStations,
                     [`${baseKey}_SHOW_VELOCITY_STD`]: showVelocityStd ? ['on'] : ['off'],
                     [`${baseKey}_SHOW_95_PERCENTILE`]: show95Percentile ? ['on'] : ['off'],
-                    [`${baseKey}_SHOW_INTERPOLATE_PROFILE`]: showInterpolateProfile ? ['on'] : ['off'],
+                    [`${baseKey}_INTERPOLATED_PROFILE`]: interpolated ? ['on'] : ['off'],
                 };
             }
         }
@@ -41,8 +42,8 @@ export const Results = () => {
     const onSubmit = ( data: FieldValues ) => {
         // Aca debo enviar la data y actualizar en sections! 
         console.log(data)
-        
-        onClickFinish(nextStep);
+        nextStep();
+        // onClickFinish(nextStep);
     }
     
     const onError = ( error ) => {

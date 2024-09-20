@@ -475,6 +475,10 @@
     font-size: 1.3rem;
 
 }
+/* 
+.disabled-cell {
+    color: transparent;
+} */
 
 .select-cell {
     pointer-events: none;

@@ -12,6 +12,7 @@ import { addSection, setActiveSection, updateSection } from "../store/section/se
 import { STEP_3, STEP_4, STEP_5, STEP_6 } from "../constants/constants";
 import { setImages } from "../store/data/dataSlice";
 import { onLoadCrossSections, onLoadPixelSize, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
+import { OperationCanceledError, UserSelectionError } from "../errors/errors";
 
 
 /**
@@ -33,12 +34,22 @@ export const useProjectSlice = () => {
     const onGetVideo = async () => {
         const ipcRenderer = window.ipcRenderer;
         try {
-            const result = await ipcRenderer.invoke('get-video');
+            const { result, error } = await ipcRenderer.invoke('get-video');
+            
+            if( error ){
+                console.log(error)
+                if ( error.type === 'user-selection-error'){
+                    throw new UserSelectionError(error.message);
+                }
+            }
+
+            console.log(result)
+
             return result
         } catch (error) {
             console.log("Error en Get Video")
             console.log(error)
-            return error        
+            throw error;
         }
     }
 
@@ -48,10 +59,16 @@ export const useProjectSlice = () => {
         console.log("onInitProject")
         console.log(video)
         const ipcRenderer = window.ipcRenderer;
-        // const blob = URL.createObjectURL(video);
         
         try {
-            const result = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type });
+            const  { result, error } = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type });
+            
+            if ( error ){
+                if (error.type === 'user-cancel-operation') {
+                    throw new OperationCanceledError(error.message);
+                }
+            }
+
             const videoData = {
                 name: video.name,
                 path: video.path,
@@ -68,9 +85,11 @@ export const useProjectSlice = () => {
             dispatch(setProjectType(type));
 
             dispatch(setLoading(false));
+            
         } catch (error) {
-            console.log("Error occurred while initializing project:", error);
             dispatch(setLoading(false));
+            console.log(' InitPRojec', error instanceof OperationCanceledError)
+            
             throw error;
         }    
     }
@@ -186,22 +205,18 @@ export const useProjectSlice = () => {
      * @param nextStep - The function to be called after successfully handling the click event.
      */
 
-    const onClickFinish = async( nextStep: () => void  ) => {
+    interface onClickFinishInterface {
+        riverName: string,
+        site: string,
+        unitSistem: string,
+        meditionDate: string,
+    }
+
+    const onClickFinish = ( data : onClickFinishInterface) => {
         dispatch(setLoading(true))  
-        const ipcRenderer = window.ipcRenderer;
-        try {
+        dispatch(setProjectDetails(data))
+        dispatch(setLoading(false))
 
-            const data = await ipcRenderer.invoke('open-modal-window', {creationDate: video.data.creation})
-            console.log(data)
-            dispatch(setProjectDetails(data))
-
-            // Si todo sale bien, nextStep()
-            nextStep();
-            dispatch(setLoading(false))
-        } catch (error) {
-            console.log("Error en onClickFinish")
-            console.log(error)
-        }
     }
 
     

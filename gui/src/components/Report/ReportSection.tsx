@@ -29,7 +29,7 @@ export const ReportSection = () => {
         </div>
         
         <div id='report-section-top-right-container'>
-          <AllInOne width={450} height={550} index={1} isReport={true}></AllInOne>
+          <AllInOne width={450} height={550} index={index} isReport={true}></AllInOne>
         </div>
 
       </div>

@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react'
 import './graphs.css'
 import * as d3 from 'd3'
-import { useSectionSlice } from '../../hooks'
+import { useSectionSlice, useUiSlice } from '../../hooks'
 import { createDischargeChart } from './dischargeSvg'
 import { createVelocityChart } from './velocitySvg'
-import { createBathymetryChart } from './bathimetrySvg'
+import { bathimetrySvg, createBathymetryChart } from './bathimetrySvg'
+import { GRAPH_WIDTH_PROPORTION, MIN_GRAPH_WIDTH } from '../../constants/constants'
 
 /**
  * * Version 0.0.1
@@ -12,12 +13,16 @@ import { createBathymetryChart } from './bathimetrySvg'
  * @returns 
  */
 
-export const AllInOne = ({ width = 450, height = 520, index, isReport  } : {width?: number, height?: number, index?: number, isReport: boolean}) => {
+export const AllInOne = ({ width, height, index, isReport  } : {width?: number, height?: number, index?: number, isReport: boolean}) => {
     const svgRef = useRef<SVGSVGElement>(null)
     const { sections, activeSection } = useSectionSlice();
     const { data, bathimetry } = sections[index ? index : activeSection]
     const { line: bathData, level } = bathimetry
-    
+    const { screenSizes } = useUiSlice()
+    const { width: screenWidth } = screenSizes
+
+    const graphWidth = screenWidth * GRAPH_WIDTH_PROPORTION > MIN_GRAPH_WIDTH ? screenWidth * GRAPH_WIDTH_PROPORTION : MIN_GRAPH_WIDTH
+
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
         if(svgRef.current === null) return
@@ -28,8 +33,9 @@ export const AllInOne = ({ width = 450, height = 520, index, isReport  } : {widt
                 const width = +svg.attr('width')
                 const height = +svg.attr('height')
                 const margin = { top: 20, right: 30, bottom: 40, left: 50 }
-                const graphHeight = (height - 60) / 3
+                const graphHeight = (height) / 3
                 
+
                 const { distance, streamwise_magnitude, plus_std, minus_std, percentile_95th, percentile_5th, Q, Q_portion, show95Percentile, showVelocityStd } = data
 
                 // Filter null values
@@ -57,9 +63,11 @@ export const AllInOne = ({ width = 450, height = 520, index, isReport  } : {widt
 
                 // Common xAxis
 
-                const xScaleMax = d3.max(xScale.domain())!;
-                const xScaleBathimetryMax = d3.max(xScaleBathimetry.domain())!;
-                const xAxisScale = xScaleMax > xScaleBathimetryMax ? xScale : xScaleBathimetry;
+                // const xScaleMax = d3.max(xScale.domain())!;
+                // const xScaleBathimetryMax = d3.max(xScaleBathimetry.domain())!;
+                // const xAxisScale = xScaleMax > xScaleBathimetryMax ? xScale : xScaleBathimetry;
+
+                const xAxisScale = xScaleBathimetry;
                 
                 const xAxis = d3.axisBottom(xAxisScale).ticks(5);
 
@@ -130,7 +138,7 @@ export const AllInOne = ({ width = 450, height = 520, index, isReport  } : {widt
                     isReport
                 });
                 
-                createBathymetryChart({
+                bathimetrySvg({
                     svgElement: svgRef.current,
                     data: bathData,
                     level,
@@ -141,10 +149,10 @@ export const AllInOne = ({ width = 450, height = 520, index, isReport  } : {widt
                 })
 
             }
-    }, [activeSection, data?.showVelocityStd, data?.show95Percentile])
+    }, [activeSection, data?.showVelocityStd, data?.show95Percentile, index, screenWidth])
 
   return (
-    <svg ref={svgRef} width={width} height={height}></svg>
+    <svg ref={svgRef} width={width ? width : graphWidth} height={height ? height : 500}></svg>
   ) 
 }
 

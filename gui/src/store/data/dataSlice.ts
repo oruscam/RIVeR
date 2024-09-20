@@ -44,7 +44,7 @@ const dataSlice = createSlice({
             state.processing.parImages = action.payload
         },
         setBackendWorkingFlag: (state, action: PayloadAction<boolean>) => { 
-            state.processing.isBackendWorking = action.payload
+            state.analizing = action.payload
         },
         setProcessingMask: (state, action: PayloadAction<string>) => {
             state.processing.maskPath = action.payload  + `?t=${new Date().getTime()}`;

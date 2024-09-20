@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { SectionState, PixelSize, Point, Section, SectionData } from './types';
+import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_REAL_WORLD } from '../../constants/constants';
 
 const defaultSections = [{
         name: "pixel_size",
@@ -11,27 +12,30 @@ const defaultSections = [{
             name: '',
         },
         pixelSize: {size: 0, rw_length: 0},
-        realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
-        extraFields: false
+        realWorld: DEFAULT_REAL_WORLD,
+        extraFields: false,
+        numStations: 0,
+        alpha: 0,
+        interpolated: false,
     },
     {
         name: "CS_default_1",
         drawLine: false,
         points: [],
         bathimetry: {
-            level: 0,
+            level: 650,
             path: '',
             name: '',
         },
         pixelSize: {size: 0, rw_length: 0},
-        realWorld: [{x: 0, y: 0}, {x: 0, y: 0}],
+        realWorld: DEFAULT_REAL_WORLD,
         extraFields: false,
-        num_stations: 15,
+        numStations: DEFAULT_NUM_STATIONS,
+        alpha: DEFAULT_ALPHA,
+        interpolated: true,
     }
     
 ]
-
-
 
 const initialState: SectionState = {
     sections: defaultSections,

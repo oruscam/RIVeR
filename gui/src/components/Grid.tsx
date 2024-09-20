@@ -14,10 +14,21 @@ const rowKeyGetter = (row) => {
 export const Grid = () => {
     const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set())
     const { sections, activeSection, onChangeDataValues } = useSectionSlice();
-    const { data } = sections[activeSection];
+    const { data, interpolated } = sections[activeSection];
+
+    console.log('interpolated',interpolated)
 
     const getCellClass = ( row ) => {
-        const cellClas = data?.check[row.id] ? 'centered-cell' : 'centered-cell cell-red-values'; 
+        let cellClas = 'centered-cell';
+        console.log(data?.check[row.id]);
+        if ( !data?.check[row.id]) {
+            if ( interpolated ){
+                cellClas = 'centered-cell cell-red-values';
+            } else {
+                cellClas = 'centered-cell disabled-cell';
+            }
+        }
+
 
         return cellClas;
     }
@@ -29,7 +40,7 @@ export const Grid = () => {
         { key: 'x', name: 'x', cellClass: 'centered-cell', headerCellClass: 'centered-cell' },
         { key: 'd', name: 'd', cellClass: 'centered-cell', headerCellClass: 'centered-cell' },
         { key: 'A', name: 'A', cellClass: 'centered-cell', headerCellClass: 'centered-cell' },
-        { key: 'V', name: 'V', cellClass: getCellClass, headerCellClass: 'centered-cell' },
+        { key: 'Vs', name: 'Vs', cellClass: getCellClass, headerCellClass: 'centered-cell' },
         { key: 'Q', name: 'Q', cellClass: getCellClass, headerCellClass: 'centered-cell' },
     ]
 
@@ -46,14 +57,17 @@ export const Grid = () => {
     const rows = useMemo(() => {
         const section = sections[activeSection];
         if (section && section.data) {
-            const { num_stations, distance, depth, streamwise_magnitude, Q, A } = section.data;
+            const { num_stations, distance, depth, streamwise_magnitude, Q, A, check } = section.data;
+
+
             return Array.from({ length: num_stations }, (_, i) => ({
                 key: i,
                 id: i,
                 x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '0.00',
                 d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '0.00',
                 A: typeof A[i] === 'number' ? A[i].toFixed(2) : '0.00',
-                V: typeof streamwise_magnitude[i] === 'number' ? streamwise_magnitude[i].toFixed(2) : '0.00',
+                Vs: typeof streamwise_magnitude[i] === 'number' ? 
+                    (check[i] || interpolated ? streamwise_magnitude[i].toFixed(2) : '-') : '-',
                 Q: typeof Q[i] === 'number' ? Q[i].toFixed(2) : '0.00'
             }));
         }

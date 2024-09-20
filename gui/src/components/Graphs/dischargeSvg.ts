@@ -19,7 +19,6 @@ interface CreateDischargeChartProps {
     QPortion: number[],
     isReport?: boolean
 }
-
 export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes, isReport = false} : CreateDischargeChartProps) => {
     const svg = d3.select(SVGElement);
     const { width, margin, graphHeight } = sizes;
@@ -30,8 +29,8 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
         .padding(BAR_PADDING);
 
     const yScale = d3.scaleLinear()
-        .domain([d3.min(Q)!, d3.max(Q)!])
-        .range([graphHeight - 10, margin.top + (isReport ? 20 : 0)]);
+        .domain([d3.min(Q)! > 0 ? 0 : d3.min(Q)!, d3.max(Q)!])
+        .range([graphHeight + (isReport ? -15 : -60), margin.top + (isReport ? 25 : 0)]);
     
     const yAxis = d3.axisLeft(yScale)
         .ticks(5)
@@ -40,10 +39,9 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
     svg.append('g')
         .attr('class', 'y-axis y-axis-1')
         .attr('transform', `translate(${margin.left},0)`)
-        .call(yAxis)
+        .call(yAxis);
 
     // Append Bars
-
     svg.selectAll(".bar")
         .data(Q)
         .enter()
@@ -54,24 +52,20 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
         .attr("height", d => Math.abs(yScale(d) - yScale(0))) // Ajustar la altura de las barras
         .attr("width", xScale.bandwidth())
         .attr("fill", (_d, i) => {
-            if ( QPortion[i] < 0.05) {
+            if (QPortion[i] < 0.05) {
                 return GREEN;
             } else if (QPortion[i] < 0.1) {
                 return YELLOW;
-            } else  {
+            } else {
                 return RED;
             }
         });
 
-    
-
-    if ( isReport ){
-
-        // Add leyends
-
+    if (isReport) {
+        // Add legends
         const legendGroup = svg.append('g')
             .attr('class', 'legend-group')
-            .attr('transform', `translate(${ margin.left + 40 }, ${margin.top})`);
+            .attr('transform', `translate(${margin.left + 40}, ${margin.top})`);
 
         legendGroup.append('rect')
             .attr('width', 15)
@@ -107,39 +101,31 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
             .attr('y', 12)
             .attr('fill', 'white')
             .text('Q > 10%');
-    } else {         
-    
+    } else {
         // Add tooltip to bars
-
         svg.selectAll(".bar")
-        .on("mouseover", (event, d) => {
-            svg.append("text")
-                .attr("class", "tooltip")
-                .attr("x", parseFloat(d3.select(event.currentTarget).attr("x")) + xScale.bandwidth() / 2)
-                .attr("y", parseFloat(d3.select(event.currentTarget).attr("y")) - 5)
-                .attr("text-anchor", "middle")
-                .attr("fill", "white")
-                .text(d.toFixed(2));
-        })
-        .on("mouseout", () => {
-            svg.selectAll(".tooltip").remove();
-        });
+            .on("mouseover", (event, d) => {
+                svg.append("text")
+                    .attr("class", "tooltip")
+                    .attr("x", parseFloat(d3.select(event.currentTarget).attr("x")) + xScale.bandwidth() / 2)
+                    .attr("y", parseFloat(d3.select(event.currentTarget).attr("y")) - 5)
+                    .attr("text-anchor", "middle")
+                    .attr("fill", "white")
+                    .text(d.toFixed(2));
+            })
+            .on("mouseout", () => {
+                svg.selectAll(".tooltip").remove();
+            });
     }
 
-    
-        
-
     // Label
-    
     svg.append('text')
         .attr('class', 'y-axis-label')
         .attr('text-anchor', 'middle')
-        .attr('x', - graphHeight + 60)
+        .attr('x', -graphHeight + (isReport ? 80 : 110))
         .attr('y', margin.left - 35)
         .attr('transform', 'rotate(-90)')
         .attr('fill', 'white')
         .attr('font-size', '20px')
-
         .text('Discharge');
-
-    }
+};

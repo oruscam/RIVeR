@@ -15,7 +15,7 @@ const createInitialState = (sections: Section[]) => {
   
     sections.forEach((section, index) => {
         if ( index !== 0){
-            const {name, points, realWorld, pixelSize, bathimetry} = section
+            const {name, points, realWorld, pixelSize, bathimetry, numStations, alpha} = section
             const baseKey = name;
             defaultValues = {
                 ...defaultValues,
@@ -31,8 +31,8 @@ const createInitialState = (sections: Section[]) => {
                 [`${baseKey}_Y_Left`]: points.length === 0 ? 0 : points[0].y.toFixed(1),
                 [`${baseKey}_X_Right`]: points.length === 0 ? 0 : points[1].x.toFixed(1),
                 [`${baseKey}_Y_Right`]: points.length === 0 ? 0 : points[1].y.toFixed(1),
-                [`${baseKey}_NUM_STATIONS`]: 15,
-                [`${baseKey}_ALPHA`]: 0.85,
+                [`${baseKey}_NUM_STATIONS`]: numStations,
+                [`${baseKey}_ALPHA`]: alpha,
             };
 
         }

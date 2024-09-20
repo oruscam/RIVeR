@@ -44,7 +44,7 @@ function createWindow() {
   
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
-    minWidth: 1000,
+    minWidth: 1150,
     minHeight: 750,
     x: x,
     y: y,
@@ -81,48 +81,6 @@ function createWindow() {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
   }
-}
-
-function createModalWindow( creationDate ): Promise<string> {
-  return new Promise((resolve) => {
-    const primaryDisplay = screen.getPrimaryDisplay();
-    const { x, y } = primaryDisplay.workArea;
-
-    const modalWin = new BrowserWindow({
-      width: 800,
-      height: 500,
-      x: x + (primaryDisplay.workAreaSize.width - 800) / 2, // Centra horizontalmente
-      y: y + (primaryDisplay.workAreaSize.height - 500) / 2, // Centra verticalmente
-      resizable: false, // Deshabilita el redimensionamiento
-      minimizable: false, // Deshabilita la opción de minimizar
-      maximizable: false, // Deshabilita la opción de maximizar
-      closable: false, // Habilita la opción de cerrar
-      parent: win, // Establece la ventana principal como padre
-      modal: true, // Hace que la ventana sea modal
-      webPreferences: {
-        preload: path.join(__dirname, 'preload.mjs'),
-        nodeIntegration: true,
-        contextIsolation: true
-      },
-    });
-
-    // Elimina la barra de menú
-    modalWin.setMenu(null);
-
-    if (VITE_DEV_SERVER_URL) {
-      modalWin.loadURL(`${VITE_DEV_SERVER_URL}/finish`);
-    } else {
-      modalWin.loadFile(path.join(RENDERER_DIST, 'finish.html'));
-    }
-
-    modalWin.webContents.on('did-finish-load', () => {
-      modalWin.webContents.send('creation-date', creationDate);
-    });
-
-    ipcMain.once('close-modal-window', (event, value) => {
-      resolve(value);
-    });
-  });
 }
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -180,20 +138,14 @@ app.whenReady().then(() => {
   getResultData(PROJECT_CONFIG);
   getBathimetry();
 
-  ipcMain.handle('open-modal-window', async (event, args) => {
-    const result = createModalWindow(args.creationDate);
-    return result;
-  })  
 
-
-  ipcMain.on('print-to-pdf', (event, args) => {
+  ipcMain.handle('print-to-pdf', (event, args) => {
     const pdfPath = path.join(PROJECT_CONFIG.directory, 'report.pdf');
     const options = {
       marginsType: 0,
-      pageSize: 'A4',
+      size: 'A4',
       printBackground: true,
-      landscape: false
-      
+      landscape: false  
     }
 
     win?.webContents.printToPDF(options).then(data => {

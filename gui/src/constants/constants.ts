@@ -1,4 +1,15 @@
 /**
+ * Default section
+ */
+
+export const DEFAULT_ALPHA = 0.85
+export const DEFAULT_NUM_STATIONS = 15
+export const DEFAULT_REAL_WORLD = [{x: 0, y: 0}, {x: 0, y: 0}]
+
+
+
+
+/**
  * This file contains all the constants used in the front application
  */
 
@@ -41,10 +52,8 @@ export const TRANSPARENT_WHITE = 'rgba(255, 255, 255, 0.5)'
 export const PERCENTILE_AREA_COLOR = 'rgba(237, 107, 87, 40%)'
 export const STD_AREA_COLOR = 'rgba(51, 150, 191, 40%)'
 export const BAR_PADDING = 0.4
-
-
-
-
+export const GRAPH_WIDTH_PROPORTION = 0.22
+export const MIN_GRAPH_WIDTH = 375
 
 /**
  * Velocity Vector

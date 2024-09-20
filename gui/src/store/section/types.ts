@@ -78,6 +78,9 @@ interface Section {
     pixelSize: PixelSize
     realWorld: Point[];
     extraFields: boolean;
+    alpha: number;
+    numStations: number;
+    interpolated: boolean;
     data?: SectionData;
 
 }

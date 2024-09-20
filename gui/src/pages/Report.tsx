@@ -1,5 +1,4 @@
 import { WizardButtons } from '../components'
-import { Bathimetry, Velocity } from '../components/Graphs'
 import { ProcessedRange, VideoInfo } from '../components/Report'
 import { Header } from '../components/Report/Header'
 import './pages.css'
@@ -37,6 +36,10 @@ export const Report = () => {
         });
     }
   };
+
+  // const generatePdf2 = () => {
+  //   window.ipcRenderer.invoke('print-to-pdf', 'report.pdf');
+  // }
 
   return (
     <div className='report-container'>

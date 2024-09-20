@@ -13,7 +13,7 @@ export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, se
     const { paths, active } = images;
     const { isBackendWorking } = processing;
     
-    const [defaultValue, setDefautValue] = React.useState<string | number>( active as string | number);
+    const [defaultValue, setDefautValue] = React.useState<string | number>( active + 1 as string | number);
     const [_slideIndex, setSlideIndex] = useState<number>(Number(defaultValue));
     const [updateCount, setUpdateCount] = useState<number>(0);
     
@@ -55,7 +55,7 @@ export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, se
                 <input value={defaultValue} onChange={handleInputChange} onKeyDown={handleKeyDown} disabled={isBackendWorking}></input>
                 <p> / { paths.length - 1 } </p>
             </div>
-            <Slider ref={sliderRef} {...carouselSettings(updateCount, setSlideIndex, setUpdateCount)} sho>
+            <Slider ref={sliderRef} {...carouselSettings(updateCount, setSlideIndex, setUpdateCount)}>
                 
                 { activeStep === ANALIZING_STEP_NUMBER ? (
                     <div className='img-carousel-container' onClick={() => setShowMedian(!showMedian)}>

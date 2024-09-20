@@ -37,7 +37,7 @@ interface BathymetryChartProps {
     }
 
 
-export const createBathymetryChart = ({svgElement, data, level, showLeftBank, drawGrid, leftBank, rightBank, xScaleAllInOne, sizes}: BathymetryChartProps) : BathymetryChartResult => {
+export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, leftBank, rightBank, xScaleAllInOne, sizes}: BathymetryChartProps) : BathymetryChartResult => {
     const svg = d3.select(svgElement);
     const width = +svg.attr('width');
     const height = +svg.attr('height');
@@ -54,12 +54,12 @@ export const createBathymetryChart = ({svgElement, data, level, showLeftBank, dr
         xScale = xScaleAllInOne;
         yScale = d3.scaleLinear()
             .domain([d3.min(data, d => d.y)!, d3.max(data, d => d.y)!])
-            .range([heightSizes - marginSizes.bottom, graphHeight*2 + 20]);
+            .range([heightSizes - marginSizes.bottom, graphHeight*2]);
 
             svg.append('text')
                 .attr('class', 'y-axis-label')
                 .attr('text-anchor', 'end')
-                .attr('x', - (heightSizes - 60) / 2 - graphHeight)
+                .attr('x', - graphHeight *3 + 150)
                 .attr('dy', '.75em')
                 .attr('transform', 'rotate(-90)')
                 .attr('fill', 'white')
@@ -211,12 +211,14 @@ export const createBathymetryChart = ({svgElement, data, level, showLeftBank, dr
                 .attr('fill', RED)
                 .attr('transform', `translate(${xScale(xValue)}, ${yScale(level) - 16})`);
 
-            if(rightBank){
+            if(rightBank && rightBank >= xMin && rightBank <= xMax){
                 const x2Value = xValue + (rightBank);
                 svg.append('path')
                     .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
                     .attr('fill', GREEN)
                     .attr('transform', `translate(${xScale(x2Value)}, ${yScale(level) - 16})`);
+            } else if(rightBank !== undefined){
+                error = `Right Bank can be between ${xMin.toFixed(2)} and ${xMax.toFixed(2)}`;
             }
             
             return { intersectionX: xValue, error };

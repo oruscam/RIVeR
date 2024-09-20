@@ -2,33 +2,46 @@ import { ipcMain } from "electron";
 import { createFolderStructure } from "./createFolderStructure";
 import * as path from 'path'
 import { getVideoMetadata } from "./utils/getVideoMetadata";
-import { ProjectConfig } from "./interface";
+import { ProjectConfig } from "./interfaces";
+
 
 function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
     ipcMain.handle('init-project', async( _event, arg: {path: string, name: string, type: string}) => {
-        console.log("Event video-metadata en main" , arg)
+        console.log("Init Project" , arg)
+
         const [ videoName ] = arg.name.split('.');
-        const newPath = path.join(userDir, 'River', videoName);
+        const newDirectory = path.join(userDir, 'River', videoName);
 
 
         try {
             const result = await getVideoMetadata(arg.path)
 
-            createFolderStructure(newPath, arg.type, arg.path, arg.name, result)
+            await createFolderStructure(newDirectory, arg.type, arg.path, arg.name, result)
 
-            PROJECT_CONFIG.directory = newPath
+            PROJECT_CONFIG.directory = newDirectory
             PROJECT_CONFIG.type = arg.type
             PROJECT_CONFIG.videoPath = arg.path
-            PROJECT_CONFIG.settingsPath = path.join(newPath, 'settings.json')
+            PROJECT_CONFIG.settingsPath = path.join(newDirectory, 'settings.json')
+            
             return {
-                ...result,
-                directory: newPath
+                result: {
+                    ...result,
+                    directory: newDirectory
+                }
             }
         } catch (error) {
-            console.error("Error occurred while getting video metadata:", error);
+            console.log('init project error');
+
+            if ( error.message === 'user-cancel-operation') {
+                return {
+                    error: {
+                        message: error.message,
+                        type: 'user-cancel-operation'
+                    }
+                }
+            }
             throw error;
         }
-
     }
     )
 }

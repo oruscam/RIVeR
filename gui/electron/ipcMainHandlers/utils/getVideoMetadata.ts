@@ -13,7 +13,6 @@ async function getVideoMetadata(path: string): Promise<{ width: number; height: 
             });
         });
 
-        console.log(metadata)
 
         const { width, height, r_frame_rate, duration } = metadata.streams[0];
         const { tags } = metadata.format;

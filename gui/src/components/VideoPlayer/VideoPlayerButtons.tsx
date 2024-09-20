@@ -1,6 +1,6 @@
 import { Icon } from '../Icon.tsx'
 import { previous, next, play, pause } from '../../assets/icons/icons.ts'
-import { useUiSlice } from '../../hooks/useUiSlice.ts'
+import { useProjectSlice } from '../../hooks/useProjectSlice.ts';
 
 interface VideoPlayerButtonsProps {
     videoRef: React.RefObject<HTMLVideoElement>;
@@ -9,8 +9,8 @@ interface VideoPlayerButtonsProps {
 }
 
 export const VideoPlayerButtons = ({ videoRef, control, setControl }: VideoPlayerButtonsProps) => {
-    const { video } = useUiSlice();
-    const { fps } = video || { fps: 0 };
+    const { video } = useProjectSlice();
+    const { fps } = video.data || { fps: 0 };
     
     const handlePreviuos = () => {
         const step = document.getElementById('input-step') as HTMLInputElement;

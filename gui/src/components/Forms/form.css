@@ -435,8 +435,8 @@ transform-origin: 14px 22px;
 
 
 #form-section-div{
-    height: 72%;
-    width: 80%;
+    height: 70%;
+    width: 100%;
 }
 
 #left-bank-station-label{
@@ -476,3 +476,13 @@ transform-origin: 14px 22px;
 #analize-div{
     padding-left: 0px;
 }
+
+.all-in-one-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+
