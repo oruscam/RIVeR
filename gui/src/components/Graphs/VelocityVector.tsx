@@ -5,7 +5,7 @@ import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks'
 import { DrawSections } from '../DrawSections'
 import { Layer, Stage } from 'react-konva'
 import * as d3 from 'd3'
-import { BLUE, RED, VECTOR_FACTOR } from '../../constants/constants'
+import { BLUE, RED, TRANSPARENT, VECTOR_FACTOR } from '../../constants/constants'
 
 interface VelocityVectorProps {
     height: number;
@@ -21,7 +21,8 @@ export const VelocityVector = ({ height, width, factor }: VelocityVectorProps ) 
     
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
-        const { data } = sections[activeSection]
+        const { data, interpolated } = sections[activeSection]
+        
         if ( !data ) return;
         if (svgRef.current && data) {
             
@@ -49,7 +50,7 @@ export const VelocityVector = ({ height, width, factor }: VelocityVectorProps ) 
                     return {
                         x: xFiltered[i] + displacementXFiltered[i],
                         y: yFiltered[i] + displacementYFiltered[i],
-                        color: check[i] ? BLUE : RED
+                        color: check[i] ? BLUE : interpolated ? RED : TRANSPARENT
                         };
                     })
                 

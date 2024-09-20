@@ -8,14 +8,24 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig){
 
     ipcMain.handle('get-results-single', async (_event, args) => {
         console.log('get-results-single')
+        const { step, fps, sectionIndex, alpha, num_stations, interpolated, check, name } = args
+        
+        
         const xSections = PROJECT_CONFIG.xsectionsPath;
         const transformationMatrix = PROJECT_CONFIG.matrixPath;
         const pivResults = PROJECT_CONFIG.resultsPath;
     
         const xSectionsFile = await fs.promises.readFile(xSections, 'utf-8')
         const xSectionsFileParsed = JSON.parse(xSectionsFile)
-        const { step, fps, sectionIndex, alpha, num_stations, interpolated } = args
+        console.log(arraysAreEqual(xSectionsFileParsed[name].check, check))
+        
+        if( !arraysAreEqual(xSectionsFileParsed[name].check, check) ){
+            xSectionsFileParsed[name].check = check
+            await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
+        }
 
+
+        console.log(xSectionsFileParsed[name].check)
 
         const options = [
             'update-xsection',
@@ -167,6 +177,18 @@ const transformData = (data: any): Record<string, SectionData> => {
     return result;
 };
 
+
+function arraysAreEqual(arr1: boolean[], arr2: boolean[]): boolean {
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 export { getResultData }
 
 

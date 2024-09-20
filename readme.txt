@@ -22,3 +22,19 @@ RIVeR desktop has been developed in Python 3.7.7
 
 Listo, app corriendo.
 
+# CAMBIOS
+ - update-xsections, ahora los resultados corresponden al analisis. (ver como funciona)
+ - Elimine la ventana emergente para las ultimas configuraciones y cree un paso nuevo
+ - responsive -> ahora todos los graficos y formularios se adaptan mejor al ancho de la pantalla
+ - Stop Button, solo se puede activar si el backend esta funcionando
+ - Agregue una validacion al crear un proyecto que ya fue creado, pregunto al usuario si desea sobreescribir
+ - en Results -> tabla
+   - si check == false e interpolate == false, no se muestran los valores, ni los vectores
+   - Provisoriamente agregue un button al final, para actualizar el grafico dependiendo los valores (ver que hacer)
+  
+ - Arreglos : 
+    - botones de modulo video
+    - Right Bank, siempre se calcula, solo que hay veces que queda fuera del grafico si tiene valores muy altos. (hay que ver que hacer)
+    - Deshabilito import bath hasta que el valor de cs_lenght llegue, asi no hay conflicto de eventos.
+    - Deshabilito botones next y back si se esta analizando
+    - Empeze a corregir errores y elementos graficos en general!

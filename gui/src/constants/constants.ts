@@ -43,6 +43,7 @@ export const YELLOW = '#F5BF61'
 export const BLUE = '#0678BE'
 export const WHITE = '#FFFFFF'
 export const TRANSPARENT_WHITE = 'rgba(255, 255, 255, 0.5)'
+export const TRANSPARENT = 'transparent'
 
 
 /**

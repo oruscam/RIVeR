@@ -63,12 +63,13 @@ export const Grid = () => {
             return Array.from({ length: num_stations }, (_, i) => ({
                 key: i,
                 id: i,
-                x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '0.00',
-                d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '0.00',
-                A: typeof A[i] === 'number' ? A[i].toFixed(2) : '0.00',
+                x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
+                d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
+                A: typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
                 Vs: typeof streamwise_magnitude[i] === 'number' ? 
                     (check[i] || interpolated ? streamwise_magnitude[i].toFixed(2) : '-') : '-',
-                Q: typeof Q[i] === 'number' ? Q[i].toFixed(2) : '0.00'
+                Q: typeof Q[i] === 'number' ? 
+                    (check[i] || interpolated ? Q[i].toFixed(2) : '-') : '-'
             }));
         }
         return [];

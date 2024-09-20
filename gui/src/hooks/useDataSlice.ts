@@ -185,7 +185,7 @@ export const useDataSlice = () => {
         if ( type === 'single' ){
             const section = sections[activeSection]
             try {
-                const data = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated})
+                const data = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, check : section.data?.check, name: section.name})
 
                 dispatch(setSectionData({
                     sectionIndex: activeSection,

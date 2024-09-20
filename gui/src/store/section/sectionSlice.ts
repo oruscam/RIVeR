@@ -16,7 +16,7 @@ const defaultSections = [{
         extraFields: false,
         numStations: 0,
         alpha: 0,
-        interpolated: false,
+        interpolated: true,
     },
     {
         name: "CS_default_1",
