@@ -1,7 +1,7 @@
 # coordinate_transform.py
 
 import numpy as np
-
+from scipy.optimize import minimize
 
 def calculate_real_world_distance(x1_rw, y1_rw, x2_rw, y2_rw):
     """
@@ -170,6 +170,53 @@ def convert_displacement_field(X, Y, U, V, transformation_matrix):
     return EAST, NORTH, Displacement_EAST, Displacement_NORTH
 
 
+def optimize_coordinates(d12, d23, d34, d41, d13, d24):
+    """
+    Optimize the coordinates of points 3 and 4 based on the given distances.
+
+    Parameters:
+        d12 (float): Distance between point 1 and point 2.
+        d23 (float): Distance between point 2 and point 3.
+        d34 (float): Distance between point 3 and point 4.
+        d41 (float): Distance between point 4 and point 1.
+        d13 (float): Distance between point 1 and point 3.
+        d24 (float): Distance between point 2 and point 4.
+
+    Returns:
+        tuple: Optimized coordinates (east_3_opt, north_3_opt, east_4_opt, north_4_opt)
+    """
+
+    # Coordinates for points 1 and 2 (given)
+    east_1, north_1 = 0, 0
+    east_2, north_2 = d12, 0
+
+    # Objective function to minimize: sum of squared errors between calculated and given distances
+    def objective(vars):
+        east_3, north_3, east_4, north_4 = vars
+
+        # Calculate distances based on the current coordinates
+        calc_d13 = np.sqrt((east_3 - east_1) ** 2 + (north_3 - north_1) ** 2)
+        calc_d23 = np.sqrt((east_3 - east_2) ** 2 + (north_3 - north_2) ** 2)
+        calc_d34 = np.sqrt((east_4 - east_3) ** 2 + (north_4 - north_3) ** 2)
+        calc_d41 = np.sqrt((east_4 - east_1) ** 2 + (north_4 - north_1) ** 2)
+        calc_d24 = np.sqrt((east_4 - east_2) ** 2 + (north_4 - north_2) ** 2)
+
+        # Sum of squared errors between calculated and actual distances
+        error = (calc_d13 - d13) ** 2 + (calc_d23 - d23) ** 2 + (calc_d34 - d34) ** 2
+        error += (calc_d41 - d41) ** 2 + (calc_d24 - d24) ** 2
+
+        return error
+
+    # Initial guess for coordinates of points 3 and 4 (could start with random values)
+    initial_guess = [d12 / 2, d12 / 2, d12 / 2, d12 / 2]  # (east_3, north_3, east_4, north_4)
+
+    # Minimize the objective function
+    result = minimize(objective, initial_guess)
+
+    # Extract optimized coordinates
+    east_3_opt, north_3_opt, east_4_opt, north_4_opt = result.x
+
+    return east_3_opt, north_3_opt, east_4_opt, north_4_opt
 # Example of use !
 
 # import coordinate_transform as ct
