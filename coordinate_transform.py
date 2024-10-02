@@ -141,7 +141,7 @@ def oblique_view_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix,
     ])
 
     # Calculate the homography matrix (H)
-    H, _ = cv2.findHomography(pixel_coords, real_world_coords)
+    H, _ = cv2.findHomography(real_world_coords,pixel_coords)
 
     return H
 
