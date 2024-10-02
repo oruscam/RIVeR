@@ -28,12 +28,9 @@ export const Grid = () => {
                 cellClas = 'centered-cell disabled-cell';
             }
         }
-
-
         return cellClas;
     }
-
-
+    
     const columns = [
         {...SelectColumn, cellClass: 'centered-cell', headerCellClass: 'select-cell'},
         { key: 'id', name: '#', cellClass: 'centered-cell', headerCellClass: 'centered-cell' },

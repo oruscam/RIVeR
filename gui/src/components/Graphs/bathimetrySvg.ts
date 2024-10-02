@@ -212,11 +212,15 @@ export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, 
                 .attr('transform', `translate(${xScale(xValue)}, ${yScale(level) - 16})`);
 
             if(rightBank && rightBank >= xMin && rightBank <= xMax){
-                const x2Value = xValue + (rightBank);
-                svg.append('path')
-                    .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
-                    .attr('fill', GREEN)
-                    .attr('transform', `translate(${xScale(x2Value)}, ${yScale(level) - 16})`);
+                const x2Value = xValue + rightBank;
+                if ( x2Value < xMax){
+                    svg.append('path')
+                        .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
+                        .attr('fill', GREEN)
+                        .attr('transform', `translate(${xScale(x2Value)}, ${yScale(level) - 16})`);
+                } else {
+                    error = `Right Bank is out of range`;
+                }
             } else if(rightBank !== undefined){
                 error = `Right Bank can be between ${xMin.toFixed(2)} and ${xMax.toFixed(2)}`;
             }

@@ -73,11 +73,11 @@ async function executePythonShell2(args: (string | number)[]) {
      */
     const options: Options = {
         mode: 'text', // Cambiar a 'text' para capturar toda la salida
-        pythonPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/venv/bin/python3',
-        scriptPath: '/home/tomy_ste/Desktop/RIVeR/RIVeR/river/cli/',
+        pythonPath: process.env.PYTHON_PATH,
+        scriptPath: process.env.RIVER_CLI_PATH,
         args: args.map(arg => arg.toString())
     };
-    console.log('executePythonShell');
+    console.log('executePythonShell2');
     console.log(options);
 
     /**

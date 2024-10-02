@@ -204,6 +204,7 @@
 .form-button{
   width: 150px;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .video-button{
@@ -401,7 +402,7 @@ input:checked + .slider:before {
 
 .button-with-loader{
   display: flex;
-  width: 175px;
+  width: 165px;
   height: 60px;
   background-color: var(--background-color);
   color: var(--primary-text-color);
@@ -411,6 +412,7 @@ input:checked + .slider:before {
   justify-content: space-around;
   padding-left: 10px;
   padding-right: 10px;
+  flex-shrink: 0;
 }
 
 .button-with-loader p{

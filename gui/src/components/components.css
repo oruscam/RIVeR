@@ -50,6 +50,7 @@
     align-items: center;
     overflow-y: hidden;
     overflow-x: hidden;
+    flex-shrink: 1;
 }
 
 .video-player{
@@ -218,8 +219,7 @@
 }
 
 .image-with-marks{
-    margin-top: auto;
-    margin-bottom: auto;
+    margin: auto 0;
 }
 
 /* Chart Cross Sections */
@@ -425,22 +425,22 @@
 }
 
 @media screen and (max-width: 1580px) {
-    .image-with-marks{
+    /* .image-with-marks{
         margin-top: 20%;
-    }
-    .video-player{
+    } */
+    /* .video-player{
         margin-top: 15%;
-    }
+    } */
 
 }
 
 @media screen and (max-width: 1280px) {
-    .image-with-marks{
+    /* .image-with-marks{
         margin-top: 30%;
-    }
-    .video-player{
+    } */
+    /* .video-player{
         margin-top: 20%;
-    }
+    } */
 
 }
 
@@ -456,15 +456,29 @@
     width: 96%;
     margin-left: auto;
     margin-right: auto; 
-    margin-bottom: 300px;   
     height: 500px;
 }
+
 
 .grid{
     height: 100%;
     width: 100%;
 }
 
+.grid::-webkit-scrollbar {
+  height: 5px; /* Altura del scrollbar horizontal */
+}
+
+/* .grid .rdg-header-row {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 1; 
+  } */
+
+
+
+  
 .centered-cell {
     display: flex;
     justify-content: center;
@@ -489,3 +503,4 @@
 .cell-red-values{
     color: #ED6B57;
 }
+

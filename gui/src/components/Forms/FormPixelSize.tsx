@@ -100,9 +100,6 @@ export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
                       />
               </div>
 
-              {/* <ButtonLock setExtraFields={setExtraFields} extraFields={extraFields} footerElementID='span-footer' headerElementID='pixel_size-HEADER' disabled={sections[0].points.length === 0}/> */}
-
-
           <div className={extraFields ? '' : 'hidden'}>
             <RealWorldCoordinates modeName='pixel_size'/>
             <PixelCoordinates modeName='pixel_size'/> 

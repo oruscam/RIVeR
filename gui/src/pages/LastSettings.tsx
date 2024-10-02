@@ -6,6 +6,7 @@ import { useProjectSlice } from "../hooks";
 import { dateToStringDate } from "../helpers";
 import { useWizard } from "react-use-wizard";
 import './pages.css';
+import { WizardButtons } from "../components";
 
 export const LastSettings = () => {
   const { nextStep } = useWizard();
@@ -76,6 +77,7 @@ export const LastSettings = () => {
 
         <button type="submit" id='button-send'> Send </button>
       </form>
+      <WizardButtons></WizardButtons>
     </div>
   )
 }

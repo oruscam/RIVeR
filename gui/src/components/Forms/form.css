@@ -1,5 +1,5 @@
 .form-container{
-    min-width: 450px;
+    min-width: 400px;
     width: 29%;
     height: 98vh;
     background-color: var(--secondary-background-color);
@@ -52,6 +52,7 @@
     white-space: nowrap; /* Asegura que el texto se mantenga en una sola línea */
     overflow: hidden;
     text-overflow: ellipsis;
+    flex-shrink: 0;
 }
 
 .bg-transparent{
@@ -157,11 +158,9 @@
 
 
 .btn-lock-container{
-    grid-column: 1 / -1;
     width: 100%;
     display: flex;
     justify-content: center;
-    align-self: flex-end;
     flex-shrink: 0;
     height: 40px;
 }
@@ -459,6 +458,7 @@ transform-origin: 14px 22px;
 
 
 .input-field-select {
+    flex-shrink: 0;
     appearance: none; /* Elimina el estilo nativo del select */
     /* La imagen SVG es una flecha hacia abajo, ajusta la posición según sea necesario */
   }
@@ -475,6 +475,7 @@ transform-origin: 14px 22px;
 
 #analize-div{
     padding-left: 0px;
+    margin-left: 10px;
 }
 
 .all-in-one-container{
@@ -485,4 +486,6 @@ transform-origin: 14px 22px;
     height: 100%;
 }
 
-
+#apply-changes{
+    align-self: center;
+}

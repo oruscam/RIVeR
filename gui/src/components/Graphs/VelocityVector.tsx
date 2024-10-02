@@ -1,11 +1,11 @@
 
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import './graphs.css'
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks'
 import { DrawSections } from '../DrawSections'
 import { Layer, Stage } from 'react-konva'
 import * as d3 from 'd3'
-import { BLUE, RED, TRANSPARENT, VECTOR_FACTOR } from '../../constants/constants'
+import { BLUE, RED, TRANSPARENT, VECTOR_AMPLITUDE_FACTOR} from '../../constants/constants'
 
 interface VelocityVectorProps {
     height: number;
@@ -21,69 +21,71 @@ export const VelocityVector = ({ height, width, factor }: VelocityVectorProps ) 
     
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
-        const { data, interpolated } = sections[activeSection]
-        
-        if ( !data ) return;
-        if (svgRef.current && data) {
-            
-            const svg = d3.select(svgRef.current);
-            svg.attr("width", width)
-                .attr("height", height)
-                .style("background-color", "transparent");
+        const svg = d3.select(svgRef.current);
+        svg.attr("width", width)
+            .attr("height", height)
+            .style("background-color", "transparent");
 
-            sections.forEach((_section, sectionIndex) => {
-                if(sectionIndex === 0) return;
-                if(seeAll && activeSection !== sectionIndex) return;
-                
-                const { x, y, displacement_x_streamwise, displacement_y_streamwise, check } = data;
+        sections.forEach((section, sectionIndex) => {
+            if(sectionIndex === 0) return;
+            if(seeAll && activeSection !== sectionIndex) return;
 
-                if ( !x || !y || !displacement_x_streamwise || !displacement_y_streamwise || !check ) return;
+            const { data, interpolated } = section;
+            if (!data) return;
 
-                const xFiltered = x.filter((d, _i) => d !== null);
-                const yFiltered = y.filter((d, _i) => d !== null);
-                const displacementXFiltered = displacement_x_streamwise.filter((d, _i) => d !== null);
-                const displacementYFiltered = displacement_y_streamwise.filter((d, _i) => d !== null);
+            const { x, y, displacement_x_streamwise, displacement_y_streamwise, check } = data;
 
+            if ( !x || !y || !displacement_x_streamwise || !displacement_y_streamwise || !check ) return;
 
-                // const vectors = d3.range(x.length)
-                const vectors = d3.range(xFiltered.length).map(i => {
+            // const vectors = d3.range(x.length)
+            const vectors = d3.range(x.length).map(i => {
+                if( displacement_x_streamwise[i] === null || displacement_y_streamwise[i] === null || x[i] === null || y[i] === null ) {
                     return {
-                        x: xFiltered[i] + displacementXFiltered[i],
-                        y: yFiltered[i] + displacementYFiltered[i],
-                        color: check[i] ? BLUE : interpolated ? RED : TRANSPARENT
-                        };
-                    })
-                
+                        x0: x[i] / factor.x,
+                        y0: y[i] / factor.y,
+                        x1: 1,
+                        y1: 1,
+                        color: TRANSPARENT
+                    };
+                }
+     
+                return {
+                    x0: x[i] / factor.x,
+                    y0: y[i] / factor.y,
+                    x1: (x[i] - displacement_x_streamwise[i] * VECTOR_AMPLITUDE_FACTOR) / factor.x,
+                    y1: (y[i] - displacement_y_streamwise[i] * VECTOR_AMPLITUDE_FACTOR) / factor.y,
+                    color: check[i] ? BLUE : interpolated ? RED : TRANSPARENT
+                    };
+                })
 
-                svg.selectAll(`line.section-${sectionIndex}`)
-                    .data(vectors)
-                    .enter()
-                    .append('line')
-                    .attr('x1', d => d.x / factor.x)
-                    .attr('y1', d => d.y / factor.y)
-                    .attr('x2', (d, i) => (d.x - (displacementXFiltered[i]) * VECTOR_FACTOR) / factor.x)
-                    .attr('y2', (d,i) => (d.y - (displacementYFiltered[i]) * VECTOR_FACTOR)/ factor.y)
-                    .attr('stroke', d => d.color)
-                    .attr('stroke-width', 2.8)
-                    .attr('marker-end', (_d, i) => `url(#arrow-${sectionIndex}-${i})`);
+            svg.selectAll(`line.section-${sectionIndex}`)
+                .data(vectors)
+                .enter()
+                .append('line')
+                .attr('x1', d => d.x0)
+                .attr('y1', d => d.y0)
+                .attr('x2', (d) => d.x1)
+                .attr('y2', (d) => d.y1)
+                .attr('stroke', d => d.color)
+                .attr('stroke-width', 2.8)
+                .attr('marker-end', (_d, i) => `url(#arrow-${sectionIndex}-${i})`);
 
-                vectors.forEach((vector, index) => {
-                    svg.append("defs").append("marker")
-                        .attr("id", `arrow-${sectionIndex}-${index}`)
-                        .attr("viewBox", "0 -5 10 10")
-                        .attr("refX", 10)
-                        .attr("refY", 0)
-                        .attr("markerWidth", 6)
-                        .attr("markerHeight", 6)
-                        .attr("orient", "auto-start-reverse")
-                        .append("path")
-                        .attr("d", "M0,-5L10,0L0,5")
-                        .attr('fill', vector.color);
-                });
-
+            vectors.forEach((vector, index) => {
+                svg.append("defs").append("marker")
+                    .attr("id", `arrow-${sectionIndex}-${index}`)
+                    .attr("viewBox", "0 -5 10 10")
+                    .attr("refX", 10)
+                    .attr("refY", 0)
+                    .attr("markerWidth", 6)
+                    .attr("markerHeight", 6)
+                    .attr("orient", "auto-start-reverse")
+                    .append("path")
+                    .attr("d", "M0,-5L10,0L0,5")
+                    .attr('fill', vector.color);
             });
-        }
-    }, [factor.x, factor.y, sections, activeSection, seeAll, activeSection]);
+
+        });
+    }, [factor.x, factor.y, sections, activeSection, seeAll]);
 
     return (
         <div id="velocity-vector-container" style={{ width: width, height: height }}>
@@ -97,59 +99,3 @@ export const VelocityVector = ({ height, width, factor }: VelocityVectorProps ) 
         </div>
     )
 }
-
-
-                // if (points.length >= 2) {
-                //     const [start, end] = points;
-                //     const offset = 5; // Ajusta este valor según sea necesario
-                
-                //     const adjustedStart = {
-                //         x: start.x + (end.x - start.x) * (offset / 100),
-                //         y: start.y + (end.y - start.y) * (offset / 100)
-                //     };
-                
-                //     const adjustedEnd = {
-                //         x: end.x - (end.x - start.x) * (offset / 100),
-                //         y: end.y - (end.y - start.y) * (offset / 100)
-                //     };
-                
-                //     const vectors = d3.range(10).map(i => {
-                //         let color = '#0678BE';
-                //         if (i == 8) {
-                //             color = '#ED6B57';
-                //         }
-                
-                //         return {
-                //             x: adjustedStart.x + (adjustedEnd.x - adjustedStart.x) * (i / 9),
-                //             y: adjustedStart.y + (adjustedEnd.y - adjustedStart.y) * (i / 9),
-                //             color: color
-                //         };
-                //     });
-
-                //     vectors.forEach((vector, index) => {
-                //         svg.append("defs").append("marker")
-                //             .attr("id", `arrow-${sectionIndex}-${index}`)
-                //             .attr("viewBox", "0 -5 10 10")
-                //             .attr("refX", 10)
-                //             .attr("refY", 0)
-                //             .attr("markerWidth", 6)
-                //             .attr("markerHeight", 6)
-                //             .attr("orient", "auto-start-reverse")
-                //             .append("path")
-                //             .attr("d", "M0,-5L10,0L0,5")
-                //             .attr('fill', vector.color);
-                //     });
-
-                //     // Crear líneas y asignar el marcador correspondiente
-                //     svg.selectAll(`line.section-${sectionIndex}`)
-                //         .data(vectors)
-                //         .enter()
-                //         .append('line')
-                //         .attr('x1', d => d.x / factor.x)
-                //         .attr('y1', d => d.y / factor.y)
-                //         .attr('x2', d => (d.x) / factor.x)
-                //         .attr('y2', d => (d.y - (50 + Math.random() * 90)) / factor.y)
-                //         .attr('stroke', d => d.color)
-                //         .attr('stroke-width', 2)
-                //         .attr('marker-end', (_d, i) => `url(#arrow-${sectionIndex}-${i})`);
-                // }

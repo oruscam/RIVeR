@@ -8,7 +8,6 @@ import { drone, ipcam } from '../assets/icons/icons.js';
 import './pages.css';
 import { useState } from 'react';
 import { OperationCanceledError, UserSelectionError } from '../errors/errors.js';
-import { setTime } from 'react-datepicker/dist/date_utils.js';
 
 type Video = {
     name: string;

@@ -4,6 +4,7 @@ import { Group, Image, Layer, Line, Stage } from 'react-konva'
 import { KonvaEventObject } from 'konva/lib/Node'
 import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks'
 import { Points, DrawSections } from './index'
+import { set } from 'react-hook-form'
 
 type Point = { x: number; y: number };
 
@@ -27,6 +28,8 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
   const [currentMousePosition, setCurrentMousePosition] = useState<Point>({ x: 0, y: 0 })
 
   const [image] = useImage('/@fs' + firstFramePath)
+
+  const [resizeFactor, setResizeFactor] = useState(1)
 
   // * Funcion para obtener la posicion del mouse en el canvas, en relacion a la imagen y al Zoom.
   const getRelativePointerPosition = (node: any) => {
@@ -53,7 +56,11 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
         const scaleBy = 1.05;
         const direction = event.evt.deltaY > 0 ? -1 : 1;
 
-        const newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+        let newScale = direction > 0 ? oldScale * scaleBy : oldScale / scaleBy;
+
+        if (newScale > 70) {
+          newScale = 70;
+        }
 
         if (newScale >= 1.01) {
           stage.scale({ x: newScale, y: newScale });
@@ -72,8 +79,32 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
         }
         if(newScale > 1.5 && localPoints.length === 2){
           stage.draggable(true)
+
+          if ( newScale <  3){
+            setResizeFactor(2)
+          } else if ( newScale < 8){
+            setResizeFactor(3)
+          } else if ( newScale < 15){
+            setResizeFactor(4)
+          } else if ( newScale < 22){
+            setResizeFactor(5)
+          }else if ( newScale < 29){
+            setResizeFactor(6)
+          } else if ( newScale < 36){
+            setResizeFactor(7)
+          } else if ( newScale < 43){
+            setResizeFactor(9)
+          } else if ( newScale < 50){
+            setResizeFactor(10)
+          } else if ( newScale < 60 ){
+            setResizeFactor(11)
+          } else if ( newScale < 70 ){
+            setResizeFactor(12)
+          }
+          
         }else{
           stage.draggable(false)
+          setResizeFactor(1)
         }
       }
     };
@@ -127,7 +158,6 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
     }, [activeSection, points, factor.x, factor.y])
 
 
-  // * Limpiar un poco el return, pero la funcionalidad esta lista.  
   return (
     <>
       <Stage 
@@ -142,17 +172,17 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
         <Layer>
           <Image image={image} width={width} height={height}></Image>
           {
-            seeAll || activeSection === 0 ? (<DrawSections localPoints={localPoints} setLocalPoints={setLocalPoints} factor={factor} draggable={true}/>) : (<DrawSections factor={factor} setLocalPoints={setLocalPoints} draggable={true}></DrawSections>)
+            seeAll || activeSection === 0 ? (<DrawSections localPoints={localPoints} setLocalPoints={setLocalPoints} factor={factor} draggable={true} resizeFactor={resizeFactor}/>) : (<DrawSections factor={factor} setLocalPoints={setLocalPoints} draggable={true} resizeFactor={resizeFactor}></DrawSections>)
           }
           {mousePressed && localPoints.length === 1 && (
               <Group>
-                <Points setLocalPoints={setLocalPoints} localPoints={localPoints} isPixelSize={activeSection === 0}></Points>
                 <Line
                   points={[localPoints[0].x, localPoints[0].y, currentMousePosition.x, currentMousePosition.y]}
                   stroke={activeSection === 0 ? "#6CD4FF" : "#F5BF61"}
                   strokeWidth={2}
                   lineCap="round"
                 />
+                <Points setLocalPoints={setLocalPoints} localPoints={localPoints} isPixelSize={activeSection === 0} resizeFactor={resizeFactor}></Points>
               </Group>
             )}
         </Layer>

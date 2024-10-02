@@ -1,13 +1,16 @@
 /**
+ * Image Width factor
+ */
+
+export const IMAGE_WIDTH_FACTOR = 0.66
+
+/**
  * Default section
  */
 
 export const DEFAULT_ALPHA = 0.85
 export const DEFAULT_NUM_STATIONS = 15
 export const DEFAULT_REAL_WORLD = [{x: 0, y: 0}, {x: 0, y: 0}]
-
-
-
 
 /**
  * This file contains all the constants used in the front application
@@ -30,7 +33,6 @@ export const STEP_6 = 5
 export const STEP_5 = 4
 export const STEP_4 = 3
 export const STEP_3 = 2
-
 
 
 /**
@@ -60,4 +62,16 @@ export const MIN_GRAPH_WIDTH = 375
  * Velocity Vector
  */
 
-export const VECTOR_FACTOR = 2.5
+export const VECTOR_AMPLITUDE_FACTOR = 2.5
+
+
+/**
+ * Constants for marks
+ */
+
+export const MARKS_WIDTH = 40
+export const MARKS_HEIGHT = 40
+export const MARKS_OFFSET_X = 20
+export const MARKS_OFFSET_Y = 39
+export const MARKS_NUMBER_OFFSET_X = 4
+export const MARKS_NUMBER_OFFSET_Y = 35

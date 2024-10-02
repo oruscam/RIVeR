@@ -45,8 +45,6 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig){
             transformationMatrix,
         ].filter( value => value !== '')
 
-        
-
 
         try {
             const result = await executePythonShell2(options) as any

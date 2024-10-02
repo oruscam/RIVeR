@@ -7,6 +7,7 @@ import { useWizard } from "react-use-wizard"
 import { useEffect, useState } from "react"
 import { Section } from "../../store/section/types"
 import { SectionsHeader } from "../SectionsHeader"
+import { ButtonLock } from "../ButtonLock"
 
 
 
@@ -101,6 +102,7 @@ export const CrossSections = () => {
                 })
             }
             </FormProvider>
+            <ButtonLock disabled={sections[activeSection].points.length === 0} footerElementID="form-cross-section-footer" headerElementID="form-cross-section-header"></ButtonLock>
         </>
     )
 }

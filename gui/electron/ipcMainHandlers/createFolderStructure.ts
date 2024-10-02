@@ -1,4 +1,4 @@
-import { dialog } from 'electron';
+import { BrowserWindow, dialog } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path'
 
@@ -8,12 +8,14 @@ async function createFolderStructure (newDirPath: string, type: string, videoPat
 
     try {
       await fs.promises.access(newDirPath, fs.constants.F_OK);
-      const { response } = await dialog.showMessageBox({
+      const mainWindow = BrowserWindow.getFocusedWindow();
+      const { response } = await dialog.showMessageBox(mainWindow,{
         type: 'question',
         buttons: ['Yes', 'No'],
         defaultId: 0,
         title: 'Confirm',
         message: 'The directory already exists. Do you want to continue? This will overwrite the existing directory.',
+
       });
 
       if (response === 0) {

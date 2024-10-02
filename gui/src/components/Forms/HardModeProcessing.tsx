@@ -20,7 +20,7 @@ export const HardModeProcessing = () => {
   }
 
   return (
-    <div className="hard-mode-processing mt-5" id="processing-HARD_MODE">
+    <div className="hard-mode-processing mt-5" id="processing-footer">
         <div className="input-container mb-2">
             <label className="read-only me-1">ROI height</label>
             <input 

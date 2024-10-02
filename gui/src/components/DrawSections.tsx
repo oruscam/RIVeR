@@ -10,9 +10,10 @@ interface DrawSections {
     draggable: boolean,
     localPoints?: { x: number; y: number }[],
     drawPins? : boolean
+    resizeFactor?: number
 }
 
-export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints, drawPins} : DrawSections) => {
+export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints, drawPins, resizeFactor} : DrawSections) => {
     const { sections, activeSection } = useSectionSlice();
     const { drawLine, name } = sections[activeSection]
     const { seeAll } = useUiSlice();
@@ -24,12 +25,12 @@ export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints, d
                 ?
                 (
                     <Group>
-                        <Points localPoints={localPoints} setLocalPoints={setLocalPoints} draggable={true} isPixelSize={activeSection === 0} factor={factor}/>
                         {
                             localPoints.length === 2 && drawLine && (
-                                <LineAndText name={name} imagePoints={localPoints} isPixelSize={activeSection === 0}></LineAndText>
+                                <LineAndText name={name} imagePoints={localPoints} isPixelSize={activeSection === 0} resizeFactor={resizeFactor}></LineAndText>
                             )
                         }
+                        <Points localPoints={localPoints} setLocalPoints={setLocalPoints} draggable={true} isPixelSize={activeSection === 0} factor={factor} resizeFactor={resizeFactor}/>
                     </Group>
                 )             
                 : sections.map((section, index) => {
@@ -43,12 +44,12 @@ export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints, d
                     })
                     return (
                         <Group key={index}>
+                            <LineAndText name={section.name} imagePoints={reducedPoints} isPixelSize={false} resizeFactor={resizeFactor}></LineAndText>
                             {
                                 (setLocalPoints || drawPins) && (
-                                    <Points localPoints={reducedPoints} setLocalPoints={setLocalPoints} draggable={draggable? index === activeSection : false} isPixelSize={activeSection === 0} factor={factor}></Points>
+                                    <Points localPoints={reducedPoints} setLocalPoints={setLocalPoints} draggable={draggable? index === activeSection : false} isPixelSize={activeSection === 0} factor={factor} resizeFactor={resizeFactor}></Points>
                                 )
                             }
-                            <LineAndText name={section.name} imagePoints={reducedPoints} isPixelSize={false}></LineAndText>
                         </Group>
                     )
                 })

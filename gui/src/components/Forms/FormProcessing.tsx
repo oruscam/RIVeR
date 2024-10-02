@@ -70,7 +70,7 @@ export const FormProcessing = () => {
       <h1 className="form-title"> Processing </h1>
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} className="form-scroll mt-1" id="form-processing" style={{overflowY: `${!extraFields ? "hidden" : "auto"}`}}>
-            <span id="processing-HEADER"></span>
+            <span id="processing-header"></span>
             <div className="form-base-2">
               
               <div className="switch-container-2 mt-2">
@@ -123,7 +123,7 @@ export const FormProcessing = () => {
             <HardModeProcessing></HardModeProcessing>
         </form>
       </FormProvider>
-      <ButtonLock localSetExtraFields={setExtraFields} localExtraFields={extraFields} footerElementID="processing-HARD_MODE" headerElementID="processing-HEADER" disabled={false}></ButtonLock>
+      <ButtonLock localSetExtraFields={setExtraFields} localExtraFields={extraFields} footerElementID="processing-footer" headerElementID="processing-header" disabled={false}></ButtonLock>
     </>
   )
 }
