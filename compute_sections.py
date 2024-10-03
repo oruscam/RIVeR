@@ -873,25 +873,28 @@ def update_current_x_section(
         json.dump(x_sections, file, indent=4)
 
 
-# # Example of use
-# with open('settings.json', 'r') as file:
+# Example of use
+# with open('/Users/antoine/river/DJI_0036/settings.json', 'r') as file:
 #     settings = json.load(file)
 #
-# path_x_sections = settings['x_sections']
+# path_x_sections = settings['xsections']
 #
 # # video_settings = get_info_video(settings)
-# path_results_piv = settings['results_piv']
+# path_results_piv = '/Users/antoine/river/DJI_0036/piv_results.json'
 # step = settings['video_range']['step']
 # path_transformation_matrix = settings['pixel_size']['uav_transformation_matrix']
-# fps = settings['video_range']['fps']
+# fps = settings['fps']
 # id_section = 0
 # # update_current_x_section(path_x_sections,path_results_piv,path_transformation_matrix,step, fps, id_section)
 # update_current_x_section(path_x_sections,path_results_piv,path_transformation_matrix,step, fps, id_section, interpolate = True)
 #
-# with open('x_sections.json', 'r') as file:
+# with open(path_x_sections, 'r') as file:
 #     x_sections = json.load(file)
 # from matplotlib import pyplot as plt
 # image = plt.imread('/Users/antoine/river/0000000003.jpg')
 # plt.imshow(image)
 # plt.quiver(x_sections['CS_default_1']['x'],x_sections['CS_default_1']['y'],x_sections['CS_default_1']['displacement_x_streamwise'],x_sections['CS_default_1']['displacement_y_streamwise'],color='red')
+#
+# plt.plot(table_results['x'],table_results['y'])
+# plt.quiver(table_results['x'],table_results['y'],table_results['displacement_x_streamwise'],table_results['displacement_y_streamwise'])
 

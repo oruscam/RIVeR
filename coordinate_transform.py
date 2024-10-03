@@ -112,8 +112,7 @@ def oblique_view_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix,
             Real-world distances between corresponding points.
 
     Returns:
-        ndarray: 3x3 homography matrix (H) that transforms pixel coordinates
-                 to real-world coordinates.
+        ndarray: 3x3 transformation matrix pixel to RW and RW to pixel
     """
     # Coordinates for points 1 and 2 in real-world space
     east_1, north_1 = 0, 0
@@ -142,8 +141,9 @@ def oblique_view_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix,
 
     # Calculate the homography matrix (H)
     H, _ = cv2.findHomography(real_world_coords,pixel_coords)
+    transfromation_matrix = np.linalg.inv(H)
 
-    return H
+    return transfromation_matrix
 
 def pixel_to_real_world(x_pix, y_pix, transformation_matrix):
     """
