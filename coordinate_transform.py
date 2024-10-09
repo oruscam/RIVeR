@@ -129,7 +129,7 @@ def oblique_view_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix,
         [x2_pix, y2_pix],
         [x3_pix, y3_pix],
         [x4_pix, y4_pix]
-    ])
+    ], dtype=np.float32)
 
     # Real-world coordinates (east, north)
     real_world_coords = np.array([
@@ -137,13 +137,16 @@ def oblique_view_transformation_matrix(x1_pix, y1_pix, x2_pix, y2_pix,
         [east_2, north_2],
         [east_3, north_3],
         [east_4, north_4]
-    ])
+    ], dtype=np.float32)
 
     # Calculate the homography matrix (H)
-    H, _ = cv2.findHomography(real_world_coords,pixel_coords)
-    transfromation_matrix = np.linalg.inv(H)
+    H, _ = cv2.findHomography(real_world_coords, pixel_coords)
 
-    return transfromation_matrix
+    # Invert the transformation matrix to map from pixel to real-world coordinates
+    transformation_matrix = np.linalg.inv(H)
+
+    return transformation_matrix
+
 
 def pixel_to_real_world(x_pix, y_pix, transformation_matrix):
     """
@@ -157,9 +160,16 @@ def pixel_to_real_world(x_pix, y_pix, transformation_matrix):
     Returns:
         np.ndarray: An array containing the real-world coordinates [x, y].
     """
+    # Create the pixel coordinate vector in homogeneous coordinates
     pixel_vector = np.array([x_pix, y_pix, 1])
+
+    # Calculate the real-world coordinates in homogeneous coordinates
     real_world_vector = np.dot(transformation_matrix, pixel_vector)
-    return real_world_vector[:2]
+
+    # Normalize the real-world coordinates
+    real_world_vector /= real_world_vector[2]  # Divide by the third (homogeneous) component
+
+    return real_world_vector[:2]  # Return the x and y real-world coordinates
 
 
 def real_world_to_pixel(x_rw, y_rw, transformation_matrix):
@@ -174,9 +184,18 @@ def real_world_to_pixel(x_rw, y_rw, transformation_matrix):
     Returns:
         np.ndarray: An array containing the pixel coordinates [x, y].
     """
+    # Invert the transformation matrix to map from pixel to real-world coordinates
     inv_transformation_matrix = np.linalg.inv(transformation_matrix)
+
+    # Create the real-world coordinate vector in homogeneous coordinates
     real_world_vector = np.array([x_rw, y_rw, 1])
+
+    # Calculate the pixel coordinates in homogeneous coordinates
     pixel_vector = np.dot(inv_transformation_matrix, real_world_vector)
+
+    # Normalize the pixel coordinates
+    pixel_vector /= pixel_vector[2]  # Divide by the third (homogeneous) component
+
     return pixel_vector[:2]
 
 def convert_displacement_field(X, Y, U, V, transformation_matrix):
