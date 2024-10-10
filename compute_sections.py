@@ -777,6 +777,53 @@ def add_statistics(results, table_results, transformation_matrix, time_between_f
     table_results['95th_percentile'] = np.percentile(streamwise_vel_magnitude_array, 95, axis=0)
 
     return table_results
+
+def get_general_statistics(path_x_sections):
+    # Load the cross-section data from the JSON file
+    with open(path_x_sections, 'r') as file:
+        x_sections = json.load(file)
+
+    # Remove any existing "summary" key to avoid processing it
+    if "summary" in x_sections:
+        del x_sections["summary"]
+
+    # Keys for which we need to calculate the statistics
+    keys = ['total_W', 'total_A', 'total_Q', 'mean_V', 'alpha', 'mean_Vs', 'max_depth', 'average_depth', 'measured_Q']
+
+    # Initialize dictionaries to store the data for each key
+    data_dict = {key: [] for key in keys}
+
+    # Iterate over each cross-section and collect the values for each key
+    for section_name, section in x_sections.items():
+        if isinstance(section, dict):  # Ensure section is a dictionary
+            missing_keys = [key for key in keys if key not in section]
+            if missing_keys:
+                continue
+            # If no keys are missing, append values to the respective lists
+            for key in keys:
+                data_dict[key].append(section[key])
+
+    # Initialize dictionaries to store statistics
+    stats = {'mean': {}, 'std': {}, 'cov': {}}
+
+    # Calculate mean, std, and cov for each key
+    for key in keys:
+        values = np.array(data_dict[key])
+        mean = np.mean(values) if len(values) > 0 else None
+        std = np.std(values) if len(values) > 0 else None
+        cov = (std / mean) if mean and mean != 0 else None  # Handle division by zero
+
+        stats['mean'][key] = mean
+        stats['std'][key] = std
+        stats['cov'][key] = cov
+
+    # Add the statistics to the JSON structure under the "summary" key
+    x_sections["summary"] = stats
+
+    # Write the updated structure back to the JSON file
+    with open(path_x_sections, 'w') as file:
+        json.dump(x_sections, file, indent=4)
+
 def update_current_x_section(
         path_x_sections, path_results_piv, path_transformation_matrix,
         step, fps, id_section, interpolate=False):
@@ -946,6 +993,10 @@ def update_current_x_section(
     # Save the updated cross-section data back to the JSON file
     with open(path_x_sections, 'w') as file:
         json.dump(x_sections, file, indent=4)
+
+    # Update summary
+    get_general_statistics(path_x_sections)
+
 
 
 # Example of use
