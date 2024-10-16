@@ -242,7 +242,10 @@ export const useDataSlice = () => {
         } catch (error) {
             console.log(error)
         }
+    }
 
+    const onSetAnalizing = ( value : boolean) => {
+        dispatch(setBackendWorkingFlag(value))
     }
 
     return {
@@ -262,6 +265,7 @@ export const useDataSlice = () => {
         onKillBackend,
         onGetResultData,
         onReCalculateMask,
+        onSetAnalizing
     }
 }
 

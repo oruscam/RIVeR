@@ -10,7 +10,8 @@
     },
     "Wizard" : {
         "back" : "Back",
-        "next" : "Next"
+        "next" : "Next",
+        "save" : "Save"
     },
     "Step3":{
         "title": "Video Range",

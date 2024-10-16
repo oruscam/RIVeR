@@ -18,8 +18,8 @@ const defaultFormProcessing = {
 }
 
 const defaultProcessing = {
-    isBackendWorking: false,
-    form: defaultFormProcessing,
+    isBackendWorking: false, // this flag is not used
+    form: defaultFormProcessing, 
     parImages: ['', '1', '', '2'],
     maskPath: '/@fs/home/tomy_ste/River/DJI_0036/mask.png'
 }
@@ -30,7 +30,7 @@ const initialState: DataState = {
         paths: [],
         active: 0
     },
-    analizing: false
+    analizing: false 
 }
 
 const dataSlice = createSlice({

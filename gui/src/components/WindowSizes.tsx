@@ -1,4 +1,4 @@
-import { Group, Layer, Rect, Stage } from 'react-konva'
+import { Group, Rect } from 'react-konva'
 import { useDataSlice } from '../hooks';
 
 export const WindowSizes = ({ width, height } : {width: number, height: number}) => {

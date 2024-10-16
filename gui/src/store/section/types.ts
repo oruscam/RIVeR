@@ -9,9 +9,10 @@ interface Bathimetry {
     name: string;
     leftBank?: number; 
     line?: Point[];
+    width?: number;
 }
 
-interface   PixelSize {
+interface PixelSize {
     size: number;
     rw_length: number;
 }

@@ -10,7 +10,8 @@
     },
     "Wizard" : {
         "back" : "Volver",
-        "next" : "Seguir"
+        "next" : "Seguir",
+        "save" : "Guardar"
     },
     "Step3":{
         "title": "Rango de video",

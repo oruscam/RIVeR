@@ -11,7 +11,7 @@ import { GREEN, RED, TRANSPARENT_WHITE, WHITE } from '../../constants/constants'
 
 type BathymetryChartResult = {
     intersectionX?: number;
-    error: string;
+    error: string | undefined;
 };
 
 interface BathymetryChartProps {
@@ -164,7 +164,7 @@ export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, 
     svg.append('text')
         .attr('class', 'x-axis-label')
         .attr('x', width / 2 - margin.right)
-        .attr('y', height)
+        .attr('y', height )
         .attr('fill', 'white')
         .attr('font-size', '20px')
         .text('Station');
@@ -199,7 +199,7 @@ export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, 
 
         if ( intersectionPoint ) {
             let xValue = intersectionPoint.x;
-            let error = '';
+            let error = undefined;
             if ( leftBank !== undefined && leftBank >= xMin && leftBank <= xMax ) {
                 xValue = leftBank;
             } else if(leftBank !== undefined){
@@ -229,5 +229,5 @@ export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, 
         }
     }
 
-    return {error: ''};    
+    return {error: undefined};    
 }

@@ -58,6 +58,7 @@
 
 .button-transparent {
   background-color: transparent;
+  color: var(--primary-text-color);
   border: none;
   transition: transform 0.3s ease; /* Añade una transición suave */
 }
@@ -227,16 +228,14 @@
 }
 
 .svg-icon .cls-1{
-  fill: var(--primary-text-color);
+  fill: currentColor;
+  stroke: currentColor;
 }
 
 input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
   display: none;
   margin: 0;
 }
-
-
-
 
 /* .button-1.clicked{
   background-color: white;
@@ -307,8 +306,8 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
 
  /* width */
  ::-webkit-scrollbar {
-  width: 4px;
-  height: 2px;
+  width: 5px;
+  height: 5px;
  
 }
 
@@ -434,17 +433,7 @@ input:checked + .slider:before {
   display: none;
 }
 
-
-.custom-datepicker{
-  color: var(--primary-text-color);
-  background-color: white;
-
-}
-
-
-
-/* Estilos personalizados para el DatePicker */
-.react-datepicker {
+.react-datepicker{
   background-color: var(--secondary-background-color);
   color: var(--primary-text-color);
   border: 1px solid var(--input-background);
@@ -454,7 +443,6 @@ input:checked + .slider:before {
   background-color: var(--secondary-background-color);
   border-bottom: 1px solid var(--input-background);
   color: var(--primary-text-color);
-
 }
 
 .react-datepicker__current-month,
@@ -472,5 +460,35 @@ input:checked + .slider:before {
 .react-datepicker__day:hover,
 .react-datepicker__day--selected {
   background-color: var(--on-hover);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__time-container {
+  background-color: var(--secondary-background-color);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__time-container .react-datepicker__time {
+  background-color: var(--secondary-background-color);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box {
+  background-color: var(--secondary-background-color);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-list-item {
+  background-color: var(--secondary-background-color);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-list-item:hover,
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-list-item--selected {
+  background-color: var(--on-hover);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker-time__header {
   color: var(--primary-text-color);
 }

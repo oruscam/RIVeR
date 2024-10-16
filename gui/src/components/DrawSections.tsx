@@ -5,7 +5,7 @@ import { LineAndText } from "./LineAndText"
 
 
 interface DrawSections {
-    factor: { x: number; y: number }
+    factor:  number,
     setLocalPoints?: (points: { x: number; y: number }[]) => void,
     draggable: boolean,
     localPoints?: { x: number; y: number }[],
@@ -38,8 +38,8 @@ export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints, d
                     if(seeAll && activeSection !== index) return;
                     const reducedPoints = section.points.map(point => {
                         return {
-                            x: point.x / factor.x,
-                            y: point.y / factor.y
+                            x: point.x / factor,
+                            y: point.y / factor
                         }
                     })
                     return (

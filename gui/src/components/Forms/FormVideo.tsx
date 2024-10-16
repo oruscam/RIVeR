@@ -42,7 +42,6 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
     }
           
   const onSubmit = ( data: FieldValues ) => {
-    console.log("Submit Form Video")
     onSetVideoParameters(data)
 
     nextStep()

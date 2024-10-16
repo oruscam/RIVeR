@@ -7,7 +7,7 @@ import { DrawSections } from "./DrawSections";
 import { Layer, Stage } from "react-konva";
 
 
-export const ImageWithData = ({ width, height, factor, showMedian }: { width: number, height: number, factor: { x: number, y: number }, showMedian?: boolean }) => {
+export const ImageWithData = ({ width, height, factor, showMedian }: { width: number, height: number, factor: number, showMedian?: boolean }) => {
   const { processing, images } = useDataSlice();
   const { activeStep } = useWizard();
   const { paths, active } = images

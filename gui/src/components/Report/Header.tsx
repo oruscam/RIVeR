@@ -26,12 +26,11 @@ export const Header = () => {
   }, 0);
 
   const average = sum / (divider !== 0 ? divider : 1)
-  console.log(sum)
 
   return (
     <div id="report-header-container">
       <div id='header-icon-container'>
-        <Icon path={drone} id='header-icon'/>      
+        <Icon path={ drone } id='header-icon'/>      
       </div>
       <div id='header-title-container'>
         <h1 className='header-title-text mt-1'> {riverName}@{site}</h1>

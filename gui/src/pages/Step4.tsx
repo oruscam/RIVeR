@@ -6,7 +6,7 @@ import { getNewImageResolution } from '../helpers/index.js'
 import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks/index'
 
 import './pages.css'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { ButtonLock } from '../components/ButtonLock.js'
 
 export const Step4 = () => {
@@ -77,7 +77,6 @@ export const Step4 = () => {
           <FormPixelSize 
             onSubmit={methods.handleSubmit(onSubmit, onError)}
             onError={onError}
-            factor={factor}
             
           />
         </FormProvider>

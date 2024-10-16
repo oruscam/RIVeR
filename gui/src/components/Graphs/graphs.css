@@ -12,6 +12,26 @@
 
 }
 
-/* .graph-container{ */
-}
+@media print {
+    #all-in-one-graph .grid line {
+        stroke: rgba(255, 255, 255, 0.2);
+        stroke-width: 0.05; /* Ajusta el grosor de las líneas de la cuadrícula para la impresión */
+    }
 
+    #all-in-one-graph .tick line {
+        stroke:  rgba(255, 255, 255, 0.2);
+        stroke-width: 0.05; /* Ajusta el grosor de las líneas de las marcas de la cuadrícula para la impresión */
+    }
+    #all-in-one-graph .domain {
+        stroke:  rgba(255, 255, 255, 0.5);
+        stroke-width: 0.1; /* Ajusta el grosor de las líneas de las marcas de la cuadrícula para la impresión */
+
+    }
+ 
+
+    /* Asegurarse de que los colores de fondo y bordes se impriman */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

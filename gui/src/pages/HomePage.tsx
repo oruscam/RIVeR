@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
 import { LanguageSelector } from '../components/LanguageSelector';
-import image from '../assets/RIVeR-logo.png';
+import image from '../assets/logo.png';
 import './pages.css';
 import { useProjectSlice, useUiSlice } from '../hooks';
 // import { ThemeToggle } from '../components/ThemeToggle';

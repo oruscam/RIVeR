@@ -13,14 +13,11 @@ interface PointsProps {
     setLocalPoints?: (points: { x: number; y: number }[]) => void;
     draggable?: boolean;
     isPixelSize?: boolean;
-    factor?: {
-        x: number;
-        y: number;
-    };
+    factor?: number,
     resizeFactor?: number;
 }
 
-export const Points = ({ localPoints = [], setLocalPoints, draggable = false, isPixelSize = false, factor = {x: 0, y: 0}, resizeFactor = 1 }: PointsProps) => {
+export const Points = ({ localPoints = [], setLocalPoints, draggable = false, isPixelSize = false, factor = 0, resizeFactor = 1 }: PointsProps) => {
     const { onSetPoints } = useSectionSlice()
     const [iconRed] = useImage(pinRed) 
     const [iconGreen] = useImage(pinGreen) 

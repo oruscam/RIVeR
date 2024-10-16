@@ -12,7 +12,7 @@ type Props = {
 };
 
 export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClickNext }: Partial<Props> = {}) => {
-  const { previousStep, isFirstStep, activeStep } = useWizard();
+  const { previousStep, isFirstStep, activeStep, isLastStep } = useWizard();
   const { onSetActiveSection } = useSectionSlice()
   const { onClearQuiver, analizing } = useDataSlice()
   const { t } = useTranslation();
@@ -39,7 +39,6 @@ export const WizardButtons = ({ canFollow = true, formId = '', button = false, o
     }
   }
 
-  console.log(analizing)
 
   return (
     <div className='wizard-container'>
@@ -59,7 +58,7 @@ export const WizardButtons = ({ canFollow = true, formId = '', button = false, o
         type={ button ? "button" : "submit"}
         id='wizard-next'
       >
-        {t('Wizard.next')}
+        {isLastStep ? t('Wizard.save') : t('Wizard.next')}
       </button>
     </div>
   );

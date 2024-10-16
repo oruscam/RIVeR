@@ -48,7 +48,7 @@ export const Bathimetry = ({ setBathimetryLimits, bathimetryLimits, leftBank, sh
                 if( intersectionX ){
                     onUpdateSection({ leftBank: intersectionX });
                 }   
-                if ( error !== '' ){
+                if ( error ){
                     onSetErrorMessage({error});
                 }
             }

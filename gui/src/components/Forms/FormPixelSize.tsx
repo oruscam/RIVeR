@@ -8,13 +8,9 @@ import { PixelCoordinates, RealWorldCoordinates } from './index'
 interface FormPixelSizeProps {
   onSubmit: (data: FieldValues) => void,
   onError: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void,
-  factor: {
-    x: number,
-    y: number
-  },
 }
 
-export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
+export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
     const { t } = useTranslation()
     const {sections, onUpdateSection} = useSectionSlice()
     const { extraFields } = sections[0]

@@ -1,12 +1,10 @@
-import { WizardButtons } from '../components'
-import { ProcessedRange, VideoInfo } from '../components/Report'
-import { Header } from '../components/Report/Header'
+import { Progress, WizardButtons } from '../components'
+import { ProcessedRange, VideoInfo, ReportSection, Header, Summary, PixelTransformation, ProcessingParameters, Footer } from '../components/Report'
 import './pages.css'
-import html2canvas from 'html2canvas'
-import jsPDF from 'jspdf'
-import { ReportSection } from '../components/Report/ReportSection'
+import { useDataSlice, useProjectSlice, useSectionSlice } from '../hooks'
+import { FormLastSettings } from '../components/Forms/FormLastSettings';
 
-const convertImageToDataURI = (url) => {
+const convertImageToDataURI = ( url: string ) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'Anonymous';
@@ -25,78 +23,13 @@ const convertImageToDataURI = (url) => {
 };
 
 export const Report = () => {
-  const generatePDF = () => {
-    const input = document.getElementById('report-pdf');
+  const { sections } = useSectionSlice();
+  const { onSetAnalizing } = useDataSlice();
+  const { projectDirectory } = useProjectSlice()
 
-    if (input) {
-        html2canvas(input).then((canvas) => {
-            const imgData = canvas.toDataURL('image/png');
-            console.log(imgData)
-            const pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: 'a4', compress: false, precision: 4 });
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-            const pageHeight = pdf.internal.pageSize.getHeight();
-
-            let heightLeft = pdfHeight;
-            let position = 0;
-
-            pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-            heightLeft -= pageHeight;
-
-            while (heightLeft > 0) {
-                position = heightLeft - pdfHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-                heightLeft -= pageHeight;
-            }
-
-            pdf.save('report.pdf');
-        });
-    }
-  };
-
-  // const generateHTML = () => {
-  //   const input = document.getElementById('report-pdf');
-  //   if (input) {
-  //     const htmlContent = `
-  //       <!DOCTYPE html>
-  //       <html lang="en">
-  //       <head>
-  //         <meta charset="UTF-8">
-  //         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  //         <title>Report</title>
-  //         <link rel="stylesheet" href="/src/components/Report/report.css">
-  //         <style>
-  //           ${Array.from(document.styleSheets)
-  //             .map(styleSheet => {
-  //               try {
-  //                 return Array.from(styleSheet.cssRules)
-  //                   .map(rule => rule.cssText)
-  //                   .join('');
-  //               } catch (e) {
-  //                 console.error(e);
-  //                 return '';
-  //               }
-  //             })
-  //             .join('')}
-  //         </style>
-  //       </head>
-  //       <body>
-  //         ${input.outerHTML}
-  //       </body>
-  //       </html>
-  //     `;
-  //     const blob = new Blob([htmlContent], { type: 'text/html' });
-  //     const url = URL.createObjectURL(blob);
-  //     const a = document.createElement('a');
-  //     a.href = url;
-  //     a.download = 'report.html';
-  //     a.click();
-  //   }
-  // };
   const generateHTML = async () => {
-    const input = document.getElementById('report-pdf');
+    onSetAnalizing(true)
+    const input = document.getElementById('report-html-container');
     if (input) {
       // Convert all images to data URIs
       const images = Array.from(input.getElementsByTagName('img'));
@@ -143,24 +76,38 @@ export const Report = () => {
       a.download = 'report.html';
       a.click();
     }
+    onSetAnalizing(false)
+
   };
 
-
-
   return (
-    <div className='report-container'>
-        <button id='download-button' onClick={generatePDF}>Save as PDF</button>
-        <button id='download-html-button' onClick={generateHTML}>Save as HTML</button>
-
-        <div className='page' id='report-pdf'>
-            <Header/>
-            <VideoInfo/>
-            <ProcessedRange/>
-            <h2 className="report-title-field mt-1"> Cross Sections (s)</h2>
-            <ReportSection/>
+    <div className='regular-page'>
+      <div className='media-container'>
+        <div id='report-html-page'>
+            <div id='report-html-container'>
+                <Header/>
+                <VideoInfo/>
+                <ProcessedRange/>
+                <div id='report-section-wrapper'> 
+                  <h2 className="report-title-field mt-1" > Cross Sections (s)</h2>
+                  {
+                    [...sections.keys()].map(index => (
+                    index === 0 ? null : <ReportSection key={index} index={index} />
+                    ))
+                  }
+                </div>
+                <Summary/>
+                <PixelTransformation/>
+                <ProcessingParameters/>
+                <Footer/>
+            </div>
         </div>
-
-          <WizardButtons></WizardButtons>
+      </div>
+      <div className='form-container'>
+        <Progress/>
+        <FormLastSettings></FormLastSettings>
+        <WizardButtons onClickNext={generateHTML}></WizardButtons>
+      </div>
     </div>
   )
 }

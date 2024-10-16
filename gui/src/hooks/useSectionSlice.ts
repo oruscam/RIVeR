@@ -13,7 +13,6 @@ import { computePixelSize } from '../helpers';
 import { setImages, setProcessingMask, updateProcessingForm } from '../store/data/dataSlice';
 import bathParser from '../helpers/bathimetryParser';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_REAL_WORLD } from '../constants/constants';
-import { interpolate } from 'd3-interpolate';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -34,7 +33,7 @@ export const useSectionSlice = () => {
 
     interface CanvasPoint {
         points: Point[];
-        factor: {x: number, y: number};
+        factor: number;
         index: number | null
     }
 
@@ -94,8 +93,8 @@ export const useSectionSlice = () => {
 
             newPoints = canvasPoints.map((point) => {
                 return {
-                    x: parseFloat((point.x * factor.x).toFixed(1)),
-                    y: parseFloat((point.y * factor.y).toFixed(1))
+                    x: parseFloat((point.x * factor).toFixed(1)),
+                    y: parseFloat((point.y * factor).toFixed(1))
                 }
             })
         }
@@ -279,11 +278,10 @@ export const useSectionSlice = () => {
 
         const ipcRenderer = window.ipcRenderer;
         try {
-            const result = await ipcRenderer.invoke('pixel-size', args)
-            console.log(result)
+            await ipcRenderer.invoke('pixel-size', args)
+            
             dispatch(setLoading(false))
             dispatch(setActiveSection(activeSection + 1))
-
         } catch (error) {
             console.log("ERROR EN SETPIXELSIZE")
             console.log(error)
@@ -508,7 +506,6 @@ export const useSectionSlice = () => {
     return {    
         sections,
         activeSection,
-        processing,
 
 
         onSetPoints,
@@ -522,7 +519,6 @@ export const useSectionSlice = () => {
         onSetExtraFields,
         onChangeDataValues,
         onGetBathimetry
-
     };
 };
 

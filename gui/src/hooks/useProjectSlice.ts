@@ -43,8 +43,6 @@ export const useProjectSlice = () => {
                 }
             }
 
-            console.log(result)
-
             return result
         } catch (error) {
             console.log("Error en Get Video")
@@ -56,8 +54,6 @@ export const useProjectSlice = () => {
 
     const onInitProject = async (video: { path: string, name: string, type: string}) => {
         dispatch(setLoading(true));
-        console.log("onInitProject")
-        console.log(video)
         const ipcRenderer = window.ipcRenderer;
         
         try {
@@ -137,10 +133,8 @@ export const useProjectSlice = () => {
         const ipcRenderer = window.ipcRenderer
         try {
             const result = await ipcRenderer.invoke('load-project')
-            console.log(result)
             if(result.success){
                 const { data, projectDirectory, videoMetadata, firstFrame, xsections } = result.message
-                console.log(data)
                 dispatch(setProjectDirectory(projectDirectory))
                 dispatch(setProjectType(data.type)) 
                 dispatch(setVideoData({
@@ -187,7 +181,6 @@ export const useProjectSlice = () => {
                     return STEP_3
                 } 
             } else {
-                console.log(result.message)
                 dispatch(setLoading(false))
                 return result.message
             }
@@ -206,20 +199,24 @@ export const useProjectSlice = () => {
      */
 
     interface onClickFinishInterface {
-        riverName: string,
-        site: string,
+        riverName?: string,
+        site?: string,
         unitSistem: string,
         meditionDate: string,
     }
 
-    const onClickFinish = ( data : onClickFinishInterface) => {
+    const onProjectDetailsChange = ( data : onClickFinishInterface) => {
         dispatch(setLoading(true))  
-        dispatch(setProjectDetails(data))
+        if ( data.riverName ) {
+            dispatch(setProjectDetails({...projectDetails, riverName: data.riverName, meditionDate: data.meditionDate, unitSistem: data.unitSistem}))
+        } else if ( data.site ) {
+            dispatch(setProjectDetails({...projectDetails, site: data.site, meditionDate: data.meditionDate, unitSistem: data.unitSistem}))
+        } else {
+            dispatch(setProjectDetails({...projectDetails, meditionDate: data.meditionDate, unitSistem: data.unitSistem}))
+        }
         dispatch(setLoading(false))
-
     }
 
-    
 
     return {
         // ATRIBUTES
@@ -235,6 +232,6 @@ export const useProjectSlice = () => {
         onLoadProject,
         onSetVideoParameters,
         onGetVideo,
-        onClickFinish
+        onProjectDetailsChange
     }
 }

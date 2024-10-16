@@ -4,15 +4,18 @@ import { getNewImageResolution } from "./getNewImageResolution";
 import { getValidationRules } from "./validationRules";
 import { formatTime } from "./formatTime";
 import { adaptStringDate, dateToStringDate, recortStringDate } from "./dateFunctions";
+import { getUnit } from "./unitSistem";
+
 
 export {
-    getDistanceBetweenPoints,
-    computePixelSize,
-    getPointNames,
-    getNewImageResolution,
-    getValidationRules,
-    formatTime,
     adaptStringDate,
+    computePixelSize,
     dateToStringDate,
-    recortStringDate
+    formatTime,
+    getDistanceBetweenPoints,
+    getNewImageResolution,
+    getPointNames,
+    getUnit,
+    getValidationRules,
+    recortStringDate,
 }

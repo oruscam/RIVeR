@@ -59,11 +59,11 @@ export const GRAPH_WIDTH_PROPORTION = 0.22
 export const MIN_GRAPH_WIDTH = 375
 
 /**
- * Velocity Vector
+ * Quiver y Velocity Vectoy
  */
 
-export const VECTOR_AMPLITUDE_FACTOR = 2.5
-
+export const VECTOR_AMPLITUDE_FACTOR = 2
+export const QUIVERS_AMPLITUDE_FACTOR = 20
 
 /**
  * Constants for marks
@@ -75,3 +75,12 @@ export const MARKS_OFFSET_X = 20
 export const MARKS_OFFSET_Y = 39
 export const MARKS_NUMBER_OFFSET_X = 4
 export const MARKS_NUMBER_OFFSET_Y = 35
+
+/**
+ * Velocity Vector Section Report Sizes
+ */
+
+export const REPORT_SECTION_VELOCITY_VECTOR_WIDTH = 400
+export const REPORT_SECTION_VELOCITY_VECTOR_HEIGHT = 225
+export const REPORT_SECTION_VELOCITY_VECTOR_RESIZE_FACTOR = 4.8
+export const REPORT_SECTION_VELOCITY_VECTOR_AMPLITUDE_FACTOR = 1.5
