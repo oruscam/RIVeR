@@ -12,21 +12,21 @@ import { ButtonLock } from '../components/ButtonLock.js'
 export const Step4 = () => {
   const { video } = useProjectSlice();
   const { onSetPixelSize, sections } = useSectionSlice()
-  const { points, realWorld, pixelSize } = sections[0]
+  const { dirPoints, rwPoints, pixelSize } = sections[0]
   
   // * Estado inicial del formulario
   const methods = useForm({
     defaultValues: {
       pixel_size_LINE_LENGTH: pixelSize.rw_length,
       pixel_size_PIXEL_SIZE: pixelSize.size,
-      pixel_size_EAST_point_1: realWorld[0].x,
-      pixel_size_EAST_point_2: realWorld[1].x,
-      pixel_size_NORTH_point_1: realWorld[0].y,
-      pixel_size_NORTH_point_2: realWorld[1].y,
-      pixel_size_X_point_1: points.length === 0 ? 0 : points[0].x,
-      pixel_size_Y_point_1: points.length === 0 ? 0 : points[0].y,
-      pixel_size_X_point_2: points.length === 0 ? 0 : points[1].x,
-      pixel_size_Y_point_2: points.length === 0 ? 0 : points[1].y 
+      pixel_size_EAST_point_1: rwPoints[0].x,
+      pixel_size_EAST_point_2: rwPoints[1].x,
+      pixel_size_NORTH_point_1: rwPoints[0].y,
+      pixel_size_NORTH_point_2: rwPoints[1].y,
+      pixel_size_X_point_1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
+      pixel_size_Y_point_1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
+      pixel_size_X_point_2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
+      pixel_size_Y_point_2: dirPoints.length === 0 ? 0 : dirPoints[1].y 
     }
   })
 
@@ -53,16 +53,16 @@ export const Step4 = () => {
     methods.reset({
       pixel_size_LINE_LENGTH: pixelSize.rw_length,
       pixel_size_PIXEL_SIZE: pixelSize.size,
-      pixel_size_EAST_point_1: realWorld[0].x,
-      pixel_size_EAST_point_2: realWorld[1].x,
-      pixel_size_NORTH_point_1: realWorld[0].y,
-      pixel_size_NORTH_point_2: realWorld[1].y,
-      pixel_size_X_point_1: points.length === 0 ? 0 : points[0].x,
-      pixel_size_Y_point_1: points.length === 0 ? 0 : points[0].y,
-      pixel_size_X_point_2: points.length === 0 ? 0 : points[1].x,
-      pixel_size_Y_point_2: points.length === 0 ? 0 : points[1].y 
+      pixel_size_EAST_point_1: rwPoints[0].x,
+      pixel_size_EAST_point_2: rwPoints[1].x,
+      pixel_size_NORTH_point_1: rwPoints[0].y,
+      pixel_size_NORTH_point_2: rwPoints[1].y,
+      pixel_size_X_point_1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
+      pixel_size_Y_point_1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
+      pixel_size_X_point_2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
+      pixel_size_Y_point_2: dirPoints.length === 0 ? 0 : dirPoints[1].y 
     })
-  }, [points, realWorld, sections[0]])
+  }, [dirPoints, rwPoints, sections[0]])
 
 
   return (
@@ -80,9 +80,9 @@ export const Step4 = () => {
             
           />
         </FormProvider>
-        <ButtonLock footerElementID='span-footer' headerElementID='pixel_size-HEADER' disabled={sections[0].points.length === 0}
+        <ButtonLock footerElementID='span-footer' headerElementID='pixel_size-HEADER' disabled={sections[0].dirPoints.length === 0}
         ></ButtonLock>
-        <WizardButtons canFollow={sections[0].points.length === 2} formId='form-pixel-size'/>
+        <WizardButtons canFollow={sections[0].dirPoints.length === 2} formId='form-pixel-size'/>
       </div>
     </div>
   )

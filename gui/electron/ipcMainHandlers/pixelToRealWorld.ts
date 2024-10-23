@@ -4,8 +4,7 @@ import { executePythonShell } from "./utils/executePythonShell";
 
 async function pixelToRealWorld(PROJECT_CONFIG: ProjectConfig){
     ipcMain.handle('pixel-to-real-world', async (_event, args) => {
-        console.log("Pixel to Real World")
-        
+                
         const options = [
             'transform-pixel-to-real-world',
             '--',

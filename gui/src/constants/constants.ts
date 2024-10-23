@@ -10,7 +10,7 @@ export const IMAGE_WIDTH_FACTOR = 0.66
 
 export const DEFAULT_ALPHA = 0.85
 export const DEFAULT_NUM_STATIONS = 15
-export const DEFAULT_REAL_WORLD = [{x: 0, y: 0}, {x: 0, y: 0}]
+export const DEFAULT_POINTS= [{x: 0, y: 0}, {x: 0, y: 0}]
 
 /**
  * This file contains all the constants used in the front application
@@ -43,7 +43,10 @@ export const RED = '#ED6B57'
 export const GREEN = '#62C655'
 export const YELLOW = '#F5BF61'
 export const BLUE = '#0678BE'
+export const LIGHT_BLUE = '#6CD4FF'
+export const DARK_GREY = '#545454'
 export const WHITE = '#FFFFFF'
+export const BLACK = '#000000'
 export const TRANSPARENT_WHITE = 'rgba(255, 255, 255, 0.5)'
 export const TRANSPARENT = 'transparent'
 
@@ -83,4 +86,4 @@ export const MARKS_NUMBER_OFFSET_Y = 35
 export const REPORT_SECTION_VELOCITY_VECTOR_WIDTH = 400
 export const REPORT_SECTION_VELOCITY_VECTOR_HEIGHT = 225
 export const REPORT_SECTION_VELOCITY_VECTOR_RESIZE_FACTOR = 4.8
-export const REPORT_SECTION_VELOCITY_VECTOR_AMPLITUDE_FACTOR = 1.5
+export const REPORT_SECTION_VELOCITY_VECTOR_AMPLITUDE_FACTOR = 0.9 

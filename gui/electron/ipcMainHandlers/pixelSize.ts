@@ -8,7 +8,7 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig ) {
     ipcMain.handle('pixel-size', async (_event, args: pixelSizeHandleArgs) => {
         console.log('En pixel-size event', args);
         const { directory, settingsPath } = PROJECT_CONFIG;
-        const { pixelPoints, rwPoints, pixelSize, rw_length } = args 
+        const { dirPoints, rwPoints, pixelSize, rw_length } = args 
 
         const json = await fs.promises.readFile(settingsPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
@@ -16,10 +16,10 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig ) {
         jsonParsed.pixel_size = {
             size: pixelSize,
             rw_length: rw_length,
-            x1: pixelPoints[0].x,
-            y1: pixelPoints[0].y,
-            x2: pixelPoints[1].x,
-            y2: pixelPoints[1].y,
+            x1: dirPoints[0].x,
+            y1: dirPoints[0].y,
+            x2: dirPoints[1].x,
+            y2: dirPoints[1].y,
             east1: rwPoints[0].x,
             north1: rwPoints[0].y,
             east2: rwPoints[1].x,
@@ -30,10 +30,10 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig ) {
             'get-uav-transformation-matrix',
             '--pixel-size',
             pixelSize,
-            pixelPoints[0].x,
-            pixelPoints[0].y,
-            pixelPoints[1].x,
-            pixelPoints[1].y,
+            dirPoints[0].x,
+            dirPoints[0].y,
+            dirPoints[1].x,
+            dirPoints[1].y,
             rwPoints[0].x,
             rwPoints[0].y,
             rwPoints[1].x,

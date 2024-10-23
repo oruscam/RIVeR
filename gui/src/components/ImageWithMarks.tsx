@@ -16,9 +16,9 @@ interface ImageWithMarksProps {
 
 export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) => {
   const { seeAll } = useUiSlice()
-  const { onSetPoints, sections, activeSection} = useSectionSlice()
+  const { onSetDirPoints, sections, activeSection} = useSectionSlice()
   const { firstFramePath } = useProjectSlice(); 
-  const { drawLine, points } = sections[activeSection]
+  const { drawLine, dirPoints } = sections[activeSection]
 
 
   const [localPoints, setLocalPoints] = useState<Point[]>([])
@@ -127,7 +127,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
       newPoints.push(pointerPosition)
 
       setLocalPoints(newPoints);
-      onSetPoints({points: newPoints, factor, index: null}, null);
+      onSetDirPoints({points: newPoints, factor, index: null}, null);
       setMousePressed(false);
     }
 
@@ -141,8 +141,8 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
     // * Trae los puntos del store y los pone en el estado local.
 
     useEffect(() => {
-      if(points.length !== 0){
-        const newPoints = points.map(point => {
+      if(dirPoints.length !== 0){
+        const newPoints = dirPoints.map(point => {
           return {
             x: point.x / factor,
             y: point.y / factor
@@ -153,7 +153,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
         setLocalPoints([])
       }
 
-    }, [activeSection, points, factor, factor])
+    }, [activeSection, dirPoints, factor, factor])
 
 
   return (

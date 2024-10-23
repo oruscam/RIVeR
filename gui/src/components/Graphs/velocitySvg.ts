@@ -28,7 +28,7 @@ interface CreateVelocityChartProps {
 
 export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, percentile5, percentile95, minusStd, plusStd, distance, sizes, showStd = true, showPercentile = true, isReport = false} : CreateVelocityChartProps ) => {
     const svg = d3.select(SVGElement);
-    const { height, margin, graphHeight, width } = sizes;
+    const { margin, graphHeight, width } = sizes;
 
     const minDomainValue = Math.min(d3.min(percentile5)!, d3.min(minusStd)!);
     const maxDomainValue = Math.max(d3.max(percentile95)!, d3.max(plusStd)!);

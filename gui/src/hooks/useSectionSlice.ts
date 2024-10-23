@@ -5,14 +5,13 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setSectionPoints, addSection, deleteSection, setActiveSection, setPixelSize, setSectionRealWorld, updateSection, setExtraField, changeSectionData, } from '../store/section/sectionSlice';
+import { setDirPoints, addSection, deleteSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, } from '../store/section/sectionSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
-import { convertInputData } from '../helpers/convertInputData';
-import { computePixelSize } from '../helpers';
+import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints } from '../helpers';
 import { setImages, setProcessingMask, updateProcessingForm } from '../store/data/dataSlice';
 import bathParser from '../helpers/bathimetryParser';
-import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_REAL_WORLD } from '../constants/constants';
+import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../constants/constants';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -42,13 +41,42 @@ export const useSectionSlice = () => {
         position: string;
     }
 
+    interface Section {
+        name: string;
+        drawLine: boolean;
+        sectionPoints: Point[];
+        dirPoints: Point[];
+        bathimetry: {
+            blob: string;
+            path: string;
+            name: string;
+            level?: number;
+            width?: number;
+            leftBank?: number;
+            line?: any;
+        };
+        pixelSize: {
+            size: number;
+            rw_length: number;
+        };
+        rwPoints: Point[];
+        extraFields: boolean;
+        numStations: number;
+        alpha: number;
+        interpolated: boolean;
+        sectionPointsRW?: Point[];
+    }
+
     /**
      * 
      * @param canvasPoint | null - Object with the points in pixels and the factor to convert to real world coordinates.
      * @param formPoint | null - Object with the real world coordinates and the position to update. This can be passed in formPixelSize or formCrossSections, by the child component pixelCoordinates.
      */
-    const onSetPoints = async ( canvasPoint: CanvasPoint | null, formPoint: FormPoint | null  ) => {
-        const { realWorld, points } = sections[activeSection];
+    const onSetDirPoints = async ( canvasPoint: CanvasPoint | null, formPoint: FormPoint | null  ) => {
+        const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
+        
+        // Clean section points for better visualization.
+        onUpdateSectionPoints([])
 
         /**
          * The flags are used to avoid unnecessary calculations.
@@ -106,20 +134,20 @@ export const useSectionSlice = () => {
 
         if(formPoint){
             const { point, position } = formPoint;
-            if ( position === 'x1' && point !== points[0].x){
-                newPoints = [{x: parseFloat(point as string), y: points[0].y}, {x: points[1].x, y: points[1].y}]
+            if ( position === 'x1' && point !== dirPoints[0].x){
+                newPoints = [{x: parseFloat(point as string), y: dirPoints[0].y}, {x: dirPoints[1].x, y: dirPoints[1].y}]
                 flag1 = true
-            } else if ( position === 'y1' && point !== points[0].y){
-                newPoints = [{x: points[0].x, y: parseFloat(point as string)}, {x: points[1].x, y: points[1].y}]
+            } else if ( position === 'y1' && point !== dirPoints[0].y){
+                newPoints = [{x: dirPoints[0].x, y: parseFloat(point as string)}, {x: dirPoints[1].x, y: dirPoints[1].y}]
                 flag1 = true
-            } else if ( position === 'x2' && point !== points[1].x){
-                newPoints = [{x: points[0].x, y: points[0].y}, {x: parseFloat(point as string), y: points[1].y}]
+            } else if ( position === 'x2' && point !== dirPoints[1].x){
+                newPoints = [{x: dirPoints[0].x, y: dirPoints[0].y}, {x: parseFloat(point as string), y: dirPoints[1].y}]
                 flag2 = true
-            } else if ( position === 'y2' && point !== points[1].y){
-                newPoints = [{x: points[0].x, y: points[0].y}, {x: points[1].x, y: parseFloat(point as string)}]
+            } else if ( position === 'y2' && point !== dirPoints[1].y){
+                newPoints = [{x: dirPoints[0].x, y: dirPoints[0].y}, {x: dirPoints[1].x, y: parseFloat(point as string)}]
                 flag2 = true
             } else {
-                newPoints = points
+                newPoints = dirPoints
             }
         }
 
@@ -129,12 +157,12 @@ export const useSectionSlice = () => {
         if(newPoints){
             if (newPoints[0].x === newPoints[1].x && newPoints[0].y === newPoints[1].y) {
                 console.error("Los puntos no pueden ser iguales.");
-                newPoints = points; // Revertir a los puntos originales
+                newPoints = dirPoints; // Revertir a los puntos originales
                 flag1 = false;
                 flag2 = false;
-                dispatch(setSectionPoints(newPoints as Point[]))
+                dispatch(setDirPoints(newPoints as Point[]))
             } else {
-                dispatch(setSectionPoints(newPoints as Point[]))
+                dispatch(setDirPoints(newPoints as Point[]))
             }
 
         }
@@ -156,27 +184,33 @@ export const useSectionSlice = () => {
                     const {rw_coordinates: par1} = await ipcRenderer.invoke('pixel-to-real-world', { points: {x: newPoints[0].x, y: newPoints[0].y}})
                     const {rw_coordinates: par2} = await ipcRenderer.invoke('pixel-to-real-world', { points: {x: newPoints[1].x, y: newPoints[1].y}})
                     rwCalculated = [{x: par1[0], y: par1[1]}, {x: par2[0], y: par2[1]}]
-                    dispatch(setSectionRealWorld(rwCalculated))
+                    dispatch(setRealWorldPoints(rwCalculated))
                 } else if (newPoints && flag1){
                     const {rw_coordinates: par1} = await ipcRenderer.invoke('pixel-to-real-world', { points: {x: newPoints[0].x, y: newPoints[0].y}})
-                    rwCalculated = [{x: par1[0], y: par1[1]}, realWorld[1]]
-                    dispatch(setSectionRealWorld(rwCalculated))
+                    rwCalculated = [{x: par1[0], y: par1[1]}, rwPoints[1]]
+                    dispatch(setRealWorldPoints(rwCalculated))
                 } else if (newPoints && flag2){
                     const {rw_coordinates: par2} = await ipcRenderer.invoke('pixel-to-real-world', { points: {x: newPoints[1].x, y: newPoints[1].y}})
-                    rwCalculated = [realWorld[0], {x: par2[0], y: par2[1]}]
-                    dispatch(setSectionRealWorld(rwCalculated))
+                    rwCalculated = [rwPoints[0], {x: par2[0], y: par2[1]}]
+                    dispatch(setRealWorldPoints(rwCalculated))
                 }
                 
                 const { size, rw_length}  = computePixelSize(newPoints as Point[], rwCalculated)
                 dispatch(setPixelSize({size, rw_length}))
+                dispatch(setDirPoints(newPoints as Point[]))
+
+                if( bathimetry.width ){
+                    onUpdateSectionPoints(newPoints as Point[], rw_length, bathimetry.width, bathimetry.leftBank)
+                }
 
             } catch (error) {
                 console.log("Error calculando real-world-coordinates")
             }
-            } else {
-                const {size, rw_length} = computePixelSize(newPoints as Point[], realWorld)
-                dispatch(setPixelSize({size, rw_length}))
-            }    
+        } else {
+            const {size, rw_length} = computePixelSize(newPoints as Point[], rwPoints)
+            dispatch(setPixelSize({size, rw_length}))
+        }    
+
     }
 
     /**
@@ -186,7 +220,7 @@ export const useSectionSlice = () => {
      */
 
     const onSetRealWorld = async (point: string | number, position: string) => {
-        const { realWorld, points } = sections[activeSection];
+        const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
 
         /**
          * The newPoints variable is used to store the new real world coordinates after the modification.
@@ -199,20 +233,20 @@ export const useSectionSlice = () => {
         let newPoints: Point[];
         let flag1 = false;
         let flag2 = false
-        if ( position === 'x1' && point !== realWorld[0].x){
-            newPoints = [{x: parseFloat(point as string), y: realWorld[0].y}, {x: realWorld[1].x, y: realWorld[1].y}]
+        if ( position === 'x1' && point !== rwPoints[0].x){
+            newPoints = [{x: parseFloat(point as string), y: rwPoints[0].y}, {x: rwPoints[1].x, y: rwPoints[1].y}]
             flag1 = true;
-        } else if ( position === 'y1' && point !== realWorld[0].y){
-            newPoints = [{x: realWorld[0].x, y: parseFloat(point as string)}, {x: realWorld[1].x, y: realWorld[1].y}]
+        } else if ( position === 'y1' && point !== rwPoints[0].y){
+            newPoints = [{x: rwPoints[0].x, y: parseFloat(point as string)}, {x: rwPoints[1].x, y: rwPoints[1].y}]
             flag1 = true;
-        } else if ( position === 'x2' && point !== realWorld[1].x){
-            newPoints = [{x: realWorld[0].x, y: realWorld[0].y}, {x: parseFloat(point as string), y: realWorld[1].y}]
+        } else if ( position === 'x2' && point !== rwPoints[1].x){
+            newPoints = [{x: rwPoints[0].x, y: rwPoints[0].y}, {x: parseFloat(point as string), y: rwPoints[1].y}]
             flag2 = true;
-        } else if ( position === 'y2' && point !== realWorld[1].y){
-            newPoints = [{x: realWorld[0].x, y: realWorld[0].y}, {x: realWorld[1].x, y: parseFloat(point as string)}]
+        } else if ( position === 'y2' && point !== rwPoints[1].y){
+            newPoints = [{x: rwPoints[0].x, y: rwPoints[0].y}, {x: rwPoints[1].x, y: parseFloat(point as string)}]
             flag2 = true;
         } else{
-            newPoints = realWorld
+            newPoints = rwPoints
         }
 
         /**
@@ -221,11 +255,11 @@ export const useSectionSlice = () => {
         if(newPoints){
             if( newPoints[0].x === newPoints[1].x && newPoints[0].y === newPoints[1].y){
                 console.error("Los puntos no pueden ser iguales.");
-                newPoints = realWorld;
+                newPoints = rwPoints;
                 flag1 = false;
                 flag2 = false;
             } else {
-                dispatch(setSectionRealWorld(newPoints))
+                dispatch(setRealWorldPoints(newPoints))
             }
         }
 
@@ -237,25 +271,31 @@ export const useSectionSlice = () => {
          * The pixel size is stored in the section slice.
          */
 
-        if(activeSection >= 1 && newPoints !== realWorld){
+        if(activeSection >= 1 && newPoints !== rwPoints){
             let pixelCalulated: Point[] = [{x: 0, y: 0}, {x: 0, y: 0}]
             const ipcRenderer = window.ipcRenderer;
             try {
                 if( flag1 ){
-                    const {pix_coordinates} = await ipcRenderer.invoke('real-world-to-pixel', { points: {x: newPoints[0].x, y: newPoints[0].y}})
-                    pixelCalulated = [{x: pix_coordinates[0], y: pix_coordinates[1]}, points[1]]
+                    const {pix_coordinates} = await ipcRenderer.invoke('real-world-to-pixel', { points: {x: newPoints[0].x, y: newPoints[0].y }})
+                    pixelCalulated = [{x: pix_coordinates[0], y: pix_coordinates[1]}, dirPoints[1]]
                 } else if( flag2 ) {
-                    const {pix_coordinates} = await ipcRenderer.invoke('real-world-to-pixel', { points: {x: newPoints[1].x, y: newPoints[1].y}})
-                    pixelCalulated = [points[0], {x: pix_coordinates[0], y: pix_coordinates[1]}]
+                    const {pix_coordinates} = await ipcRenderer.invoke('real-world-to-pixel', { points: {x: newPoints[1].x, y: newPoints[1].y }})
+                    pixelCalulated = [dirPoints[0], {x: pix_coordinates[0], y: pix_coordinates[1]}]
                 }
                 const { size, rw_length}  = computePixelSize(pixelCalulated, newPoints)
+                
                 dispatch(setPixelSize({size, rw_length}))
-                dispatch(setSectionPoints(pixelCalulated))
+                dispatch(setDirPoints(pixelCalulated))
+                
+                if (bathimetry.width){
+                    onUpdateSectionPoints(pixelCalulated as Point[], rw_length, bathimetry.width, bathimetry.leftBank)
+                }
+
             } catch (error) {
                 console.log("Error calculando pixel-coordinates")
             }
         } else{ 
-            const {size, rw_length} = computePixelSize(points, newPoints)
+            const {size, rw_length} = computePixelSize(dirPoints, newPoints)
             dispatch(setPixelSize({size, rw_length}))
         }
     };
@@ -268,10 +308,10 @@ export const useSectionSlice = () => {
     const onSetPixelSize = async (_data: FieldValues) => {
         dispatch(setLoading(true))
         
-        const { points: pixelPoints, realWorld: realWorldPoints, pixelSize } = sections[0]
+        const { dirPoints, rwPoints, pixelSize } = sections[0]
         const args = {
-            pixelPoints: pixelPoints,
-            rwPoints: realWorldPoints,
+            dirPoints,
+            rwPoints,
             pixelSize: pixelSize.size,
             rw_length: pixelSize.rw_length,
         }
@@ -305,28 +345,35 @@ export const useSectionSlice = () => {
      * @param formData | FieldValues - from useFormHook
      */
 
-    const onSetSections = async (formData: FieldValues) => {
+    const onSetSections = async (_formData: FieldValues) => {
         dispatch(setLoading(true))
-
-        /**
-         * The cross sections names are stored in the csNames array.
-         * The cross sections names are used to convert the input data to the correct format.
-         */
-
-        const csNames: string[] = []
-        const bahtsPaths: string[] = []
-        sections.map((section, index) => {
-            if(index > 0){
-                csNames.push(section.name)
-                bahtsPaths.push(section.bathimetry.path)
-            }
-        })
-
-        
-
-        const data = convertInputData(formData, csNames, bahtsPaths)
         const ipcRenderer = window.ipcRenderer;
 
+        let updatedSection = [...sections]
+
+        /**
+         * We need to transform pixel points section to real world, for mask and height roight
+         * 
+         * 
+         */
+
+        await Promise.all(sections.map(async (section, index) => {
+            if (index === 0) return;
+
+            const { sectionPoints } = section;
+
+            try {
+                const { rw_coordinates: par1 } = await ipcRenderer.invoke('pixel-to-real-world', { points: { x: sectionPoints[0].x, y: sectionPoints[0].y } });
+                const { rw_coordinates: par2 } = await ipcRenderer.invoke('pixel-to-real-world', { points: { x: sectionPoints[1].x, y: sectionPoints[1].y } });
+
+                const rwPoints = [{ x: par1[0], y: par1[1] }, { x: par2[0], y: par2[1] }];
+                updatedSection[index] = { ...section, sectionPointsRW: rwPoints }; 
+            } catch (error) {
+                console.log(error);
+            }
+        }));
+
+        const data = adapterCrossSections(updatedSection);
 
         /**
          * The sections are stored in the section slice.
@@ -352,63 +399,91 @@ export const useSectionSlice = () => {
             console.log(error)
         }
     }
-
     interface Update {
-        lineLength?: number,
-        drawLine?: boolean,
-        sectionName?: string,
-        index?: number,
-        file?: File,
-        level?: number,
-        leftBank?: number,
-        numStations?: number,
-        alpha?: number,
-        interpolated?: string
+        alpha?: number;
+        drawLine?: boolean;
+        index?: number;
+        interpolated?: string;
+        leftBank?: number;
+        level?: number;
+        lineLength?: number;
+        numStations?: number;
+        sectionName?: string;
     }
 
     /**
      * Function to update the active section.
      * The function is used to update the active section with the values passed in the object.
-         * The values that can be updated are:
-         * - drawLine: boolean - The flag to draw the line in the canvas.
-         * - lineLength: number - The length of the line in the canvas.
-         * - sectionName: string - The name of the section.
-         * - file: File - The bathimetry file.
-         * - level: number - The level of the bathimetry.
+     * The values that can be updated are:
+     * - drawLine: boolean - The flag to draw the line in the canvas.
+     * - lineLength: number - The length of the line in the canvas.
+     * - sectionName: string - The name of the section.
+     * - file: File - The bathimetry file.
+     * - level: number - The level of the bathimetry.
      * The values are updated in the section slice.
      * @param value | Update - Object with the values to update the active section.
      */
+    const onUpdateSection = (value: Update) => {
+        const section = sections[activeSection];
+        const updatedSection = { ...section };
 
-    const onUpdateSection = ( value: Update ) => {
-        const section = sections[activeSection]
-        if( value.drawLine ){
-            dispatch(updateSection({...section, drawLine: !section.drawLine, points: [], pixelSize: {
-                rw_length: 0,
-                size: 0
-            }}))
-        } else if( value.lineLength ){
-            const { points } = section
-            const resetRealWorld = [{x: 0, y: 0}, {x: value.lineLength, y: 0}]
-            const { size, rw_length } = computePixelSize(points, resetRealWorld)
-            dispatch(setPixelSize({size, rw_length}))
-            dispatch(setSectionRealWorld(resetRealWorld))
-        } else if( value.sectionName ){
-            dispatch(updateSection({...section, name: value.sectionName }))
-        } else if( value.file ){
-            dispatch(updateSection({...section, bathimetry: {path: value.file.path, level: 0, name: value.file.name,}}))
-        } else if( value.level ){
-            dispatch(updateSection({...section, bathimetry: {...section.bathimetry, level: value.level}}))
-        } else if ( value.leftBank !== null && value.leftBank !== undefined ){
-            console.log('left-bank value', value.leftBank)
-            dispatch(updateSection({...section, bathimetry: {...section.bathimetry, leftBank: parseFloat(value.leftBank.toFixed(2))}}))
-        } else if ( value.alpha ){
-            dispatch(updateSection({...section, alpha: parseFloat(value.alpha.toFixed(2))}))
-        } else if ( value.numStations ){
-            dispatch(updateSection({...section, numStations: value.numStations}))
-        } else if ( value.interpolated !== undefined ){
-            dispatch(updateSection({...section, interpolated: !section.interpolated}))
+
+        if (value.drawLine !== undefined) {
+            updatedSection.drawLine = !updatedSection.drawLine;
+            updatedSection.dirPoints = [];
+            updatedSection.sectionPoints = DEFAULT_POINTS;
+            updatedSection.pixelSize = { rw_length: 0, size: 0 };
         }
-    }
+
+        if (value.lineLength !== undefined) {
+            const resetRealWorld = [{ x: 0, y: 0 }, { x: value.lineLength, y: 0 }];
+            const { size, rw_length } = computePixelSize(section.dirPoints, resetRealWorld);
+            updatedSection.pixelSize = { size, rw_length };
+            updatedSection.rwPoints = resetRealWorld;
+        }
+
+        if (value.sectionName !== undefined) {
+            updatedSection.name = value.sectionName;
+        }
+
+        // if (value.file !== undefined) {
+        //     updatedSection.bathimetry = { path: value.file.path, level: 0, name: value.file.name };
+        // }
+
+        if (value.level !== undefined) {
+            const intersectionPoints = section.bathimetry.line ? getIntersectionPoints(section.bathimetry.line, value.level) : []
+
+            const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x 
+            
+            dispatch(setBathimetry({...section.bathimetry, level: value.level, width: bathWidth, x1Intersection: intersectionPoints[0].x}))
+            
+            onUpdateSectionPoints(updatedSection.dirPoints, updatedSection.pixelSize.rw_length, bathWidth, updatedSection.bathimetry.leftBank)
+            
+            return 
+        }
+
+        if (value.leftBank !== undefined) {
+            dispatch(setBathimetry({...section.bathimetry, leftBank: value.leftBank}))
+            
+            onUpdateSectionPoints(updatedSection.dirPoints, updatedSection.pixelSize.rw_length, updatedSection.bathimetry.width, value.leftBank)
+            
+            return
+        }
+
+        if (value.alpha !== undefined) {
+            updatedSection.alpha = parseFloat(value.alpha.toFixed(2));
+        }
+
+        if (value.numStations !== undefined) {
+            updatedSection.numStations = value.numStations;
+        }
+
+        if (value.interpolated !== undefined) {
+            updatedSection.interpolated = !section.interpolated;
+        }
+
+        dispatch(updateSection(updatedSection));
+    };
 
     /**
      * Function to add a new section to the sections slice.
@@ -427,15 +502,15 @@ export const useSectionSlice = () => {
         const section = {
             name: str,
             drawLine: false,
-            points: [],
+            sectionPoints: DEFAULT_POINTS,
+            dirPoints: DEFAULT_POINTS,
             bathimetry: {
                 blob: "",
                 path: "",
-                level: 0,
                 name: ""
             },
             pixelSize: {size: 0, rw_length: 0},
-            realWorld: DEFAULT_REAL_WORLD,
+            rwPoints: DEFAULT_POINTS,
             extraFields: false,
             numStations: DEFAULT_NUM_STATIONS,
             alpha: DEFAULT_ALPHA,
@@ -495,7 +570,12 @@ export const useSectionSlice = () => {
             if ( data.path !== "" && data.path !== sections[activeSection].bathimetry.path){
                 const result = await bathParser('/@fs' + data.path, data.type)
 
-                dispatch(updateSection({...sections[activeSection], bathimetry: {path: data.path, level: 0, name: data.name, line: result}}))
+                const bathValues = getBathimetryValues(result)
+
+                dispatch(setBathimetry({path: data.path, name: data.name, line: result, ...bathValues}))
+
+                const { dirPoints, pixelSize } = sections[activeSection] 
+                onUpdateSectionPoints(dirPoints, pixelSize.rw_length, bathValues.width, bathValues.leftBank)
             }
         } catch (error) {
             console.log(error)
@@ -503,12 +583,47 @@ export const useSectionSlice = () => {
         }
     }
 
+    const onUpdateSectionPoints = ( points: Point[] | [], total_distance?: number, bathWidth?: number, leftBank?: number) => {
+
+        console.log('left bank update section poinst', leftBank)
+        console.log('bathWidth update section poinst', bathWidth)
+        console.log('total_distance update section poinst', total_distance)
+
+        
+        if( points.length === 0 ){
+            dispatch(setSectionPoints(DEFAULT_POINTS))
+            return
+        }
+
+        if ( !bathWidth || !total_distance) return
+
+
+        const directionVector = getDirectionVector(points, total_distance)
+
+        const offset = leftBank ? - leftBank : 0
+
+
+        const sectionPoints = [
+          {
+            x: points[0].x + (directionVector[0] * offset),
+            y: points[0].y + (directionVector[1] * offset)
+          },
+          {
+            x: points[0].x + (directionVector[0] * bathWidth) + (directionVector[0] * offset),
+            y: points[0].y + (directionVector[1] * bathWidth) + (directionVector[1] * offset)
+          }
+        ];
+
+        dispatch(setSectionPoints(sectionPoints))
+        
+    }
+
     return {    
         sections,
         activeSection,
 
 
-        onSetPoints,
+        onSetDirPoints,
         onAddSection,
         onDeleteSection,
         onSetActiveSection,
@@ -521,5 +636,3 @@ export const useSectionSlice = () => {
         onGetBathimetry
     };
 };
-
-

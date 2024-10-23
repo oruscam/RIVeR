@@ -1,7 +1,7 @@
 import { Progress, WizardButtons } from '../components'
 import { ProcessedRange, VideoInfo, ReportSection, Header, Summary, PixelTransformation, ProcessingParameters, Footer } from '../components/Report'
 import './pages.css'
-import { useDataSlice, useProjectSlice, useSectionSlice } from '../hooks'
+import { useDataSlice, useSectionSlice } from '../hooks'
 import { FormLastSettings } from '../components/Forms/FormLastSettings';
 
 const convertImageToDataURI = ( url: string ) => {
@@ -13,7 +13,7 @@ const convertImageToDataURI = ( url: string ) => {
       canvas.width = img.width;
       canvas.height = img.height;
       const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0);
+      ctx?.drawImage(img, 0, 0);
       const dataURI = canvas.toDataURL('image/png');
       resolve(dataURI);
     };
@@ -25,7 +25,6 @@ const convertImageToDataURI = ( url: string ) => {
 export const Report = () => {
   const { sections } = useSectionSlice();
   const { onSetAnalizing } = useDataSlice();
-  const { projectDirectory } = useProjectSlice()
 
   const generateHTML = async () => {
     onSetAnalizing(true)

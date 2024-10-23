@@ -12,6 +12,13 @@
 
 }
 
+#svg-section-line{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+}
+
 @media print {
     #all-in-one-graph .grid line {
         stroke: rgba(255, 255, 255, 0.2);

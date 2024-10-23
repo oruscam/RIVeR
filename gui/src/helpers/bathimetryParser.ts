@@ -1,6 +1,6 @@
 import { csv, tsv } from 'd3' 
 
-const bathParser = async (path: string, type: string): Promise<{x: number, y: number}[] | undefined> => {
+const bathParser = async (path: string, type: string): Promise<{x: number, y: number}[]> => {
     let parser = csv;
     if(type === 'tsv'){
         parser = tsv;

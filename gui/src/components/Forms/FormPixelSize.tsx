@@ -65,7 +65,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
               <div className='input-container-2 mt-2'>
                 <label className='read-only me-1'>{t("Step4.lineLength")}</label>
                 <input className='input-field' 
-                  disabled={sections[0].points.length === 0}
+                  disabled={sections[0].dirPoints.length === 0}
                   type='number' 
                   step="any"
                   id='pixel_size-LINE_LENGTH'
@@ -90,7 +90,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
                       type='number' 
                       readOnly={true}
                       id='pixel_size-PIXEL_SIZE'
-                      disabled={sections[0].points.length === 0}
+                      disabled={sections[0].dirPoints.length === 0}
                       step="any"
                       onKeyDown={handleTab}
                       />

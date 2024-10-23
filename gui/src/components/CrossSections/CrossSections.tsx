@@ -16,7 +16,7 @@ const createInitialState = (sections: Section[]) => {
   
     sections.forEach((section, index) => {
         if ( index !== 0){
-            const {name, points, realWorld, pixelSize, bathimetry, numStations, alpha} = section
+            const {name, dirPoints, rwPoints, pixelSize, bathimetry, numStations, alpha} = section
             const baseKey = name;
             defaultValues = {
                 ...defaultValues,
@@ -24,14 +24,14 @@ const createInitialState = (sections: Section[]) => {
                 [`${baseKey}_CS_BATHIMETRY`]: bathimetry.path,
                 [`${baseKey}_LEVEL`]: bathimetry.level,
                 [`${baseKey}_LEFT_BANK`]: bathimetry.leftBank,
-                [`${baseKey}_EAST_Left`]: realWorld[0].x.toFixed(2),
-                [`${baseKey}_NORTH_Left`]: realWorld[0].y.toFixed(2),
-                [`${baseKey}_EAST_Right`]: realWorld[1].x.toFixed(2),
-                [`${baseKey}_NORTH_Right`]: realWorld[1].y.toFixed(2),
-                [`${baseKey}_X_Left`]: points.length === 0 ? 0 : points[0].x.toFixed(1),
-                [`${baseKey}_Y_Left`]: points.length === 0 ? 0 : points[0].y.toFixed(1),
-                [`${baseKey}_X_Right`]: points.length === 0 ? 0 : points[1].x.toFixed(1),
-                [`${baseKey}_Y_Right`]: points.length === 0 ? 0 : points[1].y.toFixed(1),
+                [`${baseKey}_EAST_Left`]: rwPoints[0].x.toFixed(2),
+                [`${baseKey}_NORTH_Left`]: rwPoints[0].y.toFixed(2),
+                [`${baseKey}_EAST_Right`]: rwPoints[1].x.toFixed(2),
+                [`${baseKey}_NORTH_Right`]: rwPoints[1].y.toFixed(2),
+                [`${baseKey}_X_Left`]: dirPoints.length === 0 ? 0 : dirPoints[0].x.toFixed(1),
+                [`${baseKey}_Y_Left`]: dirPoints.length === 0 ? 0 : dirPoints[0].y.toFixed(1),
+                [`${baseKey}_X_Right`]: dirPoints.length === 0 ? 0 : dirPoints[1].x.toFixed(1),
+                [`${baseKey}_Y_Right`]: dirPoints.length === 0 ? 0 : dirPoints[1].y.toFixed(1),
                 [`${baseKey}_NUM_STATIONS`]: numStations,
                 [`${baseKey}_ALPHA`]: alpha,
             };
@@ -102,7 +102,7 @@ export const CrossSections = () => {
                 })
             }
             </FormProvider>
-            <ButtonLock disabled={sections[activeSection].points.length === 0} footerElementID="form-cross-section-footer" headerElementID="form-cross-section-header"></ButtonLock>
+            <ButtonLock disabled={sections[activeSection].dirPoints.length === 0} footerElementID="form-cross-section-footer" headerElementID="form-cross-section-header"></ButtonLock>
         </>
     )
 }

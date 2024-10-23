@@ -5,15 +5,9 @@ import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
 import { Report } from './pages/Report'
-import { useProjectSlice, useSectionSlice } from './hooks'
 
 export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice()
-  const { sections } = useSectionSlice()
-
-  console.log(sections[1].bathimetry)
-
-  // console.log(sections[activeSection].data?.check)
 
 
   useEffect(() => {
@@ -23,7 +17,6 @@ export const App: React.FC = () => {
       onSetScreen({ width, height })
     })
   }, [])
-
 
   return (
     <div className='App' data-theme={darkMode ? "dark" : "light"}>

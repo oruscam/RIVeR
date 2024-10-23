@@ -1,72 +1,86 @@
 import { Line, Text } from 'react-konva';
 import { useWizard } from 'react-use-wizard';
-import { STEP_4, STEP_5,STEP_8 } from '../constants/constants';
-import { useEffect, useState } from 'react';
+import { BLACK, DARK_GREY, LIGHT_BLUE, STEP_4, STEP_5, STEP_8, WHITE, YELLOW } from '../constants/constants';
+import { useSectionSlice } from '../hooks';
 
 interface LineAndTextProps {
-    imagePoints: { x: number; y: number }[];
-    name: string; 
+    localPoints?: { x: number; y: number }[];
     isPixelSize: boolean;
     resizeFactor?: number;
+    factor: number
+    index: number
 }
 
-export const LineAndText = ({imagePoints, name, isPixelSize, resizeFactor = 1}: LineAndTextProps) => {
+export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor, index}: LineAndTextProps) => {
   const { activeStep } = useWizard();
-  const [sortedPoints, setSortedPoints] = useState<{ x: number; y: number }[]>(imagePoints)
 
+  const { sections } = useSectionSlice();
+  const { bathimetry, sectionPoints, dirPoints, name } = sections[index]
+
+  
   let lineColor : string = ''
   let textColor : string = ''
 
   switch (activeStep) {
     case STEP_4:
-      lineColor = "#6CD4FF"
-      textColor = "#FFFFFF"
+      lineColor = LIGHT_BLUE
+      textColor = WHITE
       break;
     case STEP_5:
-      lineColor = "#F5BF61"
-      textColor = "#F5BF61"
+      lineColor = YELLOW
+      textColor = YELLOW
       break;
 
     case STEP_8:
-      lineColor = "#F5BF61"
-      textColor = "#F5BF61"
+      lineColor = YELLOW
+      textColor = YELLOW
       break;
 
-    // case STEP_8:
-    //   lineColor = "#F5BF61"
-    //   break;
     default:
-      lineColor = "#545454"
-      textColor = "#000000"
+      lineColor = DARK_GREY
+      textColor = BLACK
   }
 
-  useEffect(() => {
-    if(imagePoints.length === 2){
-      const sorted =  [...imagePoints].sort((a, b) => a.x - b.x);
-      setSortedPoints(sorted)
-    }
-
-  }, [imagePoints])
+  
+  const sectionLine = () => {
+    if(!dirPoints.length) return null
+    if(bathimetry.width){
+    
+      return (
+        <Line
+          points={sectionPoints.flatMap(point => [point.x / factor, point.y / factor])}
+          stroke={DARK_GREY}
+          strokeWidth={4 / resizeFactor}
+          lineCap="round"
+          dash={[5, 10]}
+        />
+      )
+    }    
+  }
 
   return (
     <>
-        <Line
-            points={[imagePoints[0].x, imagePoints[0].y, imagePoints[1].x, imagePoints[1].y]}
-            stroke={lineColor}
-            strokeWidth={4 / resizeFactor}
-            lineCap="round"
-        />
-        {
-          !isPixelSize && (
-            <Text
-                x={(sortedPoints[1].x + 10 / resizeFactor)}
-                y={(sortedPoints[1].y - 10 / resizeFactor)}
-                text={name}
-                fontSize={18 / resizeFactor}
-                fill={textColor}
-            /> 
-          )
-        }
+      {
+        sectionLine()
+      }
+      <Line
+        points={localPoints ? localPoints.flatMap(point => [point.x, point.y]) : dirPoints.flatMap(point => [point.x / factor, point.y / factor])}
+        stroke={lineColor}
+        strokeWidth={4 / resizeFactor}
+        lineCap="round"
+      />
+      {
+        !isPixelSize && (
+        <Text
+          x={(sectionPoints[1].x / factor + 10 / resizeFactor)}
+          y={(sectionPoints[1].y / factor - 10 / resizeFactor)}
+          text={name}
+          fontSize={18 / resizeFactor}
+          fill={textColor}
+          offset={{ x: 0, y: -15 }}
+        /> 
+        )
+      }
     </>
   )
 }
