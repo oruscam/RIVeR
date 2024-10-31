@@ -152,6 +152,10 @@ def create_mask_and_bbox(image, json_path, json_transformation, height_roi):
     with open(json_path, 'r') as file:
         xsections = json.load(file)
 
+    # Remove any existing "summary" key to avoid processing it
+    if "summary" in xsections:
+        del xsections["summary"]
+
     combined_mask = np.zeros((image.shape[0], image.shape[1]), dtype=np.uint8)
     pixel_boxes = []
 
