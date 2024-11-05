@@ -11,8 +11,6 @@ export function setSections(PROJECT_CONFIG: ProjectConfig){
     ipcMain.handle('set-sections', async (_event, args: setSectionsHandleArgs) => {
         console.log('set-sections')
 
-        console.log(args)
-
         const { directory, settingsPath } = PROJECT_CONFIG; 
         const xsectionsPath = path.join(directory, 'xsections.json')
         PROJECT_CONFIG.xsectionsPath = xsectionsPath;

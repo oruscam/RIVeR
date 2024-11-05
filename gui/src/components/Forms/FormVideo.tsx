@@ -12,13 +12,17 @@ import { useProjectSlice } from '../../hooks';
 export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateAction<number>> }) => {
   const { onSetVideoParameters, video: videoData } = useProjectSlice()
   const { startTime, endTime, step } = videoData.parameters
-  const { handleSubmit, register, setValue, getValues, watch} = useForm({
+
+  console.log(startTime)
+  console.log(endTime)
+  const { handleSubmit, register, setValue, getValues, watch } = useForm({
     defaultValues: {
       start: startTime,
       end: endTime,
       step: step
     }
   })
+  
   const [video, setVideo] = useState<HTMLVideoElement | null>(null)
   const { t } = useTranslation()
   const {nextStep } = useWizard()
@@ -34,15 +38,14 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
       const number = video.currentTime
       const id = (event.target as HTMLButtonElement).id
       if( id === "start"){
-        setValue('start', number.toFixed(4), { shouldValidate: true} )
+        setValue('start', parseFloat(number.toFixed(4)), { shouldValidate: true} )
         }else{
-          setValue('end', number.toFixed(4), { shouldValidate: true} )
+          setValue('end', parseFloat(number.toFixed(4)), { shouldValidate: true} )
         }
       }
     }
           
   const onSubmit = ( data: FieldValues ) => {
-    console.log("Submit Form Video")
     onSetVideoParameters(data)
 
     nextStep()
@@ -73,9 +76,7 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
               type='number'
               step="0.0001"
               { ...register("start", validationRules.start) }
-              >
-              </input>
-
+              />
           </div>
           <div className='input-container-2 mt-1'>
             <button type='button' className='wizard-button form-button me-1' onClick={handleClick} id='end'> {t("Step3.end")} </button>
@@ -86,7 +87,7 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
               defaultValue={1}
               id='end'
               { ...register('end', validationRules.end) }
-              ></input>
+              />
           </div>
           <div className='input-container-2 mt-1'>
             <label className='read-only me-1'> {t("Step3.step")} </label>

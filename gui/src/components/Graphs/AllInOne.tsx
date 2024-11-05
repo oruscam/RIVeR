@@ -4,7 +4,7 @@ import * as d3 from 'd3'
 import { useSectionSlice, useUiSlice } from '../../hooks'
 import { createDischargeChart } from './dischargeSvg'
 import { createVelocityChart } from './velocitySvg'
-import { bathimetrySvg, createBathymetryChart } from './bathimetrySvg'
+import { bathimetrySvg } from './bathimetrySvg'
 import { GRAPH_WIDTH_PROPORTION, MIN_GRAPH_WIDTH } from '../../constants/constants'
 
 /**
@@ -28,7 +28,6 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
         if(svgRef.current === null) return
 
             if(data){
-                console.log(data)
                 const svg = d3.select(svgRef.current)
                 const width = +svg.attr('width')
                 const height = +svg.attr('height')
@@ -149,10 +148,10 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 })
 
             }
-    }, [activeSection, data?.showVelocityStd, data?.show95Percentile, index, screenWidth])
+    }, [activeSection, data?.showVelocityStd, data?.show95Percentile, index, screenWidth, data])
 
   return (
-    <svg ref={svgRef} width={width ? width : graphWidth} height={height ? height : 500}></svg>
+    <svg ref={svgRef} width={width ? width : graphWidth} height={height ? height : 500} id='all-in-one-graph'></svg>
   ) 
 }
 

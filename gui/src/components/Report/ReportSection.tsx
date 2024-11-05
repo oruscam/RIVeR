@@ -1,11 +1,14 @@
-import { useProjectSlice, useSectionSlice } from "../../hooks"
-import { AllInOne } from "../Graphs";
+import { REPORT_SECTION_VELOCITY_VECTOR_AMPLITUDE_FACTOR, REPORT_SECTION_VELOCITY_VECTOR_HEIGHT, REPORT_SECTION_VELOCITY_VECTOR_RESIZE_FACTOR, REPORT_SECTION_VELOCITY_VECTOR_WIDTH } from "../../constants/constants";
+import { useSectionSlice } from "../../hooks"
+import { AllInOne, VelocityVector } from "../Graphs";
 import { ReportSectionTable } from "./ReportSectionTable";
 
-export const ReportSection = () => {
+interface ReportSectionProps {
+  index: number;
+}
+
+export const ReportSection = ({ index }: ReportSectionProps) => {
   const { sections } = useSectionSlice();
-  const { firstFramePath } = useProjectSlice();
-  const index = 1
 
   const { name, data } = sections[index]
 
@@ -14,18 +17,26 @@ export const ReportSection = () => {
   const { total_Q, total_q_std, measured_Q, interpolated_Q, alpha, num_stations } = data
 
 
+  
   return (
     <div id='report-section-container'>
       <div id='report-section-top-container'>
         
         <div id='report-section-top-left-container'>
-            <h1> { name } </h1>
+            <h1 className="report-section-title"> { name } </h1>
             <h3 id="report-section-discharge-label"> Discharge Q: {total_Q}  m&sup3;/s  (&plusmn; {total_q_std.toFixed(2)} m&sup3;/s)</h3>
             <h4 className="mt-1"> { measured_Q }% Measured </h4>
             <h4> { interpolated_Q}% Interpolated </h4>
             <h3 className="mt-2 report-section-title-1"> Alpha: { alpha } </h3>
-            <h3 className="mt-1 report-section-title-1"> Number of stations: { num_stations } </h3>
-            <img src={'/@fs' + firstFramePath} id="report-section-img"></img>
+            <h3 className="mt-1 report-section-title-1 mb-2"> Number of stations: { num_stations } </h3>
+            <VelocityVector 
+                width={REPORT_SECTION_VELOCITY_VECTOR_WIDTH} 
+                height={REPORT_SECTION_VELOCITY_VECTOR_HEIGHT} 
+                factor={REPORT_SECTION_VELOCITY_VECTOR_RESIZE_FACTOR}
+                vectorAmplitudeFactor={REPORT_SECTION_VELOCITY_VECTOR_AMPLITUDE_FACTOR}
+                isReport={true}
+                index={index}
+                />
         </div>
         
         <div id='report-section-top-right-container'>

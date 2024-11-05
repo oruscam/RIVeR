@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { getVideoMetadata } from "./utils/getVideoMetadata";
 import { ProjectConfig } from "./interfaces";
+import { readResultsPiv } from "./utils/readResultsPiv";
 
 
 function loadProject(PROJECT_CONFIG: ProjectConfig){
@@ -22,42 +23,61 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                 const fileName = 'settings.json'
 
                 // Direction to settings.json
-                const filePath = path.join(folderPath, fileName);
+                const settingsPath = path.join(folderPath, fileName);
 
-                if (fs.existsSync(filePath)) {
+                if (fs.existsSync(settingsPath)) {
                     // Direction to the frames folder
                     const framesPath = path.join(folderPath, 'frames')
 
                     let firstFrame = ""
                     let xsectionsParsed = undefined
+                    let piv_results = undefined
                 
-                    const data = await fs.promises.readFile(filePath, 'utf-8');
-                    const dataParsed = JSON.parse(data);
+                    const data = await fs.promises.readFile(settingsPath, 'utf-8');
+                    const settingsParsed = JSON.parse(data);
 
 
                     // * Assign the project configuration
                     PROJECT_CONFIG.directory = folderPath;
-                    PROJECT_CONFIG.settingsPath = filePath;
+                    PROJECT_CONFIG.settingsPath = settingsPath;
                     PROJECT_CONFIG.framesPath = framesPath;
-                    PROJECT_CONFIG.videoPath = dataParsed.filepath;
+                    PROJECT_CONFIG.videoPath = settingsParsed.filepath;
 
+                    const maskJson = path.join(folderPath, 'mask.json');
+                    const maskPng = path.join(folderPath, 'mask.png');
+                    const bboxPath = path.join(folderPath, 'bbox.json');
+                    const resultsPath = path.join(folderPath, 'piv_results.json');
 
+                    if (fs.existsSync(maskJson)) {
+                        PROJECT_CONFIG.maskPath = maskJson;
+                    } else {
+                        console.warn(`Warning: ${maskJson} does not exist.`);
+                    }
 
-                    PROJECT_CONFIG.maskPath = path.join(folderPath, 'mask.json');
-                    PROJECT_CONFIG.bboxPath = path.join(folderPath, 'bbox.json');
-                    PROJECT_CONFIG.resultsPath = path.join(folderPath, 'piv_results.json');
+                    if (fs.existsSync(bboxPath)) {
+                        PROJECT_CONFIG.bboxPath = bboxPath;
+                    } else {
+                        console.warn(`Warning: ${bboxPath} does not exist.`);
+                    }
 
-                    if( dataParsed.footage === 'uav'){
+                    if (fs.existsSync(resultsPath)) {
+                        PROJECT_CONFIG.resultsPath = resultsPath;
+
+                        
+                    } else {
+                        console.warn(`Warning: ${resultsPath} does not exist.`);
+                    }
+
+                    if( settingsParsed.footage === 'uav'){
                         PROJECT_CONFIG.type = 'uav';
-                        if( dataParsed.pixel_size?.uav_transformation_matrix ){
+                        if( settingsParsed.pixel_size?.uav_transformation_matrix ){
                             PROJECT_CONFIG.matrixPath = path.join(folderPath, 'uav_transformation_matrix.json');
                         }   
 
-                        if( dataParsed.xsections ){
-                            PROJECT_CONFIG.xsectionsPath = path.join(folderPath, 'xsections.json');
+                        if( settingsParsed.xsections ){
+                            PROJECT_CONFIG.xsectionsPath = settingsParsed.xsections;
                             const xsections = await fs.promises.readFile(PROJECT_CONFIG.xsectionsPath, 'utf-8');
                             xsectionsParsed = JSON.parse(xsections);
-                            console.log(xsectionsParsed)
                         }
 
                         const images = await fs.promises.readdir(framesPath);
@@ -65,17 +85,26 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                         if( images.length > 0){
                             firstFrame = path.join(framesPath, images[0])
                         }
-                        console.log('antes del try')
+
+                        if ( settingsParsed.piv_results ){
+                            console.log(settingsParsed.piv_results)
+                            PROJECT_CONFIG.resultsPath = settingsParsed.piv_results;
+                            piv_results = await readResultsPiv(settingsParsed.piv_results);
+                        }
+
+
                         try {
-                            const videoMetadata = await getVideoMetadata(dataParsed.filepath);
+                            const videoMetadata = await getVideoMetadata(settingsParsed.filepath);
                             return {
                                 success: true,
                                 message: {
                                     xsections: xsectionsParsed,
-                                    data: dataParsed,
+                                    settings: settingsParsed,
                                     projectDirectory: folderPath,
                                     videoMetadata: videoMetadata,
-                                    firstFrame: firstFrame
+                                    firstFrame: firstFrame,
+                                    mask: maskPng,
+                                    piv_results: piv_results,
                                 },
                             };
                         } catch (error) {

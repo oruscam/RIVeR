@@ -3,16 +3,26 @@ import { getPointNames } from "./getPointNames";
 import { getNewImageResolution } from "./getNewImageResolution";
 import { getValidationRules } from "./validationRules";
 import { formatTime } from "./formatTime";
-import { adaptStringDate, dateToStringDate, recortStringDate } from "./dateFunctions";
+import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate } from "./dateFunctions";
+import { getUnit } from "./unitSistem";
+import { getDirectionVector} from "./getDirectionVector";
+import { getBathimetryValues, getIntersectionPoints } from "./getBathimetryValues";
+import { adapterCrossSections  } from "./adapterCrossSections";
 
 export {
-    getDistanceBetweenPoints,
-    computePixelSize,
-    getPointNames,
-    getNewImageResolution,
-    getValidationRules,
-    formatTime,
+    adapterCrossSections,
     adaptStringDate,
+    computePixelSize,
     dateToStringDate,
-    recortStringDate
+    formatTime,
+    getBathimetryValues,
+    getDirectionVector,
+    getDistanceBetweenPoints,
+    getIntersectionPoints,
+    getNewImageResolution,
+    getPointNames,
+    getUnit,
+    getValidationRules,
+    recortStringDate,
+    stringDateToDate
 }

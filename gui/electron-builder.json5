@@ -8,7 +8,13 @@
   "files": [
     "dist",
     "dist-electron",
-    "river-cli"
+  ],
+  "extraResources": [
+    {
+    "from": "river-cli",
+    "to": "river-cli",
+    "filter": ["**/*"]
+    }
   ],
   "mac": {
     "target": [

@@ -112,6 +112,5 @@ export const carouselSettings = (
         ]
     };
 
-    console.log('Carousel settings:', settings);
     return settings;
 };

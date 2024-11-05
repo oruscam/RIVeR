@@ -1,18 +1,19 @@
 import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import './components.css'
-import { useDataSlice, useUiSlice } from '../hooks'
+import { useDataSlice } from '../hooks'
+import { QUIVERS_AMPLITUDE_FACTOR } from '../constants/constants';
 
 interface QuiverProps {
   width: number;
   height: number;
-  factor: {x: number, y: number};
+  factor: number;
   showMedian?: boolean;
 }
 
 export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
   const svgRef = useRef(null)
-  const { images, quiver, processing } = useDataSlice();
+  const { images, quiver } = useDataSlice();
 
   useEffect(() =>{
     const svg = d3.select(svgRef.current);
@@ -53,15 +54,15 @@ export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
       .data(filteredXTable)
       .enter()
       .append('line')
-        .attr('x1', (_d: number, i: number) => filteredXTable[i] / factor.x)
-        .attr('y1', (_d: number, i: number) => y[i] / factor.y)
+        .attr('x1', (_d: number, i: number) => filteredXTable[i] / factor)
+        .attr('y1', (_d: number, i: number) => y[i] / factor)
         .attr('x2', (_d: number, i: number) => {
           if (isNaN(uTable[i])) return null;
-          return filteredXTable[i] / factor.x + uTable[i] * 20;
+          return filteredXTable[i] / factor + uTable[i] * QUIVERS_AMPLITUDE_FACTOR;
         })
         .attr('y2', (_d: number, i: number) => {
           if (isNaN(vTable[i])) return null;
-          return y[i] / factor.y + vTable[i] * 20;
+          return y[i] / factor + vTable[i] * QUIVERS_AMPLITUDE_FACTOR;
         })
         .attr('stroke', '#0678BE')
         .attr('stroke-width', 1.8)
@@ -80,7 +81,7 @@ export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
       .append("path")
         .attr("d", "M0,-5L10,0L0,5")
         .attr("fill", "#0678BE")
-  }, [quiver, images.active, showMedian, factor.x, factor.y])
+  }, [quiver, images.active, showMedian, factor, factor])
 
   return (
     <svg ref={svgRef} className='quiver' style={{width: `${width}`, height: `${height}`}}></svg>

@@ -5,8 +5,8 @@ import { LineAndText } from "./LineAndText"
 
 
 interface DrawSections {
-    factor: { x: number; y: number }
-    setLocalPoints?: (points: { x: number; y: number }[]) => void,
+    factor:  number,
+    setLocalPoints?: (dirPoints: { x: number; y: number }[]) => void,
     draggable: boolean,
     localPoints?: { x: number; y: number }[],
     drawPins? : boolean
@@ -15,9 +15,8 @@ interface DrawSections {
 
 export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints, drawPins, resizeFactor} : DrawSections) => {
     const { sections, activeSection } = useSectionSlice();
-    const { drawLine, name } = sections[activeSection]
+    const { drawLine } = sections[activeSection]
     const { seeAll } = useUiSlice();
-
     return (
         <>
             {
@@ -27,24 +26,24 @@ export const DrawSections = ({ factor, setLocalPoints, draggable, localPoints, d
                     <Group>
                         {
                             localPoints.length === 2 && drawLine && (
-                                <LineAndText name={name} imagePoints={localPoints} isPixelSize={activeSection === 0} resizeFactor={resizeFactor}></LineAndText>
+                                <LineAndText localPoints={localPoints} isPixelSize={activeSection === 0} resizeFactor={resizeFactor} factor={factor} index={activeSection}></LineAndText>
                             )
                         }
                         <Points localPoints={localPoints} setLocalPoints={setLocalPoints} draggable={true} isPixelSize={activeSection === 0} factor={factor} resizeFactor={resizeFactor}/>
                     </Group>
                 )             
                 : sections.map((section, index) => {
-                    if( section.points.length === 0 || section.name === 'pixel_size') return;
+                    if( section.dirPoints.length === 0 || section.name === 'pixel_size') return;
                     if(seeAll && activeSection !== index) return;
-                    const reducedPoints = section.points.map(point => {
+                    const reducedPoints = section.dirPoints.map(point => {
                         return {
-                            x: point.x / factor.x,
-                            y: point.y / factor.y
+                            x: point.x / factor,
+                            y: point.y / factor
                         }
                     })
                     return (
                         <Group key={index}>
-                            <LineAndText name={section.name} imagePoints={reducedPoints} isPixelSize={false} resizeFactor={resizeFactor}></LineAndText>
+                            <LineAndText isPixelSize={false} resizeFactor={resizeFactor} factor={factor} index={index}></LineAndText>
                             {
                                 (setLocalPoints || drawPins) && (
                                     <Points localPoints={reducedPoints} setLocalPoints={setLocalPoints} draggable={draggable? index === activeSection : false} isPixelSize={activeSection === 0} factor={factor} resizeFactor={resizeFactor}></Points>

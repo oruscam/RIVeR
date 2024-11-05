@@ -19,7 +19,9 @@ export const useDataSlice = () => {
     const { sections, activeSection } = useSelector((state: RootState) => state.section);
     const { video } = useSelector((state: RootState) => state.project);
     
+    const filePrefix = import.meta.env.VITE_FILE_PREFIX;
     
+
     interface ProcessingValues {
         artificialSeeding?: boolean;
         clahe?: boolean;
@@ -85,13 +87,18 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         const { paths, active } = images;
-        const framesToTest = [paths[active], paths[active + 1]]
+        console.log(paths)
+        const framesToTest = [paths[active], paths[active + 1]].map((path) => path.replace(filePrefix, ''))
+
+        console.log(framesToTest)
+
 
         try {
             const { data, error } = await ipcRenderer.invoke('get-quiver-test', {framesToTest: framesToTest, formValues: processing.form})
 
             if ( error.message ){
                 dispatch(setErrorMessage([error.message]))
+                console.log(error.message)
                 setTimeout(() => {
                     dispatch(clearErrorMessage())
                 }, 4000)
@@ -133,7 +140,7 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const { data, error} = await ipcRenderer.invoke('get-quiver-all', {formValues: processing.form})
+            const { data, error } = await ipcRenderer.invoke('get-quiver-all', {formValues: processing.form})
 
             if ( error.message ){
                 dispatch(setErrorMessage([error.message]))
@@ -141,15 +148,16 @@ export const useDataSlice = () => {
                     dispatch(clearErrorMessage())
                 }, 4000)
             } else {
+                const { x, y, u, v, typevector, u_median, v_median } = data
                 dispatch(setQuiver(
                     {
-                        x: data.x,
-                        y: data.y,
-                        u: data.u,
-                        v: data.v,
-                        typevector: data.typevector,
-                        u_median: data.u_median,
-                        v_median: data.v_median
+                        x: x,
+                        y: y,
+                        u: u,
+                        v: v,
+                        typevector: typevector,
+                        u_median: u_median,
+                        v_median: v_median
                     }
                 ))
             }
@@ -167,8 +175,12 @@ export const useDataSlice = () => {
     const onKillBackend = async () => {
         const ipcRenderer = window.ipcRenderer;
         
+        const environment = process.env.NODE_ENV
+
+        const handler = environment === 'development' ? 'kill-python-shell' : 'kill-river-cli'
+        
         try {
-            await ipcRenderer.invoke('kill-python-shell')
+            await ipcRenderer.invoke(handler)
             dispatch(setBackendWorkingFlag(false))
             return true
         } catch (error) {
@@ -185,15 +197,12 @@ export const useDataSlice = () => {
         if ( type === 'single' ){
             const section = sections[activeSection]
             try {
-                const data = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, check : section.data?.check, name: section.name})
-
+                const { data } = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, check : section.data?.check, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile})
                 dispatch(setSectionData({
                     sectionIndex: activeSection,
                     sectionData: {
                         ...data[section.name],
-                        show95Percentile: true,
-                        showInterpolateProfile: true, 
-                        showVelocityStd: true
+
                     }
                 }))
             } catch ( error ){
@@ -203,20 +212,19 @@ export const useDataSlice = () => {
             dispatch(setLoading(true))
 
             try {
-                const data = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                const { data, error } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                console.log(data)
                 sections.map(( section, index ) => {
                     if ( data[section.name] ){
                         dispatch(setSectionData({
                             sectionIndex: index,
                             sectionData: {
                                 ...data[section.name],
-                                show95Percentile: true,
-                                showInterpolateProfile: true, 
-                                showVelocityStd: true
                             }
                         }))
                 }})
-                
+
+                console.log(error)
                 dispatch(setLoading(false))
             } catch (error) {
                 console.log(error)
@@ -231,18 +239,22 @@ export const useDataSlice = () => {
 
     const onReCalculateMask = async ( value: number ) => {
         dispatch(setBackendWorkingFlag(true))
-        const ipcRenderer = window.ipcRenderer;
         onClearQuiver()
+
+        const ipcRenderer = window.ipcRenderer;
 
         try {
             const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value })
 
-            dispatch(setProcessingMask(maskPath))
+            dispatch(setProcessingMask(filePrefix + maskPath))
             dispatch(setBackendWorkingFlag(false))
         } catch (error) {
             console.log(error)
         }
+    }
 
+    const onSetAnalizing = ( value : boolean) => {
+        dispatch(setBackendWorkingFlag(value))
     }
 
     return {
@@ -262,6 +274,7 @@ export const useDataSlice = () => {
         onKillBackend,
         onGetResultData,
         onReCalculateMask,
+        onSetAnalizing
     }
 }
 

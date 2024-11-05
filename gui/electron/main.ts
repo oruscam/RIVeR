@@ -2,8 +2,6 @@ import { app, BrowserWindow, ipcMain, net, protocol, screen } from 'electron'
 import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
 import * as os from 'os'
-import * as fs from 'fs'
-import { config } from 'dotenv'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
 
@@ -12,8 +10,11 @@ import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject
 import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
 import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
 import { getResultData } from './ipcMainHandlers/getResultData.js'
+import { setProjectDetails } from './ipcMainHandlers/setProjectDetails.js'
+import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js'
+import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js'
 
-config()
+
 process.env.APP_ROOT = path.join(__dirname, '..')
 
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
@@ -23,9 +24,12 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
+
 // app.disableHardwareAcceleration();
 
 let win: BrowserWindow | null
+
+let riverCli: Function
 
 protocol.registerSchemesAsPrivileged([
   {
@@ -38,7 +42,8 @@ protocol.registerSchemesAsPrivileged([
   }
 ])
 
-function createWindow() {
+
+async function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
   const { x, y } = primaryDisplay.workArea;
   
@@ -77,9 +82,13 @@ function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
+    
+    riverCli = executePythonShell
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
+    
+    riverCli = executeRiverCli
   }
 }
 
@@ -126,37 +135,22 @@ app.whenReady().then(() => {
   getVideo(PROJECT_CONFIG);
   initProject(userDir, PROJECT_CONFIG);
   loadProject(PROJECT_CONFIG)
-  firstFrame(PROJECT_CONFIG);
-  pixelSize(PROJECT_CONFIG);
-  pixelToRealWorld(PROJECT_CONFIG);
-  realWorldToPixel(PROJECT_CONFIG);
+  firstFrame(PROJECT_CONFIG, riverCli);
+  pixelSize(PROJECT_CONFIG, riverCli);
+  pixelToRealWorld(PROJECT_CONFIG, riverCli);
+  realWorldToPixel(PROJECT_CONFIG, riverCli);
   setSections(PROJECT_CONFIG);
-  recommendRoiHeight(PROJECT_CONFIG);
-  createMaskAndBbox(PROJECT_CONFIG);
-  getQuiver(PROJECT_CONFIG);
+  recommendRoiHeight(PROJECT_CONFIG, riverCli);
+  createMaskAndBbox(PROJECT_CONFIG, riverCli);
+  getQuiver(PROJECT_CONFIG, riverCli);
+  getResultData(PROJECT_CONFIG, riverCli);
   getImages(PROJECT_CONFIG);
-  getResultData(PROJECT_CONFIG);
   getBathimetry();
+  setProjectDetails(PROJECT_CONFIG);
 
 
-  ipcMain.handle('print-to-pdf', (event, args) => {
-    const pdfPath = path.join(PROJECT_CONFIG.directory, 'report.pdf');
-    const options = {
-      marginsType: 0,
-      size: 'A4',
-      printBackground: true,
-      landscape: false  
-    }
-
-    win?.webContents.printToPDF(options).then(data => {
-      fs.writeFile(pdfPath, data, (error) => {
-        if (error) throw error;
-        console.log('Write PDF successfully.', pdfPath);
-      })
-    }).catch(error => {
-      console.log('Error on printTo PDF', error);
-    })
-
+  ipcMain.handle('app-directory', (event, args) => {
+    return path.join(app.getAppPath())
   })
 
 })

@@ -59,7 +59,7 @@ export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, se
                 
                 { activeStep === ANALIZING_STEP_NUMBER ? (
                     <div className='img-carousel-container' onClick={() => setShowMedian(!showMedian)}>
-                        <img src={'/@fs/' + paths[0]} className={`img-carousel ${showMedian ? 'img-carousel-active': ''}`}></img>
+                        <img src={paths[0]} className={`img-carousel ${showMedian ? 'img-carousel-active': ''}`}></img>
                         <div className='img-water-mark' id='water-mark-median'> Median </div>
                     </div>
                 ): null}
@@ -73,7 +73,7 @@ export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, se
                     }
                     return ( 
                         <div key={index} className='img-carousel-container' onClick={(event) => handleOnClickImage(event, index)}>
-                            <img src={'/@fs/' + src} alt={`Slide ${index}`} className={className}></img>
+                            <img src={src } alt={`Slide ${index}`} className={className}></img>
                             <div className='img-water-mark'> {index + 1} </div>
                         </div>
                     )

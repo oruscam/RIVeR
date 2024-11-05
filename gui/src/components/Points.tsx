@@ -13,15 +13,12 @@ interface PointsProps {
     setLocalPoints?: (points: { x: number; y: number }[]) => void;
     draggable?: boolean;
     isPixelSize?: boolean;
-    factor?: {
-        x: number;
-        y: number;
-    };
+    factor?: number,
     resizeFactor?: number;
 }
 
-export const Points = ({ localPoints = [], setLocalPoints, draggable = false, isPixelSize = false, factor = {x: 0, y: 0}, resizeFactor = 1 }: PointsProps) => {
-    const { onSetPoints } = useSectionSlice()
+export const Points = ({ localPoints = [], setLocalPoints, draggable = false, isPixelSize = false, factor = 0, resizeFactor = 1 }: PointsProps) => {
+    const { onSetDirPoints } = useSectionSlice()
     const [iconRed] = useImage(pinRed) 
     const [iconGreen] = useImage(pinGreen) 
     const [icon] = useImage(pin)
@@ -51,7 +48,7 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
     //         const newPoints = [...localPoints];
     //         newPoints[index] = { x: event.target.x(), y: event.target.y() };
     //         setLocalPoints(newPoints);
-    //         onSetPoints({points: newPoints, factor, index}, null)
+    //         onSetDirPoints({points: newPoints, factor, index}, null)
     //     }
     // }
 
@@ -69,10 +66,9 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
         if (setLocalPoints) {
             const newPoints = [...localPoints];
             newPoints[index] = { x: event.target.x(), y: event.target.y() };
-            onSetPoints({ points: newPoints, factor, index }, null);
+            onSetDirPoints({ points: newPoints, factor, index }, null);
         }
     };
-
 
 
     return (

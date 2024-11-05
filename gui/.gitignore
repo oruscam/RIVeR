@@ -12,8 +12,9 @@ dist
 dist-ssr
 dist-electron
 release
-*.local
+build
 
+*.local
 .env
 
 # Editor directories and files
@@ -26,3 +27,6 @@ release
 *.njsproj
 *.sln
 *.sw?
+
+river-cli
+river-cli.spec

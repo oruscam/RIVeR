@@ -5,13 +5,19 @@ interface Point {
 
 interface Bathimetry {
     path: string;
-    level: number;
     name: string;
+    level?: number;
     leftBank?: number; 
     line?: Point[];
+    width?: number;
+    xMin?: number;
+    xMax?: number;
+    yMin?: number;
+    yMax?: number;
+    x1Intersection?: number;
 }
 
-interface   PixelSize {
+interface PixelSize {
     size: number;
     rw_length: number;
 }
@@ -64,23 +70,23 @@ interface SectionData {
     Q_plus_std: number[];
     total_q_std: number;
     showVelocityStd: boolean;
-    show95Percentile: boolean;
+    showPercentile: boolean;
     showInterpolateProfile: boolean;
 }
-
-
 
 interface Section {
     name: string;
     drawLine: boolean;
-    points: Point[];
+    sectionPoints: Point[];
+    dirPoints: Point[];
     bathimetry: Bathimetry
     pixelSize: PixelSize
-    realWorld: Point[];
+    rwPoints: Point[];
     extraFields: boolean;
     alpha: number;
     numStations: number;
     interpolated: boolean;
+    sectionPointsRW?: Point[];
     data?: SectionData;
 
 }

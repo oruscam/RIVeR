@@ -1,25 +1,53 @@
-.asd{
-    background-color: red;
-    color: blue;
+body{
+    background-color:#262626;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
 }
+
+/* Cuando terminemos el componente, pasar lo de repot-html-page a body, dejando un solo div. Renombrar el container a page*/
+#report-html-page {
+    overflow-y: auto;
+    overflow-x: auto;
+    width: 98%;
+    height: 100vh;
+    margin: 20px;
+    color: #000;
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+#report-html-container {
+    margin-left: auto;
+    margin-right: auto;
+    width: 1050px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 40px;
+    padding-bottom: 20px;
+    padding-right: 20px;
+    padding-left: 20px;
+    background-color: #FFFFFF;
+}
+
 
 #report-header-container{
     width: 100%;
-    height: 130px;
     border-radius: 20px;
     background: linear-gradient(to right, #0678BE, #0A5A8A);    
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 10px 70px;
+}
+
+#header-icon-container{
+    color: #FFFFFF;
 }
 
 #header-icon svg{
     width: 65px;
     height: 65px;
-}
-
-#header-icon-container{
-    margin-left: 40px;
 }
 
 #header-title-container{
@@ -38,7 +66,6 @@
 #header-title-date{
     color: #FFFFFF;
     margin-top: 5px;
-    margin-bottom: auto;
     font-weight: 500;    
 }
 
@@ -46,7 +73,6 @@
 #header-total{
     height: 100px;
     margin-left: auto;
-    margin-right: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -140,6 +166,10 @@
     text-align: center;
 }
 
+#report-section-wrapper{
+    width: 100%;
+}
+
 #report-section-container{
     width: 100%;
     margin-top: 25px;
@@ -153,29 +183,35 @@
     padding-left: 40px;
     padding-right: 40px;
     padding-bottom: 10px;
+    color: #FFFFFF;
 }
 
 #report-section-top-container{
-    width: 95%;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     margin-bottom: 15px;
 }
 
-
 #report-section-top-left-container{
+    margin-left: 12px;
+    margin-top: 40px;
     width: 50%;
 }
 
 #report-section-top-right-container{
-    margin-right: 60px;
-    margin-top: 10px;
+    margin-right: 12px;
+    margin-top: 8px;
 }
 
 
 #report-section-discharge-label{
-    margin-top: 8px;
+    margin-top: 12px;
     font-weight: 480;
+}
+
+.report-section-title{
+    font-size: 45px;
 }
 
 .report-section-title-1{
@@ -184,8 +220,8 @@
 }
 
 #report-section-img {
-    margin-top: 20px;
-    width: 80%;
+    margin-top: 40px;
+    width: 85%;
     height: auto;
     border-radius: 20px;
 }
@@ -253,7 +289,7 @@
   
 #report-section-table th div:first-child {
     font-weight: bold;
-    font-size: 1.5em; /* Opcional: para resaltar la 'x' */
+    font-size: 1.5em;
  }
 
 #report-section-table th div:last-child {
@@ -261,6 +297,7 @@
     font-weight: 400;
     margin-top: 2px;
 }
+
 
 #report-section-table td {
     font-size: 1.2em;
@@ -270,11 +307,251 @@
     margin-top: -20px;
 }
 
-/* @media print {
+#download-button{
+    position: absolute;
+    height: 60px;
+    width: 100px;
+    top: 10px;
+    right: 200px;
+
+}
+
+#text-report{
+    margin-top: 40px;
+    width: 80%;
+}
+
+#report-section-summary-container{
+    margin-top: 25px;
+    width: 100%;
+    height: auto;
+    border: solid #000000;
+    border-radius: 20px;
+    padding: 15px;
+}
 
 
-    .report-section-container {
-        page-break-inside: avoid;
+#report-section-summary-container th, #report-section-summary-container td {
+    border: none;
+    padding: 2px;
+    text-align: center; /* Centra el texto en las celdas */
+}
+
+#report-section-summary-container table{
+    color: black;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto; /* Centra la tabla horizontalmente */
+}
+
+#report-section-summary-container thead{
+    border-bottom: solid 1px #00000054;
+}
+
+#report-section-summary-container th div:first-child {
+    font-weight: bold;
+    font-size: 1.2em;
+ }
+
+#report-section-summary-container th div:last-child {
+    font-size: 1.1em; /* Opcional: para hacer la 'm' más pequeña */
+    font-weight: 400;
+    margin-top: 1.5px;
+    margin-bottom: 5px;
+}
+
+#report-section-summary-container tr th:first-child{
+    vertical-align: top; 
+    font-size: 1.2em;
+}
+
+#report-section-summary-container tbody tr{
+    height: 40px;
+}   
+
+.summary-last-section{
+    border-bottom: solid 1px #00000054;
+}
+
+
+#report-pixel-transformation-container{
+    margin-top: 25px;
+    color: #000000;
+    width: 100%;
+    border: solid #000000;
+    border-radius: 20px;
+    display: flex;
+    padding: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#report-pixel-transformation-container div {
+    width: 33%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #000000;
+    padding-left: 10px;
+    padding-right: 20px;
+    height: 30px;
+}
+#report-pixel-transformation-container div p{
+    color: #000000;
+}
+
+#report-pixel-transformation-container div:first-child {
+    border-right: solid 1px #00000054;    
+}
+
+#report-pixel-transformation-container div:last-child {
+    border-left: solid 1px #00000054;
+}
+
+#report-processing-parameters-container{
+    margin-top: 25px;
+    color: #000000;
+    width: 100%;
+    border: solid #000000;
+    border-radius: 20px;
+    display: flex;
+    padding: 15px;
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+#report-processing-parameters-container > div {
+    width: 33%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+#report-processing-parameters-container > div:first-child {
+    border-right: solid 1px #00000054;    
+}
+
+#report-processing-parameters-container > div:last-child {
+    border-left: solid 1px #00000054;    
+}
+
+
+#report-processing-parameters-container > div > div{
+    width: 80%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;    
+    padding-right: 20px;
+    padding-left: 20px;
+}
+
+#report-processing-parameters-container > div > div > p{
+    color: #000000;
+}
+
+#report-processing-parameters-container > div > h2{
+    font-weight: 400;
+}
+
+.report-processing-parameters-subfield {
+    padding-left: 60px !important;
+}
+
+#report-footer-container{
+    width: 100%;
+    border-radius: 20px;
+    margin-top: 80px;
+    display: flex;
+    background-color: #F5F5F5;
+    padding: 20px 40px;
+    color: #000000;
+    align-items: center;
+}
+
+#report-footer-river-logo{
+    width: 150px;
+    height: auto;
+}
+
+#report-footer-container div{
+    width: 33%;
+}
+
+#report-footer-container div:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+}
+
+#report-footer-container div:last-child{
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+#report-footer-container div:last-child a{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 40%;
+    text-decoration: none;
+
+}
+
+#report-footer-container div:last-child a > span{
+    font-size: 1.2em;
+    font-weight: 500;
+    color: #000;
+}
+
+
+
+
+#report-footer-github-logo{
+    width: 50px;
+    height: auto;
+}
+
+
+@media print {
+    /* Ocultar la URL y la fecha/hora
+    header, footer {
+        display: none;
+    }
+    Mostrar solo el número de página
+    .page-number:before {
+        content: counter(page);
+    } */
+
+
+    #report-section-container {
+        page-break-inside: avoid; /* Evita que el contenedor se divida entre páginas */
+    }
+
+    #report-section-wrapper {
+        page-break-inside: avoid; /* Evita que el contenedor se divida entre páginas */
+    }
+
+    #summary-title {
+        page-break-before: always; /* Comienza una nueva página antes de este contenedor */
+        page-break-inside: avoid; /* Evita que el contenedor se divida entre páginas */
+    }
+
+    #report-footer-container {
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+    }
+
+    #report-section-table{
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Asegurarse de que los colores de fondo y bordes se impriman */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
     }
 }
- */

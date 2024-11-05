@@ -8,8 +8,6 @@ export const Step8 = () => {
   const { width: windowWidth, height: windowHeight } = screenSizes
   const { height, width, factor } = getNewImageResolution(windowWidth, windowHeight, 1920, 1080)
 
-
-
   return (
     <div className='regular-page'>
         <div className='media-container'>

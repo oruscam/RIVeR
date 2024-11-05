@@ -17,8 +17,8 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const id = e.target.id
     switch (id) {
-      case 'show-95-percentile':
-        onChangeDataValues({ type: 'show95Percentile' })
+      case 'show-percentile':
+        onChangeDataValues({ type: 'showPercentile' })
         break;
       case 'show-velocity-std':
         onChangeDataValues({ type: 'showVelocityStd' })
@@ -112,7 +112,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         <div className="switch-container-2 mt-1 ">
           <h3 className="field-title"> Show 5% | 95% </h3>
           <label className="switch">
-            <input type="checkbox" {...register(`${name}_SHOW_95_PERCENTILE`)} defaultChecked={data?.show95Percentile} onChange={handleOnChange} id="show-95-percentile"/>
+            <input type="checkbox" {...register(`${name}_SHOW_PERCENTILE`)} defaultChecked={data?.showPercentile} onChange={handleOnChange} id="show-percentile"/>
             <span className="slider"></span>
           </label>
         </div>
@@ -131,7 +131,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
                 className="form-button wizard-button" 
                 onClick={() => onGetResultData('single')}
                 id="apply-changes"
-                > Aply changes</button>
+                > Apply changes</button>
         <span className="space3 mt-2"></span>
       </form>
    </div>

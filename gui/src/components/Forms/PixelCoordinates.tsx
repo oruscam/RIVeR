@@ -6,7 +6,7 @@ import { getPointNames } from "../../helpers/index.ts";
 export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
     const { register, resetField } = useFormContext();
     const { onSetErrorMessage } = useUiSlice();
-    const { onSetPoints } = useSectionSlice();
+    const { onSetDirPoints } = useSectionSlice();
     
     const { pointName1, pointName2 } = getPointNames(modeName);
 
@@ -35,19 +35,19 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
   
             switch (target.id) {
                 case `X_${pointName1}`:
-                    onSetPoints(null, {point: value, position: "x1"})
+                    onSetDirPoints(null, {point: value, position: "x1"})
                     break;
                 
                 case `Y_${pointName1}`:
-                    onSetPoints(null, {point: value, position: "y1"})
+                    onSetDirPoints(null, {point: value, position: "y1"})
                     break;
             
                 case `X_${pointName2}`:
-                    onSetPoints(null, {point: value, position: "x2"})
+                    onSetDirPoints(null, {point: value, position: "x2"})
                     break;
             
                 case `Y_${pointName2}`:
-                    onSetPoints(null, {point: value, position: "y2"})
+                    onSetDirPoints(null, {point: value, position: "y2"})
                     break;
                 
                 default:

@@ -2,10 +2,9 @@ import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
 import * as fs from 'fs'
 import * as path from 'node:path'
-import { executePythonShell } from "./utils/executePythonShell";
 
 
-async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig) {
+async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ipcMain.handle('create-mask-and-bbox', async (_event, args) => {
         console.log('create-mask-and-bbox')
         const { directory, framesPath, xsectionsPath, matrixPath } = PROJECT_CONFIG;
@@ -30,7 +29,7 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig) {
 
 
         try {
-            const { data } = await executePythonShell(options) as { data: { mask: [[]], bbox: [] } }
+            const { data } = await riverCli(options) as { data: { mask: [[]], bbox: [] } }
             
             const maskArrayPath = path.join(directory, 'mask.json')
             const bboxArrayPath = path.join(directory, 'bbox.json')
@@ -43,7 +42,7 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig) {
             PROJECT_CONFIG.bboxPath = bboxArrayPath
             PROJECT_CONFIG.maskPath = maskArrayPath 
             
-            const maskPngPath = path.join('/@fs', directory, 'mask.png')
+            const maskPngPath = path.join(directory, 'mask.png')
             return { maskPath: maskPngPath }
         } catch (error) {
             console.log("ERROR EN CREATE MASK AND BBOX")

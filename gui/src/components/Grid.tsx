@@ -3,10 +3,6 @@ import 'react-data-grid/lib/styles.css';
 import { useEffect, useMemo, useState } from "react";
 import { useSectionSlice } from "../hooks";
 
-
-
-
-
 const rowKeyGetter = (row) => {
     return row.id
 }
@@ -20,7 +16,6 @@ export const Grid = () => {
 
     const getCellClass = ( row ) => {
         let cellClas = 'centered-cell';
-        console.log(data?.check[row.id]);
         if ( !data?.check[row.id]) {
             if ( interpolated ){
                 cellClas = 'centered-cell cell-red-values';

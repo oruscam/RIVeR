@@ -4,14 +4,20 @@ import { useDataSlice, useProjectSlice } from "../../hooks";
 export const ProcessedRange = () => {
   const { video } = useProjectSlice();
   const { images } = useDataSlice();
+  const { paths } = images;
   const { step, startTime, endTime } = video.parameters;
-  const { fps, duration  } = video.data; 
+  const { fps } = video.data; 
 
 
   const timeProcessed = endTime - startTime;
   const timeBetweenFrames = (((1 / (fps || 0)) * step) * 1000).toFixed(2)
   
   const frameTime = (timeProcessed / 4)
+
+  const firstQuarter = Math.floor(paths.length / 4);
+  const half = Math.floor(paths.length / 2);
+  const lastQuarter = paths.length - firstQuarter;
+  
 
   return (
     <>
@@ -23,19 +29,19 @@ export const ProcessedRange = () => {
             <div className='report-info-item'><span>Length</span></div> 
             <div className='report-info-item'><span>Step</span></div> 
             <div className='report-info-item'><span>Time Step</span></div> 
-            <div className='report-info-item'><span> { startTime?.toFixed(2) }s </span></div> 
-            <div className='report-info-item'><span> { endTime?.toFixed(2) }s </span></div> 
+            <div className='report-info-item'><span> { startTime }s </span></div> 
+            <div className='report-info-item'><span> { endTime }s </span></div> 
             <div className='report-info-item'><span> { timeProcessed }s </span></div> 
             <div className='report-info-item'><span> { step } </span></div> 
             <div className='report-info-item'><span> { timeBetweenFrames }ms </span></div> 
           </div>
 
           <div id="report-carousel">
-            <img src={'/@fs' + images.paths[0]} alt="First frame" className="report-carousel-img" id="first-img-carousel"/>
-            <img src={'/@fs' + images.paths[0]} alt="First frame" className="report-carousel-img"/>
-            <img src={'/@fs' + images.paths[0]} alt="First frame" className="report-carousel-img"/>
-            <img src={'/@fs' + images.paths[0]} alt="First frame" className="report-carousel-img"/>
-            <img src={'/@fs' + images.paths[0]} alt="First frame" className="report-carousel-img" id="last-img-carousel"/>
+            <img src={paths[0]} alt="First frame" className="report-carousel-img" id="first-img-carousel"/>
+            <img src={paths[firstQuarter]} alt="First frame" className="report-carousel-img"/>
+            <img src={paths[half]} alt="First frame" className="report-carousel-img"/>
+            <img src={paths[lastQuarter]} alt="First frame" className="report-carousel-img"/>
+            <img src={paths[paths.length -1]} alt="First frame" className="report-carousel-img" id="last-img-carousel"/>
           </div>
           <div id="report-carousel-footer">
             <p className="report-carousel-footer-item"> { formatTime(startTime) } </p>

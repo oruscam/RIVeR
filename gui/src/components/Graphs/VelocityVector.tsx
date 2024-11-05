@@ -1,100 +1,67 @@
-
 import { useEffect, useRef } from 'react'
 import './graphs.css'
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks'
-import { DrawSections } from '../DrawSections'
-import { Layer, Stage } from 'react-konva'
 import * as d3 from 'd3'
-import { BLUE, RED, TRANSPARENT, VECTOR_AMPLITUDE_FACTOR} from '../../constants/constants'
+import { VECTOR_AMPLITUDE_FACTOR } from '../../constants/constants'
+import { SvgSectionLine } from '../SvgSectionLine'
+import { drawVectors } from './index'
 
 interface VelocityVectorProps {
     height: number;
     width: number;
-    factor: { x: number, y: number };
+    factor: number;
+    vectorAmplitudeFactor?: number;
+    isReport?: boolean;
+    index?: number;
 }
 
-export const VelocityVector = ({ height, width, factor }: VelocityVectorProps )  => {
+export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = VECTOR_AMPLITUDE_FACTOR, isReport = false, index }: VelocityVectorProps )  => {
     const svgRef = useRef<SVGSVGElement>(null)
     const { sections, activeSection } = useSectionSlice();
     const { firstFramePath } = useProjectSlice();
     const { seeAll } = useUiSlice();
-    
+    const { data } = sections[activeSection];
+
+
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
-        const svg = d3.select(svgRef.current);
+        const svg = d3.select(svgRef.current as SVGSVGElement);
         svg.attr("width", width)
             .attr("height", height)
             .style("background-color", "transparent");
 
-        sections.forEach((section, sectionIndex) => {
-            if(sectionIndex === 0) return;
-            if(seeAll && activeSection !== sectionIndex) return;
+        if (!isReport) {
+            sections.forEach((section, sectionIndex) => {
+                if (sectionIndex === 0) return;
+                console.log(activeSection, sectionIndex)
+                if (seeAll && activeSection !== sectionIndex) return;
 
-            const { data, interpolated } = section;
-            if (!data) return;
+                const { data, interpolated } = section;
+                if (!data) return;
 
-            const { x, y, displacement_x_streamwise, displacement_y_streamwise, check } = data;
-
-            if ( !x || !y || !displacement_x_streamwise || !displacement_y_streamwise || !check ) return;
-
-            // const vectors = d3.range(x.length)
-            const vectors = d3.range(x.length).map(i => {
-                if( displacement_x_streamwise[i] === null || displacement_y_streamwise[i] === null || x[i] === null || y[i] === null ) {
-                    return {
-                        x0: x[i] / factor.x,
-                        y0: y[i] / factor.y,
-                        x1: 1,
-                        y1: 1,
-                        color: TRANSPARENT
-                    };
-                }
-     
-                return {
-                    x0: x[i] / factor.x,
-                    y0: y[i] / factor.y,
-                    x1: (x[i] - displacement_x_streamwise[i] * VECTOR_AMPLITUDE_FACTOR) / factor.x,
-                    y1: (y[i] - displacement_y_streamwise[i] * VECTOR_AMPLITUDE_FACTOR) / factor.y,
-                    color: check[i] ? BLUE : interpolated ? RED : TRANSPARENT
-                    };
-                })
-
-            svg.selectAll(`line.section-${sectionIndex}`)
-                .data(vectors)
-                .enter()
-                .append('line')
-                .attr('x1', d => d.x0)
-                .attr('y1', d => d.y0)
-                .attr('x2', (d) => d.x1)
-                .attr('y2', (d) => d.y1)
-                .attr('stroke', d => d.color)
-                .attr('stroke-width', 2.8)
-                .attr('marker-end', (_d, i) => `url(#arrow-${sectionIndex}-${i})`);
-
-            vectors.forEach((vector, index) => {
-                svg.append("defs").append("marker")
-                    .attr("id", `arrow-${sectionIndex}-${index}`)
-                    .attr("viewBox", "0 -5 10 10")
-                    .attr("refX", 10)
-                    .attr("refY", 0)
-                    .attr("markerWidth", 6)
-                    .attr("markerHeight", 6)
-                    .attr("orient", "auto-start-reverse")
-                    .append("path")
-                    .attr("d", "M0,-5L10,0L0,5")
-                    .attr('fill', vector.color);
+                drawVectors(svg, sections, factor, vectorAmplitudeFactor, sectionIndex, interpolated, data, isReport);
             });
+        } else {
+            if (index !== undefined) {
+                const { data, interpolated } = sections[index];
+                if (!data) return;
 
-        });
-    }, [factor.x, factor.y, sections, activeSection, seeAll]);
+                drawVectors(svg, sections, factor, vectorAmplitudeFactor, index, interpolated, data, isReport);
+            }
+        }
+    }, [factor, activeSection, seeAll, data]);
 
     return (
         <div id="velocity-vector-container" style={{ width: width, height: height }}>
-            <img src={'/@fs' + firstFramePath} width={width} height={height}></img>
-            <Stage className='konva-data-container' width={width} height={height}>
-              <Layer>
-                <DrawSections factor={factor} draggable={false} drawPins={true}/>
-              </Layer>
-            </Stage>
+            <img src={firstFramePath} width={width} height={height} style={isReport ? { borderRadius: '20px' } : {}}></img>
+            { 
+                sections.map((_section, index) => {
+                    if( index === 0 ) return
+                    return (
+                        <SvgSectionLine key={index} factor={factor} index={index} isReport={isReport}/>
+                    )
+                })
+            }
             <svg ref={svgRef} id='velocity-vector'></svg>
         </div>
     )

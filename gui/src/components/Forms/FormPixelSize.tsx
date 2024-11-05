@@ -8,13 +8,9 @@ import { PixelCoordinates, RealWorldCoordinates } from './index'
 interface FormPixelSizeProps {
   onSubmit: (data: FieldValues) => void,
   onError: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void,
-  factor: {
-    x: number,
-    y: number
-  },
 }
 
-export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
+export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
     const { t } = useTranslation()
     const {sections, onUpdateSection} = useSectionSlice()
     const { extraFields } = sections[0]
@@ -69,7 +65,7 @@ export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
               <div className='input-container-2 mt-2'>
                 <label className='read-only me-1'>{t("Step4.lineLength")}</label>
                 <input className='input-field' 
-                  disabled={sections[0].points.length === 0}
+                  disabled={sections[0].dirPoints.length === 0}
                   type='number' 
                   step="any"
                   id='pixel_size-LINE_LENGTH'
@@ -94,7 +90,7 @@ export const FormPixelSize = ({onSubmit, onError }: FormPixelSizeProps ) => {
                       type='number' 
                       readOnly={true}
                       id='pixel_size-PIXEL_SIZE'
-                      disabled={sections[0].points.length === 0}
+                      disabled={sections[0].dirPoints.length === 0}
                       step="any"
                       onKeyDown={handleTab}
                       />

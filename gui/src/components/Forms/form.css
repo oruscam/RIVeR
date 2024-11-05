@@ -489,3 +489,71 @@ transform-origin: 14px 22px;
 #apply-changes{
     align-self: center;
 }
+
+.simple-input-container{
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    margin-top: 25px;
+    color: var(--primary-text-color);
+
+}
+
+.simple-input-container label{
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.simple-input-container input{
+    width: 100%;
+    height: 50px;
+    border-radius: 20px;
+    border: none;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    padding-left: 20px;
+    background-color: var(--input-background);
+    color: var(--primary-text-color);
+    font-size: 1.1em;
+}
+
+/* .last-settings-form-field-container input:focus{
+    outline: none;
+    border-bottom: 4px solid var(--background-error);
+} */
+
+.last-settings-form-field-radio{
+    align-self: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 25px;
+    width: 70%;
+    background-color: transparent;
+
+}
+
+#label-unit-sistem{
+    margin-bottom: 15px;
+    align-self: center;
+}
+
+.last-settings-form-field-radio label{
+    margin-right: 20px;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.last-settings-form-field-radio input{
+    width: 20px;
+}
+
+#last-settings-form-field-date{
+    font-size: 17px;
+}
+
+#last-settings-form-field-date::-webkit-calendar-picker-indicator {
+    filter: invert(100%);
+}
+

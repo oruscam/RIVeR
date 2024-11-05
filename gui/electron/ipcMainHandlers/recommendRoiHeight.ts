@@ -1,10 +1,10 @@
 import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
-import { executePythonShell } from "./utils/executePythonShell";
 
-async function recommendRoiHeight(PROJECT_CONFIG: ProjectConfig){
+async function recommendRoiHeight(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ipcMain.handle('recommend-roi-height', async (_event, args?) => {
         console.log('recommend-roi-height')
+
         const { xsectionsPath, matrixPath } = PROJECT_CONFIG;
         const options = [
             'recommend-height-roi',
@@ -12,19 +12,14 @@ async function recommendRoiHeight(PROJECT_CONFIG: ProjectConfig){
             xsectionsPath,
             matrixPath
         ]
-        console.log("recommend-roi-options")
-        console.log(options)
-
 
         try {
-            // const { data }: { data: any } = await executePythonShell(options)
-            const { data } = await executePythonShell(options)
+            const { data } = await riverCli(options)
             return { height_roi: (data as any).height_roi }
         } catch (error) {
             console.log("ERROR EN RECOMMEND ROI HEIGHT")
             console.log(error)  
         }
-
     })
 }
 

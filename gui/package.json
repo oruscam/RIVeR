@@ -1,28 +1,25 @@
 {
-  "name": "river-ui",
+  "name": "river-gui",
   "private": true,
   "version": "3.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "electron-builder",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "build": "vite build && electron-builder",
+    "lint": "eslint . --c ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "install-pyinstaller": "pip install pyinstaller",
-    "build-cli": "pyinstaller -F --distpath . -n river-cli ../river/cli/__main__.py"
+    "build-cli": "pyinstaller -F --distpath . -n river-cli ../river/cli/__main__.py",
+    "build:win": "electron-builder --win"
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.4",
     "@theme-toggles/react": "^4.1.0",
     "d3": "^7.9.0",
     "d3-fetch": "^3.0.1",
-    "dotenv": "^16.4.5",
     "fluent-ffmpeg": "^2.1.3",
-    "html2canvas": "^1.4.1",
     "i18next": "^23.11.4",
-    "jspdf": "^2.5.1",
     "konva": "^9.3.11",
-    "python-shell": "^5.0.0",
     "react": "^18.2.0",
     "react-data-grid": "^7.0.0-beta.46",
     "react-datepicker": "^7.3.0",
@@ -36,7 +33,9 @@
     "react-svg": "^16.1.34",
     "react-use-wizard": "^2.3.0",
     "slick-carousel": "^1.8.1",
-    "use-image": "^1.1.1"
+    "tree-kill": "^1.2.2",
+    "use-image": "^1.1.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/d3": "^7.4.3",
@@ -53,6 +52,7 @@
     "eslint-plugin-react": "^7.35.2",
     "eslint-plugin-react-hooks": "^4.6.2",
     "eslint-plugin-react-refresh": "^0.4.11",
+    "python-shell": "^5.0.0",
     "typescript": "^5.2.2",
     "vite": "^5.1.6",
     "vite-plugin-electron": "^0.28.6",

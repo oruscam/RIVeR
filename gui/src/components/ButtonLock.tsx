@@ -15,9 +15,6 @@ export const ButtonLock = ({localExtraFields, localSetExtraFields, footerElement
     const { onSetExtraFields, sections, activeSection } = useSectionSlice();
     const { extraFields, name } = sections[activeSection]
     const { activeStep } = useWizard()
-    console.log(activeStep)
-
-    console.log('local extra fields', localExtraFields)
     
     const handleOnChange = () => {
         switch(activeStep){

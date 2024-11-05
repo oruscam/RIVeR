@@ -4,7 +4,6 @@ import { Group, Image, Layer, Line, Stage } from 'react-konva'
 import { KonvaEventObject } from 'konva/lib/Node'
 import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks'
 import { Points, DrawSections } from './index'
-import { set } from 'react-hook-form'
 
 type Point = { x: number; y: number };
 
@@ -12,22 +11,21 @@ type Point = { x: number; y: number };
 interface ImageWithMarksProps {
   width: number;
   height: number;
-  factor: { x: number; y: number };
-
+  factor: number;
 }
 
 export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) => {
   const { seeAll } = useUiSlice()
-  const { onSetPoints, sections, activeSection} = useSectionSlice()
+  const { onSetDirPoints, sections, activeSection} = useSectionSlice()
   const { firstFramePath } = useProjectSlice(); 
-  const { drawLine, points } = sections[activeSection]
+  const { drawLine, dirPoints } = sections[activeSection]
 
 
   const [localPoints, setLocalPoints] = useState<Point[]>([])
   const [mousePressed, setMousePressed] = useState(false)
   const [currentMousePosition, setCurrentMousePosition] = useState<Point>({ x: 0, y: 0 })
 
-  const [image] = useImage('/@fs' + firstFramePath)
+  const [image] = useImage(firstFramePath)
 
   const [resizeFactor, setResizeFactor] = useState(1)
 
@@ -81,7 +79,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
           stage.draggable(true)
 
           if ( newScale <  3){
-            setResizeFactor(2)
+            setResizeFactor(1.5)
           } else if ( newScale < 8){
             setResizeFactor(3)
           } else if ( newScale < 15){
@@ -129,7 +127,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
       newPoints.push(pointerPosition)
 
       setLocalPoints(newPoints);
-      onSetPoints({points: newPoints, factor, index: null}, null);
+      onSetDirPoints({points: newPoints, factor, index: null}, null);
       setMousePressed(false);
     }
 
@@ -143,11 +141,11 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
     // * Trae los puntos del store y los pone en el estado local.
 
     useEffect(() => {
-      if(points.length !== 0){
-        const newPoints = points.map(point => {
+      if(dirPoints.length !== 0){
+        const newPoints = dirPoints.map(point => {
           return {
-            x: point.x / factor.x,
-            y: point.y / factor.y
+            x: point.x / factor,
+            y: point.y / factor
           }
         })
         setLocalPoints(newPoints);
@@ -155,7 +153,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
         setLocalPoints([])
       }
 
-    }, [activeSection, points, factor.x, factor.y])
+    }, [activeSection, dirPoints, factor, factor])
 
 
   return (
@@ -179,7 +177,7 @@ export const ImageWithMarks = ({ width, height, factor}: ImageWithMarksProps) =>
                 <Line
                   points={[localPoints[0].x, localPoints[0].y, currentMousePosition.x, currentMousePosition.y]}
                   stroke={activeSection === 0 ? "#6CD4FF" : "#F5BF61"}
-                  strokeWidth={2}
+                  strokeWidth={2.8}
                   lineCap="round"
                 />
                 <Points setLocalPoints={setLocalPoints} localPoints={localPoints} isPixelSize={activeSection === 0} resizeFactor={resizeFactor}></Points>

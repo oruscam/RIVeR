@@ -18,10 +18,10 @@ const defaultFormProcessing = {
 }
 
 const defaultProcessing = {
-    isBackendWorking: false,
-    form: defaultFormProcessing,
+    isBackendWorking: false, // this flag is not used
+    form: defaultFormProcessing, 
     parImages: ['', '1', '', '2'],
-    maskPath: '/@fs/home/tomy_ste/River/DJI_0036/mask.png'
+    maskPath: ''
 }
 
 const initialState: DataState = {
@@ -30,7 +30,7 @@ const initialState: DataState = {
         paths: [],
         active: 0
     },
-    analizing: false
+    analizing: false 
 }
 
 const dataSlice = createSlice({
@@ -47,7 +47,7 @@ const dataSlice = createSlice({
             state.analizing = action.payload
         },
         setProcessingMask: (state, action: PayloadAction<string>) => {
-            state.processing.maskPath = action.payload  + `?t=${new Date().getTime()}`;
+            state.processing.maskPath = action.payload  + `?t=${new Date().getTime()}`;            
         },
         setImages: (state, action: PayloadAction<string[]>) => {
             state.images.paths = action.payload

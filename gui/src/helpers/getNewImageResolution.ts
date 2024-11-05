@@ -10,22 +10,15 @@ export const getNewImageResolution = (screenWidth: number, _screenHeight: number
         return {
             width: imageWidth,
             height: imageHeight,
-            factor: {
-                x: 1,
-                y: 1
-            }
+            factor: 1
         };
     } else {
-        const scaleFactorX = imageWidth / newImageWidth;
-        const scaleFactorY = imageHeight / newImageHeight;
+        const factor = imageWidth / newImageWidth;
 
         return {
             width: newImageWidth,
             height: newImageHeight,
-            factor: {
-                x: scaleFactorX,
-                y: scaleFactorY
-            }
+            factor
         };
     }
 }

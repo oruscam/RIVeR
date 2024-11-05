@@ -11,12 +11,12 @@ export const Step5 = () => {
   const { data } = video
   
 
-  const values = getNewImageResolution(windowWidth, windowHeight, data.width, data.height)
+  const { width, height, factor } = getNewImageResolution(windowWidth, windowHeight, data.width, data.height)
   
   return (
     <div className="regular-page">
         <div className="media-container">
-          <ImageWithMarks width={values.width} height={values.height} factor={values.factor}></ImageWithMarks>
+          <ImageWithMarks width={width} height={height} factor={factor}></ImageWithMarks>
           <Error></Error>
         </div>
         <div className="form-container">

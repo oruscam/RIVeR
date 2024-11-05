@@ -21,10 +21,8 @@ export const getValidationRules = (t: TFunction, getValues: GetValuesFunction, d
             value: /^-?[0-9]+(\.[0-9]+)?$/,
             message: t("Step3.Errors.formatInput")
           },
-          validate: (value: string | boolean) => {
-            let currentValue;
-            if (typeof value !== 'string') return false
-            currentValue = parseFloat(value)
+          validate: (value: string | number) => {
+            const currentValue = typeof value === 'string' ? parseFloat(value) : value
       
             if ( currentValue < 0){
               return t('Step3.Errors.start1')
@@ -38,18 +36,15 @@ export const getValidationRules = (t: TFunction, getValues: GetValuesFunction, d
               value: /^-?[0-9]+(\.[0-9]+)?$/,
               message: t("Step3.Errors.formatInput")
             },
-            validate: (value : string | boolean) => {
+            validate: (value : string | number) => {
               const start = parseFloat(getValues('start'))
-              let currentValue;
-              
-              if (typeof value !== 'string') return false
-                
-              currentValue = parseFloat(value)
+                            
+              const currentValue = typeof value === 'string' ? parseFloat(value) : value
       
-              if( currentValue > parseFloat(duration)){
+              if( currentValue > duration){
                 return t("Step3.Errors.end1")
               }
-      
+  
               if (currentValue <= 0){
                 return t("Step3.Errors.end2")
               }

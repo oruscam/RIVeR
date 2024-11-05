@@ -1,6 +1,11 @@
+import { getUnit } from "../../helpers";
+import { useProjectSlice } from "../../hooks";
 import { SectionData } from "../../store/section/types";
 
 export const ReportSectionTable = ({ data } : { data : SectionData}) => {
+    const { projectDetails } = useProjectSlice();
+    const { unitSistem } = projectDetails;
+
     const half = Math.ceil(data.id.length / 2);
     const firstHalf = {
         id: data.id.slice(0, half),
@@ -23,27 +28,27 @@ export const ReportSectionTable = ({ data } : { data : SectionData}) => {
         <table>
             <thead>
                 <tr>
-                <th> # </th>
-                <th>
-                    <div>x</div>
-                    <div>m</div>
-                </th>
-                <th>
-                    <div>d</div>
-                    <div>m</div>
-                </th>
-                <th>
-                    <div>A</div>
-                    <div>m&sup2;</div>
-                </th>
-                <th>
-                    <div>Vs</div>
-                    <div>m/s</div>
-                </th>
-                <th>
-                    <div>Q</div>
-                    <div>m&sup3;/s</div>
-                </th>
+                    <th> # </th>
+                    <th>
+                        <div>x</div>
+                        <div>{getUnit(unitSistem, 'distance')}</div>
+                    </th>
+                    <th>
+                        <div>d</div>
+                        <div>{getUnit(unitSistem, 'distance')}</div>
+                    </th>
+                    <th>
+                        <div>A</div>
+                        <div>{getUnit(unitSistem, 'area')}</div>
+                    </th>
+                    <th>
+                        <div>Vs</div>
+                        <div>{getUnit(unitSistem, 'Vs')}</div>
+                    </th>
+                    <th>
+                        <div>Q</div>
+                        <div>{getUnit(unitSistem, 'Q')}</div>
+                    </th>
                 </tr>
             </thead>
             <tbody>

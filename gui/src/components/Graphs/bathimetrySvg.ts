@@ -7,17 +7,14 @@ import { GREEN, RED, TRANSPARENT_WHITE, WHITE } from '../../constants/constants'
  * @param svgElement - The SVG element to create the chart on.
  * @param data - An array of data points for the chart.
  * @param level - The level value for shading the area between the horizontal line and the original graph.
+ * 
  */
 
-type BathymetryChartResult = {
-    intersectionX?: number;
-    error: string;
-};
 
 interface BathymetryChartProps {
     svgElement: SVGSVGElement;
     data: Point[];
-    level: number;
+    level?: number;
     showLeftBank: boolean;
     drawGrid: boolean;
     leftBank?: number;
@@ -34,17 +31,19 @@ interface BathymetryChartProps {
         };
         graphHeight: number;
     };
-    }
+}
 
-
-export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, leftBank, rightBank, xScaleAllInOne, sizes}: BathymetryChartProps) : BathymetryChartResult => {
+export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGrid, leftBank, rightBank, xScaleAllInOne, sizes }: BathymetryChartProps) => {
     const svg = d3.select(svgElement);
     const width = +svg.attr('width');
     const height = +svg.attr('height');
     const margin = { top: 20, right: 30, bottom: 40, left: 50 };
 
-    const xMax = d3.max(data, d => d.x)!;
     const xMin = d3.min(data, d => d.x)!;
+    const xMax = d3.max(data, d => d.x)!;
+
+    const yMin = d3.min(data, d => d.y)!
+    const yMax = d3.max(data, d => d.y)!
 
     let xScale;
     let yScale;
@@ -52,19 +51,20 @@ export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, 
     if ( xScaleAllInOne && sizes ) {
         const { margin: marginSizes, height: heightSizes, graphHeight } = sizes;
         xScale = xScaleAllInOne;
+        
         yScale = d3.scaleLinear()
-            .domain([d3.min(data, d => d.y)!, d3.max(data, d => d.y)!])
+            .domain([yMin, yMax])
             .range([heightSizes - marginSizes.bottom, graphHeight*2]);
 
-            svg.append('text')
-                .attr('class', 'y-axis-label')
-                .attr('text-anchor', 'end')
-                .attr('x', - graphHeight *3 + 150)
-                .attr('dy', '.75em')
-                .attr('transform', 'rotate(-90)')
-                .attr('fill', 'white')
-                .attr('font-size', '20px')
-                .text('Stage');
+        svg.append('text')
+            .attr('class', 'y-axis-label')
+            .attr('text-anchor', 'end')
+            .attr('x', - graphHeight *3 + 150)
+            .attr('dy', '.75em')
+            .attr('transform', 'rotate(-90)')
+            .attr('fill', 'white')
+            .attr('font-size', '20px')
+            .text('Stage');
 
     } else {
         xScale = d3.scaleLinear()
@@ -72,7 +72,7 @@ export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, 
             .range([margin.left, width - margin.right]);
         
         yScale = d3.scaleLinear()
-            .domain([d3.min(data, d => d.y)!, d3.max(data, d => d.y)!])
+            .domain([yMin, yMax])
             .range([height - margin.bottom, margin.top]);
 
 
@@ -87,8 +87,6 @@ export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, 
             .text('Stage');
     }
 
-    
-    
     const line = d3.line<Point>()
         .x(d => xScale(d.x))
         .y(d => yScale(d.y));
@@ -135,8 +133,6 @@ export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, 
             .attr('stroke-width', 0.05);
     }
 
-
-        
     // Sombrear el área entre la línea horizontal y la gráfica original
 
     const area = d3.area<{ x: number, y: number }>()
@@ -164,11 +160,10 @@ export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, 
     svg.append('text')
         .attr('class', 'x-axis-label')
         .attr('x', width / 2 - margin.right)
-        .attr('y', height)
+        .attr('y', height )
         .attr('fill', 'white')
         .attr('font-size', '20px')
         .text('Station');
-
 
 
     // Bathymetry line
@@ -180,54 +175,16 @@ export const bathimetrySvg = ({svgElement, data, level, showLeftBank, drawGrid, 
         .attr('stroke-width', 1.5)
         .attr('d', line);
         
-    if (showLeftBank) {
-        let intersectionPoint = null;
-
-        for (let i = 0; i < data.length - 1; i++) {
-            const currentPoint = data[i];
-            const nextPoint = data[i + 1];
-
-            // Verifica si el nivel está entre los puntos actuales y siguientes
-            if ((currentPoint.y <= level && nextPoint.y >= level) || (currentPoint.y >= level && nextPoint.y <= level)) {
-                // Interpolación lineal para encontrar la posición exacta de intersección
-                const t = (level - currentPoint.y) / (nextPoint.y - currentPoint.y);
-                const intersectX = currentPoint.x + t * (nextPoint.x - currentPoint.x);
-                intersectionPoint = { x: intersectX, y: level };
-                break;
-            }
-        }
-
-        if ( intersectionPoint ) {
-            let xValue = intersectionPoint.x;
-            let error = '';
-            if ( leftBank !== undefined && leftBank >= xMin && leftBank <= xMax ) {
-                xValue = leftBank;
-            } else if(leftBank !== undefined){
-                error = `Left Bank can be between ${xMin.toFixed(2)} and ${xMax.toFixed(2)}`;
-            }
+    if (showLeftBank && leftBank && rightBank) {
+        svg.append('path')
+            .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
+            .attr('fill', RED)
+            .attr('transform', `translate(${xScale(leftBank)}, ${yScale(level) - 16})`);
     
-            svg.append('path')
-                .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
-                .attr('fill', RED)
-                .attr('transform', `translate(${xScale(xValue)}, ${yScale(level) - 16})`);
 
-            if(rightBank && rightBank >= xMin && rightBank <= xMax){
-                const x2Value = xValue + rightBank;
-                if ( x2Value < xMax){
-                    svg.append('path')
-                        .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
-                        .attr('fill', GREEN)
-                        .attr('transform', `translate(${xScale(x2Value)}, ${yScale(level) - 16})`);
-                } else {
-                    error = `Right Bank is out of range`;
-                }
-            } else if(rightBank !== undefined){
-                error = `Right Bank can be between ${xMin.toFixed(2)} and ${xMax.toFixed(2)}`;
-            }
-            
-            return { intersectionX: xValue, error };
-        }
-    }
-
-    return {error: ''};    
+        svg.append('path')
+            .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
+            .attr('fill', GREEN)
+            .attr('transform', `translate(${xScale(rightBank)}, ${yScale(level) - 16})`);
+    }        
 }

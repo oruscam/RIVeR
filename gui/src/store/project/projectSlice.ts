@@ -8,16 +8,15 @@ const defaultVideo = {
         width: 0,
         height: 0,
         fps: 0,
-        blob: "",
         duration: 0,
         creation: "",
     },
     parameters: {
-        step: "1",
-        startTime: "0",
-        endTime: "1",
-        startFrame: "",
-        endFrame: "",
+        step: 1,
+        startTime: 0,
+        endTime: 1,
+        startFrame: 0,
+        endFrame: 0,
     },
 }
 
@@ -29,7 +28,7 @@ const initialState: ProjectState = {
     projectDetails: {
         riverName: '',
         site: '',
-        unitSistem: '',
+        unitSistem: 'si',
         meditionDate: '',
     }
 }

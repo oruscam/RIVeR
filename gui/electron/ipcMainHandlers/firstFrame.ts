@@ -1,9 +1,8 @@
 import { ipcMain } from "electron";
 import { FirstFrameArgs, ProjectConfig } from "./interfaces";
 import * as fs from 'fs'
-import { executePythonShell } from "./utils/executePythonShell";
 
-function firstFrame(PROJECT_CONFIG: ProjectConfig){
+function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
     ipcMain.handle('first-frame', async( _event, args: FirstFrameArgs) => {
         PROJECT_CONFIG.framesPath = PROJECT_CONFIG.directory + '/frames';
@@ -34,10 +33,10 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig){
         await fs.promises.writeFile(PROJECT_CONFIG.settingsPath, updatedContent, 'utf-8');
 
         try {
-            const { data } = await executePythonShell(options) as any
+            const { data } = await riverCli(options) as any
             return data
         } catch (error) {
-            
+            throw error
         }
     }
 )}

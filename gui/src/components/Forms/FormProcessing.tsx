@@ -2,7 +2,7 @@ import { useState } from "react"
 import { ButtonLock } from "../ButtonLock"
 import { HardModeProcessing } from "./HardModeProcessing"
 import { FieldValues, FormProvider, useForm } from "react-hook-form"
-import { useDataSlice, useUiSlice } from "../../hooks"
+import { useDataSlice } from "../../hooks"
 import { useWizard } from "react-use-wizard"
 
 export const FormProcessing = () => {
@@ -12,7 +12,7 @@ export const FormProcessing = () => {
   const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver, analizing } = useDataSlice()
   const { artificialSeeding, step1, heightRoi, grayscale, removeBackground, clahe, clipLimit, stdFiltering, stdThreshold, medianTestThreshold, medianTestEpsilon, medianTestFiltering } = processing.form
   
-  const [buttonTest, _setButtonTest] = useState(false)
+  const [_buttonTest, _setButtonTest] = useState(false)
 
   const methods = useForm({defaultValues: {
     "step_1": step1,

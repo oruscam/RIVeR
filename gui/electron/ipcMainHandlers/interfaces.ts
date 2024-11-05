@@ -108,7 +108,7 @@ interface Point {
 }
 
 export interface pixelSizeHandleArgs {
-  pixelPoints: Point[];
+  dirPoints: Point[];
   rwPoints: Point[];
   pixelSize: number;
   rw_length: number;

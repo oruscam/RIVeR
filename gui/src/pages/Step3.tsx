@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { Progress } from '../components'
 import { useProjectSlice } from '../hooks'
 
+
 export const Step3 = () => {
   const [formStep, setFormStep] = useState(1)
   const { video } = useProjectSlice();
@@ -15,15 +16,15 @@ export const Step3 = () => {
   return (
     <div className='regular-page'>
         <div className='media-container'>
-          {path && <VideoPlayer fileURL={'/@fs' + path}></VideoPlayer>}
-          <Error></Error>
+          { path && <VideoPlayer fileURL={ path }/> }
+          <Error/>
         </div>
         <div className='form-container'>
           <Progress></Progress>
-          <FormVideo setStep={setFormStep}></FormVideo>
+          <FormVideo setStep={setFormStep}/>
           {/* EXTRA INFO */}
-          <FormVideoExtra step={formStep}></FormVideoExtra>
-          <WizardButtons formId='form-video' canFollow={true}></WizardButtons>
+          <FormVideoExtra step={formStep}/>
+          <WizardButtons formId='form-video' canFollow={true}/>
         </div>
     </div>
   )

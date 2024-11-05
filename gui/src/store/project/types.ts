@@ -10,11 +10,11 @@ interface VideoData {
 }
 
 interface VideoParameters {
-    step: number | string;
-    startTime: number | string;
-    endTime: number | string;
-    startFrame: string;
-    endFrame: string;
+    step: number;
+    startTime: number;
+    endTime: number;
+    startFrame: number;
+    endFrame: number;
 }
 
 

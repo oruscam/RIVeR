@@ -4,14 +4,12 @@ import electron from 'vite-plugin-electron/simple'
 import react from '@vitejs/plugin-react'
 import * as os from 'os'
 
-const userDir = os.homedir();
-
 // https://vitejs.dev/config/
 export default defineConfig({
   server : {
     fs : {
       // ! PROVISIONAL
-      allow: [userDir]
+      allow: [os.homedir()]
     }
   },
   plugins: [
@@ -35,4 +33,7 @@ export default defineConfig({
         : {},
     }),
   ],
+  define: {
+    'process.env': process.env
+  }
 })
