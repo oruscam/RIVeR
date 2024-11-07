@@ -1,6 +1,8 @@
 from typing import Optional
 
+import cv2
 import numpy as np
+from scipy.optimize import minimize
 
 
 def calculate_real_world_distance(x1_rw: float, y1_rw: float, x2_rw: float, y2_rw: float) -> float:
@@ -97,6 +99,59 @@ def get_uav_transformation_matrix(
 	# Step 6: Combine rotation and scaling/translation matrices
 	transformation_matrix = np.dot(scale_translation_matrix, rotation_matrix)
 
+	return transformation_matrix, pixel_size
+
+
+def oblique_view_transformation_matrix(
+	x1_pix: float,
+	y1_pix: float,
+	x2_pix: float,
+	y2_pix: float,
+	x3_pix: float,
+	y3_pix: float,
+	x4_pix: float,
+	y4_pix: float,
+	d12: float,
+	d23: float,
+	d34: float,
+	d41: float,
+	d13: float,
+	d24: float,
+):
+	"""
+	Compute the homography transformation matrix based on pixel coordinates and
+	real-world distances.
+
+	Parameters:
+	    x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix: float
+	        Pixel coordinates for four points.
+	    d12, d23, d34, d41, d13, d24: float
+	        Real-world distances between corresponding points.
+
+	Returns:
+	    ndarray: 3x3 transformation matrix pixel to RW and RW to pixel
+	"""
+	# Coordinates for points 1 and 2 in real-world space
+	east_1, north_1 = 0, 0
+	east_2, north_2 = d12, 0
+
+	# Calculate or approximate the real-world coordinates for points 3 and 4
+	east_3, north_3, east_4, north_4 = optimize_coordinates(d12, d23, d34, d41, d13, d24)
+
+	# Pixel coordinates for the four points
+	pixel_coords = np.array([[x1_pix, y1_pix], [x2_pix, y2_pix], [x3_pix, y3_pix], [x4_pix, y4_pix]], dtype=np.float32)
+
+	# Real-world coordinates (east, north)
+	real_world_coords = np.array(
+		[[east_1, north_1], [east_2, north_2], [east_3, north_3], [east_4, north_4]], dtype=np.float32
+	)
+
+	# Calculate the homography matrix (H)
+	H, _ = cv2.findHomography(real_world_coords, pixel_coords)
+
+	# Invert the transformation matrix to map from pixel to real-world coordinates
+	transformation_matrix = np.linalg.inv(H)
+
 	return transformation_matrix
 
 
@@ -112,9 +167,16 @@ def transform_pixel_to_real_world(x_pix: float, y_pix: float, transformation_mat
 	Returns:
 	    np.ndarray: An array containing the real-world coordinates [x, y].
 	"""
+	# Create the pixel coordinate vector in homogeneous coordinates
 	pixel_vector = np.array([x_pix, y_pix, 1])
+
+	# Calculate the real-world coordinates in homogeneous coordinates
 	real_world_vector = np.dot(transformation_matrix, pixel_vector)
-	return real_world_vector[:2]
+
+	# Normalize the real-world coordinates
+	real_world_vector /= real_world_vector[2]  # Divide by the third (homogeneous) component
+
+	return real_world_vector[:2]  # Return the x and y real-world coordinates
 
 
 def transform_real_world_to_pixel(x_rw: float, y_rw: float, transformation_matrix: np.ndarray) -> np.ndarray:
@@ -129,9 +191,18 @@ def transform_real_world_to_pixel(x_rw: float, y_rw: float, transformation_matri
 	Returns:
 	    np.ndarray: An array containing the pixel coordinates [x, y].
 	"""
+	# Invert the transformation matrix to map from pixel to real-world coordinates
 	inv_transformation_matrix = np.linalg.inv(transformation_matrix)
+
+	# Create the real-world coordinate vector in homogeneous coordinates
 	real_world_vector = np.array([x_rw, y_rw, 1])
+
+	# Calculate the pixel coordinates in homogeneous coordinates
 	pixel_vector = np.dot(inv_transformation_matrix, real_world_vector)
+
+	# Normalize the pixel coordinates
+	pixel_vector /= pixel_vector[2]  # Divide by the third (homogeneous) component
+
 	return pixel_vector[:2]
 
 
@@ -175,3 +246,52 @@ def convert_displacement_field(
 			Displacement_NORTH[i, j] = displaced_east_north[1] - east_north[1]
 
 	return EAST, NORTH, Displacement_EAST, Displacement_NORTH
+
+
+def optimize_coordinates(d12: float, d23: float, d34: float, d41: float, d13: float, d24: float):
+	"""
+	Optimize the coordinates of points 3 and 4 based on the given distances.
+
+	Parameters:
+	    d12 (float): Distance between point 1 and point 2.
+	    d23 (float): Distance between point 2 and point 3.
+	    d34 (float): Distance between point 3 and point 4.
+	    d41 (float): Distance between point 4 and point 1.
+	    d13 (float): Distance between point 1 and point 3.
+	    d24 (float): Distance between point 2 and point 4.
+
+	Returns:
+	    tuple: Optimized coordinates (east_3_opt, north_3_opt, east_4_opt, north_4_opt)
+	"""
+
+	# Coordinates for points 1 and 2 (given)
+	east_1, north_1 = 0, 0
+	east_2, north_2 = d12, 0
+
+	# Objective function to minimize: sum of squared errors between calculated and given distances
+	def objective(vars: list):
+		east_3, north_3, east_4, north_4 = vars
+
+		# Calculate distances based on the current coordinates
+		calc_d13 = np.sqrt((east_3 - east_1) ** 2 + (north_3 - north_1) ** 2)
+		calc_d23 = np.sqrt((east_3 - east_2) ** 2 + (north_3 - north_2) ** 2)
+		calc_d34 = np.sqrt((east_4 - east_3) ** 2 + (north_4 - north_3) ** 2)
+		calc_d41 = np.sqrt((east_4 - east_1) ** 2 + (north_4 - north_1) ** 2)
+		calc_d24 = np.sqrt((east_4 - east_2) ** 2 + (north_4 - north_2) ** 2)
+
+		# Sum of squared errors between calculated and actual distances
+		error = (calc_d13 - d13) ** 2 + (calc_d23 - d23) ** 2 + (calc_d34 - d34) ** 2
+		error += (calc_d41 - d41) ** 2 + (calc_d24 - d24) ** 2
+
+		return error
+
+	# Initial guess for coordinates of points 3 and 4 (could start with random values)
+	initial_guess = [d12 / 2, d12 / 2, d12 / 2, d12 / 2]  # (east_3, north_3, east_4, north_4)
+
+	# Minimize the objective function
+	result = minimize(objective, initial_guess)
+
+	# Extract optimized coordinates
+	east_3_opt, north_3_opt, east_4_opt, north_4_opt = result.x
+
+	return east_3_opt, north_3_opt, east_4_opt, north_4_opt
