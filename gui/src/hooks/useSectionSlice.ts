@@ -32,7 +32,7 @@ export const useSectionSlice = () => {
      * @param formPoint | null - Object with the real world coordinates and the position to update. This can be passed in formPixelSize or formCrossSections, by the child component pixelCoordinates.
      */
 
-    const onSetDirPoints = async ( canvasPoint: CanvasPoint | null, formPoint: FormPoint | null  ) => {
+    const onSetDirPoints = async ( canvasPoint: CanvasPoint | null, formPoint: FormPoint | null, ) => {
         const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
         console.log('onSetDirPoints')   
         console.log(canvasPoint)
@@ -88,6 +88,7 @@ export const useSectionSlice = () => {
                 }
             })
         }
+
         
         /**
          * If formPoint is not null, the real world coordinates are being modified by the user in the form.
@@ -129,6 +130,8 @@ export const useSectionSlice = () => {
             }
 
         }
+
+        if ( canvasPoint?.mode === 'only-pixel') return
 
         /**
          * If the active section is greater than 0, the real world coordinates are calculated.

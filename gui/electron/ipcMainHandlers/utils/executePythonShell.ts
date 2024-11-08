@@ -92,6 +92,7 @@ async function executePythonShell2(args: (string | number)[]) {
         let output = '';
 
         pyshell.on('message', (message: string) => {
+            console.log(message)
             resolve(message)
         });
 

@@ -5,6 +5,7 @@ import { KonvaEventObject } from 'konva/lib/Node';
 import { MARKS_NUMBER_OFFSET_X, MARKS_NUMBER_OFFSET_Y, MARKS_OFFSET_X, MARKS_OFFSET_Y, MARKS_WIDTH, PIXEL_SIZE_STEP_NUMBER } from '../constants/constants';
 import { useWizard } from 'react-use-wizard';
 import { CanvasPoint } from '../types';
+import { LineAndText } from './LineAndText';
 
 interface PointsProps {
     localPoints: { x: number; y: number }[];
@@ -44,7 +45,7 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
         if (setLocalPoints) {
             const newPoints = [...localPoints];
             newPoints[index] = { x: event.target.x(), y: event.target.y() };
-            setLocalPoints(newPoints);
+            setPointsInStore({ points: newPoints, factor, index, mode: 'only-pixel' }, null);
         }
     };
     
@@ -56,6 +57,8 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
             setPointsInStore({ points: newPoints, factor, index }, null);
         }
     };
+
+
 
     const getIcon = ( index: number ) => {
         switch (module) {
@@ -71,6 +74,8 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
                 return icon
         }
     }
+
+    console.log(localPoints)
 
     return (
         <>
@@ -102,7 +107,6 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
                                 />
                             )
                         }
-                    
                 </Group>
             ))}
         </>

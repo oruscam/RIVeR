@@ -56,6 +56,7 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
     )
   }
 
+
   return (
     <>
       {

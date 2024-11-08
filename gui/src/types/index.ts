@@ -13,6 +13,7 @@ interface CanvasPoint {
     points: Point[];
     factor: number;
     index: number | null
+    mode?: string;
 }
 
 interface FormPoint {
