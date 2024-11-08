@@ -1,13 +1,4 @@
-interface Point{
-    x: number;
-    y: number;
-}
-
-interface Limits {
-    max: number;
-    min: number;
-}
-
+import { Limits, Point } from "../types";
 
 const getBathimetryLimitsY = (line: Point[]): Limits => {
     const { ys } = line.reduce((acc, { x, y }) => {
@@ -71,11 +62,11 @@ export const getIntersectionPoints = (data: Point[], level: number): Point[] => 
     return intersectionPoints;
 }
 
-export const getBathimetryValues = ( line: Point[] ) => {
+export const getBathimetryValues = ( line: Point[], level? : number ) => {
     const yLimits = getBathimetryLimitsY(line);
     const xLimits = getBathimetryLimitsX(line);
 
-    const intersectionPoints = getIntersectionPoints(line, yLimits.max);
+    const intersectionPoints = getIntersectionPoints(line, level ? level : yLimits.max);
     const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x;
 
     return {

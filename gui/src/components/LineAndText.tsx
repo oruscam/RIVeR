@@ -15,7 +15,7 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
   const { activeStep } = useWizard();
 
   const { sections } = useSectionSlice();
-  const { bathimetry, sectionPoints, dirPoints, name } = sections[index]
+  const { sectionPoints, dirPoints, name } = sections[index]
 
   
   let lineColor : string = ''
@@ -44,18 +44,16 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
   
   const sectionLine = () => {
     if(!dirPoints.length) return null
-    if(bathimetry.width){
-    
-      return (
-        <Line
-          points={sectionPoints.flatMap(point => [point.x / factor, point.y / factor])}
-          stroke={DARK_GREY}
-          strokeWidth={4 / resizeFactor}
-          lineCap="round"
-          dash={[5, 10]}
-        />
-      )
-    }    
+
+    return (
+      <Line
+        points={sectionPoints.flatMap(point => [point.x / factor, point.y / factor])}
+        stroke={DARK_GREY}
+        strokeWidth={4 / resizeFactor}
+        lineCap="round"
+        dash={[5, 10]}
+      />
+    )
   }
 
   return (

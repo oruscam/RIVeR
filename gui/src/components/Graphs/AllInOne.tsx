@@ -148,7 +148,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 })
 
             }
-    }, [activeSection, data?.showVelocityStd, data?.show95Percentile, index, screenWidth])
+    }, [activeSection, data?.showVelocityStd, data?.show95Percentile, index, screenWidth, data])
 
   return (
     <svg ref={svgRef} width={width ? width : graphWidth} height={height ? height : 500} id='all-in-one-graph'></svg>

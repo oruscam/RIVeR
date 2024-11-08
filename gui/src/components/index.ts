@@ -14,14 +14,18 @@ import { Carousel } from './Carousel'
 import { Grid } from './Grid'
 import { SectionsHeader } from './SectionsHeader'
 import { Results } from './Results'
+import { ImageWithControlPoints } from './ImageWithControlPoints'
+import { ControlPointsLines } from './ControlPointsLines'
 
 export {
     Carousel,
+    ControlPointsLines,
     DrawSections,
     Error,
     Grid,
     Icon,
-    ImageWithData ,
+    ImageWithControlPoints,
+    ImageWithData,
     ImageWithMarks,
     LanguageSelector,
     LineAndText,

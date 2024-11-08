@@ -5,7 +5,7 @@ export const FormAnalizing = () => {
     const { onSetQuiverAll, analizing, onKillBackend } = useDataSlice()
 
     const handleAnalize = () => {
-        onSetQuiverAll();
+        onSetQuiverAll('generate');
     }
 
     const handleStop = async() => {

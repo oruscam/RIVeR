@@ -1,34 +1,65 @@
 import { useUiSlice } from './hooks/useUiSlice'
 import { Wizard } from 'react-use-wizard'
-import { HomePage, Step2, Step3, Step4, Step5, Step6, Step7, Step8 } from './pages/index'
+import { HomePage, FootageMode, VideoRange, PixelSize, CrossSections, Processing, Analize, Results, ControlPoints } from './pages/index'
 import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
 import { Report } from './pages/Report'
+import { useProjectSlice, useSectionSlice } from './hooks'
 
 export const App: React.FC = () => {
-  const { darkMode, isLoading, onSetScreen } = useUiSlice()
+  const { darkMode, isLoading, onSetScreen, screenSizes } = useUiSlice()
+  const { type, video } = useProjectSlice()
+  const { data } = video 
 
+  const { sections } = useSectionSlice()
 
+  console.log(sections[1].bathimetry)
+
+  const getStep4 = () => {
+    switch (type) {
+      case 'uav':
+        return <PixelSize/>
+
+      case 'ipcam':
+        return <ControlPoints/>
+      
+      case 'oneshot':
+        return <ControlPoints/>
+      
+      default:
+        return <HomePage/>
+    }
+
+  }
+  
   useEffect(() => {
-    window.addEventListener('resize', () => {
+    const handleResize = () => {
       const width = window.innerWidth
       const height = window.innerHeight
-      onSetScreen({ width, height })
-    })
-  }, [])
+      onSetScreen({ windowWidth: width, windowHeight: height, imageWidth: data.width, imageHeight: data.height })
+    }
+
+    window.addEventListener('resize', handleResize)
+
+    handleResize()
+
+    return () => window.removeEventListener('resize', handleResize)
+  }, [data])
+
+
 
   return (
     <div className='App' data-theme={darkMode ? "dark" : "light"}>
       <Wizard>
         {isLoading ? <Loading/> :<HomePage/> }
-        <Step2></Step2>
-        {isLoading ? <Loading/> : <Step3/>}
-        {isLoading ? <Loading/> : <Step4/>}
-        {isLoading ? <Loading/> : <Step5/>}
-        {isLoading ? <Loading/> : <Step6/>}
-        {isLoading ? <Loading/> : <Step7/>}
-        {isLoading ? <Loading/> : <Step8/>}
+        <FootageMode></FootageMode>
+        {isLoading ? <Loading/> : <VideoRange/>}
+        {isLoading ? <Loading/> : getStep4()}
+        {isLoading ? <Loading/> : <CrossSections/>}
+        {isLoading ? <Loading/> : <Processing/>}
+        {isLoading ? <Loading/> : <Analize/>}
+        {isLoading ? <Loading/> : <Results/>}
         {/* <LastSettings/> */}
         <Report/>
       </Wizard>

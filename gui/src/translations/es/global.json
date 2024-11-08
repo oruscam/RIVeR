@@ -13,7 +13,7 @@
         "next" : "Seguir",
         "save" : "Guardar"
     },
-    "Step3":{
+    "VideoRange":{
         "title": "Rango de video",
         "start": "Inicio",
         "end": "Fin",
@@ -34,7 +34,7 @@
             "resolution" : "Resolución: "
         }
     },
-    "Step4": {
+    "PixelSize": {
         "title": "Tamaño de Pixel",
         "lineLength": "Largo de la linea",
         "pixelSize" : "Tamaño del pixel",

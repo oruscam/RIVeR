@@ -12,7 +12,6 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
         const [ videoName ] = arg.name.split('.');
         const newDirectory = path.join(userDir, 'River', videoName);
 
-
         try {
             const result = await getVideoMetadata(arg.path)
 

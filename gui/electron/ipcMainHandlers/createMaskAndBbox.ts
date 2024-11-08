@@ -43,7 +43,7 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig) {
             PROJECT_CONFIG.bboxPath = bboxArrayPath
             PROJECT_CONFIG.maskPath = maskArrayPath 
             
-            const maskPngPath = path.join('/@fs', directory, 'mask.png')
+            const maskPngPath = path.join(directory, 'mask.png')
             return { maskPath: maskPngPath }
         } catch (error) {
             console.log("ERROR EN CREATE MASK AND BBOX")

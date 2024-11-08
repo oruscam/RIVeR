@@ -16,6 +16,7 @@ export const DEFAULT_POINTS= [{x: 0, y: 0}, {x: 0, y: 0}]
  * This file contains all the constants used in the front application
  */
 
+export const REPORT_STEP_NUMBER = 8
 export const RESULTS_STEP_NUMBER = 7
 export const ANALIZING_STEP_NUMBER = 6
 export const PROCESSING_STEP_NUMBER = 5
@@ -87,3 +88,14 @@ export const REPORT_SECTION_VELOCITY_VECTOR_WIDTH = 400
 export const REPORT_SECTION_VELOCITY_VECTOR_HEIGHT = 225
 export const REPORT_SECTION_VELOCITY_VECTOR_RESIZE_FACTOR = 4.8
 export const REPORT_SECTION_VELOCITY_VECTOR_AMPLITUDE_FACTOR = 0.9 
+
+/**
+ * Distances colors for control points
+ */
+
+export const D12_COLOR = '#6CD4FF'
+export const D13_COLOR = '#CC4BC2'
+export const D14_COLOR = '#F5BF61'
+export const D23_COLOR = '#62C655'
+export const D24_COLOR = '#7765E3'
+export const D34_COLOR = '#ED6B57'

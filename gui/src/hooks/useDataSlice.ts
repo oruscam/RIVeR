@@ -90,6 +90,7 @@ export const useDataSlice = () => {
         try {
             const { data, error } = await ipcRenderer.invoke('get-quiver-test', {framesToTest: framesToTest, formValues: processing.form})
 
+
             if ( error.message ){
                 dispatch(setErrorMessage([error.message]))
                 setTimeout(() => {
@@ -133,7 +134,7 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const { data, error} = await ipcRenderer.invoke('get-quiver-all', {formValues: processing.form})
+            const { data, error } = await ipcRenderer.invoke('get-quiver-all', {formValues: processing.form})
 
             if ( error.message ){
                 dispatch(setErrorMessage([error.message]))
@@ -141,15 +142,16 @@ export const useDataSlice = () => {
                     dispatch(clearErrorMessage())
                 }, 4000)
             } else {
+                const { x, y, u, v, typevector, u_median, v_median } = data
                 dispatch(setQuiver(
                     {
-                        x: data.x,
-                        y: data.y,
-                        u: data.u,
-                        v: data.v,
-                        typevector: data.typevector,
-                        u_median: data.u_median,
-                        v_median: data.v_median
+                        x: x,
+                        y: y,
+                        u: u,
+                        v: v,
+                        typevector: typevector,
+                        u_median: u_median,
+                        v_median: v_median
                     }
                 ))
             }
@@ -185,15 +187,12 @@ export const useDataSlice = () => {
         if ( type === 'single' ){
             const section = sections[activeSection]
             try {
-                const data = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, check : section.data?.check, name: section.name})
-
+                const { data } = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, check : section.data?.check, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile})
                 dispatch(setSectionData({
                     sectionIndex: activeSection,
                     sectionData: {
                         ...data[section.name],
-                        show95Percentile: true,
-                        showInterpolateProfile: true, 
-                        showVelocityStd: true
+
                     }
                 }))
             } catch ( error ){
@@ -203,20 +202,19 @@ export const useDataSlice = () => {
             dispatch(setLoading(true))
 
             try {
-                const data = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                const { data, error } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                console.log(data)
                 sections.map(( section, index ) => {
                     if ( data[section.name] ){
                         dispatch(setSectionData({
                             sectionIndex: index,
                             sectionData: {
                                 ...data[section.name],
-                                show95Percentile: true,
-                                showInterpolateProfile: true, 
-                                showVelocityStd: true
                             }
                         }))
                 }})
-                
+
+                console.log(error)
                 dispatch(setLoading(false))
             } catch (error) {
                 console.log(error)

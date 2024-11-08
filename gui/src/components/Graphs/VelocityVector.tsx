@@ -20,7 +20,9 @@ export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = 
     const { sections, activeSection } = useSectionSlice();
     const { firstFramePath } = useProjectSlice();
     const { seeAll } = useUiSlice();
-    
+    const { data } = sections[activeSection];
+
+
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
         const svg = d3.select(svgRef.current as SVGSVGElement);
@@ -28,10 +30,10 @@ export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = 
             .attr("height", height)
             .style("background-color", "transparent");
 
-
         if (!isReport) {
             sections.forEach((section, sectionIndex) => {
                 if (sectionIndex === 0) return;
+                console.log(activeSection, sectionIndex)
                 if (seeAll && activeSection !== sectionIndex) return;
 
                 const { data, interpolated } = section;
@@ -47,14 +49,14 @@ export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = 
                 drawVectors(svg, sections, factor, vectorAmplitudeFactor, index, interpolated, data, isReport);
             }
         }
-    }, [factor, sections, activeSection, seeAll]);
+    }, [factor, activeSection, seeAll, data]);
 
     return (
         <div id="velocity-vector-container" style={{ width: width, height: height }}>
-            <img src={'/@fs' + firstFramePath} width={width} height={height} style={isReport ? { borderRadius: '20px' } : {}}></img>
+            <img src={firstFramePath} width={width} height={height} style={isReport ? { borderRadius: '20px' } : {}}></img>
             { 
                 sections.map((_section, index) => {
-                    if( index === 0) return
+                    if( index === 0 ) return
                     return (
                         <SvgSectionLine key={index} factor={factor} index={index} isReport={isReport}/>
                     )

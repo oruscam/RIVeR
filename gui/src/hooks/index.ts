@@ -2,5 +2,12 @@ import { useUiSlice } from "./useUiSlice";
 import { useSectionSlice } from "./useSectionSlice";
 import { useProjectSlice } from "./useProjectSlice"
 import { useDataSlice } from "./useDataSlice";
+import { useMatrixSlice } from "./useMatrixSlice";
 
-export { useUiSlice, useSectionSlice, useProjectSlice, useDataSlice };
+export { 
+    useDataSlice, 
+    useMatrixSlice,
+    useProjectSlice, 
+    useSectionSlice, 
+    useUiSlice, 
+};

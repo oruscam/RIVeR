@@ -1,25 +1,24 @@
 import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
-import * as fs from 'fs'
 import { executePythonShell } from "./utils/executePythonShell";
 import { FormProcessing } from "../../src/store/data/types";
+import { readResultsPiv } from "./utils/readResultsPiv";
+import * as fs from 'fs' 
+import * as path from 'path'
 
 
 async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
     ipcMain.handle('get-quiver-test', async (_event, args) => {
         const { framesToTest, formValues } = args
 
-        console.log(formValues)
-        
-        const options = createOptions('test', PROJECT_CONFIG, framesToTest, formValues)
-        console.log(options)
+        const options = await createOptions('test', PROJECT_CONFIG, framesToTest, formValues)
 
         try {
             const result = await executePythonShell(options) as any;
-            
             return result
+
         } catch (error) {
-            console.log("Error en getQuiverTest")
+            console.log("Error en get-quiver-test")
             console.log(error)
             throw error
             }
@@ -28,44 +27,64 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
 
     ipcMain.handle('get-quiver-all', async (_event, args) => {
         const { formValues } = args
+        const { settingsPath } = PROJECT_CONFIG    
         
-        const options = createOptions('all', PROJECT_CONFIG, [], formValues)
-        console.log(options)
+        const options = await createOptions('all', PROJECT_CONFIG, [], formValues)
 
         try {
             const { data, error } = await executePythonShell(options) as any;
             const { results_path } = data
             PROJECT_CONFIG.resultsPath = results_path
 
-            const dataQuiver = await fs.promises.readFile(results_path, 'utf-8')
-            const { x, y, u, v, typevector, v_median, u_median } = JSON.parse(dataQuiver.replace(/\bNaN\b/g, "null")) 
+            const dataQuiver = await readResultsPiv(results_path)
             
+            const settings = await fs.promises.readFile(settingsPath, 'utf-8');
+            const settingsParsed = JSON.parse(settings);
+            settingsParsed.piv_results = path.join(PROJECT_CONFIG.directory, 'piv_results.json');
+            await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 2));
+
             return {
-                data: {
-                    x: x,
-                    y: y,
-                    u: u,
-                    v: v,
-                    typevector: typevector[0],
-                    u_median: u_median,
-                    v_median: v_median
-                },
-                error: error
+                data: dataQuiver,
+                error
             }
+
         } catch (error) {
             console.log("Error en get-quiver-all")
             console.log(error)
             throw error   
         }
 
+
     })
 
 }
 
 
-function createOptions(mode: string, PROJECT_CONFIG: ProjectConfig, framesToTest: string[], formValues: FormProcessing) {
-    const { bboxPath, maskPath, directory, framesPath } = PROJECT_CONFIG;
-    const { artificialSeeding, clahe, clipLimit, grayscale, medianTestEpsilon, medianTestFiltering, medianTestThreshold, removeBackground, stdFiltering, stdThreshold, step1, step2 } = formValues;
+async function createOptions(mode: string, PROJECT_CONFIG: ProjectConfig, framesToTest: string[], formValues: FormProcessing) {
+    const { bboxPath, maskPath, directory, framesPath, settingsPath } = PROJECT_CONFIG;
+    const { artificialSeeding, clahe, clipLimit, grayscale, medianTestEpsilon, medianTestFiltering, medianTestThreshold, removeBackground, stdFiltering, stdThreshold, step1, step2,heightRoi } = formValues;
+
+    const settings = await fs.promises.readFile(settingsPath, 'utf-8');
+    const settingsParsed = JSON.parse(settings);
+
+
+    settingsParsed.processing = {
+        artificial_seeding: artificialSeeding,
+        interrogation_area_1: step1,
+        interrogation_area_2: step2,
+        roi_height: heightRoi,
+        grayscale: grayscale,
+        remove_background: removeBackground,
+        clahe: clahe,
+        clip_limit: clipLimit,
+        std_filtering: stdFiltering,
+        std_threshold: stdThreshold,
+        median_test_filtering: medianTestFiltering,
+        median_test_epsilon: medianTestEpsilon,
+        median_test_threshold: medianTestThreshold,
+    };
+
+    await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 2));
 
     const options = [
         mode === 'test' ? 'piv-test' : 'piv-analyze',

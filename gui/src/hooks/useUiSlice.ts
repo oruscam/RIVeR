@@ -6,7 +6,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { changeTheme, setErrorMessage, clearErrorMessage, setSeeAll, setScreen } from "../store/ui/uiSlice";
 import { RootState } from "../store/store";
-import { ScreenSizes } from '../store/ui/types'
+import { getNewImageResolution } from "../helpers";
 
 /**
  * @returns - Object with the methods and attributes to interact with the ui slice
@@ -72,8 +72,23 @@ export const useUiSlice = () => {
      * @param screen - Object with the screen sizes
      */
 
-    const onSetScreen = (screen: ScreenSizes) => {
-        dispatch(setScreen(screen))
+    interface SetScreen {
+        windowWidth: number
+        windowHeight: number
+        imageWidth?: number
+        imageHeight?: number
+    }
+
+    const onSetScreen = (values: SetScreen ) => {
+        const { windowWidth, windowHeight, imageWidth, imageHeight } = values
+
+        if (imageWidth && imageHeight) {
+            const result = getNewImageResolution(windowWidth, windowHeight, imageWidth, imageHeight);
+            dispatch(setScreen({ width: windowWidth, height: windowHeight, imageWidth: result.width, imageHeight: result.height, factor: result.factor, aspectRatio: imageWidth / imageHeight }));
+            return;
+        }
+
+        dispatch(setScreen({ width: windowWidth, height: windowHeight }));
     }
 
 

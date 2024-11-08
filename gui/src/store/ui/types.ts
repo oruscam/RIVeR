@@ -3,6 +3,10 @@
 interface ScreenSizes {
   width: number;
   height: number;
+  imageWidth?: number;
+  imageHeight?: number;
+  aspectRatio?: number;
+  factor?: number;
 }
 
 interface UIState {

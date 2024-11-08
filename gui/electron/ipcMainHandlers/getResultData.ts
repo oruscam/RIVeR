@@ -8,8 +8,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig){
 
     ipcMain.handle('get-results-single', async (_event, args) => {
         console.log('get-results-single')
-        const { step, fps, sectionIndex, alpha, num_stations, interpolated, check, name } = args
-        
+        const { step, fps, sectionIndex, alpha, num_stations, interpolated, check, name, showVelocityStd, showPercentile } = args
         
         const xSections = PROJECT_CONFIG.xsectionsPath;
         const transformationMatrix = PROJECT_CONFIG.matrixPath;
@@ -23,9 +22,6 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig){
             xSectionsFileParsed[name].check = check
             await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
         }
-
-
-        console.log(xSectionsFileParsed[name].check)
 
         const options = [
             'update-xsection',
@@ -45,21 +41,26 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig){
             transformationMatrix,
         ].filter( value => value !== '')
 
-
         try {
             const result = await executePythonShell2(options) as any
             const parsedData = JSON.parse(result.replace(/\bNaN\b/g, "null"))
-            const { data } = parsedData
+            const { data, error } = parsedData
 
             for (const sectionKey in data) {
                 const section = data[sectionKey];
                 xSectionsFileParsed[sectionKey] = section
+                xSectionsFileParsed[sectionKey].interpolated = interpolated
+                xSectionsFileParsed[sectionKey].showVelocityStd = showVelocityStd
+                xSectionsFileParsed[sectionKey].showPercentile = showPercentile
             }
             await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
-            return transformData(data)    
-            
+            return {
+                data: transformData(data),
+                error
+            }    
         } catch (error) {
             console.log(error)
+            throw error
         }
     })
 
@@ -93,27 +94,31 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig){
             try {
                 const result = await executePythonShell2(options) as any
                 const parsedData = JSON.parse(result.replace(/\bNaN\b/g, "null")) ;
-                const { data } = parsedData
+                const { data, error } = parsedData
                 
+
                 for (const sectionKey in data) {
                     const sectionIndex = Object.keys(data).indexOf(sectionKey);
                     if ( sectionIndex === i ){
                         const section = data[sectionKey];
                         updatedSections[sectionKey] = section
                         xSectionsFileParsed[sectionKey] = section
+                        xSectionsFileParsed[sectionKey].interpolated = true
+                        xSectionsFileParsed[sectionKey].showVelocityStd = true
+                        xSectionsFileParsed[sectionKey].showPercentile = true
+
                     }
                 }
-
-
+                await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
+                return { 
+                    data: transformData(updatedSections),
+                    error
+                }
             } catch (error) {
                 console.log(error)
+                throw error
             }
         }
-
-        await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
-
-        return transformData(updatedSections)
-        
     })
 }
 
@@ -169,6 +174,9 @@ const transformData = (data: any): Record<string, SectionData> => {
             Q_minus_std: section.Q_minus_std,
             Q_plus_std: section.Q_plus_std,
             total_q_std: section.total_q_std,
+            interpolated: section.interpolated,
+            showVelocityStd: section.showVelocityStd,   
+            showPercentile: section.showPercentile,
         };
     }
 

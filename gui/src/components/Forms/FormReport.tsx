@@ -3,21 +3,24 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useForm } from "react-hook-form";
 import { useProjectSlice } from "../../hooks";
-import { dateToStringDate } from "../../helpers";
+import { dateToStringDate, stringDateToDate } from "../../helpers";
 import '../../index.css'
 
-export const FormLastSettings = () => {
-  const { video, onProjectDetailsChange } = useProjectSlice();
+
+export const FormReport = () => {
+  const { video, onProjectDetailsChange, projectDetails } = useProjectSlice();
   const { creation } = video.data
+  
+  const defaultDate = projectDetails.meditionDate ? stringDateToDate(projectDetails.meditionDate) : new Date(creation);
 
   const today = new Date();
-  const [meditionDate, setMeditionDate] = useState<Date>( new Date((creation)) );
+  const [meditionDate, setMeditionDate] = useState<Date>( defaultDate );
   const [ unitSistem, setUnitSistem ] = useState<string>('si');
   const { register } = useForm({
     defaultValues: {
-      riverName: '',
-      site: '',
-      unitSistem: 'si'
+      riverName: projectDetails.riverName,
+      site: projectDetails.site,
+      unitSistem: projectDetails.unitSistem,
   }});
 
 

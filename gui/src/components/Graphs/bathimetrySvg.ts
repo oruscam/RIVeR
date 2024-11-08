@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
-import { Point } from '../../store/section/types';
 import { GREEN, RED, TRANSPARENT_WHITE, WHITE } from '../../constants/constants';
+import { Point } from '../../types';
 
 /**
  * Creates a bathymetry chart on the specified SVG element.

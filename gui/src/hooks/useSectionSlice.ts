@@ -10,8 +10,9 @@ import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints } from '../helpers';
 import { setImages, setProcessingMask, updateProcessingForm } from '../store/data/dataSlice';
-import bathParser from '../helpers/bathimetryParser';
+
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../constants/constants';
+import { CanvasPoint, FormPoint, Point } from '../types';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -25,56 +26,17 @@ export const useSectionSlice = () => {
     const { processing } = useSelector((state: RootState) => state.data);
     const dispatch = useDispatch();
 
-    interface Point {
-        x: number;
-        y: number;
-    }
-
-    interface CanvasPoint {
-        points: Point[];
-        factor: number;
-        index: number | null
-    }
-
-    interface FormPoint {
-        point: string | number;
-        position: string;
-    }
-
-    interface Section {
-        name: string;
-        drawLine: boolean;
-        sectionPoints: Point[];
-        dirPoints: Point[];
-        bathimetry: {
-            blob: string;
-            path: string;
-            name: string;
-            level?: number;
-            width?: number;
-            leftBank?: number;
-            line?: any;
-        };
-        pixelSize: {
-            size: number;
-            rw_length: number;
-        };
-        rwPoints: Point[];
-        extraFields: boolean;
-        numStations: number;
-        alpha: number;
-        interpolated: boolean;
-        sectionPointsRW?: Point[];
-    }
-
     /**
      * 
      * @param canvasPoint | null - Object with the points in pixels and the factor to convert to real world coordinates.
      * @param formPoint | null - Object with the real world coordinates and the position to update. This can be passed in formPixelSize or formCrossSections, by the child component pixelCoordinates.
      */
+
     const onSetDirPoints = async ( canvasPoint: CanvasPoint | null, formPoint: FormPoint | null  ) => {
         const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
-        
+        console.log('onSetDirPoints')   
+        console.log(canvasPoint)
+
         // Clean section points for better visualization.
         onUpdateSectionPoints([])
 
@@ -154,6 +116,7 @@ export const useSectionSlice = () => {
         /**
          * The new points are stored in the section slice, if the points are different from the current points.
          */
+        
         if(newPoints){
             if (newPoints[0].x === newPoints[1].x && newPoints[0].y === newPoints[1].y) {
                 console.error("Los puntos no pueden ser iguales.");
@@ -175,12 +138,17 @@ export const useSectionSlice = () => {
          * The pixel size is stored in the section slice.
          */
 
-        if( activeSection >= 1){
+        if( activeSection >= 1 ){
             let rwCalculated: Point[] = [ {x: 0, y: 0}, {x:0, y: 0}]
             
+            console.log('flag 1', flag1)
+            console.log('flag 2', flag2)
+
+
             const ipcRenderer = window.ipcRenderer;
             try {
                 if (newPoints && flag1 && flag2) {
+                    console.log('two points')
                     const {rw_coordinates: par1} = await ipcRenderer.invoke('pixel-to-real-world', { points: {x: newPoints[0].x, y: newPoints[0].y}})
                     const {rw_coordinates: par2} = await ipcRenderer.invoke('pixel-to-real-world', { points: {x: newPoints[1].x, y: newPoints[1].y}})
                     rwCalculated = [{x: par1[0], y: par1[1]}, {x: par2[0], y: par2[1]}]
@@ -305,7 +273,7 @@ export const useSectionSlice = () => {
      * @param _data | FieldValues - from useFormHook
      */
 
-    const onSetPixelSize = async (_data: FieldValues) => {
+    const onSetPixelSize = async ( _data: FieldValues ) => {
         dispatch(setLoading(true))
         
         const { dirPoints, rwPoints, pixelSize } = sections[0]
@@ -347,8 +315,10 @@ export const useSectionSlice = () => {
 
     const onSetSections = async (_formData: FieldValues) => {
         dispatch(setLoading(true))
-        const ipcRenderer = window.ipcRenderer;
+        
+        const filePrefix = import.meta.env.VITE_FILE_PREFIX;
 
+        const ipcRenderer = window.ipcRenderer;
         let updatedSection = [...sections]
 
         /**
@@ -392,7 +362,7 @@ export const useSectionSlice = () => {
             
             dispatch(setImages(images))
             dispatch(updateProcessingForm({...processing.form, heightRoi: height_roi}))
-            dispatch(setProcessingMask(maskPath))
+            dispatch(setProcessingMask(filePrefix + maskPath))
             dispatch(setLoading(false))
         } catch (error) {
             console.log("ERROR EN SETSECTIONS")
@@ -554,9 +524,9 @@ export const useSectionSlice = () => {
                 dispatch(changeSectionData({...data, showVelocityStd: !data.showVelocityStd}));
             }
         }
-        if ( object.type === 'show95Percentile' ){
+        if ( object.type === 'showPercentile' ){
             if( data ){
-                dispatch(changeSectionData({...data, show95Percentile: !data.show95Percentile}));
+                dispatch(changeSectionData({...data, showPercentile: !data.showPercentile}));
             }
         }
     }
@@ -565,29 +535,26 @@ export const useSectionSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const data = await ipcRenderer.invoke('get-bathimetry')
+            const data = await ipcRenderer.invoke('get-bathimetry', { path: undefined } )
+            const { path, line, name } = data
 
             if ( data.path !== "" && data.path !== sections[activeSection].bathimetry.path){
-                const result = await bathParser('/@fs' + data.path, data.type)
 
-                const bathValues = getBathimetryValues(result)
+                const bathValues = getBathimetryValues(line)
 
-                dispatch(setBathimetry({path: data.path, name: data.name, line: result, ...bathValues}))
+                dispatch(setBathimetry({path: path, name: name, line: line, ...bathValues}))
 
                 const { dirPoints, pixelSize } = sections[activeSection] 
                 onUpdateSectionPoints(dirPoints, pixelSize.rw_length, bathValues.width, bathValues.leftBank)
             }
         } catch (error) {
             console.log(error)
-            dispatch(updateSection({...sections[activeSection], bathimetry: {path: "", level: 0, name: ""}}))
+            dispatch(updateSection({...sections[activeSection], bathimetry: {path: "", level: 0, name: ""}, sectionPoints: DEFAULT_POINTS}))
         }
     }
 
     const onUpdateSectionPoints = ( points: Point[] | [], total_distance?: number, bathWidth?: number, leftBank?: number) => {
 
-        console.log('left bank update section poinst', leftBank)
-        console.log('bathWidth update section poinst', bathWidth)
-        console.log('total_distance update section poinst', total_distance)
 
         
         if( points.length === 0 ){

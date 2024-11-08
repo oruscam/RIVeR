@@ -557,3 +557,22 @@ transform-origin: 14px 22px;
     filter: invert(100%);
 }
 
+#D12{
+    border-color: var(--d12);
+    border: solid 3px var(--d12);
+}
+#D13{
+    border: solid 3px var(--d13);
+}
+#D14{
+    border: solid 3px var(--d14);
+}
+#D23{
+    border: solid 3px var(--d23);
+}
+#D24{
+    border: solid 3px var(--d24);
+}
+#D34{
+    border: solid 3px var(--d34);
+}

@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SectionState, PixelSize, Point, Section, SectionData, Bathimetry } from './types';
+import { SectionState, PixelSize, Section, SectionData, Bathimetry } from './types';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../../constants/constants';
+import { Point } from '../../types';
 
 const defaultSections = [{
         name: "pixel_size",
@@ -51,7 +52,6 @@ const sectionSlice = createSlice({
         }, 
         // ** Interaction with sections points.
         setDirPoints: (state, action: PayloadAction<Point[]>) => {
-            console.log('setDirPoints')
             state.sections[state.activeSection].dirPoints = action.payload;
         },
 
@@ -85,7 +85,6 @@ const sectionSlice = createSlice({
             state.sections[state.activeSection].bathimetry = action.payload;
         },
         setSectionPoints: (state, action: PayloadAction<Point[]>) => {
-            console.log('setSectionPoints')
             state.sections[state.activeSection].sectionPoints = action.payload;
         },
     },

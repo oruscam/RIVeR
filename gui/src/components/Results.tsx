@@ -1,5 +1,5 @@
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
-import { useProjectSlice, useSectionSlice } from "../hooks";
+import { useSectionSlice } from "../hooks";
 import { Sections } from "./CrossSections";
 import { SectionsHeader } from "./SectionsHeader"
 import { FormResults } from "./Forms";
@@ -15,13 +15,13 @@ const createInitialState = (sections: Section[]) => {
             if( section.data ){
                 const baseKey = section.name;
                 const { alpha, numStations, interpolated } = section;
-                const { show95Percentile, showVelocityStd } = section.data;
+                const { showPercentile, showVelocityStd } = section.data;
                 defaultValues = {
                     ...defaultValues,
                     [`${baseKey}_ALPHA`]: alpha,
                     [`${baseKey}_STATIONS_NUMBER`]: numStations,
                     [`${baseKey}_SHOW_VELOCITY_STD`]: showVelocityStd ? ['on'] : ['off'],
-                    [`${baseKey}_SHOW_95_PERCENTILE`]: show95Percentile ? ['on'] : ['off'],
+                    [`${baseKey}_SHOW_PERCENTILE`]: showPercentile ? ['on'] : ['off'],
                     [`${baseKey}_INTERPOLATED_PROFILE`]: interpolated ? ['on'] : ['off'],
                 };
             }
@@ -35,13 +35,11 @@ const createInitialState = (sections: Section[]) => {
 export const Results = () => {
     const { sections, activeSection } = useSectionSlice();
     const methods = useForm({ defaultValues: createInitialState(sections) });
-    const { onClickFinish } = useProjectSlice();
 
     const { nextStep } = useWizard();
 
-    const onSubmit = ( data: FieldValues ) => {
+    const onSubmit = ( _data: FieldValues ) => {
         // Aca debo enviar la data y actualizar en sections! 
-        console.log(data)
         nextStep();
         // onClickFinish(nextStep);
     }

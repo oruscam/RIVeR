@@ -12,13 +12,15 @@ import { useProjectSlice } from '../../hooks';
 export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateAction<number>> }) => {
   const { onSetVideoParameters, video: videoData } = useProjectSlice()
   const { startTime, endTime, step } = videoData.parameters
-  const { handleSubmit, register, setValue, getValues, watch} = useForm({
+
+  const { handleSubmit, register, setValue, getValues, watch } = useForm({
     defaultValues: {
       start: startTime,
       end: endTime,
       step: step
     }
   })
+  
   const [video, setVideo] = useState<HTMLVideoElement | null>(null)
   const { t } = useTranslation()
   const {nextStep } = useWizard()
@@ -34,9 +36,9 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
       const number = video.currentTime
       const id = (event.target as HTMLButtonElement).id
       if( id === "start"){
-        setValue('start', number.toFixed(4), { shouldValidate: true} )
+        setValue('start', parseFloat(number.toFixed(4)), { shouldValidate: true} )
         }else{
-          setValue('end', number.toFixed(4), { shouldValidate: true} )
+          setValue('end', parseFloat(number.toFixed(4)), { shouldValidate: true} )
         }
       }
     }
@@ -60,11 +62,11 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
 
   return (
     <>
-      <h2 className='form-title'>{t("Step3.title")}</h2>
+      <h2 className='form-title'>{t("VideoRange.title")}</h2>
       <form onSubmit={handleSubmit(onSubmit, onError)} id='form-video' className='form-base-2 mt-2'>
           
           <div className='input-container-2 mt-2'>
-            <button type='button' onClick={handleClick} className='wizard-button form-button me-1' id='start'> {t("Step3.start")}</button>
+            <button type='button' onClick={handleClick} className='wizard-button form-button me-1' id='start'> {t("VideoRange.start")}</button>
             <input
               className='input-field'
               defaultValue={0}
@@ -72,12 +74,10 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
               type='number'
               step="0.0001"
               { ...register("start", validationRules.start) }
-              >
-              </input>
-
+              />
           </div>
           <div className='input-container-2 mt-1'>
-            <button type='button' className='wizard-button form-button me-1' onClick={handleClick} id='end'> {t("Step3.end")} </button>
+            <button type='button' className='wizard-button form-button me-1' onClick={handleClick} id='end'> {t("VideoRange.end")} </button>
             <input
               type='number'
               step="0.0001"
@@ -85,10 +85,10 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
               defaultValue={1}
               id='end'
               { ...register('end', validationRules.end) }
-              ></input>
+              />
           </div>
           <div className='input-container-2 mt-1'>
-            <label className='read-only me-1'> {t("Step3.step")} </label>
+            <label className='read-only me-1'> {t("VideoRange.step")} </label>
             <input
               type='number'
               id='input-step'

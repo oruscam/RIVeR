@@ -6,14 +6,18 @@ import { FormProcessing } from "./FormProcessing";
 import { PixelCoordinates } from "./PixelCoordinates";
 import { RealWorldCoordinates } from "./RealWorldCoordinates";
 import { FormResults } from "./FormResults";
+import { FormReport } from "./FormReport";
+import { FormControlPoints } from "./FormControlPoints";
 
 export {
-    FormVideoExtra,
-    FormVideo,
-    FormPixelSize,
+    FormControlPoints,
     FormCrossSections,
+    FormPixelSize,
     FormProcessing,
+    FormReport,
+    FormResults,
+    FormVideo,
+    FormVideoExtra,
     PixelCoordinates,
     RealWorldCoordinates,
-    FormResults
 }

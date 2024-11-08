@@ -1,8 +1,8 @@
 import { Progress, WizardButtons } from '../components'
 import { ProcessedRange, VideoInfo, ReportSection, Header, Summary, PixelTransformation, ProcessingParameters, Footer } from '../components/Report'
 import './pages.css'
-import { useDataSlice, useSectionSlice } from '../hooks'
-import { FormLastSettings } from '../components/Forms/FormLastSettings';
+import { useDataSlice, useProjectSlice, useSectionSlice } from '../hooks'
+import { FormReport } from '../components/Forms/index';
 
 const convertImageToDataURI = ( url: string ) => {
   return new Promise((resolve, reject) => {
@@ -25,9 +25,11 @@ const convertImageToDataURI = ( url: string ) => {
 export const Report = () => {
   const { sections } = useSectionSlice();
   const { onSetAnalizing } = useDataSlice();
+  const { onSaveProjectDetails } = useProjectSlice()
 
   const generateHTML = async () => {
     onSetAnalizing(true)
+    onSaveProjectDetails()
     const input = document.getElementById('report-html-container');
     if (input) {
       // Convert all images to data URIs
@@ -104,7 +106,7 @@ export const Report = () => {
       </div>
       <div className='form-container'>
         <Progress/>
-        <FormLastSettings></FormLastSettings>
+        <FormReport></FormReport>
         <WizardButtons onClickNext={generateHTML}></WizardButtons>
       </div>
     </div>

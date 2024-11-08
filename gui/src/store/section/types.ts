@@ -1,7 +1,5 @@
-interface Point {
-    x: number;
-    y: number;
-}
+import { Point } from "../../types";
+
 
 interface Bathimetry {
     path: string;
@@ -70,11 +68,9 @@ interface SectionData {
     Q_plus_std: number[];
     total_q_std: number;
     showVelocityStd: boolean;
-    show95Percentile: boolean;
+    showPercentile: boolean;
     showInterpolateProfile: boolean;
 }
-
-
 
 interface Section {
     name: string;
@@ -88,8 +84,8 @@ interface Section {
     alpha: number;
     numStations: number;
     interpolated: boolean;
-    data?: SectionData;
     sectionPointsRW?: Point[];
+    data?: SectionData;
 
 }
 

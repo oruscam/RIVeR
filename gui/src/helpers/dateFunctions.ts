@@ -41,3 +41,20 @@ export const dateToStringDate = (date: Date): string => {
 
     return `${day}/${month}/${year} ${hours}:${minutes}`;
 }
+
+export const stringDateToDate = (dateString: string): Date => {
+    // Divide la cadena en fecha y hora
+    const [datePart, timePart] = dateString.split(' ');
+
+    // Divide la fecha en día, mes y año
+    const [day, month, year] = datePart.split('/');
+
+    // Reordena la fecha al formato YYYY-MM-DD
+    const formattedDate = `${year}-${month}-${day}`;
+
+    // Combina la fecha y la hora
+    const dateTimeString = `${formattedDate}T${timePart}:00`;
+
+    // Crea el objeto Date
+    return new Date(dateTimeString);
+}

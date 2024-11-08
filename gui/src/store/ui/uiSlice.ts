@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import {UIState, ScreenSizes } from './types'
+import { UIState, ScreenSizes } from './types'
 
 const initialState: UIState = {
     screenSizes: {
@@ -32,7 +32,6 @@ const uiSlice = createSlice({
         setScreen: (state, action: PayloadAction<ScreenSizes>) => {
             state.screenSizes = action.payload;
         },
-
         setSeeAll: (state) => {
             state.seeAll = !state.seeAll;
         },

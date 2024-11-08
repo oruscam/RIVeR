@@ -5,11 +5,9 @@
  */
 
 import { exec } from "child_process";
-import { config } from "dotenv";
 import { ipcMain } from "electron";
 import { Options, PythonShell } from "python-shell";
 
-config()
 
 /**
  * Function to execute the python shell with the given arguments.
@@ -18,10 +16,11 @@ config()
  */
 
 let currentPyShell: PythonShell | null = null;
+const PYTHON_PATH = import.meta.env.VITE_PYTHON_PATH;
+const RIVER_CLI_PATH = import.meta.env.VITE_RIVER_CLI_PATH;
 
 async function executePythonShell(args: (string | number)[]){
     
-
     /**
      * Options to execute the python shell.
      * pythonPath: Path to the python executable
@@ -31,11 +30,11 @@ async function executePythonShell(args: (string | number)[]){
 
     const options: Options = {
         mode: 'json',
-        pythonPath: process.env.PYTHON_PATH,
-        scriptPath: process.env.RIVER_CLI_PATH,
+        pythonPath: PYTHON_PATH,
+        scriptPath: RIVER_CLI_PATH,
         args: args.map(arg => arg.toString())
     }
-    console.log('executePythonShell')
+    console.log('execute-python-shell')
     console.log(options)
 
     /**
@@ -73,8 +72,8 @@ async function executePythonShell2(args: (string | number)[]) {
      */
     const options: Options = {
         mode: 'text', // Cambiar a 'text' para capturar toda la salida
-        pythonPath: process.env.PYTHON_PATH,
-        scriptPath: process.env.RIVER_CLI_PATH,
+        pythonPath: PYTHON_PATH,
+        scriptPath: RIVER_CLI_PATH,
         args: args.map(arg => arg.toString())
     };
     console.log('executePythonShell2');

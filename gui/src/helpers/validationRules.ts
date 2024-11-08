@@ -16,54 +16,49 @@ interface ValidationRules {
 export const getValidationRules = (t: TFunction, getValues: GetValuesFunction, duration: number): ValidationRules => {
     const rules = {
         start : {
-            required: t("Step3.Errors.required"),
+            required: t("VideoRange.Errors.required"),
             pattern: {
             value: /^-?[0-9]+(\.[0-9]+)?$/,
-            message: t("Step3.Errors.formatInput")
+            message: t("VideoRange.Errors.formatInput")
           },
-          validate: (value: string | boolean) => {
-            let currentValue;
-            if (typeof value !== 'string') return false
-            currentValue = parseFloat(value)
+          validate: (value: string | number) => {
+            const currentValue = typeof value === 'string' ? parseFloat(value) : value
       
             if ( currentValue < 0){
-              return t('Step3.Errors.start1')
+              return t('VideoRange.Errors.start1')
             }
             return true
             }
           },
           end: {
-            required: t("Step3.Errors.required"),
+            required: t("VideoRange.Errors.required"),
             pattern: {
               value: /^-?[0-9]+(\.[0-9]+)?$/,
-              message: t("Step3.Errors.formatInput")
+              message: t("VideoRange.Errors.formatInput")
             },
-            validate: (value : string | boolean) => {
+            validate: (value : string | number) => {
               const start = parseFloat(getValues('start'))
-              let currentValue;
-              
-              if (typeof value !== 'string') return false
-                
-              currentValue = parseFloat(value)
+                            
+              const currentValue = typeof value === 'string' ? parseFloat(value) : value
       
-              if( currentValue > parseFloat(duration)){
-                return t("Step3.Errors.end1")
+              if( currentValue > duration){
+                return t("VideoRange.Errors.end1")
               }
-      
+  
               if (currentValue <= 0){
-                return t("Step3.Errors.end2")
+                return t("VideoRange.Errors.end2")
               }
               if ( currentValue <= start){
-                return t("Step3.Errors.end3")
+                return t("VideoRange.Errors.end3")
               }
               return true
             }
           },
           step: {
-            required: t("Step3.Errors.required"),
+            required: t("VideoRange.Errors.required"),
             pattern: {
               value: /^[1-9]\d*$/,
-              message: t("Step3.Errors.step")
+              message: t("VideoRange.Errors.step")
             }
           }
     }

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 126.97 180.22">
+<svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 126.97 180.22" width="80" heigth="80">
   <defs>
     <style>
       .cls-1 {
-        fill: #000;
+        fill: #fff;
         stroke-width: 0px;
       }
     </style>

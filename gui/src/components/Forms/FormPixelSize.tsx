@@ -3,11 +3,12 @@ import { useTranslation } from 'react-i18next'
 import { FieldValues, useFormContext } from 'react-hook-form'
 import { useSectionSlice, useUiSlice } from '../../hooks'
 import { PixelCoordinates, RealWorldCoordinates } from './index'
+import { BaseSyntheticEvent } from 'react'
 
 
 interface FormPixelSizeProps {
-  onSubmit: (data: FieldValues) => void,
-  onError: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void,
+  onSubmit: (e?: BaseSyntheticEvent<object, any, any> | undefined) => Promise<void>,
+  onError: (error: FieldValues) => void,
 }
 
 export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
@@ -30,7 +31,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
           const error = {
             "pixel_size_LINE_LENGTH": {
               type: "required",
-              message: t("Step4.Errors.lineLength")
+              message: t("PixelSize.Errors.lineLength")
             }
           }
           onSetErrorMessage(error)
@@ -51,29 +52,29 @@ export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
 
   return (
     <>
-      <h2 className='form-title'> {t('Step4.title')}</h2>
+      <h2 className='form-title'> {t('PixelSize.title')}</h2>
       <form onSubmit={onSubmit} onError={onError} className='mt-5 form-scroll' id='form-pixel-size' >
         <span id='pixel_size-HEADER'></span>
         <div className='form-base-2'>
 
             <div className='input-container-2'>
-              <button className={`wizard-button form-button me-1 ${sections[0].drawLine ? "wizard-button-active" : ""}`} onClick={() => onUpdateSection({drawLine: true})} type='button'>{t("Step4.drawLine")}</button>
+              <button className={`wizard-button form-button me-1 ${sections[0].drawLine ? "wizard-button-active" : ""}`} onClick={() => onUpdateSection({drawLine: true})} type='button'>{t("PixelSize.drawLine")}</button>
               <span className='read-only bg-transparent'></span>
             </div>
             {/* <InfoPixelSize animation={'click-drag-drop'}></InfoPixelSize> */}
             
               <div className='input-container-2 mt-2'>
-                <label className='read-only me-1'>{t("Step4.lineLength")}</label>
+                <label className='read-only me-1'>{t("PixelSize.lineLength")}</label>
                 <input className='input-field' 
                   disabled={sections[0].dirPoints.length === 0}
                   type='number' 
                   step="any"
                   id='pixel_size-LINE_LENGTH'
                   {...register('pixel_size_LINE_LENGTH', {
-                    required: t("Step4.Errors.required"),
+                    required: t("PixelSize.Errors.required"),
                     validate: (value: string) => {
                       if ( parseFloat(value) <= 0){
-                        return t("Step4.Errors.lineLength")
+                        return t("PixelSize.Errors.lineLength")
                       } 
                       return true
                     }
@@ -84,7 +85,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
               </div>
 
               <div className='input-container-2 mt-1 mb-2'>
-                <label className='read-only me-1'>{t("Step4.pixelSize")}</label>
+                <label className='read-only me-1'>{t("PixelSize.pixelSize")}</label>
                 <input className='input-field'
                       {...register('pixel_size_PIXEL_SIZE')} 
                       type='number' 

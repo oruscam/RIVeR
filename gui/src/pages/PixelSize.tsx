@@ -2,15 +2,13 @@ import { FieldValues, FormProvider, useForm } from 'react-hook-form'
 import { useWizard } from 'react-use-wizard'
 import { FormPixelSize } from '../components/Forms/index'
 import { WizardButtons, Error, ImageWithMarks, Progress } from '../components/index'
-import { getNewImageResolution } from '../helpers/index.js'
-import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks/index'
+import { useSectionSlice, useUiSlice } from '../hooks/index'
 
 import './pages.css'
 import { useEffect } from 'react'
 import { ButtonLock } from '../components/ButtonLock.js'
 
-export const Step4 = () => {
-  const { video } = useProjectSlice();
+export const PixelSize = () => {
   const { onSetPixelSize, sections } = useSectionSlice()
   const { dirPoints, rwPoints, pixelSize } = sections[0]
   
@@ -30,14 +28,9 @@ export const Step4 = () => {
     }
   })
 
-  const { nextStep  } = useWizard()
-  const { onSetErrorMessage, screenSizes } = useUiSlice()
+  const { nextStep } = useWizard()
+  const { onSetErrorMessage } = useUiSlice()
   
-  const { width: windowWidth, height: windowHeight } = screenSizes
-  const { data } = video 
-
-  const { height, width, factor } = getNewImageResolution(windowWidth, windowHeight, data.width, data.height)
-
 
   const onSubmit = (data: FieldValues) => {
     onSetPixelSize(data)
@@ -47,7 +40,6 @@ export const Step4 = () => {
   const onError = (error: FieldValues) => {
     onSetErrorMessage(error)
   }
-
 
   useEffect(() => {
     methods.reset({
@@ -68,7 +60,7 @@ export const Step4 = () => {
   return (
     <div className='regular-page'>
       <div className='media-container'>
-        <ImageWithMarks height={height} width={width} factor={factor}></ImageWithMarks>
+        <ImageWithMarks/>
         <Error/>
       </div>
       <div className='form-container'>

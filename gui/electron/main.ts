@@ -3,17 +3,16 @@ import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
 import * as os from 'os'
 import * as fs from 'fs'
-import { config } from 'dotenv'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
-import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver, getVideo, getBathimetry} from './ipcMainHandlers/index.js'
+import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver, getVideo, getBathimetry } from './ipcMainHandlers/index.js'
 import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
 import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
 import { getResultData } from './ipcMainHandlers/getResultData.js'
+import { setProjectDetails } from './ipcMainHandlers/setProjectDetails.js'
 
-config()
 process.env.APP_ROOT = path.join(__dirname, '..')
 
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
@@ -41,7 +40,7 @@ protocol.registerSchemesAsPrivileged([
 function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
   const { x, y } = primaryDisplay.workArea;
-  
+
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
     minWidth: 1150,
@@ -58,7 +57,8 @@ function createWindow() {
     alwaysOnTop: false,
     skipTaskbar: false,
     frame: true,
-    
+    title: 'River',
+
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
@@ -114,14 +114,19 @@ const PROJECT_CONFIG: ProjectConfig = {
   resultsPath: "",
 }
 
+  // // Print PROJECT_CONFIG every 10 seconds
+  // setInterval(() => {
+  //   console.log(PROJECT_CONFIG);
+  // }, 10000);
+
 app.whenReady().then(() => {
   // ! DONT WORK. En develop usamos /@fs, en produccion usamos file://
-  protocol.handle('resources', function(request){
+  protocol.handle('resources', function (request) {
     const filePath = request.url.slice('resources://'.length);
     const fileUrl = new URL(`file://${filePath}`).toString();
     return net.fetch(fileUrl)
   })
-   
+
   createWindow();
   getVideo(PROJECT_CONFIG);
   initProject(userDir, PROJECT_CONFIG);
@@ -137,6 +142,7 @@ app.whenReady().then(() => {
   getImages(PROJECT_CONFIG);
   getResultData(PROJECT_CONFIG);
   getBathimetry();
+  setProjectDetails(PROJECT_CONFIG);
 
 
   ipcMain.handle('print-to-pdf', (event, args) => {
@@ -145,7 +151,7 @@ app.whenReady().then(() => {
       marginsType: 0,
       size: 'A4',
       printBackground: true,
-      landscape: false  
+      landscape: false
     }
 
     win?.webContents.printToPDF(options).then(data => {

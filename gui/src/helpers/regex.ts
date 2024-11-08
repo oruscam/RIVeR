@@ -9,9 +9,7 @@
  * @returns boolean
  */
 
-const isValidString = (input: string): boolean => {
+export const isValidString = (input: string): boolean => {
     const regex = /^[a-zA-Z0-9_]*$/
     return regex.test(input)
 }
-
-export { isValidString }

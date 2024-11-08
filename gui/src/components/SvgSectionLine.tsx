@@ -23,6 +23,8 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
   useEffect(() => {
     const svg = d3.select(svgRef.current);
 
+    console.log(sectionPoints, dirPoints);
+
     // Limpiar el SVG antes de redibujar
     svg.selectAll("*").remove();
 
@@ -62,7 +64,7 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
         .attr("fill", YELLOW);
     }  
 
-  }, [factor, resizeFactor]);
+  }, [factor, resizeFactor, sectionPoints, dirPoints, isReport]);
 
   return (
     <svg id="svg-section-line" ref={svgRef} width="100%" height="100%"></svg>
