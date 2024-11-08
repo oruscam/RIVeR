@@ -99,7 +99,7 @@ def get_uav_transformation_matrix(
 	# Step 6: Combine rotation and scaling/translation matrices
 	transformation_matrix = np.dot(scale_translation_matrix, rotation_matrix)
 
-	return transformation_matrix, pixel_size
+	return transformation_matrix
 
 
 def oblique_view_transformation_matrix(
