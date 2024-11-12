@@ -55,7 +55,7 @@ export const VideoPlayerSeekBar = ({ bufferAmount, progressAmount, setProgressAm
           );
           const time = percentage * videoRef.current.duration;
           videoRef.current.currentTime = time;
-          if( videoRef.current && !control.play){
+          if( videoRef.current ){
             setControl(prevControl => ({...prevControl, play: true}))
             videoRef.current.play()
           }

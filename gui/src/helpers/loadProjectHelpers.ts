@@ -1,6 +1,6 @@
 import { Section } from '../store/section/types';
 import { getBathimetryValues } from './getBathimetryValues';
-import { ANALIZING_STEP_NUMBER, RESULTS_STEP_NUMBER } from '../constants/constants';
+import { MODULE_NUMBER } from '../constants/constants';
 
 
 /**
@@ -44,8 +44,8 @@ export const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispat
     dispatch(updateSection({
         ...section,
         pixelSize: {size, rw_length},
-        realWorld: [{x: east1, y: north1}, {x: east2, y: north2}],
-        points: [{x: x1, y: y1}, {x: x2, y: y2}],
+        rwPoints: [{x: east1, y: north1}, {x: east2, y: north2}],
+        dirPoints: [{x: x1, y: y1}, {x: x2, y: y2}],
         drawLine: true
     }))
     return 
@@ -189,9 +189,9 @@ export const onLoadCrossSections = (values: XSections, dispatch: any, updateSect
     })
 
     if( flagData ){
-        return RESULTS_STEP_NUMBER
+        return MODULE_NUMBER.RESULTS
     } else {
-        return ANALIZING_STEP_NUMBER
+        return MODULE_NUMBER.ANALIZING
     }
 }
 

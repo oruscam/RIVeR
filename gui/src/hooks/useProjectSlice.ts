@@ -5,11 +5,11 @@
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { setLoading } from "../store/ui/uiSlice";
+import { clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
 import { setProjectDirectory, setProjectType, setVideoData, setFirstFramePath, setVideoParameters, setProjectDetails } from "../store/project/projectSlice";
 import { FieldValues } from "react-hook-form";
 import { addSection, setActiveSection, updateSection } from "../store/section/sectionSlice";
-import { CROSS_SECTIONS_STEP_NUMBER, PIXEL_SIZE_STEP_NUMBER, PROCESSING_STEP_NUMBER, REPORT_STEP_NUMBER, VIDEO_RANGE_STEP_NUMBER } from "../constants/constants";
+import {  MODULE_NUMBER } from "../constants/constants";
 import { setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
 import { onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
 import { OperationCanceledError, UserSelectionError } from "../errors/errors";
@@ -53,14 +53,19 @@ export const useProjectSlice = () => {
         }
     }
 
-
     const onInitProject = async (video: { path: string, name: string, type: string}) => {
         dispatch(setLoading(true));
+
+        const extension = video.name.split('.').pop();
+        if ( extension?.toUpperCase() !== 'MP4'){
+            dispatch(setMessage('We are transforming the video to mp4 format. Please wait a moment.'))
+        }
+
         const ipcRenderer = window.ipcRenderer;
 
         try {
             const  { result, error } = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type });
-            
+
             if ( error ){
                 if (error.type === 'user-cancel-operation') {
                     throw new OperationCanceledError(error.message);
@@ -68,13 +73,12 @@ export const useProjectSlice = () => {
             }
 
             const videoData = {
-                name: video.name,
-                path: filePrefix + video.path,
+                name: result.name,
+                path: filePrefix + result.path,
                 width: result.width,
                 height: result.height,
                 fps: result.fps,
                 creation: result.creation,
-                // blob: blob,
                 duration: result.duration
             }
 
@@ -82,6 +86,7 @@ export const useProjectSlice = () => {
             dispatch(setProjectDirectory(result.directory));
             dispatch(setProjectType(video.type));
             dispatch(setLoading(false));
+            dispatch(clearMessage());
             
         } catch (error) {
             dispatch(setLoading(false));
@@ -133,15 +138,16 @@ export const useProjectSlice = () => {
         const ipcRenderer = window.ipcRenderer
         try {
             const result = await ipcRenderer.invoke('load-project')
+            console.log(result)
             if(result.success){
                 const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results } = result.message
                 dispatch(setProjectDirectory(projectDirectory))
-                dispatch(setProjectType(settings.type)) 
+                dispatch(setProjectType(settings.footage)) 
                 dispatch(setVideoData({
                     width: videoMetadata.width,
                     height: videoMetadata.height,
                     fps: videoMetadata.fps,
-                    path: filePrefix + settings.filepath,
+                    path: filePrefix + settings.video.filepath,
                     duration: videoMetadata.duration,
                     creation: videoMetadata.creation,
                     name: videoMetadata.name,
@@ -189,7 +195,7 @@ export const useProjectSlice = () => {
                         }))
                         
 
-                        return REPORT_STEP_NUMBER
+                        return MODULE_NUMBER.REPORT
                      }
                     return STEP
                 }
@@ -213,20 +219,20 @@ export const useProjectSlice = () => {
                         onLoadProcessingForm(settings.processing, dispatch, updateProcessingForm)
                     }
                     
-                    return PROCESSING_STEP_NUMBER
+                    return MODULE_NUMBER.PROCESSING
 
                 } else if(settings.pixel_size){
                     onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
 
-                    return CROSS_SECTIONS_STEP_NUMBER
+                    return MODULE_NUMBER.CROSS_SECTIONS
 
                 } else if(settings.video_range){
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
 
-                    return PIXEL_SIZE_STEP_NUMBER
+                    return MODULE_NUMBER.PIXEL_SIZE
                 } else {
-                    return VIDEO_RANGE_STEP_NUMBER
+                    return MODULE_NUMBER.VIDEO_RANGE
                 } 
             } else {
                 dispatch(setLoading(false))

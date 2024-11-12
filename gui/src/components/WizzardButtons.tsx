@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next';
 import './components.css';
 import { useWizard } from 'react-use-wizard';
 import { useDataSlice, useSectionSlice } from '../hooks';
-import { ANALIZING_STEP_NUMBER, CROSS_SECTIONS_STEP_NUMBER, PROCESSING_STEP_NUMBER } from '../constants/constants';
+import { MODULE_NUMBER } from '../constants/constants';
 
 type Props = {
   canFollow?: boolean;
@@ -13,23 +13,23 @@ type Props = {
 
 export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClickNext }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep, isLastStep } = useWizard();
-  const { onSetActiveSection } = useSectionSlice()
-  const { onClearQuiver, analizing } = useDataSlice()
+  const { onCleanSection } = useSectionSlice()
+  const { onClearQuiver, isBackendWorking } = useDataSlice()
   const { t } = useTranslation();
 
   const handlePreviuos = () => {
     switch(activeStep){
-      case CROSS_SECTIONS_STEP_NUMBER:
-        onSetActiveSection(0)
+      case MODULE_NUMBER.CROSS_SECTIONS:
+        onCleanSection()
         previousStep()
         break;
       
-      case PROCESSING_STEP_NUMBER:
+      case MODULE_NUMBER.PROCESSING:
         onClearQuiver()
         previousStep()
         break;
 
-      case ANALIZING_STEP_NUMBER:
+      case MODULE_NUMBER.ANALIZING:
         previousStep()
         onClearQuiver()
         break;
@@ -45,14 +45,14 @@ export const WizardButtons = ({ canFollow = true, formId = '', button = false, o
       <button
         className='wizard-button button-1'
         onClick={handlePreviuos}
-        disabled={isFirstStep || analizing}
+        disabled={isFirstStep || isBackendWorking}
       >
         {t('Wizard.back')}
       </button>
 
       <button
         className='wizard-button button-1'
-        disabled={!canFollow || analizing}
+        disabled={!canFollow || isBackendWorking}
         form={formId}
         onClick={onClickNext}
         type={ button ? "button" : "submit"}

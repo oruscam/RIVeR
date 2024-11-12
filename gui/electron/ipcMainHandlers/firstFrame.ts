@@ -9,7 +9,6 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig){
         PROJECT_CONFIG.framesPath = PROJECT_CONFIG.directory + '/frames';
         const {videoPath, framesPath} = PROJECT_CONFIG
 
-
         const options = [
                 'video-to-frames',
                 videoPath,
@@ -20,7 +19,6 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig){
                 '--overwrite'
             ]
         
-
         const json = await fs.promises.readFile(PROJECT_CONFIG.settingsPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
 

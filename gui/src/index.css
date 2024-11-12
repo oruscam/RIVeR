@@ -212,7 +212,7 @@
 }
 
 .form-button{
-  width: 150px;
+  min-width: 200px;
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -302,6 +302,13 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
   margin-right: 25px;
 }
 
+.ms-1{
+  margin-left: 15px;
+}
+
+.ms-2{
+  margin-left: 25px;
+}
 
 .red{
   color: #ED6B57;

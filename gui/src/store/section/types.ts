@@ -86,7 +86,6 @@ interface Section {
     interpolated: boolean;
     sectionPointsRW?: Point[];
     data?: SectionData;
-
 }
 
 interface Processing {

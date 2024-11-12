@@ -1,6 +1,6 @@
 import { useWizard } from "react-use-wizard";
 import { useSectionSlice } from "../hooks"
-import { CROSS_SECTIONS_STEP_NUMBER, PIXEL_SIZE_STEP_NUMBER, PROCESSING_STEP_NUMBER } from "../constants/constants";
+import { MODULE_NUMBER } from "../constants/constants";
 
 interface ButtonLockProps {
     localExtraFields?: boolean;
@@ -18,7 +18,7 @@ export const ButtonLock = ({localExtraFields, localSetExtraFields, footerElement
     
     const handleOnChange = () => {
         switch(activeStep){
-            case CROSS_SECTIONS_STEP_NUMBER:
+            case MODULE_NUMBER.CROSS_SECTIONS:
                 if(extraFields){
                     const header = name + '-' + headerElementID
                     const headerElement = document.getElementById(header)
@@ -36,7 +36,7 @@ export const ButtonLock = ({localExtraFields, localSetExtraFields, footerElement
 
             break;
             
-            case PIXEL_SIZE_STEP_NUMBER:
+            case MODULE_NUMBER.PIXEL_SIZE:
                 if(extraFields){
                     const headerElement = document.getElementById(headerElementID)
                     headerElement?.scrollIntoView({behavior: "smooth"})
@@ -51,7 +51,7 @@ export const ButtonLock = ({localExtraFields, localSetExtraFields, footerElement
 
             break;
 
-            case PROCESSING_STEP_NUMBER:
+            case MODULE_NUMBER.PROCESSING:
                 if(localExtraFields){
                     const headerElement = document.getElementById(headerElementID)
                     headerElement?.scrollIntoView({behavior: "smooth"})

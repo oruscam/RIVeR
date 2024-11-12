@@ -224,6 +224,14 @@
 
 /* Chart Cross Sections */
 
+.loading-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    align-items: center;
+    width: 100%;
+}
 
 .loader{
     border: 10px solid var(--primary-text-color);
@@ -232,6 +240,7 @@
     width: 80px;
     height: 80px;
     animation: spin 1.5s linear infinite;    
+    margin-bottom: 40px;
 }
 
 @keyframes spin {
@@ -364,12 +373,12 @@
     position: relative;
     display: inline-block;
     width: 275px;
-    height: 160px;
+    height: auto;
 }
 
 .img-carousel{
     width: 98%;
-    height: 100%;
+    height: auto;
     border-radius: 20px;
     z-index: 1;
 }

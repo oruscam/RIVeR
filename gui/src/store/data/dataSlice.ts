@@ -18,7 +18,6 @@ const defaultFormProcessing = {
 }
 
 const defaultProcessing = {
-    isBackendWorking: false, // this flag is not used
     form: defaultFormProcessing, 
     parImages: ['', '1', '', '2'],
     maskPath: ''
@@ -30,7 +29,7 @@ const initialState: DataState = {
         paths: [],
         active: 0
     },
-    analizing: false 
+    isBackendWorking: false,
 }
 
 const dataSlice = createSlice({
@@ -44,7 +43,7 @@ const dataSlice = createSlice({
             state.processing.parImages = action.payload
         },
         setBackendWorkingFlag: (state, action: PayloadAction<boolean>) => { 
-            state.analizing = action.payload
+            state.isBackendWorking = action.payload
         },
         setProcessingMask: (state, action: PayloadAction<string>) => {
             state.processing.maskPath = action.payload  + `?t=${new Date().getTime()}`;            
@@ -57,9 +56,6 @@ const dataSlice = createSlice({
         },
         setQuiver: (state, action: PayloadAction<Quiver | undefined>) => {
             state.quiver = action.payload
-        },
-        updateAnalizing: (state, action: PayloadAction<boolean>) => {
-            state.analizing = action.payload
         },
 
     }

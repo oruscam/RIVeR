@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { GREEN, RED, TRANSPARENT_WHITE, WHITE } from '../../constants/constants';
+import { COLORS } from '../../constants/constants';
 import { Point } from '../../types';
 
 /**
@@ -151,7 +151,7 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
 
     svg.append('path')
         .datum(data)
-        .attr('fill', TRANSPARENT_WHITE)
+        .attr('fill', COLORS.TRANSPARENT_WHITE)
         .attr('d', area)
         .attr('clip-path', 'url(#clip-bathymetry)'); // Aplicar clip-path
 
@@ -171,20 +171,20 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
     svg.append('path')
         .datum(data)
         .attr('fill', 'none')
-        .attr('stroke', WHITE)
+        .attr('stroke', COLORS.WHITE)
         .attr('stroke-width', 1.5)
         .attr('d', line);
         
     if (showLeftBank && leftBank && rightBank) {
         svg.append('path')
             .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
-            .attr('fill', RED)
+            .attr('fill', COLORS.RED)
             .attr('transform', `translate(${xScale(leftBank)}, ${yScale(level) - 16})`);
     
 
         svg.append('path')
             .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
-            .attr('fill', GREEN)
+            .attr('fill', COLORS.GREEN)
             .attr('transform', `translate(${xScale(rightBank)}, ${yScale(level) - 16})`);
     }        
 }

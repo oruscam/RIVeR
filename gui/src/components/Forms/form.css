@@ -45,7 +45,7 @@
     text-align: center;
     line-height: 50px;
     border-radius: 20px;
-    width: 150px;
+    width: 200px;
     height: 50px;
     word-wrap: break-word;
     font-size: auto;
@@ -58,6 +58,7 @@
 .bg-transparent{
     background-color: transparent;
     border: none;
+    width: 150px;
 }
 
 .form-video-extra-info{
@@ -171,6 +172,7 @@
     margin-left: 70px;
     align-self: flex-start;
 }
+
 
 .field-title{
     font-weight: 400;
@@ -354,7 +356,6 @@ transform-origin: 14px 22px;
 }
 
 
-
 /* ** Refactor de estilos  a partir de aca */
 
 .form-scroll{
@@ -362,6 +363,12 @@ transform-origin: 14px 22px;
     height: 100%;
     overflow-x: hidden;
     overflow-y: hidden;
+}
+
+.form-scroll.disabled{
+    opacity: 0.5; /* Reduce la opacidad para indicar que está deshabilitado */
+    pointer-events: none; /* Evita la interacción con los elementos dentro del contenedor */
+    cursor: not-allowed; /* Cambia el cursor para indicar que no está permitido */
 }
 
 .form-base-2{
@@ -437,20 +444,20 @@ transform-origin: 14px 22px;
     height: 70%;
     width: 100%;
 }
-
+/* 
 #left-bank-station-label{
     height: auto;
-    word-wrap: break-word; /* Para compatibilidad con navegadores más antiguos */
-    overflow-wrap: break-word; /* Propiedad estándar */
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
     white-space: normal; 
     line-height: 1.1;
     padding-top: 5px;
     padding-bottom: 5px;
-}
+} 
 
 #left-bank-station-input{
     height: 100%;
-} 
+} */
 
 #analize-message{
     font-size: 1.2rem;

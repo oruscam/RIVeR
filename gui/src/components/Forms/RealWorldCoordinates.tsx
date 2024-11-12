@@ -1,14 +1,18 @@
 import { useFormContext } from "react-hook-form";
 import { getPointNames } from "../../helpers/index";
 import { useSectionSlice, useUiSlice } from "../../hooks";
+import { useTranslation } from "react-i18next";
 
 
 
 export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
-    const { pointName1, pointName2 } = getPointNames(modeName);
+    const step = modeName === 'pixel_size' ? 'PixelSize' : 'CrossSections';
+    const { pointName1, pointName2 } = getPointNames(modeName)
     const { register, resetField } = useFormContext()  
     const { onSetRealWorld } = useSectionSlice()
     const { onSetErrorMessage } = useUiSlice()
+
+    const { t } = useTranslation() 
 
 
     const handleInputField = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement> , nextFieldId: string ) => {
@@ -64,7 +68,7 @@ export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
         <h2 className='form-subtitle mt-5 only-one-item' id='REAL_WORLD'> Real World Coordinates </h2>
 
         <div className="input-container-2 mt-2">
-          <label className='read-only red me-1' htmlFor={`EAST_${pointName1}`}> {`East ${pointName1}`}</label>
+          <label className='read-only red me-1' htmlFor={`EAST_${pointName1}`}>{t(`${step}.RealWorld.eastPoint1`)}</label>
           <input  type='number' 
                   step="any" 
                   className='input-field' 
@@ -76,7 +80,7 @@ export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
         </div>
 
         <div className="input-container-2 mt-1">
-          <label className='read-only red me-1' htmlFor={`NORTH_${pointName1}`}> {`North ${pointName1}`}</label>
+          <label className='read-only red me-1' htmlFor={`NORTH_${pointName1}`}> {t(`${step}.RealWorld.northPoint1`)}</label>
           <input  type='number' 
                   step="any" 
                   className='input-field' 
@@ -88,7 +92,7 @@ export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
         </div>
 
         <div className="input-container-2 mt-1">
-          <label className='read-only green me-1' htmlFor={`EAST_${pointName2}`}> {`East ${pointName2}`}</label>
+          <label className='read-only green me-1' htmlFor={`EAST_${pointName2}`}> {t(`${step}.RealWorld.eastPoint2`)}</label>
           <input  type='number' 
                   step="any" 
                   className='input-field' 
@@ -100,7 +104,7 @@ export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
         </div>
         
         <div className="input-container-2 mt-1">
-          <label className='read-only green me-1' htmlFor={`NORTH_${pointName2}`}> {`North ${pointName2}`}</label>
+          <label className='read-only green me-1' htmlFor={`NORTH_${pointName2}`}> {t(`${step}.RealWorld.northPoint2`)}</label>
           <input  type='number' 
                   step="any" 
                   className='input-field' 

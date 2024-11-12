@@ -1,7 +1,6 @@
 import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
 import { executePythonShell } from "./utils/executePythonShell";
-import { FormProcessing } from "../../src/store/data/types";
 import { readResultsPiv } from "./utils/readResultsPiv";
 import * as fs from 'fs' 
 import * as path from 'path'
@@ -10,8 +9,17 @@ import * as path from 'path'
 async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
     ipcMain.handle('get-quiver-test', async (_event, args) => {
         const { framesToTest, formValues } = args
+        const filePrefix = import.meta.env.VITE_FILE_PREFIX
 
-        const options = await createOptions('test', PROJECT_CONFIG, framesToTest, formValues)
+        let frames = []
+
+        if ( filePrefix === '/@fs'){
+            frames = framesToTest.map((frame) => {
+                return frame.replace(filePrefix, '')
+            })
+        }
+
+        const options = await createOptions('test', PROJECT_CONFIG, frames, formValues)
 
         try {
             const result = await executePythonShell(options) as any;
@@ -60,7 +68,7 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
 }
 
 
-async function createOptions(mode: string, PROJECT_CONFIG: ProjectConfig, framesToTest: string[], formValues: FormProcessing) {
+async function createOptions(mode: string, PROJECT_CONFIG: ProjectConfig, framesToTest: string[], formValues: any) {
     const { bboxPath, maskPath, directory, framesPath, settingsPath } = PROJECT_CONFIG;
     const { artificialSeeding, clahe, clipLimit, grayscale, medianTestEpsilon, medianTestFiltering, medianTestThreshold, removeBackground, stdFiltering, stdThreshold, step1, step2,heightRoi } = formValues;
 

@@ -40,11 +40,10 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig ) {
             rwPoints[1].y,
         ]
             
-
         try {
             const { data } = await executePythonShell(options) as any
             await createUavMatrix(data.uav_matrix, directory).then((matrixPath) => {
-                jsonParsed.pixel_size.uav_transformation_matrix = matrixPath;
+                jsonParsed.pixel_size.transformation_matrix = matrixPath;
                 PROJECT_CONFIG.matrixPath = matrixPath;
             }).catch((err) => { console.log(err) });
 
@@ -61,8 +60,7 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig ) {
 
 function createUavMatrix(message: string, directory: string): Promise<string>{
     return new Promise((resolve, reject) => {
-        const matrixPath = path.join(directory, 'uav_transformation_matrix.json')
-
+        const matrixPath = path.join(directory, 'transformation_matrix.json')
 
         fs.promises.writeFile(matrixPath, JSON.stringify(message), 'utf-8').then(() => {
             resolve(matrixPath)

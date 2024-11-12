@@ -15,7 +15,6 @@ interface FormProcessing {
 }
 
 interface Processing {
-    isBackendWorking: boolean;
     form: FormProcessing;
     parImages: string[];
     maskPath: string;
@@ -40,7 +39,7 @@ interface DataState {
     processing: Processing;
     images: Images;
     quiver?: Quiver;
-    analizing: boolean
+    isBackendWorking: boolean,
 }
 
 export type { DataState, Processing, FormProcessing, Quiver }

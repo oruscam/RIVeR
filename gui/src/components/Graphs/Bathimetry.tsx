@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { useSectionSlice, useUiSlice } from '../../hooks';
 import { bathimetrySvg } from './bathimetrySvg';
 import * as d3 from 'd3';
-import { GRAPH_WIDTH_PROPORTION, MIN_GRAPH_WIDTH } from '../../constants/constants';
+import { GRAPHS } from '../../constants/constants';
 
 interface BathimetryProps {
     showLeftBank: boolean;
@@ -20,8 +20,8 @@ export const Bathimetry = ({ showLeftBank, height = 320, drawGrid = true }: Bath
 
     const svgRef = useRef<SVGSVGElement>(null);
     
-    const graphWidth = screenWidth * GRAPH_WIDTH_PROPORTION > MIN_GRAPH_WIDTH ? screenWidth * GRAPH_WIDTH_PROPORTION : MIN_GRAPH_WIDTH;
-
+    const graphWidth = screenWidth * GRAPHS.WIDTH_PROPORTION > GRAPHS.MIN_WIDTH ? screenWidth * GRAPHS.WIDTH_PROPORTION : GRAPHS.MIN_WIDTH;
+    
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
         if ( line ) {

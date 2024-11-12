@@ -63,15 +63,14 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                     if (fs.existsSync(resultsPath)) {
                         PROJECT_CONFIG.resultsPath = resultsPath;
 
-                        
                     } else {
                         console.warn(`Warning: ${resultsPath} does not exist.`);
                     }
 
                     if( settingsParsed.footage === 'uav'){
                         PROJECT_CONFIG.type = 'uav';
-                        if( settingsParsed.pixel_size?.uav_transformation_matrix ){
-                            PROJECT_CONFIG.matrixPath = path.join(folderPath, 'uav_transformation_matrix.json');
+                        if( settingsParsed.pixel_size?.transformation_matrix ){
+                            PROJECT_CONFIG.matrixPath = path.join(folderPath, 'transformation_matrix.json');
                         }   
 
                         if( settingsParsed.xsections ){
@@ -94,7 +93,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
 
 
                         try {
-                            const videoMetadata = await getVideoMetadata(settingsParsed.filepath);
+                            const videoMetadata = await getVideoMetadata(settingsParsed.video.filepath);
                             return {
                                 success: true,
                                 message: {

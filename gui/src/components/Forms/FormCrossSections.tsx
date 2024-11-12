@@ -1,7 +1,8 @@
 import { useFormContext } from "react-hook-form";
-import { useSectionSlice, useUiSlice } from "../../hooks";
+import { useDataSlice, useSectionSlice, useUiSlice } from "../../hooks";
 import { RealWorldCoordinates, PixelCoordinates } from "./index";
 import { Bathimetry } from "../Graphs";
+import { useTranslation } from "react-i18next";
 
 interface FormCrossSectionsProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void;
@@ -14,6 +15,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   const { sections, activeSection, onUpdateSection, onGetBathimetry } = useSectionSlice();
   const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
   const { onSetErrorMessage } = useUiSlice()
+  const { isBackendWorking } = useDataSlice()
+
+  const { t } = useTranslation();
 
   const { yMax, yMin, xMin, x1Intersection, leftBank, xMax } = bathimetry
 
@@ -61,7 +65,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
 
   return (
     <div id="form-section-div" className={activeSection !== index ? "hidden" : ""}>
-      <form className="form-scroll" onSubmit={onSubmit} id="form-cross-section">
+      <form className={`form-scroll ${isBackendWorking ? 'disabled' : ''}`} onSubmit={onSubmit} id="form-cross-section">
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
         <div className="form-base-2 mt-2">
@@ -71,11 +75,11 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               type="button"
               id={`${name}-DRAW_LINE`}
               onClick={() => onUpdateSection({ drawLine: true })}
-            > Draw Line </button>
+            > {t('CrossSections.drawLine')} </button>
             <span className="read-only bg-transparent"></span>
           </div>
           <div className="input-container-2 mt-1">
-            <label className="read-only me-1" htmlFor="CS_LENGTH">CS Length</label>
+            <label className="read-only me-1" htmlFor="CS_LENGTH">{t('CrossSections.csLength')}</label>
             <input
               type="number"
               className="input-field-read-only"
@@ -105,11 +109,11 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`}
               onClick={handleImportBath}
               disabled={pixelSize.rw_length === 0}
-            > Import bath </button>
+            > {t('CrossSections.importBath')} </button>
             <label className="read-only bg-transparent mt-1">{bathimetry.name !== "" ? bathimetry.name : ''}</label>
           </div>
           <div className="input-container-2 mt-1 mb-3">
-            <label className="read-only me-1" htmlFor="LEVEL">Level</label>
+            <label className="read-only me-1" htmlFor="LEVEL">{t('CrossSections.level')}</label>
             <input
               type="number"
               step="any"
@@ -117,7 +121,6 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               {...register(`${name}_LEVEL`, {
                 validate: () => bathimetry.level !== 0
               })}
-              // defaultValue={bathimetryLimits.max}
               id="LEVEL"
               onKeyDown={(event) => handleKeyDownBathLevel(event, 'wizard-next')}
             />
@@ -126,7 +129,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             showLeftBank={true}
           />
           <div className="input-container-2 mt-3 mb-4" id="left-bank-station-container">
-            <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">Left bank station</label>
+            <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">{t('CrossSections.leftBankStation')}</label>
             <input
               type="number"
               className="input-field"

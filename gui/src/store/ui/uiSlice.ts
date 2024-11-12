@@ -10,7 +10,6 @@ const initialState: UIState = {
     error: [],
     isLoading: false,
     seeAll: false,
-
 };
 
 const uiSlice = createSlice({
@@ -35,16 +34,24 @@ const uiSlice = createSlice({
         setSeeAll: (state) => {
             state.seeAll = !state.seeAll;
         },
+        setMessage: (state, action: PayloadAction<string>) => {
+            state.message = action.payload; 
+        },
+        clearMessage: (state) => {
+            state.message = undefined;
+        }
     }
 });
 
 export const {
     changeTheme,
-    setErrorMessage,
     clearErrorMessage,
+    clearMessage,
+    setErrorMessage,
     setLoading,
+    setMessage,
     setScreen,
-    setSeeAll
+    setSeeAll,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

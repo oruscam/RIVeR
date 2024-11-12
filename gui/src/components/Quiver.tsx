@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import './components.css'
 import { useDataSlice } from '../hooks'
-import { QUIVERS_AMPLITUDE_FACTOR } from '../constants/constants';
+import { VECTORS } from '../constants/constants';
 
 interface QuiverProps {
   width: number;
@@ -58,11 +58,11 @@ export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
         .attr('y1', (_d: number, i: number) => y[i] / factor)
         .attr('x2', (_d: number, i: number) => {
           if (isNaN(uTable[i])) return null;
-          return filteredXTable[i] / factor + uTable[i] * QUIVERS_AMPLITUDE_FACTOR;
+          return filteredXTable[i] / factor + uTable[i] * VECTORS.QUIVER_AMPLITUDE_FACTOR;
         })
         .attr('y2', (_d: number, i: number) => {
           if (isNaN(vTable[i])) return null;
-          return y[i] / factor + vTable[i] * QUIVERS_AMPLITUDE_FACTOR;
+          return y[i] / factor + vTable[i] * VECTORS.QUIVER_AMPLITUDE_FACTOR;
         })
         .attr('stroke', '#0678BE')
         .attr('stroke-width', 1.8)

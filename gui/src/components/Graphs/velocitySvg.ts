@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { PERCENTILE_AREA_COLOR, STD_AREA_COLOR, WHITE } from '../../constants/constants';
+import { COLORS } from '../../constants/constants';
 
 interface CreateVelocityChartProps {
     sizes : {
@@ -79,7 +79,7 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
     if( showPercentile ){
         const areaPath = svg.append('path')
             .datum(percentile95)
-            .attr('fill', PERCENTILE_AREA_COLOR)
+            .attr('fill', COLORS.PERCENTILE_AREA)
             .attr('d', areaPercentile);
         
         if( isReport ){
@@ -92,7 +92,7 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
             legendGroup.append('rect')
                 .attr('width', 15)
                 .attr('height', 15)
-                .attr('fill', PERCENTILE_AREA_COLOR);
+                .attr('fill', COLORS.PERCENTILE_AREA);
 
             // Agregar texto al lado del rectángulo
             legendGroup.append('text')
@@ -109,7 +109,7 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
                 .attr('y', 10) // posición inicial
                 .attr('visibility', 'hidden') // oculto por defecto
                 .attr('font-size', '15px')
-                .attr('fill', WHITE);
+                .attr('fill', COLORS.WHITE);
 
             // Agregar eventos de mouseover y mouseout
             areaPath.on('mouseover', function(_event) {
@@ -137,7 +137,7 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
     if( showStd ){
         const areaPath = svg.append('path')
             .datum(plusStd)
-            .attr('fill', STD_AREA_COLOR)
+            .attr('fill', COLORS.STD_AREA)
             .attr('d', areaStd);
         
         if( isReport ){
@@ -154,7 +154,7 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
                 .attr('y', 0)
                 .attr('width', 15)
                 .attr('height', 15)
-                .attr('fill', STD_AREA_COLOR);
+                .attr('fill', COLORS.STD_AREA);
 
             // Agregar texto al lado del rectángulo
 
@@ -173,7 +173,7 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
                 .attr('y', 10) // posición inicial
                 .attr('visibility', 'hidden') // oculto por defecto
                 .attr('font-size', '15px')
-                .attr('fill', WHITE);
+                .attr('fill', COLORS.WHITE);
 
             // Agregar eventos de mouseover y mouseout
             
@@ -199,7 +199,7 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
      svg.append('path')
         .datum(streamwise_magnitude)
         .attr('fill', 'none')
-        .attr('stroke', WHITE)
+        .attr('stroke', COLORS.WHITE)
         .attr('stroke-width', 2)
         .attr('d', line);
 

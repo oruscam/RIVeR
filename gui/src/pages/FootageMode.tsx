@@ -6,7 +6,7 @@ import { useProjectSlice } from '../hooks/index.js';
 import { Icon } from '../components/Icon.js';
 import { useState } from 'react';
 import { OperationCanceledError, UserSelectionError } from '../errors/errors.js';
-import { drone, ipcam, oneshot } from '../assets/icons/icons';
+import { drone, ipcam, oblique } from '../assets/icons/icons';
 import './pages.css';
 
 type Video = {
@@ -62,8 +62,8 @@ export const FootageMode = () => {
                 <button className='button-transparent' onClick={onClickItem} id='uav'>
                     <Icon path={drone}/>
                 </button>
-                <button className='button-transparent' id='oneshot' onClick={onClickItem}>
-                    <Icon path={oneshot}/>
+                <button className='button-transparent' id='oblique' onClick={onClickItem}>
+                    <Icon path={oblique}/>
                 </button>
                 <button className='button-transparent' id='ipcam' onClick={onClickItem}>
                     <Icon path={ipcam}/>

@@ -1,4 +1,4 @@
-import { REPORT_SECTION_VELOCITY_VECTOR_AMPLITUDE_FACTOR, REPORT_SECTION_VELOCITY_VECTOR_HEIGHT, REPORT_SECTION_VELOCITY_VECTOR_RESIZE_FACTOR, REPORT_SECTION_VELOCITY_VECTOR_WIDTH } from "../../constants/constants";
+import { REPORT_SECTION } from "../../constants/constants";
 import { useSectionSlice } from "../../hooks"
 import { AllInOne, VelocityVector } from "../Graphs";
 import { ReportSectionTable } from "./ReportSectionTable";
@@ -30,10 +30,10 @@ export const ReportSection = ({ index }: ReportSectionProps) => {
             <h3 className="mt-2 report-section-title-1"> Alpha: { alpha } </h3>
             <h3 className="mt-1 report-section-title-1 mb-2"> Number of stations: { num_stations } </h3>
             <VelocityVector 
-                width={REPORT_SECTION_VELOCITY_VECTOR_WIDTH} 
-                height={REPORT_SECTION_VELOCITY_VECTOR_HEIGHT} 
-                factor={REPORT_SECTION_VELOCITY_VECTOR_RESIZE_FACTOR}
-                vectorAmplitudeFactor={REPORT_SECTION_VELOCITY_VECTOR_AMPLITUDE_FACTOR}
+                width={REPORT_SECTION.VELOCITY_VECTOR_WIDTH} 
+                height={REPORT_SECTION.VELOCITY_VECTOR_HEIGHT} 
+                factor={REPORT_SECTION.VELOCITY_VECTOR_RESIZE_FACTOR}
+                vectorAmplitudeFactor={REPORT_SECTION.VELOCITY_VECTOR_AMPLITUDE_FACTOR}
                 isReport={true}
                 index={index}
                 />

@@ -8,10 +8,9 @@ export const Analize = () => {
     const { screenSizes } = useUiSlice()
     const { imageWidth: width, imageHeight: height, factor } = screenSizes
     const { nextStep } = useWizard();
-    const { onGetResultData } = useDataSlice()
+    const { onGetResultData, quiver } = useDataSlice()
 
     const [showMedian, setShowMedian] = useState(false)
-
 
     const handleNext = async () => {
         await onGetResultData('all')
@@ -31,7 +30,7 @@ export const Analize = () => {
         <div className="form-container">
             <Progress/>
             <FormAnalizing/>
-            <WizardButtons onClickNext={handleNext}></WizardButtons>
+            <WizardButtons onClickNext={handleNext} canFollow={ quiver !== undefined}></WizardButtons>
         </div>
     </div>
   )

@@ -8,6 +8,7 @@ import { useEffect, useState } from "react"
 import { Section } from "../../store/section/types"
 import { SectionsHeader } from "../SectionsHeader"
 import { ButtonLock } from "../ButtonLock"
+import { useTranslation } from "react-i18next"
 
 
 
@@ -48,6 +49,7 @@ export const CrossSections = () => {
     const [ deletedSections, setDeletedSections] = useState('')
     const methods = useForm({defaultValues: createInitialState(sections)})
     const { nextStep } = useWizard()
+    const { t } = useTranslation()
 
     const unregisterFieldsStartingWith = (prefix: string) => {
         const allValues = methods.getValues(); // Obtiene todos los campos registrados y sus valores
@@ -88,7 +90,7 @@ export const CrossSections = () => {
 
     return (
         <>
-            <SectionsHeader title='Cross Sections'></SectionsHeader>
+            <SectionsHeader title={t('CrossSections.title')}></SectionsHeader>
             <Sections setDeletedSections={setDeletedSections} canEdit={true} ></Sections>
             <FormProvider {...methods}>
             {

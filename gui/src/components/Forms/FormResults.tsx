@@ -2,6 +2,7 @@ import { useFormContext } from "react-hook-form";
 import { useDataSlice, useSectionSlice } from "../../hooks";
 import { AllInOne } from "../Graphs/AllInOne"
 import { Grid } from "../index"
+import { useTranslation } from "react-i18next";
 
 interface FormResultProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void,
@@ -13,6 +14,8 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
   const { name, data, numStations, alpha } = sections[activeSection]
   const { onGetResultData } = useDataSlice();
+
+  const { t } = useTranslation();  
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const id = e.target.id
@@ -69,13 +72,13 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         <div id="result-info">
           <p id="result-number">{data?.total_Q}</p>
           <div>
-            <p id="result-measured"> {data?.measured_Q}% Measured</p>
-            <p> {data?.interpolated_Q}% Interpolated </p>
+            <p id="result-measured"> {data?.measured_Q}% {t('Results.measured')}</p>
+            <p> {data?.interpolated_Q}% {t('Results.interpolated')} </p>
           </div>
         </div>
 
         <div className="input-container mt-2">
-          <label className="read-only me-1" htmlFor="alpha"> Alpha </label>
+          <label className="read-only me-1" htmlFor="alpha"> {t('Results.alpha')} </label>
           <input className="input-field"
             id="alpha"
             type="number"
@@ -94,7 +97,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         <span className="mt-1"></span>
 
         <div className="switch-container-2 mt-2">
-          <h3 className="field-title me-2 mt-3"> Station Number</h3>
+          <h3 className="field-title me-2 mt-3"> {t('Results.stationNumber')}</h3>
           <input className="input-field-little mt-3" type="number" {...register(`${name}_STATIONS_NUMBER`)} id="stations-number"
             onKeyDown={handleOnChangeInput}
             onBlur={handleOnChangeInput}
@@ -102,7 +105,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         </div>
 
         <div className="switch-container-2 mt-1 ">
-          <h3 className="field-title"> Show Vel.std </h3>
+          <h3 className="field-title">{t('Results.showVelStd')}</h3>
           <label className="switch">
             <input type="checkbox" {...register(`${name}_SHOW_VELOCITY_STD`)} defaultChecked={data?.showVelocityStd} onChange={handleOnChange} id="show-velocity-std"/>
             <span className="slider"></span>
@@ -110,7 +113,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         </div>
 
         <div className="switch-container-2 mt-1 ">
-          <h3 className="field-title"> Show 5% | 95% </h3>
+          <h3 className="field-title"> {t('Results.showProfile')} </h3>
           <label className="switch">
             <input type="checkbox" {...register(`${name}_SHOW_PERCENTILE`)} defaultChecked={data?.showPercentile} onChange={handleOnChange} id="show-percentile"/>
             <span className="slider"></span>
@@ -118,7 +121,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         </div>
 
         <div className="switch-container-2 mt-1 ">
-          <h3 className="field-title"> Interpolate profile </h3>
+          <h3 className="field-title">{t('Results.interpolateProfile ')}</h3>
           <label className="switch">
             <input type="checkbox" {...register(`${name}_INTERPOLATED_PROFILE`)} defaultChecked={data?.showInterpolateProfile} id="interpolated-profile" onChange={handleOnChange}/>
             <span className="slider"></span>

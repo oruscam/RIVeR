@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { useSectionSlice } from "../hooks";
-import { DARK_GREY, YELLOW } from '../constants/constants';
+import { COLORS } from '../constants/constants';
 
 // This component renders a section line within an SVG element.
 // It ensures the section line is visible even when embedded in HTML.
@@ -35,7 +35,7 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
         .attr("y1", sectionPoints[0].y / factor)
         .attr("x2", sectionPoints[1].x / factor)
         .attr("y2", sectionPoints[1].y / factor)
-        .attr("stroke", DARK_GREY)
+        .attr("stroke", COLORS.DARK_GREY)
         .attr("stroke-width", 4 / resizeFactor)
         .attr("stroke-linecap", "round")
         .attr("stroke-dasharray", "5,10");
@@ -48,7 +48,7 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
           .attr("y1", dirPoints[0].y / factor)
           .attr("x2", dirPoints[1].x / factor)
           .attr("y2", dirPoints[1].y / factor)
-          .attr("stroke", isReport ? DARK_GREY : YELLOW)
+          .attr("stroke", isReport ? COLORS.DARK_GREY : COLORS.YELLOW)
           .attr("stroke-width", 4 / resizeFactor)
           .attr("stroke-linecap", "round")
       }
@@ -61,7 +61,7 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
         .text(name)
         .attr("font-size", 18)
         .attr("font-weight", 500)
-        .attr("fill", YELLOW);
+        .attr("fill", COLORS.YELLOW);
     }  
 
   }, [factor, resizeFactor, sectionPoints, dirPoints, isReport]);

@@ -1,12 +1,15 @@
 import { useFormContext } from "react-hook-form"
 import { useSectionSlice, useUiSlice } from "../../hooks";
 import { getPointNames } from "../../helpers/index.ts";
+import { useTranslation } from "react-i18next";
 
 
 export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
+    const step = modeName === 'pixel_size' ? 'PixelSize' : 'CrossSections';
     const { register, resetField } = useFormContext();
     const { onSetErrorMessage } = useUiSlice();
     const { onSetDirPoints } = useSectionSlice();
+    const { t } = useTranslation();
     
     const { pointName1, pointName2 } = getPointNames(modeName);
 
@@ -58,10 +61,10 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
 
   return (
     <>
-        <h2 className="form-subtitle mt-2 " id="pixel-coordinates"> Pixel Coordinates </h2>
+        <h2 className="form-subtitle mt-2 only-one-item" id="pixel-coordinates"> {t(`${step}.Pixel.title`)} </h2>
 
         <div className="input-container-2 mt-2">
-            <label className="read-only red me-1" htmlFor={`X_${pointName1}`}> {`X ${pointName1}`} </label>
+            <label className="read-only red me-1" htmlFor={`X_${pointName1}`}> {t(`${step}.Pixel.xPoint1`)} </label>
             <input  type="number"
                     step="any"
                     className="input-field"
@@ -73,7 +76,7 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
         </div>
 
         <div className="input-container-2 mt-1">
-            <label className='read-only red me-1' htmlFor={`Y_${pointName1}`}> {`Y ${pointName1}`}</label>
+            <label className='read-only red me-1' htmlFor={`Y_${pointName1}`}>{t(`${step}.Pixel.yPoint1`)}</label>
             <input  type='number' 
                     step="any" className='input-field' 
                     {...register(`${modeName}_Y_${pointName1}`)} 
@@ -84,7 +87,7 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
         </div>
 
         <div className="input-container-2 mt-1">
-            <label className='read-only green me-1' htmlFor={`X_${pointName2}`}> {`X ${pointName2}`}</label> 
+            <label className='read-only green me-1' htmlFor={`X_${pointName2}`}>{t(`${step}.Pixel.xPoint2`)}</label> 
             <input  type='number' 
                     step="any" className='input-field' 
                     {...register(`${modeName}_X_${pointName2}`)} 
@@ -95,7 +98,7 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
         </div>
 
         <div className="input-container-2 mt-1 mb-2">
-            <label className='read-only green me-1' htmlFor={`Y_${pointName2}`}> {`Y ${pointName2}`}</label>
+            <label className='read-only green me-1' htmlFor={`Y_${pointName2}`}>{t(`${step}.Pixel.yPoint2`)}</label>
             <input  type='number' 
                     step="any" className='input-field' 
                     {...register(`${modeName}_Y_${pointName2}`)} 

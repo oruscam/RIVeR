@@ -5,26 +5,23 @@ import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
 import { Report } from './pages/Report'
-import { useProjectSlice, useSectionSlice } from './hooks'
+import { useProjectSlice } from './hooks'
+import { FOOTAGE_TYPES } from './constants/constants'
 
 export const App: React.FC = () => {
-  const { darkMode, isLoading, onSetScreen, screenSizes } = useUiSlice()
+  const { darkMode, isLoading, onSetScreen } = useUiSlice()
   const { type, video } = useProjectSlice()
   const { data } = video 
 
-  const { sections } = useSectionSlice()
-
-  console.log(sections[1].bathimetry)
-
   const getStep4 = () => {
     switch (type) {
-      case 'uav':
+      case FOOTAGE_TYPES.UAV:
         return <PixelSize/>
 
-      case 'ipcam':
+      case FOOTAGE_TYPES.IPCAM:
         return <ControlPoints/>
       
-      case 'oneshot':
+      case FOOTAGE_TYPES.OBLIQUE:
         return <ControlPoints/>
       
       default:
@@ -53,7 +50,7 @@ export const App: React.FC = () => {
     <div className='App' data-theme={darkMode ? "dark" : "light"}>
       <Wizard>
         {isLoading ? <Loading/> :<HomePage/> }
-        <FootageMode></FootageMode>
+        {isLoading ? <Loading/> : <FootageMode></FootageMode>}
         {isLoading ? <Loading/> : <VideoRange/>}
         {isLoading ? <Loading/> : getStep4()}
         {isLoading ? <Loading/> : <CrossSections/>}

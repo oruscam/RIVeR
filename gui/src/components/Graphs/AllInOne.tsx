@@ -5,7 +5,7 @@ import { useSectionSlice, useUiSlice } from '../../hooks'
 import { createDischargeChart } from './dischargeSvg'
 import { createVelocityChart } from './velocitySvg'
 import { bathimetrySvg } from './bathimetrySvg'
-import { GRAPH_WIDTH_PROPORTION, MIN_GRAPH_WIDTH } from '../../constants/constants'
+import { GRAPHS } from '../../constants/constants'
 
 /**
  * * Version 0.0.1
@@ -21,7 +21,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
     const { screenSizes } = useUiSlice()
     const { width: screenWidth } = screenSizes
 
-    const graphWidth = screenWidth * GRAPH_WIDTH_PROPORTION > MIN_GRAPH_WIDTH ? screenWidth * GRAPH_WIDTH_PROPORTION : MIN_GRAPH_WIDTH
+    const graphWidth = screenWidth * GRAPHS.WIDTH_PROPORTION > GRAPHS.MIN_WIDTH ? screenWidth * GRAPHS.WIDTH_PROPORTION : GRAPHS.MIN_WIDTH
 
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()

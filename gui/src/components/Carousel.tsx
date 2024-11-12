@@ -5,13 +5,12 @@ import 'slick-carousel/slick/slick-theme.css'
 import Slider from 'react-slick'
 import { carouselSettings } from './carouselSettings'
 import { useWizard } from 'react-use-wizard'
-import { ANALIZING_STEP_NUMBER } from '../constants/constants'
+import { MODULE_NUMBER } from '../constants/constants'
 
 export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, setShowMedian?: any}) => {
     const sliderRef = useRef<Slider | null>(null);
-    const { images, onSetActiveImage, processing, quiver} = useDataSlice();
+    const { images, onSetActiveImage, isBackendWorking, quiver} = useDataSlice();
     const { paths, active } = images;
-    const { isBackendWorking } = processing;
     
     const [defaultValue, setDefautValue] = React.useState<string | number>( active + 1 as string | number);
     const [_slideIndex, setSlideIndex] = useState<number>(Number(defaultValue));
@@ -46,16 +45,15 @@ export const Carousel = ({showMedian, setShowMedian} : {showMedian?: boolean, se
         }
     }
 
-
     return (
-        <div className={`carousel-container mt-1 ${activeStep === ANALIZING_STEP_NUMBER && !quiver || isBackendWorking ? 'disabled' : ''}`}>
+        <div className={`carousel-container mt-1 ${activeStep === MODULE_NUMBER.ANALIZING && !quiver || isBackendWorking ? 'disabled' : ''}`}>
             <div className='carousel-info'>                
                 <input value={defaultValue} onChange={handleInputChange} onKeyDown={handleKeyDown} disabled={isBackendWorking}></input>
                 <p> / { paths.length - 1 } </p>
             </div>
             <Slider ref={sliderRef} {...carouselSettings(updateCount, setSlideIndex, setUpdateCount)}>
                 
-                { activeStep === ANALIZING_STEP_NUMBER ? (
+                { activeStep === MODULE_NUMBER.ANALIZING ? (
                     <div className='img-carousel-container' onClick={() => setShowMedian(!showMedian)}>
                         <img src={paths[0]} className={`img-carousel ${showMedian ? 'img-carousel-active': ''}`}></img>
                         <div className='img-water-mark' id='water-mark-median'> Median </div>

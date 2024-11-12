@@ -1,7 +1,7 @@
 import { Line, Text } from 'react-konva';
 import { useWizard } from 'react-use-wizard';
-import { BLACK, DARK_GREY, LIGHT_BLUE, STEP_4, STEP_5, STEP_8, WHITE, YELLOW } from '../constants/constants';
 import { useSectionSlice } from '../hooks';
+import { COLORS, MODULE_NUMBER } from '../constants/constants';
 
 interface LineAndTextProps {
     localPoints?: { x: number; y: number }[];
@@ -22,23 +22,23 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
   let textColor : string = ''
 
   switch (activeStep) {
-    case STEP_4:
-      lineColor = LIGHT_BLUE
-      textColor = WHITE
+    case MODULE_NUMBER.PIXEL_SIZE:
+      lineColor = COLORS.LIGHT_BLUE
+      textColor = COLORS.WHITE
       break;
-    case STEP_5:
-      lineColor = YELLOW
-      textColor = YELLOW
+    case MODULE_NUMBER.CROSS_SECTIONS:
+      lineColor = COLORS.YELLOW
+      textColor = COLORS.YELLOW
       break;
 
-    case STEP_8:
-      lineColor = YELLOW
-      textColor = YELLOW
+    case MODULE_NUMBER.RESULTS:
+      lineColor = COLORS.YELLOW
+      textColor = COLORS.YELLOW
       break;
 
     default:
-      lineColor = DARK_GREY
-      textColor = BLACK
+      lineColor = COLORS.DARK_GREY
+      textColor = COLORS.BLACK
   }
 
   
@@ -48,7 +48,7 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
     return (
       <Line
         points={sectionPoints.flatMap(point => [point.x / factor, point.y / factor])}
-        stroke={DARK_GREY}
+        stroke={COLORS.DARK_GREY}
         strokeWidth={4 / resizeFactor}
         lineCap="round"
         dash={[5, 10]}

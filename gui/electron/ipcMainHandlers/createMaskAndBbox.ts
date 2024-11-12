@@ -25,9 +25,6 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig) {
             matrixPath
         ]
 
-        console.log("create-mask-and-bbox-options")
-        console.log(options)
-
 
         try {
             const { data } = await executePythonShell(options) as { data: { mask: [[]], bbox: [] } }

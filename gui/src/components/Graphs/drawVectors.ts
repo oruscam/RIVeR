@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { BLUE, RED, TRANSPARENT } from "../../constants/constants";
+import { COLORS } from "../../constants/constants";
 
 export const drawVectors = (
     svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
@@ -24,7 +24,7 @@ export const drawVectors = (
                 y0: y[i] / factor,
                 x1: 1,
                 y1: 1,
-                color: TRANSPARENT
+                color: COLORS.TRANSPARENT
             };
         }
 
@@ -33,7 +33,7 @@ export const drawVectors = (
             y0: y[i] / factor,
             x1: (x[i] / factor + displacement_x_streamwise[i] * vectorAmplitudeFactor),
             y1: (y[i] / factor - displacement_y_streamwise[i] * vectorAmplitudeFactor),
-            color: check[i] ? BLUE : interpolated ? RED : TRANSPARENT
+            color: check[i] ? COLORS.BLUE : interpolated ? COLORS.RED : COLORS.TRANSPARENT
         };
     });
 

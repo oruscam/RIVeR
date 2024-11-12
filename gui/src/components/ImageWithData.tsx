@@ -2,7 +2,7 @@ import { useWizard } from "react-use-wizard";
 import { useDataSlice, useUiSlice } from "../hooks"
 import { WindowSizes } from "./WindowSizes";
 import { Quiver } from "./Quiver";
-import { PROCESSING_STEP_NUMBER } from "../constants/constants";
+import { MODULE_NUMBER } from "../constants/constants";
 import { DrawSections } from "./DrawSections";
 import { Layer, Stage } from "react-konva";
 
@@ -29,7 +29,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
           <DrawSections factor={factor} draggable={false} />
 
           {
-            activeStep === PROCESSING_STEP_NUMBER && <WindowSizes width={width} height={height}></WindowSizes>
+            activeStep === MODULE_NUMBER.PROCESSING && <WindowSizes width={width} height={height}></WindowSizes>
           }
         </Layer>
 

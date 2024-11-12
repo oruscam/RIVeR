@@ -13,7 +13,7 @@ import { getNewImageResolution } from "../helpers";
  */
 
 export const useUiSlice = () => {
-    const { darkMode, error, isLoading, seeAll, screenSizes} = useSelector((state: RootState) => state.ui);
+    const { darkMode, error, isLoading, seeAll, screenSizes, message} = useSelector((state: RootState) => state.ui);
     const dispatch = useDispatch();
 
     /**
@@ -99,6 +99,7 @@ export const useUiSlice = () => {
         isLoading,
         seeAll,
         screenSizes,
+        message,
 
         // METHODS
         onChangeTheme,

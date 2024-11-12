@@ -37,7 +37,7 @@ export const carouselSettings = (
         initialSlide: 1,
         infinite: true,
         afterChange: () => setUpdateCount(updateCount + 1),
-        beforeChange: (_current, next) => setSlideIndex(next),
+        beforeChange: (_current: number, next: number) => setSlideIndex(next),
         responsive: [
             {
                 breakpoint: 1180,

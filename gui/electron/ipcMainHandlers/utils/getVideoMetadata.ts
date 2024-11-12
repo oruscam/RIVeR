@@ -4,8 +4,15 @@ const ffmpeg = require('fluent-ffmpeg');
 import { FFProbeData, Metadata } from "../interfaces";
 import path from 'path'
 
+const supportedFormat = 'MP4'
 
-async function getVideoMetadata( videoPath: string): Promise<{ width: number; height: number; fps: number; duration: string, creation: string, name: string }> {
+async function getVideoMetadata( videoPath: string): Promise<{ width: number; height: number; fps: number; duration: string, creation: string, name: string, path: string }> {
+    const extension = path.extname(videoPath).slice(1);
+
+    if ( extension.toUpperCase() !== supportedFormat) {
+        videoPath = await convertToMp4(videoPath);
+    }
+
     try {
         const metadata: Metadata = await new Promise((resolve, reject) => {
             ffmpeg.ffprobe(videoPath, (err: Error, data: FFProbeData): void => {
@@ -13,7 +20,6 @@ async function getVideoMetadata( videoPath: string): Promise<{ width: number; he
                 else resolve(data);
             });
         });
-
 
         const { width, height, r_frame_rate, duration } = metadata.streams[0];
         const { tags } = metadata.format;
@@ -29,15 +35,26 @@ async function getVideoMetadata( videoPath: string): Promise<{ width: number; he
             height: height,
             fps: fps,
             duration: duration,
-            creation: tags.creation_time,
-            name: videoName
+            creation: tags?.creation_time,
+            name: videoName,
+            path: videoPath
         };
 
     } catch (error) {
         console.log(error)
-        throw new Error('Error en la obtención de metadatos del video:');
+        throw new Error('Error en la obtención de metadatos del video:' + error);
     }
 }
 
 
+async function convertToMp4(videoPath: string): Promise<string> {
+    const outputFilePath = videoPath.replace(path.extname(videoPath), '.mp4');
+    return new Promise((resolve, reject) => {
+        ffmpeg(videoPath)
+            .output(outputFilePath)
+            .on('end', () => resolve(outputFilePath))
+            .on('error', (err: Error) => reject('No se pudo convertir el video a mp4'))
+            .run();
+    });
+}
 export { getVideoMetadata }

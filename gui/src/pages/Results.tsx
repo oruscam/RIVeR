@@ -1,4 +1,4 @@
-import { ImageWithData, Progress, Results as ResultsComponent, WizardButtons } from "../components"
+import { Progress, Results as ResultsComponent, WizardButtons } from "../components"
 import { VelocityVector } from "../components/Graphs"
 import { useUiSlice } from "../hooks"
 

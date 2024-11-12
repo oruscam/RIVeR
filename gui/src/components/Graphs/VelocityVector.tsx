@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import './graphs.css'
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks'
 import * as d3 from 'd3'
-import { VECTOR_AMPLITUDE_FACTOR } from '../../constants/constants'
+import { VECTORS } from '../../constants/constants'
 import { SvgSectionLine } from '../SvgSectionLine'
 import { drawVectors } from './index'
 
@@ -15,7 +15,7 @@ interface VelocityVectorProps {
     index?: number;
 }
 
-export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = VECTOR_AMPLITUDE_FACTOR, isReport = false, index }: VelocityVectorProps )  => {
+export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = VECTORS.VELOCITY_AMPLITUDE_FACTOR, isReport = false, index }: VelocityVectorProps )  => {
     const svgRef = useRef<SVGSVGElement>(null)
     const { sections, activeSection } = useSectionSlice();
     const { firstFramePath } = useProjectSlice();

@@ -1,19 +1,20 @@
 import { Line } from "react-konva"
 import { Point } from "../types"
-import { D12_COLOR, D13_COLOR, D14_COLOR, D23_COLOR, D24_COLOR, D34_COLOR } from "../constants/constants"
+import { COLORS } from "../constants/constants"
 
 export const ControlPointsLines = ({ localPoints, resizeFactor }) => {
-    
+    const { D12, D23, D34, D14, D13, D24 } = COLORS.CONTROL_POINTS
+
     const getLineColor = ( index: number ) => {
         switch (index) {
             case 0:
-                return D12_COLOR
+                return D12
             case 1:
-                return D23_COLOR
+                return D23
             case 2:
-                return D34_COLOR
+                return D34
             case 3:
-                return D14_COLOR
+                return D14
                                
             default:
                 return 'black'
@@ -40,12 +41,12 @@ export const ControlPointsLines = ({ localPoints, resizeFactor }) => {
             <Line
                 points={ [localPoints[0].x, localPoints[0].y, localPoints[2].x, localPoints[2].y] }
                 strokeWidth={3 / resizeFactor}
-                stroke={D13_COLOR}
+                stroke={D13}
             />
             <Line
                 points={ [localPoints[1].x, localPoints[1].y, localPoints[3].x, localPoints[3].y] }
                 strokeWidth={3 / resizeFactor}
-                stroke={D24_COLOR}
+                stroke={D24}
             />
         </>
   )

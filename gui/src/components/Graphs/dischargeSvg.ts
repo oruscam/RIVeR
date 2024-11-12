@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { BAR_PADDING, GREEN, RED, YELLOW } from '../../constants/constants';
+import { GRAPHS, COLORS} from '../../constants/constants';
 
 interface CreateDischargeChartProps {
     sizes : {
@@ -26,7 +26,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
     const xScale = d3.scaleBand<number>()
         .domain(distance)
         .range([margin.left, width - margin.right])
-        .padding(BAR_PADDING);
+        .padding(GRAPHS.BAR_PADDING);
 
     const yScale = d3.scaleLinear()
         .domain([d3.min(Q)! > 0 ? 0 : d3.min(Q)!, d3.max(Q)!])
@@ -53,11 +53,11 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
         .attr("width", xScale.bandwidth())
         .attr("fill", (_d, i) => {
             if (QPortion[i] < 0.05) {
-                return GREEN;
+                return COLORS.GREEN;
             } else if (QPortion[i] < 0.1) {
-                return YELLOW;
+                return COLORS.YELLOW;
             } else {
-                return RED;
+                return COLORS.RED;
             }
         });
 
@@ -70,7 +70,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
         legendGroup.append('rect')
             .attr('width', 15)
             .attr('height', 15)
-            .attr('fill', GREEN);
+            .attr('fill', COLORS.GREEN);
         
         legendGroup.append('text')
             .attr('x', 20)
@@ -82,7 +82,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
             .attr('width', 15)
             .attr('height', 15)
             .attr('x', 90)
-            .attr('fill', YELLOW);
+            .attr('fill', COLORS.YELLOW);
         
         legendGroup.append('text')
             .attr('x', 110)
@@ -94,7 +94,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
             .attr('width', 15)
             .attr('height', 15)
             .attr('x', 220)
-            .attr('fill', RED);
+            .attr('fill', COLORS.RED);
         
         legendGroup.append('text')
             .attr('x', 240)

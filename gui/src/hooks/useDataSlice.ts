@@ -15,7 +15,7 @@ import { setSectionData } from "../store/section/sectionSlice";
 
 export const useDataSlice = () => {
     const dispatch = useDispatch();
-    const { processing, images, quiver, analizing } = useSelector((state: RootState) => state.data);
+    const { processing, images, quiver, isBackendWorking } = useSelector((state: RootState) => state.data);
     const { sections, activeSection } = useSelector((state: RootState) => state.section);
     const { video } = useSelector((state: RootState) => state.project);
     
@@ -88,8 +88,7 @@ export const useDataSlice = () => {
         const framesToTest = [paths[active], paths[active + 1]]
 
         try {
-            const { data, error } = await ipcRenderer.invoke('get-quiver-test', {framesToTest: framesToTest, formValues: processing.form})
-
+            const { data, error } = await ipcRenderer.invoke('get-quiver-test', { framesToTest: framesToTest, formValues: processing.form })
 
             if ( error.message ){
                 dispatch(setErrorMessage([error.message]))
@@ -192,7 +191,6 @@ export const useDataSlice = () => {
                     sectionIndex: activeSection,
                     sectionData: {
                         ...data[section.name],
-
                     }
                 }))
             } catch ( error ){
@@ -203,7 +201,6 @@ export const useDataSlice = () => {
 
             try {
                 const { data, error } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
-                console.log(data)
                 sections.map(( section, index ) => {
                     if ( data[section.name] ){
                         dispatch(setSectionData({
@@ -214,7 +211,6 @@ export const useDataSlice = () => {
                         }))
                 }})
 
-                console.log(error)
                 dispatch(setLoading(false))
             } catch (error) {
                 console.log(error)
@@ -231,11 +227,13 @@ export const useDataSlice = () => {
         dispatch(setBackendWorkingFlag(true))
         const ipcRenderer = window.ipcRenderer;
         onClearQuiver()
+        
+        const filePrefix = import.meta.env.VITE_FILE_PREFIX
 
         try {
             const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value })
 
-            dispatch(setProcessingMask(maskPath))
+            dispatch(setProcessingMask(filePrefix + maskPath))
             dispatch(setBackendWorkingFlag(false))
         } catch (error) {
             console.log(error)
@@ -248,11 +246,10 @@ export const useDataSlice = () => {
 
     return {
         // ATRIBUTES]
-        analizing,
+        isBackendWorking,
         images,
         processing,
         quiver,
-
 
         // METHODS
         onSetActiveImage,

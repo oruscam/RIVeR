@@ -1,4 +1,15 @@
 /**
+ * Footage Types
+ */
+
+export const FOOTAGE_TYPES = {
+    IPCAM: 'ipcam',
+    OBLIQUE: 'oneshot',
+    UAV: 'uav'
+}
+
+
+/**
  * Image Width factor
  */
 
@@ -16,86 +27,88 @@ export const DEFAULT_POINTS= [{x: 0, y: 0}, {x: 0, y: 0}]
  * This file contains all the constants used in the front application
  */
 
-export const REPORT_STEP_NUMBER = 8
-export const RESULTS_STEP_NUMBER = 7
-export const ANALIZING_STEP_NUMBER = 6
-export const PROCESSING_STEP_NUMBER = 5
-export const CROSS_SECTIONS_STEP_NUMBER = 4
-export const PIXEL_SIZE_STEP_NUMBER = 3
-export const VIDEO_RANGE_STEP_NUMBER = 2
-
-
-/**
- * Steps in the wizard
- */
-export const STEP_8 = 7
-export const STEP_7 = 6
-export const STEP_6 = 5
-export const STEP_5 = 4
-export const STEP_4 = 3
-export const STEP_3 = 2
-
+export const MODULE_NUMBER = {
+    REPORT: 8,
+    RESULTS: 7,
+    ANALIZING: 6,
+    PROCESSING: 5,
+    CROSS_SECTIONS: 4,
+    PIXEL_SIZE: 3,
+    VIDEO_RANGE: 2
+}
 
 /**
  * Colors
  */
-
-export const RED = '#ED6B57'
-export const GREEN = '#62C655'
-export const YELLOW = '#F5BF61'
-export const BLUE = '#0678BE'
-export const LIGHT_BLUE = '#6CD4FF'
-export const DARK_GREY = '#545454'
-export const WHITE = '#FFFFFF'
-export const BLACK = '#000000'
-export const TRANSPARENT_WHITE = 'rgba(255, 255, 255, 0.5)'
-export const TRANSPARENT = 'transparent'
-
+export const COLORS = {
+    RED: '#ED6B57',
+    GREEN: '#62C655',
+    YELLOW: '#F5BF61',
+    BLUE: '#0678BE',
+    LIGHT_BLUE: '#6CD4FF',
+    DARK_GREY: '#545454',
+    WHITE: '#FFFFFF',
+    BLACK: '#000000',
+    TRANSPARENT_WHITE: '#FFFFFF80', // 50% opacity 
+    TRANSPARENT: '#00000000', // fully transparent 
+    PERCENTILE_AREA: '#ED6B5740', 
+    STD_AREA: '#3396BF40', 
+    CONTROL_POINTS: {
+        D12: '#6CD4FF',
+        D13: '#CC4BC2',
+        D14: '#F5BF61',
+        D23: '#62C655',
+        D24: '#7765E3',
+        D34: '#ED6B57',
+    }
+}
 
 /**
  * Constants for GRAPHS
  */
-
-export const PERCENTILE_AREA_COLOR = 'rgba(237, 107, 87, 40%)'
-export const STD_AREA_COLOR = 'rgba(51, 150, 191, 40%)'
-export const BAR_PADDING = 0.4
-export const GRAPH_WIDTH_PROPORTION = 0.22
-export const MIN_GRAPH_WIDTH = 375
+export const GRAPHS = {
+    BAR_PADDING: 0.4,
+    WIDTH_PROPORTION: 0.22,
+    MIN_WIDTH: 375
+}
 
 /**
  * Quiver y Velocity Vectoy
  */
-
-export const VECTOR_AMPLITUDE_FACTOR = 2
-export const QUIVERS_AMPLITUDE_FACTOR = 20
+export const VECTORS = {
+    VELOCITY_AMPLITUDE_FACTOR: 2,
+    QUIVER_AMPLITUDE_FACTOR: 20
+}
 
 /**
  * Constants for marks
  */
 
-export const MARKS_WIDTH = 40
-export const MARKS_HEIGHT = 40
-export const MARKS_OFFSET_X = 20
-export const MARKS_OFFSET_Y = 39
-export const MARKS_NUMBER_OFFSET_X = 4
-export const MARKS_NUMBER_OFFSET_Y = 35
+export const MARKS = {
+    WIDTH: 40,
+    HEIGHT: 40,
+    OFFSET_X: 20,
+    OFFSET_Y: 39,
+    NUMBER_OFFSET_X: 4,
+    NUMBER_OFFSET_Y: 35
+}
 
 /**
  * Velocity Vector Section Report Sizes
  */
 
-export const REPORT_SECTION_VELOCITY_VECTOR_WIDTH = 400
-export const REPORT_SECTION_VELOCITY_VECTOR_HEIGHT = 225
-export const REPORT_SECTION_VELOCITY_VECTOR_RESIZE_FACTOR = 4.8
-export const REPORT_SECTION_VELOCITY_VECTOR_AMPLITUDE_FACTOR = 0.9 
+export const REPORT_SECTION = {
+    VELOCITY_VECTOR_WIDTH: 400,
+    VELOCITY_VECTOR_HEIGHT: 225,
+    VELOCITY_VECTOR_RESIZE_FACTOR: 4.8,
+    VELOCITY_VECTOR_AMPLITUDE_FACTOR: 0.9
+}
 
-/**
- * Distances colors for control points
- */
+export const WINDOW_SIZES = {
+    BIG: 512,
+    MEDIUM: 256,
+    SMALL: 128,
+    TINY: 64
+}
 
-export const D12_COLOR = '#6CD4FF'
-export const D13_COLOR = '#CC4BC2'
-export const D14_COLOR = '#F5BF61'
-export const D23_COLOR = '#62C655'
-export const D24_COLOR = '#7765E3'
-export const D34_COLOR = '#ED6B57'
+

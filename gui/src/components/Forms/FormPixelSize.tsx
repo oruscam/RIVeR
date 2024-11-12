@@ -5,7 +5,6 @@ import { useSectionSlice, useUiSlice } from '../../hooks'
 import { PixelCoordinates, RealWorldCoordinates } from './index'
 import { BaseSyntheticEvent } from 'react'
 
-
 interface FormPixelSizeProps {
   onSubmit: (e?: BaseSyntheticEvent<object, any, any> | undefined) => Promise<void>,
   onError: (error: FieldValues) => void,
@@ -15,17 +14,16 @@ export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
     const { t } = useTranslation()
     const {sections, onUpdateSection} = useSectionSlice()
     const { extraFields } = sections[0]
-    
+  
     const { register} = useFormContext()
 
     const { onSetErrorMessage } = useUiSlice()
-
 
     const handleLineLengthInput = ( event: React.KeyboardEvent<HTMLInputElement> |  React.FocusEvent<HTMLInputElement>  ) => {
       if( ((event as React.KeyboardEvent<HTMLInputElement>).key  === 'Enter' || event.type === 'blur')){
         event.preventDefault()
         const value = parseFloat(event.currentTarget.value)
-        if( value > 0) {
+        if ( value > 0) {
           onUpdateSection({lineLength: value})
         } else {
           const error = {
@@ -36,7 +34,6 @@ export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
           }
           onSetErrorMessage(error)
         }
-        
         (event.target as HTMLInputElement).blur()
       }
     }
@@ -49,7 +46,6 @@ export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
       }
     }
   
-
   return (
     <>
       <h2 className='form-title'> {t('PixelSize.title')}</h2>
@@ -61,7 +57,6 @@ export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
               <button className={`wizard-button form-button me-1 ${sections[0].drawLine ? "wizard-button-active" : ""}`} onClick={() => onUpdateSection({drawLine: true})} type='button'>{t("PixelSize.drawLine")}</button>
               <span className='read-only bg-transparent'></span>
             </div>
-            {/* <InfoPixelSize animation={'click-drag-drop'}></InfoPixelSize> */}
             
               <div className='input-container-2 mt-2'>
                 <label className='read-only me-1'>{t("PixelSize.lineLength")}</label>
