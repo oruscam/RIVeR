@@ -117,10 +117,9 @@ def oblique_view_transformation_matrix(
 	d41: float,
 	d13: float,
 	d24: float,
-):
+) -> np.ndarray:
 	"""
-	Compute the homography transformation matrix based on pixel coordinates and
-	real-world distances.
+	Compute the homography transformation matrix based on pixel coordinates and real-world distances.
 
 	Parameters:
 	    x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix: float
