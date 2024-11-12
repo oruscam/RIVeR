@@ -976,7 +976,7 @@ def update_current_x_section(
 	)
 
 	# Add depth information to the table results
-	table_results = add_depth(table_results, shifted_stations, stages, level)
+	table_results = add_depth(table_results, shifted_stations, filtered_stages, level)
 
 	# Check if 'check' exists and has the correct length; otherwise, update 'table_results'
 	if "check" not in x_sections[current_x_section] or len(x_sections[current_x_section]["check"]) != num_stations:
