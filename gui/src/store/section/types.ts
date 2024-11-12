@@ -37,7 +37,7 @@ interface SectionData {
     streamwise_north?: number[];
     crosswise_east?: number[];
     crosswise_north?: number[];
-    streamwise_magnitude: number[];
+    streamwise_velocity_magnitude: number[];
     depth: number[];
     check: boolean[];
     W?: number[];
@@ -70,6 +70,8 @@ interface SectionData {
     showVelocityStd: boolean;
     showPercentile: boolean;
     showInterpolateProfile: boolean;
+    streamwise_x: number[];
+    streamwise_y: number[];
 }
 
 interface Section {

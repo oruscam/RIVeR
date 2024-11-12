@@ -201,6 +201,7 @@ export const useDataSlice = () => {
 
             try {
                 const { data, error } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                console.log(data)
                 sections.map(( section, index ) => {
                     if ( data[section.name] ){
                         dispatch(setSectionData({

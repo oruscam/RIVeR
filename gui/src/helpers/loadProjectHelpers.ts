@@ -66,7 +66,7 @@ export const onLoadCrossSections = (values: XSections, dispatch: any, updateSect
     Object.entries(values).forEach( async ([key, value]: [string, XSectionValue]) => {
         const { rw_length, xl, xr, yl, yr, dir_xl, dir_yl, dir_xr, dir_yr, dir_east_l, dir_east_r, dir_north_l, dir_north_r, bath, level, left_station, alpha, num_stations } = value
         
-        const { id, east, north, distance, x, y, displacement_x, displacement_y, displacement_east, displacement_north, streamwise_east, streamwise_north, crosswise_east, crosswise_north, streamwise_magnitude, depth, check, W, A, Q, Q_portion, minus_std, plus_std, total_Q, measured_Q, interpolated_Q, total_A, total_W, max_depth, average_depth, mean_V, mean_Vs, displacement_x_streamwise, displacement_y_streamwise, filled_streamwise_magnitude, filled_crosswise_east, filled_crosswise_north, filled_streamwise_east, filled_streamwise_north, Q_minus_std, Q_plus_std, total_q_std, showPercentile, showVelocityStd, interpolated } = value
+        const { id, east, north, distance, x, y, displacement_x, displacement_y, displacement_east, displacement_north, streamwise_east, streamwise_north, crosswise_east, crosswise_north, streamwise_velocity_magnitude, depth, check, W, A, Q, Q_portion, minus_std, plus_std, total_Q, measured_Q, interpolated_Q, total_A, total_W, max_depth, average_depth, mean_V, mean_Vs, displacement_x_streamwise, displacement_y_streamwise, filled_streamwise_magnitude, filled_crosswise_east, filled_crosswise_north, filled_streamwise_east, filled_streamwise_north, Q_minus_std, Q_plus_std, total_q_std, showPercentile, showVelocityStd, interpolated, streamwise_x, streamwise_y } = value
         
         let data = undefined
         
@@ -89,7 +89,9 @@ export const onLoadCrossSections = (values: XSections, dispatch: any, updateSect
                 streamwise_north: streamwise_north,
                 crosswise_east: crosswise_east,
                 crosswise_north: crosswise_north,
-                streamwise_magnitude: streamwise_magnitude,
+                streamwise_velocity_magnitude: streamwise_velocity_magnitude,
+                streamwise_x: streamwise_x,
+                streamwise_y: streamwise_y,
                 depth: depth,
                 check: check,
                 W: W,
@@ -273,7 +275,7 @@ interface XSectionValue {
     streamwise_north: number[],
     crosswise_east: number[],
     crosswise_north: number[],
-    streamwise_magnitude: number[],
+    streamwise_velocity_magnitude: number[],
     depth: number[],
     check: boolean[],
     W: number[],
@@ -305,7 +307,9 @@ interface XSectionValue {
     total_q_std: number,
     interpolated: boolean,
     showVelocityStd: boolean,
-    showPercentile: boolean
+    showPercentile: boolean,
+    streamwise_x: number[],
+    streamwise_y: number[]
 }
 
 interface XSections {

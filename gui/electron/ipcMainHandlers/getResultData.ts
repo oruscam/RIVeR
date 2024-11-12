@@ -97,6 +97,8 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig){
                 const { data, error } = parsedData
                 
 
+                console.log(data)
+
                 for (const sectionKey in data) {
                     const sectionIndex = Object.keys(data).indexOf(sectionKey);
                     if ( sectionIndex === i ){
@@ -144,7 +146,7 @@ const transformData = (data: any): Record<string, SectionData> => {
             streamwise_north: section.streamwise_north,
             crosswise_east: section.crosswise_east,
             crosswise_north: section.crosswise_north,
-            streamwise_magnitude: section.streamwise_magnitude,
+            streamwise_velocity_magnitude: section.streamwise_velocity_magnitude,
             depth: section.depth,
             check: section.check,
             W: section.W,
@@ -177,6 +179,8 @@ const transformData = (data: any): Record<string, SectionData> => {
             interpolated: section.interpolated,
             showVelocityStd: section.showVelocityStd,   
             showPercentile: section.showPercentile,
+            streamwise_x: section.streamwise_x,
+            streamwise_y: section.streamwise_y,
         };
     }
 

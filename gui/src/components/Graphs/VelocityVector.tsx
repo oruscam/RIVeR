@@ -22,7 +22,6 @@ export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = 
     const { seeAll } = useUiSlice();
     const { data } = sections[activeSection];
 
-
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
         const svg = d3.select(svgRef.current as SVGSVGElement);
@@ -33,7 +32,7 @@ export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = 
         if (!isReport) {
             sections.forEach((section, sectionIndex) => {
                 if (sectionIndex === 0) return;
-                console.log(activeSection, sectionIndex)
+
                 if (seeAll && activeSection !== sectionIndex) return;
 
                 const { data, interpolated } = section;

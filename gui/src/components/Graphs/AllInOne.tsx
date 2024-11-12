@@ -35,11 +35,12 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 const graphHeight = (height) / 3
                 
 
-                const { distance, streamwise_magnitude, plus_std, minus_std, percentile_95th, percentile_5th, Q, Q_portion, show95Percentile, showVelocityStd } = data
+                const { distance, streamwise_velocity_magnitude, plus_std, minus_std, percentile_95th, percentile_5th, Q, Q_portion, show95Percentile, showVelocityStd } = data
 
+                console.log(data)
                 // Filter null values
 
-                const filteredStreamwiseMagnitude = streamwise_magnitude.filter(d => d !== null).map(Number);
+                const filteredStreamwiseMagnitude = streamwise_velocity_magnitude.filter(d => d !== null).map(Number);
                 const filteredPlusStd = plus_std.filter(d => d !== null);
                 const filteredMinusStd = minus_std.filter(d => d !== null);
                 const filteredPercentile_95th = percentile_95th.filter(d => d !== null);
@@ -90,7 +91,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 const makeXGridlines = () => d3.axisBottom(xScale).ticks(5);
                 const makeYGridlines = () => d3.axisLeft(yScaleGrid).ticks(8);
 
-                // Add xGrid
+                // Add xGrid    
 
                 svg.append('g')
                     .attr('class', 'grid')

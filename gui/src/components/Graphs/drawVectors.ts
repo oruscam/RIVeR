@@ -8,17 +8,17 @@ export const drawVectors = (
     vectorAmplitudeFactor: number,
     sectionIndex: number,
     interpolated: boolean,
-    data: { x: number[], y: number[], displacement_x_streamwise: number[], displacement_y_streamwise: number[], check: boolean[] },
+    data: { x: number[], y: number[], streamwise_x: number[], streamwise_y: number[], check: boolean[] },
     isReport: boolean
 ) => {
-    const { x, y, displacement_x_streamwise, displacement_y_streamwise, check } = data;
+    const { x, y, streamwise_x, streamwise_y, check } = data;
 
     console.log(vectorAmplitudeFactor)
 
-    if (!x || !y || !displacement_x_streamwise || !displacement_y_streamwise || !check) return;
+    if (!x || !y || !streamwise_x || !streamwise_y || !check) return;
 
     const vectors = d3.range(x.length).map(i => {
-        if (displacement_x_streamwise[i] === null || displacement_y_streamwise[i] === null || x[i] === null || y[i] === null) {
+        if (streamwise_x[i] === null || streamwise_y[i] === null || x[i] === null || y[i] === null) {
             return {
                 x0: x[i] / factor,
                 y0: y[i] / factor,
@@ -31,8 +31,8 @@ export const drawVectors = (
         return {
             x0: x[i] / factor,
             y0: y[i] / factor,
-            x1: (x[i] / factor + displacement_x_streamwise[i] * vectorAmplitudeFactor),
-            y1: (y[i] / factor - displacement_y_streamwise[i] * vectorAmplitudeFactor),
+            x1: (x[i] / factor + streamwise_x[i] * vectorAmplitudeFactor * 30),
+            y1: (y[i] / factor + streamwise_y[i] * vectorAmplitudeFactor * 30),
             color: check[i] ? COLORS.BLUE : interpolated ? COLORS.RED : COLORS.TRANSPARENT
         };
     });

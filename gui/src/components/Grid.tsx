@@ -49,7 +49,7 @@ export const Grid = () => {
     const rows = useMemo(() => {
         const section = sections[activeSection];
         if (section && section.data) {
-            const { num_stations, distance, depth, streamwise_magnitude, Q, A, check } = section.data;
+            const { num_stations, distance, depth, streamwise_velocity_magnitude, Q, A, check } = section.data;
 
 
             return Array.from({ length: num_stations }, (_, i) => ({
@@ -58,8 +58,8 @@ export const Grid = () => {
                 x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
                 d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
                 A: typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
-                Vs: typeof streamwise_magnitude[i] === 'number' ? 
-                    (check[i] || interpolated ? streamwise_magnitude[i].toFixed(2) : '-') : '-',
+                Vs: typeof streamwise_velocity_magnitude[i] === 'number' ? 
+                    (check[i] || interpolated ? streamwise_velocity_magnitude[i].toFixed(2) : '-') : '-',
                 Q: typeof Q[i] === 'number' ? 
                     (check[i] || interpolated ? Q[i].toFixed(2) : '-') : '-'
             }));
