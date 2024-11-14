@@ -82,6 +82,9 @@ def calculate_station_coordinates(
 	# Adjust the stations array by subtracting the left_station
 	shifted_stations = filtered_stations - left_station
 
+	#Must start from 0
+	shifted_stations = shifted_stations - shifted_stations[0]
+
 	# Calculate the total distance between the two points
 	total_distance = np.linalg.norm([east_r - east_l, north_r - north_l])
 
