@@ -332,7 +332,7 @@ transform-origin: 14px 22px;
     display: flex;
     align-self: flex-start;
     margin-bottom: 30px;
-    margin-left: 20px;
+    padding-left: 60px;
 }
 
 #result-info #result-number{

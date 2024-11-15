@@ -13,6 +13,7 @@ interface Bathimetry {
     yMin?: number;
     yMax?: number;
     x1Intersection?: number;
+    x2Intersection?: number;
 }
 
 interface PixelSize {
@@ -72,6 +73,7 @@ interface SectionData {
     showInterpolateProfile: boolean;
     streamwise_x: number[];
     streamwise_y: number[];
+    
 }
 
 interface Section {

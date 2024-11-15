@@ -12,7 +12,7 @@ export const ReportSectionTable = ({ data } : { data : SectionData}) => {
         distance: data.distance.slice(0, half),
         depth: data.depth.slice(0, half),
         A: data.A.slice(0, half),
-        streamwise_magnitude: data.streamwise_magnitude.slice(0, half),
+        streamwise_magnitude: data.streamwise_velocity_magnitude.slice(0, half),
         Q: data.Q.slice(0, half)
     }
     const secondHalf = {
@@ -20,7 +20,7 @@ export const ReportSectionTable = ({ data } : { data : SectionData}) => {
         distance: data.distance.slice(half),
         depth: data.depth.slice(half),
         A: data.A.slice(half),
-        streamwise_magnitude: data.streamwise_magnitude.slice(half),
+        streamwise_magnitude: data.streamwise_velocity_magnitude.slice(half),
         Q: data.Q.slice(half)
     }
 

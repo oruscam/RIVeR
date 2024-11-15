@@ -77,6 +77,11 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig){
 
         const { step, fps, numSections } = args 
         
+        console.log('numSections',numSections)
+
+        let finalData = null;
+        let finalError = null;
+        
         for (let i = 0; i < numSections; i++) {
             const options = [
                 'update-xsection',
@@ -89,38 +94,43 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig){
                 xSections,
                 pivResults,
                 transformationMatrix,
-            ]
-
+            ];
+        
+            console.log('i', i);
+        
             try {
-                const result = await executePythonShell2(options) as any
-                const parsedData = JSON.parse(result.replace(/\bNaN\b/g, "null")) ;
-                const { data, error } = parsedData
-                
-
-                console.log(data)
-
+                const result = await executePythonShell2(options) as any;
+                const parsedData = JSON.parse(result.replace(/\bNaN\b/g, "null"));
+                const { data, error } = parsedData;
+        
+                console.log(data);
+        
                 for (const sectionKey in data) {
                     const sectionIndex = Object.keys(data).indexOf(sectionKey);
-                    if ( sectionIndex === i ){
+                    if (sectionIndex === i) {
                         const section = data[sectionKey];
-                        updatedSections[sectionKey] = section
-                        xSectionsFileParsed[sectionKey] = section
-                        xSectionsFileParsed[sectionKey].interpolated = true
-                        xSectionsFileParsed[sectionKey].showVelocityStd = true
-                        xSectionsFileParsed[sectionKey].showPercentile = true
-
+                        updatedSections[sectionKey] = section;
+                        xSectionsFileParsed[sectionKey] = section;
+                        xSectionsFileParsed[sectionKey].interpolated = true;
+                        xSectionsFileParsed[sectionKey].showVelocityStd = true;
+                        xSectionsFileParsed[sectionKey].showPercentile = true;
+                        xSectionsFileParsed.summary = data.summary;
                     }
                 }
-                await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
-                return { 
-                    data: transformData(updatedSections),
-                    error
-                }
+                await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2), 'utf-8');
+                finalData = transformData(updatedSections);
+                finalData.summary = xSectionsFileParsed.summary;
+                finalError = error;
             } catch (error) {
-                console.log(error)
-                throw error
+                console.log(error);
+                throw error;
             }
         }
+        
+        return { 
+            data: finalData,
+            error: finalError
+        };
     })
 }
 
@@ -131,7 +141,7 @@ const transformData = (data: any): Record<string, SectionData> => {
         const section = data[key];
         result[key] = {
             num_stations: section.num_stations,
-            alpha: parseFloat(section.alpha.toFixed(2)),
+            alpha: parseFloat(section.alpha?.toFixed(2)),
             id: section.id,
             east: section.east,
             north: section.north,
@@ -157,11 +167,11 @@ const transformData = (data: any): Record<string, SectionData> => {
             plus_std: section.plus_std,
             percentile_5th: section['5th_percentile'],
             percentile_95th: section['95th_percentile'],
-            total_Q: parseFloat(section.total_Q.toFixed(2)),
-            measured_Q: parseFloat(section.measured_Q.toFixed(2)),
-            interpolated_Q: parseFloat(section.interpolated_Q.toFixed(2)),
-            total_A: parseFloat(section.total_A.toFixed(2)),
-            total_W: parseFloat(section.total_W.toFixed(2)),
+            total_Q: parseFloat(section.total_Q?.toFixed(2)),
+            measured_Q: parseFloat(section.measured_Q?.toFixed(2)),
+            interpolated_Q: parseFloat(section.interpolated_Q?.toFixed(2)),
+            total_A: parseFloat(section.total_A?.toFixed(2)),
+            total_W: parseFloat(section.total_W?.toFixed(2)),
             max_depth: section.max_depth,
             average_depth: section.average_depth,
             mean_V: section.mean_V,

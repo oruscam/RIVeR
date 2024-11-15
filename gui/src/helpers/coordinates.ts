@@ -17,8 +17,10 @@ export const computePixelSize = (pixelPoints: Point[], rwPoints: Point[]): { siz
     const pixelDistance = getDistanceBetweenPoints(pixelPoints);
     const rwDistance = getDistanceBetweenPoints(rwPoints);
 
-    const pSize = Number((rwDistance / pixelDistance).toFixed(2))
-    const lineLength = Number(rwDistance.toFixed(2))
+    const pixelSize = rwDistance / pixelDistance
+    const lineLength = rwDistance
 
-    return { size: pSize, rw_length: lineLength };
+    console.log(lineLength, pixelSize)
+
+    return { size: pixelSize, rw_length: lineLength };
 }

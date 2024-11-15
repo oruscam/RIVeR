@@ -9,9 +9,12 @@ import { getDirectionVector} from "./getDirectionVector";
 import { getBathimetryValues, getIntersectionPoints } from "./getBathimetryValues";
 import { adapterCrossSections  } from "./adapterCrossSections";
 import { imageZoom, onMouseDownPixelSize, onMouseUpPixelSize, getRelativePointerPosition } from "./konvaActions";
+import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks } from "./graphsHelpers";
 
 export {
+    adapterBathimetry,
     adapterCrossSections,
+    adapterData,
     adaptStringDate,
     computePixelSize,
     dateToStringDate,
@@ -30,4 +33,6 @@ export {
     onMouseUpPixelSize,
     recortStringDate,
     stringDateToDate,
+    generateXAxisTicks,
+    generateYAxisTicks
 }

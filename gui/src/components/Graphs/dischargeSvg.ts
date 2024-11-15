@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import { GRAPHS, COLORS} from '../../constants/constants';
+import { generateYAxisTicks } from '../../helpers';
 
 interface CreateDischargeChartProps {
     sizes : {
@@ -17,46 +18,69 @@ interface CreateDischargeChartProps {
     distance: number[],
     Q: number[],
     QPortion: number[],
-    isReport?: boolean
+    isReport?: boolean,
+    xScale: d3.ScaleLinear<number, number>,
 }
-export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes, isReport = false} : CreateDischargeChartProps) => {
+
+
+export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes, isReport = false, xScale} : CreateDischargeChartProps) => {
     const svg = d3.select(SVGElement);
     const { width, margin, graphHeight } = sizes;
 
-    const xScale = d3.scaleBand<number>()
-        .domain(distance)
-        .range([margin.left, width - margin.right])
-        .padding(GRAPHS.BAR_PADDING);
+    const bandwidth = ((width - margin.left -40 - margin.right) / distance.length) - GRAPHS.BAR_PADDING;
 
     const yScale = d3.scaleLinear()
         .domain([d3.min(Q)! > 0 ? 0 : d3.min(Q)!, d3.max(Q)!])
-        .range([graphHeight + (isReport ? -15 : -60), margin.top + (isReport ? 25 : 0)]);
+        .range([graphHeight + (isReport ? -15 : -50), margin.top + (isReport ? 25 : 10)]);
+    
+    // Create and add Y ticks
+
+    const ticks = generateYAxisTicks(Q);
     
     const yAxis = d3.axisLeft(yScale)
-        .ticks(5)
-        .tickPadding(4);
-    
+        .tickValues(ticks)
+
     svg.append('g')
         .attr('class', 'y-axis y-axis-1')
-        .attr('transform', `translate(${margin.left},0)`)
-        .call(yAxis);
+        .attr('transform', `translate(${margin.left + 10},0)`)
+        .call(yAxis)
+        .selectAll('.tick text')
+        .style('font-size', '14px')
 
+    // Create and add Y gridlines
+
+    const makeYGridlines = () => d3.axisLeft(yScale).tickValues(ticks);
+
+    svg.append('g')
+    .attr('class', 'grid')
+    .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET},0)`)
+    .call(makeYGridlines()
+        .tickSize(-width + margin.left + margin.right)
+        .tickFormat('' as any))
+    .attr('stroke', 'grey')
+    .attr('stroke-width', 0.05);
+
+
+        
     // Append Bars
     svg.selectAll(".bar")
         .data(Q)
         .enter()
         .append("rect")
         .attr("class", "bar")
-        .attr("x", (_d, i) => xScale(distance[i])!)
+        .attr("x", (_d, i) => xScale(distance[i]) - bandwidth / 2) // Ajustar la posición de las barras
         .attr("y", d => yScale(Math.max(0, d))) // Ajustar para valores negativos
         .attr("height", d => Math.abs(yScale(d) - yScale(0))) // Ajustar la altura de las barras
-        .attr("width", xScale.bandwidth())
+        .attr("width", bandwidth) // Ajustar el ancho de las barras
         .attr("fill", (_d, i) => {
+            if (QPortion[i] === 0) {
+                return COLORS.BLUE;
+            }else {
             if (QPortion[i] < 0.05) {
                 return COLORS.GREEN;
             } else if (QPortion[i] < 0.1) {
                 return COLORS.YELLOW;
-            } else {
+            } 
                 return COLORS.RED;
             }
         });
@@ -107,11 +131,11 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
             .on("mouseover", (event, d) => {
                 svg.append("text")
                     .attr("class", "tooltip")
-                    .attr("x", parseFloat(d3.select(event.currentTarget).attr("x")) + xScale.bandwidth() / 2)
-                    .attr("y", parseFloat(d3.select(event.currentTarget).attr("y")) - 5)
+                    .attr("x", parseFloat(d3.select(event.currentTarget).attr("x")) + bandwidth / 2)
+                    .attr("y", parseFloat(d3.select(event.currentTarget).attr("y")) - 10)
                     .attr("text-anchor", "middle")
                     .attr("fill", "white")
-                    .text(d.toFixed(2));
+                    .text((d as number).toFixed(2));
             })
             .on("mouseout", () => {
                 svg.selectAll(".tooltip").remove();
@@ -122,10 +146,10 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
     svg.append('text')
         .attr('class', 'y-axis-label')
         .attr('text-anchor', 'middle')
-        .attr('x', -graphHeight + (isReport ? 80 : 110))
+        .attr('x', -graphHeight + (isReport ? 80 : 130))
         .attr('y', margin.left - 35)
         .attr('transform', 'rotate(-90)')
         .attr('fill', 'white')
-        .attr('font-size', '20px')
+        .attr('font-size', '22px')
         .text('Discharge');
 };

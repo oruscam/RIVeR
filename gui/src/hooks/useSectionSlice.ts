@@ -425,7 +425,7 @@ export const useSectionSlice = () => {
 
             const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x 
             
-            dispatch(setBathimetry({...section.bathimetry, level: value.level, width: bathWidth, x1Intersection: intersectionPoints[0].x}))
+            dispatch(setBathimetry({...section.bathimetry, level: value.level, width: bathWidth, x1Intersection: intersectionPoints[0].x, x2Intersection: intersectionPoints[1].x}))
             
             onUpdateSectionPoints(updatedSection.dirPoints, updatedSection.pixelSize.rw_length, bathWidth, updatedSection.bathimetry.leftBank)
             
@@ -541,7 +541,7 @@ export const useSectionSlice = () => {
             if ( data.path !== "" && data.path !== sections[activeSection].bathimetry.path){
 
                 const bathValues = getBathimetryValues(line)
-
+                
                 dispatch(setBathimetry({path: path, name: name, line: line, ...bathValues}))
 
                 const { dirPoints, pixelSize } = sections[activeSection] 

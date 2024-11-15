@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import { COLORS } from '../../constants/constants';
 import { Point } from '../../types';
+import { generateYAxisTicks } from '../../helpers';
 
 /**
  * Creates a bathymetry chart on the specified SVG element.
@@ -54,22 +55,22 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
         
         yScale = d3.scaleLinear()
             .domain([yMin, yMax])
-            .range([heightSizes - marginSizes.bottom, graphHeight*2]);
+            .range([heightSizes - marginSizes.bottom - 30, graphHeight*2  - 10]);
 
         svg.append('text')
             .attr('class', 'y-axis-label')
             .attr('text-anchor', 'end')
-            .attr('x', - graphHeight *3 + 150)
+            .attr('x', - graphHeight *3 + 180)
             .attr('dy', '.75em')
             .attr('transform', 'rotate(-90)')
             .attr('fill', 'white')
-            .attr('font-size', '20px')
+            .attr('font-size', '22px')
             .text('Stage');
 
     } else {
         xScale = d3.scaleLinear()
             .domain([xMin, xMax])
-            .range([margin.left, width - margin.right]);
+            .range([margin.left + 10, width - margin.right]);
         
         yScale = d3.scaleLinear()
             .domain([yMin, yMax])
@@ -83,31 +84,53 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
             .attr('dy', '.75em')
             .attr('transform', 'rotate(-90)')
             .attr('fill', 'white')
-            .attr('font-size', '20px')
+            .attr('font-size', '22px')
             .text('Stage');
+
+        // Añado eje x solo si no es all in one
+        
+        const xAxis = d3.axisBottom(xScale).ticks(5);
+        svg.append('g')
+            .attr('transform', `translate(0,${height - margin.bottom})`)
+            .call(xAxis)
+            .selectAll('.domain');
+        
     }
 
     const line = d3.line<Point>()
         .x(d => xScale(d.x))
         .y(d => yScale(d.y));
 
-    // Añadir ejes con ticks
-    const xAxis = d3.axisBottom(xScale).ticks(5);
-    const yAxis = d3.axisLeft(yScale).ticks(5);
 
+    // Create and add Y ticks
+    const ticks = generateYAxisTicks(undefined, yMin, yMax);
+    
+    const yAxis = d3.axisLeft(yScale).tickValues(ticks);
+    
     svg.append('g')
-        .attr('transform', `translate(0,${height - margin.bottom})`)
-        .call(xAxis)
-        .selectAll('.domain');
-
-    svg.append('g')
-        .attr('transform', `translate(${margin.left},0)`)
+        .attr('transform', `translate(${margin.left + 10},0)`)
         .call(yAxis)
-        .selectAll('.domain');
+        .selectAll('.tick text')
+        .style('font-size', '14px')
 
     svg.selectAll('.tick line')
         .attr('stroke', 'lightgrey')
         .attr('stroke-width', 0.2);
+
+    // Create and add Y gridlines
+    
+    const makeYGridlines = () => d3.axisLeft(yScale).tickValues(ticks);
+
+    svg.append('g')
+        .attr('class', 'grid')
+        .attr('transform', `translate(${margin.left + 10},0)`)
+        .call(makeYGridlines()
+            .tickSize(-width + margin.left + margin.right)
+            .tickFormat('' as any))
+            .attr('stroke', 'grey')
+            .attr('stroke-width', 0.05);
+            
+
 
     if( drawGrid ){
         // Añadir cuadrícula
@@ -160,9 +183,9 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
     svg.append('text')
         .attr('class', 'x-axis-label')
         .attr('x', width / 2 - margin.right)
-        .attr('y', height )
+        .attr('y', height - 5 )
         .attr('fill', 'white')
-        .attr('font-size', '20px')
+        .attr('font-size', '22px')
         .text('Station');
 
 

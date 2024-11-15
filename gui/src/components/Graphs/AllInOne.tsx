@@ -6,6 +6,8 @@ import { createDischargeChart } from './dischargeSvg'
 import { createVelocityChart } from './velocitySvg'
 import { bathimetrySvg } from './bathimetrySvg'
 import { GRAPHS } from '../../constants/constants'
+import { adapterBathimetry, adapterData } from '../../helpers'
+import { generateXAxisTicks } from '../../helpers/graphsHelpers'
 
 /**
  * * Version 0.0.1
@@ -17,7 +19,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
     const svgRef = useRef<SVGSVGElement>(null)
     const { sections, activeSection } = useSectionSlice();
     const { data, bathimetry } = sections[index ? index : activeSection]
-    const { line: bathData, level } = bathimetry
+    const { level, x1Intersection, x2Intersection } = bathimetry
     const { screenSizes } = useUiSlice()
     const { width: screenWidth } = screenSizes
 
@@ -34,106 +36,70 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 const margin = { top: 20, right: 30, bottom: 40, left: 50 }
                 const graphHeight = (height) / 3
                 
+                const { distanceDischarge, distanceVelocity, streamwise_velocity_magnitude, plus_std, minus_std, percentile_5th, percentile_95th, Q, Q_portion } = adapterData(data, x1Intersection!)
+                const { showPercentile, showVelocityStd } = data
+                const bathData = adapterBathimetry(bathimetry.line!, x1Intersection!, x2Intersection!, level!)
 
-                const { distance, streamwise_velocity_magnitude, plus_std, minus_std, percentile_95th, percentile_5th, Q, Q_portion, show95Percentile, showVelocityStd } = data
 
-                console.log(data)
-                // Filter null values
-
-                const filteredStreamwiseMagnitude = streamwise_velocity_magnitude.filter(d => d !== null).map(Number);
-                const filteredPlusStd = plus_std.filter(d => d !== null);
-                const filteredMinusStd = minus_std.filter(d => d !== null);
-                const filteredPercentile_95th = percentile_95th.filter(d => d !== null);
-                const filteredPercentile_5th = percentile_5th.filter(d => d !== null);
-                const filteredQ = Q.filter(d => d !== null);
-                const filteredQPortion = Q_portion.filter(d => d !== null);
-
-                // xScale for bathimetry
-                if( ! bathData ) return;
-                const xScaleBathimetry = d3.scaleLinear()
-                    .domain([d3.min(bathData.map(d => d.x))!, d3.max(bathData.map(d => d.x))!])
-                    .range([margin.left, width - margin.right])
-
-                // xScale for velocity and discharge
-
+                // xScale for velocity and bathimetry
+                
                 const xScale = d3.scaleLinear()
-                    .domain([d3.min(distance)!, d3.max(distance)!])
-                    .range([margin.left, width - margin.right]) 
-
+                    .domain([x1Intersection!, x2Intersection!])
+                    .range([margin.left + 30, width - margin.right - 30]) 
 
                 // Common xAxis
+                const ticks = generateXAxisTicks(distanceDischarge, x1Intersection!, x2Intersection!);
 
-                // const xScaleMax = d3.max(xScale.domain())!;
-                // const xScaleBathimetryMax = d3.max(xScaleBathimetry.domain())!;
-                // const xAxisScale = xScaleMax > xScaleBathimetryMax ? xScale : xScaleBathimetry;
-
-                const xAxisScale = xScaleBathimetry;
-                
-                const xAxis = d3.axisBottom(xAxisScale).ticks(5);
+                const xAxis = d3.axisBottom(xScale)
+                    .tickValues(ticks)
+                    .tickFormat(d3.format('.2f'))
 
                 // Append xAxis
 
                 svg.append('g')
-                    .attr('transform', `translate(0,${height - margin.bottom})`)
+                    .attr('transform', `translate(0,${height - margin.bottom - 10})`)
                     .call(xAxis)
-                    .selectAll('.domain')
+                    .selectAll('.tick text')
+                    .style('font-size', '14px')
 
                 svg.selectAll('.tick line')
                     .attr('stroke', 'lightgrey')
                     .attr('stroke-width', 0.2);
 
-                // Create yGrid    
-                
-                const yScaleGrid = d3.scaleLinear()
-                    .domain([d3.min(filteredStreamwiseMagnitude)!, d3.max(filteredStreamwiseMagnitude)!])
-                    .range([height - margin.bottom, margin.top]);
+                // Create xGrid common for all graphs, and add it
 
-                const makeXGridlines = () => d3.axisBottom(xScale).ticks(5);
-                const makeYGridlines = () => d3.axisLeft(yScaleGrid).ticks(8);
-
-                // Add xGrid    
+                const makeXGridlines = () => d3.axisBottom(xScale).tickValues(ticks);
 
                 svg.append('g')
                     .attr('class', 'grid')
-                    .attr('transform', `translate(0,${height - margin.bottom})`)
+                    .attr('transform', `translate(0,${height - margin.bottom - 10})`)
                     .call(makeXGridlines()
-                    .tickSize(-height + margin.top + margin.bottom)
-                    .tickFormat('' as any))
-                    .attr('stroke', 'grey')
-                    .attr('stroke-width', 0.05);
-
-                // Add yGrid
-                
-                svg.append('g')
-                    .attr('class', 'grid')
-                    .attr('transform', `translate(${margin.left},0)`)
-                    .call(makeYGridlines()
-                        .tickSize(-width + margin.left + margin.right)
+                        .tickSize(-height + margin.top + margin.bottom)
                         .tickFormat('' as any))
-                    .attr('stroke', 'grey')
-                    .attr('stroke-width', 0.05);
-
+                        .attr('stroke', 'grey')
+                        .attr('stroke-width', 0.05);
 
                 createDischargeChart({
                     SVGElement: svgRef.current,
-                    distance,
-                    Q: filteredQ,
-                    QPortion: filteredQPortion,
+                    xScale: xScale,
+                    distance: distanceDischarge,
+                    Q: Q,
+                    QPortion: Q_portion,
                     sizes: { width, height, margin, graphHeight },
-                    isReport
+                    isReport,
                 });
                 
                 createVelocityChart({
                     SVGElement: svgRef.current,
                     xScale,
-                    streamwise_magnitude: filteredStreamwiseMagnitude,
-                    percentile5: filteredPercentile_5th,
-                    percentile95: filteredPercentile_95th,
-                    minusStd: filteredMinusStd,
-                    plusStd: filteredPlusStd,
-                    distance,
+                    streamwise_velocity_magnitude: streamwise_velocity_magnitude,
+                    percentile5: percentile_5th,
+                    percentile95: percentile_95th,
+                    minusStd: minus_std,
+                    plusStd: plus_std,
+                    distance: distanceVelocity,
                     sizes: { width, height, margin, graphHeight },
-                    showPercentile: show95Percentile,
+                    showPercentile: showPercentile,
                     showStd: showVelocityStd,
                     isReport
                 });
@@ -145,11 +111,11 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                     showLeftBank: false,
                     sizes: { width, height, margin, graphHeight },
                     drawGrid: false,
-                    xScaleAllInOne: xAxisScale
+                    xScaleAllInOne: xScale
                 })
 
             }
-    }, [activeSection, data?.showVelocityStd, data?.show95Percentile, index, screenWidth, data])
+    }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q])
 
   return (
     <svg ref={svgRef} width={width ? width : graphWidth} height={height ? height : 500} id='all-in-one-graph'></svg>

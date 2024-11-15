@@ -13,8 +13,6 @@ export const drawVectors = (
 ) => {
     const { x, y, streamwise_x, streamwise_y, check } = data;
 
-    console.log(vectorAmplitudeFactor)
-
     if (!x || !y || !streamwise_x || !streamwise_y || !check) return;
 
     const vectors = d3.range(x.length).map(i => {
@@ -22,8 +20,8 @@ export const drawVectors = (
             return {
                 x0: x[i] / factor,
                 y0: y[i] / factor,
-                x1: 1,
-                y1: 1,
+                x1: x[i] / factor,
+                y1: y[i] / factor,
                 color: COLORS.TRANSPARENT
             };
         }
@@ -31,8 +29,8 @@ export const drawVectors = (
         return {
             x0: x[i] / factor,
             y0: y[i] / factor,
-            x1: (x[i] / factor + streamwise_x[i] * vectorAmplitudeFactor * 30),
-            y1: (y[i] / factor + streamwise_y[i] * vectorAmplitudeFactor * 30),
+            x1: (x[i] / factor + streamwise_x[i] * vectorAmplitudeFactor),
+            y1: (y[i] / factor + streamwise_y[i] * vectorAmplitudeFactor),
             color: check[i] ? COLORS.BLUE : interpolated ? COLORS.RED : COLORS.TRANSPARENT
         };
     });

@@ -16,6 +16,8 @@ release
 build
 
 .env
+.env.development
+.env.test
 
 # Editor directories and files
 .vscode/*

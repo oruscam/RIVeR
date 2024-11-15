@@ -67,16 +67,17 @@ export const COLORS = {
  * Constants for GRAPHS
  */
 export const GRAPHS = {
-    BAR_PADDING: 0.4,
+    BAR_PADDING: 5,
     WIDTH_PROPORTION: 0.22,
-    MIN_WIDTH: 375
+    MIN_WIDTH: 375,
+    GRID_Y_OFFSET: 10,
 }
 
 /**
  * Quiver y Velocity Vectoy
  */
 export const VECTORS = {
-    VELOCITY_AMPLITUDE_FACTOR: 2,
+    VELOCITY_AMPLITUDE_FACTOR: 60,
     QUIVER_AMPLITUDE_FACTOR: 20
 }
 

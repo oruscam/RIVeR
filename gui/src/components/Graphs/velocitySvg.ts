@@ -1,5 +1,6 @@
 import * as d3 from 'd3'
 import { COLORS } from '../../constants/constants';
+import { generateYAxisTicks } from '../../helpers';
 
 interface CreateVelocityChartProps {
     sizes : {
@@ -15,7 +16,7 @@ interface CreateVelocityChartProps {
     },
     SVGElement: SVGSVGElement,
     xScale: d3.ScaleLinear<number, number>,
-    streamwise_magnitude: number[],
+    streamwise_velocity_magnitude: number[],
     percentile5: number[],
     percentile95: number[],
     minusStd: number[],
@@ -26,34 +27,47 @@ interface CreateVelocityChartProps {
     isReport?: boolean
 }
 
-export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, percentile5, percentile95, minusStd, plusStd, distance, sizes, showStd = true, showPercentile = true, isReport = false} : CreateVelocityChartProps ) => {
+export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_magnitude, percentile5, percentile95, minusStd, plusStd, distance, sizes, showStd = true, showPercentile = true, isReport = false } : CreateVelocityChartProps ) => {
     const svg = d3.select(SVGElement);
     const { margin, graphHeight, width } = sizes;
 
     const minDomainValue = Math.min(d3.min(percentile5)!, d3.min(minusStd)!);
     const maxDomainValue = Math.max(d3.max(percentile95)!, d3.max(plusStd)!);
 
-
     // y Scale
 
     const yScale = d3.scaleLinear()
         .domain([minDomainValue, maxDomainValue])
-        .range([graphHeight * 2 + ( isReport ? -20 : -20), graphHeight + (isReport ? 30 : -10)]);
+        .range([(graphHeight * 2 + ( isReport ? -20 : -50)), graphHeight + (isReport ? 30 : -10)]);
 
     // y Axis
 
-    const yAxis = d3.axisLeft(yScale)
-        .ticks(5)
-        .tickPadding(4);
+    // Create and add Y ticks
+    const ticks = generateYAxisTicks(streamwise_velocity_magnitude, minDomainValue, maxDomainValue);
 
-    // Add y Axis
+    const yAxis = d3.axisLeft(yScale)
+        .tickValues(ticks)
     
     svg.append('g')
-        .attr('class', 'y-axis y-axis-2')
-        .attr('transform', `translate(${margin.left},0)`)
-        .call(yAxis)
+    .attr('class', 'y-axis y-axis-2')
+    .attr('transform', `translate(${margin.left + 10},0)`)
+    .call(yAxis)
+    .selectAll('.tick text')
+    .style('font-size', '14px')
 
-    // Main Line
+    // Create and add Y gridlines
+
+    const makeYGridlines = () => d3.axisLeft(yScale).tickValues(ticks);
+    
+    svg.append('g')
+        .attr('class', 'grid')
+        .attr('transform', `translate(${margin.left + 10},0)`)
+        .call(makeYGridlines()
+            .tickSize(-width + margin.left + margin.right)
+            .tickFormat('' as any))
+            .attr('stroke', 'grey')
+            .attr('stroke-width', 0.05);
+
 
     const line = d3.line<number>()
         .x((_d, i) => xScale(distance[i]))
@@ -132,8 +146,6 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
 
     // Add the std area
 
-    
-
     if( showStd ){
         const areaPath = svg.append('path')
             .datum(plusStd)
@@ -197,10 +209,10 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
      // Add the velocity line    
 
      svg.append('path')
-        .datum(streamwise_magnitude)
+        .datum(streamwise_velocity_magnitude)
         .attr('fill', 'none')
-        .attr('stroke', COLORS.WHITE)
         .attr('stroke-width', 2)
+        .attr('stroke', COLORS.WHITE)
         .attr('d', line);
 
     // label for Velocity
@@ -208,11 +220,11 @@ export const createVelocityChart = ( {SVGElement, xScale, streamwise_magnitude, 
     svg.append('text')
         .attr('class', 'y-axis-label')
         .attr('text-anchor', 'middle')
-        .attr('x', - (graphHeight *2) + (isReport ? 90 : 110))
+        .attr('x', - (graphHeight *2) + (isReport ? 90 : 140))
         .attr('y', margin.left - 35)
         .attr('transform', 'rotate(-90)')
         .attr('fill', 'white')
-        .attr('font-size', '20px')
+        .attr('font-size', '22px')
         .text('Velocity');
 
 }

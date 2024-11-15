@@ -69,7 +69,7 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
         lineCap="round"
       />
       {
-        !isPixelSize && (
+        !isPixelSize && sectionPoints[0].x !== 0 && (
         <Text
           x={(sectionPoints[1].x / factor + 10 / resizeFactor)}
           y={(sectionPoints[1].y / factor - 10 / resizeFactor)}

@@ -121,7 +121,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         </div>
 
         <div className="switch-container-2 mt-1 ">
-          <h3 className="field-title">{t('Results.interpolateProfile ')}</h3>
+          <h3 className="field-title">{t('Results.interpolateProfile')}</h3>
           <label className="switch">
             <input type="checkbox" {...register(`${name}_INTERPOLATED_PROFILE`)} defaultChecked={data?.showInterpolateProfile} id="interpolated-profile" onChange={handleOnChange}/>
             <span className="slider"></span>

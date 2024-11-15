@@ -8,6 +8,10 @@ import './pages.css'
 import { useEffect } from 'react'
 import { ButtonLock } from '../components/ButtonLock.js'
 
+const formatNumber = (num: number) => {
+  return parseFloat(num.toPrecision(2)).toString();
+};
+
 export const PixelSize = () => {
   const { onSetPixelSize, sections } = useSectionSlice()
   const { dirPoints, rwPoints, pixelSize } = sections[0]
@@ -15,8 +19,8 @@ export const PixelSize = () => {
   // * Estado inicial del formulario
   const methods = useForm({
     defaultValues: {
-      pixel_size_LINE_LENGTH: pixelSize.rw_length,
-      pixel_size_PIXEL_SIZE: pixelSize.size,
+      pixel_size_LINE_LENGTH: formatNumber(pixelSize.rw_length),
+      pixel_size_PIXEL_SIZE: formatNumber(pixelSize.size),
       pixel_size_EAST_point_1: rwPoints[0].x,
       pixel_size_EAST_point_2: rwPoints[1].x,
       pixel_size_NORTH_point_1: rwPoints[0].y,
@@ -43,8 +47,8 @@ export const PixelSize = () => {
 
   useEffect(() => {
     methods.reset({
-      pixel_size_LINE_LENGTH: pixelSize.rw_length,
-      pixel_size_PIXEL_SIZE: pixelSize.size,
+      pixel_size_LINE_LENGTH: formatNumber(pixelSize.rw_length),
+      pixel_size_PIXEL_SIZE: formatNumber(pixelSize.size),
       pixel_size_EAST_point_1: rwPoints[0].x,
       pixel_size_EAST_point_2: rwPoints[1].x,
       pixel_size_NORTH_point_1: rwPoints[0].y,

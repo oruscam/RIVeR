@@ -12,8 +12,6 @@ export const Grid = () => {
     const { sections, activeSection, onChangeDataValues } = useSectionSlice();
     const { data, interpolated } = sections[activeSection];
 
-    console.log('interpolated',interpolated)
-
     const getCellClass = ( row ) => {
         let cellClas = 'centered-cell';
         if ( !data?.check[row.id]) {

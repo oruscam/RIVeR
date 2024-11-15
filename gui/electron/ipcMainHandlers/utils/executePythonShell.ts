@@ -50,6 +50,7 @@ async function executePythonShell(args: (string | number)[]){
     
     return new Promise((resolve, reject) => {
         pyshell.on('message', (message: string) => {
+            console.log(message)
             resolve(message);
         });
 
@@ -89,8 +90,8 @@ async function executePythonShell2(args: (string | number)[]) {
     currentPyShell = pyshell;
 
     return new Promise((resolve, reject) => {
-        let output = '';
-
+        let output = '';    
+        
         pyshell.on('message', (message: string) => {
             console.log(message)
             resolve(message)
