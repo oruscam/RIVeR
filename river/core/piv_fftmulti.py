@@ -10,16 +10,14 @@ Company: UNC / ORUS
 
 This script contains functions for processing and analyzing PIV images.
 """
-
+from scipy import interpolate, ndimage
 import math
 from typing import Optional
-
 import numpy as np
 from scipy import interpolate
-from scipy.sparse import coo_matrix
-
+from scipy.interpolate import griddata
 import river.core.matlab_smoothn as smoothn
-
+# import pdb
 # Example of usage
 #
 # image1 = cv2.imread('0000000001.jpg', cv2.IMREAD_GRAYSCALE)
@@ -175,7 +173,6 @@ def piv_fftmulti(
 	miniy, minix, maxiy, maxix, numelementsx, numelementsy = calculate_bounds(
 		image1_roi.shape, interrogation_area_1, step
 	)
-
 	# Pad the images and mask again
 	image1_roi, image2_roi, mask_pad = pad_images(image1_roi, image2_roi, mask_roi, half_ia)
 
@@ -319,8 +316,8 @@ def process_roi(roi_input: list, image1: np.ndarray, image2: np.ndarray, mask: O
 		else:
 			mask_roi = None
 	else:
-		image1_roi = np.float64(image1)
-		image2_roi = np.float64(image2)
+		image1_roi = np.float32(image1)
+		image2_roi = np.float32(image2)
 		mask_roi = mask  # If mask is None, this will just return None
 
 	return image1_roi, image2_roi, mask_roi
@@ -728,67 +725,28 @@ def subpixgauss(
 	"""
 
 	# Adjust coordinates to match Python indexing (starting from 0)
-	x1 = x1 - 1
-	y1 = y1 - 1
-	z1 = z1 - 1
+	dims = result_conv.shape
+	vector = np.zeros((dims[2], 2))
 
-	# Reshape coordinates into column vectors
-	x1.shape = (x1.size, 1)
-	y1.shape = (y1.size, 1)
-	z1.shape = (z1.size, 1)
+	if x1.size == 0:
+		return vector
 
-	# Determine maximum dimension size
-	xmax = np.size(result_conv, 1)
+	# Vectorized index calculation
+	indices = np.ravel_multi_index((y1 - 1, x1 - 1, z1 - 1), dims, order='F')
 
-	# Initialize vector to store subpixel coordinates
-	vector = np.zeros(shape=(np.size(result_conv, 2), 2))
+	# Compute log values efficiently
+	f0 = np.log(result_conv.ravel('F')[indices])
+	f1y = np.log(result_conv.ravel('F')[indices - 1])
+	f2y = np.log(result_conv.ravel('F')[indices + 1])
+	f1x = np.log(result_conv.ravel('F')[indices - dims[0]])
+	f2x = np.log(result_conv.ravel('F')[indices + dims[0]])
 
-	# Perform subpixel Gaussian peak fitting if coordinates are provided
-	if x1.size != 0:
-		ip = np.zeros(shape=(x1.size, 1))
-		i = 0
-		dims = (np.size(result_conv, 0), np.size(result_conv, 1), np.size(result_conv, 2))
+	# Vectorized peak calculations
+	peaky = y1 + (f1y - f2y) / (2 * f1y - 4 * f0 + 2 * f2y)
+	peakx = x1 + (f1x - f2x) / (2 * f1x - 4 * f0 + 2 * f2x)
 
-		# Calculate linear indices based on coordinates
-		for elemento in ip:
-			ip[i] = np.ravel_multi_index((y1[i], x1[i], z1[i]), dims, order="F")
-			i += 1
-
-		ip = ip.astype(int)
-
-		# Initialize arrays for log values
-		f0 = np.zeros(shape=(x1.size, 1))
-		f1y = np.zeros(shape=(x1.size, 1))
-		f2y = np.zeros(shape=(x1.size, 1))
-		f1x = np.zeros(shape=(x1.size, 1))
-		f2x = np.zeros(shape=(x1.size, 1))
-		i = 0
-
-		# Compute logarithms of convolution results at specified indices
-		for elemento in f0:
-			f0[i] = np.log(result_conv[np.unravel_index(np.matrix.item(ip[i]), dims, order="F")])
-			f1y[i] = np.log(result_conv[np.unravel_index(np.matrix.item(ip[i] - 1), dims, order="F")])
-			f2y[i] = np.log(result_conv[np.unravel_index(np.matrix.item(ip[i] + 1), dims, order="F")])
-			f1x[i] = np.log(result_conv[np.unravel_index(np.matrix.item(ip[i] - xmax), dims, order="F")])
-			f2x[i] = np.log(result_conv[np.unravel_index(np.matrix.item(ip[i] + xmax), dims, order="F")])
-			i += 1
-
-		# Calculate subpixel peak coordinates using Gaussian fitting formulas
-		peaky = (y1 + 1) + (f1y - f2y) / (2 * f1y - 4 * f0 + 2 * f2y)
-		peakx = (x1 + 1) + (f1x - f2x) / (2 * f1x - 4 * f0 + 2 * f2x)
-
-		subpixelx = peakx - half_ia - subpixoffset
-		subpixely = peaky - half_ia - subpixoffset
-
-		subpixelx = np.reshape(subpixelx, -1)
-		subpixely = np.reshape(subpixely, -1)
-
-		# Ensure dimensions match vector size
-		if subpixelx.shape[0] != vector.shape[0]:
-			subpixelx, subpixely, z1 = correct_dimensions(subpixelx, subpixely, z1, vector.shape[0])
-
-		vector[:, 0] = subpixelx
-		vector[:, 1] = subpixely
+	vector[:, 0] = peakx.ravel() - half_ia - subpixoffset
+	vector[:, 1] = peaky.ravel() - half_ia - subpixoffset
 
 	return vector
 
@@ -969,88 +927,105 @@ def filter_fluctiations(
 	return utable, vtable
 
 
-def ind2sub(array_shape: tuple, ind: np.ndarray) -> tuple:
-	"""
-	Converts a flat index or array of flat indices into a tuple of coordinate arrays.
+# def ind2sub(array_shape: tuple, ind: np.ndarray) -> tuple:
+# 	"""
+# 	Converts a flat index or array of flat indices into a tuple of coordinate arrays.
+#
+# 	Parameters:
+# 	array_shape (tuple): Shape of the array.
+# 	ind (numpy.ndarray): Array of indices.
+#
+# 	Returns:
+# 	tuple: Arrays of row and column indices.
+# 	"""
+# 	# Gives repeated indices, replicates matlabs ind2sub
+# 	cols = ind.astype("int32") // array_shape[1]
+# 	rows = ind.astype("int32") % array_shape[1]
+# 	return (rows, cols)
 
-	Parameters:
-	array_shape (tuple): Shape of the array.
-	ind (numpy.ndarray): Array of indices.
 
-	Returns:
-	tuple: Arrays of row and column indices.
-	"""
-	# Gives repeated indices, replicates matlabs ind2sub
-	cols = ind.astype("int32") // array_shape[1]
-	rows = ind.astype("int32") % array_shape[1]
-	return (rows, cols)
+# def inpaint_nans(A: np.ndarray) -> np.ndarray:
+# 	"""
+# 	Interpolates NaN values in a 2D array using neighboring values based on a spring analogy.
+#
+# 	Parameters:
+# 	A (numpy.ndarray): 2D array with NaN values to be inpainted.
+#
+# 	Returns:
+# 	numpy.ndarray: Array with NaN values interpolated.
+# 	"""
+# 	# Get array dimensions and reshape it
+# 	n, m = A.shape
+# 	nm = n * m
+# 	A = A.T.reshape(nm, 1)
+#
+# 	# Identify NaN elements
+# 	k = np.isnan(A)
+#
+# 	# List the nodes which are known and which will be interpolated
+# 	nan_list = np.where(k)[0]
+# 	known_list = np.where(~k)[0]
+#
+# 	# How many NaNs overall
+# 	nan_count = len(nan_list)
+#
+# 	# Convert NaN indices to (row, column) form
+# 	nr, nc = ind2sub((m, n), nan_list)
+# 	nan_list = np.vstack((nan_list, nr, nc)).T
+#
+# 	# Define the springs for horizontal and vertical neighbors
+# 	hv_list = np.array([[-1, -1, 0], [1, 1, 0], [-n, 0, -1], [n, 0, 1]])
+# 	hv_springs = np.zeros((0, 2), dtype=int)
+#
+# 	for i in range(4):
+# 		hvs = nan_list + hv_list[i]
+# 		valid = (hvs[:, 1] >= 0) & (hvs[:, 1] < n) & (hvs[:, 2] >= 0) & (hvs[:, 2] < m)
+#
+# 		a1 = nan_list[valid, 0]
+# 		a2 = hvs[valid, 0]
+# 		b1 = np.vstack((a1, a2)).T
+# 		hv_springs = np.vstack([hv_springs, b1]) if hv_springs.size else b1
+#
+# 	# Delete duplicate springs
+# 	hv_springs = np.unique(np.sort(hv_springs, axis=1), axis=0)
+#
+# 	# Build sparse matrix of connections, springs
+# 	nhv = hv_springs.shape[0]
+# 	c1 = np.tile(np.arange(nhv), 2)
+# 	c2 = np.array([1, -1])
+# 	c2 = np.tile(c2, (nhv, 1)).T.flatten()
+# 	c3 = hv_springs.T.flatten()
+#
+# 	springs = coo_matrix((c2, (c1, c3)), shape=(nhv, nm)).todense()
+#
+# 	# Eliminate knowns
+# 	rhs = -springs[:, known_list] * A[known_list]
+#
+# 	# Solve the system
+# 	B = A.copy()
+# 	B[nan_list[:, 0]] = np.linalg.lstsq(springs[:, nan_list[:, 0]], rhs, rcond=None)[0]
+#
+# 	# Reshape B to the original shape
+# 	B = B.reshape(m, n).T
+# 	return B
+def inpaint_nans(img_float):
+    # Get coordinates of non-nan values
+    valid_mask = ~np.isnan(img_float)
+    coords = np.array(np.nonzero(valid_mask)).T
+    values = img_float[valid_mask]
 
+    # Get coordinates of nan values
+    nan_mask = np.isnan(img_float)
+    nan_coords = np.array(np.nonzero(nan_mask)).T
 
-def inpaint_nans(A: np.ndarray) -> np.ndarray:
-	"""
-	Interpolates NaN values in a 2D array using neighboring values based on a spring analogy.
+    # Interpolate
+    interpolated = griddata(coords, values, nan_coords, method='cubic')
 
-	Parameters:
-	A (numpy.ndarray): 2D array with NaN values to be inpainted.
+    # Create output array and fill with interpolated values
+    out = img_float.copy()
+    out[nan_mask] = interpolated
 
-	Returns:
-	numpy.ndarray: Array with NaN values interpolated.
-	"""
-	# Get array dimensions and reshape it
-	n, m = A.shape
-	nm = n * m
-	A = A.T.reshape(nm, 1)
-
-	# Identify NaN elements
-	k = np.isnan(A)
-
-	# List the nodes which are known and which will be interpolated
-	nan_list = np.where(k)[0]
-	known_list = np.where(~k)[0]
-
-	# How many NaNs overall
-	nan_count = len(nan_list)
-
-	# Convert NaN indices to (row, column) form
-	nr, nc = ind2sub((m, n), nan_list)
-	nan_list = np.vstack((nan_list, nr, nc)).T
-
-	# Define the springs for horizontal and vertical neighbors
-	hv_list = np.array([[-1, -1, 0], [1, 1, 0], [-n, 0, -1], [n, 0, 1]])
-	hv_springs = np.zeros((0, 2), dtype=int)
-
-	for i in range(4):
-		hvs = nan_list + hv_list[i]
-		valid = (hvs[:, 1] >= 0) & (hvs[:, 1] < n) & (hvs[:, 2] >= 0) & (hvs[:, 2] < m)
-
-		a1 = nan_list[valid, 0]
-		a2 = hvs[valid, 0]
-		b1 = np.vstack((a1, a2)).T
-		hv_springs = np.vstack([hv_springs, b1]) if hv_springs.size else b1
-
-	# Delete duplicate springs
-	hv_springs = np.unique(np.sort(hv_springs, axis=1), axis=0)
-
-	# Build sparse matrix of connections, springs
-	nhv = hv_springs.shape[0]
-	c1 = np.tile(np.arange(nhv), 2)
-	c2 = np.array([1, -1])
-	c2 = np.tile(c2, (nhv, 1)).T.flatten()
-	c3 = hv_springs.T.flatten()
-
-	springs = coo_matrix((c2, (c1, c3)), shape=(nhv, nm)).todense()
-
-	# Eliminate knowns
-	rhs = -springs[:, known_list] * A[known_list]
-
-	# Solve the system
-	B = A.copy()
-	B[nan_list[:, 0]] = np.linalg.lstsq(springs[:, nan_list[:, 0]], rhs, rcond=None)[0]
-
-	# Reshape B to the original shape
-	B = B.reshape(m, n).T
-	return B
-
+    return out
 
 def interpgrade(table):
 	if table.size > 3:
@@ -1158,49 +1133,88 @@ def interpolate_tables(
 	return xtable_1, ytable_1, utable_1, vtable_1, utable, vtable
 
 
+# def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray, image2_roi: np.ndarray) -> np.ndarray:
+# 	"""
+# 	Interpolate the velocity fields U and V onto a regular grid and use them to warp image2_roi.
+#
+# 	Parameters:
+# 	X (numpy.ndarray): X-coordinates of the grid.
+# 	Y (numpy.ndarray): Y-coordinates of the grid.
+# 	U (numpy.ndarray): X-component of the velocity field.
+# 	V (numpy.ndarray): Y-component of the velocity field.
+# 	image2_roi (numpy.ndarray): Region of interest of the second image.
+#
+# 	Returns:
+# 	numpy.ndarray: Warped image2_roi,  xb array, yb array.
+# 	"""
+# 	X1 = np.arange(X[0, 0], X[0, -1], 1)
+# 	Y1 = np.arange(Y[0, 0], Y[-1, 0], 1)
+# 	Y1 = Y1[:, np.newaxis]
+# 	X1 = np.tile(X1, (Y1.shape[0], 1))
+# 	Y1 = np.tile(Y1, (1, X1.shape[1]))
+#
+# 	X_param = X[0, :]
+# 	Y_param = Y[:, 0]
+#
+# 	interp_funct = interpolate.RectBivariateSpline(X_param, Y_param, U.T, kx=1, ky=1)
+# 	U1 = interp_funct(X1[0, :], Y1[:, 0]).T
+#
+# 	interp_funct = interpolate.RectBivariateSpline(X_param, Y_param, V.T, kx=1, ky=1)
+# 	V1 = interp_funct(X1[0, :], Y1[:, 0]).T
+#
+# 	x_param = np.arange(1, image2_roi.shape[1] + 1)
+# 	y_param = np.arange(1, image2_roi.shape[0] + 1)
+#
+# 	image2_roi = image2_roi.astype(np.float32)
+# 	interp_funct = interpolate.RectBivariateSpline(y_param, x_param, image2_roi, kx=1, ky=1)
+# 	image2_crop_i1 = interp_funct(Y1 + V1, X1 + U1, grid=False)
+#
+# 	# xb and yb represent the indices in X1 and Y1 where values match X[0, 0] and Y[0, 0], respectively.
+# 	xb = np.flatnonzero(np.in1d(X1[0, :], X[0, 0])) + 1
+# 	yb = np.flatnonzero(np.in1d(Y1[:, 0], Y[0, 0])) + 1
+#
+# 	return image2_crop_i1, xb, yb
+
 def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray, image2_roi: np.ndarray) -> np.ndarray:
 	"""
-	Interpolate the velocity fields U and V onto a regular grid and use them to warp image2_roi.
+    Interpolate the velocity fields U and V onto a regular grid and use them to warp image2_roi.
 
-	Parameters:
-	X (numpy.ndarray): X-coordinates of the grid.
-	Y (numpy.ndarray): Y-coordinates of the grid.
-	U (numpy.ndarray): X-component of the velocity field.
-	V (numpy.ndarray): Y-component of the velocity field.
-	image2_roi (numpy.ndarray): Region of interest of the second image.
+    Parameters:
+        X (numpy.ndarray): X-coordinates of the grid.
+        Y (numpy.ndarray): Y-coordinates of the grid.
+        U (numpy.ndarray): X-component of the velocity field.
+        V (numpy.ndarray): Y-component of the velocity field.
+        image2_roi (numpy.ndarray): Region of interest of the second image.
 
-	Returns:
-	numpy.ndarray: Warped image2_roi,  xb array, yb array.
-	"""
-	X1 = np.arange(X[0, 0], X[0, -1], 1)
-	Y1 = np.arange(Y[0, 0], Y[-1, 0], 1)
-	Y1 = Y1[:, np.newaxis]
-	X1 = np.tile(X1, (Y1.shape[0], 1))
-	Y1 = np.tile(Y1, (1, X1.shape[1]))
+    Returns:
+        numpy.ndarray: Warped image2_roi, xb array, yb array.
+    """
+	# Generate 1D coordinate arrays for interpolation
+	x1d = np.arange(X[0, 0], X[0, -1], 1)
+	y1d = np.arange(Y[0, 0], Y[-1, 0], 1)
 
-	X_param = X[0, :]
-	Y_param = Y[:, 0]
+	# Create meshgrids for coordinates
+	Y1, X1 = np.meshgrid(y1d, x1d, indexing='ij')
 
-	interp_funct = interpolate.RectBivariateSpline(X_param, Y_param, U.T, kx=1, ky=1)
-	U1 = interp_funct(X1[0, :], Y1[:, 0]).T
+	# Interpolate U and V to the regular grid
+	U_interp = interpolate.interp2d(X[0, :], Y[:, 0], U, kind='linear')
+	V_interp = interpolate.interp2d(X[0, :], Y[:, 0], V, kind='linear')
+	U1 = U_interp(x1d, y1d)
+	V1 = V_interp(x1d, y1d)
 
-	interp_funct = interpolate.RectBivariateSpline(X_param, Y_param, V.T, kx=1, ky=1)
-	V1 = interp_funct(X1[0, :], Y1[:, 0]).T
+	# Define warped coordinates
+	X_warp = X1 + U1
+	Y_warp = Y1 + V1
 
-	x_param = np.arange(1, image2_roi.shape[1] + 1)
-	y_param = np.arange(1, image2_roi.shape[0] + 1)
+	# Interpolate the image with map_coordinates
+	coordinates = np.array([Y_warp.ravel(), X_warp.ravel()])
+	image2_crop_i1 = ndimage.map_coordinates(image2_roi, coordinates, order=1, mode='nearest').reshape(Y1.shape)
 
-	image2_roi = image2_roi.astype(np.float32)
-	interp_funct = interpolate.RectBivariateSpline(y_param, x_param, image2_roi, kx=1, ky=1)
-	image2_crop_i1 = interp_funct(Y1 + V1, X1 + U1, grid=False)
-
-	# xb and yb represent the indices in X1 and Y1 where values match X[0, 0] and Y[0, 0], respectively.
-	xb = np.flatnonzero(np.in1d(X1[0, :], X[0, 0])) + 1
-	yb = np.flatnonzero(np.in1d(Y1[:, 0], Y[0, 0])) + 1
+	# Compute boundaries
+	xb = np.flatnonzero(np.abs(x1d - X[0, 0]) < 1e-10) + 1
+	yb = np.flatnonzero(np.abs(y1d - Y[0, 0]) < 1e-10) + 1
 
 	return image2_crop_i1, xb, yb
-
-
 def calculate_gradient(
 	image1_cut: np.ndarray, image2_cut: np.ndarray, image1_roi: np.ndarray, utable: np.ndarray, ii_backup: int | list
 ) -> np.ndarray:
@@ -1227,7 +1241,7 @@ def calculate_gradient(
 	    The output is reshaped to match the dimensions of utable and transposed to align with expected output format.
 	"""
 	# Combine images
-	combined_image = image1_cut.astype(np.float64) + image2_cut.astype(np.float64)
+	combined_image = image1_cut.astype(np.float32) + image2_cut.astype(np.float32)
 
 	# Divide by the max of image1_roi along axes 0 and 1
 	combined_image /= np.max(image1_roi, axis=(0, 1))

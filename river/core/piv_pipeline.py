@@ -16,7 +16,8 @@ import multiprocessing
 from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional
-
+from tqdm import tqdm
+import time
 import cv2
 import numpy as np
 
@@ -220,6 +221,8 @@ def run_analyze_all(
 	images = sorted(images_location.glob("*.jpg"))
 	total_frames = len(images)
 
+	print(f"Processing {total_frames} frames...")
+
 	max_workers = multiprocessing.cpu_count()
 
 	first_image = cv2.imread(images[0])
@@ -230,10 +233,16 @@ def run_analyze_all(
 		height, width = first_image.shape[:2]
 		bbox = [0, 0, width, height]
 
-	chunk_size = int(np.ceil(total_frames / max_workers))
+	# chunk_size = int(np.ceil(total_frames / max_workers))
+	chunk_size=10
+	print(chunk_size)
 
 	chunks = [[i, i + chunk_size] for i in range(0, len(images) - 1, chunk_size)]
 	chunks[-1][-1] = min(chunks[-1][-1], len(images) - 1)
+
+	# Create progress bar
+	pbar = tqdm(total=len(chunks), desc="Processing chunks")
+	start_time = time.time()
 
 	if filter_sub_background:
 		filter_grayscale = True  # forces to work with grayscale images if filt_sub_backgnd
@@ -249,8 +258,9 @@ def run_analyze_all(
 			cv2.imwrite(save_path, background)
 
 	with ThreadPoolExecutor(max_workers=max_workers) as executor:
-		futures = [
-			executor.submit(
+		futures = []
+		for cur_chunk in chunks:
+			future = executor.submit(
 				piv_loop,
 				images,
 				mask,
@@ -274,26 +284,42 @@ def run_analyze_all(
 				cur_chunk[0],
 				cur_chunk[1],
 			)
-			for cur_chunk in chunks
-		]
+			futures.append(future)
 
+		# Initialize with first result
+		first_result = futures[0].result()
 		dict_cumul = {
-			"u": futures[0].result()["u"],
-			"v": futures[0].result()["v"],
-			"typevector": futures[0].result()["typevector"],
+			"u": first_result["u"],
+			"v": first_result["v"],
+			"typevector": first_result["typevector"],
 		}
 		if seeding_filter:
-			dict_cumul["gradient"] = futures[0].result()["gradient"]
+			dict_cumul["gradient"] = first_result["gradient"]
 
-		xtable = futures[0].result()["x"]
-		ytable = futures[0].result()["y"]
+		xtable = first_result["x"]
+		ytable = first_result["y"]
 
+		pbar.update(1)  # Update progress for first chunk
+
+		# Process remaining chunks
 		for f in range(1, len(futures)):
-			dict_cumul["u"] = np.hstack((dict_cumul["u"], futures[f].result()["u"]))
-			dict_cumul["v"] = np.hstack((dict_cumul["v"], futures[f].result()["v"]))
-			dict_cumul["typevector"] = np.hstack((dict_cumul["typevector"], futures[f].result()["typevector"]))
+			result = futures[f].result()
+			dict_cumul["u"] = np.hstack((dict_cumul["u"], result["u"]))
+			dict_cumul["v"] = np.hstack((dict_cumul["v"], result["v"]))
+			dict_cumul["typevector"] = np.hstack((dict_cumul["typevector"], result["typevector"]))
 			if seeding_filter:
-				dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], futures[f].result()["gradient"]))
+				dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], result["gradient"]))
+			pbar.update(1)  # Update progress after each chunk
+
+			# Calculate and display ETA
+			elapsed_time = time.time() - start_time
+			chunks_done = f + 1
+			avg_time_per_chunk = elapsed_time / chunks_done
+			remaining_chunks = len(chunks) - chunks_done
+			eta = avg_time_per_chunk * remaining_chunks
+			pbar.set_postfix({'ETA': f'{eta:.1f}s'})
+
+	pbar.close()
 
 	# Calculate the median
 	u_median = np.nanmedian(dict_cumul["u"], 1)
