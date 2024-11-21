@@ -14,10 +14,9 @@ from scipy import interpolate, ndimage
 import math
 from typing import Optional
 import numpy as np
-from scipy import interpolate
 from scipy.interpolate import griddata
 import river.core.matlab_smoothn as smoothn
-# import pdb
+
 # Example of usage
 #
 # image1 = cv2.imread('0000000001.jpg', cv2.IMREAD_GRAYSCALE)
@@ -926,88 +925,6 @@ def filter_fluctiations(
 
 	return utable, vtable
 
-
-# def ind2sub(array_shape: tuple, ind: np.ndarray) -> tuple:
-# 	"""
-# 	Converts a flat index or array of flat indices into a tuple of coordinate arrays.
-#
-# 	Parameters:
-# 	array_shape (tuple): Shape of the array.
-# 	ind (numpy.ndarray): Array of indices.
-#
-# 	Returns:
-# 	tuple: Arrays of row and column indices.
-# 	"""
-# 	# Gives repeated indices, replicates matlabs ind2sub
-# 	cols = ind.astype("int32") // array_shape[1]
-# 	rows = ind.astype("int32") % array_shape[1]
-# 	return (rows, cols)
-
-
-# def inpaint_nans(A: np.ndarray) -> np.ndarray:
-# 	"""
-# 	Interpolates NaN values in a 2D array using neighboring values based on a spring analogy.
-#
-# 	Parameters:
-# 	A (numpy.ndarray): 2D array with NaN values to be inpainted.
-#
-# 	Returns:
-# 	numpy.ndarray: Array with NaN values interpolated.
-# 	"""
-# 	# Get array dimensions and reshape it
-# 	n, m = A.shape
-# 	nm = n * m
-# 	A = A.T.reshape(nm, 1)
-#
-# 	# Identify NaN elements
-# 	k = np.isnan(A)
-#
-# 	# List the nodes which are known and which will be interpolated
-# 	nan_list = np.where(k)[0]
-# 	known_list = np.where(~k)[0]
-#
-# 	# How many NaNs overall
-# 	nan_count = len(nan_list)
-#
-# 	# Convert NaN indices to (row, column) form
-# 	nr, nc = ind2sub((m, n), nan_list)
-# 	nan_list = np.vstack((nan_list, nr, nc)).T
-#
-# 	# Define the springs for horizontal and vertical neighbors
-# 	hv_list = np.array([[-1, -1, 0], [1, 1, 0], [-n, 0, -1], [n, 0, 1]])
-# 	hv_springs = np.zeros((0, 2), dtype=int)
-#
-# 	for i in range(4):
-# 		hvs = nan_list + hv_list[i]
-# 		valid = (hvs[:, 1] >= 0) & (hvs[:, 1] < n) & (hvs[:, 2] >= 0) & (hvs[:, 2] < m)
-#
-# 		a1 = nan_list[valid, 0]
-# 		a2 = hvs[valid, 0]
-# 		b1 = np.vstack((a1, a2)).T
-# 		hv_springs = np.vstack([hv_springs, b1]) if hv_springs.size else b1
-#
-# 	# Delete duplicate springs
-# 	hv_springs = np.unique(np.sort(hv_springs, axis=1), axis=0)
-#
-# 	# Build sparse matrix of connections, springs
-# 	nhv = hv_springs.shape[0]
-# 	c1 = np.tile(np.arange(nhv), 2)
-# 	c2 = np.array([1, -1])
-# 	c2 = np.tile(c2, (nhv, 1)).T.flatten()
-# 	c3 = hv_springs.T.flatten()
-#
-# 	springs = coo_matrix((c2, (c1, c3)), shape=(nhv, nm)).todense()
-#
-# 	# Eliminate knowns
-# 	rhs = -springs[:, known_list] * A[known_list]
-#
-# 	# Solve the system
-# 	B = A.copy()
-# 	B[nan_list[:, 0]] = np.linalg.lstsq(springs[:, nan_list[:, 0]], rhs, rcond=None)[0]
-#
-# 	# Reshape B to the original shape
-# 	B = B.reshape(m, n).T
-# 	return B
 def inpaint_nans(img_float):
     # Get coordinates of non-nan values
     valid_mask = ~np.isnan(img_float)
@@ -1132,48 +1049,6 @@ def interpolate_tables(
 
 	return xtable_1, ytable_1, utable_1, vtable_1, utable, vtable
 
-
-# def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray, image2_roi: np.ndarray) -> np.ndarray:
-# 	"""
-# 	Interpolate the velocity fields U and V onto a regular grid and use them to warp image2_roi.
-#
-# 	Parameters:
-# 	X (numpy.ndarray): X-coordinates of the grid.
-# 	Y (numpy.ndarray): Y-coordinates of the grid.
-# 	U (numpy.ndarray): X-component of the velocity field.
-# 	V (numpy.ndarray): Y-component of the velocity field.
-# 	image2_roi (numpy.ndarray): Region of interest of the second image.
-#
-# 	Returns:
-# 	numpy.ndarray: Warped image2_roi,  xb array, yb array.
-# 	"""
-# 	X1 = np.arange(X[0, 0], X[0, -1], 1)
-# 	Y1 = np.arange(Y[0, 0], Y[-1, 0], 1)
-# 	Y1 = Y1[:, np.newaxis]
-# 	X1 = np.tile(X1, (Y1.shape[0], 1))
-# 	Y1 = np.tile(Y1, (1, X1.shape[1]))
-#
-# 	X_param = X[0, :]
-# 	Y_param = Y[:, 0]
-#
-# 	interp_funct = interpolate.RectBivariateSpline(X_param, Y_param, U.T, kx=1, ky=1)
-# 	U1 = interp_funct(X1[0, :], Y1[:, 0]).T
-#
-# 	interp_funct = interpolate.RectBivariateSpline(X_param, Y_param, V.T, kx=1, ky=1)
-# 	V1 = interp_funct(X1[0, :], Y1[:, 0]).T
-#
-# 	x_param = np.arange(1, image2_roi.shape[1] + 1)
-# 	y_param = np.arange(1, image2_roi.shape[0] + 1)
-#
-# 	image2_roi = image2_roi.astype(np.float32)
-# 	interp_funct = interpolate.RectBivariateSpline(y_param, x_param, image2_roi, kx=1, ky=1)
-# 	image2_crop_i1 = interp_funct(Y1 + V1, X1 + U1, grid=False)
-#
-# 	# xb and yb represent the indices in X1 and Y1 where values match X[0, 0] and Y[0, 0], respectively.
-# 	xb = np.flatnonzero(np.in1d(X1[0, :], X[0, 0])) + 1
-# 	yb = np.flatnonzero(np.in1d(Y1[:, 0], Y[0, 0])) + 1
-#
-# 	return image2_crop_i1, xb, yb
 
 def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray, image2_roi: np.ndarray) -> np.ndarray:
 	"""

@@ -233,9 +233,7 @@ def run_analyze_all(
 		height, width = first_image.shape[:2]
 		bbox = [0, 0, width, height]
 
-	# chunk_size = int(np.ceil(total_frames / max_workers))
 	chunk_size=10
-	print(chunk_size)
 
 	chunks = [[i, i + chunk_size] for i in range(0, len(images) - 1, chunk_size)]
 	chunks[-1][-1] = min(chunks[-1][-1], len(images) - 1)
