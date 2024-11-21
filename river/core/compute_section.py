@@ -758,75 +758,149 @@ def calculate_river_section_properties(stages: list, station: list, level: float
 
 
 def add_statistics(
-	results: dict,
-	table_results: dict,
-	transformation_matrix: np.ndarray,
-	time_between_frames: float,
-	rw_to_xsection: np.ndarray,
+    results: dict,
+    table_results: dict,
+    transformation_matrix: np.ndarray,
+    time_between_frames: float,
+    rw_to_xsection: np.ndarray,
 ) -> dict:
+    """
+    Add statistical metrics to the table_results based on PIV results.
+
+    Parameters:
+        results (dict): Dictionary containing the PIV processing results.
+        table_results (dict): Summary dictionary to which statistics will be added.
+        transformation_matrix (ndarray): Transformation matrix for coordinate conversion.
+        time_between_frames (float): Time interval between frames in PIV processing.
+        rw_to_xsection (ndarray): Matrix for converting real-world coordinates to cross-section coordinates.
+
+    Returns:
+        dict: Updated table_results dictionary with added statistical fields.
+    """
+    # Get x and y coordinate tables (the same for all frames)
+    xtable = np.array(results["x"]).reshape(results["shape"])
+    ytable = np.array(results["y"]).reshape(results["shape"])
+
+    # Convert U, V, and gradient results to numpy arrays and reshape
+    u_all = np.array(results["u"]).reshape((len(results["u"]),) + tuple(results["shape"]))
+    v_all = np.array(results["v"]).reshape((len(results["v"]),) + tuple(results["shape"]))
+    grad_all = np.array(results["gradient"]).reshape((len(results["gradient"]),) + tuple(results["shape"]))
+
+    # Initialize lists to store results
+    streamwise_vel_magnitude_list = []
+    gradient_list = []
+
+    # Loop over all frames
+    for num in range(len(u_all)):
+        U, V = u_all[num], v_all[num]
+        GRAD = grad_all[num]
+
+        # Convert displacement field to real-world coordinates
+        EAST, NORTH, displacement_east, displacement_north = ct.convert_displacement_field(
+            xtable, ytable, U, V, transformation_matrix
+        )
+
+        # Calculate displacements in real-world coordinates
+        disp_east, disp_north = get_cs_displacements(
+            table_results["east"], table_results["north"], EAST, NORTH, displacement_east, displacement_north
+        )
+
+        # Convert the displacements to the cross-section system
+        crosswise, streamwise = get_streamwise_crosswise(disp_east, disp_north, rw_to_xsection)
+
+        # Calculate streamwise velocity magnitude and append to the list
+        streamwise_velocity_magnitude = streamwise / time_between_frames
+        streamwise_vel_magnitude_list.append(streamwise_velocity_magnitude)
+
+        # Interpolate gradient values at cross-section coordinates and append
+        interpolated_gradient_values = get_cs_gradient(
+            table_results["east"], table_results["north"], EAST, NORTH, GRAD
+        )
+        gradient_list.append(interpolated_gradient_values)
+
+    # Convert lists of results to 2D NumPy arrays
+    streamwise_vel_magnitude_array = np.array(streamwise_vel_magnitude_list)
+    gradient_list_array = np.array(gradient_list)
+
+    # Calculate the standard deviation across frames for streamwise velocity
+    streamwise_vel_magnitude_std = np.std(streamwise_vel_magnitude_array, axis=0)
+
+    # Calculate seeded velocity profile using artificial seeding technique
+    seeded_vel_profile = get_artificial_seeded_profile(
+        streamwise_vel_magnitude_array.T, gradient_list_array.T
+    )
+
+    # Add calculated statistics to table_results
+    table_results["minus_std"] = table_results["streamwise_velocity_magnitude"] - streamwise_vel_magnitude_std
+    table_results["plus_std"] = table_results["streamwise_velocity_magnitude"] + streamwise_vel_magnitude_std
+    table_results["5th_percentile"] = np.percentile(streamwise_vel_magnitude_array, 5, axis=0)
+    table_results["95th_percentile"] = np.percentile(streamwise_vel_magnitude_array, 95, axis=0)
+    table_results["seeded_vel_profile"] = seeded_vel_profile
+
+    return table_results
+
+def get_artificial_seeded_profile(velocity, gradient, percentile=85):
 	"""
-	Add statistical metrics to the table_results based on PIV results.
+    Generate an artificially seeded velocity profile based on gradient intensity.
 
-	Parameters:
-	    results (dict): A dictionary containing the PIV processing results.
-	    table_results (dict): A dictionary summary to which the statistics will be added.
-	    transformation_matrix (ndarray): Transformation matrix for converting coordinates.
-	    time_between_frames (float): Time interval between frames in the PIV processing.
-		rw_to_xsection (ndarray): Transformation matrix for converting real-world coordinates to cross-section coordinates.
+    Parameters:
+        velocity : np.ndarray
+            2D array representing velocity values, where rows are stations along a cross-section
+            and columns are time steps.
+        gradient : np.ndarray
+            2D array representing gradient intensity values, matching the shape of velocity.
+        percentile : int, optional
+            Percentile threshold for gradient filtering (default is 85).
 
-	Returns:
-	    dict: The updated table_results dictionary with added statistical fields.
-	"""
-	# Get x and y coordinate tables (the same for all frames)
-	xtable = np.array(results["x"]).reshape(results["shape"])
-	ytable = np.array(results["y"]).reshape(results["shape"])
+    Returns:
+        mean_profile : np.ndarray
+            1D array of filtered mean velocity values for each station across time.
+    """
+	# Calculate the percentile threshold for gradient along the time axis
+	perc_param = np.nanpercentile(gradient, percentile, axis=1, keepdims=True)
 
-	# Convert U, V results to numpy arrays and reshape
-	u_all = np.array(results["u"]).reshape((len(results["u"]),) + tuple(results["shape"]))
-	v_all = np.array(results["v"]).reshape((len(results["v"]),) + tuple(results["shape"]))
+	# Create a filter mask where gradient values exceed the threshold
+	filter_mask = gradient > perc_param
 
-	# Initialize an empty list to store streamwise velocity magnitudes
-	streamwise_vel_magnitude_list = []
+	# Initialize a filtered velocity profile with NaNs
+	vel_profile_filtered = np.full_like(velocity, np.nan, dtype=np.float64)
 
-	# Vectorized loop over all the frames
-	for num in range(len(u_all)):
-		U, V = u_all[num], v_all[num]
+	# Apply the filter mask to retain velocities where the gradient is above the threshold
+	vel_profile_filtered[filter_mask] = velocity[filter_mask]
 
-		# Convert displacement field to real-world coordinates
-		EAST, NORTH, Displacement_EAST, Displacement_NORTH = ct.convert_displacement_field(
-			xtable, ytable, U, V, transformation_matrix
-		)
+	# Calculate the mean velocity profile across time, ignoring NaNs
+	mean_profile = np.nanmean(vel_profile_filtered, axis=1)[:, np.newaxis].flatten()
 
-		# Vectorized displacement calculation in real-world coordinates
-		displacement_east, displacement_north = get_cs_displacements(
-			table_results["east"], table_results["north"], EAST, NORTH, Displacement_EAST, Displacement_NORTH
-		)
+	return mean_profile
 
-		# Convert the displacements to the cross-section system (also vectorized)
-		crosswise, streamwise = get_streamwise_crosswise(displacement_east, displacement_north, rw_to_xsection)
+def get_cs_gradient(coord_x, coord_y, X, Y, gradient_values):
+    """
+    Interpolate gradient values along a line over a matrix of gradient values.
 
-		# Calculate streamwise velocity magnitude
-		streamwise_velocity_magnitude = streamwise / time_between_frames
+    Parameters:
+        coord_x, coord_y : 1D np.ndarray
+            Pixel coordinates where interpolation is required.
+        X, Y : 2D np.ndarray
+            Coordinate grid, either in pixel or real-world coordinates.
+        gradient_values : 2D np.ndarray
+            Gradient values defined over the X, Y coordinate grid.
 
-		# Append the result to the list
-		streamwise_vel_magnitude_list.append(streamwise_velocity_magnitude)
+    Returns:
+        interpolated_gradient_values : np.ndarray
+            Interpolated gradient values at the specified coordinates.
+    """
+    # Stack X and Y coordinates into points for interpolation
+    points = np.column_stack((X.flatten(), Y.flatten()))
 
-	# Convert the list of arrays to a 2D NumPy array
-	streamwise_vel_magnitude_array = np.array(streamwise_vel_magnitude_list)
+    # Flatten gradient values to align with flattened coordinate points
+    gradient_values_flat = gradient_values.flatten()
 
-	# Calculate the standard deviation across the different 'num' values (along axis=0)
-	streamwise_vel_magnitude_std = np.std(streamwise_vel_magnitude_array, axis=0)
+    # Interpolate gradient values at the specified coordinates
+    interpolated_gradient_values = griddata(
+        points, gradient_values_flat, (coord_x, coord_y), method="linear"
+    )
 
-	# Add the standard deviation results to table_results
-	table_results["minus_std"] = table_results["streamwise_velocity_magnitude"] - streamwise_vel_magnitude_std
-	table_results["plus_std"] = table_results["streamwise_velocity_magnitude"] + streamwise_vel_magnitude_std
-
-	# Calculate the 5th and 95th percentiles along the 0th axis
-	table_results["5th_percentile"] = np.percentile(streamwise_vel_magnitude_array, 5, axis=0)
-	table_results["95th_percentile"] = np.percentile(streamwise_vel_magnitude_array, 95, axis=0)
-
-	return table_results
-
+    return interpolated_gradient_values
 
 def get_general_statistics(x_sections: dict) -> dict:
 	# Remove any existing "summary" key to avoid processing it
@@ -990,8 +1064,8 @@ def update_current_x_section(
 
 	# Add statistics on streamwise velocity
 	table_results = add_statistics(
-		piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection
-	)
+		piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection)
+
 
 	if interpolate:
 		# Interpolate velocity and discharge data if required

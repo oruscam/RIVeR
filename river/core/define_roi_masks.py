@@ -213,7 +213,7 @@ def objective_function(height_roi: float, xsections: dict, transformation_matrix
 	    float: The difference between the desired and actual smallest side length.
 	"""
 	try:
-		desired_length = 4 * window_size
+		desired_length = 1.5 * window_size
 		min_side_length = float("inf")
 
 		for section_data in xsections.values():
@@ -258,7 +258,7 @@ def recommend_height_roi(xsections: dict, window_size: int, transformation_matri
 
 	result = opt.minimize_scalar(
 		objective_function,
-		bounds=(1, max_side_length * 3),  # Reasonable bounds for height_roi = 3 times the max CS length
+		bounds=(0.1, max_side_length),
 		args=(xsections, transformation_matrix, window_size),
 		method="Bounded",
 	)
