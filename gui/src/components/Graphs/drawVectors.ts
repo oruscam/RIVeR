@@ -16,7 +16,7 @@ export const drawVectors = (
     if (!x || !y || !streamwise_x || !streamwise_y || !check) return;
 
     const vectors = d3.range(x.length).map(i => {
-        if (streamwise_x[i] === null || streamwise_y[i] === (null) || x[i] === null || y[i] === null || streamwise_x[i] === 0 || streamwise_y[i] === 0) {
+        if (streamwise_x[i] === null || streamwise_y[i] === (null) || x[i] === null || y[i] === null) {
             return {
                 x0: x[i] / factor,
                 y0: y[i] / factor,

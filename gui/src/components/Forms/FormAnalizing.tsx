@@ -13,10 +13,13 @@ export const FormAnalizing = () => {
     const handleStop = async() => {
         const stderrPercentage = document.getElementById('stderr-output-percentage');
         const stderrStats = document.getElementById('stderr-output-stats');
+        const stderrRemaining = document.getElementById('stderr-output-remaining');
 
-        if ( stderrPercentage && stderrStats ) {
+
+        if ( stderrPercentage && stderrStats && stderrRemaining) {
             stderrPercentage.textContent = '';
             stderrStats.textContent = '';
+            stderrRemaining.textContent = '';
         }
 
         await onKillBackend();
@@ -31,7 +34,7 @@ export const FormAnalizing = () => {
             const parts = data.split(/(%|(?<=30) |(?=\[))/);
             stderrPercentage.textContent = parts[0] + parts[1]; // "Processing chunks: 100%"
             stderrStats.textContent = parts[2] + parts[3]; // "|██████████| 30/30 "
-            stderrRemaining.textContent = parts[4] + parts[5];
+            stderrRemaining.textContent = parts[4];
         }
     });
 

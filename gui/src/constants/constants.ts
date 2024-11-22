@@ -81,7 +81,8 @@ export const GRAPHS = {
  */
 export const VECTORS = {
     VELOCITY_AMPLITUDE_FACTOR: 20,
-    QUIVER_AMPLITUDE_FACTOR: 20
+    QUIVER_AMPLITUDE_FACTOR: 20,
+    
 }
 
 /**

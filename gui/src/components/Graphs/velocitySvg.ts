@@ -87,7 +87,7 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
 
     // std Area
     const areaStd = d3.area<{ velocity: number | null; distance: number; plusStd: number; minusStd: number; percentile5: number; percentile95: number; }>()
-        .defined((d) => d.velocity !== null)
+        .defined((d) => d.plusStd !== null && d.minusStd !== null)
         .x((d) => xScale(d.distance))
         .y0((d) => yScale(d.plusStd))
         .y1((d) => yScale(d.minusStd))
@@ -95,7 +95,7 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
    
     // Percentile 5th and 95th area
     const areaPercentile = d3.area<{ velocity: number | null; distance: number; plusStd: number; minusStd: number; percentile5: number; percentile95: number; }>()
-        .defined((d) => d.velocity !== null)
+        .defined((d) => d.percentile5 !== null  && d.percentile95 !== null) 
         .x((d) => xScale(d.distance))
         .y0((d) => yScale(d.percentile5))
         .y1((d) => yScale(d.percentile95))

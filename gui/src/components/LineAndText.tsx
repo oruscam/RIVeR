@@ -17,7 +17,6 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
   const { sections } = useSectionSlice();
   const { sectionPoints, dirPoints, name } = sections[index]
 
-  
   let lineColor : string = ''
   let textColor : string = ''
 
@@ -56,7 +55,6 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
     )
   }
 
-
   return (
     <>
       {
@@ -71,7 +69,7 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
       {
         !isPixelSize && sectionPoints[0].x !== 0 && (
         <Text
-          x={(sectionPoints[1].x / factor + 10 / resizeFactor)}
+          x={(sectionPoints[1].x / factor - 120 / resizeFactor)}
           y={(sectionPoints[1].y / factor - 10 / resizeFactor)}
           text={name}
           fontSize={18 / resizeFactor}
