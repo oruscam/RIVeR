@@ -47,7 +47,7 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
 
     const yScale = d3.scaleLinear()
         .domain([minDomainValue, maxDomainValue])
-        .range([(graphHeight * 2 + ( isReport ? -20 : -50)), graphHeight + (isReport ? 30 : -10)]);
+        .range([(graphHeight * 2 + ( isReport ? -40 : -50)), graphHeight + (isReport ? 30 : -10)]);
 
     // y Axis
 
@@ -56,7 +56,7 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
 
     const yAxis = d3.axisLeft(yScale)
         .tickValues(ticks)
-        .tickFormat(d3.format('.1f'))
+        .tickFormat(d3.format('.2f'))
         
     svg.append('g')
         .attr('class', 'y-axis y-axis-2')
@@ -76,11 +76,9 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
             .tickSize(-width + margin.left + margin.right)
             .tickFormat('' as any))
             .attr('stroke', 'grey')
-            .attr('stroke-width', 0.05);
+            .attr('stroke-width', 0.15);
 
     const filteredData = streamwise_velocity_magnitude.map((d, i) => ({ velocity: d, distance: distance[i], plusStd: plusStd[i], minusStd: minusStd[i], percentile5: percentile5[i], percentile95: percentile95[i] }));
-
-    console.log(filteredData)
 
     const line = d3.line<{ velocity: number | null; distance: number; plusStd: number; minusStd: number; percentile5: number; percentile95: number; }>()
         .defined(d => d.velocity !== null)
@@ -302,5 +300,5 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
         .attr('transform', 'rotate(-90)')
         .attr('fill', 'white')
         .attr('font-size', '22px')
-        .text('Velocity');
+        .text('Velocity')
 }

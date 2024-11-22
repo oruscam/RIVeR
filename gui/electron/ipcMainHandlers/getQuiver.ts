@@ -1,6 +1,6 @@
 import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
-import { executePythonShell } from "./utils/executePythonShell";
+import { executePythonShell, executePythonShell2, executePythonShellWithOuput } from "./utils/executePythonShell";
 import { readResultsPiv } from "./utils/readResultsPiv";
 import * as fs from 'fs' 
 import * as path from 'path'
@@ -45,7 +45,7 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
         const options = await createOptions('all', PROJECT_CONFIG, [], formValues)
 
         try {
-            const { data, error } = await executePythonShell(options) as any;
+            const { data, error } = await executePythonShellWithOuput(options) as any;
             const { results_path } = data
             PROJECT_CONFIG.resultsPath = results_path
 

@@ -24,7 +24,6 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   const handleKeyDownBathLevel = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>, nextFieldId: string) => {
     if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') {
       event.preventDefault();
-      document.getElementById(nextFieldId)?.focus();
 
       const value = parseFloat((event.target as HTMLInputElement).value);
       
@@ -32,6 +31,8 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
 
       if (yMax !== undefined && yMin !== undefined && value <= yMax && value >= yMin) {
         onUpdateSection({ level: value });
+        document.getElementById(nextFieldId)?.focus();
+
       } else {
         setValue(`${name}_LEVEL`, bathimetry.level);
         onSetErrorMessage({ Level: { type: "error", message: `Level must be between ${yMin?.toFixed(2)} and ${yMax?.toFixed(2)}` } });

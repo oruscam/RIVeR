@@ -583,3 +583,18 @@ transform-origin: 14px 22px;
 #D34{
     border: solid 3px var(--d34);
 }
+
+
+.analizing-output{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 95%;
+    height: 200px;
+    margin-top: 40px;
+}
+
+.analizing-output p{
+    font-size: 1.4rem;
+    margin-bottom: 5px;
+}

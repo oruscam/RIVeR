@@ -11,11 +11,12 @@ interface BathimetryProps {
     drawGrid?: boolean;
 }
 
-export const Bathimetry = ({ showLeftBank, height = 320, drawGrid = true }: BathimetryProps) => {
+export const Bathimetry = ({ showLeftBank, height = 320 }: BathimetryProps) => {
     const { sections, activeSection } = useSectionSlice()
     const { screenSizes } = useUiSlice(); 
     const { width: screenWidth } = screenSizes;
-    const { level, path, line, leftBank, x1Intersection } = sections[activeSection].bathimetry;
+    const { bathimetry, name } = sections[activeSection];
+    const { x1Intersection, leftBank, level, line, path } = bathimetry;
     const {rw_length} = sections[activeSection].pixelSize;
 
     const svgRef = useRef<SVGSVGElement>(null);
@@ -26,12 +27,12 @@ export const Bathimetry = ({ showLeftBank, height = 320, drawGrid = true }: Bath
         d3.select(svgRef.current).selectAll('*').remove()
         if ( line ) {
             if (svgRef.current) {
+                console.log(line)
                 bathimetrySvg({
                     svgElement: svgRef.current,
                     data: line,
                     level,
                     showLeftBank,
-                    drawGrid,
                     leftBank: (x1Intersection ?? 0) + (leftBank ?? 0),
                     rightBank: (x1Intersection ?? 0) + (leftBank ?? 0) + rw_length,
                 });
@@ -41,7 +42,7 @@ export const Bathimetry = ({ showLeftBank, height = 320, drawGrid = true }: Bath
 
     return (
         <div className={`${path === '' ? 'hidden' : ''}`}>
-            <svg ref={svgRef} id="bathimetry" width={graphWidth} height={height}></svg>
+            <svg ref={svgRef} width={graphWidth} height={height} id={`only-section-${name}`}/>
         </div>
     );
 };

@@ -29,8 +29,8 @@ export const drawVectors = (
         return {
             x0: x[i] / factor,
             y0: y[i] / factor,
-            x1: (x[i] / factor + streamwise_x[i] * vectorAmplitudeFactor),
-            y1: (y[i] / factor + streamwise_y[i] * vectorAmplitudeFactor),
+            x1: (x[i] / factor + streamwise_x[i] * vectorAmplitudeFactor / factor),
+            y1: (y[i] / factor + streamwise_y[i] * vectorAmplitudeFactor / factor),
             color: check[i] ? COLORS.BLUE : interpolated ? COLORS.RED : COLORS.TRANSPARENT
         };
     });
@@ -51,7 +51,7 @@ export const drawVectors = (
         svg.append("defs").append("marker")
             .attr("id", `arrow-${sectionIndex}-${index}`)
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 10)
+            .attr("refX", 0)
             .attr("refY", 0)
             .attr("markerWidth", isReport ? 4 : 6)
             .attr("markerHeight", isReport ? 4 : 6)
@@ -60,4 +60,32 @@ export const drawVectors = (
             .attr("d", "M0,-5L10,0L0,5")
             .attr('fill', vector.color);
     });
+
+    // vectors.forEach((vector, index) => {
+    //     svg.append("defs").append("marker")
+    //         .attr("id", `arrow-${sectionIndex}-${index}`)
+    //         .attr("viewBox", "0 -5 10 10")
+    //         .attr("refX", 2.5) // Ajusta refX para que el punto de referencia esté en el centro de la parte inferior
+    //         .attr("refY", 0) // Ajusta refY para que el punto de referencia esté en el centro vertical
+    //         .attr("markerWidth", isReport ? 4 : 6)
+    //         .attr("markerHeight", isReport ? 4 : 6)
+    //         .attr("orient", "auto-start-reverse")
+    //         .append("path")
+    //         .attr("d", "M0,-5L10,0L0,5L2.5,0Z") // Nuevo estilo de flecha
+    //         .attr('fill', vector.color);
+    // });
+    // vectors.forEach((vector, index) => {
+    //     svg.append("defs").append("marker")
+    //         .attr("id", `arrow-${sectionIndex}-${index}`)
+    //         .attr("viewBox", "0 -5 10 10")
+    //         .attr("refX", 2.5) // Ajusta refX para que el punto de referencia esté en el centro de la parte inferior
+    //         .attr("refY", 0) // Ajusta refY para que el punto de referencia esté en el centro vertical
+    //         .attr("markerWidth", isReport ? 4 : 6)
+    //         .attr("markerHeight", isReport ? 4 : 6)
+    //         .attr("orient", "auto-start-reverse")
+    //         .append("path")
+    //         .attr("d", "M0,-5L10,0L0,5L2.5,0Z") // Nuevo estilo de flecha
+    //         .attr('fill', vector.color)
+    //         .attr('stroke', vector.color); // Añadir contorno del mismo color
+    // });
 }

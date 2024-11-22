@@ -129,6 +129,7 @@ export const useProjectSlice = () => {
                 end_frame: parameters.endFrame,
                 step: parameters.step,
             })
+            dispatch(clearMessage())
             dispatch(setFirstFramePath(filePrefix + result.initial_frame))
             dispatch(setVideoParameters(parameters))
             dispatch(setLoading(false));

@@ -18,7 +18,7 @@ import { generateXAxisTicks } from '../../helpers/graphsHelpers'
 export const AllInOne = ({ width, height, index, isReport  } : {width?: number, height?: number, index?: number, isReport: boolean}) => {
     const svgRef = useRef<SVGSVGElement>(null)
     const { sections, activeSection } = useSectionSlice();
-    const { data, bathimetry } = sections[index ? index : activeSection]
+    const { data, bathimetry, name } = sections[index ? index : activeSection]
     const { level, x1Intersection, x2Intersection, width: bathWidth } = bathimetry
     const { screenSizes } = useUiSlice()
     const { width: screenWidth } = screenSizes
@@ -49,7 +49,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                     .range([margin.left + 30, width - margin.right - 30]) 
 
                 // Common xAxis
-                const ticks = generateXAxisTicks(distance, x1Intersection!, x2Intersection!, bathWidth!);
+                const ticks = generateXAxisTicks(x1Intersection!, x2Intersection!, bathWidth!);
 
                 const xAxis = d3.axisBottom(xScale)
                     .tickValues(ticks)
@@ -111,15 +111,15 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                     level,
                     showLeftBank: false,
                     sizes: { width, height, margin, graphHeight },
-                    drawGrid: false,
-                    xScaleAllInOne: xScale
+                    xScaleAllInOne: xScale,
+                    isReport
                 })
 
             }
     }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q])
 
   return (
-    <svg ref={svgRef} width={width ? width : graphWidth} height={height ? height : 500} id='all-in-one-graph'></svg>
+    <svg ref={svgRef} width={width ? width : graphWidth} height={height ? height : 500} id={`section-${name}`}></svg>
   ) 
 }
 

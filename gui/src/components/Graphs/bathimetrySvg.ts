@@ -17,7 +17,6 @@ interface BathymetryChartProps {
     data: Point[];
     level?: number;
     showLeftBank: boolean;
-    drawGrid: boolean;
     leftBank?: number;
     rightBank?: number;
     xScaleAllInOne?: d3.ScaleLinear<number, number>;
@@ -32,9 +31,10 @@ interface BathymetryChartProps {
         };
         graphHeight: number;
     };
+    isReport?: boolean;
 }
 
-export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGrid, leftBank, rightBank, xScaleAllInOne, sizes }: BathymetryChartProps) => {
+export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, leftBank, rightBank, xScaleAllInOne, sizes, isReport = false }: BathymetryChartProps) => {
     const svg = d3.select(svgElement);
     const width = +svg.attr('width');
     const height = +svg.attr('height');
@@ -46,6 +46,7 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
     const yMin = d3.min(data, d => d.y)!
     const yMax = d3.max(data, d => d.y)!
 
+
     let xScale;
     let yScale;
 
@@ -55,19 +56,18 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
         
         yScale = d3.scaleLinear()
             .domain([yMin, yMax])
-            .range([heightSizes - marginSizes.bottom - 30, graphHeight*2  - 10]);
+            .range([heightSizes - marginSizes.bottom - 30, graphHeight*2 - 10]);
 
         svg.append('text')
             .attr('class', 'y-axis-label')
             .attr('text-anchor', 'end')
-            .attr('x', - graphHeight *3 + 180)
+            .attr('x', isReport ? -graphHeight * 3 + 160 : -graphHeight *3 + 180)
             .attr('y', margin.left - 35)
             .attr('transform', 'rotate(-90)')
             .attr('fill', 'white')
             .attr('font-size', '22px')
             .text('Stage');
         
-
     } else {
         xScale = d3.scaleLinear()
             .domain([xMin, xMax])
@@ -95,8 +95,6 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
             .attr('transform', `translate(0,${height - margin.bottom})`)
             .call(xAxis)
             .selectAll('.domain');
-            
-        
     }
 
     const line = d3.line<Point>()
@@ -107,7 +105,7 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
     // Create and add Y ticks
     const ticks = generateYAxisTicks(undefined, yMin, yMax);
     
-    const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.1f'));
+    const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.2f'));
     
     svg.append('g')
         .attr('transform', `translate(${margin.left + 10},0)`)
@@ -131,33 +129,8 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
             .tickSize(-width + margin.left + margin.right)
             .tickFormat('' as any))
             .attr('stroke', 'grey')
-            .attr('stroke-width', 0.05);
+            .attr('stroke-width', 0.15);
             
-
-
-    if( drawGrid ){
-        // Añadir cuadrícula
-        const makeXGridlines = () => d3.axisBottom(xScale).ticks(5);
-        const makeYGridlines = () => d3.axisLeft(yScale).ticks(5);
-    
-        svg.append('g')
-            .attr('class', 'grid')
-            .attr('transform', `translate(0,${height - margin.bottom})`)
-            .call(makeXGridlines()
-                .tickSize(-height + margin.top + margin.bottom)
-                .tickFormat('' as any))
-            .attr('stroke', 'grey')
-            .attr('stroke-width', 0.05);
-    
-        svg.append('g')
-            .attr('class', 'grid')
-            .attr('transform', `translate(${margin.left},0)`)
-            .call(makeYGridlines()
-                .tickSize(-width + margin.left + margin.right)
-                .tickFormat('' as any))
-            .attr('stroke', 'grey')
-            .attr('stroke-width', 0.05);
-    }
 
     // Sombrear el área entre la línea horizontal y la gráfica original
 
@@ -170,7 +143,7 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
 
     svg.append('defs')
         .append('clipPath')
-        .attr('id', 'clip-bathymetry')
+        .attr('id', `clip-bathimetry-${svgElement.id}`)
         .append('path')
         .datum(data)
         .attr('d', line);
@@ -179,7 +152,7 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
         .datum(data)
         .attr('fill', COLORS.TRANSPARENT_WHITE)
         .attr('d', area)
-        .attr('clip-path', 'url(#clip-bathymetry)'); // Aplicar clip-path
+        .attr('clip-path', `clip-bathimetry-${svgElement.id}`); // Aplicar clip-path
 
     // Añadir etiquetas de valor a los ejes
 

@@ -44,8 +44,8 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig) {
             const maskJson = JSON.stringify(data.mask, null, 4)
             const bboxJson = JSON.stringify(data.bbox, null, 4)
             
-            await fs.promises.writeFile(maskArrayPath, maskJson, 'utf-8')
-            await fs.promises.writeFile(bboxArrayPath, bboxJson, 'utf-8')
+            fs.promises.writeFile(maskArrayPath, maskJson, 'utf-8')
+            fs.promises.writeFile(bboxArrayPath, bboxJson, 'utf-8')
 
             PROJECT_CONFIG.bboxPath = bboxArrayPath
             PROJECT_CONFIG.maskPath = maskArrayPath 

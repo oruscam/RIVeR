@@ -46,8 +46,8 @@ export const PixelSize = () => {
 
   useEffect(() => {
     methods.reset({
-      pixel_size_LINE_LENGTH: formatNumber(pixelSize.rw_length),
-      pixel_size_PIXEL_SIZE: formatNumber(pixelSize.size),
+      pixel_size_LINE_LENGTH: formatNumberToPrecision2(pixelSize.rw_length),
+      pixel_size_PIXEL_SIZE: formatNumberToPrecision2(pixelSize.size),
       pixel_size_EAST_point_1: rwPoints[0].x,
       pixel_size_EAST_point_2: rwPoints[1].x,
       pixel_size_NORTH_point_1: rwPoints[0].y,
