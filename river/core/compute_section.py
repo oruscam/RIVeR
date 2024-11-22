@@ -119,11 +119,11 @@ def transform_pixel_to_real_world_numba(x_pix: float, y_pix: float, transformati
 
 @jit(nopython=True)
 def convert_displacement_field_numba(
-		X: np.ndarray,
-		Y: np.ndarray,
-		U: np.ndarray,
-		V: np.ndarray,
-		transformation_matrix: np.ndarray
+		X: np.ndarray[np.float64],
+		Y: np.ndarray[np.float64],
+		U: np.ndarray[np.float64],
+		V: np.ndarray[np.float64],
+		transformation_matrix: np.ndarray[np.float64]
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 	"""
     Numba version of convert_displacement_field from coordinate_transform.py.
@@ -670,7 +670,7 @@ def add_median_results(
 	return table_results
 
 
-def add_depth(results: dict, shifted_stations: np.ndarray, stages: np.ndarray, level: float) -> float:
+def add_depth(results: dict, shifted_stations: np.ndarray, stages: np.ndarray, level: float) -> dict:
 	"""
 	Add interpolated depth to the station dictionary using NumPy arrays.
 
@@ -868,21 +868,25 @@ def convert_arrays_to_lists(data: dict | list | np.ndarray):
 		return data
 
 
-def calculate_river_section_properties(stages: list, station: list, level: float) -> dict:
+def calculate_river_section_properties(stages: list, station: list, level: float) -> Tuple[float, float, float, float]:
 	"""
 	Calculate wet area, width, maximum depth, and average depth of a river section.
 
 	Parameters:
-	    stages (list): Elevations of the riverbed at different stations.
-	    station (list): Corresponding positions of the stations along the section.
-	    level (float): Current water level.
+		stages (list): Elevations of the riverbed at different stations.
+		station (list): Corresponding positions of the stations along the section.
+		level (float): Current water level.
 
 	Returns:
-	    dict: A dictionary containing wet area, width, max depth, and average depth.
+		Tuple[float, float, float, float]: A tuple containing:
+			- wet_area: Total wetted area of the section
+			- width: Width of the wetted section
+			- max_depth: Maximum depth in the section
+			- average_depth: Average depth in the section
 	"""
 	# Ensure arrays are numpy arrays for efficient calculations
-	stages = np.array(stages)
-	station = np.array(station)
+	stages = np.array(stages, dtype=np.float64)
+	station = np.array(station, dtype=np.float64)
 
 	# Calculate the differences between consecutive station positions (dx)
 	dx = np.diff(station)
@@ -903,7 +907,6 @@ def calculate_river_section_properties(stages: list, station: list, level: float
 	# Guard against division by zero if width is zero
 	average_depth = wet_area / width if width > 0 else 0
 
-	# Return the results as a dictionary
 	return wet_area, width, max_depth, average_depth
 
 def get_artificial_seeded_profile(velocity, gradient, percentile=85):
@@ -941,33 +944,33 @@ def get_artificial_seeded_profile(velocity, gradient, percentile=85):
 	return mean_profile
 
 def get_cs_gradient(coord_x, coord_y, X, Y, gradient_values):
-    """
-    Interpolate gradient values along a line over a matrix of gradient values.
+	"""
+	Interpolate gradient values along a line over a matrix of gradient values.
 
-    Parameters:
-        coord_x, coord_y : 1D np.ndarray
-            Pixel coordinates where interpolation is required.
-        X, Y : 2D np.ndarray
-            Coordinate grid, either in pixel or real-world coordinates.
-        gradient_values : 2D np.ndarray
-            Gradient values defined over the X, Y coordinate grid.
+	Parameters:
+		coord_x, coord_y : 1D np.ndarray
+			Pixel coordinates where interpolation is required.
+		X, Y : 2D np.ndarray
+			Coordinate grid, either in pixel or real-world coordinates.
+		gradient_values : 2D np.ndarray
+			Gradient values defined over the X, Y coordinate grid.
 
-    Returns:
-        interpolated_gradient_values : np.ndarray
-            Interpolated gradient values at the specified coordinates.
-    """
-    # Stack X and Y coordinates into points for interpolation
-    points = np.column_stack((X.flatten(), Y.flatten()))
+	Returns:
+		interpolated_gradient_values : np.ndarray
+			Interpolated gradient values at the specified coordinates.
+	"""
+	# Stack X and Y coordinates into points for interpolation
+	points = np.column_stack((X.flatten(), Y.flatten()))
 
-    # Flatten gradient values to align with flattened coordinate points
-    gradient_values_flat = gradient_values.flatten()
+	# Flatten gradient values to align with flattened coordinate points
+	gradient_values_flat = gradient_values.flatten()
 
-    # Interpolate gradient values at the specified coordinates
-    interpolated_gradient_values = griddata(
-        points, gradient_values_flat, (coord_x, coord_y), method="linear"
-    )
+	# Interpolate gradient values at the specified coordinates
+	interpolated_gradient_values = griddata(
+		points, gradient_values_flat, (coord_x, coord_y), method="linear"
+	)
 
-    return interpolated_gradient_values
+	return interpolated_gradient_values
 
 def get_general_statistics(x_sections: dict) -> dict:
 	# Remove any existing "summary" key to avoid processing it
