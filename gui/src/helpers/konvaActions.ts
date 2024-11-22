@@ -45,35 +45,18 @@ export const imageZoom = ( event: KonvaEventObject<WheelEvent>, setResizeFactor:
             stage.position(newPos);
         }
 
-        if ( newScale > 1.5 && isDraggable ){
+        if ( newScale > 1.1 && isDraggable ){
             stage.draggable(true)
+            setResizeFactor(newScale - newScale * 0.05)
 
-            if ( newScale <  3){
-                setResizeFactor(1.5)
-              } else if ( newScale < 8){
-                setResizeFactor(3)
-              } else if ( newScale < 15){
-                setResizeFactor(4)
-              } else if ( newScale < 22){
-                setResizeFactor(5)
-              }else if ( newScale < 29){
-                setResizeFactor(6)
-              } else if ( newScale < 36){
-                setResizeFactor(7)
-              } else if ( newScale < 43){
-                setResizeFactor(9)
-              } else if ( newScale < 50){
-                setResizeFactor(10)
-              } else if ( newScale < 60 ){
-                setResizeFactor(11)
-              } else if ( newScale < 70 ){
-                setResizeFactor(12)
-              }
 
         } else {
             stage.draggable(false)
             setResizeFactor(1)
         }
+
+
+
     }
 }
 

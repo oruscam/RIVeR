@@ -12,11 +12,11 @@ export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice()
   const { type, video } = useProjectSlice()
   const { data } = video 
+  const { sections, activeSection } = useSectionSlice()
 
-  const { sections } = useSectionSlice()
-
-  console.log(sections[1].bathimetry)
-
+  console.log(sections[activeSection].name)
+  console.log(sections[activeSection].hasChanged)
+  console.log(sections)
 
   const getStep4 = () => {
     switch (type) {
@@ -43,7 +43,6 @@ export const App: React.FC = () => {
     }
 
     window.addEventListener('resize', handleResize)
-
     handleResize()
 
     return () => window.removeEventListener('resize', handleResize)

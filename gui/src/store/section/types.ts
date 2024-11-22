@@ -60,7 +60,7 @@ interface SectionData {
     mean_Vs: number;
     displacement_x_streamwise: number[];
     displacement_y_streamwise: number[];
-    filled_streamwise_magnitude: number[];
+    filled_streamwise_velocity_magnitude: number[];
     filled_streamwise_east: number[];
     filled_streamwise_north: number[];
     filled_crosswise_east: number[];
@@ -90,6 +90,7 @@ interface Section {
     interpolated: boolean;
     sectionPointsRW?: Point[];
     data?: SectionData;
+    hasChanged: boolean;
 }
 
 interface Processing {
@@ -110,9 +111,28 @@ interface Processing {
     artificialSeeding: boolean
 }
 
+interface SummaryStatistics {
+    total_W: number;
+    total_A: number;
+    total_Q: number;
+    mean_V: number;
+    alpha: number;
+    mean_Vs: number;
+    max_depth: number;
+    average_depth: number;
+    measured_Q: number;
+}
+
+interface Summary {
+    mean: SummaryStatistics;
+    std: SummaryStatistics;
+    cov: SummaryStatistics;
+}
+
 interface SectionState {
     sections: Section[];
+    summary: Summary | undefined;
     activeSection: number;
 }
 
-export type { SectionState, Section, Point, Bathimetry, PixelSize, Processing, SectionData }
+export type { SectionState, Section, Point, Bathimetry, PixelSize, Processing, SectionData, Summary }

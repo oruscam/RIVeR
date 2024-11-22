@@ -7,7 +7,6 @@ import { useState } from 'react'
 import { Progress } from '../components'
 import { useProjectSlice } from '../hooks'
 
-
 export const VideoRange = () => {
   const [formStep, setFormStep] = useState(1)
   const { video } = useProjectSlice();

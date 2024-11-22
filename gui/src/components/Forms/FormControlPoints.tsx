@@ -15,7 +15,7 @@ export const FormControlPoints = () => {
 
   return (
     <>
-        <h2 className="form-title"> Control Points </h2>
+        <h1 className="form-title"> Control Points </h1>
         <form id="form-control-points" className="mt-5">
             <div className="form-base-2">
                 <div className="input-container-2">

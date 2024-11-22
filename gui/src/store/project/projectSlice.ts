@@ -13,8 +13,8 @@ const defaultVideo = {
     },
     parameters: {
         step: 1,
-        startTime: 0,
-        endTime: 1,
+        startTime: 0.00,
+        endTime: 0.00,
         startFrame: 0,
         endFrame: 0,
     },

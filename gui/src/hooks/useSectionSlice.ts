@@ -5,7 +5,7 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setDirPoints, addSection, deleteSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, } from '../store/section/sectionSlice';
+import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, } from '../store/section/sectionSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints } from '../helpers';
@@ -22,7 +22,7 @@ import { CanvasPoint, FormPoint, Point } from '../types';
  */
 
 export const useSectionSlice = () => {
-    const { sections, activeSection } = useSelector((state: RootState) => state.section);
+    const { sections, activeSection, summary } = useSelector((state: RootState) => state.section);
     const { processing } = useSelector((state: RootState) => state.data);
     const dispatch = useDispatch();
 
@@ -34,7 +34,7 @@ export const useSectionSlice = () => {
 
     const onSetDirPoints = async ( canvasPoint: CanvasPoint | null, formPoint: FormPoint | null, ) => {
         const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
-
+        console.log('setDirPoints')
         // Clean section points for better visualization.
         onUpdateSectionPoints([])
 
@@ -87,7 +87,6 @@ export const useSectionSlice = () => {
             })
         }
 
-        
         /**
          * If formPoint is not null, the real world coordinates are being modified by the user in the form.
          * The newPoints variable is calculated by updating the point in the position specified in the formPoint object.
@@ -175,6 +174,7 @@ export const useSectionSlice = () => {
         } else {
             const {size, rw_length} = computePixelSize(newPoints as Point[], rwPoints)
             dispatch(setPixelSize({size, rw_length}))
+            dispatch(setHasChanged(true))
         }    
 
     }
@@ -187,7 +187,7 @@ export const useSectionSlice = () => {
 
     const onSetRealWorld = async (point: string | number, position: string) => {
         const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
-
+        console.log('setRealWorld')
         /**
          * The newPoints variable is used to store the new real world coordinates after the modification.
          * The flags are used to avoid unnecessary calculations.
@@ -264,6 +264,7 @@ export const useSectionSlice = () => {
         } else{ 
             const {size, rw_length} = computePixelSize(dirPoints, newPoints)
             dispatch(setPixelSize({size, rw_length}))
+            dispatch(setHasChanged(true))
         }
     };
 
@@ -275,7 +276,15 @@ export const useSectionSlice = () => {
     const onSetPixelSize = async ( _data: FieldValues ) => {
         dispatch(setLoading(true))
         
-        const { dirPoints, rwPoints, pixelSize } = sections[0]
+        const { dirPoints, rwPoints, pixelSize, hasChanged } = sections[0]
+
+        if ( hasChanged === false ){
+            dispatch(setLoading(false))
+            dispatch(setActiveSection(activeSection + 1))
+            return
+        }
+        onCleanSections()
+        
         const args = {
             dirPoints,
             rwPoints,
@@ -288,6 +297,7 @@ export const useSectionSlice = () => {
             await ipcRenderer.invoke('pixel-size', args)
             
             dispatch(setLoading(false))
+            dispatch(setHasChanged(false))
             dispatch(setActiveSection(activeSection + 1))
         } catch (error) {
             console.log("ERROR EN SETPIXELSIZE")
@@ -355,7 +365,7 @@ export const useSectionSlice = () => {
         try {
             await ipcRenderer.invoke('set-sections', { data })
             const { height_roi } = await ipcRenderer.invoke('recommend-roi-height')
-            const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi })
+            const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi, data: false })
 
             const images = await ipcRenderer.invoke('get-images')
             
@@ -485,6 +495,7 @@ export const useSectionSlice = () => {
             numStations: DEFAULT_NUM_STATIONS,
             alpha: DEFAULT_ALPHA,
             interpolated: true,
+            hasChanged: false,
         }
         dispatch(addSection(section))
     }
@@ -495,14 +506,13 @@ export const useSectionSlice = () => {
      */
 
     const onDeleteSection = () => {
-        dispatch(deleteSection())
+        dispatch(deleteSection(-1))
     }
 
     const onSetExtraFields = () => {
         const section = sections[activeSection]
         dispatch(updateSection({...section, extraFields: !section.extraFields}))
     }
-
 
     interface ChangeDataValues {
         type: string;
@@ -580,18 +590,11 @@ export const useSectionSlice = () => {
         
     }
 
-    const onCleanSection = () => {
-        dispatch(updateSection({
-            ...sections[activeSection], 
-            drawLine: false,
-            dirPoints: DEFAULT_POINTS, 
-            rwPoints: DEFAULT_POINTS, 
-            sectionPoints: DEFAULT_POINTS,
-            extraFields: false,
-            data: undefined,
-            pixelSize: {size: 0, rw_length: 0}, 
-            bathimetry: {path: '', name: '', leftBank: 0}}))
-        dispatch(setActiveSection(0))
+    const onCleanSections = () => {
+        sections.forEach((_section, index) => {
+            if (index === 0) return
+            dispatch(deleteSection(index))
+        })
     }
 
     const onCleanSectionsData = () => {
@@ -604,7 +607,7 @@ export const useSectionSlice = () => {
     return {    
         sections,
         activeSection,
-
+        summary,
 
         onSetDirPoints,
         onAddSection,
@@ -617,7 +620,7 @@ export const useSectionSlice = () => {
         onSetExtraFields,
         onChangeDataValues,
         onGetBathimetry,
-        onCleanSection,
+        onCleanSections,
         onCleanSectionsData
     };
 };

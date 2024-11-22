@@ -21,12 +21,13 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
 
   const { yMax, yMin, xMin, x1Intersection, leftBank, xMax } = bathimetry
 
-  const handleKeyDownBathLevel = (event: React.KeyboardEvent<HTMLInputElement>, nextFieldId: string) => {
-    if (event.key === 'Enter') {
+  const handleKeyDownBathLevel = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>, nextFieldId: string) => {
+    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') {
       event.preventDefault();
       document.getElementById(nextFieldId)?.focus();
 
       const value = parseFloat((event.target as HTMLInputElement).value);
+      
       if (isNaN(value) || value === bathimetry.level) return;
 
       if (yMax !== undefined && yMin !== undefined && value <= yMax && value >= yMin) {
@@ -35,10 +36,6 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
         setValue(`${name}_LEVEL`, bathimetry.level);
         onSetErrorMessage({ Level: { type: "error", message: `Level must be between ${yMin?.toFixed(2)} and ${yMax?.toFixed(2)}` } });
       }
-    }
-
-    if (event.key === 'Tab' && !extraFields) {
-      event.preventDefault();
     }
   };
 
@@ -69,6 +66,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
         <div className="form-base-2 mt-2">
+          
           <div className="input-container-2">
             <button
               className={`wizard-button form-button me-1 ${drawLine ? "wizard-button-active" : ""}`}
@@ -78,6 +76,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             > {t('CrossSections.drawLine')} </button>
             <span className="read-only bg-transparent"></span>
           </div>
+
           <div className="input-container-2 mt-1">
             <label className="read-only me-1" htmlFor="CS_LENGTH">{t('CrossSections.csLength')}</label>
             <input
@@ -90,6 +89,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               readOnly={true}
             />
           </div>
+
           <div className="input-container-2 mt-1">
             <input
               type="file"
@@ -112,6 +112,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             > {t('CrossSections.importBath')} </button>
             <label className="read-only bg-transparent mt-1">{bathimetry.name !== "" ? bathimetry.name : ''}</label>
           </div>
+
           <div className="input-container-2 mt-1 mb-3">
             <label className="read-only me-1" htmlFor="LEVEL">{t('CrossSections.level')}</label>
             <input
@@ -122,12 +123,15 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 validate: () => bathimetry.level !== 0
               })}
               id="LEVEL"
-              onKeyDown={(event) => handleKeyDownBathLevel(event, 'wizard-next')}
+              onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
+              onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
             />
           </div>
+
           <Bathimetry
             showLeftBank={true}
           />
+
           <div className="input-container-2 mt-3 mb-4" id="left-bank-station-container">
             <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">{t('CrossSections.leftBankStation')}</label>
             <input

@@ -48,7 +48,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormPixelSizeProps ) => {
   
   return (
     <>
-      <h2 className='form-title'> {t('PixelSize.title')}</h2>
+      <h1 className='form-title'> {t('PixelSize.title')}</h1>
       <form onSubmit={onSubmit} onError={onError} className='mt-5 form-scroll' id='form-pixel-size' >
         <span id='pixel_size-HEADER'></span>
         <div className='form-base-2'>

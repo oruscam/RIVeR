@@ -62,13 +62,13 @@ export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
         } 
       }
 
-
+      {`read-ony me-1 %{modeName === 'pixel_size' ? '' : 'red'}`}
   return (
     <>
         <h2 className='form-subtitle mt-5 only-one-item' id='REAL_WORLD'> Real World Coordinates </h2>
 
         <div className="input-container-2 mt-2">
-          <label className='read-only red me-1' htmlFor={`EAST_${pointName1}`}>{t(`${step}.RealWorld.eastPoint1`)}</label>
+          <label className={`read-only me-1 ${modeName === 'pixel_size' ? '' : 'red'}`} htmlFor={`EAST_${pointName1}`}>{t(`${step}.RealWorld.eastPoint1`)}</label>
           <input  type='number' 
                   step="any" 
                   className='input-field' 
@@ -80,7 +80,7 @@ export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
         </div>
 
         <div className="input-container-2 mt-1">
-          <label className='read-only red me-1' htmlFor={`NORTH_${pointName1}`}> {t(`${step}.RealWorld.northPoint1`)}</label>
+          <label className={`read-only me-1 ${modeName === 'pixel_size' ? '' : 'red'}`} htmlFor={`NORTH_${pointName1}`}> {t(`${step}.RealWorld.northPoint1`)}</label>
           <input  type='number' 
                   step="any" 
                   className='input-field' 
@@ -92,7 +92,7 @@ export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
         </div>
 
         <div className="input-container-2 mt-1">
-          <label className='read-only green me-1' htmlFor={`EAST_${pointName2}`}> {t(`${step}.RealWorld.eastPoint2`)}</label>
+          <label className={`read-only me-1 ${modeName === 'pixel_size' ? '' : 'green'}`} htmlFor={`EAST_${pointName2}`}> {t(`${step}.RealWorld.eastPoint2`)}</label>
           <input  type='number' 
                   step="any" 
                   className='input-field' 
@@ -104,7 +104,7 @@ export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
         </div>
         
         <div className="input-container-2 mt-1">
-          <label className='read-only green me-1' htmlFor={`NORTH_${pointName2}`}> {t(`${step}.RealWorld.northPoint2`)}</label>
+          <label className={`read-only me-1 ${modeName === 'pixel_size' ? '' : 'green'}`} htmlFor={`NORTH_${pointName2}`}> {t(`${step}.RealWorld.northPoint2`)}</label>
           <input  type='number' 
                   step="any" 
                   className='input-field' 

@@ -1,4 +1,4 @@
-import { Progress, Results as ResultsComponent, WizardButtons } from "../components"
+import { Error, Progress, Results as ResultsComponent, WizardButtons } from "../components"
 import { VelocityVector } from "../components/Graphs"
 import { useUiSlice } from "../hooks"
 
@@ -11,6 +11,7 @@ export const Results = () => {
     <div className='regular-page'>
         <div className='media-container'>
           <VelocityVector width={width} height={height} factor={factor}/>
+          <Error/>
         </div>
         <div className='form-container'>
             <Progress/>

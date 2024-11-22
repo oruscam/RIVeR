@@ -2,12 +2,10 @@ import { Section } from '../store/section/types';
 import { getBathimetryValues } from './getBathimetryValues';
 import { MODULE_NUMBER } from '../constants/constants';
 
-
 /**
  * This file contains helper functions to load the project data from the projects file.
  * It is used in the useProjectSlice.ts file.
  */
-
 
 /**
  * 
@@ -21,8 +19,8 @@ export const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, se
     const { step, start, end } = video_range
     dispatch(setVideoParameters({
         step: step,
-        startTime: (start / 30).toFixed(4),
-        endTime: (end / 30).toFixed(4),
+        startTime: parseFloat((start / 30).toFixed(2)),
+        endTime: parseFloat((end / 30).toFixed(2)),
         startFrame: start,
         endFrame: end,
     }))
@@ -60,75 +58,21 @@ export const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispat
  * @param sections - sections state. By default we have pixel_size and CS_default_1. In the first lop on the xsections we update the CS_default_1 section. And then we add the rest of the sections.
  */
 
-export const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any) => {
+export const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary: any) => {
     let flag = true
     let flagData = false
-    Object.entries(values).forEach( async ([key, value]: [string, XSectionValue]) => {
-        const { rw_length, xl, xr, yl, yr, dir_xl, dir_yl, dir_xr, dir_yr, dir_east_l, dir_east_r, dir_north_l, dir_north_r, bath, level, left_station, alpha, num_stations } = value
-        
-        const { id, east, north, distance, x, y, displacement_x, displacement_y, displacement_east, displacement_north, streamwise_east, streamwise_north, crosswise_east, crosswise_north, streamwise_velocity_magnitude, depth, check, W, A, Q, Q_portion, minus_std, plus_std, total_Q, measured_Q, interpolated_Q, total_A, total_W, max_depth, average_depth, mean_V, mean_Vs, displacement_x_streamwise, displacement_y_streamwise, filled_streamwise_magnitude, filled_crosswise_east, filled_crosswise_north, filled_streamwise_east, filled_streamwise_north, Q_minus_std, Q_plus_std, total_q_std, showPercentile, showVelocityStd, interpolated, streamwise_x, streamwise_y } = value
-        
-        let data = undefined
+    Object.entries(values).forEach( async ([key, value]: [ string, XSectionValue ]) => {
+        const { rw_length, xl, xr, yl, yr, dir_xl, dir_yl, dir_xr, dir_yr, dir_east_l, dir_east_r, dir_north_l, dir_north_r, bath, level, left_station, alpha, num_stations, distance, interpolated } = value
         
         if ( distance ){
             flagData = true
-            data = {
-                num_stations: num_stations,
-                alpha: parseFloat(alpha.toFixed(2)),
-                id: id,
-                east: east,
-                north: north,
-                distance: distance,
-                x: x,
-                y: y,
-                displacement_x: displacement_x,
-                displacement_y: displacement_y,
-                displacement_east: displacement_east,
-                displacement_north: displacement_north,
-                streamwise_east: streamwise_east,
-                streamwise_north: streamwise_north,
-                crosswise_east: crosswise_east,
-                crosswise_north: crosswise_north,
-                streamwise_velocity_magnitude: streamwise_velocity_magnitude,
-                streamwise_x: streamwise_x,
-                streamwise_y: streamwise_y,
-                depth: depth,
-                check: check,
-                W: W,
-                A: A,
-                Q: Q,
-                Q_portion: Q_portion,
-                minus_std: minus_std,
-                plus_std: plus_std,
-                percentile_5th: value['5th_percentile'],
-                percentile_95th: value['95th_percentile'],
-                total_Q: parseFloat(total_Q.toFixed(2)),
-                measured_Q: parseFloat(measured_Q?.toFixed(2)),
-                interpolated_Q: parseFloat(interpolated_Q?.toFixed(2)),
-                total_A: parseFloat(total_A.toFixed(2)),
-                total_W: parseFloat(total_W.toFixed(2)),
-                max_depth: max_depth,
-                average_depth: average_depth,
-                mean_V: mean_V,
-                mean_Vs: mean_Vs,
-                displacement_x_streamwise: displacement_x_streamwise,
-                displacement_y_streamwise: displacement_y_streamwise,
-                filled_streamwise_magnitude: filled_streamwise_magnitude,
-                filled_streamwise_east: filled_streamwise_east,
-                filled_streamwise_north: filled_streamwise_north,
-                filled_crosswise_east: filled_crosswise_east,
-                filled_crosswise_north: filled_crosswise_north,
-                Q_minus_std: Q_minus_std,
-                Q_plus_std: Q_plus_std,
-                total_q_std: total_q_std,
-                interpolated: interpolated,
-                showVelocityStd: showVelocityStd,
-                showPercentile: showPercentile,
-            }
         }
 
         try {
-            if ( key === 'summary') return
+            if ( key === 'summary') {
+                dispatch(setSummary(values.summary))
+                return
+            }
             const result = await ipcRenderer.invoke('get-bathimetry', { path: bath })
             const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = getBathimetryValues(result.line, level)
             
@@ -158,7 +102,7 @@ export const onLoadCrossSections = (values: XSections, dispatch: any, updateSect
                     alpha: alpha,
                     numStations: num_stations,
                     interpolated: interpolated,
-                    data: data
+                    data: {...value}
                 }))
             } else {
                 dispatch(addSection({
@@ -184,12 +128,11 @@ export const onLoadCrossSections = (values: XSections, dispatch: any, updateSect
                     alpha: alpha,
                     numStations: num_stations,
                     interpolated: interpolated,
-                    data: data
+                    data: {...value}
                 }))
             }
         } catch (error) {
             console.log(error)
-            
         }        
     })
 
@@ -202,6 +145,8 @@ export const onLoadCrossSections = (values: XSections, dispatch: any, updateSect
 
 export const onLoadProcessingForm = ( values: ProcessingValues, dispatch: any, updateForm: any ) => {
     const { artificial_seeding, clahe, clip_limit, grayscale, median_test_epsilon, median_test_filtering, median_test_threshold, remove_background, std_filtering, std_threshold, interrogation_area_1, interrogation_area_2, roi_height } = values
+
+    console.log('onLoadProcessingForm - helpers', values)
 
     dispatch(updateForm({
         artificialSeeding: artificial_seeding,
@@ -261,7 +206,7 @@ interface XSectionValue {
     dir_north_r: number,
     bath: string,
     level: number,
-    leftBank: number,
+    left_station: number,
     alpha: number,
     num_stations: number
     id: number,
@@ -300,7 +245,7 @@ interface XSectionValue {
     mean_Vs: number,
     displacement_x_streamwise: number[],
     displacement_y_streamwise: number[],
-    filled_streamwise_magnitude: number[],
+    filled_streamwise_velocity_magnitude: number[],
     filled_streamwise_east: number[],
     filled_streamwise_north: number[],
     filled_crosswise_east: number[],

@@ -6,7 +6,7 @@ import path from 'path'
 
 const supportedFormat = 'MP4'
 
-async function getVideoMetadata( videoPath: string): Promise<{ width: number; height: number; fps: number; duration: string, creation: string, name: string, path: string }> {
+async function getVideoMetadata( videoPath: string ): Promise<{ width: number; height: number; fps: number; duration: string, creation: string, name: string, path: string }> {
     const extension = path.extname(videoPath).slice(1);
 
     if ( extension.toUpperCase() !== supportedFormat) {

@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { useDataSlice, useSectionSlice } from "../../hooks";
+import { useDataSlice, useSectionSlice, useUiSlice } from "../../hooks";
 import { AllInOne } from "../Graphs/AllInOne"
 import { Grid } from "../index"
 import { useTranslation } from "react-i18next";
@@ -14,6 +14,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
   const { name, data, numStations, alpha } = sections[activeSection]
   const { onGetResultData } = useDataSlice();
+  const { onSetErrorMessage } = useUiSlice();
 
   const { t } = useTranslation();  
 
@@ -45,10 +46,13 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
       
       switch (id) {
         case 'stations-number':
-          if ( value !== 0 && value !== numStations && isNaN(value) === false ){
+          if ( value !== numStations && isNaN(value) === false && value >= 3 ){
             onUpdateSection({ numStations: value })
           } else {
             setValue(`${name}_STATIONS_NUMBER`, numStations)
+            if ( typeof value === 'number' ){
+              onSetErrorMessage('The number of stations must be greater than 2')
+            }
           }
           break;
         case 'alpha':
@@ -93,7 +97,6 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
           <AllInOne isReport={false} height={700}></AllInOne>
         </div>
 
-
         <span className="mt-1"></span>
 
         <div className="switch-container-2 mt-2">
@@ -103,6 +106,14 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
             onBlur={handleOnChangeInput}
           ></input>
         </div>
+
+        {/* <div className="switch-container-2 mt-2">
+          <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
+          <label className="switch">
+              <input type="checkbox" {...register(`${name}_ARTIFICIAL_SEEDING`)}/>
+              <span className="slider"></span>
+          </label>
+        </div> */}
 
         <div className="switch-container-2 mt-1 ">
           <h3 className="field-title">{t('Results.showVelStd')}</h3>

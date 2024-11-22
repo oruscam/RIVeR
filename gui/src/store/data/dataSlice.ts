@@ -30,6 +30,7 @@ const initialState: DataState = {
         active: 0
     },
     isBackendWorking: false,
+    isDataLoaded: false,
 }
 
 const dataSlice = createSlice({
@@ -57,7 +58,9 @@ const dataSlice = createSlice({
         setQuiver: (state, action: PayloadAction<Quiver | undefined>) => {
             state.quiver = action.payload
         },
-
+        setDataLoaded: (state, action: PayloadAction<boolean>) => {
+            state.isDataLoaded = action.payload
+        }
     }
 })
 
@@ -69,6 +72,7 @@ export const {
     setQuiver,
     updateProcessingForm,
     updateProcessingPar,
+    setDataLoaded
 } = dataSlice.actions
 
 export default dataSlice.reducer

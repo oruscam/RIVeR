@@ -10,6 +10,7 @@ import { getBathimetryValues, getIntersectionPoints } from "./getBathimetryValue
 import { adapterCrossSections  } from "./adapterCrossSections";
 import { imageZoom, onMouseDownPixelSize, onMouseUpPixelSize, getRelativePointerPosition } from "./konvaActions";
 import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks } from "./graphsHelpers";
+import { formatNumberToPrecision2 } from "./adapterNumbers";
 
 export {
     adapterBathimetry,
@@ -18,7 +19,10 @@ export {
     adaptStringDate,
     computePixelSize,
     dateToStringDate,
+    formatNumberToPrecision2,
     formatTime,
+    generateXAxisTicks,
+    generateYAxisTicks,
     getBathimetryValues,
     getDirectionVector,
     getDistanceBetweenPoints,
@@ -33,6 +37,4 @@ export {
     onMouseUpPixelSize,
     recortStringDate,
     stringDateToDate,
-    generateXAxisTicks,
-    generateYAxisTicks
 }

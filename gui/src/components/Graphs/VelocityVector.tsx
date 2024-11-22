@@ -50,18 +50,29 @@ export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = 
         }
     }, [factor, activeSection, seeAll, data]);
 
+    const drawSvgSectionLine = () => {
+        if (isReport){
+            return sections.map((_section, i) => {
+                if ( i === 0 ) return null;
+                if ( i === index ){
+
+                    return <SvgSectionLine key={index} factor={factor} index={index} isReport={isReport}/>
+                }
+            });
+        } else {
+            return sections.map((_section, index) => {
+                if (index === 0) return null;
+                return seeAll && activeSection !== index ? null : <SvgSectionLine key={index} factor={factor} index={index} isReport={isReport}/>;
+            })
+        }
+    }
     return (
         <div id="velocity-vector-container" style={{ width: width, height: height }}>
-            <img src={firstFramePath} width={width} height={height} style={isReport ? { borderRadius: '20px' } : {}}></img>
-            { 
-                sections.map((_section, index) => {
-                    if( index === 0 ) return
-                    return (
-                        <SvgSectionLine key={index} factor={factor} index={index} isReport={isReport}/>
-                    )
-                })
+            <img src={firstFramePath} width={width} height={height} style={isReport ? { borderRadius: '20px' } : {}}/>
+            {
+                drawSvgSectionLine()
             }
-            <svg ref={svgRef} id='velocity-vector'></svg>
+            <svg ref={svgRef} id='velocity-vector'/>
         </div>
     )
 }

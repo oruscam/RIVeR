@@ -4,12 +4,17 @@ import { executePythonShell } from "./utils/executePythonShell";
 import { readResultsPiv } from "./utils/readResultsPiv";
 import * as fs from 'fs' 
 import * as path from 'path'
+import { clearResultsPiv } from "./utils/clearResultsPiv";
 
 
 async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
     ipcMain.handle('get-quiver-test', async (_event, args) => {
+        const { resultsPath, settingsPath } = PROJECT_CONFIG
+        
         const { framesToTest, formValues } = args
         const filePrefix = import.meta.env.VITE_FILE_PREFIX
+
+        await clearResultsPiv(resultsPath, settingsPath)
 
         let frames = []
 

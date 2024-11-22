@@ -2,43 +2,39 @@ import { SectionData } from "../store/section/types";
 import { Point } from "../types";
 
 export const adapterData = (data: SectionData, x1Intersection: number) => {
-    const { distance, streamwise_velocity_magnitude, plus_std, minus_std, percentile_95th, percentile_5th, Q, Q_portion } = data
+    const { distance, streamwise_velocity_magnitude, plus_std, minus_std, percentile_95th, percentile_5th, Q, Q_portion, filled_streamwise_velocity_magnitude, check, interpolated } = data
 
-    const distanceDischarge = distance.map((d, i ) => {
-        if ( Q[i] === null ) {
-            return null;
-        } else { 
+    const newDistance = distance.map((d) => {
             return d + x1Intersection!
+    });
+
+    const newStreamwiseVelocityMagnitude = streamwise_velocity_magnitude.map((d,i) => {
+        if ( filled_streamwise_velocity_magnitude !== undefined && check[i] === false ){
+            return filled_streamwise_velocity_magnitude[i]
+        } else if ( interpolated === false && check[i] === false ){
+            return null
+        } else {
+            return d
         }
-    }).filter(d => d !== null);
+    });
 
-    const distanceVelocity = distance.map((d, i ) => {
-        if ( streamwise_velocity_magnitude[i] === null ) {
-            return null;
-        } else { 
-            return d + x1Intersection!
+    const newQ = Q.map((d,i) => {
+        if ( check[i] === false && interpolated === false ){
+            return null
+        } else {
+            return d
         }
-    }).filter(d => d !== null);
-
-    const filteredStreamwiseMagnitude = streamwise_velocity_magnitude.filter(d => d !== null);
-    const filteredPlusStd = plus_std.filter(d => d === null ? 0 : d);
-    const filteredMinusStd = minus_std.filter(d => d === null ? 0 : d);
-    const filteredPercentile_95th = percentile_95th.filter(d => d === null ? 0 : d);
-    const filteredPercentile_5th = percentile_5th.filter(d => d === null ? 0 : d);
-    const filteredQ = Q.filter(d => d !== null);
-    const filteredQPortion = Q_portion.filter(d => d !== null );
-
+    })
 
     return {
-        distanceDischarge: distanceDischarge,
-        distanceVelocity: distanceVelocity,
-        streamwise_velocity_magnitude: filteredStreamwiseMagnitude,
-        plus_std: filteredPlusStd,
-        minus_std: filteredMinusStd,
-        percentile_95th: filteredPercentile_95th,
-        percentile_5th: filteredPercentile_5th,
-        Q: filteredQ,
-        Q_portion: filteredQPortion,
+        distance: newDistance,
+        streamwise_velocity_magnitude: newStreamwiseVelocityMagnitude,
+        plus_std,
+        minus_std,
+        percentile_95th,
+        percentile_5th,
+        Q: newQ,
+        Q_portion: Q_portion,
     }
 }
 
@@ -51,22 +47,38 @@ export const adapterBathimetry = (line: Point[], x1Intersection: number, x2Inter
     return newBathLine
 }
 
-export const generateXAxisTicks = (distance: number[], x1Intersection: number, x2Intersection: number): number[] => {
-    const arrayLength = distance.length;
-    const firstQuarterIndex = Math.floor(arrayLength * 0.25);
-    const halfIndex = Math.floor(arrayLength * 0.5);
-    const thirdQuarterIndex = Math.floor(arrayLength * 0.75);
+export const generateXAxisTicks = (distance: number[], x1Intersection: number, x2Intersection: number, width: number): number[] => {
+    let step = 0;
 
-    const firstQuarter = distance[firstQuarterIndex];
-    const half = distance[halfIndex];
-    const thirdQuarter = distance[thirdQuarterIndex];
+    if (width < 10) {
+        step = 2;
+    } else if (width < 30) {
+        step = 5;
+    } else {
+        step = 15;
+    }
 
-    return [x1Intersection, firstQuarter, half, thirdQuarter, x2Intersection]
+    const ticks: number[] = [];
+
+    // Añadir x1Intersection al arreglo de ticks
+    ticks.push(x1Intersection);
+
+    // Generar los valores entre x1Intersection y x2Intersection
+    for (let i = Math.ceil(x1Intersection / step) * step; i < x2Intersection; i += step) {
+        if (Math.abs(i - x1Intersection) > 2 && Math.abs(i - x2Intersection) > 2) {
+            ticks.push(i);
+        }
+    }
+
+    // Añadir x2Intersection al arreglo de ticks
+    ticks.push(x2Intersection);
+
+    return ticks;
 }
 
-export const generateYAxisTicks = (array?: number[], min?: number, max?: number): number[] => {
+export const generateYAxisTicks = (array?: (number|null)[], min?: number, max?: number): number[] => {
     const minValue = min ? min : 0;
-    const maxValue = max ? max : Math.max(...array!);
+    const maxValue = max ? max : Math.max(...array!.filter((value): value is number => value !== null));
 
     const range = maxValue - minValue;
     const step = range / 4;
@@ -75,3 +87,4 @@ export const generateYAxisTicks = (array?: number[], min?: number, max?: number)
 
     return ticks
 }
+

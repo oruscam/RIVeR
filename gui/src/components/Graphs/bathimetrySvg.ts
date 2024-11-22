@@ -61,11 +61,12 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
             .attr('class', 'y-axis-label')
             .attr('text-anchor', 'end')
             .attr('x', - graphHeight *3 + 180)
-            .attr('dy', '.75em')
+            .attr('y', margin.left - 35)
             .attr('transform', 'rotate(-90)')
             .attr('fill', 'white')
             .attr('font-size', '22px')
             .text('Stage');
+        
 
     } else {
         xScale = d3.scaleLinear()
@@ -94,6 +95,7 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
             .attr('transform', `translate(0,${height - margin.bottom})`)
             .call(xAxis)
             .selectAll('.domain');
+            
         
     }
 
@@ -105,13 +107,14 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
     // Create and add Y ticks
     const ticks = generateYAxisTicks(undefined, yMin, yMax);
     
-    const yAxis = d3.axisLeft(yScale).tickValues(ticks);
+    const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.1f'));
     
     svg.append('g')
         .attr('transform', `translate(${margin.left + 10},0)`)
         .call(yAxis)
         .selectAll('.tick text')
         .style('font-size', '14px')
+        
 
     svg.selectAll('.tick line')
         .attr('stroke', 'lightgrey')

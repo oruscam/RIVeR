@@ -23,7 +23,6 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
   useEffect(() => {
     const svg = d3.select(svgRef.current);
 
-
     // Limpiar el SVG antes de redibujar
     svg.selectAll("*").remove();
 
@@ -34,7 +33,7 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
         .attr("y1", sectionPoints[0].y / factor)
         .attr("x2", sectionPoints[1].x / factor)
         .attr("y2", sectionPoints[1].y / factor)
-        .attr("stroke", COLORS.DARK_GREY)
+        .attr("stroke", COLORS.YELLOW)
         .attr("stroke-width", 4 / resizeFactor)
         .attr("stroke-linecap", "round")
         .attr("stroke-dasharray", "5,10");
@@ -47,7 +46,7 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
           .attr("y1", dirPoints[0].y / factor)
           .attr("x2", dirPoints[1].x / factor)
           .attr("y2", dirPoints[1].y / factor)
-          .attr("stroke", isReport ? COLORS.DARK_GREY : COLORS.YELLOW)
+          .attr("stroke", COLORS.YELLOW)
           .attr("stroke-width", 4 / resizeFactor)
           .attr("stroke-linecap", "round")
       }

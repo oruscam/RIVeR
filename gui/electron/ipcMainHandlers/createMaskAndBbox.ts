@@ -3,17 +3,28 @@ import { ProjectConfig } from "./interfaces";
 import * as fs from 'fs'
 import * as path from 'node:path'
 import { executePythonShell } from "./utils/executePythonShell";
+import { clearCrossSections } from "./utils/clearCrossSections";
+import { clearResultsPiv } from "./utils/clearResultsPiv";
 
 
 async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig) {
     ipcMain.handle('create-mask-and-bbox', async (_event, args) => {
         console.log('create-mask-and-bbox')
-        const { directory, framesPath, xsectionsPath, matrixPath } = PROJECT_CONFIG;
-        const { height_roi } = args;
+        const { directory, framesPath, xsectionsPath, matrixPath, resultsPath, settingsPath } = PROJECT_CONFIG;
+        const { height_roi, data } = args;
         
         const images = await fs.promises.readdir(framesPath)
         const firstFramePath = path.join(framesPath, images[0])
         
+
+        if ( data ){
+            await clearCrossSections(xsectionsPath)
+        }
+
+        if ( resultsPath !== '' ){
+            clearResultsPiv(resultsPath, settingsPath)
+        }
+
         const options = [
             'create-mask-and-bbox',
             '--save-png-mask',
@@ -24,7 +35,6 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig) {
             xsectionsPath,
             matrixPath
         ]
-
 
         try {
             const { data } = await executePythonShell(options) as { data: { mask: [[]], bbox: [] } }

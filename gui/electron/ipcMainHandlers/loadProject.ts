@@ -4,6 +4,7 @@ import * as path from 'path'
 import { getVideoMetadata } from "./utils/getVideoMetadata";
 import { ProjectConfig } from "./interfaces";
 import { readResultsPiv } from "./utils/readResultsPiv";
+import { transformData } from "./utils/transformCrossSectionsData";
 
 
 function loadProject(PROJECT_CONFIG: ProjectConfig){
@@ -41,7 +42,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                     PROJECT_CONFIG.directory = folderPath;
                     PROJECT_CONFIG.settingsPath = settingsPath;
                     PROJECT_CONFIG.framesPath = framesPath;
-                    PROJECT_CONFIG.videoPath = settingsParsed.filepath;
+                    PROJECT_CONFIG.videoPath = settingsParsed.video.filepath;
 
                     const maskJson = path.join(folderPath, 'mask.json');
                     const maskPng = path.join(folderPath, 'mask.png');
@@ -69,7 +70,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
 
                     if( settingsParsed.footage === 'uav'){
                         PROJECT_CONFIG.type = 'uav';
-                        if( settingsParsed.pixel_size?.transformation_matrix ){
+                        if( settingsParsed.transformation_matrix !== undefined ){
                             PROJECT_CONFIG.matrixPath = path.join(folderPath, 'transformation_matrix.json');
                         }   
 
@@ -94,10 +95,11 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
 
                         try {
                             const videoMetadata = await getVideoMetadata(settingsParsed.video.filepath);
+                            
                             return {
                                 success: true,
                                 message: {
-                                    xsections: xsectionsParsed,
+                                    xsections: transformData(xsectionsParsed),
                                     settings: settingsParsed,
                                     projectDirectory: folderPath,
                                     videoMetadata: videoMetadata,

@@ -36,9 +36,9 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
       const number = video.currentTime
       const id = (event.target as HTMLButtonElement).id
       if( id === "start"){
-        setValue('start', parseFloat(number.toFixed(4)), { shouldValidate: true} )
+        setValue('start', parseFloat(number.toFixed(2)), { shouldValidate: true} )
         }else{
-          setValue('end', parseFloat(number.toFixed(4)), { shouldValidate: true} )
+          setValue('end', parseFloat(number.toFixed(2)), { shouldValidate: true} )
         }
       }
     }
@@ -62,7 +62,7 @@ export const FormVideo = ({ setStep }: { setStep: React.Dispatch<React.SetStateA
 
   return (
     <>
-      <h2 className='form-title'>{t("VideoRange.title")}</h2>
+      <h1 className='form-title'>{t("VideoRange.title")}</h1>
       <form onSubmit={handleSubmit(onSubmit, onError)} id='form-video' className='form-base-2 mt-2'>
           
           <div className='input-container-2 mt-2'>

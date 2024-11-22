@@ -53,6 +53,9 @@ export const COLORS = {
     TRANSPARENT: '#00000000', // fully transparent 
     PERCENTILE_AREA: '#ED6B5740', 
     STD_AREA: '#3396BF40', 
+    MARK_NUMBER: '#3396BF',
+    MARK_L: '#6B120B',
+    MARK_R: '#2D671B',
     CONTROL_POINTS: {
         D12: '#6CD4FF',
         D13: '#CC4BC2',
@@ -60,7 +63,7 @@ export const COLORS = {
         D23: '#62C655',
         D24: '#7765E3',
         D34: '#ED6B57',
-    }
+    },
 }
 
 /**
@@ -77,7 +80,7 @@ export const GRAPHS = {
  * Quiver y Velocity Vectoy
  */
 export const VECTORS = {
-    VELOCITY_AMPLITUDE_FACTOR: 60,
+    VELOCITY_AMPLITUDE_FACTOR: 50,
     QUIVER_AMPLITUDE_FACTOR: 20
 }
 
@@ -90,8 +93,10 @@ export const MARKS = {
     HEIGHT: 40,
     OFFSET_X: 20,
     OFFSET_Y: 39,
-    NUMBER_OFFSET_X: 4,
-    NUMBER_OFFSET_Y: 35
+    NUMBER_OFFSET_X: 5,
+    NUMBER_OFFSET_Y: 35,
+    NUMBER_FONT_SIZE: 17,
+    LETTER_FONT_SIZE: 15
 }
 
 /**
@@ -102,7 +107,7 @@ export const REPORT_SECTION = {
     VELOCITY_VECTOR_WIDTH: 400,
     VELOCITY_VECTOR_HEIGHT: 225,
     VELOCITY_VECTOR_RESIZE_FACTOR: 4.8,
-    VELOCITY_VECTOR_AMPLITUDE_FACTOR: 0.9
+    VELOCITY_VECTOR_AMPLITUDE_FACTOR: 30
 }
 
 export const WINDOW_SIZES = {

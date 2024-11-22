@@ -90,8 +90,8 @@ export const CrossSections = () => {
 
     return (
         <>
-            <SectionsHeader title={t('CrossSections.title')}></SectionsHeader>
-            <Sections setDeletedSections={setDeletedSections} canEdit={true} ></Sections>
+            <SectionsHeader title={t('CrossSections.title')}/>
+            <Sections setDeletedSections={setDeletedSections} canEdit={true}/>
             <FormProvider {...methods}>
             {
                 sections.map((section, index: number) => {
@@ -104,7 +104,7 @@ export const CrossSections = () => {
                 })
             }
             </FormProvider>
-            <ButtonLock disabled={sections[activeSection].dirPoints.length === 0} footerElementID="form-cross-section-footer" headerElementID="form-cross-section-header"></ButtonLock>
+            <ButtonLock disabled={sections[activeSection].dirPoints.length === 0} footerElementID="form-cross-section-footer" headerElementID="form-cross-section-header"/>
         </>
     )
 }

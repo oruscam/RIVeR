@@ -2,10 +2,13 @@ import { getUnit } from "../../helpers"
 import { useProjectSlice, useSectionSlice } from "../../hooks"
 
 export const Summary = () => {
-    const { sections } = useSectionSlice()
+    const { sections, summary } = useSectionSlice()
     const { projectDetails } = useProjectSlice()
     const { unitSistem } = projectDetails
 
+    if (summary === undefined) return null
+
+    const { mean, std, cov } = summary
 
   return (
     <>
@@ -80,39 +83,39 @@ export const Summary = () => {
                     }
                     <tr style={{height: '30px'}}>
                         <td> Mean </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
+                        <td> { mean.total_W } </td>
+                        <td> { mean.total_A } </td>
+                        <td> { mean.total_Q } </td>
+                        <td> { mean.mean_V } </td>
+                        <td> { mean.alpha } </td>
+                        <td> ? </td>
+                        <td> { mean.max_depth } </td>
+                        <td> ? </td>
+                        <td> { mean.measured_Q} </td>
                     </tr>
                     <tr style={{height: '30px'}}>
                         <td> Std dev </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
+                        <td> { std.total_W } </td>
+                        <td> { std.total_A } </td>
+                        <td> { std.total_Q } </td>
+                        <td> { std.mean_V } </td>
+                        <td> { std.alpha } </td>
+                        <td> ? </td>
+                        <td> { std.max_depth } </td>
+                        <td> ? </td>
+                        <td> { std.measured_Q } </td>
                     </tr>
                     <tr style={{height: '30px'}}>
                         <td> COV </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
-                        <td> 1 </td>
+                        <td> { cov.total_W } </td>
+                        <td> { cov.total_A } </td>
+                        <td> { cov.total_Q } </td>
+                        <td> { cov.mean_V } </td>
+                        <td> { cov.alpha } </td>
+                        <td> ? </td>
+                        <td> { cov.max_depth } </td>
+                        <td> ? </td>
+                        <td> { cov.measured_Q } </td>
                     </tr>
                 </tbody>
             </table>

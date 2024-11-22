@@ -13,14 +13,14 @@ type Props = {
 
 export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClickNext }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep, isLastStep } = useWizard();
-  const { onCleanSection } = useSectionSlice()
+  const { onSetActiveSection } = useSectionSlice()
   const { onClearQuiver, isBackendWorking } = useDataSlice()
   const { t } = useTranslation();
 
   const handlePreviuos = () => {
     switch(activeStep){
       case MODULE_NUMBER.CROSS_SECTIONS:
-        onCleanSection()
+        onSetActiveSection(0)
         previousStep()
         break;
       

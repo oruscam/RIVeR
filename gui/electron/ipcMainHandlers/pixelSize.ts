@@ -43,7 +43,7 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig ) {
         try {
             const { data } = await executePythonShell(options) as any
             await createUavMatrix(data.uav_matrix, directory).then((matrixPath) => {
-                jsonParsed.pixel_size.transformation_matrix = matrixPath;
+                jsonParsed.transformation_matrix = matrixPath;
                 PROJECT_CONFIG.matrixPath = matrixPath;
             }).catch((err) => { console.log(err) });
 

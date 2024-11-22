@@ -15,6 +15,7 @@ export const ReportSectionTable = ({ data } : { data : SectionData}) => {
         streamwise_magnitude: data.streamwise_velocity_magnitude.slice(0, half),
         Q: data.Q.slice(0, half)
     }
+    
     const secondHalf = {
         id: data.id.slice(half),
         distance: data.distance.slice(half),

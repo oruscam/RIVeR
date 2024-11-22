@@ -7,6 +7,9 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig){
 
     ipcMain.handle('first-frame', async( _event, args: FirstFrameArgs) => {
         PROJECT_CONFIG.framesPath = PROJECT_CONFIG.directory + '/frames';
+        if (fs.existsSync(PROJECT_CONFIG.framesPath)) {
+            await fs.promises.rm(PROJECT_CONFIG.framesPath, { recursive: true, force: true });
+        }
         const {videoPath, framesPath} = PROJECT_CONFIG
 
         const options = [
@@ -17,7 +20,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig){
                 '--end-frame', args.end_frame,
                 '--every', args.step,
                 '--overwrite'
-            ]
+        ]
         
         const json = await fs.promises.readFile(PROJECT_CONFIG.settingsPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
@@ -35,7 +38,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig){
             const { data } = await executePythonShell(options) as any
             return data
         } catch (error) {
-            
+            console.log(error)
         }
     }
 )}

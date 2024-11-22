@@ -31,7 +31,7 @@ export const useUiSlice = () => {
      * @param error - Object with the error message
      */
 
-    const onSetErrorMessage = (error: Record<string, { type: string, message: string } | string>) => {
+    const onSetErrorMessage = (error: Record<string, { type: string, message: string }> | string) => {
         if (typeof error === 'string') {
             dispatch(setErrorMessage([error]));
         } else {

@@ -19,7 +19,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
     const svgRef = useRef<SVGSVGElement>(null)
     const { sections, activeSection } = useSectionSlice();
     const { data, bathimetry } = sections[index ? index : activeSection]
-    const { level, x1Intersection, x2Intersection } = bathimetry
+    const { level, x1Intersection, x2Intersection, width: bathWidth } = bathimetry
     const { screenSizes } = useUiSlice()
     const { width: screenWidth } = screenSizes
 
@@ -36,8 +36,9 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 const margin = { top: 20, right: 30, bottom: 40, left: 50 }
                 const graphHeight = (height) / 3
                 
-                const { distanceDischarge, distanceVelocity, streamwise_velocity_magnitude, plus_std, minus_std, percentile_5th, percentile_95th, Q, Q_portion } = adapterData(data, x1Intersection!)
+                const { distance, streamwise_velocity_magnitude, plus_std, minus_std, percentile_5th, percentile_95th, Q, Q_portion } = adapterData(data, x1Intersection!)
                 const { showPercentile, showVelocityStd } = data
+                
                 const bathData = adapterBathimetry(bathimetry.line!, x1Intersection!, x2Intersection!, level!)
 
 
@@ -48,11 +49,11 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                     .range([margin.left + 30, width - margin.right - 30]) 
 
                 // Common xAxis
-                const ticks = generateXAxisTicks(distanceDischarge, x1Intersection!, x2Intersection!);
+                const ticks = generateXAxisTicks(distance, x1Intersection!, x2Intersection!, bathWidth!);
 
                 const xAxis = d3.axisBottom(xScale)
                     .tickValues(ticks)
-                    .tickFormat(d3.format('.2f'))
+                    .tickFormat(d3.format('.1f'))
 
                 // Append xAxis
 
@@ -82,7 +83,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 createDischargeChart({
                     SVGElement: svgRef.current,
                     xScale: xScale,
-                    distance: distanceDischarge,
+                    distance: distance,
                     Q: Q,
                     QPortion: Q_portion,
                     sizes: { width, height, margin, graphHeight },
@@ -97,7 +98,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                     percentile95: percentile_95th,
                     minusStd: minus_std,
                     plusStd: plus_std,
-                    distance: distanceVelocity,
+                    distance: distance,
                     sizes: { width, height, margin, graphHeight },
                     showPercentile: showPercentile,
                     showStd: showVelocityStd,

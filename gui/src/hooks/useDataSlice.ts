@@ -5,9 +5,9 @@
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask } from "../store/data/dataSlice";
+import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask, setDataLoaded } from "../store/data/dataSlice";
 import { clearErrorMessage, setErrorMessage, setLoading } from "../store/ui/uiSlice";
-import { setSectionData } from "../store/section/sectionSlice";
+import { setSectionData, setSummary } from "../store/section/sectionSlice";
 
 /**
  * @returns - Object with the methods and attributes to interact with the data slice
@@ -15,7 +15,7 @@ import { setSectionData } from "../store/section/sectionSlice";
 
 export const useDataSlice = () => {
     const dispatch = useDispatch();
-    const { processing, images, quiver, isBackendWorking } = useSelector((state: RootState) => state.data);
+    const { processing, images, quiver, isBackendWorking, isDataLoaded } = useSelector((state: RootState) => state.data);
     const { sections, activeSection } = useSelector((state: RootState) => state.section);
     const { video } = useSelector((state: RootState) => state.project);
     
@@ -180,7 +180,7 @@ export const useDataSlice = () => {
 
     // type can be 'single' or 'all'
 
-    const onGetResultData = async ( type : string) => {
+    const onGetResultData = async ( type : string ) => {
         const ipcRenderer = window.ipcRenderer;
 
         if ( type === 'single' ){
@@ -193,6 +193,7 @@ export const useDataSlice = () => {
                         ...data[section.name],
                     }
                 }))
+                dispatch(setSummary(data.summary))
             } catch ( error ){
                 console.log(error)
             }
@@ -200,8 +201,8 @@ export const useDataSlice = () => {
             dispatch(setLoading(true))
 
             try {
-                const { data, error } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
-                console.log(data)
+                const { data } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                
                 sections.map(( section, index ) => {
                     if ( data[section.name] ){
                         dispatch(setSectionData({
@@ -211,7 +212,8 @@ export const useDataSlice = () => {
                             }
                         }))
                 }})
-
+                dispatch(setSummary(data.summary))
+                dispatch(setDataLoaded(true))
                 dispatch(setLoading(false))
             } catch (error) {
                 console.log(error)
@@ -232,7 +234,7 @@ export const useDataSlice = () => {
         const filePrefix = import.meta.env.VITE_FILE_PREFIX
 
         try {
-            const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value })
+            const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value, data: isDataLoaded })
 
             dispatch(setProcessingMask(filePrefix + maskPath))
             dispatch(setBackendWorkingFlag(false))

@@ -64,7 +64,7 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
         <h2 className="form-subtitle mt-2 only-one-item" id="pixel-coordinates"> {t(`${step}.Pixel.title`)} </h2>
 
         <div className="input-container-2 mt-2">
-            <label className="read-only red me-1" htmlFor={`X_${pointName1}`}> {t(`${step}.Pixel.xPoint1`)} </label>
+            <label className={`read-only me-1 ${modeName === 'pixel_size' ? '' : 'red'}`}htmlFor={`X_${pointName1}`}> {t(`${step}.Pixel.xPoint1`)} </label>
             <input  type="number"
                     step="any"
                     className="input-field"
@@ -76,7 +76,7 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
         </div>
 
         <div className="input-container-2 mt-1">
-            <label className='read-only red me-1' htmlFor={`Y_${pointName1}`}>{t(`${step}.Pixel.yPoint1`)}</label>
+            <label className={`read-only me-1 ${modeName === 'pixel_size' ? '' : 'red'}`} htmlFor={`Y_${pointName1}`}>{t(`${step}.Pixel.yPoint1`)}</label>
             <input  type='number' 
                     step="any" className='input-field' 
                     {...register(`${modeName}_Y_${pointName1}`)} 
@@ -87,7 +87,7 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
         </div>
 
         <div className="input-container-2 mt-1">
-            <label className='read-only green me-1' htmlFor={`X_${pointName2}`}>{t(`${step}.Pixel.xPoint2`)}</label> 
+            <label className={`read-only me-1 ${modeName === 'pixel_size' ? '' : 'green'}`} htmlFor={`X_${pointName2}`}>{t(`${step}.Pixel.xPoint2`)}</label> 
             <input  type='number' 
                     step="any" className='input-field' 
                     {...register(`${modeName}_X_${pointName2}`)} 
@@ -98,7 +98,7 @@ export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
         </div>
 
         <div className="input-container-2 mt-1 mb-2">
-            <label className='read-only green me-1' htmlFor={`Y_${pointName2}`}>{t(`${step}.Pixel.yPoint2`)}</label>
+            <label className={`read-only me-1 ${modeName === 'pixel_size' ? '' : 'green'}`} htmlFor={`Y_${pointName2}`}>{t(`${step}.Pixel.yPoint2`)}</label>
             <input  type='number' 
                     step="any" className='input-field' 
                     {...register(`${modeName}_Y_${pointName2}`)} 

@@ -1,6 +1,7 @@
 import * as d3 from 'd3'
 import { COLORS } from '../../constants/constants';
 import { generateYAxisTicks } from '../../helpers';
+import './graphs.css'
 
 interface CreateVelocityChartProps {
     sizes : {
@@ -16,7 +17,7 @@ interface CreateVelocityChartProps {
     },
     SVGElement: SVGSVGElement,
     xScale: d3.ScaleLinear<number, number>,
-    streamwise_velocity_magnitude: number[],
+    streamwise_velocity_magnitude: (number|null)[],
     percentile5: number[],
     percentile95: number[],
     minusStd: number[],
@@ -31,8 +32,16 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
     const svg = d3.select(SVGElement);
     const { margin, graphHeight, width } = sizes;
 
-    const minDomainValue = Math.min(d3.min(percentile5)!, d3.min(minusStd)!);
-    const maxDomainValue = Math.max(d3.max(percentile95)!, d3.max(plusStd)!);
+    const minDomainValue = Math.min(
+        d3.min(percentile5.filter(d => d !== null))!,
+        d3.min(minusStd.filter(d => d !== null))!,
+        d3.min(streamwise_velocity_magnitude.filter(d => d !== null))!
+    );
+    const maxDomainValue = Math.max(
+        d3.max(percentile95.filter(d => d !== null))!,
+        d3.max(plusStd.filter(d => d !== null))!,
+        d3.max(streamwise_velocity_magnitude.filter(d => d !== null))!
+    );
 
     // y Scale
 
@@ -47,13 +56,14 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
 
     const yAxis = d3.axisLeft(yScale)
         .tickValues(ticks)
-    
+        .tickFormat(d3.format('.1f'))
+        
     svg.append('g')
-    .attr('class', 'y-axis y-axis-2')
-    .attr('transform', `translate(${margin.left + 10},0)`)
-    .call(yAxis)
-    .selectAll('.tick text')
-    .style('font-size', '14px')
+        .attr('class', 'y-axis y-axis-2')
+        .attr('transform', `translate(${margin.left + 10},0)`)
+        .call(yAxis)
+        .selectAll('.tick text')
+        .style('font-size', '14px')
 
     // Create and add Y gridlines
 
@@ -68,31 +78,35 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
             .attr('stroke', 'grey')
             .attr('stroke-width', 0.05);
 
+    const filteredData = streamwise_velocity_magnitude.map((d, i) => ({ velocity: d, distance: distance[i], plusStd: plusStd[i], minusStd: minusStd[i], percentile5: percentile5[i], percentile95: percentile95[i] }));
 
-    const line = d3.line<number>()
-        .x((_d, i) => xScale(distance[i]))
-        .y((d, _i) => yScale(d))
+    console.log(filteredData)
+
+    const line = d3.line<{ velocity: number | null; distance: number; plusStd: number; minusStd: number; percentile5: number; percentile95: number; }>()
+        .defined(d => d.velocity !== null)
+        .x(d => xScale(d.distance))
+        .y(d => yScale(d.velocity!))
 
     // std Area
-    
-    const areaStd = d3.area<number>()
-        .x((_d, i) => xScale(distance[i]))
-        .y0((_d, i) => yScale(plusStd[i]))
-        .y1((_d, i) => yScale(minusStd[i]))
+    const areaStd = d3.area<{ velocity: number | null; distance: number; plusStd: number; minusStd: number; percentile5: number; percentile95: number; }>()
+        .defined((d) => d.velocity !== null)
+        .x((d) => xScale(d.distance))
+        .y0((d) => yScale(d.plusStd))
+        .y1((d) => yScale(d.minusStd))
 
-
+   
     // Percentile 5th and 95th area
-
-    const areaPercentile = d3.area<number>()
-        .x((_d, i) => xScale(distance[i]))
-        .y0((_d, i) => yScale(percentile5[i]))
-        .y1((_d, i) => yScale(percentile95[i]))
+    const areaPercentile = d3.area<{ velocity: number | null; distance: number; plusStd: number; minusStd: number; percentile5: number; percentile95: number; }>()
+        .defined((d) => d.velocity !== null)
+        .x((d) => xScale(d.distance))
+        .y0((d) => yScale(d.percentile5))
+        .y1((d) => yScale(d.percentile95))
 
 
     // Add the percentile area
     if( showPercentile ){
         const areaPath = svg.append('path')
-            .datum(percentile95)
+            .datum(filteredData)
             .attr('fill', COLORS.PERCENTILE_AREA)
             .attr('d', areaPercentile);
         
@@ -140,15 +154,14 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
             areaPath.on('mouseout', function() {
                 legend.attr('visibility', 'hidden');
             });
-        }
-            
+        } 
     }    
 
     // Add the std area
 
     if( showStd ){
         const areaPath = svg.append('path')
-            .datum(plusStd)
+            .datum(filteredData)
             .attr('fill', COLORS.STD_AREA)
             .attr('d', areaStd);
         
@@ -208,12 +221,76 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
 
      // Add the velocity line    
 
+
      svg.append('path')
-        .datum(streamwise_velocity_magnitude)
+        .datum(filteredData)
         .attr('fill', 'none')
         .attr('stroke-width', 2)
         .attr('stroke', COLORS.WHITE)
-        .attr('d', line);
+        .attr('d', line)
+
+    // Add the circles and tooltip
+
+    const tooltip = d3.select('body').append('div')
+        .attr('class', 'tooltip')
+        .style('position', 'absolute')
+        .style('font-size', '16px')
+        .style('font-weight', '500')
+        .style('background', 'transparent')
+        .style('border', 'none')
+        .style('padding', '5px')
+        .style('color', COLORS.WHITE)
+        .style('display', 'none');
+    
+    const formatValue = d3.format(".2f");
+    
+    // Dibuja la línea que conectará el punto con el tooltip
+    const lineToTooltip = svg.append('line')
+        .attr('stroke', COLORS.WHITE)
+        .attr('stroke-width', 1)
+        .style('display', 'none');
+
+    // Elimino los valores nulos de streamwise_velocity_magnitude    
+
+    const filteredPoints = filteredData.filter(d => d.velocity !== null);
+
+    // Dibuja los círculos en cada vértice con interactividad
+    svg.selectAll('circle')
+        .data(filteredPoints)
+        .enter()
+        .append('circle')
+        .attr('cx', (d) => xScale(d.distance))
+        .attr('cy', (d) => yScale(d.velocity!))
+        .attr('r', 2.5) // Radio del círculo
+        .attr('fill', COLORS.WHITE)
+        .on('mouseover', function(_event, _d){
+            d3.select(this).attr('r', 4);
+            tooltip.style('display', 'block');
+            lineToTooltip.style('display', 'block');
+        })
+        .each(function(d, i) {
+            d3.select(this)
+                .on('mousemove', function(event) {
+                    const cx = xScale(d.distance);
+                    const cy = yScale(d.velocity!);
+
+                    tooltip
+                        .html(`Velocity: ${formatValue(d.velocity!)}<br>Distance: ${formatValue(d.distance)}`)
+                        .style('left', `${event.pageX + 10}px`)
+                        .style('top', `${event.pageY - 100}px`);
+
+                    lineToTooltip
+                        .attr('x1', cx)
+                        .attr('y1', cy)
+                        .attr('x2', event.pageX - (svg.node()?.getBoundingClientRect().left ?? 0) + 10)
+                        .attr('y2', event.pageY - (svg.node()?.getBoundingClientRect().top ?? 0) - 60);
+                })
+                .on('mouseout', function() {
+                    d3.select(this).attr('r', 2.5);
+                    tooltip.style('display', 'none');
+                    lineToTooltip.style('display', 'none');
+                });
+        });
 
     // label for Velocity
 
@@ -226,5 +303,4 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
         .attr('fill', 'white')
         .attr('font-size', '22px')
         .text('Velocity');
-
 }

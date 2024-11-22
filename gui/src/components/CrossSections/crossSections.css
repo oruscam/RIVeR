@@ -114,8 +114,8 @@
     margin-top: 35px;
     display: flex;
     width: 90%;
-    justify-content: space-between;
     align-items: center;
+    justify-content: center;
 }
 
 .sections-title{
@@ -124,6 +124,12 @@
 
 
 /* EYEBALL  */
+
+.seeAll-button{
+    margin-left: 15px;
+    margin-top: 6px;
+}
+
 .seeAll-button:hover{
     cursor: pointer;
 }
@@ -138,7 +144,7 @@
 
   
 .eye-ball-svg{
-width: 50px;
+    width: 40px;
 }
 
 .lid {

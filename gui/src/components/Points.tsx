@@ -2,7 +2,7 @@ import { Group, Image, Text } from 'react-konva'
 import { pinRed, pinGreen, pin }from '../assets/icons/icons'
 import useImage from 'use-image'
 import { KonvaEventObject } from 'konva/lib/Node';
-import { MARKS, MODULE_NUMBER } from '../constants/constants';
+import { COLORS, MARKS, MODULE_NUMBER } from '../constants/constants';
 import { useWizard } from 'react-use-wizard';
 import { CanvasPoint } from '../types';
 
@@ -99,8 +99,23 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
                                     x={(point.x - MARKS.NUMBER_OFFSET_X / resizeFactor)}
                                     y={(point.y - MARKS.NUMBER_OFFSET_Y / resizeFactor)}
                                     text={(index + 1).toString()}
-                                    fontSize={15 / resizeFactor}
-                                    fill="white"
+                                    fontSize={MARKS.NUMBER_FONT_SIZE / resizeFactor}
+                                    fill={COLORS.MARK_NUMBER}
+                                    fontStyle='bold'
+                                    listening={false}
+                                />
+                            )
+                        }
+                        {
+                            activeStep === MODULE_NUMBER.CROSS_SECTIONS && (
+                                <Text
+                                    x={(point.x - MARKS.NUMBER_OFFSET_X / resizeFactor)}
+                                    y={(point.y - MARKS.NUMBER_OFFSET_Y / resizeFactor)}
+                                    text={index === 0 ? 'L' : 'R'}
+                                    fontSize={MARKS.LETTER_FONT_SIZE / resizeFactor}
+                                    fill={index === 0 ? COLORS.MARK_L : COLORS.MARK_R}
+                                    fontStyle='bold'
+                                    listening={false}
                                 />
                             )
                         }

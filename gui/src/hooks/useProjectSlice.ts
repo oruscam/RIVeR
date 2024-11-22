@@ -5,12 +5,12 @@
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
+import { clearErrorMessage, clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
 import { setProjectDirectory, setProjectType, setVideoData, setFirstFramePath, setVideoParameters, setProjectDetails } from "../store/project/projectSlice";
 import { FieldValues } from "react-hook-form";
-import { addSection, setActiveSection, updateSection } from "../store/section/sectionSlice";
+import { addSection, setActiveSection, setSummary, updateSection } from "../store/section/sectionSlice";
 import {  MODULE_NUMBER } from "../constants/constants";
-import { setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
+import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
 import { onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
 import { OperationCanceledError, UserSelectionError } from "../errors/errors";
 
@@ -90,7 +90,8 @@ export const useProjectSlice = () => {
             
         } catch (error) {
             dispatch(setLoading(false));
-            console.log(' InitPRojec', error instanceof OperationCanceledError)
+            console.log(error instanceof OperationCanceledError)
+            dispatch(clearMessage());
             
             throw error;
         }    
@@ -103,6 +104,15 @@ export const useProjectSlice = () => {
 
     const onSetVideoParameters = async ( data: FieldValues) => {
         dispatch(setLoading(true));
+        dispatch(setMessage('We are extracting the frames, wait a moment'))
+
+        const { startTime, endTime, step } = video.parameters;
+
+        if( parseFloat(data.start) === startTime && parseFloat(data.end) === endTime && parseFloat(data.step) === step){
+            dispatch(setLoading(false));
+            dispatch(clearMessage());
+            return
+        }
         
         const parameters = {
             step: parseFloat(data.step),
@@ -119,7 +129,6 @@ export const useProjectSlice = () => {
                 end_frame: parameters.endFrame,
                 step: parameters.step,
             })
-
             dispatch(setFirstFramePath(filePrefix + result.initial_frame))
             dispatch(setVideoParameters(parameters))
             dispatch(setLoading(false));
@@ -138,7 +147,6 @@ export const useProjectSlice = () => {
         const ipcRenderer = window.ipcRenderer
         try {
             const result = await ipcRenderer.invoke('load-project')
-            console.log(result)
             if(result.success){
                 const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results } = result.message
                 dispatch(setProjectDirectory(projectDirectory))
@@ -152,6 +160,7 @@ export const useProjectSlice = () => {
                     creation: videoMetadata.creation,
                     name: videoMetadata.name,
                 }))
+                dispatch(clearErrorMessage())
 
                 if( firstFrame !== ''){
                     dispatch(setFirstFramePath(filePrefix + firstFrame))
@@ -169,7 +178,7 @@ export const useProjectSlice = () => {
 
                     // * Load cross sections
                     dispatch(setActiveSection(1))
-                    const STEP = onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer)
+                    const STEP = onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer, setSummary)
     
                     if ( settings.processing ){
                         onLoadProcessingForm(settings.processing, dispatch, updateProcessingForm)
@@ -193,10 +202,14 @@ export const useProjectSlice = () => {
                             unitSistem: settings.unit_system,
                             meditionDate: settings.medition_date
                         }))
-                        
-
+                    
                         return MODULE_NUMBER.REPORT
-                     }
+                    }
+                    
+                    if ( STEP === MODULE_NUMBER.RESULTS){
+                        dispatch(setDataLoaded(true))
+                    }
+
                     return STEP
                 }
                 

@@ -15,8 +15,6 @@ export const ReportSection = ({ index }: ReportSectionProps) => {
   if(!data) return null
 
   const { total_Q, total_q_std, measured_Q, interpolated_Q, alpha, num_stations } = data
-
-
   
   return (
     <div id='report-section-container'>

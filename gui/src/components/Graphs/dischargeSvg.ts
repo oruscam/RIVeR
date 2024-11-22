@@ -22,7 +22,6 @@ interface CreateDischargeChartProps {
     xScale: d3.ScaleLinear<number, number>,
 }
 
-
 export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes, isReport = false, xScale} : CreateDischargeChartProps) => {
     const svg = d3.select(SVGElement);
     const { width, margin, graphHeight } = sizes;
@@ -31,7 +30,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
 
     const yScale = d3.scaleLinear()
         .domain([d3.min(Q)! > 0 ? 0 : d3.min(Q)!, d3.max(Q)!])
-        .range([graphHeight + (isReport ? -15 : -50), margin.top + (isReport ? 25 : 10)]);
+        .range([graphHeight + (isReport ? -15 : -50), margin.top + (isReport ? 25 : 25)]);
     
     // Create and add Y ticks
 
@@ -49,7 +48,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
 
     // Create and add Y gridlines
 
-    const makeYGridlines = () => d3.axisLeft(yScale).tickValues(ticks);
+    const makeYGridlines = () => d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.1f'));
 
     svg.append('g')
     .attr('class', 'grid')
@@ -59,26 +58,28 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
         .tickFormat('' as any))
     .attr('stroke', 'grey')
     .attr('stroke-width', 0.05);
-
-
         
+    const filteredQ = Q.map((d,i) => ({distance: distance[i], discharge: d, QPortion: QPortion[i]})).filter(d => d.discharge !== null);
+
+
     // Append Bars
     svg.selectAll(".bar")
-        .data(Q)
+        .data(filteredQ)
         .enter()
         .append("rect")
         .attr("class", "bar")
-        .attr("x", (_d, i) => xScale(distance[i]) - bandwidth / 2) // Ajustar la posición de las barras
-        .attr("y", d => yScale(Math.max(0, d))) // Ajustar para valores negativos
-        .attr("height", d => Math.abs(yScale(d) - yScale(0))) // Ajustar la altura de las barras
+        .attr("data-x", (d) => d.distance.toFixed(2))
+        .attr("x", (d) => xScale(d.distance) - bandwidth / 2) // Ajustar la posición de las barras
+        .attr("y", d => yScale(Math.max(0, d.discharge))) // Ajustar para valores negativos
+        .attr("height", d => Math.abs(yScale(d.discharge) - yScale(0))) // Ajustar la altura de las barras
         .attr("width", bandwidth) // Ajustar el ancho de las barras
-        .attr("fill", (_d, i) => {
-            if (QPortion[i] === 0) {
+        .attr("fill", (d) => {
+            if (d.QPortion === 0) {
                 return COLORS.BLUE;
             }else {
-            if (QPortion[i] < 0.05) {
+            if (d.QPortion < 0.05) {
                 return COLORS.GREEN;
-            } else if (QPortion[i] < 0.1) {
+            } else if (d.QPortion < 0.1) {
                 return COLORS.YELLOW;
             } 
                 return COLORS.RED;
@@ -126,20 +127,37 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
             .attr('fill', 'white')
             .text('Q > 10%');
     } else {
+
         // Add tooltip to bars
         svg.selectAll(".bar")
-            .on("mouseover", (event, d) => {
-                svg.append("text")
-                    .attr("class", "tooltip")
-                    .attr("x", parseFloat(d3.select(event.currentTarget).attr("x")) + bandwidth / 2)
-                    .attr("y", parseFloat(d3.select(event.currentTarget).attr("y")) - 10)
-                    .attr("text-anchor", "middle")
-                    .attr("fill", "white")
-                    .text((d as number).toFixed(2));
-            })
-            .on("mouseout", () => {
-                svg.selectAll(".tooltip").remove();
-            });
+        .on("mouseover", (event, d) => {
+            const xValue = d3.select(event.currentTarget).attr("data-x"); // Asumiendo que tienes un atributo data-x con el valor de x
+            const yValue = d.discharge.toFixed(2);
+            
+            svg.append("text")
+                .attr("class", "tooltip")
+                .attr("x", parseFloat(d3.select(event.currentTarget).attr("x")) + bandwidth / 2)
+                .attr("y", parseFloat(d3.select(event.currentTarget).attr("y")) - 25)
+                .attr("text-anchor", "middle")
+                .attr("fill", "white")
+                .style("font-size", "16px")
+                .style("font-weight", "500")
+                .text(`Discharge: ${yValue}`);
+
+            svg.append("text")
+                .attr("class", "tooltip")
+                .attr("x", parseFloat(d3.select(event.currentTarget).attr("x")) + bandwidth / 2)
+                .attr("y", parseFloat(d3.select(event.currentTarget).attr("y")) - 10)
+                .attr("text-anchor", "middle")
+                .attr("fill", "white")
+                .style("font-size", "16px")
+                .style("font-weight", "500")
+                .text(`Distance: ${xValue}`);
+    
+        })
+        .on("mouseout", () => {
+            svg.selectAll(".tooltip").remove();
+        });
     }
 
     // Label
