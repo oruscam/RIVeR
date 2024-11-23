@@ -1,11 +1,10 @@
 import * as d3 from 'd3'
-import { COLORS } from "../../constants/constants";
+import { COLORS, VECTORS } from "../../constants/constants";
 
 export const drawVectors = (
     svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
     _sections: any[],
-    factor: number,
-    vectorAmplitudeFactor: number,
+    factor: number | { x: number, y: number },
     sectionIndex: number,
     interpolated: boolean,
     data: { x: number[], y: number[], streamwise_x: number[], streamwise_y: number[], check: boolean[] },
@@ -15,22 +14,23 @@ export const drawVectors = (
 
     if (!x || !y || !streamwise_x || !streamwise_y || !check) return;
 
+
     const vectors = d3.range(x.length).map(i => {
         if (streamwise_x[i] === null || streamwise_y[i] === (null) || x[i] === null || y[i] === null) {
             return {
-                x0: x[i] / factor,
-                y0: y[i] / factor,
-                x1: x[i] / factor,
-                y1: y[i] / factor,
+                x0: x[i] / (typeof factor === 'number' ? factor : factor.x),
+                y0: y[i] / (typeof factor === 'number' ? factor : factor.y),
+                x1: x[i] / (typeof factor === 'number' ? factor : factor.x),
+                y1: y[i] / (typeof factor === 'number' ? factor : factor.y),
                 color: COLORS.TRANSPARENT
             };
         }
 
         return {
-            x0: x[i] / factor,
-            y0: y[i] / factor,
-            x1: (x[i] / factor + streamwise_x[i] * vectorAmplitudeFactor / factor),
-            y1: (y[i] / factor + streamwise_y[i] * vectorAmplitudeFactor / factor),
+            x0: x[i] / (typeof factor === 'number' ? factor : factor.x),
+            y0: y[i] / (typeof factor === 'number' ? factor : factor.y),
+            x1: (x[i] / (typeof factor === 'number' ? factor : factor.x) + streamwise_x[i] * VECTORS.VELOCITY_AMPLITUDE_FACTOR / (typeof factor === 'number' ? factor : factor.x)),
+            y1: (y[i] / (typeof factor === 'number' ? factor : factor.y) + streamwise_y[i] * VECTORS.VELOCITY_AMPLITUDE_FACTOR / (typeof factor === 'number' ? factor : factor.y)),
             color: check[i] ? COLORS.BLUE : interpolated ? COLORS.RED : COLORS.TRANSPARENT
         };
     });

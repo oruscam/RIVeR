@@ -1,34 +1,9 @@
-import { SetStateAction } from "react"
-
-
-interface CarouselSettings {
-    className: string;
-    centerMode: boolean;
-    slidesToShow: number;
-    slidesToScroll: number;
-    speed: number;
-    focusOnSelect: boolean;
-    initialSlide: number;
-    infinite: boolean;
-    afterChange: () => void;
-    beforeChange: (current: number, next: number) => void;
-    responsive: ResponsiveSetting[];
-}
-
-interface ResponsiveSetting {
-    breakpoint: number;
-    settings: {
-        slidesToShow: number;
-        slidesToScroll: number;
-    };
-}
-
 export const carouselSettings = (
     updateCount: number,
-    setUpdateCount: React.Dispatch<SetStateAction<number>>,
-    setSlideIndex: React.Dispatch<SetStateAction<number>>,
-): CarouselSettings => {
-    const settings = {
+    setUpdateCount: React.Dispatch<React.SetStateAction<number>>,
+    setSlideIndex: React.Dispatch<React.SetStateAction<number>>,
+): any => {
+    return {
         className: "center",
         slidesToShow: 4.25,
         slidesToScroll: 10,
@@ -111,6 +86,4 @@ export const carouselSettings = (
             }
         ]
     };
-
-    return settings;
 };

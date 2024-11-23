@@ -2,20 +2,18 @@ import { useEffect, useRef } from 'react'
 import './graphs.css'
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks'
 import * as d3 from 'd3'
-import { VECTORS } from '../../constants/constants'
 import { SvgSectionLine } from '../SvgSectionLine'
 import { drawVectors } from './index'
 
 interface VelocityVectorProps {
     height: number;
     width: number;
-    factor: number;
-    vectorAmplitudeFactor?: number;
+    factor: number | { x: number, y: number };
     isReport?: boolean;
     index?: number;
 }
 
-export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = VECTORS.VELOCITY_AMPLITUDE_FACTOR, isReport = false, index }: VelocityVectorProps )  => {
+export const VelocityVector = ({ height, width, factor, isReport = false, index }: VelocityVectorProps )  => {
     const svgRef = useRef<SVGSVGElement>(null)
     const { sections, activeSection } = useSectionSlice();
     const { firstFramePath } = useProjectSlice();
@@ -38,14 +36,14 @@ export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = 
                 const { data, interpolated } = section;
                 if (!data) return;
 
-                drawVectors(svg, sections, factor, vectorAmplitudeFactor, sectionIndex, interpolated, data, isReport);
+                drawVectors(svg, sections, factor, sectionIndex, interpolated, data, isReport);
             });
         } else {
             if (index !== undefined) {
                 const { data, interpolated } = sections[index];
                 if (!data) return;
 
-                drawVectors(svg, sections, factor, vectorAmplitudeFactor, index, interpolated, data, isReport);
+                drawVectors(svg, sections, factor, index, interpolated, data, isReport);
             }
         }
     }, [factor, activeSection, seeAll, data]);

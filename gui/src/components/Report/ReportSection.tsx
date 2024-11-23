@@ -1,5 +1,6 @@
 import { REPORT_SECTION } from "../../constants/constants";
-import { useSectionSlice } from "../../hooks"
+import { getNewImageResolution } from "../../helpers";
+import { useProjectSlice, useSectionSlice } from "../../hooks"
 import { AllInOne, VelocityVector } from "../Graphs";
 import { ReportSectionTable } from "./ReportSectionTable";
 
@@ -9,13 +10,19 @@ interface ReportSectionProps {
 
 export const ReportSection = ({ index }: ReportSectionProps) => {
   const { sections } = useSectionSlice();
-
+  const { video } = useProjectSlice()
+  const { width, height } = video.data
   const { name, data } = sections[index]
 
   if(!data) return null
 
   const { total_Q, total_q_std, measured_Q, interpolated_Q, alpha, num_stations } = data
   
+  const factor = {
+    x: width / REPORT_SECTION.VELOCITY_VECTOR_WIDTH, 
+    y: height / REPORT_SECTION.VELOCITY_VECTOR_HEIGHT
+  }
+
   return (
     <div id='report-section-container'>
       <div id='report-section-top-container'>
@@ -30,8 +37,7 @@ export const ReportSection = ({ index }: ReportSectionProps) => {
             <VelocityVector 
                 width={REPORT_SECTION.VELOCITY_VECTOR_WIDTH} 
                 height={REPORT_SECTION.VELOCITY_VECTOR_HEIGHT} 
-                factor={REPORT_SECTION.VELOCITY_VECTOR_RESIZE_FACTOR}
-                vectorAmplitudeFactor={REPORT_SECTION.VELOCITY_VECTOR_AMPLITUDE_FACTOR}
+                factor={factor}
                 isReport={true}
                 index={index}
                 />

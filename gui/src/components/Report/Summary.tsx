@@ -88,9 +88,9 @@ export const Summary = () => {
                         <td> { mean.total_Q } </td>
                         <td> { mean.mean_V } </td>
                         <td> { mean.alpha } </td>
-                        <td> ? </td>
+                        <td> { mean.mean_Vs} </td>
                         <td> { mean.max_depth } </td>
-                        <td> ? </td>
+                        <td> { mean.average_depth } </td>
                         <td> { mean.measured_Q} </td>
                     </tr>
                     <tr style={{height: '30px'}}>
@@ -100,9 +100,9 @@ export const Summary = () => {
                         <td> { std.total_Q } </td>
                         <td> { std.mean_V } </td>
                         <td> { std.alpha } </td>
-                        <td> ? </td>
+                        <td> { std.mean_Vs } </td>
                         <td> { std.max_depth } </td>
-                        <td> ? </td>
+                        <td> { std.average_depth } </td>
                         <td> { std.measured_Q } </td>
                     </tr>
                     <tr style={{height: '30px'}}>
@@ -112,9 +112,9 @@ export const Summary = () => {
                         <td> { cov.total_Q } </td>
                         <td> { cov.mean_V } </td>
                         <td> { cov.alpha } </td>
-                        <td> ? </td>
+                        <td> { cov.mean_Vs } </td>
                         <td> { cov.max_depth } </td>
-                        <td> ? </td>
+                        <td> { cov.average_depth} </td>
                         <td> { cov.measured_Q } </td>
                     </tr>
                 </tbody>
