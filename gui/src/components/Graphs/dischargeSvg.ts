@@ -163,7 +163,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
     svg.append('text')
         .attr('class', 'y-axis-label')
         .attr('text-anchor', 'middle')
-        .attr('x', -graphHeight + (isReport ? 75 : 130))
+        .attr('x', -graphHeight + (isReport ? 75 : 115))
         .attr('y', margin.left - 35)
         .attr('transform', 'rotate(-90)')
         .attr('fill', 'white')

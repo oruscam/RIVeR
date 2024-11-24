@@ -5,7 +5,7 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, } from '../store/section/sectionSlice';
+import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, } from '../store/section/sectionSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints } from '../helpers';
@@ -22,7 +22,7 @@ import { CanvasPoint, FormPoint, Point } from '../types';
  */
 
 export const useSectionSlice = () => {
-    const { sections, activeSection, summary } = useSelector((state: RootState) => state.section);
+    const { sections, activeSection, summary, sectionsCounter } = useSelector((state: RootState) => state.section);
     const { processing } = useSelector((state: RootState) => state.data);
     const dispatch = useDispatch();
 
@@ -34,9 +34,10 @@ export const useSectionSlice = () => {
 
     const onSetDirPoints = async ( canvasPoint: CanvasPoint | null, formPoint: FormPoint | null, ) => {
         const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
-        console.log('setDirPoints')
         // Clean section points for better visualization.
         onUpdateSectionPoints([])
+
+        dispatch(setHasChanged({value: true}))
 
         /**
          * The flags are used to avoid unnecessary calculations.
@@ -174,7 +175,7 @@ export const useSectionSlice = () => {
         } else {
             const {size, rw_length} = computePixelSize(newPoints as Point[], rwPoints)
             dispatch(setPixelSize({size, rw_length}))
-            dispatch(setHasChanged(true))
+            dispatch(setHasChanged({value: true}))
         }    
 
     }
@@ -187,7 +188,8 @@ export const useSectionSlice = () => {
 
     const onSetRealWorld = async (point: string | number, position: string) => {
         const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
-        console.log('setRealWorld')
+
+        dispatch(setHasChanged({value: true}))
         /**
          * The newPoints variable is used to store the new real world coordinates after the modification.
          * The flags are used to avoid unnecessary calculations.
@@ -264,7 +266,7 @@ export const useSectionSlice = () => {
         } else{ 
             const {size, rw_length} = computePixelSize(dirPoints, newPoints)
             dispatch(setPixelSize({size, rw_length}))
-            dispatch(setHasChanged(true))
+            dispatch(setHasChanged({value: true}))
         }
     };
 
@@ -297,7 +299,7 @@ export const useSectionSlice = () => {
             await ipcRenderer.invoke('pixel-size', args)
             
             dispatch(setLoading(false))
-            dispatch(setHasChanged(false))
+            dispatch(setHasChanged({value: false}))
             dispatch(setActiveSection(activeSection + 1))
         } catch (error) {
             console.log("ERROR EN SETPIXELSIZE")
@@ -330,6 +332,25 @@ export const useSectionSlice = () => {
         const ipcRenderer = window.ipcRenderer;
         let updatedSection = [...sections]
 
+        let hasChanged = false    
+        for (let i = 0; i < sections.length; i++) {
+            if ( i === 0 ) continue
+            console.log('index', i)
+            if ( sections[i].hasChanged === true ){
+                hasChanged = true
+                break
+            }
+        }
+
+        if ( sectionsCounter !== sections.length ){
+            hasChanged = true
+        }
+        
+        if ( hasChanged === false ){
+            dispatch(setLoading(false))
+            return
+        }
+
         /**
          * We need to transform pixel points section to real world, for mask and height roight
          * 
@@ -341,17 +362,22 @@ export const useSectionSlice = () => {
 
             const { sectionPoints } = section;
 
+
             try {
                 const { rw_coordinates: par1 } = await ipcRenderer.invoke('pixel-to-real-world', { points: { x: sectionPoints[0].x, y: sectionPoints[0].y } });
                 const { rw_coordinates: par2 } = await ipcRenderer.invoke('pixel-to-real-world', { points: { x: sectionPoints[1].x, y: sectionPoints[1].y } });
 
                 const rwPoints = [{ x: par1[0], y: par1[1] }, { x: par2[0], y: par2[1] }];
-                updatedSection[index] = { ...section, sectionPointsRW: rwPoints }; 
+
+                updatedSection[index] = { ...section, sectionPointsRW: rwPoints };
+                dispatch(setHasChanged({value: false, index: index})) 
             } catch (error) {
                 console.log(error);
             }
         }));
 
+
+        dispatch(updateSectionsCounter(sections.length))
         const data = adapterCrossSections(updatedSection);
 
         /**

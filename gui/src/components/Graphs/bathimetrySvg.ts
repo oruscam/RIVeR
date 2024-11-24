@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { COLORS } from '../../constants/constants';
 import { Point } from '../../types';
-import { generateYAxisTicks } from '../../helpers';
+import { generateXAxisTicks, generateYAxisTicks } from '../../helpers';
 
 /**
  * Creates a bathymetry chart on the specified SVG element.
@@ -32,9 +32,11 @@ interface BathymetryChartProps {
         graphHeight: number;
     };
     isReport?: boolean;
+    x1Intersection?: number;
+    x2Intersection?: number;
 }
 
-export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, leftBank, rightBank, xScaleAllInOne, sizes, isReport = false }: BathymetryChartProps) => {
+export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftBank, rightBank, xScaleAllInOne, sizes, isReport = false, x1Intersection, x2Intersection }: BathymetryChartProps) => {
     const svg = d3.select(svgElement);
     const width = +svg.attr('width');
     const height = +svg.attr('height');
@@ -49,6 +51,8 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, leftBa
 
     let xScale;
     let yScale;
+
+    let clipPathData = data;
 
     if ( xScaleAllInOne && sizes ) {
         const { margin: marginSizes, height: heightSizes, graphHeight } = sizes;
@@ -77,7 +81,6 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, leftBa
             .domain([yMin, yMax])
             .range([height - margin.bottom, margin.top]);
 
-
         svg.append('text')
             .attr('class', 'y-axis-label')
             .attr('text-anchor', 'end')
@@ -90,17 +93,29 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, leftBa
 
         // Añado eje x solo si no es all in one
         
-        const xAxis = d3.axisBottom(xScale).ticks(5);
+        const ticks = generateXAxisTicks(xMin, xMax, xMax - xMin);
+
+        const xAxis = d3.axisBottom(xScale)
+            .tickValues(ticks)
+            .tickFormat(d3.format('.1f'))
+            
         svg.append('g')
             .attr('transform', `translate(0,${height - margin.bottom})`)
             .call(xAxis)
-            .selectAll('.domain');
+            .selectAll('.tick text')
+            .style('font-size', '14px')
+
+
+        if ( x1Intersection && x2Intersection ) {
+            clipPathData = data.filter((d) => d.x >= x1Intersection && d.x <= x2Intersection ) 
+            clipPathData.unshift({x: x1Intersection, y: level})
+            clipPathData.push({x: x2Intersection, y: level})
+        }
     }
 
     const line = d3.line<Point>()
         .x(d => xScale(d.x))
         .y(d => yScale(d.y));
-
 
     // Create and add Y ticks
     const ticks = generateYAxisTicks(undefined, yMin, yMax);
@@ -136,7 +151,7 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, leftBa
 
     const area = d3.area<{ x: number, y: number }>()
         .x(d => xScale(d.x))
-        .y0(d => yScale(Math.min(d.y , level)))
+        .y0(d => yScale(Math.min(d.y, level)))
         .y1(_d => yScale(level));
         
     // Definir clip-path
@@ -145,11 +160,11 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, leftBa
         .append('clipPath')
         .attr('id', `clip-bathimetry-${svgElement.id}`)
         .append('path')
-        .datum(data)
+        .datum(clipPathData)
         .attr('d', line);
 
     svg.append('path')
-        .datum(data)
+        .datum(clipPathData)
         .attr('fill', COLORS.TRANSPARENT_WHITE)
         .attr('d', area)
         .attr('clip-path', `clip-bathimetry-${svgElement.id}`); // Aplicar clip-path

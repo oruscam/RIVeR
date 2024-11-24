@@ -14,6 +14,8 @@ interface LineAndTextProps {
 export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor, index}: LineAndTextProps) => {
   const { activeStep } = useWizard();
 
+  console.log('line and text index', index)
+
   const { sections } = useSectionSlice();
   const { sectionPoints, dirPoints, name } = sections[index]
 

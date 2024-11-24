@@ -5,18 +5,13 @@ import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
 import { Report } from './pages/Report'
-import { useProjectSlice, useSectionSlice } from './hooks'
+import { useProjectSlice } from './hooks'
 import { FOOTAGE_TYPES } from './constants/constants'
 
 export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice()
   const { type, video } = useProjectSlice()
   const { data } = video 
-  const { sections, activeSection } = useSectionSlice()
-
-  console.log(sections[activeSection].name)
-  console.log(sections[activeSection].hasChanged)
-  console.log(sections[activeSection].pixelSize)
 
   const getStep4 = () => {
     switch (type) {

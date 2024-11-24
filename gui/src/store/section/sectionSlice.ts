@@ -43,6 +43,7 @@ const initialState: SectionState = {
     sections: defaultSections,
     summary: undefined,
     activeSection: 0,
+    sectionsCounter: 2
 };
 
 const sectionSlice = createSlice({
@@ -96,11 +97,19 @@ const sectionSlice = createSlice({
         setSectionPoints: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].sectionPoints = action.payload;
         },
-        setHasChanged: (state, action: PayloadAction<boolean>) => {
-            state.sections[state.activeSection].hasChanged = action.payload;
+        setHasChanged: (state, action: PayloadAction<{value: boolean, index?: number}>) => {
+            if ( action.payload.index === undefined ){
+                state.sections[state.activeSection].hasChanged = action.payload.value;
+            } else {
+                state.sections[action.payload.index].hasChanged = action.payload.value;
+
+            }
         },
         setSummary: (state, action: PayloadAction<Summary>) => {
             state.summary = action.payload;
+        },
+        updateSectionsCounter: (state, action: PayloadAction<number>) => {
+            state.sectionsCounter = action.payload;
         }
     },
 });
@@ -118,7 +127,8 @@ export const {
     setSectionPoints,
     updateSection,
     setHasChanged,
-    setSummary
+    setSummary,
+    updateSectionsCounter
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

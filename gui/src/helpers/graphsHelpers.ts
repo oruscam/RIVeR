@@ -47,7 +47,7 @@ export const adapterBathimetry = (line: Point[], x1Intersection: number, x2Inter
     return newBathLine
 }
 
-export const generateXAxisTicks = (_distance: number[], x1Intersection: number, x2Intersection: number, width: number): number[] => {
+export const generateXAxisTicks = ( x1Intersection: number, x2Intersection: number, width: number ): number[] => {
     let step = 0;
 
     if (width < 10) {

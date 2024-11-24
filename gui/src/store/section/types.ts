@@ -133,6 +133,7 @@ interface SectionState {
     sections: Section[];
     summary: Summary | undefined;
     activeSection: number;
+    sectionsCounter: number;
 }
 
 export type { SectionState, Section, Point, Bathimetry, PixelSize, Processing, SectionData, Summary }
