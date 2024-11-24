@@ -16,7 +16,7 @@ export const Footer = () => {
   return (
     <div id="report-footer-container">
         <div>
-            <a href="https://x.com" target="_blank" rel="noopener noreferrer">
+            <a href="" target="_blank" rel="noopener noreferrer">
                 <img id="report-footer-river-logo" src={riverLogo} alt="Footer Logo" />
             </a>
         </div>

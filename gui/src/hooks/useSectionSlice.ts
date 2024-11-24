@@ -378,18 +378,7 @@ export const useSectionSlice = () => {
             console.log(error)
         }
     }
-    interface Update {
-        alpha?: number;
-        drawLine?: boolean;
-        index?: number;
-        interpolated?: string;
-        leftBank?: number;
-        level?: number;
-        lineLength?: number;
-        numStations?: number;
-        sectionName?: string;
-        data?: any;
-    }
+
 
     /**
      * Function to update the active section.
@@ -403,6 +392,20 @@ export const useSectionSlice = () => {
      * The values are updated in the section slice.
      * @param value | Update - Object with the values to update the active section.
      */
+
+    interface Update {
+        alpha?: number;
+        drawLine?: boolean;
+        index?: number;
+        interpolated?: string;
+        leftBank?: number;
+        level?: number;
+        lineLength?: number;
+        numStations?: number;
+        sectionName?: string;
+        data?: any;
+    }
+
     const onUpdateSection = (value: Update) => {
         const section = sections[activeSection];
         const updatedSection = { ...section };
@@ -420,6 +423,7 @@ export const useSectionSlice = () => {
             const { size, rw_length } = computePixelSize(section.dirPoints, resetRealWorld);
             updatedSection.pixelSize = { size, rw_length };
             updatedSection.rwPoints = resetRealWorld;
+            updatedSection.hasChanged = true
         }
 
         if (value.sectionName !== undefined) {

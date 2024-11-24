@@ -49,7 +49,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                     .range([margin.left + 30, width - margin.right - 30]) 
 
                 // Common xAxis
-                const ticks = generateXAxisTicks(x1Intersection!, x2Intersection!, bathWidth!);
+                const ticks = generateXAxisTicks(distance ,x1Intersection!, x2Intersection!, bathWidth!);
 
                 const xAxis = d3.axisBottom(xScale)
                     .tickValues(ticks)

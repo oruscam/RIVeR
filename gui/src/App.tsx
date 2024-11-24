@@ -16,7 +16,7 @@ export const App: React.FC = () => {
 
   console.log(sections[activeSection].name)
   console.log(sections[activeSection].hasChanged)
-  console.log(sections)
+  console.log(sections[activeSection].pixelSize)
 
   const getStep4 = () => {
     switch (type) {

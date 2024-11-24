@@ -9,6 +9,7 @@ import { Section } from "../../store/section/types"
 import { SectionsHeader } from "../SectionsHeader"
 import { ButtonLock } from "../ButtonLock"
 import { useTranslation } from "react-i18next"
+import { formatNumberTo2Decimals } from "../../helpers"
 
 
 
@@ -17,11 +18,11 @@ const createInitialState = (sections: Section[]) => {
   
     sections.forEach((section, index) => {
         if ( index !== 0){
-            const {name, dirPoints, rwPoints, pixelSize, bathimetry, numStations, alpha} = section
+            const {name, dirPoints, rwPoints, bathimetry, numStations, alpha} = section
             const baseKey = name;
             defaultValues = {
                 ...defaultValues,
-                [`${baseKey}_CS_LENGTH`]: pixelSize.rw_length,
+                [`${baseKey}_CS_LENGTH`]: formatNumberTo2Decimals(bathimetry.width),
                 [`${baseKey}_CS_BATHIMETRY`]: bathimetry.path,
                 [`${baseKey}_LEVEL`]: bathimetry.level,
                 [`${baseKey}_LEFT_BANK`]: bathimetry.leftBank,

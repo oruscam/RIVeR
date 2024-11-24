@@ -43,11 +43,13 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
       event.preventDefault()
       const value = parseFloat((event.target as HTMLInputElement).value);
       const id = (event.target as HTMLInputElement).id
-      
+      console.log('station number', value)
       switch (id) {
         case 'stations-number':
-          if ( value !== numStations && isNaN(value) === false && value >= 3 ){
-            onUpdateSection({ numStations: value })
+          if ( isNaN(value) === false && value >= 3 ){
+            if  ( value !== numStations ){
+              onUpdateSection({ numStations: value })
+            }
           } else {
             setValue(`${name}_STATIONS_NUMBER`, numStations)
             if ( typeof value === 'number' ){

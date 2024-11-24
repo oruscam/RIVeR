@@ -496,8 +496,9 @@
     text-align: center; /* Alinea el texto en el centro */
     background-color: black;
     font-size: 1.3rem;
-
+    color: white;
 }
+
 /* 
 .disabled-cell {
     color: transparent;
