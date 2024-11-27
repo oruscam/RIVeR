@@ -668,6 +668,10 @@ def normalize_to_uint8(result_conv: np.ndarray) -> np.ndarray:
 	deltares = np.tile(deltares, (1, result_conv.shape[0], result_conv.shape[1]))
 	deltares = np.transpose(deltares, (1, 2, 0))
 
+	# Add small epsilon to avoid division by zero
+	epsilon = 1e-10
+	deltares = deltares + epsilon
+
 	# Normalize and scale to [0, 255]
 	result_conv = ((result_conv - minres) / deltares) * 255
 
@@ -705,47 +709,86 @@ def correct_dimensions(xa, ya, za, real_size):
 	return xa, ya, za
 
 
-def subpixgauss(
-	result_conv: np.ndarray, half_ia: int, x1: np.ndarray, y1: np.ndarray, z1: np.ndarray, subpixoffset: float
-) -> np.ndarray:
+def subpixgauss(result_conv: np.ndarray, half_ia: int, x1: np.ndarray, y1: np.ndarray, z1: np.ndarray,
+				subpixoffset: float) -> np.ndarray:
 	"""
-	Perform subpixel Gaussian peak fitting on a convolution result.
+    Perform subpixel Gaussian peak fitting on a convolution result with size consistency checks.
 
-	Parameters:
-	result_conv (numpy.ndarray): 3D array of convolution results.
-	interrogationarea (int): Size of the interrogation area.
-	x1 (numpy.ndarray): Array of x-coordinates.
-	y1 (numpy.ndarray): Array of y-coordinates.
-	z1 (numpy.ndarray): Array of z-coordinates.
-	subpixoffset (float): Subpixel offset value.
+    Parameters:
+    result_conv (numpy.ndarray): 3D array of convolution results.
+    half_ia (int): Half size of the interrogation area.
+    x1, y1, z1 (numpy.ndarray): Arrays of coordinates.
+    subpixoffset (float): Subpixel offset value.
 
-	Returns:
-	numpy.ndarray: Array of subpixel peak coordinates (x, y).
-	"""
-
-	# Adjust coordinates to match Python indexing (starting from 0)
+    Returns:
+    numpy.ndarray: Array of subpixel peak coordinates (x, y).
+    """
 	dims = result_conv.shape
-	vector = np.zeros((dims[2], 2))
+	expected_size = dims[2]
+	vector = np.zeros((expected_size, 2))
 
 	if x1.size == 0:
 		return vector
 
-	# Vectorized index calculation
-	indices = np.ravel_multi_index((y1 - 1, x1 - 1, z1 - 1), dims, order='F')
+	# Convert arrays to float type before padding
+	x1 = x1.astype(float)
+	y1 = y1.astype(float)
+	z1 = z1.astype(float)
 
-	# Compute log values efficiently
-	f0 = np.log(result_conv.ravel('F')[indices])
-	f1y = np.log(result_conv.ravel('F')[indices - 1])
-	f2y = np.log(result_conv.ravel('F')[indices + 1])
-	f1x = np.log(result_conv.ravel('F')[indices - dims[0]])
-	f2x = np.log(result_conv.ravel('F')[indices + dims[0]])
+	# Make sure our arrays are the right size
+	if len(x1) != expected_size:
+		if len(x1) < expected_size:
+			x1 = np.pad(x1, (0, expected_size - len(x1)), mode='constant', constant_values=-1)
+			y1 = np.pad(y1, (0, expected_size - len(y1)), mode='constant', constant_values=-1)
+			z1 = np.pad(z1, (0, expected_size - len(z1)), mode='constant', constant_values=-1)
+		else:
+			x1 = x1[:expected_size]
+			y1 = y1[:expected_size]
+			z1 = z1[:expected_size]
 
-	# Vectorized peak calculations
-	peaky = y1 + (f1y - f2y) / (2 * f1y - 4 * f0 + 2 * f2y)
-	peakx = x1 + (f1x - f2x) / (2 * f1x - 4 * f0 + 2 * f2x)
+	try:
+		# Create mask for valid values (not -1)
+		valid_mask = (x1 != -1) & (y1 != -1) & (z1 != -1)
+		valid_indices = np.where(valid_mask)[0]
 
-	vector[:, 0] = peakx.ravel() - half_ia - subpixoffset
-	vector[:, 1] = peaky.ravel() - half_ia - subpixoffset
+		if len(valid_indices) == 0:
+			return vector
+
+		# Calculate indices for valid values only
+		indices = np.ravel_multi_index(
+			(y1[valid_mask].astype(int) - 1,
+			 x1[valid_mask].astype(int) - 1,
+			 z1[valid_mask].astype(int) - 1),
+			dims,
+			order='F'
+		)
+
+		# Compute log values efficiently for valid indices
+		flat_conv = result_conv.ravel('F')
+		f0 = np.log(flat_conv[indices])
+		f1y = np.log(flat_conv[indices - 1])
+		f2y = np.log(flat_conv[indices + 1])
+		f1x = np.log(flat_conv[indices - dims[0]])
+		f2x = np.log(flat_conv[indices + dims[0]])
+
+		# Vectorized peak calculations
+		peaky = y1[valid_mask] + (f1y - f2y) / (2 * f1y - 4 * f0 + 2 * f2y)
+		peakx = x1[valid_mask] + (f1x - f2x) / (2 * f1x - 4 * f0 + 2 * f2x)
+
+		# Initialize full size arrays with zeros
+		full_peakx = np.zeros(expected_size)
+		full_peaky = np.zeros(expected_size)
+
+		# Assign calculated peaks to their proper positions
+		full_peakx[valid_indices] = peakx - half_ia - subpixoffset
+		full_peaky[valid_indices] = peaky - half_ia - subpixoffset
+
+		# Assign to output vector
+		vector[:, 0] = full_peakx
+		vector[:, 1] = full_peaky
+
+	except Exception as e:
+		raise
 
 	return vector
 
