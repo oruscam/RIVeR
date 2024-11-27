@@ -1,11 +1,161 @@
 import csv
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 from scipy.interpolate import griddata
-
+from numba import jit
 import river.core.coordinate_transform as ct
 
+
+@jit(nopython=True)
+def _interpolate_gradient_numba(points: np.ndarray, values: np.ndarray, coords: np.ndarray) -> np.ndarray:
+	"""
+    Numba-optimized nearest neighbor interpolation for gradients.
+    """
+	result = np.zeros(len(coords))
+
+	for i in range(len(coords)):
+		# Calculate distances to all points
+		distances = (points[:, 0] - coords[i, 0]) ** 2 + (points[:, 1] - coords[i, 1]) ** 2
+		# Find nearest point
+		min_idx = np.argmin(distances)
+		result[i] = values[min_idx]
+
+	return result
+
+
+def get_cs_gradient_optimized(coord_x, coord_y, X, Y, gradient_values):
+	"""
+    Optimized version of get_cs_gradient using Numba.
+    """
+	# Prepare points for interpolation
+	points = np.column_stack((X.flatten(), Y.flatten()))
+	gradient_values_flat = gradient_values.flatten()
+	coords = np.column_stack((coord_x, coord_y))
+
+	# Use Numba-optimized interpolation
+	return _interpolate_gradient_numba(points, gradient_values_flat, coords)
+
+
+@jit(nopython=True)
+def get_artificial_seeded_profile_optimized(velocity: np.ndarray, gradient: np.ndarray,
+											percentile: float = 85.0) -> np.ndarray:
+	"""
+    Numba-optimized version of get_artificial_seeded_profile.
+    """
+	n_stations, n_times = gradient.shape
+	mean_profile = np.zeros(n_stations)
+
+	# Process each station
+	for i in range(n_stations):
+		station_gradients = gradient[i]
+		station_velocities = velocity[i]
+
+		# Count valid values for this station
+		valid_count = 0
+		for j in range(n_times):
+			if not np.isnan(station_gradients[j]):
+				valid_count += 1
+
+		if valid_count > 0:
+			# Create temporary arrays for valid values
+			valid_grads = np.zeros(valid_count)
+			valid_count = 0
+
+			# Fill valid gradients array
+			for j in range(n_times):
+				if not np.isnan(station_gradients[j]):
+					valid_grads[valid_count] = station_gradients[j]
+					valid_count += 1
+
+			# Sort gradients for percentile calculation
+			valid_grads = np.sort(valid_grads)
+			idx = int((percentile / 100.0) * valid_count)
+			if idx >= valid_count:
+				idx = valid_count - 1
+			threshold = valid_grads[idx]
+
+			# Count values above threshold
+			sum_vel = 0.0
+			count_above = 0
+
+			for j in range(n_times):
+				if not np.isnan(station_gradients[j]) and station_gradients[j] > threshold:
+					sum_vel += station_velocities[j]
+					count_above += 1
+
+			# Calculate mean if we have values above threshold
+			if count_above > 0:
+				mean_profile[i] = sum_vel / count_above
+			else:
+				mean_profile[i] = np.nan
+		else:
+			mean_profile[i] = np.nan
+
+	return mean_profile
+
+
+@jit(nopython=True)
+def transform_pixel_to_real_world_numba(x_pix: float, y_pix: float, transformation_matrix: np.ndarray) -> np.ndarray:
+	"""
+    Numba version of transform_pixel_to_real_world that exactly matches the original in coordinate_transform.py.
+    """
+	# Create pixel coordinate vector
+	pixel_vector = np.array([x_pix, y_pix, 1.0])
+
+	# Calculate real-world coordinates
+	real_world_vector = np.zeros(3)
+	for i in range(3):
+		for j in range(3):
+			real_world_vector[i] += transformation_matrix[i, j] * pixel_vector[j]
+
+	# Normalize by dividing by homogeneous component
+	if real_world_vector[2] != 0:
+		real_world_vector = real_world_vector / real_world_vector[2]
+
+	# Return only x and y coordinates
+	return real_world_vector[:2]
+
+
+@jit(nopython=True)
+def convert_displacement_field_numba(
+		X: np.ndarray[np.float64],
+		Y: np.ndarray[np.float64],
+		U: np.ndarray[np.float64],
+		V: np.ndarray[np.float64],
+		transformation_matrix: np.ndarray[np.float64]
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+	"""
+    Numba version of convert_displacement_field from coordinate_transform.py.
+    """
+	rows, cols = X.shape
+
+	# Initialize output arrays
+	EAST = np.zeros((rows, cols))
+	NORTH = np.zeros((rows, cols))
+	Displacement_EAST = np.zeros((rows, cols))
+	Displacement_NORTH = np.zeros((rows, cols))
+
+	# Process each point
+	for i in range(rows):
+		for j in range(cols):
+			# Convert original coordinates
+			coords = transform_pixel_to_real_world_numba(X[i, j], Y[i, j], transformation_matrix)
+			EAST[i, j] = coords[0]
+			NORTH[i, j] = coords[1]
+
+			# Convert displaced coordinates
+			displaced_coords = transform_pixel_to_real_world_numba(
+				X[i, j] + U[i, j],
+				Y[i, j] + V[i, j],
+				transformation_matrix
+			)
+
+			# Calculate displacements
+			Displacement_EAST[i, j] = displaced_coords[0] - EAST[i, j]
+			Displacement_NORTH[i, j] = displaced_coords[1] - NORTH[i, j]
+
+	return EAST, NORTH, Displacement_EAST, Displacement_NORTH
 
 def calculate_station_coordinates(
 	east_l: float,
@@ -520,7 +670,7 @@ def add_median_results(
 	return table_results
 
 
-def add_depth(results: dict, shifted_stations: np.ndarray, stages: np.ndarray, level: float) -> float:
+def add_depth(results: dict, shifted_stations: np.ndarray, stages: np.ndarray, level: float) -> dict:
 	"""
 	Add interpolated depth to the station dictionary using NumPy arrays.
 
@@ -718,21 +868,25 @@ def convert_arrays_to_lists(data: dict | list | np.ndarray):
 		return data
 
 
-def calculate_river_section_properties(stages: list, station: list, level: float) -> dict:
+def calculate_river_section_properties(stages: list, station: list, level: float) -> Tuple[float, float, float, float]:
 	"""
 	Calculate wet area, width, maximum depth, and average depth of a river section.
 
 	Parameters:
-	    stages (list): Elevations of the riverbed at different stations.
-	    station (list): Corresponding positions of the stations along the section.
-	    level (float): Current water level.
+		stages (list): Elevations of the riverbed at different stations.
+		station (list): Corresponding positions of the stations along the section.
+		level (float): Current water level.
 
 	Returns:
-	    dict: A dictionary containing wet area, width, max depth, and average depth.
+		Tuple[float, float, float, float]: A tuple containing:
+			- wet_area: Total wetted area of the section
+			- width: Width of the wetted section
+			- max_depth: Maximum depth in the section
+			- average_depth: Average depth in the section
 	"""
 	# Ensure arrays are numpy arrays for efficient calculations
-	stages = np.array(stages)
-	station = np.array(station)
+	stages = np.array(stages, dtype=np.float64)
+	station = np.array(station, dtype=np.float64)
 
 	# Calculate the differences between consecutive station positions (dx)
 	dx = np.diff(station)
@@ -753,91 +907,7 @@ def calculate_river_section_properties(stages: list, station: list, level: float
 	# Guard against division by zero if width is zero
 	average_depth = wet_area / width if width > 0 else 0
 
-	# Return the results as a dictionary
 	return wet_area, width, max_depth, average_depth
-
-
-def add_statistics(
-    results: dict,
-    table_results: dict,
-    transformation_matrix: np.ndarray,
-    time_between_frames: float,
-    rw_to_xsection: np.ndarray,
-) -> dict:
-    """
-    Add statistical metrics to the table_results based on PIV results.
-
-    Parameters:
-        results (dict): Dictionary containing the PIV processing results.
-        table_results (dict): Summary dictionary to which statistics will be added.
-        transformation_matrix (ndarray): Transformation matrix for coordinate conversion.
-        time_between_frames (float): Time interval between frames in PIV processing.
-        rw_to_xsection (ndarray): Matrix for converting real-world coordinates to cross-section coordinates.
-
-    Returns:
-        dict: Updated table_results dictionary with added statistical fields.
-    """
-    # Get x and y coordinate tables (the same for all frames)
-    xtable = np.array(results["x"]).reshape(results["shape"])
-    ytable = np.array(results["y"]).reshape(results["shape"])
-
-    # Convert U, V, and gradient results to numpy arrays and reshape
-    u_all = np.array(results["u"]).reshape((len(results["u"]),) + tuple(results["shape"]))
-    v_all = np.array(results["v"]).reshape((len(results["v"]),) + tuple(results["shape"]))
-    grad_all = np.array(results["gradient"]).reshape((len(results["gradient"]),) + tuple(results["shape"]))
-
-    # Initialize lists to store results
-    streamwise_vel_magnitude_list = []
-    gradient_list = []
-
-    # Loop over all frames
-    for num in range(len(u_all)):
-        U, V = u_all[num], v_all[num]
-        GRAD = grad_all[num]
-
-        # Convert displacement field to real-world coordinates
-        EAST, NORTH, displacement_east, displacement_north = ct.convert_displacement_field(
-            xtable, ytable, U, V, transformation_matrix
-        )
-
-        # Calculate displacements in real-world coordinates
-        disp_east, disp_north = get_cs_displacements(
-            table_results["east"], table_results["north"], EAST, NORTH, displacement_east, displacement_north
-        )
-
-        # Convert the displacements to the cross-section system
-        crosswise, streamwise = get_streamwise_crosswise(disp_east, disp_north, rw_to_xsection)
-
-        # Calculate streamwise velocity magnitude and append to the list
-        streamwise_velocity_magnitude = streamwise / time_between_frames
-        streamwise_vel_magnitude_list.append(streamwise_velocity_magnitude)
-
-        # Interpolate gradient values at cross-section coordinates and append
-        interpolated_gradient_values = get_cs_gradient(
-            table_results["east"], table_results["north"], EAST, NORTH, GRAD
-        )
-        gradient_list.append(interpolated_gradient_values)
-
-    # Convert lists of results to 2D NumPy arrays
-    streamwise_vel_magnitude_array = np.array(streamwise_vel_magnitude_list)
-    gradient_list_array = np.array(gradient_list)
-
-    # Calculate the standard deviation across frames for streamwise velocity
-    streamwise_vel_magnitude_std = np.std(streamwise_vel_magnitude_array, axis=0)
-
-    # Calculate seeded velocity profile using artificial seeding technique
-    seeded_vel_profile = get_artificial_seeded_profile(
-        streamwise_vel_magnitude_array.T, gradient_list_array.T
-    )
-
-    # Add calculated statistics to table_results
-    table_results["minus_std"] = table_results["streamwise_velocity_magnitude"] - streamwise_vel_magnitude_std
-    table_results["plus_std"] = table_results["streamwise_velocity_magnitude"] + streamwise_vel_magnitude_std
-    table_results["5th_percentile"] = np.percentile(streamwise_vel_magnitude_array, 5, axis=0)
-    table_results["95th_percentile"] = np.percentile(streamwise_vel_magnitude_array, 95, axis=0)
-    table_results["seeded_vel_profile"] = seeded_vel_profile
-
-    return table_results
 
 def get_artificial_seeded_profile(velocity, gradient, percentile=85):
 	"""
@@ -874,33 +944,33 @@ def get_artificial_seeded_profile(velocity, gradient, percentile=85):
 	return mean_profile
 
 def get_cs_gradient(coord_x, coord_y, X, Y, gradient_values):
-    """
-    Interpolate gradient values along a line over a matrix of gradient values.
+	"""
+	Interpolate gradient values along a line over a matrix of gradient values.
 
-    Parameters:
-        coord_x, coord_y : 1D np.ndarray
-            Pixel coordinates where interpolation is required.
-        X, Y : 2D np.ndarray
-            Coordinate grid, either in pixel or real-world coordinates.
-        gradient_values : 2D np.ndarray
-            Gradient values defined over the X, Y coordinate grid.
+	Parameters:
+		coord_x, coord_y : 1D np.ndarray
+			Pixel coordinates where interpolation is required.
+		X, Y : 2D np.ndarray
+			Coordinate grid, either in pixel or real-world coordinates.
+		gradient_values : 2D np.ndarray
+			Gradient values defined over the X, Y coordinate grid.
 
-    Returns:
-        interpolated_gradient_values : np.ndarray
-            Interpolated gradient values at the specified coordinates.
-    """
-    # Stack X and Y coordinates into points for interpolation
-    points = np.column_stack((X.flatten(), Y.flatten()))
+	Returns:
+		interpolated_gradient_values : np.ndarray
+			Interpolated gradient values at the specified coordinates.
+	"""
+	# Stack X and Y coordinates into points for interpolation
+	points = np.column_stack((X.flatten(), Y.flatten()))
 
-    # Flatten gradient values to align with flattened coordinate points
-    gradient_values_flat = gradient_values.flatten()
+	# Flatten gradient values to align with flattened coordinate points
+	gradient_values_flat = gradient_values.flatten()
 
-    # Interpolate gradient values at the specified coordinates
-    interpolated_gradient_values = griddata(
-        points, gradient_values_flat, (coord_x, coord_y), method="linear"
-    )
+	# Interpolate gradient values at the specified coordinates
+	interpolated_gradient_values = griddata(
+		points, gradient_values_flat, (coord_x, coord_y), method="linear"
+	)
 
-    return interpolated_gradient_values
+	return interpolated_gradient_values
 
 def get_general_statistics(x_sections: dict) -> dict:
 	# Remove any existing "summary" key to avoid processing it
@@ -941,7 +1011,79 @@ def get_general_statistics(x_sections: dict) -> dict:
 	x_sections["summary"] = stats
 
 	return x_sections
+def add_statistics(
+		results: dict,
+		table_results: dict,
+		transformation_matrix: np.ndarray,
+		time_between_frames: float,
+		rw_to_xsection: np.ndarray,
+) -> dict:
+	"""
+    """
+	# Convert inputs to proper numpy arrays
+	xtable = np.asarray(results["x"], dtype=np.float64).reshape(results["shape"])
+	ytable = np.asarray(results["y"], dtype=np.float64).reshape(results["shape"])
 
+	u_all = np.asarray(results["u"], dtype=np.float64).reshape((len(results["u"]),) + tuple(results["shape"]))
+	v_all = np.asarray(results["v"], dtype=np.float64).reshape((len(results["v"]),) + tuple(results["shape"]))
+	grad_all = np.asarray(results["gradient"], dtype=np.float64).reshape(
+		(len(results["gradient"]),) + tuple(results["shape"]))
+
+	transformation_matrix = np.asarray(transformation_matrix, dtype=np.float64)
+	rw_to_xsection = np.asarray(rw_to_xsection, dtype=np.float64)
+
+	# Pre-allocate arrays for results
+	n_frames = len(u_all)
+	streamwise_vel_magnitude_list = []
+	gradient_list = []
+
+	# Process frames
+	for num in range(n_frames):
+		U = u_all[num]
+		V = v_all[num]
+		GRAD = grad_all[num]
+
+		# Convert displacement field using Numba-optimized function
+		EAST, NORTH, displacement_east, displacement_north = convert_displacement_field_numba(
+			xtable, ytable, U, V, transformation_matrix
+		)
+
+		# Use original functions for the rest to maintain exact results
+		disp_east, disp_north = get_cs_displacements(
+			table_results["east"], table_results["north"],
+			EAST, NORTH, displacement_east, displacement_north
+		)
+
+		crosswise, streamwise = get_streamwise_crosswise(
+			disp_east, disp_north, rw_to_xsection
+		)
+
+		# Store results
+		streamwise_vel_magnitude_list.append(streamwise / time_between_frames)
+		gradient_list.append(get_cs_gradient(
+			table_results["east"], table_results["north"],
+			EAST, NORTH, GRAD
+		))
+
+	# Convert lists to arrays
+	streamwise_vel_magnitude_array = np.array(streamwise_vel_magnitude_list)
+	gradient_array = np.array(gradient_list)
+
+	# Calculate statistics
+	streamwise_vel_magnitude_std = np.std(streamwise_vel_magnitude_array, axis=0)
+	seeded_vel_profile = get_artificial_seeded_profile_optimized(
+		streamwise_vel_magnitude_array.T,
+		gradient_array.T
+	)
+
+	# Update table_results
+	table_results["minus_std"] = table_results["streamwise_velocity_magnitude"] - streamwise_vel_magnitude_std
+	table_results["plus_std"] = table_results["streamwise_velocity_magnitude"] + streamwise_vel_magnitude_std
+	table_results["5th_percentile"] = np.percentile(streamwise_vel_magnitude_array, 5, axis=0)
+	table_results["95th_percentile"] = np.percentile(streamwise_vel_magnitude_array, 95, axis=0)
+	table_results["seeded_vel_profile"] = seeded_vel_profile
+
+	return table_results
 
 def update_current_x_section(
 	x_sections: dict,
