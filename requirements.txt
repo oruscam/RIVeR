@@ -3,3 +3,4 @@ matplotlib>=3.8.4
 scipy==1.13.1
 click==8.1.7
 numba==0.60.0
+tqdm==4.67.0
