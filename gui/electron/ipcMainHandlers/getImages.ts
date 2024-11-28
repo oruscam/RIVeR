@@ -8,11 +8,11 @@ function getImages(PROJECT_CONFIG: ProjectConfig) {
     const filePrefix = import.meta.env.VITE_FILE_PREFIX
 
     ipcMain.handle('get-images', async (_event, _args) => {
-        const { framesPath } = PROJECT_CONFIG
+        const { thumbsPath } = PROJECT_CONFIG
         try {
-            const files = await fs.readdir(framesPath);
+            const files = await fs.readdir(thumbsPath);
             const images = files.map((file) => {
-                return path.join(filePrefix, framesPath, file)
+                return path.join(filePrefix, thumbsPath, file)
             })
             return images
         } catch (error) {

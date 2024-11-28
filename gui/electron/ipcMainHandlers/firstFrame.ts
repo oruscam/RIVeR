@@ -2,9 +2,10 @@ import { ipcMain } from "electron";
 import { FirstFrameArgs, ProjectConfig } from "./interfaces";
 import * as fs from 'fs'
 import { executePythonShell } from "./utils/executePythonShell";
+import { createThumbs} from "./utils/createThumbs";
 
 function firstFrame(PROJECT_CONFIG: ProjectConfig){
-
+    
     ipcMain.handle('first-frame', async( _event, args: FirstFrameArgs) => {
         PROJECT_CONFIG.framesPath = PROJECT_CONFIG.directory + '/frames';
         if (fs.existsSync(PROJECT_CONFIG.framesPath)) {
@@ -35,7 +36,14 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig){
         await fs.promises.writeFile(PROJECT_CONFIG.settingsPath, updatedContent, 'utf-8');
 
         try {
+            console.time('Extracting frames');
             const { data } = await executePythonShell(options) as any
+            console.timeEnd('Extracting frames');
+
+            console.time('Creating thumbnails');
+            await createThumbs(PROJECT_CONFIG);
+            console.timeEnd('Creating thumbnails');
+
             return data
         } catch (error) {
             console.log(error)

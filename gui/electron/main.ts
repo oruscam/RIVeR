@@ -112,6 +112,7 @@ const PROJECT_CONFIG: ProjectConfig = {
   bboxPath: "",
   maskPath: "",
   resultsPath: "",
+  thumbsPath: "",
 }
 
   // // Print PROJECT_CONFIG every 10 seconds

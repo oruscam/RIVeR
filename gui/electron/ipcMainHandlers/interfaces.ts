@@ -105,6 +105,7 @@ export interface ProjectConfig {
   bboxPath: string,
   maskPath: string,
   resultsPath: string,
+  thumbsPath: string,
 }
 
 interface Point {
