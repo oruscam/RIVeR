@@ -1,31 +1,33 @@
-# RIVeR
 
 <figure>
-    <img src="docs/_static/river_logo.svg" width=100 align="right">
+    <img src="river/docs/_static/river_logo.svg" width=250 align="center">
 </figure>
+<br clear="left"/>
 <br>
 
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+
 [![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.05.011-blue)](https://doi.org/10.1016/j.cageo.2017.05.011)
-[![Python Version](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![React Version](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
 
-**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (LSPIV) and Large Scale Particle Tracking Velocimetry (LSPTV). Built with Python and React, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
+**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (LSPIV). Built with Python and React, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
 
-![example_analysis](docs/example_analysis.jpg)
-*Example of RIVeR velocimetry analysis of river flow*
+<figure>
+    <img src="river/docs/_static/screenshot.png" width=500 align="center">
+    <figcaption>Example of RIVeR velocimetry analysis of river flow</figcaption>
+</figure>
 
 ## Current capabilities
+* Frame extraction
 * FFT-based PIV analysis with multi-pass support
-* Real-time video processing and frame extraction
 * Interactive result visualization
 * CSV data import/export
 * Multi-platform support
-* GPU acceleration (where available)
 
-## Installation
+## Installation (CAMBIAR)
 
-To get started with RIVeR, ensure you have Python 3.8+ installed. Then:
+To get started with RIVeR, ensure you have Python 3.11+ installed. Then:
 
 ```bash
 # Create and activate a virtual environment
@@ -118,7 +120,7 @@ If you use RIVeR in your research, please cite:
 
 - Original MATLAB version (2017)
 - UNC/ORUS research team
-- Contributing organizations: UNC, ORUS, INA
+- Contributing organizations: UNC, ORUS, INA, CONICET
 - [PIVlab project](https://la.mathworks.com/matlabcentral/fileexchange/27659-pivlab-particle-image-velocimetry-piv-tool-with-gui): The pioneering PIV analysis tool that inspired aspects of RIVeR's development
 
 ## License
