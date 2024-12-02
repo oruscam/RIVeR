@@ -129,6 +129,9 @@ export const useProjectSlice = () => {
                 end_frame: parameters.endFrame,
                 step: parameters.step,
             })
+
+            
+            console.log(result)
             dispatch(clearMessage())
             dispatch(setFirstFramePath(filePrefix + result.initial_frame))
             dispatch(setVideoParameters(parameters))
@@ -149,7 +152,7 @@ export const useProjectSlice = () => {
         try {
             const result = await ipcRenderer.invoke('load-project')
             if(result.success){
-                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results } = result.message
+                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths } = result.message
                 dispatch(setProjectDirectory(projectDirectory))
                 dispatch(setProjectType(settings.footage)) 
                 dispatch(setVideoData({
@@ -163,6 +166,10 @@ export const useProjectSlice = () => {
                 }))
                 dispatch(clearErrorMessage())
 
+                if ( paths.length !== 0){
+                    dispatch(setImages({ paths: paths }))
+                }
+
                 if( firstFrame !== ''){
                     dispatch(setFirstFramePath(filePrefix + firstFrame))
                 }
@@ -173,8 +180,6 @@ export const useProjectSlice = () => {
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
 
                     // * Load images for carousel.
-                    const images = await ipcRenderer.invoke('get-images')
-                    dispatch(setImages(images))
                     dispatch(setProcessingMask(filePrefix + mask))
 
                     // * Load cross sections
@@ -220,8 +225,6 @@ export const useProjectSlice = () => {
                     
 
                     // * Load images for carousel.
-                    const images = await ipcRenderer.invoke('get-images')
-                    dispatch(setImages(images))
                     dispatch(setProcessingMask(filePrefix + mask))
 
                     // * Load cross sections

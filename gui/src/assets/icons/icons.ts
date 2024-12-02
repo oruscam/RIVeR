@@ -10,18 +10,20 @@ import play from './play.svg'
 import previous from './previous.svg'
 import language from './language.svg'
 import eyeball from './eyeball.svg'
+import back from './back.svg'
 
 export {
+    back,
     drone,
+    eyeball,
     ipcam,
     language, 
     next, 
     oblique,
     pause,
     pin,
-    pinRed,
     pinGreen,
+    pinRed,
     play,
     previous,
-    eyeball
 }

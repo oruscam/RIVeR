@@ -5,7 +5,7 @@
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask, setDataLoaded } from "../store/data/dataSlice";
+import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask, setDataLoaded, setImages } from "../store/data/dataSlice";
 import { clearErrorMessage, setErrorMessage, setLoading } from "../store/ui/uiSlice";
 import { setSectionData, setSummary } from "../store/section/sectionSlice";
 
@@ -68,7 +68,7 @@ export const useDataSlice = () => {
      * @param value - Number with the index of the image to set as active
      */
 
-    const onSetActiveImage = (value: number) => {
+    const onSetActiveImage = async (value: number) => {
         dispatch(setActiveImage(value))
     }
 
@@ -85,7 +85,7 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         const { paths, active } = images;
-        const framesToTest = [paths[active], paths[active + 1]]
+        const framesToTest = [paths[active], paths[ active + 1]]
 
         try {
             const { data, error } = await ipcRenderer.invoke('get-quiver-test', { framesToTest: framesToTest, formValues: processing.form })
@@ -247,8 +247,15 @@ export const useDataSlice = () => {
         dispatch(setBackendWorkingFlag(value))
     }
 
+    const onSetImages = () => {
+        const ipcRenderer = window.ipcRenderer;
+        ipcRenderer.on('all-frames', (_event, paths) => {
+            dispatch(setImages({ paths: paths }))
+        })
+    }
+
     return {
-        // ATRIBUTES]
+        // ATRIBUTES
         isBackendWorking,
         images,
         processing,
@@ -263,7 +270,8 @@ export const useDataSlice = () => {
         onKillBackend,
         onGetResultData,
         onReCalculateMask,
-        onSetAnalizing
+        onSetAnalizing,
+        onSetImages
     }
 }
 

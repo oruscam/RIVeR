@@ -40,7 +40,7 @@ interface DataState {
     images: Images;
     quiver?: Quiver;
     isBackendWorking: boolean,
-    isDataLoaded: boolean
+    isDataLoaded: boolean,
 }
 
 export type { DataState, Processing, FormProcessing, Quiver }

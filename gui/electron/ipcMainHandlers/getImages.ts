@@ -7,14 +7,14 @@ import { ProjectConfig } from "./interfaces";
 function getImages(PROJECT_CONFIG: ProjectConfig) {
     const filePrefix = import.meta.env.VITE_FILE_PREFIX
 
-    ipcMain.handle('get-images', async (_event, _args) => {
-        const { thumbsPath } = PROJECT_CONFIG
+    ipcMain.handle('get-images', async (_event, args) => {
+        const { framesPath } = PROJECT_CONFIG
+        const { index } = args
         try {
-            const files = await fs.readdir(thumbsPath);
-            const images = files.map((file) => {
-                return path.join(filePrefix, thumbsPath, file)
-            })
-            return images
+            const files = await fs.readdir(framesPath);
+            const image1 = path.join('/@fs',framesPath, files[index])
+            const image2 = path.join('/@fs',framesPath, files[index + 1])
+            return [image1, image2]
         } catch (error) {
             console.log("Error de get images")
             console.log(error)

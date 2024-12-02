@@ -27,7 +27,7 @@ const initialState: DataState = {
     processing: defaultProcessing,
     images: {
         paths: [],
-        active: 0
+        active: 0,
     },
     isBackendWorking: false,
     isDataLoaded: false,
@@ -49,8 +49,8 @@ const dataSlice = createSlice({
         setProcessingMask: (state, action: PayloadAction<string>) => {
             state.processing.maskPath = action.payload  + `?t=${new Date().getTime()}`;            
         },
-        setImages: (state, action: PayloadAction<string[]>) => {
-            state.images.paths = action.payload
+        setImages: (state, action: PayloadAction<{paths: string[]}>) => {
+            state.images.paths = action.payload.paths
         },
         setActiveImage: ( state, action: PayloadAction<number>) => {
             state.images.active = action.payload

@@ -81,9 +81,11 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                         }
 
                         const images = await fs.promises.readdir(framesPath);
-                        
+                        let paths: string[];
+
                         if( images.length > 0){
                             firstFrame = path.join(framesPath, images[0])
+                            paths = images.map((image) => path.join('/@fs',framesPath, image))    
                         }
 
                         if ( settingsParsed.piv_results ){
@@ -92,7 +94,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                             piv_results = await readResultsPiv(settingsParsed.piv_results);
                         }
 
-
+                        
                         try {
                             const videoMetadata = await getVideoMetadata(settingsParsed.video.filepath);
                             
@@ -106,6 +108,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                                     firstFrame: firstFrame,
                                     mask: maskPng,
                                     piv_results: piv_results,
+                                    paths: paths,
                                 },
                             };
                         } catch (error) {

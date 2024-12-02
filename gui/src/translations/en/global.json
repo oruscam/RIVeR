@@ -97,7 +97,8 @@
         "stdFiltering": "Std filtering",
         "medianTestFiltering" : "Mediant test filtering",
         "epsilon": "Epsilon",
-        "threshold": "Threshold"
+        "threshold": "Threshold",
+        "carouselMedia": "Media"
     },
     "Analizing": {
         "title": "Analizing",

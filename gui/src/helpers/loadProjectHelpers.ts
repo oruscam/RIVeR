@@ -58,7 +58,7 @@ export const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispat
  * @param sections - sections state. By default we have pixel_size and CS_default_1. In the first lop on the xsections we update the CS_default_1 section. And then we add the rest of the sections.
  */
 
-export const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary: any) => {
+export const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary?: any) => {
     let flag = true
     let flagData = false
     Object.entries(values).forEach( async ([key, value]: [ string, XSectionValue ]) => {

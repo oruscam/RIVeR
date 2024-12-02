@@ -1,17 +1,20 @@
-import { useUiSlice } from './hooks/useUiSlice'
 import { Wizard } from 'react-use-wizard'
 import { HomePage, FootageMode, VideoRange, PixelSize, CrossSections, Processing, Analize, Results, ControlPoints } from './pages/index'
 import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
 import { Report } from './pages/Report'
-import { useProjectSlice } from './hooks'
+import { useDataSlice, useProjectSlice, useUiSlice } from './hooks'
 import { FOOTAGE_TYPES } from './constants/constants'
 
 export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice()
   const { type, video } = useProjectSlice()
   const { data } = video 
+
+  const { onSetImages } = useDataSlice()
+
+  onSetImages()
 
   const getStep4 = () => {
     switch (type) {
@@ -43,8 +46,7 @@ export const App: React.FC = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [data])
 
-
-
+  
   return (
     <div className='App' data-theme={darkMode ? "dark" : "light"}>
       <Wizard>

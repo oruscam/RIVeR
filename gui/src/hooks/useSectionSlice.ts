@@ -392,10 +392,7 @@ export const useSectionSlice = () => {
             await ipcRenderer.invoke('set-sections', { data })
             const { height_roi } = await ipcRenderer.invoke('recommend-roi-height')
             const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi, data: false })
-
-            const images = await ipcRenderer.invoke('get-images')
-            
-            dispatch(setImages(images))
+1            
             dispatch(updateProcessingForm({...processing.form, heightRoi: height_roi}))
             dispatch(setProcessingMask(filePrefix + maskPath))
             dispatch(setLoading(false))
