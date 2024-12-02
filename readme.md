@@ -6,7 +6,7 @@
 <br>
 
 
-[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.05.011-blue)](https://doi.org/10.1016/j.cageo.2017.05.011)
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue)](https://doi.org/10.1016/j.cageo.2017.07.009)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![React Version](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
