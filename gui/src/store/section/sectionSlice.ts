@@ -43,7 +43,8 @@ const initialState: SectionState = {
     sections: defaultSections,
     summary: undefined,
     activeSection: 0,
-    sectionsCounter: 2
+    sectionsCounter: 2,
+    transformationMatrix: []
 };
 
 const sectionSlice = createSlice({
@@ -110,6 +111,9 @@ const sectionSlice = createSlice({
         },
         updateSectionsCounter: (state, action: PayloadAction<number>) => {
             state.sectionsCounter = action.payload;
+        },
+        setTransformationMatrix: (state, action: PayloadAction<[number[], number[], number[]]>) => {
+            state.transformationMatrix = action.payload;
         }
     },
 });
@@ -128,7 +132,8 @@ export const {
     updateSection,
     setHasChanged,
     setSummary,
-    updateSectionsCounter
+    updateSectionsCounter,
+    setTransformationMatrix
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

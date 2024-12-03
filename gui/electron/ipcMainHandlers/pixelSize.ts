@@ -49,8 +49,8 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig ) {
 
             const updatedContent = JSON.stringify(jsonParsed, null, 4);
             await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
-            return { message: "La matriz ha sido creada con su respectivo JSON" }
-        
+            
+            return data
         } catch (error) {
             console.log("Error en pixel-size")
             console.log(error)      

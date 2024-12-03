@@ -5,11 +5,11 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, } from '../store/section/sectionSlice';
+import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, } from '../store/section/sectionSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints } from '../helpers';
-import { setBackendWorkingFlag, setImages, setProcessingMask, updateProcessingForm } from '../store/data/dataSlice';
+import { setBackendWorkingFlag, setProcessingMask, updateProcessingForm } from '../store/data/dataSlice';
 
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../constants/constants';
 import { CanvasPoint, FormPoint, Point } from '../types';
@@ -22,7 +22,7 @@ import { CanvasPoint, FormPoint, Point } from '../types';
  */
 
 export const useSectionSlice = () => {
-    const { sections, activeSection, summary, sectionsCounter } = useSelector((state: RootState) => state.section);
+    const { sections, activeSection, summary, sectionsCounter, transformationMatrix } = useSelector((state: RootState) => state.section);
     const { processing } = useSelector((state: RootState) => state.data);
     const dispatch = useDispatch();
 
@@ -296,11 +296,14 @@ export const useSectionSlice = () => {
 
         const ipcRenderer = window.ipcRenderer;
         try {
-            await ipcRenderer.invoke('pixel-size', args)
-            
-            dispatch(setLoading(false))
+            const { uav_matrix } = await ipcRenderer.invoke('pixel-size', args)
+
+            console.log(uav_matrix)
+            dispatch(setTransformationMatrix(uav_matrix))
+
             dispatch(setHasChanged({value: false}))
             dispatch(setActiveSection(activeSection + 1))
+            dispatch(setLoading(false))
         } catch (error) {
             console.log("ERROR EN SETPIXELSIZE")
             console.log(error)
@@ -635,6 +638,7 @@ export const useSectionSlice = () => {
         sections,
         activeSection,
         summary,
+        transformationMatrix,   
 
         onSetDirPoints,
         onAddSection,
@@ -648,6 +652,6 @@ export const useSectionSlice = () => {
         onChangeDataValues,
         onGetBathimetry,
         onCleanSections,
-        onCleanSectionsData
+        onCleanSectionsData,
     };
 };

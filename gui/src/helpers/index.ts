@@ -1,4 +1,4 @@
-import { getDistanceBetweenPoints, computePixelSize } from "./coordinates";
+import { getDistanceBetweenPoints, computePixelSize, transformPixelToRealWorld, transformRealWorldToPixel } from "./coordinates";
 import { getPointNames } from "./getPointNames";
 import { getNewImageResolution } from "./getNewImageResolution";
 import { getValidationRules } from "./validationRules";
@@ -41,4 +41,6 @@ export {
     onMouseUpPixelSize,
     recortStringDate,
     stringDateToDate,
+    transformPixelToRealWorld,
+    transformRealWorldToPixel,
 }

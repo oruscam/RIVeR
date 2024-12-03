@@ -79,11 +79,11 @@ interface SectionData {
 interface Section {
     name: string;
     drawLine: boolean;
-    sectionPoints: Point[];
-    dirPoints: Point[];
+    sectionPoints: Point[]; // Pixel Coordinates Points
+    dirPoints: Point[]; // Pixel Coordinates Points 
     bathimetry: Bathimetry
     pixelSize: PixelSize
-    rwPoints: Point[];
+    rwPoints: Point[]; // Real World Coordinates Points
     extraFields: boolean;
     alpha: number;
     numStations: number;
@@ -134,6 +134,7 @@ interface SectionState {
     summary: Summary | undefined;
     activeSection: number;
     sectionsCounter: number;
+    transformationMatrix: [number[], number[], number[]] | [];
 }
 
 export type { SectionState, Section, Point, Bathimetry, PixelSize, Processing, SectionData, Summary }

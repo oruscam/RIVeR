@@ -27,7 +27,6 @@ export const Bathimetry = ({ showLeftBank, height = 320 }: BathimetryProps) => {
         d3.select(svgRef.current).selectAll('*').remove()
         if ( line ) {
             if (svgRef.current) {
-                console.log(line)
                 bathimetrySvg({
                     svgElement: svgRef.current,
                     data: line,
