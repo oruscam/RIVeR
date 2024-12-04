@@ -222,9 +222,11 @@
     margin: auto 0;
 }
 
-/* Chart Cross Sections */
+/* LOADER */
 
-.loading-container{
+/* MID  */
+
+.loader-container-mid {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -233,14 +235,29 @@
     width: 100%;
 }
 
-.loader{
+.loader-wrapper-mid {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 80px;
+    height: 80px;
+    margin-bottom: 40px;
+}
+
+.loader-mid {
     border: 10px solid var(--primary-text-color);
     border-radius: 50%;
     border-top: 10px solid var(--secondary-background-color);
     width: 80px;
     height: 80px;
-    animation: spin 1.5s linear infinite;    
-    margin-bottom: 40px;
+    animation: spin 1.5s linear infinite;
+}
+
+.loader-percentage-mid {
+    position: absolute;
+    font-size: 1.2em;
+    color: var(--primary-text-color);
 }
 
 @keyframes spin {
@@ -248,7 +265,57 @@
     100% { transform: rotate(360deg); }
 }
 
+/* BIG */
 
+.loader-container-big {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    align-items: center;
+    width: 100%;
+}
+
+.loader-wrapper-big {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 160px;
+    height: 160px;
+}
+
+.loader-big {
+    border: 12px solid var(--primary-text-color);
+    border-radius: 50%;
+    border-top: 12px solid var(--secondary-background-color);
+    width: 120px;
+    height: 120px;
+    animation: spin 1.5s linear infinite;
+}
+
+.loader-percentage-big {
+    position: absolute;
+    font-size: 1.8em;
+    font-weight: bold;
+    color: var(--primary-text-color);
+}
+
+.loader-complete-big {
+    animation: none;
+    border: 12px solid var(--success-color);
+    border: 12px solid var(--primary-text-color);
+}
+
+.loader-remaining-time{
+    font-size: 1.6em !important;
+    font-weight: 500 ;
+ }
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
 
 
 .progress-indicator-container{
@@ -257,7 +324,6 @@
     height: 10px;
     display: flex;
     justify-content: space-between;
-
 }
 
 .progress-indicator{
