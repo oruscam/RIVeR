@@ -8,7 +8,7 @@ import { RootState } from '../store/store';
 import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, } from '../store/section/sectionSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
-import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints } from '../helpers';
+import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints, transformPixelToRealWorld, transformRealWorldToPixel } from '../helpers';
 import { setBackendWorkingFlag, setProcessingMask, updateProcessingForm } from '../store/data/dataSlice';
 
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../constants/constants';
@@ -141,37 +141,35 @@ export const useSectionSlice = () => {
 
         if( activeSection >= 1 ){
             let rwCalculated: Point[] = [ {x: 0, y: 0}, {x:0, y: 0}]
-            
-            const ipcRenderer = window.ipcRenderer;
-            try {
-                dispatch(setBackendWorkingFlag(true))
-                if (newPoints && flag1 && flag2) {
-                    console.log('two points')
-                    const {rw_coordinates: par1} = await ipcRenderer.invoke('pixel-to-real-world', { points: {x: newPoints[0].x, y: newPoints[0].y}})
-                    const {rw_coordinates: par2} = await ipcRenderer.invoke('pixel-to-real-world', { points: {x: newPoints[1].x, y: newPoints[1].y}})
-                    rwCalculated = [{x: par1[0], y: par1[1]}, {x: par2[0], y: par2[1]}]
-                    dispatch(setRealWorldPoints(rwCalculated))
-                } else if (newPoints && flag1){
-                    const {rw_coordinates: par1} = await ipcRenderer.invoke('pixel-to-real-world', { points: {x: newPoints[0].x, y: newPoints[0].y}})
-                    rwCalculated = [{x: par1[0], y: par1[1]}, rwPoints[1]]
-                    dispatch(setRealWorldPoints(rwCalculated))
-                } else if (newPoints && flag2){
-                    const {rw_coordinates: par2} = await ipcRenderer.invoke('pixel-to-real-world', { points: {x: newPoints[1].x, y: newPoints[1].y}})
-                    rwCalculated = [rwPoints[0], {x: par2[0], y: par2[1]}]
-                    dispatch(setRealWorldPoints(rwCalculated))
-                }
-                
-                const { size, rw_length}  = computePixelSize(newPoints as Point[], rwCalculated)
-                dispatch(setPixelSize({size, rw_length}))
-                dispatch(setDirPoints(newPoints as Point[]))
 
-                if( bathimetry.width ){
-                    onUpdateSectionPoints(newPoints as Point[], rw_length, bathimetry.width, bathimetry.leftBank)
-                }
-                dispatch(setBackendWorkingFlag(false))
-            } catch (error) {
-                console.log("Error calculando real-world-coordinates")
+            dispatch(setBackendWorkingFlag(true))
+            if (newPoints && flag1 && flag2) {
+                console.log('two points')
+                const par1 = transformPixelToRealWorld(newPoints[0].x, newPoints[0].y, transformationMatrix)
+                const par2 = transformPixelToRealWorld(newPoints[1].x, newPoints[1].y, transformationMatrix)
+                rwCalculated = [{x: par1[0], y: par1[1]}, {x: par2[0], y: par2[1]}]
+                dispatch(setRealWorldPoints(rwCalculated))
+            } else if (newPoints && flag1){
+                const par1 = transformPixelToRealWorld(newPoints[0].x, newPoints[0].y, transformationMatrix)
+                rwCalculated = [{x: par1[0], y: par1[1]}, rwPoints[1]]
+                dispatch(setRealWorldPoints(rwCalculated))
+            } else if (newPoints && flag2){
+                const par2 = transformPixelToRealWorld(newPoints[1].x, newPoints[1].y, transformationMatrix)
+                rwCalculated = [rwPoints[0], {x: par2[0], y: par2[1]}]
+                dispatch(setRealWorldPoints(rwCalculated))
             }
+            
+            const { size, rw_length}  = computePixelSize(newPoints as Point[], rwCalculated)
+            dispatch(setPixelSize({size, rw_length}))
+            dispatch(setDirPoints(newPoints as Point[]))
+
+            if( bathimetry.width ){
+                onUpdateSectionPoints(newPoints as Point[], rw_length, bathimetry.width, bathimetry.leftBank)
+            }
+            dispatch(setBackendWorkingFlag(false))
+
+            console.log("Error calculando real-world-coordinates")
+
         } else {
             const {size, rw_length} = computePixelSize(newPoints as Point[], rwPoints)
             dispatch(setPixelSize({size, rw_length}))
@@ -241,14 +239,13 @@ export const useSectionSlice = () => {
 
         if(activeSection >= 1 && newPoints !== rwPoints){
             let pixelCalulated: Point[] = [{x: 0, y: 0}, {x: 0, y: 0}]
-            const ipcRenderer = window.ipcRenderer;
-            try {
+
                 dispatch(setBackendWorkingFlag(true))
                 if( flag1 ){
-                    const {pix_coordinates} = await ipcRenderer.invoke('real-world-to-pixel', { points: {x: newPoints[0].x, y: newPoints[0].y }})
+                    const pix_coordinates = transformRealWorldToPixel(newPoints[0].x, newPoints[0].y, transformationMatrix)
                     pixelCalulated = [{x: pix_coordinates[0], y: pix_coordinates[1]}, dirPoints[1]]
                 } else if( flag2 ) {
-                    const {pix_coordinates} = await ipcRenderer.invoke('real-world-to-pixel', { points: {x: newPoints[1].x, y: newPoints[1].y }})
+                    const pix_coordinates = transformRealWorldToPixel(newPoints[1].x, newPoints[1].y, transformationMatrix)
                     pixelCalulated = [dirPoints[0], {x: pix_coordinates[0], y: pix_coordinates[1]}]
                 }
                 const { size, rw_length}  = computePixelSize(pixelCalulated, newPoints)
@@ -260,10 +257,7 @@ export const useSectionSlice = () => {
                     onUpdateSectionPoints(pixelCalulated as Point[], rw_length, bathimetry.width, bathimetry.leftBank)
                 }
                 dispatch(setBackendWorkingFlag(false))
-            } catch (error) {
-                console.log("Error calculando pixel-coordinates")
-            }
-        } else{ 
+        } else { 
             const {size, rw_length} = computePixelSize(dirPoints, newPoints)
             dispatch(setPixelSize({size, rw_length}))
             dispatch(setHasChanged({value: true}))
@@ -328,6 +322,7 @@ export const useSectionSlice = () => {
      */
 
     const onSetSections = async (_formData: FieldValues) => {
+        console.time('set-sections')
         dispatch(setLoading(true))
         
         const filePrefix = import.meta.env.VITE_FILE_PREFIX;
@@ -360,24 +355,21 @@ export const useSectionSlice = () => {
          * 
          */
 
-        await Promise.all(sections.map(async (section, index) => {
+        sections.map(async (section, index) => {
             if (index === 0) return;
 
             const { sectionPoints } = section;
 
 
-            try {
-                const { rw_coordinates: par1 } = await ipcRenderer.invoke('pixel-to-real-world', { points: { x: sectionPoints[0].x, y: sectionPoints[0].y } });
-                const { rw_coordinates: par2 } = await ipcRenderer.invoke('pixel-to-real-world', { points: { x: sectionPoints[1].x, y: sectionPoints[1].y } });
+                const par1 = transformPixelToRealWorld(sectionPoints[0].x, sectionPoints[0].y, transformationMatrix)
+                const par2 = transformPixelToRealWorld(sectionPoints[1].x, sectionPoints[1].y, transformationMatrix)
+
 
                 const rwPoints = [{ x: par1[0], y: par1[1] }, { x: par2[0], y: par2[1] }];
 
                 updatedSection[index] = { ...section, sectionPointsRW: rwPoints };
                 dispatch(setHasChanged({value: false, index: index})) 
-            } catch (error) {
-                console.log(error);
-            }
-        }));
+        });
 
 
         dispatch(updateSectionsCounter(sections.length))
@@ -399,6 +391,7 @@ export const useSectionSlice = () => {
             dispatch(updateProcessingForm({...processing.form, heightRoi: height_roi}))
             dispatch(setProcessingMask(filePrefix + maskPath))
             dispatch(setLoading(false))
+            console.timeEnd('set-sections')
         } catch (error) {
             console.log("ERROR EN SETSECTIONS")
             console.log(error)
