@@ -20,24 +20,20 @@ export const drawVectors = (
 
     if ( !east || !north || !streamwise_velocity_magnitude || !distance ) return;
 
-    // const magnitude = streamwise_velocity_magnitude.map((d, i) => {
-    //     if ( filled_streamwise_velocity_magnitude !== undefined && check[i] === false ){
-    //         return filled_streamwise_velocity_magnitude[i]
-    //     } else if ( interpolated === false && check[i] === false ){
-    //         return null 
-    //     } else {
-    //         return d
-    //     }
-    // })
+    const magnitude = streamwise_velocity_magnitude.map((d, i) => {
+        if ( filled_streamwise_velocity_magnitude !== undefined && check[i] === false ){
+            return filled_streamwise_velocity_magnitude[i]
+        } else if ( interpolated === false && check[i] === false ){
+            return null
+        } else {
+            if ( d === null ) return 0
+            return d
+        }
+    })
 
-    // console.log('check',check)
-    // console.log('streamwise_velocity_magnitude', streamwise_velocity_magnitude)
-    // console.log('filled_streamwise_velocity_magnitude', streamwise_velocity_magnitude[0])
-    // console.log('magnitude', magnitude)
     
     const arrowWidth = calculateArrowWidth(distance)
-
-    const arrows = calculateMultipleArrows( east, north, streamwise_velocity_magnitude, transformationMatrix, videoHeight, arrowWidth )
+    const arrows = calculateMultipleArrows( east, north, magnitude, transformationMatrix, videoHeight, arrowWidth )
 
 
     arrows.forEach((arrow, i) => {
