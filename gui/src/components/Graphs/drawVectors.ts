@@ -1,5 +1,7 @@
 import * as d3 from 'd3'
 import { COLORS, VECTORS } from "../../constants/constants";
+import { calculateArrowWidth, calculateMultipleArrows } from '../../helpers';
+import { SectionData } from '../../store/section/types';
 
 export const drawVectors = (
     svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
@@ -7,85 +9,54 @@ export const drawVectors = (
     factor: number | { x: number, y: number },
     sectionIndex: number,
     interpolated: boolean,
-    data: { x: number[], y: number[], streamwise_x: number[], streamwise_y: number[], check: boolean[] },
-    isReport: boolean
+    data: SectionData,
+    isReport: boolean,
+    transformationMatrix: number[][],
+    videoHeight: number
 ) => {
-    const { x, y, streamwise_x, streamwise_y, check } = data;
 
-    if (!x || !y || !streamwise_x || !streamwise_y || !check) return;
+    // Data for drawing the vectors
+    const { east, north, streamwise_velocity_magnitude, distance, check, filled_streamwise_velocity_magnitude } = data
+
+    if ( !east || !north || !streamwise_velocity_magnitude || !distance ) return;
+
+    // const magnitude = streamwise_velocity_magnitude.map((d, i) => {
+    //     if ( filled_streamwise_velocity_magnitude !== undefined && check[i] === false ){
+    //         return filled_streamwise_velocity_magnitude[i]
+    //     } else if ( interpolated === false && check[i] === false ){
+    //         return null 
+    //     } else {
+    //         return d
+    //     }
+    // })
+
+    // console.log('check',check)
+    // console.log('streamwise_velocity_magnitude', streamwise_velocity_magnitude)
+    // console.log('filled_streamwise_velocity_magnitude', streamwise_velocity_magnitude[0])
+    // console.log('magnitude', magnitude)
+    
+    const arrowWidth = calculateArrowWidth(distance)
+
+    const arrows = calculateMultipleArrows( east, north, streamwise_velocity_magnitude, transformationMatrix, videoHeight, arrowWidth )
 
 
-    const vectors = d3.range(x.length).map(i => {
-        if (streamwise_x[i] === null || streamwise_y[i] === (null) || x[i] === null || y[i] === null) {
-            return {
-                x0: x[i] / (typeof factor === 'number' ? factor : factor.x),
-                y0: y[i] / (typeof factor === 'number' ? factor : factor.y),
-                x1: x[i] / (typeof factor === 'number' ? factor : factor.x),
-                y1: y[i] / (typeof factor === 'number' ? factor : factor.y),
-                color: COLORS.TRANSPARENT
-            };
+    arrows.forEach((arrow, i) => {
+
+        if ( check[i] === false && interpolated === false ) return null;
+
+
+        // Crear el polígono para la flecha
+        if ('points' in arrow && 'color' in arrow) {
+            const polygonPoints = arrow.points.map((point: number[]) => `${point[0] / (typeof factor === 'number' ? factor : factor.x)},${point[1] / (typeof factor === 'number' ? factor : factor.y)}`).join(" ");
+        
+            svg.append("polygon")
+                .attr("points", polygonPoints)
+                .attr("fill", arrow.color)
+                .attr("fill-opacity", 0.7)
+                .attr("stroke", arrow.color)
+                .attr("stroke-width", 1.5)
+                .attr("stroke-width", 1.5)
+                .classed(`section-${sectionIndex}`, true);
         }
-
-        return {
-            x0: x[i] / (typeof factor === 'number' ? factor : factor.x),
-            y0: y[i] / (typeof factor === 'number' ? factor : factor.y),
-            x1: (x[i] / (typeof factor === 'number' ? factor : factor.x) + streamwise_x[i] * VECTORS.VELOCITY_AMPLITUDE_FACTOR / (typeof factor === 'number' ? factor : factor.x)),
-            y1: (y[i] / (typeof factor === 'number' ? factor : factor.y) + streamwise_y[i] * VECTORS.VELOCITY_AMPLITUDE_FACTOR / (typeof factor === 'number' ? factor : factor.y)),
-            color: check[i] ? COLORS.BLUE : interpolated ? COLORS.RED : COLORS.TRANSPARENT
-        };
     });
-
-    svg.selectAll(`line.section-${sectionIndex}`)
-        .data(vectors)
-        .enter()
-        .append('line')
-        .attr('x1', d => d.x0)
-        .attr('y1', d => d.y0)
-        .attr('x2', d => d.x1)
-        .attr('y2', d => d.y1)
-        .attr('stroke', d => d.color)
-        .attr('stroke-width', isReport ? 2 : 2.8)
-        .attr('marker-end', (_d, i) => `url(#arrow-${sectionIndex}-${i})`);
-
-    vectors.forEach((vector, index) => {
-        svg.append("defs").append("marker")
-            .attr("id", `arrow-${sectionIndex}-${index}`)
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 0)
-            .attr("refY", 0)
-            .attr("markerWidth", isReport ? 4 : 6)
-            .attr("markerHeight", isReport ? 4 : 6)
-            .attr("orient", "auto-start-reverse")
-            .append("path")
-            .attr("d", "M0,-5L10,0L0,5")
-            .attr('fill', vector.color);
-    });
-
-    // vectors.forEach((vector, index) => {
-    //     svg.append("defs").append("marker")
-    //         .attr("id", `arrow-${sectionIndex}-${index}`)
-    //         .attr("viewBox", "0 -5 10 10")
-    //         .attr("refX", 2.5) // Ajusta refX para que el punto de referencia esté en el centro de la parte inferior
-    //         .attr("refY", 0) // Ajusta refY para que el punto de referencia esté en el centro vertical
-    //         .attr("markerWidth", isReport ? 4 : 6)
-    //         .attr("markerHeight", isReport ? 4 : 6)
-    //         .attr("orient", "auto-start-reverse")
-    //         .append("path")
-    //         .attr("d", "M0,-5L10,0L0,5L2.5,0Z") // Nuevo estilo de flecha
-    //         .attr('fill', vector.color);
-    // });
-    // vectors.forEach((vector, index) => {
-    //     svg.append("defs").append("marker")
-    //         .attr("id", `arrow-${sectionIndex}-${index}`)
-    //         .attr("viewBox", "0 -5 10 10")
-    //         .attr("refX", 2.5) // Ajusta refX para que el punto de referencia esté en el centro de la parte inferior
-    //         .attr("refY", 0) // Ajusta refY para que el punto de referencia esté en el centro vertical
-    //         .attr("markerWidth", isReport ? 4 : 6)
-    //         .attr("markerHeight", isReport ? 4 : 6)
-    //         .attr("orient", "auto-start-reverse")
-    //         .append("path")
-    //         .attr("d", "M0,-5L10,0L0,5L2.5,0Z") // Nuevo estilo de flecha
-    //         .attr('fill', vector.color)
-    //         .attr('stroke', vector.color); // Añadir contorno del mismo color
-    // });
 }

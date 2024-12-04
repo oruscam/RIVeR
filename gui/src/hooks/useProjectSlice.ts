@@ -8,7 +8,7 @@ import { RootState } from "../store/store";
 import { clearErrorMessage, clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
 import { setProjectDirectory, setProjectType, setVideoData, setFirstFramePath, setVideoParameters, setProjectDetails } from "../store/project/projectSlice";
 import { FieldValues } from "react-hook-form";
-import { addSection, setActiveSection, setSummary, updateSection } from "../store/section/sectionSlice";
+import { addSection, setActiveSection, setSummary, setTransformationMatrix, updateSection } from "../store/section/sectionSlice";
 import {  MODULE_NUMBER } from "../constants/constants";
 import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
 import { onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
@@ -152,7 +152,7 @@ export const useProjectSlice = () => {
         try {
             const result = await ipcRenderer.invoke('load-project')
             if(result.success){
-                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths } = result.message
+                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix } = result.message
                 dispatch(setProjectDirectory(projectDirectory))
                 dispatch(setProjectType(settings.footage)) 
                 dispatch(setVideoData({
@@ -168,6 +168,10 @@ export const useProjectSlice = () => {
 
                 if ( paths.length !== 0){
                     dispatch(setImages({ paths: paths }))
+                }
+
+                if ( matrix !== undefined ){
+                    dispatch(setTransformationMatrix(matrix))
                 }
 
                 if( firstFrame !== ''){

@@ -12,12 +12,15 @@ import { imageZoom, onMouseDownPixelSize, onMouseUpPixelSize, getRelativePointer
 import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks } from "./graphsHelpers";
 import { formatNumberToPrecision2, formatNumberTo2Decimals } from "./adapterNumbers";
 import { carouselClickImage, carouselKeyDown } from "./carouselFunctions";
+import { calculateArrowWidth, calculateMultipleArrows } from "./drawVectorsFunctions";
 
 export {
     adapterBathimetry,
     adapterCrossSections,
     adapterData,
     adaptStringDate,
+    calculateArrowWidth,
+    calculateMultipleArrows,
     carouselClickImage,
     carouselKeyDown,
     computePixelSize,

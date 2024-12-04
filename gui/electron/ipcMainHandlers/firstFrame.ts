@@ -54,14 +54,10 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig){
                     if (files.length > 0) {
                         flag = true;
                         firstFrame = path.join(framesPath, files[0]);
+                    }
                 }
-            }
-        }   
+            }   
             
-
-
-
-
             return {
                 initial_frame: firstFrame,
             }

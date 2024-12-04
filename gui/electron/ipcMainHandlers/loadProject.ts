@@ -31,12 +31,12 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                     const framesPath = path.join(folderPath, 'frames')
 
                     let firstFrame = ""
-                    let xsectionsParsed = undefined
+                    let xSections = undefined
                     let piv_results = undefined
+                    let matrix = undefined
                 
                     const data = await fs.promises.readFile(settingsPath, 'utf-8');
                     const settingsParsed = JSON.parse(data);
-
 
                     // * Assign the project configuration
                     PROJECT_CONFIG.directory = folderPath;
@@ -72,12 +72,14 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                         PROJECT_CONFIG.type = 'uav';
                         if( settingsParsed.transformation_matrix !== undefined ){
                             PROJECT_CONFIG.matrixPath = path.join(folderPath, 'transformation_matrix.json');
+                            matrix = await fs.promises.readFile(PROJECT_CONFIG.matrixPath, 'utf-8');
+                            matrix = JSON.parse(matrix);
                         }   
 
                         if( settingsParsed.xsections ){
                             PROJECT_CONFIG.xsectionsPath = settingsParsed.xsections;
-                            const xsections = await fs.promises.readFile(PROJECT_CONFIG.xsectionsPath, 'utf-8');
-                            xsectionsParsed = transformData(JSON.parse(xsections));
+                            xSections = await fs.promises.readFile(PROJECT_CONFIG.xsectionsPath, 'utf-8');
+                            xSections = transformData(JSON.parse(xSections));
                         }
 
                         const images = await fs.promises.readdir(framesPath);
@@ -89,11 +91,9 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                         }
 
                         if ( settingsParsed.piv_results ){
-                            console.log(settingsParsed.piv_results)
                             PROJECT_CONFIG.resultsPath = settingsParsed.piv_results;
                             piv_results = await readResultsPiv(settingsParsed.piv_results);
                         }
-
                         
                         try {
                             const videoMetadata = await getVideoMetadata(settingsParsed.video.filepath);
@@ -101,7 +101,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                             return {
                                 success: true,
                                 message: {
-                                    xsections: xsectionsParsed,
+                                    xsections: xSections,
                                     settings: settingsParsed,
                                     projectDirectory: folderPath,
                                     videoMetadata: videoMetadata,
@@ -109,6 +109,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                                     mask: maskPng,
                                     piv_results: piv_results,
                                     paths: paths,
+                                    matrix: matrix
                                 },
                             };
                         } catch (error) {
