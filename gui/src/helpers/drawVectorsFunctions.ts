@@ -109,17 +109,17 @@ function calculateArrow( east_c: number, north_c: number, east_next: number, nor
  * 11. Returns an array of arrow objects, each containing the transformed points and color.
  */
 
-function calculateMultipleArrows( east: number[], north: number[], magnitudes: number[], transformationMatrix: number[][], videoHeight: number, arrowWidth: number = 0.5,  ): Array<any> {
+function calculateMultipleArrows( east: number[], north: number[], magnitudes: (number | null)[], transformationMatrix: number[][], videoHeight: number, arrowWidth: number = 0.5,  ): Array<any> {
     
     let validIndices: number[] = [];
 
     for (let i = 0; i < magnitudes.length; i++) {
-        if ( magnitudes[i] !== null && !isNaN( magnitudes[i])) {
+        if ( magnitudes[i] !== null && !isNaN(magnitudes[i] as number)) {
             validIndices.push(i);
         }
     }
     
-    validIndices = validIndices.slice(0, -1);
+    // validIndices = validIndices.slice(0, -1);
 
     if (validIndices.length === 0) {
         return [[], [0, 0]];
@@ -127,19 +127,52 @@ function calculateMultipleArrows( east: number[], north: number[], magnitudes: n
 
     const customColorMap = createColorMap()
     
-    const east_filtered = validIndices.map(i => east[i]);
-    const north_filtered = validIndices.map(i => north[i]);
-    const magnitudes_filtered = validIndices.map(i => magnitudes[i]);
-    const east_next = validIndices.map(i => east[i + 1]);
-    const north_next = validIndices.map(i => north[i + 1]);
+    const east_filtered = east.map((value, i)=> {
+        if ( validIndices.includes(i) ) {
+            return value;
+        } else {
+            return 0
+        }
+    });
+    const north_filtered = north.map((value, i) => {
+        if ( validIndices.includes(i) ) {
+            return value;
+        } else {
+            return 0
+        }
+    });
+    const magnitudes_filtered = magnitudes.map((value, i) => {
+        if ( validIndices.includes(i) ) {
+            return value;
+        } else {
+            return 0
+        }
+    });
+    const east_next = east.map((_value, i) => {
+        if ( validIndices.includes(i) ) {
+            return east[i + 1];
+        } else {
+            return 0
+        }
+    });
+    const north_next = north.map((_value, i) => {
+        if ( validIndices.includes(i) ) {
+            return north[i + 1];
+        } else {
+            return 0
+        }
+    });
+
 
     const targetMaxLength = videoHeight / 5; // image height
     
     let transformedMaxLength = 0
 
+
     for (let i = 0; i < magnitudes_filtered.length; i++) {
         const base = transformRealWorldToPixel(east_filtered[i], north_filtered[i], transformationMatrix)
 
+        
         const tip = transformRealWorldToPixel(
             east_filtered[i] + magnitudes_filtered[i] * (- north_next[i] + north_filtered[i]),
             north_filtered[i] + magnitudes_filtered[i] * (east_next[i] - east_filtered[i]),
@@ -155,11 +188,23 @@ function calculateMultipleArrows( east: number[], north: number[], magnitudes: n
     const scaleFactor = transformedMaxLength > 0 ? targetMaxLength / transformedMaxLength : 1.0;
 
     let arrows = []
-    let min_magnitude = Math.min(...magnitudes_filtered);
-    let max_magnitude = Math.max(...magnitudes_filtered);
+    let min_magnitude = Math.min(...magnitudes_filtered.filter(value => value !== 0));
+    let max_magnitude = Math.max(...magnitudes_filtered.filter(value => value !== 0));
     const norm = new Normalize(min_magnitude, max_magnitude);
 
+
     for ( let i = 0; i < magnitudes_filtered.length; i++ ) {
+
+        if ( magnitudes_filtered[i] === 0 ){
+            arrows.push(
+                {
+                    points: [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0]],
+                    color: 'transparent'
+                }
+            )
+            continue
+        };
+
         const [corners_east, corners_north] = calculateArrow(east_filtered[i], north_filtered[i], east_next[i], north_next[i], magnitudes_filtered[i] * scaleFactor, arrowWidth);
 
         const transformedPoints = corners_east.map((e: number, index: number) => 

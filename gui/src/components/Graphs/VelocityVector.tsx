@@ -48,7 +48,7 @@ export const VelocityVector = ({ height, width, factor, isReport = false, index 
                 drawVectors(svg, sections, factor, index, interpolated, data, isReport, transformationMatrix, videoHeight);
             }
         }
-    }, [factor, activeSection, seeAll, data]);
+    }, [ factor, activeSection, seeAll, data ]);
 
     const drawSvgSectionLine = () => {
         if (isReport){
