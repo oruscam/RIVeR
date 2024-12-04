@@ -25,7 +25,7 @@
             "end3" : "Invalid Time Selection:  The 'End' value cannot be equal or less than 'Start' value. Please enter a valid value.",
             "step" : "Invalid Step Selection: The 'Step' parameter must be a integer greater than 1. Please enter a valid value.",
             "required" : "All the fields are obligatory. Please check video range form.",
-            "formatInput" : "Incorrect format. 'Start' and 'End' values must be in '00.00' format."
+            "formatInput" : "Incorrect format. 'Start' and 'End' values must be in '00:00' format."
         },
         "ExtraInfo" : {
             "fileName" : "File Name:",
@@ -60,7 +60,7 @@
     },
     "CrossSections": {
         "title": "Cross Sections",
-        "drawLine": "Draw Line",
+        "drawLine": "Draw Direction",
         "csLength": "CS Length",
         "importBath": "Import bath",
         "level" : "Level",

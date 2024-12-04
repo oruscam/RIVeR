@@ -2,7 +2,7 @@ import { getDistanceBetweenPoints, computePixelSize, transformPixelToRealWorld, 
 import { getPointNames } from "./getPointNames";
 import { getNewImageResolution } from "./getNewImageResolution";
 import { getValidationRules } from "./validationRules";
-import { formatTime } from "./formatTime";
+import { formatTime, parseTime } from "./formatTime";
 import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate } from "./dateFunctions";
 import { getUnit } from "./unitSistem";
 import { getDirectionVector} from "./getDirectionVector";
@@ -46,4 +46,5 @@ export {
     stringDateToDate,
     transformPixelToRealWorld,
     transformRealWorldToPixel,
+    parseTime
 }

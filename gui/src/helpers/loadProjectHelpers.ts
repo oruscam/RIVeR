@@ -15,7 +15,7 @@ import { MODULE_NUMBER } from '../constants/constants';
  * @returns - void
  */
 
-export const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoParameters: any) => {
+export const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoParameters: any, fps: number) => {
     const { step, start, end } = video_range
     dispatch(setVideoParameters({
         step: step,

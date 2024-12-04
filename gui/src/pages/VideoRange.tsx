@@ -3,12 +3,10 @@ import { FormVideo } from '../components/Forms/FormVideo'
 import { WizardButtons } from '../components/WizzardButtons'
 import { Error } from '../components/Error'
 import { FormVideoExtra } from '../components/Forms/FormVideoExtra'
-import { useState } from 'react'
 import { Progress } from '../components'
 import { useProjectSlice } from '../hooks'
 
 export const VideoRange = () => {
-  const [formStep, setFormStep] = useState(1)
   const { video } = useProjectSlice();
   const { path }= video.data
   
@@ -20,9 +18,9 @@ export const VideoRange = () => {
         </div>
         <div className='form-container'>
           <Progress/>
-          <FormVideo setStep={setFormStep}/>
+          <FormVideo/>
           {/* EXTRA INFO */}
-          <FormVideoExtra step={formStep}/>
+          <FormVideoExtra/>
           <WizardButtons formId='form-video' canFollow={true}/>
         </div>
     </div>

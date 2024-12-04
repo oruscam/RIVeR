@@ -79,6 +79,10 @@
     margin-right: 5px;
 }
 
+#time-between-frames{
+    min-width: 320px;
+}
+
 
 
 /* .form-cross-sections{

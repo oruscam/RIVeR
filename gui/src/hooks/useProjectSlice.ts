@@ -13,6 +13,7 @@ import {  MODULE_NUMBER } from "../constants/constants";
 import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
 import { onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
 import { OperationCanceledError, UserSelectionError } from "../errors/errors";
+import { parseTime } from "../helpers";
 
 
 /**
@@ -108,7 +109,10 @@ export const useProjectSlice = () => {
 
         const { startTime, endTime, step } = video.parameters;
 
-        if( parseFloat(data.start) === startTime && parseFloat(data.end) === endTime && parseFloat(data.step) === step){
+        const parsedStart = parseTime(data.start);
+        const parsedEnd = parseTime(data.end);
+
+        if( parsedStart === startTime && parsedEnd === endTime && parseFloat(data.step) === step){
             dispatch(setLoading(false));
             dispatch(clearMessage());
             return
@@ -116,10 +120,10 @@ export const useProjectSlice = () => {
         
         const parameters = {
             step: parseFloat(data.step),
-            startTime: parseFloat(data.start),
-            endTime: parseFloat(data.end),
-            startFrame: Math.floor(parseFloat(data.start) * video.data.fps),
-            endFrame: Math.floor(parseFloat(data.end) * video.data.fps),
+            startTime: parsedStart,
+            endTime: parsedEnd,
+            startFrame: Math.floor(parsedStart* video.data.fps),
+            endFrame: Math.floor(parsedEnd * video.data.fps),
         }
         const ipcRenderer = window.ipcRenderer;
         
@@ -181,7 +185,7 @@ export const useProjectSlice = () => {
 
                 if( piv_results ){
                     onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
-                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
+                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     // * Load images for carousel.
                     dispatch(setProcessingMask(filePrefix + mask))
@@ -225,7 +229,7 @@ export const useProjectSlice = () => {
                 
                 if(settings.xsections){
                     onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
-                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
+                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
                     
 
                     // * Load images for carousel.
@@ -235,7 +239,6 @@ export const useProjectSlice = () => {
                     dispatch(setActiveSection(1))
                     onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer)
 
-
                     if ( settings.processing ){
                         onLoadProcessingForm(settings.processing, dispatch, updateProcessingForm)
                     }
@@ -244,12 +247,12 @@ export const useProjectSlice = () => {
 
                 } else if(settings.pixel_size){
                     onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
-                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
+                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.CROSS_SECTIONS
 
                 } else if(settings.video_range){
-                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
+                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.PIXEL_SIZE
                 } else {

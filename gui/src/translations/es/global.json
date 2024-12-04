@@ -60,7 +60,7 @@
     },
     "CrossSections": {
         "title": "Cross Sections",
-        "drawLine": "Draw Line",
+        "drawLine": "Dibujar Direccion",
         "csLength": "CS Length",
         "importBath": "Import bath",
         "Level" : "Level",
