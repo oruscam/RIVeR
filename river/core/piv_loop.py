@@ -21,83 +21,38 @@ from river.core.piv_fftmulti import piv_fftmulti
 
 
 def piv_loop(
-	path_images: Path,
-	mask: np.ndarray,
-	bbox: list,
-	interrogation_area_1: int,
-	interrogation_area_2: int,
-	mask_auto: bool,
-	multipass: bool,
-	standard_filter: bool,
-	standard_threshold: bool,
-	median_test_filter: bool,
-	epsilon: float,
-	threshold: float,
-	seeding_filter: bool,
-	step: int,
-	filter_grayscale: bool,
-	filter_clahe: bool,
-	clip_limit_clahe: int,
-	filter_sub_background: bool,
-	background: np.ndarray,
-	start: int,
-	end: int,
+		path_images: Path,
+		mask: np.ndarray,
+		bbox: list,
+		interrogation_area_1: int,
+		interrogation_area_2: int,
+		mask_auto: bool,
+		multipass: bool,
+		standard_filter: bool,
+		standard_threshold: bool,
+		median_test_filter: bool,
+		epsilon: float,
+		threshold: float,
+		seeding_filter: bool,
+		step: int,
+		filter_grayscale: bool,
+		filter_clahe: bool,
+		clip_limit_clahe: int,
+		filter_sub_background: bool,
+		background: np.ndarray,
+		start: int,
+		end: int,
 ) -> dict:
 	"""
-	Perform PIV analysis over a range of frames.
-
-	Parameters:
-	path_images : Path
-	    List of paths to the images.
-	mask : np.ndarray
-	    Mask for the region of interest.
-	bbox : list of int
-	    Bounding box for the region of interest as (x0, y0, x1, y1).
-	interrogation_area_1 : int
-	    Size of the interrogation area.
-	interrogation_area_2 : int, optional
-	    Size of the second interrogation area.
-	mask_auto : bool
-	    Whether to automatically apply a mask.
-	multipass : bool
-	    Whether to use multiple passes.
-	standard_filter : bool
-	    Whether to apply standard deviation filtering.
-	standard_threshold : float
-	    Threshold for standard deviation filtering.
-	median_test_filter : bool
-	    Whether to apply median test filtering.
-	epsilon : float
-	    Epsilon value for median test filtering.
-	threshold : float
-	    Threshold value for median test filtering.
-	seeding_filter : bool
-	    Whether to apply seeding filtering.
-	step : int
-	    Step size for grid calculations.
-	filter_grayscale : bool
-	    Whether to convert images to grayscale.
-	filter_clahe : bool
-	    Whether to apply CLAHE filtering.
-	clip_limit_clahe : int
-	    Clip limit for CLAHE.
-	filter_sub_background : bool
-	    Whether to subtract background.
-	background : np.ndarray
-	    Background image for subtraction.
-	start : int
-	    Starting frame index.
-	end : int
-	    Ending frame index.
-
-	Returns:
-	dict
-	    Dictionary containing cumulative results of PIV analysis.
-	"""
-
+    Perform PIV analysis over a range of frames.
+    [... existing docstring ...]
+    """
 	fr = start
 	last_fr = end
 	dict_cumul = {"u": 0, "v": 0, "x": 0, "y": 0}
+
+	# Create mask_piv for PIV calculations
+	mask_piv = np.ones_like(mask, dtype=np.uint8)
 
 	while fr < last_fr:
 		image1 = impp.preprocess_image(
@@ -110,7 +65,7 @@ def piv_loop(
 		xtable, ytable, utable, vtable, typevector, gradient = piv_fftmulti(
 			image1,
 			image2,
-			mask=mask,
+			mask=mask_piv,  # Use mask_piv for PIV calculation
 			bbox=bbox,
 			interrogation_area_1=interrogation_area_1,
 			interrogation_area_2=interrogation_area_2,
@@ -124,6 +79,17 @@ def piv_loop(
 			seeding_filter=seeding_filter,
 			step=step,
 		)
+
+		# Apply mask to velocity components
+		x_indices = np.clip(xtable.astype(int), 0, mask.shape[1] - 1)
+		y_indices = np.clip(ytable.astype(int), 0, mask.shape[0] - 1)
+		in_mask = mask[y_indices, x_indices] > 0
+
+		# Set values outside mask to NaN
+		utable = utable.astype(float)
+		vtable = vtable.astype(float)
+		utable[~in_mask] = np.nan
+		vtable[~in_mask] = np.nan
 
 		try:
 			dict_cumul["u"] = np.hstack((dict_cumul["u"], utable.reshape(-1, 1)))
