@@ -168,8 +168,6 @@ export const useSectionSlice = () => {
             }
             dispatch(setBackendWorkingFlag(false))
 
-            console.log("Error calculando real-world-coordinates")
-
         } else {
             const {size, rw_length} = computePixelSize(newPoints as Point[], rwPoints)
             dispatch(setPixelSize({size, rw_length}))
@@ -385,6 +383,7 @@ export const useSectionSlice = () => {
 
         try {
             await ipcRenderer.invoke('set-sections', { data })
+            
             const { height_roi } = await ipcRenderer.invoke('recommend-roi-height')
             const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi, data: false })
 1            

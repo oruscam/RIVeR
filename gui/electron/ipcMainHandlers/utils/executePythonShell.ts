@@ -36,6 +36,7 @@ async function executePythonShell(args: (string | number)[]){
     }
     console.log('execute-python-shell')
     console.log(options)
+    console.time('river-cli-time')
 
     /**
      * Python shell to execute the python script.
@@ -50,8 +51,8 @@ async function executePythonShell(args: (string | number)[]){
     
     return new Promise((resolve, reject) => {
         pyshell.on('message', (message: string) => {
-            console.log(message)
             resolve(message);
+            console.timeEnd('river-cli-time')
         });
 
         pyshell.end((err: Error) => {

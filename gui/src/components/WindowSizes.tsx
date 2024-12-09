@@ -13,8 +13,6 @@ export const WindowSizes = ({ width, height }: { width: number, height: number }
   const xCenter = width / 2
   const yCenter = height / 2
 
-  console.log(factor)
-
   return (
     <Group>
       <Rect

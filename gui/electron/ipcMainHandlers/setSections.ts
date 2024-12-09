@@ -26,8 +26,10 @@ export function setSections(PROJECT_CONFIG: ProjectConfig){
         
 
         try {
-            await fs.promises.writeFile(settingsPath, updatedSettings, 'utf-8')
-            await fs.promises.writeFile(xsectionsPath, xsectionsJson, 'utf-8')
+            await Promise.all([
+                fs.promises.writeFile(settingsPath, updatedSettings, 'utf-8'),
+                fs.promises.writeFile(xsectionsPath, xsectionsJson, 'utf-8')
+            ])
 
             return "Sections saved"
         } catch(error){

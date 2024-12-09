@@ -4,17 +4,19 @@ import './pages.css'
 import { useDataSlice, useProjectSlice, useSectionSlice } from '../hooks'
 import { FormReport } from '../components/Forms/index';
 
-const convertImageToDataURI = ( url: string ) => {
+const convertImageToDataURI = ( url: string, quality = 1.0 ) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'Anonymous';
     img.onload = () => {
+      const maxWidth = 1920;
+      const scaleFactor = maxWidth / img.width;
       const canvas = document.createElement('canvas');
-      canvas.width = img.width;
-      canvas.height = img.height;
+      canvas.width = maxWidth;
+      canvas.height = img.height * scaleFactor;
       const ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0);
-      const dataURI = canvas.toDataURL('image/png');
+      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataURI = canvas.toDataURL('image/webp', quality);
       resolve(dataURI);
     };
     img.onerror = reject;
@@ -34,7 +36,7 @@ export const Report = () => {
     if (input) {
       // Convert all images to data URIs
       const images = Array.from(input.getElementsByTagName('img'));
-      const imagePromises = images.map(img => convertImageToDataURI(img.src));
+      const imagePromises = images.map(img => convertImageToDataURI(img.src, 0.1));
       const imageDataURIs = await Promise.all(imagePromises);
   
       // Replace image sources with data URIs
@@ -74,11 +76,10 @@ export const Report = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'report.html';
+      a.download = 'report_1920.html';
       a.click();
     }
     onSetAnalizing(false)
-
   };
 
   return (

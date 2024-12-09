@@ -23,21 +23,24 @@
     position: relative;
 }
 
+
 @media print {
-    #all-in-one-graph .grid line {
-        stroke: rgba(255, 255, 255, 0.2);
-        stroke-width: 0.05; /* Ajusta el grosor de las líneas de la cuadrícula para la impresión */
+    
+    .grid line {
+        stroke: rgba(255, 255, 255, 0.2) !important;
+        stroke-width: 0.05 !important; /* Ajusta el grosor de las líneas de la cuadrícula para la impresión */
     }
 
-    #all-in-one-graph .tick line {
-        stroke:  rgba(255, 255, 255, 0.2);
-        stroke-width: 0.05; /* Ajusta el grosor de las líneas de las marcas de la cuadrícula para la impresión */
+    .tick line {
+        stroke:  rgba(255, 255, 255, 0.2) !important;
+        stroke-width: 0.05 !important; /* Ajusta el grosor de las líneas de las marcas de la cuadrícula para la impresión */
     }
-    #all-in-one-graph .domain {
-        stroke:  rgba(255, 255, 255, 0.5);
-        stroke-width: 0.1; /* Ajusta el grosor de las líneas de las marcas de la cuadrícula para la impresión */
+    
+    .domain {
+        stroke:  rgba(255, 255, 255, 0.2) !important;
+        stroke-width: 0.05 !important; /* Ajusta el grosor de las líneas de las marcas de la cuadrícula para la impresión */
+    }
 
-    }
  
 
     /* Asegurarse de que los colores de fondo y bordes se impriman */

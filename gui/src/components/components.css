@@ -375,7 +375,7 @@
 
 .carousel-container{
     margin-top: 5px;
-    width: 90%;
+    width: 98%;
     display: flex;
     flex-direction: column;
     justify-content: end;
@@ -400,7 +400,8 @@
 }
 
 .carousel-info{
-    width: 100%;
+    width: 95%;
+    align-self: center;
     display: flex;
     justify-content: space-between;
     align-items: center;

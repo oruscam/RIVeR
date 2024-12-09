@@ -1,4 +1,3 @@
-import { color } from "d3";
 import { transformRealWorldToPixel } from "./coordinates";
 
 /**
@@ -220,7 +219,8 @@ function calculateMultipleArrows( east: number[], north: number[], magnitudes: (
 
         arrows.push({
             points: transformedPoints,
-            color: color
+            color: color,
+            magnitude: magnitudes_filtered[i]
         });
     }
 

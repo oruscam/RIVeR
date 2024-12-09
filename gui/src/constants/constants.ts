@@ -52,7 +52,7 @@ export const COLORS = {
     TRANSPARENT_WHITE: '#FFFFFF80', // 50% opacity 
     TRANSPARENT: '#00000000', // fully transparent 
     PERCENTILE_AREA: '#ED6B5740', 
-    STD_AREA: '#3396BF40', 
+    STD_AREA: '#62C65533', // 'rgba(98, 198, 85, 0.2)'
     MARK_NUMBER: '#3396BF',
     MARK_L: '#6B120B',
     MARK_R: '#2D671B',

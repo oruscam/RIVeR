@@ -69,10 +69,10 @@ export const VelocityVector = ({ height, width, factor, isReport = false, index 
     return (
         <div id="velocity-vector-container" style={{ width: width, height: height }}>
             <img src={firstFramePath} width={width} height={height} style={isReport ? { borderRadius: '20px' } : {}}/>
+            <svg ref={svgRef} id='velocity-vector'/>
             {
                 drawSvgSectionLine()
             }
-            <svg ref={svgRef} id='velocity-vector'/>
         </div>
     )
 }

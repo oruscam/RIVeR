@@ -31,15 +31,12 @@ export const drawVectors = (
         }
     })
 
-    
     const arrowWidth = calculateArrowWidth(distance)
     const arrows = calculateMultipleArrows( east, north, magnitude, transformationMatrix, videoHeight, arrowWidth )
-
 
     arrows.forEach((arrow, i) => {
 
         if ( check[i] === false && interpolated === false ) return null;
-
 
         // Crear el polígono para la flecha
         if ('points' in arrow && 'color' in arrow) {

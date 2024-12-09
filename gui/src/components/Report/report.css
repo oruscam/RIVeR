@@ -505,9 +505,6 @@ body{
     color: #000;
 }
 
-
-
-
 #report-footer-github-logo{
     width: 50px;
     height: auto;
@@ -515,15 +512,16 @@ body{
 
 
 @media print {
-    /* Ocultar la URL y la fecha/hora
-    header, footer {
-        display: none;
-    }
-    Mostrar solo el número de página
-    .page-number:before {
+
+    /* Mostrar solo el número de página */ 
+    /* .page-number:before {
         content: counter(page);
     } */
 
+    @page {
+        margin: 0;
+        size: A4;
+    }
 
     #report-section-container {
         page-break-inside: avoid; /* Evita que el contenedor se divida entre páginas */
@@ -542,6 +540,7 @@ body{
         position: fixed;
         bottom: 0;
         width: 100%;
+        margin-bottom: 15px;
     }
 
     #report-section-table{
@@ -553,5 +552,8 @@ body{
     * {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
+    }
+        img {
+        image-rendering: pixelated; /* Opción para reducir la calidad de las imágenes */
     }
 }
