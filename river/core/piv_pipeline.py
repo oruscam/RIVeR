@@ -111,6 +111,8 @@ def run_test(
 	if mask is None:
 		mask = np.ones(image_1.shape, dtype=np.uint8)
 
+	mask_piv = np.ones(image_1.shape, dtype=np.uint8) #must correct this
+
 	if bbox is None:
 		height, width = image_1.shape[:2]
 		bbox = [0, 0, width, height]
@@ -118,7 +120,7 @@ def run_test(
 	xtable, ytable, utable, vtable, typevector, _ = piv_fftmulti(
 		image_1,
 		image_2,
-		mask=mask,
+		mask=mask_piv,
 		bbox=bbox,
 		interrogation_area_1=interrogation_area_1,
 		interrogation_area_2=interrogation_area_2,
@@ -132,14 +134,21 @@ def run_test(
 		seeding_filter=seeding_filter,
 		step=step,
 	)
+	# Create in_mask array and check points against the mask
+	x_indices = np.clip(xtable.astype(int), 0, mask.shape[1] - 1)
+	y_indices = np.clip(ytable.astype(int), 0, mask.shape[0] - 1)
+	in_mask = mask[y_indices, x_indices] > 0
+
+	# Set u and v values to NaN where in_mask is False
+	utable[~in_mask] = np.nan
+	vtable[~in_mask] = np.nan
 
 	results = {
 		"shape": xtable.shape,
 		"x": xtable.flatten().tolist(),
 		"y": ytable.flatten().tolist(),
 		"u": utable.flatten().tolist(),
-		"v": vtable.flatten().tolist(),
-		"typevector": typevector.flatten().tolist(),
+		"v": vtable.flatten().tolist()
 	}
 
 	return results
