@@ -27,8 +27,10 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig) {
         const options = await createOptions('test', PROJECT_CONFIG, frames, formValues)
 
         try {
-            const result = await executePythonShell(options) as any;
-            return result
+            const result = await executePythonShell2(options) as any;
+            const data = JSON.parse(result.replace(/\bNaN\b/g, "null"))
+
+            return data
 
         } catch (error) {
             console.log("Error en get-quiver-test")

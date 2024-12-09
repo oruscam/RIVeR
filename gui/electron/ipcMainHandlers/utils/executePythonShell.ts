@@ -51,6 +51,7 @@ async function executePythonShell(args: (string | number)[]){
     
     return new Promise((resolve, reject) => {
         pyshell.on('message', (message: string) => {
+            console.log(message)
             resolve(message);
             console.timeEnd('river-cli-time')
         });

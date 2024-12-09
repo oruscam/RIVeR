@@ -25,14 +25,14 @@ export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
     
     if (!quiver) return;
 
-    const { x, y, u, v, typevector, u_median, v_median } = quiver;
+    const { x, y, u, v, u_median, v_median } = quiver;
 
 
     svg.attr("width", width)
        .attr("height", height)
        .style("background-color", "transparent");
 
-    const filteredXTable = x.map((d, i) => typevector[i] === 1 ? d : -10000); 
+    const filteredXTable = x.map((d) => d !== null ? d : -1000); 
     
     let uTable: number[];
     let vTable: number[];
@@ -81,7 +81,7 @@ export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
       .append("path")
         .attr("d", "M0,-5L10,0L0,5")
         .attr("fill", "#0678BE")
-  }, [quiver, images.active, showMedian, factor, factor])
+  }, [quiver, images.active, showMedian, factor])
 
   return (
     <svg ref={svgRef} className='quiver' style={{width: `${width}`, height: `${height}`}}></svg>
