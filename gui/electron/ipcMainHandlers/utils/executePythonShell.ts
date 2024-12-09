@@ -5,11 +5,7 @@
  */
 
 import { exec } from "child_process";
-<<<<<<< HEAD
 import { ipcMain, webContents } from "electron";
-=======
-import { ipcMain, webContents } from "electron";
->>>>>>> gui
 import { Options, PythonShell } from "python-shell";
 
 
@@ -155,7 +151,6 @@ async function executePythonShellWithOuput(args: (string | number)[]) {
         
         pyshell.on('message', (message: string) => {
             console.log(message)
-
             try {
                 const jsonMessage = JSON.parse(message);
                 resolve(jsonMessage);

@@ -139,6 +139,8 @@ app.whenReady().then(() => {
     return net.fetch(fileUrl)
   })
 
+  console.log('river-cli', riverCli)
+
   createWindow();
   getVideo(PROJECT_CONFIG);
   initProject(userDir, PROJECT_CONFIG);

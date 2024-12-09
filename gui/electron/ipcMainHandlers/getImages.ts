@@ -12,8 +12,8 @@ function getImages(PROJECT_CONFIG: ProjectConfig) {
         const { index } = args
         try {
             const files = await fs.readdir(framesPath);
-            const image1 = path.join(filePrefix,framesPath, files[index])
-            const image2 = path.join(filePrefix,framesPath, files[index + 1])
+            const image1 = path.join(filePrefix, framesPath, files[index])
+            const image2 = path.join(filePrefix, framesPath, files[index + 1])
             return [image1, image2]
         } catch (error) {
             console.log("Error de get images")

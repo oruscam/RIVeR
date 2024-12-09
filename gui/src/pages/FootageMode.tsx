@@ -41,6 +41,7 @@ export const FootageMode = () => {
     const onClickItem = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         const type = event.currentTarget.id;
+        if (type !== 'uav') return;
         try {
             const { path, name } = await onGetVideo();
             setVideo({ name, path, type });

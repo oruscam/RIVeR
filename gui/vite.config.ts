@@ -33,6 +33,11 @@ export default defineConfig({
         : {},
     }),
   ],
+  build: {
+    rollupOptions: {
+      external: ['tree-kill']
+    }
+  },
   define: {
     'process.env': process.env
   }

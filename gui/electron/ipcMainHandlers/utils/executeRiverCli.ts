@@ -1,48 +1,99 @@
-import { app, ipcMain } from 'electron';
-import { ChildProcess, execFile } from 'child_process'
+import { app, ipcMain, webContents } from 'electron';
+import { ChildProcess, execFile, spawn } from 'child_process'
 import * as path from 'path';
 import kill from 'tree-kill';
 
 let python: ChildProcess 
 
-async function executeRiverCli( options: (string|number)[], _mode: ('json' | 'text') = 'json'): Promise<{ data: any, error: any }> {
-    const riverCliPath = path.join(app.getAppPath(), '..', 'river-cli')
-    const args = options.map(arg => arg.toString())
+async function executeRiverCli(options: (string | number)[], _mode: ('json' | 'text') = 'json', output: boolean = false): Promise<{ data: any, error: any }> {
+    const riverCliPath = path.join(app.getAppPath(), 'river-cli');
+    const args = options.map(arg => arg.toString());
+
+    console.log('you are using river-cli', riverCliPath);
 
     const result = await new Promise((resolve, reject) => {
-        python = execFile(riverCliPath, args, {maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
-            if (error) {
-                console.log(`error asdasdasd: ${error.message}`);
-                if(error.signal === 'SIGKILL'){
-                    return
-                }
-                reject(error);
+        python = spawn(riverCliPath, args);
+
+        let stdoutData = '';
+        let stderrData = '';
+
+        python.stdout.on('data', (data) => {
+            const message = data.toString();
+            if ( output ){
+                stdoutData = message
+            } else {
+                stdoutData += message;
             }
-            if (stderr) {
-                console.log(`stderr: ${stderr}`);
-                reject(stderr);
-            }
-            resolve(JSON.parse(stdout.replace(/\bNaN\b/g, "null"), null));
         });
-    })
+
+        python.stderr.on('data', (data) => {
+            const message = data.toString();
+
+            // Output
+            if ( output === true){
+                webContents.getAllWebContents().forEach((contents) => {
+                    contents.send('river-cli-message', message);
+                });
+            }
+        });
+
+        python.on('close', (code) => {
+            if (code !== 0) {
+                if ( code === null){
+                    resolve({ error: {
+                        message: 'Process was killed'
+                    }});
+                }
+            } else {
+                resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, "null")));
+            }
+        });
+
+        python.on('error', (error) => {
+            console.log(`error river-cli: ${error.message}`);
+            reject(error);
+        });
+
+    });
 
     return result as { data: any, error: any };
 }
 
-ipcMain.handle('kill-river-cli', async () => {
-    console.log('kill-river-cli')
-    if (python) {
-        kill(python.pid, 'SIGKILL', (err) => {
+function killProcess(pid: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+        kill(pid, 'SIGKILL', (err) => {
             if (err) {
-                console.log(err)
-                return false
+                console.log(err);
+                reject(err);
+            } else {
+                console.log('sigkill');
+                resolve();
             }
-        })
+        });
+    });
+}
+
+async function killRiverCli() {
+    if (python) {
+        try {
+            await killProcess(python.pid);
+            console.log('Process killed successfully');
+        } catch (err) {
+            console.log('Failed to kill process', err);
+        }
     }
-    return true
-    
-})
+    return true;
+}
 
-export { executeRiverCli }
+ipcMain.handle('kill-river-cli', async () => {
+    console.log('kill-river-cli');
+    return await killRiverCli();
+});
 
-// "python-shell": "^5.0.0",
+app.on('before-quit', async (event) => {
+    event.preventDefault(); // Prevenir el cierre inmediato de la aplicación
+    console.log('App is quitting. Killing river-cli process');
+    await killRiverCli();
+});
+
+export { executeRiverCli, killRiverCli }

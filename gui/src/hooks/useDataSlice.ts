@@ -137,9 +137,10 @@ export const useDataSlice = () => {
 
         try {
             const { data, error } = await ipcRenderer.invoke('get-quiver-all', {formValues: processing.form})
-
-            if ( error.message ){
-                dispatch(setErrorMessage([error.message]))
+           
+            if ( error !== '' ){
+                dispatch(setErrorMessage([error]))
+                dispatch(setBackendWorkingFlag(false))
                 setTimeout(() => {
                     dispatch(clearErrorMessage())
                 }, 4000)
@@ -173,7 +174,7 @@ export const useDataSlice = () => {
         
         const environment = process.env.NODE_ENV
 
-        const handler = environment === 'development' ? 'kill-python-shell' : 'kill-river-cli'
+        const handler = environment === 'development' ? 'kill-river-cli' : 'kill-river-cli'
         
         try {
             await ipcRenderer.invoke(handler)
@@ -256,6 +257,7 @@ export const useDataSlice = () => {
     }
 
     const onSetImages = ( paths: string[]) => {
+        console.log(paths)
         dispatch(setImages({ paths: paths }));  
         
         window.ipcRenderer.removeAllListeners('all-frames')

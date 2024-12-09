@@ -15,6 +15,8 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         }
         const { videoPath, framesPath } = PROJECT_CONFIG
 
+        const filePrefix = import.meta.env.VITE_FILE_PREFIX
+
         const options = [
             'video-to-frames',
             videoPath,
@@ -40,7 +42,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         try {
             console.time('Extracting frames');
             riverCli(options).then(() => {
-                const files = fs.readdirSync(framesPath).map(file => path.join('/@fs', framesPath, file));
+                const files = fs.readdirSync(framesPath).map(file => path.join(filePrefix, framesPath, file));
                 mainWindow.webContents.send('all-frames', files)
             })
             console.timeEnd('Extracting frames');

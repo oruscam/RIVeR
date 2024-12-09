@@ -12,6 +12,7 @@ export const FormAnalizing = () => {
     const [ time, setTime ] = React.useState<string>('');
 
     const handleAnalize = () => {
+        if (isBackendWorking) return;
         setPercentage('');
         setTime('');
         onSetQuiverAll();
@@ -23,11 +24,10 @@ export const FormAnalizing = () => {
         await onKillBackend();
     }
 
-    window.ipcRenderer.on('python-stderr', (_event, text) => {
+    window.ipcRenderer.on('river-cli-message', (_event, text) => {
         // Expresión regular para extraer el porcentaje
         const percentageMatch = text.match(/(\d+%)\|/);
         const newPercentage = percentageMatch ? percentageMatch[1] : '';
-
 
         // Expresión regular para extraer el tiempo
         const timeMatch = text.match(/\[(\d{2}:\d{2})<(\d{2}:\d{2})/);
@@ -52,7 +52,7 @@ export const FormAnalizing = () => {
             </div>
             <div className='analizing-output'>
                 {
-                    percentage !== '' && <Loading percentage={percentage} time={time} size={'big'} isComplete={ percentage === '100%'}/>
+                    percentage !== '' && isBackendWorking && <Loading percentage={percentage} time={time} size={'big'} isComplete={ percentage === '100%'}/>
                 }
             </div>
             <button id='stop-analize' className={`danger-button  'danger-button-active' : ''}`} onClick={handleStop} disabled={!isBackendWorking}> {t('Analizing.stop')} </button>

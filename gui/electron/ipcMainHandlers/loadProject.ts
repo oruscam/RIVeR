@@ -17,6 +17,8 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
             const result = await dialog.showOpenDialog(options);
             if (!result.canceled && result.filePaths.length > 0) {
 
+                const filePrefix = import.meta.env.VITE_FILE_PREFIX
+
                 // Direction to the folder where settings.json and the project data is located
                 const folderPath = result.filePaths[0];
 
@@ -87,7 +89,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
 
                         if( images.length > 0){
                             firstFrame = path.join(framesPath, images[0])
-                            paths = images.map((image) => path.join('/@fs',framesPath, image))    
+                            paths = images.map((image) => path.join(filePrefix,framesPath, image))    
                         }
 
                         if ( settingsParsed.piv_results ){

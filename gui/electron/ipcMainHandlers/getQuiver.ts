@@ -21,15 +21,14 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
             frames = framesToTest.map((frame) => {
                 return frame.replace(filePrefix, '')
             })
+        } else {
+            frames = framesToTest
         }
-
         const options = await createOptions('test', PROJECT_CONFIG, frames, formValues)
 
         try {
             const result = await riverCli(options) as any;
-            const data = JSON.parse(result.replace(/\bNaN\b/g, "null"))
-
-            return data
+            return result
 
         } catch (error) {
             console.log("Error en get-quiver-test")
@@ -46,7 +45,12 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         const options = await createOptions('all', PROJECT_CONFIG, [], formValues)
 
         try {
-            const { data, error } = await riverCli(options) as any;
+            const { data, error } = await riverCli(options, 'text', true) as any;
+            if ( error.message ){
+                return {
+                    error: error.message
+                }
+            }
             const { results_path } = data
             PROJECT_CONFIG.resultsPath = results_path
 
@@ -59,7 +63,7 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
             return {
                 data: dataQuiver,
-                error
+                error: ''
             }
 
         } catch (error) {

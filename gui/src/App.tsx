@@ -55,7 +55,6 @@ export const App: React.FC = () => {
 
   }, [])
 
-  
   return (
     <div className='App' data-theme={darkMode ? "dark" : "light"}>
       <Wizard>
