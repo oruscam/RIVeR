@@ -24,19 +24,21 @@ export const FormAnalizing = () => {
     }
 
     window.ipcRenderer.on('python-stderr', (_event, text) => {
-
-
         // Expresión regular para extraer el porcentaje
         const percentageMatch = text.match(/(\d+%)\|/);
-        const percentage = percentageMatch ? percentageMatch[1] : '';
+        const newPercentage = percentageMatch ? percentageMatch[1] : '';
+
 
         // Expresión regular para extraer el tiempo
         const timeMatch = text.match(/\[(\d{2}:\d{2})<(\d{2}:\d{2})/);
         const time = timeMatch ? timeMatch[2] : '';
 
-        setPercentage(percentage);
+        if ( newPercentage !== percentage ){
+            setPercentage(newPercentage);
+        }
         setTime('Remaining time: ' + time);
     });
+
 
   return (
     <>

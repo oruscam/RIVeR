@@ -247,16 +247,15 @@ export const useDataSlice = () => {
         dispatch(setBackendWorkingFlag(value))
     }
 
-    const onSetImages = () => {
-        const ipcRenderer = window.ipcRenderer;
-        ipcRenderer.on('all-frames', (_event, paths) => {
-            dispatch(setImages({ paths: paths }))
-        })
-    }
+    const onSetImages = ( paths: string[]) => {
+        dispatch(setImages({ paths: paths }));  
+        
+        window.ipcRenderer.removeAllListeners('all-frames')
+    };
 
     return {
         // ATRIBUTES
-        isBackendWorking,
+        isBackendWorking,   
         images,
         processing,
         quiver,

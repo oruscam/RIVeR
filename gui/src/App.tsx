@@ -12,11 +12,7 @@ export const App: React.FC = () => {
   const { type, video } = useProjectSlice()
   const { data } = video 
 
-
-
-  const { onSetImages } = useDataSlice()
-
-  onSetImages()
+  const { onSetImages, images } = useDataSlice()
 
   const getStep4 = () => {
     switch (type) {
@@ -47,6 +43,17 @@ export const App: React.FC = () => {
 
     return () => window.removeEventListener('resize', handleResize)
   }, [data])
+
+  useEffect(() => {
+    const handleAllFrames = (_event: any, paths: string[]) => {
+      onSetImages(paths)
+    }
+
+    if (images.paths.length === 0){
+      window.ipcRenderer.on('all-frames', handleAllFrames)
+    }
+
+  }, [])
 
   
   return (

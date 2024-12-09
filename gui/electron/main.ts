@@ -134,8 +134,6 @@ app.whenReady().then(() => {
   loadProject(PROJECT_CONFIG)
   firstFrame(PROJECT_CONFIG);
   pixelSize(PROJECT_CONFIG);
-  pixelToRealWorld(PROJECT_CONFIG);
-  realWorldToPixel(PROJECT_CONFIG);
   setSections(PROJECT_CONFIG);
   recommendRoiHeight(PROJECT_CONFIG);
   createMaskAndBbox(PROJECT_CONFIG);
@@ -144,27 +142,11 @@ app.whenReady().then(() => {
   getResultData(PROJECT_CONFIG);
   getBathimetry();
   setProjectDetails(PROJECT_CONFIG);
+  
 
 
-  ipcMain.handle('print-to-pdf', (event, args) => {
-    const pdfPath = path.join(PROJECT_CONFIG.directory, 'report.pdf');
-    const options = {
-      marginsType: 0,
-      size: 'A4',
-      printBackground: true,
-      landscape: false
-    }
-
-    win?.webContents.printToPDF(options).then(data => {
-      fs.writeFile(pdfPath, data, (error) => {
-        if (error) throw error;
-        console.log('Write PDF successfully.', pdfPath);
-      })
-    }).catch(error => {
-      console.log('Error on printTo PDF', error);
-    })
-
-  })
-
+  // ** They are not used at the moment
+  // pixelToRealWorld(PROJECT_CONFIG);
+  // realWorldToPixel(PROJECT_CONFIG);
 })
 
