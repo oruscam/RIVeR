@@ -1,4 +1,4 @@
-import { getUnit } from "../../helpers"
+import { formatNumberToPrecision2, getUnit } from "../../helpers"
 import { useProjectSlice, useSectionSlice } from "../../hooks"
 
 export const PixelTransformation = () => {
@@ -13,7 +13,7 @@ export const PixelTransformation = () => {
       <div id="report-pixel-transformation-container">
         <div>
           <p> Pixel size: </p>
-          <p> { size }{getUnit(unitSistem, 'distance')} </p>
+          <p> { formatNumberToPrecision2(size) }{getUnit(unitSistem, 'distance')} </p>
         </div>
         <div></div>
         <div></div>        

@@ -22,6 +22,15 @@
   --secondary-input-background: #646464;
   --disabled-button: #808080;
   --background-error: #ED6B57;
+  --success-color: #62C655;
+
+  /* CONTROL POINTS DISTANCES */
+  --d12: #6CD4FF;
+  --d13: #CC4BC2;
+  --d14: #F5BF61;
+  --d23: #62C655;
+  --d24: #7765E3;
+  --d34: #ED6B57;
 }
 
 *{
@@ -203,7 +212,7 @@
 }
 
 .form-button{
-  width: 150px;
+  min-width: 200px;
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -293,6 +302,13 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
   margin-right: 25px;
 }
 
+.ms-1{
+  margin-left: 15px;
+}
+
+.ms-2{
+  margin-left: 25px;
+}
 
 .red{
   color: #ED6B57;

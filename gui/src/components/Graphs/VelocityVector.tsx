@@ -2,26 +2,25 @@ import { useEffect, useRef } from 'react'
 import './graphs.css'
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks'
 import * as d3 from 'd3'
-import { VECTOR_AMPLITUDE_FACTOR } from '../../constants/constants'
 import { SvgSectionLine } from '../SvgSectionLine'
 import { drawVectors } from './index'
 
 interface VelocityVectorProps {
     height: number;
     width: number;
-    factor: number;
-    vectorAmplitudeFactor?: number;
+    factor: number | { x: number, y: number };
     isReport?: boolean;
     index?: number;
 }
 
-export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = VECTOR_AMPLITUDE_FACTOR, isReport = false, index }: VelocityVectorProps )  => {
+export const VelocityVector = ({ height, width, factor, isReport = false, index }: VelocityVectorProps )  => {
     const svgRef = useRef<SVGSVGElement>(null)
-    const { sections, activeSection } = useSectionSlice();
-    const { firstFramePath } = useProjectSlice();
+    const { sections, activeSection, transformationMatrix } = useSectionSlice();
+    const { firstFramePath, video } = useProjectSlice();
     const { seeAll } = useUiSlice();
     const { data } = sections[activeSection];
 
+    const { height: videoHeight } = video.data;
 
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
@@ -33,36 +32,47 @@ export const VelocityVector = ({ height, width, factor, vectorAmplitudeFactor = 
         if (!isReport) {
             sections.forEach((section, sectionIndex) => {
                 if (sectionIndex === 0) return;
-                console.log(activeSection, sectionIndex)
+
                 if (seeAll && activeSection !== sectionIndex) return;
 
                 const { data, interpolated } = section;
                 if (!data) return;
 
-                drawVectors(svg, sections, factor, vectorAmplitudeFactor, sectionIndex, interpolated, data, isReport);
+                drawVectors(svg, sections, factor, sectionIndex, interpolated, data, isReport, transformationMatrix, videoHeight);
             });
         } else {
             if (index !== undefined) {
                 const { data, interpolated } = sections[index];
                 if (!data) return;
 
-                drawVectors(svg, sections, factor, vectorAmplitudeFactor, index, interpolated, data, isReport);
+                drawVectors(svg, sections, factor, index, interpolated, data, isReport, transformationMatrix, videoHeight);
             }
         }
-    }, [factor, activeSection, seeAll, data]);
+    }, [ factor, activeSection, seeAll, data ]);
 
+    const drawSvgSectionLine = () => {
+        if (isReport){
+            return sections.map((_section, i) => {
+                if ( i === 0 ) return null;
+                if ( i === index ){
+
+                    return <SvgSectionLine key={index} factor={factor} index={index} isReport={isReport}/>
+                }
+            });
+        } else {
+            return sections.map((_section, index) => {
+                if (index === 0) return null;
+                return seeAll && activeSection !== index ? null : <SvgSectionLine key={index} factor={factor} index={index} isReport={isReport}/>;
+            })
+        }
+    }
     return (
         <div id="velocity-vector-container" style={{ width: width, height: height }}>
-            <img src={firstFramePath} width={width} height={height} style={isReport ? { borderRadius: '20px' } : {}}></img>
-            { 
-                sections.map((_section, index) => {
-                    if( index === 0 ) return
-                    return (
-                        <SvgSectionLine key={index} factor={factor} index={index} isReport={isReport}/>
-                    )
-                })
+            <img src={firstFramePath} width={width} height={height} style={isReport ? { borderRadius: '20px' } : {}}/>
+            <svg ref={svgRef} id='velocity-vector'/>
+            {
+                drawSvgSectionLine()
             }
-            <svg ref={svgRef} id='velocity-vector'></svg>
         </div>
     )
 }

@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
-import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver, getVideo, getBathimetry} from './ipcMainHandlers/index.js'
+import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver, getVideo, getBathimetry } from './ipcMainHandlers/index.js'
 import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
 import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
 import { getResultData } from './ipcMainHandlers/getResultData.js'
@@ -46,7 +46,7 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
   const { x, y } = primaryDisplay.workArea;
-  
+
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
     minWidth: 1150,
@@ -63,7 +63,8 @@ async function createWindow() {
     alwaysOnTop: false,
     skipTaskbar: false,
     frame: true,
-    
+    title: 'River',
+
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
@@ -82,8 +83,9 @@ async function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
+    console.log('entra en el if')
     
-    riverCli = executePythonShell
+    riverCli = executeRiverCli
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
@@ -121,24 +123,28 @@ const PROJECT_CONFIG: ProjectConfig = {
   bboxPath: "",
   maskPath: "",
   resultsPath: "",
+  thumbsPath: "",
 }
+
+  // // Print PROJECT_CONFIG every 10 seconds
+  // setInterval(() => {
+  //   console.log(PROJECT_CONFIG);
+  // }, 10000);
 
 app.whenReady().then(() => {
   // ! DONT WORK. En develop usamos /@fs, en produccion usamos file://
-  protocol.handle('resources', function(request){
+  protocol.handle('resources', function (request) {
     const filePath = request.url.slice('resources://'.length);
     const fileUrl = new URL(`file://${filePath}`).toString();
     return net.fetch(fileUrl)
   })
-   
+
   createWindow();
   getVideo(PROJECT_CONFIG);
   initProject(userDir, PROJECT_CONFIG);
   loadProject(PROJECT_CONFIG)
   firstFrame(PROJECT_CONFIG, riverCli);
   pixelSize(PROJECT_CONFIG, riverCli);
-  pixelToRealWorld(PROJECT_CONFIG, riverCli);
-  realWorldToPixel(PROJECT_CONFIG, riverCli);
   setSections(PROJECT_CONFIG);
   recommendRoiHeight(PROJECT_CONFIG, riverCli);
   createMaskAndBbox(PROJECT_CONFIG, riverCli);
@@ -147,7 +153,10 @@ app.whenReady().then(() => {
   getImages(PROJECT_CONFIG);
   getBathimetry();
   setProjectDetails(PROJECT_CONFIG);
-
+  
+  // ** They are not used at the moment
+  // pixelToRealWorld(PROJECT_CONFIG, riverCli);
+  // realWorldToPixel(PROJECT_CONFIG, riverCli);
 
   ipcMain.handle('app-directory', (event, args) => {
     return path.join(app.getAppPath())

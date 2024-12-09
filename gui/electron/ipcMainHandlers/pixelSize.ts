@@ -39,21 +39,19 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
             rwPoints[1].y,
         ]
             
-        console.log(riverCli)
-
         try {
             const { data } = await riverCli(options)
 
             await createUavMatrix(data.uav_matrix, directory).then((matrixPath) => {
-                jsonParsed.pixel_size.uav_transformation_matrix = matrixPath;
+                jsonParsed.transformation_matrix = matrixPath;
                 PROJECT_CONFIG.matrixPath = matrixPath;
             }).catch((err) => { console.log(err) });
  
 
             const updatedContent = JSON.stringify(jsonParsed, null, 4);
             await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
-            return { message: "La matriz ha sido creada con su respectivo JSON" }
-        
+            
+            return data
         } catch (error) {
             console.log("Error en pixel-size")
             console.log(error)      
@@ -63,7 +61,7 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
 
 function createUavMatrix(message: string, directory: string): Promise<string>{
     return new Promise((resolve, reject) => {
-        const matrixPath = path.join(directory, 'uav_transformation_matrix.json')
+        const matrixPath = path.join(directory, 'transformation_matrix.json')
 
         fs.promises.writeFile(matrixPath, JSON.stringify(message), 'utf-8').then(() => {
             resolve(matrixPath)

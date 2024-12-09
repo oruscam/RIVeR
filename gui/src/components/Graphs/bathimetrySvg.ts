@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
-import { Point } from '../../store/section/types';
-import { GREEN, RED, TRANSPARENT_WHITE, WHITE } from '../../constants/constants';
+import { COLORS } from '../../constants/constants';
+import { Point } from '../../types';
+import { generateXAxisTicks, generateYAxisTicks } from '../../helpers';
 
 /**
  * Creates a bathymetry chart on the specified SVG element.
@@ -16,7 +17,6 @@ interface BathymetryChartProps {
     data: Point[];
     level?: number;
     showLeftBank: boolean;
-    drawGrid: boolean;
     leftBank?: number;
     rightBank?: number;
     xScaleAllInOne?: d3.ScaleLinear<number, number>;
@@ -31,9 +31,12 @@ interface BathymetryChartProps {
         };
         graphHeight: number;
     };
+    isReport?: boolean;
+    x1Intersection?: number;
+    x2Intersection?: number;
 }
 
-export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGrid, leftBank, rightBank, xScaleAllInOne, sizes }: BathymetryChartProps) => {
+export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftBank, rightBank, xScaleAllInOne, sizes, isReport = false, x1Intersection, x2Intersection }: BathymetryChartProps) => {
     const svg = d3.select(svgElement);
     const width = +svg.attr('width');
     const height = +svg.attr('height');
@@ -48,33 +51,34 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
     let xScale;
     let yScale;
 
+    let clipPathData = data;
+
     if ( xScaleAllInOne && sizes ) {
         const { margin: marginSizes, height: heightSizes, graphHeight } = sizes;
         xScale = xScaleAllInOne;
         
         yScale = d3.scaleLinear()
             .domain([yMin, yMax])
-            .range([heightSizes - marginSizes.bottom, graphHeight*2]);
+            .range([heightSizes - marginSizes.bottom - 30, graphHeight*2 - 10]);
 
         svg.append('text')
             .attr('class', 'y-axis-label')
             .attr('text-anchor', 'end')
-            .attr('x', - graphHeight *3 + 150)
-            .attr('dy', '.75em')
+            .attr('x', isReport ? -graphHeight * 3 + 160 : -graphHeight *3 + 180)
+            .attr('y', margin.left - 35)
             .attr('transform', 'rotate(-90)')
             .attr('fill', 'white')
-            .attr('font-size', '20px')
+            .attr('font-size', '22px')
             .text('Stage');
-
+        
     } else {
         xScale = d3.scaleLinear()
             .domain([xMin, xMax])
-            .range([margin.left, width - margin.right]);
+            .range([margin.left + 10, width - margin.right]);
         
         yScale = d3.scaleLinear()
             .domain([yMin, yMax])
             .range([height - margin.bottom, margin.top]);
-
 
         svg.append('text')
             .attr('class', 'y-axis-label')
@@ -83,86 +87,95 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
             .attr('dy', '.75em')
             .attr('transform', 'rotate(-90)')
             .attr('fill', 'white')
-            .attr('font-size', '20px')
+            .attr('font-size', '22px')
             .text('Stage');
+
+        // Añado eje x solo si no es all in one
+        
+        const ticks = generateXAxisTicks(xMin, xMax, xMax - xMin);
+
+        const xAxis = d3.axisBottom(xScale)
+            .tickValues(ticks)
+            .tickFormat(d3.format('.1f'))
+            
+        svg.append('g')
+            .attr('transform', `translate(0,${height - margin.bottom})`)
+            .call(xAxis)
+            .selectAll('.tick text')
+            .style('font-size', '14px')
+
+
+        if ( x1Intersection && x2Intersection ) {
+            clipPathData = data.filter((d) => d.x >= x1Intersection && d.x <= x2Intersection ) 
+            clipPathData.unshift({x: x1Intersection, y: level})
+            clipPathData.push({x: x2Intersection, y: level})
+        }
     }
 
     const line = d3.line<Point>()
         .x(d => xScale(d.x))
         .y(d => yScale(d.y));
 
-    // Añadir ejes con ticks
-    const xAxis = d3.axisBottom(xScale).ticks(5);
-    const yAxis = d3.axisLeft(yScale).ticks(5);
-
+    // Create and add Y ticks
+    const ticks = generateYAxisTicks(undefined, yMin, yMax);
+    
+    const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.2f'));
+    
     svg.append('g')
-        .attr('transform', `translate(0,${height - margin.bottom})`)
-        .call(xAxis)
-        .selectAll('.domain');
-
-    svg.append('g')
-        .attr('transform', `translate(${margin.left},0)`)
+        .attr('transform', `translate(${margin.left + 10},0)`)
         .call(yAxis)
-        .selectAll('.domain');
+        .selectAll('.tick text')
+        .style('font-size', '14px')
+        
 
     svg.selectAll('.tick line')
         .attr('stroke', 'lightgrey')
         .attr('stroke-width', 0.2);
 
-    if( drawGrid ){
-        // Añadir cuadrícula
-        const makeXGridlines = () => d3.axisBottom(xScale).ticks(5);
-        const makeYGridlines = () => d3.axisLeft(yScale).ticks(5);
+    // Create and add Y gridlines
     
-        svg.append('g')
-            .attr('class', 'grid')
-            .attr('transform', `translate(0,${height - margin.bottom})`)
-            .call(makeXGridlines()
-                .tickSize(-height + margin.top + margin.bottom)
-                .tickFormat('' as any))
+    const makeYGridlines = () => d3.axisLeft(yScale).tickValues(ticks);
+
+    svg.append('g')
+        .attr('class', 'grid')
+        .attr('transform', `translate(${margin.left + 10},0)`)
+        .call(makeYGridlines()
+            .tickSize(-width + margin.left + margin.right)
+            .tickFormat('' as any))
             .attr('stroke', 'grey')
-            .attr('stroke-width', 0.05);
-    
-        svg.append('g')
-            .attr('class', 'grid')
-            .attr('transform', `translate(${margin.left},0)`)
-            .call(makeYGridlines()
-                .tickSize(-width + margin.left + margin.right)
-                .tickFormat('' as any))
-            .attr('stroke', 'grey')
-            .attr('stroke-width', 0.05);
-    }
+            .attr('stroke-width', 0.15);
+            
 
     // Sombrear el área entre la línea horizontal y la gráfica original
 
     const area = d3.area<{ x: number, y: number }>()
         .x(d => xScale(d.x))
-        .y0(d => yScale(Math.min(d.y , level)))
+        .y0(d => yScale(Math.min(d.y, level)))
         .y1(_d => yScale(level));
         
     // Definir clip-path
 
     svg.append('defs')
         .append('clipPath')
-        .attr('id', 'clip-bathymetry')
+        .attr('id', `clip-bathimetry-${svgElement.id}`)
         .append('path')
-        .datum(data)
+        .datum(clipPathData)
         .attr('d', line);
 
     svg.append('path')
-        .datum(data)
-        .attr('fill', TRANSPARENT_WHITE)
+        .datum(clipPathData)
+        .attr('fill', COLORS.TRANSPARENT_WHITE)
         .attr('d', area)
-        .attr('clip-path', 'url(#clip-bathymetry)'); // Aplicar clip-path
+        .attr('clip-path', `clip-bathimetry-${svgElement.id}`); // Aplicar clip-path
 
     // Añadir etiquetas de valor a los ejes
 
     svg.append('text')
         .attr('class', 'x-axis-label')
         .attr('x', width / 2 - margin.right)
-        .attr('y', height )
+        .attr('y', height - 5 )
         .attr('fill', 'white')
-        .attr('font-size', '20px')
+        .attr('font-size', '22px')
         .text('Station');
 
 
@@ -171,20 +184,20 @@ export const bathimetrySvg = ({svgElement, data, level = 0, showLeftBank, drawGr
     svg.append('path')
         .datum(data)
         .attr('fill', 'none')
-        .attr('stroke', WHITE)
+        .attr('stroke', COLORS.WHITE)
         .attr('stroke-width', 1.5)
         .attr('d', line);
         
     if (showLeftBank && leftBank && rightBank) {
         svg.append('path')
             .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
-            .attr('fill', RED)
+            .attr('fill', COLORS.RED)
             .attr('transform', `translate(${xScale(leftBank)}, ${yScale(level) - 16})`);
     
 
         svg.append('path')
             .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
-            .attr('fill', GREEN)
+            .attr('fill', COLORS.GREEN)
             .attr('transform', `translate(${xScale(rightBank)}, ${yScale(level) - 16})`);
     }        
 }

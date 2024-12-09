@@ -29,12 +29,10 @@ export const adapterCrossSections = ( sections: Section[] ) => {
                 dir_yr: dirPoints[1].y,
                 num_stations: numStations,
                 alpha: alpha,
-    
             }
         }
     }
 
-    console.log(sections)
 
     const jsonFormatSections = sections.slice(1).map(transformSection);
 

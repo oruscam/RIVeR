@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SectionState, PixelSize, Point, Section, SectionData, Bathimetry } from './types';
+import { SectionState, PixelSize, Section, SectionData, Bathimetry, Summary } from './types';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../../constants/constants';
+import { Point } from '../../types';
 
 const defaultSections = [{
         name: "pixel_size",
@@ -17,6 +18,7 @@ const defaultSections = [{
         numStations: 0,
         alpha: DEFAULT_ALPHA,
         interpolated: true,
+        hasChanged: false
     },
     {
         name: "CS_default_1",
@@ -33,12 +35,16 @@ const defaultSections = [{
         numStations: DEFAULT_NUM_STATIONS,
         alpha: DEFAULT_ALPHA,
         interpolated: true, 
+        hasChanged: false
     }
 ]
 
 const initialState: SectionState = {
     sections: defaultSections,
+    summary: undefined,
     activeSection: 0,
+    sectionsCounter: 2,
+    transformationMatrix: []
 };
 
 const sectionSlice = createSlice({
@@ -51,7 +57,6 @@ const sectionSlice = createSlice({
         }, 
         // ** Interaction with sections points.
         setDirPoints: (state, action: PayloadAction<Point[]>) => {
-            console.log('setDirPoints')
             state.sections[state.activeSection].dirPoints = action.payload;
         },
 
@@ -62,19 +67,25 @@ const sectionSlice = createSlice({
             state.sections.push(action.payload);
             state.activeSection = state.sections.length - 1;
         },
-        deleteSection: (state) => {
-            const newActive = state.activeSection - 1;
-            state.sections.splice(state.activeSection, 1);
-            state.activeSection = newActive
+        deleteSection: (state, action: PayloadAction<number>) => {
+            if ( action.payload === -1 ){
+                const newActive = state.activeSection - 1;
+                state.sections.splice(state.activeSection, 1);
+                state.activeSection = newActive
+            } else {
+                if ( action.payload === 1){
+                    state.sections[action.payload] = initialState.sections[1];
+                } else {
+                    state.sections.splice(action.payload, 1);
+                }
+            }
         },
         setActiveSection: (state, action: PayloadAction<number>) => {
             state.activeSection = action.payload;
         },
-
         updateSection: (state, action: PayloadAction<Section>) => {
             state.sections[state.activeSection] = action.payload
         },
-        
         setSectionData: (state, action: PayloadAction<{sectionIndex: number, sectionData: SectionData}>) => {
             state.sections[action.payload.sectionIndex].data = action.payload.sectionData;
         },
@@ -85,9 +96,25 @@ const sectionSlice = createSlice({
             state.sections[state.activeSection].bathimetry = action.payload;
         },
         setSectionPoints: (state, action: PayloadAction<Point[]>) => {
-            console.log('setSectionPoints')
             state.sections[state.activeSection].sectionPoints = action.payload;
         },
+        setHasChanged: (state, action: PayloadAction<{value: boolean, index?: number}>) => {
+            if ( action.payload.index === undefined ){
+                state.sections[state.activeSection].hasChanged = action.payload.value;
+            } else {
+                state.sections[action.payload.index].hasChanged = action.payload.value;
+
+            }
+        },
+        setSummary: (state, action: PayloadAction<Summary>) => {
+            state.summary = action.payload;
+        },
+        updateSectionsCounter: (state, action: PayloadAction<number>) => {
+            state.sectionsCounter = action.payload;
+        },
+        setTransformationMatrix: (state, action: PayloadAction<[number[], number[], number[]]>) => {
+            state.transformationMatrix = action.payload;
+        }
     },
 });
 
@@ -103,6 +130,10 @@ export const {
     setSectionData,
     setSectionPoints,
     updateSection,
+    setHasChanged,
+    setSummary,
+    updateSectionsCounter,
+    setTransformationMatrix
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

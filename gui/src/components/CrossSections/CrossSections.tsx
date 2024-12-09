@@ -8,6 +8,8 @@ import { useEffect, useState } from "react"
 import { Section } from "../../store/section/types"
 import { SectionsHeader } from "../SectionsHeader"
 import { ButtonLock } from "../ButtonLock"
+import { useTranslation } from "react-i18next"
+import { formatNumberTo2Decimals } from "../../helpers"
 
 
 
@@ -16,11 +18,11 @@ const createInitialState = (sections: Section[]) => {
   
     sections.forEach((section, index) => {
         if ( index !== 0){
-            const {name, dirPoints, rwPoints, pixelSize, bathimetry, numStations, alpha} = section
+            const {name, dirPoints, rwPoints, bathimetry, numStations, alpha} = section
             const baseKey = name;
             defaultValues = {
                 ...defaultValues,
-                [`${baseKey}_CS_LENGTH`]: pixelSize.rw_length,
+                [`${baseKey}_CS_LENGTH`]: formatNumberTo2Decimals(bathimetry.width),
                 [`${baseKey}_CS_BATHIMETRY`]: bathimetry.path,
                 [`${baseKey}_LEVEL`]: bathimetry.level,
                 [`${baseKey}_LEFT_BANK`]: bathimetry.leftBank,
@@ -48,6 +50,7 @@ export const CrossSections = () => {
     const [ deletedSections, setDeletedSections] = useState('')
     const methods = useForm({defaultValues: createInitialState(sections)})
     const { nextStep } = useWizard()
+    const { t } = useTranslation()
 
     const unregisterFieldsStartingWith = (prefix: string) => {
         const allValues = methods.getValues(); // Obtiene todos los campos registrados y sus valores
@@ -88,8 +91,8 @@ export const CrossSections = () => {
 
     return (
         <>
-            <SectionsHeader title='Cross Sections'></SectionsHeader>
-            <Sections setDeletedSections={setDeletedSections} canEdit={true} ></Sections>
+            <SectionsHeader title={t('CrossSections.title')}/>
+            <Sections setDeletedSections={setDeletedSections} canEdit={true}/>
             <FormProvider {...methods}>
             {
                 sections.map((section, index: number) => {
@@ -102,7 +105,7 @@ export const CrossSections = () => {
                 })
             }
             </FormProvider>
-            <ButtonLock disabled={sections[activeSection].dirPoints.length === 0} footerElementID="form-cross-section-footer" headerElementID="form-cross-section-header"></ButtonLock>
+            <ButtonLock disabled={sections[activeSection].dirPoints.length === 0} footerElementID="form-cross-section-footer" headerElementID="form-cross-section-header"/>
         </>
     )
 }

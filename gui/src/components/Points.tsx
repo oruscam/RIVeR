@@ -2,29 +2,26 @@ import { Group, Image, Text } from 'react-konva'
 import { pinRed, pinGreen, pin }from '../assets/icons/icons'
 import useImage from 'use-image'
 import { KonvaEventObject } from 'konva/lib/Node';
-import { useSectionSlice } from '../hooks';
-import { MARKS_NUMBER_OFFSET_X, MARKS_NUMBER_OFFSET_Y, MARKS_OFFSET_X, MARKS_OFFSET_Y, MARKS_WIDTH, PIXEL_SIZE_STEP_NUMBER } from '../constants/constants';
+import { COLORS, MARKS, MODULE_NUMBER } from '../constants/constants';
 import { useWizard } from 'react-use-wizard';
-
-
+import { CanvasPoint } from '../types';
 
 interface PointsProps {
     localPoints: { x: number; y: number }[];
+    setPointsInStore: (canvasPoint: CanvasPoint, formPoint: null) => void;
     setLocalPoints?: (points: { x: number; y: number }[]) => void;
     draggable?: boolean;
-    isPixelSize?: boolean;
+    module?: string;
     factor?: number,
     resizeFactor?: number;
 }
 
-export const Points = ({ localPoints = [], setLocalPoints, draggable = false, isPixelSize = false, factor = 0, resizeFactor = 1 }: PointsProps) => {
-    const { onSetDirPoints } = useSectionSlice()
+export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, draggable = false, module, factor = 0, resizeFactor = 1}: PointsProps) => {
     const [iconRed] = useImage(pinRed) 
     const [iconGreen] = useImage(pinGreen) 
     const [icon] = useImage(pin)
 
     const { activeStep } = useWizard();
-
 
     //  CAMBIA EL ESTILO DEL POINTER CUANDO PASA POR ENCIMA DE UN PUNTO
     const handleCursorEnter = ( event: KonvaEventObject<MouseEvent> ) => {
@@ -42,22 +39,12 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
         }
     }
 
-    // const handleDragPoint = (event: any, index: number) => {
-    //     if( draggable === false ) return; 
-    //     if( setLocalPoints ){
-    //         const newPoints = [...localPoints];
-    //         newPoints[index] = { x: event.target.x(), y: event.target.y() };
-    //         setLocalPoints(newPoints);
-    //         onSetDirPoints({points: newPoints, factor, index}, null)
-    //     }
-    // }
-
     const handleDragMove = (event: any, index: number) => {
         if (draggable === false) return;
         if (setLocalPoints) {
             const newPoints = [...localPoints];
             newPoints[index] = { x: event.target.x(), y: event.target.y() };
-            setLocalPoints(newPoints);
+            setPointsInStore({ points: newPoints, factor, index, mode: 'only-pixel' }, null);
         }
     };
     
@@ -66,23 +53,39 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
         if (setLocalPoints) {
             const newPoints = [...localPoints];
             newPoints[index] = { x: event.target.x(), y: event.target.y() };
-            onSetDirPoints({ points: newPoints, factor, index }, null);
+            setPointsInStore({ points: newPoints, factor, index }, null);
         }
     };
 
+
+
+    const getIcon = ( index: number ) => {
+        switch (module) {
+            case 'pixelSize':
+                return icon
+            
+            case 'xSections':
+                if ( index === 0 ) return iconRed
+                return iconGreen
+            
+            case 'contolPoints':
+                if  ( index === 0 ) return iconRed
+                return icon
+        }
+    }
 
     return (
         <>
             {localPoints.map((point, index) => (
                 <Group key={index}>
                     <Image
-                        image={isPixelSize ? icon : (index === 0 ? iconRed : iconGreen)}
+                        image={getIcon(index)}
                         x={point.x}
                         y={point.y}
-                        width={MARKS_WIDTH / resizeFactor} 
-                        height={MARKS_WIDTH / resizeFactor} 
-                        offsetX={MARKS_OFFSET_X / resizeFactor}
-                        offsetY={MARKS_OFFSET_Y / resizeFactor}
+                        width={MARKS.WIDTH / resizeFactor} 
+                        height={MARKS.HEIGHT / resizeFactor} 
+                        offsetX={MARKS.OFFSET_X / resizeFactor}
+                        offsetY={MARKS.OFFSET_Y / resizeFactor}
                         onMouseEnter={draggable ? handleCursorEnter : undefined}
                         onMouseLeave={draggable ? handleCursorLeave: undefined}
                         draggable={draggable}
@@ -91,17 +94,31 @@ export const Points = ({ localPoints = [], setLocalPoints, draggable = false, is
                         onDragEnd={(event) => handleDragEnd(event, index)}
                         />
                         {
-                            activeStep === PIXEL_SIZE_STEP_NUMBER && (
+                            activeStep === MODULE_NUMBER.PIXEL_SIZE && (
                                 <Text
-                                    x={(point.x - MARKS_NUMBER_OFFSET_X / resizeFactor)}
-                                    y={(point.y - MARKS_NUMBER_OFFSET_Y / resizeFactor)}
-                                    text={index === 0 ? "1" : "2"}
-                                    fontSize={15 / resizeFactor}
-                                    fill="white"
+                                    x={(point.x - MARKS.NUMBER_OFFSET_X / resizeFactor)}
+                                    y={(point.y - MARKS.NUMBER_OFFSET_Y / resizeFactor)}
+                                    text={(index + 1).toString()}
+                                    fontSize={MARKS.NUMBER_FONT_SIZE / resizeFactor}
+                                    fill={COLORS.MARK_NUMBER}
+                                    fontStyle='bold'
+                                    listening={false}
                                 />
                             )
                         }
-                    
+                        {
+                            activeStep === MODULE_NUMBER.CROSS_SECTIONS && (
+                                <Text
+                                    x={(point.x - MARKS.NUMBER_OFFSET_X / resizeFactor)}
+                                    y={(point.y - MARKS.NUMBER_OFFSET_Y / resizeFactor)}
+                                    text={index === 0 ? 'L' : 'R'}
+                                    fontSize={MARKS.LETTER_FONT_SIZE / resizeFactor}
+                                    fill={index === 0 ? COLORS.MARK_L : COLORS.MARK_R}
+                                    fontStyle='bold'
+                                    listening={false}
+                                />
+                            )
+                        }
                 </Group>
             ))}
         </>

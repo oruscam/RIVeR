@@ -3,13 +3,15 @@ import uiReducer from "./ui/uiSlice";
 import sectionReducer from "./section/sectionSlice";
 import projectReducer from "./project/projectSlice";
 import dataReducer from "./data/dataSlice";
+import matrixReducer from "./matrix/matrixSlice";
 
 const store = configureStore({
     reducer: {
         ui: uiReducer,
         project: projectReducer,
         section: sectionReducer,
-        data: dataReducer
+        data: dataReducer,
+        matrix: matrixReducer
     },
 });
 

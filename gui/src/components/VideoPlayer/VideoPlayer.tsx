@@ -80,8 +80,6 @@ export const VideoPlayer = ({ fileURL }: { fileURL: string }) => {
               control={control}
             ></VideoPlayerButtons>
           </div>
-          <div className='duration'>
-          </div>
         </div>
       ) : (
         <h1>ERROR EN VIDEO PLAYER</h1>

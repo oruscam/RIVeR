@@ -1,4 +1,4 @@
-import { Point } from "../store/section/types";
+import { Point } from "../types";
 
 export const getDirectionVector = (points : Point[], total_distance: number): [number, number] => {
   const { x: east_l, y: north_l } = points[0];

@@ -15,7 +15,6 @@ async function createFolderStructure (newDirPath: string, type: string, videoPat
         defaultId: 0,
         title: 'Confirm',
         message: 'The directory already exists. Do you want to continue? This will overwrite the existing directory.',
-
       });
 
       if (response === 0) {
@@ -61,15 +60,17 @@ async function createFolderStructure (newDirPath: string, type: string, videoPat
     const jsonData = {
         creation_date: getFormattedDate(),
         footage: type,
-        filepath: videoPath,
-        video_name: videoName,
-        total_length: result.duration,
-        time_between_frames: parseFloat((1 / result.fps).toFixed(2)),
-        resolution : {
-            width: result.width,
-            height: result.height
-        },
-        fps: result.fps
+        video: {
+          filepath: videoPath,
+          name: videoName,
+          total_length: result.duration,
+          time_between_frames: parseFloat((1 / result.fps).toFixed(2)),
+          fps: result.fps,
+          resolution : {
+              width: result.width,
+              height: result.height
+          },
+        }
     }
 
     try{

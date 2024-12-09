@@ -1,14 +1,171 @@
 import csv
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 from scipy.interpolate import griddata
-
+from numba import jit
 import river.core.coordinate_transform as ct
 
 
+@jit(nopython=True)
+def _interpolate_gradient_numba(points: np.ndarray, values: np.ndarray, coords: np.ndarray) -> np.ndarray:
+	"""
+    Numba-optimized nearest neighbor interpolation for gradients.
+    """
+	result = np.zeros(len(coords))
+
+	for i in range(len(coords)):
+		# Calculate distances to all points
+		distances = (points[:, 0] - coords[i, 0]) ** 2 + (points[:, 1] - coords[i, 1]) ** 2
+		# Find nearest point
+		min_idx = np.argmin(distances)
+		result[i] = values[min_idx]
+
+	return result
+
+
+def get_cs_gradient_optimized(coord_x, coord_y, X, Y, gradient_values):
+	"""
+    Optimized version of get_cs_gradient using Numba.
+    """
+	# Prepare points for interpolation
+	points = np.column_stack((X.flatten(), Y.flatten()))
+	gradient_values_flat = gradient_values.flatten()
+	coords = np.column_stack((coord_x, coord_y))
+
+	# Use Numba-optimized interpolation
+	return _interpolate_gradient_numba(points, gradient_values_flat, coords)
+
+
+@jit(nopython=True)
+def get_artificial_seeded_profile_optimized(velocity: np.ndarray, gradient: np.ndarray,
+											percentile: float = 85.0) -> np.ndarray:
+	"""
+    Numba-optimized version of get_artificial_seeded_profile.
+    """
+	n_stations, n_times = gradient.shape
+	mean_profile = np.zeros(n_stations)
+
+	# Process each station
+	for i in range(n_stations):
+		station_gradients = gradient[i]
+		station_velocities = velocity[i]
+
+		# Count valid values for this station
+		valid_count = 0
+		for j in range(n_times):
+			if not np.isnan(station_gradients[j]):
+				valid_count += 1
+
+		if valid_count > 0:
+			# Create temporary arrays for valid values
+			valid_grads = np.zeros(valid_count)
+			valid_count = 0
+
+			# Fill valid gradients array
+			for j in range(n_times):
+				if not np.isnan(station_gradients[j]):
+					valid_grads[valid_count] = station_gradients[j]
+					valid_count += 1
+
+			# Sort gradients for percentile calculation
+			valid_grads = np.sort(valid_grads)
+			idx = int((percentile / 100.0) * valid_count)
+			if idx >= valid_count:
+				idx = valid_count - 1
+			threshold = valid_grads[idx]
+
+			# Count values above threshold
+			sum_vel = 0.0
+			count_above = 0
+
+			for j in range(n_times):
+				if not np.isnan(station_gradients[j]) and station_gradients[j] > threshold:
+					sum_vel += station_velocities[j]
+					count_above += 1
+
+			# Calculate mean if we have values above threshold
+			if count_above > 0:
+				mean_profile[i] = sum_vel / count_above
+			else:
+				mean_profile[i] = np.nan
+		else:
+			mean_profile[i] = np.nan
+
+	return mean_profile
+
+
+@jit(nopython=True)
+def transform_pixel_to_real_world_numba(x_pix: float, y_pix: float, transformation_matrix: np.ndarray) -> np.ndarray:
+	"""
+    Numba version of transform_pixel_to_real_world that exactly matches the original in coordinate_transform.py.
+    """
+	# Create pixel coordinate vector
+	pixel_vector = np.array([x_pix, y_pix, 1.0])
+
+	# Calculate real-world coordinates
+	real_world_vector = np.zeros(3)
+	for i in range(3):
+		for j in range(3):
+			real_world_vector[i] += transformation_matrix[i, j] * pixel_vector[j]
+
+	# Normalize by dividing by homogeneous component
+	if real_world_vector[2] != 0:
+		real_world_vector = real_world_vector / real_world_vector[2]
+
+	# Return only x and y coordinates
+	return real_world_vector[:2]
+
+
+@jit(nopython=True)
+def convert_displacement_field_numba(
+		X: np.ndarray[np.float64],
+		Y: np.ndarray[np.float64],
+		U: np.ndarray[np.float64],
+		V: np.ndarray[np.float64],
+		transformation_matrix: np.ndarray[np.float64]
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+	"""
+    Numba version of convert_displacement_field from coordinate_transform.py.
+    """
+	rows, cols = X.shape
+
+	# Initialize output arrays
+	EAST = np.zeros((rows, cols))
+	NORTH = np.zeros((rows, cols))
+	Displacement_EAST = np.zeros((rows, cols))
+	Displacement_NORTH = np.zeros((rows, cols))
+
+	# Process each point
+	for i in range(rows):
+		for j in range(cols):
+			# Convert original coordinates
+			coords = transform_pixel_to_real_world_numba(X[i, j], Y[i, j], transformation_matrix)
+			EAST[i, j] = coords[0]
+			NORTH[i, j] = coords[1]
+
+			# Convert displaced coordinates
+			displaced_coords = transform_pixel_to_real_world_numba(
+				X[i, j] + U[i, j],
+				Y[i, j] + V[i, j],
+				transformation_matrix
+			)
+
+			# Calculate displacements
+			Displacement_EAST[i, j] = displaced_coords[0] - EAST[i, j]
+			Displacement_NORTH[i, j] = displaced_coords[1] - NORTH[i, j]
+
+	return EAST, NORTH, Displacement_EAST, Displacement_NORTH
+
 def calculate_station_coordinates(
-	east_l: float, north_l: float, east_r: float, north_r: float, stations: np.ndarray, left_station: float = 0
+	east_l: float,
+	north_l: float,
+	east_r: float,
+	north_r: float,
+	stations: np.ndarray,
+	stages: np.ndarray,
+	level: float,
+	left_station: float = 0,
 ) -> tuple:
 	"""
 	Calculate the coordinates of each station based on the left and right bank real-world coordinates,
@@ -16,25 +173,67 @@ def calculate_station_coordinates(
 
 	Parameters:
 	east_l : float
-	    The east coordinate of the left bank.
+		The east coordinate of the left bank.
 	north_l : float
-	    The north coordinate of the left bank.
+		The north coordinate of the left bank.
 	east_r : float
-	    The east coordinate of the right bank.
+		The east coordinate of the right bank.
 	north_r : float
-	    The north coordinate of the right bank.
+		The north coordinate of the right bank.
 	stations : np.ndarray
-	    Array representing the stations of the bathymetry.
+		Array representing the stations of the bathymetry.
+	stages : np.ndarray
+	    Array representing the bathymetry (depth profile) at each station.
+	level : float
+	    The water level for the current cross-section.
 	left_station : float, optional
-	    The shift value between the left point and the first station. Default is 0.
+		The shift value between the left point and the first station. Default is 0.
 
 	Returns:
-	np.ndarray
-	    An array containing the calculated coordinates of each station.
+	    np.ndarray:
+		    An array containing the coordinates of each station.
+	    np.ndarray:
+			The updated stations after including crossings and filtering by level.
+		np.ndarray:
+			The updated stages after filtering by level.
 	"""
 
+	crossings = []
+	crossing_stages = []
+
+	# Find where the level crosses the bathymetry (stages) and interpolate those points
+	for i in range(len(stations) - 1):
+		if (stages[i] < level and stages[i + 1] > level) or (stages[i] > level and stages[i + 1] < level):
+			# Linear interpolation to find the crossing station
+			interp_station = stations[i] + (level - stages[i]) * (stations[i + 1] - stations[i]) / (
+				stages[i + 1] - stages[i]
+			)
+			crossings.append(interp_station)
+			crossing_stages.append(level)
+
+	# Convert crossings to numpy array for further operations
+	crossings = np.array(crossings)
+	crossing_stages = np.array(crossing_stages)
+
+	# Combine original stations/stages with crossings and filter those below or equal to the level
+	all_stations = np.concatenate([stations, crossings])
+	all_stages = np.concatenate([stages, crossing_stages])
+
+	# Sort the stations and stages by the station values (to maintain proper order)
+	sorted_indices = np.argsort(all_stations)
+	all_stations = all_stations[sorted_indices]
+	all_stages = all_stages[sorted_indices]
+
+	# Filter out stations where stages > level
+	valid_indices = all_stages <= level
+	filtered_stations = all_stations[valid_indices]
+	filtered_stages = all_stages[valid_indices]
+
 	# Adjust the stations array by subtracting the left_station
-	shifted_stations = stations - left_station
+	shifted_stations = filtered_stations - left_station
+
+	#Must start from 0
+	shifted_stations = shifted_stations - shifted_stations[0]
 
 	# Calculate the total distance between the two points
 	total_distance = np.linalg.norm([east_r - east_l, north_r - north_l])
@@ -45,7 +244,7 @@ def calculate_station_coordinates(
 	# Calculate the coordinates of each station based on the shifted stations
 	station_coordinates = np.array([east_l, north_l]) + np.outer(shifted_stations, direction_vector)
 
-	return shifted_stations, station_coordinates
+	return shifted_stations, filtered_stages, station_coordinates
 
 
 def find_crossing_stations(stations: list | np.ndarray, stages: list | np.ndarray, level: float) -> list:
@@ -174,63 +373,75 @@ def get_cs_displacements(coord_x, coord_y, X, Y, displacement_X, displacement_Y)
 	return interpolated_displacements_x, interpolated_displacements_y
 
 
-def get_stream_cross_velocities(
-	displacement_east: np.ndarray,
-	displacement_north: np.ndarray,
-	time_between_frames: float,
-	east_l: float,
-	north_l: float,
-	east_r: float,
-	north_r: float,
-) -> tuple:
+def compute_transformation_matrix(origin_east, origin_north, x_end_east, x_end_north):
 	"""
-	Compute streamwise and crosswise velocity components for a set of displacement vectors.
+	Compute the transformation matrix from real-world to xsection coordinates.
 
 	Parameters:
-	    displacement_east, displacement_north (1D np.ndarray): Real-world displacements in the east and north directions.
-	    time_between_frames (float): Time in seconds between two extracted frames.
-	    east_l, north_l (float): Coordinates of the left point of the section.
-	    east_r, north_r (float): Coordinates of the right point of the section.
+		origin_east, origin_north : Coordinates of the origin of the xsection system.
+		x_end_east, x_end_north : Coordinates of the point defining the x-axis of the xsection system.
 
 	Returns:
-	    np.ndarray, np.ndarray, np.ndarray, np.ndarray:
-	    Streamwise and crosswise velocity components (streamwise_east, streamwise_north, C_east, C_north).
+		transformation_matrix : 3x3 affine transformation matrix for converting to xsection.
+		inverse_transformation_matrix : 3x3 affine transformation matrix for converting back to real-world.
 	"""
-	# Calculate the section line vector
-	delta_east = east_r - east_l
-	delta_north = north_r - north_l
-	section_length = np.sqrt(delta_east**2 + delta_north**2)
+	# Compute the direction of the x-axis of the new system
+	dx = x_end_east - origin_east
+	dy = x_end_north - origin_north
 
-	# Normalize the section vector to get a unit vector for the crosswise direction
-	unit_crosswise = np.array([delta_east, delta_north]) / section_length
+	# Normalize the direction vector
+	length = np.sqrt(dx**2 + dy**2)
+	cos_theta = dx / length
+	sin_theta = dy / length
 
-	# The streamwise direction is perpendicular to the crosswise direction
-	unit_streamwise = np.array([-unit_crosswise[1], unit_crosswise[0]])
+	# Construct the rotation matrix
+	rotation_matrix = np.array([[cos_theta, sin_theta], [-sin_theta, cos_theta]])
 
-	# Pre-allocate arrays for streamwise and crosswise components
-	num_stations = len(displacement_east)
-	streamwise_east = np.zeros(num_stations)
-	streamwise_north = np.zeros(num_stations)
-	crosswise_east = np.zeros(num_stations)
-	crosswise_north = np.zeros(num_stations)
+	# Full affine transformation matrix (real-world to xsection)
+	translation_matrix = np.array([[-origin_east], [-origin_north]])
 
-	# Iterate through each station and compute streamwise and crosswise velocity components
-	for i in range(num_stations):
-		displacement_vector = np.array([displacement_east[i], displacement_north[i]])
+	# Combine rotation and translation into a 3x3 affine matrix
+	transformation_matrix = np.eye(3)
+	transformation_matrix[0:2, 0:2] = rotation_matrix  # top-left 2x2 for rotation
+	transformation_matrix[0:2, 2] = translation_matrix.flatten()  # top-right 2x1 for translation
 
-		# Project the displacement onto the streamwise direction
-		streamwise_component = np.dot(displacement_vector, unit_streamwise) * unit_streamwise
+	# The inverse transformation matrix will handle xsection to real-world
+	inverse_transformation_matrix = np.linalg.inv(transformation_matrix)
 
-		# Project the displacement onto the crosswise direction
-		crosswise_component = np.dot(displacement_vector, unit_crosswise) * unit_crosswise
+	return transformation_matrix, inverse_transformation_matrix
 
-		# Store the velocity components in the pre-allocated arrays
-		streamwise_east[i] = streamwise_component[0] / time_between_frames
-		streamwise_north[i] = streamwise_component[1] / time_between_frames
-		crosswise_east[i] = crosswise_component[0] / time_between_frames
-		crosswise_north[i] = crosswise_component[1] / time_between_frames
 
-	return streamwise_east, streamwise_north, crosswise_east, crosswise_north
+def transform_point(x, y, transformation_matrix):
+	"""
+	Apply the transformation matrix to a 2D point.
+
+	Parameters:
+		x, y : Coordinates of the point.
+		transformation_matrix : 3x3 affine transformation matrix.
+
+	Returns:
+		x_new, y_new : Transformed coordinates.
+	"""
+	point = np.array([x, y, 1])  # Homogeneous coordinates
+	transformed_point = transformation_matrix @ point
+	return transformed_point[0], transformed_point[1]
+
+
+def transform_displacements(displacement_east, displacement_north, rotation_matrix):
+	"""
+	Transform displacements from the real-world system to the xsection system.
+
+	Parameters:
+		displacement_east, displacement_north : Displacements in the real-world system.
+		rotation_matrix : 2x2 rotation matrix from real-world to xsection.
+
+	Returns:
+		displacement_xsection_x, displacement_xsection_y : Transformed displacements in the xsection system.
+	"""
+	displacements = np.array([displacement_east, displacement_north])
+	transformed_displacements = rotation_matrix @ displacements
+
+	return transformed_displacements[0], transformed_displacements[1]
 
 
 def get_streamwise_magnitude_and_sign(
@@ -282,36 +493,132 @@ def get_streamwise_magnitude_and_sign(
 	return streamwise_magnitude
 
 
+def get_streamwise_crosswise(
+	displacement_east: np.ndarray, displacement_north: np.ndarray, rw_to_xsection: np.ndarray
+) -> tuple:
+	"""
+	Convert displacements to the cross-section coordinate system.
+
+	Parameters:
+	    displacement_east (float or np.ndarray): Displacement in the east direction.
+	    displacement_north (float or np.ndarray): Displacement in the north direction.
+	    rw_to_xsection (np.ndarray): Transformation matrix from real-world coordinates to cross-section.
+
+	Returns:
+	    crosswise (float or np.ndarray): Crosswise displacement in the cross-section coordinate system.
+	    streamwise (float or np.ndarray): Streamwise displacement in the cross-section coordinate system.
+	"""
+	# Extract the rotation matrix from the transformation matrix
+	rotation_matrix = rw_to_xsection[:2, :2]
+
+	# Create the displacement vector
+	displacements = np.array([displacement_east, displacement_north])
+
+	# Transform displacements to the cross-section coordinate system
+	transformed_displacements = np.dot(rotation_matrix, displacements)
+
+	# Separate crosswise and streamwise displacements
+	crosswise, streamwise = transformed_displacements
+
+	return crosswise, streamwise
+
+
+def get_decomposed_rw_displacement(crosswise: np.ndarray, streamwise: np.ndarray, xsection_to_rw: np.ndarray) -> tuple:
+	"""
+	Convert crosswise and streamwise displacements back to the real-world coordinate system.
+
+	Parameters:
+	    crosswise (float or np.ndarray): Crosswise displacement in the cross-section coordinate system.
+	    streamwise (float or np.ndarray): Streamwise displacement in the cross-section coordinate system.
+	    xsection_to_rw (np.ndarray): Transformation matrix from cross-section to real-world coordinates.
+
+	Returns:
+	    streamwise_east (float or np.ndarray): Streamwise displacement in the east direction.
+	    streamwise_north (float or np.ndarray): Streamwise displacement in the north direction.
+	    crosswise_east (float or np.ndarray): Crosswise displacement in the east direction.
+	    crosswise_north (float or np.ndarray): Crosswise displacement in the north direction.
+	"""
+	# Extract the inverse rotation matrix from the transformation matrix
+	inverse_rotation_matrix = xsection_to_rw[:2, :2]
+
+	# Transform streamwise displacement (crosswise is zero)
+	streamwise_displacement_vector = np.array([crosswise * 0, streamwise])
+	streamwise_east, streamwise_north = np.dot(inverse_rotation_matrix, streamwise_displacement_vector)
+
+	# Transform crosswise displacement (streamwise is zero)
+	crosswise_displacement_vector = np.array([crosswise, streamwise * 0])
+	crosswise_east, crosswise_north = np.dot(inverse_rotation_matrix, crosswise_displacement_vector)
+
+	return streamwise_east, streamwise_north, crosswise_east, crosswise_north
+
+
+def get_pix_displacement(
+	displacement_east: np.ndarray,
+	displacement_north: np.ndarray,
+	table_results: dict,
+	transformation_matrix: np.ndarray,
+) -> tuple:
+	"""
+	Convert displacements in the real-world coordinate system to pixel coordinates.
+
+	Parameters:
+	    displacement_east (np.ndarray): Displacement in the east direction (real-world).
+	    displacement_north (np.ndarray): Displacement in the north direction (real-world).
+	    table_results (dict): A dictionary containing 'east', 'north', 'x', and 'y' coordinates.
+	    transformation_matrix (np.ndarray): The transformation matrix to convert real-world to pixel coordinates.
+
+	Returns:
+	    displacement_x (np.ndarray): Streamwise pixel displacement component in the x direction.
+	    displacement_y (np.ndarray): Streamwise pixel displacement component in the y direction.
+	"""
+	# Initialize arrays to hold the pixel displacement components
+	displacement_x = np.zeros_like(displacement_east)
+	displacement_y = np.zeros_like(displacement_north)
+
+	# Iterate over each displacement component
+	for i in range(len(displacement_east)):
+		# Convert real-world streamwise displacements to pixel coordinates
+		pixel_streamwise = ct.transform_real_world_to_pixel(
+			table_results["east"][i] + displacement_east[i],
+			table_results["north"][i] + displacement_north[i],
+			transformation_matrix,
+		)
+
+		# Calculate streamwise pixel displacement components
+		displacement_x[i] = pixel_streamwise[0] - table_results["x"][i]
+		displacement_y[i] = pixel_streamwise[1] - table_results["y"][i]
+
+	return displacement_x, displacement_y
+
+
 def add_median_results(
 	results: dict,
 	table_results: dict,
-	east_l: float,
-	north_l: float,
-	east_r: float,
-	north_r: float,
 	transformation_matrix: np.ndarray,
 	time_between_frames: float,
+	rw_to_xsection: np.ndarray,
+	xsection_to_rw: np.ndarray,
 ) -> dict:
 	"""
 	Add median PIV results to the provided table of results.
 
 	Parameters:
-	results : dict
-	    A dictionary containing the pixel processing results.
-	table_results : dict
-	    A dictionary summary to which the median results will be added.
-	east_l, north_l : float
-	    Coordinates of the left bank in real-world space.
-	east_r, north_r : float
-	    Coordinates of the right bank in real-world space.
-	transformation_matrix : np.ndarray
-	    Transformation matrix for converting PIV coordinates to real-world coordinates.
-	time_between_frames : float
-	    Time interval between frames in the PIV analysis.
+	    results : dict
+			A dictionary containing the pixel processing results.
+	    table_results : dict
+			A dictionary summary to which the median results will be added.
+	    transformation_matrix : np.ndarray
+			Transformation matrix for converting PIV coordinates to real-world coordinates.
+	    time_between_frames : float
+			Time interval between frames in the PIV analysis.
+	    rw_to_xsection : np.ndarray
+	        Transformation matrix from real-world coordinates to cross-section coordinates.
+		xsection_to_rw : np.ndarray
+	        Transformation matrix from cross-section coordinates to real-world coordinates.
 
 	Returns:
-	dict
-	    The updated table_results dictionary with added displacement and velocity fields.
+		dict
+			The updated table_results dictionary with added displacement and velocity fields.
 	"""
 	# Retrieve the median PIV results
 	X, Y, U, V = get_single_piv_result(results, num="median")
@@ -327,15 +634,21 @@ def add_median_results(
 		table_results["east"], table_results["north"], EAST, NORTH, Displacement_EAST, Displacement_NORTH
 	)
 
-	# Calculate streamwise and cross-stream velocities
-	streamwise_east, streamwise_north, crosswise_east, crosswise_north = get_stream_cross_velocities(
-		displacement_east, displacement_north, time_between_frames, east_l, north_l, east_r, north_r
+	# Convert each displacement to the cross-section system
+	crosswise, streamwise = get_streamwise_crosswise(displacement_east, displacement_north, rw_to_xsection)
+
+	# Convert crosswise and streamwise separately back to the real-world system
+	streamwise_east, streamwise_north, crosswise_east, crosswise_north = get_decomposed_rw_displacement(
+		crosswise, streamwise, xsection_to_rw
 	)
 
-	# Calculate the streamwise magnitude and sign
-	streamwise_magnitude = get_streamwise_magnitude_and_sign(
-		streamwise_east, streamwise_north, east_l, north_l, east_r, north_r
+	# Convert streamwise displacement to the pixel system
+	streamwise_x, streamwise_y = get_pix_displacement(
+		streamwise_east, streamwise_north, table_results, transformation_matrix
 	)
+
+	# Get the streamwsie velocity magnitud
+	streamwise_velocity_magnitude = streamwise / time_between_frames
 
 	# Update table_results with the calculated fields
 	table_results.update(
@@ -348,14 +661,16 @@ def add_median_results(
 			"streamwise_north": streamwise_north,
 			"crosswise_east": crosswise_east,
 			"crosswise_north": crosswise_north,
-			"streamwise_magnitude": streamwise_magnitude,
+			"streamwise_velocity_magnitude": streamwise_velocity_magnitude,
+			"streamwise_x": streamwise_x,
+			"streamwise_y": streamwise_y,
 		}
 	)
 
 	return table_results
 
 
-def add_depth(results: dict, shifted_stations: np.ndarray, stages: np.ndarray, level: float) -> float:
+def add_depth(results: dict, shifted_stations: np.ndarray, stages: np.ndarray, level: float) -> dict:
 	"""
 	Add interpolated depth to the station dictionary using NumPy arrays.
 
@@ -380,37 +695,38 @@ def add_depth(results: dict, shifted_stations: np.ndarray, stages: np.ndarray, l
 	return results
 
 
-def add_interpolated_velocity(results: dict, check: np.ndarray) -> dict:
+def add_interpolated_velocity(table_results: dict, check: np.ndarray) -> dict:
 	"""
 	Interpolate missing or invalid velocity values in 'streamwise_magnitud' based on Froude number profile.
-	Updates the 'results' dictionary by adding a new key 'filled_velocity'.
+	Updates the 'table_results' dictionary by adding a new key 'filled_velocity'.
 
 	Parameters:
-	    results (dict): A dictionary containing:
+	    table_results (dict): A dictionary containing:
 	        - 'depth' (np.array): Depth profile of the river cross-section.
 	        - 'distance' (np.array): Transversal distance across the river cross-section.
 	        - 'streamwise_magnitude' (np.array): Measured velocity profile (with possible NaNs or invalid values).
 	        - 'check' (np.array): Boolean array indicating validity of measurements.
 
 	Returns:
-	    results (dict): Updated dictionary with a new key 'filled_velocity' containing the filled velocity profile.
+	    table_results (dict): Updated dictionary with a new key 'filled_velocity' containing the filled velocity profile.
 	"""
 	# Extract the data from the dictionary
-	depth = np.array(results["depth"])
-	streamwise_magnitude = np.array(results["streamwise_magnitude"])
+	depth = np.array(table_results["depth"])
+	distance = np.array(table_results["distance"])
+	streamwise_velocity_magnitude = np.array(table_results["streamwise_velocity_magnitude"])
 
 	# Ensure depth has no zero values to avoid division by zero
 	depth = np.maximum(depth, 1e-6)  # Adding a small epsilon to depth if needed
 
 	# Calculate the Froude number profile
-	Fr = streamwise_magnitude / np.sqrt(9.81 * depth)
+	Fr = streamwise_velocity_magnitude / np.sqrt(9.81 * depth)
 
 	# Identify invalid data (either NaNs or where check is False)
-	invalid_data = np.isnan(streamwise_magnitude) | (~check)
+	invalid_data = np.isnan(streamwise_velocity_magnitude) | (~check)
 
 	# If all values are invalid, set filled_velocity to an array of zeros
 	if np.all(invalid_data):
-		filled_velocity = np.zeros_like(streamwise_magnitude)
+		filled_velocity = np.zeros_like(streamwise_velocity_magnitude)
 	else:
 		# Define a helper function to find non-zero indices
 		x = lambda z: z.nonzero()[0]
@@ -421,17 +737,12 @@ def add_interpolated_velocity(results: dict, check: np.ndarray) -> dict:
 		# Calculate the filled velocity profile based on the filled Froude profile
 		filled_velocity = Fr * np.sqrt(9.81 * depth)
 
-	with np.errstate(invalid="ignore", divide="ignore"):  # Ignore divide by zero or NaN warnings
-		velocity_ratio = np.where(np.isnan(streamwise_magnitude), np.nan, filled_velocity / streamwise_magnitude)
-	# Add the filled velocity profile to the results dictionary
-	results["filled_streamwise_magnitude"] = filled_velocity
+		filled_velocity[0] = 0
+		filled_velocity[-1] = 0
 
-	results["filled_streamwise_east"] = results["streamwise_east"] * velocity_ratio
-	results["filled_streamwise_north"] = results["streamwise_north"] * velocity_ratio
-	results["filled_crosswise_east"] = results["crosswise_east"] * velocity_ratio
-	results["filled_crosswise_north"] = results["crosswise_north"] * velocity_ratio
+	table_results["filled_streamwise_velocity_magnitude"] = filled_velocity
 
-	return results
+	return table_results
 
 
 def add_w_a_q(table_results: dict, alpha: float, vel_type: str = "original") -> dict:
@@ -453,9 +764,9 @@ def add_w_a_q(table_results: dict, alpha: float, vel_type: str = "original") -> 
 	x = table_results["distance"]
 	# Select velocity type based on the provided `vel_type`
 	v = (
-		table_results["streamwise_magnitude"]
+		table_results["streamwise_velocity_magnitude"]
 		if vel_type == "original"
-		else table_results["filled_streamwise_magnitude"]
+		else table_results["filled_streamwise_velocity_magnitude"]
 	)
 	v_minus_std = table_results["minus_std"]
 	v_plus_std = table_results["plus_std"]
@@ -533,87 +844,6 @@ def get_single_piv_result(results: dict, num: str = "median") -> tuple:
 	return xtable, ytable, u_table, v_table
 
 
-def add_displacement_pixel_streamwise(
-	table_results: dict, transformation_matrix: np.ndarray, vel_type: str = "original"
-) -> dict:
-	"""
-	Add corrected pixel displacements in the streamwise direction to the table results.
-
-	Parameters:
-	    table_results (dict): Dictionary containing the results with streamwise and
-	                          coordinate data.
-	    transformation_matrix (ndarray): Transformation matrix for converting
-	                                     real-world coordinates to pixel coordinates.
-	    vel_type (str): Determines whether to use 'streamwise_magnitude' or
-	                    'filled_streamwise_magnitude' for velocity
-
-	Returns:
-	    dict: Updated table_results dictionary with corrected pixel displacements
-	          in the streamwise direction.
-	"""
-	# Compute the end points of the streamwise displacements in real-world coordinates
-	if vel_type == "original":
-		end_east_stream = table_results["streamwise_east"] + table_results["east"]
-		end_north_stream = table_results["streamwise_north"] + table_results["north"]
-	elif vel_type == "filled":
-		end_east_stream = table_results["filled_streamwise_east"] + table_results["east"]
-		end_north_stream = table_results["filled_streamwise_north"] + table_results["north"]
-
-	# Convert the streamwise displacement endpoints to pixel coordinates
-	end_stream_coords = np.array(
-		[
-			ct.transform_real_world_to_pixel(east, north, transformation_matrix)
-			for east, north in zip(end_east_stream, end_north_stream)
-		]
-	)
-
-	# Extract the pixel coordinates (x and y)
-	end_x_stream, end_y_stream = end_stream_coords[:, 0], end_stream_coords[:, 1]
-
-	# Calculate displacements in pixel space
-	displacement_x_streamwise = end_x_stream - table_results["x"]
-	displacement_y_streamwise = end_y_stream - table_results["y"]
-
-	# Adjust displacements based on real-world streamwise magnitude
-	# Positive magnitude indicates displacements point 90 degrees anticlockwise in the real world
-	sign_adjustment = np.sign(table_results["streamwise_magnitude"])
-
-	# Correct the sign of pixel displacements
-	# Invert y displacement for image coordinate system where y-axis is flipped
-	displacement_x_streamwise_corrected = sign_adjustment * displacement_x_streamwise
-	displacement_y_streamwise_corrected = -sign_adjustment * displacement_y_streamwise  # Invert y-axis
-
-	# Update the table_results dictionary with corrected values
-	table_results["displacement_x_streamwise"] = displacement_x_streamwise_corrected
-	table_results["displacement_y_streamwise"] = displacement_y_streamwise_corrected
-
-	return table_results
-
-
-def get_streamwise_magnitud(
-	X, Y, U, V, table_results, east_l, north_l, east_r, north_r, transformation_matrix, time_between_frames
-):
-	# Convert displacement field to real-world coordinates
-	EAST, NORTH, Displacement_EAST, Displacement_NORTH = ct.convert_displacement_field(
-		X, Y, U, V, transformation_matrix
-	)
-
-	displacement_east, displacement_north = get_cs_displacements(
-		table_results["east"], table_results["north"], EAST, NORTH, Displacement_EAST, Displacement_NORTH
-	)
-
-	# Calculate streamwise and cross-stream velocities
-	streamwise_east, streamwise_north, crosswise_east, crosswise_north = get_stream_cross_velocities(
-		displacement_east, displacement_north, time_between_frames, east_l, north_l, east_r, north_r
-	)
-
-	# Calculate the streamwise magnitude and sign
-	streamwise_vel_magnitude = get_streamwise_magnitude_and_sign(
-		streamwise_east, streamwise_north, east_l, north_l, east_r, north_r
-	)
-	return streamwise_vel_magnitude
-
-
 def convert_arrays_to_lists(data: dict | list | np.ndarray):
 	"""
 	Recursively convert NumPy arrays to lists in a dictionary or list.
@@ -638,21 +868,25 @@ def convert_arrays_to_lists(data: dict | list | np.ndarray):
 		return data
 
 
-def calculate_river_section_properties(stages: list, station: list, level: float) -> dict:
+def calculate_river_section_properties(stages: list, station: list, level: float) -> Tuple[float, float, float, float]:
 	"""
 	Calculate wet area, width, maximum depth, and average depth of a river section.
 
 	Parameters:
-	    stages (list): Elevations of the riverbed at different stations.
-	    station (list): Corresponding positions of the stations along the section.
-	    level (float): Current water level.
+		stages (list): Elevations of the riverbed at different stations.
+		station (list): Corresponding positions of the stations along the section.
+		level (float): Current water level.
 
 	Returns:
-	    dict: A dictionary containing wet area, width, max depth, and average depth.
+		Tuple[float, float, float, float]: A tuple containing:
+			- wet_area: Total wetted area of the section
+			- width: Width of the wetted section
+			- max_depth: Maximum depth in the section
+			- average_depth: Average depth in the section
 	"""
 	# Ensure arrays are numpy arrays for efficient calculations
-	stages = np.array(stages)
-	station = np.array(station)
+	stages = np.array(stages, dtype=np.float64)
+	station = np.array(station, dtype=np.float64)
 
 	# Calculate the differences between consecutive station positions (dx)
 	dx = np.diff(station)
@@ -673,61 +907,183 @@ def calculate_river_section_properties(stages: list, station: list, level: float
 	# Guard against division by zero if width is zero
 	average_depth = wet_area / width if width > 0 else 0
 
-	# Return the results as a dictionary
 	return wet_area, width, max_depth, average_depth
 
-
-def add_statistics(
-	results: dict,
-	table_results: dict,
-	east_l: float,
-	north_l: float,
-	east_r: float,
-	north_r: float,
-	transformation_matrix: np.ndarray,
-	time_between_frames: float,
-) -> dict:
+def get_artificial_seeded_profile(velocity, gradient, percentile=85):
 	"""
-	Add statistical metrics to the table_results based on PIV results.
+    Generate an artificially seeded velocity profile based on gradient intensity.
+
+    Parameters:
+        velocity : np.ndarray
+            2D array representing velocity values, where rows are stations along a cross-section
+            and columns are time steps.
+        gradient : np.ndarray
+            2D array representing gradient intensity values, matching the shape of velocity.
+        percentile : int, optional
+            Percentile threshold for gradient filtering (default is 85).
+
+    Returns:
+        mean_profile : np.ndarray
+            1D array of filtered mean velocity values for each station across time.
+    """
+	# Calculate the percentile threshold for gradient along the time axis
+	perc_param = np.nanpercentile(gradient, percentile, axis=1, keepdims=True)
+
+	# Create a filter mask where gradient values exceed the threshold
+	filter_mask = gradient > perc_param
+
+	# Initialize a filtered velocity profile with NaNs
+	vel_profile_filtered = np.full_like(velocity, np.nan, dtype=np.float64)
+
+	# Apply the filter mask to retain velocities where the gradient is above the threshold
+	vel_profile_filtered[filter_mask] = velocity[filter_mask]
+
+	# Calculate the mean velocity profile across time, ignoring NaNs
+	mean_profile = np.nanmean(vel_profile_filtered, axis=1)[:, np.newaxis].flatten()
+
+	return mean_profile
+
+def get_cs_gradient(coord_x, coord_y, X, Y, gradient_values):
+	"""
+	Interpolate gradient values along a line over a matrix of gradient values.
 
 	Parameters:
-	    results (dict): A dictionary containing the PIV processing results.
-	    table_results (dict): A dictionary summary to which the statistics will be added.
-	    east_l, north_l (float): Coordinates of the left bank.
-	    east_r, north_r (float): Coordinates of the right bank.
-	    transformation_matrix (ndarray): Transformation matrix for converting coordinates.
-	    time_between_frames (float): Time interval between frames in the PIV processing.
+		coord_x, coord_y : 1D np.ndarray
+			Pixel coordinates where interpolation is required.
+		X, Y : 2D np.ndarray
+			Coordinate grid, either in pixel or real-world coordinates.
+		gradient_values : 2D np.ndarray
+			Gradient values defined over the X, Y coordinate grid.
 
 	Returns:
-	    dict: The updated table_results dictionary with added statistical fields.
+		interpolated_gradient_values : np.ndarray
+			Interpolated gradient values at the specified coordinates.
 	"""
+	# Stack X and Y coordinates into points for interpolation
+	points = np.column_stack((X.flatten(), Y.flatten()))
+
+	# Flatten gradient values to align with flattened coordinate points
+	gradient_values_flat = gradient_values.flatten()
+
+	# Interpolate gradient values at the specified coordinates
+	interpolated_gradient_values = griddata(
+		points, gradient_values_flat, (coord_x, coord_y), method="linear"
+	)
+
+	return interpolated_gradient_values
+
+def get_general_statistics(x_sections: dict) -> dict:
+	# Remove any existing "summary" key to avoid processing it
+	if "summary" in x_sections:
+		del x_sections["summary"]
+
+	# Keys for which we need to calculate the statistics
+	keys = ["total_W", "total_A", "total_Q", "mean_V", "alpha", "mean_Vs", "max_depth", "average_depth", "measured_Q"]
+
+	# Initialize dictionaries to store the data for each key
+	data_dict = {key: [] for key in keys}
+
+	# Iterate over each cross-section and collect the values for each key
+	for section_name, section in x_sections.items():
+		if isinstance(section, dict):  # Ensure section is a dictionary
+			missing_keys = [key for key in keys if key not in section]
+			if missing_keys:
+				continue
+			# If no keys are missing, append values to the respective lists
+			for key in keys:
+				data_dict[key].append(section[key])
+
+	# Initialize dictionaries to store statistics
+	stats = {"mean": {}, "std": {}, "cov": {}}
+
+	# Calculate mean, std, and cov for each key
+	for key in keys:
+		values = np.array(data_dict[key])
+		mean = np.mean(values) if len(values) > 0 else None
+		std = np.std(values) if len(values) > 0 else None
+		cov = (std / mean) if mean and mean != 0 else None  # Handle division by zero
+
+		stats["mean"][key] = mean
+		stats["std"][key] = std
+		stats["cov"][key] = cov
+
+	# Add the statistics to the JSON structure under the "summary" key
+	x_sections["summary"] = stats
+
+	return x_sections
+def add_statistics(
+		results: dict,
+		table_results: dict,
+		transformation_matrix: np.ndarray,
+		time_between_frames: float,
+		rw_to_xsection: np.ndarray,
+) -> dict:
+	"""
+    """
+	# Convert inputs to proper numpy arrays
+	xtable = np.asarray(results["x"], dtype=np.float64).reshape(results["shape"])
+	ytable = np.asarray(results["y"], dtype=np.float64).reshape(results["shape"])
+
+	u_all = np.asarray(results["u"], dtype=np.float64).reshape((len(results["u"]),) + tuple(results["shape"]))
+	v_all = np.asarray(results["v"], dtype=np.float64).reshape((len(results["v"]),) + tuple(results["shape"]))
+	grad_all = np.asarray(results["gradient"], dtype=np.float64).reshape(
+		(len(results["gradient"]),) + tuple(results["shape"]))
+
+	transformation_matrix = np.asarray(transformation_matrix, dtype=np.float64)
+	rw_to_xsection = np.asarray(rw_to_xsection, dtype=np.float64)
+
+	# Pre-allocate arrays for results
+	n_frames = len(u_all)
 	streamwise_vel_magnitude_list = []
+	gradient_list = []
 
-	# Iterate over the results to calculate streamwise velocities
-	for num in range(len(results["u"])):
-		X, Y, U, V = get_single_piv_result(results, num=num)
+	# Process frames
+	for num in range(n_frames):
+		U = u_all[num]
+		V = v_all[num]
+		GRAD = grad_all[num]
 
-		streamwise_vel_magnitude = get_streamwise_magnitud(
-			X, Y, U, V, table_results, east_l, north_l, east_r, north_r, transformation_matrix, time_between_frames
+		# Convert displacement field using Numba-optimized function
+		EAST, NORTH, displacement_east, displacement_north = convert_displacement_field_numba(
+			xtable, ytable, U, V, transformation_matrix
 		)
 
-		# Append the result to the list
-		streamwise_vel_magnitude_list.append(streamwise_vel_magnitude)
+		# Use original functions for the rest to maintain exact results
+		disp_east, disp_north = get_cs_displacements(
+			table_results["east"], table_results["north"],
+			EAST, NORTH, displacement_east, displacement_north
+		)
 
-	# Convert the list of arrays to a 2D NumPy array
+		crosswise, streamwise = get_streamwise_crosswise(
+			disp_east, disp_north, rw_to_xsection
+		)
+
+		# Store results
+		streamwise_vel_magnitude_list.append(streamwise / time_between_frames)
+		gradient_list.append(get_cs_gradient(
+			table_results["east"], table_results["north"],
+			EAST, NORTH, GRAD
+		))
+
+	# Convert lists to arrays
 	streamwise_vel_magnitude_array = np.array(streamwise_vel_magnitude_list)
+	gradient_array = np.array(gradient_list)
 
-	# Calculate the standard deviation along the 0th axis (across the different 'num' values)
+	# Calculate statistics
 	streamwise_vel_magnitude_std = np.std(streamwise_vel_magnitude_array, axis=0)
-	table_results["minus_std"] = table_results["streamwise_magnitude"] - streamwise_vel_magnitude_std
-	table_results["plus_std"] = table_results["streamwise_magnitude"] + streamwise_vel_magnitude_std
+	seeded_vel_profile = get_artificial_seeded_profile_optimized(
+		streamwise_vel_magnitude_array.T,
+		gradient_array.T
+	)
 
-	# Calculate the 5th and 95th percentiles along the 0th axis
+	# Update table_results
+	table_results["minus_std"] = table_results["streamwise_velocity_magnitude"] - streamwise_vel_magnitude_std
+	table_results["plus_std"] = table_results["streamwise_velocity_magnitude"] + streamwise_vel_magnitude_std
 	table_results["5th_percentile"] = np.percentile(streamwise_vel_magnitude_array, 5, axis=0)
 	table_results["95th_percentile"] = np.percentile(streamwise_vel_magnitude_array, 95, axis=0)
+	table_results["seeded_vel_profile"] = seeded_vel_profile
 
 	return table_results
-
 
 def update_current_x_section(
 	x_sections: dict,
@@ -811,23 +1167,35 @@ def update_current_x_section(
 	level = x_sections[current_x_section]["level"]
 
 	# Calculate shifted station positions and their real-world coordinates
-	shifted_stations, station_coordinates = calculate_station_coordinates(
-		east_l, north_l, east_r, north_r, stations, left_station=left_station
+	shifted_stations, filtered_stages, station_coordinates = calculate_station_coordinates(
+		east_l, north_l, east_r, north_r, stations, stages, level, left_station=left_station
 	)
 
 	# Divide the segment into the required number of stations and calculate coordinates
-	table_results = divide_segment_to_dict(east_l, north_l, east_r, north_r, num_stations)
+	# table_results = divide_segment_to_dict(east_l, north_l, east_r, north_r, num_stations)
+	extended_east_l = station_coordinates[0, 0]
+	extended_north_l = station_coordinates[0, 1]
+	extended_east_r = station_coordinates[-1, 0]
+	extended_north_r = station_coordinates[-1, 1]
+	table_results = divide_segment_to_dict(
+		extended_east_l, extended_north_l, extended_east_r, extended_north_r, num_stations
+	)
 
 	# Add pixel coordinates to the table results using the transformation matrix
 	table_results = add_pixel_coordinates(table_results, transformation_matrix)
 
+	# Calculates the transformation matrix for "real-world" system <---> "xsection" system
+	origin_east, origin_north = table_results["east"][0], table_results["north"][0]
+	x_end_east, x_end_north = table_results["east"][-1], table_results["north"][-1]
+	rw_to_xsection, xsection_to_rw = compute_transformation_matrix(origin_east, origin_north, x_end_east, x_end_north)
+
 	# Add median results from PIV processing to the table results
 	table_results = add_median_results(
-		piv_results, table_results, east_l, north_l, east_r, north_r, transformation_matrix, time_between_frames
+		piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection, xsection_to_rw
 	)
 
 	# Add depth information to the table results
-	table_results = add_depth(table_results, shifted_stations, stages, level)
+	table_results = add_depth(table_results, shifted_stations, filtered_stages, level)
 
 	# Check if 'check' exists and has the correct length; otherwise, update 'table_results'
 	if "check" not in x_sections[current_x_section] or len(x_sections[current_x_section]["check"]) != num_stations:
@@ -838,21 +1206,34 @@ def update_current_x_section(
 
 	# Add statistics on streamwise velocity
 	table_results = add_statistics(
-		piv_results, table_results, east_l, north_l, east_r, north_r, transformation_matrix, time_between_frames
-	)
+		piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection)
+
 
 	if interpolate:
 		# Interpolate velocity and discharge data if required
 		table_results = add_interpolated_velocity(table_results, checked_results)
 		table_results = add_w_a_q(table_results, alpha, "filled")
-		# Add Streamwise components in pixel coordinates for GUI
-		table_results = add_displacement_pixel_streamwise(table_results, transformation_matrix, "filled")
+		# Update streamwise components in pixel coordinates for GUI
+		filled_streamwise = table_results["filled_streamwise_velocity_magnitude"] * time_between_frames
+
+		# Convert crosswise and streamwise separately back to the real-world system
+		filled_streamwise_east, filled_streamwise_north, filled_crosswise_east, filled_crosswise_north = (
+			get_decomposed_rw_displacement(0 * filled_streamwise, filled_streamwise, xsection_to_rw)
+		)
+		# Convert streamwise displacement to the pixel system
+		filled_streamwise_x, filled_streamwise_y = get_pix_displacement(
+			filled_streamwise_east, filled_streamwise_north, table_results, transformation_matrix
+		)
+		# Update the table
+		table_results["streamwise_x"] = filled_streamwise_x
+		table_results["streamwise_y"] = filled_streamwise_y
+
 	else:
 		table_results = add_w_a_q(table_results, alpha, "original")
-		table_results = add_displacement_pixel_streamwise(table_results, transformation_matrix, "original")
 
 	# Calculate additional properties for the river section
 	total_q = np.nansum(table_results["Q"])
+	# total_q_minus_std = np.nansum(table_results['Q_minus_std'])
 	total_q_plus_std = np.nansum(table_results["Q_plus_std"])
 	total_q_std = total_q_plus_std - total_q
 	table_results["total_Q"] = total_q
@@ -867,16 +1248,16 @@ def update_current_x_section(
 	table_results["average_depth"] = average_depth
 
 	# Calculate mean velocities
-	with np.errstate(divide="ignore"):
-		table_results["mean_V"] = total_q / total_a
+	table_results["mean_V"] = total_q / total_a
 	table_results["mean_Vs"] = (
-		np.nanmean(table_results["filled_streamwise_magnitude"])
+		np.nanmean(table_results["filled_streamwise_velocity_magnitude"])
 		if interpolate
-		else np.nanmean(table_results["streamwise_magnitude"])
+		else np.nanmean(table_results["streamwise_velocity_magnitude"])
 	)
 
 	# Update the cross-section data with the calculated fields
 	for key, value in table_results.items():
 		x_sections[current_x_section][key] = convert_arrays_to_lists(value)
 
-	return x_sections
+	# Update summary
+	return get_general_statistics(x_sections)

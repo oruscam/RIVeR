@@ -4,10 +4,10 @@ import { useForm, FieldValues } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { useProjectSlice } from '../hooks/index.js';
 import { Icon } from '../components/Icon.js';
-import { drone, ipcam } from '../assets/icons/icons.js';
-import './pages.css';
 import { useState } from 'react';
 import { OperationCanceledError, UserSelectionError } from '../errors/errors.js';
+import { drone, ipcam, oblique } from '../assets/icons/icons';
+import './pages.css';
 
 type Video = {
     name: string;
@@ -15,7 +15,7 @@ type Video = {
     type: string;
 }
 
-export const Step2 = () => {
+export const FootageMode = () => {
     const { handleSubmit } = useForm();
     const { onInitProject, onGetVideo } = useProjectSlice();
     const { nextStep, previousStep } = useWizard();
@@ -25,7 +25,7 @@ export const Step2 = () => {
 
     const [ video, setVideo ] = useState<Video>();
 
-    const onSubmit = async (data: FieldValues) => {
+    const onSubmit = async (_data: FieldValues) => {
         if (video) {
             try {
                 await onInitProject(video);
@@ -38,16 +38,15 @@ export const Step2 = () => {
         }
     };
 
-    const onClickDrone = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    const onClickItem = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
+        const type = event.currentTarget.id;
         try {
             const { path, name } = await onGetVideo();
-            setVideo({name, path, type: 'uav'});
-            
+            setVideo({ name, path, type });
         } catch (error) {
             console.log(error instanceof UserSelectionError )
             if ( error instanceof UserSelectionError ){
-                console.log('if')
                 setError(error.message);
                 setTimeout(() => {
                     setError('');
@@ -60,18 +59,18 @@ export const Step2 = () => {
         <div className='App'>
             <h2 className='step-2-title'> {t("Step-2.title")} </h2>
             <form className='file-upload-container' onSubmit={handleSubmit(onSubmit)} id={formId}>
-                <button className='button-transparent' onClick={onClickDrone}>
-                    <Icon path={drone}></Icon>
+                <button className='button-transparent' onClick={onClickItem} id='uav'>
+                    <Icon path={drone}/>
                 </button>
-                <Icon path={ipcam}></Icon>
+                <button className='button-transparent' id='oblique' onClick={onClickItem}>
+                    <Icon path={oblique}/>
+                </button>
+                <button className='button-transparent' id='ipcam' onClick={onClickItem}>
+                    <Icon path={ipcam}/>
+                </button>
             </form>
-            {
-                video !== undefined ? <p className='file-name'> {video.name} </p> : null
-            }
-            {
-                error !== '' ? <p className='file-name'> {error} </p> : null
-            }
-            {/* <WizardButtons canFollow={watchDrone?.length !== 0 && undefined !== watchDrone?.length} formId={formId}></WizardButtons> */}
+            { video && <p className='file-name mt-2'>{video.name}</p> }
+            { error && <p className='file-name mt-2'>{error}</p> }
             <WizardButtons canFollow={true} formId={formId}></WizardButtons>
         </div>
     );

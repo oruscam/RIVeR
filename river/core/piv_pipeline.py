@@ -16,7 +16,8 @@ import multiprocessing
 from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional
-
+from tqdm import tqdm
+import time
 import cv2
 import numpy as np
 
@@ -110,6 +111,8 @@ def run_test(
 	if mask is None:
 		mask = np.ones(image_1.shape, dtype=np.uint8)
 
+	mask_piv = np.ones(image_1.shape, dtype=np.uint8) #must correct this
+
 	if bbox is None:
 		height, width = image_1.shape[:2]
 		bbox = [0, 0, width, height]
@@ -117,7 +120,7 @@ def run_test(
 	xtable, ytable, utable, vtable, typevector, _ = piv_fftmulti(
 		image_1,
 		image_2,
-		mask=mask,
+		mask=mask_piv,
 		bbox=bbox,
 		interrogation_area_1=interrogation_area_1,
 		interrogation_area_2=interrogation_area_2,
@@ -131,98 +134,69 @@ def run_test(
 		seeding_filter=seeding_filter,
 		step=step,
 	)
+	# Create in_mask array and check points against the mask
+	x_indices = np.clip(xtable.astype(int), 0, mask.shape[1] - 1)
+	y_indices = np.clip(ytable.astype(int), 0, mask.shape[0] - 1)
+	in_mask = mask[y_indices, x_indices] > 0
+
+	# Set u and v values to NaN where in_mask is False
+	utable[~in_mask] = np.nan
+	vtable[~in_mask] = np.nan
 
 	results = {
 		"shape": xtable.shape,
 		"x": xtable.flatten().tolist(),
 		"y": ytable.flatten().tolist(),
 		"u": utable.flatten().tolist(),
-		"v": vtable.flatten().tolist(),
-		"typevector": typevector.flatten().tolist(),
+		"v": vtable.flatten().tolist()
 	}
 
 	return results
 
 
 def run_analyze_all(
-	images_location: Path,
-	mask: Optional[np.ndarray] = None,
-	bbox: Optional[list] = None,
-	interrogation_area_1: int = 128,
-	interrogation_area_2: Optional[int] = None,
-	mask_auto: bool = True,
-	multipass: bool = True,
-	standard_filter: bool = True,
-	standard_threshold: int = 4,
-	median_test_filter: bool = True,
-	epsilon: float = 0.02,
-	threshold: int = 2,
-	seeding_filter: bool = False,
-	step: Optional[int] = None,
-	filter_grayscale: bool = True,
-	filter_clahe: bool = True,
-	clip_limit_clahe: int = 5,
-	filter_sub_background: bool = False,
-	save_background: bool = True,
-	workdir: Optional[Path] = None,
+		images_location: Path,
+		mask: Optional[np.ndarray] = None,
+		bbox: Optional[list] = None,
+		interrogation_area_1: int = 128,
+		interrogation_area_2: Optional[int] = None,
+		mask_auto: bool = True,
+		multipass: bool = True,
+		standard_filter: bool = True,
+		standard_threshold: int = 4,
+		median_test_filter: bool = True,
+		epsilon: float = 0.02,
+		threshold: int = 2,
+		seeding_filter: bool = False,
+		step: Optional[int] = None,
+		filter_grayscale: bool = True,
+		filter_clahe: bool = True,
+		clip_limit_clahe: int = 5,
+		filter_sub_background: bool = False,
+		save_background: bool = True,
+		workdir: Optional[Path] = None,
 ) -> dict:
 	"""
-	Run PIV analysis on all images in the specified location.
-
-	Parameters:
-	images_location : str
-	    Path to the directory containing the images.
-	mask : np.ndarray, optional
-	    The mask for the region of interest. If None, a mask of ones will be created. Default is None.
-	bbox : list of float, optional
-	    The bounding box for the region of interest as normalized coordinates (x0, y0, x1, y1). Default is None.
-	interrogation_area_1: int, optional
-	    The size of the interrogation area. Default is 128.
-	interrogation_area_2 : int, optional
-	    The size of the second interrogation area. Default is None.
-	mask_auto : bool, optional
-	    Whether to automatically apply a mask. Default is True.
-	multipass : bool, optional
-	    Whether to use multiple passes. Default is True.
-	standard_filter : bool, optional
-	    Whether to apply standard deviation filtering. Default is True.
-	standard_threshold : float, optional
-	    The threshold for standard deviation filtering. Default is 4.
-	median_test_filter : bool, optional
-	    Whether to apply median test filtering. Default is True.
-	epsilon : float, optional
-	    The epsilon value for median test filtering. Default is 0.02.
-	threshold : float, optional
-	    The threshold value for median test filtering. Default is 2.
-	seeding_filter : bool, optional
-	    Whether to apply seeding filtering. Default is False.
-	step : int, optional
-	    The step size for grid calculations. Default is None.
-	filter_grayscale : bool, optional
-	    Whether to convert images to grayscale. Default is True.
-	filter_clahe : bool, optional
-	    Whether to apply CLAHE filtering. Default is True.
-	clip_limit_clahe : int, optional
-	    The clip limit for CLAHE. Default is 5.
-	filter_sub_background : bool, optional
-	    Whether to subtract background. Default is False.
-	save_background: bool, optional.
-		Whether to save the background image. Default is True.
-	workdir: Path, optional.
-		The workdir to save the background image. Default is None.
-
-	Returns:
-	dict
-	    A dictionary containing results such as 'shape', 'x', 'y', 'u_median', 'v_median', 'u', 'v', 'typevector',
-	    and 'gradient' (if seeding_filter is True).
-	"""
+    Run PIV analysis on all images in the specified location.
+    """
 	background = None
-	images = sorted(images_location.glob("*.jpg"))
+	images = sorted([str(f) for f in images_location.glob("*.jpg")])
 	total_frames = len(images)
 
-	max_workers = multiprocessing.cpu_count()
+	if total_frames == 0:
+		raise ValueError(f"No JPG images found in {images_location}")
 
-	first_image = cv2.imread(images[0])
+	print(f"Processing {total_frames} frames...")
+
+	# Optimize workers and chunk size
+	max_workers = min(multiprocessing.cpu_count(), 8)
+	chunk_size = max(5, total_frames // (max_workers * 10))
+
+	# Process first image pair to get expected dimensions
+	first_image = cv2.imread(str(images[0]))
+	if first_image is None:
+		raise ValueError(f"Could not read first image: {images[0]}")
+
 	if mask is None:
 		mask = np.ones(first_image.shape, dtype=np.uint8)
 
@@ -230,27 +204,78 @@ def run_analyze_all(
 		height, width = first_image.shape[:2]
 		bbox = [0, 0, width, height]
 
-	chunk_size = int(np.ceil(total_frames / max_workers))
+	# Process a test pair to get expected dimensions
+	test_result = piv_loop(
+		images,
+		mask,
+		bbox,
+		interrogation_area_1,
+		interrogation_area_2,
+		mask_auto,
+		multipass,
+		standard_filter,
+		standard_threshold,
+		median_test_filter,
+		epsilon,
+		threshold,
+		seeding_filter,
+		step,
+		filter_grayscale,
+		filter_clahe,
+		clip_limit_clahe,
+		filter_sub_background,
+		background,
+		0,
+		1
+	)
 
-	chunks = [[i, i + chunk_size] for i in range(0, len(images) - 1, chunk_size)]
-	chunks[-1][-1] = min(chunks[-1][-1], len(images) - 1)
+	expected_size = len(test_result["u"])
+
+	# Calculate chunks and pairs
+	chunks = []
+	chunk_pairs = []
+	for i in range(0, len(images) - 1, chunk_size):
+		end = min(i + chunk_size, len(images) - 1)
+		chunks.append([i, end])
+		for j in range(i, end):
+			chunk_pairs.append((j, j + 1))
 
 	if filter_sub_background:
-		filter_grayscale = True  # forces to work with grayscale images if filt_sub_backgnd
+		filter_grayscale = True
 		background = impp.calculate_average(images_location)
-		if save_background:
+		if save_background and background is not None:
 			if workdir is not None:
 				save_path = workdir.joinpath("background.jpg")
 			else:
-				# Create the folder to save the results
-				results_directory_path = images_location.parent.joinpath("results")
+				results_directory_path = Path(images_location).parent.joinpath("results")
 				results_directory_path.mkdir(exist_ok=True)
 				save_path = results_directory_path.joinpath("background.jpg")
-			cv2.imwrite(save_path, background)
+			cv2.imwrite(str(save_path), background)
+
+	pbar = tqdm(total=len(chunk_pairs), desc="Processing image pairs")
+	start_time = time.time()
+
+	# Initialize results storage with known size
+	dict_cumul = {
+		"u": np.zeros((expected_size, 0)),
+		"v": np.zeros((expected_size, 0)),
+		"typevector": np.zeros((expected_size, 0))
+	}
+	if seeding_filter:
+		dict_cumul["gradient"] = np.zeros((expected_size, 0))
+
+	xtable = test_result["x"]
+	ytable = test_result["y"]
+
+	successful_pairs = []
+	failed_pairs = []
 
 	with ThreadPoolExecutor(max_workers=max_workers) as executor:
-		futures = [
-			executor.submit(
+		futures = []
+		pair_to_images = {}
+
+		for pair_idx, (img1_idx, img2_idx) in enumerate(chunk_pairs):
+			future = executor.submit(
 				piv_loop,
 				images,
 				mask,
@@ -271,31 +296,49 @@ def run_analyze_all(
 				clip_limit_clahe,
 				filter_sub_background,
 				background,
-				cur_chunk[0],
-				cur_chunk[1],
+				img1_idx,
+				img2_idx,
 			)
-			for cur_chunk in chunks
-		]
+			futures.append(future)
+			pair_to_images[pair_idx] = (images[img1_idx], images[img2_idx])
 
-		dict_cumul = {
-			"u": futures[0].result()["u"],
-			"v": futures[0].result()["v"],
-			"typevector": futures[0].result()["typevector"],
-		}
-		if seeding_filter:
-			dict_cumul["gradient"] = futures[0].result()["gradient"]
+		try:
+			for f, future in enumerate(futures):
+				try:
+					result = future.result(timeout=60)
+					img1, img2 = pair_to_images[f]
 
-		xtable = futures[0].result()["x"]
-		ytable = futures[0].result()["y"]
+					if len(result["u"]) != expected_size:
+						failed_pairs.append((Path(img1).name, Path(img2).name))
+						continue
 
-		for f in range(1, len(futures)):
-			dict_cumul["u"] = np.hstack((dict_cumul["u"], futures[f].result()["u"]))
-			dict_cumul["v"] = np.hstack((dict_cumul["v"], futures[f].result()["v"]))
-			dict_cumul["typevector"] = np.hstack((dict_cumul["typevector"], futures[f].result()["typevector"]))
-			if seeding_filter:
-				dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], futures[f].result()["gradient"]))
+					dict_cumul["u"] = np.hstack((dict_cumul["u"], result["u"]))
+					dict_cumul["v"] = np.hstack((dict_cumul["v"], result["v"]))
+					dict_cumul["typevector"] = np.hstack((dict_cumul["typevector"], result["typevector"]))
+					if seeding_filter:
+						dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], result["gradient"]))
 
-	# Calculate the median
+					successful_pairs.append((Path(img1).name, Path(img2).name))
+
+					pbar.update(1)
+					elapsed_time = time.time() - start_time
+					pairs_done = f + 1
+					avg_time_per_pair = elapsed_time / pairs_done
+					remaining_pairs = len(chunk_pairs) - pairs_done
+					eta = avg_time_per_pair * remaining_pairs
+					pbar.set_postfix({'ETA': f'{eta:.1f}s'})
+
+				except (TimeoutError, Exception) as e:
+					img1, img2 = pair_to_images[f]
+					failed_pairs.append((Path(img1).name, Path(img2).name))
+					continue
+
+		except Exception:
+			raise
+		finally:
+			pbar.close()
+
+	# Calculate medians
 	u_median = np.nanmedian(dict_cumul["u"], 1)
 	v_median = np.nanmedian(dict_cumul["v"], 1)
 

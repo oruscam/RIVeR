@@ -80,7 +80,12 @@ export interface Metadata {
     height: number;
     r_frame_rate: string;
     duration: string;
-  }[];
+  }[];,
+  format: {
+    tags: {
+      creation_time?: string;
+    }
+  }
 }
 
 export interface FirstFrameArgs {
@@ -100,6 +105,7 @@ export interface ProjectConfig {
   bboxPath: string,
   maskPath: string,
   resultsPath: string,
+  thumbsPath: string,
 }
 
 interface Point {

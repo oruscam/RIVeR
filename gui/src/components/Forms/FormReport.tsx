@@ -11,9 +11,12 @@ export const FormReport = () => {
   const { video, onProjectDetailsChange, projectDetails } = useProjectSlice();
   const { creation } = video.data
   
-  const defaultDate = projectDetails.meditionDate ? stringDateToDate(projectDetails.meditionDate) : new Date(creation);
+  console.log(creation)
+  console.log(projectDetails)
 
   const today = new Date();
+  const defaultDate = projectDetails.meditionDate ? stringDateToDate(projectDetails.meditionDate) : creation !== undefined ? new Date(creation) : today; 
+  
   const [meditionDate, setMeditionDate] = useState<Date>( defaultDate );
   const [ unitSistem, setUnitSistem ] = useState<string>('si');
   const { register } = useForm({
@@ -63,7 +66,7 @@ export const FormReport = () => {
 
   return (
     <>
-      <h2 className="form-title"> Last Settings</h2>
+       <h1 className="form-title"> Last Settings </h1>
       <form className="form-base-2">
         <div className="simple-input-container mt-5">
             <label> River's Name </label>

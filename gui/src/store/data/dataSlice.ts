@@ -18,7 +18,6 @@ const defaultFormProcessing = {
 }
 
 const defaultProcessing = {
-    isBackendWorking: false, // this flag is not used
     form: defaultFormProcessing, 
     parImages: ['', '1', '', '2'],
     maskPath: ''
@@ -28,9 +27,10 @@ const initialState: DataState = {
     processing: defaultProcessing,
     images: {
         paths: [],
-        active: 0
+        active: 0,
     },
-    analizing: false 
+    isBackendWorking: false,
+    isDataLoaded: false,
 }
 
 const dataSlice = createSlice({
@@ -44,13 +44,13 @@ const dataSlice = createSlice({
             state.processing.parImages = action.payload
         },
         setBackendWorkingFlag: (state, action: PayloadAction<boolean>) => { 
-            state.analizing = action.payload
+            state.isBackendWorking = action.payload
         },
         setProcessingMask: (state, action: PayloadAction<string>) => {
             state.processing.maskPath = action.payload  + `?t=${new Date().getTime()}`;            
         },
-        setImages: (state, action: PayloadAction<string[]>) => {
-            state.images.paths = action.payload
+        setImages: (state, action: PayloadAction<{paths: string[]}>) => {
+            state.images.paths = action.payload.paths
         },
         setActiveImage: ( state, action: PayloadAction<number>) => {
             state.images.active = action.payload
@@ -58,10 +58,9 @@ const dataSlice = createSlice({
         setQuiver: (state, action: PayloadAction<Quiver | undefined>) => {
             state.quiver = action.payload
         },
-        updateAnalizing: (state, action: PayloadAction<boolean>) => {
-            state.analizing = action.payload
-        },
-
+        setDataLoaded: (state, action: PayloadAction<boolean>) => {
+            state.isDataLoaded = action.payload
+        }
     }
 })
 
@@ -73,6 +72,7 @@ export const {
     setQuiver,
     updateProcessingForm,
     updateProcessingPar,
+    setDataLoaded
 } = dataSlice.actions
 
 export default dataSlice.reducer

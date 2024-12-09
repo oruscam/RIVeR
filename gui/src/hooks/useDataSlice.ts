@@ -5,9 +5,9 @@
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask } from "../store/data/dataSlice";
+import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask, setDataLoaded, setImages } from "../store/data/dataSlice";
 import { clearErrorMessage, setErrorMessage, setLoading } from "../store/ui/uiSlice";
-import { setSectionData } from "../store/section/sectionSlice";
+import { setSectionData, setSummary } from "../store/section/sectionSlice";
 
 /**
  * @returns - Object with the methods and attributes to interact with the data slice
@@ -15,7 +15,7 @@ import { setSectionData } from "../store/section/sectionSlice";
 
 export const useDataSlice = () => {
     const dispatch = useDispatch();
-    const { processing, images, quiver, analizing } = useSelector((state: RootState) => state.data);
+    const { processing, images, quiver, isBackendWorking, isDataLoaded } = useSelector((state: RootState) => state.data);
     const { sections, activeSection } = useSelector((state: RootState) => state.section);
     const { video } = useSelector((state: RootState) => state.project);
     
@@ -70,7 +70,7 @@ export const useDataSlice = () => {
      * @param value - Number with the index of the image to set as active
      */
 
-    const onSetActiveImage = (value: number) => {
+    const onSetActiveImage = async (value: number) => {
         dispatch(setActiveImage(value))
     }
 
@@ -87,14 +87,10 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         const { paths, active } = images;
-        console.log(paths)
-        const framesToTest = [paths[active], paths[active + 1]].map((path) => path.replace(filePrefix, ''))
-
-        console.log(framesToTest)
-
+        const framesToTest = [paths[active], paths[ active + 1]]
 
         try {
-            const { data, error } = await ipcRenderer.invoke('get-quiver-test', {framesToTest: framesToTest, formValues: processing.form})
+            const { data, error } = await ipcRenderer.invoke('get-quiver-test', { framesToTest: framesToTest, formValues: processing.form })
 
             if ( error.message ){
                 dispatch(setErrorMessage([error.message]))
@@ -191,7 +187,7 @@ export const useDataSlice = () => {
 
     // type can be 'single' or 'all'
 
-    const onGetResultData = async ( type : string) => {
+    const onGetResultData = async ( type : string ) => {
         const ipcRenderer = window.ipcRenderer;
 
         if ( type === 'single' ){
@@ -202,9 +198,9 @@ export const useDataSlice = () => {
                     sectionIndex: activeSection,
                     sectionData: {
                         ...data[section.name],
-
                     }
                 }))
+                dispatch(setSummary(data.summary))
             } catch ( error ){
                 console.log(error)
             }
@@ -212,8 +208,8 @@ export const useDataSlice = () => {
             dispatch(setLoading(true))
 
             try {
-                const { data, error } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
-                console.log(data)
+                const { data } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                
                 sections.map(( section, index ) => {
                     if ( data[section.name] ){
                         dispatch(setSectionData({
@@ -223,8 +219,8 @@ export const useDataSlice = () => {
                             }
                         }))
                 }})
-
-                console.log(error)
+                dispatch(setSummary(data.summary))
+                dispatch(setDataLoaded(true))
                 dispatch(setLoading(false))
             } catch (error) {
                 console.log(error)
@@ -240,11 +236,13 @@ export const useDataSlice = () => {
     const onReCalculateMask = async ( value: number ) => {
         dispatch(setBackendWorkingFlag(true))
         onClearQuiver()
+        
+        const filePrefix = import.meta.env.VITE_FILE_PREFIX
 
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value })
+            const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value, data: isDataLoaded })
 
             dispatch(setProcessingMask(filePrefix + maskPath))
             dispatch(setBackendWorkingFlag(false))
@@ -257,13 +255,18 @@ export const useDataSlice = () => {
         dispatch(setBackendWorkingFlag(value))
     }
 
+    const onSetImages = ( paths: string[]) => {
+        dispatch(setImages({ paths: paths }));  
+        
+        window.ipcRenderer.removeAllListeners('all-frames')
+    };
+
     return {
-        // ATRIBUTES]
-        analizing,
+        // ATRIBUTES
+        isBackendWorking,   
         images,
         processing,
         quiver,
-
 
         // METHODS
         onSetActiveImage,
@@ -274,7 +277,8 @@ export const useDataSlice = () => {
         onKillBackend,
         onGetResultData,
         onReCalculateMask,
-        onSetAnalizing
+        onSetAnalizing,
+        onSetImages
     }
 }
 

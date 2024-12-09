@@ -1,5 +1,4 @@
-type TFunction = (key: string) => string;
-type GetValuesFunction = (field: string) => any;
+import { parseTime } from "./formatTime";
 
 interface ValidationRules {
   [key: string]: {
@@ -12,56 +11,83 @@ interface ValidationRules {
   };
 }
 
+/**
+ * Generates validation rules for video range inputs.
+ *
+ * @param t - Translation function for error messages.
+ * @param getValues - Function to get form values.
+ * @param duration - Maximum duration of the video in seconds.
+ * @returns An object containing validation rules for start, end, and step inputs.
+ *
+ * The validation rules include:
+ * - `start`: 
+ *   - Required field with a specific time format (MM:SS).
+ *   - Validates that minutes and seconds are non-negative and seconds are less than 60.
+ * - `end`: 
+ *   - Required field with a specific time format (MM:SS).
+ *   - Validates that the end time is within the video duration, non-negative, non-zero, and greater than the start time.
+ * - `step`: 
+ *   - Required field with a positive integer value.
+ *   - Validates that the step value is greater than 0.
+ */
 
-export const getValidationRules = (t: TFunction, getValues: GetValuesFunction, duration: number): ValidationRules => {
-    const rules = {
-        start : {
-            required: t("Step3.Errors.required"),
-            pattern: {
-            value: /^-?[0-9]+(\.[0-9]+)?$/,
-            message: t("Step3.Errors.formatInput")
-          },
-          validate: (value: string | number) => {
-            const currentValue = typeof value === 'string' ? parseFloat(value) : value
-      
-            if ( currentValue < 0){
-              return t('Step3.Errors.start1')
-            }
-            return true
-            }
-          },
-          end: {
-            required: t("Step3.Errors.required"),
-            pattern: {
-              value: /^-?[0-9]+(\.[0-9]+)?$/,
-              message: t("Step3.Errors.formatInput")
-            },
-            validate: (value : string | number) => {
-              const start = parseFloat(getValues('start'))
-                            
-              const currentValue = typeof value === 'string' ? parseFloat(value) : value
-      
-              if( currentValue > duration){
-                return t("Step3.Errors.end1")
-              }
-  
-              if (currentValue <= 0){
-                return t("Step3.Errors.end2")
-              }
-              if ( currentValue <= start){
-                return t("Step3.Errors.end3")
-              }
-              return true
-            }
-          },
-          step: {
-            required: t("Step3.Errors.required"),
-            pattern: {
-              value: /^[1-9]\d*$/,
-              message: t("Step3.Errors.step")
-            }
-          }
+export const getValidationRules = (t: any, getValues: any, duration: number) => {
+  return {
+    start: {
+      required: t("VideoRange.Errors.required"),
+      pattern: {
+        value: /^\d{2}:\d{2}$/,
+        message: t("VideoRange.Errors.formatInput")
+      },
+      validate: (value: string) => {
+        const [minutes, seconds] = value.split(':').map(Number);
+        if (minutes < 0 || seconds < 0 || seconds >= 60) {
+          return t('VideoRange.Errors.start1');
+        }
+        return true;
+      }
+    },
+    end: {
+      required: t("VideoRange.Errors.required"),
+      pattern: {
+        value: /^\d{2}:\d{2}$/,
+        message: t("VideoRange.Errors.formatInput")
+      },
+      validate: (value: string) => {
+        const startTime = parseTime(getValues('start'));
+        const endTime = parseTime(value);
+
+        if (endTime > duration) {
+          return t("VideoRange.Errors.end1");
+        }
+
+        if (endTime < 0) {
+          return t('VideoRange.Errors.start1');
+        }
+
+        if (endTime === 0) {
+          return t("VideoRange.Errors.end2");
+        }
+
+        if (endTime <= startTime) {
+          return t("VideoRange.Errors.end3");
+        }
+
+        return true;
+      }
+    },
+    step: {
+      required: t("VideoRange.Errors.required"),
+      pattern: {
+        value: /^[1-9]\d*$/,
+        message: t("VideoRange.Errors.step")
+      },
+      validate: (value: number) => {
+        if (value <= 0) {
+          return t("VideoRange.Errors.step");
+        }
+        return true;
+      }
     }
-    
-    return rules
-  }
+  };
+};

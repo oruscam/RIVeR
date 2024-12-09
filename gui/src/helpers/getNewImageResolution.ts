@@ -1,5 +1,10 @@
 import { IMAGE_WIDTH_FACTOR } from "../constants/constants";
 
+
+// This function is used to calculate the new image resolution based on the screen width
+// and the image resolution. It returns the new image resolution and the factor that was
+// used to calculate it.
+
 export const getNewImageResolution = (screenWidth: number, _screenHeight: number, imageWidth: number, imageHeight: number ) => {
 
     const aspectRatio = imageWidth / imageHeight;
@@ -22,4 +27,3 @@ export const getNewImageResolution = (screenWidth: number, _screenHeight: number
         };
     }
 }
-

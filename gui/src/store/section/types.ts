@@ -1,7 +1,5 @@
-interface Point {
-    x: number;
-    y: number;
-}
+import { Point } from "../../types";
+
 
 interface Bathimetry {
     path: string;
@@ -15,6 +13,7 @@ interface Bathimetry {
     yMin?: number;
     yMax?: number;
     x1Intersection?: number;
+    x2Intersection?: number;
 }
 
 interface PixelSize {
@@ -39,7 +38,7 @@ interface SectionData {
     streamwise_north?: number[];
     crosswise_east?: number[];
     crosswise_north?: number[];
-    streamwise_magnitude: number[];
+    streamwise_velocity_magnitude: number[];
     depth: number[];
     check: boolean[];
     W?: number[];
@@ -61,7 +60,7 @@ interface SectionData {
     mean_Vs: number;
     displacement_x_streamwise: number[];
     displacement_y_streamwise: number[];
-    filled_streamwise_magnitude: number[];
+    filled_streamwise_velocity_magnitude: number[];
     filled_streamwise_east: number[];
     filled_streamwise_north: number[];
     filled_crosswise_east: number[];
@@ -72,23 +71,26 @@ interface SectionData {
     showVelocityStd: boolean;
     showPercentile: boolean;
     showInterpolateProfile: boolean;
+    streamwise_x: number[];
+    streamwise_y: number[];
+    
 }
 
 interface Section {
     name: string;
     drawLine: boolean;
-    sectionPoints: Point[];
-    dirPoints: Point[];
+    sectionPoints: Point[]; // Pixel Coordinates Points
+    dirPoints: Point[]; // Pixel Coordinates Points 
     bathimetry: Bathimetry
     pixelSize: PixelSize
-    rwPoints: Point[];
+    rwPoints: Point[]; // Real World Coordinates Points
     extraFields: boolean;
     alpha: number;
     numStations: number;
     interpolated: boolean;
     sectionPointsRW?: Point[];
     data?: SectionData;
-
+    hasChanged: boolean;
 }
 
 interface Processing {
@@ -109,9 +111,30 @@ interface Processing {
     artificialSeeding: boolean
 }
 
-interface SectionState {
-    sections: Section[];
-    activeSection: number;
+interface SummaryStatistics {
+    total_W: number;
+    total_A: number;
+    total_Q: number;
+    mean_V: number;
+    alpha: number;
+    mean_Vs: number;
+    max_depth: number;
+    average_depth: number;
+    measured_Q: number;
 }
 
-export type { SectionState, Section, Point, Bathimetry, PixelSize, Processing, SectionData }
+interface Summary {
+    mean: SummaryStatistics;
+    std: SummaryStatistics;
+    cov: SummaryStatistics;
+}
+
+interface SectionState {
+    sections: Section[];
+    summary: Summary | undefined;
+    activeSection: number;
+    sectionsCounter: number;
+    transformationMatrix: [number[], number[], number[]] | [];
+}
+
+export type { SectionState, Section, Point, Bathimetry, PixelSize, Processing, SectionData, Summary }

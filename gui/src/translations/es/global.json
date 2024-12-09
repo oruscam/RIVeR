@@ -13,7 +13,7 @@
         "next" : "Seguir",
         "save" : "Guardar"
     },
-    "Step3":{
+    "VideoRange":{
         "title": "Rango de video",
         "start": "Inicio",
         "end": "Fin",
@@ -34,7 +34,7 @@
             "resolution" : "Resolución: "
         }
     },
-    "Step4": {
+    "PixelSize": {
         "title": "Tamaño de Pixel",
         "lineLength": "Largo de la linea",
         "pixelSize" : "Tamaño del pixel",
@@ -42,6 +42,119 @@
         "Errors" : {
             "required" : "Todos los campos son obligatorios. Por favor revisa el formulario Tamaño de Pixel.",
             "lineLength" : "Formato Incorrecto: Los valores 'Ancho' y 'Alto' deben ser enteros mayores a 0. Por favor ingresa un valor valido."
+        },
+        "RealWorld": {
+            "title" : "Coordenadas del Mundo Real",
+            "eastPoint1": "Punto Este 1",
+            "northPoint1": "Punto Norte 1",
+            "eastPoint2": "Punto Este 2",
+            "northPoint2": "Punto Norte 2"
+        }, 
+        "Pixel": {
+            "title" : "Coordenadas de Pixel",
+            "xPoint1": "Punto X-1",
+            "yPoint1": "Punto Y-1",
+            "xPoint2": "Punto X-2",
+            "yPoint2": "Punto Y-2"
         }
+    },
+    "CrossSections": {
+        "title": "Cross Sections",
+        "drawLine": "Dibujar Direccion",
+        "csLength": "CS Length",
+        "importBath": "Import bath",
+        "Level" : "Level",
+        "leftBankStation": "Left Bank Station",
+        "RealWorld": {
+            "title": "Real World Coordinates",
+            "eastPoint1": "East Left",
+            "northPoint1": "North Left",
+            "eastPoint2": "East Right",
+            "northPoint2": "North Right"
+        }, 
+        "Pixel" : {
+            "title": "Pixel Coordinates",
+            "xPoint1": "X Left",
+            "yPoint1": "Y Left",
+            "xPoint2": "X Right",
+            "yPoint2": "Y Right"
+        }
+    },
+    "Processing": {
+        "title": "Processing",
+        "artificialSeeding": "Artificial Seeding",
+        "windowSizes": "Windows Sizes",
+        "step1": "Step 1",
+        "step2": "Step 2",
+        "Test" : "Test",
+        "roiHeight": "ROI Height",
+        "preProcessingFilter": "Pre-processing filtering",
+        "grayscale": "Grayscale",
+        "removeBackground" : "Remove Background",
+        "clahe": "CLAHE",
+        "clipLimit": "Clip Limit",
+        "postProcessingFilter": "Post-processing filtering",
+        "stdFiltering": "Std filtering",
+        "medianTestFiltering" : "Mediant test filtering",
+        "epsilon": "Epsilon",
+        "threshold": "Threshold",
+        "carouselMedia": "Media"
+    },
+    "Analizing": {
+        "title": "Analizing",
+        "analize": "Analize",
+        "stop": "Stop"
+    },
+    "Results": {
+        "title": "Results",
+        "measured": "Measured",
+        "interpolated": "Interpolated",
+        "alpha": "Alpha",
+        "stationNumber" : "Station Number",
+        "showVelStd" : "Show Vel. Std",
+        "showProfile": "Show 5% | 95% percen",
+        "interpolateProfile": "Interpolate Profile"
+    },
+    "Graphs": {
+        "station": "Station",
+        "velocity": "Velocity",
+        "discharge": "Discharge",
+        "level": "Level"
+    },
+    "Report": {
+        "totalQ": "Total Q",
+        "discahrgeQ": "Discharge Q",
+        "VideoInfo": {
+            "title": "Video Information",
+            "name": "Name",
+            "duration": "Duration",
+            "resolution": "Resolution",
+            "fps": "fps",
+            "creationDate": "Creation Date"
+        },
+        "ProcessedRange": {
+            "title": "Processed Range",
+            "start": "Start",
+            "end": "End",
+            "length" : "Length",
+            "step": "Step",
+            "timeStep": "Time Step"
+        },
+        "Summary": {
+            "title": "Summary",
+            "width": "Width",
+            "area": "Area",
+            "q": "Q",
+            "meanV": "meanV",
+            "alpha": "Alpha",
+            "averageVs": "Average Vs",
+            "maxD": "Max d",
+            "meanD": "Mean d",
+            "measured": "% Measured"
+        },
+        "pixelTransformation": "Pixel Transformation",
+        "processingParameters" : "Processing Parameters",
+        "generatedBy" : "Generated with River",
+        "date" : "report creation date"
     }
 }

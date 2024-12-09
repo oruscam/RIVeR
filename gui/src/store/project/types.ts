@@ -17,7 +17,6 @@ interface VideoParameters {
     endFrame: number;
 }
 
-
 interface Video {
     data: VideoData;
     parameters: VideoParameters;
@@ -42,6 +41,6 @@ export type {
     ProjectState,
     VideoData,
     VideoParameters,
-    Video, 
+    Video,
     ProjectDetails
 }

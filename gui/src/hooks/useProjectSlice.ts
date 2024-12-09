@@ -5,14 +5,15 @@
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { setLoading } from "../store/ui/uiSlice";
+import { clearErrorMessage, clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
 import { setProjectDirectory, setProjectType, setVideoData, setFirstFramePath, setVideoParameters, setProjectDetails } from "../store/project/projectSlice";
 import { FieldValues } from "react-hook-form";
-import { addSection, setActiveSection, updateSection } from "../store/section/sectionSlice";
-import { CROSS_SECTIONS_STEP_NUMBER, PIXEL_SIZE_STEP_NUMBER, PROCESSING_STEP_NUMBER, REPORT_STEP_NUMBER, VIDEO_RANGE_STEP_NUMBER } from "../constants/constants";
-import { setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
+import { addSection, setActiveSection, setSummary, setTransformationMatrix, updateSection } from "../store/section/sectionSlice";
+import {  MODULE_NUMBER } from "../constants/constants";
+import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
 import { onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
 import { OperationCanceledError, UserSelectionError } from "../errors/errors";
+import { parseTime } from "../helpers";
 
 
 /**
@@ -53,15 +54,19 @@ export const useProjectSlice = () => {
         }
     }
 
-
     const onInitProject = async (video: { path: string, name: string, type: string}) => {
         dispatch(setLoading(true));
+
+        const extension = video.name.split('.').pop();
+        if ( extension?.toUpperCase() !== 'MP4'){
+            dispatch(setMessage('We are transforming the video to mp4 format. Please wait a moment.'))
+        }
+
         const ipcRenderer = window.ipcRenderer;
 
-        
         try {
             const  { result, error } = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type });
-            
+
             if ( error ){
                 if (error.type === 'user-cancel-operation') {
                     throw new OperationCanceledError(error.message);
@@ -69,25 +74,25 @@ export const useProjectSlice = () => {
             }
 
             const videoData = {
-                name: video.name,
-                path: filePrefix + video.path,
+                name: result.name,
+                path: filePrefix + result.path,
                 width: result.width,
                 height: result.height,
                 fps: result.fps,
                 creation: result.creation,
-                // blob: blob,
                 duration: result.duration
             }
 
             dispatch(setVideoData(videoData));
             dispatch(setProjectDirectory(result.directory));
-            dispatch(setProjectType(type));
-
+            dispatch(setProjectType(video.type));
             dispatch(setLoading(false));
+            dispatch(clearMessage());
             
         } catch (error) {
             dispatch(setLoading(false));
-            console.log(' InitPRojec', error instanceof OperationCanceledError)
+            console.log(error instanceof OperationCanceledError)
+            dispatch(clearMessage());
             
             throw error;
         }    
@@ -100,13 +105,25 @@ export const useProjectSlice = () => {
 
     const onSetVideoParameters = async ( data: FieldValues) => {
         dispatch(setLoading(true));
+        dispatch(setMessage('We are extracting the frames, wait a moment'))
+
+        const { startTime, endTime, step } = video.parameters;
+
+        const parsedStart = parseTime(data.start);
+        const parsedEnd = parseTime(data.end);
+
+        if( parsedStart === startTime && parsedEnd === endTime && parseFloat(data.step) === step){
+            dispatch(setLoading(false));
+            dispatch(clearMessage());
+            return
+        }
         
         const parameters = {
             step: parseFloat(data.step),
-            startTime: parseFloat(data.start),
-            endTime: parseFloat(data.end),
-            startFrame: Math.floor(parseFloat(data.start) * video.data.fps),
-            endFrame: Math.floor(parseFloat(data.end) * video.data.fps),
+            startTime: parsedStart,
+            endTime: parsedEnd,
+            startFrame: Math.floor(parsedStart* video.data.fps),
+            endFrame: Math.floor(parsedEnd * video.data.fps),
         }
         const ipcRenderer = window.ipcRenderer;
         
@@ -117,6 +134,9 @@ export const useProjectSlice = () => {
                 step: parameters.step,
             })
 
+            
+            console.log(result)
+            dispatch(clearMessage())
             dispatch(setFirstFramePath(filePrefix + result.initial_frame))
             dispatch(setVideoParameters(parameters))
             dispatch(setLoading(false));
@@ -136,18 +156,27 @@ export const useProjectSlice = () => {
         try {
             const result = await ipcRenderer.invoke('load-project')
             if(result.success){
-                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results } = result.message
+                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix } = result.message
                 dispatch(setProjectDirectory(projectDirectory))
-                dispatch(setProjectType(settings.type)) 
+                dispatch(setProjectType(settings.footage)) 
                 dispatch(setVideoData({
                     width: videoMetadata.width,
                     height: videoMetadata.height,
                     fps: videoMetadata.fps,
-                    path: filePrefix + settings.filepath,
+                    path: filePrefix + settings.video.filepath,
                     duration: videoMetadata.duration,
                     creation: videoMetadata.creation,
                     name: videoMetadata.name,
                 }))
+                dispatch(clearErrorMessage())
+
+                if ( paths.length !== 0){
+                    dispatch(setImages({ paths: paths }))
+                }
+
+                if ( matrix !== undefined ){
+                    dispatch(setTransformationMatrix(matrix))
+                }
 
                 if( firstFrame !== ''){
                     dispatch(setFirstFramePath(filePrefix + firstFrame))
@@ -156,16 +185,14 @@ export const useProjectSlice = () => {
 
                 if( piv_results ){
                     onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
-                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
+                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     // * Load images for carousel.
-                    const images = await ipcRenderer.invoke('get-images')
-                    dispatch(setImages(images))
                     dispatch(setProcessingMask(filePrefix + mask))
 
                     // * Load cross sections
                     dispatch(setActiveSection(1))
-                    const STEP = onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer)
+                    const STEP = onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer, setSummary)
     
                     if ( settings.processing ){
                         onLoadProcessingForm(settings.processing, dispatch, updateProcessingForm)
@@ -189,46 +216,47 @@ export const useProjectSlice = () => {
                             unitSistem: settings.unit_system,
                             meditionDate: settings.medition_date
                         }))
-                        
+                    
+                        return MODULE_NUMBER.REPORT
+                    }
+                    
+                    if ( STEP === MODULE_NUMBER.RESULTS){
+                        dispatch(setDataLoaded(true))
+                    }
 
-                        return REPORT_STEP_NUMBER
-                     }
                     return STEP
                 }
                 
                 if(settings.xsections){
                     onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
-                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
+                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
                     
 
                     // * Load images for carousel.
-                    const images = await ipcRenderer.invoke('get-images')
-                    dispatch(setImages(images))
                     dispatch(setProcessingMask(filePrefix + mask))
 
                     // * Load cross sections
                     dispatch(setActiveSection(1))
                     onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer)
 
-
                     if ( settings.processing ){
                         onLoadProcessingForm(settings.processing, dispatch, updateProcessingForm)
                     }
                     
-                    return PROCESSING_STEP_NUMBER
+                    return MODULE_NUMBER.PROCESSING
 
                 } else if(settings.pixel_size){
                     onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
-                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
+                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
-                    return CROSS_SECTIONS_STEP_NUMBER
+                    return MODULE_NUMBER.CROSS_SECTIONS
 
                 } else if(settings.video_range){
-                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters)
+                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
-                    return PIXEL_SIZE_STEP_NUMBER
+                    return MODULE_NUMBER.PIXEL_SIZE
                 } else {
-                    return VIDEO_RANGE_STEP_NUMBER
+                    return MODULE_NUMBER.VIDEO_RANGE
                 } 
             } else {
                 dispatch(setLoading(false))
@@ -281,7 +309,6 @@ export const useProjectSlice = () => {
         projectDirectory,
         type,
         video,
-
 
         // METHODS
         onInitProject,

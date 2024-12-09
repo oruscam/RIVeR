@@ -1,14 +1,14 @@
 import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { useSectionSlice } from "../hooks";
-import { DARK_GREY, YELLOW } from '../constants/constants';
+import { COLORS } from '../constants/constants';
 
 // This component renders a section line within an SVG element.
 // It ensures the section line is visible even when embedded in HTML.
 // The section line is drawn using D3.js based on provided section and direction points.
 
 interface SvgSectionLineProps {
-  factor: number;
+  factor: number | { x: number, y: number };
   index: number;
   isReport: boolean;
 }
@@ -23,19 +23,17 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
   useEffect(() => {
     const svg = d3.select(svgRef.current);
 
-    console.log(sectionPoints, dirPoints);
-
     // Limpiar el SVG antes de redibujar
     svg.selectAll("*").remove();
 
     // Crear la línea de sectionPoints
     if (sectionPoints.length > 0) {
       svg.append("line")
-        .attr("x1", sectionPoints[0].x / factor)
-        .attr("y1", sectionPoints[0].y / factor)
-        .attr("x2", sectionPoints[1].x / factor)
-        .attr("y2", sectionPoints[1].y / factor)
-        .attr("stroke", DARK_GREY)
+        .attr("x1", sectionPoints[0].x / (typeof factor === 'number' ? factor : factor.x))
+        .attr("y1", sectionPoints[0].y / (typeof factor === 'number' ? factor : factor.y))
+        .attr("x2", sectionPoints[1].x / (typeof factor === 'number' ? factor : factor.x))
+        .attr("y2", sectionPoints[1].y / (typeof factor === 'number' ? factor : factor.y))
+        .attr("stroke", COLORS.YELLOW)
         .attr("stroke-width", 4 / resizeFactor)
         .attr("stroke-linecap", "round")
         .attr("stroke-dasharray", "5,10");
@@ -44,24 +42,24 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
     // Crear la línea de dirPoints o localPoints
     if (dirPoints.length > 0) {
         svg.append("line")
-          .attr("x1", dirPoints[0].x / factor)
-          .attr("y1", dirPoints[0].y / factor)
-          .attr("x2", dirPoints[1].x / factor)
-          .attr("y2", dirPoints[1].y / factor)
-          .attr("stroke", isReport ? DARK_GREY : YELLOW)
+          .attr("x1", dirPoints[0].x / (typeof factor === 'number' ? factor : factor.x))
+          .attr("y1", dirPoints[0].y / (typeof factor === 'number' ? factor : factor.y))
+          .attr("x2", dirPoints[1].x / (typeof factor === 'number' ? factor : factor.x))
+          .attr("y2", dirPoints[1].y / (typeof factor === 'number' ? factor : factor.x))
+          .attr("stroke", COLORS.YELLOW)
           .attr("stroke-width", 4 / resizeFactor)
           .attr("stroke-linecap", "round")
       }
      
     if ( !isReport ){
       svg.append("text")
-        .attr("x", sectionPoints[1].x / factor)
-        .attr("y", sectionPoints[1].y / factor)
+        .attr("x", sectionPoints[1].x / (typeof factor === 'number' ? factor : factor.x))
+        .attr("y", sectionPoints[1].y / (typeof factor === 'number' ? factor : factor.y))
         .attr("dy", 25)
         .text(name)
         .attr("font-size", 18)
         .attr("font-weight", 500)
-        .attr("fill", YELLOW);
+        .attr("fill", COLORS.YELLOW);
     }  
 
   }, [factor, resizeFactor, sectionPoints, dirPoints, isReport]);

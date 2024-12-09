@@ -5,7 +5,11 @@
  */
 
 import { exec } from "child_process";
-import { ipcMain } from "electron";
+<<<<<<< HEAD
+import { ipcMain, webContents } from "electron";
+=======
+import { ipcMain, webContents } from "electron";
+>>>>>>> gui
 import { Options, PythonShell } from "python-shell";
 
 
@@ -47,6 +51,7 @@ async function executePythonShell(args: (string | number)[], mode: ('json' | 'te
 
     console.log('execute-python-shell')
     console.log(options)
+    console.time('river-cli-time')
 
     /**
      * Python shell to execute the python script.
@@ -75,6 +80,106 @@ async function executePythonShell(args: (string | number)[], mode: ('json' | 'te
             }
         });
     })
+}
+
+async function executePythonShell2(args: (string | number)[]) {
+    /**
+     * Options to execute the python shell.
+     * pythonPath: Path to the python executable
+     * scriptPath: Path to the python script
+     * args: Arguments to pass to the python script
+     */
+    const options: Options = {
+        mode: 'text', // Cambiar a 'text' para capturar toda la salida
+        pythonPath: PYTHON_PATH,
+        scriptPath: RIVER_CLI_PATH,
+        args: args.map(arg => arg.toString())
+    };
+    console.log('executePythonShell2');
+    console.log(options);
+
+    /**
+     * Python shell to execute the python script.
+     * It will return a promise with the result of the python script.
+     * The result is parsed from a string to a JSON object.
+     * If an error occurs, it will be logged.
+     */
+    const pyshell = new PythonShell('__main__.py', options);
+    currentPyShell = pyshell;
+
+    return new Promise((resolve, reject) => {
+        let output = '';    
+        
+        pyshell.on('message', (message: string) => {
+            console.log(message)
+            resolve(message)
+        });
+
+        pyshell.end((err: Error) => {
+            if (err) {
+                console.log("pyshell error");
+                console.log(err);
+                reject(err);
+            } 
+        });
+    });
+}
+
+async function executePythonShellWithOuput(args: (string | number)[]) {
+    /**
+     * Options to execute the python shell.
+     * pythonPath: Path to the python executable
+     * scriptPath: Path to the python script
+     * args: Arguments to pass to the python script
+     */
+    const options: Options = {
+        mode: 'text', // Cambiar a 'text' para capturar toda la salida
+        pythonPath: PYTHON_PATH,
+        scriptPath: RIVER_CLI_PATH,
+        args: args.map(arg => arg.toString())
+    };
+    console.log('executePythonShell2');
+    console.log(options);
+
+    /**
+     * Python shell to execute the python script.
+     * It will return a promise with the result of the python script.
+     * The result is parsed from a string to a JSON object.
+     * If an error occurs, it will be logged.
+     */
+    const pyshell = new PythonShell('__main__.py', options);
+    currentPyShell = pyshell;
+
+    return new Promise((resolve, reject) => {
+        let output = '';    
+        
+        pyshell.on('message', (message: string) => {
+            console.log(message)
+
+            try {
+                const jsonMessage = JSON.parse(message);
+                resolve(jsonMessage);
+            } catch (error) {
+                console.log("not json");
+            }
+        });
+
+        pyshell.stderr.on('data', (data: string) => {
+            console.log(data);
+            // Enviar datos al proceso de renderizado
+            webContents.getAllWebContents().forEach((contents) => {
+                contents.send('python-stderr', data);
+            });
+        });
+
+        pyshell.end((err: Error) => {
+            if (err) {
+                console.log("pyshell error");
+                console.log(err);
+                reject(err);
+            } 
+        });
+    });
 }
 
 ipcMain.handle('kill-python-shell', async () => {
@@ -106,4 +211,4 @@ ipcMain.handle('kill-python-shell', async () => {
     }
 });
 
-export { executePythonShell }
+export { executePythonShell, executePythonShell2, executePythonShellWithOuput }

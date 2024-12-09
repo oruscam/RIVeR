@@ -2,6 +2,7 @@ import React, { useEffect } from "react"
 import {  useForm } from "react-hook-form"
 import { useSectionSlice, useUiSlice } from "../../hooks"
 import { isValidString } from "../../helpers/regex";
+import { EyeBall } from "./index";
 
 interface Sections {
     setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -97,6 +98,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
   return (
     <div className="sections mt-2">
         <div className="sections-layer">
+            <EyeBall/>  
             <span className="section"/>
                     {
                         sections.map((section, index: number) => {

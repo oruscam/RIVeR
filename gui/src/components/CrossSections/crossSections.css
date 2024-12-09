@@ -5,6 +5,7 @@
     overflow-y: hidden;
     margin-bottom: 25px;
     flex-shrink: 0;
+    user-select: none;
 }
 
 .sections-layer{
@@ -84,16 +85,14 @@
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    padding-bottom: 3px;
+    padding-bottom: 3.5px;
     cursor: pointer;
-    transition: transform 0.1s ;
+    transition: transform 0.1s;
 }
 
 .section-add{
     flex-shrink: 0;
-
 }
-
 .section-button1:hover{
     transform: scale(1.3);
 }
@@ -106,16 +105,14 @@
     border: none;
     transform: scale(1.1);
     border: solid 2px;
-
-
 }
 
 .sections-header{
     margin-top: 35px;
     display: flex;
     width: 90%;
-    justify-content: space-between;
     align-items: center;
+    justify-content: center;
 }
 
 .sections-title{
@@ -124,6 +121,12 @@
 
 
 /* EYEBALL  */
+
+.seeAll-button{
+    margin-left: 15px;
+    margin-top: 6px;
+}
+
 .seeAll-button:hover{
     cursor: pointer;
 }
@@ -138,7 +141,7 @@
 
   
 .eye-ball-svg{
-width: 50px;
+    width: 40px;
 }
 
 .lid {

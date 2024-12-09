@@ -17,6 +17,7 @@ def cli(ctx: click.Context, verbose: bool):
 
 cli.add_command(video_to_frames)
 cli.add_command(ct.get_uav_transformation_matrix)
+cli.add_command(ct.get_oblique_transformation_matrix)
 cli.add_command(ct.transform_pixel_to_real_world)
 cli.add_command(ct.transform_real_world_to_pixel)
 cli.add_command(rm.recommend_height_roi)

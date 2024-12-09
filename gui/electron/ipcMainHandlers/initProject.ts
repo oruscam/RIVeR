@@ -12,11 +12,9 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
         const [ videoName ] = arg.name.split('.');
         const newDirectory = path.join(userDir, 'River', videoName);
 
-
         try {
             const result = await getVideoMetadata(arg.path)
-
-            await createFolderStructure(newDirectory, arg.type, arg.path, arg.name, result)
+            await createFolderStructure(newDirectory, arg.type, result.path, arg.name, result)
 
             PROJECT_CONFIG.directory = newDirectory
             PROJECT_CONFIG.type = arg.type
@@ -30,8 +28,6 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
                 }
             }
         } catch (error) {
-            console.log('init project error');
-
             if ( error.message === 'user-cancel-operation') {
                 return {
                     error: {

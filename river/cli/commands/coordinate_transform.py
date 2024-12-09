@@ -39,6 +39,24 @@ def get_uav_transformation_matrix(
 	return {"uav_matrix": matrix.tolist()}
 
 
+@click.command(help="Compute the homography transformation matrix based on pixel coordinates and real-world distances.")
+@click.argument("pix-coordinates", nargs=8, type=click.FLOAT)
+@click.argument("rw-distances", nargs=6, type=click.FLOAT)
+@render_response
+def get_oblique_transformation_matrix(pix_coordinates: tuple, rw_distances: tuple) -> dict:
+	"""Compute the homography transformation matrix based on pixel coordinates and real-world distances..
+
+	Args:
+		pix_coordinates (tuple): x1 y1 x2 y2 x3 y3 x4 y4 pixel coordinates values for four points.
+		rw_distances (tuple): d12 d23 d34 d41 d13 d24 real-world distances between corresponding points.
+
+	Returns:
+		dict: Containing the oblique matrix.
+	"""
+	matrix = ct.oblique_view_transformation_matrix(*pix_coordinates, *rw_distances)
+	return {"oblique_matrix": matrix.tolist()}
+
+
 @click.command(help="Transform pixel coordinates to real-world coordinates.")
 @click.argument("x-pix", type=click.FLOAT)
 @click.argument("y-pix", type=click.FLOAT)

@@ -1,7 +1,8 @@
 import { useFormContext } from "react-hook-form";
-import { useSectionSlice, useUiSlice } from "../../hooks";
+import { useDataSlice, useSectionSlice, useUiSlice } from "../../hooks";
 import { RealWorldCoordinates, PixelCoordinates } from "./index";
 import { Bathimetry } from "../Graphs";
+import { useTranslation } from "react-i18next";
 
 interface FormCrossSectionsProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void;
@@ -14,27 +15,28 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   const { sections, activeSection, onUpdateSection, onGetBathimetry } = useSectionSlice();
   const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
   const { onSetErrorMessage } = useUiSlice()
+  const { isBackendWorking } = useDataSlice()
+
+  const { t } = useTranslation();
 
   const { yMax, yMin, xMin, x1Intersection, leftBank, xMax } = bathimetry
 
-  const handleKeyDownBathLevel = (event: React.KeyboardEvent<HTMLInputElement>, nextFieldId: string) => {
-    if (event.key === 'Enter') {
+  const handleKeyDownBathLevel = ( event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>, nextFieldId: string) => {
+    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') {
       event.preventDefault();
-      document.getElementById(nextFieldId)?.focus();
 
       const value = parseFloat((event.target as HTMLInputElement).value);
+      
       if (isNaN(value) || value === bathimetry.level) return;
 
       if (yMax !== undefined && yMin !== undefined && value <= yMax && value >= yMin) {
         onUpdateSection({ level: value });
+        document.getElementById(nextFieldId)?.focus();
+
       } else {
         setValue(`${name}_LEVEL`, bathimetry.level);
         onSetErrorMessage({ Level: { type: "error", message: `Level must be between ${yMin?.toFixed(2)} and ${yMax?.toFixed(2)}` } });
       }
-    }
-
-    if (event.key === 'Tab' && !extraFields) {
-      event.preventDefault();
     }
   };
 
@@ -61,21 +63,23 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
 
   return (
     <div id="form-section-div" className={activeSection !== index ? "hidden" : ""}>
-      <form className="form-scroll" onSubmit={onSubmit} id="form-cross-section">
+      <form className={`form-scroll ${isBackendWorking ? 'disabled' : ''}`} onSubmit={onSubmit} id="form-cross-section">
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
         <div className="form-base-2 mt-2">
+          
           <div className="input-container-2">
             <button
               className={`wizard-button form-button me-1 ${drawLine ? "wizard-button-active" : ""}`}
               type="button"
               id={`${name}-DRAW_LINE`}
               onClick={() => onUpdateSection({ drawLine: true })}
-            > Draw Line </button>
+            > {t('CrossSections.drawLine')} </button>
             <span className="read-only bg-transparent"></span>
           </div>
+
           <div className="input-container-2 mt-1">
-            <label className="read-only me-1" htmlFor="CS_LENGTH">CS Length</label>
+            <label className="read-only me-1" htmlFor="CS_LENGTH">{t('CrossSections.csLength')}</label>
             <input
               type="number"
               className="input-field-read-only"
@@ -105,11 +109,12 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`}
               onClick={handleImportBath}
               disabled={pixelSize.rw_length === 0}
-            > Import bath </button>
+            > {t('CrossSections.importBath')} </button>
             <label className="read-only bg-transparent mt-1">{bathimetry.name !== "" ? bathimetry.name : ''}</label>
           </div>
+
           <div className="input-container-2 mt-1 mb-3">
-            <label className="read-only me-1" htmlFor="LEVEL">Level</label>
+            <label className="read-only me-1" htmlFor="LEVEL">{t('CrossSections.level')}</label>
             <input
               type="number"
               step="any"
@@ -117,16 +122,18 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               {...register(`${name}_LEVEL`, {
                 validate: () => bathimetry.level !== 0
               })}
-              // defaultValue={bathimetryLimits.max}
               id="LEVEL"
-              onKeyDown={(event) => handleKeyDownBathLevel(event, 'wizard-next')}
+              onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
+              onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
             />
           </div>
+
           <Bathimetry
             showLeftBank={true}
           />
+
           <div className="input-container-2 mt-3 mb-4" id="left-bank-station-container">
-            <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">Left bank station</label>
+            <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">{t('CrossSections.leftBankStation')}</label>
             <input
               type="number"
               className="input-field"

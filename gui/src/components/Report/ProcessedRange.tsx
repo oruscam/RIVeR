@@ -43,6 +43,7 @@ export const ProcessedRange = () => {
             <img src={paths[lastQuarter]} alt="First frame" className="report-carousel-img"/>
             <img src={paths[paths.length -1]} alt="First frame" className="report-carousel-img" id="last-img-carousel"/>
           </div>
+          
           <div id="report-carousel-footer">
             <p className="report-carousel-footer-item"> { formatTime(startTime) } </p>
             <p className="report-carousel-footer-item">{ formatTime(frameTime) } </p>
