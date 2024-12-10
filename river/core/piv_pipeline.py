@@ -349,8 +349,7 @@ def run_analyze_all(
 		"u_median": u_median.tolist(),
 		"v_median": v_median.tolist(),
 		"u": dict_cumul["u"].T.tolist(),
-		"v": dict_cumul["v"].T.tolist(),
-		"typevector": dict_cumul["typevector"].T.tolist(),
+		"v": dict_cumul["v"].T.tolist()
 	}
 
 	if seeding_filter:
