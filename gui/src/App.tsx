@@ -35,6 +35,7 @@ export const App: React.FC = () => {
     const handleResize = () => {
       const width = window.innerWidth
       const height = window.innerHeight
+      console.log(height)
       onSetScreen({ windowWidth: width, windowHeight: height, imageWidth: data.width, imageHeight: data.height })
     }
 

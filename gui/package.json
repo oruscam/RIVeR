@@ -1,16 +1,19 @@
 {
   "name": "river-gui",
+  "productName": "River",
   "private": true,
   "version": "3.0.1",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "npm run clean && vite build && electron-builder",
+    "build": "npm run clean && vite build",
     "lint": "eslint . --c ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "install-pyinstaller": "pip install pyinstaller",
     "build-cli": "pyinstaller -F --distpath . -n river-cli ../river/cli/__main__.py",
     "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux",
     "clean": "rimraf dist dist-electron"
   },
   "dependencies": {

@@ -45,11 +45,11 @@ async function createWindow() {
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
     minWidth: 1150,
-    minHeight: 800,
+    minHeight: 820,
     x: x,
     y: y,
     width: 1200,
-    height: 850,
+    height: 820,
     maxHeight: 1400,
     maxWidth: 2300,
     resizable: true,
@@ -69,7 +69,7 @@ async function createWindow() {
   })
 
 
-  // // Elimina la barra de menú
+  // Remove menu bar
   // win.setMenu(null);
 
   // Test active push message to Renderer-process.

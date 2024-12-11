@@ -95,7 +95,7 @@ export const Carousel: React.FC<CarouselProps> = ({ showMedian, setShowMedian })
                 <List
                     height={180} // Altura del contenedor del carrusel
                     itemCount={paths.length} // Número total de elementos
-                    itemSize={300} // Ancho de cada elemento
+                    itemSize={275} // Ancho de cada elemento
                     layout="horizontal" // Disposición horizontal
                     width={width} // Ancho del contenedor del carrusel
                     className='carousel-list' // Clase del contenedor del carrusel

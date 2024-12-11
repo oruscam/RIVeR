@@ -319,7 +319,8 @@
 
 
 .progress-indicator-container{
-    margin-top: 15px;
+    position: relative;
+    top: 15px;
     width: 90%;
     height: 10px;
     display: flex;
@@ -400,7 +401,7 @@
 }
 
 .carousel-info{
-    width: 95%;
+    width: 90%;
     align-self: center;
     display: flex;
     justify-content: space-between;

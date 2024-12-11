@@ -8,6 +8,7 @@ import { RootState } from "../store/store";
 import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask, setDataLoaded, setImages } from "../store/data/dataSlice";
 import { clearErrorMessage, setErrorMessage, setLoading } from "../store/ui/uiSlice";
 import { setSectionData, setSummary } from "../store/section/sectionSlice";
+import { CliError } from "../errors/errors";
 
 /**
  * @returns - Object with the methods and attributes to interact with the data slice
@@ -239,7 +240,7 @@ export const useDataSlice = () => {
     }
 
     const onReCalculateMask = async ( value: number ) => {
-        dispatch(setBackendWorkingFlag(true))
+        dispatch(setBackendWorkingFlag(true))    
         onClearQuiver()
         
         const filePrefix = import.meta.env.VITE_FILE_PREFIX
@@ -247,12 +248,22 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value, data: isDataLoaded })
+            const { maskPath, error } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value, data: isDataLoaded })
+
+            if ( error ){
+                if ( error.type === 'create-mask-and-bbox' ){
+                    throw new CliError(error.message)
+                }
+            }
 
             dispatch(setProcessingMask(filePrefix + maskPath))
             dispatch(setBackendWorkingFlag(false))
         } catch (error) {
-            console.log(error)
+            dispatch(setBackendWorkingFlag(false))
+            dispatch(setErrorMessage([error.message]))
+            setTimeout(() => {
+                dispatch(clearErrorMessage())
+            }, 4000)
         }
     }
 

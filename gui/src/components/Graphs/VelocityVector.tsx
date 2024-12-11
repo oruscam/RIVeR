@@ -66,6 +66,7 @@ export const VelocityVector = ({ height, width, factor, isReport = false, index 
             })
         }
     }
+
     return (
         <div id="velocity-vector-container" style={{ width: width, height: height }}>
             <img src={firstFramePath} width={width} height={height} style={isReport ? { borderRadius: '20px' } : {}}/>

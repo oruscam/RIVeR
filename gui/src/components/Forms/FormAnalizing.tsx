@@ -24,6 +24,10 @@ export const FormAnalizing = () => {
         await onKillBackend();
     }
 
+    if ( isBackendWorking === false && percentage === '97%' ){
+        setPercentage('100%');
+    }
+
     window.ipcRenderer.on('river-cli-message', (_event, text) => {
         // Expresión regular para extraer el porcentaje
         const percentageMatch = text.match(/(\d+%)\|/);
@@ -42,7 +46,7 @@ export const FormAnalizing = () => {
 
   return (
     <>
-        <h1 className="form-title"> {t('Analizing.title')} </h1>
+        <h1 className="form-title-analizing" > {t('Analizing.title')} </h1>
         <div className="form-base-2 mt-4" id='form-analizing'>
             <div className='input-container-2' id='analize-div'>
                 <button className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
@@ -52,7 +56,7 @@ export const FormAnalizing = () => {
             </div>
             <div className='analizing-output'>
                 {
-                    percentage !== '' && isBackendWorking && <Loading percentage={percentage} time={time} size={'big'} isComplete={ percentage === '100%'}/>
+                    percentage !== '' && <Loading percentage={percentage} time={time} size={'big'} isComplete={ percentage === '100%'}/>
                 }
             </div>
             <button id='stop-analize' className={`danger-button  'danger-button-active' : ''}`} onClick={handleStop} disabled={!isBackendWorking}> {t('Analizing.stop')} </button>

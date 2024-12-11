@@ -3,7 +3,7 @@
     height: 50px;
     overflow-x: auto;
     overflow-y: hidden;
-    margin-bottom: 25px;
+    margin-bottom: 5px;
     flex-shrink: 0;
     user-select: none;
 }

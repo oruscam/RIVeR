@@ -13,3 +13,11 @@ export class UserSelectionError extends Error {
         this.stack = ''
     }
 }
+
+export class CliError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'CliError';
+        this.stack = ''
+    }
+}

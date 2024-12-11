@@ -1,13 +1,11 @@
 import { Group, Rect } from 'react-konva'
-import { useDataSlice, useProjectSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useUiSlice } from '../hooks';
 
 export const WindowSizes = ({ width, height }: { width: number, height: number }) => {
   const { processing } = useDataSlice();
   const { step1 } = processing.form
   const { screenSizes } = useUiSlice()
   const { factor } = screenSizes
-  const { video } = useProjectSlice()
-  console.log(video)
 
   const size = step1 / factor!
   const xCenter = width / 2

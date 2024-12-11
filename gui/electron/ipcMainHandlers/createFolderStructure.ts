@@ -15,7 +15,8 @@ async function createFolderStructure (newDirPath: string, type: string, videoPat
         defaultId: 0,
         title: 'Confirm',
         message: 'The directory already exists. Do you want to continue? This will overwrite the existing directory.',
-      });
+        icon: '../../src/assets/icons/icon.ico'
+        });
 
       if (response === 0) {
         try {

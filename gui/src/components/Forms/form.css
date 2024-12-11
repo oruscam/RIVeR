@@ -18,6 +18,10 @@
     margin-top: 105px;
 }
 
+.form-title-analizing{
+    margin-top: 85px;
+}
+
 /* .form-base{
     padding: 90px;
     padding-top: 20px;
@@ -448,6 +452,21 @@ transform-origin: 14px 22px;
     height: 70%;
     width: 100%;
 }
+
+@media screen and (max-height : 885px) {
+    #form-section-div{
+        height: 65%;
+    }
+}
+
+@media screen and (max-height : 825px) {
+    #form-section-div{
+        height: 63%;
+        width: 100%;
+    }
+    
+}
+
 /* 
 #left-bank-station-label{
     height: auto;
