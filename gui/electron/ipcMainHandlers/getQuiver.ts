@@ -8,7 +8,7 @@ import { clearResultsPiv } from "./utils/clearResultsPiv";
 
 async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ipcMain.handle('get-quiver-test', async (_event, args) => {
-        const { resultsPath, settingsPath } = PROJECT_CONFIG
+        const { resultsPath, settingsPath, logsPath } = PROJECT_CONFIG
         
         const { framesToTest, formValues } = args
         const filePrefix = import.meta.env.VITE_FILE_PREFIX
@@ -32,7 +32,7 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
         const options = await createOptions('test', PROJECT_CONFIG, frames, formValues)
         try {
-            const result = await riverCli(options, 'text') as any;
+            const result = await riverCli(options, 'text', false, logsPath) as any;
             return result
 
         } catch (error) {
@@ -45,12 +45,12 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
     ipcMain.handle('get-quiver-all', async (_event, args) => {
         const { formValues } = args
-        const { settingsPath } = PROJECT_CONFIG    
+        const { settingsPath, logsPath } = PROJECT_CONFIG    
         
         const options = await createOptions('all', PROJECT_CONFIG, [], formValues)
 
         try {
-            const { data, error } = await riverCli(options, 'text', true) as any;
+            const { data, error } = await riverCli(options, 'text', true, logsPath) as any;
             if ( error.message ){
                 return {
                     error: error.message

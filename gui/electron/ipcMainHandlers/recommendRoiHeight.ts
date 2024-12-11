@@ -5,7 +5,7 @@ async function recommendRoiHeight(PROJECT_CONFIG: ProjectConfig, riverCli: Funct
     ipcMain.handle('recommend-roi-height', async (_event, args?) => {
         console.log('recommend-roi-height')
 
-        const { xsectionsPath, matrixPath } = PROJECT_CONFIG;
+        const { xsectionsPath, matrixPath, logsPath } = PROJECT_CONFIG;
         const options = [
             'recommend-height-roi',
             args ? args : 128,
@@ -14,7 +14,7 @@ async function recommendRoiHeight(PROJECT_CONFIG: ProjectConfig, riverCli: Funct
         ]
 
         try {
-            const { data } = await riverCli(options)
+            const { data } = await riverCli(options, 'json', false, logsPath)
             return { height_roi: (data as any).height_roi }
         } catch (error) {
             console.log("ERROR EN RECOMMEND ROI HEIGHT")

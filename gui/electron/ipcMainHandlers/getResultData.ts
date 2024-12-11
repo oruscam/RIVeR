@@ -11,6 +11,8 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
         const xSections = PROJECT_CONFIG.xsectionsPath;
         const transformationMatrix = PROJECT_CONFIG.matrixPath;
         const pivResults = PROJECT_CONFIG.resultsPath;
+        const logsPath = PROJECT_CONFIG.logsPath;
+        
     
         const xSectionsFile = await fs.promises.readFile(xSections, 'utf-8')
         const xSectionsFileParsed = JSON.parse(xSectionsFile)
@@ -39,7 +41,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
         ].filter( value => value !== '')
 
         try {
-            const { data, error } = await riverCli(options, 'text') as any
+            const { data, error } = await riverCli(options, 'text', false, logsPath) as any
 
             for (const sectionKey in data) {
                 const section = data[sectionKey];
@@ -64,6 +66,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
         const xSections = PROJECT_CONFIG.xsectionsPath;
         const transformationMatrix = PROJECT_CONFIG.matrixPath;
         const pivResults = PROJECT_CONFIG.resultsPath;
+        const logsPath = PROJECT_CONFIG.logsPath;
     
         const xSectionsFile = await fs.promises.readFile(xSections, 'utf-8')
         const xSectionsFileParsed = JSON.parse(xSectionsFile)
@@ -90,7 +93,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
             ];
         
             try {
-                const { data, error } = await riverCli(options, 'text') as any
+                const { data, error } = await riverCli(options, 'text', false, logsPath) as any
                 
                 for (const sectionKey in data) {
                     const sectionIndex = Object.keys(data).indexOf(sectionKey);

@@ -6,7 +6,7 @@ import { ProjectConfig, pixelSizeHandleArgs } from "./interfaces";
 function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
     ipcMain.handle('pixel-size', async (_event, args: pixelSizeHandleArgs) => {
         console.log('En pixel-size event', args);
-        const { directory, settingsPath } = PROJECT_CONFIG;
+        const { directory, settingsPath, logsPath } = PROJECT_CONFIG;
         const { dirPoints, rwPoints, pixelSize, rw_length } = args 
 
         const json = await fs.promises.readFile(settingsPath, 'utf-8');
@@ -40,7 +40,7 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
         ]
             
         try {
-            const { data } = await riverCli(options)
+            const { data } = await riverCli(options, 'json', 'false', logsPath)
 
             await createUavMatrix(data.uav_matrix, directory).then((matrixPath) => {
                 jsonParsed.transformation_matrix = matrixPath;

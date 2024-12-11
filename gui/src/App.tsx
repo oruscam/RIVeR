@@ -1,7 +1,7 @@
 import { Wizard } from 'react-use-wizard'
 import { HomePage, FootageMode, VideoRange, PixelSize, CrossSections, Processing, Analize, Results, ControlPoints } from './pages/index'
 import './App.css'
-import { act, useEffect } from 'react'
+import { useEffect } from 'react'
 import { Loading } from './components'
 import { Report } from './pages/Report'
 import { useDataSlice, useProjectSlice, useUiSlice } from './hooks'

@@ -266,7 +266,7 @@ export const useProjectSlice = () => {
             console.log("Error en Load Project")
             console.log(error)
             dispatch(setLoading(false))
-            return "Elige un directorio válido"
+            return "Please choose a valid directory"
         }
     }
     

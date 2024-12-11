@@ -45,6 +45,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                     PROJECT_CONFIG.settingsPath = settingsPath;
                     PROJECT_CONFIG.framesPath = framesPath;
                     PROJECT_CONFIG.videoPath = settingsParsed.video.filepath;
+                    PROJECT_CONFIG.logsPath = path.join(folderPath, 'river.log');
 
                     const maskJson = path.join(folderPath, 'mask.json');
                     const maskPng = path.join(folderPath, 'mask.png');

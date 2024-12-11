@@ -117,23 +117,10 @@ const PROJECT_CONFIG: ProjectConfig = {
   maskPath: "",
   resultsPath: "",
   thumbsPath: "",
+  logsPath: "",
 }
 
-  // // Print PROJECT_CONFIG every 10 seconds
-  // setInterval(() => {
-  //   console.log(PROJECT_CONFIG);
-  // }, 10000);
-
 app.whenReady().then(() => {
-  // ! DONT WORK. En develop usamos /@fs, en produccion usamos file://
-  // protocol.handle('resources', function (request) {
-  //   const filePath = request.url.slice('resources://'.length);
-  //   const fileUrl = new URL(`file://${filePath}`).toString();
-  //   return net.fetch(fileUrl)
-  // })
-
-  console.log('river-cli', riverCli)
-
   createWindow();
   getVideo(PROJECT_CONFIG);
   initProject(userDir, PROJECT_CONFIG);
@@ -148,14 +135,5 @@ app.whenReady().then(() => {
   getImages(PROJECT_CONFIG);
   getBathimetry();
   setProjectDetails(PROJECT_CONFIG);
-  
-  // ** They are not used at the moment
-  // pixelToRealWorld(PROJECT_CONFIG, riverCli);
-  // realWorldToPixel(PROJECT_CONFIG, riverCli);
-
-  ipcMain.handle('app-directory', (event, args) => {
-    return path.join(app.getAppPath())
-  })
-
 })
 

@@ -20,6 +20,7 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
             PROJECT_CONFIG.type = arg.type
             PROJECT_CONFIG.videoPath = arg.path
             PROJECT_CONFIG.settingsPath = path.join(newDirectory, 'settings.json')
+            PROJECT_CONFIG.logsPath = path.join(newDirectory, 'river.log')
             
             return {
                 result: {

@@ -13,7 +13,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         if (fs.existsSync(PROJECT_CONFIG.framesPath)) {
             await fs.promises.rm(PROJECT_CONFIG.framesPath, { recursive: true, force: true });
         }
-        const { videoPath, framesPath } = PROJECT_CONFIG
+        const { videoPath, framesPath, logsPath } = PROJECT_CONFIG
 
         const filePrefix = import.meta.env.VITE_FILE_PREFIX
 
@@ -41,7 +41,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
         try {
             console.time('Extracting frames');
-            riverCli(options).then(() => {
+            riverCli(options, 'json', false, logsPath).then(() => {
                 const files = fs.readdirSync(framesPath).map(file => path.join(filePrefix, framesPath, file));
                 mainWindow.webContents.send('all-frames', files)
             })
