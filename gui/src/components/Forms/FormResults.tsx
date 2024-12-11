@@ -13,7 +13,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   const { register, setValue } = useFormContext();
   const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
   const { name, data, numStations, alpha } = sections[activeSection]
-  const { onGetResultData } = useDataSlice();
+  const { onGetResultData, isBackendWorking } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
 
   const { t } = useTranslation();  
@@ -144,7 +144,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         <Grid></Grid>
 
         <button type="button" 
-                className="form-button wizard-button" 
+                className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`} 
                 onClick={() => onGetResultData('single')}
                 id="apply-changes"
                 > Apply changes</button>

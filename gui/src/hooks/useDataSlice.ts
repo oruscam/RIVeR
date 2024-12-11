@@ -174,7 +174,7 @@ export const useDataSlice = () => {
         
         const environment = process.env.NODE_ENV
 
-        const handler = environment === 'development' ? 'kill-river-cli' : 'kill-river-cli'
+        const handler = environment === 'development' ? 'kill-python-shell' : 'kill-river-cli'
         
         try {
             await ipcRenderer.invoke(handler)
@@ -189,7 +189,10 @@ export const useDataSlice = () => {
     // type can be 'single' or 'all'
 
     const onGetResultData = async ( type : string ) => {
+        if (isBackendWorking) return
+        
         const ipcRenderer = window.ipcRenderer;
+        dispatch(setBackendWorkingFlag(true))
 
         if ( type === 'single' ){
             const section = sections[activeSection]
@@ -202,6 +205,7 @@ export const useDataSlice = () => {
                     }
                 }))
                 dispatch(setSummary(data.summary))
+                 dispatch(setBackendWorkingFlag(false))
             } catch ( error ){
                 console.log(error)
             }
@@ -223,10 +227,10 @@ export const useDataSlice = () => {
                 dispatch(setSummary(data.summary))
                 dispatch(setDataLoaded(true))
                 dispatch(setLoading(false))
+                dispatch(setBackendWorkingFlag(false))
             } catch (error) {
                 console.log(error)
             }
-
         }
     }
 

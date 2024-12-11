@@ -1,11 +1,11 @@
-/**
+    /**
  * @file executePythonShell.ts
  * This file is used to execute the python shell with the given arguments.
  * It uses the PythonShell library to execute the python script.
  */
 
 import { exec } from "child_process";
-import { ipcMain, webContents } from "electron";
+import { app, ipcMain, webContents } from "electron";
 import { Options, PythonShell } from "python-shell";
 
 
@@ -19,7 +19,7 @@ let currentPyShell: PythonShell | null = null;
 const PYTHON_PATH = import.meta.env.VITE_PYTHON_PATH;
 const RIVER_CLI_PATH = import.meta.env.VITE_RIVER_CLI_PATH;
 
-async function executePythonShell(args: (string | number)[], mode: ('json' | 'text') = 'json') {
+async function executePythonShell(args: (string | number)[], mode: ('json' | 'text') = 'json', output: boolean = false) {
     
     /**
      * Options to execute the python shell.
@@ -62,10 +62,24 @@ async function executePythonShell(args: (string | number)[], mode: ('json' | 'te
     return new Promise((resolve, reject) => {
         pyshell.on('message', (message: string) => {
             if ( mode === 'text'){
-                resolve(JSON.parse(message.replace(/\bNaN\b/g, "null")));
+                console.log(message)
+                try {
+                    resolve(JSON.parse(message.replace(/\bNaN\b/g, "null")));
+                } catch (error) {
+                    console.log("not json")
+                }
             } else {
+                console.log(message)
                 resolve(message);
             }
+        });
+
+        pyshell.stderr.on('data', (data: string) => {
+            console.log(data);
+            // Enviar datos al proceso de renderizado
+            webContents.getAllWebContents().forEach((contents) => {
+                contents.send('river-cli-message', data);
+            });
         });
 
         pyshell.end((err: Error) => {
@@ -78,112 +92,11 @@ async function executePythonShell(args: (string | number)[], mode: ('json' | 'te
     })
 }
 
-async function executePythonShell2(args: (string | number)[]) {
-    /**
-     * Options to execute the python shell.
-     * pythonPath: Path to the python executable
-     * scriptPath: Path to the python script
-     * args: Arguments to pass to the python script
-     */
-    const options: Options = {
-        mode: 'text', // Cambiar a 'text' para capturar toda la salida
-        pythonPath: PYTHON_PATH,
-        scriptPath: RIVER_CLI_PATH,
-        args: args.map(arg => arg.toString())
-    };
-    console.log('executePythonShell2');
-    console.log(options);
-
-    /**
-     * Python shell to execute the python script.
-     * It will return a promise with the result of the python script.
-     * The result is parsed from a string to a JSON object.
-     * If an error occurs, it will be logged.
-     */
-    const pyshell = new PythonShell('__main__.py', options);
-    currentPyShell = pyshell;
-
-    return new Promise((resolve, reject) => {
-        let output = '';    
-        
-        pyshell.on('message', (message: string) => {
-            console.log(message)
-            resolve(message)
-        });
-
-        pyshell.end((err: Error) => {
-            if (err) {
-                console.log("pyshell error");
-                console.log(err);
-                reject(err);
-            } 
-        });
-    });
-}
-
-async function executePythonShellWithOuput(args: (string | number)[]) {
-    /**
-     * Options to execute the python shell.
-     * pythonPath: Path to the python executable
-     * scriptPath: Path to the python script
-     * args: Arguments to pass to the python script
-     */
-    const options: Options = {
-        mode: 'text', // Cambiar a 'text' para capturar toda la salida
-        pythonPath: PYTHON_PATH,
-        scriptPath: RIVER_CLI_PATH,
-        args: args.map(arg => arg.toString())
-    };
-    console.log('executePythonShell2');
-    console.log(options);
-
-    /**
-     * Python shell to execute the python script.
-     * It will return a promise with the result of the python script.
-     * The result is parsed from a string to a JSON object.
-     * If an error occurs, it will be logged.
-     */
-    const pyshell = new PythonShell('__main__.py', options);
-    currentPyShell = pyshell;
-
-    return new Promise((resolve, reject) => {
-        let output = '';    
-        
-        pyshell.on('message', (message: string) => {
-            console.log(message)
-            try {
-                const jsonMessage = JSON.parse(message);
-                resolve(jsonMessage);
-            } catch (error) {
-                console.log("not json");
-            }
-        });
-
-        pyshell.stderr.on('data', (data: string) => {
-            console.log(data);
-            // Enviar datos al proceso de renderizado
-            webContents.getAllWebContents().forEach((contents) => {
-                contents.send('python-stderr', data);
-            });
-        });
-
-        pyshell.end((err: Error) => {
-            if (err) {
-                console.log("pyshell error");
-                console.log(err);
-                reject(err);
-            } 
-        });
-    });
-}
-
-ipcMain.handle('kill-python-shell', async () => {
-    console.log("kill-python-shell");
-    if (currentPyShell) {
+async function killPythonShell(){
+    if ( currentPyShell ){
         try {
             // Attempt to kill the process using PythonShell's kill method
             currentPyShell.kill();
-
             // Force kill the process if it still exists
             exec(`pkill -f __main__.py`, (error, stdout, stderr) => {
                 if (error) {
@@ -204,6 +117,16 @@ ipcMain.handle('kill-python-shell', async () => {
     } else {
         return { message: "No python shell to cancel" };
     }
+}
+
+ipcMain.handle('kill-python-shell', async () => {
+    return await killPythonShell();
 });
 
-export { executePythonShell, executePythonShell2, executePythonShellWithOuput }
+app.on('before-quit', async (event) => {
+    event.preventDefault(); // Prevenir el cierre inmediato de la aplicación
+    console.log('App is quitting. Killing river-cli process');
+    await killPythonShell();
+});
+
+export { executePythonShell, killPythonShell }

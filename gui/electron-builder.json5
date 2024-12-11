@@ -31,6 +31,13 @@
         ]
       }
     ],
+    "extraResources": [
+      {
+        "from": "river-cli.exe",
+        "to": "river-cli.exe",
+        "filter": ["**/*"]
+      }
+    ],
     "artifactName": "${productName}-Windows-${version}-Setup.${ext}"
   },
   "nsis": {

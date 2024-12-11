@@ -49,7 +49,10 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
             let flag = false;
             let firstFrame = '';
-            while (!flag) {
+            let attempts = 0;
+            const maxAttempts = 30; // Limit to 60 seconds
+
+            while (!flag && attempts < maxAttempts) {
                 if (fs.existsSync(PROJECT_CONFIG.framesPath)) {
                     const files = await fs.promises.readdir(PROJECT_CONFIG.framesPath);
                     if (files.length > 0) {
@@ -57,6 +60,8 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
                         firstFrame = path.join(framesPath, files[0]);
                     }
                 }
+                attempts++;
+                await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for 1 second
             }
 
             return {
@@ -65,8 +70,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         } catch (error) {
             console.log(error)
         }
-    }
-    )
+    })
 }
 
 export { firstFrame }

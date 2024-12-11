@@ -481,13 +481,14 @@ body{
     display: flex;
     flex-direction: column;
     align-items: center;
-
+    color: #000;
 }
 
 #report-footer-container div:last-child{
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    color: #000;
 }
 
 #report-footer-container div:last-child a{
@@ -496,7 +497,7 @@ body{
     justify-content: space-around;
     width: 40%;
     text-decoration: none;
-
+    color: #000;
 }
 
 #report-footer-container div:last-child a > span{
@@ -512,12 +513,6 @@ body{
 
 
 @media print {
-
-    /* Mostrar solo el número de página */ 
-    /* .page-number:before {
-        content: counter(page);
-    } */
-
     @page {
         margin: 0;
         size: A4;
@@ -541,19 +536,37 @@ body{
         bottom: 0;
         width: 100%;
         margin-bottom: 15px;
+
     }
+
+    #report-footer-container div:nth-child(2){
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    #report-footer-container div:last-child{
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
 
     #report-section-table{
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
 
+
     /* Asegurarse de que los colores de fondo y bordes se impriman */
     * {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
         img {
         image-rendering: pixelated; /* Opción para reducir la calidad de las imágenes */
+    }
+
+    /* Asegura que el fondo de la última página sea consistente */
+    body {
+        background-color: #fff !important; /* Cambia este color según tus necesidades */
     }
 }

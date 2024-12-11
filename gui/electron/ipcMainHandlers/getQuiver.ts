@@ -17,17 +17,22 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
         let frames = []
 
+
         if ( filePrefix === '/@fs'){
-            frames = framesToTest.map((frame) => {
+            frames = framesToTest.map((frame: string) => {
                 return frame.replace(filePrefix, '')
             })
+        } else if ( filePrefix === 'file:\\\\'){
+            frames = framesToTest.map((frame: string) => {
+                return frame.replace(/file:\\/g, ''); // Use a regular expression to replace the prefix
+              })
         } else {
             frames = framesToTest
         }
-        const options = await createOptions('test', PROJECT_CONFIG, frames, formValues)
 
+        const options = await createOptions('test', PROJECT_CONFIG, frames, formValues)
         try {
-            const result = await riverCli(options) as any;
+            const result = await riverCli(options, 'text') as any;
             return result
 
         } catch (error) {

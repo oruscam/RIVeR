@@ -76,7 +76,7 @@ export const Report = () => {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'report_1920.html';
+      a.download = 'report.html';
       a.click();
     }
     onSetAnalizing(false)

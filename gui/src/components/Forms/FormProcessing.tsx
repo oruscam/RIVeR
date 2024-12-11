@@ -12,7 +12,7 @@ export const FormProcessing = () => {
   const { nextStep } = useWizard()
   
   const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver, isBackendWorking } = useDataSlice()
-  const { artificialSeeding, step1, heightRoi, grayscale, removeBackground, clahe, clipLimit, stdFiltering, stdThreshold, medianTestThreshold, medianTestEpsilon, medianTestFiltering } = processing.form
+  const { step1, heightRoi, grayscale, removeBackground, clahe, clipLimit, stdFiltering, stdThreshold, medianTestThreshold, medianTestEpsilon, medianTestFiltering } = processing.form
   
   const [_buttonTest, _setButtonTest] = useState(false)
 
@@ -51,11 +51,27 @@ export const FormProcessing = () => {
     nextStep()
   }
 
+  interface HandleTabEvent extends React.KeyboardEvent<HTMLFormElement> {}
+
+  const handleTab = ( event: HandleTabEvent ) => {
+    if ( event.key === 'Tab' && isBackendWorking ){
+      event.preventDefault()
+    }
+  }
+
+  interface HandleButtonTestTabEvent extends React.KeyboardEvent<HTMLButtonElement> {}
+
+  const handleButtonTestTab = (event: HandleButtonTestTabEvent) => {
+    if ( event.key === 'Tab' && extraFields === false) {
+      event.preventDefault()
+    }
+  }
+
   return (
     <>
       <h1 className="form-title"> {t('Processing.title')} </h1>
       <FormProvider {...methods}>
-        <form onSubmit={handleSubmit(onSubmit)} className="form-scroll mt-1" id="form-processing" style={{overflowY: `${!extraFields ? "hidden" : "auto"}`}}>
+        <form onSubmit={handleSubmit(onSubmit)} className={`form-scroll mt-1 ${isBackendWorking ? 'disabled' : ''}`} id="form-processing" style={{overflowY: `${!extraFields ? "hidden" : "auto"}`}} onKeyDown={handleTab}>
             <span id="processing-header"></span>
             <div className="form-base-2">
               
@@ -80,7 +96,7 @@ export const FormProcessing = () => {
               </div>
 
               <div className="input-container-2 mt-2">
-                <button className={`button-with-loader form-button me-1 ${isBackendWorking? "button-with-loader-active" : ""}`} onClick={handleOnClickTest}>
+                <button className={`button-with-loader form-button me-1 ${isBackendWorking? "button-with-loader-active" : ""}`} onClick={handleOnClickTest} onKeyDown={handleButtonTestTab}>
                   <p className='button-name'> {t('Processing.test')} </p>
                   {
                       isBackendWorking && <span className='loader-little'></span>

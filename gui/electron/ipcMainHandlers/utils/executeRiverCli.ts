@@ -6,10 +6,11 @@ import kill from 'tree-kill';
 let python: ChildProcess 
 
 async function executeRiverCli(options: (string | number)[], _mode: ('json' | 'text') = 'json', output: boolean = false): Promise<{ data: any, error: any }> {
-    const riverCliPath = path.join(app.getAppPath(), 'river-cli');
+    const riverCliPath = path.join(app.getAppPath(), '..', 'river-cli');
     const args = options.map(arg => arg.toString());
 
     console.log('you are using river-cli', riverCliPath);
+    console.log(options)
 
     const result = await new Promise((resolve, reject) => {
         python = spawn(riverCliPath, args);
@@ -28,7 +29,8 @@ async function executeRiverCli(options: (string | number)[], _mode: ('json' | 't
 
         python.stderr.on('data', (data) => {
             const message = data.toString();
-
+            console.log('std-error: ')
+            console.log(message);
             // Output
             if ( output === true){
                 webContents.getAllWebContents().forEach((contents) => {
@@ -45,6 +47,8 @@ async function executeRiverCli(options: (string | number)[], _mode: ('json' | 't
                     }});
                 }
             } else {
+                console.log('river-cli process finished');
+                console.log(stdoutData);
                 resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, "null")));
             }
         });

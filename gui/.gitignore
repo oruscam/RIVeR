@@ -19,6 +19,7 @@ build
 .env
 .env.development
 .env.test
+.env.production
 
 # Editor directories and files
 .vscode/*
@@ -33,3 +34,4 @@ build
 
 river-cli
 river-cli.spec
+river-cli.exe

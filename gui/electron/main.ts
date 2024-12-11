@@ -14,7 +14,6 @@ import { setProjectDetails } from './ipcMainHandlers/setProjectDetails.js'
 import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js'
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js'
 
-
 process.env.APP_ROOT = path.join(__dirname, '..')
 
 // 🚧 Use ['ENV_NAME'] avoid vite:define plugin - Vite@2.x
@@ -24,24 +23,20 @@ export const RENDERER_DIST = path.join(process.env.APP_ROOT, 'dist')
 
 process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 'public') : RENDERER_DIST
 
-
-// app.disableHardwareAcceleration();
-
 let win: BrowserWindow | null
 
 let riverCli: Function
 
-protocol.registerSchemesAsPrivileged([
-  {
-    scheme: 'resources',
-    privileges: {
-      bypassCSP: true,
-      stream: true,
-      standard: true,
-    }
-  }
-])
-
+// protocol.registerSchemesAsPrivileged([
+//   {
+//     scheme: 'resources',
+//     privileges: {
+//       bypassCSP: true,
+//       stream: true,
+//       standard: true,
+//     }
+//   }
+// ])
 
 async function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -50,11 +45,11 @@ async function createWindow() {
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
     minWidth: 1150,
-    minHeight: 750,
+    minHeight: 800,
     x: x,
     y: y,
-    height: 850,
     width: 1200,
+    height: 850,
     maxHeight: 1400,
     maxWidth: 2300,
     resizable: true,
@@ -68,7 +63,8 @@ async function createWindow() {
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
       nodeIntegration: true,
-      contextIsolation: true
+      contextIsolation: true,
+      webSecurity: VITE_DEV_SERVER_URL ? false : true,
     },
   })
 
@@ -83,9 +79,7 @@ async function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL)
-    console.log('entra en el if')
-    
-    riverCli = executeRiverCli
+    riverCli = executePythonShell
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
@@ -133,11 +127,11 @@ const PROJECT_CONFIG: ProjectConfig = {
 
 app.whenReady().then(() => {
   // ! DONT WORK. En develop usamos /@fs, en produccion usamos file://
-  protocol.handle('resources', function (request) {
-    const filePath = request.url.slice('resources://'.length);
-    const fileUrl = new URL(`file://${filePath}`).toString();
-    return net.fetch(fileUrl)
-  })
+  // protocol.handle('resources', function (request) {
+  //   const filePath = request.url.slice('resources://'.length);
+  //   const fileUrl = new URL(`file://${filePath}`).toString();
+  //   return net.fetch(fileUrl)
+  // })
 
   console.log('river-cli', riverCli)
 
