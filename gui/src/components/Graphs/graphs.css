@@ -1,0 +1,52 @@
+#velocity-vector-container{
+    position: relative;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+#velocity-vector{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+
+}
+
+#svg-section-line{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    pointer-events: none;
+}
+
+#all-in-one-graph{
+    position: relative;
+}
+
+
+@media print {
+    
+    .grid line {
+        stroke: rgba(255, 255, 255, 0.2) !important;
+        stroke-width: 0.05 !important; /* Ajusta el grosor de las líneas de la cuadrícula para la impresión */
+    }
+
+    .tick line {
+        stroke:  rgba(255, 255, 255, 0.2) !important;
+        stroke-width: 0.05 !important; /* Ajusta el grosor de las líneas de las marcas de la cuadrícula para la impresión */
+    }
+    
+    .domain {
+        stroke:  rgba(255, 255, 255, 0.2) !important;
+        stroke-width: 0.05 !important; /* Ajusta el grosor de las líneas de las marcas de la cuadrícula para la impresión */
+    }
+
+ 
+
+    /* Asegurarse de que los colores de fondo y bordes se impriman */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+}

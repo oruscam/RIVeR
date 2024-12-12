@@ -1,0 +1,160 @@
+{
+    "MainPage" : {
+        "start": "Start",
+        "loadProject": "Load Project",
+        "spanish" : "Spanish",
+        "english" : "English"
+    },
+    "Step-2" : {
+        "title" : "Select the kind of footage"
+    },
+    "Wizard" : {
+        "back" : "Back",
+        "next" : "Next",
+        "save" : "Save"
+    },
+    "VideoRange":{
+        "title": "Video Range",
+        "start": "Start",
+        "end": "End",
+        "step": "Step",
+        "Errors": {
+            "start1": "Invalid Time Selection: The Start time cannot be less than 0. Please enter a valid value.",
+            "end1": "Invalid Time Selection:  The 'End' value cannot be larger than the total length of the video. Please enter a valid value.",
+            "end2" : "Invalid Time Selection: The 'End' value cannot be 0 or less. Please enter a valid value.",
+            "end3" : "Invalid Time Selection:  The 'End' value cannot be equal or less than 'Start' value. Please enter a valid value.",
+            "step" : "Invalid Step Selection: The 'Step' parameter must be a integer greater than 1. Please enter a valid value.",
+            "required" : "All the fields are obligatory. Please check video range form.",
+            "formatInput" : "Incorrect format. 'Start' and 'End' values must be in '00:00' format."
+        },
+        "ExtraInfo" : {
+            "fileName" : "File Name:",
+            "totalLenght": "Total Lenght: ",
+            "timeBetweenFrame" : "Time Between Frames: ",
+            "resolution" : "Resolution: "
+        }
+    },
+    "PixelSize": {
+        "title": "Pixel Size",
+        "lineLength": "Line Length",
+        "pixelSize": "Pixel Size",  
+        "drawLine": "Draw Line",
+        "Errors": {
+            "required": "All the fields are obligatory. Please check Pixel Size form.",
+            "lineLength" : "Invalid Line Length: The line length must be a positive number, which can include decimals. Please enter a valid value."
+        },
+        "RealWorld": {
+            "title": "Real World Coordinates",
+            "eastPoint1": "East Point 1",
+            "eastPoint2": "East Point 2",
+            "northPoint1": "North Point 1",
+            "northPoint2": "North Point 2"
+        }, 
+        "Pixel": {
+            "title": "Pixel Coordinates",
+            "xPoint1": "X Point 1",
+            "xPoint2": "X Point 2",
+            "yPoint1": "Y Point 1",
+            "yPoint2": "Y Point 2"
+        }
+    },
+    "CrossSections": {
+        "title": "Cross Sections",
+        "drawLine": "Draw Direction",
+        "csLength": "CS Length",
+        "importBath": "Import bath",
+        "level" : "Level",
+        "leftBankStation": "Left Bank Station",
+        "RealWorld": {
+            "title": "Real World Coordinates",
+            "eastPoint1": "East Left",
+            "northPoint1": "North Left",
+            "eastPoint2": "East Right",
+            "northPoint2": "North Right"
+        }, 
+        "Pixel" : {
+            "title": "Pixel Coordinates",
+            "xPoint1": "X Left",
+            "yPoint1": "Y Left",
+            "xPoint2": "X Right",
+            "yPoint2": "Y Right"
+        }
+    },
+    "Processing": {
+        "title": "Processing",
+        "artificialSeeding": "Artificial Seeding",
+        "windowSizes": "Windows Sizes",
+        "step1": "Step 1",
+        "step2": "Step 2",
+        "test" : "Test",
+        "roiHeight": "ROI Height",
+        "preProcessingFilter": "Pre-processing filtering",
+        "grayscale": "Grayscale",
+        "removeBackground" : "Remove Background",
+        "clahe": "CLAHE",
+        "clipLimit": "Clip Limit",
+        "postProcessingFilter": "Post-processing filtering",
+        "stdFiltering": "Std filtering",
+        "medianTestFiltering" : "Mediant test filtering",
+        "epsilon": "Epsilon",
+        "threshold": "Threshold",
+        "carouselMedia": "Media"
+    },
+    "Analizing": {
+        "title": "Analizing",
+        "analize": "Analize",
+        "stop": "Stop"
+    },
+    "Results": {
+        "title": "Results",
+        "measured": "Measured",
+        "interpolated": "Interpolated",
+        "alpha": "Alpha",
+        "stationNumber" : "Station Number",
+        "showVelStd" : "Show Vel. Std",
+        "showProfile": "Show 5% | 95% percen",
+        "interpolateProfile": "Interpolate Profile"
+    },
+    "Graphs": {
+        "station": "Station",
+        "velocity": "Velocity",
+        "discharge": "Discharge",
+        "level": "Level"
+    },
+    "Report": {
+        "totalQ": "Total Q",
+        "discahrgeQ": "Discharge Q",
+        "VideoInfo": {
+            "title": "Video Information",
+            "name": "Name",
+            "duration": "Duration",
+            "resolution": "Resolution",
+            "fps": "fps",
+            "creationDate": "Creation Date"
+        },
+        "ProcessedRange": {
+            "title": "Processed Range",
+            "start": "Start",
+            "end": "End",
+            "length" : "Length",
+            "step": "Step",
+            "timeStep": "Time Step"
+        },
+        "Summary": {
+            "title": "Summary",
+            "width": "Width",
+            "area": "Area",
+            "q": "Q",
+            "meanV": "meanV",
+            "alpha": "Alpha",
+            "averageVs": "Average Vs",
+            "maxD": "Max d",
+            "meanD": "Mean d",
+            "measured": "% Measured"
+        },
+        "pixelTransformation": "Pixel Transformation",
+        "processingParameters" : "Processing Parameters",
+        "generatedBy" : "Generated with River",
+        "date" : "report creation date"
+    }
+}

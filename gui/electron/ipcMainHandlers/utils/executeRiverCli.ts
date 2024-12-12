@@ -1,0 +1,175 @@
+import { app, ipcMain, webContents } from 'electron';
+import { ChildProcess, execFile, spawn } from 'child_process'
+import * as path from 'path';
+import kill from 'tree-kill';
+import * as fs from 'fs'
+
+let python: ChildProcess 
+
+async function executeRiverCli(options: (string | number)[], _mode: ('json' | 'text') = 'json', output: boolean = false, logFile: string): Promise<{ data: any, error: any }> {
+    const riverCliPath = path.join(app.getAppPath(), '..', 'river-cli');
+    const args = options.map(arg => arg.toString());
+
+    console.log('you are using river-cli', riverCliPath);
+    console.log(options)
+
+    const result = await new Promise((resolve, reject) => {
+        python = spawn(riverCliPath, args);
+
+        let stdoutData = '';
+        let stderrData = '';
+
+        python.stdout.on('data', (data) => {
+            const message = data.toString();
+            
+            if ( output ){
+
+                // This is because, when cli has user processing errors, like
+                // windows-size. Launches Processing message... and object {data, error}
+                //  stdout identifies two messages like one
+                //  We need to split the message and get the last one.
+
+                const messages = message.split('\n').filter(msg => msg.trim() !== '');
+                stdoutData = messages[messages.length - 1];
+            } else {
+                stdoutData += message;
+            }
+        });
+
+        python.stderr.on('data', (data) => {
+            const message = data.toString();
+            stderrData = message;
+            // Output
+            if ( output === true){
+                webContents.getAllWebContents().forEach((contents) => {
+                    contents.send('river-cli-message', message);
+                });
+            }
+        });
+
+        python.on('close', (code) => {
+            if (code !== 0) {
+                if ( code === null){
+                    resolve({ error: {
+                        message: 'Process was killed'
+                    }});
+                }
+            } else {
+                console.log('river-cli process finished');
+                resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, "null")));
+            }
+
+            
+            // Append log to log-file
+            appendLog( logFile, args, stdoutData, stderrData )
+        });
+        
+        python.on('error', (error) => {
+            console.log(`error river-cli: ${error.message}`);
+            reject(error);
+        });
+
+    });
+
+    return result as { data: any, error: any };
+}
+
+function killProcess(pid: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+        kill(pid, 'SIGKILL', (err) => {
+            if (err) {
+                console.log(err);
+                reject(err);
+            } else {
+                console.log('sigkill');
+                resolve();
+            }
+        });
+    });
+}
+
+async function killRiverCli() {
+    if (python) {
+        try {
+            await killProcess(python.pid);
+            console.log('Process killed successfully');
+        } catch (err) {
+            console.log('Failed to kill process', err);
+        }
+    }
+    return true;
+}
+
+ipcMain.handle('kill-river-cli', async () => {
+    console.log('kill-river-cli');
+    return await killRiverCli();
+});
+
+app.on('before-quit', async (event) => {
+    event.preventDefault(); // Prevenir el cierre inmediato de la aplicación
+    console.log('App is quitting. Killing river-cli process');
+    killRiverCli();
+});
+
+
+/**
+ * Appends a log entry to the specified file.
+ *
+ * @param path - The file path where the log should be appended.
+ * @param args - The arguments passed to the CLI command.
+ * @param data - The data output from the CLI command.
+ * @param error - The error message, if any, from the CLI command. Defaults to an empty string.
+ *
+ * The function processes the CLI command output and appends a formatted log entry to the specified file.
+ * It handles specific CLI commands ('create-mask-and-bbox', 'piv-test', 'update-xsection') and formats the log output accordingly.
+ * If the command is 'update-xsection', it replaces occurrences of 'NaN' with 'null' in the data before processing.
+ * The log entry includes the CLI command options, the processed output, and any error message.
+ */
+
+function appendLog(path: string, args: string[], data: string, error: string = ''){
+    let output = '';
+
+    console.log('Appending log to', path);
+    console.log('data', data);
+    console.log('error', error);
+
+    if ( args[0] === 'create-mask-and-bbox' && error === ''){
+        const parsedData = JSON.parse(data);
+        if (parsedData.error && Object.keys(parsedData.error).length !== 0){
+            output = parsedData.error
+        } else {
+            output = 'Mask and Bbox created successfully'
+        }
+    }
+    
+    if ( args[0] === 'piv-test' && error === '') {
+        const parsedData = JSON.parse(data);
+        if (parsedData.error && Object.keys(parsedData.error).length !== 0){
+            output = parsedData.error
+        }else {
+            output = 'piv-test finished successfully'
+        }
+    }
+
+    if ( args[0] === 'update-xsection' && error === '') {
+        const parsedData = JSON.parse(data.replace(/\bNaN\b/g, "null"));
+        if (parsedData.error && Object.keys(parsedData.error).length !== 0){
+            output = parsedData.error
+        } else {
+            output = 'x-sections updated successfully'
+        }
+    }
+    
+    const log = {
+        options: args,
+        output: output !== '' ? output : data,
+        error: error
+    }
+    
+    let parsedLog = JSON.stringify(log, null, 4);
+    parsedLog = parsedLog + '\n';
+
+    fs.promises.appendFile(path, parsedLog, 'utf-8');
+}
+
+export { executeRiverCli, killRiverCli }

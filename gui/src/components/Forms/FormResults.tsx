@@ -1,0 +1,155 @@
+import { useFormContext } from "react-hook-form";
+import { useDataSlice, useSectionSlice, useUiSlice } from "../../hooks";
+import { AllInOne } from "../Graphs/AllInOne"
+import { Grid } from "../index"
+import { useTranslation } from "react-i18next";
+
+interface FormResultProps {
+  onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void,
+  index: number,
+}
+
+export const FormResults = ({ onSubmit, index } : FormResultProps) => {
+  const { register, setValue } = useFormContext();
+  const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
+  const { name, data, numStations, alpha } = sections[activeSection]
+  const { onGetResultData, isBackendWorking } = useDataSlice();
+  const { onSetErrorMessage } = useUiSlice();
+
+  const { t } = useTranslation();  
+
+  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const id = e.target.id
+    switch (id) {
+      case 'show-percentile':
+        onChangeDataValues({ type: 'showPercentile' })
+        break;
+      case 'show-velocity-std':
+        onChangeDataValues({ type: 'showVelocityStd' })
+        break;
+
+      case 'interpolated-profile':
+        onUpdateSection({ interpolated: 'interpolated' })
+        break;
+
+      default:
+        break;
+    }
+
+  }
+
+  const handleOnChangeInput = (event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement> ) => {
+    if ( (event as React.KeyboardEvent<HTMLInputElement>).key  === 'Enter' || event.type === 'blur' ){
+      event.preventDefault()
+      const value = parseFloat((event.target as HTMLInputElement).value);
+      const id = (event.target as HTMLInputElement).id
+      console.log('station number', value)
+      switch (id) {
+        case 'stations-number':
+          if ( isNaN(value) === false && value >= 3 ){
+            if  ( value !== numStations ){
+              onUpdateSection({ numStations: value })
+            }
+          } else {
+            setValue(`${name}_STATIONS_NUMBER`, numStations)
+            if ( typeof value === 'number' ){
+              onSetErrorMessage('The number of stations must be greater than 2')
+            }
+          }
+          break;
+        case 'alpha':
+          if ( value !== 0 && value !== alpha && isNaN(value) === false ){
+            onUpdateSection({ alpha: value })
+          } else {
+            setValue(`${name}_ALPHA`, alpha)
+          }
+          onUpdateSection({ alpha: value })
+          break;
+        default:
+          break;
+      }
+    }
+  }
+  
+  return (
+    <div id="form-section-div"  className={activeSection !== index ? 'hidden' : ''}>
+      <form className="form-scroll" id="form-result" onSubmit={onSubmit}>
+
+        <div id="result-info">
+          <p id="result-number">{data?.total_Q}</p>
+          <div>
+            <p id="result-measured"> {data?.measured_Q}% {t('Results.measured')}</p>
+            <p> {data?.interpolated_Q}% {t('Results.interpolated')} </p>
+          </div>
+        </div>
+
+        <div className="input-container mt-2">
+          <label className="read-only me-1" htmlFor="alpha"> {t('Results.alpha')} </label>
+          <input className="input-field"
+            id="alpha"
+            type="number"
+            step='any'
+            {...register(`${name}_ALPHA`)}
+            onKeyDown={handleOnChangeInput}
+            onBlur={handleOnChangeInput}
+          ></input>
+        </div>
+        
+        <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '800px'}}>
+          <AllInOne isReport={false} height={700}></AllInOne>
+        </div>
+
+        <span className="mt-1"></span>
+
+        <div className="switch-container-2 mt-2">
+          <h3 className="field-title me-2 mt-3"> {t('Results.stationNumber')}</h3>
+          <input className="input-field-little mt-3" type="number" {...register(`${name}_STATIONS_NUMBER`)} id="stations-number"
+            onKeyDown={handleOnChangeInput}
+            onBlur={handleOnChangeInput}
+          ></input>
+        </div>
+
+        {/* <div className="switch-container-2 mt-2">
+          <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
+          <label className="switch">
+              <input type="checkbox" {...register(`${name}_ARTIFICIAL_SEEDING`)}/>
+              <span className="slider"></span>
+          </label>
+        </div> */}
+
+        <div className="switch-container-2 mt-1 ">
+          <h3 className="field-title">{t('Results.showVelStd')}</h3>
+          <label className="switch">
+            <input type="checkbox" {...register(`${name}_SHOW_VELOCITY_STD`)} defaultChecked={data?.showVelocityStd} onChange={handleOnChange} id="show-velocity-std"/>
+            <span className="slider"></span>
+          </label>
+        </div>
+
+        <div className="switch-container-2 mt-1 ">
+          <h3 className="field-title"> {t('Results.showProfile')} </h3>
+          <label className="switch">
+            <input type="checkbox" {...register(`${name}_SHOW_PERCENTILE`)} defaultChecked={data?.showPercentile} onChange={handleOnChange} id="show-percentile"/>
+            <span className="slider"></span>
+          </label>
+        </div>
+
+        <div className="switch-container-2 mt-1 ">
+          <h3 className="field-title">{t('Results.interpolateProfile')}</h3>
+          <label className="switch">
+            <input type="checkbox" {...register(`${name}_INTERPOLATED_PROFILE`)} defaultChecked={data?.showInterpolateProfile} id="interpolated-profile" onChange={handleOnChange}/>
+            <span className="slider"></span>
+          </label>
+        </div>
+
+        <Grid></Grid>
+
+        <button type="button" 
+                className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`} 
+                onClick={() => onGetResultData('single')}
+                id="apply-changes"
+                > Apply changes</button>
+        <span className="space3 mt-2"></span>
+      </form>
+   </div>
+  )
+}
