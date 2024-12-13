@@ -2,7 +2,7 @@ import './form.css'
 import { useDataSlice } from '../../hooks'
 import { useTranslation } from 'react-i18next'
 import { Loading } from '../Loading'
-import React from 'react'
+import React, { useEffect } from 'react'
 
 export const FormAnalizing = () => {
     const { onSetQuiverAll, isBackendWorking, onKillBackend } = useDataSlice()
@@ -28,26 +28,38 @@ export const FormAnalizing = () => {
         setPercentage('100%');
     }
 
-    window.ipcRenderer.on('river-cli-message', (_event, text) => {
-        // Expresión regular para extraer el porcentaje
-        const percentageMatch = text.match(/(\d+%)\|/);
-        const newPercentage = percentageMatch ? percentageMatch[1] : '';
+    useEffect(() => {
+        const handleRiverCliMessage = (_event, text) => {
+            // Expresión regular para extraer el porcentaje
+            const percentageMatch = text.match(/(\d+%)\|/);
+            const newPercentage = percentageMatch ? percentageMatch[1] : '';
 
-        // Expresión regular para extraer el tiempo
-        const timeMatch = text.match(/\[(\d{2}:\d{2})<(\d{2}:\d{2})/);
-        const time = timeMatch ? timeMatch[2] : '';
+            // Expresión regular para extraer el tiempo
+            const timeMatch = text.match(/\[(\d{2}:\d{2})<(\d{2}:\d{2})/);
+            const newTime = timeMatch ? timeMatch[2] : '';
 
-        if ( newPercentage !== percentage ){
-            setPercentage(newPercentage);
-        }
-        setTime('Remaining time: ' + time);
-    });
+            if (newPercentage !== percentage) {
+                setPercentage(newPercentage);
+            }
+
+            if (newTime !== time) {
+                setTime('Remaining time: ' + newTime);
+            }
+        };
+
+        window.ipcRenderer.on('river-cli-message', handleRiverCliMessage);
+
+        // Cleanup function to remove the listener
+        return () => {
+            window.ipcRenderer.removeListener('river-cli-message', handleRiverCliMessage);
+        };
+    }, [percentage, time]);
 
 
   return (
     <>
         <h1 className="form-title-analizing" > {t('Analizing.title')} </h1>
-        <div className="form-base-2 mt-4" id='form-analizing'>
+        <div className="form-base-2" id='form-analizing'>
             <div className='input-container-2' id='analize-div'>
                 <button className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
                 onClick={handleAnalize}>

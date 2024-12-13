@@ -47,26 +47,20 @@ export const drawVectors = (
                 .attr("stroke", arrow.color)
                 .attr("stroke-width", 1.5)
                 .attr("stroke-width", 1.5)
-                .attr("arrow-center", arrow.points[2][0])
-                .attr("arrow-top", arrow.points[2][1])
-                .attr("magnitude", parseFloat(arrow.magnitude).toFixed(2))
                 .classed(`section-${sectionIndex}`, true);
             
             if ( isReport == false && typeof factor === 'number' ) {
                 polygon.on("mouseover", function() {
-                    const arrowTop = polygon.attr("arrow-top");
-                    const arrowCenter = polygon.attr("arrow-center");
-                    const arrowMagnitude = polygon.attr("magnitude");
                     polygon.attr("fill-opacity", 1); // Cambiar la opacidad del polígono al pasar el mouse
                     svg.append("text")
-                        .attr("x", parseFloat(arrowCenter) / factor) // Posicionar el texto en el centro del poligono
-                        .attr("y", parseFloat(arrowTop) / factor - 10) // Posicionar el texto arriba del polígono
+                        .attr("x", parseFloat(arrow.points[2][0]) / factor) // Posicionar el texto en el centro del poligono
+                        .attr("y", parseFloat(arrow.points[2][1]) / factor - 10) // Posicionar el texto arriba del polígono
                         .attr("id", `tooltip-${i}`)
                         .attr("text-anchor", "middle")
                         .attr("font-size", "18px")
                         .attr('font-weight', '600')
-                        .attr("fill", "black")
-                        .text(arrowMagnitude); // El número que quieres mostrar
+                        .attr("fill", arrow.color)
+                        .text(parseFloat(arrow.magnitude).toFixed(2));
                 });
         
                 polygon.on("mouseout", function() {

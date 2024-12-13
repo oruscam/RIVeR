@@ -20,6 +20,10 @@ const uiSlice = createSlice({
             state.darkMode = !state.darkMode;
         },
         setErrorMessage: (state, action: PayloadAction<string[]>) => {
+            const errorDiv = document.getElementById('error-message-div');
+            if (errorDiv) {
+                errorDiv.scrollIntoView({ behavior: 'smooth' });   
+            }
             state.error = action.payload;
         },
         clearErrorMessage: (state) => {

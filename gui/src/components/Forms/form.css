@@ -11,15 +11,17 @@
     overflow-y: hidden;
     overflow-x: hidden;
     flex-shrink: 0;
+    position: relative;
+    overflow-y: auto;
 }
 
 /* Cambiar dependiendo el tamaño de la pantalla */
 .form-title{
-    margin-top: 105px;
+    margin-top: 6vh;
 }
 
 .form-title-analizing{
-    margin-top: 85px;
+    margin-top: 8vh;
 }
 
 /* .form-base{
@@ -200,30 +202,11 @@
     margin-right: 70px;
 } */
 
-
-
-
-
-
-
-
 @media screen and (max-height : 1150px) {
-    .form-title{
-        margin-top: 65px;
-    }
     .hard-mode-processing{
         padding-top: 10px;
     }
 }
-
-
-
-@media screen and (max-height : 900px) {
-    .form-title{
-        margin-top: 25px;
-    }
-}
-
 
 /* button lock */
 
@@ -462,7 +445,12 @@ transform-origin: 14px 22px;
 @media screen and (max-height : 825px) {
     #form-section-div{
         height: 63%;
-        width: 100%;
+    }
+}
+
+@media screen and (max-height : 775px) {
+    #form-section-div{
+        height: 57%;
     }
     
 }
@@ -500,11 +488,9 @@ transform-origin: 14px 22px;
 #form-analizing{
     display: flex;
     flex-direction: column;
+    margin-top: 4vh;
 
 }
-
-
-
 .all-in-one-container{
     display: flex;
     flex-direction: column;
@@ -521,9 +507,8 @@ transform-origin: 14px 22px;
     display: flex;
     flex-direction: column;
     width: 60%;
-    margin-top: 25px;
+    margin-top: 3vh;
     color: var(--primary-text-color);
-
 }
 
 .simple-input-container label{
@@ -611,10 +596,10 @@ transform-origin: 14px 22px;
     align-items: center;
     width: 95%;
     height: 200px;
-    margin-top: 40px;
+    margin-top: 4vh;
 }
 
 .analizing-output p{
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     margin-bottom: 5px;
 }

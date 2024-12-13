@@ -78,8 +78,8 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         <div id="result-info">
           <p id="result-number">{data?.total_Q}</p>
           <div>
-            <p id="result-measured"> {data?.measured_Q}% {t('Results.measured')}</p>
-            <p> {data?.interpolated_Q}% {t('Results.interpolated')} </p>
+            <p id="result-measured"> {(data?.measured_Q ?? 0) * 100 }% {t('Results.measured')}</p>
+            <p> {(data?.interpolated_Q ?? 0) * 100}% {t('Results.interpolated')} </p>
           </div>
         </div>
 

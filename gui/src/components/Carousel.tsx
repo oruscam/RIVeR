@@ -1,4 +1,4 @@
-import { useDataSlice } from '../hooks';
+import { useDataSlice, useUiSlice } from '../hooks';
 import React, { useRef, useState, useEffect } from 'react';
 import { useWizard } from 'react-use-wizard';
 import { MODULE_NUMBER } from '../constants/constants';
@@ -24,6 +24,9 @@ export const Carousel: React.FC<CarouselProps> = ({ showMedian, setShowMedian })
     const { images, onSetActiveImage, isBackendWorking, quiver } = useDataSlice();
     const { paths, active } = images;
     const [width, setWidth] = useState<number>(500);
+    const { screenSizes } = useUiSlice();
+
+    const [ itemWidth, setItemWidth ] = useState<number>(275);
 
     const [defaultValue, setDefaultValue] = useState<string | number>(active + 1 as string | number);
     const [scrollInterval, setScrollInterval] = useState<NodeJS.Timeout | null>(null);
@@ -35,6 +38,7 @@ export const Carousel: React.FC<CarouselProps> = ({ showMedian, setShowMedian })
     const { activeStep } = useWizard();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        
         setDefaultValue(event.currentTarget.value);
     };
 
@@ -65,10 +69,26 @@ export const Carousel: React.FC<CarouselProps> = ({ showMedian, setShowMedian })
         updateWidth(); // Set initial width
         window.addEventListener('resize', updateWidth); // Update width on window resize
 
+        console.log('window inner height;',window.innerHeight);
+
+
         return () => {
             window.removeEventListener('resize', updateWidth); // Cleanup event listener
         };
     }, []);
+
+    /**
+     * Change the width of the carousel items depending on the screen height
+     */
+
+    useEffect(() => {
+        if (screenSizes.height < 800) {
+            setItemWidth(240);
+        } else {
+            setItemWidth(275);
+        }
+
+    }, [screenSizes.height])
 
 
     return (
@@ -93,9 +113,9 @@ export const Carousel: React.FC<CarouselProps> = ({ showMedian, setShowMedian })
                     onMouseLeave={() => carouselMouseUp(scrollInterval, speedUpTimeout, setScrollInterval, setSpeedUpTimeout)}
                     > <Icon path={back}/> </button>
                 <List
-                    height={180} // Altura del contenedor del carrusel
+                    height={itemWidth - 85} // Altura del contenedor del carrusel
                     itemCount={paths.length} // Número total de elementos
-                    itemSize={275} // Ancho de cada elemento
+                    itemSize={itemWidth} // Ancho de cada elemento
                     layout="horizontal" // Disposición horizontal
                     width={width} // Ancho del contenedor del carrusel
                     className='carousel-list' // Clase del contenedor del carrusel

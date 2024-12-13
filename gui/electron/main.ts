@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, net, protocol, screen } from 'electron'
+import { app, BrowserWindow, ipcMain, ipcRenderer, net, protocol, screen } from 'electron'
 import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
 import * as os from 'os'
@@ -27,38 +27,28 @@ let win: BrowserWindow | null
 
 let riverCli: Function
 
-// protocol.registerSchemesAsPrivileged([
-//   {
-//     scheme: 'resources',
-//     privileges: {
-//       bypassCSP: true,
-//       stream: true,
-//       standard: true,
-//     }
-//   }
-// ])
-
 async function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
   const { x, y } = primaryDisplay.workArea;
+  const { width, height } = primaryDisplay.workAreaSize;
 
   win = new BrowserWindow({
     icon: path.join(process.env.VITE_PUBLIC, 'electron-vite.svg'),
-    minWidth: 1150,
-    minHeight: 820,
     x: x,
     y: y,
-    width: 1200,
-    height: 820,
-    maxHeight: 1400,
+    width: width,
+    height: height, 
+    minWidth: 1150,
+    minHeight: 700,
     maxWidth: 2300,
+    maxHeight: 1400,
     resizable: true,
     focusable: true,
-    fullscreenable: true,
+    fullscreenable: false,
     alwaysOnTop: false,
     skipTaskbar: false,
     frame: true,
-    title: 'River',
+    title: 'RIVeR 3.0.0',
 
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),
@@ -68,22 +58,24 @@ async function createWindow() {
     },
   })
 
-  // Remove menu bar
-  win.setMenu(null);
-
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
   })
 
   if (VITE_DEV_SERVER_URL) {
+
     win.loadURL(VITE_DEV_SERVER_URL)
     riverCli = executePythonShell
+
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
     
     riverCli = executeRiverCli
+
+    // Remove menu bar
+    win.setMenu(null);
   }
 }
 

@@ -5,6 +5,7 @@
   "directories": {
     "output": "release/${version}"
   },
+  "compression" : "maximum",
   "files": [
     "dist",
     "dist-electron",
@@ -32,21 +33,26 @@
         ]
       }
     ],
+    "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
+    "icon": "icons",
     "extraResources": [
       {
+        "from": "ffmpeg",
+        "to" : "ffmpeg",
+        "filter": ["**/*"]
+      },
+       {
         "from": "river-cli.exe",
         "to": "river-cli.exe",
         "filter": ["**/*"]
       }
-    ],
-    "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
-    "icon": "icons"
+    ]
   },
   "nsis": {
     "oneClick": false,
     "perMachine": false,
     "allowToChangeInstallationDirectory": true,
-    "deleteAppDataOnUninstall": false
+    "deleteAppDataOnUninstall": false,
   },
   "linux": {
     "target": [

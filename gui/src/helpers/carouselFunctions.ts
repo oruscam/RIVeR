@@ -42,7 +42,7 @@ const carouselKeyDown = (
 
         if (event.key === 'Enter') {
             const value = parseInt(event.currentTarget.value);
-            if (value > 0 && value <= paths.length) {
+            if (value > 0 && value <= paths.length -1) {
                 onSetActiveImage(value - 1);
                 setDefaultValue(value);
                 listRef.scrollToItem(value - 1, 'center');

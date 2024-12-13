@@ -1,6 +1,6 @@
 {
   "name": "river-gui",
-  "productName": "River",
+  "productName": "RIVeR 3.0.0",
   "private": true,
   "version": "3.0.0",
   "type": "module",
@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "install-pyinstaller": "pip install pyinstaller",
     "build-cli": "pyinstaller -F --distpath . -n river-cli ../river/cli/__main__.py",
+    "build-cli-onedir": "pyinstaller -D --distpath . -n river-cli --contents-directory . ../river/cli/__main__.py",
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux",
