@@ -6,7 +6,7 @@ import * as fs from 'fs'
 let python: ChildProcess 
 
 async function executeRiverCli(options: (string | number)[], _mode: ('json' | 'text') = 'json', output: boolean = false, logFile: string): Promise<{ data: any, error: any }> {
-    const riverCliPath = path.join(app.getAppPath(), '..', 'river-cli');
+    const riverCliPath = path.join(app.getAppPath(), '..', 'river-cli', 'river-cli');
     const args = options.map(arg => arg.toString());
 
     console.log('you are using river-cli', riverCliPath);

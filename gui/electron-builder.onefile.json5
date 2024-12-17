@@ -2,10 +2,10 @@
 {
   "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
   "asar": true,
+  "compression": "maximum",
   "directories": {
     "output": "release/${version}"
   },
-  "compression" : "maximum",
   "files": [
     "dist",
     "dist-electron",
@@ -41,10 +41,10 @@
         "to" : "ffmpeg",
         "filter": ["**/*"]
       },
-       {
+      {
         "from": "river-cli.exe",
         "to": "river-cli.exe",
-        "filter": ["**/*"]
+        "filter": ["**/*]
       }
     ]
   },
