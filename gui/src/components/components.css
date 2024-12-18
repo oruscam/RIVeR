@@ -51,6 +51,7 @@
     overflow-y: hidden;
     overflow-x: hidden;
     flex-shrink: 1;
+    overflow-y: auto;
 }
 
 .video-player{
@@ -207,7 +208,7 @@
     padding: 5px;
     overflow-x: hidden;
     overflow-y: hidden;
-    
+    margin-top: 10px;
 }
 
 .error-text {
@@ -319,12 +320,13 @@
 
 
 .progress-indicator-container{
-    position: relative;
+    position: absolute;
     top: 15px;
     width: 90%;
     height: 10px;
     display: flex;
     justify-content: space-between;
+    flex-shrink: 0;
 }
 
 .progress-indicator{
@@ -457,7 +459,7 @@
 .img-carousel-container{
     position: relative;
     display: inline-block;
-    width: 275px;
+    width: 100%;
     height: auto;
 }
 
@@ -471,8 +473,6 @@
     border-radius: 20px;
     z-index: 1;
 }
-
-
 
 .img-water-mark{
     position: absolute;

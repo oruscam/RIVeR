@@ -1,13 +1,12 @@
 import { app, ipcMain, webContents } from 'electron';
-import { ChildProcess, execFile, spawn } from 'child_process'
+import { ChildProcess, exec, execFile, spawn } from 'child_process'
 import * as path from 'path';
-import kill from 'tree-kill';
 import * as fs from 'fs'
 
 let python: ChildProcess 
 
 async function executeRiverCli(options: (string | number)[], _mode: ('json' | 'text') = 'json', output: boolean = false, logFile: string): Promise<{ data: any, error: any }> {
-    const riverCliPath = path.join(app.getAppPath(), '..', 'river-cli');
+    const riverCliPath = path.join(app.getAppPath(), '..', 'river-cli', 'river-cli');
     const args = options.map(arg => arg.toString());
 
     console.log('you are using river-cli', riverCliPath);
@@ -39,6 +38,7 @@ async function executeRiverCli(options: (string | number)[], _mode: ('json' | 't
         python.stderr.on('data', (data) => {
             const message = data.toString();
             stderrData = message;
+            console.log('stderr', message);
             // Output
             if ( output === true){
                 webContents.getAllWebContents().forEach((contents) => {
@@ -53,6 +53,7 @@ async function executeRiverCli(options: (string | number)[], _mode: ('json' | 't
                     resolve({ error: {
                         message: 'Process was killed'
                     }});
+                    return;
                 }
             } else {
                 console.log('river-cli process finished');
@@ -74,35 +75,18 @@ async function executeRiverCli(options: (string | number)[], _mode: ('json' | 't
     return result as { data: any, error: any };
 }
 
-function killProcess(pid: number): Promise<void> {
-    return new Promise((resolve, reject) => {
-        kill(pid, 'SIGKILL', (err) => {
-            if (err) {
-                console.log(err);
-                reject(err);
-            } else {
-                console.log('sigkill');
-                resolve();
-            }
-        });
-    });
-}
 
 async function killRiverCli() {
     if (python) {
-        try {
-            await killProcess(python.pid);
-            console.log('Process killed successfully');
-        } catch (err) {
-            console.log('Failed to kill process', err);
-        }
+        python.kill();
+        console.log('Process killed successfully');
     }
     return true;
 }
 
 ipcMain.handle('kill-river-cli', async () => {
     console.log('kill-river-cli');
-    return await killRiverCli();
+    return killRiverCli();
 });
 
 app.on('before-quit', async (event) => {
@@ -129,10 +113,6 @@ app.on('before-quit', async (event) => {
 function appendLog(path: string, args: string[], data: string, error: string = ''){
     let output = '';
 
-    console.log('Appending log to', path);
-    console.log('data', data);
-    console.log('error', error);
-
     if ( args[0] === 'create-mask-and-bbox' && error === ''){
         const parsedData = JSON.parse(data);
         if (parsedData.error && Object.keys(parsedData.error).length !== 0){
@@ -143,7 +123,7 @@ function appendLog(path: string, args: string[], data: string, error: string = '
     }
     
     if ( args[0] === 'piv-test' && error === '') {
-        const parsedData = JSON.parse(data);
+        const parsedData = JSON.parse(data.replace(/\bNaN\b/g, "null"));
         if (parsedData.error && Object.keys(parsedData.error).length !== 0){
             output = parsedData.error
         }else {

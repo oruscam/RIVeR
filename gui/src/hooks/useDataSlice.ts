@@ -175,7 +175,7 @@ export const useDataSlice = () => {
         
         const environment = process.env.NODE_ENV
 
-        const handler = environment === 'development' ? 'kill-python-shell' : 'kill-river-cli'
+        const handler = environment === 'development' ? 'kill-river-cli' : 'kill-river-cli'
         
         try {
             await ipcRenderer.invoke(handler)

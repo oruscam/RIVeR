@@ -61,7 +61,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
                     }
                 }
                 attempts++;
-                await new Promise(resolve => setTimeout(resolve, 1500)); // Wait for 1 second
+                await new Promise(resolve => setTimeout(resolve, 500)); // Wait for 0.5 second before checking again
             }
 
             return {

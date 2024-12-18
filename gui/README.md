@@ -7,7 +7,9 @@
   1 - Si tienes npm, simple, npm install yarn
   2 - Si no tienes npm, via curl se puede.
 
-3 - Es necesesario tener ffmpeg
+3 
+    - Windows: es necesario anadir la carpeta de ffmpeg essentials dentro de gui
+    - Linux: es necesario tener instalado ffmpeg
 
 4 - cd RIVeR/gui
 

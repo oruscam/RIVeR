@@ -66,9 +66,9 @@ export const FormReport = () => {
 
   return (
     <>
-       <h1 className="form-title"> Last Settings </h1>
+       <h1 className="form-title"> Summary </h1>
       <form className="form-base-2">
-        <div className="simple-input-container mt-5">
+        <div className="simple-input-container">
             <label> River's Name </label>
             <input type="text" required {...register('riverName')} id="river-name" onBlur={onHandleDataChange} onKeyDown={onHandleDataChange}/>
         </div>

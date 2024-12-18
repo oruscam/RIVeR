@@ -39,7 +39,6 @@ export const WizardButtons = ({ canFollow = true, formId = '', button = false, o
     }
   }
 
-
   return (
     <div className='wizard-container'>
       <button

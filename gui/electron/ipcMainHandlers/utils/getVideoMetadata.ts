@@ -1,8 +1,43 @@
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const ffmpeg = require('fluent-ffmpeg');
+import { app } from "electron";
 import { FFProbeData, Metadata } from "../interfaces";
 import path from 'path'
+import os from 'os'
+
+
+const plataform = os.platform();
+
+/**
+ * If the platform is Windows, set the path to the `ffmpeg.exe` and `ffprobe.exe` executables.
+ */
+
+if ( plataform === 'win32' ) {
+
+    /**
+     * If the application is running in development mode, set the path to the `ffmpeg.exe` and `ffprobe.exe` executables from .env.development variables.
+     */
+
+    if (import.meta.env.VITE_DEV_SERVER_URL){
+        ffmpeg.setFfmpegPath(import.meta.env.VITE_FFMPEG_PATH);
+        ffmpeg.setFfprobePath(import.meta.env.VITE_FFPROBE_PATH);
+    } else {
+
+        /**
+         * Constructs the path to the `ffprobe.exe` executable.
+         *
+         * @constant {string} ffprobePath - The path to the `ffprobe.exe` executable, 
+         * located in the `ffmpeg/bin` directory relative to the application's root path.
+         */
+        
+        const ffmpegPath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffmpeg.exe');
+        const ffprobePath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffprobe.exe');
+
+        ffmpeg.setFfmpegPath(ffmpegPath);
+        ffmpeg.setFfprobePath(ffprobePath)
+    }
+}
 
 const supportedFormat = 'MP4'
 
