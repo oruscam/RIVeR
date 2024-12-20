@@ -208,7 +208,6 @@
     padding: 5px;
     overflow-x: hidden;
     overflow-y: hidden;
-    margin-top: 10px;
 }
 
 .error-text {
@@ -234,6 +233,7 @@
     height: 100%;
     align-items: center;
     width: 100%;
+    user-select: none;
 }
 
 .loader-wrapper-mid {
@@ -382,6 +382,7 @@
     display: flex;
     flex-direction: column;
     justify-content: end;
+    margin-bottom: 15px;
 }
 
 .carousel{

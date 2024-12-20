@@ -21,3 +21,11 @@ export class CliError extends Error {
         this.stack = ''
     }
 }
+
+export class ResourceBusyError extends Error {
+    constructor(message: string) {
+        super(message);
+        this.name = 'ResourceBusyError';
+        this.stack = ''
+    }
+}

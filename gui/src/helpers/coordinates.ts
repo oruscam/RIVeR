@@ -1,7 +1,6 @@
+import { Point } from "../types";
 
 // * Calculate and return the Euclidean distance between two points.
-
-import { Point } from "../types";
 
 const getDistanceBetweenPoints = (points: Point[]): number => {
     if (points.length === 2) {
@@ -33,7 +32,6 @@ const computePixelSize = (pixelPoints: Point[], rwPoints: Point[]): { size: numb
  */
  
 function transformPixelToRealWorld(x_pix: number, y_pix: number, transformationMatrix: number[][]): number[] {
-
     // Create the pixel coordinate vector in homogeneous coordinates
     const pixelVector = [x_pix, y_pix, 1];
 
@@ -46,7 +44,6 @@ function transformPixelToRealWorld(x_pix: number, y_pix: number, transformationM
     const normalizedVector = realWorldVector.map(value => value / realWorldVector[2]);
 
     // Return the x and y real-world coordinates
-
     return normalizedVector.slice(0, 2);
 }
 
@@ -59,6 +56,7 @@ function transformPixelToRealWorld(x_pix: number, y_pix: number, transformationM
  * @param {number[][]} transformationMatrix - The transformation matrix.
  * @returns {number[]} An array containing the pixel coordinates [x, y].
  */
+
 function transformRealWorldToPixel(x_rw: number, y_rw: number, transformationMatrix: number[][]): number[] {
     // Invert the transformation matrix to map from pixel to real-world coordinates
     const invTransformationMatrix = invertMatrix(transformationMatrix);
@@ -85,6 +83,7 @@ function transformRealWorldToPixel(x_rw: number, y_rw: number, transformationMat
  * @param {number[][]} matrix - The 3x3 matrix to invert.
  * @returns {number[][]} The inverted matrix.
  */
+
 function invertMatrix(matrix: number[][]): number[][] {
     const det = matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) -
                 matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) +

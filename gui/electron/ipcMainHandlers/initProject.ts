@@ -4,7 +4,6 @@ import * as path from 'path'
 import { getVideoMetadata } from "./utils/getVideoMetadata";
 import { ProjectConfig } from "./interfaces";
 
-
 function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
     ipcMain.handle('init-project', async( _event, arg: {path: string, name: string, type: string}) => {
         console.log("Init Project" , arg)
@@ -23,7 +22,7 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
             PROJECT_CONFIG.logsPath = path.join(newDirectory, 'river.log')
             
             return {
-                result: {
+                result: {   
                     ...result,
                     directory: newDirectory
                 }
@@ -37,6 +36,15 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
                     }
                 }
             }
+            if ( error.code === 'EBUSY') {
+                return {
+                    error: {
+                        message: error.message,
+                        type: 'resource-busy'
+                    }
+                }
+            }
+
             throw error;
         }
     }

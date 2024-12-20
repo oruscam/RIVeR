@@ -173,7 +173,6 @@ export const useSectionSlice = () => {
             dispatch(setPixelSize({size, rw_length}))
             dispatch(setHasChanged({value: true}))
         }    
-
     }
 
     /**

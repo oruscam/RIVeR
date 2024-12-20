@@ -59,7 +59,6 @@ const sectionSlice = createSlice({
         setDirPoints: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].dirPoints = action.payload;
         },
-
         setRealWorldPoints: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].rwPoints = action.payload;
         },
@@ -103,7 +102,6 @@ const sectionSlice = createSlice({
                 state.sections[state.activeSection].hasChanged = action.payload.value;
             } else {
                 state.sections[action.payload.index].hasChanged = action.payload.value;
-
             }
         },
         setSummary: (state, action: PayloadAction<Summary>) => {

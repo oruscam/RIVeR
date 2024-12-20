@@ -41,12 +41,11 @@ export const FootageMode = () => {
     const onClickItem = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         const type = event.currentTarget.id;
-        if (type !== 'uav') return;
+        if (type !== 'uav' && type !== 'oblique') return;
         try {
             const { path, name } = await onGetVideo();
             setVideo({ name, path, type });
         } catch (error) {
-            console.log(error instanceof UserSelectionError )
             if ( error instanceof UserSelectionError ){
                 setError(error.message);
                 setTimeout(() => {

@@ -14,17 +14,18 @@ interface controlPoints {
     isNotDefaultCoordinates: boolean,
     distances: {
         d12: number,
-        d13: number,
-        d14: number,
         d23: number,
-        d24: number,
         d34: number,
+        d41: number,
+        d13: number,
+        d24: number,
     },
 }
 
 interface MatrixState {
     pixelSize: pixelSize;
     controlPoints: controlPoints;
+    hasChanged: boolean;
 }
 
 

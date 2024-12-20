@@ -49,6 +49,33 @@ export const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispat
     return 
 }
 
+export const onLoadControlPoints = (control_points: control_points, dispatch: any, setControlPoints: any) => {
+    const { coordinates, distances } = control_points
+
+
+    const isNotDefaultCoordinates = false;
+
+    dispatch(setControlPoints({
+        coordinates: [
+            { x: coordinates.x1, y: coordinates.y1 },
+            { x: coordinates.x2, y: coordinates.y2 },
+            { x: coordinates.x3, y: coordinates.y3 },
+            { x: coordinates.x4, y: coordinates.y4 }
+        ],
+        distances: {
+            d12: distances.d12,
+            d23: distances.d23,
+            d34: distances.d34,
+            d41: distances.d41,
+            d13: distances.d13,
+            d24: distances.d24
+        },
+        drawPoints: true,
+        isNotDefaultCoordinates
+    }))
+
+}
+
 /**
  * 
  * @param values - cross sections data saved in the project file
@@ -278,4 +305,25 @@ interface ProcessingValues {
     interrogation_area_1?: number,
     interrogation_area_2?: number,
     roi_height?: number
+}
+
+interface control_points {
+    coordinates: {
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
+        x3: number,
+        y3: number,
+        x4: number,
+        y4: number,
+    },
+    distances: {
+        d12: number,
+        d23: number,
+        d34: number,
+        d41: number,
+        d13: number,
+        d24: number,
+    }
 }

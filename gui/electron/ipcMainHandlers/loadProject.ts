@@ -71,8 +71,8 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                         console.warn(`Warning: ${resultsPath} does not exist.`);
                     }
 
-                    if( settingsParsed.footage === 'uav'){
-                        PROJECT_CONFIG.type = 'uav';
+                    if( settingsParsed.footage ){
+                        PROJECT_CONFIG.type = settingsParsed.footage;
                         if( settingsParsed.transformation_matrix !== undefined ){
                             PROJECT_CONFIG.matrixPath = path.join(folderPath, 'transformation_matrix.json');
                             matrix = await fs.promises.readFile(PROJECT_CONFIG.matrixPath, 'utf-8');

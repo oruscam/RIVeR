@@ -11,9 +11,10 @@ import { FieldValues } from "react-hook-form";
 import { addSection, setActiveSection, setSummary, setTransformationMatrix, updateSection } from "../store/section/sectionSlice";
 import {  MODULE_NUMBER } from "../constants/constants";
 import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
-import { onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
-import { OperationCanceledError, UserSelectionError } from "../errors/errors";
+import { onLoadControlPoints, onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
+import { OperationCanceledError, ResourceBusyError, UserSelectionError } from "../errors/errors";
 import { parseTime } from "../helpers";
+import { setControlPoints } from "../store/matrix/matrixSlice";
 
 
 /**
@@ -68,10 +69,12 @@ export const useProjectSlice = () => {
             const  { result, error } = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type });
 
             if ( error ){
+                console.log(error)
                 if (error.type === 'user-cancel-operation') {
                     throw new OperationCanceledError(error.message);
                 }
             }
+
 
             const videoData = {
                 name: result.name,
@@ -91,9 +94,8 @@ export const useProjectSlice = () => {
             
         } catch (error) {
             dispatch(setLoading(false));
-            console.log(error instanceof OperationCanceledError)
             dispatch(clearMessage());
-            
+            console.log(error)
             throw error;
         }    
     }
@@ -135,7 +137,6 @@ export const useProjectSlice = () => {
             })
 
             
-            console.log(result)
             dispatch(clearMessage())
             dispatch(setFirstFramePath(filePrefix + result.initial_frame))
             dispatch(setVideoParameters(parameters))
@@ -182,9 +183,18 @@ export const useProjectSlice = () => {
                     dispatch(setFirstFramePath(filePrefix + firstFrame))
                 }
                 dispatch(setLoading(false))
+                
 
                 if( piv_results ){
-                    onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+                    
+                    if ( settings.pixel_size ){
+                        onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+                    }
+
+                    if ( settings.control_points ){
+                        onLoadControlPoints(settings.control_points, dispatch, setControlPoints)
+                    }
+
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     // * Load images for carousel.
@@ -228,10 +238,18 @@ export const useProjectSlice = () => {
                 }
                 
                 if(settings.xsections){
-                    onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+
+                    if ( settings.pixel_size ){
+                        onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+                    }
+
+                    if ( settings.control_points ){
+                        onLoadControlPoints(settings.control_points, dispatch, setControlPoints)
+                    }
+                    
+                    
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
                     
-
                     // * Load images for carousel.
                     dispatch(setProcessingMask(filePrefix + mask))
 
@@ -251,6 +269,11 @@ export const useProjectSlice = () => {
 
                     return MODULE_NUMBER.CROSS_SECTIONS
 
+                } else if (settings.control_points){
+                    onLoadControlPoints(settings.control_points, dispatch, setControlPoints)
+                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
+
+                    return MODULE_NUMBER.CROSS_SECTIONS
                 } else if(settings.video_range){
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 

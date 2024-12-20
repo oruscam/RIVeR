@@ -272,7 +272,6 @@ export const useDataSlice = () => {
     }
 
     const onSetImages = ( paths: string[]) => {
-        console.log(paths)
         dispatch(setImages({ paths: paths }));  
         
         window.ipcRenderer.removeAllListeners('all-frames')

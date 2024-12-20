@@ -26,7 +26,7 @@ export const App: React.FC = () => {
         return <ControlPoints/>
       
       default:
-        return <HomePage/>
+        return <ControlPoints/>
     }
 
   }
@@ -35,8 +35,7 @@ export const App: React.FC = () => {
     const handleResize = () => {
       const width = window.innerWidth
       const height = window.innerHeight
-      console.log('width', width)
-      console.log('heigth',height)
+
       onSetScreen({ windowWidth: width, windowHeight: height, imageWidth: data.width, imageHeight: data.height })
     }
 
@@ -54,14 +53,13 @@ export const App: React.FC = () => {
     if (images.paths.length === 0){
       window.ipcRenderer.on('all-frames', handleAllFrames)
     }
-
   }, [])
 
   return (
     <div className='App' data-theme={darkMode ? "dark" : "light"}>
       <Wizard>
-        {isLoading ? <Loading/> :<HomePage/> }
-        {isLoading ? <Loading/> : <FootageMode></FootageMode>}
+        {isLoading ? <Loading/> : <HomePage/> }
+        {isLoading ? <Loading/> : <FootageMode></FootageMode>} 
         {isLoading ? <Loading/> : <VideoRange/>}
         {isLoading ? <Loading/> : getStep4()}
         {isLoading ? <Loading/> : <CrossSections/>}

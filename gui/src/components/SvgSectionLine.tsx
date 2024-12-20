@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { useSectionSlice } from "../hooks";
 import { COLORS } from '../constants/constants';
+import { calculateMidpointAndAngle } from '../helpers';
 
 // This component renders a section line within an SVG element.
 // It ensures the section line is visible even when embedded in HTML.
@@ -52,14 +53,17 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
       }
      
     if ( !isReport ){
+      const { midpoint, angle } = calculateMidpointAndAngle(sectionPoints[0], sectionPoints[1]);
       svg.append("text")
-        .attr("x", sectionPoints[1].x / (typeof factor === 'number' ? factor : factor.x))
-        .attr("y", sectionPoints[1].y / (typeof factor === 'number' ? factor : factor.y))
-        .attr("dy", 25)
-        .text(name)
-        .attr("font-size", 18)
-        .attr("font-weight", 500)
-        .attr("fill", COLORS.YELLOW);
+      .attr("x", midpoint.x / (typeof factor === 'number' ? factor : factor.x))
+      .attr("y", midpoint.y / (typeof factor === 'number' ? factor : factor.y))
+      .attr("dy", 25)
+      .text(name)
+      .attr("font-size", 18)
+      .attr("font-weight", 500)
+      .attr("fill", COLORS.YELLOW)
+      .attr("transform", `rotate(${angle}, ${midpoint.x / (typeof factor === 'number' ? factor : factor.x)}, ${midpoint.y / (typeof factor === 'number' ? factor : factor.y)})`);
+
     }  
 
   }, [factor, resizeFactor, sectionPoints, dirPoints, isReport]);

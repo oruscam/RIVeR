@@ -4,7 +4,7 @@
 
 export const FOOTAGE_TYPES = {
     IPCAM: 'ipcam',
-    OBLIQUE: 'oneshot',
+    OBLIQUE: 'oblique',
     UAV: 'uav'
 }
 

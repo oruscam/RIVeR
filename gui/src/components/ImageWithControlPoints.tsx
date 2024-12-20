@@ -1,25 +1,31 @@
 import useImage from "use-image";
 import { useMatrixSlice, useProjectSlice, useUiSlice } from "../hooks"
-import { Image, Layer, Stage } from "react-konva";
+import { Image, Layer, Line, Stage } from "react-konva";
 
 import { getRelativePointerPosition, imageZoom } from "../helpers/konvaActions";
 import { KonvaEventObject } from "konva/lib/Node";
 import { useEffect, useState } from "react";
 import { Point } from "../types";
 import { ControlPointsLines, Points } from "./index";
+import { COLORS } from "../constants/constants";
 
 export const ImageWithControlPoints = () => {
-    const { controlPoints, onSetDefaultControlCoordinates, onChangeControlPoints } = useMatrixSlice()
+    const { controlPoints, onSetControlCoordinates, onChangeControlPoints } = useMatrixSlice()
     const { screenSizes } = useUiSlice()
     const { coordinates, drawPoints, distances } = controlPoints
     const { imageWidth, imageHeight, factor } = screenSizes  
 
+    const { D12 } = COLORS.CONTROL_POINTS
+
     const { firstFramePath } = useProjectSlice();
+    
     const [ image ] = useImage(firstFramePath)
 
-
     const [ localPoints, setLocalPoints ] = useState<Point[]>(coordinates)
-    const [resizeFactor, setResizeFactor] = useState(1)
+    const [ resizeFactor, setResizeFactor ] = useState(1)
+
+    const [ mousePresed, setMousePresed ] = useState(false)
+
 
     const hanldeOnClick = ( event: KonvaEventObject<MouseEvent> ) => {
       if ( drawPoints === false || distances.d12 !== 0 ) return;
@@ -27,7 +33,50 @@ export const ImageWithControlPoints = () => {
       const stage = event.target.getStage();
       const pointerPosition = getRelativePointerPosition(stage)
 
-      onSetDefaultControlCoordinates(pointerPosition, factor) 
+      onSetControlCoordinates(pointerPosition, factor as number) 
+    }
+
+
+    // Set the first point of the square
+
+    const handleOnMouseDown = ( event ) => {
+      if ( localPoints[0].x !== 0 || drawPoints === false) return;
+      setMousePresed(true)
+      const stage = event.target.getStage();
+      const pointerPosition = getRelativePointerPosition(stage)
+
+      const newPoints = [...localPoints]
+      newPoints[0] = pointerPosition
+      newPoints[1] = pointerPosition
+
+      setLocalPoints(newPoints)
+    }
+
+    const handleOnMouseMove = ( event: KonvaEventObject<MouseEvent> ) => {
+      if ( localPoints[0].x === 0 || drawPoints === false || mousePresed === false) return;
+
+      const stage = event.target.getStage();
+      const pointerPosition = getRelativePointerPosition(stage)
+
+      const newPoints = [...localPoints]
+      newPoints[1] = pointerPosition
+
+      setLocalPoints(newPoints)
+    }
+
+    const handleOnMouseUp = ( event: KonvaEventObject<MouseEvent> ) => {
+      if ( localPoints[0].x === 0 || drawPoints === false || mousePresed === false) return;
+      setMousePresed(false)
+      
+      const stage = event.target.getStage();
+      const pointerPosition = getRelativePointerPosition(stage)
+
+      const newPoints = [...localPoints]
+      newPoints[1] = pointerPosition
+
+      
+      setLocalPoints(newPoints)
+      onSetControlCoordinates(newPoints, screenSizes )
     }
 
     const handleOnWheel = (event: KonvaEventObject<WheelEvent>) => {
@@ -49,13 +98,13 @@ export const ImageWithControlPoints = () => {
   
       }, [coordinates, factor])
 
-      console.log(controlPoints)
-
   return (
     <Stage
         width={imageWidth}
         height={imageHeight}
-        onMouseDown={hanldeOnClick}
+        onMouseDown={handleOnMouseDown}
+        onMouseUp={handleOnMouseUp}
+        onMouseMove={handleOnMouseMove}
         onWheel={handleOnWheel}
         className="image-with-marks"
     >
@@ -65,13 +114,24 @@ export const ImageWithControlPoints = () => {
                 width={imageWidth}
                 height={imageHeight}
             />
-            <ControlPointsLines localPoints={localPoints} resizeFactor={resizeFactor}/>
-            <Points localPoints={localPoints} setPointsInStore={onChangeControlPoints} setLocalPoints={setLocalPoints}
-            draggable={true}
-            factor={factor}
-            resizeFactor={resizeFactor}
-            module="contolPoints"
+            
+            <ControlPointsLines localPoints={localPoints} resizeFactor={resizeFactor} mousePresed={mousePresed}/>
+
+            {/* 
+            
+                If mousePresed is true, means that the user is dragging the mouse to set the second point of the square
+                In this case, only can show the first point seted.
+                When the user up the mouse button, the second point is set in the store and the square is drawed
+
+            */}
+            
+            <Points localPoints={mousePresed ? [localPoints[0]] : localPoints} setPointsInStore={onChangeControlPoints} setLocalPoints={setLocalPoints}
+              draggable={true}
+              factor={factor}
+              resizeFactor={resizeFactor}
+              module="contolPoints"
             />
+
         </Layer>
     </Stage>
   )

@@ -156,5 +156,13 @@
         "processingParameters" : "Processing Parameters",
         "generatedBy" : "Generated with River",
         "date" : "report creation date"
+    },
+    "ControlPoints" : {
+        "Errors": {
+            "required" : "All the distances fields are obligatory. Please check Control Points form",
+            "notNull": "All the distances fields must be greater than 0. Please check Control Points form",
+            "notZero": "All the distances fields must be different from 0. Please check Control Points form",
+            "positive" : "All the distances fields must be positive. Please check Control Points form"
+        }
     }
 }

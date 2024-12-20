@@ -2,7 +2,7 @@ import { Line } from "react-konva"
 import { Point } from "../types"
 import { COLORS } from "../constants/constants"
 
-export const ControlPointsLines = ({ localPoints, resizeFactor }) => {
+export const ControlPointsLines = ({ localPoints, resizeFactor, mousePresed }) => {
     const { D12, D23, D34, D14, D13, D24 } = COLORS.CONTROL_POINTS
 
     const getLineColor = ( index: number ) => {
@@ -19,7 +19,23 @@ export const ControlPointsLines = ({ localPoints, resizeFactor }) => {
             default:
                 return 'black'
         }
+    }
 
+    /* 
+        The first point of the square is set when the user clicks on the image
+        The second point is set when the user releases the mouse button
+        The square is drawn when the user up mouse click button
+        
+        The conditional is to draw the first line, between set first point and unseted second point when user is dragging the mouse
+        Only draw the first line, using only localPoints, without redux store. Its necessary to avoid the flickering effect
+        
+        When the user up the mouse button, the first two points are set in the store and calculated the square area.
+    */
+
+    if ( mousePresed ){
+        return (
+            <Line points={[localPoints[0].x, localPoints[0].y, localPoints[1].x, localPoints[1].y]} strokeWidth={3 / resizeFactor} stroke={D12} />
+        )
     }
     
     return (

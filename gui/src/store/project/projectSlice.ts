@@ -5,8 +5,8 @@ const defaultVideo = {
     data : {
         name: "",
         path: "",
-        width: 0,
-        height: 0,
+        width: 1920,
+        height: 1080,
         fps: 0,
         duration: 0,
         creation: "",
@@ -24,7 +24,7 @@ const initialState: ProjectState = {
     projectDirectory: '',
     video: defaultVideo,
     type: '',
-    firstFramePath: '',
+    firstFramePath: 'file:\\\\C:\\Users\\tomas\\River\\DJI_02\\frames\\0000000000.jpg',
     projectDetails: {
         riverName: '',
         site: '',

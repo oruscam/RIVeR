@@ -1,8 +1,10 @@
+import { BaseSyntheticEvent } from "react";
+import { FieldValues } from "react-hook-form";
+
 interface Point {
     x: number;
     y: number;
 }
-
 
 interface Limits {
     max: number;
@@ -26,10 +28,17 @@ interface FormDistance {
     position: string;
 }
 
+interface FormChild {
+    onSubmit: (e?: BaseSyntheticEvent<object, any, any> | undefined) => Promise<void>,
+    onError: (error: FieldValues) => void,
+}
+
 export type {
     Point,
     Limits,
     CanvasPoint,
     FormPoint,
-    FormDistance
+    FormDistance,
+    FormChild
 }
+

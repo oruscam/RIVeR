@@ -55,6 +55,7 @@ export const FormVideo = () => {
 
   const onError = ( error: any ) => {
     console.log("On Form Video Error")
+    console.log(error)
     onSetErrorMessage( error )
   }
 

@@ -49,7 +49,7 @@
     border: solid 0.1px;
     font-size: 22px;
     text-align: center;
-    line-height: 50px;
+    line-height: 45px;
     border-radius: 20px;
     width: 200px;
     height: 50px;
@@ -602,4 +602,8 @@ transform-origin: 14px 22px;
 .analizing-output p{
     font-size: 1.2rem;
     margin-bottom: 5px;
+}
+
+#form-control-points{
+    margin-top: 6vh;
 }

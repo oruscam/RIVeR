@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { controlPoints, MatrixState, pixelSize } from "./types";
+import { set } from "react-hook-form";
 
 const initialState: MatrixState = {
     pixelSize: {
@@ -14,14 +15,15 @@ const initialState: MatrixState = {
         coordinates: [{x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}],
         distances: {
             d12: 0,
-            d13: 0,
-            d14: 0,
+            d41: 0,
             d23: 0,
-            d24: 0,
             d34: 0,
+            d13: 0,
+            d24: 0,
         },
         isNotDefaultCoordinates: false
-    }
+    },
+    hasChanged: false,
 }
 
 const matrixSlice = createSlice({
@@ -40,11 +42,15 @@ const matrixSlice = createSlice({
             state.controlPoints.distances = {
                 d12: 0,
                 d13: 0,
-                d14: 0,
+                d41: 0,
                 d23: 0,
                 d24: 0,
                 d34: 0,
             }
+        },
+        setHasChanged: ( state, action: PayloadAction<boolean> ) => {
+            console.log('HasChanged en setHasChanged', action.payload)
+            state.hasChanged = action.payload
         }
     }
 })
@@ -52,7 +58,8 @@ const matrixSlice = createSlice({
 export const {
     setPixelSize,
     setControlPoints,
-    setDrawPoints
+    setDrawPoints,
+    setHasChanged
 } = matrixSlice.actions
 
 export default matrixSlice.reducer
