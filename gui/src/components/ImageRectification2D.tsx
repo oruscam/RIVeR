@@ -1,18 +1,18 @@
 import useImage from "use-image";
 import { useMatrixSlice, useProjectSlice, useUiSlice } from "../hooks"
-import { Image, Layer, Line, Stage } from "react-konva";
+import { Image, Layer, Stage } from "react-konva";
 
 import { getRelativePointerPosition, imageZoom } from "../helpers/konvaActions";
 import { KonvaEventObject } from "konva/lib/Node";
 import { useEffect, useState } from "react";
 import { Point } from "../types";
-import { ControlPointsLines, Points } from "./index";
+import { ObliquePointsLines, Points } from "./index";
 import { COLORS } from "../constants/constants";
 
-export const ImageWithControlPoints = () => {
-    const { controlPoints, onSetControlCoordinates, onChangeControlPoints } = useMatrixSlice()
+export const ImageRectification2D = () => {
+    const { obliquePoints, onSetObliqueCoordinates, onChangeObliqueCoordinates } = useMatrixSlice()
     const { screenSizes } = useUiSlice()
-    const { coordinates, drawPoints, distances } = controlPoints
+    const { coordinates, drawPoints, distances } = obliquePoints
     const { imageWidth, imageHeight, factor } = screenSizes  
 
     const { D12 } = COLORS.CONTROL_POINTS
@@ -33,13 +33,13 @@ export const ImageWithControlPoints = () => {
       const stage = event.target.getStage();
       const pointerPosition = getRelativePointerPosition(stage)
 
-      onSetControlCoordinates(pointerPosition, factor as number) 
+      onSetObliqueCoordinates(pointerPosition, factor as number) 
     }
 
 
     // Set the first point of the square
 
-    const handleOnMouseDown = ( event ) => {
+    const handleOnMouseDown = ( event: KonvaEventObject<MouseEvent> ) => {
       if ( localPoints[0].x !== 0 || drawPoints === false) return;
       setMousePresed(true)
       const stage = event.target.getStage();
@@ -76,7 +76,7 @@ export const ImageWithControlPoints = () => {
 
       
       setLocalPoints(newPoints)
-      onSetControlCoordinates(newPoints, screenSizes )
+      onSetObliqueCoordinates(newPoints, screenSizes )
     }
 
     const handleOnWheel = (event: KonvaEventObject<WheelEvent>) => {
@@ -115,7 +115,7 @@ export const ImageWithControlPoints = () => {
                 height={imageHeight}
             />
             
-            <ControlPointsLines localPoints={localPoints} resizeFactor={resizeFactor} mousePresed={mousePresed}/>
+            <ObliquePointsLines localPoints={localPoints} resizeFactor={resizeFactor} mousePresed={mousePresed}/>
 
             {/* 
             
@@ -125,7 +125,7 @@ export const ImageWithControlPoints = () => {
 
             */}
             
-            <Points localPoints={mousePresed ? [localPoints[0]] : localPoints} setPointsInStore={onChangeControlPoints} setLocalPoints={setLocalPoints}
+            <Points localPoints={mousePresed ? [localPoints[0]] : localPoints} setPointsInStore={onChangeObliqueCoordinates} setLocalPoints={setLocalPoints}
               draggable={true}
               factor={factor}
               resizeFactor={resizeFactor}

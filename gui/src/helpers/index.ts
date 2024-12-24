@@ -13,12 +13,13 @@ import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks 
 import { formatNumberToPrecision2, formatNumberTo2Decimals } from "./adapterNumbers";
 import { carouselClickImage, carouselKeyDown } from "./carouselFunctions";
 import { calculateArrowWidth, calculateMultipleArrows } from "./drawVectorsFunctions";
-import { createSquare, getControlPointsDistances, adapterControlPointsDistances } from "./useMatrixHelpers";
+import { createSquare, getObliquePointsDistances, adapterObliquePointsDistances } from "./useMatrixHelpers";
 import { calculateMidpointAndAngle } from "./calculateMidPointAndAngle";
+import { onLoadCrossSections, onLoadObliquePoints, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "./loadProjectHelpers";
 
 export {
     adapterBathimetry,
-    adapterControlPointsDistances,
+    adapterObliquePointsDistances,
     adapterCrossSections,
     adapterData,
     adaptStringDate,
@@ -37,7 +38,7 @@ export {
     generateYAxisTicks,
     getBathimetryValues,
     getDirectionVector,
-    getControlPointsDistances,
+    getObliquePointsDistances,
     getDistanceBetweenPoints,
     getIntersectionPoints,
     getNewImageResolution,
@@ -52,5 +53,10 @@ export {
     stringDateToDate,
     transformPixelToRealWorld,
     transformRealWorldToPixel,
-    parseTime
+    parseTime,
+    onLoadCrossSections,
+    onLoadObliquePoints,
+    onLoadPixelSize,
+    onLoadProcessingForm,
+    onLoadVideoParameters
 }

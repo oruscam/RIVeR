@@ -1,13 +1,13 @@
 import { FieldValues, FormProvider, useForm } from "react-hook-form"
-import { Error, ImageWithControlPoints, Progress, WizardButtons } from "../components"
-import { FormControlPoints } from "../components/Forms"
+import { Error, ImageRectification2D, Progress, WizardButtons } from "../components"
+import { FormRectification2D } from "../components/Forms"
 import { useMatrixSlice, useUiSlice } from "../hooks"
 import { useWizard } from "react-use-wizard"
 import { useEffect } from "react"
 
-export const ControlPoints = () => {
-  const { controlPoints, onGetTransformtionMatrix } = useMatrixSlice()
-  const { distances } = controlPoints
+export const Rectification2D = () => {
+  const { obliquePoints, onGetTransformtionMatrix } = useMatrixSlice()
+  const { distances, drawPoints } = obliquePoints
   const { onSetErrorMessage } = useUiSlice()
   const { nextStep } = useWizard()
   
@@ -45,17 +45,17 @@ export const ControlPoints = () => {
   return (
     <div className="regular-page">
         <div className="media-container">
-            <ImageWithControlPoints/>
+            <ImageRectification2D/>
             <Error/>
         </div>
         <div className="form-container">
             <Progress />
             <FormProvider {...methods}>
-                <FormControlPoints 
+                <FormRectification2D
                   onSubmit={methods.handleSubmit(onSubmit, onError)}
                   onError={onError}/>
             </FormProvider>
-            <WizardButtons formId="form-control-points" canFollow={controlPoints.drawPoints}/>
+            <WizardButtons formId="form-control-points" canFollow={drawPoints}/>
         </div>
     </div>
   )

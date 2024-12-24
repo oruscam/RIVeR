@@ -2,7 +2,6 @@ import { Line, Text } from 'react-konva';
 import { useWizard } from 'react-use-wizard';
 import { useSectionSlice } from '../hooks';
 import { COLORS, MODULE_NUMBER } from '../constants/constants';
-import { Point } from '../types';
 import { calculateMidpointAndAngle } from '../helpers';
 
 interface LineAndTextProps {
@@ -19,7 +18,6 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
   const { sections } = useSectionSlice();
   const { sectionPoints, dirPoints, name } = sections[index]
 
-  
   let lineColor : string = ''
   let textColor : string = ''
 
@@ -58,10 +56,8 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
     )
   }
 
-  const getText = () => {
-    
+  const getText = () => {    
     const { midpoint, angle } = calculateMidpointAndAngle(sectionPoints[0], sectionPoints[1]);
-    console.log(midpoint, angle)
 
     return (
       <Text

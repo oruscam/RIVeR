@@ -7,10 +7,10 @@ import { PixelCoordinates } from "./PixelCoordinates";
 import { RealWorldCoordinates } from "./RealWorldCoordinates";
 import { FormResults } from "./FormResults";
 import { FormReport } from "./FormReport";
-import { FormControlPoints } from "./FormControlPoints";
+import { FormRectification2D } from "./FormRectification2D";
 
 export {
-    FormControlPoints,
+    FormRectification2D,
     FormCrossSections,
     FormPixelSize,
     FormProcessing,

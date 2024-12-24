@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { controlPoints, MatrixState, pixelSize } from "./types";
-import { set } from "react-hook-form";
+import { obliquePoints, MatrixState, pixelSize } from "./types";
 
 const initialState: MatrixState = {
     pixelSize: {
@@ -10,7 +9,7 @@ const initialState: MatrixState = {
         pixelSize: 0,
         rwLength: 0,
     },
-    controlPoints: {
+    obliquePoints: {
         drawPoints: false,
         coordinates: [{x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}],
         distances: {
@@ -21,7 +20,7 @@ const initialState: MatrixState = {
             d13: 0,
             d24: 0,
         },
-        isNotDefaultCoordinates: false
+        isDefaultCoordinates: true
     },
     hasChanged: false,
 }
@@ -33,20 +32,21 @@ const matrixSlice = createSlice({
         setPixelSize: ( state, action: PayloadAction<pixelSize> ) => {
             state.pixelSize = action.payload;
         },
-        setControlPoints: ( state, action: PayloadAction<controlPoints> ) => {
-            state.controlPoints = action.payload;
+        setObliquePoints: ( state, action: PayloadAction<obliquePoints> ) => {
+            state.obliquePoints = action.payload;
         },
         setDrawPoints: ( state ) => {
-            state.controlPoints.drawPoints = !state.controlPoints.drawPoints;
-            state.controlPoints.coordinates = [{x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}];
-            state.controlPoints.distances = {
+            state.obliquePoints.drawPoints = !state.obliquePoints.drawPoints;
+            state.obliquePoints.coordinates = [{x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}];
+            state.obliquePoints.distances = {
                 d12: 0,
                 d13: 0,
                 d41: 0,
                 d23: 0,
                 d24: 0,
                 d34: 0,
-            }
+            },
+            state.obliquePoints.isDefaultCoordinates = true
         },
         setHasChanged: ( state, action: PayloadAction<boolean> ) => {
             console.log('HasChanged en setHasChanged', action.payload)
@@ -57,7 +57,7 @@ const matrixSlice = createSlice({
 
 export const {
     setPixelSize,
-    setControlPoints,
+    setObliquePoints,
     setDrawPoints,
     setHasChanged
 } = matrixSlice.actions

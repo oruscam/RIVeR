@@ -49,7 +49,7 @@ function createSquare(point1: Point, point2: Point, imageWidth: number, imageHei
         return [point1, point2, point3, point4];
     }
 
-function getControlPointsDistances(coordinates: Point[]){
+function getObliquePointsDistances(coordinates: Point[]){
     
     const d12 = getDistanceBetweenPoints([coordinates[0], coordinates[1]]);
     const d23 = getDistanceBetweenPoints([coordinates[1], coordinates[2]]);
@@ -68,7 +68,7 @@ function getControlPointsDistances(coordinates: Point[]){
     }
 }
 
-function adapterControlPointsDistances(distances: FieldValues){
+function adapterObliquePointsDistances(distances: FieldValues){
     return {
         d12: parseFloat(distances.distance_12),
         d23: parseFloat(distances.distance_23),
@@ -79,4 +79,4 @@ function adapterControlPointsDistances(distances: FieldValues){
     }
 }
 
-export { createSquare, getControlPointsDistances, adapterControlPointsDistances };
+export { createSquare, getObliquePointsDistances, adapterObliquePointsDistances };

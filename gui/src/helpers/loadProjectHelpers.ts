@@ -15,7 +15,7 @@ import { MODULE_NUMBER } from '../constants/constants';
  * @returns - void
  */
 
-export const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoParameters: any, fps: number) => {
+const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoParameters: any, fps: number) => {
     const { step, start, end } = video_range
     dispatch(setVideoParameters({
         step: step,
@@ -36,7 +36,7 @@ export const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, se
  * @returns 
  */
 
-export const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispatch: any , updateSection: any) => {
+const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispatch: any , updateSection: any) => {
     const { x1, y1, x2 , y2, rw_length, size, east1, east2, north1, north2 } = pixel_size
 
     dispatch(updateSection({
@@ -49,11 +49,11 @@ export const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispat
     return 
 }
 
-export const onLoadControlPoints = (control_points: control_points, dispatch: any, setControlPoints: any) => {
+const onLoadObliquePoints = (control_points: control_points, dispatch: any, setControlPoints: any) => {
     const { coordinates, distances } = control_points
 
 
-    const isNotDefaultCoordinates = false;
+    const isDefaultCoordinates = false;
 
     dispatch(setControlPoints({
         coordinates: [
@@ -71,7 +71,7 @@ export const onLoadControlPoints = (control_points: control_points, dispatch: an
             d24: distances.d24
         },
         drawPoints: true,
-        isNotDefaultCoordinates
+        isDefaultCoordinates
     }))
 
 }
@@ -85,7 +85,7 @@ export const onLoadControlPoints = (control_points: control_points, dispatch: an
  * @param sections - sections state. By default we have pixel_size and CS_default_1. In the first lop on the xsections we update the CS_default_1 section. And then we add the rest of the sections.
  */
 
-export const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary?: any) => {
+const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary?: any) => {
     let flag = true
     let flagData = false
     Object.entries(values).forEach( async ([key, value]: [ string, XSectionValue ]) => {
@@ -170,7 +170,7 @@ export const onLoadCrossSections = (values: XSections, dispatch: any, updateSect
     }
 }
 
-export const onLoadProcessingForm = ( values: ProcessingValues, dispatch: any, updateForm: any ) => {
+const onLoadProcessingForm = ( values: ProcessingValues, dispatch: any, updateForm: any ) => {
     const { artificial_seeding, clahe, clip_limit, grayscale, median_test_epsilon, median_test_filtering, median_test_threshold, remove_background, std_filtering, std_threshold, interrogation_area_1, interrogation_area_2, roi_height } = values
 
     console.log('onLoadProcessingForm - helpers', values)
@@ -190,9 +190,9 @@ export const onLoadProcessingForm = ( values: ProcessingValues, dispatch: any, u
         step2: interrogation_area_2,
         heightRoi: roi_height
     }))
-
 }
 
+export { onLoadVideoParameters, onLoadPixelSize, onLoadCrossSections, onLoadProcessingForm, onLoadObliquePoints}
 
 interface pixel_size {
     x1: number,

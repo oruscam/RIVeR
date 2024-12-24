@@ -1,5 +1,5 @@
 import { Wizard } from 'react-use-wizard'
-import { HomePage, FootageMode, VideoRange, PixelSize, CrossSections, Processing, Analize, Results, ControlPoints } from './pages/index'
+import { HomePage, FootageMode, VideoRange, PixelSize, CrossSections, Processing, Analize, Results, Rectification2D } from './pages/index'
 import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
@@ -20,13 +20,13 @@ export const App: React.FC = () => {
         return <PixelSize/>
 
       case FOOTAGE_TYPES.IPCAM:
-        return <ControlPoints/>
+        return <Rectification2D/>
       
       case FOOTAGE_TYPES.OBLIQUE:
-        return <ControlPoints/>
+        return <Rectification2D/>
       
       default:
-        return <ControlPoints/>
+        return <Rectification2D/>
     }
 
   }

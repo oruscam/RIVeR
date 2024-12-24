@@ -112,6 +112,10 @@ const sectionSlice = createSlice({
         },
         setTransformationMatrix: (state, action: PayloadAction<[number[], number[], number[]]>) => {
             state.transformationMatrix = action.payload;
+        },
+        cleanSections: (state) => {
+            state.sections = state.sections.filter( (_, index) => index === 0 || index === 1);
+            state.sections[1] = defaultSections[1]
         }
     },
 });
@@ -131,7 +135,8 @@ export const {
     setHasChanged,
     setSummary,
     updateSectionsCounter,
-    setTransformationMatrix
+    setTransformationMatrix,
+    cleanSections
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

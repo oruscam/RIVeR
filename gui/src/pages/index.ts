@@ -7,11 +7,11 @@ import { Processing } from "./Processing";
 import { Analize } from "./Analize";
 import { Results } from "./Results";
 import { Report } from "./Report";
-import { ControlPoints } from "./ControlPoints";
+import { Rectification2D } from "./Rectification2D";
 
 export { 
     Analize, 
-    ControlPoints,
+    Rectification2D,
     CrossSections, 
     FootageMode, 
     HomePage, 

@@ -11,10 +11,10 @@ import { FieldValues } from "react-hook-form";
 import { addSection, setActiveSection, setSummary, setTransformationMatrix, updateSection } from "../store/section/sectionSlice";
 import {  MODULE_NUMBER } from "../constants/constants";
 import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
-import { onLoadControlPoints, onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
-import { OperationCanceledError, ResourceBusyError, UserSelectionError } from "../errors/errors";
+import { onLoadObliquePoints, onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/index";
+import { OperationCanceledError, UserSelectionError } from "../errors/errors";
 import { parseTime } from "../helpers";
-import { setControlPoints } from "../store/matrix/matrixSlice";
+import { setObliquePoints } from "../store/matrix/matrixSlice";
 
 
 /**
@@ -192,7 +192,7 @@ export const useProjectSlice = () => {
                     }
 
                     if ( settings.control_points ){
-                        onLoadControlPoints(settings.control_points, dispatch, setControlPoints)
+                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
                     }
 
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
@@ -244,7 +244,7 @@ export const useProjectSlice = () => {
                     }
 
                     if ( settings.control_points ){
-                        onLoadControlPoints(settings.control_points, dispatch, setControlPoints)
+                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
                     }
                     
                     
@@ -270,7 +270,7 @@ export const useProjectSlice = () => {
                     return MODULE_NUMBER.CROSS_SECTIONS
 
                 } else if (settings.control_points){
-                    onLoadControlPoints(settings.control_points, dispatch, setControlPoints)
+                    onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.CROSS_SECTIONS

@@ -8,10 +8,10 @@ interface pixelSize {
     rwLength: number,
 }
 
-interface controlPoints {
+interface obliquePoints {
     drawPoints: boolean,
     coordinates: Point[],
-    isNotDefaultCoordinates: boolean,
+    iswDefaultCoordinates: boolean,
     distances: {
         d12: number,
         d23: number,
@@ -24,7 +24,7 @@ interface controlPoints {
 
 interface MatrixState {
     pixelSize: pixelSize;
-    controlPoints: controlPoints;
+    obliquePoints: obliquePoints;
     hasChanged: boolean;
 }
 
@@ -32,5 +32,5 @@ interface MatrixState {
 export type {
     MatrixState,
     pixelSize,
-    controlPoints
+    obliquePoints
 }

@@ -2,7 +2,13 @@ import { Line } from "react-konva"
 import { Point } from "../types"
 import { COLORS } from "../constants/constants"
 
-export const ControlPointsLines = ({ localPoints, resizeFactor, mousePresed }) => {
+interface ObliquePointsLinesProps {
+    localPoints: Point[];
+    resizeFactor: number;
+    mousePresed: boolean;
+}
+
+export const ObliquePointsLines = ({ localPoints, resizeFactor, mousePresed }: ObliquePointsLinesProps) => {
     const { D12, D23, D34, D14, D13, D24 } = COLORS.CONTROL_POINTS
 
     const getLineColor = ( index: number ) => {

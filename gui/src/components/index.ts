@@ -14,17 +14,17 @@ import { Carousel } from './Carousel'
 import { Grid } from './Grid'
 import { SectionsHeader } from './SectionsHeader'
 import { Results } from './Results'
-import { ImageWithControlPoints } from './ImageWithControlPoints'
-import { ControlPointsLines } from './ControlPointsLines'
+import { ImageRectification2D } from './ImageRectification2D'
+import { ObliquePointsLines } from './ObliquePointsLines'
 
 export {
     Carousel,
-    ControlPointsLines,
+    ObliquePointsLines,
     DrawSections,
     Error,
     Grid,
     Icon,
-    ImageWithControlPoints,
+    ImageRectification2D,
     ImageWithData,
     ImageWithMarks,
     LanguageSelector,
