@@ -1,27 +1,37 @@
-from typing import Dict, List, Tuple, Optional, Union
+import random
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
+
 import cv2
 import numpy as np
 from scipy.optimize import minimize
-import random
+
+from river.core.exceptions import OptimalCameraMatrixError
 
 
-def orthorectify_image(image_path, cam_solution, grp_dict, output_resolution=0.1, southern_hemisphere=True):
+def orthorectify_image(
+	image_path: Path,
+	cam_solution: dict,
+	grp_dict: dict,
+	output_resolution: float = 0.1,
+	southern_hemisphere: bool = True,
+):
 	"""
-    Reproject an image onto real-world coordinates with high resolution output.
+	Reproject an image onto real-world coordinates with high resolution output.
 
-    Parameters:
-        image_path (str): Path to the input image
-        cam_solution (dict): Camera solution dictionary
-        grp_dict (dict): Dictionary containing ground reference points
-        output_resolution (float): Resolution in real-world units per pixel (default: 0.1)
-        southern_hemisphere (bool): Whether coordinates are in Southern Hemisphere
-        debug (bool): Whether to print debug information
+	Parameters:
+	    image_path (Path): Path to the input image
+	    cam_solution (dict): Camera solution dictionary
+	    grp_dict (dict): Dictionary containing ground reference points
+	    output_resolution (float): Resolution in real-world units per pixel (default: 0.1)
+	    southern_hemisphere (bool): Whether coordinates are in Southern Hemisphere
+	    debug (bool): Whether to print debug information
 
-    Returns:
-        tuple: (ortho_img, extent)
-            - ortho_img: RGBA image array (with alpha channel for transparency)
-            - extent: [x_min, x_max, y_min, y_max] for plotting
-    """
+	Returns:
+	    tuple: (ortho_img, extent)
+	        - ortho_img: RGBA image array (with alpha channel for transparency)
+	        - extent: [x_min, x_max, y_min, y_max] for plotting
+	"""
 
 	# Load the image
 	img = cv2.imread(image_path)
@@ -31,8 +41,8 @@ def orthorectify_image(image_path, cam_solution, grp_dict, output_resolution=0.1
 	h, w = img.shape[:2]
 
 	# Determine the extent with reduced margin for better resolution
-	x_min, x_max = np.min(grp_dict['X']), np.max(grp_dict['X'])
-	y_min, y_max = np.min(grp_dict['Y']), np.max(grp_dict['Y'])
+	x_min, x_max = np.min(grp_dict["X"]), np.max(grp_dict["X"])
+	y_min, y_max = np.min(grp_dict["Y"]), np.max(grp_dict["Y"])
 
 	# Add small margin
 	margin = 0.05  # 5% margin
@@ -63,16 +73,12 @@ def orthorectify_image(image_path, cam_solution, grp_dict, output_resolution=0.1
 	X, Y = np.meshgrid(x_coords, y_coords)
 
 	# Get Z values
-	Z = np.ones_like(X) * np.mean(grp_dict['Z'])
+	Z = np.ones_like(X) * np.mean(grp_dict["Z"])
 
 	# Project points
-	points_world = {
-		'X': X.flatten(),
-		'Y': Y.flatten(),
-		'Z': Z.flatten()
-	}
+	points_world = {"X": X.flatten(), "Y": Y.flatten(), "Z": Z.flatten()}
 
-	projected_points = project_points(cam_solution['camera_matrix'], points_world)
+	projected_points = project_points(cam_solution["camera_matrix"], points_world)
 
 	# Reshape to grid
 	x_img = projected_points[:, 0].reshape(X.shape)
@@ -86,10 +92,9 @@ def orthorectify_image(image_path, cam_solution, grp_dict, output_resolution=0.1
 	valid_coords = (map_x >= 0) & (map_x < w) & (map_y >= 0) & (map_y < h)
 
 	# Perform remapping
-	ortho_img = cv2.remap(img, map_x, map_y,
-						  interpolation=cv2.INTER_LINEAR,
-						  borderMode=cv2.BORDER_CONSTANT,
-						  borderValue=[0, 0, 0])
+	ortho_img = cv2.remap(
+		img, map_x, map_y, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=[0, 0, 0]
+	)
 
 	# Add alpha channel
 	alpha = np.ones_like(ortho_img[:, :, 0]) * 255
@@ -101,62 +106,67 @@ def orthorectify_image(image_path, cam_solution, grp_dict, output_resolution=0.1
 	return ortho_img, extent
 
 
-def get_camera_solution(grp_dict: Dict[str, np.ndarray],
-						optimize_solution: bool = False,
-						image_path: Optional[str] = None,
-						ortho_resolution: float = 0.1,
-						southern_hemisphere: bool = True,
-						confidence: float = 0.95) -> Dict[str, Union[np.ndarray, float, Tuple[int, ...], int, None]]:
+def get_camera_solution(
+	grp_dict: Dict[str, np.ndarray],
+	optimize_solution: bool = False,
+	image_path: Optional[Path] = None,
+	ortho_resolution: float = 0.1,
+	southern_hemisphere: bool = True,
+	confidence: float = 0.95,
+) -> Dict[str, Union[np.ndarray, float, Tuple[int, ...], int, None]]:
 	"""
-    Get camera matrix, position, uncertainty ellipses, and optionally generate orthorectified image.
+	Get camera matrix, position, uncertainty ellipses, and optionally generate orthorectified image.
 
-    [previous docstring parameters...]
-    Additional Parameters:
-        confidence: Confidence level for uncertainty ellipses (default: 0.95)
+	[previous docstring parameters...]
+	Additional Parameters:
+	    confidence: Confidence level for uncertainty ellipses (default: 0.95)
 
-    Returns:
-        [previous docstring returns...]
-        Additional returns in dictionary:
-            - 'uncertainty_ellipses': List of dictionaries containing ellipse parameters
-    """
+	Returns:
+	    [previous docstring returns...]
+	    Additional returns in dictionary:
+	        - 'uncertainty_ellipses': List of dictionaries containing ellipse parameters
+	"""
 	result = {}
 
 	if optimize_solution:
 		num_points, best_indices, best_error, best_matrix = optimize_points_comprehensive(grp_dict)
 
 		if best_matrix is None:
-			raise ValueError("Failed to find optimal camera matrix")
+			raise OptimalCameraMatrixError("Failed to find optimal camera matrix")
 
-		result.update({
-			'camera_matrix': best_matrix,
-			'camera_position': get_camera_center(best_matrix),
-			'num_points': num_points,
-			'point_indices': best_indices,
-			'error': best_error
-		})
+		result.update(
+			{
+				"camera_matrix": best_matrix.tolist(),
+				"camera_position": get_camera_center(best_matrix),
+				"num_points": num_points,
+				"point_indices": best_indices,
+				"error": best_error,
+			}
+		)
 	else:
 		camera_matrix = solve_c_matrix(grp_dict)
-		result.update({
-			'camera_matrix': camera_matrix,
-			'camera_position': get_camera_center(camera_matrix)
-		})
+		result.update(
+			{"camera_matrix": camera_matrix.tolist(), "camera_position": get_camera_center(camera_matrix).tolist()}
+		)
 
 	# Calculate reprojection errors
-	world_coords = {'X': grp_dict['X'], 'Y': grp_dict['Y'], 'Z': grp_dict['Z']}
-	projected_points = project_points(result['camera_matrix'], world_coords)
-	actual_points = np.column_stack((grp_dict['x'], grp_dict['y']))
+	world_coords = {"X": grp_dict["X"], "Y": grp_dict["Y"], "Z": grp_dict["Z"]}
+	projected_points = project_points(result["camera_matrix"], world_coords)
+	actual_points = np.column_stack((grp_dict["x"], grp_dict["y"]))
 	reprojection_errors = np.sqrt(np.sum((actual_points - projected_points) ** 2, axis=1))
 
 	# Calculate uncertainty ellipses
 	uncertainty_ellipses = calculate_uncertainty_ellipses(actual_points, projected_points, confidence)
 
 	# Add calculations to results
-	result.update({
-		'projected_points': projected_points,
-		'reprojection_errors': reprojection_errors,
-		'mean_error': np.mean(reprojection_errors),
-		'uncertainty_ellipses': uncertainty_ellipses
-	})
+	result.update(
+		{
+			"projected_points": projected_points.tolist(),
+			"reprojection_errors": reprojection_errors.tolist(),
+			"mean_error": np.mean(reprojection_errors),
+			"uncertainty_ellipses": uncertainty_ellipses,
+		}
+	)
 
 	# Generate orthorectified image if image path is provided
 	if image_path is not None:
@@ -168,28 +178,25 @@ def get_camera_solution(grp_dict: Dict[str, np.ndarray],
 			southern_hemisphere=southern_hemisphere,
 		)
 
-		result.update({
-			'ortho_image': ortho_img,
-			'ortho_extent': extent
-		})
+		result.update({"ortho_image": ortho_img, "ortho_extent": extent})
 
 	return result
 
 
-def calculate_uncertainty_ellipses(actual_points: np.ndarray,
-								   projected_points: np.ndarray,
-								   confidence: float = 0.95) -> List[Dict]:
+def calculate_uncertainty_ellipses(
+	actual_points: np.ndarray, projected_points: np.ndarray, confidence: float = 0.95
+) -> List[Dict]:
 	"""
-    Calculate uncertainty ellipses for reprojection errors.
+	Calculate uncertainty ellipses for reprojection errors.
 
-    Parameters:
-        actual_points: Original point coordinates (n x 2)
-        projected_points: Projected point coordinates (n x 2)
-        confidence: Confidence level for ellipse (default: 0.95)
+	Parameters:
+	    actual_points: Original point coordinates (n x 2)
+	    projected_points: Projected point coordinates (n x 2)
+	    confidence: Confidence level for ellipse (default: 0.95)
 
-    Returns:
-        List of dictionaries containing ellipse parameters for each point
-    """
+	Returns:
+	    List of dictionaries containing ellipse parameters for each point
+	"""
 	from scipy import stats
 
 	errors = projected_points - actual_points
@@ -215,177 +222,169 @@ def calculate_uncertainty_ellipses(actual_points: np.ndarray,
 		width = 2 * np.sqrt(chi2_val * abs(eigenvals[0]))  # Using abs to handle numerical instabilities
 		height = 2 * np.sqrt(chi2_val * abs(eigenvals[1]))
 
-		ellipses.append({
-			'center': actual_points[i],
-			'width': width,
-			'height': height,
-			'angle': angle
-		})
+		ellipses.append({"center": actual_points[i].tolist(), "width": width, "height": height, "angle": angle})
 
 	return ellipses
+
+
 def solve_c_matrix(GRPs: Dict[str, np.ndarray]) -> np.ndarray:
-    """
-    Solve the full Camera Matrix from Ground Referenced Points using SVD.
+	"""
+	Solve the full Camera Matrix from Ground Referenced Points using SVD.
 
-    Parameters:
-        GRPs (Dict[str, np.ndarray]): Dictionary containing the following arrays:
-            'X': X-coordinates of ground reference points
-            'Y': Y-coordinates of ground reference points
-            'Z': Z-coordinates of ground reference points
-            'x': x-coordinates of image points
-            'y': y-coordinates of image points
+	Parameters:
+	    GRPs (Dict[str, np.ndarray]): Dictionary containing the following arrays:
+	        'X': X-coordinates of ground reference points
+	        'Y': Y-coordinates of ground reference points
+	        'Z': Z-coordinates of ground reference points
+	        'x': x-coordinates of image points
+	        'y': y-coordinates of image points
 
-    Returns:
-        np.ndarray: A 3x4 camera matrix P obtained through SVD decomposition.
-    """
-    X, Y, Z = GRPs['X'], GRPs['Y'], GRPs['Z']
-    x, y = GRPs['x'], GRPs['y']
-    r = len(X)
+	Returns:
+	    np.ndarray: A 3x4 camera matrix P obtained through SVD decomposition.
+	"""
+	X, Y, Z = GRPs["X"], GRPs["Y"], GRPs["Z"]
+	x, y = GRPs["x"], GRPs["y"]
+	r = len(X)
 
-    BigM = np.zeros([r * 2, 12])
-    for i, name in enumerate(X, start=1):
-        j = i - 1
-        BigM[i * 2 - 2, :] = [X[j], Y[j], Z[j], 1, 0, 0, 0, 0, -x[j] * X[j], -x[j] * Y[j], -x[j] * Z[j], -x[j]]
-        BigM[i * 2 - 1, :] = [0, 0, 0, 0, X[j], Y[j], Z[j], 1, -y[j] * X[j], -y[j] * Y[j], -y[j] * Z[j], -y[j]]
+	BigM = np.zeros([r * 2, 12])
+	for i, name in enumerate(X, start=1):
+		j = i - 1
+		BigM[i * 2 - 2, :] = [X[j], Y[j], Z[j], 1, 0, 0, 0, 0, -x[j] * X[j], -x[j] * Y[j], -x[j] * Z[j], -x[j]]
+		BigM[i * 2 - 1, :] = [0, 0, 0, 0, X[j], Y[j], Z[j], 1, -y[j] * X[j], -y[j] * Y[j], -y[j] * Z[j], -y[j]]
 
-    U, s, V = np.linalg.svd(BigM, full_matrices=False)
-    V = np.transpose(V)
-    P = -V[:, -1].reshape(3, 4)
-    return P
+	U, s, V = np.linalg.svd(BigM, full_matrices=False)
+	V = np.transpose(V)
+	P = -V[:, -1].reshape(3, 4)
+	return P
+
 
 def project_points(P: np.ndarray, world_coords: Dict[str, np.ndarray]) -> np.ndarray:
-    """
-    Transform 3 components real-world coordinates to pixel coordinates
+	"""
+	Transform 3 components real-world coordinates to pixel coordinates
 
-    Parameters:
-        P (np.ndarray): 3x4 camera projection matrix
-        world_coords (Dict[str, np.ndarray]): Dictionary containing the following arrays:
-            'X': X-coordinates of world points
-            'Y': Y-coordinates of world points
-            'Z': Z-coordinates of world points
+	Parameters:
+	    P (np.ndarray): 3x4 camera projection matrix
+	    world_coords (Dict[str, np.ndarray]): Dictionary containing the following arrays:
+	        'X': X-coordinates of world points
+	        'Y': Y-coordinates of world points
+	        'Z': Z-coordinates of world points
 
-    Returns:
-        np.ndarray: Array of projected 2D points with shape (n, 2)
-    """
-    projected_points = []
-    for i in range(len(world_coords['X'])):
-        X = np.array([world_coords['X'][i], world_coords['Y'][i], world_coords['Z'][i], 1])
-        projection = np.dot(P, X)
-        projection = projection / projection[2]
-        projected_points.append([projection[0], projection[1]])
-    return np.array(projected_points)
+	Returns:
+	    np.ndarray: Array of projected 2D points with shape (n, 2)
+	"""
+	projected_points = []
+	for i in range(len(world_coords["X"])):
+		X = np.array([world_coords["X"][i], world_coords["Y"][i], world_coords["Z"][i], 1])
+		projection = np.dot(P, X)
+		projection = projection / projection[2]
+		projected_points.append([projection[0], projection[1]])
+	return np.array(projected_points)
 
 
 def evaluate_combination(
-    grp_dict: Dict[str, np.ndarray],
-    indices: Tuple[int, ...]
+	grp_dict: Dict[str, np.ndarray], indices: Tuple[int, ...]
 ) -> Tuple[float, Optional[np.ndarray]]:
-    """
-    Evaluate a specific combination of points for camera matrix estimation.
+	"""
+	Evaluate a specific combination of points for camera matrix estimation.
 
-    Parameters:
-        grp_dict (Dict[str, np.ndarray]): Dictionary containing ground reference points
-        indices (Tuple[int, ...]): Tuple of indices to select points for evaluation
+	Parameters:
+	    grp_dict (Dict[str, np.ndarray]): Dictionary containing ground reference points
+	    indices (Tuple[int, ...]): Tuple of indices to select points for evaluation
 
-    Returns:
-        Tuple[float, Optional[np.ndarray]]:
-            - Error value for the combination
-            - Camera matrix if successful, None otherwise
-    """
-    try:
-        subset = {k: grp_dict[k][list(indices)] for k in grp_dict}
-        P = solve_c_matrix(subset)
-        projected = project_points(P, grp_dict)
-        actual = np.column_stack((grp_dict['x'], grp_dict['y']))
-        error = np.mean(np.sqrt(np.sum((actual - projected) ** 2, axis=1)))
-        return error, P
-    except:
-        return float('inf'), None
+	Returns:
+	    Tuple[float, Optional[np.ndarray]]:
+	        - Error value for the combination
+	        - Camera matrix if successful, None otherwise
+	"""
+	try:
+		subset = {k: grp_dict[k][list(indices)] for k in grp_dict}
+		P = solve_c_matrix(subset)
+		projected = project_points(P, grp_dict)
+		actual = np.column_stack((grp_dict["x"], grp_dict["y"]))
+		error = np.mean(np.sqrt(np.sum((actual - projected) ** 2, axis=1)))
+		return error, P
+	except:
+		return float("inf"), None
 
 
 def optimize_points_comprehensive(
-    grp_dict: Dict[str, np.ndarray],
-    min_points: int = 6,
-    max_points: int = 15,
-    max_combinations: int = 50,
-    trials: int = 3
+	grp_dict: Dict[str, np.ndarray],
+	min_points: int = 6,
+	max_points: int = 15,
+	max_combinations: int = 50,
+	trials: int = 3,
 ) -> Tuple[Optional[int], Optional[Tuple[int, ...]], Optional[float], Optional[np.ndarray]]:
-    """
-    Optimize both the number of points and find the best combination for camera matrix estimation.
+	"""
+	Optimize both the number of points and find the best combination for camera matrix estimation.
 
-    Parameters:
-        grp_dict (Dict[str, np.ndarray]): Dictionary containing ground reference points
-        min_points (int, optional): Minimum number of points to consider. Defaults to 6.
-        max_points (int, optional): Maximum number of points to consider. Defaults to 15.
-        max_combinations (int, optional): Maximum number of combinations to try. Defaults to 50.
-        trials (int, optional): Number of trials for each point count. Defaults to 3.
+	Parameters:
+	    grp_dict (Dict[str, np.ndarray]): Dictionary containing ground reference points
+	    min_points (int, optional): Minimum number of points to consider. Defaults to 6.
+	    max_points (int, optional): Maximum number of points to consider. Defaults to 15.
+	    max_combinations (int, optional): Maximum number of combinations to try. Defaults to 50.
+	    trials (int, optional): Number of trials for each point count. Defaults to 3.
 
-    Returns:
-        Tuple[Optional[int], Optional[Tuple[int, ...]], Optional[float], Optional[np.ndarray]]:
-            - Best number of points found
-            - Best combination of point indices
-            - Best error achieved
-            - Best camera matrix
-    """
-    all_results = []
+	Returns:
+	    Tuple[Optional[int], Optional[Tuple[int, ...]], Optional[float], Optional[np.ndarray]]:
+	        - Best number of points found
+	        - Best combination of point indices
+	        - Best error achieved
+	        - Best camera matrix
+	"""
+	all_results = []
 
-    for num_points in range(min_points, max_points + 1):
-        point_indices = list(range(len(grp_dict['X'])))
+	for num_points in range(min_points, max_points + 1):
+		point_indices = list(range(len(grp_dict["X"])))
 
-        for trial in range(trials):
-            random.seed(trial)  # Different seed for each trial
-            best_error = float('inf')
-            best_indices = None
-            best_matrix = None
+		for trial in range(trials):
+			random.seed(trial)  # Different seed for each trial
+			best_error = float("inf")
+			best_indices = None
+			best_matrix = None
 
-            for _ in range(max_combinations):
-                indices = tuple(sorted(random.sample(point_indices, num_points)))
-                error, P = evaluate_combination(grp_dict, indices)
+			for _ in range(max_combinations):
+				indices = tuple(sorted(random.sample(point_indices, num_points)))
+				error, P = evaluate_combination(grp_dict, indices)
 
-                if error < best_error:
-                    best_error = error
-                    best_indices = indices
-                    best_matrix = P
+				if error < best_error:
+					best_error = error
+					best_indices = indices
+					best_matrix = P
 
-            if best_indices is not None:
-                all_results.append({
-                    'num_points': num_points,
-                    'error': best_error,
-                    'indices': best_indices,
-                    'matrix': best_matrix
-                })
+			if best_indices is not None:
+				all_results.append(
+					{"num_points": num_points, "error": best_error, "indices": best_indices, "matrix": best_matrix}
+				)
 
-    if not all_results:
-        return None, None, None, None
+	if not all_results:
+		return None, None, None, None
 
-    best_result = min(all_results, key=lambda x: x['error'])
-    return (
-        best_result['num_points'],
-        best_result['indices'],
-        best_result['error'],
-        best_result['matrix']
-    )
+	best_result = min(all_results, key=lambda x: x["error"])
+	return (best_result["num_points"], best_result["indices"], best_result["error"], best_result["matrix"])
+
 
 def get_camera_center(P: np.ndarray) -> np.ndarray:
-    """
-    Calculate the camera center from the camera matrix P.
+	"""
+	Calculate the camera center from the camera matrix P.
 
-    Parameters:
-        P (np.ndarray): 3x4 camera projection matrix, where the first 3x3 submatrix
-                       represents the camera orientation and the last column represents
-                       the translation.
+	Parameters:
+	    P (np.ndarray): 3x4 camera projection matrix, where the first 3x3 submatrix
+	                   represents the camera orientation and the last column represents
+	                   the translation.
 
-    Returns:
-        np.ndarray: 3D camera center coordinates (X, Y, Z) in world coordinate system.
-    """
-    # Split P into M (first 3x3) and p4 (last column)
-    M = P[:, :3]
-    p4 = P[:, 3]
+	Returns:
+	    np.ndarray: 3D camera center coordinates (X, Y, Z) in world coordinate system.
+	"""
+	# Split P into M (first 3x3) and p4 (last column)
+	M = P[:, :3]
+	p4 = P[:, 3]
 
-    # Camera center C = -M^(-1)p4
-    C = -np.dot(np.linalg.inv(M), p4)
+	# Camera center C = -M^(-1)p4
+	C = -np.dot(np.linalg.inv(M), p4)
 
-    return C
+	return C
+
+
 def calculate_real_world_distance(x1_rw: float, y1_rw: float, x2_rw: float, y2_rw: float) -> float:
 	"""
 	Calculate the Euclidean distance between two points in real-world coordinates.
@@ -674,4 +673,5 @@ def optimize_coordinates(d12: float, d23: float, d34: float, d41: float, d13: fl
 	# Extract optimized coordinates
 	east_3_opt, north_3_opt, east_4_opt, north_4_opt = result.x
 
+	return east_3_opt, north_3_opt, east_4_opt, north_4_opt
 	return east_3_opt, north_3_opt, east_4_opt, north_4_opt
