@@ -747,27 +747,37 @@ def add_interpolated_velocity(table_results: dict, check: np.ndarray) -> dict:
 
 def add_w_a_q(table_results: dict, alpha: float, vel_type: str = "original") -> dict:
 	"""
-	Calculate widths (W), areas (A), discharges (Q), and discharge portions (Q_portion)
-	and add them to the table_results dictionary.
+    Calculate widths (W), areas (A), discharges (Q), and discharge portions (Q_portion)
+    and add them to the table_results dictionary.
 
-	Parameters:
-	    table_results (dict): Dictionary containing 'distance' (x-coordinates),
-	                    'streamwise_magnitude' (velocities), and 'depth' (depths).
-	    alpha (float): Coefficient between the superficial velocity obtained with LSPIV
-	                   and the mean velocity of the section.
-	    vel_type (str): Determines whether to use 'streamwise_magnitude' or
-	                    'filled_streamwise_magnitude' for velocity.
+    Parameters:
+        table_results (dict): Dictionary containing 'distance' (x-coordinates),
+                        velocity profiles, and 'depth' (depths).
+        alpha (float): Coefficient between the superficial velocity obtained with LSPIV
+                       and the mean velocity of the section.
+        vel_type (str): Determines which velocity profile to use:
+                      "original" - uses 'streamwise_velocity_magnitude'
+                      "filled" - uses 'filled_streamwise_velocity_magnitude'
+                      "seeded" - uses 'seeded_vel_profile'
+                      "filled_seeded" - uses 'filled_seeded_vel_profile'
 
-	Returns:
-	    dict: Updated table_results dictionary with keys 'W' (widths), 'A' (areas), 'Q' (discharges), and 'Q_portion'.
-	"""
+    Returns:
+        dict: Updated table_results dictionary with keys 'W', 'A', 'Q', and 'Q_portion'.
+    """
 	x = table_results["distance"]
+
 	# Select velocity type based on the provided `vel_type`
-	v = (
-		table_results["streamwise_velocity_magnitude"]
-		if vel_type == "original"
-		else table_results["filled_streamwise_velocity_magnitude"]
-	)
+	if vel_type == "original":
+		v = table_results["streamwise_velocity_magnitude"]
+	elif vel_type == "filled":
+		v = table_results["filled_streamwise_velocity_magnitude"]
+	elif vel_type == "seeded":
+		v = table_results["seeded_vel_profile"]
+	elif vel_type == "filled_seeded":
+		v = table_results["filled_seeded_vel_profile"]
+	else:
+		raise ValueError(f"Unknown velocity type: {vel_type}")
+
 	v_minus_std = table_results["minus_std"]
 	v_plus_std = table_results["plus_std"]
 	d = table_results["depth"]
@@ -1093,6 +1103,7 @@ def update_current_x_section(
 	fps: float,
 	id_section: int,
 	interpolate: bool = False,
+	artificial_seeding: bool = False,
 	alpha: Optional[float] = None,
 	num_stations: Optional[int] = None,
 ) -> dict:
@@ -1208,28 +1219,55 @@ def update_current_x_section(
 	table_results = add_statistics(
 		piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection)
 
-
-	if interpolate:
-		# Interpolate velocity and discharge data if required
-		table_results = add_interpolated_velocity(table_results, checked_results)
-		table_results = add_w_a_q(table_results, alpha, "filled")
-		# Update streamwise components in pixel coordinates for GUI
-		filled_streamwise = table_results["filled_streamwise_velocity_magnitude"] * time_between_frames
-
-		# Convert crosswise and streamwise separately back to the real-world system
-		filled_streamwise_east, filled_streamwise_north, filled_crosswise_east, filled_crosswise_north = (
-			get_decomposed_rw_displacement(0 * filled_streamwise, filled_streamwise, xsection_to_rw)
-		)
-		# Convert streamwise displacement to the pixel system
-		filled_streamwise_x, filled_streamwise_y = get_pix_displacement(
-			filled_streamwise_east, filled_streamwise_north, table_results, transformation_matrix
-		)
-		# Update the table
-		table_results["streamwise_x"] = filled_streamwise_x
-		table_results["streamwise_y"] = filled_streamwise_y
-
+	if artificial_seeding:
+		# If using artificial seeding and interpolation is requested
+		if interpolate:
+			# First interpolate the seeded velocity profile
+			seeded_profile = table_results["seeded_vel_profile"]
+			table_results = add_interpolated_velocity(
+				{**table_results, "streamwise_velocity_magnitude": seeded_profile},
+				checked_results
+			)
+			# Rename the interpolated profile
+			table_results["filled_seeded_vel_profile"] = table_results.pop("filled_streamwise_velocity_magnitude")
+			# Calculate discharge using the interpolated seeded profile
+			table_results = add_w_a_q(table_results, alpha, "filled_seeded")
+		else:
+			# Use the seeded profile directly
+			table_results = add_w_a_q(table_results, alpha, "seeded")
 	else:
-		table_results = add_w_a_q(table_results, alpha, "original")
+		# Original behavior
+		if interpolate:
+			table_results = add_interpolated_velocity(table_results, checked_results)
+			table_results = add_w_a_q(table_results, alpha, "filled")
+		else:
+			table_results = add_w_a_q(table_results, alpha, "original")
+
+	# If using interpolation or seeded profile, update streamwise components
+	if interpolate or artificial_seeding:
+		# Get the appropriate velocity profile
+		if artificial_seeding:
+			vel_profile = (table_results["filled_seeded_vel_profile"]
+						   if interpolate else table_results["seeded_vel_profile"])
+		else:
+			vel_profile = table_results["filled_streamwise_velocity_magnitude"]
+
+		# Convert to displacement
+		displacement = vel_profile * time_between_frames
+
+		# Convert to real-world coordinates
+		streamwise_east, streamwise_north, crosswise_east, crosswise_north = (
+			get_decomposed_rw_displacement(0 * displacement, displacement, xsection_to_rw)
+		)
+
+		# Convert to pixel coordinates
+		streamwise_x, streamwise_y = get_pix_displacement(
+			streamwise_east, streamwise_north, table_results, transformation_matrix
+		)
+
+		# Update the table
+		table_results["streamwise_x"] = streamwise_x
+		table_results["streamwise_y"] = streamwise_y
 
 	# Calculate additional properties for the river section
 	total_q = np.nansum(table_results["Q"])
@@ -1249,11 +1287,16 @@ def update_current_x_section(
 
 	# Calculate mean velocities
 	table_results["mean_V"] = total_q / total_a
-	table_results["mean_Vs"] = (
-		np.nanmean(table_results["filled_streamwise_velocity_magnitude"])
-		if interpolate
-		else np.nanmean(table_results["streamwise_velocity_magnitude"])
-	)
+	if artificial_seeding:
+		if interpolate:
+			table_results["mean_Vs"] = np.nanmean(table_results["filled_seeded_vel_profile"])
+		else:
+			table_results["mean_Vs"] = np.nanmean(table_results["seeded_vel_profile"])
+	else:
+		if interpolate:
+			table_results["mean_Vs"] = np.nanmean(table_results["filled_streamwise_velocity_magnitude"])
+		else:
+			table_results["mean_Vs"] = np.nanmean(table_results["streamwise_velocity_magnitude"])
 
 	# Update the cross-section data with the calculated fields
 	for key, value in table_results.items():
