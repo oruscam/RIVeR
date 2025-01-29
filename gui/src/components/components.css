@@ -122,7 +122,6 @@
     background-color: var(--bg-track-color);
     pointer-events: none;
     transform: translateY(-50%);
-
 }
 
 #buffered-track {
@@ -220,6 +219,10 @@
 
 .image-with-marks{
     margin: auto 0;
+}
+
+.image-rectification-3d{
+    background-color: var(--background-color);
 }
 
 /* LOADER */
@@ -542,7 +545,6 @@
     /* .video-player{
         margin-top: 20%;
     } */
-
 }
 
 @media screen and (max-height: 1010px){
@@ -557,7 +559,14 @@
     width: 96%;
     margin-left: auto;
     margin-right: auto; 
-    height: 500px;
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: auto;
+    flex-shrink: 0;
+}
+
+#ipcam-grid{
+    max-height: 450px;
 }
 
 
@@ -604,5 +613,26 @@
 
 .cell-red-values{
     color: #ED6B57;
+}
+
+.point-label-cell{
+    cursor: pointer;
+}
+
+.selected {
+    background-color: red;
+}
+
+.highlighted-row {
+    background-color: yellow; /* Puedes cambiar el color según tus necesidades */
+}
+
+.points-map{
+    background-color: white;
+}
+
+#error-message-link{
+    color: var(--primary-text-color);
+    font-weight: bold;
 }
 

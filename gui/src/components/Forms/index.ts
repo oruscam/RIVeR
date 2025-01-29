@@ -8,12 +8,14 @@ import { RealWorldCoordinates } from "./RealWorldCoordinates";
 import { FormResults } from "./FormResults";
 import { FormReport } from "./FormReport";
 import { FormRectification2D } from "./FormRectification2D";
+import { FormRectification3D } from "./FormRectification3D";
 
 export {
-    FormRectification2D,
     FormCrossSections,
     FormPixelSize,
     FormProcessing,
+    FormRectification2D,
+    FormRectification3D,
     FormReport,
     FormResults,
     FormVideo,

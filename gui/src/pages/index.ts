@@ -8,15 +8,17 @@ import { Analize } from "./Analize";
 import { Results } from "./Results";
 import { Report } from "./Report";
 import { Rectification2D } from "./Rectification2D";
+import { Rectification3D } from "./Rectification3D";
 
 export { 
     Analize, 
-    Rectification2D,
     CrossSections, 
     FootageMode, 
     HomePage, 
     PixelSize, 
     Processing, 
+    Rectification2D,
+    Rectification3D,
     Report, 
     Results, 
     VideoRange, 

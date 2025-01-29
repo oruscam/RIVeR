@@ -80,8 +80,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
             }
             input.readOnly = true
             const nextElement = document.getElementById(`${sections[index].name}-DRAW_LINE`)
-            nextElement?.focus()
-                    
+            nextElement?.focus()    
         }       
     }
 

@@ -36,7 +36,7 @@ export const useSectionSlice = () => {
         const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
         // Clean section points for better visualization.
         onUpdateSectionPoints([])
-
+        console.log('onSetDirPoints')
         dispatch(setHasChanged({value: true}))
 
         /**

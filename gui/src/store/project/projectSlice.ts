@@ -5,8 +5,8 @@ const defaultVideo = {
     data : {
         name: "",
         path: "",
-        width: 0,
-        height: 0,
+        width: 2688,
+        height: 1520,
         fps: 0,
         duration: 0,
         creation: "",
@@ -24,7 +24,7 @@ const initialState: ProjectState = {
     projectDirectory: '',
     video: defaultVideo,
     type: '',
-    firstFramePath: '',
+    firstFramePath: 'file:///Y:/ipcam/SUQUIA20240529T1430_seq1_00001.jpg',
     projectDetails: {
         riverName: '',
         site: '',

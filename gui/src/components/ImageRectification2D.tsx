@@ -15,7 +15,6 @@ export const ImageRectification2D = () => {
     const { coordinates, drawPoints, distances } = obliquePoints
     const { imageWidth, imageHeight, factor } = screenSizes  
 
-    const { D12 } = COLORS.CONTROL_POINTS
 
     const { firstFramePath } = useProjectSlice();
     

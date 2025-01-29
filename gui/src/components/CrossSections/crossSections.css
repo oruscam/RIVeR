@@ -103,7 +103,6 @@
 
 .section-button2:hover{
     border: none;
-    transform: scale(1.1);
     border: solid 2px;
 }
 

@@ -41,7 +41,7 @@ export const FootageMode = () => {
     const onClickItem = async (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         const type = event.currentTarget.id;
-        if (type !== 'uav' && type !== 'oblique') return;
+        if (type !== 'uav' && type !== 'oblique' && type !== 'ipcam') return;
         try {
             const { path, name } = await onGetVideo();
             setVideo({ name, path, type });

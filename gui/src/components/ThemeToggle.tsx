@@ -3,7 +3,7 @@ import "@theme-toggles/react/css/Classic.css";
 import { Classic } from "@theme-toggles/react";
 import { useUiSlice } from '../hooks/useUiSlice';
 
-export const ThemeToggle: React.FC = () => {
+export const ThemeToggle = () => {
   const { darkMode, onChangeTheme } = useUiSlice();
   
   return (

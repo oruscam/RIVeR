@@ -10,6 +10,7 @@ import { firstFrame } from "./firstFrame";
 import { getQuiver } from "./getQuiver";
 import { getVideo } from "./getVideo";
 import { getBathimetry } from "./getBathimety";
+import { calculate3dRectification } from "./calculate3dRectification";
 
 
 export {
@@ -21,6 +22,7 @@ export {
     getVideo,
     initProject,
     loadProject,
+    calculate3dRectification,
     pixelSize,
     pixelToRealWorld,
     realWorldToPixel,

@@ -96,7 +96,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         </div>
         
         <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '800px'}}>
-          <AllInOne isReport={false} height={700}></AllInOne>
+          <AllInOne isReport={false} height={700}/>
         </div>
 
         <span className="mt-1"></span>
@@ -108,14 +108,6 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
             onBlur={handleOnChangeInput}
           ></input>
         </div>
-
-        {/* <div className="switch-container-2 mt-2">
-          <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
-          <label className="switch">
-              <input type="checkbox" {...register(`${name}_ARTIFICIAL_SEEDING`)}/>
-              <span className="slider"></span>
-          </label>
-        </div> */}
 
         <div className="switch-container-2 mt-1 ">
           <h3 className="field-title">{t('Results.showVelStd')}</h3>
@@ -130,6 +122,14 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
           <label className="switch">
             <input type="checkbox" {...register(`${name}_SHOW_PERCENTILE`)} defaultChecked={data?.showPercentile} onChange={handleOnChange} id="show-percentile"/>
             <span className="slider"></span>
+          </label>
+        </div>
+
+        <div className="switch-container-2 mt-2">
+          <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
+          <label className="switch">
+              <input type="checkbox" {...register(`${name}_ARTIFICIAL_SEEDING`)}/>
+              <span className="slider"></span>
           </label>
         </div>
 

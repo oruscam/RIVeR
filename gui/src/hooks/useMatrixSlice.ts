@@ -1,16 +1,19 @@
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../store/store";
 import { CanvasPoint, FormDistance, Point } from "../types";
-import { setObliquePoints, setDrawPoints, setHasChanged } from "../store/matrix/matrixSlice";
+import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint } from "../store/matrix/matrixSlice";
 import { adapterObliquePointsDistances, createSquare} from "../helpers";
 import { ScreenSizes } from "../store/ui/types";
 import { FieldValues } from "react-hook-form";
 import { cleanSections, setTransformationMatrix } from "../store/section/sectionSlice";
 import { setLoading } from "../store/ui/uiSlice"
+import { ResourceNotFoundError } from "../errors/errors";
+import { useTranslation } from "react-i18next";
 
 export const useMatrixSlice = () => {
     const dispatch = useDispatch();
-    const { pixelSize, obliquePoints, hasChanged } = useSelector((state: RootState) => state.matrix);
+    const { pixelSize, obliquePoints, hasChanged, ipcam } = useSelector((state: RootState) => state.matrix);
+    const { t } = useTranslation()
 
     const onSetObliqueCoordinates = ( points: Point[], screenSizes: ScreenSizes ) => {
         const { imageWidth, imageHeight, factor } = screenSizes;
@@ -46,6 +49,31 @@ export const useMatrixSlice = () => {
         dispatch(setDrawPoints());
     }
 
+    const onGetDistances = async () => {
+        const ipcRenderer = window.ipcRenderer
+
+        const { isDistancesLoaded } = obliquePoints
+
+        if ( isDistancesLoaded ) {
+            dispatch(setObliquePoints({ ...obliquePoints, isDistancesLoaded: false, distances: { d12: 0, d13: 0, d23: 0, d24: 0, d34: 0, d41: 0 } }));
+            return
+        }
+
+        try {
+            const { distances, error } = await ipcRenderer.invoke('import-distances')
+
+            if ( error ){
+                throw new Error(error.message)
+            }
+
+            dispatch(setObliquePoints({ ...obliquePoints, isDistancesLoaded: true, distances }));
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new ResourceNotFoundError(error.message, t); 
+            } 
+        }
+    }
+
     const onGetTransformtionMatrix = async (type: 'uav' | 'ipcam' | 'oblique', formDistances: FieldValues) => {
         dispatch(setLoading(true))
 
@@ -72,7 +100,7 @@ export const useMatrixSlice = () => {
                 const { oblique_matrix } = await ipcRenderer.invoke('set-control-points', {coordinates, distances: newDistances})
 
                 dispatch(setTransformationMatrix(oblique_matrix));
-                dispatch(setObliquePoints({...obliquePoints, distances: newDistances}));
+                dispatch(setObliquePoints({...obliquePoints, distances: newDistances, isDistancesLoaded: true}));
                 dispatch(cleanSections())
                 dispatch(setLoading(false))
                 dispatch(setHasChanged(false));
@@ -81,18 +109,157 @@ export const useMatrixSlice = () => {
             }
         }
     }
-    
 
+    const onGetPoints = async () => {
+        const ipcRenderer = window.ipcRenderer
+
+        try {
+            const data = await ipcRenderer.invoke('import-points', { path: undefined });
+           
+            dispatch(setIpcamPoints({ points: data.points, path: data.path }));
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const onGetImages = async ( folderPath: string | undefined ) => {
+        const ipcRenderer = window.ipcRenderer
+
+        try {
+            const { images, path, error} = await ipcRenderer.invoke('ipcam-images', { folderPath });
+            if ( error ){
+                throw new Error(error.message)
+            }
+            
+            dispatch(setIpcamImages({
+                images: images,
+                path: path
+            }));
+        } catch (error) {
+            if ( error instanceof Error ){
+                throw new ResourceNotFoundError(error.message, t);
+            }
+        }
+    }
+
+    const changeIpcamPointSelected = ( index: number ) => {
+        if ( ipcam.importedPoints === undefined ) return;
+        const newPoints = ipcam.importedPoints.map((point, i) => {
+            if (i === index) {
+                if ( point.selected === true ){
+                    return { ...point, x: 0, y: 0, selected: !point.selected, wasEstablished: false, image: undefined };
+                } else {
+                    return { ...point, selected: !point.selected };
+                }
+            }
+            return point;
+        });
+
+        dispatch(setIpcamPoints({ points: newPoints, path: undefined }))
+    }
+
+    const onChangeActiveImage = ( index: number ) => {
+        if ( index !== ipcam.activeImage ){
+            dispatch(setActiveImage(index));
+        }
+    }
+
+    interface setIpcamPointPixelCoordinatesInterface {
+        index: number,
+        imageSize?: {
+            width: number, 
+            height: number
+        },
+        point?: {
+            x: number,
+            y: number
+        } 
+    }
+
+    const setIpcamPointPixelCoordinates = ( { index, imageSize, point } : setIpcamPointPixelCoordinatesInterface) => {
+        console.log('index', index)
+        const { importedPoints, activeImage } = ipcam
+        if ( importedPoints === undefined ) return;
+
+        let newPoint = { ...importedPoints[index] }
+
+        console.log(newPoint)
+
+        // Primer caso, cuando se establece el punto en el centro.
+
+        if ( newPoint.wasEstablished === false && imageSize ){
+            console.log('Primer caso')
+
+            newPoint.x = imageSize.width / 2
+            newPoint.y = imageSize.height / 2
+
+            dispatch(setCustomIpcamPoint({
+                point: newPoint,
+                index
+            }))
+        }   
+
+        // Segundo caso, cuando se establece el punto en una posición diferente al centro.
+
+        if ( point ) {
+            console.log('segundo caso')
+            newPoint.x = point.x
+            newPoint.y = point.y
+            newPoint.wasEstablished = true
+            newPoint.image = activeImage
+
+            dispatch(setCustomIpcamPoint({
+                point: newPoint,
+                index
+            }))
+        }
+
+        // Tercer caso, cuando se hace seleccionable un punto que ya se encuentra establecido. No se hace nada
+        if ( newPoint.wasEstablished === true && imageSize ) {
+
+            console.log('Tercer caso')
+
+
+            dispatch(setCustomIpcamPoint({
+                point: newPoint,
+                index
+            }))
+        }
+
+    }
+
+    const onCalculate3dRectification = async ( type: string ) => {
+        const ipcRenderer = window.ipcRenderer
+
+        try {
+            await ipcRenderer.invoke('calculate-3d-rectification', {
+                points: ipcam.importedPoints,
+                type
+            })
+        } catch (error) {
+            console.log(error)
+        }
+    }
+    
+ 
     return {
         // ATRIBUTES
-        pixelSize,
-        obliquePoints,
         hasChanged,
+        ipcam,
+        obliquePoints,
+        pixelSize,
 
         // METHODS
-        onSetObliqueCoordinates,
+        changeIpcamPointSelected,
+        onChangeActiveImage,
         onChangeObliqueCoordinates,
+        onGetDistances,
+        onGetImages,
+        onGetPoints,
+        onGetTransformtionMatrix,
         onSetDrawPoints,
-        onGetTransformtionMatrix
+        onSetObliqueCoordinates,
+        setIpcamPointPixelCoordinates,
+        onCalculate3dRectification,
     }
 }

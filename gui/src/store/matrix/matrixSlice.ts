@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { obliquePoints, MatrixState, pixelSize } from "./types";
+import { obliquePoints, MatrixState, pixelSize, setIpcamPointsInterface, setIpcamImagesInterface, setIpcamCustomPoint } from "./types";
 
 const initialState: MatrixState = {
     pixelSize: {
@@ -20,7 +20,16 @@ const initialState: MatrixState = {
             d13: 0,
             d24: 0,
         },
-        isDefaultCoordinates: true
+        isDefaultCoordinates: true,
+        isDistancesLoaded: false,
+    },
+    ipcam: {
+        pointsPath: undefined,
+        imagesPath: undefined,
+        importedPoints: undefined,
+        importedImages: undefined,
+        activeImage: undefined,
+        activePoint: undefined,
     },
     hasChanged: false,
 }
@@ -47,10 +56,31 @@ const matrixSlice = createSlice({
                 d34: 0,
             },
             state.obliquePoints.isDefaultCoordinates = true
+            state.obliquePoints.isDistancesLoaded = false
         },
         setHasChanged: ( state, action: PayloadAction<boolean> ) => {
-            console.log('HasChanged en setHasChanged', action.payload)
             state.hasChanged = action.payload
+        },
+        setIpcamPoints: ( state, action: PayloadAction<setIpcamPointsInterface> ) => {
+            state.ipcam.importedPoints = action.payload.points;
+            if ( action.payload.path !== undefined ){
+                state.ipcam.pointsPath = action.payload.path;
+            }
+        },
+        setIpcamImages: ( state, action: PayloadAction<setIpcamImagesInterface> ) => {
+            state.ipcam.importedImages = action.payload.images
+            state.ipcam.imagesPath = action.payload.path
+            state.ipcam.activeImage = 0
+            state.ipcam.activePoint = 0
+        },
+        setActiveImage: ( state, action: PayloadAction<number> ) => {
+            state.ipcam.activeImage = action.payload
+        },
+        setCustomIpcamPoint: ( state, action: PayloadAction<setIpcamCustomPoint> ) => {
+            if ( state.ipcam.importedPoints ){
+                state.ipcam.importedPoints[action.payload.index] = action.payload.point
+                state.ipcam.activePoint = action.payload.index
+            }
         }
     }
 })
@@ -59,7 +89,11 @@ export const {
     setPixelSize,
     setObliquePoints,
     setDrawPoints,
-    setHasChanged
+    setHasChanged,
+    setIpcamPoints,
+    setIpcamImages,
+    setActiveImage,
+    setCustomIpcamPoint
 } = matrixSlice.actions
 
 export default matrixSlice.reducer

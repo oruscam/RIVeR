@@ -35,7 +35,12 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
 
       } else {
         setValue(`${name}_LEVEL`, bathimetry.level);
-        onSetErrorMessage({ Level: { type: "error", message: `Level must be between ${yMin?.toFixed(2)} and ${yMax?.toFixed(2)}` } });
+        onSetErrorMessage({ 
+          Level: { 
+            type: "error", 
+            message: t('CrossSections.Errors.levelError', { yMin: yMin?.toFixed(2), yMax: yMax?.toFixed(2) }) 
+          } 
+        });
       }
     }
   };
@@ -55,7 +60,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
         onUpdateSection({ leftBank: value });
         
       } else {
-        onSetErrorMessage({ LeftBank: { type: "Error", message: `Left Bank is out of range` }});
+        onSetErrorMessage({ LeftBank: { type: "Error", message: t('CrossSections.Errors.leftBank')}});
         setValue(`${name}_LEFT_BANK`, leftBank);
       }
     }

@@ -74,6 +74,8 @@ export const GRAPHS = {
     WIDTH_PROPORTION: 0.22,
     MIN_WIDTH: 375,
     GRID_Y_OFFSET: 10,
+    IPCAM_GRID_PROPORTION: 0.27,
+    IPCAM_GRID_PADDING: 10,
 }
 
 /**

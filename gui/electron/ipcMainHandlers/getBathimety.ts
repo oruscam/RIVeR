@@ -2,7 +2,6 @@ import { dialog, ipcMain } from "electron"
 import { basename } from 'path'
 import {readFile, utils, set_fs, writeFile} from 'xlsx'
 import * as fs from 'fs'
-import { index, line, max } from "d3"
 
 set_fs(fs)
 
