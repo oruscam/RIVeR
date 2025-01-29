@@ -1,12 +1,14 @@
 import json
 from io import TextIOWrapper
+from pathlib import Path
 from typing import Optional
 
 import click
 import numpy as np
+from PIL import Image
 
 import river.core.coordinate_transform as ct
-from river.cli.commands.exceptions import WrongSizeTransformationMatrix
+from river.cli.commands.exceptions import MissingWorkdir, WrongSizeTransformationMatrix
 from river.cli.commands.utils import render_response
 
 UAV_TYPE = "uav"
@@ -115,3 +117,53 @@ def transform_real_world_to_pixel(
 		)
 
 	return {"pix_coordinates": ct.transform_real_world_to_pixel(x_pix, y_pix, transformation_matrix).tolist()}
+
+
+@click.command(help="Get camera matrix, position, uncertainty ellipses, and optionally generate orthorectified image.")
+@click.argument("grp-dict", type=click.File(), envvar="GRP_DICT")
+@click.option("--image-path", default=None, type=click.Path(exists=True), envvar="IMAGE_PATH")
+@click.option("--optimize-solution", default=False, is_flag=True)
+@click.option("--ortho-resolution", default=0.1, type=click.FLOAT)
+@click.option("--southern-hemisphere/--northern-hemisphere", default=True)
+@click.option("--confidence", default=0.95, type=click.FLOAT)
+@click.option(
+	"-w",
+	"--workdir",
+	envvar="WORKDIR",
+	help="Directory to save the ortho image.",
+	type=click.Path(exists=True, dir_okay=True, writable=True, resolve_path=True, path_type=Path),
+)
+@render_response
+def get_camera_solution(
+	grp_dict: TextIOWrapper,
+	image_path: Optional[Path],
+	optimize_solution: bool,
+	ortho_resolution: float,
+	southern_hemisphere: bool,
+	confidence: float,
+	workdir: Optional[Path],
+) -> dict:
+	"""Get camera matrix, position, uncertainty ellipses, and optionally generate orthorectified image."""
+
+	if workdir is None and image_path is not None:
+		raise MissingWorkdir("To save the 'ortho_image.png' is needed to provide a workdir.")
+
+	grp_dict = json.loads(grp_dict.read())
+
+	camera_solution = ct.get_camera_solution(
+		grp_dict=grp_dict,
+		optimize_solution=optimize_solution,
+		image_path=image_path,
+		ortho_resolution=ortho_resolution,
+		southern_hemisphere=southern_hemisphere,
+		confidence=confidence,
+	)
+
+	if image_path is not None:
+		ortho_image = camera_solution.pop("ortho_image", None)
+		ortho_image = Image.fromarray(ortho_image, "RGBA")
+		ortho_image_path = workdir.joinpath("ortho_image.png")
+		ortho_image.save(ortho_image_path)
+		camera_solution.update({"ortho_image_path": str(ortho_image_path)})
+
+	return camera_solution
