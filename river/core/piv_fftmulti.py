@@ -16,24 +16,7 @@ from typing import Optional
 import numpy as np
 from scipy.interpolate import griddata
 import river.core.matlab_smoothn as smoothn
-
-# Example of usage
-#
-# image1 = cv2.imread('0000000001.jpg', cv2.IMREAD_GRAYSCALE)
-# image2 = cv2.imread('0000000003.jpg', cv2.IMREAD_GRAYSCALE)
-# interrogationarea = 128
-# json_transformation = 'uav_transformation_matrix.json'
-# json_settings = 'settings.json'
-# height_roi = 5
-#
-# mask, bbox = drm.create_mask_and_bbox(image1, json_settings, json_transformation, height_roi)
-# xtable, ytable, utable, vtable, typevector, gradient = piv_fftmulti(image1, image2, mask, bbox, interrogationarea)
-#
-# fig, ax = plt.subplots(1)
-# ax.imshow(image1)
-# ax.imshow(mask, alpha=0.5)
-# ax.quiver(xtable[typevector == 1], ytable[typevector == 1], utable[typevector == 1], -vtable[typevector == 1])
-
+from scipy.interpolate import RegularGridInterpolator,Rbf, NearestNDInterpolator
 
 def piv_fftmulti(
 	image1: np.ndarray,
@@ -323,48 +306,38 @@ def process_roi(roi_input: list, image1: np.ndarray, image2: np.ndarray, mask: O
 
 
 def calculate_bounds(image_shape: tuple, interrogation_area: int, step: int) -> tuple:
-	"""
-	Calculate boundary coordinates for processing.
-
-	Parameters:
-	image_shape (tuple): Shape of the image (height, width).
-	interrogationarea (int): Size of the interrogation area.
-	step (int): Step size for processing.
-
-	Returns:
-	tuple: A tuple containing miniy, minix, maxiy, maxix.
-	"""
+	# Calculate minimum bounds
 	half_ia = math.ceil(interrogation_area / 2)
 	miniy = 1 + half_ia
 	minix = 1 + half_ia
+
+	# Calculate maximum bounds
 	maxiy = step * (math.floor(image_shape[0] / step)) - (interrogation_area - 1) + half_ia
 	maxix = step * (math.floor(image_shape[1] / step)) - (interrogation_area - 1) + half_ia
 
+	# Calculate number of elements
 	numelementsx = math.floor((maxix - minix) / step + 1)
 	numelementsy = math.floor((maxiy - miniy) / step + 1)
 
-	LAy = miniy
-	LAx = minix
-	LUy = image_shape[0] - maxiy
-	LUx = image_shape[1] - maxix
-	shift4centery = rvr_round((LUy - LAy) / 2)
-	shift4centerx = rvr_round((LUx - LAx) / 2)
+	# Calculate left and upper bounds
+	lay = miniy
+	lax = minix
+	luy = image_shape[0] - maxiy
+	lux = image_shape[1] - maxix
 
-	# shift4center will be negative if in the unshifted case the left border is bigger than the right border.
-	# the vectormatrix is hence not centered on the image. the matrix cannot be shifted more towards the left
-	# border because then image2_crop would have a negative index. The only way to center the matrix would be
-	# to remove a column of vectors on the right side. but then we would have less data....
+	# Compute shift for centering
+	shift4centery = rvr_round((luy - lay) / 2)
+	shift4centerx = rvr_round((lux - lax) / 2)
 
-	if shift4centery < 0:
-		shift4centery = 0
+	# Ensure shifts are non-negative
+	shift4centery = max(shift4centery, 0)
+	shift4centerx = max(shift4centerx, 0)
 
-	if shift4centerx < 0:
-		shift4centerx = 0
-
-	miniy = miniy + shift4centery
-	minix = minix + shift4centerx
-	maxix = maxix + shift4centerx
-	maxiy = maxiy + shift4centery
+	# Adjust bounds
+	miniy += shift4centery
+	minix += shift4centerx
+	maxix += shift4centerx
+	maxiy += shift4centery
 
 	return miniy, minix, maxiy, maxix, numelementsx, numelementsy
 
@@ -969,23 +942,46 @@ def filter_fluctiations(
 	return utable, vtable
 
 def inpaint_nans(img_float):
-    # Get coordinates of non-nan values
+
+    n, m = img_float.shape
+    nm = n * m
+
     valid_mask = ~np.isnan(img_float)
     coords = np.array(np.nonzero(valid_mask)).T
     values = img_float[valid_mask]
 
-    # Get coordinates of nan values
     nan_mask = np.isnan(img_float)
     nan_coords = np.array(np.nonzero(nan_mask)).T
 
-    # Interpolate
-    interpolated = griddata(coords, values, nan_coords, method='cubic')
+    if len(coords) > 0:
+        # Use cubic function for RBF
+        rbf = Rbf(coords[:, 0], coords[:, 1], values, function='cubic')
+        interpolated_cubic = rbf(nan_coords[:, 0], nan_coords[:, 1])
 
-    # Create output array and fill with interpolated values
-    out = img_float.copy()
-    out[nan_mask] = interpolated
+        # Use inverse with even smaller epsilon
+        rbf_inv = Rbf(coords[:, 0], coords[:, 1], values, function='inverse', epsilon=1.5)
+        interpolated_inv = rbf_inv(nan_coords[:, 0], nan_coords[:, 1])
 
-    return out
+        nn = NearestNDInterpolator(coords, values)
+        nn_values = nn(nan_coords)
+
+        # Much more aggressive weight changes
+        alpha = 0.75  # Significantly increased cubic weight
+        beta = 0.24  # Decreased inverse weight
+        gamma = 0.01  # Minimal nearest neighbor influence
+        interpolated = (alpha * interpolated_cubic +
+                        beta * interpolated_inv +
+                        gamma * nn_values)
+
+        out = img_float.copy()
+        out[nan_mask] = interpolated
+
+        out = out.T.reshape([nm, 1])
+        out = out.reshape(m, n).T
+
+        return out
+    else:
+        return img_float
 
 def interpgrade(table):
 	if table.size > 3:
@@ -1094,7 +1090,7 @@ def interpolate_tables(
 
 
 def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray, image2_roi: np.ndarray) -> np.ndarray:
-	"""
+    """
     Interpolate the velocity fields U and V onto a regular grid and use them to warp image2_roi.
 
     Parameters:
@@ -1107,32 +1103,52 @@ def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray, im
     Returns:
         numpy.ndarray: Warped image2_roi, xb array, yb array.
     """
-	# Generate 1D coordinate arrays for interpolation
-	x1d = np.arange(X[0, 0], X[0, -1], 1)
-	y1d = np.arange(Y[0, 0], Y[-1, 0], 1)
+    # Generate 1D coordinate arrays for interpolation
+    x1d = np.arange(X[0, 0], X[0, -1], 1)
+    y1d = np.arange(Y[0, 0], Y[-1, 0], 1)
 
-	# Create meshgrids for coordinates
-	Y1, X1 = np.meshgrid(y1d, x1d, indexing='ij')
+    # Create meshgrids for coordinates
+    Y1, X1 = np.meshgrid(y1d, x1d, indexing='ij')
 
-	# Interpolate U and V to the regular grid
-	U_interp = interpolate.interp2d(X[0, :], Y[:, 0], U, kind='linear')
-	V_interp = interpolate.interp2d(X[0, :], Y[:, 0], V, kind='linear')
-	U1 = U_interp(x1d, y1d)
-	V1 = V_interp(x1d, y1d)
+    # Create RegularGridInterpolator for U and V
+    U_interp = RegularGridInterpolator((Y[:, 0], X[0, :]), U, method='linear', bounds_error=False, fill_value=None)
+    V_interp = RegularGridInterpolator((Y[:, 0], X[0, :]), V, method='linear', bounds_error=False, fill_value=None)
 
-	# Define warped coordinates
-	X_warp = X1 + U1
-	Y_warp = Y1 + V1
+    # Create points for interpolation
+    points = np.stack((Y1.ravel(), X1.ravel()), axis=-1)
 
-	# Interpolate the image with map_coordinates
-	coordinates = np.array([Y_warp.ravel(), X_warp.ravel()])
-	image2_crop_i1 = ndimage.map_coordinates(image2_roi, coordinates, order=1, mode='nearest').reshape(Y1.shape)
+    # Interpolate U and V
+    U1 = U_interp(points).reshape(Y1.shape)
+    V1 = V_interp(points).reshape(Y1.shape)
 
-	# Compute boundaries
-	xb = np.flatnonzero(np.abs(x1d - X[0, 0]) < 1e-10) + 1
-	yb = np.flatnonzero(np.abs(y1d - Y[0, 0]) < 1e-10) + 1
+    # Define warped coordinates
+    X_warp = X1 + U1
+    Y_warp = Y1 + V1
 
-	return image2_crop_i1, xb, yb
+    # Create coordinate system for image interpolation starting from 1
+    y_param = np.arange(1, image2_roi.shape[0] + 1)
+    x_param = np.arange(1, image2_roi.shape[1] + 1)
+
+    # Create interpolator for the image
+    image_interp = RegularGridInterpolator(
+        (y_param, x_param),
+        image2_roi.astype(np.float32),
+        method='linear',
+        bounds_error=False,
+        fill_value=None
+    )
+
+    # Prepare points for image interpolation
+    points = np.stack([Y_warp.ravel(), X_warp.ravel()], axis=1)
+
+    # Interpolate the image
+    image2_crop_i1 = image_interp(points).reshape(Y1.shape)
+
+    # Compute boundaries
+    xb = np.flatnonzero(np.abs(x1d - X[0, 0]) < 1e-10) + 1
+    yb = np.flatnonzero(np.abs(y1d - Y[0, 0]) < 1e-10) + 1
+
+    return image2_crop_i1, xb, yb
 def calculate_gradient(
 	image1_cut: np.ndarray, image2_cut: np.ndarray, image1_roi: np.ndarray, utable: np.ndarray, ii_backup: int | list
 ) -> np.ndarray:
