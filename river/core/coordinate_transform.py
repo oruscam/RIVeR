@@ -9,6 +9,31 @@ from scipy.optimize import minimize
 from river.core.exceptions import OptimalCameraMatrixError
 
 
+def get_homography_from_camera_matrix(P: np.ndarray, z_level: float) -> np.ndarray:
+	"""
+	Convert a camera matrix P to a homography matrix H for points lying on plane Z=z_level.
+	    Parameters:
+	    P (np.ndarray): 3x4 camera matrix
+	    z_level (float): Z coordinate of the plane
+
+	Returns:
+	    np.ndarray: 3x3 transformation_matrix
+	"""
+	# The camera matrix P can be written as [M|p4] where M is 3x3 and p4 is 3x1
+	M = P[:, :3]  # First three columns
+	p4 = P[:, 3]  # Last column
+
+	# For points on plane Z=z_level, the homography is:
+	# H = M[:, [0,1]] + z_level * M[:, [2]] + p4
+	H = np.zeros((3, 3))
+	H[:, :2] = M[:, :2]  # Copy first two columns
+	H[:, 2] = z_level * M[:, 2] + p4  # Third column is z_level times third column of M plus p4
+
+	transformation_matrix = np.linalg.inv(H)
+
+	return transformation_matrix
+
+
 def orthorectify_image(
 	image_path: Path,
 	cam_solution: dict,
