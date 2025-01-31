@@ -3,7 +3,6 @@ File Name: piv_pipeline.py
 Project Name: RIVeR-LAC
 Description: Perform image filtering before Particle Image Velocimetry (PIV) on a pair of frame (Test) or a list of frames.
 
-Created Date: 2024-07-22
 Author: Antoine Patalano
 Email: antoine.patalano@unc.edu.ar
 Company: UNC / ORUS
@@ -40,7 +39,6 @@ def run_test(
 	median_test_filter: bool = True,
 	epsilon: float = 0.02,
 	threshold: int = 2,
-	seeding_filter: bool = False,
 	step: Optional[int] = None,
 	filter_grayscale: bool = True,
 	filter_clahe: bool = True,
@@ -77,8 +75,6 @@ def run_test(
 	    The epsilon value for median test filtering. Default is 0.02.
 	threshold : float, optional
 	    The threshold value for median test filtering. Default is 2.
-	seeding_filter : bool, optional
-	    Whether to apply seeding filtering. Default is False.
 	step : int, optional
 	    The step size for grid calculations.
 	filter_grayscale : bool, optional
@@ -131,7 +127,6 @@ def run_test(
 		median_test_filter=median_test_filter,
 		epsilon=epsilon,
 		threshold=threshold,
-		seeding_filter=seeding_filter,
 		step=step,
 	)
 	# Create in_mask array and check points against the mask
@@ -167,7 +162,6 @@ def run_analyze_all(
 		median_test_filter: bool = True,
 		epsilon: float = 0.02,
 		threshold: int = 2,
-		seeding_filter: bool = False,
 		step: Optional[int] = None,
 		filter_grayscale: bool = True,
 		filter_clahe: bool = True,
@@ -218,7 +212,6 @@ def run_analyze_all(
 		median_test_filter,
 		epsilon,
 		threshold,
-		seeding_filter,
 		step,
 		filter_grayscale,
 		filter_clahe,
@@ -261,8 +254,8 @@ def run_analyze_all(
 		"v": np.zeros((expected_size, 0)),
 		"typevector": np.zeros((expected_size, 0))
 	}
-	if seeding_filter:
-		dict_cumul["gradient"] = np.zeros((expected_size, 0))
+
+	dict_cumul["gradient"] = np.zeros((expected_size, 0))
 
 	xtable = test_result["x"]
 	ytable = test_result["y"]
@@ -289,7 +282,6 @@ def run_analyze_all(
 				median_test_filter,
 				epsilon,
 				threshold,
-				seeding_filter,
 				step,
 				filter_grayscale,
 				filter_clahe,
@@ -315,8 +307,8 @@ def run_analyze_all(
 					dict_cumul["u"] = np.hstack((dict_cumul["u"], result["u"]))
 					dict_cumul["v"] = np.hstack((dict_cumul["v"], result["v"]))
 					dict_cumul["typevector"] = np.hstack((dict_cumul["typevector"], result["typevector"]))
-					if seeding_filter:
-						dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], result["gradient"]))
+
+					dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], result["gradient"]))
 
 					successful_pairs.append((Path(img1).name, Path(img2).name))
 
@@ -352,7 +344,7 @@ def run_analyze_all(
 		"v": dict_cumul["v"].T.tolist()
 	}
 
-	if seeding_filter:
-		results["gradient"] = dict_cumul["gradient"].T.tolist()
+
+	results["gradient"] = dict_cumul["gradient"].T.tolist()
 
 	return results

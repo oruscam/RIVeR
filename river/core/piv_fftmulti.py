@@ -3,7 +3,6 @@ File Name: piv_fftmulti.py
 Project Name: RIVeR-LAC
 Description: Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
 
-Created Date: 2024-07-18
 Author: Antoine Patalano
 Email: antoine.patalano@unc.edu.ar
 Company: UNC / ORUS
@@ -32,7 +31,6 @@ def piv_fftmulti(
 	median_test_filter: bool = True,
 	epsilon: float = 0.02,
 	threshold: float = 2,
-	seeding_filter: bool = False,
 	step: Optional[int] = None,
 ):
 	"""
@@ -235,8 +233,8 @@ def piv_fftmulti(
 	if median_test_filter:
 		utable, vtable = filter_fluctiations(utable, vtable, epsilon=epsilon, threshold=threshold)
 
-	if seeding_filter:
-		gradient_sum_result = calculate_gradient(image1_cut, image2_cut, image1_roi, utable, ii_bckup)
+
+	gradient_sum_result = calculate_gradient(image1_cut, image2_cut, image1_roi, utable, ii_bckup)
 
 	# # Optionally replace NaN values in utable and vtable with interpolated values
 	# utable = inpaint_nans(utable)
