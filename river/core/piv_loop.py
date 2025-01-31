@@ -6,7 +6,6 @@ Description: This module contains the `piv_loop` function, which performs Partic
              and computes velocity fields using the `piv_fftmulti` function. The results are returned as a cumulative
              dictionary containing the calculated velocity vectors and other relevant data.
 
-Created Date: 2024-07-23
 Author: Antoine Patalano
 Email: antoine.patalano@unc.edu.ar
 Company: UNC / ORUS
@@ -33,7 +32,6 @@ def piv_loop(
 		median_test_filter: bool,
 		epsilon: float,
 		threshold: float,
-		seeding_filter: bool,
 		step: int,
 		filter_grayscale: bool,
 		filter_clahe: bool,
@@ -76,7 +74,6 @@ def piv_loop(
 			median_test_filter=median_test_filter,
 			epsilon=epsilon,
 			threshold=threshold,
-			seeding_filter=seeding_filter,
 			step=step,
 		)
 
@@ -95,15 +92,13 @@ def piv_loop(
 			dict_cumul["u"] = np.hstack((dict_cumul["u"], utable.reshape(-1, 1)))
 			dict_cumul["v"] = np.hstack((dict_cumul["v"], vtable.reshape(-1, 1)))
 			dict_cumul["typevector"] = np.hstack((dict_cumul["typevector"], typevector.reshape(-1, 1)))
-			if seeding_filter:
-				dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], gradient.reshape(-1, 1)))
+			dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], gradient.reshape(-1, 1)))
 
 		except ValueError:
 			dict_cumul["u"] = utable.reshape(-1, 1)
 			dict_cumul["v"] = vtable.reshape(-1, 1)
 			dict_cumul["typevector"] = typevector.reshape(-1, 1)
-			if seeding_filter:
-				dict_cumul["gradient"] = gradient.reshape(-1, 1)
+			dict_cumul["gradient"] = gradient.reshape(-1, 1)
 			dict_cumul["x"] = xtable
 			dict_cumul["y"] = ytable
 
