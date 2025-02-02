@@ -2,16 +2,18 @@ import csv
 from typing import Optional, Tuple
 
 import numpy as np
-from scipy.interpolate import griddata
 from numba import jit
+from scipy.interpolate import griddata
+
+
 import river.core.coordinate_transform as ct
 
 
 @jit(nopython=True)
 def _interpolate_gradient_numba(points: np.ndarray, values: np.ndarray, coords: np.ndarray) -> np.ndarray:
 	"""
-    Numba-optimized nearest neighbor interpolation for gradients.
-    """
+	Numba-optimized nearest neighbor interpolation for gradients.
+	"""
 	result = np.zeros(len(coords))
 
 	for i in range(len(coords)):
@@ -26,8 +28,8 @@ def _interpolate_gradient_numba(points: np.ndarray, values: np.ndarray, coords: 
 
 def get_cs_gradient_optimized(coord_x, coord_y, X, Y, gradient_values):
 	"""
-    Optimized version of get_cs_gradient using Numba.
-    """
+	Optimized version of get_cs_gradient using Numba.
+	"""
 	# Prepare points for interpolation
 	points = np.column_stack((X.flatten(), Y.flatten()))
 	gradient_values_flat = gradient_values.flatten()
@@ -38,11 +40,12 @@ def get_cs_gradient_optimized(coord_x, coord_y, X, Y, gradient_values):
 
 
 @jit(nopython=True)
-def get_artificial_seeded_profile_optimized(velocity: np.ndarray, gradient: np.ndarray,
-											percentile: float = 85.0) -> np.ndarray:
+def get_artificial_seeded_profile_optimized(
+	velocity: np.ndarray, gradient: np.ndarray, percentile: float = 85.0
+) -> np.ndarray:
 	"""
-    Numba-optimized version of get_artificial_seeded_profile.
-    """
+	Numba-optimized version of get_artificial_seeded_profile.
+	"""
 	n_stations, n_times = gradient.shape
 	mean_profile = np.zeros(n_stations)
 
@@ -98,8 +101,8 @@ def get_artificial_seeded_profile_optimized(velocity: np.ndarray, gradient: np.n
 @jit(nopython=True)
 def transform_pixel_to_real_world_numba(x_pix: float, y_pix: float, transformation_matrix: np.ndarray) -> np.ndarray:
 	"""
-    Numba version of transform_pixel_to_real_world that exactly matches the original in coordinate_transform.py.
-    """
+	Numba version of transform_pixel_to_real_world that exactly matches the original in coordinate_transform.py.
+	"""
 	# Create pixel coordinate vector
 	pixel_vector = np.array([x_pix, y_pix, 1.0])
 
@@ -119,15 +122,15 @@ def transform_pixel_to_real_world_numba(x_pix: float, y_pix: float, transformati
 
 @jit(nopython=True)
 def convert_displacement_field_numba(
-		X: np.ndarray[np.float64],
-		Y: np.ndarray[np.float64],
-		U: np.ndarray[np.float64],
-		V: np.ndarray[np.float64],
-		transformation_matrix: np.ndarray[np.float64]
+	X: np.ndarray[np.float64],
+	Y: np.ndarray[np.float64],
+	U: np.ndarray[np.float64],
+	V: np.ndarray[np.float64],
+	transformation_matrix: np.ndarray[np.float64],
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 	"""
-    Numba version of convert_displacement_field from coordinate_transform.py.
-    """
+	Numba version of convert_displacement_field from coordinate_transform.py.
+	"""
 	rows, cols = X.shape
 
 	# Initialize output arrays
@@ -146,9 +149,7 @@ def convert_displacement_field_numba(
 
 			# Convert displaced coordinates
 			displaced_coords = transform_pixel_to_real_world_numba(
-				X[i, j] + U[i, j],
-				Y[i, j] + V[i, j],
-				transformation_matrix
+				X[i, j] + U[i, j], Y[i, j] + V[i, j], transformation_matrix
 			)
 
 			# Calculate displacements
@@ -156,6 +157,7 @@ def convert_displacement_field_numba(
 			Displacement_NORTH[i, j] = displaced_coords[1] - NORTH[i, j]
 
 	return EAST, NORTH, Displacement_EAST, Displacement_NORTH
+
 
 def calculate_station_coordinates(
 	east_l: float,
@@ -232,7 +234,7 @@ def calculate_station_coordinates(
 	# Adjust the stations array by subtracting the left_station
 	shifted_stations = filtered_stations - left_station
 
-	#Must start from 0
+	# Must start from 0
 	shifted_stations = shifted_stations - shifted_stations[0]
 
 	# Calculate the total distance between the two points
@@ -747,23 +749,23 @@ def add_interpolated_velocity(table_results: dict, check: np.ndarray) -> dict:
 
 def add_w_a_q(table_results: dict, alpha: float, vel_type: str = "original") -> dict:
 	"""
-    Calculate widths (W), areas (A), discharges (Q), and discharge portions (Q_portion)
-    and add them to the table_results dictionary.
+	Calculate widths (W), areas (A), discharges (Q), and discharge portions (Q_portion)
+	and add them to the table_results dictionary.
 
-    Parameters:
-        table_results (dict): Dictionary containing 'distance' (x-coordinates),
-                        velocity profiles, and 'depth' (depths).
-        alpha (float): Coefficient between the superficial velocity obtained with LSPIV
-                       and the mean velocity of the section.
-        vel_type (str): Determines which velocity profile to use:
-                      "original" - uses 'streamwise_velocity_magnitude'
-                      "filled" - uses 'filled_streamwise_velocity_magnitude'
-                      "seeded" - uses 'seeded_vel_profile'
-                      "filled_seeded" - uses 'filled_seeded_vel_profile'
+	Parameters:
+	    table_results (dict): Dictionary containing 'distance' (x-coordinates),
+	                    velocity profiles, and 'depth' (depths).
+	    alpha (float): Coefficient between the superficial velocity obtained with LSPIV
+	                   and the mean velocity of the section.
+	    vel_type (str): Determines which velocity profile to use:
+	                  "original" - uses 'streamwise_velocity_magnitude'
+	                  "filled" - uses 'filled_streamwise_velocity_magnitude'
+	                  "seeded" - uses 'seeded_vel_profile'
+	                  "filled_seeded" - uses 'filled_seeded_vel_profile'
 
-    Returns:
-        dict: Updated table_results dictionary with keys 'W', 'A', 'Q', and 'Q_portion'.
-    """
+	Returns:
+	    dict: Updated table_results dictionary with keys 'W', 'A', 'Q', and 'Q_portion'.
+	"""
 	x = table_results["distance"]
 
 	# Select velocity type based on the provided `vel_type`
@@ -919,23 +921,24 @@ def calculate_river_section_properties(stages: list, station: list, level: float
 
 	return wet_area, width, max_depth, average_depth
 
+
 def get_artificial_seeded_profile(velocity, gradient, percentile=85):
 	"""
-    Generate an artificially seeded velocity profile based on gradient intensity.
+	Generate an artificially seeded velocity profile based on gradient intensity.
 
-    Parameters:
-        velocity : np.ndarray
-            2D array representing velocity values, where rows are stations along a cross-section
-            and columns are time steps.
-        gradient : np.ndarray
-            2D array representing gradient intensity values, matching the shape of velocity.
-        percentile : int, optional
-            Percentile threshold for gradient filtering (default is 85).
+	Parameters:
+	    velocity : np.ndarray
+	        2D array representing velocity values, where rows are stations along a cross-section
+	        and columns are time steps.
+	    gradient : np.ndarray
+	        2D array representing gradient intensity values, matching the shape of velocity.
+	    percentile : int, optional
+	        Percentile threshold for gradient filtering (default is 85).
 
-    Returns:
-        mean_profile : np.ndarray
-            1D array of filtered mean velocity values for each station across time.
-    """
+	Returns:
+	    mean_profile : np.ndarray
+	        1D array of filtered mean velocity values for each station across time.
+	"""
 	# Calculate the percentile threshold for gradient along the time axis
 	perc_param = np.nanpercentile(gradient, percentile, axis=1, keepdims=True)
 
@@ -952,6 +955,7 @@ def get_artificial_seeded_profile(velocity, gradient, percentile=85):
 	mean_profile = np.nanmean(vel_profile_filtered, axis=1)[:, np.newaxis].flatten()
 
 	return mean_profile
+
 
 def get_cs_gradient(coord_x, coord_y, X, Y, gradient_values):
 	"""
@@ -976,11 +980,10 @@ def get_cs_gradient(coord_x, coord_y, X, Y, gradient_values):
 	gradient_values_flat = gradient_values.flatten()
 
 	# Interpolate gradient values at the specified coordinates
-	interpolated_gradient_values = griddata(
-		points, gradient_values_flat, (coord_x, coord_y), method="linear"
-	)
+	interpolated_gradient_values = griddata(points, gradient_values_flat, (coord_x, coord_y), method="linear")
 
 	return interpolated_gradient_values
+
 
 def get_general_statistics(x_sections: dict) -> dict:
 	# Remove any existing "summary" key to avoid processing it
@@ -1021,15 +1024,16 @@ def get_general_statistics(x_sections: dict) -> dict:
 	x_sections["summary"] = stats
 
 	return x_sections
+
+
 def add_statistics(
-		results: dict,
-		table_results: dict,
-		transformation_matrix: np.ndarray,
-		time_between_frames: float,
-		rw_to_xsection: np.ndarray,
+	results: dict,
+	table_results: dict,
+	transformation_matrix: np.ndarray,
+	time_between_frames: float,
+	rw_to_xsection: np.ndarray,
 ) -> dict:
-	"""
-    """
+	""" """
 	# Convert inputs to proper numpy arrays
 	xtable = np.asarray(results["x"], dtype=np.float64).reshape(results["shape"])
 	ytable = np.asarray(results["y"], dtype=np.float64).reshape(results["shape"])
@@ -1037,7 +1041,8 @@ def add_statistics(
 	u_all = np.asarray(results["u"], dtype=np.float64).reshape((len(results["u"]),) + tuple(results["shape"]))
 	v_all = np.asarray(results["v"], dtype=np.float64).reshape((len(results["v"]),) + tuple(results["shape"]))
 	grad_all = np.asarray(results["gradient"], dtype=np.float64).reshape(
-		(len(results["gradient"]),) + tuple(results["shape"]))
+		(len(results["gradient"]),) + tuple(results["shape"])
+	)
 
 	transformation_matrix = np.asarray(transformation_matrix, dtype=np.float64)
 	rw_to_xsection = np.asarray(rw_to_xsection, dtype=np.float64)
@@ -1060,20 +1065,14 @@ def add_statistics(
 
 		# Use original functions for the rest to maintain exact results
 		disp_east, disp_north = get_cs_displacements(
-			table_results["east"], table_results["north"],
-			EAST, NORTH, displacement_east, displacement_north
+			table_results["east"], table_results["north"], EAST, NORTH, displacement_east, displacement_north
 		)
 
-		crosswise, streamwise = get_streamwise_crosswise(
-			disp_east, disp_north, rw_to_xsection
-		)
+		crosswise, streamwise = get_streamwise_crosswise(disp_east, disp_north, rw_to_xsection)
 
 		# Store results
 		streamwise_vel_magnitude_list.append(streamwise / time_between_frames)
-		gradient_list.append(get_cs_gradient(
-			table_results["east"], table_results["north"],
-			EAST, NORTH, GRAD
-		))
+		gradient_list.append(get_cs_gradient(table_results["east"], table_results["north"], EAST, NORTH, GRAD))
 
 	# Convert lists to arrays
 	streamwise_vel_magnitude_array = np.array(streamwise_vel_magnitude_list)
@@ -1081,10 +1080,7 @@ def add_statistics(
 
 	# Calculate statistics
 	streamwise_vel_magnitude_std = np.std(streamwise_vel_magnitude_array, axis=0)
-	seeded_vel_profile = get_artificial_seeded_profile_optimized(
-		streamwise_vel_magnitude_array.T,
-		gradient_array.T
-	)
+	seeded_vel_profile = get_artificial_seeded_profile_optimized(streamwise_vel_magnitude_array.T, gradient_array.T)
 
 	# Update table_results
 	table_results["minus_std"] = table_results["streamwise_velocity_magnitude"] - streamwise_vel_magnitude_std
@@ -1094,6 +1090,7 @@ def add_statistics(
 	table_results["seeded_vel_profile"] = seeded_vel_profile
 
 	return table_results
+
 
 def update_current_x_section(
 	x_sections: dict,
@@ -1217,7 +1214,8 @@ def update_current_x_section(
 
 	# Add statistics on streamwise velocity
 	table_results = add_statistics(
-		piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection)
+		piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection
+	)
 
 	if artificial_seeding:
 		# If using artificial seeding and interpolation is requested
@@ -1225,8 +1223,7 @@ def update_current_x_section(
 			# First interpolate the seeded velocity profile
 			seeded_profile = table_results["seeded_vel_profile"]
 			table_results = add_interpolated_velocity(
-				{**table_results, "streamwise_velocity_magnitude": seeded_profile},
-				checked_results
+				{**table_results, "streamwise_velocity_magnitude": seeded_profile}, checked_results
 			)
 			# Rename the interpolated profile
 			table_results["filled_seeded_vel_profile"] = table_results.pop("filled_streamwise_velocity_magnitude")
@@ -1247,8 +1244,9 @@ def update_current_x_section(
 	if interpolate or artificial_seeding:
 		# Get the appropriate velocity profile
 		if artificial_seeding:
-			vel_profile = (table_results["filled_seeded_vel_profile"]
-						   if interpolate else table_results["seeded_vel_profile"])
+			vel_profile = (
+				table_results["filled_seeded_vel_profile"] if interpolate else table_results["seeded_vel_profile"]
+			)
 		else:
 			vel_profile = table_results["filled_streamwise_velocity_magnitude"]
 
@@ -1256,8 +1254,8 @@ def update_current_x_section(
 		displacement = vel_profile * time_between_frames
 
 		# Convert to real-world coordinates
-		streamwise_east, streamwise_north, crosswise_east, crosswise_north = (
-			get_decomposed_rw_displacement(0 * displacement, displacement, xsection_to_rw)
+		streamwise_east, streamwise_north, crosswise_east, crosswise_north = get_decomposed_rw_displacement(
+			0 * displacement, displacement, xsection_to_rw
 		)
 
 		# Convert to pixel coordinates

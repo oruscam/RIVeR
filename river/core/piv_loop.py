@@ -20,31 +20,31 @@ from river.core.piv_fftmulti import piv_fftmulti
 
 
 def piv_loop(
-		path_images: Path,
-		mask: np.ndarray,
-		bbox: list,
-		interrogation_area_1: int,
-		interrogation_area_2: int,
-		mask_auto: bool,
-		multipass: bool,
-		standard_filter: bool,
-		standard_threshold: bool,
-		median_test_filter: bool,
-		epsilon: float,
-		threshold: float,
-		step: int,
-		filter_grayscale: bool,
-		filter_clahe: bool,
-		clip_limit_clahe: int,
-		filter_sub_background: bool,
-		background: np.ndarray,
-		start: int,
-		end: int,
+	path_images: Path,
+	mask: np.ndarray,
+	bbox: list,
+	interrogation_area_1: int,
+	interrogation_area_2: int,
+	mask_auto: bool,
+	multipass: bool,
+	standard_filter: bool,
+	standard_threshold: bool,
+	median_test_filter: bool,
+	epsilon: float,
+	threshold: float,
+	step: int,
+	filter_grayscale: bool,
+	filter_clahe: bool,
+	clip_limit_clahe: int,
+	filter_sub_background: bool,
+	background: np.ndarray,
+	start: int,
+	end: int,
 ) -> dict:
 	"""
-    Perform PIV analysis over a range of frames.
-    [... existing docstring ...]
-    """
+	Perform PIV analysis over a range of frames.
+	[... existing docstring ...]
+	"""
 	fr = start
 	last_fr = end
 	dict_cumul = {"u": 0, "v": 0, "x": 0, "y": 0}

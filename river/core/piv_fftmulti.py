@@ -9,13 +9,16 @@ Company: UNC / ORUS
 
 This script contains functions for processing and analyzing PIV images.
 """
-from scipy import interpolate, ndimage
+
 import math
 from typing import Optional
+
 import numpy as np
-from scipy.interpolate import griddata
+from scipy import interpolate
+from scipy.interpolate import NearestNDInterpolator, Rbf, RegularGridInterpolator
+
 import river.core.matlab_smoothn as smoothn
-from scipy.interpolate import RegularGridInterpolator,Rbf, NearestNDInterpolator
+
 
 def piv_fftmulti(
 	image1: np.ndarray,
@@ -232,7 +235,6 @@ def piv_fftmulti(
 	# Apply median test filtering to remove outliers if median_test_filter is True
 	if median_test_filter:
 		utable, vtable = filter_fluctiations(utable, vtable, epsilon=epsilon, threshold=threshold)
-
 
 	gradient_sum_result = calculate_gradient(image1_cut, image2_cut, image1_roi, utable, ii_bckup)
 
@@ -680,20 +682,21 @@ def correct_dimensions(xa, ya, za, real_size):
 	return xa, ya, za
 
 
-def subpixgauss(result_conv: np.ndarray, half_ia: int, x1: np.ndarray, y1: np.ndarray, z1: np.ndarray,
-				subpixoffset: float) -> np.ndarray:
+def subpixgauss(
+	result_conv: np.ndarray, half_ia: int, x1: np.ndarray, y1: np.ndarray, z1: np.ndarray, subpixoffset: float
+) -> np.ndarray:
 	"""
-    Perform subpixel Gaussian peak fitting on a convolution result with size consistency checks.
+	Perform subpixel Gaussian peak fitting on a convolution result with size consistency checks.
 
-    Parameters:
-    result_conv (numpy.ndarray): 3D array of convolution results.
-    half_ia (int): Half size of the interrogation area.
-    x1, y1, z1 (numpy.ndarray): Arrays of coordinates.
-    subpixoffset (float): Subpixel offset value.
+	Parameters:
+	result_conv (numpy.ndarray): 3D array of convolution results.
+	half_ia (int): Half size of the interrogation area.
+	x1, y1, z1 (numpy.ndarray): Arrays of coordinates.
+	subpixoffset (float): Subpixel offset value.
 
-    Returns:
-    numpy.ndarray: Array of subpixel peak coordinates (x, y).
-    """
+	Returns:
+	numpy.ndarray: Array of subpixel peak coordinates (x, y).
+	"""
 	dims = result_conv.shape
 	expected_size = dims[2]
 	vector = np.zeros((expected_size, 2))
@@ -709,9 +712,9 @@ def subpixgauss(result_conv: np.ndarray, half_ia: int, x1: np.ndarray, y1: np.nd
 	# Make sure our arrays are the right size
 	if len(x1) != expected_size:
 		if len(x1) < expected_size:
-			x1 = np.pad(x1, (0, expected_size - len(x1)), mode='constant', constant_values=-1)
-			y1 = np.pad(y1, (0, expected_size - len(y1)), mode='constant', constant_values=-1)
-			z1 = np.pad(z1, (0, expected_size - len(z1)), mode='constant', constant_values=-1)
+			x1 = np.pad(x1, (0, expected_size - len(x1)), mode="constant", constant_values=-1)
+			y1 = np.pad(y1, (0, expected_size - len(y1)), mode="constant", constant_values=-1)
+			z1 = np.pad(z1, (0, expected_size - len(z1)), mode="constant", constant_values=-1)
 		else:
 			x1 = x1[:expected_size]
 			y1 = y1[:expected_size]
@@ -727,15 +730,13 @@ def subpixgauss(result_conv: np.ndarray, half_ia: int, x1: np.ndarray, y1: np.nd
 
 		# Calculate indices for valid values only
 		indices = np.ravel_multi_index(
-			(y1[valid_mask].astype(int) - 1,
-			 x1[valid_mask].astype(int) - 1,
-			 z1[valid_mask].astype(int) - 1),
+			(y1[valid_mask].astype(int) - 1, x1[valid_mask].astype(int) - 1, z1[valid_mask].astype(int) - 1),
 			dims,
-			order='F'
+			order="F",
 		)
 
 		# Compute log values efficiently for valid indices
-		flat_conv = result_conv.ravel('F')
+		flat_conv = result_conv.ravel("F")
 		f0 = np.log(flat_conv[indices])
 		f1y = np.log(flat_conv[indices - 1])
 		f2y = np.log(flat_conv[indices + 1])
@@ -758,7 +759,7 @@ def subpixgauss(result_conv: np.ndarray, half_ia: int, x1: np.ndarray, y1: np.nd
 		vector[:, 0] = full_peakx
 		vector[:, 1] = full_peaky
 
-	except Exception as e:
+	except Exception:
 		raise
 
 	return vector
@@ -939,47 +940,46 @@ def filter_fluctiations(
 
 	return utable, vtable
 
+
 def inpaint_nans(img_float):
+	n, m = img_float.shape
+	nm = n * m
 
-    n, m = img_float.shape
-    nm = n * m
+	valid_mask = ~np.isnan(img_float)
+	coords = np.array(np.nonzero(valid_mask)).T
+	values = img_float[valid_mask]
 
-    valid_mask = ~np.isnan(img_float)
-    coords = np.array(np.nonzero(valid_mask)).T
-    values = img_float[valid_mask]
+	nan_mask = np.isnan(img_float)
+	nan_coords = np.array(np.nonzero(nan_mask)).T
 
-    nan_mask = np.isnan(img_float)
-    nan_coords = np.array(np.nonzero(nan_mask)).T
+	if len(coords) > 0:
+		# Use cubic function for RBF
+		rbf = Rbf(coords[:, 0], coords[:, 1], values, function="cubic")
+		interpolated_cubic = rbf(nan_coords[:, 0], nan_coords[:, 1])
 
-    if len(coords) > 0:
-        # Use cubic function for RBF
-        rbf = Rbf(coords[:, 0], coords[:, 1], values, function='cubic')
-        interpolated_cubic = rbf(nan_coords[:, 0], nan_coords[:, 1])
+		# Use inverse with even smaller epsilon
+		rbf_inv = Rbf(coords[:, 0], coords[:, 1], values, function="inverse", epsilon=1.5)
+		interpolated_inv = rbf_inv(nan_coords[:, 0], nan_coords[:, 1])
 
-        # Use inverse with even smaller epsilon
-        rbf_inv = Rbf(coords[:, 0], coords[:, 1], values, function='inverse', epsilon=1.5)
-        interpolated_inv = rbf_inv(nan_coords[:, 0], nan_coords[:, 1])
+		nn = NearestNDInterpolator(coords, values)
+		nn_values = nn(nan_coords)
 
-        nn = NearestNDInterpolator(coords, values)
-        nn_values = nn(nan_coords)
+		# Much more aggressive weight changes
+		alpha = 0.75  # Significantly increased cubic weight
+		beta = 0.24  # Decreased inverse weight
+		gamma = 0.01  # Minimal nearest neighbor influence
+		interpolated = alpha * interpolated_cubic + beta * interpolated_inv + gamma * nn_values
 
-        # Much more aggressive weight changes
-        alpha = 0.75  # Significantly increased cubic weight
-        beta = 0.24  # Decreased inverse weight
-        gamma = 0.01  # Minimal nearest neighbor influence
-        interpolated = (alpha * interpolated_cubic +
-                        beta * interpolated_inv +
-                        gamma * nn_values)
+		out = img_float.copy()
+		out[nan_mask] = interpolated
 
-        out = img_float.copy()
-        out[nan_mask] = interpolated
+		out = out.T.reshape([nm, 1])
+		out = out.reshape(m, n).T
 
-        out = out.T.reshape([nm, 1])
-        out = out.reshape(m, n).T
+		return out
+	else:
+		return img_float
 
-        return out
-    else:
-        return img_float
 
 def interpgrade(table):
 	if table.size > 3:
@@ -1088,65 +1088,63 @@ def interpolate_tables(
 
 
 def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray, image2_roi: np.ndarray) -> np.ndarray:
-    """
-    Interpolate the velocity fields U and V onto a regular grid and use them to warp image2_roi.
+	"""
+	Interpolate the velocity fields U and V onto a regular grid and use them to warp image2_roi.
 
-    Parameters:
-        X (numpy.ndarray): X-coordinates of the grid.
-        Y (numpy.ndarray): Y-coordinates of the grid.
-        U (numpy.ndarray): X-component of the velocity field.
-        V (numpy.ndarray): Y-component of the velocity field.
-        image2_roi (numpy.ndarray): Region of interest of the second image.
+	Parameters:
+	    X (numpy.ndarray): X-coordinates of the grid.
+	    Y (numpy.ndarray): Y-coordinates of the grid.
+	    U (numpy.ndarray): X-component of the velocity field.
+	    V (numpy.ndarray): Y-component of the velocity field.
+	    image2_roi (numpy.ndarray): Region of interest of the second image.
 
-    Returns:
-        numpy.ndarray: Warped image2_roi, xb array, yb array.
-    """
-    # Generate 1D coordinate arrays for interpolation
-    x1d = np.arange(X[0, 0], X[0, -1], 1)
-    y1d = np.arange(Y[0, 0], Y[-1, 0], 1)
+	Returns:
+	    numpy.ndarray: Warped image2_roi, xb array, yb array.
+	"""
+	# Generate 1D coordinate arrays for interpolation
+	x1d = np.arange(X[0, 0], X[0, -1], 1)
+	y1d = np.arange(Y[0, 0], Y[-1, 0], 1)
 
-    # Create meshgrids for coordinates
-    Y1, X1 = np.meshgrid(y1d, x1d, indexing='ij')
+	# Create meshgrids for coordinates
+	Y1, X1 = np.meshgrid(y1d, x1d, indexing="ij")
 
-    # Create RegularGridInterpolator for U and V
-    U_interp = RegularGridInterpolator((Y[:, 0], X[0, :]), U, method='linear', bounds_error=False, fill_value=None)
-    V_interp = RegularGridInterpolator((Y[:, 0], X[0, :]), V, method='linear', bounds_error=False, fill_value=None)
+	# Create RegularGridInterpolator for U and V
+	U_interp = RegularGridInterpolator((Y[:, 0], X[0, :]), U, method="linear", bounds_error=False, fill_value=None)
+	V_interp = RegularGridInterpolator((Y[:, 0], X[0, :]), V, method="linear", bounds_error=False, fill_value=None)
 
-    # Create points for interpolation
-    points = np.stack((Y1.ravel(), X1.ravel()), axis=-1)
+	# Create points for interpolation
+	points = np.stack((Y1.ravel(), X1.ravel()), axis=-1)
 
-    # Interpolate U and V
-    U1 = U_interp(points).reshape(Y1.shape)
-    V1 = V_interp(points).reshape(Y1.shape)
+	# Interpolate U and V
+	U1 = U_interp(points).reshape(Y1.shape)
+	V1 = V_interp(points).reshape(Y1.shape)
 
-    # Define warped coordinates
-    X_warp = X1 + U1
-    Y_warp = Y1 + V1
+	# Define warped coordinates
+	X_warp = X1 + U1
+	Y_warp = Y1 + V1
 
-    # Create coordinate system for image interpolation starting from 1
-    y_param = np.arange(1, image2_roi.shape[0] + 1)
-    x_param = np.arange(1, image2_roi.shape[1] + 1)
+	# Create coordinate system for image interpolation starting from 1
+	y_param = np.arange(1, image2_roi.shape[0] + 1)
+	x_param = np.arange(1, image2_roi.shape[1] + 1)
 
-    # Create interpolator for the image
-    image_interp = RegularGridInterpolator(
-        (y_param, x_param),
-        image2_roi.astype(np.float32),
-        method='linear',
-        bounds_error=False,
-        fill_value=None
-    )
+	# Create interpolator for the image
+	image_interp = RegularGridInterpolator(
+		(y_param, x_param), image2_roi.astype(np.float32), method="linear", bounds_error=False, fill_value=None
+	)
 
-    # Prepare points for image interpolation
-    points = np.stack([Y_warp.ravel(), X_warp.ravel()], axis=1)
+	# Prepare points for image interpolation
+	points = np.stack([Y_warp.ravel(), X_warp.ravel()], axis=1)
 
-    # Interpolate the image
-    image2_crop_i1 = image_interp(points).reshape(Y1.shape)
+	# Interpolate the image
+	image2_crop_i1 = image_interp(points).reshape(Y1.shape)
 
-    # Compute boundaries
-    xb = np.flatnonzero(np.abs(x1d - X[0, 0]) < 1e-10) + 1
-    yb = np.flatnonzero(np.abs(y1d - Y[0, 0]) < 1e-10) + 1
+	# Compute boundaries
+	xb = np.flatnonzero(np.abs(x1d - X[0, 0]) < 1e-10) + 1
+	yb = np.flatnonzero(np.abs(y1d - Y[0, 0]) < 1e-10) + 1
 
-    return image2_crop_i1, xb, yb
+	return image2_crop_i1, xb, yb
+
+
 def calculate_gradient(
 	image1_cut: np.ndarray, image2_cut: np.ndarray, image1_roi: np.ndarray, utable: np.ndarray, ii_backup: int | list
 ) -> np.ndarray:
