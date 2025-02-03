@@ -3,7 +3,6 @@ File Name: piv_pipeline.py
 Project Name: RIVeR-LAC
 Description: Perform image filtering before Particle Image Velocimetry (PIV) on a pair of frame (Test) or a list of frames.
 
-Created Date: 2024-07-22
 Author: Antoine Patalano
 Email: antoine.patalano@unc.edu.ar
 Company: UNC / ORUS
@@ -13,13 +12,14 @@ See examples of use at the end
 """
 
 import multiprocessing
+import time
 from concurrent.futures.thread import ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional
-from tqdm import tqdm
-import time
+
 import cv2
 import numpy as np
+from tqdm import tqdm
 
 import river.core.image_preprocessing as impp
 from river.core.piv_fftmulti import piv_fftmulti
@@ -40,7 +40,6 @@ def run_test(
 	median_test_filter: bool = True,
 	epsilon: float = 0.02,
 	threshold: int = 2,
-	seeding_filter: bool = False,
 	step: Optional[int] = None,
 	filter_grayscale: bool = True,
 	filter_clahe: bool = True,
@@ -77,8 +76,6 @@ def run_test(
 	    The epsilon value for median test filtering. Default is 0.02.
 	threshold : float, optional
 	    The threshold value for median test filtering. Default is 2.
-	seeding_filter : bool, optional
-	    Whether to apply seeding filtering. Default is False.
 	step : int, optional
 	    The step size for grid calculations.
 	filter_grayscale : bool, optional
@@ -111,7 +108,7 @@ def run_test(
 	if mask is None:
 		mask = np.ones(image_1.shape, dtype=np.uint8)
 
-	mask_piv = np.ones(image_1.shape, dtype=np.uint8) #must correct this
+	mask_piv = np.ones(image_1.shape, dtype=np.uint8)  # must correct this
 
 	if bbox is None:
 		height, width = image_1.shape[:2]
@@ -131,7 +128,6 @@ def run_test(
 		median_test_filter=median_test_filter,
 		epsilon=epsilon,
 		threshold=threshold,
-		seeding_filter=seeding_filter,
 		step=step,
 	)
 	# Create in_mask array and check points against the mask
@@ -148,37 +144,36 @@ def run_test(
 		"x": xtable.flatten().tolist(),
 		"y": ytable.flatten().tolist(),
 		"u": utable.flatten().tolist(),
-		"v": vtable.flatten().tolist()
+		"v": vtable.flatten().tolist(),
 	}
 
 	return results
 
 
 def run_analyze_all(
-		images_location: Path,
-		mask: Optional[np.ndarray] = None,
-		bbox: Optional[list] = None,
-		interrogation_area_1: int = 128,
-		interrogation_area_2: Optional[int] = None,
-		mask_auto: bool = True,
-		multipass: bool = True,
-		standard_filter: bool = True,
-		standard_threshold: int = 4,
-		median_test_filter: bool = True,
-		epsilon: float = 0.02,
-		threshold: int = 2,
-		seeding_filter: bool = False,
-		step: Optional[int] = None,
-		filter_grayscale: bool = True,
-		filter_clahe: bool = True,
-		clip_limit_clahe: int = 5,
-		filter_sub_background: bool = False,
-		save_background: bool = True,
-		workdir: Optional[Path] = None,
+	images_location: Path,
+	mask: Optional[np.ndarray] = None,
+	bbox: Optional[list] = None,
+	interrogation_area_1: int = 128,
+	interrogation_area_2: Optional[int] = None,
+	mask_auto: bool = True,
+	multipass: bool = True,
+	standard_filter: bool = True,
+	standard_threshold: int = 4,
+	median_test_filter: bool = True,
+	epsilon: float = 0.02,
+	threshold: int = 2,
+	step: Optional[int] = None,
+	filter_grayscale: bool = True,
+	filter_clahe: bool = True,
+	clip_limit_clahe: int = 5,
+	filter_sub_background: bool = False,
+	save_background: bool = True,
+	workdir: Optional[Path] = None,
 ) -> dict:
 	"""
-    Run PIV analysis on all images in the specified location.
-    """
+	Run PIV analysis on all images in the specified location.
+	"""
 	background = None
 	images = sorted([str(f) for f in images_location.glob("*.jpg")])
 	total_frames = len(images)
@@ -218,7 +213,6 @@ def run_analyze_all(
 		median_test_filter,
 		epsilon,
 		threshold,
-		seeding_filter,
 		step,
 		filter_grayscale,
 		filter_clahe,
@@ -226,7 +220,7 @@ def run_analyze_all(
 		filter_sub_background,
 		background,
 		0,
-		1
+		1,
 	)
 
 	expected_size = len(test_result["u"])
@@ -259,10 +253,10 @@ def run_analyze_all(
 	dict_cumul = {
 		"u": np.zeros((expected_size, 0)),
 		"v": np.zeros((expected_size, 0)),
-		"typevector": np.zeros((expected_size, 0))
+		"typevector": np.zeros((expected_size, 0)),
 	}
-	if seeding_filter:
-		dict_cumul["gradient"] = np.zeros((expected_size, 0))
+
+	dict_cumul["gradient"] = np.zeros((expected_size, 0))
 
 	xtable = test_result["x"]
 	ytable = test_result["y"]
@@ -289,7 +283,6 @@ def run_analyze_all(
 				median_test_filter,
 				epsilon,
 				threshold,
-				seeding_filter,
 				step,
 				filter_grayscale,
 				filter_clahe,
@@ -315,8 +308,8 @@ def run_analyze_all(
 					dict_cumul["u"] = np.hstack((dict_cumul["u"], result["u"]))
 					dict_cumul["v"] = np.hstack((dict_cumul["v"], result["v"]))
 					dict_cumul["typevector"] = np.hstack((dict_cumul["typevector"], result["typevector"]))
-					if seeding_filter:
-						dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], result["gradient"]))
+
+					dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], result["gradient"]))
 
 					successful_pairs.append((Path(img1).name, Path(img2).name))
 
@@ -326,9 +319,9 @@ def run_analyze_all(
 					avg_time_per_pair = elapsed_time / pairs_done
 					remaining_pairs = len(chunk_pairs) - pairs_done
 					eta = avg_time_per_pair * remaining_pairs
-					pbar.set_postfix({'ETA': f'{eta:.1f}s'})
+					pbar.set_postfix({"ETA": f"{eta:.1f}s"})
 
-				except (TimeoutError, Exception) as e:
+				except (TimeoutError, Exception):
 					img1, img2 = pair_to_images[f]
 					failed_pairs.append((Path(img1).name, Path(img2).name))
 					continue
@@ -349,10 +342,9 @@ def run_analyze_all(
 		"u_median": u_median.tolist(),
 		"v_median": v_median.tolist(),
 		"u": dict_cumul["u"].T.tolist(),
-		"v": dict_cumul["v"].T.tolist()
+		"v": dict_cumul["v"].T.tolist(),
 	}
 
-	if seeding_filter:
-		results["gradient"] = dict_cumul["gradient"].T.tolist()
+	results["gradient"] = dict_cumul["gradient"].T.tolist()
 
 	return results

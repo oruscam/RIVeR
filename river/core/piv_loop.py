@@ -6,7 +6,6 @@ Description: This module contains the `piv_loop` function, which performs Partic
              and computes velocity fields using the `piv_fftmulti` function. The results are returned as a cumulative
              dictionary containing the calculated velocity vectors and other relevant data.
 
-Created Date: 2024-07-23
 Author: Antoine Patalano
 Email: antoine.patalano@unc.edu.ar
 Company: UNC / ORUS
@@ -21,32 +20,31 @@ from river.core.piv_fftmulti import piv_fftmulti
 
 
 def piv_loop(
-		path_images: Path,
-		mask: np.ndarray,
-		bbox: list,
-		interrogation_area_1: int,
-		interrogation_area_2: int,
-		mask_auto: bool,
-		multipass: bool,
-		standard_filter: bool,
-		standard_threshold: bool,
-		median_test_filter: bool,
-		epsilon: float,
-		threshold: float,
-		seeding_filter: bool,
-		step: int,
-		filter_grayscale: bool,
-		filter_clahe: bool,
-		clip_limit_clahe: int,
-		filter_sub_background: bool,
-		background: np.ndarray,
-		start: int,
-		end: int,
+	path_images: Path,
+	mask: np.ndarray,
+	bbox: list,
+	interrogation_area_1: int,
+	interrogation_area_2: int,
+	mask_auto: bool,
+	multipass: bool,
+	standard_filter: bool,
+	standard_threshold: bool,
+	median_test_filter: bool,
+	epsilon: float,
+	threshold: float,
+	step: int,
+	filter_grayscale: bool,
+	filter_clahe: bool,
+	clip_limit_clahe: int,
+	filter_sub_background: bool,
+	background: np.ndarray,
+	start: int,
+	end: int,
 ) -> dict:
 	"""
-    Perform PIV analysis over a range of frames.
-    [... existing docstring ...]
-    """
+	Perform PIV analysis over a range of frames.
+	[... existing docstring ...]
+	"""
 	fr = start
 	last_fr = end
 	dict_cumul = {"u": 0, "v": 0, "x": 0, "y": 0}
@@ -76,7 +74,6 @@ def piv_loop(
 			median_test_filter=median_test_filter,
 			epsilon=epsilon,
 			threshold=threshold,
-			seeding_filter=seeding_filter,
 			step=step,
 		)
 
@@ -95,15 +92,13 @@ def piv_loop(
 			dict_cumul["u"] = np.hstack((dict_cumul["u"], utable.reshape(-1, 1)))
 			dict_cumul["v"] = np.hstack((dict_cumul["v"], vtable.reshape(-1, 1)))
 			dict_cumul["typevector"] = np.hstack((dict_cumul["typevector"], typevector.reshape(-1, 1)))
-			if seeding_filter:
-				dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], gradient.reshape(-1, 1)))
+			dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], gradient.reshape(-1, 1)))
 
 		except ValueError:
 			dict_cumul["u"] = utable.reshape(-1, 1)
 			dict_cumul["v"] = vtable.reshape(-1, 1)
 			dict_cumul["typevector"] = typevector.reshape(-1, 1)
-			if seeding_filter:
-				dict_cumul["gradient"] = gradient.reshape(-1, 1)
+			dict_cumul["gradient"] = gradient.reshape(-1, 1)
 			dict_cumul["x"] = xtable
 			dict_cumul["y"] = ytable
 

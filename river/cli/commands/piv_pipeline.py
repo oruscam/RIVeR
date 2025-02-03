@@ -82,9 +82,6 @@ from river.core.piv_pipeline import run_analyze_all, run_test
 @click.option(
 	"-t", "--threshold", type=int, default=2, show_default=True, help="The threshold value for median test filtering."
 )
-@click.option(
-	"-si", "--no-seeding-filter", "seeding_filter", type=bool, is_flag=True, help="Whether to apply seeding filtering."
-)
 @click.option("-s", "--step", type=int, default=None, help="The step size for grid calculations.")
 @click.option(
 	"-fg",
@@ -124,7 +121,6 @@ def piv_test(
 	median_test_filter: bool,
 	epsilon: float,
 	threshold: int,
-	seeding_filter: bool,
 	step: Optional[int],
 	filter_grayscale: bool,
 	filter_clahe: bool,
@@ -151,7 +147,6 @@ def piv_test(
 		median_test_filter,
 		epsilon,
 		threshold,
-		seeding_filter,
 		step,
 		filter_grayscale,
 		filter_clahe,
@@ -229,9 +224,6 @@ def piv_test(
 @click.option(
 	"-t", "--threshold", type=int, default=2, show_default=True, help="The threshold value for median test filtering."
 )
-@click.option(
-	"-si", "--no-seeding-filter", "seeding_filter", type=bool, is_flag=True, help="Whether to apply seeding filtering."
-)
 @click.option("-s", "--step", type=int, default=None, help="The step size for grid calculations.")
 @click.option(
 	"-fg",
@@ -281,7 +273,6 @@ def piv_analyze(
 	median_test_filter: bool,
 	epsilon: float,
 	threshold: int,
-	seeding_filter: bool,
 	step: Optional[int],
 	filter_grayscale: bool,
 	filter_clahe: bool,
@@ -309,7 +300,6 @@ def piv_analyze(
 		median_test_filter,
 		epsilon,
 		threshold,
-		seeding_filter,
 		step,
 		filter_grayscale,
 		filter_clahe,
