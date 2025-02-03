@@ -124,7 +124,7 @@ def orthorectify_image(image_path, cam_solution, grp_dict, output_resolution=0.1
 	return ortho_img, extent
 
 
-def get_camera_solution(grp_dict: Dict[str, np.ndarray],
+def get_camera_solution(grp_dict: Dict[str, Union[np.ndarray, List]],
 						optimize_solution: bool = False,
 						image_path: Optional[str] = None,
 						ortho_resolution: float = 0.1,
@@ -132,42 +132,76 @@ def get_camera_solution(grp_dict: Dict[str, np.ndarray],
 						confidence: float = 0.95) -> Dict[str, Union[np.ndarray, float, Tuple[int, ...], int, None]]:
 	"""
     Get camera matrix, position, uncertainty ellipses, and optionally generate orthorectified image.
+    Handles both numpy arrays and list inputs from JSON.
 
-    [previous docstring parameters...]
-    Additional Parameters:
-        confidence: Confidence level for uncertainty ellipses (default: 0.95)
+    Parameters:
+        grp_dict (Dict[str, Union[np.ndarray, List]]): Dictionary containing ground reference points
+            Required keys: 'X', 'Y', 'Z', 'x', 'y'
+        optimize_solution (bool): Whether to optimize the camera solution
+        image_path (str, optional): Path to image for orthorectification
+        ortho_resolution (float): Resolution for orthorectified output
+        southern_hemisphere (bool): Whether coordinates are in Southern Hemisphere
+        confidence (float): Confidence level for uncertainty ellipses
 
     Returns:
-        [previous docstring returns...]
-        Additional returns in dictionary:
-            - 'uncertainty_ellipses': List of dictionaries containing ellipse parameters
+        Dict containing camera solution parameters
     """
+	# Input validation and conversion
+	required_keys = ['X', 'Y', 'Z', 'x', 'y']
+	if not all(key in grp_dict for key in required_keys):
+		raise ValueError(f"grp_dict must contain all required keys: {required_keys}")
+
+	# Convert inputs to numpy arrays if they aren't already
+	processed_dict = {}
+	for key in required_keys:
+		if isinstance(grp_dict[key], list):
+			processed_dict[key] = np.array(grp_dict[key], dtype=np.float64)
+		elif isinstance(grp_dict[key], np.ndarray):
+			processed_dict[key] = grp_dict[key].astype(np.float64)
+		else:
+			raise ValueError(f"Values in grp_dict must be either lists or numpy arrays. Invalid type for key {key}")
+
+	# Verify all arrays have the same length
+	array_lengths = [len(arr) for arr in processed_dict.values()]
+	if len(set(array_lengths)) != 1:
+		raise ValueError("All coordinate arrays must have the same length")
+
 	result = {}
 
 	if optimize_solution:
-		num_points, best_indices, best_error, best_matrix = optimize_points_comprehensive(grp_dict)
+		try:
+			num_points, best_indices, best_error, best_matrix = optimize_points_comprehensive(processed_dict)
 
-		if best_matrix is None:
-			raise ValueError("Failed to find optimal camera matrix")
+			if best_matrix is None:
+				raise ValueError("Failed to find optimal camera matrix")
 
-		result.update({
-			'camera_matrix': best_matrix,
-			'camera_position': get_camera_center(best_matrix),
-			'num_points': num_points,
-			'point_indices': best_indices,
-			'error': best_error
-		})
+			result.update({
+				'camera_matrix': best_matrix,
+				'camera_position': get_camera_center(best_matrix),
+				'num_points': num_points,
+				'point_indices': best_indices,
+				'error': best_error
+			})
+		except Exception as e:
+			raise ValueError(f"Optimization failed: {str(e)}")
 	else:
-		camera_matrix = solve_c_matrix(grp_dict)
-		result.update({
-			'camera_matrix': camera_matrix,
-			'camera_position': get_camera_center(camera_matrix)
-		})
+		try:
+			camera_matrix = solve_c_matrix(processed_dict)
+			result.update({
+				'camera_matrix': camera_matrix,
+				'camera_position': get_camera_center(camera_matrix)
+			})
+		except Exception as e:
+			raise ValueError(f"Failed to solve camera matrix: {str(e)}")
 
 	# Calculate reprojection errors
-	world_coords = {'X': grp_dict['X'], 'Y': grp_dict['Y'], 'Z': grp_dict['Z']}
+	world_coords = {
+		'X': processed_dict['X'],
+		'Y': processed_dict['Y'],
+		'Z': processed_dict['Z']
+	}
 	projected_points = project_points(result['camera_matrix'], world_coords)
-	actual_points = np.column_stack((grp_dict['x'], grp_dict['y']))
+	actual_points = np.column_stack((processed_dict['x'], processed_dict['y']))
 	reprojection_errors = np.sqrt(np.sum((actual_points - projected_points) ** 2, axis=1))
 
 	# Calculate uncertainty ellipses
@@ -183,18 +217,20 @@ def get_camera_solution(grp_dict: Dict[str, np.ndarray],
 
 	# Generate orthorectified image if image path is provided
 	if image_path is not None:
-		ortho_img, extent = orthorectify_image(
-			image_path=image_path,
-			cam_solution=result,
-			grp_dict=grp_dict,
-			output_resolution=ortho_resolution,
-			southern_hemisphere=southern_hemisphere,
-		)
-
-		result.update({
-			'ortho_image': ortho_img,
-			'ortho_extent': extent
-		})
+		try:
+			ortho_img, extent = orthorectify_image(
+				image_path=image_path,
+				cam_solution=result,
+				grp_dict=processed_dict,
+				output_resolution=ortho_resolution,
+				southern_hemisphere=southern_hemisphere,
+			)
+			result.update({
+				'ortho_image': ortho_img,
+				'ortho_extent': extent
+			})
+		except Exception as e:
+			print(f"Warning: Failed to generate orthorectified image: {str(e)}")
 
 	return result
 
