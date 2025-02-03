@@ -8,3 +8,7 @@ class VideoHasNoFrames(RiverCoreException):
 
 class ObjectiveFunctionError(RiverCoreException):
 	pass
+
+
+class OptimalCameraMatrixError(RiverCoreException):
+	pass
