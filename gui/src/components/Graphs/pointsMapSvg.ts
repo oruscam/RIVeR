@@ -2,20 +2,20 @@ import * as d3 from 'd3';
 import { COLORS } from '../../constants/constants';
 import cam_marker from '../../assets/cam_marker.svg'
 
-
 interface PointsMapSvgProps {
     svgElement: SVGSVGElement;
-    importedPoints: [{
+    importedPoints: {
         X: number, 
         Y: number,
-    }];
+        selected: boolean,
+    }[];
     activePoint: number | undefined;
-    ipcam_image: string | undefined;
-    camera_position: [number, number, number] | undefined,
-    ortho_extent: [number, number, number, number] | undefined,
+    orthoImagePath: string | undefined;
+    cameraPosition: number[] | undefined,
+    orthoExtent: number[] | undefined,
 }
 
-export const pointsMapSvg = ({ svgElement, importedPoints, activePoint, ipcam_image, camera_position, ortho_extent }: PointsMapSvgProps) => {
+export const pointsMapSvg = ({ svgElement, importedPoints, activePoint, orthoImagePath, cameraPosition, orthoExtent }: PointsMapSvgProps) => {
     const svg = d3.select(svgElement);
 
     const width = +svg.attr('width');
@@ -29,41 +29,42 @@ export const pointsMapSvg = ({ svgElement, importedPoints, activePoint, ipcam_im
     }
 
     // We need to unify all the points in one array.
-
-    let x_points = [
+    let xPoints = [
         ...importedPoints.map(d => d.X),
-        camera_position?.[0] ?? 0,
-        ortho_extent?.[0] ?? 0,
-        ortho_extent?.[1] ?? 0
-    ].filter(d => d !== 0 && d !== undefined);
+        // cameraPosition?.[0] ?? 0,
+        orthoExtent?.[0] ?? 0,
+        orthoExtent?.[1] ?? 0
+    ].filter((d, i) => d !== 0 && d !== undefined );
     
-    let y_points = [
+    let yPoints = [
         ...importedPoints.map(d => d.Y),
-        camera_position?.[1] ?? 0,
-        ortho_extent?.[2] ?? 0,
-        ortho_extent?.[3] ?? 0
-    ].filter(d => d !== 0);
+        // cameraPosition?.[1] ?? 0,
+        orthoExtent?.[2] ?? 0,
+        orthoExtent?.[3] ?? 0
+    ].filter(d => d !== 0 && d !== undefined);
+
 
     svg.append('svg')
         .attr('width', width)
         .attr('height', height)
         .attr('class', 'points-map')
-        .style('background-color', COLORS.BLACK)
 
     let xScale = d3.scaleLinear()
-        .domain([d3.min(x_points), d3.max(x_points)])
+        .domain([d3.min(xPoints), d3.max(xPoints)])
         .range([margin.left, width - margin.right])
     
     let yScale = d3.scaleLinear()
-        .domain([d3.min(y_points), d3.max(y_points)])
+        .domain([d3.min(yPoints), d3.max(yPoints)])
         .range([height - margin.bottom, margin.top])
 
         
-        if ( camera_position && ortho_extent  && ipcam_image && 1 === 1 ) {
-            
-            drawAnalizeResult(importedPoints, activePoint, camera_position, ipcam_image, ortho_extent, margin, width, height, svg, xScale, yScale)
-            return;
-        } else { 
+    if ( cameraPosition && orthoExtent  && orthoImagePath && 1 === 1 ) {
+        
+        drawAnalizeResult(importedPoints, activePoint, cameraPosition, orthoImagePath, orthoExtent, margin, width, height, svg, xScale, yScale)
+        return;
+        
+    } else { 
+
         // Ticks on all edges
 
         const numTicks = 4
@@ -112,15 +113,22 @@ export const pointsMapSvg = ({ svgElement, importedPoints, activePoint, ipcam_im
             .attr("x2", width)
             .attr("y2", d => yScale(d))
             .attr("stroke", "white")       
+        
+        // Add white border
+        svg.append('rect')
+            .attr('width', width)
+            .attr('height', height)
+            .attr('fill', 'none')
+            .attr('stroke', 'white')
+            .attr('stroke-width', 2);
     }
-
 
     drawPoints(importedPoints, activePoint, margin, svg, xScale, yScale)
 }
 
 
 const drawPoints = (
-    points: { X: number, Y: number }[],
+    points: { X: number, Y: number, selected: boolean }[],
     activePoint: number | undefined,
     margin: { left: number, top: number, right: number, bottom: number },
     svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
@@ -136,7 +144,7 @@ const drawPoints = (
         .attr("y1", d => margin.top + yScale(d.Y) - 5)
         .attr("x2", d => margin.left + xScale(d.X) + 5)
         .attr("y2", d => margin.top + yScale(d.Y) + 5)
-        .attr("stroke", (_d, i) => i === activePoint ? COLORS.RED : COLORS.LIGHT_BLUE)
+        .attr("stroke", (d, i) => i === activePoint ? COLORS.RED : d.selected === false ? COLORS.TRANSPARENT : COLORS.LIGHT_BLUE)
         .attr("stroke-width", 2);
 
     const line2 = svg.selectAll("line.cross")
@@ -148,8 +156,7 @@ const drawPoints = (
         .attr("y1", d => margin.top + yScale(d.Y) + 5)
         .attr("x2", d => margin.left + xScale(d.X) + 5)
         .attr("y2", d => margin.top + yScale(d.Y) - 5)
-        .attr("stroke", (_d, i) => i === activePoint ? COLORS.RED : COLORS.LIGHT_BLUE)
-        .attr("stroke-width", 2);
+        .attr("stroke", (d, i) => i === activePoint ? COLORS.RED : d.selected === false ? COLORS.TRANSPARENT : COLORS.LIGHT_BLUE)        .attr("stroke-width", 2);
 
     return {
         line1,
@@ -158,11 +165,11 @@ const drawPoints = (
 }
 
 const drawAnalizeResult = (
-    points: { X: number, Y: number }[],
+    points: { X: number, Y: number, selected: boolean }[],
     activePoint: number | undefined,
-    cameraPosition: [number, number, number],
-    ipcamImage: string,
-    orthoExtent: [number, number, number, number],
+    cameraPosition: number[],
+    orthoImagePath: string,
+    orthoExtent: number[],
     margin: { left: number, top: number, right: number, bottom: number },
     width: number,
     height: number,
@@ -170,14 +177,15 @@ const drawAnalizeResult = (
     xScale: d3.ScaleLinear<number, number>,
     yScale: d3.ScaleLinear<number, number>
 ) => {
-    margin.left = 80
-    margin.bottom = 40
-    margin.right = 40
-    const innerWidth = width - margin.left - margin.right
-    const innerHeight = height - margin.top - margin.bottom
+    margin.left = 80;
+    margin.bottom = 80;
+    margin.right = 20;
+    margin.top = 20;
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
 
-    xScale.range([0, innerWidth])
-    yScale.range([innerHeight, 0])
+    xScale.range([0, innerWidth]);
+    yScale.range([innerHeight, 0]);
 
     // Clip path para no exeder los ejes
     // Este es usado por la imagen y los puntos
@@ -188,135 +196,107 @@ const drawAnalizeResult = (
         .attr("width", innerWidth)
         .attr("height", innerHeight)
         .attr("x", margin.left)
-        .attr("y", margin.top)
+        .attr("y", margin.top);
 
-    // Clip path para la camara
+    // Calcula las coordenadas y dimensiones de la imagen
+    const x = orthoExtent[0];
+    const y = orthoExtent[3];
+    const imgWidth = orthoExtent[1] - x;
+    const imgHeight = orthoExtent[2] - y;
 
-    svg.append("defs").append("clipPath")
-        .attr("id", "clip-camera")
-        .append("rect")
-        .attr("width", innerWidth)
-        .attr("height", innerHeight)
-        .attr("x", margin.left - 15)
-        .attr("y", margin.top + 15)
-        
     // Append image to the container
     const image = svg.append('image')
-        .attr('xlink:href', ipcamImage)
+        .attr('xlink:href', orthoImagePath)
         .attr('x', margin.left + xScale(orthoExtent[0]))
         .attr('y', margin.top + yScale(orthoExtent[3]))
-        .attr('width', xScale(orthoExtent[1]) - xScale(orthoExtent[0]))
-        .attr('height', yScale(orthoExtent[2]) - yScale(orthoExtent[3]))
+        .attr('width', xScale(x + imgWidth) - xScale(x))
+        .attr('height', Math.abs(yScale(y + imgHeight) - yScale(y)))
         .attr("clip-path", "url(#clip)");
 
     // Append the camera icon 
-    const xOffset = -15
-    const yOffset = -15
-
+    const xOffset = -15;
+    const yOffset = -15;
     const cameraCircle = svg.append('svg:image')
         .attr("xlink:href", cam_marker)
         .attr("width", 30)
         .attr("height", 30)
         .attr('x', margin.left + xScale(cameraPosition[0]) + xOffset)
-        .attr('y', margin.top + yScale(cameraPosition[1]) + yOffset) 
-        .attr("clip-path", "url(#clip-camera)");
-        
-    const xExtent = d3.extent(points, d => d.X);
-    const yExtent = d3.extent(points, d => d.Y);
-    
-    const scaleXFactor = Math.pow(10, Math.floor(Math.log10(xExtent[1])) - 2);
-    const scaleYFactor = Math.pow(10, Math.floor(Math.log10(yExtent[1])));
-    
+        .attr('y', margin.top + yScale(cameraPosition[1]) + yOffset)
+        .attr("clip-path", "url(#clip)")
+        .on('mouseover', function(event) {
+            d3.select(this).style('cursor', 'pointer')
+            const [x, y] = d3.pointer(event);
+            const tooltip = svg.append('text')
+                .attr('id', 'tooltip')
+                .attr('x', x + 10)
+                .attr('y', y - 10)
+                .attr('fill', 'white')
+                .attr('font-size', '12px');
+            
+            tooltip.append('tspan')
+                .attr('x', x + 10)
+                .attr('dy', '1.2em')
+                .text(`x: ${cameraPosition[0].toFixed(2)}`);
+            
+            tooltip.append('tspan')
+                .attr('x', x + 10)
+                .attr('dy', '1.2em')
+                .text(`y: ${cameraPosition[1].toFixed(2)}`);
+            
+            tooltip.append('tspan')
+                .attr('x', x + 10)
+                .attr('dy', '1.2em')
+                .text(`z: ${cameraPosition[2].toFixed(2)}`);
+        })
+        .on('mouseout', function() {
+            d3.select(this).style('cursor', 'default')
+            svg.select('#tooltip').remove();
+        });
+
     const xAxis = d3.axisBottom(xScale)
-        .ticks(5)
-        .tickFormat(d => (d / scaleXFactor).toFixed(3));
-    
+        .ticks(3)
+
     const yAxis = d3.axisLeft(yScale)
         .ticks(5)
-        .tickFormat(d => (d / scaleYFactor).toFixed(5));
-    
-    const gX = svg.append('g')
-        .attr('transform', `translate(${margin.left}, ${height - margin.bottom})`)
-        .call(xAxis)
-        .selectAll('.tick text')
-        .style('font-size', '14px');
-    
-    svg.append('text')
-        .attr('x', margin.left + innerWidth )
-        .attr('y', height - margin.bottom + 30)
-        .style('text-anchor', 'middle')
-        .style('font-size', '14px')
-        .style('fill', 'white')
-        .text(`+${scaleXFactor}`);
-    
-    const gY = svg.append('g')
-        .attr('transform', `translate(${margin.left}, ${margin.top})`)
-        .call(yAxis)
-        .selectAll('.tick text')
-        .style('font-size', '14px');
-    
-    svg.append('text')
-        .attr('x', margin.left + 40)
-        .attr('y', margin.top + 10)
-        .style('text-anchor', 'middle')
-        .style('font-size', '14px')
-        .style('fill', 'white')
-        .text(`x1e${Math.log10(scaleYFactor)}`);
-    
+
     // Cross Points    
-    const { line1, line2 } = drawPoints(points, activePoint, margin, svg, xScale, yScale)
+    const { line1, line2 } = drawPoints(points, activePoint, margin, svg, xScale, yScale);
 
     // Add zoom and pan functionality
     const zoom = d3.zoom()
-        .scaleExtent([0.5, 5])
-        .translateExtent([[0, 0], [width, height]])
-        .on('zoom', zoomed);
+        .scaleExtent([0.4, 5])
+        // .translateExtent([[0, 0], [width, height]])
+        .translateExtent([[-width, -height], [2 * width, 2 * height]])
+        .on('zoom', zoomed)
+        .on('start', () => svg.style('cursor', 'move'))
+        .on('end', () => svg.style('cursor', 'default'));
 
-    svg.call(zoom as any);
+        // Create a transparent rectangle to capture zoom events
+    svg.append('rect')
+        .attr('width', innerWidth)
+        .attr('height', innerHeight)
+        .attr('x', margin.left)
+        .attr('y', margin.top)
+        .style('fill', 'none')
+        .style('pointer-events', 'all')
+        .call(zoom as any);
 
     function zoomed(event: any) {
         const transform = event.transform;
         const newXScale = transform.rescaleX(xScale);
         const newYScale = transform.rescaleY(yScale);
 
-
-        const newScaleXFactor = Math.pow(10, Math.floor(Math.log10(newXScale.domain()[1])) - 2);
-        const newScaleYFactor = Math.pow(10, Math.floor(Math.log10(newYScale.domain()[1])));
-
-        console.log('newXScale domain:', newXScale.domain());
-        console.log('newYScale domain:', newYScale.domain());
-        console.log('newScaleXFactor:', newScaleXFactor);
-        console.log('newScaleYFactor:', newScaleYFactor);
-
-        const newXAxis = d3.axisBottom(newXScale)
-            .ticks(5)
-            .tickFormat(d => (d / newScaleXFactor).toFixed(3));
-
-        const newYAxis = d3.axisLeft(newYScale)
-            .ticks(5)
-            .tickFormat(d => (d / newScaleYFactor).toFixed(5));
-            
-
-        gX.call(newXAxis as any)
-            .selectAll('.tick text')
-            .style('font-size', '14px')
-            .style('fill', 'white'); // Asegúrate de que el texto sea visible
-
-        gY.call(newYAxis as any)
-            .selectAll('.tick text')
-            .style('font-size', '14px')
-            .style('fill', 'white'); // Asegúrate de que el texto sea visible
-
         image
+            .attr('xlink:href', orthoImagePath)
             .attr('x', margin.left + newXScale(orthoExtent[0]))
             .attr('y', margin.top + newYScale(orthoExtent[3]))
-            .attr('width', newXScale(orthoExtent[1]) - newXScale(orthoExtent[0]))
-            .attr('height', newYScale(orthoExtent[2]) - newYScale(orthoExtent[3]))
+            .attr('width', newXScale(x + imgWidth) - newXScale(x))
+            .attr('height', Math.abs(newYScale(y + imgHeight) - newYScale(y)))
             .attr("clip-path", "url(#clip)");
-            
+
         cameraCircle
             .attr('x', margin.left + newXScale(cameraPosition[0]) + xOffset)
-            .attr('y', margin.top + newYScale(cameraPosition[1]) + yOffset)
+            .attr('y', margin.top + newYScale(cameraPosition[1]) + yOffset);
 
         line1
             .attr('x1', d => margin.left + newXScale(d.X) - 5)
@@ -331,5 +311,21 @@ const drawAnalizeResult = (
             .attr('x2', d => margin.left + newXScale(d.X) + 5)
             .attr('y2', d => margin.top + newYScale(d.Y) - 5)
             .attr('clip-path', 'url(#clip)');
-    }   
-}
+
+            svg.select('.x-axis').call(d3.axisBottom(newXScale).ticks(3));
+            svg.select('.y-axis').call(d3.axisLeft(newYScale).ticks(5));
+    }
+
+    svg.append('g')
+        .attr('class', 'x-axis')
+        .attr('transform', `translate(${margin.left}, ${height - margin.bottom})`)
+        .call(xAxis)
+        .attr('font-size', '12px')
+
+    svg.append('g')
+        .attr('class', 'y-axis')
+        .attr('transform', `translate(${margin.left}, ${margin.top})`)
+        .call(yAxis)
+        .attr('font-size', '12px')
+
+};

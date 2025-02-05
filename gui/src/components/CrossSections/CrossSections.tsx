@@ -2,7 +2,7 @@ import { FormCrossSections } from "../Forms"
 import { FieldValues, FormProvider, useForm} from "react-hook-form"
 import { Sections } from "./Sections"
 import './crossSections.css'
-import { useSectionSlice, useUiSlice } from "../../hooks"
+import { useProjectSlice, useSectionSlice, useUiSlice } from "../../hooks"
 import { useWizard } from "react-use-wizard"
 import { useEffect, useState } from "react"
 import { Section } from "../../store/section/types"
@@ -51,6 +51,7 @@ export const CrossSections = () => {
     const methods = useForm({defaultValues: createInitialState(sections)})
     const { nextStep } = useWizard()
     const { t } = useTranslation()
+    const { type } = useProjectSlice()
 
     const unregisterFieldsStartingWith = (prefix: string) => {
         const allValues = methods.getValues(); // Obtiene todos los campos registrados y sus valores
@@ -64,7 +65,7 @@ export const CrossSections = () => {
       };
 
     const onSubmit = ( data: FieldValues ) => {
-        onSetSections(data)
+        onSetSections(data, type)
         nextStep()
     }
 

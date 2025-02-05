@@ -19,13 +19,11 @@ import { ObliquePointsLines } from './ObliquePointsLines'
 import { IpcamGrid } from './IpcamGrid'
 import { ImageRectification3D } from './ImageRectification3D'
 import { PointsRectification3D } from './PointsRectification3D'
-import { CrossPoints } from './CrossPoints'
 import { Ellipses } from './Ellipses'
 import { RedPoints } from './RedPoints'
 
 export {
     Carousel,
-    CrossPoints,
     DrawSections,
     Ellipses,
     Error,

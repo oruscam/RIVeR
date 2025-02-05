@@ -1,14 +1,16 @@
 import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
+import { createMatrix } from "./utils/createMatrix";
+import * as fs from 'fs'
 
 async function recommendRoiHeight(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ipcMain.handle('recommend-roi-height', async (_event, args?) => {
         console.log('recommend-roi-height')
+        const { xsectionsPath, logsPath, matrixPath } = PROJECT_CONFIG;
 
-        const { xsectionsPath, matrixPath, logsPath } = PROJECT_CONFIG;
         const options = [
             'recommend-height-roi',
-            args ? args : 128,
+            128,
             xsectionsPath,
             matrixPath
         ]

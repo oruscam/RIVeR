@@ -52,15 +52,17 @@ function transformPoints(points: [[]]){
         const Z = parseFloat(point[3]);
         let x = 0;
         let y = 0;
+        let wasEstablished = false
         
         // const id = index
         
         if ( point.length > 4){ 
             x = parseFloat(point[4]);
             y = parseFloat(point[5]);
+            wasEstablished = true
         }
 
-        return { key, index, label, X, Y, Z, x, y, selected: true, wasEstablished: false }
+        return { key, index, label, X, Y, Z, x, y, selected: true, wasEstablished }
     })
 
     return newPoints;

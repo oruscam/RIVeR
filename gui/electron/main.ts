@@ -17,6 +17,7 @@ import { setControlPoints } from './ipcMainHandlers/setControlPoints.js'
 import { getPoints } from './ipcMainHandlers/getPoints.js'
 import { getIpcamImages } from './getIpcamImages.js'
 import { getDistances } from './getDistances.js'
+import { saveTransformationMatrix } from './ipcMainHandlers/saveTransformationMatrix.js'
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -104,11 +105,11 @@ app.on('activate', () => {
 })
 
 const PROJECT_CONFIG: ProjectConfig = {
-  directory: "",
-  type: "",
+  directory: "C:\\Users\\tomas\\River\\Rectification3d",
+  type: "ipcam",
   videoPath: "",
-  settingsPath: "",
-  framesPath: "",
+  settingsPath: "C:\\Users\\tomas\\River\\Rectification3d\\settings.json",
+  framesPath: "C:\\Users\\tomas\\River\\Rectification3d\\frames",
   matrixPath: "",
   xsectionsPath: "",
   bboxPath: "",
@@ -134,10 +135,11 @@ app.whenReady().then(() => {
   getBathimetry();
   setProjectDetails(PROJECT_CONFIG);
   setControlPoints(PROJECT_CONFIG, riverCli);
-  calculate3dRectification(PROJECT_CONFIG);
+  calculate3dRectification(PROJECT_CONFIG, riverCli);
 
-  getPoints()
-  getIpcamImages()
-  getDistances()
+  getPoints();
+  getIpcamImages(PROJECT_CONFIG);
+  getDistances();
+  saveTransformationMatrix(PROJECT_CONFIG);  
 })
 

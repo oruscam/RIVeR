@@ -320,6 +320,18 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
   margin-left: 25px;
 }
 
+.mtn-1{
+  margin-top: -15px;
+}
+
+.mtn-2{
+  margin-top: -25px;
+}
+
+.mtn-3{
+  margin-top: -40px;
+}
+
 .red{
   color: #ED6B57;
 }

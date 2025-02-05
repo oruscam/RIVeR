@@ -3,15 +3,14 @@ import { useMatrixSlice, useProjectSlice, useUiSlice } from "../hooks"
 import { useEffect, useState } from "react"
 import { imageZoom } from "../helpers"
 import { KonvaEventObject } from "konva/lib/Node"
-import { Ellipses, RedPoints, CrossPoints} from "./index"
-
+import { Ellipses, RedPoints, PointsRectification3D} from "./index"
 
 
 export const ImageRectification3D = () => {
     const { ipcam } = useMatrixSlice()
     const { screenSizes } = useUiSlice()
     const { firstFramePath } = useProjectSlice()
-    const { importedImages, activeImage } = ipcam
+    const { importedImages, activeImage, importedPoints } = ipcam
     const { imageWidth, imageHeight, factor } = screenSizes
 
     const [currentImage, setCurrentImage] = useState<HTMLImageElement | null>(null)
@@ -51,10 +50,15 @@ export const ImageRectification3D = () => {
                                 width={imageWidth}
                                 height={imageHeight}
                             />
-                            {/* <PointsRectification3D factor={factor as number} resizeFactor={resizeFactor}/>         */}
                             <Ellipses factor={factor as number}/>
-                            <CrossPoints factor={factor as number}/>    
-                            <RedPoints factor={factor as number}/>    
+                            {/* <CrossPoints factor={factor as number}/>     */}
+                            <RedPoints factor={factor as number} resizeFactor={resizeFactor}/>    
+                            {
+                                importedPoints !== undefined && ( 
+                                    <PointsRectification3D factor={factor as number} resizeFactor={resizeFactor}/>        
+
+                                )
+                            }
                         </>
                     )
                 }

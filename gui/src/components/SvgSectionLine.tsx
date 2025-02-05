@@ -2,7 +2,8 @@ import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { useSectionSlice } from "../hooks";
 import { COLORS } from '../constants/constants';
-import { calculateMidpointAndAngle } from '../helpers';
+import { calculateMidpointAndAngle, getPositionSectionText } from '../helpers';
+import { Point } from '../types';
 
 // This component renders a section line within an SVG element.
 // It ensures the section line is visible even when embedded in HTML.
@@ -51,20 +52,23 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
           .attr("stroke-width", 4 / resizeFactor)
           .attr("stroke-linecap", "round")
       }
-     
-    if ( !isReport ){
-      const { midpoint, angle } = calculateMidpointAndAngle(sectionPoints[0], sectionPoints[1]);
+    
+    
+    // If not in report mode, add the section name as text to the SVG
+    if (!isReport) {
+      // Calculate the position and rotation for the section text
+      const { point, rotation } = getPositionSectionText(sectionPoints[0], sectionPoints[1]);
+
+      // Append the section text element to the SVG
       svg.append("text")
-      .attr("x", midpoint.x / (typeof factor === 'number' ? factor : factor.x))
-      .attr("y", midpoint.y / (typeof factor === 'number' ? factor : factor.y))
+      .attr("x", point.x / (typeof factor === 'number' ? factor : factor.x))
+      .attr("y", point.y / (typeof factor === 'number' ? factor : factor.y))
       .attr("dy", 25)
       .text(name)
-      .attr("font-size", 18)
-      .attr("font-weight", 500)
+      .attr("font-size", 18 / resizeFactor)
       .attr("fill", COLORS.YELLOW)
-      .attr("transform", `rotate(${angle}, ${midpoint.x / (typeof factor === 'number' ? factor : factor.x)}, ${midpoint.y / (typeof factor === 'number' ? factor : factor.y)})`);
-
-    }  
+      .attr("transform", `rotate(${rotation}, ${point.x / (typeof factor === 'number' ? factor : factor.x)}, ${point.y / (typeof factor === 'number' ? factor : factor.y)})`);
+    }
 
   }, [factor, resizeFactor, sectionPoints, dirPoints, isReport]);
 
@@ -72,3 +76,4 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
     <svg id="svg-section-line" ref={svgRef} width="100%" height="100%"></svg>
   );
 };
+

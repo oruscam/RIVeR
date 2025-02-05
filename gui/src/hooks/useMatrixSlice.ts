@@ -1,13 +1,13 @@
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../store/store";
 import { CanvasPoint, FormDistance, Point } from "../types";
-import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint } from "../store/matrix/matrixSlice";
+import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint, setIpcamCameraSolution, setIpcamIsCalculating, changeHemispehere } from "../store/matrix/matrixSlice";
 import { adapterObliquePointsDistances, createSquare} from "../helpers";
 import { ScreenSizes } from "../store/ui/types";
 import { FieldValues } from "react-hook-form";
 import { cleanSections, setTransformationMatrix } from "../store/section/sectionSlice";
 import { setLoading } from "../store/ui/uiSlice"
-import { ResourceNotFoundError } from "../errors/errors";
+import { CliError, ResourceNotFoundError } from "../errors/errors";
 import { useTranslation } from "react-i18next";
 
 export const useMatrixSlice = () => {
@@ -117,6 +117,7 @@ export const useMatrixSlice = () => {
             const data = await ipcRenderer.invoke('import-points', { path: undefined });
            
             dispatch(setIpcamPoints({ points: data.points, path: data.path }));
+            dispatch(setIpcamCameraSolution(undefined))
         } catch (error) {
             console.log(error)
         }
@@ -147,7 +148,7 @@ export const useMatrixSlice = () => {
         const newPoints = ipcam.importedPoints.map((point, i) => {
             if (i === index) {
                 if ( point.selected === true ){
-                    return { ...point, x: 0, y: 0, selected: !point.selected, wasEstablished: false, image: undefined };
+                    return { ...point, selected: !point.selected, image: undefined };
                 } else {
                     return { ...point, selected: !point.selected };
                 }
@@ -177,16 +178,13 @@ export const useMatrixSlice = () => {
     }
 
     const setIpcamPointPixelCoordinates = ( { index, imageSize, point } : setIpcamPointPixelCoordinatesInterface) => {
-        console.log('index', index)
-        const { importedPoints, activeImage } = ipcam
+        const { importedPoints, activeImage, cameraSolution } = ipcam
         if ( importedPoints === undefined ) return;
 
         let newPoint = { ...importedPoints[index] }
 
-        console.log(newPoint)
 
         // Primer caso, cuando se establece el punto en el centro.
-
         if ( newPoint.wasEstablished === false && imageSize ){
             console.log('Primer caso')
 
@@ -200,7 +198,6 @@ export const useMatrixSlice = () => {
         }   
 
         // Segundo caso, cuando se establece el punto en una posición diferente al centro.
-
         if ( point ) {
             console.log('segundo caso')
             newPoint.x = point.x
@@ -212,13 +209,17 @@ export const useMatrixSlice = () => {
                 point: newPoint,
                 index
             }))
+
+            if ( cameraSolution !== undefined ){
+                dispatch(setIpcamCameraSolution(undefined))
+                dispatch(setHasChanged(true))
+            }
         }
 
         // Tercer caso, cuando se hace seleccionable un punto que ya se encuentra establecido. No se hace nada
         if ( newPoint.wasEstablished === true && imageSize ) {
 
             console.log('Tercer caso')
-
 
             dispatch(setCustomIpcamPoint({
                 point: newPoint,
@@ -228,19 +229,42 @@ export const useMatrixSlice = () => {
 
     }
 
-    const onCalculate3dRectification = async ( type: string ) => {
+    const onGetCameraSolution = async ( type: string ) => {
+        dispatch(setIpcamIsCalculating(true))
         const ipcRenderer = window.ipcRenderer
+        
+
+        const filePrefix = import.meta.env.VITE_FILE_PREFIX;
 
         try {
-            await ipcRenderer.invoke('calculate-3d-rectification', {
+            const { data, error } = await ipcRenderer.invoke('calculate-3d-rectification', {
                 points: ipcam.importedPoints,
-                type
+                type,
+                hemisphere: ipcam.hemisphere,
             })
+
+            if ( error ){
+                console.log(error)
+                throw new Error(error)
+            }
+
+            dispatch(setIpcamCameraSolution({
+                ...data,
+                orthoImagePath: filePrefix + data.orthoImagePath + `?t=${new Date().getTime()}`
+            }))
+            dispatch(setIpcamIsCalculating(false))
         } catch (error) {
             console.log(error)
+            dispatch(setIpcamIsCalculating(false))
+            if (error instanceof Error){
+                throw new CliError(error.message)
+            }
         }
     }
     
+    const onChangeHemisphere = () => {
+        dispatch(changeHemispehere())
+    }
  
     return {
         // ATRIBUTES
@@ -252,7 +276,9 @@ export const useMatrixSlice = () => {
         // METHODS
         changeIpcamPointSelected,
         onChangeActiveImage,
+        onChangeHemisphere,
         onChangeObliqueCoordinates,
+        onGetCameraSolution,
         onGetDistances,
         onGetImages,
         onGetPoints,
@@ -260,6 +286,5 @@ export const useMatrixSlice = () => {
         onSetDrawPoints,
         onSetObliqueCoordinates,
         setIpcamPointPixelCoordinates,
-        onCalculate3dRectification,
     }
 }

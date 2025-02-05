@@ -35,6 +35,24 @@ interface importedPoint {
     image: undefined | number,
 }
 
+interface ellipses { 
+    center: number[],
+    width: number,
+    height: number,
+    angle: number
+}
+
+interface cameraSolution {
+    orthoImagePath: string,
+    orthoExtent: number[],
+    reprojectionErrors: number,
+    projectedPoints: Array<[number, number]>,
+    meanError: number,
+    cameraPosition: number[],
+    uncertaintyEllipses: ellipses[],
+    cameraMatrix: number[][],
+}
+
 interface ipcam {
     pointsPath: string | undefined,
     imagesPath: string | undefined,
@@ -42,6 +60,9 @@ interface ipcam {
     importedImages: string[] | undefined,
     activeImage: number | undefined,
     activePoint: number | undefined,
+    cameraSolution: cameraSolution | undefined,
+    hemisphere: 'southern-hemisphere' | 'northern-hemisphere',
+    isCalculating: boolean,
 }
 
 interface setIpcamPointsInterface {
@@ -66,7 +87,6 @@ interface MatrixState {
     hasChanged: boolean;
 }
 
-
 export type {
     MatrixState,
     pixelSize,
@@ -75,5 +95,6 @@ export type {
     importedPoint,
     setIpcamPointsInterface,
     setIpcamImagesInterface,
-    setIpcamCustomPoint
+    setIpcamCustomPoint,
+    cameraSolution
 }

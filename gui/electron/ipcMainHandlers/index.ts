@@ -9,7 +9,7 @@ import { setSections } from "./setSections";
 import { firstFrame } from "./firstFrame";
 import { getQuiver } from "./getQuiver";
 import { getVideo } from "./getVideo";
-import { getBathimetry } from "./getBathimety";
+import { getBathimetry } from "./getBathimetry";
 import { calculate3dRectification } from "./calculate3dRectification";
 
 

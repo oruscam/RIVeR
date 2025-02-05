@@ -2,7 +2,9 @@ import { Line, Text } from 'react-konva';
 import { useWizard } from 'react-use-wizard';
 import { useSectionSlice } from '../hooks';
 import { COLORS, MODULE_NUMBER } from '../constants/constants';
-import { calculateMidpointAndAngle } from '../helpers';
+import { calculateMidpointAndAngle, getPositionSectionText } from '../helpers';
+import { xml } from 'd3-fetch';
+import { Point } from '../types';
 
 interface LineAndTextProps {
     localPoints?: { x: number; y: number }[];
@@ -57,19 +59,19 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
   }
 
   const getText = () => {    
-    const { midpoint, angle } = calculateMidpointAndAngle(sectionPoints[0], sectionPoints[1]);
+    const { point, rotation } = getPositionSectionText(sectionPoints[0], sectionPoints[1]);
 
     return (
       <Text
-          x={(midpoint.x / factor)}
-          y={(midpoint.y / factor)}
-          text={name}
-          fontSize={18 / resizeFactor}
-          fill={textColor}
-          offset={{ x: 0, y: -15 }}
-          rotation={angle}
-        /> 
-    )
+        x={point.x / factor}
+        y={point.y / factor}
+        text={name}
+        fontSize={18 / resizeFactor}
+        fill={textColor}
+        offset={{ x: 0, y: -10 }}
+        rotation={rotation}
+      /> 
+    );
   }
 
   return (

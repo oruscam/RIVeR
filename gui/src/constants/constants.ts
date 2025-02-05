@@ -84,7 +84,6 @@ export const GRAPHS = {
 export const VECTORS = {
     VELOCITY_AMPLITUDE_FACTOR: 20,
     QUIVER_AMPLITUDE_FACTOR: 20,
-    
 }
 
 /**
@@ -119,5 +118,3 @@ export const WINDOW_SIZES = {
     SMALL: 128,
     TINY: 64
 }
-
-

@@ -4,7 +4,7 @@ import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
 import { Report } from './pages/Report'
-import { useDataSlice, useMatrixSlice, useProjectSlice, useUiSlice } from './hooks'
+import { useDataSlice, useMatrixSlice, useProjectSlice, useSectionSlice, useUiSlice } from './hooks'
 import { FOOTAGE_TYPES } from './constants/constants'
 
 export const App: React.FC = () => {
@@ -12,8 +12,10 @@ export const App: React.FC = () => {
   const { type, video } = useProjectSlice()
   const { data } = video 
 
+  const { sections } = useSectionSlice()
+  console.log(sections)
+
   const { ipcam } = useMatrixSlice()
-  console.log(ipcam)
 
   const { onSetImages, images } = useDataSlice()
 

@@ -20,7 +20,7 @@ export const IpcamGrid = () => {
     const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set())
     
     const { ipcam, changeIpcamPointSelected, setIpcamPointPixelCoordinates, onChangeActiveImage } = useMatrixSlice();
-    const { importedPoints, pointsPath } = ipcam;
+    const { importedPoints } = ipcam;
 
     const { video } = useProjectSlice()
     const { width, height } = video.data

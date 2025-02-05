@@ -21,7 +21,7 @@ export const  FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
         event.preventDefault()
         const value = parseFloat(event.currentTarget.value)
         if ( value > 0) {
-          onUpdateSection({lineLength: value})
+          onUpdateSection({lineLength: value}, undefined)
         } else {
           const error = {
             "pixel_size_LINE_LENGTH": {

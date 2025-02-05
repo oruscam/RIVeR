@@ -29,7 +29,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         break;
 
       case 'interpolated-profile':
-        onUpdateSection({ interpolated: 'interpolated' })
+        onUpdateSection({ interpolated: 'interpolated' }, undefined)
         break;
 
       default:
@@ -48,7 +48,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         case 'stations-number':
           if ( isNaN(value) === false && value >= 3 ){
             if  ( value !== numStations ){
-              onUpdateSection({ numStations: value })
+              onUpdateSection({ numStations: value }, undefined)
             }
           } else {
             setValue(`${name}_STATIONS_NUMBER`, numStations)
@@ -59,11 +59,11 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
           break;
         case 'alpha':
           if ( value !== 0 && value !== alpha && isNaN(value) === false ){
-            onUpdateSection({ alpha: value })
+            onUpdateSection({ alpha: value }, undefined)
           } else {
             setValue(`${name}_ALPHA`, alpha)
           }
-          onUpdateSection({ alpha: value })
+          onUpdateSection({ alpha: value }, undefined)
           break;
         default:
           break;

@@ -23,7 +23,7 @@ const defaultVideo = {
 const initialState: ProjectState = {
     projectDirectory: '',
     video: defaultVideo,
-    type: '',
+    type: 'ipcam',
     firstFramePath: 'file:///Y:/ipcam/SUQUIA20240529T1430_seq1_00001.jpg',
     projectDetails: {
         riverName: '',
@@ -54,8 +54,7 @@ const projectSlice = createSlice({
         },
         setProjectDetails: (state, action: PayloadAction<ProjectDetails>) => {
             state.projectDetails = action.payload;
-        }
-        
+        }   
     }
 });
 

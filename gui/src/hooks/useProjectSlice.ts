@@ -14,7 +14,9 @@ import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessin
 import { onLoadObliquePoints, onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/index";
 import { OperationCanceledError, UserSelectionError } from "../errors/errors";
 import { parseTime } from "../helpers";
-import { setObliquePoints } from "../store/matrix/matrixSlice";
+import { setIpcamCameraSolution, setIpcamPoints, setObliquePoints } from "../store/matrix/matrixSlice";
+import { path } from "d3";
+import { onLoadCameraSolution } from "../helpers/loadProjectHelpers";
 
 
 /**
@@ -74,7 +76,6 @@ export const useProjectSlice = () => {
                     throw new OperationCanceledError(error.message);
                 }
             }
-
 
             const videoData = {
                 name: result.name,
@@ -157,7 +158,7 @@ export const useProjectSlice = () => {
         try {
             const result = await ipcRenderer.invoke('load-project')
             if(result.success){
-                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix } = result.message
+                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix, rectification3D } = result.message
                 dispatch(setProjectDirectory(projectDirectory))
                 dispatch(setProjectType(settings.footage)) 
                 dispatch(setVideoData({
@@ -183,7 +184,9 @@ export const useProjectSlice = () => {
                     dispatch(setFirstFramePath(filePrefix + firstFrame))
                 }
                 dispatch(setLoading(false))
-                
+
+                console.log('rectification', rectification3D)
+                console.log('settings pixel size', settings.pixel_size)                
 
                 if( piv_results ){
                     
@@ -193,6 +196,16 @@ export const useProjectSlice = () => {
 
                     if ( settings.control_points ){
                         onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
+                    }
+
+                    if ( settings.grp_3d ){
+                        dispatch(setIpcamPoints({
+                            points: rectification3D.points,
+                            path: undefined
+                        }))
+                        if ( settings.camera_solution_3d ){
+                            onLoadCameraSolution(rectification3D.cameraSolution, dispatch, setIpcamCameraSolution)
+                        }
                     }
 
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
@@ -247,7 +260,16 @@ export const useProjectSlice = () => {
                         onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
                     }
                     
-                    
+                    if ( settings.grp_3d ){
+                        dispatch(setIpcamPoints({
+                            points: rectification3D.points,
+                            path: undefined
+                        }))
+                        if ( settings.camera_solution_3d ){
+                            onLoadCameraSolution(rectification3D.cameraSolution, dispatch, setIpcamCameraSolution)
+                        }
+                    }
+
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
                     
                     // * Load images for carousel.
@@ -263,7 +285,7 @@ export const useProjectSlice = () => {
                     
                     return MODULE_NUMBER.PROCESSING
 
-                } else if(settings.pixel_size){
+                } else if(settings.pixel_size ){
                     onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
@@ -274,7 +296,18 @@ export const useProjectSlice = () => {
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.CROSS_SECTIONS
-                } else if(settings.video_range){
+                } else if (settings.grp_3d){
+                    dispatch(setIpcamPoints({
+                        points: rectification3D.points,
+                        path: undefined
+                    }))
+                    if ( settings.camera_solution_3d ){
+                        onLoadCameraSolution(rectification3D.cameraSolution, dispatch, setIpcamCameraSolution)
+                    }
+                    return MODULE_NUMBER.CROSS_SECTIONS
+                }
+                
+                else if(settings.video_range){
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.PIXEL_SIZE

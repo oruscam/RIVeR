@@ -36,7 +36,9 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                     let xSections = undefined
                     let piv_results = undefined
                     let matrix = undefined
-                
+                    let grp_3d_points = undefined
+                    let camera_solution_3d = undefined                    
+
                     const data = await fs.promises.readFile(settingsPath, 'utf-8');
                     const settingsParsed = JSON.parse(data);
 
@@ -97,6 +99,17 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                             PROJECT_CONFIG.resultsPath = settingsParsed.piv_results;
                             piv_results = await readResultsPiv(settingsParsed.piv_results);
                         }
+
+                        if ( settingsParsed.grp_3d ){
+                            grp_3d_points = await fs.promises.readFile(settingsParsed.grp_3d, 'utf-8');
+                            grp_3d_points = JSON.parse(grp_3d_points)
+                        }
+
+                        if ( settingsParsed.camera_solution_3d ){
+                            camera_solution_3d = await fs.promises.readFile(settingsParsed.camera_solution_3d, 'utf-8');
+                            camera_solution_3d = JSON.parse(camera_solution_3d)
+                        }
+
                         
                         try {
                             const videoMetadata = await getVideoMetadata(settingsParsed.video.filepath);
@@ -112,7 +125,11 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                                     mask: maskPng,
                                     piv_results: piv_results,
                                     paths: paths,
-                                    matrix: matrix
+                                    matrix: matrix,
+                                    rectification3D: {
+                                        points: grp_3d_points,
+                                        cameraSolution: camera_solution_3d
+                                    }
                                 },
                             };
                         } catch (error) {

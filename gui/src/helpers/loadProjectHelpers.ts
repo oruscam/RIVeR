@@ -192,7 +192,28 @@ const onLoadProcessingForm = ( values: ProcessingValues, dispatch: any, updateFo
     }))
 }
 
-export { onLoadVideoParameters, onLoadPixelSize, onLoadCrossSections, onLoadProcessingForm, onLoadObliquePoints}
+const onLoadCameraSolution = (values: cameraSolution, dispatch: any, setCameraSolution: any ) => {
+    const { ortho_image_path, ortho_extent, camera_position, projected_points, reprojection_errors, uncertainty_ellipses, mean_error} = values
+
+    dispatch(setCameraSolution({
+        orthoImagePath: ortho_image_path,
+        orthoExtent: ortho_extent,
+        cameraPosition: camera_position,
+        reprojectionErrors: reprojection_errors,
+        projectedPoints: projected_points,
+        meanError: mean_error,
+        uncertaintyEllipses: uncertainty_ellipses
+    }))
+}
+
+export { 
+    onLoadCameraSolution,
+    onLoadCrossSections,
+    onLoadObliquePoints, 
+    onLoadPixelSize, 
+    onLoadProcessingForm, 
+    onLoadVideoParameters, 
+}
 
 interface pixel_size {
     x1: number,
@@ -326,4 +347,19 @@ interface control_points {
         d13: number,
         d24: number,
     }
+}
+
+interface cameraSolution {
+    camera_position: number[],
+    projected_points: number[][],
+    reprojection_errors: number[],
+    uncertainty_ellipses: {
+        center: number[],
+        width: number,
+        height: number
+        angle: number
+    }[],
+    ortho_extent: number[],
+    ortho_image_path: string,
+    mean_error: number
 }

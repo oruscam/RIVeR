@@ -20,7 +20,9 @@
     pointer-events: none;
 }
 
-
+.point-map{
+    border: 1px solid white;
+}
 
 
 @media print {

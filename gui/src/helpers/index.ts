@@ -14,18 +14,17 @@ import { formatNumberToPrecision2, formatNumberTo2Decimals } from "./adapterNumb
 import { carouselClickImage, carouselKeyDown } from "./carouselFunctions";
 import { calculateArrowWidth, calculateMultipleArrows } from "./drawVectorsFunctions";
 import { createSquare, getObliquePointsDistances, adapterObliquePointsDistances } from "./useMatrixHelpers";
-import { calculateMidpointAndAngle } from "./calculateMidPointAndAngle";
 import { onLoadCrossSections, onLoadObliquePoints, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "./loadProjectHelpers";
+import { getPositionSectionText } from "./getPositionSectionText";
 
 export {
     adapterBathimetry,
-    adapterObliquePointsDistances,
     adapterCrossSections,
     adapterData,
+    adapterObliquePointsDistances,
     adaptStringDate,
     calculateArrowWidth,
     calculateMultipleArrows,
-    calculateMidpointAndAngle,
     carouselClickImage,
     carouselKeyDown,
     computePixelSize,
@@ -38,25 +37,26 @@ export {
     generateYAxisTicks,
     getBathimetryValues,
     getDirectionVector,
-    getObliquePointsDistances,
     getDistanceBetweenPoints,
     getIntersectionPoints,
     getNewImageResolution,
+    getObliquePointsDistances,
     getPointNames,
+    getPositionSectionText,
     getRelativePointerPosition,
     getUnit,
     getValidationRules,
     imageZoom,
-    onMouseDownPixelSize,
-    onMouseUpPixelSize,
-    recortStringDate,
-    stringDateToDate,
-    transformPixelToRealWorld,
-    transformRealWorldToPixel,
-    parseTime,
     onLoadCrossSections,
     onLoadObliquePoints,
     onLoadPixelSize,
     onLoadProcessingForm,
-    onLoadVideoParameters
+    onLoadVideoParameters,
+    onMouseDownPixelSize,
+    onMouseUpPixelSize,
+    parseTime,
+    recortStringDate,
+    stringDateToDate,
+    transformPixelToRealWorld,
+    transformRealWorldToPixel,
 }

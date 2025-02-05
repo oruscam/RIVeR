@@ -13,6 +13,8 @@ import { setBackendWorkingFlag, setProcessingMask, updateProcessingForm } from '
 
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../constants/constants';
 import { CanvasPoint, FormPoint, Point } from '../types';
+import { getTransformationFromCameraMatrix } from '../helpers/coordinates';
+import { ipcRenderer } from 'electron';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -142,6 +144,8 @@ export const useSectionSlice = () => {
         if( activeSection >= 1 ){
             let rwCalculated: Point[] = [ {x: 0, y: 0}, {x:0, y: 0}]
 
+            console.log('newPoints on set dir points', newPoints)
+
             dispatch(setBackendWorkingFlag(true))
             if (newPoints && flag1 && flag2) {
                 console.log('two points')
@@ -158,6 +162,7 @@ export const useSectionSlice = () => {
                 rwCalculated = [rwPoints[0], {x: par2[0], y: par2[1]}]
                 dispatch(setRealWorldPoints(rwCalculated))
             }
+            console.log('rwCalculated', rwCalculated)
             
             const { size, rw_length}  = computePixelSize(newPoints as Point[], rwCalculated)
             dispatch(setPixelSize({size, rw_length}))
@@ -318,7 +323,7 @@ export const useSectionSlice = () => {
      * @param formData | FieldValues - from useFormHook
      */
 
-    const onSetSections = async (_formData: FieldValues) => {
+    const onSetSections = async (_formData: FieldValues, type: string) => {
         console.time('set-sections')
         dispatch(setLoading(true))
         
@@ -383,7 +388,8 @@ export const useSectionSlice = () => {
         try {
             await ipcRenderer.invoke('set-sections', { data })
             
-            const { height_roi } = await ipcRenderer.invoke('recommend-roi-height')
+            const { height_roi } = await ipcRenderer.invoke('recommend-roi-height', type === 'ipcam' ? { transformationMatrix } : undefined)
+            console.log('heigth_roi', height_roi)
             const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi, data: false })
 1            
             dispatch(updateProcessingForm({...processing.form, heightRoi: height_roi}))
@@ -422,7 +428,7 @@ export const useSectionSlice = () => {
         data?: any;
     }
 
-    const onUpdateSection = (value: Update) => {
+    const onUpdateSection = (value: Update, cameraMatrix: number[][] | undefined) => {
         const section = sections[activeSection];
         const updatedSection = { ...section };
 
@@ -454,6 +460,14 @@ export const useSectionSlice = () => {
             const intersectionPoints = section.bathimetry.line ? getIntersectionPoints(section.bathimetry.line, value.level) : []
 
             const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x 
+
+            // If the camera matrix is defined and the active sections is the first cross section, we neeed to update the transformation matrix.
+            if ( cameraMatrix && activeSection === 1 ){
+                const transformationMatrix = getTransformationFromCameraMatrix(cameraMatrix, value.level)
+                dispatch(setTransformationMatrix(transformationMatrix as [number[], number[], number[]]))
+                dispatch(setHasChanged({value: true}))
+                window.ipcRenderer.invoke('save-transformation-matrix', { transformationMatrix })
+            }
             
             dispatch(setBathimetry({...section.bathimetry, level: value.level, width: bathWidth, x1Intersection: intersectionPoints[0].x, x2Intersection: intersectionPoints[1].x}))
             
@@ -509,7 +523,7 @@ export const useSectionSlice = () => {
                 path: "",
                 name: ""
             },
-            pixelSize: {size: 0, rw_length: 0},
+            pixelSize: { size: 0, rw_length: 0 },
             rwPoints: DEFAULT_POINTS,
             extraFields: false,
             numStations: DEFAULT_NUM_STATIONS,
@@ -561,7 +575,7 @@ export const useSectionSlice = () => {
         }
     }
 
-    const onGetBathimetry = async () => {
+    const onGetBathimetry = async (cameraMatrix: number[][] | undefined) => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
@@ -569,9 +583,16 @@ export const useSectionSlice = () => {
             const { path, line, name } = data
 
             if ( data.path !== "" && data.path !== sections[activeSection].bathimetry.path){
-
-                const bathValues = getBathimetryValues(line)
                 
+                const bathValues = cameraMatrix && sections[1].bathimetry.level !== undefined
+                    ? { ...getBathimetryValues(line, sections[1].bathimetry.level), level: sections[1].bathimetry.level }
+                    : getBathimetryValues(line);
+
+                if (cameraMatrix && activeSection === 1) {
+                    const transformationMatrix = getTransformationFromCameraMatrix(cameraMatrix, bathValues.level);
+                    dispatch(setTransformationMatrix(transformationMatrix as [number[], number[], number[]]));
+                    ipcRenderer.invoke('save-transformation-matrix', { transformationMatrix });
+                }
                 dispatch(setBathimetry({path: path, name: name, line: line, ...bathValues}))
 
                 const { dirPoints, pixelSize } = sections[activeSection] 
@@ -607,7 +628,6 @@ export const useSectionSlice = () => {
         ];
 
         dispatch(setSectionPoints(sectionPoints))
-        
     }
 
     const onCleanSections = () => {

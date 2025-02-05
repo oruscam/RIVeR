@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { useDataSlice, useSectionSlice, useUiSlice } from "../../hooks";
+import { useDataSlice, useMatrixSlice, useProjectSlice, useSectionSlice, useUiSlice } from "../../hooks";
 import { RealWorldCoordinates, PixelCoordinates } from "./index";
 import { Bathimetry } from "../Graphs";
 import { useTranslation } from "react-i18next";
@@ -12,10 +12,12 @@ interface FormCrossSectionsProps {
 
 export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsProps) => {
   const { register, setValue } = useFormContext();
-  const { sections, activeSection, onUpdateSection, onGetBathimetry } = useSectionSlice();
+  const { sections, activeSection, onUpdateSection, onGetBathimetry, transformationMatrix } = useSectionSlice();
   const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
   const { onSetErrorMessage } = useUiSlice()
   const { isBackendWorking } = useDataSlice()
+  const { type } = useProjectSlice()
+  const { ipcam } = useMatrixSlice()
 
   const { t } = useTranslation();
 
@@ -30,7 +32,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       if (isNaN(value) || value === bathimetry.level) return;
 
       if (yMax !== undefined && yMin !== undefined && value <= yMax && value >= yMin) {
-        onUpdateSection({ level: value });
+        onUpdateSection({ level: value }, ipcam.cameraSolution?.cameraMatrix);
         document.getElementById(nextFieldId)?.focus();
 
       } else {
@@ -47,7 +49,11 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
 
   const handleImportBath = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
-    onGetBathimetry();
+    if ( type === 'ipcam'){
+      onGetBathimetry(ipcam.cameraSolution?.cameraMatrix)
+    } else { 
+      onGetBathimetry(undefined);
+    }
   };
 
   const handleLeftBankInput = (event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
@@ -57,7 +63,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       
       if (!isNaN(value) && (x1Intersection ?? 0) + value >= (xMin ?? 0) && (x1Intersection ?? 0) + value <= (xMax ?? 0)) {
         document.getElementById('wizard-next')?.focus();
-        onUpdateSection({ leftBank: value });
+        onUpdateSection({ leftBank: value }, undefined);
         
       } else {
         onSetErrorMessage({ LeftBank: { type: "Error", message: t('CrossSections.Errors.leftBank')}});
@@ -72,13 +78,13 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
         <div className="form-base-2 mt-2">
-          
           <div className="input-container-2">
             <button
               className={`wizard-button form-button me-1 ${drawLine ? "wizard-button-active" : ""}`}
               type="button"
               id={`${name}-DRAW_LINE`}
-              onClick={() => onUpdateSection({ drawLine: true })}
+              onClick={() => onUpdateSection({ drawLine: true }, undefined)}
+              disabled={transformationMatrix.length === 0}
             > {t('CrossSections.drawLine')} </button>
             <span className="read-only bg-transparent"></span>
           </div>
@@ -113,7 +119,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             <button
               className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`}
               onClick={handleImportBath}
-              disabled={pixelSize.rw_length === 0}
+              disabled={transformationMatrix.length === 0 ? false : pixelSize.rw_length === 0}
             > {t('CrossSections.importBath')} </button>
             <label className="read-only bg-transparent mt-1">{bathimetry.name !== "" ? bathimetry.name : ''}</label>
           </div>
