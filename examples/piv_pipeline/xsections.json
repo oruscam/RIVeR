@@ -1,0 +1,28 @@
+{
+    "CS_default_1": {
+        "rw_length": 0,
+        "bath": "/home/tomy_ste/Downloads/XS1_DistElev(1).csv",
+        "level": 5.134,
+        "xl": 99,
+        "yl": 105,
+        "xr": 985,
+        "yl": 785,
+        "east_l": 0,
+        "north_l": -5,
+        "east_r": 30,
+        "north_r": 0
+    },
+    "CS_default_2": {
+        "rw_length": 0,
+        "bath": "/home/tomy_ste/Downloads/CS3_Bath.csv",
+        "level": 652.996,
+        "xl": 150,
+        "yl": 210,
+        "xr": 1000,
+        "yl": 820,
+        "east_l": 30,
+        "north_l": -5,
+        "east_r": 0,
+        "north_r": -10
+    }
+}
