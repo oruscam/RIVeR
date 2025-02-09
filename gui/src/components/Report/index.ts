@@ -7,11 +7,15 @@ import { Summary } from './Summary'
 import { PixelTransformation } from './PixelTransformation'
 import { ProcessingParameters } from './ProcessingParameters'
 import { Footer } from './Footer'
+import { ObliquePixelTransformation } from './ObliquePixelTransformation'
+import { IpcamPixelTransformation } from './IpcamPixelTransformation'
 
 
 export { 
     Footer,
     Header, 
+    IpcamPixelTransformation,
+    ObliquePixelTransformation,
     PixelTransformation, 
     ProcessedRange, 
     ProcessingParameters, 

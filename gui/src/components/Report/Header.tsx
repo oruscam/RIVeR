@@ -1,6 +1,6 @@
 import { Icon } from '../Icon'
 import './report.css'
-import { drone, oblique } from '../../assets/icons/icons.js'
+import { drone, oblique, ipcam } from '../../assets/icons/icons.js'
 import { useSectionSlice } from '../../hooks/useSectionSlice.js'
 import { useProjectSlice } from '../../hooks/useProjectSlice.js'
 
@@ -30,7 +30,7 @@ export const Header = () => {
   return (
     <div id="report-header-container">
       <div id='header-icon-container'>
-        <Icon path={ type === 'uav' ? drone : oblique } id='header-icon'/>      
+        <Icon path={ type === 'uav' ? drone : type === 'oblique' ? oblique : ipcam } id='header-icon'/>      
       </div>
       <div id='header-title-container'>
         <h1 className='header-title-text mt-1'> {riverName}@{site}</h1>

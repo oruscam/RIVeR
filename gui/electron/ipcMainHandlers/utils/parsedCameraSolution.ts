@@ -1,0 +1,16 @@
+function parsedCameraSolution(data: string){
+    const camera_solution = JSON.parse(data)
+
+    return {
+        orthoImagePath: camera_solution.ortho_image_path,
+        orthoExtent: camera_solution.ortho_extent,
+        cameraPosition: camera_solution.camera_position,
+        reprojectionErrors: camera_solution.reprojection_errors,
+        projectedPoints: camera_solution.projected_points,
+        meanError: camera_solution.mean_error,
+        uncertaintyEllipses: camera_solution.uncertainty_ellipses,
+        cameraMatrix: camera_solution.camera_matrix,
+    }
+}
+
+export { parsedCameraSolution }

@@ -17,6 +17,8 @@ export const App: React.FC = () => {
 
   const { ipcam } = useMatrixSlice()
 
+  console.log(ipcam)
+
   const { onSetImages, images } = useDataSlice()
 
   const getStep4 = () => {

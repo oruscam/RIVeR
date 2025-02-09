@@ -47,10 +47,17 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
     }
   };
 
-  const handleImportBath = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleImportBath = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if ( type === 'ipcam'){
-      onGetBathimetry(ipcam.cameraSolution?.cameraMatrix)
+      const error = await onGetBathimetry(ipcam.cameraSolution?.cameraMatrix)
+      const message = 'CrossSections.Errors.' + error?.message;
+      onSetErrorMessage({
+        Bathimetry: {
+          type: 'error',
+          message: t(message, { level: error?.value })
+        }
+      })
     } else { 
       onGetBathimetry(undefined);
     }

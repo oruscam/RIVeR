@@ -5,6 +5,8 @@ import { getVideoMetadata } from "./utils/getVideoMetadata";
 import { ProjectConfig } from "./interfaces";
 import { readResultsPiv } from "./utils/readResultsPiv";
 import { transformData } from "./utils/transformCrossSectionsData";
+import { parseGrp3dPoints } from "./utils/parseGrp3dPoints";
+import { parsedCameraSolution } from "./utils/parsedCameraSolution";
 
 
 function loadProject(PROJECT_CONFIG: ProjectConfig){
@@ -37,7 +39,9 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                     let piv_results = undefined
                     let matrix = undefined
                     let grp_3d_points = undefined
+                    let grp_3d_mode = undefined
                     let camera_solution_3d = undefined                    
+                    let rectification_3d_images = undefined
 
                     const data = await fs.promises.readFile(settingsPath, 'utf-8');
                     const settingsParsed = JSON.parse(data);
@@ -101,15 +105,21 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                         }
 
                         if ( settingsParsed.grp_3d ){
-                            grp_3d_points = await fs.promises.readFile(settingsParsed.grp_3d, 'utf-8');
-                            grp_3d_points = JSON.parse(grp_3d_points)
+                            const jsonContent = await fs.promises.readFile(settingsParsed.grp_3d, 'utf-8');
+                            const { points, mode } = parseGrp3dPoints(jsonContent)
+                            grp_3d_points = points;
+                            grp_3d_mode = mode;
                         }
 
                         if ( settingsParsed.camera_solution_3d ){
                             camera_solution_3d = await fs.promises.readFile(settingsParsed.camera_solution_3d, 'utf-8');
-                            camera_solution_3d = JSON.parse(camera_solution_3d)
+                            camera_solution_3d = parsedCameraSolution(camera_solution_3d);
                         }
 
+                        if ( settingsParsed.rectification_3d_images ){
+                            const images = await fs.promises.readdir(settingsParsed.rectification_3d_images);
+                            rectification_3d_images = images.map((image: string) => path.join(filePrefix, settingsParsed.rectification_3d_images, image));
+                        }
                         
                         try {
                             const videoMetadata = await getVideoMetadata(settingsParsed.video.filepath);
@@ -128,7 +138,11 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                                     matrix: matrix,
                                     rectification3D: {
                                         points: grp_3d_points,
-                                        cameraSolution: camera_solution_3d
+                                        mode: grp_3d_mode,
+                                        cameraSolution: camera_solution_3d,
+                                        hemisphere: settingsParsed.hemisphere,
+                                        images: rectification_3d_images,
+                                        imagesPath: settingsParsed.rectification_3d_images
                                     }
                                 },
                             };

@@ -8,12 +8,15 @@ export const RedPoints = ({ factor, resizeFactor }: { factor: number, resizeFact
 
     if ( cameraSolution === undefined || importedPoints === undefined ) return null
     
+    
     return (
         <Group>
             {
-                cameraSolution.projectedPoints.map((point, index) => {
-                    const { x, y, selected, wasEstablished } = importedPoints[index]
-                    if ( selected === false ) return
+                importedPoints.map((point, index) => {
+                    const { x, y, selected, wasEstablished, projectedPoint } = point
+                    if ( selected === false || projectedPoint === undefined ) return
+
+                    const [ xProjected, yProjected ] = projectedPoint
 
                     return (
                         <Group key={`group-${index}`}>
@@ -21,7 +24,7 @@ export const RedPoints = ({ factor, resizeFactor }: { factor: number, resizeFact
                                 x !== 0 && y !== 0 && wasEstablished && (
                                     <Line 
                                         key={`line-${index}`}
-                                        points={[x / factor, y / factor, point[0] / factor, point[1] / factor]}
+                                        points={[x / factor, y / factor, xProjected / factor, yProjected / factor]}
                                         stroke={COLORS.RED}
                                         strokeWidth={3 / ( resizeFactor)}
                                     />    
@@ -29,8 +32,8 @@ export const RedPoints = ({ factor, resizeFactor }: { factor: number, resizeFact
                             }
                             <Circle
                                 key={`circle-${index}`}
-                                x={point[0] / factor}
-                                y={point[1] / factor}
+                                x={xProjected / factor}
+                                y={yProjected / factor}
                                 radius={3 / ( resizeFactor)}
                                 fill={COLORS.RED}
                             />

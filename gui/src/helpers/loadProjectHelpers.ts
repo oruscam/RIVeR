@@ -1,6 +1,8 @@
 import { Section } from '../store/section/types';
 import { getBathimetryValues } from './getBathimetryValues';
 import { MODULE_NUMBER } from '../constants/constants';
+import { cameraSolution, importedPoint } from '../types';
+import { appendSolutionToImportedPoints } from './appendSolutionsToImportedPoints';
 
 /**
  * This file contains helper functions to load the project data from the projects file.
@@ -192,27 +194,53 @@ const onLoadProcessingForm = ( values: ProcessingValues, dispatch: any, updateFo
     }))
 }
 
-const onLoadCameraSolution = (values: cameraSolution, dispatch: any, setCameraSolution: any ) => {
-    const { ortho_image_path, ortho_extent, camera_position, projected_points, reprojection_errors, uncertainty_ellipses, mean_error} = values
+const onLoad3dRectification = (
+    rectification3d: {
+        points: importedPoint[],
+        cameraSolution: cameraSolution,
+        mode: string,
+        images: string,
+        hemisphere: string,
+        imagesPath: string
+    },
+    dispatch: any,
+    setIpcamPoints: any,
+    setCameraSolution: any,
+    setHemisphere: any,
+    setIpcamImages: any
+) => {
+    const filePrefix = import.meta.env.VITE_FILE_PREFIX
+    const { points, cameraSolution, mode, images, hemisphere } = rectification3d
 
+    console.log('images', images)
+    console.log('hemisphere', hemisphere)
+
+    const newImportedPoints = appendSolutionToImportedPoints(points, cameraSolution)
+
+    delete cameraSolution.projectedPoints
+    delete cameraSolution.uncertaintyEllipses
+
+    dispatch(setIpcamPoints({ points: newImportedPoints, path: undefined }))
     dispatch(setCameraSolution({
-        orthoImagePath: ortho_image_path,
-        orthoExtent: ortho_extent,
-        cameraPosition: camera_position,
-        reprojectionErrors: reprojection_errors,
-        projectedPoints: projected_points,
-        meanError: mean_error,
-        uncertaintyEllipses: uncertainty_ellipses
+        ...cameraSolution,
+        orthoImagePath: filePrefix + cameraSolution.orthoImagePath,
+        type: mode
     }))
+    dispatch(setHemisphere(hemisphere))
+
+    if ( images !== undefined ){
+        dispatch(setIpcamImages({ images: images, path: images }))
+    }
+
 }
 
 export { 
-    onLoadCameraSolution,
     onLoadCrossSections,
     onLoadObliquePoints, 
     onLoadPixelSize, 
     onLoadProcessingForm, 
     onLoadVideoParameters, 
+    onLoad3dRectification
 }
 
 interface pixel_size {
@@ -349,17 +377,17 @@ interface control_points {
     }
 }
 
-interface cameraSolution {
-    camera_position: number[],
-    projected_points: number[][],
-    reprojection_errors: number[],
-    uncertainty_ellipses: {
-        center: number[],
-        width: number,
-        height: number
-        angle: number
-    }[],
-    ortho_extent: number[],
-    ortho_image_path: string,
-    mean_error: number
-}
+// interface cameraSolution {
+//     camera_position: number[],
+//     projected_points: number[][],
+//     reprojection_errors: number[],
+//     uncertainty_ellipses: {
+//         center: number[],
+//         width: number,
+//         height: number
+//         angle: number
+//     }[],
+//     ortho_extent: number[],
+//     ortho_image_path: string,
+//     mean_error: number
+// }

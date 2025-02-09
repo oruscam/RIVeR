@@ -1,8 +1,8 @@
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../store/store";
-import { CanvasPoint, FormDistance, Point } from "../types";
-import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint, setIpcamCameraSolution, setIpcamIsCalculating, changeHemispehere } from "../store/matrix/matrixSlice";
-import { adapterObliquePointsDistances, createSquare} from "../helpers";
+import { cameraSolution, CanvasPoint, FormDistance, Point } from "../types";
+import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint, setIpcamCameraSolution, setIpcamIsCalculating, setHemispehere } from "../store/matrix/matrixSlice";
+import { adapterObliquePointsDistances, appendSolutionToImportedPoints, createSquare} from "../helpers";
 import { ScreenSizes } from "../store/ui/types";
 import { FieldValues } from "react-hook-form";
 import { cleanSections, setTransformationMatrix } from "../store/section/sectionSlice";
@@ -183,6 +183,7 @@ export const useMatrixSlice = () => {
 
         let newPoint = { ...importedPoints[index] }
 
+        console.log(newPoint)
 
         // Primer caso, cuando se establece el punto en el centro.
         if ( newPoint.wasEstablished === false && imageSize ){
@@ -232,12 +233,11 @@ export const useMatrixSlice = () => {
     const onGetCameraSolution = async ( type: string ) => {
         dispatch(setIpcamIsCalculating(true))
         const ipcRenderer = window.ipcRenderer
-        
 
         const filePrefix = import.meta.env.VITE_FILE_PREFIX;
 
         try {
-            const { data, error } = await ipcRenderer.invoke('calculate-3d-rectification', {
+            const { data, error }: { data: cameraSolution, error: any } = await ipcRenderer.invoke('calculate-3d-rectification', {
                 points: ipcam.importedPoints,
                 type,
                 hemisphere: ipcam.hemisphere,
@@ -247,10 +247,16 @@ export const useMatrixSlice = () => {
                 console.log(error)
                 throw new Error(error)
             }
+            
+            const newImportedPoints = appendSolutionToImportedPoints(ipcam.importedPoints!, data)
+            delete data.uncertaintyEllipses
+            delete data.projectedPoints
 
+            dispatch(setIpcamPoints({ points: newImportedPoints, path: undefined }))
             dispatch(setIpcamCameraSolution({
                 ...data,
-                orthoImagePath: filePrefix + data.orthoImagePath + `?t=${new Date().getTime()}`
+                orthoImagePath: filePrefix + data.orthoImagePath + `?t=${new Date().getTime()}`,
+                type: type,
             }))
             dispatch(setIpcamIsCalculating(false))
         } catch (error) {
@@ -262,8 +268,8 @@ export const useMatrixSlice = () => {
         }
     }
     
-    const onChangeHemisphere = () => {
-        dispatch(changeHemispehere())
+    const onChangeHemisphere = (type: 'southern-hemisphere' | 'northern-hemisphere') => {
+        dispatch(setHemispehere(type))
     }
  
     return {

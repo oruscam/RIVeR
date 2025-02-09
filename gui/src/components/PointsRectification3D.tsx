@@ -1,8 +1,8 @@
 import { useMatrixSlice } from "../hooks";
-import { pinRed, pin }from '../assets/icons/icons'
+import { pinRed, pin, pinGrey }from '../assets/icons/icons'
 import useImage from "use-image";
-import { Group, Image, Line } from "react-konva";
-import { COLORS, MARKS } from "../constants/constants";
+import { Group, Image } from "react-konva";
+import { MARKS } from "../constants/constants";
 import { KonvaEventObject } from "konva/lib/Node";
 import { useEffect, useState } from "react";
 
@@ -17,6 +17,7 @@ export const PointsRectification3D = ({ factor, resizeFactor } : PointsProps) =>
 
     const [iconBlue] = useImage(pin)
     const [iconRed] = useImage(pinRed)
+    const [iconGrey] = useImage(pinGrey)
 
     const [ localPoints, setLocalPoints ] = useState(importedPoints)
 
@@ -57,6 +58,18 @@ export const PointsRectification3D = ({ factor, resizeFactor } : PointsProps) =>
         }
     };
 
+    const getIcon = ( selected: boolean, activePoint: number | undefined, index: number) => {    
+        if ( selected ){
+            if ( index === activePoint){
+                return iconRed
+            } else {
+                return iconBlue
+            }
+        } else {
+            return iconGrey
+        }
+    }
+
     useEffect(() => {
         setLocalPoints(importedPoints)
     }, [importedPoints])
@@ -70,44 +83,20 @@ export const PointsRectification3D = ({ factor, resizeFactor } : PointsProps) =>
 
                     return (
                         <Group key={index}>
-                            {
-                                point.selected ? (
-                                    <Image
-                                        image={activePoint === index ? iconRed : iconBlue}
-                                        x={point.x / factor}
-                                        y={point.y / factor}
-                                        width={MARKS.WIDTH / resizeFactor} 
-                                        height={MARKS.HEIGHT / resizeFactor} 
-                                        offsetX={MARKS.OFFSET_X / resizeFactor}
-                                        offsetY={MARKS.OFFSET_Y / resizeFactor}
-                                        onMouseEnter={draggable ? handleCursorEnter : undefined}
-                                        onMouseLeave={draggable ? handleCursorLeave: undefined}
-                                        draggable={draggable}
-                                        onDragMove={(event) => handleDragMove(event, index)}
-                                        onDragEnd={(event) => handleDragEnd(event, index, draggable)}
-                                    />
-                                ) :
-                                ( 
-                                    <Group>
-                                        <Line
-                                            points={[
-                                                point.x / factor - 12 / resizeFactor, point.y / factor,
-                                                point.x / factor + 12 / resizeFactor, point.y / factor
-                                            ]}
-                                            stroke={COLORS.DARK_GREY}
-                                            strokeWidth={3 / resizeFactor}
-                                        />
-                                        <Line
-                                            points={[
-                                                point.x / factor, point.y / factor - 12 / resizeFactor,
-                                                point.x / factor, point.y / factor + 12 / resizeFactor
-                                            ]}
-                                            stroke={COLORS.DARK_GREY}
-                                            strokeWidth={3 / resizeFactor}
-                                        />  
-                                    </Group>   
-                                )
-                            }
+                            <Image
+                                image={getIcon(point.selected, activePoint, index)}
+                                x={point.x / factor}
+                                y={point.y / factor}
+                                width={MARKS.WIDTH / resizeFactor} 
+                                height={MARKS.HEIGHT / resizeFactor} 
+                                offsetX={MARKS.OFFSET_X / resizeFactor}
+                                offsetY={MARKS.OFFSET_Y / resizeFactor}
+                                onMouseEnter={draggable ? handleCursorEnter : undefined}
+                                onMouseLeave={draggable ? handleCursorLeave: undefined}
+                                draggable={draggable}
+                                onDragMove={(event) => handleDragMove(event, index)}
+                                onDragEnd={(event) => handleDragEnd(event, index, draggable)}
+                            />
                         </Group>
                     )
                 })

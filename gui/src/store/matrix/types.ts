@@ -1,4 +1,4 @@
-import { Point } from "../../types";
+import { importedPoint, Point } from "../../types";
 
 interface pixelSize {
     drawLine: boolean,
@@ -23,34 +23,14 @@ interface obliquePoints {
     isDistancesLoaded: boolean
 }
 
-interface importedPoint {
-    label: string, // Point Name
-    X: number, // Real World X
-    Y: number, // Real World Y
-    Z: number, // Real World Z
-    x: number, // Pixel x
-    y: number, // Pixel y
-    selected: boolean,
-    wasEstablished: boolean,
-    image: undefined | number,
-}
-
-interface ellipses { 
-    center: number[],
-    width: number,
-    height: number,
-    angle: number
-}
-
 interface cameraSolution {
     orthoImagePath: string,
     orthoExtent: number[],
-    reprojectionErrors: number,
-    projectedPoints: Array<[number, number]>,
+    reprojectionErrors: number[],
     meanError: number,
     cameraPosition: number[],
-    uncertaintyEllipses: ellipses[],
     cameraMatrix: number[][],
+    type: string,
 }
 
 interface ipcam {
@@ -96,5 +76,5 @@ export type {
     setIpcamPointsInterface,
     setIpcamImagesInterface,
     setIpcamCustomPoint,
-    cameraSolution
+    cameraSolution,
 }

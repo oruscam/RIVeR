@@ -16,6 +16,7 @@ import { calculateArrowWidth, calculateMultipleArrows } from "./drawVectorsFunct
 import { createSquare, getObliquePointsDistances, adapterObliquePointsDistances } from "./useMatrixHelpers";
 import { onLoadCrossSections, onLoadObliquePoints, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "./loadProjectHelpers";
 import { getPositionSectionText } from "./getPositionSectionText";
+import { appendSolutionToImportedPoints } from "./appendSolutionsToImportedPoints";
 
 export {
     adapterBathimetry,
@@ -23,6 +24,7 @@ export {
     adapterData,
     adapterObliquePointsDistances,
     adaptStringDate,
+    appendSolutionToImportedPoints,
     calculateArrowWidth,
     calculateMultipleArrows,
     carouselClickImage,

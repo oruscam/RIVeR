@@ -1,7 +1,7 @@
 import { useMatrixSlice, useUiSlice } from "../../hooks"
 import { IpcamGrid } from "../index";
 import { PointsMap } from "../Graphs/index";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export const FormRectification3D = () => {
     const [ mode, setMode ] = useState('')
@@ -24,12 +24,19 @@ export const FormRectification3D = () => {
         setMode(id);
         onGetCameraSolution(id).catch( error => {
             onSetErrorMessage(error.message)
+        }).finally(() => {
             setMode('')
-        });
+        })
     }
 
-    if (cameraSolution === undefined && mode !== '') {
-        setMode('');
+    const handleOnChangeSwitch = ( event: React.ChangeEvent<HTMLInputElement> ) => {
+        const isChecked = event.target.checked
+
+        if ( isChecked ){
+            onChangeHemisphere('southern-hemisphere')
+        } else {
+            onChangeHemisphere('northern-hemisphere')
+        }
     }
 
     return (
@@ -45,17 +52,29 @@ export const FormRectification3D = () => {
                     <IpcamGrid/>
                     <PointsMap/>
 
-                    <div className={`switch-container-2 ${cameraSolution === undefined ? 'mt-1' : 'mtn-2'}`}>
+                    <div className={`switch-container-2 ${cameraSolution === undefined ? 'mt-1' : 'mt'}`}>
                         <h3 className="field-title"> Northern | Southern </h3>
                         <label className="switch">
-                            <input type="checkbox" defaultChecked={ hemisphere === 'southern-hemisphere' } id="northern-southern-switch" onChange={onChangeHemisphere}/>
+                            <input type="checkbox" defaultChecked={ hemisphere === 'southern-hemisphere' } id="northern-southern-switch" onChange={handleOnChangeSwitch}/>
                             <span className="slider"></span>
                         </label>
                     </div>
 
                     <div className="input-container-2 mt-1">
-                        <button className={`wizard-button me-1 button-rectification-3d ${mode === 'direct-solve' ? 'wizard-button-active' : '' }`} id="direct-solve" type="button" onClick={handleOnClickAction}> Direct Solve </button>
-                        <button className={`wizard-button button-rectification-3d ${cameraSolution === undefined ? 'mb-2' : ''} ${mode === 'optimize-solution' ? 'wizard-button-active' : '' }`} id="optimize-solution" type="button" onClick={handleOnClickAction}> Optimize </button>
+                        <button 
+                            className={`wizard-button me-1 button-rectification-3d ${cameraSolution?.type === 'direct-solve' || mode === 'direct-solve' ? 'wizard-button-active' : '' }`} 
+                            id="direct-solve" 
+                            type="button" 
+                            onClick={handleOnClickAction}
+                            disabled={ipcam.importedPoints === undefined}
+                            > Direct Solve </button>
+                        <button 
+                            className={`wizard-button button-rectification-3d ${cameraSolution === undefined ? 'mb-2' : ''} ${cameraSolution?.type === 'optimize-solution' || mode === 'optimize-solution' ? 'wizard-button-active' : '' }`} 
+                            id="optimize-solution" 
+                            type="button" 
+                            onClick={handleOnClickAction}
+                            disabled={ipcam.importedPoints === undefined}
+                            > Optimize </button>
                     </div>
                     
                     {
@@ -67,7 +86,7 @@ export const FormRectification3D = () => {
                                 </div>
                                 <div className="form-video-extra-info-row">
                                     <p> Number Of Points:  </p>
-                                    <p> {cameraSolution.projectedPoints.length} </p>
+                                    <p> {cameraSolution.reprojectionErrors.length} </p>
                                 </div>
                                 <div className="form-video-extra-info-row mb-2">
                                     <p> Camera Height:  </p>
@@ -78,7 +97,6 @@ export const FormRectification3D = () => {
                     }
                     
 
-                    {/* <Rectification3DFormImage/> */}
                 </div>
             </form>
         </>

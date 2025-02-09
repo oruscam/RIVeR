@@ -91,11 +91,13 @@ const sectionSlice = createSlice({
         changeSectionData : (state, action: PayloadAction<SectionData>) => {
             state.sections[state.activeSection].data = action.payload;
         },
-        setBathimetry: (state, action: PayloadAction<Bathimetry>) => {
-            state.sections[state.activeSection].bathimetry = action.payload;
+        setBathimetry: (state, action: PayloadAction<{bathimetry: Bathimetry, index?: number}>) => {
+            const index = action.payload.index === undefined ? state.activeSection : action.payload.index;
+            state.sections[index].bathimetry = action.payload.bathimetry;
         },
-        setSectionPoints: (state, action: PayloadAction<Point[]>) => {
-            state.sections[state.activeSection].sectionPoints = action.payload;
+        setSectionPoints: (state, action: PayloadAction<{points: Point[], index?: number}>) => {
+            const index = action.payload.index === undefined ? state.activeSection : action.payload.index;
+            state.sections[index].sectionPoints = action.payload.points;
         },
         setHasChanged: (state, action: PayloadAction<{value: boolean, index?: number}>) => {
             if ( action.payload.index === undefined ){

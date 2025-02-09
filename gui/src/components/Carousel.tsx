@@ -23,6 +23,22 @@ interface RowProps {
     style: React.CSSProperties;
 }
 
+function getFileNameWithoutExtension(filePath: string): string {
+    // Remove the 'file:\' prefix if it exists
+    if (filePath.startsWith('file:\\')) {
+        filePath = filePath.slice(6);
+    }
+
+    // Extract the base name
+    const baseName = filePath.split('\\').pop() || '';
+
+    // Remove the extension
+    const fileNameWithoutExtension = baseName.split('.').slice(0, -1).join('.');
+
+    return fileNameWithoutExtension;
+}
+
+
 export const Carousel: React.FC<CarouselProps> = ({ images, active, setActiveImage, showMedian, setShowMedian, mode }) => {
     const { t } = useTranslation();
     const { isBackendWorking, quiver } = useDataSlice();
@@ -44,6 +60,7 @@ export const Carousel: React.FC<CarouselProps> = ({ images, active, setActiveIma
         setDefaultValue(event.currentTarget.value);
     };
 
+
     const Row: React.FC<RowProps> = ({ index, style }) => {
         let className = 'img-carousel';
         if (index === active && !showMedian) {
@@ -57,37 +74,11 @@ export const Carousel: React.FC<CarouselProps> = ({ images, active, setActiveIma
                 onClick={() => carouselClickImage( active, index, images, isBackendWorking, listRef.current!, setShowMedian, setActiveImage, setDefaultValue, mode)} 
                 style={style}>
                 <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
-                <div className='img-water-mark'> {index + 1} </div>
+                <div className={`img-water-mark ${mode === 'ipcam' ? '-ipcam' : ''}`}> { mode === 'ipcam' ? getFileNameWithoutExtension(images[index]) : index + 1}</div>
             </div>
         );
     };
 
-    // useEffect(() => {
-    //     const updateWidth = () => {
-    //         if (containerRef.current) {
-    //             setWidth(containerRef.current.offsetWidth);
-    //         }
-    //     };
-    //     updateWidth(); // Set initial width
-    //     window.addEventListener('resize', updateWidth); // Update width on window resize
-
-    //     return () => {
-    //         window.removeEventListener('resize', updateWidth); // Cleanup event listener
-    //     };
-    // }, []);
-
-    // /**
-    //  * Change the width of the carousel items depending on the screen height
-    //  */
-
-    // useEffect(() => {
-    //     if (screenSizes.height < 800) {
-    //         setItemWidth(240);
-    //     } else {
-    //         setItemWidth(275);
-    //     }
-
-    // }, [screenSizes.height])
 
     useEffect(() => {
         const updateDimensions = () => {

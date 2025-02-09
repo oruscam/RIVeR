@@ -14,9 +14,8 @@ import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessin
 import { onLoadObliquePoints, onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/index";
 import { OperationCanceledError, UserSelectionError } from "../errors/errors";
 import { parseTime } from "../helpers";
-import { setIpcamCameraSolution, setIpcamPoints, setObliquePoints } from "../store/matrix/matrixSlice";
-import { path } from "d3";
-import { onLoadCameraSolution } from "../helpers/loadProjectHelpers";
+import { setHemispehere, setIpcamCameraSolution, setIpcamImages, setIpcamPoints, setObliquePoints } from "../store/matrix/matrixSlice";
+import { onLoad3dRectification } from "../helpers/loadProjectHelpers";
 
 
 /**
@@ -185,9 +184,6 @@ export const useProjectSlice = () => {
                 }
                 dispatch(setLoading(false))
 
-                console.log('rectification', rectification3D)
-                console.log('settings pixel size', settings.pixel_size)                
-
                 if( piv_results ){
                     
                     if ( settings.pixel_size ){
@@ -199,13 +195,7 @@ export const useProjectSlice = () => {
                     }
 
                     if ( settings.grp_3d ){
-                        dispatch(setIpcamPoints({
-                            points: rectification3D.points,
-                            path: undefined
-                        }))
-                        if ( settings.camera_solution_3d ){
-                            onLoadCameraSolution(rectification3D.cameraSolution, dispatch, setIpcamCameraSolution)
-                        }
+                        onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
                     }
 
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
@@ -250,7 +240,7 @@ export const useProjectSlice = () => {
                     return STEP
                 }
                 
-                if(settings.xsections){
+                if( settings.xsections ){
 
                     if ( settings.pixel_size ){
                         onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
@@ -261,13 +251,7 @@ export const useProjectSlice = () => {
                     }
                     
                     if ( settings.grp_3d ){
-                        dispatch(setIpcamPoints({
-                            points: rectification3D.points,
-                            path: undefined
-                        }))
-                        if ( settings.camera_solution_3d ){
-                            onLoadCameraSolution(rectification3D.cameraSolution, dispatch, setIpcamCameraSolution)
-                        }
+                        onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
                     }
 
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
@@ -297,13 +281,8 @@ export const useProjectSlice = () => {
 
                     return MODULE_NUMBER.CROSS_SECTIONS
                 } else if (settings.grp_3d){
-                    dispatch(setIpcamPoints({
-                        points: rectification3D.points,
-                        path: undefined
-                    }))
-                    if ( settings.camera_solution_3d ){
-                        onLoadCameraSolution(rectification3D.cameraSolution, dispatch, setIpcamCameraSolution)
-                    }
+                    onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+
                     return MODULE_NUMBER.CROSS_SECTIONS
                 }
                 

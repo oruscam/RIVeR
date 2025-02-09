@@ -80,6 +80,7 @@ const matrixSlice = createSlice({
             state.ipcam.activeImage = action.payload
         },
         setCustomIpcamPoint: ( state, action: PayloadAction<setIpcamCustomPoint> ) => {
+            console.log('setCustomIpcamPoint', action)
             if ( state.ipcam.importedPoints ){
                 state.ipcam.importedPoints[action.payload.index] = action.payload.point
                 state.ipcam.activePoint = action.payload.index
@@ -91,8 +92,8 @@ const matrixSlice = createSlice({
         setIpcamIsCalculating: ( state, action: PayloadAction<boolean> ) => {
             state.ipcam.isCalculating = action.payload
         },
-        changeHemispehere: ( state ) => {
-            state.ipcam.hemisphere = state.ipcam.hemisphere === 'southern-hemisphere' ? 'northern-hemisphere' : 'southern-hemisphere'
+        setHemispehere: ( state, action: PayloadAction<'southern-hemisphere' | 'northern-hemisphere'> ) => {
+            state.ipcam.hemisphere = action.payload
         },
 
     }
@@ -109,7 +110,7 @@ export const {
     setCustomIpcamPoint,
     setIpcamCameraSolution,
     setIpcamIsCalculating,
-    changeHemispehere,
+    setHemispehere,
 } = matrixSlice.actions
 
 export default matrixSlice.reducer

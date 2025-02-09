@@ -11,6 +11,7 @@ import previous from './previous.svg'
 import language from './language.svg'
 import eyeball from './eyeball.svg'
 import back from './back.svg'
+import pinGrey from './pinGrey.svg'
 
 export {
     back,
@@ -23,6 +24,7 @@ export {
     pause,
     pin,
     pinGreen,
+    pinGrey,
     pinRed,
     play,
     previous,

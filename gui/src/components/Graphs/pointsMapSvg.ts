@@ -34,7 +34,7 @@ export const pointsMapSvg = ({ svgElement, importedPoints, activePoint, orthoIma
         // cameraPosition?.[0] ?? 0,
         orthoExtent?.[0] ?? 0,
         orthoExtent?.[1] ?? 0
-    ].filter((d, i) => d !== 0 && d !== undefined );
+    ].filter(d => d !== 0 && d !== undefined );
     
     let yPoints = [
         ...importedPoints.map(d => d.Y),
@@ -264,14 +264,14 @@ const drawAnalizeResult = (
 
     // Add zoom and pan functionality
     const zoom = d3.zoom()
-        .scaleExtent([0.4, 5])
+        .scaleExtent([0, 5])
         // .translateExtent([[0, 0], [width, height]])
         .translateExtent([[-width, -height], [2 * width, 2 * height]])
         .on('zoom', zoomed)
         .on('start', () => svg.style('cursor', 'move'))
         .on('end', () => svg.style('cursor', 'default'));
 
-        // Create a transparent rectangle to capture zoom events
+    // Create a transparent rectangle to capture zoom events
     svg.append('rect')
         .attr('width', innerWidth)
         .attr('height', innerHeight)

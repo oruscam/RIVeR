@@ -64,6 +64,10 @@ export const COLORS = {
         D24: '#7765E3',
         D34: '#ED6B57',
     },
+    ELLIPSE: {
+        FILL: '#D2AF7970',
+        STROKE: '#D2AF79'
+    }
 }
 
 /**
@@ -98,16 +102,22 @@ export const MARKS = {
     NUMBER_OFFSET_X: 5,
     NUMBER_OFFSET_Y: 35,
     NUMBER_FONT_SIZE: 17,
-    LETTER_FONT_SIZE: 15
+    LETTER_FONT_SIZE: 15,
+    WIDTH_REPORT: 25,
+    HEIGHT_REPORT: 25,
+    OFFSET_X_REPORT: 12.,
+    OFFSET_Y_REPORT: 25,
 }
 
 /**
  * Velocity Vector Section Report Sizes
  */
 
-export const REPORT_SECTION = {
-    VELOCITY_VECTOR_WIDTH: 400,
-    VELOCITY_VECTOR_HEIGHT: 225,
+export const REPORT_IMAGES = {
+    IMAGES_WIDTH: 400,
+    IMAGES_HEIGHT: 225,
+    IMAGES_IPCAM_WIDTH: 500,
+    IMAGES_IPCAM_HEIGHT: 281.25,
     VELOCITY_VECTOR_RESIZE_FACTOR: 4.8,
     VELOCITY_VECTOR_AMPLITUDE_FACTOR: 40
 }

@@ -81,7 +81,8 @@
         }, 
         "Errors" : {
             "levelError": "Level must be between {{yMin}} and {{yMax}}",
-            "leftBank": "Left bank is out of range"
+            "leftBank": "Left bank is out of range",
+            "bathimetryNotValid": "The bathimetry is not valid. Level {{level}} do not exist in this file"
         }
     },
     "Processing": {

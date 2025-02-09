@@ -491,6 +491,21 @@
     white-space: nowrap; 
 }
 
+.img-water-mark-ipcam{
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    width: 100%;
+    text-align: center;
+    white-space: normal; /* Allows text to wrap */
+    word-wrap: break-word; /* Breaks long words */
+    padding: 0 10px; /* Adds padding to prevent text from touching edges */
+}
+
 .image-with-data-container{
     position: relative;
     background-color: transparent;

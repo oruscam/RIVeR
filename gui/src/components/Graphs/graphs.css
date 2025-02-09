@@ -1,15 +1,14 @@
-#velocity-vector-container{
+.image-and-svg-container{
     position: relative;
     margin-top: auto;
     margin-bottom: auto;
 }
 
-#velocity-vector{
+.svg-in-image-container{
     position: absolute;
     top: 0;
     left: 0;
     z-index: 100;
-
 }
 
 #svg-section-line{
