@@ -5,7 +5,6 @@ import numpy as np
 from numba import jit
 from scipy.interpolate import griddata
 
-
 import river.core.coordinate_transform as ct
 
 
@@ -749,22 +748,22 @@ def add_interpolated_velocity(table_results: dict, check: np.ndarray) -> dict:
 
 def add_w_a_q(table_results: dict, alpha: float, vel_type: str = "original") -> dict:
 	"""
-    Calculate widths (W), areas (A), discharges (Q), and discharge portions (Q_portion)
-    and add them to the table_results dictionary.
+	Calculate widths (W), areas (A), discharges (Q), and discharge portions (Q_portion)
+	and add them to the table_results dictionary.
 
-	Parameters:
-	    table_results (dict): Dictionary containing 'distance' (x-coordinates),
-	                    velocity profiles, and 'depth' (depths).
-	    alpha (float): Coefficient between the superficial velocity obtained with LSPIV
-	                   and the mean velocity of the section.
-	    vel_type (str): Determines which velocity profile to use:
-	                  "original" - uses 'streamwise_velocity_magnitude'
-	                  "filled" - uses 'filled_streamwise_velocity_magnitude'
-	                  "seeded" - uses 'seeded_vel_profile'
-	                  "filled_seeded" - uses 'filled_seeded_vel_profile'
+	    Parameters:
+	 table_results (dict): Dictionary containing 'distance' (x-coordinates),
+	                 velocity profiles, and 'depth' (depths).
+	 alpha (float): Coefficient between the superficial velocity obtained with LSPIV
+	                and the mean velocity of the section.
+	 vel_type (str): Determines which velocity profile to use:
+	               "original" - uses 'streamwise_velocity_magnitude'
+	               "filled" - uses 'filled_streamwise_velocity_magnitude'
+	               "seeded" - uses 'seeded_vel_profile'
+	               "filled_seeded" - uses 'filled_seeded_vel_profile'
 
-	Returns:
-	    dict: Updated table_results dictionary with keys 'W', 'A', 'Q', and 'Q_portion'.
+	    Returns:
+	 dict: Updated table_results dictionary with keys 'W', 'A', 'Q', and 'Q_portion'.
 	"""
 	x = table_results["distance"]
 

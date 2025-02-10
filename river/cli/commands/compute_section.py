@@ -19,6 +19,7 @@ from river.core.compute_section import update_current_x_section
 @click.option("-in", "--interpolate", is_flag=True, help="Whether to interpolate velocity and discharge results.")
 @click.option("-a", "--alpha", type=float, default=0.85, help="TBD")
 @click.option("-ns", "--num-stations", type=int, default=15, help="TBD")
+@click.option("--artificial-seeding", type=bool, is_flag=True, help="Whether to apply seeding filtering.")
 @render_response
 def update_xsection(
 	xsections: TextIOWrapper,
@@ -30,6 +31,7 @@ def update_xsection(
 	interpolate: bool,
 	alpha: float,
 	num_stations: int,
+	artificial_seeding: bool,
 ) -> dict:
 	"""
 	Update the current cross-section with the PIV results and other parameters.
@@ -44,6 +46,7 @@ def update_xsection(
 	    interpolate (bool): Whether to interpolate velocity and discharge results.
 	    alpha (float): TBD.
 	    num_stations (bool): TBD.
+		artificial_seeding: Whether to apply seeding filtering.
 	Returns:
 	    dict: Containing the updated xsections.
 	"""
@@ -53,5 +56,14 @@ def update_xsection(
 	transformation_matrix = json.loads(transformation_matrix.read())
 
 	return update_current_x_section(
-		xsections, piv_results, transformation_matrix, step, fps, id_section, interpolate, alpha, num_stations
+		xsections,
+		piv_results,
+		transformation_matrix,
+		step,
+		fps,
+		id_section,
+		interpolate,
+		alpha,
+		num_stations,
+		artificial_seeding,
 	)
