@@ -63,7 +63,7 @@ def update_xsection(
 		fps,
 		id_section,
 		interpolate,
+		artificial_seeding,
 		alpha,
 		num_stations,
-		artificial_seeding,
 	)
