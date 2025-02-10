@@ -10,11 +10,9 @@ import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints, transformPixelToRealWorld, transformRealWorldToPixel } from '../helpers';
 import { setBackendWorkingFlag, setProcessingMask, updateProcessingForm } from '../store/data/dataSlice';
-
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../constants/constants';
 import { CanvasPoint, FormPoint, Point } from '../types';
 import { getTransformationFromCameraMatrix } from '../helpers/coordinates';
-import { ipcRenderer } from 'electron';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -38,7 +36,6 @@ export const useSectionSlice = () => {
         const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
         // Clean section points for better visualization.
         onUpdateSectionPoints([])
-        console.log('onSetDirPoints')
         dispatch(setHasChanged({value: true}))
 
         /**
@@ -144,11 +141,8 @@ export const useSectionSlice = () => {
         if( activeSection >= 1 ){
             let rwCalculated: Point[] = [ {x: 0, y: 0}, {x:0, y: 0}]
 
-            console.log('newPoints on set dir points', newPoints)
-
             dispatch(setBackendWorkingFlag(true))
             if (newPoints && flag1 && flag2) {
-                console.log('two points')
                 const par1 = transformPixelToRealWorld(newPoints[0].x, newPoints[0].y, transformationMatrix)
                 const par2 = transformPixelToRealWorld(newPoints[1].x, newPoints[1].y, transformationMatrix)
                 rwCalculated = [{x: par1[0], y: par1[1]}, {x: par2[0], y: par2[1]}]
@@ -162,7 +156,6 @@ export const useSectionSlice = () => {
                 rwCalculated = [rwPoints[0], {x: par2[0], y: par2[1]}]
                 dispatch(setRealWorldPoints(rwCalculated))
             }
-            console.log('rwCalculated', rwCalculated)
             
             const { size, rw_length}  = computePixelSize(newPoints as Point[], rwCalculated)
             dispatch(setPixelSize({size, rw_length}))
@@ -294,7 +287,6 @@ export const useSectionSlice = () => {
         try {
             const { uav_matrix } = await ipcRenderer.invoke('pixel-size', args)
 
-            console.log(uav_matrix)
             dispatch(setTransformationMatrix(uav_matrix))
 
             dispatch(setHasChanged({value: false}))
@@ -335,7 +327,6 @@ export const useSectionSlice = () => {
         let hasChanged = false    
         for (let i = 0; i < sections.length; i++) {
             if ( i === 0 ) continue
-            console.log('index', i)
             if ( sections[i].hasChanged === true ){
                 hasChanged = true
                 break
@@ -389,7 +380,6 @@ export const useSectionSlice = () => {
             await ipcRenderer.invoke('set-sections', { data })
             
             const { height_roi } = await ipcRenderer.invoke('recommend-roi-height', type === 'ipcam' ? { transformationMatrix } : undefined)
-            console.log('heigth_roi', height_roi)
             const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi, data: false })
 1            
             dispatch(updateProcessingForm({...processing.form, heightRoi: height_roi}))
@@ -426,6 +416,7 @@ export const useSectionSlice = () => {
         numStations?: number;
         sectionName?: string;
         data?: any;
+        artificialSeeding?: string;
     }
 
     const onUpdateSection = (value: Update, cameraMatrix: number[][] | undefined) => {
@@ -467,8 +458,7 @@ export const useSectionSlice = () => {
 
 
                 for ( let i = 1; i < sections.length ; i++){
-                    const { bathimetry, dirPoints, pixelSize, name } = sections[i]
-                    console.log('section name', name, 'section index', i)
+                    const { bathimetry, dirPoints, pixelSize } = sections[i]
                     const intersectionPoints = bathimetry.line ? getIntersectionPoints(bathimetry.line, value.level) : []
                     const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x
 
@@ -527,6 +517,10 @@ export const useSectionSlice = () => {
             updatedSection.interpolated = !section.interpolated;
         }
 
+        if ( value.artificialSeeding !== undefined ){
+            updatedSection.artificialSeeding = !section.artificialSeeding;
+        } 
+
         dispatch(updateSection(updatedSection));
     };
 
@@ -561,6 +555,7 @@ export const useSectionSlice = () => {
             alpha: DEFAULT_ALPHA,
             interpolated: true,
             hasChanged: false,
+            artificialSeeding: false
         }
         dispatch(addSection(section))
     }
@@ -616,9 +611,9 @@ export const useSectionSlice = () => {
             if ( data.path !== "" && data.path !== sections[activeSection].bathimetry.path){
                 
                 const { data, error } = cameraMatrix && sections[1].bathimetry.level !== undefined
-                    ? { ...getBathimetryValues(line, sections[1].bathimetry.level), level: sections[1].bathimetry.level }
+                    ? { ...getBathimetryValues(line, sections[1].bathimetry.level)}
                     : getBathimetryValues(line);
-
+                
                 if ( error ){
                     return error
                 }

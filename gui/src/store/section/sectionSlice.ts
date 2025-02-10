@@ -18,7 +18,8 @@ const defaultSections = [{
         numStations: 0,
         alpha: DEFAULT_ALPHA,
         interpolated: true,
-        hasChanged: false
+        hasChanged: false,
+        artificialSeeding: false,
     },
     {
         name: "CS_default_1",
@@ -35,7 +36,8 @@ const defaultSections = [{
         numStations: DEFAULT_NUM_STATIONS,
         alpha: DEFAULT_ALPHA,
         interpolated: true, 
-        hasChanged: false
+        hasChanged: false,
+        artificialSeeding: false,
     }
 ]
 

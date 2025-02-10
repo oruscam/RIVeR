@@ -103,7 +103,8 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
                 return
             }
             const result = await ipcRenderer.invoke('get-bathimetry', { path: bath })
-            const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = getBathimetryValues(result.line, level)
+            const { data } = getBathimetryValues(result.line, level)
+            const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = data? data : { yMax: 0, yMin: 0, xMax: 0, xMin: 0, x1Intersection: 0, x2Intersection: 0, width: 0 }
             
             if ( flag ){
                 flag = false

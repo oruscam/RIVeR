@@ -63,6 +63,9 @@ async function createWindow() {
     },
   })
 
+  // Remove menu bar
+  win.setMenu(null)
+
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
@@ -105,11 +108,11 @@ app.on('activate', () => {
 })
 
 const PROJECT_CONFIG: ProjectConfig = {
-  directory: "C:\\Users\\tomas\\River\\Rectification3d",
-  type: "ipcam",
+  directory: "",
+  type: "",
   videoPath: "",
-  settingsPath: "C:\\Users\\tomas\\River\\Rectification3d\\settings.json",
-  framesPath: "C:\\Users\\tomas\\River\\Rectification3d\\frames",
+  settingsPath: "",
+  framesPath: "",
   matrixPath: "",
   xsectionsPath: "",
   bboxPath: "",

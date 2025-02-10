@@ -51,13 +51,15 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
     event.preventDefault();
     if ( type === 'ipcam'){
       const error = await onGetBathimetry(ipcam.cameraSolution?.cameraMatrix)
-      const message = 'CrossSections.Errors.' + error?.message;
-      onSetErrorMessage({
-        Bathimetry: {
-          type: 'error',
-          message: t(message, { level: error?.value })
-        }
-      })
+      if ( error?.message ){
+        const message = 'CrossSections.Errors.' + error?.message;
+        onSetErrorMessage({
+          Bathimetry: {
+            type: 'error',
+            message: t(message, { level: error?.value })
+          }
+        })
+      }
     } else { 
       onGetBathimetry(undefined);
     }

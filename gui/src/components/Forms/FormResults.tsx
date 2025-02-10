@@ -12,7 +12,7 @@ interface FormResultProps {
 export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   const { register, setValue } = useFormContext();
   const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
-  const { name, data, numStations, alpha } = sections[activeSection]
+  const { name, data, numStations, alpha, artificialSeeding } = sections[activeSection]
   const { onGetResultData, isBackendWorking } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
 
@@ -32,10 +32,13 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         onUpdateSection({ interpolated: 'interpolated' }, undefined)
         break;
 
+      case 'artificial-seeding':
+        onUpdateSection({ artificialSeeding: 'artificial-seeding' }, undefined)
+        break;
+
       default:
         break;
     }
-
   }
 
   const handleOnChangeInput = (event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement> ) => {
@@ -65,6 +68,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
           }
           onUpdateSection({ alpha: value }, undefined)
           break;
+
         default:
           break;
       }
@@ -128,7 +132,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         <div className="switch-container-2 mt-2">
           <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
           <label className="switch">
-              <input type="checkbox" {...register(`${name}_ARTIFICIAL_SEEDING`)}/>
+              <input type="checkbox" {...register(`${name}_ARTIFICIAL_SEEDING`)} id="artificial-seeding" onChange={handleOnChange} defaultChecked={artificialSeeding}/>
               <span className="slider"></span>
           </label>
         </div>

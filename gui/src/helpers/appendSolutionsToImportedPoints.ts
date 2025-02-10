@@ -6,13 +6,14 @@ import { cameraSolution } from "../types";
  * 
  * @param importedPoints - Array of imported points.
  * @param cameraSolution - Camera solution containing uncertainty ellipses and projected points.
+ * @param directSolve - Boolean indicating if the points were directly solved.
  * @returns Array of imported points with appended camera solution data.
  */
-function appendSolutionToImportedPoints(importedPoints: importedPoint[], cameraSolution: cameraSolution): importedPoint[] {
+function appendSolutionToImportedPoints(importedPoints: importedPoint[], cameraSolution: cameraSolution, directSolve: boolean): importedPoint[] {
     let counter: number = 0; 
     
     const newImportedPoints = importedPoints.map((point, index) => {
-        if (point.selected === false) {
+        if ( point.selected === false && directSolve ) {
             counter = counter + 1;
             return {
                 ...point,

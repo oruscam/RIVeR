@@ -184,7 +184,7 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
         .attr('stroke-width', 1.5)
         .attr('d', line);
     
-    if (showLeftBank && leftBank !== undefined && rightBank !== undefined) {
+    if (showLeftBank && leftBank !== undefined && rightBank !== undefined && leftBank !== rightBank) {
         svg.append('path')
             .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
             .attr('fill', COLORS.RED)

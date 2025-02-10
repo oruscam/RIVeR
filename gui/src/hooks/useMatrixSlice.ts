@@ -183,11 +183,8 @@ export const useMatrixSlice = () => {
 
         let newPoint = { ...importedPoints[index] }
 
-        console.log(newPoint)
-
         // Primer caso, cuando se establece el punto en el centro.
         if ( newPoint.wasEstablished === false && imageSize ){
-            console.log('Primer caso')
 
             newPoint.x = imageSize.width / 2
             newPoint.y = imageSize.height / 2
@@ -200,7 +197,6 @@ export const useMatrixSlice = () => {
 
         // Segundo caso, cuando se establece el punto en una posición diferente al centro.
         if ( point ) {
-            console.log('segundo caso')
             newPoint.x = point.x
             newPoint.y = point.y
             newPoint.wasEstablished = true
@@ -219,8 +215,6 @@ export const useMatrixSlice = () => {
 
         // Tercer caso, cuando se hace seleccionable un punto que ya se encuentra establecido. No se hace nada
         if ( newPoint.wasEstablished === true && imageSize ) {
-
-            console.log('Tercer caso')
 
             dispatch(setCustomIpcamPoint({
                 point: newPoint,
@@ -248,7 +242,7 @@ export const useMatrixSlice = () => {
                 throw new Error(error)
             }
             
-            const newImportedPoints = appendSolutionToImportedPoints(ipcam.importedPoints!, data)
+            const newImportedPoints = appendSolutionToImportedPoints(ipcam.importedPoints!, data, type === 'direct-solve')
             delete data.uncertaintyEllipses
             delete data.projectedPoints
 
