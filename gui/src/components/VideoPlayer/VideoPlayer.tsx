@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
-import '../components.css'
 import { VideoPlayerButtons } from './VideoPlayerButtons.js'
 import { VideoPlayerSeekBar } from './VideoPlayerSeekBar.js'
 import { VideoPlayerTime } from './VideoPlayerTime.js'
+import '../components.css'
 
-export const VideoPlayer = ({ fileURL }: { fileURL: string }) => {
+export const VideoPlayer = ({ fileURL, duration }: { fileURL: string, duration: number }) => {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [bufferAmount, setBufferAmount] = useState<number>(0)
   const [progressAmount, setProgressAmount] = useState<number>(0)
@@ -13,7 +13,6 @@ export const VideoPlayer = ({ fileURL }: { fileURL: string }) => {
     volume: false,
   })
   const [currentTime, setCurrentTime] = useState<number>(0)
-  const [duration, setDuration] = useState<number>(0)
 
   const onVideoProgress = () => {
     if (videoRef.current) {
@@ -36,7 +35,6 @@ export const VideoPlayer = ({ fileURL }: { fileURL: string }) => {
 
   const onVideoTimeUpdate = () => {
     if (videoRef.current) {
-      setDuration(videoRef.current.duration || 0)
       if (duration > 0) {
         setCurrentTime(videoRef.current.currentTime || 0)
         setProgressAmount((videoRef.current.currentTime || 0) / duration * 100)
@@ -64,7 +62,7 @@ export const VideoPlayer = ({ fileURL }: { fileURL: string }) => {
           </div>
 
           <div className='video-controls'>
-            <VideoPlayerTime duration={duration} currentTime={currentTime}></VideoPlayerTime>
+            <VideoPlayerTime duration={duration} currentTime={currentTime}/>
             <VideoPlayerSeekBar
               bufferAmount={bufferAmount}
               progressAmount={progressAmount}

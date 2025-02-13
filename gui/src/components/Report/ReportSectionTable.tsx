@@ -32,11 +32,11 @@ export const ReportSectionTable = ({ data } : { data : SectionData}) => {
                     <th> # </th>
                     <th>
                         <div>x</div>
-                        <div>{getUnit(unitSistem, 'distance')}</div>
+                        <div>{getUnit(unitSistem, 'longitude')}</div>
                     </th>
                     <th>
                         <div>d</div>
-                        <div>{getUnit(unitSistem, 'distance')}</div>
+                        <div>{getUnit(unitSistem, 'longitude')}</div>
                     </th>
                     <th>
                         <div>A</div>
@@ -44,11 +44,11 @@ export const ReportSectionTable = ({ data } : { data : SectionData}) => {
                     </th>
                     <th>
                         <div>Vs</div>
-                        <div>{getUnit(unitSistem, 'Vs')}</div>
+                        <div>{getUnit(unitSistem, 'velocity')}</div>
                     </th>
                     <th>
                         <div>Q</div>
-                        <div>{getUnit(unitSistem, 'Q')}</div>
+                        <div>{getUnit(unitSistem, 'flow')}</div>
                     </th>
                 </tr>
             </thead>

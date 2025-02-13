@@ -1,10 +1,8 @@
 import { Line, Text } from 'react-konva';
 import { useWizard } from 'react-use-wizard';
-import { useSectionSlice } from '../hooks';
+import { useSectionSlice, useUiSlice } from '../hooks';
 import { COLORS, MODULE_NUMBER } from '../constants/constants';
-import { calculateMidpointAndAngle, getPositionSectionText } from '../helpers';
-import { xml } from 'd3-fetch';
-import { Point } from '../types';
+import { getPositionSectionText } from '../helpers';
 
 interface LineAndTextProps {
     localPoints?: { x: number; y: number }[];
@@ -19,6 +17,9 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
 
   const { sections } = useSectionSlice();
   const { sectionPoints, dirPoints, name } = sections[index]
+
+  const { screenSizes } = useUiSlice()
+  const { imageHeight, imageWidth } = screenSizes
 
   let lineColor : string = ''
   let textColor : string = ''
@@ -59,7 +60,7 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
   }
 
   const getText = () => {    
-    const { point, rotation } = getPositionSectionText(sectionPoints[0], sectionPoints[1]);
+    const { point, rotation } = getPositionSectionText(sectionPoints[0], sectionPoints[1], imageWidth ? imageWidth : 0, imageHeight ? imageHeight : 0, factor);
 
     return (
       <Text
@@ -68,7 +69,7 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
         text={name}
         fontSize={18 / resizeFactor}
         fill={textColor}
-        offset={{ x: 0, y: -10 }}
+        offset={{ x: 0, y: -15}}
         rotation={rotation}
       /> 
     );

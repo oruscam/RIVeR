@@ -21,6 +21,8 @@ export const App: React.FC = () => {
 
   const { onSetImages, images } = useDataSlice()
 
+  console.log('images', images)
+
   const getStep4 = () => {
     switch (type) {
       case FOOTAGE_TYPES.UAV:
@@ -60,7 +62,7 @@ export const App: React.FC = () => {
     if (images.paths.length === 0){
       window.ipcRenderer.on('all-frames', handleAllFrames)
     }
-  }, [])
+  }, [images.paths])
 
 
   return (

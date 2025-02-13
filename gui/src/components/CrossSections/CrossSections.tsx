@@ -2,7 +2,7 @@ import { FormCrossSections } from "../Forms"
 import { FieldValues, FormProvider, useForm} from "react-hook-form"
 import { Sections } from "./Sections"
 import './crossSections.css'
-import { useProjectSlice, useSectionSlice, useUiSlice } from "../../hooks"
+import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from "../../hooks"
 import { useWizard } from "react-use-wizard"
 import { useEffect, useState } from "react"
 import { Section } from "../../store/section/types"
@@ -53,6 +53,8 @@ export const CrossSections = () => {
     const { t } = useTranslation()
     const { type } = useProjectSlice()
 
+    const { images } = useDataSlice()
+
     const unregisterFieldsStartingWith = (prefix: string) => {
         const allValues = methods.getValues(); // Obtiene todos los campos registrados y sus valores
         const fieldNames = Object.keys(allValues); // Obtiene los nombres de todos los campos
@@ -65,6 +67,10 @@ export const CrossSections = () => {
       };
 
     const onSubmit = ( data: FieldValues ) => {
+        if ( images.paths.length === 0 ){
+            onSetErrorMessage('We are wating for the frames to be loaded')
+            return 
+        }
         onSetSections(data, type)
         nextStep()
     }

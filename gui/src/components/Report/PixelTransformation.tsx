@@ -32,7 +32,7 @@ export const PixelTransformation = ({ factor, videoHeight, videoWidth }: PixelTr
           <>
             <div id="transformation-uav">
               <p> Pixel size: </p>
-              <p> { formatNumberToPrecision2(size) }{getUnit(unitSistem, 'distance')} </p>
+              <p> { formatNumberToPrecision2(size) }{getUnit(unitSistem, 'longitude')} </p>
             </div>
             <div id="transformation-uav-last-child"></div>
           </>

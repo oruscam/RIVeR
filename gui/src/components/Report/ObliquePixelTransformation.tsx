@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { useMatrixSlice, useProjectSlice } from "../../hooks"
-import { REPORT_IMAGES } from "../../constants/constants";
+import { REPORT_IMAGES, UNITS } from "../../constants/constants";
 import { factor } from "../../types";
 import { obliqueSvg } from "../Graphs";
 import * as d3 from 'd3';
@@ -17,7 +17,6 @@ export const ObliquePixelTransformation = ({ factor }: ObliquePixelTransformatio
     const { coordinates, distances } = obliquePoints
     
     const { unitSistem } = projectDetails
-    console.log('unit', unitSistem)
     
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
@@ -53,27 +52,27 @@ export const ObliquePixelTransformation = ({ factor }: ObliquePixelTransformatio
                         <tr></tr>
                         <tr>
                             <td> 1-2 </td>
-                            <td> {distances.d12} {unitSistem === 'si' ? 'm': 'ft'}</td>
+                            <td> {distances.d12} {unitSistem === 'si' ? UNITS.SI.LONGITUDE: UNITS.IMPERIAL.LONGITUDE}</td>
                         </tr>
                         <tr>
                             <td> 2-3 </td>
-                            <td> {distances.d23} {unitSistem === 'si' ? 'm': 'ft'}</td>
+                            <td> {distances.d23} {unitSistem === 'si' ? UNITS.SI.LONGITUDE: UNITS.IMPERIAL.LONGITUDE}</td>
                         </tr>
                         <tr>
                             <td> 3-4 </td>
-                            <td> {distances.d34} {unitSistem === 'si' ? 'm': 'ft'}</td>
+                            <td> {distances.d34} {unitSistem === 'si' ? UNITS.SI.LONGITUDE: UNITS.IMPERIAL.LONGITUDE}</td>
                         </tr>
                         <tr>
                             <td> 4-1 </td>
-                            <td> {distances.d41} {unitSistem === 'si' ? 'm': 'ft'}</td>
+                            <td> {distances.d41} {unitSistem === 'si' ? UNITS.SI.LONGITUDE: UNITS.IMPERIAL.LONGITUDE}</td>
                         </tr>
                         <tr>
                             <td> 1-3 </td>
-                            <td> {distances.d13} {unitSistem === 'si' ? 'm': 'ft'}</td>
+                            <td> {distances.d13} {unitSistem === 'si' ? UNITS.SI.LONGITUDE: UNITS.IMPERIAL.LONGITUDE}</td>
                         </tr>
                         <tr>
                             <td> 2-4 </td>
-                            <td> {distances.d24} {unitSistem === 'si' ? 'm': 'ft'}</td>
+                            <td> {distances.d24} {unitSistem === 'si' ? UNITS.SI.LONGITUDE: UNITS.IMPERIAL.LONGITUDE}</td>
                         </tr>
 
                     </tbody>

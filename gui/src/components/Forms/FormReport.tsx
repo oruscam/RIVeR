@@ -11,9 +11,6 @@ export const FormReport = () => {
   const { video, onProjectDetailsChange, projectDetails } = useProjectSlice();
   const { creation } = video.data
   
-  console.log(creation)
-  console.log(projectDetails)
-
   const today = new Date();
   const defaultDate = projectDetails.meditionDate ? stringDateToDate(projectDetails.meditionDate) : creation !== undefined ? new Date(creation) : today; 
   
@@ -26,6 +23,7 @@ export const FormReport = () => {
       unitSistem: projectDetails.unitSistem,
   }});
 
+  console.log('medition date', meditionDate)
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUnitSistem(event.target.value);
@@ -98,7 +96,7 @@ export const FormReport = () => {
             selected={meditionDate}
             onChange={(date) => setMeditionDate(date ?? new Date())}
             maxDate={today}
-            dateFormat="dd/MM/yyyy HH:mm"
+            dateFormat="MM/dd/yyyy HH:mm"
             showTimeSelect
             timeFormat="HH:mm"
             timeIntervals={15}

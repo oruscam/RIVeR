@@ -3,9 +3,9 @@ import { useProjectSlice } from '../../hooks'
 import './report.css'
 
 export const VideoInfo = () => {
-
-  const { video } = useProjectSlice();
-  const { name, duration, fps, width, height, creation } = video.data;
+  const { video, projectDetails } = useProjectSlice();
+  const { name, duration, fps, width, height } = video.data;
+  const { meditionDate } = projectDetails
 
   return (
     <>
@@ -21,7 +21,7 @@ export const VideoInfo = () => {
             <div className='report-info-item'><span> { formatTime(duration) }s </span></div> 
             <div className='report-info-item'><span> { `${width}x${height}`} </span></div> 
             <div className='report-info-item'><span> { fps } </span></div> 
-            <div className='report-info-item'><span> { recortStringDate(creation) } </span></div> 
+            <div className='report-info-item'><span> { recortStringDate(meditionDate) } </span></div> 
           </div>
           </div>  
     </>

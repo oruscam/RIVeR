@@ -1,11 +1,12 @@
 import './form.css'
-import { useDataSlice } from '../../hooks'
+import { useDataSlice, useUiSlice } from '../../hooks'
 import { useTranslation } from 'react-i18next'
 import { Loading } from '../Loading'
 import React, { useEffect } from 'react'
 
 export const FormAnalizing = () => {
     const { onSetQuiverAll, isBackendWorking, onKillBackend } = useDataSlice()
+    const { onSetErrorMessage } = useUiSlice()
     const { t } = useTranslation()
 
     const [ percentage, setPercentage ] = React.useState<string>('');
@@ -15,7 +16,7 @@ export const FormAnalizing = () => {
         if (isBackendWorking) return;
         setPercentage('');
         setTime('');
-        onSetQuiverAll();
+        onSetQuiverAll().catch( error => onSetErrorMessage(error.message) );
     }
 
     const handleStop = async() => {

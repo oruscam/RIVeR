@@ -3,11 +3,13 @@ import './report.css'
 import { drone, oblique, ipcam } from '../../assets/icons/icons.js'
 import { useSectionSlice } from '../../hooks/useSectionSlice.js'
 import { useProjectSlice } from '../../hooks/useProjectSlice.js'
+import { getUnit } from '../../helpers/unitSistem.js'
+
 
 export const Header = () => {
   const { sections } = useSectionSlice();
   const { projectDetails, type } = useProjectSlice();
-  const { riverName, site, meditionDate} = projectDetails
+  const { riverName, site, meditionDate, unitSistem } = projectDetails
 
 
   const divider = sections.length - 1
@@ -37,7 +39,7 @@ export const Header = () => {
         <h3 id='header-title-date'> { meditionDate }</h3>
       </div>
       <div id='header-total'>
-        <h1 className='header-title-text'>Total Q: {average.toFixed(2)}  m&sup3;/s </h1>
+        <h1 className='header-title-text'>Total Q: {average.toFixed(2)} {getUnit(unitSistem, 'flow')}</h1>
       </div>
     </div>
   )

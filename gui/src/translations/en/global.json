@@ -61,7 +61,7 @@
     "CrossSections": {
         "title": "Cross Sections",
         "drawLine": "Draw Direction",
-        "csLength": "CS Length",
+        "width": "Width",
         "importBath": "Import bath",
         "level" : "Level",
         "leftBankStation": "Left Bank Station",
@@ -173,6 +173,9 @@
     "Errors": {
         "invalidDistancesFormat" : "Invalid distances format",
         "imagesFolderEmpty" : "No images found in the selected folder",
-        "invalidImageExtension": "The directory contains files that are not images"
+        "invalidImageExtension": "The directory contains files that are not images",
+        "Cli": {
+            "Unexpected error negative dimensions are not allowed": "Unexpected error: negative dimensions are not allowed"
+        }
     }
 }

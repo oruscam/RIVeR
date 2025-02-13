@@ -16,7 +16,7 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild ) => {
 
   const validationRules = getValidationRules(t, getValues, 0);
 
-  const handleOnClickImportDistances = async () => {
+  const handleOnClickImportDistances = () => {
       onGetDistances().catch( error => onSetErrorMessage(error.message) );
   }
 

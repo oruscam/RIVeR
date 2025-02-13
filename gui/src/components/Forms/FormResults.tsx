@@ -74,6 +74,10 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
       }
     }
   }
+
+  const handleOnClickApplyChanges = () => {
+      onGetResultData('single').catch( error => onSetErrorMessage(error.message) );
+  }
   
   return (
     <div id="form-section-div"  className={activeSection !== index ? 'hidden' : ''}>
@@ -149,7 +153,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
 
         <button type="button" 
                 className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`} 
-                onClick={() => onGetResultData('single')}
+                onClick={handleOnClickApplyChanges}
                 id="apply-changes"
                 > Apply changes</button>
         <span className="space3 mt-2"></span>

@@ -61,7 +61,7 @@
     "CrossSections": {
         "title": "Cross Sections",
         "drawLine": "Dibujar Direccion",
-        "csLength": "CS Length",
+        "with": "Ancho",
         "importBath": "Import bath",
         "Level" : "Level",
         "leftBankStation": "Left Bank Station",
@@ -158,6 +158,11 @@
         "date" : "report creation date"
     },
     "Errors": {
-        "invalidDistancesFormat": "Formato de distancias invalido, por favor revisa https://www.google.com"  
+        "invalidDistancesFormat": "Formato de distancias invalido, por favor revisa https://www.google.com",
+        "imagesFolderEmpty" : "No images found in the selected folder",
+        "invalidImageExtension": "The directory contains files that are not images",
+        "Cli": {
+            "Unexpected error negative dimensions are not allowed": "Las dimensiones negativas no están permitidas"
+        }
     }
 }

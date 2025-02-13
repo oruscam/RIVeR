@@ -1,9 +1,8 @@
 import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { useSectionSlice } from "../hooks";
+import { useSectionSlice, useUiSlice } from "../hooks";
 import { COLORS } from '../constants/constants';
-import { calculateMidpointAndAngle, getPositionSectionText } from '../helpers';
-import { Point } from '../types';
+import { getPositionSectionText } from '../helpers';
 
 // This component renders a section line within an SVG element.
 // It ensures the section line is visible even when embedded in HTML.
@@ -16,9 +15,11 @@ interface SvgSectionLineProps {
 }
 
 export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps) => {
-  const { sections } = useSectionSlice();
-  const { dirPoints, sectionPoints, name } = sections[index];
   const svgRef = useRef(null);
+  const { sections } = useSectionSlice();
+  const { screenSizes } = useUiSlice()
+  const { dirPoints, sectionPoints, name } = sections[index];
+  const { imageWidth, imageHeight } = screenSizes
 
   const resizeFactor = isReport ? 1.2 : 1;
 
@@ -57,8 +58,8 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
     // If not in report mode, add the section name as text to the SVG
     if (!isReport) {
       // Calculate the position and rotation for the section text
-      const { point, rotation } = getPositionSectionText(sectionPoints[0], sectionPoints[1]);
-
+      const { point, rotation } = getPositionSectionText(sectionPoints[0], sectionPoints[1], imageWidth!, imageHeight!, factor as number);
+      console.log( name, rotation)
       // Append the section text element to the SVG
       svg.append("text")
       .attr("x", point.x / (typeof factor === 'number' ? factor : factor.x))

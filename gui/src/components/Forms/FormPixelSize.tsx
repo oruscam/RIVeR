@@ -5,8 +5,6 @@ import { useSectionSlice, useUiSlice } from '../../hooks'
 import { PixelCoordinates, RealWorldCoordinates } from './index'
 import { FormChild } from '../../types'
 
-
-
 export const  FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
     const { t } = useTranslation()
     const { sections, onUpdateSection } = useSectionSlice()

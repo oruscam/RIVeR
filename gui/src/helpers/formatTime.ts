@@ -23,7 +23,6 @@ function formatTime(seconds: number | string, format?: string): string {
         return `${formattedMinutes}:${formattedSeconds}`;
     }
   
-  
     return `${formattedMinutes}:${formattedSeconds}:${formattedMilliseconds}`;
 }
 
@@ -39,4 +38,28 @@ function parseTime(time: string): number{
     return (minutes * 60) + seconds;
 }
 
-export { formatTime, parseTime };
+/**
+ * Identifies the format of the given time.
+ *
+ * @param {string} time - The time string to check.
+ * @returns {string | boolean} 'mm:ss' if the time is in 'mm:ss' format, 'seconds' if it is a number, false otherwise.
+ */
+
+function identifyTimeFormat(time: string): string | boolean {
+    const timeFormatRegex = /^\d{2}:\d{2}$/;
+    const secondsFormatRegex = /^\d+(\.\d+)?$/;
+
+    if (timeFormatRegex.test(time)) {
+        return 'mm:ss';
+    } else if (secondsFormatRegex.test(time)) {
+        return 'seconds';
+    } else {
+        return false;
+    }
+}
+
+
+
+
+
+export { formatTime, parseTime, identifyTimeFormat };

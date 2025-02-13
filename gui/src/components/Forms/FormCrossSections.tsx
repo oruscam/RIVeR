@@ -99,7 +99,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
           </div>
 
           <div className="input-container-2 mt-1">
-            <label className="read-only me-1" htmlFor="CS_LENGTH">{t('CrossSections.csLength')}</label>
+            <label className="read-only me-1" htmlFor="CS_LENGTH">{t('CrossSections.width')}</label>
             <input
               type="number"
               className="input-field-read-only"

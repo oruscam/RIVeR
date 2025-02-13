@@ -95,30 +95,42 @@ const analyzeLine = (line: { x: number, y: number }[], maxYIndex: number) => {
 };
 
 // Transform the line to be in the correct order and convert depth bathymetry to level bathymetry if needed
-const transformLine = (line: { x: number, y: number }[], isDecreced: boolean, isDepth: boolean, maxY: number) => {
-    const newLine: { x: number, y: number }[] = [];
+const transformLine = (line, isDecreced, isDepth, maxY) => {
+    let newLine = [];
 
-    // If the line is decreced and represents depth, reverse the line and adjust y values
+    // First transform the line as before
     if (isDecreced && isDepth) {
         for (let i = line.length - 1; i >= 0; i--) {
             newLine.push({ x: line[i].x, y: maxY - line[i].y });
         }
     } else if (isDecreced) {
-        // If the line is decreced but does not represent depth, just reverse the line
         for (let i = line.length - 1; i >= 0; i--) {
             newLine.push(line[i]);
         }
     } else if (isDepth) {
-        // If the line is not decreced but represents depth, adjust y values
         for (let i = 0; i < line.length; i++) {
             newLine.push({ x: line[i].x, y: maxY - line[i].y });
         }
     } else {
-        // If no transformation is needed, return the original line
-        return { newLine: line, changed: false }
+        return { newLine: line, changed: false };
     }
 
-    return { newLine: newLine, changed: true }
+    // Now check the extremities and add an extra point if needed
+    const firstPoint = newLine[0];
+    const lastPoint = newLine[newLine.length - 1];
+
+    if (firstPoint.y !== lastPoint.y) {
+        // Determine which end is lower
+        if (firstPoint.y < lastPoint.y) {
+            // First point is lower, add a point at x=firstPoint.x with y=lastPoint.y
+            newLine.push({ x: firstPoint.x, y: lastPoint.y });
+        } else {
+            // Last point is lower, add a point at x=lastPoint.x with y=firstPoint.y
+            newLine.push({ x: lastPoint.x, y: firstPoint.y });
+        }
+    }
+
+    return { newLine, changed: true };
 }
 
 export { getBathimetry }

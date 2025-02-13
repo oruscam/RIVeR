@@ -42,6 +42,7 @@ export const getValidationRules = (t: any, getValues: any, duration: number) => 
       validate: (value: string) => {
         const [minutes, seconds] = value.split(':').map(Number);
         if (minutes < 0 || seconds < 0 || seconds >= 60) {
+          console.log('hola')
           return t('VideoRange.Errors.start1');
         }
         return true;

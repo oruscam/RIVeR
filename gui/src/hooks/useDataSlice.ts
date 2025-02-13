@@ -6,9 +6,10 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask, setDataLoaded, setImages } from "../store/data/dataSlice";
-import { clearErrorMessage, setErrorMessage, setLoading } from "../store/ui/uiSlice";
+import { setLoading } from "../store/ui/uiSlice";
 import { setSectionData, setSummary } from "../store/section/sectionSlice";
 import { CliError } from "../errors/errors";
+import { useTranslation } from "react-i18next";
 
 /**
  * @returns - Object with the methods and attributes to interact with the data slice
@@ -19,6 +20,8 @@ export const useDataSlice = () => {
     const { processing, images, quiver, isBackendWorking, isDataLoaded } = useSelector((state: RootState) => state.data);
     const { sections, activeSection } = useSelector((state: RootState) => state.section);
     const { video } = useSelector((state: RootState) => state.project);
+
+    const { t } = useTranslation()
     
     const filePrefix = import.meta.env.VITE_FILE_PREFIX;
     
@@ -93,12 +96,8 @@ export const useDataSlice = () => {
         try {
             const { data, error } = await ipcRenderer.invoke('get-quiver-test', { framesToTest: framesToTest, formValues: processing.form })
 
-            if ( error.message ){
-                dispatch(setErrorMessage([error.message]))
-                console.log(error.message)
-                setTimeout(() => {
-                    dispatch(clearErrorMessage())
-                }, 4000)
+            if ( error?.message ){
+                throw new Error(error.message)
             } else {
                 dispatch(setQuiver(
                     {
@@ -117,10 +116,9 @@ export const useDataSlice = () => {
         } catch (error) {
             console.log(error)
             dispatch(setBackendWorkingFlag(false))
-            dispatch(setErrorMessage(["Sorry, something went wrong"]))
-            setTimeout(() => {
-                dispatch(clearErrorMessage())
-            }, 4000)
+            if ( error instanceof Error){
+                throw new CliError(error.message, t)
+            }
         }
     }
 
@@ -138,13 +136,9 @@ export const useDataSlice = () => {
 
         try {
             const { data, error } = await ipcRenderer.invoke('get-quiver-all', {formValues: processing.form})
-           
-            if ( error !== '' ){
-                dispatch(setErrorMessage([error]))
-                dispatch(setBackendWorkingFlag(false))
-                setTimeout(() => {
-                    dispatch(clearErrorMessage())
-                }, 4000)
+
+            if ( error?.message ){
+                throw new Error(error.message)
             } else {
                 const { x, y, u, v, typevector, u_median, v_median } = data
                 dispatch(setQuiver(
@@ -161,12 +155,10 @@ export const useDataSlice = () => {
             }
             dispatch(setBackendWorkingFlag(false))
         } catch (error) {
-            console.log(error)
             dispatch(setBackendWorkingFlag(false))
-            dispatch(setErrorMessage(["Sorry, something went wrong"]))
-            setTimeout(() => {
-                dispatch(clearErrorMessage())
-            }, 4000)
+            if ( error instanceof Error){
+                throw new CliError(error.message, t)
+            }
         }
     }
 
@@ -198,7 +190,12 @@ export const useDataSlice = () => {
         if ( type === 'single' ){
             const section = sections[activeSection]
             try {
-                const { data } = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, check : section.data?.check, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile, artificialSeeding: section.artificialSeeding })
+                const { data, error } = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, check : section.data?.check, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile, artificialSeeding: section.artificialSeeding })
+                
+                if ( error?.message ){
+                    throw new Error(error.message)
+                }
+                
                 dispatch(setSectionData({
                     sectionIndex: activeSection,
                     sectionData: {
@@ -206,16 +203,23 @@ export const useDataSlice = () => {
                     }
                 }))
                 dispatch(setSummary(data.summary))
-                 dispatch(setBackendWorkingFlag(false))
+                dispatch(setBackendWorkingFlag(false))
             } catch ( error ){
-                console.log(error)
+                dispatch(setBackendWorkingFlag(false))
+                if ( error instanceof Error) {
+                    throw new CliError(error.message, t)
+                }
             }
         } else {
             dispatch(setLoading(true))
 
             try {
-                const { data } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                const { data, error  } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
                 
+                if ( error?.message ) {
+                    throw new Error(error)
+                }
+
                 sections.map(( section, index ) => {
                     if ( data[section.name] ){
                         dispatch(setSectionData({
@@ -230,7 +234,11 @@ export const useDataSlice = () => {
                 dispatch(setLoading(false))
                 dispatch(setBackendWorkingFlag(false))
             } catch (error) {
-                console.log(error)
+                dispatch(setLoading(false))
+                dispatch(setBackendWorkingFlag(false))
+                if ( error instanceof Error) {
+                    throw new CliError(error.message, t)
+                }
             }
         }
     }
@@ -243,27 +251,23 @@ export const useDataSlice = () => {
         dispatch(setBackendWorkingFlag(true))    
         onClearQuiver()
         
-        const filePrefix = import.meta.env.VITE_FILE_PREFIX
-
         const ipcRenderer = window.ipcRenderer;
 
         try {
             const { maskPath, error } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value, data: isDataLoaded })
+            console.log('error mask', error)
 
-            if ( error ){
-                if ( error.type === 'create-mask-and-bbox' ){
-                    throw new CliError(error.message)
-                }
+            if ( error?.message ){
+                throw new Error(error.message)
             }
 
             dispatch(setProcessingMask(filePrefix + maskPath))
             dispatch(setBackendWorkingFlag(false))
         } catch (error) {
             dispatch(setBackendWorkingFlag(false))
-            dispatch(setErrorMessage([error.message]))
-            setTimeout(() => {
-                dispatch(clearErrorMessage())
-            }, 4000)
+            if ( error instanceof Error){
+                throw new CliError(error.message, t)
+            }
         }
     }
 
@@ -271,8 +275,10 @@ export const useDataSlice = () => {
         dispatch(setBackendWorkingFlag(value))
     }
 
-    const onSetImages = ( paths: string[]) => {
+    const onSetImages = ( paths: string[], clean?: boolean) => {
         dispatch(setImages({ paths: paths }));  
+        
+        if ( clean ) return
         
         window.ipcRenderer.removeAllListeners('all-frames')
     };

@@ -44,6 +44,12 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
         try {
             const { data, error } = await riverCli(options, 'text', false, logsPath) as any
 
+            if (error.message) {
+                return {
+                    error
+                }
+            }
+
             for (const sectionKey in data) {
                 const section = data[sectionKey];
                 xSectionsFileParsed[sectionKey] = section
@@ -52,9 +58,9 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
                 xSectionsFileParsed[sectionKey].showPercentile = showPercentile
             }
             await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
+
             return {
                 data: transformData(data),
-                error
             }    
         } catch (error) {
             console.log(error)
@@ -116,7 +122,6 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
                 throw error;
             }
         }
-        
         return { 
             data: finalData,
             error: finalError

@@ -561,7 +561,7 @@ transform-origin: 14px 22px;
     height: 25px;
     width: 70%;
     background-color: transparent;
-
+    margin-bottom: 0.2rem;
 }
 
 #label-unit-sistem{
@@ -577,6 +577,7 @@ transform-origin: 14px 22px;
 
 .last-settings-form-field-radio input{
     width: 20px;
+    height: 25px;
 }
 
 #last-settings-form-field-date{

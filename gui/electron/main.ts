@@ -64,7 +64,7 @@ async function createWindow() {
   })
 
   // Remove menu bar
-  win.setMenu(null)
+  // win.setMenu(null)
 
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {

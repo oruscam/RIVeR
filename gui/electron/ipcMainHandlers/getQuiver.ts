@@ -51,11 +51,13 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
         try {
             const { data, error } = await riverCli(options, 'text', true, logsPath) as any;
+            
             if ( error.message ){
                 return {
-                    error: error.message
+                    error
                 }
             }
+
             const { results_path } = data
             PROJECT_CONFIG.resultsPath = results_path
 

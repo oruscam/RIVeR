@@ -9,16 +9,17 @@ import { useProjectSlice } from '../hooks'
 export const VideoRange = () => {
   const { video } = useProjectSlice();
   const { path }= video.data
+  const { duration } = video.data
   
   return (
     <div className='regular-page'>
         <div className='media-container'>
-          { path && <VideoPlayer fileURL={ path }/> }
+          { path && <VideoPlayer fileURL={ path } duration={duration}/> }
           <Error/>
         </div>
         <div className='form-container'>
           <Progress/>
-          <FormVideo/>
+          <FormVideo duration={duration}/>
           {/* EXTRA INFO */}
           <FormVideoExtra/>
           <WizardButtons formId='form-video' canFollow={true}/>

@@ -1,4 +1,3 @@
-
 export class OperationCanceledError extends Error {
     constructor(message: string) {
         super(message);
@@ -16,8 +15,11 @@ export class UserSelectionError extends Error {
 }
 
 export class CliError extends Error {
-    constructor(message: string) {
-        super(message);
+    constructor(message: string, t: any) {
+        const trimmedMessage = message.trim().replace(':', ''); // Eliminar espacios adicionales
+        const translationKey = 'Errors.Cli.' + trimmedMessage;
+        const newMessage = t(translationKey, { defaultValue: 'Something went wrong. Please try again' });
+        super(newMessage);
         this.name = 'CliError';
         this.stack = ''
     }

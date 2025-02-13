@@ -2,7 +2,7 @@ import { useState } from "react"
 import { ButtonLock } from "../ButtonLock"
 import { HardModeProcessing } from "./HardModeProcessing"
 import { FieldValues, FormProvider, useForm } from "react-hook-form"
-import { useDataSlice } from "../../hooks"
+import { useDataSlice, useUiSlice } from "../../hooks"
 import { useWizard } from "react-use-wizard"
 import { useTranslation } from "react-i18next"
 import { WINDOW_SIZES } from "../../constants/constants"
@@ -11,6 +11,7 @@ export const FormProcessing = () => {
   const [extraFields, setExtraFields] = useState(false)
   const { nextStep } = useWizard()
   
+  const { onSetErrorMessage } = useUiSlice()
   const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver, isBackendWorking } = useDataSlice()
   const { step1, heightRoi, grayscale, removeBackground, clahe, clipLimit, stdFiltering, stdThreshold, medianTestThreshold, medianTestEpsilon, medianTestFiltering } = processing.form
   
@@ -42,11 +43,10 @@ export const FormProcessing = () => {
 
   const handleOnClickTest = ( event: React.MouseEvent<HTMLButtonElement> ) => {
     event.preventDefault()
-    onSetQuiverTest()
+    onSetQuiverTest().catch( error => onSetErrorMessage(error.message) )
   }
  
-  const onSubmit = ( data: FieldValues ) => {
-    console.log(data)
+  const onSubmit = ( _data: FieldValues ) => {
     onClearQuiver()
     nextStep()
   }

@@ -14,8 +14,6 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Functi
         const images = await fs.promises.readdir(framesPath)
         const firstFramePath = path.join(framesPath, images[0])
 
-        console.log(args)
-
         if ( data ){
             await clearCrossSections(xsectionsPath)
         }
@@ -39,7 +37,9 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Functi
             const { data, error } = await riverCli(options, 'json', false, logsPath) as { data: { mask: [[]], bbox: [] }, error: { message: string } }
             
             if ( error.message ){
-                throw new Error(error.message)
+                return {
+                    error
+                }
             }
 
             const maskArrayPath = path.join(directory, 'mask.json')
@@ -60,12 +60,7 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Functi
             return { maskPath: maskPngPath }
         } catch (error) {
             console.log("ERROR EN CREATE MASK AND BBOX")
-            return {
-                error: {
-                    message: error.message,
-                    type: 'create-mask-and-bbox'
-                }
-            }
+            throw error
         }
     }
 

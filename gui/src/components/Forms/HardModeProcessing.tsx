@@ -1,24 +1,29 @@
 import { useFormContext } from "react-hook-form"
-import { useDataSlice } from "../../hooks"
+import { useDataSlice, useUiSlice } from "../../hooks"
 import { useTranslation } from "react-i18next"
 
 export const HardModeProcessing = () => {
   const { register } = useFormContext() 
   const { processing, onUpdateProcessing, onReCalculateMask } = useDataSlice()
+  const { onSetErrorMessage } = useUiSlice()
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form
 
   const { t } = useTranslation()
 
-  const handleHeightRoiInput = (event: React.SyntheticEvent<HTMLInputElement>) => {
+  const handleHeightRoiInput = async (event: React.SyntheticEvent<HTMLInputElement>) => {
       if((event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" || event.type === "blur"){
           event.preventDefault()
           const value = parseInt((event.target as HTMLInputElement).value)
           if ( value !== heightRoi){
-            onReCalculateMask(value)
-            onUpdateProcessing({heightRoi: value})
-            document.getElementById('processing-HEADER')?.focus()
-          }
-          
+              try {
+                await onReCalculateMask(value)
+                
+                onUpdateProcessing({heightRoi: value})
+                document.getElementById('processing-HEADER')?.focus()
+              } catch (error) {
+                onSetErrorMessage((error as Error).message)
+              }
+          } 
       }  
   }
 

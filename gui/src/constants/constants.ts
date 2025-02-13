@@ -87,7 +87,7 @@ export const GRAPHS = {
  */
 export const VECTORS = {
     VELOCITY_AMPLITUDE_FACTOR: 20,
-    QUIVER_AMPLITUDE_FACTOR: 20,
+    QUIVER_AMPLITUDE_FACTOR: 10,
 }
 
 /**
@@ -127,4 +127,19 @@ export const WINDOW_SIZES = {
     MEDIUM: 256,
     SMALL: 128,
     TINY: 64
+}
+
+export const UNITS = {
+    SI: {
+        FLOW: 'm³/s',
+        LONGITUDE: 'm',
+        AREA: 'm²',
+        VELOCITY: 'm/s',
+    },
+    IMPERIAL: {
+        FLOW: 'cfs',
+        LONGITUDE: 'ft',
+        AREA: 'ft²',
+        VELOCITY: 'ft/s',
+    }
 }

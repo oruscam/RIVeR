@@ -20,7 +20,7 @@ export const Summary = () => {
                         <th> Cross Sections </th>
                         <th>
                             <div>Width</div>
-                            <div>{getUnit(unitSistem, 'distance')} </div>
+                            <div>{getUnit(unitSistem, 'longitude')} </div>
                         </th>
                         <th>
                             <div> Area </div>
@@ -28,11 +28,11 @@ export const Summary = () => {
                         </th>
                         <th>
                             <div> Q </div>
-                            <div> {getUnit(unitSistem, 'Q')} </div>
+                            <div> {getUnit(unitSistem, 'flow')} </div>
                         </th>
                         <th>
                             <div> Mean V </div>
-                            <div> {getUnit(unitSistem, 'mean-v')} </div>
+                            <div> {getUnit(unitSistem, 'velocity')} </div>
                         </th>
                         <th>
                             <div> Alpha </div>
@@ -40,15 +40,15 @@ export const Summary = () => {
                         </th>
                         <th>
                             <div> Average Vs </div>
-                            <div> {getUnit(unitSistem, 'average-vs')} </div>
+                            <div> {getUnit(unitSistem, 'velocity')} </div>
                         </th>
                         <th>
                             <div> Max d </div>
-                            <div> {getUnit(unitSistem, 'max-d')} </div>
+                            <div> {getUnit(unitSistem, 'longitude')} </div>
                         </th>
                         <th>
                             <div> Mean d </div>
-                            <div> {getUnit(unitSistem, 'mean-d')} </div>
+                            <div> {getUnit(unitSistem, 'longitude')} </div>
                         </th>
                         <th>
                             <div> % measured</div>

@@ -72,27 +72,89 @@ const getLowerAndUpperPoints = (...points: Point[]): { lowerPoint: Point; upperP
  * - If the angle is between 90 and 180 degrees, the right point is selected and the rotation is adjusted by 180 degrees.
  * - Otherwise, the upper point is selected.
  */
-const getPositionSectionText = (point1: Point, point2: Point) => {
+const getPositionSectionText = (point1: Point, point2: Point, imageWidth: number, imageHeight: number, factor: number) => {
   const { angle } = calculateMidpointAndAngle(point1, point2);
   const { leftPoint, rightPoint } = getLeftAndRightPoints(point1, point2);
-  const { upperPoint } = getLowerAndUpperPoints(point1, point2);
+  const { upperPoint, lowerPoint } = getLowerAndUpperPoints(point1, point2);
 
   let rotation = angle;
-  let point = leftPoint;
+  let point = { ...leftPoint };
+  let isRight = false;
+  let isUpper = false;
 
   if (angle < 0 && angle > -90) {
     point = rightPoint;
+    isRight = true;
   } else if (angle < -90 && angle > -180) {
     point = upperPoint;
+    isUpper = true;
     rotation += 180;
   } else if (angle > 90 && angle < 180) {
     point = rightPoint;
     rotation += 180;
+    isRight = true;
   } else {
     point = upperPoint;
+    isUpper = true;
   }
+
+  // Definir márgenes
+  const marginRight = 150;
+  const marginLeft = 100;
+  const marginTop = 150;
+  const marginBottom = 40;
+
+  // Ajuste de punto según bordes de la imagen
+  if (point.x / factor > imageWidth - marginRight) {
+    if (isRight) {
+      point = leftPoint;
+      isRight = false;
+    } else if (isUpper) {
+      point = leftPoint;
+      isUpper = false;
+    }
+  }
+
+  // Asegurar que el texto no sobresalga por arriba
+  if (point.y / factor < marginTop) {
+    if (isRight) {
+      point = upperPoint;
+      isRight = false;
+      isUpper = true;
+    } else {
+      point = leftPoint;
+    }
+  } 
+
+  // Ajuste de punto según márgenes a la izquierda
+  if (isRight === false && point.x / factor < marginLeft) {
+    point = { ...leftPoint, x: marginLeft };
+  }
+
+  // Verificar si el punto está fuera de los márgenes después de la rotación
+  const adjustedX = point.x / factor;
+  const adjustedY = point.y / factor;
+
+  if (adjustedX < marginLeft) {
+    point = { ...point, x: marginLeft * factor };
+  } else if (adjustedX > imageWidth - marginRight) {
+    point = { ...point, x: (imageWidth - marginRight) * factor };
+  }
+
+  if (adjustedY < marginTop) {
+    point = { ...point, y: marginTop * factor };
+  } else if (adjustedY > imageHeight - marginBottom) {
+    point = { ...point, y: (imageHeight - marginBottom) * factor };
+  }
+
+  // if (point.y / factor > imageHeight - marginBottom) {
+  //   console.log('this case', isUpper, rotation)
+  //   if ( point.x /  factor < marginLeft){
+  //     point = { ...point, x: point.x - 150, y: point.y - 50 }
+  //   }
+
+  // }
 
   return { point, rotation };
 }
-
 export { calculateMidpointAndAngle, getLeftAndRightPoints, getLowerAndUpperPoints, getPositionSectionText };
