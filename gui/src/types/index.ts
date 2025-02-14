@@ -49,7 +49,9 @@ interface cameraSolution {
     cameraMatrix: number[][],
     type: string,
     uncertaintyEllipses?: ellipse[],
-    projectedPoints?: [number, number]
+    projectedPoints?: [number, number],
+    pointIndices?: number[],
+    numPoints?: number
 }
 
 interface importedPoint {

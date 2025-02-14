@@ -215,8 +215,9 @@ const onLoad3dRectification = (
 
     console.log('images', images)
     console.log('hemisphere', hemisphere)
+    console.log('mode', mode)
 
-    const newImportedPoints = appendSolutionToImportedPoints(points, cameraSolution)
+    const { newImportedPoints, numPoints } = appendSolutionToImportedPoints(points, cameraSolution, mode === 'direct-solve')
 
     delete cameraSolution.projectedPoints
     delete cameraSolution.uncertaintyEllipses
@@ -225,7 +226,8 @@ const onLoad3dRectification = (
     dispatch(setCameraSolution({
         ...cameraSolution,
         orthoImagePath: filePrefix + cameraSolution.orthoImagePath,
-        type: mode
+        mode: mode,
+        numPoints: numPoints
     }))
     dispatch(setHemisphere(hemisphere))
 

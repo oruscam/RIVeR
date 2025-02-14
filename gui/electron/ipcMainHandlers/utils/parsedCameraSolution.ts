@@ -10,6 +10,8 @@ function parsedCameraSolution(data: string){
         meanError: camera_solution.mean_error,
         uncertaintyEllipses: camera_solution.uncertainty_ellipses,
         cameraMatrix: camera_solution.camera_matrix,
+        numPoints: camera_solution.num_points,
+        pointIndices: camera_solution.point_indices,
     }
 }
 

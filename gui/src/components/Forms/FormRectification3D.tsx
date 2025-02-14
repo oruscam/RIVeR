@@ -10,6 +10,8 @@ export const FormRectification3D = () => {
 
     const { cameraSolution, isCalculating, hemisphere } = ipcam
 
+    console.log('camera solution', cameraSolution)
+
     const handleOnClickImport = async ( event: React.MouseEvent<HTMLButtonElement> ) => {
         const id = (event.target as HTMLButtonElement).id;
         if ( id === 'import-points'){
@@ -62,14 +64,14 @@ export const FormRectification3D = () => {
 
                     <div className="input-container-2 mt-1">
                         <button 
-                            className={`wizard-button me-1 button-rectification-3d ${cameraSolution?.type === 'direct-solve' || mode === 'direct-solve' ? 'wizard-button-active' : '' }`} 
+                            className={`wizard-button me-1 button-rectification-3d ${cameraSolution?.mode === 'direct-solve' || mode === 'direct-solve' ? 'wizard-button-active' : '' }`} 
                             id="direct-solve" 
                             type="button" 
                             onClick={handleOnClickAction}
                             disabled={ipcam.importedPoints === undefined}
                             > Direct Solve </button>
                         <button 
-                            className={`wizard-button button-rectification-3d ${cameraSolution === undefined ? 'mb-2' : ''} ${cameraSolution?.type === 'optimize-solution' || mode === 'optimize-solution' ? 'wizard-button-active' : '' }`} 
+                            className={`wizard-button button-rectification-3d ${cameraSolution === undefined ? 'mb-2' : ''} ${cameraSolution?.mode === 'optimize-solution' || mode === 'optimize-solution' ? 'wizard-button-active' : '' }`} 
                             id="optimize-solution" 
                             type="button" 
                             onClick={handleOnClickAction}
@@ -86,7 +88,7 @@ export const FormRectification3D = () => {
                                 </div>
                                 <div className="form-video-extra-info-row">
                                     <p> Number Of Points:  </p>
-                                    <p> {cameraSolution.reprojectionErrors.length} </p>
+                                    <p> {cameraSolution.numPoints} </p>
                                 </div>
                                 <div className="form-video-extra-info-row mb-2">
                                     <p> Camera Height:  </p>

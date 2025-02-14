@@ -8,7 +8,7 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
         console.log('calculate-3d-rectification')
 
         const { directory, framesPath, logsPath, settingsPath } = PROJECT_CONFIG
-        const { points, type, hemisphere } = args
+        const { points, mode, hemisphere } = args
 
         const images = await fs.promises.readdir(framesPath)
         const firstFramePath = path.join(framesPath, images[0])
@@ -21,7 +21,7 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
         const jsonContent = points.reduce((acc: any, point: any, index: number) => {
             const { X, Y, Z, x, y, selected, label, image } = point
 
-            if (type === 'direct-solve' && selected === false || x === 0 && y === 0) {
+            if ( mode === 'direct-solve' && selected === false || x === 0 && y === 0 ) {
                 acc.not_selected_X.push(X)
                 acc.not_selected_Y.push(Y)
                 acc.not_selected_Z.push(Z)
@@ -58,7 +58,7 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
             not_selected_image: []
         })
 
-        jsonContent.solution = type
+        jsonContent.solution = mode
         try {
             const filePath = path.join(directory, 'grp_3d.json')
             await fs.promises.writeFile(filePath, JSON.stringify(jsonContent, null, 2))
@@ -68,7 +68,7 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
                 'get-camera-solution',
                 '--image-path',
                 firstFramePath,
-                type === 'optimize-solution' ? '--' + type : undefined,
+                mode === 'optimize-solution' ? '--' + mode : undefined,
                 '--' + hemisphere,
                 '-w',
                 directory,
@@ -82,8 +82,6 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
                     error: error.message
                 }
             }
-
-            console.log(options)
 
             // Save the results on camera_solution_3d.json
             const solution_path = path.join(directory, 'camera_solution_3d.json')
@@ -106,10 +104,13 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
                     projectedPoints: data.projected_points,
                     meanError: data.mean_error,
                     uncertaintyEllipses: data.uncertainty_ellipses,
-                    cameraMatrix: data.camera_matrix
+                    cameraMatrix: data.camera_matrix,
+                    numPoints: data.num_points,
+                    pointIndices: data.point_indices,
                 }
             }
         } catch (error) {
+            console.log(error)
             return { error }
         }
     })

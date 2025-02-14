@@ -224,7 +224,7 @@ export const useMatrixSlice = () => {
 
     }
 
-    const onGetCameraSolution = async ( type: string ) => {
+    const onGetCameraSolution = async ( mode: string ) => {
         dispatch(setIpcamIsCalculating(true))
         const ipcRenderer = window.ipcRenderer
 
@@ -233,7 +233,7 @@ export const useMatrixSlice = () => {
         try {
             const { data, error }: { data: cameraSolution, error: any } = await ipcRenderer.invoke('calculate-3d-rectification', {
                 points: ipcam.importedPoints,
-                type,
+                mode,
                 hemisphere: ipcam.hemisphere,
             })
 
@@ -242,7 +242,7 @@ export const useMatrixSlice = () => {
                 throw new Error(error)
             }
             
-            const newImportedPoints = appendSolutionToImportedPoints(ipcam.importedPoints!, data, type === 'direct-solve')
+            const {newImportedPoints, numPoints} = appendSolutionToImportedPoints(ipcam.importedPoints!, data, mode === 'direct-solve')
             delete data.uncertaintyEllipses
             delete data.projectedPoints
 
@@ -250,14 +250,15 @@ export const useMatrixSlice = () => {
             dispatch(setIpcamCameraSolution({
                 ...data,
                 orthoImagePath: filePrefix + data.orthoImagePath + `?t=${new Date().getTime()}`,
-                type: type,
+                mode: mode,
+                numPoints: numPoints
             }))
             dispatch(setIpcamIsCalculating(false))
         } catch (error) {
             console.log(error)
             dispatch(setIpcamIsCalculating(false))
             if (error instanceof Error){
-                throw new CliError(error.message)
+                throw new CliError(error.message, t)
             }
         }
     }

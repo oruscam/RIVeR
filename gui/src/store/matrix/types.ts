@@ -30,7 +30,9 @@ interface cameraSolution {
     meanError: number,
     cameraPosition: number[],
     cameraMatrix: number[][],
-    type: string,
+    mode: string,
+    numPoints?: number,
+    pointIndices?: number[],
 }
 
 interface ipcam {
