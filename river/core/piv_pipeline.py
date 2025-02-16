@@ -22,6 +22,7 @@ import numpy as np
 from tqdm import tqdm
 
 import river.core.image_preprocessing as impp
+from river.core.exceptions import ReadImageError
 from river.core.piv_fftmulti import piv_fftmulti
 from river.core.piv_loop import piv_loop
 
@@ -175,11 +176,16 @@ def run_analyze_all(
 	Run PIV analysis on all images in the specified location.
 	"""
 	background = None
+
+	if filter_sub_background:
+		filter_grayscale = True  # forces to work with grayscale images if filt_sub_backgnd
+		background = impp.calculate_average(images_location)
+
 	images = sorted([str(f) for f in images_location.glob("*.jpg")])
 	total_frames = len(images)
 
 	if total_frames == 0:
-		raise ValueError(f"No JPG images found in {images_location}")
+		raise ReadImageError(f"No JPG images found in {images_location}")
 
 	print(f"Processing {total_frames} frames...")
 
@@ -190,7 +196,7 @@ def run_analyze_all(
 	# Process first image pair to get expected dimensions
 	first_image = cv2.imread(str(images[0]))
 	if first_image is None:
-		raise ValueError(f"Could not read first image: {images[0]}")
+		raise ReadImageError(f"Could not read first image: {images[0]}")
 
 	if mask is None:
 		mask = np.ones(first_image.shape, dtype=np.uint8)

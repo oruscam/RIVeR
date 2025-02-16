@@ -12,3 +12,7 @@ class ObjectiveFunctionError(RiverCoreException):
 
 class OptimalCameraMatrixError(RiverCoreException):
 	pass
+
+
+class ReadImageError(RiverCoreException):
+	pass
