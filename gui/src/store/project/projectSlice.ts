@@ -54,7 +54,19 @@ const projectSlice = createSlice({
         },
         setProjectDetails: (state, action: PayloadAction<ProjectDetails>) => {
             state.projectDetails = action.payload;
-        }   
+        },
+        resetProjectSlice: ( state ) => {
+            state.projectDirectory = '';
+            state.video = defaultVideo;
+            state.type = '';
+            state.firstFramePath = '';
+            state.projectDetails = {
+                riverName: '',
+                site: '',
+                unitSistem: 'si',
+                meditionDate: '',
+            }
+        }  
     }
 });
 
@@ -65,6 +77,7 @@ export const {
     setProjectType,
     setVideoData,
     setVideoParameters,
+    resetProjectSlice
 } = projectSlice.actions;
 
 export default projectSlice.reducer;

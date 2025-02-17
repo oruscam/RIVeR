@@ -1,6 +1,5 @@
 import { Point } from "../../types";
 
-
 interface Bathimetry {
     path: string;
     name: string;
@@ -73,6 +72,8 @@ interface SectionData {
     showInterpolateProfile: boolean;
     streamwise_x: number[];
     streamwise_y: number[];
+    seeded_vel_profile: number[];
+    filled_seeded_vel_profile: number[];
     
 }
 

@@ -98,19 +98,8 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             <span className="read-only bg-transparent"></span>
           </div>
 
-          <div className="input-container-2 mt-1">
-            <label className="read-only me-1" htmlFor="CS_LENGTH">{t('CrossSections.width')}</label>
-            <input
-              type="number"
-              className="input-field-read-only"
-              {...register(`${name}_CS_LENGTH`, {
-                validate: value => value != 0 || `The value of CS Length can not be 0 in ${name}`
-              })}
-              id="CS_LENGTH"
-              readOnly={true}
-            />
-          </div>
-          <div className="input-container-2 mt-1">
+         
+          <div className="input-container-2">
             <input
               type="file"
               id={`${name}_CS_BATHIMETRY`}
@@ -133,7 +122,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             <label className="read-only bg-transparent mt-1">{bathimetry.name !== "" ? bathimetry.name : ''}</label>
           </div>
 
-          <div className="input-container-2 mt-1 mb-3">
+          <div className="input-container-2 mt-2 mb-1">
             <label className="read-only me-1" htmlFor="LEVEL">{t('CrossSections.level')}</label>
             <input
               type="number"
@@ -148,11 +137,25 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             />
           </div>
 
+          <div className="input-container-2 mb-1">
+            <label className="read-only me-1" htmlFor="CS_LENGTH">{t('CrossSections.width')}</label>
+            <input
+              type="number"
+              className="input-field-read-only"
+              disabled={true}
+              {...register(`${name}_CS_LENGTH`, {
+                validate: value => value != 0 || `The value of CS Length can not be 0 in ${name}`
+              })}
+              id="CS_LENGTH"
+              readOnly={true}
+            />
+          </div>
+
           <Bathimetry
             showLeftBank={true}
           />
 
-          <div className="input-container-2 mt-3 mb-4" id="left-bank-station-container">
+          <div className="input-container-2 mb-4" id="left-bank-station-container">
             <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">{t('CrossSections.leftBankStation')}</label>
             <input
               type="number"
@@ -164,7 +167,8 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               onBlur={handleLeftBankInput}
             />
           </div>
-          <div className={extraFields ? '' : 'hidden'}>
+          
+          <div className={extraFields ? 'mt-3' : 'hidden'}>
             <RealWorldCoordinates modeName={name} />
             <PixelCoordinates modeName={name} />
             <span id={`span-footer-${name}`}></span>

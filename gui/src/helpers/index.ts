@@ -17,6 +17,7 @@ import { createSquare, getObliquePointsDistances, adapterObliquePointsDistances 
 import { onLoadCrossSections, onLoadObliquePoints, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "./loadProjectHelpers";
 import { getPositionSectionText } from "./getPositionSectionText";
 import { appendSolutionToImportedPoints } from "./appendSolutionsToImportedPoints";
+import { verifyWindowsSizes } from "./verifyWindowsSizes";
 
 export {
     adapterBathimetry,
@@ -61,4 +62,5 @@ export {
     stringDateToDate,
     transformPixelToRealWorld,
     transformRealWorldToPixel,
+    verifyWindowsSizes,
 }

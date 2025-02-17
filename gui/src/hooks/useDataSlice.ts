@@ -5,11 +5,12 @@
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask, setDataLoaded, setImages } from "../store/data/dataSlice";
+import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask, setDataLoaded, setImages, resetDataSlice } from "../store/data/dataSlice";
 import { setLoading } from "../store/ui/uiSlice";
 import { setSectionData, setSummary } from "../store/section/sectionSlice";
 import { CliError } from "../errors/errors";
 import { useTranslation } from "react-i18next";
+import { verifyWindowsSizes } from "../helpers";
 
 /**
  * @returns - Object with the methods and attributes to interact with the data slice
@@ -17,7 +18,7 @@ import { useTranslation } from "react-i18next";
 
 export const useDataSlice = () => {
     const dispatch = useDispatch();
-    const { processing, images, quiver, isBackendWorking, isDataLoaded } = useSelector((state: RootState) => state.data);
+    const { processing, images, quiver, isBackendWorking, isDataLoaded, hasChanged } = useSelector((state: RootState) => state.data);
     const { sections, activeSection } = useSelector((state: RootState) => state.section);
     const { video } = useSelector((state: RootState) => state.project);
 
@@ -89,18 +90,23 @@ export const useDataSlice = () => {
     const onSetQuiverTest = async () => {
         dispatch(setBackendWorkingFlag(true))
         const ipcRenderer = window.ipcRenderer;
-
+        const { bbox, form } = processing
         const { paths, active } = images;
         const framesToTest = [paths[active], paths[ active + 1]]
 
-        try {
-            const { data, error } = await ipcRenderer.invoke('get-quiver-test', { framesToTest: framesToTest, formValues: processing.form })
+        try {  
+            const result = verifyWindowsSizes(form.step1, bbox ? bbox : false)
+            if ( result ) {
+                throw new Error((result.message))
+            }
+
+            const { data, error } = await ipcRenderer.invoke('get-quiver-test', { framesToTest: framesToTest, formValues: form })
 
             if ( error?.message ){
                 throw new Error(error.message)
             } else {
-                dispatch(setQuiver(
-                    {
+                dispatch(setQuiver({
+                    quiver: {
                         x: data.x,
                         y: data.y,
                         u: data.u,
@@ -108,8 +114,9 @@ export const useDataSlice = () => {
                         typevector: data.typevector,
                         u_median: data.u_median,
                         v_median: data.v_median
-                    }
-                ))
+                    },
+                    test: true
+                }))
             }
 
             dispatch(setBackendWorkingFlag(false))
@@ -135,14 +142,14 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const { data, error } = await ipcRenderer.invoke('get-quiver-all', {formValues: processing.form})
+            const { data, error } = await ipcRenderer.invoke('get-quiver-all', { formValues: processing.form })
 
             if ( error?.message ){
                 throw new Error(error.message)
             } else {
                 const { x, y, u, v, typevector, u_median, v_median } = data
-                dispatch(setQuiver(
-                    {
+                dispatch(setQuiver({
+                    quiver: {
                         x: x,
                         y: y,
                         u: u,
@@ -150,8 +157,9 @@ export const useDataSlice = () => {
                         typevector: typevector,
                         u_median: u_median,
                         v_median: v_median
-                    }
-                ))
+                    },
+                    test: false
+                }))
             }
             dispatch(setBackendWorkingFlag(false))
         } catch (error) {
@@ -214,7 +222,7 @@ export const useDataSlice = () => {
             dispatch(setLoading(true))
 
             try {
-                const { data, error  } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                const { data, error } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
                 
                 if ( error?.message ) {
                     throw new Error(error)
@@ -244,7 +252,10 @@ export const useDataSlice = () => {
     }
 
     const onClearQuiver = () => {
-        dispatch(setQuiver(undefined))
+        if ( hasChanged ) {
+            dispatch(setQuiver({quiver: undefined, test: false}))
+        }
+        return
     }
 
     const onReCalculateMask = async ( value: number ) => {
@@ -254,14 +265,14 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const { maskPath, error } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value, data: isDataLoaded })
+            const { maskPath, bbox, error } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: value, data: isDataLoaded })
             console.log('error mask', error)
 
             if ( error?.message ){
                 throw new Error(error.message)
             }
 
-            dispatch(setProcessingMask(filePrefix + maskPath))
+            dispatch(setProcessingMask({mask: filePrefix + maskPath, bbox}))
             dispatch(setBackendWorkingFlag(false))
         } catch (error) {
             dispatch(setBackendWorkingFlag(false))
@@ -283,6 +294,10 @@ export const useDataSlice = () => {
         window.ipcRenderer.removeAllListeners('all-frames')
     };
 
+    const onResetDataSlice = () => {
+        dispatch(resetDataSlice())
+    }
+
     return {
         // ATRIBUTES
         isBackendWorking,   
@@ -291,16 +306,17 @@ export const useDataSlice = () => {
         quiver,
 
         // METHODS
+        onClearQuiver,
+        onGetResultData,
+        onKillBackend,
+        onReCalculateMask,
+        onResetDataSlice,
         onSetActiveImage,
+        onSetAnalizing,
+        onSetImages,
+        onSetQuiverAll,
         onSetQuiverTest,
         onUpdateProcessing,
-        onSetQuiverAll,
-        onClearQuiver,
-        onKillBackend,
-        onGetResultData,
-        onReCalculateMask,
-        onSetAnalizing,
-        onSetImages
     }
 }
 

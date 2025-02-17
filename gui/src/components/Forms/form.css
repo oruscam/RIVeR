@@ -12,7 +12,7 @@
     overflow-x: hidden;
     flex-shrink: 0;
     position: relative;
-    overflow-y: auto;
+    overflow-y: none;
 }
 
 /* Cambiar dependiendo el tamaño de la pantalla */
@@ -23,25 +23,6 @@
 .form-title-analizing{
     margin-top: 8vh;
 }
-
-/* .form-base{
-    padding: 90px;
-    padding-top: 20px;
-    padding-bottom: 10px;
-    display: grid;
-    grid-template-columns: auto auto;
-    gap: 15px;
-    overflow-x: hidden;
-    overflow-y: hidden;
-    width: 100%;
-    margin-bottom: 40px;
-} */
-
-/* 
-.ghost{
-    width: 20px;
-    height: 20px;
-} */
 
 .read-only{
     background-color: var(--input-background);
@@ -107,68 +88,6 @@
     min-width: 320px;
 }
 
-
-
-/* .form-cross-sections{
-    height: 100%;
-    overflow-x: hidden;
-    margin-top: 30px;
-
-} */
-/* 
-.simple-mode-container{
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    overflow-x: hidden;
-    align-items: center;
-    &::-webkit-scrollbar {
-        display: none;
-    }
-} */
-
-/* .simple-mode{
-    display: grid;
-    grid-template-columns: auto auto;
-    gap: 15px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    min-height: 300px;
-    height: 35%;
-    padding: 80px;
-    padding-top: 0px;
-    flex-shrink: 0;
-    overflow-y: hidden;
-} */
-
-/* .space{
-    height: 55%;
-    flex-shrink: 1;
-    width: 10px;
-}
-
-.space2{
-    height: 45%;
-    flex-shrink: 1s;
-    width: 20px;
-}
-
-.space3{
-    height: 510px;
-    width: 100%;
-} */
-
-/* .hard-mode{
-    display: grid;
-    grid-template-columns: auto auto;
-    gap: 15px;
-    overflow-x: hidden;
-    overflow-y: auto;
-    width: 100%;
-    padding: 90px;
-    padding-top: 0px;
-} */
-
 .bathimetry-button p {
     text-align: center;
     margin-top: 10px;
@@ -205,20 +124,6 @@
 .field-title{
     font-weight: 400;
 }
-/* 
-.simple-mode-processing{
-    min-height: 400px;
-    padding: 50px;
-    display: flex;
-    flex-direction: column;
-} */
-
-/* .test-container{
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-right: 70px;
-} */
 
 @media screen and (max-height : 1150px) {
     .hard-mode-processing{
@@ -313,10 +218,8 @@ transform-origin: 14px 22px;
 @keyframes locked {
 50% {
     transform: translateY(1px);
+    }
 }
-}
-
-
 
 .analizing-container{
     display: flex;
@@ -469,24 +372,8 @@ transform-origin: 14px 22px;
 @media screen and (max-height : 775px) {
     #form-section-div{
         height: 57%;
-    }
-    
+    }   
 }
-
-/* 
-#left-bank-station-label{
-    height: auto;
-    word-wrap: break-word; 
-    overflow-wrap: break-word; 
-    white-space: normal; 
-    line-height: 1.1;
-    padding-top: 5px;
-    padding-bottom: 5px;
-} 
-
-#left-bank-station-input{
-    height: 100%;
-} */
 
 #analize-message{
     font-size: 1.2rem;
@@ -546,11 +433,6 @@ transform-origin: 14px 22px;
     color: var(--primary-text-color);
     font-size: 1.1em;
 }
-
-/* .last-settings-form-field-container input:focus{
-    outline: none;
-    border-bottom: 4px solid var(--background-error);
-} */
 
 .last-settings-form-field-radio{
     align-self: center;
@@ -632,7 +514,17 @@ transform-origin: 14px 22px;
     min-width: 175px;
 }
 
-.rectification-3d-form-image{
-    
-    
+/* #bathimetry-name-container{
+    display: flex;
+    width: 90%;
 }
+
+.bathimetry-name{
+    font-size: 1.1rem;
+    text-align: center;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: underline;
+} */

@@ -1,5 +1,5 @@
 import { REPORT_IMAGES,  } from "../../constants/constants";
-import { useSectionSlice } from "../../hooks"
+import { useProjectSlice, useSectionSlice, useUiSlice } from "../../hooks"
 import { AllInOne, VelocityVector } from "../Graphs";
 import { ReportSectionTable } from "./ReportSectionTable";
 
@@ -12,8 +12,9 @@ interface ReportSectionProps {
 }
 
 export const ReportSection = ({ index, factor }: ReportSectionProps) => {
-  const { sections } = useSectionSlice();
+  const { sections, transformationMatrix } = useSectionSlice();
   const { name, data } = sections[index]
+  const { firstFramePath } = useProjectSlice()
 
   if(!data) return null
 
@@ -30,13 +31,27 @@ export const ReportSection = ({ index, factor }: ReportSectionProps) => {
             <h4> { interpolated_Q * 100 } % Interpolated </h4>
             <h3 className="mt-2 report-section-title-1"> Alpha: { alpha } </h3>
             <h3 className="mt-1 report-section-title-1 mb-2"> Number of stations: { num_stations } </h3>
-            <VelocityVector 
-                width={REPORT_IMAGES.IMAGES_WIDTH} 
-                height={REPORT_IMAGES.IMAGES_HEIGHT} 
-                factor={factor}
-                isReport={true}
-                index={index}
-                />
+            <div className="image-and-svg-container">
+              <img src={firstFramePath} className="image-border-radius" width={REPORT_IMAGES.IMAGES_WIDTH} height={REPORT_IMAGES.IMAGES_HEIGHT} />
+              {
+                sections.map((section, i) => {
+                  if ( i === 0 || i !== index ) return null;
+                  return (
+                    <VelocityVector 
+                        section={section}
+                        key={i}
+                        transformationMatrix={transformationMatrix}
+                        sectionIndex={i}
+                        width={REPORT_IMAGES.IMAGES_WIDTH} 
+                        height={REPORT_IMAGES.IMAGES_HEIGHT} 
+                        factor={factor}
+                        isReport={true}
+                        index={index}
+                      />
+                    )
+                  })
+              }
+            </div>
         </div>
         
         <div id='report-section-top-right-container'>

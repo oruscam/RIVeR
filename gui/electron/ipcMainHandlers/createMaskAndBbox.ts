@@ -57,7 +57,7 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Functi
             PROJECT_CONFIG.maskPath = maskArrayPath 
             
             const maskPngPath = path.join(directory, 'mask.png')
-            return { maskPath: maskPngPath }
+            return { maskPath: maskPngPath, bbox: data.bbox }
         } catch (error) {
             console.log("ERROR EN CREATE MASK AND BBOX")
             throw error

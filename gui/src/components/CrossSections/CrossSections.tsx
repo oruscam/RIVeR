@@ -112,7 +112,7 @@ export const CrossSections = () => {
                 })
             }
             </FormProvider>
-            <ButtonLock disabled={sections[activeSection].dirPoints.length === 0} footerElementID="form-cross-section-footer" headerElementID="form-cross-section-header"/>
+            <ButtonLock disabled={sections[activeSection].bathimetry.width === undefined} footerElementID="form-cross-section-footer" headerElementID="form-cross-section-header"/>
         </>
     )
 }

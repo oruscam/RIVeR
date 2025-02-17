@@ -11,7 +11,7 @@
     "Wizard" : {
         "back" : "Volver",
         "next" : "Seguir",
-        "save" : "Guardar"
+        "save" : "Guardar HTML"
     },
     "VideoRange":{
         "title": "Rango de video",
@@ -29,7 +29,7 @@
         },
         "ExtraInfo" : {
             "fileName" : "Nombre de archivo:",
-            "totalLenght": "Duración: ",
+            "totalLength": "Duración: ",
             "timeBetweenFrame" : "Tiempro entre cuadros: ",
             "resolution" : "Resolución: "
         }
@@ -155,14 +155,19 @@
         "pixelTransformation": "Pixel Transformation",
         "processingParameters" : "Processing Parameters",
         "generatedBy" : "Generated with River",
-        "date" : "report creation date"
+        "date" : "report creation date",
+        "Success" : {
+            "title": "Analisis Completo!",
+            "message": "You've successfully completed all steps. Review your results and save them as HTML. You can close the window your project has been saved in"
+        }
     },
     "Errors": {
         "invalidDistancesFormat": "Formato de distancias invalido, por favor revisa https://www.google.com",
         "imagesFolderEmpty" : "No images found in the selected folder",
         "invalidImageExtension": "The directory contains files that are not images",
         "Cli": {
-            "Unexpected error negative dimensions are not allowed": "Las dimensiones negativas no están permitidas"
+            "windowsSizesError" : "El tamaño de la ventana es demasiado largo para la Region de Interes seleccionada.",
+            "bboxNotDefined" : "La Region de Interes no ha sido definida." 
         }
     }
 }

@@ -1,7 +1,9 @@
-import { app, BrowserWindow, ipcMain, ipcRenderer, net, protocol, screen } from 'electron'
+import { app, BrowserWindow, dialog, ipcMain, ipcRenderer, net, protocol, screen } from 'electron'
 import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
 import * as os from 'os'
+import * as fs from 'fs'
+import { Buffer } from 'buffer'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
 
@@ -18,6 +20,7 @@ import { getPoints } from './ipcMainHandlers/getPoints.js'
 import { getIpcamImages } from './getIpcamImages.js'
 import { getDistances } from './getDistances.js'
 import { saveTransformationMatrix } from './ipcMainHandlers/saveTransformationMatrix.js'
+import { saveReportHtml } from './ipcMainHandlers/saveReportHtml.js'
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -121,6 +124,24 @@ const PROJECT_CONFIG: ProjectConfig = {
   thumbsPath: "",
   logsPath: "",
 }
+// Move to ipcMainHandlers
+ipcMain.handle('save-dialog', async (event, defaultPath) => {
+  const result = await dialog.showSaveDialog({
+    title: 'Save Report',
+    defaultPath: defaultPath,
+    filters: [
+      { name: 'HTML Files', extensions: ['html'] }
+    ]
+  });
+  return result.filePath;
+});
+
+ipcMain.handle('save-file', async (event, args) => {
+  const { path, arrayBuffer } = args
+
+  const buffer = Buffer.from(arrayBuffer);
+  fs.writeFileSync(path, buffer);
+});
 
 app.whenReady().then(() => {
   createWindow();
@@ -144,5 +165,6 @@ app.whenReady().then(() => {
   getIpcamImages(PROJECT_CONFIG);
   getDistances();
   saveTransformationMatrix(PROJECT_CONFIG);  
+  saveReportHtml(PROJECT_CONFIG);
 })
 

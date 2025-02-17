@@ -4,21 +4,24 @@ import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks'
 import * as d3 from 'd3'
 import { SvgSectionLine } from '../SvgSectionLine'
 import { drawVectors } from './index'
+import { Section } from '../../store/section/types'
 
 interface VelocityVectorProps {
+    section: Section,
+    sectionIndex: number,
     height: number;
     width: number;
     factor: number | { x: number, y: number };
     isReport?: boolean;
     index?: number;
+    transformationMatrix: any
 }
 
-export const VelocityVector = ({ height, width, factor, isReport = false, index }: VelocityVectorProps )  => {
+export const VelocityVector = ({ section, sectionIndex, transformationMatrix, height, width, factor, isReport = false, index }: VelocityVectorProps )  => {
     const svgRef = useRef<SVGSVGElement>(null)
-    const { sections, activeSection, transformationMatrix } = useSectionSlice();
-    const { firstFramePath, video } = useProjectSlice();
+    const { video } = useProjectSlice();
     const { seeAll } = useUiSlice();
-    const { data } = sections[activeSection];
+    const { data, artificialSeeding, interpolated } = section;
 
     const { height: videoHeight } = video.data;
 
@@ -30,50 +33,30 @@ export const VelocityVector = ({ height, width, factor, isReport = false, index 
             .style("background-color", "transparent");
 
         if (!isReport) {
-            sections.forEach((section, sectionIndex) => {
-                if (sectionIndex === 0) return;
+            if (!data) return;
 
-                if (seeAll && activeSection !== sectionIndex) return;
-
-                const { data, interpolated } = section;
-                if (!data) return;
-
-                drawVectors(svg, sections, factor, sectionIndex, interpolated, data, isReport, transformationMatrix, videoHeight);
-            });
+            drawVectors(svg, factor, sectionIndex, interpolated, artificialSeeding, data, isReport, transformationMatrix, videoHeight);
         } else {
             if (index !== undefined) {
-                const { data, interpolated } = sections[index];
                 if (!data) return;
 
-                drawVectors(svg, sections, factor, index, interpolated, data, isReport, transformationMatrix, videoHeight);
+                console.log('section name', section.name)
+                drawVectors(svg, factor, index, interpolated, artificialSeeding, data, isReport, transformationMatrix, videoHeight);
             }
         }
-    }, [ factor, activeSection, seeAll, data ]);
+    }, [ factor, interpolated, artificialSeeding, seeAll, data ]);
 
     const drawSvgSectionLine = () => {
-        if (isReport){
-            return sections.map((_section, i) => {
-                if ( i === 0 ) return null;
-                if ( i === index ){
-
-                    return <SvgSectionLine key={index} factor={factor} index={index} isReport={isReport}/>
-                }
-            });
-        } else {
-            return sections.map((_section, index) => {
-                if (index === 0) return null;
-                return seeAll && activeSection !== index ? null : <SvgSectionLine key={index} factor={factor} index={index} isReport={isReport}/>;
-            })
-        }
+        return <SvgSectionLine key={sectionIndex} factor={factor} index={sectionIndex} isReport={isReport}/>
     }
 
     return (
-        <div className='image-and-svg-container' style={{ width: width, height: height }}>
-            <img src={firstFramePath} width={width} height={height} className={isReport ? 'image-border-radius' : ''}/>
-            <svg ref={svgRef} className='svg-in-image-container'/>
+        <>
+            {/* <img src={firstFramePath} width={width} height={height} className={isReport ? 'image-border-radius' : ''}/> */}
+            <svg ref={svgRef} className='svg-in-image-container' />
             {
                 drawSvgSectionLine()
             }
-        </div>
+        </>
     )
 }

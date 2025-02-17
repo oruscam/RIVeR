@@ -1,14 +1,13 @@
 import * as d3 from 'd3'
-import { COLORS, VECTORS } from "../../constants/constants";
 import { calculateArrowWidth, calculateMultipleArrows } from '../../helpers';
 import { SectionData } from '../../store/section/types';
 
 export const drawVectors = (
     svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
-    _sections: any[],
     factor: number | { x: number, y: number },
     sectionIndex: number,
     interpolated: boolean,
+    artificialSeeding: boolean,
     data: SectionData,
     isReport: boolean,
     transformationMatrix: number[][],
@@ -16,19 +15,43 @@ export const drawVectors = (
 ) => {
 
     // Data for drawing the vectors
-    const { east, north, streamwise_velocity_magnitude, distance, check, filled_streamwise_velocity_magnitude } = data
+    const { east, north, streamwise_velocity_magnitude, distance, check, filled_streamwise_velocity_magnitude, seeded_vel_profile, filled_seeded_vel_profile } = data
+    
 
     if ( !east || !north || !streamwise_velocity_magnitude || !distance ) return;
 
     const magnitude = streamwise_velocity_magnitude.map((d, i) => {
-        if ( filled_streamwise_velocity_magnitude !== undefined && check[i] === false ){
-            return filled_streamwise_velocity_magnitude[i]
-        } else if ( interpolated === false && check[i] === false ){
-            return null
-        } else {
+        if ( check[i] ){
+            if ( artificialSeeding === false && interpolated === true && filled_streamwise_velocity_magnitude !== undefined ){
+                return filled_streamwise_velocity_magnitude[i]
+            }
+            if ( artificialSeeding === true && interpolated === false && seeded_vel_profile !== undefined ){ 
+                return seeded_vel_profile[i]
+            }
+            if ( artificialSeeding === true && interpolated === true && filled_seeded_vel_profile !== undefined ){
+                return filled_seeded_vel_profile[i]
+            }
             if ( d === null ) return 0
             return d
+        } else {
+            if ( artificialSeeding === false && interpolated === true && filled_streamwise_velocity_magnitude !== undefined ){
+                
+            }
+            if ( interpolated === false && artificialSeeding === false ){
+                return null
+            } else {
+                return d
+            }
         }
+
+        // if ( filled_streamwise_velocity_magnitude !== undefined && check[i] === false ){
+        //     return filled_streamwise_velocity_magnitude[i]
+        // } else if ( artificialSeeding === false && interpolated === false && check[i] === false ){
+        //     return null
+        // } else {
+        //     if ( d === null ) return 0
+        //     return d
+        // }
     })
 
     const arrowWidth = calculateArrowWidth(distance)
@@ -47,6 +70,7 @@ export const drawVectors = (
                 .attr("stroke", arrow.color)
                 .attr("stroke-width", 1.5)
                 .attr("stroke-width", 1.5)
+                .attr("pointer-events", "all")
                 .classed(`section-${sectionIndex}`, true);
             
             if ( isReport == false && typeof factor === 'number' ) {

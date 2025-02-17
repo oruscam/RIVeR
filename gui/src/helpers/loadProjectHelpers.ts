@@ -21,8 +21,8 @@ const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoP
     const { step, start, end } = video_range
     dispatch(setVideoParameters({
         step: step,
-        startTime: parseFloat((start / 30).toFixed(2)),
-        endTime: parseFloat((end / 30).toFixed(2)),
+        startTime: parseFloat((start / fps).toFixed(2)),
+        endTime: parseFloat((end / fps).toFixed(2)),
         startFrame: start,
         endFrame: end,
     }))

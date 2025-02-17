@@ -28,7 +28,7 @@ const convertImageToDataURI = ( url: string, quality = 1.0 ) => {
 export const Report = () => {
   const { sections } = useSectionSlice();
   const { onSetAnalizing } = useDataSlice();
-  const { onSaveProjectDetails, video } = useProjectSlice()
+  const { onSaveProjectDetails, video, projectDirectory } = useProjectSlice()
   const { width: videoWidth, height: videoHeight } = video.data
 
   const generateHTML = async () => {
@@ -74,12 +74,12 @@ export const Report = () => {
         </body>
         </html>
       `;
+
+      // Save the HTML file
       const blob = new Blob([htmlContent], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'report.html';
-      a.click();
+      const arrayBuffer = await blob.arrayBuffer();
+      
+      await window.ipcRenderer.invoke('save-summary-html', { arrayBuffer });
     }
     onSetAnalizing(false)
   };
@@ -116,8 +116,8 @@ export const Report = () => {
       </div>
       <div className='form-container'>
         <Progress/>
-        <FormReport></FormReport>
-        <WizardButtons onClickNext={generateHTML}></WizardButtons>
+        <FormReport/>
+        <WizardButtons onClickNext={generateHTML}/>
       </div>
     </div>
   )

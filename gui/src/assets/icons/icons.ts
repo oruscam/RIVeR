@@ -12,9 +12,11 @@ import language from './language.svg'
 import eyeball from './eyeball.svg'
 import back from './back.svg'
 import pinGrey from './pinGrey.svg'
+import check from './check.svg'
 
 export {
     back,
+    check,
     drone,
     eyeball,
     ipcam,

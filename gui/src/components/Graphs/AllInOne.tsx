@@ -18,7 +18,7 @@ import { generateXAxisTicks } from '../../helpers/graphsHelpers'
 export const AllInOne = ({ width, height, index, isReport  } : {width?: number, height?: number, index?: number, isReport: boolean}) => {
     const svgRef = useRef<SVGSVGElement>(null)
     const { sections, activeSection } = useSectionSlice();
-    const { data, bathimetry, name } = sections[index ? index : activeSection]
+    const { data, bathimetry, name, interpolated, artificialSeeding } = sections[index ? index : activeSection]
     const { level, x1Intersection, x2Intersection, width: bathWidth } = bathimetry
     const { screenSizes } = useUiSlice()
     const { width: screenWidth } = screenSizes
@@ -36,7 +36,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 const margin = { top: 20, right: 30, bottom: 40, left: 50 }
                 const graphHeight = (height) / 3
                 
-                const { distance, streamwise_velocity_magnitude, plus_std, minus_std, percentile_5th, percentile_95th, Q, Q_portion } = adapterData(data, x1Intersection!)
+                const { distance, streamwise_velocity_magnitude, plus_std, minus_std, percentile_5th, percentile_95th, Q, Q_portion } = adapterData(data, x1Intersection!, interpolated, artificialSeeding)
                 const { showPercentile, showVelocityStd } = data
                 
                 const bathData = adapterBathimetry(bathimetry.line!, x1Intersection!, x2Intersection!, level!)
@@ -116,7 +116,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 })
 
             }
-    }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q])
+    }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, interpolated, artificialSeeding, data?.check])
 
   return (
     <svg ref={svgRef} width={width ? width : graphWidth} height={height ? height : 500} id={`section-${name}`}></svg>

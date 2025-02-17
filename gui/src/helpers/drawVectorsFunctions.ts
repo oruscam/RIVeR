@@ -216,7 +216,6 @@ function calculateMultipleArrows( east: number[], north: number[], magnitudes: (
 
         const color = customColorMap[colorIndex];
 
-
         arrows.push({
             points: transformedPoints,
             color: color,

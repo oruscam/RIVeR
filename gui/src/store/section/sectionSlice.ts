@@ -120,6 +120,13 @@ const sectionSlice = createSlice({
         cleanSections: (state) => {
             state.sections = state.sections.filter( (_, index) => index === 0 || index === 1);
             state.sections[1] = defaultSections[1]
+        },
+        resetSectionSlice: (state) => {
+            state.sections = defaultSections;
+            state.summary = undefined;
+            state.activeSection = 0;
+            state.sectionsCounter = 2;
+            state.transformationMatrix = [];
         }
     },
 });
@@ -127,20 +134,21 @@ const sectionSlice = createSlice({
 export const { 
     addSection, 
     changeSectionData,
+    cleanSections,
     deleteSection, 
+    resetSectionSlice,
     setActiveSection, 
     setBathimetry,
     setDirPoints, 
+    setHasChanged,
     setPixelSize,
     setRealWorldPoints,
     setSectionData,
     setSectionPoints,
-    updateSection,
-    setHasChanged,
     setSummary,
-    updateSectionsCounter,
     setTransformationMatrix,
-    cleanSections
+    updateSection,
+    updateSectionsCounter,
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

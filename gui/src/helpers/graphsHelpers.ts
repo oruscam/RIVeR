@@ -1,20 +1,36 @@
 import { SectionData } from "../store/section/types";
 import { Point } from "../types";
 
-export const adapterData = (data: SectionData, x1Intersection: number) => {
-    const { distance, streamwise_velocity_magnitude, plus_std, minus_std, percentile_95th, percentile_5th, Q, Q_portion, filled_streamwise_velocity_magnitude, check, interpolated } = data
+export const adapterData = (data: SectionData, x1Intersection: number, interpolated: boolean, artificialSeeding: boolean) => {
+    const { distance, streamwise_velocity_magnitude, plus_std, minus_std, percentile_95th, percentile_5th, Q, Q_portion, filled_streamwise_velocity_magnitude, check, seeded_vel_profile, filled_seeded_vel_profile } = data
 
     const newDistance = distance.map((d) => {
             return d + x1Intersection!
     });
 
     const newStreamwiseVelocityMagnitude = streamwise_velocity_magnitude.map((d,i) => {
-        if ( filled_streamwise_velocity_magnitude !== undefined && check[i] === false ){
-            return filled_streamwise_velocity_magnitude[i]
-        } else if ( interpolated === false && check[i] === false ){
-            return null
-        } else {
+        if ( check[i] ){
+            if ( artificialSeeding === false && interpolated === true && filled_streamwise_velocity_magnitude !== undefined ){
+                console.log('using filled_streamwise_velocity_magnitude')
+                return filled_streamwise_velocity_magnitude[i]
+            }
+            if ( artificialSeeding === true && interpolated === false && seeded_vel_profile !== undefined ){ 
+                console.log('using seeded_vel_profile')
+                return seeded_vel_profile[i]
+            }
+            if ( artificialSeeding === true && interpolated === true && filled_seeded_vel_profile !== undefined ){
+                console.log('using filled_seeded_vel_profile')
+                return filled_seeded_vel_profile[i]
+            }
+            if ( d === null ) return 0
+            console.log('using streamwise_velocity_magnitude')
             return d
+        } else {
+            if ( interpolated === false && artificialSeeding === false ){
+                return null
+            } else {
+                return d
+            }
         }
     });
 

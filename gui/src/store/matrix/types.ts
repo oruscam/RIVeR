@@ -1,13 +1,5 @@
 import { importedPoint, Point } from "../../types";
 
-interface pixelSize {
-    drawLine: boolean,
-    pixelPoints: [Point, Point],
-    rwPoints: [Point, Point],
-    pixelSize: number,
-    rwLength: number,
-}
-
 interface obliquePoints {
     drawPoints: boolean,
     coordinates: Point[],
@@ -63,7 +55,6 @@ interface setIpcamCustomPoint {
 }
 
 interface MatrixState {
-    pixelSize: pixelSize;
     obliquePoints: obliquePoints;
     ipcam: ipcam
     hasChanged: boolean;

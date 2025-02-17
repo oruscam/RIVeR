@@ -4,24 +4,14 @@ import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
 import { Report } from './pages/Report'
-import { useDataSlice, useMatrixSlice, useProjectSlice, useSectionSlice, useUiSlice } from './hooks'
+import { useDataSlice, useProjectSlice, useUiSlice } from './hooks'
 import { FOOTAGE_TYPES } from './constants/constants'
 
 export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice()
   const { type, video } = useProjectSlice()
   const { data } = video 
-
-  const { sections } = useSectionSlice()
-  console.log(sections)
-
-  const { ipcam } = useMatrixSlice()
-
-  console.log(ipcam)
-
   const { onSetImages, images } = useDataSlice()
-
-  console.log('images', images)
 
   const getStep4 = () => {
     switch (type) {
@@ -37,7 +27,6 @@ export const App: React.FC = () => {
         default:
         return <Rectification3D/>
     }
-
   }
   
   useEffect(() => {

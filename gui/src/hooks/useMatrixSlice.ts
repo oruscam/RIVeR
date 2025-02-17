@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../store/store";
 import { cameraSolution, CanvasPoint, FormDistance, Point } from "../types";
-import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint, setIpcamCameraSolution, setIpcamIsCalculating, setHemispehere } from "../store/matrix/matrixSlice";
+import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint, setIpcamCameraSolution, setIpcamIsCalculating, setHemispehere, resetMatrixSlice } from "../store/matrix/matrixSlice";
 import { adapterObliquePointsDistances, appendSolutionToImportedPoints, createSquare} from "../helpers";
 import { ScreenSizes } from "../store/ui/types";
 import { FieldValues } from "react-hook-form";
@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 
 export const useMatrixSlice = () => {
     const dispatch = useDispatch();
-    const { pixelSize, obliquePoints, hasChanged, ipcam } = useSelector((state: RootState) => state.matrix);
+    const { obliquePoints, hasChanged, ipcam } = useSelector((state: RootState) => state.matrix);
     const { t } = useTranslation()
 
     const onSetObliqueCoordinates = ( points: Point[], screenSizes: ScreenSizes ) => {
@@ -266,13 +266,16 @@ export const useMatrixSlice = () => {
     const onChangeHemisphere = (type: 'southern-hemisphere' | 'northern-hemisphere') => {
         dispatch(setHemispehere(type))
     }
- 
+    
+    const onResetMatrixSlice = () => {
+        dispatch(resetMatrixSlice())
+    }
+
     return {
         // ATRIBUTES
         hasChanged,
         ipcam,
         obliquePoints,
-        pixelSize,
 
         // METHODS
         changeIpcamPointSelected,
@@ -284,6 +287,7 @@ export const useMatrixSlice = () => {
         onGetImages,
         onGetPoints,
         onGetTransformtionMatrix,
+        onResetMatrixSlice,
         onSetDrawPoints,
         onSetObliqueCoordinates,
         setIpcamPointPixelCoordinates,

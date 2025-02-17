@@ -200,6 +200,10 @@
     outline: none;
 }
 
+.input-field-read-only:disabled{
+  background-color: var(--input-background-disabled);
+}
+
 .input-field-little-read-only{
   background-color: var(--input-background);
   color: var(--primary-text-color);

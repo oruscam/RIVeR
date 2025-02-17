@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import './components.css';
 import { useWizard } from 'react-use-wizard';
-import { useDataSlice, useSectionSlice } from '../hooks';
+import { useDataSlice, useMatrixSlice, useProjectSlice, useSectionSlice } from '../hooks';
 import { MODULE_NUMBER } from '../constants/constants';
 
 type Props = {
@@ -13,8 +13,10 @@ type Props = {
 
 export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClickNext }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep, isLastStep } = useWizard();
-  const { onSetActiveSection } = useSectionSlice()
-  const { onClearQuiver, isBackendWorking } = useDataSlice()
+  const { onSetActiveSection, onResetSectionSlice } = useSectionSlice()
+  const { onClearQuiver, isBackendWorking, onResetDataSlice } = useDataSlice()
+  const { onResetProjectSlice } = useProjectSlice()
+  const { onResetMatrixSlice } = useMatrixSlice()
   const { t } = useTranslation();
 
   const handlePreviuos = () => {
@@ -34,6 +36,14 @@ export const WizardButtons = ({ canFollow = true, formId = '', button = false, o
         onClearQuiver()
         break;
       
+      case MODULE_NUMBER.VIDEO_RANGE:
+        onResetProjectSlice()
+        onResetDataSlice()
+        onResetSectionSlice()
+        onResetMatrixSlice()
+        previousStep()
+        break;
+
       default:
         previousStep()
     }

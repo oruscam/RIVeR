@@ -1,14 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { obliquePoints, MatrixState, pixelSize, setIpcamPointsInterface, setIpcamImagesInterface, setIpcamCustomPoint, cameraSolution } from "./types";
+import { obliquePoints, MatrixState, setIpcamPointsInterface, setIpcamImagesInterface, setIpcamCustomPoint, cameraSolution } from "./types";
 
 const initialState: MatrixState = {
-    pixelSize: {
-        drawLine: false,
-        pixelPoints: [{x: 0, y: 0}, {x: 0, y: 0}],
-        rwPoints: [{x: 0, y: 0}, {x: 0, y: 0}],
-        pixelSize: 0,
-        rwLength: 0,
-    },
     obliquePoints: {
         drawPoints: false,
         coordinates: [{x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}],
@@ -41,9 +34,6 @@ const matrixSlice = createSlice({
     name: 'matrixGenerator',
     initialState,
     reducers: {
-        setPixelSize: ( state, action: PayloadAction<pixelSize> ) => {
-            state.pixelSize = action.payload;
-        },
         setObliquePoints: ( state, action: PayloadAction<obliquePoints> ) => {
             state.obliquePoints = action.payload;
         },
@@ -95,22 +85,26 @@ const matrixSlice = createSlice({
         setHemispehere: ( state, action: PayloadAction<'southern-hemisphere' | 'northern-hemisphere'> ) => {
             state.ipcam.hemisphere = action.payload
         },
-
+        resetMatrixSlice: ( state ) => {
+            state.ipcam = initialState.ipcam
+            state.obliquePoints = initialState.obliquePoints
+            state.hasChanged = initialState.hasChanged
+        }
     }
 })
 
 export const {
-    setPixelSize,
-    setObliquePoints,
-    setDrawPoints,
-    setHasChanged,
-    setIpcamPoints,
-    setIpcamImages,
+    resetMatrixSlice,
     setActiveImage,
     setCustomIpcamPoint,
-    setIpcamCameraSolution,
-    setIpcamIsCalculating,
+    setDrawPoints,
+    setHasChanged,
     setHemispehere,
+    setIpcamCameraSolution,
+    setIpcamImages,
+    setIpcamIsCalculating,
+    setIpcamPoints,
+    setObliquePoints,
 } = matrixSlice.actions
 
 export default matrixSlice.reducer

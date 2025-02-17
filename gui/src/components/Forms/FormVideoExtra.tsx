@@ -15,7 +15,7 @@ export const FormVideoExtra = () => {
                 <p>{name}</p>
             </div>
             <div className='form-video-extra-info-row'>
-                <p>{t("VideoRange.ExtraInfo.totalLenght")}</p>
+                <p>{t("VideoRange.ExtraInfo.totalLength")}</p>
                 <p>{duration.toFixed(2)}s</p>
             </div>
 
@@ -24,7 +24,7 @@ export const FormVideoExtra = () => {
                 <p>{`${width} x ${height}`}</p>
             </div>
             <div className='form-video-extra-info-row'>
-                <p>FPS: </p>
+                <p> FPS: </p>
                 <p>{fps}</p>
             </div>
         </div>

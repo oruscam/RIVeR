@@ -11,7 +11,7 @@
     "Wizard" : {
         "back" : "Back",
         "next" : "Next",
-        "save" : "Save"
+        "save" : "Save HTML"
     },
     "VideoRange":{
         "title": "Video Range",
@@ -29,7 +29,7 @@
         },
         "ExtraInfo" : {
             "fileName" : "File Name:",
-            "totalLenght": "Total Lenght: ",
+            "totalLength": "Total Length: ",
             "timeBetweenFrame" : "Time Between Frames: ",
             "resolution" : "Resolution: "
         }
@@ -160,7 +160,11 @@
         "pixelTransformation": "Pixel Transformation",
         "processingParameters" : "Processing Parameters",
         "generatedBy" : "Generated with River",
-        "date" : "report creation date"
+        "date" : "report creation date",
+        "Success" : {
+            "title": "Analysis Complete!",
+            "message": "You've successfully completed all steps. Review your results and save them as HTML. You can close the window your project has been saved in"
+        }
     },
     "ControlPoints" : {
         "Errors": {
@@ -175,7 +179,8 @@
         "imagesFolderEmpty" : "No images found in the selected folder",
         "invalidImageExtension": "The directory contains files that are not images",
         "Cli": {
-            "Unexpected error negative dimensions are not allowed": "Unexpected error: negative dimensions are not allowed"
+            "windowsSizesError" : "The window size is too large for the selected Region Of Interest.",
+            "bboxNotDefined" : "Region of Interest not defined."
         }
     }
 }

@@ -42,6 +42,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                     let grp_3d_mode = undefined
                     let camera_solution_3d = undefined                    
                     let rectification_3d_images = undefined
+                    let bbox = undefined
 
                     const data = await fs.promises.readFile(settingsPath, 'utf-8');
                     const settingsParsed = JSON.parse(data);
@@ -66,6 +67,9 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
 
                     if (fs.existsSync(bboxPath)) {
                         PROJECT_CONFIG.bboxPath = bboxPath;
+                        bbox = await fs.promises.readFile(bboxPath, 'utf-8');
+                        bbox = JSON.parse(bbox);
+                        console.log('bbox', bbox)
                     } else {
                         console.warn(`Warning: ${bboxPath} does not exist.`);
                     }
@@ -133,6 +137,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                                     videoMetadata: videoMetadata,
                                     firstFrame: firstFrame,
                                     mask: maskPng,
+                                    bbox: bbox,
                                     piv_results: piv_results,
                                     paths: paths,
                                     matrix: matrix,

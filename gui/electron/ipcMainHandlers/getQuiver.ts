@@ -83,14 +83,13 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
 async function createOptions(mode: string, PROJECT_CONFIG: ProjectConfig, framesToTest: string[], formValues: any) {
     const { bboxPath, maskPath, directory, framesPath, settingsPath } = PROJECT_CONFIG;
-    const { artificialSeeding, clahe, clipLimit, grayscale, medianTestEpsilon, medianTestFiltering, medianTestThreshold, removeBackground, stdFiltering, stdThreshold, step1, step2,heightRoi } = formValues;
+    const { clahe, clipLimit, grayscale, medianTestEpsilon, medianTestFiltering, medianTestThreshold, removeBackground, stdFiltering, stdThreshold, step1, step2,heightRoi } = formValues;
 
     const settings = await fs.promises.readFile(settingsPath, 'utf-8');
     const settingsParsed = JSON.parse(settings);
 
 
     settingsParsed.processing = {
-        artificial_seeding: artificialSeeding,
         interrogation_area_1: step1,
         interrogation_area_2: step2,
         roi_height: heightRoi,

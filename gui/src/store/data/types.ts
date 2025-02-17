@@ -18,6 +18,7 @@ interface Processing {
     form: FormProcessing;
     parImages: string[];
     maskPath: string;
+    bbox?: number[],
 }
 
 interface Images {
@@ -35,12 +36,14 @@ interface Quiver {
     v_median?: number[];
 }
 
+
 interface DataState {
     processing: Processing;
     images: Images;
     quiver?: Quiver;
     isBackendWorking: boolean,
     isDataLoaded: boolean,
+    hasChanged: boolean
 }
 
 export type { DataState, Processing, FormProcessing, Quiver }

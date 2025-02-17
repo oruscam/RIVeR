@@ -11,7 +11,7 @@ interface BathimetryProps {
     drawGrid?: boolean;
 }
 
-export const Bathimetry = ({ showLeftBank, height = 320 }: BathimetryProps) => {
+export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
     const { sections, activeSection } = useSectionSlice()
     const { screenSizes } = useUiSlice(); 
     const { width: screenWidth } = screenSizes;
@@ -42,7 +42,7 @@ export const Bathimetry = ({ showLeftBank, height = 320 }: BathimetryProps) => {
     }, [path, level, leftBank, rw_length, screenWidth])
 
     return (
-        <div className={`${path === '' ? 'hidden' : ''}`}>
+        <div className={`${path === '' ? 'hidden' : ''} mb-3`}>
             <svg ref={svgRef} width={graphWidth} height={height} id={`only-section-${name}`}/>
         </div>
     );

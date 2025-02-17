@@ -14,10 +14,12 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
   const { onSetImages, images } = useDataSlice()
   const { startTime, endTime, step } = videoData.parameters
 
+  console.log(videoData.parameters)
+
   const { handleSubmit, register, setValue, getValues, watch } = useForm({
     defaultValues: {
       start: formatTime(startTime, 'mm:ss'),
-      end: formatTime(duration, 'mm:ss'),
+      end: formatTime(endTime !== 0 ? endTime : duration, 'mm:ss'),
       step: step
     }
   })
@@ -55,7 +57,7 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
     if ( timeformat === 'mm:ss' ){
       setValue(id as ( 'start' | 'end' | 'step' ), value, { shouldValidate: true })
     } else if ( timeformat === 'seconds' ) {
-      value = formatTime(parseFloat(value))
+      value = formatTime(parseFloat(value), 'mm:ss')
       setValue(id as ( 'start' | 'end' | 'step' ), value, { shouldValidate: true })
     } else {
       setValue(id as ( 'start' | 'end' | 'step' ), id === 'start' ? '00:00' : formatTime(duration, 'mm:ss'), { shouldValidate: false })
@@ -137,8 +139,9 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
               id='input-step'
               defaultValue={1}
               className='input-field'
+              onKeyDown={(e) => e.preventDefault()}
               { ...register('step', validationRules.step)}
-              ></input>
+              />
           </div>
           <div className='form-video-extra-info-row mt-1' id='time-between-frames'>
                 <p>{t("VideoRange.ExtraInfo.timeBetweenFrame")}</p>

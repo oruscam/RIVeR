@@ -6,7 +6,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { clearErrorMessage, clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
-import { setProjectDirectory, setProjectType, setVideoData, setFirstFramePath, setVideoParameters, setProjectDetails } from "../store/project/projectSlice";
+import { setProjectDirectory, setProjectType, setVideoData, setFirstFramePath, setVideoParameters, setProjectDetails, resetProjectSlice } from "../store/project/projectSlice";
 import { FieldValues } from "react-hook-form";
 import { addSection, setActiveSection, setSummary, setTransformationMatrix, updateSection } from "../store/section/sectionSlice";
 import {  MODULE_NUMBER } from "../constants/constants";
@@ -105,7 +105,7 @@ export const useProjectSlice = () => {
      * @param data | FieldValues - from useFormHook
      */
 
-    const onSetVideoParameters = async ( data: FieldValues) => {
+    const onSetVideoParameters = async ( data: FieldValues ) => {
         dispatch(setLoading(true));
         dispatch(setMessage('We are extracting the frames, wait a moment'))
 
@@ -136,7 +136,6 @@ export const useProjectSlice = () => {
                 step: parameters.step,
             })
 
-            
             dispatch(clearMessage())
             dispatch(setFirstFramePath(filePrefix + result.initial_frame))
             dispatch(setVideoParameters(parameters))
@@ -157,7 +156,7 @@ export const useProjectSlice = () => {
         try {
             const result = await ipcRenderer.invoke('load-project')
             if(result.success){
-                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix, rectification3D } = result.message
+                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix, rectification3D, bbox } = result.message
                 dispatch(setProjectDirectory(projectDirectory))
                 dispatch(setProjectType(settings.footage)) 
                 dispatch(setVideoData({
@@ -201,7 +200,7 @@ export const useProjectSlice = () => {
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     // * Load images for carousel.
-                    dispatch(setProcessingMask(filePrefix + mask))
+                    dispatch(setProcessingMask({ mask: filePrefix + mask, bbox: bbox }))
 
                     // * Load cross sections
                     dispatch(setActiveSection(1))
@@ -213,13 +212,16 @@ export const useProjectSlice = () => {
 
                     const { x, y, u, v, typevector, u_median, v_median } = piv_results
                     dispatch(setQuiver({
-                        x: x,
-                        y: y,
-                        u: u,
-                        v: v,
-                        typevector: typevector,
-                        u_median: u_median,
-                        v_median: v_median
+                        quiver: {
+                            x: x,
+                            y: y,
+                            u: u,
+                            v: v,
+                            typevector: typevector,
+                            u_median: u_median,
+                            v_median: v_median
+                        },
+                        test: false
                     }))
 
                     if ( settings.river_name || settings.site || settings.unit_system || settings.medition_date ){ 
@@ -257,7 +259,7 @@ export const useProjectSlice = () => {
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
                     
                     // * Load images for carousel.
-                    dispatch(setProcessingMask(filePrefix + mask))
+                    dispatch(setProcessingMask({ mask: filePrefix + mask, bbox: bbox }))
 
                     // * Load cross sections
                     dispatch(setActiveSection(1))
@@ -334,7 +336,10 @@ export const useProjectSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         await ipcRenderer.invoke('set-project-details', projectDetails)
+    }
 
+    const onResetProjectSlice = () => {
+        dispatch(resetProjectSlice())
     }
 
     return {
@@ -346,11 +351,12 @@ export const useProjectSlice = () => {
         video,
 
         // METHODS
+        onGetVideo,
         onInitProject,
         onLoadProject,
-        onSetVideoParameters,
-        onGetVideo,
         onProjectDetailsChange,
-        onSaveProjectDetails
+        onResetProjectSlice,
+        onSaveProjectDetails,
+        onSetVideoParameters,
     }
 }

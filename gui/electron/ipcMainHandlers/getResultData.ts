@@ -94,6 +94,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
                 parseFloat(fps),
                 '--id-section',
                 i,
+                '--interpolate',
                 xSections,
                 pivResults,
                 transformationMatrix,

@@ -5,6 +5,7 @@ import { useForm } from "react-hook-form";
 import { useProjectSlice } from "../../hooks";
 import { dateToStringDate, stringDateToDate } from "../../helpers";
 import '../../index.css'
+import { SuccessfulMessage } from "../Report";
 
 
 export const FormReport = () => {
@@ -23,7 +24,6 @@ export const FormReport = () => {
       unitSistem: projectDetails.unitSistem,
   }});
 
-  console.log('medition date', meditionDate)
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUnitSistem(event.target.value);
@@ -102,6 +102,8 @@ export const FormReport = () => {
             timeIntervals={15}
           />
         </div>
+
+        <SuccessfulMessage/>
       </form>
     </>
   )

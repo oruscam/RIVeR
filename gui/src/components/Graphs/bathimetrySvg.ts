@@ -39,7 +39,7 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
     const svg = d3.select(svgElement);
     const width = +svg.attr('width');
     const height = +svg.attr('height');
-    const margin = { top: 20, right: 30, bottom: 40, left: 50 };
+    const margin = { top: 20, right: 30, bottom: 50, left: 60 };
 
     const xMin = d3.min(data, d => d.x)!;
     const xMax = d3.max(data, d => d.x)!;
@@ -53,17 +53,17 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
     let clipPathData = data;
 
     if ( xScaleAllInOne && sizes ) {
-        const { margin: marginSizes, height: heightSizes, graphHeight } = sizes;
+        const { margin: marginAllInOne, height: heightSizes, graphHeight } = sizes;
         xScale = xScaleAllInOne;
         
         yScale = d3.scaleLinear()
             .domain([yMin, yMax])
-            .range([heightSizes - marginSizes.bottom - 30, graphHeight*2 - 10]);
+            .range([heightSizes - marginAllInOne.bottom - 30, graphHeight*2 - 10]);
 
         svg.append('text')
             .attr('class', 'y-axis-label')
             .attr('text-anchor', 'end')
-            .attr('x', isReport ? -graphHeight * 3 + 160 : -graphHeight *3 + 180)
+            .attr('x', isReport ? - graphHeight * 3 + 160 : - graphHeight *3 + 180)
             .attr('y', margin.left - 35)
             .attr('transform', 'rotate(-90)')
             .attr('fill', 'white')
@@ -174,7 +174,6 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
         .attr('fill', 'white')
         .attr('font-size', '22px')
         .text('Station');
-
 
     // Bathymetry line
     svg.append('path')

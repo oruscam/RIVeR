@@ -5,7 +5,7 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, cleanSections, } from '../store/section/sectionSlice';
+import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, cleanSections, resetSectionSlice } from '../store/section/sectionSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints, transformPixelToRealWorld, transformRealWorldToPixel } from '../helpers';
@@ -167,7 +167,7 @@ export const useSectionSlice = () => {
             dispatch(setBackendWorkingFlag(false))
 
         } else {
-            const {size, rw_length} = computePixelSize(newPoints as Point[], rwPoints)
+            const { size, rw_length } = computePixelSize(newPoints as Point[], rwPoints)
             dispatch(setPixelSize({size, rw_length}))
             dispatch(setHasChanged({value: true}))
         }    
@@ -380,10 +380,10 @@ export const useSectionSlice = () => {
             await ipcRenderer.invoke('set-sections', { data })
             
             const { height_roi } = await ipcRenderer.invoke('recommend-roi-height', type === 'ipcam' ? { transformationMatrix } : undefined)
-            const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi, data: false })
+            const { maskPath, bbox } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi, data: false })
 1            
             dispatch(updateProcessingForm({...processing.form, heightRoi: height_roi}))
-            dispatch(setProcessingMask(filePrefix + maskPath))
+            dispatch(setProcessingMask({mask: filePrefix + maskPath, bbox}))
             dispatch(setLoading(false))
             console.timeEnd('set-sections')
         } catch (error) {
@@ -678,24 +678,29 @@ export const useSectionSlice = () => {
         })
     }
 
+    const onResetSectionSlice = () => {
+        dispatch(resetSectionSlice())   
+    }
+
     return {    
         sections,
         activeSection,
         summary,
         transformationMatrix,   
 
-        onSetDirPoints,
         onAddSection,
-        onDeleteSection,
-        onSetActiveSection,
-        onSetPixelSize,
-        onSetSections,
-        onSetRealWorld,
-        onUpdateSection,
-        onSetExtraFields,
         onChangeDataValues,
-        onGetBathimetry,
         onCleanSections,
         onCleanSectionsData,
+        onDeleteSection,
+        onGetBathimetry,
+        onResetSectionSlice,
+        onSetActiveSection,
+        onSetDirPoints,
+        onSetExtraFields,
+        onSetPixelSize,
+        onSetRealWorld,
+        onSetSections,
+        onUpdateSection,
     };
 }
