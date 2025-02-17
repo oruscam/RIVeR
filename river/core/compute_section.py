@@ -1,3 +1,4 @@
+import platform
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -1149,7 +1150,10 @@ def update_current_x_section(
 		x_sections[current_x_section]["num_stations"] = num_stations
 
 	# Retrieve bathymetry file path and the left station position
-	bath_file_path = Path(x_sections[current_x_section]["bath"])
+	bath_file_path: str = x_sections[current_x_section]["bath"]
+	if platform.system() == "Windows":
+		bath_file_path = bath_file_path.encode("latin-1").decode()
+	bath_file_path = Path(bath_file_path)
 	left_station = x_sections[current_x_section]["left_station"]
 
 	# Retrieve the alpha coefficient
