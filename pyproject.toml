@@ -20,7 +20,8 @@ dependencies = [
     "matplotlib >= 3.9.0",
     "scipy < 1.14",
     "tqdm >= 4.67.0",
-    "numba == 0.60.0"
+    "numba == 0.60.0",
+    "tablib[xlsx,xls,ods] == 3.8.0"
 ]
 
 [project.scripts]

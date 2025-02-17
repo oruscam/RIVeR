@@ -1,11 +1,22 @@
-import csv
+import platform
+from pathlib import Path
 from typing import Optional, Tuple
 
 import numpy as np
 from numba import jit
 from scipy.interpolate import griddata
+from tablib import Dataset
 
 import river.core.coordinate_transform as ct
+from river.core.exceptions import NotSupportedFormatError
+
+CSV_FORMAT = "csv"
+ODS_FORMAT = "ods"
+XLS_FORMAT = "xls"
+XLSX_FORMAT = "xlsx"
+
+BINARY_FORMATS = [ODS_FORMAT, XLS_FORMAT, XLSX_FORMAT]
+FILE_FORMATS = [CSV_FORMAT] + BINARY_FORMATS
 
 
 @jit(nopython=True)
@@ -1139,7 +1150,10 @@ def update_current_x_section(
 		x_sections[current_x_section]["num_stations"] = num_stations
 
 	# Retrieve bathymetry file path and the left station position
-	bath_file_path = x_sections[current_x_section]["bath"]
+	bath_file_path: str = x_sections[current_x_section]["bath"]
+	if platform.system() == "Windows":
+		bath_file_path = bath_file_path.encode("latin-1").decode()
+	bath_file_path = Path(bath_file_path)
 	left_station = x_sections[current_x_section]["left_station"]
 
 	# Retrieve the alpha coefficient
@@ -1148,17 +1162,25 @@ def update_current_x_section(
 	else:
 		x_sections[current_x_section]["alpha"] = alpha
 
-	# Initialize lists for stations and stages
-	stations = []
-	stages = []
+	file_format = bath_file_path.suffix.removeprefix(".")
 
-	# Load bathymetry data from the CSV file
-	with open(bath_file_path, newline="") as inf:
-		reader = csv.DictReader(inf)
-		for row in reader:
-			# Assuming the first column is 'station' and the second is 'level'
-			stations.append(float(row[reader.fieldnames[0]]))
-			stages.append(float(row[reader.fieldnames[1]]))
+	if file_format not in FILE_FORMATS:
+		raise NotSupportedFormatError(
+			f"The '{file_format}' format is not supported for bathimetry files. Please use one of {FILE_FORMATS}"
+		)
+
+	mode = "r"
+	data = Dataset()
+
+	if file_format in BINARY_FORMATS:
+		mode = mode + "b"
+
+	# Load bathymetry data from tabular dataset file
+	data.load(bath_file_path.open(mode=mode), format=file_format, headers=False)
+
+	# Assuming the first column is 'station' and the second is 'level'
+	stations = [float(i) if i is not None else float(0) for i in data.get_col(0)[1:]]
+	stages = [float(i) if i is not None else float(0) for i in data.get_col(1)[1:]]
 
 	# Convert stations and stages lists to NumPy arrays for calculations
 	stations = np.array(stations)
