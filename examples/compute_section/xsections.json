@@ -1,6 +1,6 @@
 {
     "CS_default_1": {
-        "bath": "/home/nstefani/Downloads/XS1_DistElev.csv",
+        "bath": "bath.csv",
         "rw_length": 29.81,
         "level": 4.36,
         "left_station": 0,
