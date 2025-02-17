@@ -11,8 +11,7 @@ import { generateXAxisTicks, generateYAxisTicks } from '../../helpers';
  * 
  */
 
-
-interface BathymetryChartProps {
+interface BathimetryChartProps {
     svgElement: SVGSVGElement;
     data: Point[];
     level?: number;
@@ -36,7 +35,7 @@ interface BathymetryChartProps {
     x2Intersection?: number;
 }
 
-export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftBank, rightBank, xScaleAllInOne, sizes, isReport = false, x1Intersection, x2Intersection }: BathymetryChartProps) => {
+export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftBank, rightBank, xScaleAllInOne, sizes, isReport = false, x1Intersection, x2Intersection }: BathimetryChartProps) => {
     const svg = d3.select(svgElement);
     const width = +svg.attr('width');
     const height = +svg.attr('height');
@@ -147,14 +146,12 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
             
 
     // Sombrear el área entre la línea horizontal y la gráfica original
-
     const area = d3.area<{ x: number, y: number }>()
         .x(d => xScale(d.x))
         .y0(d => yScale(Math.min(d.y, level)))
         .y1(_d => yScale(level));
         
     // Definir clip-path
-
     svg.append('defs')
         .append('clipPath')
         .attr('id', `clip-bathimetry-${svgElement.id}`)
@@ -180,21 +177,19 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
 
 
     // Bathymetry line
-
     svg.append('path')
         .datum(data)
         .attr('fill', 'none')
         .attr('stroke', COLORS.WHITE)
         .attr('stroke-width', 1.5)
         .attr('d', line);
-        
-    if (showLeftBank && leftBank && rightBank) {
+    
+    if (showLeftBank && leftBank !== undefined && rightBank !== undefined && leftBank !== rightBank) {
         svg.append('path')
             .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
             .attr('fill', COLORS.RED)
             .attr('transform', `translate(${xScale(leftBank)}, ${yScale(level) - 16})`);
     
-
         svg.append('path')
             .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
             .attr('fill', COLORS.GREEN)

@@ -74,8 +74,7 @@ export const PixelSize = () => {
             
           />
         </FormProvider>
-        <ButtonLock footerElementID='span-footer' headerElementID='pixel_size-HEADER' disabled={sections[0].dirPoints.length === 0}
-        ></ButtonLock>
+        <ButtonLock footerElementID='span-footer' headerElementID='pixel_size-HEADER' disabled={sections[0].dirPoints.length === 0}/>
         <WizardButtons canFollow={sections[0].dirPoints.length === 2} formId='form-pixel-size'/>
       </div>
     </div>

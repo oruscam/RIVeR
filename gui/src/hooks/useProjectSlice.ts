@@ -11,9 +11,11 @@ import { FieldValues } from "react-hook-form";
 import { addSection, setActiveSection, setSummary, setTransformationMatrix, updateSection } from "../store/section/sectionSlice";
 import {  MODULE_NUMBER } from "../constants/constants";
 import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
-import { onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/loadProjectHelpers";
+import { onLoadObliquePoints, onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/index";
 import { OperationCanceledError, UserSelectionError } from "../errors/errors";
 import { parseTime } from "../helpers";
+import { setHemispehere, setIpcamCameraSolution, setIpcamImages, setIpcamPoints, setObliquePoints } from "../store/matrix/matrixSlice";
+import { onLoad3dRectification } from "../helpers/loadProjectHelpers";
 
 
 /**
@@ -68,6 +70,7 @@ export const useProjectSlice = () => {
             const  { result, error } = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type });
 
             if ( error ){
+                console.log(error)
                 if (error.type === 'user-cancel-operation') {
                     throw new OperationCanceledError(error.message);
                 }
@@ -91,9 +94,8 @@ export const useProjectSlice = () => {
             
         } catch (error) {
             dispatch(setLoading(false));
-            console.log(error instanceof OperationCanceledError)
             dispatch(clearMessage());
-            
+            console.log(error)
             throw error;
         }    
     }
@@ -135,7 +137,6 @@ export const useProjectSlice = () => {
             })
 
             
-            console.log(result)
             dispatch(clearMessage())
             dispatch(setFirstFramePath(filePrefix + result.initial_frame))
             dispatch(setVideoParameters(parameters))
@@ -156,7 +157,7 @@ export const useProjectSlice = () => {
         try {
             const result = await ipcRenderer.invoke('load-project')
             if(result.success){
-                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix } = result.message
+                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix, rectification3D } = result.message
                 dispatch(setProjectDirectory(projectDirectory))
                 dispatch(setProjectType(settings.footage)) 
                 dispatch(setVideoData({
@@ -184,7 +185,19 @@ export const useProjectSlice = () => {
                 dispatch(setLoading(false))
 
                 if( piv_results ){
-                    onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+                    
+                    if ( settings.pixel_size ){
+                        onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+                    }
+
+                    if ( settings.control_points ){
+                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
+                    }
+
+                    if ( settings.grp_3d ){
+                        onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+                    }
+
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     // * Load images for carousel.
@@ -227,11 +240,22 @@ export const useProjectSlice = () => {
                     return STEP
                 }
                 
-                if(settings.xsections){
-                    onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+                if( settings.xsections ){
+
+                    if ( settings.pixel_size ){
+                        onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+                    }
+
+                    if ( settings.control_points ){
+                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
+                    }
+                    
+                    if ( settings.grp_3d ){
+                        onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+                    }
+
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
                     
-
                     // * Load images for carousel.
                     dispatch(setProcessingMask(filePrefix + mask))
 
@@ -245,13 +269,24 @@ export const useProjectSlice = () => {
                     
                     return MODULE_NUMBER.PROCESSING
 
-                } else if(settings.pixel_size){
+                } else if(settings.pixel_size ){
                     onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.CROSS_SECTIONS
 
-                } else if(settings.video_range){
+                } else if (settings.control_points){
+                    onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
+                    onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
+
+                    return MODULE_NUMBER.CROSS_SECTIONS
+                } else if (settings.grp_3d){
+                    onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+
+                    return MODULE_NUMBER.CROSS_SECTIONS
+                }
+                
+                else if(settings.video_range){
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.PIXEL_SIZE

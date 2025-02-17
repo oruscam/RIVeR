@@ -4,9 +4,16 @@ import * as path from 'path';
 import * as fs from 'fs'
 
 let python: ChildProcess 
+const DEV_SERVER = process.env.VITE_DEV_SERVER_URL
 
 async function executeRiverCli(options: (string | number)[], _mode: ('json' | 'text') = 'json', output: boolean = false, logFile: string): Promise<{ data: any, error: any }> {
-    const riverCliPath = path.join(app.getAppPath(), '..', 'river-cli', 'river-cli');
+    let riverCliPath: string;
+    if ( DEV_SERVER ) {
+        riverCliPath = path.join(app.getAppPath(), 'river-cli', 'river-cli');
+    } else {
+        riverCliPath = path.join(app.getAppPath(), '..', 'river-cli', 'river-cli');
+    }
+    
     const args = options.map(arg => arg.toString());
 
     console.log('you are using river-cli', riverCliPath);

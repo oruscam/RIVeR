@@ -6,7 +6,7 @@ import { transformData } from "./utils/transformCrossSectionsData";
 async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ipcMain.handle('get-results-single', async (_event, args) => {
         console.log('get-results-single')
-        const { step, fps, sectionIndex, alpha, num_stations, interpolated, check, name, showVelocityStd, showPercentile } = args
+        const { step, fps, sectionIndex, alpha, num_stations, interpolated, check, name, showVelocityStd, showPercentile, artificialSeeding } = args
         
         const xSections = PROJECT_CONFIG.xsectionsPath;
         const transformationMatrix = PROJECT_CONFIG.matrixPath;
@@ -35,6 +35,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
             '--num-stations',
             num_stations,
             interpolated ? '--interpolate' : '',
+            artificialSeeding ? '--artificial-seeding': '',
             xSections,
             pivResults,
             transformationMatrix,

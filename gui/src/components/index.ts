@@ -14,24 +14,34 @@ import { Carousel } from './Carousel'
 import { Grid } from './Grid'
 import { SectionsHeader } from './SectionsHeader'
 import { Results } from './Results'
-import { ImageWithControlPoints } from './ImageWithControlPoints'
-import { ControlPointsLines } from './ControlPointsLines'
+import { ImageRectification2D } from './ImageRectification2D'
+import { ObliquePointsLines } from './ObliquePointsLines'
+import { IpcamGrid } from './IpcamGrid'
+import { ImageRectification3D } from './ImageRectification3D'
+import { PointsRectification3D } from './PointsRectification3D'
+import { Ellipses } from './Ellipses'
+import { RedPoints } from './RedPoints'
 
 export {
     Carousel,
-    ControlPointsLines,
     DrawSections,
+    Ellipses,
     Error,
     Grid,
     Icon,
-    ImageWithControlPoints,
+    ImageRectification2D,
+    ImageRectification3D,
     ImageWithData,
     ImageWithMarks,
+    IpcamGrid,
     LanguageSelector,
     LineAndText,
     Loading, 
+    ObliquePointsLines,
     Points,
+    PointsRectification3D,
     Progress,
+    RedPoints,
     Results,
     SectionsHeader,
     ThemeToggle,

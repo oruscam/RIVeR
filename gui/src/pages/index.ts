@@ -7,16 +7,18 @@ import { Processing } from "./Processing";
 import { Analize } from "./Analize";
 import { Results } from "./Results";
 import { Report } from "./Report";
-import { ControlPoints } from "./ControlPoints";
+import { Rectification2D } from "./Rectification2D";
+import { Rectification3D } from "./Rectification3D";
 
 export { 
     Analize, 
-    ControlPoints,
     CrossSections, 
     FootageMode, 
     HomePage, 
     PixelSize, 
     Processing, 
+    Rectification2D,
+    Rectification3D,
     Report, 
     Results, 
     VideoRange, 

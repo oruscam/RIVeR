@@ -23,6 +23,15 @@ async function createFolderStructure (newDirPath: string, type: string, videoPat
           await fs.promises.rm(newDirPath, { recursive: true, force: true });
           console.log('Directory removed:', newDirPath);
         } catch (err) {
+          if (err.code === 'EBUSY'){
+            dialog.showMessageBox(mainWindow, {
+              type: 'error',
+              buttons: ['Ok'],
+              defaultId: 0,
+              title: 'Resource Busy',
+              message: 'The directory is being used by another process. Please close the directory and try again.',
+            })
+          }
           console.error('Error removing directory:', err);
           throw err; // Re-throw the error to cancel the operation
         }

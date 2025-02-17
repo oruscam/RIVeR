@@ -1,6 +1,8 @@
 import { Section } from '../store/section/types';
 import { getBathimetryValues } from './getBathimetryValues';
 import { MODULE_NUMBER } from '../constants/constants';
+import { cameraSolution, importedPoint } from '../types';
+import { appendSolutionToImportedPoints } from './appendSolutionsToImportedPoints';
 
 /**
  * This file contains helper functions to load the project data from the projects file.
@@ -15,7 +17,7 @@ import { MODULE_NUMBER } from '../constants/constants';
  * @returns - void
  */
 
-export const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoParameters: any, fps: number) => {
+const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoParameters: any, fps: number) => {
     const { step, start, end } = video_range
     dispatch(setVideoParameters({
         step: step,
@@ -36,7 +38,7 @@ export const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, se
  * @returns 
  */
 
-export const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispatch: any , updateSection: any) => {
+const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispatch: any , updateSection: any) => {
     const { x1, y1, x2 , y2, rw_length, size, east1, east2, north1, north2 } = pixel_size
 
     dispatch(updateSection({
@@ -49,6 +51,33 @@ export const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispat
     return 
 }
 
+const onLoadObliquePoints = (control_points: control_points, dispatch: any, setControlPoints: any) => {
+    const { coordinates, distances } = control_points
+
+
+    const isDefaultCoordinates = false;
+
+    dispatch(setControlPoints({
+        coordinates: [
+            { x: coordinates.x1, y: coordinates.y1 },
+            { x: coordinates.x2, y: coordinates.y2 },
+            { x: coordinates.x3, y: coordinates.y3 },
+            { x: coordinates.x4, y: coordinates.y4 }
+        ],
+        distances: {
+            d12: distances.d12,
+            d23: distances.d23,
+            d34: distances.d34,
+            d41: distances.d41,
+            d13: distances.d13,
+            d24: distances.d24
+        },
+        drawPoints: true,
+        isDefaultCoordinates
+    }))
+
+}
+
 /**
  * 
  * @param values - cross sections data saved in the project file
@@ -58,7 +87,7 @@ export const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispat
  * @param sections - sections state. By default we have pixel_size and CS_default_1. In the first lop on the xsections we update the CS_default_1 section. And then we add the rest of the sections.
  */
 
-export const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary?: any) => {
+const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary?: any) => {
     let flag = true
     let flagData = false
     Object.entries(values).forEach( async ([key, value]: [ string, XSectionValue ]) => {
@@ -74,7 +103,8 @@ export const onLoadCrossSections = (values: XSections, dispatch: any, updateSect
                 return
             }
             const result = await ipcRenderer.invoke('get-bathimetry', { path: bath })
-            const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = getBathimetryValues(result.line, level)
+            const { data } = getBathimetryValues(result.line, level)
+            const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = data? data : { yMax: 0, yMin: 0, xMax: 0, xMin: 0, x1Intersection: 0, x2Intersection: 0, width: 0 }
             
             if ( flag ){
                 flag = false
@@ -143,7 +173,7 @@ export const onLoadCrossSections = (values: XSections, dispatch: any, updateSect
     }
 }
 
-export const onLoadProcessingForm = ( values: ProcessingValues, dispatch: any, updateForm: any ) => {
+const onLoadProcessingForm = ( values: ProcessingValues, dispatch: any, updateForm: any ) => {
     const { artificial_seeding, clahe, clip_limit, grayscale, median_test_epsilon, median_test_filtering, median_test_threshold, remove_background, std_filtering, std_threshold, interrogation_area_1, interrogation_area_2, roi_height } = values
 
     console.log('onLoadProcessingForm - helpers', values)
@@ -163,9 +193,56 @@ export const onLoadProcessingForm = ( values: ProcessingValues, dispatch: any, u
         step2: interrogation_area_2,
         heightRoi: roi_height
     }))
+}
+
+const onLoad3dRectification = (
+    rectification3d: {
+        points: importedPoint[],
+        cameraSolution: cameraSolution,
+        mode: string,
+        images: string,
+        hemisphere: string,
+        imagesPath: string
+    },
+    dispatch: any,
+    setIpcamPoints: any,
+    setCameraSolution: any,
+    setHemisphere: any,
+    setIpcamImages: any
+) => {
+    const filePrefix = import.meta.env.VITE_FILE_PREFIX
+    const { points, cameraSolution, mode, images, hemisphere } = rectification3d
+
+    console.log('images', images)
+    console.log('hemisphere', hemisphere)
+
+    const newImportedPoints = appendSolutionToImportedPoints(points, cameraSolution)
+
+    delete cameraSolution.projectedPoints
+    delete cameraSolution.uncertaintyEllipses
+
+    dispatch(setIpcamPoints({ points: newImportedPoints, path: undefined }))
+    dispatch(setCameraSolution({
+        ...cameraSolution,
+        orthoImagePath: filePrefix + cameraSolution.orthoImagePath,
+        type: mode
+    }))
+    dispatch(setHemisphere(hemisphere))
+
+    if ( images !== undefined ){
+        dispatch(setIpcamImages({ images: images, path: images }))
+    }
 
 }
 
+export { 
+    onLoadCrossSections,
+    onLoadObliquePoints, 
+    onLoadPixelSize, 
+    onLoadProcessingForm, 
+    onLoadVideoParameters, 
+    onLoad3dRectification
+}
 
 interface pixel_size {
     x1: number,
@@ -279,3 +356,39 @@ interface ProcessingValues {
     interrogation_area_2?: number,
     roi_height?: number
 }
+
+interface control_points {
+    coordinates: {
+        x1: number,
+        y1: number,
+        x2: number,
+        y2: number,
+        x3: number,
+        y3: number,
+        x4: number,
+        y4: number,
+    },
+    distances: {
+        d12: number,
+        d23: number,
+        d34: number,
+        d41: number,
+        d13: number,
+        d24: number,
+    }
+}
+
+// interface cameraSolution {
+//     camera_position: number[],
+//     projected_points: number[][],
+//     reprojection_errors: number[],
+//     uncertainty_ellipses: {
+//         center: number[],
+//         width: number,
+//         height: number
+//         angle: number
+//     }[],
+//     ortho_extent: number[],
+//     ortho_image_path: string,
+//     mean_error: number
+// }

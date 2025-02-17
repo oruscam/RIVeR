@@ -67,17 +67,29 @@ export const getBathimetryValues = ( line: Point[], level? : number ) => {
     const xLimits = getBathimetryLimitsX(line);
 
     const intersectionPoints = getIntersectionPoints(line, level ? level : yLimits.max);
+
+    if ( intersectionPoints.length === 0 ){
+        return {
+            error: {
+                message: 'bathimetryNotValid',
+                value: level
+            }
+        }
+    }
+
     const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x;
 
     return {
-        xMin: xLimits.min,
-        xMax: xLimits.max,
-        yMin: yLimits.min,
-        yMax: yLimits.max,
-        level: yLimits.max,
-        x1Intersection: intersectionPoints[0].x,
-        x2Intersection: intersectionPoints[1].x,
-        width: bathWidth,
-        leftBank: 0
+        data: {
+            xMin: xLimits.min,
+            xMax: xLimits.max,
+            yMin: yLimits.min,
+            yMax: yLimits.max,
+            level: level ? level : yLimits.max,
+            x1Intersection: intersectionPoints[0].x,
+            x2Intersection: intersectionPoints[1].x,
+            width: bathWidth,
+            leftBank: 0
+        }
     };
 }

@@ -3,6 +3,7 @@ import { ProcessedRange, VideoInfo, ReportSection, Header, Summary, PixelTransfo
 import './pages.css'
 import { useDataSlice, useProjectSlice, useSectionSlice } from '../hooks'
 import { FormReport } from '../components/Forms/index';
+import { REPORT_IMAGES } from '../constants/constants';
 
 const convertImageToDataURI = ( url: string, quality = 1.0 ) => {
   return new Promise((resolve, reject) => {
@@ -27,7 +28,8 @@ const convertImageToDataURI = ( url: string, quality = 1.0 ) => {
 export const Report = () => {
   const { sections } = useSectionSlice();
   const { onSetAnalizing } = useDataSlice();
-  const { onSaveProjectDetails } = useProjectSlice()
+  const { onSaveProjectDetails, video } = useProjectSlice()
+  const { width: videoWidth, height: videoHeight } = video.data
 
   const generateHTML = async () => {
     onSetAnalizing(true)
@@ -81,6 +83,13 @@ export const Report = () => {
     }
     onSetAnalizing(false)
   };
+  
+  const factor = {
+    x: videoWidth / REPORT_IMAGES.IMAGES_WIDTH,
+    y: videoHeight / REPORT_IMAGES.IMAGES_HEIGHT
+  }
+
+
 
   return (
     <div className='regular-page'>
@@ -94,12 +103,12 @@ export const Report = () => {
                   <h2 className="report-title-field mt-1" > Cross Sections (s)</h2>
                   {
                     [...sections.keys()].map(index => (
-                    index === 0 ? null : <ReportSection key={index} index={index} />
+                    index === 0 ? null : <ReportSection key={index} index={index} factor={factor}/>
                     ))
                   }
                 </div>
                 <Summary/>
-                <PixelTransformation/>
+                <PixelTransformation factor={factor} videoWidth={videoWidth} videoHeight={videoHeight}/>
                 <ProcessingParameters/>
                 <Footer/>
             </div>

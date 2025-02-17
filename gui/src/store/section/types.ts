@@ -88,6 +88,7 @@ interface Section {
     alpha: number;
     numStations: number;
     interpolated: boolean;
+    artificialSeeding: boolean;
     sectionPointsRW?: Point[];
     data?: SectionData;
     hasChanged: boolean;

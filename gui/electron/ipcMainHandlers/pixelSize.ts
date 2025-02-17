@@ -2,6 +2,7 @@ import { ipcMain } from "electron";
 import * as fs from 'fs'
 import * as path from 'path'
 import { ProjectConfig, pixelSizeHandleArgs } from "./interfaces";
+import { createMatrix } from "./utils/createMatrix";
 
 function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
     ipcMain.handle('pixel-size', async (_event, args: pixelSizeHandleArgs) => {
@@ -42,7 +43,7 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
         try {
             const { data } = await riverCli(options, 'json', 'false', logsPath)
 
-            await createUavMatrix(data.uav_matrix, directory).then((matrixPath) => {
+            await createMatrix(data.uav_matrix, directory).then((matrixPath) => {
                 jsonParsed.transformation_matrix = matrixPath;
                 PROJECT_CONFIG.matrixPath = matrixPath;
             }).catch((err) => { console.log(err) });
@@ -59,17 +60,6 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
     })
 }
 
-function createUavMatrix(message: string, directory: string): Promise<string>{
-    return new Promise((resolve, reject) => {
-        const matrixPath = path.join(directory, 'transformation_matrix.json')
 
-        fs.promises.writeFile(matrixPath, JSON.stringify(message), 'utf-8').then(() => {
-            resolve(matrixPath)
-        }).catch((err) => {
-            console.log(err)
-            reject("Error al crear uav_transformation_matrix.json")
-        });
-    })
-}
 
 export { pixelSize }

@@ -198,7 +198,7 @@ export const useDataSlice = () => {
         if ( type === 'single' ){
             const section = sections[activeSection]
             try {
-                const { data } = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, check : section.data?.check, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile})
+                const { data } = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, check : section.data?.check, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile, artificialSeeding: section.artificialSeeding })
                 dispatch(setSectionData({
                     sectionIndex: activeSection,
                     sectionData: {
@@ -272,7 +272,6 @@ export const useDataSlice = () => {
     }
 
     const onSetImages = ( paths: string[]) => {
-        console.log(paths)
         dispatch(setImages({ paths: paths }));  
         
         window.ipcRenderer.removeAllListeners('all-frames')

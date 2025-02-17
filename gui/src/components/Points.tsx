@@ -20,7 +20,7 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
     const [iconRed] = useImage(pinRed) 
     const [iconGreen] = useImage(pinGreen) 
     const [icon] = useImage(pin)
-
+    
     const { activeStep } = useWizard();
 
     //  CAMBIA EL ESTILO DEL POINTER CUANDO PASA POR ENCIMA DE UN PUNTO
@@ -44,6 +44,11 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
         if (setLocalPoints) {
             const newPoints = [...localPoints];
             newPoints[index] = { x: event.target.x(), y: event.target.y() };
+
+            if (module === 'pixelSize' || module === 'contolPoints') {
+                setLocalPoints(newPoints);
+                return
+            }
             setPointsInStore({ points: newPoints, factor, index, mode: 'only-pixel' }, null);
         }
     };
@@ -56,8 +61,6 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
             setPointsInStore({ points: newPoints, factor, index }, null);
         }
     };
-
-
 
     const getIcon = ( index: number ) => {
         switch (module) {
@@ -100,7 +103,7 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
                                     y={(point.y - MARKS.NUMBER_OFFSET_Y / resizeFactor)}
                                     text={(index + 1).toString()}
                                     fontSize={MARKS.NUMBER_FONT_SIZE / resizeFactor}
-                                    fill={COLORS.MARK_NUMBER}
+                                    fill={index === 0 ? COLORS.MARK_L : COLORS.MARK_R}
                                     fontStyle='bold'
                                     listening={false}
                                 />

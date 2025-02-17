@@ -11,10 +11,10 @@ const carouselClickImage = (
     listRef: FixedSizeList,
     setShowMedian: ((value: boolean) => void) | undefined, 
     onSetActiveImage: (value: number) => void,
-    setDefaultValue: (value: number) => void
+    setDefaultValue: (value: number) => void,
+    mode: string
     ) => {
-    
-        if (index !== paths.length - 1 && !isBackendWorking) {
+        if (index !== (mode === 'ipcam' ? paths.length : paths.length -1) && !isBackendWorking) {
             onSetActiveImage(index);
             setDefaultValue(index + 1);
             if ( index > active ){
@@ -37,12 +37,13 @@ const carouselKeyDown = (
     onSetActiveImage: (value: number) => void,
     setDefaultValue: (value: number) => void,
     active: number,
-    listRef: FixedSizeList
+    listRef: FixedSizeList,
+    mode: string
     ) => {
 
         if (event.key === 'Enter') {
             const value = parseInt(event.currentTarget.value);
-            if (value > 0 && value <= paths.length -1) {
+            if (value > 0 && value <= ( mode === 'ipcam' ? paths.length : paths.length - 1 )) {
                 onSetActiveImage(value - 1);
                 setDefaultValue(value);
                 listRef.scrollToItem(value - 1, 'center');
@@ -101,7 +102,6 @@ const carouselMouseUp = (
             setSpeedUpTimeout(null);
         }
 };
-
 
 
 export { carouselClickImage, carouselKeyDown, carouselMediaClick, carouselMouseDown, carouselMouseUp };

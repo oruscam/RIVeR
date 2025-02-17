@@ -88,6 +88,14 @@ export const getValidationRules = (t: any, getValues: any, duration: number) => 
         }
         return true;
       }
+    },
+    distances: {
+      required: t("ControlPoints.Errors.required"),
+      validate: {
+          notNull: (value: number) => value !== null || t("ControlPoints.Errors.notNull"),
+          notZero: (value: number) => value !== 0 || t("ControlPoints.Errors.notZero"),
+          positive: (value: number) => value > 0 || t("ControlPoints.Errors.positive")
+      }
     }
   };
 };

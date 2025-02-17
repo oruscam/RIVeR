@@ -9,11 +9,11 @@ import React from 'react';
 
 
 createRoot(document.getElementById('root') ?? document.createElement('div')).render(
-  <React.StrictMode>
+  // <React.StrictMode>
     <Provider store={store}>
       <App />
     </Provider>
-  </React.StrictMode>
+  // </React.StrictMode>
 );
 
 // Use contextBridge

@@ -8,8 +8,8 @@ export const Analize = () => {
     const { screenSizes } = useUiSlice()
     const { imageWidth: width, imageHeight: height, factor } = screenSizes
     const { nextStep } = useWizard();
-    const { onGetResultData, quiver } = useDataSlice()
-
+    const { onGetResultData, quiver, images, onSetActiveImage } = useDataSlice()
+    const { paths, active } = images
     const [showMedian, setShowMedian] = useState(false)
 
     const handleNext = async () => {
@@ -24,7 +24,7 @@ export const Analize = () => {
     <div className="regular-page">
         <div className="media-container">
             <ImageWithData showMedian={showMedian}></ImageWithData>
-            <Carousel showMedian={showMedian} setShowMedian={setShowMedian}></Carousel>
+            <Carousel images={paths} active={active} setActiveImage={onSetActiveImage} showMedian={showMedian} setShowMedian={setShowMedian} mode="analize"/>
             <Error></Error>
         </div>
         <div className="form-container">

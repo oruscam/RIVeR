@@ -1,177 +1,290 @@
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../store/store";
-import { CanvasPoint, FormDistance, FormPoint, Point } from "../types";
-import { setControlPoints, setDrawPoints } from "../store/matrix/matrixSlice";
+import { cameraSolution, CanvasPoint, FormDistance, Point } from "../types";
+import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint, setIpcamCameraSolution, setIpcamIsCalculating, setHemispehere } from "../store/matrix/matrixSlice";
+import { adapterObliquePointsDistances, appendSolutionToImportedPoints, createSquare} from "../helpers";
+import { ScreenSizes } from "../store/ui/types";
+import { FieldValues } from "react-hook-form";
+import { cleanSections, setTransformationMatrix } from "../store/section/sectionSlice";
+import { setLoading } from "../store/ui/uiSlice"
+import { CliError, ResourceNotFoundError } from "../errors/errors";
+import { useTranslation } from "react-i18next";
 
 export const useMatrixSlice = () => {
     const dispatch = useDispatch();
-    const { pixelSize, controlPoints } = useSelector((state: RootState) => state.matrix);
+    const { pixelSize, obliquePoints, hasChanged, ipcam } = useSelector((state: RootState) => state.matrix);
+    const { t } = useTranslation()
 
-    const onSetDefaultControlCoordinates = ( initPoint: Point, factor ) =>{
-        const coordinates = [ 
-            {x: initPoint.x * factor, y: initPoint.y * factor},
-            {x: (initPoint.x * factor) - 200, y: initPoint.y * factor},
-            {x: initPoint.x * factor - 200, y: initPoint.y * factor + 200}, 
-            {x: initPoint.x * factor, y: initPoint.y * factor + 200}
-        ];
+    const onSetObliqueCoordinates = ( points: Point[], screenSizes: ScreenSizes ) => {
+        const { imageWidth, imageHeight, factor } = screenSizes;
 
-        const d12 = Math.sqrt( Math.pow(coordinates[1].x - coordinates[0].x, 2) + Math.pow(coordinates[1].y - coordinates[0].y, 2) );
-            const d13 = Math.sqrt( Math.pow(coordinates[2].x - coordinates[0].x, 2) + Math.pow(coordinates[2].y - coordinates[0].y, 2) );
-            const d14 = Math.sqrt( Math.pow(coordinates[3].x - coordinates[0].x, 2) + Math.pow(coordinates[3].y - coordinates[0].y, 2) );
-            const d23 = Math.sqrt( Math.pow(coordinates[2].x - coordinates[1].x, 2) + Math.pow(coordinates[2].y - coordinates[1].y, 2) );
-            const d24 = Math.sqrt( Math.pow(coordinates[3].x - coordinates[1].x, 2) + Math.pow(coordinates[3].y - coordinates[1].y, 2) );
-            const d34 = Math.sqrt( Math.pow(coordinates[3].x - coordinates[2].x, 2) + Math.pow(coordinates[3].y - coordinates[2].y, 2) );
+        const coordinates = createSquare(points[0], points[1], imageWidth!, imageHeight!);
 
-        const distances = {
-            d12,
-            d13,
-            d14,
-            d23,
-            d24,
-            d34,
-        }
+        coordinates.forEach( point => {
+            point.x = point.x * factor!;
+            point.y = point.y * factor!;
+        })
 
-        const isNotDefaultCoordinates = true;
-
-        dispatch(setControlPoints({ drawPoints: true, coordinates, distances, isNotDefaultCoordinates }));
+        const isDefaultCoordinates = false;
+        dispatch(setHasChanged(true));
+        dispatch(setObliquePoints({ ...obliquePoints, drawPoints: true, coordinates, isDefaultCoordinates }));
     } 
 
-    const onChangeControlPoints = ( canvasPoint: CanvasPoint | null, formDistance: FormDistance | null ) => {
+    const onChangeObliqueCoordinates = ( canvasPoint: CanvasPoint | null, _formDistance: FormDistance | null ) => {
         
         if ( canvasPoint ){
             const { points, factor } = canvasPoint;
     
             const coordinates = points.map( point => ({ x: point.x * factor, y: point.y * factor }) );
     
-            // TODO: Convert this to a function in helpers
-    
-            const d12 = Math.sqrt( Math.pow(coordinates[1].x - coordinates[0].x, 2) + Math.pow(coordinates[1].y - coordinates[0].y, 2) );
-            const d13 = Math.sqrt( Math.pow(coordinates[2].x - coordinates[0].x, 2) + Math.pow(coordinates[2].y - coordinates[0].y, 2) );
-            const d14 = Math.sqrt( Math.pow(coordinates[3].x - coordinates[0].x, 2) + Math.pow(coordinates[3].y - coordinates[0].y, 2) );
-            const d23 = Math.sqrt( Math.pow(coordinates[2].x - coordinates[1].x, 2) + Math.pow(coordinates[2].y - coordinates[1].y, 2) );
-            const d24 = Math.sqrt( Math.pow(coordinates[3].x - coordinates[1].x, 2) + Math.pow(coordinates[3].y - coordinates[1].y, 2) );
-            const d34 = Math.sqrt( Math.pow(coordinates[3].x - coordinates[2].x, 2) + Math.pow(coordinates[3].y - coordinates[2].y, 2) );
-    
-            const distances = { d12, d13, d14, d23, d24, d34 };
-    
-            const isNotDefaultCoordinates = true;
-    
-            dispatch(setControlPoints({ drawPoints: true, coordinates, distances, isNotDefaultCoordinates }));
-        }
-
-        if ( formDistance ){
-            const { distance, position } = formDistance;
-            // const distances = {
-            //     d12: position === 'distance_12' ? distance : controlPoints.distances.d12,
-            //     d13: position === 'distance_13' ? distance : controlPoints.distances.d13,
-            //     d14: position === 'distance_14' ? distance : controlPoints.distances.d14,
-            //     d23: position === 'distance_23' ? distance : controlPoints.distances.d23,
-            //     d24: position === 'distance_24' ? distance : controlPoints.distances.d24,
-            //     d34: position === 'distance_34' ? distance : controlPoints.distances.d34
-            // }
-
-            const { coordinates } = controlPoints;
-
-            const newCoordinates = controlPoints.coordinates.map((point,  index) => {
-                
-                if ( position === 'distance_12' && index === 1 ){
-                    const dx = coordinates[1].x - coordinates[0].x;
-                    const dy = coordinates[1].y - coordinates[0].y;
-                    const angle = Math.atan2(dy, dx);
-                    return {
-                        x: coordinates[0].x + distance * Math.cos(angle),
-                        y: coordinates[0].y + distance * Math.sin(angle)
-                    };
-                }
-
-                if ( position === 'distance_13' && index === 2 ){
-                    const dx = coordinates[2].x - coordinates[0].x;
-                    const dy = coordinates[2].y - coordinates[0].y;
-                    const angle = Math.atan2(dy, dx);
-                    return {
-                        x: coordinates[0].x + distance * Math.cos(angle),
-                        y: coordinates[0].y + distance * Math.sin(angle)
-                    };
-                }
-
-                if ( position === 'distance_14'  && index === 3 ){
-                    const dx = coordinates[3].x - coordinates[0].x;
-                    const dy = coordinates[3].y - coordinates[0].y;
-                    const angle = Math.atan2(dy, dx);
-                    return {
-                        x: coordinates[0].x + distance * Math.cos(angle),
-                        y: coordinates[0].y + distance * Math.sin(angle)
-                    };
-                }
-
-                if ( position === 'distance_23' && index === 2 ){
-                    const dx = coordinates[2].x - coordinates[1].x;
-                    const dy = coordinates[2].y - coordinates[1].y;
-                    const angle = Math.atan2(dy, dx);
-                    return {
-                        x: coordinates[1].x + distance * Math.cos(angle),
-                        y: coordinates[1].y + distance * Math.sin(angle)
-                    };
-                }
-
-                if ( position === 'distance_24' && index === 3 ){
-                    const dx = coordinates[3].x - coordinates[1].x;
-                    const dy = coordinates[3].y - coordinates[1].y;
-                    const angle = Math.atan2(dy, dx);
-                    return {
-                        x: coordinates[1].x + distance * Math.cos(angle),
-                        y: coordinates[1].y + distance * Math.sin(angle)
-                    };
-                }
-
-                if ( position === 'distance_34' && index === 3 ){
-                    const dx = coordinates[3].x - coordinates[2].x;
-                    const dy = coordinates[3].y - coordinates[2].y;
-                    const angle = Math.atan2(dy, dx);
-                    return {
-                        x: coordinates[2].x + distance * Math.cos(angle),
-                        y: coordinates[2].y + distance * Math.sin(angle)
-                    };
-                }
-                return point
-            });
+            const isDefaultCoordinates = false;
             
-
-            const d12 = Math.sqrt( Math.pow(newCoordinates[1].x - newCoordinates[0].x, 2) + Math.pow(newCoordinates[1].y - newCoordinates[0].y, 2) );
-            const d13 = Math.sqrt( Math.pow(newCoordinates[2].x - newCoordinates[0].x, 2) + Math.pow(newCoordinates[2].y - newCoordinates[0].y, 2) );
-            const d14 = Math.sqrt( Math.pow(newCoordinates[3].x - newCoordinates[0].x, 2) + Math.pow(newCoordinates[3].y - newCoordinates[0].y, 2) );
-            const d23 = Math.sqrt( Math.pow(newCoordinates[2].x - newCoordinates[1].x, 2) + Math.pow(newCoordinates[2].y - newCoordinates[1].y, 2) );
-            const d24 = Math.sqrt( Math.pow(newCoordinates[3].x - newCoordinates[1].x, 2) + Math.pow(newCoordinates[3].y - newCoordinates[1].y, 2) );
-            const d34 = Math.sqrt( Math.pow(newCoordinates[3].x - newCoordinates[2].x, 2) + Math.pow(newCoordinates[3].y - newCoordinates[2].y, 2) );
-
-            const isNotDefaultCoordinates = true;
-
-            const distances = {
-                d12,
-                d13,
-                d14,
-                d23,
-                d24,
-                d34
-            }
-
-            dispatch(setControlPoints({ drawPoints: true, coordinates: newCoordinates, distances, isNotDefaultCoordinates}))
+            dispatch(setHasChanged(true));
+            dispatch(setObliquePoints({ ...obliquePoints, drawPoints: true, coordinates, isDefaultCoordinates }));
+            return
         }
-
     }   
 
     const onSetDrawPoints = () => {
         dispatch(setDrawPoints());
     }
 
+    const onGetDistances = async () => {
+        const ipcRenderer = window.ipcRenderer
+
+        const { isDistancesLoaded } = obliquePoints
+
+        if ( isDistancesLoaded ) {
+            dispatch(setObliquePoints({ ...obliquePoints, isDistancesLoaded: false, distances: { d12: 0, d13: 0, d23: 0, d24: 0, d34: 0, d41: 0 } }));
+            return
+        }
+
+        try {
+            const { distances, error } = await ipcRenderer.invoke('import-distances')
+
+            if ( error ){
+                throw new Error(error.message)
+            }
+
+            dispatch(setObliquePoints({ ...obliquePoints, isDistancesLoaded: true, distances }));
+        } catch (error) {
+            if (error instanceof Error) {
+                throw new ResourceNotFoundError(error.message, t); 
+            } 
+        }
+    }
+
+    const onGetTransformtionMatrix = async (type: 'uav' | 'ipcam' | 'oblique', formDistances: FieldValues) => {
+        dispatch(setLoading(true))
+
+        if ( type === 'oblique'){
+            const { coordinates, distances } = obliquePoints;
+            const newDistances = adapterObliquePointsDistances(formDistances);
+
+            let changed = hasChanged
+            
+            for (const key in newDistances) {
+                if (newDistances[key as keyof typeof distances] !== distances[key as keyof typeof distances]) {
+                    changed = true;
+                    break;
+                }
+            }
+
+            if ( changed === false ) {
+                dispatch(setLoading(false));
+                return;
+            };
+
+            const ipcRenderer = window.ipcRenderer
+            try {   
+                const { oblique_matrix } = await ipcRenderer.invoke('set-control-points', {coordinates, distances: newDistances})
+
+                dispatch(setTransformationMatrix(oblique_matrix));
+                dispatch(setObliquePoints({...obliquePoints, distances: newDistances, isDistancesLoaded: true}));
+                dispatch(cleanSections())
+                dispatch(setLoading(false))
+                dispatch(setHasChanged(false));
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    }
+
+    const onGetPoints = async () => {
+        const ipcRenderer = window.ipcRenderer
+
+        try {
+            const data = await ipcRenderer.invoke('import-points', { path: undefined });
+           
+            dispatch(setIpcamPoints({ points: data.points, path: data.path }));
+            dispatch(setIpcamCameraSolution(undefined))
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const onGetImages = async ( folderPath: string | undefined ) => {
+        const ipcRenderer = window.ipcRenderer
+
+        try {
+            const { images, path, error} = await ipcRenderer.invoke('ipcam-images', { folderPath });
+            if ( error ){
+                throw new Error(error.message)
+            }
+            
+            dispatch(setIpcamImages({
+                images: images,
+                path: path
+            }));
+        } catch (error) {
+            if ( error instanceof Error ){
+                throw new ResourceNotFoundError(error.message, t);
+            }
+        }
+    }
+
+    const changeIpcamPointSelected = ( index: number ) => {
+        if ( ipcam.importedPoints === undefined ) return;
+        const newPoints = ipcam.importedPoints.map((point, i) => {
+            if (i === index) {
+                if ( point.selected === true ){
+                    return { ...point, selected: !point.selected, image: undefined };
+                } else {
+                    return { ...point, selected: !point.selected };
+                }
+            }
+            return point;
+        });
+
+        dispatch(setIpcamPoints({ points: newPoints, path: undefined }))
+    }
+
+    const onChangeActiveImage = ( index: number ) => {
+        if ( index !== ipcam.activeImage ){
+            dispatch(setActiveImage(index));
+        }
+    }
+
+    interface setIpcamPointPixelCoordinatesInterface {
+        index: number,
+        imageSize?: {
+            width: number, 
+            height: number
+        },
+        point?: {
+            x: number,
+            y: number
+        } 
+    }
+
+    const setIpcamPointPixelCoordinates = ( { index, imageSize, point } : setIpcamPointPixelCoordinatesInterface) => {
+        const { importedPoints, activeImage, cameraSolution } = ipcam
+        if ( importedPoints === undefined ) return;
+
+        let newPoint = { ...importedPoints[index] }
+
+        // Primer caso, cuando se establece el punto en el centro.
+        if ( newPoint.wasEstablished === false && imageSize ){
+
+            newPoint.x = imageSize.width / 2
+            newPoint.y = imageSize.height / 2
+
+            dispatch(setCustomIpcamPoint({
+                point: newPoint,
+                index
+            }))
+        }   
+
+        // Segundo caso, cuando se establece el punto en una posición diferente al centro.
+        if ( point ) {
+            newPoint.x = point.x
+            newPoint.y = point.y
+            newPoint.wasEstablished = true
+            newPoint.image = activeImage
+
+            dispatch(setCustomIpcamPoint({
+                point: newPoint,
+                index
+            }))
+
+            if ( cameraSolution !== undefined ){
+                dispatch(setIpcamCameraSolution(undefined))
+                dispatch(setHasChanged(true))
+            }
+        }
+
+        // Tercer caso, cuando se hace seleccionable un punto que ya se encuentra establecido. No se hace nada
+        if ( newPoint.wasEstablished === true && imageSize ) {
+
+            dispatch(setCustomIpcamPoint({
+                point: newPoint,
+                index
+            }))
+        }
+
+    }
+
+    const onGetCameraSolution = async ( type: string ) => {
+        dispatch(setIpcamIsCalculating(true))
+        const ipcRenderer = window.ipcRenderer
+
+        const filePrefix = import.meta.env.VITE_FILE_PREFIX;
+
+        try {
+            const { data, error }: { data: cameraSolution, error: any } = await ipcRenderer.invoke('calculate-3d-rectification', {
+                points: ipcam.importedPoints,
+                type,
+                hemisphere: ipcam.hemisphere,
+            })
+
+            if ( error ){
+                console.log(error)
+                throw new Error(error)
+            }
+            
+            const newImportedPoints = appendSolutionToImportedPoints(ipcam.importedPoints!, data, type === 'direct-solve')
+            delete data.uncertaintyEllipses
+            delete data.projectedPoints
+
+            dispatch(setIpcamPoints({ points: newImportedPoints, path: undefined }))
+            dispatch(setIpcamCameraSolution({
+                ...data,
+                orthoImagePath: filePrefix + data.orthoImagePath + `?t=${new Date().getTime()}`,
+                type: type,
+            }))
+            dispatch(setIpcamIsCalculating(false))
+        } catch (error) {
+            console.log(error)
+            dispatch(setIpcamIsCalculating(false))
+            if (error instanceof Error){
+                throw new CliError(error.message)
+            }
+        }
+    }
+    
+    const onChangeHemisphere = (type: 'southern-hemisphere' | 'northern-hemisphere') => {
+        dispatch(setHemispehere(type))
+    }
+ 
     return {
         // ATRIBUTES
+        hasChanged,
+        ipcam,
+        obliquePoints,
         pixelSize,
-        controlPoints,
 
         // METHODS
-        onSetDefaultControlCoordinates,
-        onChangeControlPoints,
-        onSetDrawPoints
+        changeIpcamPointSelected,
+        onChangeActiveImage,
+        onChangeHemisphere,
+        onChangeObliqueCoordinates,
+        onGetCameraSolution,
+        onGetDistances,
+        onGetImages,
+        onGetPoints,
+        onGetTransformtionMatrix,
+        onSetDrawPoints,
+        onSetObliqueCoordinates,
+        setIpcamPointPixelCoordinates,
     }
 }

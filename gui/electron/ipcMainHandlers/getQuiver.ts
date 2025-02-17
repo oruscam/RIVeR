@@ -123,7 +123,7 @@ async function createOptions(mode: string, PROJECT_CONFIG: ProjectConfig, frames
         clahe ? clipLimit : '',
         grayscale ? '' : '--no-filter-grayscale',
         removeBackground ? '--filter-sub-background' : '',
-        artificialSeeding ? '' : '--no-seeding-filter',
+        // artificialSeeding ? '' : '--no-seeding-filter',
         mode === 'test' ? framesToTest[0] : framesPath,
         mode === 'test' ? framesToTest[1] : ''
     ];

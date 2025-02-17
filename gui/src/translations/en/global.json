@@ -78,6 +78,11 @@
             "yPoint1": "Y Left",
             "xPoint2": "X Right",
             "yPoint2": "Y Right"
+        }, 
+        "Errors" : {
+            "levelError": "Level must be between {{yMin}} and {{yMax}}",
+            "leftBank": "Left bank is out of range",
+            "bathimetryNotValid": "The bathimetry is not valid. Level {{level}} do not exist in this file"
         }
     },
     "Processing": {
@@ -156,5 +161,18 @@
         "processingParameters" : "Processing Parameters",
         "generatedBy" : "Generated with River",
         "date" : "report creation date"
+    },
+    "ControlPoints" : {
+        "Errors": {
+            "required" : "All the distances fields are obligatory. Please check Control Points form",
+            "notNull": "All the distances fields must be greater than 0. Please check Control Points form",
+            "notZero": "All the distances fields must be different from 0. Please check Control Points form",
+            "positive" : "All the distances fields must be positive. Please check Control Points form"
+        }
+    },
+    "Errors": {
+        "invalidDistancesFormat" : "Invalid distances format",
+        "imagesFolderEmpty" : "No images found in the selected folder",
+        "invalidImageExtension": "The directory contains files that are not images"
     }
 }

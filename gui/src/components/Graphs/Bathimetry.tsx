@@ -17,7 +17,7 @@ export const Bathimetry = ({ showLeftBank, height = 320 }: BathimetryProps) => {
     const { width: screenWidth } = screenSizes;
     const { bathimetry, name } = sections[activeSection];
     const { x1Intersection, leftBank, level, line, path, x2Intersection } = bathimetry;
-    const {rw_length} = sections[activeSection].pixelSize;
+    const { rw_length } = sections[activeSection].pixelSize;
 
     const svgRef = useRef<SVGSVGElement>(null);
     

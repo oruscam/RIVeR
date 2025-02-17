@@ -18,7 +18,8 @@ const defaultSections = [{
         numStations: 0,
         alpha: DEFAULT_ALPHA,
         interpolated: true,
-        hasChanged: false
+        hasChanged: false,
+        artificialSeeding: false,
     },
     {
         name: "CS_default_1",
@@ -35,7 +36,8 @@ const defaultSections = [{
         numStations: DEFAULT_NUM_STATIONS,
         alpha: DEFAULT_ALPHA,
         interpolated: true, 
-        hasChanged: false
+        hasChanged: false,
+        artificialSeeding: false,
     }
 ]
 
@@ -59,7 +61,6 @@ const sectionSlice = createSlice({
         setDirPoints: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].dirPoints = action.payload;
         },
-
         setRealWorldPoints: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].rwPoints = action.payload;
         },
@@ -92,18 +93,19 @@ const sectionSlice = createSlice({
         changeSectionData : (state, action: PayloadAction<SectionData>) => {
             state.sections[state.activeSection].data = action.payload;
         },
-        setBathimetry: (state, action: PayloadAction<Bathimetry>) => {
-            state.sections[state.activeSection].bathimetry = action.payload;
+        setBathimetry: (state, action: PayloadAction<{bathimetry: Bathimetry, index?: number}>) => {
+            const index = action.payload.index === undefined ? state.activeSection : action.payload.index;
+            state.sections[index].bathimetry = action.payload.bathimetry;
         },
-        setSectionPoints: (state, action: PayloadAction<Point[]>) => {
-            state.sections[state.activeSection].sectionPoints = action.payload;
+        setSectionPoints: (state, action: PayloadAction<{points: Point[], index?: number}>) => {
+            const index = action.payload.index === undefined ? state.activeSection : action.payload.index;
+            state.sections[index].sectionPoints = action.payload.points;
         },
         setHasChanged: (state, action: PayloadAction<{value: boolean, index?: number}>) => {
             if ( action.payload.index === undefined ){
                 state.sections[state.activeSection].hasChanged = action.payload.value;
             } else {
                 state.sections[action.payload.index].hasChanged = action.payload.value;
-
             }
         },
         setSummary: (state, action: PayloadAction<Summary>) => {
@@ -114,6 +116,10 @@ const sectionSlice = createSlice({
         },
         setTransformationMatrix: (state, action: PayloadAction<[number[], number[], number[]]>) => {
             state.transformationMatrix = action.payload;
+        },
+        cleanSections: (state) => {
+            state.sections = state.sections.filter( (_, index) => index === 0 || index === 1);
+            state.sections[1] = defaultSections[1]
         }
     },
 });
@@ -133,7 +139,8 @@ export const {
     setHasChanged,
     setSummary,
     updateSectionsCounter,
-    setTransformationMatrix
+    setTransformationMatrix,
+    cleanSections
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

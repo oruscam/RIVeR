@@ -49,9 +49,27 @@
     border: solid 0.1px;
     font-size: 22px;
     text-align: center;
-    line-height: 50px;
+    line-height: 45px;
     border-radius: 20px;
     width: 200px;
+    height: 50px;
+    word-wrap: break-word;
+    font-size: auto;
+    white-space: nowrap; /* Asegura que el texto se mantenga en una sola línea */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-shrink: 0;
+}
+
+.read-only-rectification-2d{
+    background-color: var(--input-background);
+    color: var(--primary-text-color);
+    border: solid 0.1px;
+    font-size: 22px;
+    text-align: center;
+    line-height: 45px;
+    border-radius: 20px;
+    min-width: 175px;
     height: 50px;
     word-wrap: break-word;
     font-size: auto;
@@ -71,7 +89,7 @@
     display: flex;
     flex-direction: column;
     width: auto;
-    min-width: 65%;
+    width: 350px;
 }
 
 .form-video-extra-info-row{
@@ -602,4 +620,18 @@ transform-origin: 14px 22px;
 .analizing-output p{
     font-size: 1.2rem;
     margin-bottom: 5px;
+}
+
+#form-control-points{
+    margin-top: 6vh;
+    overflow-y: auto;
+}
+
+.button-rectification-3d{
+    min-width: 175px;
+}
+
+.rectification-3d-form-image{
+    
+    
 }

@@ -6,13 +6,18 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
-import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver, getVideo, getBathimetry } from './ipcMainHandlers/index.js'
+import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver, getVideo, getBathimetry, calculate3dRectification } from './ipcMainHandlers/index.js'
 import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
 import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
 import { getResultData } from './ipcMainHandlers/getResultData.js'
 import { setProjectDetails } from './ipcMainHandlers/setProjectDetails.js'
 import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js'
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js'
+import { setControlPoints } from './ipcMainHandlers/setControlPoints.js'
+import { getPoints } from './ipcMainHandlers/getPoints.js'
+import { getIpcamImages } from './getIpcamImages.js'
+import { getDistances } from './getDistances.js'
+import { saveTransformationMatrix } from './ipcMainHandlers/saveTransformationMatrix.js'
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -58,17 +63,22 @@ async function createWindow() {
     },
   })
 
+  // Remove menu bar
+  win.setMenu(null)
+
   // Test active push message to Renderer-process.
   win.webContents.on('did-finish-load', () => {
     win?.webContents.send('main-process-message', (new Date).toLocaleString())
   })
 
   if (VITE_DEV_SERVER_URL) {
-
     win.loadURL(VITE_DEV_SERVER_URL)
+
+    // If you want to test river-cli on develop, change executePythonShell for executeRiverCli
     riverCli = executePythonShell
 
   } else {
+
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
     
@@ -127,5 +137,12 @@ app.whenReady().then(() => {
   getImages(PROJECT_CONFIG);
   getBathimetry();
   setProjectDetails(PROJECT_CONFIG);
+  setControlPoints(PROJECT_CONFIG, riverCli);
+  calculate3dRectification(PROJECT_CONFIG, riverCli);
+
+  getPoints();
+  getIpcamImages(PROJECT_CONFIG);
+  getDistances();
+  saveTransformationMatrix(PROJECT_CONFIG);  
 })
 

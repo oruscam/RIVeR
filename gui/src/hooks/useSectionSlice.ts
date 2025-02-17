@@ -5,14 +5,14 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, } from '../store/section/sectionSlice';
+import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, cleanSections, } from '../store/section/sectionSlice';
 import { setLoading } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints, transformPixelToRealWorld, transformRealWorldToPixel } from '../helpers';
 import { setBackendWorkingFlag, setProcessingMask, updateProcessingForm } from '../store/data/dataSlice';
-
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../constants/constants';
 import { CanvasPoint, FormPoint, Point } from '../types';
+import { getTransformationFromCameraMatrix } from '../helpers/coordinates';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -36,7 +36,6 @@ export const useSectionSlice = () => {
         const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
         // Clean section points for better visualization.
         onUpdateSectionPoints([])
-
         dispatch(setHasChanged({value: true}))
 
         /**
@@ -144,7 +143,6 @@ export const useSectionSlice = () => {
 
             dispatch(setBackendWorkingFlag(true))
             if (newPoints && flag1 && flag2) {
-                console.log('two points')
                 const par1 = transformPixelToRealWorld(newPoints[0].x, newPoints[0].y, transformationMatrix)
                 const par2 = transformPixelToRealWorld(newPoints[1].x, newPoints[1].y, transformationMatrix)
                 rwCalculated = [{x: par1[0], y: par1[1]}, {x: par2[0], y: par2[1]}]
@@ -173,7 +171,6 @@ export const useSectionSlice = () => {
             dispatch(setPixelSize({size, rw_length}))
             dispatch(setHasChanged({value: true}))
         }    
-
     }
 
     /**
@@ -290,7 +287,6 @@ export const useSectionSlice = () => {
         try {
             const { uav_matrix } = await ipcRenderer.invoke('pixel-size', args)
 
-            console.log(uav_matrix)
             dispatch(setTransformationMatrix(uav_matrix))
 
             dispatch(setHasChanged({value: false}))
@@ -319,7 +315,7 @@ export const useSectionSlice = () => {
      * @param formData | FieldValues - from useFormHook
      */
 
-    const onSetSections = async (_formData: FieldValues) => {
+    const onSetSections = async (_formData: FieldValues, type: string) => {
         console.time('set-sections')
         dispatch(setLoading(true))
         
@@ -331,7 +327,6 @@ export const useSectionSlice = () => {
         let hasChanged = false    
         for (let i = 0; i < sections.length; i++) {
             if ( i === 0 ) continue
-            console.log('index', i)
             if ( sections[i].hasChanged === true ){
                 hasChanged = true
                 break
@@ -384,7 +379,7 @@ export const useSectionSlice = () => {
         try {
             await ipcRenderer.invoke('set-sections', { data })
             
-            const { height_roi } = await ipcRenderer.invoke('recommend-roi-height')
+            const { height_roi } = await ipcRenderer.invoke('recommend-roi-height', type === 'ipcam' ? { transformationMatrix } : undefined)
             const { maskPath } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi, data: false })
 1            
             dispatch(updateProcessingForm({...processing.form, heightRoi: height_roi}))
@@ -421,9 +416,10 @@ export const useSectionSlice = () => {
         numStations?: number;
         sectionName?: string;
         data?: any;
+        artificialSeeding?: string;
     }
 
-    const onUpdateSection = (value: Update) => {
+    const onUpdateSection = (value: Update, cameraMatrix: number[][] | undefined) => {
         const section = sections[activeSection];
         const updatedSection = { ...section };
 
@@ -452,11 +448,45 @@ export const useSectionSlice = () => {
         // }
 
         if (value.level !== undefined) {
-            const intersectionPoints = section.bathimetry.line ? getIntersectionPoints(section.bathimetry.line, value.level) : []
+            // If the camera matrix is defined, we neeed to update the transformation matrix. And All the cross sections have to be updated. Because in this module has the same level.
 
+            if ( cameraMatrix && activeSection !== 0 ){
+                const transformationMatrix = getTransformationFromCameraMatrix(cameraMatrix, value.level)
+                dispatch(setTransformationMatrix(transformationMatrix as [number[], number[], number[]]))
+                dispatch(setHasChanged({value: true}))
+                window.ipcRenderer.invoke('save-transformation-matrix', { transformationMatrix })
+
+
+                for ( let i = 1; i < sections.length ; i++){
+                    const { bathimetry, dirPoints, pixelSize } = sections[i]
+                    const intersectionPoints = bathimetry.line ? getIntersectionPoints(bathimetry.line, value.level) : []
+                    const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x
+
+                    dispatch(setBathimetry({
+                        bathimetry: {
+                            ...bathimetry, 
+                            level: value.level, 
+                            width: bathWidth, 
+                            x1Intersection: intersectionPoints[0].x, 
+                            x2Intersection: intersectionPoints[1].x
+                        },
+                        index: i
+                    }))
+                    onUpdateSectionPoints(dirPoints, pixelSize.rw_length, bathWidth, bathimetry.leftBank, i)
+                }
+                return
+            }
+            const intersectionPoints = section.bathimetry.line ? getIntersectionPoints(section.bathimetry.line, value.level) : []
             const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x 
-            
-            dispatch(setBathimetry({...section.bathimetry, level: value.level, width: bathWidth, x1Intersection: intersectionPoints[0].x, x2Intersection: intersectionPoints[1].x}))
+
+            dispatch(setBathimetry({
+                bathimetry: {
+                    ...section.bathimetry, 
+                    level: value.level, 
+                    width: bathWidth, 
+                    x1Intersection: intersectionPoints[0].x, 
+                    x2Intersection: intersectionPoints[1].x
+                }}))
             
             onUpdateSectionPoints(updatedSection.dirPoints, updatedSection.pixelSize.rw_length, bathWidth, updatedSection.bathimetry.leftBank)
             
@@ -464,7 +494,11 @@ export const useSectionSlice = () => {
         }
 
         if (value.leftBank !== undefined) {
-            dispatch(setBathimetry({...section.bathimetry, leftBank: value.leftBank}))
+            dispatch(setBathimetry({
+                bathimetry: {
+                    ...section.bathimetry,
+                    leftBank: value.leftBank
+                }}))
             
             onUpdateSectionPoints(updatedSection.dirPoints, updatedSection.pixelSize.rw_length, updatedSection.bathimetry.width, value.leftBank)
             
@@ -482,6 +516,10 @@ export const useSectionSlice = () => {
         if (value.interpolated !== undefined) {
             updatedSection.interpolated = !section.interpolated;
         }
+
+        if ( value.artificialSeeding !== undefined ){
+            updatedSection.artificialSeeding = !section.artificialSeeding;
+        } 
 
         dispatch(updateSection(updatedSection));
     };
@@ -510,13 +548,14 @@ export const useSectionSlice = () => {
                 path: "",
                 name: ""
             },
-            pixelSize: {size: 0, rw_length: 0},
+            pixelSize: { size: 0, rw_length: 0 },
             rwPoints: DEFAULT_POINTS,
             extraFields: false,
             numStations: DEFAULT_NUM_STATIONS,
             alpha: DEFAULT_ALPHA,
             interpolated: true,
             hasChanged: false,
+            artificialSeeding: false
         }
         dispatch(addSection(section))
     }
@@ -562,7 +601,7 @@ export const useSectionSlice = () => {
         }
     }
 
-    const onGetBathimetry = async () => {
+    const onGetBathimetry = async (cameraMatrix: number[][] | undefined) => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
@@ -570,13 +609,31 @@ export const useSectionSlice = () => {
             const { path, line, name } = data
 
             if ( data.path !== "" && data.path !== sections[activeSection].bathimetry.path){
-
-                const bathValues = getBathimetryValues(line)
                 
-                dispatch(setBathimetry({path: path, name: name, line: line, ...bathValues}))
+                const { data, error } = cameraMatrix && sections[1].bathimetry.level !== undefined
+                    ? { ...getBathimetryValues(line, sections[1].bathimetry.level)}
+                    : getBathimetryValues(line);
+                
+                if ( error ){
+                    return error
+                }
+
+                if (cameraMatrix && activeSection === 1) {
+                    const transformationMatrix = getTransformationFromCameraMatrix(cameraMatrix, data.level);
+                    dispatch(setTransformationMatrix(transformationMatrix as [number[], number[], number[]]));
+                    ipcRenderer.invoke('save-transformation-matrix', { transformationMatrix });
+                }
+                dispatch(setBathimetry({
+                    bathimetry: {
+                        path: path,
+                        name: name, 
+                        line: line, 
+                        ...data
+                    }
+                }))
 
                 const { dirPoints, pixelSize } = sections[activeSection] 
-                onUpdateSectionPoints(dirPoints, pixelSize.rw_length, bathValues.width, bathValues.leftBank)
+                onUpdateSectionPoints(dirPoints, pixelSize.rw_length, data.width, data.leftBank)
             }
         } catch (error) {
             console.log(error)
@@ -584,38 +641,34 @@ export const useSectionSlice = () => {
         }
     }
 
-    const onUpdateSectionPoints = ( points: Point[] | [], total_distance?: number, bathWidth?: number, leftBank?: number) => {
+    const onUpdateSectionPoints = (points: Point[] | [], total_distance?: number, bathWidth?: number, leftBank?: number, index?: number) => {
 
-        if( points.length === 0 ){
-            dispatch(setSectionPoints(DEFAULT_POINTS))
-            return
+        if (points.length === 0) {
+            dispatch(setSectionPoints({ points: DEFAULT_POINTS, index }));
+            return;
         }
 
-        if ( !bathWidth || !total_distance) return
+        if (!bathWidth || !total_distance) return;
 
-        const directionVector = getDirectionVector(points, total_distance)
-        const offset = leftBank ? - leftBank : 0
+        const directionVector = getDirectionVector(points, total_distance);
+        const offset = leftBank ? -leftBank : 0;
 
         const sectionPoints = [
-          {
-            x: points[0].x + (directionVector[0] * offset),
-            y: points[0].y + (directionVector[1] * offset)
-          },
-          {
-            x: points[0].x + (directionVector[0] * bathWidth) + (directionVector[0] * offset),
-            y: points[0].y + (directionVector[1] * bathWidth) + (directionVector[1] * offset)
-          }
+            {
+                x: points[0].x + (directionVector[0] * offset),
+                y: points[0].y + (directionVector[1] * offset)
+            },
+            {
+                x: points[0].x + (directionVector[0] * bathWidth) + (directionVector[0] * offset),
+                y: points[0].y + (directionVector[1] * bathWidth) + (directionVector[1] * offset)
+            }
         ];
 
-        dispatch(setSectionPoints(sectionPoints))
-        
+        dispatch(setSectionPoints({ points: sectionPoints, index }));
     }
 
     const onCleanSections = () => {
-        sections.forEach((_section, index) => {
-            if (index === 0) return
-            dispatch(deleteSection(index))
-        })
+        dispatch(cleanSections())
     }
 
     const onCleanSectionsData = () => {

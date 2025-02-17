@@ -1,4 +1,4 @@
-import { Point } from "../../types";
+import { importedPoint, Point } from "../../types";
 
 interface pixelSize {
     drawLine: boolean,
@@ -8,28 +8,73 @@ interface pixelSize {
     rwLength: number,
 }
 
-interface controlPoints {
+interface obliquePoints {
     drawPoints: boolean,
     coordinates: Point[],
-    isNotDefaultCoordinates: boolean,
+    isDefaultCoordinates: boolean,
     distances: {
         d12: number,
-        d13: number,
-        d14: number,
         d23: number,
-        d24: number,
         d34: number,
+        d41: number,
+        d13: number,
+        d24: number,
     },
+    isDistancesLoaded: boolean
+}
+
+interface cameraSolution {
+    orthoImagePath: string,
+    orthoExtent: number[],
+    reprojectionErrors: number[],
+    meanError: number,
+    cameraPosition: number[],
+    cameraMatrix: number[][],
+    type: string,
+}
+
+interface ipcam {
+    pointsPath: string | undefined,
+    imagesPath: string | undefined,
+    importedPoints: importedPoint[] | undefined,
+    importedImages: string[] | undefined,
+    activeImage: number | undefined,
+    activePoint: number | undefined,
+    cameraSolution: cameraSolution | undefined,
+    hemisphere: 'southern-hemisphere' | 'northern-hemisphere',
+    isCalculating: boolean,
+}
+
+interface setIpcamPointsInterface {
+    points: importedPoint[],
+    path: string | undefined
+}
+
+interface setIpcamImagesInterface {
+    images: string[],
+    path: string
+}
+
+interface setIpcamCustomPoint {
+    point: importedPoint,
+    index: number
 }
 
 interface MatrixState {
     pixelSize: pixelSize;
-    controlPoints: controlPoints;
+    obliquePoints: obliquePoints;
+    ipcam: ipcam
+    hasChanged: boolean;
 }
-
 
 export type {
     MatrixState,
     pixelSize,
-    controlPoints
+    obliquePoints,
+    ipcam,
+    importedPoint,
+    setIpcamPointsInterface,
+    setIpcamImagesInterface,
+    setIpcamCustomPoint,
+    cameraSolution,
 }

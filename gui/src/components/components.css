@@ -122,7 +122,6 @@
     background-color: var(--bg-track-color);
     pointer-events: none;
     transform: translateY(-50%);
-
 }
 
 #buffered-track {
@@ -208,7 +207,6 @@
     padding: 5px;
     overflow-x: hidden;
     overflow-y: hidden;
-    margin-top: 10px;
 }
 
 .error-text {
@@ -223,6 +221,10 @@
     margin: auto 0;
 }
 
+.image-rectification-3d{
+    background-color: var(--background-color);
+}
+
 /* LOADER */
 
 /* MID  */
@@ -234,6 +236,7 @@
     height: 100%;
     align-items: center;
     width: 100%;
+    user-select: none;
 }
 
 .loader-wrapper-mid {
@@ -382,6 +385,7 @@
     display: flex;
     flex-direction: column;
     justify-content: end;
+    margin-bottom: 15px;
 }
 
 .carousel{
@@ -487,6 +491,21 @@
     white-space: nowrap; 
 }
 
+.img-water-mark-ipcam{
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    width: 100%;
+    text-align: center;
+    white-space: normal; /* Allows text to wrap */
+    word-wrap: break-word; /* Breaks long words */
+    padding: 0 10px; /* Adds padding to prevent text from touching edges */
+}
+
 .image-with-data-container{
     position: relative;
     background-color: transparent;
@@ -541,7 +560,6 @@
     /* .video-player{
         margin-top: 20%;
     } */
-
 }
 
 @media screen and (max-height: 1010px){
@@ -556,7 +574,14 @@
     width: 96%;
     margin-left: auto;
     margin-right: auto; 
-    height: 500px;
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: auto;
+    flex-shrink: 0;
+}
+
+#ipcam-grid{
+    max-height: 450px;
 }
 
 
@@ -603,5 +628,26 @@
 
 .cell-red-values{
     color: #ED6B57;
+}
+
+.point-label-cell{
+    cursor: pointer;
+}
+
+.selected {
+    background-color: red;
+}
+
+.highlighted-row {
+    background-color: yellow; /* Puedes cambiar el color según tus necesidades */
+}
+
+.points-map{
+    background-color: white;
+}
+
+#error-message-link{
+    color: var(--primary-text-color);
+    font-weight: bold;
 }
 

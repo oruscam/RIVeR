@@ -10,8 +10,12 @@ import { back, play as next } from '../assets/icons/icons';
 import { Icon } from './Icon';
 
 interface CarouselProps {
+    images: string[];
+    active: number;
+    setActiveImage: (index: number) => void;
     showMedian?: boolean;
     setShowMedian?: (value: boolean) => void;
+    mode: 'processing' | 'analize' | 'ipcam'
 }
 
 interface RowProps {
@@ -19,10 +23,25 @@ interface RowProps {
     style: React.CSSProperties;
 }
 
-export const Carousel: React.FC<CarouselProps> = ({ showMedian, setShowMedian }) => {
+function getFileNameWithoutExtension(filePath: string): string {
+    // Remove the 'file:\' prefix if it exists
+    if (filePath.startsWith('file:\\')) {
+        filePath = filePath.slice(6);
+    }
+
+    // Extract the base name
+    const baseName = filePath.split('\\').pop() || '';
+
+    // Remove the extension
+    const fileNameWithoutExtension = baseName.split('.').slice(0, -1).join('.');
+
+    return fileNameWithoutExtension;
+}
+
+
+export const Carousel: React.FC<CarouselProps> = ({ images, active, setActiveImage, showMedian, setShowMedian, mode }) => {
     const { t } = useTranslation();
-    const { images, onSetActiveImage, isBackendWorking, quiver } = useDataSlice();
-    const { paths, active } = images;
+    const { isBackendWorking, quiver } = useDataSlice();
     const [width, setWidth] = useState<number>(500);
     const { screenSizes } = useUiSlice();
 
@@ -38,57 +57,57 @@ export const Carousel: React.FC<CarouselProps> = ({ showMedian, setShowMedian })
     const { activeStep } = useWizard();
 
     const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        
         setDefaultValue(event.currentTarget.value);
     };
+
 
     const Row: React.FC<RowProps> = ({ index, style }) => {
         let className = 'img-carousel';
         if (index === active && !showMedian) {
             className = 'img-carousel-active img-carousel';
-        } else if (index === active + 1 && !showMedian) {
+        } else if (index === active + 1 && !showMedian && mode !== 'ipcam') {
             className = 'img-carousel-second img-carousel';
         }
 
         return (
             <div key={index} className='img-carousel-container' 
-                onClick={() => carouselClickImage( active, index, paths, isBackendWorking, listRef.current!, setShowMedian, onSetActiveImage, setDefaultValue)} 
+                onClick={() => carouselClickImage( active, index, images, isBackendWorking, listRef.current!, setShowMedian, setActiveImage, setDefaultValue, mode)} 
                 style={style}>
-                <img src={paths[index]} alt={`Slide ${index}`} className={className}></img>
-                <div className='img-water-mark'> {index + 1} </div>
+                <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
+                <div className={`img-water-mark ${mode === 'ipcam' ? '-ipcam' : ''}`}> { mode === 'ipcam' ? getFileNameWithoutExtension(images[index]) : index + 1}</div>
             </div>
         );
     };
 
+
     useEffect(() => {
-        const updateWidth = () => {
+        const updateDimensions = () => {
             if (containerRef.current) {
                 setWidth(containerRef.current.offsetWidth);
             }
+            if (screenSizes.height < 800) {
+                setItemWidth(240);
+            } else {
+                setItemWidth(275);
+            }
         };
-        updateWidth(); // Set initial width
-        window.addEventListener('resize', updateWidth); // Update width on window resize
-
-        console.log('window inner height;',window.innerHeight);
-
-
+    
+        updateDimensions(); // Set initial dimensions
+        window.addEventListener('resize', updateDimensions); // Update dimensions on window resize
+    
         return () => {
-            window.removeEventListener('resize', updateWidth); // Cleanup event listener
+            window.removeEventListener('resize', updateDimensions); // Cleanup event listener
         };
-    }, []);
+    }, [screenSizes.height]);
 
-    /**
-     * Change the width of the carousel items depending on the screen height
-     */
 
-    useEffect(() => {
-        if (screenSizes.height < 800) {
-            setItemWidth(240);
-        } else {
-            setItemWidth(275);
-        }
-
-    }, [screenSizes.height])
+    if ( mode === 'ipcam'){
+        useEffect(() => {
+            if (listRef.current) {
+                listRef.current.scrollToItem(active, 'center');
+            }
+        }, [active])
+    }
 
 
     return (
@@ -101,9 +120,9 @@ export const Carousel: React.FC<CarouselProps> = ({ showMedian, setShowMedian })
                 <div>
                     <input value={defaultValue}
                     onChange={handleInputChange} 
-                    onKeyDown={ ( event ) => carouselKeyDown(event, paths, onSetActiveImage, setDefaultValue, active, listRef.current!)} 
+                    onKeyDown={ ( event ) => carouselKeyDown(event, images, setActiveImage, setDefaultValue, active, listRef.current!, mode)} 
                     disabled={isBackendWorking}></input>
-                    <p> / {paths.length} </p>
+                    <p> / {images.length} </p>
                 </div>
             </div>
             <div className='carousel'>
@@ -114,7 +133,7 @@ export const Carousel: React.FC<CarouselProps> = ({ showMedian, setShowMedian })
                     > <Icon path={back}/> </button>
                 <List
                     height={itemWidth - 85} // Altura del contenedor del carrusel
-                    itemCount={paths.length} // Número total de elementos
+                    itemCount={images.length} // Número total de elementos
                     itemSize={itemWidth} // Ancho de cada elemento
                     layout="horizontal" // Disposición horizontal
                     width={width} // Ancho del contenedor del carrusel

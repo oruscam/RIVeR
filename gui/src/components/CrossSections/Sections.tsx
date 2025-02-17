@@ -76,12 +76,11 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
                 })
             } else {
                 input.readOnly = true
-                onUpdateSection({sectionName: value})
+                onUpdateSection({sectionName: value}, undefined)
             }
             input.readOnly = true
             const nextElement = document.getElementById(`${sections[index].name}-DRAW_LINE`)
-            nextElement?.focus()
-                    
+            nextElement?.focus()    
         }       
     }
 

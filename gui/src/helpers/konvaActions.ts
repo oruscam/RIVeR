@@ -54,9 +54,6 @@ export const imageZoom = ( event: KonvaEventObject<WheelEvent>, setResizeFactor:
             stage.draggable(false)
             setResizeFactor(1)
         }
-
-
-
     }
 }
 
@@ -80,5 +77,4 @@ export const onMouseUpPixelSize = ( event: KonvaEventObject<MouseEvent>, localPo
     setMousePressed(false);
 
     return newPoints;
-
 }

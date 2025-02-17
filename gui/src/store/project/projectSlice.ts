@@ -54,8 +54,7 @@ const projectSlice = createSlice({
         },
         setProjectDetails: (state, action: PayloadAction<ProjectDetails>) => {
             state.projectDetails = action.payload;
-        }
-        
+        }   
     }
 });
 

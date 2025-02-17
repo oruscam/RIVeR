@@ -10,8 +10,6 @@ interface LoadingProps {
 export const Loading = ({ time, percentage, size = 'mid', isComplete }: LoadingProps) => {
   const { message } = useUiSlice()
 
-  
-
   return (
     <div className={`loader-container-${size}`}>
       <div className={`loader-wrapper-${size}`}>

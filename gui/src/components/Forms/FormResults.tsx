@@ -12,7 +12,7 @@ interface FormResultProps {
 export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   const { register, setValue } = useFormContext();
   const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
-  const { name, data, numStations, alpha } = sections[activeSection]
+  const { name, data, numStations, alpha, artificialSeeding } = sections[activeSection]
   const { onGetResultData, isBackendWorking } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
 
@@ -29,13 +29,16 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         break;
 
       case 'interpolated-profile':
-        onUpdateSection({ interpolated: 'interpolated' })
+        onUpdateSection({ interpolated: 'interpolated' }, undefined)
+        break;
+
+      case 'artificial-seeding':
+        onUpdateSection({ artificialSeeding: 'artificial-seeding' }, undefined)
         break;
 
       default:
         break;
     }
-
   }
 
   const handleOnChangeInput = (event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement> ) => {
@@ -48,7 +51,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         case 'stations-number':
           if ( isNaN(value) === false && value >= 3 ){
             if  ( value !== numStations ){
-              onUpdateSection({ numStations: value })
+              onUpdateSection({ numStations: value }, undefined)
             }
           } else {
             setValue(`${name}_STATIONS_NUMBER`, numStations)
@@ -59,12 +62,13 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
           break;
         case 'alpha':
           if ( value !== 0 && value !== alpha && isNaN(value) === false ){
-            onUpdateSection({ alpha: value })
+            onUpdateSection({ alpha: value }, undefined)
           } else {
             setValue(`${name}_ALPHA`, alpha)
           }
-          onUpdateSection({ alpha: value })
+          onUpdateSection({ alpha: value }, undefined)
           break;
+
         default:
           break;
       }
@@ -96,7 +100,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
         </div>
         
         <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '800px'}}>
-          <AllInOne isReport={false} height={700}></AllInOne>
+          <AllInOne isReport={false} height={700}/>
         </div>
 
         <span className="mt-1"></span>
@@ -108,14 +112,6 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
             onBlur={handleOnChangeInput}
           ></input>
         </div>
-
-        {/* <div className="switch-container-2 mt-2">
-          <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
-          <label className="switch">
-              <input type="checkbox" {...register(`${name}_ARTIFICIAL_SEEDING`)}/>
-              <span className="slider"></span>
-          </label>
-        </div> */}
 
         <div className="switch-container-2 mt-1 ">
           <h3 className="field-title">{t('Results.showVelStd')}</h3>
@@ -130,6 +126,14 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
           <label className="switch">
             <input type="checkbox" {...register(`${name}_SHOW_PERCENTILE`)} defaultChecked={data?.showPercentile} onChange={handleOnChange} id="show-percentile"/>
             <span className="slider"></span>
+          </label>
+        </div>
+
+        <div className="switch-container-2 mt-2">
+          <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
+          <label className="switch">
+              <input type="checkbox" {...register(`${name}_ARTIFICIAL_SEEDING`)} id="artificial-seeding" onChange={handleOnChange} defaultChecked={artificialSeeding}/>
+              <span className="slider"></span>
           </label>
         </div>
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GrLanguage } from 'react-icons/gr';
 
-export const LanguageSelector: React.FC = () => {
+export const LanguageSelector = () => {
   const { t, i18n } = useTranslation();
   const [selected, setSelected] = useState('en');
 
