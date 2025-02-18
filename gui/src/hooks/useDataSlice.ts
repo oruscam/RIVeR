@@ -198,7 +198,7 @@ export const useDataSlice = () => {
         if ( type === 'single' ){
             const section = sections[activeSection]
             try {
-                const { data, error } = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, check : section.data?.check, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile, artificialSeeding: section.artificialSeeding })
+                const { data, error } = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, activeCheck : section.data?.activeCheck, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile, artificialSeeding: section.artificialSeeding })
                 
                 if ( error?.message ){
                     throw new Error(error.message)
@@ -208,6 +208,7 @@ export const useDataSlice = () => {
                     sectionIndex: activeSection,
                     sectionData: {
                         ...data[section.name],
+                        activeCheck: data[section.name].check
                     }
                 }))
                 dispatch(setSummary(data.summary))
@@ -226,7 +227,7 @@ export const useDataSlice = () => {
                 
                 if ( error?.message ) {
                     throw new Error(error)
-                }
+                }                
 
                 sections.map(( section, index ) => {
                     if ( data[section.name] ){
@@ -234,6 +235,7 @@ export const useDataSlice = () => {
                             sectionIndex: index,
                             sectionData: {
                                 ...data[section.name],
+                                activeCheck: data[section.name].check
                             }
                         }))
                 }})

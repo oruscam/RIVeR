@@ -583,11 +583,11 @@ export const useSectionSlice = () => {
     const onChangeDataValues = ( object : ChangeDataValues ) => {
         const { data } = sections[activeSection]
         if ( object.type === 'check' && data && object.rowIndex !== undefined){
-            const { check } = data
-            const updatedCheck = [...check];
-            updatedCheck[object.rowIndex] = !check[object.rowIndex];
+            const { activeCheck } = data
+            const updatedCheck = [...activeCheck];
+            updatedCheck[object.rowIndex] = !activeCheck[object.rowIndex];
             
-            dispatch(changeSectionData({...data, check: updatedCheck}));
+            dispatch(changeSectionData({...data, activeCheck: updatedCheck}));
         }
         if ( object.type === 'showVelocityStd' ){
             if( data ){

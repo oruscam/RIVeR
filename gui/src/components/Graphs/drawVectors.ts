@@ -7,55 +7,22 @@ export const drawVectors = (
     factor: number | { x: number, y: number },
     sectionIndex: number,
     interpolated: boolean,
-    artificialSeeding: boolean,
     data: SectionData,
     isReport: boolean,
     transformationMatrix: number[][],
-    videoHeight: number
+    videoWidth: number
 ) => {
 
     // Data for drawing the vectors
-    const { east, north, streamwise_velocity_magnitude, distance, check, filled_streamwise_velocity_magnitude, seeded_vel_profile, filled_seeded_vel_profile } = data
+    const { east, north, streamwise_velocity_magnitude, distance, check,  activeMagnitude } = data
     
 
     if ( !east || !north || !streamwise_velocity_magnitude || !distance ) return;
 
-    const magnitude = streamwise_velocity_magnitude.map((d, i) => {
-        if ( check[i] ){
-            if ( artificialSeeding === false && interpolated === true && filled_streamwise_velocity_magnitude !== undefined ){
-                return filled_streamwise_velocity_magnitude[i]
-            }
-            if ( artificialSeeding === true && interpolated === false && seeded_vel_profile !== undefined ){ 
-                return seeded_vel_profile[i]
-            }
-            if ( artificialSeeding === true && interpolated === true && filled_seeded_vel_profile !== undefined ){
-                return filled_seeded_vel_profile[i]
-            }
-            if ( d === null ) return 0
-            return d
-        } else {
-            if ( artificialSeeding === false && interpolated === true && filled_streamwise_velocity_magnitude !== undefined ){
-                
-            }
-            if ( interpolated === false && artificialSeeding === false ){
-                return null
-            } else {
-                return d
-            }
-        }
-
-        // if ( filled_streamwise_velocity_magnitude !== undefined && check[i] === false ){
-        //     return filled_streamwise_velocity_magnitude[i]
-        // } else if ( artificialSeeding === false && interpolated === false && check[i] === false ){
-        //     return null
-        // } else {
-        //     if ( d === null ) return 0
-        //     return d
-        // }
-    })
+    const magnitude = activeMagnitude
 
     const arrowWidth = calculateArrowWidth(distance)
-    const arrows = calculateMultipleArrows( east, north, magnitude, transformationMatrix, videoHeight, arrowWidth )
+    const arrows = calculateMultipleArrows( east, north, magnitude, transformationMatrix, videoWidth, arrowWidth )
 
     arrows.forEach((arrow, i) => {
         if ( check[i] === false && interpolated === false ) return null;

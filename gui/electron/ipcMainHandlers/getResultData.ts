@@ -6,7 +6,7 @@ import { transformData } from "./utils/transformCrossSectionsData";
 async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ipcMain.handle('get-results-single', async (_event, args) => {
         console.log('get-results-single')
-        const { step, fps, sectionIndex, alpha, num_stations, interpolated, check, name, showVelocityStd, showPercentile, artificialSeeding } = args
+        const { step, fps, sectionIndex, alpha, num_stations, interpolated, activeCheck, name, showVelocityStd, showPercentile, artificialSeeding } = args
         
         const xSections = PROJECT_CONFIG.xsectionsPath;
         const transformationMatrix = PROJECT_CONFIG.matrixPath;
@@ -17,8 +17,8 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
         const xSectionsFile = await fs.promises.readFile(xSections, 'utf-8')
         const xSectionsFileParsed = JSON.parse(xSectionsFile)
         
-        if( !arraysAreEqual(xSectionsFileParsed[name].check, check) ){
-            xSectionsFileParsed[name].check = check
+        if( !arraysAreEqual(xSectionsFileParsed[name].check, activeCheck) ){
+            xSectionsFileParsed[name].check = activeCheck
             await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
         }
 
@@ -56,11 +56,12 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
                 xSectionsFileParsed[sectionKey].interpolated = interpolated
                 xSectionsFileParsed[sectionKey].showVelocityStd = showVelocityStd
                 xSectionsFileParsed[sectionKey].showPercentile = showPercentile
+                xSectionsFileParsed[sectionKey].artificial_seeding = artificialSeeding;
             }
             await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
 
             return {
-                data: transformData(data),
+                data: transformData(data, false),
             }    
         } catch (error) {
             console.log(error)
@@ -77,6 +78,18 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
     
         const xSectionsFile = await fs.promises.readFile(xSections, 'utf-8')
         const xSectionsFileParsed = JSON.parse(xSectionsFile)
+
+        let flag = false;
+        for ( const sectionKey in xSectionsFileParsed ){
+            console.log('sectionKey', sectionKey)
+            if ( sectionKey === 'summary' ) continue;
+            if ( xSectionsFileParsed[sectionKey].check ){
+                xSectionsFileParsed[sectionKey].check = xSectionsFileParsed[sectionKey].check.map( () => true)
+                flag = true;
+            };
+        }
+
+        await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
 
         let updatedSections = {}
 
@@ -110,13 +123,14 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
                         updatedSections[sectionKey] = section;
                         xSectionsFileParsed[sectionKey] = section;
                         xSectionsFileParsed[sectionKey].interpolated = true;
+                        xSectionsFileParsed[sectionKey].artificial_seeding = false;
                         xSectionsFileParsed[sectionKey].showVelocityStd = true;
                         xSectionsFileParsed[sectionKey].showPercentile = true;
                         xSectionsFileParsed.summary = data.summary;
                     }
                 }
                 await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2), 'utf-8');
-                finalData = transformData(xSectionsFileParsed);
+                finalData = transformData(xSectionsFileParsed, true);
                 finalError = error;
             } catch (error) {
                 console.log(error);

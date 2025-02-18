@@ -89,6 +89,8 @@ const sectionSlice = createSlice({
         },
         setSectionData: (state, action: PayloadAction<{sectionIndex: number, sectionData: SectionData}>) => {
             state.sections[action.payload.sectionIndex].data = action.payload.sectionData;
+            state.sections[action.payload.sectionIndex].artificialSeeding = action.payload.sectionData.artificial_seeding;
+            state.sections[action.payload.sectionIndex].interpolated = action.payload.sectionData.interpolated;
         },
         changeSectionData : (state, action: PayloadAction<SectionData>) => {
             state.sections[state.activeSection].data = action.payload;

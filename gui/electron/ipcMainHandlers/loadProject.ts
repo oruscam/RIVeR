@@ -92,7 +92,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                         if( settingsParsed.xsections ){
                             PROJECT_CONFIG.xsectionsPath = settingsParsed.xsections;
                             xSections = await fs.promises.readFile(PROJECT_CONFIG.xsectionsPath, 'utf-8');
-                            xSections = transformData(JSON.parse(xSections));
+                            xSections = transformData(JSON.parse(xSections), false);
                         }
 
                         const images = await fs.promises.readdir(framesPath);

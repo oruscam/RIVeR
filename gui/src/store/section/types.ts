@@ -74,7 +74,10 @@ interface SectionData {
     streamwise_y: number[];
     seeded_vel_profile: number[];
     filled_seeded_vel_profile: number[];
-    
+    activeMagnitude: number[];
+    activeCheck: boolean[];
+    interpolated: boolean;
+    artificial_seeding: boolean;
 }
 
 interface Section {

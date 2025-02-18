@@ -81,7 +81,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   
   return (
     <div id="form-section-div"  className={activeSection !== index ? 'hidden' : ''}>
-      <form className="form-scroll" id="form-result" onSubmit={onSubmit}>
+      <form className={`form-scroll mt-1 ${isBackendWorking ? 'disabled' : ''}`} id="form-result" onSubmit={onSubmit}>
 
         <div id="result-info">
           <p id="result-number">{data?.total_Q}</p>
@@ -151,12 +151,12 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
 
         <Grid></Grid>
 
+        <span className="space3 mt-2"></span>
         <button type="button" 
                 className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`} 
                 onClick={handleOnClickApplyChanges}
                 id="apply-changes"
                 > Apply changes</button>
-        <span className="space3 mt-2"></span>
       </form>
    </div>
   )

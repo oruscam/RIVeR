@@ -17,37 +17,31 @@ const rowKeyGetter = (row: Row): number => {
     return row.id;
 }
 
-const getVelocityValue = (streamwise_velocity_magnitude: number[], filled_streamwise_velocity_magnitude: number[], check: boolean[], interpolated: boolean, index: number ) => {
-
-    if ( typeof streamwise_velocity_magnitude[index] === 'number' ){
-        if ( (check[index] && interpolated === true) ){
-            return streamwise_velocity_magnitude[index].toFixed(2);
-        } else if ( check[index] === false && interpolated === true && filled_streamwise_velocity_magnitude !== undefined ){
-            return filled_streamwise_velocity_magnitude[index].toFixed(2);
-        } else if ( check[index] === false && interpolated === false ){
+const getCellValue = (magnitude: number[], check: boolean[], activeCheck: boolean[], index: number, interpolated: boolean ) => {
+    if ( check[index] === activeCheck[index] && Array.isArray(magnitude) && typeof magnitude[index] === 'number' ){
+        if ( check[index] === false && interpolated === false ){
             return '-'
-        } else {
-            return streamwise_velocity_magnitude[index].toFixed(2);
         }
+        return magnitude[index].toFixed(2)
     } else {
         return '-'
     }
 }
 
+
 export const Grid = () => {
-    const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set())
+    const [ selectedRows, setSelectedRows ] = useState((): ReadonlySet<number> => new Set())
     const { sections, activeSection, onChangeDataValues } = useSectionSlice();
-    const { data, interpolated } = sections[activeSection];
 
     const getCellClass = ( row ) => {
         let cellClas = 'centered-cell';
-        if ( !data?.check[row.id]) {
-            if ( interpolated ){
-                cellClas = 'centered-cell cell-red-values';
-            } else {
-                cellClas = 'centered-cell disabled-cell';
-            }
-        }
+        // if ( !data?.activeCheck[row.id]) {
+        //     if ( interpolated ){
+        //         cellClas = 'centered-cell cell-red-values';
+        //     } else {
+        //         cellClas = 'centered-cell disabled-cell';
+        //     }
+        // }
         return cellClas;
     }
     
@@ -74,7 +68,7 @@ export const Grid = () => {
     const rows = useMemo(() => {
         const section = sections[activeSection];
         if (section && section.data) {
-            const { num_stations, distance, depth, streamwise_velocity_magnitude, Q, A, check, filled_streamwise_velocity_magnitude } = section.data;
+            const { num_stations, distance, depth, Q, A, check, activeMagnitude, activeCheck, interpolated } = section.data;
 
             return Array.from({ length: num_stations }, (_, i) => ({
                 key: i,
@@ -82,19 +76,19 @@ export const Grid = () => {
                 x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
                 d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
                 A: typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
-                Vs: getVelocityValue(streamwise_velocity_magnitude, filled_streamwise_velocity_magnitude, check, interpolated, i),
-                Q: typeof Q[i] === 'number' ? 
-                    (check[i] || interpolated ? Q[i].toFixed(2) : '-') : '-'
+                Vs: getCellValue(activeMagnitude, check, activeCheck, i, interpolated),
+                Q: typeof Q[i] === 'number' ? getCellValue(Q, check, activeCheck, i, interpolated) : '-',
             }));    
         }
         return [];
     }, [sections, activeSection]);
 
+    console.log('selected rows', sections[1].data);
 
     useEffect(() => {
         const section = sections[activeSection];
-        if (section && section.data && Array.isArray(section.data.check)) {
-          const selectedRowIndices = section.data.check
+        if (section && section.data && Array.isArray(section.data.activeCheck)) {
+          const selectedRowIndices = section.data.activeCheck
             .map((isSelected, index) => isSelected ? index : null)
             .filter(index => index !== null);
           setSelectedRows(new Set(selectedRowIndices));

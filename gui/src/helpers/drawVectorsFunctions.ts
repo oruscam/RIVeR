@@ -90,7 +90,7 @@ function calculateArrow( east_c: number, north_c: number, east_next: number, nor
  * @param {number[]} north - Array of north coordinates.
  * @param {number[]} magnitudes - Array of magnitudes for each vector.
  * @param {number[][]} transformationMatrix - Matrix used to transform real-world coordinates to pixel coordinates.
- * @param {number} videoHeight - Height of the video/image to scale the arrows appropriately.
+ * @param {number} videoWidth - Height of the video/image to scale the arrows appropriately.
  * @param {number} [arrowWidth=0.5] - Width of the arrows (optional, default is 0.5).
  * @returns {Array} An array of arrow objects, each containing transformed points and color.
  *
@@ -108,7 +108,7 @@ function calculateArrow( east_c: number, north_c: number, east_next: number, nor
  * 11. Returns an array of arrow objects, each containing the transformed points and color.
  */
 
-function calculateMultipleArrows( east: number[], north: number[], magnitudes: (number | null)[], transformationMatrix: number[][], videoHeight: number, arrowWidth: number = 0.5,  ): Array<any> {
+function calculateMultipleArrows( east: number[], north: number[], magnitudes: (number | null)[], transformationMatrix: number[][], videoWidth: number, arrowWidth: number = 0.5,  ): Array<any> {
     
     let validIndices: number[] = [];
 
@@ -163,12 +163,12 @@ function calculateMultipleArrows( east: number[], north: number[], magnitudes: (
     });
 
 
-    const targetMaxLength = videoHeight / 5; // image height
+    const targetMaxLength = videoWidth / 5; // image height
     
     let transformedMaxLength = 0
 
 
-    for (let i = 0; i < magnitudes_filtered.length; i++) {
+    for (let i = 0; i < magnitudes_filtered.length - 1; i++) {
         const base = transformRealWorldToPixel(east_filtered[i], north_filtered[i], transformationMatrix)
 
         
@@ -215,6 +215,7 @@ function calculateMultipleArrows( east: number[], north: number[], magnitudes: (
         colorIndex = Math.min( Math.max(0, colorIndex), 255 ); 
 
         const color = customColorMap[colorIndex];
+
 
         arrows.push({
             points: transformedPoints,

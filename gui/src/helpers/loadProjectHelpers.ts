@@ -54,7 +54,6 @@ const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispatch: any
 const onLoadObliquePoints = (control_points: control_points, dispatch: any, setControlPoints: any) => {
     const { coordinates, distances } = control_points
 
-
     const isDefaultCoordinates = false;
 
     dispatch(setControlPoints({
@@ -132,7 +131,7 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
                     alpha: alpha,
                     numStations: num_stations,
                     interpolated: interpolated,
-                    data: {...value}
+                    data: {...value, activeCheck: value.check}
                 }))
             } else {
                 dispatch(addSection({
@@ -158,7 +157,7 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
                     alpha: alpha,
                     numStations: num_stations,
                     interpolated: interpolated,
-                    data: {...value}
+                    data: {...value, activeCheck: value.check}
                 }))
             }
         } catch (error) {

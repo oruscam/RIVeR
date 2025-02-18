@@ -17,30 +17,32 @@ interface CreateVelocityChartProps {
     },
     SVGElement: SVGSVGElement,
     xScale: d3.ScaleLinear<number, number>,
-    streamwise_velocity_magnitude: (number|null)[],
+    magnitude: (number|null)[],
     percentile5: number[],
     percentile95: number[],
     minusStd: number[],
     plusStd: number[],
     distance: number[],
-    showStd?: boolean
-    showPercentile?: boolean
-    isReport?: boolean
+    showStd?: boolean,
+    showPercentile?: boolean,
+    isReport?: boolean,
+    interpolated: boolean,
+    check: boolean[],
 }
 
-export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_magnitude, percentile5, percentile95, minusStd, plusStd, distance, sizes, showStd = true, showPercentile = true, isReport = false } : CreateVelocityChartProps ) => {
+export const createVelocityChart = ( { SVGElement, xScale, magnitude, percentile5, percentile95, minusStd, plusStd, distance, interpolated, check, sizes, showStd = true, showPercentile = true, isReport = false } : CreateVelocityChartProps ) => {
     const svg = d3.select(SVGElement);
     const { margin, graphHeight, width } = sizes;
 
     const minDomainValue = Math.min(
         d3.min(percentile5.filter(d => d !== null))!,
         d3.min(minusStd.filter(d => d !== null))!,
-        d3.min(streamwise_velocity_magnitude.filter(d => d !== null))!
+        d3.min(magnitude.filter(d => d !== null))!
     );
     const maxDomainValue = Math.max(
         d3.max(percentile95.filter(d => d !== null))!,
         d3.max(plusStd.filter(d => d !== null))!,
-        d3.max(streamwise_velocity_magnitude.filter(d => d !== null))!
+        d3.max(magnitude.filter(d => d !== null))!
     );
 
     // y Scale
@@ -52,7 +54,7 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
     // y Axis
 
     // Create and add Y ticks
-    const ticks = generateYAxisTicks(streamwise_velocity_magnitude, minDomainValue, maxDomainValue);
+    const ticks = generateYAxisTicks(magnitude, minDomainValue, maxDomainValue);
 
     const yAxis = d3.axisLeft(yScale)
         .tickValues(ticks)
@@ -78,7 +80,20 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
             .attr('stroke', 'grey')
             .attr('stroke-width', 0.15);
 
-    const filteredData = streamwise_velocity_magnitude.map((d, i) => ({ velocity: d, distance: distance[i], plusStd: plusStd[i], minusStd: minusStd[i], percentile5: percentile5[i], percentile95: percentile95[i] }));
+    const filteredData = magnitude.map((d, i) => {
+        if ( interpolated === false && check[i] === false ){
+            return {
+                velocity: null,
+                distance: distance[i],
+                plusStd: plusStd[i],
+                minusStd: minusStd[i],
+                percentile5: percentile5[i],
+                percentile95: percentile95[i],
+            }
+        } else { 
+            return { velocity: d, distance: distance[i], plusStd: plusStd[i], minusStd: minusStd[i], percentile5: percentile5[i], percentile95: percentile95[i] }
+        }
+    });
 
     const line = d3.line<{ velocity: number | null; distance: number; plusStd: number; minusStd: number; percentile5: number; percentile95: number; }>()
         .defined(d => d.velocity !== null)
@@ -219,7 +234,6 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
 
      // Add the velocity line    
 
-
      svg.append('path')
         .datum(filteredData)
         .attr('fill', 'none')
@@ -248,7 +262,7 @@ export const createVelocityChart = ( { SVGElement, xScale, streamwise_velocity_m
         .attr('stroke-width', 1)
         .style('display', 'none');
 
-    // Elimino los valores nulos de streamwise_velocity_magnitude    
+    // Elimino los valores nulos de magnitude    
 
     const filteredPoints = filteredData.filter(d => d.velocity !== null);
 

@@ -23,7 +23,8 @@ export const VelocityVector = ({ section, sectionIndex, transformationMatrix, he
     const { seeAll } = useUiSlice();
     const { data, artificialSeeding, interpolated } = section;
 
-    const { height: videoHeight } = video.data;
+
+    const { width: videoWidth } = video.data;
 
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
@@ -35,16 +36,16 @@ export const VelocityVector = ({ section, sectionIndex, transformationMatrix, he
         if (!isReport) {
             if (!data) return;
 
-            drawVectors(svg, factor, sectionIndex, interpolated, artificialSeeding, data, isReport, transformationMatrix, videoHeight);
+            drawVectors(svg, factor, sectionIndex, interpolated, data, isReport, transformationMatrix, videoWidth);
         } else {
             if (index !== undefined) {
                 if (!data) return;
 
                 console.log('section name', section.name)
-                drawVectors(svg, factor, index, interpolated, artificialSeeding, data, isReport, transformationMatrix, videoHeight);
+                drawVectors(svg, factor, index, interpolated, data, isReport, transformationMatrix, videoWidth);
             }
         }
-    }, [ factor, interpolated, artificialSeeding, seeAll, data ]);
+    }, [ factor, seeAll, data ]);
 
     const drawSvgSectionLine = () => {
         return <SvgSectionLine key={sectionIndex} factor={factor} index={sectionIndex} isReport={isReport}/>
@@ -52,8 +53,7 @@ export const VelocityVector = ({ section, sectionIndex, transformationMatrix, he
 
     return (
         <>
-            {/* <img src={firstFramePath} width={width} height={height} className={isReport ? 'image-border-radius' : ''}/> */}
-            <svg ref={svgRef} className='svg-in-image-container' />
+            <svg ref={svgRef} className='svg-in-image-container'/>
             {
                 drawSvgSectionLine()
             }
