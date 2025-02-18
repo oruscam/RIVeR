@@ -1149,6 +1149,24 @@ def update_current_x_section(
 	else:
 		x_sections[current_x_section]["num_stations"] = num_stations
 
+	# Check if statistics already exist and are valid
+	required_stats = ["minus_std", "plus_std", "5th_percentile", "95th_percentile", "seeded_vel_profile"]
+	stats_exist = all(
+		stat in x_sections[current_x_section] and
+		isinstance(x_sections[current_x_section][stat], list) and
+		len(x_sections[current_x_section][stat]) == num_stations
+		for stat in required_stats
+	)
+	# If stats exist and are valid, convert them to the table_results format
+	if stats_exist:
+		table_results = {}
+		for stat in required_stats:
+			table_results[stat] = np.array(x_sections[current_x_section][stat])
+		needs_statistics = False
+	else:
+		needs_statistics = True
+
+
 	# Retrieve bathymetry file path and the left station position
 	bath_file_path: str = x_sections[current_x_section]["bath"]
 	if platform.system() == "Windows":
@@ -1166,7 +1184,7 @@ def update_current_x_section(
 
 	if file_format not in FILE_FORMATS:
 		raise NotSupportedFormatError(
-			f"The '{file_format}' format is not supported for bathimetry files. Please use one of {FILE_FORMATS}"
+			f"The '{file_format}' format is not supported for bathymetry files. Please use one of {FILE_FORMATS}"
 		)
 
 	mode = "r"
@@ -1233,10 +1251,20 @@ def update_current_x_section(
 	else:
 		checked_results = np.array(x_sections[current_x_section]["check"])
 
-	# Add statistics on streamwise velocity
-	table_results = add_statistics(
-		piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection
-	)
+	# Only calculate statistics if needed
+	if needs_statistics:
+		table_results = add_statistics(
+			piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection
+		)
+	else:
+		# Add existing statistics to table_results
+		stat_keys = ["minus_std", "plus_std", "5th_percentile", "95th_percentile", "seeded_vel_profile"]
+		for key in stat_keys:
+			# Convert to numpy array and replace None with np.nan
+			values = np.array(x_sections[current_x_section][key])
+			values[values == None] = np.nan
+			table_results[key] = values
+
 
 	if artificial_seeding:
 		# If using artificial seeding and interpolation is requested
