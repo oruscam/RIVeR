@@ -8,9 +8,9 @@ export const FormRectification3D = () => {
     const { onGetPoints, onGetImages, onGetCameraSolution, ipcam, onChangeHemisphere } = useMatrixSlice();
     const { onSetErrorMessage } = useUiSlice();
 
-    const { cameraSolution, isCalculating, hemisphere } = ipcam
+    const { cameraSolution, isCalculating, hemisphere, importedPoints } = ipcam
 
-    console.log('camera solution', cameraSolution)
+    console.log('imported points', importedPoints)
 
     const handleOnClickImport = async ( event: React.MouseEvent<HTMLButtonElement> ) => {
         const id = (event.target as HTMLButtonElement).id;

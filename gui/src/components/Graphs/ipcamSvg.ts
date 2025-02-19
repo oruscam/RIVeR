@@ -38,7 +38,7 @@ export const ipcamSvg = ({
     for (let i = 0; i < importedPoints.length; i++) {
         const { ellipse, projectedPoint, x, y, selected } = importedPoints[i]
 
-        if (ellipse) {
+        if (ellipse && selected) {
             console.log('inside ellipse', ellipse)
             clippedGroup.append('ellipse')
                 .attr('cx', (ellipse.center[0]) / factor.x)
@@ -51,7 +51,7 @@ export const ipcamSvg = ({
                 .attr('stroke-width', 1)
         }
 
-        if (projectedPoint) {
+        if (projectedPoint && selected) {
             clippedGroup.append('circle')
                 .attr('cx', projectedPoint[0] / factor.x)
                 .attr('cy', projectedPoint[1] / factor.y)

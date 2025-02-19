@@ -102,4 +102,17 @@ export const obliqueSvg = ({
             if (i === 0) return pinRedSVGBase64;
             return pinSVGBase64;
         });
+
+    svg.selectAll('text')
+        .data(coordinates)
+        .enter()
+        .append('text')
+        .attr('x', (d) => d.x / factor.x)
+        .attr('y', (d) => d.y / factor.y)
+        .attr('dx', -MARKS.NUMBER_OFFSET_X_REPORT) // Adjust text position
+        .attr('dy', -MARKS.NUMBER_OFFSET_Y_REPORT)  // Adjust text position
+        .attr('font-size', '10px')
+        .attr('font-weight', 'bold')
+        .attr('fill', (_d, i) => i === 0 ? COLORS.MARK_L : COLORS.MARK_R)
+        .text((_d, i) => i + 1);
 }

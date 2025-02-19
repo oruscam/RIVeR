@@ -11,27 +11,20 @@ import { cameraSolution } from "../types";
  */
 
 function appendSolutionToImportedPoints(importedPoints: importedPoint[], cameraSolution: cameraSolution, directSolve: boolean): { newImportedPoints: importedPoint[], numPoints: number } {
-    let counter: number = 0; 
     let newImportedPoints: importedPoint[] = [];
     let numPoints: number = 0
 
     if ( directSolve === true ) {
         newImportedPoints = importedPoints.map((point, index) => {
-            if ( point.selected === false ) {
-                counter = counter + 1;
-                return {
-                    ...point,
-                    ellipse: undefined,
-                    projectedPoint: undefined,
-                };
-            } else {
+            if ( point.selected === true ) { 
                 numPoints = numPoints + 1;
-                return {
-                    ...point,
-                    ellipse: cameraSolution.uncertaintyEllipses ? cameraSolution.uncertaintyEllipses[index - counter] : undefined,
-                    projectedPoint: cameraSolution.projectedPoints ? cameraSolution.projectedPoints[index - counter] as unknown as [number, number] : undefined
-                };
             }
+            return {
+                ...point,
+                ellipse: cameraSolution.uncertaintyEllipses ? cameraSolution.uncertaintyEllipses[index] : undefined,
+                projectedPoint: cameraSolution.projectedPoints ? cameraSolution.projectedPoints[index] as unknown as [number, number] : undefined
+            };
+
         });
     } else {
         numPoints = cameraSolution.numPoints ? cameraSolution.numPoints : 0;

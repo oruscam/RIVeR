@@ -17,6 +17,11 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
         const settings = await fs.promises.readFile(settingsPath, 'utf-8');
         const settingsParsed = JSON.parse(settings);
 
+        let flag = false
+        let full_grp_3d = {}
+        const full_grp_3d_path = path.join(directory, 'full_grp_3d.json')
+        
+
         // grp file
         const jsonContent = points.reduce((acc: any, point: any, index: number) => {
             const { X, Y, Z, x, y, selected, label, image } = point
@@ -29,6 +34,7 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
                 acc.not_selected_x.push(x)
                 acc.not_selected_y.push(y)
                 acc.not_selected_image.push(image)
+                flag = true
                 return acc
             }
 
@@ -55,13 +61,44 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
             not_selected_x: [],
             not_selected_y: [],
             not_selected_label: [],
-            not_selected_image: []
+            not_selected_image: [],
         })
 
         jsonContent.solution = mode
+
+        if ( flag ){            
+          full_grp_3d = points.reduce((acc: any, point: any, index: number) => {
+               const { X, Y, Z, x, y, selected, label, image } = point
+    
+               if ( x === 0 && y === 0 ) {
+    
+                   return 
+               }
+    
+               acc.X.push(X)
+               acc.Y.push(Y)
+               acc.Z.push(Z)
+               acc.x.push(x)
+               acc.y.push(y)
+    
+               return acc
+           }, { 
+               X: [], 
+               Y: [], 
+               Z: [], 
+               x: [], 
+               y: [], 
+    
+           })
+        }
+
+
         try {
             const filePath = path.join(directory, 'grp_3d.json')
             await fs.promises.writeFile(filePath, JSON.stringify(jsonContent, null, 2))
+            if ( flag ) {
+                await fs.promises.writeFile(full_grp_3d_path, JSON.stringify(full_grp_3d, null, 2))
+            }
             console.log('File written successfully')
 
             const options = [
@@ -70,6 +107,8 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
                 firstFramePath,
                 mode === 'optimize-solution' ? '--' + mode : undefined,
                 '--' + hemisphere,
+                flag ? ('--full-grp-dict') : undefined,
+                flag ? full_grp_3d_path : undefined,
                 '-w',
                 directory,
                 filePath,
@@ -102,7 +141,7 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
                     cameraPosition: data.camera_position,
                     reprojectionErrors: data.reprojection_errors,
                     projectedPoints: data.projected_points,
-                    meanError: data.mean_error,
+                    meanError: data.error,
                     uncertaintyEllipses: data.uncertainty_ellipses,
                     cameraMatrix: data.camera_matrix,
                     numPoints: data.num_points,

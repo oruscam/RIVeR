@@ -7,7 +7,7 @@ function parsedCameraSolution(data: string){
         cameraPosition: camera_solution.camera_position,
         reprojectionErrors: camera_solution.reprojection_errors,
         projectedPoints: camera_solution.projected_points,
-        meanError: camera_solution.mean_error,
+        meanError: camera_solution.error,
         uncertaintyEllipses: camera_solution.uncertainty_ellipses,
         cameraMatrix: camera_solution.camera_matrix,
         numPoints: camera_solution.num_points,
