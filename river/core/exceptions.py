@@ -16,3 +16,7 @@ class OptimalCameraMatrixError(RiverCoreException):
 
 class NotSupportedFormatError(RiverCoreException):
 	pass
+
+
+class ImageReadError(RiverCoreException):
+	pass
