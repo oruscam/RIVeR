@@ -708,53 +708,53 @@ def add_depth(results: dict, shifted_stations: np.ndarray, stages: np.ndarray, l
 
 
 def add_interpolated_velocity(table_results: dict, check: np.ndarray) -> dict:
-	"""
-	Interpolate missing or invalid velocity values in 'streamwise_magnitud' based on Froude number profile.
-	Updates the 'table_results' dictionary by adding a new key 'filled_velocity'.
+    """
+    Interpolate missing or invalid velocity values in 'streamwise_magnitud' based on Froude number profile.
+    Updates the 'table_results' dictionary by adding a new key 'filled_velocity'.
 
-	Parameters:
-	    table_results (dict): A dictionary containing:
-	        - 'depth' (np.array): Depth profile of the river cross-section.
-	        - 'distance' (np.array): Transversal distance across the river cross-section.
-	        - 'streamwise_magnitude' (np.array): Measured velocity profile (with possible NaNs or invalid values).
-	        - 'check' (np.array): Boolean array indicating validity of measurements.
+    Parameters:
+        table_results (dict): A dictionary containing:
+            - 'depth' (np.array): Depth profile of the river cross-section.
+            - 'distance' (np.array): Transversal distance across the river cross-section.
+            - 'streamwise_magnitude' (np.array): Measured velocity profile (with possible NaNs or invalid values).
+            - 'check' (np.array): Boolean array indicating validity of measurements.
 
-	Returns:
-	    table_results (dict): Updated dictionary with a new key 'filled_velocity' containing the filled velocity profile.
-	"""
-	# Extract the data from the dictionary
-	depth = np.array(table_results["depth"])
-	distance = np.array(table_results["distance"])
-	streamwise_velocity_magnitude = np.array(table_results["streamwise_velocity_magnitude"])
+    Returns:
+        table_results (dict): Updated dictionary with a new key 'filled_velocity' containing the filled velocity profile.
+    """
+    # Extract the data from the dictionary
+    depth = np.array(table_results["depth"], dtype=np.float64)
+    distance = np.array(table_results["distance"], dtype=np.float64)
+    streamwise_velocity_magnitude = np.array(table_results["streamwise_velocity_magnitude"], dtype=np.float64)
 
-	# Ensure depth has no zero values to avoid division by zero
-	depth = np.maximum(depth, 1e-6)  # Adding a small epsilon to depth if needed
+    # Ensure depth has no zero values to avoid division by zero
+    depth = np.maximum(depth, 1e-6)  # Adding a small epsilon to depth if needed
 
-	# Calculate the Froude number profile
-	Fr = streamwise_velocity_magnitude / np.sqrt(9.81 * depth)
+    # Calculate the Froude number profile
+    Fr = streamwise_velocity_magnitude / np.sqrt(9.81 * depth)
 
-	# Identify invalid data (either NaNs or where check is False)
-	invalid_data = np.isnan(streamwise_velocity_magnitude) | (~check)
+    # Identify invalid data (either NaNs or where check is False)
+    invalid_data = np.isnan(streamwise_velocity_magnitude) | (~check)
 
-	# If all values are invalid, set filled_velocity to an array of zeros
-	if np.all(invalid_data):
-		filled_velocity = np.zeros_like(streamwise_velocity_magnitude)
-	else:
-		# Define a helper function to find non-zero indices
-		x = lambda z: z.nonzero()[0]
+    # If all values are invalid, set filled_velocity to an array of zeros
+    if np.all(invalid_data):
+        filled_velocity = np.zeros_like(streamwise_velocity_magnitude)
+    else:
+        # Define a helper function to find non-zero indices
+        x = lambda z: z.nonzero()[0]
 
-		# Perform linear interpolation to fill invalid data
-		Fr[invalid_data] = np.interp(x(invalid_data), x(~invalid_data), Fr[~invalid_data])
+        # Perform linear interpolation to fill invalid data
+        Fr[invalid_data] = np.interp(x(invalid_data), x(~invalid_data), Fr[~invalid_data])
 
-		# Calculate the filled velocity profile based on the filled Froude profile
-		filled_velocity = Fr * np.sqrt(9.81 * depth)
+        # Calculate the filled velocity profile based on the filled Froude profile
+        filled_velocity = Fr * np.sqrt(9.81 * depth)
 
-		filled_velocity[0] = 0
-		filled_velocity[-1] = 0
+        filled_velocity[0] = 0
+        filled_velocity[-1] = 0
 
-	table_results["filled_streamwise_velocity_magnitude"] = filled_velocity
+    table_results["filled_streamwise_velocity_magnitude"] = filled_velocity
 
-	return table_results
+    return table_results
 
 
 def add_w_a_q(table_results: dict, alpha: float, vel_type: str = "original") -> dict:
