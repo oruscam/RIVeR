@@ -126,6 +126,7 @@ def transform_real_world_to_pixel(
 @click.option("--ortho-resolution", default=0.1, type=click.FLOAT)
 @click.option("--southern-hemisphere/--northern-hemisphere", default=True)
 @click.option("--confidence", default=0.95, type=click.FLOAT)
+@click.option("--full-grp-dict", default=None, type=click.File())
 @click.option(
 	"-w",
 	"--workdir",
@@ -141,6 +142,7 @@ def get_camera_solution(
 	ortho_resolution: float,
 	southern_hemisphere: bool,
 	confidence: float,
+	full_grp_dict: Optional[TextIOWrapper],
 	workdir: Optional[Path],
 ) -> dict:
 	"""Get camera matrix, position, uncertainty ellipses, and optionally generate orthorectified image."""
@@ -150,6 +152,9 @@ def get_camera_solution(
 
 	grp_dict = json.loads(grp_dict.read())
 
+	if full_grp_dict is not None:
+		full_grp_dict = json.loads(full_grp_dict.read())
+
 	camera_solution = ct.get_camera_solution(
 		grp_dict=grp_dict,
 		optimize_solution=optimize_solution,
@@ -157,6 +162,7 @@ def get_camera_solution(
 		ortho_resolution=ortho_resolution,
 		southern_hemisphere=southern_hemisphere,
 		confidence=confidence,
+		full_grp_dict=full_grp_dict,
 	)
 
 	if image_path is not None:

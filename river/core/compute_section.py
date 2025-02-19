@@ -1,11 +1,22 @@
-import csv
+import platform
+from pathlib import Path
 from typing import Optional, Tuple
 
 import numpy as np
 from numba import jit
 from scipy.interpolate import griddata
+from tablib import Dataset
 
 import river.core.coordinate_transform as ct
+from river.core.exceptions import NotSupportedFormatError
+
+CSV_FORMAT = "csv"
+ODS_FORMAT = "ods"
+XLS_FORMAT = "xls"
+XLSX_FORMAT = "xlsx"
+
+BINARY_FORMATS = [ODS_FORMAT, XLS_FORMAT, XLSX_FORMAT]
+FILE_FORMATS = [CSV_FORMAT] + BINARY_FORMATS
 
 
 @jit(nopython=True)
@@ -1138,8 +1149,29 @@ def update_current_x_section(
 	else:
 		x_sections[current_x_section]["num_stations"] = num_stations
 
+	# Check if statistics already exist and are valid
+	required_stats = ["minus_std", "plus_std", "5th_percentile", "95th_percentile", "seeded_vel_profile"]
+	stats_exist = all(
+		stat in x_sections[current_x_section] and
+		isinstance(x_sections[current_x_section][stat], list) and
+		len(x_sections[current_x_section][stat]) == num_stations
+		for stat in required_stats
+	)
+	# If stats exist and are valid, convert them to the table_results format
+	if stats_exist:
+		table_results = {}
+		for stat in required_stats:
+			table_results[stat] = np.array(x_sections[current_x_section][stat])
+		needs_statistics = False
+	else:
+		needs_statistics = True
+
+
 	# Retrieve bathymetry file path and the left station position
-	bath_file_path = x_sections[current_x_section]["bath"]
+	bath_file_path: str = x_sections[current_x_section]["bath"]
+	if platform.system() == "Windows":
+		bath_file_path = bath_file_path.encode("latin-1").decode()
+	bath_file_path = Path(bath_file_path)
 	left_station = x_sections[current_x_section]["left_station"]
 
 	# Retrieve the alpha coefficient
@@ -1148,17 +1180,25 @@ def update_current_x_section(
 	else:
 		x_sections[current_x_section]["alpha"] = alpha
 
-	# Initialize lists for stations and stages
-	stations = []
-	stages = []
+	file_format = bath_file_path.suffix.removeprefix(".")
 
-	# Load bathymetry data from the CSV file
-	with open(bath_file_path, newline="") as inf:
-		reader = csv.DictReader(inf)
-		for row in reader:
-			# Assuming the first column is 'station' and the second is 'level'
-			stations.append(float(row[reader.fieldnames[0]]))
-			stages.append(float(row[reader.fieldnames[1]]))
+	if file_format not in FILE_FORMATS:
+		raise NotSupportedFormatError(
+			f"The '{file_format}' format is not supported for bathymetry files. Please use one of {FILE_FORMATS}"
+		)
+
+	mode = "r"
+	data = Dataset()
+
+	if file_format in BINARY_FORMATS:
+		mode = mode + "b"
+
+	# Load bathymetry data from tabular dataset file
+	data.load(bath_file_path.open(mode=mode), format=file_format, headers=False)
+
+	# Assuming the first column is 'station' and the second is 'level'
+	stations = [float(i) if i is not None else float(0) for i in data.get_col(0)[1:]]
+	stages = [float(i) if i is not None else float(0) for i in data.get_col(1)[1:]]
 
 	# Convert stations and stages lists to NumPy arrays for calculations
 	stations = np.array(stations)
@@ -1211,10 +1251,20 @@ def update_current_x_section(
 	else:
 		checked_results = np.array(x_sections[current_x_section]["check"])
 
-	# Add statistics on streamwise velocity
-	table_results = add_statistics(
-		piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection
-	)
+	# Only calculate statistics if needed
+	if needs_statistics:
+		table_results = add_statistics(
+			piv_results, table_results, transformation_matrix, time_between_frames, rw_to_xsection
+		)
+	else:
+		# Add existing statistics to table_results
+		stat_keys = ["minus_std", "plus_std", "5th_percentile", "95th_percentile", "seeded_vel_profile"]
+		for key in stat_keys:
+			# Convert to numpy array and replace None with np.nan
+			values = np.array(x_sections[current_x_section][key])
+			values[values == None] = np.nan
+			table_results[key] = values
+
 
 	if artificial_seeding:
 		# If using artificial seeding and interpolation is requested
