@@ -27,7 +27,7 @@ export const WizardButtons = ({ canFollow = true, formId = '', button = false, o
         break;
       
       case MODULE_NUMBER.PROCESSING:
-        onClearQuiver()
+        onClearQuiver(true)
         previousStep()
         break;
 

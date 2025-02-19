@@ -80,84 +80,89 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   }
   
   return (
-    <div id="form-section-div"  className={activeSection !== index ? 'hidden' : ''}>
-      <form className={`form-scroll mt-1 ${isBackendWorking ? 'disabled' : ''}`} id="form-result" onSubmit={onSubmit}>
+    <>
+        <div id="form-section-div"  className={activeSection !== index ? 'hidden' : ''}>
+          <form className={`form-scroll mt-1 ${isBackendWorking ? 'disabled' : ''}`} id="form-result" onSubmit={onSubmit}>
 
-        <div id="result-info">
-          <p id="result-number">{data?.total_Q}</p>
-          <div>
-            <p id="result-measured"> {((data?.measured_Q ?? 0) * 100).toFixed(1) }% {t('Results.measured')}</p>
-            <p> {((data?.interpolated_Q ?? 0) * 100).toFixed(1)}% {t('Results.interpolated')} </p>
-          </div>
-        </div>
+            <div id="result-info">
+              <p id="result-number">{data?.total_Q}</p>
+              <div>
+                <p id="result-measured"> {((data?.measured_Q ?? 0) * 100).toFixed(1) }% {t('Results.measured')}</p>
+                <p> {((data?.interpolated_Q ?? 0) * 100).toFixed(1)}% {t('Results.interpolated')} </p>
+              </div>
+            </div>
 
-        <div className="input-container mt-2">
-          <label className="read-only me-1" htmlFor="alpha"> {t('Results.alpha')} </label>
-          <input className="input-field"
-            id="alpha"
-            type="number"
-            step='any'
-            {...register(`${name}_ALPHA`)}
-            onKeyDown={handleOnChangeInput}
-            onBlur={handleOnChangeInput}
-          ></input>
-        </div>
-        
-        <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '800px'}}>
-          <AllInOne isReport={false} height={700}/>
-        </div>
+            <div className="input-container mt-2">
+              <label className="read-only me-1" htmlFor="alpha"> {t('Results.alpha')} </label>
+              <input className="input-field"
+                id="alpha"
+                type="number"
+                step='any'
+                {...register(`${name}_ALPHA`)}
+                onKeyDown={handleOnChangeInput}
+                onBlur={handleOnChangeInput}
+              ></input>
+            </div>
+            
+            <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '800px'}}>
+              <AllInOne isReport={false} height={700}/>
+            </div>
 
-        <span className="mt-1"></span>
+            <span className="mt-1"></span>
 
-        <div className="switch-container-2 mt-2">
-          <h3 className="field-title me-2 mt-3"> {t('Results.stationNumber')}</h3>
-          <input className="input-field-little mt-3" type="number" {...register(`${name}_STATIONS_NUMBER`)} id="stations-number"
-            onKeyDown={handleOnChangeInput}
-            onBlur={handleOnChangeInput}
-          ></input>
-        </div>
+            <div className="switch-container-2 mt-2">
+              <h3 className="field-title me-2 mt-3"> {t('Results.stationNumber')}</h3>
+              <input className="input-field-little mt-3" type="number" {...register(`${name}_STATIONS_NUMBER`)} id="stations-number"
+                onKeyDown={handleOnChangeInput}
+                onBlur={handleOnChangeInput}
+              ></input>
+            </div>
 
-        <div className="switch-container-2 mt-1 ">
-          <h3 className="field-title">{t('Results.showVelStd')}</h3>
-          <label className="switch">
-            <input type="checkbox" {...register(`${name}_SHOW_VELOCITY_STD`)} defaultChecked={data?.showVelocityStd} onChange={handleOnChange} id="show-velocity-std"/>
-            <span className="slider"></span>
-          </label>
-        </div>
+            <div className="switch-container-2 mt-1 ">
+              <h3 className="field-title">{t('Results.showVelStd')}</h3>
+              <label className="switch">
+                <input type="checkbox" {...register(`${name}_SHOW_VELOCITY_STD`)} defaultChecked={data?.showVelocityStd} onChange={handleOnChange} id="show-velocity-std"/>
+                <span className="slider"></span>
+              </label>
+            </div>
 
-        <div className="switch-container-2 mt-1 ">
-          <h3 className="field-title"> {t('Results.showProfile')} </h3>
-          <label className="switch">
-            <input type="checkbox" {...register(`${name}_SHOW_PERCENTILE`)} defaultChecked={data?.showPercentile} onChange={handleOnChange} id="show-percentile"/>
-            <span className="slider"></span>
-          </label>
-        </div>
+            <div className="switch-container-2 mt-1 ">
+              <h3 className="field-title"> {t('Results.showProfile')} </h3>
+              <label className="switch">
+                <input type="checkbox" {...register(`${name}_SHOW_PERCENTILE`)} defaultChecked={data?.showPercentile} onChange={handleOnChange} id="show-percentile"/>
+                <span className="slider"></span>
+              </label>
+            </div>
 
-        <div className="switch-container-2 mt-2">
-          <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
-          <label className="switch">
-              <input type="checkbox" {...register(`${name}_ARTIFICIAL_SEEDING`)} id="artificial-seeding" onChange={handleOnChange} defaultChecked={artificialSeeding}/>
-              <span className="slider"></span>
-          </label>
-        </div>
+            <div className="switch-container-2 mt-2">
+              <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
+              <label className="switch">
+                  <input type="checkbox" {...register(`${name}_ARTIFICIAL_SEEDING`)} id="artificial-seeding" onChange={handleOnChange} defaultChecked={artificialSeeding}/>
+                  <span className="slider"></span>
+              </label>
+            </div>
 
-        <div className="switch-container-2 mt-1 ">
-          <h3 className="field-title">{t('Results.interpolateProfile')}</h3>
-          <label className="switch">
-            <input type="checkbox" {...register(`${name}_INTERPOLATED_PROFILE`)} defaultChecked={data?.showInterpolateProfile} id="interpolated-profile" onChange={handleOnChange}/>
-            <span className="slider"></span>
-          </label>
-        </div>
+            <div className="switch-container-2 mt-1 ">
+              <h3 className="field-title">{t('Results.interpolateProfile')}</h3>
+              <label className="switch">
+                <input type="checkbox" {...register(`${name}_INTERPOLATED_PROFILE`)} defaultChecked={data?.showInterpolateProfile} id="interpolated-profile" onChange={handleOnChange}/>
+                <span className="slider"></span>
+              </label>
+            </div>
 
-        <Grid></Grid>
+            <Grid></Grid>
 
-        <span className="space3 mt-2"></span>
+            <span className="space3 mt-2"></span>
+          </form>
+      </div>
+      <div id="apply-changes-container">
         <button type="button" 
                 className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`} 
                 onClick={handleOnClickApplyChanges}
                 id="apply-changes"
-                > Apply changes</button>
-      </form>
-   </div>
+                > Apply changes
+        </button>
+      </div>
+    </>
   )
 }

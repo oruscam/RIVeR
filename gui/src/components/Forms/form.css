@@ -259,7 +259,7 @@ transform-origin: 14px 22px;
 
 #form-result{
     width: 100%;
-    height: 100%;
+    height: 96%;
     padding-top: 20px;
     padding-bottom: 10px;
     overflow-y: scroll;
@@ -404,8 +404,16 @@ transform-origin: 14px 22px;
     height: 100%;
 }
 
+#apply-changes-container{
+    width: 100%;
+    z-index: 150;
+    display: flex;
+    justify-content: center;
+}
+
 #apply-changes{
-    align-self: center;
+    font-size: 1.1em;
+
 }
 
 .simple-input-container{
@@ -513,18 +521,3 @@ transform-origin: 14px 22px;
 .button-rectification-3d{
     min-width: 175px;
 }
-
-/* #bathimetry-name-container{
-    display: flex;
-    width: 90%;
-}
-
-.bathimetry-name{
-    font-size: 1.1rem;
-    text-align: center;
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    text-decoration: underline;
-} */

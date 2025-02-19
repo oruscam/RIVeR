@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
-import { useMatrixSlice, useProjectSlice } from "../hooks"
-import DataGrid, { SelectColumn } from "react-data-grid"
+import { useEffect, useState, useMemo } from "react";
+import { useMatrixSlice, useProjectSlice } from "../hooks";
+import DataGrid, { SelectColumn } from "react-data-grid";
 
 interface Row {
     key: number;
     id: number;
+    label: string;
     x: number;
     y: number;
     X: number;
@@ -17,19 +18,17 @@ const rowKeyGetter = (row: Row): number => {
 }
 
 export const IpcamGrid = () => {
-    const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set())
+    const [selectedRows, setSelectedRows] = useState<ReadonlySet<number>>(() => new Set());
     
     const { ipcam, changeIpcamPointSelected, setIpcamPointPixelCoordinates, onChangeActiveImage } = useMatrixSlice();
     const { importedPoints } = ipcam;
 
-    const { video } = useProjectSlice()
-    const { width, height } = video.data
+    const { video } = useProjectSlice();
+    const { width, height } = video.data;
 
-    let rows
-
-    if ( importedPoints === undefined ){
-        rows = Array.from({ length: 10 }, (_, index) => {
-            return {
+    const rows = useMemo(() => {
+        if (importedPoints === undefined) {
+            return Array.from({ length: 10 }, (_, index) => ({
                 key: index,
                 id: index,
                 label: '',
@@ -38,12 +37,9 @@ export const IpcamGrid = () => {
                 X: 0,
                 Y: 0,
                 Z: 0,
-            }
-        })
-
-    } else {
-        rows = importedPoints.map((point, index) => {
-            return {
+            }));
+        } else {
+            return importedPoints.map((point, index) => ({
                 key: index,
                 id: index,
                 label: point.label,
@@ -52,27 +48,27 @@ export const IpcamGrid = () => {
                 X: point.X,
                 Y: point.Y,
                 Z: point.Z,
-            }
-        })
-    }
+            }));
+        }
+    }, [importedPoints]);
 
     const columns = [
         { ...SelectColumn, cellClass: 'centered-cell', headerCellClass: 'select-cell' },
         { key: 'label', name: 'Label', cellClass: 'point-label-cell centered-cell', headerCellClass: 'centered-cell' },
         { key: 'x', name: 'x', cellClass: 'centered-cell', headerCellClass: 'centered-cell' },
         { key: 'y', name: 'y', cellClass: 'centered-cell', headerCellClass: 'centered-cell' },
-    ]
+    ];
 
-    const handleCellClick = ( cell: { row: any; column: any; } ) => {
+    const handleCellClick = (cell: { row: any; column: any; }) => {
         const { row, column } = cell;
 
-        if ( column.key === 'select-row' ){
-            changeIpcamPointSelected(row.id)
+        if (column.key === 'select-row') {
+            changeIpcamPointSelected(row.id);
         }
 
-        if ( column.key === 'label') {
-            if ( importedPoints && importedPoints[row.id].image !== undefined ){
-                onChangeActiveImage(importedPoints[row.id].image!)
+        if (column.key === 'label') {
+            if (importedPoints && importedPoints[row.id].image !== undefined) {
+                onChangeActiveImage(importedPoints[row.id].image!);
             }
             setIpcamPointPixelCoordinates({
                 index: row.id,
@@ -80,19 +76,18 @@ export const IpcamGrid = () => {
                     width: width,
                     height: height
                 }
-            })
+            });
         }
-    }
-            
-    useEffect(() => {
-        if ( importedPoints !== undefined ){
-        const selectedRowIndices = importedPoints
-            .map((point, index) => point.selected ? index : null)
-            .filter(index => index !== null);
-          setSelectedRows(new Set(selectedRowIndices));
-        }
-    }, [importedPoints])
+    };
 
+    useEffect(() => {
+        if (importedPoints !== undefined) {
+            const selectedRowIndices = importedPoints
+                .map((point, index) => point.selected ? index : null)
+                .filter(index => index !== null);
+            setSelectedRows(new Set(selectedRowIndices));
+        }
+    }, [importedPoints]);
 
     return (
         <div className="grid-container mt-2 mb-2" id="ipcam-grid">
@@ -106,5 +101,5 @@ export const IpcamGrid = () => {
                 onCellClick={handleCellClick}
             />
         </div>
-    )
-}
+    );
+};

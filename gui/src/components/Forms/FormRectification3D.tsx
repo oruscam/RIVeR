@@ -50,8 +50,10 @@ export const FormRectification3D = () => {
                         <button className={`wizard-button me-1 button-rectification-3d ${ipcam.importedPoints !== undefined ? "wizard-button-active" : ""}`} id="import-points" type="button" onClick={handleOnClickImport} > Import Points </button>
                         <button className={`wizard-button button-rectification-3d ${ipcam.imagesPath !== undefined ? "wizard-button-active" : ""}`} id="import-images" type="button" onClick={handleOnClickImport}> Import Images </button>
                     </div>
-                
-                    <IpcamGrid/>
+
+                    <div style={{width: '100%'}}>
+                        <IpcamGrid/>
+                    </div>
                     <PointsMap/>
 
                     <div className={`switch-container-2 ${cameraSolution === undefined ? 'mt-1' : 'mt'}`}>

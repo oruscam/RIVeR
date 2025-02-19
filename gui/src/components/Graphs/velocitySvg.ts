@@ -1,5 +1,5 @@
 import * as d3 from 'd3'
-import { COLORS } from '../../constants/constants';
+import { COLORS, GRAPHS } from '../../constants/constants';
 import { generateYAxisTicks } from '../../helpers';
 import './graphs.css'
 
@@ -62,7 +62,7 @@ export const createVelocityChart = ( { SVGElement, xScale, magnitude, percentile
         
     svg.append('g')
         .attr('class', 'y-axis y-axis-2')
-        .attr('transform', `translate(${margin.left + 10},0)`)
+        .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`)
         .call(yAxis)
         .selectAll('.tick text')
         .style('font-size', '14px')
@@ -73,7 +73,7 @@ export const createVelocityChart = ( { SVGElement, xScale, magnitude, percentile
     
     svg.append('g')
         .attr('class', 'grid')
-        .attr('transform', `translate(${margin.left + 10},0)`)
+        .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`)
         .call(makeYGridlines()
             .tickSize(-width + margin.left + margin.right)
             .tickFormat('' as any))
@@ -310,7 +310,7 @@ export const createVelocityChart = ( { SVGElement, xScale, magnitude, percentile
         .attr('class', 'y-axis-label')
         .attr('text-anchor', 'middle')
         .attr('x', - (graphHeight *2) + (isReport ? 90 : 140))
-        .attr('y', margin.left - 35)
+        .attr('y', margin.left - 30)
         .attr('transform', 'rotate(-90)')
         .attr('fill', 'white')
         .attr('font-size', '22px')

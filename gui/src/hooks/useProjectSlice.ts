@@ -61,7 +61,7 @@ export const useProjectSlice = () => {
 
         const extension = video.name.split('.').pop();
         if ( extension?.toUpperCase() !== 'MP4'){
-            dispatch(setMessage('We are transforming the video to mp4 format. Please wait a moment.'))
+            dispatch(setMessage('We are converting the video to mp4 format. Please wait a moment.'))
         }
 
         const ipcRenderer = window.ipcRenderer;
@@ -107,7 +107,7 @@ export const useProjectSlice = () => {
 
     const onSetVideoParameters = async ( data: FieldValues ) => {
         dispatch(setLoading(true));
-        dispatch(setMessage('We are extracting the frames, wait a moment'))
+        dispatch(setMessage('Extracting Video Frames'))
 
         const { startTime, endTime, step } = video.parameters;
 

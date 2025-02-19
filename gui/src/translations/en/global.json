@@ -182,5 +182,10 @@
             "windowsSizesError" : "The window size is too large for the selected Region Of Interest.",
             "bboxNotDefined" : "Region of Interest not defined."
         }
+    },
+    "Loader": {
+        "frames" : "Extracting Video Frames",
+        "results" : "Generating velocity profile statistics",
+        "videoConversion" : "We are converting the video to mp4 format. Please wait a moment."
     }
 }

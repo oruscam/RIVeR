@@ -35,13 +35,14 @@ export const Grid = () => {
 
     const getCellClass = ( row ) => {
         let cellClas = 'centered-cell';
-        // if ( !data?.activeCheck[row.id]) {
-        //     if ( interpolated ){
-        //         cellClas = 'centered-cell cell-red-values';
-        //     } else {
-        //         cellClas = 'centered-cell disabled-cell';
-        //     }
-        // }
+        const { data } = sections[activeSection];
+        if ( !data?.check[row.id] ) {
+            if ( data?.interpolated ){
+                cellClas = 'centered-cell cell-red-values';
+            } else {
+                cellClas = 'centered-cell disabled-cell';
+            }
+        }
         return cellClas;
     }
     
@@ -82,8 +83,6 @@ export const Grid = () => {
         }
         return [];
     }, [sections, activeSection]);
-
-    console.log('selected rows', sections[1].data);
 
     useEffect(() => {
         const section = sections[activeSection];

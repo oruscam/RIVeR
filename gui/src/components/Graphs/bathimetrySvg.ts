@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { COLORS } from '../../constants/constants';
+import { COLORS, GRAPHS } from '../../constants/constants';
 import { Point } from '../../types';
 import { generateXAxisTicks, generateYAxisTicks } from '../../helpers';
 
@@ -51,6 +51,8 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
     let yScale;
 
     let clipPathData = data;
+    let translateX = 0
+
 
     if ( xScaleAllInOne && sizes ) {
         const { margin: marginAllInOne, height: heightSizes, graphHeight } = sizes;
@@ -64,12 +66,13 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
             .attr('class', 'y-axis-label')
             .attr('text-anchor', 'end')
             .attr('x', isReport ? - graphHeight * 3 + 160 : - graphHeight *3 + 180)
-            .attr('y', margin.left - 35)
+            .attr('y', sizes.margin.left - 30)
             .attr('transform', 'rotate(-90)')
             .attr('fill', 'white')
             .attr('font-size', '22px')
             .text('Stage');
         
+        translateX = marginAllInOne.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE
     } else {
         xScale = d3.scaleLinear()
             .domain([xMin, xMax])
@@ -103,6 +106,8 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
             .selectAll('.tick text')
             .style('font-size', '14px')
 
+        translateX = margin.left + GRAPHS.GRID_Y_OFFSET_BATHIMETRY
+
 
         if ( x1Intersection && x2Intersection ) {
             clipPathData = data.filter((d) => d.x >= x1Intersection && d.x <= x2Intersection ) 
@@ -119,9 +124,11 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
     const ticks = generateYAxisTicks(undefined, yMin, yMax);
     
     const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.2f'));
+
+
     
     svg.append('g')
-        .attr('transform', `translate(${margin.left + 10},0)`)
+        .attr('transform', `translate(${translateX},0)`)
         .call(yAxis)
         .selectAll('.tick text')
         .style('font-size', '14px')
@@ -137,7 +144,7 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
 
     svg.append('g')
         .attr('class', 'grid')
-        .attr('transform', `translate(${margin.left + 10},0)`)
+        .attr('transform', `translate(${translateX},0)`)
         .call(makeYGridlines()
             .tickSize(-width + margin.left + margin.right)
             .tickFormat('' as any))

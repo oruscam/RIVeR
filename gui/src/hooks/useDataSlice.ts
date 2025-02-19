@@ -6,7 +6,7 @@
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
 import { updateProcessingPar, setActiveImage, updateProcessingForm, setBackendWorkingFlag, setQuiver, setProcessingMask, setDataLoaded, setImages, resetDataSlice } from "../store/data/dataSlice";
-import { setLoading } from "../store/ui/uiSlice";
+import { clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
 import { setSectionData, setSummary } from "../store/section/sectionSlice";
 import { CliError } from "../errors/errors";
 import { useTranslation } from "react-i18next";
@@ -194,6 +194,7 @@ export const useDataSlice = () => {
         
         const ipcRenderer = window.ipcRenderer;
         dispatch(setBackendWorkingFlag(true))
+        dispatch(setMessage('Generating velocity profile statistics'))
 
         if ( type === 'single' ){
             const section = sections[activeSection]
@@ -218,6 +219,7 @@ export const useDataSlice = () => {
                 if ( error instanceof Error) {
                     throw new CliError(error.message, t)
                 }
+                dispatch(clearMessage())
             }
         } else {
             dispatch(setLoading(true))
@@ -249,15 +251,15 @@ export const useDataSlice = () => {
                 if ( error instanceof Error) {
                     throw new CliError(error.message, t)
                 }
+                dispatch(clearMessage())
             }
         }
     }
 
-    const onClearQuiver = () => {
-        if ( hasChanged ) {
+    const onClearQuiver = (previous?: boolean) => {
+        if ( hasChanged || previous === true) {
             dispatch(setQuiver({quiver: undefined, test: false}))
         }
-        return
     }
 
     const onReCalculateMask = async ( value: number ) => {

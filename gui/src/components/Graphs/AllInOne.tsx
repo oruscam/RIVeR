@@ -45,7 +45,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 
                 const xScale = d3.scaleLinear()
                     .domain([x1Intersection!, x2Intersection!])
-                    .range([margin.left + 30, width - margin.right - 30]) 
+                    .range([margin.left + 40, width - margin.right - 30]) 
 
                 // Common xAxis
                 const ticks = generateXAxisTicks(x1Intersection!, x2Intersection!, bathWidth!);

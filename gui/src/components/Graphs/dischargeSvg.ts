@@ -41,7 +41,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
 
     svg.append('g')
         .attr('class', 'y-axis y-axis-1')
-        .attr('transform', `translate(${margin.left + 10},0)`)
+        .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`)
         .call(yAxis)
         .selectAll('.tick text')
         .style('font-size', '14px')
@@ -52,7 +52,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
 
     svg.append('g')
     .attr('class', 'grid')
-    .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET},0)`)
+    .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`)
     .call(makeYGridlines()
         .tickSize(-width + margin.left + margin.right)
         .tickFormat('' as any))
@@ -158,13 +158,12 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
         svg.selectAll(".tooltip").remove();
     });
     
-
     // Label
     svg.append('text')
         .attr('class', 'y-axis-label')
         .attr('text-anchor', 'middle')
         .attr('x', -graphHeight + (isReport ? 75 : 115))
-        .attr('y', margin.left - 35)
+        .attr('y', margin.left - 30)
         .attr('transform', 'rotate(-90)')
         .attr('fill', 'white')
         .attr('font-size', '22px')
