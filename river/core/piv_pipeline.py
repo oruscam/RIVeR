@@ -22,6 +22,7 @@ import numpy as np
 from tqdm import tqdm
 
 import river.core.image_preprocessing as impp
+from river.core.exceptions import ImageReadError
 from river.core.piv_fftmulti import piv_fftmulti
 from river.core.piv_loop import piv_loop
 
@@ -45,58 +46,40 @@ def run_test(
 	filter_clahe: bool = True,
 	clip_limit_clahe: int = 5,
 	filter_sub_background: bool = False,
+	save_background: bool = True,
+	workdir: Optional[Path] = None,
 ):
 	"""
 	Run PIV test with optional preprocessing steps.
-
-	Parameters:
-	image_1 : Path
-	    Path to the first image file.
-	image_2 : Path
-	    Path to the second image file.
-	mask : np.ndarray, optional
-	    The mask for the region of interest, Default is None.
-	bbox : list, optional
-	    The bounding box for the region of interest. Default is None.
-	interrogation_area_1 : int
-	    The size of the interrogation area.
-	interrogation_area_2 : int, optional
-	    The size of the second interrogation area.
-	mask_auto : bool, optional
-	    Whether to automatically apply a mask. Default is True.
-	multipass : bool, optional
-	    Whether to use multiple passes. Default is True.
-	standard_filter : bool, optional
-	    Whether to apply standard deviation filtering. Default is True.
-	standard_threshold : float, optional
-	    The threshold for standard deviation filtering. Default is 4.
-	median_test_filter : bool, optional
-	    Whether to apply median test filtering. Default is True.
-	epsilon : float, optional
-	    The epsilon value for median test filtering. Default is 0.02.
-	threshold : float, optional
-	    The threshold value for median test filtering. Default is 2.
-	step : int, optional
-	    The step size for grid calculations.
-	filter_grayscale : bool, optional
-	    Whether to convert images to grayscale. Default is True.
-	filter_clahe : bool, optional
-	    Whether to apply CLAHE filtering. Default is True.
-	clip_limit_clahe : int, optional
-	    The clip limit for CLAHE. Default is 5.
-	filter_sub_background : bool, optional
-	    Whether to subtract background. Default is False.
-
-	Returns:
-	dict
-	    A dictionary containing results such as 'shape', 'x', 'y', 'u', 'v' and 'typevector'.
-
 	"""
 	background = None
 
 	if filter_sub_background:
 		filter_grayscale = True  # forces to work with grayscale images if filt_sub_backgnd
-		background = impp.calculate_average(image_1.parent)
+
+		# Determine the path where background.jpg should be
+		background_path = (
+			workdir.joinpath("background.jpg") if workdir is not None else image_1.parent.joinpath("background.jpg")
+		)
+
+		# Check if background.jpg exists
+		if background_path.exists():
+			print(f"Loading existing background from: {background_path}")
+			background = cv2.imread(str(background_path), cv2.IMREAD_GRAYSCALE)
+		else:
+			print("Calculating new background...")
+			background = impp.calculate_average(image_1.parent)
+
+			# Save the newly calculated background
+			if save_background and background is not None:
+				if workdir is not None:
+					print(f"Saving background to: {workdir}")
+					save_path = workdir.joinpath("background.jpg")
+				else:
+					results_directory_path = image_1.parent
+					results_directory_path.mkdir(exist_ok=True)
+					save_path = results_directory_path.joinpath("background.jpg")
+				cv2.imwrite(str(save_path), background)
 
 	image_1 = impp.preprocess_image(
 		image_1, filter_grayscale, filter_clahe, clip_limit_clahe, filter_sub_background, background
@@ -130,6 +113,7 @@ def run_test(
 		threshold=threshold,
 		step=step,
 	)
+
 	# Create in_mask array and check points against the mask
 	x_indices = np.clip(xtable.astype(int), 0, mask.shape[1] - 1)
 	y_indices = np.clip(ytable.astype(int), 0, mask.shape[0] - 1)
@@ -179,7 +163,7 @@ def run_analyze_all(
 	total_frames = len(images)
 
 	if total_frames == 0:
-		raise ValueError(f"No JPG images found in {images_location}")
+		raise ImageReadError(f"No JPG images found in {images_location}")
 
 	print(f"Processing {total_frames} frames...")
 
@@ -190,7 +174,7 @@ def run_analyze_all(
 	# Process first image pair to get expected dimensions
 	first_image = cv2.imread(str(images[0]))
 	if first_image is None:
-		raise ValueError(f"Could not read first image: {images[0]}")
+		raise ImageReadError(f"Could not read first image: {images[0]}")
 
 	if mask is None:
 		mask = np.ones(first_image.shape, dtype=np.uint8)
@@ -198,6 +182,32 @@ def run_analyze_all(
 	if bbox is None:
 		height, width = first_image.shape[:2]
 		bbox = [0, 0, width, height]
+
+	# Process first image to get dimensions and handle background
+	if filter_sub_background:
+		filter_grayscale = True  # forces to work with grayscale images if filt_sub_backgnd
+
+		# Determine the path where background.jpg should be
+		background_path = (
+			workdir.joinpath("background.jpg") if workdir is not None else images_location.joinpath("background.jpg")
+		)
+
+		# Check if background.jpg exists
+		if background_path.exists():
+			print(f"Loading existing background from: {background_path}")
+			background = cv2.imread(str(background_path), cv2.IMREAD_GRAYSCALE)
+		else:
+			print("Calculating new background...")
+			background = impp.calculate_average(images_location)
+
+			# Save the newly calculated background
+			if save_background and background is not None:
+				if workdir is not None:
+					print(f"Saving background to: {workdir}")
+					save_path = workdir.joinpath("background.jpg")
+				else:
+					save_path = images_location.joinpath("background.jpg")
+				cv2.imwrite(str(save_path), background)
 
 	# Process a test pair to get expected dimensions
 	test_result = piv_loop(
@@ -233,18 +243,6 @@ def run_analyze_all(
 		chunks.append([i, end])
 		for j in range(i, end):
 			chunk_pairs.append((j, j + 1))
-
-	if filter_sub_background:
-		filter_grayscale = True
-		background = impp.calculate_average(images_location)
-		if save_background and background is not None:
-			if workdir is not None:
-				save_path = workdir.joinpath("background.jpg")
-			else:
-				results_directory_path = Path(images_location).parent.joinpath("results")
-				results_directory_path.mkdir(exist_ok=True)
-				save_path = results_directory_path.joinpath("background.jpg")
-			cv2.imwrite(str(save_path), background)
 
 	pbar = tqdm(total=len(chunk_pairs), desc="Processing image pairs")
 	start_time = time.time()
@@ -308,7 +306,6 @@ def run_analyze_all(
 					dict_cumul["u"] = np.hstack((dict_cumul["u"], result["u"]))
 					dict_cumul["v"] = np.hstack((dict_cumul["v"], result["v"]))
 					dict_cumul["typevector"] = np.hstack((dict_cumul["typevector"], result["typevector"]))
-
 					dict_cumul["gradient"] = np.hstack((dict_cumul["gradient"], result["gradient"]))
 
 					successful_pairs.append((Path(img1).name, Path(img2).name))
