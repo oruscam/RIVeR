@@ -56,7 +56,7 @@ async function createWindow() {
     alwaysOnTop: false,
     skipTaskbar: false,
     frame: true,
-    title: 'RIVeR 3.0.0',
+    title: 'RIVeR',
 
     webPreferences: {
       preload: path.join(__dirname, 'preload.mjs'),

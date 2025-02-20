@@ -13,6 +13,8 @@ export const App: React.FC = () => {
   const { data } = video 
   const { onSetImages, images } = useDataSlice()
 
+  console.log('images', images)
+
   const getStep4 = () => {
     switch (type) {
       case FOOTAGE_TYPES.UAV:

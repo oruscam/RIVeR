@@ -50,7 +50,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
             let flag = false;
             let firstFrame = '';
             let attempts = 0;
-            const maxAttempts = 30; // Limit to 60 seconds
+            const maxAttempts = 30; // Limit to 30 seconds
 
             while (!flag && attempts < maxAttempts) {
                 if (fs.existsSync(PROJECT_CONFIG.framesPath)) {
@@ -61,7 +61,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
                     }
                 }
                 attempts++;
-                await new Promise(resolve => setTimeout(resolve, 500)); // Wait for 0.5 second before checking again
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
             }
 
             return {
