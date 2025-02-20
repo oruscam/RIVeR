@@ -14,7 +14,7 @@
 **RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (LSPIV). Built with Python and React, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
 
 <figure>
-    <img src="river/docs/_static/screenshot.png" width=500 align="center">
+    <img src="river/docs/_static/screenshot_results.png" width=500 align="center">
     <figcaption>Example of RIVeR velocimetry analysis of river flow</figcaption>
 </figure>
 
@@ -25,39 +25,41 @@
 * CSV data import/export
 * Multi-platform support
 
-## Installation (CAMBIAR)
-
-To get started with RIVeR, ensure you have Python 3.11+ installed. Then:
-
-```bash
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-.\venv\Scripts\activate   # Windows
-
-# Install dependencies
-pip install -r requirements.txt
-```
-
-For frontend development:
-```bash
-cd web
-npm install
-```
-
 ## Project Structure
 
 ```
 river/
-├── cli/                    # Command line interface
-│   ├── commands/          # CLI command implementations
-│   └── utils.py           # CLI utilities
-└── core/                  # Core processing modules
-    ├── piv_fftmulti.py    # FFT-based PIV processing
-    ├── piv_loop.py        # PIV processing loop
-    ├── image_preprocessing.py  # Image preparation
-    ├── coordinate_transform.py # Coordinate system transforms
-    └── matlab_smoothn.py  # Smoothing algorithms
+.
+├── LICENSE
+├── examples       # Jupyter examples
+│   ├── 00_introduction.ipynb
+│   ├── 01_video_to_frames.ipynb
+│   ├── 02a_nadir_transformation.ipynb
+│   ├── 02b_oblique_transformation.ipynb
+│   ├── 03_cross_sections.ipynb
+│   ├── 04_piv_analysis.ipynb
+│   ├── 05_discharge_calculation.ipynb
+│   ├── data
+│   ├── results
+│   └── utils
+├── gui
+├── pyproject.toml
+├── readme.md
+├── requirements.txt
+└── river
+├── cli
+├── core
+│   ├── compute_section.py       # Section computation utilities
+│   ├── coordinate_transform.py   # Coordinate system transformations
+│   ├── define_roi_masks.py      # ROI and mask definitions
+│   ├── exceptions.py            # Custom exceptions
+│   ├── image_preprocessing.py   # Image preparation tools
+│   ├── matlab_smoothn.py        # Smoothing algorithms
+│   ├── piv_fftmulti.py         # FFT-based PIV processing
+│   ├── piv_loop.py             # PIV processing loop
+│   ├── piv_pipeline.py         # Main PIV pipeline
+│   └── video_to_frames.py      # Video frame extraction
+└── docs
 ```
 
 ## Dependencies
@@ -126,23 +128,3 @@ If you use RIVeR in your research, please cite:
 ## License
 
 RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
-
-Project organisation
---------------------
-
-    .
-    ├── README.md
-    ├── LICENSE
-    ├── setup.py           <- setup script compatible with pip
-    ├── requirements.txt   <- package dependencies
-    ├── docs/              <- documentation
-    ├── river/             <- main package
-    │   ├── cli/          <- command line interface
-    │   ├── core/         <- core processing modules
-    │   └── web/          <- React frontend
-    └── tests/            <- test suite
-
----
-<p align="center">
-Made with ❤️ by the RIVeR team
-</p>
