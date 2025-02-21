@@ -6,6 +6,7 @@ import { PointsMap } from "./PointsMap";
 import { obliqueSvg } from "./obliqueSvg";
 import { createPinsBase64 } from "./createPinsBase64";
 import { ipcamSvg } from "./ipcamSvg";
+import { TestPlot } from "./TestPlot";
 
 export { 
     AllInOne, 
@@ -15,5 +16,6 @@ export {
     ipcamSvg,
     obliqueSvg,
     PointsMap, 
+    TestPlot,
     VelocityVector, 
 };

@@ -24,6 +24,9 @@
     border: 1px solid white;
 }
 
+#quiver-test-plot{
+    margin-top: 30px;
+}
 
 @media print {
     

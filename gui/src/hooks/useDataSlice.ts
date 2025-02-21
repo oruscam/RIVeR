@@ -113,7 +113,8 @@ export const useDataSlice = () => {
                         v: data.v,
                         typevector: data.typevector,
                         u_median: data.u_median,
-                        v_median: data.v_median
+                        v_median: data.v_median,
+                        test: true
                     },
                     test: true
                 }))
@@ -161,7 +162,8 @@ export const useDataSlice = () => {
                         v: v,
                         typevector: typevector,
                         u_median: u_median,
-                        v_median: v_median
+                        v_median: v_median,
+                        test: false
                     },
                     test: false
                 }))

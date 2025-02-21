@@ -218,7 +218,8 @@ export const useProjectSlice = () => {
                             v: v,
                             typevector: typevector,
                             u_median: u_median,
-                            v_median: v_median
+                            v_median: v_median,
+                            test: false
                         },
                         test: false
                     }))

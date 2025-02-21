@@ -2,7 +2,7 @@ import { useFormContext } from "react-hook-form"
 import { useDataSlice, useUiSlice } from "../../hooks"
 import { useTranslation } from "react-i18next"
 
-export const HardModeProcessing = () => {
+export const HardModeProcessing = ({ active } : { active: boolean }) => {
   const { register } = useFormContext() 
   const { processing, onUpdateProcessing, onReCalculateMask } = useDataSlice()
   const { onSetErrorMessage } = useUiSlice()
@@ -28,7 +28,7 @@ export const HardModeProcessing = () => {
   }
 
   return (
-    <div className="hard-mode-processing mt-5" id="processing-footer">
+    <div className={`hard-mode-processing mt-5 ${active ? '' : 'hidden'}`} id="processing-footer">
         <div className="input-container-2 mb-2">
             <label className="read-only me-1">{t('Processing.roiHeight')}</label>
             <input 

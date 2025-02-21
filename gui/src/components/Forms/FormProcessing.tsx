@@ -6,13 +6,14 @@ import { useDataSlice, useUiSlice } from "../../hooks"
 import { useWizard } from "react-use-wizard"
 import { useTranslation } from "react-i18next"
 import { WINDOW_SIZES } from "../../constants/constants"
+import { TestPlot } from "../Graphs"
 
 export const FormProcessing = () => {
   const [extraFields, setExtraFields] = useState(false)
   const { nextStep } = useWizard()
   
   const { onSetErrorMessage } = useUiSlice()
-  const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver, isBackendWorking } = useDataSlice()
+  const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver, isBackendWorking, quiver } = useDataSlice()
   const { step1, heightRoi, grayscale, removeBackground, clahe, clipLimit, stdFiltering, stdThreshold, medianTestThreshold, medianTestEpsilon, medianTestFiltering } = processing.form
   
   const [_buttonTest, _setButtonTest] = useState(false)
@@ -105,9 +106,11 @@ export const FormProcessing = () => {
                 </button>
                 <span className="read-only bg-transparent"></span>
               </div>
+              
+              { quiver?.test && <TestPlot/> }
+              
+              <HardModeProcessing active={extraFields}/>
             </div>
-            
-            <HardModeProcessing/>
         </form>
       </FormProvider>
       <ButtonLock localSetExtraFields={setExtraFields} localExtraFields={extraFields} footerElementID="processing-footer" headerElementID="processing-header" disabled={isBackendWorking}></ButtonLock>

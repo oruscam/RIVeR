@@ -34,6 +34,7 @@ interface Quiver {
     typevector: number[];
     u_median?: number[];
     v_median?: number[];
+    test: boolean;
 }
 
 

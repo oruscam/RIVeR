@@ -104,7 +104,11 @@
         "medianTestFiltering" : "Mediant test filtering",
         "epsilon": "Epsilon",
         "threshold": "Threshold",
-        "carouselMedia": "Median"
+        "carouselMedia": "Median",
+        "Plot": {
+            "u" : "U Component",
+            "v" : "V Component"
+        }
     },
     "Analizing": {
         "title": "Analizing",
