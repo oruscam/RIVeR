@@ -12,15 +12,49 @@ const getDistanceBetweenPoints = (points: Point[]): number => {
 // * Compute the pixel size based on the real world coordinates and the pixel coordinates.
 // * Return the size of a pixel in the real world units and the length of the line in the real world units.
 
-const computePixelSize = (pixelPoints: Point[], rwPoints: Point[]): { size: number, rw_length: number } => {
+const computePixelSize = (pixelPoints: Point[], rwPoints: Point[]): { size: number, rwLength: number } => {
     const pixelDistance = getDistanceBetweenPoints(pixelPoints);
     const rwDistance = getDistanceBetweenPoints(rwPoints);
 
     const pixelSize = rwDistance / pixelDistance
     const lineLength = rwDistance
 
-    return { size: pixelSize, rw_length: lineLength };
+    return { size: pixelSize, rwLength: lineLength };
 }
+
+/**
+ * Computes the real-world distance based on pixel points and pixel size.
+ *
+ * @param {Point[]} pixelPoints - An array of points in pixel coordinates.
+ * @param {number} pixelSize - The size of a pixel in real-world units.
+ * @returns {number} - The computed real-world distance, rounded to two decimal places.
+ */
+
+const computeRwDistance = (pixelPoints: Point[], pixelSize: number): number => {
+    const pixelDistance = getDistanceBetweenPoints(pixelPoints);
+    const rwLength = pixelDistance * pixelSize;
+
+    return parseFloat(rwLength.toFixed(2));
+}
+
+
+/**
+ * Get the coordinates of two points that define a line in the middle of the image.
+ *
+ * @param {number} imageWidth - The width of the image in pixels.
+ * @param {number} imageHeight - The height of the image in pixels.
+ * @returns {Point[]} - An array containing two points [point1, point2] that define the line.
+ */
+
+const getLinesCoordinates = (imageWidth: number, imageHeight: number): Point[] => {
+    const lineWidth = imageWidth / 3;
+
+    const point1 = { x: (imageWidth - lineWidth) / 2, y: imageHeight / 2 };
+    const point2 = { x: (imageWidth + lineWidth) / 2, y: imageHeight / 2 };
+
+    return [point1, point2];
+}
+
 
 /**
  * Transform pixel coordinates to real-world coordinates.
@@ -145,8 +179,10 @@ function getTransformationFromCameraMatrix(cameraMatrix: number[][], z_level: nu
 
 export {
     computePixelSize,
+    computeRwDistance,
     getDistanceBetweenPoints,
+    getLinesCoordinates,
+    getTransformationFromCameraMatrix,
     transformPixelToRealWorld,
     transformRealWorldToPixel,
-    getTransformationFromCameraMatrix
 }

@@ -1,4 +1,4 @@
-import { getDistanceBetweenPoints, computePixelSize, transformPixelToRealWorld, transformRealWorldToPixel } from "./coordinates";
+import { getDistanceBetweenPoints, computePixelSize, transformPixelToRealWorld, transformRealWorldToPixel, computeRwDistance, getLinesCoordinates } from "./coordinates";
 import { getPointNames } from "./getPointNames";
 import { getNewImageResolution } from "./getNewImageResolution";
 import { getValidationRules } from "./validationRules";
@@ -10,7 +10,7 @@ import { getBathimetryValues, getIntersectionPoints } from "./getBathimetryValue
 import { adapterCrossSections  } from "./adapterCrossSections";
 import { imageZoom, onMouseDownPixelSize, onMouseUpPixelSize, getRelativePointerPosition } from "./konvaActions";
 import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks } from "./graphsHelpers";
-import { formatNumberToPrecision2, formatNumberTo2Decimals } from "./adapterNumbers";
+import { formatNumberToPrecision2, formatNumberToPrecision4, formatNumberTo2Decimals } from "./adapterNumbers";
 import { carouselClickImage, carouselKeyDown } from "./carouselFunctions";
 import { calculateArrowWidth, calculateMultipleArrows } from "./drawVectorsFunctions";
 import { createSquare, getObliquePointsDistances, adapterObliquePointsDistances } from "./useMatrixHelpers";
@@ -31,10 +31,12 @@ export {
     carouselClickImage,
     carouselKeyDown,
     computePixelSize,
+    computeRwDistance,
     createSquare,
     dateToStringDate,
     formatNumberTo2Decimals,
     formatNumberToPrecision2,
+    formatNumberToPrecision4,
     formatTime,
     generateXAxisTicks,
     generateYAxisTicks,
@@ -42,6 +44,7 @@ export {
     getDirectionVector,
     getDistanceBetweenPoints,
     getIntersectionPoints,
+    getLinesCoordinates,
     getNewImageResolution,
     getObliquePointsDistances,
     getPointNames,

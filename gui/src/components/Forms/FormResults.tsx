@@ -13,7 +13,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   const { register, setValue } = useFormContext();
   const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
   const { name, data, numStations, alpha, artificialSeeding } = sections[activeSection]
-  const { onGetResultData, isBackendWorking } = useDataSlice();
+  const { isBackendWorking } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
 
   const { t } = useTranslation();  
@@ -75,13 +75,10 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
     }
   }
 
-  const handleOnClickApplyChanges = () => {
-      onGetResultData('single').catch( error => onSetErrorMessage(error.message) );
-  }
   
   return (
     <>
-        <div id="form-section-div"  className={activeSection !== index ? 'hidden' : ''}>
+        <div id="form-section-div" className={activeSection !== index ? 'hidden' : ''}>
           <form className={`form-scroll mt-1 ${isBackendWorking ? 'disabled' : ''}`} id="form-result" onSubmit={onSubmit}>
 
             <div id="result-info">
@@ -154,14 +151,6 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
 
             <span className="space3 mt-2"></span>
           </form>
-      </div>
-      <div id="apply-changes-container">
-        <button type="button" 
-                className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`} 
-                onClick={handleOnClickApplyChanges}
-                id="apply-changes"
-                > Apply changes
-        </button>
       </div>
     </>
   )

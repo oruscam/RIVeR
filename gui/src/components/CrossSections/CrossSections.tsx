@@ -11,8 +11,6 @@ import { ButtonLock } from "../ButtonLock"
 import { useTranslation } from "react-i18next"
 import { formatNumberTo2Decimals } from "../../helpers"
 
-
-
 const createInitialState = (sections: Section[]) => {
     let defaultValues = {};
   

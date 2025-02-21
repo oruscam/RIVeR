@@ -8,7 +8,7 @@ export const adapterCrossSections = ( sections: Section[] ) => {
         return {
             [name]: {
                 bath: bathimetry.path,
-                rw_length: pixelSize.rw_length,
+                rw_length: pixelSize.rwLength,
                 level: bathimetry.level,
                 left_station: bathimetry.leftBank,
                 east_l: sectionPointsRW[0].x,
@@ -32,7 +32,6 @@ export const adapterCrossSections = ( sections: Section[] ) => {
             }
         }
     }
-
 
     const jsonFormatSections = sections.slice(1).map(transformSection);
 

@@ -8,14 +8,14 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
     ipcMain.handle('pixel-size', async (_event, args: pixelSizeHandleArgs) => {
         console.log('En pixel-size event', args);
         const { directory, settingsPath, logsPath } = PROJECT_CONFIG;
-        const { dirPoints, rwPoints, pixelSize, rw_length } = args 
+        const { dirPoints, rwPoints, pixelSize, rwLength } = args 
 
         const json = await fs.promises.readFile(settingsPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
         
         jsonParsed.pixel_size = {
             size: pixelSize,
-            rw_length: rw_length,
+            rw_length: rwLength,
             x1: dirPoints[0].x,
             y1: dirPoints[0].y,
             x2: dirPoints[1].x,

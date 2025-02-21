@@ -95,7 +95,7 @@ export const Grid = () => {
       }, [sections, activeSection]);
 
   return (
-    <div className="grid-container mt-2 mb-2">
+    <div className="grid-container mt-2">
         <DataGrid   
             className="grid" 
             columns={columns} 

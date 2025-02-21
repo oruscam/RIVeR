@@ -404,16 +404,8 @@ transform-origin: 14px 22px;
     height: 100%;
 }
 
-#apply-changes-container{
-    width: 100%;
-    z-index: 150;
-    display: flex;
-    justify-content: center;
-}
-
 #apply-changes{
     font-size: 1.1em;
-
 }
 
 .simple-input-container{

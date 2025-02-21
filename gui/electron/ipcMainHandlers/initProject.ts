@@ -13,18 +13,18 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
 
         try {
             const result = await getVideoMetadata(arg.path)
-            await createFolderStructure(newDirectory, arg.type, result.path, arg.name, result)
+            const directory = await createFolderStructure(newDirectory, arg.type, result.path, arg.name, result)
 
-            PROJECT_CONFIG.directory = newDirectory
+            PROJECT_CONFIG.directory = directory
             PROJECT_CONFIG.type = arg.type
             PROJECT_CONFIG.videoPath = arg.path
-            PROJECT_CONFIG.settingsPath = path.join(newDirectory, 'settings.json')
-            PROJECT_CONFIG.logsPath = path.join(newDirectory, 'river.log')
+            PROJECT_CONFIG.settingsPath = path.join(directory, 'settings.json')
+            PROJECT_CONFIG.logsPath = path.join(directory, 'river.log')
             
             return {
                 result: {   
                     ...result,
-                    directory: newDirectory
+                    directory: directory
                 }
             }
         } catch (error) {
@@ -36,7 +36,7 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
                     }
                 }
             }
-            if ( error.code === 'EBUSY') {
+            if ( error.code === 'EBUSY' ) {
                 return {
                     error: {
                         message: error.message,

@@ -43,7 +43,7 @@ const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispatch: any
 
     dispatch(updateSection({
         ...section,
-        pixelSize: {size, rw_length},
+        pixelSize: {size, rwLength: rw_length},
         rwPoints: [{x: east1, y: north1}, {x: east2, y: north2}],
         dirPoints: [{x: x1, y: y1}, {x: x2, y: y2}],
         drawLine: true
@@ -101,10 +101,10 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
                 dispatch(setSummary(values.summary))
                 return
             }
-            const result = await ipcRenderer.invoke('get-bathimetry', { path: bath })
-            const { data } = getBathimetryValues(result.line, level)
+            const { line, name } = await ipcRenderer.invoke('get-bathimetry', { path: bath })
+            const { data } = getBathimetryValues(line, level)
             const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = data? data : { yMax: 0, yMin: 0, xMax: 0, xMin: 0, x1Intersection: 0, x2Intersection: 0, width: 0 }
-            
+
             if ( flag ){
                 flag = false
                 dispatch(updateSection({
@@ -114,11 +114,11 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
                     sectionPoints: [{x: xl, y: yl}, {x: xr, y: yr}],
                     dirPoints: [{ x: dir_xl, y: dir_yl }, { x: dir_xr, y: dir_yr}],
                     rwPoints: [{x: dir_east_l, y: dir_north_l}, {x: dir_east_r, y: dir_north_r}],
-                    pixelSize: {size: 0, rw_length: rw_length},
+                    pixelSize: {size: 0, rwLength: rw_length},
                     bathimetry: {
                         width: width,
                         level: level,
-                        line: result.line,
+                        line: line,
                         yMax: yMax,
                         yMin: yMin,
                         xMax: xMax,
@@ -127,6 +127,7 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
                         x1Intersection: x1Intersection,
                         x2Intersection: x2Intersection,
                         path: bath,
+                        name: name
                     },
                     alpha: alpha,
                     numStations: num_stations,
@@ -140,11 +141,11 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
                     sectionPoints: [{x: xl, y: yl}, {x: xr, y: yr}],
                     dirPoints: [{ x: dir_xl, y: dir_yl }, { x: dir_xr, y: dir_yr}],
                     rwPoints: [{x: dir_east_l, y: dir_north_l}, {x: dir_east_r, y: dir_north_r}],
-                    pixelSize: {size: 0, rw_length: rw_length},
+                    pixelSize: {size: 0, rwLength: rw_length},
                     bathimetry: {
                         width: width,
                         level: level,
-                        line: result.line,
+                        line: line,
                         yMax: yMax,
                         yMin: yMin,
                         xMax: xMax,
@@ -152,7 +153,8 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
                         leftBank: left_station,
                         x1Intersection: x1Intersection,
                         x2Intersection: x2Intersection,
-                        path: bath
+                        path: bath,
+                        name: name
                     },
                     alpha: alpha,
                     numStations: num_stations,

@@ -70,7 +70,6 @@ export const useProjectSlice = () => {
             const  { result, error } = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type });
 
             if ( error ){
-                console.log(error)
                 if (error.type === 'user-cancel-operation') {
                     throw new OperationCanceledError(error.message);
                 }

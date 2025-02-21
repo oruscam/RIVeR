@@ -163,7 +163,7 @@ function calculateMultipleArrows( east: number[], north: number[], magnitudes: (
     });
 
 
-    const targetMaxLength = videoWidth / 5; // image height
+    const targetMaxLength = videoWidth / 5; // Image Width
     
     let transformedMaxLength = 0
 

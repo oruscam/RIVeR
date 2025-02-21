@@ -41,7 +41,8 @@
         "drawLine": "Draw Line",
         "Errors": {
             "required": "All the fields are obligatory. Please check Pixel Size form.",
-            "lineLength" : "Invalid Line Length: The line length must be a positive number, which can include decimals. Please enter a valid value."
+            "lineLength" : "Invalid Line Length: The line length must be a positive number, which can include decimals. Please enter a valid value.",
+            "pixelSize": "Invalid Pixel Size: The pixel size must be a positive number, which can include decimals. Please enter a valid value."
         },
         "RealWorld": {
             "title": "Real World Coordinates",
