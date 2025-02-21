@@ -1,7 +1,7 @@
 import './form.css'
 import { useTranslation } from 'react-i18next'
 import { useFormContext } from 'react-hook-form'
-import { useSectionSlice, useUiSlice } from '../../hooks'
+import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks'
 import { PixelCoordinates, RealWorldCoordinates } from './index'
 import { FormChild } from '../../types'
 
@@ -9,7 +9,9 @@ export const  FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
     const { t } = useTranslation()
     const { sections, onUpdateSection } = useSectionSlice()
     const { extraFields } = sections[0]
-  
+    const { video } = useProjectSlice()
+    const { width, height } = video.data
+
     const { register} = useFormContext()
 
     const { onSetErrorMessage } = useUiSlice()
@@ -19,7 +21,7 @@ export const  FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
         event.preventDefault()
         const value = parseFloat(event.currentTarget.value)
         if ( value > 0) {
-          onUpdateSection({lineLength: value}, undefined)
+          onUpdateSection( {lineLength: value }, undefined)
         } else {
           const error = {
             "pixel_size_LINE_LENGTH": {
@@ -33,11 +35,22 @@ export const  FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
       }
     }
 
-    //* Desactiva la opcion de adelantar campos con el tabulador, cuando extraFields es false. 
-    //* Porque sino se puede adelantar a los campos de la siguiente seccion
-    const handleTab = ( event: React.KeyboardEvent<HTMLInputElement> ) => {
-      if( event.key === 'Tab' && !extraFields){
-        event.preventDefault()
+    const handlePixelSizeInput = (event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>) => {
+      if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') {
+      event.preventDefault()
+      const value = parseFloat((event.target as HTMLInputElement).value)
+      
+      if (value > 0) {
+        onUpdateSection({ pixelSize: value, imageWidth: width, imageHeight: height }, undefined )
+      } else {
+        const error = {
+        "pixel_size_PIXEL_SIZE": {
+          type: "required",
+          message: t("PixelSize.Errors.pixelSize")
+        }
+        }
+        onSetErrorMessage(error)
+      }
       }
     }
   
@@ -49,8 +62,8 @@ export const  FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
         <div className='form-base-2'>
 
             <div className='input-container-2'>
-              <button className={`wizard-button form-button me-1 ${sections[0].drawLine ? "wizard-button-active" : ""}`} onClick={() => onUpdateSection({drawLine: true})} type='button'>{t("PixelSize.drawLine")}</button>
-              <span className='read-only bg-transparent'></span>
+              <button className={`wizard-button form-button me-1 ${sections[0].drawLine ? "wizard-button-active" : ""}`} onClick={() => onUpdateSection({drawLine: true}, undefined)} type='button'>{t("PixelSize.drawLine")}</button>
+              <span className='read-only bg-transparent'/>
             </div>
             
               <div className='input-container-2 mt-2'>
@@ -79,11 +92,11 @@ export const  FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
                 <input className='input-field'
                       {...register('pixel_size_PIXEL_SIZE')} 
                       type='number' 
-                      readOnly={true}
                       id='pixel_size-PIXEL_SIZE'
-                      disabled={sections[0].dirPoints.length === 0}
+                      // disabled={sections[0].dirPoints.length === 0}
                       step="any"
-                      onKeyDown={handleTab}
+                      onKeyDown={handlePixelSizeInput}
+                      onBlur={handlePixelSizeInput}
                       />
               </div>
 

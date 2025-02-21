@@ -12,14 +12,15 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
         const transformationMatrix = PROJECT_CONFIG.matrixPath;
         const pivResults = PROJECT_CONFIG.resultsPath;
         const logsPath = PROJECT_CONFIG.logsPath;
-        
     
-        const xSectionsFile = await fs.promises.readFile(xSections, 'utf-8')
+        const xSectionsFile = await fs.promises.readFile(xSections, 'latin1')
         const xSectionsFileParsed = JSON.parse(xSectionsFile)
+
+        console.log('nombre de la bath', xSectionsFileParsed[name].bath)
         
         if( !arraysAreEqual(xSectionsFileParsed[name].check, activeCheck) ){
             xSectionsFileParsed[name].check = activeCheck
-            await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
+            await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'latin1')
         }
 
         const options = [
@@ -58,7 +59,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
                 xSectionsFileParsed[sectionKey].showPercentile = showPercentile
                 xSectionsFileParsed[sectionKey].artificial_seeding = artificialSeeding;
             }
-            await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
+            await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'latin1')
 
             return {
                 data: transformData(data, false),
@@ -76,7 +77,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
         const pivResults = PROJECT_CONFIG.resultsPath;
         const logsPath = PROJECT_CONFIG.logsPath;
     
-        const xSectionsFile = await fs.promises.readFile(xSections, 'utf-8')
+        const xSectionsFile = await fs.promises.readFile(xSections, 'latin1')
         const xSectionsFileParsed = JSON.parse(xSectionsFile)
 
         let flag = false;
@@ -89,7 +90,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
             };
         }
 
-        await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'utf-8')
+        await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2 ), 'latin1')
 
         let updatedSections = {}
 
@@ -129,7 +130,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
                         xSectionsFileParsed.summary = data.summary;
                     }
                 }
-                await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2), 'utf-8');
+                await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2), 'latin1');
                 finalData = transformData(xSectionsFileParsed, true);
                 finalError = error;
             } catch (error) {

@@ -1,5 +1,5 @@
 const formatNumberToPrecision2 = (num: number) => {
-    return parseFloat(num.toPrecision(2));
+    return parseFloat(num.toPrecision(4));
 };
 
 const formatNumberTo2Decimals = (num: number | undefined ) => {
@@ -7,5 +7,12 @@ const formatNumberTo2Decimals = (num: number | undefined ) => {
     return parseFloat(num.toFixed(2));
 }
 
+const formatNumberToPrecision4 = (num: number) => {
+    return parseFloat(num.toPrecision(4));
+};
 
-export { formatNumberToPrecision2, formatNumberTo2Decimals };
+export { 
+    formatNumberToPrecision4, 
+    formatNumberTo2Decimals,
+    formatNumberToPrecision2
+};

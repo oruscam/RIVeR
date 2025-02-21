@@ -1,5 +1,5 @@
 import { FieldValues, FormProvider, useForm } from "react-hook-form";
-import { useSectionSlice } from "../hooks";
+import { useDataSlice, useSectionSlice, useUiSlice } from "../hooks";
 import { Sections } from "./CrossSections";
 import { SectionsHeader } from "./SectionsHeader"
 import { FormResults } from "./Forms";
@@ -37,11 +37,17 @@ export const Results = () => {
     const { sections, activeSection } = useSectionSlice();
     const methods = useForm({ defaultValues: createInitialState(sections) });
     const { t } = useTranslation();
+    const { isBackendWorking, onGetResultData } = useDataSlice();
+    const { onSetErrorMessage } = useUiSlice();
 
     const { nextStep } = useWizard();
 
     const onSubmit = ( _data: FieldValues ) => {
         nextStep();
+    }
+
+    const handleOnClickApplyChanges = () => {
+        onGetResultData('single').catch( error => onSetErrorMessage(error.message) );
     }
     
     useEffect(() => {
@@ -63,6 +69,13 @@ export const Results = () => {
                     })
                 }
             </FormProvider>
+            <button 
+                className={`wizard-button form-button mt-1 ${isBackendWorking ? 'wizard-button-active' : ''}`}
+                onClick={handleOnClickApplyChanges}
+                id="apply-changes"
+                type="button"
+                > Apply Changes
+            </button>
         </>
   )
 }

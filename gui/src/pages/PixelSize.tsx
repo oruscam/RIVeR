@@ -7,7 +7,7 @@ import { useSectionSlice, useUiSlice } from '../hooks/index'
 import './pages.css'
 import { useEffect } from 'react'
 import { ButtonLock } from '../components/ButtonLock.js'
-import { formatNumberTo2Decimals, formatNumberToPrecision2 } from '../helpers/adapterNumbers.js'
+import { formatNumberTo2Decimals, formatNumberToPrecision4 } from '../helpers/adapterNumbers.js'
 
 
 export const PixelSize = () => {
@@ -17,8 +17,8 @@ export const PixelSize = () => {
   // * Estado inicial del formulario
   const methods = useForm({
     defaultValues: {
-      pixel_size_LINE_LENGTH: formatNumberTo2Decimals(pixelSize.rw_length),
-      pixel_size_PIXEL_SIZE: formatNumberToPrecision2(pixelSize.size),
+      pixel_size_LINE_LENGTH: formatNumberTo2Decimals(pixelSize.rwLength),
+      pixel_size_PIXEL_SIZE: formatNumberToPrecision4(pixelSize.size),
       pixel_size_EAST_point_1: rwPoints[0].x,
       pixel_size_EAST_point_2: rwPoints[1].x,
       pixel_size_NORTH_point_1: rwPoints[0].y,
@@ -45,8 +45,8 @@ export const PixelSize = () => {
 
   useEffect(() => {
     methods.reset({
-      pixel_size_LINE_LENGTH: formatNumberTo2Decimals(pixelSize.rw_length),
-      pixel_size_PIXEL_SIZE: formatNumberToPrecision2(pixelSize.size),
+      pixel_size_LINE_LENGTH: formatNumberTo2Decimals(pixelSize.rwLength),
+      pixel_size_PIXEL_SIZE: formatNumberToPrecision4(pixelSize.size),
       pixel_size_EAST_point_1: rwPoints[0].x,
       pixel_size_EAST_point_2: rwPoints[1].x,
       pixel_size_NORTH_point_1: rwPoints[0].y,

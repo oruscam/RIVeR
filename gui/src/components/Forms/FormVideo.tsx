@@ -67,8 +67,11 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter') {
       event.preventDefault()
-      let value = (event.target as HTMLInputElement).value;
       const id = (event.target as HTMLInputElement).id
+
+      if ( id === 'step' ) return
+
+      let value = (event.target as HTMLInputElement).value;
       const timeformat = identifyTimeFormat(value)
       
       if ( timeformat === 'mm:ss' ){
@@ -81,8 +84,7 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
       }
     
       const nextElement = document.getElementById(id === 'start' ? 'end' : 'input-step')
-      nextElement?.focus()
-      
+      nextElement?.focus()  
     }
   }
 
@@ -139,7 +141,7 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
               id='input-step'
               defaultValue={1}
               className='input-field'
-              onKeyDown={(e) => e.preventDefault()}
+              onKeyDown={handleKeyDown}
               { ...register('step', validationRules.step)}
               />
           </div>

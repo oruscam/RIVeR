@@ -142,8 +142,13 @@ export const useDataSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
+            const { bbox, form } = processing
+            const result = verifyWindowsSizes(form.step1, bbox ? bbox : false)
+            if ( result ) {
+                throw new Error((result.message))
+            }
+            
             const { data, error } = await ipcRenderer.invoke('get-quiver-all', { formValues: processing.form })
-
             if ( error?.message ){
                 throw new Error(error.message)
             } else {
@@ -199,7 +204,7 @@ export const useDataSlice = () => {
         if ( type === 'single' ){
             const section = sections[activeSection]
             try {
-                const { data, error } = await ipcRenderer.invoke('get-results-single', {step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, activeCheck : section.data?.activeCheck, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile, artificialSeeding: section.artificialSeeding })
+                const { data, error } = await ipcRenderer.invoke('get-results-single', { step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, activeCheck : section.data?.activeCheck, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile, artificialSeeding: section.artificialSeeding })
                 
                 if ( error?.message ){
                     throw new Error(error.message)
@@ -214,18 +219,20 @@ export const useDataSlice = () => {
                 }))
                 dispatch(setSummary(data.summary))
                 dispatch(setBackendWorkingFlag(false))
+                dispatch(clearMessage())
             } catch ( error ){
                 dispatch(setBackendWorkingFlag(false))
                 if ( error instanceof Error) {
                     throw new CliError(error.message, t)
                 }
                 dispatch(clearMessage())
+                
             }
         } else {
             dispatch(setLoading(true))
 
             try {
-                const { data, error } = await ipcRenderer.invoke('get-results-all', {step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1})
+                const { data, error } = await ipcRenderer.invoke('get-results-all', { step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1 })
                 
                 if ( error?.message ) {
                     throw new Error(error)
@@ -245,6 +252,7 @@ export const useDataSlice = () => {
                 dispatch(setDataLoaded(true))
                 dispatch(setLoading(false))
                 dispatch(setBackendWorkingFlag(false))
+                dispatch(clearMessage())
             } catch (error) {
                 dispatch(setLoading(false))
                 dispatch(setBackendWorkingFlag(false))
@@ -256,8 +264,8 @@ export const useDataSlice = () => {
         }
     }
 
-    const onClearQuiver = (previous?: boolean) => {
-        if ( hasChanged || previous === true) {
+    const onClearQuiver = () => {
+        if ( hasChanged ) {
             dispatch(setQuiver({quiver: undefined, test: false}))
         }
     }

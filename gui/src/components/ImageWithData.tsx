@@ -38,3 +38,5 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
     </div>
   )
 }
+
+

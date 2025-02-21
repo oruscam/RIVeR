@@ -17,7 +17,7 @@ interface Bathimetry {
 
 interface PixelSize {
     size: number;
-    rw_length: number;
+    rwLength: number; // Real world length
 }
 
 interface SectionData {

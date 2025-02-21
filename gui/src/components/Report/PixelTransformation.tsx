@@ -1,5 +1,5 @@
 import { REPORT_IMAGES } from "../../constants/constants";
-import { formatNumberToPrecision2, getUnit } from "../../helpers"
+import { formatNumberToPrecision4, getUnit } from "../../helpers"
 import { useProjectSlice, useSectionSlice } from "../../hooks"
 import { factor } from "../../types"
 import { IpcamPixelTransformation } from "./IpcamPixelTransformation";
@@ -32,7 +32,7 @@ export const PixelTransformation = ({ factor, videoHeight, videoWidth }: PixelTr
           <>
             <div id="transformation-uav">
               <p> Pixel size: </p>
-              <p> { formatNumberToPrecision2(size) }{getUnit(unitSistem, 'longitude')} </p>
+              <p> { formatNumberToPrecision4(size) }{getUnit(unitSistem, 'longitude')} </p>
             </div>
             <div id="transformation-uav-last-child"></div>
           </>

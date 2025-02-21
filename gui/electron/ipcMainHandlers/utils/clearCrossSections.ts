@@ -1,9 +1,6 @@
 import * as fs from 'fs'
 
 async function clearCrossSections(filepath: string){
-
-    console.log('clear cross sections')
-
     const xSectionsFile = await fs.promises.readFile(filepath, 'utf-8')
     const data = JSON.parse(xSectionsFile)
 

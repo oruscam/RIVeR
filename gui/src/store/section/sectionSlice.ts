@@ -12,7 +12,7 @@ const defaultSections = [{
             path: '',
             name: '',
         },
-        pixelSize: {size: 0, rw_length: 0},
+        pixelSize: {size: 0, rwLength: 0},
         rwPoints: DEFAULT_POINTS,
         extraFields: false,
         numStations: 0,
@@ -30,7 +30,7 @@ const defaultSections = [{
             path: '',
             name: '',
         },
-        pixelSize: { size: 0, rw_length: 0 },
+        pixelSize: { size: 0, rwLength: 0 },
         rwPoints: DEFAULT_POINTS,
         extraFields: false,
         numStations: DEFAULT_NUM_STATIONS,
@@ -46,7 +46,7 @@ const initialState: SectionState = {
     summary: undefined,
     activeSection: 0,
     sectionsCounter: 2,
-    transformationMatrix: []
+    transformationMatrix: [],
 };
 
 const sectionSlice = createSlice({
@@ -91,6 +91,7 @@ const sectionSlice = createSlice({
             state.sections[action.payload.sectionIndex].data = action.payload.sectionData;
             state.sections[action.payload.sectionIndex].artificialSeeding = action.payload.sectionData.artificial_seeding;
             state.sections[action.payload.sectionIndex].interpolated = action.payload.sectionData.interpolated;
+            state.sections[action.payload.sectionIndex].numStations = action.payload.sectionData.num_stations;
         },
         changeSectionData : (state, action: PayloadAction<SectionData>) => {
             state.sections[state.activeSection].data = action.payload;
@@ -98,6 +99,7 @@ const sectionSlice = createSlice({
         setBathimetry: (state, action: PayloadAction<{bathimetry: Bathimetry, index?: number}>) => {
             const index = action.payload.index === undefined ? state.activeSection : action.payload.index;
             state.sections[index].bathimetry = action.payload.bathimetry;
+            state.sections[index].hasChanged = true;
         },
         setSectionPoints: (state, action: PayloadAction<{points: Point[], index?: number}>) => {
             const index = action.payload.index === undefined ? state.activeSection : action.payload.index;

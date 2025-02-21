@@ -67,7 +67,7 @@ export const Summary = () => {
                             return (
                                 <tr key={index} className={index === sections.length -1 ? 'summary-last-section' : ''}>
                                     <td> {name} </td>
-                                    <td> {pixelSize.rw_length} </td>
+                                    <td> {pixelSize.rwLength} </td>
                                     <td> 1 </td>
                                     <td> { total_Q } </td>
                                     <td> { mean_V.toFixed(2) }</td>
