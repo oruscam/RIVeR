@@ -104,7 +104,7 @@
         "medianTestFiltering" : "Mediant test filtering",
         "epsilon": "Epsilon",
         "threshold": "Threshold",
-        "carouselMedia": "Media"
+        "carouselMedia": "Median"
     },
     "Analizing": {
         "title": "Analizing",

@@ -37,7 +37,7 @@ export const SvgSectionLine = ({ factor, index, isReport } : SvgSectionLineProps
         .attr("x2", sectionPoints[1].x / (typeof factor === 'number' ? factor : factor.x))
         .attr("y2", sectionPoints[1].y / (typeof factor === 'number' ? factor : factor.y))
         .attr("stroke", COLORS.YELLOW)
-        .attr("stroke-width", 4 / resizeFactor)
+        .attr("stroke-width", 3.75 / resizeFactor)
         .attr("stroke-linecap", "round")
         .attr("stroke-dasharray", "5,10");
     }

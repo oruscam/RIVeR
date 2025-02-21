@@ -51,7 +51,7 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
     return (
       <Line
         points={sectionPoints.flatMap(point => [point.x / factor, point.y / factor])}
-        stroke={COLORS.DARK_GREY}
+        stroke={lineColor}
         strokeWidth={4 / resizeFactor}
         lineCap="round"
         dash={[5, 10]}

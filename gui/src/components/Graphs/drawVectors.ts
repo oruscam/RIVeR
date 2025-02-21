@@ -41,11 +41,16 @@ export const drawVectors = (
                 .classed(`section-${sectionIndex}`, true);
             
             if ( isReport == false && typeof factor === 'number' ) {
+                let textOffset = 10 
+                if ( arrow.points[2][1] > arrow.points[0][1] ) {
+                    textOffset = - 20
+                }
+
                 polygon.on("mouseover", function() {
                     polygon.attr("fill-opacity", 1); // Cambiar la opacidad del polígono al pasar el mouse
                     svg.append("text")
                         .attr("x", parseFloat(arrow.points[2][0]) / factor) // Posicionar el texto en el centro del poligono
-                        .attr("y", parseFloat(arrow.points[2][1]) / factor - 10) // Posicionar el texto arriba del polígono
+                        .attr("y", parseFloat(arrow.points[2][1]) / factor - textOffset) // Posicionar el texto arriba del polígono
                         .attr("id", `tooltip-${i}`)
                         .attr("text-anchor", "middle")
                         .attr("font-size", "18px")

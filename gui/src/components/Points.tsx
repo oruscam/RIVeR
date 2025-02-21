@@ -71,7 +71,7 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
                 if ( index === 0 ) return iconRed
                 return iconGreen
             
-            case 'contolPoints':
+            case 'controlPoints':
                 if  ( index === 0 ) return iconRed
                 return icon
         }
@@ -103,7 +103,7 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
                                     y={(point.y - MARKS.NUMBER_OFFSET_Y / resizeFactor)}
                                     text={(index + 1).toString()}
                                     fontSize={MARKS.NUMBER_FONT_SIZE / resizeFactor}
-                                    fill={index === 0 ? COLORS.MARK_L : COLORS.MARK_R}
+                                    fill={index === 0 && module === 'controlPoints' ? COLORS.MARK_L : COLORS.MARK_R}
                                     fontStyle='bold'
                                     listening={false}
                                 />

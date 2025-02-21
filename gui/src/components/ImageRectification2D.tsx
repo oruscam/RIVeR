@@ -128,7 +128,7 @@ export const ImageRectification2D = () => {
               draggable={true}
               factor={factor}
               resizeFactor={resizeFactor}
-              module="contolPoints"
+              module="controlPoints"
             />
 
         </Layer>
