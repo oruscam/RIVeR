@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useMatrixSlice, useProjectSlice } from "../hooks";
 import DataGrid, { SelectColumn } from "react-data-grid";
+import { useTranslation } from "react-i18next";
 
 interface Row {
     key: number;
@@ -17,6 +18,8 @@ const rowKeyGetter = (row: Row): number => {
     return row.id;
 }
 
+
+
 export const IpcamGrid = () => {
     const [selectedRows, setSelectedRows] = useState<ReadonlySet<number>>(() => new Set());
     
@@ -25,6 +28,8 @@ export const IpcamGrid = () => {
 
     const { video } = useProjectSlice();
     const { width, height } = video.data;
+
+    const { t } = useTranslation(); 
 
     const rows = useMemo(() => {
         if (importedPoints === undefined) {
@@ -54,9 +59,12 @@ export const IpcamGrid = () => {
 
     const columns = [
         { ...SelectColumn, cellClass: 'centered-cell', headerCellClass: 'select-cell' },
-        { key: 'label', name: 'Label', cellClass: 'point-label-cell centered-cell', headerCellClass: 'centered-cell' },
-        { key: 'x', name: 'x', cellClass: 'centered-cell', headerCellClass: 'centered-cell' },
-        { key: 'y', name: 'y', cellClass: 'centered-cell', headerCellClass: 'centered-cell' },
+        { key: 'label', name: 'Label', cellClass: 'point-label-cell centered-cell label-cell', headerCellClass: 'centered-cell label-cell', frozen: true },
+        { key: 'X', name: t('Ipcam.east'), cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
+        { key: 'Y', name: t('Ipcam.north'), cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
+        { key: 'Z', name: 'Z', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
+        { key: 'x', name: 'x', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
+        { key: 'y', name: 'y', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
     ];
 
     const handleCellClick = (cell: { row: any; column: any; }) => {
@@ -97,7 +105,7 @@ export const IpcamGrid = () => {
                 selectedRows={selectedRows}
                 onSelectedRowsChange={setSelectedRows}
                 rowKeyGetter={rowKeyGetter}
-                className="grid"
+                className={`grid ${importedPoints === undefined ? 'disabled' : ''}`}
                 onCellClick={handleCellClick}
             />
         </div>

@@ -15,7 +15,6 @@ async function getDistances(){
     ipcMain.handle('import-distances', async (_event, _args) => {
 
         try {
-
             const result = await dialog.showOpenDialog(options);
             const distancesPath = result.filePaths[0];
             
@@ -26,7 +25,6 @@ async function getDistances(){
 
             let data = utils.sheet_to_json(sheet, { header: 1 });
             const distances = transformDistances(data as [string, number][])
-            console.log(distances)
 
             return {
                 distances
@@ -40,20 +38,26 @@ async function getDistances(){
 
 const transformDistances = (distances: any[]) => {
     const distancesObject: { [key: string]: number } = {};
+    const keys = ['d12', 'd23', 'd34', 'd41', 'd13', 'd24'];
 
-    if (Array.isArray(distances[0]) && typeof distances[0][0] === 'string' && distances.length === 6) {
+    if (Array.isArray(distances[0]) && typeof distances[0][0] === 'string' && distances.length === 6 ){
         // Caso en que distances es un array de tuplas [string, number]
-        (distances as [string, number][]).forEach(([key, value]) => {
-            distancesObject[key] = value;
+        (distances as [string, number][]).forEach(([key, value], index) => {
+            if ( typeof value !== 'number' ){
+                throw new Error('invalidDistancesFileFormat');
+            }
+            distancesObject[keys[index]] = value;
         });
     } else if (Array.isArray(distances[0]) && typeof distances[0][0] === 'number' && distances.length === 6) {
         // Caso en que distances es un array de arrays de números
-        const keys = ['d12', 'd23', 'd34', 'd41', 'd13', 'd24'];
         (distances as number[][]).forEach((valueArray, index) => {
+            if ( typeof valueArray[0] !== 'number' ){
+                throw new Error('invalidDistancesFileFormat');
+            }
             distancesObject[keys[index]] = valueArray[0];
         });
     } else {
-        throw new Error('invalidDistancesFormat');
+        throw new Error('invalidDistancesFileFormat');
     }
 
     return distancesObject;

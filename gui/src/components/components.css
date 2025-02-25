@@ -586,29 +586,25 @@
 
 #ipcam-grid{
     max-height: 450px;
-    width: 90%;
+    width: 95%;
+    block-size: 100%;
 }
-
 
 .grid{
     height: 100%;
     width: 100%;
 }
 
+.grid.disabled{
+    pointer-events: none;
+    block-size: auto;
+    opacity: 0.5;
+}
+
 .grid::-webkit-scrollbar {
   height: 5px; /* Altura del scrollbar horizontal */
 }
 
-/* .grid .rdg-header-row {
-    position: sticky;
-    top: 0;
-    background-color: white;
-    z-index: 1; 
-  } */
-
-
-
-  
 .centered-cell {
     display: flex;
     justify-content: center;
@@ -616,8 +612,17 @@
     height: 100%; /* Asegura que el contenido ocupe toda la altura de la celda */
     text-align: center; /* Alinea el texto en el centro */
     background-color: black;
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     color: white;
+}
+
+.label-cell{
+    min-width: 80px;
+}
+
+.common-cell{
+    width: auto;
+    padding: 0 8px;
 }
 
 /* 

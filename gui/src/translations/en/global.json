@@ -180,9 +180,11 @@
         }
     },
     "Errors": {
-        "invalidDistancesFormat" : "Invalid distances format",
-        "imagesFolderEmpty" : "No images found in the selected folder",
+        "invalidPointsFileFormat": "Invalid Points file format. Please check https://www.google.com",
+        "invalidDistancesFileFormat" : "Invalid Points Distances format",
+        "invalidBathimetryFileFormat" : "Invalid Bathimetry file format",
         "invalidImageExtension": "The directory contains files that are not images",
+        "imagesFolderEmpty" : "No images found in the selected folder",
         "Cli": {
             "windowsSizesError" : "The window size is too large for the selected Region Of Interest.",
             "bboxNotDefined" : "Region of Interest not defined."
@@ -192,5 +194,9 @@
         "frames" : "Extracting Video Frames",
         "results" : "Generating velocity profile statistics",
         "videoConversion" : "We are converting the video to mp4 format. Please wait a moment."
+    },
+    "Ipcam": {
+        "east" : "East",
+        "north" : "North"
     }
 }

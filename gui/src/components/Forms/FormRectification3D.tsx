@@ -15,7 +15,7 @@ export const FormRectification3D = () => {
     const handleOnClickImport = async ( event: React.MouseEvent<HTMLButtonElement> ) => {
         const id = (event.target as HTMLButtonElement).id;
         if ( id === 'import-points'){
-            onGetPoints();
+            onGetPoints().catch( error => onSetErrorMessage(error.message) );
         } else {
             onGetImages(undefined).catch( error => onSetErrorMessage(error.message) );
         }

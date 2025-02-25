@@ -74,7 +74,7 @@ export const useMatrixSlice = () => {
         }
     }
 
-    const onGetTransformtionMatrix = async (type: 'uav' | 'ipcam' | 'oblique', formDistances: FieldValues) => {
+    const onGetTransformationMatrix = async (type: 'uav' | 'ipcam' | 'oblique', formDistances: FieldValues) => {
         dispatch(setLoading(true))
 
         if ( type === 'oblique'){
@@ -97,15 +97,22 @@ export const useMatrixSlice = () => {
 
             const ipcRenderer = window.ipcRenderer
             try {   
-                const { oblique_matrix } = await ipcRenderer.invoke('set-control-points', {coordinates, distances: newDistances})
+                const { obliqueMatrix, error } = await ipcRenderer.invoke('set-control-points', {coordinates, distances: newDistances})
 
-                dispatch(setTransformationMatrix(oblique_matrix));
+                if ( error?.message ){
+                    throw new Error(error.message)
+                } 
+
+                dispatch(setTransformationMatrix(obliqueMatrix));
                 dispatch(setObliquePoints({...obliquePoints, distances: newDistances, isDistancesLoaded: true}));
                 dispatch(cleanSections())
                 dispatch(setLoading(false))
                 dispatch(setHasChanged(false));
             } catch (error) {
                 console.log(error)
+                if (error instanceof Error){
+                    throw new CliError(error.message, t)
+                }
             }
         }
     }
@@ -114,12 +121,18 @@ export const useMatrixSlice = () => {
         const ipcRenderer = window.ipcRenderer
 
         try {
-            const data = await ipcRenderer.invoke('import-points', { path: undefined });
-           
+            const { data, error } = await ipcRenderer.invoke('import-points', { path: undefined });
+            
+            if ( error?.message ){
+                throw new Error(error.message)
+            }
+
             dispatch(setIpcamPoints({ points: data.points, path: data.path }));
             dispatch(setIpcamCameraSolution(undefined))
         } catch (error) {
-            console.log(error)
+            if ( error instanceof Error ){
+                throw new ResourceNotFoundError(error.message, t);
+            }
         }
     }
 
@@ -186,8 +199,8 @@ export const useMatrixSlice = () => {
         // Primer caso, cuando se establece el punto en el centro.
         if ( newPoint.wasEstablished === false && imageSize ){
 
-            newPoint.x = imageSize.width / 2
-            newPoint.y = imageSize.height / 2
+            newPoint.x = parseFloat((imageSize.width / 2).toFixed(1))
+            newPoint.y = parseFloat((imageSize.height / 2).toFixed(1))
 
             dispatch(setCustomIpcamPoint({
                 point: newPoint,
@@ -197,8 +210,8 @@ export const useMatrixSlice = () => {
 
         // Segundo caso, cuando se establece el punto en una posición diferente al centro.
         if ( point ) {
-            newPoint.x = point.x
-            newPoint.y = point.y
+            newPoint.x = parseFloat((point.x).toFixed(1))
+            newPoint.y = parseFloat((point.y).toFixed(1))
             newPoint.wasEstablished = true
             newPoint.image = activeImage
 
@@ -286,7 +299,7 @@ export const useMatrixSlice = () => {
         onGetDistances,
         onGetImages,
         onGetPoints,
-        onGetTransformtionMatrix,
+        onGetTransformationMatrix,
         onResetMatrixSlice,
         onSetDrawPoints,
         onSetObliqueCoordinates,

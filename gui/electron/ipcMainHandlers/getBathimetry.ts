@@ -50,6 +50,13 @@ async function getBathimetry() {
                 const x = parseFloat(row[keys[0]]);
                 const y = parseFloat(row[keys[1]]);
 
+                if ( (isNaN(x) || isNaN(y)) && index !== 0 ) {
+                    console.log('invalidBathimetryFileFormat')
+                    console.log('x', x, 'y', y)
+                    console.log('index', index)
+                    throw new Error('invalidBathimetryFileFormat');
+                }
+
                 // Find the maximum y value and its index
                 if (!isNaN(y) && y > maxY) {
                     maxY = y;
@@ -82,6 +89,9 @@ async function getBathimetry() {
             // Return the path, name, line data, and whether it was changed
             return { path: bathPath, name: bathimetryName, line: line, changed: changed };
         } catch (error) {
+            if ( error.message === 'invalidBathimetryFileFormat' ){
+                return { error }
+            }
             console.log(error)
         }
     })

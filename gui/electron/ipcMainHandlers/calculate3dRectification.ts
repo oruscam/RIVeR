@@ -150,7 +150,7 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
             }
         } catch (error) {
             console.log(error)
-            return { error }
+            throw new Error(error)
         }
     })
     

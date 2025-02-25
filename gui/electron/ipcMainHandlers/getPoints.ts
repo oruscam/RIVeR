@@ -28,44 +28,59 @@ async function getPoints(){
 
             const sheet = workbook.Sheets[sheetName];
 
-            let data = utils.sheet_to_json(sheet, { header: 1 });
-            data = transformPoints(data as [[]])
+            let values = utils.sheet_to_json(sheet, { header: 1 });
+            const points = transformPoints(values as [[]])
 
-            console.log('transform data', data)
-            
             return {
-                points: data,
-                path: pointsPath
+                data: {
+                    points: points,
+                    path: pointsPath
+                }
             };
+
         } catch (error) {
-            console.log( error )
+            if ( error.message === 'invalidPointsFileFormat'){
+                return { error }
+            }
         }
     })
 }
 
 function transformPoints(points: [[]]){
+
+    if (points[0].length < 4) {
+        throw new Error('invalidPointsFileFormat');
+    }
+
     const newPoints = points.map((point: string[], index) => {
         const key = index
         const label = point[0];
-        const X = parseFloat(point[1]);
-        const Y = parseFloat(point[2]);
-        const Z = parseFloat(point[3]);
+
+        if ( label.toUpperCase() === 'LABEL' && typeof point[1] === 'string' && typeof point[2] === 'string' && typeof point[3] === 'string'){ 
+            return undefined
+        }
+
+        const X = parseFloat(Number(point[1]).toFixed(2));
+        const Y = parseFloat(Number(point[2]).toFixed(2));
+        const Z = parseFloat(Number(point[3]).toFixed(2));
         let x = 0;
         let y = 0;
         let wasEstablished = false
-        
-        // const id = index
+
+        if ( isNaN(x) || isNaN(Y) || isNaN(Z) ){
+            throw new Error('invalidPointsFileFormat');
+        }
         
         if ( point.length > 4){ 
-            x = parseFloat(point[4]);
-            y = parseFloat(point[5]);
+            x = parseFloat(Number(point[4]).toFixed(1));
+            y = parseFloat(Number(point[5]).toFixed(1));
             wasEstablished = true
         }
 
         return { key, index, label, X, Y, Z, x, y, selected: true, wasEstablished }
-    })
+    }).filter((point) => point !== undefined)
 
-    return newPoints;
+    return newPoints
 }
 
 export { getPoints }

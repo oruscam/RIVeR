@@ -49,7 +49,9 @@ function getIpcamImages(PROJECT_CONFIG: ProjectConfig){
                 path: imagesPath
             }
         } catch (error) {
-            return { error } 
+            if ( error.message === 'imagesFolderEmpty' || error.message === 'invalidImageExtension'){
+                return { error } 
+            }
         }    
         
     })

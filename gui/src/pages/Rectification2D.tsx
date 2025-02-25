@@ -6,7 +6,7 @@ import { useWizard } from "react-use-wizard"
 import { useEffect } from "react"
 
 export const Rectification2D = () => {
-  const { obliquePoints, onGetTransformtionMatrix } = useMatrixSlice()
+  const { obliquePoints, onGetTransformationMatrix } = useMatrixSlice()
   const { distances, drawPoints } = obliquePoints
   const { onSetErrorMessage } = useUiSlice()
   const { nextStep } = useWizard()
@@ -22,8 +22,8 @@ export const Rectification2D = () => {
     }
   })
 
-  const onSubmit = ( values: FieldValues) => {
-    onGetTransformtionMatrix('oblique', values)
+  const onSubmit = ( values: FieldValues ) => {
+    onGetTransformationMatrix('oblique', values).catch( error => onSetErrorMessage(error.message))
     nextStep()
   }
 

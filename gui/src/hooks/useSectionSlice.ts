@@ -13,6 +13,8 @@ import { setBackendWorkingFlag, setProcessingMask, setQuiver, updateProcessingFo
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../constants/constants';
 import { CanvasPoint, FormPoint, Point } from '../types';
 import { computeRwDistance, getLinesCoordinates, getTransformationFromCameraMatrix } from '../helpers/coordinates';
+import { ResourceNotFoundError } from '../errors/errors';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -24,6 +26,7 @@ import { computeRwDistance, getLinesCoordinates, getTransformationFromCameraMatr
 export const useSectionSlice = () => {
     const { sections, activeSection, summary, sectionsCounter, transformationMatrix, sectionsChanged } = useSelector((state: RootState) => state.section);
     const { processing } = useSelector((state: RootState) => state.data);
+    const { t } = useTranslation() 
     const dispatch = useDispatch();
 
     /**
@@ -629,10 +632,13 @@ export const useSectionSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const data = await ipcRenderer.invoke('get-bathimetry', { path: undefined } )
-            const { path, line, name } = data
+            const { path, line, name, error } = await ipcRenderer.invoke('get-bathimetry', { path: undefined } )
 
-            if ( data.path !== "" && data.path !== sections[activeSection].bathimetry.path ){
+            if ( error?.message ){
+                throw new Error(error.message)
+            }
+
+            if ( path !== "" && path !== sections[activeSection].bathimetry.path ){
                 
                 const { data, error } = cameraMatrix && sections[1].bathimetry.level !== undefined
                     ? { ...getBathimetryValues(line, sections[1].bathimetry.level)}
@@ -662,6 +668,9 @@ export const useSectionSlice = () => {
         } catch (error) {
             console.log(error)
             dispatch(updateSection({...sections[activeSection], bathimetry: {path: "", level: 0, name: ""}, sectionPoints: DEFAULT_POINTS}))
+            if (error instanceof Error ){
+                throw new ResourceNotFoundError(error.message, t)
+            }
         }
     }
 
