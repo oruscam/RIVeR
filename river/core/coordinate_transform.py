@@ -624,62 +624,126 @@ def get_pixel_size(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_rw, y2_rw):
 
 
 def get_uav_transformation_matrix(
-	x1_pix: float,
-	y1_pix: float,
-	x2_pix: float,
-	y2_pix: float,
-	x1_rw: float,
-	y1_rw: float,
-	x2_rw: float,
-	y2_rw: float,
-	pixel_size: Optional[float] = None,
-) -> np.ndarray:
-	"""
-	Compute the transformation matrix from pixel to real-world coordinates from 2 points.
+    x1_pix: float,
+    y1_pix: float,
+    x2_pix: float,
+    y2_pix: float,
+    x1_rw: float,
+    y1_rw: float,
+    x2_rw: float,
+    y2_rw: float,
+    pixel_size: Optional[float] = None,
+    image_path: Optional[str] = None,
+    roi_padding: float = 0,
+    max_dimension: int = 500,
+    min_resolution: float = 0.01,
+    flip_x: bool = False,
+    flip_y: bool = True
+) -> dict:
+    """
+    Compute the transformation matrix from pixel to real-world coordinates from 2 points.
+    Optionally transforms an image using the calculated transformation matrix.
 
-	Parameters:
-	    x1_pix (float): X coordinate of the first point in pixels.
-	    y1_pix (float): Y coordinate of the first point in pixels.
-	    x2_pix (float): X coordinate of the second point in pixels.
-	    y2_pix (float): Y coordinate of the second point in pixels.
-	    x1_rw (float): X coordinate of the first point in real-world units.
-	    y1_rw (float): Y coordinate of the first point in real-world units.
-	    x2_rw (float): X coordinate of the second point in real-world units.
-	    y2_rw (float): Y coordinate of the second point in real-world units.
+    Parameters:
+        x1_pix (float): X coordinate of the first point in pixels.
+        y1_pix (float): Y coordinate of the first point in pixels.
+        x2_pix (float): X coordinate of the second point in pixels.
+        y2_pix (float): Y coordinate of the second point in pixels.
+        x1_rw (float): X coordinate of the first point in real-world units.
+        y1_rw (float): Y coordinate of the first point in real-world units.
+        x2_rw (float): X coordinate of the second point in real-world units.
+        y2_rw (float): Y coordinate of the second point in real-world units.
+        pixel_size (Optional[float]): Pixel size in real-world units. If None, calculated from the input points.
+        image_path (Optional[str]): Path to the input image. If None, no image transformation is performed.
+        roi_padding (float): Optional padding as a fraction of the ROI dimensions (default: 0.1).
+        max_dimension (int): Maximum pixel dimension (width or height) for the output image
+        min_resolution (float): Minimum resolution in real-world units per pixel
+        flip_x (bool): Whether to flip the transformed image horizontally
+        flip_y (bool): Whether to flip the transformed image vertically
 
-	Returns:
-	    np.ndarray: A 3x3 transformation matrix.
-	"""
-	# Step 1: Calculate pixel size
-	if pixel_size is None:
-		pixel_size = get_pixel_size(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_rw, y2_rw)
+    Returns:
+        dict: Dictionary containing:
+            - 'transformation_matrix': 3x3 transformation matrix
+            If image_path is provided, also includes:
+            - 'transformed_img': Transformed image
+            - 'extent': [x_min, x_max, y_min, y_max] for plotting
+            - 'output_resolution': The resolution of the output image in real-world units per pixel
+    """
+    # Step 1: Calculate pixel size
+    if pixel_size is None:
+        pixel_size = get_pixel_size(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_rw, y2_rw)
 
-	# Step 2: Compute rotation angle
-	dx_pix = x2_pix - x1_pix
-	dy_pix = y2_pix - y1_pix
-	dx_rw = x2_rw - x1_rw
-	dy_rw = y2_rw - y1_rw
+    # Step 2: Compute rotation angle
+    dx_pix = x2_pix - x1_pix
+    dy_pix = y2_pix - y1_pix
+    dx_rw = x2_rw - x1_rw
+    dy_rw = y2_rw - y1_rw
 
-	angle_pix = np.arctan2(dy_pix, dx_pix)
-	angle_rw = np.arctan2(dy_rw, dx_rw)
-	rotation_angle = angle_rw - angle_pix
+    angle_pix = np.arctan2(dy_pix, dx_pix)
+    angle_rw = np.arctan2(dy_rw, dx_rw)
+    rotation_angle = angle_rw - angle_pix
 
-	# Step 3: Create the rotation matrix
-	cos_theta = np.cos(rotation_angle)
-	sin_theta = np.sin(rotation_angle)
-	rotation_matrix = np.array([[cos_theta, -sin_theta, 0], [sin_theta, cos_theta, 0], [0, 0, 1]])
+    # Step 3: Create the rotation matrix
+    cos_theta = np.cos(rotation_angle)
+    sin_theta = np.sin(rotation_angle)
+    rotation_matrix = np.array([[cos_theta, -sin_theta, 0], [sin_theta, cos_theta, 0], [0, 0, 1]])
 
-	# Step 4: Translate the first pixel point to the origin
-	translated_x1 = x1_rw - (x1_pix * pixel_size * cos_theta - y1_pix * pixel_size * sin_theta)
-	translated_y1 = y1_rw - (-x1_pix * pixel_size * sin_theta - y1_pix * pixel_size * cos_theta)
+    # Step 4: Translate the first pixel point to the origin
+    translated_x1 = x1_rw - (x1_pix * pixel_size * cos_theta - y1_pix * pixel_size * sin_theta)
+    translated_y1 = y1_rw - (-x1_pix * pixel_size * sin_theta - y1_pix * pixel_size * cos_theta)
 
-	# Step 5: Create the scaling and translation matrix
-	scale_translation_matrix = np.array([[pixel_size, 0, translated_x1], [0, -pixel_size, translated_y1], [0, 0, 1]])
+    # Step 5: Create the scaling and translation matrix
+    scale_translation_matrix = np.array([[pixel_size, 0, translated_x1], [0, -pixel_size, translated_y1], [0, 0, 1]])
 
-	# Step 6: Combine rotation and scaling/translation matrices
-	transformation_matrix = np.dot(scale_translation_matrix, rotation_matrix)
+    # Step 6: Combine rotation and scaling/translation matrices
+    transformation_matrix = np.dot(scale_translation_matrix, rotation_matrix)
 
-	return transformation_matrix
+    # Initialize result dictionary with the transformation matrix
+    result = {
+        'transformation_matrix': transformation_matrix
+    }
+
+    # Calculate and apply image transformation if image_path is provided
+    if image_path is not None:
+        # Load the image
+        img = cv2.imread(image_path)
+        if img is None:
+            raise ValueError(f"Could not load image from {image_path}")
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        h, w = img.shape[:2]
+
+        # Calculate the ROI that includes the entire image with padding
+        x_padding = w * roi_padding
+        y_padding = h * roi_padding
+        roi = (int(-x_padding), int(h + y_padding), int(-x_padding), int(w + x_padding))
+
+        # Transform the image using the calculated transformation matrix
+        transformed_img, extent = orthorectify_image_with_size_limit(
+            img,
+            transformation_matrix,
+            roi=roi,
+            max_dimension=max_dimension,
+            min_resolution=min_resolution,
+            flip_x=flip_x,
+            flip_y=flip_y
+        )
+
+        # Add the transformed image and extent to the result dictionary
+        result['transformed_img'] = transformed_img
+        result['extent'] = extent
+
+        # Calculate the actual resolution achieved
+        x_idx = 0 if extent[0] < extent[1] else 1
+        y_idx = 2 if extent[2] < extent[3] else 3
+        x_ext = abs(extent[1] - extent[0])
+        y_ext = abs(extent[3] - extent[2])
+
+        result['output_resolution'] = max(
+            x_ext / transformed_img.shape[1],
+            y_ext / transformed_img.shape[0]
+        )
+
+    return result
 
 
 def calculate_roi(
