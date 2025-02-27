@@ -84,7 +84,7 @@
     margin-right: 5px;
 }
 
-#time-between-frames{
+.frames-info{
     min-width: 320px;
 }
 
@@ -348,7 +348,7 @@ transform-origin: 14px 22px;
 }
 
 #form-video{
-    height: 250px;
+    height: 280px;
 }
 
 
@@ -396,12 +396,11 @@ transform-origin: 14px 22px;
     margin-top: 4vh;
 
 }
+
 .all-in-one-container{
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
-    height: 100%;
 }
 
 #apply-changes{

@@ -25,7 +25,8 @@ interface RowProps {
 
 function getFileNameWithoutExtension(filePath: string): string {
     // Remove the 'file:\' prefix if it exists
-    if (filePath.startsWith('file:\\')) {
+    const filePrefix = import.meta.env.VITE_FILE_PREFIX;
+    if (filePath.startsWith(filePrefix)) {
         filePath = filePath.slice(6);
     }
 
@@ -74,7 +75,7 @@ export const Carousel: React.FC<CarouselProps> = ({ images, active, setActiveIma
                 onClick={() => carouselClickImage( active, index, images, isBackendWorking, listRef.current!, setShowMedian, setActiveImage, setDefaultValue, mode)} 
                 style={style}>
                 <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
-                <div className={`img-water-mark ${mode === 'ipcam' ? '-ipcam' : ''}`}> { mode === 'ipcam' ? getFileNameWithoutExtension(images[index]) : index + 1}</div>
+                <div className={`img-water-mark${mode === 'ipcam' ? '-ipcam' : ''}`}> { mode === 'ipcam' ? getFileNameWithoutExtension(images[index]) : index + 1}</div>
             </div>
         );
     };

@@ -41,7 +41,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
 
     svg.append('g')
         .attr('class', 'y-axis y-axis-1')
-        .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`)
+        .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE },0)`)
         .call(yAxis)
         .selectAll('.tick text')
         .style('font-size', '14px')
@@ -54,7 +54,7 @@ export const createDischargeChart = ({ SVGElement, distance, Q, QPortion, sizes,
     .attr('class', 'grid')
     .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`)
     .call(makeYGridlines()
-        .tickSize(-width + margin.left + margin.right)
+        .tickSize(-width + margin.left + margin.right * 2)
         .tickFormat('' as any))
     .attr('stroke', 'grey')
     .attr('stroke-width', 0.15);

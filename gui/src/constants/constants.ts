@@ -8,12 +8,11 @@ export const FOOTAGE_TYPES = {
     UAV: 'uav'
 }
 
-
 /**
  * Image Width factor
  */
 
-export const IMAGE_WIDTH_FACTOR = 0.66
+export const IMAGE_WIDTH_FACTOR = 0.62
 
 /**
  * Default section
@@ -77,7 +76,7 @@ export const GRAPHS = {
     BAR_PADDING: 5,
     WIDTH_PROPORTION: 0.22,
     MIN_WIDTH: 375,
-    GRID_Y_OFFSET_ALL_IN_ONE: 20,
+    GRID_Y_OFFSET_ALL_IN_ONE: 35,
     IPCAM_GRID_PROPORTION: 0.27,
     IPCAM_GRID_PADDING: 10,
     GRID_Y_OFFSET_BATHIMETRY: 10,

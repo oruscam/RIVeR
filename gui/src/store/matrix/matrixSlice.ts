@@ -70,7 +70,6 @@ const matrixSlice = createSlice({
             state.ipcam.activeImage = action.payload
         },
         setCustomIpcamPoint: ( state, action: PayloadAction<setIpcamCustomPoint> ) => {
-            console.log('setCustomIpcamPoint', action)
             if ( state.ipcam.importedPoints ){
                 state.ipcam.importedPoints[action.payload.index] = action.payload.point
                 state.ipcam.activePoint = action.payload.index

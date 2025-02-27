@@ -626,17 +626,19 @@ body{
 #ipcam-transformation-info p {
     margin-bottom: 8px;
 }
-
-#successful-container{
+#successful-container {
     background-color: #41783a;
     width: 90%;
+    max-width: 100%; /* Asegura que no exceda el ancho del contenedor padre */
     height: auto;
     display: flex;
-    padding: 25px 10px 25px 10px;
+    padding: 25px 50px 30px 10px;
     border-radius: 20px;
+    word-wrap: break-word; /* Permite que las palabras largas se dividan */
+    overflow-wrap: break-word; /* Asegura que el texto se ajuste dentro del contenedor */
 }
 
-#check-icon svg{
+#check-icon svg {
     width: 50px;
     height: 50px;
     margin-right: 10px;
@@ -644,10 +646,22 @@ body{
     fill: #FFFFFF;
 }
 
-#successful-title{
+#successful-title {
     font-size: 1.4rem;
+}
+
+#successful-message-container {
+    flex: 1; /* Permite que el contenedor de mensajes ocupe el espacio disponible */
+}
+
+#successful-message-container p {
+    margin: 0; /* Elimina márgenes adicionales */
+    word-wrap: break-word; /* Permite que las palabras largas se dividan */
+    overflow-wrap: break-word; /* Asegura que el texto se ajuste dentro del contenedor */
 }
 
 #successful-message-container p span {
     font-weight: 700;
+    word-wrap: break-word; /* Permite que las palabras largas se dividan */
+    overflow-wrap: break-word; /* Asegura que el texto se ajuste dentro del contenedor */
 }

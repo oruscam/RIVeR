@@ -534,3 +534,7 @@ input:checked + .slider:before {
 .react-datepicker-time__header {
   color: var(--primary-text-color);
 }
+
+.w-100{
+  width: 100%;
+}

@@ -7,14 +7,15 @@ import { getValidationRules } from '../../helpers/validationRules'
 import { useDataSlice, useProjectSlice } from '../../hooks';
 import './form.css'
 import { formatTime } from '../../helpers';
-import { identifyTimeFormat } from '../../helpers/formatTime';
+import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
 
 export const FormVideo = ( { duration } : { duration: number } ) => {
   const { onSetVideoParameters, video: videoData } = useProjectSlice()
   const { onSetImages, images } = useDataSlice()
   const { startTime, endTime, step } = videoData.parameters
 
-  console.log(videoData.parameters)
+  const { fps } = videoData.data
+
 
   const { handleSubmit, register, setValue, getValues, watch } = useForm({
     defaultValues: {
@@ -30,10 +31,16 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
   const { onSetErrorMessage } = useUiSlice()
 
   const watchStep = watch('step')
+  const watchStartTime = watch('start')
+  const watchEndTime = watch('end')
 
   const validationRules = getValidationRules(t, getValues, duration)
   
-  const timeBetweenFrames = (((1 / (videoData.data.fps || 0)) * watchStep) * 1000).toFixed(2)
+  const timeBetweenFrames = (((1 / (fps || 0)) * watchStep) * 1000).toFixed(2)
+
+
+  const numberOfFrames = (Math.floor((parseTime(watchEndTime) - parseTime(watchStartTime)) * fps  / watchStep))
+
 
   const handleClick = ( event: React.MouseEvent<HTMLButtonElement> ) => {
     if(video !== null){
@@ -105,6 +112,7 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
     setVideo(document.getElementById("video") as HTMLVideoElement)
   }, [watchStep])
 
+
   return (
     <>
       <h1 className='form-title'>{t("VideoRange.title")}</h1>
@@ -145,9 +153,13 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
               { ...register('step', validationRules.step)}
               />
           </div>
-          <div className='form-video-extra-info-row mt-1' id='time-between-frames'>
+          <div className='form-video-extra-info-row mt-1 frames-info'>
                 <p>{t("VideoRange.ExtraInfo.timeBetweenFrame")}</p>
                 <p>{ timeBetweenFrames }ms</p>
+          </div>
+          <div className='form-video-extra-info-row frames-info'>
+            <p>{t('VideoRange.ExtraInfo.numberOfFrames')}</p>
+            <p>{ numberOfFrames > 0 ? numberOfFrames : 0 }</p>
           </div>
       </form>
     </>

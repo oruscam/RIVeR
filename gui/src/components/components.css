@@ -51,12 +51,13 @@
     overflow-y: auto;
     overflow-x: hidden;
     flex-shrink: 1;
+    border-top: 8px solid var(--secondary-background-color);
+    
 }
 
 .media-container::-webkit-scrollbar {
     display: none; /* Oculta la barra de desplazamiento en navegadores basados en WebKit */
 }
-
 
 .video-player{
     width: 95%;
@@ -631,9 +632,7 @@
 } */
 
 .select-cell {
-    pointer-events: none;
     background-color: black;
-
 }
 
 .cell-red-values{
@@ -661,3 +660,5 @@
     font-weight: bold;
 }
 
+.clicked-cell{
+}

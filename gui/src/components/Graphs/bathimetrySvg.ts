@@ -125,8 +125,6 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
     
     const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.2f'));
 
-
-    
     svg.append('g')
         .attr('transform', `translate(${translateX},0)`)
         .call(yAxis)
@@ -146,7 +144,7 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
         .attr('class', 'grid')
         .attr('transform', `translate(${translateX},0)`)
         .call(makeYGridlines()
-            .tickSize(-width + margin.left + margin.right)
+            .tickSize( xScaleAllInOne ? -width + margin.left + margin.right * 2 - 10 : -width + margin.left + margin.right)
             .tickFormat('' as any))
             .attr('stroke', 'grey')
             .attr('stroke-width', 0.15);

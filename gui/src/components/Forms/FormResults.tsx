@@ -11,7 +11,7 @@ interface FormResultProps {
 
 export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   const { register, setValue } = useFormContext();
-  const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
+  const { sections, activeSection, onUpdateSection } = useSectionSlice();
   const { name, data, numStations, alpha, artificialSeeding } = sections[activeSection]
   const { isBackendWorking } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
@@ -21,13 +21,6 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const id = e.target.id
     switch (id) {
-      case 'show-percentile':
-        onChangeDataValues({ type: 'showPercentile' })
-        break;
-      case 'show-velocity-std':
-        onChangeDataValues({ type: 'showVelocityStd' })
-        break;
-
       case 'interpolated-profile':
         onUpdateSection({ interpolated: 'interpolated' }, undefined)
         break;
@@ -105,30 +98,12 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
               <AllInOne isReport={false} height={700}/>
             </div>
 
-            <span className="mt-1"></span>
-
-            <div className="switch-container-2 mt-2">
+            <div className="switch-container-2">
               <h3 className="field-title me-2 mt-3"> {t('Results.stationNumber')}</h3>
               <input className="input-field-little mt-3" type="number" {...register(`${name}_STATIONS_NUMBER`)} id="stations-number"
                 onKeyDown={handleOnChangeInput}
                 onBlur={handleOnChangeInput}
               ></input>
-            </div>
-
-            <div className="switch-container-2 mt-1 ">
-              <h3 className="field-title">{t('Results.showVelStd')}</h3>
-              <label className="switch">
-                <input type="checkbox" {...register(`${name}_SHOW_VELOCITY_STD`)} defaultChecked={data?.showVelocityStd} onChange={handleOnChange} id="show-velocity-std"/>
-                <span className="slider"></span>
-              </label>
-            </div>
-
-            <div className="switch-container-2 mt-1 ">
-              <h3 className="field-title"> {t('Results.showProfile')} </h3>
-              <label className="switch">
-                <input type="checkbox" {...register(`${name}_SHOW_PERCENTILE`)} defaultChecked={data?.showPercentile} onChange={handleOnChange} id="show-percentile"/>
-                <span className="slider"></span>
-              </label>
             </div>
 
             <div className="switch-container-2 mt-2">

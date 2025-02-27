@@ -31,7 +31,8 @@
             "fileName" : "File Name:",
             "totalLength": "Total Length: ",
             "timeBetweenFrame" : "Time Between Frames: ",
-            "resolution" : "Resolution: "
+            "resolution" : "Resolution: ",
+            "numberOfFrames": "Number of Frames: "
         }
     },
     "PixelSize": {
@@ -180,8 +181,10 @@
         }
     },
     "Errors": {
-        "invalidPointsFileFormat": "Invalid Points file format. Please check https://www.google.com",
+        "invalidPointsFileFormat": "Invalid Points file format.",
         "invalidDistancesFileFormat" : "Invalid Points Distances format",
+        "invalidDistancesNotValidValue" : "Invalid Points Distances format. Some distance values are not valid numbers",
+        "invalidDistancesNegativeValue": "Invalid Points Distances format. Negative distances are not allowed",
         "invalidBathimetryFileFormat" : "Invalid Bathimetry file format",
         "invalidImageExtension": "The directory contains files that are not images",
         "imagesFolderEmpty" : "No images found in the selected folder",

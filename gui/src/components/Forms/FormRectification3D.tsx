@@ -1,6 +1,6 @@
 import { useMatrixSlice, useUiSlice } from "../../hooks"
+import { PointsMap } from "../Graphs";
 import { IpcamGrid } from "../index";
-import { PointsMap } from "../Graphs/index";
 import { useState } from "react";
 
 export const FormRectification3D = () => {
@@ -8,9 +8,7 @@ export const FormRectification3D = () => {
     const { onGetPoints, onGetImages, onGetCameraSolution, ipcam, onChangeHemisphere } = useMatrixSlice();
     const { onSetErrorMessage } = useUiSlice();
 
-    const { cameraSolution, isCalculating, hemisphere, importedPoints } = ipcam
-
-    console.log('imported points', importedPoints)
+    const { cameraSolution, isCalculating, hemisphere } = ipcam
 
     const handleOnClickImport = async ( event: React.MouseEvent<HTMLButtonElement> ) => {
         const id = (event.target as HTMLButtonElement).id;
@@ -51,9 +49,8 @@ export const FormRectification3D = () => {
                         <button className={`wizard-button button-rectification-3d ${ipcam.imagesPath !== undefined ? "wizard-button-active" : ""}`} id="import-images" type="button" onClick={handleOnClickImport}> Import Images </button>
                     </div>
 
-                    <div style={{width: '100%'}}>
-                        <IpcamGrid/>
-                    </div>
+                    <IpcamGrid/>
+                    
                     <PointsMap/>
 
                     <div className={`switch-container-2 ${cameraSolution === undefined ? 'mt-1' : 'mt'}`}>

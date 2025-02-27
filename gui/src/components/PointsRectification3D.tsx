@@ -45,6 +45,18 @@ export const PointsRectification3D = ({ factor, resizeFactor } : PointsProps) =>
             setLocalPoints(newPoints);
         }
     };
+
+    const handleDragStart = ( event: any, index: number ) => {
+        console.log('Drag started for point:', index); 
+        if (importedPoints) {
+            const point = {
+                x: parseFloat((event.target.x() * factor).toFixed(2)),
+                y: parseFloat((event.target.y() * factor).toFixed(2)),
+            }
+
+            setIpcamPointPixelCoordinates({ index, point })
+        }
+    };
     
     const handleDragEnd = (event: any, index: number, draggable: boolean) => {
         if (draggable === false) return;
@@ -79,7 +91,7 @@ export const PointsRectification3D = ({ factor, resizeFactor } : PointsProps) =>
             {
                 localPoints!.map((point, index) => {
                     if (point.wasEstablished === false && activePoint !== index || point.selected === false && cameraSolution === undefined) return null
-                    const draggable = activePoint === index
+                    const draggable = true
 
                     return (
                         <Group key={index}>
@@ -96,6 +108,7 @@ export const PointsRectification3D = ({ factor, resizeFactor } : PointsProps) =>
                                 draggable={draggable}
                                 onDragMove={(event) => handleDragMove(event, index)}
                                 onDragEnd={(event) => handleDragEnd(event, index, draggable)}
+                                onDragStart={(event) => handleDragStart(event, index)}
                             />
                         </Group>
                     )

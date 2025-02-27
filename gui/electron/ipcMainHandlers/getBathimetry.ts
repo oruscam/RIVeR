@@ -75,16 +75,16 @@ async function getBathimetry() {
             line = newLine
 
             // If the line was changed, write the new data back to the file
-            if (changed) {
-                // Convert the JSON back to a sheet
-                const newSheet = utils.json_to_sheet(newLine);
+            // if (changed) {
+            //     // Convert the JSON back to a sheet
+            //     const newSheet = utils.json_to_sheet(newLine);
 
-                // Replace the original sheet with the new one
-                workbook.Sheets[sheetName] = newSheet;
+            //     // Replace the original sheet with the new one
+            //     workbook.Sheets[sheetName] = newSheet;
 
-                // Write the workbook back to the file system
-                await writeFile(workbook, bathPath);
-            }
+            //     // Write the workbook back to the file system
+            //     await writeFile(workbook, bathPath);
+            // }
 
             // Return the path, name, line data, and whether it was changed
             return { path: bathPath, name: bathimetryName, line: line, changed: changed };
@@ -133,12 +133,12 @@ const transformLine = (line, isDecreced, isDepth, maxY) => {
         // Determine which end is lower
         if (firstPoint.y < lastPoint.y) {
             // First point is lower, add a point at x=firstPoint.x with y=lastPoint.y
-            newLine.push({ x: firstPoint.x, y: lastPoint.y });
+            newLine.unshift({ x: firstPoint.x, y: lastPoint.y });
         } else {
             // Last point is lower, add a point at x=lastPoint.x with y=firstPoint.y
             newLine.push({ x: lastPoint.x, y: firstPoint.y });
         }
-    }
+    } 
 
     return { newLine, changed: true };
 }

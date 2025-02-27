@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import './components.css'
 import { useDataSlice } from '../hooks'
-import { VECTORS } from '../constants/constants';
+import { COLORS, VECTORS } from '../constants/constants';
 
 interface QuiverProps {
   width: number;
@@ -50,7 +50,7 @@ export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
         .attr('y1', d => d.y / factor)
         .attr('x2', d => d.x / factor + (d.u * Math.abs(mean_u - VECTORS.QUIVER_AMPLITUDE_FACTOR )) / factor)
         .attr('y2', d => d.y / factor + (d.v * Math.abs(mean_v - VECTORS.QUIVER_AMPLITUDE_FACTOR )) / factor)
-        .attr('stroke', '#0678BE')
+        .attr('stroke', COLORS.BLUE)
         .attr('stroke-width', 1.8)
         .attr('marker-end', 'url(#arrow)')
 
@@ -65,7 +65,7 @@ export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
         .attr("orient", "auto-start-reverse")
         .append("path")
           .attr("d", "M0,-5L10,0L0,5")
-          .attr("fill", "#0678BE")
+          .attr("fill", COLORS.BLUE)
   }, [quiver, images.active, showMedian, factor])
 
   return (

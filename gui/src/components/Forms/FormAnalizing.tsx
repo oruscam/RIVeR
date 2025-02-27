@@ -5,7 +5,7 @@ import { Loading } from '../Loading'
 import React, { useEffect } from 'react'
 
 export const FormAnalizing = () => {
-    const { onSetQuiverAll, isBackendWorking, onKillBackend } = useDataSlice()
+    const { onSetQuiverAll, isBackendWorking, onKillBackend, quiver } = useDataSlice()
     const { onSetErrorMessage } = useUiSlice()
     const { t } = useTranslation()
 
@@ -30,14 +30,19 @@ export const FormAnalizing = () => {
     }
 
     useEffect(() => {
-        const handleRiverCliMessage = (_event, text) => {
+        const handleRiverCliMessage = (_event: any, text: string) => {
             // Expresión regular para extraer el porcentaje
             const percentageMatch = text.match(/(\d+%)\|/);
-            const newPercentage = percentageMatch ? percentageMatch[1] : '';
+            let newPercentage = percentageMatch ? percentageMatch[1] : '';
 
             // Expresión regular para extraer el tiempo
             const timeMatch = text.match(/\[(\d{2}:\d{2})<(\d{2}:\d{2})/);
-            const newTime = timeMatch ? timeMatch[2] : '';
+            let newTime = timeMatch ? timeMatch[2] : '';
+
+            if ( isBackendWorking === false && quiver !== undefined ){
+                newPercentage = '100%';
+                newTime = '00:00';
+            }
 
             if (newPercentage !== percentage) {
                 setPercentage(newPercentage);

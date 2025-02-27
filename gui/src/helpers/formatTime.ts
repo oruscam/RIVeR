@@ -27,10 +27,10 @@ function formatTime(seconds: number | string, format?: string): string {
 }
 
 /**
- * Convierte una cadena en formato mm:ss a un número de segundos.
+ * Converts a string in mm:ss format to a number of seconds.
  *
- * @param time - La cadena en formato mm:ss.
- * @returns El número de segundos.
+ * @param time - The string in mm:ss format.
+ * @returns The number of seconds.
  */
 
 function parseTime(time: string): number{

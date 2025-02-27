@@ -17,7 +17,7 @@ import { generateXAxisTicks } from '../../helpers/graphsHelpers'
 
 export const AllInOne = ({ width, height, index, isReport  } : {width?: number, height?: number, index?: number, isReport: boolean}) => {
     const svgRef = useRef<SVGSVGElement>(null)
-    const { sections, activeSection } = useSectionSlice();
+    const { sections, activeSection, onChangeDataValues } = useSectionSlice();
     const { data, bathimetry, name } = sections[index ? index : activeSection]
     const { level, x1Intersection, x2Intersection, width: bathWidth } = bathimetry
     const { screenSizes } = useUiSlice()
@@ -45,7 +45,7 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                 
                 const xScale = d3.scaleLinear()
                     .domain([x1Intersection!, x2Intersection!])
-                    .range([margin.left + 40, width - margin.right - 30]) 
+                    .range([margin.left + 55, width - margin.right - 25]) 
 
                 // Common xAxis
                 const ticks = generateXAxisTicks(x1Intersection!, x2Intersection!, bathWidth!);
@@ -103,7 +103,8 @@ export const AllInOne = ({ width, height, index, isReport  } : {width?: number, 
                     sizes: { width, height, margin, graphHeight },
                     showPercentile: showPercentile,
                     showStd: showVelocityStd,
-                    isReport
+                    isReport,
+                    onChangeDataValues
                 });
                 
                 bathimetrySvg({

@@ -156,24 +156,37 @@ export const useMatrixSlice = () => {
         }
     }
 
-    const changeIpcamPointSelected = ( index: number ) => {
+    const onChangeIpcamPointSelected = ( { index, rowsIndex } : {index?: number, rowsIndex?: number} ) => {
         if ( ipcam.importedPoints === undefined ) return;
-        const newPoints = ipcam.importedPoints.map((point, i) => {
-            if (i === index) {
-                if ( point.selected === true ){
-                    return { ...point, selected: !point.selected, image: undefined };
-                } else {
-                    return { ...point, selected: !point.selected };
+       
+        if ( index ){
+            const newPoints = ipcam.importedPoints.map((point, i) => {
+                if (i === index) {
+                    if ( point.selected === true ){
+                        return { ...point, selected: !point.selected, image: undefined };
+                    } else {
+                        return { ...point, selected: !point.selected };
+                    }
                 }
-            }
-            return point;
-        });
+                return point;
+            });
+    
+            dispatch(setIpcamPoints({ points: newPoints, path: undefined }))
+        } else if ( rowsIndex !== undefined ){
+            const value = rowsIndex === ipcam.importedPoints.length ? true : false;
 
-        dispatch(setIpcamPoints({ points: newPoints, path: undefined }))
+            if ( rowsIndex !== ipcam.importedPoints.filter(v => v.selected).length ){
+                const newPoints = ipcam.importedPoints.map((point, _i) => {
+                    return { ...point, selected: value };
+                });
+        
+                dispatch(setIpcamPoints({ points: newPoints, path: undefined }))
+            }
+        }
     }
 
     const onChangeActiveImage = ( index: number ) => {
-        if ( index !== ipcam.activeImage ){
+        if ( index !== ipcam.activeImage ) {
             dispatch(setActiveImage(index));
         }
     }
@@ -291,7 +304,7 @@ export const useMatrixSlice = () => {
         obliquePoints,
 
         // METHODS
-        changeIpcamPointSelected,
+        onChangeIpcamPointSelected,
         onChangeActiveImage,
         onChangeHemisphere,
         onChangeObliqueCoordinates,
