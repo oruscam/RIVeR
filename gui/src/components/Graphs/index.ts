@@ -7,6 +7,7 @@ import { obliqueSvg } from "./obliqueSvg";
 import { createPinsBase64 } from "./createPinsBase64";
 import { ipcamSvg } from "./ipcamSvg";
 import { TestPlot } from "./TestPlot";
+import { drawSvgSectionLine } from "./drawSvgSectionLine";
 
 export { 
     AllInOne, 
@@ -18,4 +19,5 @@ export {
     PointsMap, 
     TestPlot,
     VelocityVector, 
+    drawSvgSectionLine
 };

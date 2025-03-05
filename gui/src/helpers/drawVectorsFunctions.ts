@@ -108,7 +108,7 @@ function calculateArrow( east_c: number, north_c: number, east_next: number, nor
  * 11. Returns an array of arrow objects, each containing the transformed points and color.
  */
 
-function calculateMultipleArrows( east: number[], north: number[], magnitudes: (number | null)[], transformationMatrix: number[][], videoWidth: number, arrowWidth: number = 0.5,  ): Array<any> {
+function calculateMultipleArrows( east: number[], north: number[], magnitudes: (number | null)[], transformationMatrix: number[][], videoWidth: number, arrowWidth: number = 0.5, ): Array<any> {
     
     let validIndices: number[] = [];
 
@@ -204,7 +204,7 @@ function calculateMultipleArrows( east: number[], north: number[], magnitudes: (
             continue
         };
 
-        const [corners_east, corners_north] = calculateArrow(east_filtered[i], north_filtered[i], east_next[i], north_next[i], magnitudes_filtered[i] * scaleFactor, arrowWidth);
+        const [corners_east, corners_north] = calculateArrow(east_filtered[i], north_filtered[i], east_next[i], north_next[i], magnitudes_filtered[i]! * scaleFactor, arrowWidth);
 
         const transformedPoints = corners_east.map((e: number, index: number) => 
             transformRealWorldToPixel(e, corners_north[index], transformationMatrix)
@@ -224,6 +224,197 @@ function calculateMultipleArrows( east: number[], north: number[], magnitudes: (
         });
     }
 
+    return arrows
+}
+
+// Calculate the coordinates of multiple transformed and normalized arrows with adaptive scaling
+// for a single section.
+
+function calculateMultipleArrowsAdaptative ( east: number[], north: number[], magnitudes: (number | null)[], transformationMatrix: number[][], imageWidth: number, imageHeight: number, width = 0.5, globalMin: number, globalMax: number, maxArrowSizeFraction = 0.15, minArrowSizeFraction = 0.02, boundaryMargin = 0.05 ) {
+    let validIndices: number[] = [];
+
+    for (let i = 0; i < magnitudes.length; i++) {
+        if ( magnitudes[i] !== null && !isNaN(magnitudes[i] as number)) {
+            validIndices.push(i);
+        }
+    }
+    
+    if (validIndices.length === 0) {
+        return [[], [0, 0]];
+    }
+
+    validIndices = validIndices.slice(0, -1);
+
+    const customColorMap = createColorMap()
+    
+    // Extract valid data
+    const eastFiltered = east.map((value, i)=> {
+        if ( validIndices.includes(i) ) {
+            return value;
+        } else {
+            return 0
+        }
+    });
+    const northFiltered = north.map((value, i) => {
+        if ( validIndices.includes(i) ) {
+            return value;
+        } else {
+            return 0
+        }
+    });
+    const magnitudesFiltered = magnitudes.map((value, i) => {
+        if ( validIndices.includes(i) ) {
+            return value;
+        } else {
+            return 0
+        }
+    });
+    const eastNext = east.map((_value, i) => {
+        if ( validIndices.includes(i) ) {
+            return east[i + 1];
+        } else {
+            return 0
+        }
+    });
+    const northNext = north.map((_value, i) => {
+        if ( validIndices.includes(i) ) {
+            return north[i + 1];
+        } else {
+            return 0
+        }
+    });
+
+    // Define target arrow size range based on image dimensions
+    const maxTargetLength = imageWidth * maxArrowSizeFraction
+    const minTargetLength = imageWidth * minArrowSizeFraction
+
+    // Calculte boundary margins in pixels
+    const xMargin = imageWidth * boundaryMargin
+    const yMargin = imageHeight * boundaryMargin
+
+    // Set up color normalization
+    // const minMagnitude = Math.min(...magnitudesFiltered.filter(value => value !== null))
+    // const maxMagnitude = Math.max(...magnitudesFiltered.filter(value => value !== null))
+    const minMagnitude = globalMin
+    const maxMagnitude = globalMax
+
+    const norm = new Normalize(minMagnitude, maxMagnitude)
+
+    const arrows = []
+    for ( let i = 0 ; i < magnitudesFiltered.length ; i++ ) {
+        // Get base point in pixel coordinates
+        const basePixel = transformRealWorldToPixel(eastFiltered[i], northFiltered[i], transformationMatrix)
+
+        // Skip if base point is outside the image
+        if ( basePixel[0] < xMargin || basePixel[0] > imageWidth - xMargin || basePixel[1] < yMargin || basePixel[1] > imageHeight - yMargin ) {
+            continue
+        }
+
+        // Calculate arrow direction in real-world coordinates
+
+        let dx = eastNext[i] - eastFiltered[i]
+        let dy = northNext[i] - northFiltered[i]
+        const directionLength = Math.sqrt(dx ** 2 + dy ** 2)
+
+        if ( directionLength > 0 ){
+            dx = dx / directionLength
+            dy = dy / directionLength
+        } else {
+            // Default to pointing right if direction is undefined
+            dx = 1
+            dy = 0
+        }
+
+        // Rotate 90 degrees to get perpendicular direction for streamwise velocity
+        // This matches your original code which seemed to be defining arrows perpendicular to the section
+        const streamwiseDx = -dy
+        const streamwiseDy = dx
+
+        // Create a test arrow to determine scaling
+        const testMagnitude = 1
+        const testTipReal = [eastFiltered[i] + testMagnitude * streamwiseDx, northFiltered[i] + testMagnitude * streamwiseDy ]
+
+        // Transform to pixel coordinates
+        const testTipPixel = transformRealWorldToPixel(testTipReal[0], testTipReal[1], transformationMatrix)
+
+        // Calculate pixels per unit magnitude
+        const pixelsPerUnit = Math.sqrt((testTipPixel[0] - basePixel[0]) ** 2 + (testTipPixel[1] - basePixel[1]) ** 2)
+
+        // Adaptative scale factor based on position in image
+        // Will be higher near image edges
+        const edgeDistanceX = Math.min(basePixel[0], imageWidth - basePixel[0]) / (imageWidth / 2)
+        const edgeDistanceY = Math.min(basePixel[1], imageHeight - basePixel[1]) / (imageHeight / 2)
+        const edgeDistance = Math.min(edgeDistanceX, edgeDistanceY)
+
+        // Scale inversely with distance to edge ( closer to edge = sameller arrows )
+        const edgeFactor = Math.max(0.3, Math.min(edgeDistance, 1))
+
+        // Scale based on magnitude relative to the range
+        const magnitudeNormalized = (magnitudesFiltered[i]! - minMagnitude) / (maxMagnitude - minMagnitude)
+
+        // Calculate arrow length in pixels
+        let pixelLength = interpolate(magnitudeNormalized, 0, 1, minTargetLength, maxTargetLength)
+        
+        // Apply edge factor adjustment
+        pixelLength *= edgeFactor
+
+        // Calculate arrow tip in real-world coordinates
+        let scaleFactor
+        if ( pixelsPerUnit > 0 ){
+            scaleFactor = pixelLength / ( magnitudesFiltered[i]! * pixelsPerUnit )
+        } else {
+            scaleFactor = 1 // Fallback
+        }
+
+        // Create arrow with the calculated scale factor
+        let [ cornersEast, cornersNorth ] = calculateArrow(eastFiltered[i], northFiltered[i], eastNext[i], northNext[i], magnitudesFiltered[i]! * scaleFactor, width)
+
+        // Transform to pixel coordinates
+        const transformedPoints = cornersEast.map((e: number, index: number) => 
+            transformRealWorldToPixel(e, cornersNorth[index], transformationMatrix)
+        );
+
+        // Check if arrow extends outside image boundaries
+        let pointsWithinBounds = transformedPoints.every(point => 
+            point[0] >= 0 && point[0] < imageWidth && point[1] >= 0 && point[1] < imageHeight
+        );
+
+        if ( pointsWithinBounds === false ) {
+            const reductions = [0.75, 0.5, 0.25];
+            for ( const reduction of reductions ){
+                // Try reducing to stay within bounds
+                let [ cornersEast, cornersNorth ] = calculateArrow(eastFiltered[i], northFiltered[i], eastNext[i], northNext[i], magnitudesFiltered[i]! * scaleFactor * reduction, width)
+
+                // Transform to pixel coordinates
+                const transformedPoints = cornersEast.map((e: number, index: number) => 
+                    transformRealWorldToPixel(e, cornersNorth[index], transformationMatrix)
+                );
+
+                pointsWithinBounds = transformedPoints.every(point => 
+                    point[0] >= 0 && point[0] < imageWidth && point[1] >= 0 && point[1] < imageHeight
+                );
+
+                if ( pointsWithinBounds === true ){
+                    break
+                }
+            }
+
+            if ( pointsWithinBounds === false ) {
+                continue
+            }
+        }
+
+        // Get color based on magnitude
+        const colorIndex = parseInt( norm.normalize(magnitudesFiltered[i]!) * 255 + "" )
+        const color = customColorMap[Math.min( Math.max(0, colorIndex), 255 )]
+        
+        arrows.push({
+            points: transformedPoints,
+            color: color,
+            magnitude: magnitudesFiltered[i]
+        });
+    }
+    
     return arrows
 }
 
@@ -359,4 +550,31 @@ class Normalize {
     }
 }
 
-export { calculateArrowWidth, calculateMultipleArrows}
+
+const getGlobalMagnitudes = ( sections: any ) => {
+    let max = 0
+    let min = 0
+
+    for ( let i = 0; i < sections.length; i++ ) {
+        if ( i === 0 ) continue
+        const { data } = sections[i]
+        const { activeMagnitude } = data
+
+        const filteredMagnitude = activeMagnitude.filter((value: number) => value !== null && !isNaN(value as number))
+
+        if ( i == 1 ){
+            max = Math.max(...filteredMagnitude)
+            min = Math.min(...filteredMagnitude)
+        }
+
+        max = Math.max(max, ...filteredMagnitude)
+        min = Math.min(min, ...filteredMagnitude)
+    }
+
+    return {
+        max: max,
+        min: min
+    }
+}
+
+export { calculateArrowWidth, calculateMultipleArrows, calculateMultipleArrowsAdaptative, getGlobalMagnitudes }

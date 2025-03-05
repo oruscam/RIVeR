@@ -19,6 +19,8 @@ export const ReportSection = ({ index, factor }: ReportSectionProps) => {
   if(!data) return null
 
   const { total_Q, total_q_std, measured_Q, interpolated_Q, alpha, num_stations } = data
+
+  console.log('index', index)
   
   return (
     <div id='report-section-container'>
@@ -33,24 +35,14 @@ export const ReportSection = ({ index, factor }: ReportSectionProps) => {
             <h3 className="mt-1 report-section-title-1 mb-2"> Number of stations: { num_stations } </h3>
             <div className="image-and-svg-container">
               <img src={firstFramePath} className="image-border-radius" width={REPORT_IMAGES.IMAGES_WIDTH} height={REPORT_IMAGES.IMAGES_HEIGHT} />
-              {
-                sections.map((section, i) => {
-                  if ( i === 0 || i !== index ) return null;
-                  return (
-                    <VelocityVector 
-                        section={section}
-                        key={i}
-                        transformationMatrix={transformationMatrix}
-                        sectionIndex={i}
-                        width={REPORT_IMAGES.IMAGES_WIDTH} 
-                        height={REPORT_IMAGES.IMAGES_HEIGHT} 
-                        factor={factor}
-                        isReport={true}
-                        index={index}
-                      />
-                    )
-                  })
-              }
+                <VelocityVector 
+                    width={REPORT_IMAGES.IMAGES_WIDTH} 
+                    height={REPORT_IMAGES.IMAGES_HEIGHT} 
+                    factor={factor}
+                    isReport={true}
+                    sectionIndex={index}
+                    seeAll={true}
+                  />
             </div>
         </div>
         

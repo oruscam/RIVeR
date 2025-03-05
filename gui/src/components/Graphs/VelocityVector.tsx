@@ -2,29 +2,25 @@ import { useEffect, useRef } from 'react'
 import './graphs.css'
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks'
 import * as d3 from 'd3'
-import { SvgSectionLine } from '../SvgSectionLine'
-import { drawVectors } from './index'
+import { drawSvgSectionLine, drawVectors } from './index'
 import { Section } from '../../store/section/types'
-
+import { getGlobalMagnitudes } from '../../helpers/drawVectorsFunctions'
 interface VelocityVectorProps {
-    section: Section,
-    sectionIndex: number,
     height: number;
     width: number;
     factor: number | { x: number, y: number };
     isReport?: boolean;
-    index?: number;
-    transformationMatrix: any
+    seeAll: boolean;
+    sectionIndex?: number;
 }
 
-export const VelocityVector = ({ section, sectionIndex, transformationMatrix, height, width, factor, isReport = false, index }: VelocityVectorProps )  => {
+export const VelocityVector = ({ height, width, factor, isReport = false, seeAll, sectionIndex}: VelocityVectorProps )  => {
     const svgRef = useRef<SVGSVGElement>(null)
     const { video } = useProjectSlice();
-    const { seeAll } = useUiSlice();
-    const { data, artificialSeeding, interpolated } = section;
+    const { sections, activeSection, transformationMatrix } = useSectionSlice()
+    const { screenSizes } = useUiSlice()
 
-
-    const { width: videoWidth } = video.data;
+    const { width: imageWidth, height: imageHeight } = video.data;
 
     useEffect(() => {
         d3.select(svgRef.current).selectAll('*').remove()
@@ -32,31 +28,53 @@ export const VelocityVector = ({ section, sectionIndex, transformationMatrix, he
         svg.attr("width", width)
             .attr("height", height)
             .style("background-color", "transparent");
+        
+        const { max: globalMax, min: globalMin } = getGlobalMagnitudes(sections) 
 
-        if (!isReport) {
-            if (!data) return;
+        console.log('min velocity vector', globalMin )
+        console.log('max velocity vector', globalMax )
 
-            drawVectors(svg, factor, sectionIndex, interpolated, data, isReport, transformationMatrix, videoWidth);
+        sections.forEach((section: Section, index: number) => {
+            const { data, interpolated, name, sectionPoints, dirPoints
+             } = section;
+            if (!data || index === 0 ) return;
+
+            if (!seeAll) {
+            drawVectors( svg, factor, activeSection, interpolated, data, isReport, transformationMatrix, imageWidth, imageHeight, globalMin, globalMax );
+            drawSvgSectionLine({
+                svgElement: svgRef.current!,
+                factor: factor,
+                dirPoints: dirPoints,
+                sectionPoints: sectionPoints,
+                name: name,
+                isReport: isReport,
+                imageWidth: screenSizes.imageWidth!,
+                imageHeight: screenSizes.imageHeight!
+            } )
+        
         } else {
-            if (index !== undefined) {
-                if (!data) return;
-
-                console.log('section name', section.name)
-                drawVectors(svg, factor, index, interpolated, data, isReport, transformationMatrix, videoWidth);
+            if (isReport && sectionIndex !== index) return;
+            if (activeSection === index || isReport) {
+                drawVectors( svg, factor, activeSection, interpolated, data, isReport, transformationMatrix, imageWidth, imageHeight, globalMin, globalMax );
+                drawSvgSectionLine({
+                    svgElement: svgRef.current!,
+                    factor: factor,
+                    dirPoints: dirPoints,
+                    sectionPoints: sectionPoints,
+                    name: name,
+                    isReport: isReport,
+                    imageWidth: screenSizes.imageWidth!,
+                    imageHeight: screenSizes.imageHeight!
+                } )
             }
-        }
-    }, [ factor, seeAll, data ]);
-
-    const drawSvgSectionLine = () => {
-        return <SvgSectionLine key={sectionIndex} factor={factor} index={sectionIndex} isReport={isReport}/>
-    }
+            }
+        });
+    }, [ factor, seeAll, sections, activeSection]);
 
     return (
         <>
             <svg ref={svgRef} className='svg-in-image-container'/>
-            {
-                drawSvgSectionLine()
-            }
+
         </>
     )
 }

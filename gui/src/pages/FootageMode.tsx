@@ -71,7 +71,7 @@ export const FootageMode = () => {
             </form>
             { video && <p className='file-name mt-2'>{video.name}</p> }
             { error && <p className='file-name mt-2'>{error}</p> }
-            <WizardButtons canFollow={true} formId={formId}></WizardButtons>
+            <WizardButtons canFollow={true} formId={formId}/>
         </div>
     );
 }

@@ -14,7 +14,7 @@ export const SuccessfulMessage = () => {
             <div id="successful-message-container">
                 <h3 id="successful-title">{t('Report.Success.title')}</h3>
                 <p id="successful-message" className="mt-1">{t('Report.Success.message')}</p>
-                <p className="mt-1"><span> - {projectDirectory}</span></p>
+                <p className="mt-1"><span>{projectDirectory}</span></p>
             </div>
         </div>
     )

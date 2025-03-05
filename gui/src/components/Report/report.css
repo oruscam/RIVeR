@@ -629,7 +629,6 @@ body{
 #successful-container {
     background-color: #41783a;
     width: 90%;
-    max-width: 100%; /* Asegura que no exceda el ancho del contenedor padre */
     height: auto;
     display: flex;
     padding: 25px 50px 30px 10px;
@@ -651,7 +650,12 @@ body{
 }
 
 #successful-message-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: auto;
     flex: 1; /* Permite que el contenedor de mensajes ocupe el espacio disponible */
+    padding-right: 30px;
 }
 
 #successful-message-container p {
