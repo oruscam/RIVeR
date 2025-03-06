@@ -85,7 +85,7 @@ export const getBathimetryValues = ( line: Point[], level? : number ) => {
             xMax: xLimits.max,
             yMin: yLimits.min,
             yMax: yLimits.max,
-            level: level ? level : (yLimits.max).toFixed(2),
+            level: level ? level : parseFloat((yLimits.max).toFixed(2)),
             x1Intersection: intersectionPoints[0].x,
             x2Intersection: intersectionPoints[1].x,
             width: bathWidth,
