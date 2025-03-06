@@ -124,7 +124,8 @@
         "stationNumber" : "Station Number",
         "showVelStd" : "Show Vel. Std",
         "showProfile": "Show 5% | 95% percen",
-        "interpolateProfile": "Interpolate Profile"
+        "interpolateProfile": "Interpolate Profile",
+        "applyChanges" : "Apply Changes"
     },
     "Graphs": {
         "station": "Station",
@@ -161,10 +162,15 @@
             "averageVs": "Average Vs",
             "maxD": "Max d",
             "meanD": "Mean d",
-            "measured": "% Measured"
+            "measured": "% Measured",
+            "mean": "mean",
+            "stdDev": "Std dev",
+            "cov": "COV"
         },
         "pixelTransformation": "Pixel Transformation",
         "processingParameters" : "Processing Parameters",
+        "preProcessing" : "Pre-Processing",
+        "postProcessing" : "Post-Processing",
         "generatedBy" : "Generated with River",
         "date" : "report creation date",
         "Success" : {
@@ -173,12 +179,30 @@
         }
     },
     "ControlPoints" : {
+        "drawPoints": "Draw Points",
+        "importDistances": "Import Distances",
+        "distance": "Distancia",
+        "length" : "Longitud",
         "Errors": {
             "required" : "All the distances fields are obligatory. Please check Control Points form",
             "notNull": "All the distances fields must be greater than 0. Please check Control Points form",
             "notZero": "All the distances fields must be different from 0. Please check Control Points form",
             "positive" : "All the distances fields must be positive. Please check Control Points form"
         }
+    }, 
+    "ControlPoints3d": {
+        "importPoints": "Import Points",
+        "importImages": "Import Images",
+        "east": "East",
+        "north": "North",
+        "label": "Label",
+        "northern": "Northern",
+        "southern": "Southern",
+        "directSolve": "Direct Solve",
+        "optimize": "Optimize",
+        "reprojectionErrors": "Reprojection Errors: ",
+        "numberOfPoints": "Number of Points: ",
+        "cameraHeight": "Camera Height: "
     },
     "Errors": {
         "invalidPointsFileFormat": "Invalid Points file format.",
@@ -188,18 +212,20 @@
         "invalidBathimetryFileFormat" : "Invalid Bathimetry file format",
         "invalidImageExtension": "The directory contains files that are not images",
         "imagesFolderEmpty" : "No images found in the selected folder",
+        "waitingForFrames": "We are waiting for the frames to be loaded. Please try again in a few seconds",
         "Cli": {
             "windowsSizesError" : "The window size is too large for the selected Region Of Interest.",
             "bboxNotDefined" : "Region of Interest not defined."
         }
     },
     "Loader": {
-        "frames" : "Extracting Video Frames",
+        "extractingFrames" : "Extracting Video Frames",
         "results" : "Generating velocity profile statistics",
-        "videoConversion" : "We are converting the video to mp4 format. Please wait a moment."
+        "videoConversion" : "We are converting the video to mp4 format. Please wait a moment.",
+        "maskAndRoi": "Defining ROI and masks"
     },
-    "Ipcam": {
-        "east" : "East",
-        "north" : "North"
+    "Commons": {
+        "yes": "Yes",
+        "no": "No"
     }
 }

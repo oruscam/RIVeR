@@ -509,6 +509,10 @@ transform-origin: 14px 22px;
     overflow-y: auto;
 }
 
-.button-rectification-3d{
+.button-rectification{
     min-width: 175px;
+}
+
+#import-distances, #import-images{
+    height: auto;
 }

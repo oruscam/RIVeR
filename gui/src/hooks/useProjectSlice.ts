@@ -5,7 +5,7 @@
 
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../store/store";
-import { clearErrorMessage, clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
+import { clearErrorMessage, clearMessage, setLanguage, setLoading, setMessage } from "../store/ui/uiSlice";
 import { setProjectDirectory, setProjectType, setVideoData, setFirstFramePath, setVideoParameters, setProjectDetails, resetProjectSlice } from "../store/project/projectSlice";
 import { FieldValues } from "react-hook-form";
 import { addSection, setActiveSection, setSummary, setTransformationMatrix, updateSection } from "../store/section/sectionSlice";
@@ -16,6 +16,7 @@ import { OperationCanceledError, UserSelectionError } from "../errors/errors";
 import { parseTime } from "../helpers";
 import { setHemispehere, setIpcamCameraSolution, setIpcamImages, setIpcamPoints, setObliquePoints } from "../store/matrix/matrixSlice";
 import { onLoad3dRectification } from "../helpers/loadProjectHelpers";
+import { useTranslation } from "react-i18next";
 
 
 /**
@@ -27,6 +28,7 @@ export const useProjectSlice = () => {
     const dispatch = useDispatch();
     const { projectDirectory, video, type, firstFramePath, projectDetails } = useSelector((state: RootState) => state.project);
     const { sections } = useSelector((state: RootState) => state.section);
+    const { t } = useTranslation()
 
     const filePrefix = import.meta.env.VITE_FILE_PREFIX;
 
@@ -56,18 +58,18 @@ export const useProjectSlice = () => {
         }
     }
 
-    const onInitProject = async (video: { path: string, name: string, type: string}) => {
+    const onInitProject = async (video: { path: string, name: string, type: string}, language: string) => {
         dispatch(setLoading(true));
 
         const extension = video.name.split('.').pop();
         if ( extension?.toUpperCase() !== 'MP4'){
-            dispatch(setMessage('We are converting the video to mp4 format. Please wait a moment.'))
+            dispatch(setMessage(t('Loader.videoConversion')))
         }
 
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const  { result, error } = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type });
+            const  { result, error } = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type, language: language });
 
             if ( error ){
                 if (error.type === 'user-cancel-operation') {
@@ -106,7 +108,7 @@ export const useProjectSlice = () => {
 
     const onSetVideoParameters = async ( data: FieldValues ) => {
         dispatch(setLoading(true));
-        dispatch(setMessage('Extracting Video Frames'))
+        dispatch(setMessage(t('Loader.extractingFrames')))
 
         const { startTime, endTime, step } = video.parameters;
 
@@ -116,9 +118,11 @@ export const useProjectSlice = () => {
         if( parsedStart === startTime && parsedEnd === endTime && parseFloat(data.step) === step){
             dispatch(setLoading(false));
             dispatch(clearMessage());
-            return
+            return false;
         }
+
         
+        dispatch(setImages({paths: []}))
         const parameters = {
             step: parseFloat(data.step),
             startTime: parsedStart,
@@ -158,6 +162,11 @@ export const useProjectSlice = () => {
                 const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix, rectification3D, bbox } = result.message
                 dispatch(setProjectDirectory(projectDirectory))
                 dispatch(setProjectType(settings.footage)) 
+
+                // Set the language
+                dispatch(setLanguage(settings.language))
+
+                
                 dispatch(setVideoData({
                     width: videoMetadata.width,
                     height: videoMetadata.height,

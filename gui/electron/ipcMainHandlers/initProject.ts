@@ -1,25 +1,26 @@
 import { ipcMain } from "electron";
 import { createFolderStructure } from "./createFolderStructure";
-import * as path from 'path'
+import { join } from 'path'
 import { getVideoMetadata } from "./utils/getVideoMetadata";
 import { ProjectConfig } from "./interfaces";
 
 function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
-    ipcMain.handle('init-project', async( _event, arg: {path: string, name: string, type: string}) => {
-        console.log("Init Project" , arg)
+    ipcMain.handle('init-project', async( _event, args: { path: string, name: string, type: string, language: string }) => {
+        const { name, path, type, language } = args
 
-        const [ videoName ] = arg.name.split('.');
-        const newDirectory = path.join(userDir, 'River', videoName);
+        const [ videoName ] = name.split('.');
+        const newDirectory = join(userDir, 'River', videoName);
+
 
         try {
-            const result = await getVideoMetadata(arg.path)
-            const directory = await createFolderStructure(newDirectory, arg.type, result.path, arg.name, result)
+            const result = await getVideoMetadata(path)
+            const directory = await createFolderStructure(newDirectory, type, language, result.path, name, result)
 
             PROJECT_CONFIG.directory = directory
-            PROJECT_CONFIG.type = arg.type
-            PROJECT_CONFIG.videoPath = arg.path
-            PROJECT_CONFIG.settingsPath = path.join(directory, 'settings.json')
-            PROJECT_CONFIG.logsPath = path.join(directory, 'river.log')
+            PROJECT_CONFIG.type = type
+            PROJECT_CONFIG.videoPath = path
+            PROJECT_CONFIG.settingsPath = join(directory, 'settings.json')
+            PROJECT_CONFIG.logsPath = join(directory, 'river.log')
             
             return {
                 result: {   

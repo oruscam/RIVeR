@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import { formatTime } from "../../helpers";
 import { useDataSlice, useProjectSlice } from "../../hooks";
 
 export const ProcessedRange = () => {
+  const { t } = useTranslation(); 
   const { video } = useProjectSlice();
   const { images } = useDataSlice();
   const { paths } = images;
@@ -21,14 +23,14 @@ export const ProcessedRange = () => {
 
   return (
     <>
-        <h2 className="report-title-field mt-2">Processed Range</h2>
+        <h2 className="report-title-field mt-2">{t('Report.ProcessedRange.title')}</h2>
         <div id="report-processed-range-container">
           <div className="report-grid-1">
-            <div className='report-info-item'><span>Start</span></div>
-            <div className='report-info-item'><span>End</span></div> 
-            <div className='report-info-item'><span>Length</span></div> 
-            <div className='report-info-item'><span>Step</span></div> 
-            <div className='report-info-item'><span>Time Step</span></div> 
+            <div className='report-info-item'><span>{t('Report.ProcessedRange.start')}</span></div>
+            <div className='report-info-item'><span>{t('Report.ProcessedRange.end')}</span></div> 
+            <div className='report-info-item'><span>{t('Report.ProcessedRange.length')}</span></div> 
+            <div className='report-info-item'><span>{t('Report.ProcessedRange.step')}</span></div> 
+            <div className='report-info-item'><span>{t('Report.ProcessedRange.timeStep')}</span></div> 
             <div className='report-info-item'><span> { startTime }s </span></div> 
             <div className='report-info-item'><span> { endTime }s </span></div> 
             <div className='report-info-item'><span> { timeProcessed }s </span></div> 

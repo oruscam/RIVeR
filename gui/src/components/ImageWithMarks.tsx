@@ -40,7 +40,7 @@ export const ImageWithMarks = () => {
       if (!mousePressed) return;
 
     const newPoints = onMouseUpPixelSize( event, localPoints, setLocalPoints, setMousePressed )
-      onSetDirPoints({points: newPoints, factor: factor!, index: null}, null);
+      onSetDirPoints({ points: newPoints, factor: factor!, index: null }, null);
     }
 
     const handleMouseMove = (event: KonvaEventObject<MouseEvent>) => {

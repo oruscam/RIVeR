@@ -111,7 +111,7 @@ import { BrowserWindow, dialog } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 
-async function createFolderStructure(newDirPath: string, type: string, videoPath: string, videoName: string, result: { width: number; height: number; fps: number; duration: string }) {
+async function createFolderStructure(newDirPath: string, type: string, language: string, videoPath: string, videoName: string, result: { width: number; height: number; fps: number; duration: string }) {
     const dateSuffix = getFormattedDate();
     const datedDirPath = path.join(newDirPath, dateSuffix);
 
@@ -178,6 +178,7 @@ async function createFolderStructure(newDirPath: string, type: string, videoPath
     const jsonData = {
         creation_date: dateSuffix,
         footage: type,
+        language: language,
         video: {
             filepath: videoPath,
             name: videoName,
@@ -193,7 +194,6 @@ async function createFolderStructure(newDirPath: string, type: string, videoPath
 
     try {
         await fs.promises.writeFile(jsonPath, JSON.stringify(jsonData, null, 2), 'utf-8');
-        console.log(jsonPath, 'created');
     } catch (err) {
         console.error('Error creating json file:', err);
     }

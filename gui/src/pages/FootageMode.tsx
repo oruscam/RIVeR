@@ -20,7 +20,9 @@ export const FootageMode = () => {
     const { onInitProject, onGetVideo } = useProjectSlice();
     const { nextStep, previousStep } = useWizard();
     const formId = 'form-step-2';
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const currentLanguage = i18n.language;
+
     const [ error, setError ] = useState<string>('');
 
     const [ video, setVideo ] = useState<Video>();
@@ -28,7 +30,7 @@ export const FootageMode = () => {
     const onSubmit = async (_data: FieldValues) => {
         if (video) {
             try {
-                await onInitProject(video);
+                await onInitProject(video, currentLanguage);
                 nextStep();
             } catch (error){
                 if (error instanceof OperationCanceledError){

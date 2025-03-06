@@ -26,8 +26,8 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild ) => {
         <form onSubmit={onSubmit} onError={onError} id="form-control-points" className="form-scroll">
             <div className="form-base-2">
                 <div className="input-container-2">
-                    <button className={`wizard-button button-rectification-3d me-1 ${drawPoints ? "wizard-button-active" : ""}`} type="button" onClick={onSetDrawPoints}> Draw Points </button>
-                    <button className={`wizard-button button-rectification-3d ${isDistancesLoaded ? "wizard-button-active" : ""}`} id="import-images" type="button" onClick={handleOnClickImportDistances} disabled={drawPoints === false}> Import Distances </button>
+                    <button className={`wizard-button button-rectification me-1 ${drawPoints ? "wizard-button-active" : ""}`} type="button" onClick={onSetDrawPoints}> {t('ControlPoints.drawPoints')} </button>
+                    <button className={`wizard-button button-rectification ${isDistancesLoaded ? "wizard-button-active" : ""}`} id="import-distances" type="button" onClick={handleOnClickImportDistances} disabled={drawPoints === false}> {t('ControlPoints.importDistances')} </button>
                 </div>
 
                 <div className="input-container-2 mt-2">

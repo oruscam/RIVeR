@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next"
 import { getUnit } from "../../helpers"
 import { useProjectSlice, useSectionSlice } from "../../hooks"
 
 export const Summary = () => {
+    const { t } = useTranslation()
     const { sections, summary } = useSectionSlice()
     const { projectDetails } = useProjectSlice()
     const { unitSistem } = projectDetails
@@ -12,46 +14,46 @@ export const Summary = () => {
 
   return (
     <>
-        <h2 className="report-title-field mt-4" id="summary-title"> Summary </h2>
+        <h2 className="report-title-field mt-4" id="summary-title">  {t('Report.Summary.title')} </h2>
         <div id='report-section-summary-container'>
             <table>
                 <thead>
                     <tr>
-                        <th> Cross Sections </th>
+                        <th> {t('CrossSections.title')} </th>
                         <th>
-                            <div>Width</div>
+                            <div> {t('Report.Summary.width')}</div>
                             <div>{getUnit(unitSistem, 'longitude')} </div>
                         </th>
                         <th>
-                            <div> Area </div>
+                            <div> {t('Report.Summary.area')} </div>
                             <div> {getUnit(unitSistem, 'area')} </div>
                         </th>
                         <th>
-                            <div> Q </div>
+                            <div> {t('Report.Summary.q')} </div>
                             <div> {getUnit(unitSistem, 'flow')} </div>
                         </th>
                         <th>
-                            <div> Mean V </div>
+                            <div> {t('Report.Summary.meanV')} </div>
                             <div> {getUnit(unitSistem, 'velocity')} </div>
                         </th>
                         <th>
-                            <div> Alpha </div>
+                            <div> {t('Report.Summary.alpha')} </div>
                             <div> - </div>
                         </th>
                         <th>
-                            <div> Average Vs </div>
+                            <div> {t('Report.Summary.averageVs')} </div>
                             <div> {getUnit(unitSistem, 'velocity')} </div>
                         </th>
                         <th>
-                            <div> Max d </div>
+                            <div> {t('Report.Summary.maxD')} </div>
                             <div> {getUnit(unitSistem, 'longitude')} </div>
                         </th>
                         <th>
-                            <div> Mean d </div>
+                            <div> {t('Report.Summary.meanD')} </div>
                             <div> {getUnit(unitSistem, 'longitude')} </div>
                         </th>
                         <th>
-                            <div> % measured</div>
+                            <div> {t('Report.Summary.measured')} </div>
                             <div> - </div>
                         </th>
                     </tr>
@@ -82,7 +84,7 @@ export const Summary = () => {
                         })
                     }
                     <tr style={{height: '30px'}}>
-                        <td> Mean </td>
+                        <td> {t('Report.Summary.mean')} </td>
                         <td> { mean.total_W } </td>
                         <td> { mean.total_A } </td>
                         <td> { mean.total_Q } </td>
@@ -94,7 +96,7 @@ export const Summary = () => {
                         <td> { mean.measured_Q} </td>
                     </tr>
                     <tr style={{height: '30px'}}>
-                        <td> Std dev </td>
+                        <td> {t('Report.Summary.stdDev')} </td>
                         <td> { std.total_W } </td>
                         <td> { std.total_A } </td>
                         <td> { std.total_Q } </td>
@@ -106,7 +108,7 @@ export const Summary = () => {
                         <td> { std.measured_Q } </td>
                     </tr>
                     <tr style={{height: '30px'}}>
-                        <td> COV </td>
+                        <td> {t('Report.Summary.cov')} </td>
                         <td> { cov.total_W } </td>
                         <td> { cov.total_A } </td>
                         <td> { cov.total_Q } </td>

@@ -4,6 +4,7 @@ import { REPORT_IMAGES, UNITS } from "../../constants/constants";
 import { factor } from "../../types";
 import { obliqueSvg } from "../Graphs";
 import * as d3 from 'd3';
+import { useTranslation } from "react-i18next";
 
 
 interface ObliquePixelTransformationProps {
@@ -15,6 +16,7 @@ export const ObliquePixelTransformation = ({ factor }: ObliquePixelTransformatio
     const { firstFramePath, projectDetails } = useProjectSlice();
     const { obliquePoints } = useMatrixSlice();
     const { coordinates, distances } = obliquePoints
+    const { t } = useTranslation()
     
     const { unitSistem } = projectDetails
     
@@ -44,8 +46,8 @@ export const ObliquePixelTransformation = ({ factor }: ObliquePixelTransformatio
                 <table>
                     <thead>
                         <tr>
-                            <th> Distance </th>
-                            <th> Length </th>
+                            <th> {t('CorntrolPoints.distance')} </th>
+                            <th> {t('CorntrolPoints.length')} </th>
                         </tr>
                     </thead>
                     <tbody>

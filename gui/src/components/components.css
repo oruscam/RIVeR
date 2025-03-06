@@ -588,12 +588,12 @@
 #ipcam-grid{
     max-height: 450px;
     width: 95%;
-    block-size: 100%;
+    block-size: auto;
 }
 
 .grid{
-    height: 100%;
     width: 100%;
+    height: auto;
 }
 
 .grid.disabled{
@@ -626,10 +626,6 @@
     padding: 0 8px;
 }
 
-/* 
-.disabled-cell {
-    color: transparent;
-} */
 
 .select-cell {
     background-color: black;
@@ -658,7 +654,4 @@
 #error-message-link{
     color: var(--primary-text-color);
     font-weight: bold;
-}
-
-.clicked-cell{
 }

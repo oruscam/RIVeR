@@ -10,6 +10,7 @@ const initialState: UIState = {
     error: [],
     isLoading: false,
     seeAll: false,
+    language: 'en'
 };
 
 const uiSlice = createSlice({
@@ -43,6 +44,10 @@ const uiSlice = createSlice({
         },
         clearMessage: (state) => {
             state.message = undefined;
+        },
+        setLanguage: ( state, action: PayloadAction<string> ) => {
+            if ( action.payload === undefined ) return;
+            state.language = action.payload;
         }
     }
 });
@@ -56,6 +61,7 @@ export const {
     setMessage,
     setScreen,
     setSeeAll,
+    setLanguage
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

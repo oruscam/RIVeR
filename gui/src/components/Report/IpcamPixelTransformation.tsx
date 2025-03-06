@@ -4,6 +4,7 @@ import { useMatrixSlice, useProjectSlice } from "../../hooks"
 import { REPORT_IMAGES } from "../../constants/constants"
 import * as d3 from 'd3';
 import { ipcamSvg } from "../Graphs";
+import { useTranslation } from "react-i18next";
 
 interface IpcamPixelTransformationProps {
     factor: factor
@@ -14,6 +15,7 @@ export const IpcamPixelTransformation = ({ factor }: IpcamPixelTransformationPro
     const { firstFramePath } = useProjectSlice();
     const { ipcam } = useMatrixSlice();
     const { importedPoints, cameraSolution } = ipcam
+    const { t } = useTranslation() 
 
     if ( cameraSolution === undefined ) return null
     const { meanError, cameraPosition, reprojectionErrors } = cameraSolution
@@ -38,9 +40,9 @@ export const IpcamPixelTransformation = ({ factor }: IpcamPixelTransformationPro
                 <svg ref={svgRef} className="svg-in-image-container"/>
             </div>
             <div id="ipcam-transformation-info">
-                <p> Reprojection Error: {meanError.toFixed(2)} px</p>
-                <p> Number of Points: {reprojectionErrors.length} </p>
-                <p> Camera Height: {cameraPosition[2].toFixed(2)} </p>
+                <p> {t('ControlPoints3d.reprojectionErrors')} {meanError.toFixed(2)}px</p>
+                <p> {t('ControlPoints3d.numberOfPoints')}  {reprojectionErrors.length} </p>
+                <p> {t('ControlPoints3d.cameraHeight')}  {cameraPosition[2].toFixed(2)} </p>
             </div>
         </div>
     )

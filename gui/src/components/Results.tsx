@@ -74,7 +74,7 @@ export const Results = () => {
                 onClick={handleOnClickApplyChanges}
                 id="apply-changes"
                 type="button"
-                > Apply Changes
+                > {t('Results.applyChanges')}
             </button>
         </>
   )

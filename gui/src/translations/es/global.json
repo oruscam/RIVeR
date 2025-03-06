@@ -1,173 +1,232 @@
 {
-    "MainPage" : {
-        "start" : "Iniciar",
+    "MainPage": {
+        "start": "Iniciar",
         "loadProject": "Cargar Proyecto",
-        "spanish" : "Español",
-        "english" : "Ingles"
+        "spanish": "Español",
+        "english": "Inglés"
     },
     "Step-2" : {
-        "title" : "Selecciona el tipo de video"
+        "title": "Seleccione el tipo de grabación"
     },
     "Wizard" : {
-        "back" : "Volver",
-        "next" : "Seguir",
-        "save" : "Guardar HTML"
+        "back": "Anterior",
+        "next": "Siguiente",
+        "save": "Guardar HTML"
     },
     "VideoRange":{
-        "title": "Rango de video",
+        "title": "Intervalo de Video",
         "start": "Inicio",
         "end": "Fin",
         "step": "Paso",
         "Errors": {
-            "start1": "Selección de Tiempo Invalida: El valor de 'Inicio' no puede ser menor a 0. Por favor ingresa un valor valido.",
-            "end1": "Selección de Tiempo Invalida: El valor de 'Fin' no puede ser mayor a la duración total del video. Por favor ingresa un valor valido.",
-            "end2" : "Selección de Tiempo Invalida: El valor de 'Fin' no puede ser menor o igual que 0. Por favor ingresa un valor valido.",
-            "end3" : "Selección de Tiempo Invalida:  El valor 'Fin' value no puede ser menor o igual al valor 'Inicio'. Por favor ingresa un valor valido.",
-            "step" : "Selección de Tiempo Invalida: El parametro 'Paso' debe ser un entero mayor o igual a 1. Por favor ingresa un valor valido.",
-            "required" : "Todos los campos son obligatorios. Por favor revisa el formulario Rango de Video.",
-            "formatInput" : "Formato Incorrecto: Los valores 'Inicio' y 'Fin' deben ser en el formato '00.00'"
+            "start1": "Selección de intervalo de tiempo inválido: el ‘Inicio’ no puede ser menor a 0. Ingrese un valor válido.",
+            "end1": "Selección de intervalo de tiempo inválido: el ‘Fin’ no puede ser mayor que la duración total del video. Ingrese un valor válido.",
+            "end2": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser 0 o menor. Ingrese un valor válido.",
+            "end3": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser 0 o menor que el ‘Inicio’. Ingrese un valor válido.",
+            "step": "Selección de paso inválida: el parámetro 'Paso' debe ser un número entero mayor que 1. Ingrese un valor válido.",
+            "required": "Todos los campos son obligatorios. Por favor consulte el formato del intervalo de vídeo.",
+            "formatInput": "Incorrect format. 'Start' and 'End' values must be in '00:00' format."
         },
         "ExtraInfo" : {
-            "fileName" : "Nombre de archivo:",
-            "totalLength": "Duración: ",
-            "timeBetweenFrame" : "Tiempro entre cuadros: ",
-            "resolution" : "Resolución: "
+            "fileName": "Nombre de Archivo: ",
+            "totalLength": "Longitud Total: ",
+            "timeBetweenFrame": "Tiempro entre Cuadros: ",
+            "resolution": "Resolución: ",
+            "numberOfFrames": "Number of Frames: "
         }
     },
     "PixelSize": {
-        "title": "Tamaño de Pixel",
-        "lineLength": "Largo de la linea",
-        "pixelSize" : "Tamaño del pixel",
-        "drawLine": "Dibujar Linea",
-        "Errors" : {
-            "required" : "Todos los campos son obligatorios. Por favor revisa el formulario Tamaño de Pixel.",
-            "lineLength" : "Formato Incorrecto: Los valores 'Ancho' y 'Alto' deben ser enteros mayores a 0. Por favor ingresa un valor valido."
+        "title": "Tamaño de Píxel",
+        "lineLength": "Longitud de Línea",
+        "pixelSize": "Tamaño de Píxel",
+        "drawLine": "Dibujar Línea",
+        "Errors": {
+            "required" : "Todos los campos son obligatorios. Por favor consulte el formato de Tamaño de Píxel.",
+            "lineLength" : "Longitud de línea inválida: la longitud de línea debe ser un número positivo, que puede incluir decimales. Ingrese un valor válido.",
+            "pixelSize": "Invalid Pixel Size: The pixel size must be a positive number, which can include decimals. Please enter a valid value."
         },
         "RealWorld": {
-            "title" : "Coordenadas del Mundo Real",
+            "title": "Coordenadas Reales",
             "eastPoint1": "Punto Este 1",
-            "northPoint1": "Punto Norte 1",
             "eastPoint2": "Punto Este 2",
+            "northPoint1": "Punto Norte 1",
             "northPoint2": "Punto Norte 2"
         }, 
         "Pixel": {
-            "title" : "Coordenadas de Pixel",
-            "xPoint1": "Punto X-1",
-            "yPoint1": "Punto Y-1",
-            "xPoint2": "Punto X-2",
-            "yPoint2": "Punto Y-2"
+            "title": "Coordenadas de Píxel",
+            "xPoint1": "X Punto 1",
+            "xPoint2": "X Punto 2",
+            "yPoint1": "Y Punto 1",
+            "yPoint2": "Y Punto 2"
         }
     },
     "CrossSections": {
-        "title": "Cross Sections",
-        "drawLine": "Dibujar Direccion",
-        "with": "Ancho",
-        "importBath": "Import bath",
-        "Level" : "Level",
-        "leftBankStation": "Left Bank Station",
+        "title": "Secciones Transversales",
+        "drawLine": "Dirección del Flujo",
+        "width": "Ancho",
+        "importBath": "Importar Batimetría",
+        "level" : "Nivel",
+        "leftBankStation": "Margen Izquierda",
         "RealWorld": {
-            "title": "Real World Coordinates",
-            "eastPoint1": "East Left",
-            "northPoint1": "North Left",
-            "eastPoint2": "East Right",
-            "northPoint2": "North Right"
+            "title": "Coordenadas Reales",
+            "eastPoint1": "Este Izquierda (1)",
+            "northPoint1": "Norte Izquierda (1)",
+            "eastPoint2": "Este Derecha (2)",
+            "northPoint2": "Norte Derecha (2)"
         }, 
         "Pixel" : {
-            "title": "Pixel Coordinates",
-            "xPoint1": "X Left",
-            "yPoint1": "Y Left",
-            "xPoint2": "X Right",
-            "yPoint2": "Y Right"
+            "title": "Coordenadas de Píxel",
+            "xPoint1": "X Izquierda",
+            "yPoint1": "Y Izquierda",
+            "xPoint2": "X Derecha",
+            "yPoint2": "Y Derecha"
+        }, 
+        "Errors" : {
+            "levelError": "El Nivel debe ser entre {{yMin}} y {{yMax}}",
+            "leftBank": "Margen Izquierda está fuera de rango",
+            "bathimetryNotValid": "La batimetría es inválida. El {{level}} no existe en este archivo"
         }
     },
     "Processing": {
-        "title": "Processing",
-        "artificialSeeding": "Artificial Seeding",
-        "windowSizes": "Windows Sizes",
-        "step1": "Step 1",
-        "step2": "Step 2",
-        "Test" : "Test",
-        "roiHeight": "ROI Height",
-        "preProcessingFilter": "Pre-processing filtering",
-        "grayscale": "Grayscale",
-        "removeBackground" : "Remove Background",
+        "title": "Procesando",
+        "artificialSeeding": "Sembrado Artificial",
+        "windowSizes": "Tamaños de Ventanas",
+        "step1": "Paso 1",
+        "step2": "Paso 2",
+        "test" : "Chequear",
+        "roiHeight": "Altura RDI",
+        "preProcessingFilter": "Filtro de Preprocesamiento",
+        "grayscale": "Escala de Grises",
+        "removeBackground" : "Quitar el Fondo",
         "clahe": "CLAHE",
-        "clipLimit": "Clip Limit",
-        "postProcessingFilter": "Post-processing filtering",
+        "clipLimit": "Límite de clip",
+        "postProcessingFilter": "Filtro de Posprocesamiento",
         "stdFiltering": "Std filtering",
-        "medianTestFiltering" : "Mediant test filtering",
+        "medianTestFiltering" : "Median test filtering",
         "epsilon": "Epsilon",
-        "threshold": "Threshold",
-        "carouselMedia": "Media"
+        "threshold": "Umbral",
+        "carouselMedia": "Media",
+        "Plot": {
+            "u" : "U Component",
+            "v" : "V Component"
+        }
     },
     "Analizing": {
-        "title": "Analizing",
-        "analize": "Analize",
-        "stop": "Stop"
+        "title": "Analizando",
+        "analize": "Analizar",
+        "stop": "Detener"
     },
     "Results": {
-        "title": "Results",
-        "measured": "Measured",
-        "interpolated": "Interpolated",
-        "alpha": "Alpha",
-        "stationNumber" : "Station Number",
-        "showVelStd" : "Show Vel. Std",
-        "showProfile": "Show 5% | 95% percen",
-        "interpolateProfile": "Interpolate Profile"
+        "title": "Resultados",
+        "measured": "Medido",
+        "interpolated": "Interpolado",
+        "alpha": "Alfa",
+        "stationNumber" : "Número de Estación",
+        "showVelStd" : "Mostrar Desv. de Vel.",
+        "showProfile": "Mostrar 5% | 95% por ciento",
+        "interpolateProfile": "Interpolar Perfil",
+        "applyChanges" : "Apicar Cambios"
     },
     "Graphs": {
-        "station": "Station",
-        "velocity": "Velocity",
-        "discharge": "Discharge",
-        "level": "Level"
+        "station": "Estación",
+        "velocity": "Velocidad",
+        "discharge": "Caudal",
+        "level": "Nivel"
     },
     "Report": {
-        "totalQ": "Total Q",
-        "discahrgeQ": "Discharge Q",
+        "totalQ": "Q Total",
+        "dischargeQ": "Discharge Q: ",
         "VideoInfo": {
-            "title": "Video Information",
-            "name": "Name",
-            "duration": "Duration",
-            "resolution": "Resolution",
+            "title": "Información de Video",
+            "name": "Nombre",
+            "duration": "Duración",
+            "resolution": "Resolución",
             "fps": "fps",
-            "creationDate": "Creation Date"
+            "creationDate": "Fecha de Creación"
         },
         "ProcessedRange": {
-            "title": "Processed Range",
-            "start": "Start",
-            "end": "End",
-            "length" : "Length",
-            "step": "Step",
-            "timeStep": "Time Step"
+            "title": "Intervalo Procesado",
+            "start": "Inicio",
+            "end": "Fin",
+            "length" : "Longitud",
+            "step": "Paso",
+            "timeStep": "Paso de Tiempo"
         },
         "Summary": {
-            "title": "Summary",
-            "width": "Width",
-            "area": "Area",
+            "title": "Resumen",
+            "width": "Ancho",
+            "area": "Área",
             "q": "Q",
-            "meanV": "meanV",
-            "alpha": "Alpha",
-            "averageVs": "Average Vs",
-            "maxD": "Max d",
-            "meanD": "Mean d",
-            "measured": "% Measured"
+            "meanV": "Vmedia",
+            "alpha": "Alfa",
+            "averageVs": "Vs Promedio",
+            "maxD": "d Max",
+            "meanD": "d Medio",
+            "measured": "% Medido",
+            "mean": "Medio",
+            "stdDev": "Desv. Estándar",
+            "cov": "Coeficiente de Variación"
         },
-        "pixelTransformation": "Pixel Transformation",
-        "processingParameters" : "Processing Parameters",
-        "generatedBy" : "Generated with River",
-        "date" : "report creation date",
+        "pixelTransformation": "Transformación de Píxel",
+        "processingParameters" : "Parámetros de Procesamiento",
+        "preProcessing" : "Pre-Procesamiento",
+        "postProcessing:" : "Post-Procesamiento",
+        "generatedBy" : "Generado con River",
+        "date" : "Fecha de creación del Reporte",
         "Success" : {
-            "title": "Analisis Completo!",
-            "message": "You've successfully completed all steps. Review your results and save them as HTML. You can close the window your project has been saved in"
+            "title": "¡Análisis completo!",
+            "message": "Has completado todos los pasos correctamente. Revisa los resultados y guárdalos como HTML. Puedes cerrar la ventana en la que se guardó su proyecto."
         }
     },
-    "Errors": {
-        "invalidDistancesFormat": "Formato de distancias invalido, por favor revisa https://www.google.com",
-        "imagesFolderEmpty" : "No images found in the selected folder",
-        "invalidImageExtension": "The directory contains files that are not images",
-        "Cli": {
-            "windowsSizesError" : "El tamaño de la ventana es demasiado largo para la Region de Interes seleccionada.",
-            "bboxNotDefined" : "La Region de Interes no ha sido definida." 
+    "ControlPoints" : {
+        "drawPoints": "Dibujar Puntos",
+        "importDistances": "Importar Distancias",
+        "distance": "Distancia",
+        "length" : "Longitud",
+        "Errors": {
+            "required" : "Todas las distancias son obligatorias. Por favor consulte el formato de los Puntos de Control",
+            "notNull": "Todas las distancias deben ser mayores que 0. Por favor consulte el formato de los Puntos de Control",
+            "notZero": "Todas las distancias deben ser distintas de 0. Por favor consulte el formato de los Puntos de Control",
+            "positive" : "Todas las distancias deben ser positivas. Por favor consulte el formato de los Puntos de Control"
         }
+    },
+    "ControlPoints3d": {
+        "importPoints": "Importar Puntos",
+        "importImages": "Importar Imágenes",
+        "east": "Este",
+        "north": "Norte",
+        "label": "Nombre",
+        "northern": "Norte",
+        "southern": "Sur",
+        "directSolve": "Solución Directa",
+        "optimize": "Solución Óptima",
+        "reprojectionErrors": "Errores de Reproyección",
+        "numberOfPoints": "Número de Puntos",
+        "cameraHeight": "Altura de Cámara"
+    },
+    "Errors": {
+        "invalidDistancesFormat" : "Formato de distancias no válido",
+        "imagesFolderEmpty" : "No se encontraron imágenes en la carpeta seleccionada",
+        "invalidImageExtension": "El directorio contiene archivos que no son imágenes.",
+        "waitingForFrames": "We are waiting for the frames to be loaded. Please try again in a few seconds",
+        "invalidPointsFileFormat": "Invalid Points file format.",
+        "invalidDistancesFileFormat" : "Invalid Points Distances format",
+        "invalidDistancesNotValidValue" : "Invalid Points Distances format. Some distance values are not valid numbers",
+        "invalidDistancesNegativeValue": "Invalid Points Distances format. Negative distances are not allowed",
+        "invalidBathimetryFileFormat" : "Invalid Bathimetry file format",
+        "Cli": {
+            "windowsSizesError" : "El tamaño de la ventana es demasiado grande para la Región De Interés seleccionada.",
+            "bboxNotDefined" : "Región De Interés no definida."
+        }
+    },
+    "Loader": {
+        "extractingFrames" : "Extracting Video Frames",
+        "results" : "Generating velocity profile statistics",
+        "videoConversion" : "We are converting the video to mp4 format. Please wait a moment.",
+        "maskAndRoi": "Defining ROI and masks"
+    },
+    "Commons": {
+        "yes": "Si",
+        "no": "No"
     }
 }

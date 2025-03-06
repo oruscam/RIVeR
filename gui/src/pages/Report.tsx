@@ -4,6 +4,7 @@ import './pages.css'
 import { useDataSlice, useProjectSlice, useSectionSlice } from '../hooks'
 import { FormReport } from '../components/Forms/index';
 import { REPORT_IMAGES } from '../constants/constants';
+import { useTranslation } from 'react-i18next';
 
 const convertImageToDataURI = ( url: string, quality = 1.0 ) => {
   return new Promise((resolve, reject) => {
@@ -26,9 +27,10 @@ const convertImageToDataURI = ( url: string, quality = 1.0 ) => {
 };
 
 export const Report = () => {
+  const { t } = useTranslation();
   const { sections } = useSectionSlice();
   const { onSetAnalizing } = useDataSlice();
-  const { onSaveProjectDetails, video, projectDirectory } = useProjectSlice()
+  const { onSaveProjectDetails, video } = useProjectSlice()
   const { width: videoWidth, height: videoHeight } = video.data
 
   const generateHTML = async () => {
@@ -89,8 +91,6 @@ export const Report = () => {
     y: videoHeight / REPORT_IMAGES.IMAGES_HEIGHT
   }
 
-
-
   return (
     <div className='regular-page'>
       <div className='media-container'>
@@ -100,7 +100,7 @@ export const Report = () => {
                 <VideoInfo/>
                 <ProcessedRange/>
                 <div id='report-section-wrapper'> 
-                  <h2 className="report-title-field mt-1" > Cross Sections (s)</h2>
+                  <h2 className="report-title-field mt-1" > {t('CrossSections.title')} (s)</h2>
                   {
                     [...sections.keys()].map(index => (
                     index === 0 ? null : <ReportSection key={index} index={index} factor={factor}/>

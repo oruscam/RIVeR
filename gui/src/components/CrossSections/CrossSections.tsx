@@ -66,7 +66,7 @@ export const CrossSections = () => {
 
     const onSubmit = ( data: FieldValues ) => {
         if ( images.paths.length === 0 ){
-            onSetErrorMessage('We are wating for the frames to be loaded')
+            onSetErrorMessage(t('Errors.waitingForFrames'))
             return 
         }
         onSetSections(data, type)

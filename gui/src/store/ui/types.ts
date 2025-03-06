@@ -15,7 +15,8 @@ interface UIState {
   error: string[];
   isLoading: boolean;
   seeAll: boolean;
-  message?: string
+  message?: string;
+  language: string;
 }
 
 export type { ScreenSizes, UIState };

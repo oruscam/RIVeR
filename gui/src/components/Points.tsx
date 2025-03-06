@@ -8,7 +8,7 @@ import { CanvasPoint } from '../types';
 
 interface PointsProps {
     localPoints: { x: number; y: number }[];
-    setPointsInStore: (canvasPoint: CanvasPoint, formPoint: null) => void;
+    setPointsInStore?: (canvasPoint: CanvasPoint, formPoint: null) => void;
     setLocalPoints?: (points: { x: number; y: number }[]) => void;
     draggable?: boolean;
     module?: string;
@@ -49,7 +49,10 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
                 setLocalPoints(newPoints);
                 return
             }
-            setPointsInStore({ points: newPoints, factor, index, mode: 'only-pixel' }, null);
+            if (setPointsInStore){
+                setPointsInStore({ points: newPoints, factor, index, mode: 'only-pixel' }, null);
+                
+            }
         }
     };
     
@@ -58,7 +61,9 @@ export const Points = ({ localPoints = [], setPointsInStore, setLocalPoints, dra
         if (setLocalPoints) {
             const newPoints = [...localPoints];
             newPoints[index] = { x: event.target.x(), y: event.target.y() };
-            setPointsInStore({ points: newPoints, factor, index }, null);
+            if (setPointsInStore){
+                setPointsInStore({ points: newPoints, factor, index }, null);
+            }
         }
     };
 

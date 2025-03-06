@@ -360,9 +360,12 @@ body{
     margin-bottom: 5px;
 }
 
-#report-section-summary-container tr th:first-child{
-    vertical-align: top; 
+#report-section-summary-container tr th:first-child {
+    vertical-align: top;
     font-size: 1.2em;
+    word-wrap: break-word; /* Permite que las palabras largas se dividan */
+    overflow-wrap: break-word; /* Asegura que el texto se ajuste dentro del contenedor */
+    max-width: 14ch; /* Limita el ancho del texto a 80 caracteres */
 }
 
 #report-section-summary-container tbody tr{
@@ -579,7 +582,7 @@ body{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 90%;
+    width: 100%;
 }
 
 #oblique-transformation-info{
@@ -612,9 +615,9 @@ body{
 }
 
 #ipcam-transformation-info {
-    width: 90%;
+    width: 100%;
     height: 95%;
-    margin-left: 12%;
+    margin-left: 10%;
     display: flex;
     flex-direction: column;
     align-items: flex-start; /* Cambiado a flex-start para alinear a la izquierda */
@@ -655,7 +658,7 @@ body{
     width: 100%;
     height: auto;
     flex: 1; /* Permite que el contenedor de mensajes ocupe el espacio disponible */
-    padding-right: 30px;
+    padding-right: 15px;
 }
 
 #successful-message-container p {

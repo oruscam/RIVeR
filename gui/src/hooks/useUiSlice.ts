@@ -4,7 +4,7 @@
  */
 
 import { useDispatch, useSelector } from "react-redux";
-import { changeTheme, setErrorMessage, clearErrorMessage, setSeeAll, setScreen } from "../store/ui/uiSlice";
+import { changeTheme, setErrorMessage, clearErrorMessage, setSeeAll, setScreen, setLanguage } from "../store/ui/uiSlice";
 import { RootState } from "../store/store";
 import { getNewImageResolution } from "../helpers";
 
@@ -13,7 +13,7 @@ import { getNewImageResolution } from "../helpers";
  */
 
 export const useUiSlice = () => {
-    const { darkMode, error, isLoading, seeAll, screenSizes, message} = useSelector((state: RootState) => state.ui);
+    const { darkMode, error, isLoading, seeAll, screenSizes, message, language} = useSelector((state: RootState) => state.ui);
     const dispatch = useDispatch();
 
     /**
@@ -94,6 +94,10 @@ export const useUiSlice = () => {
         dispatch(setScreen({ width: windowWidth, height: windowHeight }));
     }
 
+    const onSetLanguage = (language: string) => {
+        dispatch(setLanguage(language));
+    }
+
 
     return {
         // ATRIBUTES
@@ -103,11 +107,13 @@ export const useUiSlice = () => {
         seeAll,
         screenSizes,
         message,
+        language,
 
         // METHODS
         onChangeTheme,
         onSetErrorMessage,
         onSetSeeAll,
         onSetScreen,
+        onSetLanguage
     };
 };

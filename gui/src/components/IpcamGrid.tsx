@@ -59,9 +59,9 @@ export const IpcamGrid = () => {
 
     const columns = [
         { ...SelectColumn, name: 'select', cellClass: 'centered-cell', headerCellClass: 'select-cell' },
-        { key: 'label', name: 'Label', cellClass: 'point-label-cell centered-cell label-cell', headerCellClass: 'centered-cell label-cell', frozen: true },
-        { key: 'X', name: t('Ipcam.east'), cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
-        { key: 'Y', name: t('Ipcam.north'), cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
+        { key: 'label', name: t('ControlPoints3d.label'), cellClass: 'point-label-cell centered-cell label-cell', headerCellClass: 'centered-cell label-cell', frozen: true },
+        { key: 'X', name: t('ControlPoints3d.east'), cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
+        { key: 'Y', name: t('ControlPoints3d.north'), cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
         { key: 'Z', name: 'Z', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
         { key: 'x', name: 'x', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
         { key: 'y', name: 'y', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
@@ -121,8 +121,6 @@ export const IpcamGrid = () => {
             }
         }
     }, [selectedRows.size, rows.length])
-
-
 
 
     return (

@@ -196,7 +196,7 @@ export const bathimetrySvg = ({ svgElement, data, level = 0, showLeftBank, leftB
     
         svg.append('path')
             .attr('d', 'M -8 0 L 8 0 L 0 16 Z')
-            .attr('fill', COLORS.GREEN)
+            .attr('fill', COLORS.GREEN) 
             .attr('transform', `translate(${xScale(rightBank)}, ${yScale(level) - 16})`);
     }        
 }

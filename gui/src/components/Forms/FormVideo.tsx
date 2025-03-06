@@ -38,9 +38,7 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
   
   const timeBetweenFrames = (((1 / (fps || 0)) * watchStep) * 1000).toFixed(2)
 
-
   const numberOfFrames = (Math.floor((parseTime(watchEndTime) - parseTime(watchStartTime)) * fps  / watchStep))
-
 
   const handleClick = ( event: React.MouseEvent<HTMLButtonElement> ) => {
     if(video !== null){
@@ -95,11 +93,8 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
     }
   }
 
-  const onSubmit = ( data: FieldValues ) => {
+  const onSubmit = async ( data: FieldValues ) => {
     onSetVideoParameters(data)
-    if ( images.paths.length > 0 ){
-      onSetImages([], true)
-    }
     nextStep()
   }
 

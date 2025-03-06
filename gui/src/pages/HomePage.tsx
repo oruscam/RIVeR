@@ -34,7 +34,7 @@ export const HomePage: React.FC = () => {
         </button>
         <button className='button-1' onClick={handleNewProjectClick} id='load-project'>{t('MainPage.loadProject')}</button>
       </div>
-      { error && <h4 className='home-page-error'> {error} </h4>}
+      { error && <h4 className='home-page-error mb-1'> {error} </h4>}
 
       <LanguageSelector />
       {/* <ThemeToggle /> */}

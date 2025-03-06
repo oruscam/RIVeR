@@ -201,7 +201,7 @@ export const useDataSlice = () => {
         
         const ipcRenderer = window.ipcRenderer;
         dispatch(setBackendWorkingFlag(true))
-        dispatch(setMessage('Generating velocity profile statistics'))
+        dispatch(setMessage(t('Loader.results')))
 
         if ( type === 'single' ){
             const section = sections[activeSection]

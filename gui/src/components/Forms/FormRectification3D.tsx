@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { useMatrixSlice, useUiSlice } from "../../hooks"
 import { PointsMap } from "../Graphs";
 import { IpcamGrid } from "../index";
@@ -7,6 +8,7 @@ export const FormRectification3D = () => {
     const [ mode, setMode ] = useState('')
     const { onGetPoints, onGetImages, onGetCameraSolution, ipcam, onChangeHemisphere } = useMatrixSlice();
     const { onSetErrorMessage } = useUiSlice();
+    const { t } = useTranslation();
 
     const { cameraSolution, isCalculating, hemisphere } = ipcam
 
@@ -45,8 +47,8 @@ export const FormRectification3D = () => {
             <form id="form-control-points" className={`form-scroll ${isCalculating ? 'disabled' : ''}`}>
                 <div className="form-base-2">
                     <div className="input-container-2">
-                        <button className={`wizard-button me-1 button-rectification-3d ${ipcam.importedPoints !== undefined ? "wizard-button-active" : ""}`} id="import-points" type="button" onClick={handleOnClickImport} > Import Points </button>
-                        <button className={`wizard-button button-rectification-3d ${ipcam.imagesPath !== undefined ? "wizard-button-active" : ""}`} id="import-images" type="button" onClick={handleOnClickImport}> Import Images </button>
+                        <button className={`wizard-button me-1 button-rectification ${ipcam.importedPoints !== undefined ? "wizard-button-active" : ""}`} id="import-points" type="button" onClick={handleOnClickImport} > {t('ControlPoints3d.importPoints')} </button>
+                        <button className={`wizard-button button-rectification ${ipcam.imagesPath !== undefined ? "wizard-button-active" : ""}`} id="import-images" type="button" onClick={handleOnClickImport}> {t('ControlPoints3d.importImages')} </button>
                     </div>
 
                     <IpcamGrid/>
@@ -63,34 +65,34 @@ export const FormRectification3D = () => {
 
                     <div className="input-container-2 mt-1">
                         <button 
-                            className={`wizard-button me-1 button-rectification-3d ${cameraSolution?.mode === 'direct-solve' || mode === 'direct-solve' ? 'wizard-button-active' : '' }`} 
+                            className={`wizard-button me-1 button-rectification ${cameraSolution?.mode === 'direct-solve' || mode === 'direct-solve' ? 'wizard-button-active' : '' }`} 
                             id="direct-solve" 
                             type="button" 
                             onClick={handleOnClickAction}
                             disabled={ipcam.importedPoints === undefined}
-                            > Direct Solve </button>
+                            > {t('ControlPoints3d.directSolve')} </button>
                         <button 
-                            className={`wizard-button button-rectification-3d ${cameraSolution === undefined ? 'mb-2' : ''} ${cameraSolution?.mode === 'optimize-solution' || mode === 'optimize-solution' ? 'wizard-button-active' : '' }`} 
+                            className={`wizard-button button-rectification ${cameraSolution === undefined ? 'mb-2' : ''} ${cameraSolution?.mode === 'optimize-solution' || mode === 'optimize-solution' ? 'wizard-button-active' : '' }`} 
                             id="optimize-solution" 
                             type="button" 
                             onClick={handleOnClickAction}
                             disabled={ipcam.importedPoints === undefined}
-                            > Optimize </button>
+                            > {t('ControlPoints3d.optimize')} </button>
                     </div>
                     
                     {
                         cameraSolution && (
                             <div className="form-video-extra-info mt-1 mb-2">
                                 <div className="form-video-extra-info-row">
-                                    <p> Reprojection Error:  </p>
+                                    <p> {t('ControlPoints3d.reprojectionErrors')}  </p>
                                     <p> {cameraSolution.meanError.toFixed(2)}px</p>
                                 </div>
                                 <div className="form-video-extra-info-row">
-                                    <p> Number Of Points:  </p>
+                                    <p> {t('ControlPoints3d.numberOfPoints')}  </p>
                                     <p> {cameraSolution.numPoints} </p>
                                 </div>
                                 <div className="form-video-extra-info-row mb-2">
-                                    <p> Camera Height:  </p>
+                                    <p> {t('ControlPoints3d.cameraHeight')}  </p>
                                     <p> {cameraSolution.cameraPosition[2].toFixed(2)} </p>
                                 </div>
                             </div>

@@ -6,7 +6,7 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
 import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, cleanSections, resetSectionSlice } from '../store/section/sectionSlice';
-import { setLoading } from '../store/ui/uiSlice';
+import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints, transformPixelToRealWorld, transformRealWorldToPixel } from '../helpers';
 import { setBackendWorkingFlag, setProcessingMask, setQuiver, updateProcessingForm } from '../store/data/dataSlice';
@@ -165,7 +165,7 @@ export const useSectionSlice = () => {
             dispatch(setDirPoints(newPoints as Point[]))
 
             if( bathimetry.width ){
-                onUpdateSectionPoints(newPoints as Point[], rwLength, bathimetry.width, bathimetry.leftBank)
+                onUpdateSectionPoints(rwCalculated as Point[], rwLength, bathimetry.width, bathimetry.leftBank)
             }
             dispatch(setBackendWorkingFlag(false))
 
@@ -252,7 +252,7 @@ export const useSectionSlice = () => {
                 dispatch(setDirPoints(pixelCalulated))
                 
                 if (bathimetry.width){
-                    onUpdateSectionPoints(pixelCalulated as Point[], rwLength, bathimetry.width, bathimetry.leftBank)
+                    onUpdateSectionPoints(newPoints as Point[], rwLength, bathimetry.width, bathimetry.leftBank)
                 }
                 dispatch(setBackendWorkingFlag(false))
         } else { 
@@ -360,7 +360,6 @@ export const useSectionSlice = () => {
                 const par1 = transformPixelToRealWorld(sectionPoints[0].x, sectionPoints[0].y, transformationMatrix)
                 const par2 = transformPixelToRealWorld(sectionPoints[1].x, sectionPoints[1].y, transformationMatrix)
 
-
                 const rwPoints = [{ x: par1[0], y: par1[1] }, { x: par2[0], y: par2[1] }];
 
                 updatedSection[index] = { ...section, sectionPointsRW: rwPoints };
@@ -381,7 +380,7 @@ export const useSectionSlice = () => {
 
         try {
             await ipcRenderer.invoke('set-sections', { data })
-            
+            dispatch(setMessage(t('Loader.maskAndRoi')))
             const { height_roi } = await ipcRenderer.invoke('recommend-roi-height', type === 'ipcam' ? { transformationMatrix } : undefined)
             const { maskPath, bbox } = await ipcRenderer.invoke('create-mask-and-bbox', { height_roi: height_roi, data: false })
 1            
@@ -389,6 +388,7 @@ export const useSectionSlice = () => {
             dispatch(setProcessingMask({mask: filePrefix + maskPath, bbox}))
             dispatch(setQuiver({quiver: undefined, test: false}))
             dispatch(setLoading(false))
+            dispatch(clearMessage())
         } catch (error) {
             console.log("ERROR EN SETSECTIONS")
             console.log(error)
@@ -484,7 +484,7 @@ export const useSectionSlice = () => {
 
 
                 for ( let i = 1; i < sections.length ; i++){
-                    const { bathimetry, dirPoints, pixelSize } = sections[i]
+                    const { bathimetry, rwPoints, pixelSize } = sections[i]
                     const intersectionPoints = bathimetry.line ? getIntersectionPoints(bathimetry.line, value.level) : []
                     const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x
 
@@ -498,7 +498,7 @@ export const useSectionSlice = () => {
                         },
                         index: i
                     }))
-                    onUpdateSectionPoints(dirPoints, pixelSize.rwLength, bathWidth, bathimetry.leftBank, i)
+                    onUpdateSectionPoints(rwPoints, pixelSize.rwLength, bathWidth, bathimetry.leftBank, i)
                 }
                 return
             }
@@ -514,7 +514,7 @@ export const useSectionSlice = () => {
                     x2Intersection: intersectionPoints[1].x
                 }}))
             
-            onUpdateSectionPoints(updatedSection.dirPoints, updatedSection.pixelSize.rwLength, bathWidth, updatedSection.bathimetry.leftBank)
+            onUpdateSectionPoints(updatedSection.rwPoints, updatedSection.pixelSize.rwLength, bathWidth, updatedSection.bathimetry.leftBank)
             
             return 
         }
@@ -527,7 +527,7 @@ export const useSectionSlice = () => {
                 }}))
             dispatch(setHasChanged({value: true}))
             
-            onUpdateSectionPoints(updatedSection.dirPoints, updatedSection.pixelSize.rwLength, updatedSection.bathimetry.width, value.leftBank)
+            onUpdateSectionPoints(updatedSection.rwPoints, updatedSection.pixelSize.rwLength, updatedSection.bathimetry.width, value.leftBank)
             
             return
         }
@@ -662,8 +662,8 @@ export const useSectionSlice = () => {
                     }
                 }))
 
-                const { dirPoints, pixelSize } = sections[activeSection] 
-                onUpdateSectionPoints(dirPoints, pixelSize.rwLength, data.width, data.leftBank)
+                const { pixelSize, rwPoints } = sections[activeSection] 
+                onUpdateSectionPoints( rwPoints, pixelSize.rwLength, data.width, data.leftBank)
             }
         } catch (error) {
             console.log(error)
@@ -675,7 +675,6 @@ export const useSectionSlice = () => {
     }
 
     const onUpdateSectionPoints = (points: Point[] | [], total_distance?: number, bathWidth?: number, leftBank?: number, index?: number) => {
-
         if (points.length === 0) {
             dispatch(setSectionPoints({ points: DEFAULT_POINTS, index }));
             return;
@@ -683,19 +682,26 @@ export const useSectionSlice = () => {
 
         if (!bathWidth || !total_distance) return;
 
-        const directionVector = getDirectionVector(points, total_distance);
-        const offset = leftBank ? -leftBank : 0;
 
-        const sectionPoints = [
+        // const directionVector = getDirectionVector(points, total_distance);
+        const directionVector = getDirectionVector(points);
+        const offset = leftBank ? -leftBank : 0;
+        let sectionPoints = [
             {
-                x: points[0].x + (directionVector[0] * offset),
-                y: points[0].y + (directionVector[1] * offset)
+            x: points[0].x + (directionVector[0] * offset),
+            y: points[0].y + (directionVector[1] * offset)
             },
             {
-                x: points[0].x + (directionVector[0] * bathWidth) + (directionVector[0] * offset),
-                y: points[0].y + (directionVector[1] * bathWidth) + (directionVector[1] * offset)
+            x: points[0].x + (directionVector[0] * bathWidth) + (directionVector[0] * offset),
+            y: points[0].y + (directionVector[1] * bathWidth) + (directionVector[1] * offset)
             }
         ];
+
+        if ( transformationMatrix ) {
+            const par1 = transformRealWorldToPixel(sectionPoints[0].x, sectionPoints[0].y, transformationMatrix)
+            const par2 = transformRealWorldToPixel(sectionPoints[1].x, sectionPoints[1].y, transformationMatrix)
+            sectionPoints = [{x: par1[0], y: par1[1]}, {x: par2[0], y: par2[1]}]
+        }
 
         dispatch(setSectionPoints({ points: sectionPoints, index }));
     }
