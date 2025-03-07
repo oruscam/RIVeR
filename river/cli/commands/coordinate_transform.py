@@ -23,9 +23,31 @@ WRONG_SIZE_TRANSFORMATION_MATRIX_MESSAGE = (
 @click.argument("pix-coordinates", nargs=4, type=click.FLOAT)
 @click.argument("rw-coordinates", nargs=4, type=click.FLOAT)
 @click.option("-ps", "--pixel-size", type=click.FLOAT, default=None, help="Size of the pixel, optional.")
+@click.option("--image-path", default=None, type=click.Path(exists=True), envvar="IMAGE_PATH")
+@click.option("--roi-padding", default=0.0, type=click.FLOAT)
+@click.option("--max-dimension", default=500, type=click.INT)
+@click.option("--min-resolution", default=0.01, type=click.FLOAT)
+@click.option("--flip-x/--no-flip-x", default=False)
+@click.option("--flip-y/--no-flip-y", default=True)
+@click.option(
+	"-w",
+	"--workdir",
+	envvar="WORKDIR",
+	help="Directory to save the ortho image.",
+	type=click.Path(exists=True, dir_okay=True, writable=True, resolve_path=True, path_type=Path),
+)
 @render_response
 def get_uav_transformation_matrix(
-	pix_coordinates: tuple, rw_coordinates: tuple, pixel_size: Optional[float] = None
+	pix_coordinates: tuple,
+	rw_coordinates: tuple,
+	pixel_size: Optional[float],
+	image_path: Optional[Path],
+	roi_padding: float,
+	max_dimension: int,
+	min_resolution: int,
+	flip_x: bool,
+	flip_y: bool,
+	workdir: Optional[Path],
 ) -> dict:
 	"""Compute the transformation matrix from pixel to real-world coordinates from 2 points.
 
@@ -33,30 +55,106 @@ def get_uav_transformation_matrix(
 		pix_coordinates (tuple): x1 y1 x2 y2 pixel values.
 		rw_coordinates (tuple): x1 y1 x2 y2 real world values.
 		pixel_size (Optional[float], optional): Size of the pixel.. Defaults to None.
+		image_path (Optional[Path]): Path to the input image. If None, no image transformation is performed.
+	    roi_padding (float): Optional padding as a fraction of the ROI dimensions (default: 0.1).
+	    max_dimension (int): Maximum pixel dimension (width or height) for the output image
+	    min_resolution (float): Minimum resolution in real-world units per pixel
+	    flip_x (bool): Whether to flip the transformed image horizontally
+	    flip_y (bool): Whether to flip the transformed image vertically
 
 	Returns:
 		dict: Containing the UAV matrix.
 	"""
-	matrix = ct.get_uav_transformation_matrix(*pix_coordinates, *rw_coordinates, pixel_size=pixel_size)
-	return {"uav_matrix": matrix.tolist()}
+	if workdir is None and image_path is not None:
+		raise MissingWorkdir("To save the 'transformed_image.png' is needed to provide a workdir.")
+
+	result = ct.get_uav_transformation_matrix(
+		*pix_coordinates,
+		*rw_coordinates,
+		pixel_size=pixel_size,
+		image_path=image_path,
+		roi_padding=roi_padding,
+		max_dimension=max_dimension,
+		min_resolution=min_resolution,
+		flip_x=flip_x,
+		flip_y=flip_y,
+	)
+
+	if image_path is not None:
+		transformed_image = result.pop("transformed_img", None)
+		transformed_image = Image.fromarray(transformed_image, "RGBA")
+		transformed_image_path = workdir.joinpath("transformed_image.png")
+		transformed_image.save(transformed_image_path)
+		result.update({"transformed_image_path": str(transformed_image_path)})
+
+	return result
 
 
 @click.command(help="Compute the homography transformation matrix based on pixel coordinates and real-world distances.")
 @click.argument("pix-coordinates", nargs=8, type=click.FLOAT)
 @click.argument("rw-distances", nargs=6, type=click.FLOAT)
+@click.option("--image-path", default=None, type=click.Path(exists=True), envvar="IMAGE_PATH")
+@click.option("--roi-padding", default=0.0, type=click.FLOAT)
+@click.option("--max-dimension", default=500, type=click.INT)
+@click.option("--min-resolution", default=0.01, type=click.FLOAT)
+@click.option("--flip-x/--no-flip-x", default=False)
+@click.option("--flip-y/--no-flip-y", default=True)
+@click.option(
+	"-w",
+	"--workdir",
+	envvar="WORKDIR",
+	help="Directory to save the ortho image.",
+	type=click.Path(exists=True, dir_okay=True, writable=True, resolve_path=True, path_type=Path),
+)
 @render_response
-def get_oblique_transformation_matrix(pix_coordinates: tuple, rw_distances: tuple) -> dict:
+def get_oblique_transformation_matrix(
+	pix_coordinates: tuple,
+	rw_distances: tuple,
+	image_path: Optional[Path],
+	roi_padding: float,
+	max_dimension: int,
+	min_resolution: int,
+	flip_x: bool,
+	flip_y: bool,
+	workdir: Optional[Path],
+) -> dict:
 	"""Compute the homography transformation matrix based on pixel coordinates and real-world distances..
 
 	Args:
 		pix_coordinates (tuple): x1 y1 x2 y2 x3 y3 x4 y4 pixel coordinates values for four points.
 		rw_distances (tuple): d12 d23 d34 d41 d13 d24 real-world distances between corresponding points.
+		image_path (Optional[Path]): Path to the input image. If None, no image transformation is performed.
+	    roi_padding (float): Optional padding as a fraction of the ROI dimensions (default: 0.1).
+	    max_dimension (int): Maximum pixel dimension (width or height) for the output image
+	    min_resolution (float): Minimum resolution in real-world units per pixel
+	    flip_x (bool): Whether to flip the transformed image horizontally
+	    flip_y (bool): Whether to flip the transformed image vertically
 
 	Returns:
 		dict: Containing the oblique matrix.
 	"""
-	matrix = ct.oblique_view_transformation_matrix(*pix_coordinates, *rw_distances)
-	return {"oblique_matrix": matrix.tolist()}
+	if workdir is None and image_path is not None:
+		raise MissingWorkdir("To save the 'transformed_image.png' is needed to provide a workdir.")
+
+	result = ct.oblique_view_transformation_matrix(
+		*pix_coordinates,
+		*rw_distances,
+		image_path=image_path,
+		roi_padding=roi_padding,
+		max_dimension=max_dimension,
+		min_resolution=min_resolution,
+		flip_x=flip_x,
+		flip_y=flip_y,
+	)
+
+	if image_path is not None:
+		transformed_image = result.pop("transformed_img", None)
+		transformed_image = Image.fromarray(transformed_image, "RGBA")
+		transformed_image_path = workdir.joinpath("transformed_image.png")
+		transformed_image.save(transformed_image_path)
+		result.update({"transformed_image_path": str(transformed_image_path)})
+
+	return result
 
 
 @click.command(help="Transform pixel coordinates to real-world coordinates.")

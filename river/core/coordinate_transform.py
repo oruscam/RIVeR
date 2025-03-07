@@ -131,6 +131,130 @@ def orthorectify_image(
 	return ortho_img, extent
 
 
+def orthorectify_image_with_size_limit(
+	im_in: np.ndarray,
+	transformation_matrix: np.ndarray,
+	roi: Optional[Tuple[int, int, int, int]] = None,
+	max_dimension: int = 500,
+	min_resolution: float = 0.01,
+	flip_x: bool = False,
+	flip_y: bool = False,
+) -> Tuple[np.ndarray, List[float]]:
+	"""
+	Transform an input image using a transformation matrix with a specified ROI,
+	ensuring the output image doesn't exceed a maximum dimension.
+
+	Parameters:
+		im_in (np.ndarray): Input image array
+		transformation_matrix (np.ndarray): 3x3 transformation matrix for pixel to real-world coordinates
+		roi (Optional[Tuple[int, int, int, int]]): Region of interest (y_min, y_max, x_min, x_max).
+									  If None, the entire image is used.
+		max_dimension (int): Maximum pixel dimension (width or height) for the output image
+		min_resolution (float): Minimum resolution in real-world units per pixel
+		flip_x (bool): Whether to flip the image horizontally
+		flip_y (bool): Whether to flip the image vertically
+
+	Returns:
+		Tuple[np.ndarray, List[float]]:
+		  - Transformed image array
+		  - Extent [x_min, x_max, y_min, y_max] for plotting
+	"""
+	# Get input image dimensions
+	h, w = im_in.shape[:2]
+
+	# If ROI is not specified, use the entire image
+	if roi is None:
+		y_min, y_max, x_min, x_max = 0, h, 0, w
+	else:
+		y_min, y_max, x_min, x_max = roi
+
+	# Create grid of pixel coordinates for the ROI
+	y_coords = np.arange(y_min, y_max)
+	x_coords = np.arange(x_min, x_max)
+	X, Y = np.meshgrid(x_coords, y_coords)
+
+	# Convert ROI corners to real-world coordinates to determine extent
+	corners = [(x_min, y_min), (x_max, y_min), (x_min, y_max), (x_max, y_max)]
+
+	real_world_corners = [transform_pixel_to_real_world(x, y, transformation_matrix) for x, y in corners]
+	rw_x_coords = [corner[0] for corner in real_world_corners]
+	rw_y_coords = [corner[1] for corner in real_world_corners]
+
+	# Determine real-world extent
+	x_min_rw, x_max_rw = min(rw_x_coords), max(rw_x_coords)
+	y_min_rw, y_max_rw = min(rw_y_coords), max(rw_y_coords)
+
+	# Add small margin
+	margin = 0.05  # 5% margin
+	x_range = x_max_rw - x_min_rw
+	y_range = y_max_rw - y_min_rw
+	x_min_rw -= margin * x_range
+	x_max_rw += margin * x_range
+	y_min_rw -= margin * y_range
+	y_max_rw += margin * y_range
+
+	# Calculate updated ranges with margins
+	x_range = x_max_rw - x_min_rw
+	y_range = y_max_rw - y_min_rw
+
+	# Calculate resolution to ensure max_dimension is not exceeded
+	x_resolution = x_range / max_dimension
+	y_resolution = y_range / max_dimension
+
+	# Use the larger resolution to ensure neither dimension exceeds max_dimension
+	output_resolution = max(x_resolution, y_resolution)
+
+	# Ensure resolution doesn't go below minimum allowed
+	output_resolution = max(output_resolution, min_resolution)
+
+	# Calculate output dimensions based on resolution
+	x_size = int(x_range / output_resolution)
+	y_size = int(y_range / output_resolution)
+
+	print(f"Using resolution: {output_resolution:.4f} units/pixel")
+	print(f"Output image dimensions: {x_size} x {y_size} pixels")
+
+	# Create real-world coordinates grid
+	rw_x_coords = np.linspace(x_min_rw, x_max_rw, x_size)
+	rw_y_coords = np.linspace(y_min_rw, y_max_rw, y_size)
+
+	# Apply flips if requested (by reversing the coordinate arrays)
+	if flip_x:
+		rw_x_coords = rw_x_coords[::-1]
+	if flip_y:
+		rw_y_coords = rw_y_coords[::-1]
+
+	RW_X, RW_Y = np.meshgrid(rw_x_coords, rw_y_coords)
+
+	# Transform each real-world coordinate to pixel coordinate
+	map_x = np.zeros((y_size, x_size), dtype=np.float32)
+	map_y = np.zeros((y_size, x_size), dtype=np.float32)
+
+	for i in range(y_size):
+		for j in range(x_size):
+			pixel_coords = transform_real_world_to_pixel(RW_X[i, j], RW_Y[i, j], transformation_matrix)
+			map_x[i, j] = pixel_coords[0]
+			map_y[i, j] = pixel_coords[1]
+
+	# Create mask for valid coordinates
+	valid_coords = (map_x >= 0) & (map_x < w) & (map_y >= 0) & (map_y < h)
+
+	# Perform remapping
+	transformed_img = cv2.remap(
+		im_in, map_x, map_y, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=[0, 0, 0]
+	)
+
+	# Add alpha channel for transparency
+	if len(im_in.shape) == 3 and im_in.shape[2] == 3:
+		alpha = np.ones_like(transformed_img[:, :, 0]) * 255
+		alpha[~valid_coords] = 0
+		transformed_img = np.dstack((transformed_img, alpha))
+
+	extent = [x_min_rw, x_max_rw, y_min_rw, y_max_rw]
+
+	return transformed_img, extent
+
+
 def calculate_uncertainty_ellipses(
 	actual_points: np.ndarray, projected_points: np.ndarray, confidence: float = 0.95
 ) -> List[Dict]:
@@ -499,9 +623,16 @@ def get_uav_transformation_matrix(
 	x2_rw: float,
 	y2_rw: float,
 	pixel_size: Optional[float] = None,
-) -> np.ndarray:
+	image_path: Optional[str] = None,
+	roi_padding: float = 0,
+	max_dimension: int = 500,
+	min_resolution: float = 0.01,
+	flip_x: bool = False,
+	flip_y: bool = True,
+) -> dict:
 	"""
 	Compute the transformation matrix from pixel to real-world coordinates from 2 points.
+	Optionally transforms an image using the calculated transformation matrix.
 
 	Parameters:
 	    x1_pix (float): X coordinate of the first point in pixels.
@@ -512,9 +643,21 @@ def get_uav_transformation_matrix(
 	    y1_rw (float): Y coordinate of the first point in real-world units.
 	    x2_rw (float): X coordinate of the second point in real-world units.
 	    y2_rw (float): Y coordinate of the second point in real-world units.
+	    pixel_size (Optional[float]): Pixel size in real-world units. If None, calculated from the input points.
+	    image_path (Optional[str]): Path to the input image. If None, no image transformation is performed.
+	    roi_padding (float): Optional padding as a fraction of the ROI dimensions (default: 0.1).
+	    max_dimension (int): Maximum pixel dimension (width or height) for the output image
+	    min_resolution (float): Minimum resolution in real-world units per pixel
+	    flip_x (bool): Whether to flip the transformed image horizontally
+	    flip_y (bool): Whether to flip the transformed image vertically
 
 	Returns:
-	    np.ndarray: A 3x3 transformation matrix.
+	    dict: Dictionary containing:
+	        - 'transformation_matrix': 3x3 transformation matrix
+	        If image_path is provided, also includes:
+	        - 'transformed_img': Transformed image
+	        - 'extent': [x_min, x_max, y_min, y_max] for plotting
+	        - 'output_resolution': The resolution of the output image in real-world units per pixel
 	"""
 	# Step 1: Calculate pixel size
 	if pixel_size is None:
@@ -545,7 +688,99 @@ def get_uav_transformation_matrix(
 	# Step 6: Combine rotation and scaling/translation matrices
 	transformation_matrix = np.dot(scale_translation_matrix, rotation_matrix)
 
-	return transformation_matrix
+	# Initialize result dictionary with the transformation matrix
+	result = {"transformation_matrix": transformation_matrix.tolist()}
+
+	# Calculate and apply image transformation if image_path is provided
+	if image_path is not None:
+		# Load the image
+		img = cv2.imread(image_path)
+		if img is None:
+			raise ValueError(f"Could not load image from {image_path}")
+		img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+		h, w = img.shape[:2]
+
+		# Calculate the ROI that includes the entire image with padding
+		x_padding = w * roi_padding
+		y_padding = h * roi_padding
+		roi = (int(-x_padding), int(h + y_padding), int(-x_padding), int(w + x_padding))
+
+		# Transform the image using the calculated transformation matrix
+		transformed_img, extent = orthorectify_image_with_size_limit(
+			img,
+			transformation_matrix,
+			roi=roi,
+			max_dimension=max_dimension,
+			min_resolution=min_resolution,
+			flip_x=flip_x,
+			flip_y=flip_y,
+		)
+
+		# Add the transformed image and extent to the result dictionary
+		result["transformed_img"] = transformed_img
+		result["extent"] = extent
+
+		# Calculate the actual resolution achieved
+		x_idx = 0 if extent[0] < extent[1] else 1
+		y_idx = 2 if extent[2] < extent[3] else 3
+		x_ext = abs(extent[1] - extent[0])
+		y_ext = abs(extent[3] - extent[2])
+
+		result["output_resolution"] = max(x_ext / transformed_img.shape[1], y_ext / transformed_img.shape[0])
+
+	return result
+
+
+def calculate_roi(
+	x1_pix: float,
+	y1_pix: float,
+	x2_pix: float,
+	y2_pix: float,
+	x3_pix: float,
+	y3_pix: float,
+	x4_pix: float,
+	y4_pix: float,
+	padding: float = 0.0,
+) -> tuple:
+	"""
+	Calculate a rectangular region of interest (ROI) that frames the four points.
+
+	Parameters:
+		x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix: float
+			Pixel coordinates for the four corner points.
+		padding: float
+			Optional padding as a fraction of the ROI dimensions (default: 0.0).
+			For example, 0.1 adds a 10% padding on each side.
+
+	Returns:
+		tuple: (x_min, y_min, width, height) defining the ROI in pixel coordinates.
+			  x_min, y_min are the top-left corner coordinates.
+	"""
+	# Gather all x and y coordinates
+	x_coords = [x1_pix, x2_pix, x3_pix, x4_pix]
+	y_coords = [y1_pix, y2_pix, y3_pix, y4_pix]
+
+	# Find minimum and maximum values
+	x_min = min(x_coords)
+	x_max = max(x_coords)
+	y_min = min(y_coords)
+	y_max = max(y_coords)
+
+	# Calculate width and height
+	width = x_max - x_min
+	height = y_max - y_min
+
+	# Apply padding if requested
+	if padding > 0:
+		padding_x = width * padding
+		padding_y = height * padding
+
+		x_min -= padding_x
+		y_min -= padding_y
+		width += 2 * padding_x
+		height += 2 * padding_y
+
+	return (x_min, y_min, width, height)
 
 
 def oblique_view_transformation_matrix(
@@ -563,18 +798,36 @@ def oblique_view_transformation_matrix(
 	d41: float,
 	d13: float,
 	d24: float,
-) -> np.ndarray:
+	image_path: Optional[str] = None,
+	roi_padding: float = 0.1,
+	max_dimension: int = 500,
+	min_resolution: float = 0.01,
+	flip_x: bool = False,
+	flip_y: bool = True,
+) -> dict:
 	"""
-	Compute the homography transformation matrix based on pixel coordinates and real-world distances.
+	Combined function to calculate transformation matrix, ROI, and optionally orthorectify an image
+	with size constraints.
 
 	Parameters:
-	    x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix: float
-	        Pixel coordinates for four points.
-	    d12, d23, d34, d41, d13, d24: float
-	        Real-world distances between corresponding points.
+		x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix: float
+			Pixel coordinates for the four corner points.
+		d12, d23, d34, d41, d13, d24: float
+			Real-world distances between corresponding points.
+		image_path (Optional[str]): Path to the input image. If None, no orthorectification is performed.
+		roi_padding (float): Optional padding as a fraction of the ROI dimensions (default: 0.1).
+		max_dimension (int): Maximum pixel dimension (width or height) for the output image
+		min_resolution (float): Minimum resolution in real-world units per pixel
+		flip_x (bool): Whether to flip the orthorectified image horizontally (default: True)
+		flip_y (bool): Whether to flip the orthorectified image vertically (default: False)
 
 	Returns:
-	    ndarray: 3x3 transformation matrix pixel to RW and RW to pixel
+		dict: Dictionary containing:
+			- 'transformation_matrix': 3x3 transformation matrix
+			- 'roi': Region of interest (x_min, y_min, width, height)
+			If image_path is provided, also includes:
+			- 'transformed_img': Orthorectified image
+			- 'extent': [x_min, x_max, y_min, y_max] for plotting
 	"""
 	# Coordinates for points 1 and 2 in real-world space
 	east_1, north_1 = 0, 0
@@ -597,7 +850,48 @@ def oblique_view_transformation_matrix(
 	# Invert the transformation matrix to map from pixel to real-world coordinates
 	transformation_matrix = np.linalg.inv(H)
 
-	return transformation_matrix
+	# Calculate the ROI with padding
+	roi_rect = calculate_roi(x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix, padding=roi_padding)
+
+	# Initialize result dictionary with transformation matrix and ROI
+	result = {"transformation_matrix": transformation_matrix.tolist(), "roi": roi_rect}
+
+	# Load and orthorectify the image if image_path is provided
+	if image_path is not None:
+		# Load the image
+		image = cv2.imread(image_path)
+		if image is None:
+			raise ValueError(f"Could not load image from {image_path}")
+		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+		# Convert ROI from (x_min, y_min, width, height) to (y_min, y_max, x_min, x_max)
+		x_min, y_min, width, height = roi_rect
+		roi_for_ortho = (int(y_min), int(y_min + height), int(x_min), int(x_min + width))
+
+		# Orthorectify the image with size limit
+		transformed_img, extent = orthorectify_image_with_size_limit(
+			image,
+			transformation_matrix,
+			roi=roi_for_ortho,
+			max_dimension=max_dimension,
+			min_resolution=min_resolution,
+			flip_x=flip_x,
+			flip_y=flip_y,
+		)
+
+		# Add orthorectification results to the dictionary
+		result["transformed_img"] = transformed_img
+		result["extent"] = extent
+
+		# Calculate the actual resolution achieved
+		x_idx = 0 if extent[0] < extent[1] else 1
+		y_idx = 2 if extent[2] < extent[3] else 3
+		x_ext = abs(extent[1] - extent[0])
+		y_ext = abs(extent[3] - extent[2])
+
+		result["output_resolution"] = max(x_ext / transformed_img.shape[1], y_ext / transformed_img.shape[0])
+
+	return result
 
 
 def transform_pixel_to_real_world(x_pix: float, y_pix: float, transformation_matrix: np.ndarray) -> np.ndarray:
