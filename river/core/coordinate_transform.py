@@ -689,7 +689,7 @@ def get_uav_transformation_matrix(
 	transformation_matrix = np.dot(scale_translation_matrix, rotation_matrix)
 
 	# Initialize result dictionary with the transformation matrix
-	result = {"transformation_matrix": transformation_matrix}
+	result = {"transformation_matrix": transformation_matrix.tolist()}
 
 	# Calculate and apply image transformation if image_path is provided
 	if image_path is not None:
@@ -854,7 +854,7 @@ def oblique_view_transformation_matrix(
 	roi_rect = calculate_roi(x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix, padding=roi_padding)
 
 	# Initialize result dictionary with transformation matrix and ROI
-	result = {"transformation_matrix": transformation_matrix, "roi": roi_rect}
+	result = {"transformation_matrix": transformation_matrix.tolist(), "roi": roi_rect}
 
 	# Load and orthorectify the image if image_path is provided
 	if image_path is not None:
