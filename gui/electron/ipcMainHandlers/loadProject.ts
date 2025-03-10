@@ -38,6 +38,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                     let xSections = undefined
                     let piv_results = undefined
                     let matrix = undefined
+                    let orthoImage = undefined
                     let grp_3d_points = undefined
                     let grp_3d_mode = undefined
                     let camera_solution_3d = undefined                    
@@ -69,7 +70,6 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                         PROJECT_CONFIG.bboxPath = bboxPath;
                         bbox = await fs.promises.readFile(bboxPath, 'utf-8');
                         bbox = JSON.parse(bbox);
-                        console.log('bbox', bbox)
                     } else {
                         console.warn(`Warning: ${bboxPath} does not exist.`);
                     }
@@ -83,10 +83,11 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
 
                     if( settingsParsed.footage ){
                         PROJECT_CONFIG.type = settingsParsed.footage;
-                        if( settingsParsed.transformation_matrix !== undefined ){
+                        if( settingsParsed.transformation.matrix !== undefined ){
                             PROJECT_CONFIG.matrixPath = path.join(folderPath, 'transformation_matrix.json');
                             matrix = await fs.promises.readFile(PROJECT_CONFIG.matrixPath, 'utf-8');
                             matrix = JSON.parse(matrix);
+                            orthoImage = path.join(filePrefix, folderPath, 'transformed_image.png')
                         }   
 
                         if( settingsParsed.xsections ){
@@ -100,6 +101,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
 
                         if( images.length > 0){
                             firstFrame = path.join(framesPath, images[0])
+                            PROJECT_CONFIG.firstFrame = firstFrame;
                             paths = images.map((image) => path.join(filePrefix,framesPath, image))    
                         }
 
@@ -124,7 +126,6 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                             const images = await fs.promises.readdir(settingsParsed.rectification_3d_images);
                             rectification_3d_images = images.map((image: string) => path.join(filePrefix, settingsParsed.rectification_3d_images, image));
                         }
-                        
                         try {
                             const videoMetadata = await getVideoMetadata(settingsParsed.video.filepath);
                             
@@ -141,6 +142,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                                     piv_results: piv_results,
                                     paths: paths,
                                     matrix: matrix,
+                                    orthoImage: orthoImage,
                                     rectification3D: {
                                         points: grp_3d_points,
                                         mode: grp_3d_mode,

@@ -7,11 +7,8 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
     ipcMain.handle('calculate-3d-rectification', async (_event, args) => {
         console.log('calculate-3d-rectification')
 
-        const { directory, framesPath, logsPath, settingsPath } = PROJECT_CONFIG
+        const { directory, logsPath, settingsPath, firstFrame } = PROJECT_CONFIG
         const { points, mode, hemisphere } = args
-
-        const images = await fs.promises.readdir(framesPath)
-        const firstFramePath = path.join(framesPath, images[0])
 
         // settings file
         const settings = await fs.promises.readFile(settingsPath, 'utf-8');
@@ -21,7 +18,6 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
         let full_grp_3d = {}
         const full_grp_3d_path = path.join(directory, 'full_grp_3d.json')
         
-
         // grp file
         const jsonContent = points.reduce((acc: any, point: any, index: number) => {
             const { X, Y, Z, x, y, selected, label, image } = point
@@ -92,7 +88,6 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
            })
         }
 
-
         try {
             const filePath = path.join(directory, 'grp_3d.json')
             await fs.promises.writeFile(filePath, JSON.stringify(jsonContent, null, 2))
@@ -104,7 +99,7 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
             const options = [
                 'get-camera-solution',
                 '--image-path',
-                firstFramePath,
+                firstFrame,
                 mode === 'optimize-solution' ? '--' + mode : undefined,
                 '--' + hemisphere,
                 flag ? ('--full-grp-dict') : undefined,
@@ -155,8 +150,5 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
     })
     
 }
-
-
-
 
 export { calculate3dRectification }

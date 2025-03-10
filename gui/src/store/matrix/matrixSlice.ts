@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { obliquePoints, MatrixState, setIpcamPointsInterface, setIpcamImagesInterface, setIpcamCustomPoint, cameraSolution } from "./types";
+import { DEFAULT_POINTS } from "../../constants/constants";
 
 const initialState: MatrixState = {
     obliquePoints: {

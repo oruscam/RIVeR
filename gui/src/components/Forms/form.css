@@ -283,6 +283,10 @@ transform-origin: 14px 22px;
     cursor: not-allowed; /* Cambia el cursor para indicar que no está permitido */
 }
 
+/* #form-pixel-size{
+    overflow-y: auto;
+} */
+
 .form-base-2{
     display: flex;
     flex-direction: column;
@@ -516,3 +520,24 @@ transform-origin: 14px 22px;
 #import-distances, #import-images{
     height: auto;
 }
+
+#solve-pixelsize{
+    margin-top: auto;
+    margin-bottom: 10px;
+}
+
+#ortho-image-solution{
+    width: 95%;
+    height: 350px;
+    flex-shrink: 0;
+    align-items: center;
+}
+
+/* #ortho-image-solution img{
+    width: 100%;
+    height: auto;
+    max-height: 300px;
+    object-fit: contain;
+} */
+
+

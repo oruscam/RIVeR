@@ -7,14 +7,12 @@ import { KonvaEventObject } from "konva/lib/Node";
 import { useEffect, useState } from "react";
 import { Point } from "../types";
 import { ObliquePointsLines, Points } from "./index";
-import { COLORS } from "../constants/constants";
 
 export const ImageRectification2D = () => {
     const { obliquePoints, onSetObliqueCoordinates, onChangeObliqueCoordinates } = useMatrixSlice()
     const { screenSizes } = useUiSlice()
     const { coordinates, drawPoints, distances } = obliquePoints
     const { imageWidth, imageHeight, factor } = screenSizes  
-
 
     const { firstFramePath } = useProjectSlice();
     

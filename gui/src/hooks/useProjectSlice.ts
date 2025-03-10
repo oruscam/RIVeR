@@ -159,14 +159,13 @@ export const useProjectSlice = () => {
         try {
             const result = await ipcRenderer.invoke('load-project')
             if(result.success){
-                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix, rectification3D, bbox } = result.message
+                const { settings, projectDirectory, videoMetadata, firstFrame, xsections, mask, piv_results, paths, matrix, rectification3D, bbox, orthoImage } = result.message
                 dispatch(setProjectDirectory(projectDirectory))
                 dispatch(setProjectType(settings.footage)) 
 
                 // Set the language
                 dispatch(setLanguage(settings.language))
 
-                
                 dispatch(setVideoData({
                     width: videoMetadata.width,
                     height: videoMetadata.height,
@@ -183,7 +182,11 @@ export const useProjectSlice = () => {
                 }
 
                 if ( matrix !== undefined ){
-                    dispatch(setTransformationMatrix(matrix))
+                    dispatch(setTransformationMatrix({ transformationMatrix: matrix, pixelSolution: {
+                        image: orthoImage,
+                        extent: settings.transformation.extent,
+                        resolution: settings.transformation.resolution
+                    }}))
                 }
 
                 if( firstFrame !== ''){

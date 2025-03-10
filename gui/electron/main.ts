@@ -120,6 +120,7 @@ const PROJECT_CONFIG: ProjectConfig = {
   resultsPath: "",
   thumbsPath: "",
   logsPath: "",
+  firstFrame: ""
 }
 // Move to ipcMainHandlers
 ipcMain.handle('save-dialog', async (event, defaultPath) => {

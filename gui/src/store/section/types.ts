@@ -134,12 +134,21 @@ interface Summary {
     cov: SummaryStatistics;
 }
 
+interface PixelSolution {
+    image: string;
+    extent: number[];
+    resolution: number;
+
+}
+
 interface SectionState {
     sections: Section[];
     summary: Summary | undefined;
     activeSection: number;
     sectionsCounter: number;
     transformationMatrix: [number[], number[], number[]] | [];
+    pixelSolution?: PixelSolution; 
+    isSectionWorking: boolean;
 }
 
-export type { SectionState, Section, Point, Bathimetry, PixelSize, Processing, SectionData, Summary }
+export type { SectionState, Section, Point, Bathimetry, PixelSize, Processing, SectionData, Summary, PixelSolution }

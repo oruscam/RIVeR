@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { SectionState, PixelSize, Section, SectionData, Bathimetry, Summary } from './types';
+import { SectionState, PixelSize, Section, SectionData, Bathimetry, Summary, PixelSolution } from './types';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../../constants/constants';
 import { Point } from '../../types';
 
@@ -16,8 +16,8 @@ const defaultSections = [{
         rwPoints: DEFAULT_POINTS,
         extraFields: false,
         numStations: 0,
-        alpha: DEFAULT_ALPHA,
-        interpolated: true,
+        alpha: 0,
+        interpolated: false,
         hasChanged: false,
         artificialSeeding: false,
     },
@@ -47,6 +47,7 @@ const initialState: SectionState = {
     activeSection: 0,
     sectionsCounter: 2,
     transformationMatrix: [],
+    isSectionWorking: false,
 };
 
 const sectionSlice = createSlice({
@@ -60,9 +61,21 @@ const sectionSlice = createSlice({
         // ** Interaction with sections points.
         setDirPoints: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].dirPoints = action.payload;
+            console.log('activeStation')
+            console.log(state.activeSection)
+            if ( state.activeSection === 0) {
+                state.pixelSolution = undefined;
+                state.transformationMatrix = [];
+            }
         },
         setRealWorldPoints: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].rwPoints = action.payload;
+            console.log('activeStation')
+            console.log(state.activeSection)
+            if ( state.activeSection === 0) {
+                state.pixelSolution = undefined;
+                state.transformationMatrix = [];
+            }
         },
         addSection: (state, action: PayloadAction<Section>) => {
             state.sections.push(action.payload);
@@ -74,7 +87,7 @@ const sectionSlice = createSlice({
                 state.sections.splice(state.activeSection, 1);
                 state.activeSection = newActive
             } else {
-                if ( action.payload === 1){
+                if ( action.payload === 1 ){
                     state.sections[action.payload] = initialState.sections[1];
                 } else {
                     state.sections.splice(action.payload, 1);
@@ -118,8 +131,17 @@ const sectionSlice = createSlice({
         updateSectionsCounter: (state, action: PayloadAction<number>) => {
             state.sectionsCounter = action.payload;
         },
-        setTransformationMatrix: (state, action: PayloadAction<[number[], number[], number[]]>) => {
-            state.transformationMatrix = action.payload;
+        setTransformationMatrix: (state, action: PayloadAction<{transformationMatrix: [number[], number[], number[]], pixelSolution?: PixelSolution}>) => {
+            state.transformationMatrix = action.payload.transformationMatrix;
+            
+            if ( action.payload.pixelSolution !== undefined ){
+                state.pixelSolution = {
+                    ...action.payload.pixelSolution,
+                    image: action.payload.pixelSolution.image + '?t=' + new Date().getTime()
+                };
+                
+            }
+            state.isSectionWorking = false;
         },
         cleanSections: (state) => {
             state.sections = state.sections.filter( (_, index) => index === 0 || index === 1);
@@ -131,6 +153,15 @@ const sectionSlice = createSlice({
             state.activeSection = 0;
             state.sectionsCounter = 2;
             state.transformationMatrix = [];
+        },
+        setSectionWorking: (state, action: PayloadAction<boolean>) => {
+            state.isSectionWorking = action.payload;
+        },
+        cleanSolution: (state) => {
+            if ( state.activeSection === 0 ) {
+                state.pixelSolution = undefined;
+                state.transformationMatrix = [];
+            }
         }
     },
 });
@@ -149,10 +180,12 @@ export const {
     setRealWorldPoints,
     setSectionData,
     setSectionPoints,
+    setSectionWorking,
     setSummary,
     setTransformationMatrix,
     updateSection,
     updateSectionsCounter,
+    cleanSolution
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

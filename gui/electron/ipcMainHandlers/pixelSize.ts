@@ -7,11 +7,12 @@ import { createMatrix } from "./utils/createMatrix";
 function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
     ipcMain.handle('pixel-size', async (_event, args: pixelSizeHandleArgs) => {
         console.log('En pixel-size event', args);
-        const { directory, settingsPath, logsPath } = PROJECT_CONFIG;
+        const { directory, settingsPath, logsPath, firstFrame } = PROJECT_CONFIG;
         const { dirPoints, rwPoints, pixelSize, rwLength } = args 
 
         const json = await fs.promises.readFile(settingsPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
+        jsonParsed.transformation = {};
         
         jsonParsed.pixel_size = {
             size: pixelSize,
@@ -25,11 +26,14 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
             east2: rwPoints[1].x,
             north2: rwPoints[1].y
         }
-
         const options = [
             'get-uav-transformation-matrix',
             '--pixel-size',
             pixelSize,
+            '--image-path',
+            firstFrame,
+            '-w',
+            directory,
             dirPoints[0].x,
             dirPoints[0].y,
             dirPoints[1].x,
@@ -41,13 +45,14 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
         ]
             
         try {
-            const { data } = await riverCli(options, 'json', 'false', logsPath)
+            const { data } = await riverCli(options, 'text', 'false', logsPath)
 
-            await createMatrix(data.uav_matrix, directory).then((matrixPath) => {
-                jsonParsed.transformation_matrix = matrixPath;
+            await createMatrix(data.transformation_matrix, directory).then((matrixPath) => {
+                jsonParsed.transformation.matrix = matrixPath;
+                jsonParsed.transformation.resolution = data.output_resolution;
+                jsonParsed.transformation.extent = data.extent;
                 PROJECT_CONFIG.matrixPath = matrixPath;
             }).catch((err) => { console.log(err) });
- 
 
             const updatedContent = JSON.stringify(jsonParsed, null, 4);
             await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');

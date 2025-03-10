@@ -64,6 +64,8 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
                 await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
             }
 
+            PROJECT_CONFIG.firstFrame = firstFrame;
+
             return {
                 initial_frame: firstFrame,
             }

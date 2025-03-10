@@ -5,11 +5,11 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, cleanSections, resetSectionSlice } from '../store/section/sectionSlice';
+import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, cleanSections, resetSectionSlice, setSectionWorking, cleanSolution } from '../store/section/sectionSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints, transformPixelToRealWorld, transformRealWorldToPixel } from '../helpers';
-import { setBackendWorkingFlag, setProcessingMask, setQuiver, updateProcessingForm } from '../store/data/dataSlice';
+import { setProcessingMask, setQuiver, updateProcessingForm } from '../store/data/dataSlice';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../constants/constants';
 import { CanvasPoint, FormPoint, Point } from '../types';
 import { computeRwDistance, getLinesCoordinates, getTransformationFromCameraMatrix } from '../helpers/coordinates';
@@ -24,7 +24,7 @@ import { useTranslation } from 'react-i18next';
  */
 
 export const useSectionSlice = () => {
-    const { sections, activeSection, summary, sectionsCounter, transformationMatrix, sectionsChanged } = useSelector((state: RootState) => state.section);
+    const { sections, activeSection, summary, sectionsCounter, transformationMatrix, pixelSolution, isSectionWorking } = useSelector((state: RootState) => state.section);
     const { processing } = useSelector((state: RootState) => state.data);
     const { t } = useTranslation() 
     const dispatch = useDispatch();
@@ -135,7 +135,7 @@ export const useSectionSlice = () => {
 
         /**
          * If the active section is greater than 0, the real world coordinates are calculated.
-         * The real world coordinates are calculated by converting the pixel points to real world coordinates.
+         * by converting the pixel points to real world coordinates.
          * The real world coordinates are stored in the section slice.
          * The pixel size is calculated by the difference between the real world coordinates.
          * The pixel size is stored in the section slice.
@@ -144,7 +144,7 @@ export const useSectionSlice = () => {
         if( activeSection >= 1 ){
             let rwCalculated: Point[] = [ {x: 0, y: 0}, {x:0, y: 0}]
 
-            dispatch(setBackendWorkingFlag(true))
+            dispatch(setSectionWorking(true))
             if (newPoints && flag1 && flag2) {
                 const par1 = transformPixelToRealWorld(newPoints[0].x, newPoints[0].y, transformationMatrix)
                 const par2 = transformPixelToRealWorld(newPoints[1].x, newPoints[1].y, transformationMatrix)
@@ -167,7 +167,7 @@ export const useSectionSlice = () => {
             if( bathimetry.width ){
                 onUpdateSectionPoints(rwCalculated as Point[], rwLength, bathimetry.width, bathimetry.leftBank)
             }
-            dispatch(setBackendWorkingFlag(false))
+            dispatch(setSectionWorking(false))
 
         } else {
             const { size, rwLength } = computePixelSize(newPoints as Point[], rwPoints)
@@ -238,7 +238,7 @@ export const useSectionSlice = () => {
         if(activeSection >= 1 && newPoints !== rwPoints){
             let pixelCalulated: Point[] = [{x: 0, y: 0}, {x: 0, y: 0}]
 
-                dispatch(setBackendWorkingFlag(true))
+                dispatch(setSectionWorking(true))
                 if( flag1 ){
                     const pix_coordinates = transformRealWorldToPixel(newPoints[0].x, newPoints[0].y, transformationMatrix)
                     pixelCalulated = [{x: pix_coordinates[0], y: pix_coordinates[1]}, dirPoints[1]]
@@ -254,7 +254,7 @@ export const useSectionSlice = () => {
                 if (bathimetry.width){
                     onUpdateSectionPoints(newPoints as Point[], rwLength, bathimetry.width, bathimetry.leftBank)
                 }
-                dispatch(setBackendWorkingFlag(false))
+                dispatch(setSectionWorking(false))
         } else { 
             const {size, rwLength} = computePixelSize(dirPoints, newPoints)
             dispatch(setPixelSize({size, rwLength}))
@@ -268,15 +268,13 @@ export const useSectionSlice = () => {
      */
 
     const onSetPixelSize = async ( _data: FieldValues ) => {
-        dispatch(setLoading(true))
-        
         const { dirPoints, rwPoints, pixelSize, hasChanged } = sections[0]
-
+        
         if ( hasChanged === false ){
-            dispatch(setLoading(false))
-            dispatch(setActiveSection(activeSection + 1))
             return
         }
+
+        dispatch(setSectionWorking(true))
         onCleanSections()
         
         const args = {
@@ -288,13 +286,19 @@ export const useSectionSlice = () => {
 
         const ipcRenderer = window.ipcRenderer;
         try {
-            const { uav_matrix } = await ipcRenderer.invoke('pixel-size', args)
+            const { transformation_matrix, transformed_image_path, output_resoulution, extent} = await ipcRenderer.invoke('pixel-size', args)
 
-            dispatch(setTransformationMatrix(uav_matrix))
+            const filePrefix = import.meta.env.VITE_FILE_PREFIX;
+            const solutionImage = filePrefix + transformed_image_path
+            console.log('solutionImage', solutionImage) 
+
+            dispatch(setTransformationMatrix({transformationMatrix: transformation_matrix, pixelSolution: {
+                image: solutionImage,
+                resolution: output_resoulution,
+                extent
+            } }))
 
             dispatch(setHasChanged({value: false}))
-            dispatch(setActiveSection(activeSection + 1))
-            dispatch(setLoading(false))
         } catch (error) {
             console.log("ERROR EN SETPIXELSIZE")
             console.log(error)
@@ -435,6 +439,7 @@ export const useSectionSlice = () => {
             updatedSection.sectionPoints = DEFAULT_POINTS;
             updatedSection.rwPoints = DEFAULT_POINTS;
             updatedSection.pixelSize = { rwLength: 0, size: 0 };
+            dispatch(cleanSolution())
         }
         
         if (value.lineLength !== undefined) {
@@ -444,6 +449,8 @@ export const useSectionSlice = () => {
             updatedSection.pixelSize = { size, rwLength };
             updatedSection.rwPoints = resetRealWorld;
             updatedSection.hasChanged = true
+            dispatch(cleanSolution())
+
         }
         
         if ( value.pixelSize !== undefined ) {
@@ -461,8 +468,8 @@ export const useSectionSlice = () => {
                 updatedSection.pixelSize = { size: value.pixelSize, rwLength: rwLength }
                 updatedSection.rwPoints = [{ x: 0, y: 0 }, { x: rwLength, y: 0 }]
                 updatedSection.hasChanged = true
-
             }
+            dispatch(cleanSolution())
         }
 
         if (value.sectionName !== undefined) {
@@ -478,7 +485,7 @@ export const useSectionSlice = () => {
             dispatch(setHasChanged({value: true}))
             if ( cameraMatrix && activeSection !== 0 ){
                 const transformationMatrix = getTransformationFromCameraMatrix(cameraMatrix, value.level)
-                dispatch(setTransformationMatrix(transformationMatrix as [number[], number[], number[]]))
+                dispatch(setTransformationMatrix({transformationMatrix: transformationMatrix as [number[], number[], number[]]}))
                 dispatch(setHasChanged({value: true}))
                 window.ipcRenderer.invoke('save-transformation-matrix', { transformationMatrix })
 
@@ -650,7 +657,7 @@ export const useSectionSlice = () => {
 
                 if (cameraMatrix && activeSection === 1) {
                     const transformationMatrix = getTransformationFromCameraMatrix(cameraMatrix, data.level);
-                    dispatch(setTransformationMatrix(transformationMatrix as [number[], number[], number[]]));
+                    dispatch(setTransformationMatrix({transformationMatrix: transformationMatrix as [number[], number[], number[]]}));
                     ipcRenderer.invoke('save-transformation-matrix', { transformationMatrix });
                 }
                 dispatch(setBathimetry({
@@ -681,6 +688,8 @@ export const useSectionSlice = () => {
         }
 
         if (!bathWidth || !total_distance) return;
+
+        console.log('update points ')
 
 
         // const directionVector = getDirectionVector(points, total_distance);
@@ -722,11 +731,12 @@ export const useSectionSlice = () => {
     }
 
     return {    
-        sections,
         activeSection,
+        isSectionWorking,
+        sections,
+        pixelSolution,
         summary,
         transformationMatrix,   
-        sectionsChanged,
 
         onAddSection,
         onChangeDataValues,

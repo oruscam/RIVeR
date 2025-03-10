@@ -107,6 +107,7 @@ export interface ProjectConfig {
   resultsPath: string,
   thumbsPath: string,
   logsPath: string,
+  firstFrame: string
 }
 
 interface Point {

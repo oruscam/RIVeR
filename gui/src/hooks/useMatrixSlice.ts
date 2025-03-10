@@ -97,14 +97,14 @@ export const useMatrixSlice = () => {
 
             const ipcRenderer = window.ipcRenderer
             try {   
-                const { obliqueMatrix, error } = await ipcRenderer.invoke('set-control-points', {coordinates, distances: newDistances})
+                const { obliqueMatrix, error } = await ipcRenderer.invoke('set-control-points', { coordinates, distances: newDistances })
 
                 if ( error?.message ){
                     throw new Error(error.message)
                 } 
 
-                dispatch(setTransformationMatrix(obliqueMatrix));
-                dispatch(setObliquePoints({...obliquePoints, distances: newDistances, isDistancesLoaded: true}));
+                dispatch(setTransformationMatrix({ transformationMatrix: obliqueMatrix }));
+                dispatch(setObliquePoints({ ...obliquePoints, distances: newDistances, isDistancesLoaded: true }));
                 dispatch(cleanSections())
                 dispatch(setLoading(false))
                 dispatch(setHasChanged(false));

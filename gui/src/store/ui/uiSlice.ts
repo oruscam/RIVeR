@@ -47,6 +47,7 @@ const uiSlice = createSlice({
         },
         setLanguage: ( state, action: PayloadAction<string> ) => {
             if ( action.payload === undefined ) return;
+            console.log('Setting language to: ', action.payload);
             state.language = action.payload;
         }
     }

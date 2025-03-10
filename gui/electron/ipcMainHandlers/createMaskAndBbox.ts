@@ -8,11 +8,8 @@ import { clearResultsPiv } from "./utils/clearResultsPiv";
 async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ipcMain.handle('create-mask-and-bbox', async (_event, args) => {
         console.log('create-mask-and-bbox')
-        const { directory, framesPath, xsectionsPath, matrixPath, resultsPath, settingsPath, logsPath } = PROJECT_CONFIG;
+        const { directory, xsectionsPath, matrixPath, resultsPath, settingsPath, logsPath, firstFrame } = PROJECT_CONFIG;
         const { height_roi, data } = args;
-        
-        const images = await fs.promises.readdir(framesPath)
-        const firstFramePath = path.join(framesPath, images[0])
 
         if ( data ){
             await clearCrossSections(xsectionsPath)
@@ -28,7 +25,7 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Functi
             '-w',
             directory,
             height_roi,
-            firstFramePath,
+            firstFrame,
             xsectionsPath,
             matrixPath
         ]  

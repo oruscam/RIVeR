@@ -11,7 +11,7 @@ import { formatNumberTo2Decimals, formatNumberToPrecision4 } from '../helpers/ad
 
 
 export const PixelSize = () => {
-  const { onSetPixelSize, sections } = useSectionSlice()
+  const { onSetPixelSize, sections, pixelSolution, onSetActiveSection } = useSectionSlice()
   const { dirPoints, rwPoints, pixelSize } = sections[0]
 
   // * Estado inicial del formulario
@@ -34,13 +34,23 @@ export const PixelSize = () => {
   const { onSetErrorMessage } = useUiSlice()
   
 
-  const onSubmit = (data: FieldValues) => {
-    onSetPixelSize(data)
+  const onSubmit = (data: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
+    const id = (event.nativeEvent as SubmitEvent).submitter?.id
+
+    if ( id === 'solve-pixelsize' ){
+      event.preventDefault()
+      onSetPixelSize(data)
+      return
+    }
+    onSetActiveSection(1)
     nextStep()
   }
   
-  const onError = (error: FieldValues) => {
-    onSetErrorMessage(error)
+  const onError = (error: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
+    if ( event === undefined ) return;
+  
+  
+    onSetErrorMessage(error);
   }
 
   useEffect(() => {
@@ -75,7 +85,7 @@ export const PixelSize = () => {
           />
         </FormProvider>
         <ButtonLock footerElementID='span-footer' headerElementID='pixel_size-HEADER' disabled={sections[0].dirPoints.length === 0}/>
-        <WizardButtons canFollow={sections[0].dirPoints.length === 2} formId='form-pixel-size'/>
+        <WizardButtons canFollow={pixelSolution?.image !== undefined} formId='form-pixel-size'/>
       </div>
     </div>
   )

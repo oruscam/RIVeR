@@ -1,5 +1,12 @@
 import { importedPoint, Point } from "../../types";
 
+interface obliqueSolution {
+    orthoImage: string,
+    extent: number[],
+    resolution: number,
+    roi: number[],
+}
+
 interface obliquePoints {
     drawPoints: boolean,
     coordinates: Point[],
@@ -13,6 +20,7 @@ interface obliquePoints {
         d24: number,
     },
     isDistancesLoaded: boolean
+    solution?: obliqueSolution
 }
 
 interface cameraSolution {
@@ -39,6 +47,24 @@ interface ipcam {
     isCalculating: boolean,
 }
 
+interface pixelSolution {
+    orthoImage: string,
+    extent: number[],
+    resolution: number, 
+}
+
+interface pixelSize {
+    drawLine: boolean;
+    dirPoints: Point[];
+    rwPoints: Point[];
+    pixelSize: {
+        size: number,
+        rwLength: number
+    },
+    extraFields: boolean,
+    solution?: pixelSolution,
+}
+
 interface setIpcamPointsInterface {
     points: importedPoint[],
     path: string | undefined
@@ -58,6 +84,7 @@ interface MatrixState {
     obliquePoints: obliquePoints;
     ipcam: ipcam
     hasChanged: boolean;
+    pixelSize: pixelSize;
 }
 
 export type {

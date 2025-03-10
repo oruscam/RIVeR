@@ -7,7 +7,7 @@ import { createMatrix } from "./utils/createMatrix";
 function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ipcMain.handle('set-control-points', async ( _event, args ) => {
 
-        const { settingsPath, directory, logsPath } = PROJECT_CONFIG;
+        const { settingsPath, directory, logsPath, firstFrame } = PROJECT_CONFIG;
         const { coordinates, distances } = args;
         const json = await fs.promises.readFile(settingsPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
@@ -35,6 +35,10 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
         const options = [
             'get-oblique-transformation-matrix',
+            '--image-path',
+            firstFrame,
+            '-w',
+            directory,
             coordinates[0].x,
             coordinates[0].y,
             coordinates[1].x,
@@ -52,7 +56,7 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         ]
 
         try {
-            const { data, error } = await riverCli(options, 'json', 'false', logsPath)
+            const { data, error } = await riverCli(options, 'text', 'false', logsPath)
 
             if ( error.message ){
                 return { error }
@@ -65,9 +69,15 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
             const updatedContent = JSON.stringify(jsonParsed, null, 4);
             await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
+
+            console.log('transformation matrix', data)
             
             return {
-                obliqueMatrix: data.oblique_matrix,
+                obliqueMatrix: data.transformation_matrix,
+                roi: data.roi,
+                extent: data.extent,
+                resolution: data.output_resolution,
+                transformed_image_path: data.transformed_image_path
             }
 
         } catch (error) {
