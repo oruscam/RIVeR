@@ -14,7 +14,6 @@ export const ImageWithMarks = () => {
   const { firstFramePath } = useProjectSlice(); 
   const { drawLine, dirPoints } = sections[activeSection]
 
-
   const [localPoints, setLocalPoints] = useState<Point[]>([])
   const [mousePressed, setMousePressed] = useState(false)
   const [currentMousePosition, setCurrentMousePosition] = useState<Point>({ x: 0, y: 0 })
@@ -79,19 +78,34 @@ export const ImageWithMarks = () => {
         onMouseMove={drawLine && mousePressed && localPoints.length < 2 ? handleMouseMove: undefined}
         >
         <Layer>
-          <Image image={image} width={imageWidth} height={imageHeight}></Image>
+          <Image image={image} width={imageWidth} height={imageHeight}/>
           {
-            seeAll || activeSection === 0 ? (<DrawSections localPoints={localPoints} setLocalPoints={setLocalPoints} factor={factor!} draggable={true} resizeFactor={resizeFactor}/>) : (<DrawSections factor={factor!} setLocalPoints={setLocalPoints} draggable={true} resizeFactor={resizeFactor}/>)
+            seeAll ? 
+              (<DrawSections 
+                  localPoints={localPoints} 
+                  setLocalPoints={setLocalPoints} 
+                  factor={factor!} draggable={true} 
+                  resizeFactor={resizeFactor} 
+                  module='xSections'
+                  localDrawLine={drawLine}/>) 
+                  : 
+                (<DrawSections 
+                  factor={factor!} 
+                  setLocalPoints={setLocalPoints} 
+                  draggable={true} 
+                  resizeFactor={resizeFactor} 
+                  module='xSections'
+                  />)
           }
           {mousePressed && localPoints.length === 1 && (
               <Group>
                 <Line
                   points={[localPoints[0].x, localPoints[0].y, currentMousePosition.x, currentMousePosition.y]}
-                  stroke={activeSection === 0 ? "#6CD4FF" : "#F5BF61"}
+                  stroke="#F5BF61"
                   strokeWidth={2.8}
                   lineCap="round"
                 />
-                <Points setLocalPoints={setLocalPoints} localPoints={localPoints} module={activeSection === 0 ? 'pixelSize' : 'xSections'} resizeFactor={resizeFactor} ></Points>
+                <Points setLocalPoints={setLocalPoints} localPoints={localPoints} module={'xSections'} resizeFactor={resizeFactor} ></Points>
               </Group>
             )}
         </Layer>

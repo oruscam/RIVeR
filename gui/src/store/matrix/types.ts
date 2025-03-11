@@ -44,7 +44,6 @@ interface ipcam {
     activePoint: number | undefined,
     cameraSolution: cameraSolution | undefined,
     hemisphere: 'southern-hemisphere' | 'northern-hemisphere',
-    isCalculating: boolean,
 }
 
 interface pixelSolution {
@@ -57,10 +56,8 @@ interface pixelSize {
     drawLine: boolean;
     dirPoints: Point[];
     rwPoints: Point[];
-    pixelSize: {
-        size: number,
-        rwLength: number
-    },
+    size: number,
+    rwLength: number
     extraFields: boolean,
     solution?: pixelSolution,
 }
@@ -85,16 +82,18 @@ interface MatrixState {
     ipcam: ipcam
     hasChanged: boolean;
     pixelSize: pixelSize;
+    isBackendWorking: boolean;
 }
 
 export type {
-    MatrixState,
-    pixelSize,
-    obliquePoints,
-    ipcam,
-    importedPoint,
-    setIpcamPointsInterface,
-    setIpcamImagesInterface,
-    setIpcamCustomPoint,
     cameraSolution,
+    importedPoint,
+    ipcam,
+    MatrixState,
+    obliquePoints,
+    obliqueSolution,
+    pixelSize,
+    setIpcamCustomPoint,
+    setIpcamImagesInterface,
+    setIpcamPointsInterface,
 }

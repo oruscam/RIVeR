@@ -103,7 +103,7 @@ export const Report = () => {
                   <h2 className="report-title-field mt-1" > {t('CrossSections.title')} (s)</h2>
                   {
                     [...sections.keys()].map(index => (
-                    index === 0 ? null : <ReportSection key={index} index={index} factor={factor}/>
+                    <ReportSection key={index} index={index} factor={factor}/>
                     ))
                   }
                 </div>

@@ -8,19 +8,30 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js'
-import { initProject, firstFrame, pixelSize, getImages, setSections, loadProject, pixelToRealWorld, realWorldToPixel, getQuiver, getVideo, getBathimetry, calculate3dRectification } from './ipcMainHandlers/index.js'
-import { recommendRoiHeight } from './ipcMainHandlers/recommendRoiHeight.js'
-import { createMaskAndBbox } from './ipcMainHandlers/createMaskAndBbox.js'
-import { getResultData } from './ipcMainHandlers/getResultData.js'
-import { setProjectDetails } from './ipcMainHandlers/setProjectDetails.js'
+import { 
+  initProject, 
+  firstFrame, 
+  setPixelSize, 
+  getImages, 
+  setSections, 
+  loadProject, 
+  getQuiver, 
+  getVideo, 
+  getBathimetry, 
+  calculate3dRectification, 
+  getIpcamImages, 
+  getPoints, 
+  getDistances, 
+  saveTransformationMatrix, 
+  saveReportHtml, 
+  setControlPoints, 
+  setProjectDetails, 
+  getResultData, 
+  createMaskAndBbox, 
+  recommendRoiHeight 
+} from './ipcMainHandlers/index.js'
 import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js'
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js'
-import { setControlPoints } from './ipcMainHandlers/setControlPoints.js'
-import { getPoints } from './ipcMainHandlers/getPoints.js'
-import { getIpcamImages } from './getIpcamImages.js'
-import { getDistances } from './getDistances.js'
-import { saveTransformationMatrix } from './ipcMainHandlers/saveTransformationMatrix.js'
-import { saveReportHtml } from './ipcMainHandlers/saveReportHtml.js'
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -147,7 +158,7 @@ app.whenReady().then(() => {
   initProject(userDir, PROJECT_CONFIG);
   loadProject(PROJECT_CONFIG)
   firstFrame(PROJECT_CONFIG, riverCli);
-  pixelSize(PROJECT_CONFIG, riverCli);
+  setPixelSize(PROJECT_CONFIG, riverCli);
   setSections(PROJECT_CONFIG);
   recommendRoiHeight(PROJECT_CONFIG, riverCli);
   createMaskAndBbox(PROJECT_CONFIG, riverCli);

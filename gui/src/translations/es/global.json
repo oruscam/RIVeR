@@ -179,6 +179,7 @@
         }
     },
     "ControlPoints" : {
+        "title": "Puntos de Control",
         "drawPoints": "Dibujar Puntos",
         "importDistances": "Importar Distancias",
         "distance": "Distancia",
@@ -227,6 +228,7 @@
     },
     "Commons": {
         "yes": "Si",
-        "no": "No"
+        "no": "No",
+        "solve": "Resolver"
     }
 }

@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { useUiSlice } from '../../hooks';
 import { GRAPHS } from '../../constants/constants';
 
-export const OrthoImage = ({ solution } : { solution : { image: string, extent: number[], resolution: number} | undefined}) => { 
+export const OrthoImage = ({ solution } : { solution : { orthoImage: string, extent: number[], resolution: number} | undefined}) => { 
     const ref = useRef<SVGSVGElement>(null);
     const { screenSizes } = useUiSlice();
     const { width: screenWidth } = screenSizes;
@@ -13,14 +13,14 @@ export const OrthoImage = ({ solution } : { solution : { image: string, extent: 
     useEffect(() => {
         if (ref.current === null) return;
 
-        const { image, extent } = solution!;
+        const { orthoImage, extent } = solution!;
         d3.select(ref.current).selectAll('*').remove();
         const svg = d3.select(ref.current);
 
         const width = +svg.attr('width');
         const height = +svg.attr('height');
 
-        const margin = {top: 5, right: 5, bottom: 20, left: 40};
+        const margin = { top: 5, right: 5, bottom: 20, left: 40 };
 
         svg.append('svg')
             .attr('width', width)
@@ -48,7 +48,7 @@ export const OrthoImage = ({ solution } : { solution : { image: string, extent: 
         console.log('x', x, 'y', y, 'imgWidth', imgWidth, 'imgHeight', imgHeight);
 
         svg.append('image')
-            .attr('xlink:href', image)
+            .attr('xlink:href', orthoImage)
             .attr('x', + xScale(x))
             .attr('y', + yScale(y))
             .attr('width', xScale(x + imgWidth) - xScale(x))

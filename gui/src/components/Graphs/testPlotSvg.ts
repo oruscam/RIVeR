@@ -103,7 +103,7 @@ export const testPlotSvg = ({ svgElement, quiver, t } : { svgElement: SVGSVGElem
         .attr('cx', d => xScale(d.u))
         .attr('cy', d => yScale(d.v))
         .attr('r', 3)
-        .attr('fill', COLORS.BLUE)
+        .attr('fill', COLORS.BLUE_WITH_TRANSPARENCY)
         .on('mouseover', function( _event, d) {
             d3.select(this)
                 .attr('r', 6);
@@ -153,7 +153,7 @@ export const testPlotSvg = ({ svgElement, quiver, t } : { svgElement: SVGSVGElem
         .attr('cx', xScale(uMean))
         .attr('cy', yScale(vMean))
         .attr('fill', COLORS.RED)
-        .attr('r', 5)
+        .attr('r', 4)
         .on('mouseover', function(_event, d){
             d3.select(this)
                 .attr('r', 7);

@@ -206,7 +206,7 @@ export const useDataSlice = () => {
         if ( type === 'single' ){
             const section = sections[activeSection]
             try {
-                const { data, error } = await ipcRenderer.invoke('get-results-single', { step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection - 1, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, activeCheck : section.data?.activeCheck, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile, artificialSeeding: section.artificialSeeding })
+                const { data, error } = await ipcRenderer.invoke('get-results-single', { step: video.parameters.step, fps: video.data.fps, sectionIndex: activeSection, alpha: section.alpha, num_stations: section.numStations, interpolated: section.interpolated, activeCheck : section.data?.activeCheck, name: section.name, showVelocityStd: section.data?.showVelocityStd, showPercentile: section.data?.showPercentile, artificialSeeding: section.artificialSeeding })
                 
                 if ( error?.message ){
                     throw new Error(error.message)
@@ -234,7 +234,7 @@ export const useDataSlice = () => {
             dispatch(setLoading(true))
 
             try {
-                const { data, error } = await ipcRenderer.invoke('get-results-all', { step: video.parameters.step, fps: video.data.fps, numSections: sections.length - 1 })
+                const { data, error } = await ipcRenderer.invoke('get-results-all', { step: video.parameters.step, fps: video.data.fps, numSections: sections.length })
                 
                 if ( error?.message ) {
                     throw new Error(error)

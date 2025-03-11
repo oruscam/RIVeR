@@ -3,11 +3,11 @@ import { Point } from "../types";
 
 export const adapterData = ( data: SectionData, x1Intersection: number ) => {
     const { distance, plus_std, minus_std, percentile_95th, percentile_5th, Q, Q_portion, check, activeMagnitude, interpolated} = data
-
+    console.log('distance', distance)
     const newDistance = distance.map((d) => {
             return d + x1Intersection!
     });
-
+    
     const newStreamwiseVelocityMagnitude = activeMagnitude
 
     const newQ = Q.map((d,i) => {

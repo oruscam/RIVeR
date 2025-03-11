@@ -4,11 +4,10 @@ import { getPointNames } from "../../helpers/index.ts";
 import { useTranslation } from "react-i18next";
 
 
-export const PixelCoordinates = ({ modeName } : { modeName: string }) => {
+export const PixelCoordinates = ({ modeName, onSetDirPoints } : { modeName: string, onSetDirPoints: (arg1: any, arg2: { point: number, position: string }) => void }) => {
     const step = modeName === 'pixel_size' ? 'PixelSize' : 'CrossSections';
     const { register, resetField } = useFormContext();
     const { onSetErrorMessage } = useUiSlice();
-    const { onSetDirPoints } = useSectionSlice();
     const { t } = useTranslation();
     
     const { pointName1, pointName2 } = getPointNames(modeName);

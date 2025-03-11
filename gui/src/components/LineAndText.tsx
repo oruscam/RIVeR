@@ -12,7 +12,7 @@ interface LineAndTextProps {
     index: number
 }
 
-export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor, index}: LineAndTextProps) => {
+export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor, index }: LineAndTextProps) => {
   const { activeStep } = useWizard();
 
   const { sections } = useSectionSlice();
@@ -47,6 +47,7 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
   
   const sectionLine = () => {
     if(!dirPoints.length) return null
+    if ( activeStep === MODULE_NUMBER.PIXEL_SIZE ) return null
 
     return (
       <Line

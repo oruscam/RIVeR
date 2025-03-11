@@ -15,7 +15,6 @@ const createInitialState = (sections: Section[]) => {
     let defaultValues = {};
   
     sections.forEach((section, index) => {
-        if ( index !== 0){
             const {name, dirPoints, rwPoints, bathimetry, numStations, alpha} = section
             const baseKey = name;
             defaultValues = {
@@ -36,7 +35,6 @@ const createInitialState = (sections: Section[]) => {
                 [`${baseKey}_ALPHA`]: alpha,
             };
 
-        }
     });
   
     return defaultValues;
@@ -101,7 +99,6 @@ export const CrossSections = () => {
             <FormProvider {...methods}>
             {
                 sections.map((section, index: number) => {
-                    if ( index === 0 ) return null
                      
                     return (
                         <FormCrossSections key={section.name} onSubmit={methods.handleSubmit(onSubmit, onError)} name={section.name} index={index}/>

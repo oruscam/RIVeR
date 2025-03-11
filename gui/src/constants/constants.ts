@@ -44,6 +44,7 @@ export const COLORS = {
     GREEN: '#62C655',
     YELLOW: '#F5BF61',
     BLUE: '#0678BE',
+    BLUE_WITH_TRANSPARENCY: '#0678BE80',
     LIGHT_BLUE: '#6CD4FF',
     DARK_GREY: '#545454',
     WHITE: '#FFFFFF',

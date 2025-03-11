@@ -1,8 +1,8 @@
 import { FieldValues, FormProvider, useForm } from 'react-hook-form'
 import { useWizard } from 'react-use-wizard'
 import { FormPixelSize } from '../components/Forms/index'
-import { WizardButtons, Error, ImageWithMarks, Progress } from '../components/index'
-import { useSectionSlice, useUiSlice } from '../hooks/index'
+import { WizardButtons, Error, Progress, ImagePixelSize } from '../components/index'
+import { useMatrixSlice, useUiSlice } from '../hooks/index'
 
 import './pages.css'
 import { useEffect } from 'react'
@@ -11,14 +11,14 @@ import { formatNumberTo2Decimals, formatNumberToPrecision4 } from '../helpers/ad
 
 
 export const PixelSize = () => {
-  const { onSetPixelSize, sections, pixelSolution, onSetActiveSection } = useSectionSlice()
-  const { dirPoints, rwPoints, pixelSize } = sections[0]
+  const { pixelSize, onUpdatePixelSize, onGetTransformationMatrix } = useMatrixSlice()
+  const { dirPoints, rwPoints, size, rwLength, solution, extraFields } = pixelSize
 
   // * Estado inicial del formulario
   const methods = useForm({
     defaultValues: {
-      pixel_size_LINE_LENGTH: formatNumberTo2Decimals(pixelSize.rwLength),
-      pixel_size_PIXEL_SIZE: formatNumberToPrecision4(pixelSize.size),
+      pixel_size_LINE_LENGTH: formatNumberTo2Decimals(rwLength),
+      pixel_size_PIXEL_SIZE: formatNumberToPrecision4(size),
       pixel_size_EAST_point_1: rwPoints[0].x,
       pixel_size_EAST_point_2: rwPoints[1].x,
       pixel_size_NORTH_point_1: rwPoints[0].y,
@@ -33,16 +33,15 @@ export const PixelSize = () => {
   const { nextStep } = useWizard()
   const { onSetErrorMessage } = useUiSlice()
   
-
   const onSubmit = (data: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
     const id = (event.nativeEvent as SubmitEvent).submitter?.id
 
     if ( id === 'solve-pixelsize' ){
       event.preventDefault()
-      onSetPixelSize(data)
+      // onSetPixelSize(data)
+      onGetTransformationMatrix('uav')
       return
     }
-    onSetActiveSection(1)
     nextStep()
   }
   
@@ -51,6 +50,10 @@ export const PixelSize = () => {
   
   
     onSetErrorMessage(error);
+  }
+
+  const onChangeExtraFields = () => {
+    onUpdatePixelSize({ extraFields: true })
   }
 
   useEffect(() => {
@@ -66,13 +69,13 @@ export const PixelSize = () => {
       pixel_size_X_point_2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
       pixel_size_Y_point_2: dirPoints.length === 0 ? 0 : dirPoints[1].y 
     })
-  }, [dirPoints, rwPoints, sections[0]])
+  }, [dirPoints, rwPoints, rwPoints, size])
 
 
   return (
     <div className='regular-page'>
       <div className='media-container'>
-        <ImageWithMarks/>
+        <ImagePixelSize/>
         <Error/>
       </div>
       <div className='form-container'>
@@ -84,8 +87,8 @@ export const PixelSize = () => {
             
           />
         </FormProvider>
-        <ButtonLock footerElementID='span-footer' headerElementID='pixel_size-HEADER' disabled={sections[0].dirPoints.length === 0}/>
-        <WizardButtons canFollow={pixelSolution?.image !== undefined} formId='form-pixel-size'/>
+        <ButtonLock footerElementID='span-footer' headerElementID='pixel_size-HEADER' disabled={dirPoints.length === 0} localExtraFields={extraFields} localSetExtraFields={onChangeExtraFields}/>
+        <WizardButtons canFollow={solution?.orthoImage !== undefined} formId='form-pixel-size'/>
       </div>
     </div>
   )

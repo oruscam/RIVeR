@@ -1,16 +1,16 @@
 import './form.css'
 import { useTranslation } from 'react-i18next'
 import { useFormContext } from 'react-hook-form'
-import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks'
+import { useMatrixSlice, useProjectSlice, useUiSlice } from '../../hooks'
 import { PixelCoordinates, RealWorldCoordinates } from './index'
 import { FormChild } from '../../types'
 import { OrthoImage } from '../Graphs'
 
 export const FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
   const { t } = useTranslation()
-  const { sections, onUpdateSection, pixelSolution, isSectionWorking } = useSectionSlice()
+  const { pixelSize, onUpdatePixelSize, onSetPixelRealWorld, onSetPixelDirection, isBackendWorking, hasChanged } = useMatrixSlice()
   const { video } = useProjectSlice()
-  const { extraFields, dirPoints, pixelSize } = sections[0]
+  const { extraFields, dirPoints, drawLine, solution } = pixelSize
   const { width, height } = video.data
 
   const { register} = useFormContext()
@@ -22,7 +22,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
       event.preventDefault()
       const value = parseFloat(event.currentTarget.value)
       if ( value > 0) {
-        onUpdateSection( {lineLength: value }, undefined)
+        onUpdatePixelSize({ length: value })
       } else {
         const error = {
           "pixel_size_LINE_LENGTH": {
@@ -42,7 +42,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
     const value = parseFloat((event.target as HTMLInputElement).value)
     
     if (value > 0) {
-      onUpdateSection({ pixelSize: value, imageWidth: width, imageHeight: height }, undefined )
+      onUpdatePixelSize({ pixelSize: value, imageWidth: width, imageHeight: height })
     } else {
       const error = {
       "pixel_size_PIXEL_SIZE": {
@@ -57,28 +57,29 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
 
   const onClickDrawLine = ( event: React.MouseEvent<HTMLButtonElement> ) => {
     event.preventDefault()
-    onUpdateSection({drawLine: true}, undefined)
+    onUpdatePixelSize({drawLine: true})
     return
   }
 
-  console.log(pixelSolution)
+  console.log('pixelSize', solution)
+  console.log('has changed', hasChanged)
 
   return (
     <>
       <h1 className='form-title'> {t('PixelSize.title')}</h1>
-      <form onSubmit={onSubmit} onError={onError} className={`mt-3 form-scroll ${isSectionWorking ? 'disabled' : ''}`} id='form-pixel-size' >
+      <form onSubmit={onSubmit} onError={onError} className={`mt-3 form-scroll ${ isBackendWorking ? 'disabled' : ''}`} id='form-pixel-size' >
         <span id='pixel_size-HEADER'></span>
         <div className='form-base-2'>
 
             <div className='input-container-2'>
-              <button className={`wizard-button form-button me-1 ${sections[0].drawLine ? "wizard-button-active" : ""}`} type='button' onClick={onClickDrawLine} id='draw-line-pixel'>{t("PixelSize.drawLine")}</button>
+              <button className={`wizard-button form-button me-1 ${drawLine ? "wizard-button-active" : ""}`} type='button' onClick={onClickDrawLine} id='draw-line-pixel'>{t("PixelSize.drawLine")}</button>
               <span className='read-only bg-transparent'/>
             </div>
             
               <div className='input-container-2 mt-2'>
                 <label className='read-only me-1'>{t("PixelSize.lineLength")}</label>
                 <input className='input-field' 
-                  disabled={sections[0].dirPoints.length === 0}
+                  disabled={dirPoints.length === 0}
                   type='number' 
                   step="any"
                   id='pixel_size-LINE_LENGTH'
@@ -110,13 +111,13 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
               </div>
 
               {
-                pixelSolution && <OrthoImage solution={pixelSolution}/>
+                solution && <OrthoImage solution={solution}/>
               }
-              <button className='wizard-button form-button' id='solve-pixelsize' disabled={dirPoints.length !== 2 || pixelSize.rwLength === 0}>Solve</button>
+              <button className='wizard-button form-button solver-button' id='solve-pixelsize' disabled={dirPoints.length !== 2 || pixelSize.rwLength === 0}>{t("Commons.solve")}</button>
           
             <div className={extraFields ? 'pixel-size-extra' : 'hidden'}>
-              <RealWorldCoordinates modeName='pixel_size'/>
-              <PixelCoordinates modeName='pixel_size'/> 
+              <RealWorldCoordinates modeName='pixel_size' onSetRealWorld={onSetPixelRealWorld}/>
+              <PixelCoordinates modeName='pixel_size' onSetDirPoints={onSetPixelDirection}/> 
               <span id='span-footer'></span>
             </div>
           </div>

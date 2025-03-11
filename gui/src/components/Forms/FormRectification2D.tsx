@@ -3,10 +3,11 @@ import { useMatrixSlice, useUiSlice } from "../../hooks"
 import { FormChild } from "../../types"
 import { getValidationRules } from "../../helpers"
 import { useTranslation } from "react-i18next"
+import { OrthoImage } from "../Graphs"
 
 export const FormRectification2D = ({ onSubmit, onError }: FormChild ) => {
-  const { obliquePoints, onSetDrawPoints, onGetDistances } = useMatrixSlice()
-  const { drawPoints, isDefaultCoordinates, isDistancesLoaded } = obliquePoints
+  const { obliquePoints, onSetDrawPoints, onGetDistances, isBackendWorking } = useMatrixSlice()
+  const { drawPoints, isDefaultCoordinates, isDistancesLoaded, solution, } = obliquePoints
 
   const { onSetErrorMessage } = useUiSlice()
 
@@ -22,8 +23,8 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild ) => {
 
   return (
     <>
-        <h1 className="form-title"> Control Points </h1>
-        <form onSubmit={onSubmit} onError={onError} id="form-control-points" className="form-scroll">
+        <h1 className="form-title"> {t('ControlPoints.title')} </h1>
+        <form onSubmit={onSubmit} onError={onError} id="form-control-points" className={`form-scroll ${isBackendWorking ? 'disabled' : ''}`}>
             <div className="form-base-2">
                 <div className="input-container-2">
                     <button className={`wizard-button button-rectification me-1 ${drawPoints ? "wizard-button-active" : ""}`} type="button" onClick={onSetDrawPoints}> {t('ControlPoints.drawPoints')} </button>
@@ -55,10 +56,15 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild ) => {
                   <input className="input-field-rectification-2d" type="number" id="distance_13" disabled={isDefaultCoordinates} {...register('distance_13', validationRules.distances)} step={0.01}/>
                 </div>
 
-                <div className="input-container-2 mt-1">
+                <div className="input-container-2 mt-1 mb-2">
                   <label className="read-only-rectification-2d me-1" id="D24">2-4</label>
                   <input className="input-field-rectification-2d" type="number" id="distance_24" disabled={isDefaultCoordinates} {...register('distance_24', validationRules.distances)} step={0.01}/>
                 </div>
+
+                {
+                  solution && <OrthoImage solution={solution}/>
+                }
+                <button className='wizard-button form-button solver-button' id='solve-oblique' disabled={isDefaultCoordinates}>{t('Commons.solve')}</button>
             </div>
         </form>
     </>

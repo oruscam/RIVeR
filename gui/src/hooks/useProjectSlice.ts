@@ -8,13 +8,13 @@ import { RootState } from "../store/store";
 import { clearErrorMessage, clearMessage, setLanguage, setLoading, setMessage } from "../store/ui/uiSlice";
 import { setProjectDirectory, setProjectType, setVideoData, setFirstFramePath, setVideoParameters, setProjectDetails, resetProjectSlice } from "../store/project/projectSlice";
 import { FieldValues } from "react-hook-form";
-import { addSection, setActiveSection, setSummary, setTransformationMatrix, updateSection } from "../store/section/sectionSlice";
+import { addSection, setSummary, setTransformationMatrix, updateSection } from "../store/section/sectionSlice";
 import {  MODULE_NUMBER } from "../constants/constants";
 import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessingForm } from "../store/data/dataSlice";
 import { onLoadObliquePoints, onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/index";
 import { OperationCanceledError, UserSelectionError } from "../errors/errors";
 import { parseTime } from "../helpers";
-import { setHemispehere, setIpcamCameraSolution, setIpcamImages, setIpcamPoints, setObliquePoints } from "../store/matrix/matrixSlice";
+import { setHemispehere, setIpcamCameraSolution, setIpcamImages, setIpcamPoints, setObliquePoints, updatePixelSize } from "../store/matrix/matrixSlice";
 import { onLoad3dRectification } from "../helpers/loadProjectHelpers";
 import { useTranslation } from "react-i18next";
 
@@ -28,6 +28,7 @@ export const useProjectSlice = () => {
     const dispatch = useDispatch();
     const { projectDirectory, video, type, firstFramePath, projectDetails } = useSelector((state: RootState) => state.project);
     const { sections } = useSelector((state: RootState) => state.section);
+    const { pixelSize } = useSelector((state: RootState) => state.matrix);
     const { t } = useTranslation()
 
     const filePrefix = import.meta.env.VITE_FILE_PREFIX;
@@ -177,16 +178,14 @@ export const useProjectSlice = () => {
                 }))
                 dispatch(clearErrorMessage())
 
-                if ( paths.length !== 0){
-                    dispatch(setImages({ paths: paths }))
+                if ( paths){
+                    if ( paths.length !== 0) {
+                        dispatch(setImages({ paths: paths }))
+                    }
                 }
 
                 if ( matrix !== undefined ){
-                    dispatch(setTransformationMatrix({ transformationMatrix: matrix, pixelSolution: {
-                        image: orthoImage,
-                        extent: settings.transformation.extent,
-                        resolution: settings.transformation.resolution
-                    }}))
+                    dispatch(setTransformationMatrix({ transformationMatrix: matrix }))                  
                 }
 
                 if( firstFrame !== ''){
@@ -197,11 +196,11 @@ export const useProjectSlice = () => {
                 if( piv_results ){
                     
                     if ( settings.pixel_size ){
-                        onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+                        onLoadPixelSize(settings.pixel_size, pixelSize, dispatch, updatePixelSize, orthoImage, settings.transformation)
                     }
 
                     if ( settings.control_points ){
-                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
+                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints, orthoImage, settings.transformation)
                     }
 
                     if ( settings.grp_3d ){
@@ -214,7 +213,6 @@ export const useProjectSlice = () => {
                     dispatch(setProcessingMask({ mask: filePrefix + mask, bbox: bbox }))
 
                     // * Load cross sections
-                    dispatch(setActiveSection(1))
                     const STEP = onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer, setSummary)
     
                     if ( settings.processing ){
@@ -257,11 +255,12 @@ export const useProjectSlice = () => {
                 if( settings.xsections ){
 
                     if ( settings.pixel_size ){
-                        onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+                        onLoadPixelSize(settings.pixel_size, pixelSize, dispatch, updatePixelSize, orthoImage, settings.transformation)
                     }
 
                     if ( settings.control_points ){
-                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
+                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints, orthoImage, settings.transformation)
+
                     }
                     
                     if ( settings.grp_3d ){
@@ -274,7 +273,6 @@ export const useProjectSlice = () => {
                     dispatch(setProcessingMask({ mask: filePrefix + mask, bbox: bbox }))
 
                     // * Load cross sections
-                    dispatch(setActiveSection(1))
                     onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer)
 
                     if ( settings.processing ){
@@ -284,13 +282,13 @@ export const useProjectSlice = () => {
                     return MODULE_NUMBER.PROCESSING
 
                 } else if(settings.pixel_size ){
-                    onLoadPixelSize(settings.pixel_size, sections[0], dispatch, updateSection)
+                    onLoadPixelSize(settings.pixel_size, pixelSize, dispatch, updatePixelSize, orthoImage, settings.transformation)
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.CROSS_SECTIONS
 
                 } else if (settings.control_points){
-                    onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints)
+                    onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints, orthoImage, settings.transformation)
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.CROSS_SECTIONS

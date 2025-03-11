@@ -12,10 +12,8 @@ export const Results = () => {
     <div className='regular-page'>
         <div className='media-container'>
         <div className="image-and-svg-container">
-          <img src={firstFramePath} width={width} height={height}/>
-
+            <img src={firstFramePath} width={width} height={height}/>
             <VelocityVector height={height} width={width} factor={factor} seeAll={seeAll}/>
-
         </div>
           <Error/>
         </div>

@@ -5,11 +5,10 @@ import { useTranslation } from "react-i18next";
 
 
 
-export const RealWorldCoordinates = ({ modeName } : {modeName : string}) => {
+export const RealWorldCoordinates = ({ modeName, onSetRealWorld } : {modeName : string, onSetRealWorld: (value: number, key: string) => void}) => {
     const step = modeName === 'pixel_size' ? 'PixelSize' : 'CrossSections';
     const { pointName1, pointName2 } = getPointNames(modeName)
     const { register, resetField } = useFormContext()  
-    const { onSetRealWorld } = useSectionSlice()
     const { onSetErrorMessage } = useUiSlice()
 
     const { t } = useTranslation() 

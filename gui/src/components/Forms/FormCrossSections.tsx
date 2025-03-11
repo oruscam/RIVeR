@@ -12,7 +12,7 @@ interface FormCrossSectionsProps {
 
 export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsProps) => {
   const { register, setValue } = useFormContext();
-  const { sections, activeSection, onUpdateSection, onGetBathimetry, transformationMatrix } = useSectionSlice();
+  const { sections, activeSection, onUpdateSection, onGetBathimetry, transformationMatrix, onSetDirPoints, onSetRealWorld } = useSectionSlice();
   const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
   const { onSetErrorMessage } = useUiSlice()
   const { isBackendWorking } = useDataSlice()
@@ -86,6 +86,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       }
     }
   };
+
+  console.log('sections', sections)
+  console.log('transformation matrix', transformationMatrix)
 
   return (
     <div id="form-section-div" className={activeSection !== index ? "hidden" : ""}>
@@ -175,8 +178,8 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
           </div>
           
           <div className={extraFields ? 'mt-3' : 'hidden'}>
-            <RealWorldCoordinates modeName={name} />
-            <PixelCoordinates modeName={name} />
+            <RealWorldCoordinates modeName={name} onSetRealWorld={onSetRealWorld}/>
+            <PixelCoordinates modeName={name} onSetDirPoints={onSetDirPoints}/>
             <span id={`span-footer-${name}`}></span>
             <span id={`${name}-form-cross-section-footer`} />
           </div>

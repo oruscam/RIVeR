@@ -83,7 +83,7 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
 
                     if( settingsParsed.footage ){
                         PROJECT_CONFIG.type = settingsParsed.footage;
-                        if( settingsParsed.transformation.matrix !== undefined ){
+                        if( settingsParsed.transformation?.matrix !== undefined ){
                             PROJECT_CONFIG.matrixPath = path.join(folderPath, 'transformation_matrix.json');
                             matrix = await fs.promises.readFile(PROJECT_CONFIG.matrixPath, 'utf-8');
                             matrix = JSON.parse(matrix);
@@ -107,7 +107,11 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
 
                         if ( settingsParsed.piv_results ){
                             PROJECT_CONFIG.resultsPath = settingsParsed.piv_results;
-                            piv_results = await readResultsPiv(settingsParsed.piv_results);
+                            piv_results = await readResultsPiv(settingsParsed.piv_results).then((data) => {
+                                return data
+                            }).catch((error) => {
+                                return undefined
+                            })
                         }
 
                         if ( settingsParsed.grp_3d ){

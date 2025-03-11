@@ -12,7 +12,6 @@ const createInitialState = (sections: Section[]) => {
     let defaultValues = {};
 
     sections.forEach((section, index) => {
-        if ( index !== 0){
             if( section.data ){
                 const baseKey = section.name;
                 const { alpha, numStations, interpolated, artificialSeeding } = section;
@@ -27,7 +26,6 @@ const createInitialState = (sections: Section[]) => {
                     [`${baseKey}_ARTIFICIAL_SEEDING`]: artificialSeeding,
                 };
             }
-        }
     })  
 
     return defaultValues
@@ -61,7 +59,6 @@ export const Results = () => {
             <FormProvider {...methods}>
                 {
                     sections.map((section, index: number) => {
-                        if ( index === 0) return null;
 
                         return (
                             <FormResults key={section.name} index={index} onSubmit={methods.handleSubmit(onSubmit)}></FormResults>

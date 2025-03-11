@@ -33,7 +33,7 @@ export const adapterCrossSections = ( sections: Section[] ) => {
         }
     }
 
-    const jsonFormatSections = sections.slice(1).map(transformSection);
+    const jsonFormatSections = sections.map(transformSection);
 
     return Object.assign({}, ...jsonFormatSections);
 }

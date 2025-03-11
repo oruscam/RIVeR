@@ -1,8 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { obliquePoints, MatrixState, setIpcamPointsInterface, setIpcamImagesInterface, setIpcamCustomPoint, cameraSolution } from "./types";
+import { obliquePoints, MatrixState, setIpcamPointsInterface, setIpcamImagesInterface, setIpcamCustomPoint, cameraSolution, pixelSize } from "./types";
 import { DEFAULT_POINTS } from "../../constants/constants";
+import { Point } from "../../types";
 
 const initialState: MatrixState = {
+    pixelSize: {
+        drawLine: false,
+        dirPoints: [],
+        rwPoints: DEFAULT_POINTS,
+        size: 0,
+        rwLength: 0,
+        extraFields: false,
+    },
     obliquePoints: {
         drawPoints: false,
         coordinates: [{x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}, {x: 0, y: 0}],
@@ -26,9 +35,9 @@ const initialState: MatrixState = {
         activePoint: undefined,
         cameraSolution: undefined,
         hemisphere: 'southern-hemisphere',
-        isCalculating: false,
     },
     hasChanged: false,
+    isBackendWorking: false,
 }
 
 const matrixSlice = createSlice({
@@ -51,6 +60,7 @@ const matrixSlice = createSlice({
             },
             state.obliquePoints.isDefaultCoordinates = true
             state.obliquePoints.isDistancesLoaded = false
+            state.obliquePoints.solution = undefined
         },
         setHasChanged: ( state, action: PayloadAction<boolean> ) => {
             state.hasChanged = action.payload
@@ -79,8 +89,8 @@ const matrixSlice = createSlice({
         setIpcamCameraSolution: ( state, action: PayloadAction<cameraSolution | undefined> ) => {
             state.ipcam.cameraSolution = action.payload
         },
-        setIpcamIsCalculating: ( state, action: PayloadAction<boolean> ) => {
-            state.ipcam.isCalculating = action.payload
+        setIsBackendWorking: ( state, action: PayloadAction<boolean> ) => {
+            state.isBackendWorking = action.payload
         },
         setHemispehere: ( state, action: PayloadAction<'southern-hemisphere' | 'northern-hemisphere'> ) => {
             state.ipcam.hemisphere = action.payload
@@ -89,7 +99,21 @@ const matrixSlice = createSlice({
             state.ipcam = initialState.ipcam
             state.obliquePoints = initialState.obliquePoints
             state.hasChanged = initialState.hasChanged
-        }
+        },
+        setPixelSizePoints: ( state, action: PayloadAction<{ points: Point[], type: string }> ) => {
+            state.hasChanged = true;
+            state.pixelSize.solution = undefined;
+
+            if ( action.payload.type === 'dir' ){
+                state.pixelSize.dirPoints =  action.payload.points
+            } else {
+                state.pixelSize.rwPoints = action.payload.points
+            }
+        },
+        updatePixelSize: ( state, action: PayloadAction<pixelSize>) => {
+            state.pixelSize = action.payload
+            state.hasChanged = true
+        },
     }
 })
 
@@ -102,9 +126,11 @@ export const {
     setHemispehere,
     setIpcamCameraSolution,
     setIpcamImages,
-    setIpcamIsCalculating,
     setIpcamPoints,
+    setIsBackendWorking,
     setObliquePoints,
+    setPixelSizePoints,
+    updatePixelSize,
 } = matrixSlice.actions
 
 export default matrixSlice.reducer

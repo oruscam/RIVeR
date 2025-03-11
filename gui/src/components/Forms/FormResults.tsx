@@ -121,7 +121,7 @@ export const FormResults = ({ onSubmit, index } : FormResultProps) => {
               </label>
             </div>
 
-            <Grid></Grid>
+            <Grid></Grid> 
 
             <span className="space3 mt-2"></span>
           </form>

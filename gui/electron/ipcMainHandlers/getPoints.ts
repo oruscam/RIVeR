@@ -56,7 +56,7 @@ function transformPoints(points: [[]]){
         const key = index
         const label = point[0];
 
-        if ( label.toUpperCase() === 'LABEL' && typeof point[1] === 'string' && typeof point[2] === 'string' && typeof point[3] === 'string'){ 
+        if ( typeof label === 'string' && label.toUpperCase() === 'LABEL' && typeof point[1] === 'string' && typeof point[2] === 'string' && typeof point[3] === 'string'){ 
             return undefined
         }
 

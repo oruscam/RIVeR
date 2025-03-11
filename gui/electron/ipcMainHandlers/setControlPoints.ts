@@ -11,6 +11,7 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         const { coordinates, distances } = args;
         const json = await fs.promises.readFile(settingsPath, 'utf-8');
         const jsonParsed = JSON.parse(json);
+        jsonParsed.transformation = {};
 
         jsonParsed.control_points = {
             "coordinates": {
@@ -62,15 +63,16 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
                 return { error }
             }
 
-            await createMatrix(data.oblique_matrix, directory).then((matrixPath) => {
-                jsonParsed.transformation_matrix = matrixPath;
+            await createMatrix(data.transformation_matrix, directory).then((matrixPath) => {
+                jsonParsed.transformation.matrix = matrixPath;
+                jsonParsed.transformation.resolution = data.output_resolution;
+                jsonParsed.transformation.extent = data.extent;
+                jsonParsed.transformation.roi = data.roi;
                 PROJECT_CONFIG.matrixPath = matrixPath;
             }).catch((err) => { console.log(err) });
 
             const updatedContent = JSON.stringify(jsonParsed, null, 4);
             await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
-
-            console.log('transformation matrix', data)
             
             return {
                 obliqueMatrix: data.transformation_matrix,

@@ -1,4 +1,4 @@
-import { Section } from '../store/section/types';
+import { PixelSize } from '../store/section/types';
 import { getBathimetryValues } from './getBathimetryValues';
 import { MODULE_NUMBER } from '../constants/constants';
 import { cameraSolution, importedPoint } from '../types';
@@ -38,20 +38,27 @@ const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoP
  * @returns 
  */
 
-const onLoadPixelSize = (pixel_size: pixel_size, section: Section, dispatch: any , updateSection: any) => {
+const onLoadPixelSize = (pixel_size: pixel_size, currentPixel: PixelSize, dispatch: any , updatePixelSize: any, orthoImage: string, transformation: any) => {
     const { x1, y1, x2 , y2, rw_length, size, east1, east2, north1, north2 } = pixel_size
 
-    dispatch(updateSection({
-        ...section,
-        pixelSize: {size, rwLength: rw_length},
+    dispatch(updatePixelSize({
+        ...currentPixel,
+        size: size,
+        rwLength: rw_length,
         rwPoints: [{x: east1, y: north1}, {x: east2, y: north2}],
         dirPoints: [{x: x1, y: y1}, {x: x2, y: y2}],
-        drawLine: true
+        drawLine: true,
+        solution: transformation !== undefined ? {
+            orthoImage: orthoImage,
+            extent: transformation.extent,
+            resolution: transformation.resolution
+        } : undefined
+        
     }))
     return 
 }
 
-const onLoadObliquePoints = (control_points: control_points, dispatch: any, setControlPoints: any) => {
+const onLoadObliquePoints = (control_points: control_points, dispatch: any, setControlPoints: any, orthoImage: string, transformation: any) => {
     const { coordinates, distances } = control_points
 
     const isDefaultCoordinates = false;
@@ -72,7 +79,14 @@ const onLoadObliquePoints = (control_points: control_points, dispatch: any, setC
             d24: distances.d24
         },
         drawPoints: true,
-        isDefaultCoordinates
+        isDefaultCoordinates,
+        isDistancesLoaded: true,
+        solution: transformation !== undefined ? {
+            orthoImage: orthoImage,
+            extent: transformation.extent,
+            resolution: transformation.resolution,
+            roi: transformation.roi
+        } : undefined
     }))
 
 }
@@ -108,7 +122,7 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
             if ( flag ){
                 flag = false
                 dispatch(updateSection({
-                    ...sections[1],
+                    ...sections[0],
                     name: key,
                     drawLine: true,
                     sectionPoints: [{x: xl, y: yl}, {x: xr, y: yr}],

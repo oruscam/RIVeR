@@ -4,9 +4,8 @@ import * as path from 'path'
 import { ProjectConfig, pixelSizeHandleArgs } from "./interfaces";
 import { createMatrix } from "./utils/createMatrix";
 
-function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
-    ipcMain.handle('pixel-size', async (_event, args: pixelSizeHandleArgs) => {
-        console.log('En pixel-size event', args);
+function setPixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
+    ipcMain.handle('set-pixel-size', async (_event, args: pixelSizeHandleArgs) => {
         const { directory, settingsPath, logsPath, firstFrame } = PROJECT_CONFIG;
         const { dirPoints, rwPoints, pixelSize, rwLength } = args 
 
@@ -57,7 +56,12 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
             const updatedContent = JSON.stringify(jsonParsed, null, 4);
             await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
             
-            return data
+            return {
+                uavMatrix: data.transformation_matrix,
+                extent: data.extent,
+                resolution: data.output_resolution,
+                transformed_image_path: data.transformed_image_path
+            }
         } catch (error) {
             console.log("Error en pixel-size")
             console.log(error)      
@@ -65,6 +69,4 @@ function pixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
     })
 }
 
-
-
-export { pixelSize }
+export { setPixelSize }

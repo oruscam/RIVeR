@@ -31,15 +31,12 @@ export const VelocityVector = ({ height, width, factor, isReport = false, seeAll
         
         const { max: globalMax, min: globalMin } = getGlobalMagnitudes(sections) 
 
-        console.log('min velocity vector', globalMin )
-        console.log('max velocity vector', globalMax )
-
         sections.forEach((section: Section, index: number) => {
-            const { data, interpolated, name, sectionPoints, dirPoints
-             } = section;
-            if (!data || index === 0 ) return;
+            const { data, interpolated, name, sectionPoints, dirPoints } = section;
+            if ( !data ) return;
 
             if (!seeAll) {
+
             drawVectors( svg, factor, activeSection, interpolated, data, isReport, transformationMatrix, imageWidth, imageHeight, globalMin, globalMax );
             drawSvgSectionLine({
                 svgElement: svgRef.current!,

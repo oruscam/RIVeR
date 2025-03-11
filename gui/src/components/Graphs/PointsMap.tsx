@@ -28,7 +28,6 @@ export const PointsMap = () => {
                 orthoImagePath,
                 cameraPosition,
                 orthoExtent
-
             })
         }
 

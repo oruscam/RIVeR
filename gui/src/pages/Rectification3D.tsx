@@ -12,8 +12,6 @@ export const Rectification3D = () => {
 
     const handleOnClickNext = () => {
         nextStep()
-        onSetActiveSection(1)
-
     }
 
     return (

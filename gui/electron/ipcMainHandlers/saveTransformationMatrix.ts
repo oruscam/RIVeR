@@ -12,16 +12,15 @@ function saveTransformationMatrix (PROJECT_CONFIG: ProjectConfig) {
         const { settingsPath,  directory } = PROJECT_CONFIG;
         const { transformationMatrix } = args;
 
-        console.log('save-transformation-matrix', transformationMatrix)
-
         if ( transformationMatrix ){
             const settingsJson = await fs.promises.readFile(settingsPath, 'utf-8');
             const settingsJsonParsed = JSON.parse(settingsJson);
+            settingsJsonParsed.transformation = {};
             
             await createMatrix(transformationMatrix, directory).then((matrixPath) => {
                 PROJECT_CONFIG.matrixPath = matrixPath
+                settingsJsonParsed.transformation.matrix = matrixPath
                 
-                settingsJsonParsed.transformation_matrix = matrixPath
                 fs.promises.writeFile(settingsPath, JSON.stringify(settingsJsonParsed, null, 4), 'utf-8')
             }).catch((err) => { console.log(err)})
         }

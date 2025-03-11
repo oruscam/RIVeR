@@ -10,6 +10,8 @@ export const Rectification2D = () => {
   const { distances, drawPoints } = obliquePoints
   const { onSetErrorMessage } = useUiSlice()
   const { nextStep } = useWizard()
+
+  const { solution } = obliquePoints
   
   const methods = useForm({
     defaultValues: {
@@ -22,8 +24,15 @@ export const Rectification2D = () => {
     }
   })
 
-  const onSubmit = ( values: FieldValues ) => {
-    onGetTransformationMatrix('oblique', values).catch( error => onSetErrorMessage(error.message))
+  const onSubmit = (values: FieldValues, event: React.BaseSyntheticEvent) => {
+    const id = event.nativeEvent.submitter.id
+
+    if ( id === 'solve-oblique' ) {
+      onGetTransformationMatrix('oblique', values).catch(error => onSetErrorMessage(error.message))
+      return
+    } 
+
+
     nextStep()
   }
 
@@ -55,7 +64,7 @@ export const Rectification2D = () => {
                   onSubmit={methods.handleSubmit(onSubmit, onError)}
                   onError={onError}/>
             </FormProvider>
-            <WizardButtons formId="form-control-points" canFollow={drawPoints}/>
+            <WizardButtons formId="form-control-points" canFollow={solution !== undefined}/>
         </div>
     </div>
   )

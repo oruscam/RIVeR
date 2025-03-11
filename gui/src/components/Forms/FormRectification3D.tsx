@@ -6,11 +6,11 @@ import { useState } from "react";
 
 export const FormRectification3D = () => {
     const [ mode, setMode ] = useState('')
-    const { onGetPoints, onGetImages, onGetCameraSolution, ipcam, onChangeHemisphere } = useMatrixSlice();
+    const { onGetPoints, onGetImages, onGetCameraSolution, ipcam, onChangeHemisphere, isBackendWorking } = useMatrixSlice();
     const { onSetErrorMessage } = useUiSlice();
     const { t } = useTranslation();
 
-    const { cameraSolution, isCalculating, hemisphere } = ipcam
+    const { cameraSolution, hemisphere } = ipcam
 
     const handleOnClickImport = async ( event: React.MouseEvent<HTMLButtonElement> ) => {
         const id = (event.target as HTMLButtonElement).id;
@@ -44,7 +44,7 @@ export const FormRectification3D = () => {
     return (
         <>
             <h1 className="form-title"> Control Points </h1>
-            <form id="form-control-points" className={`form-scroll ${isCalculating ? 'disabled' : ''}`}>
+            <form id="form-control-points" className={`form-scroll ${isBackendWorking ? 'disabled' : ''}`}>
                 <div className="form-base-2">
                     <div className="input-container-2">
                         <button className={`wizard-button me-1 button-rectification ${ipcam.importedPoints !== undefined ? "wizard-button-active" : ""}`} id="import-points" type="button" onClick={handleOnClickImport} > {t('ControlPoints3d.importPoints')} </button>
@@ -98,8 +98,6 @@ export const FormRectification3D = () => {
                             </div>
                         )
                     }
-                    
-
                 </div>
             </form>
         </>

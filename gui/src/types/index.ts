@@ -73,6 +73,15 @@ interface factor {
     y: number
 }
 
+interface UpdatePixelSize {
+    drawLine?: boolean,
+    length?: number,
+    pixelSize?: number,
+    imageWidth?: number,
+    imageHeight?: number
+    extraFields?: boolean
+}
+
 export type {
     Point,
     Limits,
@@ -83,6 +92,7 @@ export type {
     cameraSolution,
     ellipse,
     importedPoint,
-    factor
+    factor,
+    UpdatePixelSize
 }
 

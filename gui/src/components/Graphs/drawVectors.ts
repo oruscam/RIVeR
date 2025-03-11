@@ -19,7 +19,6 @@ export const drawVectors = (
 
     // Data for drawing the vectors
     const { east, north, streamwise_velocity_magnitude, distance, check,  activeMagnitude } = data
-    
 
     if ( !east || !north || !streamwise_velocity_magnitude || !distance ) return;
 
@@ -28,7 +27,7 @@ export const drawVectors = (
     const arrowWidth = calculateArrowWidth(distance) 
 
     const arrows = calculateMultipleArrowsAdaptative( east, north, magnitude, transformationMatrix, imageWidth, imageHeight, arrowWidth, globalMin, globalMax )
-
+    
     if ( arrows === undefined ) return;
 
     arrows.forEach((arrow, i) => {

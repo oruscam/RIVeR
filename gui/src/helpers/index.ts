@@ -18,6 +18,7 @@ import { onLoadCrossSections, onLoadObliquePoints, onLoadPixelSize, onLoadProces
 import { getPositionSectionText } from "./getPositionSectionText";
 import { appendSolutionToImportedPoints } from "./appendSolutionsToImportedPoints";
 import { verifyWindowsSizes } from "./verifyWindowsSizes";
+import { getNewCanvasPositions, setChangesByForm } from "./sectionsHelpers";
 
 export {
     adapterBathimetry,
@@ -45,6 +46,7 @@ export {
     getDistanceBetweenPoints,
     getIntersectionPoints,
     getLinesCoordinates,
+    getNewCanvasPositions,
     getNewImageResolution,
     getObliquePointsDistances,
     getPointNames,
@@ -62,6 +64,7 @@ export {
     onMouseUpPixelSize,
     parseTime,
     recortStringDate,
+    setChangesByForm,
     stringDateToDate,
     transformPixelToRealWorld,
     transformRealWorldToPixel,

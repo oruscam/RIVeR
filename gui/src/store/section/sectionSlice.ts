@@ -3,24 +3,7 @@ import { SectionState, PixelSize, Section, SectionData, Bathimetry, Summary, Pix
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../../constants/constants';
 import { Point } from '../../types';
 
-const defaultSections = [{
-        name: "pixel_size",
-        drawLine: false,
-        sectionPoints: DEFAULT_POINTS,
-        dirPoints: DEFAULT_POINTS,
-        bathimetry: {
-            path: '',
-            name: '',
-        },
-        pixelSize: {size: 0, rwLength: 0},
-        rwPoints: DEFAULT_POINTS,
-        extraFields: false,
-        numStations: 0,
-        alpha: 0,
-        interpolated: false,
-        hasChanged: false,
-        artificialSeeding: false,
-    },
+const defaultSections = [
     {
         name: "CS_default_1",
         drawLine: false,
@@ -45,7 +28,7 @@ const initialState: SectionState = {
     sections: defaultSections,
     summary: undefined,
     activeSection: 0,
-    sectionsCounter: 2,
+    sectionsCounter: 1,
     transformationMatrix: [],
     isSectionWorking: false,
 };
@@ -57,25 +40,14 @@ const sectionSlice = createSlice({
         // ** Interaction with PixelSize.
         setPixelSize: (state, action: PayloadAction<PixelSize>) => {
             state.sections[state.activeSection].pixelSize = action.payload;
+            console.log('set pixel size', action.payload)
         }, 
         // ** Interaction with sections points.
         setDirPoints: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].dirPoints = action.payload;
-            console.log('activeStation')
-            console.log(state.activeSection)
-            if ( state.activeSection === 0) {
-                state.pixelSolution = undefined;
-                state.transformationMatrix = [];
-            }
         },
         setRealWorldPoints: (state, action: PayloadAction<Point[]>) => {
             state.sections[state.activeSection].rwPoints = action.payload;
-            console.log('activeStation')
-            console.log(state.activeSection)
-            if ( state.activeSection === 0) {
-                state.pixelSolution = undefined;
-                state.transformationMatrix = [];
-            }
         },
         addSection: (state, action: PayloadAction<Section>) => {
             state.sections.push(action.payload);
@@ -131,45 +103,24 @@ const sectionSlice = createSlice({
         updateSectionsCounter: (state, action: PayloadAction<number>) => {
             state.sectionsCounter = action.payload;
         },
-        setTransformationMatrix: (state, action: PayloadAction<{transformationMatrix: [number[], number[], number[]], pixelSolution?: PixelSolution}>) => {
+        setTransformationMatrix: (state, action: PayloadAction<{transformationMatrix: [number[], number[], number[]]}>) => {
             state.transformationMatrix = action.payload.transformationMatrix;
-            
-            if ( action.payload.pixelSolution !== undefined ){
-                state.pixelSolution = {
-                    ...action.payload.pixelSolution,
-                    image: action.payload.pixelSolution.image + '?t=' + new Date().getTime()
-                };
-                
-            }
-            state.isSectionWorking = false;
-        },
-        cleanSections: (state) => {
-            state.sections = state.sections.filter( (_, index) => index === 0 || index === 1);
-            state.sections[1] = defaultSections[1]
         },
         resetSectionSlice: (state) => {
             state.sections = defaultSections;
             state.summary = undefined;
             state.activeSection = 0;
-            state.sectionsCounter = 2;
-            state.transformationMatrix = [];
+            state.sectionsCounter = 1;
         },
         setSectionWorking: (state, action: PayloadAction<boolean>) => {
             state.isSectionWorking = action.payload;
         },
-        cleanSolution: (state) => {
-            if ( state.activeSection === 0 ) {
-                state.pixelSolution = undefined;
-                state.transformationMatrix = [];
-            }
-        }
     },
 });
 
 export const { 
     addSection, 
     changeSectionData,
-    cleanSections,
     deleteSection, 
     resetSectionSlice,
     setActiveSection, 
@@ -185,7 +136,6 @@ export const {
     setTransformationMatrix,
     updateSection,
     updateSectionsCounter,
-    cleanSolution
 } = sectionSlice.actions;
 
 export default sectionSlice.reducer;

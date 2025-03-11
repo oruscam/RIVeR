@@ -29,9 +29,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
                 section?.scrollIntoView({behavior: "smooth"})
             }
         }
-        if( index !== 0){
-            onSetActiveSection(index)
-        }
+        onSetActiveSection(index)
     }
 
     const onClickButtonSection = ( event: React.MouseEvent<HTMLButtonElement>) => {
@@ -86,9 +84,6 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
 
         
     useEffect(() => {
-        if(activeSection === 0){
-            onSetActiveSection(1)
-        }
         const element = document.getElementById("scroll-right")
         element?.scrollIntoView({behavior: "smooth"})
     }, [sections.length])
@@ -101,7 +96,6 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
             <span className="section"/>
                     {
                         sections.map((section, index: number) => {
-                            if (index >= 1){
                                 return (
                                     <div key={index} 
                                          className={`section ${activeSection === ( index ) ? "active" : ""}`} 
@@ -133,7 +127,6 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
                                         }
                                     </div>
                                 )
-                            }
                         })
                     }
             
@@ -143,7 +136,6 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
                             id="add"
                             onClick={onClickButtonSection}
                             > + </button>
-                    {/* <p> Add New </p> */}
                 </div>)
             }
             <span id="scroll-right"></span>

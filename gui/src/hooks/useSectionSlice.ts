@@ -5,14 +5,14 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, cleanSections, resetSectionSlice, setSectionWorking, cleanSolution } from '../store/section/sectionSlice';
+import { setDirPoints, addSection, setActiveSection, setPixelSize, setRealWorldPoints, updateSection, changeSectionData, setSectionPoints, setBathimetry, setHasChanged, deleteSection, updateSectionsCounter, setTransformationMatrix, resetSectionSlice, setSectionWorking } from '../store/section/sectionSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
-import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints, transformPixelToRealWorld, transformRealWorldToPixel } from '../helpers';
+import { adapterCrossSections, computePixelSize, getBathimetryValues, getDirectionVector, getIntersectionPoints, getNewCanvasPositions, setChangesByForm, transformPixelToRealWorld, transformRealWorldToPixel } from '../helpers';
 import { setProcessingMask, setQuiver, updateProcessingForm } from '../store/data/dataSlice';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS} from '../constants/constants';
 import { CanvasPoint, FormPoint, Point } from '../types';
-import { computeRwDistance, getLinesCoordinates, getTransformationFromCameraMatrix } from '../helpers/coordinates';
+import { getTransformationFromCameraMatrix } from '../helpers/coordinates';
 import { ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
 
@@ -61,33 +61,10 @@ export const useSectionSlice = () => {
          */
 
         if(canvasPoint){
-            const { points: canvasPoints, factor, index } = canvasPoint;
-            
-            /**
-             * If index is null, the user is creating a new line.
-             * If index is 0, the user is modifying the first point.
-             * If index is 1, the user is modifying the second point.
-             */
-
-            if( index === null){
-                flag1 = true,
-                flag2 = true
-            } else if ( index === 0){
-                flag1 = true
-            } else { 
-                flag2 = true
-            }
-
-            /**
-             * The newPoints variable is calculated by multiplying the pixel points by the factor.
-             */
-
-            newPoints = canvasPoints.map((point) => {
-                return {
-                    x: parseFloat((point.x * factor).toFixed(1)),
-                    y: parseFloat((point.y * factor).toFixed(1))
-                }
-            })
+            const { points, firstFlag, secondFlag } = getNewCanvasPositions(canvasPoint, flag1, flag2)
+            newPoints = points
+            flag1 = firstFlag
+            flag2 = secondFlag
         }
 
         /**
@@ -96,22 +73,10 @@ export const useSectionSlice = () => {
          */
 
         if(formPoint){
-            const { point, position } = formPoint;
-            if ( position === 'x1' && point !== dirPoints[0].x){
-                newPoints = [{x: parseFloat(point as string), y: dirPoints[0].y}, {x: dirPoints[1].x, y: dirPoints[1].y}]
-                flag1 = true
-            } else if ( position === 'y1' && point !== dirPoints[0].y){
-                newPoints = [{x: dirPoints[0].x, y: parseFloat(point as string)}, {x: dirPoints[1].x, y: dirPoints[1].y}]
-                flag1 = true
-            } else if ( position === 'x2' && point !== dirPoints[1].x){
-                newPoints = [{x: dirPoints[0].x, y: dirPoints[0].y}, {x: parseFloat(point as string), y: dirPoints[1].y}]
-                flag2 = true
-            } else if ( position === 'y2' && point !== dirPoints[1].y){
-                newPoints = [{x: dirPoints[0].x, y: dirPoints[0].y}, {x: dirPoints[1].x, y: parseFloat(point as string)}]
-                flag2 = true
-            } else {
-                newPoints = dirPoints
-            }
+            const { points, firstFlag, secondFlag } = setChangesByForm(formPoint, dirPoints, flag1, flag2)
+            newPoints = points
+            flag1 = firstFlag
+            flag2 = secondFlag
         }
 
         /**
@@ -128,7 +93,6 @@ export const useSectionSlice = () => {
             } else {
                 dispatch(setDirPoints(newPoints as Point[]))
             }
-
         }
 
         if ( canvasPoint?.mode === 'only-pixel') return
@@ -141,7 +105,7 @@ export const useSectionSlice = () => {
          * The pixel size is stored in the section slice.
          */
 
-        if( activeSection >= 1 ){
+        if( activeSection >= 0 ){
             let rwCalculated: Point[] = [ {x: 0, y: 0}, {x:0, y: 0}]
 
             dispatch(setSectionWorking(true))
@@ -197,21 +161,10 @@ export const useSectionSlice = () => {
         let newPoints: Point[];
         let flag1 = false;
         let flag2 = false
-        if ( position === 'x1' && point !== rwPoints[0].x){
-            newPoints = [{x: parseFloat(point as string), y: rwPoints[0].y}, {x: rwPoints[1].x, y: rwPoints[1].y}]
-            flag1 = true;
-        } else if ( position === 'y1' && point !== rwPoints[0].y){
-            newPoints = [{x: rwPoints[0].x, y: parseFloat(point as string)}, {x: rwPoints[1].x, y: rwPoints[1].y}]
-            flag1 = true;
-        } else if ( position === 'x2' && point !== rwPoints[1].x){
-            newPoints = [{x: rwPoints[0].x, y: rwPoints[0].y}, {x: parseFloat(point as string), y: rwPoints[1].y}]
-            flag2 = true;
-        } else if ( position === 'y2' && point !== rwPoints[1].y){
-            newPoints = [{x: rwPoints[0].x, y: rwPoints[0].y}, {x: rwPoints[1].x, y: parseFloat(point as string)}]
-            flag2 = true;
-        } else{
-            newPoints = rwPoints
-        }
+        const { points, firstFlag, secondFlag } = setChangesByForm({point, position}, rwPoints, flag1, flag2)
+        newPoints = points
+        flag1 = firstFlag
+        flag2 = secondFlag
 
         /**
          * The new real world coordinates are stored in the section slice.
@@ -235,7 +188,7 @@ export const useSectionSlice = () => {
          * The pixel size is stored in the section slice.
          */
 
-        if(activeSection >= 1 && newPoints !== rwPoints){
+        if(activeSection >= 0 && newPoints !== rwPoints){
             let pixelCalulated: Point[] = [{x: 0, y: 0}, {x: 0, y: 0}]
 
                 dispatch(setSectionWorking(true))
@@ -261,49 +214,6 @@ export const useSectionSlice = () => {
             dispatch(setHasChanged({value: true}))
         }
     };
-
-    /**
-     * Function to calculate the pixel size of the pixel_size section.
-     * @param _data | FieldValues - from useFormHook
-     */
-
-    const onSetPixelSize = async ( _data: FieldValues ) => {
-        const { dirPoints, rwPoints, pixelSize, hasChanged } = sections[0]
-        
-        if ( hasChanged === false ){
-            return
-        }
-
-        dispatch(setSectionWorking(true))
-        onCleanSections()
-        
-        const args = {
-            dirPoints,
-            rwPoints,
-            pixelSize: pixelSize.size,
-            rwLength: pixelSize.rwLength,
-        }
-
-        const ipcRenderer = window.ipcRenderer;
-        try {
-            const { transformation_matrix, transformed_image_path, output_resoulution, extent} = await ipcRenderer.invoke('pixel-size', args)
-
-            const filePrefix = import.meta.env.VITE_FILE_PREFIX;
-            const solutionImage = filePrefix + transformed_image_path
-            console.log('solutionImage', solutionImage) 
-
-            dispatch(setTransformationMatrix({transformationMatrix: transformation_matrix, pixelSolution: {
-                image: solutionImage,
-                resolution: output_resoulution,
-                extent
-            } }))
-
-            dispatch(setHasChanged({value: false}))
-        } catch (error) {
-            console.log("ERROR EN SETPIXELSIZE")
-            console.log(error)
-        }
-    }
 
     /**
      * Function to set the active section.
@@ -333,7 +243,6 @@ export const useSectionSlice = () => {
 
         let hasChanged = false    
         for (let i = 0; i < sections.length; i++) {
-            if ( i === 0 ) continue
             if ( sections[i].hasChanged === true ){
                 hasChanged = true
                 break
@@ -356,11 +265,7 @@ export const useSectionSlice = () => {
          */
 
         sections.map(async (section, index) => {
-            if (index === 0) return;
-
             const { sectionPoints } = section;
-
-
                 const par1 = transformPixelToRealWorld(sectionPoints[0].x, sectionPoints[0].y, transformationMatrix)
                 const par2 = transformPixelToRealWorld(sectionPoints[1].x, sectionPoints[1].y, transformationMatrix)
 
@@ -373,6 +278,7 @@ export const useSectionSlice = () => {
 
         dispatch(updateSectionsCounter(sections.length))
         const data = adapterCrossSections(updatedSection);
+        console.log('set setctions data', data)
 
         /**
          * The sections are stored in the section slice.
@@ -439,46 +345,11 @@ export const useSectionSlice = () => {
             updatedSection.sectionPoints = DEFAULT_POINTS;
             updatedSection.rwPoints = DEFAULT_POINTS;
             updatedSection.pixelSize = { rwLength: 0, size: 0 };
-            dispatch(cleanSolution())
-        }
-        
-        if (value.lineLength !== undefined) {
-
-            const resetRealWorld = [{ x: 0, y: 0 }, { x: value.lineLength, y: 0 }];
-            const { size, rwLength } = computePixelSize(section.dirPoints, resetRealWorld);
-            updatedSection.pixelSize = { size, rwLength };
-            updatedSection.rwPoints = resetRealWorld;
-            updatedSection.hasChanged = true
-            dispatch(cleanSolution())
-
-        }
-        
-        if ( value.pixelSize !== undefined ) {
-            if ( (section.dirPoints[0] === DEFAULT_POINTS[0] && section.dirPoints[1] === DEFAULT_POINTS[1]) || section.dirPoints.length === 0 ){
-                const dirPoints = getLinesCoordinates(value.imageWidth!, value.imageHeight!)
-                const rwLength = computeRwDistance(dirPoints, value.pixelSize)
-                updatedSection.dirPoints = dirPoints
-                updatedSection.pixelSize = { size: value.pixelSize, rwLength: rwLength }
-                updatedSection.rwPoints = [{ x: 0, y: 0 }, { x: rwLength, y: 0 }]
-                updatedSection.hasChanged = true
-                updatedSection.drawLine = true
-            } else {
-                const rwLength = computeRwDistance(section.dirPoints, value.pixelSize)
-    
-                updatedSection.pixelSize = { size: value.pixelSize, rwLength: rwLength }
-                updatedSection.rwPoints = [{ x: 0, y: 0 }, { x: rwLength, y: 0 }]
-                updatedSection.hasChanged = true
-            }
-            dispatch(cleanSolution())
         }
 
         if (value.sectionName !== undefined) {
             updatedSection.name = value.sectionName;
         }
-
-        // if (value.file !== undefined) {
-        //     updatedSection.bathimetry = { path: value.file.path, level: 0, name: value.file.name };
-        // }
 
         if (value.level !== undefined) {
             // If the camera matrix is defined, we neeed to update the transformation matrix. And All the cross sections have to be updated. Because in this module has the same level.
@@ -647,15 +518,15 @@ export const useSectionSlice = () => {
 
             if ( path !== "" && path !== sections[activeSection].bathimetry.path ){
                 
-                const { data, error } = cameraMatrix && sections[1].bathimetry.level !== undefined
-                    ? { ...getBathimetryValues(line, sections[1].bathimetry.level)}
+                const { data, error } = cameraMatrix && sections[0].bathimetry.level !== undefined
+                    ? { ...getBathimetryValues(line, sections[0].bathimetry.level)}
                     : getBathimetryValues(line);
                 
                 if ( error ){
                     return error
                 }
 
-                if (cameraMatrix && activeSection === 1) {
+                if (cameraMatrix && activeSection === 0) {
                     const transformationMatrix = getTransformationFromCameraMatrix(cameraMatrix, data.level);
                     dispatch(setTransformationMatrix({transformationMatrix: transformationMatrix as [number[], number[], number[]]}));
                     ipcRenderer.invoke('save-transformation-matrix', { transformationMatrix });
@@ -715,9 +586,6 @@ export const useSectionSlice = () => {
         dispatch(setSectionPoints({ points: sectionPoints, index }));
     }
 
-    const onCleanSections = () => {
-        dispatch(cleanSections())
-    }
 
     const onCleanSectionsData = () => {
         sections.map((section, index) => {
@@ -740,7 +608,6 @@ export const useSectionSlice = () => {
 
         onAddSection,
         onChangeDataValues,
-        onCleanSections,
         onCleanSectionsData,
         onDeleteSection,
         onGetBathimetry,
@@ -748,7 +615,6 @@ export const useSectionSlice = () => {
         onSetActiveSection,
         onSetDirPoints,
         onSetExtraFields,
-        onSetPixelSize,
         onSetRealWorld,
         onSetSections,
         onUpdateSection,

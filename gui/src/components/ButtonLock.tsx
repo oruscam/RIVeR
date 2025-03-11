@@ -47,7 +47,7 @@ export const ButtonLock = ({localExtraFields, localSetExtraFields, footerElement
         
                     }, 50)
                 }
-                onSetExtraFields()
+                localSetExtraFields()
 
             break;
 

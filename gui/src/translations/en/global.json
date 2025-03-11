@@ -179,6 +179,7 @@
         }
     },
     "ControlPoints" : {
+        "title": "Control Points",
         "drawPoints": "Draw Points",
         "importDistances": "Import Distances",
         "distance": "Distancia",
@@ -226,6 +227,7 @@
     },
     "Commons": {
         "yes": "Yes",
-        "no": "No"
+        "no": "No",
+        "solve": "Solve"
     }
 }

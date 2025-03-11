@@ -556,16 +556,10 @@ const getGlobalMagnitudes = ( sections: any ) => {
     let min = 0
 
     for ( let i = 0; i < sections.length; i++ ) {
-        if ( i === 0 ) continue
         const { data } = sections[i]
         const { activeMagnitude } = data
 
         const filteredMagnitude = activeMagnitude.filter((value: number) => value !== null && !isNaN(value as number))
-
-        if ( i == 1 ){
-            max = Math.max(...filteredMagnitude)
-            min = Math.min(...filteredMagnitude)
-        }
 
         max = Math.max(max, ...filteredMagnitude)
         min = Math.min(min, ...filteredMagnitude)

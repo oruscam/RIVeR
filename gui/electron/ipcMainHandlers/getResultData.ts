@@ -15,8 +15,6 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
     
         const xSectionsFile = await fs.promises.readFile(xSections, 'latin1')
         const xSectionsFileParsed = JSON.parse(xSectionsFile)
-
-        console.log('nombre de la bath', xSectionsFileParsed[name].bath)
         
         if( !arraysAreEqual(xSectionsFileParsed[name].check, activeCheck) ){
             xSectionsFileParsed[name].check = activeCheck
@@ -71,7 +69,6 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
     })
 
     ipcMain.handle('get-results-all', async (_event, args) => {
-        console.log('get-results-all')
         const xSections = PROJECT_CONFIG.xsectionsPath;
         const transformationMatrix = PROJECT_CONFIG.matrixPath;
         const pivResults = PROJECT_CONFIG.resultsPath;

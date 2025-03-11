@@ -21,6 +21,7 @@ import { ImageRectification3D } from './ImageRectification3D'
 import { PointsRectification3D } from './PointsRectification3D'
 import { Ellipses } from './Ellipses'
 import { RedPoints } from './RedPoints'
+import { ImagePixelSize } from './ImagePixelSize'
 
 export {
     Carousel,
@@ -29,6 +30,7 @@ export {
     Error,
     Grid,
     Icon,
+    ImagePixelSize,
     ImageRectification2D,
     ImageRectification3D,
     ImageWithData,

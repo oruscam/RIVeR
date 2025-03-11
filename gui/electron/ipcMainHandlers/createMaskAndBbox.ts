@@ -18,7 +18,7 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Functi
         if ( resultsPath !== '' ){
             clearResultsPiv(resultsPath, settingsPath)
         }
-
+        console.log('matrix path', matrixPath)
         const options = [
             'create-mask-and-bbox',
             '--save-png-mask',
