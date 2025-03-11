@@ -33,7 +33,7 @@ export const ImageRectification3D = () => {
     const handleOnWheel = (event: KonvaEventObject<WheelEvent>) => {
         imageZoom(event, setResizeFactor, true)
     }
-
+    
     return (
         <Stage 
             width={imageWidth}

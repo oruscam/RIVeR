@@ -174,7 +174,7 @@
         "generatedBy" : "Generated with River",
         "date" : "report creation date",
         "Success" : {
-            "title": "Analysis Complete!",
+            "title": "Analysis Completed!",
             "message": "You've successfully completed all steps. Review your results and save them as HTML. You can close the window your project has been saved in"
         }
     },

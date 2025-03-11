@@ -5,8 +5,6 @@ import path from 'path';
 
 async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ipcMain.handle('calculate-3d-rectification', async (_event, args) => {
-        console.log('calculate-3d-rectification')
-
         const { directory, logsPath, settingsPath, firstFrame } = PROJECT_CONFIG
         const { points, mode, hemisphere } = args
 
@@ -94,7 +92,6 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
             if ( flag ) {
                 await fs.promises.writeFile(full_grp_3d_path, JSON.stringify(full_grp_3d, null, 2))
             }
-            console.log('File written successfully')
 
             const options = [
                 'get-camera-solution',
@@ -109,7 +106,7 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
                 filePath,
             ].filter((value) => value !== undefined)
 
-            const { data, error } = await riverCli(options, 'json', false, logsPath)
+            const { data, error } = await riverCli(options, 'text', false, logsPath)
 
             if ( error.message ){
                 return {

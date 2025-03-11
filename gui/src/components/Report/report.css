@@ -630,7 +630,8 @@ body{
     margin-bottom: 8px;
 }
 #successful-container {
-    background-color: #41783a;
+    background-color: var(--success-background);
+    color: var(--success-color);
     width: 90%;
     height: auto;
     display: flex;

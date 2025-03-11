@@ -35,6 +35,7 @@ const initialState: MatrixState = {
         activePoint: undefined,
         cameraSolution: undefined,
         hemisphere: 'southern-hemisphere',
+        selectedCounter: 0,
     },
     hasChanged: false,
     isBackendWorking: false,
@@ -67,6 +68,7 @@ const matrixSlice = createSlice({
         },
         setIpcamPoints: ( state, action: PayloadAction<setIpcamPointsInterface> ) => {
             state.ipcam.importedPoints = action.payload.points;
+            state.ipcam.selectedCounter = action.payload.counter;
             if ( action.payload.path !== undefined ){
                 state.ipcam.pointsPath = action.payload.path;
             }

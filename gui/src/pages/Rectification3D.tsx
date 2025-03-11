@@ -2,13 +2,11 @@ import { useWizard } from "react-use-wizard"
 import { FormRectification3D } from "../components/Forms/FormRectification3D.tsx"
 import { Carousel, Error, ImageRectification3D, Progress, WizardButtons } from "../components/index"
 import { useMatrixSlice } from "../hooks/useMatrixSlice.ts"
-import { useSectionSlice } from "../hooks/useSectionSlice.ts"
 
 export const Rectification3D = () => {
     const { ipcam, onChangeActiveImage } = useMatrixSlice()
     const { importedImages, activeImage } = ipcam
     const { nextStep } = useWizard()
-    const { onSetActiveSection } = useSectionSlice()
 
     const handleOnClickNext = () => {
         nextStep()

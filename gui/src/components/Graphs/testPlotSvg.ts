@@ -46,17 +46,13 @@ export const testPlotSvg = ({ svgElement, quiver, t } : { svgElement: SVGSVGElem
     const uMean = d3.mean(u) ?? 0;
     const vMean = d3.mean(v) ?? 0;
 
-    console.log('uMin', uMin, 'uMax', uMax, 'vMin', vMin, 'vMax', vMax)
-
     // Adjust the min and max values with padding
     uMin -= padding * (uMax - uMin);
     uMax += padding * (uMax - uMin);
     vMin -= padding * (vMax - vMin);
     vMax += padding * (vMax - vMin);
         
-    console.log('uMin', uMin, 'uMax', uMax, 'vMin', vMin, 'vMax', vMax)
-
-    // Create scales for the x and y axes
+        // Create scales for the x and y axes
     const xScale = d3.scaleLinear()
         .domain([uMin, uMax])
         .range([margin.left, width - margin.right]);
@@ -68,6 +64,7 @@ export const testPlotSvg = ({ svgElement, quiver, t } : { svgElement: SVGSVGElem
     // Create grid lines for the x and y axes
     const xAxisGrid = d3.axisBottom(xScale).tickSize(-height + margin.top + margin.bottom).tickFormat('');
     const yAxisGrid = d3.axisLeft(yScale).tickSize(-width + margin.left + margin.right).tickFormat('');
+
 
     // Append x-axis grid lines to the SVG
     svg.append('g')

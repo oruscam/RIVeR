@@ -2,18 +2,25 @@ import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { useUiSlice } from '../../hooks';
 import { GRAPHS } from '../../constants/constants';
+import { scaleBar } from './scaleBar';
 
 export const OrthoImage = ({ solution } : { solution : { orthoImage: string, extent: number[], resolution: number} | undefined}) => { 
     const ref = useRef<SVGSVGElement>(null);
     const { screenSizes } = useUiSlice();
     const { width: screenWidth } = screenSizes;
 
-    const graphWidth = screenWidth * GRAPHS.IPCAM_GRID_PROPORTION > GRAPHS.MIN_WIDTH ? screenWidth * GRAPHS.IPCAM_GRID_PROPORTION : GRAPHS.MIN_WIDTH
+    const graphWidth = screenWidth * GRAPHS.IPCAM_GRID_PROPORTION < GRAPHS.ORTHO_IMAGE_MAX_HEIGHT ? screenWidth * GRAPHS.IPCAM_GRID_PROPORTION : GRAPHS.ORTHO_IMAGE_MAX_HEIGHT
     
+    const { orthoImage, extent } = solution!;
+    const imgWidth = Math.abs(extent[1] - extent[0]);
+    const imgHeight = Math.abs(extent[2] - extent[3]);
+
+    const aspectRatio = imgWidth / imgHeight;
+    const graphHeight = aspectRatio > 1 ? graphWidth / aspectRatio : graphWidth;
+
     useEffect(() => {
         if (ref.current === null) return;
-
-        const { orthoImage, extent } = solution!;
+        
         d3.select(ref.current).selectAll('*').remove();
         const svg = d3.select(ref.current);
 
@@ -42,10 +49,6 @@ export const OrthoImage = ({ solution } : { solution : { orthoImage: string, ext
 
         const x = extent[0];
         const y = extent[3];
-        const imgWidth = Math.abs(extent[1] - x);
-        const imgHeight = Math.abs(extent[2] - y);
-
-        console.log('x', x, 'y', y, 'imgWidth', imgWidth, 'imgHeight', imgHeight);
 
         svg.append('image')
             .attr('xlink:href', orthoImage)
@@ -54,45 +57,7 @@ export const OrthoImage = ({ solution } : { solution : { orthoImage: string, ext
             .attr('width', xScale(x + imgWidth) - xScale(x))
             .attr('height', Math.abs(yScale(y + imgHeight) - yScale(y)));
 
-        // Define scale
-
-        let scaleLength = (extent[1] - extent[0]) * 0.2
-        scaleLength = Math.round(scaleLength / Math.pow(10, Math.floor(Math.log10(scaleLength)))) * Math.pow(10, Math.floor(Math.log10(scaleLength)));
-
-        // // Add text in the bottom right corner inside the image
-        // svg.append('text')
-        //     .attr('x', xScale(xMax))
-        //     .attr('y', yScale(yMin))
-        //     .attr('text-anchor', 'end')
-        //     .attr('dy', '-0.5em')
-        //     .style('font-size', '12px')
-        //     .attr('fill', 'white')
-        //     .text(scaleLength);
-
-        // Define scale bar position and dimensions
-        const marginScale = (extent[1] - extent[0]) * 0.05;
-        const barHeight = (extent[3] - extent[2]) * 0.015;
-        const xPos = extent[1] - marginScale - scaleLength;
-        const yPos = extent[2] + marginScale + 0.8;
-
-        // Add scale bar
-        svg.append('rect')
-            .attr('x', xScale(xPos))
-            .attr('y', yScale(yPos))
-            .attr('width', xScale(scaleLength) - xScale(0))
-            .attr('height', yScale(0) - yScale(barHeight))
-            .attr('fill', 'white')
-            .attr('stroke', 'black');
-
-        // Add text label for the scale bar
-        svg.append('text')
-            .attr('x', xScale(xPos + scaleLength / 2))
-            .attr('y', yScale(yPos) - 10)
-            .attr('text-anchor', 'middle')
-            .style('font-size', '14px')
-            .attr('fill', 'white')
-            .attr('font-weight', 'bold')
-            .text(`${scaleLength} m`);
+        scaleBar(extent, ref.current, xScale, yScale, '', 0, 0);
 
         // Add X Axis with 5 ticks and increased font size
         svg.append('g')
@@ -107,11 +72,17 @@ export const OrthoImage = ({ solution } : { solution : { orthoImage: string, ext
             .call(d3.axisLeft(yScale).ticks(5))
             .selectAll('text')
             .style('font-size', '12px');
+
+        svg.append('circle')
+            .attr('cx', xScale(0))
+            .attr('cy', yScale(0))
+            .attr('r', 3)
+            .attr('fill', 'blue');
     }, [solution, graphWidth]);
 
     return (
-        <div id='ortho-image-solution'>
-            <svg ref={ref} width={graphWidth} height={300}/>
+        <div id='ortho-image-solution' className='mb-2'>
+            <svg ref={ref} width={graphWidth} height={graphHeight}/>
         </div>
     )
 }

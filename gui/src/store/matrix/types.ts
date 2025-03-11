@@ -44,6 +44,7 @@ interface ipcam {
     activePoint: number | undefined,
     cameraSolution: cameraSolution | undefined,
     hemisphere: 'southern-hemisphere' | 'northern-hemisphere',
+    selectedCounter: number,
 }
 
 interface pixelSolution {
@@ -64,7 +65,8 @@ interface pixelSize {
 
 interface setIpcamPointsInterface {
     points: importedPoint[],
-    path: string | undefined
+    path: string | undefined,
+    counter: number
 }
 
 interface setIpcamImagesInterface {

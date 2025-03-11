@@ -9,6 +9,7 @@ import { ipcamSvg } from "./ipcamSvg";
 import { TestPlot } from "./TestPlot";
 import { drawSvgSectionLine } from "./drawSvgSectionLine";
 import { OrthoImage } from "./OrthoImage";
+import { scaleBar } from "./scaleBar";
 
 export { 
     AllInOne, 
@@ -20,6 +21,7 @@ export {
     obliqueSvg,
     OrthoImage,
     PointsMap, 
+    scaleBar, 
     TestPlot,
-    VelocityVector, 
+    VelocityVector,
 };

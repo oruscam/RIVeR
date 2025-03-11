@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import { COLORS } from '../../constants/constants';
 import cam_marker from '../../assets/cam_marker.svg'
+import { scaleBar } from './scaleBar';
 
 interface PointsMapSvgProps {
     svgElement: SVGSVGElement;
@@ -59,14 +60,10 @@ export const pointsMapSvg = ({ svgElement, importedPoints, activePoint, orthoIma
 
         
     if ( cameraPosition && orthoExtent  && orthoImagePath && 1 === 1 ) {
-        
         drawAnalizeResult(importedPoints, activePoint, cameraPosition, orthoImagePath, orthoExtent, margin, width, height, svg, xScale, yScale)
         return;
-        
     } else { 
-
         // Ticks on all edges
-
         const numTicks = 4
         const tickLength = 15
     
@@ -212,6 +209,8 @@ const drawAnalizeResult = (
         .attr('width', xScale(x + imgWidth) - xScale(x))
         .attr('height', Math.abs(yScale(y + imgHeight) - yScale(y)))
         .attr("clip-path", "url(#clip)");
+    
+    scaleBar(orthoExtent, svg.node() as SVGSVGElement, xScale, yScale, "clip", margin.left, margin.top);
 
     // Append the camera icon 
     const xOffset = -15;
@@ -314,6 +313,8 @@ const drawAnalizeResult = (
 
             svg.select('.x-axis').call(d3.axisBottom(newXScale).ticks(3));
             svg.select('.y-axis').call(d3.axisLeft(newYScale).ticks(5));
+
+            scaleBar(orthoExtent, svg.node() as SVGSVGElement, newXScale, newYScale, "clip", margin.left, margin.top);
     }
 
     svg.append('g')
@@ -327,5 +328,4 @@ const drawAnalizeResult = (
         .attr('transform', `translate(${margin.left}, ${margin.top})`)
         .call(yAxis)
         .attr('font-size', '12px')
-
 };

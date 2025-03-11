@@ -111,7 +111,7 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
         }
 
         try {
-            if ( key === 'summary') {
+            if ( key === 'summary' && setSummary !== undefined ){
                 dispatch(setSummary(values.summary))
                 return
             }
@@ -227,17 +227,12 @@ const onLoad3dRectification = (
 ) => {
     const filePrefix = import.meta.env.VITE_FILE_PREFIX
     const { points, cameraSolution, mode, images, hemisphere } = rectification3d
-
-    console.log('images', images)
-    console.log('hemisphere', hemisphere)
-    console.log('mode', mode)
-
     const { newImportedPoints, numPoints } = appendSolutionToImportedPoints(points, cameraSolution, mode === 'direct-solve')
 
     delete cameraSolution.projectedPoints
     delete cameraSolution.uncertaintyEllipses
 
-    dispatch(setIpcamPoints({ points: newImportedPoints, path: undefined }))
+    dispatch(setIpcamPoints({ points: newImportedPoints, path: undefined, counter: numPoints }))
     dispatch(setCameraSolution({
         ...cameraSolution,
         orthoImagePath: filePrefix + cameraSolution.orthoImagePath,
@@ -249,7 +244,6 @@ const onLoad3dRectification = (
     if ( images !== undefined ){
         dispatch(setIpcamImages({ images: images, path: images }))
     }
-
 }
 
 export { 

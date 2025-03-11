@@ -6,11 +6,11 @@ import { useState } from "react";
 
 export const FormRectification3D = () => {
     const [ mode, setMode ] = useState('')
-    const { onGetPoints, onGetImages, onGetCameraSolution, ipcam, onChangeHemisphere, isBackendWorking } = useMatrixSlice();
+    const { onGetPoints, onGetImages, onGetCameraSolution, ipcam, onChangeHemisphere, isBackendWorking} = useMatrixSlice();
     const { onSetErrorMessage } = useUiSlice();
     const { t } = useTranslation();
 
-    const { cameraSolution, hemisphere } = ipcam
+    const { cameraSolution, hemisphere, selectedCounter } = ipcam
 
     const handleOnClickImport = async ( event: React.MouseEvent<HTMLButtonElement> ) => {
         const id = (event.target as HTMLButtonElement).id;
@@ -69,7 +69,7 @@ export const FormRectification3D = () => {
                             id="direct-solve" 
                             type="button" 
                             onClick={handleOnClickAction}
-                            disabled={ipcam.importedPoints === undefined}
+                            disabled={ipcam.importedPoints === undefined || selectedCounter < 6}
                             > {t('ControlPoints3d.directSolve')} </button>
                         <button 
                             className={`wizard-button button-rectification ${cameraSolution === undefined ? 'mb-2' : ''} ${cameraSolution?.mode === 'optimize-solution' || mode === 'optimize-solution' ? 'wizard-button-active' : '' }`} 

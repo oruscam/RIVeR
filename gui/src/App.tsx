@@ -4,7 +4,7 @@ import './App.css'
 import { useEffect } from 'react'
 import { Loading } from './components'
 import { Report } from './pages/Report'
-import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from './hooks'
+import { useDataSlice, useProjectSlice, useUiSlice } from './hooks'
 import { FOOTAGE_TYPES } from './constants/constants'
 
 export const App: React.FC = () => {
@@ -13,10 +13,7 @@ export const App: React.FC = () => {
   const { data } = video 
   const { onSetImages, images } = useDataSlice()
 
-  const { activeSection, sections } = useSectionSlice()
 
-  console.log('activeSection', activeSection)
-  console.log('sections', sections) 
   const getStep4 = () => {
     switch (type) {
       case FOOTAGE_TYPES.UAV:

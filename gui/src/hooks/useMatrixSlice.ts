@@ -6,7 +6,6 @@ import { adapterObliquePointsDistances, appendSolutionToImportedPoints, computeP
 import { ScreenSizes } from "../store/ui/types";
 import { FieldValues } from "react-hook-form";
 import { resetSectionSlice, setTransformationMatrix } from "../store/section/sectionSlice";
-import { setLoading } from "../store/ui/uiSlice"
 import { CliError, ResourceNotFoundError } from "../errors/errors";
 import { useTranslation } from "react-i18next";
 import { DEFAULT_POINTS } from "../constants/constants";
@@ -173,7 +172,7 @@ export const useMatrixSlice = () => {
                 throw new Error(error.message)
             }
 
-            dispatch(setIpcamPoints({ points: data.points, path: data.path }));
+            dispatch(setIpcamPoints({ points: data.points, path: data.path, counter: data.points.length }));
             dispatch(setIpcamCameraSolution(undefined))
         } catch (error) {
             if ( error instanceof Error ){
@@ -204,20 +203,23 @@ export const useMatrixSlice = () => {
 
     const onChangeIpcamPointSelected = ( { index, rowsIndex } : {index?: number, rowsIndex?: number} ) => {
         if ( ipcam.importedPoints === undefined ) return;
-       
-        if ( index ){
+        
+        let value = 0 
+        if ( index !== undefined && index >= 0 ){
             const newPoints = ipcam.importedPoints.map((point, i) => {
                 if (i === index) {
                     if ( point.selected === true ){
+                        value = -1
                         return { ...point, selected: !point.selected, image: undefined };
                     } else {
+                        value = 1
                         return { ...point, selected: !point.selected };
                     }
                 }
                 return point;
             });
     
-            dispatch(setIpcamPoints({ points: newPoints, path: undefined }))
+            dispatch(setIpcamPoints({ points: newPoints, path: undefined, counter: ipcam.selectedCounter + value }))
         } else if ( rowsIndex !== undefined ){
             const value = rowsIndex === ipcam.importedPoints.length ? true : false;
 
@@ -226,7 +228,7 @@ export const useMatrixSlice = () => {
                     return { ...point, selected: value };
                 });
         
-                dispatch(setIpcamPoints({ points: newPoints, path: undefined }))
+                dispatch(setIpcamPoints({ points: newPoints, path: undefined, counter: value ? ipcam.importedPoints.length : 0 }))
             }
         }
     }
@@ -318,7 +320,7 @@ export const useMatrixSlice = () => {
             delete data.uncertaintyEllipses
             delete data.projectedPoints
 
-            dispatch(setIpcamPoints({ points: newImportedPoints, path: undefined }))
+            dispatch(setIpcamPoints({ points: newImportedPoints, path: undefined, counter: numPoints }))
             dispatch(setIpcamCameraSolution({
                 ...data,
                 orthoImagePath: filePrefix + data.orthoImagePath + `?t=${new Date().getTime()}`,

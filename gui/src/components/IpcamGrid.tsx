@@ -58,13 +58,13 @@ export const IpcamGrid = () => {
     }, [importedPoints]);
 
     const columns = [
-        { ...SelectColumn, name: 'select', cellClass: 'centered-cell', headerCellClass: 'select-cell' },
-        { key: 'label', name: t('ControlPoints3d.label'), cellClass: 'point-label-cell centered-cell label-cell', headerCellClass: 'centered-cell label-cell', frozen: true },
-        { key: 'X', name: t('ControlPoints3d.east'), cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
-        { key: 'Y', name: t('ControlPoints3d.north'), cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
-        { key: 'Z', name: 'Z', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
-        { key: 'x', name: 'x', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
-        { key: 'y', name: 'y', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell' },
+        { ...SelectColumn, name: 'select', cellClass: 'centered-cell', headerCellClass: 'select-cell header-fixed' },
+        { key: 'label', name: t('ControlPoints3d.label'), cellClass: 'point-label-cell centered-cell label-cell', headerCellClass: 'centered-cell label-cell header-fixed', frozen: true },
+        { key: 'X', name: t('ControlPoints3d.east'), cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell header-fixed' },
+        { key: 'Y', name: t('ControlPoints3d.north'), cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell header-fixed' },
+        { key: 'Z', name: 'Z', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell header-fixed' },
+        { key: 'x', name: 'x', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell header-fixed' },
+        { key: 'y', name: 'y', cellClass: 'centered-cell common-cell', headerCellClass: 'centered-cell common-cell header-fixed' },
     ];
 
     const handleCellClick = (cell: { row: any; column: any; }) => {
@@ -104,7 +104,6 @@ export const IpcamGrid = () => {
             setSelectedRows(new Set(selectedRowIndices));
             setPreviousSelectedRows(new Set(selectedRowIndices));
         }
-
         changeSelectRow(activePoint ? activePoint : undefined);
     }, [importedPoints]);
 
@@ -115,7 +114,6 @@ export const IpcamGrid = () => {
     useEffect(() => {   
         if ( selectedRows.size === 44 || selectedRows.size === 0 ) {
             if ( selectedRows.size !== previousSelectedRows.size ) {
-                console.log('action')
                 onChangeIpcamPointSelected({ rowsIndex: selectedRows.size });
                 setPreviousSelectedRows(selectedRows);
             }

@@ -593,7 +593,7 @@
 
 .grid{
     width: 100%;
-    height: auto;
+    height: 100%;
 }
 
 .grid.disabled{
@@ -626,7 +626,6 @@
     padding: 0 8px;
 }
 
-
 .select-cell {
     background-color: black;
 }
@@ -655,3 +654,12 @@
     color: var(--primary-text-color);
     font-weight: bold;
 }
+
+.header-fixed{
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    overflow: none;
+    height: 50px;
+}
+
