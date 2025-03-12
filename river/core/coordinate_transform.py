@@ -5,19 +5,18 @@ from typing import Dict, List, Optional, Tuple, Union
 import cv2
 import numpy as np
 from scipy.optimize import minimize
-
 from river.core.exceptions import OptimalCameraMatrixError
 
 
 def get_homography_from_camera_matrix(P: np.ndarray, z_level: float) -> np.ndarray:
 	"""
 	Convert a camera matrix P to a homography matrix H for points lying on plane Z=z_level.
-	    Parameters:
-	    P (np.ndarray): 3x4 camera matrix
-	    z_level (float): Z coordinate of the plane
+	Parameters:
+	P (np.ndarray): 3x4 camera matrix
+	z_level (float): Z coordinate of the plane
 
 	Returns:
-	    np.ndarray: 3x3 transformation_matrix
+	np.ndarray: 3x3 transformation_matrix
 	"""
 	# The camera matrix P can be written as [M|p4] where M is 3x3 and p4 is 3x1
 	M = P[:, :3]  # First three columns
@@ -35,31 +34,32 @@ def get_homography_from_camera_matrix(P: np.ndarray, z_level: float) -> np.ndarr
 
 
 def orthorectify_image(
-	image_path: Path,
-	cam_solution: dict,
-	grp_dict: dict,
-	output_resolution: float = 0.1,
-	southern_hemisphere: bool = True,
+		image_path: Path,
+		cam_solution: dict,
+		grp_dict: dict,
+		output_resolution: float = 0.1,
+		flip_x: bool = False,
+		flip_y: bool = False,
 ):
 	"""
 	Reproject an image onto real-world coordinates with high resolution output.
 
 	Parameters:
-	    image_path (Path): Path to the input image
-	    cam_solution (dict): Camera solution dictionary
-	    grp_dict (dict): Dictionary containing ground reference points
-	    output_resolution (float): Resolution in real-world units per pixel (default: 0.1)
-	    southern_hemisphere (bool): Whether coordinates are in Southern Hemisphere
-	    debug (bool): Whether to print debug information
+		image_path (Path): Path to the input image
+		cam_solution (dict): Camera solution dictionary
+		grp_dict (dict): Dictionary containing ground reference points
+		output_resolution (float): Resolution in real-world units per pixel (default: 0.1)
+		flip_x (bool): Whether to flip the x-axis orientation
+		flip_y (bool): Whether to flip the y-axis orientation
 
 	Returns:
-	    tuple: (ortho_img, extent)
-	        - ortho_img: RGBA image array (with alpha channel for transparency)
-	        - extent: [x_min, x_max, y_min, y_max] for plotting
+		tuple: (ortho_img, extent)
+			- ortho_img: RGBA image array (with alpha channel for transparency)
+			- extent: [x_min, x_max, y_min, y_max] for plotting
 	"""
 
 	# Load the image
-	img = cv2.imread(image_path)
+	img = cv2.imread(str(image_path))
 	if img is None:
 		raise ValueError("Could not load image")
 	img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -70,7 +70,7 @@ def orthorectify_image(
 	y_min, y_max = np.min(grp_dict["Y"]), np.max(grp_dict["Y"])
 
 	# Add small margin
-	margin = 0.05  # 5% margin
+	margin = 0.3  # 30% margin
 	x_range = x_max - x_min
 	y_range = y_max - y_min
 	x_min -= margin * x_range
@@ -83,18 +83,22 @@ def orthorectify_image(
 	y_size = int((y_max - y_min) / output_resolution)
 
 	# Ensure reasonable grid size
-	max_size = 5000  # Maximum size for either dimension
+	max_size = 500  # Maximum size for either dimension
 	if x_size > max_size or y_size > max_size:
 		scale = max(x_size / max_size, y_size / max_size)
 		x_size = int(x_size / scale)
 		y_size = int(y_size / scale)
 
-	# Create coordinates with correct orientation
-	if southern_hemisphere:
-		y_coords = np.linspace(y_max, y_min, y_size)
-	else:
-		y_coords = np.linspace(y_min, y_max, y_size)
+	# Create coordinates with explicit orientation control
 	x_coords = np.linspace(x_min, x_max, x_size)
+	y_coords = np.linspace(y_min, y_max, y_size)
+
+	# Apply flips if requested
+	if flip_x:
+		x_coords = x_coords[::-1]
+	if flip_y:
+		y_coords = y_coords[::-1]
+
 	X, Y = np.meshgrid(x_coords, y_coords)
 
 	# Get Z values
@@ -102,7 +106,6 @@ def orthorectify_image(
 
 	# Project points
 	points_world = {"X": X.flatten(), "Y": Y.flatten(), "Z": Z.flatten()}
-
 	projected_points = project_points(cam_solution["camera_matrix"], points_world)
 
 	# Reshape to grid
@@ -132,13 +135,13 @@ def orthorectify_image(
 
 
 def orthorectify_image_with_size_limit(
-	im_in: np.ndarray,
-	transformation_matrix: np.ndarray,
-	roi: Optional[Tuple[int, int, int, int]] = None,
-	max_dimension: int = 500,
-	min_resolution: float = 0.01,
-	flip_x: bool = False,
-	flip_y: bool = False,
+		im_in: np.ndarray,
+		transformation_matrix: np.ndarray,
+		roi: Optional[Tuple[int, int, int, int]] = None,
+		max_dimension: int = 500,
+		min_resolution: float = 0.01,
+		flip_x: bool = False,
+		flip_y: bool = False
 ) -> Tuple[np.ndarray, List[float]]:
 	"""
 	Transform an input image using a transformation matrix with a specified ROI,
@@ -174,7 +177,12 @@ def orthorectify_image_with_size_limit(
 	X, Y = np.meshgrid(x_coords, y_coords)
 
 	# Convert ROI corners to real-world coordinates to determine extent
-	corners = [(x_min, y_min), (x_max, y_min), (x_min, y_max), (x_max, y_max)]
+	corners = [
+		(x_min, y_min),
+		(x_max, y_min),
+		(x_min, y_max),
+		(x_max, y_max)
+	]
 
 	real_world_corners = [transform_pixel_to_real_world(x, y, transformation_matrix) for x, y in corners]
 	rw_x_coords = [corner[0] for corner in real_world_corners]
@@ -241,7 +249,10 @@ def orthorectify_image_with_size_limit(
 
 	# Perform remapping
 	transformed_img = cv2.remap(
-		im_in, map_x, map_y, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=[0, 0, 0]
+		im_in, map_x, map_y,
+		interpolation=cv2.INTER_LINEAR,
+		borderMode=cv2.BORDER_CONSTANT,
+		borderValue=[0, 0, 0]
 	)
 
 	# Add alpha channel for transparency
@@ -250,10 +261,12 @@ def orthorectify_image_with_size_limit(
 		alpha[~valid_coords] = 0
 		transformed_img = np.dstack((transformed_img, alpha))
 
+
 	extent = [x_min_rw, x_max_rw, y_min_rw, y_max_rw]
 
-	return transformed_img, extent
 
+
+	return transformed_img, extent
 
 def calculate_uncertainty_ellipses(
 	actual_points: np.ndarray, projected_points: np.ndarray, confidence: float = 0.95
@@ -262,12 +275,12 @@ def calculate_uncertainty_ellipses(
 	Calculate uncertainty ellipses for reprojection errors.
 
 	Parameters:
-	    actual_points: Original point coordinates (n x 2)
-	    projected_points: Projected point coordinates (n x 2)
-	    confidence: Confidence level for ellipse (default: 0.95)
+		actual_points: Original point coordinates (n x 2)
+		projected_points: Projected point coordinates (n x 2)
+		confidence: Confidence level for ellipse (default: 0.95)
 
 	Returns:
-	    List of dictionaries containing ellipse parameters for each point
+		List of dictionaries containing ellipse parameters for each point
 	"""
 	from scipy import stats
 
@@ -304,15 +317,15 @@ def solve_c_matrix(GRPs: Dict[str, np.ndarray]) -> np.ndarray:
 	Solve the full Camera Matrix from Ground Referenced Points using SVD.
 
 	Parameters:
-	    GRPs (Dict[str, np.ndarray]): Dictionary containing the following arrays:
-	        'X': X-coordinates of ground reference points
-	        'Y': Y-coordinates of ground reference points
-	        'Z': Z-coordinates of ground reference points
-	        'x': x-coordinates of image points
-	        'y': y-coordinates of image points
+		GRPs (Dict[str, np.ndarray]): Dictionary containing the following arrays:
+			'X': X-coordinates of ground reference points
+			'Y': Y-coordinates of ground reference points
+			'Z': Z-coordinates of ground reference points
+			'x': x-coordinates of image points
+			'y': y-coordinates of image points
 
 	Returns:
-	    np.ndarray: A 3x4 camera matrix P obtained through SVD decomposition.
+		np.ndarray: A 3x4 camera matrix P obtained through SVD decomposition.
 	"""
 	X, Y, Z = GRPs["X"], GRPs["Y"], GRPs["Z"]
 	x, y = GRPs["x"], GRPs["y"]
@@ -335,14 +348,14 @@ def project_points(P: np.ndarray, world_coords: Dict[str, np.ndarray]) -> np.nda
 	Transform 3 components real-world coordinates to pixel coordinates
 
 	Parameters:
-	    P (np.ndarray): 3x4 camera projection matrix
-	    world_coords (Dict[str, np.ndarray]): Dictionary containing the following arrays:
-	        'X': X-coordinates of world points
-	        'Y': Y-coordinates of world points
-	        'Z': Z-coordinates of world points
+		P (np.ndarray): 3x4 camera projection matrix
+		world_coords (Dict[str, np.ndarray]): Dictionary containing the following arrays:
+			'X': X-coordinates of world points
+			'Y': Y-coordinates of world points
+			'Z': Z-coordinates of world points
 
 	Returns:
-	    np.ndarray: Array of projected 2D points with shape (n, 2)
+		np.ndarray: Array of projected 2D points with shape (n, 2)
 	"""
 	projected_points = []
 	for i in range(len(world_coords["X"])):
@@ -422,29 +435,32 @@ def optimize_points_comprehensive(
 
 
 def get_camera_solution(
-	grp_dict: Dict[str, Union[np.ndarray, List]],
-	optimize_solution: bool = False,
-	image_path: Optional[str] = None,
-	ortho_resolution: float = 0.1,
-	southern_hemisphere: bool = True,
-	confidence: float = 0.95,
-	full_grp_dict: Optional[Dict[str, Union[np.ndarray, List]]] = None,
+		grp_dict: Dict[str, Union[np.ndarray, List]],
+		optimize_solution: bool = False,
+		image_path: Optional[str] = None,
+		ortho_resolution: float = 0.01,
+		flip_x: bool = False,
+		flip_y: bool = True,
+		confidence: float = 0.95,
+		full_grp_dict: Optional[Dict[str, Union[np.ndarray, List]]] = None,
 ) -> Dict[str, Union[np.ndarray, float, Tuple[int, ...], int, None]]:
 	"""
 	Get camera matrix, position, uncertainty ellipses, and optionally generate orthorectified image.
-	Now ensures error is always calculated against the full dataset.
+	Ensures error is always calculated against the full dataset.
+	Autoflip feature has been removed for more predictable behavior.
 
 	Parameters:
-	    grp_dict: Dictionary containing ground reference points for calculating the camera matrix
-	    optimize_solution: Whether to optimize the camera solution
-	    image_path: Path to image for orthorectification
-	    ortho_resolution: Resolution for orthorectified output
-	    southern_hemisphere: Whether coordinates are in Southern Hemisphere
-	    confidence: Confidence level for uncertainty ellipses
-	    full_grp_dict: Original full dataset for error calculation (if None, uses grp_dict)
+		grp_dict: Dictionary containing ground reference points for calculating the camera matrix
+		optimize_solution: Whether to optimize the camera solution
+		image_path: Path to image for orthorectification
+		ortho_resolution: Resolution for orthorectified output
+		flip_x: Whether to flip the x-axis orientation in the orthorectified image (default: False)
+		flip_y: Whether to flip the y-axis orientation in the orthorectified image (default: True)
+		confidence: Confidence level for uncertainty ellipses
+		full_grp_dict: Original full dataset for error calculation (if None, uses grp_dict)
 
 	Returns:
-	    Dict containing camera solution parameters
+		Dict containing camera solution parameters including projected points
 	"""
 	# Input validation and conversion
 	required_keys = ["X", "Y", "Z", "x", "y"]
@@ -484,6 +500,7 @@ def get_camera_solution(
 
 	result = {}
 
+	# Get the camera matrix
 	if optimize_solution:
 		try:
 			num_points, best_indices, best_error, best_matrix = optimize_points_comprehensive(processed_dict)
@@ -491,46 +508,33 @@ def get_camera_solution(
 			if best_matrix is None:
 				raise OptimalCameraMatrixError("Failed to find optimal camera matrix")
 
-			# Calculate error using full dataset
-			world_coords = {"X": full_processed_dict["X"], "Y": full_processed_dict["Y"], "Z": full_processed_dict["Z"]}
-			projected_points = project_points(best_matrix, world_coords)
-			actual_points = np.column_stack((full_processed_dict["x"], full_processed_dict["y"]))
-			reprojection_errors = np.sqrt(np.sum((actual_points - projected_points) ** 2, axis=1))
-
-			result.update(
-				{
-					"camera_matrix": best_matrix.tolist(),
-					"camera_position": get_camera_center(best_matrix).tolist(),
-					"num_points": num_points,
-					"point_indices": best_indices,
-					"error": np.mean(reprojection_errors),
-					"reprojection_errors": reprojection_errors.tolist(),
-				}
-			)
+			camera_matrix = best_matrix
+			result.update({
+				"num_points": num_points,
+				"point_indices": best_indices,
+			})
 
 		except Exception as e:
 			raise OptimalCameraMatrixError(f"Optimization failed: {str(e)}")
 	else:
 		try:
 			camera_matrix = solve_c_matrix(processed_dict)
-
-			# Calculate error using full dataset
-			world_coords = {"X": full_processed_dict["X"], "Y": full_processed_dict["Y"], "Z": full_processed_dict["Z"]}
-			projected_points = project_points(camera_matrix, world_coords)
-			actual_points = np.column_stack((full_processed_dict["x"], full_processed_dict["y"]))
-			reprojection_errors = np.sqrt(np.sum((actual_points - projected_points) ** 2, axis=1))
-
-			result.update(
-				{
-					"camera_matrix": camera_matrix.tolist(),
-					"camera_position": get_camera_center(camera_matrix).tolist(),
-					"error": np.mean(reprojection_errors),
-					"reprojection_errors": reprojection_errors.tolist(),
-				}
-			)
-
 		except Exception as e:
 			raise OptimalCameraMatrixError(f"Failed to solve camera matrix: {str(e)}")
+
+	# Calculate error using full dataset
+	world_coords = {"X": full_processed_dict["X"], "Y": full_processed_dict["Y"], "Z": full_processed_dict["Z"]}
+	projected_points = project_points(camera_matrix, world_coords)
+	actual_points = np.column_stack((full_processed_dict["x"], full_processed_dict["y"]))
+	reprojection_errors = np.sqrt(np.sum((actual_points - projected_points) ** 2, axis=1))
+
+	result.update({
+		"camera_matrix": camera_matrix.tolist() if isinstance(camera_matrix, np.ndarray) else camera_matrix,
+		"camera_position": get_camera_center(camera_matrix).tolist(),
+		"error": np.mean(reprojection_errors),
+		"reprojection_errors": reprojection_errors.tolist(),
+		"projected_points": projected_points,  # Add projected points to the result
+	})
 
 	# Calculate uncertainty ellipses using the full dataset
 	uncertainty_ellipses = calculate_uncertainty_ellipses(actual_points, projected_points, confidence)
@@ -541,10 +545,11 @@ def get_camera_solution(
 		try:
 			ortho_img, extent = orthorectify_image(
 				image_path=image_path,
-				cam_solution=result,
+				cam_solution={"camera_matrix": camera_matrix},
 				grp_dict=processed_dict,
 				output_resolution=ortho_resolution,
-				southern_hemisphere=southern_hemisphere,
+				flip_x=flip_x,
+				flip_y=flip_y,
 			)
 			result.update({"ortho_image": ortho_img, "ortho_extent": extent})
 		except Exception as e:
@@ -558,12 +563,12 @@ def get_camera_center(P: np.ndarray) -> np.ndarray:
 	Calculate the camera center from the camera matrix P.
 
 	Parameters:
-	    P (np.ndarray): 3x4 camera projection matrix, where the first 3x3 submatrix
-	                   represents the camera orientation and the last column represents
-	                   the translation.
+		P (np.ndarray): 3x4 camera projection matrix, where the first 3x3 submatrix
+					   represents the camera orientation and the last column represents
+					   the translation.
 
 	Returns:
-	    np.ndarray: 3D camera center coordinates (X, Y, Z) in world coordinate system.
+		np.ndarray: 3D camera center coordinates (X, Y, Z) in world coordinate system.
 	"""
 	# Split P into M (first 3x3) and p4 (last column)
 	M = P[:, :3]
@@ -580,13 +585,13 @@ def calculate_real_world_distance(x1_rw: float, y1_rw: float, x2_rw: float, y2_r
 	Calculate the Euclidean distance between two points in real-world coordinates.
 
 	Parameters:
-	    x1_rw (float): X coordinate of the first point in real-world units.
-	    y1_rw (float): Y coordinate of the first point in real-world units.
-	    x2_rw (float): X coordinate of the second point in real-world units.
-	    y2_rw (float): Y coordinate of the second point in real-world units.
+		x1_rw (float): X coordinate of the first point in real-world units.
+		y1_rw (float): Y coordinate of the first point in real-world units.
+		x2_rw (float): X coordinate of the second point in real-world units.
+		y2_rw (float): Y coordinate of the second point in real-world units.
 
 	Returns:
-	    float: Distance between the two points in real-world units.
+		float: Distance between the two points in real-world units.
 	"""
 	return np.sqrt((x2_rw - x1_rw) ** 2 + (y2_rw - y1_rw) ** 2)
 
@@ -596,17 +601,17 @@ def get_pixel_size(x1_pix, y1_pix, x2_pix, y2_pix, x1_rw, y1_rw, x2_rw, y2_rw):
 	Compute the pixel size based on known distances in both pixel and real-world units.
 
 	Parameters:
-	    x1_pix (float): X coordinate of the first point in pixels.
-	    y1_pix (float): Y coordinate of the first point in pixels.
-	    x2_pix (float): X coordinate of the second point in pixels.
-	    y2_pix (float): Y coordinate of the second point in pixels.
-	    x1_rw (float): X coordinate of the first point in real-world units.
-	    y1_rw (float): Y coordinate of the first point in real-world units.
-	    x2_rw (float): X coordinate of the second point in real-world units.
-	    y2_rw (float): Y coordinate of the second point in real-world units.
+		x1_pix (float): X coordinate of the first point in pixels.
+		y1_pix (float): Y coordinate of the first point in pixels.
+		x2_pix (float): X coordinate of the second point in pixels.
+		y2_pix (float): Y coordinate of the second point in pixels.
+		x1_rw (float): X coordinate of the first point in real-world units.
+		y1_rw (float): Y coordinate of the first point in real-world units.
+		x2_rw (float): X coordinate of the second point in real-world units.
+		y2_rw (float): Y coordinate of the second point in real-world units.
 
 	Returns:
-	    float: The size of a pixel in real-world units.
+		float: The size of a pixel in real-world units.
 	"""
 	pixel_distance = np.sqrt((x2_pix - x1_pix) ** 2 + (y2_pix - y1_pix) ** 2)
 	real_world_distance = np.sqrt((x2_rw - x1_rw) ** 2 + (y2_rw - y1_rw) ** 2)
@@ -628,36 +633,36 @@ def get_uav_transformation_matrix(
 	max_dimension: int = 500,
 	min_resolution: float = 0.01,
 	flip_x: bool = False,
-	flip_y: bool = True,
+	flip_y: bool = True
 ) -> dict:
 	"""
 	Compute the transformation matrix from pixel to real-world coordinates from 2 points.
 	Optionally transforms an image using the calculated transformation matrix.
 
 	Parameters:
-	    x1_pix (float): X coordinate of the first point in pixels.
-	    y1_pix (float): Y coordinate of the first point in pixels.
-	    x2_pix (float): X coordinate of the second point in pixels.
-	    y2_pix (float): Y coordinate of the second point in pixels.
-	    x1_rw (float): X coordinate of the first point in real-world units.
-	    y1_rw (float): Y coordinate of the first point in real-world units.
-	    x2_rw (float): X coordinate of the second point in real-world units.
-	    y2_rw (float): Y coordinate of the second point in real-world units.
-	    pixel_size (Optional[float]): Pixel size in real-world units. If None, calculated from the input points.
-	    image_path (Optional[str]): Path to the input image. If None, no image transformation is performed.
-	    roi_padding (float): Optional padding as a fraction of the ROI dimensions (default: 0.1).
-	    max_dimension (int): Maximum pixel dimension (width or height) for the output image
-	    min_resolution (float): Minimum resolution in real-world units per pixel
-	    flip_x (bool): Whether to flip the transformed image horizontally
-	    flip_y (bool): Whether to flip the transformed image vertically
+		x1_pix (float): X coordinate of the first point in pixels.
+		y1_pix (float): Y coordinate of the first point in pixels.
+		x2_pix (float): X coordinate of the second point in pixels.
+		y2_pix (float): Y coordinate of the second point in pixels.
+		x1_rw (float): X coordinate of the first point in real-world units.
+		y1_rw (float): Y coordinate of the first point in real-world units.
+		x2_rw (float): X coordinate of the second point in real-world units.
+		y2_rw (float): Y coordinate of the second point in real-world units.
+		pixel_size (Optional[float]): Pixel size in real-world units. If None, calculated from the input points.
+		image_path (Optional[str]): Path to the input image. If None, no image transformation is performed.
+		roi_padding (float): Optional padding as a fraction of the ROI dimensions (default: 0.1).
+		max_dimension (int): Maximum pixel dimension (width or height) for the output image
+		min_resolution (float): Minimum resolution in real-world units per pixel
+		flip_x (bool): Whether to flip the transformed image horizontally
+		flip_y (bool): Whether to flip the transformed image vertically
 
 	Returns:
-	    dict: Dictionary containing:
-	        - 'transformation_matrix': 3x3 transformation matrix
-	        If image_path is provided, also includes:
-	        - 'transformed_img': Transformed image
-	        - 'extent': [x_min, x_max, y_min, y_max] for plotting
-	        - 'output_resolution': The resolution of the output image in real-world units per pixel
+		dict: Dictionary containing:
+			- 'transformation_matrix': 3x3 transformation matrix
+			If image_path is provided, also includes:
+			- 'transformed_img': Transformed image
+			- 'extent': [x_min, x_max, y_min, y_max] for plotting
+			- 'output_resolution': The resolution of the output image in real-world units per pixel
 	"""
 	# Step 1: Calculate pixel size
 	if pixel_size is None:
@@ -689,7 +694,9 @@ def get_uav_transformation_matrix(
 	transformation_matrix = np.dot(scale_translation_matrix, rotation_matrix)
 
 	# Initialize result dictionary with the transformation matrix
-	result = {"transformation_matrix": transformation_matrix.tolist()}
+	result = {
+		'transformation_matrix': transformation_matrix
+	}
 
 	# Calculate and apply image transformation if image_path is provided
 	if image_path is not None:
@@ -713,12 +720,12 @@ def get_uav_transformation_matrix(
 			max_dimension=max_dimension,
 			min_resolution=min_resolution,
 			flip_x=flip_x,
-			flip_y=flip_y,
+			flip_y=flip_y
 		)
 
 		# Add the transformed image and extent to the result dictionary
-		result["transformed_img"] = transformed_img
-		result["extent"] = extent
+		result['transformed_img'] = transformed_img
+		result['extent'] = extent
 
 		# Calculate the actual resolution achieved
 		x_idx = 0 if extent[0] < extent[1] else 1
@@ -726,21 +733,24 @@ def get_uav_transformation_matrix(
 		x_ext = abs(extent[1] - extent[0])
 		y_ext = abs(extent[3] - extent[2])
 
-		result["output_resolution"] = max(x_ext / transformed_img.shape[1], y_ext / transformed_img.shape[0])
+		result['output_resolution'] = max(
+			x_ext / transformed_img.shape[1],
+			y_ext / transformed_img.shape[0]
+		)
 
 	return result
 
 
 def calculate_roi(
-	x1_pix: float,
-	y1_pix: float,
-	x2_pix: float,
-	y2_pix: float,
-	x3_pix: float,
-	y3_pix: float,
-	x4_pix: float,
-	y4_pix: float,
-	padding: float = 0.0,
+		x1_pix: float,
+		y1_pix: float,
+		x2_pix: float,
+		y2_pix: float,
+		x3_pix: float,
+		y3_pix: float,
+		x4_pix: float,
+		y4_pix: float,
+		padding: float = 0.0
 ) -> tuple:
 	"""
 	Calculate a rectangular region of interest (ROI) that frames the four points.
@@ -784,26 +794,26 @@ def calculate_roi(
 
 
 def oblique_view_transformation_matrix(
-	x1_pix: float,
-	y1_pix: float,
-	x2_pix: float,
-	y2_pix: float,
-	x3_pix: float,
-	y3_pix: float,
-	x4_pix: float,
-	y4_pix: float,
-	d12: float,
-	d23: float,
-	d34: float,
-	d41: float,
-	d13: float,
-	d24: float,
-	image_path: Optional[str] = None,
-	roi_padding: float = 0.1,
-	max_dimension: int = 500,
-	min_resolution: float = 0.01,
-	flip_x: bool = False,
-	flip_y: bool = True,
+		x1_pix: float,
+		y1_pix: float,
+		x2_pix: float,
+		y2_pix: float,
+		x3_pix: float,
+		y3_pix: float,
+		x4_pix: float,
+		y4_pix: float,
+		d12: float,
+		d23: float,
+		d34: float,
+		d41: float,
+		d13: float,
+		d24: float,
+		image_path: Optional[str] = None,
+		roi_padding: float = 0.1,
+		max_dimension: int = 500,
+		min_resolution: float = 0.01,
+		flip_x: bool = False,
+		flip_y: bool = True
 ) -> dict:
 	"""
 	Combined function to calculate transformation matrix, ROI, and optionally orthorectify an image
@@ -851,10 +861,16 @@ def oblique_view_transformation_matrix(
 	transformation_matrix = np.linalg.inv(H)
 
 	# Calculate the ROI with padding
-	roi_rect = calculate_roi(x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix, padding=roi_padding)
+	roi_rect = calculate_roi(
+		x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix,
+		padding=roi_padding
+	)
 
 	# Initialize result dictionary with transformation matrix and ROI
-	result = {"transformation_matrix": transformation_matrix.tolist(), "roi": roi_rect}
+	result = {
+		'transformation_matrix': transformation_matrix,
+		'roi': roi_rect
+	}
 
 	# Load and orthorectify the image if image_path is provided
 	if image_path is not None:
@@ -876,12 +892,12 @@ def oblique_view_transformation_matrix(
 			max_dimension=max_dimension,
 			min_resolution=min_resolution,
 			flip_x=flip_x,
-			flip_y=flip_y,
+			flip_y=flip_y
 		)
 
 		# Add orthorectification results to the dictionary
-		result["transformed_img"] = transformed_img
-		result["extent"] = extent
+		result['transformed_img'] = transformed_img
+		result['extent'] = extent
 
 		# Calculate the actual resolution achieved
 		x_idx = 0 if extent[0] < extent[1] else 1
@@ -889,7 +905,10 @@ def oblique_view_transformation_matrix(
 		x_ext = abs(extent[1] - extent[0])
 		y_ext = abs(extent[3] - extent[2])
 
-		result["output_resolution"] = max(x_ext / transformed_img.shape[1], y_ext / transformed_img.shape[0])
+		result['output_resolution'] = max(
+			x_ext / transformed_img.shape[1],
+			y_ext / transformed_img.shape[0]
+		)
 
 	return result
 
@@ -899,12 +918,12 @@ def transform_pixel_to_real_world(x_pix: float, y_pix: float, transformation_mat
 	Transform pixel coordinates to 2 components real-world coordinates.
 
 	Parameters:
-	    x_pix (float): X coordinate in pixels.
-	    y_pix (float): Y coordinate in pixels.
-	    transformation_matrix (np.ndarray): The transformation matrix.
+		x_pix (float): X coordinate in pixels.
+		y_pix (float): Y coordinate in pixels.
+		transformation_matrix (np.ndarray): The transformation matrix.
 
 	Returns:
-	    np.ndarray: An array containing the real-world coordinates [x, y].
+		np.ndarray: An array containing the real-world coordinates [x, y].
 	"""
 	# Create the pixel coordinate vector in homogeneous coordinates
 	pixel_vector = np.array([x_pix, y_pix, 1])
@@ -923,12 +942,12 @@ def transform_real_world_to_pixel(x_rw: float, y_rw: float, transformation_matri
 	Transform 2 components real-world coordinates to pixel coordinates.
 
 	Parameters:
-	    x_rw (float): X coordinate in real-world units.
-	    y_rw (float): Y coordinate in real-world units.
-	    transformation_matrix (np.ndarray): The transformation matrix.
+		x_rw (float): X coordinate in real-world units.
+		y_rw (float): Y coordinate in real-world units.
+		transformation_matrix (np.ndarray): The transformation matrix.
 
 	Returns:
-	    np.ndarray: An array containing the pixel coordinates [x, y].
+		np.ndarray: An array containing the pixel coordinates [x, y].
 	"""
 	# Invert the transformation matrix to map from pixel to real-world coordinates
 	inv_transformation_matrix = np.linalg.inv(transformation_matrix)
@@ -952,12 +971,12 @@ def convert_displacement_field(
 	Convert pixel displacement field to real-world displacement field.
 
 	Parameters:
-	    X, Y (2D np.ndarray): Pixel coordinates.
-	    U, V (2D np.ndarray): Pixel displacements.
-	    transformation_matrix (np.ndarray): Transformation matrix from pixel to real-world coordinates.
+		X, Y (2D np.ndarray): Pixel coordinates.
+		U, V (2D np.ndarray): Pixel displacements.
+		transformation_matrix (np.ndarray): Transformation matrix from pixel to real-world coordinates.
 
 	Returns:
-	    EAST, NORTH, Displacement_EAST, Displacement_NORTH (all 2D np.ndarrays): Real-world coordinates and displacements.
+		EAST, NORTH, Displacement_EAST, Displacement_NORTH (all 2D np.ndarrays): Real-world coordinates and displacements.
 	"""
 	# Get the shape of the input matrices
 	rows, cols = X.shape
@@ -992,15 +1011,15 @@ def optimize_coordinates(d12: float, d23: float, d34: float, d41: float, d13: fl
 	Optimize the coordinates of points 3 and 4 based on the given distances.
 
 	Parameters:
-	    d12 (float): Distance between point 1 and point 2.
-	    d23 (float): Distance between point 2 and point 3.
-	    d34 (float): Distance between point 3 and point 4.
-	    d41 (float): Distance between point 4 and point 1.
-	    d13 (float): Distance between point 1 and point 3.
-	    d24 (float): Distance between point 2 and point 4.
+		d12 (float): Distance between point 1 and point 2.
+		d23 (float): Distance between point 2 and point 3.
+		d34 (float): Distance between point 3 and point 4.
+		d41 (float): Distance between point 4 and point 1.
+		d13 (float): Distance between point 1 and point 3.
+		d24 (float): Distance between point 2 and point 4.
 
 	Returns:
-	    tuple: Optimized coordinates (east_3_opt, north_3_opt, east_4_opt, north_4_opt)
+		tuple: Optimized coordinates (east_3_opt, north_3_opt, east_4_opt, north_4_opt)
 	"""
 
 	# Coordinates for points 1 and 2 (given)
