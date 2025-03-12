@@ -527,7 +527,7 @@ def get_camera_solution(
 			"camera_position": get_camera_center(camera_matrix).tolist(),
 			"error": np.mean(reprojection_errors),
 			"reprojection_errors": reprojection_errors.tolist(),
-			"projected_points": projected_points,  # Add projected points to the result
+			"projected_points": projected_points.tolist(),  # Add projected points to the result
 		}
 	)
 
