@@ -157,6 +157,9 @@ export const useProjectSlice = () => {
     const onLoadProject = async () => {
         dispatch(setLoading(true))
         const ipcRenderer = window.ipcRenderer
+
+        let zLimits = undefined
+
         try {
             const result = await ipcRenderer.invoke('load-project')
             if(result.success){
@@ -202,9 +205,13 @@ export const useProjectSlice = () => {
                     if ( settings.control_points ){
                         onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints, orthoImage, settings.transformation)
                     }
-
+                    
                     if ( settings.grp_3d ){
-                        onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+                        const { zMin, zMax } = onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+                        zLimits = {
+                            min: zMin,
+                            max: zMax
+                        }
                     }
 
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
@@ -213,7 +220,7 @@ export const useProjectSlice = () => {
                     dispatch(setProcessingMask({ mask: filePrefix + mask, bbox: bbox }))
 
                     // * Load cross sections
-                    const STEP = onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer, setSummary)
+                    const STEP = onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer, setSummary, zLimits)
     
                     if ( settings.processing ){
                         onLoadProcessingForm(settings.processing, dispatch, updateProcessingForm)
@@ -264,7 +271,11 @@ export const useProjectSlice = () => {
                     }
                     
                     if ( settings.grp_3d ){
-                        onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+                        const { zMin, zMax } = onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+                        zLimits = {
+                            min: zMin,
+                            max: zMax
+                        }
                     }
 
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
@@ -273,7 +284,7 @@ export const useProjectSlice = () => {
                     dispatch(setProcessingMask({ mask: filePrefix + mask, bbox: bbox }))
 
                     // * Load cross sections
-                    onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer)
+                    onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer, undefined, zLimits)
 
                     if ( settings.processing ){
                         onLoadProcessingForm(settings.processing, dispatch, updateProcessingForm)
@@ -294,7 +305,6 @@ export const useProjectSlice = () => {
                     return MODULE_NUMBER.CROSS_SECTIONS
                 } else if (settings.grp_3d){
                     onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
-
                     return MODULE_NUMBER.CROSS_SECTIONS
                 }
                 

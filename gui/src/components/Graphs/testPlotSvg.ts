@@ -85,10 +85,10 @@ export const testPlotSvg = ({ svgElement, quiver, t } : { svgElement: SVGSVGElem
         .append('clipPath')
         .attr('id', 'clip')
         .append('rect')
-        .attr('x', margin.left)
-        .attr('y', margin.top)
-        .attr('width', width - margin.left - margin.right)
-        .attr('height', height - margin.top - margin.bottom);
+        .attr('x', margin.left - 10)
+        .attr('y', margin.top - 10)
+        .attr('width', width - margin.left - margin.right + 20)
+        .attr('height', height - margin.top - margin.bottom + 20);
 
     // Create scatter plot circles with clip path and interaction
     svg.append('g')
@@ -143,7 +143,8 @@ export const testPlotSvg = ({ svgElement, quiver, t } : { svgElement: SVGSVGElem
         .attr('fill', 'none')
         .attr('stroke', 'white')
         .attr('stroke-width', 1)
-        .attr('opacity', 0.3);
+        .attr('opacity', 0.3)
+        .attr('clip-path', 'url(#clip)');
 
     // Append mean point to the SVG
     svg.append('circle')

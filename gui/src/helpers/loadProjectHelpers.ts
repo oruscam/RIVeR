@@ -100,7 +100,7 @@ const onLoadObliquePoints = (control_points: control_points, dispatch: any, setC
  * @param sections - sections state. By default we have pixel_size and CS_default_1. In the first lop on the xsections we update the CS_default_1 section. And then we add the rest of the sections.
  */
 
-const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary?: any) => {
+const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary?: any, zLimits?: {min: number, max: number}) => {
     let flag = true
     let flagData = false
     Object.entries(values).forEach( async ([key, value]: [ string, XSectionValue ]) => {
@@ -115,7 +115,7 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
                 dispatch(setSummary(values.summary))
                 return
             }
-            const { line, name } = await ipcRenderer.invoke('get-bathimetry', { path: bath })
+            const { line, name } = await ipcRenderer.invoke('get-bathimetry', { path: bath, zLimits: zLimits })
             const { data } = getBathimetryValues(line, level)
             const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = data? data : { yMax: 0, yMin: 0, xMax: 0, xMin: 0, x1Intersection: 0, x2Intersection: 0, width: 0 }
 
@@ -191,7 +191,6 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
 const onLoadProcessingForm = ( values: ProcessingValues, dispatch: any, updateForm: any ) => {
     const { artificial_seeding, clahe, clip_limit, grayscale, median_test_epsilon, median_test_filtering, median_test_threshold, remove_background, std_filtering, std_threshold, interrogation_area_1, interrogation_area_2, roi_height } = values
 
-    console.log('onLoadProcessingForm - helpers', values)
 
     dispatch(updateForm({
         artificialSeeding: artificial_seeding,
@@ -232,7 +231,15 @@ const onLoad3dRectification = (
     delete cameraSolution.projectedPoints
     delete cameraSolution.uncertaintyEllipses
 
-    dispatch(setIpcamPoints({ points: newImportedPoints, path: undefined, counter: numPoints }))
+    let zMin = Infinity
+    let zMax = -Infinity
+
+    newImportedPoints.forEach((point) => {
+        if (point.Z > zMax) zMax = point.Z
+        if (point.Z < zMin) zMin = point.Z
+    })
+
+    dispatch(setIpcamPoints({ points: newImportedPoints, path: undefined, counter: numPoints, zLimits: { min: zMin, max: zMax } }))
     dispatch(setCameraSolution({
         ...cameraSolution,
         orthoImagePath: filePrefix + cameraSolution.orthoImagePath,
@@ -244,6 +251,8 @@ const onLoad3dRectification = (
     if ( images !== undefined ){
         dispatch(setIpcamImages({ images: images, path: images }))
     }
+
+    return { zMin, zMax }
 }
 
 export { 

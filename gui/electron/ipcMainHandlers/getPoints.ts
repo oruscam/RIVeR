@@ -29,11 +29,15 @@ async function getPoints(){
             const sheet = workbook.Sheets[sheetName];
 
             let values = utils.sheet_to_json(sheet, { header: 1 });
-            const points = transformPoints(values as [[]])
+            const { points, zMax, zMin} = transformPoints(values as [[]])
 
             return {
                 data: {
                     points: points,
+                    zLimits: {
+                        min: zMin,
+                        max: zMax
+                    },
                     path: pointsPath
                 }
             };
@@ -46,18 +50,20 @@ async function getPoints(){
     })
 }
 
-function transformPoints(points: [[]]){
-
+function transformPoints(points: [[]]) {
     if (points[0].length < 4) {
         throw new Error('invalidPointsFileFormat');
     }
 
+    let zMax = -Infinity;
+    let zMin = Infinity;
+
     const newPoints = points.map((point: string[], index) => {
-        const key = index
+        const key = index;
         const label = point[0];
 
-        if ( typeof label === 'string' && label.toUpperCase() === 'LABEL' && typeof point[1] === 'string' && typeof point[2] === 'string' && typeof point[3] === 'string'){ 
-            return undefined
+        if (typeof label === 'string' && label.toUpperCase() === 'LABEL' && typeof point[1] === 'string' && typeof point[2] === 'string' && typeof point[3] === 'string') {
+            return undefined;
         }
 
         const X = parseFloat(Number(point[1]).toFixed(2));
@@ -65,22 +71,25 @@ function transformPoints(points: [[]]){
         const Z = parseFloat(Number(point[3]).toFixed(2));
         let x = 0;
         let y = 0;
-        let wasEstablished = false
+        let wasEstablished = false;
 
-        if ( isNaN(x) || isNaN(Y) || isNaN(Z) ){
+        if (isNaN(X) || isNaN(Y) || isNaN(Z)) {
             throw new Error('invalidPointsFileFormat');
         }
-        
-        if ( point.length > 4){ 
+
+        if (point.length > 4) {
             x = parseFloat(Number(point[4]).toFixed(1));
             y = parseFloat(Number(point[5]).toFixed(1));
-            wasEstablished = true
+            wasEstablished = true;
         }
 
-        return { key, index, label, X, Y, Z, x, y, selected: true, wasEstablished }
-    }).filter((point) => point !== undefined)
+        if (Z > zMax) zMax = Z;
+        if (Z < zMin) zMin = Z;
 
-    return newPoints
+        return { key, index, label, X, Y, Z, x, y, selected: true, wasEstablished };
+    }).filter((point) => point !== undefined);
+
+    return { points: newPoints, zMax, zMin };
 }
 
 export { getPoints }

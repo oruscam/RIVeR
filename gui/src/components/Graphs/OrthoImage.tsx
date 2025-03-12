@@ -72,12 +72,6 @@ export const OrthoImage = ({ solution } : { solution : { orthoImage: string, ext
             .call(d3.axisLeft(yScale).ticks(5))
             .selectAll('text')
             .style('font-size', '12px');
-
-        svg.append('circle')
-            .attr('cx', xScale(0))
-            .attr('cy', yScale(0))
-            .attr('r', 3)
-            .attr('fill', 'blue');
     }, [solution, graphWidth]);
 
     return (

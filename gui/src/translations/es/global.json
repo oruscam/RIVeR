@@ -25,14 +25,14 @@
             "end3": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser 0 o menor que el ‘Inicio’. Ingrese un valor válido.",
             "step": "Selección de paso inválida: el parámetro 'Paso' debe ser un número entero mayor que 1. Ingrese un valor válido.",
             "required": "Todos los campos son obligatorios. Por favor consulte el formato del intervalo de vídeo.",
-            "formatInput": "Incorrect format. 'Start' and 'End' values must be in '00:00' format."
+            "formatInput": "Formato incorrecto. Formato de ‘Inicio’ y ‘Fin’ debe ser '00:00'."
         },
         "ExtraInfo" : {
             "fileName": "Nombre de Archivo: ",
             "totalLength": "Longitud Total: ",
-            "timeBetweenFrame": "Tiempro entre Cuadros: ",
+            "timeBetweenFrame": "Tiempo entre Imágenes: ",
             "resolution": "Resolución: ",
-            "numberOfFrames": "Number of Frames: "
+            "numberOfFrames": "Número de Imágenes: "
         }
     },
     "PixelSize": {
@@ -42,22 +42,22 @@
         "drawLine": "Dibujar Línea",
         "Errors": {
             "required" : "Todos los campos son obligatorios. Por favor consulte el formato de Tamaño de Píxel.",
-            "lineLength" : "Longitud de línea inválida: la longitud de línea debe ser un número positivo, que puede incluir decimales. Ingrese un valor válido.",
-            "pixelSize": "Invalid Pixel Size: The pixel size must be a positive number, which can include decimals. Please enter a valid value."
+            "lineLength" : "Longitud de línea inválida: la Longitud de Línea debe ser un número positivo, que puede incluir decimales. Ingrese un valor válido.",
+            "pixelSize": "Tamaño de Píxel inválido: el Tamaño de Píxel debe ser un número positive, que puede incluir decimales. Ingrese un valor válido."
         },
         "RealWorld": {
             "title": "Coordenadas Reales",
-            "eastPoint1": "Punto Este 1",
-            "eastPoint2": "Punto Este 2",
-            "northPoint1": "Punto Norte 1",
-            "northPoint2": "Punto Norte 2"
+            "eastPoint1": "Punto Este (1)",
+            "eastPoint2": "Punto Este (2)",
+            "northPoint1": "Punto Norte (1)",
+            "northPoint2": "Punto Norte (2)"
         }, 
         "Pixel": {
             "title": "Coordenadas de Píxel",
-            "xPoint1": "X Punto 1",
-            "xPoint2": "X Punto 2",
-            "yPoint1": "Y Punto 1",
-            "yPoint2": "Y Punto 2"
+            "xPoint1": "Punto X (1)",
+            "xPoint2": "Punto X (2)",
+            "yPoint1": "Punto Y (1)",
+            "yPoint2": "Punto Y (2)"
         }
     },
     "CrossSections": {
@@ -76,10 +76,10 @@
         }, 
         "Pixel" : {
             "title": "Coordenadas de Píxel",
-            "xPoint1": "X Izquierda",
-            "yPoint1": "Y Izquierda",
-            "xPoint2": "X Derecha",
-            "yPoint2": "Y Derecha"
+            "xPoint1": "Punto X (1)",
+            "yPoint1": "Punto Y (1)",
+            "xPoint2": "Punto X (2)",
+            "yPoint2": "Punto Y (2)"
         }, 
         "Errors" : {
             "levelError": "El Nivel debe ser entre {{yMin}} y {{yMax}}",
@@ -90,7 +90,7 @@
     "Processing": {
         "title": "Procesando",
         "artificialSeeding": "Sembrado Artificial",
-        "windowSizes": "Tamaños de Ventanas",
+        "windowSizes": "Tamaño de Ventanas",
         "step1": "Paso 1",
         "step2": "Paso 2",
         "test" : "Chequear",
@@ -101,14 +101,14 @@
         "clahe": "CLAHE",
         "clipLimit": "Límite de clip",
         "postProcessingFilter": "Filtro de Posprocesamiento",
-        "stdFiltering": "Std filtering",
-        "medianTestFiltering" : "Median test filtering",
+        "stdFiltering": "Filtro Desv. Est",
+        "medianTestFiltering " : "Prueba de Filtro de Mediana",
         "epsilon": "Epsilon",
         "threshold": "Umbral",
         "carouselMedia": "Media",
         "Plot": {
-            "u" : "U Component",
-            "v" : "V Component"
+            "u" : "Componente U",
+            "v" : "Component V"
         }
     },
     "Analizing": {
@@ -125,7 +125,7 @@
         "showVelStd" : "Mostrar Desv. de Vel.",
         "showProfile": "Mostrar 5% | 95% por ciento",
         "interpolateProfile": "Interpolar Perfil",
-        "applyChanges" : "Apicar Cambios"
+        "applyChanges" : "Aplicar Cambios"
     },
     "Graphs": {
         "station": "Estación",
@@ -134,8 +134,7 @@
         "level": "Nivel"
     },
     "Report": {
-        "totalQ": "Q Total",
-        "dischargeQ": "Discharge Q: ",
+        "dischargeQ": "Caudal Q: ",
         "VideoInfo": {
             "title": "Información de Video",
             "name": "Nombre",
@@ -160,8 +159,8 @@
             "meanV": "Vmedia",
             "alpha": "Alfa",
             "averageVs": "Vs Promedio",
-            "maxD": "d Max",
-            "meanD": "d Medio",
+            "maxD": "D Max",
+            "meanD": "D Medio",
             "measured": "% Medido",
             "mean": "Medio",
             "stdDev": "Desv. Estándar",
@@ -169,17 +168,16 @@
         },
         "pixelTransformation": "Transformación de Píxel",
         "processingParameters" : "Parámetros de Procesamiento",
-        "preProcessing" : "Pre-Procesamiento",
-        "postProcessing:" : "Post-Procesamiento",
-        "generatedBy" : "Generado con River",
-        "date" : "Fecha de creación del Reporte",
+        "preProcessing" : "Preprocesamiento",
+        "postProcessing:" : "Posprocesamiento",
+        "generatedBy" : "Generado con RIVeR",
+        "date" : "Fecha de creación de Reporte",
         "Success" : {
             "title": "¡Análisis completo!",
             "message": "Has completado todos los pasos correctamente. Revisa los resultados y guárdalos como HTML. Puedes cerrar la ventana en la que se guardó su proyecto."
         }
     },
     "ControlPoints" : {
-        "title": "Puntos de Control",
         "drawPoints": "Dibujar Puntos",
         "importDistances": "Importar Distancias",
         "distance": "Distancia",
@@ -206,29 +204,28 @@
         "cameraHeight": "Altura de Cámara"
     },
     "Errors": {
-        "invalidDistancesFormat" : "Formato de distancias no válido",
+        "invalidDistancesFormat" : "Formato de distancias inválido",
         "imagesFolderEmpty" : "No se encontraron imágenes en la carpeta seleccionada",
         "invalidImageExtension": "El directorio contiene archivos que no son imágenes.",
-        "waitingForFrames": "We are waiting for the frames to be loaded. Please try again in a few seconds",
-        "invalidPointsFileFormat": "Invalid Points file format.",
-        "invalidDistancesFileFormat" : "Invalid Points Distances format",
-        "invalidDistancesNotValidValue" : "Invalid Points Distances format. Some distance values are not valid numbers",
-        "invalidDistancesNegativeValue": "Invalid Points Distances format. Negative distances are not allowed",
-        "invalidBathimetryFileFormat" : "Invalid Bathimetry file format",
+        "waitingForFrames": " Esperando que se carguen las imágenes. Intente nuevamente en unos segundos",
+        "invalidPointsFileFormat": "Formato de puntos inválido.",
+        "invalidDistancesFileFormat" : "Formato de distancias de puntos inválido.",
+        "invalidDistancesNotValidValue" : "Formato de distancias de puntos inválido. Algunos valores de distancias no son números válidos.",
+        "invalidDistancesNegativeValue": "Formato de distancias de puntos inválido. No se permiten valores vegativos de distancias.",
+        "invalidBathimetryFileFormat" : "Formato de Batimetría inválido ",
         "Cli": {
             "windowsSizesError" : "El tamaño de la ventana es demasiado grande para la Región De Interés seleccionada.",
             "bboxNotDefined" : "Región De Interés no definida."
         }
     },
     "Loader": {
-        "extractingFrames" : "Extracting Video Frames",
-        "results" : "Generating velocity profile statistics",
-        "videoConversion" : "We are converting the video to mp4 format. Please wait a moment.",
-        "maskAndRoi": "Defining ROI and masks"
+        "extractingFrames" : "Extrayendo imágenes de video ",
+        "results" : " Generando estadísticas del perfil de velocidad",
+        "videoConversion" : "Convirtiendo el video a formato mp4. Por favor espere.",
+        "maskAndRoi": "Definiendo RDI y máscaras"
     },
     "Commons": {
         "yes": "Si",
-        "no": "No",
-        "solve": "Resolver"
+        "no": "No"
     }
 }

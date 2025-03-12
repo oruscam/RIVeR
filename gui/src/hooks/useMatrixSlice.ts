@@ -172,7 +172,7 @@ export const useMatrixSlice = () => {
                 throw new Error(error.message)
             }
 
-            dispatch(setIpcamPoints({ points: data.points, path: data.path, counter: data.points.length }));
+            dispatch(setIpcamPoints({ points: data.points, path: data.path, counter: data.points.length, zLimits: data.zLimits }));
             dispatch(setIpcamCameraSolution(undefined))
         } catch (error) {
             if ( error instanceof Error ){

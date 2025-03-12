@@ -134,7 +134,6 @@
         "level": "Level"
     },
     "Report": {
-        "totalQ": "Total Q",
         "discahrgeQ": "Discharge Q",
         "VideoInfo": {
             "title": "Video Information",

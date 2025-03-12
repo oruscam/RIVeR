@@ -132,6 +132,15 @@ const drawPoints = (
     xScale: d3.ScaleLinear<number, number>,
     yScale: d3.ScaleLinear<number, number>
 ) => {
+    // Ajustar los dominios de las escalas para incluir un margen adicional
+    const xDomain = xScale.domain();
+    const yDomain = yScale.domain();
+
+    const xPadding = (xDomain[1] - xDomain[0]) * 0.05;
+    const yPadding = (yDomain[1] - yDomain[0]) * 0.05;
+
+    xScale.domain([xDomain[0] - xPadding, xDomain[1] + xPadding]);
+    yScale.domain([yDomain[0] - yPadding, yDomain[1] + yPadding]);
 
     const line1 = svg.selectAll("line.cross")
         .data(points)
@@ -149,16 +158,18 @@ const drawPoints = (
         .enter()
         .append("line")
         .attr("class", "cross")
-        .attr("x1", d => margin.left + xScale(d.X) - 5)   
+        .attr("x1", d => margin.left + xScale(d.X) - 5)
         .attr("y1", d => margin.top + yScale(d.Y) + 5)
         .attr("x2", d => margin.left + xScale(d.X) + 5)
         .attr("y2", d => margin.top + yScale(d.Y) - 5)
-        .attr("stroke", (d, i) => i === activePoint ? COLORS.RED : d.selected === false ? COLORS.TRANSPARENT : COLORS.LIGHT_BLUE)        .attr("stroke-width", 2);
+        .attr("stroke", (d, i) => i === activePoint ? COLORS.RED : d.selected === false ? COLORS.TRANSPARENT : COLORS.LIGHT_BLUE)
+        .attr("stroke-width", 2);
 
     return {
         line1,
         line2
-    }
+    };
+
 }
 
 const drawAnalizeResult = (

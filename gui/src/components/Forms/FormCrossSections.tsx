@@ -50,7 +50,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   const handleImportBath = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     if ( type === 'ipcam'){
-      onGetBathimetry(ipcam.cameraSolution?.cameraMatrix)
+      onGetBathimetry(ipcam.cameraSolution?.cameraMatrix, ipcam.zLimits)
         // First error is when the bathimetry format is correct, but not the values
         .then( error => {
           if ( error?.message ){

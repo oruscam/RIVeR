@@ -278,7 +278,6 @@ export const useSectionSlice = () => {
 
         dispatch(updateSectionsCounter(sections.length))
         const data = adapterCrossSections(updatedSection);
-        console.log('set setctions data', data)
 
         /**
          * The sections are stored in the section slice.
@@ -506,11 +505,14 @@ export const useSectionSlice = () => {
         }
     }
 
-    const onGetBathimetry = async (cameraMatrix: number[][] | undefined) => {
+
+    const onGetBathimetry = async (cameraMatrix: number[][] | undefined, zLimits: { min: number, max: number } | undefined) => {
         const ipcRenderer = window.ipcRenderer;
 
+        console.log('zLinmits', zLimits)
+
         try {
-            const { path, line, name, error } = await ipcRenderer.invoke('get-bathimetry', { path: undefined } )
+            const { path, line, name, error } = await ipcRenderer.invoke('get-bathimetry', { path: undefined, zLimits } )
 
             if ( error?.message ){
                 throw new Error(error.message)

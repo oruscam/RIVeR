@@ -65,7 +65,7 @@ interface importedPoint {
     wasEstablished: boolean,
     image: undefined | number,
     ellipse: ellipse | undefined,
-    projectedPoint: [number, number] | undefined
+    projectedPoint: [number, number] | undefined,
 }
 
 interface factor {

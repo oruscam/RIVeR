@@ -17,7 +17,9 @@ async function getBathimetry() {
 
     // Handle the 'get-bathimetry' IPC event
     ipcMain.handle('get-bathimetry', async (_event, args) => {
-        const { path } = args;
+        const { path, zLimits } = args;
+
+        console.log('zLimits', zLimits)
 
         try {
             let bathPath: string = path;
@@ -51,9 +53,6 @@ async function getBathimetry() {
                 const y = parseFloat(row[keys[1]]);
 
                 if ( (isNaN(x) || isNaN(y)) && index !== 0 ) {
-                    console.log('invalidBathimetryFileFormat')
-                    console.log('x', x, 'y', y)
-                    console.log('index', index)
                     throw new Error('invalidBathimetryFileFormat');
                 }
 
@@ -70,11 +69,9 @@ async function getBathimetry() {
             const { isDecreced, isDepth } = analyzeLine(line, maxYIndex);
 
             // Transform the line if necessary
-            const { newLine, changed } = transformLine(line, isDecreced, isDepth, maxY);
+            const { newLine, changed } = transformLine(line, isDecreced, isDepth, maxY, zLimits?.min);
 
-            line = newLine
-
-            // If the line was changed, write the new data back to the file
+            // // If the line was changed, write the new data back to the file
             // if (changed) {
             //     // Convert the JSON back to a sheet
             //     const newSheet = utils.json_to_sheet(newLine);
@@ -85,6 +82,8 @@ async function getBathimetry() {
             //     // Write the workbook back to the file system
             //     await writeFile(workbook, bathPath);
             // }
+
+            line = newLine
 
             // Return the path, name, line data, and whether it was changed
             return { path: bathPath, name: bathimetryName, line: line, changed: changed };
@@ -105,7 +104,7 @@ const analyzeLine = (line: { x: number, y: number }[], maxYIndex: number) => {
 };
 
 // Transform the line to be in the correct order and convert depth bathymetry to level bathymetry if needed
-const transformLine = (line, isDecreced, isDepth, maxY) => {
+const transformLine = (line, isDecreced: boolean, isDepth: boolean, maxY: number, zMin?: number) => {
     let newLine = [];
 
     // First transform the line as before
@@ -118,8 +117,16 @@ const transformLine = (line, isDecreced, isDepth, maxY) => {
             newLine.push(line[i]);
         }
     } else if (isDepth) {
-        for (let i = 0; i < line.length; i++) {
-            newLine.push({ x: line[i].x, y: maxY - line[i].y });
+        console.log('inside is depth', zMin)
+        if ( zMin !== undefined ){
+            console.log('inside is depth', zMin)
+            for (let i = 0; i < line.length; i++) {
+                newLine.push({ x: line[i].x, y: (maxY - line[i].y) - maxY + zMin });
+            }
+        } else {
+            for (let i = 0; i < line.length; i++) {
+                newLine.push({ x: line[i].x, y: maxY - line[i].y });
+            }
         }
     } else {
         return { newLine: line, changed: false };

@@ -45,6 +45,10 @@ interface ipcam {
     cameraSolution: cameraSolution | undefined,
     hemisphere: 'southern-hemisphere' | 'northern-hemisphere',
     selectedCounter: number,
+    zLimits: {
+        min: number,
+        max: number,
+    }
 }
 
 interface pixelSolution {
@@ -66,7 +70,11 @@ interface pixelSize {
 interface setIpcamPointsInterface {
     points: importedPoint[],
     path: string | undefined,
-    counter: number
+    counter: number,
+    zLimits?: {
+        min: number,
+        max: number
+    }
 }
 
 interface setIpcamImagesInterface {

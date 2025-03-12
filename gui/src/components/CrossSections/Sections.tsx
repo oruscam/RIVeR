@@ -114,14 +114,13 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
                                                 onKeyDown={(event) => handleInputNameSection(event, index)}
                                                 onBlur={(event) => handleInputNameSection(event, index)}
                                             />
-    
                                         {
                                             canEdit && (
                                                 <button 
                                                     className="section-button1" 
                                                     id="delete" 
                                                     onClick={onClickButtonSection}
-                                                    disabled={!(activeSection === index ) || sections.length === 2}
+                                                    disabled={!(activeSection === index ) || sections.length === 1  }
                                                 >x</button>
                                             )
                                         }
@@ -138,7 +137,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
                             > + </button>
                 </div>)
             }
-            <span id="scroll-right"></span>
+            <span id="scroll-right"/>
         </div>
     </div>
   )

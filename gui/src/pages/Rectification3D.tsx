@@ -5,12 +5,14 @@ import { useMatrixSlice } from "../hooks/useMatrixSlice.ts"
 
 export const Rectification3D = () => {
     const { ipcam, onChangeActiveImage } = useMatrixSlice()
-    const { importedImages, activeImage } = ipcam
+    const { importedImages, activeImage, zLimits } = ipcam
     const { nextStep } = useWizard()
 
     const handleOnClickNext = () => {
         nextStep()
     }
+
+    console.log('z', zLimits)
 
     return (
         <div className="regular-page">
