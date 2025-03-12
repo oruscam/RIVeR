@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, Union
 import cv2
 import numpy as np
 from scipy.optimize import minimize
+
 from river.core.exceptions import OptimalCameraMatrixError
 
 
@@ -34,12 +35,12 @@ def get_homography_from_camera_matrix(P: np.ndarray, z_level: float) -> np.ndarr
 
 
 def orthorectify_image(
-		image_path: Path,
-		cam_solution: dict,
-		grp_dict: dict,
-		output_resolution: float = 0.1,
-		flip_x: bool = False,
-		flip_y: bool = False,
+	image_path: Path,
+	cam_solution: dict,
+	grp_dict: dict,
+	output_resolution: float = 0.1,
+	flip_x: bool = False,
+	flip_y: bool = False,
 ):
 	"""
 	Reproject an image onto real-world coordinates with high resolution output.
@@ -135,13 +136,13 @@ def orthorectify_image(
 
 
 def orthorectify_image_with_size_limit(
-		im_in: np.ndarray,
-		transformation_matrix: np.ndarray,
-		roi: Optional[Tuple[int, int, int, int]] = None,
-		max_dimension: int = 500,
-		min_resolution: float = 0.01,
-		flip_x: bool = False,
-		flip_y: bool = False
+	im_in: np.ndarray,
+	transformation_matrix: np.ndarray,
+	roi: Optional[Tuple[int, int, int, int]] = None,
+	max_dimension: int = 500,
+	min_resolution: float = 0.01,
+	flip_x: bool = False,
+	flip_y: bool = False,
 ) -> Tuple[np.ndarray, List[float]]:
 	"""
 	Transform an input image using a transformation matrix with a specified ROI,
@@ -177,12 +178,7 @@ def orthorectify_image_with_size_limit(
 	X, Y = np.meshgrid(x_coords, y_coords)
 
 	# Convert ROI corners to real-world coordinates to determine extent
-	corners = [
-		(x_min, y_min),
-		(x_max, y_min),
-		(x_min, y_max),
-		(x_max, y_max)
-	]
+	corners = [(x_min, y_min), (x_max, y_min), (x_min, y_max), (x_max, y_max)]
 
 	real_world_corners = [transform_pixel_to_real_world(x, y, transformation_matrix) for x, y in corners]
 	rw_x_coords = [corner[0] for corner in real_world_corners]
@@ -249,10 +245,7 @@ def orthorectify_image_with_size_limit(
 
 	# Perform remapping
 	transformed_img = cv2.remap(
-		im_in, map_x, map_y,
-		interpolation=cv2.INTER_LINEAR,
-		borderMode=cv2.BORDER_CONSTANT,
-		borderValue=[0, 0, 0]
+		im_in, map_x, map_y, interpolation=cv2.INTER_LINEAR, borderMode=cv2.BORDER_CONSTANT, borderValue=[0, 0, 0]
 	)
 
 	# Add alpha channel for transparency
@@ -264,6 +257,7 @@ def orthorectify_image_with_size_limit(
 	extent = [x_min_rw, x_max_rw, y_min_rw, y_max_rw]
 
 	return transformed_img, extent
+
 
 def calculate_uncertainty_ellipses(
 	actual_points: np.ndarray, projected_points: np.ndarray, confidence: float = 0.95
@@ -432,14 +426,14 @@ def optimize_points_comprehensive(
 
 
 def get_camera_solution(
-		grp_dict: Dict[str, Union[np.ndarray, List]],
-		optimize_solution: bool = False,
-		image_path: Optional[str] = None,
-		ortho_resolution: float = 0.01,
-		flip_x: bool = False,
-		flip_y: bool = True,
-		confidence: float = 0.95,
-		full_grp_dict: Optional[Dict[str, Union[np.ndarray, List]]] = None,
+	grp_dict: Dict[str, Union[np.ndarray, List]],
+	optimize_solution: bool = False,
+	image_path: Optional[str] = None,
+	ortho_resolution: float = 0.01,
+	flip_x: bool = False,
+	flip_y: bool = True,
+	confidence: float = 0.95,
+	full_grp_dict: Optional[Dict[str, Union[np.ndarray, List]]] = None,
 ) -> Dict[str, Union[np.ndarray, float, Tuple[int, ...], int, None]]:
 	"""
 	Get camera matrix, position, uncertainty ellipses, and optionally generate orthorectified image.
@@ -506,10 +500,12 @@ def get_camera_solution(
 				raise OptimalCameraMatrixError("Failed to find optimal camera matrix")
 
 			camera_matrix = best_matrix
-			result.update({
-				"num_points": num_points,
-				"point_indices": best_indices,
-			})
+			result.update(
+				{
+					"num_points": num_points,
+					"point_indices": best_indices,
+				}
+			)
 
 		except Exception as e:
 			raise OptimalCameraMatrixError(f"Optimization failed: {str(e)}")
@@ -525,13 +521,15 @@ def get_camera_solution(
 	actual_points = np.column_stack((full_processed_dict["x"], full_processed_dict["y"]))
 	reprojection_errors = np.sqrt(np.sum((actual_points - projected_points) ** 2, axis=1))
 
-	result.update({
-		"camera_matrix": camera_matrix.tolist() if isinstance(camera_matrix, np.ndarray) else camera_matrix,
-		"camera_position": get_camera_center(camera_matrix).tolist(),
-		"error": np.mean(reprojection_errors),
-		"reprojection_errors": reprojection_errors.tolist(),
-		"projected_points": projected_points,  # Add projected points to the result
-	})
+	result.update(
+		{
+			"camera_matrix": camera_matrix.tolist() if isinstance(camera_matrix, np.ndarray) else camera_matrix,
+			"camera_position": get_camera_center(camera_matrix).tolist(),
+			"error": np.mean(reprojection_errors),
+			"reprojection_errors": reprojection_errors.tolist(),
+			"projected_points": projected_points,  # Add projected points to the result
+		}
+	)
 
 	# Calculate uncertainty ellipses using the full dataset
 	uncertainty_ellipses = calculate_uncertainty_ellipses(actual_points, projected_points, confidence)
@@ -630,7 +628,7 @@ def get_uav_transformation_matrix(
 	max_dimension: int = 500,
 	min_resolution: float = 0.01,
 	flip_x: bool = False,
-	flip_y: bool = True
+	flip_y: bool = True,
 ) -> dict:
 	"""
 	Compute the transformation matrix from pixel to real-world coordinates from 2 points.
@@ -691,9 +689,7 @@ def get_uav_transformation_matrix(
 	transformation_matrix = np.dot(scale_translation_matrix, rotation_matrix)
 
 	# Initialize result dictionary with the transformation matrix
-	result = {
-		'transformation_matrix': transformation_matrix
-	}
+	result = {"transformation_matrix": transformation_matrix}
 
 	# Calculate and apply image transformation if image_path is provided
 	if image_path is not None:
@@ -717,12 +713,12 @@ def get_uav_transformation_matrix(
 			max_dimension=max_dimension,
 			min_resolution=min_resolution,
 			flip_x=flip_x,
-			flip_y=flip_y
+			flip_y=flip_y,
 		)
 
 		# Add the transformed image and extent to the result dictionary
-		result['transformed_img'] = transformed_img
-		result['extent'] = extent
+		result["transformed_img"] = transformed_img
+		result["extent"] = extent
 
 		# Calculate the actual resolution achieved
 		x_idx = 0 if extent[0] < extent[1] else 1
@@ -730,24 +726,21 @@ def get_uav_transformation_matrix(
 		x_ext = abs(extent[1] - extent[0])
 		y_ext = abs(extent[3] - extent[2])
 
-		result['output_resolution'] = max(
-			x_ext / transformed_img.shape[1],
-			y_ext / transformed_img.shape[0]
-		)
+		result["output_resolution"] = max(x_ext / transformed_img.shape[1], y_ext / transformed_img.shape[0])
 
 	return result
 
 
 def calculate_roi(
-		x1_pix: float,
-		y1_pix: float,
-		x2_pix: float,
-		y2_pix: float,
-		x3_pix: float,
-		y3_pix: float,
-		x4_pix: float,
-		y4_pix: float,
-		padding: float = 0.0
+	x1_pix: float,
+	y1_pix: float,
+	x2_pix: float,
+	y2_pix: float,
+	x3_pix: float,
+	y3_pix: float,
+	x4_pix: float,
+	y4_pix: float,
+	padding: float = 0.0,
 ) -> tuple:
 	"""
 	Calculate a rectangular region of interest (ROI) that frames the four points.
@@ -791,26 +784,26 @@ def calculate_roi(
 
 
 def oblique_view_transformation_matrix(
-		x1_pix: float,
-		y1_pix: float,
-		x2_pix: float,
-		y2_pix: float,
-		x3_pix: float,
-		y3_pix: float,
-		x4_pix: float,
-		y4_pix: float,
-		d12: float,
-		d23: float,
-		d34: float,
-		d41: float,
-		d13: float,
-		d24: float,
-		image_path: Optional[str] = None,
-		roi_padding: float = 0.1,
-		max_dimension: int = 500,
-		min_resolution: float = 0.01,
-		flip_x: bool = False,
-		flip_y: bool = True
+	x1_pix: float,
+	y1_pix: float,
+	x2_pix: float,
+	y2_pix: float,
+	x3_pix: float,
+	y3_pix: float,
+	x4_pix: float,
+	y4_pix: float,
+	d12: float,
+	d23: float,
+	d34: float,
+	d41: float,
+	d13: float,
+	d24: float,
+	image_path: Optional[str] = None,
+	roi_padding: float = 0.1,
+	max_dimension: int = 500,
+	min_resolution: float = 0.01,
+	flip_x: bool = False,
+	flip_y: bool = True,
 ) -> dict:
 	"""
 	Combined function to calculate transformation matrix, ROI, and optionally orthorectify an image
@@ -858,16 +851,10 @@ def oblique_view_transformation_matrix(
 	transformation_matrix = np.linalg.inv(H)
 
 	# Calculate the ROI with padding
-	roi_rect = calculate_roi(
-		x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix,
-		padding=roi_padding
-	)
+	roi_rect = calculate_roi(x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix, padding=roi_padding)
 
 	# Initialize result dictionary with transformation matrix and ROI
-	result = {
-		'transformation_matrix': transformation_matrix,
-		'roi': roi_rect
-	}
+	result = {"transformation_matrix": transformation_matrix, "roi": roi_rect}
 
 	# Load and orthorectify the image if image_path is provided
 	if image_path is not None:
@@ -889,12 +876,12 @@ def oblique_view_transformation_matrix(
 			max_dimension=max_dimension,
 			min_resolution=min_resolution,
 			flip_x=flip_x,
-			flip_y=flip_y
+			flip_y=flip_y,
 		)
 
 		# Add orthorectification results to the dictionary
-		result['transformed_img'] = transformed_img
-		result['extent'] = extent
+		result["transformed_img"] = transformed_img
+		result["extent"] = extent
 
 		# Calculate the actual resolution achieved
 		x_idx = 0 if extent[0] < extent[1] else 1
@@ -902,10 +889,7 @@ def oblique_view_transformation_matrix(
 		x_ext = abs(extent[1] - extent[0])
 		y_ext = abs(extent[3] - extent[2])
 
-		result['output_resolution'] = max(
-			x_ext / transformed_img.shape[1],
-			y_ext / transformed_img.shape[0]
-		)
+		result["output_resolution"] = max(x_ext / transformed_img.shape[1], y_ext / transformed_img.shape[0])
 
 	return result
 
