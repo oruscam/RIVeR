@@ -261,10 +261,7 @@ def orthorectify_image_with_size_limit(
 		alpha[~valid_coords] = 0
 		transformed_img = np.dstack((transformed_img, alpha))
 
-
 	extent = [x_min_rw, x_max_rw, y_min_rw, y_max_rw]
-
-
 
 	return transformed_img, extent
 
