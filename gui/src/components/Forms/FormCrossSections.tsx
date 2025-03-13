@@ -87,9 +87,6 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
     }
   };
 
-  console.log('sections', sections)
-  console.log('transformation matrix', transformationMatrix)
-
   return (
     <div id="form-section-div" className={activeSection !== index ? "hidden" : ""}>
       <form className={`form-scroll ${isBackendWorking ? 'disabled' : ''}`} onSubmit={onSubmit} id="form-cross-section">
@@ -126,7 +123,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             <button
               className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`}
               onClick={handleImportBath}
-              disabled={transformationMatrix.length === 0 ? false : pixelSize.rwLength === 0}
+              disabled={transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0}
             > {t('CrossSections.importBath')} </button>
             <label className="read-only bg-transparent mt-1">{bathimetry.name !== "" ? bathimetry.name : ''}</label>
           </div>

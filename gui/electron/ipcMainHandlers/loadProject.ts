@@ -151,7 +151,6 @@ function loadProject(PROJECT_CONFIG: ProjectConfig){
                                         points: grp_3d_points,
                                         mode: grp_3d_mode,
                                         cameraSolution: camera_solution_3d,
-                                        hemisphere: settingsParsed.hemisphere,
                                         images: rectification_3d_images,
                                         imagesPath: settingsParsed.rectification_3d_images
                                     }

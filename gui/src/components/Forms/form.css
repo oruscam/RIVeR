@@ -527,7 +527,7 @@ transform-origin: 14px 22px;
 }
 
 #ortho-image-solution{
-    width: 95%;
+    width: 100%;
     height: auto;
     flex-shrink: 0;
     display: flex;

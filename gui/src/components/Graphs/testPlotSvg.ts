@@ -144,42 +144,7 @@ export const testPlotSvg = ({ svgElement, quiver, t } : { svgElement: SVGSVGElem
         .attr('stroke', 'white')
         .attr('stroke-width', 1)
         .attr('opacity', 0.3)
-        .attr('clip-path', 'url(#clip)');
-
-    // Append mean point to the SVG
-    svg.append('circle')
-        .attr('cx', xScale(uMean))
-        .attr('cy', yScale(vMean))
-        .attr('fill', COLORS.RED)
-        .attr('r', 4)
-        .on('mouseover', function(_event, d){
-            d3.select(this)
-                .attr('r', 7);
-            svg.append('text')
-                .attr('id', 'tooltip-mean-u')
-                .attr('x', xScale(uMean) + 15)
-                .attr('y', yScale(vMean) - 10)
-                .attr('font-size', 16)
-                .attr('fill', 'white')
-                .text(`u: ${uMean.toFixed(2)}px`);
-            
-            svg.append('text')
-                .attr('id', 'tooltip-mean-v')
-                .attr('x', xScale(uMean) + 15)
-                .attr('y', yScale(vMean) + 8)
-                .attr('font-size', 16)
-                .attr('fill', 'white')
-                .text(`v: ${vMean.toFixed(2)}px`);   
-        })
-        .on('mouseout', function(){
-            d3.select(this)
-                .attr('r', 5)
-                .attr('fill', COLORS.RED);
-            svg.select('#tooltip-mean-u').remove()
-            svg.select('#tooltip-mean-v').remove();
-            
-        })
-        
+        .attr('clip-path', 'url(#clip)');        
 
     // Append x-axis to the SVG
     svg.append('g')

@@ -67,7 +67,7 @@ export const Summary = () => {
                             if(data === undefined) return null
                             const { mean_V, average_depth, max_depth, measured_Q, total_Q } = data
                             return (
-                                <tr key={index} className={index === sections.length -1 ? 'summary-last-section' : ''}>
+                                <tr key={index} className={index === sections.length - 1 ? 'summary-last-section' : ''}>
                                     <td> {name} </td>
                                     <td> {pixelSize.rwLength} </td>
                                     <td> 1 </td>
@@ -93,7 +93,7 @@ export const Summary = () => {
                         <td> { mean.mean_Vs} </td>
                         <td> { mean.max_depth } </td>
                         <td> { mean.average_depth } </td>
-                        <td> { mean.measured_Q} </td>
+                        <td> { (mean.measured_Q) * 100 } </td>
                     </tr>
                     <tr style={{height: '30px'}}>
                         <td> {t('Report.Summary.stdDev')} </td>
@@ -105,7 +105,7 @@ export const Summary = () => {
                         <td> { std.mean_Vs } </td>
                         <td> { std.max_depth } </td>
                         <td> { std.average_depth } </td>
-                        <td> { std.measured_Q } </td>
+                        <td> { (std.measured_Q) * 100 } </td>
                     </tr>
                     <tr style={{height: '30px'}}>
                         <td> {t('Report.Summary.cov')} </td>
@@ -117,7 +117,7 @@ export const Summary = () => {
                         <td> { cov.mean_Vs } </td>
                         <td> { cov.max_depth } </td>
                         <td> { cov.average_depth} </td>
-                        <td> { cov.measured_Q } </td>
+                        <td> { (cov.measured_Q) * 100 } </td>
                     </tr>
                 </tbody>
             </table>

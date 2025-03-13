@@ -53,18 +53,15 @@ const sectionSlice = createSlice({
             state.sections.push(action.payload);
             state.activeSection = state.sections.length - 1;
         },
-        deleteSection: (state, action: PayloadAction<number>) => {
-            if ( action.payload === -1 ){
-                const newActive = state.activeSection - 1;
-                state.sections.splice(state.activeSection, 1);
-                state.activeSection = newActive
+        deleteSection: (state) => {
+            if ( state.activeSection === 0 ){
+                state.sections.splice(0, 1);
+                state.activeSection = 0;
             } else {
-                if ( action.payload === 1 ){
-                    state.sections[action.payload] = initialState.sections[1];
-                } else {
-                    state.sections.splice(action.payload, 1);
-                }
+                state.sections.splice(state.activeSection, 1);
+                state.activeSection = state.activeSection - 1;
             }
+         
         },
         setActiveSection: (state, action: PayloadAction<number>) => {
             state.activeSection = action.payload;

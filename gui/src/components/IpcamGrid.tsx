@@ -112,7 +112,7 @@ export const IpcamGrid = () => {
     // So, I'm using this useEffect to trigger the action when all the points are selected or unselected
     
     useEffect(() => {   
-        if ( selectedRows.size === 44 || selectedRows.size === 0 ) {
+        if ( selectedRows.size === importedPoints?.length || selectedRows.size === 0 ) {
             if ( selectedRows.size !== previousSelectedRows.size ) {
                 onChangeIpcamPointSelected({ rowsIndex: selectedRows.size });
                 setPreviousSelectedRows(selectedRows);

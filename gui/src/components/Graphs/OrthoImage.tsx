@@ -1,10 +1,12 @@
 import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { useUiSlice } from '../../hooks';
-import { GRAPHS } from '../../constants/constants';
+import { COLORS, GRAPHS } from '../../constants/constants';
 import { scaleBar } from './scaleBar';
+import { Point } from '../../types';
+import { getLineColor } from '../../helpers';
 
-export const OrthoImage = ({ solution } : { solution : { orthoImage: string, extent: number[], resolution: number} | undefined}) => { 
+export const OrthoImage = ({ solution, coordinates, secondPoint } : { solution : { orthoImage: string, extent: number[], resolution: number} | undefined, coordinates?: Point[], secondPoint?: Point}) => { 
     const ref = useRef<SVGSVGElement>(null);
     const { screenSizes } = useUiSlice();
     const { width: screenWidth } = screenSizes;
@@ -72,6 +74,97 @@ export const OrthoImage = ({ solution } : { solution : { orthoImage: string, ext
             .call(d3.axisLeft(yScale).ticks(5))
             .selectAll('text')
             .style('font-size', '12px');
+
+        // Create ange for turn 45 degrees the cross point. Better visualization
+
+        const angle = 45; // Angle in degrees
+        const radians = angle * (Math.PI / 180); // Convert angle to radians
+        const cos = Math.cos(radians);
+        const sin = Math.sin(radians);
+
+        if (coordinates) {
+            coordinates.forEach((d, i) => {
+
+                // Connect points with lines
+                const nextIndex = (i + 1) % coordinates.length;
+                svg.append('line')
+                    .attr('x1', xScale(d.x))
+                    .attr('y1', yScale(d.y))
+                    .attr('x2', xScale(coordinates[nextIndex].x))
+                    .attr('y2', yScale(coordinates[nextIndex].y))
+                    .attr('stroke', getLineColor(i))
+                    .attr('stroke-width', 2);
+
+                if ( i === 0 || i === 1) {
+                    svg.append('line')
+                        .attr('x1', xScale(d.x))
+                        .attr('y1', yScale(d.y))
+                        .attr('x2', xScale(coordinates[i + 2].x))
+                        .attr('y2', yScale(coordinates[i + 2].y))
+                        .attr('stroke', i === 0 ? COLORS.CONTROL_POINTS.D13 : COLORS.CONTROL_POINTS.D24)
+                        .attr('stroke-width', 2);
+                }
+
+                svg.append('line')
+                    .attr('x1', xScale(d.x) - GRAPHS.CROSS_LENGTH * cos)
+                    .attr('y1', yScale(d.y) - GRAPHS.CROSS_LENGTH * sin)
+                    .attr('x2', xScale(d.x) + GRAPHS.CROSS_LENGTH * cos)
+                    .attr('y2', yScale(d.y) + GRAPHS.CROSS_LENGTH * sin)
+                    .attr('stroke', i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE)
+                    .attr('stroke-width', 2);
+
+                svg.append('line')
+                    .attr('x1', xScale(d.x) - GRAPHS.CROSS_LENGTH * sin)
+                    .attr('y1', yScale(d.y) + GRAPHS.CROSS_LENGTH * cos)
+                    .attr('x2', xScale(d.x) + GRAPHS.CROSS_LENGTH * sin)
+                    .attr('y2', yScale(d.y) - GRAPHS.CROSS_LENGTH * cos)
+                    .attr('stroke', i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE)
+                    .attr('stroke-width', 2);
+            });
+        }
+
+        if ( secondPoint ){
+            svg.append('line')
+                .attr('x1', xScale(0))
+                .attr('y1', yScale(0))
+                .attr('x2', xScale(secondPoint.x))
+                .attr('y2', yScale(secondPoint.y))
+                .attr('stroke', COLORS.LIGHT_BLUE)
+                .attr('stroke-width', 2);
+
+            svg.append('line')
+                .attr('x1', xScale(0) - GRAPHS.CROSS_LENGTH * cos)
+                .attr('y1', yScale(0) - GRAPHS.CROSS_LENGTH * sin)
+                .attr('x2', xScale(0) + GRAPHS.CROSS_LENGTH * cos)
+                .attr('y2', yScale(0) + GRAPHS.CROSS_LENGTH * sin)
+                .attr('stroke', COLORS.LIGHT_BLUE)
+                .attr('stroke-width', 2);
+
+            svg.append('line')
+                .attr('x1', xScale(0) - GRAPHS.CROSS_LENGTH * sin)
+                .attr('y1', yScale(0) + GRAPHS.CROSS_LENGTH * cos)
+                .attr('x2', xScale(0) + GRAPHS.CROSS_LENGTH * sin)
+                .attr('y2', yScale(0) - GRAPHS.CROSS_LENGTH * cos)
+                .attr('stroke', COLORS.LIGHT_BLUE)
+                .attr('stroke-width', 2);
+
+            svg.append('line')
+                .attr('x1', xScale(secondPoint.x) - GRAPHS.CROSS_LENGTH * sin)
+                .attr('y1', yScale(secondPoint.y) + GRAPHS.CROSS_LENGTH * cos)
+                .attr('x2', xScale(secondPoint.x) + GRAPHS.CROSS_LENGTH * sin)
+                .attr('y2', yScale(secondPoint.y) - GRAPHS.CROSS_LENGTH * cos)
+                .attr('stroke', COLORS.LIGHT_BLUE)
+                .attr('stroke-width', 2);
+
+            svg.append('line')
+                .attr('x1', xScale(secondPoint.x) - GRAPHS.CROSS_LENGTH * cos)
+                .attr('y1', yScale(secondPoint.y) - GRAPHS.CROSS_LENGTH * sin)
+                .attr('x2', xScale(secondPoint.x) + GRAPHS.CROSS_LENGTH * cos)
+                .attr('y2', yScale(secondPoint.y) + GRAPHS.CROSS_LENGTH * sin)
+                .attr('stroke', COLORS.LIGHT_BLUE)
+                .attr('stroke-width', 2);
+        }
+
     }, [solution, graphWidth]);
 
     return (

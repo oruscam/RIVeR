@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../store/store";
 import { cameraSolution, CanvasPoint, FormDistance, FormPoint, Point, UpdatePixelSize } from "../types";
 import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint, setIpcamCameraSolution, setHemispehere, resetMatrixSlice, setPixelSizePoints, updatePixelSize, setIsBackendWorking } from "../store/matrix/matrixSlice";
-import { adapterObliquePointsDistances, appendSolutionToImportedPoints, computePixelSize, computeRwDistance, createSquare, getLinesCoordinates, getNewCanvasPositions, setChangesByForm} from "../helpers";
+import { adapterObliquePointsDistances, appendSolutionToImportedPoints, computePixelSize, computeRwDistance, createSquare, getLinesCoordinates, getNewCanvasPositions, setChangesByForm, transformPixelToRealWorld} from "../helpers";
 import { ScreenSizes } from "../store/ui/types";
 import { FieldValues } from "react-hook-form";
 import { resetSectionSlice, setTransformationMatrix } from "../store/section/sectionSlice";
@@ -108,8 +108,13 @@ export const useMatrixSlice = () => {
                     throw new Error(error.message)
                 } 
 
+                const rwCoordinates = coordinates.map( point => {
+                    const cord1 = transformPixelToRealWorld(point.x, point.y, obliqueMatrix)
+                    return { x: cord1[0], y: cord1[1] }
+                })
+
                 dispatch(setTransformationMatrix({ transformationMatrix: obliqueMatrix }));
-                dispatch(setObliquePoints({ ...obliquePoints, distances: newDistances, isDistancesLoaded: true, solution: { orthoImage, extent, resolution, roi } }));
+                dispatch(setObliquePoints({ ...obliquePoints, distances: newDistances, isDistancesLoaded: true, solution: { orthoImage, extent, resolution, roi }, rwCoordinates: rwCoordinates }));
                 dispatch(setHasChanged(false));
                 dispatch(setIsBackendWorking(false))
                 dispatch(resetSectionSlice())
@@ -124,7 +129,7 @@ export const useMatrixSlice = () => {
 
         if ( type === 'uav' ) {
             const { dirPoints, rwPoints, size, rwLength } = pixelSize
-
+            
             if ( hasChanged === false ){
                 dispatch(setIsBackendWorking(false))
                 return
@@ -139,10 +144,11 @@ export const useMatrixSlice = () => {
 
             try {
                 const { uavMatrix, transformed_image_path, output_resolution, extent, error } = await ipcRenderer.invoke('set-pixel-size', args)
-                
+
+                const secondPoint = transformPixelToRealWorld(dirPoints[1].x, dirPoints[1].y, uavMatrix)
+
                 const orthoImage = filePrefix + transformed_image_path + `?t=${new Date().getTime()}`
 
-                console.log('ORTHO IMAGE', orthoImage)
 
                 dispatch(setTransformationMatrix({ transformationMatrix: uavMatrix }));
                 dispatch(updatePixelSize({
@@ -150,7 +156,8 @@ export const useMatrixSlice = () => {
                     solution: {
                         orthoImage: orthoImage,
                         resolution: output_resolution,
-                        extent: extent
+                        extent: extent,
+                        secondPoint: { x: secondPoint[0], y: secondPoint[1] }
                     }
                 }))
                 dispatch(setHasChanged(false))
@@ -308,7 +315,6 @@ export const useMatrixSlice = () => {
             const { data, error }: { data: cameraSolution, error: any } = await ipcRenderer.invoke('calculate-3d-rectification', {
                 points: ipcam.importedPoints,
                 mode,
-                hemisphere: ipcam.hemisphere,
             })
 
             if ( error ){
@@ -336,10 +342,6 @@ export const useMatrixSlice = () => {
                 throw new CliError(error.message, t)
             }
         }
-    }
-    
-    const onChangeHemisphere = (type: 'southern-hemisphere' | 'northern-hemisphere') => {
-        dispatch(setHemispehere(type))
     }
     
     const onResetMatrixSlice = () => {
@@ -491,7 +493,6 @@ export const useMatrixSlice = () => {
 
         // METHODS
         onChangeActiveImage,
-        onChangeHemisphere,
         onChangeIpcamPointSelected,
         onChangeObliqueCoordinates,
         onGetCameraSolution,

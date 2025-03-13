@@ -6,11 +6,11 @@ import { useState } from "react";
 
 export const FormRectification3D = () => {
     const [ mode, setMode ] = useState('')
-    const { onGetPoints, onGetImages, onGetCameraSolution, ipcam, onChangeHemisphere, isBackendWorking} = useMatrixSlice();
+    const { onGetPoints, onGetImages, onGetCameraSolution, ipcam, isBackendWorking} = useMatrixSlice();
     const { onSetErrorMessage } = useUiSlice();
     const { t } = useTranslation();
 
-    const { cameraSolution, hemisphere, selectedCounter } = ipcam
+    const { cameraSolution, selectedCounter } = ipcam
 
     const handleOnClickImport = async ( event: React.MouseEvent<HTMLButtonElement> ) => {
         const id = (event.target as HTMLButtonElement).id;
@@ -31,15 +31,9 @@ export const FormRectification3D = () => {
         })
     }
 
-    const handleOnChangeSwitch = ( event: React.ChangeEvent<HTMLInputElement> ) => {
-        const isChecked = event.target.checked
-
-        if ( isChecked ){
-            onChangeHemisphere('southern-hemisphere')
-        } else {
-            onChangeHemisphere('northern-hemisphere')
-        }
-    }
+    console.log(ipcam.importedPoints?.map((point) => {
+        return point.selected
+    }))
 
     return (
         <>
@@ -54,14 +48,6 @@ export const FormRectification3D = () => {
                     <IpcamGrid/>
                     
                     <PointsMap/>
-
-                    <div className={`switch-container-2 ${cameraSolution === undefined ? 'mt-1' : 'mt'}`}>
-                        <h3 className="field-title"> Northern | Southern </h3>
-                        <label className="switch">
-                            <input type="checkbox" defaultChecked={ hemisphere === 'southern-hemisphere' } id="northern-southern-switch" onChange={handleOnChangeSwitch}/>
-                            <span className="slider"></span>
-                        </label>
-                    </div>
 
                     <div className="input-container-2 mt-1">
                         <button 

@@ -7,7 +7,7 @@ import { OrthoImage } from "../Graphs"
 
 export const FormRectification2D = ({ onSubmit, onError }: FormChild ) => {
   const { obliquePoints, onSetDrawPoints, onGetDistances, isBackendWorking } = useMatrixSlice()
-  const { drawPoints, isDefaultCoordinates, isDistancesLoaded, solution, } = obliquePoints
+  const { drawPoints, isDefaultCoordinates, isDistancesLoaded, solution, rwCoordinates } = obliquePoints
 
   const { onSetErrorMessage } = useUiSlice()
 
@@ -62,7 +62,7 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild ) => {
                 </div>
 
                 {
-                  solution && <OrthoImage solution={solution}/>
+                  solution && <OrthoImage solution={solution} coordinates={rwCoordinates}/>
                 }
                 <button className='wizard-button form-button solver-button' id='solve-oblique' disabled={isDefaultCoordinates}>{t('Commons.solve')}</button>
             </div>

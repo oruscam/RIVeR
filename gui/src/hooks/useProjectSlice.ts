@@ -14,7 +14,7 @@ import { setDataLoaded, setImages, setProcessingMask, setQuiver, updateProcessin
 import { onLoadObliquePoints, onLoadCrossSections, onLoadPixelSize, onLoadProcessingForm, onLoadVideoParameters } from "../helpers/index";
 import { OperationCanceledError, UserSelectionError } from "../errors/errors";
 import { parseTime } from "../helpers";
-import { setHemispehere, setIpcamCameraSolution, setIpcamImages, setIpcamPoints, setObliquePoints, updatePixelSize } from "../store/matrix/matrixSlice";
+import { setIpcamCameraSolution, setIpcamImages, setIpcamPoints, setObliquePoints, updatePixelSize } from "../store/matrix/matrixSlice";
 import { onLoad3dRectification } from "../helpers/loadProjectHelpers";
 import { useTranslation } from "react-i18next";
 
@@ -197,15 +197,15 @@ export const useProjectSlice = () => {
                 if( piv_results ){
                     
                     if ( settings.pixel_size ){
-                        onLoadPixelSize(settings.pixel_size, pixelSize, dispatch, updatePixelSize, orthoImage, settings.transformation)
+                        onLoadPixelSize(settings.pixel_size, pixelSize, dispatch, updatePixelSize, orthoImage, settings.transformation, matrix)
                     }
 
                     if ( settings.control_points ){
-                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints, orthoImage, settings.transformation)
+                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints, orthoImage, settings.transformation, matrix)
                     }
                     
                     if ( settings.grp_3d ){
-                        onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+                        onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setIpcamImages)
                     }
 
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
@@ -256,16 +256,16 @@ export const useProjectSlice = () => {
                 if( settings.xsections ){
 
                     if ( settings.pixel_size ){
-                        onLoadPixelSize(settings.pixel_size, pixelSize, dispatch, updatePixelSize, orthoImage, settings.transformation)
+                        onLoadPixelSize(settings.pixel_size, pixelSize, dispatch, updatePixelSize, orthoImage, settings.transformation, matrix)
                     }
 
                     if ( settings.control_points ){
-                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints, orthoImage, settings.transformation)
+                        onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints, orthoImage, settings.transformation, matrix)
 
                     }
                     
                     if ( settings.grp_3d ){
-                        onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+                        onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution,  setIpcamImages)
                     }
 
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
@@ -283,18 +283,18 @@ export const useProjectSlice = () => {
                     return MODULE_NUMBER.PROCESSING
 
                 } else if(settings.pixel_size ){
-                    onLoadPixelSize(settings.pixel_size, pixelSize, dispatch, updatePixelSize, orthoImage, settings.transformation)
+                    onLoadPixelSize(settings.pixel_size, pixelSize, dispatch, updatePixelSize, orthoImage, settings.transformation, matrix)
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.CROSS_SECTIONS
 
                 } else if (settings.control_points){
-                    onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints, orthoImage, settings.transformation)
+                    onLoadObliquePoints(settings.control_points, dispatch, setObliquePoints, orthoImage, settings.transformation, matrix)
                     onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps)
 
                     return MODULE_NUMBER.CROSS_SECTIONS
                 } else if (settings.grp_3d){
-                    onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setHemispehere, setIpcamImages)
+                    onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setIpcamImages)
                     return MODULE_NUMBER.CROSS_SECTIONS
                 }
                 

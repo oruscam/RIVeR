@@ -8,9 +8,9 @@ import { OrthoImage } from '../Graphs'
 
 export const FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
   const { t } = useTranslation()
-  const { pixelSize, onUpdatePixelSize, onSetPixelRealWorld, onSetPixelDirection, isBackendWorking, hasChanged } = useMatrixSlice()
+  const { pixelSize, onUpdatePixelSize, onSetPixelRealWorld, onSetPixelDirection, isBackendWorking } = useMatrixSlice()
   const { video } = useProjectSlice()
-  const { extraFields, dirPoints, drawLine, solution } = pixelSize
+  const { extraFields, dirPoints, drawLine, solution, rwPoints } = pixelSize
   const { width, height } = video.data
 
   const { register} = useFormContext()
@@ -61,9 +61,6 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
     return
   }
 
-  console.log('pixelSize', solution)
-  console.log('has changed', hasChanged)
-
   return (
     <>
       <h1 className='form-title'> {t('PixelSize.title')}</h1>
@@ -111,7 +108,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild ) => {
               </div>
 
               {
-                solution && <OrthoImage solution={solution}/>
+                solution && <OrthoImage solution={solution} secondPoint={solution.secondPoint}/>
               }
               <button className='wizard-button form-button solver-button' id='solve-pixelsize' disabled={dirPoints.length !== 2 || pixelSize.rwLength === 0}>{t("Commons.solve")}</button>
           

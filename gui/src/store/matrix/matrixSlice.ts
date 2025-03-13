@@ -34,7 +34,6 @@ const initialState: MatrixState = {
         activeImage: undefined,
         activePoint: undefined,
         cameraSolution: undefined,
-        hemisphere: 'southern-hemisphere',
         selectedCounter: 0,
         zLimits: {
             min: 0,
@@ -101,9 +100,6 @@ const matrixSlice = createSlice({
         setIsBackendWorking: ( state, action: PayloadAction<boolean> ) => {
             state.isBackendWorking = action.payload
         },
-        setHemispehere: ( state, action: PayloadAction<'southern-hemisphere' | 'northern-hemisphere'> ) => {
-            state.ipcam.hemisphere = action.payload
-        },
         resetMatrixSlice: ( state ) => {
             state.ipcam = initialState.ipcam
             state.obliquePoints = initialState.obliquePoints
@@ -132,7 +128,6 @@ export const {
     setCustomIpcamPoint,
     setDrawPoints,
     setHasChanged,
-    setHemispehere,
     setIpcamCameraSolution,
     setIpcamImages,
     setIpcamPoints,

@@ -12,6 +12,7 @@ function saveTransformationMatrix (PROJECT_CONFIG: ProjectConfig) {
         const { settingsPath } = PROJECT_CONFIG;
         const { transformationMatrix } = args;
 
+
         if ( transformationMatrix ){
             const settings = await fs.promises.readFile(settingsPath, 'utf-8');
             const settingsParsed = JSON.parse(settings);

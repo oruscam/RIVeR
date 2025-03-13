@@ -1,6 +1,7 @@
 import { Line } from "react-konva"
 import { Point } from "../types"
 import { COLORS } from "../constants/constants"
+import { getLineColor } from "../helpers";
 
 interface ObliquePointsLinesProps {
     localPoints: Point[];
@@ -9,23 +10,7 @@ interface ObliquePointsLinesProps {
 }
 
 export const ObliquePointsLines = ({ localPoints, resizeFactor, mousePresed }: ObliquePointsLinesProps) => {
-    const { D12, D23, D34, D14, D13, D24 } = COLORS.CONTROL_POINTS
-
-    const getLineColor = ( index: number ) => {
-        switch (index) {
-            case 0:
-                return D12
-            case 1:
-                return D23
-            case 2:
-                return D34
-            case 3:
-                return D14
-                               
-            default:
-                return 'black'
-        }
-    }
+    const { D12, D13, D24 } = COLORS.CONTROL_POINTS
 
     /* 
         The first point of the square is set when the user clicks on the image

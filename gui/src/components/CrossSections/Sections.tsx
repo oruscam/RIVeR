@@ -81,8 +81,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
             nextElement?.focus()    
         }       
     }
-
-        
+ 
     useEffect(() => {
         const element = document.getElementById("scroll-right")
         element?.scrollIntoView({behavior: "smooth"})

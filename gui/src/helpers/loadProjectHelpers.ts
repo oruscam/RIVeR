@@ -3,6 +3,7 @@ import { getBathimetryValues } from './getBathimetryValues';
 import { MODULE_NUMBER } from '../constants/constants';
 import { cameraSolution, importedPoint } from '../types';
 import { appendSolutionToImportedPoints } from './appendSolutionsToImportedPoints';
+import { transformPixelToRealWorld } from './coordinates';
 
 /**
  * This file contains helper functions to load the project data from the projects file.
@@ -38,8 +39,10 @@ const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoP
  * @returns 
  */
 
-const onLoadPixelSize = (pixel_size: pixel_size, currentPixel: PixelSize, dispatch: any , updatePixelSize: any, orthoImage: string, transformation: any) => {
+const onLoadPixelSize = (pixel_size: pixel_size, currentPixel: PixelSize, dispatch: any , updatePixelSize: any, orthoImage: string, transformation: any, matrix: number[][]) => {
     const { x1, y1, x2 , y2, rw_length, size, east1, east2, north1, north2 } = pixel_size
+
+    const secondPoint = transformPixelToRealWorld(x2, y2, matrix)
 
     dispatch(updatePixelSize({
         ...currentPixel,
@@ -51,25 +54,32 @@ const onLoadPixelSize = (pixel_size: pixel_size, currentPixel: PixelSize, dispat
         solution: transformation !== undefined ? {
             orthoImage: orthoImage,
             extent: transformation.extent,
-            resolution: transformation.resolution
+            resolution: transformation.resolution,
+            secondPoint: { x: secondPoint[0], y: secondPoint[1] }
         } : undefined
         
     }))
     return 
 }
 
-const onLoadObliquePoints = (control_points: control_points, dispatch: any, setControlPoints: any, orthoImage: string, transformation: any) => {
-    const { coordinates, distances } = control_points
+const onLoadObliquePoints = ( control_points: control_points, dispatch: any, setControlPoints: any, orthoImage: string, transformation: any, matrix: number[][] ) => {
+    const { coordinates: coordinatesObject, distances } = control_points
+    const coordinates = [ 
+        { x: coordinatesObject.x1, y: coordinatesObject.y1 },
+        { x: coordinatesObject.x2, y: coordinatesObject.y2 },
+        { x: coordinatesObject.x3, y: coordinatesObject.y3 },
+        { x: coordinatesObject.x4, y: coordinatesObject.y4 }]
 
     const isDefaultCoordinates = false;
 
+    const rwCoordinates = coordinates.map((point) => {
+        const newPoints = transformPixelToRealWorld(point.x, point.y, matrix)
+        return { x: newPoints[0], y: newPoints[1] }
+    })
+
     dispatch(setControlPoints({
-        coordinates: [
-            { x: coordinates.x1, y: coordinates.y1 },
-            { x: coordinates.x2, y: coordinates.y2 },
-            { x: coordinates.x3, y: coordinates.y3 },
-            { x: coordinates.x4, y: coordinates.y4 }
-        ],
+        coordinates: coordinates,
+        rwCoordinates: rwCoordinates,
         distances: {
             d12: distances.d12,
             d23: distances.d23,
@@ -215,17 +225,15 @@ const onLoad3dRectification = (
         cameraSolution: cameraSolution,
         mode: string,
         images: string,
-        hemisphere: string,
         imagesPath: string
     },
     dispatch: any,
     setIpcamPoints: any,
     setCameraSolution: any,
-    setHemisphere: any,
     setIpcamImages: any
 ) => {
     const filePrefix = import.meta.env.VITE_FILE_PREFIX
-    const { points, cameraSolution, mode, images, hemisphere } = rectification3d
+    const { points, cameraSolution, mode, images } = rectification3d
     const { newImportedPoints, numPoints } = appendSolutionToImportedPoints(points, cameraSolution, mode === 'direct-solve')
 
     delete cameraSolution.projectedPoints
@@ -246,7 +254,6 @@ const onLoad3dRectification = (
         mode: mode,
         numPoints: numPoints
     }))
-    dispatch(setHemisphere(hemisphere))
 
     if ( images !== undefined ){
         dispatch(setIpcamImages({ images: images, path: images }))

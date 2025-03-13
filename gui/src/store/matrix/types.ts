@@ -10,6 +10,7 @@ interface obliqueSolution {
 interface obliquePoints {
     drawPoints: boolean,
     coordinates: Point[],
+    rwCoordinates?: Point[],
     isDefaultCoordinates: boolean,
     distances: {
         d12: number,
@@ -43,7 +44,6 @@ interface ipcam {
     activeImage: number | undefined,
     activePoint: number | undefined,
     cameraSolution: cameraSolution | undefined,
-    hemisphere: 'southern-hemisphere' | 'northern-hemisphere',
     selectedCounter: number,
     zLimits: {
         min: number,
@@ -55,6 +55,7 @@ interface pixelSolution {
     orthoImage: string,
     extent: number[],
     resolution: number, 
+    secondPoint: Point
 }
 
 interface pixelSize {

@@ -646,7 +646,7 @@ body{
     height: 50px;
     margin-right: 10px;
     margin-top: 15px;
-    fill: #FFFFFF;
+    fill: var(--success-color);
 }
 
 #successful-title {
@@ -664,6 +664,8 @@ body{
 
 #successful-message-container p {
     margin: 0; /* Elimina márgenes adicionales */
+    margin-top: 10px;
+    margin-right: 10px;
     word-wrap: break-word; /* Permite que las palabras largas se dividan */
     overflow-wrap: break-word; /* Asegura que el texto se ajuste dentro del contenedor */
 }
