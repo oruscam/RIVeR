@@ -1,7 +1,6 @@
 import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
 import * as fs from 'fs'
-import * as path from 'path'
 import { createMatrix } from "./utils/createMatrix";
 
 function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
@@ -9,11 +8,11 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
         const { settingsPath, directory, logsPath, firstFrame } = PROJECT_CONFIG;
         const { coordinates, distances } = args;
-        const json = await fs.promises.readFile(settingsPath, 'utf-8');
-        const jsonParsed = JSON.parse(json);
-        jsonParsed.transformation = {};
+        const settings = await fs.promises.readFile(settingsPath, 'utf-8');
+        const settingsParsed = JSON.parse(settings);
+        settingsParsed.transformation = {};
 
-        jsonParsed.control_points = {
+        settingsParsed.control_points = {
             "coordinates": {
                 "x1": coordinates[0].x,
                 "y1": coordinates[0].y,
@@ -63,15 +62,15 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
                 return { error }
             }
 
-            await createMatrix(data.transformation_matrix, directory).then((matrixPath) => {
-                jsonParsed.transformation.matrix = matrixPath;
-                jsonParsed.transformation.resolution = data.output_resolution;
-                jsonParsed.transformation.extent = data.extent;
-                jsonParsed.transformation.roi = data.roi;
+            await createMatrix(data.transformation_matrix, PROJECT_CONFIG, settingsParsed).then((matrixPath) => {
+                settingsParsed.transformation.matrix = matrixPath;
+                settingsParsed.transformation.resolution = data.output_resolution;
+                settingsParsed.transformation.extent = data.extent;
+                settingsParsed.transformation.roi = data.roi;
                 PROJECT_CONFIG.matrixPath = matrixPath;
             }).catch((err) => { console.log(err) });
 
-            const updatedContent = JSON.stringify(jsonParsed, null, 4);
+            const updatedContent = JSON.stringify(settingsParsed, null, 4);
             await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
             
             return {

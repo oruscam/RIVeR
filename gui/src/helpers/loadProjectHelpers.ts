@@ -100,7 +100,7 @@ const onLoadObliquePoints = (control_points: control_points, dispatch: any, setC
  * @param sections - sections state. By default we have pixel_size and CS_default_1. In the first lop on the xsections we update the CS_default_1 section. And then we add the rest of the sections.
  */
 
-const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary?: any, zLimits?: {min: number, max: number}) => {
+const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: any, addSection: any, sections: any, ipcRenderer: any, setSummary?: any ) => {
     let flag = true
     let flagData = false
     Object.entries(values).forEach( async ([key, value]: [ string, XSectionValue ]) => {
@@ -115,8 +115,8 @@ const onLoadCrossSections = (values: XSections, dispatch: any, updateSection: an
                 dispatch(setSummary(values.summary))
                 return
             }
-            const { line, name } = await ipcRenderer.invoke('get-bathimetry', { path: bath, zLimits: zLimits })
-            const { data } = getBathimetryValues(line, level)
+            const { line, name } = await ipcRenderer.invoke('get-bathimetry', { path: bath })
+            const { data } = getBathimetryValues( line, level )
             const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = data? data : { yMax: 0, yMin: 0, xMax: 0, xMin: 0, x1Intersection: 0, x2Intersection: 0, width: 0 }
 
             if ( flag ){
@@ -251,8 +251,6 @@ const onLoad3dRectification = (
     if ( images !== undefined ){
         dispatch(setIpcamImages({ images: images, path: images }))
     }
-
-    return { zMin, zMax }
 }
 
 export { 

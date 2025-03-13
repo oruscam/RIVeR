@@ -1,7 +1,5 @@
 import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
-import { createMatrix } from "./utils/createMatrix";
-import * as fs from 'fs'
 
 async function recommendRoiHeight(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ipcMain.handle('recommend-roi-height', async (_event, args?) => {

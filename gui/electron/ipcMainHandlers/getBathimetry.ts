@@ -1,12 +1,13 @@
 import { dialog, ipcMain } from "electron"
-import { basename } from 'path'
+import { basename, dirname, extname, join } from 'path'
 import { readFile, utils, set_fs, writeFile } from 'xlsx'
 import * as fs from 'fs'
+import { ProjectConfig } from "./interfaces"
 
 // Set the file system for xlsx library
 set_fs(fs)
 
-async function getBathimetry() {
+async function getBathimetry(PROJECT_CONFING: ProjectConfig) {
     // Define options for the file dialog
     const options: Electron.OpenDialogOptions = {
         properties: ['openFile'],
@@ -20,6 +21,7 @@ async function getBathimetry() {
         const { path, zLimits } = args;
 
         console.log('zLimits', zLimits)
+        
 
         try {
             let bathPath: string = path;
@@ -30,8 +32,9 @@ async function getBathimetry() {
                 bathPath = result.filePaths[0];
             }
 
-            // Get the name of the bathymetry file
+            // Get the name of the bathymetry file and extension
             const bathimetryName = basename(bathPath);
+            const bathimetryExt = extname(bathPath);
 
             // Read the workbook from the file
             const workbook = readFile(bathPath);
@@ -71,22 +74,31 @@ async function getBathimetry() {
             // Transform the line if necessary
             const { newLine, changed } = transformLine(line, isDecreced, isDepth, maxY, zLimits?.min);
 
-            // // If the line was changed, write the new data back to the file
-            // if (changed) {
-            //     // Convert the JSON back to a sheet
-            //     const newSheet = utils.json_to_sheet(newLine);
+            // If the line was changed, create new file with adapted values
+            let newFilePath = bathPath;
+            if (changed) {
+                // Convert the JSON back to a sheet
+                const newSheet = utils.json_to_sheet(newLine);
 
-            //     // Replace the original sheet with the new one
-            //     workbook.Sheets[sheetName] = newSheet;
+                // Replace the original sheet with the new one
+                workbook.Sheets[sheetName] = newSheet;
 
-            //     // Write the workbook back to the file system
-            //     await writeFile(workbook, bathPath);
-            // }
+                // Generate a new file name with a suffix
+                newFilePath = join(
+                    PROJECT_CONFING.directory,
+                    basename(bathPath, bathimetryExt) + '_modified' + bathimetryExt
+                );
+
+                // Write the workbook to a new file
+                await writeFile(workbook, newFilePath);
+
+                console.log(`New file created: ${newFilePath}`);
+            }
 
             line = newLine
 
             // Return the path, name, line data, and whether it was changed
-            return { path: bathPath, name: bathimetryName, line: line, changed: changed };
+            return { path: newFilePath, name: bathimetryName, line: line, changed: changed };
         } catch (error) {
             if ( error.message === 'invalidBathimetryFileFormat' ){
                 return { error }

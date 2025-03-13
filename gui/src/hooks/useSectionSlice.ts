@@ -353,14 +353,14 @@ export const useSectionSlice = () => {
         if (value.level !== undefined) {
             // If the camera matrix is defined, we neeed to update the transformation matrix. And All the cross sections have to be updated. Because in this module has the same level.
             dispatch(setHasChanged({value: true}))
-            if ( cameraMatrix && activeSection !== 0 ){
+            if ( cameraMatrix ){
                 const transformationMatrix = getTransformationFromCameraMatrix(cameraMatrix, value.level)
                 dispatch(setTransformationMatrix({transformationMatrix: transformationMatrix as [number[], number[], number[]]}))
                 dispatch(setHasChanged({value: true}))
                 window.ipcRenderer.invoke('save-transformation-matrix', { transformationMatrix })
 
 
-                for ( let i = 1; i < sections.length ; i++){
+                for ( let i = 0; i < sections.length ; i++){
                     const { bathimetry, rwPoints, pixelSize } = sections[i]
                     const intersectionPoints = bathimetry.line ? getIntersectionPoints(bathimetry.line, value.level) : []
                     const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x
@@ -508,8 +508,6 @@ export const useSectionSlice = () => {
 
     const onGetBathimetry = async (cameraMatrix: number[][] | undefined, zLimits: { min: number, max: number } | undefined) => {
         const ipcRenderer = window.ipcRenderer;
-
-        console.log('zLinmits', zLimits)
 
         try {
             const { path, line, name, error } = await ipcRenderer.invoke('get-bathimetry', { path: undefined, zLimits } )

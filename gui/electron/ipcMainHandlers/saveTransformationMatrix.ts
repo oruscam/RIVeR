@@ -9,19 +9,18 @@ import * as fs from 'fs'
 
 function saveTransformationMatrix (PROJECT_CONFIG: ProjectConfig) {
     ipcMain.handle('save-transformation-matrix', async (_event, args?) => {
-        const { settingsPath,  directory } = PROJECT_CONFIG;
+        const { settingsPath } = PROJECT_CONFIG;
         const { transformationMatrix } = args;
 
         if ( transformationMatrix ){
-            const settingsJson = await fs.promises.readFile(settingsPath, 'utf-8');
-            const settingsJsonParsed = JSON.parse(settingsJson);
-            settingsJsonParsed.transformation = {};
+            const settings = await fs.promises.readFile(settingsPath, 'utf-8');
+            const settingsParsed = JSON.parse(settings);
+            settingsParsed.transformation = {};
             
-            await createMatrix(transformationMatrix, directory).then((matrixPath) => {
+            await createMatrix(transformationMatrix, PROJECT_CONFIG, settingsParsed).then((matrixPath) => {
                 PROJECT_CONFIG.matrixPath = matrixPath
-                settingsJsonParsed.transformation.matrix = matrixPath
-                
-                fs.promises.writeFile(settingsPath, JSON.stringify(settingsJsonParsed, null, 4), 'utf-8')
+                settingsParsed.transformation.matrix = matrixPath
+                fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 4), 'utf-8')
             }).catch((err) => { console.log(err)})
         }
     });

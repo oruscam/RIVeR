@@ -1,6 +1,5 @@
 import { ipcMain } from "electron";
 import * as fs from 'fs'
-import * as path from 'path'
 import { ProjectConfig, pixelSizeHandleArgs } from "./interfaces";
 import { createMatrix } from "./utils/createMatrix";
 
@@ -9,11 +8,11 @@ function setPixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
         const { directory, settingsPath, logsPath, firstFrame } = PROJECT_CONFIG;
         const { dirPoints, rwPoints, pixelSize, rwLength } = args 
 
-        const json = await fs.promises.readFile(settingsPath, 'utf-8');
-        const jsonParsed = JSON.parse(json);
-        jsonParsed.transformation = {};
+        const settings = await fs.promises.readFile(settingsPath, 'utf-8');
+        const settingsParsed = JSON.parse(settings);
+        settingsParsed.transformation = {};
         
-        jsonParsed.pixel_size = {
+        settingsParsed.pixel_size = {
             size: pixelSize,
             rw_length: rwLength,
             x1: dirPoints[0].x,
@@ -25,6 +24,7 @@ function setPixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
             east2: rwPoints[1].x,
             north2: rwPoints[1].y
         }
+
         const options = [
             'get-uav-transformation-matrix',
             '--pixel-size',
@@ -46,14 +46,14 @@ function setPixelSize( PROJECT_CONFIG: ProjectConfig, riverCli: Function ) {
         try {
             const { data } = await riverCli(options, 'text', 'false', logsPath)
 
-            await createMatrix(data.transformation_matrix, directory).then((matrixPath) => {
-                jsonParsed.transformation.matrix = matrixPath;
-                jsonParsed.transformation.resolution = data.output_resolution;
-                jsonParsed.transformation.extent = data.extent;
+            await createMatrix(data.transformation_matrix, PROJECT_CONFIG, settingsParsed).then((matrixPath) => {
+                settingsParsed.transformation.matrix = matrixPath;
+                settingsParsed.transformation.resolution = data.output_resolution;
+                settingsParsed.transformation.extent = data.extent;
                 PROJECT_CONFIG.matrixPath = matrixPath;
             }).catch((err) => { console.log(err) });
 
-            const updatedContent = JSON.stringify(jsonParsed, null, 4);
+            const updatedContent = JSON.stringify(settingsParsed, null, 4);
             await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
             
             return {

@@ -165,7 +165,7 @@ app.whenReady().then(() => {
   getQuiver(PROJECT_CONFIG, riverCli);
   getResultData(PROJECT_CONFIG, riverCli);
   getImages(PROJECT_CONFIG);
-  getBathimetry();
+  getBathimetry(PROJECT_CONFIG);
   setProjectDetails(PROJECT_CONFIG);
   setControlPoints(PROJECT_CONFIG, riverCli);
   calculate3dRectification(PROJECT_CONFIG, riverCli);
