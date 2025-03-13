@@ -62,7 +62,7 @@ export const FormRectification3D = () => {
                             id="optimize-solution" 
                             type="button" 
                             onClick={handleOnClickAction}
-                            disabled={ipcam.importedPoints === undefined}
+                            disabled={ipcam.importedPoints === undefined || selectedCounter < 7}
                             > {t('ControlPoints3d.optimize')} </button>
                     </div>
                     
