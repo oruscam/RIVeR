@@ -728,6 +728,8 @@ def get_uav_transformation_matrix(
 
 		result["output_resolution"] = max(x_ext / transformed_img.shape[1], y_ext / transformed_img.shape[0])
 
+	result["transformation_matrix"] = result["transformation_matrix"].tolist()
+
 	return result
 
 
@@ -890,6 +892,8 @@ def oblique_view_transformation_matrix(
 		y_ext = abs(extent[3] - extent[2])
 
 		result["output_resolution"] = max(x_ext / transformed_img.shape[1], y_ext / transformed_img.shape[0])
+
+	result["transformation_matrix"] = result["transformation_matrix"].tolist()
 
 	return result
 
