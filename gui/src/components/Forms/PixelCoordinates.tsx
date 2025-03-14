@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form"
-import { useSectionSlice, useUiSlice } from "../../hooks";
+import { useUiSlice } from "../../hooks";
 import { getPointNames } from "../../helpers/index.ts";
 import { useTranslation } from "react-i18next";
 

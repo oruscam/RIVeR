@@ -93,40 +93,82 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
         <div className="form-base-2 mt-2">
-          <div className="input-container-2">
-            <button
-              className={`wizard-button form-button me-1 ${drawLine ? "wizard-button-active" : ""}`}
-              type="button"
-              id={`${name}-DRAW_LINE`}
-              onClick={() => onUpdateSection({ drawLine: true }, undefined)}
-              disabled={transformationMatrix.length === 0}
-            > {t('CrossSections.drawLine')} </button>
-            <span className="read-only bg-transparent"></span>
-          </div>
+          {
+            type === 'ipcam' ? 
+            (
+              <>
+                <div className="input-container-2 mb-1">
+                  <input
+                    type="file"
+                    id={`${name}_CS_BATHIMETRY`}
+                    className="hidden-file-input"
+                    accept=".csv"
+                    {...register(`${name}_CS_BATHIMETRY`, {
+                      validate: value => {
+                        if (sections[index].bathimetry.path === "" && value.length === 0) {
+                          return `Bathimetry is required in ${name}`;
+                        }
+                        return true;
+                      }
+                    })}
+                  />
+                  <button
+                    className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`}
+                    onClick={handleImportBath}
+                    disabled={transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0}
+                  > {t('CrossSections.importBath')} </button>
+                  <label className="read-only bg-transparent mt-1">{bathimetry.name !== "" ? bathimetry.name : ''}</label>
+                </div>
+                <div className="input-container-2">
+                  <button
+                    className={`wizard-button form-button me-1 ${drawLine ? "wizard-button-active" : ""}`}
+                    type="button"
+                    id={`${name}-DRAW_LINE`}
+                    onClick={() => onUpdateSection({ drawLine: true }, undefined)}
+                    disabled={transformationMatrix.length === 0}
+                  > {t('CrossSections.drawLine')} </button>
+                  <span className="read-only bg-transparent"></span>
+                </div>
 
-         
-          <div className="input-container-2">
-            <input
-              type="file"
-              id={`${name}_CS_BATHIMETRY`}
-              className="hidden-file-input"
-              accept=".csv"
-              {...register(`${name}_CS_BATHIMETRY`, {
-                validate: value => {
-                  if (sections[index].bathimetry.path === "" && value.length === 0) {
-                    return `Bathimetry is required in ${name}`;
-                  }
-                  return true;
-                }
-              })}
-            />
-            <button
-              className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`}
-              onClick={handleImportBath}
-              disabled={transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0}
-            > {t('CrossSections.importBath')} </button>
-            <label className="read-only bg-transparent mt-1">{bathimetry.name !== "" ? bathimetry.name : ''}</label>
-          </div>
+              </>
+            ) : (
+              <>
+                <div className="input-container-2">
+                  <button
+                    className={`wizard-button form-button me-1 ${drawLine ? "wizard-button-active" : ""}`}
+                    type="button"
+                    id={`${name}-DRAW_LINE`}
+                    onClick={() => onUpdateSection({ drawLine: true }, undefined)}
+                    disabled={transformationMatrix.length === 0}
+                  > {t('CrossSections.drawLine')} </button>
+                  <span className="read-only bg-transparent"></span>
+                </div>
+
+                <div className="input-container-2">
+                  <input
+                    type="file"
+                    id={`${name}_CS_BATHIMETRY`}
+                    className="hidden-file-input"
+                    accept=".csv"
+                    {...register(`${name}_CS_BATHIMETRY`, {
+                      validate: value => {
+                        if (sections[index].bathimetry.path === "" && value.length === 0) {
+                          return `Bathimetry is required in ${name}`;
+                        }
+                        return true;
+                      }
+                    })}
+                  />
+                  <button
+                    className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`}
+                    onClick={handleImportBath}
+                    disabled={transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0}
+                  > {t('CrossSections.importBath')} </button>
+                  <label className="read-only bg-transparent mt-1">{bathimetry.name !== "" ? bathimetry.name : ''}</label>
+                </div>
+              </>
+            )
+          }
 
           <div className="input-container-2 mt-2 mb-1">
             <label className="read-only me-1" htmlFor="LEVEL">{t('CrossSections.level')}</label>

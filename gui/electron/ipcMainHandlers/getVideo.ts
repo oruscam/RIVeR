@@ -28,10 +28,6 @@ async function getVideo(PROJECT_CONFIG: ProjectConfig) {
             }
         }
     });
-
-    }
-
-
-
+}
 
 export { getVideo }
