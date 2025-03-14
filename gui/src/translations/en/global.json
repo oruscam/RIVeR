@@ -85,7 +85,9 @@
             "levelError": "Level must be between {{yMin}} and {{yMax}}",
             "leftBank": "Left bank is out of range",
             "bathimetryNotValid": "The bathimetry is not valid. Level {{level}} do not exist in this file"
-        }
+        },
+        "warning": "Are you sure you want to delete {{section_name}}?",
+        "warningTitle": "Delete Section"
     },
     "Processing": {
         "title": "Processing",

@@ -4,7 +4,7 @@ import { join } from 'path';
 import { writeFileSync } from "fs";
 
 function saveReportHtml ( PROJECT_CONFIG: ProjectConfig ){
-    ipcMain.handle('save-summary-html', async (_event, args?) => {
+    ipcMain.handle('save-report-html', async (_event, args?) => {
         try {
             const { directory } = PROJECT_CONFIG;
             const defaultPath = join(directory, 'report.html');

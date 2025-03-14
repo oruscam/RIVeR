@@ -3,6 +3,7 @@ import {  useForm } from "react-hook-form"
 import { useSectionSlice, useUiSlice } from "../../hooks"
 import { isValidString } from "../../helpers/regex";
 import { EyeBall } from "./index";
+import { useTranslation } from "react-i18next";
 
 interface Sections {
     setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -13,6 +14,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
     const { register} = useForm()
     const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onUpdateSection } = useSectionSlice()
     const { onSetErrorMessage } = useUiSlice()
+    const { t } = useTranslation()
 
     // Set the active section, and logic for scrolling to the next section
     const onClickSection = ( index: number ) => {
@@ -32,14 +34,19 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
         onSetActiveSection(index)
     }
 
-    const onClickButtonSection = ( event: React.MouseEvent<HTMLButtonElement>) => {
+    const onClickButtonSection = async( event: React.MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation()
         if (event.currentTarget.id === "add"){
             onAddSection(sections.length)
         }
         if ( event.currentTarget.id === "delete" && setDeletedSections){
-            setDeletedSections(sections[activeSection].name)
-            onDeleteSection()
+            const result = await window.ipcRenderer.invoke('delete-confirmation', {message: t("CrossSections.warning", { section_name: sections[activeSection].name} ), title: t('CrossSections.title')})
+
+            if ( result === 0 ){
+                setDeletedSections(sections[activeSection].name)
+                onDeleteSection()
+            }
+
         }
     }
 

@@ -2,8 +2,6 @@ import { app, BrowserWindow, dialog, ipcMain, ipcRenderer, net, protocol, screen
 import { fileURLToPath } from 'node:url'
 import * as path from 'node:path'
 import * as os from 'os'
-import * as fs from 'fs'
-import { Buffer } from 'buffer'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const userDir = os.homedir();
 
@@ -133,24 +131,20 @@ const PROJECT_CONFIG: ProjectConfig = {
   logsPath: "",
   firstFrame: ""
 }
-// Move to ipcMainHandlers
-ipcMain.handle('save-dialog', async (event, defaultPath) => {
-  const result = await dialog.showSaveDialog({
-    title: 'Save Report',
-    defaultPath: defaultPath,
-    filters: [
-      { name: 'HTML Files', extensions: ['html'] }
-    ]
+
+// General window dialog to confirm deletes. 
+ipcMain.handle('delete-confirmation', async ( event, args) => {
+  const { message, title } = args;
+  const { response } = await dialog.showMessageBox({
+    type: 'warning',
+    buttons: ['Yes', 'No'],
+    defaultId: 1,
+    title: title,
+    message: message,
   });
-  return result.filePath;
-});
 
-ipcMain.handle('save-file', async (event, args) => {
-  const { path, arrayBuffer } = args
-
-  const buffer = Buffer.from(arrayBuffer);
-  fs.writeFileSync(path, buffer);
-});
+  return response;
+})
 
 app.whenReady().then(() => {
   createWindow();

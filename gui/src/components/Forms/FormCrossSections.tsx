@@ -129,7 +129,6 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                   > {t('CrossSections.drawLine')} </button>
                   <span className="read-only bg-transparent"></span>
                 </div>
-
               </>
             ) : (
               <>

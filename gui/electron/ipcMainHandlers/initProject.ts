@@ -11,7 +11,6 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
         const [ videoName ] = name.split('.');
         const newDirectory = join(userDir, 'River', videoName);
 
-
         try {
             const result = await getVideoMetadata(path)
             const directory = await createFolderStructure(newDirectory, type, language, result.path, name, result)

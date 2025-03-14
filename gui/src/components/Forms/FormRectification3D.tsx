@@ -31,10 +31,6 @@ export const FormRectification3D = () => {
         })
     }
 
-    console.log(ipcam.importedPoints?.map((point) => {
-        return point.selected
-    }))
-
     return (
         <>
             <h1 className="form-title"> Control Points </h1>

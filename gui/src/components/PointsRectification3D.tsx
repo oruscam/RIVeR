@@ -70,6 +70,11 @@ export const PointsRectification3D = ({ factor, resizeFactor } : PointsProps) =>
         }
     };
 
+    const onClickPoint = (index: number) => {
+        console.log('Point clicked:', index)
+        setIpcamPointPixelCoordinates({ index, clickIcon: true })
+    }
+
     const getIcon = ( selected: boolean, activePoint: number | undefined, index: number) => {    
         if ( selected ){
             if ( index === activePoint){
@@ -103,6 +108,7 @@ export const PointsRectification3D = ({ factor, resizeFactor } : PointsProps) =>
                                 height={MARKS.HEIGHT / resizeFactor} 
                                 offsetX={MARKS.OFFSET_X / resizeFactor}
                                 offsetY={MARKS.OFFSET_Y / resizeFactor}
+                                onClick={() => onClickPoint(index)}
                                 onMouseEnter={draggable ? handleCursorEnter : undefined}
                                 onMouseLeave={draggable ? handleCursorLeave: undefined}
                                 draggable={draggable}

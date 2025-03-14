@@ -81,7 +81,6 @@ async function getVideoMetadata( videoPath: string ): Promise<{ width: number; h
     }
 }
 
-
 async function convertToMp4(videoPath: string): Promise<string> {
     const outputFilePath = videoPath.replace(path.extname(videoPath), '.mp4');
     return new Promise((resolve, reject) => {
@@ -92,4 +91,5 @@ async function convertToMp4(videoPath: string): Promise<string> {
             .run();
     });
 }
+
 export { getVideoMetadata }

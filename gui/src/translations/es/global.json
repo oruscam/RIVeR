@@ -85,7 +85,9 @@
             "levelError": "El Nivel debe ser entre {{yMin}} y {{yMax}}",
             "leftBank": "Margen Izquierda está fuera de rango",
             "bathimetryNotValid": "La batimetría es inválida. El {{level}} no existe en este archivo"
-        }
+        },
+        "warning": "¿Está seguro que desea eliminar {{section_name}}?",
+        "warningTitle": "Eliminar Sección"
     },
     "Processing": {
         "title": "Procesando",
@@ -226,6 +228,7 @@
     },
     "Commons": {
         "yes": "Si",
-        "no": "No"
+        "no": "No",
+        "solve": "Resolver"
     }
 }

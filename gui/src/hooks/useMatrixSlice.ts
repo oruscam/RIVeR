@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux"
 import { RootState } from "../store/store";
 import { cameraSolution, CanvasPoint, FormDistance, FormPoint, Point, UpdatePixelSize } from "../types";
-import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint, setIpcamCameraSolution, setHemispehere, resetMatrixSlice, setPixelSizePoints, updatePixelSize, setIsBackendWorking } from "../store/matrix/matrixSlice";
+import { setObliquePoints, setDrawPoints, setHasChanged, setIpcamPoints, setIpcamImages, setActiveImage, setCustomIpcamPoint, setIpcamCameraSolution, resetMatrixSlice, setPixelSizePoints, updatePixelSize, setIsBackendWorking } from "../store/matrix/matrixSlice";
 import { adapterObliquePointsDistances, appendSolutionToImportedPoints, computePixelSize, computeRwDistance, createSquare, getLinesCoordinates, getNewCanvasPositions, setChangesByForm, transformPixelToRealWorld} from "../helpers";
 import { ScreenSizes } from "../store/ui/types";
 import { FieldValues } from "react-hook-form";
@@ -255,10 +255,11 @@ export const useMatrixSlice = () => {
         point?: {
             x: number,
             y: number
-        } 
+        },
+        clickIcon?: boolean
     }
 
-    const setIpcamPointPixelCoordinates = ( { index, imageSize, point } : setIpcamPointPixelCoordinatesInterface) => {
+    const setIpcamPointPixelCoordinates = ( { index, imageSize, point, clickIcon } : setIpcamPointPixelCoordinatesInterface) => {
         const { importedPoints, activeImage, cameraSolution } = ipcam
         if ( importedPoints === undefined ) return;
 
@@ -297,6 +298,14 @@ export const useMatrixSlice = () => {
         // Tercer caso, cuando se hace seleccionable un punto que ya se encuentra establecido. No se hace nada
         if ( newPoint.wasEstablished === true && imageSize ) {
 
+            dispatch(setCustomIpcamPoint({
+                point: newPoint,
+                index
+            }))
+        }
+
+        // 4th option, when the point is established and the user only click the icon. 
+        if ( index !== undefined && clickIcon ){
             dispatch(setCustomIpcamPoint({
                 point: newPoint,
                 index
@@ -347,7 +356,6 @@ export const useMatrixSlice = () => {
     const onResetMatrixSlice = () => {
         dispatch(resetMatrixSlice())
     }
-
 
     const onSetPixelDirection = ( canvasPoints: CanvasPoint | null, formPoint: FormPoint | null) => {
         const { dirPoints } = pixelSize

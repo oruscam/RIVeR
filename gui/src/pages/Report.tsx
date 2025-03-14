@@ -81,7 +81,7 @@ export const Report = () => {
       const blob = new Blob([htmlContent], { type: 'text/html' });
       const arrayBuffer = await blob.arrayBuffer();
       
-      await window.ipcRenderer.invoke('save-summary-html', { arrayBuffer });
+      await window.ipcRenderer.invoke('save-report-html', { arrayBuffer });
     }
     onSetAnalizing(false)
   };
