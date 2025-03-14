@@ -38,7 +38,8 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 * Interactive result visualization with customizable vector fields
 * Georeferencing and coordinate transformations
 * Multi Cross-sectional flow analysis
-* CSV and tabular data import/export
+* Automated beautiful report generation ([like this one !](river/docs/_static/sample_report.html))
+
 * Multi-platform support (Windows, macOS, Linux)
 
 ## 🚀 Getting Started
@@ -111,7 +112,20 @@ river/
 | tqdm                 | ==4.67.0  | MIT License            |
 | tablib[xlsx,xls,ods] | ==3.8.0   | BSD License            |
 
+## 📚 Jupyter Examples
 
+Browse through our collection of Jupyter Notebook examples to learn how to use RIVeR for various analyses:
+
+- [Introduction to RIVeR](examples/00_introduction.ipynb)
+- [Video Frame Extraction](examples/01_video_to_frames.ipynb)
+- [UAV/Drone Transformations](examples/02a_nadir_transformation.ipynb)
+- [Oblique View Transformations](examples/02b_oblique_transformation.ipynb)
+- [Fixed Station Transformations](examples/02c_fixed_station_transformation.ipynb)
+- [Cross Section Analysis](examples/03_cross_sections.ipynb)
+- [PIV Analysis Workflow](examples/04_piv_analysis.ipynb)
+- [Discharge Calculation](examples/05_discharge_calculation.ipynb)
+
+These interactive examples provide step-by-step guidance for common RIVeR workflows.
 ## 🔬 Citation
 
 If you use RIVeR in your research, please cite:
