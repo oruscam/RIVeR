@@ -222,7 +222,8 @@ def transform_real_world_to_pixel(
 @click.option("--image-path", default=None, type=click.Path(exists=True), envvar="IMAGE_PATH")
 @click.option("--optimize-solution", default=False, is_flag=True)
 @click.option("--ortho-resolution", default=0.1, type=click.FLOAT)
-@click.option("--southern-hemisphere/--northern-hemisphere", default=True)
+@click.option("--flip-x/--no-flip-x", default=False)
+@click.option("--flip-y/--no-flip-y", default=True)
 @click.option("--confidence", default=0.95, type=click.FLOAT)
 @click.option("--full-grp-dict", default=None, type=click.File())
 @click.option(
@@ -238,7 +239,8 @@ def get_camera_solution(
 	image_path: Optional[Path],
 	optimize_solution: bool,
 	ortho_resolution: float,
-	southern_hemisphere: bool,
+	flip_x: bool,
+	flip_y: bool,
 	confidence: float,
 	full_grp_dict: Optional[TextIOWrapper],
 	workdir: Optional[Path],
@@ -258,7 +260,8 @@ def get_camera_solution(
 		optimize_solution=optimize_solution,
 		image_path=image_path,
 		ortho_resolution=ortho_resolution,
-		southern_hemisphere=southern_hemisphere,
+		flip_x=flip_x,
+		flip_y=flip_y,
 		confidence=confidence,
 		full_grp_dict=full_grp_dict,
 	)
