@@ -51,7 +51,7 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 - Git (for cloning the repository)
 
 ### Installation
-
+AGREGAR PIP INSTALL RIVER
 Clone the repository:
 ```bash
 git clone https://github.com/your-username/river.git
@@ -83,19 +83,19 @@ river/
 ├── readme.md
 ├── requirements.txt
 └── river
-├── cli
-├── core
-│   ├── compute_section.py       # Section computation utilities
-│   ├── coordinate_transform.py   # Coordinate system transformations
-│   ├── define_roi_masks.py      # ROI and mask definitions
-│   ├── exceptions.py            # Custom exceptions
-│   ├── image_preprocessing.py   # Image preparation tools
-│   ├── matlab_smoothn.py        # Smoothing algorithms
-│   ├── piv_fftmulti.py         # FFT-based PIV processing
-│   ├── piv_loop.py             # PIV processing loop
-│   ├── piv_pipeline.py         # Main PIV pipeline
-│   └── video_to_frames.py      # Video frame extraction
-└── docs
+    ├── cli
+    ├── core
+    │   ├── compute_section.py       # Section computation utilities
+    │   ├── coordinate_transform.py   # Coordinate system transformations
+    │   ├── define_roi_masks.py      # ROI and mask definitions
+    │   ├── exceptions.py            # Custom exceptions
+    │   ├── image_preprocessing.py   # Image preparation tools
+    │   ├── matlab_smoothn.py        # Smoothing algorithms
+    │   ├── piv_fftmulti.py         # FFT-based PIV processing
+    │   ├── piv_loop.py             # PIV processing loop
+    │   ├── piv_pipeline.py         # Main PIV pipeline
+    │   └── video_to_frames.py      # Video frame extraction
+    └── docs
 ```
 
 ## 🧩 Dependencies
