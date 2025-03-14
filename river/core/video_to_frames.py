@@ -6,7 +6,6 @@ from typing import Optional
 import numpy as np
 import cv2
 
-from river.core.exceptions import VideoHasNoFrames
 
 
 def extract_frames(
@@ -15,7 +14,8 @@ def extract_frames(
 		every: int,
 		start: int,
 		end: Optional[int] = None,
-		overwrite: bool = False
+		overwrite: bool = False,
+		resize_factor: float = 1.0
 ) -> int:
 	"""Extract frames from a video using OpenCVs VideoCapture.
 
@@ -26,6 +26,7 @@ def extract_frames(
         start (int): Start frame.
         end (Optional[int], optional): End frame. Defaults to None.
         overwrite (bool, optional): To overwrite frames that already exist. Defaults to False.
+        resize_factor (float, optional): Factor to resize the frames (<=1.0). Defaults to 1.0.
 
     Returns:
         int: Count of the saved images.
@@ -49,7 +50,15 @@ def extract_frames(
 		return 0
 
 	height, width = first_frame.shape[:2]
-	frame_buffer = np.empty((height, width, 3), dtype=np.uint8)
+
+	# Calculate new dimensions based on resize_factor
+	if resize_factor < 1.0 and resize_factor > 0:
+		new_width = int(width * resize_factor)
+		new_height = int(height * resize_factor)
+		frame_buffer = np.empty((new_height, new_width, 3), dtype=np.uint8)
+	else:
+		new_width, new_height = width, height
+		frame_buffer = np.empty((height, width, 3), dtype=np.uint8)
 
 	frame = start  # keep track of which frame we are up to, starting from start
 	while_safety = 0  # a safety counter to ensure we don't enter an infinite while loop
@@ -62,17 +71,21 @@ def extract_frames(
 			break
 
 		if frame % every == 0:  # if this is a frame we want to write out
-			ret = capture.retrieve(frame_buffer)  # retrieve frame from buffer into our pre-allocated array
+			ret, temp_frame = capture.retrieve()  # retrieve frame from buffer
 			if not ret:
 				while_safety += 1
 				continue
+
+			# Resize the frame if resize_factor is less than 1
+			if resize_factor < 1.0 and resize_factor > 0:
+				temp_frame = cv2.resize(temp_frame, (new_width, new_height), interpolation=cv2.INTER_AREA)
 
 			while_safety = 0  # reset the safety count
 			save_path = str(frames_dir / f"{frame:010d}.jpg")  # create the save path
 
 			if not os.path.exists(save_path) or overwrite:
 				# Use the encoding parameters for optimized JPEG writing
-				cv2.imwrite(save_path, frame_buffer, encode_params)
+				cv2.imwrite(save_path, temp_frame, encode_params)
 				saved_count += 1
 
 		frame += 1
@@ -82,13 +95,13 @@ def extract_frames(
 
 
 def video_to_frames(
-	video_path: Path,
-	frames_dir: Path,
-	start_frame_number: int = 0,
-	end_frame_number: Optional[int] = None,
-	overwrite: bool = False,
-	every: int = 1,
-	chunk_size: int = 100,
+		video_path: Path,
+		frames_dir: Path,
+		start_frame_number: int = 0,
+		end_frame_number: Optional[int] = None,
+		overwrite: bool = False,
+		every: int = 1,
+		resize_factor: float = 1.0
 ) -> str:
 	"""Extracts the frames from a video using multiprocessing
 
@@ -100,13 +113,19 @@ def video_to_frames(
 		overwrite (bool, optional): Overwrite frames if they exist. Defaults to False.
 		every (int, optional): Extract every this many frames. Defaults to 1.
 		chunk_size (int, optional): How many frames to split into chunks (one chunk per cpu core process). Defaults to 100.
+		resize_factor (float, optional): Factor to resize the frames (<=1.0). Defaults to 1.0.
 
 	Raises:
-		VideoHasNoFrames: When opencv can't split into fremes.
+		VideoHasNoFrames: When opencv can't split into frames.
+		ValueError: When resize_factor is greater than 1.0 or less than or equal to 0.
 
 	Returns:
 		str: Path to the directory where the frames were saved, or None if fails
 	"""
+	# Validate resize_factor
+	if resize_factor > 1.0 or resize_factor <= 0:
+		raise ValueError("resize_factor must be between 0 and 1.0")
+
 	# Add path validation
 	video_path = str(video_path)
 	if not os.path.exists(video_path):
@@ -152,9 +171,8 @@ def video_to_frames(
 					start=f[0],
 					end=f[1],
 					overwrite=overwrite,
+					resize_factor=resize_factor,
 				)
 			)
-		# Wait for all futures to complete and gather results
-		total_frames = sum(future.result() for future in futures)
 
 	return sorted(frames_dir.glob("*"))[0]
