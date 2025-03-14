@@ -11,21 +11,55 @@
 [![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![React Version](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
 
+
+# RIVeR: Rectification of Image Velocity Results
+
 **RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (LSPIV). Built with Python and React, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
+
 
 <figure>
     <img src="river/docs/_static/screenshot_results.png" width=500 align="center">
     <figcaption>Example of RIVeR velocimetry analysis of river flow</figcaption>
 </figure>
 
-## Current capabilities
-* Frame extraction
-* FFT-based PIV analysis with multi-pass support
-* Interactive result visualization
-* CSV data import/export
-* Multi-platform support
+## 💧 Overview
+RIVeR is a specialized tool for applying Large Scale Particle Image Velocimetry (LSPIV) techniques as a non-contact method to estimate discharge in rivers and channels from video footage. The software guides the process through intuitive defaults and pre-configured settings, enabling users to generate discharge calculations without extensive prior knowledge of the technique. The workflow guides users through a series of straightforward steps culminating in comprehensive visual reports.
 
-## Project Structure
+Originally developed in MATLAB in 2015 and well-received by the hydrology community, RIVeR has now been reimplemented in Python and JavaScript to improve accessibility, performance, and cross-platform compatibility.
+
+## ✨ Key Features
+
+* Process footage from multiple sources:
+  * UAV/drone aerial imagery
+  * Oblique view camera (from riverbank)
+  * Fixed station cameras (contiunous monitoring)
+* Frame extraction from videos with customizable parameters
+* FFT-based PIV analysis with multi-pass support for increased accuracy
+* Interactive result visualization with customizable vector fields
+* Georeferencing and coordinate transformations
+* Multi Cross-sectional flow analysis
+* CSV and tabular data import/export
+* Multi-platform support (Windows, macOS, Linux)
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.11+
+- pip package manager
+- Git (for cloning the repository)
+
+### Installation
+
+Clone the repository:
+```bash
+git clone https://github.com/your-username/river.git
+cd river
+pip install -r requirements.txt
+pip install opencv-python-headless>=4.6 matplotlib>=3.8.4 scipy==1.13.1 \
+            click==8.1.7 numba==0.60.0 tqdm==4.67.0 "tablib[xlsx,xls,ods]==3.8.0"
+```
+## 📂 Project Structure
 
 ```
 river/
@@ -36,6 +70,7 @@ river/
 │   ├── 01_video_to_frames.ipynb
 │   ├── 02a_nadir_transformation.ipynb
 │   ├── 02b_oblique_transformation.ipynb
+│   ├── 02c_fixed_station_transformation.ipynb
 │   ├── 03_cross_sections.ipynb
 │   ├── 04_piv_analysis.ipynb
 │   ├── 05_discharge_calculation.ipynb
@@ -62,35 +97,22 @@ river/
 └── docs
 ```
 
-## Dependencies
+## 🧩 Dependencies
 
 ### Backend Requirements
 
 | Package               | Version   | License                 |
 |----------------------|-----------|-------------------------|
-| opencv-python-headless| >=4.6    | MIT License            |
+| opencv-python-headless| >=4.6     | MIT License            |
 | matplotlib           | >=3.8.4   | PSF License            |
 | scipy                | ==1.13.1  | BSD License            |
 | click                | ==8.1.7   | BSD License            |
 | numba                | ==0.60.0  | BSD License            |
 | tqdm                 | ==4.67.0  | MIT License            |
+| tablib[xlsx,xls,ods] | ==3.8.0   | BSD License            |
 
-### Installation
 
-You can install RIVeR's dependencies using pip:
-
-```bash
-pip install -r requirements.txt
-```
-
-Or install individual packages:
-
-```bash
-pip install opencv-python-headless>=4.6 matplotlib>=3.8.4 scipy==1.13.1 \
-            click==8.1.7 numba==0.60.0 tqdm==4.67.0
-```
-
-## Citation
+## 🔬 Citation
 
 If you use RIVeR in your research, please cite:
 
@@ -108,7 +130,7 @@ If you use RIVeR in your research, please cite:
 }
 ```
 
-## Authors
+## 👥 Authors
 
 ### Core Team
 - **Antoine Patalano** - *Project Lead, Feature Development* - [UNC/ORUS]
@@ -118,13 +140,15 @@ If you use RIVeR in your research, please cite:
 - **Nicolas Stefani** - *CLI & Backend Development*
 - **Tomas Stefani** - *Frontend Development*
 
-## Acknowledgments
+## 🤝 Contributing
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+## 📜 License
+RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
+
+## 💭Acknowledgments
 
 - Original MATLAB version (2017)
 - UNC/ORUS research team
 - Contributing organizations: UNC, ORUS, INA, CONICET
 - [PIVlab project](https://la.mathworks.com/matlabcentral/fileexchange/27659-pivlab-particle-image-velocimetry-piv-tool-with-gui): The pioneering PIV analysis tool that inspired aspects of RIVeR's development
-
-## License
-
-RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
