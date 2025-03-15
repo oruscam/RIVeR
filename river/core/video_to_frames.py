@@ -3,34 +3,34 @@ import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Optional
-import numpy as np
-import cv2
 
+import cv2
+import numpy as np
 
 
 def extract_frames(
-		video_path: Path,
-		frames_dir: Path,
-		every: int,
-		start: int,
-		end: Optional[int] = None,
-		overwrite: bool = False,
-		resize_factor: float = 1.0
+	video_path: Path,
+	frames_dir: Path,
+	every: int,
+	start: int,
+	end: Optional[int] = None,
+	overwrite: bool = False,
+	resize_factor: float = 1.0,
 ) -> int:
 	"""Extract frames from a video using OpenCVs VideoCapture.
 
-    Args:
-        video_path (Path): Path of the video.
-        frames_dir (Path): The directory to save the frames.
-        every (int): Frame spacing.
-        start (int): Start frame.
-        end (Optional[int], optional): End frame. Defaults to None.
-        overwrite (bool, optional): To overwrite frames that already exist. Defaults to False.
-        resize_factor (float, optional): Factor to resize the frames (<=1.0). Defaults to 1.0.
+	Args:
+	    video_path (Path): Path of the video.
+	    frames_dir (Path): The directory to save the frames.
+	    every (int): Frame spacing.
+	    start (int): Start frame.
+	    end (Optional[int], optional): End frame. Defaults to None.
+	    overwrite (bool, optional): To overwrite frames that already exist. Defaults to False.
+	    resize_factor (float, optional): Factor to resize the frames (<=1.0). Defaults to 1.0.
 
-    Returns:
-        int: Count of the saved images.
-    """
+	Returns:
+	    int: Count of the saved images.
+	"""
 	# Set JPEG compression parameters for faster writing
 	encode_params = [int(cv2.IMWRITE_JPEG_QUALITY), 95]
 
@@ -95,13 +95,13 @@ def extract_frames(
 
 
 def video_to_frames(
-		video_path: Path,
-		frames_dir: Path,
-		start_frame_number: int = 0,
-		end_frame_number: Optional[int] = None,
-		overwrite: bool = False,
-		every: int = 1,
-		resize_factor: float = 1.0
+	video_path: Path,
+	frames_dir: Path,
+	start_frame_number: int = 0,
+	end_frame_number: Optional[int] = None,
+	overwrite: bool = False,
+	every: int = 1,
+	resize_factor: float = 1.0,
 ) -> str:
 	"""Extracts the frames from a video using multiprocessing
 
@@ -151,9 +151,7 @@ def video_to_frames(
 		optimal_chunk_size = max(100, frames_to_extract // (worker_count * 2))
 		chunk_size = optimal_chunk_size
 
-		frame_chunks = [
-			[i, i + chunk_size] for i in range(start_frame_number, end_frame_number, chunk_size)
-		]
+		frame_chunks = [[i, i + chunk_size] for i in range(start_frame_number, end_frame_number, chunk_size)]
 		frame_chunks[-1][-1] = min(frame_chunks[-1][-1], end_frame_number)
 
 	capture.release()
