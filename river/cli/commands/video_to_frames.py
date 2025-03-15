@@ -12,8 +12,10 @@ from river.core.video_to_frames import video_to_frames as vtf
 @click.option("--start-frame", type=int, default=0, help="Frame number to start.")
 @click.option("--end-frame", type=int, default=None, help="Frame number to end.")
 @click.option("--every", type=int, default=1, help="Step to extract frames.")
-@click.option("--chunk-size", type=int, default=100, help="Size of the frames chunk.")
 @click.option("--overwrite", is_flag=True, help="Overwrite frames if exists.")
+@click.option(
+	"--resize-factor", type=click.FloatRange(min=0.0, max=1.0), default=1.0, help="Factor to resize the frames."
+)
 @click.pass_context
 @render_response
 def video_to_frames(
@@ -23,8 +25,8 @@ def video_to_frames(
 	start_frame: int,
 	end_frame: int,
 	every: int,
-	chunk_size: int,
 	overwrite: bool,
+	resize_factor: float,
 ) -> dict:
 	"""Command to process the given video into frames.
 
@@ -35,8 +37,8 @@ def video_to_frames(
 		start_frame (int): Frame number to start.
 		end_frame (int): Frame number to end.
 		every (int): Step to extract frames.
-		chunk_size (int): Size of the frames chunk.
 		overwrite (bool): Overwrite frames if exists.
+		resize_factor (float, optional): Factor to resize the frames (<=1.0). Defaults to 1.0.
 	"""
 
 	if ctx.obj["verbose"]:
@@ -53,7 +55,7 @@ def video_to_frames(
 		start_frame_number=start_frame,
 		end_frame_number=end_frame,
 		every=every,
-		chunk_size=chunk_size,
 		overwrite=overwrite,
+		resize_factor=resize_factor,
 	)
 	return {"initial_frame": str(initial_frame)}
