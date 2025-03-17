@@ -1,12 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import { useProjectSlice } from '../../hooks'
 
-
-export const FormVideoExtra = () => {
+export const VideoMetadata = () => {
     const { t } = useTranslation()
     const { video } = useProjectSlice()
     const { name, width, height, duration, fps } = video.data;
-
 
     return (
         <div className='form-video-extra-info mt-1'>

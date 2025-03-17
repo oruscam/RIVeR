@@ -33,7 +33,8 @@
             "timeBetweenFrame" : "Time Between Frames: ",
             "resolution" : "Resolution: ",
             "numberOfFrames": "Number of Frames: "
-        }
+        },
+        "framesResolution": "Frames Resolution"
     },
     "PixelSize": {
         "title": "Pixel Size",

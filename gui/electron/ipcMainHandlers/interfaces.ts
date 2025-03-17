@@ -89,9 +89,10 @@ export interface Metadata {
 }
 
 export interface FirstFrameArgs {
-  start_frame: string;
-  end_frame: string;
-  step: string;
+  start_frame: number;
+  end_frame: number;
+  step: number;
+  factor: number;
 }
 
 export interface ProjectConfig {

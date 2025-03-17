@@ -59,10 +59,10 @@ export const useProjectSlice = () => {
         }
     }
 
-    const onInitProject = async (video: { path: string, name: string, type: string}, language: string) => {
+    const onInitProject = async (videoInput: { path: string, name: string, type: string}, language: string) => {
         dispatch(setLoading(true));
 
-        const extension = video.name.split('.').pop();
+        const extension = videoInput.name.split('.').pop();
         if ( extension?.toUpperCase() !== 'MP4'){
             dispatch(setMessage(t('Loader.videoConversion')))
         }
@@ -70,7 +70,7 @@ export const useProjectSlice = () => {
         const ipcRenderer = window.ipcRenderer;
 
         try {
-            const  { result, error } = await ipcRenderer.invoke('init-project', { path: video.path, name: video.name, type: video.type, language: language });
+            const  { result, error } = await ipcRenderer.invoke('init-project', { path: videoInput.path, name: videoInput.name, type: videoInput.type, language: language });
 
             if ( error ){
                 if (error.type === 'user-cancel-operation') {
@@ -88,9 +88,22 @@ export const useProjectSlice = () => {
                 duration: result.duration
             }
 
+            // Determine the best factor for the frames extraction.
+            // By default, if the video is 2688x1520 or less, the factor is 1. Orginal resolution.
+            // When the resolution is higher than 2688x1520 and less than 3840x2160, the factor is 0.5.
+            // If the resolution is higher than 3840x2160, the factor is 0.25
+
+            if (result.width <= 2688 && result.height <= 1520) {
+                dispatch(setVideoParameters({ ...video.parameters, factor: 1 }));
+            } else if (result.width <= 3840 && result.height <= 2160) {
+                dispatch(setVideoParameters({ ...video.parameters, factor: 0.5 }));
+            } else {
+                dispatch(setVideoParameters({ ...video.parameters, factor: 0.25 }));
+            }
+
             dispatch(setVideoData(videoData));
             dispatch(setProjectDirectory(result.directory));
-            dispatch(setProjectType(video.type));
+            dispatch(setProjectType(videoInput.type));
             dispatch(setLoading(false));
             dispatch(clearMessage());
             
@@ -102,6 +115,11 @@ export const useProjectSlice = () => {
         }    
     }
 
+    const onChangeFramesResolution = async ( factor: number ) => {
+        dispatch(setVideoParameters({ ...video.parameters, factor: factor }));
+    }
+
+
     /**
      * Method to set the video parameters.
      * @param data | FieldValues - from useFormHook
@@ -111,18 +129,17 @@ export const useProjectSlice = () => {
         dispatch(setLoading(true));
         dispatch(setMessage(t('Loader.extractingFrames')))
 
-        const { startTime, endTime, step } = video.parameters;
+        const { startTime, endTime, step, factor } = video.parameters;
 
         const parsedStart = parseTime(data.start);
         const parsedEnd = parseTime(data.end);
 
-        if( parsedStart === startTime && parsedEnd === endTime && parseFloat(data.step) === step){
+        if( parsedStart === startTime && parsedEnd === endTime && parseFloat(data.step) === step ){
             dispatch(setLoading(false));
             dispatch(clearMessage());
             return false;
         }
 
-        
         dispatch(setImages({paths: []}))
         const parameters = {
             step: parseFloat(data.step),
@@ -130,6 +147,7 @@ export const useProjectSlice = () => {
             endTime: parsedEnd,
             startFrame: Math.floor(parsedStart* video.data.fps),
             endFrame: Math.floor(parsedEnd * video.data.fps),
+            factor: factor
         }
         const ipcRenderer = window.ipcRenderer;
         
@@ -138,6 +156,7 @@ export const useProjectSlice = () => {
                 start_frame: parameters.startFrame,
                 end_frame: parameters.endFrame,
                 step: parameters.step,
+                factor: factor
             })
 
             dispatch(clearMessage())
@@ -361,6 +380,7 @@ export const useProjectSlice = () => {
         video,
 
         // METHODS
+        onChangeFramesResolution,
         onGetVideo,
         onInitProject,
         onLoadProject,

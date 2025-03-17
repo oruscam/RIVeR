@@ -16,7 +16,7 @@ export const FormProcessing = () => {
   const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver, isBackendWorking, quiver } = useDataSlice()
   const { step1, heightRoi, grayscale, removeBackground, clahe, clipLimit, stdFiltering, stdThreshold, medianTestThreshold, medianTestEpsilon, medianTestFiltering } = processing.form
   
-  const [_buttonTest, _setButtonTest] = useState(false)
+  // const [_buttonTest, _setButtonTest] = useState(false)
 
   const { t } = useTranslation()  
 

@@ -3,7 +3,6 @@ import { FirstFrameArgs, ProjectConfig } from "./interfaces";
 import * as fs from 'fs'
 import path from "path";
 
-
 function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
     const mainWindow = BrowserWindow.getAllWindows()[0];
@@ -13,7 +12,9 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         if (fs.existsSync(PROJECT_CONFIG.framesPath)) {
             await fs.promises.rm(PROJECT_CONFIG.framesPath, { recursive: true, force: true });
         }
+        
         const { videoPath, framesPath, logsPath } = PROJECT_CONFIG
+        const { start_frame, end_frame, step, factor} = args
 
         const filePrefix = import.meta.env.VITE_FILE_PREFIX
 
@@ -21,9 +22,9 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
             'video-to-frames',
             videoPath,
             framesPath,
-            '--start-frame', args.start_frame,
-            '--end-frame', args.end_frame,
-            '--every', args.step,
+            '--start-frame', start_frame,
+            '--end-frame', end_frame,
+            '--every', step,
             '--overwrite'
         ]
 
@@ -31,9 +32,10 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         const jsonParsed = JSON.parse(json);
 
         jsonParsed.video_range = {
-            start: args.start_frame,
-            end: args.end_frame,
-            step: args.step
+            start:  start_frame,
+            end: end_frame,
+            step: step,
+            factor: factor,
         }
 
         const updatedContent = JSON.stringify(jsonParsed, null, 4);

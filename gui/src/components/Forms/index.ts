@@ -1,4 +1,4 @@
-import { FormVideoExtra } from "./FormVideoExtra";
+import { VideoMetadata } from "./VideoMetadata";
 import { FormVideo } from "./FormVideo";
 import { FormPixelSize } from "./FormPixelSize";
 import { FormCrossSections } from "./FormCrossSections";
@@ -9,6 +9,7 @@ import { FormResults } from "./FormResults";
 import { FormReport } from "./FormReport";
 import { FormRectification2D } from "./FormRectification2D";
 import { FormRectification3D } from "./FormRectification3D";
+import { FramesResolution } from "./FramesResolution";
 
 export {
     FormCrossSections,
@@ -19,7 +20,8 @@ export {
     FormReport,
     FormResults,
     FormVideo,
-    FormVideoExtra,
+    VideoMetadata,
     PixelCoordinates,
     RealWorldCoordinates,
+    FramesResolution
 }

@@ -33,8 +33,7 @@ export const ButtonLock = ({localExtraFields, localSetExtraFields, footerElement
                     }, 50)
                 }
                 onSetExtraFields()
-
-            break;
+                break;
             
             case MODULE_NUMBER.PIXEL_SIZE:
                 if(extraFields){
@@ -48,8 +47,21 @@ export const ButtonLock = ({localExtraFields, localSetExtraFields, footerElement
                     }, 50)
                 }
                 localSetExtraFields()
+                break;
 
-            break;
+            case MODULE_NUMBER.VIDEO_RANGE:
+                if(extraFields){
+                    const headerElement = document.getElementById(headerElementID)
+                    headerElement?.scrollIntoView({behavior: "smooth"})
+                }else{
+                    const footerElement = document.getElementById(footerElementID)
+                    setTimeout(() => {
+                        footerElement?.scrollIntoView({behavior: "smooth"})
+        
+                    }, 50)
+                }
+                localSetExtraFields(!localExtraFields)
+                break;
 
             case MODULE_NUMBER.PROCESSING:
                 if(localExtraFields){

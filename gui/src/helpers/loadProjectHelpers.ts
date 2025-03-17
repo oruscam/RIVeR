@@ -19,13 +19,14 @@ import { transformPixelToRealWorld } from './coordinates';
  */
 
 const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoParameters: any, fps: number) => {
-    const { step, start, end } = video_range
+    const { step, start, end, factor } = video_range
     dispatch(setVideoParameters({
         step: step,
         startTime: parseFloat((start / fps).toFixed(2)),
         endTime: parseFloat((end / fps).toFixed(2)),
         startFrame: start,
         endFrame: end,
+        factor
     }))
     return
 }
@@ -286,6 +287,7 @@ interface VideoRange {
     step: number,
     start: number,
     end: number
+    factor: number
 }
 
 interface XSectionValue {

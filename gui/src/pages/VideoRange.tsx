@@ -2,7 +2,6 @@ import { VideoPlayer } from '../components/VideoPlayer/VideoPlayer'
 import { FormVideo } from '../components/Forms/FormVideo'
 import { WizardButtons } from '../components/WizzardButtons'
 import { Error } from '../components/Error'
-import { FormVideoExtra } from '../components/Forms/FormVideoExtra'
 import { Progress } from '../components'
 import { useProjectSlice } from '../hooks'
 
@@ -20,8 +19,8 @@ export const VideoRange = () => {
         <div className='form-container'>
           <Progress/>
           <FormVideo duration={duration}/>
-          {/* EXTRA INFO */}
-          <FormVideoExtra/>
+          {/* <FormVideoExtra/> */}
+          
           <WizardButtons formId='form-video' canFollow={true}/>
         </div>
     </div>

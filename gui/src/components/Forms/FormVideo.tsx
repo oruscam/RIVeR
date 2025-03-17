@@ -4,18 +4,19 @@ import { useTranslation } from 'react-i18next'
 import { useUiSlice } from '../../hooks/useUiSlice';
 import { useWizard } from 'react-use-wizard';
 import { getValidationRules } from '../../helpers/validationRules'
-import { useDataSlice, useProjectSlice } from '../../hooks';
+import { useProjectSlice } from '../../hooks';
 import './form.css'
 import { formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
+import { VideoMetadata } from './VideoMetadata';
+import { ButtonLock } from '../ButtonLock';
+import { FramesResolution } from './FramesResolution';
 
 export const FormVideo = ( { duration } : { duration: number } ) => {
   const { onSetVideoParameters, video: videoData } = useProjectSlice()
-  const { onSetImages, images } = useDataSlice()
   const { startTime, endTime, step } = videoData.parameters
-
+  const [ extraFields, setExtraFields ] = useState(false)
   const { fps } = videoData.data
-
 
   const { handleSubmit, register, setValue, getValues, watch } = useForm({
     defaultValues: {
@@ -107,56 +108,61 @@ export const FormVideo = ( { duration } : { duration: number } ) => {
     setVideo(document.getElementById("video") as HTMLVideoElement)
   }, [watchStep])
 
-
   return (
     <>
       <h1 className='form-title'>{t("VideoRange.title")}</h1>
-      <form onSubmit={handleSubmit(onSubmit, onError)} id='form-video' className='form-base-2 mt-2'>
-          
-          <div className='input-container-2 mt-2'>
-            <button type='button' onClick={handleClick} className='wizard-button form-button me-1' id='start-button'> {t("VideoRange.start")}</button>
-            <input
-              className='input-field'
-              defaultValue='00:00'
-              id='start'
-              type='text'
-              { ...register("start", validationRules.start) }
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-              />
-          </div>
-          <div className='input-container-2 mt-1'>
-            <button type='button' className='wizard-button form-button me-1' onClick={handleClick} id='end-button'> {t("VideoRange.end")} </button>
-            <input
-              type='text'
-              className='input-field'
-              defaultValue='00:00'
-              id='end'
-              { ...register('end', validationRules.end) }
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-              />
-          </div>
-          <div className='input-container-2 mt-1'>
-            <label className='read-only me-1'> {t("VideoRange.step")} </label>
-            <input
-              type='number'
-              id='input-step'
-              defaultValue={1}
-              className='input-field'
-              onKeyDown={handleKeyDown}
-              { ...register('step', validationRules.step)}
-              />
-          </div>
-          <div className='form-video-extra-info-row mt-1 frames-info'>
-                <p>{t("VideoRange.ExtraInfo.timeBetweenFrame")}</p>
-                <p>{ timeBetweenFrames }ms</p>
-          </div>
-          <div className='form-video-extra-info-row frames-info'>
-            <p>{t('VideoRange.ExtraInfo.numberOfFrames')}</p>
-            <p>{ numberOfFrames > 0 ? numberOfFrames : 0 }</p>
+      <form onSubmit={handleSubmit(onSubmit, onError)} id='form-video' className='form-scroll mt-2'>
+          <div className='form-base-2'>
+            <div className='input-container-2 mt-2'>
+              <button type='button' onClick={handleClick} className='wizard-button form-button me-1' id='start-button'> {t("VideoRange.start")}</button>
+              <input
+                className='input-field'
+                defaultValue='00:00'
+                id='start'
+                type='text'
+                { ...register("start", validationRules.start) }
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                />
+            </div>
+            <div className='input-container-2 mt-1'>
+              <button type='button' className='wizard-button form-button me-1' onClick={handleClick} id='end-button'> {t("VideoRange.end")} </button>
+              <input
+                type='text'
+                className='input-field'
+                defaultValue='00:00'
+                id='end'
+                { ...register('end', validationRules.end) }
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                />
+            </div>
+            <div className='input-container-2 mt-1'>
+              <label className='read-only me-1'> {t("VideoRange.step")} </label>
+              <input
+                type='number'
+                id='input-step'
+                defaultValue={1}
+                className='input-field'
+                onKeyDown={handleKeyDown}
+                { ...register('step', validationRules.step)}
+                />
+            </div>
+            <div className='form-video-extra-info-row mt-1 frames-info'>
+                  <p>{t("VideoRange.ExtraInfo.timeBetweenFrame")}</p>
+                  <p>{ timeBetweenFrames }ms</p>
+            </div>
+            <div className='form-video-extra-info-row frames-info'>
+              <p>{t('VideoRange.ExtraInfo.numberOfFrames')}</p>
+              <p>{ numberOfFrames > 0 ? numberOfFrames : 0 }</p>
+            </div>
+
+            <VideoMetadata/>
+
+            <FramesResolution active={extraFields}/>
           </div>
       </form>
+      <ButtonLock localExtraFields={extraFields} localSetExtraFields={setExtraFields} disabled={false} headerElementID='start' footerElementID='video-resolution'/>
     </>
   )
 }
