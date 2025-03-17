@@ -116,9 +116,8 @@ export const useProjectSlice = () => {
     }
 
     const onChangeFramesResolution = async ( factor: number ) => {
-        dispatch(setVideoParameters({ ...video.parameters, factor: factor }));
+        dispatch(setVideoParameters({ ...video.parameters, factor: factor, factorChanged: true }));
     }
-
 
     /**
      * Method to set the video parameters.
@@ -129,12 +128,12 @@ export const useProjectSlice = () => {
         dispatch(setLoading(true));
         dispatch(setMessage(t('Loader.extractingFrames')))
 
-        const { startTime, endTime, step, factor } = video.parameters;
+        const { startTime, endTime, step, factor, factorChanged } = video.parameters;
 
         const parsedStart = parseTime(data.start);
         const parsedEnd = parseTime(data.end);
 
-        if( parsedStart === startTime && parsedEnd === endTime && parseFloat(data.step) === step ){
+        if( parsedStart === startTime && parsedEnd === endTime && parseFloat(data.step) === step && factorChanged === false ){
             dispatch(setLoading(false));
             dispatch(clearMessage());
             return false;

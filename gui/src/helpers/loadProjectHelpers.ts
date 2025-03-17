@@ -26,7 +26,8 @@ const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoP
         endTime: parseFloat((end / fps).toFixed(2)),
         startFrame: start,
         endFrame: end,
-        factor
+        factor,
+        factorChanged: false
     }))
     return
 }

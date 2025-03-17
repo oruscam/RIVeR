@@ -25,6 +25,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
             '--start-frame', start_frame,
             '--end-frame', end_frame,
             '--every', step,
+            '--resize-factor', factor,
             '--overwrite'
         ]
 

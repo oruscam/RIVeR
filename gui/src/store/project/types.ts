@@ -16,6 +16,7 @@ interface VideoParameters {
     startFrame: number;
     endFrame: number;
     factor: number;
+    factorChanged: boolean;
 }
 
 interface Video {

@@ -17,7 +17,8 @@ const defaultVideo = {
         endTime: 0,
         startFrame: 0,
         endFrame: 0,
-        factor: 1
+        factor: 1,
+        factorChanged: false,
     },
 }
 
