@@ -48,9 +48,10 @@
     "deleteAppDataOnUninstall": false,
   },
   "linux": {
-    "target": ["AppImage"],
+    "target": ["deb"],
     "artifactName": "${productName}-Linux-${version}.${ext}",
     "icon": "icons",
-    "category": "Utility"
+    "category": "Utility",
+    "maintainer": "Tomas Stefani tomyste02@gmail.com"
   }
 }

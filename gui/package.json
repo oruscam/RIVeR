@@ -6,6 +6,7 @@
   "type": "module",
   "description": "app-description-test",
   "athor": "RIVeR tomyste02@gmail.com",
+  "homepage": "https://www.google.com",
   "scripts": {
     "dev": "vite",
     "build": "npm run clean && vite build",
