@@ -22,7 +22,7 @@
       "dmg"
     ],
     "artifactName": "${productName}-Mac-${version}-Installer.${ext}",
-    "icon": "icons"
+    "icon": "icons/mac.icns",
   },
   "win": {
     "target": [
@@ -34,7 +34,7 @@
       }
     ],
     "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
-    "icon": "icons",
+    "icon": "icons/1256x1259.png",
     "extraResources": [
       {
         "from": "ffmpeg",
@@ -54,6 +54,6 @@
       "AppImage"
     ],
     "artifactName": "${productName}-Linux-${version}.${ext}",
-    "icon": "icons"
+    "icon": "icons/mac.icns"
   }
 }
