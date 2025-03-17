@@ -10,9 +10,18 @@ import { FOOTAGE_TYPES } from './constants/constants'
 export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice()
   const { type, video } = useProjectSlice()
-  const { data } = video 
+  const { data, parameters } = video 
   const { onSetImages, images } = useDataSlice()
+  const { factor } = parameters
 
+  const prefix = import.meta.env.VITE_FILE_PREFIX
+  console.log(prefix)
+
+  console.log(video)
+
+  window.ipcRenderer.invoke('app-path').then((paths) => {
+    console.log(paths)
+  })
 
   const getStep4 = () => {
     switch (type) {
@@ -35,14 +44,14 @@ export const App: React.FC = () => {
       const width = window.innerWidth
       const height = window.innerHeight
 
-      onSetScreen({ windowWidth: width, windowHeight: height, imageWidth: data.width, imageHeight: data.height })
+      onSetScreen({ windowWidth: width, windowHeight: height, imageWidth: data.width * factor, imageHeight: data.height * factor })
     }
 
     window.addEventListener('resize', handleResize)
     handleResize()
 
     return () => window.removeEventListener('resize', handleResize)
-  }, [data])
+  }, [data, factor])
 
   useEffect(() => {
     const handleAllFrames = (_event: any, paths: string[]) => {

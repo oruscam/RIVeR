@@ -12,9 +12,7 @@ const plataform = os.platform();
 /**
  * If the platform is Windows, set the path to the `ffmpeg.exe` and `ffprobe.exe` executables.
  */
-
-if ( plataform === 'win32' ) {
-
+if ( plataform === 'win32' || plataform === 'linux') {
     /**
      * If the application is running in development mode, set the path to the `ffmpeg.exe` and `ffprobe.exe` executables from .env.development variables.
      */
@@ -30,9 +28,16 @@ if ( plataform === 'win32' ) {
          * @constant {string} ffprobePath - The path to the `ffprobe.exe` executable, 
          * located in the `ffmpeg/bin` directory relative to the application's root path.
          */
-        
-        const ffmpegPath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffmpeg.exe');
-        const ffprobePath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffprobe.exe');
+        let ffmpegPath = ''
+        let ffprobePath = ''
+
+        if ( plataform === 'win32') {
+            ffmpegPath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffmpeg.exe');
+            ffprobePath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffprobe.exe');
+        } else if ( plataform === 'linux') {
+            ffmpegPath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffmpeg');
+            ffprobePath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffprobe');
+        }
 
         ffmpeg.setFfmpegPath(ffmpegPath);
         ffmpeg.setFfprobePath(ffprobePath)

@@ -12,9 +12,14 @@
   ],
   "extraResources": [
     {
-    "from": "river-cli",
-    "to": "river-cli",
-    "filter": ["**/*"]
+      "from": "river-cli",
+      "to": "river-cli",
+      "filter": ["**/*"]
+    },
+    {
+      "from": "ffmpeg",
+      "to": "ffmpeg",
+      "filter": ["**/*"]
     }
   ],
   "mac": {
@@ -34,14 +39,7 @@
       }
     ],
     "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
-    "icon": "icons/1256x1259.png",
-    "extraResources": [
-      {
-        "from": "ffmpeg",
-        "to" : "ffmpeg",
-        "filter": ["**/*"]
-      }
-    ]
+    "icon": "icons/1256x1259.png"
   },
   "nsis": {
     "oneClick": false,
@@ -50,10 +48,9 @@
     "deleteAppDataOnUninstall": false,
   },
   "linux": {
-    "target": [
-      "AppImage"
-    ],
+    "target": ["AppImage"],
     "artifactName": "${productName}-Linux-${version}.${ext}",
-    "icon": "icons/mac.icns"
+    "icon": "icons",
+    "category": "Utility"
   }
 }

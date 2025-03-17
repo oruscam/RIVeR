@@ -1,4 +1,4 @@
-import { ipcMain, webContents, BrowserWindow } from "electron";
+import { ipcMain, BrowserWindow } from "electron";
 import { FirstFrameArgs, ProjectConfig } from "./interfaces";
 import * as fs from 'fs'
 import path from "path";
@@ -37,6 +37,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
             end: end_frame,
             step: step,
             factor: factor,
+            options: options
         }
 
         const updatedContent = JSON.stringify(jsonParsed, null, 4);

@@ -4,6 +4,8 @@
   "private": true,
   "version": "3.0.0",
   "type": "module",
+  "description": "app-description-test",
+  "athor": "RIVeR tomyste02@gmail.com",
   "scripts": {
     "dev": "vite",
     "build": "npm run clean && vite build",

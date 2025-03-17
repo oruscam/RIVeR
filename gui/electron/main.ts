@@ -30,6 +30,7 @@ import {
 } from './ipcMainHandlers/index.js'
 import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js'
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js'
+import * as fs from 'fs/promises';
 
 process.env.APP_ROOT = path.join(__dirname, '..')
 
@@ -84,17 +85,18 @@ async function createWindow() {
     win.loadURL(VITE_DEV_SERVER_URL)
 
     // If you want to test river-cli on develop, change executePythonShell for executeRiverCli
-    riverCli = executePythonShell
+    // riverCli = executePythonShell
+    riverCli = executeRiverCli
+
 
   } else {
-
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'))
     
     riverCli = executeRiverCli
 
     // Remove menu bar
-    win.setMenu(null);
+    // win.setMenu(null);
   }
 }
 
@@ -171,3 +173,14 @@ app.whenReady().then(() => {
   saveReportHtml(PROJECT_CONFIG);
 })
 
+ipcMain.handle('app-path', async () => {
+  const appPath = app.getAppPath();
+  const files = await fs.readdir(appPath);
+
+  const app_paths = {
+    app: appPath,
+    files: files
+  }
+
+  return app_paths;
+})

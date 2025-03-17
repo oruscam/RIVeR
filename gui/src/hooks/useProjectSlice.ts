@@ -146,7 +146,8 @@ export const useProjectSlice = () => {
             endTime: parsedEnd,
             startFrame: Math.floor(parsedStart* video.data.fps),
             endFrame: Math.floor(parsedEnd * video.data.fps),
-            factor: factor
+            factor: factor,
+            factorChanged: factorChanged
         }
         const ipcRenderer = window.ipcRenderer;
         
