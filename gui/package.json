@@ -10,12 +10,10 @@
     "lint": "eslint . --c ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "install-pyinstaller": "pip install pyinstaller",
-    "build-cli": "pyinstaller -F --distpath . -n river-cli ../river/cli/__main__.py",
-    "build-cli-onedir": "pyinstaller -D --distpath . -n river-cli --contents-directory . ../river/cli/__main__.py",
-    "build:win:one-dir": "electron-builder --config electron-builder.onedir.json5 --win",
-    "build:win:one-file": "electron-builder --config electron-builder.onefile.json5 --win",
-    "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux",
+    "build-cli": "pyinstaller -D --distpath . -n river-cli --contents-directory . ../river/cli/__main__.py",
+    "build-win": "electron-builder --config electron-builder.json5 --win",
+    "build-mac": "electron-builder --config electron-builder.json5 --mac",
+    "build-linux": "electron-builder --config electron-builder.json5 --linux",
     "clean": "rimraf dist dist-electron"
   },
   "dependencies": {
