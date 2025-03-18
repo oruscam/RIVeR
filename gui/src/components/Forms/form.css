@@ -526,8 +526,10 @@ transform-origin: 14px 22px;
     min-width: 175px;
 }
 
-#import-distances, #import-images{
+#import-distances, #import-images, #draw-coordinates{
     height: auto;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .solver-button{

@@ -3,7 +3,13 @@
         "start": "Start",
         "loadProject": "Load Project",
         "spanish" : "Spanish",
-        "english" : "English"
+        "english" : "English",
+        "french" : "French",
+        "Errors": {
+            "noSettingsFile": "The selected directory does not contain a settings.json file",
+            "notValidDirectory" : "Please selected a valid directory",
+            "default": "An error occurred while trying to load the project"
+        }
     },
     "Step-2" : {
         "title" : "Select the kind of footage"
@@ -230,6 +236,8 @@
     "Commons": {
         "yes": "Yes",
         "no": "No",
-        "solve": "Solve"
+        "solve": "Solve",
+        "resourceNotFound": "Resource not found",
+        "randomError": "Something went wrong. Please try again"
     }
 }

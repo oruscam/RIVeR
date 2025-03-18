@@ -6,17 +6,17 @@ import dataReducer from "./data/dataSlice";
 import matrixReducer from "./matrix/matrixSlice";
 
 const store = configureStore({
-    reducer: {
-        ui: uiReducer,
-        project: projectReducer,
-        section: sectionReducer,
-        data: dataReducer,
-        matrix: matrixReducer
-    },
+  reducer: {
+    ui: uiReducer,
+    project: projectReducer,
+    section: sectionReducer,
+    data: dataReducer,
+    matrix: matrixReducer,
+  },
 });
 
 // Get the type of our store variable
-type AppStore = typeof store
+type AppStore = typeof store;
 export default store;
-export type RootState = ReturnType<AppStore['getState']>
-export type AppDispatch = AppStore['dispatch']
+export type RootState = ReturnType<AppStore["getState"]>;
+export type AppDispatch = AppStore["dispatch"];

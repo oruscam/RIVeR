@@ -20,4 +20,4 @@ export const getDirectionVector = (points: Point[]): [number, number] => {
   const direction_vector: [number, number] = [dx / magnitude, dy / magnitude];
 
   return direction_vector;
-}
+};

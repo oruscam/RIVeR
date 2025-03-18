@@ -3,7 +3,13 @@
         "start": "Iniciar",
         "loadProject": "Cargar Proyecto",
         "spanish": "Español",
-        "english": "Inglés"
+        "english": "Inglés",
+        "french": "Francés",
+        "Errors": {
+            "noSettingsFile": "El directorio seleccionado no contiene un archivo settings.json",
+            "notValidDirectory" : "Por favor seleccione un directorio válido",
+            "default": "Ocurrió un error al intentar cargar el proyecto"
+        }
     },
     "Step-2" : {
         "title": "Seleccione el tipo de grabación"
@@ -19,13 +25,13 @@
         "end": "Fin",
         "step": "Paso",
         "Errors": {
-            "start1": "Selección de intervalo de tiempo inválido: el ‘Inicio’ no puede ser menor a 0. Ingrese un valor válido.",
-            "end1": "Selección de intervalo de tiempo inválido: el ‘Fin’ no puede ser mayor que la duración total del video. Ingrese un valor válido.",
+            "start1": "Selección de intervalo de tiempo inválido: el 'Inicio' no puede ser menor a 0. Ingrese un valor válido.",
+            "end1": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser mayor que la duración total del video. Ingrese un valor válido.",
             "end2": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser 0 o menor. Ingrese un valor válido.",
-            "end3": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser 0 o menor que el ‘Inicio’. Ingrese un valor válido.",
+            "end3": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser 0 o menor que el 'Inicio. Ingrese un valor válido.",
             "step": "Selección de paso inválida: el parámetro 'Paso' debe ser un número entero mayor que 1. Ingrese un valor válido.",
             "required": "Todos los campos son obligatorios. Por favor consulte el formato del intervalo de vídeo.",
-            "formatInput": "Formato incorrecto. Formato de ‘Inicio’ y ‘Fin’ debe ser '00:00'."
+            "formatInput": "Formato incorrecto. Formato de 'Inicio' y 'Fin' debe ser '00:00'."
         },
         "ExtraInfo" : {
             "fileName": "Nombre de Archivo: ",
@@ -230,6 +236,8 @@
     "Commons": {
         "yes": "Si",
         "no": "No",
-        "solve": "Resolver"
+        "solve": "Resolver",
+        "resourceNotFound": "Recurso no encontrado",
+        "randomError": "Algo salió mal. Por favor intente nuevamente"
     }
 }

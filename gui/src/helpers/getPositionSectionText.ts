@@ -9,21 +9,21 @@ import { Point } from "../types";
  */
 
 function calculateMidpointAndAngle(point1: Point, point2: Point) {
-    // Calculate the midpoint between point1 and point2
-    const midpoint: Point = {
-      x: (point1.x + point2.x - 80) / 2, // Adjust x-coordinate and divide by 2
-      y: (point1.y + point2.y) / 2 // Divide y-coordinate by 2
-    };
-  
-    // Calculate the differences in x and y coordinates
-    const deltaX = point2.x - point1.x;
-    const deltaY = point2.y - point1.y;
-    
-    // Calculate the angle between the two points in radians
-    let angle = Math.atan2(deltaY, deltaX); // atan2 returns the angle in radians
-    angle = angle * (180 / Math.PI); // Convert the angle to degrees
+  // Calculate the midpoint between point1 and point2
+  const midpoint: Point = {
+    x: (point1.x + point2.x - 80) / 2, // Adjust x-coordinate and divide by 2
+    y: (point1.y + point2.y) / 2, // Divide y-coordinate by 2
+  };
 
-    return { midpoint, angle };
+  // Calculate the differences in x and y coordinates
+  const deltaX = point2.x - point1.x;
+  const deltaY = point2.y - point1.y;
+
+  // Calculate the angle between the two points in radians
+  let angle = Math.atan2(deltaY, deltaX); // atan2 returns the angle in radians
+  angle = angle * (180 / Math.PI); // Convert the angle to degrees
+
+  return { midpoint, angle };
 }
 
 /**
@@ -33,8 +33,13 @@ function calculateMidpointAndAngle(point1: Point, point2: Point) {
  * @param point2 - The second point.
  * @returns An object containing the left point and the right point.
  */
-const getLeftAndRightPoints = (point1: Point, point2: Point): { leftPoint: Point; rightPoint: Point } => {
-  return point1.x < point2.x ? { leftPoint: point1, rightPoint: point2 } : { leftPoint: point2, rightPoint: point1 };
+const getLeftAndRightPoints = (
+  point1: Point,
+  point2: Point,
+): { leftPoint: Point; rightPoint: Point } => {
+  return point1.x < point2.x
+    ? { leftPoint: point1, rightPoint: point2 }
+    : { leftPoint: point2, rightPoint: point1 };
 };
 
 /**
@@ -45,19 +50,21 @@ const getLeftAndRightPoints = (point1: Point, point2: Point): { leftPoint: Point
  * @throws {Error} If less than two points are provided.
  *
  */
-const getLowerAndUpperPoints = (...points: Point[]): { lowerPoint: Point; upperPoint: Point } => {
+const getLowerAndUpperPoints = (
+  ...points: Point[]
+): { lowerPoint: Point; upperPoint: Point } => {
   if (points.length < 2) throw new Error("At least two points are required");
 
   let lowerPoint = points[0];
   let upperPoint = points[0];
 
-  points.forEach(point => {
+  points.forEach((point) => {
     if (point.y < lowerPoint.y) lowerPoint = point;
     if (point.y > upperPoint.y) upperPoint = point;
   });
 
   return { lowerPoint, upperPoint };
-}
+};
 
 /**
  * Calculates the position and rotation angle for a section of text based on two points.
@@ -72,10 +79,16 @@ const getLowerAndUpperPoints = (...points: Point[]): { lowerPoint: Point; upperP
  * - If the angle is between 90 and 180 degrees, the right point is selected and the rotation is adjusted by 180 degrees.
  * - Otherwise, the upper point is selected.
  */
-const getPositionSectionText = (point1: Point, point2: Point, imageWidth: number, imageHeight: number, factor: number) => {
+const getPositionSectionText = (
+  point1: Point,
+  point2: Point,
+  imageWidth: number,
+  imageHeight: number,
+  factor: number,
+) => {
   const { angle } = calculateMidpointAndAngle(point1, point2);
   const { leftPoint, rightPoint } = getLeftAndRightPoints(point1, point2);
-  const { upperPoint, lowerPoint } = getLowerAndUpperPoints(point1, point2);
+  const { upperPoint } = getLowerAndUpperPoints(point1, point2);
 
   let rotation = angle;
   let point = { ...leftPoint };
@@ -124,7 +137,7 @@ const getPositionSectionText = (point1: Point, point2: Point, imageWidth: number
     } else {
       point = leftPoint;
     }
-  } 
+  }
 
   // Ajuste de punto según márgenes a la izquierda
   if (isRight === false && point.x / factor < marginLeft) {
@@ -156,5 +169,10 @@ const getPositionSectionText = (point1: Point, point2: Point, imageWidth: number
   // }
 
   return { point, rotation };
-}
-export { calculateMidpointAndAngle, getLeftAndRightPoints, getLowerAndUpperPoints, getPositionSectionText };
+};
+export {
+  calculateMidpointAndAngle,
+  getLeftAndRightPoints,
+  getLowerAndUpperPoints,
+  getPositionSectionText,
+};

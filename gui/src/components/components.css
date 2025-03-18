@@ -5,8 +5,15 @@
     bottom: 25px;
 }
 
-.language-selector{
+#version-number{
     margin-top: auto;
+    margin-bottom: 40px;
+    color: #575757;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.language-selector{
     margin-bottom: 45px;
     display: flex;
     width: 120px;

@@ -11,17 +11,17 @@ import { drawSvgSectionLine } from "./drawSvgSectionLine";
 import { OrthoImage } from "./OrthoImage";
 import { scaleBar } from "./scaleBar";
 
-export { 
-    AllInOne, 
-    Bathimetry, 
-    createPinsBase64,
-    drawSvgSectionLine,
-    drawVectors, 
-    ipcamSvg,
-    obliqueSvg,
-    OrthoImage,
-    PointsMap, 
-    scaleBar, 
-    TestPlot,
-    VelocityVector,
+export {
+  AllInOne,
+  Bathimetry,
+  createPinsBase64,
+  drawSvgSectionLine,
+  drawVectors,
+  ipcamSvg,
+  obliqueSvg,
+  OrthoImage,
+  PointsMap,
+  scaleBar,
+  TestPlot,
+  VelocityVector,
 };

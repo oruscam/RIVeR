@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { GrLanguage } from 'react-icons/gr';
-import { useUiSlice } from '../hooks';
+import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { GrLanguage } from "react-icons/gr";
+import { useUiSlice } from "../hooks";
 
 export const LanguageSelector = () => {
   const { t, i18n } = useTranslation();
@@ -16,15 +16,16 @@ export const LanguageSelector = () => {
   }, [language]);
 
   return (
-    <div className='language-selector'>
-      <GrLanguage className='language-selector-icon primary-color' />
+    <div className="language-selector">
+      <GrLanguage className="language-selector-icon primary-color" />
       <select
-        className='language-selector-select'
+        className="language-selector-select"
         value={language}
         onChange={handleOnChange}
       >
-        <option value='en'>{t('MainPage.english')}</option>
-        <option value='es'>{t('MainPage.spanish')}</option>
+        <option value="en">{t("MainPage.english")}</option>
+        <option value="es">{t("MainPage.spanish")}</option>
+        <option value="fr">{t("MainPage.french")}</option>
       </select>
     </div>
   );

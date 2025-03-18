@@ -10,25 +10,28 @@
  *          - 'windowsSizesError' if the calculated minimum value is less than step1.
  *          - undefined if the minimum value is greater than or equal to step1.
  */
-function verifyWindowsSizes( step1: number, bbox: number[] | boolean ) : { message: string } | undefined {
-    if ( bbox === false ){
-        return {
-            message: 'bboxNotDefined'
-        }
-    }
+function verifyWindowsSizes(
+  step1: number,
+  bbox: number[] | boolean,
+): { message: string } | undefined {
+  if (bbox === false) {
+    return {
+      message: "bboxNotDefined",
+    };
+  }
 
-    let minValue = 0
-    if ( Array.isArray(bbox) ){
-        minValue = Math.min(...bbox.slice(-2)) / 1.5;
-    }
+  let minValue = 0;
+  if (Array.isArray(bbox)) {
+    minValue = Math.min(...bbox.slice(-2)) / 1.5;
+  }
 
-    if ( minValue  < step1 ) {
-        return {
-            message: 'windowsSizesError'
-        }
-    }
+  if (minValue < step1) {
+    return {
+      message: "windowsSizesError",
+    };
+  }
 
-    return 
+  return;
 }
 
-export { verifyWindowsSizes }
+export { verifyWindowsSizes };
