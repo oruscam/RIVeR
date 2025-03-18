@@ -39,7 +39,6 @@ import {
 } from "./ipcMainHandlers/index.js";
 import { executePythonShell } from "./ipcMainHandlers/utils/executePythonShell.js";
 import { executeRiverCli } from "./ipcMainHandlers/utils/executeRiverCli.js";
-import * as fs from "fs/promises";
 
 process.env.APP_ROOT = path.join(__dirname, "..");
 
@@ -96,8 +95,7 @@ async function createWindow() {
     win.loadURL(VITE_DEV_SERVER_URL);
 
     // If you want to test river-cli on develop, change executePythonShell for executeRiverCli
-    // riverCli = executePythonShell
-    riverCli = executeRiverCli;
+    riverCli = executePythonShell
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
