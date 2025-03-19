@@ -52,7 +52,7 @@ export const FootageMode = () => {
       setVideo({ name, path, type });
     } catch (error) {
       if (error instanceof UserSelectionError) {
-        setError(error.message);
+        setError(t("Step-2.pleaseSelectVideo", { defaultValue: "Commons.randomError" }));
         setTimeout(() => {
           setError("");
         }, 3000);

@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import { COLORS, GRAPHS } from "../../constants/constants";
 import { generateYAxisTicks } from "../../helpers";
 import "./graphs.css";
+import { t } from "i18next";
 interface CreateVelocityChartProps {
   sizes: {
     width: number;
@@ -423,5 +424,5 @@ export const createVelocityChart = ({
     .attr("transform", "rotate(-90)")
     .attr("fill", "white")
     .attr("font-size", "22px")
-    .text("Velocity");
+    .text(t("Graphs.velocity"));
 };

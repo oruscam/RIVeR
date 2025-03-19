@@ -41,19 +41,19 @@ export const ReportSection = ({ index, factor }: ReportSectionProps) => {
           </h3>
           <h4 className="mt-1">
             {" "}
-            {measured_Q * 100}% {t("Report.section.measured")}{" "}
+            {measured_Q * 100}% {t("Results.measured")}{" "}
           </h4>
           <h4>
             {" "}
-            {interpolated_Q * 100} % {t("Report.section.interpolated")}{" "}
+            {interpolated_Q * 100} % {t("Results.interpolated")}{" "}
           </h4>
           <h3 className="mt-2 report-section-title-1">
             {" "}
-            {t("Report.section.alpha")} {alpha}{" "}
+            {t("Results.alpha")} {alpha}{" "}
           </h3>
           <h3 className="mt-1 report-section-title-1 mb-2">
             {" "}
-            {t("Report.section.stationNumber")} {num_stations}{" "}
+            {t("Results.stationNumber")} {num_stations}{" "}
           </h3>
           <div className="image-and-svg-container">
             <img

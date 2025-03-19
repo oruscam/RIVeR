@@ -6,10 +6,12 @@ import { useProjectSlice } from "../../hooks";
 import { dateToStringDate, stringDateToDate } from "../../helpers";
 import "../../index.css";
 import { SuccessfulMessage } from "../Report";
+import { useTranslation } from "react-i18next";
 
 export const FormReport = () => {
   const { video, onProjectDetailsChange, projectDetails } = useProjectSlice();
   const { creation } = video.data;
+  const { t } = useTranslation();
 
   const today = new Date();
   const defaultDate = projectDetails.meditionDate
@@ -73,10 +75,10 @@ export const FormReport = () => {
 
   return (
     <>
-      <h1 className="form-title"> Summary </h1>
+      <h1 className="form-title"> {t('Report.Summary.title')} </h1>
       <form className="form-base-2">
         <div className="simple-input-container">
-          <label> River's Name </label>
+          <label>{t('Report.Form.riverName')}</label>
           <input
             type="text"
             required
@@ -88,7 +90,7 @@ export const FormReport = () => {
         </div>
 
         <div className="simple-input-container">
-          <label> Site </label>
+          <label> {t('Report.Form.riverLocation')} </label>
           <input
             type="text"
             required
@@ -100,10 +102,10 @@ export const FormReport = () => {
         </div>
 
         <div className="simple-input-container">
-          <label id="label-unit-sistem"> Unit Sistem </label>
+          <label id="label-unit-sistem"> {t('Report.Summary.unitSistem')} </label>
 
           <div className="last-settings-form-field-radio">
-            <label> SI </label>
+            <label> {t('Report.Form.SI')} </label>
             <input
               type="radio"
               value="si"
@@ -114,7 +116,7 @@ export const FormReport = () => {
           </div>
 
           <div className="last-settings-form-field-radio">
-            <label> Imperial </label>
+            <label> {t('Report.Form.imperial')} </label>
             <input
               type="radio"
               value="imperial"
@@ -126,7 +128,7 @@ export const FormReport = () => {
         </div>
 
         <div className="simple-input-container">
-          <label> Measurement Date </label>
+          <label> {t('Report.Form.date')} </label>
           <DatePicker
             selected={meditionDate}
             onChange={(date) => setMeditionDate(date ?? new Date())}

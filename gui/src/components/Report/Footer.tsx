@@ -1,7 +1,10 @@
 import riverLogo from "../../assets/logo_footer.png";
 import githubLogo from "../../assets/github-mark.svg";
+import { useTranslation } from "react-i18next";
 
 export const Footer = () => {
+  const { t } = useTranslation();
+
   let date = new Date().toLocaleString("en-GB", {
     day: "2-digit",
     month: "2-digit",
@@ -25,8 +28,8 @@ export const Footer = () => {
         </a>
       </div>
       <div>
-        <p> Generated with RIVeR </p>
-        <p> report creation date: {date} </p>
+        <p> {t("Report.generatedBy")} </p>
+        <p> {t("Report.date")}: {date} </p>
       </div>
       <div>
         <a href="https://github.com" target="_blank" rel="noopener noreferrer">

@@ -12,7 +12,8 @@
         }
     },
     "Step-2" : {
-        "title" : "Select the kind of footage"
+        "title" : "Select the kind of footage",
+        "pleaseSelectVideo": "Please select a video file"
     },
     "Wizard" : {
         "back" : "Back",
@@ -91,7 +92,9 @@
         "Errors" : {
             "levelError": "Level must be between {{yMin}} and {{yMax}}",
             "leftBank": "Left bank is out of range",
-            "bathimetryNotValid": "The bathimetry is not valid. Level {{level}} do not exist in this file"
+            "bathimetryNotValid": "The bathimetry is not valid. Level {{level}} do not exist in this file",
+            "bathimetryIsRequired": "Bathimetry is required in {{section_name}}",
+            "rwLength": "The value of CS Length can not be 0 in {{section_name}}"
         },
         "warning": "Are you sure you want to delete {{section_name}}?",
         "warningTitle": "Delete Section"
@@ -140,10 +143,11 @@
         "station": "Station",
         "velocity": "Velocity",
         "discharge": "Discharge",
+        "stage": "Stage",
         "level": "Level"
     },
     "Report": {
-        "discahrgeQ": "Discharge Q",
+        "dischargeQ": "Discharge Q",
         "VideoInfo": {
             "title": "Video Information",
             "name": "Name",
@@ -174,6 +178,14 @@
             "mean": "mean",
             "stdDev": "Std dev",
             "cov": "COV"
+        },
+        "Form": {
+            "riverName": "River's Name",
+            "riverLocation": "site",
+            "unitSistem": "Unit System",
+            "SI": "SI",
+            "imperial": "Imperial",
+            "date": "Measurement Date"
         },
         "pixelTransformation": "Pixel Transformation",
         "processingParameters" : "Processing Parameters",

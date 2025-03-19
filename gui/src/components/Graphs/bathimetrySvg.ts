@@ -2,6 +2,7 @@ import * as d3 from "d3";
 import { COLORS, GRAPHS } from "../../constants/constants";
 import { Point } from "../../types";
 import { generateXAxisTicks, generateYAxisTicks } from "../../helpers";
+import { t } from "i18next";
 
 /**
  * Creates a bathymetry chart on the specified SVG element.
@@ -83,7 +84,7 @@ export const bathimetrySvg = ({
       .attr("transform", "rotate(-90)")
       .attr("fill", "white")
       .attr("font-size", "22px")
-      .text("Stage");
+      .text(t("Graphs.stage"));
 
     translateX = marginAllInOne.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE;
   } else {
@@ -106,7 +107,7 @@ export const bathimetrySvg = ({
       .attr("transform", "rotate(-90)")
       .attr("fill", "white")
       .attr("font-size", "22px")
-      .text("Stage");
+      .text(t("Graphs.stage"));
 
     // Añado eje x solo si no es all in one
 
@@ -212,7 +213,7 @@ export const bathimetrySvg = ({
     .attr("y", height - 5)
     .attr("fill", "white")
     .attr("font-size", "22px")
-    .text("Station");
+    .text(t("Graphs.station"));
 
   // Bathymetry line
   svg

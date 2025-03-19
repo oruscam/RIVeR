@@ -166,7 +166,7 @@ export const FormCrossSections = ({
                         sections[index].bathimetry.path === "" &&
                         value.length === 0
                       ) {
-                        return `Bathimetry is required in ${name}`;
+                        return t("CrossSections.Errors.bathimetryIsRequired", {section_name: name});
                       }
                       return true;
                     },
@@ -232,7 +232,7 @@ export const FormCrossSections = ({
                         sections[index].bathimetry.path === "" &&
                         value.length === 0
                       ) {
-                        return `Bathimetry is required in ${name}`;
+                        return t("CrossSections.Errors.bathimetryIsRequired", {section_name: name});
                       }
                       return true;
                     },
@@ -291,7 +291,7 @@ export const FormCrossSections = ({
               {...register(`${name}_CS_LENGTH`, {
                 validate: (value) =>
                   value != 0 ||
-                  `The value of CS Length can not be 0 in ${name}`,
+                  t("CrossSections.Errors.rwLength", { section_name: name }),
               })}
               id="CS_LENGTH"
               readOnly={true}

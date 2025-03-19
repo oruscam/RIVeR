@@ -1,6 +1,7 @@
 import * as d3 from "d3";
 import { GRAPHS, COLORS } from "../../constants/constants";
 import { generateYAxisTicks } from "../../helpers";
+import { t } from "i18next";
 
 interface CreateDischargeChartProps {
   sizes: {
@@ -217,5 +218,5 @@ export const createDischargeChart = ({
     .attr("transform", "rotate(-90)")
     .attr("fill", "white")
     .attr("font-size", "22px")
-    .text("Discharge");
+    .text(t("Graphs.discharge"));
 };

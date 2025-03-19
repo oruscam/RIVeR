@@ -63,8 +63,6 @@ export const Summary = () => {
           </thead>
           <tbody>
             {sections.map((section, index) => {
-              if (index === 0) return null;
-
               const { name, data, pixelSize, alpha } = section;
               if (data === undefined) return null;
               const { mean_V, average_depth, max_depth, measured_Q, total_Q } =

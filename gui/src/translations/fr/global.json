@@ -12,18 +12,19 @@
         }
     },
     "Step-2" : {
-        "title" : "Sélectionner le type de séquence"
+        "title" : "Sélectionner le type de séquence",
+        "pleaseSelectVideo": "Veuillez sélectionner une vidéo"
     },
     "Wizard" : {
-        "back" : "Précédent",
-        "next" : "Suivant",
+        "back": "Retour",
+        "next": "Suivant",
         "save" : "Enregistrer HTML"
     },
     "VideoRange":{
         "title": "Sélection de Séquence",
         "start": "Début",
         "end": "Fin",
-        "step": "Pas",
+        "step": "Pas de Temps",
         "Errors": {
             "start1": "Sélection de temps invalide : Le temps de début ne peut pas être inférieur à 0. Veuillez entrer une valeur valide.",
             "end1": "Sélection de temps invalide : La valeur 'Fin' ne peut pas être supérieure à la durée totale de la vidéo. Veuillez entrer une valeur valide.",
@@ -48,7 +49,7 @@
         "pixelSize": "Taille de Pixel",  
         "drawLine": "Tracer une Ligne",
         "Errors": {
-            "required": "Tous les champs sont obligatoires. Veuillez vérifier le formulaire de Taille de Pixel.",
+            "required": "Tous les champs sont obligatoires. Veuillez vérifier la Taille de Pixel.",
             "lineLength" : "Longueur de ligne invalide : La longueur de ligne doit être un nombre positif, qui peut inclure des décimales. Veuillez entrer une valeur valide.",
             "pixelSize": "Taille de pixel invalide : La taille de pixel doit être un nombre positif, qui peut inclure des décimales. Veuillez entrer une valeur valide."
         },
@@ -69,7 +70,7 @@
     },
     "CrossSections": {
         "title": "Sections Transversales",
-        "drawLine": "Direction du Flux",
+        "drawLine": "Direction de la Section",
         "width": "Largeur",
         "importBath": "Importer Bathymétrie",
         "level" : "Niveau",
@@ -91,7 +92,9 @@
         "Errors" : {
             "levelError": "Le niveau doit être entre {{yMin}} et {{yMax}}",
             "leftBank": "La rive gauche est hors limites",
-            "bathimetryNotValid": "La bathymétrie n'est pas valide. Le niveau {{level}} n'existe pas dans ce fichier"
+            "bathimetryNotValid": "La bathymétrie n'est pas valide. Le niveau {{level}} n'existe pas dans ce fichier",
+            "bathimetryIsRequired": "La bathymétrie est requise pour {{section_name}}",
+            "rwLength": "La longueur de la section ne peut pas être 0 pour {{section_name}}"
         },
         "warning": "Êtes-vous sûr de vouloir supprimer {{section_name}} ?",
         "warningTitle": "Supprimer la Section"
@@ -132,7 +135,7 @@
         "alpha": "Alpha",
         "stationNumber" : "Points de Mesure",
         "showVelStd" : "Afficher Écart-type Vitesse",
-        "showProfile": "Afficher 5% | 95% percentile",
+        "showProfile": "Afficher percentiles 5% | 95%",
         "interpolateProfile": "Interpoler Profil",
         "applyChanges" : "Appliquer les Changements"
     },
@@ -140,7 +143,8 @@
         "station": "Points de Mesure",
         "velocity": "Vitesse",
         "discharge": "Débit",
-        "level": "Niveau"
+        "level": "Niveau",
+        "stage": "Stage"
     },
     "Report": {
         "discahrgeQ": "Débit Q",
@@ -157,7 +161,7 @@
             "start": "Début",
             "end": "Fin",
             "length" : "Durée",
-            "step": "Pas",
+            "step": "Pas de Temps",
             "timeStep": "Pas de Temps"
         },
         "Summary": {
@@ -174,6 +178,14 @@
             "mean": "Moyenne",
             "stdDev": "Écart-type",
             "cov": "COV"
+        },
+        "Form": {
+            "riverName": "Nom de la Rivière",
+            "riverLocation": "Site",
+            "unitSistem": "Système d'Unités",
+            "SI": "Métrique",
+            "imperial": "Impérial",
+            "date": "Date de la mesure"
         },
         "pixelTransformation": "Transformation de Pixel",
         "processingParameters" : "Paramètres de Traitement",
@@ -231,7 +243,7 @@
         "extractingFrames" : "Extraction des images vidéo",
         "results" : "Génération des statistiques de profil de vitesse",
         "videoConversion" : "Nous convertissons la vidéo au format mp4. Veuillez patienter un moment.",
-        "maskAndRoi": "Définition de la ROI et des masques"
+        "maskAndRoi": "Définition de la RDI et des masques"
     },
     "Commons": {
         "yes": "Oui",

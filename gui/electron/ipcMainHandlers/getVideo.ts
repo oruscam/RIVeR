@@ -21,7 +21,7 @@ async function getVideo(PROJECT_CONFIG: ProjectConfig) {
       return {
         error: {
           type: "user-selection-error",
-          message: "Please select a video file",
+          message: "pleaseSelectVideo",
         },
       };
     }

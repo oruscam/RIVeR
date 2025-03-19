@@ -10,7 +10,7 @@ export const Header = () => {
   const { projectDetails, type } = useProjectSlice();
   const { riverName, site, meditionDate, unitSistem } = projectDetails;
 
-  const divider = sections.length - 1;
+  const divider = sections.length;
 
   const sum = sections.reduce((acc, section) => {
     if (section.data) {
