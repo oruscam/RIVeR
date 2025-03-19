@@ -691,6 +691,9 @@ const getGlobalMagnitudes = (sections: any) => {
 
   for (let i = 0; i < sections.length; i++) {
     const { data } = sections[i];
+    if ( data === undefined ) {
+      continue
+    }
     const { activeMagnitude } = data;
 
     const filteredMagnitude = activeMagnitude.filter(
