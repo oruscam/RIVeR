@@ -13,7 +13,7 @@
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "install-pyinstaller": "pip install pyinstaller",
-    "build-cli": "pyinstaller -D --distpath . -n river-cli --contents-directory . ../river/cli/__main__.py",
+    "build-cli": "pyinstaller --clean -D --distpath . -n river-cli --contents-directory . --hidden-import odfpy --hidden-import xlrd --hidden-import xlwt --hidden-import openpyxl --hidden-import tablib.formats._xlsx --hidden-import tablib.formats._ods ../river/cli/__main__.py",
     "build-win": "electron-builder --config electron-builder.json5 --win",
     "build-mac": "electron-builder --config electron-builder.json5 --mac",
     "build-linux": "electron-builder --config electron-builder.json5 --linux",
