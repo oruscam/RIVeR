@@ -2,6 +2,13 @@ import { ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
 import * as fs from "fs";
 import { transformData } from "./utils/transformCrossSectionsData";
+import { platform } from "os";
+
+let encoding: BufferEncoding = "utf-8";
+
+if ( platform() === "win32" ) {
+  encoding = "latin1";
+}
 
 async function getResultData(
   PROJECT_CONFIG: ProjectConfig,
@@ -30,7 +37,7 @@ async function getResultData(
     const pivResults = PROJECT_CONFIG.resultsPath;
     const logsPath = PROJECT_CONFIG.logsPath;
 
-    const xSectionsFile = await fs.promises.readFile(xSections, "latin1");
+    const xSectionsFile = await fs.promises.readFile(xSections, { encoding: encoding });
     const xSectionsFileParsed = JSON.parse(xSectionsFile);
 
     if (!arraysAreEqual(xSectionsFileParsed[name].check, activeCheck)) {
@@ -38,7 +45,7 @@ async function getResultData(
       await fs.promises.writeFile(
         xSections,
         JSON.stringify(xSectionsFileParsed, null, 2),
-        "latin1",
+        { encoding: encoding },
       );
     }
 
@@ -86,7 +93,7 @@ async function getResultData(
       await fs.promises.writeFile(
         xSections,
         JSON.stringify(xSectionsFileParsed, null, 2),
-        "latin1",
+        { encoding: encoding },
       );
 
       return {
@@ -104,8 +111,10 @@ async function getResultData(
     const pivResults = PROJECT_CONFIG.resultsPath;
     const logsPath = PROJECT_CONFIG.logsPath;
 
-    const xSectionsFile = await fs.promises.readFile(xSections, "latin1");
+    const xSectionsFile = await fs.promises.readFile(xSections, { encoding: encoding });
     const xSectionsFileParsed = JSON.parse(xSectionsFile);
+
+    console.log("xSectionsFileParsed", xSectionsFileParsed);
 
     for (const sectionKey in xSectionsFileParsed) {
       console.log("sectionKey", sectionKey);
@@ -120,7 +129,7 @@ async function getResultData(
     await fs.promises.writeFile(
       xSections,
       JSON.stringify(xSectionsFileParsed, null, 2),
-      "latin1",
+      { encoding: encoding },
     );
 
     let updatedSections = {};
@@ -169,7 +178,7 @@ async function getResultData(
         await fs.promises.writeFile(
           xSections,
           JSON.stringify(xSectionsFileParsed, null, 2),
-          "latin1",
+          { encoding: encoding },
         );
         finalData = transformData(xSectionsFileParsed, true);
         finalError = error;
@@ -178,7 +187,6 @@ async function getResultData(
         throw error;
       }
     }
-    console.log(finalError);
 
     return {
       data: finalData,
