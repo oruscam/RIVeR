@@ -1,109 +1,231 @@
-import { BrowserWindow, dialog } from 'electron';
-import * as fs from 'fs';
-import * as path from 'path'
+// import { BrowserWindow, dialog } from 'electron';
+// import * as fs from 'fs';
+// import * as path from 'path'
 
+// async function createFolderStructure (newDirPath: string, type: string, videoPath: string, videoName: string,  result: { width: number; height: number; fps: number; duration: string }) {
 
+//     try {
+//       await fs.promises.access(newDirPath, fs.constants.F_OK);
+//       const mainWindow = BrowserWindow.getFocusedWindow();
+//       const { response } = await dialog.showMessageBox(mainWindow,{
+//         type: 'question',
+//         buttons: ['Yes', 'No'],
+//         defaultId: 0,
+//         title: 'Confirm',
+//         message: 'The directory already exists. Do you want to continue? This will overwrite the existing directory.',
+//         icon: '../../src/assets/icons/icon.ico'
+//         });
 
-async function createFolderStructure (newDirPath: string, type: string, videoPath: string, videoName: string,  result: { width: number; height: number; fps: number; duration: string }) {
+//       if (response === 0) {
+//         try {
+//           await fs.promises.rm(newDirPath, { recursive: true, force: true });
+//           console.log('Directory removed:', newDirPath);
+//         } catch (err) {
+//           if (err.code === 'EBUSY'){
+//             dialog.showMessageBox(mainWindow, {
+//               type: 'error',
+//               buttons: ['Ok'],
+//               defaultId: 0,
+//               title: 'Resource Busy',
+//               message: 'The directory is being used by another process. Please close the directory and try again.',
+//             })
+//           }
+//           console.error('Error removing directory:', err);
+//           throw err; // Re-throw the error to cancel the operation
+//         }
+//       } else {
+//         const error = new Error('user-cancel-operation');
+//         throw error
+//       }
+//     } catch (err) {
+//       if (err.code === 'ENOENT') {
+//         console.log('Directory does not exist, proceeding to create:', newDirPath);
+//       } else {
+//         console.error('Error accessing directory:', err);
+//         throw err; // Re-throw the error to cancel the operation
+//       }
+//     }
 
-    try {
-      await fs.promises.access(newDirPath, fs.constants.F_OK);
-      const mainWindow = BrowserWindow.getFocusedWindow();
-      const { response } = await dialog.showMessageBox(mainWindow,{
-        type: 'question',
-        buttons: ['Yes', 'No'],
-        defaultId: 0,
-        title: 'Confirm',
-        message: 'The directory already exists. Do you want to continue? This will overwrite the existing directory.',
-        icon: '../../src/assets/icons/icon.ico'
-        });
+//     try {
+//       await fs.promises.mkdir(newDirPath, { recursive: true });
+//       console.log('Directory created:', newDirPath);
+//     } catch (err) {
+//       console.error('Error creating directory:', err);
+//       throw err; // Re-throw the error to cancel the operation
+//     }
 
-      if (response === 0) {
-        try {
-          await fs.promises.rm(newDirPath, { recursive: true, force: true });
-          console.log('Directory removed:', newDirPath);
-        } catch (err) {
-          if (err.code === 'EBUSY'){
-            dialog.showMessageBox(mainWindow, {
-              type: 'error',
-              buttons: ['Ok'],
-              defaultId: 0,
-              title: 'Resource Busy',
-              message: 'The directory is being used by another process. Please close the directory and try again.',
-            })
-          }
-          console.error('Error removing directory:', err);
-          throw err; // Re-throw the error to cancel the operation
+//     const framePath = path.join(newDirPath, 'frames');
+
+//     try {
+//       await fs.promises.mkdir(framePath, { recursive: true });
+//       console.log('Directory created:', framePath);
+//     } catch (err) {
+//       console.error('Error creating directory:', err);
+//     }
+
+//     const jsonPath = path.join(newDirPath, 'settings.json');
+//     const jsonData = {
+//         creation_date: getFormattedDate(),
+//         footage: type,
+//         video: {
+//           filepath: videoPath,
+//           name: videoName,
+//           total_length: result.duration,
+//           time_between_frames: parseFloat((1 / result.fps).toFixed(2)),
+//           fps: result.fps,
+//           resolution : {
+//               width: result.width,
+//               height: result.height
+//           },
+//         }
+//     }
+
+//     try{
+//         await fs.promises.writeFile(jsonPath, JSON.stringify(jsonData, null, 2), 'utf-8');
+//         console.log(jsonPath, 'created')
+//     }catch (err){
+//        console.error('Error creating json file:', err);
+//     }
+
+//     return newDirPath;
+// }
+
+// // * Helper function to get the current date and time in a formatted string. format is YYYYMMDDTHHMM.
+
+// function getFormattedDate() {
+//   const date = new Date();
+//   const year = date.getFullYear();
+//   const month = (date.getMonth() + 1).toString().padStart(2, '0');
+//   const day = date.getDate().toString().padStart(2, '0');
+//   const hours = date.getHours().toString().padStart(2, '0');
+//   const minutes = date.getMinutes().toString().padStart(2, '0');
+
+//   return `${year}${month}${day}T${hours}${minutes}`;
+// }
+
+// export { createFolderStructure}
+
+import { BrowserWindow, dialog } from "electron";
+import * as fs from "fs";
+import * as path from "path";
+
+async function createFolderStructure(
+  newDirPath: string,
+  type: string,
+  language: string,
+  videoPath: string,
+  videoName: string,
+  result: { width: number; height: number; fps: number; duration: string },
+) {
+  const dateSuffix = getFormattedDate();
+  const datedDirPath = path.join(newDirPath, dateSuffix);
+
+  try {
+    await fs.promises.access(datedDirPath, fs.constants.F_OK);
+    const mainWindow = BrowserWindow.getFocusedWindow();
+    const { response } = await dialog.showMessageBox(mainWindow, {
+      type: "question",
+      buttons: ["Yes", "No"],
+      defaultId: 0,
+      title: "Confirm",
+      message:
+        "The directory already exists. Do you want to continue? This will overwrite the existing directory.",
+      icon: "../../src/assets/icons/icon.ico",
+    });
+
+    if (response === 0) {
+      try {
+        await fs.promises.rm(datedDirPath, { recursive: true, force: true });
+        console.log("Directory removed:", datedDirPath);
+      } catch (err) {
+        if (err.code === "EBUSY") {
+          dialog.showMessageBox(mainWindow, {
+            type: "error",
+            buttons: ["Ok"],
+            defaultId: 0,
+            title: "Resource Busy",
+            message:
+              "The directory is being used by another process. Please close the directory and try again.",
+          });
         }
-      } else {
-        const error = new Error('user-cancel-operation');
-        throw error
-      }
-    } catch (err) {
-      if (err.code === 'ENOENT') {
-        console.log('Directory does not exist, proceeding to create:', newDirPath);
-      } else {
-        console.error('Error accessing directory:', err);
+        console.error("Error removing directory:", err);
         throw err; // Re-throw the error to cancel the operation
       }
+    } else {
+      const error = new Error("user-cancel-operation");
+      throw error;
     }
-
-    try {
-      await fs.promises.mkdir(newDirPath, { recursive: true });
-      console.log('Directory created:', newDirPath);
-    } catch (err) {
-      console.error('Error creating directory:', err);
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      console.log(
+        "Directory does not exist, proceeding to create:",
+        datedDirPath,
+      );
+    } else {
+      console.error("Error accessing directory:", err);
       throw err; // Re-throw the error to cancel the operation
     }
+  }
 
-    const framePath = path.join(newDirPath, 'frames');
-    
-    try {
-      await fs.promises.mkdir(framePath, { recursive: true });
-      console.log('Directory created:', framePath);
-    } catch (err) {
-      console.error('Error creating directory:', err);
-    }
+  try {
+    await fs.promises.mkdir(datedDirPath, { recursive: true });
+    console.log("Directory created:", datedDirPath);
+  } catch (err) {
+    console.error("Error creating directory:", err);
+    throw err; // Re-throw the error to cancel the operation
+  }
 
-    
-    const jsonPath = path.join(newDirPath, 'settings.json');
-    const jsonData = {
-        creation_date: getFormattedDate(),
-        footage: type,
-        video: {
-          filepath: videoPath,
-          name: videoName,
-          total_length: result.duration,
-          time_between_frames: parseFloat((1 / result.fps).toFixed(2)),
-          fps: result.fps,
-          resolution : {
-              width: result.width,
-              height: result.height
-          },
-        }
-    }
+  const framePath = path.join(datedDirPath, "frames");
 
-    try{
-        await fs.promises.writeFile(jsonPath, JSON.stringify(jsonData, null, 2), 'utf-8');
-        console.log(jsonPath, 'created')
-    }catch (err){
-       console.error('Error creating json file:', err);
-    }
+  try {
+    await fs.promises.mkdir(framePath, { recursive: true });
+    console.log("Directory created:", framePath);
+  } catch (err) {
+    console.error("Error creating directory:", err);
+  }
 
-    return newDirPath;
+  const jsonPath = path.join(datedDirPath, "settings.json");
+  const jsonData = {
+    creation_date: dateSuffix,
+    footage: type,
+    language: language,
+    video: {
+      filepath: videoPath,
+      name: videoName,
+      total_length: result.duration,
+      time_between_frames: parseFloat((1 / result.fps).toFixed(2)),
+      fps: result.fps,
+      resolution: {
+        width: result.width,
+        height: result.height,
+      },
+    },
+  };
+
+  try {
+    await fs.promises.writeFile(
+      jsonPath,
+      JSON.stringify(jsonData, null, 2),
+      "utf-8",
+    );
+  } catch (err) {
+    console.error("Error creating json file:", err);
+  }
+
+  return datedDirPath;
 }
 
-// * Helper function to get the current date and time in a formatted string. format is YYYYMMDDTHHMM. 
+// * Helper function to get the current date and time in a formatted string. format is YYYYMMDDTHHMM.
 
 function getFormattedDate() {
   const date = new Date();
   const year = date.getFullYear();
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
 
   return `${year}${month}${day}T${hours}${minutes}`;
 }
 
-export { createFolderStructure}
+export { createFolderStructure };

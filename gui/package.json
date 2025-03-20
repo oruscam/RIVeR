@@ -1,21 +1,25 @@
 {
   "name": "river-gui",
-  "productName": "RIVeR 3.0.0",
+  "productName": "RIVeR",
   "private": true,
   "version": "3.0.0",
   "type": "module",
+  "description": "Software for calculating water discharge from videos using LSPIV technique",
+  "author": {
+    "name": "Orus",
+    "email": "contact@orus.cam"
+  },
+  "homepage": "https://x.com/Orus_cam",
   "scripts": {
     "dev": "vite",
     "build": "npm run clean && vite build",
-    "lint": "eslint . --c ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "install-pyinstaller": "pip install pyinstaller",
-    "build-cli": "pyinstaller -F --distpath . -n river-cli ../river/cli/__main__.py",
-    "build-cli-onedir": "pyinstaller -D --distpath . -n river-cli --contents-directory . ../river/cli/__main__.py",
-    "build:win:one-dir": "electron-builder --config electron-builder.onedir.json5 --win",
-    "build:win:one-file": "electron-builder --config electron-builder.onefile.json5 --win",
-    "build:mac": "electron-builder --mac",
-    "build:linux": "electron-builder --linux",
+    "build-cli": "pyinstaller --clean -D --distpath . -n river-cli --contents-directory . --hidden-import odfpy --hidden-import xlrd --hidden-import xlwt --hidden-import openpyxl --hidden-import tablib.formats._xlsx --hidden-import tablib.formats._ods ../river/cli/__main__.py",
+    "build-win": "electron-builder --config electron-builder.json5 --win",
+    "build-mac": "electron-builder --config electron-builder.json5 --mac",
+    "build-linux": "electron-builder --config electron-builder.json5 --linux",
     "clean": "rimraf dist dist-electron"
   },
   "dependencies": {
@@ -54,16 +58,19 @@
     "electron": "^32.0.2",
     "electron-builder": "^24.13.3",
     "electron-devtools-installer": "^3.2.0",
-    "eslint": "^9.10.0",
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.3",
     "eslint-plugin-react": "^7.35.2",
-    "eslint-plugin-react-hooks": "^4.6.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.11",
+    "prettier": "^3.5.3",
     "python-shell": "^5.0.0",
+    "rimraf": "^5.0.0",
     "typescript": "^5.2.2",
     "vite": "^5.1.6",
     "vite-plugin-electron": "^0.28.6",
-    "vite-plugin-electron-renderer": "^0.14.5",
-    "rimraf": "^5.0.0"
+    "vite-plugin-electron-renderer": "^0.14.5"
   },
   "main": "dist-electron/main.js"
 }

@@ -1,0 +1,255 @@
+{
+    "MainPage" : {
+        "start": "Démarrer",
+        "loadProject": "Charger un Projet",
+        "spanish" : "Espagnol",
+        "english" : "Anglais",
+        "french" : "Français",
+        "Errors" : {
+            "noSettingsFile": "Le répertoire sélectionné ne contient pas de fichier settings.json",
+            "notValidDirectory" : "Veuillez sélectionner un répertoire valide",
+            "default": "Une erreur s'est produite lors de la tentative de chargement du projet"
+        }
+    },
+    "Step-2" : {
+        "title" : "Sélectionner le type de séquence",
+        "pleaseSelectVideo": "Veuillez sélectionner une vidéo"
+    },
+    "Wizard" : {
+        "back": "Retour",
+        "next": "Suivant",
+        "save" : "Enregistrer HTML"
+    },
+    "VideoRange":{
+        "title": "Sélection de Séquence",
+        "start": "Début",
+        "end": "Fin",
+        "step": "Pas de Temps",
+        "Errors": {
+            "start1": "Sélection de temps invalide : Le temps de début ne peut pas être inférieur à 0. Veuillez entrer une valeur valide.",
+            "end1": "Sélection de temps invalide : La valeur 'Fin' ne peut pas être supérieure à la durée totale de la vidéo. Veuillez entrer une valeur valide.",
+            "end2" : "Sélection de temps invalide : La valeur 'Fin' ne peut pas être 0 ou moins. Veuillez entrer une valeur valide.",
+            "end3" : "Sélection de temps invalide : La valeur 'Fin' ne peut pas être égale ou inférieure à la valeur 'Début'. Veuillez entrer une valeur valide.",
+            "step" : "Sélection de pas invalide : Le paramètre 'Pas' doit être un entier supérieur à 1. Veuillez entrer une valeur valide.",
+            "required" : "Tous les champs sont obligatoires. Veuillez vérifier le formulaire de plage vidéo.",
+            "formatInput" : "Format incorrect. Les valeurs 'Début' et 'Fin' doivent être au format '00:00'."
+        },
+        "ExtraInfo" : {
+            "fileName" : "Nom du Fichier :",
+            "totalLength": "Durée Totale : ",
+            "timeBetweenFrame" : "Intervalle entre Images : ",
+            "resolution" : "Résolution : ",
+            "numberOfFrames": "Nombre d'Images : "
+        },
+        "framesResolution": "Résolution des Images"
+    },
+    "PixelSize": {
+        "title": "Taille de Pixel",
+        "lineLength": "Longueur de Ligne",
+        "pixelSize": "Taille de Pixel",  
+        "drawLine": "Tracer une Ligne",
+        "Errors": {
+            "required": "Tous les champs sont obligatoires. Veuillez vérifier la Taille de Pixel.",
+            "lineLength" : "Longueur de ligne invalide : La longueur de ligne doit être un nombre positif, qui peut inclure des décimales. Veuillez entrer une valeur valide.",
+            "pixelSize": "Taille de pixel invalide : La taille de pixel doit être un nombre positif, qui peut inclure des décimales. Veuillez entrer une valeur valide."
+        },
+        "RealWorld": {
+            "title": "Coordonnées Réelles",
+            "eastPoint1": "Point Est 1",
+            "eastPoint2": "Point Est 2",
+            "northPoint1": "Point Nord 1",
+            "northPoint2": "Point Nord 2"
+        }, 
+        "Pixel": {
+            "title": "Coordonnées Pixel",
+            "xPoint1": "Point X 1",
+            "xPoint2": "Point X 2",
+            "yPoint1": "Point Y 1",
+            "yPoint2": "Point Y 2"
+        }
+    },
+    "CrossSections": {
+        "title": "Sections Transversales",
+        "drawLine": "Direction de la Section",
+        "width": "Largeur",
+        "importBath": "Importer Bathymétrie",
+        "level" : "Niveau",
+        "leftBankStation": "Rive Gauche",
+        "RealWorld": {
+            "title": "Coordonnées Réelles",
+            "eastPoint1": "Est Gauche",
+            "northPoint1": "Nord Gauche",
+            "eastPoint2": "Est Droit",
+            "northPoint2": "Nord Droit"
+        }, 
+        "Pixel" : {
+            "title": "Coordonnées Pixel",
+            "xPoint1": "X Gauche",
+            "yPoint1": "Y Gauche",
+            "xPoint2": "X Droit",
+            "yPoint2": "Y Droit"
+        }, 
+        "Errors" : {
+            "levelError": "Le niveau doit être entre {{yMin}} et {{yMax}}",
+            "leftBank": "La rive gauche est hors limites",
+            "bathimetryNotValid": "La bathymétrie n'est pas valide. Le niveau {{level}} n'existe pas dans ce fichier",
+            "bathimetryIsRequired": "La bathymétrie est requise pour {{section_name}}",
+            "rwLength": "La longueur de la section ne peut pas être 0 pour {{section_name}}"
+        },
+        "warning": "Êtes-vous sûr de vouloir supprimer {{section_name}} ?",
+        "warningTitle": "Supprimer la Section"
+    },
+    "Processing": {
+        "title": "Traitement",
+        "artificialSeeding": "Traceur Artificiel",
+        "windowSizes": "Tailles des Fenêtres",
+        "step1": "Étape 1",
+        "step2": "Étape 2",
+        "test" : "Tester",
+        "roiHeight": "Hauteur RDI",
+        "preProcessingFilter": "Filtrage pré-traitement",
+        "grayscale": "Niveaux de Gris",
+        "removeBackground" : "Soustraction d'Arrière-plan",
+        "clahe": "CLAHE",
+        "clipLimit": "Seuil d'Écrêtage",
+        "postProcessingFilter": "Filtrage post-traitement",
+        "stdFiltering": "Filtrage par écart-type",
+        "medianTestFiltering" : "Filtrage par test médian",
+        "epsilon": "Epsilon",
+        "threshold": "Seuil",
+        "carouselMedia": "Médiane",
+        "Plot": {
+            "u" : "Composante U",
+            "v" : "Composante V"
+        }
+    },
+    "Analizing": {
+        "title": "Analyse",
+        "analize": "Analyser",
+        "stop": "Arrêter"
+    },
+    "Results": {
+        "title": "Résultats",
+        "measured": "Mesuré",
+        "interpolated": "Interpolé",
+        "alpha": "Alpha",
+        "stationNumber" : "Points de Mesure",
+        "showVelStd" : "Afficher Écart-type Vitesse",
+        "showProfile": "Afficher percentiles 5% | 95%",
+        "interpolateProfile": "Interpoler Profil",
+        "applyChanges" : "Appliquer les Changements"
+    },
+    "Graphs": {
+        "station": "Points de Mesure",
+        "velocity": "Vitesse",
+        "discharge": "Débit",
+        "level": "Niveau",
+        "stage": "Niveau"
+    },
+    "Report": {
+        "discahrgeQ": "Débit Q",
+        "VideoInfo": {
+            "title": "Informations Vidéo",
+            "name": "Nom",
+            "duration": "Durée",
+            "resolution": "Résolution",
+            "fps": "IPS",
+            "creationDate": "Date de Création"
+        },
+        "ProcessedRange": {
+            "title": "Séquence Analysée",
+            "start": "Début",
+            "end": "Fin",
+            "length" : "Durée",
+            "step": "Pas de Temps",
+            "timeStep": "Pas de Temps"
+        },
+        "Summary": {
+            "title": "Résumé",
+            "width": "Largeur",
+            "area": "Surface",
+            "q": "Q",
+            "meanV": "V moyenne",
+            "alpha": "Alpha",
+            "averageVs": "Vs Moyenne",
+            "maxD": "D Max",
+            "meanD": "D Moyenne",
+            "measured": "% Mesuré",
+            "mean": "Moyenne",
+            "stdDev": "Écart-type",
+            "cov": "COV"
+        },
+        "Form": {
+            "riverName": "Nom de la Rivière",
+            "riverLocation": "Site",
+            "unitSistem": "Système d'Unités",
+            "SI": "Métrique",
+            "imperial": "Impérial",
+            "date": "Date de la mesure"
+        },
+        "pixelTransformation": "Transformation de Pixel",
+        "processingParameters" : "Paramètres de Traitement",
+        "preProcessing" : "Pré-traitement",
+        "postProcessing" : "Post-traitement",
+        "generatedBy" : "Généré avec River",
+        "date" : "Date de création du rapport",
+        "Success" : {
+            "title": "Analyse Terminée !",
+            "message": "Vous avez complété toutes les étapes correctement. Vérifiez les résultats et enregistrez-les en HTML. Vous pouvez fermer RIVeR, votre projet a été enregistré dans"
+        }
+    },
+    "ControlPoints" : {
+        "title": "Points de Contrôle",
+        "drawPoints": "Dessiner les Points",
+        "importDistances": "Importer les Distances",
+        "distance": "Distance",
+        "length" : "Longueur",
+        "Errors": {
+            "required" : "Tous les champs de distances sont obligatoires. Veuillez vérifier le formulaire des Points de Contrôle",
+            "notNull": "Tous les champs de distances doivent être supérieurs à 0. Veuillez vérifier le formulaire des Points de Contrôle",
+            "notZero": "Tous les champs de distances doivent être différents de 0. Veuillez vérifier le formulaire des Points de Contrôle",
+            "positive" : "Tous les champs de distances doivent être positifs. Veuillez vérifier le formulaire des Points de Contrôle"
+        }
+    }, 
+    "ControlPoints3d": {
+        "importPoints": "Importer Points",
+        "importImages": "Importer Images",
+        "east": "Est",
+        "north": "Nord",
+        "label": "Étiquette",
+        "northern": "Nord",
+        "southern": "Sud",
+        "directSolve": "Résolution Directe",
+        "optimize": "Optimiser",
+        "reprojectionErrors": "Erreurs de Reprojection : ",
+        "numberOfPoints": "Nombre de Points : ",
+        "cameraHeight": "Hauteur de Caméra : "
+    },
+    "Errors": {
+        "invalidPointsFileFormat": "Format de fichier de points invalide.",
+        "invalidDistancesFileFormat" : "Format de distances de points invalide.",
+        "invalidDistancesNotValidValue" : "Format de distances de points invalide. Certaines valeurs de distance ne sont pas des nombres valides.",
+        "invalidDistancesNegativeValue": "Format de distances de points invalide. Les distances négatives ne sont pas autorisées.",
+        "invalidBathimetryFileFormat" : "Format de fichier bathymétrique invalide.",
+        "invalidImageExtension": "Le répertoire contient des fichiers qui ne sont pas des images.",
+        "imagesFolderEmpty" : "Aucune image trouvée dans le dossier sélectionné.",
+        "waitingForFrames": "Nous attendons que les images soient chargées. Veuillez réessayer dans quelques secondes.",
+        "Cli": {
+            "windowsSizesError" : "La taille de la fenêtre est trop grande pour la Région d'Intérêt sélectionnée.",
+            "bboxNotDefined" : "Région d'Intérêt non définie."
+        }
+    },
+    "Loader": {
+        "extractingFrames" : "Extraction des images vidéo",
+        "results" : "Génération des statistiques de profil de vitesse",
+        "videoConversion" : "Nous convertissons la vidéo au format mp4. Veuillez patienter un moment.",
+        "maskAndRoi": "Définition de la RDI et des masques"
+    },
+    "Commons": {
+        "yes": "Oui",
+        "no": "Non",
+        "solve": "Résoudre",
+        "resourceNotFound": "Ressource non trouvée",
+        "randomError": "Quelque chose s'est mal passé. Veuillez réessayer"
+    }
+}

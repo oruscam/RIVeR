@@ -1,8 +1,14 @@
-import { useTranslation } from 'react-i18next';
-import './components.css';
-import { useWizard } from 'react-use-wizard';
-import { useDataSlice, useSectionSlice } from '../hooks';
-import { MODULE_NUMBER } from '../constants/constants';
+import { useTranslation } from "react-i18next";
+import "./components.css";
+import { useWizard } from "react-use-wizard";
+import {
+  useDataSlice,
+  useMatrixSlice,
+  useProjectSlice,
+  useSectionSlice,
+  useUiSlice,
+} from "../hooks";
+import { MODULE_NUMBER } from "../constants/constants";
 
 type Props = {
   canFollow?: boolean;
@@ -11,53 +17,69 @@ type Props = {
   onClickNext: () => void;
 };
 
-export const WizardButtons = ({ canFollow = true, formId = '', button = false, onClickNext }: Partial<Props> = {}) => {
+export const WizardButtons = ({
+  canFollow = true,
+  formId = "",
+  button = false,
+  onClickNext,
+}: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep, isLastStep } = useWizard();
-  const { onSetActiveSection } = useSectionSlice()
-  const { onClearQuiver, isBackendWorking } = useDataSlice()
+  const { onSetActiveSection, onResetSectionSlice } = useSectionSlice();
+  const { onClearQuiver, isBackendWorking, onResetDataSlice } = useDataSlice();
+  const { onResetProjectSlice } = useProjectSlice();
+  const { onResetMatrixSlice } = useMatrixSlice();
+  const { onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();
 
   const handlePreviuos = () => {
-    switch(activeStep){
+    switch (activeStep) {
       case MODULE_NUMBER.CROSS_SECTIONS:
-        onSetActiveSection(0)
-        previousStep()
+        onSetActiveSection(0);
+        previousStep();
         break;
-      
+
       case MODULE_NUMBER.PROCESSING:
-        onClearQuiver()
-        previousStep()
+        onSetSeeAll(true)
+        previousStep();
         break;
 
       case MODULE_NUMBER.ANALIZING:
-        previousStep()
-        onClearQuiver()
+        previousStep();
+        onClearQuiver();
         break;
-      
+
+      case MODULE_NUMBER.VIDEO_RANGE:
+        onResetProjectSlice();
+        onResetDataSlice();
+        onResetSectionSlice();
+        onResetMatrixSlice();
+        previousStep();
+        break;
+
       default:
-        previousStep()
+        previousStep();
     }
-  }
+  };
 
   return (
-    <div className='wizard-container'>
+    <div className="wizard-container">
       <button
-        className='wizard-button button-1'
+        className="wizard-button button-1"
         onClick={handlePreviuos}
         disabled={isFirstStep || isBackendWorking}
       >
-        {t('Wizard.back')}
+        {t("Wizard.back")}
       </button>
 
       <button
-        className='wizard-button button-1'
+        className="wizard-button button-1"
         disabled={!canFollow || isBackendWorking}
         form={formId}
         onClick={onClickNext}
-        type={ button ? "button" : "submit"}
-        id='wizard-next'
+        type={button ? "button" : "submit"}
+        id="wizard-next"
       >
-        {isLastStep ? t('Wizard.save') : t('Wizard.next')}
+        {isLastStep ? t("Wizard.save") : t("Wizard.next")}
       </button>
     </div>
   );

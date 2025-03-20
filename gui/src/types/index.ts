@@ -49,7 +49,9 @@ interface cameraSolution {
     cameraMatrix: number[][],
     type: string,
     uncertaintyEllipses?: ellipse[],
-    projectedPoints?: [number, number]
+    projectedPoints?: [number, number],
+    pointIndices?: number[],
+    numPoints?: number
 }
 
 interface importedPoint {
@@ -63,12 +65,21 @@ interface importedPoint {
     wasEstablished: boolean,
     image: undefined | number,
     ellipse: ellipse | undefined,
-    projectedPoint: [number, number] | undefined
+    projectedPoint: [number, number] | undefined,
 }
 
 interface factor {
     x: number,
     y: number
+}
+
+interface UpdatePixelSize {
+    drawLine?: boolean,
+    length?: number,
+    pixelSize?: number,
+    imageWidth?: number,
+    imageHeight?: number
+    extraFields?: boolean
 }
 
 export type {
@@ -81,6 +92,7 @@ export type {
     cameraSolution,
     ellipse,
     importedPoint,
-    factor
+    factor,
+    UpdatePixelSize
 }
 

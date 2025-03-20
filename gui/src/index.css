@@ -23,6 +23,7 @@
   --disabled-button: #808080;
   --background-error: #ED6B57;
   --success-color: #62C655;
+  --success-background: #2D671B;
 
   /* CONTROL POINTS DISTANCES */
   --d12: #6CD4FF;
@@ -109,7 +110,8 @@
 
 .wizard-button{
   width: 132px;
-  height: 50px;
+  height: auto;
+  min-height: 50px;
   background-color: var(--background-color);
   border: 2px solid;
   border-color: var(--primary-text-color);
@@ -119,6 +121,7 @@
   font-weight: 500;
   transition: background-color 0.1s, transform 0.1s;
   cursor: pointer;
+  padding: 3px;
 }
 
 /* .wizard-button:hover {
@@ -200,6 +203,10 @@
     outline: none;
 }
 
+.input-field-read-only:disabled{
+  background-color: var(--input-background-disabled);
+}
+
 .input-field-little-read-only{
   background-color: var(--input-background);
   color: var(--primary-text-color);
@@ -225,6 +232,7 @@
   min-width: 200px;
   cursor: pointer;
   flex-shrink: 0;
+  height: auto;
 }
 
 .video-button{
@@ -529,4 +537,8 @@ input:checked + .slider:before {
 
 .react-datepicker-time__header {
   color: var(--primary-text-color);
+}
+
+.w-100{
+  width: 100%;
 }

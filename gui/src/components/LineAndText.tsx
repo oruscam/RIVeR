@@ -1,65 +1,81 @@
-import { Line, Text } from 'react-konva';
-import { useWizard } from 'react-use-wizard';
-import { useSectionSlice } from '../hooks';
-import { COLORS, MODULE_NUMBER } from '../constants/constants';
-import { calculateMidpointAndAngle, getPositionSectionText } from '../helpers';
-import { xml } from 'd3-fetch';
-import { Point } from '../types';
+import { Line, Text } from "react-konva";
+import { useWizard } from "react-use-wizard";
+import { useSectionSlice, useUiSlice } from "../hooks";
+import { COLORS, MODULE_NUMBER } from "../constants/constants";
+import { getPositionSectionText } from "../helpers";
 
 interface LineAndTextProps {
-    localPoints?: { x: number; y: number }[];
-    isPixelSize: boolean;
-    resizeFactor?: number;
-    factor: number
-    index: number
+  localPoints?: { x: number; y: number }[];
+  isPixelSize: boolean;
+  resizeFactor?: number;
+  factor: number;
+  index: number;
 }
 
-export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor, index}: LineAndTextProps) => {
+export const LineAndText = ({
+  localPoints,
+  isPixelSize,
+  resizeFactor = 1,
+  factor,
+  index,
+}: LineAndTextProps) => {
   const { activeStep } = useWizard();
 
   const { sections } = useSectionSlice();
-  const { sectionPoints, dirPoints, name } = sections[index]
+  const { sectionPoints, dirPoints, name } = sections[index];
 
-  let lineColor : string = ''
-  let textColor : string = ''
+  const { screenSizes } = useUiSlice();
+  const { imageHeight, imageWidth } = screenSizes;
+
+  let lineColor: string = "";
+  let textColor: string = "";
 
   switch (activeStep) {
     case MODULE_NUMBER.PIXEL_SIZE:
-      lineColor = COLORS.LIGHT_BLUE
-      textColor = COLORS.WHITE
+      lineColor = COLORS.LIGHT_BLUE;
+      textColor = COLORS.WHITE;
       break;
     case MODULE_NUMBER.CROSS_SECTIONS:
-      lineColor = COLORS.YELLOW
-      textColor = COLORS.YELLOW
+      lineColor = COLORS.YELLOW;
+      textColor = COLORS.YELLOW;
       break;
 
     case MODULE_NUMBER.RESULTS:
-      lineColor = COLORS.YELLOW
-      textColor = COLORS.YELLOW
+      lineColor = COLORS.YELLOW;
+      textColor = COLORS.YELLOW;
       break;
 
     default:
-      lineColor = COLORS.DARK_GREY
-      textColor = COLORS.BLACK
+      lineColor = COLORS.DARK_GREY;
+      textColor = COLORS.BLACK;
   }
 
-  
   const sectionLine = () => {
-    if(!dirPoints.length) return null
+    if (!dirPoints.length) return null;
+    if (activeStep === MODULE_NUMBER.PIXEL_SIZE) return null;
 
     return (
       <Line
-        points={sectionPoints.flatMap(point => [point.x / factor, point.y / factor])}
-        stroke={COLORS.DARK_GREY}
+        points={sectionPoints.flatMap((point) => [
+          point.x / factor,
+          point.y / factor,
+        ])}
+        stroke={lineColor}
         strokeWidth={4 / resizeFactor}
         lineCap="round"
         dash={[5, 10]}
       />
-    )
-  }
+    );
+  };
 
-  const getText = () => {    
-    const { point, rotation } = getPositionSectionText(sectionPoints[0], sectionPoints[1]);
+  const getText = () => {
+    const { point, rotation } = getPositionSectionText(
+      sectionPoints[0],
+      sectionPoints[1],
+      imageWidth ? imageWidth : 0,
+      imageHeight ? imageHeight : 0,
+      factor,
+    );
 
     return (
       <Text
@@ -68,26 +84,26 @@ export const LineAndText = ({localPoints, isPixelSize, resizeFactor = 1, factor,
         text={name}
         fontSize={18 / resizeFactor}
         fill={textColor}
-        offset={{ x: 0, y: -10 }}
+        offset={{ x: 0, y: -15 }}
         rotation={rotation}
-      /> 
+      />
     );
-  }
+  };
 
   return (
     <>
-      {
-        sectionLine()
-      }
+      {sectionLine()}
       <Line
-        points={localPoints ? localPoints.flatMap(point => [point.x, point.y]) : dirPoints.flatMap(point => [point.x / factor, point.y / factor])}
+        points={
+          localPoints
+            ? localPoints.flatMap((point) => [point.x, point.y])
+            : dirPoints.flatMap((point) => [point.x / factor, point.y / factor])
+        }
         stroke={lineColor}
         strokeWidth={4 / resizeFactor}
         lineCap="round"
       />
-      {
-        !isPixelSize && sectionPoints[0].x !== 0 && getText()
-      }
+      {!isPixelSize && sectionPoints[0].x !== 0 && getText()}
     </>
-  )
-}
+  );
+};

@@ -12,9 +12,14 @@
   ],
   "extraResources": [
     {
-    "from": "river-cli",
-    "to": "river-cli",
-    "filter": ["**/*"]
+      "from": "river-cli",
+      "to": "river-cli",
+      "filter": ["**/*"]
+    },
+    {
+      "from": "ffmpeg",
+      "to": "ffmpeg",
+      "filter": ["**/*"]
     }
   ],
   "mac": {
@@ -22,7 +27,7 @@
       "dmg"
     ],
     "artifactName": "${productName}-Mac-${version}-Installer.${ext}",
-    "icon": "icons"
+    "icon": "icons/mac.icns",
   },
   "win": {
     "target": [
@@ -34,19 +39,7 @@
       }
     ],
     "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
-    "icon": "icons",
-    "extraResources": [
-      {
-        "from": "ffmpeg",
-        "to" : "ffmpeg",
-        "filter": ["**/*"]
-      },
-      {
-        "from": "river-cli.exe",
-        "to": "river-cli.exe",
-        "filter": ["**/*]
-      }
-    ]
+    "icon": "icons/1256x1259.png"
   },
   "nsis": {
     "oneClick": false,
@@ -55,10 +48,10 @@
     "deleteAppDataOnUninstall": false,
   },
   "linux": {
-    "target": [
-      "AppImage"
-    ],
+    "target": ["deb"],
     "artifactName": "${productName}-Linux-${version}.${ext}",
-    "icon": "icons"
+    "icon": "icons",
+    "category": "Utility",
+    "maintainer": "Tomas Stefani tomyste02@gmail.com"
   }
 }

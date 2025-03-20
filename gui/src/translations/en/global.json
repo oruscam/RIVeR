@@ -3,15 +3,22 @@
         "start": "Start",
         "loadProject": "Load Project",
         "spanish" : "Spanish",
-        "english" : "English"
+        "english" : "English",
+        "french" : "French",
+        "Errors": {
+            "noSettingsFile": "The selected directory does not contain a settings.json file",
+            "notValidDirectory" : "Please selected a valid directory",
+            "default": "An error occurred while trying to load the project"
+        }
     },
     "Step-2" : {
-        "title" : "Select the kind of footage"
+        "title" : "Select the kind of footage",
+        "pleaseSelectVideo": "Please select a video file"
     },
     "Wizard" : {
         "back" : "Back",
         "next" : "Next",
-        "save" : "Save"
+        "save" : "Save HTML"
     },
     "VideoRange":{
         "title": "Video Range",
@@ -29,10 +36,12 @@
         },
         "ExtraInfo" : {
             "fileName" : "File Name:",
-            "totalLenght": "Total Lenght: ",
+            "totalLength": "Total Length: ",
             "timeBetweenFrame" : "Time Between Frames: ",
-            "resolution" : "Resolution: "
-        }
+            "resolution" : "Resolution: ",
+            "numberOfFrames": "Number of Frames: "
+        },
+        "framesResolution": "Frames Resolution"
     },
     "PixelSize": {
         "title": "Pixel Size",
@@ -41,7 +50,8 @@
         "drawLine": "Draw Line",
         "Errors": {
             "required": "All the fields are obligatory. Please check Pixel Size form.",
-            "lineLength" : "Invalid Line Length: The line length must be a positive number, which can include decimals. Please enter a valid value."
+            "lineLength" : "Invalid Line Length: The line length must be a positive number, which can include decimals. Please enter a valid value.",
+            "pixelSize": "Invalid Pixel Size: The pixel size must be a positive number, which can include decimals. Please enter a valid value."
         },
         "RealWorld": {
             "title": "Real World Coordinates",
@@ -61,7 +71,7 @@
     "CrossSections": {
         "title": "Cross Sections",
         "drawLine": "Draw Direction",
-        "csLength": "CS Length",
+        "width": "Width",
         "importBath": "Import bath",
         "level" : "Level",
         "leftBankStation": "Left Bank Station",
@@ -82,8 +92,12 @@
         "Errors" : {
             "levelError": "Level must be between {{yMin}} and {{yMax}}",
             "leftBank": "Left bank is out of range",
-            "bathimetryNotValid": "The bathimetry is not valid. Level {{level}} do not exist in this file"
-        }
+            "bathimetryNotValid": "The bathimetry is not valid. Level {{level}} do not exist in this file",
+            "bathimetryIsRequired": "Bathimetry is required in {{section_name}}",
+            "rwLength": "The value of CS Length can not be 0 in {{section_name}}"
+        },
+        "warning": "Are you sure you want to delete {{section_name}}?",
+        "warningTitle": "Delete Section"
     },
     "Processing": {
         "title": "Processing",
@@ -103,7 +117,11 @@
         "medianTestFiltering" : "Mediant test filtering",
         "epsilon": "Epsilon",
         "threshold": "Threshold",
-        "carouselMedia": "Media"
+        "carouselMedia": "Median",
+        "Plot": {
+            "u" : "U Component",
+            "v" : "V Component"
+        }
     },
     "Analizing": {
         "title": "Analizing",
@@ -118,17 +136,18 @@
         "stationNumber" : "Station Number",
         "showVelStd" : "Show Vel. Std",
         "showProfile": "Show 5% | 95% percen",
-        "interpolateProfile": "Interpolate Profile"
+        "interpolateProfile": "Interpolate Profile",
+        "applyChanges" : "Apply Changes"
     },
     "Graphs": {
         "station": "Station",
         "velocity": "Velocity",
         "discharge": "Discharge",
+        "stage": "Stage",
         "level": "Level"
     },
     "Report": {
-        "totalQ": "Total Q",
-        "discahrgeQ": "Discharge Q",
+        "dischargeQ": "Discharge Q",
         "VideoInfo": {
             "title": "Video Information",
             "name": "Name",
@@ -155,24 +174,82 @@
             "averageVs": "Average Vs",
             "maxD": "Max d",
             "meanD": "Mean d",
-            "measured": "% Measured"
+            "measured": "% Measured",
+            "mean": "mean",
+            "stdDev": "Std dev",
+            "cov": "COV"
+        },
+        "Form": {
+            "riverName": "River's Name",
+            "riverLocation": "site",
+            "unitSistem": "Unit System",
+            "SI": "SI",
+            "imperial": "Imperial",
+            "date": "Measurement Date"
         },
         "pixelTransformation": "Pixel Transformation",
         "processingParameters" : "Processing Parameters",
+        "preProcessing" : "Pre-Processing",
+        "postProcessing" : "Post-Processing",
         "generatedBy" : "Generated with River",
-        "date" : "report creation date"
+        "date" : "report creation date",
+        "Success" : {
+            "title": "Analysis Completed!",
+            "message": "You have completed all the steps correctly. Review the results and save them as HTML. You can close RIVeR, your project has been saved in"
+        }
     },
     "ControlPoints" : {
+        "title": "Control Points",
+        "drawPoints": "Draw Points",
+        "importDistances": "Import Distances",
+        "distance": "Distancia",
+        "length" : "Longitud",
         "Errors": {
             "required" : "All the distances fields are obligatory. Please check Control Points form",
             "notNull": "All the distances fields must be greater than 0. Please check Control Points form",
             "notZero": "All the distances fields must be different from 0. Please check Control Points form",
             "positive" : "All the distances fields must be positive. Please check Control Points form"
         }
+    }, 
+    "ControlPoints3d": {
+        "importPoints": "Import Points",
+        "importImages": "Import Images",
+        "east": "East",
+        "north": "North",
+        "label": "Label",
+        "northern": "Northern",
+        "southern": "Southern",
+        "directSolve": "Direct Solve",
+        "optimize": "Optimize",
+        "reprojectionErrors": "Reprojection Errors: ",
+        "numberOfPoints": "Number of Points: ",
+        "cameraHeight": "Camera Height: "
     },
     "Errors": {
-        "invalidDistancesFormat" : "Invalid distances format",
+        "invalidPointsFileFormat": "Invalid Points file format.",
+        "invalidDistancesFileFormat" : "Invalid Points Distances format",
+        "invalidDistancesNotValidValue" : "Invalid Points Distances format. Some distance values are not valid numbers",
+        "invalidDistancesNegativeValue": "Invalid Points Distances format. Negative distances are not allowed",
+        "invalidBathimetryFileFormat" : "Invalid Bathimetry file format",
+        "invalidImageExtension": "The directory contains files that are not images",
         "imagesFolderEmpty" : "No images found in the selected folder",
-        "invalidImageExtension": "The directory contains files that are not images"
+        "waitingForFrames": "We are waiting for the frames to be loaded. Please try again in a few seconds",
+        "Cli": {
+            "windowsSizesError" : "The window size is too large for the selected Region Of Interest.",
+            "bboxNotDefined" : "Region of Interest not defined."
+        }
+    },
+    "Loader": {
+        "extractingFrames" : "Extracting Video Frames",
+        "results" : "Generating velocity profile statistics",
+        "videoConversion" : "We are converting the video to mp4 format. Please wait a moment.",
+        "maskAndRoi": "Defining ROI and masks"
+    },
+    "Commons": {
+        "yes": "Yes",
+        "no": "No",
+        "solve": "Solve",
+        "resourceNotFound": "Resource not found",
+        "randomError": "Something went wrong. Please try again"
     }
 }

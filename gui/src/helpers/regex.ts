@@ -10,6 +10,6 @@
  */
 
 export const isValidString = (input: string): boolean => {
-    const regex = /^[a-zA-Z0-9_]*$/
-    return regex.test(input)
-}
+  const regex = /^[a-zA-Z0-9_]*$/;
+  return regex.test(input);
+};
