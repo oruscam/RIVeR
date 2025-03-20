@@ -290,13 +290,11 @@ export const useDataSlice = () => {
 
         sections.map((section, index) => {
           if (data[section.name]) {
-            console.log('Section', data[section.name])
             dispatch(
               setSectionData({
                 sectionIndex: index,
                 sectionData: {
                   ...data[section.name],
-
                   activeCheck: data[section.name].check,
                 },
               }),
