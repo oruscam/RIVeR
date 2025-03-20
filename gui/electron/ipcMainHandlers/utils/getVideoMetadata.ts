@@ -17,8 +17,13 @@ if (plataform === "win32" || plataform === "linux") {
    */
 
   if (import.meta.env.VITE_DEV_SERVER_URL) {
-    ffmpeg.setFfmpegPath(import.meta.env.VITE_FFMPEG_PATH);
-    ffmpeg.setFfprobePath(import.meta.env.VITE_FFPROBE_PATH);
+    const ffmpegPath = import.meta.env.VITE_FFMPEG_PATH;
+    const ffprobePath = import.meta.env.VITE_FFPROBE_PATH
+
+    if ( ffmpegPath && ffprobePath) {
+      ffmpeg.setFfmpegPath(import.meta.env.VITE_FFMPEG_PATH);
+      ffmpeg.setFfprobePath(import.meta.env.VITE_FFPROBE_PATH);
+    } 
   } else {
     /**
      * Constructs the path to the `ffprobe.exe` executable.

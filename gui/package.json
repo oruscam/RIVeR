@@ -5,7 +5,10 @@
   "version": "3.0.0",
   "type": "module",
   "description": "app-description-test",
-  "author": "RIVeR tomyste02@gmail.com",
+  "author": {
+    "name": "Orus",
+    "email": "orus@gmail.com"
+  },
   "homepage": "https://www.google.com",
   "scripts": {
     "dev": "vite",
