@@ -90,7 +90,8 @@ const sectionSlice = createSlice({
       state.sections[action.payload.sectionIndex].interpolated =
         action.payload.sectionData.interpolated;
       state.sections[action.payload.sectionIndex].numStations =
-        action.payload.sectionData.num_stations;
+        action.payload.sectionData.num_stations
+      state.sections[action.payload.sectionIndex].alpha = action.payload.sectionData.alpha;
     },
     changeSectionData: (state, action: PayloadAction<SectionData>) => {
       state.sections[state.activeSection].data = action.payload;

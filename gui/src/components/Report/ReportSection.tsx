@@ -68,7 +68,7 @@ export const ReportSection = ({ index, factor }: ReportSectionProps) => {
               factor={factor}
               isReport={true}
               sectionIndex={index}
-              seeAll={true}
+              seeAll={false}
             />
           </div>
         </div>
