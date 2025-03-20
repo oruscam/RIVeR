@@ -1,0 +1,18 @@
+{
+  "section1": {
+    "east_l": -1.48,
+    "north_l": 0.14,
+    "east_r": 20.67,
+    "north_r": 0.57,
+    "level": 1.765,
+    "num_stations": 15,
+    "alpha": 1,
+    "bath": "data/bathymetry/pisco_section.csv",
+    "left_station": 2.0,
+    "xl": 49.93998201776919,
+    "yl": 935.0362603828776,
+    "xr": 1800.187546103764,
+    "yr": 687.6040640118695,
+    "rw_length": 22.154173421728018
+  }
+}

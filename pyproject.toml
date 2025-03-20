@@ -1,0 +1,110 @@
+# pyproject.toml
+
+[build-system]
+requires = ["setuptools>=65.5.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "river-cli"
+version = "3.0.0"
+description = "A CLI application for Large Scale Particle Image Velocimetry (LSPIV)."
+readme = "readme.md"
+authors = [
+    { name = "Antoine Patalano", email = "antoine.patalano@unc.edu.ar" },
+    { name = "Nicolas Stefani", email = "nicolas471@gmail.com" },
+    { name = "Tomas Stefani", email = "tomyste02@gmail.com" },
+]
+dependencies = [
+    "click >= 8.1.3",
+    "opencv-python-headless == 4.10.0.84",
+    "matplotlib >= 3.9.0",
+    "scipy < 1.14",
+    "tqdm >= 4.67.0",
+    "numba == 0.60.0",
+    "tablib[xlsx,xls,ods] == 3.8.0"
+]
+license = "AGPL-3.0-or-later"
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["cli", "lspiv", "flow", "discharge", "velocity" , "analysis", "hydraulic", "models"]
+requires-python = ">=3.12"
+
+[project.urls]
+Homepage = "https://github.com/aPatal/RIVeR/"
+
+[project.scripts]
+river-cli = "river.cli.__main__:cli"
+
+[project.optional-dependencies]
+dev = ["ruff", "bumpver"]
+
+[tool.setuptools]
+packages = ["river", "river.core", 'river.cli', 'river.cli.commands']
+
+[tool.ruff]
+# Exclude a variety of commonly ignored directories.
+include = ["river/**/*.py",]
+
+# Same as Black.
+line-length = 120
+indent-width = 4
+
+# Assume Python 3.8
+target-version = "py312"
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Unlike Flake8, Ruff doesn't enable pycodestyle warnings (`W`) or
+# McCabe complexity (`C901`) by default.
+select = ["E4", "E7", "E9", "F"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "tab"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+
+# Enable auto-formatting of code examples in docstrings. Markdown,
+# reStructuredText code/literal blocks and doctests are all supported.
+#
+# This is currently disabled by default, but it is planned for this
+# to be opt-out in the future.
+docstring-code-format = false
+
+# Set the line length limit used when formatting code snippets in
+# docstrings.
+#
+# This only has an effect when the `docstring-code-format` setting is
+# enabled.
+docstring-code-line-length = "dynamic"
+
+[tool.bumpver]
+current_version = "3.0.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = true
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
+"river/__init__.py/" = ["{version}"]
+"gui/package.json" = ["\"version\": \"{version}\"", "\"productName\": \"RIVeR {version}\""]

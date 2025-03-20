@@ -1,0 +1,57 @@
+// @see - https://www.electron.build/configuration/configuration
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "asar": true,
+  "compression": "maximum",
+  "directories": {
+    "output": "release/${version}"
+  },
+  "files": [
+    "dist",
+    "dist-electron",
+  ],
+  "extraResources": [
+    {
+      "from": "river-cli",
+      "to": "river-cli",
+      "filter": ["**/*"]
+    },
+    {
+      "from": "ffmpeg",
+      "to": "ffmpeg",
+      "filter": ["**/*"]
+    }
+  ],
+  "mac": {
+    "target": [
+      "dmg"
+    ],
+    "artifactName": "${productName}-Mac-${version}-Installer.${ext}",
+    "icon": "icons/mac.icns",
+  },
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": [
+          "x64"
+        ]
+      }
+    ],
+    "artifactName": "${productName}-Windows-${version}-Setup.${ext}",
+    "icon": "icons/1256x1259.png"
+  },
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "deleteAppDataOnUninstall": false,
+  },
+  "linux": {
+    "target": ["deb"],
+    "artifactName": "${productName}-Linux-${version}.${ext}",
+    "icon": "icons",
+    "category": "Utility",
+    "maintainer": "Tomas Stefani tomyste02@gmail.com"
+  }
+}

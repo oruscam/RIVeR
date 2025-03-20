@@ -1,0 +1,544 @@
+:root {
+  --background-color: #d4bdbd;
+  --foreground-color: #003cff;
+  --primary-text-color: #000000;
+  --secondary-text-color: #ffffff;
+  --on-hover: #4d4b4b;
+
+/* REPORT COLORS */
+  --report-gradient-1: #0678BE;
+  --report-gradient-2: #033858;
+
+}
+
+[data-theme="dark"]{
+  --background-color: #000000;
+  --secondary-background-color: #141414;
+  --primary-text-color: #ffffff;
+  --secondary-text-color: #797979;
+  --on-hover: #232222;
+  --input-background: #323232;
+  --input-background-disabled: #191919;
+  --secondary-input-background: #646464;
+  --disabled-button: #808080;
+  --background-error: #ED6B57;
+  --success-color: #62C655;
+  --success-background: #2D671B;
+
+  /* CONTROL POINTS DISTANCES */
+  --d12: #6CD4FF;
+  --d13: #CC4BC2;
+  --d14: #F5BF61;
+  --d23: #62C655;
+  --d24: #7765E3;
+  --d34: #ED6B57;
+}
+
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.danger-button{
+  width: 232px;
+  height: 50px;
+  background-color: var(--background-error);
+  border: 2px solid;
+  border-radius: 20px; 
+  font-size: 18px; 
+  font-weight: 500;
+  transition: transform 0.1s;
+}
+
+.danger-button:hover {
+  color: white;
+}
+
+.danger-button:active {
+  transform: translateY(-10px);
+}
+
+.danger-button:disabled{
+  background-color: var(--disabled-button);
+  color: var(--background-color);
+  transform: none;
+}
+
+.button-transparent {
+  background-color: transparent;
+  color: var(--primary-text-color);
+  border: none;
+  transition: transform 0.3s ease; /* Añade una transición suave */
+}
+
+.button-transparent:hover {
+  transform: scale(1.1); /* Escala el botón al 110% de su tamaño original */
+}
+
+.button-1{
+  width: 232px;
+  height: 50px;
+  background-color: var(--background-color);
+  border: 2px solid;
+  border-color: var(--primary-text-color);
+  color: var(--primary-text-color);
+  border-radius: 20px;
+  font-size: 20px;
+  font-weight: 500;
+  transition: background-color 0.1s, transform 0.1s;
+}
+
+.button-1:hover {
+  background-color: var(--primary-text-color);
+  color: var(--background-color);
+}
+
+.button-1:active {
+  background-color: var(--primary-text-color);
+  color: black;
+  /* transform: scale(0.9); */
+  transform: translateY(4px);
+}
+
+.label-1{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wizard-button{
+  width: 132px;
+  height: auto;
+  min-height: 50px;
+  background-color: var(--background-color);
+  border: 2px solid;
+  border-color: var(--primary-text-color);
+  color: var(--primary-text-color);
+  border-radius: 20px;
+  font-size: 20px;
+  font-weight: 500;
+  transition: background-color 0.1s, transform 0.1s;
+  cursor: pointer;
+  padding: 3px;
+}
+
+/* .wizard-button:hover {
+  background-color: var(--primary-text-color);
+  color: var(--background-color);
+} */
+
+.wizard-button:active {
+  background-color: white;
+  color: black;
+  /* transform: scale(0.9); */
+  transform: translateY(4px);
+}
+
+.wizard-button-active{
+  background-color: white;
+  color: black;
+  /* transform: scale(0.9); */
+  transform: translateY(4px);
+}
+
+
+.wizard-button:disabled{
+  background-color: var(--background-color);
+  color: var(--disabled-button);
+  border-color: var(--disabled-button);
+  transform: translateY(0px);
+  
+}
+
+.input-field{
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 20px;
+  width: 150px;
+  height: 50px;
+  
+}
+
+.input-field-rectification-2d{
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 20px;
+  width: 175px;
+  height: 50px;
+}
+
+.input-field-little{
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 15px;
+  width: 90px;
+  height: 35px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.input-field-read-only{
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 20px;
+  width: 150px;
+  height: 50px;
+}
+
+.input-field-read-only:focus{
+    outline: none;
+}
+
+.input-field-read-only:disabled{
+  background-color: var(--input-background-disabled);
+}
+
+.input-field-little-read-only{
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 15px;
+  width: 90px;
+  height: 35px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.input-field-little-read-only:focus{
+    outline: none;
+}
+
+.input-field-little:disabled{
+  background-color: var(--input-background-disabled);
+}
+
+.form-button{
+  min-width: 200px;
+  cursor: pointer;
+  flex-shrink: 0;
+  height: auto;
+}
+
+.video-button{
+  background-color: transparent;
+  border: none;
+  color: white;
+  padding: 5px;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+  width: 50px;
+}
+
+.video-button:hover{
+  transform: scale(1.1);
+  transform: translateY(-1px);
+}
+
+.video-button:active {
+  transform: scale(0.9);
+}
+
+.svg-icon .cls-1{
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
+  display: none;
+  margin: 0;
+}
+
+/* .button-1.clicked{
+  background-color: white;
+  color: black;
+  transform: scale(0.9);
+} */
+
+.mt-1{
+  margin-top: 15px;
+}
+
+.mt-2{
+  margin-top: 25px;
+}
+
+.mt-3{
+  margin-top: 40px;
+
+}
+
+.mt-4{
+  margin-top: 50px;
+}
+
+.mt-5{
+  margin-top: 60px;
+}
+
+
+.mb-1{
+  margin-bottom: 15px;
+}
+
+.mb-2{
+  margin-bottom: 25px;
+}
+
+.mb-3{
+  margin-bottom: 40px;
+}
+
+.mb-4{
+  margin-bottom: 50px;
+}
+
+.mb-5{
+  margin-bottom: 60px;
+}
+
+.me-1{
+  margin-right: 15px;
+}
+
+.me-2{
+  margin-right: 25px;
+}
+
+.ms-1{
+  margin-left: 15px;
+}
+
+.ms-2{
+  margin-left: 25px;
+}
+
+.mtn-1{
+  margin-top: -15px;
+}
+
+.mtn-2{
+  margin-top: -25px;
+}
+
+.mtn-3{
+  margin-top: -40px;
+}
+
+.red{
+  color: #ED6B57;
+}
+
+.green{
+  color: #62C655
+}
+
+/* Scroll Bar */
+
+ /* width */
+ ::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+ 
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--primary-text-color);
+  outline: 1px solid slategrey;
+  border-radius: 8px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-text-color);
+
+} 
+
+/* * TOGGLE SWITCH */
+.switch {
+  position: relative;
+  display: inline-block;
+  margin-left: 20px;
+  width: 56px;
+  height: 26px;
+}
+
+.switch input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider{
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--input-background);
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 30px;
+    
+}
+
+.slider:before{
+    position: absolute;
+    content: "";
+    height: 19px;
+    width: 19px;
+    left: 5px;
+    bottom: 3.5px;
+    background-color: #FFFFFF;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider{
+    background-color: #0678BE;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .slider:before {
+    transform: translateX(27px);
+}
+
+
+.loader-little{
+  border: 5px solid var(--secondary-background-color);
+  border-radius: 50%;
+  border-top: 5px solid var(--primary-text-color);
+  width: 40px;
+  height: 40px;
+  animation: spin 1.5s linear infinite;    
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.button-with-loader{
+  display: flex;
+  width: 165px;
+  height: 60px;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  border: 2px solid;
+  border-radius: 20px;
+  align-items: center;
+  justify-content: space-around;
+  padding-left: 10px;
+  padding-right: 10px;
+  flex-shrink: 0;
+}
+
+.button-with-loader p{
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.button-with-loader:hover{
+  background-color: var(--primary-text-color);
+  color: var(--background-color);
+}
+
+.button-with-loader-active{
+  background-color: var(--primary-text-color);
+  color: var(--background-color);
+}
+
+.hidden{
+  display: none;
+}
+
+.react-datepicker{
+  background-color: var(--secondary-background-color);
+  color: var(--primary-text-color);
+  border: 1px solid var(--input-background);
+}
+
+.react-datepicker__header {
+  background-color: var(--secondary-background-color);
+  border-bottom: 1px solid var(--input-background);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__current-month,
+.react-datepicker__day-name,
+.react-datepicker__time-name {
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__day,
+.react-datepicker__day-name,
+.react-datepicker__time-name {
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__day:hover,
+.react-datepicker__day--selected {
+  background-color: var(--on-hover);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__time-container {
+  background-color: var(--secondary-background-color);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__time-container .react-datepicker__time {
+  background-color: var(--secondary-background-color);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box {
+  background-color: var(--secondary-background-color);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-list-item {
+  background-color: var(--secondary-background-color);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-list-item:hover,
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-list-item--selected {
+  background-color: var(--on-hover);
+  color: var(--primary-text-color);
+}
+
+.react-datepicker-time__header {
+  color: var(--primary-text-color);
+}
+
+.w-100{
+  width: 100%;
+}
