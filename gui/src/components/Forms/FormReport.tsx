@@ -102,7 +102,7 @@ export const FormReport = () => {
         </div>
 
         <div className="simple-input-container">
-          <label id="label-unit-sistem"> {t('Report.Summary.unitSistem')} </label>
+          <label id="label-unit-sistem"> {t('Report.Form.unitSistem')} </label>
 
           <div className="last-settings-form-field-radio">
             <label> {t('Report.Form.SI')} </label>
