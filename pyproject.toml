@@ -5,10 +5,10 @@ requires = ["setuptools>=65.5.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "RIVeR"
+name = "river-cli"
 version = "3.0.0"
-description = "A CLI application that performs."
-# readme = "README.md"
+description = "A CLI application for Large Scale Particle Image Velocimetry (LSPIV)."
+readme = "readme.md"
 authors = [
     { name = "Antoine Patalano", email = "antoine.patalano@unc.edu.ar" },
     { name = "Nicolas Stefani", email = "nicolas471@gmail.com" },
@@ -16,23 +16,36 @@ authors = [
 ]
 dependencies = [
     "click >= 8.1.3",
-    "opencv-python-headless >= 4.10.0.84",
+    "opencv-python-headless == 4.10.0.84",
     "matplotlib >= 3.9.0",
     "scipy < 1.14",
     "tqdm >= 4.67.0",
     "numba == 0.60.0",
     "tablib[xlsx,xls,ods] == 3.8.0"
 ]
+license = "AGPL-3.0-or-later"
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
+keywords = ["cli", "lspiv", "flow", "discharge", "velocity" , "analysis", "hydraulic", "models"]
+requires-python = ">=3.12"
+
+[project.urls]
+Homepage = "https://github.com/aPatal/RIVeR/"
 
 [project.scripts]
 river-cli = "river.cli.__main__:cli"
 
+[project.optional-dependencies]
+dev = ["ruff", "bumpver"]
+
 [tool.setuptools]
-packages = ["river", "river.core", 'river.cli']
+packages = ["river", "river.core", 'river.cli', 'river.cli.commands']
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
-exclude = ["river/**/legacy_*.py",]
 include = ["river/**/*.py",]
 
 # Same as Black.
@@ -82,3 +95,16 @@ docstring-code-format = false
 # This only has an effect when the `docstring-code-format` setting is
 # enabled.
 docstring-code-line-length = "dynamic"
+
+[tool.bumpver]
+current_version = "3.0.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+commit = true
+tag = true
+push = true
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = ['current_version = "{version}"', 'version = "{version}"']
+"river/__init__.py/" = ["{version}"]
+"gui/package.json" = ["\"version\": \"{version}\"", "\"productName\": \"RIVeR {version}\""]

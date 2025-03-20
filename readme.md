@@ -46,20 +46,16 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 
 ### Prerequisites
 
-- Python 3.11+
+- Python 3.12+
 - pip package manager
 - Git (for cloning the repository)
 
-### Installation
-AGREGAR PIP INSTALL RIVER
-Clone the repository:
+### CLI Installation
+
 ```bash
-git clone https://github.com/your-username/river.git
-cd river
-pip install -r requirements.txt
-pip install opencv-python-headless>=4.6 matplotlib>=3.8.4 scipy==1.13.1 \
-            click==8.1.7 numba==0.60.0 tqdm==4.67.0 "tablib[xlsx,xls,ods]==3.8.0"
+pip install river-cli
 ```
+
 ## 📂 Project Structure
 
 ```
@@ -97,20 +93,6 @@ river/
     │   └── video_to_frames.py      # Video frame extraction
     └── docs
 ```
-
-## 🧩 Dependencies
-
-### Backend Requirements
-
-| Package               | Version   | License                 |
-|----------------------|-----------|-------------------------|
-| opencv-python-headless| >=4.6     | MIT License            |
-| matplotlib           | >=3.8.4   | PSF License            |
-| scipy                | ==1.13.1  | BSD License            |
-| click                | ==8.1.7   | BSD License            |
-| numba                | ==0.60.0  | BSD License            |
-| tqdm                 | ==4.67.0  | MIT License            |
-| tablib[xlsx,xls,ods] | ==3.8.0   | BSD License            |
 
 ## 📚 Jupyter Examples
 
