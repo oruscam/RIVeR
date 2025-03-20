@@ -79,7 +79,7 @@ export const RealWorldCoordinates = ({
     <>
       <h2 className="form-subtitle mt-5 only-one-item" id="REAL_WORLD">
         {" "}
-        Real World Coordinates{" "}
+        {t(`${step}.RealWorld.title`)}
       </h2>
 
       <div className="input-container-2 mt-2">

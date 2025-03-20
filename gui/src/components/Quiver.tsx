@@ -51,11 +51,8 @@ export const Quiver = ({ width, height, factor, showMedian }: QuiverProps) => {
         (d) => d.u !== null && !isNaN(d.u) && d.v !== null && !isNaN(d.v),
       );
 
-    const max_u = d3.max(filteredData, (d) => Math.abs(d.u));
-    const max_v = d3.max(filteredData, (d) => Math.abs(d.v));
-
-    const mean_u = max_u! / 2;
-    const mean_v = max_v! / 2;
+    const mean_u = d3.mean(filteredData, (d) => Math.abs(d.u)) || 0;
+    const mean_v = d3.mean(filteredData, (d) => Math.abs(d.v)) || 0;
 
     svg
       .selectAll("line")

@@ -256,8 +256,6 @@ export const useDataSlice = () => {
           throw new Error(error.message);
         }
 
-        console.log("data", data);
-
         dispatch(
           setSectionData({
             sectionIndex: activeSection,

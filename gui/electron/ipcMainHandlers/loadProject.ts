@@ -29,9 +29,14 @@ async function loadFrames(framesPath: string, filePrefix: string) {
   const images = await fs.promises.readdir(framesPath);
   if (images.length > 0) {
     const firstFrame = path.join(framesPath, images[0]);
-    const paths = images.map((image) =>
-      path.join(filePrefix, framesPath, image),
-    );
+    const paths = images.map((image) => {
+      if ( image === "background.jpg" ){
+          return undefined
+      }
+
+      return path.join(filePrefix, framesPath, image)
+    }
+    ).filter((image) => image !== undefined);
     return { firstFrame, paths };
   }
   return { firstFrame: "", paths: [] };

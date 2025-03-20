@@ -6,6 +6,7 @@ import {
   useMatrixSlice,
   useProjectSlice,
   useSectionSlice,
+  useUiSlice,
 } from "../hooks";
 import { MODULE_NUMBER } from "../constants/constants";
 
@@ -27,6 +28,7 @@ export const WizardButtons = ({
   const { onClearQuiver, isBackendWorking, onResetDataSlice } = useDataSlice();
   const { onResetProjectSlice } = useProjectSlice();
   const { onResetMatrixSlice } = useMatrixSlice();
+  const { onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();
 
   const handlePreviuos = () => {
@@ -37,6 +39,7 @@ export const WizardButtons = ({
         break;
 
       case MODULE_NUMBER.PROCESSING:
+        onSetSeeAll(true)
         previousStep();
         break;
 

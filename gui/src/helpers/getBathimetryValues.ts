@@ -21,7 +21,7 @@ const getBathimetryLimitsY = (line: Point[]): Limits => {
   }
 
   return {
-    max: max,
+    max: parseFloat(max.toFixed(2)),
     min: min,
   };
 };
@@ -46,10 +46,13 @@ export const getIntersectionPoints = (
     const currentPoint = data[i];
     const nextPoint = data[i + 1];
 
+    currentPoint.y = parseFloat(currentPoint.y.toFixed(2));
+    nextPoint.y = parseFloat(nextPoint.y.toFixed(2));
+
     // Verifica si el nivel está entre los puntos actuales y siguientes
     if (
-      (currentPoint.y <= level && nextPoint.y >= level) ||
-      (currentPoint.y >= level && nextPoint.y <= level)
+      ( currentPoint.y <= level && nextPoint.y >= level) ||
+      ( currentPoint.y >= level && nextPoint.y <= level)
     ) {
       // Interpolación lineal para encontrar la posición exacta de intersección
       const t = (level - currentPoint.y) / (nextPoint.y - currentPoint.y);
@@ -80,6 +83,7 @@ export const getBathimetryValues = (line: Point[], level?: number) => {
   const yLimits = getBathimetryLimitsY(line);
   const xLimits = getBathimetryLimitsX(line);
 
+
   const intersectionPoints = getIntersectionPoints(
     line,
     level ? level : yLimits.max,
@@ -102,7 +106,7 @@ export const getBathimetryValues = (line: Point[], level?: number) => {
       xMax: xLimits.max,
       yMin: yLimits.min,
       yMax: yLimits.max,
-      level: level ? level : parseFloat(yLimits.max.toFixed(2)),
+      level: level ? level : yLimits.max,
       x1Intersection: intersectionPoints[0].x,
       x2Intersection: intersectionPoints[1].x,
       width: bathWidth,

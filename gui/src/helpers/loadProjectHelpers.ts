@@ -203,7 +203,9 @@ const onLoadCrossSections = (
         const { line, name } = await ipcRenderer.invoke("get-bathimetry", {
           path: bath,
         });
+
         const { data } = getBathimetryValues(line, level);
+        
         const {
           yMax,
           yMin,

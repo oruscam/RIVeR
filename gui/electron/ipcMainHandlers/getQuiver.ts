@@ -8,8 +8,7 @@ import { clearCrossSections } from "./utils/clearCrossSections";
 
 async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
   ipcMain.handle("get-quiver-test", async (_event, args) => {
-    const { resultsPath, settingsPath, logsPath, xsectionsPath } =
-      PROJECT_CONFIG;
+    const { resultsPath, settingsPath, logsPath, xsectionsPath } = PROJECT_CONFIG;
 
     const { framesToTest, formValues } = args;
 
@@ -40,7 +39,7 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
       formValues,
     );
     try {
-      const result = (await riverCli(options, "text", false, logsPath)) as any;
+      const result = (await riverCli(options, "text", true, logsPath)) as any;
       return result;
     } catch (error) {
       console.log("Error en get-quiver-test");
@@ -110,7 +109,6 @@ async function createOptions(
   const {
     clahe,
     clipLimit,
-    grayscale,
     medianTestEpsilon,
     medianTestFiltering,
     medianTestThreshold,
@@ -129,7 +127,6 @@ async function createOptions(
     interrogation_area_1: step1,
     interrogation_area_2: step2,
     roi_height: heightRoi,
-    grayscale: grayscale,
     remove_background: removeBackground,
     clahe: clahe,
     clip_limit: clipLimit,
@@ -165,7 +162,6 @@ async function createOptions(
     medianTestFiltering ? medianTestThreshold : "",
     clahe ? "--clip-limit-clahe" : "--no-filter-clahe",
     clahe ? clipLimit : "",
-    grayscale ? "" : "--no-filter-grayscale",
     removeBackground ? "--filter-sub-background" : "",
     // artificialSeeding ? '' : '--no-seeding-filter',
     mode === "test" ? framesToTest[0] : framesPath,

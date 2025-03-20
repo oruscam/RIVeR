@@ -77,7 +77,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
       }
     }
   };
-
+  
   return (
     <>
       <div

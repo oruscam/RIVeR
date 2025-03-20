@@ -11,7 +11,7 @@ import { useDataSlice, useUiSlice } from "../hooks";
 import { useWizard } from "react-use-wizard";
 
 export const Analize = () => {
-  const { screenSizes, onSetErrorMessage } = useUiSlice();
+  const { screenSizes, onSetErrorMessage, onSetSeeAll } = useUiSlice();
   const { imageWidth: width, imageHeight: height, factor } = screenSizes;
   const { nextStep } = useWizard();
   const { onGetResultData, quiver, images, onSetActiveImage } = useDataSlice();
@@ -21,6 +21,7 @@ export const Analize = () => {
   const handleNext = async () => {
     try {
       await onGetResultData("all");
+      onSetSeeAll(false);
       nextStep();
     } catch (error) {
       onSetErrorMessage((error as Error).message);

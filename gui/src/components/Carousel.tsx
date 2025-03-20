@@ -86,7 +86,7 @@ export const Carousel: React.FC<CarouselProps> = ({
     } else if (index === active + 1 && !showMedian && mode !== "ipcam") {
       className = "img-carousel-second img-carousel";
     }
-
+    
     return (
       <div
         key={index}

@@ -19,7 +19,7 @@ import { useDataSlice, useProjectSlice, useUiSlice } from "./hooks";
 import { FOOTAGE_TYPES } from "./constants/constants";
 
 export const App: React.FC = () => {
-  const { darkMode, isLoading, onSetScreen, onSetLanguage } = useUiSlice();
+  const { darkMode, isLoading, onSetScreen } = useUiSlice();
   const { type, video } = useProjectSlice();
   const { data, parameters } = video;
   const { onSetImages, images } = useDataSlice();
@@ -69,8 +69,6 @@ export const App: React.FC = () => {
       window.ipcRenderer.on("all-frames", handleAllFrames);
     }
   }, [images.paths]);
-
-  // onSetLanguage('fr')
 
   return (
     <div className="App" data-theme={darkMode ? "dark" : "light"}>

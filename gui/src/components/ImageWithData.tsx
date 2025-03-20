@@ -15,6 +15,8 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
 
   if (!width || !height || !factor) return null;
 
+  console.log('width', width, 'height', height)
+
   return (
     <div
       className="image-with-data-container"

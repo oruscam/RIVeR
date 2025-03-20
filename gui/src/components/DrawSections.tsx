@@ -10,7 +10,7 @@ interface DrawSections {
   draggable: boolean;
   drawPins?: boolean;
   resizeFactor?: number;
-  module: string;
+  module?: string;
   localDrawLine?: boolean;
 }
 
@@ -54,7 +54,7 @@ export const DrawSections = ({
       ) : (
         sections.map((section, index) => {
           if (section.dirPoints.length === 0) return;
-          if (seeAll && activeSection !== index) return;
+          if (!seeAll && activeSection !== index) return;
           const reducedPoints = section.dirPoints.map((point) => {
             return {
               x: point.x / factor,

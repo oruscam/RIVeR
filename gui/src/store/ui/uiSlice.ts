@@ -9,7 +9,7 @@ const initialState: UIState = {
   darkMode: true,
   error: [],
   isLoading: false,
-  seeAll: false,
+  seeAll: true,
   language: "en",
 };
 
@@ -36,8 +36,8 @@ const uiSlice = createSlice({
     setScreen: (state, action: PayloadAction<ScreenSizes>) => {
       state.screenSizes = action.payload;
     },
-    setSeeAll: (state) => {
-      state.seeAll = !state.seeAll;
+    setSeeAll: (state, action: PayloadAction<boolean | undefined>) => {
+      state.seeAll = action.payload !== undefined ? action.payload : !state.seeAll;
     },
     setMessage: (state, action: PayloadAction<string>) => {
       state.message = action.payload;

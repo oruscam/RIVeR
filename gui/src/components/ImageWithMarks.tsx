@@ -98,7 +98,7 @@ export const ImageWithMarks = () => {
       >
         <Layer>
           <Image image={image} width={imageWidth} height={imageHeight} />
-          {seeAll ? (
+          {!seeAll ? (
             <DrawSections
               localPoints={localPoints}
               setLocalPoints={setLocalPoints}

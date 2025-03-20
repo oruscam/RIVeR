@@ -53,20 +53,6 @@ export const HardModeProcessing = ({ active }: { active: boolean }) => {
         {t("Processing.preProcessingFilter")}
       </h2>
 
-      <div className="switch-container">
-        <h3 className="field-title"> {t("Processing.grayscale")} </h3>
-        <label className="switch">
-          <input
-            type="checkbox"
-            {...register("grayscale")}
-            onChange={(event) =>
-              onUpdateProcessing({ grayscale: event.currentTarget.checked })
-            }
-          />
-          <span className="slider"></span>
-        </label>
-      </div>
-
       <div className="switch-container mt-1">
         <h3 className="field-title"> {t("Processing.removeBackground")} </h3>
         <label className="switch">

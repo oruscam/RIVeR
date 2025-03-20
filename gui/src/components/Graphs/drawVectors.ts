@@ -45,8 +45,6 @@ export const drawVectors = (
     globalMax,
   );
 
-  console.log('arrows',arrows)
-
   if (arrows === undefined) return;
   arrows.forEach((arrow, i) => {
     if (check[i] === false && interpolated === false) return null;

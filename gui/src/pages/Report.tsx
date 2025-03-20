@@ -41,6 +41,7 @@ export const Report = () => {
   const { onSetAnalizing } = useDataSlice();
   const { onSaveProjectDetails, video } = useProjectSlice();
   const { width: videoWidth, height: videoHeight } = video.data;
+  const { factor: imageReduceFactor } = video.parameters;
 
   const generateHTML = async () => {
     onSetAnalizing(true);
@@ -98,8 +99,8 @@ export const Report = () => {
   };
 
   const factor = {
-    x: videoWidth / REPORT_IMAGES.IMAGES_WIDTH,
-    y: videoHeight / REPORT_IMAGES.IMAGES_HEIGHT,
+    x: videoWidth * imageReduceFactor / REPORT_IMAGES.IMAGES_WIDTH,
+    y: videoHeight * imageReduceFactor / REPORT_IMAGES.IMAGES_HEIGHT,
   };
 
   return (

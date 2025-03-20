@@ -58,7 +58,7 @@ async function executeRiverCli(
       }
     });
 
-    python.on("close", (code) => {
+    python.on("close", async(code) => {
       if (code !== 0) {
         if (code === null) {
           resolve({
@@ -71,6 +71,7 @@ async function executeRiverCli(
       } else {
         console.log("river-cli process finished");
         resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, "null")));
+        await killRiverCli();
       }
 
       // Append log to log-file
@@ -101,9 +102,11 @@ ipcMain.handle("kill-river-cli", async () => {
 });
 
 app.on("before-quit", async (event) => {
-  event.preventDefault(); // Prevenir el cierre inmediato de la aplicación
-  console.log("App is quitting. Killing river-cli process");
-  await killRiverCli();
+  if (python) {
+    console.log("App is quitting. Killing river-cli process");
+    await killRiverCli();
+  }
+  app.exit(); // Ensure the app exits after handling the process
 });
 
 /**

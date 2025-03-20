@@ -24,7 +24,6 @@ export const ObliquePixelTransformation = ({
   useEffect(() => {
     d3.select(svgRef.current).selectAll("*").remove();
     if (svgRef.current) {
-      console.log("svgRef", svgRef);
       obliqueSvg({
         factor,
         coordinates,

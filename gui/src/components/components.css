@@ -633,10 +633,14 @@
     padding: 0 8px;
 }
 
-.select-cell {
+.select-cell1 {
     background-color: black;
 }
 
+.select-cell-grid-results {
+    background-color: black;
+    pointer-events: none;
+}
 .cell-red-values{
     color: #ED6B57;
 }

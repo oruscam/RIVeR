@@ -17,6 +17,11 @@ function createSquare(
   imageWidth: number,
   imageHeight: number,
 ): Point[] {
+
+  if ( point1.x === point2.x && point1.y === point2.y ) {
+    point2.x += -75
+  }
+
   // Calculate the vector of the line connecting the two points
   const dx = point2.x - point1.x;
   const dy = point2.y - point1.y;

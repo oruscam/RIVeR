@@ -5,6 +5,7 @@ import * as d3 from "d3";
 import { drawSvgSectionLine, drawVectors } from "./index";
 import { Section } from "../../store/section/types";
 import { getGlobalMagnitudes } from "../../helpers/drawVectorsFunctions";
+
 interface VelocityVectorProps {
   height: number;
   width: number;
@@ -43,7 +44,7 @@ export const VelocityVector = ({
       const { data, interpolated, name, sectionPoints, dirPoints } = section;
       if (!data) return;
 
-      if (!seeAll) {
+      if (seeAll) {
         drawVectors(
           svg,
           factor,

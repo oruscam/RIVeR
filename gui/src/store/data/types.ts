@@ -2,7 +2,6 @@ interface FormProcessing {
   artificialSeeding: boolean;
   clahe: boolean;
   clipLimit: number;
-  grayscale: boolean;
   heightRoi: number;
   medianTestEpsilon: number;
   medianTestFiltering: boolean;

@@ -73,8 +73,8 @@ export const useUiSlice = () => {
    * By default is true
    */
 
-  const onSetSeeAll = () => {
-    dispatch(setSeeAll());
+  const onSetSeeAll = ( value?: boolean) => {
+    dispatch(setSeeAll(value));
   };
 
   /**

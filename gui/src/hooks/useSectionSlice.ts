@@ -411,6 +411,8 @@ export const useSectionSlice = () => {
     dispatch(updateSectionsCounter(sections.length));
     const data = adapterCrossSections(updatedSection);
 
+    console.log('data sections', data)
+
     /**
      * The sections are stored in the section slice.
      * The height_roi is calculated and stored in the data slice.

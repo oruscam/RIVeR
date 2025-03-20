@@ -5,7 +5,6 @@ const defaultFormProcessing = {
   artificialSeeding: false,
   clahe: true,
   clipLimit: 5,
-  grayscale: true,
   heightRoi: 0,
   medianTestEpsilon: 0.02,
   medianTestFiltering: true,

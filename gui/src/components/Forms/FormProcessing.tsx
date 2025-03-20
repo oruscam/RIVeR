@@ -24,7 +24,6 @@ export const FormProcessing = () => {
   const {
     step1,
     heightRoi,
-    grayscale,
     removeBackground,
     clahe,
     clipLimit,
@@ -44,7 +43,6 @@ export const FormProcessing = () => {
       step_1: step1,
       step_2: step1 / 2,
       roi_height: heightRoi,
-      grayscale: grayscale,
       remove_background: removeBackground,
       clahe: clahe,
       clip_limit: clipLimit,

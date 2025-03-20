@@ -42,8 +42,6 @@ export const Grid = () => {
   const [selectedRows, setSelectedRows] = useState(
     (): ReadonlySet<number> => new Set(),
   );
-  console.log("selectedRows", selectedRows);
-
   const { sections, activeSection, onChangeDataValues } = useSectionSlice();
 
   const getCellClass = (row) => {
@@ -63,7 +61,7 @@ export const Grid = () => {
     {
       ...SelectColumn,
       cellClass: "centered-cell",
-      headerCellClass: "select-cell",
+      headerCellClass: "select-cell-grid-results",
     },
     {
       key: "id",
@@ -105,6 +103,7 @@ export const Grid = () => {
 
   const handleCellClick = (cell: { row: any; column: any }) => {
     const { row, column } = cell;
+    console.log("cell", cell);
     if (column.key === "select-row") {
       onChangeDataValues({
         type: "check",
