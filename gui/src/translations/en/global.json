@@ -195,7 +195,7 @@
         "date" : "report creation date",
         "Success" : {
             "title": "Analysis Completed!",
-            "message": "You've successfully completed all steps. Review your results and save them as HTML. You can close the window, your project has been saved in"
+            "message": "You have completed all the steps correctly. Review the results and save them as HTML. You can close RIVeR, your project has been saved in"
         }
     },
     "ControlPoints" : {
