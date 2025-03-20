@@ -76,8 +76,6 @@ async function getResultData(
         logsPath,
       )) as any;
 
-      console.log('data', data)
-
       if (error.message) {
         return {
           error,
@@ -163,6 +161,7 @@ async function getResultData(
           false,
           logsPath,
         )) as any;
+        
 
         for (const sectionKey in data) {
           const sectionIndex = Object.keys(data).indexOf(sectionKey);

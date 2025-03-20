@@ -284,18 +284,19 @@ export const useDataSlice = () => {
           fps: video.data.fps,
           numSections: sections.length,
         });
-
         if (error?.message) {
           throw new Error(error);
         }
 
         sections.map((section, index) => {
           if (data[section.name]) {
+            console.log('Section', data[section.name])
             dispatch(
               setSectionData({
                 sectionIndex: index,
                 sectionData: {
                   ...data[section.name],
+
                   activeCheck: data[section.name].check,
                 },
               }),

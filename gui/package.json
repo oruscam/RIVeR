@@ -4,12 +4,12 @@
   "private": true,
   "version": "3.0.0",
   "type": "module",
-  "description": "app-description-test",
+  "description": "Software for calculating water discharge from videos using LSPIV technique",
   "author": {
     "name": "Orus",
-    "email": "orus@gmail.com"
+    "email": "contact@orus.cam"
   },
-  "homepage": "https://www.google.com",
+  "homepage": "https://x.com/Orus_cam",
   "scripts": {
     "dev": "vite",
     "build": "npm run clean && vite build",
