@@ -144,7 +144,7 @@
         "velocity": "Vitesse",
         "discharge": "Débit",
         "level": "Niveau",
-        "stage": "Stage"
+        "stage": "Niveau"
     },
     "Report": {
         "discahrgeQ": "Débit Q",
@@ -195,7 +195,7 @@
         "date" : "Date de création du rapport",
         "Success" : {
             "title": "Analyse Terminée !",
-            "message": "Vous avez terminé toutes les étapes avec succès. Examinez vos résultats et enregistrez-les en HTML. Vous pouvez fermer la fenêtre, votre projet a été sauvegardé"
+            "message": "Vous avez complété toutes les étapes correctement. Vérifiez les résultats et enregistrez-les en HTML. Vous pouvez fermer RIVeR, votre projet a été enregistré dans"
         }
     },
     "ControlPoints" : {

@@ -36,7 +36,7 @@
         },
         "ExtraInfo": {
             "fileName": "Nombre de Archivo: ",
-            "totalLength": "Longitud Total: ",
+            "totalLength": "Duración Total: ",
             "timeBetweenFrame": "Tiempo entre Imágenes: ",
             "resolution": "Resolución: ",
             "numberOfFrames": "Número de Imágenes: "
@@ -50,7 +50,7 @@
         "drawLine": "Dibujar Línea",
         "Errors": {
             "required": "Todos los campos son obligatorios. Por favor consulte el formato de Tamaño de Píxel.",
-            "lineLength": "Longitud de línea inválida: la Longitud de Línea debe ser un número positivo, que puede incluir decimales. Ingrese un valor válido.",
+            "lineLength": "Longitud de Línea inválida: la Longitud de Línea debe ser un número positivo, que puede incluir decimales. Ingrese un valor válido.",
             "pixelSize": "Tamaño de Píxel inválido: el Tamaño de Píxel debe ser un número positivo, que puede incluir decimales. Ingrese un valor válido."
         },
         "RealWorld": {
@@ -61,7 +61,7 @@
             "northPoint2": "Punto Norte (2)"
         },
         "Pixel": {
-            "title": "Coordenadas de Píxel",
+            "title": "Coordenadas en Píxel",
             "xPoint1": "Punto X (1)",
             "xPoint2": "Punto X (2)",
             "yPoint1": "Punto Y (1)",
@@ -133,17 +133,17 @@
         "measured": "Medido",
         "interpolated": "Interpolado",
         "alpha": "Alfa",
-        "stationNumber": "Número de Estación",
+        "stationNumber": "Número de estaciones",
         "showVelStd": "Mostrar Desv. de Vel.",
         "showProfile": "Mostrar percentiles 5% | 95%",
         "interpolateProfile": "Interpolar Perfil",
         "applyChanges": "Aplicar Cambios"
     },
     "Graphs": {
-        "station": "Estación",
+        "station": "Progresiva",
         "velocity": "Velocidad",
         "discharge": "Caudal",
-        "stage": "Stage",
+        "stage": "Nivel",
         "level": "Nivel"
     },
     "Report": {
@@ -195,7 +195,7 @@
         "date": "Fecha de creación de Reporte",
         "Success": {
             "title": "¡Análisis completo!",
-            "message": "Has completado todos los pasos correctamente. Revisa los resultados y guárdalos como HTML. Puedes cerrar la ventana en la que se guardó tu proyecto."
+            "message": "Ha completado todos los pasos correctamente. Revise los resultados y guárdalos como HTML. Puede cerrar RIVeR, su proyecto se guardó en:"
         }
     },
     "ControlPoints": {
