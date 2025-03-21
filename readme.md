@@ -49,12 +49,56 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 - Python 3.12+
 - pip package manager
 - Git (for cloning the repository)
-
+- 
+### Development Installation
+```bash
+git clone https://github.com/oruscam/RIVeR.git
+cd RIVeR
+pip install -e .
+```
 ### CLI Installation
+RIVeR CLI provides a comprehensive set of commands for performing LSPIV analysis through the command line.
 
 ```bash
 pip install river-cli
 ```
+#### Basic Usage
+```bash
+river-cli [OPTIONS] COMMAND [ARGS]...
+```
+To see all available commands and options:
+```bash
+river-cli --help
+```
+#### Example Workflow
+```bash
+# 1. Extract frames from video
+river-cli video-to-frames river_video.mp4 ./frames --every 2
+
+# 2. Generate transformation matrix
+river-cli get-uav-transformation-matrix 100 200 300 400 0 0 10 10 --image-path ./frames/frame_001.jpg
+
+# 3. Create masks for PIV analysis
+river-cli create-mask-and-bbox 3 ./frames/frame_001.jpg ./xsections.json ./transformation_matrix.json --save-png-mask
+
+# 4. Run PIV analysis
+river-cli piv-analyze ./frames --mask ./mask.json --workdir ./results
+
+# 5. Calculate discharge
+river-cli update-xsection ./xsections.json ./results/piv_results.json ./transformation_matrix.json --step 2 --fps 30 --id-section 0
+```
+
+## 🖥️ Graphical User Interface (GUI)
+
+RIVeR also provides a user-friendly graphical interface built with React. The GUI offers an intuitive way to perform LSPIV analysis without using command-line tools.
+
+Key GUI features include:
+- Interactive workflow interface
+- Visual cross-section creation
+- Real-time PIV analysis visualization
+- Result export capabilities
+
+For detailed information about installation, usage, and features of the GUI, please see the dedicated [GUI documentation](GUI/README.md).
 
 ## 📂 Project Structure
 
@@ -96,7 +140,7 @@ river/
 
 ## 📚 Jupyter Examples
 
-Browse through our collection of Jupyter Notebook examples to learn how to use RIVeR for various analyses:
+Browse through our collection of Jupyter Notebook examples to learn how to use RIVeR for various analyses (requires development installation):
 
 - [Introduction to RIVeR](examples/00_introduction.ipynb)
 - [Video Frame Extraction](examples/01_video_to_frames.ipynb)
@@ -107,7 +151,7 @@ Browse through our collection of Jupyter Notebook examples to learn how to use R
 - [PIV Analysis Workflow](examples/04_piv_analysis.ipynb)
 - [Discharge Calculation](examples/05_discharge_calculation.ipynb)
 
-These interactive examples provide step-by-step guidance for common RIVeR workflows.
+These interactive examples provide step-by-step guidance for common RIVeR workflows. To run them, make sure you've completed the development installation described above.
 ## 🔬 Citation
 
 If you use RIVeR in your research, please cite:
