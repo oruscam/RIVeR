@@ -202,8 +202,8 @@
         "title": "Control Points",
         "drawPoints": "Draw Points",
         "importDistances": "Import Distances",
-        "distance": "Distancia",
-        "length" : "Longitud",
+        "distance": "Distance",
+        "length" : "Length",
         "Errors": {
             "required" : "All the distances fields are obligatory. Please check Control Points form",
             "notNull": "All the distances fields must be greater than 0. Please check Control Points form",
