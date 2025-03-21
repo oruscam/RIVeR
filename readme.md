@@ -18,8 +18,8 @@
 
 
 <figure>
-    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/screenshot_results.png" width=500 align="center">
-    <p align="center"><i>Example of RIVeR velocimetry analysis of river flow</i></p>
+    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/screenshot_results.png" width=500>
+    <p ><i>Example of RIVeR velocimetry analysis of river flow</i></p>
 </figure>
 
 ## 💧 Overview
