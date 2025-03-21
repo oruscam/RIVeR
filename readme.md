@@ -8,13 +8,13 @@
 
 [![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue)](https://doi.org/10.1016/j.cageo.2017.07.009)
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Python Version](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+[![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![React Version](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
 
 
 # RIVeR: Rectification of Image Velocity Results
 
-**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (LSPIV) distributed by ORUS. Built with Python and React, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
+**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (**LSPIV**) distributed by [ORUS](https://x.com/Orus_cam). Built with **Python** and **React**, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
 
 
 <figure>
@@ -42,7 +42,25 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 
 * Multi-platform support (Windows, macOS, Linux)
 
-## 🚀 Getting Started
+
+## 📥 Download Compiled Releases
+
+If you don't want to bother with code at all (we get it, sometimes you just want things to work!), pre-compiled standalone versions are available:
+
+| ⊞ Windows | ⌘ macOS | ◆ Linux |
+|:---:|:---:|:---:|
+| [v3.0.0](https://github.com/oruscam/RIVeR/releases/download/v3.0.0/RIVeR-Windows-3.0.0-Setup.zip) | [Download](https://github.com/oruscam/RIVeR/releases/download/latest/RIVeR-macOS.dmg) | [Download](https://github.com/oruscam/RIVeR/releases/download/latest/RIVeR-Linux.AppImage) |
+
+
+These packages include both the GUI and CLI tools in a ready-to-use application. No Python or JavaScript knowledge required!
+
+
+These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application - no Python or JavaScript knowledge required!
+
+
+## 🧑‍💻 Developer Installation & Usage
+
+For those who prefer to work with the source code or contribute to RIVeR's development, here's how to get started:
 
 ### Prerequisites
 
@@ -88,7 +106,7 @@ river-cli piv-analyze ./frames --mask ./mask.json --workdir ./results
 river-cli update-xsection ./xsections.json ./results/piv_results.json ./transformation_matrix.json --step 2 --fps 30 --id-section 0
 ```
 
-## 🖥️ Graphical User Interface (GUI)
+### Graphical User Interface (GUI)
 
 RIVeR also provides a user-friendly graphical interface built with React. The GUI offers an intuitive way to perform LSPIV analysis without using command-line tools.
 
