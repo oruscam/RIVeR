@@ -43,8 +43,8 @@ export const getIntersectionPoints = (
 ): Point[] => {
   let intersectionPoints: Point[] = [];
   for (let i = 0; i < data.length - 1; i++) {
-    const currentPoint = data[i];
-    const nextPoint = data[i + 1];
+    let currentPoint = {...data[i]};
+    let nextPoint = {...data[i + 1]};
 
     currentPoint.y = parseFloat(currentPoint.y.toFixed(2));
     nextPoint.y = parseFloat(nextPoint.y.toFixed(2));

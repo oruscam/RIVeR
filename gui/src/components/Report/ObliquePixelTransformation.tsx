@@ -50,8 +50,8 @@ export const ObliquePixelTransformation = ({
         <table>
           <thead>
             <tr>
-              <th> {t("CorntrolPoints.distance")} </th>
-              <th> {t("CorntrolPoints.length")} </th>
+              <th> {t("ControlPoints.distance")} </th>
+              <th> {t("ControlPoints.length")} </th>
             </tr>
           </thead>
           <tbody>
