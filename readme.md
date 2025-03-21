@@ -191,4 +191,5 @@ RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (A
 - Original MATLAB version (2017)
 - UNC/ORUS research team
 - Contributing organizations: UNC, ORUS, INA, CONICET
+- [WMO HydroHub](https://wmo.int/media/update/winner-of-wmo-hydrohub-innovation-call-latin-america-and-caribbean?book=21576): For funding the development of RIVeR 3 (2024-2025)
 - [PIVlab project](https://la.mathworks.com/matlabcentral/fileexchange/27659-pivlab-particle-image-velocimetry-piv-tool-with-gui): The pioneering PIV analysis tool that inspired aspects of RIVeR's development
