@@ -1,9 +1,12 @@
 
-<figure>
-    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/river_logo.svg" width=250 align="center">
-</figure>
-<br clear="left"/>
-<br>
+<div align="center">
+  <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/river_logo.svg" width="350px">
+  <br />
+  <br />
+
+  <p>
+    <strong>Modern LSPIV toolkit for water-surface velocity analysis and flow discharge measurements</strong>
+</div>
 
 
 [![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue)](https://doi.org/10.1016/j.cageo.2017.07.009)
@@ -11,6 +14,7 @@
 [![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![React Version](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
 
+---
 
 # RIVeR: Rectification of Image Velocity Results
 
@@ -22,10 +26,18 @@
     <p ><i>Example of RIVeR velocimetry analysis of river flow</i></p>
 </figure>
 
+---
+
 ## 💧 Overview
 RIVeR is a specialized tool for applying Large Scale Particle Image Velocimetry (LSPIV) techniques as a non-contact method to estimate discharge in rivers and channels from video footage. The software guides the process through intuitive defaults and pre-configured settings, enabling users to generate discharge calculations without extensive prior knowledge of the technique. The workflow guides users through a series of straightforward steps culminating in comprehensive visual reports.
 
 Originally developed in MATLAB in 2015 and well-received by the hydrology community, RIVeR has now been reimplemented in Python and JavaScript to improve accessibility, performance, and cross-platform compatibility.
+<figure>
+    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/oblique_rectification.gif" width=500>
+    <p><i>Demonstration of interactive oblique image rectification process in RIVeR</i></p>
+</figure>
+
+---
 
 ## ✨ Key Features
 
@@ -39,10 +51,19 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 * Georeferencing and coordinate transformations
 * Multi Cross-sectional flow analysis
 * Automated beautiful report generation ([like this one !](https://oruscam.github.io/RIVeR/sample_report.html))
+* Multi-platform support (**Windows**, **macOS**, **Linux**)
 
-* Multi-platform support (Windows, macOS, Linux)
 
+---
 
+## 🌍 Multi-Language Support  
+
+- RIVeR available in multiple languages!  
+  - English 🇺🇸  
+  - Spanish 🇦🇷  
+  - [More coming soon!]    
+
+---
 ## 📥 Download Compiled Releases
 
 If you don't want to bother with code at all (we get it, sometimes you just want things to work!), pre-compiled standalone versions are available:
@@ -57,7 +78,7 @@ These packages include both the GUI and CLI tools in a ready-to-use application.
 
 These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application - no Python or JavaScript knowledge required!
 
-
+---
 ## 🧑‍💻 Developer Installation & Usage
 
 For those who prefer to work with the source code or contribute to RIVeR's development, here's how to get started:
@@ -118,6 +139,8 @@ Key GUI features include:
 
 For detailed information about installation, usage, and features of the GUI, please see the dedicated [GUI documentation](gui/README.md).
 
+---
+
 ## 📂 Project Structure
 
 ```
@@ -155,6 +178,7 @@ river/
     │   └── video_to_frames.py      # Video frame extraction
     └── docs
 ```
+---
 
 ## 📚 Jupyter Examples
 
@@ -187,7 +211,7 @@ If you use RIVeR in your research, please cite:
     publisher={Elsevier}
 }
 ```
-
+---
 ## 👥 Authors
 
 ### Core Team
@@ -198,12 +222,18 @@ If you use RIVeR in your research, please cite:
 - **Nicolas Stefani** - *CLI & Backend Development*
 - **Tomas Stefani** - *Frontend Development*
 
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please [open an issue](https://github.com/oruscam/RIVeR/issues) first to discuss what you would like to change.
 
+---
+
 ## 📜 License
 RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
+
+---
 
 ## 💭Acknowledgments
 - Contributing organizations: 
