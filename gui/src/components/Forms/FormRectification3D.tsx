@@ -76,7 +76,7 @@ export const FormRectification3D = () => {
 
           <div className="input-container-2 mt-1">
             <button
-              className={`wizard-button me-1 button-rectification ${cameraSolution?.mode === "direct-solve" || mode === "direct-solve" ? "wizard-button-active" : ""}`}
+              className={`wizard-button me-1 button-rectification ${cameraSolution === undefined ? "mb-2" : ""} ${cameraSolution?.mode === "direct-solve" || mode === "direct-solve" ? "wizard-button-active" : ""}`}
               id="direct-solve"
               type="button"
               onClick={handleOnClickAction}
@@ -84,8 +84,7 @@ export const FormRectification3D = () => {
                 ipcam.importedPoints === undefined || selectedCounter < 6
               }
             >
-              {" "}
-              {t("ControlPoints3d.directSolve")}{" "}
+              {t("ControlPoints3d.directSolve")}
             </button>
             <button
               className={`wizard-button button-rectification ${cameraSolution === undefined ? "mb-2" : ""} ${cameraSolution?.mode === "optimize-solution" || mode === "optimize-solution" ? "wizard-button-active" : ""}`}
