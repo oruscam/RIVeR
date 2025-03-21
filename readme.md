@@ -14,12 +14,12 @@
 
 # RIVeR: Rectification of Image Velocity Results
 
-**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (LSPIV). Built with Python and React, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
+**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (LSPIV) distributed by ORUS. Built with Python and React, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
 
 
 <figure>
     <img src="river/docs/_static/screenshot_results.png" width=500 align="center">
-    <figcaption>Example of RIVeR velocimetry analysis of river flow</figcaption>
+    <p align="center"><i>Example of RIVeR velocimetry analysis of river flow</i></p>
 </figure>
 
 ## 💧 Overview
@@ -49,7 +49,7 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 - Python 3.12+
 - pip package manager
 - Git (for cloning the repository)
-- 
+  
 ### Development Installation
 ```bash
 git clone https://github.com/oruscam/RIVeR.git
@@ -181,15 +181,18 @@ If you use RIVeR in your research, please cite:
 - **Tomas Stefani** - *Frontend Development*
 
 ## 🤝 Contributing
-Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please open an issue first to discuss what you would like to change.
+
+Contributions are welcome! Please feel free to submit a Pull Request. For major changes, please [open an issue](https://github.com/oruscam/RIVeR/issues) first to discuss what you would like to change.
 
 ## 📜 License
 RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
 
 ## 💭Acknowledgments
+- Contributing organizations: 
+  - [UNC (National University of Córdoba)](https://www.unc.edu.ar/) - [Faculty of Exact, Physical and Natural Sciences](https://fcefyn.unc.edu.ar/)
+  - [INA (National Institute of Water, Argentina)](https://www.argentina.gob.ar/ina)
+  - [CONICET (National Scientific and Technical Research Council)](https://www.conicet.gov.ar/)
 
-- Original MATLAB version (2017)
-- UNC/ORUS research team
-- Contributing organizations: UNC, ORUS, INA, CONICET
+
 - [WMO HydroHub](https://wmo.int/media/update/winner-of-wmo-hydrohub-innovation-call-latin-america-and-caribbean?book=21576): For funding the development of RIVeR 3 (2024-2025)
 - [PIVlab project](https://la.mathworks.com/matlabcentral/fileexchange/27659-pivlab-particle-image-velocimetry-piv-tool-with-gui): The pioneering PIV analysis tool that inspired aspects of RIVeR's development
