@@ -38,7 +38,7 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 * Interactive result visualization with customizable vector fields
 * Georeferencing and coordinate transformations
 * Multi Cross-sectional flow analysis
-* Automated beautiful report generation ([like this one !](river/docs/_static/sample_report.html))
+* Automated beautiful report generation ([like this one !](https://oruscam.github.io/RIVeR/sample_report.html))
 
 * Multi-platform support (Windows, macOS, Linux)
 
