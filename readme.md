@@ -1,6 +1,6 @@
 
 <figure>
-    <img src="river/docs/_static/river_logo.svg" width=250 align="center">
+    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/river_logo.svg" width=250 align="center">
 </figure>
 <br clear="left"/>
 <br>
@@ -18,7 +18,7 @@
 
 
 <figure>
-    <img src="river/docs/_static/screenshot_results.png" width=500 align="center">
+    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/screenshot_results.png" width=500 align="center">
     <p align="center"><i>Example of RIVeR velocimetry analysis of river flow</i></p>
 </figure>
 
