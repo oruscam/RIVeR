@@ -98,7 +98,7 @@ Key GUI features include:
 - Real-time PIV analysis visualization
 - Result export capabilities
 
-For detailed information about installation, usage, and features of the GUI, please see the dedicated [GUI documentation](GUI/README.md).
+For detailed information about installation, usage, and features of the GUI, please see the dedicated [GUI documentation](gui/README.md).
 
 ## 📂 Project Structure
 
