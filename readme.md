@@ -61,6 +61,7 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 - RIVeR available in multiple languages!  
   - English 🇺🇸  
   - Spanish 🇦🇷  
+  - French 🇫🇷  
   - [More coming soon!]    
 
 ---
