@@ -1,5 +1,6 @@
-## ARREGLOS
-    - Paso de Analize a Results
-    - Resolucion de la imagen
+## FIXES
+    - Cross Sections Input Level
+    - Rectification 2d report translations
+    - Rectification Footer Links
     
 
