@@ -19,7 +19,7 @@ export const Footer = () => {
   return (
     <div id="report-footer-container">
       <div>
-        <a href="" target="_blank" rel="noopener noreferrer">
+        <a href="https://x.com/Orus_cam" target="_blank" rel="noopener noreferrer">
           <img
             id="report-footer-river-logo"
             src={riverLogo}
@@ -32,7 +32,7 @@ export const Footer = () => {
         <p> {t("Report.date")}: {date} </p>
       </div>
       <div>
-        <a href="https://github.com" target="_blank" rel="noopener noreferrer">
+        <a href="https://github.com/oruscam/RIVeR" target="_blank" rel="noopener noreferrer">
           <img
             id="report-footer-github-logo"
             src={githubLogo}
