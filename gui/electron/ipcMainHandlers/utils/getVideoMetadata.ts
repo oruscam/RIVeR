@@ -8,61 +8,52 @@ import os from "os";
 
 const plataform = os.platform();
 
-/**
- * If the platform is Windows, set the path to the `ffmpeg.exe` and `ffprobe.exe` executables.
- */
-if (plataform === "win32" || plataform === "linux") {
+if (import.meta.env.VITE_DEV_SERVER_URL) {
+  const ffmpegPath = import.meta.env.VITE_FFMPEG_PATH;
+  const ffprobePath = import.meta.env.VITE_FFPROBE_PATH
+
+  if ( ffmpegPath && ffprobePath) {
+    ffmpeg.setFfmpegPath(import.meta.env.VITE_FFMPEG_PATH);
+    ffmpeg.setFfprobePath(import.meta.env.VITE_FFPROBE_PATH);
+  } 
+} else {
   /**
-   * If the application is running in development mode, set the path to the `ffmpeg.exe` and `ffprobe.exe` executables from .env.development variables.
+   * Constructs the path to the `ffprobe.exe` executable.
+   *
+   * @constant {string} ffprobePath - The path to the `ffprobe.exe` executable,
+   * located in the `ffmpeg/bin` directory relative to the application's root path.
    */
+  let ffmpegPath = "";
+  let ffprobePath = "";
 
-  if (import.meta.env.VITE_DEV_SERVER_URL) {
-    const ffmpegPath = import.meta.env.VITE_FFMPEG_PATH;
-    const ffprobePath = import.meta.env.VITE_FFPROBE_PATH
-
-    if ( ffmpegPath && ffprobePath) {
-      ffmpeg.setFfmpegPath(import.meta.env.VITE_FFMPEG_PATH);
-      ffmpeg.setFfprobePath(import.meta.env.VITE_FFPROBE_PATH);
-    } 
-  } else {
-    /**
-     * Constructs the path to the `ffprobe.exe` executable.
-     *
-     * @constant {string} ffprobePath - The path to the `ffprobe.exe` executable,
-     * located in the `ffmpeg/bin` directory relative to the application's root path.
-     */
-    let ffmpegPath = "";
-    let ffprobePath = "";
-
-    if (plataform === "win32") {
-      ffmpegPath = path.join(
-        app.getAppPath(),
-        "..",
-        "ffmpeg",
-        "bin",
-        "ffmpeg.exe",
-      );
-      ffprobePath = path.join(
-        app.getAppPath(),
-        "..",
-        "ffmpeg",
-        "bin",
-        "ffprobe.exe",
-      );
-    } else if (plataform === "linux") {
-      ffmpegPath = path.join(app.getAppPath(), "..", "ffmpeg", "bin", "ffmpeg");
-      ffprobePath = path.join(
-        app.getAppPath(),
-        "..",
-        "ffmpeg",
-        "bin",
-        "ffprobe",
-      );
-    }
-
-    ffmpeg.setFfmpegPath(ffmpegPath);
-    ffmpeg.setFfprobePath(ffprobePath);
+  if (plataform === "win32") {
+    ffmpegPath = path.join(
+      app.getAppPath(),
+      "..",
+      "ffmpeg",
+      "bin",
+      "ffmpeg.exe",
+    );
+    ffprobePath = path.join(
+      app.getAppPath(),
+      "..",
+      "ffmpeg",
+      "bin",
+      "ffprobe.exe",
+    );
+  } else if (plataform === "linux" || plataform === "darwin") {
+    ffmpegPath = path.join(app.getAppPath(), "..", "ffmpeg", "bin", "ffmpeg");
+    ffprobePath = path.join(
+      app.getAppPath(),
+      "..",
+      "ffmpeg",
+      "bin",
+      "ffprobe",
+    );
   }
+
+  ffmpeg.setFfmpegPath(ffmpegPath);
+  ffmpeg.setFfprobePath(ffprobePath);
 }
 
 const supportedFormat = "MP4";
