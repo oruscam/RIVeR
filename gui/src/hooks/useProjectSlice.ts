@@ -19,7 +19,7 @@ import {
   setFirstFramePath,
   setVideoParameters,
   setProjectDetails,
-  resetProjectSlice,
+  setDefaultProjectState,
 } from "../store/project/projectSlice";
 import { FieldValues } from "react-hook-form";
 import {
@@ -91,7 +91,6 @@ export const useProjectSlice = () => {
 
       return result;
     } catch (error) {
-      console.log("Error en Get Video");
       console.log(error);
       throw error;
     }
@@ -138,13 +137,22 @@ export const useProjectSlice = () => {
       // By default, if the video is 2688x1520 or less, the factor is 1. Orginal resolution.
       // When the resolution is higher than 2688x1520 and less than 3840x2160, the factor is 0.5.
       // If the resolution is higher than 3840x2160, the factor is 0.25
-
-      if (result.width <= 2688 && result.height <= 1520) {
-        dispatch(setVideoParameters({ ...video.parameters, factor: 1 }));
-      } else if (result.width <= 3840 && result.height <= 2160) {
-        dispatch(setVideoParameters({ ...video.parameters, factor: 0.5 }));
+      if ( result.width > result.height ) {
+        if (result.width <= 2688 && result.height <= 1520) {
+          dispatch(setVideoParameters({ ...video.parameters, factor: 1 }));
+        } else if (result.width <= 3840 && result.height <= 2160) {
+          dispatch(setVideoParameters({ ...video.parameters, factor: 0.5 }));
+        } else {
+          dispatch(setVideoParameters({ ...video.parameters, factor: 0.25 }));
+        }
       } else {
-        dispatch(setVideoParameters({ ...video.parameters, factor: 0.25 }));
+        if (result.width <= 1520 && result.height <= 2688) {
+          dispatch(setVideoParameters({ ...video.parameters, factor: 1 }));
+        } else if (result.width <= 2160 && result.height <= 3840) {
+          dispatch(setVideoParameters({ ...video.parameters, factor: 0.5 }));
+        } else {
+          dispatch(setVideoParameters({ ...video.parameters, factor: 0.25 }));
+        }
       }
 
       dispatch(setVideoData(videoData));
@@ -600,8 +608,8 @@ export const useProjectSlice = () => {
     await ipcRenderer.invoke("set-project-details", projectDetails);
   };
 
-  const onResetProjectSlice = () => {
-    dispatch(resetProjectSlice());
+  const onSetDefaultProjectState = () => {
+    dispatch(setDefaultProjectState());
   };
 
   return {
@@ -618,7 +626,7 @@ export const useProjectSlice = () => {
     onInitProject,
     onLoadProject,
     onProjectDetailsChange,
-    onResetProjectSlice,
+    onSetDefaultProjectState,
     onSaveProjectDetails,
     onSetVideoParameters,
   };

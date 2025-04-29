@@ -51,7 +51,6 @@ const sectionSlice = createSlice({
     // ** Interaction with PixelSize.
     setPixelSize: (state, action: PayloadAction<PixelSize>) => {
       state.sections[state.activeSection].pixelSize = action.payload;
-      console.log("set pixel size", action.payload);
     },
     // ** Interaction with sections points.
     setDirPoints: (state, action: PayloadAction<Point[]>) => {
@@ -141,7 +140,7 @@ const sectionSlice = createSlice({
     ) => {
       state.transformationMatrix = action.payload.transformationMatrix;
     },
-    resetSectionSlice: (state) => {
+    setDefaultSectionState: (state) => {
       state.sections = defaultSections;
       state.summary = undefined;
       state.activeSection = 0;
@@ -157,7 +156,7 @@ export const {
   addSection,
   changeSectionData,
   deleteSection,
-  resetSectionSlice,
+  setDefaultSectionState,
   setActiveSection,
   setBathimetry,
   setDirPoints,

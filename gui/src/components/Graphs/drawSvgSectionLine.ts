@@ -69,7 +69,7 @@ export const drawSvgSectionLine = ({
       )
       .attr(
         "y2",
-        dirPoints[1].y / (typeof factor === "number" ? factor : factor.x),
+        dirPoints[1].y / (typeof factor === "number" ? factor : factor.y),
       )
       .attr("stroke", COLORS.YELLOW)
       .attr("stroke-width", 4 / resizeFactor)

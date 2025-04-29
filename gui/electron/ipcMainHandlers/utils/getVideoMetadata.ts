@@ -90,7 +90,29 @@ async function getVideoMetadata(videoPath: string): Promise<{
       });
     });
 
-    const { width, height, r_frame_rate, duration } = metadata.streams[0];
+    let width = 0;
+    let height = 0;
+    let r_frame_rate = "";
+    let duration = "";
+
+    metadata.streams.forEach((stream) => {
+      if (stream.codec_type === "video") {
+        r_frame_rate = stream.r_frame_rate;
+        duration = stream.duration;
+
+        const rotation = parseFloat(String(stream.rotation)) || 0;
+        
+        if ( rotation === 90 || rotation === -90) {
+          // If the video is rotated, we need to swap the width and height
+          width = stream.height;
+          height = stream.width;
+        } else {
+          width = stream.width;
+          height = stream.height;
+        }
+      }
+    });
+
     const { tags } = metadata.format;
 
     // Convert FPS from a string like "30/1" to a number

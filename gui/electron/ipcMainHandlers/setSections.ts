@@ -32,7 +32,6 @@ export function setSections(PROJECT_CONFIG: ProjectConfig) {
 
         return "Sections saved";
       } catch (error) {
-        console.log("ERROR ESCRIBIENDO JSON DE SECCIONES");
         console.log(error);
         return "Error saving sections";
       }

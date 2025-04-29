@@ -10,10 +10,12 @@ import {
   Footer,
 } from "../components/Report";
 import "./pages.css";
-import { useDataSlice, useProjectSlice, useSectionSlice } from "../hooks";
+import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from "../hooks";
 import { FormReport } from "../components/Forms/index";
 import { REPORT_IMAGES } from "../constants/constants";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { set } from "react-hook-form";
 
 const convertImageToDataURI = (url: string, quality = 1.0) => {
   return new Promise((resolve, reject) => {
@@ -42,6 +44,10 @@ export const Report = () => {
   const { onSaveProjectDetails, video } = useProjectSlice();
   const { width: videoWidth, height: videoHeight } = video.data;
   const { factor: imageReduceFactor } = video.parameters;
+
+  const { screenSizes } = useUiSlice();
+  
+  const [ isReportSaved, setIsReportSaved ] = useState(false);
 
   const generateHTML = async () => {
     onSetAnalizing(true);
@@ -96,12 +102,25 @@ export const Report = () => {
       await window.ipcRenderer.invoke("save-report-html", { arrayBuffer });
     }
     onSetAnalizing(false);
+    setIsReportSaved(true);
   };
 
-  const factor = {
-    x: videoWidth * imageReduceFactor / REPORT_IMAGES.IMAGES_WIDTH,
-    y: videoHeight * imageReduceFactor / REPORT_IMAGES.IMAGES_HEIGHT,
-  };
+  let factor = {
+    x: 1,
+    y: 1,
+  }
+  
+  if ( screenSizes.vertical === false ){
+    factor = {
+      x: videoWidth * imageReduceFactor / REPORT_IMAGES.HORIZONTAL_IMAGES_WIDTH,
+      y: videoHeight * imageReduceFactor / REPORT_IMAGES.HORIZONTAL_IMAGES_HEIGHT,
+    };
+  } else {
+    factor = {
+      x: videoWidth * imageReduceFactor / REPORT_IMAGES.VERTICAL_IMAGES_WIDTH,
+      y: videoHeight * imageReduceFactor / REPORT_IMAGES.VERTICAL_IMAGES_HEIGHT,
+    }
+  }
 
   return (
     <div className="regular-page">
@@ -117,7 +136,7 @@ export const Report = () => {
                 {t("CrossSections.title")} (s)
               </h2>
               {[...sections.keys()].map((index) => (
-                <ReportSection key={index} index={index} factor={factor} />
+                <ReportSection key={index} index={index} factor={factor} vertical={screenSizes.vertical}/>
               ))}
             </div>
             <Summary />
@@ -125,6 +144,7 @@ export const Report = () => {
               factor={factor}
               videoWidth={videoWidth}
               videoHeight={videoHeight}
+              vertical={screenSizes.vertical}
             />
             <ProcessingParameters />
             <Footer />
@@ -133,8 +153,8 @@ export const Report = () => {
       </div>
       <div className="form-container">
         <Progress />
-        <FormReport />
-        <WizardButtons onClickNext={generateHTML} />
+        <FormReport isReportSaved={isReportSaved} setIsReportSaved={setIsReportSaved}/>
+        <WizardButtons onClickNext={generateHTML}/>
       </div>
     </div>
   );

@@ -19,7 +19,7 @@ import {
   deleteSection,
   updateSectionsCounter,
   setTransformationMatrix,
-  resetSectionSlice,
+  setDefaultSectionState,
   setSectionWorking,
 } from "../store/section/sectionSlice";
 import { clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
@@ -411,7 +411,6 @@ export const useSectionSlice = () => {
     dispatch(updateSectionsCounter(sections.length));
     const data = adapterCrossSections(updatedSection);
 
-    console.log('data sections', data)
 
     /**
      * The sections are stored in the section slice.
@@ -441,7 +440,6 @@ export const useSectionSlice = () => {
       dispatch(setLoading(false));
       dispatch(clearMessage());
     } catch (error) {
-      console.log("ERROR EN SETSECTIONS");
       console.log(error);
     }
   };
@@ -869,8 +867,8 @@ export const useSectionSlice = () => {
     });
   };
 
-  const onResetSectionSlice = () => {
-    dispatch(resetSectionSlice());
+  const onSetDefaultSectionState = () => {
+    dispatch(setDefaultSectionState());
   };
 
   return {
@@ -886,7 +884,7 @@ export const useSectionSlice = () => {
     onCleanSectionsData,
     onDeleteSection,
     onGetBathimetry,
-    onResetSectionSlice,
+    onSetDefaultSectionState,
     onSetActiveSection,
     onSetDirPoints,
     onSetExtraFields,

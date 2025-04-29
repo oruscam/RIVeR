@@ -10,22 +10,24 @@ interface PixelTransformationProps {
   factor: factor;
   videoWidth: number;
   videoHeight: number;
+  vertical?: boolean;
 }
 
 export const PixelTransformation = ({
   factor,
   videoHeight,
   videoWidth,
+  vertical
 }: PixelTransformationProps) => {
   const { t } = useTranslation();
   const { sections } = useSectionSlice();
   const { size } = sections[0].pixelSize;
-  const { projectDetails, type } = useProjectSlice();
+  const { projectDetails, type, video } = useProjectSlice();
   const { unitSistem } = projectDetails;
 
   const factorIpcam = {
-    x: videoWidth / REPORT_IMAGES.IMAGES_IPCAM_WIDTH,
-    y: videoHeight / REPORT_IMAGES.IMAGES_IPCAM_HEIGHT,
+    x: videoWidth * video.parameters.factor / (vertical ? REPORT_IMAGES.VERTICAL_IMAGES_IPCAM_WIDTH : REPORT_IMAGES.HORIZONTAL_IMAGES_IPCAM_WIDTH),
+    y: videoHeight * video.parameters.factor / (vertical ? REPORT_IMAGES.VERTICAL_IMAGES_IPCAM_HEIGHT : REPORT_IMAGES.HORIZONTAL_IMAGES_IPCAM_HEIGHT),
   };
 
   return (
@@ -48,9 +50,9 @@ export const PixelTransformation = ({
             <div id="transformation-uav-last-child"></div>
           </>
         ) : type === "oblique" ? (
-          <ObliquePixelTransformation factor={factor} />
+          <ObliquePixelTransformation factor={factor} vertical={vertical}/>
         ) : (
-          <IpcamPixelTransformation factor={factorIpcam} />
+          <IpcamPixelTransformation factor={factorIpcam} vertical={vertical}/>
         )}
       </div>
     </>

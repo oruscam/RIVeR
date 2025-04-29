@@ -3,10 +3,8 @@ import {
   BrowserWindow,
   dialog,
   ipcMain,
-  ipcRenderer,
-  net,
-  protocol,
   screen,
+  shell,
 } from "electron";
 import { fileURLToPath } from "node:url";
 import * as path from "node:path";
@@ -95,7 +93,8 @@ async function createWindow() {
     win.loadURL(VITE_DEV_SERVER_URL);
 
     // If you want to test river-cli on develop, change executePythonShell for executeRiverCli
-    riverCli = executePythonShell
+    // riverCli = executePythonShell
+    riverCli = executeRiverCli;
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
@@ -154,6 +153,13 @@ ipcMain.handle("delete-confirmation", async (event, args) => {
 
   return response;
 });
+
+// Open user directory after button click
+ipcMain.handle("open-directory", async () => {
+  shell.openPath(PROJECT_CONFIG.directory).catch((error) => {
+    console.error("Failed to open directory:", error);
+  })
+})
 
 app.whenReady().then(() => {
   createWindow();

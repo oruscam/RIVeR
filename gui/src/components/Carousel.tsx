@@ -9,6 +9,7 @@ import {
   carouselMediaClick,
   carouselMouseDown,
   carouselMouseUp,
+  setCarouselDimensions,
 } from "../helpers/carouselFunctions";
 import { back, play as next } from "../assets/icons/icons";
 import { Icon } from "./Icon";
@@ -59,6 +60,7 @@ export const Carousel: React.FC<CarouselProps> = ({
   const { screenSizes } = useUiSlice();
 
   const [itemWidth, setItemWidth] = useState<number>(275);
+  const [carouselHeight, setCarouselHeight] = useState<number>(itemWidth - 85);
 
   const [defaultValue, setDefaultValue] = useState<string | number>(
     (active + 1) as string | number,
@@ -126,11 +128,7 @@ export const Carousel: React.FC<CarouselProps> = ({
       if (containerRef.current) {
         setWidth(containerRef.current.offsetWidth);
       }
-      if (screenSizes.height < 800) {
-        setItemWidth(240);
-      } else {
-        setItemWidth(275);
-      }
+      setCarouselDimensions(screenSizes, setItemWidth, setCarouselHeight);
     };
 
     updateDimensions(); // Set initial dimensions
@@ -217,7 +215,7 @@ export const Carousel: React.FC<CarouselProps> = ({
           <Icon path={back} />{" "}
         </button>
         <List
-          height={itemWidth - 85} // Altura del contenedor del carrusel
+          height={carouselHeight} // Altura del contenedor del carrusel
           itemCount={images.length} // Número total de elementos
           itemSize={itemWidth} // Ancho de cada elemento
           layout="horizontal" // Disposición horizontal

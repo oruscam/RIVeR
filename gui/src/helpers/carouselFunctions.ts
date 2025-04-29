@@ -1,4 +1,5 @@
 import { FixedSizeList } from "react-window";
+import { ScreenSizes } from "../store/ui/types";
 
 // This function is used to handle the onClick event of the image carousel
 // It sets the active image to the clicked image and updates the default value
@@ -114,10 +115,46 @@ const carouselMouseUp = (
   }
 };
 
+const setCarouselDimensions = ( screenSizes: ScreenSizes, setItemWidth: (value: number) => void, setCarouselHeight: (value: number) => void ) => {
+  
+  const { imageWidth, imageHeight, vertical, height } = screenSizes;
+
+  if ( vertical ) {
+    if ( height < 700 ){
+      setItemWidth(100);
+      setCarouselHeight(190);
+    } else {
+      setItemWidth(115);
+      setCarouselHeight(210);
+    }
+  } else {
+    const aspectRatio = imageWidth! / imageHeight!;
+    if (aspectRatio >= 1.5) {
+      if (screenSizes.height < 800) {
+        setItemWidth(240);
+        setCarouselHeight(155);
+      } else {
+        setItemWidth(275);
+        setCarouselHeight(190);
+      }
+    } else if (aspectRatio < 1.5 && aspectRatio >= 1) {
+      if (screenSizes.height < 800) {
+        setItemWidth(170);
+        setCarouselHeight(135);
+      } else {
+        setItemWidth(225);
+        setCarouselHeight(190);
+      }
+    }
+  }
+}
+
+
 export {
   carouselClickImage,
   carouselKeyDown,
   carouselMediaClick,
   carouselMouseDown,
   carouselMouseUp,
+  setCarouselDimensions
 };

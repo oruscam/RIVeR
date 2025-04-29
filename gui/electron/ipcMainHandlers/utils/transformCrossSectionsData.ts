@@ -74,7 +74,8 @@ const transformData = (data: any, all: boolean): any => {
 };
 
 const formatSummary = (summary: any): any => {
-  const formatValue = (value: number) => parseFloat(value.toFixed(2));
+  const formatValue = (value: number) =>
+    value !== null && value !== undefined ? parseFloat(value.toFixed(2)) : null;
 
   const formatStatistics = (stats: any) => ({
     total_W: formatValue(stats.total_W),

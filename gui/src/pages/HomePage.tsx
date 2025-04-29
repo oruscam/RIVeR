@@ -3,7 +3,7 @@ import { useWizard } from "react-use-wizard";
 import { LanguageSelector } from "../components/LanguageSelector";
 import image from "../assets/logo.png";
 import "./pages.css";
-import { useProjectSlice, useUiSlice } from "../hooks";
+import { useDataSlice, useProjectSlice, useUiSlice } from "../hooks";
 // import { ThemeToggle } from '../components/ThemeToggle';
 
 export const HomePage: React.FC = () => {

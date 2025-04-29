@@ -142,7 +142,7 @@ body{
 
 .report-carousel-img{
     width: calc(100% / 5);
-    height: 130px;
+    height: auto;
 }
 
 #first-img-carousel{
@@ -199,11 +199,20 @@ body{
     width: 50%;
 }
 
+.top-left-vertical{
+    display: flex;
+    margin-top: 20px;
+}
+
+.top-left-medition-info-vertical{
+    order: 2;
+    margin-left: 15px;
+}
+
 #report-section-top-right-container{
     margin-right: 12px;
     margin-top: 8px;
 }
-
 
 #report-section-discharge-label{
     margin-top: 12px;
@@ -582,12 +591,20 @@ body{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
+    width: 90%;
 }
+
+.pixel-transformation-with-image-vertical{
+    display: flex;
+    width: auto;
+    width: 50%;
+    border-right: 1px solid #00000054;
+}   
 
 #oblique-transformation-info{
     width: 50%;
     height: 95%;
+    margin-top: 20px;
 }
 
 #oblique-transformation-info table {
@@ -617,7 +634,7 @@ body{
 #ipcam-transformation-info {
     width: 100%;
     height: 95%;
-    margin-left: 10%;
+    margin-left: 7.5%;
     display: flex;
     flex-direction: column;
     align-items: flex-start; /* Cambiado a flex-start para alinear a la izquierda */
