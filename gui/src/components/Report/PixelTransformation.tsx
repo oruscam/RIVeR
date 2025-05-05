@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { REPORT_IMAGES } from "../../constants/constants";
 import { formatNumberToPrecision4, getUnit } from "../../helpers";
-import { useProjectSlice, useSectionSlice } from "../../hooks";
+import { useMatrixSlice, useProjectSlice, useSectionSlice } from "../../hooks";
 import { factor } from "../../types";
 import { IpcamPixelTransformation } from "./IpcamPixelTransformation";
 import { ObliquePixelTransformation } from "./ObliquePixelTransformation";
@@ -20,8 +20,7 @@ export const PixelTransformation = ({
   vertical
 }: PixelTransformationProps) => {
   const { t } = useTranslation();
-  const { sections } = useSectionSlice();
-  const { size } = sections[0].pixelSize;
+  const { pixelSize } = useMatrixSlice();
   const { projectDetails, type, video } = useProjectSlice();
   const { unitSistem } = projectDetails;
 
@@ -43,7 +42,7 @@ export const PixelTransformation = ({
               <p> {t("PixelSize.title")} </p>
               <p>
                 {" "}
-                {formatNumberToPrecision4(size)}
+                {formatNumberToPrecision4(pixelSize.size)}
                 {getUnit(unitSistem, "longitude")}{" "}
               </p>
             </div>

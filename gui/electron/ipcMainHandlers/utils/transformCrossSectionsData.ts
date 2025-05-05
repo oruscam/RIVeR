@@ -1,6 +1,8 @@
 const transformData = (data: any, all: boolean): any => {
   const result: any = {};
 
+  console.log('data', data);
+
   for (const key in data) {
     const section = data[key];
     let magnitude = section.streamwise_velocity_magnitude;
@@ -36,29 +38,29 @@ const transformData = (data: any, all: boolean): any => {
       ...section,
       alpha:
         section.alpha !== undefined
-          ? parseFloat(section.alpha.toFixed(2))
+          ? section.alpha.toFixed(2)
           : null,
       percentile_5th: section["5th_percentile"],
       percentile_95th: section["95th_percentile"],
       total_Q:
         section.total_Q !== undefined
-          ? parseFloat(section.total_Q.toFixed(2))
+          ? section.total_Q.toFixed(2)
           : null,
       measured_Q:
         section.measured_Q !== undefined
-          ? parseFloat(section.measured_Q.toFixed(2))
+          ? section.measured_Q.toFixed(2)
           : null,
       interpolated_Q:
         section.interpolated_Q !== undefined
-          ? parseFloat(section.interpolated_Q.toFixed(2))
+          ? section.interpolated_Q.toFixed(2)
           : null,
       total_A:
         section.total_A !== undefined
-          ? parseFloat(section.total_A.toFixed(2))
+          ? section.total_A.toFixed(2)
           : null,
       total_W:
         section.total_W !== undefined
-          ? parseFloat(section.total_W.toFixed(2))
+          ? section.total_W.toFixed(2)
           : null,
       activeMagnitude:
         section.streamwise_velocity_magnitude !== undefined ? magnitude : null,
@@ -74,8 +76,9 @@ const transformData = (data: any, all: boolean): any => {
 };
 
 const formatSummary = (summary: any): any => {
-  const formatValue = (value: number) =>
-    value !== null && value !== undefined ? parseFloat(value.toFixed(2)) : null;
+  const formatValue = (value: number) => {
+    return value !== null && value !== undefined ? value.toFixed(2) : null;
+  }
 
   const formatStatistics = (stats: any) => ({
     total_W: formatValue(stats.total_W),

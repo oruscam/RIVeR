@@ -354,7 +354,6 @@ export const useSectionSlice = () => {
    */
 
   const onSetSections = async (_formData: FieldValues, type: string) => {
-    console.time("set-sections");
     dispatch(setLoading(true));
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
@@ -382,8 +381,6 @@ export const useSectionSlice = () => {
 
     /**
      * We need to transform pixel points section to real world, for mask and height roight
-     *
-     *
      */
 
     sections.map(async (section, index) => {

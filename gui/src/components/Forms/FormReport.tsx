@@ -9,7 +9,7 @@ import { SuccessfulMessage } from "../Report";
 import { useTranslation } from "react-i18next";
 import { useWizard } from "react-use-wizard";
 
-export const FormReport = ({ isReportSaved, setIsReportSaved } : { isReportSaved: boolean }) => {
+export const FormReport = ({ isReportSaved, setIsReportSaved } : { isReportSaved: boolean; setIsReportSaved: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const { video, onProjectDetailsChange, projectDetails, onSetDefaultProjectState } = useProjectSlice();
   const { creation } = video.data;
   const { t } = useTranslation();
