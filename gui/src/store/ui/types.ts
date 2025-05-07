@@ -17,6 +17,8 @@ interface UIState {
   seeAll: boolean;
   message?: string;
   language: string;
+  isLatestVersion?: boolean;
+  latestVersion?: string 
 }
 
 export type { ScreenSizes, UIState };

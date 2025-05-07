@@ -604,6 +604,7 @@ export const useProjectSlice = () => {
     dispatch(resetProjectSlice());
   };
 
+
   return {
     // ATRIBUTES
     firstFramePath,

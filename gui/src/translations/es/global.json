@@ -9,6 +9,10 @@
             "noSettingsFile": "El directorio seleccionado no contiene un archivo settings.json",
             "notValidDirectory": "Por favor seleccione un directorio válido",
             "default": "Ocurrió un error al intentar cargar el proyecto"
+        },
+        "Version": {
+            "latest": "Estás usando la última versión.",
+            "update": "Hay una versión más reciente disponible: "
         }
     },
     "Step-2": {

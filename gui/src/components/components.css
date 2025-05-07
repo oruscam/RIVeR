@@ -7,10 +7,28 @@
 
 #version-number{
     margin-top: auto;
-    margin-bottom: 40px;
+    margin-bottom: 10px;
+    color: #575757;
+    font-size: 26px;
+    font-weight: bold;
+}
+
+#version-message{
+    display: flex;
     color: #575757;
     font-size: 20px;
     font-weight: bold;
+    margin-bottom: 50px;
+}
+
+#version-message p {
+    margin-right: 5px;
+}
+
+#version-message a {
+    color: #575757;
+    text-decoration: underline;
+    cursor: pointer;
 }
 
 .language-selector{
