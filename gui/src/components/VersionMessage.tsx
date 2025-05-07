@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useUiSlice } from "../hooks";
 import { useTranslation } from "react-i18next";
+import { COLORS } from "../constants/constants";
 
 export const VersionMessage = () => {
     const [ versionMessage, setVersionMessage ] = useState("")
@@ -19,10 +20,10 @@ export const VersionMessage = () => {
 
   return (
     <div id="version-message">
-        <p>{t(`MainPage.Version.${versionMessage}`)}</p>
+        <p style={{color: isLatestVersion === false ? COLORS.RED : ''}}>{t(`MainPage.Version.${versionMessage}`)}</p>
         {
             isLatestVersion === false && (
-                <a href={latestLink} target="_blank" rel="noopener noreferrer"> {latestVersion} </a>
+                <a href={latestLink} target="_blank" rel="noopener noreferrer" style={{color: isLatestVersion === false ? COLORS.RED : ''}}> {latestVersion} </a>
             )
         }
     </div>

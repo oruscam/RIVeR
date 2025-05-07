@@ -11,7 +11,7 @@
             "default": "Ocurrió un error al intentar cargar el proyecto"
         },
         "Version": {
-            "latest": "Estás usando la última versión.",
+            "latest": "Está usando la última versión.",
             "update": "Hay una versión más reciente disponible: "
         }
     },
