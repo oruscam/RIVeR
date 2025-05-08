@@ -3,14 +3,16 @@ import { useWizard } from "react-use-wizard";
 import { LanguageSelector } from "../components/LanguageSelector";
 import image from "../assets/logo.png";
 import "./pages.css";
-import { useDataSlice, useProjectSlice, useUiSlice } from "../hooks";
+import { useProjectSlice, useUiSlice } from "../hooks";
+import { useEffect } from "react";
+import { VersionMessage } from "../components";
 // import { ThemeToggle } from '../components/ThemeToggle';
 
 export const HomePage: React.FC = () => {
   const { t } = useTranslation();
   const { nextStep, goToStep } = useWizard();
   const { onLoadProject } = useProjectSlice();
-  const { onSetErrorMessage, error } = useUiSlice();
+  const { onSetErrorMessage, error, onCheckVersion, isLatestVersion } = useUiSlice();
 
   const handleNewProjectClick = async (
     event: React.MouseEvent<HTMLButtonElement>,
@@ -30,6 +32,10 @@ export const HomePage: React.FC = () => {
       }
     }
   };
+
+  useEffect(() => {
+    onCheckVersion();
+  }, [])
 
   return (
     <div className="App">
@@ -52,6 +58,11 @@ export const HomePage: React.FC = () => {
       </div>
       {error && <h4 className="home-page-error mb-1"> {error} </h4>}
       <p id="version-number">{import.meta.env.VITE_APP_VERSION}</p>
+      {
+        isLatestVersion !== undefined && (
+          <VersionMessage/>
+        )
+      }
       <LanguageSelector />
       {/* <ThemeToggle /> */}
     </div>

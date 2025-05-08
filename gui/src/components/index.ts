@@ -22,6 +22,7 @@ import { PointsRectification3D } from "./PointsRectification3D";
 import { Ellipses } from "./Ellipses";
 import { RedPoints } from "./RedPoints";
 import { ImagePixelSize } from "./ImagePixelSize";
+import { VersionMessage } from "./VersionMessage";
 
 export {
   Carousel,
@@ -47,5 +48,6 @@ export {
   Results,
   SectionsHeader,
   ThemeToggle,
+  VersionMessage,
   WizardButtons,
 };

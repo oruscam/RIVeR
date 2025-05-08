@@ -11,6 +11,7 @@ const initialState: UIState = {
   isLoading: false,
   seeAll: true,
   language: "en",
+  isLastVersion: undefined
 };
 
 const uiSlice = createSlice({
@@ -50,6 +51,10 @@ const uiSlice = createSlice({
       console.log("Setting language to: ", action.payload);
       state.language = action.payload;
     },
+    setIsLastVersion: (state, action: PayloadAction<{isLatest: boolean, latest: string}>) => {
+      state.isLatestVersion = action.payload.isLatest;
+      state.latestVersion = action.payload.latest;
+    }
   },
 });
 
@@ -63,6 +68,7 @@ export const {
   setScreen,
   setSeeAll,
   setLanguage,
+  setIsLastVersion
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

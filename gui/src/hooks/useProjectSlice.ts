@@ -612,6 +612,7 @@ export const useProjectSlice = () => {
     dispatch(setDefaultProjectState());
   };
 
+
   return {
     // ATRIBUTES
     firstFramePath,
