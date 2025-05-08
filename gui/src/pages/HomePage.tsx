@@ -4,7 +4,7 @@ import { LanguageSelector } from "../components/LanguageSelector";
 import image from "../assets/logo.png";
 import "./pages.css";
 import { useProjectSlice, useUiSlice } from "../hooks";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect } from "react";
 import { VersionMessage } from "../components";
 // import { ThemeToggle } from '../components/ThemeToggle';
 
