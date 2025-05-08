@@ -37,7 +37,7 @@ export const IpcamGrid = () => {
 
   const { video } = useProjectSlice();
   const { width, height } = video.data;
-
+  const { factor: imageReduceFactor } = video.parameters;
   const { t } = useTranslation();
 
   const rows = useMemo(() => {
@@ -126,8 +126,8 @@ export const IpcamGrid = () => {
       setIpcamPointPixelCoordinates({
         index: row.id,
         imageSize: {
-          width: width,
-          height: height,
+          width: width * imageReduceFactor,
+          height: height * imageReduceFactor,
         },
       });
     }

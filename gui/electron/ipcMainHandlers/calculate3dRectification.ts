@@ -11,6 +11,7 @@ async function calculate3dRectification(
     const { directory, logsPath, settingsPath, firstFrame } = PROJECT_CONFIG;
     const { points, mode } = args;
 
+
     // settings file
     const settings = await fs.promises.readFile(settingsPath, "utf-8");
     const settingsParsed = JSON.parse(settings);

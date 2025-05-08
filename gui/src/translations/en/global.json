@@ -9,6 +9,10 @@
             "noSettingsFile": "The selected directory does not contain a settings.json file",
             "notValidDirectory" : "Please selected a valid directory",
             "default": "An error occurred while trying to load the project"
+        },
+        "Version": {
+            "latest": "You are using the latest version.",
+            "update": "A newer version is available: "
         }
     },
     "Step-2" : {
@@ -18,7 +22,7 @@
     "Wizard" : {
         "back" : "Back",
         "next" : "Next",
-        "save" : "Save HTML"
+        "save" : "Finish"
     },
     "VideoRange":{
         "title": "Video Range",
@@ -126,7 +130,8 @@
     "Analizing": {
         "title": "Analizing",
         "analize": "Analize",
-        "stop": "Stop"
+        "stop": "Stop",
+        "remainingTime": "Remaining Time: "
     },
     "Results": {
         "title": "Results",
@@ -175,7 +180,7 @@
             "maxD": "Max d",
             "meanD": "Mean d",
             "measured": "% Measured",
-            "mean": "mean",
+            "mean": "Mean",
             "stdDev": "Std dev",
             "cov": "COV"
         },
@@ -195,7 +200,7 @@
         "date" : "report creation date",
         "Success" : {
             "title": "Analysis Completed!",
-            "message": "You have completed all the steps correctly. Review the results and save them as HTML. You can close RIVeR, your project has been saved in"
+            "message": "You can close RIVeR or go back "
         }
     },
     "ControlPoints" : {

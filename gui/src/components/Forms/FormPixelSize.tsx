@@ -18,6 +18,8 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
   const { video } = useProjectSlice();
   const { extraFields, dirPoints, drawLine, solution } = pixelSize;
   const { width, height } = video.data;
+  const { factor: imageReducedFactor } = video.parameters;
+  
 
   const { register } = useFormContext();
 
@@ -64,8 +66,8 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
       if (value > 0) {
         onUpdatePixelSize({
           pixelSize: value,
-          imageWidth: width,
-          imageHeight: height,
+          imageWidth: width * imageReducedFactor,
+          imageHeight: height * imageReducedFactor,
         });
       } else {
         const error = {

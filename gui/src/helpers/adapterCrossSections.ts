@@ -18,7 +18,7 @@ export const adapterCrossSections = (sections: Section[]) => {
     return {
       [name]: {
         bath: bathimetry.path,
-        rw_length: pixelSize.rwLength,
+        rw_length: bathimetry.width,
         level: bathimetry.level,
         left_station: bathimetry.leftBank,
         east_l: sectionPointsRW[0].x,

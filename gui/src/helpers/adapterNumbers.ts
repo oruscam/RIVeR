@@ -8,7 +8,7 @@ const formatNumberTo2Decimals = (num: number | undefined) => {
 };
 
 const formatNumberToPrecision4 = (num: number) => {
-  return parseFloat(num.toPrecision(4));
+  return num.toPrecision(4);
 };
 
 export {

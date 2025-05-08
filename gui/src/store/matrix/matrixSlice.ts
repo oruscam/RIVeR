@@ -124,11 +124,6 @@ const matrixSlice = createSlice({
     setIsBackendWorking: (state, action: PayloadAction<boolean>) => {
       state.isBackendWorking = action.payload;
     },
-    resetMatrixSlice: (state) => {
-      state.ipcam = initialState.ipcam;
-      state.obliquePoints = initialState.obliquePoints;
-      state.hasChanged = initialState.hasChanged;
-    },
     setPixelSizePoints: (
       state,
       action: PayloadAction<{ points: Point[]; type: string }>,
@@ -146,13 +141,21 @@ const matrixSlice = createSlice({
       state.pixelSize = action.payload;
       state.hasChanged = true;
     },
+    setDefaultMatrixState: (state) => {
+      state.pixelSize = initialState.pixelSize;
+      state.obliquePoints = initialState.obliquePoints;
+      state.ipcam = initialState.ipcam;
+      state.hasChanged = initialState.hasChanged;
+      state.isBackendWorking = initialState.isBackendWorking;
+      state.hasChanged = false;
+    }
   },
 });
 
 export const {
-  resetMatrixSlice,
   setActiveImage,
   setCustomIpcamPoint,
+  setDefaultMatrixState,
   setDrawPoints,
   setHasChanged,
   setIpcamCameraSolution,

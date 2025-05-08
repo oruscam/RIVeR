@@ -11,6 +11,7 @@ import {
   setSeeAll,
   setScreen,
   setLanguage,
+  setIsLastVersion,
 } from "../store/ui/uiSlice";
 import { RootState } from "../store/store";
 import { getNewImageResolution } from "../helpers";
@@ -20,7 +21,7 @@ import { getNewImageResolution } from "../helpers";
  */
 
 export const useUiSlice = () => {
-  const { darkMode, error, isLoading, seeAll, screenSizes, message, language } =
+  const { darkMode, error, isLoading, seeAll, screenSizes, message, language, isLatestVersion, latestVersion } =
     useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
 
@@ -87,6 +88,7 @@ export const useUiSlice = () => {
     windowHeight: number;
     imageWidth?: number;
     imageHeight?: number;
+    vertical?: boolean;
   }
 
   const onSetScreen = (values: SetScreen) => {
@@ -99,6 +101,7 @@ export const useUiSlice = () => {
         imageWidth,
         imageHeight,
       );
+
       dispatch(
         setScreen({
           width: windowWidth,
@@ -107,6 +110,10 @@ export const useUiSlice = () => {
           imageHeight: result.height,
           factor: result.factor,
           aspectRatio: imageWidth / imageHeight,
+          vertical: result.vertical,
+          heightReduced: result.heightReduced,
+          widthReduced: result.widthReduced,
+          factorReduced: result.factorReduced,
         }),
       );
       return;
@@ -119,6 +126,26 @@ export const useUiSlice = () => {
     dispatch(setLanguage(language));
   };
 
+  const onCheckVersion = () => {
+    // If isLatestVersion is already set, do not fetch the latest version
+    if ( isLatestVersion !== undefined) return;
+
+    // Check if the current version is the latest version
+    // Fetch the latest version from the GitHub API
+    fetch("https://api.github.com/repos/oruscam/RIVeR/releases/latest").then(async (response) => {
+      if (response.status === 200) {
+        const data = await response.json();
+        const latestVersion = data.tag_name.slice(1);
+        const currentVersion = import.meta.env.VITE_APP_VERSION;
+
+        dispatch(setIsLastVersion({
+          isLatest: currentVersion === latestVersion,
+          latest: latestVersion,
+        }));
+      }
+    })
+  }
+
   return {
     // ATRIBUTES
     darkMode,
@@ -128,6 +155,8 @@ export const useUiSlice = () => {
     screenSizes,
     message,
     language,
+    isLatestVersion,
+    latestVersion,
 
     // METHODS
     onChangeTheme,
@@ -135,5 +164,6 @@ export const useUiSlice = () => {
     onSetSeeAll,
     onSetScreen,
     onSetLanguage,
+    onCheckVersion,
   };
 };
