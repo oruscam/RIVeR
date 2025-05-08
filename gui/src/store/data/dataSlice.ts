@@ -75,7 +75,7 @@ const dataSlice = createSlice({
     setDataLoaded: (state, action: PayloadAction<boolean>) => {
       state.isDataLoaded = action.payload;
     },
-    resetDataSlice: (state) => {
+    setDefaultDataState: (state) => {
       state.images.paths = [];
       state.images.active = 0;
       state.processing = defaultProcessing;
@@ -86,7 +86,7 @@ const dataSlice = createSlice({
 });
 
 export const {
-  resetDataSlice,
+  setDefaultDataState,
   setActiveImage,
   setBackendWorkingFlag,
   setDataLoaded,

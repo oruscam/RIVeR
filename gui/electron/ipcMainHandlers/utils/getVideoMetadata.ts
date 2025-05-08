@@ -8,61 +8,52 @@ import os from "os";
 
 const plataform = os.platform();
 
-/**
- * If the platform is Windows, set the path to the `ffmpeg.exe` and `ffprobe.exe` executables.
- */
-if (plataform === "win32" || plataform === "linux") {
+if (import.meta.env.VITE_DEV_SERVER_URL) {
+  const ffmpegPath = import.meta.env.VITE_FFMPEG_PATH;
+  const ffprobePath = import.meta.env.VITE_FFPROBE_PATH
+
+  if ( ffmpegPath && ffprobePath) {
+    ffmpeg.setFfmpegPath(import.meta.env.VITE_FFMPEG_PATH);
+    ffmpeg.setFfprobePath(import.meta.env.VITE_FFPROBE_PATH);
+  } 
+} else {
   /**
-   * If the application is running in development mode, set the path to the `ffmpeg.exe` and `ffprobe.exe` executables from .env.development variables.
+   * Constructs the path to the `ffprobe.exe` executable.
+   *
+   * @constant {string} ffprobePath - The path to the `ffprobe.exe` executable,
+   * located in the `ffmpeg/bin` directory relative to the application's root path.
    */
+  let ffmpegPath = "";
+  let ffprobePath = "";
 
-  if (import.meta.env.VITE_DEV_SERVER_URL) {
-    const ffmpegPath = import.meta.env.VITE_FFMPEG_PATH;
-    const ffprobePath = import.meta.env.VITE_FFPROBE_PATH
-
-    if ( ffmpegPath && ffprobePath) {
-      ffmpeg.setFfmpegPath(import.meta.env.VITE_FFMPEG_PATH);
-      ffmpeg.setFfprobePath(import.meta.env.VITE_FFPROBE_PATH);
-    } 
-  } else {
-    /**
-     * Constructs the path to the `ffprobe.exe` executable.
-     *
-     * @constant {string} ffprobePath - The path to the `ffprobe.exe` executable,
-     * located in the `ffmpeg/bin` directory relative to the application's root path.
-     */
-    let ffmpegPath = "";
-    let ffprobePath = "";
-
-    if (plataform === "win32") {
-      ffmpegPath = path.join(
-        app.getAppPath(),
-        "..",
-        "ffmpeg",
-        "bin",
-        "ffmpeg.exe",
-      );
-      ffprobePath = path.join(
-        app.getAppPath(),
-        "..",
-        "ffmpeg",
-        "bin",
-        "ffprobe.exe",
-      );
-    } else if (plataform === "linux") {
-      ffmpegPath = path.join(app.getAppPath(), "..", "ffmpeg", "bin", "ffmpeg");
-      ffprobePath = path.join(
-        app.getAppPath(),
-        "..",
-        "ffmpeg",
-        "bin",
-        "ffprobe",
-      );
-    }
-
-    ffmpeg.setFfmpegPath(ffmpegPath);
-    ffmpeg.setFfprobePath(ffprobePath);
+  if (plataform === "win32") {
+    ffmpegPath = path.join(
+      app.getAppPath(),
+      "..",
+      "ffmpeg",
+      "bin",
+      "ffmpeg.exe",
+    );
+    ffprobePath = path.join(
+      app.getAppPath(),
+      "..",
+      "ffmpeg",
+      "bin",
+      "ffprobe.exe",
+    );
+  } else if (plataform === "linux" || plataform === "darwin") {
+    ffmpegPath = path.join(app.getAppPath(), "..", "ffmpeg", "bin", "ffmpeg");
+    ffprobePath = path.join(
+      app.getAppPath(),
+      "..",
+      "ffmpeg",
+      "bin",
+      "ffprobe",
+    );
   }
+
+  ffmpeg.setFfmpegPath(ffmpegPath);
+  ffmpeg.setFfprobePath(ffprobePath);
 }
 
 const supportedFormat = "MP4";
@@ -90,7 +81,29 @@ async function getVideoMetadata(videoPath: string): Promise<{
       });
     });
 
-    const { width, height, r_frame_rate, duration } = metadata.streams[0];
+    let width = 0;
+    let height = 0;
+    let r_frame_rate = "";
+    let duration = "";
+
+    metadata.streams.forEach((stream) => {
+      if (stream.codec_type === "video") {
+        r_frame_rate = stream.r_frame_rate;
+        duration = stream.duration;
+
+        const rotation = parseFloat(String(stream.rotation)) || 0;
+        
+        if ( rotation === 90 || rotation === -90) {
+          // If the video is rotated, we need to swap the width and height
+          width = stream.height;
+          height = stream.width;
+        } else {
+          width = stream.width;
+          height = stream.height;
+        }
+      }
+    });
+
     const { tags } = metadata.format;
 
     // Convert FPS from a string like "30/1" to a number

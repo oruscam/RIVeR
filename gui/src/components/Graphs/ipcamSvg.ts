@@ -40,7 +40,6 @@ export const ipcamSvg = ({
     const { ellipse, projectedPoint, x, y, selected } = importedPoints[i];
 
     if (ellipse && selected) {
-      console.log("inside ellipse", ellipse);
       clippedGroup
         .append("ellipse")
         .attr("cx", ellipse.center[0] / factor.x)

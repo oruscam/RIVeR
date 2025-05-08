@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import { useForm } from "react-hook-form";
-import { useProjectSlice } from "../../hooks";
+import { set, useForm } from "react-hook-form";
+import { useDataSlice, useMatrixSlice, useProjectSlice, useSectionSlice } from "../../hooks";
 import { dateToStringDate, stringDateToDate } from "../../helpers";
 import "../../index.css";
 import { SuccessfulMessage } from "../Report";
 import { useTranslation } from "react-i18next";
+import { useWizard } from "react-use-wizard";
 
-export const FormReport = () => {
-  const { video, onProjectDetailsChange, projectDetails } = useProjectSlice();
+export const FormReport = ({ isReportSaved, setIsReportSaved } : { isReportSaved: boolean; setIsReportSaved: React.Dispatch<React.SetStateAction<boolean>> }) => {
+  const { video, onProjectDetailsChange, projectDetails, onSetDefaultProjectState } = useProjectSlice();
   const { creation } = video.data;
   const { t } = useTranslation();
 
@@ -29,6 +30,12 @@ export const FormReport = () => {
       unitSistem: projectDetails.unitSistem,
     },
   });
+
+  const { goToStep } = useWizard();
+
+  const { onSetDefaultMatrixState } = useMatrixSlice();
+  const { onSetDefaultDataState} = useDataSlice();
+  const { onSetDefaultSectionState } = useSectionSlice(); 
 
   const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUnitSistem(event.target.value);
@@ -56,12 +63,14 @@ export const FormReport = () => {
           unitSistem: unitSistem,
           meditionDate: dateToStringDate(meditionDate),
         });
+        setIsReportSaved(false);
       } else if (id === "river-site") {
         onProjectDetailsChange({
           site: value,
           unitSistem: unitSistem,
           meditionDate: dateToStringDate(meditionDate),
         });
+        setIsReportSaved(false);
       }
     }
   };
@@ -71,7 +80,16 @@ export const FormReport = () => {
       meditionDate: dateToStringDate(meditionDate),
       unitSistem: unitSistem,
     });
+    setIsReportSaved(false);
   }, [meditionDate, unitSistem]);
+
+  const handleNewProject = () => {
+    onSetDefaultMatrixState();
+    onSetDefaultDataState();
+    onSetDefaultSectionState();
+    onSetDefaultProjectState();
+    goToStep(0);
+  }
 
   return (
     <>
@@ -139,8 +157,12 @@ export const FormReport = () => {
             timeIntervals={15}
           />
         </div>
-
-        <SuccessfulMessage />
+        
+        {
+          isReportSaved && (
+            <SuccessfulMessage goToHomePage={handleNewProject}/>
+          )
+        }
       </form>
     </>
   );

@@ -22,7 +22,7 @@
     "Wizard": {
         "back": "Volver",
         "next": "Siguiente",
-        "save": "Guardar HTML"
+        "save": "Finalizar"
     },
     "VideoRange": {
         "title": "Intervalo de Video",
@@ -104,7 +104,7 @@
         "warningTitle": "Eliminar Sección"
     },
     "Processing": {
-        "title": "Procesando",
+        "title": "Procesamiento",
         "artificialSeeding": "Sembrado Artificial",
         "windowSizes": "Tamaño de Ventanas",
         "step1": "Paso 1",
@@ -130,7 +130,8 @@
     "Analizing": {
         "title": "Analizando",
         "analize": "Analizar",
-        "stop": "Detener"
+        "stop": "Detener",
+        "remainingTime": "Tiempo Restante: "
     },
     "Results": {
         "title": "Resultados",
@@ -199,10 +200,11 @@
         "date": "Fecha de creación de Reporte",
         "Success": {
             "title": "¡Análisis completo!",
-            "message": "Ha completado todos los pasos correctamente. Revise los resultados y guárdalos como HTML. Puede cerrar RIVeR, su proyecto se guardó en:"
-        }
+            "message": "Puedes cerrar RIVeR o volver a la página de "
+        }   
     },
     "ControlPoints": {
+        "title": "Puntos de Control",
         "drawPoints": "Dibujar Puntos",
         "importDistances": "Importar Distancias",
         "distance": "Distancia",

@@ -25,6 +25,7 @@ export const App: React.FC = () => {
   const { onSetImages, images } = useDataSlice();
   const { factor } = parameters;
 
+
   const getStep4 = () => {
     switch (type) {
       case FOOTAGE_TYPES.UAV:
@@ -69,6 +70,7 @@ export const App: React.FC = () => {
       window.ipcRenderer.on("all-frames", handleAllFrames);
     }
   }, [images.paths]);
+
 
   return (
     <div className="App" data-theme={darkMode ? "dark" : "light"}>

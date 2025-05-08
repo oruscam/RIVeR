@@ -8,10 +8,12 @@ import { useTranslation } from "react-i18next";
 
 interface IpcamPixelTransformationProps {
   factor: factor;
+  vertical?: boolean;
 }
 
 export const IpcamPixelTransformation = ({
   factor,
+  vertical
 }: IpcamPixelTransformationProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const { firstFramePath } = useProjectSlice();
@@ -22,6 +24,9 @@ export const IpcamPixelTransformation = ({
   if (cameraSolution === undefined) return null;
   const { meanError, cameraPosition, reprojectionErrors } = cameraSolution;
 
+  const width = vertical ? REPORT_IMAGES.VERTICAL_IMAGES_WIDTH : REPORT_IMAGES.HORIZONTAL_IMAGES_WIDTH;
+  const height = vertical ? REPORT_IMAGES.VERTICAL_IMAGES_HEIGHT : REPORT_IMAGES.HORIZONTAL_IMAGES_HEIGHT;
+
   useEffect(() => {
     d3.select(svgRef.current).selectAll("*").remove();
     if (svgRef.current && importedPoints) {
@@ -29,19 +34,19 @@ export const IpcamPixelTransformation = ({
         factor,
         importedPoints,
         svgElement: svgRef.current,
-        width: REPORT_IMAGES.IMAGES_IPCAM_WIDTH,
-        height: REPORT_IMAGES.IMAGES_IPCAM_HEIGHT,
+        width: width,
+        height: height,
       });
     }
   }, [importedPoints]);
 
   return (
-    <div className="pixel-transformation-with-image">
+    <div className={`pixel-transformation-with-image${vertical ? "-vertical" : ""}`}>
       <div className="image-and-svg-container">
         <img
           src={firstFramePath}
-          width={REPORT_IMAGES.IMAGES_IPCAM_WIDTH}
-          height={REPORT_IMAGES.IMAGES_IPCAM_HEIGHT}
+          width={width}
+          height={height}
           className="image-border-radius"
         />
         <svg ref={svgRef} className="svg-in-image-container" />

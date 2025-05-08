@@ -50,5 +50,5 @@ export const scaleBar = (
     .style("font-size", "14px")
     .attr("fill", "white")
     .attr("font-weight", "bold")
-    .text(`${scaleLength} m`);
+    .text(`${scaleLength.toFixed(2)} m`);
 };

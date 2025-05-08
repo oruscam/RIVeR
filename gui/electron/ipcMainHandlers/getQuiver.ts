@@ -39,7 +39,7 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
       formValues,
     );
     try {
-      const result = (await riverCli(options, "text", true, logsPath)) as any;
+      const result = (await riverCli(options, "text", false, logsPath)) as any;
       return result;
     } catch (error) {
       console.log("Error en get-quiver-test");

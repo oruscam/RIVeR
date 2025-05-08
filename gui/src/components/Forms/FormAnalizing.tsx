@@ -54,7 +54,7 @@ export const FormAnalizing = () => {
       }
 
       if (newTime !== time) {
-        setTime("Remaining time: " + newTime);
+        setTime(t("Analizing.remainingTime") + newTime);
       }
     };
 

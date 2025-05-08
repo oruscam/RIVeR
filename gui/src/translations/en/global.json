@@ -22,7 +22,7 @@
     "Wizard" : {
         "back" : "Back",
         "next" : "Next",
-        "save" : "Save HTML"
+        "save" : "Finish"
     },
     "VideoRange":{
         "title": "Video Range",
@@ -130,7 +130,8 @@
     "Analizing": {
         "title": "Analizing",
         "analize": "Analize",
-        "stop": "Stop"
+        "stop": "Stop",
+        "remainingTime": "Remaining Time: "
     },
     "Results": {
         "title": "Results",
@@ -179,7 +180,7 @@
             "maxD": "Max d",
             "meanD": "Mean d",
             "measured": "% Measured",
-            "mean": "mean",
+            "mean": "Mean",
             "stdDev": "Std dev",
             "cov": "COV"
         },
@@ -199,7 +200,7 @@
         "date" : "report creation date",
         "Success" : {
             "title": "Analysis Completed!",
-            "message": "You have completed all the steps correctly. Review the results and save them as HTML. You can close RIVeR, your project has been saved in"
+            "message": "You can close RIVeR or go back "
         }
     },
     "ControlPoints" : {

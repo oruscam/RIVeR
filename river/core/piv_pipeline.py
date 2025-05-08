@@ -64,16 +64,13 @@ def run_test(
 
 		# Check if background.jpg exists
 		if background_path.exists():
-			print(f"Loading existing background from: {background_path}")
 			background = cv2.imread(str(background_path), cv2.IMREAD_GRAYSCALE)
 		else:
-			print("Calculating new background...")
 			background = impp.calculate_average(image_1.parent)
 
 			# Save the newly calculated background
 			if save_background and background is not None:
 				if workdir is not None:
-					print(f"Saving background to: {workdir}")
 					save_path = workdir.joinpath("background.jpg")
 				else:
 					results_directory_path = image_1.parent
@@ -194,16 +191,13 @@ def run_analyze_all(
 
 		# Check if background.jpg exists
 		if background_path.exists():
-			print(f"Loading existing background from: {background_path}")
 			background = cv2.imread(str(background_path), cv2.IMREAD_GRAYSCALE)
 		else:
-			print("Calculating new background...")
 			background = impp.calculate_average(images_location)
 
 			# Save the newly calculated background
 			if save_background and background is not None:
 				if workdir is not None:
-					print(f"Saving background to: {workdir}")
 					save_path = workdir.joinpath("background.jpg")
 				else:
 					save_path = images_location.joinpath("background.jpg")

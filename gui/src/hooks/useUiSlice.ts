@@ -88,6 +88,7 @@ export const useUiSlice = () => {
     windowHeight: number;
     imageWidth?: number;
     imageHeight?: number;
+    vertical?: boolean;
   }
 
   const onSetScreen = (values: SetScreen) => {
@@ -100,6 +101,7 @@ export const useUiSlice = () => {
         imageWidth,
         imageHeight,
       );
+
       dispatch(
         setScreen({
           width: windowWidth,
@@ -108,6 +110,10 @@ export const useUiSlice = () => {
           imageHeight: result.height,
           factor: result.factor,
           aspectRatio: imageWidth / imageHeight,
+          vertical: result.vertical,
+          heightReduced: result.heightReduced,
+          widthReduced: result.widthReduced,
+          factorReduced: result.factorReduced,
         }),
       );
       return;

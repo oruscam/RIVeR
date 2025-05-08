@@ -40,7 +40,7 @@ import {
   formatNumberToPrecision4,
   formatNumberTo2Decimals,
 } from "./adapterNumbers";
-import { carouselClickImage, carouselKeyDown } from "./carouselFunctions";
+import { carouselClickImage, carouselKeyDown, setCarouselDimensions } from "./carouselFunctions";
 import {
   calculateArrowWidth,
   calculateMultipleArrowsAdaptative,
@@ -108,6 +108,7 @@ export {
   onMouseUpPixelSize,
   parseTime,
   recortStringDate,
+  setCarouselDimensions,
   setChangesByForm,
   stringDateToDate,
   transformPixelToRealWorld,

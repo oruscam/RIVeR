@@ -50,7 +50,6 @@ export const PixelSize = () => {
 
     if (id === "solve-pixelsize") {
       event.preventDefault();
-      // onSetPixelSize(data)
       onGetTransformationMatrix("uav");
       return;
     }

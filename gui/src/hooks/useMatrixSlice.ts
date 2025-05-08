@@ -16,10 +16,10 @@ import {
   setActiveImage,
   setCustomIpcamPoint,
   setIpcamCameraSolution,
-  resetMatrixSlice,
   setPixelSizePoints,
   updatePixelSize,
   setIsBackendWorking,
+  setDefaultMatrixState,
 } from "../store/matrix/matrixSlice";
 import {
   adapterObliquePointsDistances,
@@ -35,7 +35,7 @@ import {
 import { ScreenSizes } from "../store/ui/types";
 import { FieldValues } from "react-hook-form";
 import {
-  resetSectionSlice,
+  setDefaultSectionState,
   setTransformationMatrix,
 } from "../store/section/sectionSlice";
 import { CliError, ResourceNotFoundError } from "../errors/errors";
@@ -131,7 +131,7 @@ export const useMatrixSlice = () => {
       if (error) {
         throw new Error(error.message);
       }
-      dispatch(resetSectionSlice());
+      dispatch(setDefaultSectionState());
       dispatch(
         setObliquePoints({
           ...obliquePoints,
@@ -222,7 +222,7 @@ export const useMatrixSlice = () => {
         );
         dispatch(setHasChanged(false));
         dispatch(setIsBackendWorking(false));
-        dispatch(resetSectionSlice());
+        dispatch(setDefaultSectionState());
       } catch (error) {
         console.log(error);
         if (error instanceof Error) {
@@ -273,7 +273,7 @@ export const useMatrixSlice = () => {
         );
         dispatch(setHasChanged(false));
         dispatch(setIsBackendWorking(false));
-        dispatch(resetSectionSlice());
+        dispatch(setDefaultSectionState());
       } catch (error) {
         console.log(error);
       }
@@ -414,7 +414,7 @@ export const useMatrixSlice = () => {
 
     // Primer caso, cuando se establece el punto en el centro.
     if (newPoint.wasEstablished === false && imageSize) {
-      newPoint.x = parseFloat((imageSize.width / 2).toFixed(1));
+      newPoint.x = parseFloat((imageSize.width  / 2).toFixed(1));
       newPoint.y = parseFloat((imageSize.height / 2).toFixed(1));
 
       dispatch(
@@ -473,6 +473,7 @@ export const useMatrixSlice = () => {
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
     filePrefix = filePrefix === undefined ? "" : filePrefix;
 
+
     try {
       const { data, error }: { data: cameraSolution; error: any } =
         await ipcRenderer.invoke("calculate-3d-rectification", {
@@ -510,7 +511,7 @@ export const useMatrixSlice = () => {
         }),
       );
       dispatch(setIsBackendWorking(false));
-      dispatch(resetSectionSlice());
+      dispatch(setDefaultSectionState());
     } catch (error) {
       console.log(error);
       dispatch(setIsBackendWorking(false));
@@ -520,17 +521,11 @@ export const useMatrixSlice = () => {
     }
   };
 
-  const onResetMatrixSlice = () => {
-    dispatch(resetMatrixSlice());
-  };
-
   const onSetPixelDirection = (
     canvasPoints: CanvasPoint | null,
     formPoint: FormPoint | null,
   ) => {
     const { dirPoints } = pixelSize;
-
-    console.log("ON SET PIXEL DIRECTION");
 
     /**
      * The flags are used to avoid unnecessary calculations
@@ -578,7 +573,6 @@ export const useMatrixSlice = () => {
     // The new points are stored in the state, if the points are diferent form the current points.
 
     if (newPoints) {
-      console.log("if 1");
       if (
         newPoints[0].x === newPoints[1].x &&
         newPoints[0].y === newPoints[1].y
@@ -695,6 +689,10 @@ export const useMatrixSlice = () => {
     dispatch(updatePixelSize(updatedPixelSize));
   };
 
+  const onSetDefaultMatrixState = () => {
+    dispatch(setDefaultMatrixState());
+  }
+
   return {
     // ATRIBUTES
     hasChanged,
@@ -712,7 +710,7 @@ export const useMatrixSlice = () => {
     onGetImages,
     onGetPoints,
     onGetTransformationMatrix,
-    onResetMatrixSlice,
+    onSetDefaultMatrixState,
     onSetDrawPoints,
     onSetObliqueCoordinates,
     onSetPixelDirection,

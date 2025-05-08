@@ -14,7 +14,7 @@ import {
   setProcessingMask,
   setDataLoaded,
   setImages,
-  resetDataSlice,
+  setDefaultDataState,
 } from "../store/data/dataSlice";
 import { clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
 import { setSectionData, setSummary } from "../store/section/sectionSlice";
@@ -362,8 +362,8 @@ export const useDataSlice = () => {
     window.ipcRenderer.removeAllListeners("all-frames");
   };
 
-  const onResetDataSlice = () => {
-    dispatch(resetDataSlice());
+  const onSetDefaultDataState = () => {
+    dispatch(setDefaultDataState());
   };
 
   return {
@@ -378,7 +378,7 @@ export const useDataSlice = () => {
     onGetResultData,
     onKillBackend,
     onReCalculateMask,
-    onResetDataSlice,
+    onSetDefaultDataState,
     onSetActiveImage,
     onSetAnalizing,
     onSetImages,

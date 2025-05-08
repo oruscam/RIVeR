@@ -22,7 +22,7 @@
     "Wizard" : {
         "back": "Retour",
         "next": "Suivant",
-        "save" : "Enregistrer HTML"
+        "save" : "Terminer"
     },
     "VideoRange":{
         "title": "Sélection de Séquence",
@@ -130,7 +130,8 @@
     "Analizing": {
         "title": "Analyse",
         "analize": "Analyser",
-        "stop": "Arrêter"
+        "stop": "Arrêter",
+        "remainingTime": "Temps Restant: "
     },
     "Results": {
         "title": "Résultats",
@@ -199,7 +200,7 @@
         "date" : "Date de création du rapport",
         "Success" : {
             "title": "Analyse Terminée !",
-            "message": "Vous avez complété toutes les étapes correctement. Vérifiez les résultats et enregistrez-les en HTML. Vous pouvez fermer RIVeR, votre projet a été enregistré dans"
+            "message": "Vous pouvez fermer RIVeR ou revenir à "
         }
     },
     "ControlPoints" : {

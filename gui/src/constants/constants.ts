@@ -15,6 +15,14 @@ export const FOOTAGE_TYPES = {
 export const IMAGE_WIDTH_FACTOR = 0.62;
 
 /**
+ *  Next both factors are used to calculate the new image resolution, when the image resolution 
+ *  is vertical. 
+ */
+export const IMAGE_HEIGHT_FACTOR = 0.90;
+export const IMAGE_HEIGHT_REDUCED_FACTOR = 0.64;
+
+
+/**
  * Default section
  */
 
@@ -123,10 +131,14 @@ export const MARKS = {
  */
 
 export const REPORT_IMAGES = {
-  IMAGES_WIDTH: 400,
-  IMAGES_HEIGHT: 225,
-  IMAGES_IPCAM_WIDTH: 500,
-  IMAGES_IPCAM_HEIGHT: 281.25,
+  HORIZONTAL_IMAGES_WIDTH: 400,
+  HORIZONTAL_IMAGES_HEIGHT: 225,
+  VERTICAL_IMAGES_WIDTH: 225,
+  VERTICAL_IMAGES_HEIGHT: 400,
+  HORIZONTAL_IMAGES_IPCAM_WIDTH: 500,
+  HORIZONTAL_IMAGES_IPCAM_HEIGHT: 281.25,
+  VERTICAL_IMAGES_IPCAM_WIDTH: 281.25,
+  VERTICAL_IMAGES_IPCAM_HEIGHT: 500,
   VELOCITY_VECTOR_RESIZE_FACTOR: 4.8,
   VELOCITY_VECTOR_AMPLITUDE_FACTOR: 40,
 };

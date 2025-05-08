@@ -63,9 +63,9 @@ export const Summary = () => {
           </thead>
           <tbody>
             {sections.map((section, index) => {
-              const { name, data, pixelSize, alpha } = section;
+              const { name, data, alpha, bathimetry } = section;
               if (data === undefined) return null;
-              const { mean_V, average_depth, max_depth, measured_Q, total_Q } =
+              const { mean_V, average_depth, max_depth, measured_Q, total_Q, total_A, mean_Vs } =
                 data;
               return (
                 <tr
@@ -75,15 +75,15 @@ export const Summary = () => {
                   }
                 >
                   <td> {name} </td>
-                  <td> {pixelSize.rwLength} </td>
-                  <td> 1 </td>
+                  <td> {bathimetry.width?.toFixed(2)} </td>
+                  <td> {total_A} </td>
                   <td> {total_Q} </td>
                   <td> {mean_V.toFixed(2)}</td>
                   <td> {alpha} </td>
-                  <td> {average_depth.toFixed(2)} </td>
+                  <td> {mean_Vs.toFixed(2)} </td>
                   <td> {max_depth.toFixed(2)} </td>
-                  <td> 1 </td>
-                  <td> {measured_Q}</td>
+                  <td> {average_depth.toFixed(2)} </td>
+                  <td> {measured_Q * 100}</td>
                 </tr>
               );
             })}

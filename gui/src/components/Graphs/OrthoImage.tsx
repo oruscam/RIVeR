@@ -76,36 +76,35 @@ export const OrthoImage = ({
       .attr("width", xScale(x + imgWidth) - xScale(x))
       .attr("height", Math.abs(yScale(y + imgHeight) - yScale(y)));
 
-    scaleBar(extent, ref.current, xScale, yScale, "", 0, 0);
-
-    // Add X Axis with 5 ticks and increased font size
-    svg
+      
+      // Add X Axis with 5 ticks and increased font size
+      svg
       .append("g")
       .attr("transform", `translate(0,${height - margin.bottom})`)
       .call(d3.axisBottom(xScale).ticks(5))
       .selectAll("text")
       .style("font-size", "12px");
-
-    // Add Y Axis with 5 ticks and increased font size
-    svg
+      
+      // Add Y Axis with 5 ticks and increased font size
+      svg
       .append("g")
       .attr("transform", `translate(${margin.left},0)`)
       .call(d3.axisLeft(yScale).ticks(5))
       .selectAll("text")
       .style("font-size", "12px");
-
-    // Create ange for turn 45 degrees the cross point. Better visualization
-
-    const angle = 45; // Angle in degrees
-    const radians = angle * (Math.PI / 180); // Convert angle to radians
-    const cos = Math.cos(radians);
-    const sin = Math.sin(radians);
-
-    if (coordinates) {
-      coordinates.forEach((d, i) => {
-        // Connect points with lines
-        const nextIndex = (i + 1) % coordinates.length;
-        svg
+      
+      // Create ange for turn 45 degrees the cross point. Better visualization
+      
+      const angle = 45; // Angle in degrees
+      const radians = angle * (Math.PI / 180); // Convert angle to radians
+      const cos = Math.cos(radians);
+      const sin = Math.sin(radians);
+      
+      if (coordinates) {
+        coordinates.forEach((d, i) => {
+          // Connect points with lines
+          const nextIndex = (i + 1) % coordinates.length;
+          svg
           .append("line")
           .attr("x1", xScale(d.x))
           .attr("y1", yScale(d.y))
@@ -113,9 +112,9 @@ export const OrthoImage = ({
           .attr("y2", yScale(coordinates[nextIndex].y))
           .attr("stroke", getLineColor(i))
           .attr("stroke-width", 2);
-
-        if (i === 0 || i === 1) {
-          svg
+          
+          if (i === 0 || i === 1) {
+            svg
             .append("line")
             .attr("x1", xScale(d.x))
             .attr("y1", yScale(d.y))
@@ -126,9 +125,9 @@ export const OrthoImage = ({
               i === 0 ? COLORS.CONTROL_POINTS.D13 : COLORS.CONTROL_POINTS.D24,
             )
             .attr("stroke-width", 2);
-        }
-
-        svg
+          }
+          
+          svg
           .append("line")
           .attr("x1", xScale(d.x) - GRAPHS.CROSS_LENGTH * cos)
           .attr("y1", yScale(d.y) - GRAPHS.CROSS_LENGTH * sin)
@@ -136,8 +135,8 @@ export const OrthoImage = ({
           .attr("y2", yScale(d.y) + GRAPHS.CROSS_LENGTH * sin)
           .attr("stroke", i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE)
           .attr("stroke-width", 2);
-
-        svg
+          
+          svg
           .append("line")
           .attr("x1", xScale(d.x) - GRAPHS.CROSS_LENGTH * sin)
           .attr("y1", yScale(d.y) + GRAPHS.CROSS_LENGTH * cos)
@@ -145,11 +144,11 @@ export const OrthoImage = ({
           .attr("y2", yScale(d.y) - GRAPHS.CROSS_LENGTH * cos)
           .attr("stroke", i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE)
           .attr("stroke-width", 2);
-      });
-    }
-
-    if (secondPoint) {
-      svg
+        });
+      }
+      
+      if (secondPoint) {
+        svg
         .append("line")
         .attr("x1", xScale(0))
         .attr("y1", yScale(0))
@@ -157,8 +156,8 @@ export const OrthoImage = ({
         .attr("y2", yScale(secondPoint.y))
         .attr("stroke", COLORS.LIGHT_BLUE)
         .attr("stroke-width", 2);
-
-      svg
+        
+        svg
         .append("line")
         .attr("x1", xScale(0) - GRAPHS.CROSS_LENGTH * cos)
         .attr("y1", yScale(0) - GRAPHS.CROSS_LENGTH * sin)
@@ -166,8 +165,8 @@ export const OrthoImage = ({
         .attr("y2", yScale(0) + GRAPHS.CROSS_LENGTH * sin)
         .attr("stroke", COLORS.LIGHT_BLUE)
         .attr("stroke-width", 2);
-
-      svg
+        
+        svg
         .append("line")
         .attr("x1", xScale(0) - GRAPHS.CROSS_LENGTH * sin)
         .attr("y1", yScale(0) + GRAPHS.CROSS_LENGTH * cos)
@@ -175,8 +174,8 @@ export const OrthoImage = ({
         .attr("y2", yScale(0) - GRAPHS.CROSS_LENGTH * cos)
         .attr("stroke", COLORS.LIGHT_BLUE)
         .attr("stroke-width", 2);
-
-      svg
+        
+        svg
         .append("line")
         .attr("x1", xScale(secondPoint.x) - GRAPHS.CROSS_LENGTH * sin)
         .attr("y1", yScale(secondPoint.y) + GRAPHS.CROSS_LENGTH * cos)
@@ -184,8 +183,8 @@ export const OrthoImage = ({
         .attr("y2", yScale(secondPoint.y) - GRAPHS.CROSS_LENGTH * cos)
         .attr("stroke", COLORS.LIGHT_BLUE)
         .attr("stroke-width", 2);
-
-      svg
+        
+        svg
         .append("line")
         .attr("x1", xScale(secondPoint.x) - GRAPHS.CROSS_LENGTH * cos)
         .attr("y1", yScale(secondPoint.y) - GRAPHS.CROSS_LENGTH * sin)
@@ -193,7 +192,11 @@ export const OrthoImage = ({
         .attr("y2", yScale(secondPoint.y) + GRAPHS.CROSS_LENGTH * sin)
         .attr("stroke", COLORS.LIGHT_BLUE)
         .attr("stroke-width", 2);
-    }
+      }
+
+      // Scale bar 
+      scaleBar(extent, ref.current, xScale, yScale, "", 0, 0);
+      
   }, [solution, graphWidth]);
 
   return (
