@@ -62,7 +62,7 @@ const projectSlice = createSlice({
     setProjectDetails: (state, action: PayloadAction<ProjectDetails>) => {
       state.projectDetails = action.payload;
     },
-    resetProjectSlice: (state) => {
+    setDefaultProjectState: (state) => {
       state.projectDirectory = "";
       state.video = defaultVideo;
       state.type = "";
@@ -84,7 +84,7 @@ export const {
   setProjectType,
   setVideoData,
   setVideoParameters,
-  resetProjectSlice,
+  setDefaultProjectState,
 } = projectSlice.actions;
 
 export default projectSlice.reducer;

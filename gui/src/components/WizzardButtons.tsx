@@ -24,10 +24,10 @@ export const WizardButtons = ({
   onClickNext,
 }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep, isLastStep } = useWizard();
-  const { onSetActiveSection, onResetSectionSlice } = useSectionSlice();
-  const { onClearQuiver, isBackendWorking, onResetDataSlice } = useDataSlice();
-  const { onResetProjectSlice } = useProjectSlice();
-  const { onResetMatrixSlice } = useMatrixSlice();
+  const { onSetActiveSection, onSetDefaultSectionState } = useSectionSlice();
+  const { onClearQuiver, isBackendWorking, onSetDefaultDataState } = useDataSlice();
+  const { onSetDefaultProjectState } = useProjectSlice();
+  const { onSetDefaultMatrixState } = useMatrixSlice();
   const { onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();
 
@@ -49,10 +49,10 @@ export const WizardButtons = ({
         break;
 
       case MODULE_NUMBER.VIDEO_RANGE:
-        onResetProjectSlice();
-        onResetDataSlice();
-        onResetSectionSlice();
-        onResetMatrixSlice();
+        onSetDefaultProjectState();
+        onSetDefaultDataState();
+        onSetDefaultSectionState();
+        onSetDefaultMatrixState();
         previousStep();
         break;
 

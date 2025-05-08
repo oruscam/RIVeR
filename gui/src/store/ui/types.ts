@@ -7,6 +7,11 @@ interface ScreenSizes {
   imageHeight?: number;
   aspectRatio?: number;
   factor?: number;
+  vertical?: boolean;
+
+  heightReduced?: number;
+  widthReduced?: number;
+  factorReduced?: number;
 }
 
 interface UIState {

@@ -1088,7 +1088,11 @@ def get_general_statistics(x_sections: dict) -> dict:
                 continue
             # If no keys are missing, append values to the respective lists
             for key in keys:
-                data_dict[key].append(section[key])
+                # For total_W, use rw_length instead, as it represents full cross-section width (not only where depth ≠ 0)
+                if key == "total_W":
+                    data_dict[key].append(section.get("rw_length"))
+                else:
+                    data_dict[key].append(section[key])
 
     # Initialize dictionaries to store statistics
     stats = {"mean": {}, "std": {}, "cov": {}}

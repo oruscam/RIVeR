@@ -8,10 +8,12 @@ import { useTranslation } from "react-i18next";
 
 interface ObliquePixelTransformationProps {
   factor: factor;
+  vertical?: boolean;
 }
 
 export const ObliquePixelTransformation = ({
   factor,
+  vertical
 }: ObliquePixelTransformationProps) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const { firstFramePath, projectDetails } = useProjectSlice();
@@ -21,6 +23,9 @@ export const ObliquePixelTransformation = ({
 
   const { unitSistem } = projectDetails;
 
+  const width = vertical ? REPORT_IMAGES.VERTICAL_IMAGES_WIDTH : REPORT_IMAGES.HORIZONTAL_IMAGES_WIDTH;
+  const height = vertical ? REPORT_IMAGES.VERTICAL_IMAGES_HEIGHT : REPORT_IMAGES.HORIZONTAL_IMAGES_HEIGHT;
+
   useEffect(() => {
     d3.select(svgRef.current).selectAll("*").remove();
     if (svgRef.current) {
@@ -29,19 +34,19 @@ export const ObliquePixelTransformation = ({
         coordinates,
         distances,
         svgElement: svgRef.current,
-        width: REPORT_IMAGES.IMAGES_WIDTH,
-        height: REPORT_IMAGES.IMAGES_HEIGHT,
+        width: width,
+        height: height,
       });
     }
   }, [factor, coordinates, distances]);
 
   return (
-    <div className="pixel-transformation-with-image">
+    <div className={`pixel-transformation-with-image${vertical ? "-vertical" : ""}`}>
       <div className="image-and-svg-container">
         <img
           src={firstFramePath}
-          width={REPORT_IMAGES.IMAGES_WIDTH}
-          height={REPORT_IMAGES.IMAGES_HEIGHT}
+          width={width}
+          height={height}
           className="image-border-radius"
         />
         <svg ref={svgRef} className="svg-in-image-container" />

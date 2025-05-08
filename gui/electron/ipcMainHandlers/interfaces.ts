@@ -79,6 +79,8 @@ export interface Metadata {
     height: number;
     r_frame_rate: string;
     duration: string;
+    codec_type: string;
+    rotation?: number;
   }[];
   format: {
     tags: {

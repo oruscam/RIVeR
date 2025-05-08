@@ -47,7 +47,6 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
       event.preventDefault();
       const value = parseFloat((event.target as HTMLInputElement).value);
       const id = (event.target as HTMLInputElement).id;
-      console.log("station number", value);
       switch (id) {
         case "stations-number":
           if (isNaN(value) === false && value >= 3) {

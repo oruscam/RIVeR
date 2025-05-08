@@ -19,7 +19,7 @@ import {
   deleteSection,
   updateSectionsCounter,
   setTransformationMatrix,
-  resetSectionSlice,
+  setDefaultSectionState,
   setSectionWorking,
 } from "../store/section/sectionSlice";
 import { clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
@@ -354,7 +354,6 @@ export const useSectionSlice = () => {
    */
 
   const onSetSections = async (_formData: FieldValues, type: string) => {
-    console.time("set-sections");
     dispatch(setLoading(true));
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
@@ -382,8 +381,6 @@ export const useSectionSlice = () => {
 
     /**
      * We need to transform pixel points section to real world, for mask and height roight
-     *
-     *
      */
 
     sections.map(async (section, index) => {
@@ -411,7 +408,6 @@ export const useSectionSlice = () => {
     dispatch(updateSectionsCounter(sections.length));
     const data = adapterCrossSections(updatedSection);
 
-    console.log('data sections', data)
 
     /**
      * The sections are stored in the section slice.
@@ -441,7 +437,6 @@ export const useSectionSlice = () => {
       dispatch(setLoading(false));
       dispatch(clearMessage());
     } catch (error) {
-      console.log("ERROR EN SETSECTIONS");
       console.log(error);
     }
   };
@@ -869,8 +864,8 @@ export const useSectionSlice = () => {
     });
   };
 
-  const onResetSectionSlice = () => {
-    dispatch(resetSectionSlice());
+  const onSetDefaultSectionState = () => {
+    dispatch(setDefaultSectionState());
   };
 
   return {
@@ -886,7 +881,7 @@ export const useSectionSlice = () => {
     onCleanSectionsData,
     onDeleteSection,
     onGetBathimetry,
-    onResetSectionSlice,
+    onSetDefaultSectionState,
     onSetActiveSection,
     onSetDirPoints,
     onSetExtraFields,

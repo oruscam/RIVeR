@@ -3,10 +3,8 @@ import {
   BrowserWindow,
   dialog,
   ipcMain,
-  ipcRenderer,
-  net,
-  protocol,
   screen,
+  shell,
 } from "electron";
 import { fileURLToPath } from "node:url";
 import * as path from "node:path";
@@ -154,6 +152,13 @@ ipcMain.handle("delete-confirmation", async (event, args) => {
 
   return response;
 });
+
+// Open user directory after button click
+ipcMain.handle("open-directory", async () => {
+  shell.openPath(PROJECT_CONFIG.directory).catch((error) => {
+    console.error("Failed to open directory:", error);
+  })
+})
 
 app.whenReady().then(() => {
   createWindow();

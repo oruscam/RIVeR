@@ -103,7 +103,6 @@ export const Grid = () => {
 
   const handleCellClick = (cell: { row: any; column: any }) => {
     const { row, column } = cell;
-    console.log("cell", cell);
     if (column.key === "select-row") {
       onChangeDataValues({
         type: "check",
