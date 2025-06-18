@@ -30,8 +30,6 @@ async function getResultData(
       artificialSeeding,
     } = args;
 
-    console.log(activeCheck)
-
     const xSections = PROJECT_CONFIG.xsectionsPath;
     const transformationMatrix = PROJECT_CONFIG.matrixPath;
     const pivResults = PROJECT_CONFIG.resultsPath;
