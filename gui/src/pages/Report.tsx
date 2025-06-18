@@ -15,7 +15,6 @@ import { FormReport } from "../components/Forms/index";
 import { REPORT_IMAGES } from "../constants/constants";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { set } from "react-hook-form";
 
 const convertImageToDataURI = (url: string, quality = 1.0) => {
   return new Promise((resolve, reject) => {
@@ -41,12 +40,11 @@ export const Report = () => {
   const { t } = useTranslation();
   const { sections } = useSectionSlice();
   const { onSetAnalizing } = useDataSlice();
-  const { onSaveProjectDetails, video } = useProjectSlice();
+  const { onSaveProjectDetails, video, projectDetails } = useProjectSlice();
   const { width: videoWidth, height: videoHeight } = video.data;
   const { factor: imageReduceFactor } = video.parameters;
 
   const { screenSizes } = useUiSlice();
-  
   const [ isReportSaved, setIsReportSaved ] = useState(false);
 
   const generateHTML = async () => {
@@ -99,7 +97,7 @@ export const Report = () => {
       const blob = new Blob([htmlContent], { type: "text/html" });
       const arrayBuffer = await blob.arrayBuffer();
 
-      await window.ipcRenderer.invoke("save-report-html", { arrayBuffer });
+      await window.ipcRenderer.invoke("save-report-html", { arrayBuffer, projectDetails });
     }
     onSetAnalizing(false);
     setIsReportSaved(true);
