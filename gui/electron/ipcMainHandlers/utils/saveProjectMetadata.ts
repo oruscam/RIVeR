@@ -1,12 +1,13 @@
 import { ProjectConfig } from "../interfaces";
-import * as fs from "fs";
 
-
-async function saveProjectMetadata(PROJECT_CONFIG: ProjectConfig, projectDetails: {
-    riverName: string;
-    site: string;
-}){    
-    const { settingsPath } = PROJECT_CONFIG
+async function saveProjectMetadata(
+    projectDetails: {
+        riverName: string;
+        site: string;
+    },
+    json: any,
+    meditionDate: string
+){    
     const { site, riverName } = projectDetails;
     
     // SET DEFAULT VALUES
@@ -16,18 +17,21 @@ async function saveProjectMetadata(PROJECT_CONFIG: ProjectConfig, projectDetails
     const LICENSE = "CC-BY 4.0"
 
     // Read the existing settings file
-    const json = await fs.promises.readFile(settingsPath, "utf-8");
-    const jsonParsed = JSON.parse(json);
 
     // Obtain the creation_date and video info from the settings file
-    const { creation_date, video } = jsonParsed;
+    const { video } = json;
+
+    // aux  
+    let aux = toCompactDateTime(meditionDate);
+
+
 
     // Create identifier
-    const identifier = `${riverName.toLowerCase()}-${site.toLowerCase()}-${OBSERVATION_TYPE}-${creation_date}`;
+    const identifier = `${riverName.toLowerCase()}-${site.toLowerCase()}-${OBSERVATION_TYPE}-${aux}`;
 
     // Create start and end dates
 
-    const startDate = parseStringDateToUTC(creation_date);
+    const startDate = parseStringDateToUTC(aux);
     const duration = video.total_length || 0
     const endDate = new Date(startDate.getTime() + duration * 1000); 
 
@@ -48,7 +52,7 @@ async function saveProjectMetadata(PROJECT_CONFIG: ProjectConfig, projectDetails
     }
 
     // Append metadata to the JSON object
-    jsonParsed.metadata = {
+    json.metadata = {
         identifier: identifier,
         temporal: temporal,
         instrument_type: INSTRUMENT_TYPE,
@@ -56,11 +60,15 @@ async function saveProjectMetadata(PROJECT_CONFIG: ProjectConfig, projectDetails
         data_quality: DATA_QUALITY,
         license: LICENSE,
     }
+}
 
-    // Write the updated JSON back to the settings file
-    const updatedContent = JSON.stringify(jsonParsed, null, 4);
-    await fs.promises.writeFile(settingsPath, updatedContent, "utf-8");
-    console.log("Project metadata saved successfully:", jsonParsed.metadata);
+function toCompactDateTime( str: string){
+    // str: 25/01/2022 12:00
+    const [date, time] = str.split(' ');
+    const [day, month, year] = date.split('/');
+    const [hour, minute] = time.split(':');
+
+    return `${year}${month}${day}T${hour}${minute}`;
 }
 
 // Function to parse a date string in the format YYYYMMDDTHHMM to a UTC Date object

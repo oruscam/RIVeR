@@ -40,7 +40,7 @@ export const Report = () => {
   const { t } = useTranslation();
   const { sections } = useSectionSlice();
   const { onSetAnalizing } = useDataSlice();
-  const { onSaveProjectDetails, video, projectDetails } = useProjectSlice();
+  const { onSaveProjectDetails, video } = useProjectSlice();
   const { width: videoWidth, height: videoHeight } = video.data;
   const { factor: imageReduceFactor } = video.parameters;
 
@@ -97,7 +97,7 @@ export const Report = () => {
       const blob = new Blob([htmlContent], { type: "text/html" });
       const arrayBuffer = await blob.arrayBuffer();
 
-      await window.ipcRenderer.invoke("save-report-html", { arrayBuffer, projectDetails });
+      await window.ipcRenderer.invoke("save-report-html", { arrayBuffer });
     }
     onSetAnalizing(false);
     setIsReportSaved(true);
