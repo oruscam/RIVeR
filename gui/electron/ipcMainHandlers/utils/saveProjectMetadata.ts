@@ -1,4 +1,3 @@
-import { ProjectConfig } from "../interfaces";
 
 async function saveProjectMetadata(
     projectDetails: {
@@ -19,21 +18,35 @@ async function saveProjectMetadata(
     // Read the existing settings file
 
     // Obtain the creation_date and video info from the settings file
-    const { video } = json;
+    const { video, video_range } = json;
 
-    // aux  
-    let aux = toCompactDateTime(meditionDate);
+    // Parse date to string utc format
+    let utcMeditionDate = toCompactDateTime(meditionDate);
 
+    const FPS = video.fps;
+    const START_FRAME = video_range.start;
+    const END_FRAME = video_range.end;
 
+    // Time in seconds
+    const meditionStartTime = START_FRAME / FPS;
+    const meditionEndTime = END_FRAME / FPS;
 
     // Create identifier
-    const identifier = `${riverName.toLowerCase()}-${site.toLowerCase()}-${OBSERVATION_TYPE}-${aux}`;
+    const identifier = `${riverName.toLowerCase()}-${site.toLowerCase()}-${OBSERVATION_TYPE}-${utcMeditionDate}`;
 
     // Create start and end dates
-
-    const startDate = parseStringDateToUTC(aux);
-    const duration = video.total_length || 0
-    const endDate = new Date(startDate.getTime() + duration * 1000); 
+    let startDate = parseStringDateToUTC(utcMeditionDate);
+    const endDate = new Date(startDate.getTime() + meditionEndTime * 1000); 
+    
+    // Adjust start date if meditionStartTime is provided
+    // This is useful if the video starts at a different time than the measurement
+    // For example, if the video starts at 10 seconds and the measurement starts at 5 seconds,
+    // we need to adjust the start date to reflect that.
+    // If meditionStartTime is 0, the start date will remain the same.
+    
+    if (meditionStartTime > 0) {
+        startDate.setTime(startDate.getTime() + meditionStartTime * 1000);
+    }
 
     // Get system time zone and offset 
     const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
