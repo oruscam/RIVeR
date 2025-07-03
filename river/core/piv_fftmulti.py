@@ -10,13 +10,16 @@ Company: UNC / ORUS
 This script contains functions for processing and analyzing PIV images.
 """
 
+import cv2
 import math
 from typing import Optional
 
 import numpy as np
 from scipy import interpolate
 from scipy.interpolate import NearestNDInterpolator, Rbf, RegularGridInterpolator
-
+import pyfftw
+# Enable FFTW cache for performance
+pyfftw.interfaces.cache.enable()
 import river.core.matlab_smoothn as smoothn
 
 
@@ -486,21 +489,21 @@ def extract_image_subregions(image1_roi: np.ndarray, ss1: np.ndarray) -> tuple:
 
 
 def compute_convolution(image1_cut: np.ndarray, image2_cut: np.ndarray) -> np.ndarray:
-	"""
-	Fast and correct FFT-based cross-correlation using NumPy vectorized operations.
+    """
+    Fast FFT-based cross-correlation using pyFFTW (optimized FFTW backend).
 
-	Parameters:
-		image1_cut (np.ndarray): Shape (ia, ia, N)
-		image2_cut (np.ndarray): Same shape as image1_cut
+    Parameters:
+        image1_cut (np.ndarray): Shape (ia, ia, N)
+        image2_cut (np.ndarray): Same shape as image1_cut
 
-	Returns:
-		np.ndarray: Cross-correlation result, shape (ia, ia, N)
-	"""
-	f1 = np.fft.fft2(image1_cut, axes=(0, 1))
-	f2 = np.fft.fft2(image2_cut, axes=(0, 1))
-	conv = np.fft.ifft2(np.conj(f1) * f2, axes=(0, 1))
-	result = np.fft.fftshift(np.real(conv), axes=(0, 1))
-	return result
+    Returns:
+        np.ndarray: Cross-correlation result, shape (ia, ia, N)
+    """
+    f1 = pyfftw.interfaces.numpy_fft.fft2(image1_cut, axes=(0, 1))
+    f2 = pyfftw.interfaces.numpy_fft.fft2(image2_cut, axes=(0, 1))
+    conv = pyfftw.interfaces.numpy_fft.ifft2(np.conj(f1) * f2, axes=(0, 1))
+    result = np.fft.fftshift(np.real(conv), axes=(0, 1))
+    return result
 
 
 
@@ -622,34 +625,32 @@ def limit_peak_search_area(result_conv: np.ndarray, half_ia: int, subpixoffset: 
 	return result_conv
 
 
+
 def normalize_to_uint8(result_conv: np.ndarray) -> np.ndarray:
-	"""
-	Normalize the values in result_conv to a range of [0, 255] for each slice along the third dimension.
+    """
+    Normalize the values in result_conv to a range of [0, 255] for each slice along the third dimension.
 
-	Parameters:
-	result_conv (numpy.ndarray): The array to be normalized.
+    Parameters:
+    result_conv (numpy.ndarray): The array to be normalized.
 
-	Returns:
-	numpy.ndarray: The normalized array with values in the range [0, 255].
-	"""
-	# Compute minimum values for each slice
-	minres = np.amin(result_conv, axis=(0, 1))[:, np.newaxis, np.newaxis]
-	minres = np.tile(minres, (1, result_conv.shape[0], result_conv.shape[1]))
-	minres = np.transpose(minres, (1, 2, 0))
+    Returns:
+    numpy.ndarray: The normalized array with values in the range [0, 255].
+    """
+    # Compute min and max per channel (along height and width)
+    minres = np.amin(result_conv, axis=(0, 1))
+    maxres = np.amax(result_conv, axis=(0, 1))
+    deltares = maxres - minres + 1e-10  # Add epsilon to avoid division by zero
 
-	# Compute range (delta) for each slice
-	deltares = (np.amax(result_conv, axis=(0, 1)) - np.amin(result_conv, axis=(0, 1)))[:, np.newaxis, np.newaxis]
-	deltares = np.tile(deltares, (1, result_conv.shape[0], result_conv.shape[1]))
-	deltares = np.transpose(deltares, (1, 2, 0))
+    # Reshape for broadcasting
+    minres = minres[np.newaxis, np.newaxis, :]
+    deltares = deltares[np.newaxis, np.newaxis, :]
 
-	# Add small epsilon to avoid division by zero
-	epsilon = 1e-10
-	deltares = deltares + epsilon
+    # Normalize and scale
+    normalized = ((result_conv - minres) / deltares) * 255
 
-	# Normalize and scale to [0, 255]
-	result_conv = ((result_conv - minres) / deltares) * 255
+    return normalized.astype(np.uint8)
 
-	return result_conv
+
 
 
 def correct_dimensions(xa, ya, za, real_size):
@@ -1086,11 +1087,6 @@ def interpolate_tables(
 	ytable_1 = np.tile(firstliney_intp, (1, ytable.shape[1] + 2))
 
 	return xtable_1, ytable_1, utable_1, vtable_1, utable, vtable
-
-
-import numpy as np
-import cv2
-from scipy.interpolate import RegularGridInterpolator
 
 
 def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray,
