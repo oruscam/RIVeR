@@ -487,20 +487,21 @@ def extract_image_subregions(image1_roi: np.ndarray, ss1: np.ndarray) -> tuple:
 
 def compute_convolution(image1_cut: np.ndarray, image2_cut: np.ndarray) -> np.ndarray:
 	"""
-	Compute the convolution of two image regions using FFT.
+	Fast and correct FFT-based cross-correlation using NumPy vectorized operations.
 
 	Parameters:
-	image1_cut (numpy.ndarray): The first image region of interest.
-	image2_cut (numpy.ndarray): The second image region of interest.
+		image1_cut (np.ndarray): Shape (ia, ia, N)
+		image2_cut (np.ndarray): Same shape as image1_cut
 
 	Returns:
-	numpy.ndarray: The result of the convolution.
+		np.ndarray: Cross-correlation result, shape (ia, ia, N)
 	"""
-	temp_fftim1 = np.conj(np.fft.fft2(image1_cut, axes=[0, 1]))
-	temp_fftim2 = np.fft.fft2(image2_cut, axes=[0, 1])
-	result_conv = np.fft.fftshift(np.real(np.fft.ifft2(temp_fftim1 * temp_fftim2, axes=[0, 1])), axes=[0, 1])
+	f1 = np.fft.fft2(image1_cut, axes=(0, 1))
+	f2 = np.fft.fft2(image2_cut, axes=(0, 1))
+	conv = np.fft.ifft2(np.conj(f1) * f2, axes=(0, 1))
+	result = np.fft.fftshift(np.real(conv), axes=(0, 1))
+	return result
 
-	return result_conv
 
 
 def fspecial_gauss(shape: tuple = (3, 3), sigma: float = 1.5) -> np.ndarray:
@@ -1087,62 +1088,49 @@ def interpolate_tables(
 	return xtable_1, ytable_1, utable_1, vtable_1, utable, vtable
 
 
-def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray, image2_roi: np.ndarray) -> np.ndarray:
-	"""
-	Interpolate the velocity fields U and V onto a regular grid and use them to warp image2_roi.
+import numpy as np
+import cv2
+from scipy.interpolate import RegularGridInterpolator
 
-	Parameters:
-	    X (numpy.ndarray): X-coordinates of the grid.
-	    Y (numpy.ndarray): Y-coordinates of the grid.
-	    U (numpy.ndarray): X-component of the velocity field.
-	    V (numpy.ndarray): Y-component of the velocity field.
-	    image2_roi (numpy.ndarray): Region of interest of the second image.
 
-	Returns:
-	    numpy.ndarray: Warped image2_roi, xb array, yb array.
-	"""
-	# Generate 1D coordinate arrays for interpolation
+def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray,
+							  image2_roi: np.ndarray) -> np.ndarray:
+	# 1. Generate fine regular grid
 	x1d = np.arange(X[0, 0], X[0, -1], 1)
 	y1d = np.arange(Y[0, 0], Y[-1, 0], 1)
+	X1, Y1 = np.meshgrid(x1d, y1d, indexing="xy")
 
-	# Create meshgrids for coordinates
-	Y1, X1 = np.meshgrid(y1d, x1d, indexing="ij")
+	# 2. Interpolate U, V
+	interp_coords = (Y[:, 0], X[0, :])
+	U_interp = RegularGridInterpolator(interp_coords, U, method="linear", bounds_error=False, fill_value=0.0)
+	V_interp = RegularGridInterpolator(interp_coords, V, method="linear", bounds_error=False, fill_value=0.0)
 
-	# Create RegularGridInterpolator for U and V
-	U_interp = RegularGridInterpolator((Y[:, 0], X[0, :]), U, method="linear", bounds_error=False, fill_value=None)
-	V_interp = RegularGridInterpolator((Y[:, 0], X[0, :]), V, method="linear", bounds_error=False, fill_value=None)
+	points = np.column_stack((Y1.ravel(), X1.ravel()))
+	U1 = U_interp(points).reshape(Y1.shape).astype(np.float32)
+	V1 = V_interp(points).reshape(Y1.shape).astype(np.float32)
 
-	# Create points for interpolation
-	points = np.stack((Y1.ravel(), X1.ravel()), axis=-1)
-
-	# Interpolate U and V
-	U1 = U_interp(points).reshape(Y1.shape)
-	V1 = V_interp(points).reshape(Y1.shape)
-
-	# Define warped coordinates
+	# 3. Apply displacement
 	X_warp = X1 + U1
 	Y_warp = Y1 + V1
 
-	# Create coordinate system for image interpolation starting from 1
-	y_param = np.arange(1, image2_roi.shape[0] + 1)
-	x_param = np.arange(1, image2_roi.shape[1] + 1)
+	# 4. Adjust for 1-based indexing in image2_roi
+	map_x = X_warp.astype(np.float32) - 1
+	map_y = Y_warp.astype(np.float32) - 1
 
-	# Create interpolator for the image
-	image_interp = RegularGridInterpolator(
-		(y_param, x_param), image2_roi.astype(np.float32), method="linear", bounds_error=False, fill_value=None
+	# 5. Warp image using remap
+	warped = cv2.remap(
+		image2_roi.astype(np.float32),
+		map_x,
+		map_y,
+		interpolation=cv2.INTER_LINEAR,
+		borderMode=cv2.BORDER_REPLICATE
 	)
 
-	# Prepare points for image interpolation
-	points = np.stack([Y_warp.ravel(), X_warp.ravel()], axis=1)
-
-	# Interpolate the image
-	image2_crop_i1 = image_interp(points).reshape(Y1.shape)
-
-	# Compute boundaries
+	# 6. Compute boundaries
 	xb = np.flatnonzero(np.abs(x1d - X[0, 0]) < 1e-10) + 1
 	yb = np.flatnonzero(np.abs(y1d - Y[0, 0]) < 1e-10) + 1
 
-	return image2_crop_i1, xb, yb
+	return warped, xb, yb
 
 
 def calculate_gradient(
