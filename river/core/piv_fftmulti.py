@@ -4,8 +4,9 @@ Project Name: RIVeR-LAC
 Description: Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
 
 Author: Antoine Patalano
-Email: antoine.patalano@unc.edu.ar
+Email: antoine.patalano@unc.edu.ar / contact@orus.cam
 Company: UNC / ORUS
+www.orus.cam
 
 This script contains functions for processing and analyzing PIV images.
 """
@@ -18,10 +19,9 @@ import numpy as np
 from scipy import interpolate
 from scipy.interpolate import NearestNDInterpolator, Rbf, RegularGridInterpolator
 import pyfftw
-# Enable FFTW cache for performance
-pyfftw.interfaces.cache.enable()
-import river.core.matlab_smoothn as smoothn
+pyfftw.interfaces.cache.enable() # Enable FFTW cache for performance
 
+import river.core.matlab_smoothn as smoothn
 
 def piv_fftmulti(
 	image1: np.ndarray,
@@ -44,37 +44,37 @@ def piv_fftmulti(
 
 	Parameters:
 	image1, image2 : np.ndarray
-	    The input images for PIV analysis.
+		The input images for PIV analysis.
 	mask : np.ndarray
-	    The mask for the region of interest.
+		The mask for the region of interest.
 	bbox : tuple
-	    The bounding box for the region of interest.
+		The bounding box for the region of interest.
 	interrogation_area_1 : int
-	    The size of the interrogation area.
+		The size of the interrogation area.
 	interrogation_area_2 : int, optional
-	    The size of the second interrogation area.
+		The size of the second interrogation area.
 	mask_auto : bool, optional
-	    Whether to automatically apply a mask. Default is True.
+		Whether to automatically apply a mask. Default is True.
 	multipass : bool, optional
-	    Whether to use multiple passes. Default is True.
+		Whether to use multiple passes. Default is True.
 	standard_filter : bool, optional
-	    Whether to apply standard deviation filtering. Default is True.
+		Whether to apply standard deviation filtering. Default is True.
 	stdt_hreshold: float, optional
-	    The threshold for standard deviation filtering. Default is 4.
+		The threshold for standard deviation filtering. Default is 4.
 	median_test_filter : bool, optional
-	    Whether to apply median test filtering. Default is True.
+		Whether to apply median test filtering. Default is True.
 	epsilon : float, optional
-	    The epsilon value for median test filtering. Default is 0.02.
+		The epsilon value for median test filtering. Default is 0.02.
 	threshold : float, optional
-	    The threshold value for median test filtering. Default is 2.
+		The threshold value for median test filtering. Default is 2.
 	seeding_filter : bool, optional
-	    Whether to apply seeding filtering. Default is True.
+		Whether to apply seeding filtering. Default is True.
 	step : int, optional
-	    The step size for grid calculations. Default is interrogationarea / 2.
+		The step size for grid calculations. Default is interrogationarea / 2.
 
 	Returns:
 	tuple
-	    Contains xtable, ytable, utable, vtable, typevector, gradient_sum_result representing the displacement vectors on the grid.
+		Contains xtable, ytable, utable, vtable, typevector, gradient_sum_result representing the displacement vectors on the grid.
 	"""
 	if interrogation_area_2 is None:
 		interrogation_area_2 = interrogation_area_1 / 2
@@ -489,21 +489,21 @@ def extract_image_subregions(image1_roi: np.ndarray, ss1: np.ndarray) -> tuple:
 
 
 def compute_convolution(image1_cut: np.ndarray, image2_cut: np.ndarray) -> np.ndarray:
-    """
-    Fast FFT-based cross-correlation using pyFFTW (optimized FFTW backend).
+	"""
+	Fast FFT-based cross-correlation using pyFFTW (optimized FFTW backend).
 
-    Parameters:
-        image1_cut (np.ndarray): Shape (ia, ia, N)
-        image2_cut (np.ndarray): Same shape as image1_cut
+	Parameters:
+		image1_cut (np.ndarray): Shape (ia, ia, N)
+		image2_cut (np.ndarray): Same shape as image1_cut
 
-    Returns:
-        np.ndarray: Cross-correlation result, shape (ia, ia, N)
-    """
-    f1 = pyfftw.interfaces.numpy_fft.fft2(image1_cut, axes=(0, 1))
-    f2 = pyfftw.interfaces.numpy_fft.fft2(image2_cut, axes=(0, 1))
-    conv = pyfftw.interfaces.numpy_fft.ifft2(np.conj(f1) * f2, axes=(0, 1))
-    result = np.fft.fftshift(np.real(conv), axes=(0, 1))
-    return result
+	Returns:
+		np.ndarray: Cross-correlation result, shape (ia, ia, N)
+	"""
+	f1 = pyfftw.interfaces.numpy_fft.fft2(image1_cut, axes=(0, 1))
+	f2 = pyfftw.interfaces.numpy_fft.fft2(image2_cut, axes=(0, 1))
+	conv = pyfftw.interfaces.numpy_fft.ifft2(np.conj(f1) * f2, axes=(0, 1))
+	result = np.fft.fftshift(np.real(conv), axes=(0, 1))
+	return result
 
 
 
@@ -627,28 +627,28 @@ def limit_peak_search_area(result_conv: np.ndarray, half_ia: int, subpixoffset: 
 
 
 def normalize_to_uint8(result_conv: np.ndarray) -> np.ndarray:
-    """
-    Normalize the values in result_conv to a range of [0, 255] for each slice along the third dimension.
+	"""
+	Normalize the values in result_conv to a range of [0, 255] for each slice along the third dimension.
 
-    Parameters:
-    result_conv (numpy.ndarray): The array to be normalized.
+	Parameters:
+	result_conv (numpy.ndarray): The array to be normalized.
 
-    Returns:
-    numpy.ndarray: The normalized array with values in the range [0, 255].
-    """
-    # Compute min and max per channel (along height and width)
-    minres = np.amin(result_conv, axis=(0, 1))
-    maxres = np.amax(result_conv, axis=(0, 1))
-    deltares = maxres - minres + 1e-10  # Add epsilon to avoid division by zero
+	Returns:
+	numpy.ndarray: The normalized array with values in the range [0, 255].
+	"""
+	# Compute min and max per channel (along height and width)
+	minres = np.amin(result_conv, axis=(0, 1))
+	maxres = np.amax(result_conv, axis=(0, 1))
+	deltares = maxres - minres + 1e-10  # Add epsilon to avoid division by zero
 
-    # Reshape for broadcasting
-    minres = minres[np.newaxis, np.newaxis, :]
-    deltares = deltares[np.newaxis, np.newaxis, :]
+	# Reshape for broadcasting
+	minres = minres[np.newaxis, np.newaxis, :]
+	deltares = deltares[np.newaxis, np.newaxis, :]
 
-    # Normalize and scale
-    normalized = ((result_conv - minres) / deltares) * 255
+	# Normalize and scale
+	normalized = ((result_conv - minres) / deltares) * 255
 
-    return normalized.astype(np.uint8)
+	return normalized.astype(np.uint8)
 
 
 
@@ -1009,25 +1009,25 @@ def interpolate_tables(
 
 	Parameters:
 	minix, maxix, miniy, maxiy : int
-	    The minimum and maximum values for the x and y ranges.
+		The minimum and maximum values for the x and y ranges.
 	step : int
-	    The step size for creating the ranges.
+		The step size for creating the ranges.
 	numelementsx, numelementsy : int
-	    The number of elements in the x and y directions.
+		The number of elements in the x and y directions.
 	interrogation_area : float
-	    The interrogation area size.
+		The interrogation area size.
 	xtable_old, ytable_old : np.ndarray
-	    Old tables for x and y.
+		Old tables for x and y.
 	utable, vtable : np.ndarray
-	    Tables to be interpolated.
+		Tables to be interpolated.
 
 	Returns:
 	xtable_1, ytable_1 : np.ndarray
-	    Padded tables for x and y after interpolation and padding.
+		Padded tables for x and y after interpolation and padding.
 	utable_1, vtable_1 : np.ndarray
-	    Interpolated and padded displacement vector tables.
+		Interpolated and padded displacement vector tables.
 	utable, vtable : np.ndarray
-	    Interpolated displacement vector tables.
+		Interpolated displacement vector tables.
 
 	"""
 	# Create the x and y tables
@@ -1137,22 +1137,22 @@ def calculate_gradient(
 
 	Parameters:
 	image1_cut : np.ndarray
-	    The sub-regions of the first image.
+		The sub-regions of the first image.
 	image2_cut : np.ndarray
-	    The sub-regions of the second image.
+		The sub-regions of the second image.
 	image1_roi : np.ndarray
-	    The region of interest from the first image.
+		The region of interest from the first image.
 	utable : np.ndarray
-	    The displacement vectors for the x-direction. This should be a 2D array representing the grid of
-	    displacement vectors.
+		The displacement vectors for the x-direction. This should be a 2D array representing the grid of
+		displacement vectors.
 	ii_backup : list of int
-	    The indices of the slices or regions where gradient values should be set to NaN. This is used to
-	    exclude certain regions from the gradient calculation.
+		The indices of the slices or regions where gradient values should be set to NaN. This is used to
+		exclude certain regions from the gradient calculation.
 
 	Returns:
 	np.ndarray
-	    The sum of gradients for each displacement vector, adjusted for NaN values where specified by ii_backup.
-	    The output is reshaped to match the dimensions of utable and transposed to align with expected output format.
+		The sum of gradients for each displacement vector, adjusted for NaN values where specified by ii_backup.
+		The output is reshaped to match the dimensions of utable and transposed to align with expected output format.
 	"""
 	# Combine images
 	combined_image = image1_cut.astype(np.float32) + image2_cut.astype(np.float32)

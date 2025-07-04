@@ -1,7 +1,5 @@
-import numpy as np
-import numpy.ma as ma
+
 import scipy.optimize.lbfgsb as lbfgsb
-from numpy import *
 from pylab import *
 from scipy.fftpack.realtransforms import dct, idct
 
