@@ -58,6 +58,8 @@ interface pixelSolution {
   extent: number[];
   resolution: number;
   secondPoint: Point;
+  width: number;
+  height: number;
 }
 
 interface pixelSize {

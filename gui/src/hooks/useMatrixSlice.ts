@@ -267,6 +267,15 @@ export const useMatrixSlice = () => {
         const orthoImage =
           filePrefix + transformed_image_path + `?t=${new Date().getTime()}`;
 
+        let orthoImageWidth: number = 0
+        let orthoImageHeight: number = 0
+
+        await getImageSize(orthoImage).then(({ width, height }) => {
+          orthoImageWidth = width;
+          orthoImageHeight = height; 
+        })
+
+
         dispatch(setTransformationMatrix({ transformationMatrix: uavMatrix }));
         dispatch(
           updatePixelSize({
@@ -276,6 +285,8 @@ export const useMatrixSlice = () => {
               resolution: output_resolution,
               extent: extent,
               secondPoint: { x: secondPoint[0], y: secondPoint[1] },
+              width: orthoImageWidth,
+              height: orthoImageHeight,
             },
           }),
         );
