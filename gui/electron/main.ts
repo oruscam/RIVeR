@@ -92,8 +92,13 @@ async function createWindow() {
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
 
-    // If you want to test river-cli on develop, change executePythonShell for executeRiverCli
-    riverCli = executePythonShell
+    // If you want to use gui with Python shell, uncomment the next line
+    // and comment the next line with riverCli.
+    // This will use the Python shell to execute RIVeR commands.
+    // This is useful for development purposes, but not recommended for production.
+    
+    // riverCli = executePythonShell;
+    riverCli = executeRiverCli;
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, "index.html"));

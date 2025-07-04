@@ -5,6 +5,8 @@ interface obliqueSolution {
   extent: number[];
   resolution: number;
   roi: number[];
+  width: number;
+  height: number;
 }
 
 interface obliquePoints {
