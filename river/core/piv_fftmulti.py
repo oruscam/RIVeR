@@ -13,12 +13,13 @@ This script contains functions for processing and analyzing PIV images.
 
 import cv2
 import math
-from typing import Optional
+from typing import Optional, Tuple
 
 import numpy as np
 from scipy import interpolate
 from scipy.interpolate import NearestNDInterpolator, Rbf
 import scipy.fft as fft
+from functools import lru_cache
 import os
 
 import pyfftw
@@ -28,8 +29,6 @@ pyfftw.interfaces.cache.enable()
 pyfftw.config.NUM_THREADS = os.cpu_count()
 # Replace SciPy's FFT backend with pyFFTW's implementation
 fft.set_global_backend(pyfftw.interfaces.scipy_fft)
-
-import river.core.matlab_smoothn as smoothn
 
 def piv_fftmulti(
 	image1: np.ndarray,
@@ -147,8 +146,8 @@ def piv_fftmulti(
 	vtable = inpaint_nans(vtable)
 
 	# Apply smoothing to the displacement vectors
-	utable = smoothn.smoothn(utable, s=0.0307)
-	vtable = smoothn.smoothn(vtable, s=0.0307)
+	utable = smoothn(utable, s=0.0307)
+	vtable = smoothn(vtable, s=0.0307)
 
 	# Initialize gradient_sum_result to None
 	gradient_sum_result = None
@@ -254,8 +253,8 @@ def piv_fftmulti(
 	# vtable = inpaint_nans(vtable)
 
 	# Apply smoothing to the displacement vectors
-	utable = smoothn.smoothn(utable, s=0.0307)
-	vtable = smoothn.smoothn(vtable, s=0.0307)
+	utable = smoothn(utable, s=0.0307)
+	vtable = smoothn(vtable, s=0.0307)
 
 	# Adjust xtable and ytable to match the original image coordinates
 	xtable = xtable + bbox[0] - half_ia
@@ -1228,3 +1227,66 @@ def calculate_gradient(
 	gradient_sum_result = gradient_sum_result.reshape((utable.shape[0], utable.shape[1]))
 
 	return gradient_sum_result
+
+@lru_cache(maxsize=16)
+def _gamma(shape: Tuple[int, ...],
+           axis: Tuple[int, ...],
+           s: float,
+           order: float,
+           dtype) -> np.ndarray:
+    """Return Γ for the given configuration (cached)."""
+    Lambda = np.zeros(shape, dtype=dtype)
+    for ax in axis:
+        n = shape[ax]
+        vec = np.cos(np.pi*np.arange(n, dtype=dtype)/n)
+        Lambda += vec.reshape(([1]*ax)+[n]+[1]*(len(shape)-ax-1))
+    Lambda = -2.0 * (len(axis) - Lambda)
+    return 1.0 / (1.0 + (s*np.abs(Lambda))**order)
+
+def smoothn(y: np.ndarray,
+            *,
+            s: float,
+            axis: Optional[Tuple[int, ...]] = None,
+            smoothOrder: float = 2.0) -> np.ndarray:
+    """
+    N-dimensional smoothing with DCT regularisation (≈ MATLAB smoothn).
+    NaNs are ignored and re-inserted.
+
+    Parameters
+    ----------
+    y : ndarray
+        Data to be smoothed (NaNs allowed).
+    s : float
+        Smoothing parameter (larger ⇒ smoother).
+    axis : tuple[int], optional
+        Axes along which to smooth (default: all).
+    smoothOrder : float, default 2.0
+        Regularisation order.
+
+    Returns
+    -------
+    ndarray
+        Smoothed array.
+    """
+    if s is None:
+        raise ValueError("`s` (smoothing parameter) must be provided")
+
+    # ---- preparation -----------------------------------------------------
+    if not np.issubdtype(y.dtype, np.floating):
+        y = y.astype(np.float32, copy=False)
+    axis = tuple(range(y.ndim)) if axis is None else tuple(axis)
+    finite_mask = np.isfinite(y)
+    y_filled = y.copy()
+    np.nan_to_num(y_filled, copy=False)
+
+    # ---- build / fetch Γ --------------------------------------------------
+    Gamma = _gamma(y.shape, axis, s, smoothOrder, y.dtype)
+
+    # ---- frequency-domain smoothing --------------------------------------
+    D = fft.dctn(y_filled, type=2, norm="ortho", axes=axis)
+    z  = fft.idctn(Gamma * D, type=2, norm="ortho", axes=axis)
+
+    # ---- restore NaNs & return -------------------------------------------
+    z = z.astype(y.dtype, copy=False)
+    z[~finite_mask] = np.nan
+    return z
