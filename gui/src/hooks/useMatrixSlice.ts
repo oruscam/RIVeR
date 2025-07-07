@@ -525,7 +525,9 @@ export const useMatrixSlice = () => {
     canvasPoints: CanvasPoint | null,
     formPoint: FormPoint | null,
   ) => {
-    const { dirPoints } = pixelSize;
+    const { dirPoints, rwPoints } = pixelSize;
+    console.log("onSetPixelDirection")
+    console.log('canvas points', canvasPoints)
 
     /**
      * The flags are used to avoid unnecessary calculations
@@ -553,6 +555,8 @@ export const useMatrixSlice = () => {
       flag2 = secondFlag;
     }
 
+    console.log('newPoints', newPoints);
+
     /**
      * If formPoint is not null, the real world coordinates are being modified by the user in the form.
      * The newPoints variable is calculated by updating the point in the position specified in the formPoint object.
@@ -570,7 +574,7 @@ export const useMatrixSlice = () => {
       flag2 = secondFlag;
     }
 
-    // The new points are stored in the state, if the points are diferent form the current points.
+    // The new points are going to be stored in the state, if the points are diferent form the current points.
 
     if (newPoints) {
       if (
@@ -582,7 +586,12 @@ export const useMatrixSlice = () => {
         flag2 = false;
         dispatch(setPixelSizePoints({ points: newPoints, type: "dir" }));
       } else {
-        dispatch(setPixelSizePoints({ points: newPoints, type: "dir" }));
+        const { size } = computePixelSize(newPoints, rwPoints)
+        dispatch(updatePixelSize({
+          ...pixelSize,
+          dirPoints: newPoints,
+          size
+        }))
       }
     }
 
