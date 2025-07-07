@@ -17,9 +17,17 @@ from typing import Optional
 
 import numpy as np
 from scipy import interpolate
-from scipy.interpolate import NearestNDInterpolator, Rbf, RegularGridInterpolator
+from scipy.interpolate import NearestNDInterpolator, Rbf
+import scipy.fft as fft
+import os
+
 import pyfftw
-pyfftw.interfaces.cache.enable() # Enable FFTW cache for performance
+# Enable FFTW cache to reuse FFT "plans" (also known as "wisdom")
+pyfftw.interfaces.cache.enable()
+# Use all available CPU cores for parallel FFT computation
+pyfftw.config.NUM_THREADS = os.cpu_count()
+# Replace SciPy's FFT backend with pyFFTW's implementation
+fft.set_global_backend(pyfftw.interfaces.scipy_fft)
 
 import river.core.matlab_smoothn as smoothn
 
@@ -132,7 +140,7 @@ def piv_fftmulti(
 
 	# Apply median test filtering to remove outliers if median_test_filter is True
 	if median_test_filter:
-		utable, vtable = filter_fluctiations(utable, vtable, epsilon=epsilon, threshold=threshold)
+		utable, vtable = filter_fluctuations(utable, vtable, epsilon=epsilon, threshold=threshold)
 
 	# Replace NaN values in utable and vtable with interpolated values
 	utable = inpaint_nans(utable)
@@ -237,7 +245,7 @@ def piv_fftmulti(
 
 	# Apply median test filtering to remove outliers if median_test_filter is True
 	if median_test_filter:
-		utable, vtable = filter_fluctiations(utable, vtable, epsilon=epsilon, threshold=threshold)
+		utable, vtable = filter_fluctuations(utable, vtable, epsilon=epsilon, threshold=threshold)
 
 	gradient_sum_result = calculate_gradient(image1_cut, image2_cut, image1_roi, utable, ii_bckup)
 
@@ -254,6 +262,23 @@ def piv_fftmulti(
 	ytable = ytable + bbox[1] - half_ia
 
 	return xtable, ytable, utable, vtable, typevector, gradient_sum_result
+
+
+def rvr_round(x: int) -> int:
+	"""
+	Round the given value to the nearest integer.
+
+	Parameters:
+	value (float): The value to round.
+
+	Returns:
+	int: The rounded value.
+	"""
+	integer = int(x)
+	if (x - integer) >= 0.5:
+		return math.ceil(x)
+	else:
+		return math.floor(x)
 
 
 def rvr_round(x: int) -> int:
@@ -407,7 +432,6 @@ def selective_indexing(image: np.ndarray, index_matrix: np.ndarray, n: tuple) ->
 	image_cut = image[index_matrix_aux]
 	return image_cut
 
-
 def generate_ssn(
 	miniy: int,
 	maxiy: int,
@@ -422,7 +446,7 @@ def generate_ssn(
 	yb: Optional[np.ndarray] = None,
 ) -> np.ndarray:
 	"""
-	Generate the ss1 indexing array.
+	Generate the ss1 indexing array (optimized version).
 
 	Parameters:
 	miniy (int): Minimum y-coordinate.
@@ -441,71 +465,95 @@ def generate_ssn(
 	numpy.ndarray: The ss1 array used for indexing.
 	"""
 	if xb is None or yb is None:
-		# Option 1: Generate ss1 using default method
-		temp_yvector = np.arange(miniy, maxiy + 1, step)
-		temp_xvector = np.arange(minix, maxix + 1, step) - 1
-		temp_yvector = temp_yvector[:, np.newaxis] - 1
-		temp_xvector = temp_xvector * image_height
-
+		y_indices = np.arange(miniy, maxiy + 1, step)[:, None] - 1
+		x_indices = (np.arange(minix, maxix + 1, step) - 1) * image_height
 	else:
-		# Option 2: Generate ss1 using xb, and yb
-		temp_yvector = yb - step + step * (np.arange(1, num_elements_y + 1, 1))
-		temp_yvector = (temp_yvector[:, np.newaxis]) - 1
-		temp_xvector = xb - step + step * (np.arange(1, num_elements_x + 1, 1)) - 1
-		temp_xvector = temp_xvector * image_height
+		y_indices = yb - step + step * np.arange(1, num_elements_y + 1)
+		y_indices = y_indices[:, None] - 1
+		x_indices = xb - step + step * np.arange(1, num_elements_x + 1) - 1
+		x_indices = x_indices * image_height
 
-	s0 = (np.tile(temp_yvector, (1, num_elements_x)) + np.tile(temp_xvector, (num_elements_y, 1))).T
-	s0 = s0.reshape(-1, order="F")
-	s0 = s0[:, np.newaxis, np.newaxis]
+	s0 = (np.tile(y_indices, (1, num_elements_x)) +
+	      np.tile(x_indices, (num_elements_y, 1))).T
+
+	s0 = s0.reshape(-1, order="F")[:, None, None]
 	s0 = np.transpose(s0, (1, 2, 0))
 
-	temp = np.arange(1, interrogation_area + 1, 1)[:, np.newaxis]
-	temp2 = (np.arange(1, interrogation_area + 1, 1) - 1) * image_height
-	s1 = np.tile(temp, (1, interrogation_area)) + np.tile(temp2, (interrogation_area, 1))
-	s1 = s1[:, :, np.newaxis]
-	ss1 = np.tile(s1, (1, 1, s0.shape[2])) + np.tile(s0, (interrogation_area, interrogation_area, 1))
+	temp = np.arange(1, interrogation_area + 1)
+	s1 = (temp[:, None] + (temp[None, :] - 1) * image_height)[:, :, None]
+
+	ss1 = s1 + s0
 
 	return ss1
 
 
-def extract_image_subregions(image1_roi: np.ndarray, ss1: np.ndarray) -> tuple:
+def extract_image_subregions(image: np.ndarray, ss1: np.ndarray) -> np.ndarray:
 	"""
-	Extract sub-regions from the images using the ss1 indexing array.
+	Extract sub-regions from an image using precomputed linear indices.
+
+	It mimics MATLAB-style column-major linear indexing to retrieve
+	each interrogation window from the image.
 
 	Parameters:
-	image1_roi (numpy.ndarray): First image region of interest.
-	ss1 (numpy.ndarray): Indexing array for extracting sub-regions.
+	image : np.ndarray
+		2D image from which interrogation windows are extracted.
+	ss1 : np.ndarray
+		3D array of 1-based linear indices defining the pixel positions for each
+		sub-region (window), shaped as (ia1, ia2, N) where N is the number of windows.
 
 	Returns:
-	tuple: Extracted sub-regions from image1_roi and image2_roi.
+	np.ndarray
+		Extracted sub-regions from the input image with shape (ia1, ia2, N).
+		Each window retains the original data type of `image`.
 	"""
-	image1_roi = image1_roi[:, :, np.newaxis]
-	image1_roi_aux = np.broadcast_to(image1_roi, (image1_roi.shape[0], image1_roi.shape[1], ss1.shape[2]))
-	image1_cut = selective_indexing(
-		image1_roi_aux, ss1.astype(int), (image1_roi.shape[0], image1_roi.shape[1], ss1.shape[2])
-	)
 
-	return image1_cut
+	# Flatten the image in column-major (Fortran) order to match MATLAB indexing
+	image_flat = image.ravel(order='F')
+
+	# Convert 1-based indices (MATLAB-style) to 0-based (Python-style)
+	# Then use fancy indexing to extract pixel values
+	out = image_flat[(ss1.astype(np.intp) - 1)]
+
+	# Output has the shape (ia1, ia2, N), matching the indexing layout
+	return out
 
 
 def compute_convolution(image1_cut: np.ndarray, image2_cut: np.ndarray) -> np.ndarray:
 	"""
-	Fast FFT-based cross-correlation using pyFFTW (optimized FFTW backend).
+	Compute cross-correlation for each interrogation window using FFT.
+
+	This function calculates the cross-correlation between corresponding interrogation windows
+	from two input image stacks using a batched FFT approach. The result is a set of correlation
+	maps with the zero-lag peak centered.
 
 	Parameters:
-		image1_cut (np.ndarray): Shape (ia, ia, N)
-		image2_cut (np.ndarray): Same shape as image1_cut
+	image1_cut : np.ndarray
+		First stack of interrogation windows. Shape: (ia, ia, N).
+	image2_cut : np.ndarray
+		Second stack of interrogation windows. Shape: (ia, ia, N).
 
 	Returns:
-		np.ndarray: Cross-correlation result, shape (ia, ia, N)
+	np.ndarray
+		A 3D array of cross-correlation results. Shape: (ia, ia, N), dtype: float32.
+		Each slice along the third dimension corresponds to one interrogation window.
 	"""
-	f1 = pyfftw.interfaces.numpy_fft.fft2(image1_cut, axes=(0, 1))
-	f2 = pyfftw.interfaces.numpy_fft.fft2(image2_cut, axes=(0, 1))
-	conv = pyfftw.interfaces.numpy_fft.ifft2(np.conj(f1) * f2, axes=(0, 1))
-	result = np.fft.fftshift(np.real(conv), axes=(0, 1))
-	return result
 
+	# Move window index to axis 0 for batched FFT: shape becomes (N, ia, ia)
+	a = np.moveaxis(image1_cut, -1, 0).astype(np.float32, copy=False)
+	b = np.moveaxis(image2_cut, -1, 0).astype(np.float32, copy=False)
 
+	# Compute real-to-complex FFTs along the last two axes
+	Fa = fft.rfftn(a, axes=(-2, -1))
+	Fb = fft.rfftn(b, axes=(-2, -1))
+
+	# Perform element-wise complex multiplication and compute inverse FFT
+	corr = fft.irfftn(np.conj(Fa) * Fb, s=a.shape[-2:], axes=(-2, -1))
+
+	# Center the zero-lag peak and restore original layout (ia, ia, N)
+	corr = np.fft.fftshift(corr, axes=(-2, -1))
+	corr = np.moveaxis(corr, 0, -1)
+
+	return corr.astype(np.float32, copy=False)
 
 def fspecial_gauss(shape: tuple = (3, 3), sigma: float = 1.5) -> np.ndarray:
 	"""
@@ -625,7 +673,6 @@ def limit_peak_search_area(result_conv: np.ndarray, half_ia: int, subpixoffset: 
 	return result_conv
 
 
-
 def normalize_to_uint8(result_conv: np.ndarray) -> np.ndarray:
 	"""
 	Normalize the values in result_conv to a range of [0, 255] for each slice along the third dimension.
@@ -649,39 +696,6 @@ def normalize_to_uint8(result_conv: np.ndarray) -> np.ndarray:
 	normalized = ((result_conv - minres) / deltares) * 255
 
 	return normalized.astype(np.uint8)
-
-
-
-
-def correct_dimensions(xa, ya, za, real_size):
-	nan_aux = np.empty(1)
-	nan_aux.fill(np.nan)
-	for i in range(real_size):
-		try:
-			if np.isnan(za[i]):
-				continue
-
-			if za[i] != i:
-				z_aux = za
-				za = za[:i]
-				za = np.append(za, nan_aux)
-				za = np.append(za, z_aux[i:])
-
-				x_aux = xa
-				xa = xa[:i]
-				xa = np.append(xa, nan_aux)
-				xa = np.append(xa, x_aux[i:])
-
-				y_aux = ya
-				ya = ya[:i]
-				ya = np.append(ya, nan_aux)
-				ya = np.append(ya, y_aux[i:])
-		except (ValueError, IndexError):
-			za = np.append(za, nan_aux)
-			xa = np.append(xa, nan_aux)
-			ya = np.append(ya, nan_aux)
-
-	return xa, ya, za
 
 
 def subpixgauss(
@@ -888,7 +902,7 @@ def filter_std(utable: np.ndarray, vtable: np.ndarray, standard_threshold: float
 	return utable, vtable
 
 
-def filter_fluctiations(
+def filter_fluctuations(
 	utable: np.ndarray, vtable: np.ndarray, b: int = 1, epsilon: float = 0.02, threshold: float = 2.0
 ) -> tuple:
 	"""
@@ -1088,43 +1102,78 @@ def interpolate_tables(
 
 	return xtable_1, ytable_1, utable_1, vtable_1, utable, vtable
 
+def deform_window(
+	X: np.ndarray,
+	Y: np.ndarray,
+	U: np.ndarray,
+	V: np.ndarray,
+	image2_roi: np.ndarray
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+	"""
+	Deform the second ROI image using interpolated displacement fields.
 
-def deform_window(X: np.ndarray, Y: np.ndarray, U: np.ndarray, V: np.ndarray,
-							  image2_roi: np.ndarray) -> np.ndarray:
-	# 1. Generate fine regular grid
-	x1d = np.arange(X[0, 0], X[0, -1], 1)
-	y1d = np.arange(Y[0, 0], Y[-1, 0], 1)
-	X1, Y1 = np.meshgrid(x1d, y1d, indexing="xy")
+	This function replicates the behavior of RegularGridInterpolator-based.
+	It performs bilinear interpolation to upsample displacement
+	fields and uses OpenCV to remap the image accordingly.
 
-	# 2. Interpolate U, V
-	interp_coords = (Y[:, 0], X[0, :])
-	U_interp = RegularGridInterpolator(interp_coords, U, method="linear", bounds_error=False, fill_value=0.0)
-	V_interp = RegularGridInterpolator(interp_coords, V, method="linear", bounds_error=False, fill_value=0.0)
+	Parameters:
+	X, Y : np.ndarray
+		Grid coordinates for the coarse displacement field (usually from meshgrid).
+	U, V : np.ndarray
+		Displacement fields (horizontal and vertical).
+	image2_roi : np.ndarray
+		The second ROI image to be deformed based on U and V.
 
-	points = np.column_stack((Y1.ravel(), X1.ravel()))
-	U1 = U_interp(points).reshape(Y1.shape).astype(np.float32)
-	V1 = V_interp(points).reshape(Y1.shape).astype(np.float32)
+	Returns:
+	tuple
+		warped : np.ndarray
+			The deformed version of image2_roi.
+		xb, yb : np.ndarray
+			Placeholder grid origin indices (always [1] for compatibility).
+	"""
 
-	# 3. Apply displacement
-	X_warp = X1 + U1
-	Y_warp = Y1 + V1
+	# -------------------------------------------------------------------------
+	# 1. Create the fine pixel grid for remapping
+	# -------------------------------------------------------------------------
+	x0 = int(round(X[0, 0]))
+	x1 = int(round(X[0, -1]))   # exclusive
+	y0 = int(round(Y[0, 0]))
+	y1 = int(round(Y[-1, 0]))   # exclusive
 
-	# 4. Adjust for 1-based indexing in image2_roi
-	map_x = X_warp.astype(np.float32) - 1
-	map_y = Y_warp.astype(np.float32) - 1
+	x1d = np.arange(x0, x1, dtype=np.float32)  # Width coordinates
+	y1d = np.arange(y0, y1, dtype=np.float32)  # Height coordinates
+	W = x1d.size
+	H = y1d.size
 
-	# 5. Warp image using remap
+	# Create meshgrid for destination coordinates
+	xx, yy = np.meshgrid(x1d, y1d, indexing='xy')  # shape (H, W)
+
+	# -------------------------------------------------------------------------
+	# 2. Upsample displacement fields (bilinear interpolation)
+	# -------------------------------------------------------------------------
+	target_size = (W, H)  # OpenCV expects (width, height)
+	U_fine = cv2.resize(U.astype(np.float32), target_size, interpolation=cv2.INTER_LINEAR)
+	V_fine = cv2.resize(V.astype(np.float32), target_size, interpolation=cv2.INTER_LINEAR)
+
+	# -------------------------------------------------------------------------
+	# 3. Apply displacement to build remapping coordinates
+	# -------------------------------------------------------------------------
+	map_x = (xx + U_fine - 1).astype(np.float32)
+	map_y = (yy + V_fine - 1).astype(np.float32)
+
+	# Use OpenCV remap to deform the image
 	warped = cv2.remap(
 		image2_roi.astype(np.float32),
-		map_x,
-		map_y,
+		map_x, map_y,
 		interpolation=cv2.INTER_LINEAR,
 		borderMode=cv2.BORDER_REPLICATE
 	)
 
-	# 6. Compute boundaries
-	xb = np.flatnonzero(np.abs(x1d - X[0, 0]) < 1e-10) + 1
-	yb = np.flatnonzero(np.abs(y1d - Y[0, 0]) < 1e-10) + 1
+	# -------------------------------------------------------------------------
+	# 4. Return placeholder grid alignment indices
+	# -------------------------------------------------------------------------
+	xb = np.array([1], dtype=np.int32)
+	yb = np.array([1], dtype=np.int32)
 
 	return warped, xb, yb
 
