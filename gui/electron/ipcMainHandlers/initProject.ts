@@ -4,7 +4,7 @@ import { join } from "path";
 import { getVideoMetadata } from "./utils/getVideoMetadata";
 import { ProjectConfig } from "./interfaces";
 
-function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
+function initProject(PROJECT_CONFIG: ProjectConfig) {
   ipcMain.handle(
     "init-project",
     async (
@@ -14,7 +14,7 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
       const { name, path, type, language } = args;
 
       const [videoName] = name.split(".");
-      const newDirectory = join(userDir, "River", videoName);
+      const newDirectory = join(PROJECT_CONFIG.mainDirectory, videoName);
 
       try {
         const result = await getVideoMetadata(path);
@@ -27,7 +27,7 @@ function initProject(userDir: string, PROJECT_CONFIG: ProjectConfig) {
           result,
         );
 
-        PROJECT_CONFIG.directory = directory;
+        PROJECT_CONFIG.projectDirectory = directory;
         PROJECT_CONFIG.type = type;
         PROJECT_CONFIG.videoPath = path;
         PROJECT_CONFIG.settingsPath = join(directory, "settings.json");

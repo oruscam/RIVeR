@@ -78,7 +78,7 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
       const settings = await fs.promises.readFile(settingsPath, "utf-8");
       const settingsParsed = JSON.parse(settings);
       settingsParsed.piv_results = path.join(
-        PROJECT_CONFIG.directory,
+        PROJECT_CONFIG.projectDirectory,
         "piv_results.json",
       );
       await fs.promises.writeFile(
@@ -104,7 +104,7 @@ async function createOptions(
   framesToTest: string[],
   formValues: any,
 ) {
-  const { bboxPath, maskPath, directory, framesPath, settingsPath } =
+  const { bboxPath, maskPath, projectDirectory, framesPath, settingsPath } =
     PROJECT_CONFIG;
   const {
     clahe,
@@ -145,7 +145,7 @@ async function createOptions(
   const options = [
     mode === "test" ? "piv-test" : "piv-analyze",
     mode !== "test" ? "--workdir" : "",
-    mode !== "test" ? directory : "",
+    mode !== "test" ? projectDirectory : "",
     "--bbox",
     bboxPath,
     "--mask",

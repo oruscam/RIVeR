@@ -7,7 +7,7 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
   const mainWindow = BrowserWindow.getAllWindows()[0];
 
   ipcMain.handle("first-frame", async (_event, args: FirstFrameArgs) => {
-    PROJECT_CONFIG.framesPath = PROJECT_CONFIG.directory + "/frames";
+    PROJECT_CONFIG.framesPath = PROJECT_CONFIG.projectDirectory + "/frames";
     if (fs.existsSync(PROJECT_CONFIG.framesPath)) {
       await fs.promises.rm(PROJECT_CONFIG.framesPath, {
         recursive: true,

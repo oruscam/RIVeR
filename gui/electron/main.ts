@@ -93,7 +93,7 @@ async function createWindow() {
     win.loadURL(VITE_DEV_SERVER_URL);
 
     // If you want to test river-cli on develop, change executePythonShell for executeRiverCli
-    riverCli = executePythonShell
+    riverCli = executePythonShell;
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
@@ -124,7 +124,8 @@ app.on("activate", () => {
 });
 
 const PROJECT_CONFIG: ProjectConfig = {
-  directory: "",
+  mainDirectory: path.join(userDir, "River"),
+  projectDirectory: "",
   type: "",
   videoPath: "",
   settingsPath: "",
@@ -153,17 +154,10 @@ ipcMain.handle("delete-confirmation", async (event, args) => {
   return response;
 });
 
-// Open user directory after button click
-ipcMain.handle("open-directory", async () => {
-  shell.openPath(PROJECT_CONFIG.directory).catch((error) => {
-    console.error("Failed to open directory:", error);
-  })
-})
-
 app.whenReady().then(() => {
   createWindow();
   getVideo(PROJECT_CONFIG);
-  initProject(userDir, PROJECT_CONFIG);
+  initProject(PROJECT_CONFIG);
   loadProject(PROJECT_CONFIG);
   firstFrame(PROJECT_CONFIG, riverCli);
   setPixelSize(PROJECT_CONFIG, riverCli);
