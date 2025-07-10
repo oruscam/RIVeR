@@ -2,6 +2,7 @@ import DataGrid, { SelectColumn } from "react-data-grid";
 import "react-data-grid/lib/styles.css";
 import { useEffect, useMemo, useState } from "react";
 import { useSectionSlice } from "../hooks";
+import { Clipboard } from "./Clipboard";
 
 interface Row {
   key: number;
@@ -43,6 +44,52 @@ export const Grid = () => {
     (): ReadonlySet<number> => new Set(),
   );
   const { sections, activeSection, onChangeDataValues } = useSectionSlice();
+
+  const copyAllDataToClipboard = () => {
+    const section = sections[activeSection];
+    if (!section || !section.data) return;
+
+    const {
+      num_stations,
+      distance,
+      depth,
+      Q,
+      A,
+      check,
+      activeMagnitude,
+      activeCheck,
+      interpolated,
+    } = section.data;
+
+    // Create headers for the table
+    const headers = ['#', 'x', 'd', 'A', 'Vs', 'Q'];
+    
+    // Create data rows
+    const dataRows = Array.from({ length: num_stations }, (_, i) => [
+      i.toString(),
+      typeof distance[i] === "number" ? distance[i].toFixed(2) : "-",
+      typeof depth[i] === "number" ? depth[i].toFixed(2) : "-",
+      typeof A[i] === "number" ? A[i].toFixed(2) : "-",
+      getCellValue(activeMagnitude, check, activeCheck, i, interpolated),
+      typeof Q[i] === "number"
+        ? getCellValue(Q, check, activeCheck, i, interpolated)
+        : "-",
+    ]);
+
+    // Combine headers and data rows
+    const allRows = [headers, ...dataRows];
+    
+    // Convert to tab-separated values
+    const textData = allRows.map(row => row.join('\t')).join('\n');
+    
+    // Copy to clipboard
+    navigator.clipboard.writeText(textData).then(() => {
+      // Optionally, you can show a success message or log it
+      console.log('Table copy to clipboard successful!');
+    }).catch(err => {
+      console.error('Error trying to copy table:', err);
+    });
+  };
 
   const getCellClass = (row) => {
     let cellClas = "centered-cell";
@@ -152,18 +199,26 @@ export const Grid = () => {
     }
   }, [sections, activeSection]);
 
+
+  const onClickClipboard = () => {
+    copyAllDataToClipboard();
+  }
+
   return (
-    <div className="grid-container mt-2">
-      <DataGrid
-        className="grid"
-        columns={columns}
-        rows={rows}
-        selectedRows={selectedRows}
-        onSelectedRowsChange={setSelectedRows}
-        rowKeyGetter={rowKeyGetter}
-        onCellClick={handleCellClick}
-        enableVirtualization={true}
-      />
+    <div className="grid-and-clipboard">
+      <Clipboard onClickFunction={onClickClipboard}/>
+      <div className="grid-container">
+        <DataGrid
+          className="grid"
+          columns={columns}
+          rows={rows}
+          selectedRows={selectedRows}
+          onSelectedRowsChange={setSelectedRows}
+          rowKeyGetter={rowKeyGetter}
+          onCellClick={handleCellClick}
+          enableVirtualization={true}
+        />
+      </div>
     </div>
   );
 };
