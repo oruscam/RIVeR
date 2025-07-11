@@ -31,13 +31,13 @@
         "title": "Intervallo Video",
         "start": "Inizio",
         "end": "Fine",
-        "step": "Passo",
+        "step": "Passo Temporale",
         "Errors": {
             "start1": "Selezione del tempo non valida: il tempo di inizio non può essere inferiore a 0. Inserisci un valore valido.",
             "end1": "Selezione del tempo non valida: il valore di 'Fine' non può essere maggiore della durata totale del video. Inserisci un valore valido.",
             "end2": "Selezione del tempo non valida: il valore di 'Fine' non può essere 0 o inferiore. Inserisci un valore valido.",
             "end3": "Selezione del tempo non valida: il valore di 'Fine' non può essere uguale o inferiore al valore di 'Inizio'. Inserisci un valore valido.",
-            "step": "Selezione del passo non valida: il parametro 'Passo' deve essere un intero maggiore di 1. Inserisci un valore valido.",
+            "step": "Selezione dell’Passo Temporale non valida: il parametro 'Passo Temporale' deve essere un intero maggiore di 1. Inserisci un valore valido.",
             "required": "Tutti i campi sono obbligatori. Controlla il modulo dell'intervallo video.",
             "formatInput": "Formato non corretto. I valori di 'Inizio' e 'Fine' devono essere nel formato '00:00'."
         },
@@ -53,7 +53,7 @@
     "PixelSize": {
         "title": "Dimensione Pixel",
         "lineLength": "Lunghezza della linea",
-        "pixelSize": "Dimensione Pixel",  
+        "pixelSize": "Dimensione Pixel",
         "drawLine": "Disegna Linea",
         "Errors": {
             "required": "Tutti i campi sono obbligatori. Controlla il modulo della Dimensione Pixel.",
@@ -66,7 +66,7 @@
             "eastPoint2": "Punto Est 2",
             "northPoint1": "Punto Nord 1",
             "northPoint2": "Punto Nord 2"
-        }, 
+        },
         "Pixel": {
             "title": "Coordinate Pixel",
             "xPoint1": "Punto X 1",
@@ -88,14 +88,14 @@
             "northPoint1": "Nord Sinistra",
             "eastPoint2": "Est Destra",
             "northPoint2": "Nord Destra"
-        }, 
+        },
         "Pixel": {
             "title": "Coordinate Pixel",
             "xPoint1": "X Sinistra",
             "yPoint1": "Y Sinistra",
             "xPoint2": "X Destra",
             "yPoint2": "Y Destra"
-        }, 
+        },
         "Errors": {
             "levelError": "Il livello deve essere compreso tra {{yMin}} e {{yMax}}",
             "leftBank": "La sponda sinistra è fuori intervallo",
@@ -108,7 +108,7 @@
     },
     "Processing": {
         "title": "Elaborazione",
-        "artificialSeeding": "Inseminazione Artificiale",
+        "artificialSeeding": "Rilascio Artificiale",
         "windowSizes": "Dimensioni Finestre",
         "step1": "Passo 1",
         "step2": "Passo 2",
@@ -118,7 +118,7 @@
         "grayscale": "Scala di Grigi",
         "removeBackground": "Rimuovi Sfondo",
         "clahe": "CLAHE",
-        "clipLimit": "Limite di Clipping",
+        "clipLimit": "Limite di Clip",
         "postProcessingFilter": "Filtro di Post-elaborazione",
         "stdFiltering": "Filtro Std",
         "medianTestFiltering": "Filtro Mediano di Test",
@@ -170,7 +170,7 @@
             "end": "Fine",
             "length": "Lunghezza",
             "step": "Passo",
-            "timeStep": "Intervallo Temporale"
+            "timeStep": "Passo Temporale"
         },
         "Summary": {
             "title": "Riepilogo",
@@ -227,7 +227,7 @@
         "label": "Etichetta",
         "northern": "Settentrionale",
         "southern": "Meridionale",
-        "directSolve": "Risoluzione Diretta",
+        "directSolve": "Soluzione Diretta",
         "optimize": "Ottimizza",
         "reprojectionErrors": "Errori di Riproiezione: ",
         "numberOfPoints": "Numero di Punti: ",

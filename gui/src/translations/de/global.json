@@ -9,7 +9,7 @@
         "portuguese": "Portugiesisch",
         "german": "Deutsch",
         "Errors": {
-            "noSettingsFile": "Das ausgewählte Verzeichnis enthält keine settings.json-Datei",
+            "noSettingsFile": " Die Datei settings.json wurde im ausgewählten Verzeichnis nicht gefunden",
             "notValidDirectory": "Bitte wählen Sie ein gültiges Verzeichnis aus",
             "default": "Beim Laden des Projekts ist ein Fehler aufgetreten"
         },
@@ -19,7 +19,7 @@
         }
     },
     "Step-2": {
-    "title": "Wählen Sie die Art des Filmmaterials",
+    "title": " Wählen Sie den Typ des Videomaterials aus",
     "pleaseSelectVideo": "Bitte wählen Sie eine Videodatei aus"
     },
     "Wizard": {
@@ -31,13 +31,13 @@
         "title": "Video-Bereich",
         "start": "Start",
         "end": "Ende",
-        "step": "Schritt",
+        "step": "Zeitschritt",
         "Errors": {
             "start1": "Ungültige Zeitauswahl: Der Startzeitpunkt darf nicht kleiner als 0 sein. Bitte geben Sie einen gültigen Wert ein.",
             "end1": "Ungültige Zeitauswahl: Der 'Ende'-Wert darf nicht größer als die Gesamtlänge des Videos sein. Bitte geben Sie einen gültigen Wert ein.",
             "end2": "Ungültige Zeitauswahl: Der 'Ende'-Wert darf nicht 0 oder kleiner sein. Bitte geben Sie einen gültigen Wert ein.",
             "end3": "Ungültige Zeitauswahl: Der 'Ende'-Wert darf nicht gleich oder kleiner als der 'Start'-Wert sein. Bitte geben Sie einen gültigen Wert ein.",
-            "step": "Ungültige Schrittauswahl: Der Parameter 'Schritt' muss eine ganze Zahl größer als 1 sein. Bitte geben Sie einen gültigen Wert ein.",
+            "step": "Ungültige Zeitschrittauswahl: Der Parameter 'Zeitschritt' muss eine ganze Zahl größer als 1 sein. Bitte geben Sie einen gültigen Wert ein.",
             "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für den Video-Bereich.",
             "formatInput": "Falsches Format. 'Start'- und 'Ende'-Werte müssen im Format '00:00' sein."
         },
@@ -53,7 +53,7 @@
     "PixelSize": {
         "title": "Pixelgröße",
         "lineLength": "Linienlänge",
-        "pixelSize": "Pixelgröße",  
+        "pixelSize": "Pixelgröße",
         "drawLine": "Linie zeichnen",
         "Errors": {
             "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für die Pixelgröße.",
@@ -66,7 +66,7 @@
             "eastPoint2": "Ostpunkt 2",
             "northPoint1": "Nordpunkt 1",
             "northPoint2": "Nordpunkt 2"
-        }, 
+        },
         "Pixel": {
             "title": "Pixelkoordinaten",
             "xPoint1": "X-Punkt 1",
@@ -81,34 +81,34 @@
         "width": "Breite",
         "importBath": "Bathymetrie importieren",
         "level": "Höhe",
-        "leftBankStation": "Linkes Ufer Station",
+        "leftBankStation": " Station am linken Ufe ",
         "RealWorld": {
             "title": "Reale Koordinaten",
             "eastPoint1": "Ost Links",
             "northPoint1": "Nord Links",
             "eastPoint2": "Ost Rechts",
             "northPoint2": "Nord Rechts"
-        }, 
+        },
         "Pixel": {
             "title": "Pixelkoordinaten",
             "xPoint1": "X Links",
             "yPoint1": "Y Links",
             "xPoint2": "X Rechts",
             "yPoint2": "Y Rechts"
-        }, 
+        },
         "Errors": {
             "levelError": "Der Pegel muss zwischen {{yMin}} und {{yMax}} liegen",
             "leftBank": "Das linke Ufer liegt außerhalb des Bereichs",
             "bathimetryNotValid": "Die Bathymetrie ist ungültig. Der Pegel {{level}} existiert nicht in dieser Datei",
-            "bathimetryIsRequired": "Bathymetrie ist erforderlich in {{section_name}}",
-            "rwLength": "Der Wert der Querschnittslänge darf in {{section_name}} nicht 0 sein"
+            "bathimetryIsRequired": " Bathymetrie ist in {{section_name}} erforderlich",
+            "rwLength": "Der Wert der Querschnittslänge darf in {{section_name}} nicht null sein"
         },
         "warning": "Sind Sie sicher, dass Sie {{section_name}} löschen möchten?",
         "warningTitle": "Abschnitt löschen"
     },
     "Processing": {
         "title": "Verarbeitung",
-        "artificialSeeding": "Künstliche Markierung",
+        "artificialSeeding": " Künstliche Ausbringung",
         "windowSizes": "Fenstergrößen",
         "step1": "Schritt 1",
         "step2": "Schritt 2",
@@ -169,7 +169,7 @@
             "start": "Start",
             "end": "Ende",
             "length": "Länge",
-            "step": "Schritt",
+            "step": "Zeitschritt",
             "timeStep": "Zeitintervall"
         },
         "Summary": {
@@ -179,7 +179,7 @@
             "q": "Q",
             "meanV": "Mittlere Geschwindigkeit",
             "alpha": "Alpha",
-            "averageVs": "Durchschnittliche Abschnitts-Geschwindigkeit",
+            "averageVs": " Durchschnittliche Oberflächengeschwindigkeit im Abschnitt",
             "maxD": "Maximale Tiefe",
             "meanD": "Mittlere Tiefe",
             "measured": "% Gemessen",
@@ -203,7 +203,7 @@
         "date": "Berichtserstellungsdatum",
         "Success": {
             "title": "Analyse Abgeschlossen!",
-            "message": "Sie können RIVeR schließen oder zurückgehen"
+            "message": " Sie können RIVeR schließen oder zum vorherigen Schritt zurückkehren"
         }
     },
     "ControlPoints": {
@@ -213,10 +213,10 @@
         "distance": "Distanz",
         "length": "Länge",
         "Errors": {
-            "required": "Alle Distanzfelder sind obligatorisch. Bitte überprüfen Sie das Kontrollpunkte-Formular",
-            "notNull": "Alle Distanzfelder müssen größer als 0 sein. Bitte überprüfen Sie das Kontrollpunkte-Formular",
-            "notZero": "Alle Distanzfelder müssen ungleich 0 sein. Bitte überprüfen Sie das Kontrollpunkte-Formular",
-            "positive": "Alle Distanzfelder müssen positiv sein. Bitte überprüfen Sie das Kontrollpunkte-Formular"
+            "required": " Alle Distanzfelder sind obligatorisch. Bitte überprüfen Sie das Formular für die Kontrollpunkte",
+            "notNull": "Alle Distanzfelder müssen größer als 0 sein. Bitte überprüfen Sie das Formular für die Kontrollpunkte",
+            "notZero": " Alle Distanzfelder dürfen nicht 0 sein. Bitte überprüfen Sie das Formular für die Kontrollpunkte. ",
+            "positive": " Alle Distanzfelder müssen positive Werte enthalten. Bitte überprüfen Sie das Formular für die Kontrollpunkte "
         }
     },
     "ControlPoints3d": {
@@ -241,9 +241,9 @@
         "invalidBathimetryFileFormat": "Ungültiges Bathymetrie-Dateiformat",
         "invalidImageExtension": "Der Ordner enthält keine Bilddateien",
         "imagesFolderEmpty": "Keine Bilder im ausgewählten Ordner gefunden",
-        "waitingForFrames": "Warten auf das Laden der Frames. Bitte versuchen Sie es in ein paar Sekunden erneut",
+        "waitingForFrames": " Warten auf das Laden der Frames. Bitte versuchen Sie es in wenigen Sekunden erneut",
         "Cli": {
-            "windowsSizesError": "Die Fenstergröße ist zu groß für die ausgewählte Region of Interest.",
+            "windowsSizesError": " Die Fenstergröße ist zu groß für die ausgewählte Region of Interest (ROI).“.",
             "bboxNotDefined": "Region of Interest nicht definiert."
         }
     },

@@ -31,13 +31,13 @@
         "title": "Intervalo de Video",
         "start": "Inicio",
         "end": "Fin",
-        "step": "Paso",
+        "step": "Paso de Tiempo",
         "Errors": {
             "start1": "Selección de intervalo de tiempo inválido: el 'Inicio' no puede ser menor a 0. Ingrese un valor válido.",
             "end1": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser mayor que la duración total del video. Ingrese un valor válido.",
             "end2": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser 0 o menor. Ingrese un valor válido.",
             "end3": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser 0 o menor que el 'Inicio'. Ingrese un valor válido.",
-            "step": "Selección de paso inválida: el parámetro 'Paso' debe ser un número entero mayor que 1. Ingrese un valor válido.",
+            "step": "Selección de Paso de Tiempo inválida: el parámetro 'Paso de Tiempo' debe ser un número entero mayor que 1. Ingrese un valor válido.",
             "required": "Todos los campos son obligatorios. Por favor consulte el formato del intervalo de video.",
             "formatInput": "Formato incorrecto. El formato de 'Inicio' y 'Fin' debe ser '00:00'."
         },

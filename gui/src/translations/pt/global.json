@@ -31,13 +31,13 @@
         "title": "Intervalo de Vídeo",
         "start": "Início",
         "end": "Fim",
-        "step": "Passo",
+        "step": "Passo Temporal",
         "Errors": {
             "start1": "Seleção de tempo inválida: o tempo de início não pode ser menor que 0. Por favor, insira um valor válido.",
             "end1": "Seleção de tempo inválida: o valor de 'Fim' não pode ser maior que a duração total do vídeo. Por favor, insira um valor válido.",
             "end2": "Seleção de tempo inválida: o valor de 'Fim' não pode ser 0 ou menor. Por favor, insira um valor válido.",
             "end3": "Seleção de tempo inválida: o valor de 'Fim' não pode ser igual ou menor que o valor de 'Início'. Por favor, insira um valor válido.",
-            "step": "Seleção de passo inválida: o parâmetro 'Passo' deve ser um número inteiro maior que 1. Por favor, insira um valor válido.",
+            "step": "Seleção de Passo Temporal inválida: o parâmetro 'Passo Temporal' deve ser um número inteiro maior que 1. Por favor, insira um valor válido.",
             "required": "Todos os campos são obrigatórios. Verifique o formulário do intervalo de vídeo.",
             "formatInput": "Formato incorreto. Os valores de 'Início' e 'Fim' devem estar no formato '00:00'."
         },
@@ -108,7 +108,7 @@
     },
     "Processing": {
         "title": "Processamento",
-        "artificialSeeding": "Semeadura Artificial",
+        "artificialSeeding": "Traçador Artificial",
         "windowSizes": "Tamanhos das Janelas",
         "step1": "Etapa 1",
         "step2": "Etapa 2",
@@ -170,7 +170,7 @@
             "end": "Fim",
             "length": "Comprimento",
             "step": "Passo",
-            "timeStep": "Intervalo de Tempo"
+            "timeStep": "Passo Temporal"
         },
         "Summary": {
             "title": "Resumo",
