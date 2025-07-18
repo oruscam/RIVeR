@@ -5,6 +5,9 @@
         "spanish" : "Spanish",
         "english" : "English",
         "french" : "French",
+        "italian": "Italian",
+        "portuguese": "Portuguese",
+        "german": "German",
         "Errors": {
             "noSettingsFile": "The selected directory does not contain a settings.json file",
             "notValidDirectory" : "Please selected a valid directory",

@@ -16,7 +16,7 @@ import { getPoints } from "./getPoints";
 import { getDistances } from "./getDistances";
 import { saveTransformationMatrix } from "./saveTransformationMatrix";
 import { setControlPoints } from "./setControlPoints";
-import { setProjectDetails } from "./setProjectDetails";
+import { setProjectMetadata} from "./setProjectMetadata";
 import { createMaskAndBbox } from "./createMaskAndBbox";
 import { getResultData } from "./getResultData";
 import { recommendRoiHeight } from "./recommendRoiHeight";
@@ -37,13 +37,13 @@ export {
   getVideo,
   initProject,
   loadProject,
-  setPixelSize,
   pixelToRealWorld,
   realWorldToPixel,
   recommendRoiHeight,
   saveReportHtml,
   saveTransformationMatrix,
   setControlPoints,
-  setProjectDetails,
+  setPixelSize,
+  setProjectMetadata,
   setSections,
 };

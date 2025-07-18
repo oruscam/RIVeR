@@ -38,7 +38,7 @@ const transformData = (data: any, all: boolean): any => {
       ...section,
       alpha:
         section.alpha !== undefined
-          ? section.alpha.toFixed(2)
+          ? parseFloat(section.alpha.toFixed(2))
           : null,
       percentile_5th: section["5th_percentile"],
       percentile_95th: section["95th_percentile"],

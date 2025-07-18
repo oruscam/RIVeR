@@ -62,6 +62,7 @@ import { appendSolutionToImportedPoints } from "./appendSolutionsToImportedPoint
 import { verifyWindowsSizes } from "./verifyWindowsSizes";
 import { getNewCanvasPositions, setChangesByForm } from "./sectionsHelpers";
 import getLineColor from "./getLineColor";
+import { getImageSize } from "./getImageSize";
 
 export {
   adapterBathimetry,
@@ -87,6 +88,7 @@ export {
   getBathimetryValues,
   getDirectionVector,
   getDistanceBetweenPoints,
+  getImageSize,
   getIntersectionPoints,
   getLineColor,
   getLinesCoordinates,

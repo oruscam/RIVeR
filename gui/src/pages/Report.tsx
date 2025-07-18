@@ -15,7 +15,6 @@ import { FormReport } from "../components/Forms/index";
 import { REPORT_IMAGES } from "../constants/constants";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
-import { set } from "react-hook-form";
 
 const convertImageToDataURI = (url: string, quality = 1.0) => {
   return new Promise((resolve, reject) => {
@@ -46,7 +45,6 @@ export const Report = () => {
   const { factor: imageReduceFactor } = video.parameters;
 
   const { screenSizes } = useUiSlice();
-  
   const [ isReportSaved, setIsReportSaved ] = useState(false);
 
   const generateHTML = async () => {

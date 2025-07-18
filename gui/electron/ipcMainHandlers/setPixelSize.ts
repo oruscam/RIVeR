@@ -7,7 +7,7 @@ function setPixelSize(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
   ipcMain.handle(
     "set-pixel-size",
     async (_event, args: pixelSizeHandleArgs) => {
-      const { directory, settingsPath, logsPath, firstFrame } = PROJECT_CONFIG;
+      const { projectDirectory, settingsPath, logsPath, firstFrame } = PROJECT_CONFIG;
       const { dirPoints, rwPoints, pixelSize, rwLength } = args;
 
       const settings = await fs.promises.readFile(settingsPath, "utf-8");
@@ -34,7 +34,7 @@ function setPixelSize(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         "--image-path",
         firstFrame,
         "-w",
-        directory,
+        projectDirectory,
         dirPoints[0].x,
         dirPoints[0].y,
         dirPoints[1].x,

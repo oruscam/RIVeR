@@ -30,7 +30,7 @@ import {
   saveTransformationMatrix,
   saveReportHtml,
   setControlPoints,
-  setProjectDetails,
+  setProjectMetadata,
   getResultData,
   createMaskAndBbox,
   recommendRoiHeight,
@@ -92,9 +92,13 @@ async function createWindow() {
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
 
-    // If you want to test river-cli on develop, change executePythonShell for executeRiverCli
-    // riverCli = executePythonShell
-    riverCli = executeRiverCli
+    // If you want to use gui with Python shell, uncomment the next line
+    // and comment the next line with riverCli.
+    // This will use the Python shell to execute RIVeR commands.
+    // This is useful for development purposes, but not recommended for production.
+    
+    // riverCli = executePythonShell;
+    riverCli = executeRiverCli;
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
@@ -125,7 +129,8 @@ app.on("activate", () => {
 });
 
 const PROJECT_CONFIG: ProjectConfig = {
-  directory: "",
+  mainDirectory: path.join(userDir, "River"),
+  projectDirectory: "",
   type: "",
   videoPath: "",
   settingsPath: "",
@@ -154,17 +159,10 @@ ipcMain.handle("delete-confirmation", async (event, args) => {
   return response;
 });
 
-// Open user directory after button click
-ipcMain.handle("open-directory", async () => {
-  shell.openPath(PROJECT_CONFIG.directory).catch((error) => {
-    console.error("Failed to open directory:", error);
-  })
-})
-
 app.whenReady().then(() => {
   createWindow();
   getVideo(PROJECT_CONFIG);
-  initProject(userDir, PROJECT_CONFIG);
+  initProject(PROJECT_CONFIG);
   loadProject(PROJECT_CONFIG);
   firstFrame(PROJECT_CONFIG, riverCli);
   setPixelSize(PROJECT_CONFIG, riverCli);
@@ -175,7 +173,7 @@ app.whenReady().then(() => {
   getResultData(PROJECT_CONFIG, riverCli);
   getImages(PROJECT_CONFIG);
   getBathimetry(PROJECT_CONFIG);
-  setProjectDetails(PROJECT_CONFIG);
+  setProjectMetadata(PROJECT_CONFIG);
   setControlPoints(PROJECT_CONFIG, riverCli);
   calculate3dRectification(PROJECT_CONFIG, riverCli);
 

@@ -34,13 +34,14 @@
 .language-selector{
     margin-bottom: 45px;
     display: flex;
-    width: 120px;
+    width: auto;
     justify-content: space-between;
 }
 
 .language-selector-icon{
-    width: 30px;
-    height: 30px;
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
 }
 
 .language-selector-select{

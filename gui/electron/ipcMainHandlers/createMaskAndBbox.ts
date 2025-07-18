@@ -12,7 +12,7 @@ async function createMaskAndBbox(
   ipcMain.handle("create-mask-and-bbox", async (_event, args) => {
     console.log("create-mask-and-bbox");
     const {
-      directory,
+      projectDirectory,
       xsectionsPath,
       matrixPath,
       resultsPath,
@@ -34,7 +34,7 @@ async function createMaskAndBbox(
       "create-mask-and-bbox",
       "--save-png-mask",
       "-w",
-      directory,
+      projectDirectory,
       height_roi,
       firstFrame,
       xsectionsPath,
@@ -55,8 +55,8 @@ async function createMaskAndBbox(
         };
       }
 
-      const maskArrayPath = path.join(directory, "mask.json");
-      const bboxArrayPath = path.join(directory, "bbox.json");
+      const maskArrayPath = path.join(projectDirectory, "mask.json");
+      const bboxArrayPath = path.join(projectDirectory, "bbox.json");
 
       const maskJson = JSON.stringify(data.mask, null, 0);
       const bboxJson = JSON.stringify(data.bbox, null, 0);
@@ -69,7 +69,7 @@ async function createMaskAndBbox(
       PROJECT_CONFIG.bboxPath = bboxArrayPath;
       PROJECT_CONFIG.maskPath = maskArrayPath;
 
-      const maskPngPath = path.join(directory, "mask.png");
+      const maskPngPath = path.join(projectDirectory, "mask.png");
       return { maskPath: maskPngPath, bbox: data.bbox };
     } catch (error) {
       console.log("ERROR EN CREATE MASK AND BBOX");

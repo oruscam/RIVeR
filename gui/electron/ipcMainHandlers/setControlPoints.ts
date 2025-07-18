@@ -5,7 +5,7 @@ import { createMatrix } from "./utils/createMatrix";
 
 function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
   ipcMain.handle("set-control-points", async (_event, args) => {
-    const { settingsPath, directory, logsPath, firstFrame } = PROJECT_CONFIG;
+    const { settingsPath, projectDirectory, logsPath, firstFrame } = PROJECT_CONFIG;
     const { coordinates, distances } = args;
     const settings = await fs.promises.readFile(settingsPath, "utf-8");
     const settingsParsed = JSON.parse(settings);
@@ -37,7 +37,7 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
       "--image-path",
       firstFrame,
       "-w",
-      directory,
+      projectDirectory,
       coordinates[0].x,
       coordinates[0].y,
       coordinates[1].x,

@@ -8,7 +8,7 @@ async function calculate3dRectification(
   riverCli: Function,
 ) {
   ipcMain.handle("calculate-3d-rectification", async (_event, args) => {
-    const { directory, logsPath, settingsPath, firstFrame } = PROJECT_CONFIG;
+    const { projectDirectory, logsPath, settingsPath, firstFrame } = PROJECT_CONFIG;
     const { points, mode } = args;
 
 
@@ -18,7 +18,7 @@ async function calculate3dRectification(
 
     let flag = false;
     let full_grp_3d = {};
-    const full_grp_3d_path = path.join(directory, "full_grp_3d.json");
+    const full_grp_3d_path = path.join(projectDirectory, "full_grp_3d.json");
 
     // grp file
     const jsonContent = points.reduce(
@@ -98,7 +98,7 @@ async function calculate3dRectification(
     }
 
     try {
-      const filePath = path.join(directory, "grp_3d.json");
+      const filePath = path.join(projectDirectory, "grp_3d.json");
       await fs.promises.writeFile(
         filePath,
         JSON.stringify(jsonContent, null, 2),
@@ -118,7 +118,7 @@ async function calculate3dRectification(
         flag ? "--full-grp-dict" : undefined,
         flag ? full_grp_3d_path : undefined,
         "-w",
-        directory,
+        projectDirectory,
         filePath,
       ].filter((value) => value !== undefined);
 
@@ -131,7 +131,7 @@ async function calculate3dRectification(
       }
 
       // Save the results on camera_solution_3d.json
-      const solution_path = path.join(directory, "camera_solution_3d.json");
+      const solution_path = path.join(projectDirectory, "camera_solution_3d.json");
       const solutionParsed = JSON.stringify(data, null, 4);
       await fs.promises.writeFile(solution_path, solutionParsed, "utf-8");
 
