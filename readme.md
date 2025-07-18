@@ -62,6 +62,9 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
   - English 🇺🇸  
   - Spanish 🇦🇷  
   - French 🇫🇷  
+  - Italian 🇮🇹
+  - Portuguese 🇧🇷
+  - German 🇩🇪
   - [More coming soon!]    
 
 ---

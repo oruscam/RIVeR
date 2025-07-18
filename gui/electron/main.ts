@@ -30,7 +30,7 @@ import {
   saveTransformationMatrix,
   saveReportHtml,
   setControlPoints,
-  setProjectDetails,
+  setProjectMetadata,
   getResultData,
   createMaskAndBbox,
   recommendRoiHeight,
@@ -179,7 +179,7 @@ app.whenReady().then(() => {
   getResultData(PROJECT_CONFIG, riverCli);
   getImages(PROJECT_CONFIG);
   getBathimetry(PROJECT_CONFIG);
-  setProjectDetails(PROJECT_CONFIG);
+  setProjectMetadata(PROJECT_CONFIG);
   setControlPoints(PROJECT_CONFIG, riverCli);
   calculate3dRectification(PROJECT_CONFIG, riverCli);
 

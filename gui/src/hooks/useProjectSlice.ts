@@ -606,7 +606,7 @@ export const useProjectSlice = () => {
   const onSaveProjectDetails = async () => {
     const ipcRenderer = window.ipcRenderer;
 
-    await ipcRenderer.invoke("set-project-details", projectDetails);
+    await ipcRenderer.invoke("set-project-metadata", projectDetails);
   };
 
   const onSetDefaultProjectState = () => {
