@@ -23,9 +23,11 @@ import { Ellipses } from "./Ellipses";
 import { RedPoints } from "./RedPoints";
 import { ImagePixelSize } from "./ImagePixelSize";
 import { VersionMessage } from "./VersionMessage";
+import { Clipboard } from "./Clipboard";
 
 export {
   Carousel,
+  Clipboard,
   DrawSections,
   Ellipses,
   Error,
