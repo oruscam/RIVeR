@@ -129,7 +129,8 @@ app.on("activate", () => {
 });
 
 const PROJECT_CONFIG: ProjectConfig = {
-  directory: "",
+  mainDirectory: path.join(userDir, "River"),
+  projectDirectory: "",
   type: "",
   videoPath: "",
   settingsPath: "",
@@ -158,17 +159,10 @@ ipcMain.handle("delete-confirmation", async (event, args) => {
   return response;
 });
 
-// Open user directory after button click
-ipcMain.handle("open-directory", async () => {
-  shell.openPath(PROJECT_CONFIG.directory).catch((error) => {
-    console.error("Failed to open directory:", error);
-  })
-})
-
 app.whenReady().then(() => {
   createWindow();
   getVideo(PROJECT_CONFIG);
-  initProject(userDir, PROJECT_CONFIG);
+  initProject(PROJECT_CONFIG);
   loadProject(PROJECT_CONFIG);
   firstFrame(PROJECT_CONFIG, riverCli);
   setPixelSize(PROJECT_CONFIG, riverCli);

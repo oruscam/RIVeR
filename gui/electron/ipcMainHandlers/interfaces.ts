@@ -97,7 +97,8 @@ export interface FirstFrameArgs {
 }
 
 export interface ProjectConfig {
-  directory: string;
+  mainDirectory: string;
+  projectDirectory: string;
   type: string;
   videoPath: string;
   matrixPath: string;
