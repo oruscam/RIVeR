@@ -7,6 +7,19 @@ export const LanguageSelector = () => {
   const { t, i18n } = useTranslation();
   const { language, onSetLanguage } = useUiSlice();
 
+  // Obtener todos los idiomas disponibles
+  const availableLanguages = Object.keys(i18n.options.resources || {});
+  
+  // Mapeo de códigos de idioma a nombres
+  const languageNames: Record<string, string> = {
+    en: t("MainPage.english"),
+    es: t("MainPage.spanish"), 
+    fr: t("MainPage.french"),
+    de: t("MainPage.german"),
+    it: t("MainPage.italian"),
+    pt: t("MainPage.portuguese")
+  };
+
   const handleOnChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     onSetLanguage(event.target.value);
   };
@@ -23,9 +36,11 @@ export const LanguageSelector = () => {
         value={language}
         onChange={handleOnChange}
       >
-        <option value="en">{t("MainPage.english")}</option>
-        <option value="es">{t("MainPage.spanish")}</option>
-        <option value="fr">{t("MainPage.french")}</option>
+        {availableLanguages.map((lang) => (
+          <option key={lang} value={lang}>
+            {languageNames[lang] || lang.toUpperCase()}
+          </option>
+        ))}
       </select>
     </div>
   );

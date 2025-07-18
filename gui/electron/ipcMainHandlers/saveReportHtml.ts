@@ -21,6 +21,7 @@ function saveReportHtml(PROJECT_CONFIG: ProjectConfig) {
         const buffer = Buffer.from(arrayBuffer);
         writeFileSync(filePath, buffer);
       }
+
     } catch (error) {
       console.error("Failed to save report:", error);
     }

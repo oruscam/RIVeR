@@ -1,0 +1,263 @@
+{
+        "MainPage": {
+        "start": "Starten",
+        "loadProject": "Projekt laden",
+        "spanish": "Spanisch",
+        "english": "Englisch",
+        "french": "Französisch",
+        "italian": "Italienisch",
+        "portuguese": "Portugiesisch",
+        "german": "Deutsch",
+        "Errors": {
+            "noSettingsFile": " Die Datei settings.json wurde im ausgewählten Verzeichnis nicht gefunden",
+            "notValidDirectory": "Bitte wählen Sie ein gültiges Verzeichnis aus",
+            "default": "Beim Laden des Projekts ist ein Fehler aufgetreten"
+        },
+        "Version": {
+            "latest": "Sie verwenden die neueste Version.",
+            "update": "Eine neuere Version ist verfügbar: "
+        }
+    },
+    "Step-2": {
+    "title": " Wählen Sie den Typ des Videomaterials aus",
+    "pleaseSelectVideo": "Bitte wählen Sie eine Videodatei aus"
+    },
+    "Wizard": {
+        "back": "Zurück",
+        "next": "Weiter",
+        "save": "Fertigstellen"
+    },
+    "VideoRange": {
+        "title": "Video-Bereich",
+        "start": "Start",
+        "end": "Ende",
+        "step": "Zeitschritt",
+        "Errors": {
+            "start1": "Ungültige Zeitauswahl: Der Startzeitpunkt darf nicht kleiner als 0 sein. Bitte geben Sie einen gültigen Wert ein.",
+            "end1": "Ungültige Zeitauswahl: Der 'Ende'-Wert darf nicht größer als die Gesamtlänge des Videos sein. Bitte geben Sie einen gültigen Wert ein.",
+            "end2": "Ungültige Zeitauswahl: Der 'Ende'-Wert darf nicht 0 oder kleiner sein. Bitte geben Sie einen gültigen Wert ein.",
+            "end3": "Ungültige Zeitauswahl: Der 'Ende'-Wert darf nicht gleich oder kleiner als der 'Start'-Wert sein. Bitte geben Sie einen gültigen Wert ein.",
+            "step": "Ungültige Zeitschrittauswahl: Der Parameter 'Zeitschritt' muss eine ganze Zahl größer als 1 sein. Bitte geben Sie einen gültigen Wert ein.",
+            "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für den Video-Bereich.",
+            "formatInput": "Falsches Format. 'Start'- und 'Ende'-Werte müssen im Format '00:00' sein."
+        },
+        "ExtraInfo": {
+            "fileName": "Dateiname:",
+            "totalLength": "Gesamtlänge: ",
+            "timeBetweenFrame": "Zeit zwischen den Frames: ",
+            "resolution": "Auflösung: ",
+            "numberOfFrames": "Anzahl der Frames: "
+        },
+        "framesResolution": "Auflösung der Frames"
+    },
+    "PixelSize": {
+        "title": "Pixelgröße",
+        "lineLength": "Linienlänge",
+        "pixelSize": "Pixelgröße",
+        "drawLine": "Linie zeichnen",
+        "Errors": {
+            "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für die Pixelgröße.",
+            "lineLength": "Ungültige Linienlänge: Die Länge muss eine positive Zahl sein und kann Dezimalstellen enthalten. Bitte geben Sie einen gültigen Wert ein.",
+            "pixelSize": "Ungültige Pixelgröße: Die Größe muss eine positive Zahl sein und kann Dezimalstellen enthalten. Bitte geben Sie einen gültigen Wert ein."
+        },
+        "RealWorld": {
+            "title": "Reale Koordinaten",
+            "eastPoint1": "Ostpunkt 1",
+            "eastPoint2": "Ostpunkt 2",
+            "northPoint1": "Nordpunkt 1",
+            "northPoint2": "Nordpunkt 2"
+        },
+        "Pixel": {
+            "title": "Pixelkoordinaten",
+            "xPoint1": "X-Punkt 1",
+            "xPoint2": "X-Punkt 2",
+            "yPoint1": "Y-Punkt 1",
+            "yPoint2": "Y-Punkt 2"
+        }
+    },
+    "CrossSections": {
+        "title": "Querprofile",
+        "drawLine": "Richtung zeichnen",
+        "width": "Breite",
+        "importBath": "Bathymetrie importieren",
+        "level": "Höhe",
+        "leftBankStation": " Station am linken Ufe ",
+        "RealWorld": {
+            "title": "Reale Koordinaten",
+            "eastPoint1": "Ost Links",
+            "northPoint1": "Nord Links",
+            "eastPoint2": "Ost Rechts",
+            "northPoint2": "Nord Rechts"
+        },
+        "Pixel": {
+            "title": "Pixelkoordinaten",
+            "xPoint1": "X Links",
+            "yPoint1": "Y Links",
+            "xPoint2": "X Rechts",
+            "yPoint2": "Y Rechts"
+        },
+        "Errors": {
+            "levelError": "Der Pegel muss zwischen {{yMin}} und {{yMax}} liegen",
+            "leftBank": "Das linke Ufer liegt außerhalb des Bereichs",
+            "bathimetryNotValid": "Die Bathymetrie ist ungültig. Der Pegel {{level}} existiert nicht in dieser Datei",
+            "bathimetryIsRequired": " Bathymetrie ist in {{section_name}} erforderlich",
+            "rwLength": "Der Wert der Querschnittslänge darf in {{section_name}} nicht null sein"
+        },
+        "warning": "Sind Sie sicher, dass Sie {{section_name}} löschen möchten?",
+        "warningTitle": "Abschnitt löschen"
+    },
+    "Processing": {
+        "title": "Verarbeitung",
+        "artificialSeeding": " Künstliche Ausbringung",
+        "windowSizes": "Fenstergrößen",
+        "step1": "Schritt 1",
+        "step2": "Schritt 2",
+        "test": "Test",
+        "roiHeight": "ROI-Höhe",
+        "preProcessingFilter": "Vorverarbeitungsfilter",
+        "grayscale": "Graustufen",
+        "removeBackground": "Hintergrund Entfernen",
+        "clahe": "CLAHE",
+        "clipLimit": "Clipping-Grenze",
+        "postProcessingFilter": "Nachbearbeitungsfilter",
+        "stdFiltering": "Standardabweichungsfilter",
+        "medianTestFiltering": "Median-Testfilter",
+        "epsilon": "Epsilon",
+        "threshold": "Schwellenwert",
+        "carouselMedia": "Median",
+        "Plot": {
+            "u": "U-Komponente",
+            "v": "V-Komponente"
+        }
+    },
+    "Analizing": {
+        "title": "Analyse",
+        "analize": "Analysieren",
+        "stop": "Stopp",
+        "remainingTime": "Verbleibende Zeit: "
+    },
+    "Results": {
+        "title": "Ergebnisse",
+        "measured": "Gemessen",
+        "interpolated": "Interpoliert",
+        "alpha": "Alpha",
+        "stationNumber": "Stationsnummer",
+        "showVelStd": "Zeige Geschw. Std.",
+        "showProfile": "Zeige 5% | 95% Perzentil",
+        "interpolateProfile": "Profil Interpolieren",
+        "applyChanges": "Änderungen Übernehmen"
+    },
+    "Graphs": {
+        "station": "Station",
+        "velocity": "Geschwindigkeit",
+        "discharge": "Abfluss",
+        "stage": "Wasserstand",
+        "level": "Höhe"
+    },
+    "Report": {
+        "dischargeQ": "Abfluss Q",
+        "VideoInfo": {
+            "title": "Videoinformationen",
+            "name": "Name",
+            "duration": "Dauer",
+            "resolution": "Auflösung",
+            "fps": "fps",
+            "creationDate": "Erstellungsdatum"
+        },
+        "ProcessedRange": {
+            "title": "Verarbeiteter Bereich",
+            "start": "Start",
+            "end": "Ende",
+            "length": "Länge",
+            "step": "Zeitschritt",
+            "timeStep": "Zeitintervall"
+        },
+        "Summary": {
+            "title": "Zusammenfassung",
+            "width": "Breite",
+            "area": "Fläche",
+            "q": "Q",
+            "meanV": "Mittlere Geschwindigkeit",
+            "alpha": "Alpha",
+            "averageVs": " Durchschnittliche Oberflächengeschwindigkeit im Abschnitt",
+            "maxD": "Maximale Tiefe",
+            "meanD": "Mittlere Tiefe",
+            "measured": "% Gemessen",
+            "mean": "Mittelwert",
+            "stdDev": "Standardabw.",
+            "cov": "COV"
+        },
+        "Form": {
+            "riverName": "Flussname",
+            "riverLocation": "Standort",
+            "unitSistem": "Einheitensystem",
+            "SI": "SI",
+            "imperial": "Imperial",
+            "date": "Messdatum"
+        },
+        "pixelTransformation": "Pixeltransformation",
+        "processingParameters": "Verarbeitungsparameter",
+        "preProcessing": "Vorverarbeitung",
+        "postProcessing": "Nachverarbeitung",
+        "generatedBy": "Erstellt mit River",
+        "date": "Berichtserstellungsdatum",
+        "Success": {
+            "title": "Analyse Abgeschlossen!",
+            "message": " Sie können RIVeR schließen oder zum vorherigen Schritt zurückkehren"
+        }
+    },
+    "ControlPoints": {
+        "title": "Kontrollpunkte",
+        "drawPoints": "Punkte zeichnen",
+        "importDistances": "Distanzen importieren",
+        "distance": "Distanz",
+        "length": "Länge",
+        "Errors": {
+            "required": " Alle Distanzfelder sind obligatorisch. Bitte überprüfen Sie das Formular für die Kontrollpunkte",
+            "notNull": "Alle Distanzfelder müssen größer als 0 sein. Bitte überprüfen Sie das Formular für die Kontrollpunkte",
+            "notZero": " Alle Distanzfelder dürfen nicht 0 sein. Bitte überprüfen Sie das Formular für die Kontrollpunkte. ",
+            "positive": " Alle Distanzfelder müssen positive Werte enthalten. Bitte überprüfen Sie das Formular für die Kontrollpunkte "
+        }
+    },
+    "ControlPoints3d": {
+        "importPoints": "Punkte importieren",
+        "importImages": "Bilder importieren",
+        "east": "Ost",
+        "north": "Nord",
+        "label": "Bezeichnung",
+        "northern": "Nördlich",
+        "southern": "Südlich",
+        "directSolve": "Direkt lösen",
+        "optimize": "Optimieren",
+        "reprojectionErrors": "Reprojektionsfehler: ",
+        "numberOfPoints": "Anzahl der Punkte: ",
+        "cameraHeight": "Kamerahöhe: "
+    },
+    "Errors": {
+        "invalidPointsFileFormat": "Ungültiges Punkte-Dateiformat.",
+        "invalidDistancesFileFormat": "Ungültiges Distanz-Dateiformat",
+        "invalidDistancesNotValidValue": "Ungültiges Distanzformat. Einige Werte sind keine gültigen Zahlen",
+        "invalidDistancesNegativeValue": "Ungültiges Distanzformat. Negative Distanzen sind nicht erlaubt",
+        "invalidBathimetryFileFormat": "Ungültiges Bathymetrie-Dateiformat",
+        "invalidImageExtension": "Der Ordner enthält keine Bilddateien",
+        "imagesFolderEmpty": "Keine Bilder im ausgewählten Ordner gefunden",
+        "waitingForFrames": " Warten auf das Laden der Frames. Bitte versuchen Sie es in wenigen Sekunden erneut",
+        "Cli": {
+            "windowsSizesError": " Die Fenstergröße ist zu groß für die ausgewählte Region of Interest (ROI).“.",
+            "bboxNotDefined": "Region of Interest nicht definiert."
+        }
+    },
+    "Loader": {
+        "extractingFrames": "Videoframes extrahieren",
+        "results": "Erzeuge Geschwindigkeitsprofil-Statistiken",
+        "videoConversion": "Das Video wird in das mp4-Format konvertiert. Bitte warten.",
+        "maskAndRoi": "ROI und Masken definieren"
+    },
+    "Commons": {
+        "yes": "Ja",
+        "no": "Nein",
+        "solve": "Lösen",
+        "resourceNotFound": "Ressource nicht gefunden",
+        "randomError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut"
+    }
+}
