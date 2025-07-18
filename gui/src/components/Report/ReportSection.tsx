@@ -47,11 +47,11 @@ export const ReportSection = ({ index, factor, vertical }: ReportSectionProps) =
             <div className={`top-left-medition-info${vertical ? "-vertical" : ""}`}>
               <h4 className="mt-1">
                 {" "}
-                {measured_Q * 100}% {t("Results.measured")}{" "}
+                {(measured_Q * 100).toFixed()}% {t("Results.measured")}{" "}
               </h4>
               <h4>
                 {" "}
-                {interpolated_Q * 100} % {t("Results.interpolated")}{" "}
+                {(interpolated_Q * 100).toFixed()} % {t("Results.interpolated")}{" "}
               </h4>
               <h3 className="mt-2 report-section-title-1">
                 {" "}
