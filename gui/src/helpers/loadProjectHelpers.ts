@@ -4,6 +4,7 @@ import { MODULE_NUMBER } from "../constants/constants";
 import { cameraSolution, importedPoint } from "../types";
 import { appendSolutionToImportedPoints } from "./appendSolutionsToImportedPoints";
 import { transformPixelToRealWorld } from "./coordinates";
+import { getImageSize } from "../helpers/index";
 
 /**
  * This file contains helper functions to load the project data from the projects file.
@@ -48,7 +49,7 @@ const onLoadVideoParameters = (
  * @returns
  */
 
-const onLoadPixelSize = (
+const onLoadPixelSize = async(
   pixel_size: pixel_size,
   currentPixel: PixelSize,
   dispatch: any,
@@ -61,6 +62,14 @@ const onLoadPixelSize = (
     pixel_size;
 
   const secondPoint = transformPixelToRealWorld(x2, y2, matrix);
+
+  let orthoImageWidth: number = 0
+  let orthoImageHeight: number = 0
+
+  await getImageSize(orthoImage).then(({width, height}) => {
+    orthoImageWidth = width;
+    orthoImageHeight = height; 
+  })
 
   dispatch(
     updatePixelSize({
@@ -83,6 +92,8 @@ const onLoadPixelSize = (
               extent: transformation.extent,
               resolution: transformation.resolution,
               secondPoint: { x: secondPoint[0], y: secondPoint[1] },
+              width: orthoImageWidth,
+              height: orthoImageHeight,
             }
           : undefined,
     }),
@@ -90,7 +101,7 @@ const onLoadPixelSize = (
   return;
 };
 
-const onLoadObliquePoints = (
+const onLoadObliquePoints = async (
   control_points: control_points,
   dispatch: any,
   setControlPoints: any,
@@ -112,6 +123,14 @@ const onLoadObliquePoints = (
     const newPoints = transformPixelToRealWorld(point.x, point.y, matrix);
     return { x: newPoints[0], y: newPoints[1] };
   });
+
+  let orthoImageWidth: number = 0
+  let orthoImageHeight: number = 0
+
+  await getImageSize(orthoImage).then(({width, height}) => {
+    orthoImageWidth = width;
+    orthoImageHeight = height; 
+  })
 
   dispatch(
     setControlPoints({
@@ -135,6 +154,8 @@ const onLoadObliquePoints = (
               extent: transformation.extent,
               resolution: transformation.resolution,
               roi: transformation.roi,
+              width: orthoImageWidth,
+              height: orthoImageHeight,
             }
           : undefined,
     }),
