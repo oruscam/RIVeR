@@ -30,7 +30,7 @@ import {
   saveTransformationMatrix,
   saveReportHtml,
   setControlPoints,
-  setProjectDetails,
+  setProjectMetadata,
   getResultData,
   createMaskAndBbox,
   recommendRoiHeight,
@@ -93,7 +93,7 @@ async function createWindow() {
     win.loadURL(VITE_DEV_SERVER_URL);
 
     // If you want to test river-cli on develop, change executePythonShell for executeRiverCli
-    riverCli = executePythonShell
+    riverCli = executePythonShell;
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, "index.html"));
@@ -174,7 +174,7 @@ app.whenReady().then(() => {
   getResultData(PROJECT_CONFIG, riverCli);
   getImages(PROJECT_CONFIG);
   getBathimetry(PROJECT_CONFIG);
-  setProjectDetails(PROJECT_CONFIG);
+  setProjectMetadata(PROJECT_CONFIG);
   setControlPoints(PROJECT_CONFIG, riverCli);
   calculate3dRectification(PROJECT_CONFIG, riverCli);
 
