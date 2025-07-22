@@ -548,7 +548,7 @@ Once the section is fully defined and checked, click **Next** to proceed to the 
 ## Define PIV Parameters
 
 <figure>
-    <img src="04 -Processing.png" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/05%20-Processing.png?raw=true" width=500>
     <p><i>Test and adjust PIV settings before full processing</i></p>
 </figure>
 
@@ -605,7 +605,7 @@ RIVeR uses a two-pass FFT-based PIV algorithm, with **50% overlap** in both hori
 ### 🧹 Filtering Options
 
 <figure>
-    <img src="04lock -Processing.png" width=300>
+    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/05lock%20-Processing.png?raw=true" width=300>
     <p><i>Advanced settings (visible after unlocking)</i></p>
 </figure>
 
