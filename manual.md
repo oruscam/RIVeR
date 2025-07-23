@@ -652,3 +652,228 @@ These are applied **after** velocity fields are computed, to remove outliers bas
 
 Once you're happy with the test results, click **Next** to proceed to full PIV processing.
 
+## Analyze All Frames
+
+<figure>
+    <img src="06 - Analizing.png" width=500>
+    <p><i>Run full PIV analysis on all frames</i></p>
+</figure>
+
+Once you're satisfied with the PIV settings from the previous step, you can now run the algorithm across **all extracted frame pairs**.
+
+---
+
+### ▶️ Run full analysis
+
+- Click the **Analyze** button to start processing all frames using the current PIV parameters.
+- The right panel shows the **progress as a percentage**, as well as the **estimated remaining time**.
+- You can **stop the analysis at any time** using the red **Stop** button.
+
+> ⚠️ The processing time depends on video length, frame interval, ROI size, and window settings.
+
+---
+
+### 🔍 Browse PIV results
+
+Once the analysis is complete:
+
+- Use the **carousel at the bottom** to scroll through all processed frame pairs.
+- The left panel will display the **displacement vector field** over the ROI for each frame pair.
+
+> 💡 This is a great way to inspect individual results and spot frames with poor tracer quality or motion inconsistencies.
+
+---
+
+### 🧾 Median vector field
+
+- In the bottom-left corner, click the **"Median"** button to view the **median velocity field** across all processed frames.
+- This median field represents the **final result** that will be used in the **next step (discharge calculation)**.
+
+> ✅ Median filtering helps smooth out anomalies or outliers that may appear in individual frames, providing a more stable result for hydraulic interpretation.
+
+---
+
+When you’re ready, click **Next** to move on to discharge calculation.
+
+## Results
+
+<figure>
+    <img src="07 - Results.png" width=500>
+    <p><i>Discharge estimation using the computed velocity field and bathymetry</i></p>
+</figure>
+
+This step shows the **final results** of your LSPIV processing and computes the **discharge** based on:
+
+- The **median surface velocity field** (computed in the previous step)
+- The defined **cross section(s)** and their bathymetry
+- The selected **alpha coefficient** (velocity correction factor)
+
+---
+
+### 🌊 What’s shown in the interface
+
+- On the **left panel**, the **velocity profile** is shown as color-shaded velocity slices across the cross section, overlaid on the original image.
+- The computed **discharge** value is displayed on the right, alongside the **percentage of the cross section that was measured vs. interpolated**.
+- Below that is the **alpha coefficient field**, which by default is set to **0.85**, a typical theoretical value for open-channel flow.
+
+> 🧮 Discharge is calculated using the formula:  
+> `Vm = Vs × α`, where:  
+> - `Vm` is the mean (depth-averaged) velocity  
+> - `Vs` is the surface velocity measured by LSPIV  
+> - `α` is the correction coefficient (default: 0.85)
+
+> 📌 The alpha value can be changed manually. Every time you change a parameter (including alpha), you must click **"Apply Changes"** to update the results.
+
+> 📏 Discharge is computed using the **mid-section method**, integrating local velocities and areas.
+
+---
+
+### 📊 Profile Plots
+
+Three plots are displayed on the right panel:
+
+1. **Discharge Contribution by Station**  
+   - Shows the **contribution of each slice** (station) to total discharge.
+   - **Red bars**: >10% of total discharge  
+   - **Yellow bars**: 5–10%  
+   - **Green bars**: <5%
+
+2. **Velocity Profile**
+   - The **mean surface velocity profile** is shown as a curve across the section.
+   - Transparent shading indicates the **5–95% percentile range** and **±1 standard deviation**.
+   - Helps evaluate velocity symmetry and consistency.
+
+3. **Bathymetry**
+   - Displays the stage vs. distance (as previously seen in the Cross Section step).
+   - Shows how the depth changes across the river.
+
+---
+
+<figure>
+    <img src="07  - Results - table.png" width=300>
+    <p><i>Summary table and manual profile adjustment</i></p>
+</figure>
+
+### 📋 Tabular Summary and Controls
+
+Below the plots, a detailed table shows all values used in the discharge computation:
+
+| Column | Description |
+|--------|-------------|
+| `#`    | Station index |
+| `x`    | Distance from the left bank |
+| `d`    | Water depth |
+| `A`    | Wetted area for the slice |
+| `Vs`   | Measured surface velocity |
+| `Q`    | Discharge for the slice |
+
+You can **check or uncheck** each station to include or exclude it from the calculation. If **Interpolate Profile** is toggled ON, unselected stations will be interpolated based on **nearest valid results using a Froude number-based approach**.
+
+---
+
+### 🔧 Adjustable Parameters
+
+- **Station Number:**  
+  Sets how many slices (stations) divide the cross section. A higher number increases resolution.
+
+- **Artificial Seeding (toggle):**  
+  Activate if you used artificial floating material (e.g., wood chips, corn) to improve surface texture.  
+  This may enhance velocity profile estimation, especially in otherwise textureless water surfaces.
+
+- **Interpolate Profile (toggle):**  
+  If enabled, missing velocity data (due to image visibility issues) will be **interpolated using a Froude number approach based on local bathymetry and nearest results**.
+
+> ⚠️ The alpha coefficient is the **most influential parameter** affecting discharge uncertainty. You may adjust it manually or use more precise methods depending on your data and application. See the [LSPIV Guidelines](https://github.com/oruscam/lspiv-guidelines/releases) for more details.
+
+---
+
+Once you’ve finalized all parameters, click **Apply Changes** to update the result.  
+Then click **Next** to proceed to the export step.
+
+## 📤 Summary & Export
+
+<figure>
+  <img src="08 - Summary.png" width=500>
+  <p><i>Final summary screen with auto-generated HTML report</i></p>
+</figure>
+
+This is the **last step** in the RIVeR workflow. It summarizes the analysis and lets you export a **detailed HTML report** of the measurement.
+
+---
+
+### 🧾 What’s in the Summary
+
+The summary interface is split as usual:
+
+- **Left panel** → Displays the generated **HTML report preview**.
+- **Right panel** → Lets you edit metadata and finalize the export.
+
+---
+
+### 📄 Left Panel – Report Contents
+
+The HTML report includes:
+
+1. **Header**
+   - River name, site ID, timestamp of measurement
+   - Total computed discharge (Q)
+
+2. **Video Information**
+   - File name
+   - Duration
+   - Resolution
+   - Frame rate (fps)
+   - Creation date
+
+3. **Processed Range**
+   - Start / End times
+   - Length (in seconds)
+   - Frame step and time step
+   - Preview thumbnails of selected frames
+
+4. **Cross Section(s)**
+   - Name of each section
+   - Corresponding discharge values with uncertainty
+   - Plot of discharge per segment (color-coded by contribution %)
+   - Velocity and stage profiles
+
+5. **Summary Table**
+
+  Each row includes:
+  - Width of the cross section  
+  - Wetted Area (m²)  
+  - Total Discharge Q (m³/s)  
+  - Mean velocity (meanV)  
+  - Alpha coefficient  
+  - Surface velocity (Vs)  
+  - Maximum and mean depth  
+  - Percentage of the section with valid velocity measurements  
+
+> 📌 The table also summarizes **mean, standard deviation, and coefficient of variation (COV)** across sections if multiple are defined.
+
+---
+
+### ✏️ Right Panel – Editable Metadata
+
+Here, the user can:
+- Fill or edit:
+  - **River’s Name**
+  - **Site Name or ID**
+- Select:
+  - **Unit System**: SI (default) or Imperial
+- Adjust:
+  - **Measurement Date and Time**  
+    (By default, filled from the video metadata but can be changed)
+
+---
+
+### 💾 Final Export
+
+When ready:
+
+- Click **Finish** to choose where to save the **HTML report**.
+- A green message appears:  
+  ✅ **Analysis Completed!**  
+  You can now close RIVeR or return to Home.
+
+> 📝 The report will be saved where you choose and includes all metadata, results, and figures from the session.
