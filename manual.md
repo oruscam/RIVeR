@@ -12,12 +12,22 @@
 [1. Introduction](#1-introduction)  
 [2. Installation](#2-installation)  
 [3. Home Screen](#3-home-screen)  
-[4. Starting a New Project / Loading an Existing One](#4-starting-a-new-project--loading-an-existing-one)
-
+[4. Starting a New Project / Loading an Existing One](#4-starting-a-new-project--loading-an-existing-one)  
 [5. Select Kind of Footage](#5-select-kind-of-footage)
+[6. Define Video Range](#6-define-video-range)  
+[7. Rectification Step (Depends on Footage Type)](#7-rectification-step-depends-on-footage-type)  
+[8. Define Cross Section(s)](#8-define-cross-sections)  
+[9. Define PIV Parameters](#9-define-piv-parameters)  
+[10. Analyze All Frames](#10-analyze-all-frames)  
+[11. Results](#11-results)  
+[12. Summary & Export](#12-summary--export)
+
 
 
 # 1. Introduction
+
+Double click on the icon <img src="https://github.com/oruscam/RIVeR/blob/main/gui/icons/100x100.png?raw=true" alt="icon" width="20"/>
+
 
 **RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (**LSPIV**) developed by [ORUS](https://orus.cam/). It allows you to analyze water-surface velocities and estimate flow discharge from video footage using an intuitive graphical interface.
 
@@ -72,6 +82,10 @@ For a deeper understanding of LSPIV measurement techniques, rectification method
     <p><i>RIVeR 3.1.0 Home screen</i></p>
 </figure>
 
+To begin, double click on the icon <img src="https://github.com/oruscam/RIVeR/blob/main/gui/icons/100x100.png?raw=true" alt="icon" width="20"/>
+.
+
+
 When you open RIVeR, you arrive at the Home screen.
 
 Here you can:
@@ -109,7 +123,6 @@ Saved projects are stored in:
 
 This structure allows you to **process the same video multiple times with different settings**, and each session will be saved in its own timestamped subfolder.
 
----
 
 ## Loading an Existing Project
 
@@ -163,7 +176,6 @@ After selecting the video, you **must click “Next”** to continue to the next
 > Rectification methods in RIVeR rely on projective geometry concepts such as camera matrices and homography matrices.  
 > The chosen method depends on the type of footage and available survey data, balancing simplicity and accuracy.
 
----
 
 ## Navigation: Next and Back Buttons
 
@@ -176,6 +188,8 @@ From this point onward, the RIVeR interface will **always display “Next” and
 > RIVeR is designed so that users **cannot skip steps** by accident, and they can always go back to review or adjust settings before continuing.
 
 This makes the workflow **linear but flexible**, ensuring all required information is set correctly before the final results and export.
+
+---
 
 # 6. Define Video Range
 
@@ -191,7 +205,6 @@ From this step onward, the RIVeR interface is **always divided into two main par
 
 At the top-right, you will see a **progress bar** showing your current position in the 7-step workflow, ending with the automatically generated discharge report.
 
----
 
 ## Reminder: How LSPIV Works
 
@@ -201,12 +214,11 @@ Before continuing, it’s important to understand that LSPIV (Large-Scale Partic
 - These tracers travel at the **same speed as the surface water flow**.
 
 > ⚠️ **Important:**  
-> Without visible tracers, velocity cannot be measured.**  
+> Without visible tracers, velocity cannot be measured.  
 > If tracers move too fast (making flow direction unclear) or too slow (where measurement error becomes proportionally large), the technique’s reliability decreases.
 
 Most videos are recorded at **30 frames per second (fps)**, but this can vary.
 
----
 
 ## How to Use This Step
 
@@ -239,7 +251,6 @@ At the **end of this step**, RIVeR will extract frames from the video to prepare
   - Resolution.
   - FPS (frames per second).
 
----
 
 ## Advanced Settings (Unlockable Features)
 
@@ -262,7 +273,6 @@ For example, at the Video Range selection step, unlocking the lock reveals **fra
 > 💡 **Note:**
 > Higher resolutions mean significantly **larger processing time and data size** — adjust with care.
 
----
 
 ## Navigation: Next and Back Buttons
 
@@ -273,12 +283,13 @@ Remember, from this step onward, RIVeR **always shows “Next” and “Back” 
 
 This lets you review or adjust settings anytime without skipping essential steps.
 
+---
+
 # 7. Rectification Step (Depends on Footage Type)
 
 After selecting the video range, the next screen will depend on the footage type you selected.  
 This step defines how RIVeR transforms image measurements (in pixels) into real-world distances — a process called **rectification**.
 
----
 
 ## UAV / Drone — Pixel Size
 
@@ -290,7 +301,7 @@ This step defines how RIVeR transforms image measurements (in pixels) into real-
 For UAV footage (top-down view), the rectification workflow is simple:
 
 - **Draw a reference line** on the image between two known points.
-  - Click **Draw Line**, then go to the left panel and **click-drag between <span style="color:#6CD4FF;font-weight:bold;">Point 1</span> and <span style="color:#6CD4FF;font-weight:bold;">Point 2</span>**.
+  - Click **Draw Line**, then go to the left panel and **click-drag between `Point 1` and `Point 2`**. 
   - This defines the segment that will be used for scale.
 
 - **Enter the real-world distance** (Line Length) between the two points.
@@ -316,17 +327,13 @@ Once solved, the right panel will display a **real-world view with a scale**, co
 </figure>
 
 If you unlock the **lock icon (🔒)**, you can manually enter:
-- Exact real-world coordinates of <span style="color:#ED6B57;font-weight:bold;">Point 1</span> and <span style="color:#6CD4FF;font-weight:bold;">Point 2</span> (East/North).
+- Exact real-world coordinates of `Point 1` and `Point 2`(East/North).
 - Exact pixel coordinates in the image (X/Y).
 
 This offers full control for expert users who need precise calibration.
 
----
 
 Once everything is set, click **Next** to continue to the common workflow.
-
-
-
 
 ---
 
@@ -341,8 +348,8 @@ For oblique views (e.g., from a riverbank), the rectification workflow involves 
 
 - **Select at least four control points** on the image:
   - Click **Draw Points**, then go to the left panel.
-  - Click and place **<span style="color:#ED6B57;font-weight:bold;">Point 1</span>** and **<span style="color:#6CD4FF;font-weight:bold;">Point 2</span>** manually.
-  - **<span style="color:#6CD4FF;font-weight:bold;">Point 3</span>** and **<span style="color:#6CD4FF;font-weight:bold;">Point 4</span>** will appear automatically — you must position them manually.
+  - Click and place `Point 1` and `Point 2` manually.
+  - `Point 3`* and `Point 4` will appear automatically — you must position them manually.
 
 > ⚠️ **Important**  
 > The control points do **not have to be on the water surface itself**,  
@@ -350,13 +357,13 @@ For oblique views (e.g., from a riverbank), the rectification workflow involves 
 > This ensures that the perspective correction applies accurately to the flow layer.
 
 - **Point placement order:**
-  - <span style="color:#ED6B57;font-weight:bold;">Point 1</span> → most left and upstream.
-  - Follow counterclockwise: <span style="color:#6CD4FF;font-weight:bold;">Point 2</span>, <span style="color:#6CD4FF;font-weight:bold;">Point 3</span>, <span style="color:#6CD4FF;font-weight:bold;">Point 4</span>.
+  - `Point 1` → most left and upstream.
+  - Follow counterclockwise: `Point 2`, `Point 3`, `Point 4`.
   - Use your mouse wheel to **zoom in/out** for precise placement.
 
 - **Define the six real-world distances** between the points.
   - The system shows all six pairwise distances:
-    - 1-2, 2-3, 3-4, 4-1, 1-3, 2-4.
+    - `1-2`, `2-3`, `3-4`, `4-1`, `1-3`, `2-4`.
   - Each distance is color-coded for easy identification.
 
 - **Enter real-world distance values**:
@@ -367,7 +374,6 @@ For oblique views (e.g., from a riverbank), the rectification workflow involves 
   - Click **Solve** to calculate the transformation.
   - RIVeR will correct for perspective distortion, ensuring accurate scaling even when pixel sizes vary with distance.
 
----
 
 Once finished, click **Next** to continue to the shared workflow.
 
@@ -384,7 +390,6 @@ Once finished, click **Next** to continue to the shared workflow.
 For fixed camera setups, the workflow involves importing **ground control points (GCPs)** with known real-world coordinates and linking them to their pixel positions in the images.  
 This enables RIVeR to compute a precise **camera calibration matrix** for rectification.
 
----
 
 ### Workflow steps
 
@@ -436,7 +441,6 @@ This enables RIVeR to compute a precise **camera calibration matrix** for rectif
 > Think of them as a **3D cloud of points** to properly constrain the calibration.  
 > For robust results, **at least 10 well-distributed points** are recommended.
 
----
 
 5️⃣ **Solve camera calibration**
 
@@ -458,9 +462,10 @@ On the right panel, you will see:
 
 You can also click **Optimize** to refine the camera matrix using only selected points, aiming to reduce the reprojection error.
 
----
 
 Once you are satisfied with the results, click **Next** to continue to the common workflow.
+
+---
 
 # 8. Define Cross Section(s)
 
@@ -472,7 +477,6 @@ Once you are satisfied with the results, click **Next** to continue to the commo
 In this step, you define the **cross sections** where RIVeR will estimate discharge.  
 You can define **one or multiple cross sections**, depending on the complexity and goals of your analysis.
 
----
 
 <figure>
     <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/04%20-%20Cross%20Sections%20-%20tabs.png?raw=true" width=300>
@@ -484,15 +488,14 @@ You can define **one or multiple cross sections**, depending on the complexity a
 - You can **rename any cross section** by clicking on its name.
 - Use the **eye icon** to toggle visibility between the currently selected cross section and all defined cross sections.
 
----
 
 ## How to define a cross section
 
-1️⃣ **Draw cross section direction**
-- Click the **Draw Direction** button.
-- On the image (left panel), **click and drag a line from the left bank to the right bank**.
-  - The **starting point (left)** will appear <span style="color:#ED6B57; font-weight:bold;">red</span>.
-  - The **ending point (right)** will appear <span style="color:#62C655; font-weight:bold;">green</span>.
+1️⃣ **Draw cross section direction**  
+- Click the **Draw Direction** button.  
+- On the image (left panel), **click and drag a line from the left bank to the right bank**.  
+  - The **starting point (left)** will appear 🔴 **red**.  
+  - The **ending point (right)** will appear 🟢 **green**.
 
 > ⚠️ **Important:**  
   This line defines the **orientation** of the cross section — it does not define its width.
@@ -525,16 +528,14 @@ You can define **one or multiple cross sections**, depending on the complexity a
 
 This is especially useful when the red pin is used as a reference marker for orientation but not for precise positioning at station 0.
 
----
 
 ## Quality check
 
 To verify that everything is correctly aligned:
-- In the bathymetry plot, the <span style="color:#ED6B57;">▼</span> and <span style="color:#62C655;">▼</span> represent the projected positions of the red and green pins.
+- In the bathymetry plot, the red ▼ and green ▼ represent the projected positions of the pins.
 - If the pins were placed on the river margins in the image, the triangles should align with the two edges of the bathymetry.
 - This serves as a good visual check of whether **rectification, orientation, and stage matching** are consistent.
 
----
 
 ### Advanced Settings
 
@@ -545,13 +546,13 @@ To verify that everything is correctly aligned:
 
 If you unlock the **lock icon (🔒)**, you will see:
 
-- **Real-world coordinates** (East/North) for both <span style="color:#ED6B57;font-weight:bold;">red</span> (left) and <span style="color:#62C655;font-weight:bold;">green</span> (right) pins.
-- **Pixel coordinates** (X/Y) for both <span style="color:#ED6B57;font-weight:bold;">red</span> (left) and <span style="color:#62C655;font-weight:bold;">green</span> (right) pins.
+- **Real-world coordinates** (East/North) for both **red** (left) and **green** (right) pins.
+- **Pixel coordinates** (X/Y) for both **red** (left) and **green** (right) pins.
 
----
 
 Once the section is fully defined and checked, click **Next** to proceed to the PIV parameter settings.
 
+---
 # 9. Define PIV Parameters
 
 <figure>
@@ -562,7 +563,6 @@ Once the section is fully defined and checked, click **Next** to proceed to the 
 In this step, you define the **PIV (Particle Image Velocimetry) analysis parameters**.  
 This is where you test how well the algorithm tracks surface tracers **before applying it to all frames**.
 
----
 
 ## What is the ROI?
 
@@ -573,7 +573,6 @@ RIVeR does not process the entire image frame — it focuses only on the **Regio
 
 This strategy greatly **reduces processing time** by ignoring areas irrelevant to the flow measurement.
 
----
 
 ## Test your settings
 
@@ -590,7 +589,6 @@ This strategy greatly **reduces processing time** by ignoring areas irrelevant t
 
 > You may also simply use the **default parameters**. They often provide a good starting point for many typical field recordings.
 
----
 
 ## Understanding Window Sizes
 
@@ -608,7 +606,6 @@ RIVeR uses a two-pass FFT-based PIV algorithm, with **50% overlap** in both hori
 > A typical combination might be `128 → 64` or `64 → 32`,  
 > but optimal values depend on tracer size, flow speed, and image resolution.
 
----
 
 ## Filtering Options
 
@@ -619,7 +616,6 @@ RIVeR uses a two-pass FFT-based PIV algorithm, with **50% overlap** in both hori
 
 When you unlock the **lock icon (🔒)**, you can access various **advanced settings**. These are grouped into:
 
----
 
 ### Pre-processing Filters
 
@@ -632,7 +628,6 @@ These are applied **before** PIV analysis to improve image contrast and reduce n
   Enhances local contrast for better tracer visibility.  
   - **Clip Limit:** Controls the strength of contrast enhancement. Higher = stronger.
 
----
 
 ### Post-processing Filters
 
@@ -646,7 +641,6 @@ These are applied **after** velocity fields are computed, to remove outliers bas
   - **Epsilon:** Acceptable deviation.
   - **Threshold:** Filtering tolerance.
 
----
 
 ### ROI Height
 
@@ -657,9 +651,11 @@ These are applied **after** velocity fields are computed, to remove outliers bas
 > 💡 **Note:**  
 > Adjusting the ROI may help in cases where the automatically defined region is too small or unnecessarily large, affecting processing time or missing relevant flow.
 
----
+
 
 Once you're happy with the test results, click **Next** to proceed to full PIV processing.
+
+---
 
 # 10. Analyze All Frames
 
@@ -670,7 +666,6 @@ Once you're happy with the test results, click **Next** to proceed to full PIV p
 
 Once you're satisfied with the PIV settings from the previous step, you can now run the algorithm across **all extracted frame pairs**.
 
----
 
 ## Run full analysis
 
@@ -680,7 +675,6 @@ Once you're satisfied with the PIV settings from the previous step, you can now 
 
 > 💡 **Note:**  The processing time depends on video length, frame interval, ROI size, and window settings.
 
----
 
 ##  Browse PIV results
 
@@ -691,7 +685,6 @@ Once the analysis is complete:
 
 > 📌 **Tip:**   This is a great way to inspect individual results and spot frames with poor tracer quality or motion inconsistencies.
 
----
 
 ## Median vector field
 
@@ -700,9 +693,10 @@ Once the analysis is complete:
 
 > 💡 **Note:**   Median filtering helps smooth out anomalies or outliers that may appear in individual frames, providing a more stable result for hydraulic interpretation.
 
----
 
 When you’re ready, click **Next** to move on to discharge calculation.
+
+---
 
 # 11. Results
 
@@ -717,7 +711,6 @@ This step shows the **final results** of your LSPIV processing and computes the 
 - The defined **cross section(s)** and their bathymetry
 - The selected **alpha coefficient** (velocity correction factor)
 
----
 
 ## What’s shown in the interface
 
@@ -735,7 +728,6 @@ This step shows the **final results** of your LSPIV processing and computes the 
 
 > Discharge is computed using the **mid-section method**, integrating local velocities and areas.
 
----
 
 ## Profile Plots
 
@@ -756,7 +748,6 @@ Three plots are displayed on the right panel:
    - Displays the stage vs. distance (as previously seen in the Cross Section step).
    - Shows how the depth changes across the river.
 
----
 
 <figure>
     <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/07%20%20-%20Results%20-%20table.png?raw=true" width=300>
@@ -778,7 +769,6 @@ Below the plots, a detailed table shows all values used in the discharge computa
 
 You can **check or uncheck** each station to include or exclude it from the calculation. If **Interpolate Profile** is toggled ON, unselected stations will be interpolated based on **nearest valid results using a Froude number-based approach**.
 
----
 
 ## Adjustable Parameters
 
@@ -794,10 +784,11 @@ You can **check or uncheck** each station to include or exclude it from the calc
 
 > ⚠️ **Important:**   The alpha coefficient is the **most influential parameter** affecting discharge uncertainty. You may adjust it manually or use more precise methods depending on your data and application. See the [LSPIV Guidelines](https://github.com/oruscam/lspiv-guidelines/releases) for more details.
 
----
 
 Once you’ve finalized all parameters, click **Apply Changes** to update the result.  
 Then click **Next** to proceed to the export step.
+
+---
 
 # 12. Summary & Export
 
@@ -808,7 +799,6 @@ Then click **Next** to proceed to the export step.
 
 This is the **last step** in the RIVeR workflow. It summarizes the analysis and lets you export a **detailed HTML report** of the measurement.
 
----
 
 ## What’s in the Summary
 
@@ -817,7 +807,7 @@ The summary interface is split as usual:
 - **Left panel** → Displays the generated **HTML report preview**.
 - **Right panel** → Lets you edit metadata and finalize the export.
 
----
+
 
 ## Left Panel – Report Contents
 
@@ -860,7 +850,6 @@ The HTML report includes:
 
 > 💡 **Note:** The table also summarizes **mean, standard deviation, and coefficient of variation (COV)** across sections if multiple are defined.
 
----
 
 ##  Right Panel – Editable Metadata
 
@@ -869,12 +858,13 @@ Here, the user can:
   - **River’s Name**
   - **Site Name or ID**
 - Select:
-  - **Unit System**: SI (default) or Imperial
+  - **Unit System**: SI (default) or Imperial  
+    (**Selecting the unit system will not convert values – it only sets the unit system for the project.**)
 - Adjust:
   - **Measurement Date and Time**  
     (By default, filled from the video metadata but can be changed)
 
----
+
 
 ## Final Export
 
