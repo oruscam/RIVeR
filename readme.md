@@ -8,11 +8,12 @@
     <strong>Modern LSPIV toolkit for water-surface velocity analysis and flow discharge measurements</strong>
 </div>
 
-
-[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue)](https://doi.org/10.1016/j.cageo.2017.07.009)
+[![Status](https://img.shields.io/badge/status-active-brightgreen)]()
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![React Version](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
+[![PyPI version](https://img.shields.io/pypi/v/river-cli.svg)](https://pypi.org/project/river-cli/)
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue)](https://doi.org/10.1016/j.cageo.2017.07.009)
 
 ---
 
@@ -38,6 +39,15 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 </figure>
 
 ---
+
+
+## 📖 User Manual
+
+For a detailed step-by-step guide on using RIVeR's GUI (Graphical User Interface),  
+please refer to the **[User Manual](user-manual.md)**.
+
+---
+
 
 ## ✨ Key Features
 
