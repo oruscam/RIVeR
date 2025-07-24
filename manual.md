@@ -1,11 +1,16 @@
+
+
 <div align="center">
+<h1 align="center">User Manual</h1>
+<br />
   <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/river_logo.svg" width="350px">
   <br />
   <br />
-
   <p>
     <strong>Modern LSPIV toolkit for water-surface velocity analysis and flow discharge measurements</strong>
+  </p>
 </div>
+
 
 # Content
 
@@ -19,8 +24,8 @@
 [8. Define Cross Section(s)](#8-define-cross-sections)  
 [9. Define PIV Parameters](#9-define-piv-parameters)  
 [10. Analyze All Frames](#10-analyze-all-frames)  
-[11. View Results](#11-results)  
-[12. Export Summary](#12-summary--export)
+[11. View Results](#11-view-results)  
+[12. Export Summary](#12-export-summary)
 
 
 
