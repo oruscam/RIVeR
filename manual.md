@@ -13,14 +13,15 @@
 [2. Installation](#2-installation)  
 [3. Home Screen](#3-home-screen)  
 [4. Starting a New Project / Loading an Existing One](#4-starting-a-new-project--loading-an-existing-one)  
-[5. Select Kind of Footage](#5-select-kind-of-footage)
+[5. Select Kind of Footage](#5-select-kind-of-footage)  
 [6. Define Video Range](#6-define-video-range)  
 [7. Rectification Step (Depends on Footage Type)](#7-rectification-step-depends-on-footage-type)  
 [8. Define Cross Section(s)](#8-define-cross-sections)  
 [9. Define PIV Parameters](#9-define-piv-parameters)  
 [10. Analyze All Frames](#10-analyze-all-frames)  
-[11. Results](#11-results)  
-[12. Summary & Export](#12-summary--export)
+[11. View Results](#11-results)  
+[12. Export Summary](#12-summary--export)
+
 
 
 
@@ -698,7 +699,7 @@ When you’re ready, click **Next** to move on to discharge calculation.
 
 ---
 
-# 11. Results
+# 11. View Results
 
 <figure>
     <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/07%20-%20Results.png?raw=true" width=800>
@@ -790,7 +791,7 @@ Then click **Next** to proceed to the export step.
 
 ---
 
-# 12. Summary & Export
+# 12. Export Summary
 
 <figure>
   <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/08%20-%20Summary.png?raw=true" width=800>
