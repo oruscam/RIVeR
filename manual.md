@@ -75,7 +75,7 @@ For a deeper understanding of LSPIV measurement techniques, rectification method
 # 3. Home Screen
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/00%20-%20Home.png?raw=true" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/00%20-%20Home.png?raw=true" width=800>
     <p><i>RIVeR 3.1.0 Home screen</i></p>
 </figure>
 
@@ -136,7 +136,7 @@ Once loaded, you can continue the analysis, adjust settings, or directly export 
 # 5. Select Kind of Footage
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/01%20-%20Footage.png?raw=true" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/01%20-%20Footage.png?raw=true" width=800>
     <p><i>Select the kind of footage to process</i></p>
 </figure>
 
@@ -191,7 +191,7 @@ This makes the workflow **linear but flexible**, ensuring all required informati
 # 6. Define Video Range
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/02%20-%20Video%20Range.png?raw=true" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/02%20-%20Video%20Range.png?raw=true" width=800>
     <p><i>Define the video range for frame extraction</i></p>
 </figure>
 
@@ -259,7 +259,7 @@ However, advanced users can **unlock the lock** to access additional features.
 For example, at the Video Range selection step, unlocking the lock reveals **frame extraction resolution options**:
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/02lock%20-%20Video%20Range.png?raw=true" width=300>
+    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/02lock%20-%20Video%20Range.png?raw=true" width=500>
     <p><i>Select frame extraction resolution (advanced option)</i></p>
 </figure>
 
@@ -292,7 +292,7 @@ This step defines how RIVeR transforms image measurements (in pixels) into real-
 
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03%20-%20Pixel%20Size.png?raw=true" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03%20-%20Pixel%20Size.png?raw=true" width=800>
     <p><i>Define pixel size for UAV/drone footage</i></p>
 </figure>
 
