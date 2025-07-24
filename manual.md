@@ -291,7 +291,8 @@ After selecting the video range, the next screen will depend on the footage type
 This step defines how RIVeR transforms image measurements (in pixels) into real-world distances — a process called **rectification**.
 
 
-## UAV / Drone — Pixel Size
+## <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/drone.png?raw=true" alt="drone" width="24"/> UAV / Drone — Pixel Size
+
 
 <figure>
     <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03%20-%20Pixel%20Size.png?raw=true" width=500>
@@ -337,7 +338,9 @@ Once everything is set, click **Next** to continue to the common workflow.
 
 ---
 
-## Oblique Camera — Control Points (Distances)
+## <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/oblique.png?raw=true" alt="oblique camera" width="24"/> Oblique Camera — Control Points (Distances)
+
+
 
 <figure>
     <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03%20-%20Control%20Points%20(oblique).png?raw=true" width=500>
@@ -348,8 +351,8 @@ For oblique views (e.g., from a riverbank), the rectification workflow involves 
 
 - **Select at least four control points** on the image:
   - Click **Draw Points**, then go to the left panel.
-  - Click and place `Point 1` and `Point 2` manually.
-  - `Point 3`* and `Point 4` will appear automatically — you must position them manually.
+  - Click and place `Point 1` <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pinRed.svg" alt="red pin" width="16"/>and `Point 2` <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pin.svg" alt="red pin" width="16"/>manually.
+  - `Point 3` <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pin.svg" alt="red pin" width="16"/>* and `Point 4` <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pin.svg" alt="red pin" width="16"/> will appear automatically — you must position them manually.
 
 > ⚠️ **Important**  
 > The control points do **not have to be on the water surface itself**,  
@@ -357,8 +360,8 @@ For oblique views (e.g., from a riverbank), the rectification workflow involves 
 > This ensures that the perspective correction applies accurately to the flow layer.
 
 - **Point placement order:**
-  - `Point 1` → most left and upstream.
-  - Follow counterclockwise: `Point 2`, `Point 3`, `Point 4`.
+  -  `Point 1`  <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pinRed.svg" alt="red pin" width="16"/>→ most left and upstream.
+  - Follow counterclockwise: `Point 2` <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pin.svg" alt="red pin" width="16"/>, `Point 3` <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pin.svg" alt="red pin" width="16"/>, `Point 4` <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pin.svg" alt="red pin" width="16"/>.
   - Use your mouse wheel to **zoom in/out** for precise placement.
 
 - **Define the six real-world distances** between the points.
@@ -380,7 +383,7 @@ Once finished, click **Next** to continue to the shared workflow.
 
 ---
 
-## Fixed Camera — Control Points (Coordinates)
+## <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/ipcam.png?raw=true" alt="fixed camera" width="24"/> Fixed Camera — Control Points (Coordinates)
 
 <figure>
     <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera).png?raw=true" width=500>
@@ -429,7 +432,7 @@ This enables RIVeR to compute a precise **camera calibration matrix** for rectif
 
 - Select an image in the carousel (displayed larger above).
 - In the table, click the row (e.g., `PTO 01`).
-- A **red pin** will appear on the image.
+- A **red pin** <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pinRed.svg" alt="red pin" width="16"/> will appear on the image.
 - Precisely place the pin where the point is located.  
   You can **zoom in/out** using the mouse wheel.
 - The pixel coordinates (X, Y) will automatically update in the table.
@@ -452,7 +455,7 @@ This enables RIVeR to compute a precise **camera calibration matrix** for rectif
 - Once all points are placed, click **Direct Solve** to calculate the camera matrix.
 - A **rectified image** will appear, showing the estimated camera position.
 - On the left panel, you will see:
-  - **Red markers** showing the reprojection of real-world points.
+  - **Red lines** showing the reprojection of real-world points.
   - **Yellow ellipses** indicating uncertainty.
 
 On the right panel, you will see:
@@ -494,8 +497,8 @@ You can define **one or multiple cross sections**, depending on the complexity a
 1️⃣ **Draw cross section direction**  
 - Click the **Draw Direction** button.  
 - On the image (left panel), **click and drag a line from the left bank to the right bank**.  
-  - The **starting point (left)** will appear 🔴 **red**.  
-  - The **ending point (right)** will appear 🟢 **green**.
+  - The **starting point (left)** will appear <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pinRed.svg" alt="red pin" width="16"/> **red**.  
+  - The **ending point (right)** will appear <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pinGreen.svg" alt="red pin" width="16"/> **green**.
 
 > ⚠️ **Important:**  
   This line defines the **orientation** of the cross section — it does not define its width.
