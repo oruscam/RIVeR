@@ -83,8 +83,8 @@ def piv_loop(
             dict_cumul["v"] = vtable.reshape(-1, 1)
             dict_cumul["typevector"] = typevector.reshape(-1, 1)
             dict_cumul["gradient"] = gradient.reshape(-1, 1)
-            dict_cumul["x"] = xtable.reshape(xtable.shape)
-            dict_cumul["y"] = ytable.reshape(ytable.shape)
+            dict_cumul["x"] = xtable
+            dict_cumul["y"] = ytable
 
         image1 = image2
         fr += 1

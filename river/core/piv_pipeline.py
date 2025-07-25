@@ -221,8 +221,8 @@ def run_analyze_all(
 
     return {
         "shape": shape,
-        "x": xtable.tolist(),
-        "y": ytable.tolist(),
+        "x": xtable.flatten().tolist(),
+        "y": ytable.flatten().tolist(),
         "u_median": u_median.tolist(),
         "v_median": v_median.tolist(),
         "u": dict_cumul["u"].T.tolist(),
