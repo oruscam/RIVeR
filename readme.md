@@ -19,7 +19,7 @@
 
 # RIVeR: Rectification of Image Velocity Results
 
-**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (**LSPIV**) distributed by [ORUS](https://x.com/Orus_cam). Built with **Python** and **React**, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
+**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (**LSPIV**) distributed by [ORUS](https://orus.cam). Built with **Python** and **React**, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
 
 
 <figure>
@@ -72,6 +72,9 @@ please refer to the **[User Manual](user-manual.md)**.
   - English 🇺🇸  
   - Spanish 🇦🇷  
   - French 🇫🇷  
+  - Italian 🇮🇹
+  - Portuguese 🇧🇷
+  - German 🇩🇪
   - [More coming soon!]    
 
 ---

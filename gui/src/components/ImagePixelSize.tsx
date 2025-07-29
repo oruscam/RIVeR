@@ -50,6 +50,8 @@ export const ImagePixelSize = () => {
   const handleMouseUp = (event: KonvaEventObject<MouseEvent>) => {
     if (!mousePressed) return;
 
+    console.log('Mouse up event triggered');
+
     const newPoints = onMouseUpPixelSize(
       event,
       localPoints,
@@ -69,7 +71,6 @@ export const ImagePixelSize = () => {
   };
 
   // Set the store points into local points
-
   useEffect(() => {
     if (dirPoints.length !== 0) {
       const newPoints = dirPoints.map((point) => {

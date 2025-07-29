@@ -12,7 +12,7 @@ export const OrthoImage = ({
   secondPoint,
 }: {
   solution:
-    | { orthoImage: string; extent: number[]; resolution: number }
+    | { orthoImage: string; extent: number[]; resolution: number, width: number, height: number }
     | undefined;
   coordinates?: Point[];
   secondPoint?: Point;
@@ -20,18 +20,40 @@ export const OrthoImage = ({
   const ref = useRef<SVGSVGElement>(null);
   const { screenSizes } = useUiSlice();
   const { width: screenWidth } = screenSizes;
-
-  const graphWidth =
-    screenWidth * GRAPHS.IPCAM_GRID_PROPORTION < GRAPHS.ORTHO_IMAGE_MAX_HEIGHT
-      ? screenWidth * GRAPHS.IPCAM_GRID_PROPORTION
-      : GRAPHS.ORTHO_IMAGE_MAX_HEIGHT;
-
-  const { orthoImage, extent } = solution!;
+  
+  const { orthoImage, extent, width: orthoWidth, height: orthoHeight } = solution!;
   const imgWidth = Math.abs(extent[1] - extent[0]);
   const imgHeight = Math.abs(extent[2] - extent[3]);
 
-  const aspectRatio = imgWidth / imgHeight;
-  const graphHeight = aspectRatio > 1 ? graphWidth / aspectRatio : graphWidth;
+  const vertical = orthoHeight > orthoWidth;
+
+  let graphWidth;
+  let graphHeight;
+  let maxGraphWidth = screenWidth * GRAPHS.IPCAM_GRID_PROPORTION;
+
+  if ( !vertical ) {
+    if ( orthoWidth < maxGraphWidth ) {
+      graphWidth = orthoWidth;
+      graphHeight = orthoHeight;
+    } else {
+      graphWidth = maxGraphWidth;
+      graphHeight = (maxGraphWidth * orthoHeight) / orthoWidth;
+    }
+    if ( graphWidth < GRAPHS.ORTHO_IMAGE_MIN_WIDTH ) {
+      graphWidth = GRAPHS.ORTHO_IMAGE_MIN_WIDTH;
+      graphHeight = (GRAPHS.ORTHO_IMAGE_MIN_WIDTH * orthoHeight) / orthoWidth;
+    }
+  } else {
+    const WIDTH_INCREASER = 1.1; // For better visualization, I have to figure out what happen // ! PROVISIONAL.
+
+    if ( orthoHeight < maxGraphWidth ) {
+      graphHeight = orthoHeight;
+      graphWidth = orthoWidth * WIDTH_INCREASER;
+    } else {
+      graphHeight = maxGraphWidth;
+      graphWidth = (( maxGraphWidth * orthoWidth ) / orthoHeight) * WIDTH_INCREASER;
+    }
+  }
 
   useEffect(() => {
     if (ref.current === null) return;
@@ -73,10 +95,9 @@ export const OrthoImage = ({
       .attr("xlink:href", orthoImage)
       .attr("x", +xScale(x))
       .attr("y", +yScale(y))
-      .attr("width", xScale(x + imgWidth) - xScale(x))
+      .attr("width", xScale(x + imgWidth) - xScale(x) )
       .attr("height", Math.abs(yScale(y + imgHeight) - yScale(y)));
 
-      
       // Add X Axis with 5 ticks and increased font size
       svg
       .append("g")
@@ -93,9 +114,9 @@ export const OrthoImage = ({
       .selectAll("text")
       .style("font-size", "12px");
       
-      // Create ange for turn 45 degrees the cross point. Better visualization
+      // Create angle for turn 45 degrees the cross point. Better visualization
       
-      const angle = 45; // Angle in degrees
+      const angle = 5; // Angle in degrees
       const radians = angle * (Math.PI / 180); // Convert angle to radians
       const cos = Math.cos(radians);
       const sin = Math.sin(radians);
@@ -197,7 +218,7 @@ export const OrthoImage = ({
       // Scale bar 
       scaleBar(extent, ref.current, xScale, yScale, "", 0, 0);
       
-  }, [solution, graphWidth]);
+  }, [solution, maxGraphWidth]);
 
   return (
     <div id="ortho-image-solution" className="mb-2">

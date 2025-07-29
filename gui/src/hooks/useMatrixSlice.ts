@@ -27,6 +27,7 @@ import {
   computePixelSize,
   computeRwDistance,
   createSquare,
+  getImageSize,
   getLinesCoordinates,
   getNewCanvasPositions,
   setChangesByForm,
@@ -192,8 +193,15 @@ export const useMatrixSlice = () => {
           distances: newDistances,
         });
 
-        const orthoImage =
-          filePrefix + transformed_image_path + `?t=${new Date().getTime()}`;
+        const orthoImage = filePrefix + transformed_image_path + `?t=${new Date().getTime()}`;
+
+        let orthoImageWidth: number = 0
+        let orthoImageHeight: number = 0
+
+        await getImageSize(orthoImage).then(({width, height}) => {
+          orthoImageWidth = width;
+          orthoImageHeight = height; 
+        })
 
         if (error?.message) {
           throw new Error(error.message);
@@ -216,7 +224,7 @@ export const useMatrixSlice = () => {
             ...obliquePoints,
             distances: newDistances,
             isDistancesLoaded: true,
-            solution: { orthoImage, extent, resolution, roi },
+            solution: { orthoImage, extent, resolution, roi, width: orthoImageWidth, height: orthoImageHeight },
             rwCoordinates: rwCoordinates,
           }),
         );
@@ -259,6 +267,15 @@ export const useMatrixSlice = () => {
         const orthoImage =
           filePrefix + transformed_image_path + `?t=${new Date().getTime()}`;
 
+        let orthoImageWidth: number = 0
+        let orthoImageHeight: number = 0
+
+        await getImageSize(orthoImage).then(({ width, height }) => {
+          orthoImageWidth = width;
+          orthoImageHeight = height; 
+        })
+
+
         dispatch(setTransformationMatrix({ transformationMatrix: uavMatrix }));
         dispatch(
           updatePixelSize({
@@ -268,6 +285,8 @@ export const useMatrixSlice = () => {
               resolution: output_resolution,
               extent: extent,
               secondPoint: { x: secondPoint[0], y: secondPoint[1] },
+              width: orthoImageWidth,
+              height: orthoImageHeight,
             },
           }),
         );
@@ -525,7 +544,9 @@ export const useMatrixSlice = () => {
     canvasPoints: CanvasPoint | null,
     formPoint: FormPoint | null,
   ) => {
-    const { dirPoints } = pixelSize;
+    const { dirPoints, rwPoints } = pixelSize;
+    console.log("onSetPixelDirection")
+    console.log('canvas points', canvasPoints)
 
     /**
      * The flags are used to avoid unnecessary calculations
@@ -553,6 +574,8 @@ export const useMatrixSlice = () => {
       flag2 = secondFlag;
     }
 
+    console.log('newPoints', newPoints);
+
     /**
      * If formPoint is not null, the real world coordinates are being modified by the user in the form.
      * The newPoints variable is calculated by updating the point in the position specified in the formPoint object.
@@ -570,7 +593,7 @@ export const useMatrixSlice = () => {
       flag2 = secondFlag;
     }
 
-    // The new points are stored in the state, if the points are diferent form the current points.
+    // The new points are going to be stored in the state, if the points are diferent form the current points.
 
     if (newPoints) {
       if (
@@ -582,7 +605,12 @@ export const useMatrixSlice = () => {
         flag2 = false;
         dispatch(setPixelSizePoints({ points: newPoints, type: "dir" }));
       } else {
-        dispatch(setPixelSizePoints({ points: newPoints, type: "dir" }));
+        const { size } = computePixelSize(newPoints, rwPoints)
+        dispatch(updatePixelSize({
+          ...pixelSize,
+          dirPoints: newPoints,
+          size
+        }))
       }
     }
 

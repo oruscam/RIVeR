@@ -13,8 +13,8 @@ export function setSections(PROJECT_CONFIG: ProjectConfig) {
     async (_event, args: setSectionsHandleArgs) => {
       console.log("set-sections");
 
-      const { directory, settingsPath } = PROJECT_CONFIG;
-      const xsectionsPath = path.join(directory, "xsections.json");
+      const { projectDirectory, settingsPath } = PROJECT_CONFIG;
+      const xsectionsPath = path.join(projectDirectory, "xsections.json");
       PROJECT_CONFIG.xsectionsPath = xsectionsPath;
       const xsectionsJson = JSON.stringify(args.data, null, 4);
 

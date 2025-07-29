@@ -151,7 +151,7 @@ export const FormReport = ({ isReportSaved, setIsReportSaved } : { isReportSaved
             selected={meditionDate}
             onChange={(date) => setMeditionDate(date ?? new Date())}
             maxDate={today}
-            dateFormat="MM/dd/yyyy HH:mm"
+            dateFormat="dd/MM/yyyy HH:mm"
             showTimeSelect
             timeFormat="HH:mm"
             timeIntervals={15}
