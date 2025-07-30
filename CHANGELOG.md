@@ -4,7 +4,36 @@ All notable changes to the RIVeR project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+# [3.2.0] - 2025-07-31
+
+## GUI
+
+### Added
+- New "Copy to clipboard" functionality with an animated icon in results table content
+- New User Manual in documentation
+- New metadata keys in settings.json aligned with the WMO Core Metadata Profile 2.0 (WCMP2) standard
+- New language support:
+    - Italian
+    - German
+    - Portuguese
+
+### Changed
+- Load project always goes to the default folder for RIVeR
+
+### Fixed
+- Pixel size not updating in UAV mode
+- Incorrect display of control points
+- Incorrect display of cross-section names
+- Incorrect values in the report
+
+## CLI
+
+### Changed
+- New optimized solutions for PIV processing and statistics calculations
+
 # [3.1.0] - 2025-05-08
+
+## GUI
 
 ### Added
 - Information about current user version in Home Page
