@@ -7,7 +7,7 @@ import { ProjectConfig } from "./interfaces";
 // Set the file system for xlsx library
 set_fs(fs);
 
-async function getBathimetry(PROJECT_CONFING: ProjectConfig) {
+async function getBathimetry(PROJECT_CONFIG: ProjectConfig) {
   // Define options for the file dialog
   const options: Electron.OpenDialogOptions = {
     properties: ["openFile"],
@@ -104,7 +104,7 @@ async function getBathimetry(PROJECT_CONFING: ProjectConfig) {
 
         // Generate a new file name with a suffix
         newFilePath = join(
-          PROJECT_CONFING.mainDirectory,
+          PROJECT_CONFIG.mainDirectory,
           basename(bathPath, bathimetryExt) + "_modified" + bathimetryExt,
         );
 
