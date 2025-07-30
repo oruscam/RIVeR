@@ -81,7 +81,7 @@ For a deeper understanding of LSPIV measurement techniques, rectification method
 # 3. Home Screen
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/00%20-%20Home.png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/00%20-%20Home.png?raw=true" width=800>
     <p><i>RIVeR 3.1.0 Home screen</i></p>
 </figure>
 
@@ -142,7 +142,7 @@ Once loaded, you can continue the analysis, adjust settings, or directly export 
 # 5. Select Kind of Footage
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/01%20-%20Footage.png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/01%20-%20Footage.png?raw=true" width=800>
     <p><i>Select the kind of footage to process</i></p>
 </figure>
 
@@ -197,7 +197,7 @@ This makes the workflow **linear but flexible**, ensuring all required informati
 # 6. Define Video Range
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/02%20-%20Video%20Range.png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/02%20-%20Video%20Range.png?raw=true" width=800>
     <p><i>Define the video range for frame extraction</i></p>
 </figure>
 
@@ -265,7 +265,7 @@ However, advanced users can **unlock the lock** to access additional features.
 For example, at the Video Range selection step, unlocking the lock reveals **frame extraction resolution options**:
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/02lock%20-%20Video%20Range.png?raw=true" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/02lock%20-%20Video%20Range.png?raw=true" width=500>
     <p><i>Select frame extraction resolution (advanced option)</i></p>
 </figure>
 
@@ -294,11 +294,11 @@ After selecting the video range, the next screen will depend on the footage type
 This step defines how RIVeR transforms image measurements (in pixels) into real-world distances — a process called **rectification**.
 
 
-## <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/drone.png?raw=true" alt="drone" width="24"/> UAV / Drone — Pixel Size
+## <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/drone.png?raw=true" alt="drone" width="24"/> UAV / Drone — Pixel Size
 
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03%20-%20Pixel%20Size.png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03%20-%20Pixel%20Size.png?raw=true" width=800>
     <p><i>Define pixel size for UAV/drone footage</i></p>
 </figure>
 
@@ -326,7 +326,7 @@ Once solved, the right panel will display a **real-world view with a scale**, co
 ### Advanced Settings
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03lock%20-%20Pixel%20Size.png?raw=true" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03lock%20-%20Pixel%20Size.png?raw=true" width=500>
     <p><i>Unlock advanced settings to enter exact coordinates</i></p>
 </figure>
 
@@ -341,12 +341,12 @@ Once everything is set, click **Next** to continue to the common workflow.
 
 ---
 
-## <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/oblique.png?raw=true" alt="oblique camera" width="24"/> Oblique Camera — Control Points (Distances)
+## <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/oblique.png?raw=true" alt="oblique camera" width="24"/> Oblique Camera — Control Points (Distances)
 
 
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03%20-%20Control%20Points%20(oblique).png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03%20-%20Control%20Points%20(oblique).png?raw=true" width=800>
     <p><i>Define control points and distances (oblique camera)</i></p>
 </figure>
 
@@ -386,10 +386,10 @@ Once finished, click **Next** to continue to the shared workflow.
 
 ---
 
-## <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/ipcam.png?raw=true" alt="fixed camera" width="24"/> Fixed Camera — Control Points (Coordinates)
+## <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/ipcam.png?raw=true" alt="fixed camera" width="24"/> Fixed Camera — Control Points (Coordinates)
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera).png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera).png?raw=true" width=800>
     <p><i>Import control point coordinates (fixed camera)</i></p>
 </figure>
 
@@ -429,7 +429,7 @@ This enables RIVeR to compute a precise **camera calibration matrix** for rectif
 4️⃣ **Associate points to pixels**
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera)%20-%20single%20point.png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera)%20-%20single%20point.png?raw=true" width=800>
     <p><i>Example: selecting and placing a control point</i></p>
 </figure>
 
@@ -451,7 +451,7 @@ This enables RIVeR to compute a precise **camera calibration matrix** for rectif
 5️⃣ **Solve camera calibration**
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera)%20-%20results.png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera)%20-%20results.png?raw=true" width=800>
     <p><i>View after solving the camera matrix</i></p>
 </figure>
 
@@ -476,7 +476,7 @@ Once you are satisfied with the results, click **Next** to continue to the commo
 # 8. Define Cross Section(s)
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/04%20-%20Cross%20Sections.png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/04%20-%20Cross%20Sections.png?raw=true" width=800>
     <p><i>Define one or more cross sections for discharge calculation</i></p>
 </figure>
 
@@ -485,7 +485,7 @@ You can define **one or multiple cross sections**, depending on the complexity a
 
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/04%20-%20Cross%20Sections%20-%20tabs.png?raw=true" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/04%20-%20Cross%20Sections%20-%20tabs.png?raw=true" width=500>
     <p><i>Managing multiple cross sections via tabs</i></p>
 </figure>
 
@@ -546,7 +546,7 @@ To verify that everything is correctly aligned:
 ### Advanced Settings
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/04lock%20-%20Cross%20Sections.png?raw=true" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/04lock%20-%20Cross%20Sections.png?raw=true" width=500>
     <p><i>Advanced settings: pin coordinates and Left Bank Station</i></p>
 </figure>
 
@@ -562,7 +562,7 @@ Once the section is fully defined and checked, click **Next** to proceed to the 
 # 9. Define PIV Parameters
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/05%20-Processing.png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/05%20-Processing.png?raw=true" width=800>
     <p><i>Test and adjust PIV settings before full processing</i></p>
 </figure>
 
@@ -616,7 +616,7 @@ RIVeR uses a two-pass FFT-based PIV algorithm, with **50% overlap** in both hori
 ## Filtering Options
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/05lock%20-Processing.png?raw=true" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/05lock%20-Processing.png?raw=true" width=500>
     <p><i>Advanced settings (visible after unlocking)</i></p>
 </figure>
 
@@ -666,7 +666,7 @@ Once you're happy with the test results, click **Next** to proceed to full PIV p
 # 10. Analyze All Frames
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/06%20-%20Analizing.png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/06%20-%20Analizing.png?raw=true" width=800>
     <p><i>Run full PIV analysis on all frames</i></p>
 </figure>
 
@@ -707,7 +707,7 @@ When you’re ready, click **Next** to move on to discharge calculation.
 # 11. View Results
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/07%20-%20Results.png?raw=true" width=800>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/07%20-%20Results.png?raw=true" width=800>
     <p><i>Discharge estimation using the computed velocity field and bathymetry</i></p>
 </figure>
 
@@ -756,7 +756,7 @@ Three plots are displayed on the right panel:
 
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/07%20%20-%20Results%20-%20table.png?raw=true" width=500>
+    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/07%20%20-%20Results%20-%20table.png?raw=true" width=500>
     <p><i>Summary table and manual profile adjustment</i></p>
 </figure>
 
@@ -799,7 +799,7 @@ Then click **Next** to proceed to the export step.
 # 12. Export Summary
 
 <figure>
-  <img src="https://github.com/oruscam/RIVeR/blob/manual/river/docs/_static/08%20-%20Summary.png?raw=true" width=800>
+  <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/08%20-%20Summary.png?raw=true" width=800>
   <p><i>Final summary screen with auto-generated HTML report</i></p>
 </figure>
 
