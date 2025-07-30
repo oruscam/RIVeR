@@ -104,7 +104,7 @@ async function getBathimetry(PROJECT_CONFING: ProjectConfig) {
 
         // Generate a new file name with a suffix
         newFilePath = join(
-          PROJECT_CONFING.directory,
+          PROJECT_CONFING.mainDirectory,
           basename(bathPath, bathimetryExt) + "_modified" + bathimetryExt,
         );
 
