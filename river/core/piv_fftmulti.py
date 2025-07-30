@@ -23,6 +23,7 @@ from functools import lru_cache
 import os
 
 import pyfftw
+
 # Enable FFTW cache to reuse FFT "plans" (also known as "wisdom")
 pyfftw.interfaces.cache.enable()
 # Use all available CPU cores for parallel FFT computation
@@ -30,21 +31,22 @@ pyfftw.config.NUM_THREADS = os.cpu_count()
 # Replace SciPy's FFT backend with pyFFTW's implementation
 fft.set_global_backend(pyfftw.interfaces.scipy_fft)
 
+
 def piv_fftmulti(
-	image1: np.ndarray,
-	image2: np.ndarray,
-	mask: np.ndarray,
-	bbox: tuple,
-	interrogation_area_1: int,
-	interrogation_area_2: Optional[int] = None,
-	mask_auto: bool = True,
-	multipass: bool = True,
-	standard_filter: bool = True,
-	standard_threshold: float = 4,
-	median_test_filter: bool = True,
-	epsilon: float = 0.02,
-	threshold: float = 2,
-	step: Optional[int] = None,
+		image1: np.ndarray,
+		image2: np.ndarray,
+		mask: np.ndarray,
+		bbox: tuple,
+		interrogation_area_1: int,
+		interrogation_area_2: Optional[int] = None,
+		mask_auto: bool = True,
+		multipass: bool = True,
+		standard_filter: bool = True,
+		standard_threshold: float = 4,
+		median_test_filter: bool = True,
+		epsilon: float = 0.02,
+		threshold: float = 2,
+		step: Optional[int] = None,
 ):
 	"""
 	Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
@@ -249,8 +251,8 @@ def piv_fftmulti(
 	gradient_sum_result = calculate_gradient(image1_cut, image2_cut, image1_roi, utable, ii_bckup)
 
 	# # Optionally replace NaN values in utable and vtable with interpolated values
-	# utable = inpaint_nans(utable)
-	# vtable = inpaint_nans(vtable)
+	utable = nearest_inpaint(utable)
+	vtable = nearest_inpaint(vtable)
 
 	# Apply smoothing to the displacement vectors
 	utable = smoothn(utable, s=0.0307)
@@ -318,10 +320,10 @@ def process_roi(roi_input: list, image1: np.ndarray, image2: np.ndarray, mask: O
 		yroi = int(rvr_round(roi_input[1]))
 		widthroi = int(np.ceil(roi_input[2]))
 		heightroi = int(np.ceil(roi_input[3]))
-		image1_roi = np.float32(image1[yroi : yroi + heightroi, xroi : xroi + widthroi])
-		image2_roi = np.float32(image2[yroi : yroi + heightroi, xroi : xroi + widthroi])
+		image1_roi = np.float32(image1[yroi: yroi + heightroi, xroi: xroi + widthroi])
+		image2_roi = np.float32(image2[yroi: yroi + heightroi, xroi: xroi + widthroi])
 		if mask is not None:
-			mask_roi = mask[yroi : yroi + heightroi, xroi : xroi + widthroi]
+			mask_roi = mask[yroi: yroi + heightroi, xroi: xroi + widthroi]
 		else:
 			mask_roi = None
 	else:
@@ -431,18 +433,19 @@ def selective_indexing(image: np.ndarray, index_matrix: np.ndarray, n: tuple) ->
 	image_cut = image[index_matrix_aux]
 	return image_cut
 
+
 def generate_ssn(
-	miniy: int,
-	maxiy: int,
-	minix: int,
-	maxix: int,
-	step: int,
-	interrogation_area: int,
-	num_elements_y: int,
-	num_elements_x: int,
-	image_height: int,
-	xb: Optional[np.ndarray] = None,
-	yb: Optional[np.ndarray] = None,
+		miniy: int,
+		maxiy: int,
+		minix: int,
+		maxix: int,
+		step: int,
+		interrogation_area: int,
+		num_elements_y: int,
+		num_elements_x: int,
+		image_height: int,
+		xb: Optional[np.ndarray] = None,
+		yb: Optional[np.ndarray] = None,
 ) -> np.ndarray:
 	"""
 	Generate the ss1 indexing array (optimized version).
@@ -473,7 +476,7 @@ def generate_ssn(
 		x_indices = x_indices * image_height
 
 	s0 = (np.tile(y_indices, (1, num_elements_x)) +
-	      np.tile(x_indices, (num_elements_y, 1))).T
+		  np.tile(x_indices, (num_elements_y, 1))).T
 
 	s0 = s0.reshape(-1, order="F")[:, None, None]
 	s0 = np.transpose(s0, (1, 2, 0))
@@ -554,6 +557,7 @@ def compute_convolution(image1_cut: np.ndarray, image2_cut: np.ndarray) -> np.nd
 
 	return corr.astype(np.float32, copy=False)
 
+
 def fspecial_gauss(shape: tuple = (3, 3), sigma: float = 1.5) -> np.ndarray:
 	"""
 	Create a 2D Gaussian mask.
@@ -566,7 +570,7 @@ def fspecial_gauss(shape: tuple = (3, 3), sigma: float = 1.5) -> np.ndarray:
 	numpy.ndarray: The Gaussian mask.
 	"""
 	m, n = [(ss - 1.0) / 2.0 for ss in shape]
-	y, x = np.ogrid[-m : m + 1, -n : n + 1]
+	y, x = np.ogrid[-m: m + 1, -n: n + 1]
 	h = np.exp(-(x * x + y * y) / (2.0 * sigma * sigma))
 	h[h < np.finfo(h.dtype).eps * h.max()] = 0
 	sumh = h.sum()
@@ -698,7 +702,7 @@ def normalize_to_uint8(result_conv: np.ndarray) -> np.ndarray:
 
 
 def subpixgauss(
-	result_conv: np.ndarray, half_ia: int, x1: np.ndarray, y1: np.ndarray, z1: np.ndarray, subpixoffset: float
+		result_conv: np.ndarray, half_ia: int, x1: np.ndarray, y1: np.ndarray, z1: np.ndarray, subpixoffset: float
 ) -> np.ndarray:
 	"""
 	Perform subpixel Gaussian peak fitting on a convolution result with size consistency checks.
@@ -781,19 +785,19 @@ def subpixgauss(
 
 
 def process_result_conv(
-	result_conv: np.ndarray,
-	mask_pad: np.ndarray,
-	ss1: np.ndarray,
-	interrogation_area: int,
-	step: int,
-	miniy: int,
-	maxiy: int,
-	minix: int,
-	maxix: int,
-	type_vector: np.ndarray,
-	sub_pix_offset: float,
-	utable: Optional[np.ndarray] = None,
-	vtable: Optional[np.ndarray] = None,
+		result_conv: np.ndarray,
+		mask_pad: np.ndarray,
+		ss1: np.ndarray,
+		interrogation_area: int,
+		step: int,
+		miniy: int,
+		maxiy: int,
+		minix: int,
+		maxix: int,
+		type_vector: np.ndarray,
+		sub_pix_offset: float,
+		utable: Optional[np.ndarray] = None,
+		vtable: Optional[np.ndarray] = None,
 ):
 	"""
 	Process the result_conv matrix to create a vector matrix representing displacement vectors.
@@ -902,7 +906,7 @@ def filter_std(utable: np.ndarray, vtable: np.ndarray, standard_threshold: float
 
 
 def filter_fluctuations(
-	utable: np.ndarray, vtable: np.ndarray, b: int = 1, epsilon: float = 0.02, threshold: float = 2.0
+		utable: np.ndarray, vtable: np.ndarray, b: int = 1, epsilon: float = 0.02, threshold: float = 2.0
 ) -> tuple:
 	"""
 	Detect and filter outliers in velocity components based on normalized fluctuations.
@@ -931,8 +935,8 @@ def filter_fluctuations(
 		for ii in range(-b, b + 1):
 			for jj in range(-b, b + 1):
 				neigh[:, :, ii + b, jj + b] = velcomp[
-					b + ii : velcomp.shape[0] - b + ii, b + jj : velcomp.shape[1] - b + jj
-				]
+											  b + ii: velcomp.shape[0] - b + ii, b + jj: velcomp.shape[1] - b + jj
+											  ]
 
 		tercera_dim = (2 * b + 1) ** 2
 		neighcol = np.reshape(neigh, (neigh.shape[0], neigh.shape[1], tercera_dim), order="F")
@@ -942,11 +946,11 @@ def filter_fluctuations(
 		neighcol2 = neighcol[:, :, vector_recorrido]
 		neighcol2 = np.transpose(neighcol2, (2, 0, 1))
 		med = np.median(neighcol2, axis=0)
-		velcomp = velcomp[b : velcomp.shape[0] - b, b : velcomp.shape[1] - b]
+		velcomp = velcomp[b: velcomp.shape[0] - b, b: velcomp.shape[1] - b]
 		fluct = velcomp - med
 		res = neighcol2 - np.tile(med, (tercera_dim - 1, 1, 1))
 		medianres = np.median(abs(res), axis=0, overwrite_input=True)
-		normfluct[b : normfluct.shape[0] - b, b : normfluct.shape[1] - b, c - 1] = abs(fluct / (medianres + epsilon))
+		normfluct[b: normfluct.shape[0] - b, b: normfluct.shape[1] - b, c - 1] = abs(fluct / (medianres + epsilon))
 
 	info1 = np.power(normfluct[:, :, 0], 2) + np.power(normfluct[:, :, 1], 2)
 	info1 = np.sqrt(info1) > threshold
@@ -1004,18 +1008,18 @@ def interpgrade(table):
 
 
 def interpolate_tables(
-	minix: int,
-	maxix: int,
-	miniy: int,
-	maxiy: int,
-	step: int,
-	numelementsx: int,
-	numelementsy: int,
-	interrogation_area: float,
-	xtable_old: np.ndarray,
-	ytable_old: np.ndarray,
-	utable: np.ndarray,
-	vtable: np.ndarray,
+		minix: int,
+		maxix: int,
+		miniy: int,
+		maxiy: int,
+		step: int,
+		numelementsx: int,
+		numelementsy: int,
+		interrogation_area: float,
+		xtable_old: np.ndarray,
+		ytable_old: np.ndarray,
+		utable: np.ndarray,
+		vtable: np.ndarray,
 ) -> tuple:
 	"""
 	Interpolate tables for interpolation and padding.
@@ -1101,12 +1105,13 @@ def interpolate_tables(
 
 	return xtable_1, ytable_1, utable_1, vtable_1, utable, vtable
 
+
 def deform_window(
-	X: np.ndarray,
-	Y: np.ndarray,
-	U: np.ndarray,
-	V: np.ndarray,
-	image2_roi: np.ndarray
+		X: np.ndarray,
+		Y: np.ndarray,
+		U: np.ndarray,
+		V: np.ndarray,
+		image2_roi: np.ndarray
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
 	"""
 	Deform the second ROI image using interpolated displacement fields.
@@ -1135,9 +1140,9 @@ def deform_window(
 	# 1. Create the fine pixel grid for remapping
 	# -------------------------------------------------------------------------
 	x0 = int(round(X[0, 0]))
-	x1 = int(round(X[0, -1]))   # exclusive
+	x1 = int(round(X[0, -1]))  # exclusive
 	y0 = int(round(Y[0, 0]))
-	y1 = int(round(Y[-1, 0]))   # exclusive
+	y1 = int(round(Y[-1, 0]))  # exclusive
 
 	x1d = np.arange(x0, x1, dtype=np.float32)  # Width coordinates
 	y1d = np.arange(y0, y1, dtype=np.float32)  # Height coordinates
@@ -1178,7 +1183,8 @@ def deform_window(
 
 
 def calculate_gradient(
-	image1_cut: np.ndarray, image2_cut: np.ndarray, image1_roi: np.ndarray, utable: np.ndarray, ii_backup: int | list
+		image1_cut: np.ndarray, image2_cut: np.ndarray, image1_roi: np.ndarray, utable: np.ndarray,
+		ii_backup: int | list
 ) -> np.ndarray:
 	"""
 	Calculate the gradient of the combined images with respect to image1_roi.
@@ -1228,27 +1234,28 @@ def calculate_gradient(
 
 	return gradient_sum_result
 
+
 @lru_cache(maxsize=16)
 def _gamma(shape: Tuple[int, ...],
-           axis: Tuple[int, ...],
-           s: float,
-           order: float,
-           dtype) -> np.ndarray:
-    """Return Γ for the given configuration (cached)."""
-    Lambda = np.zeros(shape, dtype=dtype)
-    for ax in axis:
-        n = shape[ax]
-        vec = np.cos(np.pi*np.arange(n, dtype=dtype)/n)
-        Lambda += vec.reshape(([1]*ax)+[n]+[1]*(len(shape)-ax-1))
-    Lambda = -2.0 * (len(axis) - Lambda)
-    return 1.0 / (1.0 + (s*np.abs(Lambda))**order)
+		   axis: Tuple[int, ...],
+		   s: float,
+		   order: float,
+		   dtype) -> np.ndarray:
+	"""Return Γ for the given configuration (cached)."""
+	Lambda = np.zeros(shape, dtype=dtype)
+	for ax in axis:
+		n = shape[ax]
+		vec = np.cos(np.pi * np.arange(n, dtype=dtype) / n)
+		Lambda += vec.reshape(([1] * ax) + [n] + [1] * (len(shape) - ax - 1))
+	Lambda = -2.0 * (len(axis) - Lambda)
+	return 1.0 / (1.0 + (s * np.abs(Lambda)) ** order)
 
 def smoothn(y: np.ndarray,
-            *,
-            s: float,
-            axis: Optional[Tuple[int, ...]] = None,
-            smoothOrder: float = 2.0) -> np.ndarray:
-    """
+			*,
+			s: float,
+			axis: Optional[Tuple[int, ...]] = None,
+			smoothOrder: float = 2.0) -> np.ndarray:
+	"""
     N-dimensional smoothing with DCT regularisation (≈ MATLAB smoothn).
     NaNs are ignored and re-inserted.
 
@@ -1268,25 +1275,34 @@ def smoothn(y: np.ndarray,
     ndarray
         Smoothed array.
     """
-    if s is None:
-        raise ValueError("`s` (smoothing parameter) must be provided")
+	if s is None:
+		raise ValueError("`s` (smoothing parameter) must be provided")
 
-    # ---- preparation -----------------------------------------------------
-    if not np.issubdtype(y.dtype, np.floating):
-        y = y.astype(np.float32, copy=False)
-    axis = tuple(range(y.ndim)) if axis is None else tuple(axis)
-    finite_mask = np.isfinite(y)
-    y_filled = y.copy()
-    np.nan_to_num(y_filled, copy=False)
+	# ---- preparation -----------------------------------------------------
+	if not np.issubdtype(y.dtype, np.floating):
+		y = y.astype(np.float32, copy=False)
+	axis = tuple(range(y.ndim)) if axis is None else tuple(axis)
+	finite_mask = np.isfinite(y)
+	y_filled = y.copy()
+	np.nan_to_num(y_filled, copy=False)
 
-    # ---- build / fetch Γ --------------------------------------------------
-    Gamma = _gamma(y.shape, axis, s, smoothOrder, y.dtype)
+	# ---- build / fetch Γ --------------------------------------------------
+	Gamma = _gamma(y.shape, axis, s, smoothOrder, y.dtype)
 
-    # ---- frequency-domain smoothing --------------------------------------
-    D = fft.dctn(y_filled, type=2, norm="ortho", axes=axis)
-    z  = fft.idctn(Gamma * D, type=2, norm="ortho", axes=axis)
+	# ---- frequency-domain smoothing --------------------------------------
+	D = fft.dctn(y_filled, type=2, norm="ortho", axes=axis)
+	z = fft.idctn(Gamma * D, type=2, norm="ortho", axes=axis)
 
-    # ---- restore NaNs & return -------------------------------------------
-    z = z.astype(y.dtype, copy=False)
-    z[~finite_mask] = np.nan
-    return z
+	# ---- restore NaNs & return -------------------------------------------
+	z = z.astype(y.dtype, copy=False)
+	z[~finite_mask] = np.nan
+	return z
+
+def nearest_inpaint(img):
+	x, y = np.indices(img.shape)
+	coords = np.column_stack((x[~np.isnan(img)], y[~np.isnan(img)]))
+	values = img[~np.isnan(img)]
+
+	nn = NearestNDInterpolator(coords, values)
+	img[np.isnan(img)] = nn(x[np.isnan(img)], y[np.isnan(img)])
+	return img
