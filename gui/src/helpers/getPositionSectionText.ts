@@ -22,7 +22,7 @@ function calculateMidpointAndAngle(point1: Point, point2: Point) {
   // Calculate the angle between the two points in radians
   let angle = Math.atan2(deltaY, deltaX); // atan2 returns the angle in radians
   angle = angle * (180 / Math.PI); // Convert the angle to degrees
-
+  
   return { midpoint, angle };
 }
 
@@ -98,11 +98,11 @@ const getPositionSectionText = (
   if (angle < 0 && angle > -90) {
     point = rightPoint;
     isRight = true;
-  } else if (angle < -90 && angle > -180) {
+  } else if (angle < -90 && angle >= -180) {
     point = upperPoint;
     isUpper = true;
     rotation += 180;
-  } else if (angle > 90 && angle < 180) {
+  } else if (angle > 90 && angle <= 180) {
     point = rightPoint;
     rotation += 180;
     isRight = true;

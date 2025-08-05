@@ -61,7 +61,7 @@ function populateProjectConfig(
   settingsPath: string,
   settingsParsed: any,
 ) {
-  PROJECT_CONFIG.directory = folderPath;
+  PROJECT_CONFIG.projectDirectory = folderPath;
   PROJECT_CONFIG.settingsPath = settingsPath;
   PROJECT_CONFIG.framesPath = path.join(folderPath, "frames");
   PROJECT_CONFIG.videoPath = settingsParsed.video.filepath;
@@ -182,7 +182,12 @@ async function handleLoadProject(
  * @param {ProjectConfig} PROJECT_CONFIG - The project configuration object to be populated.
  */
 function loadProject(PROJECT_CONFIG: ProjectConfig) {
-  const options: Electron.OpenDialogOptions = { properties: ["openDirectory"] };
+  // To specify a default directory, add the 'defaultPath' property:
+  const options: Electron.OpenDialogOptions = { 
+    properties: ["openDirectory"],
+    // Replace this path with your desired default directory
+    defaultPath: PROJECT_CONFIG.mainDirectory,
+  };
 
   ipcMain.handle("load-project", async () => {
     try {

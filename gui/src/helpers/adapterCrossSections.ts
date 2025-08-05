@@ -7,7 +7,6 @@ export const adapterCrossSections = (sections: Section[]) => {
       dirPoints,
       sectionPoints,
       bathimetry,
-      pixelSize,
       numStations,
       alpha,
       rwPoints,
@@ -15,6 +14,7 @@ export const adapterCrossSections = (sections: Section[]) => {
     } = section;
 
     if (sectionPointsRW === undefined) return;
+    console.log("aqui alpha es del tipo ", typeof alpha);
     return {
       [name]: {
         bath: bathimetry.path,

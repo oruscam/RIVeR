@@ -7,7 +7,7 @@ async function createMatrix(
   PROJECT_CONFIG: ProjectConfig,
   settings: any,
 ): Promise<string> {
-  const { directory, resultsPath, bboxPath, xsectionsPath, maskPath } =
+  const { projectDirectory, resultsPath, bboxPath, xsectionsPath, maskPath } =
     PROJECT_CONFIG;
 
   if (settings.xsections) {
@@ -39,7 +39,7 @@ async function createMatrix(
   }
 
   return new Promise((resolve, reject) => {
-    const matrixPath = path.join(directory, "transformation_matrix.json");
+    const matrixPath = path.join(projectDirectory, "transformation_matrix.json");
 
     fs.promises
       .writeFile(matrixPath, JSON.stringify(message), "utf-8")

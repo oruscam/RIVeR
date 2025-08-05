@@ -243,6 +243,7 @@ export const useProjectSlice = () => {
    * It initializes the state with the loaded project data and determines the next step.
    * @returns - number - The step to go to after loading the project.
    */
+  
   const onLoadProject = async () => {
     dispatch(setLoading(true));
     const ipcRenderer = window.ipcRenderer;
@@ -605,7 +606,7 @@ export const useProjectSlice = () => {
   const onSaveProjectDetails = async () => {
     const ipcRenderer = window.ipcRenderer;
 
-    await ipcRenderer.invoke("set-project-details", projectDetails);
+    await ipcRenderer.invoke("set-project-metadata", projectDetails);
   };
 
   const onSetDefaultProjectState = () => {

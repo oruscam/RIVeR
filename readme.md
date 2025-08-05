@@ -8,17 +8,18 @@
     <strong>Modern LSPIV toolkit for water-surface velocity analysis and flow discharge measurements</strong>
 </div>
 
-
-[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue)](https://doi.org/10.1016/j.cageo.2017.07.009)
+[![Status](https://img.shields.io/badge/status-active-brightgreen)]()
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
 [![React Version](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
+[![PyPI version](https://img.shields.io/pypi/v/river-cli.svg)](https://pypi.org/project/river-cli/)
+[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue)](https://doi.org/10.1016/j.cageo.2017.07.009)
 
 ---
 
 # RIVeR: Rectification of Image Velocity Results
 
-**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (**LSPIV**) distributed by [ORUS](https://x.com/Orus_cam). Built with **Python** and **React**, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
+**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (**LSPIV**) distributed by [ORUS](https://orus.cam). Built with **Python** and **React**, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
 
 
 <figure>
@@ -39,6 +40,15 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 
 ---
 
+
+## 📖 User Manual
+
+For a detailed step-by-step guide on using RIVeR's GUI (Graphical User Interface),
+please refer to the **[User Manual](user-manual.md)**.
+
+---
+
+
 ## ✨ Key Features
 
 * Process footage from multiple sources:
@@ -56,13 +66,16 @@ Originally developed in MATLAB in 2015 and well-received by the hydrology commun
 
 ---
 
-## 🌍 Multi-Language Support  
+## 🌍 Multi-Language Support
 
-- RIVeR available in multiple languages!  
-  - English 🇺🇸  
-  - Spanish 🇦🇷  
-  - French 🇫🇷  
-  - [More coming soon!]    
+- RIVeR available in multiple languages!
+  - English 🇺🇸
+  - Spanish 🇦🇷
+  - French 🇫🇷
+  - Italian 🇮🇹
+  - Portuguese 🇧🇷
+  - German 🇩🇪
+  - [More coming soon!]
 
 ---
 ## 📥 Download Compiled Releases
@@ -71,7 +84,7 @@ If you don't want to bother with code at all (we get it, sometimes you just want
 
 | ⊞ Windows | ⌘ macOS | ◆ Linux |
 |:---:|:---:|:---:|
-| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.1.0/RIVeR-Windows-3.1.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.1.0/RIVeR-Mac-3.1.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.1.0/RIVeR-Linux-3.1.0.deb) [RPM](https://github.com/oruscam/RIVeR/releases/download/v3.1.0/RIVeR-Linux-3.1.0.rpm) |
+| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.2.0/RIVeR-Windows-3.2.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.2.0/RIVeR-Mac-3.2.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.2.0/RIVeR-Linux-3.2.0.deb) [RPM](https://github.com/oruscam/RIVeR/releases/download/v3.2.0/RIVeR-Linux-3.2.0.rpm) |
 
 
 These packages include both the GUI and CLI tools in a ready-to-use application. No Python or JavaScript knowledge required!
@@ -89,7 +102,7 @@ For those who prefer to work with the source code or contribute to RIVeR's devel
 - Python 3.12+
 - pip package manager
 - Git (for cloning the repository)
-  
+
 ### Development Installation
 ```bash
 git clone https://github.com/oruscam/RIVeR.git
@@ -237,7 +250,7 @@ RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (A
 ---
 
 ## 💭Acknowledgments
-- Contributing organizations: 
+- Contributing organizations:
   - [UNC (National University of Córdoba)](https://www.unc.edu.ar/) - [Faculty of Exact, Physical and Natural Sciences](https://fcefyn.unc.edu.ar/)
   - [INA (National Institute of Water, Argentina)](https://www.argentina.gob.ar/ina)
   - [CONICET (National Scientific and Technical Research Council)](https://www.conicet.gov.ar/)

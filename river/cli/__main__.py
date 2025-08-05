@@ -6,6 +6,7 @@ from river.cli.commands import piv_pipeline
 from river.cli.commands.compute_section import update_xsection
 from river.cli.commands.video_to_frames import video_to_frames
 
+from multiprocessing import freeze_support
 
 @click.group
 @click.option("-v", "--verbose", is_flag=True, help="Activate verbose mode.")
@@ -28,4 +29,5 @@ cli.add_command(piv_pipeline.piv_analyze)
 cli.add_command(update_xsection)
 
 if __name__ == "__main__":
+	freeze_support()  # For Windows compatibility with multiprocessing
 	cli()
