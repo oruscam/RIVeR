@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "river-cli"
-version = "3.1.0"
+version = "3.2.0"
 description = "A CLI application for Large Scale Particle Image Velocimetry (LSPIV)."
 readme = "readme.md"
 authors = [
@@ -98,7 +98,7 @@ docstring-code-format = false
 docstring-code-line-length = "dynamic"
 
 [tool.bumpver]
-current_version = "3.1.0"
+current_version = "3.2.0"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true
