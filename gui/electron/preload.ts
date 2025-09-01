@@ -1,4 +1,4 @@
-import { ipcRenderer, contextBridge } from "electron";
+import { ipcRenderer, contextBridge, webUtils } from "electron";
 
 // --------- Expose some API to the Renderer process ---------
 contextBridge.exposeInMainWorld("ipcRenderer", {
@@ -29,5 +29,11 @@ contextBridge.exposeInMainWorld("ipcRenderer", {
   removeListener(...args: Parameters<typeof ipcRenderer.removeListener>) {
     const [channel, listener] = args;
     return ipcRenderer.removeListener(channel, listener);
-  },
+  }
+});
+
+contextBridge.exposeInMainWorld("webUtils", {
+  getPathForFile(file: File) {
+    return webUtils.getPathForFile(file);
+  }
 });

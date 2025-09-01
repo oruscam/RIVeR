@@ -18,6 +18,12 @@ type Video = {
   type: string;
 };
 
+const footageTypes = [
+  { id: "uav", icon: drone },
+  { id: "oblique", icon: oblique },
+  { id: "ipcam", icon: ipcam },
+];
+
 export const FootageMode = () => {
   const { handleSubmit } = useForm();
   const { onInitProject, onGetVideo } = useProjectSlice();
@@ -26,8 +32,8 @@ export const FootageMode = () => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
 
+  const [dragOver, setDragOver] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
-
   const [video, setVideo] = useState<Video>();
 
   const onSubmit = async () => {
@@ -36,51 +42,68 @@ export const FootageMode = () => {
         await onInitProject(video, currentLanguage);
         nextStep();
       } catch (error) {
-        if (error instanceof OperationCanceledError) {
-          previousStep();
-        }
+        if (error instanceof OperationCanceledError) previousStep();
       }
     }
   };
 
-  const onClickItem = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    const type = event.currentTarget.id;
-    if (type !== "uav" && type !== "oblique" && type !== "ipcam") return;
+  const onClickItem = async (type: string) => {
+    if (!["uav", "oblique", "ipcam"].includes(type)) return;
     try {
       const { path, name } = await onGetVideo();
       setVideo({ name, path, type });
     } catch (error) {
       if (error instanceof UserSelectionError) {
         setError(t("Step-2.pleaseSelectVideo", { defaultValue: "Commons.randomError" }));
-        setTimeout(() => {
-          setError("");
-        }, 3000);
+        setTimeout(() => setError(""), 3000);
       }
+    }
+  };
+
+  const handleDragOver = (id: string) => (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragOver(id);
+  };
+
+  const handleDragLeave = () => (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragOver(null);
+  };
+
+  const handleDrop = (type: string) => (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    setDragOver(null);
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      const path = window.webUtils.getPathForFile(file);
+      setVideo({ name: file.name, path, type });
     }
   };
 
   return (
     <div className="App">
-      <h2 className="step-2-title"> {t("Step-2.title")} </h2>
-      <form
-        className="file-upload-container"
-        onSubmit={handleSubmit(onSubmit)}
-        id={formId}
-      >
-        <button className="button-transparent" onClick={onClickItem} id="uav">
-          <Icon path={drone} />
-        </button>
-        <button
-          className="button-transparent"
-          id="oblique"
-          onClick={onClickItem}
-        >
-          <Icon path={oblique} />
-        </button>
-        <button className="button-transparent" id="ipcam" onClick={onClickItem}>
-          <Icon path={ipcam} />
-        </button>
+      <h2 className="step-2-title">{t("Step-2.title")}</h2>
+      <form className="file-upload-container" onSubmit={handleSubmit(onSubmit)} id={formId}>
+        {footageTypes.map(({ id, icon }) => (
+          <div
+            key={id}
+            className={`footage-button-container ${dragOver === id ? `drag-over-${id}` : ""}`}
+            onDragOver={handleDragOver(id)}
+            onDragLeave={handleDragLeave()}
+            onDrop={handleDrop(id)}
+            id={id}
+          >
+            <button
+              className="button-transparent"
+              type="button"
+              onClick={() => onClickItem(id)}
+              id={id}
+            >
+              <Icon path={icon} />
+            </button>
+          </div>
+        ))}
       </form>
       {video && <p className="file-name mt-2">{video.name}</p>}
       {error && <p className="file-name mt-2">{error}</p>}

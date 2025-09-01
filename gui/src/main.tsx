@@ -1,6 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { Provider } from "react-redux";
-import { IpcRenderer } from "electron";
+import { IpcRenderer, WebUtils } from "electron";
 import { App } from "./App";
 import store from "./store/store";
 import "./index.css";
@@ -20,6 +20,7 @@ createRoot(
 declare global {
   interface Window {
     ipcRenderer: IpcRenderer;
+    webUtils: WebUtils;
   }
 }
 

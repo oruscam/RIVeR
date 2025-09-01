@@ -9,3 +9,9 @@
   color: var(--primary-text-color);
   transition: background-color 0.25s ease-in-out;
 }
+
+.drag-drop-app{
+  border: 2px dashed white;
+  width: 500px;
+  height: 250px;
+}

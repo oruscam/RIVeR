@@ -34,19 +34,6 @@
     color: var(--background-error)
 }
 
-/* 
-.home-page-footer{
-    align-self: flex-end;
-    margin-top: auto;
-    margin-bottom: 30px;
-    margin-right: 2%;
-    display: flex;
-    justify-content: space-between;
-    width: 52%;
-    border: solid;
-
-} */
-
 .step-2 {
     display: flex;
     flex-direction: column;
@@ -69,21 +56,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 600px;
-}
-
-.drone-upload {
-    font-size: 125px;
-    transition: transform 0.3s;
-}
-
-.drone-upload:hover {
-    transform: scale(1.1);
-}
-
-/* Cuando utilizemos las 2 opciones, usar una sola clase */
-.camera-upload {
-    font-size: 125px;
+    width: 700px;
 }
 
 .file-name {
@@ -108,8 +81,6 @@
     justify-content: space-around;
     user-select: none;
 }
-
-
 
 /* PARA MOSTRAR LA IMAGEN, DESPUES BORRAR */
 .stage-step5 {
@@ -136,4 +107,31 @@
     }
 }
 
+.footage-button-container{
+    margin-top: 20px;
 
+    width: 110%;
+    height: 110%;
+    
+    display: flex;
+    align-items: center;
+
+    justify-content: center;
+}
+
+.drag-over-ipcam{
+    background-color: var(--secondary-background-color);
+    border-radius: 10px;
+}
+
+
+.drag-over-uav{
+    background-color: var(--secondary-background-color);
+    border-radius: 10px;
+}
+
+
+.drag-over-oblique{
+    background-color: var(--secondary-background-color);
+    border-radius: 10px;
+}
