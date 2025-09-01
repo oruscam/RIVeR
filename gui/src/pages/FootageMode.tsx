@@ -76,8 +76,16 @@ export const FootageMode = () => {
     const files = event.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
-      const path = window.webUtils.getPathForFile(file);
-      setVideo({ name: file.name, path, type });
+
+      if (file.type.includes('video')){
+        const path = window.webUtils.getPathForFile(file);
+        setVideo({ name: file.name, path, type });
+      } else {
+        setVideo(undefined);
+        setError(t("Step-2.invalidFileType", { defaultValue: "Commons.randomError" }));
+        setTimeout(() => setError(""), 3000);
+      }
+
     }
   };
 
