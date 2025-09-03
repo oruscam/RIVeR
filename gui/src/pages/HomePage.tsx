@@ -38,7 +38,7 @@ export const HomePage: React.FC = () => {
   }, [])
 
   return (
-    <div className="App">
+    <div className="default-app-container">
       <img src={image} className="home-page-image" alt="RIVeR Logo" />
       <div className="home-page-buttons">
         <button

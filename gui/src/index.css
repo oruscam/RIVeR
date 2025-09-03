@@ -73,9 +73,9 @@
   transition: transform 0.3s ease; /* Añade una transición suave */
 }
 
-.button-transparent:hover {
-  transform: scale(1.1); /* Escala el botón al 110% de su tamaño original */
-}
+/* .button-transparent:hover {
+  transform: scale(1.1); /* Escala el botón al 110% de su tamaño original 
+} */
 
 
 .button-1{

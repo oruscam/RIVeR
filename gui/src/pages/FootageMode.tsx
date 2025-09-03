@@ -32,9 +32,11 @@ export const FootageMode = () => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
 
-  const [dragOver, setDragOver] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
-  const [video, setVideo] = useState<Video>();
+  const [video, setVideo] = useState<Video | null>(null);
+  
+  const [dragOver, setDragOver] = useState<string | null>(null);
+  const [footageType, setFootageType] = useState<string | null>(null);
 
   const onSubmit = async () => {
     if (video) {
@@ -47,13 +49,14 @@ export const FootageMode = () => {
     }
   };
 
-  const onClickItem = async (type: string) => {
-    if (!["uav", "oblique", "ipcam"].includes(type)) return;
+  const onClickOpenFolder = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault()
     try {
       const { path, name } = await onGetVideo();
-      setVideo({ name, path, type });
+      setVideo({ name, path, type: footageType as string });
     } catch (error) {
       if (error instanceof UserSelectionError) {
+        setVideo(null);
         setError(t("Step-2.pleaseSelectVideo", { defaultValue: "Commons.randomError" }));
         setTimeout(() => setError(""), 3000);
       }
@@ -62,7 +65,7 @@ export const FootageMode = () => {
 
   const handleDragOver = (id: string) => (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    setDragOver(id);
+      setDragOver(id);
   };
 
   const handleDragLeave = () => (event: React.DragEvent<HTMLDivElement>) => {
@@ -74,6 +77,9 @@ export const FootageMode = () => {
     event.preventDefault();
     setDragOver(null);
     const files = event.dataTransfer.files;
+
+    setFootageType(type);
+
     if (files.length > 0) {
       const file = files[0];
 
@@ -81,39 +87,56 @@ export const FootageMode = () => {
         const path = window.webUtils.getPathForFile(file);
         setVideo({ name: file.name, path, type });
       } else {
-        setVideo(undefined);
+        setVideo(null);
         setError(t("Step-2.invalidFileType", { defaultValue: "Commons.randomError" }));
         setTimeout(() => setError(""), 3000);
       }
-
     }
   };
 
+  const onChangeType = () => {
+    setVideo(null);
+    setFootageType(null);
+  }
+
   return (
-    <div className="App">
+    <div className="default-app-container">
       <h2 className="step-2-title">{t("Step-2.title")}</h2>
       <form className="file-upload-container" onSubmit={handleSubmit(onSubmit)} id={formId}>
-        {footageTypes.map(({ id, icon }) => (
-          <div
-            key={id}
-            className={`footage-button-container ${dragOver === id ? `drag-over-${id}` : ""}`}
-            onDragOver={handleDragOver(id)}
-            onDragLeave={handleDragLeave()}
-            onDrop={handleDrop(id)}
-            id={id}
-          >
-            <button
-              className="button-transparent"
-              type="button"
-              onClick={() => onClickItem(id)}
+        <div className="type-footage-container">
+          {footageTypes.map(({ id, icon }) => (
+            <div
+              key={id}
+              className={`footage-button-container ${dragOver === id ? `drag-over-${id}` : ""} ${footageType === id ? "selected-footage-type" : ""}`}
+              onDragOver={handleDragOver(id)}
+              onDragLeave={handleDragLeave()}
+              onDrop={handleDrop(id)}
+              onClick={() => setFootageType(id)}
               id={id}
             >
-              <Icon path={icon} />
-            </button>
+                <Icon path={icon}/>
+            </div>
+          ))}
+        </div>
+        <div className={`browse-video-container${footageType || video ? " visible" : ""}`}>
+          <div className="browse-video-header">
+            <p>{ footageType && video === null ? t(`Step-2.addYourFootage.${footageType}`) : t(`Step-2.addedFootage.${footageType}`) }</p>
+            <p onClick={() => onChangeType()}>{ footageType ? t(`Step-2.changeType`): undefined} </p>
           </div>
-        ))}
+          <div className={`browse-video-drop-area${dragOver === 'drop-area' ? ' drag-over' : ''}`}
+            onDragOver={handleDragOver('drop-area')}
+            onDragLeave={handleDragLeave()}
+            onDrop={handleDrop(footageType as string)}
+            id="drop-area"
+          >
+
+            { video === null && <p> {t("Step-2.dragAndDrop")}</p>}
+            { video && <p>{video.name}</p> }
+
+            <button className={`button-1 ${video ? "wizard-button-active" : ""}`}  onClick={onClickOpenFolder} type="button"> {t("Step-2.openFolders")} </button>
+          </div>
+        </div>
       </form>
-      {video && <p className="file-name mt-2">{video.name}</p>}
       {error && <p className="file-name mt-2">{error}</p>}
       <WizardButtons canFollow={true} formId={formId} />
     </div>

@@ -96,7 +96,7 @@ async function createWindow() {
     // and comment the next line with riverCli.
     // This will use the Python shell to execute RIVeR commands.
     // This is useful for development purposes, but not recommended for production.
-    
+
     riverCli = executePythonShell;
   } else {
     // win.loadFile('dist/index.html')

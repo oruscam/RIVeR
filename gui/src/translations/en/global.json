@@ -21,7 +21,20 @@
     "Step-2" : {
         "title" : "Select the kind of footage",
         "pleaseSelectVideo": "Please select a video file",
-        "invalidFileType": "Invalid file type. Please select a video file."
+        "invalidFileType": "Invalid file type. Please select a video file.",
+        "addYourFootage": {
+            "uav": "Add your Drone footage",
+            "oblique": "Add your Oblique footage",
+            "ipcam": "Add your IPCam footage"
+        },
+        "addedFootage": {
+            "uav": "Drone footage added",
+            "oblique": "Oblique footage added",
+            "ipcam": "IPCam footage added"
+        },
+        "changeType": "Change type",
+        "dragAndDrop": "Drag and drop your video file here",
+        "openFolders": "Open Folders"
     },
     "Wizard" : {
         "back" : "Back",
