@@ -1,43 +1,49 @@
 import { BaseSyntheticEvent } from "react";
 import { FieldValues } from "react-hook-form";
 
-type Point {
+type Point = {
     x: number;
     y: number;
 }
 
-type Limits {
+type Limits = {
     max: number;
     min: number;
 }
 
-type CanvasPoint {
+type CanvasPoint = {
     points: Point[];
     factor: number;
     index: number | null
     mode?: string;
 }
 
-type FormPoint {
+type FormPoint = {
     point: string | number;
     position: string;
 }
 
-type FormDistance {
+type FormDistance = {
     distance: number;
     position: string;
 }
 
-type FormChild {
+type FormChild = {
     onSubmit: (e?: BaseSyntheticEvent<object, any, any> | undefined) => Promise<void>,
     onError: (error: FieldValues) => void,
 }
 
-type ellipse { 
+type ellipse = { 
     center: number[],
     width: number,
     height: number,
     angle: number
+}
+
+type onGetBathimetryTypes = {
+    bathimetryPath?: string,
+    cameraMatrix?: number[][],
+    zLimits?: { min: number; max: number },
 }
 
 interface cameraSolution {
@@ -93,6 +99,6 @@ export type {
     ellipse,
     importedPoint,
     factor,
-    UpdatePixelSize
+    UpdatePixelSize, 
+    onGetBathimetryTypes
 }
-

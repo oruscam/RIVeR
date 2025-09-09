@@ -21,8 +21,8 @@ const defaultSections = [
     sectionPoints: DEFAULT_POINTS,
     dirPoints: DEFAULT_POINTS,
     bathimetry: {
-      path: "",
-      name: "",
+      path: undefined,
+      name: undefined,
     },
     pixelSize: { size: 0, rwLength: 0 },
     rwPoints: DEFAULT_POINTS,

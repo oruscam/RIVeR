@@ -86,11 +86,11 @@ export const FormCrossSections = ({
   ) => {
     event.preventDefault();
     if (type === "ipcam") {
-      onGetBathimetry(ipcam.cameraSolution?.cameraMatrix, ipcam.zLimits)
+      onGetBathimetry({ cameraMatrix: ipcam.cameraSolution?.cameraMatrix, zLimits: { min: yMin ?? 0, max: yMax ?? 0 } })
         // First error is when the bathimetry format is correct, but not the values
         .then((error) => {
           if (error?.message) {
-            const message = "CrossSections.Errors." + error?.message;
+            const message = "CrossSections.Errors." + error.message;
             onSetErrorMessage({
               Bathimetry: {
                 type: "error",
@@ -102,7 +102,7 @@ export const FormCrossSections = ({
         // Second error is when the bathimetry format is incorrect
         .catch((error) => onSetErrorMessage(error.message));
     } else {
-      onGetBathimetry(undefined).catch((error) =>
+      onGetBathimetry({}).catch((error) =>
         onSetErrorMessage(error.message),
       ); // Incorrect format
     }

@@ -27,7 +27,7 @@
             "oblique": "Add your Oblique footage",
             "ipcam": "Add your IPCam footage"
         },
-        "addedFootage": {
+        "addedFootage": { 
             "uav": "Drone footage added",
             "oblique": "Oblique footage added",
             "ipcam": "IPCam footage added"
