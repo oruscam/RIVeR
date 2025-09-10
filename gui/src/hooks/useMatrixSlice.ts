@@ -109,12 +109,12 @@ export const useMatrixSlice = () => {
     dispatch(setDrawPoints());
   };
 
-  const onGetDistances = async () => {
+  const onGetDistances = async ( path?: string ) => {
     const ipcRenderer = window.ipcRenderer;
 
     const { isDistancesLoaded } = obliquePoints;
 
-    if (isDistancesLoaded) {
+    if ( isDistancesLoaded && path === undefined ) {
       dispatch(
         setObliquePoints({
           ...obliquePoints,
@@ -127,7 +127,7 @@ export const useMatrixSlice = () => {
     }
 
     try {
-      const { distances, error } = await ipcRenderer.invoke("import-distances");
+      const { distances, error } = await ipcRenderer.invoke("import-distances", { path });
 
       if (error) {
         throw new Error(error.message);
@@ -299,12 +299,12 @@ export const useMatrixSlice = () => {
     }
   };
 
-  const onGetPoints = async () => {
+  const onGetPoints = async (path?: string) => {
     const ipcRenderer = window.ipcRenderer;
 
     try {
       const { data, error } = await ipcRenderer.invoke("import-points", {
-        path: undefined,
+        path: path,
       });
 
       if (error?.message) {
@@ -327,8 +327,10 @@ export const useMatrixSlice = () => {
     }
   };
 
-  const onGetImages = async (folderPath: string | undefined) => {
+  const onGetImages = async (folderPath?: string) => {
     const ipcRenderer = window.ipcRenderer;
+
+    console.log('Folder path', folderPath)
 
     try {
       const { images, path, error } = await ipcRenderer.invoke("ipcam-images", {

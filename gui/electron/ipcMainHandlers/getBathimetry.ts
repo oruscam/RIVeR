@@ -3,6 +3,7 @@ import { basename, extname, join } from "path";
 import { readFile, utils, set_fs, writeFile } from "xlsx";
 import * as fs from "fs";
 import { ProjectConfig } from "./interfaces";
+import { EXTENSIONS, validateFile } from "./utils/validateFile";
 
 // Set the file system for xlsx library
 set_fs(fs);
@@ -14,26 +15,23 @@ async function getBathimetry(PROJECT_CONFIG: ProjectConfig) {
     filters: [
       {
         name: "Documents",
-        extensions: [
-          "csv",
-          "tsv",
-          "xlsx",
-          "xls",
-          "xlsm",
-          "ods",
-          "fods",
-          "prn",
-          "dif",
-          "sylk",
-        ],
+        extensions: EXTENSIONS,
       },
     ],
   };
 
   // Handle the 'get-bathimetry' IPC event
   ipcMain.handle("get-bathimetry", async (_event, args) => {
-    const { path, zLimits } = args;
 
+    const { path, zLimits } = args;
+    // If the file is dropped, the path is provided in args. But we need to validate it.
+    let isValidPath = validateFile(path)
+    
+    if ( isValidPath === false && path !== undefined ){
+      return { error: new Error("invalidBathimetryFileFormat") };
+    }
+    
+    // If the file is not dropped, the path is undefined and we will show the open file dialog.
     try {
       let bathPath: string = path;
 

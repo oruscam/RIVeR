@@ -3,6 +3,7 @@ import { WizardButtons, ImageWithMarks, Error, Progress } from "../components";
 import { CrossSections as CrossSectionsComponent } from "../components/CrossSections/index";
 import { useMatrixSlice, useProjectSlice, useSectionSlice, useUiSlice } from "../hooks";
 import { useTranslation } from "react-i18next";
+import { handleDragLeave, handleDragOver } from "../helpers";
 
 export const CrossSections = () => {
   const {activeSection, sections, onGetBathimetry} = useSectionSlice();
@@ -11,18 +12,6 @@ export const CrossSections = () => {
   const { onSetErrorMessage } = useUiSlice()
   const { type } = useProjectSlice();
   const { ipcam } = useMatrixSlice();
-
-  console.log("section", sections[activeSection].name);
-
-  const handleDragOver = ( e: React.DragEvent<HTMLDivElement> ) => {
-    e.preventDefault();
-    setDragOver(true);
-  }
-
-  const handleDragLeave = ( e: React.DragEvent<HTMLDivElement> ) => {
-    e.preventDefault();
-    setDragOver(false);
-  }
 
   const handleDrop = ( e: React.DragEvent<HTMLDivElement> ) => {
     e.preventDefault();
@@ -64,8 +53,8 @@ export const CrossSections = () => {
         <Error></Error>
       </div>
       <div className={`form-container ${dragOver ? "drag-over" : ""}`}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
+        onDragOver={(event) => handleDragOver(event, setDragOver)}
+        onDragLeave={(event) => handleDragLeave(event, setDragOver, false)}
         onDrop={handleDrop}
       >
         <Progress />

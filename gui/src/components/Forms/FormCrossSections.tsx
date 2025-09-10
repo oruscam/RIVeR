@@ -85,6 +85,13 @@ export const FormCrossSections = ({
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     event.preventDefault();
+
+    // When clicking the button, if there is already a bathimetry, clear it
+    if ( bathimetry.path !== undefined ){
+      onUpdateSection({ clearBathimetry: true }, undefined)
+      return
+    }
+
     if (type === "ipcam") {
       onGetBathimetry({ cameraMatrix: ipcam.cameraSolution?.cameraMatrix, zLimits: { min: yMin ?? 0, max: yMax ?? 0 } })
         // First error is when the bathimetry format is correct, but not the values
@@ -225,7 +232,6 @@ export const FormCrossSections = ({
                   type="file"
                   id={`${name}_CS_BATHIMETRY`}
                   className="hidden-file-input"
-                  accept=".csv"
                   {...register(`${name}_CS_BATHIMETRY`, {
                     validate: (value) => {
                       if (

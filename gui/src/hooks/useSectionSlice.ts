@@ -469,6 +469,7 @@ export const useSectionSlice = () => {
     pixelSize?: number;
     imageWidth?: number;
     imageHeight?: number;
+    clearBathimetry?: boolean;  
   }
 
   const onUpdateSection = async (
@@ -618,6 +619,10 @@ export const useSectionSlice = () => {
 
     if (value.artificialSeeding !== undefined) {
       updatedSection.artificialSeeding = !section.artificialSeeding;
+    }
+
+    if (value.clearBathimetry) {
+      updatedSection.bathimetry = { path: undefined, name: undefined, level: 0 };
     }
 
     dispatch(updateSection(updatedSection));

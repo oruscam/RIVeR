@@ -24,7 +24,9 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
 
   const graphWidth =
     screenWidth * GRAPHS.WIDTH_PROPORTION > GRAPHS.MIN_WIDTH
-      ? screenWidth * GRAPHS.WIDTH_PROPORTION
+      ? screenWidth * GRAPHS.WIDTH_PROPORTION < GRAPHS.MAX_BATHIMETRY_WIDTH
+        ? screenWidth * GRAPHS.WIDTH_PROPORTION
+        : GRAPHS.MAX_BATHIMETRY_WIDTH
       : GRAPHS.MIN_WIDTH;
 
   useEffect(() => {

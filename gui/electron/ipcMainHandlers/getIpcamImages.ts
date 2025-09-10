@@ -9,7 +9,8 @@ function getIpcamImages(PROJECT_CONFIG: ProjectConfig) {
   };
 
   ipcMain.handle("ipcam-images", async (_event, args) => {
-    const { path } = args;
+    const { folderPath } = args;
+
     const { settingsPath } = PROJECT_CONFIG;
 
     const json = await fs.promises.readFile(settingsPath, "utf-8");
@@ -21,7 +22,7 @@ function getIpcamImages(PROJECT_CONFIG: ProjectConfig) {
     const validImageExtensions = [".jpg", ".jpeg", ".png"];
 
     try {
-      let imagesPath: string = path;
+      let imagesPath: string = folderPath;
 
       if (imagesPath === undefined) {
         const result = await dialog.showOpenDialog(options);

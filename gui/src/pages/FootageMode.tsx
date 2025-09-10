@@ -11,6 +11,7 @@ import {
 } from "../errors/errors.js";
 import { drone, ipcam, oblique } from "../assets/icons/icons";
 import "./pages.css";
+import { handleDragLeave, handleDragOver } from "../helpers/index.js";
 
 type Video = {
   name: string;
@@ -63,16 +64,6 @@ export const FootageMode = () => {
     }
   };
 
-  const handleDragOver = (id: string) => (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-      setDragOver(id);
-  };
-
-  const handleDragLeave = () => (event: React.DragEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    setDragOver(null);
-  };
-
   const handleDrop = (type: string) => (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragOver(null);
@@ -108,8 +99,8 @@ export const FootageMode = () => {
             <div
               key={id}
               className={`footage-button-container ${dragOver === id ? `drag-over-${id}` : ""} ${footageType === id ? "selected-footage-type" : ""}`}
-              onDragOver={handleDragOver(id)}
-              onDragLeave={handleDragLeave()}
+              onDragOver={(event) => handleDragOver(event, setDragOver, id)}
+              onDragLeave={(event) => handleDragLeave(event, setDragOver, 'null')}
               onDrop={handleDrop(id)}
               onClick={() => setFootageType(id)}
               id={id}
@@ -124,8 +115,8 @@ export const FootageMode = () => {
             <p onClick={() => onChangeType()}>{ footageType ? t(`Step-2.changeType`): undefined} </p>
           </div>
           <div className={`browse-video-drop-area${dragOver === 'drop-area' ? ' drag-over' : ''}`}
-            onDragOver={handleDragOver('drop-area')}
-            onDragLeave={handleDragLeave()}
+            onDragOver={(event) => handleDragOver( event, setDragOver, 'drop-area')}
+            onDragLeave={(event) => handleDragLeave( event, setDragOver, true)}
             onDrop={handleDrop(footageType as string)}
             id="drop-area"
           >

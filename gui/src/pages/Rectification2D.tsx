@@ -8,13 +8,16 @@ import {
 import { FormRectification2D } from "../components/Forms";
 import { useMatrixSlice, useUiSlice } from "../hooks";
 import { useWizard } from "react-use-wizard";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { handleDragLeave, handleDragOver } from "../helpers";
 
 export const Rectification2D = () => {
-  const { obliquePoints, onGetTransformationMatrix } = useMatrixSlice();
+  const { obliquePoints, onGetTransformationMatrix, onGetDistances } = useMatrixSlice();
   const { distances } = obliquePoints;
   const { onSetErrorMessage } = useUiSlice();
   const { nextStep } = useWizard();
+
+  const [dragOver, setDragOver] = useState<boolean>(false);
 
   const { solution } = obliquePoints;
 
@@ -46,6 +49,22 @@ export const Rectification2D = () => {
     onSetErrorMessage(error);
   };
 
+  const handleDrop = ( event: React.DragEvent<HTMLDivElement> ) => {
+    event.preventDefault();
+    setDragOver(false);
+    
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      const path = window.webUtils.getPathForFile(file);
+
+      onGetDistances(path)
+        .catch((error) => onSetErrorMessage(error.message));
+    }
+
+  }
+
+
   useEffect(() => {
     methods.reset({
       distance_12: distances.d12.toFixed(2),
@@ -63,7 +82,11 @@ export const Rectification2D = () => {
         <ImageRectification2D />
         <Error />
       </div>
-      <div className="form-container">
+      <div className={`form-container ${dragOver ? "drag-over" : ""}`}
+        onDragOver={(event) => handleDragOver(event, setDragOver)}
+        onDragLeave={(event) => handleDragLeave(event, setDragOver, false)}
+        onDrop={handleDrop}
+      >
         <Progress />
         <FormProvider {...methods}>
           <FormRectification2D

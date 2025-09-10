@@ -1,6 +1,7 @@
 import { dialog, ipcMain } from "electron";
 import { readFile, utils, set_fs, writeFile } from "xlsx";
 import * as fs from "fs";
+import { EXTENSIONS } from "./utils/validateFile";
 
 set_fs(fs);
 
@@ -10,18 +11,7 @@ async function getPoints() {
     filters: [
       {
         name: "Documents",
-        extensions: [
-          "csv",
-          "tsv",
-          "xlsx",
-          "xls",
-          "xlsm",
-          "ods",
-          "fods",
-          "prn",
-          "dif",
-          "sylk",
-        ],
+        extensions: EXTENSIONS
       },
     ],
   };
