@@ -2,10 +2,11 @@ import { dialog, ipcMain } from "electron";
 import { readFile, utils, set_fs } from "xlsx";
 import * as fs from "fs";
 import { EXTENSIONS, validateFile } from "./utils/validateFile";
+import { ProjectConfig } from "./interfaces";
 
 set_fs(fs);
 
-async function getDistances() {
+async function getDistances(PROJECT_CONFIG: ProjectConfig) {
   const options: Electron.OpenDialogOptions = {
     properties: ["openFile"],
     filters: [
@@ -17,8 +18,9 @@ async function getDistances() {
   };
 
   ipcMain.handle("import-distances", async ( _event, args) => {
-    console.log("args", args)
     const { path } = args
+
+    options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
 
     const isValidPath = validateFile(path)
     if ( isValidPath === false && path !== undefined ){

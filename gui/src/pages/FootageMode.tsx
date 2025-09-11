@@ -100,7 +100,7 @@ export const FootageMode = () => {
               key={id}
               className={`footage-button-container ${dragOver === id ? `drag-over-${id}` : ""} ${footageType === id ? "selected-footage-type" : ""}`}
               onDragOver={(event) => handleDragOver(event, setDragOver, id)}
-              onDragLeave={(event) => handleDragLeave(event, setDragOver, 'null')}
+              onDragLeave={(event) => handleDragLeave(event, setDragOver, true)}
               onDrop={handleDrop(id)}
               onClick={() => setFootageType(id)}
               id={id}
@@ -111,8 +111,16 @@ export const FootageMode = () => {
         </div>
         <div className={`browse-video-container${footageType || video ? " visible" : ""}`}>
           <div className="browse-video-header">
-            <p>{ footageType && video === null ? t(`Step-2.addYourFootage.${footageType}`) : t(`Step-2.addedFootage.${footageType}`) }</p>
-            <p onClick={() => onChangeType()}>{ footageType ? t(`Step-2.changeType`): undefined} </p>
+            {
+              footageType !== null 
+              ? 
+                <>
+                  <p>{ footageType && video === null ? t(`Step-2.addYourFootage.${footageType}`) : t(`Step-2.addedFootage.${footageType}`) }</p>
+                  <p onClick={() => onChangeType()}>{ footageType ? t(`Step-2.changeType`): undefined} </p>
+                </>
+              :
+              <></>
+            }
           </div>
           <div className={`browse-video-drop-area${dragOver === 'drop-area' ? ' drag-over' : ''}`}
             onDragOver={(event) => handleDragOver( event, setDragOver, 'drop-area')}

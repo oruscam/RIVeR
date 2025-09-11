@@ -3,6 +3,7 @@ import { useMatrixSlice, useUiSlice } from "../../hooks";
 import { PointsMap } from "../Graphs";
 import { IpcamGrid } from "../index";
 import { useState } from "react";
+import { DropHereText } from "./DropHereText";
 
 export const FormRectification3D = () => {
   const [mode, setMode] = useState("");
@@ -43,7 +44,7 @@ export const FormRectification3D = () => {
 
   return (
     <>
-      <h1 className="form-title"> Control Points </h1>
+      <h1 className="form-title"> {t("ControlPoints.title")} </h1>
       <form
         id="form-control-points"
         className={`form-scroll ${isBackendWorking ? "disabled" : ""}`}
@@ -69,6 +70,8 @@ export const FormRectification3D = () => {
               {t("ControlPoints3d.importImages")}{" "}
             </button>
           </div>
+
+          <DropHereText text={t("Commons.dropHereText")} show={ipcam.pointsPath === undefined}/>
 
           <IpcamGrid />
 

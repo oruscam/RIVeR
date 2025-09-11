@@ -123,7 +123,7 @@ export const useMatrixSlice = () => {
           solution: undefined,
         }),
       );
-      return;
+      return; 
     }
 
     try {
@@ -329,8 +329,6 @@ export const useMatrixSlice = () => {
 
   const onGetImages = async (folderPath?: string) => {
     const ipcRenderer = window.ipcRenderer;
-
-    console.log('Folder path', folderPath)
 
     try {
       const { images, path, error } = await ipcRenderer.invoke("ipcam-images", {
@@ -547,8 +545,6 @@ export const useMatrixSlice = () => {
     formPoint: FormPoint | null,
   ) => {
     const { dirPoints, rwPoints } = pixelSize;
-    console.log("onSetPixelDirection")
-    console.log('canvas points', canvasPoints)
 
     /**
      * The flags are used to avoid unnecessary calculations

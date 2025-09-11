@@ -551,3 +551,19 @@ transform-origin: 14px 22px;
     justify-content: center;
     margin-right: 5%;
 }
+
+.drop-here-text{
+    margin-top: 15px;
+    font-size: 1.15rem;
+    width: 65%;
+    color: var(--secondary-text-color);
+    transition: all 0.5s ease;
+}
+
+.drop-here-text.disabled{
+    opacity: 0;
+    height: 0px;
+    margin: 0px;
+    overflow: hidden;
+    margin-top: 0px;
+}

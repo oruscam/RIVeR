@@ -1,6 +1,6 @@
 import { ipcMain } from "electron";
 import { createFolderStructure } from "./createFolderStructure";
-import { join } from "path";
+import { join, dirname } from "path";
 import { getVideoMetadata } from "./utils/getVideoMetadata";
 import { ProjectConfig } from "./interfaces";
 
@@ -15,6 +15,7 @@ function initProject(PROJECT_CONFIG: ProjectConfig) {
 
       const [videoName] = name.split(".");
       const newDirectory = join(PROJECT_CONFIG.mainDirectory, videoName);
+
 
       try {
         const result = await getVideoMetadata(path);
@@ -32,6 +33,9 @@ function initProject(PROJECT_CONFIG: ProjectConfig) {
         PROJECT_CONFIG.videoPath = path;
         PROJECT_CONFIG.settingsPath = join(directory, "settings.json");
         PROJECT_CONFIG.logsPath = join(directory, "river.log");
+        PROJECT_CONFIG.defaultFilesPath = directory;
+        PROJECT_CONFIG.defaultFilesPath = dirname(result.path);
+
 
         return {
           result: {

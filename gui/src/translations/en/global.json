@@ -272,6 +272,7 @@
         "no": "No",
         "solve": "Solve",
         "resourceNotFound": "Resource not found",
-        "randomError": "Something went wrong. Please try again"
+        "randomError": "Something went wrong. Please try again",
+        "dropHereText": "Drop a file anywhere on this panel. I'll auto-detect where it belongs. If needed, you'll get a quick chooser"
     }
 }

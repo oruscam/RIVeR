@@ -11,6 +11,8 @@ function getIpcamImages(PROJECT_CONFIG: ProjectConfig) {
   ipcMain.handle("ipcam-images", async (_event, args) => {
     const { folderPath } = args;
 
+    options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
+    
     const { settingsPath } = PROJECT_CONFIG;
 
     const json = await fs.promises.readFile(settingsPath, "utf-8");

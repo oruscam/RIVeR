@@ -6,7 +6,7 @@ import {
   useSectionSlice,
   useUiSlice,
 } from "../../hooks";
-import { RealWorldCoordinates, PixelCoordinates } from "./index";
+import { RealWorldCoordinates, PixelCoordinates, DropHereText } from "./index";
 import { Bathimetry } from "../Graphs";
 import { useTranslation } from "react-i18next";
 
@@ -145,7 +145,7 @@ export const FormCrossSections = ({
       }
     }
   };
-
+  console.log('bat', bathimetry)
   return (
     <div
       id="form-section-div"
@@ -264,6 +264,8 @@ export const FormCrossSections = ({
               </div>
             </>
           )}
+
+          <DropHereText text={t("Commons.dropHereText")} show={bathimetry.path === undefined}/>
 
           <div className="input-container-2 mt-2 mb-1">
             <label className="read-only me-1" htmlFor="LEVEL">

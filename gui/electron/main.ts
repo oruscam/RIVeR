@@ -139,9 +139,9 @@ const PROJECT_CONFIG: ProjectConfig = {
   bboxPath: "",
   maskPath: "",
   resultsPath: "",
-  thumbsPath: "",
   logsPath: "",
   firstFrame: "",
+  defaultFilesPath: "",
 };
 
 // General window dialog to confirm deletes.
@@ -176,9 +176,9 @@ app.whenReady().then(() => {
   setControlPoints(PROJECT_CONFIG, riverCli);
   calculate3dRectification(PROJECT_CONFIG, riverCli);
 
-  getPoints();
+  getPoints(PROJECT_CONFIG);
   getIpcamImages(PROJECT_CONFIG);
-  getDistances();
+  getDistances(PROJECT_CONFIG);
   saveTransformationMatrix(PROJECT_CONFIG);
   saveReportHtml(PROJECT_CONFIG);
 });

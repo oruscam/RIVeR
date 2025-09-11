@@ -4,6 +4,7 @@ import { FormChild } from "../../types";
 import { getValidationRules } from "../../helpers";
 import { useTranslation } from "react-i18next";
 import { OrthoImage } from "../Graphs";
+import { DropHereText } from "./DropHereText";
 
 export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
   const { obliquePoints, onSetDrawPoints, onGetDistances, isBackendWorking } =
@@ -27,6 +28,7 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
   const handleOnClickImportDistances = () => {
     onGetDistances().catch((error) => onSetErrorMessage(error.message));
   };
+
 
   return (
     <>
@@ -59,6 +61,8 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
               {t("ControlPoints.importDistances")}{" "}
             </button>
           </div>
+
+          <DropHereText text={t("Commons.dropHereText")} show={obliquePoints.isDistancesLoaded === false}/>
 
           <div className="input-container-2 mt-2">
             <label className="read-only-rectification-2d me-1" id="D12">

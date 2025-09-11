@@ -31,6 +31,9 @@ async function getBathimetry(PROJECT_CONFIG: ProjectConfig) {
       return { error: new Error("invalidBathimetryFileFormat") };
     }
     
+    // Set default files path
+    options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
+
     // If the file is not dropped, the path is undefined and we will show the open file dialog.
     try {
       let bathPath: string = path;
