@@ -4,9 +4,9 @@
  * It uses the PythonShell library to execute the python script.
  */
 
-import { exec } from "child_process";
-import { app, ipcMain, webContents } from "electron";
-import { Options, PythonShell } from "python-shell";
+import { exec } from 'child_process';
+import { app, ipcMain, webContents } from 'electron';
+import { Options, PythonShell } from 'python-shell';
 
 /**
  * Function to execute the python shell with the given arguments.
@@ -20,8 +20,8 @@ const RIVER_CLI_PATH = import.meta.env.VITE_RIVER_CLI_PATH;
 
 async function executePythonShell(
   args: (string | number)[],
-  mode: "json" | "text" = "json",
-  output: boolean = false,
+  mode: 'json' | 'text' = 'json',
+  output: boolean = false
 ) {
   /**
    * Options to execute the python shell.
@@ -31,25 +31,25 @@ async function executePythonShell(
    */
   let options: Options;
 
-  if (mode === "json") {
+  if (mode === 'json') {
     options = {
-      mode: "json",
+      mode: 'json',
       pythonPath: PYTHON_PATH,
       scriptPath: RIVER_CLI_PATH,
       args: args.map((arg) => arg.toString()),
     };
   } else {
     options = {
-      mode: "text",
+      mode: 'text',
       pythonPath: PYTHON_PATH,
       scriptPath: RIVER_CLI_PATH,
       args: args.map((arg) => arg.toString()),
     };
   }
 
-  console.log("execute-python-shell");
+  console.log('execute-python-shell');
   console.log(options);
-  console.time("river-cli-time");
+  console.time('river-cli-time');
 
   /**
    * Python shell to execute the python script.
@@ -58,17 +58,17 @@ async function executePythonShell(
    * If an error occurs, it will be logged.
    */
 
-  const pyshell = new PythonShell("__main__.py", options);
+  const pyshell = new PythonShell('__main__.py', options);
   currentPyShell = pyshell;
 
   return new Promise((resolve, reject) => {
-    pyshell.on("message", (message: string) => {
-      if (mode === "text") {
+    pyshell.on('message', (message: string) => {
+      if (mode === 'text') {
         console.log(message);
         try {
-          resolve(JSON.parse(message.replace(/\bNaN\b/g, "null")));
+          resolve(JSON.parse(message.replace(/\bNaN\b/g, 'null')));
         } catch (error) {
-          console.log("not json");
+          console.log('not json');
         }
       } else {
         console.log(message);
@@ -76,17 +76,17 @@ async function executePythonShell(
       }
     });
 
-    pyshell.stderr.on("data", (data: string) => {
+    pyshell.stderr.on('data', (data: string) => {
       console.log(data);
       // Enviar datos al proceso de renderizado
       webContents.getAllWebContents().forEach((contents) => {
-        contents.send("river-cli-message", data);
+        contents.send('river-cli-message', data);
       });
     });
 
     pyshell.end((err: Error) => {
       if (err) {
-        console.log("pyshell error");
+        console.log('pyshell error');
         console.log(err);
         reject(err);
       }
@@ -111,23 +111,23 @@ async function killPythonShell() {
       });
 
       currentPyShell = null;
-      return { message: "Python shell canceled" };
+      return { message: 'Python shell canceled' };
     } catch (error) {
       console.error(`Error killing Python shell: ${error}`);
-      return { message: "Error canceling Python shell" };
+      return { message: 'Error canceling Python shell' };
     }
   } else {
-    return { message: "No python shell to cancel" };
+    return { message: 'No python shell to cancel' };
   }
 }
 
-ipcMain.handle("kill-python-shell", async () => {
+ipcMain.handle('kill-python-shell', async () => {
   return await killPythonShell();
 });
 
-app.on("before-quit", async (event) => {
+app.on('before-quit', async (event) => {
   event.preventDefault(); // Prevenir el cierre inmediato de la aplicación
-  console.log("App is quitting. Killing river-cli process");
+  console.log('App is quitting. Killing river-cli process');
   await killPythonShell();
 });
 

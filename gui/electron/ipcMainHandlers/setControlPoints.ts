@@ -1,13 +1,13 @@
-import { ipcMain } from "electron";
-import { ProjectConfig } from "./interfaces";
-import * as fs from "fs";
-import { createMatrix } from "./utils/createMatrix";
+import { ipcMain } from 'electron';
+import { ProjectConfig } from './interfaces';
+import * as fs from 'fs';
+import { createMatrix } from './utils/createMatrix';
 
 function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
-  ipcMain.handle("set-control-points", async (_event, args) => {
-    const { settingsPath, projectDirectory, logsPath, firstFrame } = PROJECT_CONFIG;
+  ipcMain.handle('set-control-points', async (_event, args) => {
+    const { settingsPath, projectDirectory, logsPath, firstFrame, filePrefix } = PROJECT_CONFIG;
     const { coordinates, distances } = args;
-    const settings = await fs.promises.readFile(settingsPath, "utf-8");
+    const settings = await fs.promises.readFile(settingsPath, 'utf-8');
     const settingsParsed = JSON.parse(settings);
     settingsParsed.transformation = {};
 
@@ -33,10 +33,10 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     };
 
     const options = [
-      "get-oblique-transformation-matrix",
-      "--image-path",
+      'get-oblique-transformation-matrix',
+      '--image-path',
       firstFrame,
-      "-w",
+      '-w',
       projectDirectory,
       coordinates[0].x,
       coordinates[0].y,
@@ -55,22 +55,13 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ];
 
     try {
-      const { data, error } = await riverCli(
-        options,
-        "text",
-        "false",
-        logsPath,
-      );
+      const { data, error } = await riverCli(options, 'text', 'false', logsPath);
 
       if (error.message) {
         return { error };
       }
 
-      await createMatrix(
-        data.transformation_matrix,
-        PROJECT_CONFIG,
-        settingsParsed,
-      )
+      await createMatrix(data.transformation_matrix, PROJECT_CONFIG, settingsParsed)
         .then((matrixPath) => {
           settingsParsed.transformation.matrix = matrixPath;
           settingsParsed.transformation.resolution = data.output_resolution;
@@ -83,17 +74,18 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         });
 
       const updatedContent = JSON.stringify(settingsParsed, null, 4);
-      await fs.promises.writeFile(settingsPath, updatedContent, "utf-8");
+      await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
 
+      const orthoImage = filePrefix + data.transformed_image_path + `?t=${new Date().getTime()}`;
       return {
         obliqueMatrix: data.transformation_matrix,
         roi: data.roi,
         extent: data.extent,
         resolution: data.output_resolution,
-        transformed_image_path: data.transformed_image_path,
+        orthoImage,
       };
     } catch (error) {
-      console.log("Error en set-control-points");
+      console.log('Error en set-control-points');
       console.log(error);
     }
   });

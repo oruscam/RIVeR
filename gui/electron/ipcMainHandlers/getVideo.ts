@@ -1,14 +1,14 @@
-import { dialog, ipcMain } from "electron";
-import { ProjectConfig } from "./interfaces";
-import * as path from "path";
+import { dialog, ipcMain } from 'electron';
+import { ProjectConfig } from './interfaces';
+import * as path from 'path';
 
 async function getVideo(PROJECT_CONFIG: ProjectConfig) {
   const options: Electron.OpenDialogOptions = {
-    properties: ["openFile"],
-    filters: [{ name: "Videos", extensions: ["mp4", "mov", "avi", "mkv"] }],
+    properties: ['openFile'],
+    filters: [{ name: 'Videos', extensions: ['mp4', 'mov', 'avi', 'mkv'] }],
   };
 
-  ipcMain.handle("get-video", async () => {
+  ipcMain.handle('get-video', async () => {
     try {
       const result = await dialog.showOpenDialog(options);
       const videoPath = result.filePaths[0];
@@ -20,8 +20,8 @@ async function getVideo(PROJECT_CONFIG: ProjectConfig) {
     } catch (error) {
       return {
         error: {
-          type: "user-selection-error",
-          message: "pleaseSelectVideo",
+          type: 'user-selection-error',
+          message: 'pleaseSelectVideo',
         },
       };
     }

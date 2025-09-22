@@ -1,14 +1,8 @@
-import { useFormContext } from "react-hook-form";
-import {
-  useDataSlice,
-  useMatrixSlice,
-  useProjectSlice,
-  useSectionSlice,
-  useUiSlice,
-} from "../../hooks";
-import { RealWorldCoordinates, PixelCoordinates, DropHereText } from "./index";
-import { Bathimetry } from "../Graphs";
-import { useTranslation } from "react-i18next";
+import { useFormContext } from 'react-hook-form';
+import { useDataSlice, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { RealWorldCoordinates, PixelCoordinates, DropHereText } from './index';
+import { Bathimetry } from '../Graphs';
+import { useTranslation } from 'react-i18next';
 
 interface FormCrossSectionsProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void;
@@ -16,11 +10,7 @@ interface FormCrossSectionsProps {
   index: number;
 }
 
-export const FormCrossSections = ({
-  onSubmit,
-  name,
-  index,
-}: FormCrossSectionsProps) => {
+export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsProps) => {
   const { register, setValue } = useFormContext();
   const {
     sections,
@@ -31,47 +21,36 @@ export const FormCrossSections = ({
     onSetDirPoints,
     onSetRealWorld,
   } = useSectionSlice();
-  const { drawLine, bathimetry, extraFields, pixelSize } =
-    sections[activeSection];
+  const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
   const { onSetErrorMessage } = useUiSlice();
   const { isBackendWorking } = useDataSlice();
   const { type } = useProjectSlice();
-  const { ipcam } = useMatrixSlice();
+  const { cameraSolution } = useIpcamSlice();
 
   const { t } = useTranslation();
 
   const { yMax, yMin, xMin, x1Intersection, leftBank, xMax } = bathimetry;
 
   const handleKeyDownBathLevel = (
-    event:
-      | React.KeyboardEvent<HTMLInputElement>
-      | React.FocusEvent<HTMLInputElement>,
-    nextFieldId: string,
+    event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>,
+    nextFieldId: string
   ) => {
-    if (
-      (event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" ||
-      event.type === "blur"
-    ) {
+    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') {
       event.preventDefault();
 
       const value = parseFloat((event.target as HTMLInputElement).value);
 
       if (isNaN(value) || value === bathimetry.level) return;
 
-      if (
-        yMax !== undefined &&
-        yMin !== undefined &&
-        value <= yMax &&
-        value >= yMin
-      ) {
-        onUpdateSection({ level: value }, ipcam.cameraSolution?.cameraMatrix);
+      if (yMax !== undefined && yMin !== undefined && value <= yMax && value >= yMin) {
+        onUpdateSection({ level: value }, cameraSolution?.cameraMatrix);
         document.getElementById(nextFieldId)?.focus();
       } else {
         setValue(`${name}_LEVEL`, bathimetry.level);
         onSetErrorMessage({
           Level: {
-            type: "error",
-            message: t("CrossSections.Errors.levelError", {
+            type: 'error',
+            message: t('CrossSections.Errors.levelError', {
               yMin: yMin?.toFixed(2),
               yMax: yMax?.toFixed(2),
             }),
@@ -81,26 +60,27 @@ export const FormCrossSections = ({
     }
   };
 
-  const handleImportBath = async (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
+  const handleImportBath = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     // When clicking the button, if there is already a bathimetry, clear it
-    if ( bathimetry.path !== undefined ){
-      onUpdateSection({ clearBathimetry: true }, undefined)
-      return
+    if (bathimetry.path !== undefined) {
+      onUpdateSection({ clearBathimetry: true }, undefined);
+      return;
     }
 
-    if (type === "ipcam") {
-      onGetBathimetry({ cameraMatrix: ipcam.cameraSolution?.cameraMatrix, zLimits: { min: yMin ?? 0, max: yMax ?? 0 } })
+    if (type === 'ipcam') {
+      onGetBathimetry({
+        cameraMatrix: cameraSolution?.cameraMatrix,
+        zLimits: { min: yMin ?? 0, max: yMax ?? 0 },
+      })
         // First error is when the bathimetry format is correct, but not the values
         .then((error) => {
           if (error?.message) {
-            const message = "CrossSections.Errors." + error.message;
+            const message = 'CrossSections.Errors.' + error.message;
             onSetErrorMessage({
               Bathimetry: {
-                type: "error",
+                type: 'error',
                 message: t(message, { level: error?.value }),
               },
             });
@@ -109,21 +89,14 @@ export const FormCrossSections = ({
         // Second error is when the bathimetry format is incorrect
         .catch((error) => onSetErrorMessage(error.message));
     } else {
-      onGetBathimetry({}).catch((error) =>
-        onSetErrorMessage(error.message),
-      ); // Incorrect format
+      onGetBathimetry({}).catch((error) => onSetErrorMessage(error.message)); // Incorrect format
     }
   };
 
   const handleLeftBankInput = (
-    event:
-      | React.KeyboardEvent<HTMLInputElement>
-      | React.FocusEvent<HTMLInputElement>,
+    event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
   ) => {
-    if (
-      (event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" ||
-      event.type === "blur"
-    ) {
+    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') {
       event.preventDefault();
       const value = parseFloat((event.target as HTMLInputElement).value);
 
@@ -132,34 +105,31 @@ export const FormCrossSections = ({
         (x1Intersection ?? 0) + value >= (xMin ?? 0) &&
         (x1Intersection ?? 0) + value <= (xMax ?? 0)
       ) {
-        document.getElementById("wizard-next")?.focus();
+        document.getElementById('wizard-next')?.focus();
         onUpdateSection({ leftBank: value }, undefined);
       } else {
         onSetErrorMessage({
           LeftBank: {
-            type: "Error",
-            message: t("CrossSections.Errors.leftBank"),
+            type: 'Error',
+            message: t('CrossSections.Errors.leftBank'),
           },
         });
         setValue(`${name}_LEFT_BANK`, leftBank);
       }
     }
   };
-  console.log('bat', bathimetry)
+  console.log('bat', bathimetry);
   return (
-    <div
-      id="form-section-div"
-      className={activeSection !== index ? "hidden" : ""}
-    >
+    <div id="form-section-div" className={activeSection !== index ? 'hidden' : ''}>
       <form
-        className={`form-scroll ${isBackendWorking ? "disabled" : ""}`}
+        className={`form-scroll ${isBackendWorking ? 'disabled' : ''}`}
         onSubmit={onSubmit}
         id="form-cross-section"
       >
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
         <div className="form-base-2 mt-2">
-          {type === "ipcam" ? (
+          {type === 'ipcam' ? (
             <>
               <div className="input-container-2 mb-1">
                 <input
@@ -169,44 +139,37 @@ export const FormCrossSections = ({
                   accept=".csv"
                   {...register(`${name}_CS_BATHIMETRY`, {
                     validate: (value) => {
-                      if (
-                        sections[index].bathimetry.path === "" &&
-                        value.length === 0
-                      ) {
-                        return t("CrossSections.Errors.bathimetryIsRequired", {section_name: name});
+                      if (sections[index].bathimetry.path === '' && value.length === 0) {
+                        return t('CrossSections.Errors.bathimetryIsRequired', { section_name: name });
                       }
                       return true;
                     },
                   })}
                 />
                 <button
-                  className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`}
+                  className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
                   onClick={handleImportBath}
                   disabled={
-                    transformationMatrix.length === 0
-                      ? false
-                      : type === "ipcam"
-                        ? false
-                        : pixelSize.rwLength === 0
+                    transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
                   }
                 >
-                  {" "}
-                  {t("CrossSections.importBath")}{" "}
+                  {' '}
+                  {t('CrossSections.importBath')}{' '}
                 </button>
                 <label className="read-only bg-transparent mt-1">
-                  {bathimetry.name !== "" ? bathimetry.name : ""}
+                  {bathimetry.name !== '' ? bathimetry.name : ''}
                 </label>
               </div>
               <div className="input-container-2">
                 <button
-                  className={`wizard-button form-button me-1 ${drawLine ? "wizard-button-active" : ""}`}
+                  className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
                   type="button"
                   id={`${name}-DRAW_LINE`}
                   onClick={() => onUpdateSection({ drawLine: true }, undefined)}
                   disabled={transformationMatrix.length === 0}
                 >
-                  {" "}
-                  {t("CrossSections.drawLine")}{" "}
+                  {' '}
+                  {t('CrossSections.drawLine')}{' '}
                 </button>
                 <span className="read-only bg-transparent"></span>
               </div>
@@ -215,14 +178,14 @@ export const FormCrossSections = ({
             <>
               <div className="input-container-2">
                 <button
-                  className={`wizard-button form-button me-1 ${drawLine ? "wizard-button-active" : ""}`}
+                  className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
                   type="button"
                   id={`${name}-DRAW_LINE`}
                   onClick={() => onUpdateSection({ drawLine: true }, undefined)}
                   disabled={transformationMatrix.length === 0}
                 >
-                  {" "}
-                  {t("CrossSections.drawLine")}{" "}
+                  {' '}
+                  {t('CrossSections.drawLine')}{' '}
                 </button>
                 <span className="read-only bg-transparent"></span>
               </div>
@@ -234,42 +197,35 @@ export const FormCrossSections = ({
                   className="hidden-file-input"
                   {...register(`${name}_CS_BATHIMETRY`, {
                     validate: (value) => {
-                      if (
-                        sections[index].bathimetry.path === "" &&
-                        value.length === 0
-                      ) {
-                        return t("CrossSections.Errors.bathimetryIsRequired", {section_name: name});
+                      if (sections[index].bathimetry.path === '' && value.length === 0) {
+                        return t('CrossSections.Errors.bathimetryIsRequired', { section_name: name });
                       }
                       return true;
                     },
                   })}
                 />
                 <button
-                  className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? "wizard-button-active" : ""}`}
+                  className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
                   onClick={handleImportBath}
                   disabled={
-                    transformationMatrix.length === 0
-                      ? false
-                      : type === "ipcam"
-                        ? false
-                        : pixelSize.rwLength === 0
+                    transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
                   }
                 >
-                  {" "}
-                  {t("CrossSections.importBath")}{" "}
+                  {' '}
+                  {t('CrossSections.importBath')}{' '}
                 </button>
                 <label className="read-only bg-transparent mt-1">
-                  {bathimetry.name !== "" ? bathimetry.name : ""}
+                  {bathimetry.name !== '' ? bathimetry.name : ''}
                 </label>
               </div>
             </>
           )}
 
-          <DropHereText text={t("Commons.dropHereText")} show={bathimetry.path === undefined}/>
+          <DropHereText text={t('Commons.dropHereText')} show={bathimetry.path === undefined} />
 
           <div className="input-container-2 mt-2 mb-1">
             <label className="read-only me-1" htmlFor="LEVEL">
-              {t("CrossSections.level")}
+              {t('CrossSections.level')}
             </label>
             <input
               type="number"
@@ -279,27 +235,21 @@ export const FormCrossSections = ({
                 validate: () => bathimetry.level !== 0,
               })}
               id="LEVEL"
-              onKeyDown={(event) =>
-                handleKeyDownBathLevel(event, "left-bank-station-input")
-              }
-              onBlur={(event) =>
-                handleKeyDownBathLevel(event, "left-bank-station-input")
-              }
+              onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
+              onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
             />
           </div>
 
           <div className="input-container-2 mb-1">
             <label className="read-only me-1" htmlFor="CS_LENGTH">
-              {t("CrossSections.width")}
+              {t('CrossSections.width')}
             </label>
             <input
               type="number"
               className="input-field-read-only"
               disabled={true}
               {...register(`${name}_CS_LENGTH`, {
-                validate: (value) =>
-                  value != 0 ||
-                  t("CrossSections.Errors.rwLength", { section_name: name }),
+                validate: (value) => value != 0 || t('CrossSections.Errors.rwLength', { section_name: name }),
               })}
               id="CS_LENGTH"
               readOnly={true}
@@ -308,16 +258,9 @@ export const FormCrossSections = ({
 
           <Bathimetry showLeftBank={true} />
 
-          <div
-            className="input-container-2 mb-4"
-            id="left-bank-station-container"
-          >
-            <label
-              className="read-only me-1"
-              htmlFor="left-bank-station-input"
-              id="left-bank-station-label"
-            >
-              {t("CrossSections.leftBankStation")}
+          <div className="input-container-2 mb-4" id="left-bank-station-container">
+            <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">
+              {t('CrossSections.leftBankStation')}
             </label>
             <input
               type="number"
@@ -330,11 +273,8 @@ export const FormCrossSections = ({
             />
           </div>
 
-          <div className={extraFields ? "mt-3" : "hidden"}>
-            <RealWorldCoordinates
-              modeName={name}
-              onSetRealWorld={onSetRealWorld}
-            />
+          <div className={extraFields ? 'mt-3' : 'hidden'}>
+            <RealWorldCoordinates modeName={name} onSetRealWorld={onSetRealWorld} />
             <PixelCoordinates modeName={name} onSetDirPoints={onSetDirPoints} />
             <span id={`span-footer-${name}`}></span>
             <span id={`${name}-form-cross-section-footer`} />

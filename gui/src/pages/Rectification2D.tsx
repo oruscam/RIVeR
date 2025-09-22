@@ -1,25 +1,17 @@
-import { FieldValues, FormProvider, useForm } from "react-hook-form";
-import {
-  Error,
-  ImageRectification2D,
-  Progress,
-  WizardButtons,
-} from "../components";
-import { FormRectification2D } from "../components/Forms";
-import { useMatrixSlice, useUiSlice } from "../hooks";
-import { useWizard } from "react-use-wizard";
-import { useEffect, useState } from "react";
-import { handleDragLeave, handleDragOver } from "../helpers";
+import { FieldValues, FormProvider, useForm } from 'react-hook-form';
+import { Error, ImageRectification2D, Progress, WizardButtons } from '../components';
+import { FormRectification2D } from '../components/Forms';
+import { useObliqueSlice, useUiSlice } from '../hooks';
+import { useWizard } from 'react-use-wizard';
+import { useEffect, useState } from 'react';
+import { handleDragLeave, handleDragOver } from '../helpers';
 
 export const Rectification2D = () => {
-  const { obliquePoints, onGetTransformationMatrix, onGetDistances } = useMatrixSlice();
-  const { distances } = obliquePoints;
+  const { solution, distances, onGetObliqueTransformationMatrix, onGetDistances } = useObliqueSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { nextStep } = useWizard();
 
   const [dragOver, setDragOver] = useState<boolean>(false);
-
-  const { solution } = obliquePoints;
 
   const methods = useForm({
     defaultValues: {
@@ -32,13 +24,11 @@ export const Rectification2D = () => {
     },
   });
 
-  const onSubmit = (values: FieldValues, event: React.BaseSyntheticEvent) => {
-    const id = event.nativeEvent.submitter.id;
+  const onSubmit = (values: FieldValues, event?: React.BaseSyntheticEvent) => {
+    const id = event?.nativeEvent?.submitter?.id;
 
-    if (id === "solve-oblique") {
-      onGetTransformationMatrix("oblique", values).catch((error) =>
-        onSetErrorMessage(error.message),
-      );
+    if (id === 'solve-oblique') {
+      onGetObliqueTransformationMatrix(values).catch((error) => onSetErrorMessage(error.message));
       return;
     }
 
@@ -49,21 +39,18 @@ export const Rectification2D = () => {
     onSetErrorMessage(error);
   };
 
-  const handleDrop = ( event: React.DragEvent<HTMLDivElement> ) => {
+  const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragOver(false);
-    
+
     const files = event.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
       const path = window.webUtils.getPathForFile(file);
 
-      onGetDistances(path)
-        .catch((error) => onSetErrorMessage(error.message));
+      onGetDistances(path).catch((error) => onSetErrorMessage(error.message));
     }
-
-  }
-
+  };
 
   useEffect(() => {
     methods.reset({
@@ -82,22 +69,17 @@ export const Rectification2D = () => {
         <ImageRectification2D />
         <Error />
       </div>
-      <div className={`form-container ${dragOver ? "drag-over" : ""}`}
+      <div
+        className={`form-container ${dragOver ? 'drag-over' : ''}`}
         onDragOver={(event) => handleDragOver(event, setDragOver)}
         onDragLeave={(event) => handleDragLeave(event, setDragOver, false)}
         onDrop={handleDrop}
       >
         <Progress />
         <FormProvider {...methods}>
-          <FormRectification2D
-            onSubmit={methods.handleSubmit(onSubmit, onError)}
-            onError={onError}
-          />
+          <FormRectification2D onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
-        <WizardButtons
-          formId="form-control-points"
-          canFollow={solution !== undefined}
-        />
+        <WizardButtons formId="form-control-points" canFollow={solution !== undefined} />
       </div>
     </div>
   );

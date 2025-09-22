@@ -1,21 +1,17 @@
-import * as fs from "fs";
+import * as fs from 'fs';
 
 async function clearResultsPiv(resultsPath: string, settingsPath: string) {
-  const settings = await fs.promises.readFile(settingsPath, "utf-8");
+  const settings = await fs.promises.readFile(settingsPath, 'utf-8');
   const settingsParsed = JSON.parse(settings);
 
-  console.log("resultsPath:", resultsPath);
-  console.log("settingsPath:", settingsPath);
+  console.log('resultsPath:', resultsPath);
+  console.log('settingsPath:', settingsPath);
 
   if (settingsParsed.piv_results) {
     delete settingsParsed.piv_results;
   }
 
-  await fs.promises.writeFile(
-    settingsPath,
-    JSON.stringify(settingsParsed, null, 4),
-    "utf-8",
-  );
+  await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 4), 'utf-8');
 
   try {
     await fs.promises.unlink(resultsPath);

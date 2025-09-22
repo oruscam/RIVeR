@@ -1,67 +1,57 @@
-import { ipcMain } from "electron";
-import { ProjectConfig } from "./interfaces";
-import { readResultsPiv } from "./utils/readResultsPiv";
-import * as fs from "fs";
-import * as path from "path";
-import { clearResultsPiv } from "./utils/clearResultsPiv";
-import { clearCrossSections } from "./utils/clearCrossSections";
+import { ipcMain } from 'electron';
+import { ProjectConfig } from './interfaces';
+import { readResultsPiv } from './utils/readResultsPiv';
+import * as fs from 'fs';
+import * as path from 'path';
+import { clearResultsPiv } from './utils/clearResultsPiv';
+import { clearCrossSections } from './utils/clearCrossSections';
 
 async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
-  ipcMain.handle("get-quiver-test", async (_event, args) => {
+  ipcMain.handle('get-quiver-test', async (_event, args) => {
     const { resultsPath, settingsPath, logsPath, xsectionsPath } = PROJECT_CONFIG;
 
     const { framesToTest, formValues } = args;
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
-    filePrefix = filePrefix === undefined ? "" : filePrefix;
+    filePrefix = filePrefix === undefined ? '' : filePrefix;
 
     await clearResultsPiv(resultsPath, settingsPath);
     await clearCrossSections(xsectionsPath);
 
     let frames = [];
 
-    if (filePrefix === "/@fs") {
+    if (filePrefix === '/@fs') {
       frames = framesToTest.map((frame: string) => {
-        return frame.replace(filePrefix, "");
+        return frame.replace(filePrefix, '');
       });
-    } else if (filePrefix === "file:\\\\") {
+    } else if (filePrefix === 'file:\\\\') {
       frames = framesToTest.map((frame: string) => {
-        return frame.replace(/file:\\/g, ""); // Use a regular expression to replace the prefix
+        return frame.replace(/file:\\/g, ''); // Use a regular expression to replace the prefix
       });
     } else {
       frames = framesToTest;
     }
 
-    const options = await createOptions(
-      "test",
-      PROJECT_CONFIG,
-      frames,
-      formValues,
-    );
+    const options = await createOptions('test', PROJECT_CONFIG, frames, formValues);
     try {
-      const result = (await riverCli(options, "text", false, logsPath)) as any;
+      const result = (await riverCli(options, 'text', false, logsPath)) as any;
       return result;
     } catch (error) {
-      console.log("Error en get-quiver-test");
+      console.log('Error en get-quiver-test');
       console.log(error);
       throw error;
     }
   });
 
-  ipcMain.handle("get-quiver-all", async (_event, args) => {
+  ipcMain.handle('get-quiver-all', async (_event, args) => {
     const { formValues } = args;
     const { settingsPath, logsPath, xsectionsPath } = PROJECT_CONFIG;
 
-    const options = await createOptions("all", PROJECT_CONFIG, [], formValues);
+    const options = await createOptions('all', PROJECT_CONFIG, [], formValues);
     await clearCrossSections(xsectionsPath);
 
     try {
-      const { data, error } = (await riverCli(
-        options,
-        "text",
-        true,
-        logsPath,
-      )) as any;
+      const { data, error } = (await riverCli(options, 'text', true, logsPath)) as any;
 
       if (error.message) {
         console.log(error.message);
@@ -75,23 +65,17 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
       const dataQuiver = await readResultsPiv(results_path);
 
-      const settings = await fs.promises.readFile(settingsPath, "utf-8");
+      const settings = await fs.promises.readFile(settingsPath, 'utf-8');
       const settingsParsed = JSON.parse(settings);
-      settingsParsed.piv_results = path.join(
-        PROJECT_CONFIG.projectDirectory,
-        "piv_results.json",
-      );
-      await fs.promises.writeFile(
-        settingsPath,
-        JSON.stringify(settingsParsed, null, 2),
-      );
+      settingsParsed.piv_results = path.join(PROJECT_CONFIG.projectDirectory, 'piv_results.json');
+      await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 2));
 
       return {
         data: dataQuiver,
-        error: "",
+        error: '',
       };
     } catch (error) {
-      console.log("Error en get-quiver-all");
+      console.log('Error en get-quiver-all');
       console.log(error);
       throw error;
     }
@@ -102,10 +86,9 @@ async function createOptions(
   mode: string,
   PROJECT_CONFIG: ProjectConfig,
   framesToTest: string[],
-  formValues: any,
+  formValues: any
 ) {
-  const { bboxPath, maskPath, projectDirectory, framesPath, settingsPath } =
-    PROJECT_CONFIG;
+  const { bboxPath, maskPath, projectDirectory, framesPath, settingsPath } = PROJECT_CONFIG;
   const {
     clahe,
     clipLimit,
@@ -120,7 +103,7 @@ async function createOptions(
     heightRoi,
   } = formValues;
 
-  const settings = await fs.promises.readFile(settingsPath, "utf-8");
+  const settings = await fs.promises.readFile(settingsPath, 'utf-8');
   const settingsParsed = JSON.parse(settings);
 
   settingsParsed.processing = {
@@ -137,38 +120,35 @@ async function createOptions(
     median_test_threshold: medianTestThreshold,
   };
 
-  await fs.promises.writeFile(
-    settingsPath,
-    JSON.stringify(settingsParsed, null, 2),
-  );
+  await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 2));
 
   const options = [
-    mode === "test" ? "piv-test" : "piv-analyze",
-    mode !== "test" ? "--workdir" : "",
-    mode !== "test" ? projectDirectory : "",
-    "--bbox",
+    mode === 'test' ? 'piv-test' : 'piv-analyze',
+    mode !== 'test' ? '--workdir' : '',
+    mode !== 'test' ? projectDirectory : '',
+    '--bbox',
     bboxPath,
-    "--mask",
+    '--mask',
     maskPath,
-    "--interrogation-area-1",
+    '--interrogation-area-1',
     step1,
-    "--interrogation-area-2",
+    '--interrogation-area-2',
     step1 / 2,
-    stdFiltering ? "--standard-threshold" : "--no-standard-filter",
-    stdFiltering ? stdThreshold : "",
-    medianTestFiltering ? "--epsilon" : "--no-median-test-filter",
-    medianTestFiltering ? medianTestEpsilon : "",
-    medianTestFiltering ? "--threshold" : "",
-    medianTestFiltering ? medianTestThreshold : "",
-    clahe ? "--clip-limit-clahe" : "--no-filter-clahe",
-    clahe ? clipLimit : "",
-    removeBackground ? "--filter-sub-background" : "",
+    stdFiltering ? '--standard-threshold' : '--no-standard-filter',
+    stdFiltering ? stdThreshold : '',
+    medianTestFiltering ? '--epsilon' : '--no-median-test-filter',
+    medianTestFiltering ? medianTestEpsilon : '',
+    medianTestFiltering ? '--threshold' : '',
+    medianTestFiltering ? medianTestThreshold : '',
+    clahe ? '--clip-limit-clahe' : '--no-filter-clahe',
+    clahe ? clipLimit : '',
+    removeBackground ? '--filter-sub-background' : '',
     // artificialSeeding ? '' : '--no-seeding-filter',
-    mode === "test" ? framesToTest[0] : framesPath,
-    mode === "test" ? framesToTest[1] : "",
+    mode === 'test' ? framesToTest[0] : framesPath,
+    mode === 'test' ? framesToTest[1] : '',
   ];
 
-  return options.filter((item) => item !== "");
+  return options.filter((item) => item !== '');
 }
 
 export { getQuiver };

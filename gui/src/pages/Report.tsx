@@ -1,4 +1,4 @@
-import { Progress, WizardButtons } from "../components";
+import { Progress, WizardButtons } from '../components';
 import {
   ProcessedRange,
   VideoInfo,
@@ -8,27 +8,27 @@ import {
   PixelTransformation,
   ProcessingParameters,
   Footer,
-} from "../components/Report";
-import "./pages.css";
-import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from "../hooks";
-import { FormReport } from "../components/Forms/index";
-import { REPORT_IMAGES } from "../constants/constants";
-import { useTranslation } from "react-i18next";
-import { useState } from "react";
+} from '../components/Report';
+import './pages.css';
+import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
+import { FormReport } from '../components/Forms/index';
+import { REPORT_IMAGES } from '../constants/constants';
+import { useTranslation } from 'react-i18next';
+import { useState } from 'react';
 
 const convertImageToDataURI = (url: string, quality = 1.0) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
-    img.crossOrigin = "Anonymous";
+    img.crossOrigin = 'Anonymous';
     img.onload = () => {
       const maxWidth = 1920;
       const scaleFactor = maxWidth / img.width;
-      const canvas = document.createElement("canvas");
+      const canvas = document.createElement('canvas');
       canvas.width = maxWidth;
       canvas.height = img.height * scaleFactor;
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext('2d');
       ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const dataURI = canvas.toDataURL("image/webp", quality);
+      const dataURI = canvas.toDataURL('image/webp', quality);
       resolve(dataURI);
     };
     img.onerror = reject;
@@ -45,18 +45,16 @@ export const Report = () => {
   const { factor: imageReduceFactor } = video.parameters;
 
   const { screenSizes } = useUiSlice();
-  const [ isReportSaved, setIsReportSaved ] = useState(false);
+  const [isReportSaved, setIsReportSaved] = useState(false);
 
   const generateHTML = async () => {
     onSetAnalizing(true);
     onSaveProjectDetails();
-    const input = document.getElementById("report-html-container");
+    const input = document.getElementById('report-html-container');
     if (input) {
       // Convert all images to data URIs
-      const images = Array.from(input.getElementsByTagName("img"));
-      const imagePromises = images.map((img) =>
-        convertImageToDataURI(img.src, 0.1),
-      );
+      const images = Array.from(input.getElementsByTagName('img'));
+      const imagePromises = images.map((img) => convertImageToDataURI(img.src, 0.1));
       const imageDataURIs = await Promise.all(imagePromises);
 
       // Replace image sources with data URIs
@@ -78,13 +76,13 @@ export const Report = () => {
                 try {
                   return Array.from(styleSheet.cssRules)
                     .map((rule) => rule.cssText)
-                    .join("");
+                    .join('');
                 } catch (e) {
                   console.error(e);
-                  return "";
+                  return '';
                 }
               })
-              .join("")}
+              .join('')}
           </style>
         </head>
         <body>
@@ -94,10 +92,10 @@ export const Report = () => {
       `;
 
       // Save the HTML file
-      const blob = new Blob([htmlContent], { type: "text/html" });
+      const blob = new Blob([htmlContent], { type: 'text/html' });
       const arrayBuffer = await blob.arrayBuffer();
 
-      await window.ipcRenderer.invoke("save-report-html", { arrayBuffer });
+      await window.ipcRenderer.invoke('save-report-html', { arrayBuffer });
     }
     onSetAnalizing(false);
     setIsReportSaved(true);
@@ -106,18 +104,18 @@ export const Report = () => {
   let factor = {
     x: 1,
     y: 1,
-  }
-  
-  if ( screenSizes.vertical === false ){
+  };
+
+  if (screenSizes.vertical === false) {
     factor = {
-      x: videoWidth * imageReduceFactor / REPORT_IMAGES.HORIZONTAL_IMAGES_WIDTH,
-      y: videoHeight * imageReduceFactor / REPORT_IMAGES.HORIZONTAL_IMAGES_HEIGHT,
+      x: (videoWidth * imageReduceFactor) / REPORT_IMAGES.HORIZONTAL_IMAGES_WIDTH,
+      y: (videoHeight * imageReduceFactor) / REPORT_IMAGES.HORIZONTAL_IMAGES_HEIGHT,
     };
   } else {
     factor = {
-      x: videoWidth * imageReduceFactor / REPORT_IMAGES.VERTICAL_IMAGES_WIDTH,
-      y: videoHeight * imageReduceFactor / REPORT_IMAGES.VERTICAL_IMAGES_HEIGHT,
-    }
+      x: (videoWidth * imageReduceFactor) / REPORT_IMAGES.VERTICAL_IMAGES_WIDTH,
+      y: (videoHeight * imageReduceFactor) / REPORT_IMAGES.VERTICAL_IMAGES_HEIGHT,
+    };
   }
 
   return (
@@ -129,12 +127,9 @@ export const Report = () => {
             <VideoInfo />
             <ProcessedRange />
             <div id="report-section-wrapper">
-              <h2 className="report-title-field mt-1">
-                {" "}
-                {t("CrossSections.title")} (s)
-              </h2>
+              <h2 className="report-title-field mt-1"> {t('CrossSections.title')} (s)</h2>
               {[...sections.keys()].map((index) => (
-                <ReportSection key={index} index={index} factor={factor} vertical={screenSizes.vertical}/>
+                <ReportSection key={index} index={index} factor={factor} vertical={screenSizes.vertical} />
               ))}
             </div>
             <Summary />
@@ -151,8 +146,8 @@ export const Report = () => {
       </div>
       <div className="form-container">
         <Progress />
-        <FormReport isReportSaved={isReportSaved} setIsReportSaved={setIsReportSaved}/>
-        <WizardButtons onClickNext={generateHTML}/>
+        <FormReport isReportSaved={isReportSaved} setIsReportSaved={setIsReportSaved} />
+        <WizardButtons onClickNext={generateHTML} />
       </div>
     </div>
   );
