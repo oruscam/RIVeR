@@ -145,7 +145,6 @@ export const FormCrossSections = ({
       }
     }
   };
-  console.log('bat', bathimetry)
   return (
     <div
       id="form-section-div"

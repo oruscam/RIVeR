@@ -29,7 +29,6 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
     onGetDistances().catch((error) => onSetErrorMessage(error.message));
   };
 
-
   return (
     <>
       <h1 className="form-title"> {t("ControlPoints.title")} </h1>

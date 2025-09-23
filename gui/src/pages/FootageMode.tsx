@@ -115,7 +115,7 @@ export const FootageMode = () => {
               footageType !== null 
               ? 
                 <>
-                  <p>{ footageType && video === null ? t(`Step-2.addYourFootage.${footageType}`) : t(`Step-2.addedFootage.${footageType}`) }</p>
+                  <p>{ footageType && video === null ? t(`Step-2.addYourFootage`) : '' }</p>
                   <p onClick={() => onChangeType()}>{ footageType ? t(`Step-2.changeType`): undefined} </p>
                 </>
               :
