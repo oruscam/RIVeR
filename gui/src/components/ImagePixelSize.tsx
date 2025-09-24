@@ -39,8 +39,6 @@ export const ImagePixelSize = () => {
   const handleMouseUp = (event: KonvaEventObject<MouseEvent>) => {
     if (!mousePressed) return;
 
-    console.log('Mouse up event triggered');
-
     const newPoints = onMouseUpPixelSize(event, localPoints, setLocalPoints, setMousePressed);
     onSetPixelDirection({ points: newPoints, factor: factor!, index: null }, null);
   };

@@ -33,14 +33,11 @@ type FormChild = {
   onError: (error: FieldValues) => void;
 };
 
-
 type onGetBathimetryTypes = {
   bathimetryPath?: string;
   cameraMatrix?: number[][];
   zLimits?: { min: number; max: number };
 };
-
-
 
 interface factor {
   x: number;

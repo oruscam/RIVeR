@@ -27,7 +27,7 @@ const obliqueSlice = createSlice({
     },
     setDefaultObliqueState: () => {
       return initialState;
-    }
+    },
   },
 });
 

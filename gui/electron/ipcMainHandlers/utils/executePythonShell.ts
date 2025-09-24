@@ -47,7 +47,7 @@ async function executePythonShell(
     };
   }
 
-  console.log('execute-python-shell');
+  console.log('you are using python shell');
   console.log(options);
   console.time('river-cli-time');
 

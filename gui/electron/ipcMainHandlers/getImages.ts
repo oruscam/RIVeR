@@ -16,7 +16,6 @@ function getImages(PROJECT_CONFIG: ProjectConfig) {
       const image2 = path.join(filePrefix, framesPath, files[index + 1]);
       return [image1, image2];
     } catch (error) {
-      console.log('Error de get images');
       console.log(error);
     }
   });

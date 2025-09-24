@@ -15,7 +15,6 @@ async function pixelToRealWorld(PROJECT_CONFIG: ProjectConfig, riverCli: Functio
       const { data } = (await riverCli(options)) as any;
       return data;
     } catch (error) {
-      console.log('Error en pixel-to-real-world');
       console.log(error);
     }
   });

@@ -30,7 +30,7 @@ export const InfoPixelSize = ({ animation }: { animation: string }) => {
           setAnimationPath(module.default);
         })
         .catch((error) => {
-          console.log('No se encontro la imagen');
+          console.log('We did not find the animation');
           console.log(error);
         });
     }

@@ -1,8 +1,6 @@
 const transformData = (data: any, all: boolean): any => {
   const result: any = {};
 
-  console.log('data', data);
-
   for (const key in data) {
     const section = data[key];
     let magnitude = section.streamwise_velocity_magnitude;

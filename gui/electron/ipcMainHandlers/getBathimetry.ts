@@ -152,9 +152,7 @@ const transformLine = (line, isDecreced: boolean, isDepth: boolean, maxY: number
       newLine.push(line[i]);
     }
   } else if (isDepth) {
-    console.log('inside is depth', zMin);
     if (zMin !== undefined) {
-      console.log('inside is depth', zMin);
       for (let i = 0; i < line.length; i++) {
         newLine.push({ x: line[i].x, y: maxY - line[i].y - maxY + zMin });
       }

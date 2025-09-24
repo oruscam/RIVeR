@@ -171,7 +171,6 @@ export const useDataSlice = () => {
       });
       if (error?.message) {
         console.log(error.message);
-        console.log('Process was killed' === error.message);
         if (error.message === 'Process was killed') return;
         throw new Error(error.message);
       } else {
@@ -282,7 +281,6 @@ export const useDataSlice = () => {
 
         sections.map((section, index) => {
           if (data[section.name]) {
-            console.log('section data', data[section.name]);
             dispatch(
               setSectionData({
                 sectionIndex: index,

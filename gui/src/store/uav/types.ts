@@ -19,6 +19,4 @@ interface UavMode {
   solution: pixelSolution | null;
 }
 
-export type {
-  UavMode
-};
+export type { UavMode };

@@ -13,8 +13,8 @@ const initialState: Ipcam = {
   zLimits: {
     min: 0,
     max: 0,
-  },    
-}
+  },
+};
 
 const ipcamSlice = createSlice({
   name: 'ipcam',
@@ -48,10 +48,11 @@ const ipcamSlice = createSlice({
     },
     setDefaultIpcamState: () => {
       return initialState;
-    }
+    },
   },
 });
 
-export const { setPoints, setImages, setCustomPoint, setCameraSolution, setActiveImage, setDefaultIpcamState } = ipcamSlice.actions;
+export const { setPoints, setImages, setCustomPoint, setCameraSolution, setActiveImage, setDefaultIpcamState } =
+  ipcamSlice.actions;
 
 export default ipcamSlice.reducer;

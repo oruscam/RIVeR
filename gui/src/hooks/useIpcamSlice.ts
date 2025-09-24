@@ -1,12 +1,18 @@
-import { useDispatch, useSelector } from "react-redux"
-import { RootState } from "../store/store";
-import { useTranslation } from "react-i18next";
-import { setActiveImage, setCameraSolution, setCustomPoint, setImages, setPoints } from "../store/ipcam/ipcamSlice";
-import { CliError, ResourceNotFoundError } from "../errors/errors";
-import { setHasChanged, setIsBackendWorking } from "../store/global/globalSlice";
-import { BackendCameraSolution, SetPointPixelCoordinatesProps } from "../store/ipcam/types";
-import { appendSolutionToIpcamPoints } from "../helpers/appendSolutionsToImportedPoints";
-import { setDefaultSectionState } from "../store/section/sectionSlice";
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store/store';
+import { useTranslation } from 'react-i18next';
+import {
+  setActiveImage,
+  setCameraSolution,
+  setCustomPoint,
+  setImages,
+  setPoints,
+} from '../store/ipcam/ipcamSlice';
+import { CliError, ResourceNotFoundError } from '../errors/errors';
+import { setHasChanged, setIsBackendWorking } from '../store/global/globalSlice';
+import { BackendCameraSolution, SetPointPixelCoordinatesProps } from '../store/ipcam/types';
+import { appendSolutionToIpcamPoints } from '../helpers/appendSolutionsToImportedPoints';
+import { setDefaultSectionState } from '../store/section/sectionSlice';
 
 export const useIpcamSlice = () => {
   // Get the dispatch function from the Redux store
@@ -15,7 +21,7 @@ export const useIpcamSlice = () => {
   // ipcam state handles everything related to ipcam mode
   const ipcam = useSelector((state: RootState) => state.ipcam);
   // Translation function from react-i18next
-  const { t } = useTranslation(); 
+  const { t } = useTranslation();
 
   // Method to get points from a file path
   const onGetPoints = async (path?: string) => {
@@ -89,7 +95,7 @@ export const useIpcamSlice = () => {
     const { points } = ipcam;
     // If points is null, do nothing
     if (points === null) return;
-    // Variable to track the change in selected points  
+    // Variable to track the change in selected points
     let value = 0;
     // If index is defined, toggle the selected state of the point at that index
     if (index !== undefined && index >= 0) {
@@ -148,9 +154,9 @@ export const useIpcamSlice = () => {
     }
   };
 
-  const onSetPointPixelCoordinates = ({index, imageSize, point, clickIcon}: SetPointPixelCoordinatesProps) => {
+  const onSetPointPixelCoordinates = ({ index, imageSize, point, clickIcon }: SetPointPixelCoordinatesProps) => {
     // desestructure points, activeImage, cameraSolution from ipcam state
-    const {points, activeImage, cameraSolution} = ipcam;
+    const { points, activeImage, cameraSolution } = ipcam;
     // If points is null, do nothing
     if (points === null) return;
 
@@ -158,20 +164,20 @@ export const useIpcamSlice = () => {
     let newPoint = { ...points[index] };
 
     // First case, when create a point in the center of the image
-    if (newPoint.wasEstablished === false && imageSize){
+    if (newPoint.wasEstablished === false && imageSize) {
       newPoint.x = parseFloat((imageSize.width / 2).toFixed(1));
       newPoint.y = parseFloat((imageSize.height / 2).toFixed(1));
 
       dispatch(
         setCustomPoint({
           point: newPoint,
-          index
+          index,
         })
-      )
+      );
     }
 
     // Second case, when establish a point in a diferent position. Diferent related to center
-    if (point){
+    if (point) {
       newPoint.x = parseFloat(point.x.toFixed(1));
       newPoint.y = parseFloat(point.y.toFixed(1));
       newPoint.wasEstablished = true;
@@ -180,41 +186,39 @@ export const useIpcamSlice = () => {
       dispatch(
         setCustomPoint({
           point: newPoint,
-          index
+          index,
         })
-      )
+      );
       // If there is a camera solution, reset it because a point has changed
       // And we need to recalculate the solution. Everthing change
-      if (cameraSolution !== null){
+      if (cameraSolution !== null) {
         dispatch(setCameraSolution(null));
         dispatch(setHasChanged(true));
       }
     }
 
     // Third case, when a point becomes selectionable and is already established. Don't change anything
-    if (newPoint.wasEstablished === true && imageSize){
+    if (newPoint.wasEstablished === true && imageSize) {
       // TODO: Probar el no hacer nada
-      console.log('test here - point already established and selectionable');
       dispatch(
         setCustomPoint({
           point: newPoint,
-          index
+          index,
         })
-      )
+      );
     }
 
     // Fourth case, when the point is established and the user only click the icon
-    if (index !== undefined && clickIcon){
+    if (index !== undefined && clickIcon) {
       // TODO: Probar el no hacer nada
-      console.log('test here - point already established and selectionable');
       dispatch(
         setCustomPoint({
           point: newPoint,
-          index
+          index,
         })
-      )
+      );
     }
-  }
+  };
 
   const onGetCameraSolution = async (mode: string) => {
     // turn on the backend working flag
@@ -231,16 +235,12 @@ export const useIpcamSlice = () => {
         }
       );
       // Throw an error if there's an error message
-      if (error){
+      if (error) {
         throw new Error(error.message);
       }
-       
+
       // Append the solution data to the imported points
-      const { newPoints, numPoints } = appendSolutionToIpcamPoints(
-        ipcam.points!,
-        data,
-        mode === 'direct-solve'
-      );
+      const { newPoints, numPoints } = appendSolutionToIpcamPoints(ipcam.points!, data, mode === 'direct-solve');
       // Remove large data from the solution before storing it in Redux
       // This keeps the Redux state lightweight and focused on essential data
       delete data.uncertaintyEllipses;
@@ -264,7 +264,6 @@ export const useIpcamSlice = () => {
       // Reset the section state to default
       dispatch(setDefaultSectionState());
     } catch (error) {
-
       // If the error is an instance of Error, wrap it in a CliError with translation
       if (error instanceof Error) {
         throw new CliError(error.message, t);
@@ -273,7 +272,7 @@ export const useIpcamSlice = () => {
       // turn off the backend working flag
       dispatch(setIsBackendWorking(false));
     }
-  }
+  };
 
   return {
     // Atributes
@@ -285,6 +284,6 @@ export const useIpcamSlice = () => {
     onChangeActiveImage,
     onChangePointSelected,
     onSetPointPixelCoordinates,
-    onGetCameraSolution
-  }
-}
+    onGetCameraSolution,
+  };
+};

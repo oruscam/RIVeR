@@ -15,7 +15,7 @@ export const IpcamPixelTransformation = ({ factor, vertical }: IpcamPixelTransfo
   const svgRef = useRef<SVGSVGElement>(null);
   const { firstFramePath } = useProjectSlice();
   const { points, cameraSolution } = useIpcamSlice();
-  
+
   const { t } = useTranslation();
 
   if (cameraSolution === null) return null;
@@ -26,7 +26,7 @@ export const IpcamPixelTransformation = ({ factor, vertical }: IpcamPixelTransfo
 
   useEffect(() => {
     d3.select(svgRef.current).selectAll('*').remove();
-    if (svgRef.current && points) {
+    if (svgRef.current && points !== null) {
       ipcamSvg({
         factor,
         points,

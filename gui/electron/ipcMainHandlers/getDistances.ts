@@ -57,9 +57,8 @@ const transformDistances = (distances: any[]) => {
   const distancesObject: { [key: string]: number } = {};
   const keys = ['d12', 'd23', 'd34', 'd41', 'd13', 'd24'];
 
+  // We expect either 6 rows (no headers) or 7 rows (with headers)
   if (distances.length > 7) {
-    console.log('case-error-1, mas de 7 filas');
-
     throw new Error('invalidDistancesFileFormat');
   } else {
     // The first row is the headers. We dont need them
@@ -70,8 +69,6 @@ const transformDistances = (distances: any[]) => {
     let newDistances = [];
 
     if (typeof distances[0][0] === 'string' && typeof distances[0][1] === 'number' && distances.length === 6) {
-      console.log('case-1, complete data');
-      console.log('distances', distances);
       // In this case, each row is an array [string, number]. We need to analyze the string part
       const distanceMap: { [key: string]: number } = {};
       distances.forEach(([key, value]) => {
@@ -87,8 +84,6 @@ const transformDistances = (distances: any[]) => {
       });
 
       newDistances = keys.map((key) => {
-        console.log(key, distanceMap);
-        console.log('key in distanceMap', key in distanceMap);
         if (!(key in distanceMap)) {
           throw new Error('invalidDistancesFileFormat');
         }

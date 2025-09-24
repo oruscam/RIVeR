@@ -60,16 +60,15 @@ function setPixelSize(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
       const updatedContent = JSON.stringify(settingsParsed, null, 4);
       await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
 
-      const orthoImage = filePrefix + data.transformed_image_path + `?t=${new Date().getTime()}`
+      const orthoImage = filePrefix + data.transformed_image_path + `?t=${new Date().getTime()}`;
 
       return {
         uavMatrix: data.transformation_matrix,
         extent: data.extent,
         resolution: data.output_resolution,
-        orthoImage
+        orthoImage,
       };
     } catch (error) {
-      console.log('Error en pixel-size');
       console.log(error);
     }
   });

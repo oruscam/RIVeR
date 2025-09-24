@@ -7,7 +7,8 @@ import { useUiSlice } from '../hooks/useUiSlice.ts';
 import { useIpcamSlice } from '../hooks/index';
 
 export const Rectification3D = () => {
-  const { importedImages, cameraSolution, activeImage, onChangeActiveImage, onGetPoints, onGetImages } = useIpcamSlice();
+  const { importedImages, cameraSolution, activeImage, onChangeActiveImage, onGetPoints, onGetImages } =
+    useIpcamSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { nextStep } = useWizard();
 
@@ -20,7 +21,6 @@ export const Rectification3D = () => {
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragOver(false);
-    console.log('drop in rectification 3d');
 
     const files = event.dataTransfer.files;
 

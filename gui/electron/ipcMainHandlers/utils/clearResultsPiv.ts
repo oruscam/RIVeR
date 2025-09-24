@@ -4,9 +4,6 @@ async function clearResultsPiv(resultsPath: string, settingsPath: string) {
   const settings = await fs.promises.readFile(settingsPath, 'utf-8');
   const settingsParsed = JSON.parse(settings);
 
-  console.log('resultsPath:', resultsPath);
-  console.log('settingsPath:', settingsPath);
-
   if (settingsParsed.piv_results) {
     delete settingsParsed.piv_results;
   }

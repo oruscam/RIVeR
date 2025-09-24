@@ -1,4 +1,3 @@
-
 interface Ellipse {
   // Center of the ellipse [x, y]
   center: number[];
@@ -8,19 +7,19 @@ interface Ellipse {
   height: number;
   // Rotation angle in radians
   angle: number;
-};
+}
 
 interface IpcamPoint {
   // Unique identifier for the point
-  label: string; 
+  label: string;
   // Real-world coordinates
   X: number;
-  Y: number; 
-  Z: number; 
+  Y: number;
+  Z: number;
   // Image coordinates
-  x: number; 
+  x: number;
   // Image coordinate
-  y: number; 
+  y: number;
   // Whether the point is currently selected in the UI
   selected: boolean;
   // Whether the point has been used in the camera solution
@@ -89,7 +88,7 @@ interface SetImagesPayload {
 }
 
 interface SetCustomPointPayload {
-  point: IpcamPoint
+  point: IpcamPoint;
   index: number;
 }
 
@@ -108,16 +107,26 @@ interface BackendCameraSolution {
 }
 
 interface SetPointPixelCoordinatesProps {
-    index: number;
-    imageSize?: {
-      width: number;
-      height: number;
-    };
-    point?: {
-      x: number;
-      y: number;
-    };
-    clickIcon?: boolean;
-  }
+  index: number;
+  imageSize?: {
+    width: number;
+    height: number;
+  };
+  point?: {
+    x: number;
+    y: number;
+  };
+  clickIcon?: boolean;
+}
 
-export type { Ipcam, CameraSolution, Ellipse, IpcamPoint, SetPointsPayload, SetImagesPayload, SetCustomPointPayload, BackendCameraSolution, SetPointPixelCoordinatesProps };
+export type {
+  Ipcam,
+  CameraSolution,
+  Ellipse,
+  IpcamPoint,
+  SetPointsPayload,
+  SetImagesPayload,
+  SetCustomPointPayload,
+  BackendCameraSolution,
+  SetPointPixelCoordinatesProps,
+};

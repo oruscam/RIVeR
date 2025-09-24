@@ -2,7 +2,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { CanvasPoint, Point } from '../types';
 import { ScreenSizes } from '../store/ui/types';
-import { adapterObliquePointsDistances, adjustCoordinates, createSquare, getImageSize, transformPixelToRealWorld } from '../helpers';
+import {
+  adapterObliquePointsDistances,
+  adjustCoordinates,
+  createSquare,
+  getImageSize,
+  transformPixelToRealWorld,
+} from '../helpers';
 import { resetAll, setHasChanged, setIsBackendWorking } from '../store/global/globalSlice';
 import { setDrawPoints, setObliquePoints } from '../store/oblique/obliqueSlice';
 import { defaultDistances } from '../store/oblique/types';
@@ -59,7 +65,7 @@ export const useObliqueSlice = () => {
   // Method to handle changes in coordinates from a canvas point input
   // It adjusts the coordinates and updates the oblique state
   const onChangeCoordinates = (canvasPoint: CanvasPoint | null) => {
-    if(canvasPoint === null) console.log("canvasPoint is null - onChangeCoordinates");
+    if (canvasPoint === null) console.log('canvasPoint is null - onChangeCoordinates');
     if (canvasPoint) {
       // Destructure points and factor from the canvasPoint input
       const { points, factor } = canvasPoint;
@@ -95,12 +101,16 @@ export const useObliqueSlice = () => {
     // Destructure isDistancesLoaded from oblique state
     const { isDistancesLoaded } = oblique;
     // If distances are already loaded and no path is provided, reset distances to default
+
+    console.log('Is distances loaded:', isDistancesLoaded, 'Path:', path);
+
     if (isDistancesLoaded && path === undefined) {
       dispatch(
         setObliquePoints({
           ...oblique,
           isDistancesLoaded: false,
           distances: defaultDistances,
+          solution: null,
         })
       );
       return;
@@ -108,7 +118,7 @@ export const useObliqueSlice = () => {
     try {
       // Open a dialog to select distances file if no path is provided
       const { distances: newDistances, error } = await ipcRenderer.invoke('import-distances', { path });
-      
+
       // Handle errors from the IPC call
       // Error can be a wrong file format or user canceling the dialog
       // If not distances are loaded, we don't show any error to the user

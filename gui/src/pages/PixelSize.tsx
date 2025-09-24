@@ -10,7 +10,16 @@ import { ButtonLock } from '../components/ButtonLock.js';
 import { formatNumberTo2Decimals, formatNumberToPrecision4 } from '../helpers/adapterNumbers.js';
 
 export const PixelSize = () => {
-  const { dirPoints, rwPoints, size, rwLength, solution, extraFields, onUpdatePixelSize, onGetUavTransformationMatrix } = useUavSlice();
+  const {
+    dirPoints,
+    rwPoints,
+    size,
+    rwLength,
+    solution,
+    extraFields,
+    onUpdatePixelSize,
+    onGetUavTransformationMatrix,
+  } = useUavSlice();
 
   // * Estado inicial del formulario
   const methods = useForm({
@@ -33,7 +42,6 @@ export const PixelSize = () => {
 
   const onSubmit = (_data: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
     const id = (event.nativeEvent as SubmitEvent).submitter?.id;
-    console.log('id', id)
     if (id === 'solve-pixelsize') {
       event.preventDefault();
       onGetUavTransformationMatrix();

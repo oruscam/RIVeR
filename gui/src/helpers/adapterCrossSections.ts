@@ -5,7 +5,7 @@ export const adapterCrossSections = (sections: Section[]) => {
     const { name, dirPoints, sectionPoints, bathimetry, numStations, alpha, rwPoints, sectionPointsRW } = section;
 
     if (sectionPointsRW === undefined) return;
-    console.log('aqui alpha es del tipo ', typeof alpha);
+
     return {
       [name]: {
         bath: bathimetry.path,

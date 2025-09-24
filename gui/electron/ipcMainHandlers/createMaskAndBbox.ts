@@ -7,7 +7,6 @@ import { clearResultsPiv } from './utils/clearResultsPiv';
 
 async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
   ipcMain.handle('create-mask-and-bbox', async (_event, args) => {
-    console.log('create-mask-and-bbox');
     const { projectDirectory, xsectionsPath, matrixPath, resultsPath, settingsPath, logsPath, firstFrame } =
       PROJECT_CONFIG;
     const { height_roi, data } = args;
@@ -19,7 +18,6 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Functi
     if (resultsPath !== '') {
       clearResultsPiv(resultsPath, settingsPath);
     }
-    console.log('matrix path', matrixPath);
     const options = [
       'create-mask-and-bbox',
       '--save-png-mask',
@@ -60,7 +58,6 @@ async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Functi
       const maskPngPath = path.join(projectDirectory, 'mask.png');
       return { maskPath: maskPngPath, bbox: data.bbox };
     } catch (error) {
-      console.log('ERROR EN CREATE MASK AND BBOX');
       throw error;
     }
   });

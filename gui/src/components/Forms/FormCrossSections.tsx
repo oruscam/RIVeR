@@ -118,7 +118,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       }
     }
   };
-  console.log('bat', bathimetry);
+
   return (
     <div id="form-section-div" className={activeSection !== index ? 'hidden' : ''}>
       <form

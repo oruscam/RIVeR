@@ -1,17 +1,18 @@
 import * as d3 from 'd3';
-import { factor, importedPoint } from '../../types';
+import { factor } from '../../types';
+import { IpcamPoint } from '../../store/ipcam/types';
 import { COLORS, MARKS } from '../../constants/constants';
 import { createPinsBase64 } from './createPinsBase64';
 
 interface ipcamSvgProps {
   factor: factor;
-  importedPoints: importedPoint[];
+  points: IpcamPoint[];
   svgElement: SVGSVGElement;
   width: number;
   height: number;
 }
 
-export const ipcamSvg = ({ factor, importedPoints, svgElement, width, height }: ipcamSvgProps) => {
+export const ipcamSvg = ({ factor, points, svgElement, width, height }: ipcamSvgProps) => {
   const svg = d3.select(svgElement);
 
   svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
@@ -27,8 +28,8 @@ export const ipcamSvg = ({ factor, importedPoints, svgElement, width, height }: 
 
   const clippedGroup = svg.append('g').attr('clip-path', 'url(#clip)');
 
-  for (let i = 0; i < importedPoints.length; i++) {
-    const { ellipse, projectedPoint, x, y, selected } = importedPoints[i];
+  for (let i = 0; i < points.length; i++) {
+    const { ellipse, projectedPoint, x, y, selected } = points[i];
 
     if (ellipse && selected) {
       clippedGroup

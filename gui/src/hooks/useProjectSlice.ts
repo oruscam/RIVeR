@@ -16,7 +16,13 @@ import {
   setDefaultProjectState,
 } from '../store/project/projectSlice';
 import { FieldValues } from 'react-hook-form';
-import { addSection, setDefaultSectionState, setSummary, setTransformationMatrix, updateSection } from '../store/section/sectionSlice';
+import {
+  addSection,
+  setDefaultSectionState,
+  setSummary,
+  setTransformationMatrix,
+  updateSection,
+} from '../store/section/sectionSlice';
 import { MODULE_NUMBER } from '../constants/constants';
 import {
   setDataLoaded,
@@ -35,11 +41,13 @@ import {
 } from '../helpers/index';
 import { OperationCanceledError, UserSelectionError } from '../errors/errors';
 import { parseTime } from '../helpers';
+import { setDefaultUavState, updatePixelSize } from '../store/uav/uavSlice';
 import {
-  setDefaultUavState,
-  updatePixelSize,
-} from '../store/uav/uavSlice';
-import { setDefaultIpcamState, setCameraSolution as setIpcamCameraSolution, setImages as setIpcamImages, setPoints as setIpcamPoints } from '../store/ipcam/ipcamSlice';
+  setDefaultIpcamState,
+  setCameraSolution as setIpcamCameraSolution,
+  setImages as setIpcamImages,
+  setPoints as setIpcamPoints,
+} from '../store/ipcam/ipcamSlice';
 import { onLoad3dRectification } from '../helpers/loadProjectHelpers';
 import { useTranslation } from 'react-i18next';
 import { setDefaultObliqueState, setObliquePoints } from '../store/oblique/obliqueSlice';
@@ -546,9 +554,9 @@ export const useProjectSlice = () => {
   };
 
   const onSetDefaultProjectState = () => {
-    if ( type === 'uav'){
+    if (type === 'uav') {
       dispatch(setDefaultUavState());
-    } else if (type === 'ipcam'){
+    } else if (type === 'ipcam') {
       dispatch(setDefaultIpcamState());
     } else {
       dispatch(setDefaultObliqueState());
@@ -557,7 +565,7 @@ export const useProjectSlice = () => {
     // Global variables as default
     dispatch(resetAll());
     dispatch(setDefaultDataState());
-    dispatch(setDefaultSectionState())
+    dispatch(setDefaultSectionState());
     dispatch(setDefaultProjectState());
   };
 

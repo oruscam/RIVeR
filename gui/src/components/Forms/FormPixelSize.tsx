@@ -8,8 +8,17 @@ import { OrthoImage } from '../Graphs';
 
 export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
   const { t } = useTranslation();
-  const { extraFields, dirPoints, rwLength, drawLine, solution, onUpdatePixelSize, onSetPixelRealWorld, onSetPixelDirection} = useUavSlice();
-  const { isBackendWorking } = useGlobalSlice()
+  const {
+    extraFields,
+    dirPoints,
+    rwLength,
+    drawLine,
+    solution,
+    onUpdatePixelSize,
+    onSetPixelRealWorld,
+    onSetPixelDirection,
+  } = useUavSlice();
+  const { isBackendWorking } = useGlobalSlice();
   const { video } = useProjectSlice();
   const { width, height } = video.data;
   const { factor: imageReducedFactor } = video.parameters;

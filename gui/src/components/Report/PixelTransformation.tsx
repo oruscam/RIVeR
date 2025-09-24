@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { REPORT_IMAGES } from '../../constants/constants';
 import { formatNumberToPrecision4, getUnit } from '../../helpers';
-import { useUavSlice, useProjectSlice} from '../../hooks';
+import { useUavSlice, useProjectSlice } from '../../hooks';
 import { factor } from '../../types';
 import { IpcamPixelTransformation } from './IpcamPixelTransformation';
 import { ObliquePixelTransformation } from './ObliquePixelTransformation';

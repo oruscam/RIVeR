@@ -43,7 +43,6 @@ async function clearCrossSections(filepath: string) {
   }
 
   delete newJson.summary;
-  console.log(newJson);
   await fs.promises.writeFile(filepath, JSON.stringify(newJson, null, 2), 'utf-8');
 }
 

@@ -46,7 +46,6 @@ export const PointsRectification3D = ({ factor, resizeFactor }: PointsProps) => 
   };
 
   const handleDragStart = (event: any, index: number) => {
-    console.log('Drag started for point:', index);
     if (points) {
       const point = {
         x: parseFloat((event.target.x() * factor).toFixed(2)),
@@ -70,7 +69,6 @@ export const PointsRectification3D = ({ factor, resizeFactor }: PointsProps) => 
   };
 
   const onClickPoint = (index: number) => {
-    console.log('Point clicked:', index);
     onSetPointPixelCoordinates({ index, clickIcon: true });
   };
 

@@ -21,8 +21,6 @@ export const OrthoImage = ({
   const { screenSizes } = useUiSlice();
   const { width: screenWidth } = screenSizes;
 
-  console.log('solution', solution)
-
   const { orthoImage, extent, width: orthoWidth, height: orthoHeight } = solution!;
   const imgWidth = Math.abs(extent[1] - extent[0]);
   const imgHeight = Math.abs(extent[2] - extent[3]);

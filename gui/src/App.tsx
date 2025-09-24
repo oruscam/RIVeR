@@ -25,14 +25,6 @@ export const App: React.FC = () => {
   const { onSetImages, images } = useDataSlice();
   const { factor } = parameters;
 
-  const {hasChanged} = useGlobalSlice()
-
-  console.log('has changed', hasChanged)
-
-  const oblique = useObliqueSlice();
-
-  console.log('oblique state', oblique);
-
   const getStep4 = () => {
     switch (type) {
       case FOOTAGE_TYPES.UAV:

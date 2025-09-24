@@ -1,6 +1,5 @@
 import { BackendCameraSolution, IpcamPoint } from '../store/ipcam/types';
 
-
 /**
  * Appends camera solution data to imported points.
  *

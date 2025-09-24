@@ -375,11 +375,7 @@ const onLoad3dRectification = (
   let filePrefix = import.meta.env.VITE_FILE_PREFIX;
   filePrefix = filePrefix === undefined ? '' : filePrefix;
   const { points, cameraSolution, mode, images } = rectification3d;
-  const { newPoints, numPoints } = appendSolutionToIpcamPoints(
-    points,
-    cameraSolution,
-    mode === 'direct-solve'
-  );
+  const { newPoints, numPoints } = appendSolutionToIpcamPoints(points, cameraSolution, mode === 'direct-solve');
 
   delete cameraSolution.projectedPoints;
   delete cameraSolution.uncertaintyEllipses;

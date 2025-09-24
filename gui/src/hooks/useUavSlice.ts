@@ -1,10 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { CanvasPoint, FormPoint,  UpdatePixelSize } from '../types';
-import {
-  setPixelSizePoints,
-  updatePixelSize,
-} from '../store/uav/uavSlice';
+import { CanvasPoint, FormPoint, UpdatePixelSize } from '../types';
+import { setPixelSizePoints, updatePixelSize } from '../store/uav/uavSlice';
 import {
   computePixelSize,
   computeRwDistance,
@@ -21,68 +18,63 @@ import { setHasChanged, setIsBackendWorking } from '../store/global/globalSlice'
 export const useUavSlice = () => {
   const dispatch = useDispatch();
   const uav = useSelector((state: RootState) => state.uav);
-  const {hasChanged} = useSelector((state: RootState) => state.global)
+  const { hasChanged } = useSelector((state: RootState) => state.global);
 
   const onGetUavTransformationMatrix = async () => {
     dispatch(setIsBackendWorking(true));
 
     const ipcRenderer = window.ipcRenderer;
 
-    console.log('onGetUav', )
+    const { dirPoints, rwPoints, size, rwLength } = uav;
 
-      const { dirPoints, rwPoints, size, rwLength } = uav;
+    if (hasChanged === false) {
+      dispatch(setIsBackendWorking(false));
+      return;
+    }
 
-      if (hasChanged === false) {
-        dispatch(setIsBackendWorking(false));
-        return;
-      }
+    const args = {
+      dirPoints,
+      rwPoints,
+      pixelSize: size,
+      rwLength: rwLength,
+    };
 
-      const args = {
-        dirPoints,
-        rwPoints,
-        pixelSize: size,
-        rwLength: rwLength,
-      };
+    try {
+      const { uavMatrix, orthoImage, output_resolution, extent } = await ipcRenderer.invoke(
+        'set-pixel-size',
+        args
+      );
 
-      console.log('asd')
+      const secondPoint = transformPixelToRealWorld(dirPoints[1].x, dirPoints[1].y, uavMatrix);
 
-      try {
-        const { uavMatrix, orthoImage, output_resolution, extent } = await ipcRenderer.invoke(
-          'set-pixel-size',
-          args
-        );
+      let orthoImageWidth: number = 0;
+      let orthoImageHeight: number = 0;
 
-        const secondPoint = transformPixelToRealWorld(dirPoints[1].x, dirPoints[1].y, uavMatrix);
+      await getImageSize(orthoImage).then(({ width, height }) => {
+        orthoImageWidth = width;
+        orthoImageHeight = height;
+      });
 
-
-        let orthoImageWidth: number = 0;
-        let orthoImageHeight: number = 0;
-
-        await getImageSize(orthoImage).then(({ width, height }) => {
-          orthoImageWidth = width;
-          orthoImageHeight = height;
-        });
-
-        dispatch(setTransformationMatrix({ transformationMatrix: uavMatrix }));
-        dispatch(
-          updatePixelSize({
-            ...uav,
-            solution: {
-              orthoImage: orthoImage,
-              resolution: output_resolution,
-              extent: extent,
-              secondPoint: { x: secondPoint[0], y: secondPoint[1] },
-              width: orthoImageWidth,
-              height: orthoImageHeight,
-            },
-          })
-        );
-        dispatch(setHasChanged(false));
-        dispatch(setIsBackendWorking(false));
-        dispatch(setDefaultSectionState());
-      } catch (error) {
-        console.log(error);
-      }
+      dispatch(setTransformationMatrix({ transformationMatrix: uavMatrix }));
+      dispatch(
+        updatePixelSize({
+          ...uav,
+          solution: {
+            orthoImage: orthoImage,
+            resolution: output_resolution,
+            extent: extent,
+            secondPoint: { x: secondPoint[0], y: secondPoint[1] },
+            width: orthoImageWidth,
+            height: orthoImageHeight,
+          },
+        })
+      );
+      dispatch(setHasChanged(false));
+      dispatch(setIsBackendWorking(false));
+      dispatch(setDefaultSectionState());
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const onSetPixelDirection = (canvasPoints: CanvasPoint | null, formPoint: FormPoint | null) => {
@@ -138,7 +130,7 @@ export const useUavSlice = () => {
             ...uav,
             dirPoints: newPoints,
             size,
-            solution: null
+            solution: null,
           })
         );
         dispatch(setHasChanged(true));
@@ -234,7 +226,6 @@ export const useUavSlice = () => {
     dispatch(updatePixelSize(updatedPixelSize));
     dispatch(setHasChanged(true));
   };
-
 
   return {
     // ATRIBUTES

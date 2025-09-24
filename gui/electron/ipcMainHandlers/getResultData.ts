@@ -12,7 +12,6 @@ if (platform() === 'win32') {
 
 async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
   ipcMain.handle('get-results-single', async (_event, args) => {
-    console.log('get-results-single');
     const {
       step,
       fps,
@@ -96,10 +95,7 @@ async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) 
     const xSectionsFile = await fs.promises.readFile(xSections, { encoding: encoding });
     const xSectionsFileParsed = JSON.parse(xSectionsFile);
 
-    console.log('xSectionsFileParsed', xSectionsFileParsed);
-
     for (const sectionKey in xSectionsFileParsed) {
-      console.log('sectionKey', sectionKey);
       if (sectionKey === 'summary') continue;
       if (xSectionsFileParsed[sectionKey].check) {
         xSectionsFileParsed[sectionKey].check = xSectionsFileParsed[sectionKey].check.map(() => true);

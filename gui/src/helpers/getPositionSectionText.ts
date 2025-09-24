@@ -155,14 +155,6 @@ const getPositionSectionText = (
     point = { ...point, y: (imageHeight - marginBottom) * factor };
   }
 
-  // if (point.y / factor > imageHeight - marginBottom) {
-  //   console.log('this case', isUpper, rotation)
-  //   if ( point.x /  factor < marginLeft){
-  //     point = { ...point, x: point.x - 150, y: point.y - 50 }
-  //   }
-
-  // }
-
   return { point, rotation };
 };
 export { calculateMidpointAndAngle, getLeftAndRightPoints, getLowerAndUpperPoints, getPositionSectionText };

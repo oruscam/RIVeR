@@ -48,9 +48,7 @@ export const ImageRectification3D = () => {
             <Ellipses factor={factor as number} />
             {/* <CrossPoints factor={factor as number}/>     */}
             <RedPoints factor={factor as number} resizeFactor={resizeFactor} />
-            {points !== null && (
-              <PointsRectification3D factor={factor as number} resizeFactor={resizeFactor} />
-            )}
+            {points !== null && <PointsRectification3D factor={factor as number} resizeFactor={resizeFactor} />}
           </>
         )}
       </Layer>

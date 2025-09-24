@@ -30,6 +30,7 @@ import {
 } from './ipcMainHandlers/index.js';
 import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
+import { exec } from 'node:child_process';
 
 process.env.APP_ROOT = path.join(__dirname, '..');
 
@@ -88,7 +89,7 @@ async function createWindow() {
     // This will use the Python shell to execute RIVeR commands.
     // This is useful for development purposes, but not recommended for production.
 
-    riverCli = executeRiverCli;
+    riverCli = executePythonShell;
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'));

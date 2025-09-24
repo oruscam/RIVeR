@@ -11,7 +11,6 @@ async function recommendRoiHeight(PROJECT_CONFIG: ProjectConfig, riverCli: Funct
       const { data } = await riverCli(options, 'json', false, logsPath);
       return { height_roi: (data as any).height_roi };
     } catch (error) {
-      console.log('ERROR EN RECOMMEND ROI HEIGHT');
       console.log(error);
     }
   });

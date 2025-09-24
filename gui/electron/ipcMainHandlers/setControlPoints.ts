@@ -85,7 +85,6 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         orthoImage,
       };
     } catch (error) {
-      console.log('Error en set-control-points');
       console.log(error);
     }
   });

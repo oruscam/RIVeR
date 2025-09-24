@@ -7,11 +7,19 @@ import { DropHereText } from './DropHereText';
 
 export const FormRectification3D = () => {
   const [mode, setMode] = useState('');
-  const { onGetPoints, onGetImages, onGetCameraSolution, cameraSolution, selectedCounter, points, imagesPath, pointsPath } = useIpcamSlice();
+  const {
+    onGetPoints,
+    onGetImages,
+    onGetCameraSolution,
+    cameraSolution,
+    selectedCounter,
+    points,
+    imagesPath,
+    pointsPath,
+  } = useIpcamSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { t } = useTranslation();
-
 
   const handleOnClickImport = async (event: React.MouseEvent<HTMLButtonElement>) => {
     const id = (event.target as HTMLButtonElement).id;

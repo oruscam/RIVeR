@@ -4,13 +4,13 @@ import { Point } from '../../types';
 import { UavMode } from './types';
 
 const initialState: UavMode = {
-    drawLine: false,
-    dirPoints: [],
-    rwPoints: DEFAULT_POINTS,
-    size: 0,
-    rwLength: 0,
-    extraFields: false,
-    solution: null
+  drawLine: false,
+  dirPoints: [],
+  rwPoints: DEFAULT_POINTS,
+  size: 0,
+  rwLength: 0,
+  extraFields: false,
+  solution: null,
 };
 
 const uavSlice = createSlice({
@@ -28,19 +28,14 @@ const uavSlice = createSlice({
       }
     },
     updatePixelSize: (_state, action: PayloadAction<UavMode>) => {
-      console.log('update pixel sizel', action.payload)
-      return action.payload
+      return action.payload;
     },
     setDefaultUavState: () => {
       return initialState;
-    }
+    },
   },
 });
 
-export const {
-  setPixelSizePoints,
-  updatePixelSize,
-  setDefaultUavState
-} = uavSlice.actions;
+export const { setPixelSizePoints, updatePixelSize, setDefaultUavState } = uavSlice.actions;
 
 export default uavSlice.reducer;

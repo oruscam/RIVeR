@@ -9,8 +9,6 @@ interface setSectionsHandleArgs {
 // 🚧 setSections -> solo setea el setting.json con la nueva direccion a xsettings -> archivo de secciones.
 export function setSections(PROJECT_CONFIG: ProjectConfig) {
   ipcMain.handle('set-sections', async (_event, args: setSectionsHandleArgs) => {
-    console.log('set-sections');
-
     const { projectDirectory, settingsPath } = PROJECT_CONFIG;
     const xsectionsPath = path.join(projectDirectory, 'xsections.json');
     PROJECT_CONFIG.xsectionsPath = xsectionsPath;

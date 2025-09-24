@@ -127,7 +127,7 @@ async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli:
 
       const updatedContent = JSON.stringify(settingsParsed, null, 4);
       await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
-      
+
       const orthoImage = filePrefix + data.ortho_image_path + `?t=${new Date().getTime()}`;
       return {
         data: {

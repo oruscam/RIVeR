@@ -37,7 +37,6 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
       const result = (await riverCli(options, 'text', false, logsPath)) as any;
       return result;
     } catch (error) {
-      console.log('Error en get-quiver-test');
       console.log(error);
       throw error;
     }
@@ -75,7 +74,6 @@ async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         error: '',
       };
     } catch (error) {
-      console.log('Error en get-quiver-all');
       console.log(error);
       throw error;
     }

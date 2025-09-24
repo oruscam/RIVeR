@@ -11,7 +11,7 @@ const initialState: UIState = {
   isLoading: false,
   seeAll: true,
   language: 'en',
-  isLastVersion: undefined,
+  isLatestVersion: undefined,
 };
 
 const uiSlice = createSlice({
@@ -48,7 +48,6 @@ const uiSlice = createSlice({
     },
     setLanguage: (state, action: PayloadAction<string>) => {
       if (action.payload === undefined) return;
-      console.log('Setting language to: ', action.payload);
       state.language = action.payload;
     },
     setIsLastVersion: (state, action: PayloadAction<{ isLatest: boolean; latest: string }>) => {
