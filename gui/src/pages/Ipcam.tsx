@@ -1,12 +1,12 @@
 import { useWizard } from 'react-use-wizard';
-import { FormRectification3D } from '../components/Forms/FormRectification3D.tsx';
-import { Carousel, Error, ImageRectification3D, Progress, WizardButtons } from '../components/index';
+import { FormIpcam } from '../components/Forms/FormIpcam.tsx';
+import { Carousel, Error, ImageIpcam, Progress, WizardButtons } from '../components/index';
 import { useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers/handleDragEvents.ts';
 import { useUiSlice } from '../hooks/useUiSlice.ts';
 import { useIpcamSlice } from '../hooks/index';
 
-export const Rectification3D = () => {
+export const Ipcam = () => {
   const { importedImages, cameraSolution, activeImage, onChangeActiveImage, onGetPoints, onGetImages } =
     useIpcamSlice();
   const { onSetErrorMessage } = useUiSlice();
@@ -43,7 +43,7 @@ export const Rectification3D = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageRectification3D />
+        <ImageIpcam />
         {importedImages !== null && (
           <Carousel
             images={importedImages}
@@ -61,7 +61,7 @@ export const Rectification3D = () => {
         onDrop={handleDrop}
       >
         <Progress />
-        <FormRectification3D />
+        <FormIpcam />
         <WizardButtons canFollow={cameraSolution !== null} onClickNext={handleOnClickNext} />
       </div>
     </div>

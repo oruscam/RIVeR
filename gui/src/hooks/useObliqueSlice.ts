@@ -1,17 +1,19 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
-import { CanvasPoint, Point } from '../types';
+import { CanvasPoint, FormPoint, Point } from '../types';
 import { ScreenSizes } from '../store/ui/types';
 import {
   adapterObliquePointsDistances,
   adjustCoordinates,
   createSquare,
   getImageSize,
+  getPointsDistances,
+  setChangesByForm,
   transformPixelToRealWorld,
 } from '../helpers';
 import { resetAll, setHasChanged, setIsBackendWorking } from '../store/global/globalSlice';
-import { setDrawPoints, setObliquePoints } from '../store/oblique/obliqueSlice';
-import { defaultDistances } from '../store/oblique/types';
+import { setDrawPoints, setExtraFields, setObliquePoints } from '../store/oblique/obliqueSlice';
+import { defaultCoordinates, defaultDistances } from '../store/oblique/types';
 import { setDefaultSectionState, setTransformationMatrix } from '../store/section/sectionSlice';
 import { CliError, ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
@@ -36,7 +38,7 @@ export const useObliqueSlice = () => {
   // Method to set coordinates based on two points and screen sizes
   // It creates a square from the two points, adjusts it according to screen factor,
   // and updates the oblique state with new coordinates
-  const onSetCoordinates = (points: Point[], screenSizes: ScreenSizes) => {
+  const onSetCoordinatesCanvas = (points: Point[], screenSizes: ScreenSizes) => {
     // Destructure screen sizes
     // imageWidth and imageHeight are the dimensions of the image on screen
     // factor is the scaling factor between the original image size and actual image size
@@ -64,8 +66,7 @@ export const useObliqueSlice = () => {
 
   // Method to handle changes in coordinates from a canvas point input
   // It adjusts the coordinates and updates the oblique state
-  const onChangeCoordinates = (canvasPoint: CanvasPoint | null) => {
-    if (canvasPoint === null) console.log('canvasPoint is null - onChangeCoordinates');
+  const onChangeCoordinates = (canvasPoint: CanvasPoint | null, formPoint: FormPoint) => {
     if (canvasPoint) {
       // Destructure points and factor from the canvasPoint input
       const { points, factor } = canvasPoint;
@@ -83,7 +84,23 @@ export const useObliqueSlice = () => {
         })
       );
       return;
+    } 
+
+    if (formPoint) {
+      const { points } = setChangesByForm(formPoint, oblique.coordinates);
+      
+      dispatch(setHasChanged(true));
+      dispatch(
+        setObliquePoints({
+          ...oblique,
+          coordinates: points,
+          isDefaultCoordinates: false,
+          solution: null, // Reset solution when coordinates change
+        })
+      );
+      return;
     }
+
   };
   // Method to toggle the drawPoints flag in the oblique state
   // This flag indicates whether points should be drawn on the image
@@ -102,14 +119,13 @@ export const useObliqueSlice = () => {
     const { isDistancesLoaded } = oblique;
     // If distances are already loaded and no path is provided, reset distances to default
 
-    console.log('Is distances loaded:', isDistancesLoaded, 'Path:', path);
-
     if (isDistancesLoaded && path === undefined) {
       dispatch(
         setObliquePoints({
           ...oblique,
           isDistancesLoaded: false,
           distances: defaultDistances,
+          rwCoordinates: defaultCoordinates,
           solution: null,
         })
       );
@@ -136,6 +152,7 @@ export const useObliqueSlice = () => {
           ...oblique,
           isDistancesLoaded: true,
           distances: newDistances,
+          rwCoordinates: defaultCoordinates,
         })
       );
     } catch (error) {
@@ -239,15 +256,41 @@ export const useObliqueSlice = () => {
     }
   };
 
+  const onChangeExtraFields = () => {
+    dispatch(setExtraFields())
+  }
+
+  const onChangeRealWorldCoordinates = (value: number, position: string) => {
+    console.log('Change RW coordinate:', value, position);
+
+    const { points } = setChangesByForm({ value, position }, oblique.rwCoordinates);
+
+    const newDistances = getPointsDistances(points)
+
+    dispatch(setHasChanged(true));
+    dispatch(
+      setObliquePoints({
+        ...oblique,
+        rwCoordinates: points,
+        distances: newDistances,
+        solution: null, // Reset solution when coordinates change
+      })
+    );
+    return;
+  }
+
+
   return {
     // ATRIBUTES
     ...oblique,
 
     // METHODS
     onChangeCoordinates,
+    onChangeExtraFields,
     onGetDistances,
     onGetObliqueTransformationMatrix,
-    onSetCoordinates,
+    onSetCoordinatesCanvas,
     onSetDrawPoints,
+    onChangeRealWorldCoordinates,
   };
 };

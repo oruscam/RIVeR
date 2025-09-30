@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useProjectSlice } from '../../hooks';
+import { useProjectSlice } from '../../../hooks';
 
 export const VideoMetadata = () => {
   const { t } = useTranslation();

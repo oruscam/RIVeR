@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 import { useDataSlice, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
-import { RealWorldCoordinates, PixelCoordinates, DropHereText } from './index';
+import { RealWorldCoordinates, PixelCoordinates, DropHereText, HardModeCrossSections } from './Components/index';
 import { Bathimetry } from '../Graphs';
 import { useTranslation } from 'react-i18next';
 
@@ -273,12 +273,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             />
           </div>
 
-          <div className={extraFields ? 'mt-3' : 'hidden'}>
-            <RealWorldCoordinates modeName={name} onSetRealWorld={onSetRealWorld} />
-            <PixelCoordinates modeName={name} onSetDirPoints={onSetDirPoints} />
-            <span id={`span-footer-${name}`}></span>
-            <span id={`${name}-form-cross-section-footer`} />
-          </div>
+          <HardModeCrossSections extraFields={extraFields} name={name} />
         </div>
       </form>
     </div>

@@ -6,7 +6,7 @@ import {
   computeRwDistance,
   getLinesCoordinates,
 } from './coordinates';
-import { getPointNames } from './getPointNames';
+import { getPointNames, getLabelStyle, getPointsDistances } from './hardModeFormHelpers';
 import { getNewImageResolution } from './getNewImageResolution';
 import { getValidationRules } from './validationRules';
 import { formatTime, parseTime } from './formatTime';
@@ -16,7 +16,7 @@ import { getDirectionVector } from './getDirectionVector';
 import { getBathimetryValues, getIntersectionPoints } from './getBathimetryValues';
 import { adapterCrossSections } from './adapterCrossSections';
 import { imageZoom, onMouseDownPixelSize, onMouseUpPixelSize, getRelativePointerPosition } from './konvaActions';
-import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks } from './graphsHelpers';
+import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks, getOrthoImageDimensions } from './graphsHelpers';
 import { formatNumberToPrecision2, formatNumberToPrecision4, formatNumberTo2Decimals } from './adapterNumbers';
 import { carouselClickImage, carouselKeyDown, setCarouselDimensions } from './carouselFunctions';
 import { calculateArrowWidth, calculateMultipleArrowsAdaptative } from './drawVectorsFunctions';
@@ -34,7 +34,6 @@ import {
   onLoadVideoParameters,
 } from './loadProjectHelpers';
 import { getPositionSectionText } from './getPositionSectionText';
-import { appendSolutionToIpcamPoints } from './appendSolutionsToImportedPoints';
 import { verifyWindowsSizes } from './verifyWindowsSizes';
 import { getNewCanvasPositions, setChangesByForm } from './sectionsHelpers';
 import getLineColor from './getLineColor';
@@ -48,7 +47,6 @@ export {
   adapterObliquePointsDistances,
   adaptStringDate,
   adjustCoordinates,
-  appendSolutionToImportedPoints,
   calculateArrowWidth,
   calculateMultipleArrowsAdaptative,
   carouselClickImage,
@@ -68,12 +66,15 @@ export {
   getDistanceBetweenPoints,
   getImageSize,
   getIntersectionPoints,
+  getLabelStyle,
   getLineColor,
   getLinesCoordinates,
   getNewCanvasPositions,
   getNewImageResolution,
   getObliquePointsDistances,
+  getOrthoImageDimensions,
   getPointNames,
+  getPointsDistances,
   getPositionSectionText,
   getRelativePointerPosition,
   getUnit,

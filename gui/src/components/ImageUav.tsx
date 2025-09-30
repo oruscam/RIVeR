@@ -9,7 +9,7 @@ import { Points } from './Points';
 import useImage from 'use-image';
 import { Point } from '../types';
 
-export const ImagePixelSize = () => {
+export const ImageUav = () => {
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
 

@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { useDataSlice, useUiSlice } from '../../hooks';
+import { useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
 
 export const HardModeProcessing = ({ active }: { active: boolean }) => {

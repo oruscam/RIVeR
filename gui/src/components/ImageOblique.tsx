@@ -8,8 +8,8 @@ import { useEffect, useState } from 'react';
 import { Point } from '../types';
 import { ObliquePointsLines, Points } from './index';
 
-export const ImageRectification2D = () => {
-  const { coordinates, drawPoints, distances, onSetCoordinates, onChangeCoordinates } = useObliqueSlice();
+export const ImageOblique = () => {
+  const { coordinates, drawPoints, onSetCoordinatesCanvas, onChangeCoordinates } = useObliqueSlice();
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
 
@@ -60,7 +60,7 @@ export const ImageRectification2D = () => {
     newPoints[1] = pointerPosition;
 
     setLocalPoints(newPoints);
-    onSetCoordinates(newPoints, screenSizes);
+    onSetCoordinatesCanvas(newPoints, screenSizes);
   };
 
   const handleOnWheel = (event: KonvaEventObject<WheelEvent>) => {
@@ -111,7 +111,7 @@ export const ImageRectification2D = () => {
           draggable={true}
           factor={factor}
           resizeFactor={resizeFactor}
-          module="controlPoints"
+          module="oblique"
         />
       </Layer>
     </Stage>

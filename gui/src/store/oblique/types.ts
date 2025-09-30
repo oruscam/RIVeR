@@ -28,7 +28,7 @@ interface ObliqueSolution {
 interface ObliqueMode {
   drawPoints: boolean;
   coordinates: Point[];
-  rwCoordinates?: Point[];
+  rwCoordinates: Point[];
   distances: {
     d12: number;
     d23: number;
@@ -40,6 +40,7 @@ interface ObliqueMode {
   isDefaultCoordinates: boolean;
   isDistancesLoaded: boolean;
   solution: ObliqueSolution | null;
+  extraFields: boolean;
 }
 
 export type { ObliqueMode, ObliqueSolution };

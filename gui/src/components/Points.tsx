@@ -53,7 +53,7 @@ export const Points = ({
       const newPoints = [...localPoints];
       newPoints[index] = { x: event.target.x(), y: event.target.y() };
 
-      if (module === 'pixelSize' || module === 'contolPoints') {
+      if (module === 'pixelSize' || module === 'oblique') {
         setLocalPoints(newPoints);
         return;
       }
@@ -83,7 +83,7 @@ export const Points = ({
         if (index === 0) return iconRed;
         return iconGreen;
 
-      case 'controlPoints':
+      case 'oblique':
         if (index === 0) return iconRed;
         return icon;
     }

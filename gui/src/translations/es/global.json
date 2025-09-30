@@ -65,15 +65,23 @@
             "title": "Coordenadas Reales",
             "eastPoint1": "Punto Este (1)",
             "eastPoint2": "Punto Este (2)",
+            "eastPoint3": "Punto Este (3)",
+            "eastPoint4": "Punto Este (4)",
             "northPoint1": "Punto Norte (1)",
-            "northPoint2": "Punto Norte (2)"
+            "northPoint2": "Punto Norte (2)",
+            "northPoint3": "Punto Norte (3)",
+            "northPoint4": "Punto Norte (4)"
         },
         "Pixel": {
             "title": "Coordenadas en Píxel",
             "xPoint1": "Punto X (1)",
             "xPoint2": "Punto X (2)",
+            "xPoint3": "Punto X (3)",
+            "xPoint4": "Punto X (4)",
             "yPoint1": "Punto Y (1)",
-            "yPoint2": "Punto Y (2)"
+            "yPoint2": "Punto Y (2)",
+            "yPoint3": "Punto Y (3)",
+            "yPoint4": "Punto Y (4)"
         }
     },
     "CrossSections": {
