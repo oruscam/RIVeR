@@ -1,3 +1,4 @@
+import { Quiver } from '../store/data/types';
 import { transformRealWorldToPixel } from './coordinates';
 
 /**
@@ -495,7 +496,7 @@ function calculateMultipleArrowsAdaptative(
  * @returns {string[]} An array of RGB color strings representing the custom colormap.
  */
 
-function createColorMap() {
+function createColorMap(): string[] {
   const colors = [
     [108, 212, 255], // Light Blue - Lowest
     [98, 198, 85], // Green - Low-mid
@@ -633,4 +634,72 @@ const getGlobalMagnitudes = (sections: any) => {
   };
 };
 
-export { calculateArrowWidth, calculateMultipleArrows, calculateMultipleArrowsAdaptative, getGlobalMagnitudes };
+const getComponent = (
+  arr: number[] | number[][] | null | undefined,
+  median: number[] | null | undefined,
+  showMedian: boolean,
+  activeImage: number,
+  index: number
+) => {
+  if (showMedian) return median ? median[index] : null;
+
+  if (Array.isArray(arr)) {
+    return Array.isArray(arr[0])
+      ? (arr as number[][])[activeImage]?.[index] ?? null
+      : (arr as number[])[index] ?? null;
+  }
+
+  return null;
+};
+
+export interface QuiverData {
+  x: number;
+  y: number;
+  u: number;
+  v: number;
+  velocity: number;
+  color: string;
+}
+
+const getQuiverValues = ( quiver: Quiver, showMedian: boolean, activeImage: number, step = 5, fps = 25) : QuiverData[] => {
+  const { x, y, u, v, u_median, v_median } = quiver;
+
+  let data = x.map((d, i: number) => {
+    const uVal = getComponent(u, u_median, showMedian, activeImage, i);
+    const vVal = getComponent(v, v_median, showMedian, activeImage, i);
+
+    return {
+      x: d ?? -1000,
+      y: y[i],
+      u: uVal,
+      v: vVal,
+      velocity:
+        uVal !== null && vVal !== null
+          ? Math.sqrt(uVal ** 2 + vVal ** 2) / (step/ fps)
+          : null,
+      color: 'transparent', // Add default color property to satisfy QuiverData interface
+    };
+  }).filter((d) => d.u !== null && !isNaN(d.u) && d.v !== null && !isNaN(d.v));
+
+  const minVelocity = Math.min(...data.map(d => d.velocity ?? Infinity));
+  const maxVelocity = Math.max(...data.map(d => d.velocity ?? -Infinity));
+
+  const norm = new Normalize(minVelocity, maxVelocity);
+
+  const colorMap = createColorMap();
+
+  console.log(colorMap)
+
+  data = data.map((d) => {
+    const normalizedValue = norm.normalize(d.velocity!);
+    const colorIndex = Math.min(Math.floor(normalizedValue * (colorMap.length - 1)), colorMap.length - 1);
+    return {
+      ...d,
+      color: colorMap[colorIndex]
+    }
+  })
+
+  return data;
+}
+
+export { calculateArrowWidth, calculateMultipleArrows, calculateMultipleArrowsAdaptative, getGlobalMagnitudes, getQuiverValues};

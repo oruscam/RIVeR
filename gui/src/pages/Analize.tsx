@@ -27,7 +27,7 @@ export const Analize = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageWithData showMedian={showMedian}></ImageWithData>
+        <ImageWithData showMedian={showMedian}/>
         <Carousel
           images={paths}
           active={active}

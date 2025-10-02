@@ -28,6 +28,7 @@ const initialState: DataState = {
     paths: [],
     active: 0,
   },
+  quiver: null,
   isBackendWorking: false,
   isDataLoaded: false,
   hasChanged: false,
@@ -56,10 +57,11 @@ const dataSlice = createSlice({
     },
     setActiveImage: (state, action: PayloadAction<number>) => {
       state.images.active = action.payload;
+
     },
-    setQuiver: (state, action: PayloadAction<{ quiver: Quiver | undefined; test: boolean }>) => {
+    setQuiver: (state, action: PayloadAction<{ quiver: Quiver | null }>) => {
       state.quiver = action.payload.quiver;
-      if (action.payload.test) {
+      if (action.payload.quiver?.test) {
         state.hasChanged = true;
       } else {
         state.hasChanged = false;

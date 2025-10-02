@@ -24,6 +24,7 @@ import { RedPoints } from './RedPoints';
 import { ImagePixelSize } from './ImagePixelSize';
 import { VersionMessage } from './VersionMessage';
 import { Clipboard } from './Clipboard';
+import { ColorBar } from './ColorBar';
 
 export {
   Carousel,
@@ -31,6 +32,7 @@ export {
   DrawSections,
   Ellipses,
   Error,
+  ColorBar,
   Grid,
   Icon,
   ImagePixelSize,

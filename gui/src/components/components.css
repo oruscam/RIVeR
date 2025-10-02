@@ -575,6 +575,33 @@
     z-index: 1;
 }
 
+.colorbar-container {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #1e2525;
+  padding: 6px 10px;
+  border-radius: 15px; 
+  width: 300px;
+}
+
+.colorbar {
+  flex: 1;
+  height: 14px;
+  border-radius: 10px;
+}
+
+.colorbar-labels {
+  display: flex;
+  gap: 8px;
+  color: white;
+  font-size: 14px;
+}
+
+
 @media screen and (max-width: 1580px) {
     /* .image-with-marks{
         margin-top: 20%;

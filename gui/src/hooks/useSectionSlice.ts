@@ -355,7 +355,7 @@ export const useSectionSlice = () => {
       1;
       dispatch(updateProcessingForm({ ...processing.form, heightRoi: height_roi }));
       dispatch(setProcessingMask({ mask: filePrefix + maskPath, bbox }));
-      dispatch(setQuiver({ quiver: undefined, test: false }));
+      dispatch(setQuiver({ quiver: null }));
       dispatch(setLoading(false));
       dispatch(clearMessage());
     } catch (error) {

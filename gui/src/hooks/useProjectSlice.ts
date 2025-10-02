@@ -380,7 +380,6 @@ export const useProjectSlice = () => {
                 v_median,
                 test: false,
               },
-              test: false,
             })
           );
 
