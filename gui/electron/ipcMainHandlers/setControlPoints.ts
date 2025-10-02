@@ -76,7 +76,6 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
 
     console.log('Options for setControlPoints:', options);
 
-
     try {
       const { data, error } = await riverCli(options, 'text', 'false', logsPath);
 
