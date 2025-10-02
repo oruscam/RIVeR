@@ -661,25 +661,39 @@ export interface QuiverData {
   color: string;
 }
 
-const getQuiverValues = ( quiver: Quiver, showMedian: boolean, activeImage: number, step = 5, fps = 25) : QuiverData[] => {
+interface QuiverValuesResult {
+  data: QuiverData[];
+  min: number;
+  max: number;
+}
+
+const getQuiverValues = (
+  quiver: Quiver,
+  showMedian: boolean,
+  activeImage: number,
+  step: number,
+  fps: number
+): QuiverValuesResult => {
   const { x, y, u, v, u_median, v_median } = quiver;
 
   let data = x.map((d, i: number) => {
     const uVal = getComponent(u, u_median, showMedian, activeImage, i);
     const vVal = getComponent(v, v_median, showMedian, activeImage, i);
 
-    return {
-      x: d ?? -1000,
-      y: y[i],
-      u: uVal,
-      v: vVal,
-      velocity:
-        uVal !== null && vVal !== null
-          ? Math.sqrt(uVal ** 2 + vVal ** 2) / (step/ fps)
-          : null,
-      color: 'transparent', // Add default color property to satisfy QuiverData interface
-    };
-  }).filter((d) => d.u !== null && !isNaN(d.u) && d.v !== null && !isNaN(d.v));
+    // Only include if both u and v are valid numbers
+    if (uVal !== null && !isNaN(uVal) && vVal !== null && !isNaN(vVal)) {
+      const velocity = Math.sqrt(uVal ** 2 + vVal ** 2) / (step / fps);
+      return {
+        x: d ?? -1000,
+        y: y[i],
+        u: uVal,
+        v: vVal,
+        velocity: velocity,
+        color: 'transparent', // Add default color property to satisfy QuiverData interface
+      };
+    }
+    return null;
+  }).filter((d): d is QuiverData => d !== null);
 
   const minVelocity = Math.min(...data.map(d => d.velocity ?? Infinity));
   const maxVelocity = Math.max(...data.map(d => d.velocity ?? -Infinity));
@@ -688,18 +702,21 @@ const getQuiverValues = ( quiver: Quiver, showMedian: boolean, activeImage: numb
 
   const colorMap = createColorMap();
 
-  console.log(colorMap)
-
   data = data.map((d) => {
     const normalizedValue = norm.normalize(d.velocity!);
+    
     const colorIndex = Math.min(Math.floor(normalizedValue * (colorMap.length - 1)), colorMap.length - 1);
     return {
       ...d,
-      color: colorMap[colorIndex]
+      color: colorMap[colorIndex],
     }
   })
 
-  return data;
+  return {
+    data: data,
+    min: minVelocity,
+    max: maxVelocity
+  };
 }
 
 export { calculateArrowWidth, calculateMultipleArrows, calculateMultipleArrowsAdaptative, getGlobalMagnitudes, getQuiverValues};

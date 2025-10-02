@@ -32,7 +32,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const realHeight = vertical ? heightReduced : height;
   const realFactor = vertical ? factorReduced : factor;
 
-  const data = useMemo(() => {
+  const { data, min, max} = useMemo(() => {
     if (quiver === null ) return [];
     return getQuiverValues(quiver, showMedian as boolean, images.active, parameters.step, videoData.fps);
   }, [quiver, images.active, showMedian]);
@@ -42,9 +42,12 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
       <img src={paths[active]} className="simple-image" />
       <img src={processing.maskPath} className="mask" />
 
-      <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} />
 
-      { quiver !== null && <ColorBar data={data} /> }
+      <div className='values-info'> 
+        <span>Step: {parameters.step}- </span>
+        <span>FPS: {videoData.fps}</span>
+      </div>
+      { quiver !== null && <ColorBar min={min} max={max} /> }
 
       <Stage
         width={vertical ? widthReduced : width}
@@ -57,6 +60,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
           {activeStep === MODULE_NUMBER.PROCESSING && <WindowSizes width={realWidth!} height={realHeight!} />}
         </Layer>
       </Stage>
+      <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} />
     </div>
   );
 };

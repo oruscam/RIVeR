@@ -572,7 +572,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 1;
+    z-index: 10;
 }
 
 .colorbar-container {
@@ -601,6 +601,11 @@
   font-size: 14px;
 }
 
+.values-info{
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
 
 @media screen and (max-width: 1580px) {
     /* .image-with-marks{
