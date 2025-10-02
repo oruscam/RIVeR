@@ -9,7 +9,7 @@ import { HardModeOblique } from './Components';
 import { KeyboardEvent, FocusEvent } from 'react';
 
 const distancesLabels = ['1-2', '2-3', '3-4', '4-1', '1-3', '2-4'];
-const distancesID = ['12', '23', '34', '41', '13', '24'];
+const distancesID = ['12', '23', '34', '14', '13', '24'];
 
 export const FormOblique= ({ onSubmit, onError }: FormChild) => {
   const {
