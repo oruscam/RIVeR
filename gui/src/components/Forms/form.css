@@ -554,7 +554,7 @@ transform-origin: 14px 22px;
 
 #ortho-image-fake-solution{
     color: transparent;
-    height: 40%;
+    height: 50%;
     flex-shrink: 0;
 }
 
@@ -572,6 +572,13 @@ transform-origin: 14px 22px;
     margin: 0px;
     overflow: hidden;
     margin-top: 0px;
+}
+
+@media screen and (max-height : 1400px) {
+    #ortho-image-fake-solution{
+        background-color: red;
+        height: 46%;
+    }
 }
 
 @media screen and (max-height : 1280px) {
@@ -601,6 +608,7 @@ transform-origin: 14px 22px;
 @media screen and (max-height : 990px) {
     #ortho-image-fake-solution{
         height: 16%;
+        
     }
 }
 

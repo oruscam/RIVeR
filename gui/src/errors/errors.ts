@@ -27,6 +27,14 @@ export class CliError extends Error {
   }
 }
 
+export class CliErrorMessage extends Error {
+  constructor(message?: string){
+    super(message)
+    this.name = 'CliErrorMessage';
+    this.stack = '';
+  } 
+}
+
 export class ResourceBusyError extends Error {
   constructor(message: string) {
     super(message);

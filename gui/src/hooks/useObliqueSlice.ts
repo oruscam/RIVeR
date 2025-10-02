@@ -15,7 +15,7 @@ import { resetAll, setHasChanged, setIsBackendWorking } from '../store/global/gl
 import { setDrawPoints, setExtraFields, setObliquePoints } from '../store/oblique/obliqueSlice';
 import { defaultCoordinates, defaultDistances } from '../store/oblique/types';
 import { setDefaultSectionState, setTransformationMatrix } from '../store/section/sectionSlice';
-import { CliError, ResourceNotFoundError } from '../errors/errors';
+import { CliError, CliErrorMessage, ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
 import { FieldValues } from 'react-hook-form';
 
@@ -205,6 +205,7 @@ export const useObliqueSlice = () => {
         {
           coordinates,
           distances: newDistances,
+          rwCoordinates: oblique.rwCoordinates,
         }
       );
       // Handle errors from the IPC call
@@ -249,9 +250,14 @@ export const useObliqueSlice = () => {
       // Reset the section state of next step
       dispatch(setDefaultSectionState());
     } catch (error) {
+      dispatch(setIsBackendWorking(false));
       // Handle errors by throwing a CliError with the error message
       if (error instanceof Error) {
-        throw new CliError(error.message, t);
+        if (error.message.includes('Anchor')){
+          throw new CliErrorMessage(error.message)
+        } else {
+          throw new CliError(error.message, t);
+        }
       }
     }
   };
@@ -261,8 +267,6 @@ export const useObliqueSlice = () => {
   }
 
   const onChangeRealWorldCoordinates = (value: number, position: string) => {
-    console.log('Change RW coordinate:', value, position);
-
     const { points } = setChangesByForm({ value, position }, oblique.rwCoordinates);
 
     const newDistances = getPointsDistances(points)
