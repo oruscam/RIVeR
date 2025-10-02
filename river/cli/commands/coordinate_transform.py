@@ -29,6 +29,15 @@ WRONG_SIZE_TRANSFORMATION_MATRIX_MESSAGE = (
 @click.option("--min-resolution", default=0.01, type=click.FLOAT)
 @click.option("--flip-x/--no-flip-x", default=False)
 @click.option("--flip-y/--no-flip-y", default=True)
+@click.option("--east1", type=click.FLOAT, default=None, help="Real-world east coordinate of point 1 (optional).")
+@click.option("--north1", type=click.FLOAT, default=None, help="Real-world north coordinate of point 1 (optional).")
+@click.option("--east2", type=click.FLOAT, default=None, help="Real-world east coordinate of point 2 (optional).")
+@click.option("--north2", type=click.FLOAT, default=None, help="Real-world north coordinate of point 2 (optional).")
+@click.option("--enforce-d12/--no-enforce-d12", default=True,
+              help="If set, require ||P2-P1|| = d12 within tolerance; otherwise use anchor distance.")
+@click.option("--distance-tolerance", default=1e-6, type=click.FLOAT, show_default=True,
+              help="Allowed mismatch between anchor ||P2-P1|| and d12 when enforcing.")
+
 @click.option(
 	"-w",
 	"--workdir",
@@ -116,6 +125,12 @@ def get_oblique_transformation_matrix(
 	min_resolution: int,
 	flip_x: bool,
 	flip_y: bool,
+	east1: Optional[float],
+	north1: Optional[float],
+	east2: Optional[float],
+	north2: Optional[float],
+	enforce_d12: bool,
+	distance_tolerance: float,
 	workdir: Optional[Path],
 ) -> dict:
 	"""Compute the homography transformation matrix based on pixel coordinates and real-world distances..
@@ -129,12 +144,22 @@ def get_oblique_transformation_matrix(
 	    min_resolution (float): Minimum resolution in real-world units per pixel
 	    flip_x (bool): Whether to flip the transformed image horizontally
 	    flip_y (bool): Whether to flip the transformed image vertically
+        east1,north1,east2,north2 (Optional[float]): Optional real-world anchors for P1 & P2.
+        enforce_d12 (bool): Enforce ||P2-P1|| ≈ d12 within tolerance when anchors are supplied.
+        distance_tolerance (float): Allowed absolute mismatch when enforcing.
 
 	Returns:
-		dict: Containing the oblique matrix.
+		dict: Contains the oblique transformation matrix and optional image path.
 	"""
 	if workdir is None and image_path is not None:
 		raise MissingWorkdir("To save the 'transformed_image.png' is needed to provide a workdir.")
+
+	# Ensure anchors are either fully specified or omitted
+	anchors = [east1, north1, east2, north2]
+	if any(v is not None for v in anchors) and not all(v is not None for v in anchors):
+		raise click.BadParameter(
+			"If you provide any of --east1/--north1/--east2/--north2, you must provide all four."
+		)
 
 	result = ct.oblique_view_transformation_matrix(
 		*pix_coordinates,
@@ -145,6 +170,13 @@ def get_oblique_transformation_matrix(
 		min_resolution=min_resolution,
 		flip_x=flip_x,
 		flip_y=flip_y,
+		# Pass-through of optional anchors & validation flags
+		east1=east1,
+		north1=north1,
+		east2=east2,
+		north2=north2,
+		enforce_d12=enforce_d12,
+		distance_tolerance=distance_tolerance,
 	)
 
 	if image_path is not None:
