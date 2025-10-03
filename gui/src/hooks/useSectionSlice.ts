@@ -45,7 +45,7 @@ import {
   DEFAULT_NUM_STATIONS,
   DEFAULT_POINTS,
 } from "../constants/constants";
-import { CanvasPoint, FormPoint, Point } from "../types";
+import { CanvasPoint, FormPoint, onGetBathimetryTypes, Point } from "../types";
 import { getTransformationFromCameraMatrix } from "../helpers/coordinates";
 import { ResourceNotFoundError } from "../errors/errors";
 import { useTranslation } from "react-i18next";
@@ -469,6 +469,7 @@ export const useSectionSlice = () => {
     pixelSize?: number;
     imageWidth?: number;
     imageHeight?: number;
+    clearBathimetry?: boolean;  
   }
 
   const onUpdateSection = async (
@@ -620,6 +621,11 @@ export const useSectionSlice = () => {
       updatedSection.artificialSeeding = !section.artificialSeeding;
     }
 
+    if (value.clearBathimetry) {
+      updatedSection.bathimetry = { path: undefined, name: undefined, level: 0 };
+      updatedSection.sectionPoints = DEFAULT_POINTS;
+    }
+
     dispatch(updateSection(updatedSection));
   };
 
@@ -644,8 +650,8 @@ export const useSectionSlice = () => {
       dirPoints: DEFAULT_POINTS,
       bathimetry: {
         blob: "",
-        path: "",
-        name: "",
+        path: undefined,
+        name: undefined,
       },
       pixelSize: { size: 0, rwLength: 0 },
       rwPoints: DEFAULT_POINTS,
@@ -707,16 +713,15 @@ export const useSectionSlice = () => {
     }
   };
 
-  const onGetBathimetry = async (
-    cameraMatrix: number[][] | undefined,
-    zLimits?: { min: number; max: number },
-  ) => {
+  const onGetBathimetry = async ( values: onGetBathimetryTypes) => {
     const ipcRenderer = window.ipcRenderer;
+
+    const { cameraMatrix, zLimits, bathimetryPath } = values;
 
     try {
       const { path, line, name, error } = await ipcRenderer.invoke(
         "get-bathimetry",
-        { path: undefined, zLimits },
+        { path: bathimetryPath, zLimits },
       );
 
       if (error?.message) {
@@ -793,7 +798,7 @@ export const useSectionSlice = () => {
       dispatch(
         updateSection({
           ...sections[activeSection],
-          bathimetry: { path: "", level: 0, name: "" },
+          bathimetry: { path: undefined, level: 0, name: undefined },
           sectionPoints: DEFAULT_POINTS,
         }),
       );

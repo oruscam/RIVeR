@@ -10,8 +10,10 @@ import { FormReport } from "./FormReport";
 import { FormRectification2D } from "./FormRectification2D";
 import { FormRectification3D } from "./FormRectification3D";
 import { FramesResolution } from "./FramesResolution";
+import { DropHereText } from "./DropHereText";
 
 export {
+  DropHereText,
   FormCrossSections,
   FormPixelSize,
   FormProcessing,
@@ -20,8 +22,8 @@ export {
   FormReport,
   FormResults,
   FormVideo,
-  VideoMetadata,
+  FramesResolution,
   PixelCoordinates,
   RealWorldCoordinates,
-  FramesResolution,
+  VideoMetadata,
 };

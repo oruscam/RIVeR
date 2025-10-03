@@ -24,7 +24,9 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
 
   const graphWidth =
     screenWidth * GRAPHS.WIDTH_PROPORTION > GRAPHS.MIN_WIDTH
-      ? screenWidth * GRAPHS.WIDTH_PROPORTION
+      ? screenWidth * GRAPHS.WIDTH_PROPORTION < GRAPHS.MAX_BATHIMETRY_WIDTH
+        ? screenWidth * GRAPHS.WIDTH_PROPORTION
+        : GRAPHS.MAX_BATHIMETRY_WIDTH
       : GRAPHS.MIN_WIDTH;
 
   useEffect(() => {
@@ -46,7 +48,7 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
   }, [path, level, leftBank, rwLength, screenWidth]);
 
   return (
-    <div className={`${path === "" ? "hidden" : ""} mb-3`}>
+    <div className={`${path === undefined ? "hidden" : ""} mb-3`}>
       <svg
         ref={svgRef}
         width={graphWidth}

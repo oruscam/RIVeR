@@ -73,7 +73,7 @@ export const App: React.FC = () => {
 
 
   return (
-    <div className="App" data-theme={darkMode ? "dark" : "light"}>
+    <div className="default-app-container" data-theme={darkMode ? "dark" : "light"}>
       <Wizard>
         {isLoading ? <Loading /> : <HomePage />}
         {isLoading ? <Loading /> : <FootageMode></FootageMode>}

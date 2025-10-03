@@ -63,6 +63,7 @@ import { verifyWindowsSizes } from "./verifyWindowsSizes";
 import { getNewCanvasPositions, setChangesByForm } from "./sectionsHelpers";
 import getLineColor from "./getLineColor";
 import { getImageSize } from "./getImageSize";
+import { handleDragLeave, handleDragOver } from "./handleDragEvents";
 
 export {
   adapterBathimetry,
@@ -100,6 +101,8 @@ export {
   getRelativePointerPosition,
   getUnit,
   getValidationRules,
+  handleDragLeave,
+  handleDragOver,
   imageZoom,
   onLoadCrossSections,
   onLoadObliquePoints,

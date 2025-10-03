@@ -6,7 +6,7 @@ import {
   useSectionSlice,
   useUiSlice,
 } from "../../hooks";
-import { RealWorldCoordinates, PixelCoordinates } from "./index";
+import { RealWorldCoordinates, PixelCoordinates, DropHereText } from "./index";
 import { Bathimetry } from "../Graphs";
 import { useTranslation } from "react-i18next";
 
@@ -85,12 +85,19 @@ export const FormCrossSections = ({
     event: React.MouseEvent<HTMLButtonElement>,
   ) => {
     event.preventDefault();
+
+    // When clicking the button, if there is already a bathimetry, clear it
+    if ( bathimetry.path !== undefined ){
+      onUpdateSection({ clearBathimetry: true }, undefined)
+      return
+    }
+
     if (type === "ipcam") {
-      onGetBathimetry(ipcam.cameraSolution?.cameraMatrix, ipcam.zLimits)
+      onGetBathimetry({ cameraMatrix: ipcam.cameraSolution?.cameraMatrix, zLimits: { min: yMin ?? 0, max: yMax ?? 0 } })
         // First error is when the bathimetry format is correct, but not the values
         .then((error) => {
           if (error?.message) {
-            const message = "CrossSections.Errors." + error?.message;
+            const message = "CrossSections.Errors." + error.message;
             onSetErrorMessage({
               Bathimetry: {
                 type: "error",
@@ -102,7 +109,7 @@ export const FormCrossSections = ({
         // Second error is when the bathimetry format is incorrect
         .catch((error) => onSetErrorMessage(error.message));
     } else {
-      onGetBathimetry(undefined).catch((error) =>
+      onGetBathimetry({}).catch((error) =>
         onSetErrorMessage(error.message),
       ); // Incorrect format
     }
@@ -138,7 +145,6 @@ export const FormCrossSections = ({
       }
     }
   };
-
   return (
     <div
       id="form-section-div"
@@ -225,7 +231,6 @@ export const FormCrossSections = ({
                   type="file"
                   id={`${name}_CS_BATHIMETRY`}
                   className="hidden-file-input"
-                  accept=".csv"
                   {...register(`${name}_CS_BATHIMETRY`, {
                     validate: (value) => {
                       if (
@@ -258,6 +263,8 @@ export const FormCrossSections = ({
               </div>
             </>
           )}
+
+          <DropHereText text={t("Commons.dropHereText")} show={bathimetry.path === undefined}/>
 
           <div className="input-container-2 mt-2 mb-1">
             <label className="read-only me-1" htmlFor="LEVEL">

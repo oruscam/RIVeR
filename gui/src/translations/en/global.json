@@ -20,7 +20,12 @@
     },
     "Step-2" : {
         "title" : "Select the kind of footage",
-        "pleaseSelectVideo": "Please select a video file"
+        "pleaseSelectVideo": "Please select a video file",
+        "invalidFileType": "Invalid file type. Please select a video file.",
+        "addYourFootage": "Add your footage",
+        "changeType": "Change type",
+        "dragAndDrop": "Drag and drop your video file here",
+        "openFolders": "Open Folders"
     },
     "Wizard" : {
         "back" : "Back",
@@ -258,6 +263,7 @@
         "no": "No",
         "solve": "Solve",
         "resourceNotFound": "Resource not found",
-        "randomError": "Something went wrong. Please try again"
+        "randomError": "Something went wrong. Please try again",
+        "dropHereText": "Drop a file anywhere on this panel. I'll auto-detect where it belongs."
     }
 }

@@ -1,35 +1,40 @@
 import { dialog, ipcMain } from "electron";
 import { readFile, utils, set_fs } from "xlsx";
 import * as fs from "fs";
+import { EXTENSIONS, validateFile } from "./utils/validateFile";
+import { ProjectConfig } from "./interfaces";
 
 set_fs(fs);
 
-async function getDistances() {
+async function getDistances(PROJECT_CONFIG: ProjectConfig) {
   const options: Electron.OpenDialogOptions = {
     properties: ["openFile"],
     filters: [
       {
         name: "Documents",
-        extensions: [
-          "csv",
-          "tsv",
-          "xlsx",
-          "xls",
-          "xlsm",
-          "ods",
-          "fods",
-          "prn",
-          "dif",
-          "sylk",
-        ],
+        extensions: EXTENSIONS
       },
     ],
   };
 
-  ipcMain.handle("import-distances", async () => {
+  ipcMain.handle("import-distances", async ( _event, args) => {
+    const { path } = args
+
+    options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
+
+    const isValidPath = validateFile(path)
+    if ( isValidPath === false && path !== undefined ){
+      return { error: new Error("invalidDistancesFileFormat") };
+    }
+
     try {
-      const result = await dialog.showOpenDialog(options);
-      const distancesPath = result.filePaths[0];
+      let distancesPath: string
+      if ( isValidPath ){ 
+        distancesPath = path as string
+      } else {
+        const result = await dialog.showOpenDialog(options);
+        distancesPath = result.filePaths[0];  
+      }
 
       const workbook = readFile(distancesPath);
       const sheetName = workbook.SheetNames[0];
@@ -98,8 +103,6 @@ const transformDistances = (distances: any[]) => {
     } else {
       throw new Error("invalidDistancesFileFormat");
     }
-
-    console.log("newDistances", newDistances);
 
     newDistances.forEach((value, index) => {
       if (typeof value !== "number") {

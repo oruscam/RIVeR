@@ -20,7 +20,12 @@
     },
         "Step-2": {
         "title": "Selecione o tipo de filmagem",
-        "pleaseSelectVideo": "Por favor, selecione um arquivo de vídeo"
+        "pleaseSelectVideo": "Por favor, selecione um arquivo de vídeo",
+        "invalidFileType": "Tipo de arquivo inválido. Por favor selecione um arquivo de vídeo.",
+        "addYourFootage": "Adicione sua filmagem",
+        "changeType": "Alterar tipo",
+        "dragAndDrop": "Arraste e solte seu arquivo de vídeo aqui",
+        "openFolders": "Abrir pasta"
     },
     "Wizard": {
         "back": "Voltar",
@@ -258,6 +263,7 @@
         "no": "Não",
         "solve": "Resolver",
         "resourceNotFound": "Recurso não encontrado",
-        "randomError": "Algo deu errado. Tente novamente"
+        "randomError": "Algo deu errado. Tente novamente",
+        "dropHereText": "Solte um arquivo em qualquer lugar deste painel. Vou detectar automaticamente onde ele pertence."
     }
 }

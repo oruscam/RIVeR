@@ -1,8 +1,8 @@
 import { Point } from "../../types";
 
 interface Bathimetry {
-  path: string;
-  name: string;
+  path: string | undefined;
+  name: string | undefined;
   level?: number;
   leftBank?: number;
   line?: Point[];

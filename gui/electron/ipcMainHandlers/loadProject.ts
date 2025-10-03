@@ -65,6 +65,7 @@ function populateProjectConfig(
   PROJECT_CONFIG.settingsPath = settingsPath;
   PROJECT_CONFIG.framesPath = path.join(folderPath, "frames");
   PROJECT_CONFIG.videoPath = settingsParsed.video.filepath;
+  PROJECT_CONFIG.defaultFilesPath = path.dirname(settingsParsed.video.filepath);
   PROJECT_CONFIG.logsPath = path.join(folderPath, "river.log");
   PROJECT_CONFIG.maskPath = fs.existsSync(path.join(folderPath, "mask.json"))
     ? path.join(folderPath, "mask.json")
