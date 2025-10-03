@@ -5,6 +5,7 @@ from typing import Dict, List, Optional, Tuple, Union
 import cv2
 import numpy as np
 from scipy.optimize import minimize
+import math
 
 from river.core.exceptions import OptimalCameraMatrixError
 
@@ -806,71 +807,111 @@ def oblique_view_transformation_matrix(
 	min_resolution: float = 0.01,
 	flip_x: bool = False,
 	flip_y: bool = True,
+	east1: Optional[float] = None,
+	north1: Optional[float] = None,
+	east2: Optional[float] = None,
+	north2: Optional[float] = None,
+	enforce_d12: bool = True,
+	distance_tolerance: float = 1e-6,
 ) -> dict:
 	"""
-	Combined function to calculate transformation matrix, ROI, and optionally orthorectify an image
-	with size constraints.
+	Calculate homography from real-world to pixel coordinates, ROI, and optionally
+	orthorectify an image. Now supports optional real-world anchors for points 1 & 2.
 
-	Parameters:
-		x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix: float
-			Pixel coordinates for the four corner points.
-		d12, d23, d34, d41, d13, d24: float
-			Real-world distances between corresponding points.
-		image_path (Optional[str]): Path to the input image. If None, no orthorectification is performed.
-		roi_padding (float): Optional padding as a fraction of the ROI dimensions (default: 0.1).
-		max_dimension (int): Maximum pixel dimension (width or height) for the output image
-		min_resolution (float): Minimum resolution in real-world units per pixel
-		flip_x (bool): Whether to flip the orthorectified image horizontally (default: True)
-		flip_y (bool): Whether to flip the orthorectified image vertically (default: False)
+	Parameters (new):
+		east1, north1, east2, north2 (Optional[float]):
+			Real-world coordinates for points 1 and 2. If all four are provided,
+			they override the default (0,0) and (d12, 0) anchors.
+		enforce_d12 (bool):
+			If True, raises when ||(east2, north2) - (east1, north1)|| != d12 beyond tolerance.
+			If False, uses the anchor distance instead of the provided d12.
+		distance_tolerance (float):
+			Allowed absolute mismatch between anchor distance and d12.
 
-	Returns:
-		dict: Dictionary containing:
-			- 'transformation_matrix': 3x3 transformation matrix
-			- 'roi': Region of interest (x_min, y_min, width, height)
-			If image_path is provided, also includes:
-			- 'transformed_img': Orthorectified image
-			- 'extent': [x_min, x_max, y_min, y_max] for plotting
+	Notes:
+		- If anchors are provided, we compute P3 and P4 in a canonical frame with
+		  P1=(0,0), P2=(|anchor|,0) using optimize_coordinates, then rotate/translate
+		  into the supplied anchor frame. Otherwise original behavior is preserved.
 	"""
-	# Coordinates for points 1 and 2 in real-world space
-	east_1, north_1 = 0, 0
-	east_2, north_2 = d12, 0
 
-	# Calculate or approximate the real-world coordinates for points 3 and 4
-	east_3, north_3, east_4, north_4 = optimize_coordinates(d12, d23, d34, d41, d13, d24)
+	anchors_provided = all(v is not None for v in (east1, north1, east2, north2))
+
+	if anchors_provided:
+		# Distance implied by provided anchors
+		anchor_d12 = math.hypot((east2 - east1), (north2 - north1))
+
+		# Validate / choose effective baseline d12
+		if enforce_d12 and abs(anchor_d12 - d12) > distance_tolerance:
+			raise ValueError(
+				f"Anchor distance between (east1,north1)=({east1},{north1}) and "
+				f"(east2,north2)=({east2},{north2}) is {anchor_d12:.6f}, which "
+				f"differs from d12={d12:.6f} by more than tolerance={distance_tolerance}."
+			)
+		d12_eff = anchor_d12 if not enforce_d12 else d12  # if enforcing, they should match
+
+		# Compute canonical coordinates for points 3 & 4 with P1=(0,0), P2=(d12_eff, 0)
+		e3_c, n3_c, e4_c, n4_c = optimize_coordinates(d12_eff, d23, d34, d41, d13, d24)
+
+		# Map canonical -> anchor frame via rotation (and translation). Scale is 1 if enforcing;
+		# if not enforcing, d12_eff == anchor_d12 so also 1.
+		theta = math.atan2((north2 - north1), (east2 - east1))
+		R = np.array(
+			[[math.cos(theta), -math.sin(theta)],
+			 [math.sin(theta),  math.cos(theta)]],
+			dtype=np.float32
+		)
+
+		p3 = R @ np.array([e3_c, n3_c], dtype=np.float32) + np.array([east1, north1], dtype=np.float32)
+		p4 = R @ np.array([e4_c, n4_c], dtype=np.float32) + np.array([east1, north1], dtype=np.float32)
+
+		# Real-world coordinates (east, north)
+		east_1, north_1 = float(east1), float(north1)
+		east_2, north_2 = float(east2), float(north2)
+		east_3, north_3 = float(p3[0]), float(p3[1])
+		east_4, north_4 = float(p4[0]), float(p4[1])
+
+	else:
+		# Original defaults
+		east_1, north_1 = 0.0, 0.0
+		east_2, north_2 = float(d12), 0.0
+
+		# Compute / approximate real-world coordinates for points 3 and 4
+		east_3, north_3, east_4, north_4 = optimize_coordinates(d12, d23, d34, d41, d13, d24)
 
 	# Pixel coordinates for the four points
-	pixel_coords = np.array([[x1_pix, y1_pix], [x2_pix, y2_pix], [x3_pix, y3_pix], [x4_pix, y4_pix]], dtype=np.float32)
+	pixel_coords = np.array(
+		[[x1_pix, y1_pix], [x2_pix, y2_pix], [x3_pix, y3_pix], [x4_pix, y4_pix]],
+		dtype=np.float32
+	)
 
 	# Real-world coordinates (east, north)
 	real_world_coords = np.array(
-		[[east_1, north_1], [east_2, north_2], [east_3, north_3], [east_4, north_4]], dtype=np.float32
+		[[east_1, north_1], [east_2, north_2], [east_3, north_3], [east_4, north_4]],
+		dtype=np.float32
 	)
 
-	# Calculate the homography matrix (H)
+	# Homography: real-world -> pixel
 	H, _ = cv2.findHomography(real_world_coords, pixel_coords)
+	if H is None:
+		raise RuntimeError("Homography estimation failed. Check input points and distances.")
 
-	# Invert the transformation matrix to map from pixel to real-world coordinates
+	# Invert to map pixel -> real-world
 	transformation_matrix = np.linalg.inv(H)
 
-	# Calculate the ROI with padding
+	# ROI
 	roi_rect = calculate_roi(x1_pix, y1_pix, x2_pix, y2_pix, x3_pix, y3_pix, x4_pix, y4_pix, padding=roi_padding)
 
-	# Initialize result dictionary with transformation matrix and ROI
 	result = {"transformation_matrix": transformation_matrix, "roi": roi_rect}
 
-	# Load and orthorectify the image if image_path is provided
 	if image_path is not None:
-		# Load the image
 		image = cv2.imread(image_path)
 		if image is None:
 			raise ValueError(f"Could not load image from {image_path}")
 		image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-		# Convert ROI from (x_min, y_min, width, height) to (y_min, y_max, x_min, x_max)
 		x_min, y_min, width, height = roi_rect
 		roi_for_ortho = (int(y_min), int(y_min + height), int(x_min), int(x_min + width))
 
-		# Orthorectify the image with size limit
 		transformed_img, extent = orthorectify_image_with_size_limit(
 			image,
 			transformation_matrix,
@@ -881,16 +922,11 @@ def oblique_view_transformation_matrix(
 			flip_y=flip_y,
 		)
 
-		# Add orthorectification results to the dictionary
 		result["transformed_img"] = transformed_img
 		result["extent"] = extent
 
-		# Calculate the actual resolution achieved
-		x_idx = 0 if extent[0] < extent[1] else 1
-		y_idx = 2 if extent[2] < extent[3] else 3
 		x_ext = abs(extent[1] - extent[0])
 		y_ext = abs(extent[3] - extent[2])
-
 		result["output_resolution"] = max(x_ext / transformed_img.shape[1], y_ext / transformed_img.shape[0])
 
 	result["transformation_matrix"] = result["transformation_matrix"].tolist()
@@ -1037,5 +1073,4 @@ def optimize_coordinates(d12: float, d23: float, d34: float, d41: float, d13: fl
 	# Extract optimized coordinates
 	east_3_opt, north_3_opt, east_4_opt, north_4_opt = result.x
 
-	return east_3_opt, north_3_opt, east_4_opt, north_4_opt
 	return east_3_opt, north_3_opt, east_4_opt, north_4_opt

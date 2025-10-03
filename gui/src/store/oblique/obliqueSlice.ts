@@ -4,10 +4,12 @@ import { defaultCoordinates, defaultDistances, ObliqueMode } from './types';
 const initialState: ObliqueMode = {
   drawPoints: false,
   coordinates: defaultCoordinates,
+  rwCoordinates: defaultCoordinates,
   distances: defaultDistances,
   isDefaultCoordinates: true,
   isDistancesLoaded: false,
   solution: null,
+  extraFields: false
 };
 
 const obliqueSlice = createSlice({
@@ -28,9 +30,12 @@ const obliqueSlice = createSlice({
     setDefaultObliqueState: () => {
       return initialState;
     },
+    setExtraFields: (state) => {
+      state.extraFields = !state.extraFields;
+    }
   },
 });
 
-export const { setObliquePoints, setDrawPoints, setDefaultObliqueState } = obliqueSlice.actions;
+export const { setObliquePoints, setDrawPoints, setDefaultObliqueState, setExtraFields } = obliqueSlice.actions;
 
 export default obliqueSlice.reducer;

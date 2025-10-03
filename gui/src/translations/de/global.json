@@ -68,15 +68,23 @@
             "title": "Reale Koordinaten",
             "eastPoint1": "Ostpunkt 1",
             "eastPoint2": "Ostpunkt 2",
+            "eastPoint3": "Ostpunkt 3",
+            "eastPoint4": "Ostpunkt 4",
             "northPoint1": "Nordpunkt 1",
-            "northPoint2": "Nordpunkt 2"
+            "northPoint2": "Nordpunkt 2",
+            "northPoint3": "Nordpunkt 3",
+            "northPoint4": "Nordpunkt 4"
         },
         "Pixel": {
             "title": "Pixelkoordinaten",
             "xPoint1": "X-Punkt 1",
             "xPoint2": "X-Punkt 2",
+            "xPoint3": "X-Punkt 3",
+            "xPoint4": "X-Punkt 4",
             "yPoint1": "Y-Punkt 1",
-            "yPoint2": "Y-Punkt 2"
+            "yPoint2": "Y-Punkt 2",
+            "yPoint3": "Y-Punkt 3",
+            "yPoint4": "Y-Punkt 4"
         }
     },
     "CrossSections": {

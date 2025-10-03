@@ -3,9 +3,9 @@ import { useIpcamSlice, useProjectSlice, useUiSlice } from '../hooks';
 import { useEffect, useState } from 'react';
 import { imageZoom } from '../helpers';
 import { KonvaEventObject } from 'konva/lib/Node';
-import { Ellipses, RedPoints, PointsRectification3D } from './index';
+import { Ellipses, RedPoints, PointsIpcam } from './index';
 
-export const ImageRectification3D = () => {
+export const ImageIpcam = () => {
   const { importedImages, activeImage, points } = useIpcamSlice();
   const { screenSizes } = useUiSlice();
   const { firstFramePath } = useProjectSlice();
@@ -48,7 +48,7 @@ export const ImageRectification3D = () => {
             <Ellipses factor={factor as number} />
             {/* <CrossPoints factor={factor as number}/>     */}
             <RedPoints factor={factor as number} resizeFactor={resizeFactor} />
-            {points !== null && <PointsRectification3D factor={factor as number} resizeFactor={resizeFactor} />}
+            {points !== null && <PointsIpcam factor={factor as number} resizeFactor={resizeFactor} />}
           </>
         )}
       </Layer>

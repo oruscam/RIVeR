@@ -77,12 +77,12 @@ function getObliquePointsDistances(coordinates: Point[]) {
 
 function adapterObliquePointsDistances(distances: FieldValues) {
   return {
-    d12: parseFloat(distances.distance_12),
-    d23: parseFloat(distances.distance_23),
-    d34: parseFloat(distances.distance_34),
-    d41: parseFloat(distances.distance_41),
-    d13: parseFloat(distances.distance_13),
-    d24: parseFloat(distances.distance_24),
+    d12: parseFloat(distances.distance12),
+    d23: parseFloat(distances.distance23),
+    d34: parseFloat(distances.distance34),
+    d41: parseFloat(distances.distance41),
+    d13: parseFloat(distances.distance13),
+    d24: parseFloat(distances.distance24),
   };
 }
 

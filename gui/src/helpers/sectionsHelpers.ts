@@ -45,38 +45,40 @@ const getNewCanvasPositions = (canvasPoints: CanvasPoint, flag1: boolean, flag2:
  * The function checks the position of the form point and updates the corresponding coordinate if it has changed.
  * It sets the appropriate flag to true if a change is detected. If no changes are detected, it returns the original points.
  */
-const setChangesByForm = (formPoint: FormPoint, dirPoints: Point[], flag1, flag2) => {
-  const { point, position } = formPoint;
+const setChangesByForm = (formPoint: FormPoint, dirPoints: Point[]) => {
+  const { value, position } = formPoint;
 
-  let newPoints;
+  let newPoints = dirPoints;
 
-  if (position === 'x1' && point !== dirPoints[0].x) {
-    newPoints = [
-      { x: parseFloat(point as string), y: dirPoints[0].y },
-      { x: dirPoints[1].x, y: dirPoints[1].y },
-    ];
-    flag1 = true;
-  } else if (position === 'y1' && point !== dirPoints[0].y) {
-    newPoints = [
-      { x: dirPoints[0].x, y: parseFloat(point as string) },
-      { x: dirPoints[1].x, y: dirPoints[1].y },
-    ];
-    flag1 = true;
-  } else if (position === 'x2' && point !== dirPoints[1].x) {
-    newPoints = [
-      { x: dirPoints[0].x, y: dirPoints[0].y },
-      { x: parseFloat(point as string), y: dirPoints[1].y },
-    ];
-    flag2 = true;
-  } else if (position === 'y2' && point !== dirPoints[1].y) {
-    newPoints = [
-      { x: dirPoints[0].x, y: dirPoints[0].y },
-      { x: dirPoints[1].x, y: parseFloat(point as string) },
-    ];
-    flag2 = true;
-  } else {
-    newPoints = dirPoints;
+  let flag1 = false;
+  let flag2 = false;
+  let flag3 = false;
+  let flag4 = false
+
+  for (let i = 1; i <= dirPoints.length; i++) {
+    if (position === `x${i}`) {
+      if (value !== dirPoints[i - 1].x) {
+        newPoints = [...dirPoints];
+        newPoints[i - 1] = { x: parseFloat(value as string), y: dirPoints[i - 1].y };
+        if (i === 1) flag1 = true;
+        if (i === 2) flag2 = true;
+        if (i === 3) flag3 = true;
+        if (i === 4) flag4 = true;
+      }
+    } else if (position === `y${i}`) {
+      if (value !== dirPoints[i - 1].y) {
+        newPoints = [...dirPoints];
+        newPoints[i - 1] = { x: dirPoints[i - 1].x, y: parseFloat(value as string) };
+        if (i === 1) flag1 = true;
+        if (i === 2) flag2 = true;
+        if (i === 3) flag3 = true;
+        if (i === 4) flag4 = true;
+      }
+    }
   }
+
+
+
 
   return { points: newPoints, firstFlag: flag1, secondFlag: flag2 };
 };

@@ -8,9 +8,8 @@ import { useProjectSlice } from '../../hooks';
 import './form.css';
 import { formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
-import { VideoMetadata } from './VideoMetadata';
+import { VideoMetadata, FramesResolution } from './Components/index';
 import { ButtonLock } from '../ButtonLock';
-import { FramesResolution } from './FramesResolution';
 
 export const FormVideo = ({ duration }: { duration: number }) => {
   const { onSetVideoParameters, video: videoData } = useProjectSlice();

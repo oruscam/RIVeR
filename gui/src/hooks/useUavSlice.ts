@@ -108,7 +108,7 @@ export const useUavSlice = () => {
      */
 
     if (formPoint) {
-      const { points, firstFlag, secondFlag } = setChangesByForm(formPoint, dirPoints, flag1, flag2);
+      const { points, firstFlag, secondFlag } = setChangesByForm(formPoint, dirPoints);
       newPoints = points;
       flag1 = firstFlag;
       flag2 = secondFlag;
@@ -140,15 +140,15 @@ export const useUavSlice = () => {
     return;
   };
 
-  const onSetPixelRealWorld = (point: string | number, position: string) => {
+  const onSetPixelRealWorld = (value: string | number, position: string) => {
     const { rwPoints } = uav;
 
     let newPoints;
     let flag1 = false;
     let flag2 = false;
 
-    const { points, firstFlag, secondFlag } = setChangesByForm({ point, position }, rwPoints, flag1, flag2);
-
+    const { points, firstFlag, secondFlag } = setChangesByForm({ value, position }, rwPoints);
+    
     newPoints = points;
     flag1 = firstFlag;
     flag2 = secondFlag;

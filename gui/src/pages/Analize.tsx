@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Carousel, Error, ImageWithData, Progress, WizardButtons } from '../components';
-import { FormAnalizing } from '../components/Forms/FormAnalizing';
+import { FormAnalizing } from '../components/Forms/index';
 import { useDataSlice, useUiSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
 

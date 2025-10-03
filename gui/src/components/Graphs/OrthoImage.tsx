@@ -4,7 +4,7 @@ import { useUiSlice } from '../../hooks';
 import { COLORS, GRAPHS } from '../../constants/constants';
 import { scaleBar } from './scaleBar';
 import { Point } from '../../types';
-import { getLineColor } from '../../helpers';
+import { getLineColor, getOrthoImageDimensions } from '../../helpers';
 
 export const OrthoImage = ({
   solution,
@@ -13,7 +13,7 @@ export const OrthoImage = ({
 }: {
   solution:
     | { orthoImage: string; extent: number[]; resolution: number; width: number; height: number }
-    | undefined;
+    | null;
   coordinates?: Point[];
   secondPoint?: Point;
 }) => {
@@ -25,35 +25,7 @@ export const OrthoImage = ({
   const imgWidth = Math.abs(extent[1] - extent[0]);
   const imgHeight = Math.abs(extent[2] - extent[3]);
 
-  const vertical = orthoHeight > orthoWidth;
-
-  let graphWidth;
-  let graphHeight;
-  let maxGraphWidth = screenWidth * GRAPHS.IPCAM_GRID_PROPORTION;
-
-  if (!vertical) {
-    if (orthoWidth < maxGraphWidth) {
-      graphWidth = orthoWidth;
-      graphHeight = orthoHeight;
-    } else {
-      graphWidth = maxGraphWidth;
-      graphHeight = (maxGraphWidth * orthoHeight) / orthoWidth;
-    }
-    if (graphWidth < GRAPHS.ORTHO_IMAGE_MIN_WIDTH) {
-      graphWidth = GRAPHS.ORTHO_IMAGE_MIN_WIDTH;
-      graphHeight = (GRAPHS.ORTHO_IMAGE_MIN_WIDTH * orthoHeight) / orthoWidth;
-    }
-  } else {
-    const WIDTH_INCREASER = 1.1; // For better visualization, I have to figure out what happen // ! PROVISIONAL.
-
-    if (orthoHeight < maxGraphWidth) {
-      graphHeight = orthoHeight;
-      graphWidth = orthoWidth * WIDTH_INCREASER;
-    } else {
-      graphHeight = maxGraphWidth;
-      graphWidth = ((maxGraphWidth * orthoWidth) / orthoHeight) * WIDTH_INCREASER;
-    }
-  }
+  const { graphWidth, graphHeight, maxGraphWidth } = getOrthoImageDimensions(screenWidth, orthoWidth, orthoHeight);
 
   useEffect(() => {
     if (ref.current === null) return;
@@ -213,7 +185,7 @@ export const OrthoImage = ({
   }, [solution, maxGraphWidth]);
 
   return (
-    <div id="ortho-image-solution" className="mb-2">
+    <div id="ortho-image-solution" className="mb-2 mt-1">
       <svg ref={ref} width={graphWidth} height={graphHeight} />
     </div>
   );

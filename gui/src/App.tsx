@@ -3,19 +3,19 @@ import {
   HomePage,
   FootageMode,
   VideoRange,
-  PixelSize,
   CrossSections,
   Processing,
   Analize,
   Results,
-  Rectification2D,
-  Rectification3D,
+  Uav,
+  Ipcam,
+  Oblique,
 } from './pages/index';
 import './App.css';
 import { useEffect } from 'react';
 import { Loading } from './components';
 import { Report } from './pages/Report';
-import { useDataSlice, useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from './hooks';
+import { useDataSlice, useProjectSlice, useUiSlice } from './hooks';
 import { FOOTAGE_TYPES } from './constants/constants';
 
 export const App: React.FC = () => {
@@ -28,16 +28,16 @@ export const App: React.FC = () => {
   const getStep4 = () => {
     switch (type) {
       case FOOTAGE_TYPES.UAV:
-        return <PixelSize />;
+        return <Uav />;
 
       case FOOTAGE_TYPES.OBLIQUE:
-        return <Rectification2D />;
+        return <Oblique />;
 
       case FOOTAGE_TYPES.IPCAM:
-        return <Rectification3D />;
+        return <Ipcam />;
 
       default:
-        return <Rectification3D />;
+        return <HomePage/>;
     }
   };
 

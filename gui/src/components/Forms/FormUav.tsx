@@ -2,11 +2,11 @@ import './form.css';
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import { useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../../hooks';
-import { PixelCoordinates, RealWorldCoordinates } from './index';
+import { HardModeUav } from './Components/index';
 import { FormChild } from '../../types';
 import { OrthoImage } from '../Graphs';
 
-export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
+export const FormUav = ({ onSubmit, onError }: FormChild) => {
   const { t } = useTranslation();
   const {
     extraFields,
@@ -15,8 +15,6 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
     drawLine,
     solution,
     onUpdatePixelSize,
-    onSetPixelRealWorld,
-    onSetPixelDirection,
   } = useUavSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { video } = useProjectSlice();
@@ -37,7 +35,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
         onUpdatePixelSize({ length: value });
       } else {
         const error = {
-          pixel_size_LINE_LENGTH: {
+          uav_LINE_LENGTH: {
             type: 'required',
             message: t('PixelSize.Errors.lineLength'),
           },
@@ -63,7 +61,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
         });
       } else {
         const error = {
-          pixel_size_PIXEL_SIZE: {
+          uav_PIXEL_SIZE: {
             type: 'required',
             message: t('PixelSize.Errors.pixelSize'),
           },
@@ -88,7 +86,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
         className={`mt-3 form-scroll ${isBackendWorking ? 'disabled' : ''}`}
         id="form-pixel-size"
       >
-        <span id="pixel_size-HEADER"></span>
+        <span id="uav-header"></span>
         <div className="form-base-2">
           <div className="input-container-2">
             <button
@@ -109,8 +107,8 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
               disabled={dirPoints.length === 0}
               type="number"
               step="any"
-              id="pixel_size-LINE_LENGTH"
-              {...register('pixel_size_LINE_LENGTH', {
+              id="UAV-LINE_LENGTH"
+              {...register('uav_LINE_LENGTH', {
                 required: t('PixelSize.Errors.required'),
                 validate: (value: string) => {
                   if (parseFloat(value) <= 0) {
@@ -128,9 +126,9 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
             <label className="read-only me-1">{t('PixelSize.pixelSize')}</label>
             <input
               className="input-field"
-              {...register('pixel_size_PIXEL_SIZE')}
+              {...register('uav_PIXEL_SIZE')}
               type="number"
-              id="pixel_size-PIXEL_SIZE"
+              id="UAV-PIXEL_SIZE"
               // disabled={sections[0].dirPoints.length === 0}
               step="any"
               onKeyDown={handlePixelSizeInput}
@@ -147,11 +145,7 @@ export const FormPixelSize = ({ onSubmit, onError }: FormChild) => {
             {t('Commons.solve')}
           </button>
 
-          <div className={extraFields ? 'pixel-size-extra' : 'hidden'}>
-            <RealWorldCoordinates modeName="pixel_size" onSetRealWorld={onSetPixelRealWorld} />
-            <PixelCoordinates modeName="pixel_size" onSetDirPoints={onSetPixelDirection} />
-            <span id="span-footer"></span>
-          </div>
+          <HardModeUav extraFields={extraFields} />
         </div>
       </form>
     </>

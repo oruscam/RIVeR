@@ -19,7 +19,7 @@ type CanvasPoint = {
 };
 
 type FormPoint = {
-  point: string | number;
+  value: string | number;
   position: string;
 };
 
@@ -60,7 +60,6 @@ export type {
   FormPoint,
   FormDistance,
   FormChild,
-  ellipse,
   factor,
   UpdatePixelSize,
   onGetBathimetryTypes,

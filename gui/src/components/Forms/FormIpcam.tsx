@@ -3,9 +3,9 @@ import { useGlobalSlice, useIpcamSlice, useUiSlice } from '../../hooks';
 import { PointsMap } from '../Graphs';
 import { IpcamGrid } from '../index';
 import { useState } from 'react';
-import { DropHereText } from './DropHereText';
+import { DropHereText } from './Components/DropHereText';
 
-export const FormRectification3D = () => {
+export const FormIpcam = () => {
   const [mode, setMode] = useState('');
   const {
     onGetPoints,

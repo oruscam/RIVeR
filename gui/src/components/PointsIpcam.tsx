@@ -11,7 +11,7 @@ interface PointsProps {
   resizeFactor: number;
 }
 
-export const PointsRectification3D = ({ factor, resizeFactor }: PointsProps) => {
+export const PointsIpcam = ({ factor, resizeFactor }: PointsProps) => {
   const { points, activePoint, cameraSolution, onSetPointPixelCoordinates } = useIpcamSlice();
 
   const [iconBlue] = useImage(pin);
