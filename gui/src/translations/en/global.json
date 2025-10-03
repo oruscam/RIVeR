@@ -22,16 +22,7 @@
         "title" : "Select the kind of footage",
         "pleaseSelectVideo": "Please select a video file",
         "invalidFileType": "Invalid file type. Please select a video file.",
-        "addYourFootage": {
-            "uav": "Add your Drone footage",
-            "oblique": "Add your Oblique footage",
-            "ipcam": "Add your IPCam footage"
-        },
-        "addedFootage": { 
-            "uav": "Drone footage added",
-            "oblique": "Oblique footage added",
-            "ipcam": "IPCam footage added"
-        },
+        "addYourFootage": "Add your footage",
         "changeType": "Change type",
         "dragAndDrop": "Drag and drop your video file here",
         "openFolders": "Open Folders"
@@ -281,6 +272,6 @@
         "solve": "Solve",
         "resourceNotFound": "Resource not found",
         "randomError": "Something went wrong. Please try again",
-        "dropHereText": "Drop a file anywhere on this panel. I'll auto-detect where it belongs. If needed, you'll get a quick chooser"
+        "dropHereText": "Drop a file anywhere on this panel. I'll auto-detect where it belongs."
     }
 }

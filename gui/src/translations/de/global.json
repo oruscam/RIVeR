@@ -20,7 +20,11 @@
     },
     "Step-2": {
     "title": " Wählen Sie den Typ des Videomaterials aus",
-    "pleaseSelectVideo": "Bitte wählen Sie eine Videodatei aus"
+    "pleaseSelectVideo": "Bitte wählen Sie eine Videodatei aus",
+    "addYourFootage": "Füge deine Aufnahme hinzu",
+    "changeType": "Typ ändern",
+    "dragAndDrop": "Ziehe deine Videodatei hierher und lasse sie los",
+    "openFolders": "Ordner öffnen"
     },
     "Wizard": {
         "back": "Zurück",
@@ -266,6 +270,7 @@
         "no": "Nein",
         "solve": "Lösen",
         "resourceNotFound": "Ressource nicht gefunden",
-        "randomError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut"
+        "randomError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut",
+        "dropHereText": "Lege eine Datei irgendwo in diesem Bereich ab. Ich erkenne automatisch, wohin sie gehört."
     }
 }

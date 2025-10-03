@@ -21,7 +21,11 @@
     "Step-2" : {
         "title" : "Sélectionner le type de séquence",
         "pleaseSelectVideo": "Veuillez sélectionner une vidéo",
-        "invalidFileType": "Type de fichier invalide. Veuillez sélectionner un fichier vidéo."
+        "invalidFileType": "Type de fichier invalide. Veuillez sélectionner un fichier vidéo.",
+        "addYourFootage": "Ajoutez votre séquence",
+        "changeType": "Changer le type",
+        "dragAndDrop": "Glissez-déposez votre fichier vidéo ici",
+        "openFolders": "Ouvrir le dossier"
     },
     "Wizard" : {
         "back": "Retour",
@@ -268,6 +272,7 @@
         "no": "Non",
         "solve": "Résoudre",
         "resourceNotFound": "Ressource non trouvée",
-        "randomError": "Quelque chose s'est mal passé. Veuillez réessayer"
+        "randomError": "Quelque chose s'est mal passé. Veuillez réessayer",
+        "dropHereText": "Déposez un fichier n'importe où sur ce panneau. Je détecterai automatiquement où il doit aller."
     }
 }
