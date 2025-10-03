@@ -34,7 +34,7 @@ interface ProjectDetails {
 interface ProjectState {
   projectDirectory: string;
   video: Video;
-  type: 'uav' | 'ipcam' | 'oblique' | '';
+  type: string;
   firstFramePath: string;
   projectDetails: ProjectDetails;
 }

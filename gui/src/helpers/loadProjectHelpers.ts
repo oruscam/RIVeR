@@ -1,10 +1,10 @@
-import { PixelSize } from '../store/section/types';
-import { getBathimetryValues } from './getBathimetryValues';
-import { MODULE_NUMBER } from '../constants/constants';
-import { transformPixelToRealWorld } from './coordinates';
-import { getImageSize } from '../helpers/index';
-import { appendSolutionToIpcamPoints } from './appendSolutionsToImportedPoints';
-import { BackendCameraSolution, IpcamPoint } from '../store/ipcam/types';
+import { PixelSize } from "../store/section/types";
+import { getBathimetryValues } from "./getBathimetryValues";
+import { MODULE_NUMBER } from "../constants/constants";
+import { cameraSolution, importedPoint } from "../types";
+import { appendSolutionToImportedPoints } from "./appendSolutionsToImportedPoints";
+import { transformPixelToRealWorld } from "./coordinates";
+import { getImageSize } from "../helpers/index";
 
 /**
  * This file contains helper functions to load the project data from the projects file.
@@ -19,7 +19,12 @@ import { BackendCameraSolution, IpcamPoint } from '../store/ipcam/types';
  * @returns - void
  */
 
-const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoParameters: any, fps: number) => {
+const onLoadVideoParameters = (
+  video_range: VideoRange,
+  dispatch: any,
+  setVideoParameters: any,
+  fps: number,
+) => {
   const { step, start, end, factor } = video_range;
   dispatch(
     setVideoParameters({
@@ -30,7 +35,7 @@ const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoP
       endFrame: end,
       factor,
       factorChanged: false,
-    })
+    }),
   );
   return;
 };
@@ -44,26 +49,27 @@ const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoP
  * @returns
  */
 
-const onLoadPixelSize = async (
+const onLoadPixelSize = async(
   pixel_size: pixel_size,
   currentPixel: PixelSize,
   dispatch: any,
   updatePixelSize: any,
   orthoImage: string,
   transformation: any,
-  matrix: number[][]
+  matrix: number[][],
 ) => {
-  const { x1, y1, x2, y2, rw_length, size, east1, east2, north1, north2 } = pixel_size;
+  const { x1, y1, x2, y2, rw_length, size, east1, east2, north1, north2 } =
+    pixel_size;
 
   const secondPoint = transformPixelToRealWorld(x2, y2, matrix);
 
-  let orthoImageWidth: number = 0;
-  let orthoImageHeight: number = 0;
+  let orthoImageWidth: number = 0
+  let orthoImageHeight: number = 0
 
-  await getImageSize(orthoImage).then(({ width, height }) => {
+  await getImageSize(orthoImage).then(({width, height}) => {
     orthoImageWidth = width;
-    orthoImageHeight = height;
-  });
+    orthoImageHeight = height; 
+  })
 
   dispatch(
     updatePixelSize({
@@ -90,7 +96,7 @@ const onLoadPixelSize = async (
               height: orthoImageHeight,
             }
           : undefined,
-    })
+    }),
   );
   return;
 };
@@ -101,7 +107,7 @@ const onLoadObliquePoints = async (
   setControlPoints: any,
   orthoImage: string,
   transformation: any,
-  matrix: number[][]
+  matrix: number[][],
 ) => {
   const { coordinates: coordinatesObject, distances } = control_points;
   const coordinates = [
@@ -118,13 +124,13 @@ const onLoadObliquePoints = async (
     return { x: newPoints[0], y: newPoints[1] };
   });
 
-  let orthoImageWidth: number = 0;
-  let orthoImageHeight: number = 0;
+  let orthoImageWidth: number = 0
+  let orthoImageHeight: number = 0
 
-  await getImageSize(orthoImage).then(({ width, height }) => {
+  await getImageSize(orthoImage).then(({width, height}) => {
     orthoImageWidth = width;
-    orthoImageHeight = height;
-  });
+    orthoImageHeight = height; 
+  })
 
   dispatch(
     setControlPoints({
@@ -152,7 +158,7 @@ const onLoadObliquePoints = async (
               height: orthoImageHeight,
             }
           : undefined,
-    })
+    }),
   );
 };
 
@@ -172,149 +178,159 @@ const onLoadCrossSections = (
   addSection: any,
   sections: any,
   ipcRenderer: any,
-  setSummary?: any
+  setSummary?: any,
 ) => {
   let flag = true;
   let flagData = false;
-  Object.entries(values).forEach(async ([key, value]: [string, XSectionValue]) => {
-    const {
-      rw_length,
-      xl,
-      xr,
-      yl,
-      yr,
-      dir_xl,
-      dir_yl,
-      dir_xr,
-      dir_yr,
-      dir_east_l,
-      dir_east_r,
-      dir_north_l,
-      dir_north_r,
-      bath,
-      level,
-      left_station,
-      alpha,
-      num_stations,
-      distance,
-      interpolated,
-    } = value;
+  Object.entries(values).forEach(
+    async ([key, value]: [string, XSectionValue]) => {
+      const {
+        rw_length,
+        xl,
+        xr,
+        yl,
+        yr,
+        dir_xl,
+        dir_yl,
+        dir_xr,
+        dir_yr,
+        dir_east_l,
+        dir_east_r,
+        dir_north_l,
+        dir_north_r,
+        bath,
+        level,
+        left_station,
+        alpha,
+        num_stations,
+        distance,
+        interpolated,
+      } = value;
 
-    if (distance) {
-      flagData = true;
-    }
-
-    try {
-      if (key === 'summary' && setSummary !== undefined) {
-        dispatch(setSummary(values.summary));
-        return;
+      if (distance) {
+        flagData = true;
       }
 
-      if (key === 'summary') {
-        return;
+      try {
+        if (key === "summary" && setSummary !== undefined) {
+          dispatch(setSummary(values.summary));
+          return;
+        }
+
+        if (key === "summary") {
+          return;
+        }
+
+        const { line, name } = await ipcRenderer.invoke("get-bathimetry", {
+          path: bath,
+        });
+
+        const { data } = getBathimetryValues(line, level);
+        
+        const {
+          yMax,
+          yMin,
+          xMax,
+          xMin,
+          x1Intersection,
+          x2Intersection,
+          width,
+        } = data
+          ? data
+          : {
+              yMax: 0,
+              yMin: 0,
+              xMax: 0,
+              xMin: 0,
+              x1Intersection: 0,
+              x2Intersection: 0,
+              width: 0,
+            };
+
+        if (flag) {
+          flag = false;
+          dispatch(
+            updateSection({
+              ...sections[0],
+              name: key,
+              drawLine: true,
+              sectionPoints: [
+                { x: xl, y: yl },
+                { x: xr, y: yr },
+              ],
+              dirPoints: [
+                { x: dir_xl, y: dir_yl },
+                { x: dir_xr, y: dir_yr },
+              ],
+              rwPoints: [
+                { x: dir_east_l, y: dir_north_l },
+                { x: dir_east_r, y: dir_north_r },
+              ],
+              pixelSize: { size: 0, rwLength: rw_length },
+              bathimetry: {
+                width: width,
+                level: level,
+                line: line,
+                yMax: yMax,
+                yMin: yMin,
+                xMax: xMax,
+                xMin: xMin,
+                leftBank: left_station,
+                x1Intersection: x1Intersection,
+                x2Intersection: x2Intersection,
+                path: bath,
+                name: name,
+              },
+              alpha: alpha,
+              numStations: num_stations,
+              interpolated: interpolated,
+              data: { ...value, activeCheck: value.check },
+            }),
+          );
+        } else {
+          dispatch(
+            addSection({
+              name: key,
+              drawLine: true,
+              sectionPoints: [
+                { x: xl, y: yl },
+                { x: xr, y: yr },
+              ],
+              dirPoints: [
+                { x: dir_xl, y: dir_yl },
+                { x: dir_xr, y: dir_yr },
+              ],
+              rwPoints: [
+                { x: dir_east_l, y: dir_north_l },
+                { x: dir_east_r, y: dir_north_r },
+              ],
+              pixelSize: { size: 0, rwLength: rw_length },
+              bathimetry: {
+                width: width,
+                level: level,
+                line: line,
+                yMax: yMax,
+                yMin: yMin,
+                xMax: xMax,
+                xMin: xMin,
+                leftBank: left_station,
+                x1Intersection: x1Intersection,
+                x2Intersection: x2Intersection,
+                path: bath,
+                name: name,
+              },
+              alpha: alpha,
+              numStations: num_stations,
+              interpolated: interpolated,
+              data: { ...value, activeCheck: value.check },
+            }),
+          );
+        }
+      } catch (error) {
+        console.log(error);
       }
-
-      const { line, name } = await ipcRenderer.invoke('get-bathimetry', {
-        path: bath,
-      });
-
-      const { data } = getBathimetryValues(line, level);
-
-      const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = data
-        ? data
-        : {
-            yMax: 0,
-            yMin: 0,
-            xMax: 0,
-            xMin: 0,
-            x1Intersection: 0,
-            x2Intersection: 0,
-            width: 0,
-          };
-
-      if (flag) {
-        flag = false;
-        dispatch(
-          updateSection({
-            ...sections[0],
-            name: key,
-            drawLine: true,
-            sectionPoints: [
-              { x: xl, y: yl },
-              { x: xr, y: yr },
-            ],
-            dirPoints: [
-              { x: dir_xl, y: dir_yl },
-              { x: dir_xr, y: dir_yr },
-            ],
-            rwPoints: [
-              { x: dir_east_l, y: dir_north_l },
-              { x: dir_east_r, y: dir_north_r },
-            ],
-            pixelSize: { size: 0, rwLength: rw_length },
-            bathimetry: {
-              width: width,
-              level: level,
-              line: line,
-              yMax: yMax,
-              yMin: yMin,
-              xMax: xMax,
-              xMin: xMin,
-              leftBank: left_station,
-              x1Intersection: x1Intersection,
-              x2Intersection: x2Intersection,
-              path: bath,
-              name: name,
-            },
-            alpha: alpha,
-            numStations: num_stations,
-            interpolated: interpolated,
-            data: { ...value, activeCheck: value.check },
-          })
-        );
-      } else {
-        dispatch(
-          addSection({
-            name: key,
-            drawLine: true,
-            sectionPoints: [
-              { x: xl, y: yl },
-              { x: xr, y: yr },
-            ],
-            dirPoints: [
-              { x: dir_xl, y: dir_yl },
-              { x: dir_xr, y: dir_yr },
-            ],
-            rwPoints: [
-              { x: dir_east_l, y: dir_north_l },
-              { x: dir_east_r, y: dir_north_r },
-            ],
-            pixelSize: { size: 0, rwLength: rw_length },
-            bathimetry: {
-              width: width,
-              level: level,
-              line: line,
-              yMax: yMax,
-              yMin: yMin,
-              xMax: xMax,
-              xMin: xMin,
-              leftBank: left_station,
-              x1Intersection: x1Intersection,
-              x2Intersection: x2Intersection,
-              path: bath,
-              name: name,
-            },
-            alpha: alpha,
-            numStations: num_stations,
-            interpolated: interpolated,
-            data: { ...value, activeCheck: value.check },
-          })
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  });
+    },
+  );
 
   if (flagData) {
     return MODULE_NUMBER.RESULTS;
@@ -323,7 +339,11 @@ const onLoadCrossSections = (
   }
 };
 
-const onLoadProcessingForm = (values: ProcessingValues, dispatch: any, updateForm: any) => {
+const onLoadProcessingForm = (
+  values: ProcessingValues,
+  dispatch: any,
+  updateForm: any,
+) => {
   const {
     artificial_seeding,
     clahe,
@@ -355,14 +375,14 @@ const onLoadProcessingForm = (values: ProcessingValues, dispatch: any, updateFor
       step1: interrogation_area_1,
       step2: interrogation_area_2,
       heightRoi: roi_height,
-    })
+    }),
   );
 };
 
 const onLoad3dRectification = (
   rectification3d: {
-    points: IpcamPoint[];
-    cameraSolution: BackendCameraSolution;
+    points: importedPoint[];
+    cameraSolution: cameraSolution;
     mode: string;
     images: string;
     imagesPath: string;
@@ -370,12 +390,16 @@ const onLoad3dRectification = (
   dispatch: any,
   setIpcamPoints: any,
   setCameraSolution: any,
-  setIpcamImages: any
+  setIpcamImages: any,
 ) => {
   let filePrefix = import.meta.env.VITE_FILE_PREFIX;
-  filePrefix = filePrefix === undefined ? '' : filePrefix;
+  filePrefix = filePrefix === undefined ? "" : filePrefix;
   const { points, cameraSolution, mode, images } = rectification3d;
-  const { newPoints, numPoints } = appendSolutionToIpcamPoints(points, cameraSolution, mode === 'direct-solve');
+  const { newImportedPoints, numPoints } = appendSolutionToImportedPoints(
+    points,
+    cameraSolution,
+    mode === "direct-solve",
+  );
 
   delete cameraSolution.projectedPoints;
   delete cameraSolution.uncertaintyEllipses;
@@ -383,18 +407,18 @@ const onLoad3dRectification = (
   let zMin = Infinity;
   let zMax = -Infinity;
 
-  newPoints.forEach((point) => {
+  newImportedPoints.forEach((point) => {
     if (point.Z > zMax) zMax = point.Z;
     if (point.Z < zMin) zMin = point.Z;
   });
 
   dispatch(
     setIpcamPoints({
-      points: newPoints,
+      points: newImportedPoints,
       path: undefined,
       counter: numPoints,
       zLimits: { min: zMin, max: zMax },
-    })
+    }),
   );
   dispatch(
     setCameraSolution({
@@ -402,7 +426,7 @@ const onLoad3dRectification = (
       orthoImagePath: filePrefix + cameraSolution.orthoImagePath,
       mode: mode,
       numPoints: numPoints,
-    })
+    }),
   );
 
   if (images !== undefined) {
@@ -485,8 +509,8 @@ interface XSectionValue {
   Q_portion: number[];
   minus_std: number[];
   plus_std: number[];
-  '5th_percentile': number[];
-  '95th_percentile': number[];
+  "5th_percentile": number[];
+  "95th_percentile": number[];
   total_Q: number;
   measured_Q: number;
   interpolated_Q: number;

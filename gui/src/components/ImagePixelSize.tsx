@@ -1,19 +1,25 @@
-import { useEffect, useState } from 'react';
-import { useProjectSlice, useUavSlice, useUiSlice } from '../hooks';
-import { getRelativePointerPosition, imageZoom, onMouseDownPixelSize, onMouseUpPixelSize } from '../helpers';
-import { KonvaEventObject } from 'konva/lib/Node';
-import { Group, Image, Layer, Line, Stage } from 'react-konva';
-import { DrawSections } from './DrawSections';
-import { COLORS } from '../constants/constants';
-import { Points } from './Points';
-import useImage from 'use-image';
-import { Point } from '../types';
+import { useEffect, useState } from "react";
+import { useMatrixSlice, useProjectSlice, useUiSlice } from "../hooks";
+import {
+  getRelativePointerPosition,
+  imageZoom,
+  onMouseDownPixelSize,
+  onMouseUpPixelSize,
+} from "../helpers";
+import { KonvaEventObject } from "konva/lib/Node";
+import { Group, Image, Layer, Line, Stage } from "react-konva";
+import { DrawSections } from "./DrawSections";
+import { COLORS } from "../constants/constants";
+import { Points } from "./Points";
+import useImage from "use-image";
+import { Point } from "../types";
 
 export const ImagePixelSize = () => {
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
 
-  const { dirPoints, drawLine, onSetPixelDirection } = useUavSlice();
+  const { pixelSize, onSetPixelDirection } = useMatrixSlice();
+  const { dirPoints, drawLine } = pixelSize;
 
   const [localPoints, setLocalPoints] = useState<Point[]>([]);
   const [mousePressed, setMousePressed] = useState(false);
@@ -33,14 +39,29 @@ export const ImagePixelSize = () => {
   const handleMouseDown = (event: KonvaEventObject<MouseEvent>) => {
     if (localPoints.length === 2 || drawLine === false) return;
 
-    onMouseDownPixelSize(event, setLocalPoints, setCurrentMousePosition, setMousePressed);
+    onMouseDownPixelSize(
+      event,
+      setLocalPoints,
+      setCurrentMousePosition,
+      setMousePressed,
+    );
   };
 
   const handleMouseUp = (event: KonvaEventObject<MouseEvent>) => {
     if (!mousePressed) return;
 
-    const newPoints = onMouseUpPixelSize(event, localPoints, setLocalPoints, setMousePressed);
-    onSetPixelDirection({ points: newPoints, factor: factor!, index: null }, null);
+    console.log('Mouse up event triggered');
+
+    const newPoints = onMouseUpPixelSize(
+      event,
+      localPoints,
+      setLocalPoints,
+      setMousePressed,
+    );
+    onSetPixelDirection(
+      { points: newPoints, factor: factor!, index: null },
+      null,
+    );
   };
 
   const handleMouseMove = (event: KonvaEventObject<MouseEvent>) => {
@@ -73,7 +94,11 @@ export const ImagePixelSize = () => {
         onWheel={handleOnWheel}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
-        onMouseMove={drawLine && mousePressed && localPoints.length < 2 ? handleMouseMove : undefined}
+        onMouseMove={
+          drawLine && mousePressed && localPoints.length < 2
+            ? handleMouseMove
+            : undefined
+        }
       >
         <Layer>
           <Image image={image} width={imageWidth} height={imageHeight} />
@@ -92,7 +117,12 @@ export const ImagePixelSize = () => {
           {mousePressed && localPoints.length === 1 && (
             <Group>
               <Line
-                points={[localPoints[0].x, localPoints[0].y, currentMousePosition.x, currentMousePosition.y]}
+                points={[
+                  localPoints[0].x,
+                  localPoints[0].y,
+                  currentMousePosition.x,
+                  currentMousePosition.y,
+                ]}
                 stroke={COLORS.LIGHT_BLUE}
                 strokeWidth={2.8}
                 lineCap="round"

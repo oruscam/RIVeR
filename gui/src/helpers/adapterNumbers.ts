@@ -11,4 +11,8 @@ const formatNumberToPrecision4 = (num: number) => {
   return num.toPrecision(4);
 };
 
-export { formatNumberToPrecision4, formatNumberTo2Decimals, formatNumberToPrecision2 };
+export {
+  formatNumberToPrecision4,
+  formatNumberTo2Decimals,
+  formatNumberToPrecision2,
+};

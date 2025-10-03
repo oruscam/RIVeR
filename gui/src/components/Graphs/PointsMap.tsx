@@ -1,13 +1,14 @@
-import { useEffect, useRef } from 'react';
-import { useIpcamSlice, useUiSlice } from '../../hooks';
-import { GRAPHS } from '../../constants/constants';
-import * as d3 from 'd3';
-import { pointsMapSvg } from './pointsMapSvg';
+import { useEffect, useRef } from "react";
+import { useMatrixSlice, useUiSlice } from "../../hooks";
+import { GRAPHS } from "../../constants/constants";
+import * as d3 from "d3";
+import { pointsMapSvg } from "./pointsMapSvg";
 
 export const PointsMap = () => {
   const svgRef = useRef(null);
   const { screenSizes } = useUiSlice();
-  const { points, activePoint, cameraSolution } = useIpcamSlice();
+  const { ipcam } = useMatrixSlice();
+  const { importedPoints, activePoint, cameraSolution } = ipcam;
 
   const cameraPosition = cameraSolution?.cameraPosition;
   const orthoExtent = cameraSolution?.orthoExtent;
@@ -21,29 +22,29 @@ export const PointsMap = () => {
       : GRAPHS.MIN_WIDTH;
 
   useEffect(() => {
-    d3.select(svgRef.current).selectAll('*').remove();
-    if (points && svgRef.current) {
+    d3.select(svgRef.current).selectAll("*").remove();
+    if (importedPoints && svgRef.current) {
       pointsMapSvg({
         svgElement: svgRef.current,
-        points,
+        importedPoints,
         activePoint,
         orthoImagePath,
         cameraPosition,
         orthoExtent,
       });
     }
-  }, [points, graphWidth, cameraPosition]);
+  }, [importedPoints, graphWidth, cameraPosition]);
 
   return (
     <div>
-      {points && (
+      {importedPoints && (
         <svg
           ref={svgRef}
           width={graphWidth}
           height={graphWidth}
           style={{
-            backgroundColor: 'transparent',
-            pointerEvents: 'none',
+            backgroundColor: "transparent",
+            pointerEvents: "none",
           }}
         />
       )}

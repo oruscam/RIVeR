@@ -20,8 +20,7 @@
     },
     "Step-2" : {
         "title" : "Sélectionner le type de séquence",
-        "pleaseSelectVideo": "Veuillez sélectionner une vidéo",
-        "invalidFileType": "Type de fichier invalide. Veuillez sélectionner un fichier vidéo."
+        "pleaseSelectVideo": "Veuillez sélectionner une vidéo"
     },
     "Wizard" : {
         "back": "Retour",

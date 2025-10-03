@@ -1,25 +1,27 @@
-import { FieldValues, FormProvider, useForm } from 'react-hook-form';
-import { useWizard } from 'react-use-wizard';
-import { FormPixelSize } from '../components/Forms/index';
-import { WizardButtons, Error, Progress, ImagePixelSize } from '../components/index';
-import { useUavSlice, useUiSlice } from '../hooks/index';
+import { FieldValues, FormProvider, useForm } from "react-hook-form";
+import { useWizard } from "react-use-wizard";
+import { FormPixelSize } from "../components/Forms/index";
+import {
+  WizardButtons,
+  Error,
+  Progress,
+  ImagePixelSize,
+} from "../components/index";
+import { useMatrixSlice, useUiSlice } from "../hooks/index";
 
-import './pages.css';
-import { useEffect } from 'react';
-import { ButtonLock } from '../components/ButtonLock.js';
-import { formatNumberTo2Decimals, formatNumberToPrecision4 } from '../helpers/adapterNumbers.js';
+import "./pages.css";
+import { useEffect } from "react";
+import { ButtonLock } from "../components/ButtonLock.js";
+import {
+  formatNumberTo2Decimals,
+  formatNumberToPrecision4,
+} from "../helpers/adapterNumbers.js";
 
 export const PixelSize = () => {
-  const {
-    dirPoints,
-    rwPoints,
-    size,
-    rwLength,
-    solution,
-    extraFields,
-    onUpdatePixelSize,
-    onGetUavTransformationMatrix,
-  } = useUavSlice();
+  const { pixelSize, onUpdatePixelSize, onGetTransformationMatrix } =
+    useMatrixSlice();
+  const { dirPoints, rwPoints, size, rwLength, solution, extraFields } =
+    pixelSize;
 
   // * Estado inicial del formulario
   const methods = useForm({
@@ -40,17 +42,24 @@ export const PixelSize = () => {
   const { nextStep } = useWizard();
   const { onSetErrorMessage } = useUiSlice();
 
-  const onSubmit = (_data: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (
+    data: FieldValues,
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     const id = (event.nativeEvent as SubmitEvent).submitter?.id;
-    if (id === 'solve-pixelsize') {
+
+    if (id === "solve-pixelsize") {
       event.preventDefault();
-      onGetUavTransformationMatrix();
+      onGetTransformationMatrix("uav");
       return;
     }
     nextStep();
   };
 
-  const onError = (error: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
+  const onError = (
+    error: FieldValues,
+    event: React.FormEvent<HTMLFormElement>,
+  ) => {
     if (event === undefined) return;
 
     onSetErrorMessage(error);
@@ -84,7 +93,10 @@ export const PixelSize = () => {
       <div className="form-container">
         <Progress />
         <FormProvider {...methods}>
-          <FormPixelSize onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
+          <FormPixelSize
+            onSubmit={methods.handleSubmit(onSubmit, onError)}
+            onError={onError}
+          />
         </FormProvider>
         <ButtonLock
           footerElementID="span-footer"
@@ -93,7 +105,10 @@ export const PixelSize = () => {
           localExtraFields={extraFields}
           localSetExtraFields={onChangeExtraFields}
         />
-        <WizardButtons canFollow={solution?.orthoImage !== undefined} formId="form-pixel-size" />
+        <WizardButtons
+          canFollow={solution?.orthoImage !== undefined}
+          formId="form-pixel-size"
+        />
       </div>
     </div>
   );

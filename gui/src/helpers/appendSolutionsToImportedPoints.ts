@@ -1,4 +1,5 @@
-import { BackendCameraSolution, IpcamPoint } from '../store/ipcam/types';
+import { importedPoint } from "../store/matrix/types";
+import { cameraSolution } from "../types";
 
 /**
  * Appends camera solution data to imported points.
@@ -9,45 +10,55 @@ import { BackendCameraSolution, IpcamPoint } from '../store/ipcam/types';
  * @returns Array of imported points with appended camera solution data.
  */
 
-function appendSolutionToIpcamPoints(
-  points: IpcamPoint[],
-  cameraSolution: BackendCameraSolution,
-  directSolve: boolean
-): { newPoints: IpcamPoint[]; numPoints: number } {
-  let newPoints: IpcamPoint[] = [];
+function appendSolutionToImportedPoints(
+  importedPoints: importedPoint[],
+  cameraSolution: cameraSolution,
+  directSolve: boolean,
+): { newImportedPoints: importedPoint[]; numPoints: number } {
+  let newImportedPoints: importedPoint[] = [];
   let numPoints: number = 0;
 
   if (directSolve === true) {
-    newPoints = points.map((point, index) => {
+    newImportedPoints = importedPoints.map((point, index) => {
       if (point.selected === true) {
         numPoints = numPoints + 1;
       }
       return {
         ...point,
-        ellipse: cameraSolution.uncertaintyEllipses ? cameraSolution.uncertaintyEllipses[index] : null,
+        ellipse: cameraSolution.uncertaintyEllipses
+          ? cameraSolution.uncertaintyEllipses[index]
+          : undefined,
         projectedPoint: cameraSolution.projectedPoints
-          ? (cameraSolution.projectedPoints[index] as unknown as [number, number])
-          : null,
+          ? (cameraSolution.projectedPoints[index] as unknown as [
+              number,
+              number,
+            ])
+          : undefined,
       };
     });
   } else {
     numPoints = cameraSolution.numPoints ? cameraSolution.numPoints : 0;
     const { pointIndices } = cameraSolution;
-    newPoints = points.map((point, index) => {
+    newImportedPoints = importedPoints.map((point, index) => {
       if (pointIndices?.includes(index)) {
         return {
           ...point,
-          ellipse: cameraSolution.uncertaintyEllipses ? cameraSolution.uncertaintyEllipses[index] : null,
+          ellipse: cameraSolution.uncertaintyEllipses
+            ? cameraSolution.uncertaintyEllipses[index]
+            : undefined,
           projectedPoint: cameraSolution.projectedPoints
-            ? (cameraSolution.projectedPoints[index] as unknown as [number, number])
-            : null,
+            ? (cameraSolution.projectedPoints[index] as unknown as [
+                number,
+                number,
+              ])
+            : undefined,
           selected: true,
         };
       } else {
         return {
           ...point,
-          ellipse: null,
-          projectedPoint: null,
+          ellipse: undefined,
+          projectedPoint: undefined,
           selected: false,
         };
       }
@@ -55,9 +66,9 @@ function appendSolutionToIpcamPoints(
   }
 
   return {
-    newPoints: newPoints,
+    newImportedPoints: newImportedPoints,
     numPoints: numPoints,
   };
 }
 
-export { appendSolutionToIpcamPoints };
+export { appendSolutionToImportedPoints };

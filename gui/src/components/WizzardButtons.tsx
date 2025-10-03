@@ -1,8 +1,14 @@
-import { useTranslation } from 'react-i18next';
-import './components.css';
-import { useWizard } from 'react-use-wizard';
-import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
-import { MODULE_NUMBER } from '../constants/constants';
+import { useTranslation } from "react-i18next";
+import "./components.css";
+import { useWizard } from "react-use-wizard";
+import {
+  useDataSlice,
+  useMatrixSlice,
+  useProjectSlice,
+  useSectionSlice,
+  useUiSlice,
+} from "../hooks";
+import { MODULE_NUMBER } from "../constants/constants";
 
 type Props = {
   canFollow?: boolean;
@@ -13,14 +19,15 @@ type Props = {
 
 export const WizardButtons = ({
   canFollow = true,
-  formId = '',
+  formId = "",
   button = false,
   onClickNext,
 }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep, isLastStep } = useWizard();
-  const { onSetActiveSection } = useSectionSlice();
-  const { onClearQuiver, isBackendWorking } = useDataSlice();
+  const { onSetActiveSection, onSetDefaultSectionState } = useSectionSlice();
+  const { onClearQuiver, isBackendWorking, onSetDefaultDataState } = useDataSlice();
   const { onSetDefaultProjectState } = useProjectSlice();
+  const { onSetDefaultMatrixState } = useMatrixSlice();
   const { onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();
 
@@ -32,7 +39,7 @@ export const WizardButtons = ({
         break;
 
       case MODULE_NUMBER.PROCESSING:
-        onSetSeeAll(true);
+        onSetSeeAll(true)
         previousStep();
         break;
 
@@ -43,6 +50,9 @@ export const WizardButtons = ({
 
       case MODULE_NUMBER.VIDEO_RANGE:
         onSetDefaultProjectState();
+        onSetDefaultDataState();
+        onSetDefaultSectionState();
+        onSetDefaultMatrixState();
         previousStep();
         break;
 
@@ -58,7 +68,7 @@ export const WizardButtons = ({
         onClick={handlePreviuos}
         disabled={isFirstStep || isBackendWorking}
       >
-        {t('Wizard.back')}
+        {t("Wizard.back")}
       </button>
 
       <button
@@ -66,10 +76,10 @@ export const WizardButtons = ({
         disabled={!canFollow || isBackendWorking}
         form={formId}
         onClick={onClickNext}
-        type={button ? 'button' : 'submit'}
+        type={button ? "button" : "submit"}
         id="wizard-next"
       >
-        {isLastStep ? t('Wizard.save') : t('Wizard.next')}
+        {isLastStep ? t("Wizard.save") : t("Wizard.next")}
       </button>
     </div>
   );

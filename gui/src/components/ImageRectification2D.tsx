@@ -1,16 +1,18 @@
-import useImage from 'use-image';
-import { useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
-import { Image, Layer, Stage } from 'react-konva';
+import useImage from "use-image";
+import { useMatrixSlice, useProjectSlice, useUiSlice } from "../hooks";
+import { Image, Layer, Stage } from "react-konva";
 
-import { getRelativePointerPosition, imageZoom } from '../helpers/konvaActions';
-import { KonvaEventObject } from 'konva/lib/Node';
-import { useEffect, useState } from 'react';
-import { Point } from '../types';
-import { ObliquePointsLines, Points } from './index';
+import { getRelativePointerPosition, imageZoom } from "../helpers/konvaActions";
+import { KonvaEventObject } from "konva/lib/Node";
+import { useEffect, useState } from "react";
+import { Point } from "../types";
+import { ObliquePointsLines, Points } from "./index";
 
 export const ImageRectification2D = () => {
-  const { coordinates, drawPoints, distances, onSetCoordinates, onChangeCoordinates } = useObliqueSlice();
+  const { obliquePoints, onSetObliqueCoordinates, onChangeObliqueCoordinates } =
+    useMatrixSlice();
   const { screenSizes } = useUiSlice();
+  const { coordinates, drawPoints, distances } = obliquePoints;
   const { imageWidth, imageHeight, factor } = screenSizes;
 
   const { firstFramePath } = useProjectSlice();
@@ -21,6 +23,15 @@ export const ImageRectification2D = () => {
   const [resizeFactor, setResizeFactor] = useState(1);
 
   const [mousePresed, setMousePresed] = useState(false);
+
+  const hanldeOnClick = (event: KonvaEventObject<MouseEvent>) => {
+    if (drawPoints === false || distances.d12 !== 0) return;
+
+    const stage = event.target.getStage();
+    const pointerPosition = getRelativePointerPosition(stage);
+
+    onSetObliqueCoordinates(pointerPosition, factor as number);
+  };
 
   // Set the first point of the square
 
@@ -38,7 +49,8 @@ export const ImageRectification2D = () => {
   };
 
   const handleOnMouseMove = (event: KonvaEventObject<MouseEvent>) => {
-    if (localPoints[0].x === 0 || drawPoints === false || mousePresed === false) return;
+    if (localPoints[0].x === 0 || drawPoints === false || mousePresed === false)
+      return;
 
     const stage = event.target.getStage();
     const pointerPosition = getRelativePointerPosition(stage);
@@ -50,7 +62,8 @@ export const ImageRectification2D = () => {
   };
 
   const handleOnMouseUp = (event: KonvaEventObject<MouseEvent>) => {
-    if (localPoints[0].x === 0 || drawPoints === false || mousePresed === false) return;
+    if (localPoints[0].x === 0 || drawPoints === false || mousePresed === false)
+      return;
     setMousePresed(false);
 
     const stage = event.target.getStage();
@@ -60,7 +73,7 @@ export const ImageRectification2D = () => {
     newPoints[1] = pointerPosition;
 
     setLocalPoints(newPoints);
-    onSetCoordinates(newPoints, screenSizes);
+    onSetObliqueCoordinates(newPoints, screenSizes);
   };
 
   const handleOnWheel = (event: KonvaEventObject<WheelEvent>) => {
@@ -94,7 +107,11 @@ export const ImageRectification2D = () => {
       <Layer>
         <Image image={image} width={imageWidth} height={imageHeight} />
 
-        <ObliquePointsLines localPoints={localPoints} resizeFactor={resizeFactor} mousePresed={mousePresed} />
+        <ObliquePointsLines
+          localPoints={localPoints}
+          resizeFactor={resizeFactor}
+          mousePresed={mousePresed}
+        />
 
         {/* 
             
@@ -106,7 +123,7 @@ export const ImageRectification2D = () => {
 
         <Points
           localPoints={mousePresed ? [localPoints[0]] : localPoints}
-          setPointsInStore={onChangeCoordinates}
+          setPointsInStore={onChangeObliqueCoordinates}
           setLocalPoints={setLocalPoints}
           draggable={true}
           factor={factor}

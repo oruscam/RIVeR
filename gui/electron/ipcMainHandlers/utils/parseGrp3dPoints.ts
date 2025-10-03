@@ -1,7 +1,9 @@
 function parseGrp3dPoints(data: string) {
   let grp_3d_points = JSON.parse(data);
 
-  const points = new Array(grp_3d_points.X.length + grp_3d_points.not_selected_X.length);
+  const points = new Array(
+    grp_3d_points.X.length + grp_3d_points.not_selected_X.length,
+  );
 
   grp_3d_points.X.forEach((_, index) => {
     const [label, originalIndex] = grp_3d_points.label[index];
@@ -31,7 +33,10 @@ function parseGrp3dPoints(data: string) {
   grp_3d_points.not_selected_X.forEach((_, index) => {
     const [label, originalIndex] = grp_3d_points.not_selected_label[index];
     let wasEstablished = false;
-    if (grp_3d_points.not_selected_x[index] !== 0 && grp_3d_points.not_selected_y[index] !== 0) {
+    if (
+      grp_3d_points.not_selected_x[index] !== 0 &&
+      grp_3d_points.not_selected_y[index] !== 0
+    ) {
       wasEstablished = true;
     }
     let image = undefined;

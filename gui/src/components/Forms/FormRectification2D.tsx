@@ -1,22 +1,20 @@
-import { useFormContext } from 'react-hook-form';
-import { useGlobalSlice, useObliqueSlice, useUiSlice } from '../../hooks';
-import { FormChild } from '../../types';
-import { getValidationRules } from '../../helpers';
-import { useTranslation } from 'react-i18next';
-import { OrthoImage } from '../Graphs';
-import { DropHereText } from './DropHereText';
+import { useFormContext } from "react-hook-form";
+import { useMatrixSlice, useUiSlice } from "../../hooks";
+import { FormChild } from "../../types";
+import { getValidationRules } from "../../helpers";
+import { useTranslation } from "react-i18next";
+import { OrthoImage } from "../Graphs";
 
 export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
+  const { obliquePoints, onSetDrawPoints, onGetDistances, isBackendWorking } =
+    useMatrixSlice();
   const {
     drawPoints,
     isDefaultCoordinates,
     isDistancesLoaded,
     solution,
     rwCoordinates,
-    onSetDrawPoints,
-    onGetDistances,
-  } = useObliqueSlice();
-  const { isBackendWorking } = useGlobalSlice();
+  } = obliquePoints;
 
   const { onSetErrorMessage } = useUiSlice();
 
@@ -32,37 +30,35 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
 
   return (
     <>
-      <h1 className="form-title"> {t('ControlPoints.title')} </h1>
+      <h1 className="form-title"> {t("ControlPoints.title")} </h1>
       <form
         onSubmit={onSubmit}
         onError={onError}
         id="form-control-points"
-        className={`form-scroll ${isBackendWorking ? 'disabled' : ''}`}
+        className={`form-scroll ${isBackendWorking ? "disabled" : ""}`}
       >
         <div className="form-base-2">
           <div className="input-container-2">
             <button
-              className={`wizard-button button-rectification me-1 ${drawPoints ? 'wizard-button-active' : ''}`}
+              className={`wizard-button button-rectification me-1 ${drawPoints ? "wizard-button-active" : ""}`}
               id="draw-coordinates"
               type="button"
               onClick={onSetDrawPoints}
             >
-              {' '}
-              {t('ControlPoints.drawPoints')}{' '}
+              {" "}
+              {t("ControlPoints.drawPoints")}{" "}
             </button>
             <button
-              className={`wizard-button button-rectification ${isDistancesLoaded ? 'wizard-button-active' : ''}`}
+              className={`wizard-button button-rectification ${isDistancesLoaded ? "wizard-button-active" : ""}`}
               id="import-distances"
               type="button"
               onClick={handleOnClickImportDistances}
               disabled={drawPoints === false}
             >
-              {' '}
-              {t('ControlPoints.importDistances')}{' '}
+              {" "}
+              {t("ControlPoints.importDistances")}{" "}
             </button>
           </div>
-
-          <DropHereText text={t('Commons.dropHereText')} show={isDistancesLoaded === false} />
 
           <div className="input-container-2 mt-2">
             <label className="read-only-rectification-2d me-1" id="D12">
@@ -73,7 +69,7 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
               type="number"
               id="distance_12"
               disabled={isDefaultCoordinates}
-              {...register('distance_12', validationRules.distances)}
+              {...register("distance_12", validationRules.distances)}
               step={0.01}
             />
           </div>
@@ -87,7 +83,7 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
               type="number"
               id="distance_23"
               disabled={isDefaultCoordinates}
-              {...register('distance_23', validationRules.distances)}
+              {...register("distance_23", validationRules.distances)}
               step={0.01}
             />
           </div>
@@ -101,7 +97,7 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
               type="number"
               id="distance_34"
               disabled={isDefaultCoordinates}
-              {...register('distance_34', validationRules.distances)}
+              {...register("distance_34", validationRules.distances)}
               step={0.01}
             />
           </div>
@@ -115,7 +111,7 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
               type="number"
               id="distance_41"
               disabled={isDefaultCoordinates}
-              {...register('distance_41', validationRules.distances)}
+              {...register("distance_41", validationRules.distances)}
               step={0.01}
             />
           </div>
@@ -129,7 +125,7 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
               type="number"
               id="distance_13"
               disabled={isDefaultCoordinates}
-              {...register('distance_13', validationRules.distances)}
+              {...register("distance_13", validationRules.distances)}
               step={0.01}
             />
           </div>
@@ -143,18 +139,20 @@ export const FormRectification2D = ({ onSubmit, onError }: FormChild) => {
               type="number"
               id="distance_24"
               disabled={isDefaultCoordinates}
-              {...register('distance_24', validationRules.distances)}
+              {...register("distance_24", validationRules.distances)}
               step={0.01}
             />
           </div>
 
-          {solution && <OrthoImage solution={solution} coordinates={rwCoordinates} />}
+          {solution && (
+            <OrthoImage solution={solution} coordinates={rwCoordinates} />
+          )}
           <button
             className="wizard-button form-button solver-button"
             id="solve-oblique"
             disabled={isDefaultCoordinates}
           >
-            {t('Commons.solve')}
+            {t("Commons.solve")}
           </button>
         </div>
       </form>

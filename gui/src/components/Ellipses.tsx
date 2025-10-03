@@ -1,17 +1,18 @@
-import { Group, Ellipse as KonvaEllipse } from 'react-konva';
-import { useIpcamSlice } from '../hooks';
-import { COLORS } from '../constants/constants';
+import { Group, Ellipse as KonvaEllipse } from "react-konva";
+import { useMatrixSlice } from "../hooks";
+import { COLORS } from "../constants/constants";
 
 export const Ellipses = ({ factor }: { factor: number }) => {
-  const { cameraSolution, points } = useIpcamSlice();
+  const { ipcam } = useMatrixSlice();
+  const { cameraSolution, importedPoints } = ipcam;
 
-  if (cameraSolution === null || points === null) return null;
+  if (cameraSolution === undefined || importedPoints === undefined) return null;
 
   return (
     <Group>
-      {points.map((point, index) => {
+      {importedPoints.map((point, index) => {
         const { selected, ellipse } = point;
-        if (selected === false || ellipse === null) return null;
+        if (selected === false || ellipse === undefined) return null;
 
         const [x, y] = ellipse.center;
         const width = ellipse.width / (factor * 1.8);

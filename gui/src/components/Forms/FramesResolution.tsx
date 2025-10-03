@@ -1,5 +1,5 @@
-import { useTranslation } from 'react-i18next';
-import { useProjectSlice } from '../../hooks';
+import { useTranslation } from "react-i18next";
+import { useProjectSlice } from "../../hooks";
 
 export const FramesResolution = ({ active }: { active: boolean }) => {
   const { t } = useTranslation();
@@ -24,10 +24,13 @@ export const FramesResolution = ({ active }: { active: boolean }) => {
   };
 
   return (
-    <div className={`video-resolution ${active ? '' : 'hidden'}`} id="video-resolution">
-      <h2> {t('VideoRange.framesResolution')} </h2>
+    <div
+      className={`video-resolution ${active ? "" : "hidden"}`}
+      id="video-resolution"
+    >
+      <h2> {t("VideoRange.framesResolution")} </h2>
       <button
-        className={`wizard-button mt-1 ${factor === 1 ? 'wizard-button-active' : ''}`}
+        className={`wizard-button mt-1 ${factor === 1 ? "wizard-button-active" : ""}`}
         type="button"
         id="1"
         onClick={onClickResolution}
@@ -35,7 +38,7 @@ export const FramesResolution = ({ active }: { active: boolean }) => {
         {value1}
       </button>
       <button
-        className={`wizard-button mt-1 ${factor === 0.5 ? 'wizard-button-active' : ''}`}
+        className={`wizard-button mt-1 ${factor === 0.5 ? "wizard-button-active" : ""}`}
         type="button"
         id="0.5"
         onClick={onClickResolution}
@@ -43,7 +46,7 @@ export const FramesResolution = ({ active }: { active: boolean }) => {
         {value2}
       </button>
       <button
-        className={`wizard-button mt-1 ${factor === 0.25 ? 'wizard-button-active' : ''}`}
+        className={`wizard-button mt-1 ${factor === 0.25 ? "wizard-button-active" : ""}`}
         type="button"
         id="0.25"
         onClick={onClickResolution}

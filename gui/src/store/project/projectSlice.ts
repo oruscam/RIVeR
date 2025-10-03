@@ -1,15 +1,20 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { ProjectDetails, ProjectState, VideoData, VideoParameters } from './types';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  ProjectDetails,
+  ProjectState,
+  VideoData,
+  VideoParameters,
+} from "./types";
 
 const defaultVideo = {
   data: {
-    name: '',
-    path: '',
+    name: "",
+    path: "",
     width: 0,
     height: 0,
     fps: 0,
     duration: 0,
-    creation: '',
+    creation: "",
   },
   parameters: {
     step: 1,
@@ -23,20 +28,20 @@ const defaultVideo = {
 };
 
 const initialState: ProjectState = {
-  projectDirectory: '',
+  projectDirectory: "",
   video: defaultVideo,
-  type: '',
-  firstFramePath: '',
+  type: "",
+  firstFramePath: "",
   projectDetails: {
-    riverName: '',
-    site: '',
-    unitSistem: 'si',
-    meditionDate: '',
+    riverName: "",
+    site: "",
+    unitSistem: "si",
+    meditionDate: "",
   },
 };
 
 const projectSlice = createSlice({
-  name: 'project',
+  name: "project",
   initialState,
   reducers: {
     setProjectDirectory: (state, action: PayloadAction<string>) => {
@@ -45,7 +50,7 @@ const projectSlice = createSlice({
     setVideoData: (state, action: PayloadAction<VideoData>) => {
       state.video.data = action.payload;
     },
-    setProjectType: (state, action: PayloadAction<'uav' | 'ipcam' | 'oblique'>) => {
+    setProjectType: (state, action: PayloadAction<string>) => {
       state.type = action.payload;
     },
     setVideoParameters: (state, action: PayloadAction<VideoParameters>) => {
@@ -58,15 +63,15 @@ const projectSlice = createSlice({
       state.projectDetails = action.payload;
     },
     setDefaultProjectState: (state) => {
-      state.projectDirectory = '';
+      state.projectDirectory = "";
       state.video = defaultVideo;
-      state.type = '';
-      state.firstFramePath = '';
+      state.type = "";
+      state.firstFramePath = "";
       state.projectDetails = {
-        riverName: '',
-        site: '',
-        unitSistem: 'si',
-        meditionDate: '',
+        riverName: "",
+        site: "",
+        unitSistem: "si",
+        meditionDate: "",
       };
     },
   },

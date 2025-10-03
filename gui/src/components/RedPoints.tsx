@@ -1,17 +1,24 @@
-import { Circle, Group, Line } from 'react-konva';
-import { COLORS } from '../constants/constants';
-import { useIpcamSlice } from '../hooks';
+import { Circle, Group, Line } from "react-konva";
+import { COLORS } from "../constants/constants";
+import { useMatrixSlice } from "../hooks";
 
-export const RedPoints = ({ factor, resizeFactor }: { factor: number; resizeFactor: number }) => {
-  const { cameraSolution, points } = useIpcamSlice();
+export const RedPoints = ({
+  factor,
+  resizeFactor,
+}: {
+  factor: number;
+  resizeFactor: number;
+}) => {
+  const { ipcam } = useMatrixSlice();
+  const { cameraSolution, importedPoints } = ipcam;
 
-  if (cameraSolution === null || points === null) return null;
+  if (cameraSolution === undefined || importedPoints === undefined) return null;
 
   return (
     <Group>
-      {points.map((point, index) => {
+      {importedPoints.map((point, index) => {
         const { x, y, selected, wasEstablished, projectedPoint } = point;
-        if (selected === false || projectedPoint === null) return;
+        if (selected === false || projectedPoint === undefined) return;
 
         const [xProjected, yProjected] = projectedPoint;
 
@@ -20,7 +27,12 @@ export const RedPoints = ({ factor, resizeFactor }: { factor: number; resizeFact
             {x !== 0 && y !== 0 && wasEstablished && (
               <Line
                 key={`line-${index}`}
-                points={[x / factor, y / factor, xProjected / factor, yProjected / factor]}
+                points={[
+                  x / factor,
+                  y / factor,
+                  xProjected / factor,
+                  yProjected / factor,
+                ]}
                 stroke={COLORS.RED}
                 strokeWidth={3 / resizeFactor}
               />
