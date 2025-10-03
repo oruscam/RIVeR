@@ -1,5 +1,5 @@
 import { Quiver } from '../store/data/types';
-import { transformRealWorldToPixel } from './coordinates';
+import { transformPixelToRealWorld, transformRealWorldToPixel } from './coordinates';
 
 /**
  * Calculates the width of an arrow based on the differences between consecutive distances.
@@ -672,22 +672,32 @@ const getQuiverValues = (
   showMedian: boolean,
   activeImage: number,
   step: number,
-  fps: number
+  fps: number,
+  transformationMatrix: number[][]
 ): QuiverValuesResult => {
-  const { x, y, u, v, u_median, v_median } = quiver;
+  const { x, y: yArray, u: uArray, v: vArray, u_median, v_median } = quiver;
 
   let data = x.map((d, i: number) => {
-    const uVal = getComponent(u, u_median, showMedian, activeImage, i);
-    const vVal = getComponent(v, v_median, showMedian, activeImage, i);
+    const u = getComponent(uArray, u_median, showMedian, activeImage, i);
+    const v = getComponent(vArray, v_median, showMedian, activeImage, i);
+
+    const x = d ?? -1000;
+    const y = yArray[i] ?? -1000;
+    
+    const [x0, y0] = transformPixelToRealWorld(x, y, transformationMatrix);
+    const [x1, y1] = transformPixelToRealWorld(x + (u ?? 0), y + (v ?? 0), transformationMatrix);
+
+    const dx = x1 - x0;
+    const dy = y1 - y0;
 
     // Only include if both u and v are valid numbers
-    if (uVal !== null && !isNaN(uVal) && vVal !== null && !isNaN(vVal)) {
-      const velocity = Math.sqrt(uVal ** 2 + vVal ** 2) / (step / fps);
+    if (u !== null && !isNaN(u) && v !== null && !isNaN(v)) {
+      const velocity = Math.sqrt(dx ** 2 + dy ** 2) / (step / fps);
       return {
-        x: d ?? -1000,
-        y: y[i],
-        u: uVal,
-        v: vVal,
+        x: x,
+        y: y,
+        u: u,
+        v: v,
         velocity: velocity,
         color: 'transparent', // Add default color property to satisfy QuiverData interface
       };

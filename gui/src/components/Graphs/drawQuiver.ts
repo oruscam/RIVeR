@@ -70,7 +70,7 @@ export const drawQuiver = (
         .style('cursor', 'pointer')
         .on("mouseover", function (event, d) {
             tooltip.transition().duration(200).style("opacity", 1);
-            tooltip.html(`Velocity: ${d.velocity.toFixed(2)} px/s`)
+            tooltip.html(`Velocity: ${d.velocity.toFixed(2)} m/s`)
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 28) + "px")
                 .style("z-index", 1000);

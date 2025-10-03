@@ -1,5 +1,5 @@
 import { useWizard } from 'react-use-wizard';
-import { useDataSlice, useProjectSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { WindowSizes } from './WindowSizes';
 import { Quiver } from './Quiver';
 import { MODULE_NUMBER } from '../constants/constants';
@@ -26,6 +26,8 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const { paths, active } = images;
   const { data: videoData, parameters } = video;
 
+  const { transformationMatrix } = useSectionSlice();
+
   if (!width || !height || !factor) return null;
 
   const realWidth = vertical ? widthReduced : width;
@@ -34,7 +36,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
 
   const { data, min, max} = useMemo(() => {
     if (quiver === null ) return [];
-    return getQuiverValues(quiver, showMedian as boolean, images.active, parameters.step, videoData.fps);
+    return getQuiverValues(quiver, showMedian as boolean, images.active, parameters.step, videoData.fps, transformationMatrix);
   }, [quiver, images.active, showMedian]);
 
   return (
