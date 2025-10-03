@@ -118,7 +118,6 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       }
     }
   };
-
   return (
     <div id="form-section-div" className={activeSection !== index ? 'hidden' : ''}>
       <form

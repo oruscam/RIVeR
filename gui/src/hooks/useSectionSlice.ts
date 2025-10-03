@@ -522,6 +522,7 @@ export const useSectionSlice = () => {
 
     if (value.clearBathimetry) {
       updatedSection.bathimetry = { path: undefined, name: undefined, level: 0 };
+      updatedSection.sectionPoints = DEFAULT_POINTS;
     }
 
     dispatch(updateSection(updatedSection));
