@@ -117,7 +117,7 @@ export const FootageMode = () => {
                 </>
               :
               <></>
-            )}
+            }
           </div>
           <div
             className={`browse-video-drop-area${dragOver === 'drop-area' ? ' drag-over' : ''}`}
