@@ -29,15 +29,6 @@ WRONG_SIZE_TRANSFORMATION_MATRIX_MESSAGE = (
 @click.option("--min-resolution", default=0.01, type=click.FLOAT)
 @click.option("--flip-x/--no-flip-x", default=False)
 @click.option("--flip-y/--no-flip-y", default=True)
-@click.option("--east1", type=click.FLOAT, default=None, help="Real-world east coordinate of point 1 (optional).")
-@click.option("--north1", type=click.FLOAT, default=None, help="Real-world north coordinate of point 1 (optional).")
-@click.option("--east2", type=click.FLOAT, default=None, help="Real-world east coordinate of point 2 (optional).")
-@click.option("--north2", type=click.FLOAT, default=None, help="Real-world north coordinate of point 2 (optional).")
-@click.option("--enforce-d12/--no-enforce-d12", default=True,
-              help="If set, require ||P2-P1|| = d12 within tolerance; otherwise use anchor distance.")
-@click.option("--distance-tolerance", default=1e-6, type=click.FLOAT, show_default=True,
-              help="Allowed mismatch between anchor ||P2-P1|| and d12 when enforcing.")
-
 @click.option(
 	"-w",
 	"--workdir",

@@ -1074,4 +1074,3 @@ def optimize_coordinates(d12: float, d23: float, d34: float, d41: float, d13: fl
 	east_3_opt, north_3_opt, east_4_opt, north_4_opt = result.x
 
 	return east_3_opt, north_3_opt, east_4_opt, north_4_opt
-	return east_3_opt, north_3_opt, east_4_opt, north_4_opt
