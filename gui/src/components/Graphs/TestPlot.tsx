@@ -21,8 +21,8 @@ export const TestPlot = () => {
       testPlotSvg({
         svgElement: svgRef.current,
         quiver: {
-          u: quiver.u as number[], // In this point, always quiver.u i flat array
-          v: quiver.v as number[], // In this point, always quiver.v i flat array
+          u: quiver.u as number[], // In this point, always quiver.u is a flat array
+          v: quiver.v as number[], // In this point, always quiver.v is a flat array
         },
         t,
       });

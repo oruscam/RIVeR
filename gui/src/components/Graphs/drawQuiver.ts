@@ -3,17 +3,10 @@ import { QuiverData } from '../../helpers/drawVectorsFunctions';
 import { VECTORS } from '../../constants/constants';
 
 export const drawQuiver = (
-    svgRef: React.RefObject<SVGSVGElement>,
+    svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
     data: QuiverData[],
-    width: number,
-    height: number,
     factor: number
 ) => {
-    const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove(); 
-
-    svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
-
     const mean_u = d3.mean(data, (d) => Math.abs(d.u)) || 0;
     const mean_v = d3.mean(data, (d) => Math.abs(d.v)) || 0;
 
@@ -70,9 +63,10 @@ export const drawQuiver = (
         .style('cursor', 'pointer')
         .on("mouseover", function (event, d) {
             tooltip.transition().duration(200).style("opacity", 1);
-            tooltip.html(`Velocity: ${d.velocity.toFixed(2)} m/s`)
+            tooltip.html(`${d.velocity.toFixed(2)}`)
                 .style("left", (event.pageX + 10) + "px")
                 .style("top", (event.pageY - 28) + "px")
+                .style('background', 'rgba(255, 255, 255, 0.4)')
                 .style("z-index", 1000);
         })
         .on("mousemove", function (event) {

@@ -681,8 +681,8 @@ const getQuiverValues = (
     const u = getComponent(uArray, u_median, showMedian, activeImage, i);
     const v = getComponent(vArray, v_median, showMedian, activeImage, i);
 
-    const x = d ?? -1000;
-    const y = yArray[i] ?? -1000;
+    const x = d ?? 0;
+    const y = yArray[i] ?? 0;
     
     const [x0, y0] = transformPixelToRealWorld(x, y, transformationMatrix);
     const [x1, y1] = transformPixelToRealWorld(x + (u ?? 0), y + (v ?? 0), transformationMatrix);
@@ -722,6 +722,7 @@ const getQuiverValues = (
     }
   })
 
+  
   return {
     data: data,
     min: minVelocity,

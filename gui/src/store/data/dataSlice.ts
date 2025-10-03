@@ -41,6 +41,7 @@ const dataSlice = createSlice({
     updateProcessingForm: (state, action: PayloadAction<FormProcessing>) => {
       state.processing.form = action.payload;
       state.hasChanged = true;
+      state.quiver = null;
     },
     updateProcessingPar: (state, action: PayloadAction<string[]>) => {
       state.processing.parImages = action.payload;

@@ -5,8 +5,8 @@ import { Quiver } from './Quiver';
 import { MODULE_NUMBER } from '../constants/constants';
 import { DrawSections } from './DrawSections';
 import { Layer, Stage } from 'react-konva';
-import { getQuiverValues } from '../helpers/drawVectorsFunctions';
-import { useMemo } from 'react';
+import { getQuiverValues, QuiverData } from '../helpers/drawVectorsFunctions';
+import { useMemo, useRef } from 'react';
 import { ColorBar } from './ColorBar';
 
 export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
@@ -26,6 +26,18 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const { paths, active } = images;
   const { data: videoData, parameters } = video;
 
+  // Define the type for QuiverData (import or declare if not already)
+  // import { QuiverData } from '../types/QuiverData'; // Uncomment if you have a type file
+
+  type PrevRefType = {
+    activeImage: typeof images.active;
+    data: QuiverData[];
+    min: number;
+    max: number;
+  };
+
+  const prevRef = useRef<PrevRefType>({activeImage: images.active, data: [], min: 0, max: 0});
+
   const { transformationMatrix } = useSectionSlice();
 
   if (!width || !height || !factor) return null;
@@ -34,9 +46,22 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const realHeight = vertical ? heightReduced : height;
   const realFactor = vertical ? factorReduced : factor;
 
-  const { data, min, max} = useMemo(() => {
-    if (quiver === null ) return [];
-    return getQuiverValues(quiver, showMedian as boolean, images.active, parameters.step, videoData.fps, transformationMatrix);
+
+  const { data, min, max } = useMemo(() => {
+    if ( quiver === null ){
+      console.log('reset quiver data');
+      prevRef.current = {activeImage: images.active, data: [], min: 0, max: 0};
+      return { data: [], min: 0, max: 0 };
+    }
+    if (prevRef.current.activeImage !== images.active && activeStep === MODULE_NUMBER.PROCESSING) {
+      prevRef.current.activeImage = images.active;
+      return { data: prevRef.current.data, min: prevRef.current.min, max: prevRef.current.max };
+    }
+
+    const { data, min, max } = getQuiverValues(quiver, showMedian as boolean, images.active, parameters.step, videoData.fps, transformationMatrix);
+    prevRef.current = {activeImage: images.active, data, min, max};
+    return { data, min, max };
+
   }, [quiver, images.active, showMedian]);
 
   return (
@@ -44,11 +69,6 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
       <img src={paths[active]} className="simple-image" />
       <img src={processing.maskPath} className="mask" />
 
-
-      <div className='values-info'> 
-        <span>Step: {parameters.step}- </span>
-        <span>FPS: {videoData.fps}</span>
-      </div>
       { quiver !== null && <ColorBar min={min} max={max} /> }
 
       <Stage
@@ -62,7 +82,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
           {activeStep === MODULE_NUMBER.PROCESSING && <WindowSizes width={realWidth!} height={realHeight!} />}
         </Layer>
       </Stage>
-      <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} />
+      <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} showMedian={showMedian} />
     </div>
   );
 };

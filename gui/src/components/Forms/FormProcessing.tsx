@@ -139,8 +139,6 @@ export const FormProcessing = () => {
               <span className="read-only bg-transparent"></span>
             </div>
 
-            {/* {quiver?.test && <TestPlot />} */}
-
             <HardModeProcessing active={extraFields} />
           </div>
         </form>
