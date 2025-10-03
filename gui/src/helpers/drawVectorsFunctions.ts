@@ -1,4 +1,5 @@
-import { transformRealWorldToPixel } from './coordinates';
+import { Quiver } from '../store/data/types';
+import { transformPixelToRealWorld, transformRealWorldToPixel } from './coordinates';
 
 /**
  * Calculates the width of an arrow based on the differences between consecutive distances.
@@ -495,7 +496,7 @@ function calculateMultipleArrowsAdaptative(
  * @returns {string[]} An array of RGB color strings representing the custom colormap.
  */
 
-function createColorMap() {
+function createColorMap(): string[] {
   const colors = [
     [108, 212, 255], // Light Blue - Lowest
     [98, 198, 85], // Green - Low-mid
@@ -633,4 +634,100 @@ const getGlobalMagnitudes = (sections: any) => {
   };
 };
 
-export { calculateArrowWidth, calculateMultipleArrows, calculateMultipleArrowsAdaptative, getGlobalMagnitudes };
+const getComponent = (
+  arr: number[] | number[][] | null | undefined,
+  median: number[] | null | undefined,
+  showMedian: boolean,
+  activeImage: number,
+  index: number
+) => {
+  if (showMedian) return median ? median[index] : null;
+
+  if (Array.isArray(arr)) {
+    return Array.isArray(arr[0])
+      ? (arr as number[][])[activeImage]?.[index] ?? null
+      : (arr as number[])[index] ?? null;
+  }
+
+  return null;
+};
+
+export interface QuiverData {
+  x: number;
+  y: number;
+  u: number;
+  v: number;
+  velocity: number;
+  color: string;
+}
+
+interface QuiverValuesResult {
+  data: QuiverData[];
+  min: number;
+  max: number;
+}
+
+const getQuiverValues = (
+  quiver: Quiver,
+  showMedian: boolean,
+  activeImage: number,
+  step: number,
+  fps: number,
+  transformationMatrix: number[][]
+): QuiverValuesResult => {
+  const { x, y: yArray, u: uArray, v: vArray, u_median, v_median } = quiver;
+
+  let data = x.map((d, i: number) => {
+    const u = getComponent(uArray, u_median, showMedian, activeImage, i);
+    const v = getComponent(vArray, v_median, showMedian, activeImage, i);
+
+    const x = d ?? 0;
+    const y = yArray[i] ?? 0;
+    
+    const [x0, y0] = transformPixelToRealWorld(x, y, transformationMatrix);
+    const [x1, y1] = transformPixelToRealWorld(x + (u ?? 0), y + (v ?? 0), transformationMatrix);
+
+    const dx = x1 - x0;
+    const dy = y1 - y0;
+
+    // Only include if both u and v are valid numbers
+    if (u !== null && !isNaN(u) && v !== null && !isNaN(v)) {
+      const velocity = Math.sqrt(dx ** 2 + dy ** 2) / (step / fps);
+      return {
+        x: x,
+        y: y,
+        u: u,
+        v: v,
+        velocity: velocity,
+        color: 'transparent', // Add default color property to satisfy QuiverData interface
+      };
+    }
+    return null;
+  }).filter((d): d is QuiverData => d !== null);
+
+  const minVelocity = Math.min(...data.map(d => d.velocity ?? Infinity));
+  const maxVelocity = Math.max(...data.map(d => d.velocity ?? -Infinity));
+
+  const norm = new Normalize(minVelocity, maxVelocity);
+
+  const colorMap = createColorMap();
+
+  data = data.map((d) => {
+    const normalizedValue = norm.normalize(d.velocity!);
+    
+    const colorIndex = Math.min(Math.floor(normalizedValue * (colorMap.length - 1)), colorMap.length - 1);
+    return {
+      ...d,
+      color: colorMap[colorIndex],
+    }
+  })
+
+  
+  return {
+    data: data,
+    min: minVelocity,
+    max: maxVelocity
+  };
+}
+
+export { calculateArrowWidth, calculateMultipleArrows, calculateMultipleArrowsAdaptative, getGlobalMagnitudes, getQuiverValues};

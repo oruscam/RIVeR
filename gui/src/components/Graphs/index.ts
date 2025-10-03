@@ -10,11 +10,13 @@ import { TestPlot } from './TestPlot';
 import { drawSvgSectionLine } from './drawSvgSectionLine';
 import { OrthoImage } from './OrthoImage';
 import { scaleBar } from './scaleBar';
+import { drawQuiver } from './drawQuiver';
 
 export {
   AllInOne,
   Bathimetry,
   createPinsBase64,
+  drawQuiver,
   drawSvgSectionLine,
   drawVectors,
   ipcamSvg,

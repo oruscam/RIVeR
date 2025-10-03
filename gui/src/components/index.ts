@@ -20,6 +20,7 @@ import { Ellipses } from './Ellipses';
 import { RedPoints } from './RedPoints';
 import { VersionMessage } from './VersionMessage';
 import { Clipboard } from './Clipboard';
+import { ColorBar } from './ColorBar';
 import { ImageIpcam } from './ImageIpcam';
 import { ImageOblique } from './ImageOblique';
 import { ImageUav } from './ImageUav';
@@ -31,6 +32,7 @@ export {
   DrawSections,
   Ellipses,
   Error,
+  ColorBar,
   Grid,
   Icon,
   ImageIpcam,

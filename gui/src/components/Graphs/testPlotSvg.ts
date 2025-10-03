@@ -30,6 +30,10 @@ export const testPlotSvg = ({
   d3.select(svgElement).selectAll('*').remove();
   const svg = d3.select(svgElement);
 
+  console.log('quiver', quiver)
+
+  // return null
+
   // Get the width and height of the SVG element
   const width = +svg.attr('width');
   const height = +svg.attr('height');

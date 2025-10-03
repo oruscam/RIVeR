@@ -119,23 +119,22 @@ export const useDataSlice = () => {
 
       if (error?.message) {
         throw new Error(error.message);
-      } else {
-        dispatch(
-          setQuiver({
-            quiver: {
-              x: data.x,
-              y: data.y,
-              u: data.u,
-              v: data.v,
-              typevector: data.typevector,
-              u_median: data.u_median,
-              v_median: data.v_median,
-              test: true,
-            },
-            test: true,
-          })
-        );
       }
+      dispatch(
+        setQuiver({
+          quiver: {
+            x: data.x,
+            y: data.y,
+            u: data.u,
+            v: data.v,
+            typevector: data.typevector,
+            u_median: data.u_median,
+            v_median: data.v_median,
+            test: true,
+          },
+        })
+      );
+      
 
       dispatch(setBackendWorkingFlag(false));
     } catch (error) {
@@ -173,24 +172,23 @@ export const useDataSlice = () => {
         console.log(error.message);
         if (error.message === 'Process was killed') return;
         throw new Error(error.message);
-      } else {
-        const { x, y, u, v, typevector, u_median, v_median } = data;
-        dispatch(
-          setQuiver({
-            quiver: {
-              x: x,
-              y: y,
-              u: u,
-              v: v,
-              typevector: typevector,
-              u_median: u_median,
-              v_median: v_median,
-              test: false,
-            },
+      } 
+      const { x, y, u, v, typevector, u_median, v_median } = data;
+      dispatch(
+        setQuiver({
+          quiver: {
+            x: x,
+            y: y,
+            u: u,
+            v: v,
+            typevector: typevector,
+            u_median: u_median,
+            v_median: v_median,
             test: false,
-          })
-        );
-      }
+          },
+        })
+      );
+      
       dispatch(setBackendWorkingFlag(false));
     } catch (error) {
       dispatch(setBackendWorkingFlag(false));
@@ -310,7 +308,7 @@ export const useDataSlice = () => {
 
   const onClearQuiver = () => {
     if (hasChanged) {
-      dispatch(setQuiver({ quiver: undefined, test: false }));
+      dispatch(setQuiver({ quiver: null }));
     }
   };
 

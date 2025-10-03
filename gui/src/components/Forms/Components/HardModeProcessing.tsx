@@ -1,12 +1,15 @@
 import { useFormContext } from 'react-hook-form';
 import { useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
+import { TestPlot } from '../../Graphs';
 
 export const HardModeProcessing = ({ active }: { active: boolean }) => {
   const { register } = useFormContext();
   const { processing, onUpdateProcessing, onReCalculateMask } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
+
+  const { quiver } = useDataSlice();
 
   const { t } = useTranslation();
 
@@ -29,7 +32,9 @@ export const HardModeProcessing = ({ active }: { active: boolean }) => {
 
   return (
     <div className={`hard-mode-processing mt-5 ${active ? '' : 'hidden'}`} id="processing-footer">
-      <div className="input-container-2 mb-2">
+      {quiver?.test && <TestPlot />}
+
+      <div className="input-container-2 mb-2 mt-1">
         <label className="read-only me-1">{t('Processing.roiHeight')}</label>
         <input
           className="input-field"
@@ -140,6 +145,8 @@ export const HardModeProcessing = ({ active }: { active: boolean }) => {
           }
         />
       </div>
+
+
     </div>
   );
 };

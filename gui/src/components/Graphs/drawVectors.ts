@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
 import { calculateArrowWidth, calculateMultipleArrowsAdaptative } from '../../helpers';
 import { SectionData } from '../../store/section/types';
-import { calculateMultipleArrows } from '../../helpers/drawVectorsFunctions';
 
 export const drawVectors = (
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
