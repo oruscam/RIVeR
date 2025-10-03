@@ -1,7 +1,7 @@
-import { Group } from "react-konva";
-import { useMatrixSlice, useSectionSlice, useUiSlice } from "../hooks";
-import { Points } from "./Points";
-import { LineAndText } from "./LineAndText";
+import { Group } from 'react-konva';
+import { useSectionSlice, useUavSlice, useUiSlice } from '../hooks';
+import { Points } from './Points';
+import { LineAndText } from './LineAndText';
 
 interface DrawSections {
   localPoints?: { x: number; y: number }[];
@@ -25,7 +25,7 @@ export const DrawSections = ({
   localDrawLine,
 }: DrawSections) => {
   const { sections, activeSection, onSetDirPoints } = useSectionSlice();
-  const { onSetPixelDirection } = useMatrixSlice();
+  const { onSetPixelDirection } = useUavSlice();
   const { seeAll } = useUiSlice();
 
   return (
@@ -35,7 +35,7 @@ export const DrawSections = ({
           {localPoints.length === 2 && localDrawLine && (
             <LineAndText
               localPoints={localPoints}
-              isPixelSize={module === "pixelSize"}
+              isPixelSize={module === 'pixelSize'}
               resizeFactor={resizeFactor}
               factor={factor}
               index={activeSection}
@@ -63,12 +63,7 @@ export const DrawSections = ({
           });
           return (
             <Group key={index}>
-              <LineAndText
-                isPixelSize={false}
-                resizeFactor={resizeFactor}
-                factor={factor}
-                index={index}
-              />
+              <LineAndText isPixelSize={false} resizeFactor={resizeFactor} factor={factor} index={index} />
               {(setLocalPoints || drawPins) && (
                 <Points
                   localPoints={reducedPoints}

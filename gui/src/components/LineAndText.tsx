@@ -1,8 +1,8 @@
-import { Line, Text } from "react-konva";
-import { useWizard } from "react-use-wizard";
-import { useSectionSlice, useUiSlice } from "../hooks";
-import { COLORS, MODULE_NUMBER } from "../constants/constants";
-import { getPositionSectionText } from "../helpers";
+import { Line, Text } from 'react-konva';
+import { useWizard } from 'react-use-wizard';
+import { useSectionSlice, useUiSlice } from '../hooks';
+import { COLORS, MODULE_NUMBER } from '../constants/constants';
+import { getPositionSectionText } from '../helpers';
 
 interface LineAndTextProps {
   localPoints?: { x: number; y: number }[];
@@ -12,13 +12,7 @@ interface LineAndTextProps {
   index: number;
 }
 
-export const LineAndText = ({
-  localPoints,
-  isPixelSize,
-  resizeFactor = 1,
-  factor,
-  index,
-}: LineAndTextProps) => {
+export const LineAndText = ({ localPoints, isPixelSize, resizeFactor = 1, factor, index }: LineAndTextProps) => {
   const { activeStep } = useWizard();
 
   const { sections } = useSectionSlice();
@@ -27,8 +21,8 @@ export const LineAndText = ({
   const { screenSizes } = useUiSlice();
   const { imageHeight, imageWidth } = screenSizes;
 
-  let lineColor: string = "";
-  let textColor: string = "";
+  let lineColor: string = '';
+  let textColor: string = '';
 
   switch (activeStep) {
     case MODULE_NUMBER.PIXEL_SIZE:
@@ -56,10 +50,7 @@ export const LineAndText = ({
 
     return (
       <Line
-        points={sectionPoints.flatMap((point) => [
-          point.x / factor,
-          point.y / factor,
-        ])}
+        points={sectionPoints.flatMap((point) => [point.x / factor, point.y / factor])}
         stroke={lineColor}
         strokeWidth={4 / resizeFactor}
         lineCap="round"
@@ -74,7 +65,7 @@ export const LineAndText = ({
       sectionPoints[1],
       imageWidth ? imageWidth : 0,
       imageHeight ? imageHeight : 0,
-      factor,
+      factor
     );
 
     return (

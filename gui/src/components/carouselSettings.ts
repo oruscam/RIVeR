@@ -1,4 +1,4 @@
-import { SetStateAction } from "react";
+import { SetStateAction } from 'react';
 
 interface CarouselSettings {
   className: string;
@@ -25,10 +25,10 @@ interface ResponsiveSetting {
 export const carouselSettings = (
   updateCount: number,
   setUpdateCount: React.Dispatch<SetStateAction<number>>,
-  setSlideIndex: React.Dispatch<SetStateAction<number>>,
+  setSlideIndex: React.Dispatch<SetStateAction<number>>
 ): CarouselSettings => {
   const settings = {
-    className: "center",
+    className: 'center',
     slidesToShow: 4.25,
     slidesToScroll: 10,
     speed: 200,

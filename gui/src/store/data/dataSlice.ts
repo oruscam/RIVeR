@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { DataState, FormProcessing, Quiver } from "./types";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { DataState, FormProcessing, Quiver } from './types';
 
 const defaultFormProcessing = {
   artificialSeeding: false,
@@ -18,8 +18,8 @@ const defaultFormProcessing = {
 
 const defaultProcessing = {
   form: defaultFormProcessing,
-  parImages: ["", "1", "", "2"],
-  maskPath: "",
+  parImages: ['', '1', '', '2'],
+  maskPath: '',
 };
 
 const initialState: DataState = {
@@ -34,7 +34,7 @@ const initialState: DataState = {
 };
 
 const dataSlice = createSlice({
-  name: "data",
+  name: 'data',
   initialState,
   reducers: {
     updateProcessingForm: (state, action: PayloadAction<FormProcessing>) => {
@@ -47,12 +47,8 @@ const dataSlice = createSlice({
     setBackendWorkingFlag: (state, action: PayloadAction<boolean>) => {
       state.isBackendWorking = action.payload;
     },
-    setProcessingMask: (
-      state,
-      action: PayloadAction<{ mask: string; bbox: number[] }>,
-    ) => {
-      state.processing.maskPath =
-        action.payload.mask + `?t=${new Date().getTime()}`;
+    setProcessingMask: (state, action: PayloadAction<{ mask: string; bbox: number[] }>) => {
+      state.processing.maskPath = action.payload.mask + `?t=${new Date().getTime()}`;
       state.processing.bbox = action.payload.bbox;
     },
     setImages: (state, action: PayloadAction<{ paths: string[] }>) => {
@@ -61,10 +57,7 @@ const dataSlice = createSlice({
     setActiveImage: (state, action: PayloadAction<number>) => {
       state.images.active = action.payload;
     },
-    setQuiver: (
-      state,
-      action: PayloadAction<{ quiver: Quiver | undefined; test: boolean }>,
-    ) => {
+    setQuiver: (state, action: PayloadAction<{ quiver: Quiver | undefined; test: boolean }>) => {
       state.quiver = action.payload.quiver;
       if (action.payload.test) {
         state.hasChanged = true;

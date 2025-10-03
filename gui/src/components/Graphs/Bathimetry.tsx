@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
-import { useSectionSlice, useUiSlice } from "../../hooks";
-import { bathimetrySvg } from "./bathimetrySvg";
-import * as d3 from "d3";
-import { GRAPHS } from "../../constants/constants";
+import { useEffect, useRef } from 'react';
+import { useSectionSlice, useUiSlice } from '../../hooks';
+import { bathimetrySvg } from './bathimetrySvg';
+import * as d3 from 'd3';
+import { GRAPHS } from '../../constants/constants';
 
 interface BathimetryProps {
   showLeftBank: boolean;
@@ -16,19 +16,20 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
   const { screenSizes } = useUiSlice();
   const { width: screenWidth } = screenSizes;
   const { bathimetry, name } = sections[activeSection];
-  const { x1Intersection, leftBank, level, line, path, x2Intersection } =
-    bathimetry;
+  const { x1Intersection, leftBank, level, line, path, x2Intersection } = bathimetry;
   const { rwLength } = sections[activeSection].pixelSize;
 
   const svgRef = useRef<SVGSVGElement>(null);
 
   const graphWidth =
     screenWidth * GRAPHS.WIDTH_PROPORTION > GRAPHS.MIN_WIDTH
-      ? screenWidth * GRAPHS.WIDTH_PROPORTION
+      ? screenWidth * GRAPHS.WIDTH_PROPORTION < GRAPHS.MAX_BATHIMETRY_WIDTH
+        ? screenWidth * GRAPHS.WIDTH_PROPORTION
+        : GRAPHS.MAX_BATHIMETRY_WIDTH
       : GRAPHS.MIN_WIDTH;
 
   useEffect(() => {
-    d3.select(svgRef.current).selectAll("*").remove();
+    d3.select(svgRef.current).selectAll('*').remove();
     if (line) {
       if (svgRef.current) {
         bathimetrySvg({
@@ -46,13 +47,8 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
   }, [path, level, leftBank, rwLength, screenWidth]);
 
   return (
-    <div className={`${path === "" ? "hidden" : ""} mb-3`}>
-      <svg
-        ref={svgRef}
-        width={graphWidth}
-        height={height}
-        id={`only-section-${name}`}
-      />
+    <div className={`${path === undefined ? 'hidden' : ''} mb-3`}>
+      <svg ref={svgRef} width={graphWidth} height={height} id={`only-section-${name}`} />
     </div>
   );
 };

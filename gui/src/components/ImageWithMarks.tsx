@@ -1,16 +1,11 @@
-import { useEffect, useState } from "react";
-import useImage from "use-image";
-import { Group, Image, Layer, Line, Stage } from "react-konva";
-import { KonvaEventObject } from "konva/lib/Node";
-import { useSectionSlice, useProjectSlice, useUiSlice } from "../hooks";
-import { Points, DrawSections } from "./index";
-import { Point } from "../types";
-import {
-  getRelativePointerPosition,
-  imageZoom,
-  onMouseDownPixelSize,
-  onMouseUpPixelSize,
-} from "../helpers";
+import { useEffect, useState } from 'react';
+import useImage from 'use-image';
+import { Group, Image, Layer, Line, Stage } from 'react-konva';
+import { KonvaEventObject } from 'konva/lib/Node';
+import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks';
+import { Points, DrawSections } from './index';
+import { Point } from '../types';
+import { getRelativePointerPosition, imageZoom, onMouseDownPixelSize, onMouseUpPixelSize } from '../helpers';
 
 export const ImageWithMarks = () => {
   const { seeAll, screenSizes } = useUiSlice();
@@ -39,23 +34,13 @@ export const ImageWithMarks = () => {
   const handleMouseDown = (event: KonvaEventObject<MouseEvent>) => {
     if (localPoints.length === 2 || drawLine === false) return;
 
-    onMouseDownPixelSize(
-      event,
-      setLocalPoints,
-      setCurrentMousePosition,
-      setMousePressed,
-    );
+    onMouseDownPixelSize(event, setLocalPoints, setCurrentMousePosition, setMousePressed);
   };
 
   const handleMouseUp = (event: KonvaEventObject<MouseEvent>) => {
     if (!mousePressed) return;
 
-    const newPoints = onMouseUpPixelSize(
-      event,
-      localPoints,
-      setLocalPoints,
-      setMousePressed,
-    );
+    const newPoints = onMouseUpPixelSize(event, localPoints, setLocalPoints, setMousePressed);
     onSetDirPoints({ points: newPoints, factor: factor!, index: null }, null);
   };
 
@@ -90,11 +75,7 @@ export const ImageWithMarks = () => {
         onWheel={handleOnWheel}
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
-        onMouseMove={
-          drawLine && mousePressed && localPoints.length < 2
-            ? handleMouseMove
-            : undefined
-        }
+        onMouseMove={drawLine && mousePressed && localPoints.length < 2 ? handleMouseMove : undefined}
       >
         <Layer>
           <Image image={image} width={imageWidth} height={imageHeight} />
@@ -120,12 +101,7 @@ export const ImageWithMarks = () => {
           {mousePressed && localPoints.length === 1 && (
             <Group>
               <Line
-                points={[
-                  localPoints[0].x,
-                  localPoints[0].y,
-                  currentMousePosition.x,
-                  currentMousePosition.y,
-                ]}
+                points={[localPoints[0].x, localPoints[0].y, currentMousePosition.x, currentMousePosition.y]}
                 stroke="#F5BF61"
                 strokeWidth={2.8}
                 lineCap="round"
@@ -133,7 +109,7 @@ export const ImageWithMarks = () => {
               <Points
                 setLocalPoints={setLocalPoints}
                 localPoints={localPoints}
-                module={"xSections"}
+                module={'xSections'}
                 resizeFactor={resizeFactor}
               ></Points>
             </Group>

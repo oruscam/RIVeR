@@ -1,11 +1,6 @@
-import {
-  Error,
-  Progress,
-  Results as ResultsComponent,
-  WizardButtons,
-} from "../components";
-import { VelocityVector } from "../components/Graphs";
-import { useProjectSlice, useUiSlice } from "../hooks";
+import { Error, Progress, Results as ResultsComponent, WizardButtons } from '../components';
+import { VelocityVector } from '../components/Graphs';
+import { useProjectSlice, useUiSlice } from '../hooks';
 
 export const Results = () => {
   const { screenSizes, seeAll } = useUiSlice();
@@ -18,12 +13,7 @@ export const Results = () => {
       <div className="media-container">
         <div className="image-and-svg-container">
           <img src={firstFramePath} width={width} height={height} />
-          <VelocityVector
-            height={height}
-            width={width}
-            factor={factor}
-            seeAll={seeAll}
-          />
+          <VelocityVector height={height} width={width} factor={factor} seeAll={seeAll} />
         </div>
         <Error />
       </div>

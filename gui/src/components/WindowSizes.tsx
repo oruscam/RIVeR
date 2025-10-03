@@ -1,13 +1,7 @@
-import { Group, Rect } from "react-konva";
-import { useDataSlice, useUiSlice } from "../hooks";
+import { Group, Rect } from 'react-konva';
+import { useDataSlice, useUiSlice } from '../hooks';
 
-export const WindowSizes = ({
-  width,
-  height,
-}: {
-  width: number;
-  height: number;
-}) => {
+export const WindowSizes = ({ width, height }: { width: number; height: number }) => {
   const { processing } = useDataSlice();
   const { step1 } = processing.form;
   const { screenSizes } = useUiSlice();
@@ -24,7 +18,7 @@ export const WindowSizes = ({
         y={yCenter - size / 2}
         width={size}
         height={size}
-        stroke={"#6CD4FF"}
+        stroke={'#6CD4FF'}
         strokeWidth={2.5}
         dash={[5, 3]}
       />
@@ -33,7 +27,7 @@ export const WindowSizes = ({
         y={yCenter - size / 4}
         width={size / 2}
         height={size / 2}
-        stroke={"#F5BF61"}
+        stroke={'#F5BF61'}
         strokeWidth={2.5}
         dash={[5, 3]}
       />

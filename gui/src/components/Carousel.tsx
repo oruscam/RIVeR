@@ -1,18 +1,18 @@
-import { useDataSlice, useUiSlice } from "../hooks";
-import React, { useRef, useState, useEffect } from "react";
-import { useWizard } from "react-use-wizard";
-import { MODULE_NUMBER } from "../constants/constants";
-import { FixedSizeList as List } from "react-window";
-import { carouselClickImage, carouselKeyDown } from "../helpers";
-import { useTranslation } from "react-i18next";
+import { useDataSlice, useUiSlice } from '../hooks';
+import React, { useRef, useState, useEffect } from 'react';
+import { useWizard } from 'react-use-wizard';
+import { MODULE_NUMBER } from '../constants/constants';
+import { FixedSizeList as List } from 'react-window';
+import { carouselClickImage, carouselKeyDown } from '../helpers';
+import { useTranslation } from 'react-i18next';
 import {
   carouselMediaClick,
   carouselMouseDown,
   carouselMouseUp,
   setCarouselDimensions,
-} from "../helpers/carouselFunctions";
-import { back, play as next } from "../assets/icons/icons";
-import { Icon } from "./Icon";
+} from '../helpers/carouselFunctions';
+import { back, play as next } from '../assets/icons/icons';
+import { Icon } from './Icon';
 
 interface CarouselProps {
   images: string[];
@@ -20,7 +20,7 @@ interface CarouselProps {
   setActiveImage: (index: number) => void;
   showMedian?: boolean;
   setShowMedian?: (value: boolean) => void;
-  mode: "processing" | "analize" | "ipcam";
+  mode: 'processing' | 'analize' | 'ipcam';
 }
 
 interface RowProps {
@@ -31,17 +31,17 @@ interface RowProps {
 function getFileNameWithoutExtension(filePath: string): string {
   // Remove the 'file:\', '@fs', prefix if it exists - DEV MODE
   let filePrefix = import.meta.env.VITE_FILE_PREFIX;
-  filePrefix = filePrefix === undefined ? "" : filePrefix;
+  filePrefix = filePrefix === undefined ? '' : filePrefix;
 
   if (filePath.startsWith(filePrefix)) {
     filePath = filePath.slice(filePrefix.length);
   }
 
   // Extract the base name
-  const baseName = filePath.split(/[/\\]/).pop() || "";
+  const baseName = filePath.split(/[/\\]/).pop() || '';
 
   // Remove the extension
-  const fileNameWithoutExtension = baseName.split(".").slice(0, -1).join(".");
+  const fileNameWithoutExtension = baseName.split('.').slice(0, -1).join('.');
 
   return fileNameWithoutExtension;
 }
@@ -62,15 +62,9 @@ export const Carousel: React.FC<CarouselProps> = ({
   const [itemWidth, setItemWidth] = useState<number>(275);
   const [carouselHeight, setCarouselHeight] = useState<number>(itemWidth - 85);
 
-  const [defaultValue, setDefaultValue] = useState<string | number>(
-    (active + 1) as string | number,
-  );
-  const [scrollInterval, setScrollInterval] = useState<NodeJS.Timeout | null>(
-    null,
-  );
-  const [speedUpTimeout, setSpeedUpTimeout] = useState<NodeJS.Timeout | null>(
-    null,
-  );
+  const [defaultValue, setDefaultValue] = useState<string | number>((active + 1) as string | number);
+  const [scrollInterval, setScrollInterval] = useState<NodeJS.Timeout | null>(null);
+  const [speedUpTimeout, setSpeedUpTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<List>(null);
@@ -82,13 +76,13 @@ export const Carousel: React.FC<CarouselProps> = ({
   };
 
   const Row: React.FC<RowProps> = ({ index, style }) => {
-    let className = "img-carousel";
+    let className = 'img-carousel';
     if (index === active && !showMedian) {
-      className = "img-carousel-active img-carousel";
-    } else if (index === active + 1 && !showMedian && mode !== "ipcam") {
-      className = "img-carousel-second img-carousel";
+      className = 'img-carousel-active img-carousel';
+    } else if (index === active + 1 && !showMedian && mode !== 'ipcam') {
+      className = 'img-carousel-second img-carousel';
     }
-    
+
     return (
       <div
         key={index}
@@ -103,21 +97,15 @@ export const Carousel: React.FC<CarouselProps> = ({
             setShowMedian,
             setActiveImage,
             setDefaultValue,
-            mode,
+            mode
           )
         }
         style={style}
       >
-        <img
-          src={images[index]}
-          alt={`Slide ${index}`}
-          className={className}
-        ></img>
-        <div className={`img-water-mark${mode === "ipcam" ? "-ipcam" : ""}`}>
-          {" "}
-          {mode === "ipcam"
-            ? getFileNameWithoutExtension(images[index])
-            : index + 1}
+        <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
+        <div className={`img-water-mark${mode === 'ipcam' ? '-ipcam' : ''}`}>
+          {' '}
+          {mode === 'ipcam' ? getFileNameWithoutExtension(images[index]) : index + 1}
         </div>
       </div>
     );
@@ -132,17 +120,17 @@ export const Carousel: React.FC<CarouselProps> = ({
     };
 
     updateDimensions(); // Set initial dimensions
-    window.addEventListener("resize", updateDimensions); // Update dimensions on window resize
+    window.addEventListener('resize', updateDimensions); // Update dimensions on window resize
 
     return () => {
-      window.removeEventListener("resize", updateDimensions); // Cleanup event listener
+      window.removeEventListener('resize', updateDimensions); // Cleanup event listener
     };
   }, [screenSizes.height]);
 
-  if (mode === "ipcam") {
+  if (mode === 'ipcam') {
     useEffect(() => {
       if (listRef.current) {
-        listRef.current.scrollToItem(active, "center");
+        listRef.current.scrollToItem(active, 'center');
       }
     }, [active]);
   }
@@ -150,16 +138,16 @@ export const Carousel: React.FC<CarouselProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`carousel-container mt-1 ${(activeStep === MODULE_NUMBER.ANALIZING && !quiver) || isBackendWorking ? "disabled" : ""}`}
+      className={`carousel-container mt-1 ${(activeStep === MODULE_NUMBER.ANALIZING && !quiver) || isBackendWorking ? 'disabled' : ''}`}
     >
       <div className="carousel-info">
         {activeStep === MODULE_NUMBER.ANALIZING && (
           <button
-            className={`wizard-button ${showMedian ? "wizard-button-active" : ""}`}
+            className={`wizard-button ${showMedian ? 'wizard-button-active' : ''}`}
             onClick={() => carouselMediaClick(setShowMedian)}
           >
-            {" "}
-            {t("Processing.carouselMedia")}{" "}
+            {' '}
+            {t('Processing.carouselMedia')}{' '}
           </button>
         )}
         <div>
@@ -167,15 +155,7 @@ export const Carousel: React.FC<CarouselProps> = ({
             value={defaultValue}
             onChange={handleInputChange}
             onKeyDown={(event) =>
-              carouselKeyDown(
-                event,
-                images,
-                setActiveImage,
-                setDefaultValue,
-                active,
-                listRef.current!,
-                mode,
-              )
+              carouselKeyDown(event, images, setActiveImage, setDefaultValue, active, listRef.current!, mode)
             }
             disabled={isBackendWorking}
           ></input>
@@ -186,33 +166,14 @@ export const Carousel: React.FC<CarouselProps> = ({
         <button
           id="carousel-backward"
           className="video-button"
-          onMouseDown={() =>
-            carouselMouseDown(
-              "backward",
-              listRef,
-              setScrollInterval,
-              setSpeedUpTimeout,
-            )
-          }
-          onMouseUp={() =>
-            carouselMouseUp(
-              scrollInterval,
-              speedUpTimeout,
-              setScrollInterval,
-              setSpeedUpTimeout,
-            )
-          }
+          onMouseDown={() => carouselMouseDown('backward', listRef, setScrollInterval, setSpeedUpTimeout)}
+          onMouseUp={() => carouselMouseUp(scrollInterval, speedUpTimeout, setScrollInterval, setSpeedUpTimeout)}
           onMouseLeave={() =>
-            carouselMouseUp(
-              scrollInterval,
-              speedUpTimeout,
-              setScrollInterval,
-              setSpeedUpTimeout,
-            )
+            carouselMouseUp(scrollInterval, speedUpTimeout, setScrollInterval, setSpeedUpTimeout)
           }
         >
-          {" "}
-          <Icon path={back} />{" "}
+          {' '}
+          <Icon path={back} />{' '}
         </button>
         <List
           height={carouselHeight} // Altura del contenedor del carrusel
@@ -228,32 +189,13 @@ export const Carousel: React.FC<CarouselProps> = ({
         <button
           id="carousel-forward"
           className="video-button"
-          onMouseDown={() =>
-            carouselMouseDown(
-              "forward",
-              listRef,
-              setScrollInterval,
-              setSpeedUpTimeout,
-            )
-          }
-          onMouseUp={() =>
-            carouselMouseUp(
-              scrollInterval,
-              speedUpTimeout,
-              setScrollInterval,
-              setSpeedUpTimeout,
-            )
-          }
+          onMouseDown={() => carouselMouseDown('forward', listRef, setScrollInterval, setSpeedUpTimeout)}
+          onMouseUp={() => carouselMouseUp(scrollInterval, speedUpTimeout, setScrollInterval, setSpeedUpTimeout)}
           onMouseLeave={() =>
-            carouselMouseUp(
-              scrollInterval,
-              speedUpTimeout,
-              setScrollInterval,
-              setSpeedUpTimeout,
-            )
+            carouselMouseUp(scrollInterval, speedUpTimeout, setScrollInterval, setSpeedUpTimeout)
           }
         >
-          {" "}
+          {' '}
           <Icon path={next} />
         </button>
       </div>

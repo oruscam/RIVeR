@@ -1,4 +1,4 @@
-import { Point } from "../types";
+import { Point } from '../types';
 
 /**
  * This function is used to calculate the midpoint of one section line and the angle between two points.
@@ -22,7 +22,7 @@ function calculateMidpointAndAngle(point1: Point, point2: Point) {
   // Calculate the angle between the two points in radians
   let angle = Math.atan2(deltaY, deltaX); // atan2 returns the angle in radians
   angle = angle * (180 / Math.PI); // Convert the angle to degrees
-  
+
   return { midpoint, angle };
 }
 
@@ -33,10 +33,7 @@ function calculateMidpointAndAngle(point1: Point, point2: Point) {
  * @param point2 - The second point.
  * @returns An object containing the left point and the right point.
  */
-const getLeftAndRightPoints = (
-  point1: Point,
-  point2: Point,
-): { leftPoint: Point; rightPoint: Point } => {
+const getLeftAndRightPoints = (point1: Point, point2: Point): { leftPoint: Point; rightPoint: Point } => {
   return point1.x < point2.x
     ? { leftPoint: point1, rightPoint: point2 }
     : { leftPoint: point2, rightPoint: point1 };
@@ -50,10 +47,8 @@ const getLeftAndRightPoints = (
  * @throws {Error} If less than two points are provided.
  *
  */
-const getLowerAndUpperPoints = (
-  ...points: Point[]
-): { lowerPoint: Point; upperPoint: Point } => {
-  if (points.length < 2) throw new Error("At least two points are required");
+const getLowerAndUpperPoints = (...points: Point[]): { lowerPoint: Point; upperPoint: Point } => {
+  if (points.length < 2) throw new Error('At least two points are required');
 
   let lowerPoint = points[0];
   let upperPoint = points[0];
@@ -84,7 +79,7 @@ const getPositionSectionText = (
   point2: Point,
   imageWidth: number,
   imageHeight: number,
-  factor: number,
+  factor: number
 ) => {
   const { angle } = calculateMidpointAndAngle(point1, point2);
   const { leftPoint, rightPoint } = getLeftAndRightPoints(point1, point2);
@@ -160,19 +155,6 @@ const getPositionSectionText = (
     point = { ...point, y: (imageHeight - marginBottom) * factor };
   }
 
-  // if (point.y / factor > imageHeight - marginBottom) {
-  //   console.log('this case', isUpper, rotation)
-  //   if ( point.x /  factor < marginLeft){
-  //     point = { ...point, x: point.x - 150, y: point.y - 50 }
-  //   }
-
-  // }
-
   return { point, rotation };
 };
-export {
-  calculateMidpointAndAngle,
-  getLeftAndRightPoints,
-  getLowerAndUpperPoints,
-  getPositionSectionText,
-};
+export { calculateMidpointAndAngle, getLeftAndRightPoints, getLowerAndUpperPoints, getPositionSectionText };

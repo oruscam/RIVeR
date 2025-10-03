@@ -1,13 +1,13 @@
-import { ipcMain, BrowserWindow } from "electron";
-import { FirstFrameArgs, ProjectConfig } from "./interfaces";
-import * as fs from "fs";
-import path from "path";
+import { ipcMain, BrowserWindow } from 'electron';
+import { FirstFrameArgs, ProjectConfig } from './interfaces';
+import * as fs from 'fs';
+import path from 'path';
 
 function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
   const mainWindow = BrowserWindow.getAllWindows()[0];
 
-  ipcMain.handle("first-frame", async (_event, args: FirstFrameArgs) => {
-    PROJECT_CONFIG.framesPath = PROJECT_CONFIG.projectDirectory + "/frames";
+  ipcMain.handle('first-frame', async (_event, args: FirstFrameArgs) => {
+    PROJECT_CONFIG.framesPath = PROJECT_CONFIG.projectDirectory + '/frames';
     if (fs.existsSync(PROJECT_CONFIG.framesPath)) {
       await fs.promises.rm(PROJECT_CONFIG.framesPath, {
         recursive: true,
@@ -19,27 +19,24 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     const { start_frame, end_frame, step, factor } = args;
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
-    filePrefix = filePrefix === undefined ? "" : filePrefix;
+    filePrefix = filePrefix === undefined ? '' : filePrefix;
 
     const options = [
-      "video-to-frames",
+      'video-to-frames',
       videoPath,
       framesPath,
-      "--start-frame",
+      '--start-frame',
       start_frame,
-      "--end-frame",
+      '--end-frame',
       end_frame,
-      "--every",
+      '--every',
       step,
-      "--resize-factor",
+      '--resize-factor',
       factor,
-      "--overwrite",
+      '--overwrite',
     ];
 
-    const json = await fs.promises.readFile(
-      PROJECT_CONFIG.settingsPath,
-      "utf-8",
-    );
+    const json = await fs.promises.readFile(PROJECT_CONFIG.settingsPath, 'utf-8');
     const jsonParsed = JSON.parse(json);
 
     jsonParsed.video_range = {
@@ -50,24 +47,18 @@ function firstFrame(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     };
 
     const updatedContent = JSON.stringify(jsonParsed, null, 4);
-    await fs.promises.writeFile(
-      PROJECT_CONFIG.settingsPath,
-      updatedContent,
-      "utf-8",
-    );
+    await fs.promises.writeFile(PROJECT_CONFIG.settingsPath, updatedContent, 'utf-8');
 
     try {
-      console.time("Extracting frames");
-      riverCli(options, "json", false, logsPath).then(() => {
-        const files = fs
-          .readdirSync(framesPath)
-          .map((file) => path.join(filePrefix, framesPath, file));
-        mainWindow.webContents.send("all-frames", files);
+      console.time('Extracting frames');
+      riverCli(options, 'json', false, logsPath).then(() => {
+        const files = fs.readdirSync(framesPath).map((file) => path.join(filePrefix, framesPath, file));
+        mainWindow.webContents.send('all-frames', files);
       });
-      console.timeEnd("Extracting frames");
+      console.timeEnd('Extracting frames');
 
       let flag = false;
-      let firstFrame = "";
+      let firstFrame = '';
       let attempts = 0;
       const maxAttempts = 30; // Limit to 30 seconds
 

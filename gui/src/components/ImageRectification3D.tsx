@@ -1,32 +1,24 @@
-import { Layer, Stage, Image } from "react-konva";
-import { useMatrixSlice, useProjectSlice, useUiSlice } from "../hooks";
-import { useEffect, useState } from "react";
-import { imageZoom } from "../helpers";
-import { KonvaEventObject } from "konva/lib/Node";
-import { Ellipses, RedPoints, PointsRectification3D } from "./index";
+import { Layer, Stage, Image } from 'react-konva';
+import { useIpcamSlice, useProjectSlice, useUiSlice } from '../hooks';
+import { useEffect, useState } from 'react';
+import { imageZoom } from '../helpers';
+import { KonvaEventObject } from 'konva/lib/Node';
+import { Ellipses, RedPoints, PointsRectification3D } from './index';
 
 export const ImageRectification3D = () => {
-  const { ipcam } = useMatrixSlice();
+  const { importedImages, activeImage, points } = useIpcamSlice();
   const { screenSizes } = useUiSlice();
   const { firstFramePath } = useProjectSlice();
-  const { importedImages, activeImage, importedPoints } = ipcam;
   const { imageWidth, imageHeight, factor } = screenSizes;
 
-  const [currentImage, setCurrentImage] = useState<HTMLImageElement | null>(
-    null,
-  );
+  const [currentImage, setCurrentImage] = useState<HTMLImageElement | null>(null);
   const [newImageSrc, setNewImageSrc] = useState<string>(
-    importedImages !== undefined
-      ? importedImages[activeImage!]
-      : firstFramePath,
+    importedImages !== null ? importedImages[activeImage!] : firstFramePath
   );
   const [resizeFactor, setResizeFactor] = useState(1);
 
   useEffect(() => {
-    const newImageSrc =
-      importedImages !== undefined
-        ? importedImages[activeImage!]
-        : firstFramePath;
+    const newImageSrc = importedImages !== null ? importedImages[activeImage!] : firstFramePath;
     setNewImageSrc(newImageSrc);
   }, [importedImages, activeImage, firstFramePath]);
 
@@ -47,25 +39,16 @@ export const ImageRectification3D = () => {
       width={imageWidth}
       height={imageHeight}
       onWheel={handleOnWheel}
-      className={`image-with-marks ${importedImages !== undefined ? "" : "image-rectification-3d"}`}
+      className={`image-with-marks ${importedImages !== null ? '' : 'image-rectification-3d'}`}
     >
       <Layer>
         {currentImage && (
           <>
-            <Image
-              image={currentImage}
-              width={imageWidth}
-              height={imageHeight}
-            />
+            <Image image={currentImage} width={imageWidth} height={imageHeight} />
             <Ellipses factor={factor as number} />
             {/* <CrossPoints factor={factor as number}/>     */}
             <RedPoints factor={factor as number} resizeFactor={resizeFactor} />
-            {importedPoints !== undefined && (
-              <PointsRectification3D
-                factor={factor as number}
-                resizeFactor={resizeFactor}
-              />
-            )}
+            {points !== null && <PointsRectification3D factor={factor as number} resizeFactor={resizeFactor} />}
           </>
         )}
       </Layer>

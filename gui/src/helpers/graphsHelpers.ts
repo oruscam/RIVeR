@@ -1,5 +1,5 @@
-import { SectionData } from "../store/section/types";
-import { Point } from "../types";
+import { SectionData } from '../store/section/types';
+import { Point } from '../types';
 
 export const adapterData = (data: SectionData, x1Intersection: number) => {
   const {
@@ -14,7 +14,7 @@ export const adapterData = (data: SectionData, x1Intersection: number) => {
     activeMagnitude,
     interpolated,
   } = data;
-  
+
   const newDistance = distance.map((d) => {
     return d + x1Intersection!;
   });
@@ -45,11 +45,9 @@ export const adapterBathimetry = (
   line: Point[],
   x1Intersection: number,
   x2Intersection: number,
-  level: number,
+  level: number
 ): Point[] => {
-  const newBathLine = line?.filter(
-    (d) => d.y <= level! && d.x >= x1Intersection! && d.x <= x2Intersection!,
-  );
+  const newBathLine = line?.filter((d) => d.y <= level! && d.x >= x1Intersection! && d.x <= x2Intersection!);
 
   newBathLine?.unshift({ x: x1Intersection!, y: level! });
   newBathLine?.push({ x: x2Intersection!, y: level! });
@@ -57,11 +55,7 @@ export const adapterBathimetry = (
   return newBathLine;
 };
 
-export const generateXAxisTicks = (
-  x1Intersection: number,
-  x2Intersection: number,
-  width: number,
-): number[] => {
+export const generateXAxisTicks = (x1Intersection: number, x2Intersection: number, width: number): number[] => {
   let step = 0;
 
   if (width < 10) {
@@ -78,11 +72,7 @@ export const generateXAxisTicks = (
   ticks.push(x1Intersection);
 
   // Generar los valores entre x1Intersection y x2Intersection
-  for (
-    let i = Math.ceil(x1Intersection / step) * step;
-    i < x2Intersection;
-    i += step
-  ) {
+  for (let i = Math.ceil(x1Intersection / step) * step; i < x2Intersection; i += step) {
     if (Math.abs(i - x1Intersection) > 2 && Math.abs(i - x2Intersection) > 2) {
       ticks.push(i);
     }
@@ -94,26 +84,14 @@ export const generateXAxisTicks = (
   return ticks;
 };
 
-export const generateYAxisTicks = (
-  array?: (number | null)[],
-  min?: number,
-  max?: number,
-): number[] => {
+export const generateYAxisTicks = (array?: (number | null)[], min?: number, max?: number): number[] => {
   const minValue = min ? min : 0;
-  const maxValue = max
-    ? max
-    : Math.max(...array!.filter((value): value is number => value !== null));
+  const maxValue = max ? max : Math.max(...array!.filter((value): value is number => value !== null));
 
   const range = maxValue - minValue;
   const step = range / 4;
 
-  const ticks = [
-    minValue,
-    minValue + step,
-    minValue + 2 * step,
-    minValue + 3 * step,
-    maxValue,
-  ];
+  const ticks = [minValue, minValue + step, minValue + 2 * step, minValue + 3 * step, maxValue];
 
   return ticks;
 };

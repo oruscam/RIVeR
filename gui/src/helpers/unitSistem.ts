@@ -1,32 +1,32 @@
-import { UNITS } from "../constants/constants";
+import { UNITS } from '../constants/constants';
 
 export const getUnit = (sistem: string, field: string): string => {
-  if (sistem === "si") {
+  if (sistem === 'si') {
     switch (field) {
-      case "longitude":
+      case 'longitude':
         return UNITS.SI.LONGITUDE;
-      case "area":
+      case 'area':
         return UNITS.SI.AREA;
-      case "velocity":
+      case 'velocity':
         return UNITS.SI.VELOCITY;
-      case "flow":
+      case 'flow':
         return UNITS.SI.FLOW;
       default:
-        return "";
+        return '';
     }
-  } else if (sistem === "imperial") {
+  } else if (sistem === 'imperial') {
     switch (field) {
-      case "longitude":
+      case 'longitude':
         return UNITS.IMPERIAL.LONGITUDE;
-      case "area":
+      case 'area':
         return UNITS.IMPERIAL.AREA;
-      case "velocity":
+      case 'velocity':
         return UNITS.IMPERIAL.VELOCITY;
-      case "flow":
+      case 'flow':
         return UNITS.IMPERIAL.FLOW;
       default:
-        return "";
+        return '';
     }
   }
-  return "";
+  return '';
 };

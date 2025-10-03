@@ -1,7 +1,7 @@
-import { useTranslation } from "react-i18next";
-import { formatTime, recortStringDate } from "../../helpers";
-import { useProjectSlice } from "../../hooks";
-import "./report.css";
+import { useTranslation } from 'react-i18next';
+import { formatTime, recortStringDate } from '../../helpers';
+import { useProjectSlice } from '../../hooks';
+import './report.css';
 
 export const VideoInfo = () => {
   const { video, projectDetails } = useProjectSlice();
@@ -11,23 +11,23 @@ export const VideoInfo = () => {
 
   return (
     <>
-      <h2 className="report-title-field mt-2">{t("Report.VideoInfo.title")}</h2>
+      <h2 className="report-title-field mt-2">{t('Report.VideoInfo.title')}</h2>
       <div id="report-video-info-container">
         <div className="report-grid-1">
           <div className="report-info-item">
-            <span>{t("Report.VideoInfo.name")}</span>
+            <span>{t('Report.VideoInfo.name')}</span>
           </div>
           <div className="report-info-item">
-            <span>{t("Report.VideoInfo.duration")}</span>
+            <span>{t('Report.VideoInfo.duration')}</span>
           </div>
           <div className="report-info-item">
-            <span>{t("Report.VideoInfo.resolution")}</span>
+            <span>{t('Report.VideoInfo.resolution')}</span>
           </div>
           <div className="report-info-item">
-            <span>{t("Report.VideoInfo.fps")}</span>
+            <span>{t('Report.VideoInfo.fps')}</span>
           </div>
           <div className="report-info-item">
-            <span>{t("Report.VideoInfo.creationDate")}</span>
+            <span>{t('Report.VideoInfo.creationDate')}</span>
           </div>
           <div className="report-info-item">
             <span> {name} </span>

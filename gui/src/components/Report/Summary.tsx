@@ -1,6 +1,6 @@
-import { useTranslation } from "react-i18next";
-import { getUnit } from "../../helpers";
-import { useProjectSlice, useSectionSlice } from "../../hooks";
+import { useTranslation } from 'react-i18next';
+import { getUnit } from '../../helpers';
+import { useProjectSlice, useSectionSlice } from '../../hooks';
 
 export const Summary = () => {
   const { t } = useTranslation();
@@ -15,48 +15,48 @@ export const Summary = () => {
   return (
     <>
       <h2 className="report-title-field mt-4" id="summary-title">
-        {" "}
-        {t("Report.Summary.title")}{" "}
+        {' '}
+        {t('Report.Summary.title')}{' '}
       </h2>
       <div id="report-section-summary-container">
         <table>
           <thead>
             <tr>
-              <th> {t("CrossSections.title")} </th>
+              <th> {t('CrossSections.title')} </th>
               <th>
-                <div> {t("Report.Summary.width")}</div>
-                <div>{getUnit(unitSistem, "longitude")} </div>
+                <div> {t('Report.Summary.width')}</div>
+                <div>{getUnit(unitSistem, 'longitude')} </div>
               </th>
               <th>
-                <div> {t("Report.Summary.area")} </div>
-                <div> {getUnit(unitSistem, "area")} </div>
+                <div> {t('Report.Summary.area')} </div>
+                <div> {getUnit(unitSistem, 'area')} </div>
               </th>
               <th>
-                <div> {t("Report.Summary.q")} </div>
-                <div> {getUnit(unitSistem, "flow")} </div>
+                <div> {t('Report.Summary.q')} </div>
+                <div> {getUnit(unitSistem, 'flow')} </div>
               </th>
               <th>
-                <div> {t("Report.Summary.meanV")} </div>
-                <div> {getUnit(unitSistem, "velocity")} </div>
+                <div> {t('Report.Summary.meanV')} </div>
+                <div> {getUnit(unitSistem, 'velocity')} </div>
               </th>
               <th>
-                <div> {t("Report.Summary.alpha")} </div>
+                <div> {t('Report.Summary.alpha')} </div>
                 <div> - </div>
               </th>
               <th>
-                <div> {t("Report.Summary.averageVs")} </div>
-                <div> {getUnit(unitSistem, "velocity")} </div>
+                <div> {t('Report.Summary.averageVs')} </div>
+                <div> {getUnit(unitSistem, 'velocity')} </div>
               </th>
               <th>
-                <div> {t("Report.Summary.maxD")} </div>
-                <div> {getUnit(unitSistem, "longitude")} </div>
+                <div> {t('Report.Summary.maxD')} </div>
+                <div> {getUnit(unitSistem, 'longitude')} </div>
               </th>
               <th>
-                <div> {t("Report.Summary.meanD")} </div>
-                <div> {getUnit(unitSistem, "longitude")} </div>
+                <div> {t('Report.Summary.meanD')} </div>
+                <div> {getUnit(unitSistem, 'longitude')} </div>
               </th>
               <th>
-                <div> {t("Report.Summary.measured")} </div>
+                <div> {t('Report.Summary.measured')} </div>
                 <div> - </div>
               </th>
             </tr>
@@ -65,15 +65,9 @@ export const Summary = () => {
             {sections.map((section, index) => {
               const { name, data, alpha, bathimetry } = section;
               if (data === undefined) return null;
-              const { mean_V, average_depth, max_depth, measured_Q, total_Q, total_A, mean_Vs } =
-                data;
+              const { mean_V, average_depth, max_depth, measured_Q, total_Q, total_A, mean_Vs } = data;
               return (
-                <tr
-                  key={index}
-                  className={
-                    index === sections.length - 1 ? "summary-last-section" : ""
-                  }
-                >
+                <tr key={index} className={index === sections.length - 1 ? 'summary-last-section' : ''}>
                   <td> {name} </td>
                   <td> {bathimetry.width?.toFixed(2)} </td>
                   <td> {total_A} </td>
@@ -87,8 +81,8 @@ export const Summary = () => {
                 </tr>
               );
             })}
-            <tr style={{ height: "30px" }}>
-              <td> {t("Report.Summary.mean")} </td>
+            <tr style={{ height: '30px' }}>
+              <td> {t('Report.Summary.mean')} </td>
               <td> {mean.total_W} </td>
               <td> {mean.total_A} </td>
               <td> {mean.total_Q} </td>
@@ -99,8 +93,8 @@ export const Summary = () => {
               <td> {mean.average_depth} </td>
               <td> {mean.measured_Q * 100} </td>
             </tr>
-            <tr style={{ height: "30px" }}>
-              <td> {t("Report.Summary.stdDev")} </td>
+            <tr style={{ height: '30px' }}>
+              <td> {t('Report.Summary.stdDev')} </td>
               <td> {std.total_W} </td>
               <td> {std.total_A} </td>
               <td> {std.total_Q} </td>
@@ -111,8 +105,8 @@ export const Summary = () => {
               <td> {std.average_depth} </td>
               <td> {std.measured_Q * 100} </td>
             </tr>
-            <tr style={{ height: "30px" }}>
-              <td> {t("Report.Summary.cov")} </td>
+            <tr style={{ height: '30px' }}>
+              <td> {t('Report.Summary.cov')} </td>
               <td> {cov.total_W} </td>
               <td> {cov.total_A} </td>
               <td> {cov.total_Q} </td>

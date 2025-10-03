@@ -1,10 +1,6 @@
-import { CanvasPoint, FormPoint, Point } from "../types";
+import { CanvasPoint, FormPoint, Point } from '../types';
 
-const getNewCanvasPositions = (
-  canvasPoints: CanvasPoint,
-  flag1: boolean,
-  flag2: boolean,
-) => {
+const getNewCanvasPositions = (canvasPoints: CanvasPoint, flag1: boolean, flag2: boolean) => {
   /**
    * The newPoints variable is used to store the new points after the modification
    */
@@ -49,35 +45,30 @@ const getNewCanvasPositions = (
  * The function checks the position of the form point and updates the corresponding coordinate if it has changed.
  * It sets the appropriate flag to true if a change is detected. If no changes are detected, it returns the original points.
  */
-const setChangesByForm = (
-  formPoint: FormPoint,
-  dirPoints: Point[],
-  flag1,
-  flag2,
-) => {
+const setChangesByForm = (formPoint: FormPoint, dirPoints: Point[], flag1, flag2) => {
   const { point, position } = formPoint;
 
   let newPoints;
 
-  if (position === "x1" && point !== dirPoints[0].x) {
+  if (position === 'x1' && point !== dirPoints[0].x) {
     newPoints = [
       { x: parseFloat(point as string), y: dirPoints[0].y },
       { x: dirPoints[1].x, y: dirPoints[1].y },
     ];
     flag1 = true;
-  } else if (position === "y1" && point !== dirPoints[0].y) {
+  } else if (position === 'y1' && point !== dirPoints[0].y) {
     newPoints = [
       { x: dirPoints[0].x, y: parseFloat(point as string) },
       { x: dirPoints[1].x, y: dirPoints[1].y },
     ];
     flag1 = true;
-  } else if (position === "x2" && point !== dirPoints[1].x) {
+  } else if (position === 'x2' && point !== dirPoints[1].x) {
     newPoints = [
       { x: dirPoints[0].x, y: dirPoints[0].y },
       { x: parseFloat(point as string), y: dirPoints[1].y },
     ];
     flag2 = true;
-  } else if (position === "y2" && point !== dirPoints[1].y) {
+  } else if (position === 'y2' && point !== dirPoints[1].y) {
     newPoints = [
       { x: dirPoints[0].x, y: dirPoints[0].y },
       { x: dirPoints[1].x, y: parseFloat(point as string) },

@@ -11,4 +11,4 @@ export const getImageSize = (src: string): Promise<{ width: number; height: numb
     img.onerror = reject;
     img.src = src;
   });
-}
+};

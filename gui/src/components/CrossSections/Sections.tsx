@@ -1,9 +1,9 @@
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { useSectionSlice, useUiSlice } from "../../hooks";
-import { isValidString } from "../../helpers/regex";
-import { EyeBall } from "./index";
-import { useTranslation } from "react-i18next";
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { useSectionSlice, useUiSlice } from '../../hooks';
+import { isValidString } from '../../helpers/regex';
+import { EyeBall } from './index';
+import { useTranslation } from 'react-i18next';
 
 interface Sections {
   setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -12,14 +12,8 @@ interface Sections {
 
 export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
   const { register } = useForm();
-  const {
-    onSetActiveSection,
-    sections,
-    activeSection,
-    onAddSection,
-    onDeleteSection,
-    onUpdateSection,
-  } = useSectionSlice();
+  const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onUpdateSection } =
+    useSectionSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { t } = useTranslation();
 
@@ -28,32 +22,30 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
     if (index > activeSection) {
       const section = document.getElementById(sections[index + 1]?.name);
       if (section === null) {
-        const element = document.getElementById("scroll-right");
-        element?.scrollIntoView({ behavior: "smooth" });
+        const element = document.getElementById('scroll-right');
+        element?.scrollIntoView({ behavior: 'smooth' });
       }
-      section?.scrollIntoView({ behavior: "smooth" });
+      section?.scrollIntoView({ behavior: 'smooth' });
     } else {
       const section = document.getElementById(sections[index - 1]?.name);
       if (section !== null) {
-        section?.scrollIntoView({ behavior: "smooth" });
+        section?.scrollIntoView({ behavior: 'smooth' });
       }
     }
     onSetActiveSection(index);
   };
 
-  const onClickButtonSection = async (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
+  const onClickButtonSection = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    if (event.currentTarget.id === "add") {
+    if (event.currentTarget.id === 'add') {
       onAddSection(sections.length);
     }
-    if (event.currentTarget.id === "delete" && setDeletedSections) {
-      const result = await window.ipcRenderer.invoke("delete-confirmation", {
-        message: t("CrossSections.warning", {
+    if (event.currentTarget.id === 'delete' && setDeletedSections) {
+      const result = await window.ipcRenderer.invoke('delete-confirmation', {
+        message: t('CrossSections.warning', {
           section_name: sections[activeSection].name,
         }),
-        title: t("CrossSections.title"),
+        title: t('CrossSections.title'),
       });
 
       if (result === 0) {
@@ -69,53 +61,47 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
   };
 
   const handleInputNameSection = (
-    event:
-      | React.KeyboardEvent<HTMLInputElement>
-      | React.FocusEvent<HTMLInputElement>,
-    index: number,
+    event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>,
+    index: number
   ) => {
     const inputElement = event.target as HTMLInputElement;
     if (
-      ((event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" ||
-        event.type === "blur") &&
+      ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') &&
       inputElement.readOnly === false
     ) {
       const input = event.currentTarget;
       const value = input.value;
-      if (value === "") {
+      if (value === '') {
         input.value = sections[index].name;
         input.readOnly = true;
         onSetErrorMessage({
-          message: "Section name can not be empty",
+          message: 'Section name can not be empty',
         });
       } else if (!isValidString(value)) {
         input.value = sections[index].name;
         input.readOnly = true;
         onSetErrorMessage({
-          message:
-            "Section name can only contain letters, numbers, and under scores",
+          message: 'Section name can only contain letters, numbers, and under scores',
         });
       } else if (sections.map((section) => section.name).includes(value)) {
         input.value = sections[index].name;
         input.readOnly = true;
         onSetErrorMessage({
-          message: "Section name already exists",
+          message: 'Section name already exists',
         });
       } else {
         input.readOnly = true;
         onUpdateSection({ sectionName: value }, undefined);
       }
       input.readOnly = true;
-      const nextElement = document.getElementById(
-        `${sections[index].name}-DRAW_LINE`,
-      );
+      const nextElement = document.getElementById(`${sections[index].name}-DRAW_LINE`);
       nextElement?.focus();
     }
   };
 
   useEffect(() => {
-    const element = document.getElementById("scroll-right");
-    element?.scrollIntoView({ behavior: "smooth" });
+    const element = document.getElementById('scroll-right');
+    element?.scrollIntoView({ behavior: 'smooth' });
   }, [sections.length]);
 
   return (
@@ -127,7 +113,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
           return (
             <div
               key={index}
-              className={`section ${activeSection === index ? "active" : ""}`}
+              className={`section ${activeSection === index ? 'active' : ''}`}
               id={section.name}
               onClick={() => onClickSection(index)}
             >
@@ -158,13 +144,9 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
 
         {canEdit && (
           <div className="section section-add">
-            <button
-              className="section-button2"
-              id="add"
-              onClick={onClickButtonSection}
-            >
-              {" "}
-              +{" "}
+            <button className="section-button2" id="add" onClick={onClickButtonSection}>
+              {' '}
+              +{' '}
             </button>
           </div>
         )}
