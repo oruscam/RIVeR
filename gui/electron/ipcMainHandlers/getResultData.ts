@@ -1,21 +1,17 @@
-import { ipcMain } from "electron";
-import { ProjectConfig } from "./interfaces";
-import * as fs from "fs";
-import { transformData } from "./utils/transformCrossSectionsData";
-import { platform } from "os";
+import { ipcMain } from 'electron';
+import { ProjectConfig } from './interfaces';
+import * as fs from 'fs';
+import { transformData } from './utils/transformCrossSectionsData';
+import { platform } from 'os';
 
-let encoding: BufferEncoding = "utf-8";
+let encoding: BufferEncoding = 'utf-8';
 
-if ( platform() === "win32" ) {
-  encoding = "latin1";
+if (platform() === 'win32') {
+  encoding = 'latin1';
 }
 
-async function getResultData(
-  PROJECT_CONFIG: ProjectConfig,
-  riverCli: Function,
-) {
-  ipcMain.handle("get-results-single", async (_event, args) => {
-    console.log("get-results-single");
+async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
+  ipcMain.handle('get-results-single', async (_event, args) => {
     const {
       step,
       fps,
@@ -40,39 +36,30 @@ async function getResultData(
 
     if (!arraysAreEqual(xSectionsFileParsed[name].check, activeCheck)) {
       xSectionsFileParsed[name].check = activeCheck;
-      await fs.promises.writeFile(
-        xSections,
-        JSON.stringify(xSectionsFileParsed, null, 2),
-        { encoding: encoding },
-      );
+      await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2), { encoding: encoding });
     }
 
     const options = [
-      "update-xsection",
-      "--step",
+      'update-xsection',
+      '--step',
       parseInt(step),
-      "--fps",
+      '--fps',
       parseFloat(fps),
-      "--id-section",
+      '--id-section',
       sectionIndex,
-      "--alpha",
+      '--alpha',
       alpha,
-      "--num-stations",
+      '--num-stations',
       num_stations,
-      interpolated ? "--interpolate" : "",
-      artificialSeeding ? "--artificial-seeding" : "",
+      interpolated ? '--interpolate' : '',
+      artificialSeeding ? '--artificial-seeding' : '',
       xSections,
       pivResults,
       transformationMatrix,
-    ].filter((value) => value !== "");
+    ].filter((value) => value !== '');
 
     try {
-      const { data, error } = (await riverCli(
-        options,
-        "text",
-        false,
-        logsPath,
-      )) as any;
+      const { data, error } = (await riverCli(options, 'text', false, logsPath)) as any;
 
       if (error.message) {
         return {
@@ -88,11 +75,7 @@ async function getResultData(
         xSectionsFileParsed[sectionKey].showPercentile = showPercentile;
         xSectionsFileParsed[sectionKey].artificial_seeding = artificialSeeding;
       }
-      await fs.promises.writeFile(
-        xSections,
-        JSON.stringify(xSectionsFileParsed, null, 2),
-        { encoding: encoding },
-      );
+      await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2), { encoding: encoding });
 
       return {
         data: transformData(data, false),
@@ -103,7 +86,7 @@ async function getResultData(
     }
   });
 
-  ipcMain.handle("get-results-all", async (_event, args) => {
+  ipcMain.handle('get-results-all', async (_event, args) => {
     const xSections = PROJECT_CONFIG.xsectionsPath;
     const transformationMatrix = PROJECT_CONFIG.matrixPath;
     const pivResults = PROJECT_CONFIG.resultsPath;
@@ -112,23 +95,14 @@ async function getResultData(
     const xSectionsFile = await fs.promises.readFile(xSections, { encoding: encoding });
     const xSectionsFileParsed = JSON.parse(xSectionsFile);
 
-    console.log("xSectionsFileParsed", xSectionsFileParsed);
-
     for (const sectionKey in xSectionsFileParsed) {
-      console.log("sectionKey", sectionKey);
-      if (sectionKey === "summary") continue;
+      if (sectionKey === 'summary') continue;
       if (xSectionsFileParsed[sectionKey].check) {
-        xSectionsFileParsed[sectionKey].check = xSectionsFileParsed[
-          sectionKey
-        ].check.map(() => true);
+        xSectionsFileParsed[sectionKey].check = xSectionsFileParsed[sectionKey].check.map(() => true);
       }
     }
 
-    await fs.promises.writeFile(
-      xSections,
-      JSON.stringify(xSectionsFileParsed, null, 2),
-      { encoding: encoding },
-    );
+    await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2), { encoding: encoding });
 
     let updatedSections = {};
 
@@ -139,27 +113,21 @@ async function getResultData(
 
     for (let i = 0; i < numSections; i++) {
       const options = [
-        "update-xsection",
-        "--step",
+        'update-xsection',
+        '--step',
         parseInt(step),
-        "--fps",
+        '--fps',
         parseFloat(fps),
-        "--id-section",
+        '--id-section',
         i,
-        "--interpolate",
+        '--interpolate',
         xSections,
         pivResults,
         transformationMatrix,
       ];
 
       try {
-        const { data, error } = (await riverCli(
-          options,
-          "text",
-          false,
-          logsPath,
-        )) as any;
-        
+        const { data, error } = (await riverCli(options, 'text', false, logsPath)) as any;
 
         for (const sectionKey in data) {
           const sectionIndex = Object.keys(data).indexOf(sectionKey);
@@ -174,11 +142,9 @@ async function getResultData(
             xSectionsFileParsed.summary = data.summary;
           }
         }
-        await fs.promises.writeFile(
-          xSections,
-          JSON.stringify(xSectionsFileParsed, null, 2),
-          { encoding: encoding },
-        );
+        await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2), {
+          encoding: encoding,
+        });
         finalData = transformData(xSectionsFileParsed, true);
         finalError = error;
       } catch (error) {

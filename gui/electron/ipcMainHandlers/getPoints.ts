@@ -1,23 +1,23 @@
-import { dialog, ipcMain } from "electron";
-import { readFile, utils, set_fs, writeFile } from "xlsx";
-import * as fs from "fs";
-import { EXTENSIONS } from "./utils/validateFile";
-import { ProjectConfig } from "./interfaces";
+import { dialog, ipcMain } from 'electron';
+import { readFile, utils, set_fs, writeFile } from 'xlsx';
+import * as fs from 'fs';
+import { EXTENSIONS } from './utils/validateFile';
+import { ProjectConfig } from './interfaces';
 
 set_fs(fs);
 
-async function getPoints( PROJECT_CONFIG: ProjectConfig) {
+async function getPoints(PROJECT_CONFIG: ProjectConfig) {
   const options: Electron.OpenDialogOptions = {
-    properties: ["openFile"],
+    properties: ['openFile'],
     filters: [
       {
-        name: "Documents",
-        extensions: EXTENSIONS
+        name: 'Documents',
+        extensions: EXTENSIONS,
       },
     ],
   };
 
-  ipcMain.handle("import-points", async (_event, args) => {
+  ipcMain.handle('import-points', async (_event, args) => {
     const { path } = args;
 
     options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
@@ -49,7 +49,7 @@ async function getPoints( PROJECT_CONFIG: ProjectConfig) {
         },
       };
     } catch (error) {
-      if (error.message === "invalidPointsFileFormat") {
+      if (error.message === 'invalidPointsFileFormat') {
         return { error };
       }
     }
@@ -58,7 +58,7 @@ async function getPoints( PROJECT_CONFIG: ProjectConfig) {
 
 function transformPoints(points: [[]]) {
   if (points[0].length < 4) {
-    throw new Error("invalidPointsFileFormat");
+    throw new Error('invalidPointsFileFormat');
   }
 
   let zMax = -Infinity;
@@ -70,11 +70,11 @@ function transformPoints(points: [[]]) {
       const label = point[0];
 
       if (
-        typeof label === "string" &&
-        label.toUpperCase() === "LABEL" &&
-        typeof point[1] === "string" &&
-        typeof point[2] === "string" &&
-        typeof point[3] === "string"
+        typeof label === 'string' &&
+        label.toUpperCase() === 'LABEL' &&
+        typeof point[1] === 'string' &&
+        typeof point[2] === 'string' &&
+        typeof point[3] === 'string'
       ) {
         return undefined;
       }
@@ -87,7 +87,7 @@ function transformPoints(points: [[]]) {
       let wasEstablished = false;
 
       if (isNaN(X) || isNaN(Y) || isNaN(Z)) {
-        throw new Error("invalidPointsFileFormat");
+        throw new Error('invalidPointsFileFormat');
       }
 
       if (point.length > 4) {

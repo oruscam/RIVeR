@@ -8,18 +8,18 @@
  */
 
 function formatTime(seconds: number | string, format?: string): string {
-  if (typeof seconds === "string") {
+  if (typeof seconds === 'string') {
     seconds = parseFloat(seconds);
   }
 
   const minutes = Math.floor(seconds / 60);
   const remainingSeconds = Math.floor(seconds % 60);
   const milliseconds = Math.floor((seconds % 1) * 100);
-  const formattedMinutes = String(minutes).padStart(2, "0");
-  const formattedSeconds = String(remainingSeconds).padStart(2, "0");
-  const formattedMilliseconds = String(milliseconds).padStart(2, "0");
+  const formattedMinutes = String(minutes).padStart(2, '0');
+  const formattedSeconds = String(remainingSeconds).padStart(2, '0');
+  const formattedMilliseconds = String(milliseconds).padStart(2, '0');
 
-  if (format === "mm:ss") {
+  if (format === 'mm:ss') {
     return `${formattedMinutes}:${formattedSeconds}`;
   }
 
@@ -34,7 +34,7 @@ function formatTime(seconds: number | string, format?: string): string {
  */
 
 function parseTime(time: string): number {
-  const [minutes, seconds] = time.split(":").map(Number);
+  const [minutes, seconds] = time.split(':').map(Number);
   return minutes * 60 + seconds;
 }
 
@@ -50,9 +50,9 @@ function identifyTimeFormat(time: string): string | boolean {
   const secondsFormatRegex = /^\d+(\.\d+)?$/;
 
   if (timeFormatRegex.test(time)) {
-    return "mm:ss";
+    return 'mm:ss';
   } else if (secondsFormatRegex.test(time)) {
-    return "seconds";
+    return 'seconds';
   } else {
     return false;
   }

@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
-import { useDataSlice, useUiSlice } from "../../hooks";
-import { GRAPHS } from "../../constants/constants";
-import { testPlotSvg } from "./testPlotSvg";
-import { useTranslation } from "react-i18next";
+import { useEffect, useRef } from 'react';
+import { useDataSlice, useUiSlice } from '../../hooks';
+import { GRAPHS } from '../../constants/constants';
+import { testPlotSvg } from './testPlotSvg';
+import { useTranslation } from 'react-i18next';
 
 export const TestPlot = () => {
   const svgRef = useRef(null);
@@ -30,15 +30,6 @@ export const TestPlot = () => {
   }, [quiver, graphWidth]);
 
   return (
-    <div>
-      {quiver && (
-        <svg
-          ref={svgRef}
-          width={graphWidth}
-          height={graphWidth * 0.8}
-          id="quiver-test-plot"
-        />
-      )}
-    </div>
+    <div>{quiver && <svg ref={svgRef} width={graphWidth} height={graphWidth * 0.8} id="quiver-test-plot" />}</div>
   );
 };

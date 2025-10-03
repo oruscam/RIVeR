@@ -1,7 +1,7 @@
-import { useEffect, useState, useMemo, useRef } from "react";
-import { useMatrixSlice, useProjectSlice } from "../hooks";
-import DataGrid, { SelectColumn } from "react-data-grid";
-import { useTranslation } from "react-i18next";
+import { useEffect, useState, useMemo, useRef } from 'react';
+import { useIpcamSlice, useProjectSlice } from '../hooks';
+import DataGrid, { SelectColumn } from 'react-data-grid';
+import { useTranslation } from 'react-i18next';
 
 interface Row {
   key: number;
@@ -20,20 +20,11 @@ const rowKeyGetter = (row: Row): number => {
 
 export const IpcamGrid = () => {
   const ref = useRef<typeof DataGrid | null>(null);
-  const [selectedRows, setSelectedRows] = useState<ReadonlySet<number>>(
-    () => new Set(),
-  );
-  const [previousSelectedRows, setPreviousSelectedRows] = useState<
-    ReadonlySet<number>
-  >(() => new Set());
+  const [selectedRows, setSelectedRows] = useState<ReadonlySet<number>>(() => new Set());
+  const [previousSelectedRows, setPreviousSelectedRows] = useState<ReadonlySet<number>>(() => new Set());
 
-  const {
-    ipcam,
-    onChangeIpcamPointSelected,
-    setIpcamPointPixelCoordinates,
-    onChangeActiveImage,
-  } = useMatrixSlice();
-  const { importedPoints, activePoint } = ipcam;
+  const { points, activePoint, onChangePointSelected, onSetPointPixelCoordinates, onChangeActiveImage } =
+    useIpcamSlice();
 
   const { video } = useProjectSlice();
   const { width, height } = video.data;
@@ -41,11 +32,11 @@ export const IpcamGrid = () => {
   const { t } = useTranslation();
 
   const rows = useMemo(() => {
-    if (importedPoints === undefined) {
+    if (points === null) {
       return Array.from({ length: 10 }, (_, index) => ({
         key: index,
         id: index,
-        label: "",
+        label: '',
         x: 0,
         y: 0,
         X: 0,
@@ -53,7 +44,7 @@ export const IpcamGrid = () => {
         Z: 0,
       }));
     } else {
-      return importedPoints.map((point, index) => ({
+      return points.map((point, index) => ({
         key: index,
         id: index,
         label: point.label,
@@ -64,66 +55,66 @@ export const IpcamGrid = () => {
         Z: point.Z,
       }));
     }
-  }, [importedPoints]);
+  }, [points]);
 
   const columns = [
     {
       ...SelectColumn,
-      name: "select",
-      cellClass: "centered-cell",
-      headerCellClass: "select-cell header-fixed",
+      name: 'select',
+      cellClass: 'centered-cell',
+      headerCellClass: 'select-cell header-fixed',
     },
     {
-      key: "label",
-      name: t("ControlPoints3d.label"),
-      cellClass: "point-label-cell centered-cell label-cell",
-      headerCellClass: "centered-cell label-cell header-fixed",
+      key: 'label',
+      name: t('ControlPoints3d.label'),
+      cellClass: 'point-label-cell centered-cell label-cell',
+      headerCellClass: 'centered-cell label-cell header-fixed',
       frozen: true,
     },
     {
-      key: "X",
-      name: t("ControlPoints3d.east"),
-      cellClass: "centered-cell common-cell",
-      headerCellClass: "centered-cell common-cell header-fixed",
+      key: 'X',
+      name: t('ControlPoints3d.east'),
+      cellClass: 'centered-cell common-cell',
+      headerCellClass: 'centered-cell common-cell header-fixed',
     },
     {
-      key: "Y",
-      name: t("ControlPoints3d.north"),
-      cellClass: "centered-cell common-cell",
-      headerCellClass: "centered-cell common-cell header-fixed",
+      key: 'Y',
+      name: t('ControlPoints3d.north'),
+      cellClass: 'centered-cell common-cell',
+      headerCellClass: 'centered-cell common-cell header-fixed',
     },
     {
-      key: "Z",
-      name: "Z",
-      cellClass: "centered-cell common-cell",
-      headerCellClass: "centered-cell common-cell header-fixed",
+      key: 'Z',
+      name: 'Z',
+      cellClass: 'centered-cell common-cell',
+      headerCellClass: 'centered-cell common-cell header-fixed',
     },
     {
-      key: "x",
-      name: "x",
-      cellClass: "centered-cell common-cell",
-      headerCellClass: "centered-cell common-cell header-fixed",
+      key: 'x',
+      name: 'x',
+      cellClass: 'centered-cell common-cell',
+      headerCellClass: 'centered-cell common-cell header-fixed',
     },
     {
-      key: "y",
-      name: "y",
-      cellClass: "centered-cell common-cell",
-      headerCellClass: "centered-cell common-cell header-fixed",
+      key: 'y',
+      name: 'y',
+      cellClass: 'centered-cell common-cell',
+      headerCellClass: 'centered-cell common-cell header-fixed',
     },
   ];
 
   const handleCellClick = (cell: { row: any; column: any }) => {
     const { row, column } = cell;
 
-    if (column.key === "select-row") {
-      onChangeIpcamPointSelected({ index: row.id });
+    if (column.key === 'select-row') {
+      onChangePointSelected({ index: row.id });
     }
 
-    if (column.key === "label") {
-      if (importedPoints && importedPoints[row.id].image !== undefined) {
-        onChangeActiveImage(importedPoints[row.id].image!);
+    if (column.key === 'label') {
+      if (points && points[row.id].image !== undefined) {
+        onChangeActiveImage(points[row.id].image!);
       }
-      setIpcamPointPixelCoordinates({
+      onSetPointPixelCoordinates({
         index: row.id,
         imageSize: {
           width: width * imageReduceFactor,
@@ -142,27 +133,24 @@ export const IpcamGrid = () => {
   };
 
   useEffect(() => {
-    if (importedPoints !== undefined) {
-      const selectedRowIndices = importedPoints
+    if (points !== null) {
+      const selectedRowIndices = points
         .map((point, index) => (point.selected ? index : null))
         .filter((index) => index !== null);
       setSelectedRows(new Set(selectedRowIndices));
       setPreviousSelectedRows(new Set(selectedRowIndices));
     }
     changeSelectRow(activePoint ? activePoint : undefined);
-  }, [importedPoints]);
+  }, [points]);
 
   // This use effect is used to trigger the action when all the points are selected or unselected
   // I don't identify some event to capture the click on the header select-cell
   // So, I'm using this useEffect to trigger the action when all the points are selected or unselected
 
   useEffect(() => {
-    if (
-      selectedRows.size === importedPoints?.length ||
-      selectedRows.size === 0
-    ) {
+    if (selectedRows.size === points?.length || selectedRows.size === 0) {
       if (selectedRows.size !== previousSelectedRows.size) {
-        onChangeIpcamPointSelected({ rowsIndex: selectedRows.size });
+        onChangePointSelected({ rowsIndex: selectedRows.size });
         setPreviousSelectedRows(selectedRows);
       }
     }
@@ -176,7 +164,7 @@ export const IpcamGrid = () => {
         selectedRows={selectedRows}
         onSelectedRowsChange={setSelectedRows}
         rowKeyGetter={rowKeyGetter}
-        className={`grid ${importedPoints === undefined ? "disabled" : ""}`}
+        className={`grid ${points === undefined ? 'disabled' : ''}`}
         onCellClick={handleCellClick}
         ref={ref}
       />

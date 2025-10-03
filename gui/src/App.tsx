@@ -1,4 +1,4 @@
-import { Wizard } from "react-use-wizard";
+import { Wizard } from 'react-use-wizard';
 import {
   HomePage,
   FootageMode,
@@ -10,13 +10,13 @@ import {
   Results,
   Rectification2D,
   Rectification3D,
-} from "./pages/index";
-import "./App.css";
-import { useEffect } from "react";
-import { Loading } from "./components";
-import { Report } from "./pages/Report";
-import { useDataSlice, useProjectSlice, useUiSlice } from "./hooks";
-import { FOOTAGE_TYPES } from "./constants/constants";
+} from './pages/index';
+import './App.css';
+import { useEffect } from 'react';
+import { Loading } from './components';
+import { Report } from './pages/Report';
+import { useDataSlice, useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from './hooks';
+import { FOOTAGE_TYPES } from './constants/constants';
 
 export const App: React.FC = () => {
   const { darkMode, isLoading, onSetScreen } = useUiSlice();
@@ -24,7 +24,6 @@ export const App: React.FC = () => {
   const { data, parameters } = video;
   const { onSetImages, images } = useDataSlice();
   const { factor } = parameters;
-
 
   const getStep4 = () => {
     switch (type) {
@@ -55,25 +54,24 @@ export const App: React.FC = () => {
       });
     };
 
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
     handleResize();
 
-    return () => window.removeEventListener("resize", handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [data, factor]);
-  
+
   useEffect(() => {
     const handleAllFrames = (_event: any, paths: string[]) => {
       onSetImages(paths);
     };
 
     if (images.paths.length === 0) {
-      window.ipcRenderer.on("all-frames", handleAllFrames);
+      window.ipcRenderer.on('all-frames', handleAllFrames);
     }
   }, [images.paths]);
 
-
   return (
-    <div className="default-app-container" data-theme={darkMode ? "dark" : "light"}>
+    <div className="default-app-container" data-theme={darkMode ? 'dark' : 'light'}>
       <Wizard>
         {isLoading ? <Loading /> : <HomePage />}
         {isLoading ? <Loading /> : <FootageMode></FootageMode>}

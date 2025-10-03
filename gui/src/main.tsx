@@ -1,18 +1,16 @@
-import { createRoot } from "react-dom/client";
-import { Provider } from "react-redux";
-import { IpcRenderer, WebUtils } from "electron";
-import { App } from "./App";
-import store from "./store/store";
-import "./index.css";
-import "./translations/i18n";
+import { createRoot } from 'react-dom/client';
+import { Provider } from 'react-redux';
+import { IpcRenderer, WebUtils } from 'electron';
+import { App } from './App';
+import store from './store/store';
+import './index.css';
+import './translations/i18n';
 
-createRoot(
-  document.getElementById("root") ?? document.createElement("div"),
-).render(
+createRoot(document.getElementById('root') ?? document.createElement('div')).render(
   // <React.StrictMode>
   <Provider store={store}>
     <App />
-  </Provider>,
+  </Provider>
   // </React.StrictMode>
 );
 
@@ -24,6 +22,6 @@ declare global {
   }
 }
 
-window.ipcRenderer.on("main-process-message", (_event, message) => {
+window.ipcRenderer.on('main-process-message', (_event, message) => {
   console.log(message);
 });

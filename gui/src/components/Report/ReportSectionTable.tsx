@@ -1,6 +1,6 @@
-import { getUnit } from "../../helpers";
-import { useProjectSlice } from "../../hooks";
-import { SectionData } from "../../store/section/types";
+import { getUnit } from '../../helpers';
+import { useProjectSlice } from '../../hooks';
+import { SectionData } from '../../store/section/types';
 
 export const ReportSectionTable = ({ data }: { data: SectionData }) => {
   const { projectDetails } = useProjectSlice();
@@ -32,23 +32,23 @@ export const ReportSectionTable = ({ data }: { data: SectionData }) => {
           <th> # </th>
           <th>
             <div>x</div>
-            <div>{getUnit(unitSistem, "longitude")}</div>
+            <div>{getUnit(unitSistem, 'longitude')}</div>
           </th>
           <th>
             <div>d</div>
-            <div>{getUnit(unitSistem, "longitude")}</div>
+            <div>{getUnit(unitSistem, 'longitude')}</div>
           </th>
           <th>
             <div>A</div>
-            <div>{getUnit(unitSistem, "area")}</div>
+            <div>{getUnit(unitSistem, 'area')}</div>
           </th>
           <th>
             <div>Vs</div>
-            <div>{getUnit(unitSistem, "velocity")}</div>
+            <div>{getUnit(unitSistem, 'velocity')}</div>
           </th>
           <th>
             <div>Q</div>
-            <div>{getUnit(unitSistem, "flow")}</div>
+            <div>{getUnit(unitSistem, 'flow')}</div>
           </th>
         </tr>
       </thead>
@@ -56,21 +56,11 @@ export const ReportSectionTable = ({ data }: { data: SectionData }) => {
         {data.id.map((row: number, index: number) => (
           <tr key={index}>
             <td>{row}</td>
-            <td>
-              {data.distance[index] != null
-                ? data.distance[index].toFixed(2)
-                : "-"}
-            </td>
-            <td>
-              {data.depth[index] != null ? data.depth[index].toFixed(2) : "-"}
-            </td>
-            <td>{data.A[index] != null ? data.A[index].toFixed(2) : "-"}</td>
-            <td>
-              {data.streamwise_magnitude[index] != null
-                ? data.streamwise_magnitude[index].toFixed(2)
-                : "-"}
-            </td>
-            <td>{data.Q[index] != null ? data.Q[index].toFixed(2) : "-"}</td>
+            <td>{data.distance[index] != null ? data.distance[index].toFixed(2) : '-'}</td>
+            <td>{data.depth[index] != null ? data.depth[index].toFixed(2) : '-'}</td>
+            <td>{data.A[index] != null ? data.A[index].toFixed(2) : '-'}</td>
+            <td>{data.streamwise_magnitude[index] != null ? data.streamwise_magnitude[index].toFixed(2) : '-'}</td>
+            <td>{data.Q[index] != null ? data.Q[index].toFixed(2) : '-'}</td>
           </tr>
         ))}
       </tbody>

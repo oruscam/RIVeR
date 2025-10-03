@@ -1,9 +1,9 @@
-import { VideoPlayer } from "../components/VideoPlayer/VideoPlayer";
-import { FormVideo } from "../components/Forms/FormVideo";
-import { WizardButtons } from "../components/WizzardButtons";
-import { Error } from "../components/Error";
-import { Progress } from "../components";
-import { useProjectSlice } from "../hooks";
+import { VideoPlayer } from '../components/VideoPlayer/VideoPlayer';
+import { FormVideo } from '../components/Forms/FormVideo';
+import { WizardButtons } from '../components/WizzardButtons';
+import { Error } from '../components/Error';
+import { Progress } from '../components';
+import { useProjectSlice } from '../hooks';
 
 export const VideoRange = () => {
   const { video } = useProjectSlice();

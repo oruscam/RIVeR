@@ -1,12 +1,10 @@
-import { ipcRenderer, contextBridge, webUtils } from "electron";
+import { ipcRenderer, contextBridge, webUtils } from 'electron';
 
 // --------- Expose some API to the Renderer process ---------
-contextBridge.exposeInMainWorld("ipcRenderer", {
+contextBridge.exposeInMainWorld('ipcRenderer', {
   on(...args: Parameters<typeof ipcRenderer.on>) {
     const [channel, listener] = args;
-    return ipcRenderer.on(channel, (event, ...args) =>
-      listener(event, ...args),
-    );
+    return ipcRenderer.on(channel, (event, ...args) => listener(event, ...args));
   },
   off(...args: Parameters<typeof ipcRenderer.off>) {
     const [channel, ...omit] = args;
@@ -20,20 +18,18 @@ contextBridge.exposeInMainWorld("ipcRenderer", {
     const [channel, ...omit] = args;
     return ipcRenderer.invoke(channel, ...omit);
   },
-  removeAllListeners(
-    ...args: Parameters<typeof ipcRenderer.removeAllListeners>
-  ) {
+  removeAllListeners(...args: Parameters<typeof ipcRenderer.removeAllListeners>) {
     const [channel] = args;
     return ipcRenderer.removeAllListeners(channel);
   },
   removeListener(...args: Parameters<typeof ipcRenderer.removeListener>) {
     const [channel, listener] = args;
     return ipcRenderer.removeListener(channel, listener);
-  }
+  },
 });
 
-contextBridge.exposeInMainWorld("webUtils", {
+contextBridge.exposeInMainWorld('webUtils', {
   getPathForFile(file: File) {
     return webUtils.getPathForFile(file);
-  }
+  },
 });

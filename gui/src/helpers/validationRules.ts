@@ -1,4 +1,4 @@
-import { parseTime } from "./formatTime";
+import { parseTime } from './formatTime';
 
 interface ValidationRules {
   [key: string]: {
@@ -31,77 +31,70 @@ interface ValidationRules {
  *   - Validates that the step value is greater than 0.
  */
 
-export const getValidationRules = (
-  t: any,
-  getValues: any,
-  duration: number,
-) => {
+export const getValidationRules = (t: any, getValues: any, duration: number) => {
   return {
     start: {
-      required: t("VideoRange.Errors.required"),
+      required: t('VideoRange.Errors.required'),
       pattern: {
         value: /^\d{2}:\d{2}$/,
-        message: t("VideoRange.Errors.formatInput"),
+        message: t('VideoRange.Errors.formatInput'),
       },
       validate: (value: string) => {
-        const [minutes, seconds] = value.split(":").map(Number);
+        const [minutes, seconds] = value.split(':').map(Number);
         if (minutes < 0 || seconds < 0 || seconds >= 60) {
-          return t("VideoRange.Errors.start1");
+          return t('VideoRange.Errors.start1');
         }
         return true;
       },
     },
     end: {
-      required: t("VideoRange.Errors.required"),
+      required: t('VideoRange.Errors.required'),
       pattern: {
         value: /^\d{2}:\d{2}$/,
-        message: t("VideoRange.Errors.formatInput"),
+        message: t('VideoRange.Errors.formatInput'),
       },
       validate: (value: string) => {
-        const startTime = parseTime(getValues("start"));
+        const startTime = parseTime(getValues('start'));
         const endTime = parseTime(value);
 
         if (endTime > duration) {
-          return t("VideoRange.Errors.end1");
+          return t('VideoRange.Errors.end1');
         }
 
         if (endTime < 0) {
-          return t("VideoRange.Errors.start1");
+          return t('VideoRange.Errors.start1');
         }
 
         if (endTime === 0) {
-          return t("VideoRange.Errors.end2");
+          return t('VideoRange.Errors.end2');
         }
 
         if (endTime <= startTime) {
-          return t("VideoRange.Errors.end3");
+          return t('VideoRange.Errors.end3');
         }
 
         return true;
       },
     },
     step: {
-      required: t("VideoRange.Errors.required"),
+      required: t('VideoRange.Errors.required'),
       pattern: {
         value: /^[1-9]\d*$/,
-        message: t("VideoRange.Errors.step"),
+        message: t('VideoRange.Errors.step'),
       },
       validate: (value: number) => {
         if (value <= 0) {
-          return t("VideoRange.Errors.step");
+          return t('VideoRange.Errors.step');
         }
         return true;
       },
     },
     distances: {
-      required: t("ControlPoints.Errors.required"),
+      required: t('ControlPoints.Errors.required'),
       validate: {
-        notNull: (value: number) =>
-          value !== null || t("ControlPoints.Errors.notNull"),
-        notZero: (value: number) =>
-          value !== 0 || t("ControlPoints.Errors.notZero"),
-        positive: (value: number) =>
-          value > 0 || t("ControlPoints.Errors.positive"),
+        notNull: (value: number) => value !== null || t('ControlPoints.Errors.notNull'),
+        notZero: (value: number) => value !== 0 || t('ControlPoints.Errors.notZero'),
+        positive: (value: number) => value > 0 || t('ControlPoints.Errors.positive'),
       },
     },
   };

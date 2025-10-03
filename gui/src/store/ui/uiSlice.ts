@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { UIState, ScreenSizes } from "./types";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { UIState, ScreenSizes } from './types';
 
 const initialState: UIState = {
   screenSizes: {
@@ -10,21 +10,21 @@ const initialState: UIState = {
   error: [],
   isLoading: false,
   seeAll: true,
-  language: "en",
-  isLastVersion: undefined
+  language: 'en',
+  isLatestVersion: undefined,
 };
 
 const uiSlice = createSlice({
-  name: "ui",
+  name: 'ui',
   initialState,
   reducers: {
     changeTheme: (state) => {
       state.darkMode = !state.darkMode;
     },
     setErrorMessage: (state, action: PayloadAction<string[]>) => {
-      const errorDiv = document.getElementById("error-message-div");
+      const errorDiv = document.getElementById('error-message-div');
       if (errorDiv) {
-        errorDiv.scrollIntoView({ behavior: "smooth" });
+        errorDiv.scrollIntoView({ behavior: 'smooth' });
       }
       state.error = action.payload;
     },
@@ -48,13 +48,12 @@ const uiSlice = createSlice({
     },
     setLanguage: (state, action: PayloadAction<string>) => {
       if (action.payload === undefined) return;
-      console.log("Setting language to: ", action.payload);
       state.language = action.payload;
     },
-    setIsLastVersion: (state, action: PayloadAction<{isLatest: boolean, latest: string}>) => {
+    setIsLastVersion: (state, action: PayloadAction<{ isLatest: boolean; latest: string }>) => {
       state.isLatestVersion = action.payload.isLatest;
       state.latestVersion = action.payload.latest;
-    }
+    },
   },
 });
 
@@ -68,7 +67,7 @@ export const {
   setScreen,
   setSeeAll,
   setLanguage,
-  setIsLastVersion
+  setIsLastVersion,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

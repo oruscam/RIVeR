@@ -1,9 +1,9 @@
-import { dialog, ipcMain } from "electron";
-import { basename, extname, join } from "path";
-import { readFile, utils, set_fs, writeFile } from "xlsx";
-import * as fs from "fs";
-import { ProjectConfig } from "./interfaces";
-import { EXTENSIONS, validateFile } from "./utils/validateFile";
+import { dialog, ipcMain } from 'electron';
+import { basename, extname, join } from 'path';
+import { readFile, utils, set_fs, writeFile } from 'xlsx';
+import * as fs from 'fs';
+import { ProjectConfig } from './interfaces';
+import { EXTENSIONS, validateFile } from './utils/validateFile';
 
 // Set the file system for xlsx library
 set_fs(fs);
@@ -11,26 +11,25 @@ set_fs(fs);
 async function getBathimetry(PROJECT_CONFIG: ProjectConfig) {
   // Define options for the file dialog
   const options: Electron.OpenDialogOptions = {
-    properties: ["openFile"],
+    properties: ['openFile'],
     filters: [
       {
-        name: "Documents",
+        name: 'Documents',
         extensions: EXTENSIONS,
       },
     ],
   };
 
   // Handle the 'get-bathimetry' IPC event
-  ipcMain.handle("get-bathimetry", async (_event, args) => {
-
+  ipcMain.handle('get-bathimetry', async (_event, args) => {
     const { path, zLimits } = args;
     // If the file is dropped, the path is provided in args. But we need to validate it.
-    let isValidPath = validateFile(path)
-    
-    if ( isValidPath === false && path !== undefined ){
-      return { error: new Error("invalidBathimetryFileFormat") };
+    let isValidPath = validateFile(path);
+
+    if (isValidPath === false && path !== undefined) {
+      return { error: new Error('invalidBathimetryFileFormat') };
     }
-    
+
     // Set default files path
     options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
 
@@ -69,7 +68,7 @@ async function getBathimetry(PROJECT_CONFIG: ProjectConfig) {
           const y = parseFloat(row[keys[1]]);
 
           if ((isNaN(x) || isNaN(y)) && index !== 0) {
-            throw new Error("invalidBathimetryFileFormat");
+            throw new Error('invalidBathimetryFileFormat');
           }
 
           // Find the maximum y value and its index
@@ -86,13 +85,7 @@ async function getBathimetry(PROJECT_CONFIG: ProjectConfig) {
       const { isDecreced, isDepth } = analyzeLine(line, maxYIndex);
 
       // Transform the line if necessary
-      const { newLine, changed } = transformLine(
-        line,
-        isDecreced,
-        isDepth,
-        maxY,
-        zLimits?.min,
-      );
+      const { newLine, changed } = transformLine(line, isDecreced, isDepth, maxY, zLimits?.min);
 
       // If the line was changed, create new file with adapted values
       let newFilePath = bathPath;
@@ -106,7 +99,7 @@ async function getBathimetry(PROJECT_CONFIG: ProjectConfig) {
         // Generate a new file name with a suffix
         newFilePath = join(
           PROJECT_CONFIG.mainDirectory,
-          basename(bathPath, bathimetryExt) + "_modified" + bathimetryExt,
+          basename(bathPath, bathimetryExt) + '_modified' + bathimetryExt
         );
 
         // Write the workbook to a new file
@@ -125,7 +118,7 @@ async function getBathimetry(PROJECT_CONFIG: ProjectConfig) {
         changed: changed,
       };
     } catch (error) {
-      if (error.message === "invalidBathimetryFileFormat") {
+      if (error.message === 'invalidBathimetryFileFormat') {
         return { error };
       }
       console.log(error);
@@ -146,13 +139,7 @@ const analyzeLine = (line: { x: number; y: number }[], maxYIndex: number) => {
 };
 
 // Transform the line to be in the correct order and convert depth bathymetry to level bathymetry if needed
-const transformLine = (
-  line,
-  isDecreced: boolean,
-  isDepth: boolean,
-  maxY: number,
-  zMin?: number,
-) => {
+const transformLine = (line, isDecreced: boolean, isDepth: boolean, maxY: number, zMin?: number) => {
   let newLine = [];
 
   // First transform the line as before
@@ -165,9 +152,7 @@ const transformLine = (
       newLine.push(line[i]);
     }
   } else if (isDepth) {
-    console.log("inside is depth", zMin);
     if (zMin !== undefined) {
-      console.log("inside is depth", zMin);
       for (let i = 0; i < line.length; i++) {
         newLine.push({ x: line[i].x, y: maxY - line[i].y - maxY + zMin });
       }

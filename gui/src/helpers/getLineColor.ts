@@ -1,4 +1,4 @@
-import { COLORS } from "../constants/constants";
+import { COLORS } from '../constants/constants';
 
 const getLineColor = (index: number) => {
   const { D12, D23, D34, D14 } = COLORS.CONTROL_POINTS;
@@ -14,7 +14,7 @@ const getLineColor = (index: number) => {
       return D14;
 
     default:
-      return "black";
+      return 'black';
   }
 };
 
