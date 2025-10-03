@@ -12,7 +12,7 @@ import { VideoMetadata, FramesResolution } from './Components/index';
 import { ButtonLock } from '../ButtonLock';
 
 export const FormVideo = ({ duration }: { duration: number }) => {
-  const { onSetVideoParameters, video: videoData } = useProjectSlice();
+  const { onSetVideoParameters, video: videoData, type } = useProjectSlice();
   const { startTime, endTime, step } = videoData.parameters;
   const [extraFields, setExtraFields] = useState(false);
   const { fps } = videoData.data;
@@ -181,13 +181,17 @@ export const FormVideo = ({ duration }: { duration: number }) => {
           <FramesResolution active={extraFields} />
         </div>
       </form>
-      <ButtonLock
-        localExtraFields={extraFields}
-        localSetExtraFields={setExtraFields}
-        disabled={false}
-        headerElementID="start"
-        footerElementID="video-resolution"
-      />
+      {
+        type !== "ipcam" && (
+          <ButtonLock
+            localExtraFields={extraFields}
+            localSetExtraFields={setExtraFields}
+            disabled={false}
+            headerElementID="start"
+            footerElementID="video-resolution"
+          />
+        )
+      }
     </>
   );
 };
