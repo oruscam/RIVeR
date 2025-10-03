@@ -13,7 +13,8 @@ export const CrossSections = () => {
   const { type } = useProjectSlice();
   const { cameraSolution } = useIpcamSlice();
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+
+  const handleDrop = ( e: React.DragEvent<HTMLDivElement> ) => {
     e.preventDefault();
     setDragOver(false);
 
@@ -63,7 +64,7 @@ export const CrossSections = () => {
       >
         <Progress />
         <CrossSectionsComponent />
-        <WizardButtons formId="form-cross-section" />
+        <WizardButtons formId="form-cross-section" canFollow={sections[0].sectionPoints[0].x !== 0}/>
       </div>
     </div>
   );

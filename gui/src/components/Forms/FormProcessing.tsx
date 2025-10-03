@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ButtonLock } from '../ButtonLock';
-import { HardModeProcessing } from './HardModeProcessing';
+import { HardModeProcessing } from './Components/index';
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useDataSlice, useUiSlice } from '../../hooks';
 import { useWizard } from 'react-use-wizard';

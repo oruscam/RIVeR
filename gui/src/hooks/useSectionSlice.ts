@@ -107,7 +107,7 @@ export const useSectionSlice = () => {
      */
 
     if (formPoint) {
-      const { points, firstFlag, secondFlag } = setChangesByForm(formPoint, dirPoints, flag1, flag2);
+      const { points, firstFlag, secondFlag } = setChangesByForm(formPoint, dirPoints);
       newPoints = points;
       flag1 = firstFlag;
       flag2 = secondFlag;
@@ -191,7 +191,7 @@ export const useSectionSlice = () => {
    * @param position | string - The position of the real world coordinate to update.
    */
 
-  const onSetRealWorld = async (point: string | number, position: string) => {
+  const onSetRealWorld = async (value: string | number, position: string) => {
     const { rwPoints, dirPoints, bathimetry } = sections[activeSection];
 
     dispatch(setHasChanged({ value: true }));
@@ -206,7 +206,7 @@ export const useSectionSlice = () => {
     let newPoints: Point[];
     let flag1 = false;
     let flag2 = false;
-    const { points, firstFlag, secondFlag } = setChangesByForm({ point, position }, rwPoints, flag1, flag2);
+    const { points, firstFlag, secondFlag } = setChangesByForm({ value, position }, rwPoints);
     newPoints = points;
     flag1 = firstFlag;
     flag2 = secondFlag;
@@ -403,6 +403,7 @@ export const useSectionSlice = () => {
       updatedSection.dirPoints = [];
       updatedSection.sectionPoints = DEFAULT_POINTS;
       updatedSection.rwPoints = DEFAULT_POINTS;
+      updatedSection.extraFields = false;
       updatedSection.pixelSize = { rwLength: 0, size: 0 };
     }
 
@@ -522,6 +523,7 @@ export const useSectionSlice = () => {
 
     if (value.clearBathimetry) {
       updatedSection.bathimetry = { path: undefined, name: undefined, level: 0 };
+      updatedSection.extraFields = false;
     }
 
     dispatch(updateSection(updatedSection));
@@ -677,12 +679,12 @@ export const useSectionSlice = () => {
         );
       }
     } catch (error) {
-      console.log(error);
       dispatch(
         updateSection({
           ...sections[activeSection],
           bathimetry: { path: undefined, level: 0, name: undefined },
           sectionPoints: DEFAULT_POINTS,
+          extraFields: false
         })
       );
       if (error instanceof Error) {

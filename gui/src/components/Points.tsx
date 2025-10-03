@@ -53,7 +53,7 @@ export const Points = ({
       const newPoints = [...localPoints];
       newPoints[index] = { x: event.target.x(), y: event.target.y() };
 
-      if (module === 'pixelSize' || module === 'contolPoints') {
+      if (module === 'pixelSize' || module === 'oblique') {
         setLocalPoints(newPoints);
         return;
       }
@@ -83,7 +83,7 @@ export const Points = ({
         if (index === 0) return iconRed;
         return iconGreen;
 
-      case 'controlPoints':
+      case 'oblique':
         if (index === 0) return iconRed;
         return icon;
     }
@@ -108,13 +108,13 @@ export const Points = ({
             onDragMove={(event) => handleDragMove(event, index)}
             onDragEnd={(event) => handleDragEnd(event, index)}
           />
-          {activeStep === MODULE_NUMBER.PIXEL_SIZE && (
+          {activeStep === MODULE_NUMBER.PIXEL_SIZE&& (
             <Text
               x={point.x - MARKS.NUMBER_OFFSET_X / resizeFactor}
               y={point.y - MARKS.NUMBER_OFFSET_Y / resizeFactor}
               text={(index + 1).toString()}
               fontSize={MARKS.NUMBER_FONT_SIZE / resizeFactor}
-              fill={index === 0 && module === 'controlPoints' ? COLORS.MARK_L : COLORS.MARK_R}
+              fill={index === 0 && module === 'oblique' ? COLORS.MARK_L : COLORS.MARK_R}
               fontStyle="bold"
               listening={false}
             />

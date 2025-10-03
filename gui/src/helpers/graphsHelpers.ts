@@ -1,7 +1,8 @@
+import { GRAPHS } from '../constants/constants';
 import { SectionData } from '../store/section/types';
 import { Point } from '../types';
 
-export const adapterData = (data: SectionData, x1Intersection: number) => {
+const adapterData = (data: SectionData, x1Intersection: number) => {
   const {
     distance,
     plus_std,
@@ -41,7 +42,7 @@ export const adapterData = (data: SectionData, x1Intersection: number) => {
   };
 };
 
-export const adapterBathimetry = (
+const adapterBathimetry = (
   line: Point[],
   x1Intersection: number,
   x2Intersection: number,
@@ -54,8 +55,7 @@ export const adapterBathimetry = (
 
   return newBathLine;
 };
-
-export const generateXAxisTicks = (x1Intersection: number, x2Intersection: number, width: number): number[] => {
+const generateXAxisTicks = (x1Intersection: number, x2Intersection: number, width: number): number[] => {
   let step = 0;
 
   if (width < 10) {
@@ -84,7 +84,7 @@ export const generateXAxisTicks = (x1Intersection: number, x2Intersection: numbe
   return ticks;
 };
 
-export const generateYAxisTicks = (array?: (number | null)[], min?: number, max?: number): number[] => {
+const generateYAxisTicks = (array?: (number | null)[], min?: number, max?: number): number[] => {
   const minValue = min ? min : 0;
   const maxValue = max ? max : Math.max(...array!.filter((value): value is number => value !== null));
 
@@ -95,3 +95,40 @@ export const generateYAxisTicks = (array?: (number | null)[], min?: number, max?
 
   return ticks;
 };
+
+const getOrthoImageDimensions = (screenWidth: number, orthoWidth: number, orthoHeight: number ) => {
+  let graphWidth;
+  let graphHeight;
+  const maxGraphWidth = screenWidth * GRAPHS.IPCAM_GRID_PROPORTION;
+  
+  const vertical = orthoHeight > orthoWidth;
+  
+  if (!vertical) {
+    if (orthoWidth < maxGraphWidth) {
+      graphWidth = orthoWidth;
+      graphHeight = orthoHeight;
+    } else {
+      graphWidth = maxGraphWidth;
+      graphHeight = (maxGraphWidth * orthoHeight) / orthoWidth;
+    }
+    if (graphWidth < GRAPHS.ORTHO_IMAGE_MIN_WIDTH) {
+      graphWidth = GRAPHS.ORTHO_IMAGE_MIN_WIDTH;
+      graphHeight = (GRAPHS.ORTHO_IMAGE_MIN_WIDTH * orthoHeight) / orthoWidth;
+    }
+  } else {
+    const WIDTH_INCREASER = 1.1; // For better visualization, I have to figure out what happen // ! PROVISIONAL.
+
+    if (orthoHeight < maxGraphWidth) {
+      graphHeight = orthoHeight;
+      graphWidth = orthoWidth * WIDTH_INCREASER;
+    } else {
+      graphHeight = maxGraphWidth;
+      graphWidth = ((maxGraphWidth * orthoWidth) / orthoHeight) * WIDTH_INCREASER;
+    }
+  }
+  
+  return { graphWidth, graphHeight, maxGraphWidth };
+}
+
+
+export { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks, getOrthoImageDimensions };

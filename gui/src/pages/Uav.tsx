@@ -1,7 +1,7 @@
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
-import { FormPixelSize } from '../components/Forms/index';
-import { WizardButtons, Error, Progress, ImagePixelSize } from '../components/index';
+import { FormUav } from '../components/Forms/index';
+import { WizardButtons, Error, Progress, ImageUav } from '../components/index';
 import { useUavSlice, useUiSlice } from '../hooks/index';
 
 import './pages.css';
@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import { ButtonLock } from '../components/ButtonLock.js';
 import { formatNumberTo2Decimals, formatNumberToPrecision4 } from '../helpers/adapterNumbers.js';
 
-export const PixelSize = () => {
+export const Uav = () => {
   const {
     dirPoints,
     rwPoints,
@@ -24,16 +24,16 @@ export const PixelSize = () => {
   // * Estado inicial del formulario
   const methods = useForm({
     defaultValues: {
-      pixel_size_LINE_LENGTH: formatNumberTo2Decimals(rwLength),
-      pixel_size_PIXEL_SIZE: formatNumberToPrecision4(size),
-      pixel_size_EAST_point_1: rwPoints[0].x,
-      pixel_size_EAST_point_2: rwPoints[1].x,
-      pixel_size_NORTH_point_1: rwPoints[0].y,
-      pixel_size_NORTH_point_2: rwPoints[1].y,
-      pixel_size_X_point_1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
-      pixel_size_Y_point_1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
-      pixel_size_X_point_2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
-      pixel_size_Y_point_2: dirPoints.length === 0 ? 0 : dirPoints[1].y,
+      uav_lineLength: formatNumberTo2Decimals(rwLength),
+      uav_pixelSize: formatNumberToPrecision4(size),
+      uav_eastPoint1: rwPoints[0].x,
+      uav_eastPoint2: rwPoints[1].x,
+      uav_northPoint1: rwPoints[0].y,
+      uav_northPoint2: rwPoints[1].y,
+      uav_xPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
+      uav_xPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
+      uav_yPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
+      uav_yPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].y,
     },
   });
 
@@ -62,33 +62,33 @@ export const PixelSize = () => {
 
   useEffect(() => {
     methods.reset({
-      pixel_size_LINE_LENGTH: formatNumberTo2Decimals(rwLength),
-      pixel_size_PIXEL_SIZE: formatNumberToPrecision4(size),
-      pixel_size_EAST_point_1: rwPoints[0].x,
-      pixel_size_EAST_point_2: rwPoints[1].x,
-      pixel_size_NORTH_point_1: rwPoints[0].y,
-      pixel_size_NORTH_point_2: rwPoints[1].y,
-      pixel_size_X_point_1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
-      pixel_size_Y_point_1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
-      pixel_size_X_point_2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
-      pixel_size_Y_point_2: dirPoints.length === 0 ? 0 : dirPoints[1].y,
+      uav_LINE_LENGTH: formatNumberTo2Decimals(rwLength),
+      uav_PIXEL_SIZE: formatNumberToPrecision4(size),
+      uav_eastPoint1: rwPoints[0].x,
+      uav_eastPoint2: rwPoints[1].x,
+      uav_northPoint1: rwPoints[0].y,
+      uav_northPoint2: rwPoints[1].y,
+      uav_xPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
+      uav_xPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
+      uav_yPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
+      uav_yPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].y,
     });
   }, [dirPoints, rwPoints, size, rwLength, methods]);
 
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImagePixelSize />
+        <ImageUav/>
         <Error />
       </div>
       <div className="form-container">
         <Progress />
         <FormProvider {...methods}>
-          <FormPixelSize onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
+          <FormUav onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
         <ButtonLock
           footerElementID="span-footer"
-          headerElementID="pixel_size-HEADER"
+          headerElementID="uav-header"
           disabled={dirPoints.length === 0}
           localExtraFields={extraFields}
           localSetExtraFields={onChangeExtraFields}

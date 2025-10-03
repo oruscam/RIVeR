@@ -14,7 +14,7 @@ import { formatNumberTo2Decimals } from '../../helpers';
 const createInitialState = (sections: Section[]) => {
   let defaultValues = {};
 
-  sections.forEach((section, index) => {
+  sections.forEach((section) => {
     const { name, dirPoints, rwPoints, bathimetry, numStations, alpha } = section;
     const baseKey = name;
     defaultValues = {
@@ -23,14 +23,14 @@ const createInitialState = (sections: Section[]) => {
       [`${baseKey}_CS_BATHIMETRY`]: bathimetry.path,
       [`${baseKey}_LEVEL`]: bathimetry.level,
       [`${baseKey}_LEFT_BANK`]: bathimetry.leftBank,
-      [`${baseKey}_EAST_Left`]: rwPoints[0].x.toFixed(2),
-      [`${baseKey}_NORTH_Left`]: rwPoints[0].y.toFixed(2),
-      [`${baseKey}_EAST_Right`]: rwPoints[1].x.toFixed(2),
-      [`${baseKey}_NORTH_Right`]: rwPoints[1].y.toFixed(2),
-      [`${baseKey}_X_Left`]: dirPoints.length === 0 ? 0 : dirPoints[0].x.toFixed(1),
-      [`${baseKey}_Y_Left`]: dirPoints.length === 0 ? 0 : dirPoints[0].y.toFixed(1),
-      [`${baseKey}_X_Right`]: dirPoints.length === 0 ? 0 : dirPoints[1].x.toFixed(1),
-      [`${baseKey}_Y_Right`]: dirPoints.length === 0 ? 0 : dirPoints[1].y.toFixed(1),
+      [`${baseKey}_eastPoint1`]: rwPoints[0].x.toFixed(2),
+      [`${baseKey}_northPoint1`]: rwPoints[0].y.toFixed(2),
+      [`${baseKey}_eastPoint2`]: rwPoints[1].x.toFixed(2),
+      [`${baseKey}_northPoint2`]: rwPoints[1].y.toFixed(2),
+      [`${baseKey}_xPoint1`]: dirPoints.length === 0 ? 0 : dirPoints[0].x.toFixed(1),
+      [`${baseKey}_yPoint1`]: dirPoints.length === 0 ? 0 : dirPoints[0].y.toFixed(1),
+      [`${baseKey}_xPoint2`]: dirPoints.length === 0 ? 0 : dirPoints[1].x.toFixed(1),
+      [`${baseKey}_yPoint2`]: dirPoints.length === 0 ? 0 : dirPoints[1].y.toFixed(1),
       [`${baseKey}_NUM_STATIONS`]: numStations,
       [`${baseKey}_ALPHA`]: alpha,
     };

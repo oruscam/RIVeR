@@ -14,17 +14,17 @@ import { Carousel } from './Carousel';
 import { Grid } from './Grid';
 import { SectionsHeader } from './SectionsHeader';
 import { Results } from './Results';
-import { ImageRectification2D } from './ImageRectification2D';
 import { ObliquePointsLines } from './ObliquePointsLines';
 import { IpcamGrid } from './IpcamGrid';
-import { ImageRectification3D } from './ImageRectification3D';
-import { PointsRectification3D } from './PointsRectification3D';
 import { Ellipses } from './Ellipses';
 import { RedPoints } from './RedPoints';
-import { ImagePixelSize } from './ImagePixelSize';
 import { VersionMessage } from './VersionMessage';
 import { Clipboard } from './Clipboard';
 import { ColorBar } from './ColorBar';
+import { ImageIpcam } from './ImageIpcam';
+import { ImageOblique } from './ImageOblique';
+import { ImageUav } from './ImageUav';
+import { PointsIpcam } from './PointsIpcam';
 
 export {
   Carousel,
@@ -35,9 +35,9 @@ export {
   ColorBar,
   Grid,
   Icon,
-  ImagePixelSize,
-  ImageRectification2D,
-  ImageRectification3D,
+  ImageIpcam,
+  ImageOblique,
+  ImageUav,
   ImageWithData,
   ImageWithMarks,
   IpcamGrid,
@@ -46,7 +46,7 @@ export {
   Loading,
   ObliquePointsLines,
   Points,
-  PointsRectification3D,
+  PointsIpcam,
   Progress,
   RedPoints,
   Results,

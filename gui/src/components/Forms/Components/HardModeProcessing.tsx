@@ -1,7 +1,7 @@
 import { useFormContext } from 'react-hook-form';
-import { useDataSlice, useUiSlice } from '../../hooks';
+import { useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
-import { TestPlot } from '../Graphs';
+import { TestPlot } from '../../Graphs';
 
 export const HardModeProcessing = ({ active }: { active: boolean }) => {
   const { register } = useFormContext();

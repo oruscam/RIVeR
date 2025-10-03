@@ -165,7 +165,7 @@
   
 }
 
-.input-field-rectification-2d{
+.input-field-oblique{
   background-color: var(--input-background);
   color: var(--primary-text-color);
   border: none;
@@ -347,6 +347,10 @@ input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
 
 .green{
   color: #62C655
+}
+
+.lightblue{
+  color: #6CD4FF;
 }
 
 /* Scroll Bar */

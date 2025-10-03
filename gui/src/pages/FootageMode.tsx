@@ -108,16 +108,14 @@ export const FootageMode = () => {
         </div>
         <div className={`browse-video-container${footageType || video ? ' visible' : ''}`}>
           <div className="browse-video-header">
-            {footageType !== null ? (
-              <>
-                <p>
-                  {footageType && video === null
-                    ? t(`Step-2.addYourFootage.${footageType}`)
-                    : t(`Step-2.addedFootage.${footageType}`)}
-                </p>
-                <p onClick={() => onChangeType()}>{footageType ? t(`Step-2.changeType`) : undefined} </p>
-              </>
-            ) : (
+            {
+              footageType !== null 
+              ? 
+                <>
+                  <p>{ footageType && video === null ? t(`Step-2.addYourFootage`) : '' }</p>
+                  <p onClick={() => onChangeType()}>{ footageType ? t(`Step-2.changeType`): undefined} </p>
+                </>
+              :
               <></>
             )}
           </div>
