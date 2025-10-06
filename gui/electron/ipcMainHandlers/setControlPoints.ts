@@ -55,6 +55,7 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
     ];
 
     let secondCase = [];
+    const DISTANCE_TOLERANCE = 1 
     
     if (rwCoordinates[0].x !== 0 || rwCoordinates[0].y !== 0 || rwCoordinates[1].y !== 0) {
       secondCase = [
@@ -67,6 +68,8 @@ function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
         '--north2',
         rwCoordinates[1].y,
         '--enforce-d12',
+        '--distance-tolerance',
+        DISTANCE_TOLERANCE
       ]
     }
 

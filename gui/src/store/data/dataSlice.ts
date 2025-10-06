@@ -46,7 +46,7 @@ const dataSlice = createSlice({
     updateProcessingPar: (state, action: PayloadAction<string[]>) => {
       state.processing.parImages = action.payload;
     },
-    setBackendWorkingFlag: (state, action: PayloadAction<boolean>) => {
+    setBackendWorking: (state, action: PayloadAction<boolean>) => {
       state.isBackendWorking = action.payload;
     },
     setProcessingMask: (state, action: PayloadAction<{ mask: string; bbox: number[] }>) => {
@@ -84,7 +84,7 @@ const dataSlice = createSlice({
 export const {
   setDefaultDataState,
   setActiveImage,
-  setBackendWorkingFlag,
+  setBackendWorking,
   setDataLoaded,
   setImages,
   setProcessingMask,

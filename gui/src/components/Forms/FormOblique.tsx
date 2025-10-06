@@ -112,7 +112,7 @@ export const FormOblique= ({ onSubmit, onError }: FormChild) => {
             
           {solution && <OrthoImage solution={solution} coordinates={rwCoordinates} />}
 
-          {solution === null && <div className='mb-2 mt-1' id='ortho-image-fake-solution'/>}
+          {solution === null && <span className='mb-2 mt-1'/>}
         
           
           <button

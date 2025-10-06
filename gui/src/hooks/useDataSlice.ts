@@ -9,7 +9,7 @@ import {
   updateProcessingPar,
   setActiveImage,
   updateProcessingForm,
-  setBackendWorkingFlag,
+  setBackendWorking,
   setQuiver,
   setProcessingMask,
   setDataLoaded,
@@ -100,7 +100,7 @@ export const useDataSlice = () => {
    */
 
   const onSetQuiverTest = async () => {
-    dispatch(setBackendWorkingFlag(true));
+    dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
     const { bbox, form } = processing;
     const { paths, active } = images;
@@ -136,10 +136,10 @@ export const useDataSlice = () => {
       );
       
 
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
     } catch (error) {
       console.log(error);
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
       if (error instanceof Error) {
         throw new CliError(error.message, t);
       }
@@ -155,9 +155,8 @@ export const useDataSlice = () => {
    */
 
   const onSetQuiverAll = async () => {
-    dispatch(setBackendWorkingFlag(true));
+    dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
-
     try {
       const { bbox, form } = processing;
       const result = verifyWindowsSizes(form.step1, bbox ? bbox : false);
@@ -188,10 +187,9 @@ export const useDataSlice = () => {
           },
         })
       );
-      
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
     } catch (error) {
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
       if (error instanceof Error) {
         throw new CliError(error.message, t);
       }
@@ -207,7 +205,7 @@ export const useDataSlice = () => {
 
     try {
       await ipcRenderer.invoke(handler);
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
       return true;
     } catch (error) {
       console.log(error);
@@ -221,7 +219,7 @@ export const useDataSlice = () => {
     if (isBackendWorking) return;
 
     const ipcRenderer = window.ipcRenderer;
-    dispatch(setBackendWorkingFlag(true));
+    dispatch(setBackendWorking(true));
     dispatch(setMessage(t('Loader.results')));
 
     if (type === 'single') {
@@ -255,10 +253,10 @@ export const useDataSlice = () => {
           })
         );
         dispatch(setSummary(data.summary));
-        dispatch(setBackendWorkingFlag(false));
+        dispatch(setBackendWorking(false));
         dispatch(clearMessage());
       } catch (error) {
-        dispatch(setBackendWorkingFlag(false));
+        dispatch(setBackendWorking(false));
         if (error instanceof Error) {
           throw new CliError(error.message, t);
         }
@@ -293,11 +291,11 @@ export const useDataSlice = () => {
         dispatch(setSummary(data.summary));
         dispatch(setDataLoaded(true));
         dispatch(setLoading(false));
-        dispatch(setBackendWorkingFlag(false));
+        dispatch(setBackendWorking(false));
         dispatch(clearMessage());
       } catch (error) {
         dispatch(setLoading(false));
-        dispatch(setBackendWorkingFlag(false));
+        dispatch(setBackendWorking(false));
         if (error instanceof Error) {
           throw new CliError(error.message, t);
         }
@@ -313,7 +311,7 @@ export const useDataSlice = () => {
   };
 
   const onReCalculateMask = async (value: number) => {
-    dispatch(setBackendWorkingFlag(true));
+    dispatch(setBackendWorking(true));
     onClearQuiver();
 
     const ipcRenderer = window.ipcRenderer;
@@ -323,16 +321,15 @@ export const useDataSlice = () => {
         height_roi: value,
         data: isDataLoaded,
       });
-      console.log('error mask', error);
 
       if (error?.message) {
         throw new Error(error.message);
       }
 
       dispatch(setProcessingMask({ mask: filePrefix + maskPath, bbox }));
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
     } catch (error) {
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
       if (error instanceof Error) {
         throw new CliError(error.message, t);
       }
@@ -340,7 +337,7 @@ export const useDataSlice = () => {
   };
 
   const onSetAnalizing = (value: boolean) => {
-    dispatch(setBackendWorkingFlag(value));
+    dispatch(setBackendWorking(value));
   };
 
   const onSetImages = (paths: string[], clean?: boolean) => {

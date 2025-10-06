@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import './graphs.css';
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import * as d3 from 'd3';
@@ -30,12 +30,14 @@ export const VelocityVector = ({
 
   const { width: imageWidth, height: imageHeight } = video.data;
 
+  const { max: globalMax, min: globalMin } = useMemo(() => {
+    return getGlobalMagnitudes(sections);
+  }, [sections]);
+
   useEffect(() => {
     d3.select(svgRef.current).selectAll('*').remove();
     const svg = d3.select(svgRef.current as SVGSVGElement);
     svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
-
-    const { max: globalMax, min: globalMin } = getGlobalMagnitudes(sections);
 
     sections.forEach((section: Section, index: number) => {
       const { data, interpolated, name, sectionPoints, dirPoints } = section;

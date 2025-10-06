@@ -36,6 +36,17 @@ export const drawVectors = (
     globalMax
   );
 
+  // Tooltip div
+  const tooltip = d3.select("body")
+      .append("div")
+      .style("position", "absolute")
+      .style("background", "white")
+      .style("border", "1px solid #ccc")
+      .style("padding", "5px 10px")
+      .style("border-radius", "5px")
+      .style("pointer-events", "none")
+      .style("opacity", 0);
+
   if (arrows === undefined) return;
   arrows.forEach((arrow, i) => {
     if (check[i] === false && interpolated === false) return null;
@@ -66,23 +77,19 @@ export const drawVectors = (
           textOffset = -20;
         }
 
-        polygon.on('mouseover', function () {
-          polygon.attr('fill-opacity', 1); // Cambiar la opacidad del polígono al pasar el mouse
-          svg
-            .append('text')
-            .attr('x', arrow.points[2][0] / factor) // Posicionar el texto en el centro del poligono
-            .attr('y', arrow.points[2][1] / factor - textOffset) // Posicionar el texto arriba del polígono
-            .attr('id', `tooltip-${i}`)
-            .attr('text-anchor', 'middle')
-            .attr('font-size', '18px')
-            .attr('font-weight', '600')
-            .attr('fill', arrow.color)
-            .text(arrow.magnitude!.toFixed(2));
+        polygon.on('mouseover', function (event) {
+          polygon.attr('fill-opacity', 1); 
+          tooltip.transition().duration(200).style("opacity", 1);
+          tooltip.html(`${arrow.magnitude!.toFixed(2)}`)
+              .style("left", (event.pageX) + "px") 
+              .style("top", (event.pageY) + "px")  
+              .style('background', 'rgba(255, 255, 255, 0.4)')
+              .style("z-index", 1000);
         });
 
         polygon.on('mouseout', function () {
-          polygon.attr('fill-opacity', 0.7); // Resetear la opacidad
-          d3.select(`#tooltip-${i}`).remove(); // Eliminar el texto al salir el mouse
+          polygon.attr('fill-opacity', 0.7); 
+          tooltip.transition().duration(300).style("opacity", 0);
         });
       }
     }

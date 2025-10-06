@@ -586,6 +586,7 @@
   padding: 6px 10px;
   border-radius: 15px; 
   width: 300px;
+  z-index: 1000;
 }
 
 .colorbar {

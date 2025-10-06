@@ -385,6 +385,7 @@ export const useProjectSlice = () => {
 
           // Load project details
           if (settings.river_name || settings.site || settings.unit_system || settings.medition_date) {
+            console.log('loading project details')
             dispatch(
               setProjectDetails({
                 riverName: settings.river_name,
@@ -394,7 +395,7 @@ export const useProjectSlice = () => {
               })
             );
 
-            return MODULE_NUMBER.REPORT;
+            return STEP;
           }
 
           if (STEP === MODULE_NUMBER.RESULTS) {

@@ -611,6 +611,9 @@ class Normalize {
   }
 }
 
+/**
+ * Get global maximum and minimum magnitudes across all sections. 
+ */
 const getGlobalMagnitudes = (sections: any) => {
   let max = 0;
   let min = 0;
@@ -633,6 +636,31 @@ const getGlobalMagnitudes = (sections: any) => {
     min: min,
   };
 };
+/**
+ * Get velocity limits for a specific section.
+ * @param sections - Section[]
+ * @param active - number
+ * @returns - {max: number, min: number}
+ */
+const getVelocityLimits = (sections, active) => {
+  let max = 0;
+  let min = 0;
+  
+  if (sections.length === 0) {
+    return { max, min };
+  }
+  const { data } = sections[active];
+  if (data === undefined) {
+    return { max, min };
+  }
+  const { activeMagnitude } = data;
+  
+  const filteredMagnitude = activeMagnitude.filter((value: number) => value !== null && !isNaN(value as number));
+  max = Math.max(max, ...filteredMagnitude);
+  min = Math.min(min, ...filteredMagnitude);
+  
+  return { max, min };
+}
 
 const getComponent = (
   arr: number[] | number[][] | null | undefined,
@@ -730,4 +758,4 @@ const getQuiverValues = (
   };
 }
 
-export { calculateArrowWidth, calculateMultipleArrows, calculateMultipleArrowsAdaptative, getGlobalMagnitudes, getQuiverValues};
+export { calculateArrowWidth, calculateMultipleArrows, calculateMultipleArrowsAdaptative, getGlobalMagnitudes, getQuiverValues, getVelocityLimits};

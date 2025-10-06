@@ -19,7 +19,7 @@ import { imageZoom, onMouseDownPixelSize, onMouseUpPixelSize, getRelativePointer
 import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks, getOrthoImageDimensions } from './graphsHelpers';
 import { formatNumberToPrecision2, formatNumberToPrecision4, formatNumberTo2Decimals } from './adapterNumbers';
 import { carouselClickImage, carouselKeyDown, setCarouselDimensions } from './carouselFunctions';
-import { calculateArrowWidth, calculateMultipleArrowsAdaptative } from './drawVectorsFunctions';
+import { calculateArrowWidth, calculateMultipleArrowsAdaptative, getVelocityLimits } from './drawVectorsFunctions';
 import {
   createSquare,
   getObliquePointsDistances,
@@ -79,6 +79,7 @@ export {
   getRelativePointerPosition,
   getUnit,
   getValidationRules,
+  getVelocityLimits,
   handleDragLeave,
   handleDragOver,
   imageZoom,

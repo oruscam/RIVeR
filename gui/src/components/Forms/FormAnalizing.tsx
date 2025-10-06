@@ -12,6 +12,8 @@ export const FormAnalizing = () => {
   const [percentage, setPercentage] = React.useState<string>('');
   const [time, setTime] = React.useState<string>('');
 
+  const legend = t('Analizing.remainingTime');
+
   const handleAnalize = () => {
     if (isBackendWorking) return;
     setPercentage('');
@@ -43,7 +45,7 @@ export const FormAnalizing = () => {
       const timeMatch = text.match(/\[(\d{2}:\d{2})<(\d{2}:\d{2})/);
       let newTime = timeMatch ? timeMatch[2] : '';
 
-      if (isBackendWorking === false && quiver !== undefined) {
+      if (isBackendWorking === false && quiver !== null) {
         newPercentage = '100%';
         newTime = '00:00';
       }
@@ -53,7 +55,7 @@ export const FormAnalizing = () => {
       }
 
       if (newTime !== time) {
-        setTime(t('Analizing.remainingTime') + newTime);
+        setTime(legend + newTime);
       }
     };
 

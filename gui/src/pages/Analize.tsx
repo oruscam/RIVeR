@@ -41,7 +41,7 @@ export const Analize = () => {
       <div className="form-container">
         <Progress />
         <FormAnalizing />
-        <WizardButtons onClickNext={handleNext} canFollow={quiver !== undefined}></WizardButtons>
+        <WizardButtons onClickNext={handleNext} canFollow={quiver !== null}></WizardButtons>
       </div>
     </div>
   );

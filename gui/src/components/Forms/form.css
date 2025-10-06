@@ -552,12 +552,6 @@ transform-origin: 14px 22px;
 }
 
 
-#ortho-image-fake-solution{
-    color: transparent;
-    height: 47%;
-    flex-shrink: 0;
-}
-
 .drop-here-text{
     margin-top: 15px;
     font-size: 1.15rem;
@@ -572,48 +566,4 @@ transform-origin: 14px 22px;
     margin: 0px;
     overflow: hidden;
     margin-top: 0px;
-}
-
-@media screen and (max-height : 1400px) {
-    #ortho-image-fake-solution{
-        background-color: red;
-        height: 46%;
-    }
-}
-
-@media screen and (max-height : 1280px) {
-    #ortho-image-fake-solution{
-        height: 42%;
-    }
-}
-
-@media screen and (max-height : 1200px) {
-    #ortho-image-fake-solution{
-        height: 35%;
-    }
-}
-
-@media screen and (max-height : 1150px) {
-    #ortho-image-fake-solution{
-        height: 30%;
-    }
-}
-
-@media screen and (max-height : 1080px) {
-    #ortho-image-fake-solution{
-        height: 22%;
-    }
-}
-
-@media screen and (max-height : 990px) {
-    #ortho-image-fake-solution{
-        height: 16%;
-        
-    }
-}
-
-@media screen and (max-height : 900px) {
-    #ortho-image-fake-solution{
-        height: 10%;
-    }
 }

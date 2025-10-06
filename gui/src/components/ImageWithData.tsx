@@ -55,7 +55,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
     }
     if (prevRef.current.activeImage !== images.active && activeStep === MODULE_NUMBER.PROCESSING) {
       prevRef.current.activeImage = images.active;
-      return { data: prevRef.current.data, min: prevRef.current.min, max: prevRef.current.max };
+      return { data: [], min: 0, max: 0 };
     }
 
     const { data, min, max } = getQuiverValues(quiver, showMedian as boolean, images.active, parameters.step, videoData.fps, transformationMatrix);
@@ -69,7 +69,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
       <img src={paths[active]} className="simple-image" />
       <img src={processing.maskPath} className="mask" />
 
-      { quiver !== null && <ColorBar min={min} max={max} /> }
+      { data.length !== 0 && <ColorBar min={min} max={max} /> }
 
       <Stage
         width={vertical ? widthReduced : width}
