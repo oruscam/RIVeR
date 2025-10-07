@@ -2,7 +2,7 @@
   "name": "river-gui",
   "productName": "RIVeR",
   "private": true,
-  "version": "3.2.0",
+  "version": "3.3.0",
   "type": "module",
   "description": "Software for calculating water discharge from videos using LSPIV technique",
   "author": {
