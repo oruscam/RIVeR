@@ -14,6 +14,7 @@
 [![React Version](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
 [![PyPI version](https://img.shields.io/pypi/v/river-cli.svg)](https://pypi.org/project/river-cli/)
 [![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue)](https://doi.org/10.1016/j.cageo.2017.07.009)
+[![YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?logo=youtube)](https://www.youtube.com/@orus-xm3dn)
 
 ---
 
@@ -55,6 +56,7 @@ please refer to the **[User Manual](user-manual.md)**.
   * UAV/drone aerial imagery
   * Oblique view camera (from riverbank)
   * Fixed station cameras (contiunous monitoring)
+* Drag-and-drop interface for quick video and data imports
 * Frame extraction from videos with customizable parameters
 * FFT-based PIV analysis with multi-pass support for increased accuracy
 * Interactive result visualization with customizable vector fields
