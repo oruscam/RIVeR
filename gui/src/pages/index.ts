@@ -1,25 +1,26 @@
-import { HomePage } from "./HomePage";
-import { FootageMode } from "./FootageMode";
-import { VideoRange } from "./VideoRange";
-import { PixelSize } from "./PixelSize";
-import { CrossSections } from "./CrossSections";
-import { Processing } from "./Processing";
-import { Analize } from "./Analize";
-import { Results } from "./Results";
-import { Report } from "./Report";
-import { Rectification2D } from "./Rectification2D";
-import { Rectification3D } from "./Rectification3D";
+import { HomePage } from './HomePage';
+import { FootageMode } from './FootageMode';
+import { VideoRange } from './VideoRange';
+import { CrossSections } from './CrossSections';
+import { Processing } from './Processing';
+import { Analize } from './Analize';
+import { Results } from './Results';
+import { Report } from './Report';
+import { Uav } from './Uav';
+import { Ipcam } from './Ipcam';
+import { Oblique } from './Oblique';
+
 
 export {
   Analize,
   CrossSections,
   FootageMode,
   HomePage,
-  PixelSize,
+  Ipcam,
+  Oblique,
   Processing,
-  Rectification2D,
-  Rectification3D,
   Report,
   Results,
+  Uav,
   VideoRange,
 };

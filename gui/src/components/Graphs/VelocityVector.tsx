@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
-import "./graphs.css";
-import { useProjectSlice, useSectionSlice, useUiSlice } from "../../hooks";
-import * as d3 from "d3";
-import { drawSvgSectionLine, drawVectors } from "./index";
-import { Section } from "../../store/section/types";
-import { getGlobalMagnitudes } from "../../helpers/drawVectorsFunctions";
+import { useEffect, useMemo, useRef } from 'react';
+import './graphs.css';
+import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import * as d3 from 'd3';
+import { drawSvgSectionLine, drawVectors } from './index';
+import { Section } from '../../store/section/types';
+import { getGlobalMagnitudes } from '../../helpers/drawVectorsFunctions';
 
 interface VelocityVectorProps {
   height: number;
@@ -30,15 +30,14 @@ export const VelocityVector = ({
 
   const { width: imageWidth, height: imageHeight } = video.data;
 
-  useEffect(() => {
-    d3.select(svgRef.current).selectAll("*").remove();
-    const svg = d3.select(svgRef.current as SVGSVGElement);
-    svg
-      .attr("width", width)
-      .attr("height", height)
-      .style("background-color", "transparent");
+  const { max: globalMax, min: globalMin } = useMemo(() => {
+    return getGlobalMagnitudes(sections);
+  }, [sections]);
 
-    const { max: globalMax, min: globalMin } = getGlobalMagnitudes(sections);
+  useEffect(() => {
+    d3.select(svgRef.current).selectAll('*').remove();
+    const svg = d3.select(svgRef.current as SVGSVGElement);
+    svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
 
     sections.forEach((section: Section, index: number) => {
       const { data, interpolated, name, sectionPoints, dirPoints } = section;
@@ -56,7 +55,7 @@ export const VelocityVector = ({
           imageWidth,
           imageHeight,
           globalMin,
-          globalMax,
+          globalMax
         );
         drawSvgSectionLine({
           svgElement: svgRef.current!,
@@ -82,7 +81,7 @@ export const VelocityVector = ({
             imageWidth,
             imageHeight,
             globalMin,
-            globalMax,
+            globalMax
           );
           drawSvgSectionLine({
             svgElement: svgRef.current!,

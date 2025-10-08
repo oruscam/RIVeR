@@ -1,52 +1,53 @@
-import "./form.css";
-import { useDataSlice, useUiSlice } from "../../hooks";
-import { useTranslation } from "react-i18next";
-import { Loading } from "../Loading";
-import React, { useEffect } from "react";
+import './form.css';
+import { useDataSlice, useUiSlice } from '../../hooks';
+import { useTranslation } from 'react-i18next';
+import { Loading } from '../Loading';
+import React, { useEffect } from 'react';
 
 export const FormAnalizing = () => {
-  const { onSetQuiverAll, isBackendWorking, onKillBackend, quiver } =
-    useDataSlice();
+  const { onSetQuiverAll, isBackendWorking, onKillBackend, quiver } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { t } = useTranslation();
 
-  const [percentage, setPercentage] = React.useState<string>("");
-  const [time, setTime] = React.useState<string>("");
+  const [percentage, setPercentage] = React.useState<string>('');
+  const [time, setTime] = React.useState<string>('');
+
+  const legend = t('Analizing.remainingTime');
 
   const handleAnalize = () => {
     if (isBackendWorking) return;
-    setPercentage("");
-    setTime("");
+    setPercentage('');
+    setTime('');
     onSetQuiverAll().catch((error) => onSetErrorMessage(error.message));
   };
 
   const handleStop = async () => {
-    setPercentage("");
-    setTime("");
+    setPercentage('');
+    setTime('');
     const result = await onKillBackend();
     if (result === true) {
-      setPercentage("");
-      setTime("");
+      setPercentage('');
+      setTime('');
     }
   };
 
-  if (isBackendWorking === false && percentage === "97%") {
-    setPercentage("100%");
+  if (isBackendWorking === false && percentage === '97%') {
+    setPercentage('100%');
   }
 
   useEffect(() => {
     const handleRiverCliMessage = (_event: any, text: string) => {
       // Expresión regular para extraer el porcentaje
       const percentageMatch = text.match(/(\d+%)\|/);
-      let newPercentage = percentageMatch ? percentageMatch[1] : "";
+      let newPercentage = percentageMatch ? percentageMatch[1] : '';
 
       // Expresión regular para extraer el tiempo
       const timeMatch = text.match(/\[(\d{2}:\d{2})<(\d{2}:\d{2})/);
-      let newTime = timeMatch ? timeMatch[2] : "";
+      let newTime = timeMatch ? timeMatch[2] : '';
 
-      if (isBackendWorking === false && quiver !== undefined) {
-        newPercentage = "100%";
-        newTime = "00:00";
+      if (isBackendWorking === false && quiver !== null) {
+        newPercentage = '100%';
+        newTime = '00:00';
       }
 
       if (newPercentage !== percentage) {
@@ -54,41 +55,33 @@ export const FormAnalizing = () => {
       }
 
       if (newTime !== time) {
-        setTime(t("Analizing.remainingTime") + newTime);
+        setTime(legend + newTime);
       }
     };
 
-    window.ipcRenderer.on("river-cli-message", handleRiverCliMessage);
+    window.ipcRenderer.on('river-cli-message', handleRiverCliMessage);
 
     // Cleanup function to remove the listener
     return () => {
-      window.ipcRenderer.removeListener(
-        "river-cli-message",
-        handleRiverCliMessage,
-      );
+      window.ipcRenderer.removeListener('river-cli-message', handleRiverCliMessage);
     };
   }, [percentage, time]);
 
   return (
     <>
-      <h1 className="form-title-analizing"> {t("Analizing.title")} </h1>
+      <h1 className="form-title-analizing"> {t('Analizing.title')} </h1>
       <div className="form-base-2" id="form-analizing">
         <div className="input-container-2" id="analize-div">
           <button
-            className={`wizard-button form-button ${isBackendWorking ? "wizard-button-active" : ""}`}
+            className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
             onClick={handleAnalize}
           >
-            {t("Analizing.analize")}
+            {t('Analizing.analize')}
           </button>
         </div>
         <div className="analizing-output">
-          {percentage !== "" && (
-            <Loading
-              percentage={percentage}
-              time={time}
-              size={"big"}
-              isComplete={percentage === "100%"}
-            />
+          {percentage !== '' && (
+            <Loading percentage={percentage} time={time} size={'big'} isComplete={percentage === '100%'} />
           )}
         </div>
         <button
@@ -97,8 +90,8 @@ export const FormAnalizing = () => {
           onClick={handleStop}
           disabled={!isBackendWorking}
         >
-          {" "}
-          {t("Analizing.stop")}{" "}
+          {' '}
+          {t('Analizing.stop')}{' '}
         </button>
       </div>
     </>

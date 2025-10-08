@@ -20,7 +20,13 @@
     },
     "Step-2": {
     "title": "Seleziona il tipo di filmato",
-    "pleaseSelectVideo": "Seleziona un file video"
+    "pleaseSelectVideo": "Seleziona un file video",
+    "invalidFileType": "Tipo di file non valido. Seleziona un file video.",
+    "addYourFootage": "Aggiungi il tuo filmato",
+    "changeType": "Cambia tipo",
+    "dragAndDrop": "Trascina e rilascia qui il tuo file video",
+    "openFolders": "Apri cartella"
+    
     },
     "Wizard": {
         "back": "Indietro",
@@ -64,15 +70,23 @@
             "title": "Coordinate Reali",
             "eastPoint1": "Punto Est 1",
             "eastPoint2": "Punto Est 2",
+            "eastPoint3": "Punto Est 3",
+            "eastPoint4": "Punto Est 4",
             "northPoint1": "Punto Nord 1",
-            "northPoint2": "Punto Nord 2"
+            "northPoint2": "Punto Nord 2",
+            "northPoint3": "Punto Nord 3",
+            "northPoint4": "Punto Nord 4"
         },
         "Pixel": {
             "title": "Coordinate Pixel",
             "xPoint1": "Punto X 1",
             "xPoint2": "Punto X 2",
+            "xPoint3": "Punto X 3",
+            "xPoint4": "Punto X 4",
             "yPoint1": "Punto Y 1",
-            "yPoint2": "Punto Y 2"
+            "yPoint2": "Punto Y 2",
+            "yPoint3": "Punto Y 3",
+            "yPoint4": "Punto Y 4"
         }
     },
     "CrossSections": {
@@ -258,6 +272,7 @@
         "no": "No",
         "solve": "Risolvi",
         "resourceNotFound": "Risorsa non trovata",
-        "randomError": "Qualcosa è andato storto. Riprova"
+        "randomError": "Qualcosa è andato storto. Riprova",
+        "dropHereText": "Rilascia un file in qualsiasi punto di questo pannello. Rileverò automaticamente dove deve andare."
     }
 }

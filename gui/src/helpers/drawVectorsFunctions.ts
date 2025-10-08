@@ -1,4 +1,5 @@
-import { transformRealWorldToPixel } from "./coordinates";
+import { Quiver } from '../store/data/types';
+import { transformPixelToRealWorld, transformRealWorldToPixel } from './coordinates';
 
 /**
  * Calculates the width of an arrow based on the differences between consecutive distances.
@@ -18,8 +19,7 @@ function calculateArrowWidth(distances: number[]): number {
     differences.push(distances[i] - distances[i - 1]);
   }
 
-  let meanDifference =
-    differences.reduce((acc, val) => acc + val, 0) / differences.length;
+  let meanDifference = differences.reduce((acc, val) => acc + val, 0) / differences.length;
 
   let arrow_width = 0.8 * meanDifference;
 
@@ -51,7 +51,7 @@ function calculateArrow(
   east_next: number,
   north_next: number,
   height: number,
-  width = 0.5,
+  width = 0.5
 ) {
   //  Vector to next point
 
@@ -121,7 +121,7 @@ function calculateMultipleArrows(
   magnitudes: (number | null)[],
   transformationMatrix: number[][],
   videoWidth: number,
-  arrowWidth: number = 0.5,
+  arrowWidth: number = 0.5
 ): Array<any> {
   let validIndices: number[] = [];
 
@@ -180,38 +180,25 @@ function calculateMultipleArrows(
   let transformedMaxLength = 0;
 
   for (let i = 0; i < magnitudes_filtered.length - 1; i++) {
-    const base = transformRealWorldToPixel(
-      east_filtered[i],
-      north_filtered[i],
-      transformationMatrix,
-    );
+    const base = transformRealWorldToPixel(east_filtered[i], north_filtered[i], transformationMatrix);
 
     const tip = transformRealWorldToPixel(
-      east_filtered[i] +
-        magnitudes_filtered[i] * (-north_next[i] + north_filtered[i]),
-      north_filtered[i] +
-        magnitudes_filtered[i] * (east_next[i] - east_filtered[i]),
-      transformationMatrix,
+      east_filtered[i] + magnitudes_filtered[i] * (-north_next[i] + north_filtered[i]),
+      north_filtered[i] + magnitudes_filtered[i] * (east_next[i] - east_filtered[i]),
+      transformationMatrix
     );
 
     // Calculate the distance between the base and the tip of the arrow
-    const length = Math.sqrt(
-      Math.pow(tip[0] - base[0], 2) + Math.pow(tip[1] - base[1], 2),
-    );
+    const length = Math.sqrt(Math.pow(tip[0] - base[0], 2) + Math.pow(tip[1] - base[1], 2));
 
     transformedMaxLength = Math.max(transformedMaxLength, length);
   }
 
-  const scaleFactor =
-    transformedMaxLength > 0 ? targetMaxLength / transformedMaxLength : 1.0;
+  const scaleFactor = transformedMaxLength > 0 ? targetMaxLength / transformedMaxLength : 1.0;
 
   let arrows = [];
-  let min_magnitude = Math.min(
-    ...magnitudes_filtered.filter((value) => value !== 0),
-  );
-  let max_magnitude = Math.max(
-    ...magnitudes_filtered.filter((value) => value !== 0),
-  );
+  let min_magnitude = Math.min(...magnitudes_filtered.filter((value) => value !== 0));
+  let max_magnitude = Math.max(...magnitudes_filtered.filter((value) => value !== 0));
   const norm = new Normalize(min_magnitude, max_magnitude);
 
   for (let i = 0; i < magnitudes_filtered.length; i++) {
@@ -224,7 +211,7 @@ function calculateMultipleArrows(
           [0, 0],
           [0, 0],
         ],
-        color: "transparent",
+        color: 'transparent',
       });
       continue;
     }
@@ -235,15 +222,15 @@ function calculateMultipleArrows(
       east_next[i],
       north_next[i],
       magnitudes_filtered[i]! * scaleFactor,
-      arrowWidth,
+      arrowWidth
     );
 
     const transformedPoints = corners_east.map((e: number, index: number) =>
-      transformRealWorldToPixel(e, corners_north[index], transformationMatrix),
+      transformRealWorldToPixel(e, corners_north[index], transformationMatrix)
     );
 
     const normalizedValue = norm.normalize(magnitudes_filtered[i]);
-    let colorIndex = parseInt(normalizedValue * 255 + "");
+    let colorIndex = parseInt(normalizedValue * 255 + '');
     colorIndex = Math.min(Math.max(0, colorIndex), 255);
 
     const color = customColorMap[colorIndex];
@@ -273,7 +260,7 @@ function calculateMultipleArrowsAdaptative(
   globalMax: number,
   maxArrowSizeFraction = 0.15,
   minArrowSizeFraction = 0.02,
-  boundaryMargin = 0.05,
+  boundaryMargin = 0.05
 ) {
   let validIndices: number[] = [];
 
@@ -344,7 +331,6 @@ function calculateMultipleArrowsAdaptative(
 
   const arrows = [];
   for (let i = 0; i < magnitudesFiltered.length; i++) {
-
     if (magnitudesFiltered[i] === 0) {
       arrows.push({
         points: [
@@ -354,17 +340,13 @@ function calculateMultipleArrowsAdaptative(
           [0, 0],
           [0, 0],
         ],
-        color: "transparent",
+        color: 'transparent',
       });
       continue;
     }
 
     // Get base point in pixel coordinates
-    const basePixel = transformRealWorldToPixel(
-      eastFiltered[i],
-      northFiltered[i],
-      transformationMatrix,
-    );
+    const basePixel = transformRealWorldToPixel(eastFiltered[i], northFiltered[i], transformationMatrix);
 
     // Skip if base point is outside the image
     if (
@@ -404,41 +386,25 @@ function calculateMultipleArrowsAdaptative(
     ];
 
     // Transform to pixel coordinates
-    const testTipPixel = transformRealWorldToPixel(
-      testTipReal[0],
-      testTipReal[1],
-      transformationMatrix,
-    );
+    const testTipPixel = transformRealWorldToPixel(testTipReal[0], testTipReal[1], transformationMatrix);
 
     // Calculate pixels per unit magnitude
-    const pixelsPerUnit = Math.sqrt(
-      (testTipPixel[0] - basePixel[0]) ** 2 +
-        (testTipPixel[1] - basePixel[1]) ** 2,
-    );
+    const pixelsPerUnit = Math.sqrt((testTipPixel[0] - basePixel[0]) ** 2 + (testTipPixel[1] - basePixel[1]) ** 2);
 
     // Adaptative scale factor based on position in image
     // Will be higher near image edges
-    const edgeDistanceX =
-      Math.min(basePixel[0], imageWidth - basePixel[0]) / (imageWidth / 2);
-    const edgeDistanceY =
-      Math.min(basePixel[1], imageHeight - basePixel[1]) / (imageHeight / 2);
+    const edgeDistanceX = Math.min(basePixel[0], imageWidth - basePixel[0]) / (imageWidth / 2);
+    const edgeDistanceY = Math.min(basePixel[1], imageHeight - basePixel[1]) / (imageHeight / 2);
     const edgeDistance = Math.min(edgeDistanceX, edgeDistanceY);
 
     // Scale inversely with distance to edge ( closer to edge = sameller arrows )
     const edgeFactor = Math.max(0.3, Math.min(edgeDistance, 1));
 
     // Scale based on magnitude relative to the range
-    const magnitudeNormalized =
-      (magnitudesFiltered[i]! - minMagnitude) / (maxMagnitude - minMagnitude);
+    const magnitudeNormalized = (magnitudesFiltered[i]! - minMagnitude) / (maxMagnitude - minMagnitude);
 
     // Calculate arrow length in pixels
-    let pixelLength = interpolate(
-      magnitudeNormalized,
-      0,
-      1,
-      minTargetLength,
-      maxTargetLength,
-    );
+    let pixelLength = interpolate(magnitudeNormalized, 0, 1, minTargetLength, maxTargetLength);
 
     // Apply edge factor adjustment
     pixelLength *= edgeFactor;
@@ -457,21 +423,17 @@ function calculateMultipleArrowsAdaptative(
       eastNext[i],
       northNext[i],
       magnitudesFiltered[i]! * Math.abs(scaleFactor),
-      width,
+      width
     );
 
     // Transform to pixel coordinates
     const transformedPoints = cornersEast.map((e: number, index: number) =>
-      transformRealWorldToPixel(e, cornersNorth[index], transformationMatrix),
+      transformRealWorldToPixel(e, cornersNorth[index], transformationMatrix)
     );
 
     // Check if arrow extends outside image boundaries
     let pointsWithinBounds = transformedPoints.every(
-      (point) =>
-        point[0] >= 0 &&
-        point[0] < imageWidth &&
-        point[1] >= 0 &&
-        point[1] < imageHeight,
+      (point) => point[0] >= 0 && point[0] < imageWidth && point[1] >= 0 && point[1] < imageHeight
     );
 
     if (pointsWithinBounds === false) {
@@ -484,24 +446,16 @@ function calculateMultipleArrowsAdaptative(
           eastNext[i],
           northNext[i],
           magnitudesFiltered[i]! * Math.abs(scaleFactor) * Math.abs(reduction),
-          width,
+          width
         );
 
         // Transform to pixel coordinates
         const transformedPoints = cornersEast.map((e: number, index: number) =>
-          transformRealWorldToPixel(
-            e,
-            cornersNorth[index],
-            transformationMatrix,
-          ),
+          transformRealWorldToPixel(e, cornersNorth[index], transformationMatrix)
         );
 
         pointsWithinBounds = transformedPoints.every(
-          (point) =>
-            point[0] >= 0 &&
-            point[0] < imageWidth &&
-            point[1] >= 0 &&
-            point[1] < imageHeight,
+          (point) => point[0] >= 0 && point[0] < imageWidth && point[1] >= 0 && point[1] < imageHeight
         );
 
         if (pointsWithinBounds === true) {
@@ -515,9 +469,7 @@ function calculateMultipleArrowsAdaptative(
     }
 
     // Get color based on magnitude
-    const colorIndex = parseInt(
-      norm.normalize(magnitudesFiltered[i]!) * 255 + "",
-    );
+    const colorIndex = parseInt(norm.normalize(magnitudesFiltered[i]!) * 255 + '');
     const color = customColorMap[Math.min(Math.max(0, colorIndex), 255)];
 
     arrows.push({
@@ -544,7 +496,7 @@ function calculateMultipleArrowsAdaptative(
  * @returns {string[]} An array of RGB color strings representing the custom colormap.
  */
 
-function createColorMap() {
+function createColorMap(): string[] {
   const colors = [
     [108, 212, 255], // Light Blue - Lowest
     [98, 198, 85], // Green - Low-mid
@@ -564,9 +516,7 @@ function createColorMap() {
   // For each color segment
   for (let i = 0; i < colors.length - 1; i++) {
     // Find indices for this segment
-    const mask = linspaceBins.map(
-      (value) => value >= colorPositions[i] && value <= colorPositions[i + 1],
-    );
+    const mask = linspaceBins.map((value) => value >= colorPositions[i] && value <= colorPositions[i + 1]);
 
     // Calculate position within segment
     const segmentPositions = linespace(0, 1, mask.filter(Boolean).length);
@@ -575,27 +525,9 @@ function createColorMap() {
     let segmentIndex = 0;
     for (let j = 0; j < nBins; j++) {
       if (mask[j]) {
-        R[j] = interpolate(
-          segmentPositions[segmentIndex],
-          0,
-          1,
-          colors[i][0],
-          colors[i + 1][0],
-        );
-        G[j] = interpolate(
-          segmentPositions[segmentIndex],
-          0,
-          1,
-          colors[i][1],
-          colors[i + 1][1],
-        );
-        B[j] = interpolate(
-          segmentPositions[segmentIndex],
-          0,
-          1,
-          colors[i][2],
-          colors[i + 1][2],
-        );
+        R[j] = interpolate(segmentPositions[segmentIndex], 0, 1, colors[i][0], colors[i + 1][0]);
+        G[j] = interpolate(segmentPositions[segmentIndex], 0, 1, colors[i][1], colors[i + 1][1]);
+        B[j] = interpolate(segmentPositions[segmentIndex], 0, 1, colors[i][2], colors[i + 1][2]);
         segmentIndex++;
       }
     }
@@ -641,13 +573,7 @@ function zeros(length: number): number[] {
  * @param y1 - The value at the end of the range.
  * @returns The interpolated value.
  */
-function interpolate(
-  x: number,
-  x0: number,
-  x1: number,
-  y0: number,
-  y1: number,
-): number {
+function interpolate(x: number, x0: number, x1: number, y0: number, y1: number): number {
   return y0 + ((x - x0) * (y1 - y0)) / (x1 - x0);
 }
 
@@ -685,20 +611,21 @@ class Normalize {
   }
 }
 
+/**
+ * Get global maximum and minimum magnitudes across all sections. 
+ */
 const getGlobalMagnitudes = (sections: any) => {
   let max = 0;
   let min = 0;
 
   for (let i = 0; i < sections.length; i++) {
     const { data } = sections[i];
-    if ( data === undefined ) {
-      continue
+    if (data === undefined) {
+      continue;
     }
     const { activeMagnitude } = data;
 
-    const filteredMagnitude = activeMagnitude.filter(
-      (value: number) => value !== null && !isNaN(value as number),
-    );
+    const filteredMagnitude = activeMagnitude.filter((value: number) => value !== null && !isNaN(value as number));
 
     max = Math.max(max, ...filteredMagnitude);
     min = Math.min(min, ...filteredMagnitude);
@@ -709,10 +636,126 @@ const getGlobalMagnitudes = (sections: any) => {
     min: min,
   };
 };
+/**
+ * Get velocity limits for a specific section.
+ * @param sections - Section[]
+ * @param active - number
+ * @returns - {max: number, min: number}
+ */
+const getVelocityLimits = (sections, active) => {
+  let max = 0;
+  let min = 0;
+  
+  if (sections.length === 0) {
+    return { max, min };
+  }
+  const { data } = sections[active];
+  if (data === undefined) {
+    return { max, min };
+  }
+  const { activeMagnitude } = data;
+  
+  const filteredMagnitude = activeMagnitude.filter((value: number) => value !== null && !isNaN(value as number));
+  max = Math.max(max, ...filteredMagnitude);
+  min = Math.min(min, ...filteredMagnitude);
+  
+  return { max, min };
+}
 
-export {
-  calculateArrowWidth,
-  calculateMultipleArrows,
-  calculateMultipleArrowsAdaptative,
-  getGlobalMagnitudes,
+const getComponent = (
+  arr: number[] | number[][] | null | undefined,
+  median: number[] | null | undefined,
+  showMedian: boolean,
+  activeImage: number,
+  index: number
+) => {
+  if (showMedian) return median ? median[index] : null;
+
+  if (Array.isArray(arr)) {
+    return Array.isArray(arr[0])
+      ? (arr as number[][])[activeImage]?.[index] ?? null
+      : (arr as number[])[index] ?? null;
+  }
+
+  return null;
 };
+
+export interface QuiverData {
+  x: number;
+  y: number;
+  u: number;
+  v: number;
+  velocity: number;
+  color: string;
+}
+
+interface QuiverValuesResult {
+  data: QuiverData[];
+  min: number;
+  max: number;
+}
+
+const getQuiverValues = (
+  quiver: Quiver,
+  showMedian: boolean,
+  activeImage: number,
+  step: number,
+  fps: number,
+  transformationMatrix: number[][]
+): QuiverValuesResult => {
+  const { x, y: yArray, u: uArray, v: vArray, u_median, v_median } = quiver;
+
+  let data = x.map((d, i: number) => {
+    const u = getComponent(uArray, u_median, showMedian, activeImage, i);
+    const v = getComponent(vArray, v_median, showMedian, activeImage, i);
+
+    const x = d ?? 0;
+    const y = yArray[i] ?? 0;
+    
+    const [x0, y0] = transformPixelToRealWorld(x, y, transformationMatrix);
+    const [x1, y1] = transformPixelToRealWorld(x + (u ?? 0), y + (v ?? 0), transformationMatrix);
+
+    const dx = x1 - x0;
+    const dy = y1 - y0;
+
+    // Only include if both u and v are valid numbers
+    if (u !== null && !isNaN(u) && v !== null && !isNaN(v)) {
+      const velocity = Math.sqrt(dx ** 2 + dy ** 2) / (step / fps);
+      return {
+        x: x,
+        y: y,
+        u: u,
+        v: v,
+        velocity: velocity,
+        color: 'transparent', // Add default color property to satisfy QuiverData interface
+      };
+    }
+    return null;
+  }).filter((d): d is QuiverData => d !== null);
+
+  const minVelocity = Math.min(...data.map(d => d.velocity ?? Infinity));
+  const maxVelocity = Math.max(...data.map(d => d.velocity ?? -Infinity));
+
+  const norm = new Normalize(minVelocity, maxVelocity);
+
+  const colorMap = createColorMap();
+
+  data = data.map((d) => {
+    const normalizedValue = norm.normalize(d.velocity!);
+    
+    const colorIndex = Math.min(Math.floor(normalizedValue * (colorMap.length - 1)), colorMap.length - 1);
+    return {
+      ...d,
+      color: colorMap[colorIndex],
+    }
+  })
+
+  
+  return {
+    data: data,
+    min: minVelocity,
+    max: maxVelocity
+  };
+}
+
+export { calculateArrowWidth, calculateMultipleArrows, calculateMultipleArrowsAdaptative, getGlobalMagnitudes, getQuiverValues, getVelocityLimits};

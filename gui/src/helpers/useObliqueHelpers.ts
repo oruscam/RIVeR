@@ -1,6 +1,6 @@
-import { FieldValues } from "react-hook-form";
-import { Point } from "../types";
-import { getDistanceBetweenPoints } from "./coordinates";
+import { FieldValues } from 'react-hook-form';
+import { Point } from '../types';
+import { getDistanceBetweenPoints } from './coordinates';
 
 /**
  * Creates a square given two diagonal points.
@@ -11,15 +11,9 @@ import { getDistanceBetweenPoints } from "./coordinates";
  * @returns An array of four points representing the vertices of the square.
  */
 
-function createSquare(
-  point1: Point,
-  point2: Point,
-  imageWidth: number,
-  imageHeight: number,
-): Point[] {
-
-  if ( point1.x === point2.x && point1.y === point2.y ) {
-    point2.x += -75
+function createSquare(point1: Point, point2: Point, imageWidth: number, imageHeight: number): Point[] {
+  if (point1.x === point2.x && point1.y === point2.y) {
+    point2.x += -75;
   }
 
   // Calculate the vector of the line connecting the two points
@@ -46,30 +40,20 @@ function createSquare(
 
   // Calculate the coordinates of the other two vertices of the square
   const point3: Point = {
-    x: Math.max(
-      leftLimit,
-      Math.min(point2.x - unitPerpDx * length, rightLimit),
-    ),
-    y: Math.max(
-      topLimit,
-      Math.min(point2.y - unitPerpDy * length, bottomLimit),
-    ),
+    x: Math.max(leftLimit, Math.min(point2.x - unitPerpDx * length, rightLimit)),
+    y: Math.max(topLimit, Math.min(point2.y - unitPerpDy * length, bottomLimit)),
   };
 
   const point4: Point = {
-    x: Math.max(
-      leftLimit,
-      Math.min(point1.x - unitPerpDx * length, rightLimit),
-    ),
-    y: Math.max(
-      topLimit,
-      Math.min(point1.y - unitPerpDy * length, bottomLimit),
-    ),
+    x: Math.max(leftLimit, Math.min(point1.x - unitPerpDx * length, rightLimit)),
+    y: Math.max(topLimit, Math.min(point1.y - unitPerpDy * length, bottomLimit)),
   };
 
   // Return the four points that form the square
   return [point1, point2, point3, point4];
 }
+
+// Calculates the distances between the points of the oblique square
 
 function getObliquePointsDistances(coordinates: Point[]) {
   const d12 = getDistanceBetweenPoints([coordinates[0], coordinates[1]]);
@@ -89,19 +73,26 @@ function getObliquePointsDistances(coordinates: Point[]) {
   };
 }
 
+// Adapts the distances from the form to a more usable format
+
 function adapterObliquePointsDistances(distances: FieldValues) {
   return {
-    d12: parseFloat(distances.distance_12),
-    d23: parseFloat(distances.distance_23),
-    d34: parseFloat(distances.distance_34),
-    d41: parseFloat(distances.distance_41),
-    d13: parseFloat(distances.distance_13),
-    d24: parseFloat(distances.distance_24),
+    d12: parseFloat(distances.distance12),
+    d23: parseFloat(distances.distance23),
+    d34: parseFloat(distances.distance34),
+    d41: parseFloat(distances.distance41),
+    d13: parseFloat(distances.distance13),
+    d24: parseFloat(distances.distance24),
   };
 }
 
-export {
-  createSquare,
-  getObliquePointsDistances,
-  adapterObliquePointsDistances,
-};
+// Adjust coordinates to the real size of the image
+
+function adjustCoordinates(coordinates: Point[], factor: number): Point[] {
+  return coordinates.map((point) => ({
+    x: point.x * factor,
+    y: point.y * factor,
+  }));
+}
+
+export { createSquare, getObliquePointsDistances, adapterObliquePointsDistances, adjustCoordinates };

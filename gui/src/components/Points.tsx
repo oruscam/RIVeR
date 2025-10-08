@@ -1,10 +1,10 @@
-import { Group, Image, Text } from "react-konva";
-import { pinRed, pinGreen, pin } from "../assets/icons/icons";
-import useImage from "use-image";
-import { KonvaEventObject } from "konva/lib/Node";
-import { COLORS, MARKS, MODULE_NUMBER } from "../constants/constants";
-import { useWizard } from "react-use-wizard";
-import { CanvasPoint } from "../types";
+import { Group, Image, Text } from 'react-konva';
+import { pinRed, pinGreen, pin } from '../assets/icons/icons';
+import useImage from 'use-image';
+import { KonvaEventObject } from 'konva/lib/Node';
+import { COLORS, MARKS, MODULE_NUMBER } from '../constants/constants';
+import { useWizard } from 'react-use-wizard';
+import { CanvasPoint } from '../types';
 
 interface PointsProps {
   localPoints: { x: number; y: number }[];
@@ -35,7 +35,7 @@ export const Points = ({
   const handleCursorEnter = (event: KonvaEventObject<MouseEvent>) => {
     const stage = event.target.getStage();
     if (stage && draggable) {
-      stage.container().style.cursor = "move";
+      stage.container().style.cursor = 'move';
     }
   };
 
@@ -43,7 +43,7 @@ export const Points = ({
   const handleCursorLeave = (event: KonvaEventObject<MouseEvent>) => {
     const stage = event.target.getStage();
     if (stage) {
-      stage.container().style.cursor = "default";
+      stage.container().style.cursor = 'default';
     }
   };
 
@@ -53,15 +53,12 @@ export const Points = ({
       const newPoints = [...localPoints];
       newPoints[index] = { x: event.target.x(), y: event.target.y() };
 
-      if (module === "pixelSize" || module === "contolPoints") {
+      if (module === 'pixelSize' || module === 'oblique') {
         setLocalPoints(newPoints);
         return;
       }
       if (setPointsInStore) {
-        setPointsInStore(
-          { points: newPoints, factor, index, mode: "only-pixel" },
-          null,
-        );
+        setPointsInStore({ points: newPoints, factor, index, mode: 'only-pixel' }, null);
       }
     }
   };
@@ -79,14 +76,14 @@ export const Points = ({
 
   const getIcon = (index: number) => {
     switch (module) {
-      case "pixelSize":
+      case 'pixelSize':
         return icon;
 
-      case "xSections":
+      case 'xSections':
         if (index === 0) return iconRed;
         return iconGreen;
 
-      case "controlPoints":
+      case 'oblique':
         if (index === 0) return iconRed;
         return icon;
     }
@@ -111,17 +108,13 @@ export const Points = ({
             onDragMove={(event) => handleDragMove(event, index)}
             onDragEnd={(event) => handleDragEnd(event, index)}
           />
-          {activeStep === MODULE_NUMBER.PIXEL_SIZE && (
+          {activeStep === MODULE_NUMBER.PIXEL_SIZE&& (
             <Text
               x={point.x - MARKS.NUMBER_OFFSET_X / resizeFactor}
               y={point.y - MARKS.NUMBER_OFFSET_Y / resizeFactor}
               text={(index + 1).toString()}
               fontSize={MARKS.NUMBER_FONT_SIZE / resizeFactor}
-              fill={
-                index === 0 && module === "controlPoints"
-                  ? COLORS.MARK_L
-                  : COLORS.MARK_R
-              }
+              fill={index === 0 && module === 'oblique' ? COLORS.MARK_L : COLORS.MARK_R}
               fontStyle="bold"
               listening={false}
             />
@@ -130,7 +123,7 @@ export const Points = ({
             <Text
               x={point.x - MARKS.NUMBER_OFFSET_X / resizeFactor}
               y={point.y - MARKS.NUMBER_OFFSET_Y / resizeFactor}
-              text={index === 0 ? "L" : "R"}
+              text={index === 0 ? 'L' : 'R'}
               fontSize={MARKS.LETTER_FONT_SIZE / resizeFactor}
               fill={index === 0 ? COLORS.MARK_L : COLORS.MARK_R}
               fontStyle="bold"

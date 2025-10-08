@@ -1,29 +1,30 @@
-import { Error } from "./Error";
-import { Icon } from "./Icon";
-import { LanguageSelector } from "./LanguageSelector";
-import { ThemeToggle } from "./ThemeToggle";
-import { WizardButtons } from "./WizzardButtons";
-import { LineAndText } from "./LineAndText";
-import { Points } from "./Points";
-import { ImageWithMarks } from "./ImageWithMarks";
-import { Loading } from "./Loading";
-import { Progress } from "./Progress";
-import { ImageWithData } from "./ImageWithData";
-import { DrawSections } from "./DrawSections";
-import { Carousel } from "./Carousel";
-import { Grid } from "./Grid";
-import { SectionsHeader } from "./SectionsHeader";
-import { Results } from "./Results";
-import { ImageRectification2D } from "./ImageRectification2D";
-import { ObliquePointsLines } from "./ObliquePointsLines";
-import { IpcamGrid } from "./IpcamGrid";
-import { ImageRectification3D } from "./ImageRectification3D";
-import { PointsRectification3D } from "./PointsRectification3D";
-import { Ellipses } from "./Ellipses";
-import { RedPoints } from "./RedPoints";
-import { ImagePixelSize } from "./ImagePixelSize";
-import { VersionMessage } from "./VersionMessage";
-import { Clipboard } from "./Clipboard";
+import { Error } from './Error';
+import { Icon } from './Icon';
+import { LanguageSelector } from './LanguageSelector';
+import { ThemeToggle } from './ThemeToggle';
+import { WizardButtons } from './WizzardButtons';
+import { LineAndText } from './LineAndText';
+import { Points } from './Points';
+import { ImageWithMarks } from './ImageWithMarks';
+import { Loading } from './Loading';
+import { Progress } from './Progress';
+import { ImageWithData } from './ImageWithData';
+import { DrawSections } from './DrawSections';
+import { Carousel } from './Carousel';
+import { Grid } from './Grid';
+import { SectionsHeader } from './SectionsHeader';
+import { Results } from './Results';
+import { ObliquePointsLines } from './ObliquePointsLines';
+import { IpcamGrid } from './IpcamGrid';
+import { Ellipses } from './Ellipses';
+import { RedPoints } from './RedPoints';
+import { VersionMessage } from './VersionMessage';
+import { Clipboard } from './Clipboard';
+import { ColorBar } from './ColorBar';
+import { ImageIpcam } from './ImageIpcam';
+import { ImageOblique } from './ImageOblique';
+import { ImageUav } from './ImageUav';
+import { PointsIpcam } from './PointsIpcam';
 
 export {
   Carousel,
@@ -31,11 +32,12 @@ export {
   DrawSections,
   Ellipses,
   Error,
+  ColorBar,
   Grid,
   Icon,
-  ImagePixelSize,
-  ImageRectification2D,
-  ImageRectification3D,
+  ImageIpcam,
+  ImageOblique,
+  ImageUav,
   ImageWithData,
   ImageWithMarks,
   IpcamGrid,
@@ -44,7 +46,7 @@ export {
   Loading,
   ObliquePointsLines,
   Points,
-  PointsRectification3D,
+  PointsIpcam,
   Progress,
   RedPoints,
   Results,

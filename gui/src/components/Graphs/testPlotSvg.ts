@@ -1,5 +1,5 @@
-import * as d3 from "d3";
-import { COLORS } from "../../constants/constants";
+import * as d3 from 'd3';
+import { COLORS } from '../../constants/constants';
 
 /**
  * Generates a plot within an SVG element using D3.js.
@@ -27,12 +27,16 @@ export const testPlotSvg = ({
   t: (key: string) => string;
 }) => {
   // Clear any existing content in the SVG element
-  d3.select(svgElement).selectAll("*").remove();
+  d3.select(svgElement).selectAll('*').remove();
   const svg = d3.select(svgElement);
 
+  console.log('quiver', quiver)
+
+  // return null
+
   // Get the width and height of the SVG element
-  const width = +svg.attr("width");
-  const height = +svg.attr("height");
+  const width = +svg.attr('width');
+  const height = +svg.attr('height');
 
   // Define margins for the plot
   const margin = { top: 5, right: 40, bottom: 40, left: 40 };
@@ -75,74 +79,74 @@ export const testPlotSvg = ({
   const xAxisGrid = d3
     .axisBottom(xScale)
     .tickSize(-height + margin.top + margin.bottom)
-    .tickFormat("");
+    .tickFormat('');
   const yAxisGrid = d3
     .axisLeft(yScale)
     .tickSize(-width + margin.left + margin.right)
-    .tickFormat("");
+    .tickFormat('');
 
   // Append x-axis grid lines to the SVG
   svg
-    .append("g")
-    .attr("class", "x grid")
-    .attr("transform", `translate(0,${height - margin.bottom})`)
-    .attr("opacity", 0.2)
+    .append('g')
+    .attr('class', 'x grid')
+    .attr('transform', `translate(0,${height - margin.bottom})`)
+    .attr('opacity', 0.2)
     .call(xAxisGrid);
 
   // Append y-axis grid lines to the SVG
   svg
-    .append("g")
-    .attr("class", "y grid")
-    .attr("transform", `translate(${margin.left},0)`)
-    .attr("opacity", 0.2)
+    .append('g')
+    .attr('class', 'y grid')
+    .attr('transform', `translate(${margin.left},0)`)
+    .attr('opacity', 0.2)
     .call(yAxisGrid);
 
   // Define clip path
   svg
-    .append("defs")
-    .append("clipPath")
-    .attr("id", "clip")
-    .append("rect")
-    .attr("x", margin.left - 10)
-    .attr("y", margin.top - 10)
-    .attr("width", width - margin.left - margin.right + 20)
-    .attr("height", height - margin.top - margin.bottom + 20);
+    .append('defs')
+    .append('clipPath')
+    .attr('id', 'clip')
+    .append('rect')
+    .attr('x', margin.left - 10)
+    .attr('y', margin.top - 10)
+    .attr('width', width - margin.left - margin.right + 20)
+    .attr('height', height - margin.top - margin.bottom + 20);
 
   // Create scatter plot circles with clip path and interaction
   svg
-    .append("g")
-    .attr("clip-path", "url(#clip)")
-    .selectAll("circle")
+    .append('g')
+    .attr('clip-path', 'url(#clip)')
+    .selectAll('circle')
     .data(u.map((d, i) => ({ u: d, v: v[i] })))
     .enter()
-    .append("circle")
-    .attr("cx", (d) => xScale(d.u))
-    .attr("cy", (d) => yScale(d.v))
-    .attr("r", 3)
-    .attr("fill", COLORS.BLUE_WITH_TRANSPARENCY)
-    .on("mouseover", function (_event, d) {
-      d3.select(this).attr("r", 6);
+    .append('circle')
+    .attr('cx', (d) => xScale(d.u))
+    .attr('cy', (d) => yScale(d.v))
+    .attr('r', 3)
+    .attr('fill', COLORS.BLUE_WITH_TRANSPARENCY)
+    .on('mouseover', function (_event, d) {
+      d3.select(this).attr('r', 6);
       svg
-        .append("text")
-        .attr("id", "tooltip-u")
-        .attr("x", xScale(d.u) + 15)
-        .attr("y", yScale(d.v) - 10)
-        .attr("font-size", 16)
-        .attr("fill", "white")
+        .append('text')
+        .attr('id', 'tooltip-u')
+        .attr('x', xScale(d.u) + 15)
+        .attr('y', yScale(d.v) - 10)
+        .attr('font-size', 16)
+        .attr('fill', 'white')
         .text(`u: ${d.u.toFixed(2)}px`);
       svg
-        .append("text")
-        .attr("id", "tooltip-v")
-        .attr("x", xScale(d.u) + 15)
-        .attr("y", yScale(d.v) + 8)
-        .attr("font-size", 16)
-        .attr("fill", "white")
+        .append('text')
+        .attr('id', 'tooltip-v')
+        .attr('x', xScale(d.u) + 15)
+        .attr('y', yScale(d.v) + 8)
+        .attr('font-size', 16)
+        .attr('fill', 'white')
         .text(`v: ${d.v.toFixed(2)}px`);
     })
-    .on("mouseout", function () {
-      d3.select(this).attr("r", 3).attr("fill", COLORS.BLUE);
-      svg.select("#tooltip-u").remove();
-      svg.select("#tooltip-v").remove();
+    .on('mouseout', function () {
+      d3.select(this).attr('r', 3).attr('fill', COLORS.BLUE);
+      svg.select('#tooltip-u').remove();
+      svg.select('#tooltip-v').remove();
     });
 
   // Density plot
@@ -154,55 +158,55 @@ export const testPlotSvg = ({
     .bandwidth(25)(u.map((d: number, i: number) => ({ u: d, v: v[i] })));
 
   svg
-    .selectAll("path")
+    .selectAll('path')
     .data(densityData)
     .enter()
-    .append("path")
-    .attr("d", d3.geoPath())
-    .attr("fill", "none")
-    .attr("stroke", "white")
-    .attr("stroke-width", 1)
-    .attr("opacity", 0.3)
-    .attr("clip-path", "url(#clip)");
+    .append('path')
+    .attr('d', d3.geoPath())
+    .attr('fill', 'none')
+    .attr('stroke', 'white')
+    .attr('stroke-width', 1)
+    .attr('opacity', 0.3)
+    .attr('clip-path', 'url(#clip)');
 
   // Append x-axis to the SVG
   svg
-    .append("g")
-    .attr("transform", `translate(0,${yScale(0)})`)
+    .append('g')
+    .attr('transform', `translate(0,${yScale(0)})`)
     .call(d3.axisBottom(xScale).ticks(6).tickSizeOuter(0))
-    .attr("stroke-width", 0.6)
-    .attr("stroke-dasharray", "4,2");
+    .attr('stroke-width', 0.6)
+    .attr('stroke-dasharray', '4,2');
 
   // Append y-axis to the SVG
   svg
-    .append("g")
-    .attr("transform", `translate(${xScale(0)},0)`)
+    .append('g')
+    .attr('transform', `translate(${xScale(0)},0)`)
     .call(d3.axisLeft(yScale).ticks(6).tickSizeOuter(0))
-    .attr("stroke-width", 0.6)
-    .attr("stroke-dasharray", "4,2");
+    .attr('stroke-width', 0.6)
+    .attr('stroke-dasharray', '4,2');
 
   // Append x-axis label to the SVG
   svg
-    .append("text")
-    .attr("x", width / 2 + 40)
-    .attr("y", height - 6)
-    .attr("dy", -4)
-    .attr("text-anchor", "end")
-    .attr("font-size", 16)
-    .attr("fill", "white")
-    .attr("font-weight", "600")
-    .text(t("Processing.Plot.u"));
+    .append('text')
+    .attr('x', width / 2 + 40)
+    .attr('y', height - 6)
+    .attr('dy', -4)
+    .attr('text-anchor', 'end')
+    .attr('font-size', 16)
+    .attr('fill', 'white')
+    .attr('font-weight', '600')
+    .text(t('Processing.Plot.u'));
 
   // Append y-axis label to the SVG
   svg
-    .append("text")
-    .attr("x", -height / 2 + 40)
-    .attr("y", margin.left / 2)
-    .attr("dy", -4)
-    .attr("text-anchor", "middle")
-    .attr("font-size", 16)
-    .attr("fill", "white")
-    .attr("font-weight", "600")
-    .attr("transform", "rotate(-90)")
-    .text(t("Processing.Plot.v"));
+    .append('text')
+    .attr('x', -height / 2 + 40)
+    .attr('y', margin.left / 2)
+    .attr('dy', -4)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', 16)
+    .attr('fill', 'white')
+    .attr('font-weight', '600')
+    .attr('transform', 'rotate(-90)')
+    .text(t('Processing.Plot.v'));
 };

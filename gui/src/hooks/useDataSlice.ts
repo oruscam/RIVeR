@@ -3,24 +3,24 @@
  * @description: This hook is used to interact with the data slice of the store
  */
 
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../store/store";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../store/store';
 import {
   updateProcessingPar,
   setActiveImage,
   updateProcessingForm,
-  setBackendWorkingFlag,
+  setBackendWorking,
   setQuiver,
   setProcessingMask,
   setDataLoaded,
   setImages,
   setDefaultDataState,
-} from "../store/data/dataSlice";
-import { clearMessage, setLoading, setMessage } from "../store/ui/uiSlice";
-import { setSectionData, setSummary } from "../store/section/sectionSlice";
-import { CliError } from "../errors/errors";
-import { useTranslation } from "react-i18next";
-import { verifyWindowsSizes } from "../helpers";
+} from '../store/data/dataSlice';
+import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
+import { setSectionData, setSummary } from '../store/section/sectionSlice';
+import { CliError } from '../errors/errors';
+import { useTranslation } from 'react-i18next';
+import { verifyWindowsSizes } from '../helpers';
 
 /**
  * @returns - Object with the methods and attributes to interact with the data slice
@@ -28,23 +28,16 @@ import { verifyWindowsSizes } from "../helpers";
 
 export const useDataSlice = () => {
   const dispatch = useDispatch();
-  const {
-    processing,
-    images,
-    quiver,
-    isBackendWorking,
-    isDataLoaded,
-    hasChanged,
-  } = useSelector((state: RootState) => state.data);
-  const { sections, activeSection } = useSelector(
-    (state: RootState) => state.section,
+  const { processing, images, quiver, isBackendWorking, isDataLoaded, hasChanged } = useSelector(
+    (state: RootState) => state.data
   );
+  const { sections, activeSection } = useSelector((state: RootState) => state.section);
   const { video } = useSelector((state: RootState) => state.project);
 
   const { t } = useTranslation();
 
   let filePrefix = import.meta.env.VITE_FILE_PREFIX;
-  filePrefix = filePrefix === undefined ? "" : filePrefix;
+  filePrefix = filePrefix === undefined ? '' : filePrefix;
 
   interface ProcessingValues {
     artificialSeeding?: boolean;
@@ -76,8 +69,8 @@ export const useDataSlice = () => {
       const typedKey = key as keyof ProcessingValues;
       if (value[typedKey] !== undefined) {
         updatedForm[typedKey] = value[typedKey];
-        if (typedKey === "step1") {
-          updatedForm["step2"] = value[typedKey] / 2;
+        if (typedKey === 'step1') {
+          updatedForm['step2'] = value[typedKey] / 2;
         }
       }
     });
@@ -107,7 +100,7 @@ export const useDataSlice = () => {
    */
 
   const onSetQuiverTest = async () => {
-    dispatch(setBackendWorkingFlag(true));
+    dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
     const { bbox, form } = processing;
     const { paths, active } = images;
@@ -119,35 +112,34 @@ export const useDataSlice = () => {
         throw new Error(result.message);
       }
 
-      const { data, error } = await ipcRenderer.invoke("get-quiver-test", {
+      const { data, error } = await ipcRenderer.invoke('get-quiver-test', {
         framesToTest: framesToTest,
         formValues: form,
       });
 
       if (error?.message) {
         throw new Error(error.message);
-      } else {
-        dispatch(
-          setQuiver({
-            quiver: {
-              x: data.x,
-              y: data.y,
-              u: data.u,
-              v: data.v,
-              typevector: data.typevector,
-              u_median: data.u_median,
-              v_median: data.v_median,
-              test: true,
-            },
-            test: true,
-          }),
-        );
       }
+      dispatch(
+        setQuiver({
+          quiver: {
+            x: data.x,
+            y: data.y,
+            u: data.u,
+            v: data.v,
+            typevector: data.typevector,
+            u_median: data.u_median,
+            v_median: data.v_median,
+            test: true,
+          },
+        })
+      );
+      
 
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
     } catch (error) {
       console.log(error);
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
       if (error instanceof Error) {
         throw new CliError(error.message, t);
       }
@@ -163,9 +155,8 @@ export const useDataSlice = () => {
    */
 
   const onSetQuiverAll = async () => {
-    dispatch(setBackendWorkingFlag(true));
+    dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
-
     try {
       const { bbox, form } = processing;
       const result = verifyWindowsSizes(form.step1, bbox ? bbox : false);
@@ -173,35 +164,32 @@ export const useDataSlice = () => {
         throw new Error(result.message);
       }
 
-      const { data, error } = await ipcRenderer.invoke("get-quiver-all", {
+      const { data, error } = await ipcRenderer.invoke('get-quiver-all', {
         formValues: processing.form,
       });
       if (error?.message) {
         console.log(error.message);
-        console.log("Process was killed" === error.message);
-        if (error.message === "Process was killed") return;
+        if (error.message === 'Process was killed') return;
         throw new Error(error.message);
-      } else {
-        const { x, y, u, v, typevector, u_median, v_median } = data;
-        dispatch(
-          setQuiver({
-            quiver: {
-              x: x,
-              y: y,
-              u: u,
-              v: v,
-              typevector: typevector,
-              u_median: u_median,
-              v_median: v_median,
-              test: false,
-            },
+      } 
+      const { x, y, u, v, typevector, u_median, v_median } = data;
+      dispatch(
+        setQuiver({
+          quiver: {
+            x: x,
+            y: y,
+            u: u,
+            v: v,
+            typevector: typevector,
+            u_median: u_median,
+            v_median: v_median,
             test: false,
-          }),
-        );
-      }
-      dispatch(setBackendWorkingFlag(false));
+          },
+        })
+      );
+      dispatch(setBackendWorking(false));
     } catch (error) {
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
       if (error instanceof Error) {
         throw new CliError(error.message, t);
       }
@@ -213,12 +201,11 @@ export const useDataSlice = () => {
 
     const environment = process.env.NODE_ENV;
 
-    const handler =
-      environment === "development" ? "kill-river-cli" : "kill-river-cli";
+    const handler = environment === 'development' ? 'kill-river-cli' : 'kill-river-cli';
 
     try {
       await ipcRenderer.invoke(handler);
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
       return true;
     } catch (error) {
       console.log(error);
@@ -232,13 +219,13 @@ export const useDataSlice = () => {
     if (isBackendWorking) return;
 
     const ipcRenderer = window.ipcRenderer;
-    dispatch(setBackendWorkingFlag(true));
-    dispatch(setMessage(t("Loader.results")));
+    dispatch(setBackendWorking(true));
+    dispatch(setMessage(t('Loader.results')));
 
-    if (type === "single") {
+    if (type === 'single') {
       const section = sections[activeSection];
       try {
-        const { data, error } = await ipcRenderer.invoke("get-results-single", {
+        const { data, error } = await ipcRenderer.invoke('get-results-single', {
           step: video.parameters.step,
           fps: video.data.fps,
           sectionIndex: activeSection,
@@ -263,13 +250,13 @@ export const useDataSlice = () => {
               ...data[section.name],
               activeCheck: data[section.name].check,
             },
-          }),
+          })
         );
         dispatch(setSummary(data.summary));
-        dispatch(setBackendWorkingFlag(false));
+        dispatch(setBackendWorking(false));
         dispatch(clearMessage());
       } catch (error) {
-        dispatch(setBackendWorkingFlag(false));
+        dispatch(setBackendWorking(false));
         if (error instanceof Error) {
           throw new CliError(error.message, t);
         }
@@ -279,7 +266,7 @@ export const useDataSlice = () => {
       dispatch(setLoading(true));
 
       try {
-        const { data, error } = await ipcRenderer.invoke("get-results-all", {
+        const { data, error } = await ipcRenderer.invoke('get-results-all', {
           step: video.parameters.step,
           fps: video.data.fps,
           numSections: sections.length,
@@ -290,7 +277,6 @@ export const useDataSlice = () => {
 
         sections.map((section, index) => {
           if (data[section.name]) {
-            console.log("section data", data[section.name]);
             dispatch(
               setSectionData({
                 sectionIndex: index,
@@ -298,18 +284,18 @@ export const useDataSlice = () => {
                   ...data[section.name],
                   activeCheck: data[section.name].check,
                 },
-              }),
+              })
             );
           }
         });
         dispatch(setSummary(data.summary));
         dispatch(setDataLoaded(true));
         dispatch(setLoading(false));
-        dispatch(setBackendWorkingFlag(false));
+        dispatch(setBackendWorking(false));
         dispatch(clearMessage());
       } catch (error) {
         dispatch(setLoading(false));
-        dispatch(setBackendWorkingFlag(false));
+        dispatch(setBackendWorking(false));
         if (error instanceof Error) {
           throw new CliError(error.message, t);
         }
@@ -320,31 +306,30 @@ export const useDataSlice = () => {
 
   const onClearQuiver = () => {
     if (hasChanged) {
-      dispatch(setQuiver({ quiver: undefined, test: false }));
+      dispatch(setQuiver({ quiver: null }));
     }
   };
 
   const onReCalculateMask = async (value: number) => {
-    dispatch(setBackendWorkingFlag(true));
+    dispatch(setBackendWorking(true));
     onClearQuiver();
 
     const ipcRenderer = window.ipcRenderer;
 
     try {
-      const { maskPath, bbox, error } = await ipcRenderer.invoke(
-        "create-mask-and-bbox",
-        { height_roi: value, data: isDataLoaded },
-      );
-      console.log("error mask", error);
+      const { maskPath, bbox, error } = await ipcRenderer.invoke('create-mask-and-bbox', {
+        height_roi: value,
+        data: isDataLoaded,
+      });
 
       if (error?.message) {
         throw new Error(error.message);
       }
 
       dispatch(setProcessingMask({ mask: filePrefix + maskPath, bbox }));
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
     } catch (error) {
-      dispatch(setBackendWorkingFlag(false));
+      dispatch(setBackendWorking(false));
       if (error instanceof Error) {
         throw new CliError(error.message, t);
       }
@@ -352,7 +337,7 @@ export const useDataSlice = () => {
   };
 
   const onSetAnalizing = (value: boolean) => {
-    dispatch(setBackendWorkingFlag(value));
+    dispatch(setBackendWorking(value));
   };
 
   const onSetImages = (paths: string[], clean?: boolean) => {
@@ -360,7 +345,7 @@ export const useDataSlice = () => {
 
     if (clean) return;
 
-    window.ipcRenderer.removeAllListeners("all-frames");
+    window.ipcRenderer.removeAllListeners('all-frames');
   };
 
   const onSetDefaultDataState = () => {

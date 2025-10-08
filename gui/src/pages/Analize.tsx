@@ -1,14 +1,8 @@
-import { useState } from "react";
-import {
-  Carousel,
-  Error,
-  ImageWithData,
-  Progress,
-  WizardButtons,
-} from "../components";
-import { FormAnalizing } from "../components/Forms/FormAnalizing";
-import { useDataSlice, useUiSlice } from "../hooks";
-import { useWizard } from "react-use-wizard";
+import { useState } from 'react';
+import { Carousel, Error, ImageWithData, Progress, WizardButtons } from '../components';
+import { FormAnalizing } from '../components/Forms/index';
+import { useDataSlice, useUiSlice } from '../hooks';
+import { useWizard } from 'react-use-wizard';
 
 export const Analize = () => {
   const { screenSizes, onSetErrorMessage, onSetSeeAll } = useUiSlice();
@@ -20,7 +14,7 @@ export const Analize = () => {
 
   const handleNext = async () => {
     try {
-      await onGetResultData("all");
+      await onGetResultData('all');
       onSetSeeAll(false);
       nextStep();
     } catch (error) {
@@ -33,7 +27,7 @@ export const Analize = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageWithData showMedian={showMedian}></ImageWithData>
+        <ImageWithData showMedian={showMedian}/>
         <Carousel
           images={paths}
           active={active}
@@ -47,10 +41,7 @@ export const Analize = () => {
       <div className="form-container">
         <Progress />
         <FormAnalizing />
-        <WizardButtons
-          onClickNext={handleNext}
-          canFollow={quiver !== undefined}
-        ></WizardButtons>
+        <WizardButtons onClickNext={handleNext} canFollow={quiver !== null}></WizardButtons>
       </div>
     </div>
   );

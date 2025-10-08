@@ -39,7 +39,7 @@ interface Quiver {
 interface DataState {
   processing: Processing;
   images: Images;
-  quiver?: Quiver;
+  quiver: Quiver | null;
   isBackendWorking: boolean;
   isDataLoaded: boolean;
   hasChanged: boolean;

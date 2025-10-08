@@ -20,7 +20,12 @@
     },
     "Step-2" : {
         "title" : "Select the kind of footage",
-        "pleaseSelectVideo": "Please select a video file"
+        "pleaseSelectVideo": "Please select a video file",
+        "invalidFileType": "Invalid file type. Please select a video file.",
+        "addYourFootage": "Add your footage",
+        "changeType": "Change type",
+        "dragAndDrop": "Drag and drop your video file here",
+        "openFolders": "Open Folders"
     },
     "Wizard" : {
         "back" : "Back",
@@ -64,15 +69,23 @@
             "title": "Real World Coordinates",
             "eastPoint1": "East Point 1",
             "eastPoint2": "East Point 2",
+            "eastPoint3": "East Point 3",
+            "eastPoint4": "East Point 4",
             "northPoint1": "North Point 1",
-            "northPoint2": "North Point 2"
+            "northPoint2": "North Point 2",
+            "northPoint3": "North Point 3",
+            "northPoint4": "North Point 4"
         }, 
         "Pixel": {
             "title": "Pixel Coordinates",
             "xPoint1": "X Point 1",
             "xPoint2": "X Point 2",
+            "xPoint3": "X Point 3",
+            "xPoint4": "X Point 4",
             "yPoint1": "Y Point 1",
-            "yPoint2": "Y Point 2"
+            "yPoint2": "Y Point 2",
+            "yPoint3": "Y Point 3",
+            "yPoint4": "Y Point 4"
         }
     },
     "CrossSections": {
@@ -258,6 +271,7 @@
         "no": "No",
         "solve": "Solve",
         "resourceNotFound": "Resource not found",
-        "randomError": "Something went wrong. Please try again"
+        "randomError": "Something went wrong. Please try again",
+        "dropHereText": "Drop a file anywhere on this panel. I'll auto-detect where it belongs."
     }
 }

@@ -1,0 +1,57 @@
+import { Layer, Stage, Image } from 'react-konva';
+import { useIpcamSlice, useProjectSlice, useUiSlice } from '../hooks';
+import { useEffect, useState } from 'react';
+import { imageZoom } from '../helpers';
+import { KonvaEventObject } from 'konva/lib/Node';
+import { Ellipses, RedPoints, PointsIpcam } from './index';
+
+export const ImageIpcam = () => {
+  const { importedImages, activeImage, points } = useIpcamSlice();
+  const { screenSizes } = useUiSlice();
+  const { firstFramePath } = useProjectSlice();
+  const { imageWidth, imageHeight, factor } = screenSizes;
+
+  const [currentImage, setCurrentImage] = useState<HTMLImageElement | null>(null);
+  const [newImageSrc, setNewImageSrc] = useState<string>(
+    importedImages !== null ? importedImages[activeImage!] : firstFramePath
+  );
+  const [resizeFactor, setResizeFactor] = useState(1);
+
+  useEffect(() => {
+    const newImageSrc = importedImages !== null ? importedImages[activeImage!] : firstFramePath;
+    setNewImageSrc(newImageSrc);
+  }, [importedImages, activeImage, firstFramePath]);
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.src = newImageSrc;
+    img.onload = () => {
+      setCurrentImage(img);
+    };
+  }, [newImageSrc]);
+
+  const handleOnWheel = (event: KonvaEventObject<WheelEvent>) => {
+    imageZoom(event, setResizeFactor, true);
+  };
+
+  return (
+    <Stage
+      width={imageWidth}
+      height={imageHeight}
+      onWheel={handleOnWheel}
+      className={`image-with-marks ${importedImages !== null ? '' : 'image-rectification-3d'}`}
+    >
+      <Layer>
+        {currentImage && (
+          <>
+            <Image image={currentImage} width={imageWidth} height={imageHeight} />
+            <Ellipses factor={factor as number} />
+            {/* <CrossPoints factor={factor as number}/>     */}
+            <RedPoints factor={factor as number} resizeFactor={resizeFactor} />
+            {points !== null && <PointsIpcam factor={factor as number} resizeFactor={resizeFactor} />}
+          </>
+        )}
+      </Layer>
+    </Stage>
+  );
+};

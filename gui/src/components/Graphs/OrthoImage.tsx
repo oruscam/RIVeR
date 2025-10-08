@@ -1,10 +1,10 @@
-import { useEffect, useRef } from "react";
-import * as d3 from "d3";
-import { useUiSlice } from "../../hooks";
-import { COLORS, GRAPHS } from "../../constants/constants";
-import { scaleBar } from "./scaleBar";
-import { Point } from "../../types";
-import { getLineColor } from "../../helpers";
+import { useEffect, useRef } from 'react';
+import * as d3 from 'd3';
+import { useUiSlice } from '../../hooks';
+import { COLORS, GRAPHS } from '../../constants/constants';
+import { scaleBar } from './scaleBar';
+import { Point } from '../../types';
+import { getLineColor, getOrthoImageDimensions } from '../../helpers';
 
 export const OrthoImage = ({
   solution,
@@ -12,65 +12,33 @@ export const OrthoImage = ({
   secondPoint,
 }: {
   solution:
-    | { orthoImage: string; extent: number[]; resolution: number, width: number, height: number }
-    | undefined;
+    | { orthoImage: string; extent: number[]; resolution: number; width: number; height: number }
+    | null;
   coordinates?: Point[];
   secondPoint?: Point;
 }) => {
   const ref = useRef<SVGSVGElement>(null);
   const { screenSizes } = useUiSlice();
   const { width: screenWidth } = screenSizes;
-  
+
   const { orthoImage, extent, width: orthoWidth, height: orthoHeight } = solution!;
   const imgWidth = Math.abs(extent[1] - extent[0]);
   const imgHeight = Math.abs(extent[2] - extent[3]);
 
-  const vertical = orthoHeight > orthoWidth;
-
-  let graphWidth;
-  let graphHeight;
-  let maxGraphWidth = screenWidth * GRAPHS.IPCAM_GRID_PROPORTION;
-
-  if ( !vertical ) {
-    if ( orthoWidth < maxGraphWidth ) {
-      graphWidth = orthoWidth;
-      graphHeight = orthoHeight;
-    } else {
-      graphWidth = maxGraphWidth;
-      graphHeight = (maxGraphWidth * orthoHeight) / orthoWidth;
-    }
-    if ( graphWidth < GRAPHS.ORTHO_IMAGE_MIN_WIDTH ) {
-      graphWidth = GRAPHS.ORTHO_IMAGE_MIN_WIDTH;
-      graphHeight = (GRAPHS.ORTHO_IMAGE_MIN_WIDTH * orthoHeight) / orthoWidth;
-    }
-  } else {
-    const WIDTH_INCREASER = 1.1; // For better visualization, I have to figure out what happen // ! PROVISIONAL.
-
-    if ( orthoHeight < maxGraphWidth ) {
-      graphHeight = orthoHeight;
-      graphWidth = orthoWidth * WIDTH_INCREASER;
-    } else {
-      graphHeight = maxGraphWidth;
-      graphWidth = (( maxGraphWidth * orthoWidth ) / orthoHeight) * WIDTH_INCREASER;
-    }
-  }
+  const { graphWidth, graphHeight, maxGraphWidth } = getOrthoImageDimensions(screenWidth, orthoWidth, orthoHeight);
 
   useEffect(() => {
     if (ref.current === null) return;
 
-    d3.select(ref.current).selectAll("*").remove();
+    d3.select(ref.current).selectAll('*').remove();
     const svg = d3.select(ref.current);
 
-    const width = +svg.attr("width");
-    const height = +svg.attr("height");
+    const width = +svg.attr('width');
+    const height = +svg.attr('height');
 
     const margin = { top: 5, right: 5, bottom: 20, left: 40 };
 
-    svg
-      .append("svg")
-      .attr("width", width)
-      .attr("height", height)
-      .attr("class", "ortho-image");
+    svg.append('svg').attr('width', width).attr('height', height).attr('class', 'ortho-image');
 
     const xMin = d3.min([extent[0], extent[1]].filter((d) => d !== undefined))!;
     const yMin = d3.min([extent[2], extent[3]].filter((d) => d !== undefined))!;
@@ -91,137 +59,133 @@ export const OrthoImage = ({
     const y = extent[3];
 
     svg
-      .append("image")
-      .attr("xlink:href", orthoImage)
-      .attr("x", +xScale(x))
-      .attr("y", +yScale(y))
-      .attr("width", xScale(x + imgWidth) - xScale(x) )
-      .attr("height", Math.abs(yScale(y + imgHeight) - yScale(y)));
+      .append('image')
+      .attr('xlink:href', orthoImage)
+      .attr('x', +xScale(x))
+      .attr('y', +yScale(y))
+      .attr('width', xScale(x + imgWidth) - xScale(x))
+      .attr('height', Math.abs(yScale(y + imgHeight) - yScale(y)));
 
-      // Add X Axis with 5 ticks and increased font size
-      svg
-      .append("g")
-      .attr("transform", `translate(0,${height - margin.bottom})`)
+    // Add X Axis with 5 ticks and increased font size
+    svg
+      .append('g')
+      .attr('transform', `translate(0,${height - margin.bottom})`)
       .call(d3.axisBottom(xScale).ticks(5))
-      .selectAll("text")
-      .style("font-size", "12px");
-      
-      // Add Y Axis with 5 ticks and increased font size
-      svg
-      .append("g")
-      .attr("transform", `translate(${margin.left},0)`)
-      .call(d3.axisLeft(yScale).ticks(5))
-      .selectAll("text")
-      .style("font-size", "12px");
-      
-      // Create angle for turn 45 degrees the cross point. Better visualization
-      
-      const angle = 5; // Angle in degrees
-      const radians = angle * (Math.PI / 180); // Convert angle to radians
-      const cos = Math.cos(radians);
-      const sin = Math.sin(radians);
-      
-      if (coordinates) {
-        coordinates.forEach((d, i) => {
-          // Connect points with lines
-          const nextIndex = (i + 1) % coordinates.length;
-          svg
-          .append("line")
-          .attr("x1", xScale(d.x))
-          .attr("y1", yScale(d.y))
-          .attr("x2", xScale(coordinates[nextIndex].x))
-          .attr("y2", yScale(coordinates[nextIndex].y))
-          .attr("stroke", getLineColor(i))
-          .attr("stroke-width", 2);
-          
-          if (i === 0 || i === 1) {
-            svg
-            .append("line")
-            .attr("x1", xScale(d.x))
-            .attr("y1", yScale(d.y))
-            .attr("x2", xScale(coordinates[i + 2].x))
-            .attr("y2", yScale(coordinates[i + 2].y))
-            .attr(
-              "stroke",
-              i === 0 ? COLORS.CONTROL_POINTS.D13 : COLORS.CONTROL_POINTS.D24,
-            )
-            .attr("stroke-width", 2);
-          }
-          
-          svg
-          .append("line")
-          .attr("x1", xScale(d.x) - GRAPHS.CROSS_LENGTH * cos)
-          .attr("y1", yScale(d.y) - GRAPHS.CROSS_LENGTH * sin)
-          .attr("x2", xScale(d.x) + GRAPHS.CROSS_LENGTH * cos)
-          .attr("y2", yScale(d.y) + GRAPHS.CROSS_LENGTH * sin)
-          .attr("stroke", i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE)
-          .attr("stroke-width", 2);
-          
-          svg
-          .append("line")
-          .attr("x1", xScale(d.x) - GRAPHS.CROSS_LENGTH * sin)
-          .attr("y1", yScale(d.y) + GRAPHS.CROSS_LENGTH * cos)
-          .attr("x2", xScale(d.x) + GRAPHS.CROSS_LENGTH * sin)
-          .attr("y2", yScale(d.y) - GRAPHS.CROSS_LENGTH * cos)
-          .attr("stroke", i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE)
-          .attr("stroke-width", 2);
-        });
-      }
-      
-      if (secondPoint) {
-        svg
-        .append("line")
-        .attr("x1", xScale(0))
-        .attr("y1", yScale(0))
-        .attr("x2", xScale(secondPoint.x))
-        .attr("y2", yScale(secondPoint.y))
-        .attr("stroke", COLORS.LIGHT_BLUE)
-        .attr("stroke-width", 2);
-        
-        svg
-        .append("line")
-        .attr("x1", xScale(0) - GRAPHS.CROSS_LENGTH * cos)
-        .attr("y1", yScale(0) - GRAPHS.CROSS_LENGTH * sin)
-        .attr("x2", xScale(0) + GRAPHS.CROSS_LENGTH * cos)
-        .attr("y2", yScale(0) + GRAPHS.CROSS_LENGTH * sin)
-        .attr("stroke", COLORS.LIGHT_BLUE)
-        .attr("stroke-width", 2);
-        
-        svg
-        .append("line")
-        .attr("x1", xScale(0) - GRAPHS.CROSS_LENGTH * sin)
-        .attr("y1", yScale(0) + GRAPHS.CROSS_LENGTH * cos)
-        .attr("x2", xScale(0) + GRAPHS.CROSS_LENGTH * sin)
-        .attr("y2", yScale(0) - GRAPHS.CROSS_LENGTH * cos)
-        .attr("stroke", COLORS.LIGHT_BLUE)
-        .attr("stroke-width", 2);
-        
-        svg
-        .append("line")
-        .attr("x1", xScale(secondPoint.x) - GRAPHS.CROSS_LENGTH * sin)
-        .attr("y1", yScale(secondPoint.y) + GRAPHS.CROSS_LENGTH * cos)
-        .attr("x2", xScale(secondPoint.x) + GRAPHS.CROSS_LENGTH * sin)
-        .attr("y2", yScale(secondPoint.y) - GRAPHS.CROSS_LENGTH * cos)
-        .attr("stroke", COLORS.LIGHT_BLUE)
-        .attr("stroke-width", 2);
-        
-        svg
-        .append("line")
-        .attr("x1", xScale(secondPoint.x) - GRAPHS.CROSS_LENGTH * cos)
-        .attr("y1", yScale(secondPoint.y) - GRAPHS.CROSS_LENGTH * sin)
-        .attr("x2", xScale(secondPoint.x) + GRAPHS.CROSS_LENGTH * cos)
-        .attr("y2", yScale(secondPoint.y) + GRAPHS.CROSS_LENGTH * sin)
-        .attr("stroke", COLORS.LIGHT_BLUE)
-        .attr("stroke-width", 2);
-      }
+      .selectAll('text')
+      .style('font-size', '12px');
 
-      // Scale bar 
-      scaleBar(extent, ref.current, xScale, yScale, "", 0, 0);
-      
+    // Add Y Axis with 5 ticks and increased font size
+    svg
+      .append('g')
+      .attr('transform', `translate(${margin.left},0)`)
+      .call(d3.axisLeft(yScale).ticks(5))
+      .selectAll('text')
+      .style('font-size', '12px');
+
+    // Create angle for turn 45 degrees the cross point. Better visualization
+
+    const angle = 5; // Angle in degrees
+    const radians = angle * (Math.PI / 180); // Convert angle to radians
+    const cos = Math.cos(radians);
+    const sin = Math.sin(radians);
+
+    if (coordinates) {
+      coordinates.forEach((d, i) => {
+        // Connect points with lines
+        const nextIndex = (i + 1) % coordinates.length;
+        svg
+          .append('line')
+          .attr('x1', xScale(d.x))
+          .attr('y1', yScale(d.y))
+          .attr('x2', xScale(coordinates[nextIndex].x))
+          .attr('y2', yScale(coordinates[nextIndex].y))
+          .attr('stroke', getLineColor(i))
+          .attr('stroke-width', 2);
+
+        if (i === 0 || i === 1) {
+          svg
+            .append('line')
+            .attr('x1', xScale(d.x))
+            .attr('y1', yScale(d.y))
+            .attr('x2', xScale(coordinates[i + 2].x))
+            .attr('y2', yScale(coordinates[i + 2].y))
+            .attr('stroke', i === 0 ? COLORS.CONTROL_POINTS.D13 : COLORS.CONTROL_POINTS.D24)
+            .attr('stroke-width', 2);
+        }
+
+        svg
+          .append('line')
+          .attr('x1', xScale(d.x) - GRAPHS.CROSS_LENGTH * cos)
+          .attr('y1', yScale(d.y) - GRAPHS.CROSS_LENGTH * sin)
+          .attr('x2', xScale(d.x) + GRAPHS.CROSS_LENGTH * cos)
+          .attr('y2', yScale(d.y) + GRAPHS.CROSS_LENGTH * sin)
+          .attr('stroke', i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE)
+          .attr('stroke-width', 2);
+
+        svg
+          .append('line')
+          .attr('x1', xScale(d.x) - GRAPHS.CROSS_LENGTH * sin)
+          .attr('y1', yScale(d.y) + GRAPHS.CROSS_LENGTH * cos)
+          .attr('x2', xScale(d.x) + GRAPHS.CROSS_LENGTH * sin)
+          .attr('y2', yScale(d.y) - GRAPHS.CROSS_LENGTH * cos)
+          .attr('stroke', i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE)
+          .attr('stroke-width', 2);
+      });
+    }
+
+    if (secondPoint) {
+      svg
+        .append('line')
+        .attr('x1', xScale(0))
+        .attr('y1', yScale(0))
+        .attr('x2', xScale(secondPoint.x))
+        .attr('y2', yScale(secondPoint.y))
+        .attr('stroke', COLORS.LIGHT_BLUE)
+        .attr('stroke-width', 2);
+
+      svg
+        .append('line')
+        .attr('x1', xScale(0) - GRAPHS.CROSS_LENGTH * cos)
+        .attr('y1', yScale(0) - GRAPHS.CROSS_LENGTH * sin)
+        .attr('x2', xScale(0) + GRAPHS.CROSS_LENGTH * cos)
+        .attr('y2', yScale(0) + GRAPHS.CROSS_LENGTH * sin)
+        .attr('stroke', COLORS.LIGHT_BLUE)
+        .attr('stroke-width', 2);
+
+      svg
+        .append('line')
+        .attr('x1', xScale(0) - GRAPHS.CROSS_LENGTH * sin)
+        .attr('y1', yScale(0) + GRAPHS.CROSS_LENGTH * cos)
+        .attr('x2', xScale(0) + GRAPHS.CROSS_LENGTH * sin)
+        .attr('y2', yScale(0) - GRAPHS.CROSS_LENGTH * cos)
+        .attr('stroke', COLORS.LIGHT_BLUE)
+        .attr('stroke-width', 2);
+
+      svg
+        .append('line')
+        .attr('x1', xScale(secondPoint.x) - GRAPHS.CROSS_LENGTH * sin)
+        .attr('y1', yScale(secondPoint.y) + GRAPHS.CROSS_LENGTH * cos)
+        .attr('x2', xScale(secondPoint.x) + GRAPHS.CROSS_LENGTH * sin)
+        .attr('y2', yScale(secondPoint.y) - GRAPHS.CROSS_LENGTH * cos)
+        .attr('stroke', COLORS.LIGHT_BLUE)
+        .attr('stroke-width', 2);
+
+      svg
+        .append('line')
+        .attr('x1', xScale(secondPoint.x) - GRAPHS.CROSS_LENGTH * cos)
+        .attr('y1', yScale(secondPoint.y) - GRAPHS.CROSS_LENGTH * sin)
+        .attr('x2', xScale(secondPoint.x) + GRAPHS.CROSS_LENGTH * cos)
+        .attr('y2', yScale(secondPoint.y) + GRAPHS.CROSS_LENGTH * sin)
+        .attr('stroke', COLORS.LIGHT_BLUE)
+        .attr('stroke-width', 2);
+    }
+
+    // Scale bar
+    scaleBar(extent, ref.current, xScale, yScale, '', 0, 0);
   }, [solution, maxGraphWidth]);
 
   return (
-    <div id="ortho-image-solution" className="mb-2">
+    <div id="ortho-image-solution" className="mb-2 mt-1">
       <svg ref={ref} width={graphWidth} height={graphHeight} />
     </div>
   );

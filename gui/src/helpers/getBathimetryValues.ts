@@ -1,4 +1,4 @@
-import { Limits, Point } from "../types";
+import { Limits, Point } from '../types';
 
 const getBathimetryLimitsY = (line: Point[]): Limits => {
   const { ys } = line.reduce(
@@ -9,7 +9,7 @@ const getBathimetryLimitsY = (line: Point[]): Limits => {
       }
       return acc;
     },
-    { xs: [] as number[], ys: [] as number[] },
+    { xs: [] as number[], ys: [] as number[] }
   );
   const min = Math.min(...ys);
   let max;
@@ -37,23 +37,17 @@ const getBathimetryLimitsX = (line: Point[]): Limits => {
   };
 };
 
-export const getIntersectionPoints = (
-  data: Point[],
-  level: number,
-): Point[] => {
+export const getIntersectionPoints = (data: Point[], level: number): Point[] => {
   let intersectionPoints: Point[] = [];
   for (let i = 0; i < data.length - 1; i++) {
-    let currentPoint = {...data[i]};
-    let nextPoint = {...data[i + 1]};
+    let currentPoint = { ...data[i] };
+    let nextPoint = { ...data[i + 1] };
 
     currentPoint.y = parseFloat(currentPoint.y.toFixed(2));
     nextPoint.y = parseFloat(nextPoint.y.toFixed(2));
 
     // Verifica si el nivel está entre los puntos actuales y siguientes
-    if (
-      ( currentPoint.y <= level && nextPoint.y >= level) ||
-      ( currentPoint.y >= level && nextPoint.y <= level)
-    ) {
+    if ((currentPoint.y <= level && nextPoint.y >= level) || (currentPoint.y >= level && nextPoint.y <= level)) {
       // Interpolación lineal para encontrar la posición exacta de intersección
       const t = (level - currentPoint.y) / (nextPoint.y - currentPoint.y);
       const intersectX = currentPoint.x + t * (nextPoint.x - currentPoint.x);
@@ -63,8 +57,7 @@ export const getIntersectionPoints = (
       if (
         intersectionPoints.length === 0 ||
         (intersectionPoints.length > 0 &&
-          intersectionPoints[intersectionPoints.length - 1].x !==
-            newIntersection.x)
+          intersectionPoints[intersectionPoints.length - 1].x !== newIntersection.x)
       ) {
         intersectionPoints.push(newIntersection);
       }
@@ -83,16 +76,12 @@ export const getBathimetryValues = (line: Point[], level?: number) => {
   const yLimits = getBathimetryLimitsY(line);
   const xLimits = getBathimetryLimitsX(line);
 
-
-  const intersectionPoints = getIntersectionPoints(
-    line,
-    level ? level : yLimits.max,
-  );
+  const intersectionPoints = getIntersectionPoints(line, level ? level : yLimits.max);
 
   if (intersectionPoints.length === 0) {
     return {
       error: {
-        message: "bathimetryNotValid",
+        message: 'bathimetryNotValid',
         value: level,
       },
     };

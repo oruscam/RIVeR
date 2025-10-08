@@ -15,6 +15,11 @@
     overflow-y: none;
 }
 
+.form-container.drag-over {
+    border: 3px dashed white;
+}
+
+
 /* Cambiar dependiendo el tamaño de la pantalla */
 .form-title{
     margin-top: 6vh;
@@ -42,7 +47,7 @@
     flex-shrink: 0;
 }
 
-.read-only-rectification-2d{
+.read-only-oblique{
     background-color: var(--input-background);
     color: var(--primary-text-color);
     border: solid 0.1px;
@@ -489,7 +494,7 @@ transform-origin: 14px 22px;
 #D13{
     border: solid 3px var(--d13);
 }
-#D14{
+#D41{
     border: solid 3px var(--d14);
 }
 #D23{
@@ -501,7 +506,6 @@ transform-origin: 14px 22px;
 #D34{
     border: solid 3px var(--d34);
 }
-
 
 .analizing-output{
     display: flex;
@@ -518,7 +522,7 @@ transform-origin: 14px 22px;
 }
 
 #form-control-points{
-    margin-top: 6vh;
+    margin-top: 3vh;
     overflow-y: auto;
 }
 
@@ -545,4 +549,21 @@ transform-origin: 14px 22px;
     align-items: center;
     justify-content: center;
     margin-right: 5%;
+}
+
+
+.drop-here-text{
+    margin-top: 15px;
+    font-size: 1.15rem;
+    width: 65%;
+    color: var(--secondary-text-color);
+    transition: all 0.5s ease;
+}
+
+.drop-here-text.disabled{
+    opacity: 0;
+    height: 0px;
+    margin: 0px;
+    overflow: hidden;
+    margin-top: 0px;
 }

@@ -1,27 +1,30 @@
-import { dialog, ipcMain } from "electron";
-import * as fs from "fs";
-import { extname, join } from "path";
-import { ProjectConfig } from "./interfaces";
+import { dialog, ipcMain } from 'electron';
+import * as fs from 'fs';
+import { extname, join } from 'path';
+import { ProjectConfig } from './interfaces';
 
 function getIpcamImages(PROJECT_CONFIG: ProjectConfig) {
   const options: Electron.OpenDialogOptions = {
-    properties: ["openDirectory"],
+    properties: ['openDirectory'],
   };
 
-  ipcMain.handle("ipcam-images", async (_event, args) => {
-    const { path } = args;
+  ipcMain.handle('ipcam-images', async (_event, args) => {
+    const { folderPath } = args;
+
+    options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
+
     const { settingsPath } = PROJECT_CONFIG;
 
-    const json = await fs.promises.readFile(settingsPath, "utf-8");
+    const json = await fs.promises.readFile(settingsPath, 'utf-8');
     const jsonParsed = JSON.parse(json);
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
-    filePrefix = filePrefix === undefined ? "" : filePrefix;
+    filePrefix = filePrefix === undefined ? '' : filePrefix;
 
-    const validImageExtensions = [".jpg", ".jpeg", ".png"];
+    const validImageExtensions = ['.jpg', '.jpeg', '.png'];
 
     try {
-      let imagesPath: string = path;
+      let imagesPath: string = folderPath;
 
       if (imagesPath === undefined) {
         const result = await dialog.showOpenDialog(options);
@@ -31,29 +34,26 @@ function getIpcamImages(PROJECT_CONFIG: ProjectConfig) {
       let images = await fs.promises.readdir(imagesPath);
 
       if (images.length === 0) {
-        throw new Error("imagesFolderEmpty");
+        throw new Error('imagesFolderEmpty');
       }
 
       images = images.map((file) => {
         if (validImageExtensions.includes(extname(file)) === false) {
-          throw new Error("invalidImageExtension");
+          throw new Error('invalidImageExtension');
         }
         return join(filePrefix, imagesPath, file);
       });
 
       jsonParsed.rectification_3d_images = imagesPath;
       const updatedContent = JSON.stringify(jsonParsed, null, 2);
-      await fs.promises.writeFile(settingsPath, updatedContent, "utf-8");
+      await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
 
       return {
         images: images,
         path: imagesPath,
       };
     } catch (error) {
-      if (
-        error.message === "imagesFolderEmpty" ||
-        error.message === "invalidImageExtension"
-      ) {
+      if (error.message === 'imagesFolderEmpty' || error.message === 'invalidImageExtension') {
         return { error };
       }
     }

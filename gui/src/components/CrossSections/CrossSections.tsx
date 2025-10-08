@@ -1,27 +1,21 @@
-import { FormCrossSections } from "../Forms";
-import { FieldValues, FormProvider, useForm } from "react-hook-form";
-import { Sections } from "./Sections";
-import "./crossSections.css";
-import {
-  useDataSlice,
-  useProjectSlice,
-  useSectionSlice,
-  useUiSlice,
-} from "../../hooks";
-import { useWizard } from "react-use-wizard";
-import { useEffect, useState } from "react";
-import { Section } from "../../store/section/types";
-import { SectionsHeader } from "../SectionsHeader";
-import { ButtonLock } from "../ButtonLock";
-import { useTranslation } from "react-i18next";
-import { formatNumberTo2Decimals } from "../../helpers";
+import { FormCrossSections } from '../Forms';
+import { FieldValues, FormProvider, useForm } from 'react-hook-form';
+import { Sections } from './Sections';
+import './crossSections.css';
+import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useWizard } from 'react-use-wizard';
+import { useEffect, useState } from 'react';
+import { Section } from '../../store/section/types';
+import { SectionsHeader } from '../SectionsHeader';
+import { ButtonLock } from '../ButtonLock';
+import { useTranslation } from 'react-i18next';
+import { formatNumberTo2Decimals } from '../../helpers';
 
 const createInitialState = (sections: Section[]) => {
   let defaultValues = {};
 
-  sections.forEach((section, index) => {
-    const { name, dirPoints, rwPoints, bathimetry, numStations, alpha } =
-      section;
+  sections.forEach((section) => {
+    const { name, dirPoints, rwPoints, bathimetry, numStations, alpha } = section;
     const baseKey = name;
     defaultValues = {
       ...defaultValues,
@@ -29,18 +23,14 @@ const createInitialState = (sections: Section[]) => {
       [`${baseKey}_CS_BATHIMETRY`]: bathimetry.path,
       [`${baseKey}_LEVEL`]: bathimetry.level,
       [`${baseKey}_LEFT_BANK`]: bathimetry.leftBank,
-      [`${baseKey}_EAST_Left`]: rwPoints[0].x.toFixed(2),
-      [`${baseKey}_NORTH_Left`]: rwPoints[0].y.toFixed(2),
-      [`${baseKey}_EAST_Right`]: rwPoints[1].x.toFixed(2),
-      [`${baseKey}_NORTH_Right`]: rwPoints[1].y.toFixed(2),
-      [`${baseKey}_X_Left`]:
-        dirPoints.length === 0 ? 0 : dirPoints[0].x.toFixed(1),
-      [`${baseKey}_Y_Left`]:
-        dirPoints.length === 0 ? 0 : dirPoints[0].y.toFixed(1),
-      [`${baseKey}_X_Right`]:
-        dirPoints.length === 0 ? 0 : dirPoints[1].x.toFixed(1),
-      [`${baseKey}_Y_Right`]:
-        dirPoints.length === 0 ? 0 : dirPoints[1].y.toFixed(1),
+      [`${baseKey}_eastPoint1`]: rwPoints[0].x.toFixed(2),
+      [`${baseKey}_northPoint1`]: rwPoints[0].y.toFixed(2),
+      [`${baseKey}_eastPoint2`]: rwPoints[1].x.toFixed(2),
+      [`${baseKey}_northPoint2`]: rwPoints[1].y.toFixed(2),
+      [`${baseKey}_xPoint1`]: dirPoints.length === 0 ? 0 : dirPoints[0].x.toFixed(1),
+      [`${baseKey}_yPoint1`]: dirPoints.length === 0 ? 0 : dirPoints[0].y.toFixed(1),
+      [`${baseKey}_xPoint2`]: dirPoints.length === 0 ? 0 : dirPoints[1].x.toFixed(1),
+      [`${baseKey}_yPoint2`]: dirPoints.length === 0 ? 0 : dirPoints[1].y.toFixed(1),
       [`${baseKey}_NUM_STATIONS`]: numStations,
       [`${baseKey}_ALPHA`]: alpha,
     };
@@ -52,7 +42,7 @@ const createInitialState = (sections: Section[]) => {
 export const CrossSections = () => {
   const { sections, activeSection, onSetSections } = useSectionSlice(); // Wrap the sections variable inside an array
   const { onSetErrorMessage } = useUiSlice();
-  const [deletedSections, setDeletedSections] = useState("");
+  const [deletedSections, setDeletedSections] = useState('');
   const methods = useForm({ defaultValues: createInitialState(sections) });
   const { nextStep } = useWizard();
   const { t } = useTranslation();
@@ -65,9 +55,7 @@ export const CrossSections = () => {
     const fieldNames = Object.keys(allValues); // Obtiene los nombres de todos los campos
 
     // Filtra los nombres de los campos que comienzan con el prefijo deseado
-    const fieldsToUnregister = fieldNames.filter((fieldName) =>
-      fieldName.startsWith(prefix),
-    );
+    const fieldsToUnregister = fieldNames.filter((fieldName) => fieldName.startsWith(prefix));
 
     // Desregistra cada campo que coincide
     fieldsToUnregister.forEach((fieldName) => methods.unregister(fieldName));
@@ -75,7 +63,7 @@ export const CrossSections = () => {
 
   const onSubmit = (data: FieldValues) => {
     if (images.paths.length === 0) {
-      onSetErrorMessage(t("Errors.waitingForFrames"));
+      onSetErrorMessage(t('Errors.waitingForFrames'));
       return;
     }
     onSetSections(data, type);
@@ -89,10 +77,10 @@ export const CrossSections = () => {
 
   // * Desregistra las secciones eliminadas
   useEffect(() => {
-    if (deletedSections !== "") {
+    if (deletedSections !== '') {
       unregisterFieldsStartingWith(deletedSections);
     }
-    setDeletedSections("");
+    setDeletedSections('');
   }, [deletedSections]);
 
   // * Actualiza el formulario
@@ -103,7 +91,7 @@ export const CrossSections = () => {
 
   return (
     <>
-      <SectionsHeader title={t("CrossSections.title")} />
+      <SectionsHeader title={t('CrossSections.title')} />
       <Sections setDeletedSections={setDeletedSections} canEdit={true} />
       <FormProvider {...methods}>
         {sections.map((section, index: number) => {

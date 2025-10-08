@@ -3,9 +3,9 @@
  */
 
 export const FOOTAGE_TYPES = {
-  IPCAM: "ipcam",
-  OBLIQUE: "oblique",
-  UAV: "uav",
+  IPCAM: 'ipcam',
+  OBLIQUE: 'oblique',
+  UAV: 'uav',
 };
 
 /**
@@ -15,12 +15,11 @@ export const FOOTAGE_TYPES = {
 export const IMAGE_WIDTH_FACTOR = 0.62;
 
 /**
- *  Next both factors are used to calculate the new image resolution, when the image resolution 
- *  is vertical. 
+ *  Next both factors are used to calculate the new image resolution, when the image resolution
+ *  is vertical.
  */
-export const IMAGE_HEIGHT_FACTOR = 0.90;
+export const IMAGE_HEIGHT_FACTOR = 0.9;
 export const IMAGE_HEIGHT_REDUCED_FACTOR = 0.64;
-
 
 /**
  * Default section
@@ -51,33 +50,33 @@ export const MODULE_NUMBER = {
  * Colors
  */
 export const COLORS = {
-  RED: "#ED6B57",
-  GREEN: "#62C655",
-  YELLOW: "#F5BF61",
-  BLUE: "#0678BE",
-  BLUE_WITH_TRANSPARENCY: "#0678BE95",
-  LIGHT_BLUE: "#6CD4FF",
-  DARK_GREY: "#545454",
-  WHITE: "#FFFFFF",
-  BLACK: "#000000",
-  TRANSPARENT_WHITE: "#FFFFFF80", // 50% opacity
-  TRANSPARENT: "#00000000", // fully transparent
-  PERCENTILE_AREA: "#ED6B5740",
-  STD_AREA: "#62C65533", // 'rgba(98, 198, 85, 0.2)'
-  MARK_NUMBER: "#3396BF",
-  MARK_L: "#6B120B",
-  MARK_R: "#2D671B",
+  RED: '#ED6B57',
+  GREEN: '#62C655',
+  YELLOW: '#F5BF61',
+  BLUE: '#0678BE',
+  BLUE_WITH_TRANSPARENCY: '#0678BE95',
+  LIGHT_BLUE: '#6CD4FF',
+  DARK_GREY: '#545454',
+  WHITE: '#FFFFFF',
+  BLACK: '#000000',
+  TRANSPARENT_WHITE: '#FFFFFF80', // 50% opacity
+  TRANSPARENT: '#00000000', // fully transparent
+  PERCENTILE_AREA: '#ED6B5740',
+  STD_AREA: '#62C65533', // 'rgba(98, 198, 85, 0.2)'
+  MARK_NUMBER: '#3396BF',
+  MARK_L: '#6B120B',
+  MARK_R: '#2D671B',
   CONTROL_POINTS: {
-    D12: "#6CD4FF",
-    D13: "#CC4BC2",
-    D14: "#F5BF61",
-    D23: "#62C655",
-    D24: "#7765E3",
-    D34: "#ED6B57",
+    D12: '#6CD4FF',
+    D13: '#CC4BC2',
+    D14: '#F5BF61',
+    D23: '#62C655',
+    D24: '#7765E3',
+    D34: '#ED6B57',
   },
   ELLIPSE: {
-    FILL: "#D2AF7970",
-    STROKE: "#D2AF79",
+    FILL: '#D2AF7970',
+    STROKE: '#D2AF79',
   },
 };
 
@@ -87,6 +86,7 @@ export const COLORS = {
 export const GRAPHS = {
   BAR_PADDING: 5,
   WIDTH_PROPORTION: 0.22,
+  MAX_BATHIMETRY_WIDTH: 500,
   MIN_WIDTH: 375,
   GRID_Y_OFFSET_ALL_IN_ONE: 35,
   IPCAM_GRID_PROPORTION: 0.27,
@@ -153,15 +153,15 @@ export const WINDOW_SIZES = {
 
 export const UNITS = {
   SI: {
-    FLOW: "m³/s",
-    LONGITUDE: "m",
-    AREA: "m²",
-    VELOCITY: "m/s",
+    FLOW: 'm³/s',
+    LONGITUDE: 'm',
+    AREA: 'm²',
+    VELOCITY: 'm/s',
   },
   IMPERIAL: {
-    FLOW: "cfs",
-    LONGITUDE: "ft",
-    AREA: "ft²",
-    VELOCITY: "ft/s",
+    FLOW: 'cfs',
+    LONGITUDE: 'ft',
+    AREA: 'ft²',
+    VELOCITY: 'ft/s',
   },
 };

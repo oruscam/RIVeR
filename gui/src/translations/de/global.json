@@ -20,7 +20,11 @@
     },
     "Step-2": {
     "title": " Wählen Sie den Typ des Videomaterials aus",
-    "pleaseSelectVideo": "Bitte wählen Sie eine Videodatei aus"
+    "pleaseSelectVideo": "Bitte wählen Sie eine Videodatei aus",
+    "addYourFootage": "Füge deine Aufnahme hinzu",
+    "changeType": "Typ ändern",
+    "dragAndDrop": "Ziehe deine Videodatei hierher und lasse sie los",
+    "openFolders": "Ordner öffnen"
     },
     "Wizard": {
         "back": "Zurück",
@@ -64,15 +68,23 @@
             "title": "Reale Koordinaten",
             "eastPoint1": "Ostpunkt 1",
             "eastPoint2": "Ostpunkt 2",
+            "eastPoint3": "Ostpunkt 3",
+            "eastPoint4": "Ostpunkt 4",
             "northPoint1": "Nordpunkt 1",
-            "northPoint2": "Nordpunkt 2"
+            "northPoint2": "Nordpunkt 2",
+            "northPoint3": "Nordpunkt 3",
+            "northPoint4": "Nordpunkt 4"
         },
         "Pixel": {
             "title": "Pixelkoordinaten",
             "xPoint1": "X-Punkt 1",
             "xPoint2": "X-Punkt 2",
+            "xPoint3": "X-Punkt 3",
+            "xPoint4": "X-Punkt 4",
             "yPoint1": "Y-Punkt 1",
-            "yPoint2": "Y-Punkt 2"
+            "yPoint2": "Y-Punkt 2",
+            "yPoint3": "Y-Punkt 3",
+            "yPoint4": "Y-Punkt 4"
         }
     },
     "CrossSections": {
@@ -258,6 +270,7 @@
         "no": "Nein",
         "solve": "Lösen",
         "resourceNotFound": "Ressource nicht gefunden",
-        "randomError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut"
+        "randomError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut",
+        "dropHereText": "Lege eine Datei irgendwo in diesem Bereich ab. Ich erkenne automatisch, wohin sie gehört."
     }
 }

@@ -23,7 +23,7 @@ interface UIState {
   message?: string;
   language: string;
   isLatestVersion?: boolean;
-  latestVersion?: string 
+  latestVersion?: string;
 }
 
 export type { ScreenSizes, UIState };

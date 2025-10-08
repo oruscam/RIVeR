@@ -1,16 +1,10 @@
-import { useRef, useState } from "react";
-import { VideoPlayerButtons } from "./VideoPlayerButtons.js";
-import { VideoPlayerSeekBar } from "./VideoPlayerSeekBar.js";
-import { VideoPlayerTime } from "./VideoPlayerTime.js";
-import "../components.css";
+import { useRef, useState } from 'react';
+import { VideoPlayerButtons } from './VideoPlayerButtons.js';
+import { VideoPlayerSeekBar } from './VideoPlayerSeekBar.js';
+import { VideoPlayerTime } from './VideoPlayerTime.js';
+import '../components.css';
 
-export const VideoPlayer = ({
-  fileURL,
-  duration,
-}: {
-  fileURL: string;
-  duration: number;
-}) => {
+export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: number }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [bufferAmount, setBufferAmount] = useState<number>(0);
   const [progressAmount, setProgressAmount] = useState<number>(0);
@@ -25,16 +19,11 @@ export const VideoPlayer = ({
       if (duration > 0) {
         for (let i = 0; i < videoRef.current.buffered.length; i++) {
           if (
-            videoRef.current.buffered.start(
-              videoRef.current.buffered.length - 1 + i,
-            ) < (videoRef.current.currentTime || 0)
+            videoRef.current.buffered.start(videoRef.current.buffered.length - 1 + i) <
+            (videoRef.current.currentTime || 0)
           ) {
             setBufferAmount(
-              (videoRef.current.buffered.end(
-                videoRef.current.buffered.length - 1 + i,
-              ) *
-                100) /
-                duration,
+              (videoRef.current.buffered.end(videoRef.current.buffered.length - 1 + i) * 100) / duration
             );
             break;
           }
@@ -47,9 +36,7 @@ export const VideoPlayer = ({
     if (videoRef.current) {
       if (duration > 0) {
         setCurrentTime(videoRef.current.currentTime || 0);
-        setProgressAmount(
-          ((videoRef.current.currentTime || 0) / duration) * 100,
-        );
+        setProgressAmount(((videoRef.current.currentTime || 0) / duration) * 100);
       }
     }
   };
@@ -84,11 +71,7 @@ export const VideoPlayer = ({
               control={control}
             ></VideoPlayerSeekBar>
 
-            <VideoPlayerButtons
-              videoRef={videoRef}
-              setControl={setControl}
-              control={control}
-            ></VideoPlayerButtons>
+            <VideoPlayerButtons videoRef={videoRef} setControl={setControl} control={control}></VideoPlayerButtons>
           </div>
         </div>
       ) : (
