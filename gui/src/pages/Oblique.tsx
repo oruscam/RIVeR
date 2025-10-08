@@ -103,7 +103,7 @@ export const Oblique = () => {
           localExtraFields={extraFields}
           localSetExtraFields={onChangeExtraFields}
         />
-        <WizardButtons formId="form-control-points" canFollow={solution !== undefined} />
+        <WizardButtons formId="form-control-points" canFollow={solution !== null} />
       </div>
     </div>
   );

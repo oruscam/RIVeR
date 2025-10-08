@@ -62,8 +62,8 @@ export const Uav = () => {
 
   useEffect(() => {
     methods.reset({
-      uav_LINE_LENGTH: formatNumberTo2Decimals(rwLength),
-      uav_PIXEL_SIZE: formatNumberToPrecision4(size),
+      uav_lineLength: formatNumberTo2Decimals(rwLength),
+      uav_pixelSize: formatNumberToPrecision4(size),
       uav_eastPoint1: rwPoints[0].x,
       uav_eastPoint2: rwPoints[1].x,
       uav_northPoint1: rwPoints[0].y,

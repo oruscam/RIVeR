@@ -35,7 +35,7 @@ export const FormUav = ({ onSubmit, onError }: FormChild) => {
         onUpdatePixelSize({ length: value });
       } else {
         const error = {
-          uav_LINE_LENGTH: {
+          uav_lineLength: {
             type: 'required',
             message: t('PixelSize.Errors.lineLength'),
           },
@@ -61,7 +61,7 @@ export const FormUav = ({ onSubmit, onError }: FormChild) => {
         });
       } else {
         const error = {
-          uav_PIXEL_SIZE: {
+          uav_pixelSize: {
             type: 'required',
             message: t('PixelSize.Errors.pixelSize'),
           },
@@ -108,7 +108,7 @@ export const FormUav = ({ onSubmit, onError }: FormChild) => {
               type="number"
               step="any"
               id="UAV-LINE_LENGTH"
-              {...register('uav_LINE_LENGTH', {
+              {...register('uav_lineLength', {
                 required: t('PixelSize.Errors.required'),
                 validate: (value: string) => {
                   if (parseFloat(value) <= 0) {
@@ -126,7 +126,7 @@ export const FormUav = ({ onSubmit, onError }: FormChild) => {
             <label className="read-only me-1">{t('PixelSize.pixelSize')}</label>
             <input
               className="input-field"
-              {...register('uav_PIXEL_SIZE')}
+              {...register('uav_pixelSize')}
               type="number"
               id="UAV-PIXEL_SIZE"
               // disabled={sections[0].dirPoints.length === 0}
