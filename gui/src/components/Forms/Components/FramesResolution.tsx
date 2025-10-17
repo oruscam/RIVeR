@@ -24,7 +24,7 @@ export const FramesResolution = ({ active }: { active: boolean }) => {
   };
 
   return (
-    <div className={`video-resolution ${active ? '' : 'hidden'}`} id="video-resolution">
+    <div className={`video-resolution ${active ? '' : 'hiddens'}`} id="video-resolution">
       <h2> {t('VideoRange.framesResolution')} </h2>
       <button
         className={`wizard-button mt-1 ${factor === 1 ? 'wizard-button-active' : ''}`}

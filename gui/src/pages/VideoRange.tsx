@@ -1,14 +1,20 @@
 import { VideoPlayer } from '../components/VideoPlayer/VideoPlayer';
 import { FormVideo } from '../components/Forms/FormVideo';
-import { WizardButtons } from '../components/WizzardButtons';
 import { Error } from '../components/Error';
-import { Progress } from '../components';
 import { useProjectSlice } from '../hooks';
+import { FormHeader } from '../components/Forms/Components';
+import { useTranslation } from 'react-i18next';
+import { ButtonLock } from '../components/ButtonLock';
+import { WizardButtons } from '../components';
+import { useState } from 'react';
 
 export const VideoRange = () => {
   const { video } = useProjectSlice();
   const { path } = video.data;
   const { duration } = video.data;
+  const { t } = useTranslation(); 
+  const { type } = useProjectSlice(); 
+  const [extraFields, setExtraFields] = useState(false);
 
   return (
     <div className="regular-page">
@@ -16,12 +22,23 @@ export const VideoRange = () => {
         {path && <VideoPlayer fileURL={path} duration={duration} />}
         <Error />
       </div>
-      <div className="form-container">
-        <Progress />
-        <FormVideo duration={duration} />
-        {/* <FormVideoExtra/> */}
-
+      <div className='form-container-new'>
+        <FormHeader title={t('VideoRange.title')} showSections={false}/>
+        <FormVideo duration={duration} extraFields={extraFields} />
+        <div className='footer'>
+        {
+          type !== "ipcam" && (
+            <ButtonLock
+              localExtraFields={extraFields}
+              setLocalExtraFields={setExtraFields}
+              disabled={false}
+              headerElementID="start"
+              footerElementID="video-resolution"
+            />
+          )
+        }
         <WizardButtons formId="form-video" canFollow={true} />
+      </div>
       </div>
     </div>
   );

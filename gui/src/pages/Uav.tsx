@@ -2,12 +2,14 @@ import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { FormUav } from '../components/Forms/index';
 import { WizardButtons, Error, Progress, ImageUav } from '../components/index';
-import { useUavSlice, useUiSlice } from '../hooks/index';
+import { useGlobalSlice, useUavSlice, useUiSlice } from '../hooks/index';
 
 import './pages.css';
 import { useEffect } from 'react';
-import { ButtonLock } from '../components/ButtonLock.js';
 import { formatNumberTo2Decimals, formatNumberToPrecision4 } from '../helpers/adapterNumbers.js';
+import { FormHeader } from '../components/Forms/Components/FormHeader.js';
+import { useTranslation } from 'react-i18next';
+import { ButtonLock } from '../components/ButtonLock.js';
 
 export const Uav = () => {
   const {
@@ -17,9 +19,12 @@ export const Uav = () => {
     rwLength,
     solution,
     extraFields,
-    onUpdatePixelSize,
     onGetUavTransformationMatrix,
+    onUpdatePixelSize
   } = useUavSlice();
+  const { t } = useTranslation();
+  const { isBackendWorking } = useGlobalSlice();
+  
 
   // * Estado inicial del formulario
   const methods = useForm({
@@ -41,12 +46,6 @@ export const Uav = () => {
   const { onSetErrorMessage } = useUiSlice();
 
   const onSubmit = (_data: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
-    const id = (event.nativeEvent as SubmitEvent).submitter?.id;
-    if (id === 'solve-pixelsize') {
-      event.preventDefault();
-      onGetUavTransformationMatrix();
-      return;
-    }
     nextStep();
   };
 
@@ -55,6 +54,10 @@ export const Uav = () => {
 
     onSetErrorMessage(error);
   };
+
+  const onClickSolveButton = () => {
+    onGetUavTransformationMatrix();
+  }
 
   const onChangeExtraFields = () => {
     onUpdatePixelSize({ extraFields: true });
@@ -81,19 +84,31 @@ export const Uav = () => {
         <ImageUav/>
         <Error />
       </div>
-      <div className="form-container">
-        <Progress />
+      <div className='form-container-new'>
+        <FormHeader title={t('PixelSize.title')} showSections={false}/>
+        
         <FormProvider {...methods}>
           <FormUav onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
-        <ButtonLock
-          footerElementID="span-footer"
-          headerElementID="uav-header"
-          disabled={dirPoints.length === 0}
-          localExtraFields={extraFields}
-          localSetExtraFields={onChangeExtraFields}
-        />
-        <WizardButtons canFollow={solution?.orthoImage !== undefined} formId="form-pixel-size" />
+
+        <div className='footer'>
+          <button
+           className="wizard-button form-button solver-button"
+           id="solve-pixelsize"
+           disabled={dirPoints.length !== 2 || rwLength === 0 || isBackendWorking || solution !== null}
+           onClick={onClickSolveButton}
+          >
+           {t('Commons.solve')}
+         </button>
+          <ButtonLock
+            footerElementID="span-footer"
+            headerElementID="uav-header"
+            disabled={dirPoints.length === 0}
+            localExtraFields={extraFields}
+            setLocalExtraFields={onChangeExtraFields}
+          />
+        <WizardButtons canFollow={solution?.orthoImage !== undefined} formId="form-pixel-size" /> 
+        </div>
       </div>
     </div>
   );
