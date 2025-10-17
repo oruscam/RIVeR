@@ -101,7 +101,7 @@ export const Oblique = () => {
           headerElementID="draw-coordinates"
           disabled={coordinates[0].x === 0}
           localExtraFields={extraFields}
-          localSetExtraFields={onChangeExtraFields}
+          setLocalExtraFields={onChangeExtraFields}
         />
         <WizardButtons formId="form-control-points" canFollow={solution !== null} />
       </div>

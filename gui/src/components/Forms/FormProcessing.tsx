@@ -1,19 +1,15 @@
-import { useState } from 'react';
-import { ButtonLock } from '../ButtonLock';
 import { HardModeProcessing } from './Components/index';
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useDataSlice, useUiSlice } from '../../hooks';
 import { useWizard } from 'react-use-wizard';
 import { useTranslation } from 'react-i18next';
 import { WINDOW_SIZES } from '../../constants/constants';
-import { TestPlot } from '../Graphs';
 
-export const FormProcessing = () => {
-  const [extraFields, setExtraFields] = useState(false);
+export const FormProcessing = ({extraFields}: {extraFields: boolean}) => {
   const { nextStep } = useWizard();
 
   const { onSetErrorMessage } = useUiSlice();
-  const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver, isBackendWorking, quiver } =
+  const { processing, onUpdateProcessing, onSetQuiverTest, onClearQuiver, isBackendWorking } =
     useDataSlice();
   const {
     step1,
@@ -83,18 +79,16 @@ export const FormProcessing = () => {
   };
 
   return (
-    <>
-      <h1 className="form-title"> {t('Processing.title')} </h1>
+    <div className='body'>
       <FormProvider {...methods}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className={`form-scroll mt-1 ${isBackendWorking ? 'disabled' : ''}`}
+          className={`${isBackendWorking ? 'disabled' : ''}`}
           id="form-processing"
           style={{ overflowY: `${!extraFields ? 'hidden' : 'auto'}` }}
           onKeyDown={handleTab}
         >
           <span id="processing-header"></span>
-          <div className="form-base-2">
             <h2 className="form-subtitle only-one-item mt-2"> {t('Processing.windowSizes')} </h2>
 
             <div className="input-container-2 mt-2">
@@ -140,16 +134,8 @@ export const FormProcessing = () => {
             </div>
 
             <HardModeProcessing active={extraFields} />
-          </div>
         </form>
       </FormProvider>
-      <ButtonLock
-        localSetExtraFields={setExtraFields}
-        localExtraFields={extraFields}
-        footerElementID="processing-footer"
-        headerElementID="processing-header"
-        disabled={isBackendWorking}
-      ></ButtonLock>
-    </>
+    </div>
   );
 };

@@ -105,7 +105,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
   }, [sections.length]);
 
   return (
-    <div className="sections mt-2">
+    <div className="sections">
       <div className="sections-layer">
         <EyeBall />
         <span className="section" />

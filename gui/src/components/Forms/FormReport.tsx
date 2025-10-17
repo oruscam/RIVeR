@@ -86,8 +86,7 @@ export const FormReport = ({
   };
 
   return (
-    <>
-      <h1 className="form-title"> {t('Report.Summary.title')} </h1>
+    <div className='body'>
       <form className="form-base-2">
         <div className="simple-input-container">
           <label>{t('Report.Form.riverName')}</label>
@@ -154,6 +153,6 @@ export const FormReport = ({
 
         {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
       </form>
-    </>
+    </div>
   );
 };
