@@ -3,7 +3,7 @@ import { QuiverData } from '../../helpers/drawVectorsFunctions';
 import { VECTORS } from '../../constants/constants';
 
 export const drawQuiver = (
-    svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
+    svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>,
     data: QuiverData[],
     factor: number
 ) => {
@@ -26,17 +26,25 @@ export const drawQuiver = (
     });
 
     // Tooltip div
-    const tooltip = d3.select("body")
-        .append("div")
-        .style("position", "absolute")
-        .style("background", "white")
-        .style("border", "1px solid #ccc")
-        .style("padding", "5px 10px")
-        .style("border-radius", "5px")
-        .style("pointer-events", "none")
-        .style("opacity", 0);
+        let tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any> = d3.select<HTMLDivElement, unknown>('#quiver-tooltip');
+        if (tooltip.empty()) {
+            tooltip = d3.select<HTMLDivElement, unknown>('body')
+                .append('div')
+                .attr('id', 'quiver-tooltip')
+                .style('position', () => 'absolute')
+                .style('top', () => '0px')
+                .style('background', () => 'white')
+                .style('border', () => '1px solid #ccc')
+                .style('padding', () => '5px 10px')
+                .style('border-radius', () => '5px')
+                .style('pointer-events', () => 'none')
+                .style('opacity', () => '0');
+        } else {
+            // Reuse existing tooltip (reset opacity/position if needed)
+            tooltip.style('opacity', () => '0').style('top', () => '0px');
+        }
 
-    const lines = svg.selectAll('line')
+    svg.selectAll('line')
         .data(data)
         .enter()
         .append('line')
@@ -59,19 +67,19 @@ export const drawQuiver = (
         .attr('cx', (d) => d.x / factor + (d.u * Math.abs(mean_u - VECTORS.QUIVER_AMPLITUDE_FACTOR)) / factor)
         .attr('cy', (d) => d.y / factor + (d.v * Math.abs(mean_v - VECTORS.QUIVER_AMPLITUDE_FACTOR)) / factor)
         .attr('r', hitboxRadius)
-        .style('fill', 'transparent')
-        .style('cursor', 'pointer')
-        .on("mouseover", function (event, d) {
+        .style('fill', () => 'transparent')
+        .style('cursor', () => 'pointer')
+        .on("mouseover", function (event: MouseEvent, d: QuiverData) {
             tooltip.transition().duration(200).style("opacity", 1);
             tooltip.html(`${d.velocity.toFixed(2)}`)
-                .style("left", (event.pageX + 10) + "px")
-                .style("top", (event.pageY - 28) + "px")
-                .style('background', 'rgba(255, 255, 255, 0.4)')
-                .style("z-index", 1000);
+                .style("left", () => (event.pageX + 10) + "px")
+                .style("top", () => (event.pageY - 28) + "px")
+                .style('background', () => 'rgba(255, 255, 255, 0.4)')
+                .style("z-index", () => "1000");
         })
-        .on("mousemove", function (event) {
-            tooltip.style("left", (event.pageX + 10) + "px")
-                   .style("top", (event.pageY - 28) + "px");
+        .on("mousemove", function (event: MouseEvent) {
+            tooltip.style("left", () => (event.pageX + 10) + "px")
+                   .style("top", () => (event.pageY - 28) + "px");
         })
         .on("mouseout", function () {
             tooltip.transition().duration(300).style("opacity", 0);
