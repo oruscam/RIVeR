@@ -70,11 +70,11 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   };
 
   return (
-    <div id="form-section-div" className={activeSection !== index ? 'hidden' : ''}>
+    <div id="form-section-div" className={activeSection !== index ? 'hidden' : 'wrapper'}>
       <form
         className={`${isBackendWorking ? 'disabled' : ''}`}
-        id="form-result"
         onSubmit={onSubmit}
+        id="form-result"
       >
         <div id="result-info">
           <p id="result-number">{data?.total_Q}</p>
@@ -90,7 +90,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
           </div>
         </div>
 
-        <div className="input-container mt-2">
+        <div className="input-container-2 mt-2">
           <label className="read-only me-1" htmlFor="alpha">
             {' '}
             {t('Results.alpha')}{' '}
@@ -106,7 +106,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
           ></input>
         </div>
 
-        <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '800px' }}>
+        <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '720px' }}>
           <AllInOne isReport={false} height={700} />
         </div>
 

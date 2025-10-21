@@ -166,7 +166,9 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
             />
           </div>
           <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
-          <FramesResolution active={extraFields} />
+          {
+            extraFields && <FramesResolution active={extraFields} />
+          }
         </form>
       </div>      
   )

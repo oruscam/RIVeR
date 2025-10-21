@@ -46,7 +46,7 @@ export const Results = () => {
             {' '}
             {t('Results.applyChanges')}
           </button>
-          <WizardButtons formId="form-result" />
+          <WizardButtons formId="form-result" canFollow={true} />
         </div>
       </div>
     </div>
