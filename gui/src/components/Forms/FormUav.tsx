@@ -1,7 +1,7 @@
 import './form.css';
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
-import { useProjectSlice, useUavSlice, useUiSlice } from '../../hooks';
+import { useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../../hooks';
 import { HardModeUav } from './Components/index';
 import { OrthoImage } from '../Graphs';
 
@@ -16,12 +16,11 @@ export const FormUav = ({onSubmit, onError}) => {
   } = useUavSlice();
   const { video } = useProjectSlice();
   const { onSetErrorMessage } = useUiSlice();
+  const { isBackendWorking } = useGlobalSlice();
   const { width, height } = video.data;
   const { factor: imageReducedFactor } = video.parameters;
 
   const { register } = useFormContext();
-
-
 
   const handleLineLengthInput = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
@@ -75,11 +74,9 @@ export const FormUav = ({onSubmit, onError}) => {
   return;
 };
 
-
-
   return (
       <div className='body mt-2'>
-        <form onSubmit={onSubmit} onError={onError} id="form-pixel-size">
+        <form onSubmit={onSubmit} onError={onError} id="form-pixel-size" className={`${isBackendWorking ? 'disabled' : ''}`}>
           <div className="input-container-2">
            <button
              className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}

@@ -1,15 +1,16 @@
-import { FieldValues, FormProvider, useForm } from 'react-hook-form';
-import { Error, ImageOblique, Progress, WizardButtons } from '../components';
+import { FormProvider, useForm } from 'react-hook-form';
+import { Error, ImageOblique, WizardButtons } from '../components';
 import { FormOblique } from '../components/Forms';
-import { useObliqueSlice, useUiSlice } from '../hooks';
+import { useGlobalSlice, useObliqueSlice, useUiSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
 import { useEffect, useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers';
-import { Distances } from '../store/oblique/types';
 import { ButtonLock } from '../components/ButtonLock';
 import { Point } from '../types';
+import { FormHeader } from '../components/Forms/Components';
+import { useTranslation } from 'react-i18next';
 
-const createDefaultState = (distances: Distances, coordinates: Point[], rwCoordinates: Point[]) => {
+const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates: Point[]) => {
   const defaultValues = {
     distance12: distances.d12.toFixed(2),
     distance23: distances.d23.toFixed(2),
@@ -39,28 +40,27 @@ const createDefaultState = (distances: Distances, coordinates: Point[], rwCoordi
 }
 
 export const Oblique = () => {
-  const { solution, distances, coordinates, rwCoordinates, extraFields, onChangeExtraFields, onGetObliqueTransformationMatrix, onGetDistances } = useObliqueSlice();
+  const { solution, distances, coordinates, rwCoordinates, extraFields, onChangeExtraFields, onGetObliqueTransformationMatrix, onGetDistances, isDefaultCoordinates } = useObliqueSlice();
+  const { isBackendWorking } = useGlobalSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { nextStep } = useWizard();
+  const { t } = useTranslation();
 
   const [dragOver, setDragOver] = useState<boolean>(false);
 
   const methods = useForm({ defaultValues: createDefaultState(distances, coordinates, rwCoordinates) });
 
-  const onSubmit = (values: FieldValues, event?: React.BaseSyntheticEvent) => {
-    const id = event?.nativeEvent?.submitter?.id;
-
-    if (id === 'solve-oblique') {
-      onGetObliqueTransformationMatrix(values).catch((error) => onSetErrorMessage(error.message));
-      return;
-    }
-
+  const onSubmit = () => {
     nextStep();
   };
 
   const onError = (error: string) => {
     onSetErrorMessage(error);
   };
+
+  const onClickSolveButton = () => {
+    onGetObliqueTransformationMatrix(methods.getValues()).catch((error) => onSetErrorMessage(error.message));
+  }
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -86,24 +86,35 @@ export const Oblique = () => {
         <Error />
       </div>
       <div
-        className={`form-container ${dragOver ? 'drag-over' : ''}`}
+        className={`form-container-new ${dragOver ? 'drag-over' : ''}`}
         onDragOver={(event) => handleDragOver(event, setDragOver)}
         onDragLeave={(event) => handleDragLeave(event, setDragOver, false)}
         onDrop={handleDrop}
       >
-        <Progress />
+        <FormHeader title={t('ControlPoints.title')} showSections={false}/>
+        
         <FormProvider {...methods}>
           <FormOblique onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
 
-        <ButtonLock
-          footerElementID="span-footer"
-          headerElementID="draw-coordinates"
-          disabled={coordinates[0].x === 0}
-          localExtraFields={extraFields}
-          setLocalExtraFields={onChangeExtraFields}
-        />
-        <WizardButtons formId="form-control-points" canFollow={solution !== null} />
+        <div className='footer'>
+          <button
+            className="wizard-button form-button solver-button"
+            id="solve-oblique"
+            disabled={isDefaultCoordinates || isBackendWorking}
+            onClick={onClickSolveButton}
+          >
+            {t('Commons.solve')}
+          </button>
+          <ButtonLock
+            footerElementID="span-footer"
+            headerElementID="draw-coordinates"
+            disabled={coordinates[0].x === 0}
+            localExtraFields={extraFields}
+            setLocalExtraFields={onChangeExtraFields}
+          />
+          <WizardButtons formId="form-control-points" canFollow={solution !== null} />
+        </div>
       </div>
     </div>
   );
