@@ -78,6 +78,7 @@
     overflow-x: hidden;
     flex-shrink: 1;
     border-top: 8px solid var(--secondary-background-color);
+    padding-top: 15px;
 }
 
 .media-container::-webkit-scrollbar {
@@ -543,7 +544,8 @@
     position: relative;
     background-color: transparent;
     flex-shrink: 0;
-    margin-top: 20px;
+    margin-top: auto;
+    
 }
 
 .simple-image{

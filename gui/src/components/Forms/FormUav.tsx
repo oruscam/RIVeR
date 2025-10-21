@@ -130,7 +130,9 @@ export const FormUav = ({onSubmit, onError}) => {
 
           {solution !== null && <OrthoImage solution={solution} secondPoint={solution.secondPoint} />}
           
-          <HardModeUav extraFields={extraFields} />
+          {
+            extraFields && <HardModeUav/>
+          }
         </form>
       </div>
   )

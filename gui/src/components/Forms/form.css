@@ -250,17 +250,6 @@ transform-origin: 14px 22px;
     margin-bottom: 3px;
 }
 
-#form-result{
-    width: 100%;
-    height: 96%;
-    padding-top: 20px;
-    padding-bottom: 10px;
-    overflow-y: scroll;
-    display: flex;
-    flex-direction: column;
-}
-
-
 /* ** Refactor de estilos  a partir de aca */
 
 .form-scroll{
@@ -292,7 +281,7 @@ transform-origin: 14px 22px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: opacity 0.2s ease-in-out, transform 0.3s ease-in-out;
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 .video-resolution.hiddens {
   opacity: 0;
@@ -363,7 +352,6 @@ transform-origin: 14px 22px;
     width: 65%;
     margin-left: auto;
     margin-right: auto;
-
 }
 
 
@@ -529,7 +517,7 @@ transform-origin: 14px 22px;
 .drop-here-text{
     margin: 8px auto;          /* centra horizontalmente */
     font-size: 1.15rem;
-    width: 60%;
+    width: 75%;
     color: var(--secondary-text-color);
     transition: all 0.5s ease;
 }   
@@ -568,15 +556,18 @@ transform-origin: 14px 22px;
 }
 
 .form-container-new .body{
-    width: 100%;
-    height: auto;
+    align-self: center;
+    width: 98%;
+    height: 100%;
     overflow-y: scroll;
     overflow-x: hidden;
-    display: flex;
-    flex-direction: column;
     padding-bottom: 10px;
     margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
+
 
 .form-container-new .footer{
     width: 100%;
@@ -593,4 +584,9 @@ transform-origin: 14px 22px;
 
 .form-container-new.drag-over {
     border: 3px dashed white;
+}
+
+.wrapper{
+    width: 100%;
+    max-width: 700px;
 }

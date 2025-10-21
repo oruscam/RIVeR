@@ -69,28 +69,28 @@ export const FormAnalizing = () => {
 
   return (
     <div className="body" id="form-analizing">
-      <div className="input-container-2">
+        <div className="input-container-2">
+          <button
+            className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
+            onClick={handleAnalize}
+          >
+            {t('Analizing.analize')}
+          </button>
+        </div>
+        <div className="analizing-output">
+          {percentage !== '' && (
+            <Loading percentage={percentage} time={time} size={'big'} isComplete={percentage === '100%'} />
+          )}
+        </div>
         <button
-          className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
-          onClick={handleAnalize}
+          id="stop-analize"
+          className={`danger-button  'danger-button-active' : ''}`}
+          onClick={handleStop}
+          disabled={!isBackendWorking}
         >
-          {t('Analizing.analize')}
+          {' '}
+          {t('Analizing.stop')}{' '}
         </button>
-      </div>
-      <div className="analizing-output">
-        {percentage !== '' && (
-          <Loading percentage={percentage} time={time} size={'big'} isComplete={percentage === '100%'} />
-        )}
-      </div>
-      <button
-        id="stop-analize"
-        className={`danger-button  'danger-button-active' : ''}`}
-        onClick={handleStop}
-        disabled={!isBackendWorking}
-      >
-        {' '}
-        {t('Analizing.stop')}{' '}
-      </button>
     </div>
   );
 };
