@@ -21,7 +21,7 @@ export const Processing = () => {
         <Carousel images={paths} active={active} setActiveImage={onSetActiveImage} mode="processing" />
         <Error />
       </div>
-      <div className='form-container-new'>
+      <div className='form-container'>
         <FormHeader title={t('Processing.title')} showSections={false}/>
         <FormProcessing extraFields={extraFields} />
         <div className='footer'>

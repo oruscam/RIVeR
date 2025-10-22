@@ -58,7 +58,7 @@ export const Ipcam = () => {
         <Error />
       </div>
       <div
-        className={`form-container-new ${dragOver ? 'drag-over' : ''}`}
+        className={`form-container ${dragOver ? 'drag-over' : ''}`}
         onDragOver={(e) => handleDragOver(e, setDragOver)}
         onDragLeave={(e) => handleDragLeave(e, setDragOver, false)}
         onDrop={handleDrop}

@@ -59,7 +59,7 @@ export const CrossSections = () => {
         <Error></Error>
       </div>
       <div
-        className={`form-container-new ${dragOver ? 'drag-over' : ''}`}
+        className={`form-container ${dragOver ? 'drag-over' : ''}`}
         onDragOver={(event) => handleDragOver(event, setDragOver)}
         onDragLeave={(event) => handleDragLeave(event, setDragOver, false)}
         onDrop={handleDrop}>         

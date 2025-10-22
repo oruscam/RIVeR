@@ -10,6 +10,24 @@ import { formatNumberTo2Decimals, formatNumberToPrecision4 } from '../helpers/ad
 import { FormHeader } from '../components/Forms/Components/FormHeader.js';
 import { useTranslation } from 'react-i18next';
 import { ButtonLock } from '../components/ButtonLock.js';
+import { Point } from '../types/index.js';
+
+const createDefaultState = (dirPoints: Point[], rwPoints: Point[], rwLength: number, size: number) => {
+   const defaultValues = {
+      uav_lineLength: formatNumberTo2Decimals(rwLength),
+      uav_pixelSize: formatNumberToPrecision4(size),
+      uav_eastPoint1: rwPoints[0].x,
+      uav_eastPoint2: rwPoints[1].x,
+      uav_northPoint1: rwPoints[0].y,
+      uav_northPoint2: rwPoints[1].y,
+      uav_xPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
+      uav_xPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
+      uav_yPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
+      uav_yPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].y,
+    }
+
+    return defaultValues;
+}
 
 export const Uav = () => {
   const {
@@ -27,25 +45,12 @@ export const Uav = () => {
   
 
   // * Estado inicial del formulario
-  const methods = useForm({
-    defaultValues: {
-      uav_lineLength: formatNumberTo2Decimals(rwLength),
-      uav_pixelSize: formatNumberToPrecision4(size),
-      uav_eastPoint1: rwPoints[0].x,
-      uav_eastPoint2: rwPoints[1].x,
-      uav_northPoint1: rwPoints[0].y,
-      uav_northPoint2: rwPoints[1].y,
-      uav_xPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
-      uav_xPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
-      uav_yPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
-      uav_yPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].y,
-    },
-  });
+  const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size) });
 
   const { nextStep } = useWizard();
   const { onSetErrorMessage } = useUiSlice();
 
-  const onSubmit = (_data: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
+  const onSubmit = (_data: FieldValues ) => {
     nextStep();
   };
 
@@ -64,18 +69,7 @@ export const Uav = () => {
   };
 
   useEffect(() => {
-    methods.reset({
-      uav_lineLength: formatNumberTo2Decimals(rwLength),
-      uav_pixelSize: formatNumberToPrecision4(size),
-      uav_eastPoint1: rwPoints[0].x,
-      uav_eastPoint2: rwPoints[1].x,
-      uav_northPoint1: rwPoints[0].y,
-      uav_northPoint2: rwPoints[1].y,
-      uav_xPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
-      uav_xPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
-      uav_yPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
-      uav_yPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].y,
-    });
+    methods.reset(createDefaultState(dirPoints, rwPoints, rwLength, size));
   }, [dirPoints, rwPoints, size, rwLength, methods]);
 
   return (
@@ -84,7 +78,7 @@ export const Uav = () => {
         <ImageUav/>
         <Error />
       </div>
-      <div className='form-container-new'>
+      <div className='form-container'>
         <FormHeader title={t('PixelSize.title')} showSections={false}/>
         
         <FormProvider {...methods}>
