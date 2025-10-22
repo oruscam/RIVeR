@@ -68,7 +68,7 @@ export const FormAnalizing = () => {
   }, [percentage, time]);
 
   return (
-    <div className="body" id="form-analizing">
+    <div className="body mt-3" id="form-analizing">
         <div className="input-container-2">
           <button
             className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}

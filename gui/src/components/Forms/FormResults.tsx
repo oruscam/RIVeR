@@ -110,7 +110,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
           <AllInOne isReport={false} height={700} />
         </div>
 
-        <div className="switch-container-2">
+        <div className="switch-container-results">
           <h3 className="field-title me-2 mt-3"> {t('Results.stationNumber')}</h3>
           <input
             className="input-field-little mt-3"
@@ -122,7 +122,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
           ></input>
         </div>
 
-        <div className="switch-container-2 mt-2">
+        <div className="switch-container-results mt-2">
           <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
           <label className="switch">
             <input
@@ -136,7 +136,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
           </label>
         </div>
 
-        <div className="switch-container-2 mt-1 ">
+        <div className="switch-container-results mt-1 ">
           <h3 className="field-title">{t('Results.interpolateProfile')}</h3>
           <label className="switch">
             <input

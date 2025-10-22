@@ -86,8 +86,8 @@ export const FormReport = ({
   };
 
   return (
+      <form>
     <div className='body'>
-      <form className="form-base-2">
         <div className="simple-input-container">
           <label>{t('Report.Form.riverName')}</label>
           <input
@@ -152,7 +152,7 @@ export const FormReport = ({
         </div>
 
         {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
-      </form>
     </div>
+      </form>
   );
 };

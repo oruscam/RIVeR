@@ -41,7 +41,7 @@ export const Analize = () => {
         />
         <Error></Error>
       </div>
-      <div className="form-container-new">
+      <div className="form-container">
         <FormHeader title={t('Analizing.title')} showSections={false}/>
         <FormAnalizing />
         <div className='footer'>

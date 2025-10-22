@@ -34,7 +34,7 @@ export const Results = () => {
         </div>
         <Error />
       </div>
-      <div className="form-container-new">
+      <div className="form-container">
         <FormHeader title={t('Results.title')} canEdit={false} showSections={true} />
         <ResultsComponent />
         <div className='footer'>
