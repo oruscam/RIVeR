@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { COLORS } from '../../constants/constants';
-import { getPositionSectionText } from '../../helpers';
+import { getPositionSectionText } from '../../../commons/sectionTextPosition';
 
 interface drawSvgSectionLineProps {
   svgElement: SVGSVGElement;

@@ -1,4 +1,5 @@
-import { Point } from '../types';
+import { image } from 'd3-fetch';
+import { Point } from './types';
 
 /**
  * This function is used to calculate the midpoint of one section line and the angle between two points.
@@ -157,4 +158,5 @@ const getPositionSectionText = (
 
   return { point, rotation };
 };
-export { calculateMidpointAndAngle, getLeftAndRightPoints, getLowerAndUpperPoints, getPositionSectionText };
+
+export { getPositionSectionText };

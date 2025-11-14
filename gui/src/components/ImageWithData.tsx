@@ -5,9 +5,10 @@ import { Quiver } from './Quiver';
 import { MODULE_NUMBER } from '../constants/constants';
 import { DrawSections } from './DrawSections';
 import { Layer, Stage } from 'react-konva';
-import { getQuiverValues, QuiverData } from '../helpers/drawVectorsFunctions';
 import { useMemo, useRef } from 'react';
 import { ColorBar } from './ColorBar';
+import { QuiverData } from '../../commons/types';
+import { getQuiverValues } from '../../commons/vectors';
 
 export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const { screenSizes } = useUiSlice();
@@ -45,7 +46,6 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const realWidth = vertical ? widthReduced : width;
   const realHeight = vertical ? heightReduced : height;
   const realFactor = vertical ? factorReduced : factor;
-
 
   const { data, min, max } = useMemo(() => {
     if ( quiver === null ){

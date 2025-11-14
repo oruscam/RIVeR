@@ -1,6 +1,6 @@
 import { FieldValues } from 'react-hook-form';
 import { Point } from '../types';
-import { getDistanceBetweenPoints } from './coordinates';
+import { getDistanceBetweenPoints } from '../../commons/coordinates';
 
 /**
  * Creates a square given two diagonal points.

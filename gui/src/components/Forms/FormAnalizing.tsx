@@ -3,6 +3,8 @@ import { useDataSlice, useUiSlice } from '../../hooks';
 import { useTranslation } from 'react-i18next';
 import { Loading } from '../Loading';
 import React, { useEffect } from 'react';
+import { ExportGif } from './Components';
+
 
 export const FormAnalizing = () => {
   const { onSetQuiverAll, isBackendWorking, onKillBackend, quiver } = useDataSlice();
@@ -34,6 +36,7 @@ export const FormAnalizing = () => {
   if (isBackendWorking === false && percentage === '97%') {
     setPercentage('100%');
   }
+
 
   useEffect(() => {
     const handleRiverCliMessage = (_event: any, text: string) => {
@@ -77,14 +80,18 @@ export const FormAnalizing = () => {
             {t('Analizing.analize')}
           </button>
         </div>
+        <ExportGif disabled={quiver === null}/>
+
         <div className="analizing-output">
           {percentage !== '' && (
             <Loading percentage={percentage} time={time} size={'big'} isComplete={percentage === '100%'} />
           )}
         </div>
+
+
         <button
           id="stop-analize"
-          className={`danger-button  'danger-button-active' : ''}`}
+          className={`danger-button ${isBackendWorking ?  'danger-button-active' : ''}`}
           onClick={handleStop}
           disabled={!isBackendWorking}
         >
