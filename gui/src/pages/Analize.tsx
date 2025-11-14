@@ -40,7 +40,7 @@ export const Analize = () => {
       </div>
       <div className="form-container">
         <Progress />
-        <FormAnalizing />
+        <FormAnalizing setShowMedian={setShowMedian} />
         <WizardButtons onClickNext={handleNext} canFollow={quiver !== null}></WizardButtons>
       </div>
     </div>
