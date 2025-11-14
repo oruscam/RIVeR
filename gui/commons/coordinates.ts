@@ -1,4 +1,4 @@
-import { Point } from '../types';
+import { Point } from './types';
 
 // * Calculate and return the Euclidean distance between two points.
 

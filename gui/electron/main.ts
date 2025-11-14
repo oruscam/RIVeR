@@ -27,6 +27,7 @@ import {
   getResultData,
   createMaskAndBbox,
   recommendRoiHeight,
+  getGif,
 } from './ipcMainHandlers/index.js';
 import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
@@ -177,6 +178,7 @@ app.whenReady().then(() => {
   getPoints(PROJECT_CONFIG);
   getIpcamImages(PROJECT_CONFIG);
   getDistances(PROJECT_CONFIG);
+  getGif(PROJECT_CONFIG);
   saveTransformationMatrix(PROJECT_CONFIG);
   saveReportHtml(PROJECT_CONFIG);
 });

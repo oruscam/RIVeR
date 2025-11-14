@@ -1,3 +1,5 @@
+import { Quiver } from "../../../commons/types";
+
 interface FormProcessing {
   artificialSeeding: boolean;
   clahe: boolean;
@@ -23,17 +25,6 @@ interface Processing {
 interface Images {
   paths: string[];
   active: number;
-}
-
-interface Quiver {
-  x: number[];
-  y: number[];
-  u: number[][] | number[];
-  v: number[][] | number[];
-  typevector: number[];
-  u_median?: number[];
-  v_median?: number[];
-  test: boolean;
 }
 
 interface DataState {

@@ -31,7 +31,7 @@ export const useDataSlice = () => {
   const { processing, images, quiver, isBackendWorking, isDataLoaded, hasChanged } = useSelector(
     (state: RootState) => state.data
   );
-  const { sections, activeSection } = useSelector((state: RootState) => state.section);
+  const { sections, activeSection, transformationMatrix } = useSelector((state: RootState) => state.section);
   const { video } = useSelector((state: RootState) => state.project);
 
   const { t } = useTranslation();
@@ -352,6 +352,40 @@ export const useDataSlice = () => {
     dispatch(setDefaultDataState());
   };
 
+  interface ExportGifParams {
+    image: { width: number; height: number };
+    factor: number;
+    algorithm: string;
+    delay: number;
+  }
+
+  const onExportGif = async ({image, factor, algorithm, delay} : ExportGifParams) => {
+    // dispatch(setBackendWorking(true));
+    const ipcRenderer = window.ipcRenderer;
+
+    try {
+      const { time, path } = await ipcRenderer.invoke('get-gif', {
+        image,
+        quiver,
+        factor,
+        algorithm,
+        delay,
+        sections,
+        transformationMatrix
+      })
+      // dispatch(setBackendWorking(false));
+
+      return { time, path };
+
+    } catch (error) {
+      console.log(error);
+      return {
+        message: 'Error creating gif'
+      }
+    }
+
+  }
+
   return {
     // ATRIBUTES
     isBackendWorking,
@@ -361,6 +395,7 @@ export const useDataSlice = () => {
 
     // METHODS
     onClearQuiver,
+    onExportGif,
     onGetResultData,
     onKillBackend,
     onReCalculateMask,

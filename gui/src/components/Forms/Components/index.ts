@@ -8,9 +8,11 @@ import { HardModeUav } from "./HardModeUav";
 import { HardModeCrossSections } from "./HardModeCrossSections";
 import { HardModeOblique } from "./HardModeOblique";
 import { FormHeader } from "./FormHeader"
+import { ExportGif } from './ExportGif';
 
 export { 
     DropHereText, 
+    ExportGif,
     FormHeader,
     FramesResolution, 
     HardModeCrossSections,
