@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Loading } from '../Loading';
 import React, { useEffect } from 'react';
 
-export const FormAnalizing = () => {
+export const FormAnalizing = ({setShowMedian}: {setShowMedian: React.Dispatch<React.SetStateAction<boolean>>}) => {
   const { onSetQuiverAll, isBackendWorking, onKillBackend, quiver } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { t } = useTranslation();
@@ -18,7 +18,9 @@ export const FormAnalizing = () => {
     if (isBackendWorking) return;
     setPercentage('');
     setTime('');
-    onSetQuiverAll().catch((error) => onSetErrorMessage(error.message));
+    onSetQuiverAll()
+      .then(() => setShowMedian(true))
+      .catch((error) => onSetErrorMessage(error.message));
   };
 
   const handleStop = async () => {
