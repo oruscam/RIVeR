@@ -83,21 +83,23 @@ async function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
-
+    
     // If you want to use gui with Python shell, uncomment the next line
     // and comment the next line with riverCli.
     // This will use the Python shell to execute RIVeR commands.
     // This is useful for development purposes, but not recommended for production.
-
+    
     riverCli = executePythonShell;
+    // riverCli = executeRiverCli;
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'));
-
+        
     riverCli = executeRiverCli;
-
+    
     // Remove menu bar
     win.setMenu(null);
+
   }
 }
 
@@ -124,7 +126,7 @@ if (filePrefix === undefined) {
   filePrefix = '';
 }
 
-const PROJECT_CONFIG: ProjectConfig = {
+export const PROJECT_CONFIG: ProjectConfig = {
   mainDirectory: path.join(userDir, 'River'),
   projectDirectory: '',
   type: '',
@@ -140,6 +142,7 @@ const PROJECT_CONFIG: ProjectConfig = {
   firstFrame: '',
   defaultFilesPath: '',
   filePrefix: filePrefix,
+  pythonPath: VITE_DEV_SERVER_URL ? path.join(app.getAppPath(), 'river-cli', 'river-cli') : path.join(__dirname, '..', 'embedded', 'cpython', 'bin', 'python'),
 };
 
 // General window dialog to confirm deletes.
