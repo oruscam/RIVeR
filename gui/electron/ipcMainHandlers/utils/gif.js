@@ -7,11 +7,10 @@
  * @returns object containing output width, height, and drawing coordinates
  */
 
-import { getPositionSectionText } from "../../../commons/sectionTextPosition";
-import { Quiver, Section } from "../../../commons/types";
-import { getQuiverValues } from "../../../commons/vectors";
+import { getPositionSectionText } from "../../../commons/sectionTextPosition.js";
+import { getQuiverValues } from "../../../commons/vectors.js";
 
-const getGifDimensions = ( imgWidth: number, imgHeight: number, factor:number ): { outWidth: number; outHeight: number; dw: number; dh: number; dx: number; dy: number; } => {
+const getGifDimensions = ( imgWidth, imgHeight, factor ) => {
     const outWidth = Math.round(imgWidth * factor);
     const outHeight = Math.round(imgHeight * factor);
 
@@ -43,15 +42,7 @@ const getGifDimensions = ( imgWidth: number, imgHeight: number, factor:number ):
  * @returns array of objects containing resized points, name position, rotation, and section name
  */
 
-interface SectionValues {
-    dirPoints: { x: number; y: number; }[];
-    sectionPoints: { x: number; y: number; }[];
-    namePoint: { x: number; y: number; };
-    rotation: number;
-    name: string;
-}
-
-const loadSectionValues = ( sections: Section[], width: number, height: number, factor: number ): SectionValues[] => {
+const loadSectionValues = ( sections, width, height, factor ) => {
     const values = sections.map((section) => {
         const { dirPoints, sectionPoints } = section
 
@@ -80,9 +71,9 @@ const loadSectionValues = ( sections: Section[], width: number, height: number, 
  */
 const drawWatermark = (
     ctx,
-    watermarkImage: any,
-    canvasWidth: number,
-    canvasHeight: number,
+    watermarkImage,
+    canvasWidth,
+    canvasHeight,
 ) => {
         const opacity = 1
         const scale = 0.1;  // 10%
@@ -133,7 +124,7 @@ const drawWatermark = (
 };
 
 
-const drawSection = (ctx, values: SectionValues[], factor) => {
+const drawSection = (ctx, values, factor) => {
     const lineWidth = 4 * factor;
 
     values.forEach((section) => {
@@ -187,10 +178,10 @@ const drawSection = (ctx, values: SectionValues[], factor) => {
 
 const drawQuiver = (
   ctx,
-  quiver: Quiver,
-  frameIndex: number,
-  transformationMatrix: number[][],
-  factor: number,
+  quiver,
+  frameIndex,
+  transformationMatrix,
+  factor,
 ) => {
   // Get quiver data for the current frame
   const { data } = getQuiverValues(quiver, false, frameIndex, 1, 30, transformationMatrix);

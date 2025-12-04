@@ -1,5 +1,4 @@
 import { image } from 'd3-fetch';
-import { Point } from './types';
 
 /**
  * This function is used to calculate the midpoint of one section line and the angle between two points.
@@ -9,9 +8,9 @@ import { Point } from './types';
  * @returns object with the midpoint and angle
  */
 
-function calculateMidpointAndAngle(point1: Point, point2: Point) {
+function calculateMidpointAndAngle(point1, point2) {
   // Calculate the midpoint between point1 and point2
-  const midpoint: Point = {
+  const midpoint = {
     x: (point1.x + point2.x - 80) / 2, // Adjust x-coordinate and divide by 2
     y: (point1.y + point2.y) / 2, // Divide y-coordinate by 2
   };
@@ -34,7 +33,7 @@ function calculateMidpointAndAngle(point1: Point, point2: Point) {
  * @param point2 - The second point.
  * @returns An object containing the left point and the right point.
  */
-const getLeftAndRightPoints = (point1: Point, point2: Point): { leftPoint: Point; rightPoint: Point } => {
+const getLeftAndRightPoints = (point1, point2) => {
   return point1.x < point2.x
     ? { leftPoint: point1, rightPoint: point2 }
     : { leftPoint: point2, rightPoint: point1 };
@@ -48,7 +47,7 @@ const getLeftAndRightPoints = (point1: Point, point2: Point): { leftPoint: Point
  * @throws {Error} If less than two points are provided.
  *
  */
-const getLowerAndUpperPoints = (...points: Point[]): { lowerPoint: Point; upperPoint: Point } => {
+const getLowerAndUpperPoints = (...points) => {
   if (points.length < 2) throw new Error('At least two points are required');
 
   let lowerPoint = points[0];
@@ -76,11 +75,11 @@ const getLowerAndUpperPoints = (...points: Point[]): { lowerPoint: Point; upperP
  * - Otherwise, the upper point is selected.
  */
 const getPositionSectionText = (
-  point1: Point,
-  point2: Point,
-  imageWidth: number,
-  imageHeight: number,
-  factor: number
+  point1,
+  point2,
+  imageWidth,
+  imageHeight,
+  factor
 ) => {
   const { angle } = calculateMidpointAndAngle(point1, point2);
   const { leftPoint, rightPoint } = getLeftAndRightPoints(point1, point2);

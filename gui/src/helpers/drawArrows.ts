@@ -1,5 +1,5 @@
-import { transformRealWorldToPixel } from '../../commons/coordinates';
-import { createColorMap, interpolate, Normalize } from '../../commons/vectors.ts';
+import { transformRealWorldToPixel } from '../../commons/coordinates.js';
+import { createColorMap, interpolate, Normalize } from '../../commons/vectors.js';
 
 /**
  * Calculates the width of an arrow based on the differences between consecutive distances.
