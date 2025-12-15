@@ -17,8 +17,6 @@ export const ExportGif = ({ disabled }: {disabled: boolean}) => {
     const onClickExportGif = () => {
         if (isCreatingGif) return;
         const resolution = document.getElementById('resolution-gif') as HTMLSelectElement;
-        const algorithm = document.getElementById('algorithm') as HTMLSelectElement;
-        const delay = ((1 / (fps)) * step * 1000)
 
         setIsCreatingGif(true);
 
@@ -28,8 +26,7 @@ export const ExportGif = ({ disabled }: {disabled: boolean}) => {
                 height: originalHeight,
             },
             factor: parseFloat(resolution.value),
-            algorithm: algorithm.value,
-            delay: delay,
+            fps: fps / step,
         }).then(({time, path}) => {
             setPath(path)
             setTime(time)
@@ -60,20 +57,6 @@ export const ExportGif = ({ disabled }: {disabled: boolean}) => {
                 </select>
             </div>
 
-            <div className='input-container-2 mt-2'>
-                <label className="read-only me-1" htmlFor="">
-                    {' '}
-                    Algorithm (prov)
-                </label>
-                <select
-                    className="input-field input-field-select"
-                    id="algorithm"
-                    // onChange={handleOnChangeSelect}
-                >
-                    <option value="neuquant">Neuquant</option>
-                    <option value="octree">Octree</option>
-                </select>
-            </div>
             <p className="mt-2">PROVISIONAL</p>
             <p>Path: {path}</p>
             <p>Time: {time} ms</p>

@@ -31,7 +31,6 @@ import {
 } from './ipcMainHandlers/index.js';
 import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
-import { exec } from 'node:child_process';
 
 process.env.APP_ROOT = path.join(__dirname, '..');
 
@@ -144,7 +143,7 @@ const PROJECT_CONFIG: ProjectConfig = {
 };
 
 // General window dialog to confirm deletes.
-ipcMain.handle('delete-confirmation', async (event, args) => {
+ipcMain.handle('delete-confirmation', async (_event, args) => {
   const { message, title } = args;
   const { response } = await dialog.showMessageBox({
     type: 'warning',

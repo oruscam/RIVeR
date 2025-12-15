@@ -1,6 +1,9 @@
 import { ipcMain } from "electron";
-import { Worker } from "node:worker_threads";
 import { ProjectConfig } from "./interfaces";
+import * as fs from "fs"
+import WorkerPool  from "./workers/WorkerPool.js";
+import * as path from "path";
+import { createGif } from "./utils/createGif";
 
 /**
  * IPC handler to generate a GIF in a worker thread.
@@ -8,44 +11,45 @@ import { ProjectConfig } from "./interfaces";
  */
 async function getGif(PROJECT_CONFIG: ProjectConfig) {
   ipcMain.handle("get-gif", async (_event, args) => {
+    const { framesPath, projectDirectory } = PROJECT_CONFIG;
+    const time = Date.now();
 
-    console.time("getGifWorker");
+    const maskPath = path.join(projectDirectory, "mask.png");
+    const watermarkPath = './commons/logo.png'; 
+    
+    const dstPath = path.join(projectDirectory, "gif-frames");
 
-    return new Promise<{ path: string; time: string }>((resolve, reject) => {
+    if (fs.existsSync(dstPath)){
+      fs.rmdirSync(dstPath, { recursive: true});
+    }
+    fs.mkdirSync(dstPath);
 
+    args.watermarkPath = watermarkPath;
+    args.maskPath = maskPath;
+    args.dstPath = dstPath;
 
-      // Create a SharedArrayBuffer to hold 5 integers
-      const sharedBuffer = new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT * 30);
-      const sharedArray = new Int32Array(sharedBuffer);
+    const files = await fs.promises.readdir(framesPath);
 
-      console.log("sharedArray created");
-      console.log("sharedArray byteLength:", sharedArray, 'lenght:', sharedArray.length);
+    const pool = new WorkerPool(args);
 
-      const workerPath = '/home/tomy_ste/RIVeR/gui/electron/ipcMainHandlers/workers/getGifWorker.js'; // asegúrate de compilar a .js
-      const worker = new Worker(workerPath, {
-        workerData: {
-          PROJECT_CONFIG,
-          args,
-        },
-      });
+    await Promise.all(files.map((file, index) => {
+      if (index === files.length - 1){
+        return pool.runTask({index, pass: true, file: file})
+      }
+        return pool.runTask({ index, file: path.join(framesPath, file), pass: false});
+    }));
 
-      worker.once("message", (result) => {
-        console.timeEnd("getGifWorker");
-        console.log("getGifWorker result:", result);
-        resolve(result);
-      });
+    pool.destroy();
 
-      worker.once("error", (err) => {
-        reject(err);
-      });
+    const gifPath = path.join(projectDirectory, "output.gif");
 
-      worker.once("exit", (code) => {
-        if (code !== 0) {
-          reject(new Error(`getGifWorker exited with code ${code}`));
-        }
-      });
-    });
+    await createGif(dstPath, gifPath, args.fps)
+
+    // fs.rmdirSync(dstPath, { recursive: true})
+    
+    return ({ path: dstPath, time: `${(Date.now() - time) / 1000}s` });
   });
 }
+
 
 export { getGif };
