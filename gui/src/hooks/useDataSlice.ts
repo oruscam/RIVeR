@@ -355,11 +355,10 @@ export const useDataSlice = () => {
   interface ExportGifParams {
     image: { width: number; height: number };
     factor: number;
-    algorithm: string;
-    delay: number;
+    fps: number;
   }
 
-  const onExportGif = async ({image, factor, algorithm, delay} : ExportGifParams) => {
+  const onExportGif = async ({image, factor, fps} : ExportGifParams) => {
     // dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
 
@@ -368,8 +367,7 @@ export const useDataSlice = () => {
         image,
         quiver,
         factor,
-        algorithm,
-        delay,
+        fps,
         sections,
         transformationMatrix
       })

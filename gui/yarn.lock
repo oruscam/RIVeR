@@ -2910,11 +2910,6 @@ get-symbol-description@^1.0.2:
     es-errors "^1.3.0"
     get-intrinsic "^1.2.4"
 
-gif-encoder-2@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/gif-encoder-2/-/gif-encoder-2-1.0.5.tgz#872ae04d8028de4a3417646ceb80dda88d6247b9"
-  integrity sha512-fsRAKbZuUoZ7FYGjpFElmflTkKwsn/CzAmL/xDl4558aTAgysIDCUF6AXWO8dmai/ApfZACbPVAM+vPezJXlFg==
-
 github-from-package@0.0.0:
   version "0.0.0"
   resolved "https://registry.yarnpkg.com/github-from-package/-/github-from-package-0.0.0.tgz#97fb5d96bfde8973313f20e8288ef9a167fa64ce"
