@@ -356,9 +356,10 @@ export const useDataSlice = () => {
     image: { width: number; height: number };
     factor: number;
     fps: number;
+    step: number;
   }
 
-  const onExportGif = async ({image, factor, fps} : ExportGifParams) => {
+  const onExportGif = async ({image, factor, fps, step} : ExportGifParams) => {
     // dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
 
@@ -369,7 +370,8 @@ export const useDataSlice = () => {
         factor,
         fps,
         sections,
-        transformationMatrix
+        transformationMatrix,
+        step
       })
       // dispatch(setBackendWorking(false));
 

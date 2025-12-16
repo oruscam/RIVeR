@@ -3,7 +3,7 @@ import { createCanvas, loadImage } from 'canvas';
 import path from 'path';
 import * as fs from "fs";
 import { parentPort } from 'worker_threads';
-import { drawQuiver, drawSection, drawWatermark } from '../utils/gif.js';
+import { drawColorBar, drawQuiver, drawSection, drawWatermark } from '../utils/gif.js';
 
 parentPort.on('message', async (task) => {
     const { id, file, dimensions, sectionValues, args , pass } = task
@@ -28,9 +28,11 @@ parentPort.on('message', async (task) => {
     ctx.drawImage(mask, 0, 0, img.width, img.height, dimensions.dx, dimensions.dy, dimensions.dw, dimensions.dh);
 
     drawWatermark(ctx, watermark, dimensions.outWidth, dimensions.outHeight);
-    drawSection(ctx, sectionValues, dimensions.factor);
+    drawSection(ctx, sectionValues, dimensions.factor, dimensions.outHeight);
 
-    drawQuiver(ctx, quiver, id, transformationMatrix, factor);
+    drawColorBar(ctx, 0.01, 1, dimensions.outWidth, dimensions.outHeight);
+
+    drawQuiver(ctx, quiver, id, transformationMatrix, factor, args.fps, args.step, dimensions.outWidth);
 
     let fileWithoutExt = path.basename(file);
     fileWithoutExt = fileWithoutExt.split('.').slice(0, -1).join('.');
