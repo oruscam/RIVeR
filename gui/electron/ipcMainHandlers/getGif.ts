@@ -19,6 +19,9 @@ async function getGif(PROJECT_CONFIG: ProjectConfig) {
     
     const dstPath = path.join(projectDirectory, "gif-frames");
 
+    console.log('FPS: ', args.fps)
+    console.log('STEP: ', args.step)
+
     if (fs.existsSync(dstPath)){
       fs.rmdirSync(dstPath, { recursive: true});
     }
@@ -45,7 +48,7 @@ async function getGif(PROJECT_CONFIG: ProjectConfig) {
 
     await createGif(dstPath, gifPath, args.fps)
 
-    // fs.rmdirSync(dstPath, { recursive: true})
+    fs.rmdirSync(dstPath, { recursive: true})
     
     return ({ path: dstPath, time: `${(Date.now() - time) / 1000}s` });
   });

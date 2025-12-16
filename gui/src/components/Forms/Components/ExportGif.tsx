@@ -26,7 +26,8 @@ export const ExportGif = ({ disabled }: {disabled: boolean}) => {
                 height: originalHeight,
             },
             factor: parseFloat(resolution.value),
-            fps: fps / step,
+            fps: fps,
+            step: step,
         }).then(({time, path}) => {
             setPath(path)
             setTime(time)

@@ -43,6 +43,7 @@ const getGifDimensions = ( imgWidth, imgHeight, factor ) => {
  */
 
 const loadSectionValues = ( sections, width, height, factor ) => {
+  console.log('width: ', width, 'height: ', height, 'factor: ', factor)
     const values = sections.map((section) => {
         const { dirPoints, sectionPoints } = section
 
@@ -97,13 +98,13 @@ const drawWatermark = (
         let finalH = targetHeight;
 
         if (finalH > canvasH * scale) {
-        // scale according to height
-        finalH = canvasH * scale;
-        finalW = finalH * aspectRatio;
+          // scale according to height
+          finalH = canvasH * scale;
+          finalW = finalH * aspectRatio;
         }
 
-        // Calculate the position at bottom-right corner
-        const x = canvasWidth - finalW - margin;
+        // Calculate the position at bottom-left corner
+        const x = margin;
         const y = canvasHeight - finalH - margin;
 
         // Save the current context
@@ -124,8 +125,8 @@ const drawWatermark = (
 };
 
 
-const drawSection = (ctx, values, factor) => {
-    const lineWidth = 4 * factor;
+const drawSection = (ctx, values, factor, imageHeight) => {
+    const lineWidth = imageHeight * 0.004;
 
     values.forEach((section) => {
         const { dirPoints, sectionPoints, namePoint, rotation, name } = section
@@ -163,7 +164,7 @@ const drawSection = (ctx, values, factor) => {
 
         // Text style
         // Adjust font size based on factor
-        const fontSize = 30 * factor
+        const fontSize = imageHeight * 0.02; // 3% of image height
         ctx.font = `${fontSize}px Arial`
         ctx.fillStyle = '#222'
         ctx.fontWeight = '500'
@@ -182,15 +183,19 @@ const drawQuiver = (
   frameIndex,
   transformationMatrix,
   factor,
+  fps,
+  step,
+  imageWidth
 ) => {
   // Get quiver data for the current frame
-  const { data } = getQuiverValues(quiver, false, frameIndex, 1, 30, transformationMatrix);
+  const { data } = getQuiverValues(quiver, false, frameIndex, step, fps, transformationMatrix);
 
   // Used for avoid arrows going beyond the line end
   const delta = 3
+
   
   // Set line width
-  const lineWidth = 4 * factor
+  const lineWidth = imageWidth * 0.0015;
   const amplitudeFactor = 15;
   
   // Draw each vector as an arrow
@@ -205,7 +210,7 @@ const drawQuiver = (
 
     // Line
     ctx.beginPath();
-    ctx.lineWidth = 4 * factor;
+    ctx.lineWidth = lineWidth;
     ctx.moveTo(x1, y1);
     const angle = Math.atan2(y2 - y1, x2 - x1);
     const newLength = Math.hypot(x2 - x1, y2 - y1) - delta;
@@ -217,9 +222,8 @@ const drawQuiver = (
     ctx.strokeStyle = d.color;
     ctx.stroke();
 
-
     // Draw the arrow
-    const arrowLength = lineWidth * 4;
+    const arrowLength = lineWidth * 5;
 
     ctx.beginPath();
     ctx.moveTo(x2, y2);
@@ -237,4 +241,115 @@ const drawQuiver = (
   }
 };
 
-export { getGifDimensions, loadSectionValues, drawWatermark, drawSection, drawQuiver };
+/**
+ * Draw color scale bar (legend) on canvas
+ * Replicates CSS linear-gradient colorbar
+ * @param ctx | CanvasRenderingContext2D
+ * @param min | minimum value
+ * @param max | maximum value
+ * @param imageWidth | canvas width
+ * @param imageHeight | canvas height
+ */
+
+const drawColorBar = (
+  ctx,
+  min,
+  max,
+  imageWidth,
+  imageHeight
+) => {
+  // --- Layout (relative to image size)
+  const containerWidth = imageWidth * 0.25;
+  const containerHeight = imageHeight * 0.045;
+  const paddingX = containerWidth * 0.05;
+  const barHeight = containerHeight * 0.35;
+  const radius = containerHeight * 0.45;
+
+  const margin = imageWidth * 0.02;
+
+  // Bottom-right position
+  const x = imageWidth - containerWidth - margin;
+  const y = imageHeight - containerHeight - margin;
+
+  // --- Colors (same semantic order as frontend)
+  const colors = [
+    '#6CD4FF', // light blue
+    '#62C655', // green
+    '#F5BF61', // yellow
+    '#ED6B57'  // red
+  ];
+
+  // ---------- Container ----------
+  ctx.save();
+  ctx.fillStyle = '#1e2525';
+
+  roundRect(
+    ctx,
+    x,
+    y,
+    containerWidth,
+    containerHeight,
+    radius
+  );
+  ctx.fill();
+
+  // ---------- Gradient bar ----------
+  const barX = x + paddingX;
+  const barY = y + (containerHeight - barHeight) / 2;
+  const barWidth = containerWidth * 0.62;
+
+  const gradient = ctx.createLinearGradient(
+    barX,
+    0,
+    barX + barWidth,
+    0
+  );
+
+  colors.forEach((c, i) => {
+    gradient.addColorStop(i / (colors.length - 1), c);
+  });
+
+  ctx.fillStyle = gradient;
+  roundRect(
+    ctx,
+    barX,
+    barY,
+    barWidth,
+    barHeight,
+    barHeight / 2
+  );
+  ctx.fill();
+
+  // ---------- Labels ----------
+  ctx.fillStyle = '#ffffff';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'left';
+
+  const fontSize = imageHeight * 0.018;
+  ctx.font = `${fontSize}px Arial`;
+
+  const textX = barX + barWidth + paddingX * 0.6;
+  const textY = y + containerHeight / 2;
+
+  ctx.fillText(min.toFixed(2), textX, textY);
+  ctx.fillText(max.toFixed(2), textX + fontSize * 3, textY);
+
+  ctx.restore();
+};
+
+const roundRect = (ctx, x, y, w, h, r) => {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+};
+
+
+export { getGifDimensions, loadSectionValues, drawWatermark, drawSection, drawQuiver, drawColorBar };
