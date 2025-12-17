@@ -6,6 +6,45 @@ from typing import Optional
 
 import cv2
 import numpy as np
+import json
+
+
+def load_profile(profile_path):
+	"""Load calibration profile from profile.json."""
+	if not os.path.exists(profile_path):
+		raise FileNotFoundError(profile_path)
+
+	with open(profile_path, "r", encoding="utf-8") as f:
+		p = json.load(f)
+
+	K = np.array(p["K"], dtype=np.float64)
+	dist = np.array(p["dist"], dtype=np.float64).reshape(-1, 1)
+
+	return K, dist
+
+
+def build_undistort_maps(K, dist, image_size, alpha):
+	"""Generate undistortion maps from calibration profile."""
+	newK, roi = cv2.getOptimalNewCameraMatrix(
+		K, dist, image_size, alpha, image_size, centerPrincipalPoint=True
+	)
+
+	map1, map2 = cv2.initUndistortRectifyMap(
+		K, dist, None, newK, image_size, cv2.CV_16SC2
+	)
+
+	return map1, map2, roi
+
+
+def undistort_frame(frame, map1, map2, roi):
+	"""Undistort a single frame."""
+	und = cv2.remap(frame, map1, map2, interpolation=cv2.INTER_LINEAR)
+
+	if roi is not None:
+		x, y, w, h = roi
+		und = und[y:y+h, x:x+w]
+
+	return und
 
 
 def extract_frames(
@@ -16,26 +55,15 @@ def extract_frames(
 	end: Optional[int] = None,
 	overwrite: bool = False,
 	resize_factor: float = 1.0,
+	undistort: bool = False,
+	profile_path: Optional[str] = None,
+	undistort_alpha: float = 0.0,
 ) -> int:
-	"""Extract frames from a video using OpenCVs VideoCapture.
-
-	Args:
-	    video_path (Path): Path of the video.
-	    frames_dir (Path): The directory to save the frames.
-	    every (int): Frame spacing.
-	    start (int): Start frame.
-	    end (Optional[int], optional): End frame. Defaults to None.
-	    overwrite (bool, optional): To overwrite frames that already exist. Defaults to False.
-	    resize_factor (float, optional): Factor to resize the frames (<=1.0). Defaults to 1.0.
-
-	Returns:
-	    int: Count of the saved images.
-	"""
+	"""Extract frames from a video using OpenCVs VideoCapture."""
 	# Set JPEG compression parameters for faster writing
 	encode_params = [int(cv2.IMWRITE_JPEG_QUALITY), 95]
 
 	capture = cv2.VideoCapture(str(video_path))  # open the video using OpenCV
-	# Set optimal buffer size
 	capture.set(cv2.CAP_PROP_BUFFERSIZE, 3)
 
 	if end is None:  # if end isn't specified assume the end of the video
@@ -60,6 +88,13 @@ def extract_frames(
 		new_width, new_height = width, height
 		frame_buffer = np.empty((height, width, 3), dtype=np.uint8)
 
+	# Initialize undistortion map if needed
+	if undistort and profile_path:
+		K, dist = load_profile(profile_path)
+		map1, map2, roi = build_undistort_maps(K, dist, (width, height), undistort_alpha)
+	else:
+		map1 = map2 = roi = None
+
 	frame = start  # keep track of which frame we are up to, starting from start
 	while_safety = 0  # a safety counter to ensure we don't enter an infinite while loop
 	saved_count = 0  # a count of how many frames we have saved
@@ -75,6 +110,10 @@ def extract_frames(
 			if not ret:
 				while_safety += 1
 				continue
+
+			# Undistort the frame if needed
+			if undistort and map1 is not None:
+				temp_frame = undistort_frame(temp_frame, map1, map2, roi)
 
 			# Resize the frame if resize_factor is less than 1
 			if resize_factor < 1.0 and resize_factor > 0:
@@ -102,26 +141,11 @@ def video_to_frames(
 	overwrite: bool = False,
 	every: int = 1,
 	resize_factor: float = 1.0,
+	undistort: bool = False,
+	profile_path: Optional[str] = None,
+	undistort_alpha: float = 0.0,
 ) -> str:
-	"""Extracts the frames from a video using multiprocessing
-
-	Args:
-		video_path (Path): Path to the video.
-		frames_dir (Path): Directory to save the frames.
-		start_frame_number (int): Frame number to start.
-		end_frame_number (int): Frame number to end.
-		overwrite (bool, optional): Overwrite frames if they exist. Defaults to False.
-		every (int, optional): Extract every this many frames. Defaults to 1.
-		chunk_size (int, optional): How many frames to split into chunks (one chunk per cpu core process). Defaults to 100.
-		resize_factor (float, optional): Factor to resize the frames (<=1.0). Defaults to 1.0.
-
-	Raises:
-		VideoHasNoFrames: When opencv can't split into frames.
-		ValueError: When resize_factor is greater than 1.0 or less than or equal to 0.
-
-	Returns:
-		str: Path to the directory where the frames were saved, or None if fails
-	"""
+	"""Extract frames from a video using multiprocessing"""
 	# Validate resize_factor
 	if resize_factor > 1.0 or resize_factor <= 0:
 		raise ValueError("resize_factor must be between 0 and 1.0")
@@ -170,6 +194,9 @@ def video_to_frames(
 					end=f[1],
 					overwrite=overwrite,
 					resize_factor=resize_factor,
+					undistort=undistort,
+					profile_path=profile_path,
+					undistort_alpha=undistort_alpha,
 				)
 			)
 
