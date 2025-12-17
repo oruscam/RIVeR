@@ -293,11 +293,38 @@ class RiverCalibrator:
 
 # ---------------- reporting, quality & viewer ----------------
 
-def undistort_frame(frame: np.ndarray, K: np.ndarray, dist: np.ndarray) -> np.ndarray:
-	h, w = frame.shape[:2]
-	newK, _ = cv.getOptimalNewCameraMatrix(K, dist, (w, h), 1.0, (w, h))
-	map1, map2 = cv.initUndistortRectifyMap(K, dist, None, newK, (w, h), cv.CV_16SC2)
-	return cv.remap(frame, map1, map2, interpolation=cv.INTER_LINEAR)
+def build_undistort_maps(K: np.ndarray, dist: np.ndarray,
+						 image_size: Tuple[int, int],
+						 alpha: float = 1.0):
+	"""
+	image_size: (width, height)
+	alpha:
+		1.0 = full FOV
+		0.0 = cropped (no black borders)
+	"""
+	newK, roi = cv.getOptimalNewCameraMatrix(
+		K, dist, image_size, alpha, image_size, centerPrincipalPoint=True
+	)
+
+	map1, map2 = cv.initUndistortRectifyMap(
+		K, dist, None, newK, image_size, cv.CV_16SC2
+	)
+
+	return map1, map2, roi
+
+
+def apply_undistort(frame: np.ndarray,
+					map1: np.ndarray,
+					map2: np.ndarray,
+					roi: Optional[Tuple[int, int, int, int]] = None) -> np.ndarray:
+	und = cv.remap(frame, map1, map2, interpolation=cv.INTER_LINEAR)
+
+	if roi is not None:
+		x, y, w, h = roi
+		und = und[y:y+h, x:x+w]
+
+	return und
+
 
 
 def write_pattern_png(path: str, cols_rows=(20, 15), min_corner_px=12, max_px=2400, marker_ratio=0.7, margin_px=6):
@@ -447,6 +474,9 @@ def make_report(report_dir: str, records: List[FrameRecord], K: np.ndarray, dist
 	overlay_dir = os.path.join(report_dir, "overlays")
 	os.makedirs(overlay_dir, exist_ok=True)
 
+	H, W = records[0].img.shape[:2]
+	map1, map2, roi = build_undistort_maps(K, dist, (W, H), alpha=1.0)
+
 	for i, rec in enumerate(records):
 		img = rec.img.copy()
 
@@ -470,7 +500,7 @@ def make_report(report_dir: str, records: List[FrameRecord], K: np.ndarray, dist
 		cv.imwrite(os.path.join(overlay_dir, f"{i:03d}_rms{rms:.3f}.png"), img)
 
 		if save_undistorted_dir:
-			und = undistort_frame(rec.img, K, dist)
+			und = apply_undistort(rec.img, map1, map2, roi)
 			cv.imwrite(os.path.join(save_undistorted_dir, f"{i:03d}_undist.png"), und)
 
 	# coverage heatmap (OpenCV INFERNO)
@@ -574,10 +604,13 @@ def interactive_view(records: List[FrameRecord], K: np.ndarray, dist: np.ndarray
 	cv.namedWindow(win, cv.WINDOW_NORMAL)
 	cv.resizeWindow(win, 1200, 700)
 
+	h, w = records[0].img.shape[:2]
+	map1, map2, roi = build_undistort_maps(K, dist, (w, h), alpha=1.0)
+
 	def render(i):
 		rec = records[i]
 		img = rec.img.copy()
-		right = undistort_frame(img, K, dist) if show_undist else img.copy()
+		right = apply_undistort(img, map1, map2, roi) if show_undist else img.copy()
 		left = img
 
 		if show_overlay:
