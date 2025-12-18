@@ -4,17 +4,17 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 let python: ChildProcess;
-const DEV_SERVER = process.env.VITE_DEV_SERVER_URL;
+const DEV_SERVER = process. env.VITE_DEV_SERVER_URL;
 
 async function executeRiverCli(
   options: (string | number)[],
   _mode: 'json' | 'text' = 'json',
-  output: boolean = false,
+  output:  boolean = false,
   logFile: string
 ): Promise<{ data: any; error: any }> {
-  let riverCliPath: string;
+  let riverCliPath:  string;
   if (DEV_SERVER) {
-    riverCliPath = path.join(app.getAppPath(), 'river-cli', 'river-cli');
+    riverCliPath = path.join(app. getAppPath(), 'river-cli', 'river-cli');
   } else {
     riverCliPath = path.join(app.getAppPath(), '..', 'river-cli', 'river-cli');
   }
@@ -29,16 +29,16 @@ async function executeRiverCli(
 
     let stdoutData = '';
     let stderrData = '';
+    
+    // Variables para throttling
+    let lastStderrMessage = '';
+    let lastSentTime = 0;
+    const THROTTLE_INTERVAL = 500; // 500ms = 2 mensajes por segundo
 
     python.stdout.on('data', (data) => {
       const message = data.toString();
 
       if (output) {
-        // This is because, when cli has user processing errors, like
-        // windows-size. Launches Processing message... and object {data, error}
-        //  stdout identifies two messages like one
-        //  We need to split the message and get the last one.
-
         const messages = message.split('\n').filter((msg) => msg.trim() !== '');
         stdoutData = messages[messages.length - 1];
       } else {
@@ -46,23 +46,40 @@ async function executeRiverCli(
       }
     });
 
-    python.stderr.on('data', (data) => {
-      const message = data.toString();
+    python.stderr. on('data', (data) => {
+      const message = data. toString();
       stderrData = message;
       console.log('stderr', message);
-      // Output
+      
+      // Guardar el último mensaje
+      lastStderrMessage = message;
+      
+      // Output con throttling
       if (output === true) {
-        webContents.getAllWebContents().forEach((contents) => {
-          contents.send('river-cli-message', message);
-        });
+        const currentTime = Date.now();
+        const timeSinceLastSent = currentTime - lastSentTime;
+        
+        if (timeSinceLastSent >= THROTTLE_INTERVAL) {
+          webContents.getAllWebContents().forEach((contents) => {
+            contents.send('river-cli-message', message);
+          });
+          lastSentTime = currentTime;
+        }
       }
     });
 
     python.on('close', async (code) => {
+      // Enviar el último mensaje antes de cerrar si no se envió
+      if (output === true && lastStderrMessage) {
+        webContents. getAllWebContents().forEach((contents) => {
+          contents.send('river-cli-message', lastStderrMessage);
+        });
+      }
+      
       if (code !== 0) {
         if (code === null) {
           resolve({
-            error: {
+            error:  {
               message: 'Process was killed',
             },
           });
@@ -84,7 +101,7 @@ async function executeRiverCli(
     });
   });
 
-  return result as { data: any; error: any };
+  return result as { data: any; error:  any };
 }
 
 async function killRiverCli() {
