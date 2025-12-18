@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
-import { useDataSlice, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
-import { RealWorldCoordinates, PixelCoordinates, DropHereText, HardModeCrossSections } from './Components/index';
+import { useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { DropHereText, HardModeCrossSections } from './Components/index';
 import { Bathimetry } from '../Graphs';
 import { useTranslation } from 'react-i18next';
 
@@ -18,12 +18,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
     onUpdateSection,
     onGetBathimetry,
     transformationMatrix,
-    onSetDirPoints,
-    onSetRealWorld,
   } = useSectionSlice();
   const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
   const { onSetErrorMessage } = useUiSlice();
-  const { isBackendWorking } = useDataSlice();
   const { type } = useProjectSlice();
   const { cameraSolution } = useIpcamSlice();
 
@@ -121,13 +118,11 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   return (
     <div id="form-section-div" className={activeSection !== index ? 'hidden' : ''}>
       <form
-        className={`form-scroll ${isBackendWorking ? 'disabled' : ''}`}
         onSubmit={onSubmit}
         id="form-cross-section"
       >
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
-        <div className="form-base-2 mt-2">
           {type === 'ipcam' ? (
             <>
               <div className="input-container-2 mb-1">
@@ -273,7 +268,6 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
           </div>
 
           <HardModeCrossSections extraFields={extraFields} name={name} />
-        </div>
       </form>
     </div>
   );

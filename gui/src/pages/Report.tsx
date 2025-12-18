@@ -15,6 +15,7 @@ import { FormReport } from '../components/Forms/index';
 import { REPORT_IMAGES } from '../constants/constants';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
+import { FormHeader } from '../components/Forms/Components';
 
 const convertImageToDataURI = (url: string, quality = 1.0) => {
   return new Promise((resolve, reject) => {
@@ -145,9 +146,11 @@ export const Report = () => {
         </div>
       </div>
       <div className="form-container">
-        <Progress />
+        <FormHeader title={t('Report.Summary.title')} showSections={false}/>
         <FormReport isReportSaved={isReportSaved} setIsReportSaved={setIsReportSaved} />
-        <WizardButtons onClickNext={generateHTML} />
+        <div className='footer'>
+          <WizardButtons onClickNext={generateHTML} />
+        </div>
       </div>
     </div>
   );

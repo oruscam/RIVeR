@@ -28,5 +28,5 @@ export const Quiver = ({ width, height, factor, data, showMedian }: QuiverProps)
     drawQuiver(svg, data, factor);
     }, [quiver, images.active, factor, showMedian]);
 
-  return <svg ref={svgRef} className="quiver" style={{ width: `${width}`, height: `${height}` }}></svg>;
+  return <svg ref={svgRef} className="quiver" style={{ width: `${width}`, height: `${height}` }}/>;
 };  

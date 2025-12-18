@@ -1,13 +1,10 @@
 import { FormCrossSections } from '../Forms';
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
-import { Sections } from './Sections';
 import './crossSections.css';
 import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { useWizard } from 'react-use-wizard';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { Section } from '../../store/section/types';
-import { SectionsHeader } from '../SectionsHeader';
-import { ButtonLock } from '../ButtonLock';
 import { useTranslation } from 'react-i18next';
 import { formatNumberTo2Decimals } from '../../helpers';
 
@@ -39,10 +36,15 @@ const createInitialState = (sections: Section[]) => {
   return defaultValues;
 };
 
-export const CrossSections = () => {
+type CrossSectionsProps = {
+  deletedSections: string;
+  setDeletedSections: (value: string) => void;
+};
+
+export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSectionsProps) => {
   const { sections, activeSection, onSetSections } = useSectionSlice(); // Wrap the sections variable inside an array
   const { onSetErrorMessage } = useUiSlice();
-  const [deletedSections, setDeletedSections] = useState('');
+  
   const methods = useForm({ defaultValues: createInitialState(sections) });
   const { nextStep } = useWizard();
   const { t } = useTranslation();
@@ -84,15 +86,12 @@ export const CrossSections = () => {
   }, [deletedSections]);
 
   // * Actualiza el formulario
-
   useEffect(() => {
     methods.reset(createInitialState(sections));
   }, [sections[activeSection]]);
 
-  return (
-    <>
-      <SectionsHeader title={t('CrossSections.title')} />
-      <Sections setDeletedSections={setDeletedSections} canEdit={true} />
+  return (  
+    <div className='body'>
       <FormProvider {...methods}>
         {sections.map((section, index: number) => {
           return (
@@ -105,11 +104,6 @@ export const CrossSections = () => {
           );
         })}
       </FormProvider>
-      <ButtonLock
-        disabled={sections[activeSection].bathimetry.width === undefined}
-        footerElementID="form-cross-section-footer"
-        headerElementID="form-cross-section-header"
-      />
-    </>
-  );
+    </div>
+  )
 };

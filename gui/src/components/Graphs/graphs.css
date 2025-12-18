@@ -54,3 +54,7 @@
     }
 }
 
+.bath-graph{
+    display: flex;
+    justify-content: center;
+}

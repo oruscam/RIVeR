@@ -11,7 +11,7 @@ import { KeyboardEvent, FocusEvent } from 'react';
 const distancesLabels = ['1-2', '2-3', '3-4', '4-1', '1-3', '2-4'];
 const distancesID = ['12', '23', '34', '41', '13', '24'];
 
-export const FormOblique= ({ onSubmit, onError }: FormChild) => {
+export const FormOblique = ({ onSubmit, onError }: FormChild) => {
   const {
     drawPoints,
     isDefaultCoordinates,
@@ -54,15 +54,15 @@ export const FormOblique= ({ onSubmit, onError }: FormChild) => {
   };
 
   return (
-    <>
-      <h1 className="form-title"> {t('ControlPoints.title')} </h1>
+    <div className='body'>
+      <div className="wraper">
+
       <form
         onSubmit={onSubmit}
         onError={onError}
         id="form-control-points"
-        className={`form-scroll ${isBackendWorking ? 'disabled' : ''}`}
+        className={`${isBackendWorking ? 'disabled' : ''}`}
       >
-        <div className="form-base-2">
           <div className="input-container-2">
             <button
               className={`wizard-button button-rectification me-1 ${drawPoints ? 'wizard-button-active' : ''}`}
@@ -114,18 +114,9 @@ export const FormOblique= ({ onSubmit, onError }: FormChild) => {
 
           {solution === null && <span className='mb-2 mt-1'/>}
         
-          
-          <button
-            className="wizard-button form-button solver-button"
-            id="solve-oblique"
-            disabled={isDefaultCoordinates}
-          >
-            {t('Commons.solve')}
-          </button>
-
           <HardModeOblique extraFields={extraFields} />
-        </div>
       </form>
-    </>
+      </div>
+    </div>
   );
 };

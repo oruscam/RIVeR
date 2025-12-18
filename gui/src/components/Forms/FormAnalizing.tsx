@@ -70,10 +70,8 @@ export const FormAnalizing = ({setShowMedian}: {setShowMedian: React.Dispatch<Re
   }, [percentage, time]);
 
   return (
-    <>
-      <h1 className="form-title-analizing"> {t('Analizing.title')} </h1>
-      <div className="form-base-2" id="form-analizing">
-        <div className="input-container-2" id="analize-div">
+    <div className="body mt-3" id="form-analizing">
+        <div className="input-container-2">
           <button
             className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
             onClick={handleAnalize}
@@ -95,7 +93,6 @@ export const FormAnalizing = ({setShowMedian}: {setShowMedian: React.Dispatch<Re
           {' '}
           {t('Analizing.stop')}{' '}
         </button>
-      </div>
-    </>
+    </div>
   );
 };
