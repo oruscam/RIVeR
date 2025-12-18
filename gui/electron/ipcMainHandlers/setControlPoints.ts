@@ -1,9 +1,9 @@
 import { ipcMain } from 'electron';
-import { ProjectConfig } from './interfaces';
 import * as fs from 'fs';
 import { createMatrix } from './utils/createMatrix';
+import { PROJECT_CONFIG } from '../main';
 
-function setControlPoints(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
+function setControlPoints(riverCli: Function) {
   ipcMain.handle('set-control-points', async (_event, args) => {
     const { settingsPath, projectDirectory, logsPath, firstFrame, filePrefix } = PROJECT_CONFIG;
     const { coordinates, distances, rwCoordinates } = args;

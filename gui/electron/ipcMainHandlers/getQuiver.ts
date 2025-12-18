@@ -1,12 +1,13 @@
 import { ipcMain } from 'electron';
-import { ProjectConfig } from './interfaces';
 import { readResultsPiv } from './utils/readResultsPiv';
 import * as fs from 'fs';
 import * as path from 'path';
 import { clearResultsPiv } from './utils/clearResultsPiv';
 import { clearCrossSections } from './utils/clearCrossSections';
+import { PROJECT_CONFIG } from '../main';
+import { ProjectConfig } from './interfaces';
 
-async function getQuiver(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
+async function getQuiver(riverCli: Function) {
   ipcMain.handle('get-quiver-test', async (_event, args) => {
     const { resultsPath, settingsPath, logsPath, xsectionsPath } = PROJECT_CONFIG;
 
