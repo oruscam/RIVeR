@@ -531,8 +531,8 @@
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 20px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.5);
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
     width: 100%;
     text-align: center;
     white-space: normal; /* Allows text to wrap */
