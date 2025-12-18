@@ -63,7 +63,6 @@ export const createVelocityChart = ({
   );
 
   // y Scale
-
   const yScale = d3
     .scaleLinear()
     .domain([minDomainValue, maxDomainValue])
@@ -101,15 +100,25 @@ export const createVelocityChart = ({
     .attr('stroke-width', 0.15);
 
   const filteredData = magnitude.map((d, i) => {
-    if (interpolated === false && check[i] === false) {
+    if (check[i] === false && interpolated === false) {
       return {
         velocity: null,
         distance: distance[i],
-        plusStd: plusStd[i],
-        minusStd: minusStd[i],
-        percentile5: percentile5[i],
-        percentile95: percentile95[i],
+        plusStd: null,
+        minusStd: null,
+        percentile5: null,
+        percentile95: null,
       };
+    } else if (check[i] === false && interpolated === true) {
+      return {
+        velocity: d,
+        distance: distance[i],
+        plusStd: null,
+        minusStd: null,
+        percentile5: null,
+        percentile95: null,
+        interpolated: true
+      }
     } else {
       return {
         velocity: d,
@@ -118,6 +127,7 @@ export const createVelocityChart = ({
         minusStd: minusStd[i],
         percentile5: percentile5[i],
         percentile95: percentile95[i],
+        interpolated: false
       };
     }
   });
@@ -130,10 +140,11 @@ export const createVelocityChart = ({
       minusStd: number;
       percentile5: number;
       percentile95: number;
+      interpolated: boolean;
     }>()
     .defined((d) => d.velocity !== null)
     .x((d) => xScale(d.distance))
-    .y((d) => yScale(d.velocity!));
+    .y((d) => yScale(d.velocity!))
 
   // std Area
   const areaStd = d3
@@ -300,21 +311,40 @@ export const createVelocityChart = ({
     }
   }
 
-  // }
-  // else {
-  //     // Crear un elemento de texto para la leyenda
+  // Add the velocity line with segments in red where data is interpolated
 
-  // }
-
-  // Add the velocity line
-
-  svg
-    .append('path')
+  // 1️⃣ White base line
+  svg.append("path")
     .datum(filteredData)
-    .attr('fill', 'none')
-    .attr('stroke-width', 2)
-    .attr('stroke', COLORS.WHITE)
-    .attr('d', line);
+    .attr("fill", "none")
+    .attr("stroke", COLORS.WHITE)
+    .attr("stroke-width", 2)
+    .attr("d", line);
+
+  // 2️⃣ Draw segments of red line
+  const redSegments: typeof filteredData[] = [];
+  let segment: typeof filteredData = [];
+
+  for (let i = 0; i < filteredData.length; i++) {
+    const d = filteredData[i];
+
+    if (d.interpolated) segment.push(d);
+    else if (segment.length) {
+      redSegments.push([...segment]);
+      segment = [];
+    }
+  }
+  if (segment.length) redSegments.push(segment);
+
+  // 3️⃣ Draw only red segments
+  redSegments.forEach(seg => {
+    svg.append("path")
+      .datum(seg)
+      .attr("fill", "none")
+      .attr("stroke", COLORS.RED)
+      .attr("stroke-width", 2)
+      .attr("d", line);
+  });
 
   // Add the circles and tooltip
 
@@ -338,7 +368,7 @@ export const createVelocityChart = ({
     .append('line')
     .attr('stroke', COLORS.WHITE)
     .attr('stroke-width', 1)
-    .style('display', 'none');
+    .attr('display', 'none');
 
   // Elimino los valores nulos de magnitude
 
@@ -353,11 +383,14 @@ export const createVelocityChart = ({
     .attr('cx', (d) => xScale(d.distance))
     .attr('cy', (d) => yScale(d.velocity!))
     .attr('r', 2.5) // Radio del círculo
-    .attr('fill', COLORS.WHITE)
+    .attr('fill', (d) => {
+      if (d.interpolated) return COLORS.RED;
+      else return COLORS.WHITE;
+    })
     .on('mouseover', function (_event, _d) {
       d3.select(this).attr('r', 4);
       tooltip.style('display', 'block');
-      lineToTooltip.style('display', 'block');
+      lineToTooltip.attr('display', 'block');
     })
     .each(function (d, i) {
       d3.select(this)
@@ -379,12 +412,11 @@ export const createVelocityChart = ({
         .on('mouseout', function () {
           d3.select(this).attr('r', 2.5);
           tooltip.style('display', 'none');
-          lineToTooltip.style('display', 'none');
+          lineToTooltip.attr('display', 'none');
         });
     });
 
   // label for Velocity
-
   svg
     .append('text')
     .attr('class', 'y-axis-label')
