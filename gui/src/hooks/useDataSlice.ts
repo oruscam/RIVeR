@@ -15,6 +15,7 @@ import {
   setDataLoaded,
   setImages,
   setDefaultDataState,
+  setColorbarLimits,
 } from '../store/data/dataSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { setSectionData, setSummary } from '../store/section/sectionSlice';
@@ -28,7 +29,7 @@ import { verifyWindowsSizes } from '../helpers';
 
 export const useDataSlice = () => {
   const dispatch = useDispatch();
-  const { processing, images, quiver, isBackendWorking, isDataLoaded, hasChanged } = useSelector(
+  const { processing, images, quiver, isBackendWorking, isDataLoaded, hasChanged, colorbarLimits } = useSelector(
     (state: RootState) => state.data
   );
   const { sections, activeSection, transformationMatrix } = useSelector((state: RootState) => state.section);
@@ -202,7 +203,7 @@ export const useDataSlice = () => {
     const environment = process.env.NODE_ENV;
 
     const handler = environment === 'development' ? 'kill-river-cli' : 'kill-river-cli';
-
+    
     try {
       await ipcRenderer.invoke(handler);
       dispatch(setBackendWorking(false));
@@ -352,14 +353,25 @@ export const useDataSlice = () => {
     dispatch(setDefaultDataState());
   };
 
+  const onSetManualColorbarLimits = (min: number, max: number, refresh: boolean) => {
+    if (refresh){
+      window.ipcRenderer.invoke('set-colorbar-limits', { min: null, max: null });
+      dispatch(setColorbarLimits({ min: null, max: null, default: true }));
+    } else {
+      window.ipcRenderer.invoke('set-colorbar-limits', { min: min, max: max });
+      dispatch(setColorbarLimits({ min: min, max: max, default: false }));
+    }
+  }
+
   interface ExportGifParams {
     image: { width: number; height: number };
     factor: number;
     fps: number;
     step: number;
+    colorbarLimits: { min: number; max: number };
   }
 
-  const onExportGif = async ({image, factor, fps, step} : ExportGifParams) => {
+  const onExportGif = async ({image, factor, fps, step, colorbarLimits} : ExportGifParams) => {
     // dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
 
@@ -371,7 +383,8 @@ export const useDataSlice = () => {
         fps,
         sections,
         transformationMatrix,
-        step
+        step,
+        colorbarLimits
       })
       // dispatch(setBackendWorking(false));
 
@@ -392,6 +405,8 @@ export const useDataSlice = () => {
     images,
     processing,
     quiver,
+    colorbarLimits,
+    
 
     // METHODS
     onClearQuiver,
@@ -406,5 +421,6 @@ export const useDataSlice = () => {
     onSetQuiverAll,
     onSetQuiverTest,
     onUpdateProcessing,
+    onSetManualColorbarLimits
   };
 };

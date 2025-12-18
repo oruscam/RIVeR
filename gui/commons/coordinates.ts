@@ -1,5 +1,10 @@
 // Calculate and return the Euclidean distance between two points.
-const getDistanceBetweenPoints = (points) => {
+interface Point {
+  x: number;
+  y: number;
+}
+
+const getDistanceBetweenPoints = (points: Point[]): number => {
   if (Array.isArray(points) && points.length === 2) {
     const dx = points[1].x - points[0].x;
     const dy = points[1].y - points[0].y;
@@ -28,7 +33,7 @@ const computePixelSize = (pixelPoints, rwPoints) => {
  * @param {number} pixelSize
  * @returns {number}
  */
-const computeRwDistance = (pixelPoints, pixelSize) => {
+const computeRwDistance = (pixelPoints: Array<{ x: number; y: number; }>, pixelSize: number): number => {
   const pixelDistance = getDistanceBetweenPoints(pixelPoints);
   const rwLength = pixelDistance * pixelSize;
   return parseFloat(rwLength.toFixed(2));
@@ -61,7 +66,7 @@ function transformPixelToRealWorld(x_pix, y_pix, transformationMatrix) {
   const pixelVector = [x_pix, y_pix, 1];
 
   const realWorldVector = transformationMatrix.map((row) =>
-   row.reduce((sum, value, index) => sum + value * pixelVector[index], 0)
+   row.reduce((sum: number, value: number, index: string | number) => sum + value * pixelVector[index], 0)
   );
 
   const w = realWorldVector[2] || 1;
@@ -77,7 +82,7 @@ function transformPixelToRealWorld(x_pix, y_pix, transformationMatrix) {
  * @param {number[][]} transformationMatrix
  * @returns {number[]}
  */
-function transformRealWorldToPixel(x_rw, y_rw, transformationMatrix) {
+function transformRealWorldToPixel(x_rw: number, y_rw: number, transformationMatrix: number[][]) {
   const invTransformationMatrix = invertMatrix(transformationMatrix);
 
   const realWorldVector = [x_rw, y_rw, 1];
@@ -97,7 +102,7 @@ function transformRealWorldToPixel(x_rw, y_rw, transformationMatrix) {
  * @param {number[][]} matrix
  * @returns {number[][]}
  */
-function invertMatrix(matrix) {
+function invertMatrix(matrix: number[][]): number[][] {
   const det =
     matrix[0][0] * (matrix[1][1] * matrix[2][2] - matrix[1][2] * matrix[2][1]) -
     matrix[0][1] * (matrix[1][0] * matrix[2][2] - matrix[1][2] * matrix[2][0]) +
@@ -134,7 +139,7 @@ function invertMatrix(matrix) {
  * @param {number} z_level
  * @returns {number[][]}
  */
-function getTransformationFromCameraMatrix(cameraMatrix, z_level) {
+function getTransformationFromCameraMatrix(cameraMatrix: number[][], z_level: number): number[][] {
   const M = cameraMatrix.map((row) => row.slice(0, 3));
   const p4 = cameraMatrix.map((row) => row[3]);
 

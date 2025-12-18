@@ -4,7 +4,9 @@
  * @module commons/vectors
 */
 
-import { transformPixelToRealWorld } from "./coordinates.js";
+import { transformPixelToRealWorld } from "./coordinates";
+import { Quiver } from "./types";
+
 
 /**
  * Generates a custom colormap with a smooth gradient transition between predefined colors.
@@ -19,7 +21,7 @@ import { transformPixelToRealWorld } from "./coordinates.js";
  *
  * @returns {string[]} An array of RGB color strings representing the custom colormap.
  */
-const createColorMap = () => {
+const createColorMap = (): string[] => {
   const colors = [
     [108, 212, 255], // Light Blue - Lowest
     [98, 198, 85], // Green - Low-mid
@@ -62,7 +64,7 @@ const createColorMap = () => {
  * @param {number} n
  * @returns {number[]}
  */
-const linespace = (start, end, n) => {
+const linespace = (start: number, end: number, n: number): number[] => {
   const step = (end - start) / (n - 1);
   return Array.from({ length: n }, (_, i) => start + step * i);
 };
@@ -87,7 +89,7 @@ const zeros = (length) => {
  * @param {number} y1
  * @returns {number}
  */
-const interpolate = (x, x0, x1, y0, y1) => {
+const interpolate = (x: number, x0: number, x1: number, y0: number, y1: number): number => {
   return y0 + ((x - x0) * (y1 - y0)) / (x1 - x0);
 };
 
@@ -95,7 +97,7 @@ const interpolate = (x, x0, x1, y0, y1) => {
  * Class representing a normalization utility.
  */
 class Normalize {
-  constructor(vmin, vmax) {
+  constructor(vmin: number, vmax: number) {
     this.vmin = vmin;
     this.vmax = vmax;
   }
@@ -120,7 +122,7 @@ class Normalize {
  * @param {number} index
  * @returns {number|null}
  */
-const getComponent = (arr, median, showMedian, activeImage, index) => {
+const getComponent = (arr: number[] | number[][] | null | undefined, median: number[] | null | undefined, showMedian: boolean, activeImage: number, index: number): number | null => {
   if (showMedian) return median ? median[index] : null;
 
   if (Array.isArray(arr)) {
@@ -143,7 +145,7 @@ const getComponent = (arr, median, showMedian, activeImage, index) => {
  * @param {number[][]} transformationMatrix
  * @returns {{ data: Array<{x:number,y:number,u:number,v:number,velocity:number,color:string}>, min:number, max:number }}
  */
-const getQuiverValues = (quiver, showMedian, activeImage, step, fps, transformationMatrix) => {
+const getQuiverValues = (quiver: Quiver, showMedian: boolean, activeImage: number, step: number, fps: number, transformationMatrix: number[][]): { data: Array<{ x: number; y: number; u: number; v: number; velocity: number; color: string; }>; min: number; max: number; } => {
   const { x, y: yArray, u: uArray, v: vArray, u_median, v_median } = quiver;
 
   let data = x

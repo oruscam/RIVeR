@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, screen, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, screen } from 'electron';
 import { fileURLToPath } from 'node:url';
 import * as path from 'node:path';
 import * as os from 'os';
@@ -31,6 +31,7 @@ import {
 } from './ipcMainHandlers/index.js';
 import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
+import { setColorbarLimits } from './ipcMainHandlers/setColorbarLimits.js';
 
 process.env.APP_ROOT = path.join(__dirname, '..');
 
@@ -97,7 +98,7 @@ async function createWindow() {
     riverCli = executeRiverCli;
 
     // Remove menu bar
-    win.setMenu(null);
+    // win.setMenu(null);
   }
 }
 
@@ -172,6 +173,7 @@ app.whenReady().then(() => {
   getBathimetry(PROJECT_CONFIG);
   setProjectMetadata(PROJECT_CONFIG);
   setControlPoints(PROJECT_CONFIG, riverCli);
+  setColorbarLimits(PROJECT_CONFIG);
   calculate3dRectification(PROJECT_CONFIG, riverCli);
 
   getPoints(PROJECT_CONFIG);

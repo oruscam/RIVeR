@@ -21,7 +21,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
     factorReduced,
     vertical,
   } = screenSizes;
-  const { processing, images, quiver } = useDataSlice();
+  const { processing, images, quiver, colorbarLimits } = useDataSlice();
   const { activeStep } = useWizard();
   const { video } = useProjectSlice();
   const { paths, active } = images;
@@ -48,8 +48,8 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const realFactor = vertical ? factorReduced : factor;
 
   const { data, min, max } = useMemo(() => {
+
     if ( quiver === null ){
-      console.log('reset quiver data');
       prevRef.current = {activeImage: images.active, data: [], min: 0, max: 0};
       return { data: [], min: 0, max: 0 };
     }
@@ -60,9 +60,14 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
 
     const { data, min, max } = getQuiverValues(quiver, showMedian as boolean, images.active, parameters.step, videoData.fps, transformationMatrix);
     prevRef.current = {activeImage: images.active, data, min, max};
+
+    if (colorbarLimits.default === false) {
+      return { data, min: colorbarLimits.min!, max: colorbarLimits.max! };
+    }
+
     return { data, min, max };
 
-  }, [quiver, images.active, showMedian]);
+  }, [quiver, images.active, showMedian, colorbarLimits.default]);
 
   return (
     <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>

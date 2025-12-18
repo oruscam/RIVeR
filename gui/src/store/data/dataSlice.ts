@@ -32,6 +32,11 @@ const initialState: DataState = {
   isBackendWorking: false,
   isDataLoaded: false,
   hasChanged: false,
+  colorbarLimits: {
+    min: null,
+    max: null,
+    default: true
+  }
 };
 
 const dataSlice = createSlice({
@@ -78,6 +83,11 @@ const dataSlice = createSlice({
       state.isBackendWorking = false;
       state.isDataLoaded = false;
     },
+    setColorbarLimits: (state, action: PayloadAction<{ min: number | null; max: number | null; default: boolean }>) => {
+      state.colorbarLimits.min = action.payload.min;
+      state.colorbarLimits.max = action.payload.max;
+      state.colorbarLimits.default = action.payload.default;
+    }
   },
 });
 
@@ -91,6 +101,7 @@ export const {
   setQuiver,
   updateProcessingForm,
   updateProcessingPar,
+  setColorbarLimits
 } = dataSlice.actions;
 
 export default dataSlice.reducer;
