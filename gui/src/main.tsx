@@ -7,11 +7,9 @@ import './index.css';
 import './translations/i18n';
 
 createRoot(document.getElementById('root') ?? document.createElement('div')).render(
-  // <React.StrictMode>
   <Provider store={store}>
     <App />
   </Provider>
-  // </React.StrictMode>
 );
 
 // Use contextBridge

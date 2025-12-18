@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { Loading } from '../Loading';
 import React, { useEffect } from 'react';
 
-export const FormAnalizing = () => {
+export const FormAnalizing = ({setShowMedian}: {setShowMedian: React.Dispatch<React.SetStateAction<boolean>>}) => {
   const { onSetQuiverAll, isBackendWorking, onKillBackend, quiver } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { t } = useTranslation();
@@ -18,7 +18,9 @@ export const FormAnalizing = () => {
     if (isBackendWorking) return;
     setPercentage('');
     setTime('');
-    onSetQuiverAll().catch((error) => onSetErrorMessage(error.message));
+    onSetQuiverAll()
+      .then(() => setShowMedian(true))
+      .catch((error) => onSetErrorMessage(error.message));
   };
 
   const handleStop = async () => {
@@ -68,10 +70,8 @@ export const FormAnalizing = () => {
   }, [percentage, time]);
 
   return (
-    <>
-      <h1 className="form-title-analizing"> {t('Analizing.title')} </h1>
-      <div className="form-base-2" id="form-analizing">
-        <div className="input-container-2" id="analize-div">
+    <div className="body mt-3" id="form-analizing">
+        <div className="input-container-2">
           <button
             className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
             onClick={handleAnalize}
@@ -93,7 +93,6 @@ export const FormAnalizing = () => {
           {' '}
           {t('Analizing.stop')}{' '}
         </button>
-      </div>
-    </>
+    </div>
   );
 };
