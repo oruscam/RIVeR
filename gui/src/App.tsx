@@ -11,7 +11,6 @@ import {
   Ipcam,
   Oblique,
 } from './pages/index';
-import './App.css';
 import { useEffect } from 'react';
 import { Loading } from './components';
 import { Report } from './pages/Report';

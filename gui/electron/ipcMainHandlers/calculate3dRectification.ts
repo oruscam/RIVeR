@@ -1,9 +1,9 @@
 import { ipcMain } from 'electron';
-import { ProjectConfig } from './interfaces';
 import * as fs from 'fs';
 import path from 'path';
+import { PROJECT_CONFIG } from '../main';
 
-async function calculate3dRectification(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
+async function calculate3dRectification(riverCli: Function) {
   ipcMain.handle('calculate-3d-rectification', async (_event, args) => {
     const { projectDirectory, logsPath, settingsPath, firstFrame, filePrefix } = PROJECT_CONFIG;
     const { points, mode } = args;

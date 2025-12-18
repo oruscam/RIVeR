@@ -47,7 +47,7 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
   }, [path, level, leftBank, rwLength, screenWidth]);
 
   return (
-    <div className={`${path === undefined ? 'hidden' : ''} mb-3`}>
+    <div className={`bath-graph ${path === undefined ? 'hidden' : ''} mb-3`}>
       <svg ref={svgRef} width={graphWidth} height={height} id={`only-section-${name}`} />
     </div>
   );

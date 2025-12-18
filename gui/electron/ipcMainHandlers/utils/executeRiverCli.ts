@@ -2,9 +2,9 @@ import { app, ipcMain, webContents } from 'electron';
 import { ChildProcess, spawn } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
+import { PROJECT_CONFIG } from '../../main';
 
 let python: ChildProcess;
-const DEV_SERVER = process. env.VITE_DEV_SERVER_URL;
 
 async function executeRiverCli(
   options: (string | number)[],
@@ -12,20 +12,17 @@ async function executeRiverCli(
   output:  boolean = false,
   logFile: string
 ): Promise<{ data: any; error: any }> {
-  let riverCliPath:  string;
-  if (DEV_SERVER) {
-    riverCliPath = path.join(app. getAppPath(), 'river-cli', 'river-cli');
-  } else {
-    riverCliPath = path.join(app.getAppPath(), '..', 'river-cli', 'river-cli');
-  }
-
+  
   const args = options.map((arg) => arg.toString());
+  args.unshift(...['-m', 'river.cli']);
 
-  console.log('you are using river-cli', riverCliPath);
-  console.log(options);
+  console.log('You are using river-cli', PROJECT_CONFIG.pythonPath);
+  console.log('Arguments: ', options)
+
+  console.time('river-cli execution time: ');
 
   const result = await new Promise((resolve, reject) => {
-    python = spawn(riverCliPath, args);
+    python = spawn(PROJECT_CONFIG.pythonPath, args);
 
     let stdoutData = '';
     let stderrData = '';
@@ -86,7 +83,7 @@ async function executeRiverCli(
           return;
         }
       } else {
-        console.log('river-cli process finished');
+        console.log('river-cli process finished correctly');
         resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, 'null')));
         await killRiverCli();
       }

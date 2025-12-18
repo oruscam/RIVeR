@@ -1,13 +1,13 @@
 import { ipcMain } from 'electron';
 import * as path from 'node:path';
 import * as fs from 'fs';
-import { ProjectConfig } from './interfaces';
+import { PROJECT_CONFIG } from '../main';
 
 interface setSectionsHandleArgs {
   data: any;
 }
 // 🚧 setSections -> solo setea el setting.json con la nueva direccion a xsettings -> archivo de secciones.
-export function setSections(PROJECT_CONFIG: ProjectConfig) {
+export function setSections() {
   ipcMain.handle('set-sections', async (_event, args: setSectionsHandleArgs) => {
     const { projectDirectory, settingsPath } = PROJECT_CONFIG;
     const xsectionsPath = path.join(projectDirectory, 'xsections.json');

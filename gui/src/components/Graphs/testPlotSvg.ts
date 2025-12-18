@@ -54,10 +54,6 @@ export const testPlotSvg = ({
   let vMin = d3.min(v) ?? 0;
   let vMax = d3.max(v) ?? 0;
 
-  // Mean values
-  const uMean = d3.mean(u) ?? 0;
-  const vMean = d3.mean(v) ?? 0;
-
   // Adjust the min and max values with padding
   uMin -= padding * (uMax - uMin);
   uMax += padding * (uMax - uMin);

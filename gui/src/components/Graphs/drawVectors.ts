@@ -37,15 +37,23 @@ export const drawVectors = (
   );
 
   // Tooltip div
-  const tooltip = d3.select("body")
-      .append("div")
-      .style("position", "absolute")
-      .style("background", "white")
-      .style("border", "1px solid #ccc")
-      .style("padding", "5px 10px")
-      .style("border-radius", "5px")
-      .style("pointer-events", "none")
-      .style("opacity", 0);
+  let tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any> = d3.select<HTMLDivElement, unknown>('#vectors-tooltip');
+  if (tooltip.empty()) {
+    tooltip = d3.select<HTMLDivElement, unknown>('body')
+        .append('div')
+        .attr('id', 'vectors-tooltip')
+        .style('position', () => 'absolute')
+        .style('top', () => '0px')
+        .style('background', () => 'white')
+        .style('border', () => '1px solid #ccc')
+        .style('padding', () => '5px 10px')
+        .style('border-radius', () => '5px')
+        .style('pointer-events', () => 'none')
+        .style('opacity', () => '0');
+  } else {
+      // Reuse existing tooltip (reset opacity/position if needed)
+      tooltip.style('opacity', () => '0').style('top', () => '0px');
+  }
 
   if (arrows === undefined) return;
   arrows.forEach((arrow, i) => {
