@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useDataSlice, useProjectSlice } from "../../../hooks"
 
-export const ExportGif = () => {
+export const ExportMp4 = () => {
     const { onExportGif, colorbarLimits, onSetManualColorbarLimits } = useDataSlice();
     const { video } = useProjectSlice();
     const { width, height, fps } = video.data;
@@ -68,7 +68,7 @@ export const ExportGif = () => {
     
     return (
         <>
-            <h2 className="mt-2">Create GIF</h2>
+            <h2 className="mt-2">Create MP4</h2>
             <div className="input-container-2 mt-2">
                 <label className="read-only me-1" htmlFor=""> Resolution </label>
                 <select
@@ -98,7 +98,7 @@ export const ExportGif = () => {
                 />
             </div>
             <div className="input-container-2 mt-1">
-                <label className="read-only me-2">Max</label>
+                <label className="read-only me-2"> Max </label>
                 <input
                     className="input-field"
                     id="max"
@@ -111,7 +111,7 @@ export const ExportGif = () => {
                 />
             </div>
             <button className={`mt-2 button-with-loader form-button ${isCreatingGif ? 'button-with-loader-active' : ''}`} type="button" disabled={!isPosibleToCreateGif()} onClick={onClickExportGif}>
-                <p className="button-name"> Export GIF </p>
+                <p className="button-name"> Export MP4 </p>
                 {isCreatingGif && <span className="loader-little"></span>}
             </button>
         </>
