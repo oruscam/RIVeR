@@ -1,8 +1,8 @@
 import { dialog, ipcMain } from 'electron';
-import { ProjectConfig } from './interfaces';
 import * as path from 'path';
+import { PROJECT_CONFIG } from '../main';
 
-async function getVideo(PROJECT_CONFIG: ProjectConfig) {
+async function getVideo() {
   const options: Electron.OpenDialogOptions = {
     properties: ['openFile'],
     filters: [{ name: 'Videos', extensions: ['mp4', 'mov', 'avi', 'mkv'] }],

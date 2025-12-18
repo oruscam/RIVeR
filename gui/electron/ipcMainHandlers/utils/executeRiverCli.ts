@@ -5,8 +5,6 @@ import * as fs from 'fs';
 import { PROJECT_CONFIG } from '../../main';
 
 let python: ChildProcess;
-const DEV_SERVER = process.env.VITE_DEV_SERVER_URL;
-
 
 async function executeRiverCli(
   options: (string | number)[],
@@ -16,11 +14,10 @@ async function executeRiverCli(
 ): Promise<{ data: any; error: any }> {
   
   const args = options.map((arg) => arg.toString());
-  // args.unshift(...['-m', 'river.cli']);
-
+  args.unshift(...['-m', 'river.cli']);
 
   console.log('You are using river-cli', PROJECT_CONFIG.pythonPath);
-  console.log(options);
+  console.log('Arguments: ', options)
 
   console.time('river-cli execution time: ');
 

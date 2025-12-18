@@ -2,9 +2,9 @@ import { ipcMain } from 'electron';
 import { createFolderStructure } from './createFolderStructure';
 import { join, dirname } from 'path';
 import { getVideoMetadata } from './utils/getVideoMetadata';
-import { ProjectConfig } from './interfaces';
+import { PROJECT_CONFIG } from '../main';
 
-function initProject(PROJECT_CONFIG: ProjectConfig) {
+function initProject() {
   ipcMain.handle(
     'init-project',
     async (_event, args: { path: string; name: string; type: string; language: string }) => {

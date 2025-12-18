@@ -1,9 +1,9 @@
 import { ipcMain } from 'electron';
-import { ProjectConfig } from './interfaces';
 import * as fs from 'fs';
 import { saveProjectMetadata } from './utils/saveProjectMetadata';
+import { PROJECT_CONFIG } from '../main';
 
-async function setProjectMetadata(PROJECT_CONFIG: ProjectConfig) {
+async function setProjectMetadata() {
   ipcMain.handle('set-project-metadata', async (_event, args) => {
     const { settingsPath } = PROJECT_CONFIG;
     const { riverName, site, unitSistem, meditionDate } = args;
