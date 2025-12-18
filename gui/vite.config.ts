@@ -4,7 +4,7 @@ import electron from 'vite-plugin-electron/simple';
 import react from '@vitejs/plugin-react';
 import * as os from 'os';
 
-const EXTERNAL_NATIVE = ['canvas'];
+const EXTERNAL_NATIVE = ['skia-canvas'];
 
 export default defineConfig({
   server: {
