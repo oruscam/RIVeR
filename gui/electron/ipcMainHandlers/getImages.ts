@@ -1,9 +1,9 @@
 import { ipcMain } from 'electron';
 import * as fs from 'fs/promises';
 import * as path from 'path';
-import { ProjectConfig } from './interfaces';
+import { PROJECT_CONFIG } from '../main';
 
-function getImages(PROJECT_CONFIG: ProjectConfig) {
+function getImages() {
   let filePrefix = import.meta.env.VITE_FILE_PREFIX;
   filePrefix = filePrefix === undefined ? '' : filePrefix;
 

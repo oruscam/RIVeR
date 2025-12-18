@@ -142,11 +142,11 @@ export const PROJECT_CONFIG: ProjectConfig = {
   firstFrame: '',
   defaultFilesPath: '',
   filePrefix: filePrefix,
-  pythonPath: VITE_DEV_SERVER_URL ? path.join(app.getAppPath(), 'river-cli', 'river-cli') : path.join(__dirname, '..', 'embedded', 'cpython', 'bin', 'python'),
+  pythonPath: VITE_DEV_SERVER_URL ? path.join(app.getAppPath(), 'river-cli', 'python', 'bin', 'python') : path.join(app.getAppPath(), '..', 'river-cli', 'python', 'bin', 'python'),
 };
 
 // General window dialog to confirm deletes.
-ipcMain.handle('delete-confirmation', async (event, args) => {
+ipcMain.handle('delete-confirmation', async (_event, args) => {
   const { message, title } = args;
   const { response } = await dialog.showMessageBox({
     type: 'warning',
@@ -161,25 +161,25 @@ ipcMain.handle('delete-confirmation', async (event, args) => {
 
 app.whenReady().then(() => {
   createWindow();
-  getVideo(PROJECT_CONFIG);
-  initProject(PROJECT_CONFIG);
-  loadProject(PROJECT_CONFIG);
-  firstFrame(PROJECT_CONFIG, riverCli);
-  setPixelSize(PROJECT_CONFIG, riverCli);
-  setSections(PROJECT_CONFIG);
-  recommendRoiHeight(PROJECT_CONFIG, riverCli);
-  createMaskAndBbox(PROJECT_CONFIG, riverCli);
-  getQuiver(PROJECT_CONFIG, riverCli);
-  getResultData(PROJECT_CONFIG, riverCli);
-  getImages(PROJECT_CONFIG);
-  getBathimetry(PROJECT_CONFIG);
-  setProjectMetadata(PROJECT_CONFIG);
-  setControlPoints(PROJECT_CONFIG, riverCli);
-  calculate3dRectification(PROJECT_CONFIG, riverCli);
+  getVideo();
+  initProject();
+  loadProject();
+  firstFrame(riverCli);
+  setPixelSize(riverCli);
+  setSections();
+  recommendRoiHeight(riverCli);
+  createMaskAndBbox(riverCli);
+  getQuiver(riverCli);
+  getResultData(riverCli);
+  getImages();
+  getBathimetry();
+  setProjectMetadata();
+  setControlPoints(riverCli);
+  calculate3dRectification(riverCli);
 
-  getPoints(PROJECT_CONFIG);
-  getIpcamImages(PROJECT_CONFIG);
-  getDistances(PROJECT_CONFIG);
-  saveTransformationMatrix(PROJECT_CONFIG);
-  saveReportHtml(PROJECT_CONFIG);
+  getPoints();
+  getIpcamImages();
+  getDistances();
+  saveTransformationMatrix();
+  saveReportHtml();
 });
