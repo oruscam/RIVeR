@@ -43,7 +43,7 @@ export const Analize = () => {
       </div>
       <div className="form-container">
         <FormHeader title={t('Analizing.title')} showSections={false}/>
-        <FormAnalizing />
+        <FormAnalizing setShowMedian={setShowMedian}/>
         <div className='footer'>
           <WizardButtons onClickNext={handleNext} canFollow={quiver !== null}/>
         </div>
