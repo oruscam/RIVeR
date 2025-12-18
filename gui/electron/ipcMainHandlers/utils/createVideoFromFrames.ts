@@ -24,18 +24,31 @@ function runFfmpegPromise(command: any): Promise<void> {
   });
 }
 
+type OutputFormat = 'gif' | 'mp4';
+
 /**
- * Crea un GIF a partir de frames JPG cuyos nombres son números (p. ej. 0001.jpg, 0003.jpg).
+ * Crea un video (GIF o MP4) a partir de frames JPG cuyos nombres son números (p. ej.  0001.jpg, 0003.jpg).
  * Permite huecos en la numeración mientras los archivos estén ordenados por nombre.
+ *
+ * @param folder - Carpeta que contiene los frames JPG
+ * @param outputPath - Ruta de salida para el video
+ * @param fps - Frames por segundo
+ * @param format - Formato de salida:  'gif' o 'mp4'
  *
  * Estrategia:
  * - Lee todos los archivos *.jpg que tienen nombres únicamente numéricos.
- * - Ordena por el valor numérico.
+ * - Ordena por el valor numérico. 
  * - Construye un archivo temporal de tipo "concat" que indica la duración de cada frame (1/fps).
- * - Usa ese archivo como entrada para palettegen y luego para paletteuse para obtener colores correctos.
+ * - Para GIF:  Usa palettegen y paletteuse para obtener colores correctos.
+ * - Para MP4: Usa codec H.264 con configuración optimizada.
  */
-async function createGif(folder: string, outputPath: string, fps: number) {
-  console.log("Creating GIF at:", outputPath);
+async function createVideoFromFrames(
+  folder: string,
+  outputPath: string,
+  fps: number,
+  format: OutputFormat
+) {
+  console.log(`Creating ${format. toUpperCase()} at: `, outputPath);
   console.log("Using frames from:", folder);
   console.log("Frames per second (fps):", fps);
 
@@ -44,6 +57,9 @@ async function createGif(folder: string, outputPath: string, fps: number) {
   }
   if (!Number.isFinite(fps) || fps <= 0) {
     throw new Error("fps must be a positive number");
+  }
+  if (format !== 'gif' && format !== 'mp4') {
+    throw new Error("format must be either 'gif' or 'mp4'");
   }
 
   // Leer entradas y filtrar nombres que sean solo dígitos + .jpg
@@ -74,18 +90,18 @@ async function createGif(folder: string, outputPath: string, fps: number) {
   }
 
   // Archivos temporales
-  const palettePath = path.join(outDir, ".tmp_palette.png");
-  const listPath = path.join(outDir, ".tmp_frames_list.txt");
+  const palettePath = path. join(outDir, ".tmp_palette.png");
+  const listPath = path.join(outDir, ".tmp_frames_list. txt");
 
   // Construir contenido del archivo concat.
   // Formato:
   // file '/abs/path/to/frame1.jpg'
   // duration 0.1
-  // ...
+  // ... 
   const frameDuration = 1 / fps;
   let listContent = "";
   for (const p of framePaths) {
-    const safePath = p.includes("'") ? p.replace(/'/g, "'\\''") : p;
+    const safePath = p. includes("'") ? p.replace(/'/g, "'\\''") : p;
     listContent += `file '${safePath}'\n`;
     listContent += `duration ${frameDuration}\n`;
   }
@@ -99,34 +115,55 @@ async function createGif(folder: string, outputPath: string, fps: number) {
     await fs.writeFile(listPath, listContent, "utf8");
 
     console.log(`Built concat list with ${framePaths.length} frames at ${listPath}`);
-    console.log(`Generating palette at: ${palettePath}`);
 
-    // 1) Generar paleta usando concat demuxer
-    // ffmpeg -f concat -safe 0 -i list.txt -vf fps=FPS,palettegen palette.png
-    const paletteCmd = ffmpeg()
-      .input(listPath)
-      .inputOptions(["-f", "concat", "-safe", "0"])
-      .videoFilters(`fps=${fps},palettegen`)
-      .outputOptions(["-y"])
-      .output(palettePath);
+    if (format === 'gif') {
+      // === CREAR GIF ===
+      console.log(`Generating palette at: ${palettePath}`);
 
-    await runFfmpegPromise(paletteCmd);
+      // 1) Generar paleta usando concat demuxer
+      const paletteCmd = ffmpeg()
+        .input(listPath)
+        .inputOptions(["-f", "concat", "-safe", "0"])
+        .videoFilters(`fps=${fps},palettegen`)
+        .outputOptions(["-y"])
+        .output(palettePath);
 
-    console.log("Palette generated. Creating GIF using palette...");
+      await runFfmpegPromise(paletteCmd);
 
-    // 2) Crear GIF usando la paleta generada
-    // ffmpeg -f concat -safe 0 -i list.txt -i palette.png -filter_complex "fps=FPS,paletteuse" -loop 0 out.gif
-    const gifCmd = ffmpeg()
-      .input(listPath)
-      .inputOptions(["-f", "concat", "-safe", "0"])
-      .input(palettePath)
-      .complexFilter([`fps=${fps},paletteuse`])
-      .outputOptions(["-y", "-loop", "0"])
-      .output(outputPath);
+      console.log("Palette generated. Creating GIF using palette...");
 
-    await runFfmpegPromise(gifCmd);
+      // 2) Crear GIF usando la paleta generada
+      const gifCmd = ffmpeg()
+        .input(listPath)
+        .inputOptions(["-f", "concat", "-safe", "0"])
+        .input(palettePath)
+        .complexFilter([`fps=${fps},paletteuse`])
+        .outputOptions(["-y", "-loop", "0"])
+        .output(outputPath);
 
-    console.log("GIF created successfully at:", outputPath);
+      await runFfmpegPromise(gifCmd);
+
+      console.log("GIF created successfully at:", outputPath);
+    } else {
+      // === CREAR MP4 ===
+      console.log("Creating MP4 with H.264 codec...");
+
+      const mp4Cmd = ffmpeg()
+        .input(listPath)
+        .inputOptions(["-f", "concat", "-safe", "0"])
+        .videoCodec("libx264")
+        .outputOptions([
+          "-y",
+          "-pix_fmt", "yuv420p", // Compatibilidad con reproductores
+          "-preset", "medium", // Balance entre velocidad y calidad
+          "-crf", "23" // Calidad (18-28, menor = mejor calidad)
+        ])
+        .output(outputPath);
+
+      await runFfmpegPromise(mp4Cmd);
+
+      console.log("MP4 created successfully at:", outputPath);
+    }
   } finally {
     // limpiar archivos temporales (ignorar errores)
     try {
@@ -138,4 +175,4 @@ async function createGif(folder: string, outputPath: string, fps: number) {
   }
 }
 
-export { createGif };
+export { createVideoFromFrames, type OutputFormat };

@@ -2,7 +2,7 @@ import { app, ipcMain } from "electron";
 import { ProjectConfig } from "./interfaces";
 import * as fs from "fs";
 import * as path from "path";
-import { createGif } from "./utils/createGif";
+import { createVideoFromFrames } from "./utils/createVideoFromFrames";
 
 import { Canvas, loadImage } from "skia-canvas";
 
@@ -143,14 +143,14 @@ async function getGif(PROJECT_CONFIG: ProjectConfig) {
       const outPath = path.join(dstPath, `${base}.jpg`);
 
       const jpgBuffer = await canvas.toBuffer("jpeg", {
-        quality: 0.7
+        quality: 1
       });
 
       await fs.promises.writeFile(outPath, jpgBuffer);
     }
 
-    const gifPath = path.join(projectDirectory, "output.gif");
-    await createGif(dstPath, gifPath, fps);
+    const gifPath = path.join(projectDirectory, "output.mp4");
+    await createVideoFromFrames(dstPath, gifPath, fps, 'mp4');
 
     fs.rmSync(dstPath, { recursive: true, force: true });
 

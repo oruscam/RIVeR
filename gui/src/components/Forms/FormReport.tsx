@@ -8,7 +8,7 @@ import '../../index.css';
 import { SuccessfulMessage } from '../Report';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
-import { ExportGif } from './Components';
+import { ExportMp4 } from './Components';
 
 export const FormReport = ({
   isReportSaved,
@@ -86,6 +86,16 @@ export const FormReport = ({
     goToStep(0);
   };
 
+  useEffect(() => {
+    if(isReportSaved){
+      const id = document.getElementById('successful-message');
+      console.log('id', id);
+      if(id){
+        id.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [isReportSaved]);
+
   return (
     <div className='body'>
       <form className='form-report'>
@@ -152,7 +162,7 @@ export const FormReport = ({
             />
           </div>
 
-          <ExportGif />
+          <ExportMp4 />
 
           {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
       </form>
