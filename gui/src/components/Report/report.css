@@ -650,6 +650,7 @@ body{
     background-color: var(--success-background);
     color: var(--success-color);
     width: 90%;
+    max-width: 500px;
     height: auto;
     display: flex;
     padding: 25px 50px 30px 10px;

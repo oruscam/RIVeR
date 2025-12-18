@@ -3,12 +3,15 @@ import { Carousel, Error, ImageWithData, Progress, WizardButtons } from '../comp
 import { FormAnalizing } from '../components/Forms/index';
 import { useDataSlice, useUiSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
+import { useTranslation } from 'react-i18next';
+import { FormHeader } from '../components/Forms/Components';
 
 export const Analize = () => {
   const { screenSizes, onSetErrorMessage, onSetSeeAll } = useUiSlice();
   const { imageWidth: width, imageHeight: height, factor } = screenSizes;
   const { nextStep } = useWizard();
   const { onGetResultData, quiver, images, onSetActiveImage } = useDataSlice();
+  const { t } = useTranslation();
   const { paths, active } = images;
   const [showMedian, setShowMedian] = useState(false);
 
@@ -39,9 +42,11 @@ export const Analize = () => {
         <Error></Error>
       </div>
       <div className="form-container">
-        <Progress />
+        <FormHeader title={t('Analizing.title')} showSections={false}/>
         <FormAnalizing />
-        <WizardButtons onClickNext={handleNext} canFollow={quiver !== null}></WizardButtons>
+        <div className='footer'>
+          <WizardButtons onClickNext={handleNext} canFollow={quiver !== null}/>
+        </div>
       </div>
     </div>
   );
