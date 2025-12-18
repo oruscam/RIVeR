@@ -27,6 +27,12 @@ interface Images {
   active: number;
 }
 
+interface ColorbarLimits {
+  min: number | null;
+  max: number | null;
+  default: boolean;
+}
+
 interface DataState {
   processing: Processing;
   images: Images;
@@ -34,6 +40,7 @@ interface DataState {
   isBackendWorking: boolean;
   isDataLoaded: boolean;
   hasChanged: boolean;
+  colorbarLimits: ColorbarLimits;
 }
 
 export type { DataState, Processing, FormProcessing, Quiver };

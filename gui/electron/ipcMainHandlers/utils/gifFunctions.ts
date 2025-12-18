@@ -7,8 +7,8 @@
  * @returns object containing output width, height, and drawing coordinates
  */
 
-import { getPositionSectionText } from "../../../commons/sectionTextPosition.js";
-import { getQuiverValues } from "../../../commons/vectors.js";
+import { getPositionSectionText } from "../../../commons/sectionTextPosition";
+import { getQuiverValues } from "../../../commons/vectors";
 
 const getGifDimensions = ( imgWidth, imgHeight, factor ) => {
     const outWidth = Math.round(imgWidth * factor);
@@ -70,6 +70,7 @@ const loadSectionValues = ( sections, width, height, factor ) => {
  * @param canvasWidth 
  * @param canvasHeight 
  */
+
 const drawWatermark = (
     ctx,
     watermarkImage,
@@ -123,7 +124,6 @@ const drawWatermark = (
         // Restore the context
         ctx.restore();
 };
-
 
 const drawSection = (ctx, values, factor, imageHeight) => {
     const lineWidth = imageHeight * 0.004;
@@ -242,61 +242,89 @@ const drawQuiver = (
 };
 
 /**
- * Draw color scale bar (legend) on canvas
- * Replicates CSS linear-gradient colorbar
+ * Draw a horizontal color bar legend with left/right labels
  * @param ctx | CanvasRenderingContext2D
  * @param min | minimum value
  * @param max | maximum value
- * @param imageWidth | canvas width
- * @param imageHeight | canvas height
+ * @param canvasWidth | canvas width
+ * @param canvasHeight | canvas height
  */
-
 const drawColorBar = (
   ctx,
   min,
   max,
-  imageWidth,
-  imageHeight
+  canvasWidth,
+  canvasHeight,
 ) => {
-  // --- Layout (relative to image size)
-  const containerWidth = imageWidth * 0.25;
-  const containerHeight = imageHeight * 0.045;
-  const paddingX = containerWidth * 0.05;
-  const barHeight = containerHeight * 0.35;
-  const radius = containerHeight * 0.45;
+  // === Layout ===
+  const margin = canvasWidth * 0.015;
+  const containerWidth = canvasWidth * 0.32 > 450 ? 450 : canvasWidth * 0.35;
+  const containerHeight = canvasHeight * 0.060 > 40 ? 40 : canvasHeight * 0.060;
 
-  const margin = imageWidth * 0.02;
+  const x = canvasWidth - containerWidth - margin;
+  const y = canvasHeight - containerHeight - margin;
 
-  // Bottom-right position
-  const x = imageWidth - containerWidth - margin;
-  const y = imageHeight - containerHeight - margin;
+  const radius = containerHeight * 0.5;
+  const padding = containerHeight * 0.3;
 
-  // --- Colors (same semantic order as frontend)
   const colors = [
     '#6CD4FF', // light blue
     '#62C655', // green
     '#F5BF61', // yellow
     '#ED6B57'  // red
-  ];
+  ]
 
-  // ---------- Container ----------
+  // === Container ===
   ctx.save();
   ctx.fillStyle = '#1e2525';
 
-  roundRect(
-    ctx,
-    x,
-    y,
-    containerWidth,
-    containerHeight,
-    radius
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + containerWidth - radius, y);
+  ctx.quadraticCurveTo(x + containerWidth, y, x + containerWidth, y + radius);
+  ctx.lineTo(x + containerWidth, y + containerHeight - radius);
+  ctx.quadraticCurveTo(
+    x + containerWidth,
+    y + containerHeight,
+    x + containerWidth - radius,
+    y + containerHeight
   );
+  ctx.lineTo(x + radius, y + containerHeight);
+  ctx.quadraticCurveTo(x, y + containerHeight, x, y + containerHeight - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
   ctx.fill();
 
-  // ---------- Gradient bar ----------
-  const barX = x + paddingX;
+  // === Text ===
+  const fontSize = containerHeight * 0.4;
+  ctx.font = `${fontSize}px Arial`;
+  ctx.fillStyle = '#ffffff';
+  ctx.textBaseline = 'middle';
+
+  const centerY = y + containerHeight / 2;
+
+  const minText = min.toFixed(2);
+  const maxText = max.toFixed(2);
+
+  const minTextWidth = ctx.measureText(minText).width;
+  const maxTextWidth = ctx.measureText(maxText).width;
+
+  // Left label
+  const minX = x + padding;
+  ctx.fillText(minText, minX, centerY);
+
+  // Right label
+  const maxX = x + containerWidth - padding - maxTextWidth;
+  ctx.fillText(maxText, maxX, centerY);
+
+  // === Color bar ===
+  const barHeight = containerHeight * 0.35;
+  const barRadius = barHeight / 2;
+
+  const barX = minX + minTextWidth + padding;
+  const barWidth = maxX - barX - padding;
   const barY = y + (containerHeight - barHeight) / 2;
-  const barWidth = containerWidth * 0.62;
 
   const gradient = ctx.createLinearGradient(
     barX,
@@ -305,50 +333,31 @@ const drawColorBar = (
     0
   );
 
-  colors.forEach((c, i) => {
-    gradient.addColorStop(i / (colors.length - 1), c);
+  colors.forEach((color, i) => {
+    gradient.addColorStop(i / (colors.length - 1), color);
   });
 
   ctx.fillStyle = gradient;
-  roundRect(
-    ctx,
-    barX,
-    barY,
-    barWidth,
-    barHeight,
-    barHeight / 2
+
+  ctx.beginPath();
+  ctx.moveTo(barX + barRadius, barY);
+  ctx.lineTo(barX + barWidth - barRadius, barY);
+  ctx.quadraticCurveTo(barX + barWidth, barY, barX + barWidth, barY + barRadius);
+  ctx.lineTo(barX + barWidth, barY + barHeight - barRadius);
+  ctx.quadraticCurveTo(
+    barX + barWidth,
+    barY + barHeight,
+    barX + barWidth - barRadius,
+    barY + barHeight
   );
+  ctx.lineTo(barX + barRadius, barY + barHeight);
+  ctx.quadraticCurveTo(barX, barY + barHeight, barX, barY + barHeight - barRadius);
+  ctx.lineTo(barX, barY + barRadius);
+  ctx.quadraticCurveTo(barX, barY, barX + barRadius, barY);
+  ctx.closePath();
   ctx.fill();
 
-  // ---------- Labels ----------
-  ctx.fillStyle = '#ffffff';
-  ctx.textBaseline = 'middle';
-  ctx.textAlign = 'left';
-
-  const fontSize = imageHeight * 0.018;
-  ctx.font = `${fontSize}px Arial`;
-
-  const textX = barX + barWidth + paddingX * 0.6;
-  const textY = y + containerHeight / 2;
-
-  ctx.fillText(min.toFixed(2), textX, textY);
-  ctx.fillText(max.toFixed(2), textX + fontSize * 3, textY);
-
   ctx.restore();
-};
-
-const roundRect = (ctx, x, y, w, h, r) => {
-  ctx.beginPath();
-  ctx.moveTo(x + r, y);
-  ctx.lineTo(x + w - r, y);
-  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-  ctx.lineTo(x + w, y + h - r);
-  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-  ctx.lineTo(x + r, y + h);
-  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-  ctx.lineTo(x, y + r);
-  ctx.quadraticCurveTo(x, y, x + r, y);
-  ctx.closePath();
 };
 
 

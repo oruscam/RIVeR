@@ -1,5 +1,7 @@
-import { transformRealWorldToPixel } from '../../commons/coordinates.js';
-import { createColorMap, interpolate, Normalize } from '../../commons/vectors.js';
+import { transformRealWorldToPixel } from "../../commons/coordinates";
+import { createColorMap, interpolate, Normalize } from "../../commons/vectors";
+import { Section } from "../store/section/types";
+
 
 /**
  * Calculates the width of an arrow based on the differences between consecutive distances.
@@ -511,7 +513,7 @@ const getGlobalMagnitudes = (sections: any) => {
  * @param active - number
  * @returns - {max: number, min: number}
  */
-const getVelocityLimits = (sections, active) => {
+const getVelocityLimits = (sections: Section[], active: number) => {
   let max = 0;
   let min = 0;
   

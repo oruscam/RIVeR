@@ -483,3 +483,10 @@ transform-origin: 14px 22px;
     pointer-events: none;
     cursor: not-allowed; 
 }
+
+.form-report{
+    display: flex;
+    flex-direction: column;                                                                     
+    align-items: center;
+    width: 100%;                                                                                                    
+}
