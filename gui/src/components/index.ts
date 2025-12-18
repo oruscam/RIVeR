@@ -12,7 +12,6 @@ import { ImageWithData } from './ImageWithData';
 import { DrawSections } from './DrawSections';
 import { Carousel } from './Carousel';
 import { Grid } from './Grid';
-import { SectionsHeader } from './SectionsHeader';
 import { Results } from './Results';
 import { ObliquePointsLines } from './ObliquePointsLines';
 import { IpcamGrid } from './IpcamGrid';
@@ -50,7 +49,6 @@ export {
   Progress,
   RedPoints,
   Results,
-  SectionsHeader,
   ThemeToggle,
   VersionMessage,
   WizardButtons,

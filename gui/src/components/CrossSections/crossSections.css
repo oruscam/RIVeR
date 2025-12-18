@@ -3,14 +3,18 @@
     height: 50px;
     overflow-x: auto;
     overflow-y: hidden;
-    margin-bottom: 5px;
+    margin-top: 15px;
+    margin-bottom: 15px;
     flex-shrink: 0;
     user-select: none;
+    position: sticky;
+    top: 0;
 }
 
 .sections-layer{
     display: flex;
     border-bottom: solid 1px white;
+    height: 42px;
 }
 
 .section{
@@ -20,7 +24,7 @@
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     width: auto;
-    height: 40px;
+    height: 42px;
     cursor: pointer;
     margin-bottom: -1px;
     font-size: 17px;
@@ -51,7 +55,6 @@
     border-bottom: solid 2px var(--secondary-background-color);
     flex-shrink: 0;
 }
-
 
 .section-button1{
     background-color: transparent;
@@ -118,7 +121,6 @@
     margin-left: -15px;
 }
 
-
 /* EYEBALL  */
 
 .seeAll-button{
@@ -178,8 +180,6 @@
 .pupil--open {
     animation: pupil--open .5s ease-in-out forwards;
 }
-
-
 
 @keyframes lid--close {
 from {

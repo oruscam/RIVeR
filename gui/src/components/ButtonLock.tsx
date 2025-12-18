@@ -4,7 +4,7 @@ import { MODULE_NUMBER } from '../constants/constants';
 
 interface ButtonLockProps {
   localExtraFields?: boolean;
-  localSetExtraFields?: any;
+  setLocalExtraFields?: any;
   footerElementID: string;
   headerElementID: string;
   disabled: boolean;
@@ -12,7 +12,7 @@ interface ButtonLockProps {
 
 export const ButtonLock = ({
   localExtraFields,
-  localSetExtraFields,
+  setLocalExtraFields,
   footerElementID = '',
   headerElementID = '',
   disabled,
@@ -45,11 +45,12 @@ export const ButtonLock = ({
           headerElement?.scrollIntoView({ behavior: 'smooth' });
         } else {
           const footerElement = document.getElementById(footerElementID);
+          console.log('footerElementID', footerElementID);
           setTimeout(() => {
             footerElement?.scrollIntoView({ behavior: 'smooth' });
-          }, 50);
+          }, 100);
         }
-        localSetExtraFields();
+        setLocalExtraFields();
         break;
 
       case MODULE_NUMBER.VIDEO_RANGE:
@@ -62,7 +63,7 @@ export const ButtonLock = ({
             footerElement?.scrollIntoView({ behavior: 'smooth' });
           }, 50);
         }
-        localSetExtraFields(!localExtraFields);
+        setLocalExtraFields(!localExtraFields);
         break;
 
       case MODULE_NUMBER.PROCESSING:
@@ -75,7 +76,7 @@ export const ButtonLock = ({
             footerElement?.scrollIntoView({ behavior: 'smooth' });
           }, 50);
         }
-        localSetExtraFields(!localExtraFields);
+        setLocalExtraFields(!localExtraFields);
         break;
 
       default:
