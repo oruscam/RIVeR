@@ -319,7 +319,7 @@ const onLoadCrossSections = (
   if (flagData) {
     return MODULE_NUMBER.RESULTS;
   } else {
-    return MODULE_NUMBER.ANALIZING;
+    return MODULE_NUMBER.PROCESSING;
   }
 };
 

@@ -2,7 +2,6 @@ import { useWizard } from 'react-use-wizard';
 import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { WindowSizes } from './WindowSizes';
 import { Quiver } from './Quiver';
-import { MODULE_NUMBER } from '../constants/constants';
 import { DrawSections } from './DrawSections';
 import { Layer, Stage } from 'react-konva';
 import { getQuiverValues, QuiverData } from '../helpers/drawVectorsFunctions';
@@ -21,13 +20,10 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
     vertical,
   } = screenSizes;
   const { processing, images, quiver } = useDataSlice();
-  const { activeStep } = useWizard();
   const { video } = useProjectSlice();
   const { paths, active } = images;
   const { data: videoData, parameters } = video;
 
-  // Define the type for QuiverData (import or declare if not already)
-  // import { QuiverData } from '../types/QuiverData'; // Uncomment if you have a type file
 
   type PrevRefType = {
     activeImage: typeof images.active;
@@ -46,14 +42,14 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const realHeight = vertical ? heightReduced : height;
   const realFactor = vertical ? factorReduced : factor;
 
-
   const { data, min, max } = useMemo(() => {
     if ( quiver === null ){
       console.log('reset quiver data');
       prevRef.current = {activeImage: images.active, data: [], min: 0, max: 0};
       return { data: [], min: 0, max: 0 };
     }
-    if (prevRef.current.activeImage !== images.active && activeStep === MODULE_NUMBER.PROCESSING) {
+    if (prevRef.current.activeImage !== images.active && quiver.test === true) {
+      console.log('active image changed, recalculate quiver data');
       prevRef.current.activeImage = images.active;
       return { data: [], min: 0, max: 0 };
     }
@@ -79,7 +75,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
         <Layer>
           <DrawSections factor={realFactor!} draggable={false} />
 
-          {activeStep === MODULE_NUMBER.PROCESSING && <WindowSizes width={realWidth!} height={realHeight!} />}
+          <WindowSizes width={realWidth!} height={realHeight!} />
         </Layer>
       </Stage>
       <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} showMedian={showMedian} />

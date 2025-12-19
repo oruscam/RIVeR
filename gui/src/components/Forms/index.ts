@@ -7,6 +7,7 @@ import { FormOblique } from './FormOblique';
 import { FormIpcam } from './FormIpcam';
 import { FormUav } from './FormUav';
 import { FormAnalizing } from './FormAnalizing';
+import { FormUnified } from './FormUnified'
 
 export {
   FormAnalizing,
@@ -17,5 +18,6 @@ export {
   FormReport,
   FormResults,
   FormUav,
+  FormUnified,
   FormVideo,
 };

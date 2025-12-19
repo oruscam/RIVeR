@@ -10,6 +10,7 @@ import {
   Uav,
   Ipcam,
   Oblique,
+  Unified,
 } from './pages/index';
 import { useEffect } from 'react';
 import { Loading } from './components';
@@ -77,8 +78,7 @@ export const App: React.FC = () => {
         {isLoading ? <Loading /> : <VideoRange />}
         {isLoading ? <Loading /> : getStep4()}
         {isLoading ? <Loading /> : <CrossSections />}
-        {isLoading ? <Loading /> : <Processing />}
-        {isLoading ? <Loading /> : <Analize />}
+        {isLoading ? <Loading /> : <Unified />}
         {isLoading ? <Loading /> : <Results />}
         <Report />
       </Wizard>

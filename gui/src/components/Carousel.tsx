@@ -138,10 +138,10 @@ export const Carousel: React.FC<CarouselProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`carousel-container mt-1 ${(activeStep === MODULE_NUMBER.ANALIZING && !quiver) || isBackendWorking ? 'disabled' : ''}`}
+      className={`carousel-container mt-1 ${isBackendWorking ? 'disabled' : ''}`}
     >
       <div className="carousel-info">
-        {activeStep === MODULE_NUMBER.ANALIZING && (
+        {activeStep === MODULE_NUMBER.PROCESSING && (
           <button
             className={`wizard-button ${showMedian ? 'wizard-button-active' : ''}`}
             onClick={() => carouselMediaClick(setShowMedian)}

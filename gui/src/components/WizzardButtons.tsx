@@ -36,11 +36,6 @@ export const WizardButtons = ({
         previousStep();
         break;
 
-      case MODULE_NUMBER.ANALIZING:
-        previousStep();
-        onClearQuiver();
-        break;
-
       case MODULE_NUMBER.VIDEO_RANGE:
         onSetDefaultProjectState();
         previousStep();
