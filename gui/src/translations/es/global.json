@@ -126,6 +126,8 @@
         "step1": "Paso 1",
         "step2": "Paso 2",
         "test": "Chequear",
+        "analize": "Analizar",
+        "stop": "Detener",
         "roiHeight": "Altura RDI",
         "preProcessingFilter": "Filtro de Preprocesamiento",
         "grayscale": "Escala de Grises",

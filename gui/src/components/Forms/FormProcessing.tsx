@@ -20,7 +20,7 @@ export const FormProcessing = ({extraFields}: {extraFields: boolean}) => {
     stdFiltering,
     stdThreshold,
     medianTestThreshold,
-    medianTestEpsilon,
+    medianTestEpsilon,  
     medianTestFiltering,
   } = processing.form;
 
@@ -134,7 +134,7 @@ export const FormProcessing = ({extraFields}: {extraFields: boolean}) => {
                 <span className="read-only bg-transparent"></span>
               </div>
 
-              <HardModeProcessing active={extraFields} />
+              {/* <HardModeProcessing active={extraFields} /> */}
           </form>
         </FormProvider>
       </div>

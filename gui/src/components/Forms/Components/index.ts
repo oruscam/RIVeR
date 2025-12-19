@@ -8,8 +8,10 @@ import { HardModeUav } from "./HardModeUav";
 import { HardModeCrossSections } from "./HardModeCrossSections";
 import { HardModeOblique } from "./HardModeOblique";
 import { FormHeader } from "./FormHeader"
+import { AnalyzingProgress } from "./AnalyzingProgress";
 
 export { 
+    AnalyzingProgress,
     DropHereText, 
     FormHeader,
     FramesResolution, 

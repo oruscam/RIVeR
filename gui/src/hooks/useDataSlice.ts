@@ -54,6 +54,7 @@ export const useDataSlice = () => {
     step1?: number;
     step2?: number;
     heightRoi?: number;
+    showMask?: boolean;
   }
 
   /**

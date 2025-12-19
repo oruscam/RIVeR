@@ -125,6 +125,8 @@
         "step1": "Schritt 1",
         "step2": "Schritt 2",
         "test": "Test",
+        "analize": "Analysieren",
+        "stop": "Stopp",
         "roiHeight": "ROI-Höhe",
         "preProcessingFilter": "Vorverarbeitungsfilter",
         "grayscale": "Graustufen",

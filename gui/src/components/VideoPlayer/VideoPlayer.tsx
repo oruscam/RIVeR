@@ -43,7 +43,7 @@ export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: 
 
   return (
     <>
-      {fileURL ? (
+      {fileURL && (
         <div className="video-player">
           <div className="video">
             <video
@@ -74,8 +74,6 @@ export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: 
             <VideoPlayerButtons videoRef={videoRef} setControl={setControl} control={control}></VideoPlayerButtons>
           </div>
         </div>
-      ) : (
-        <h1>ERROR EN VIDEO PLAYER</h1>
       )}
     </>
   );

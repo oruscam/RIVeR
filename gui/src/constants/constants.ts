@@ -37,9 +37,8 @@ export const DEFAULT_POINTS = [
  */
 
 export const MODULE_NUMBER = {
-  REPORT: 8,
-  RESULTS: 7,
-  ANALIZING: 6,
+  REPORT: 7,
+  RESULTS: 6,
   PROCESSING: 5,
   CROSS_SECTIONS: 4,
   PIXEL_SIZE: 3,

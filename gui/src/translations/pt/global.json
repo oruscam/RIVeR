@@ -126,6 +126,8 @@
         "step1": "Etapa 1",
         "step2": "Etapa 2",
         "test": "Teste",
+        "analize": "Analisar",
+        "stop": "Parar",
         "roiHeight": "Altura da ROI",
         "preProcessingFilter": "Filtro de Pré-processamento",
         "grayscale": "Escala de Cinza",

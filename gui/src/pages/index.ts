@@ -9,6 +9,7 @@ import { Report } from './Report';
 import { Uav } from './Uav';
 import { Ipcam } from './Ipcam';
 import { Oblique } from './Oblique';
+import { Unified } from './Unified';
 
 
 export {
@@ -22,5 +23,6 @@ export {
   Report,
   Results,
   Uav,
+  Unified,
   VideoRange,
 };

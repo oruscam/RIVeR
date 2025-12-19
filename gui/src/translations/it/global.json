@@ -127,6 +127,8 @@
         "step1": "Passo 1",
         "step2": "Passo 2",
         "test": "Test",
+        "analize": "Analizza",
+        "stop": "Ferma",
         "roiHeight": "Altezza ROI",
         "preProcessingFilter": "Filtro di Pre-elaborazione",
         "grayscale": "Scala di Grigi",

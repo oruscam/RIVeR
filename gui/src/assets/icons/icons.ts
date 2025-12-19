@@ -14,8 +14,10 @@ import back from './back.svg';
 import pinGrey from './pinGrey.svg';
 import check from './check.svg';
 import clipboard from './clipboard.svg';
+import addMask from './addMask.svg';
 
 export {
+  addMask,
   back,
   check,
   clipboard,
