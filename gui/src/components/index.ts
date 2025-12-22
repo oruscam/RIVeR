@@ -24,10 +24,12 @@ import { ImageIpcam } from './ImageIpcam';
 import { ImageOblique } from './ImageOblique';
 import { ImageUav } from './ImageUav';
 import { PointsIpcam } from './PointsIpcam';
+import { DrawMask } from './DrawMask';
 
 export {
   Carousel,
   Clipboard,
+  DrawMask,
   DrawSections,
   Ellipses,
   Error,

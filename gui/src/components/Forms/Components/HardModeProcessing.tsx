@@ -3,10 +3,11 @@ import { useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
 import { TestPlot } from '../../Graphs';
 import { WINDOW_SIZES } from '../../../constants/constants';
+import { GrTrash } from "react-icons/gr";
 
 export const HardModeProcessing = ({ active, showMedian }: { active: boolean, showMedian: boolean }) => {
   const { register } = useFormContext();
-  const { processing, onUpdateProcessing, onReCalculateMask } = useDataSlice();
+  const { processing, onUpdateProcessing, onReCalculateMask, onDeleteMask, onAddMask, onUpdateMaskVisibility } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
 
@@ -37,8 +38,9 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
 
       <span className='divider-line mt-2'/>
 
+      <h2 className="field-title mb-1 mt-1"> {t('Processing.roiAndMask')}</h2>
 
-      <div className="input-container-2 mt-2">
+      <div className="input-container-2 mt-1">
         <label className="read-only me-1">{t('Processing.roiHeight')}</label>
         <input
           className="input-field"
@@ -48,39 +50,33 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
         ></input>
       </div>
 
-      <span className='divider-line mt-2'/>
-
-      <div className='switch-container mt-2'>
-        <h3 className='field-title mb-1'>{t('Processing.showMask')}</h3>
-        <label className='switch'>
-          <input
-            type='checkbox'
-            {...register('showMask')}
-            onChange={(event) =>
-              onUpdateProcessing({ // TODO: DEVELOP 
-                showMask: event.currentTarget.checked, 
-              })
-            }
-            />
-          <span className='slider'></span>
-        </label>
-      </div>
 
       <div className='input-container-2 mt-1'>
-        <button className='form-button wizard-button me-1'>Add mask</button>
-        <button className='form-button wizard-button'>Clear Masks</button>
-
+        <button className='form-button wizard-button me-1' type="button" onClick={() => onAddMask()}>Add New mask</button>
       </div>
+
+      {
+        processing.masks !== undefined && processing.masks.map((mask, index) =>
+          <div key={index} className='switch-container mt-1'>
+            <h3 className='field-title'> {t('Processing.mask')} {index + 1} </h3>
+            <div className='mask-actions'>
+              <label className='switch'>
+                <input
+                  type="checkbox"
+                  checked={mask.isVisible}
+                  onChange={() => onUpdateMaskVisibility(index)}
+                />
+                <span className="slider"/>
+              </label>
+              <GrTrash className='trash-icon' onClick={() => onDeleteMask(index)}/>
+            </div>
+          </div>
+        )
+      }
 
       <span className='divider-line mt-2'/>
 
-
-      {/* <div className='input-container-2 mt-1'>
-        <button className='form-button wizard-button'>Clear Masks</button>
-        <span className='read-only bg-transparent'></span>
-      </div> */}
-
-      <h2 className="field-title mb-1 mt-3"> {t('Processing.preProcessingFilter')}</h2>
+      <h2 className="field-title mb-1 mt-2"> {t('Processing.preProcessingFilter')}</h2>
 
       <div className="switch-container mt-1">
         <h3 className="field-title"> {t('Processing.removeBackground')} </h3>
@@ -121,7 +117,7 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
       
       <span className='divider-line mt-2'/>
 
-      <h2 className="field-title mt-2"> {t('Processing.postProcessingFilter')} </h2>
+      <h2 className="field-title mt-2"> {t('Processing.processingSettings')} </h2>
 
       <div className="switch-container mt-1">
         <h3 className="field-title"> {t('Processing.stdFiltering')} </h3>
@@ -183,8 +179,6 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
           }
         />
       </div>
-
-      <span className='divider-line mt-2'/>
       
       <h2 className="field-title mt-2"> {t('Processing.windowSizes')} </h2>
 
@@ -212,10 +206,6 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
           {...register('step_2')}
         ></input>
       </div>
-      
-
-
-
     </div>
   );
 };

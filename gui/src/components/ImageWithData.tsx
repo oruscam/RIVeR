@@ -7,6 +7,8 @@ import { Layer, Stage } from 'react-konva';
 import { getQuiverValues, QuiverData } from '../helpers/drawVectorsFunctions';
 import { useMemo, useRef } from 'react';
 import { ColorBar } from './ColorBar';
+import { DrawMask } from './DrawMask';
+import { add } from 'date-fns';
 
 export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const { screenSizes } = useUiSlice();
@@ -23,6 +25,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const { video } = useProjectSlice();
   const { paths, active } = images;
   const { data: videoData, parameters } = video;
+  const { addMask } = processing.form
 
 
   type PrevRefType = {
@@ -44,12 +47,10 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
 
   const { data, min, max } = useMemo(() => {
     if ( quiver === null ){
-      console.log('reset quiver data');
       prevRef.current = {activeImage: images.active, data: [], min: 0, max: 0};
       return { data: [], min: 0, max: 0 };
     }
     if (prevRef.current.activeImage !== images.active && quiver.test === true) {
-      console.log('active image changed, recalculate quiver data');
       prevRef.current.activeImage = images.active;
       return { data: [], min: 0, max: 0 };
     }
@@ -73,12 +74,18 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
         className="konva-data-container"
       >
         <Layer>
-          <DrawSections factor={realFactor!} draggable={false} />
-
-          <WindowSizes width={realWidth!} height={realHeight!} />
+          {
+            addMask === false && <DrawSections factor={realFactor!} draggable={true} />
+          }
+          {
+            addMask === false && <WindowSizes width={realWidth!} height={realHeight!} />
+          }
         </Layer>
       </Stage>
       <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} showMedian={showMedian} />
+      {
+        addMask && <DrawMask width={realWidth!} height={realHeight!} factor={realFactor!} />
+      }
     </div>
   );
 };

@@ -494,3 +494,24 @@ transform-origin: 14px 22px;
     background-color: white;
     align-self: center;
 }
+
+.mask-actions{
+    display: flex;
+    justify-content: space-between;
+    align-content: space-between;
+    width: 120px;
+}
+
+.trash-icon{
+    height: 100%;
+    width: auto;
+
+}
+
+.trash-icon:hover{
+    cursor: pointer;
+}
+
+.trash-icon:active{
+    transform: scale(1.1);
+}

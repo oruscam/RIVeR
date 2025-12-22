@@ -128,14 +128,14 @@
         "test" : "Test",
         "analize": "Analize",
         "stop": "Stop",
+        "roiAndMask": "ROI and Mask",
         "roiHeight": "ROI Height",
-        "showMask": "Show Mask",
         "preProcessingFilter": "Pre-processing filtering",
         "grayscale": "Grayscale",
         "removeBackground" : "Remove Background",
         "clahe": "CLAHE",
         "clipLimit": "Clip Limit",
-        "postProcessingFilter": "Post-processing filtering",
+        "processingSettings": "Processing settings",
         "stdFiltering": "Std filtering",
         "medianTestFiltering" : "Mediant test filtering",
         "epsilon": "Epsilon",
@@ -144,7 +144,8 @@
         "Plot": {
             "u" : "U Component",
             "v" : "V Component"
-        }
+        },
+        "mask": "Mask"
     },
     "Analizing": {
         "title": "Analizing",

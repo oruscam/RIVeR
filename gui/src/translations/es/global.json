@@ -134,7 +134,7 @@
         "removeBackground": "Quitar el Fondo",
         "clahe": "CLAHE",
         "clipLimit": "Límite de Clip",
-        "postProcessingFilter": "Filtro de Posprocesamiento",
+        "processingSettings": "Configuración de Procesamiento",
         "stdFiltering": "Filtro Desv. Est.",
         "medianTestFiltering": "Prueba de Filtro de Mediana",
         "epsilon": "Epsilon",

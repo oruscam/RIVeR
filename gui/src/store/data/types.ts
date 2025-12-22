@@ -1,3 +1,5 @@
+import { Point } from "../../types";
+
 interface FormProcessing {
   artificialSeeding: boolean;
   clahe: boolean;
@@ -13,11 +15,17 @@ interface FormProcessing {
   step2: number;
 }
 
+interface Mask {
+  points: Point[];
+  isVisible: boolean;
+}
+
 interface Processing {
   form: FormProcessing;
   parImages: string[];
   maskPath: string;
   bbox?: number[];
+  masks?: Mask[];
 }
 
 interface Images {

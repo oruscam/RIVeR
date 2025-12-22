@@ -10,7 +10,7 @@ import { Icon } from "../index";
 export const FormUnified = ({extraFields, showMedian, setShowMedian}: {extraFields: boolean, showMedian: boolean, setShowMedian: React.Dispatch<React.SetStateAction<boolean>>}) => {
     const { t } = useTranslation()
     const { onSetErrorMessage } = useUiSlice();
-    const { isBackendWorking, processing, onSetQuiverTest, onSetQuiverAll, onKillBackend } = useDataSlice();
+    const { isBackendWorking, processing, onSetQuiverTest, onSetQuiverAll, onKillBackend, onAddMask } = useDataSlice();
 
     const { step1, heightRoi, removeBackground, clahe, clipLimit, stdFiltering, stdThreshold, medianTestFiltering, medianTestEpsilon, medianTestThreshold } = processing.form;
 
@@ -31,7 +31,6 @@ export const FormUnified = ({extraFields, showMedian, setShowMedian}: {extraFiel
             median_test: medianTestFiltering,
             median_epsilon: medianTestEpsilon,
             median_threshold: medianTestThreshold,
-            showMask: true
             },
         }
     )
@@ -74,6 +73,8 @@ export const FormUnified = ({extraFields, showMedian, setShowMedian}: {extraFiel
         if (id === 'add-mask-icon') {
             console.log('Add mask icon clicked');
             // Placeholder for future add mask logic
+            onAddMask()
+            
         }
     }
 

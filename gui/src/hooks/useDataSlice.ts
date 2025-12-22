@@ -15,6 +15,9 @@ import {
   setDataLoaded,
   setImages,
   setDefaultDataState,
+  addMask,
+  deleteMask,
+  updateMask,
 } from '../store/data/dataSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { setSectionData, setSummary } from '../store/section/sectionSlice';
@@ -353,6 +356,34 @@ export const useDataSlice = () => {
     dispatch(setDefaultDataState());
   };
 
+  const onAddMask = () => {
+    const { data, parameters } = video
+    const { width, height } = data
+    const { factor } = parameters
+
+    // Triangle points
+    const points = [
+      { x: (width * factor) / 2, y: (height * factor) / 2 - (height * factor) * 0.1},
+      { x: (width * factor) / 2 - (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1},
+      { x:  (width * factor) / 2 + (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1},
+    ];
+
+    dispatch(addMask(points));
+  }
+
+  const onDeleteMask = (index: number) => {
+    dispatch(deleteMask(index));
+  }
+
+  const onUpdateMaskPoints = (index: number, points: { x: number; y: number }[]) => {
+    // To implement
+  }
+
+  const onUpdateMaskVisibility = (index: number) => {
+    dispatch(updateMask({ index}))
+  }
+
+
   return {
     // ATRIBUTES
     isBackendWorking,
@@ -372,5 +403,9 @@ export const useDataSlice = () => {
     onSetQuiverAll,
     onSetQuiverTest,
     onUpdateProcessing,
+    onAddMask,
+    onDeleteMask,
+    onUpdateMaskPoints,
+    onUpdateMaskVisibility
   };
 };

@@ -135,7 +135,7 @@
         "removeBackground" : "Soustraction d'Arrière-plan",
         "clahe": "CLAHE",
         "clipLimit": "Seuil d'Écrêtage",
-        "postProcessingFilter": "Filtrage post-traitement",
+        "processingSettings": "Filtrage post-traitement",
         "stdFiltering": "Filtrage par écart-type",
         "medianTestFiltering" : "Filtrage par test médian",
         "epsilon": "Epsilon",
