@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DataState, FormProcessing, Quiver } from './types';
+import { Point } from '../../types';
 
 const defaultFormProcessing = {
   artificialSeeding: false,
@@ -20,6 +21,7 @@ const defaultProcessing = {
   form: defaultFormProcessing,
   parImages: ['', '1', '', '2'],
   maskPath: '',
+  masks: [],
 };
 
 const initialState: DataState = {
@@ -78,6 +80,23 @@ const dataSlice = createSlice({
       state.isBackendWorking = false;
       state.isDataLoaded = false;
     },
+    addMask: (state, action: PayloadAction<Point[]>) => {
+      if (!state.processing.masks) {
+        state.processing.masks = [];
+      }
+      state.processing.masks.push({ points: action.payload, isVisible: true });
+    },
+    deleteMask: (state, action: PayloadAction<number>) => {
+      if (state.processing.masks) {
+        state.processing.masks.splice(action.payload, 1);
+      }
+    },
+    updateMask: (state, action: PayloadAction<{ index: number; points?: Point[] }>) => {
+      state.processing.masks![action.payload.index].isVisible = !state.processing.masks![action.payload.index].isVisible;
+      if (action.payload.points) {
+        state.processing.masks![action.payload.index].points = action.payload.points;
+      }
+    }
   },
 });
 
@@ -91,6 +110,9 @@ export const {
   setQuiver,
   updateProcessingForm,
   updateProcessingPar,
+  addMask,
+  deleteMask,
+  updateMask
 } = dataSlice.actions;
 
 export default dataSlice.reducer;

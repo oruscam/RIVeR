@@ -133,7 +133,7 @@
         "removeBackground": "Hintergrund Entfernen",
         "clahe": "CLAHE",
         "clipLimit": "Clipping-Grenze",
-        "postProcessingFilter": "Nachbearbeitungsfilter",
+        "processingSettings": "Nachbearbeitungsfilter",
         "stdFiltering": "Standardabweichungsfilter",
         "medianTestFiltering": "Median-Testfilter",
         "epsilon": "Epsilon",
