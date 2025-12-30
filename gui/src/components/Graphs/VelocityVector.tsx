@@ -66,6 +66,7 @@ export const VelocityVector = ({
           isReport: isReport,
           imageWidth: screenSizes.imageWidth!,
           imageHeight: screenSizes.imageHeight!,
+          isProcessing: false
         });
       } else {
         if (isReport && sectionIndex !== index) return;
@@ -92,6 +93,7 @@ export const VelocityVector = ({
             isReport: isReport,
             imageWidth: screenSizes.imageWidth!,
             imageHeight: screenSizes.imageHeight!,
+            isProcessing: false
           });
         }
       }
@@ -99,8 +101,6 @@ export const VelocityVector = ({
   }, [factor, seeAll, sections, activeSection]);
 
   return (
-    <>
-      <svg ref={svgRef} className="svg-in-image-container" />
-    </>
+    <svg ref={svgRef} className="svg-in-image-container" />
   );
 };

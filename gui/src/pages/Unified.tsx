@@ -6,13 +6,14 @@ import { useTranslation } from "react-i18next"
 import { useWizard } from "react-use-wizard"
 import { FormUnified } from "../components/Forms"
 import { ButtonLock } from "../components/ButtonLock"
+import { ImageWithDataNew } from "../components/ImageWithDataNew"
 
 // TODO: Change name
 export const Unified = () => {
     const { t } = useTranslation()
     const { nextStep } = useWizard()
     const { onSetErrorMessage, onSetSeeAll } = useUiSlice()
-    const { images, quiver, isBackendWorking, onSetActiveImage } = useDataSlice()
+    const { images, quiver, isBackendWorking, onSetActiveImage, onGetResultData } = useDataSlice()
     const [showMedian, setShowMedian] = useState(false)
     const [extraFields, setExtraFields] = useState(false);
 
@@ -22,19 +23,20 @@ export const Unified = () => {
         nextStep();
 
         // TODO: manejar esto, el test entra como quiver y se puede avanzar, pero no tiene sentido
-        // try {
-        //     await onGetResultData('all');
-        //         onSetSeeAll(false);
-        //         nextStep();
-        // } catch (error) {
-        //     onSetErrorMessage((error as Error).message);
-        // }
+        try {
+            await onGetResultData('all');
+                onSetSeeAll(false);
+                nextStep();
+        } catch (error) {
+            onSetErrorMessage((error as Error).message);
+        }
     };
 
     return (
         <div className="regular-page">
             <div className="media-container">
-                <ImageWithData showMedian={showMedian} />
+                {/* <ImageWithData showMedian={showMedian} /> */}
+                <ImageWithDataNew showMedian={showMedian} />    
                 <Carousel
                     images={paths}
                     active={active}

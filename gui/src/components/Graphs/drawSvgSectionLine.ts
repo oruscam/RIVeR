@@ -11,6 +11,7 @@ interface drawSvgSectionLineProps {
   isReport: boolean;
   imageWidth: number;
   imageHeight: number;
+  isProcessing: boolean;
 }
 
 export const drawSvgSectionLine = ({
@@ -22,6 +23,7 @@ export const drawSvgSectionLine = ({
   isReport,
   imageWidth,
   imageHeight,
+  isProcessing
 }: drawSvgSectionLineProps) => {
   const svg = d3.select(svgElement);
   const resizeFactor = isReport ? 1.2 : 1;
@@ -33,7 +35,7 @@ export const drawSvgSectionLine = ({
       .attr('y1', sectionPoints[0].y / (typeof factor === 'number' ? factor : factor.y))
       .attr('x2', sectionPoints[1].x / (typeof factor === 'number' ? factor : factor.x))
       .attr('y2', sectionPoints[1].y / (typeof factor === 'number' ? factor : factor.y))
-      .attr('stroke', COLORS.YELLOW)
+      .attr('stroke', isProcessing ? COLORS.DARK_GREY : COLORS.YELLOW)
       .attr('stroke-width', 3.75 / resizeFactor)
       .attr('stroke-linecap', 'round')
       .attr('stroke-dasharray', '5,10');
@@ -47,7 +49,7 @@ export const drawSvgSectionLine = ({
       .attr('y1', dirPoints[0].y / (typeof factor === 'number' ? factor : factor.y))
       .attr('x2', dirPoints[1].x / (typeof factor === 'number' ? factor : factor.x))
       .attr('y2', dirPoints[1].y / (typeof factor === 'number' ? factor : factor.y))
-      .attr('stroke', COLORS.YELLOW)
+      .attr('stroke', isProcessing ? COLORS.DARK_GREY : COLORS.YELLOW)
       .attr('stroke-width', 4 / resizeFactor)
       .attr('stroke-linecap', 'round');
   }
@@ -70,7 +72,7 @@ export const drawSvgSectionLine = ({
       .attr('dy', 25)
       .text(name)
       .attr('font-size', 18 / resizeFactor)
-      .attr('fill', COLORS.YELLOW)
+      .attr('fill', isProcessing ? COLORS.BLACK : COLORS.YELLOW)
       .attr(
         'transform',
         `rotate(${rotation}, ${point.x / (typeof factor === 'number' ? factor : factor.x)}, ${point.y / (typeof factor === 'number' ? factor : factor.y)})`

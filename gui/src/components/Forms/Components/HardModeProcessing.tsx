@@ -6,8 +6,8 @@ import { WINDOW_SIZES } from '../../../constants/constants';
 import { GrTrash } from "react-icons/gr";
 
 export const HardModeProcessing = ({ active, showMedian }: { active: boolean, showMedian: boolean }) => {
-  const { register } = useFormContext();
-  const { processing, onUpdateProcessing, onReCalculateMask, onDeleteMask, onAddMask, onUpdateMaskVisibility } = useDataSlice();
+  const { register, reset } = useFormContext();
+  const { processing, onUpdateProcessing, onReCalculateMask, onDeleteMask, onAddMask, onUpdateActiveMask} = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
 
@@ -30,6 +30,12 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
         }
       }
     }
+  };
+
+  const handleOnChangeSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = parseInt(event.target.value);
+    onUpdateProcessing({ step1: value });
+    reset({ step_1: value, step_2: value / 2 });
   };
 
   return (
@@ -56,15 +62,15 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
       </div>
 
       {
-        processing.masks !== undefined && processing.masks.map((mask, index) =>
+        processing.masks !== undefined && processing.masks.map((_mask, index) =>
           <div key={index} className='switch-container mt-1'>
             <h3 className='field-title'> {t('Processing.mask')} {index + 1} </h3>
             <div className='mask-actions'>
               <label className='switch'>
                 <input
                   type="checkbox"
-                  checked={mask.isVisible}
-                  onChange={() => onUpdateMaskVisibility(index)}
+                  checked={index === processing.activeMaskIndex}
+                  onChange={() => onUpdateActiveMask(index)}
                 />
                 <span className="slider"/>
               </label>
@@ -188,7 +194,7 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
           className='input-field-little input-field-select'
           id='processing-STEP_1'
           {...register('step_1')}
-          // onChange={handleOnChangeSelect}
+          onChange={handleOnChangeSelect}
         >
           <option value="512">{WINDOW_SIZES.BIG}</option>
           <option value="256">{WINDOW_SIZES.MEDIUM}</option>

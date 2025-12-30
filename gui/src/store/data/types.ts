@@ -15,17 +15,13 @@ interface FormProcessing {
   step2: number;
 }
 
-interface Mask {
-  points: Point[];
-  isVisible: boolean;
-}
-
 interface Processing {
   form: FormProcessing;
   parImages: string[];
   maskPath: string;
   bbox?: number[];
-  masks?: Mask[];
+  masks?: Point[][];
+  activeMaskIndex?: number | null;
 }
 
 interface Images {

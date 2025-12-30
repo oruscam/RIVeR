@@ -1,4 +1,3 @@
-import { useWizard } from 'react-use-wizard';
 import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { WindowSizes } from './WindowSizes';
 import { Quiver } from './Quiver';
@@ -7,8 +6,6 @@ import { Layer, Stage } from 'react-konva';
 import { getQuiverValues, QuiverData } from '../helpers/drawVectorsFunctions';
 import { useMemo, useRef } from 'react';
 import { ColorBar } from './ColorBar';
-import { DrawMask } from './DrawMask';
-import { add } from 'date-fns';
 
 export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const { screenSizes } = useUiSlice();
@@ -25,8 +22,6 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const { video } = useProjectSlice();
   const { paths, active } = images;
   const { data: videoData, parameters } = video;
-  const { addMask } = processing.form
-
 
   type PrevRefType = {
     activeImage: typeof images.active;
@@ -74,18 +69,11 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
         className="konva-data-container"
       >
         <Layer>
-          {
-            addMask === false && <DrawSections factor={realFactor!} draggable={true} />
-          }
-          {
-            addMask === false && <WindowSizes width={realWidth!} height={realHeight!} />
-          }
+          <DrawSections factor={realFactor!} draggable={true} />
+          <WindowSizes width={realWidth!} height={realHeight!} />
         </Layer>
       </Stage>
       <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} showMedian={showMedian} />
-      {
-        addMask && <DrawMask width={realWidth!} height={realHeight!} factor={realFactor!} />
-      }
     </div>
   );
 };
