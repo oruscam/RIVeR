@@ -69,6 +69,7 @@ const dataSlice = createSlice({
       } else {
         state.hasChanged = false;
       }
+      state.processing.activeMaskIndex = null;
     },
     setDataLoaded: (state, action: PayloadAction<boolean>) => {
       state.isDataLoaded = action.payload;
@@ -80,22 +81,36 @@ const dataSlice = createSlice({
       state.isBackendWorking = false;
       state.isDataLoaded = false;
     },
+
     addMask: (state, action: PayloadAction<Point[]>) => {
       if (!state.processing.masks) {
         state.processing.masks = [];
       }
-      state.processing.masks.push({ points: action.payload, isVisible: true });
+      state.processing.masks.push(action.payload);
+      state.processing.activeMaskIndex = state.processing.masks.length - 1;
     },
     deleteMask: (state, action: PayloadAction<number>) => {
-      if (state.processing.masks) {
+      if (state.processing.masks){
         state.processing.masks.splice(action.payload, 1);
+
+        if (state.processing.activeMaskIndex === action.payload){
+            state.processing.activeMaskIndex = 0;
+          } 
       }
     },
-    updateMask: (state, action: PayloadAction<{ index: number; points?: Point[] }>) => {
-      state.processing.masks![action.payload.index].isVisible = !state.processing.masks![action.payload.index].isVisible;
-      if (action.payload.points) {
-        state.processing.masks![action.payload.index].points = action.payload.points;
+    updateMask: (state, action: PayloadAction<{ index: number ; points?: Point[] } | null>) => {
+      if (action.payload && action.payload.points) {
+        state.processing.masks![action.payload.index] = action.payload.points;
+      } else if (action.payload) {
+        state.processing.activeMaskIndex = action.payload.index;
       }
+      if (action.payload === null){
+        state.processing.activeMaskIndex = null;
+      }
+    },
+    loadMasks: (state, action: PayloadAction<Point[][]>) => {
+      state.processing.masks = action.payload;
+      state.processing.activeMaskIndex = null;
     }
   },
 });
@@ -112,7 +127,8 @@ export const {
   updateProcessingPar,
   addMask,
   deleteMask,
-  updateMask
+  updateMask,
+  loadMasks
 } = dataSlice.actions;
 
 export default dataSlice.reducer;

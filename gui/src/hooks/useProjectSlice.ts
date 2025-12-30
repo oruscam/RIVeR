@@ -25,6 +25,7 @@ import {
 } from '../store/section/sectionSlice';
 import { MODULE_NUMBER } from '../constants/constants';
 import {
+  loadMasks,
   setDataLoaded,
   setDefaultDataState,
   setImages,
@@ -297,6 +298,10 @@ export const useProjectSlice = () => {
         // Load first frame
         if (firstFrame !== '') {
           dispatch(setFirstFramePath(filePrefix + firstFrame));
+        }
+
+        if (settings.user_masks) {
+          dispatch(loadMasks(settings.user_masks));
         }
 
         dispatch(setLoading(false));

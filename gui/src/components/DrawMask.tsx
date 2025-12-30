@@ -1,187 +1,213 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from 'd3';
-import { useProjectSlice } from "../hooks";
+import { useDataSlice } from "../hooks";
+import { drawMask } from "./Graphs/drawMask";
 
-export const DrawMask = ({ width, height, factor }: { width: number; height: number; factor: number }) => {
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const { data, parameters } = useProjectSlice().video
-  const imageWidth = data.width * parameters.factor;
-  const imageHeight = data.height * parameters.factor;
+export const DrawMask = ({ 
+    width, 
+    height, 
+    factor,
+    scale = 1,
+    offsetX = 0,
+    offsetY = 0
+}: { 
+    width: number; 
+    height: number; 
+    factor: number;
+    scale? :  number;
+    offsetX?: number;
+    offsetY?: number;
+}) => {
+    const svgRef = useRef<SVGSVGElement | null>(null);
+    const { processing, onUpdateMaskPoints } = useDataSlice()
+    const { masks, activeMaskIndex } = processing;
 
-  const [points, setPoints] = useState([
-    { x: imageWidth / 2, y: imageHeight / 2 - imageHeight * 0.1},
-    { x: imageWidth / 2 - imageWidth * 0.075, y: imageHeight / 2 + imageHeight * 0.1},
-    { x:  imageWidth / 2 + imageWidth * 0.075, y: imageHeight / 2 + imageHeight * 0.1},
-  ]);
-  const [dragging, setDragging] = useState<number|null>(null);
+    // Active mask points state
+    const [points, setPoints] = useState(masks![activeMaskIndex!].map((p, i) => ({ x: p.x, y: p.y, id: i })));
 
-  useEffect(() => {
-    if (!svgRef.current) return;
+    // Dragging states
+    // Dragging point index or null, is used when the user are dragging a single point
+    const [dragging, setDragging] = useState<number|null>(null);
 
-    const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove();
+    // draggingAll: -> is used when the user is dragging the entire mask
+    // dragStart: -> starting point of the drag in viewport coordinates, is used to calculate deltas for position updates
+    const [draggingAll, setDraggingAll] = useState(false);
+    const [dragStart, setDragStart] = useState<{x: number, y: number} | null>(null);
 
-    // ========================
-    // Create fill pattern
-    // ========================
-    const defs = svg.append('defs');
-    const pattern = defs.append('pattern')
-      .attr('id', 'dashFill')
-      .attr('patternUnits', 'userSpaceOnUse')
-      .attr('width', 10)
-      .attr('height', 10);
+    // Ctrl key state. Used to enable/disable mask dragging.
+    const [isCtrlPressed, setIsCtrlPressed] = useState(false);
 
-    pattern.append('path')
-      .attr('d', 'M0 10 L10 0')
-      .attr('stroke', '#ED6B57')
-      .attr('stroke-width', 1);
+    // Next point ID ref, when you create a mask it is a triangle, so start from 3
+    const nextIdRef = useRef(3);
 
-    // ========================
-    // Draw polygon
-    // ========================
-    svg.append('polygon')
-      .attr('points', points.map(p => `${p.x / factor},${p.y / factor}`).join(' '))
-      .attr('fill', 'url(#dashFill)')
-      .attr('stroke', 'none');
+    // Function to transform coordinates from image to viewport
+    // Used to position points and polygon correctly according to zoom/pan
+    const transformToViewport = (x: number, y: number) => {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        
+        const scaledX = (x / factor - width / 2) * scale;
+        const scaledY = (y / factor - height / 2) * scale;
+        
+        return {
+            x: scaledX + centerX + offsetX,
+            y: scaledY + centerY + offsetY
+        };
+    };
 
-    // ========================
-    // Draw edges and "+" controls
-    // ========================
-    points.forEach((a, i) => {
-      const b = points[(i + 1) % points.length];
+    // Function to transform coordinates from viewport to image
+    // Used to get image coordinates when adding/moving points
+    const transformToImage = (vx: number, vy: number) => {
+        const centerX = width / 2;
+        const centerY = height / 2;
+        
+        const translatedX = vx - centerX - offsetX;
+        const translatedY = vy - centerY - offsetY;
+        
+        const unscaledX = translatedX / scale;
+        const unscaledY = translatedY / scale;
+        
+        return {
+            x: (unscaledX + width / 2) * factor,
+            y: (unscaledY + height / 2) * factor
+        };
+    };
 
-      // Draw dashed edge
-      svg.append('line')
-        .attr('x1', a.x / factor)
-        .attr('y1', a.y / factor)
-        .attr('x2', b.x / factor)
-        .attr('y2', b.y / factor)
-        .attr('stroke', '#ED6B57')
-        .attr('stroke-width', 2)
-        .attr('stroke-dasharray', '6 4');
+    // Global keydown/keyup listeners to track Ctrl key state
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Control' || e.ctrlKey) {
+                setIsCtrlPressed(true);
+            }
+        };
 
-      // Midpoint coordinates
-      const mx = (a.x / factor + b.x / factor) / 2;
-      const my = (a.y / factor + b.y / factor) / 2;
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (e.key === 'Control' || ! e.ctrlKey) {
+                setIsCtrlPressed(false);
+            }
+        };
 
-      // Plus circle (visual only)
-      const plusCircle = svg.append('circle')
-        .attr('cx', mx)
-        .attr('cy', my)
-        .attr('r', 12)
-        .attr('fill', '#ED6B57')
-        .style('pointer-events', 'none');
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
 
-      // Plus text
-      svg.append('text')
-        .attr('x', mx)
-        .attr('y', my + 5)
-        .attr('text-anchor', 'middle')
-        .attr('fill', '#ffffff')
-        .attr('font-size', '20px')
-        .style('pointer-events', 'none')
-        .text('+');
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
+        };
+    }, []);
 
-      // Invisible hit area for interaction
-      svg.append('rect')
-        .attr('x', mx - 25)
-        .attr('y', my - 25)
-        .attr('width', 50)
-        .attr('height', 50)
-        .attr('fill', 'transparent')
-        .style('cursor', 'pointer')
-        .on('mouseover', () => {
-          plusCircle
-            .transition()
-            .duration(150)
-            .attr('r', 15);
-        })
-        .on('mouseout', () => {
-          plusCircle
-            .transition()
-            .duration(150)
-            .attr('r', 12);
-        })
-        .on('click', () => addPoint(i + 1, mx, my));
-    });
+    // Draw/update mask on relevant state changes
+    useEffect(() => {
+        if (!svgRef.current) return;
 
-    // ========================
-    // Draw draggable vertices
-    // ========================
-    svg.selectAll('.point')
-      .data(points)
-      .enter()
-      .append('circle')
-      .attr('class', 'point')
-      .attr('cx', d => d.x / factor)
-      .attr('cy', d => d.y / factor)
-      .attr('r', 8)
-      .attr('fill', '#ED6B57')
-      .style('cursor', 'pointer')
-      .on('mouseover', function () {
-        d3.select(this)
-          .transition()
-          .duration(150)
-          .attr('r', 9);
-      })
-      .on('mouseout', function () {
-        d3.select(this)
-          .transition()
-          .duration(150)
-          .attr('r', 8);
-      })
-      .on('mousedown', (event, d) => {
-        const index = points.indexOf(d);
-        setDragging(index);
-      });
+        const svg = d3.select(svgRef.current);
+        drawMask(
+            svg,
+            svgRef,
+            isCtrlPressed,
+            addPoint,
+            setDragStart,
+            setDragging,
+            setDraggingAll,
+            points,
+            transformToViewport,
+            transformToImage
+        )
 
-  }, [points, factor]);
+    }, [points, factor, scale, offsetX, offsetY, width, height, dragging, draggingAll, isCtrlPressed]);
 
+    // Update points when active mask changes
+    useEffect(() => {
+        setPoints(masks![activeMaskIndex!].map((p, i) => ({ x: p.x, y: p. y, id: i })));
+    }, [activeMaskIndex]);
 
-  // Add a new point at midpoint
-  const addPoint = (index: number, x: number, y: number) => {
-    const newPoints = [...points];
-    newPoints.splice(index, 0, { x: x * factor, y : y * factor });
+    // Function to add a new point to the mask at given index and image coordinates
+    const addPoint = (index: number, x: number, y: number) => {
+        const newPoints = [...points];
+        newPoints.splice(index, 0, { x, y, id: nextIdRef.current++ });
+        setPoints(newPoints);
+    };
 
-    setPoints(newPoints);
-  };
+    // Handle mouse move events for dragging points or the entire mask
+    const handleMouseMove = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+        if (draggingAll && dragStart) {
+            // Move entire mask
+            event.stopPropagation();
+            const svg = svgRef.current;
+            if (!svg) return;
 
-  // Handle mouse move for dragging
-  const handleMouseMove = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-    if (dragging !== null) {
-      const svg = svgRef.current;
-      if (!svg) return;
+            const rect = svg.getBoundingClientRect();
+            const currentVx = event.clientX - rect.left;
+            const currentVy = event.clientY - rect.top;
+            
+            const deltaVx = currentVx - dragStart.x;
+            const deltaVy = currentVy - dragStart.y;
+            
+            // Convert deltas from viewport to image coordinates
+            const startImg = transformToImage(dragStart.x, dragStart.y);
+            const endImg = transformToImage(dragStart.x + deltaVx, dragStart.y + deltaVy);
+            
+            const deltaImgX = endImg.x - startImg.x;
+            const deltaImgY = endImg. y - startImg.y;
+            
+            const newPoints = points.map(p => ({
+                ...p,
+                x: p. x + deltaImgX,
+                y: p.y + deltaImgY
+            }));
+            
+            setPoints(newPoints);
+            setDragStart({ x: currentVx, y: currentVy });
 
-      const rect = svg.getBoundingClientRect()
-      
-      // Coordenadas relativas al SVG
-      const svgX = event.clientX - rect.left;
-      const svgY = event.clientY - rect.top;
-      
-      const newPoints = [...points];
-      newPoints[dragging] = { 
-        x: svgX * factor, 
-        y: svgY * factor 
-      };
-      setPoints(newPoints);
-    }
-  };
+        } else if (dragging !== null) {
+            // Move only one point of the mask
+            event.stopPropagation();
+            const svg = svgRef.current;
+            if (!svg) return;
 
-  // Handle mouse up to stop dragging
-  const handleMouseUp = () => {
-    setDragging(null);
-    
-  };
+            const rect = svg.getBoundingClientRect();
+            const vx = event.clientX - rect.left;
+            const vy = event. clientY - rect.top;
+            
+            const imgCoords = transformToImage(vx, vy);
+            
+            const newPoints = [...points];
+            newPoints[dragging] = { ... newPoints[dragging], x:  imgCoords.x, y: imgCoords.y };
+            setPoints(newPoints);
+        }
+    };
 
-  return (
-      <svg
-        ref={svgRef}
-        width={width}
-        height={height}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        className="draw-mask"
-      />
-  );
+    // Handle mouse up events to stop dragging and save changes
+    const handleMouseUp = (event: React. MouseEvent<SVGSVGElement, MouseEvent>) => {
+        if (dragging !== null || draggingAll) {
+            event.stopPropagation();
+            // Save updated points to the data slice. Redux-state
+            onUpdateMaskPoints(activeMaskIndex!, points);
+        }
+        setDragging(null);
+        setDraggingAll(false);
+        setDragStart(null);
+    };
+
+    // Prevent zoom/pan when clicking on mask elements
+    const handleMouseDown = (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
+        const target = event.target as HTMLElement;
+        const targetName = target.tagName.toUpperCase()
+        if (targetName === 'CIRCLE' || targetName === 'RECT' || targetName === 'POLYGON') {
+            event.stopPropagation();
+        }
+    };
+
+    return (
+        <svg
+            ref={svgRef}
+            width={width}
+            height={height}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            className="draw-mask"
+        />
+    );
 }

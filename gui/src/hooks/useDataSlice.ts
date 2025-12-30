@@ -106,7 +106,7 @@ export const useDataSlice = () => {
   const onSetQuiverTest = async () => {
     dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
-    const { bbox, form } = processing;
+    const { bbox, form, masks } = processing;
     const { paths, active } = images;
     const framesToTest = [paths[active], paths[active + 1]];
 
@@ -119,6 +119,7 @@ export const useDataSlice = () => {
       const { data, error } = await ipcRenderer.invoke('get-quiver-test', {
         framesToTest: framesToTest,
         formValues: form,
+        userMasks: masks
       });
 
       if (error?.message) {
@@ -170,6 +171,7 @@ export const useDataSlice = () => {
 
       const { data, error } = await ipcRenderer.invoke('get-quiver-all', {
         formValues: processing.form,
+        userMasks: processing.masks
       });
       if (error?.message) {
         console.log(error.message);
@@ -363,9 +365,9 @@ export const useDataSlice = () => {
 
     // Triangle points
     const points = [
-      { x: (width * factor) / 2, y: (height * factor) / 2 - (height * factor) * 0.1},
-      { x: (width * factor) / 2 - (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1},
-      { x:  (width * factor) / 2 + (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1},
+      { x: (width * factor) / 2, y: (height * factor) / 2 - (height * factor) * 0.1, id: 0 },
+      { x: (width * factor) / 2 - (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1, id: 1},
+      { x:  (width * factor) / 2 + (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1, id: 2},
     ];
 
     dispatch(addMask(points));
@@ -375,12 +377,16 @@ export const useDataSlice = () => {
     dispatch(deleteMask(index));
   }
 
-  const onUpdateMaskPoints = (index: number, points: { x: number; y: number }[]) => {
-    // To implement
+  const onUpdateMaskPoints = (maskIndex: number, points: { x: number; y: number }[]) => {
+    dispatch(updateMask({index: maskIndex, points}));
   }
 
-  const onUpdateMaskVisibility = (index: number) => {
-    dispatch(updateMask({ index}))
+  const onUpdateActiveMask = (index: number) => {
+    if ( index === processing.activeMaskIndex ){
+      dispatch(updateMask(null))
+      return
+    }
+    dispatch(updateMask({index}))
   }
 
 
@@ -406,6 +412,6 @@ export const useDataSlice = () => {
     onAddMask,
     onDeleteMask,
     onUpdateMaskPoints,
-    onUpdateMaskVisibility
+    onUpdateActiveMask
   };
 };

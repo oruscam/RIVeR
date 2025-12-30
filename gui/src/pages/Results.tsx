@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { ColorBar, Error, Progress, Results as ResultsComponent, WizardButtons } from '../components';
+import { ColorBar, Error, Results as ResultsComponent, WizardButtons } from '../components';
 import { VelocityVector } from '../components/Graphs';
 import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { getVelocityLimits } from '../helpers';

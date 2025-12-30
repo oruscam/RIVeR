@@ -111,7 +111,7 @@ export const ImageWithMarks = () => {
                 localPoints={localPoints}
                 module={'xSections'}
                 resizeFactor={resizeFactor}
-              ></Points>
+              />
             </Group>
           )}
         </Layer>
