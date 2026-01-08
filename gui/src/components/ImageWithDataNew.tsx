@@ -5,7 +5,8 @@ import { ColorBar } from "./ColorBar";
 import { DrawMask } from "./DrawMask";
 import { WindowSizesNew } from "./WindowSizesNew";
 import { Quiver } from "./Quiver";
-import { DrawSectionsD3 } from "./Graphs/DrawSectionsD3";
+import { DrawSectionsD3 } from "./CrossSections/DrawSectionsD3";
+import { MODULE_NUMBER } from "../constants/constants";
 
 export const ImageWithDataNew = ({ showMedian } :  { showMedian?:  boolean }) => {
     const { screenSizes } = useUiSlice();
@@ -78,7 +79,7 @@ export const ImageWithDataNew = ({ showMedian } :  { showMedian?:  boolean }) =>
                 height: realHeight,
                 cursor: isDragging ? 'grabbing' : scale > 1 ? 'grab' : 'default',
             }}
-            onWheel={activeMaskIndex !== null ? handleWheel : undefined}
+            onWheel={activeMaskIndex !== null ? handleWheel : handleWheel}
             onMouseDown={activeMaskIndex !== null ? handleMouseDown : undefined}
             onMouseMove={activeMaskIndex !== null ? handleMouseMove : undefined}
             onMouseUp={activeMaskIndex !== null ? handleMouseUp : undefined}
@@ -123,7 +124,7 @@ export const ImageWithDataNew = ({ showMedian } :  { showMedian?:  boolean }) =>
                 activeMaskIndex === null && (
                     <>
                         <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} showMedian={showMedian} />
-                        <DrawSectionsD3 width={realWidth!} height={realHeight!} factor={realFactor!}/>
+                        <DrawSectionsD3 width={realWidth!} height={realHeight!} factor={realFactor!} step={MODULE_NUMBER.PROCESSING} scale={scale} position={position}/>
                     </>
                 )
             }

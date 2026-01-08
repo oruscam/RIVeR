@@ -63,6 +63,7 @@ export const useSectionSlice = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
+
   /**
    *
    * @param canvasPoint | null - Object with the points in pixels and the factor to convert to real world coordinates.
@@ -74,6 +75,8 @@ export const useSectionSlice = () => {
     // Clean section points for better visualization.
     onUpdateSectionPoints([]);
     dispatch(setHasChanged({ value: true }));
+
+    console.log('onSetDirPoints called with:', { canvasPoint, formPoint }); 
 
     /**
      * The flags are used to avoid unnecessary calculations.
@@ -145,6 +148,8 @@ export const useSectionSlice = () => {
         { x: 0, y: 0 },
       ];
 
+      console.log('flag1', flag1, 'flag2', flag2, 'newPoints', newPoints);
+
       dispatch(setSectionWorking(true));
       if (newPoints && flag1 && flag2) {
         const par1 = transformPixelToRealWorld(newPoints[0].x, newPoints[0].y, transformationMatrix);
@@ -169,6 +174,8 @@ export const useSectionSlice = () => {
       dispatch(setDirPoints(newPoints as Point[]));
 
       if (bathimetry.width) {
+        console.log('rwCalculated', rwCalculated);
+
         onUpdateSectionPoints(
           rwCalculated as Point[],
           transformationMatrix,
@@ -729,7 +736,6 @@ export const useSectionSlice = () => {
         { x: par2[0], y: par2[1] },
       ];
     }
-
     dispatch(setSectionPoints({ points: sectionPoints, index }));
   };
 

@@ -368,17 +368,15 @@
 .progress-indicator{
     background-color: var(--secondary-input-background);
     width: auto;
-    min-width: 42px;
+    min-width: 56px;
     height: 10px;
     border-radius: 5px;
-    max-width: 54px;
+    max-width: 65px;
 }
 
 .progress-indicator-active{
     background-color: var(--primary-text-color);
 }
-
-
 
 /* * PROVISIONAL  */
 .info-icon{

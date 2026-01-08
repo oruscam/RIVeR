@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { handleDragLeave, handleDragOver } from '../helpers';
 import { FormHeader } from '../components/Forms/Components';
 import { ButtonLock } from '../components/ButtonLock';
+import { ImageCrossSections } from '../components/CrossSections/ImageCrossSections';
 
 export const CrossSections = () => {
   const { activeSection, sections, onGetBathimetry } = useSectionSlice();
@@ -56,6 +57,7 @@ export const CrossSections = () => {
     <div className="regular-page">
       <div className="media-container">
         <ImageWithMarks />
+        <ImageCrossSections/>
         <Error></Error>
       </div>
       <div

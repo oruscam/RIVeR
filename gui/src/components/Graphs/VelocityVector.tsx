@@ -2,9 +2,10 @@ import { useEffect, useMemo, useRef } from 'react';
 import './graphs.css';
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import * as d3 from 'd3';
-import { drawSvgSectionLine, drawVectors } from './index';
+import { drawVectors } from './index';
 import { Section } from '../../store/section/types';
 import { getGlobalMagnitudes } from '../../helpers/drawVectorsFunctions';
+import { drawStaticSection } from '../CrossSections/drawSections';
 
 interface VelocityVectorProps {
   height: number;
@@ -57,16 +58,15 @@ export const VelocityVector = ({
           globalMin,
           globalMax
         );
-        drawSvgSectionLine({
+        drawStaticSection({
           svgElement: svgRef.current!,
           factor: factor,
           dirPoints: dirPoints,
           sectionPoints: sectionPoints,
           name: name,
-          isReport: isReport,
           imageWidth: screenSizes.imageWidth!,
           imageHeight: screenSizes.imageHeight!,
-          isProcessing: false
+          module: isReport ? 'report' : 'results',
         });
       } else {
         if (isReport && sectionIndex !== index) return;
@@ -84,16 +84,15 @@ export const VelocityVector = ({
             globalMin,
             globalMax
           );
-          drawSvgSectionLine({
+          drawStaticSection({
             svgElement: svgRef.current!,
             factor: factor,
             dirPoints: dirPoints,
             sectionPoints: sectionPoints,
             name: name,
-            isReport: isReport,
             imageWidth: screenSizes.imageWidth!,
             imageHeight: screenSizes.imageHeight!,
-            isProcessing: false
+            module: isReport ? 'report' : 'results',
           });
         }
       }

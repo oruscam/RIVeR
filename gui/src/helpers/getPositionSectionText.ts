@@ -81,6 +81,17 @@ const getPositionSectionText = (
   imageHeight: number,
   factor: number
 ) => {
+  // To not show default point
+  if ( point1.x === point2.x && point1.y === point2.y ) {
+    return {
+      point: {
+        x: -5000,
+        y: -5000,
+      },
+      rotation: 0
+    }
+  }
+
   const { angle } = calculateMidpointAndAngle(point1, point2);
   const { leftPoint, rightPoint } = getLeftAndRightPoints(point1, point2);
   const { upperPoint } = getLowerAndUpperPoints(point1, point2);
