@@ -108,7 +108,7 @@ export const Points = ({
             onDragMove={(event) => handleDragMove(event, index)}
             onDragEnd={(event) => handleDragEnd(event, index)}
           />
-          {activeStep === MODULE_NUMBER.PIXEL_SIZE&& (
+          {activeStep === MODULE_NUMBER.PIXEL_SIZE && (
             <Text
               x={point.x - MARKS.NUMBER_OFFSET_X / resizeFactor}
               y={point.y - MARKS.NUMBER_OFFSET_Y / resizeFactor}

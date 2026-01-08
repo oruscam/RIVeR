@@ -36,7 +36,7 @@ export const useImageZoomPan = ({ containerWidth, containerHeight, minScale, max
 
     // Handle zooming with mouse wheel
     const handleWheel = useCallback((e: React.WheelEvent) => {
-        e.preventDefault();
+        // e.preventDefault();
         e.stopPropagation();
         
         const delta = e.deltaY * -zoomSpeed;
