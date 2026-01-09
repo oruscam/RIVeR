@@ -108,23 +108,12 @@ export const ImageWithDataNew = ({ showMedian } :  { showMedian?:  boolean }) =>
                     <WindowSizesNew width={realWidth!} height={realHeight!}/> 
                 )
             }
-            {
-                masks?.length !== 0 && activeMaskIndex !== null && (
-                    <DrawMask 
-                        width={realWidth!} 
-                        height={realHeight!} 
-                        factor={realFactor!}
-                        scale={scale}
-                        offsetX={position.x}
-                        offsetY={position.y}
-                    />)
-                
-            }
+
             {
                 activeMaskIndex === null && (
                     <>
                         <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} showMedian={showMedian} />
-                        <DrawSectionsD3 width={realWidth!} height={realHeight!} factor={realFactor!} step={MODULE_NUMBER.PROCESSING} scale={scale} position={position}/>
+                        {/* <DrawSectionsD3 width={realWidth!} height={realHeight!} factor={realFactor!} step={MODULE_NUMBER.PROCESSING} scale={scale} position={position}/> */}
                     </>
                 )
             }
