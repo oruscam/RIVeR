@@ -76,8 +76,6 @@ export const useSectionSlice = () => {
     onUpdateSectionPoints([]);
     dispatch(setHasChanged({ value: true }));
 
-    console.log('onSetDirPoints called with:', { canvasPoint, formPoint }); 
-
     /**
      * The flags are used to avoid unnecessary calculations.
      * If flag1 is true, the first point is being modified.
@@ -127,6 +125,10 @@ export const useSectionSlice = () => {
         flag1 = false;
         flag2 = false;
         dispatch(setDirPoints(newPoints as Point[]));
+        dispatch(updateSection({
+          ...sections[activeSection],
+          drawLine: false
+        }))
       } else {
         dispatch(setDirPoints(newPoints as Point[]));
       }
@@ -147,8 +149,6 @@ export const useSectionSlice = () => {
         { x: 0, y: 0 },
         { x: 0, y: 0 },
       ];
-
-      console.log('flag1', flag1, 'flag2', flag2, 'newPoints', newPoints);
 
       dispatch(setSectionWorking(true));
       if (newPoints && flag1 && flag2) {
@@ -174,8 +174,6 @@ export const useSectionSlice = () => {
       dispatch(setDirPoints(newPoints as Point[]));
 
       if (bathimetry.width) {
-        console.log('rwCalculated', rwCalculated);
-
         onUpdateSectionPoints(
           rwCalculated as Point[],
           transformationMatrix,

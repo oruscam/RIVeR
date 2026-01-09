@@ -25,11 +25,13 @@ import { ImageOblique } from './ImageOblique';
 import { ImageUav } from './ImageUav';
 import { PointsIpcam } from './PointsIpcam';
 import { DrawMask } from './DrawMask';
+import { DrawUav } from './DrawUav';
 
 export {
   Carousel,
   Clipboard,
   DrawMask,
+  DrawUav,
   DrawSections,
   Ellipses,
   Error,

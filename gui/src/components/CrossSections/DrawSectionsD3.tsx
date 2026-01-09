@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import * as d3 from "d3";
 import { useSectionSlice, useUiSlice } from "../../hooks";
 import { drawInteractiveSection, drawStaticSection, getResizedPoint } from "./drawSections";
 import { MODULE_NUMBER } from "../../constants/constants";
-import * as d3 from "d3";
+import type { OverlayLayers } from "../OverlaySvg";
+
+type Point = { x: number; y: number };
 
 export const DrawSectionsD3 = ({
   width,
@@ -11,6 +14,7 @@ export const DrawSectionsD3 = ({
   step,
   scale,
   position,
+  layers,
 }: {
   width: number;
   height: number;
@@ -18,62 +22,50 @@ export const DrawSectionsD3 = ({
   step: number;
   scale: number;
   position: { x: number; y: number };
+  layers: OverlayLayers;
 }) => {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const zoomLayerRef = useRef<SVGGElement | null>(null);
-
   const { sections, activeSection, onSetDirPoints } = useSectionSlice();
   const { seeAll } = useUiSlice();
 
-  const { dirPoints, sectionPoints } = sections[activeSection];
+  const { svgRef, overlayZoomRef, staticLayerRef, interactiveLayerRef, uiLayerRef } = layers;
 
-  const [startPoint, setStartPoint] = useState<{ x: number; y: number } | null>(
+  const { dirPoints, sectionPoints, name } = sections[activeSection];
+
+  const [startPoint, setStartPoint] = useState<Point | null>(
     dirPoints.length > 0 ? getResizedPoint(dirPoints[0], factor) : null
   );
-  const [endPoint, setEndPoint] = useState<{ x: number; y: number } | null>(
+  const [endPoint, setEndPoint] = useState<Point | null>(
     dirPoints.length > 0 ? getResizedPoint(dirPoints[1], factor) : null
   );
   const [mousePressed, setMousePressed] = useState<boolean>(false);
 
-  // Dibujo estático (overlay-zoom + static sections)
+  const cx = useMemo(() => width / 2, [width]);
+  const cy = useMemo(() => height / 2, [height]);
+
+  const getPointerInZoom = useCallback((nativeEvt: Event) => {
+    const container = overlayZoomRef.current ?? svgRef.current;
+    return d3.pointer(nativeEvt as any, container as any);
+  }, [overlayZoomRef, svgRef]);
+
+  // Static drawing
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!staticLayerRef.current || !uiLayerRef.current) return;
+    const staticLayerSel = d3.select(staticLayerRef.current);
+    const uiLayerSel = d3.select(uiLayerRef.current);
 
-    const svg = d3.select(svgRef.current);
-    svg.selectAll("*").remove();
-    svg
-      .attr("width", width)
-      .attr("height", height)
-      .style("background-color", "transparent")
-      .style("position", "absolute")
-      .style("top", 0)
-      .style("left", 0);
-
-    const cx = width / 2;
-    const cy = height / 2;
-
-    const zoomLayer = svg
-      .append("g")
-      .attr("class", "overlay-zoom")
-      .attr(
-        "transform",
-        `translate(${position.x}, ${position.y}) translate(${cx}, ${cy}) scale(${scale}) translate(${-cx}, ${-cy})`
-      );
-
-    // Guarda referencia al nodo transformado (sistema de coords de "imagen")
-    zoomLayerRef.current = zoomLayer.node();
-
-    const uiLayer = svg.append("g").attr("class", "overlay-ui");
+    staticLayerSel.selectAll("*").remove();
+    uiLayerSel.selectAll(".section-static-label").remove();
 
     sections.forEach((section, index) => {
-      if (step === MODULE_NUMBER.CROSS_SECTIONS && (index === activeSection || seeAll === false)) {
-        return;
+      if (step === MODULE_NUMBER.CROSS_SECTIONS) {
+        if (!seeAll) return;
+        if (index === activeSection) return;
       }
       const { dirPoints, sectionPoints, name } = section;
 
       drawStaticSection({
-        zoomLayer,
-        uiLayer,
+        zoomLayer: staticLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
+        uiLayer: uiLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
         factor,
         dirPoints,
         sectionPoints,
@@ -85,120 +77,117 @@ export const DrawSectionsD3 = ({
         position,
       });
     });
-  }, [width, height, factor, activeSection, seeAll, scale, position, sections, step]);
+  }, [sections, activeSection, factor, seeAll, scale, position, step, width, height, staticLayerRef, uiLayerRef]);
 
-  // Interacción: puntos y líneas (dentro de overlay-zoom)
+  // Interactive drawing
   useEffect(() => {
-    if (!svgRef.current) return;
+    if (!interactiveLayerRef.current || !uiLayerRef.current || !overlayZoomRef.current) return;
     if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
 
-    // Si el estático todavía no creó overlay-zoom, salir
-    const zoomLayerNode = zoomLayerRef.current;
-    if (!zoomLayerNode) return;
+    const layerSel = d3.select(interactiveLayerRef.current);
+    const uiLayerSel = d3.select(uiLayerRef.current);
+    const zoomLayerNode = overlayZoomRef.current!;
 
-    const svg = d3.select(svgRef.current);
-    const zoomLayerSel = d3.select(zoomLayerNode);
-
-    // Limpiar capa interactiva dentro del zoom
-    zoomLayerSel.selectAll(".interactive-section-layer").remove();
-    const layer = zoomLayerSel.append("g").attr("class", "interactive-section-layer");
+    layerSel.selectAll("*").remove();
 
     drawInteractiveSection(
-      layer,
+      layerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
+      uiLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
       zoomLayerNode,
       startPoint,
       endPoint,
-      dirPoints,
       sectionPoints,
+      name,
       setMousePressed,
       setStartPoint,
       setEndPoint,
       onSetDirPoints,
       factor,
-      activeSection,
-      mousePressed
-    )
+      mousePressed,
+      { imageWidth: width, imageHeight: height, position, scale }
+    );
+
+    return () => {
+      layerSel.on(".drag", null);
+    };
   }, [
     startPoint,
     endPoint,
     factor,
-    activeSection,
-    dirPoints.length,
+    sectionPoints,
+    name,
     mousePressed,
     step,
-    // Importante: repintar capa interactiva cuando cambia el zoom/pan
     scale,
     position,
-    sectionPoints
+    width,
+    height,
+    interactiveLayerRef,
+    uiLayerRef,
+    overlayZoomRef,
   ]);
 
-  // Mantener estado en sync con store
+  // Sync with store
   useEffect(() => {
     const { dirPoints } = sections[activeSection];
     setStartPoint(dirPoints.length > 0 ? getResizedPoint(dirPoints[0], factor) : null);
     setEndPoint(dirPoints.length > 0 ? getResizedPoint(dirPoints[1], factor) : null);
   }, [sections, activeSection, factor]);
 
-  // Helpers para obtener puntero en el espacio de overlay-zoom
-  const getPointerInZoom = (nativeEvt: Event) => {
-    // Si por algún motivo aún no hay zoomLayer, usa SVG como fallback
-    const container = zoomLayerRef.current ?? svgRef.current;
-    return d3.pointer(nativeEvt as any, container as any);
-  };
+  // Attach root SVG listeners for section creation (namespaced)
+  useEffect(() => {
+    if (!svgRef.current) return;
+    const svgSel = d3.select(svgRef.current);
 
-  // Crear puntos (coords en espacio del zoom)
-  const handleMouseDown = (event: React.MouseEvent<SVGSVGElement>) => {
-    if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
-    if (dirPoints.length === 0) {
-      setMousePressed(true);
-      const [x, y] = getPointerInZoom(event.nativeEvent);
-      setStartPoint({ x, y });
-      setEndPoint({ x, y });
-    }
-  };
+    const onMouseDown = (event: any) => {
+      if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
+      if (dirPoints.length === 0) {
+        setMousePressed(true);
+        const [x, y] = getPointerInZoom(event);
+        setStartPoint({ x, y });
+        setEndPoint({ x, y });
+      }
+    };
 
-  const handleMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
-    if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
-    if (mousePressed && dirPoints.length === 0) {
-      const [x, y] = getPointerInZoom(event.nativeEvent);
-      setEndPoint({ x, y });
-    }
-  };
+    const onMouseMove = (event: any) => {
+      if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
+      if (mousePressed && dirPoints.length === 0) {
+        const [x, y] = getPointerInZoom(event);
+        setEndPoint({ x, y });
+      }
+    };
 
-  const handleMouseUp = () => {
-    if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
-    if (mousePressed && startPoint && endPoint && dirPoints.length === 0) {
-      setMousePressed(false);
-      onSetDirPoints(
-        {
-          points: [startPoint, endPoint],
-          factor,
-          index: activeSection,
-        },
-        null
-      );
-    } else {
-      setMousePressed(false);
-    }
-  };
+    const onMouseUp = () => {
+      if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
+      if (mousePressed && startPoint && endPoint && dirPoints.length === 0) {
+        setMousePressed(false);
+        onSetDirPoints(
+          { points: [startPoint, endPoint], factor, index: null },
+          null
+        );
+      } else {
+        setMousePressed(false);
+      }
+    };
 
-  // console.log('section points 0', {
-  //   x: sectionPoints[0].x,
-  //   y: sectionPoints[0].y,
-  // })
+    svgSel.on("mousedown.sections", onMouseDown);
+    svgSel.on("mousemove.sections", onMouseMove);
+    svgSel.on("mouseup.sections", onMouseUp);
 
-  //   console.log('section points 1', {
-  //   x: sectionPoints[1].x,  
-  //   y: sectionPoints[1].y,
-  // })
+    return () => {
+      svgSel.on(".sections", null);
+    };
+  }, [
+    svgRef,
+    step,
+    dirPoints.length,
+    mousePressed,
+    startPoint,
+    endPoint,
+    onSetDirPoints,
+    factor,
+    getPointerInZoom,
+  ]);
 
-  return (
-    <svg
-      ref={svgRef}
-      className="svg-in-image-container"
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-    />
-  );
+  return null;
 };

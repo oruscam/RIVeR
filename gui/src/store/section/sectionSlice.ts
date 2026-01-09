@@ -46,7 +46,6 @@ const sectionSlice = createSlice({
       state.sections[state.activeSection].dirPoints = action.payload;
     },
     setRealWorldPoints: (state, action: PayloadAction<Point[]>) => {
-      console.log('Setting RW Points:', action.payload);
       state.sections[state.activeSection].rwPoints = action.payload;
     },
     addSection: (state, action: PayloadAction<Section>) => {
@@ -85,7 +84,6 @@ const sectionSlice = createSlice({
       state.sections[index].hasChanged = true;
     },
     setSectionPoints: (state, action: PayloadAction<{ points: Point[]; index?: number }>) => {
-      console.log('setSectionPoints called with:', action.payload);
       const index = action.payload.index === undefined ? state.activeSection : action.payload.index;
       state.sections[index].sectionPoints = action.payload.points;
     },

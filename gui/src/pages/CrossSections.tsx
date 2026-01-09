@@ -56,7 +56,7 @@ export const CrossSections = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageWithMarks />
+        {/* <ImageWithMarks /> */}
         <ImageCrossSections/>
         <Error></Error>
       </div>

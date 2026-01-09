@@ -9,6 +9,7 @@ import { HardModeCrossSections } from "./HardModeCrossSections";
 import { HardModeOblique } from "./HardModeOblique";
 import { FormHeader } from "./FormHeader"
 import { AnalyzingProgress } from "./AnalyzingProgress";
+import { MaskCreation } from "./MaskCreation";
 
 export { 
     AnalyzingProgress,
@@ -19,6 +20,7 @@ export {
     HardModeOblique,
     HardModeProcessing, 
     HardModeUav,
+    MaskCreation,
     PixelCoordinates, 
     RealWorldCoordinates,
     VideoMetadata, 

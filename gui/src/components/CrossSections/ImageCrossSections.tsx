@@ -1,14 +1,17 @@
 import { MODULE_NUMBER } from "../../constants/constants";
-import { useImageZoomPan, useProjectSlice, useUiSlice } from "../../hooks";
+import { useDataSlice, useImageZoomPan, useProjectSlice, useUiSlice } from "../../hooks";
+import { OverlaySvg } from "../OverlaySvg";
 import { DrawSectionsD3 } from "./DrawSectionsD3";
+import { DrawMask } from "../DrawMask";
 
 export const ImageCrossSections = () => {
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { firstFramePath } = useProjectSlice();
+  const { processing } = useDataSlice();
+  const { masks, activeMaskIndex } = processing;
 
   const {
-    isDragging,
     scale,
     position,
     handleWheel,
@@ -46,7 +49,7 @@ export const ImageCrossSections = () => {
       <div
         style={{
           transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-          transformOrigin: "50% 50%", // centro
+          transformOrigin: "50% 50%",
           willChange: "transform",
         }}
       >
@@ -59,14 +62,29 @@ export const ImageCrossSections = () => {
         />
       </div>
 
-      <DrawSectionsD3
-        width={imageWidth!}
-        height={imageHeight!}
-        factor={factor!}
-        step={MODULE_NUMBER.CROSS_SECTIONS}
-        scale={scale}
-        position={position}
-      />
+      <OverlaySvg width={imageWidth!} height={imageHeight!} scale={scale} position={position}>
+        {(layers) => (
+          <>
+            {masks?.length !== 0 && activeMaskIndex !== null && (
+              <DrawMask
+                factor={factor!}
+                layers={layers}
+                scale={scale}
+              />
+            )}
+
+            <DrawSectionsD3
+              width={imageWidth!}
+              height={imageHeight!}
+              factor={factor!}
+              step={MODULE_NUMBER.CROSS_SECTIONS}
+              scale={scale}
+              position={position}
+              layers={layers}
+            />
+          </>
+        )}
+      </OverlaySvg>
     </div>
   );
-}
+};

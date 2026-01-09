@@ -771,21 +771,12 @@
     }
 }
 
-.draw-mask-container{
-    position: 'absolute',
-    top:  0,
-    left:  0,
-    width: '100%',
-    height: '100%',
-    pointerEvents:  'none',
-}
-
 .draw-mask{
     position: absolute;
     top: 0;
     left: 0;
     z-index: 10;
-    pointer-events: auto;
+    pointer-events: none;
 }
 
 .window-size{
