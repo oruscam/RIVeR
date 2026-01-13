@@ -63,7 +63,6 @@ export const useSectionSlice = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-
   /**
    *
    * @param canvasPoint | null - Object with the points in pixels and the factor to convert to real world coordinates.
@@ -337,6 +336,8 @@ export const useSectionSlice = () => {
 
     dispatch(updateSectionsCounter(sections.length));
     const data = adapterCrossSections(updatedSection);
+    const { masks } = processing
+    
 
     /**
      * The sections are stored in the section slice.
@@ -347,7 +348,7 @@ export const useSectionSlice = () => {
      */
 
     try {
-      await ipcRenderer.invoke('set-sections', { data });
+      await ipcRenderer.invoke('set-sections', { data, userMasks: masks });
       dispatch(setMessage(t('Loader.maskAndRoi')));
       const { height_roi } = await ipcRenderer.invoke(
         'recommend-roi-height',

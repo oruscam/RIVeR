@@ -112,8 +112,8 @@ export const VECTORS = {
 export const MARKS = {
   WIDTH: 40,
   HEIGHT: 40,
-  OFFSET_X: 20,
-  OFFSET_Y: 39,
+  OFFSET_X: 22,
+  OFFSET_Y: 44,
   NUMBER_OFFSET_X: 5,
   NUMBER_OFFSET_Y: 35,
   NUMBER_FONT_SIZE: 17,

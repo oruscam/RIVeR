@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import * as d3 from "d3";
 import { useSectionSlice, useUiSlice } from "../../hooks";
 import { drawInteractiveSection, drawStaticSection, getResizedPoint } from "./drawSections";
-import { MODULE_NUMBER } from "../../constants/constants";
 import type { OverlayLayers } from "../OverlaySvg";
 
 type Point = { x: number; y: number };
@@ -11,18 +10,20 @@ export const DrawSectionsD3 = ({
   width,
   height,
   factor,
-  step,
+  module,
   scale,
   position,
   layers,
+  sectionIndex,
 }: {
   width: number;
   height: number;
-  factor: number;
-  step: number;
+  factor: number | { x: number; y: number };
+  module: string;
   scale: number;
   position: { x: number; y: number };
   layers: OverlayLayers;
+  sectionIndex?: number;
 }) => {
   const { sections, activeSection, onSetDirPoints } = useSectionSlice();
   const { seeAll } = useUiSlice();
@@ -39,9 +40,6 @@ export const DrawSectionsD3 = ({
   );
   const [mousePressed, setMousePressed] = useState<boolean>(false);
 
-  const cx = useMemo(() => width / 2, [width]);
-  const cy = useMemo(() => height / 2, [height]);
-
   const getPointerInZoom = useCallback((nativeEvt: Event) => {
     const container = overlayZoomRef.current ?? svgRef.current;
     return d3.pointer(nativeEvt as any, container as any);
@@ -54,13 +52,12 @@ export const DrawSectionsD3 = ({
     const uiLayerSel = d3.select(uiLayerRef.current);
 
     staticLayerSel.selectAll("*").remove();
-    uiLayerSel.selectAll(".section-static-label").remove();
+    uiLayerSel.selectAll("*").remove();
 
     sections.forEach((section, index) => {
-      if (step === MODULE_NUMBER.CROSS_SECTIONS) {
-        if (!seeAll) return;
-        if (index === activeSection) return;
-      }
+      if (module === 'x-sections' && index === activeSection) return 
+      if (module === 'report' && sectionIndex !== undefined && index !== sectionIndex) return
+
       const { dirPoints, sectionPoints, name } = section;
 
       drawStaticSection({
@@ -72,17 +69,19 @@ export const DrawSectionsD3 = ({
         name,
         imageWidth: width,
         imageHeight: height,
-        module: step === MODULE_NUMBER.PROCESSING ? "processing" : "x-sections",
+        module,
         scale,
         position,
+        seeAll,
+        isActive: index === activeSection
       });
     });
-  }, [sections, activeSection, factor, seeAll, scale, position, step, width, height, staticLayerRef, uiLayerRef]);
+  }, [sections, activeSection, factor, seeAll, scale, position, width, height, staticLayerRef, uiLayerRef]);
 
   // Interactive drawing
   useEffect(() => {
     if (!interactiveLayerRef.current || !uiLayerRef.current || !overlayZoomRef.current) return;
-    if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
+    if (module !== 'x-sections') return;
 
     const layerSel = d3.select(interactiveLayerRef.current);
     const uiLayerSel = d3.select(uiLayerRef.current);
@@ -90,9 +89,9 @@ export const DrawSectionsD3 = ({
 
     layerSel.selectAll("*").remove();
 
-    drawInteractiveSection(
-      layerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
-      uiLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
+    drawInteractiveSection({
+      layer: layerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
+      uiLayer: uiLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
       zoomLayerNode,
       startPoint,
       endPoint,
@@ -104,8 +103,14 @@ export const DrawSectionsD3 = ({
       onSetDirPoints,
       factor,
       mousePressed,
-      { imageWidth: width, imageHeight: height, position, scale }
-    );
+      viewport: {
+        imageWidth: width,
+        imageHeight: height,
+        position,
+        scale
+      },
+      module: 'x-sections'
+    })
 
     return () => {
       layerSel.on(".drag", null);
@@ -117,7 +122,7 @@ export const DrawSectionsD3 = ({
     sectionPoints,
     name,
     mousePressed,
-    step,
+    module,
     scale,
     position,
     width,
@@ -125,6 +130,7 @@ export const DrawSectionsD3 = ({
     interactiveLayerRef,
     uiLayerRef,
     overlayZoomRef,
+    seeAll
   ]);
 
   // Sync with store
@@ -140,7 +146,7 @@ export const DrawSectionsD3 = ({
     const svgSel = d3.select(svgRef.current);
 
     const onMouseDown = (event: any) => {
-      if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
+      if (module !== 'x-sections') return;
       if (dirPoints.length === 0) {
         setMousePressed(true);
         const [x, y] = getPointerInZoom(event);
@@ -150,7 +156,7 @@ export const DrawSectionsD3 = ({
     };
 
     const onMouseMove = (event: any) => {
-      if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
+      if (module !== 'x-sections') return;
       if (mousePressed && dirPoints.length === 0) {
         const [x, y] = getPointerInZoom(event);
         setEndPoint({ x, y });
@@ -158,11 +164,11 @@ export const DrawSectionsD3 = ({
     };
 
     const onMouseUp = () => {
-      if (step !== MODULE_NUMBER.CROSS_SECTIONS) return;
+      if (module !== 'x-sections') return;
       if (mousePressed && startPoint && endPoint && dirPoints.length === 0) {
         setMousePressed(false);
         onSetDirPoints(
-          { points: [startPoint, endPoint], factor, index: null },
+          { points: [startPoint, endPoint], factor: factor as number, index: null },
           null
         );
       } else {
@@ -179,7 +185,7 @@ export const DrawSectionsD3 = ({
     };
   }, [
     svgRef,
-    step,
+    module,
     dirPoints.length,
     mousePressed,
     startPoint,

@@ -48,7 +48,7 @@ export const Results = () => {
       <FormProvider {...methods}>
         {sections.map((section, index: number) => {
           return (
-            <FormResults key={section.name} index={index} onSubmit={methods.handleSubmit(onSubmit)}></FormResults>
+            <FormResults key={section.name} index={index} onSubmit={methods.handleSubmit(onSubmit)}/>
           );
         })}
       </FormProvider>

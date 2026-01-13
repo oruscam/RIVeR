@@ -20,7 +20,7 @@ import {
   updateMask,
 } from '../store/data/dataSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
-import { setSectionData, setSummary } from '../store/section/sectionSlice';
+import { setHasChanged, setSectionData, setSummary } from '../store/section/sectionSlice';
 import { CliError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
 import { verifyWindowsSizes } from '../helpers';
@@ -106,7 +106,7 @@ export const useDataSlice = () => {
   const onSetQuiverTest = async () => {
     dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
-    const { bbox, form, masks } = processing;
+    const { bbox, form } = processing;
     const { paths, active } = images;
     const framesToTest = [paths[active], paths[active + 1]];
 
@@ -119,7 +119,6 @@ export const useDataSlice = () => {
       const { data, error } = await ipcRenderer.invoke('get-quiver-test', {
         framesToTest: framesToTest,
         formValues: form,
-        userMasks: masks
       });
 
       if (error?.message) {
@@ -171,7 +170,6 @@ export const useDataSlice = () => {
 
       const { data, error } = await ipcRenderer.invoke('get-quiver-all', {
         formValues: processing.form,
-        userMasks: processing.masks
       });
       if (error?.message) {
         console.log(error.message);
@@ -370,6 +368,7 @@ export const useDataSlice = () => {
       { x:  (width * factor) / 2 + (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1, id: 2},
     ];
 
+    dispatch(setHasChanged({ value: true }));
     dispatch(addMask(points));
   }
 
@@ -378,6 +377,7 @@ export const useDataSlice = () => {
   }
 
   const onUpdateMaskPoints = (maskIndex: number, points: { x: number; y: number }[]) => {
+    dispatch(setHasChanged({ value: true }));
     dispatch(updateMask({index: maskIndex, points}));
   }
 
