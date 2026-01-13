@@ -12,14 +12,13 @@ async function getQuiver(riverCli: Function) {
   ipcMain.handle('get-quiver-test', async (_event, args) => {
     const { resultsPath, settingsPath, logsPath, xsectionsPath } = PROJECT_CONFIG;
 
-    const { framesToTest, formValues, userMasks } = args;
+    const { framesToTest, formValues } = args;
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
     filePrefix = filePrefix === undefined ? '' : filePrefix;
 
     await clearResultsPiv(resultsPath, settingsPath);
     await clearCrossSections(xsectionsPath);
-    await saveUserMasks(settingsPath, userMasks);
 
     let frames = [];
 
@@ -46,12 +45,11 @@ async function getQuiver(riverCli: Function) {
   });
 
   ipcMain.handle('get-quiver-all', async (_event, args) => {
-    const { formValues, userMasks } = args;
+    const { formValues } = args;
     const { settingsPath, logsPath, xsectionsPath } = PROJECT_CONFIG;
 
     const options = await createOptions('all', PROJECT_CONFIG, [], formValues);
     await clearCrossSections(xsectionsPath);
-    await saveUserMasks(settingsPath, userMasks);
 
     try {
       const { data, error } = (await riverCli(options, 'text', true, logsPath)) as any;

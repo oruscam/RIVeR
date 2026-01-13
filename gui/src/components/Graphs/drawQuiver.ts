@@ -3,7 +3,7 @@ import { QuiverData } from '../../helpers/drawVectorsFunctions';
 import { VECTORS } from '../../constants/constants';
 
 export const drawQuiver = (
-    svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>,
+    svg: d3.Selection<SVGGElement, unknown, null, undefined>,
     data: QuiverData[],
     factor: number
 ) => {

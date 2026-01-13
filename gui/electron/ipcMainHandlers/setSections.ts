@@ -2,9 +2,11 @@ import { ipcMain } from 'electron';
 import * as path from 'node:path';
 import * as fs from 'fs';
 import { PROJECT_CONFIG } from '../main';
+import { saveUserMasks } from './utils/saveUserMasks';
 
 interface setSectionsHandleArgs {
   data: any;
+  userMasks?: Array<any>;
 }
 // 🚧 setSections -> solo setea el setting.json con la nueva direccion a xsettings -> archivo de secciones.
 export function setSections() {
@@ -12,7 +14,8 @@ export function setSections() {
     const { projectDirectory, settingsPath } = PROJECT_CONFIG;
     const xsectionsPath = path.join(projectDirectory, 'xsections.json');
     PROJECT_CONFIG.xsectionsPath = xsectionsPath;
-    const xsectionsJson = JSON.stringify(args.data, null, 4);
+    const { data, userMasks } = args;
+    const xsectionsJson = JSON.stringify(data, null, 4);
 
     const settingsJson = await fs.promises.readFile(settingsPath, 'utf-8');
     const settingsJsonParsed = JSON.parse(settingsJson);
@@ -25,6 +28,10 @@ export function setSections() {
         fs.promises.writeFile(settingsPath, updatedSettings, 'utf-8'),
         fs.promises.writeFile(xsectionsPath, xsectionsJson, 'utf-8'),
       ]);
+
+      if (userMasks && userMasks.length > 0) {
+        await saveUserMasks(settingsPath, userMasks);
+      }
 
       return 'Sections saved';
     } catch (error) {

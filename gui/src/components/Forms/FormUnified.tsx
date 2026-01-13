@@ -99,11 +99,7 @@ export const FormUnified = ({extraFields, showMedian, setShowMedian}: {extraFiel
                                     <p className="button-name"> {t('Processing.test')} </p>
                                     {isBackendWorking && isTesting && <span className="loader-little"/>}
                             </button>
-                            <div className="spacer-div">
-                                <button className="video-button" type="button" id="add-mask-icon" onClick={handleOnClick}>
-                                    <Icon path={addMask} className="add-mask-icon"/>
-                                </button>
-                            </div>
+                            <div className="spacer-div"/>
                         </div>
                         <div className="input-container-2 mt-1">
                             <button

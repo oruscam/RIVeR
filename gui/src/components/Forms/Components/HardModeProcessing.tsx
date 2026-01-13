@@ -3,11 +3,10 @@ import { useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
 import { TestPlot } from '../../Graphs';
 import { WINDOW_SIZES } from '../../../constants/constants';
-import { GrTrash } from "react-icons/gr";
 
 export const HardModeProcessing = ({ active, showMedian }: { active: boolean, showMedian: boolean }) => {
   const { register, reset } = useFormContext();
-  const { processing, onUpdateProcessing, onReCalculateMask, onDeleteMask, onAddMask, onUpdateActiveMask} = useDataSlice();
+  const { processing, onUpdateProcessing, onReCalculateMask } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
 
@@ -44,9 +43,7 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
 
       <span className='divider-line mt-2'/>
 
-      <h2 className="field-title mb-1 mt-1"> {t('Processing.roiAndMask')}</h2>
-
-      <div className="input-container-2 mt-1">
+      <div className="input-container-2 mt-2">
         <label className="read-only me-1">{t('Processing.roiHeight')}</label>
         <input
           className="input-field"
@@ -55,30 +52,6 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
           onBlur={(event) => handleHeightRoiInput(event)}
         ></input>
       </div>
-
-
-      <div className='input-container-2 mt-1'>
-        <button className='form-button wizard-button me-1' type="button" onClick={() => onAddMask()}>Add New mask</button>
-      </div>
-
-      {
-        processing.masks !== undefined && processing.masks.map((_mask, index) =>
-          <div key={index} className='switch-container mt-1'>
-            <h3 className='field-title'> {t('Processing.mask')} {index + 1} </h3>
-            <div className='mask-actions'>
-              <label className='switch'>
-                <input
-                  type="checkbox"
-                  checked={index === processing.activeMaskIndex}
-                  onChange={() => onUpdateActiveMask(index)}
-                />
-                <span className="slider"/>
-              </label>
-              <GrTrash className='trash-icon' onClick={() => onDeleteMask(index)}/>
-            </div>
-          </div>
-        )
-      }
 
       <span className='divider-line mt-2'/>
 

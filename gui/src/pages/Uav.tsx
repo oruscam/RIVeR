@@ -76,7 +76,6 @@ export const Uav = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageUav/>
         <ImageUavNew/>
         <Error />
       </div>

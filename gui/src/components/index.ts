@@ -26,6 +26,7 @@ import { ImageUav } from './ImageUav';
 import { PointsIpcam } from './PointsIpcam';
 import { DrawMask } from './DrawMask';
 import { DrawUav } from './DrawUav';
+import { ImageResults } from './ImageResults';
 
 export {
   Carousel,
@@ -56,4 +57,5 @@ export {
   ThemeToggle,
   VersionMessage,
   WizardButtons,
+  ImageResults
 };

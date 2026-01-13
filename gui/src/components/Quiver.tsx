@@ -4,6 +4,7 @@ import './components.css';
 import { useDataSlice } from '../hooks';
 import { QuiverData } from '../helpers/drawVectorsFunctions';
 import { drawQuiver } from './Graphs/drawQuiver';
+import { OverlayLayers } from './OverlaySvg';
 
 interface QuiverProps {
   width: number;
@@ -11,21 +12,24 @@ interface QuiverProps {
   factor: number;
   data: QuiverData[];
   showMedian?: boolean;
+  layers: OverlayLayers
 }
 
-export const Quiver = ({ width, height, factor, data, showMedian }: QuiverProps) => {
+export const Quiver = ({ width, height, factor, data, showMedian, layers }: QuiverProps) => {
   const svgRef = useRef(null);
   const { images, quiver } = useDataSlice();
 
+  const { staticLayerRef } = layers;
+
+
   useEffect(() => {
-    const svg = d3.select(svgRef.current);
+    if (!staticLayerRef.current) return;
+    const staticLayerSel = d3.select(staticLayerRef.current);
 
-    svg.selectAll('*').remove(); 
-    svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
-
+    staticLayerSel.selectAll('*').remove(); 
     if (quiver === null ) return;
     
-    drawQuiver(svg, data, factor);
+    drawQuiver(staticLayerSel, data, factor);
     }, [quiver, images.active, factor, showMedian]);
 
   return <svg ref={svgRef} className="quiver" style={{ width: `${width}`, height: `${height}` }}/>;

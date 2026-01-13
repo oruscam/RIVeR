@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
-import { ColorBar, Error, Results as ResultsComponent, WizardButtons } from '../components';
-import { VelocityVector } from '../components/Graphs';
+import { ColorBar, Error, ImageResults, Results as ResultsComponent, WizardButtons } from '../components';
 import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { getVelocityLimits } from '../helpers';
 import { FormHeader } from '../components/Forms/Components';
@@ -27,11 +26,10 @@ export const Results = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <div className="image-and-svg-container">
-          <img src={firstFramePath} width={width} height={height} />
-          <VelocityVector height={height} width={width} factor={factor} seeAll={seeAll} />
-          <ColorBar min={min} max={max} />
-        </div>
+          <ImageResults />          
+          {/* <img src={firstFramePath} width={width} height={height} /> */}
+          {/* <VelocityVector height={height} width={width} factor={factor} seeAll={seeAll} /> */}
+          {/* <ColorBar min={min} max={max} /> */}
         <Error />
       </div>
       <div className="form-container">

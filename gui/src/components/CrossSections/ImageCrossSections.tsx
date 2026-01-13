@@ -77,7 +77,7 @@ export const ImageCrossSections = () => {
               width={imageWidth!}
               height={imageHeight!}
               factor={factor!}
-              step={MODULE_NUMBER.CROSS_SECTIONS}
+              module="x-sections"
               scale={scale}
               position={position}
               layers={layers}

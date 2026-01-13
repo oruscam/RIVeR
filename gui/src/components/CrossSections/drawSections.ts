@@ -1,11 +1,11 @@
 import * as d3 from "d3";
 import { COLORS, MARKS } from "../../constants/constants";
 import { getPositionSectionText } from "../../helpers";
-import { pinGreen, pinRed } from "../../assets/icons/icons";
+import { pinGreen, pinRed, pin } from "../../assets/icons/icons";
 
 type Point = { x: number; y: number };
 
-interface DrawSvgSectionLineProps {
+interface DrawSvgStaticSectionProps {
   zoomLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
   uiLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
   factor: number | { x: number; y: number };
@@ -17,13 +17,23 @@ interface DrawSvgSectionLineProps {
   module: "x-sections" | "processing" | "results" | "report" | string;
   scale: number;
   position: { x: number; y: number };
+  seeAll: boolean;
+  isActive?: boolean;
 }
 
-export const getResizedPoint = (point: Point, factor: number) => {
+export const getResizedPoint = (point: Point, factor: number | { x: number; y: number }) => {
   return {
-    x: point.x / factor,
-    y: point.y / factor,
+    x: point.x / (typeof factor === "number" ? factor : factor.x),
+    y: point.y / (typeof factor === "number" ? factor : factor.y),
   };
+};
+
+const toSectionToken = (name: string) => {
+  return (name || "unnamed")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^a-z0-9_-]/g, "");
 };
 
 /**
@@ -47,6 +57,12 @@ const getSectionStyles = (module: string) => {
   let textColor = COLORS.BLACK;
 
   switch (module) {
+    case "uav":
+      resizeFactor = 1;
+      lineColor = COLORS.LIGHT_BLUE;
+      textColor = COLORS.MARK_R;
+      break;
+
     case "x-sections":
       resizeFactor = 1;
       lineColor = COLORS.YELLOW;
@@ -118,41 +134,64 @@ const drawLine = ({
 /**
  * Draw a pin icon (L or R) plus its tiny label (L/R).
  * When draggable=true, pointer events are enabled for d3.drag.
+ * extraClass: permite agregar section-{token} para “namespacing”.
  */
 const drawIcon = (
   position: Point,
   type: "L" | "R",
   layer: d3.Selection<SVGGElement, unknown, null, undefined>,
-  draggable: boolean
+  draggable: boolean,
+  extraClass: string = "",
+  module: string
 ) => {
   const isLeft = type === "L";
-  const href = isLeft ? pinRed : pinGreen;
-  const labelColor = isLeft ? COLORS.MARK_L : COLORS.MARK_R;
+  const href = module === 'uav' ? pin : isLeft ? pinRed : pinGreen;
+  const labelColor = module === 'uav' ? COLORS.MARK_R : isLeft ? COLORS.MARK_L : COLORS.MARK_R;
 
-  const icon = layer
-    .append("image")
-    .attr("href", href) // moderno: usa 'href' (xlink deprecado)
-    .attr("width", MARKS.WIDTH + 5)
-    .attr("height", MARKS.HEIGHT + 5)
-    .attr("x", position.x - MARKS.OFFSET_X - (isLeft ? 2 : 0))
-    .attr("y", position.y - MARKS.OFFSET_Y - 2)
-    .attr("cursor", draggable ? "move" : "default")
-    .attr("pointer-events", draggable ? "all" : "none")
-    .attr("class", `pin-${draggable ? "draggable" : "static"} pin-${type}`) // <-- clase para poder eliminar
-    // .attr('z-index', 15)
+    const icon = layer
+      .append("image")
+      .attr("href", href)
+      .attr("width", MARKS.WIDTH + 5)
+      .attr("height", MARKS.HEIGHT + 5)
+      .attr("x", position.x - MARKS.OFFSET_X)
+      .attr("y", position.y - MARKS.OFFSET_Y)
+      .attr("cursor", draggable ? "move" : "default")
+      .attr("pointer-events", draggable ? "all" : "none")
+      .attr(
+        "class",
+        `pin-${draggable ? "draggable" : "static"} pin-${type} ${extraClass}`.trim()
+      );
 
-  layer
-    .append("text")
-    .attr("class", `pin-label-${draggable ? "draggable" : "static"} pin-label-${type}`) // <-- clase para poder eliminar
-    .attr("x", position.x - (isLeft ? 5 : 4))
-    .attr("y", position.y - 20)
-    .text(type)
-    .attr("font-size", 19)
-    .attr("font-weight", "600")
-    .attr("fill", labelColor)
-    .attr("pointer-events", "none");
+    let text: string = type
+    let offsetX = 5
+    let offsetY = 23
+    if (module === 'uav') {
+      if (type === 'L') {
+        text = "1"
+      } else {
+        text = "2"
+      }
+    } else {
+      if (type === 'R') {
+        offsetX = 6
+      }
+    }
 
-  return icon;
+    layer
+      .append("text")
+      .attr(
+        "class",
+        `pin-label-${draggable ? "draggable" : "static"} pin-label-${type} ${extraClass}`.trim()
+      )
+      .attr("x", position.x - offsetX)
+      .attr("y", position.y - offsetY)
+      .text(text)
+      .attr("font-size", 19)
+      .attr("font-weight", "600")
+      .attr("fill", labelColor)
+      .attr("pointer-events", "none");
+
+    return icon;
 };
 
 /**
@@ -219,7 +258,6 @@ const drawSectionLabel = ({
 }) => {
   const { fx, fy } = normalizeFactor(factor);
 
-  // Compute a nicer label position and rotation using the same helper as static.
   const { point, rotation } = getPositionSectionText(
     points[0],
     points[1],
@@ -228,7 +266,6 @@ const drawSectionLabel = ({
     typeof factor === "number" ? factor : fx
   );
 
-  // Project to screen (UI layer keeps constant text size).
   const toScreen = toScreenFactory({
     imageWidth: viewport.imageWidth,
     imageHeight: viewport.imageHeight,
@@ -246,7 +283,7 @@ const drawSectionLabel = ({
     .attr("y", screenPoint.y)
     .attr("dy", dy)
     .text(text)
-    .attr("font-size", 23 / resizeFactor)
+    .attr("font-size", 20 / resizeFactor)
     .attr("fill", color)
     .attr("font-weight", "500")
     .attr("transform", `rotate(${rotation}, ${screenPoint.x}, ${screenPoint.y})`)
@@ -270,42 +307,66 @@ const drawStaticSection = ({
   module,
   scale,
   position,
-}: DrawSvgSectionLineProps) => {
+  seeAll,
+  isActive = true
+}: DrawSvgStaticSectionProps) => {
   const { fx, fy } = normalizeFactor(factor);
   const { resizeFactor, lineColor, textColor } = getSectionStyles(module);
 
-  // Group for this section inside the zoom-following layer
-  const g = zoomLayer.append("g").attr("class", "section-layer");
+  const token = toSectionToken(name);
+  const sectionClass = `section-${token}`;
 
-  // Direction line
+  const isXSections = module === "x-sections";
+
+  // Si seeAll es false y estamos en x-sections, limpiar SOLO lo de esta sección y salir.
+  if (seeAll === false && module === "x-sections") {
+    zoomLayer.selectAll(`.${sectionClass}`).remove();
+    uiLayer.selectAll(`.${sectionClass}`).remove();
+    return;
+  }
+
+  if (seeAll === false && !isActive && module === "results") {
+    zoomLayer.selectAll(`.${sectionClass}`).remove();
+    uiLayer.selectAll(`.${sectionClass}`).remove();
+    return;
+  }
+
+  // Limpieza previa SOLO de esta sección para evitar duplicados.
+  zoomLayer.selectAll(`.${sectionClass}`).remove();
+  uiLayer.selectAll(`.${sectionClass}`).remove();
+
+  // Group para esta sección dentro del layer que sigue el zoom
+  const g = zoomLayer.append("g").attr("class", `section-layer ${sectionClass}`);
+
+  // Línea de dirección
   if (dirPoints.length > 0) {
     drawLine({
       points: [dirPoints[0], dirPoints[1]],
-      group: g,
+      group: isXSections ? g : uiLayer,
       color: lineColor,
       resizeFactor,
       fx,
       fy,
       dashed: false,
-      className: "static-dir-line",
+      className: `static-dir-line ${sectionClass}`,
     });
   }
 
-  // Section line (dashed)
+  // Línea de sección (discontinua)
   if (sectionPoints.length > 0) {
     drawLine({
       points: [sectionPoints[0], sectionPoints[1]],
-      group: g,
+      group: isXSections ? g : uiLayer,
       color: lineColor,
       resizeFactor,
       fx,
       fy,
       dashed: true,
-      className: "static-section-line",
+      className: `static-section-line ${sectionClass}`,
     });
   }
 
-  // Static label in UI (same helper used by interactive)
+  // Label estático en UI
   if (module !== "report" && sectionPoints.length > 0) {
     drawSectionLabel({
       uiLayer,
@@ -315,20 +376,21 @@ const drawStaticSection = ({
       factor,
       resizeFactor,
       color: textColor,
-      className: "static-section-label",
+      className: `static-section-label ${sectionClass}`,
     });
   }
 
-  // Icons in UI (screen space)
+  // Iconos en UI (screen space)
   if (module === "x-sections" && dirPoints.length > 0) {
     const toScreen = toScreenFactory({ imageWidth, imageHeight, position, scale, fx, fy });
     const p0 = toScreen(dirPoints[0]);
     const p1 = toScreen(dirPoints[1]);
 
-    drawIcon(p0, "L", uiLayer, false);
-    drawIcon(p1, "R", uiLayer, false);
+    drawIcon(p0, "L", uiLayer, false, sectionClass, module);
+    drawIcon(p1, "R", uiLayer, false, sectionClass, module);
   }
 };
+
 // ...imports y helpers arriba se mantienen iguales...
 
 const toScreenFromZoomFactory = ({
@@ -350,36 +412,57 @@ const toScreenFromZoomFactory = ({
   });
 };
 
-const drawInteractiveSection = (
-  layer: d3.Selection<SVGGElement, unknown, null, undefined>,
-  uiLayer: d3.Selection<SVGGElement, unknown, null, undefined>,
-  zoomLayerNode: SVGGElement,
-  startPoint: Point | null,
-  endPoint: Point | null,
-  sectionPoints: Point[],
-  sectionName: string,
-  setMousePressed: (pressed: boolean) => void,
-  setStartPoint: (point: Point) => void,
-  setEndPoint: (point: Point) => void,
+interface DrawSvgInteractiveSectionProps {
+  layer: d3.Selection<SVGGElement, unknown, null, undefined>;
+  uiLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
+  zoomLayerNode: SVGGElement;
+  startPoint: Point | null;
+  endPoint: Point | null;
+  sectionPoints?: Point[];
+  name?: string;
+  setMousePressed: (pressed: boolean) => void;
+  setStartPoint: (point: Point) => void;
+  setEndPoint: (point: Point) => void;
   onSetDirPoints: (
     data: { points: Point[]; factor: number; index: number; mode?: string },
     arg2: any
-  ) => void,
-  factor: number,
-  mousePressed: boolean,
+  ) => void;
+  factor: number | { x: number; y: number };
+  mousePressed: boolean;
   viewport: {
     imageWidth: number;
     imageHeight: number;
     position: { x: number; y: number };
     scale: number;
-  }
-) => {
-  const { resizeFactor, lineColor, textColor } = getSectionStyles("x-sections");
+  };
+  module: string;
+}
 
-  // Limpieza para evitar acumulación durante drag
-  layer.selectAll(".final-line").remove();
-  uiLayer.selectAll(".pin-draggable").remove();
-  uiLayer.selectAll(".pin-label-draggable").remove();
+const drawInteractiveSection = ({
+    layer,
+    uiLayer,
+    zoomLayerNode,
+    startPoint,
+    endPoint,
+    sectionPoints,
+    name,
+    setMousePressed,
+    setStartPoint,
+    setEndPoint,
+    onSetDirPoints,
+    factor,
+    mousePressed,
+    viewport,
+    module
+  } : DrawSvgInteractiveSectionProps) => {
+  const { resizeFactor, lineColor, textColor } = getSectionStyles(module);
+  
+  const token = toSectionToken(name ? name : 'uav');
+  const sectionClass = `section-${token}`;
+
+  // Limpieza SOLO de esta sección para evitar acumulación durante drag
+  layer.selectAll(`.${sectionClass}`).remove();
+  uiLayer.selectAll(`.${sectionClass}`).remove();
 
   // Línea interactiva (zoom-space)
   if (startPoint && endPoint) {
@@ -391,33 +474,32 @@ const drawInteractiveSection = (
       fx: 1,
       fy: 1,
       dashed: false,
-      className: "final-line",
+      className: `final-line ${sectionClass}`,
     });
   }
 
   // Línea de sección y etiqueta (como estática) cuando no se está arrastrando
-  uiLayer.selectAll(".interactive-section-label").remove();
-  if (sectionPoints.length > 0 && !mousePressed) {
+  if (sectionPoints !== undefined && sectionPoints.length > 0 && !mousePressed) {
     drawLine({
       points: [sectionPoints[0], sectionPoints[1]],
       group: layer,
       color: lineColor,
       resizeFactor,
-      fx: factor,
-      fy: factor,
+      fx: typeof factor === "number" ? factor : factor.x,
+      fy: typeof factor === "number" ? factor : factor.y,
       dashed: true,
-      className: "final-section-line",
+      className: `final-section-line ${sectionClass}`,
     });
 
     drawSectionLabel({
       uiLayer,
-      text: sectionName,
+      text: name!,
       points: [sectionPoints[0], sectionPoints[1]],
       viewport,
       factor,
       resizeFactor,
       color: textColor,
-      className: "interactive-section-label",
+      className: `interactive-section-label ${sectionClass}`,
     });
   }
 
@@ -432,7 +514,7 @@ const drawInteractiveSection = (
       setMousePressed(false);
       if (startPoint && endPoint) {
         const [x, y] = d3.pointer(event as any, zoomLayerNode);
-        onSetDirPoints({ points: [{ x, y }, endPoint], factor, index: 0 }, null);
+        onSetDirPoints({ points: [{ x, y }, endPoint], factor: factor as number, index: 0 }, null);
       }
     });
 
@@ -447,7 +529,7 @@ const drawInteractiveSection = (
       const [x, y] = d3.pointer(event as any, zoomLayerNode);
       setMousePressed(false);
       if (startPoint && endPoint) {
-        onSetDirPoints({ points: [startPoint, { x, y }], factor, index: 1 }, null);
+        onSetDirPoints({ points: [startPoint, { x, y }], factor: factor as number, index: 1 }, null);
       }
     });
 
@@ -461,13 +543,13 @@ const drawInteractiveSection = (
 
   if (startPoint) {
     const pScreen = toScreenFromZoom(startPoint);
-    const c1 = drawIcon(pScreen, "L", uiLayer, true);
+    const c1 = drawIcon(pScreen, "L", uiLayer, true, sectionClass, module);
     c1.call(dragStartPoint as any);
   }
 
   if (endPoint) {
     const pScreen = toScreenFromZoom(endPoint);
-    const c2 = drawIcon(pScreen, "R", uiLayer, true);
+    const c2 = drawIcon(pScreen, "R", uiLayer, true, sectionClass, module);
     c2.call(dragEndPoint as any);
   }
 };

@@ -1,5 +1,6 @@
 import { useImageZoomPan, useProjectSlice, useUiSlice } from "../hooks";
 import { DrawUav } from "./DrawUav";
+import { OverlaySvg } from "./OverlaySvg";
 
 export const ImageUavNew = () => {
       const { screenSizes } = useUiSlice();
@@ -28,7 +29,7 @@ export const ImageUavNew = () => {
 
     return (
         <div
-            className="image-with-data-new-container"
+            className="image-with-marks"
             style={{
                 width: imageWidth,
                 height: imageHeight,
@@ -58,7 +59,13 @@ export const ImageUavNew = () => {
                 />
             </div>
             
-            <DrawUav width={imageWidth!} height={imageHeight!} factor={factor!} scale={scale} position={position} />
+            <OverlaySvg width={imageWidth!} height={imageHeight!} position={position} scale={scale}>
+                {(layers) => (
+                    <>
+                        <DrawUav width={imageWidth!} height={imageHeight!} factor={factor!} scale={scale} position={position} layers={layers}/>
+                    </>
+                )}
+            </OverlaySvg>
         </div>
     )
 }

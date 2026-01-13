@@ -5,15 +5,15 @@ import * as d3 from 'd3';
 import { drawVectors } from './index';
 import { Section } from '../../store/section/types';
 import { getGlobalMagnitudes } from '../../helpers/drawVectorsFunctions';
-import { drawStaticSection } from '../CrossSections/drawSections';
+import { OverlayLayers } from '../OverlaySvg';
 
 interface VelocityVectorProps {
   height: number;
   width: number;
   factor: number | { x: number; y: number };
   isReport?: boolean;
-  seeAll: boolean;
   sectionIndex?: number;
+  layers: OverlayLayers;
 }
 
 export const VelocityVector = ({
@@ -21,13 +21,14 @@ export const VelocityVector = ({
   width,
   factor,
   isReport = false,
-  seeAll,
   sectionIndex,
+  layers
 }: VelocityVectorProps) => {
-  const svgRef = useRef<SVGSVGElement>(null);
+  const { interactiveLayerRef } = layers;
   const { video } = useProjectSlice();
   const { sections, activeSection, transformationMatrix } = useSectionSlice();
-  const { screenSizes } = useUiSlice();
+
+  const { seeAll } = useUiSlice();
 
   const { width: imageWidth, height: imageHeight } = video.data;
 
@@ -36,15 +37,15 @@ export const VelocityVector = ({
   }, [sections]);
 
   useEffect(() => {
-    d3.select(svgRef.current).selectAll('*').remove();
-    const svg = d3.select(svgRef.current as SVGSVGElement);
+    d3.select(interactiveLayerRef.current).selectAll('*').remove();
+    const svg = d3.select(interactiveLayerRef.current as SVGSVGElement);
     svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
 
     sections.forEach((section: Section, index: number) => {
-      const { data, interpolated, name, sectionPoints, dirPoints } = section;
+      const { data, interpolated } = section;
       if (!data) return;
 
-      if (seeAll) {
+      if (seeAll && isReport === false) {
         drawVectors(
           svg,
           factor,
@@ -58,16 +59,6 @@ export const VelocityVector = ({
           globalMin,
           globalMax
         );
-        drawStaticSection({
-          svgElement: svgRef.current!,
-          factor: factor,
-          dirPoints: dirPoints,
-          sectionPoints: sectionPoints,
-          name: name,
-          imageWidth: screenSizes.imageWidth!,
-          imageHeight: screenSizes.imageHeight!,
-          module: isReport ? 'report' : 'results',
-        });
       } else {
         if (isReport && sectionIndex !== index) return;
         if (activeSection === index || isReport) {
@@ -84,22 +75,9 @@ export const VelocityVector = ({
             globalMin,
             globalMax
           );
-          drawStaticSection({
-            svgElement: svgRef.current!,
-            factor: factor,
-            dirPoints: dirPoints,
-            sectionPoints: sectionPoints,
-            name: name,
-            imageWidth: screenSizes.imageWidth!,
-            imageHeight: screenSizes.imageHeight!,
-            module: isReport ? 'report' : 'results',
-          });
         }
       }
     });
   }, [factor, seeAll, sections, activeSection]);
-
-  return (
-    <svg ref={svgRef} className="svg-in-image-container" />
-  );
+  return null;
 };
