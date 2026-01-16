@@ -42,8 +42,7 @@ export const Uav = () => {
     onUpdatePixelSize
   } = useUavSlice();
   const { t } = useTranslation();
-  const { isBackendWorking } = useGlobalSlice();
-  
+  const { isBackendWorking } = useGlobalSlice();  
 
   // * Estado inicial del formulario
   const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size) });

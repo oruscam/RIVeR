@@ -586,13 +586,6 @@
     height: 100%;
 }
 
-.quiver{
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 10;
-}
-
 .colorbar-container {
     position: absolute;
     bottom: 16px;

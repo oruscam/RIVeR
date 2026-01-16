@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { WizardButtons, ImageWithMarks, Error } from '../components';
+import { WizardButtons, Error } from '../components';
 import { CrossSections as CrossSectionsComponent } from '../components/CrossSections/index';
 import { useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { useTranslation } from 'react-i18next';
@@ -56,7 +56,6 @@ export const CrossSections = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        {/* <ImageWithMarks /> */}
         <ImageCrossSections/>
         <Error></Error>
       </div>

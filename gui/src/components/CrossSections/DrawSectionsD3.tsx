@@ -76,7 +76,7 @@ export const DrawSectionsD3 = ({
         isActive: index === activeSection
       });
     });
-  }, [sections, activeSection, factor, seeAll, scale, position, width, height, staticLayerRef, uiLayerRef]);
+  }, [sections, activeSection, factor, seeAll, scale, position, width, height, staticLayerRef, uiLayerRef, module, sectionIndex]);
 
   // Interactive drawing
   useEffect(() => {
@@ -133,13 +133,6 @@ export const DrawSectionsD3 = ({
     seeAll
   ]);
 
-  // Sync with store
-  useEffect(() => {
-    const { dirPoints } = sections[activeSection];
-    setStartPoint(dirPoints.length > 0 ? getResizedPoint(dirPoints[0], factor) : null);
-    setEndPoint(dirPoints.length > 0 ? getResizedPoint(dirPoints[1], factor) : null);
-  }, [sections, activeSection, factor]);
-
   // Attach root SVG listeners for section creation (namespaced)
   useEffect(() => {
     if (!svgRef.current) return;
@@ -194,6 +187,13 @@ export const DrawSectionsD3 = ({
     factor,
     getPointerInZoom,
   ]);
+
+  // Sync with store
+  useEffect(() => {
+    const { dirPoints } = sections[activeSection];
+    setStartPoint(dirPoints.length > 0 ? getResizedPoint(dirPoints[0], factor) : null);
+    setEndPoint(dirPoints.length > 0 ? getResizedPoint(dirPoints[1], factor) : null);
+  }, [sections, activeSection, factor]);
 
   return null;
 };

@@ -8,7 +8,10 @@ interface setSectionsHandleArgs {
   data: any;
   userMasks?: Array<any>;
 }
-// 🚧 setSections -> solo setea el setting.json con la nueva direccion a xsettings -> archivo de secciones.
+
+// Handler to set sections data and update settings accordingly
+// Saves sections data to xsections.json and updates settings.json
+
 export function setSections() {
   ipcMain.handle('set-sections', async (_event, args: setSectionsHandleArgs) => {
     const { projectDirectory, settingsPath } = PROJECT_CONFIG;

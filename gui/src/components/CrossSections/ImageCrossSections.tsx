@@ -1,4 +1,3 @@
-import { MODULE_NUMBER } from "../../constants/constants";
 import { useDataSlice, useImageZoomPan, useProjectSlice, useUiSlice } from "../../hooks";
 import { OverlaySvg } from "../OverlaySvg";
 import { DrawSectionsD3 } from "./DrawSectionsD3";

@@ -22,7 +22,9 @@ export const drawQuiver = (
             .attr('orient', 'auto-start-reverse')
             .append('path')
             .attr('d', 'M0,-5L10,0L0,5')
-            .attr('fill', d.color);
+            .attr('fill', d.color)
+            .attr('z-index', 15)
+
     });
 
     // Tooltip div

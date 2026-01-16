@@ -38,7 +38,6 @@ const toSectionToken = (name: string) => {
 
 /**
  * Normalize a factor that may be scalar or {x,y} into separate fx/fy.
- * Useful if the image is anisotropically scaled in X/Y.
  */
 const normalizeFactor = (factor: number | { x: number; y: number }) => {
   return {
@@ -48,8 +47,7 @@ const normalizeFactor = (factor: number | { x: number; y: number }) => {
 };
 
 /**
- * Map a logical module name to style choices for lines and labels.
- * resizeFactor affects non-scaling-stroke widths and font-size.
+ * Style choices for lines and labels by module.
  */
 const getSectionStyles = (module: string) => {
   let resizeFactor = 1;
@@ -68,21 +66,25 @@ const getSectionStyles = (module: string) => {
       lineColor = COLORS.YELLOW;
       textColor = COLORS.YELLOW;
       break;
+
     case "processing":
       resizeFactor = 1;
       lineColor = COLORS.DARK_GREY;
       textColor = COLORS.BLACK;
       break;
+
     case "results":
       resizeFactor = 1;
       lineColor = COLORS.YELLOW;
       textColor = COLORS.YELLOW;
       break;
+
     case "report":
       resizeFactor = 1.2;
       lineColor = COLORS.YELLOW;
       textColor = COLORS.YELLOW;
       break;
+
     default:
       break;
   }
@@ -133,8 +135,6 @@ const drawLine = ({
 
 /**
  * Draw a pin icon (L or R) plus its tiny label (L/R).
- * When draggable=true, pointer events are enabled for d3.drag.
- * extraClass: permite agregar section-{token} para “namespacing”.
  */
 const drawIcon = (
   position: Point,
@@ -145,53 +145,41 @@ const drawIcon = (
   module: string
 ) => {
   const isLeft = type === "L";
-  const href = module === 'uav' ? pin : isLeft ? pinRed : pinGreen;
-  const labelColor = module === 'uav' ? COLORS.MARK_R : isLeft ? COLORS.MARK_L : COLORS.MARK_R;
+  const href = module === "uav" ? pin : isLeft ? pinRed : pinGreen;
+  const labelColor = module === "uav" ? COLORS.MARK_R : isLeft ? COLORS.MARK_L : COLORS.MARK_R;
 
-    const icon = layer
-      .append("image")
-      .attr("href", href)
-      .attr("width", MARKS.WIDTH + 5)
-      .attr("height", MARKS.HEIGHT + 5)
-      .attr("x", position.x - MARKS.OFFSET_X)
-      .attr("y", position.y - MARKS.OFFSET_Y)
-      .attr("cursor", draggable ? "move" : "default")
-      .attr("pointer-events", draggable ? "all" : "none")
-      .attr(
-        "class",
-        `pin-${draggable ? "draggable" : "static"} pin-${type} ${extraClass}`.trim()
-      );
+  const icon = layer
+    .append("image")
+    .attr("href", href)
+    .attr("width", MARKS.WIDTH + 5)
+    .attr("height", MARKS.HEIGHT + 5)
+    .attr("x", position.x - MARKS.OFFSET_X)
+    .attr("y", position.y - MARKS.OFFSET_Y)
+    .attr("cursor", draggable ? "move" : "default")
+    .attr("pointer-events", draggable ? "all" : "none")
+    .attr("class", `pin-${draggable ? "draggable" : "static"} pin-${type} ${extraClass}`.trim());
 
-    let text: string = type
-    let offsetX = 5
-    let offsetY = 23
-    if (module === 'uav') {
-      if (type === 'L') {
-        text = "1"
-      } else {
-        text = "2"
-      }
-    } else {
-      if (type === 'R') {
-        offsetX = 6
-      }
-    }
+  let text: string = type;
+  let offsetX = 5;
+  let offsetY = 23;
+  if (module === "uav") {
+    text = type === "L" ? "1" : "2";
+  } else if (type === "R") {
+    offsetX = 6;
+  }
 
-    layer
-      .append("text")
-      .attr(
-        "class",
-        `pin-label-${draggable ? "draggable" : "static"} pin-label-${type} ${extraClass}`.trim()
-      )
-      .attr("x", position.x - offsetX)
-      .attr("y", position.y - offsetY)
-      .text(text)
-      .attr("font-size", 19)
-      .attr("font-weight", "600")
-      .attr("fill", labelColor)
-      .attr("pointer-events", "none");
+  layer
+    .append("text")
+    .attr("class", `pin-label-${draggable ? "draggable" : "static"} pin-label-${type} ${extraClass}`.trim())
+    .attr("x", position.x - offsetX)
+    .attr("y", position.y - offsetY)
+    .text(text)
+    .attr("font-size", 19)
+    .attr("font-weight", "600")
+    .attr("fill", labelColor)
+    .attr("pointer-events", "none");
 
-    return icon;
+  return icon;
 };
 
 /**
@@ -243,7 +231,7 @@ const drawSectionLabel = ({
 }: {
   uiLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
   text: string;
-  points: [Point, Point]; // expected in image space
+  points: [Point, Point];
   viewport: {
     imageWidth: number;
     imageHeight: number;
@@ -292,7 +280,7 @@ const drawSectionLabel = ({
 
 /**
  * Draw a single section in the static pass (non-interactive).
- * - Lines go in zoomLayer (follow image pan/zoom).
+ * - Lines go in zoomLayer (follow image pan/zoom) for x-sections and processing.
  * - Text/icons go in uiLayer (constant screen size).
  */
 const drawStaticSection = ({
@@ -308,7 +296,7 @@ const drawStaticSection = ({
   scale,
   position,
   seeAll,
-  isActive = true
+  isActive = true,
 }: DrawSvgStaticSectionProps) => {
   const { fx, fy } = normalizeFactor(factor);
   const { resizeFactor, lineColor, textColor } = getSectionStyles(module);
@@ -317,8 +305,9 @@ const drawStaticSection = ({
   const sectionClass = `section-${token}`;
 
   const isXSections = module === "x-sections";
+  const isProcessing = module === "processing";
+  const useZoomLayer = isXSections || isProcessing;
 
-  // Si seeAll es false y estamos en x-sections, limpiar SOLO lo de esta sección y salir.
   if (seeAll === false && module === "x-sections") {
     zoomLayer.selectAll(`.${sectionClass}`).remove();
     uiLayer.selectAll(`.${sectionClass}`).remove();
@@ -331,18 +320,18 @@ const drawStaticSection = ({
     return;
   }
 
-  // Limpieza previa SOLO de esta sección para evitar duplicados.
+  // Clean only this section to avoid duplicates
   zoomLayer.selectAll(`.${sectionClass}`).remove();
   uiLayer.selectAll(`.${sectionClass}`).remove();
 
-  // Group para esta sección dentro del layer que sigue el zoom
+  // Group inside zoom layer for this section
   const g = zoomLayer.append("g").attr("class", `section-layer ${sectionClass}`);
 
-  // Línea de dirección
+  // Direction line
   if (dirPoints.length > 0) {
     drawLine({
       points: [dirPoints[0], dirPoints[1]],
-      group: isXSections ? g : uiLayer,
+      group: useZoomLayer ? g : uiLayer,
       color: lineColor,
       resizeFactor,
       fx,
@@ -352,11 +341,11 @@ const drawStaticSection = ({
     });
   }
 
-  // Línea de sección (discontinua)
+  // Section line (dashed)
   if (sectionPoints.length > 0) {
     drawLine({
       points: [sectionPoints[0], sectionPoints[1]],
-      group: isXSections ? g : uiLayer,
+      group: useZoomLayer ? g : uiLayer,
       color: lineColor,
       resizeFactor,
       fx,
@@ -366,7 +355,7 @@ const drawStaticSection = ({
     });
   }
 
-  // Label estático en UI
+  // Label in UI (screen space)
   if (module !== "report" && sectionPoints.length > 0) {
     drawSectionLabel({
       uiLayer,
@@ -380,7 +369,7 @@ const drawStaticSection = ({
     });
   }
 
-  // Iconos en UI (screen space)
+  // Icons in UI (screen space)
   if (module === "x-sections" && dirPoints.length > 0) {
     const toScreen = toScreenFactory({ imageWidth, imageHeight, position, scale, fx, fy });
     const p0 = toScreen(dirPoints[0]);
@@ -391,7 +380,7 @@ const drawStaticSection = ({
   }
 };
 
-// ...imports y helpers arriba se mantienen iguales...
+// ---- Interactive (x-sections) ----
 
 const toScreenFromZoomFactory = ({
   imageWidth,
@@ -439,32 +428,32 @@ interface DrawSvgInteractiveSectionProps {
 }
 
 const drawInteractiveSection = ({
-    layer,
-    uiLayer,
-    zoomLayerNode,
-    startPoint,
-    endPoint,
-    sectionPoints,
-    name,
-    setMousePressed,
-    setStartPoint,
-    setEndPoint,
-    onSetDirPoints,
-    factor,
-    mousePressed,
-    viewport,
-    module
-  } : DrawSvgInteractiveSectionProps) => {
+  layer,
+  uiLayer,
+  zoomLayerNode,
+  startPoint,
+  endPoint,
+  sectionPoints,
+  name,
+  setMousePressed,
+  setStartPoint,
+  setEndPoint,
+  onSetDirPoints,
+  factor,
+  mousePressed,
+  viewport,
+  module,
+}: DrawSvgInteractiveSectionProps) => {
   const { resizeFactor, lineColor, textColor } = getSectionStyles(module);
-  
-  const token = toSectionToken(name ? name : 'uav');
+
+  const token = toSectionToken(name ? name : "uav");
   const sectionClass = `section-${token}`;
 
-  // Limpieza SOLO de esta sección para evitar acumulación durante drag
+  // Clean only this section while dragging
   layer.selectAll(`.${sectionClass}`).remove();
   uiLayer.selectAll(`.${sectionClass}`).remove();
 
-  // Línea interactiva (zoom-space)
+  // Interactive line (zoom-space)
   if (startPoint && endPoint) {
     drawLine({
       points: [startPoint, endPoint],
@@ -478,7 +467,7 @@ const drawInteractiveSection = ({
     });
   }
 
-  // Línea de sección y etiqueta (como estática) cuando no se está arrastrando
+  // Section dashed line + label when not dragging
   if (sectionPoints !== undefined && sectionPoints.length > 0 && !mousePressed) {
     drawLine({
       points: [sectionPoints[0], sectionPoints[1]],
@@ -493,7 +482,7 @@ const drawInteractiveSection = ({
 
     drawSectionLabel({
       uiLayer,
-      text: name!,
+      text: name || "",
       points: [sectionPoints[0], sectionPoints[1]],
       viewport,
       factor,
@@ -503,37 +492,7 @@ const drawInteractiveSection = ({
     });
   }
 
-  const dragStartPoint = d3
-    .drag<SVGImageElement, unknown>()
-    .on("start", () => setMousePressed(true))
-    .on("drag", (event) => {
-      const [x, y] = d3.pointer(event as any, zoomLayerNode);
-      setStartPoint({ x, y });
-    })
-    .on("end", (event) => {
-      setMousePressed(false);
-      if (startPoint && endPoint) {
-        const [x, y] = d3.pointer(event as any, zoomLayerNode);
-        onSetDirPoints({ points: [{ x, y }, endPoint], factor: factor as number, index: 0 }, null);
-      }
-    });
-
-  const dragEndPoint = d3
-    .drag<SVGImageElement, unknown>()
-    .on("start", () => setMousePressed(true))
-    .on("drag", (event) => {
-      const [x, y] = d3.pointer(event as any, zoomLayerNode);
-      setEndPoint({ x, y });
-    })
-    .on("end", (event) => {
-      const [x, y] = d3.pointer(event as any, zoomLayerNode);
-      setMousePressed(false);
-      if (startPoint && endPoint) {
-        onSetDirPoints({ points: [startPoint, { x, y }], factor: factor as number, index: 1 }, null);
-      }
-    });
-
-  // Íconos en UI (screen-space)
+  // Proyección de zoom-space -> screen-space para los íconos
   const toScreenFromZoom = toScreenFromZoomFactory({
     imageWidth: viewport.imageWidth,
     imageHeight: viewport.imageHeight,
@@ -541,6 +500,69 @@ const drawInteractiveSection = ({
     scale: viewport.scale,
   });
 
+  // Drag para startPoint: usa subject + container(zoomLayerNode) para mantener el offset
+  const dragStartPoint = d3
+    .drag<SVGImageElement, unknown, { x: number; y: number }>()
+    .container(() => zoomLayerNode) // coordenadas del puntero en zoom-space
+    .on("start", () => setMousePressed(true))
+    .on("drag", function (event) {
+      const x = event.x;
+      const y = event.y;
+
+      // Actualiza el modelo en zoom-space
+      setStartPoint({ x, y });
+
+      // Mueve el ícono en screen-space inmediatamente
+      const pScreen = toScreenFromZoom({ x, y });
+      d3.select<SVGImageElement, unknown>(this)
+        .attr("x", pScreen.x - MARKS.OFFSET_X)
+        .attr("y", pScreen.y - MARKS.OFFSET_Y);
+    })
+    .on("end", function (event) {
+      setMousePressed(false);
+      if (endPoint) {
+        const x = event.x;
+        const y = event.y;
+        onSetDirPoints({ points: [{ x, y }, endPoint], factor: factor as number, index: 0 }, null);
+      }
+    });
+
+  if (startPoint) {
+    dragStartPoint.subject(() => ({ x: startPoint.x, y: startPoint.y }));
+  }
+
+  // Drag para endPoint: igual patrón subject + container(zoomLayerNode)
+  const dragEndPoint = d3
+    .drag<SVGImageElement, unknown, { x: number; y: number }>()
+    .container(() => zoomLayerNode)
+    .subject(() => {
+      if (endPoint) {
+        return { x: endPoint.x, y: endPoint.y }
+      } else {
+        return { x: 0, y: 0}
+      }})
+    .on("start", () => setMousePressed(true))
+    .on("drag", function (event) {
+      const x = event.x;
+      const y = event.y;
+
+      setEndPoint({ x, y });
+
+      const pScreen = toScreenFromZoom({ x, y });
+      d3.select<SVGImageElement, unknown>(this)
+        .attr("x", pScreen.x - MARKS.OFFSET_X)
+        .attr("y", pScreen.y - MARKS.OFFSET_Y);
+    })
+    .on("end", function (event) {
+      setMousePressed(false);
+      if (startPoint) {
+        const x = event.x;
+        const y = event.y;
+        onSetDirPoints({ points: [startPoint, { x, y }], factor: factor as number, index: 1 }, null);
+      }
+    });
+
+  // Icons in UI (screen-space)
   if (startPoint) {
     const pScreen = toScreenFromZoom(startPoint);
     const c1 = drawIcon(pScreen, "L", uiLayer, true, sectionClass, module);

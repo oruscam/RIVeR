@@ -70,10 +70,6 @@ export const DrawMask = ({
 
   useEffect(() => {
     if (!svgRef.current || !overlayZoomRef.current) return;
-    // if (scale !== 1){
-    //   setDraggingAll(false)
-    //   return;
-    // };
     const svgSel = d3.select(svgRef.current);
     const zoomNode = overlayZoomRef.current;
 
