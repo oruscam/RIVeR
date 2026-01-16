@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import * as d3 from 'd3';
 import './components.css';
 import { useDataSlice } from '../hooks';
@@ -15,22 +15,20 @@ interface QuiverProps {
   layers: OverlayLayers
 }
 
-export const Quiver = ({ width, height, factor, data, showMedian, layers }: QuiverProps) => {
-  const svgRef = useRef(null);
+export const Quiver = ({ factor, data, showMedian, layers }: QuiverProps) => {
   const { images, quiver } = useDataSlice();
 
-  const { staticLayerRef } = layers;
-
+  const { quiverLayerRef } = layers;
 
   useEffect(() => {
-    if (!staticLayerRef.current) return;
-    const staticLayerSel = d3.select(staticLayerRef.current);
+    if (!quiverLayerRef.current) return;
+    const quiverLayerSel = d3.select(quiverLayerRef.current);
 
-    staticLayerSel.selectAll('*').remove(); 
+    quiverLayerSel.selectAll('*').remove(); 
     if (quiver === null ) return;
     
-    drawQuiver(staticLayerSel, data, factor);
-    }, [quiver, images.active, factor, showMedian]);
+    drawQuiver(quiverLayerSel as any, data, factor);
+  }, [quiver, images.active, factor, showMedian, quiverLayerRef]);
 
-  return <svg ref={svgRef} className="quiver" style={{ width: `${width}`, height: `${height}` }}/>;
-};  
+  return null;
+};

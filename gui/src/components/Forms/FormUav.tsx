@@ -118,7 +118,6 @@ export const FormUav = ({onSubmit, onError}) => {
              {...register('uav_pixelSize')}
              type="number"
              id="UAV-PIXEL_SIZE"
-             disabled={dirPoints.length === 0}
              step="any"
              onKeyDown={handlePixelSizeInput}
              onBlur={handlePixelSizeInput}

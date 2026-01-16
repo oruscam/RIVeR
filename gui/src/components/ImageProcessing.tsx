@@ -7,7 +7,7 @@ import { Quiver } from "./Quiver";
 import { DrawSectionsD3 } from "./CrossSections/DrawSectionsD3";
 import { OverlaySvg } from "./OverlaySvg";
 
-export const ImageWithDataNew = ({ showMedian } :  { showMedian?:  boolean }) => {
+export const ImageProcessing = ({ showMedian } :  { showMedian?:  boolean }) => {
     const { screenSizes } = useUiSlice();
     const { video } = useProjectSlice();
     const { processing, images, quiver } = useDataSlice();
@@ -24,7 +24,7 @@ export const ImageWithDataNew = ({ showMedian } :  { showMedian?:  boolean }) =>
     const { parameters, data:  videoData } = video;
     const { paths, active } = images;
 
-    const { masks, activeMaskIndex } = processing;
+    const { activeMaskIndex } = processing;
 
     const containerRef = useRef<HTMLDivElement>(null);
     
@@ -102,21 +102,20 @@ export const ImageWithDataNew = ({ showMedian } :  { showMedian?:  boolean }) =>
             {
                 activeMaskIndex === null && (
                     <OverlaySvg width={realWidth!} height={realHeight!} scale={scale} position={position}>
-                    {(layers) => (
-                        <>
-                            <DrawSectionsD3
-                                width={realWidth!}
-                                height={realHeight!}
-                                factor={realFactor!}
-                                module="processing"
-                                scale={scale}
-                                position={position}
-                                layers={layers}
-                            />
-
-                            <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} showMedian={showMedian} layers={layers}/>
-                        </>
-                    )}
+                        {(layers) => (
+                            <>
+                                <DrawSectionsD3
+                                    width={realWidth!}
+                                    height={realHeight!}
+                                    factor={realFactor!}
+                                    module="processing"
+                                    scale={scale}
+                                    position={position}
+                                    layers={layers}
+                                />
+                                <Quiver width={realWidth!} height={realHeight!} factor={realFactor!} data={data} showMedian={showMedian} layers={layers}/>
+                            </>
+                        )}
                     </OverlaySvg>
                 )
             }

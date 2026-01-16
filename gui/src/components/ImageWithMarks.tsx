@@ -3,7 +3,7 @@ import useImage from 'use-image';
 import { Group, Image, Layer, Line, Stage } from 'react-konva';
 import { KonvaEventObject } from 'konva/lib/Node';
 import { useSectionSlice, useProjectSlice, useUiSlice } from '../hooks';
-import { Points, DrawSections } from './index';
+import { Points } from './index';
 import { Point } from '../types';
 import { getRelativePointerPosition, imageZoom, onMouseDownPixelSize, onMouseUpPixelSize } from '../helpers';
 

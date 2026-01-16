@@ -8,7 +8,6 @@ export const ImageUavNew = () => {
       const { firstFramePath } = useProjectSlice();
 
       const {
-          isDragging,
           scale,
           position,
           handleWheel,

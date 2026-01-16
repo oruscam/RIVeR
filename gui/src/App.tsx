@@ -5,12 +5,10 @@ import {
   VideoRange,
   CrossSections,
   Processing,
-  Analize,
   Results,
   Uav,
   Ipcam,
   Oblique,
-  Unified,
 } from './pages/index';
 import { useEffect } from 'react';
 import { Loading } from './components';
@@ -78,7 +76,7 @@ export const App: React.FC = () => {
         {isLoading ? <Loading /> : <VideoRange />}
         {isLoading ? <Loading /> : getStep4()}
         {isLoading ? <Loading /> : <CrossSections />}
-        {isLoading ? <Loading /> : <Unified />}
+        {isLoading ? <Loading /> : <Processing />}
         {isLoading ? <Loading /> : <Results />}
         <Report />
       </Wizard>
