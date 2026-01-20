@@ -3,6 +3,7 @@ import { RootState } from '../store/store';
 import { useTranslation } from 'react-i18next';
 import {
   setActiveImage,
+  setActivePoint,
   setCameraSolution,
   setCustomPoint,
   setImages,
@@ -46,6 +47,7 @@ export const useIpcamSlice = () => {
           path: data.path,
           counter: data.points.length,
           zLimits: data.zLimits,
+          
         })
       );
       // Reset the camera solution in the matrix slice
@@ -155,6 +157,7 @@ export const useIpcamSlice = () => {
   };
 
   const onSetPointPixelCoordinates = ({ index, imageSize, point, clickIcon }: SetPointPixelCoordinatesProps) => {
+    console.log('onSetPointPixelCoordinates', { index, imageSize, point, clickIcon });
     // desestructure points, activeImage, cameraSolution from ipcam state
     const { points, activeImage, cameraSolution } = ipcam;
     // If points is null, do nothing
@@ -199,7 +202,6 @@ export const useIpcamSlice = () => {
 
     // Third case, when a point becomes selectionable and is already established. Don't change anything
     if (newPoint.wasEstablished === true && imageSize) {
-      // TODO: Probar el no hacer nada
       dispatch(
         setCustomPoint({
           point: newPoint,
@@ -274,6 +276,10 @@ export const useIpcamSlice = () => {
     }
   };
 
+  const onSetActivePoint = ( index: number ) => {
+    dispatch( setActivePoint( index ) );
+  }
+
   return {
     // Atributes
     ...ipcam,
@@ -285,5 +291,6 @@ export const useIpcamSlice = () => {
     onChangePointSelected,
     onSetPointPixelCoordinates,
     onGetCameraSolution,
+    onSetActivePoint,
   };
 };

@@ -45,7 +45,7 @@ export const ImageIpcam = () => {
         {currentImage && (
           <>
             <Image image={currentImage} width={imageWidth} height={imageHeight} />
-            <Ellipses factor={factor as number} />
+            <Ellipses factor={factor as number} />  
             {/* <CrossPoints factor={factor as number}/>     */}
             <RedPoints factor={factor as number} resizeFactor={resizeFactor} />
             {points !== null && <PointsIpcam factor={factor as number} resizeFactor={resizeFactor} />}

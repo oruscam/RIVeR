@@ -7,6 +7,7 @@ import { useUiSlice } from '../hooks/useUiSlice.ts';
 import { useIpcamSlice } from '../hooks/index';
 import { useTranslation } from 'react-i18next';
 import { FormHeader } from '../components/Forms/Components/FormHeader.tsx';
+import { ImageIpcamNew } from '../components/ImageIpcamNew.tsx';
 
 export const Ipcam = () => {
   const { importedImages, cameraSolution, activeImage, onChangeActiveImage, onGetPoints, onGetImages } =
@@ -47,6 +48,7 @@ export const Ipcam = () => {
     <div className="regular-page">
       <div className="media-container">
         <ImageIpcam />
+        <ImageIpcamNew />
         {importedImages !== null && (
           <Carousel
             images={importedImages}

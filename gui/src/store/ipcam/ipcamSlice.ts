@@ -33,6 +33,7 @@ const ipcamSlice = createSlice({
     setImages: (state, action: PayloadAction<SetImagesPayload>) => {
       state.importedImages = action.payload.images;
       state.imagesPath = action.payload.path;
+      state.activeImage = 0;
     },
     setCustomPoint: (state, action: PayloadAction<SetCustomPointPayload>) => {
       if (state.points && state.points.length > action.payload.index) {
@@ -41,6 +42,7 @@ const ipcamSlice = createSlice({
       }
     },
     setActiveImage: (state, action: PayloadAction<number>) => {
+      console.log('Setting active image to', action.payload);
       state.activeImage = action.payload;
     },
     setCameraSolution: (state, action: PayloadAction<CameraSolution | null>) => {
@@ -49,10 +51,13 @@ const ipcamSlice = createSlice({
     setDefaultIpcamState: () => {
       return initialState;
     },
+    setActivePoint: (state, action: PayloadAction<number | null>) => {
+      state.activePoint = action.payload;
+    },
   },
 });
 
-export const { setPoints, setImages, setCustomPoint, setCameraSolution, setActiveImage, setDefaultIpcamState } =
+export const { setPoints, setImages, setCustomPoint, setCameraSolution, setActiveImage, setDefaultIpcamState, setActivePoint } =
   ipcamSlice.actions;
 
 export default ipcamSlice.reducer;
