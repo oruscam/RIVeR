@@ -389,7 +389,6 @@ export const useDataSlice = () => {
     dispatch(updateMask({index}))
   }
 
-
   return {
     // ATRIBUTES
     isBackendWorking,

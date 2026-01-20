@@ -3,10 +3,10 @@ import { useImageZoomPan, useIpcamSlice, useProjectSlice, useUiSlice } from "../
 import { OverlaySvg } from "./OverlaySvg";
 import { DrawIpcam } from "./DrawIpcam";
 
-export const ImageIpcamNew = () => {
+export const ImageIpcam= () => {
     const { screenSizes } = useUiSlice();
     const { imageWidth, imageHeight, factor } = screenSizes;
-    const { importedImages, activeImage, points } = useIpcamSlice();
+    const { importedImages, activeImage } = useIpcamSlice();
     const { firstFramePath } = useProjectSlice();
     
     const [newImageSrc, setNewImageSrc] = useState<string>(
@@ -21,7 +21,6 @@ export const ImageIpcamNew = () => {
         handleMouseMove,
         handleMouseUp,
         handleDragStart,
-        reset,
     } = useImageZoomPan({
         containerWidth: imageWidth!,
         containerHeight: imageHeight!,

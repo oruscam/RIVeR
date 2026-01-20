@@ -22,6 +22,7 @@ const defaultProcessing = {
   parImages: ['', '1', '', '2'],
   maskPath: '',
   masks: [],
+  activeMaskIndex: null,
 };
 
 const initialState: DataState = {
@@ -92,10 +93,7 @@ const dataSlice = createSlice({
     deleteMask: (state, action: PayloadAction<number>) => {
       if (state.processing.masks){
         state.processing.masks.splice(action.payload, 1);
-
-        if (state.processing.activeMaskIndex === action.payload){
-            state.processing.activeMaskIndex = 0;
-          } 
+        state.processing.activeMaskIndex = 0;
       }
     },
     updateMask: (state, action: PayloadAction<{ index: number ; points?: Point[] } | null>) => {

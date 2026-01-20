@@ -20,8 +20,8 @@ interface Processing {
   parImages: string[];
   maskPath: string;
   bbox?: number[];
-  masks?: Point[][];
-  activeMaskIndex?: number | null;
+  masks: Point[][];
+  activeMaskIndex: number | null;
 }
 
 interface Images {

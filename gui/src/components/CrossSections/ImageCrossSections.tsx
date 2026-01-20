@@ -7,8 +7,6 @@ export const ImageCrossSections = () => {
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { firstFramePath } = useProjectSlice();
-  const { processing } = useDataSlice();
-  const { masks, activeMaskIndex } = processing;
 
   const {
     scale,
@@ -28,6 +26,7 @@ export const ImageCrossSections = () => {
     enableKeyboardNav: true,
     keyboardStep: 25,
   });
+
 
   return (
     <div
@@ -64,14 +63,12 @@ export const ImageCrossSections = () => {
       <OverlaySvg width={imageWidth!} height={imageHeight!} scale={scale} position={position}>
         {(layers) => (
           <>
-            {masks?.length !== 0 && activeMaskIndex !== null && (
-              <DrawMask
-                factor={factor!}
-                layers={layers}
-                scale={scale}
-              />
-            )}
-
+            <DrawMask
+              factor={factor!}
+              layers={layers}
+              scale={scale}
+            />
+            
             <DrawSectionsD3
               width={imageWidth!}
               height={imageHeight!}
