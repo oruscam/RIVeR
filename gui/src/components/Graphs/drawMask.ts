@@ -18,7 +18,8 @@ export const drawMask = (
   svgRef: RefObject<SVGSVGElement>,
   addPoint: (index: number, x: number, y: number) => void,
   setDragStart: (point: { x: number; y: number } | null) => void,
-  setDragging: (index: number | null) => void,
+  // CRÍTICO: ahora setDragging recibe el id del punto, no el índice
+  setDragging: (id: number | string | null) => void,
   setDraggingAll: (draggingAll: boolean) => void,
   points: { id: string | number; x: number; y: number }[],
   transformToViewport: (x: number, y: number) => { x: number; y: number },
@@ -84,7 +85,6 @@ export const drawMask = (
     return { va, vb, mx, my, index: i, id: `edge-${a.id}-${b.id}` };
   });
 
-  // Dashed lines (grosor constante opcional con non-scaling-stroke)
   const lines = svg.selectAll<SVGLineElement, any>('line.edge-line').data(edgesData, (d: any) => d.id);
 
   lines
@@ -92,8 +92,8 @@ export const drawMask = (
     .append('line')
     .attr('class', 'edge-line')
     .attr('stroke', '#ED6B57')
-    .attr('stroke-width', 2) // grosor original
-    .style('vector-effect', 'non-scaling-stroke') // mantiene grosor al hacer zoom
+    .attr('stroke-width', 2)
+    .style('vector-effect', 'non-scaling-stroke')
     .attr('stroke-dasharray', '6 4')
     .style('pointer-events', 'none')
     .attr('x1', (d) => d.va.x)
@@ -221,8 +221,8 @@ export const drawMask = (
     })
     .on('mousedown', function (event, d: any) {
       event.stopPropagation();
-      const index = points.findIndex((p) => p.id === d.id);
-      setDragging(index);
+      // Usa el id directamente, no el índice
+      setDragging(d.id);
     });
 
   circles.exit().remove();

@@ -18,12 +18,19 @@ export const DrawMask = ({
 
   const { svgRef, overlayZoomRef, maskLayerRef } = layers;
 
-  const [points, setPoints] = useState(
-    masks![activeMaskIndex!].map((p, i) => ({ x: p.x, y: p.y, id: i }))
-  );
+  // Calcular puntos iniciales una sola vez para poder usarlo en nextIdRef
+  const initialPoints =
+    masks.length === 0 || activeMaskIndex == null
+      ? []
+      : masks[activeMaskIndex].map((p, i) => ({ x: p.x, y: p.y, id: i }));
 
-  const nextIdRef = useRef(3);
-  const [dragging, setDragging] = useState<number | null>(null);
+  const [points, setPoints] = useState(initialPoints);
+
+  // Inicializar el próximo id basado en los puntos iniciales
+  const nextIdRef = useRef(initialPoints.length);
+
+  // IMPORTANTE: ahora 'dragging' guarda el id del punto (no el índice)
+  const [draggingId, setDraggingId] = useState<number | string | null>(null);
   const [draggingAll, setDraggingAll] = useState(false);
   const [dragStartZoom, setDragStartZoom] = useState<{ x: number; y: number } | null>(null);
 
@@ -38,28 +45,34 @@ export const DrawMask = ({
     if (!maskLayerRef.current || !overlayZoomRef.current || !svgRef.current) return;
     const layerSel = d3.select(maskLayerRef.current);
 
+    if (masks.length === 0 || activeMaskIndex === null) {
+      layerSel.selectAll("*").remove();
+      return;
+    }
+
     drawMask(
       layerSel as any,
       svgRef,
       addPoint,
       setDragStartZoom,
-      setDragging,
+      setDraggingId, // pasa el setter que guarda id
       setDraggingAll,
       points,
       transformToViewport,
       transformToImage,
-      scale // <- pasar zoomFactor para tamaños constantes
+      scale
     );
-  }, [
-    points,
-    maskLayerRef,
-    overlayZoomRef,
-    svgRef,
-    scale,
-  ]);
+  }, [points, maskLayerRef, overlayZoomRef, svgRef, scale]);
 
   useEffect(() => {
-    setPoints(masks![activeMaskIndex!].map((p, i) => ({ x: p.x, y: p.y, id: i })));
+    // Cuando cambian la máscara activa o sus puntos, resetea estado local e ids
+    const newPoints =
+      masks.length === 0 || activeMaskIndex == null
+        ? []
+        : masks[activeMaskIndex].map((p, i) => ({ x: p.x, y: p.y, id: i }));
+    setPoints(newPoints);
+    // Actualiza el contador de ids para nuevos puntos
+    nextIdRef.current = newPoints.length;
   }, [activeMaskIndex, masks]);
 
   const addPoint = (index: number, xImg: number, yImg: number) => {
@@ -85,13 +98,13 @@ export const DrawMask = ({
 
         setPoints((pts) => pts.map((p) => ({ ...p, x: p.x + deltaImgX, y: p.y + deltaImgY })));
         setDragStartZoom({ x, y });
-      } else if (dragging !== null) {
+      } else if (draggingId !== null) {
         event.stopPropagation();
         const [x, y] = d3.pointer(event, zoomNode);
         const img = transformToImage(x, y);
         setPoints((pts) => {
           const next = [...pts];
-          const idx = next.findIndex((p) => p.id === dragging);
+          const idx = next.findIndex((p) => p.id === draggingId);
           if (idx >= 0) next[idx] = { ...next[idx], x: img.x, y: img.y };
           return next;
         });
@@ -99,13 +112,14 @@ export const DrawMask = ({
     };
 
     const onMouseUp = () => {
-      if (dragging !== null || draggingAll) {
+      if (draggingId !== null || draggingAll) {
+        // Persistir puntos actuales
         onUpdateMaskPoints(
           activeMaskIndex!,
           points.map((p) => ({ x: p.x, y: p.y }))
         );
       }
-      setDragging(null);
+      setDraggingId(null);
       setDraggingAll(false);
       setDragStartZoom(null);
     };
@@ -120,13 +134,13 @@ export const DrawMask = ({
   }, [
     svgRef,
     overlayZoomRef,
-    dragging,
+    draggingId,
     draggingAll,
     dragStartZoom,
     points,
     factor,
     activeMaskIndex,
-    onUpdateMaskPoints,
+    onUpdateMaskPoints
   ]);
 
   return null;

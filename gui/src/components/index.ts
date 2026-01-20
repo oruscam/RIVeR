@@ -18,17 +18,21 @@ import { ImageResults } from './ImageResults';
 import { ImageProcessing } from './ImageProcessing';
 import { ImageOblique } from './ImageOblique';
 import { DrawOblique } from './DrawOblique';
+import { ImageIpcam } from './ImageIpcam';
+import { DrawIpcam } from './DrawIpcam';
 
 export {
   Carousel,
   Clipboard,
   ColorBar,
+  DrawIpcam,
   DrawMask,
   DrawOblique,
   DrawUav,
   Error,
   Grid,
   Icon,
+  ImageIpcam,
   ImageOblique,
   ImageProcessing,
   ImageResults,
