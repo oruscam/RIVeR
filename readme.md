@@ -131,16 +131,51 @@ river-cli --help
 river-cli video-to-frames river_video.mp4 ./frames --every 2
 
 # 2. Generate transformation matrix
-river-cli get-uav-transformation-matrix 100 200 300 400 0 0 10 10 --image-path ./frames/frame_001.jpg
+river-cli get-uav-transformation-matrix 100 200 300 400 0 0 10 10 \
+--image-path ./frames/frame_001.jpg
 
-# 3. Create masks for PIV analysis
-river-cli create-mask-and-bbox 3 ./frames/frame_001.jpg ./xsections.json ./transformation_matrix.json --save-png-mask
+# 3. Create ROI mask from cross-sections
+# This writes mask.json, bbox.json and mask.png into --workdir
+river-cli create-mask-and-bbox 3 \
+./frames/frame_001.jpg \
+./xsections.json \
+./transformation_matrix.json \
+--workdir ./workdir \
+--save-png-mask
 
-# 4. Run PIV analysis
-river-cli piv-analyze ./frames --mask ./mask.json --workdir ./results
+# 4. (Optional) Create one or more user masks from polygon coordinates
+river-cli create-user-mask ./frames/frame_001.jpg \
+--workdir ./workdir \
+--index 1 \
+--point 120 340 --point 220 500 --point 400 420
 
-# 5. Calculate discharge
-river-cli update-xsection ./xsections.json ./results/piv_results.json ./transformation_matrix.json --step 2 --fps 30 --id-section 0
+river-cli create-user-mask ./frames/frame_001.jpg \
+--workdir ./workdir \
+--index 2 \
+--point 600 300 --point 750 600 --point 900 450
+
+# 5. Compile ROI mask and user masks into a final mask
+# 0 is dominant: final = ROI AND all user masks
+river-cli compile-masks \
+--workdir ./workdir \
+--roi ./workdir/mask.json \
+--usr ./workdir/usr_mask_1.json \
+--usr ./workdir/usr_mask_2.json \
+--out final_mask.json \
+--save-png-mask
+
+# 6. Run PIV analysis using the final mask
+river-cli piv-analyze ./frames \
+--mask ./workdir/final_mask.json \
+--workdir ./results
+
+# 7. Calculate discharge
+river-cli update-xsection \
+./xsections.json \
+./results/piv_results.json \
+./transformation_matrix.json \
+--step 2 --fps 30 --id-section 0
+
 ```
 
 ### Graphical User Interface (GUI)
