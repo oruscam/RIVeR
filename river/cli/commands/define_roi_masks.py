@@ -1,7 +1,7 @@
 import json
 from io import TextIOWrapper
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 import click
 import matplotlib.pyplot as plt
