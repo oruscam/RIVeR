@@ -1,5 +1,5 @@
-import DataGrid, { SelectColumn } from 'react-data-grid';
 import 'react-data-grid/lib/styles.css';
+import DataGrid, { SelectColumn } from 'react-data-grid';
 import { useEffect, useMemo, useState } from 'react';
 import { useSectionSlice } from '../hooks';
 import { Clipboard } from './Clipboard';
@@ -77,10 +77,13 @@ export const Grid = () => {
       });
   };
 
-  const getCellClass = (row) => {
+  const getCellClass = (row: any) => {
     let cellClas = 'centered-cell';
     const { data } = sections[activeSection];
-    if (!data?.check[row.id]) {
+    if ( data === undefined) return cellClas;
+
+    const { displacement_x } = data
+    if (!data?.check[row.id] || displacement_x[row.id] === null) {
       if (data?.interpolated) {
         cellClas = 'centered-cell cell-red-values';
       } else {
@@ -150,15 +153,15 @@ export const Grid = () => {
       const { num_stations, distance, depth, Q, A, check, activeMagnitude, activeCheck, interpolated } =
         section.data;
 
-      return Array.from({ length: num_stations }, (_, i) => ({
-        key: i,
-        id: i,
-        x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
-        d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
-        A: typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
-        Vs: getCellValue(activeMagnitude, check, activeCheck, i, interpolated),
-        Q: typeof Q[i] === 'number' ? getCellValue(Q, check, activeCheck, i, interpolated) : '-',
-      }));
+        return Array.from({ length: num_stations }, (_, i) => ({
+          key: i,
+          id: i,
+          x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
+          d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
+          A: typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
+          Vs: getCellValue(activeMagnitude, check, activeCheck, i, interpolated),
+          Q: typeof Q[i] === 'number' ? getCellValue(Q, check, activeCheck, i, interpolated) : '-',
+        }));
     }
     return [];
   }, [sections, activeSection]);

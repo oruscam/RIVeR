@@ -33,6 +33,8 @@ export const Results = () => {
   const section = sections[activeSection];
   const methods = useForm({ defaultValues: createInitialState(sections) });
 
+  console.log(sections[activeSection])
+
   const { nextStep } = useWizard();
 
   const onSubmit = () => {
