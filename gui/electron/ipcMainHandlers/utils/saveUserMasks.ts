@@ -5,7 +5,11 @@ async function saveUserMasks(settingsPath: string, userMasks: { x:number, y:numb
     const settings = await fs.promises.readFile(settingsPath, 'utf-8');
     const settingsParsed = JSON.parse(settings);
     
-    settingsParsed.user_masks = userMasks;
+    if ( userMasks.length === 0 ) {
+        delete settingsParsed.user_masks;
+    } else {
+        settingsParsed.user_masks = userMasks;
+    }
 
     await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 2));
 }

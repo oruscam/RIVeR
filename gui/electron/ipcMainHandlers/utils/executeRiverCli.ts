@@ -19,8 +19,6 @@ async function executeRiverCli(
   console.log('You are using river-cli', PROJECT_CONFIG.pythonPath);
   console.log('Arguments: ', options)
 
-  console.time('river-cli execution time: ');
-
   const result = await new Promise((resolve, reject) => {
     python = spawn(PROJECT_CONFIG.pythonPath, args);
 
@@ -43,7 +41,7 @@ async function executeRiverCli(
       }
     });
 
-    python.stderr. on('data', (data) => {
+    python.stderr.on('data', (data) => {
       const message = data. toString();
       stderrData = message;
       console.log('stderr', message);
@@ -83,7 +81,6 @@ async function executeRiverCli(
           return;
         }
       } else {
-        console.log('river-cli process finished correctly');
         resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, 'null')));
         await killRiverCli();
       }
