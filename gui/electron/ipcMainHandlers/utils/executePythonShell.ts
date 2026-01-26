@@ -68,7 +68,6 @@ async function executePythonShell(
         try {
           resolve(JSON.parse(message.replace(/\bNaN\b/g, 'null')));
         } catch (error) {
-          console.log('not json');
         }
       } else {
         console.log(message);
