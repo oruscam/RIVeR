@@ -67,9 +67,7 @@ function populateProjectConfig(
   PROJECT_CONFIG.videoPath = settingsParsed.video.filepath;
   PROJECT_CONFIG.defaultFilesPath = path.dirname(settingsParsed.video.filepath);
   PROJECT_CONFIG.logsPath = path.join(folderPath, 'river.log');
-  PROJECT_CONFIG.maskPath = fs.existsSync(path.join(folderPath, 'mask.json'))
-    ? path.join(folderPath, 'mask.json')
-    : undefined;
+  PROJECT_CONFIG.maskPath = getMask(folderPath, 'json');
   PROJECT_CONFIG.bboxPath = fs.existsSync(path.join(folderPath, 'bbox.json'))
     ? path.join(folderPath, 'bbox.json')
     : undefined;
@@ -85,11 +83,13 @@ function populateProjectConfig(
   }
 }
 
-function getPngMask(directory: string): string{
-  if (fs.existsSync(path.join(PROJECT_CONFIG.projectDirectory, 'final_mask.png'))){
-    return path.join(directory, 'final_mask.png')
+function getMask(directory: string, type: 'json' | 'png'): string | undefined{
+  if (fs.existsSync(path.join(PROJECT_CONFIG.projectDirectory, `final_mask.${type}`))){
+    return path.join(directory, `final_mask.${type}`)
+  } else if (fs.existsSync(path.join(PROJECT_CONFIG.projectDirectory, `mask.${type}`))){
+    return path.join(directory, `mask.${type}`)
   } else {
-    return path.join(directory, 'mask.png')
+    return undefined
   }
 }
 
@@ -143,7 +143,7 @@ async function handleLoadProject(PROJECT_CONFIG: ProjectConfig, options: Electro
       projectDirectory: folderPath,
       videoMetadata,
       firstFrame,
-      mask: getPngMask(folderPath),
+      mask: getMask(folderPath, 'png'),
       bbox,
       piv_results,
       paths,
