@@ -98,7 +98,6 @@ async function createWindow() {
     
     // Remove menu bar
     win.setMenu(null);
-
   }
 }
 

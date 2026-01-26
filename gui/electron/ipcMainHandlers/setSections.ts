@@ -32,7 +32,7 @@ export function setSections() {
         fs.promises.writeFile(xsectionsPath, xsectionsJson, 'utf-8'),
       ]);
 
-      if (userMasks && userMasks.length > 0) {
+      if (userMasks) {
         await saveUserMasks(settingsPath, userMasks);
       }
 

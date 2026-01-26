@@ -85,6 +85,14 @@ function populateProjectConfig(
   }
 }
 
+function getPngMask(directory: string): string{
+  if (fs.existsSync(path.join(PROJECT_CONFIG.projectDirectory, 'final_mask.png'))){
+    return path.join(directory, 'final_mask.png')
+  } else {
+    return path.join(directory, 'mask.png')
+  }
+}
+
 // Main function to handle the loading of a project
 async function handleLoadProject(PROJECT_CONFIG: ProjectConfig, options: Electron.OpenDialogOptions) {
   // Open a dialog to select a directory
@@ -135,7 +143,7 @@ async function handleLoadProject(PROJECT_CONFIG: ProjectConfig, options: Electro
       projectDirectory: folderPath,
       videoMetadata,
       firstFrame,
-      mask: path.join(folderPath, 'mask.png'),
+      mask: getPngMask(folderPath),
       bbox,
       piv_results,
       paths,

@@ -363,9 +363,9 @@ export const useDataSlice = () => {
 
     // Triangle points
     const points = [
-      { x: (width * factor) / 2, y: (height * factor) / 2 - (height * factor) * 0.1, id: 0 },
-      { x: (width * factor) / 2 - (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1, id: 1},
-      { x:  (width * factor) / 2 + (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1, id: 2},
+      { x: (width * factor) / 2, y: (height * factor) / 2 - (height * factor) * 0.1 },
+      { x: (width * factor) / 2 - (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1},
+      { x:  (width * factor) / 2 + (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1},
     ];
 
     dispatch(setHasChanged({ value: true }));
@@ -373,6 +373,7 @@ export const useDataSlice = () => {
   }
 
   const onDeleteMask = (index: number) => {
+    dispatch(setHasChanged({ value: true }));
     dispatch(deleteMask(index));
   }
 
