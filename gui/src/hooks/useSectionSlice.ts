@@ -357,9 +357,9 @@ export const useSectionSlice = () => {
       const { maskPath, bbox } = await ipcRenderer.invoke('create-mask-and-bbox', {
         height_roi: height_roi,
         data: false,
-        user_masks: masks
+        user_masks: masks,
+        is_roi_calulation: false
       });
-      1;
       dispatch(updateProcessingForm({ ...processing.form, heightRoi: height_roi }));
       dispatch(setProcessingMask({ mask: filePrefix + maskPath, bbox }));
       dispatch(setQuiver({ quiver: null }));

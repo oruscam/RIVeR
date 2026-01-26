@@ -324,6 +324,8 @@ export const useDataSlice = () => {
       const { maskPath, bbox, error } = await ipcRenderer.invoke('create-mask-and-bbox', {
         height_roi: value,
         data: isDataLoaded,
+        user_masks: processing.masks,
+        is_roi_calulation: true
       });
 
       if (error?.message) {
