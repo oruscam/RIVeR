@@ -123,17 +123,12 @@ def create_mask_and_bbox(
 	with bbox_json_path.open("w", encoding="utf-8") as f:
 		json.dump(bbox, f, separators=(",", ":"))
 
-	print(f"The ROI coordinates have been saved in {bbox_json_path}")
-
 	if save_png_mask:
 		png_mask = get_png_mask(mask)
 		png_path = workdir / "mask.png"
 		png_mask.save(png_path)
-		print(f"The mask has been saved in {png_path} and {mask_json_path}")
-	else:
-		print(f"The mask has been saved in {mask_json_path}")
 
-	return {"bbox_path": str(bbox_json_path), "mask_json_path": str(mask_json_path)}
+	return { "bbox": bbox, "bbox_path": str(bbox_json_path), "mask_json_path": str(mask_json_path), "mask_png_path": str(png_path) if save_png_mask else None}
 
 
 @click.command(help="Create a user polygon mask and save usr_mask_N.json and usr_mask_N.png.")
@@ -159,52 +154,128 @@ def create_mask_and_bbox(
 	nargs=2,
 	type=(click.FLOAT, click.FLOAT),
 	multiple=True,
-	required=True,
+	required=False,
 	help="Polygon vertex as two floats: --point X Y. Repeat for each vertex (at least 3).",
 )
-
-@click.option("--save-png-mask", is_flag=True, default=True, show_default=True, help="Save usr_mask_N.png.")
+@click.option(
+	'--settings-file',
+	type=click.Path(exists=True, file_okay=True, readable=True, resolve_path=True, path_type=Path),
+	help="Path to a JSON settings file. This option is only used by the GUI.",
+	required=False,
+)
+@click.option(
+	'--masks-file',
+	type=click.Path(exists=True, file_okay=True, readable=True, resolve_path=True, path_type=Path),
+	help="Path to a JSON file containing user masks. This option is useful for CLI users to avoid typing many --point arguments. The format has to be [[[{'x': number,'y': number},...],...]].",
+	required=False,
+)
+@click.option("--save-png-mask", is_flag=True, default=False, show_default=True, help="Save usr_mask_N.png.")
 @render_response
 def create_user_mask(
 	image: Path,
 	workdir: Path,
 	index: int,
 	point: tuple[tuple[float, float], ...],
+	settings_file: Optional[Path],
 	save_png_mask: bool,
+	masks_file: Optional[Path] = None,
 ):
-	if len(point) < 3:
-		raise click.ClickException("You must provide at least 3 --point X Y pairs.")
-
 	# Load image to get shape
 	img = plt.imread(fname=image)
 	h = int(img.shape[0])
 	w = int(img.shape[1])
 
-	points = [{"x": x, "y": y} for (x, y) in point]
-	mask = rm.create_user_polygon_mask(image_shape=(h, w), points=points)
+	if (settings_file is None) and (len(point) == 0) and (masks_file is None):
+		raise click.ClickException("You must provide either --settings-file, --masks-file, or at least one --point X Y pair.")
 
-	mask_json_path = workdir / f"usr_mask_{index}.json"
-	with mask_json_path.open("w", encoding="utf-8") as f:
-		json.dump(mask.tolist(), f, separators=(",", ":"))
+	# settings_file is only used by the GUI to batch process multiple masks
+	if settings_file:
+		with settings_file.open("r", encoding="utf-8") as f:
+			settings = json.load(f)
+			masks = settings.get("user_masks")
 
-	png_path = None
-	if save_png_mask:
-		png_img = get_png_mask(mask)
-		png_path = workdir / f"usr_mask_{index}.png"
-		png_img.save(png_path)
+		masks_paths = []
+		for (mask_index, points) in enumerate(masks):
 
-	# Console messages (human-friendly)
-	print(f"User mask JSON saved to {mask_json_path}")
-	if png_path is not None:
-		print(f"User mask PNG saved to {png_path}")
+			if not points or len(points) < 3:
+				raise click.ClickException("The settings file must contain at least 3 points for 'user_mask'.")
+			
+			mask = rm.create_user_polygon_mask(image_shape=(h, w), points=points)
 
-	return {
-		"usr_mask_json": str(mask_json_path),
-		"usr_mask_png": str(png_path) if png_path is not None else None,
-		"index": index,
-		"num_points": len(point),
-		"image_shape": [h, w],
-	}
+			mask_json_path = workdir / f"usr_mask_{mask_index}.json"
+			masks_paths.append(str(mask_json_path))
+			with mask_json_path.open("w", encoding="utf-8") as f:
+				json.dump(mask.tolist(), f, separators=(",", ":"))
+
+			png_path = None
+			if save_png_mask:
+				png_img = get_png_mask(mask)
+				png_path = workdir / f"usr_mask_{mask_index}.png"
+				png_img.save(png_path)
+
+		return {
+			"user_masks_paths": masks_paths
+		}
+	
+	elif masks_file:
+		with masks_file.open("r", encoding="utf-8") as f:
+			masks = json.load(f)
+
+		if not isinstance(masks, list) or len(masks) == 0:
+			raise click.ClickException("The masks file must contain a list of masks.")
+
+		masks_paths = []
+		for (mask_index, points) in enumerate(masks):
+
+			if not points or len(points) < 3:
+				raise click.ClickException("The masks file must contain at least 3 points for each mask.")
+			
+			mask = rm.create_user_polygon_mask(image_shape=(h, w), points=points)
+
+			mask_json_path = workdir / f"usr_mask_{mask_index}.json"
+			masks_paths.append(str(mask_json_path))
+			with mask_json_path.open("w", encoding="utf-8") as f:
+				json.dump(mask.tolist(), f, separators=(",", ":"))
+
+			png_path = None
+			if save_png_mask:
+				png_img = get_png_mask(mask)
+				png_path = workdir / f"usr_mask_{mask_index}.png"
+				png_img.save(png_path)
+
+		return {
+			"user_masks_paths": masks_paths
+		}
+	
+	else:
+		if len(point) < 3:
+			raise click.ClickException("You must provide at least 3 --point X Y pairs.")
+
+		# Load image to get shape
+		img = plt.imread(fname=image)
+		h = int(img.shape[0])
+		w = int(img.shape[1])
+
+		points = [{"x": x, "y": y} for (x, y) in point]
+		mask = rm.create_user_polygon_mask(image_shape=(h, w), points=points)
+
+		mask_json_path = workdir / f"usr_mask_{index}.json"
+		with mask_json_path.open("w", encoding="utf-8") as f:
+			json.dump(mask.tolist(), f, separators=(",", ":"))
+
+		png_path = None
+		if save_png_mask:
+			png_img = get_png_mask(mask)
+			png_path = workdir / f"usr_mask_{index}.png"
+			png_img.save(png_path)
+
+		return {
+			"usr_mask_json": str(mask_json_path),
+			"usr_mask_png": str(png_path) if png_path is not None else None,
+			"index": index,
+			"num_points": len(point),
+			"image_shape": [h, w],
+		}
 
 @click.command(help="Compile ROI mask and user masks into a final mask (0 dominant, AND merge).")
 @click.option(
@@ -272,14 +343,12 @@ def compile_masks(
 	with final_json_path.open("w", encoding="utf-8") as f:
 		json.dump(final_mask.tolist(), f, separators=(",", ":"))
 
-	print(f"Final mask JSON saved to {final_json_path}")
 
 	final_png_path = None
 	if save_png_mask:
 		final_png_path = final_json_path.with_suffix(".png")
 		png_img = get_png_mask(final_mask)
 		png_img.save(final_png_path)
-		print(f"Final mask PNG saved to {final_png_path}")
 
 	return {
 		"final_mask_json": str(final_json_path),
