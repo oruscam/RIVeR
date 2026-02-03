@@ -492,6 +492,13 @@ input:checked + .slider:before {
   color: var(--background-color);
 }
 
+.button-with-loader:disabled{
+  background-color: var(--input-background);
+  color: var(--background-color);
+  border-color: black;
+  cursor: default;
+}
+
 .hidden{
   display: none;
 }

@@ -1,11 +1,3 @@
-import {
-  getDistanceBetweenPoints,
-  computePixelSize,
-  transformPixelToRealWorld,
-  transformRealWorldToPixel,
-  computeRwDistance,
-  getLinesCoordinates,
-} from './coordinates';
 import { getPointNames, getLabelStyle, getPointsDistances } from './hardModeFormHelpers';
 import { getNewImageResolution } from './getNewImageResolution';
 import { getValidationRules } from './validationRules';
@@ -19,7 +11,7 @@ import { imageZoom, onMouseDownPixelSize, onMouseUpPixelSize, getRelativePointer
 import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks, getOrthoImageDimensions } from './graphsHelpers';
 import { formatNumberToPrecision2, formatNumberToPrecision4, formatNumberTo2Decimals } from './adapterNumbers';
 import { carouselClickImage, carouselKeyDown, setCarouselDimensions } from './carouselFunctions';
-import { calculateArrowWidth, calculateMultipleArrowsAdaptative, getVelocityLimits } from './drawVectorsFunctions';
+import { calculateArrowWidth, calculateMultipleArrowsAdaptative, getVelocityLimits } from './drawArrows';
 import {
   createSquare,
   getObliquePointsDistances,
@@ -33,7 +25,6 @@ import {
   onLoadProcessingForm,
   onLoadVideoParameters,
 } from './loadProjectHelpers';
-import { getPositionSectionText } from './getPositionSectionText';
 import { verifyWindowsSizes } from './verifyWindowsSizes';
 import { getNewCanvasPositions, setChangesByForm } from './sectionsHelpers';
 import getLineColor from './getLineColor';
@@ -51,8 +42,6 @@ export {
   calculateMultipleArrowsAdaptative,
   carouselClickImage,
   carouselKeyDown,
-  computePixelSize,
-  computeRwDistance,
   createSquare,
   dateToStringDate,
   formatNumberTo2Decimals,
@@ -63,19 +52,16 @@ export {
   generateYAxisTicks,
   getBathimetryValues,
   getDirectionVector,
-  getDistanceBetweenPoints,
   getImageSize,
   getIntersectionPoints,
   getLabelStyle,
   getLineColor,
-  getLinesCoordinates,
   getNewCanvasPositions,
   getNewImageResolution,
   getObliquePointsDistances,
   getOrthoImageDimensions,
   getPointNames,
   getPointsDistances,
-  getPositionSectionText,
   getRelativePointerPosition,
   getUnit,
   getValidationRules,
@@ -95,7 +81,5 @@ export {
   setCarouselDimensions,
   setChangesByForm,
   stringDateToDate,
-  transformPixelToRealWorld,
-  transformRealWorldToPixel,
   verifyWindowsSizes,
 };

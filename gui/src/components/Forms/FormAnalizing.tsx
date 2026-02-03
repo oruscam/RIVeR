@@ -37,6 +37,7 @@ export const FormAnalizing = ({setShowMedian}: {setShowMedian: React.Dispatch<Re
     setPercentage('100%');
   }
 
+
   useEffect(() => {
     const handleRiverCliMessage = (_event: any, text: string) => {
       // Expresión regular para extraer el porcentaje
@@ -79,14 +80,16 @@ export const FormAnalizing = ({setShowMedian}: {setShowMedian: React.Dispatch<Re
             {t('Analizing.analize')}
           </button>
         </div>
+
         <div className="analizing-output">
           {percentage !== '' && (
             <Loading percentage={percentage} time={time} size={'big'} isComplete={percentage === '100%'} />
           )}
         </div>
+
         <button
           id="stop-analize"
-          className={`danger-button  'danger-button-active' : ''}`}
+          className={`danger-button ${isBackendWorking ?  'danger-button-active' : ''}`}
           onClick={handleStop}
           disabled={!isBackendWorking}
         >

@@ -21,11 +21,13 @@ import { createMaskAndBbox } from './createMaskAndBbox';
 import { getResultData } from './getResultData';
 import { recommendRoiHeight } from './recommendRoiHeight';
 import { saveReportHtml } from './saveReportHtml';
+import { getGif } from './getGif';
 
 export {
   calculate3dRectification,
   createFolderStructure,
   createMaskAndBbox,
+  getGif,
   firstFrame,
   getBathimetry,
   getDistances,

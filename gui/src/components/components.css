@@ -585,16 +585,63 @@
   align-items: center;
   gap: 8px;
   background-color: #1e2525;
-  padding: 6px 10px;
+  padding: 4px 6px;
   border-radius: 15px;
-  width: 300px;
   z-index: 1000;
+  min-width: 200px;
+  max-width: 500px;
+
+}
+
+.colorbar-container button{
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 8px;
+}
+
+.colorbar-container button:hover{
+    background-color: var(--input-background);
+    cursor: pointer;
+}
+
+.colorbar-container button:disabled{
+    opacity: 0.5;
+    background-color: transparent;
 }
 
 .colorbar {
   flex: 1;
   height: 14px;
   border-radius: 10px;
+}
+
+#colorbar-label{
+    font-weight: 400;
+    font-size: 1.3rem;
+}
+
+.colorbar-input{
+    background-color: transparent;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    width: 60px;
+    text-align: center;
+}
+
+.colorbar-input:focus{    
+    outline: none;
+}
+
+.colorbar-input:hover{    
+    background-color: var(--input-background);
 }
 
 .colorbar-labels {
