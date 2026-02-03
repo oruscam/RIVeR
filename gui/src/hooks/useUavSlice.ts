@@ -3,14 +3,11 @@ import { RootState } from '../store/store';
 import { CanvasPoint, FormPoint, UpdatePixelSize } from '../types';
 import { setPixelSizePoints, updatePixelSize } from '../store/uav/uavSlice';
 import {
-  computePixelSize,
-  computeRwDistance,
   getImageSize,
-  getLinesCoordinates,
   getNewCanvasPositions,
   setChangesByForm,
-  transformPixelToRealWorld,
 } from '../helpers';
+import { computePixelSize, computeRwDistance, getLinesCoordinates, transformPixelToRealWorld} from '../../commons/coordinates';
 import { setDefaultSectionState, setTransformationMatrix } from '../store/section/sectionSlice';
 import { DEFAULT_POINTS } from '../constants/constants';
 import { setHasChanged, setIsBackendWorking } from '../store/global/globalSlice';

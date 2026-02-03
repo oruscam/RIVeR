@@ -101,7 +101,7 @@ export const GRAPHS = {
  * Quiver y Velocity Vectoy
  */
 export const VECTORS = {
-  VELOCITY_AMPLITUDE_FACTOR: 20,
+  VELOCITY_AMPLITUDE_FACTOR: 10,
   QUIVER_AMPLITUDE_FACTOR: 10,
 };
 

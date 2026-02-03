@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { Point } from "../../types";
+=======
+import { Quiver } from "../../../commons/types";
+>>>>>>> 3.4.0
 
 interface FormProcessing {
   artificialSeeding: boolean;
@@ -29,15 +33,10 @@ interface Images {
   active: number;
 }
 
-interface Quiver {
-  x: number[];
-  y: number[];
-  u: number[][] | number[];
-  v: number[][] | number[];
-  typevector: number[];
-  u_median?: number[];
-  v_median?: number[];
-  test: boolean;
+interface ColorbarLimits {
+  min: number | null;
+  max: number | null;
+  default: boolean;
 }
 
 interface DataState {
@@ -47,6 +46,7 @@ interface DataState {
   isBackendWorking: boolean;
   isDataLoaded: boolean;
   hasChanged: boolean;
+  colorbarLimits: ColorbarLimits;
 }
 
 export type { DataState, Processing, FormProcessing, Quiver };

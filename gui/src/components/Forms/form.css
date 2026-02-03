@@ -475,6 +475,13 @@ transform-origin: 14px 22px;
     cursor: not-allowed; 
 }
 
+.form-report{
+    display: flex;
+    flex-direction: column;                                                                     
+    align-items: center;
+    width: 100%;                                                                                                    
+}
+
 .spacer-div{
     min-width: 165px;
     display: flex;

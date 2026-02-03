@@ -26,21 +26,18 @@ import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import {
   adapterCrossSections,
-  computePixelSize,
   getBathimetryValues,
   getDirectionVector,
   getIntersectionPoints,
   getNewCanvasPositions,
   setChangesByForm,
-  transformPixelToRealWorld,
-  transformRealWorldToPixel,
 } from '../helpers';
 import { setProcessingMask, setQuiver, updateProcessingForm } from '../store/data/dataSlice';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS } from '../constants/constants';
 import { CanvasPoint, FormPoint, onGetBathimetryTypes, Point } from '../types';
-import { getTransformationFromCameraMatrix } from '../helpers/coordinates';
 import { ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
+import { transformPixelToRealWorld, transformRealWorldToPixel, computePixelSize, getTransformationFromCameraMatrix} from '../../commons/coordinates';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.

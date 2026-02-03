@@ -7,9 +7,6 @@ export const drawQuiver = (
     data: QuiverData[],
     factor: number
 ) => {
-    const mean_u = d3.mean(data, (d) => Math.abs(d.u)) || 0;
-    const mean_v = d3.mean(data, (d) => Math.abs(d.v)) || 0;
-
     const defs = svg.append('defs');
     data.forEach((d, i) => {
         defs.append('marker')
@@ -46,14 +43,15 @@ export const drawQuiver = (
         tooltip.style('opacity', () => '0').style('top', () => '0px');
     }
 
+    // 🔹 Líneas de los vectores
     svg.selectAll('line')
         .data(data)
         .enter()
         .append('line')
         .attr('x1', (d) => d.x / factor)
         .attr('y1', (d) => d.y / factor)
-        .attr('x2', (d) => d.x / factor + (d.u * Math.abs(mean_u - VECTORS.QUIVER_AMPLITUDE_FACTOR)) / factor)
-        .attr('y2', (d) => d.y / factor + (d.v * Math.abs(mean_v - VECTORS.QUIVER_AMPLITUDE_FACTOR)) / factor)
+        .attr('x2', (d) => d.x / factor + (d.u * VECTORS.VELOCITY_AMPLITUDE_FACTOR) / factor)
+        .attr('y2', (d) => d.y / factor + (d.v * VECTORS.VELOCITY_AMPLITUDE_FACTOR) / factor)
         .attr('stroke', (d) => d.color)
         .attr('stroke-width', 2.3)
         .attr('marker-end', (_d, i) => `url(#arrow-${i})`);
@@ -66,8 +64,8 @@ export const drawQuiver = (
         .enter()
         .append('circle')
         .attr('class', 'hitbox')
-        .attr('cx', (d) => d.x / factor + (d.u * Math.abs(mean_u - VECTORS.QUIVER_AMPLITUDE_FACTOR)) / factor)
-        .attr('cy', (d) => d.y / factor + (d.v * Math.abs(mean_v - VECTORS.QUIVER_AMPLITUDE_FACTOR)) / factor)
+        .attr('cx', (d) => d.x / factor + (d.u * VECTORS.VELOCITY_AMPLITUDE_FACTOR) / factor)
+        .attr('cy', (d) => d.y / factor + (d.v * VECTORS.VELOCITY_AMPLITUDE_FACTOR) / factor)
         .attr('r', hitboxRadius)
         .style('fill', () => 'transparent')
         .style('cursor', () => 'pointer')

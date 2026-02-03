@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import * as d3 from 'd3';
 import './components.css';
 import { useDataSlice } from '../hooks';
-import { QuiverData } from '../helpers/drawVectorsFunctions';
+import { QuiverData } from '../../commons/types';
 import { drawQuiver } from './Graphs/drawQuiver';
 import { OverlayLayers } from './OverlaySvg';
 
