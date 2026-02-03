@@ -37,9 +37,8 @@ export const DEFAULT_POINTS = [
  */
 
 export const MODULE_NUMBER = {
-  REPORT: 8,
-  RESULTS: 7,
-  ANALIZING: 6,
+  REPORT: 7,
+  RESULTS: 6,
   PROCESSING: 5,
   CROSS_SECTIONS: 4,
   PIXEL_SIZE: 3,
@@ -113,8 +112,8 @@ export const VECTORS = {
 export const MARKS = {
   WIDTH: 40,
   HEIGHT: 40,
-  OFFSET_X: 20,
-  OFFSET_Y: 39,
+  OFFSET_X: 22,
+  OFFSET_Y: 44,
   NUMBER_OFFSET_X: 5,
   NUMBER_OFFSET_Y: 35,
   NUMBER_FONT_SIZE: 17,
@@ -125,6 +124,9 @@ export const MARKS = {
   OFFSET_Y_REPORT: 25,
   NUMBER_OFFSET_X_REPORT: 2.5,
   NUMBER_OFFSET_Y_REPORT: 14,
+  STROKE_WIDTH: 3,
+  IPCAM_OFFSET_X: 20,
+  IPCAM_OFFSET_Y: 39,
 };
 
 /**

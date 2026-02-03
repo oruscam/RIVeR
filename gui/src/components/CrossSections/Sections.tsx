@@ -14,7 +14,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
   const { register } = useForm();
   const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onUpdateSection } =
     useSectionSlice();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetErrorMessage, seeAll, onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();
 
   // Set the active section, and logic for scrolling to the next section
@@ -107,7 +107,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
   return (
     <div className="sections">
       <div className="sections-layer">
-        <EyeBall />
+        <EyeBall action={onSetSeeAll} active={seeAll}/>
         <span className="section" />
         {sections.map((section, index: number) => {
           return (

@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { DataState, FormProcessing, Quiver } from './types';
+import { Point } from '../../types';
 
 const defaultFormProcessing = {
   artificialSeeding: false,
@@ -20,6 +21,8 @@ const defaultProcessing = {
   form: defaultFormProcessing,
   parImages: ['', '1', '', '2'],
   maskPath: '',
+  masks: [],
+  activeMaskIndex: null,
 };
 
 const initialState: DataState = {
@@ -72,6 +75,7 @@ const dataSlice = createSlice({
       } else {
         state.hasChanged = false;
       }
+      state.processing.activeMaskIndex = null;
     },
     setDataLoaded: (state, action: PayloadAction<boolean>) => {
       state.isDataLoaded = action.payload;
@@ -82,6 +86,34 @@ const dataSlice = createSlice({
       state.processing = defaultProcessing;
       state.isBackendWorking = false;
       state.isDataLoaded = false;
+    },
+
+    addMask: (state, action: PayloadAction<Point[]>) => {
+      if (!state.processing.masks) {
+        state.processing.masks = [];
+      }
+      state.processing.masks.push(action.payload);
+      state.processing.activeMaskIndex = state.processing.masks.length - 1;
+    },
+    deleteMask: (state, action: PayloadAction<number>) => {
+      if (state.processing.masks){
+        state.processing.masks.splice(action.payload, 1);
+        state.processing.activeMaskIndex = 0;
+      }
+    },
+    updateMask: (state, action: PayloadAction<{ index: number ; points?: Point[] } | null>) => {
+      if (action.payload && action.payload.points) {
+        state.processing.masks![action.payload.index] = action.payload.points;
+      } else if (action.payload) {
+        state.processing.activeMaskIndex = action.payload.index;
+      }
+      if (action.payload === null){
+        state.processing.activeMaskIndex = null;
+      }
+    },
+    loadMasks: (state, action: PayloadAction<Point[][]>) => {
+      state.processing.masks = action.payload;
+      state.processing.activeMaskIndex = null;
     },
     setColorbarLimits: (state, action: PayloadAction<{ min: number | null; max: number | null; default: boolean }>) => {
       state.colorbarLimits.min = action.payload.min;
@@ -101,6 +133,10 @@ export const {
   setQuiver,
   updateProcessingForm,
   updateProcessingPar,
+  addMask,
+  deleteMask,
+  updateMask,
+  loadMasks,
   setColorbarLimits
 } = dataSlice.actions;
 

@@ -3,7 +3,7 @@ import { QuiverData } from '../../helpers/drawVectorsFunctions';
 import { VECTORS } from '../../constants/constants';
 
 export const drawQuiver = (
-    svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>,
+    svg: d3.Selection<SVGGElement, unknown, null, undefined>,
     data: QuiverData[],
     factor: number
 ) => {
@@ -19,7 +19,9 @@ export const drawQuiver = (
             .attr('orient', 'auto-start-reverse')
             .append('path')
             .attr('d', 'M0,-5L10,0L0,5')
-            .attr('fill', d.color);
+            .attr('fill', d.color)
+            .attr('z-index', 15)
+
     });
 
     // Tooltip div

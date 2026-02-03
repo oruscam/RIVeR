@@ -1,8 +1,8 @@
 import { ipcMain } from "electron";
-import { ProjectConfig } from "./interfaces";
 import * as fs from "fs";
+import { PROJECT_CONFIG } from "../main";
 
-function setColorbarLimits(PROJECT_CONFIG: ProjectConfig){
+function setColorbarLimits(){
     ipcMain.handle('set-colorbar-limits', async (_event, args) => {
         const { settingsPath } = PROJECT_CONFIG;
         const { min, max } = args;

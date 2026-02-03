@@ -245,15 +245,6 @@ transform-origin: 14px 22px;
     }
 }
 
-#stop-analize{
-    width: 100px;
-    align-self: center;
-    justify-self: flex-end;
-    margin-top: auto;
-    position: absolute;
-    bottom: 100px;
-}
-
 #result-info{
     display: flex;
     align-self: flex-start;
@@ -489,4 +480,45 @@ transform-origin: 14px 22px;
     flex-direction: column;                                                                     
     align-items: center;
     width: 100%;                                                                                                    
+}
+
+.spacer-div{
+    min-width: 165px;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    padding-right: 8px;
+}
+
+.add-mask-icon{
+    width: 40px;
+    height: 40px;
+}
+
+.divider-line{
+    width: 100%;
+    height: 1px;
+    background-color: white;
+    align-self: center;
+}
+
+.mask-actions{
+    display: flex;
+    justify-content: space-between;
+    align-content: space-between;
+    width: 120px;
+}
+
+.trash-icon{
+    height: 100%;
+    width: auto;
+
+}
+
+.trash-icon:hover{
+    cursor: pointer;
+}
+
+.trash-icon:active{
+    transform: scale(1.1);
 }

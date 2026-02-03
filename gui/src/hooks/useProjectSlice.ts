@@ -26,6 +26,7 @@ import {
 import { MODULE_NUMBER } from '../constants/constants';
 import {
   setColorbarLimits,
+  loadMasks,
   setDataLoaded,
   setDefaultDataState,
   setImages,
@@ -307,6 +308,10 @@ export const useProjectSlice = () => {
             max: settings.colorbar_limits.max,
             default: min !== null && max !== null ? false : true,
           }))
+        }
+
+        if (settings.user_masks) {
+          dispatch(loadMasks(settings.user_masks));
         }
 
         dispatch(setLoading(false));

@@ -3,6 +3,7 @@ import { REPORT_IMAGES } from '../../constants/constants';
 import { useProjectSlice, useSectionSlice } from '../../hooks';
 import { AllInOne, VelocityVector } from '../Graphs';
 import { ReportSectionTable } from './ReportSectionTable';
+import { ImageResults } from '../ImageResults';
 
 interface ReportSectionProps {
   index: number;
@@ -55,15 +56,15 @@ export const ReportSection = ({ index, factor, vertical }: ReportSectionProps) =
               </h3>
             </div>
             <div className={`image-and-svg-container ${vertical ? '-vertical' : ''}`}>
-              <img src={firstFramePath} className="image-border-radius" width={width} height={height} />
+              <ImageResults reportFactor={factor} reportWidth={width} reportHeight={height} isReport={true} sectionIndex={index}/>
+              {/* <img src={firstFramePath} className="image-border-radius" width={width} height={height} />
               <VelocityVector
                 width={width}
                 height={height}
                 factor={factor}
                 isReport={true}
                 sectionIndex={index}
-                seeAll={false}
-              />
+              /> */}
             </div>
           </div>
         </div>

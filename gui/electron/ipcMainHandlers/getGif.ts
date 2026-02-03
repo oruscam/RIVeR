@@ -14,6 +14,7 @@ import {
   getGifDimensions,
   loadSectionValues
 } from "./utils/gifFunctions";
+import { PROJECT_CONFIG } from "../main";
 
 const DEV_SERVER = process.env.VITE_DEV_SERVER_URL;
 
@@ -24,7 +25,7 @@ if (DEV_SERVER) {
   watermarkPath = path.join(app.getAppPath(), "..", "logo.png");
 }
 
-async function getGif(PROJECT_CONFIG: ProjectConfig) {
+async function getGif() {
   ipcMain.handle("get-gif", async (_event, args) => {
     const { framesPath, projectDirectory } = PROJECT_CONFIG;
 

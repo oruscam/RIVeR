@@ -1,5 +1,5 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { Error, ImageOblique, WizardButtons } from '../components';
+import { Error, ImageOblique, ImageObliqueNew, WizardButtons } from '../components';
 import { FormOblique } from '../components/Forms';
 import { useGlobalSlice, useObliqueSlice, useUiSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
@@ -82,7 +82,7 @@ export const Oblique = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageOblique />
+        <ImageOblique/>
         <Error />
       </div>
       <div

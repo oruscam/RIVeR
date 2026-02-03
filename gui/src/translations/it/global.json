@@ -118,7 +118,9 @@
             "rwLength": "Il valore della lunghezza della sezione non può essere 0 in {{section_name}}"
         },
         "warning": "Sei sicuro di voler eliminare {{section_name}}?",
-        "warningTitle": "Elimina Sezione"
+        "warningTitle": "Elimina Sezione",
+        "mask": "Maschera",
+        "addMask": "Aggiungi Maschera"
     },
     "Processing": {
         "title": "Elaborazione",
@@ -127,13 +129,15 @@
         "step1": "Passo 1",
         "step2": "Passo 2",
         "test": "Test",
+        "analize": "Analizza",
+        "stop": "Ferma",
         "roiHeight": "Altezza ROI",
         "preProcessingFilter": "Filtro di Pre-elaborazione",
         "grayscale": "Scala di Grigi",
         "removeBackground": "Rimuovi Sfondo",
         "clahe": "CLAHE",
         "clipLimit": "Limite di Clip",
-        "postProcessingFilter": "Filtro di Post-elaborazione",
+        "processingSettings": "Filtro di Post-elaborazione",
         "stdFiltering": "Filtro Std",
         "medianTestFiltering": "Filtro Mediano di Test",
         "epsilon": "Epsilon",

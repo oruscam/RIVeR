@@ -1,18 +1,19 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import './graphs.css';
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import * as d3 from 'd3';
-import { drawSvgSectionLine, drawVectors } from './index';
+import { drawVectors } from './index';
 import { Section } from '../../store/section/types';
 import { getGlobalMagnitudes } from '../../helpers/drawArrows';
+import { OverlayLayers } from '../OverlaySvg';
 
 interface VelocityVectorProps {
   height: number;
   width: number;
   factor: number | { x: number; y: number };
   isReport?: boolean;
-  seeAll: boolean;
   sectionIndex?: number;
+  layers: OverlayLayers;
 }
 
 export const VelocityVector = ({
@@ -20,13 +21,14 @@ export const VelocityVector = ({
   width,
   factor,
   isReport = false,
-  seeAll,
   sectionIndex,
+  layers
 }: VelocityVectorProps) => {
-  const svgRef = useRef<SVGSVGElement>(null);
+  const { interactiveLayerRef } = layers;
   const { video } = useProjectSlice();
   const { sections, activeSection, transformationMatrix } = useSectionSlice();
-  const { screenSizes } = useUiSlice();
+
+  const { seeAll } = useUiSlice();
 
   const { width: imageWidth, height: imageHeight } = video.data;
 
@@ -35,15 +37,15 @@ export const VelocityVector = ({
   }, [sections]);
 
   useEffect(() => {
-    d3.select(svgRef.current).selectAll('*').remove();
-    const svg = d3.select(svgRef.current as SVGSVGElement);
+    d3.select(interactiveLayerRef.current).selectAll('*').remove();
+    const svg = d3.select(interactiveLayerRef.current as SVGSVGElement);
     svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
 
     sections.forEach((section: Section, index: number) => {
-      const { data, interpolated, name, sectionPoints, dirPoints } = section;
+      const { data, interpolated } = section;
       if (!data) return;
 
-      if (seeAll) {
+      if (seeAll && isReport === false) {
         drawVectors(
           svg,
           factor,
@@ -57,16 +59,6 @@ export const VelocityVector = ({
           globalMin,
           globalMax
         );
-        drawSvgSectionLine({
-          svgElement: svgRef.current!,
-          factor: factor,
-          dirPoints: dirPoints,
-          sectionPoints: sectionPoints,
-          name: name,
-          isReport: isReport,
-          imageWidth: screenSizes.imageWidth!,
-          imageHeight: screenSizes.imageHeight!,
-        });
       } else {
         if (isReport && sectionIndex !== index) return;
         if (activeSection === index || isReport) {
@@ -83,24 +75,9 @@ export const VelocityVector = ({
             globalMin,
             globalMax
           );
-          drawSvgSectionLine({
-            svgElement: svgRef.current!,
-            factor: factor,
-            dirPoints: dirPoints,
-            sectionPoints: sectionPoints,
-            name: name,
-            isReport: isReport,
-            imageWidth: screenSizes.imageWidth!,
-            imageHeight: screenSizes.imageHeight!,
-          });
         }
       }
     });
   }, [factor, seeAll, sections, activeSection]);
-
-  return (
-    <>
-      <svg ref={svgRef} className="svg-in-image-container" />
-    </>
-  );
+  return null;
 };

@@ -67,6 +67,7 @@ export const useObliqueSlice = () => {
   // Method to handle changes in coordinates from a canvas point input
   // It adjusts the coordinates and updates the oblique state
   const onChangeCoordinates = (canvasPoint: CanvasPoint | null, formPoint: FormPoint) => {
+    console.log('onChangeCoordinates called with:', { canvasPoint, formPoint });
     if (canvasPoint) {
       // Destructure points and factor from the canvasPoint input
       const { points, factor } = canvasPoint;
