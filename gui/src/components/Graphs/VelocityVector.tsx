@@ -4,7 +4,7 @@ import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import * as d3 from 'd3';
 import { drawSvgSectionLine, drawVectors } from './index';
 import { Section } from '../../store/section/types';
-import { getGlobalMagnitudes } from '../../helpers/drawVectorsFunctions';
+import { getGlobalMagnitudes } from '../../helpers/drawArrows';
 
 interface VelocityVectorProps {
   height: number;

@@ -89,7 +89,7 @@ export const FormProcessing = ({extraFields}: {extraFields: boolean}) => {
             style={{ overflowY: `${!extraFields ? 'hidden' : 'auto'}` }}
             onKeyDown={handleTab}
           >
-              <span id="processing-header"></span>
+              <span id="processing-header"/>
               <h2 className="form-subtitle only-one-item mt-2"> {t('Processing.windowSizes')} </h2>
 
               <div className="input-container-2 mt-2">

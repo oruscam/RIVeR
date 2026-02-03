@@ -158,7 +158,7 @@ export const Carousel: React.FC<CarouselProps> = ({
               carouselKeyDown(event, images, setActiveImage, setDefaultValue, active, listRef.current!, mode)
             }
             disabled={isBackendWorking}
-          ></input>
+          />
           <p> / {images.length} </p>
         </div>
       </div>

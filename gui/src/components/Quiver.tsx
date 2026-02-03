@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import './components.css';
 import { useDataSlice } from '../hooks';
-import { QuiverData } from '../helpers/drawVectorsFunctions';
+import { QuiverData } from '../../commons/types';
 import { drawQuiver } from './Graphs/drawQuiver';
 
 interface QuiverProps {
@@ -23,7 +23,7 @@ export const Quiver = ({ width, height, factor, data, showMedian }: QuiverProps)
     svg.selectAll('*').remove(); 
     svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
 
-    if (quiver === null ) return;
+    if (quiver === null || data === undefined ) return;
     
     drawQuiver(svg, data, factor);
     }, [quiver, images.active, factor, showMedian]);

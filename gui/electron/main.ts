@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, screen, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, screen } from 'electron';
 import { fileURLToPath } from 'node:url';
 import * as path from 'node:path';
 import * as os from 'os';
@@ -27,10 +27,11 @@ import {
   getResultData,
   createMaskAndBbox,
   recommendRoiHeight,
+  getGif,
 } from './ipcMainHandlers/index.js';
 import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
-import { exec } from 'node:child_process';
+import { setColorbarLimits } from './ipcMainHandlers/setColorbarLimits.js';
 
 process.env.APP_ROOT = path.join(__dirname, '..');
 
