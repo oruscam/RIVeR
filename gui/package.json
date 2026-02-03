@@ -40,6 +40,7 @@
     "react-svg": "^16.1.34",
     "react-use-wizard": "^2.3.0",
     "react-window": "^1.8.10",
+    "skia-canvas": "^3.0.8",
     "tree-kill": "^1.2.2",
     "use-image": "^1.1.1",
     "xlsx": "^0.18.5"

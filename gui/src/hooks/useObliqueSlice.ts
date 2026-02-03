@@ -9,8 +9,8 @@ import {
   getImageSize,
   getPointsDistances,
   setChangesByForm,
-  transformPixelToRealWorld,
 } from '../helpers';
+import { transformPixelToRealWorld } from '../../commons/coordinates';
 import { resetAll, setHasChanged, setIsBackendWorking } from '../store/global/globalSlice';
 import { setDrawPoints, setExtraFields, setObliquePoints } from '../store/oblique/obliqueSlice';
 import { defaultCoordinates, defaultDistances } from '../store/oblique/types';

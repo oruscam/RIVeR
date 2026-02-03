@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, screen, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, screen } from 'electron';
 import { fileURLToPath } from 'node:url';
 import * as path from 'node:path';
 import * as os from 'os';
@@ -27,6 +27,8 @@ import {
   getResultData,
   createMaskAndBbox,
   recommendRoiHeight,
+  getGif,
+  setColorbarLimits
 } from './ipcMainHandlers/index.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
 
@@ -149,26 +151,27 @@ ipcMain.handle('delete-confirmation', async (_event, args) => {
 });
 
 app.whenReady().then(() => {
+  calculate3dRectification(riverCli);
+  createMaskAndBbox(riverCli);
   createWindow();
+  firstFrame(riverCli);
+  getBathimetry();
+  getDistances();
+  getGif();
+  getImages();
+  getIpcamImages();
+  getPoints();
+  getQuiver(riverCli);
+  getResultData(riverCli);
   getVideo();
   initProject();
   loadProject();
-  firstFrame(riverCli);
-  setPixelSize(riverCli);
-  setSections();
   recommendRoiHeight(riverCli);
-  createMaskAndBbox(riverCli);
-  getQuiver(riverCli);
-  getResultData(riverCli);
-  getImages();
-  getBathimetry();
-  setProjectMetadata();
-  setControlPoints(riverCli);
-  calculate3dRectification(riverCli);
-
-  getPoints();
-  getIpcamImages();
-  getDistances();
-  saveTransformationMatrix();
   saveReportHtml();
+  saveTransformationMatrix();
+  setColorbarLimits();
+  setControlPoints(riverCli);
+  setPixelSize(riverCli);
+  setProjectMetadata();
+  setSections();
 });

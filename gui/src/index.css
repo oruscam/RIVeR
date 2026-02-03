@@ -495,10 +495,10 @@ input:checked + .slider:before {
 }
 
 .button-with-loader:disabled{
-  background-color: var(--background-color);
-  color: var(--disabled-button);
-  border-color: var(--disabled-button);
-  transform: translateY(0px);
+  background-color: var(--input-background);
+  color: var(--background-color);
+  border-color: black;
+  cursor: default;
 }
 
 .hidden{

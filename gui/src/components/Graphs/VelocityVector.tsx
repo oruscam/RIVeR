@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useMemo } from 'react';
 import './graphs.css';
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import * as d3 from 'd3';
 import { drawVectors } from './index';
 import { Section } from '../../store/section/types';
-import { getGlobalMagnitudes } from '../../helpers/drawVectorsFunctions';
+import { getGlobalMagnitudes } from '../../helpers/drawArrows';
 import { OverlayLayers } from '../OverlaySvg';
 
 interface VelocityVectorProps {
