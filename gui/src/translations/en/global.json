@@ -117,7 +117,9 @@
             "rwLength": "The value of CS Length can not be 0 in {{section_name}}"
         },
         "warning": "Are you sure you want to delete {{section_name}}?",
-        "warningTitle": "Delete Section"
+        "warningTitle": "Delete Section",
+        "mask": "Mask",
+        "addMask": "Add Mask"
     },
     "Processing": {
         "title": "Processing",
@@ -144,8 +146,7 @@
         "Plot": {
             "u" : "U Component",
             "v" : "V Component"
-        },
-        "mask": "Mask"
+        }
     },
     "Analizing": {
         "title": "Analizing",

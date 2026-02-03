@@ -116,7 +116,9 @@
             "rwLength": "Der Wert der Querschnittslänge darf in {{section_name}} nicht null sein"
         },
         "warning": "Sind Sie sicher, dass Sie {{section_name}} löschen möchten?",
-        "warningTitle": "Abschnitt löschen"
+        "warningTitle": "Abschnitt löschen",
+        "mask": "Maske",
+        "addMask": "Maske hinzufügen"
     },
     "Processing": {
         "title": "Verarbeitung",

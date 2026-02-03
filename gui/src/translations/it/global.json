@@ -118,7 +118,9 @@
             "rwLength": "Il valore della lunghezza della sezione non può essere 0 in {{section_name}}"
         },
         "warning": "Sei sicuro di voler eliminare {{section_name}}?",
-        "warningTitle": "Elimina Sezione"
+        "warningTitle": "Elimina Sezione",
+        "mask": "Maschera",
+        "addMask": "Aggiungi Maschera"
     },
     "Processing": {
         "title": "Elaborazione",

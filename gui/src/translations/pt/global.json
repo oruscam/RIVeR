@@ -117,7 +117,9 @@
             "rwLength": "O valor do comprimento da seção não pode ser 0 em {{section_name}}"
         },
         "warning": "Tem certeza de que deseja excluir {{section_name}}?",
-        "warningTitle": "Excluir Seção"
+        "warningTitle": "Excluir Seção",
+        "mask": "Máscara",
+        "addMask": "Adicionar Máscara"
     },
     "Processing": {
         "title": "Processamento",

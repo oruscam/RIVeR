@@ -133,7 +133,6 @@ export const PROJECT_CONFIG: ProjectConfig = {
   pythonPath: VITE_DEV_SERVER_URL ? path.join(app.getAppPath(), '..' , 'venv', 'bin', 'python') : path.join(app.getAppPath(), '..', 'river-cli', 'python', 'bin', 'python'),
 };
 
-console.log('python path:', PROJECT_CONFIG.pythonPath);
 
 // General window dialog to confirm deletes.
 ipcMain.handle('delete-confirmation', async (_event, args) => {
