@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useDataSlice, useProjectSlice } from "../../../hooks"
+import { useTranslation } from "react-i18next";
 
 export const ExportMp4 = () => {
+    const { t } = useTranslation();
     const { onExportGif, colorbarLimits, onSetManualColorbarLimits } = useDataSlice();
     const { video } = useProjectSlice();
     const { width, height, fps } = video.data;
@@ -70,7 +72,7 @@ export const ExportMp4 = () => {
         <>
             <h2 className="mt-2">Create MP4</h2>
             <div className="input-container-2 mt-2">
-                <label className="read-only me-1" htmlFor=""> Resolution </label>
+                <label className="read-only me-1" htmlFor=""> {t("Report.Form.resolution")} </label>
                 <select
                     className="input-field input-field-select"
                     id="resolution-gif"
@@ -82,10 +84,10 @@ export const ExportMp4 = () => {
                 </select>
             </div>
             <div className="simple-input-container">
-                <label id="colorbar-label"> Colorbar Limits </label>
+                <label id="colorbar-label"> {t("Report.Form.colorbarLimits")} </label>
             </div>
             <div className="input-container-2 mt-1">
-                <label className="read-only me-2">Min</label>
+                <label className="read-only me-2">{t("Report.Form.minLimit")}</label>
                 <input
                     className="input-field"
                     id="min"
@@ -98,7 +100,7 @@ export const ExportMp4 = () => {
                 />
             </div>
             <div className="input-container-2 mt-1">
-                <label className="read-only me-2"> Max </label>
+                <label className="read-only me-2"> {t("Report.Form.maxLimit")} </label>
                 <input
                     className="input-field"
                     id="max"
@@ -111,7 +113,7 @@ export const ExportMp4 = () => {
                 />
             </div>
             <button className={`mt-2 button-with-loader form-button ${isCreatingGif ? 'button-with-loader-active' : ''}`} type="button" disabled={!isPosibleToCreateGif()} onClick={onClickExportGif}>
-                <p className="button-name"> Export MP4 </p>
+                <p className="button-name"> {t("Report.Form.export")} </p>
                 {isCreatingGif && <span className="loader-little"></span>}
             </button>
         </>
