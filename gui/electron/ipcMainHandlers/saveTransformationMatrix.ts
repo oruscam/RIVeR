@@ -1,13 +1,13 @@
 import { ipcMain } from 'electron';
-import { ProjectConfig } from './interfaces';
 import { createMatrix } from './utils/createMatrix';
 import * as fs from 'fs';
+import { PROJECT_CONFIG } from '../main';
 
 // This function is only used in ipcam mode, because is the only mode that transformation matrix is created in front
 // and not in the backend. This is because the transformation matrix change if the level of bathimetry change.
 // In terms of velocity, is the best option, because we can change the transformation matrix in the front and see the results.
 
-function saveTransformationMatrix(PROJECT_CONFIG: ProjectConfig) {
+function saveTransformationMatrix() {
   ipcMain.handle('save-transformation-matrix', async (_event, args?) => {
     const { settingsPath } = PROJECT_CONFIG;
     const { transformationMatrix } = args;
