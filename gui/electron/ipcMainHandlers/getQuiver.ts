@@ -6,7 +6,6 @@ import { clearResultsPiv } from './utils/clearResultsPiv';
 import { clearCrossSections } from './utils/clearCrossSections';
 import { PROJECT_CONFIG } from '../main';
 import { ProjectConfig } from './interfaces';
-import { saveUserMasks } from './utils/saveUserMasks';
 
 async function getQuiver(riverCli: Function) {
   ipcMain.handle('get-quiver-test', async (_event, args) => {

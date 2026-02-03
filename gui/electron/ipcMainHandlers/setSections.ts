@@ -33,7 +33,8 @@ export function setSections() {
       ]);
 
       if (userMasks) {
-        await saveUserMasks(settingsPath, userMasks);
+        console.log('Saving user masks...');
+        await saveUserMasks(userMasks);
       }
 
       return 'Sections saved';

@@ -118,7 +118,9 @@
             "rwLength": "La longueur de la section ne peut pas être 0 pour {{section_name}}"
         },
         "warning": "Êtes-vous sûr de vouloir supprimer {{section_name}} ?",
-        "warningTitle": "Supprimer la Section"
+        "warningTitle": "Supprimer la Section",
+        "mask": "Masque",
+        "addMask": "Ajouter un Masque"
     },
     "Processing": {
         "title": "Traitement",
