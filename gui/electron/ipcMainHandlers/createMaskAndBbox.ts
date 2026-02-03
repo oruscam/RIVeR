@@ -1,11 +1,11 @@
 import { ipcMain } from 'electron';
-import { ProjectConfig } from './interfaces';
 import * as fs from 'fs';
 import * as path from 'node:path';
 import { clearCrossSections } from './utils/clearCrossSections';
 import { clearResultsPiv } from './utils/clearResultsPiv';
+import { PROJECT_CONFIG } from '../main';
 
-async function createMaskAndBbox(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
+async function createMaskAndBbox(riverCli: Function) {
   ipcMain.handle('create-mask-and-bbox', async (_event, args) => {
     const { projectDirectory, xsectionsPath, matrixPath, resultsPath, settingsPath, logsPath, firstFrame } =
       PROJECT_CONFIG;
