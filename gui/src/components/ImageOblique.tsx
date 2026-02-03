@@ -1,119 +1,74 @@
-import useImage from 'use-image';
-import { useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
-import { Image, Layer, Stage } from 'react-konva';
-
-import { getRelativePointerPosition, imageZoom } from '../helpers/konvaActions';
-import { KonvaEventObject } from 'konva/lib/Node';
-import { useEffect, useState } from 'react';
-import { Point } from '../types';
-import { ObliquePointsLines, Points } from './index';
+import { useImageZoomPan, useObliqueSlice, useProjectSlice, useUiSlice } from "../hooks"
+import { DrawOblique } from "./DrawOblique";
+import { OverlaySvg } from "./OverlaySvg";
 
 export const ImageOblique = () => {
-  const { coordinates, drawPoints, onSetCoordinatesCanvas, onChangeCoordinates } = useObliqueSlice();
-  const { screenSizes } = useUiSlice();
-  const { imageWidth, imageHeight, factor } = screenSizes;
+    const { firstFramePath } = useProjectSlice();
+    const { screenSizes } = useUiSlice();
+    const { imageWidth, imageHeight, factor } = screenSizes;
+    const { isDefaultCoordinates } = useObliqueSlice();
 
-  const { firstFramePath } = useProjectSlice();
+    const {
+        scale,
+        position,
+        handleWheel,
+        handleMouseDown,
+        handleMouseMove,
+        handleMouseUp,
+        handleDragStart,
+    } = useImageZoomPan({
+        containerWidth: imageWidth!,
+        containerHeight: imageHeight!,
+        minScale: 1,
+        maxScale: 10,
+        zoomSpeed: 0.0005,
+        enableKeyboardNav: true,
+        keyboardStep: 25,
+    });
 
-  const [image] = useImage(firstFramePath);
+    return (
+        <div 
+            className="image-with-data-container"
+            style={{
+                width: imageWidth,
+                height: imageHeight,
+                position: "relative",
+                overflow: "hidden",
+            }}
+            onWheel={isDefaultCoordinates ? undefined : handleWheel}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onDragStart={handleDragStart}
+            >
+            <div
+                style={{
+                    transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                    transformOrigin: "50% 50%",
+                    willChange: "transform",
+                }}
+            >
+                <img
+                    src={firstFramePath}
+                    className="simple-image"
+                    draggable={false}
+                    onDragStart={handleDragStart}
+                    style={{ display: "block", userSelect: "none", pointerEvents: "none" }}
+                />
 
-  const [localPoints, setLocalPoints] = useState<Point[]>(coordinates);
-  const [resizeFactor, setResizeFactor] = useState(1);
-
-  const [mousePresed, setMousePresed] = useState(false);
-
-  // Set the first point of the square
-
-  const handleOnMouseDown = (event: KonvaEventObject<MouseEvent>) => {
-    if (localPoints[0].x !== 0 || drawPoints === false) return;
-    setMousePresed(true);
-    const stage = event.target.getStage();
-    const pointerPosition = getRelativePointerPosition(stage);
-
-    const newPoints = [...localPoints];
-    newPoints[0] = pointerPosition;
-    newPoints[1] = pointerPosition;
-
-    setLocalPoints(newPoints);
-  };
-
-  const handleOnMouseMove = (event: KonvaEventObject<MouseEvent>) => {
-    if (localPoints[0].x === 0 || drawPoints === false || mousePresed === false) return;
-
-    const stage = event.target.getStage();
-    const pointerPosition = getRelativePointerPosition(stage);
-
-    const newPoints = [...localPoints];
-    newPoints[1] = pointerPosition;
-
-    setLocalPoints(newPoints);
-  };
-
-  const handleOnMouseUp = (event: KonvaEventObject<MouseEvent>) => {
-    if (localPoints[0].x === 0 || drawPoints === false || mousePresed === false) return;
-    setMousePresed(false);
-
-    const stage = event.target.getStage();
-    const pointerPosition = getRelativePointerPosition(stage);
-
-    const newPoints = [...localPoints];
-    newPoints[1] = pointerPosition;
-
-    setLocalPoints(newPoints);
-    onSetCoordinatesCanvas(newPoints, screenSizes);
-  };
-
-  const handleOnWheel = (event: KonvaEventObject<WheelEvent>) => {
-    imageZoom(event, setResizeFactor, localPoints.length === 4);
-  };
-
-  useEffect(() => {
-    if (coordinates.length !== 0) {
-      const newPoints = coordinates.map((point) => {
-        return {
-          x: point.x / factor!,
-          y: point.y / factor!,
-        };
-      });
-      setLocalPoints(newPoints);
-    } else {
-      setLocalPoints([]);
-    }
-  }, [coordinates, factor]);
-
-  return (
-    <Stage
-      width={imageWidth}
-      height={imageHeight}
-      onMouseDown={handleOnMouseDown}
-      onMouseUp={handleOnMouseUp}
-      onMouseMove={handleOnMouseMove}
-      onWheel={handleOnWheel}
-      className="image-with-marks"
-    >
-      <Layer>
-        <Image image={image} width={imageWidth} height={imageHeight} />
-
-        <ObliquePointsLines localPoints={localPoints} resizeFactor={resizeFactor} mousePresed={mousePresed} />
-
-        {/* 
-            
-                If mousePresed is true, means that the user is dragging the mouse to set the second point of the square
-                In this case, only can show the first point seted.
-                When the user up the mouse button, the second point is set in the store and the square is drawed
-
-            */}
-
-        <Points
-          localPoints={mousePresed ? [localPoints[0]] : localPoints}
-          setPointsInStore={onChangeCoordinates}
-          setLocalPoints={setLocalPoints}
-          draggable={true}
-          factor={factor}
-          resizeFactor={resizeFactor}
-          module="oblique"
-        />
-      </Layer>
-    </Stage>
-  );
-};
+            </div>
+            <OverlaySvg width={imageWidth!} height={imageHeight!} scale={scale} position={position}>
+                {(layers) => (
+                    <DrawOblique
+                        width={imageWidth!}
+                        height={imageHeight!}
+                        factor={factor!}
+                        scale={scale}
+                        position={position}
+                        layers={layers}
+                    />
+                )}
+            </OverlaySvg>
+        </div>
+    )
+}

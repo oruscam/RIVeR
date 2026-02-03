@@ -5,7 +5,6 @@ import {
   VideoRange,
   CrossSections,
   Processing,
-  Analize,
   Results,
   Uav,
   Ipcam,
@@ -78,7 +77,6 @@ export const App: React.FC = () => {
         {isLoading ? <Loading /> : getStep4()}
         {isLoading ? <Loading /> : <CrossSections />}
         {isLoading ? <Loading /> : <Processing />}
-        {isLoading ? <Loading /> : <Analize />}
         {isLoading ? <Loading /> : <Results />}
         <Report />
       </Wizard>

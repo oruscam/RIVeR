@@ -28,10 +28,9 @@ import {
   createMaskAndBbox,
   recommendRoiHeight,
   getGif,
+  setColorbarLimits
 } from './ipcMainHandlers/index.js';
-import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
-import { setColorbarLimits } from './ipcMainHandlers/setColorbarLimits.js';
 
 process.env.APP_ROOT = path.join(__dirname, '..');
 
@@ -44,7 +43,7 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 
 let win: BrowserWindow | null;
 
-let riverCli: Function;
+let riverCli: Function = executeRiverCli;
 
 async function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -85,21 +84,12 @@ async function createWindow() {
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
     
-    // If you want to use gui with Python shell, uncomment the next line
-    // and comment the next line with riverCli.
-    // This will use the Python shell to execute RIVeR commands.
-    // This is useful for development purposes, but not recommended for production.
-    
-    riverCli = executePythonShell;
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'));
-        
-    riverCli = executeRiverCli;
     
     // Remove menu bar
     win.setMenu(null);
-
   }
 }
 
@@ -142,8 +132,9 @@ export const PROJECT_CONFIG: ProjectConfig = {
   firstFrame: '',
   defaultFilesPath: '',
   filePrefix: filePrefix,
-  pythonPath: VITE_DEV_SERVER_URL ? path.join(app.getAppPath(), 'river-cli', 'python', 'bin', 'python') : path.join(app.getAppPath(), '..', 'river-cli', 'python', 'bin', 'python'),
+  pythonPath: VITE_DEV_SERVER_URL ? path.join(app.getAppPath(), '..' , 'venv', 'bin', 'python') : path.join(app.getAppPath(), '..', 'river-cli', 'python', 'bin', 'python'),
 };
+
 
 // General window dialog to confirm deletes.
 ipcMain.handle('delete-confirmation', async (_event, args) => {
@@ -160,26 +151,27 @@ ipcMain.handle('delete-confirmation', async (_event, args) => {
 });
 
 app.whenReady().then(() => {
+  calculate3dRectification(riverCli);
+  createMaskAndBbox(riverCli);
   createWindow();
+  firstFrame(riverCli);
+  getBathimetry();
+  getDistances();
+  getGif();
+  getImages();
+  getIpcamImages();
+  getPoints();
+  getQuiver(riverCli);
+  getResultData(riverCli);
   getVideo();
   initProject();
   loadProject();
-  firstFrame(riverCli);
-  setPixelSize(riverCli);
-  setSections();
   recommendRoiHeight(riverCli);
-  createMaskAndBbox(riverCli);
-  getQuiver(riverCli);
-  getResultData(riverCli);
-  getImages();
-  getBathimetry();
-  setProjectMetadata();
-  setControlPoints(riverCli);
-  calculate3dRectification(riverCli);
-
-  getPoints();
-  getIpcamImages();
-  getDistances();
-  saveTransformationMatrix();
   saveReportHtml();
+  saveTransformationMatrix();
+  setColorbarLimits();
+  setControlPoints(riverCli);
+  setPixelSize(riverCli);
+  setProjectMetadata();
+  setSections();
 });

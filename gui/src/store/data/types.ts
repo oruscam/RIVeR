@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+import { Point } from "../../types";
+=======
 import { Quiver } from "../../../commons/types";
+>>>>>>> 3.4.0
 
 interface FormProcessing {
   artificialSeeding: boolean;
@@ -20,6 +24,8 @@ interface Processing {
   parImages: string[];
   maskPath: string;
   bbox?: number[];
+  masks: Point[][];
+  activeMaskIndex: number | null;
 }
 
 interface Images {

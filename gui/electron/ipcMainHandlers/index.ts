@@ -22,15 +22,16 @@ import { getResultData } from './getResultData';
 import { recommendRoiHeight } from './recommendRoiHeight';
 import { saveReportHtml } from './saveReportHtml';
 import { getGif } from './getGif';
+import { setColorbarLimits } from './setColorbarLimits';
 
 export {
   calculate3dRectification,
   createFolderStructure,
   createMaskAndBbox,
-  getGif,
   firstFrame,
   getBathimetry,
   getDistances,
+  getGif,
   getImages,
   getIpcamImages,
   getPoints,
@@ -44,6 +45,7 @@ export {
   recommendRoiHeight,
   saveReportHtml,
   saveTransformationMatrix,
+  setColorbarLimits,
   setControlPoints,
   setPixelSize,
   setProjectMetadata,

@@ -1,3 +1,4 @@
+
 import { useUiSlice } from './useUiSlice';
 import { useSectionSlice } from './useSectionSlice';
 import { useProjectSlice } from './useProjectSlice';
@@ -6,10 +7,12 @@ import { useUavSlice } from './useUavSlice';
 import { useObliqueSlice } from './useObliqueSlice';
 import { useGlobalSlice } from './useGlobalSlice';
 import { useIpcamSlice } from './useIpcamSlice';
+import { useImageZoomPan } from './useImageZoomPan';
 
 export {
   useDataSlice,
   useGlobalSlice,
+  useImageZoomPan,
   useIpcamSlice,
   useUavSlice,
   useObliqueSlice,

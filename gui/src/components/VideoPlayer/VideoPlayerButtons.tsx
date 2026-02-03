@@ -1,4 +1,4 @@
-import { Icon } from '../Icon.tsx';
+import { Icon } from '../index.ts';
 import { previous, next, play, pause } from '../../assets/icons/icons.ts';
 import { useProjectSlice } from '../../hooks/useProjectSlice.ts';
 

@@ -11,6 +11,7 @@ import { FormHeader } from '../components/Forms/Components/FormHeader.js';
 import { useTranslation } from 'react-i18next';
 import { ButtonLock } from '../components/ButtonLock.js';
 import { Point } from '../types/index.js';
+import { ImageUavNew } from '../components/ImageUavNew.js';
 
 const createDefaultState = (dirPoints: Point[], rwPoints: Point[], rwLength: number, size: number) => {
    const defaultValues = {
@@ -41,8 +42,7 @@ export const Uav = () => {
     onUpdatePixelSize
   } = useUavSlice();
   const { t } = useTranslation();
-  const { isBackendWorking } = useGlobalSlice();
-  
+  const { isBackendWorking } = useGlobalSlice();  
 
   // * Estado inicial del formulario
   const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size) });
@@ -75,7 +75,7 @@ export const Uav = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageUav/>
+        <ImageUavNew/>
         <Error />
       </div>
       <div className='form-container'>
