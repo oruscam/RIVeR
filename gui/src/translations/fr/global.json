@@ -211,7 +211,12 @@
             "unitSistem": "Système d'Unités",
             "SI": "Métrique",
             "imperial": "Impérial",
-            "date": "Date de la mesure"
+            "date": "Date de la mesure",
+            "resolution": "Résolution",
+            "colorbarLimits": "Limites de la Barre de Couleur",
+            "minLimit": "Min",
+            "maxLimit": "Max",
+            "export": "Exporter MP4"
         },
         "pixelTransformation": "Transformation de Pixel",
         "processingParameters" : "Paramètres de Traitement",
