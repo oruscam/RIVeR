@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { COLORS, MARKS } from "../../constants/constants";
-import { getPositionSectionText } from "../../helpers";
 import { pinGreen, pinRed, pin } from "../../assets/icons/icons";
+import { getPositionSectionText } from "../../../commons/sectionTextPosition";
 
 type Point = { x: number; y: number };
 

@@ -390,7 +390,8 @@ export const useDataSlice = () => {
       dispatch(updateMask(null))
       return
     }
-    dispatch(updateMask({index}))
+    dispatch(updateMask({index}));
+  }
 
   const onSetManualColorbarLimits = (min: number, max: number, refresh: boolean) => {
     if (refresh){
@@ -435,7 +436,6 @@ export const useDataSlice = () => {
         message: 'Error creating gif'
       }
     }
-
   }
 
   return {

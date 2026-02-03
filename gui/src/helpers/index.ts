@@ -61,8 +61,6 @@ export {
   getOrthoImageDimensions,
   getPointNames,
   getPointsDistances,
-  getPositionSectionText,
-  getRelativePointerPosition,
   getUnit,
   getValidationRules,
   getVelocityLimits,
