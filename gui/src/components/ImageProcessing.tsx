@@ -1,16 +1,17 @@
 import { useMemo, useRef } from "react";
 import { useDataSlice, useImageZoomPan, useProjectSlice, useSectionSlice, useUiSlice } from "../hooks";
-import { getQuiverValues, QuiverData } from "../helpers/drawVectorsFunctions";
 import { ColorBar } from "./ColorBar";
 import { WindowSizesNew } from "./WindowSizesNew";
 import { Quiver } from "./Quiver";
 import { DrawSectionsD3 } from "./CrossSections/DrawSectionsD3";
 import { OverlaySvg } from "./OverlaySvg";
+import { QuiverData } from "../../commons/types";
+import { getQuiverValues } from "../../commons/vectors";
 
 export const ImageProcessing = ({ showMedian } :  { showMedian?:  boolean }) => {
     const { screenSizes } = useUiSlice();
     const { video } = useProjectSlice();
-    const { processing, images, quiver } = useDataSlice();
+    const { processing, images, quiver, colorbarLimits } = useDataSlice();
     const { transformationMatrix } = useSectionSlice();
     const {
         imageWidth:  width,
@@ -44,20 +45,26 @@ export const ImageProcessing = ({ showMedian } :  { showMedian?:  boolean }) => 
     const realFactor = vertical ?  factorReduced : factor;
 
     const { data, min, max } = useMemo(() => {
+
         if ( quiver === null ){
-            prevRef.current = {activeImage: images.active, data: [], min: 0, max:  0};
-            return { data: [], min: 0, max: 0 };
+        prevRef.current = {activeImage: images.active, data: [], min: 0, max: 0};
+        return { data: [], min: 0, max: 0 };
+        }
+        if (prevRef.current.activeImage !== images.active && quiver.test) {
+        prevRef.current.activeImage = images.active;
+        return { data: [], min: 0, max: 0 };
         }
 
-        if (prevRef.current.activeImage !== images.active && quiver.test === true) {
-            prevRef. current. activeImage = images.active;
-            return { data: [], min: 0, max: 0 };
-        }
-
-        const { data, min, max } = getQuiverValues(quiver, showMedian as boolean, images.active, parameters. step, videoData. fps, transformationMatrix);
+        const { data, min, max } = getQuiverValues(quiver, showMedian as boolean, images.active, parameters.step, videoData.fps, transformationMatrix);
         prevRef.current = {activeImage: images.active, data, min, max};
+
+        if (colorbarLimits.default === false) {
+        return { data, min: colorbarLimits.min!, max: colorbarLimits.max! };
+        }
+
         return { data, min, max };
-    }, [quiver, images.active, showMedian]);
+
+    }, [quiver, images.active, showMedian, colorbarLimits.default]);
 
     const { isDragging, scale, position } = useImageZoomPan({
         containerWidth: realWidth!,
