@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, screen, shell } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, screen } from 'electron';
 import { fileURLToPath } from 'node:url';
 import * as path from 'node:path';
 import * as os from 'os';
@@ -27,10 +27,10 @@ import {
   getResultData,
   createMaskAndBbox,
   recommendRoiHeight,
+  getGif,
+  setColorbarLimits
 } from './ipcMainHandlers/index.js';
-import { executePythonShell } from './ipcMainHandlers/utils/executePythonShell.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
-import { exec } from 'node:child_process';
 
 process.env.APP_ROOT = path.join(__dirname, '..');
 
@@ -43,7 +43,7 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 
 let win: BrowserWindow | null;
 
-let riverCli: Function;
+let riverCli: Function = executeRiverCli;
 
 async function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -83,19 +83,11 @@ async function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
-
-    // If you want to use gui with Python shell, uncomment the next line
-    // and comment the next line with riverCli.
-    // This will use the Python shell to execute RIVeR commands.
-    // This is useful for development purposes, but not recommended for production.
-
-    riverCli = executePythonShell;
+    
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'));
-
-    riverCli = executeRiverCli;
-
+    
     // Remove menu bar
     win.setMenu(null);
   }
@@ -124,7 +116,7 @@ if (filePrefix === undefined) {
   filePrefix = '';
 }
 
-const PROJECT_CONFIG: ProjectConfig = {
+export const PROJECT_CONFIG: ProjectConfig = {
   mainDirectory: path.join(userDir, 'River'),
   projectDirectory: '',
   type: '',
@@ -140,10 +132,12 @@ const PROJECT_CONFIG: ProjectConfig = {
   firstFrame: '',
   defaultFilesPath: '',
   filePrefix: filePrefix,
+  pythonPath: VITE_DEV_SERVER_URL ? path.join(app.getAppPath(), '..' , 'venv', 'bin', 'python') : path.join(app.getAppPath(), '..', 'river-cli', 'python', 'bin', 'python'),
 };
 
+
 // General window dialog to confirm deletes.
-ipcMain.handle('delete-confirmation', async (event, args) => {
+ipcMain.handle('delete-confirmation', async (_event, args) => {
   const { message, title } = args;
   const { response } = await dialog.showMessageBox({
     type: 'warning',
@@ -157,26 +151,27 @@ ipcMain.handle('delete-confirmation', async (event, args) => {
 });
 
 app.whenReady().then(() => {
+  calculate3dRectification(riverCli);
+  createMaskAndBbox(riverCli);
   createWindow();
-  getVideo(PROJECT_CONFIG);
-  initProject(PROJECT_CONFIG);
-  loadProject(PROJECT_CONFIG);
-  firstFrame(PROJECT_CONFIG, riverCli);
-  setPixelSize(PROJECT_CONFIG, riverCli);
-  setSections(PROJECT_CONFIG);
-  recommendRoiHeight(PROJECT_CONFIG, riverCli);
-  createMaskAndBbox(PROJECT_CONFIG, riverCli);
-  getQuiver(PROJECT_CONFIG, riverCli);
-  getResultData(PROJECT_CONFIG, riverCli);
-  getImages(PROJECT_CONFIG);
-  getBathimetry(PROJECT_CONFIG);
-  setProjectMetadata(PROJECT_CONFIG);
-  setControlPoints(PROJECT_CONFIG, riverCli);
-  calculate3dRectification(PROJECT_CONFIG, riverCli);
-
-  getPoints(PROJECT_CONFIG);
-  getIpcamImages(PROJECT_CONFIG);
-  getDistances(PROJECT_CONFIG);
-  saveTransformationMatrix(PROJECT_CONFIG);
-  saveReportHtml(PROJECT_CONFIG);
+  firstFrame(riverCli);
+  getBathimetry();
+  getDistances();
+  getGif();
+  getImages();
+  getIpcamImages();
+  getPoints();
+  getQuiver(riverCli);
+  getResultData(riverCli);
+  getVideo();
+  initProject();
+  loadProject();
+  recommendRoiHeight(riverCli);
+  saveReportHtml();
+  saveTransformationMatrix();
+  setColorbarLimits();
+  setControlPoints(riverCli);
+  setPixelSize(riverCli);
+  setProjectMetadata();
+  setSections();
 });

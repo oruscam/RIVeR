@@ -116,7 +116,9 @@
             "rwLength": "Der Wert der Querschnittslänge darf in {{section_name}} nicht null sein"
         },
         "warning": "Sind Sie sicher, dass Sie {{section_name}} löschen möchten?",
-        "warningTitle": "Abschnitt löschen"
+        "warningTitle": "Abschnitt löschen",
+        "mask": "Maske",
+        "addMask": "Maske hinzufügen"
     },
     "Processing": {
         "title": "Verarbeitung",
@@ -125,13 +127,15 @@
         "step1": "Schritt 1",
         "step2": "Schritt 2",
         "test": "Test",
+        "analize": "Analysieren",
+        "stop": "Stopp",
         "roiHeight": "ROI-Höhe",
         "preProcessingFilter": "Vorverarbeitungsfilter",
         "grayscale": "Graustufen",
         "removeBackground": "Hintergrund Entfernen",
         "clahe": "CLAHE",
         "clipLimit": "Clipping-Grenze",
-        "postProcessingFilter": "Nachbearbeitungsfilter",
+        "processingSettings": "Nachbearbeitungsfilter",
         "stdFiltering": "Standardabweichungsfilter",
         "medianTestFiltering": "Median-Testfilter",
         "epsilon": "Epsilon",
@@ -205,7 +209,12 @@
             "unitSistem": "Einheitensystem",
             "SI": "SI",
             "imperial": "Imperial",
-            "date": "Messdatum"
+            "date": "Messdatum",
+            "resolution": "Auflösung",
+            "colorbarLimits": "Colorbar Grenzen",
+            "minLimit": "Min",
+            "maxLimit": "Max",
+            "export": "Export MP4"
         },
         "pixelTransformation": "Pixeltransformation",
         "processingParameters": "Verarbeitungsparameter",

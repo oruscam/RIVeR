@@ -7,7 +7,6 @@ import { obliqueSvg } from './obliqueSvg';
 import { createPinsBase64 } from './createPinsBase64';
 import { ipcamSvg } from './ipcamSvg';
 import { TestPlot } from './TestPlot';
-import { drawSvgSectionLine } from './drawSvgSectionLine';
 import { OrthoImage } from './OrthoImage';
 import { scaleBar } from './scaleBar';
 import { drawQuiver } from './drawQuiver';
@@ -17,7 +16,6 @@ export {
   Bathimetry,
   createPinsBase64,
   drawQuiver,
-  drawSvgSectionLine,
   drawVectors,
   ipcamSvg,
   obliqueSvg,

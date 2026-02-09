@@ -15,9 +15,13 @@ import {
   setDataLoaded,
   setImages,
   setDefaultDataState,
+  addMask,
+  deleteMask,
+  updateMask,
+  setColorbarLimits,
 } from '../store/data/dataSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
-import { setSectionData, setSummary } from '../store/section/sectionSlice';
+import { setHasChanged, setSectionData, setSummary } from '../store/section/sectionSlice';
 import { CliError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
 import { verifyWindowsSizes } from '../helpers';
@@ -28,10 +32,10 @@ import { verifyWindowsSizes } from '../helpers';
 
 export const useDataSlice = () => {
   const dispatch = useDispatch();
-  const { processing, images, quiver, isBackendWorking, isDataLoaded, hasChanged } = useSelector(
+  const { processing, images, quiver, isBackendWorking, isDataLoaded, hasChanged, colorbarLimits } = useSelector(
     (state: RootState) => state.data
   );
-  const { sections, activeSection } = useSelector((state: RootState) => state.section);
+  const { sections, activeSection, transformationMatrix } = useSelector((state: RootState) => state.section);
   const { video } = useSelector((state: RootState) => state.project);
 
   const { t } = useTranslation();
@@ -54,6 +58,7 @@ export const useDataSlice = () => {
     step1?: number;
     step2?: number;
     heightRoi?: number;
+    showMask?: boolean;
   }
 
   /**
@@ -202,7 +207,7 @@ export const useDataSlice = () => {
     const environment = process.env.NODE_ENV;
 
     const handler = environment === 'development' ? 'kill-river-cli' : 'kill-river-cli';
-
+    
     try {
       await ipcRenderer.invoke(handler);
       dispatch(setBackendWorking(false));
@@ -320,6 +325,8 @@ export const useDataSlice = () => {
       const { maskPath, bbox, error } = await ipcRenderer.invoke('create-mask-and-bbox', {
         height_roi: value,
         data: isDataLoaded,
+        user_masks: processing.masks,
+        is_roi_calulation: true
       });
 
       if (error?.message) {
@@ -352,24 +359,111 @@ export const useDataSlice = () => {
     dispatch(setDefaultDataState());
   };
 
+  const onAddMask = () => {
+    const { data, parameters } = video
+    const { width, height } = data
+    const { factor } = parameters
+
+    // Triangle points
+    const points = [
+      { x: (width * factor) / 2, y: (height * factor) / 2 - (height * factor) * 0.1 },
+      { x: (width * factor) / 2 - (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1},
+      { x:  (width * factor) / 2 + (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1},
+    ];
+
+    dispatch(setHasChanged({ value: true }));
+    dispatch(addMask(points));
+  }
+
+  const onDeleteMask = (index: number) => {
+    dispatch(setHasChanged({ value: true }));
+    dispatch(deleteMask(index));
+  }
+
+  const onUpdateMaskPoints = (maskIndex: number, points: { x: number; y: number }[]) => {
+    dispatch(setHasChanged({ value: true }));
+    dispatch(updateMask({index: maskIndex, points}));
+  }
+
+  const onUpdateActiveMask = (index: number) => {
+    if ( index === processing.activeMaskIndex ){
+      dispatch(updateMask(null))
+      return
+    }
+    dispatch(updateMask({index}));
+  }
+
+  const onSetManualColorbarLimits = (min: number, max: number, refresh: boolean) => {
+    if (refresh){
+      window.ipcRenderer.invoke('set-colorbar-limits', { min: null, max: null });
+      dispatch(setColorbarLimits({ min: null, max: null, default: true }));
+    } else {
+      window.ipcRenderer.invoke('set-colorbar-limits', { min: min, max: max });
+      dispatch(setColorbarLimits({ min: min, max: max, default: false }));
+    }
+  }
+
+  interface ExportGifParams {
+    image: { width: number; height: number };
+    factor: number;
+    fps: number;
+    step: number;
+    colorbarLimits: { min: number; max: number };
+  }
+
+  const onExportGif = async ({image, factor, fps, step, colorbarLimits} : ExportGifParams) => {
+    // dispatch(setBackendWorking(true));
+    const ipcRenderer = window.ipcRenderer;
+
+    try {
+      const { time, path } = await ipcRenderer.invoke('get-gif', {
+        image,
+        quiver,
+        factor,
+        fps,
+        sections,
+        transformationMatrix,
+        step,
+        colorbarLimits
+      })
+      // dispatch(setBackendWorking(false));
+
+      return { time, path };
+
+    } catch (error) {
+      console.log(error);
+      return {
+        message: 'Error creating gif'
+      }
+    }
+  }
+
   return {
     // ATRIBUTES
     isBackendWorking,
     images,
     processing,
     quiver,
+    colorbarLimits,
+    
 
     // METHODS
+    onAddMask,
     onClearQuiver,
+    onDeleteMask,
+    onExportGif,
     onGetResultData,
     onKillBackend,
     onReCalculateMask,
-    onSetDefaultDataState,
     onSetActiveImage,
     onSetAnalizing,
+    onSetDefaultDataState,
     onSetImages,
+    onSetManualColorbarLimits,
     onSetQuiverAll,
     onSetQuiverTest,
+    onUpdateActiveMask,
+    onUpdateMaskPoints,
     onUpdateProcessing,
   };
 };

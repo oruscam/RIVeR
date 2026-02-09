@@ -2,7 +2,8 @@ import { Line, Text } from 'react-konva';
 import { useWizard } from 'react-use-wizard';
 import { useSectionSlice, useUiSlice } from '../hooks';
 import { COLORS, MODULE_NUMBER } from '../constants/constants';
-import { getPositionSectionText } from '../helpers';
+import { getPositionSectionText } from '../../commons/sectionTextPosition';
+
 
 interface LineAndTextProps {
   localPoints?: { x: number; y: number }[];

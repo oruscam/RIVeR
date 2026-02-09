@@ -9,8 +9,8 @@ import {
   getImageSize,
   getPointsDistances,
   setChangesByForm,
-  transformPixelToRealWorld,
 } from '../helpers';
+import { transformPixelToRealWorld } from '../../commons/coordinates';
 import { resetAll, setHasChanged, setIsBackendWorking } from '../store/global/globalSlice';
 import { setDrawPoints, setExtraFields, setObliquePoints } from '../store/oblique/obliqueSlice';
 import { defaultCoordinates, defaultDistances } from '../store/oblique/types';
@@ -67,6 +67,7 @@ export const useObliqueSlice = () => {
   // Method to handle changes in coordinates from a canvas point input
   // It adjusts the coordinates and updates the oblique state
   const onChangeCoordinates = (canvasPoint: CanvasPoint | null, formPoint: FormPoint) => {
+    console.log('onChangeCoordinates called with:', { canvasPoint, formPoint });
     if (canvasPoint) {
       // Destructure points and factor from the canvasPoint input
       const { points, factor } = canvasPoint;

@@ -1,32 +1,60 @@
-.form-container{
-    min-width: 400px;
-    width: 29%;
-    height: 98vh;
-    background-color: var(--secondary-background-color);
-    border-radius: 1rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    overflow-y: hidden;
-    overflow-x: hidden;
-    flex-shrink: 0;
-    position: relative;
-    overflow-y: none;
-}
-
-.form-container.drag-over {
-    border: 3px dashed white;
-}
-
-
-/* Cambiar dependiendo el tamaño de la pantalla */
 .form-title{
     margin-top: 6vh;
 }
 
-.form-title-analizing{
-    margin-top: 8vh;
+.form-container{
+    position: relative;
+    min-width: 400px;
+    width: 29%;
+    height: 98%;
+    background-color: var(--secondary-background-color);
+    border-radius: 1rem;
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    flex-shrink: 0;
+}
+
+.form-container .header{
+    width: 100%;
+    height: auto;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.form-container .body{
+    align-self: center;
+    width: 98%;
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.form-container .footer{
+    width: 100%;
+    height: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--secondary-background-color);
+    margin-top: auto;
+}
+
+.form-container.drag-over {
+    border: 3px dashed white;
 }
 
 .read-only{
@@ -41,7 +69,7 @@
     height: 50px;
     word-wrap: break-word;
     font-size: auto;
-    white-space: nowrap; /* Asegura que el texto se mantenga en una sola línea */
+    white-space: nowrap; 
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 0;
@@ -59,7 +87,7 @@
     height: 50px;
     word-wrap: break-word;
     font-size: auto;
-    white-space: nowrap; /* Asegura que el texto se mantenga en una sola línea */
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 0;
@@ -72,10 +100,11 @@
 }
 
 .form-video-extra-info{
-    display: flex;
     flex-direction: column;
-    width: auto;
-    width: 350px;
+    margin-top: 40px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .form-video-extra-info-row{
@@ -109,7 +138,6 @@
     overflow-x: hidden;
 }
 
-
 .btn-lock-container{
     width: 100%;
     display: flex;
@@ -118,13 +146,11 @@
     height: 40px;
 }
     
-    
 .form-subtitle{
     font-weight: 400;
     margin-left: 70px;
     align-self: flex-start;
 }
-
 
 .field-title{
     font-weight: 400;
@@ -136,12 +162,7 @@
     }
 }
 
-/* button lock */
-
 .btn-lock {
-    top: calc(90% - 32px);
-    left: calc(90% - 32px);
-    display: inline-block;
     width: 64px;
     height: 64px;
     box-sizing: border-box;
@@ -149,45 +170,43 @@
     border-radius: 50%;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
-  }
-
+}
 
 .btn-lock svg {
-fill: none;
-transform: translate3d(0, 0, 0);
+    fill: none;
+    transform: translate3d(0, 0, 0);
 }
 
 .btn-lock svg .bling {
-stroke: #fff;
-stroke-width: 2.5;
-stroke-linecap: round;
-stroke-dasharray: 3;
-stroke-dashoffset: 15;
-transition: all 0.3s ease;
+    stroke: #fff;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-dasharray: 3;
+    stroke-dashoffset: 15;
+    transition: all 0.3s ease;
 }
 
 .btn-lock svg .lock {
-stroke: #fff;
-stroke-width: 4;
-stroke-linejoin: round;
-stroke-linecap: round;
-stroke-dasharray: 36;
-transition: all 0.4s ease;
+    stroke: #fff;
+    stroke-width: 4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    stroke-dasharray: 36;
+    transition: all 0.4s ease;
 }
 
 .btn-lock svg .lockb {
-fill: #fff;
-fill-rule: evenodd;
-clip-rule: evenodd;
-transform: rotate(8deg);
-transform-origin: 14px 20px;
-transition: all 0.2s ease;
+    fill: #fff;
+    fill-rule: evenodd;
+    clip-rule: evenodd;
+    transform: rotate(8deg);
+    transform-origin: 14px 20px;
+    transition: all 0.2s ease;
 }
 
 #inpLock {
 display: none;
 }
-
 
 #inpLock:checked + label svg {
 opacity: 1;
@@ -217,7 +236,7 @@ transform-origin: 14px 22px;
 100% {
     stroke-dasharray: 3;
     stroke-dashoffset: 9;
-}
+    }
 }
 
 @keyframes locked {
@@ -225,25 +244,6 @@ transform-origin: 14px 22px;
     transform: translateY(1px);
     }
 }
-
-.analizing-container{
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    width: 70%;
-    height: 100%;
-
-}
-
-
-#stop-analize{
-    position: relative;
-    width: 100px;
-    align-self: center;
-    margin-top: auto;
-    margin-bottom: 20px;
-}
-
 
 #result-info{
     display: flex;
@@ -262,57 +262,13 @@ transform-origin: 14px 22px;
     margin-bottom: 3px;
 }
 
-#form-result{
-    width: 100%;
-    height: 96%;
-    padding-top: 20px;
-    padding-bottom: 10px;
-    overflow-y: scroll;
-    display: flex;
-    flex-direction: column;
-}
-
-
-/* ** Refactor de estilos  a partir de aca */
-
-.form-scroll{
-    width: 99%;
-    height: 100%;
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
-.form-scroll.disabled{
-    opacity: 0.5; /* Reduce la opacidad para indicar que está deshabilitado */
-    pointer-events: none; /* Evita la interacción con los elementos dentro del contenedor */
-    cursor: not-allowed; /* Cambia el cursor para indicar que no está permitido */
-}
-
-.form-base-2{
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    align-items: center;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
 .video-resolution{
+    margin-top: 3vh;
     width: auto;
-    margin-top: 40vh;
-    padding-bottom: 55vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-}
-
-@media screen and (max-height : 650px) {
-    .video-resolution{
-        margin-top: 30vh;
-        padding-bottom: 30vh;
-    }
-    
+    transition: opacity 0.3s ease-in-out, transform 0.3s ease-in-out;
 }
 
 .input-container-2{
@@ -329,11 +285,6 @@ transform-origin: 14px 22px;
     margin-left: 82px;
 }
 
-.space-1{
-    height: 300px;
-    width: 100%;
-}
-
 .hidden{
     display: none;
 }
@@ -346,73 +297,26 @@ transform-origin: 14px 22px;
     flex-direction: column;
 }
 
-.input-container{
-    grid-column: 1 / -1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-left: auto;
-    margin-right: auto;
-}
-
 .switch-container{
     display: flex;
     justify-content: space-between;
 }
 
-.switch-container-2{
+.switch-container-results{
     display: flex;
     justify-content: space-between;
     width: 65%;
     margin-left: auto;
     margin-right: auto;
-
 }
-
-
-#form-section-div{
-    height: 70%;
-    width: 100%;
-}
-
-@media screen and (max-height : 885px) {
-    #form-section-div{
-        height: 65%;
-    }
-}
-
-@media screen and (max-height : 825px) {
-    #form-section-div{
-        height: 63%;
-    }
-}
-
-@media screen and (max-height : 775px) {
-    #form-section-div{
-        height: 57%;
-    }   
-}
-
-#analize-message{
-    font-size: 1.2rem;
-}
-
 
 .input-field-select {
     flex-shrink: 0;
-    appearance: none; /* Elimina el estilo nativo del select */
-    /* La imagen SVG es una flecha hacia abajo, ajusta la posición según sea necesario */
+    appearance: none;
   }
   
 .input-field-select::-ms-expand {
-    display: none; /* Oculta la flecha en IE */
-  }
-
-#form-analizing{
-    display: flex;
-    flex-direction: column;
-    margin-top: 4vh;
-
+    display: none;
 }
 
 .all-in-one-container{
@@ -428,7 +332,8 @@ transform-origin: 14px 22px;
 .simple-input-container{
     display: flex;
     flex-direction: column;
-    width: 60%;
+    width: 80%;
+    max-width: 450px;
     margin-top: 3vh;
     color: var(--primary-text-color);
 }
@@ -479,14 +384,6 @@ transform-origin: 14px 22px;
     height: 25px;
 }
 
-#last-settings-form-field-date{
-    font-size: 17px;
-}
-
-#last-settings-form-field-date::-webkit-calendar-picker-indicator {
-    filter: invert(100%);
-}
-
 #D12{
     border-color: var(--d12);
     border: solid 3px var(--d12);
@@ -511,7 +408,7 @@ transform-origin: 14px 22px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 95%;
+    width: 100%;
     height: 200px;
     margin-top: 4vh;
 }
@@ -542,28 +439,86 @@ transform-origin: 14px 22px;
 }
 
 #ortho-image-solution{
-    width: 100%;
+    width: 96%;
     height: auto;
     flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-right: 5%;
+    margin-right: 2%;
 }
-
 
 .drop-here-text{
-    margin-top: 15px;
+    margin: 8px auto; 
     font-size: 1.15rem;
-    width: 65%;
+    width: 75%;
     color: var(--secondary-text-color);
     transition: all 0.5s ease;
-}
+}   
 
-.drop-here-text.disabled{
+.drop-here-text.disabled {
     opacity: 0;
     height: 0px;
     margin: 0px;
     overflow: hidden;
     margin-top: 0px;
+}
+
+.wrapper{
+    width: 100%;
+    max-width: 700px;
+}
+
+.disabled{
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed; 
+}
+
+.form-report{
+    display: flex;
+    flex-direction: column;                                                                     
+    align-items: center;
+    width: 100%;                                                                                                    
+}
+
+.spacer-div{
+    min-width: 165px;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    padding-right: 8px;
+}
+
+.add-mask-icon{
+    width: 40px;
+    height: 40px;
+}
+
+.divider-line{
+    width: 100%;
+    height: 1px;
+    background-color: white;
+    align-self: center;
+}
+
+.mask-actions{
+    display: flex;
+    justify-content: space-between;
+    align-content: space-between;
+    width: 120px;
+}
+
+.trash-icon{
+    height: 100%;
+    width: auto;
+
+}
+
+.trash-icon:hover{
+    cursor: pointer;
+}
+
+.trash-icon:active{
+    transform: scale(1.1);
 }

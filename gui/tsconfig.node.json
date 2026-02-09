@@ -11,5 +11,5 @@
     "isolatedModules": true,
     "skipLibCheck": true
   },
-  "include": ["electron"]
+  "include": ["electron", "commons"]
 }

@@ -6,7 +6,7 @@ export const HardModeOblique = ({extraFields} : {extraFields: boolean}) => {
     const { onChangeCoordinates, onChangeRealWorldCoordinates} = useObliqueSlice()
 
     return (
-        <div className={extraFields ? '' : 'hidden'}>
+        <div className={extraFields ? 'mt-2' : 'hidden'}>
             <RealWorldCoordinates step={3} onSetRealWorld={onChangeRealWorldCoordinates}/>
             <PixelCoordinates step={3} onSetDirPoints={onChangeCoordinates}/>
             <span id="span-footer"/>

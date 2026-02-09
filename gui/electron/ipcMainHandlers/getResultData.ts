@@ -1,8 +1,8 @@
 import { ipcMain } from 'electron';
-import { ProjectConfig } from './interfaces';
 import * as fs from 'fs';
 import { transformData } from './utils/transformCrossSectionsData';
 import { platform } from 'os';
+import { PROJECT_CONFIG } from '../main';
 
 let encoding: BufferEncoding = 'utf-8';
 
@@ -10,7 +10,7 @@ if (platform() === 'win32') {
   encoding = 'latin1';
 }
 
-async function getResultData(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
+async function getResultData(riverCli: Function) {
   ipcMain.handle('get-results-single', async (_event, args) => {
     const {
       step,

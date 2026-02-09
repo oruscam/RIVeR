@@ -1,12 +1,9 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { useDataSlice, useSectionSlice, useUiSlice } from '../hooks';
-import { Sections } from './CrossSections';
-import { SectionsHeader } from './SectionsHeader';
+import { useSectionSlice } from '../hooks';
 import { FormResults } from './Forms';
 import { Section } from '../store/section/types';
 import { useEffect } from 'react';
 import { useWizard } from 'react-use-wizard';
-import { useTranslation } from 'react-i18next';
 
 const createInitialState = (sections: Section[]) => {
   let defaultValues = {};
@@ -36,17 +33,12 @@ export const Results = () => {
   const section = sections[activeSection];
   const methods = useForm({ defaultValues: createInitialState(sections) });
 
-  const { t } = useTranslation();
-  const { isBackendWorking, onGetResultData } = useDataSlice();
-  const { onSetErrorMessage } = useUiSlice();
+  console.log(sections[activeSection])
+
   const { nextStep } = useWizard();
 
   const onSubmit = () => {
     nextStep();
-  };
-
-  const handleOnClickApplyChanges = () => {
-    onGetResultData('single').catch((error) => onSetErrorMessage(error.message));
   };
 
   useEffect(() => {
@@ -54,25 +46,14 @@ export const Results = () => {
   }, [section, methods, sections]);
 
   return (
-    <>
-      <SectionsHeader title={t('Results.title')} />
-      <Sections canEdit={false} />
+    <div className='body'>
       <FormProvider {...methods}>
         {sections.map((section, index: number) => {
           return (
-            <FormResults key={section.name} index={index} onSubmit={methods.handleSubmit(onSubmit)}></FormResults>
+            <FormResults key={section.name} index={index} onSubmit={methods.handleSubmit(onSubmit)}/>
           );
         })}
       </FormProvider>
-      <button
-        className={`wizard-button form-button mt-1 ${isBackendWorking ? 'wizard-button-active' : ''}`}
-        onClick={handleOnClickApplyChanges}
-        id="apply-changes"
-        type="button"
-      >
-        {' '}
-        {t('Results.applyChanges')}
-      </button>
-    </>
+    </div>
   );
 };

@@ -8,6 +8,7 @@ import '../../index.css';
 import { SuccessfulMessage } from '../Report';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
+import { ExportMp4 } from './Components';
 
 export const FormReport = ({
   isReportSaved,
@@ -85,75 +86,86 @@ export const FormReport = ({
     goToStep(0);
   };
 
+  useEffect(() => {
+    if(isReportSaved){
+      const id = document.getElementById('successful-message');
+      console.log('id', id);
+      if(id){
+        id.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [isReportSaved]);
+
   return (
-    <>
-      <h1 className="form-title"> {t('Report.Summary.title')} </h1>
-      <form className="form-base-2">
-        <div className="simple-input-container">
-          <label>{t('Report.Form.riverName')}</label>
-          <input
-            type="text"
-            required
-            {...register('riverName')}
-            id="river-name"
-            onBlur={onHandleDataChange}
-            onKeyDown={onHandleDataChange}
-          />
-        </div>
-
-        <div className="simple-input-container">
-          <label> {t('Report.Form.riverLocation')} </label>
-          <input
-            type="text"
-            required
-            {...register('site')}
-            id="river-site"
-            onBlur={onHandleDataChange}
-            onKeyDown={onHandleDataChange}
-          />
-        </div>
-
-        <div className="simple-input-container">
-          <label id="label-unit-sistem"> {t('Report.Form.unitSistem')} </label>
-
-          <div className="last-settings-form-field-radio">
-            <label> {t('Report.Form.SI')} </label>
+    <div className='body'>
+      <form className='form-report'>
+          <div className="simple-input-container">
+            <label>{t('Report.Form.riverName')}</label>
             <input
-              type="radio"
-              value="si"
-              {...register('unitSistem')}
-              id="river-medition-si"
-              onChange={handleRadioChange}
+              type="text"
+              required
+              {...register('riverName')}
+              id="river-name"
+              onBlur={onHandleDataChange}
+              onKeyDown={onHandleDataChange}
             />
           </div>
 
-          <div className="last-settings-form-field-radio">
-            <label> {t('Report.Form.imperial')} </label>
+          <div className="simple-input-container">
+            <label> {t('Report.Form.riverLocation')} </label>
             <input
-              type="radio"
-              value="imperial"
-              {...register('unitSistem')}
-              id="river-medition-imperial"
-              onChange={handleRadioChange}
+              type="text"
+              required
+              {...register('site')}
+              id="river-site"
+              onBlur={onHandleDataChange}
+              onKeyDown={onHandleDataChange}
             />
           </div>
-        </div>
 
-        <div className="simple-input-container">
-          <label> {t('Report.Form.date')} </label>
-          <DatePicker
-            selected={meditionDate}
-            onChange={(date) => setMeditionDate(date ?? new Date())}
-            maxDate={today}
-            dateFormat="dd/MM/yyyy HH:mm"
-            showTimeSelect
-            timeFormat="HH:mm"
-            timeIntervals={15}
-          />
-        </div>
+          <div className="simple-input-container">
+            <label id="label-unit-sistem"> {t('Report.Form.unitSistem')} </label>
 
-        {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
+            <div className="last-settings-form-field-radio">
+              <label> {t('Report.Form.SI')} </label>
+              <input
+                type="radio"
+                value="si"
+                {...register('unitSistem')}
+                id="river-medition-si"
+                onChange={handleRadioChange}
+              />
+            </div>
+
+            <div className="last-settings-form-field-radio">
+              <label> {t('Report.Form.imperial')} </label>
+              <input
+                type="radio"
+                value="imperial"
+                {...register('unitSistem')}
+                id="river-medition-imperial"
+                onChange={handleRadioChange}
+              />
+            </div>
+          </div>
+
+          <div className="simple-input-container">
+            <label> {t('Report.Form.date')} </label>
+            <DatePicker
+              selected={meditionDate}
+              onChange={(date) => setMeditionDate(date ?? new Date())}
+              maxDate={today}
+              dateFormat="dd/MM/yyyy HH:mm"
+              showTimeSelect
+              timeFormat="HH:mm"
+              timeIntervals={15}
+            />
+          </div>
+
+          <ExportMp4 />
+
+          {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
       </form>
-    </>
+    </div>
   );
 };

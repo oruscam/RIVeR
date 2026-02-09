@@ -5,13 +5,11 @@ import {
   VideoRange,
   CrossSections,
   Processing,
-  Analize,
   Results,
   Uav,
   Ipcam,
   Oblique,
 } from './pages/index';
-import './App.css';
 import { useEffect } from 'react';
 import { Loading } from './components';
 import { Report } from './pages/Report';
@@ -79,7 +77,6 @@ export const App: React.FC = () => {
         {isLoading ? <Loading /> : getStep4()}
         {isLoading ? <Loading /> : <CrossSections />}
         {isLoading ? <Loading /> : <Processing />}
-        {isLoading ? <Loading /> : <Analize />}
         {isLoading ? <Loading /> : <Results />}
         <Report />
       </Wizard>

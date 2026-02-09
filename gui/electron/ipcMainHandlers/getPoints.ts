@@ -2,11 +2,11 @@ import { dialog, ipcMain } from 'electron';
 import { readFile, utils, set_fs, writeFile } from 'xlsx';
 import * as fs from 'fs';
 import { EXTENSIONS } from './utils/validateFile';
-import { ProjectConfig } from './interfaces';
+import { PROJECT_CONFIG } from '../main';
 
 set_fs(fs);
 
-async function getPoints(PROJECT_CONFIG: ProjectConfig) {
+async function getPoints() {
   const options: Electron.OpenDialogOptions = {
     properties: ['openFile'],
     filters: [

@@ -9,12 +9,11 @@ import './form.css';
 import { formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
 import { VideoMetadata, FramesResolution } from './Components/index';
-import { ButtonLock } from '../ButtonLock';
 
-export const FormVideo = ({ duration }: { duration: number }) => {
-  const { onSetVideoParameters, video: videoData, type } = useProjectSlice();
+export const FormVideo = ({ duration, extraFields }: { duration: number, extraFields: boolean }) => {
+  const { onSetVideoParameters, video: videoData} = useProjectSlice();
   const { startTime, endTime, step } = videoData.parameters;
-  const [extraFields, setExtraFields] = useState(false);
+  
   const { fps } = videoData.data;
 
   const { handleSubmit, register, setValue, getValues, watch } = useForm({
@@ -116,30 +115,29 @@ export const FormVideo = ({ duration }: { duration: number }) => {
     setVideo(document.getElementById('video') as HTMLVideoElement);
   }, [watchStep]);
 
-  return (
-    <>
-      <h1 className="form-title">{t('VideoRange.title')}</h1>
-      <form onSubmit={handleSubmit(onSubmit, onError)} id="form-video" className="form-scroll mt-2">
-        <div className="form-base-2">
-          <div className="input-container-2 mt-2">
+
+  return (      
+      <div className='body'>
+        <form onSubmit={handleSubmit(onSubmit, onError)} id='form-video'>
+          <div className='input-container-2 mt-2'>
             <button
-              type="button"
-              onClick={handleClick}
-              className="wizard-button form-button me-1"
-              id="start-button"
-            >
-              {' '}
-              {t('VideoRange.start')}
-            </button>
-            <input
-              className="input-field"
-              defaultValue="00:00"
-              id="start"
-              type="text"
-              {...register('start', validationRules.start)}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-            />
+               type="button"
+               onClick={handleClick}
+               className="wizard-button form-button me-1"
+               id="start-button"
+             >
+               {' '}
+               {t('VideoRange.start')}
+             </button>
+             <input
+               className="input-field"
+               defaultValue="00:00"
+               id="start"
+               type="text"
+               {...register('start', validationRules.start)}
+               onBlur={handleBlur}
+               onKeyDown={handleKeyDown}
+             />
           </div>
           <div className="input-container-2 mt-1">
             <button type="button" className="wizard-button form-button me-1" onClick={handleClick} id="end-button">
@@ -167,31 +165,11 @@ export const FormVideo = ({ duration }: { duration: number }) => {
               {...register('step', validationRules.step)}
             />
           </div>
-          <div className="form-video-extra-info-row mt-1 frames-info">
-            <p>{t('VideoRange.ExtraInfo.timeBetweenFrame')}</p>
-            <p>{timeBetweenFrames}ms</p>
-          </div>
-          <div className="form-video-extra-info-row frames-info">
-            <p>{t('VideoRange.ExtraInfo.numberOfFrames')}</p>
-            <p>{numberOfFrames > 0 ? numberOfFrames : 0}</p>
-          </div>
-
-          <VideoMetadata />
-
-          <FramesResolution active={extraFields} />
-        </div>
-      </form>
-      {
-        type !== "ipcam" && (
-          <ButtonLock
-            localExtraFields={extraFields}
-            localSetExtraFields={setExtraFields}
-            disabled={false}
-            headerElementID="start"
-            footerElementID="video-resolution"
-          />
-        )
-      }
-    </>
-  );
+          <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
+          {
+            extraFields && <FramesResolution active={extraFields} />
+          }
+        </form>
+      </div>      
+  )
 };

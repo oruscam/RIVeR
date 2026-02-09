@@ -1,9 +1,9 @@
 import { dialog, ipcMain } from 'electron';
 import * as fs from 'fs';
 import { extname, join } from 'path';
-import { ProjectConfig } from './interfaces';
+import { PROJECT_CONFIG } from '../main';
 
-function getIpcamImages(PROJECT_CONFIG: ProjectConfig) {
+function getIpcamImages() {
   const options: Electron.OpenDialogOptions = {
     properties: ['openDirectory'],
   };
