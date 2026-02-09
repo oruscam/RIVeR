@@ -1,9 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import * as d3 from 'd3';
 import './components.css';
 import { useDataSlice } from '../hooks';
-import { QuiverData } from '../helpers/drawVectorsFunctions';
+import { QuiverData } from '../../commons/types';
 import { drawQuiver } from './Graphs/drawQuiver';
+import { OverlayLayers } from './OverlaySvg';
 
 interface QuiverProps {
   width: number;
@@ -11,22 +12,23 @@ interface QuiverProps {
   factor: number;
   data: QuiverData[];
   showMedian?: boolean;
+  layers: OverlayLayers
 }
 
-export const Quiver = ({ width, height, factor, data, showMedian }: QuiverProps) => {
-  const svgRef = useRef(null);
+export const Quiver = ({ factor, data, showMedian, layers }: QuiverProps) => {
   const { images, quiver } = useDataSlice();
 
+  const { quiverLayerRef } = layers;
+
   useEffect(() => {
-    const svg = d3.select(svgRef.current);
+    if (!quiverLayerRef.current) return;
+    const quiverLayerSel = d3.select(quiverLayerRef.current);
 
-    svg.selectAll('*').remove(); 
-    svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
-
+    quiverLayerSel.selectAll('*').remove(); 
     if (quiver === null ) return;
     
-    drawQuiver(svg, data, factor);
-    }, [quiver, images.active, factor, showMedian]);
+    drawQuiver(quiverLayerSel as any, data, factor);
+  }, [quiver, images.active, factor, showMedian, quiverLayerRef]);
 
-  return <svg ref={svgRef} className="quiver" style={{ width: `${width}`, height: `${height}` }}></svg>;
-};  
+  return null;
+};

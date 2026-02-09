@@ -8,8 +8,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    z-index: 100;
-    pointer-events: none;
+    z-index: 9;
+    /* pointer-events: none; */
 }
 
 #svg-section-line{
@@ -54,3 +54,7 @@
     }
 }
 
+.bath-graph{
+    display: flex;
+    justify-content: center;
+}

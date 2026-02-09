@@ -2,9 +2,10 @@ import { useFormContext } from 'react-hook-form';
 import { useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
 import { TestPlot } from '../../Graphs';
+import { WINDOW_SIZES } from '../../../constants/constants';
 
-export const HardModeProcessing = ({ active }: { active: boolean }) => {
-  const { register } = useFormContext();
+export const HardModeProcessing = ({ active, showMedian }: { active: boolean, showMedian: boolean }) => {
+  const { register, reset } = useFormContext();
   const { processing, onUpdateProcessing, onReCalculateMask } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
@@ -30,11 +31,19 @@ export const HardModeProcessing = ({ active }: { active: boolean }) => {
     }
   };
 
+  const handleOnChangeSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = parseInt(event.target.value);
+    onUpdateProcessing({ step1: value });
+    reset({ step_1: value, step_2: value / 2 });
+  };
+
   return (
     <div className={`hard-mode-processing mt-5 ${active ? '' : 'hidden'}`} id="processing-footer">
-      {quiver?.test && <TestPlot />}
+      {quiver && <TestPlot showMedian={showMedian}/>}
 
-      <div className="input-container-2 mb-2 mt-1">
+      <span className='divider-line mt-2'/>
+
+      <div className="input-container-2 mt-2">
         <label className="read-only me-1">{t('Processing.roiHeight')}</label>
         <input
           className="input-field"
@@ -44,7 +53,9 @@ export const HardModeProcessing = ({ active }: { active: boolean }) => {
         ></input>
       </div>
 
-      <h2 className="field-title mb-1"> {t('Processing.preProcessingFilter')}</h2>
+      <span className='divider-line mt-2'/>
+
+      <h2 className="field-title mb-1 mt-2"> {t('Processing.preProcessingFilter')}</h2>
 
       <div className="switch-container mt-1">
         <h3 className="field-title"> {t('Processing.removeBackground')} </h3>
@@ -82,8 +93,10 @@ export const HardModeProcessing = ({ active }: { active: boolean }) => {
           onChange={(event) => onUpdateProcessing({ clipLimit: event.currentTarget.value })}
         ></input>
       </div>
+      
+      <span className='divider-line mt-2'/>
 
-      <h2 className="field-title mt-2"> {t('Processing.postProcessingFilter')} </h2>
+      <h2 className="field-title mt-2"> {t('Processing.processingSettings')} </h2>
 
       <div className="switch-container mt-1">
         <h3 className="field-title"> {t('Processing.stdFiltering')} </h3>
@@ -145,8 +158,33 @@ export const HardModeProcessing = ({ active }: { active: boolean }) => {
           }
         />
       </div>
+      
+      <h2 className="field-title mt-2"> {t('Processing.windowSizes')} </h2>
 
+      <div className='switch-container mt-1'>
+        <h3 className='field-title'> {t('Processing.step1')} </h3>
+        <select
+          className='input-field-little input-field-select'
+          id='processing-STEP_1'
+          {...register('step_1')}
+          onChange={handleOnChangeSelect}
+        >
+          <option value="512">{WINDOW_SIZES.BIG}</option>
+          <option value="256">{WINDOW_SIZES.MEDIUM}</option>
+          <option value="128">{WINDOW_SIZES.SMALL}</option>
+          <option value="64">{WINDOW_SIZES.TINY}</option>
+        </select>
+      </div>
 
+      <div className="switch-container mt-1" id='bottom-step-2'>
+        <h3 className='field-title'> {t('Processing.step2')} </h3>
+        <input
+          className="input-field-little"
+          id="processing-STEP_2"
+          readOnly
+          {...register('step_2')}
+        ></input>
+      </div>
     </div>
   );
 };

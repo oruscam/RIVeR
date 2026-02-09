@@ -25,6 +25,8 @@ import {
 } from '../store/section/sectionSlice';
 import { MODULE_NUMBER } from '../constants/constants';
 import {
+  setColorbarLimits,
+  loadMasks,
   setDataLoaded,
   setDefaultDataState,
   setImages,
@@ -297,6 +299,19 @@ export const useProjectSlice = () => {
         // Load first frame
         if (firstFrame !== '') {
           dispatch(setFirstFramePath(filePrefix + firstFrame));
+        }
+
+        if(settings.colorbar_limits){
+          const { min, max } = settings.colorbar_limits;
+          dispatch(setColorbarLimits({
+            min: settings.colorbar_limits.min,
+            max: settings.colorbar_limits.max,
+            default: min !== null && max !== null ? false : true,
+          }))
+        }
+
+        if (settings.user_masks) {
+          dispatch(loadMasks(settings.user_masks));
         }
 
         dispatch(setLoading(false));

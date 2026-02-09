@@ -26,21 +26,18 @@ import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import {
   adapterCrossSections,
-  computePixelSize,
   getBathimetryValues,
   getDirectionVector,
   getIntersectionPoints,
   getNewCanvasPositions,
   setChangesByForm,
-  transformPixelToRealWorld,
-  transformRealWorldToPixel,
 } from '../helpers';
 import { setProcessingMask, setQuiver, updateProcessingForm } from '../store/data/dataSlice';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS } from '../constants/constants';
 import { CanvasPoint, FormPoint, onGetBathimetryTypes, Point } from '../types';
-import { getTransformationFromCameraMatrix } from '../helpers/coordinates';
 import { ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
+import { transformPixelToRealWorld, transformRealWorldToPixel, computePixelSize, getTransformationFromCameraMatrix} from '../../commons/coordinates';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -124,6 +121,10 @@ export const useSectionSlice = () => {
         flag1 = false;
         flag2 = false;
         dispatch(setDirPoints(newPoints as Point[]));
+        dispatch(updateSection({
+          ...sections[activeSection],
+          drawLine: false
+        }))
       } else {
         dispatch(setDirPoints(newPoints as Point[]));
       }
@@ -332,6 +333,8 @@ export const useSectionSlice = () => {
 
     dispatch(updateSectionsCounter(sections.length));
     const data = adapterCrossSections(updatedSection);
+    const { masks } = processing
+    
 
     /**
      * The sections are stored in the section slice.
@@ -342,7 +345,7 @@ export const useSectionSlice = () => {
      */
 
     try {
-      await ipcRenderer.invoke('set-sections', { data });
+      await ipcRenderer.invoke('set-sections', { data, userMasks: masks });
       dispatch(setMessage(t('Loader.maskAndRoi')));
       const { height_roi } = await ipcRenderer.invoke(
         'recommend-roi-height',
@@ -351,8 +354,9 @@ export const useSectionSlice = () => {
       const { maskPath, bbox } = await ipcRenderer.invoke('create-mask-and-bbox', {
         height_roi: height_roi,
         data: false,
+        user_masks: masks,
+        is_roi_calulation: false
       });
-      1;
       dispatch(updateProcessingForm({ ...processing.form, heightRoi: height_roi }));
       dispatch(setProcessingMask({ mask: filePrefix + maskPath, bbox }));
       dispatch(setQuiver({ quiver: null }));
@@ -729,7 +733,6 @@ export const useSectionSlice = () => {
         { x: par2[0], y: par2[1] },
       ];
     }
-
     dispatch(setSectionPoints({ points: sectionPoints, index }));
   };
 

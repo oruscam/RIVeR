@@ -20,7 +20,12 @@
       "from": "ffmpeg",
       "to": "ffmpeg",
       "filter": ["**/*"]
-    }
+    },
+    {
+      "from": "commons/logo.png",
+      "to": "logo.png",
+      "filter": ["**/*"]
+    },
   ],
   "mac": {
     "target": [

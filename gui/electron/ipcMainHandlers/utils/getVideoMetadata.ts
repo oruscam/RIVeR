@@ -1,39 +1,13 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const ffmpeg = require('fluent-ffmpeg');
-import { app } from 'electron';
 import { FFProbeData, Metadata } from '../interfaces';
 import path from 'path';
-import os from 'os';
+import { getFFMPEG } from './getFFMPEG';
 
-const plataform = os.platform();
+const { ffmpegPath, ffprobePath } = getFFMPEG();
 
-if (import.meta.env.VITE_DEV_SERVER_URL) {
-  const ffmpegPath = import.meta.env.VITE_FFMPEG_PATH;
-  const ffprobePath = import.meta.env.VITE_FFPROBE_PATH;
-
-  if (ffmpegPath && ffprobePath) {
-    ffmpeg.setFfmpegPath(import.meta.env.VITE_FFMPEG_PATH);
-    ffmpeg.setFfprobePath(import.meta.env.VITE_FFPROBE_PATH);
-  }
-} else {
-  /**
-   * Constructs the path to the `ffprobe.exe` executable.
-   *
-   * @constant {string} ffprobePath - The path to the `ffprobe.exe` executable,
-   * located in the `ffmpeg/bin` directory relative to the application's root path.
-   */
-  let ffmpegPath = '';
-  let ffprobePath = '';
-
-  if (plataform === 'win32') {
-    ffmpegPath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffmpeg.exe');
-    ffprobePath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffprobe.exe');
-  } else if (plataform === 'linux' || plataform === 'darwin') {
-    ffmpegPath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffmpeg');
-    ffprobePath = path.join(app.getAppPath(), '..', 'ffmpeg', 'bin', 'ffprobe');
-  }
-
+if (ffmpegPath && ffprobePath) {
   ffmpeg.setFfmpegPath(ffmpegPath);
   ffmpeg.setFfprobePath(ffprobePath);
 }

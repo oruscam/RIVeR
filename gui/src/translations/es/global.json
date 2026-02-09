@@ -117,7 +117,9 @@
             "rwLength": "La longitud de la Sección no puede ser 0 para {{section_name}}"
         },
         "warning": "¿Está seguro que desea eliminar {{section_name}}?",
-        "warningTitle": "Eliminar Sección"
+        "warningTitle": "Eliminar Sección",
+        "mask": "Máscara",
+        "addMask": "Agregar Máscara"
     },
     "Processing": {
         "title": "Procesamiento",
@@ -126,13 +128,15 @@
         "step1": "Paso 1",
         "step2": "Paso 2",
         "test": "Chequear",
+        "analize": "Analizar",
+        "stop": "Detener",
         "roiHeight": "Altura RDI",
         "preProcessingFilter": "Filtro de Preprocesamiento",
         "grayscale": "Escala de Grises",
         "removeBackground": "Quitar el Fondo",
         "clahe": "CLAHE",
         "clipLimit": "Límite de Clip",
-        "postProcessingFilter": "Filtro de Posprocesamiento",
+        "processingSettings": "Configuración de Procesamiento",
         "stdFiltering": "Filtro Desv. Est.",
         "medianTestFiltering": "Prueba de Filtro de Mediana",
         "epsilon": "Epsilon",
@@ -206,7 +210,12 @@
             "unitSistem": "Sistema de Unidades",
             "SI": "Métrico",
             "imperial": "Imperial",
-            "date": "Fecha de Medición"
+            "date": "Fecha de Medición",
+            "resolution": "Resolución",
+            "colorbarLimits": "Límites de la Barra de Color",
+            "minLimit": "Min",
+            "maxLimit": "Max",
+            "export": "Exportar MP4"
         },
         "pixelTransformation": "Transformación de Píxel",
         "processingParameters": "Parámetros de Procesamiento",

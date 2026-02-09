@@ -2,43 +2,38 @@ import { app, ipcMain, webContents } from 'electron';
 import { ChildProcess, spawn } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
+import { PROJECT_CONFIG } from '../../main';
 
 let python: ChildProcess;
-const DEV_SERVER = process.env.VITE_DEV_SERVER_URL;
 
 async function executeRiverCli(
   options: (string | number)[],
   _mode: 'json' | 'text' = 'json',
-  output: boolean = false,
+  output:  boolean = false,
   logFile: string
 ): Promise<{ data: any; error: any }> {
-  let riverCliPath: string;
-  if (DEV_SERVER) {
-    riverCliPath = path.join(app.getAppPath(), 'river-cli', 'river-cli');
-  } else {
-    riverCliPath = path.join(app.getAppPath(), '..', 'river-cli', 'river-cli');
-  }
-
+  
   const args = options.map((arg) => arg.toString());
+  args.unshift(...['-m', 'river.cli']);
 
-  console.log('you are using river-cli', riverCliPath);
-  console.log(options);
+  console.log('You are using river-cli', PROJECT_CONFIG.pythonPath);
+  console.log('Arguments: ', options)
 
   const result = await new Promise((resolve, reject) => {
-    python = spawn(riverCliPath, args);
+    python = spawn(PROJECT_CONFIG.pythonPath, args);
 
     let stdoutData = '';
     let stderrData = '';
+    
+    // Variables para throttling
+    let lastStderrMessage = '';
+    let lastSentTime = 0;
+    const THROTTLE_INTERVAL = 500; // 500ms = 2 mensajes por segundo
 
     python.stdout.on('data', (data) => {
       const message = data.toString();
 
       if (output) {
-        // This is because, when cli has user processing errors, like
-        // windows-size. Launches Processing message... and object {data, error}
-        //  stdout identifies two messages like one
-        //  We need to split the message and get the last one.
-
         const messages = message.split('\n').filter((msg) => msg.trim() !== '');
         stdoutData = messages[messages.length - 1];
       } else {
@@ -47,29 +42,45 @@ async function executeRiverCli(
     });
 
     python.stderr.on('data', (data) => {
-      const message = data.toString();
+      const message = data. toString();
       stderrData = message;
       console.log('stderr', message);
-      // Output
+      
+      // Guardar el último mensaje
+      lastStderrMessage = message;
+      
+      // Output con throttling
       if (output === true) {
-        webContents.getAllWebContents().forEach((contents) => {
-          contents.send('river-cli-message', message);
-        });
+        const currentTime = Date.now();
+        const timeSinceLastSent = currentTime - lastSentTime;
+        
+        if (timeSinceLastSent >= THROTTLE_INTERVAL) {
+          webContents.getAllWebContents().forEach((contents) => {
+            contents.send('river-cli-message', message);
+          });
+          lastSentTime = currentTime;
+        }
       }
     });
 
     python.on('close', async (code) => {
+      // Enviar el último mensaje antes de cerrar si no se envió
+      if (output === true && lastStderrMessage) {
+        webContents. getAllWebContents().forEach((contents) => {
+          contents.send('river-cli-message', lastStderrMessage);
+        });
+      }
+      
       if (code !== 0) {
         if (code === null) {
           resolve({
-            error: {
+            error:  {
               message: 'Process was killed',
             },
           });
           return;
         }
       } else {
-        console.log('river-cli process finished');
         resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, 'null')));
         await killRiverCli();
       }
@@ -84,7 +95,7 @@ async function executeRiverCli(
     });
   });
 
-  return result as { data: any; error: any };
+  return result as { data: any; error:  any };
 }
 
 async function killRiverCli() {

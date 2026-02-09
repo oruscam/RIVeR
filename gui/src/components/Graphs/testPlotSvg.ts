@@ -30,10 +30,6 @@ export const testPlotSvg = ({
   d3.select(svgElement).selectAll('*').remove();
   const svg = d3.select(svgElement);
 
-  console.log('quiver', quiver)
-
-  // return null
-
   // Get the width and height of the SVG element
   const width = +svg.attr('width');
   const height = +svg.attr('height');
@@ -53,10 +49,6 @@ export const testPlotSvg = ({
   let uMax = d3.max(u) ?? 0;
   let vMin = d3.min(v) ?? 0;
   let vMax = d3.max(v) ?? 0;
-
-  // Mean values
-  const uMean = d3.mean(u) ?? 0;
-  const vMean = d3.mean(v) ?? 0;
 
   // Adjust the min and max values with padding
   uMin -= padding * (uMax - uMin);

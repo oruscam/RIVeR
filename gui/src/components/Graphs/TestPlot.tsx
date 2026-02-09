@@ -4,10 +4,10 @@ import { GRAPHS } from '../../constants/constants';
 import { testPlotSvg } from './testPlotSvg';
 import { useTranslation } from 'react-i18next';
 
-export const TestPlot = () => {
+export const TestPlot = ({showMedian} : {showMedian: boolean}) => {
   const svgRef = useRef(null);
   const { screenSizes } = useUiSlice();
-  const { quiver } = useDataSlice();
+  const { quiver, images,  } = useDataSlice();
   const { t } = useTranslation();
 
   const { width: screenWidth } = screenSizes;
@@ -16,18 +16,19 @@ export const TestPlot = () => {
       ? screenWidth * GRAPHS.PLOT_TEST_PROPORTION
       : GRAPHS.MIN_WIDTH;
 
+
   useEffect(() => {
     if (quiver && svgRef.current) {
       testPlotSvg({
         svgElement: svgRef.current,
         quiver: {
-          u: quiver.u as number[], // In this point, always quiver.u is a flat array
-          v: quiver.v as number[], // In this point, always quiver.v is a flat array
+          u: quiver.test ? quiver.u as number[] : showMedian ? quiver.u_median as number[]: quiver.u[images.active] as number[],
+          v: quiver.test ? quiver.v as number[] : showMedian ? quiver.v_median as number[] : quiver.v[images.active] as number[],
         },
         t,
       });
     }
-  }, [quiver, graphWidth]);
+  }, [quiver, graphWidth, images.active, showMedian]);
 
   return (
     <div>{quiver && <svg ref={svgRef} width={graphWidth} height={graphWidth * 0.8} id="quiver-test-plot" />}</div>

@@ -3,27 +3,24 @@ import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
 import { useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../../hooks';
 import { HardModeUav } from './Components/index';
-import { FormChild } from '../../types';
 import { OrthoImage } from '../Graphs';
 
-export const FormUav = ({ onSubmit, onError }: FormChild) => {
+export const FormUav = ({onSubmit, onError}) => {
   const { t } = useTranslation();
   const {
     extraFields,
     dirPoints,
-    rwLength,
     drawLine,
     solution,
     onUpdatePixelSize,
   } = useUavSlice();
-  const { isBackendWorking } = useGlobalSlice();
   const { video } = useProjectSlice();
+  const { onSetErrorMessage } = useUiSlice();
+  const { isBackendWorking } = useGlobalSlice();
   const { width, height } = video.data;
   const { factor: imageReducedFactor } = video.parameters;
 
   const { register } = useFormContext();
-
-  const { onSetErrorMessage } = useUiSlice();
 
   const handleLineLengthInput = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
@@ -72,82 +69,67 @@ export const FormUav = ({ onSubmit, onError }: FormChild) => {
   };
 
   const onClickDrawLine = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
-    onUpdatePixelSize({ drawLine: true });
-    return;
-  };
+  event.preventDefault();
+  onUpdatePixelSize({ drawLine: true });
+  return;
+};
 
   return (
-    <>
-      <h1 className="form-title"> {t('PixelSize.title')}</h1>
-      <form
-        onSubmit={onSubmit}
-        onError={onError}
-        className={`mt-3 form-scroll ${isBackendWorking ? 'disabled' : ''}`}
-        id="form-pixel-size"
-      >
-        <span id="uav-header"></span>
-        <div className="form-base-2">
+      <div className='body mt-2'>
+        <form onSubmit={onSubmit} onError={onError} id="form-pixel-size" className={`${isBackendWorking ? 'disabled' : ''}`}>
           <div className="input-container-2">
-            <button
-              className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
-              type="button"
-              onClick={onClickDrawLine}
-              id="draw-line-pixel"
-            >
-              {t('PixelSize.drawLine')}
-            </button>
-            <span className="read-only bg-transparent" />
-          </div>
+           <button
+             className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
+             type="button"
+             onClick={onClickDrawLine}
+             id="draw-line-pixel"
+           >
+             {t('PixelSize.drawLine')}
+           </button>
+           <span className="read-only bg-transparent" />
+         </div>
 
-          <div className="input-container-2 mt-2">
-            <label className="read-only me-1">{t('PixelSize.lineLength')}</label>
-            <input
-              className="input-field"
-              disabled={dirPoints.length === 0}
-              type="number"
-              step="any"
-              id="UAV-LINE_LENGTH"
-              {...register('uav_lineLength', {
-                required: t('PixelSize.Errors.required'),
-                validate: (value: string) => {
-                  if (parseFloat(value) <= 0) {
-                    return t('PixelSize.Errors.lineLength');
-                  }
-                  return true;
-                },
-              })}
-              onKeyDown={handleLineLengthInput}
-              onBlur={handleLineLengthInput}
-            ></input>
-          </div>
+         <div className="input-container-2 mt-2">
+           <label className="read-only me-1">{t('PixelSize.lineLength')}</label>
+           <input
+             className="input-field"
+             disabled={dirPoints.length === 0}
+             type="number"
+             step="any"
+             id="UAV-LINE_LENGTH"
+             {...register('uav_lineLength', {
+               required: t('PixelSize.Errors.required'),
+               validate: (value: string) => {
+                 if (parseFloat(value) <= 0) {
+                   return t('PixelSize.Errors.lineLength');
+                 }
+                 return true;
+               },
+             })}
+             onKeyDown={handleLineLengthInput}
+             onBlur={handleLineLengthInput}
+           ></input>
+         </div>
 
-          <div className="input-container-2 mt-1 mb-2">
-            <label className="read-only me-1">{t('PixelSize.pixelSize')}</label>
-            <input
-              className="input-field"
-              {...register('uav_pixelSize')}
-              type="number"
-              id="UAV-PIXEL_SIZE"
-              // disabled={sections[0].dirPoints.length === 0}
-              step="any"
-              onKeyDown={handlePixelSizeInput}
-              onBlur={handlePixelSizeInput}
-            />
-          </div>
+         <div className="input-container-2 mt-1 mb-2">
+           <label className="read-only me-1">{t('PixelSize.pixelSize')}</label>
+           <input
+             className="input-field"
+             {...register('uav_pixelSize')}
+             type="number"
+             id="UAV-PIXEL_SIZE"
+             step="any"
+             onKeyDown={handlePixelSizeInput}
+             onBlur={handlePixelSizeInput}
+           />
+         </div>
 
           {solution !== null && <OrthoImage solution={solution} secondPoint={solution.secondPoint} />}
-          <button
-            className="wizard-button form-button solver-button"
-            id="solve-pixelsize"
-            disabled={dirPoints.length !== 2 || rwLength === 0}
-          >
-            {t('Commons.solve')}
-          </button>
-
-          <HardModeUav extraFields={extraFields} />
-        </div>
-      </form>
-    </>
-  );
+          
+          {
+            extraFields && <HardModeUav/>
+          }
+        </form>
+      </div>
+  )
 };

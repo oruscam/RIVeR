@@ -2,13 +2,13 @@ import { dialog, ipcMain } from 'electron';
 import { basename, extname, join } from 'path';
 import { readFile, utils, set_fs, writeFile } from 'xlsx';
 import * as fs from 'fs';
-import { ProjectConfig } from './interfaces';
 import { EXTENSIONS, validateFile } from './utils/validateFile';
+import { PROJECT_CONFIG } from '../main';
 
 // Set the file system for xlsx library
 set_fs(fs);
 
-async function getBathimetry(PROJECT_CONFIG: ProjectConfig) {
+async function getBathimetry() {
   // Define options for the file dialog
   const options: Electron.OpenDialogOptions = {
     properties: ['openFile'],

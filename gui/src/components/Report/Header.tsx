@@ -28,8 +28,6 @@ export const Header = () => {
 
   const average = sum / (divider !== 0 ? divider : 1);
 
-  console.log('average', average, sum, divider);
-
   return (
     <div id="report-header-container">
       <div id="header-icon-container">

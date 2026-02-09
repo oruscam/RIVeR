@@ -1,7 +1,7 @@
 import { PixelSize } from '../store/section/types';
 import { getBathimetryValues } from './getBathimetryValues';
 import { MODULE_NUMBER } from '../constants/constants';
-import { transformPixelToRealWorld } from './coordinates';
+import { transformPixelToRealWorld } from '../../commons/coordinates';
 import { getImageSize } from '../helpers/index';
 import { appendSolutionToIpcamPoints } from './appendSolutionsToImportedPoints';
 import { BackendCameraSolution, IpcamPoint } from '../store/ipcam/types';
@@ -319,7 +319,7 @@ const onLoadCrossSections = (
   if (flagData) {
     return MODULE_NUMBER.RESULTS;
   } else {
-    return MODULE_NUMBER.ANALIZING;
+    return MODULE_NUMBER.PROCESSING;
   }
 };
 

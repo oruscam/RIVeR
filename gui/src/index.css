@@ -41,9 +41,22 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
+.default-app-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  transition: background-color 0.25s ease-in-out;
+}
+
 .danger-button{
-  width: 232px;
-  height: 50px;
+  min-width: 165px;
+  height: auto;
+  min-height: 50px;
   background-color: var(--background-error);
   border: 2px solid;
   border-radius: 20px; 
@@ -53,7 +66,7 @@
 }
 
 .danger-button:hover {
-  color: white;
+  color: hite;
 }
 
 .danger-button:active {
@@ -453,7 +466,8 @@ input:checked + .slider:before {
 .button-with-loader{
   display: flex;
   width: 165px;
-  height: 60px;
+  height: auto;
+  min-height: 50px;
   background-color: var(--background-color);
   color: var(--primary-text-color);
   border: 2px solid;
@@ -478,6 +492,13 @@ input:checked + .slider:before {
 .button-with-loader-active{
   background-color: var(--primary-text-color);
   color: var(--background-color);
+}
+
+.button-with-loader:disabled{
+  background-color: var(--input-background);
+  color: var(--background-color);
+  border-color: black;
+  cursor: default;
 }
 
 .hidden{

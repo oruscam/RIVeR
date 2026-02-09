@@ -1,9 +1,9 @@
 import { dialog, ipcMain } from 'electron';
-import { ProjectConfig } from './interfaces';
 import { join } from 'path';
 import { writeFileSync } from 'fs';
+import { PROJECT_CONFIG } from '../main';
 
-function saveReportHtml(PROJECT_CONFIG: ProjectConfig) {
+function saveReportHtml() {
   ipcMain.handle('save-report-html', async (_event, args?) => {
     try {
       const { projectDirectory } = PROJECT_CONFIG;
