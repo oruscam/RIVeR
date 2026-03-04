@@ -11,7 +11,7 @@ const colors = [
     COLORS.RED //Red-Orange - Highest
 ];
 
-export const ColorBar = ({ min, max }: { min: number, max: number}) => {
+export const ColorBar = ({ min, max }: { min: number, max: number }) => {
     const [defaultMin, setDefaultMin] = useState(min.toFixed(2));
     const [defaultMax, setDefaultMax] = useState(max.toFixed(2));
 
@@ -32,7 +32,14 @@ export const ColorBar = ({ min, max }: { min: number, max: number}) => {
     }
 
     const applyChanges = () => {
-        onSetManualColorbarLimits(parseFloat(defaultMin), parseFloat(defaultMax), false);
+        const parsedMin = parseFloat(defaultMin);
+        const parsedMax = parseFloat(defaultMax);
+        if (parsedMin >= parsedMax) {
+            setDefaultMin(min.toFixed(2));
+            setDefaultMax(max.toFixed(2));
+            return;
+        }
+        onSetManualColorbarLimits(parsedMin, parsedMax, false);
     }
 
     const onRefresh = () => {
@@ -45,13 +52,14 @@ export const ColorBar = ({ min, max }: { min: number, max: number}) => {
     }, [min, max]);
 
     return (
-        <div className="colorbar-container" style={{width: imageWidth as number * 0.35}}>
-            <input value={defaultMin} className="colorbar-input" type="number" onChange={handleOnChange} id="min" onKeyDown={applyChanges} onBlur={applyChanges}/>
-            <div className="colorbar" style={{ background: gradient }}/>
-            <input value={defaultMax} className="colorbar-input" type="number" onChange={handleOnChange} id="max" onKeyDown={applyChanges} onBlur={applyChanges}/>
+        <div className="colorbar-container" style={{ width: imageWidth as number * 0.35 }}>
+            <input value={defaultMin} className="colorbar-input" type="number" onChange={handleOnChange} id="min" onKeyDown={(e) => e.key === 'Enter' && applyChanges()} onBlur={applyChanges} />
+            {/* onKeyDown={applyChanges} */}
+            <div className="colorbar" style={{ background: gradient }} />
+            <input value={defaultMax} className="colorbar-input" type="number" onChange={handleOnChange} id="max" onKeyDown={(e) => e.key === 'Enter' && applyChanges()} onBlur={applyChanges} />
 
-            { activeStep !== 7 && (
-                <button onClick={onRefresh} disabled={colorbarLimits.default}>  
+            {activeStep !== 7 && (
+                <button onClick={onRefresh} disabled={colorbarLimits.default}>
                     <GrRefresh />
                 </button>
             )}
