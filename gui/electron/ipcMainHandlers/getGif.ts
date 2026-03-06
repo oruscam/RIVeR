@@ -128,7 +128,8 @@ async function getGif() {
         factor,
         fps,
         step,
-        dimensions.outWidth
+        dimensions.outWidth,
+        colorbarLimits
       );
 
       // Colorbar
