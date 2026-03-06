@@ -145,7 +145,7 @@ const getComponent = (arr: number[] | number[][] | null | undefined, median: num
  * @param {number[][]} transformationMatrix
  * @returns {{ data: Array<{x:number,y:number,u:number,v:number,velocity:number,color:string}>, min:number, max:number }}
  */
-const getQuiverValues = (quiver: Quiver, showMedian: boolean, activeImage: number, step: number, fps: number, transformationMatrix: number[][]): { data: Array<{ x: number; y: number; u: number; v: number; velocity: number; color: string; }>; min: number; max: number; } => {
+const getQuiverValues = (quiver: Quiver, showMedian: boolean, activeImage: number, step: number, fps: number, transformationMatrix: number[][], colorBarLimits?: { min: number; max: number }): { data: Array<{ x: number; y: number; u: number; v: number; velocity: number; color: string; }>; min: number; max: number; } => {
   const { x, y: yArray, u: uArray, v: vArray, u_median, v_median } = quiver;
 
   let data = x
@@ -181,7 +181,10 @@ const getQuiverValues = (quiver: Quiver, showMedian: boolean, activeImage: numbe
   const minVelocity = velocities.length ? Math.min(...velocities) : 0;
   const maxVelocity = velocities.length ? Math.max(...velocities) : 1;
 
-  const norm = new Normalize(minVelocity, maxVelocity);
+  const norm = new Normalize(
+    colorBarLimits?.min ?? minVelocity,
+    colorBarLimits?.max ?? maxVelocity
+  );
   const colorMap = createColorMap();
 
   data = data.map((d) => {
