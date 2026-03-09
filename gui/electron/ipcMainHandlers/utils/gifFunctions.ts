@@ -191,15 +191,15 @@ const drawQuiver = (
   colorbarLimits?: { min: number; max: number }
 ) => {
   // Get quiver data for the current frame
-  const { data } = getQuiverValues(quiver, false, frameIndex, step, fps, transformationMatrix, colorbarLimits);
+  const { data } = getQuiverValues(quiver, false, frameIndex, step, fps, transformationMatrix, { min: colorbarLimits.min, max: colorbarLimits.max });
 
   // Used for avoid arrows going beyond the line end
   const delta = 3
 
 
   // Set line width
-  const lineWidth = imageWidth * 0.0015;
-  const amplitudeFactor = 15;
+  const lineWidth = imageWidth * 0.0012;
+  const amplitudeFactor = 10;
 
   // Draw each vector as an arrow
   for (let i = 0; i < data.length; i++) {
@@ -226,7 +226,7 @@ const drawQuiver = (
     ctx.stroke();
 
     // Draw the arrow
-    const arrowLength = lineWidth * 5;
+    const arrowLength = lineWidth * 8;
 
     ctx.beginPath();
     ctx.moveTo(x2, y2);

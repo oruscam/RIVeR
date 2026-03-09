@@ -188,7 +188,8 @@ const getQuiverValues = (quiver: Quiver, showMedian: boolean, activeImage: numbe
   const colorMap = createColorMap();
 
   data = data.map((d) => {
-    const normalizedValue = norm.normalize(d.velocity);
+    let normalizedValue = norm.normalize(d.velocity);
+    normalizedValue = Math.max(0, Math.min(1, normalizedValue));
     const colorIndex = Math.min(Math.floor(normalizedValue * (colorMap.length - 1)), colorMap.length - 1);
     return { ...d, color: colorMap[colorIndex] };
   });
