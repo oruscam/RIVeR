@@ -194,12 +194,16 @@ const drawQuiver = (
   const { data } = getQuiverValues(quiver, false, frameIndex, step, fps, transformationMatrix, { min: colorbarLimits.min, max: colorbarLimits.max });
 
   // Used for avoid arrows going beyond the line end
-  const delta = 3
+  const delta = 0
 
 
   // Set line width
   const lineWidth = imageWidth * 0.0012;
   const amplitudeFactor = 10;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
 
   // Draw each vector as an arrow
   for (let i = 0; i < data.length; i++) {
@@ -231,12 +235,12 @@ const drawQuiver = (
     ctx.beginPath();
     ctx.moveTo(x2, y2);
     ctx.lineTo(
-      x2 - arrowLength * Math.cos(angle - Math.PI / 6),
-      y2 - arrowLength * Math.sin(angle - Math.PI / 6)
+      x2 - arrowLength * Math.cos(angle - Math.PI / 7),
+      y2 - arrowLength * Math.sin(angle - Math.PI / 7)
     );
     ctx.lineTo(
-      x2 - arrowLength * Math.cos(angle + Math.PI / 6),
-      y2 - arrowLength * Math.sin(angle + Math.PI / 6)
+      x2 - arrowLength * Math.cos(angle + Math.PI / 7),
+      y2 - arrowLength * Math.sin(angle + Math.PI / 7)
     );
     ctx.closePath();
     ctx.fillStyle = d.color;
