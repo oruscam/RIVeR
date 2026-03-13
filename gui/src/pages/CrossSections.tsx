@@ -7,6 +7,7 @@ import { handleDragLeave, handleDragOver } from '../helpers';
 import { FormHeader } from '../components/Forms/Components';
 import { ButtonLock } from '../components/ButtonLock';
 import { ImageCrossSections } from '../components/CrossSections/ImageCrossSections';
+import { LockBtn } from '../components/CustomIcons/LockBtn';
 
 export const CrossSections = () => {
   const { activeSection, sections, onGetBathimetry } = useSectionSlice();
@@ -17,7 +18,7 @@ export const CrossSections = () => {
   const { type } = useProjectSlice();
   const { cameraSolution } = useIpcamSlice();
 
-  const handleDrop = ( e: React.DragEvent<HTMLDivElement> ) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragOver(false);
 
@@ -56,25 +57,25 @@ export const CrossSections = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageCrossSections/>
+        <ImageCrossSections />
         <Error></Error>
       </div>
       <div
         className={`form-container ${dragOver ? 'drag-over' : ''}`}
         onDragOver={(event) => handleDragOver(event, setDragOver)}
         onDragLeave={(event) => handleDragLeave(event, setDragOver, false)}
-        onDrop={handleDrop}>         
-          <FormHeader title={t('CrossSections.title')} showProgress={true} showSections={true} setDeletedSections={setDeletedSections} canEdit={true}/>
-          <CrossSectionsComponent deletedSections={deletedSections} setDeletedSections={setDeletedSections} />
-      
-          <div className='footer'>
-            <ButtonLock
-              disabled={sections[activeSection].bathimetry.width === undefined}
-              footerElementID="form-cross-section-footer"
-              headerElementID="form-cross-section-header"
-            />    
-            <WizardButtons formId="form-cross-section" canFollow={sections[0].sectionPoints[0].x !== 0}/>
-          </div>
+        onDrop={handleDrop}>
+        <FormHeader title={t('CrossSections.title')} showProgress={true} showSections={true} setDeletedSections={setDeletedSections} canEdit={true} />
+        <CrossSectionsComponent deletedSections={deletedSections} setDeletedSections={setDeletedSections} />
+
+        <div className='footer'>
+          <LockBtn
+            disabled={sections[activeSection].bathimetry.width === undefined}
+            footerElementID="form-cross-section-footer"
+            headerElementID="form-cross-section-header"
+          />
+          <WizardButtons formId="form-cross-section" canFollow={sections[0].sectionPoints[0].x !== 0} />
+        </div>
       </div>
     </div>
   );

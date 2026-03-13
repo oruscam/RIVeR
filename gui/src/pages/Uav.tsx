@@ -12,22 +12,23 @@ import { useTranslation } from 'react-i18next';
 import { ButtonLock } from '../components/ButtonLock.js';
 import { Point } from '../types/index.js';
 import { ImageUavNew } from '../components/ImageUavNew.js';
+import { LockBtn } from '../components/CustomIcons/LockBtn.js';
 
 const createDefaultState = (dirPoints: Point[], rwPoints: Point[], rwLength: number, size: number) => {
-   const defaultValues = {
-      uav_lineLength: formatNumberTo2Decimals(rwLength),
-      uav_pixelSize: formatNumberToPrecision4(size),
-      uav_eastPoint1: rwPoints[0].x,
-      uav_eastPoint2: rwPoints[1].x,
-      uav_northPoint1: rwPoints[0].y,
-      uav_northPoint2: rwPoints[1].y,
-      uav_xPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
-      uav_xPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
-      uav_yPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
-      uav_yPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].y,
-    }
+  const defaultValues = {
+    uav_lineLength: formatNumberTo2Decimals(rwLength),
+    uav_pixelSize: formatNumberToPrecision4(size),
+    uav_eastPoint1: rwPoints[0].x,
+    uav_eastPoint2: rwPoints[1].x,
+    uav_northPoint1: rwPoints[0].y,
+    uav_northPoint2: rwPoints[1].y,
+    uav_xPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
+    uav_xPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
+    uav_yPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
+    uav_yPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].y,
+  }
 
-    return defaultValues;
+  return defaultValues;
 }
 
 export const Uav = () => {
@@ -42,7 +43,7 @@ export const Uav = () => {
     onUpdatePixelSize
   } = useUavSlice();
   const { t } = useTranslation();
-  const { isBackendWorking } = useGlobalSlice();  
+  const { isBackendWorking } = useGlobalSlice();
 
   // * Estado inicial del formulario
   const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size) });
@@ -50,7 +51,7 @@ export const Uav = () => {
   const { nextStep } = useWizard();
   const { onSetErrorMessage } = useUiSlice();
 
-  const onSubmit = (_data: FieldValues ) => {
+  const onSubmit = (_data: FieldValues) => {
     nextStep();
   };
 
@@ -75,33 +76,33 @@ export const Uav = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageUavNew/>
+        <ImageUavNew />
         <Error />
       </div>
       <div className='form-container'>
-        <FormHeader title={t('PixelSize.title')} showSections={false}/>
-        
+        <FormHeader title={t('PixelSize.title')} showSections={false} />
+
         <FormProvider {...methods}>
           <FormUav onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
 
         <div className='footer'>
           <button
-           className="wizard-button form-button solver-button"
-           id="solve-pixelsize"
-           disabled={dirPoints.length !== 2 || rwLength === 0 || isBackendWorking || solution !== null}
-           onClick={onClickSolveButton}
+            className="wizard-button form-button solver-button"
+            id="solve-pixelsize"
+            disabled={dirPoints.length !== 2 || rwLength === 0 || isBackendWorking || solution !== null}
+            onClick={onClickSolveButton}
           >
-           {t('Commons.solve')}
-         </button>
-          <ButtonLock
+            {t('Commons.solve')}
+          </button>
+          <LockBtn
             footerElementID="span-footer"
             headerElementID="uav-header"
             disabled={dirPoints.length === 0}
             localExtraFields={extraFields}
             setLocalExtraFields={onChangeExtraFields}
           />
-        <WizardButtons canFollow={solution?.orthoImage !== undefined} formId="form-pixel-size" /> 
+          <WizardButtons canFollow={solution?.orthoImage !== undefined} formId="form-pixel-size" />
         </div>
       </div>
     </div>
