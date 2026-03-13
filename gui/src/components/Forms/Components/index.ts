@@ -11,19 +11,21 @@ import { FormHeader } from "./FormHeader"
 import { AnalyzingProgress } from "./AnalyzingProgress";
 import { MaskCreation } from "./MaskCreation";
 import { ExportMp4 } from './ExportMp4';
+import { AddMaskButton } from './AddMaskButton';
 
-export { 
+export {
+    AddMaskButton,
     AnalyzingProgress,
-    DropHereText, 
+    DropHereText,
     ExportMp4,
     FormHeader,
-    FramesResolution, 
+    FramesResolution,
     HardModeCrossSections,
     HardModeOblique,
-    HardModeProcessing, 
+    HardModeProcessing,
     HardModeUav,
     MaskCreation,
-    PixelCoordinates, 
+    PixelCoordinates,
     RealWorldCoordinates,
-    VideoMetadata, 
+    VideoMetadata,
 };

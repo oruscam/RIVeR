@@ -1,9 +1,9 @@
 import { useFormContext } from 'react-hook-form';
 import { useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { DropHereText, HardModeCrossSections } from './Components/index';
+import { AddMaskButton } from './Components/AddMaskButton';
 import { Bathimetry } from '../Graphs';
 import { useTranslation } from 'react-i18next';
-
 interface FormCrossSectionsProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void;
   name: string;
@@ -123,151 +123,151 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       >
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
-          {type === 'ipcam' ? (
-            <>
-              <div className="input-container-2 mb-1">
-                <input
-                  type="file"
-                  id={`${name}_CS_BATHIMETRY`}
-                  className="hidden-file-input"
-                  accept=".csv"
-                  {...register(`${name}_CS_BATHIMETRY`, {
-                    validate: (value) => {
-                      if (sections[index].bathimetry.path === '' && value.length === 0) {
-                        return t('CrossSections.Errors.bathimetryIsRequired', { section_name: name });
-                      }
-                      return true;
-                    },
-                  })}
-                />
-                <button
-                  className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
-                  onClick={handleImportBath}
-                  disabled={
-                    transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
-                  }
-                >
-                  {' '}
-                  {t('CrossSections.importBath')}{' '}
-                </button>
-                <label className="read-only bg-transparent mt-1">
-                  {bathimetry.name !== '' ? bathimetry.name : ''}
-                </label>
-              </div>
-              <div className="input-container-2">
-                <button
-                  className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
-                  type="button"
-                  id={`${name}-DRAW_LINE`}
-                  onClick={() => onUpdateSection({ drawLine: true }, undefined)}
-                  disabled={transformationMatrix.length === 0}
-                >
-                  {' '}
-                  {t('CrossSections.drawLine')}{' '}
-                </button>
-                <span className="read-only bg-transparent"></span>
-              </div>
-            </>
-          ) : (
-            <>
-              <div className="input-container-2">
-                <button
-                  className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
-                  type="button"
-                  id={`${name}-DRAW_LINE`}
-                  onClick={() => onUpdateSection({ drawLine: true }, undefined)}
-                  disabled={transformationMatrix.length === 0}
-                >
-                  {' '}
-                  {t('CrossSections.drawLine')}{' '}
-                </button>
-                <span className="read-only bg-transparent"></span>
-              </div>
+        {type === 'ipcam' ? (
+          <>
+            <div className="input-container-2 mb-1">
+              <input
+                type="file"
+                id={`${name}_CS_BATHIMETRY`}
+                className="hidden-file-input"
+                accept=".csv"
+                {...register(`${name}_CS_BATHIMETRY`, {
+                  validate: (value) => {
+                    if (sections[index].bathimetry.path === '' && value.length === 0) {
+                      return t('CrossSections.Errors.bathimetryIsRequired', { section_name: name });
+                    }
+                    return true;
+                  },
+                })}
+              />
+              <button
+                className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
+                onClick={handleImportBath}
+                disabled={
+                  transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
+                }
+              >
+                {' '}
+                {t('CrossSections.importBath')}{' '}
+              </button>
+              <label className="read-only bg-transparent mt-1">
+                {bathimetry.name !== '' ? bathimetry.name : ''}
+              </label>
+            </div>
+            <div className="input-container-2">
+              <button
+                className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
+                type="button"
+                id={`${name}-DRAW_LINE`}
+                onClick={() => onUpdateSection({ drawLine: true }, undefined)}
+                disabled={transformationMatrix.length === 0}
+              >
+                {' '}
+                {t('CrossSections.drawLine')}{' '}
+              </button>
+              <AddMaskButton />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="input-container-2">
+              <button
+                className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
+                type="button"
+                id={`${name}_DRAW_LINE`}
+                onClick={() => onUpdateSection({ drawLine: true }, undefined)}
+                disabled={transformationMatrix.length === 0}
+              >
+                {' '}
+                {t('CrossSections.drawLine')}{' '}
+              </button>
+              <AddMaskButton />
+            </div>
 
-              <div className="input-container-2">
-                <input
-                  type="file"
-                  id={`${name}_CS_BATHIMETRY`}
-                  className="hidden-file-input"
-                  {...register(`${name}_CS_BATHIMETRY`, {
-                    validate: (value) => {
-                      if (sections[index].bathimetry.path === '' && value.length === 0) {
-                        return t('CrossSections.Errors.bathimetryIsRequired', { section_name: name });
-                      }
-                      return true;
-                    },
-                  })}
-                />
-                <button
-                  className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
-                  onClick={handleImportBath}
-                  disabled={
-                    transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
-                  }
-                >
-                  {' '}
-                  {t('CrossSections.importBath')}{' '}
-                </button>
-                <label className="read-only bg-transparent mt-1">
-                  {bathimetry.name !== '' ? bathimetry.name : ''}
-                </label>
-              </div>
-            </>
-          )}
+            <div className="input-container-2">
+              <input
+                type="file"
+                id={`${name}_CS_BATHIMETRY`}
+                className="hidden-file-input"
+                {...register(`${name}_CS_BATHIMETRY`, {
+                  validate: (value) => {
+                    if (sections[index].bathimetry.path === '' && value.length === 0) {
+                      return t('CrossSections.Errors.bathimetryIsRequired', { section_name: name });
+                    }
+                    return true;
+                  },
+                })}
+              />
+              <button
+                className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
+                onClick={handleImportBath}
+                disabled={
+                  transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
+                }
+              >
+                {' '}
+                {t('CrossSections.importBath')}{' '}
+              </button>
+              <label className="read-only bg-transparent mt-1">
+                {bathimetry.name !== '' ? bathimetry.name : ''}
+              </label>
+            </div>
+          </>
+        )}
 
-          <DropHereText text={t('Commons.dropHereText')} show={bathimetry.path === undefined} />
+        <DropHereText text={t('Commons.dropHereText')} show={bathimetry.path === undefined} />
 
-          <div className="input-container-2 mt-2 mb-1">
-            <label className="read-only me-1" htmlFor="LEVEL">
-              {t('CrossSections.level')}
-            </label>
-            <input
-              type="number"
-              step="any"
-              className="input-field"
-              {...register(`${name}_LEVEL`, {
-                validate: () => bathimetry.level !== 0,
-              })}
-              id="LEVEL"
-              onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
-              onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
-            />
-          </div>
+        <div className="input-container-2 mt-2 mb-1">
+          <label className="read-only me-1" htmlFor="LEVEL">
+            {t('CrossSections.level')}
+          </label>
+          <input
+            type="number"
+            step="any"
+            className="input-field"
+            {...register(`${name}_LEVEL`, {
+              validate: () => bathimetry.level !== 0,
+            })}
+            id="LEVEL"
+            onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
+            onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
+          />
+        </div>
 
-          <div className="input-container-2 mb-1">
-            <label className="read-only me-1" htmlFor="CS_LENGTH">
-              {t('CrossSections.width')}
-            </label>
-            <input
-              type="number"
-              className="input-field-read-only"
-              disabled={true}
-              {...register(`${name}_CS_LENGTH`, {
-                validate: (value) => value != 0 || t('CrossSections.Errors.rwLength', { section_name: name }),
-              })}
-              id="CS_LENGTH"
-              readOnly={true}
-            />
-          </div>
+        <div className="input-container-2 mb-1">
+          <label className="read-only me-1" htmlFor="CS_LENGTH">
+            {t('CrossSections.width')}
+          </label>
+          <input
+            type="number"
+            className="input-field-read-only"
+            disabled={true}
+            {...register(`${name}_CS_LENGTH`, {
+              validate: (value) => value != 0 || t('CrossSections.Errors.rwLength', { section_name: name }),
+            })}
+            id="CS_LENGTH"
+            readOnly={true}
+          />
+        </div>
 
-          <Bathimetry showLeftBank={true} />
+        <Bathimetry showLeftBank={true} />
 
-          <div className="input-container-2 mb-4" id="left-bank-station-container">
-            <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">
-              {t('CrossSections.leftBankStation')}
-            </label>
-            <input
-              type="number"
-              className="input-field"
-              step="any"
-              id="left-bank-station-input"
-              {...register(`${name}_LEFT_BANK`)}
-              onKeyDown={handleLeftBankInput}
-              onBlur={handleLeftBankInput}
-            />
-          </div>
+        <div className="input-container-2 mb-4" id="left-bank-station-container">
+          <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">
+            {t('CrossSections.leftBankStation')}
+          </label>
+          <input
+            type="number"
+            className="input-field"
+            step="any"
+            id="left-bank-station-input"
+            {...register(`${name}_LEFT_BANK`)}
+            onKeyDown={handleLeftBankInput}
+            onBlur={handleLeftBankInput}
+          />
+        </div>
 
-          <HardModeCrossSections extraFields={extraFields} name={name} />
+        <HardModeCrossSections extraFields={extraFields} name={name} />
       </form>
     </div>
   );
