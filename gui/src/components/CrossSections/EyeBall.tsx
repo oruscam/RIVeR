@@ -1,9 +1,15 @@
 import { useEffect, useState } from 'react';
 
-export const EyeBall = ({active, action, index}: {active: boolean, action: (index?: number) => void, index?: number}) => {
+
+interface EyeProps {
+  active: boolean;
+  action: () => void;
+  index?: number;
+}
+export const EyeBall = ({ active, action, index }: EyeProps) => {
   const [lidClass, setLidClass] = useState('lid lid--open');
   const [pupilClass, setPupilClass] = useState('pupil pupil--open pupil-shadow');
-  
+
   useEffect(() => {
     if (active) {
       setLidClass('lid lid--open');
@@ -19,7 +25,7 @@ export const EyeBall = ({active, action, index}: {active: boolean, action: (inde
     if (index === undefined) {
       action()
     } else {
-      action(index); 
+      action(index);
     }
   };
 

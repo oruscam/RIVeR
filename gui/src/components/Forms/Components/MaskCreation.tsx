@@ -2,6 +2,9 @@ import { GrTrash } from "react-icons/gr";
 import { useDataSlice } from "../../../hooks"
 import { useTranslation } from "react-i18next";
 import { EyeBall } from "../../CrossSections";
+import { EyeBtn } from "../../CustomIcons/EyeBtn";
+import { TrashBtn } from "../../CustomIcons/TrashBtn";
+
 
 export const MaskCreation = () => {
     const { t } = useTranslation()
@@ -15,8 +18,8 @@ export const MaskCreation = () => {
                     <div key={index} className='switch-container mt-1'>
                         <h3 className='field-title'> {t('CrossSections.mask')} {index + 1} </h3>
                         <div className='mask-actions'>
-                            <EyeBall key={index} action={onUpdateActiveMask} active={activeMaskIndex === index} index={index} />
-                            <GrTrash className='trash-icon' onClick={() => onDeleteMask(index)} />
+                            <EyeBtn key={index} action={onUpdateActiveMask} active={activeMaskIndex === index} index={index} />
+                            <TrashBtn onClickFunction={() => onDeleteMask(index)} />
                         </div>
                     </div>
                 )

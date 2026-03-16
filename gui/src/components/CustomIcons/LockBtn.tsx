@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRipple } from "./useRipple";
 import { Icons } from "./Icons";
 import { useSectionSlice } from "../../hooks";
@@ -103,23 +103,35 @@ export function LockBtn({
     const toggle = () => {
         handleOnChange();
         if (locked) setShakeKey(k => k + 1);
-        fire(locked ? "var(--amber)" : "var(--green)");
+        fire("var(--primary-text-color, #888)");
         setLocked(v => !v);
     };
 
-    // checked={localExtraFields !== undefined ? !localExtraFields : !extraFields}
-    // onChange={handleOnChange}
-    // disabled={disabled}
+    useEffect(() => {
+        if (localExtraFields !== undefined) {
+            setLocked(!localExtraFields);
+        } else {
+            setLocked(!extraFields);
+        }
+    }, [extraFields, activeSection, localExtraFields]);
+
 
     return (
         <div className="row">
-            <button className={`ib ${locked ? "active" : ""}`}
-                style={{ "--hi": locked ? "var(--amber)" : "var(--green)" }} disabled={disabled} onClick={toggle}>
+            <button
+                type="button"
+                className={`ib ${locked ? "" : ""}`}
+                disabled={disabled}
+                onClick={toggle}
+            >
                 {rpl}
                 <span key={shakeKey} className={`cl ${locked ? "show" : "hide"} ${shakeKey > 0 ? "wiggle" : ""}`}>
-                    {Icons.Lock("var(--amber)")}
+
+                    {Icons.Lock("currentColor")}
                 </span>
-                <span className={`cl ${locked ? "hide" : "show"}`}>{Icons.Unlock("var(--green)")}</span>
+                <span className={`cl ${locked ? "hide" : "show"}`}>
+                    {Icons.Unlock("currentColor")}
+                </span>
             </button>
         </div>
     );

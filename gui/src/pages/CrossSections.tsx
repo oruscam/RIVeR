@@ -5,10 +5,9 @@ import { useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../
 import { useTranslation } from 'react-i18next';
 import { handleDragLeave, handleDragOver } from '../helpers';
 import { FormHeader } from '../components/Forms/Components';
-import { ButtonLock } from '../components/ButtonLock';
 import { ImageCrossSections } from '../components/CrossSections/ImageCrossSections';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
-
+import { AddMaskButton } from '../components/Forms/Components';
 export const CrossSections = () => {
   const { activeSection, sections, onGetBathimetry } = useSectionSlice();
   const [dragOver, setDragOver] = useState<boolean>(false);
@@ -57,6 +56,9 @@ export const CrossSections = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
+        <div style={{ width: '95%', display: 'flex', justifyContent: 'flex-end', padding: '10px 0' }}>
+          <AddMaskButton />
+        </div>
         <ImageCrossSections />
         <Error></Error>
       </div>

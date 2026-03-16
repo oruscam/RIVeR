@@ -82,14 +82,18 @@ export function LockBtn() {
     setLocked(v => !v);
   };
   return (
-    <button className={`ib ${locked ? "active" : ""}`}
-      style={{ "--hi": locked ? "var(--amber)" : "var(--green)" }} onClick={toggle}>
-      {rpl}
-      <span key={shakeKey} className={`cl ${locked ? "show" : "hide"} ${shakeKey > 0 ? "wiggle" : ""}`}>
-        {Icons.Lock("var(--amber)")}
-      </span>
-      <span className={`cl ${locked ? "hide" : "show"}`}>{Icons.Unlock("var(--green)")}</span>
-    </button>
+    <div className="row">
+      <button className={`ib ${locked ? "active" : ""}`}
+        style={{ "--hi": locked ? "var(--amber)" : "var(--green)" }} onClick={toggle}>
+        {rpl}
+        <span key={shakeKey} className={`cl ${locked ? "show" : "hide"} ${shakeKey > 0 ? "wiggle" : ""}`}>
+          {Icons.Lock("var(--amber)")}
+        </span>
+        <span className={`cl ${locked ? "hide" : "show"}`}>{Icons.Unlock("var(--green)")}</span>
+      </button>
+      <Info name="Lock / Unlock" desc="Lock mask from editing. Shakes on locking. Amber = locked, green = open."
+        pill={<Pill label={locked ? "LOCKED" : "UNLOCKED"} color={locked ? "var(--amber)" : "var(--green)"} />} />
+    </div>
   );
 }
 

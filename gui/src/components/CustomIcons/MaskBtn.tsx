@@ -1,38 +1,24 @@
-// src/components/CustomIcons/MaskBtn.tsx
-
-import React, { useState, useRef } from 'react';
+import React from 'react';
 import { Icons } from './Icons';
 import { useRipple } from './useRipple';
-import './piv-icons.css';
 
-interface MaskBtnProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    isDrawing?: boolean; // Opcional, por si prefieres controlarlo desde afuera como el ExportBtn
-}
+interface MaskBtnProps extends React.ButtonHTMLAttributes<HTMLButtonElement> { }
 
-export const MaskBtn: React.FC<MaskBtnProps> = ({ isDrawing: externalIsDrawing, onClick, className = "", style, ...props }) => {
-    // Si no le pasas isDrawing, manejará su propio estado interno
-    const [internalDrawing, setInternalDrawing] = useState(false);
+export const MaskBtn: React.FC<MaskBtnProps> = ({ onClick, className = "", style, ...props }) => {
     const [rpl, fire] = useRipple();
-    const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-    // Usa el estado externo si existe, si no, usa el interno
-    const drawing = externalIsDrawing !== undefined ? externalIsDrawing : internalDrawing;
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-        if (externalIsDrawing === undefined) {
-            const next = !internalDrawing;
-            setInternalDrawing(next);
-            fire("var(--violet)");
-            if (timerRef.current) clearTimeout(timerRef.current);
+        e.stopPropagation(); // Previene comportamientos raros
 
-            // Cambiamos 'next' a verdadero para que aparezca la máscara al presionar
-            if (next && onClick) {
-                onClick(e);
-            }
-        } else {
-            if (!externalIsDrawing) {
-                fire("var(--violet)");
-            }
+        // Disparamos la ondita con el color neutro que se adapta a tu tema
+        fire("var(--primary-text-color, #888)");
+
+        // Soltamos el foco para que no quede preseleccionado
+        e.currentTarget.blur();
+
+        // Ejecutamos la función que le pases desde el componente padre
+        if (onClick) {
+            onClick(e);
         }
     };
 
@@ -40,16 +26,16 @@ export const MaskBtn: React.FC<MaskBtnProps> = ({ isDrawing: externalIsDrawing, 
         <button
             {...props}
             type="button"
-            className={`ib ${drawing ? "active pulse" : ""} ${className}`}
-            style={{ "--hi": "var(--violet)", ...style } as React.CSSProperties}
+            className={`ib ${className}`} // Solo usa .ib, quitamos .active y .pulse
+            style={style}
             onClick={handleClick}
         >
             {rpl}
-            <span className={`cl ${drawing ? "hide" : "show"}`}>
-                {Icons.BoxSel("var(--text)")}
-            </span>
-            <span className={`cl ${drawing ? "show" : "hide"}`}>
-                {Icons.PenLine("var(--violet)")}
+            {/* Dejamos un solo ícono (el de la caja punteada).
+              Al usar "currentColor", se pintará solo de blanco/negro según el hover.
+            */}
+            <span className="cl show" style={{ display: "flex" }}>
+                {Icons.MaskAdd("currentColor")}
             </span>
         </button>
     );

@@ -1,7 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 import { useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { DropHereText, HardModeCrossSections } from './Components/index';
-import { AddMaskButton } from './Components/AddMaskButton';
 import { Bathimetry } from '../Graphs';
 import { useTranslation } from 'react-i18next';
 interface FormCrossSectionsProps {
@@ -165,7 +164,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 {' '}
                 {t('CrossSections.drawLine')}{' '}
               </button>
-              <AddMaskButton />
+              <span className='read-only bg-transparent'></span>
             </div>
           </>
         ) : (
@@ -174,14 +173,14 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               <button
                 className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
                 type="button"
-                id={`${name}_DRAW_LINE`}
+                id={`${name}-DRAW_LINE`}
                 onClick={() => onUpdateSection({ drawLine: true }, undefined)}
                 disabled={transformationMatrix.length === 0}
               >
                 {' '}
                 {t('CrossSections.drawLine')}{' '}
               </button>
-              <AddMaskButton />
+              <span className='read-only bg-transparent'></span>
             </div>
 
             <div className="input-container-2">
