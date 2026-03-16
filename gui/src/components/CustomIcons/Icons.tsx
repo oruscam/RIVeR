@@ -34,4 +34,28 @@ export const Icons = {
     Video: (c?: string) => <I color={c} d="M23 7l-7 5 7 5V7z" extra={["M1 5h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H1a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z".replace("-2", "0")]} />,
     Loader: (c?: string) => <svg width={21} height={21} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><line x1="12" y1="2" x2="12" y2="6" /><line x1="12" y1="18" x2="12" y2="22" /><line x1="4.93" y1="4.93" x2="7.76" y2="7.76" /><line x1="16.24" y1="16.24" x2="19.07" y2="19.07" /><line x1="2" y1="12" x2="6" y2="12" /><line x1="18" y1="12" x2="22" y2="12" /><line x1="4.93" y1="19.07" x2="7.76" y2="16.24" /><line x1="16.24" y1="7.76" x2="19.07" y2="4.93" /></svg>,
     Download: (c?: string) => <I color={c} d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />,
+    FrameBack: (c?: string) => <I color={c} d="M17 18l-6-6 6-6" extra={["M7 6v12"]} />,
+    FrameNext: (c?: string) => <I color={c} d="M7 18l6-6-6-6" extra={["M17 6v12"]} />,
+    MaskAdd: (color: string) => (
+        <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke={color}
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        >
+            {/* La caja punteada (dejando espacio libre abajo a la derecha) */}
+            <path d="M4 4h4" strokeDasharray="4 4" />
+            <path d="M10 4h10v6" strokeDasharray="4 4" />
+            <path d="M4 10v10h6" strokeDasharray="4 4" />
+            <path d="M4 6v2" strokeDasharray="4 4" />
+
+            {/* El signo "+" en la esquina inferior derecha */}
+            <line x1="15" y1="19" x2="21" y2="19" />
+            <line x1="18" y1="16" x2="18" y2="22" />
+        </svg>
+    ),
 };
