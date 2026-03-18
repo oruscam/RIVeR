@@ -24,28 +24,29 @@ export const ExportBtn: React.FC<ExportBtnProps> = ({ isCreating, onClick, class
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         if (phase !== "idle") return;
-        fire("var(--accent)");
+        fire("var(--text)");
+
         if (onClick) onClick(e);
     };
 
-    const hi = phase === "done" ? "var(--green)" : "var(--accent)";
+    const isDone = phase === "done";
 
     return (
         <button
             {...props}
             type="button"
-            className={`ib ${phase !== "idle" ? "active" : ""} ${className}`}
-            style={{ "--hi": hi, cursor: phase === "running" ? "wait" : "pointer", ...style } as React.CSSProperties}
+            className={`ib ${phase === "running" ? "active" : ""} ${isDone ? "is-success" : ""} ${className}`}
+            style={{ cursor: phase === "running" ? "wait" : "pointer", "--secondary-background-color": "var(--bg)", ...style } as React.CSSProperties}
             onClick={handleClick}
         >
             {rpl}
             {phase === "running" && <span className="progbar" />}
 
             <span className={`cl ${phase === "idle" ? "show" : "hide"}`}>
-                {Icons.Video("var(--text)")}
+                {Icons.Video("currentColor")}
             </span>
             <span className={`cl ${phase === "running" ? "show" : "hide"}`}>
-                <span className="spin">{Icons.Loader("var(--accent)")}</span>
+                <span className="spin">{Icons.Loader("currentColor")}</span>
             </span>
             <span className={`cl ${phase === "done" ? "show bdrop" : "hide"}`}>
                 {Icons.Download("var(--green)")}

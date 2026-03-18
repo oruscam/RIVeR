@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { useDataSlice, useProjectSlice } from "../../../hooks"
+import { useState, useEffect } from "react";
+import { useDataSlice, useProjectSlice, useSectionSlice } from "../../../hooks"
+import { getQuiverValues } from "../../../../commons/vectors";
 import { useTranslation } from "react-i18next";
 import { ButtonLock } from "../../ButtonLock";
 import { ExportBtn } from "../../CustomIcons/ExportBtn";
@@ -7,8 +8,9 @@ import { LockBtn } from "../../CustomIcons/LockBtn";
 
 export const ExportMp4 = () => {
     const { t } = useTranslation();
-    const { onExportGif, colorbarLimits, onSetManualColorbarLimits } = useDataSlice();
+    const { onExportGif, colorbarLimits, onSetManualColorbarLimits, quiver, images } = useDataSlice();
     const { video } = useProjectSlice();
+    const { transformationMatrix } = useSectionSlice();
     const { width, height, fps } = video.data;
     const { factor, step } = video.parameters;
 
@@ -17,6 +19,17 @@ export const ExportMp4 = () => {
 
     const [minValue, setMinValue] = useState<number>(colorbarLimits.min !== null ? colorbarLimits.min : 0);
     const [maxValue, setMaxValue] = useState<number>(colorbarLimits.max !== null ? colorbarLimits.max : 0);
+
+    useEffect(() => {
+        if (colorbarLimits.min !== null && colorbarLimits.max !== null) {
+            setMinValue(colorbarLimits.min);
+            setMaxValue(colorbarLimits.max);
+        } else if (quiver) {
+            const { min, max } = getQuiverValues(quiver, false, images.active, step, fps, transformationMatrix);
+            setMinValue(min);
+            setMaxValue(max);
+        }
+    }, [colorbarLimits, quiver, images.active, step, fps, transformationMatrix]);
 
     const originalWidth = width * factor;
     const originalHeight = height * factor;
@@ -81,10 +94,10 @@ export const ExportMp4 = () => {
 
     return (
         <>
-            <div style={{ opacity: isPosibleToCreateGif() ? 1 : 0.5, pointerEvents: isPosibleToCreateGif() ? 'auto' : 'none' }}>
+            <div style={{ opacity: isPosibleToCreateGif() ? 1 : 0.5, pointerEvents: isPosibleToCreateGif() ? 'auto' : 'none', marginTop: '50px' }}>
                 <ExportBtn isCreating={isCreatingGif} onClick={onClickExportGif} />
             </div>
-            <div className="footer">
+            <div className="footer" style={{ marginTop: '130px' }}>
                 <LockBtn
                     localExtraFields={resolutionLocked}
                     setLocalExtraFields={setResolutionLocked}
