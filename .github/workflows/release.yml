@@ -1,0 +1,89 @@
+name: Build RIVeR Releases
+
+on:
+  workflow_dispatch: # Allows manual triggering from the GitHub Actions UI
+  # release:         # Uncomment to build automatically when a Release is published
+  #   types: [published]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: gui/package-lock.json
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install FFmpeg
+        uses: FedericoCarboni/setup-ffmpeg@v3
+        id: setup-ffmpeg
+
+      - name: Copy FFmpeg into gui/ffmpeg/bin/
+        shell: bash
+        run: |
+          mkdir -p gui/ffmpeg/bin
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            cp $(which ffmpeg.exe) gui/ffmpeg/bin/
+            cp $(which ffprobe.exe) gui/ffmpeg/bin/
+          else
+            cp $(which ffmpeg) gui/ffmpeg/bin/
+            cp $(which ffprobe) gui/ffmpeg/bin/
+            chmod +x gui/ffmpeg/bin/ffmpeg gui/ffmpeg/bin/ffprobe
+          fi
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Install NPM dependencies
+        working-directory: ./gui
+        run: npm install
+
+      - name: Build Python Backend CLI
+        working-directory: ./gui
+        run: npm run build-cli
+
+      - name: Build React Frontend
+        working-directory: ./gui
+        run: npm run build
+
+      - name: Package with Electron Builder
+        working-directory: ./gui
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            npm run build-linux
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            NODE_OPTIONS=--max-old-space-size=4096 npm run build-win
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            npm run build-mac
+          fi
+        shell: bash
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: RIVeR-Release-${{ matrix.os }}
+          path: |
+            gui/release/**/*.exe
+            gui/release/**/*.dmg
+            gui/release/**/*.deb
+          retention-days: 7

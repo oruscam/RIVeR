@@ -83,11 +83,11 @@ async function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
-    
+
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'));
-    
+
     // Remove menu bar
     win.setMenu(null);
   }
@@ -132,7 +132,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
   firstFrame: '',
   defaultFilesPath: '',
   filePrefix: filePrefix,
-  pythonPath: VITE_DEV_SERVER_URL ? path.join(app.getAppPath(), '..' , 'venv', 'bin', 'python') : path.join(app.getAppPath(), '..', 'river-cli', 'python', 'bin', 'python'),
+  pythonPath: VITE_DEV_SERVER_URL ? path.join(app.getAppPath(), '..', 'venv', 'bin', 'python') : path.join(app.getAppPath(), '..', 'river-cli', 'python', 'bin', 'python'),
 };
 
 
