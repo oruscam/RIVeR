@@ -9,6 +9,7 @@ import { ButtonLock } from '../components/ButtonLock';
 import { Point } from '../types';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
+import { LockBtn } from '../components/CustomIcons/LockBtn';
 
 const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates: Point[]) => {
   const defaultValues = {
@@ -82,7 +83,7 @@ export const Oblique = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageOblique/>
+        <ImageOblique />
         <Error />
       </div>
       <div
@@ -91,8 +92,8 @@ export const Oblique = () => {
         onDragLeave={(event) => handleDragLeave(event, setDragOver, false)}
         onDrop={handleDrop}
       >
-        <FormHeader title={t('ControlPoints.title')} showSections={false}/>
-        
+        <FormHeader title={t('ControlPoints.title')} showSections={false} />
+
         <FormProvider {...methods}>
           <FormOblique onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
@@ -106,7 +107,7 @@ export const Oblique = () => {
           >
             {t('Commons.solve')}
           </button>
-          <ButtonLock
+          <LockBtn
             footerElementID="span-footer"
             headerElementID="draw-coordinates"
             disabled={coordinates[0].x === 0}

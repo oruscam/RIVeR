@@ -14,6 +14,7 @@ import {
   getGifDimensions,
   loadSectionValues
 } from "./utils/gifFunctions";
+import { getQuiverValues } from "../../commons/vectors";
 import { PROJECT_CONFIG } from "../main";
 
 const DEV_SERVER = process.env.VITE_DEV_SERVER_URL;
@@ -128,7 +129,8 @@ async function getGif() {
         factor,
         fps,
         step,
-        dimensions.outWidth
+        dimensions.outWidth,
+        colorbarLimits
       );
 
       // Colorbar

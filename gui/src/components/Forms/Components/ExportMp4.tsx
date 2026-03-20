@@ -1,26 +1,50 @@
-import { useState } from "react";
-import { useDataSlice, useProjectSlice } from "../../../hooks"
+import { useState, useEffect } from "react";
+import { useDataSlice, useProjectSlice, useSectionSlice } from "../../../hooks"
+import { getQuiverValues } from "../../../../commons/vectors";
 import { useTranslation } from "react-i18next";
+import { ButtonLock } from "../../ButtonLock";
+import { ExportBtn } from "../../CustomIcons/ExportBtn";
+import { LockBtn } from "../../CustomIcons/LockBtn";
 
 export const ExportMp4 = () => {
     const { t } = useTranslation();
-    const { onExportGif, colorbarLimits, onSetManualColorbarLimits } = useDataSlice();
+    const { onExportGif, colorbarLimits, onSetManualColorbarLimits, quiver, images } = useDataSlice();
     const { video } = useProjectSlice();
+    const { transformationMatrix } = useSectionSlice();
     const { width, height, fps } = video.data;
     const { factor, step } = video.parameters;
 
     const [isCreatingGif, setIsCreatingGif] = useState<boolean>(false);
+    const [resolutionLocked, setResolutionLocked] = useState<boolean>(false);
 
     const [minValue, setMinValue] = useState<number>(colorbarLimits.min !== null ? colorbarLimits.min : 0);
     const [maxValue, setMaxValue] = useState<number>(colorbarLimits.max !== null ? colorbarLimits.max : 0);
 
+    useEffect(() => {
+        if (colorbarLimits.min !== null && colorbarLimits.max !== null) {
+            setMinValue(colorbarLimits.min);
+            setMaxValue(colorbarLimits.max);
+        } else if (quiver) {
+            const { min, max } = getQuiverValues(quiver, false, images.active, step, fps, transformationMatrix);
+            setMinValue(min);
+            setMaxValue(max);
+        }
+    }, [colorbarLimits, quiver, images.active, step, fps, transformationMatrix]);
+
     const originalWidth = width * factor;
     const originalHeight = height * factor;
 
-    const onClickExportGif = ( event: React.MouseEvent<HTMLButtonElement> ) => {
+    const onClickExportGif = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
         if (isCreatingGif) return;
-        const resolution = document.getElementById('resolution-gif') as HTMLSelectElement;
+
+        let factorValue = 0.5;
+        if (resolutionLocked) {
+            const resolution = document.getElementById('resolution-gif') as HTMLSelectElement;
+            if (resolution) {
+                factorValue = parseFloat(resolution.value);
+            }
+        }
 
         setIsCreatingGif(true);
 
@@ -29,7 +53,7 @@ export const ExportMp4 = () => {
                 width: originalWidth,
                 height: originalHeight,
             },
-            factor: parseFloat(resolution.value),
+            factor: factorValue,
             fps: fps,
             step: step,
             colorbarLimits: {
@@ -41,7 +65,7 @@ export const ExportMp4 = () => {
         }).catch((error) => {
             console.error('Error creating gif:', error);
             setIsCreatingGif(false);
-        })   
+        })
     }
 
     const handleOnChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,32 +85,46 @@ export const ExportMp4 = () => {
             return false
         } else if (minValue >= maxValue) {
             return false
-        } else if (typeof(minValue) !== "number" && typeof(maxValue) !== "number"){
+        } else if (typeof (minValue) !== "number" && typeof (maxValue) !== "number") {
             return false
-        }else {
+        } else {
             return true
         }
     }
-    
+
     return (
         <>
-            <h2 className="mt-2">Create MP4</h2>
-            <div className="input-container-2 mt-2">
-                <label className="read-only me-1" htmlFor=""> {t("Report.Form.resolution")} </label>
-                <select
-                    className="input-field input-field-select"
-                    id="resolution-gif"
-                >
-                    <option value="1">{originalWidth}x{originalHeight}</option>
-                    <option value="0.75">{originalWidth * 0.75}x{originalHeight * 0.75}</option>
-                    <option value="0.50" selected>{originalWidth * 0.5}x{originalHeight * 0.5}</option>
-                    <option value="0.25">{originalWidth * 0.25}x{originalHeight * 0.25}</option>
-                </select>
+            <div style={{ opacity: isPosibleToCreateGif() ? 1 : 0.5, pointerEvents: isPosibleToCreateGif() ? 'auto' : 'none', marginTop: '50px' }}>
+                <ExportBtn isCreating={isCreatingGif} onClick={onClickExportGif} />
             </div>
-            <div className="simple-input-container">
+            <div className="footer" style={{ marginTop: '130px' }}>
+                <LockBtn
+                    localExtraFields={resolutionLocked}
+                    setLocalExtraFields={setResolutionLocked}
+                    disabled={false}
+                    headerElementID=""
+                    footerElementID=""
+                />
+            </div>
+            {resolutionLocked && (
+                <div className="input-container-2 mt-2">
+                    <label className="read-only me-1" htmlFor=""> {t("Report.Form.resolution")} </label>
+                    <select
+                        className="input-field input-field-select"
+                        id="resolution-gif"
+                        defaultValue="0.50"
+                    >
+                        <option value="1">{originalWidth}x{originalHeight}</option>
+                        <option value="0.75">{originalWidth * 0.75}x{originalHeight * 0.75}</option>
+                        <option value="0.50">{originalWidth * 0.5}x{originalHeight * 0.5}</option>
+                        <option value="0.25">{originalWidth * 0.25}x{originalHeight * 0.25}</option>
+                    </select>
+                </div>
+            )}
+            {/* <div className="simple-input-container mt-2">
                 <label id="colorbar-label"> {t("Report.Form.colorbarLimits")} </label>
-            </div>
-            <div className="input-container-2 mt-1">
+            </div> */}
+            {/* <div className="input-container-2 mt-1">
                 <label className="read-only me-2">{t("Report.Form.minLimit")}</label>
                 <input
                     className="input-field"
@@ -111,11 +149,8 @@ export const ExportMp4 = () => {
                     onKeyDown={applyChanges}
                     onBlur={applyChanges}
                 />
-            </div>
-            <button className={`mt-2 button-with-loader form-button ${isCreatingGif ? 'button-with-loader-active' : ''}`} type="button" disabled={!isPosibleToCreateGif()} onClick={onClickExportGif}>
-                <p className="button-name"> {t("Report.Form.export")} </p>
-                {isCreatingGif && <span className="loader-little"></span>}
-            </button>
+            </div> */}
+
         </>
     )
 }

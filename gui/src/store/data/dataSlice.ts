@@ -96,18 +96,18 @@ const dataSlice = createSlice({
       state.processing.activeMaskIndex = state.processing.masks.length - 1;
     },
     deleteMask: (state, action: PayloadAction<number>) => {
-      if (state.processing.masks){
+      if (state.processing.masks) {
         state.processing.masks.splice(action.payload, 1);
         state.processing.activeMaskIndex = 0;
       }
     },
-    updateMask: (state, action: PayloadAction<{ index: number ; points?: Point[] } | null>) => {
+    updateMask: (state, action: PayloadAction<{ index: number; points?: Point[] } | null>) => {
       if (action.payload && action.payload.points) {
         state.processing.masks![action.payload.index] = action.payload.points;
       } else if (action.payload) {
         state.processing.activeMaskIndex = action.payload.index;
       }
-      if (action.payload === null){
+      if (action.payload === null) {
         state.processing.activeMaskIndex = null;
       }
     },

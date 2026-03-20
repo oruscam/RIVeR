@@ -3,6 +3,7 @@ import DataGrid, { SelectColumn } from 'react-data-grid';
 import { useEffect, useMemo, useState } from 'react';
 import { useSectionSlice } from '../hooks';
 import { Clipboard } from './Clipboard';
+import { CopyBtn } from './CustomIcons/CopyBtn';
 
 interface Row {
   key: number;
@@ -80,7 +81,7 @@ export const Grid = () => {
   const getCellClass = (row: any) => {
     let cellClas = 'centered-cell';
     const { data } = sections[activeSection];
-    if ( data === undefined) return cellClas;
+    if (data === undefined) return cellClas;
 
     const { displacement_x } = data
     if (!data?.check[row.id] || displacement_x[row.id] === null) {
@@ -153,15 +154,15 @@ export const Grid = () => {
       const { num_stations, distance, depth, Q, A, check, activeMagnitude, activeCheck, interpolated } =
         section.data;
 
-        return Array.from({ length: num_stations }, (_, i) => ({
-          key: i,
-          id: i,
-          x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
-          d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
-          A: typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
-          Vs: getCellValue(activeMagnitude, check, activeCheck, i, interpolated),
-          Q: typeof Q[i] === 'number' ? getCellValue(Q, check, activeCheck, i, interpolated) : '-',
-        }));
+      return Array.from({ length: num_stations }, (_, i) => ({
+        key: i,
+        id: i,
+        x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
+        d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
+        A: typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
+        Vs: getCellValue(activeMagnitude, check, activeCheck, i, interpolated),
+        Q: typeof Q[i] === 'number' ? getCellValue(Q, check, activeCheck, i, interpolated) : '-',
+      }));
     }
     return [];
   }, [sections, activeSection]);
@@ -182,7 +183,9 @@ export const Grid = () => {
 
   return (
     <div className="grid-and-clipboard">
-      <Clipboard onClickFunction={onClickClipboard} />
+      <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '8px' }}>
+        <CopyBtn onClickFunction={onClickClipboard} />
+      </div>
       <div className="grid-container">
         <DataGrid
           className="grid"
