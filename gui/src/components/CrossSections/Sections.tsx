@@ -4,6 +4,7 @@ import { useSectionSlice, useUiSlice } from '../../hooks';
 import { isValidString } from '../../helpers/regex';
 import { EyeBall } from './index';
 import { useTranslation } from 'react-i18next';
+import { EyeBtn } from '../CustomIcons/EyeBtn';
 
 interface Sections {
   setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -107,7 +108,13 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
   return (
     <div className="sections">
       <div className="sections-layer">
-        <EyeBall action={onSetSeeAll} active={seeAll}/>
+        <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', paddingTop: '4px' }}>
+          <EyeBtn
+            active={seeAll}
+            action={() => onSetSeeAll(!seeAll)}
+            noBorder={true}
+          />
+        </div>
         <span className="section" />
         {sections.map((section, index: number) => {
           return (
