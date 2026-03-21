@@ -170,10 +170,14 @@
         "velocity": "Vitesse",
         "discharge": "Débit",
         "level": "Niveau",
-        "stage": "Niveau"
+        "stage": "Niveau",
+        "velStd": "Ét. std vitesse",
+        "qLessThan5": "Q < 5%",
+        "qBetween5And10": "5% < Q < 10%",
+        "qGreaterThan10": "Q > 10%"
     },
     "Report": {
-        "discahrgeQ": "Débit Q",
+        "dischargeQ": "Débit Q",
         "VideoInfo": {
             "title": "Informations Vidéo",
             "name": "Nom",

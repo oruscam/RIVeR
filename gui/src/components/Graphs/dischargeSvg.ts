@@ -115,15 +115,15 @@ export const createDischargeChart = ({
 
     legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('fill', COLORS.GREEN);
 
-    legendGroup.append('text').attr('x', 20).attr('y', 12).attr('fill', 'white').text('Q < 5%');
+    legendGroup.append('text').attr('x', 20).attr('y', 12).attr('fill', 'white').text(t('Graphs.qLessThan5'));
 
     legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('x', 90).attr('fill', COLORS.YELLOW);
 
-    legendGroup.append('text').attr('x', 110).attr('y', 12).attr('fill', 'white').text('5% < Q < 10%');
+    legendGroup.append('text').attr('x', 110).attr('y', 12).attr('fill', 'white').text(t('Graphs.qBetween5And10'));
 
     legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('x', 220).attr('fill', COLORS.RED);
 
-    legendGroup.append('text').attr('x', 240).attr('y', 12).attr('fill', 'white').text('Q > 10%');
+    legendGroup.append('text').attr('x', 240).attr('y', 12).attr('fill', 'white').text(t('Graphs.qGreaterThan10'));
   }
 
   // Add tooltip to bars
