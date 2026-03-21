@@ -170,7 +170,11 @@
         "velocity": "Velocità",
         "discharge": "Portata",
         "stage": "Fase",
-        "level": "Livello"
+        "level": "Livello",
+        "velStd": "Vel std",
+        "qLessThan5": "Q < 5%",
+        "qBetween5And10": "5% < Q < 10%",
+        "qGreaterThan10": "Q > 10%"
     },
     "Report": {
         "dischargeQ": "Portata Q",

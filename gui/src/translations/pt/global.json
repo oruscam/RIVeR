@@ -169,7 +169,11 @@
         "velocity": "Velocidade",
         "discharge": "Vazão",
         "stage": "Estágio",
-        "level": "Nível"
+        "level": "Nível",
+        "velStd": "Vel std",
+        "qLessThan5": "Q < 5%",
+        "qBetween5And10": "5% < Q < 10%",
+        "qGreaterThan10": "Q > 10%"
     },
     "Report": {
         "dischargeQ": "Vazão Q",

@@ -21,6 +21,7 @@
     "Step-2": {
     "title": " Wählen Sie den Typ des Videomaterials aus",
     "pleaseSelectVideo": "Bitte wählen Sie eine Videodatei aus",
+    "invalidFileType": "Ungültiger Dateityp. Bitte wählen Sie eine Videodatei aus.",
     "addYourFootage": "Füge deine Aufnahme hinzu",
     "changeType": "Typ ändern",
     "dragAndDrop": "Ziehe deine Videodatei hierher und lasse sie los",
@@ -168,7 +169,11 @@
         "velocity": "Geschwindigkeit",
         "discharge": "Abfluss",
         "stage": "Wasserstand",
-        "level": "Höhe"
+        "level": "Höhe",
+        "velStd": "Gesch. Std.",
+        "qLessThan5": "Q < 5%",
+        "qBetween5And10": "5% < Q < 10%",
+        "qGreaterThan10": "Q > 10%"
     },
     "Report": {
         "dischargeQ": "Abfluss Q",

@@ -242,7 +242,7 @@ export const createVelocityChart = ({
     .attr('y', 13) // ajustar la posición vertical para alinear con el rectángulo
     .attr('font-size', '15px')
     .attr('fill', COLORS.WHITE)
-    .text('Vel std');
+    .text(t('Graphs.velStd'));
 
   if (isReport === false) {
     // Append active/disable percentile legend
