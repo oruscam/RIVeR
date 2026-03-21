@@ -8,6 +8,12 @@
         "italian": "Italienisch",
         "portuguese": "Portugiesisch",
         "german": "Deutsch",
+        "japanese": "Japanisch",
+        "chinese": "Chinesisch",
+        "arabic": "Arabisch",
+        "korean": "Koreanisch",
+        "russian": "Russisch",
+        "hindi": "Hindi",
         "Errors": {
             "noSettingsFile": " Die Datei settings.json wurde im ausgewählten Verzeichnis nicht gefunden",
             "notValidDirectory": "Bitte wählen Sie ein gültiges Verzeichnis aus",
@@ -22,6 +28,7 @@
     "title": " Wählen Sie den Typ des Videomaterials aus",
     "pleaseSelectVideo": "Bitte wählen Sie eine Videodatei aus",
     "addYourFootage": "Füge deine Aufnahme hinzu",
+    "invalidFileType": "Ungültiger Dateityp. Bitte wählen Sie eine Videodatei aus.",
     "changeType": "Typ ändern",
     "dragAndDrop": "Ziehe deine Videodatei hierher und lasse sie los",
     "openFolders": "Ordner öffnen"
@@ -129,6 +136,7 @@
         "test": "Test",
         "analize": "Analysieren",
         "stop": "Stopp",
+        "roiAndMask": "ROI und Maske",
         "roiHeight": "ROI-Höhe",
         "preProcessingFilter": "Vorverarbeitungsfilter",
         "grayscale": "Graustufen",
