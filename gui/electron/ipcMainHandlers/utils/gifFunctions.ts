@@ -80,8 +80,8 @@ const drawWatermark = (
   canvasHeight,
 ) => {
   const opacity = 1
-  const scale = 0.1;  // 10%
-  const margin = 20;
+  const scale = 0.18;  // 18% of canvas width for better visibility
+  const margin = canvasWidth * 0.02;  // 2% of canvas width — proportional margin
 
   const originalW = watermarkImage.width;
   const originalH = watermarkImage.height;
@@ -89,14 +89,14 @@ const drawWatermark = (
   const canvasW = canvasWidth;
   const canvasH = canvasHeight;
 
-  // We want the watermark to occupy 10% of the image WIDTH
+  // We want the watermark to occupy 18% of the image WIDTH
   const targetWidth = canvasW * scale;
   const aspectRatio = originalW / originalH;
 
   // Calculate the corresponding height
   const targetHeight = targetWidth / aspectRatio;
 
-  // If for some reason it is taller than 10% of the height, adjust using height
+  // If for some reason it is taller than 18% of the height, adjust using height
   let finalW = targetWidth;
   let finalH = targetHeight;
 
@@ -264,9 +264,10 @@ const drawColorBar = (
   canvasHeight,
 ) => {
   // === Layout ===
-  const margin = canvasWidth * 0.015;
-  const containerWidth = canvasWidth * 0.32 > 450 ? 450 : canvasWidth * 0.35;
-  const containerHeight = canvasHeight * 0.060 > 40 ? 40 : canvasHeight * 0.060;
+  // Fully proportional sizing — no pixel caps — for harmonious proportions at any resolution
+  const margin = canvasWidth * 0.02;          // 2% of canvas width
+  const containerWidth = canvasWidth * 0.38;  // 38% of canvas width
+  const containerHeight = canvasHeight * 0.08; // 8% of canvas height
 
   const x = canvasWidth - containerWidth - margin;
   const y = canvasHeight - containerHeight - margin;

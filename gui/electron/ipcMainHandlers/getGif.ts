@@ -109,14 +109,6 @@ async function getGif() {
         dimensions.dh
       );
 
-      // Watermark
-      drawWatermark(
-        ctx,
-        watermark,
-        dimensions.outWidth,
-        dimensions.outHeight
-      );
-
       // Sections
       drawSection(ctx, sectionValues, factor, dimensions.outHeight);
 
@@ -138,6 +130,14 @@ async function getGif() {
         ctx,
         colorbarLimits.min,
         colorbarLimits.max,
+        dimensions.outWidth,
+        dimensions.outHeight
+      );
+
+      // Watermark — drawn last so it always appears on top of arrows and colorbar
+      drawWatermark(
+        ctx,
+        watermark,
         dimensions.outWidth,
         dimensions.outHeight
       );
