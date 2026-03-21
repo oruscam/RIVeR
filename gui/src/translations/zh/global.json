@@ -1,0 +1,293 @@
+{
+    "MainPage" : {
+        "start": "开始",
+        "loadProject": "加载项目",
+        "spanish" : "西班牙语",
+        "english" : "英语",
+        "french" : "法语",
+        "italian": "意大利语",
+        "portuguese": "葡萄牙语",
+        "german": "德语",
+        "japanese": "日语",
+        "chinese": "中文",
+        "arabic": "阿拉伯语",
+        "korean": "韩语",
+        "russian": "俄语",
+        "hindi": "印地语",
+        "Errors": {
+            "noSettingsFile": "所选目录不包含 settings.json 文件",
+            "notValidDirectory" : "请选择一个有效的目录",
+            "default": "加载项目时发生错误"
+        },
+        "Version": {
+            "latest": "您正在使用最新版本。",
+            "update": "有新版本可用: "
+        }
+    },
+    "Step-2" : {
+        "title" : "选择影像类型",
+        "pleaseSelectVideo": "请选择一个视频文件",
+        "invalidFileType": "文件类型无效，请选择视频文件。",
+        "addYourFootage": "添加影像",
+        "changeType": "更改类型",
+        "dragAndDrop": "将视频文件拖放至此处",
+        "openFolders": "打开文件夹"
+    },
+    "Wizard" : {
+        "back" : "返回",
+        "next" : "下一步",
+        "save" : "完成"
+    },
+    "VideoRange":{
+        "title": "视频范围",
+        "start": "开始",
+        "end": "结束",
+        "step": "步长",
+        "Errors": {
+            "start1": "时间选择无效：开始时间不能小于 0，请输入有效值。",
+            "end1": "时间选择无效：「结束」值不能超过视频总时长，请输入有效值。",
+            "end2" : "时间选择无效：「结束」值不能为 0 或更小，请输入有效值。",
+            "end3" : "时间选择无效：「结束」值不能等于或小于「开始」值，请输入有效值。",
+            "step" : "步长选择无效：「步长」必须为大于 1 的整数，请输入有效值。",
+            "required" : "所有字段均为必填项，请检查视频范围表单。",
+            "formatInput" : "格式不正确，「开始」和「结束」值必须为「00:00」格式。"
+        },
+        "ExtraInfo" : {
+            "fileName" : "文件名:",
+            "totalLength": "总时长: ",
+            "timeBetweenFrame" : "帧间隔: ",
+            "resolution" : "分辨率: ",
+            "numberOfFrames": "帧数: "
+        },
+        "framesResolution": "帧分辨率"
+    },
+    "PixelSize": {
+        "title": "像素尺寸",
+        "lineLength": "线段长度",
+        "pixelSize": "像素尺寸",
+        "drawLine": "绘制线段",
+        "Errors": {
+            "required": "所有字段均为必填项，请检查像素尺寸表单。",
+            "lineLength" : "线段长度无效：长度必须为正数（可含小数），请输入有效值。",
+            "pixelSize": "像素尺寸无效：像素尺寸必须为正数（可含小数），请输入有效值。"
+        },
+        "RealWorld": {
+            "title": "实际坐标",
+            "eastPoint1": "东向点 1",
+            "eastPoint2": "东向点 2",
+            "eastPoint3": "东向点 3",
+            "eastPoint4": "东向点 4",
+            "northPoint1": "北向点 1",
+            "northPoint2": "北向点 2",
+            "northPoint3": "北向点 3",
+            "northPoint4": "北向点 4"
+        },
+        "Pixel": {
+            "title": "像素坐标",
+            "xPoint1": "X 点 1",
+            "xPoint2": "X 点 2",
+            "xPoint3": "X 点 3",
+            "xPoint4": "X 点 4",
+            "yPoint1": "Y 点 1",
+            "yPoint2": "Y 点 2",
+            "yPoint3": "Y 点 3",
+            "yPoint4": "Y 点 4"
+        }
+    },
+    "CrossSections": {
+        "title": "横断面",
+        "drawLine": "绘制方向",
+        "width": "宽度",
+        "importBath": "导入测深数据",
+        "level" : "水位",
+        "leftBankStation": "左岸测点",
+        "RealWorld": {
+            "title": "实际坐标",
+            "eastPoint1": "东向（左岸）",
+            "northPoint1": "北向（左岸）",
+            "eastPoint2": "东向（右岸）",
+            "northPoint2": "北向（右岸）"
+        },
+        "Pixel" : {
+            "title": "像素坐标",
+            "xPoint1": "X（左）",
+            "yPoint1": "Y（左）",
+            "xPoint2": "X（右）",
+            "yPoint2": "Y（右）"
+        },
+        "Errors" : {
+            "levelError": "水位必须在 {{yMin}} 到 {{yMax}} 之间",
+            "leftBank": "左岸超出范围",
+            "bathimetryNotValid": "测深数据无效，水位 {{level}} 在此文件中不存在",
+            "bathimetryIsRequired": "{{section_name}} 需要测深数据",
+            "rwLength": "{{section_name}} 的横断面长度不能为 0"
+        },
+        "warning": "确定要删除 {{section_name}} 吗？",
+        "warningTitle": "删除断面",
+        "mask": "掩膜",
+        "addMask": "添加掩膜"
+    },
+    "Processing": {
+        "title": "处理",
+        "artificialSeeding": "人工示踪",
+        "windowSizes": "相关窗口尺寸",
+        "step1": "第 1 步",
+        "step2": "第 2 步",
+        "test" : "测试",
+        "analize": "分析",
+        "stop": "停止",
+        "roiAndMask": "ROI 与掩膜",
+        "roiHeight": "ROI 高度",
+        "preProcessingFilter": "预处理滤波",
+        "grayscale": "灰度化",
+        "removeBackground" : "背景去除",
+        "clahe": "CLAHE",
+        "clipLimit": "限幅阈值",
+        "processingSettings": "处理设置",
+        "stdFiltering": "标准差滤波",
+        "medianTestFiltering" : "中值检验滤波",
+        "epsilon": "ε 值",
+        "threshold": "阈值",
+        "carouselMedia": "中值",
+        "Plot": {
+            "u" : "U 分量",
+            "v" : "V 分量"
+        }
+    },
+    "Analizing": {
+        "title": "分析中",
+        "analize": "分析",
+        "stop": "停止",
+        "remainingTime": "剩余时间: "
+    },
+    "Results": {
+        "title": "结果",
+        "measured": "实测值",
+        "interpolated": "插值",
+        "alpha": "α 系数",
+        "stationNumber" : "测点编号",
+        "showVelStd" : "显示流速标准差",
+        "showProfile": "显示 5% | 95% 百分位",
+        "interpolateProfile": "插值剖面",
+        "applyChanges" : "应用更改"
+    },
+    "Graphs": {
+        "station": "测点",
+        "velocity": "流速",
+        "discharge": "流量",
+        "stage": "水位",
+        "level": "水位"
+    },
+    "Report": {
+        "dischargeQ": "流量 Q",
+        "VideoInfo": {
+            "title": "视频信息",
+            "name": "名称",
+            "duration": "时长",
+            "resolution": "分辨率",
+            "fps": "fps",
+            "creationDate": "创建日期"
+        },
+        "ProcessedRange": {
+            "title": "处理范围",
+            "start": "开始",
+            "end": "结束",
+            "length" : "长度",
+            "step": "步长",
+            "timeStep": "时间步长"
+        },
+        "Summary": {
+            "title": "汇总",
+            "width": "河宽",
+            "area": "断面面积",
+            "q": "Q",
+            "meanV": "平均流速",
+            "alpha": "α 系数",
+            "averageVs": "平均表面流速",
+            "maxD": "最大水深",
+            "meanD": "平均水深",
+            "measured": "实测比例 %",
+            "mean": "均值",
+            "stdDev": "标准差",
+            "cov": "变异系数"
+        },
+        "Form": {
+            "riverName": "河流名称",
+            "riverLocation": "观测站点",
+            "unitSistem": "单位制",
+            "SI": "国际单位制",
+            "imperial": "英制",
+            "date": "测量日期",
+            "resolution": "分辨率",
+            "colorbarLimits": "色条范围",
+            "minLimit": "最小值",
+            "maxLimit": "最大值",
+            "export": "导出 MP4"
+        },
+        "pixelTransformation": "像素变换",
+        "processingParameters" : "处理参数",
+        "preProcessing" : "预处理",
+        "postProcessing" : "后处理",
+        "generatedBy" : "由 RIVeR 生成",
+        "date" : "报告生成日期",
+        "Success" : {
+            "title": "分析完成！",
+            "message": "您可以关闭 RIVeR 或返回上一步 "
+        }
+    },
+    "ControlPoints" : {
+        "title": "控制点",
+        "drawPoints": "标记控制点",
+        "importDistances": "导入距离",
+        "distance": "距离",
+        "length" : "长度",
+        "Errors": {
+            "required" : "所有距离字段均为必填项，请检查控制点表单",
+            "notNull": "所有距离字段必须大于 0，请检查控制点表单",
+            "notZero": "所有距离字段不能为 0，请检查控制点表单",
+            "positive" : "所有距离字段必须为正值，请检查控制点表单"
+        }
+    },
+    "ControlPoints3d": {
+        "importPoints": "导入控制点",
+        "importImages": "导入图像",
+        "east": "东向",
+        "north": "北向",
+        "label": "标签",
+        "northern": "北半球",
+        "southern": "南半球",
+        "directSolve": "直接求解",
+        "optimize": "优化",
+        "reprojectionErrors": "重投影误差: ",
+        "numberOfPoints": "控制点数量: ",
+        "cameraHeight": "相机高度: "
+    },
+    "Errors": {
+        "invalidPointsFileFormat": "控制点文件格式无效。",
+        "invalidDistancesFileFormat" : "距离文件格式无效",
+        "invalidDistancesNotValidValue" : "距离文件格式无效，部分距离值不是有效数字",
+        "invalidDistancesNegativeValue": "距离文件格式无效，不允许使用负距离",
+        "invalidBathimetryFileFormat" : "测深文件格式无效",
+        "invalidImageExtension": "所选目录包含非图像文件",
+        "imagesFolderEmpty" : "所选文件夹中未找到图像",
+        "waitingForFrames": "正在等待帧加载完成，请数秒后重试",
+        "Cli": {
+            "windowsSizesError" : "相关窗口尺寸对于所选感兴趣区域过大。",
+            "bboxNotDefined" : "感兴趣区域（ROI）未定义。"
+        }
+    },
+    "Loader": {
+        "extractingFrames" : "正在提取视频帧",
+        "results" : "正在生成流速剖面统计数据",
+        "videoConversion" : "正在将视频转换为 MP4 格式，请稍候。",
+        "maskAndRoi": "正在定义 ROI 与掩膜"
+    },
+    "Commons": {
+        "yes": "是",
+        "no": "否",
+        "solve": "求解",
+        "resourceNotFound": "找不到资源",
+        "randomError": "发生错误，请重试",
+        "dropHereText": "将文件拖放至此面板，系统将自动识别其所属位置。"
+    }
+}

@@ -18,6 +18,28 @@ export const LanguageSelector = () => {
     de: t('MainPage.german'),
     it: t('MainPage.italian'),
     pt: t('MainPage.portuguese'),
+    ja: t('MainPage.japanese'),
+    zh: t('MainPage.chinese'),
+    ar: t('MainPage.arabic'),
+    ko: t('MainPage.korean'),
+    ru: t('MainPage.russian'),
+    hi: t('MainPage.hindi'),
+  };
+
+  // Flag emoji for each language
+  const languageFlags: Record<string, string> = {
+    en: '🇬🇧',
+    es: '🇦🇷',
+    fr: '🇫🇷',
+    de: '🇩🇪',
+    it: '🇮🇹',
+    pt: '🇧🇷',
+    ja: '🇯🇵',
+    zh: '🇨🇳',
+    ar: '🇸🇦',
+    ko: '🇰🇷',
+    ru: '🇷🇺',
+    hi: '🇮🇳',
   };
 
   const handleOnChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -34,7 +56,7 @@ export const LanguageSelector = () => {
       <select className="language-selector-select" value={language} onChange={handleOnChange}>
         {availableLanguages.map((lang) => (
           <option key={lang} value={lang}>
-            {languageNames[lang] || lang.toUpperCase()}
+            {languageFlags[lang] ? `${languageFlags[lang]} ${languageNames[lang] || lang}` : languageNames[lang] || lang}
           </option>
         ))}
       </select>
