@@ -89,9 +89,10 @@ export const drawVectors = (
           polygon.attr('fill-opacity', 1); 
           tooltip.transition().duration(200).style("opacity", 1);
           tooltip.html(`${arrow.magnitude!.toFixed(2)}`)
-              .style("left", (event.pageX) + "px") 
-              .style("top", (event.pageY) + "px")  
+              .style("left", (event.pageX) + "px")
+              .style("top", (event.pageY) + "px")
               .style('background', 'rgba(255, 255, 255, 0.4)')
+              .style('color', arrow.color)
               .style("z-index", 1000);
         });
 
