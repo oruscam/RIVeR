@@ -130,7 +130,7 @@ export const drawOblique = ({
         layer
             .append("text")
             .attr("x", point.x)
-            .attr("y", point.y - 24 / scale)
+            .attr("y", point.y - 12 / scale)
             .attr("text-anchor", "middle")
             .attr("font-size", 20 / scale)
             .attr("font-weight", "600")
