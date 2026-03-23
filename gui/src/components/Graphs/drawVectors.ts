@@ -92,6 +92,7 @@ export const drawVectors = (
               .style("left", (event.pageX) + "px")
               .style("top", (event.pageY) + "px")
               .style('background', 'rgba(50, 50, 50, 0.85)')
+              .style('border', '1px solid #262626')
               .style('color', arrow.color)
               .style("z-index", 1000);
         });
