@@ -161,7 +161,7 @@ const drawIcon = (
 
   let text: string = type;
   let offsetX = 4;
-  let offsetY = 14;
+  let offsetY = 11;
   if (module === "uav") {
     text = type === "L" ? "1" : "2";
   } else if (type === "R") {
