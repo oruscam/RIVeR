@@ -44,8 +44,8 @@ export const drawVectors = (
         .attr('id', 'vectors-tooltip')
         .style('position', () => 'absolute')
         .style('top', () => '0px')
-        .style('background', () => 'white')
-        .style('border', () => '1px solid #ccc')
+        .style('background', () => 'rgba(50, 50, 50, 0.85)')
+        .style('border', () => '1px solid #262626')
         .style('padding', () => '5px 10px')
         .style('border-radius', () => '5px')
         .style('pointer-events', () => 'none')
@@ -91,7 +91,7 @@ export const drawVectors = (
           tooltip.html(`${arrow.magnitude!.toFixed(2)}`)
               .style("left", (event.pageX) + "px")
               .style("top", (event.pageY) + "px")
-              .style('background', 'rgba(255, 255, 255, 0.4)')
+              .style('background', 'rgba(50, 50, 50, 0.85)')
               .style('color', arrow.color)
               .style("z-index", 1000);
         });
