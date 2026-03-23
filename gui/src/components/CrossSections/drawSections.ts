@@ -160,12 +160,12 @@ const drawIcon = (
     .attr("class", `pin-${draggable ? "draggable" : "static"} pin-${type} ${extraClass}`.trim());
 
   let text: string = type;
-  let offsetX = 5;
-  let offsetY = 23;
+  let offsetX = 4;
+  let offsetY = 14;
   if (module === "uav") {
     text = type === "L" ? "1" : "2";
   } else if (type === "R") {
-    offsetX = 6;
+    offsetX = 5;
   }
 
   layer
@@ -174,7 +174,7 @@ const drawIcon = (
     .attr("x", position.x - offsetX)
     .attr("y", position.y - offsetY)
     .text(text)
-    .attr("font-size", 19)
+    .attr("font-size", 13)
     .attr("font-weight", "600")
     .attr("fill", labelColor)
     .attr("pointer-events", "none");
