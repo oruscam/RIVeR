@@ -159,25 +159,37 @@ const drawIcon = (
     .attr("pointer-events", draggable ? "all" : "none")
     .attr("class", `pin-${draggable ? "draggable" : "static"} pin-${type} ${extraClass}`.trim());
 
-  let text: string = type;
-  let offsetX = 4;
-  let offsetY = 11;
-  if (module === "uav") {
-    text = type === "L" ? "1" : "2";
-  } else if (type === "R") {
-    offsetX = 5;
-  }
+  const badgeText = module === "uav" ? (type === "L" ? "1" : "2") : type;
+  const badgeWidth = 20;
+  const badgeHeight = 16;
+  const badgeX = position.x - badgeWidth / 2;
+  const badgeY = position.y - MARKS.OFFSET_Y - 14;
 
-  layer
-    .append("text")
+  const badge = layer
+    .append("g")
     .attr("class", `pin-label-${draggable ? "draggable" : "static"} pin-label-${type} ${extraClass}`.trim())
-    .attr("x", position.x - offsetX)
-    .attr("y", position.y - offsetY)
-    .text(text)
-    .attr("font-size", 13)
-    .attr("font-weight", "600")
-    .attr("fill", labelColor)
     .attr("pointer-events", "none");
+
+  badge
+    .append("rect")
+    .attr("x", badgeX)
+    .attr("y", badgeY)
+    .attr("width", badgeWidth)
+    .attr("height", badgeHeight)
+    .attr("rx", 3)
+    .attr("ry", 3)
+    .attr("fill", "rgba(50,50,50,0.85)");
+
+  badge
+    .append("text")
+    .attr("x", position.x)
+    .attr("y", badgeY + badgeHeight / 2)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "central")
+    .text(badgeText)
+    .attr("font-size", 11)
+    .attr("font-weight", "600")
+    .attr("fill", labelColor);
 
   return icon;
 };

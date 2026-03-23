@@ -98,16 +98,33 @@ export const obliqueSvg = ({ factor, coordinates, distances, svgElement, width, 
       return pinSVGBase64;
     });
 
+  // Badge background
   svg
-    .selectAll('text')
+    .selectAll('rect.pin-badge-bg')
+    .data(coordinates)
+    .enter()
+    .append('rect')
+    .attr('class', 'pin-badge-bg')
+    .attr('x', (d) => d.x / factor.x - 9)
+    .attr('y', (d) => d.y / factor.y - MARKS.OFFSET_Y_REPORT - 13)
+    .attr('width', 18)
+    .attr('height', 13)
+    .attr('rx', 2)
+    .attr('ry', 2)
+    .attr('fill', 'rgba(50,50,50,0.85)');
+
+  // Badge text
+  svg
+    .selectAll('text.pin-badge-text')
     .data(coordinates)
     .enter()
     .append('text')
+    .attr('class', 'pin-badge-text')
     .attr('x', (d) => d.x / factor.x)
-    .attr('y', (d) => d.y / factor.y)
-    .attr('dx', -MARKS.NUMBER_OFFSET_X_REPORT) // Adjust text position
-    .attr('dy', -MARKS.NUMBER_OFFSET_Y_REPORT) // Adjust text position
-    .attr('font-size', '10px')
+    .attr('y', (d) => d.y / factor.y - MARKS.OFFSET_Y_REPORT - 6.5)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
+    .attr('font-size', '9px')
     .attr('font-weight', 'bold')
     .attr('fill', (_d, i) => (i === 0 ? COLORS.MARK_L : COLORS.MARK_R))
     .text((_d, i) => i + 1);
