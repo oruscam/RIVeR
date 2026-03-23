@@ -126,13 +126,30 @@ export const drawOblique = ({
             .attr("cursor", "move")
             .call(dragPoint as any);
 
-        // Etiqueta
+        // Badge label
+        const badgeWidth = 18 / scale;
+        const badgeHeight = 14 / scale;
+        const badgeX = point.x - badgeWidth / 2;
+        const badgeY = point.y - (MARKS.OFFSET_Y + 14) / scale;
+
+        layer
+            .append("rect")
+            .attr("x", badgeX)
+            .attr("y", badgeY)
+            .attr("width", badgeWidth)
+            .attr("height", badgeHeight)
+            .attr("rx", 3 / scale)
+            .attr("ry", 3 / scale)
+            .attr("fill", "rgba(50,50,50,0.85)")
+            .attr("pointer-events", "none");
+
         layer
             .append("text")
             .attr("x", point.x)
-            .attr("y", point.y - 12 / scale)
+            .attr("y", badgeY + badgeHeight / 2)
             .attr("text-anchor", "middle")
-            .attr("font-size", 20 / scale)
+            .attr("dominant-baseline", "central")
+            .attr("font-size", 10 / scale)
             .attr("font-weight", "600")
             .attr("fill", i === 0 ? COLORS.MARK_L : COLORS.MARK_R)
             .attr("pointer-events", "none")
