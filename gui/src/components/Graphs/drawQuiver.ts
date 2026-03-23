@@ -75,6 +75,7 @@ export const drawQuiver = (
                 .style("left", () => (event.pageX + 10) + "px")
                 .style("top", () => (event.pageY - 28) + "px")
                 .style('background', () => 'rgba(255, 255, 255, 0.4)')
+                .style('color', () => d.color)
                 .style("z-index", () => "1000");
         })
         .on("mousemove", function (event: MouseEvent) {
