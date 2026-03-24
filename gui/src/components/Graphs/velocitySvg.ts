@@ -96,8 +96,8 @@ export const createVelocityChart = ({
         .tickSize(-width + margin.left + margin.right * 2)
         .tickFormat('' as any)
     )
-    .attr('stroke', 'grey')
-    .attr('stroke-width', 0.15);
+    .attr('stroke', 'rgba(255,255,255,0.1)')
+    .attr('stroke-width', 0.5);
 
   const filteredData = magnitude.map((d, i) => {
     if (check[i] === false && interpolated === false) {
@@ -176,6 +176,28 @@ export const createVelocityChart = ({
     .y0((d) => yScale(d.percentile5))
     .y1((d) => yScale(d.percentile95));
 
+  // Boundary line generators for percentile band edges
+  const linePercentile95 = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.percentile95 !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.percentile95!));
+
+  const linePercentile5 = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.percentile5 !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.percentile5!));
+
+  // Boundary line generators for std band edges
+  const linePlusStd = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.plusStd !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.plusStd!));
+
+  const lineMinusStd = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.minusStd !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.minusStd!));
+
   let legendGroupOffsetY = 5;
 
   // Add the percentile area
@@ -184,6 +206,14 @@ export const createVelocityChart = ({
     .datum(filteredData)
     .attr('fill', showPercentile ? COLORS.PERCENTILE_AREA : COLORS.TRANSPARENT)
     .attr('d', areaPercentile);
+
+  // Percentile band boundary strokes
+  if (showPercentile) {
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.PERCENTILE_STROKE).attr('stroke-width', 1).attr('d', linePercentile95);
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.PERCENTILE_STROKE).attr('stroke-width', 1).attr('d', linePercentile5);
+  }
 
   if (isReport === false) {
     legendGroupOffsetY = -28;
@@ -200,7 +230,8 @@ export const createVelocityChart = ({
     .attr('width', 15)
     .attr('height', 15)
     .attr('fill', showPercentile ? COLORS.PERCENTILE_AREA : COLORS.TRANSPARENT)
-    .attr('stroke', COLORS.WHITE);
+    .attr('stroke', showPercentile ? COLORS.PERCENTILE_STROKE : COLORS.WHITE)
+    .attr('stroke-width', showPercentile ? 1.5 : 1);
 
   // Append text  next to the rectangle
   legendGroupPercentile
@@ -218,6 +249,14 @@ export const createVelocityChart = ({
     .attr('fill', showStd ? COLORS.STD_AREA : COLORS.TRANSPARENT)
     .attr('d', areaStd);
 
+  // Std band boundary strokes
+  if (showStd) {
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.STD_STROKE).attr('stroke-width', 1).attr('d', linePlusStd);
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.STD_STROKE).attr('stroke-width', 1).attr('d', lineMinusStd);
+  }
+
   // Create leyend for std area
   const legendGroupStd = svg
     .append('g')
@@ -232,7 +271,8 @@ export const createVelocityChart = ({
     .attr('width', 15)
     .attr('height', 15)
     .attr('fill', showStd ? COLORS.STD_AREA : COLORS.TRANSPARENT)
-    .attr('stroke', COLORS.WHITE);
+    .attr('stroke', showStd ? COLORS.STD_STROKE : COLORS.WHITE)
+    .attr('stroke-width', showStd ? 1.5 : 1);
 
   // Append text next to the rectangle
 

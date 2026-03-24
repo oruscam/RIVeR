@@ -60,8 +60,10 @@ export const COLORS = {
   BLACK: '#000000',
   TRANSPARENT_WHITE: '#FFFFFF80', // 50% opacity
   TRANSPARENT: '#00000000', // fully transparent
-  PERCENTILE_AREA: '#ED6B5740',
-  STD_AREA: '#62C65533', // 'rgba(98, 198, 85, 0.2)'
+  PERCENTILE_AREA: '#ED6B5766',   // ~40% opacity – boosted from 25% for dark bg
+  PERCENTILE_STROKE: '#ED6B5799', // boundary edge stroke ~60% opacity
+  STD_AREA: '#62C65550',          // ~31% opacity – boosted from 20% for dark bg
+  STD_STROKE: '#62C65599',        // boundary edge stroke ~60% opacity
   MARK_NUMBER: '#3396BF',
   MARK_L: '#6B120B',
   MARK_R: '#2D671B',
