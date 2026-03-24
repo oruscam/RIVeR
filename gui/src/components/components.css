@@ -674,11 +674,15 @@
 .grid-container{
     width: 96%;
     margin-left: auto;
-    margin-right: auto; 
+    margin-right: auto;
     max-height: 500px;
     overflow-y: auto;
     overflow-x: auto;
     flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #2a2a2a;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
 }
 
 #ipcam-grid{
@@ -690,6 +694,17 @@
 .grid{
     width: 100%;
     height: 100%;
+
+    /* react-data-grid theme overrides */
+    --rdg-background-color: #111111;
+    --rdg-header-background-color: #1a1a1a;
+    --rdg-row-hover-background-color: #232222;
+    --rdg-border-color: #2a2a2a;
+    --rdg-selection-color: #0678BE;
+    --rdg-color: #ffffff;
+    --rdg-font-size: 0.85rem;
+    --rdg-checkbox-color: #0678BE;
+    --rdg-checkbox-focus-color: #0678BE;
 }
 
 .grid.disabled{
@@ -706,11 +721,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%; /* Asegura que el contenido ocupe toda la altura de la celda */
-    text-align: center; /* Alinea el texto en el centro */
-    background-color: black;
-    font-size: 1.1rem;
-    color: white;
+    height: 100%;
+    text-align: center;
+    background-color: inherit;
+    font-size: 0.85rem;
+    color: inherit;
+    letter-spacing: 0.02em;
 }
 
 .label-cell{
@@ -723,15 +739,35 @@
 }
 
 .select-cell1 {
-    background-color: black;
+    background-color: inherit;
 }
 
 .select-cell-grid-results {
-    background-color: black;
+    background-color: inherit;
     pointer-events: none;
 }
+
 .cell-red-values{
     color: #ED6B57;
+    font-weight: 500;
+}
+
+/* Header accent border */
+.grid .rdg-header-row {
+    border-bottom: 2px solid #0678BE;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #a0a0a0;
+}
+
+/* Zebra striping */
+.grid .rdg-row:nth-child(even) {
+    background-color: #161616;
+}
+.grid .rdg-row:nth-child(odd) {
+    background-color: #111111;
 }
 
 .point-label-cell{
