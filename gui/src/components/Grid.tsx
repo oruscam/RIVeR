@@ -4,6 +4,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useSectionSlice } from '../hooks';
 import { Clipboard } from './Clipboard';
 import { CopyBtn } from './CustomIcons/CopyBtn';
+import { LuSpline } from 'react-icons/lu';
+import { useTranslation } from 'react-i18next';
 
 interface Row {
   key: number;
@@ -38,7 +40,14 @@ const getCellValue = (
 
 export const Grid = () => {
   const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
-  const { sections, activeSection, onChangeDataValues } = useSectionSlice();
+  const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
+  const { t } = useTranslation();
+
+  const interpolated = sections[activeSection]?.interpolated ?? false;
+
+  const handleInterpolateToggle = () => {
+    onUpdateSection({ interpolated: 'interpolated' }, undefined);
+  };
 
   const copyAllDataToClipboard = () => {
     const section = sections[activeSection];
@@ -183,8 +192,29 @@ export const Grid = () => {
 
   return (
     <div className="grid-and-clipboard">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', marginBottom: '8px' }}>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        width: '96%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '6px',
+      }}>
         <CopyBtn onClickFunction={onClickClipboard} />
+        <div
+          className="switch-container-results"
+          style={{ width: 'auto', margin: 0, cursor: 'pointer', gap: '8px' }}
+          onClick={handleInterpolateToggle}
+        >
+          <LuSpline size={15} color={interpolated ? '#0678BE' : '#797979'} />
+          <span style={{ fontSize: '13px', color: interpolated ? '#0678BE' : '#797979', whiteSpace: 'nowrap' }}>
+            {t('Results.interpolateProfile')}
+          </span>
+          <label className="switch" style={{ marginLeft: '6px' }} onClick={(e) => e.stopPropagation()}>
+            <input
+              type="checkbox"
+              checked={interpolated}
+              onChange={handleInterpolateToggle}
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
       </div>
       <div className="grid-container">
         <DataGrid
