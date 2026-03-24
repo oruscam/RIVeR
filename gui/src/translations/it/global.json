@@ -1,5 +1,5 @@
 {
-        "MainPage": {
+    "MainPage": {
         "start": "Avvia",
         "loadProject": "Carica progetto",
         "spanish": "Spagnolo",
@@ -25,14 +25,13 @@
         }
     },
     "Step-2": {
-    "title": "Seleziona il tipo di filmato",
-    "pleaseSelectVideo": "Seleziona un file video",
-    "invalidFileType": "Tipo di file non valido. Seleziona un file video.",
-    "addYourFootage": "Aggiungi il tuo filmato",
-    "changeType": "Cambia tipo",
-    "dragAndDrop": "Trascina e rilascia qui il tuo file video",
-    "openFolders": "Apri cartella"
-    
+        "title": "Seleziona il tipo di filmato",
+        "pleaseSelectVideo": "Seleziona un file video",
+        "invalidFileType": "Tipo di file non valido. Seleziona un file video.",
+        "addYourFootage": "Aggiungi il tuo filmato",
+        "changeType": "Cambia tipo",
+        "dragAndDrop": "Trascina e rilascia qui il tuo file video",
+        "openFolders": "Apri cartella"
     },
     "Wizard": {
         "back": "Indietro",
@@ -126,7 +125,9 @@
         "warning": "Sei sicuro di voler eliminare {{section_name}}?",
         "warningTitle": "Elimina Sezione",
         "mask": "Maschera",
-        "addMask": "Aggiungi Maschera"
+        "addMask": "Aggiungi Maschera",
+        "bankRight": "D",
+        "bankLeft": "S"
     },
     "Processing": {
         "title": "Elaborazione",

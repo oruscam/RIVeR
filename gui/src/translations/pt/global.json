@@ -1,5 +1,5 @@
 {
-        "MainPage": {
+    "MainPage": {
         "start": "Iniciar",
         "loadProject": "Carregar projeto",
         "spanish": "Espanhol",
@@ -24,7 +24,7 @@
             "update": "Uma nova versão está disponível: "
         }
     },
-        "Step-2": {
+    "Step-2": {
         "title": "Selecione o tipo de filmagem",
         "pleaseSelectVideo": "Por favor, selecione um arquivo de vídeo",
         "invalidFileType": "Tipo de arquivo inválido. Por favor selecione um arquivo de vídeo.",
@@ -64,7 +64,7 @@
     "PixelSize": {
         "title": "Tamanho do Pixel",
         "lineLength": "Comprimento da linha",
-        "pixelSize": "Tamanho do Pixel",  
+        "pixelSize": "Tamanho do Pixel",
         "drawLine": "Desenhar Linha",
         "Errors": {
             "required": "Todos os campos são obrigatórios. Verifique o formulário de Tamanho do Pixel.",
@@ -81,7 +81,7 @@
             "northPoint2": "Ponto Norte 2",
             "northPoint3": "Ponto Norte 3",
             "northPoint4": "Ponto Norte 4"
-        }, 
+        },
         "Pixel": {
             "title": "Coordenadas de Pixel",
             "xPoint1": "Ponto X 1",
@@ -107,14 +107,14 @@
             "northPoint1": "Norte Esquerda",
             "eastPoint2": "Leste Direita",
             "northPoint2": "Norte Direita"
-        }, 
+        },
         "Pixel": {
             "title": "Coordenadas de Pixel",
             "xPoint1": "X Esquerda",
             "yPoint1": "Y Esquerda",
             "xPoint2": "X Direita",
             "yPoint2": "Y Direita"
-        }, 
+        },
         "Errors": {
             "levelError": "O nível deve estar entre {{yMin}} e {{yMax}}",
             "leftBank": "A margem esquerda está fora do intervalo",
@@ -125,7 +125,9 @@
         "warning": "Tem certeza de que deseja excluir {{section_name}}?",
         "warningTitle": "Excluir Seção",
         "mask": "Máscara",
-        "addMask": "Adicionar Máscara"
+        "addMask": "Adicionar Máscara",
+        "bankRight": "D",
+        "bankLeft": "E"
     },
     "Processing": {
         "title": "Processamento",
