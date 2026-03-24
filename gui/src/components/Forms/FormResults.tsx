@@ -3,6 +3,7 @@ import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { AllInOne } from '../Graphs/AllInOne';
 import { Grid } from '../index';
 import { useTranslation } from 'react-i18next';
+import { LuWand2 } from 'react-icons/lu';
 
 interface FormResultProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void;
@@ -20,17 +21,8 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const id = e.target.id;
-    switch (id) {
-      case 'interpolated-profile':
-        onUpdateSection({ interpolated: 'interpolated' }, undefined);
-        break;
-
-      case 'artificial-seeding':
-        onUpdateSection({ artificialSeeding: 'artificial-seeding' }, undefined);
-        break;
-
-      default:
-        break;
+    if (id === 'artificial-seeding') {
+      onUpdateSection({ artificialSeeding: 'artificial-seeding' }, undefined);
     }
   };
 
@@ -123,7 +115,10 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
         </div>
 
         <div className="switch-container-results mt-2">
-          <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
+          <h3 className="field-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <LuWand2 size={15} />
+            {t('Processing.artificialSeeding')}
+          </h3>
           <label className="switch">
             <input
               type="checkbox"
