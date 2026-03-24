@@ -146,7 +146,7 @@ const drawIcon = (
 ) => {
   const isLeft = type === "L";
   const href = module === "uav" ? pin : isLeft ? pinRed : pinGreen;
-  const labelColor = module === "uav" ? COLORS.MARK_R : isLeft ? COLORS.MARK_L : COLORS.MARK_R;
+  const labelColor = module === "uav" ? COLORS.LIGHT_BLUE : isLeft ? COLORS.RED : COLORS.GREEN;
 
   const icon = layer
     .append("image")
