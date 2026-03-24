@@ -300,14 +300,30 @@ transform-origin: 14px 22px;
 .switch-container{
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.switch-container:hover {
+    background-color: var(--on-hover);
 }
 
 .switch-container-results{
     display: flex;
     justify-content: space-between;
+    align-items: center;
     width: 65%;
     margin-left: auto;
     margin-right: auto;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: background-color 0.15s ease;
+}
+
+.switch-container-results:hover {
+    background-color: var(--on-hover);
 }
 
 .input-field-select {
