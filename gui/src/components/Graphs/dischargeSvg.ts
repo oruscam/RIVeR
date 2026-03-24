@@ -72,8 +72,8 @@ export const createDischargeChart = ({
         .tickSize(-width + margin.left + margin.right * 2)
         .tickFormat('' as any)
     )
-    .attr('stroke', 'grey')
-    .attr('stroke-width', 0.15);
+    .attr('stroke', 'rgba(255,255,255,0.1)')
+    .attr('stroke-width', 0.5);
 
   const filteredQ = Q.map((d, i) => ({
     distance: distance[i],
@@ -93,6 +93,8 @@ export const createDischargeChart = ({
     .attr('y', (d) => yScale(Math.max(0, d.discharge))) // Ajustar para valores negativos
     .attr('height', (d) => Math.abs(yScale(d.discharge) - yScale(0))) // Ajustar la altura de las barras
     .attr('width', bandwidth) // Ajustar el ancho de las barras
+    .attr('stroke', 'rgba(255,255,255,0.12)')
+    .attr('stroke-width', 0.5)
     .attr('fill', (d) => {
       if (d.QPortion === 0) {
         return COLORS.BLUE;

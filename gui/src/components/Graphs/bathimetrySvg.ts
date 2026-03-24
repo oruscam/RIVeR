@@ -148,7 +148,7 @@ export const bathimetrySvg = ({
     .selectAll('.tick text')
     .style('font-size', '14px');
 
-  svg.selectAll('.tick line').attr('stroke', 'lightgrey').attr('stroke-width', 0.2);
+  svg.selectAll('.tick line').attr('stroke', 'rgba(255,255,255,0.15)').attr('stroke-width', 0.5);
 
   // Create and add Y gridlines
 
@@ -165,8 +165,8 @@ export const bathimetrySvg = ({
         )
         .tickFormat('' as any)
     )
-    .attr('stroke', 'grey')
-    .attr('stroke-width', 0.15);
+    .attr('stroke', 'rgba(255,255,255,0.1)')
+    .attr('stroke-width', 0.5);
 
   // Sombrear el área entre la línea horizontal y la gráfica original
   const area = d3
@@ -187,7 +187,7 @@ export const bathimetrySvg = ({
   svg
     .append('path')
     .datum(clipPathData)
-    .attr('fill', COLORS.TRANSPARENT_WHITE)
+    .attr('fill', '#6CD4FF28')  // subtle water-blue, replaces flat white
     .attr('d', area)
     .attr('clip-path', `clip-bathimetry-${svgElement.id}`); // Aplicar clip-path
 
