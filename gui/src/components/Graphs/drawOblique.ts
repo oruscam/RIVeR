@@ -151,7 +151,7 @@ export const drawOblique = ({
             .attr("dominant-baseline", "central")
             .attr("font-size", 10 / scale)
             .attr("font-weight", "600")
-            .attr("fill", i === 0 ? COLORS.MARK_L : COLORS.MARK_R)
+            .attr("fill", i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE)
             .attr("pointer-events", "none")
             .text(`${i + 1}`);
         });

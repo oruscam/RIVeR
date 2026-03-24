@@ -126,6 +126,6 @@ export const obliqueSvg = ({ factor, coordinates, distances, svgElement, width, 
     .attr('dominant-baseline', 'central')
     .attr('font-size', '9px')
     .attr('font-weight', 'bold')
-    .attr('fill', (_d, i) => (i === 0 ? COLORS.MARK_L : COLORS.MARK_R))
+    .attr('fill', (_d, i) => (i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE))
     .text((_d, i) => i + 1);
 };
