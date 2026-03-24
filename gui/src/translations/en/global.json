@@ -125,7 +125,9 @@
         "warning": "Are you sure you want to delete {{section_name}}?",
         "warningTitle": "Delete Section",
         "mask": "Mask",
-        "addMask": "Add Mask"
+        "addMask": "Add Mask",
+        "bankRight": "R",
+        "bankLeft": "L"
     },
     "Processing": {
         "title": "Processing",

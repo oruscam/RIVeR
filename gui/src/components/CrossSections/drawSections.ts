@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { t } from "i18next";
 import { COLORS, MARKS } from "../../constants/constants";
 import { pinGreen, pinRed, pin } from "../../assets/icons/icons";
 import { getPositionSectionText } from "../../../commons/sectionTextPosition";
@@ -159,7 +160,12 @@ const drawIcon = (
     .attr("pointer-events", draggable ? "all" : "none")
     .attr("class", `pin-${draggable ? "draggable" : "static"} pin-${type} ${extraClass}`.trim());
 
-  const badgeText = module === "uav" ? (type === "L" ? "1" : "2") : type;
+  const badgeText =
+    module === "uav"
+      ? type === "L" ? "1" : "2"
+      : type === "L"
+        ? t("CrossSections.bankLeft")
+        : t("CrossSections.bankRight");
   const badgeWidth = 20;
   const badgeHeight = 16;
   const badgeX = position.x - badgeWidth / 2;

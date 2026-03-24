@@ -125,7 +125,9 @@
         "warning": "¿Está seguro que desea eliminar {{section_name}}?",
         "warningTitle": "Eliminar Sección",
         "mask": "Máscara",
-        "addMask": "Agregar Máscara"
+        "addMask": "Agregar Máscara",
+        "bankRight": "D",
+        "bankLeft": "I"
     },
     "Processing": {
         "title": "Procesamiento",
@@ -237,7 +239,7 @@
         "Success": {
             "title": "¡Análisis completo!",
             "message": "Puedes cerrar RIVeR o volver a la página de "
-        }   
+        }
     },
     "ControlPoints": {
         "title": "Puntos de Control",
