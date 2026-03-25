@@ -30,7 +30,7 @@ export const AllInOne = ({
   const { sections, activeSection, onChangeDataValues } = useSectionSlice();
   const { data, bathimetry, name } = sections[index ? index : activeSection];
   const { level, x1Intersection, x2Intersection, width: bathWidth } = bathimetry;
-  const { screenSizes } = useUiSlice();
+  const { screenSizes, theme } = useUiSlice();
   const { width: screenWidth } = screenSizes;
 
   const graphWidth =
@@ -140,7 +140,7 @@ export const AllInOne = ({
         isReport,
       });
     }
-  }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check]);
+  }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check, theme]);
 
   return (
     <svg

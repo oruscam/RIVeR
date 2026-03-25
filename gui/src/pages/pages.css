@@ -119,25 +119,25 @@
 }
 
 .footage-button-container:hover {
-    border-color: white;
+    border-color: var(--primary-text-color);
     transform: scale(1.1);
 }
 
-.selected-footage-type{
-    border-color: white;
+.selected-footage-type {
+    border-color: var(--primary-text-color);
     transform: scale(1.1);
 }
 
-.drag-over-ipcam{
-    border-color: white;
+.drag-over-ipcam {
+    border-color: var(--primary-text-color);
 }
 
-.drag-over-uav{
-    border-color: white;
+.drag-over-uav {
+    border-color: var(--primary-text-color);
 }
 
-.drag-over-oblique{
-    border-color: white;
+.drag-over-oblique {
+    border-color: var(--primary-text-color);
 }
 
 .browse-video-container {
@@ -198,6 +198,6 @@
 .browse-video-drop-area p {
     font-size: 1.3rem;
     font-weight: 600;
-    color: gray;
+    color: var(--secondary-text-color);
     margin-bottom: 15px;
 }

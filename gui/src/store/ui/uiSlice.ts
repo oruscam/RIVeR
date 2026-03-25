@@ -1,12 +1,14 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { UIState, ScreenSizes } from './types';
+import { UIState, ScreenSizes, ThemeType } from './types';
+
+const THEME_CYCLE: ThemeType[] = ['dark', 'light', 'dracula'];
 
 const initialState: UIState = {
   screenSizes: {
     width: window.innerWidth,
     height: window.innerHeight,
   },
-  darkMode: true,
+  theme: 'dark',
   error: [],
   isLoading: false,
   seeAll: true,
@@ -19,7 +21,11 @@ const uiSlice = createSlice({
   initialState,
   reducers: {
     changeTheme: (state) => {
-      state.darkMode = !state.darkMode;
+      const currentIndex = THEME_CYCLE.indexOf(state.theme);
+      state.theme = THEME_CYCLE[(currentIndex + 1) % THEME_CYCLE.length];
+    },
+    setTheme: (state, action: PayloadAction<ThemeType>) => {
+      state.theme = action.payload;
     },
     setErrorMessage: (state, action: PayloadAction<string[]>) => {
       const errorDiv = document.getElementById('error-message-div');
@@ -59,6 +65,7 @@ const uiSlice = createSlice({
 
 export const {
   changeTheme,
+  setTheme,
   clearErrorMessage,
   clearMessage,
   setErrorMessage,
