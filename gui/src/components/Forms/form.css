@@ -65,14 +65,15 @@
     text-align: center;
     line-height: 45px;
     border-radius: 20px;
-    width: 200px;
+    flex: 1 1 auto;
+    min-width: 100px;
+    max-width: 210px;
     height: 50px;
     word-wrap: break-word;
     font-size: auto;
-    white-space: nowrap; 
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    flex-shrink: 0;
 }
 
 .read-only-oblique{
@@ -105,13 +106,28 @@
     width: 90%;
     margin-left: auto;
     margin-right: auto;
+    overflow: hidden;
 }
 
 .form-video-extra-info-row{
     display: flex;
     justify-content: space-between;
     margin-top: 5px;
-    font-size: 1.2rem;
+    font-size: clamp(0.85rem, 2.5vw, 1.2rem);
+    gap: 8px;
+    min-width: 0;
+}
+
+.form-video-extra-info-row p {
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.form-video-extra-info-row p:last-child {
+    flex-shrink: 0;
+    text-align: right;
 }
 
 .form-video-extra-in-row p{
@@ -119,7 +135,7 @@
 }
 
 .frames-info{
-    min-width: 320px;
+    /* min-width removed — was causing overflow on small screens */
 }
 
 .bathimetry-button p {
@@ -275,8 +291,9 @@ transform-origin: 14px 22px;
     width: 100%;
     display: flex;
     justify-content: center;
-    padding-left: 60px;
-    padding-right: 60px;
+    padding-left: clamp(10px, 6%, 60px);
+    padding-right: clamp(10px, 6%, 60px);
+    gap: 8px;
 }
 
 .only-one-item{
