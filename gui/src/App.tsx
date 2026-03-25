@@ -17,7 +17,7 @@ import { useDataSlice, useProjectSlice, useUiSlice } from './hooks';
 import { FOOTAGE_TYPES } from './constants/constants';
 
 export const App: React.FC = () => {
-  const { darkMode, isLoading, onSetScreen } = useUiSlice();
+  const { theme, isLoading, onSetScreen } = useUiSlice();
   const { type, video } = useProjectSlice();
   const { data, parameters } = video;
   const { onSetImages, images } = useDataSlice();
@@ -69,7 +69,7 @@ export const App: React.FC = () => {
   }, [images.paths]);
 
   return (
-    <div className="default-app-container" data-theme={darkMode ? 'dark' : 'light'}>
+    <div className="default-app-container" data-theme={theme}>
       <Wizard>
         {isLoading ? <Loading /> : <HomePage />}
         {isLoading ? <Loading /> : <FootageMode></FootageMode>}

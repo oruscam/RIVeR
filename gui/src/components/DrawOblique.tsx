@@ -24,7 +24,7 @@ export const DrawOblique = ({
   const { interactiveLayerRef, uiLayerRef, svgRef } = layers;
 
   const { coordinates, isDefaultCoordinates, drawPoints, onChangeCoordinates, onSetCoordinatesCanvas } = useObliqueSlice();
-  const { screenSizes } = useUiSlice()
+  const { screenSizes, theme } = useUiSlice()
 
   const [localPoints, setLocalPoints] = useState<Point[]>(coordinates.map((point) => ({ x: point.x / factor, y: point.y / factor })));
   const [mousePressed, setMousePressed] = useState(false);
@@ -49,7 +49,7 @@ export const DrawOblique = ({
       isDefaultCoordinates
     })
 
-  }, [interactiveLayerRef, coordinates, scale, position, factor, width, height, mousePressed, localPoints, isDefaultCoordinates]);
+  }, [interactiveLayerRef, coordinates, scale, position, factor, width, height, mousePressed, localPoints, isDefaultCoordinates, theme]);
 
   // To create initial points
   useEffect(() => {

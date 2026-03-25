@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
-import { pin, pinRed } from '../../assets/icons/icons'; 
+import { pin, pinRed } from '../../assets/icons/icons';
 import { COLORS, MARKS } from '../../constants/constants';
+import { getDistanceColors } from '../../helpers/getCSSVar';
 
 interface drawObliqueProps {
   layer: d3.Selection<SVGGElement, unknown, null, undefined>;
@@ -62,7 +63,9 @@ export const drawOblique = ({
     layer.selectAll("*").remove();
     uiLayer.selectAll("*").remove();
 
-    // Dibuja líneas y pins
+    // Dibuja líneas y pins — colors read from current theme's CSS variables
+    const DC = getDistanceColors();
+
     localPoints.forEach((point, i) => {
       if ( isDefaultCoordinates && i !== 0 ) return
       // Líneas de los lados
@@ -74,16 +77,11 @@ export const drawOblique = ({
         .attr("y2", localPoints[(i + 1) % localPoints.length].y)
         .attr("stroke", () => {
             switch (i) {
-            case 0:
-                return COLORS.CONTROL_POINTS.D12;
-            case 1:
-                return COLORS.CONTROL_POINTS.D23;
-            case 2:
-                return COLORS.CONTROL_POINTS.D34;
-            case 3:
-                return COLORS.CONTROL_POINTS.D14;
-            default:
-                return COLORS.CONTROL_POINTS.D12;
+            case 0: return DC.D12;
+            case 1: return DC.D23;
+            case 2: return DC.D34;
+            case 3: return DC.D14;
+            default: return DC.D12;
             }
         })
         .attr("stroke-width", MARKS.STROKE_WIDTH / scale)
@@ -99,12 +97,9 @@ export const drawOblique = ({
             .attr("y2", localPoints[(i + 2) % localPoints.length].y)
             .attr("stroke", () => {
                 switch (i) {
-                case 2:
-                    return COLORS.CONTROL_POINTS.D13;
-                case 3:
-                    return COLORS.CONTROL_POINTS.D24;
-                default:
-                    return COLORS.CONTROL_POINTS.D13;
+                case 2: return DC.D13;
+                case 3: return DC.D24;
+                default: return DC.D13;
                 }
             })
             .attr("stroke-width", MARKS.STROKE_WIDTH / scale)
