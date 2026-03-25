@@ -202,8 +202,8 @@ export const Grid = () => {
           style={{ width: 'auto', margin: 0, cursor: 'pointer', gap: '8px' }}
           onClick={handleInterpolateToggle}
         >
-          <LuSpline size={15} color={interpolated ? '#0678BE' : '#797979'} />
-          <span style={{ fontSize: '13px', color: interpolated ? '#0678BE' : '#797979', whiteSpace: 'nowrap' }}>
+          <LuSpline size={15} color={interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)'} />
+          <span style={{ fontSize: '13px', color: interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)', whiteSpace: 'nowrap' }}>
             {t('Results.interpolateProfile')}
           </span>
           <label className="switch" style={{ marginLeft: '6px' }} onClick={(e) => e.stopPropagation()}>
