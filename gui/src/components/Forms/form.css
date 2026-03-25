@@ -54,7 +54,7 @@
 }
 
 .form-container.drag-over {
-    border: 3px dashed white;
+    border: 3px dashed var(--primary-text-color);
 }
 
 .read-only{
@@ -178,7 +178,7 @@
 }
 
 .btn-lock svg .bling {
-    stroke: #fff;
+    stroke: var(--primary-text-color);
     stroke-width: 2.5;
     stroke-linecap: round;
     stroke-dasharray: 3;
@@ -187,7 +187,7 @@
 }
 
 .btn-lock svg .lock {
-    stroke: #fff;
+    stroke: var(--primary-text-color);
     stroke-width: 4;
     stroke-linejoin: round;
     stroke-linecap: round;
@@ -196,7 +196,7 @@
 }
 
 .btn-lock svg .lockb {
-    fill: #fff;
+    fill: var(--primary-text-color);
     fill-rule: evenodd;
     clip-rule: evenodd;
     transform: rotate(8deg);
@@ -308,6 +308,30 @@ transform-origin: 14px 22px;
 
 .switch-container:hover {
     background-color: var(--on-hover);
+}
+
+/* Dracula theme: label text reflects toggle state (violet = on, muted = off) */
+[data-theme="dracula"] .switch-container p,
+[data-theme="dracula"] .switch-container-results p {
+    color: var(--secondary-text-color);
+    transition: color 0.2s ease;
+}
+
+[data-theme="dracula"] .switch-container:has(input:checked) p,
+[data-theme="dracula"] .switch-container-results:has(input:checked) p {
+    color: var(--toggle-active-color);
+}
+
+/* Light theme: label text reflects toggle state (amber = on, muted = off) */
+[data-theme="light"] .switch-container p,
+[data-theme="light"] .switch-container-results p {
+    color: var(--secondary-text-color);
+    transition: color 0.2s ease;
+}
+
+[data-theme="light"] .switch-container:has(input:checked) p,
+[data-theme="light"] .switch-container-results:has(input:checked) p {
+    color: var(--toggle-active-color);
 }
 
 .switch-container-results{
@@ -511,10 +535,10 @@ transform-origin: 14px 22px;
     height: 40px;
 }
 
-.divider-line{
+.divider-line {
     width: 100%;
     height: 1px;
-    background-color: white;
+    background-color: var(--border-color);
     align-self: center;
 }
 
