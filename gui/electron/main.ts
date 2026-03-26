@@ -134,7 +134,7 @@ export const PROJECT_CONFIG: ProjectConfig = {
   filePrefix: filePrefix,
   pythonPath: VITE_DEV_SERVER_URL
     ? path.join(app.getAppPath(), '..', 'venv', ...(process.platform === 'win32' ? ['Scripts', 'python.exe'] : ['bin', 'python']))
-    : path.join(app.getAppPath(), '..', 'river-cli', 'python', ...(process.platform === 'win32' ? ['Scripts', 'python.exe'] : ['bin', 'python'])),
+    : path.join(app.getAppPath(), '..', 'river-cli', 'python', ...(process.platform === 'win32' ? ['python.exe'] : ['bin', 'python'])),
 };
 
 
