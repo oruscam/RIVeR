@@ -53,6 +53,19 @@ async function getDistances() {
   });
 }
 
+// Normalize a label string to a canonical two-digit key like "12", "23", etc.
+// Strips the optional "d"/"D" prefix and any separator character ( - _ space , ; )
+// then sorts the two digits so that e.g. "2-1" and "1-2" both map to "d12".
+// The d41 pair is treated as a special case because 1 < 4 but the canonical
+// name is "d41" (not "d14").
+const normalizeDistanceKey = (rawKey: string): string => {
+  const stripped = rawKey.trim().replace(/[dD\-_\s,;]/g, '');
+  if (stripped === '41' || stripped === '14') {
+    return 'd41';
+  }
+  return `d${stripped.split('').sort().join('')}`;
+};
+
 const transformDistances = (distances: any[]) => {
   const distancesObject: { [key: string]: number } = {};
   const keys = ['d12', 'd23', 'd34', 'd41', 'd13', 'd24'];
@@ -69,17 +82,13 @@ const transformDistances = (distances: any[]) => {
     let newDistances = [];
 
     if (typeof distances[0][0] === 'string' && typeof distances[0][1] === 'number' && distances.length === 6) {
-      // In this case, each row is an array [string, number]. We need to analyze the string part
+      // Two-column format: [label, value] pairs.
+      // Labels are order-independent — they are matched by key and then
+      // reordered into the canonical sequence (d12 d23 d34 d41 d13 d24).
+      // Accepted label formats: "d12" "D12" "12" "1-2" "1_2" "1 2" "1,2" "1;2"
       const distanceMap: { [key: string]: number } = {};
       distances.forEach(([key, value]) => {
-        const normalizedKey = key.replace(/[_-dD]/g, '');
-        let sortedKey: string = '';
-        if (normalizedKey === '41' || normalizedKey === '14') {
-          sortedKey = 'd41';
-        } else {
-          sortedKey = `d${normalizedKey.split('').sort().join('')}`;
-        }
-
+        const sortedKey = normalizeDistanceKey(String(key));
         distanceMap[sortedKey] = value;
       });
 
@@ -90,6 +99,7 @@ const transformDistances = (distances: any[]) => {
         return distanceMap[key];
       });
     } else if (typeof distances[0][0] === 'number' && distances.length === 6) {
+      // One-column format: 6 numeric values in the fixed order d12 d23 d34 d41 d13 d24.
       newDistances = distances.map((value) => value[0]);
     } else {
       throw new Error('invalidDistancesFileFormat');
