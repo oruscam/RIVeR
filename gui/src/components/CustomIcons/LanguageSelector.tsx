@@ -24,7 +24,7 @@ export function LangBtn() {
     const { t, i18n } = useTranslation();
     const { language, onSetLanguage } = useUiSlice();
     const [open, setOpen] = useState(false);
-    const ref = useRef(null);
+    const ref = useRef<HTMLDivElement>(null);
     const availableLanguages = Object.keys(i18n.options.resources || {});
     const langs = availableLanguages.map(code => ({
         code,
@@ -33,7 +33,7 @@ export function LangBtn() {
     }));
 
     useEffect(() => {
-        const h = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false); };
+        const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
         document.addEventListener("mousedown", h);
         return () => document.removeEventListener("mousedown", h);
     }, []);
@@ -47,10 +47,10 @@ export function LangBtn() {
         <div className="row">
             <div className="lwrap" ref={ref}>
                 <button className={`ib ${open ? "active" : ""}`}
-                    style={{ "--hi": "var(--accent)", width: 60, gap: 3, paddingInline: 10 }}
+                    style={{ "--hi": "var(--accent)", width: 60, gap: 3, paddingInline: 10 } as React.CSSProperties}
                     onClick={() => setOpen(v => !v)}>
-                    {Icons.Globe(open ? "var(--accent)" : "var(--text)")}
-                    {Icons.ChevDown("var(--muted)", open ? 180 : 0)}
+                    {Icons.Globe(open ? "var(--secondary-background-color)" : "var(--primary-text-color)")}
+                    {Icons.ChevDown("var(--secondary-text-color)", open ? 180 : 0)}
                 </button>
                 <div className={`ldrop ${open ? "open" : ""}`}>
                     {langs.map(l => (
@@ -58,7 +58,7 @@ export function LangBtn() {
                             onClick={() => { onSetLanguage(l.code); setOpen(false) }}>
                             <span style={{ fontSize: 17 }}>{l.flag}</span>
                             <span>{l.label}</span>
-                            {l.code === language && <span style={{ marginLeft: "auto", display: "flex" }}>{Icons.Check("var(--accent)")}</span>}
+                            {l.code === language && <span style={{ marginLeft: "auto", display: "flex" }}>{Icons.Check("var(--success-color)")}</span>}
                         </div>
                     ))}
                 </div>
