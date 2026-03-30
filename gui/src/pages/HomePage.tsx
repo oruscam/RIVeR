@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
 import { LangBtn } from '../components/CustomIcons/LanguageSelector';
+import { UnitBtn } from '../components/CustomIcons/UnitSelector';
 import image from '../assets/logo.png';
 import './pages.css';
 import { useProjectSlice, useUiSlice } from '../hooks';
@@ -49,7 +50,10 @@ export const HomePage: React.FC = () => {
       {error && <h4 className="home-page-error mb-1"> {error} </h4>}
       <p id="version-number">{import.meta.env.VITE_APP_VERSION}</p>
       {isLatestVersion !== undefined && <VersionMessage />}
-      <LangBtn />
+      <div className="row" style={{ position: 'absolute', bottom: '30px', right: '50px' }}>
+        <UnitBtn />
+        <LangBtn />
+      </div>
       {/* <ThemeToggle /> */}
     </div>
   );

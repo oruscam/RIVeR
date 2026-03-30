@@ -44,27 +44,23 @@ export function LangBtn() {
     }, [language]);
 
     return (
-        <div className="row">
-            <div className="lwrap" ref={ref}>
-                <button className={`ib ${open ? "active" : ""}`}
-                    style={{ "--hi": "var(--accent)", width: 60, gap: 3, paddingInline: 10 } as React.CSSProperties}
-                    onClick={() => setOpen(v => !v)}>
-                    {Icons.Globe(open ? "var(--secondary-background-color)" : "var(--primary-text-color)")}
-                    {Icons.ChevDown("var(--secondary-text-color)", open ? 180 : 0)}
-                </button>
-                <div className={`ldrop ${open ? "open" : ""}`}>
-                    {langs.map(l => (
-                        <div key={l.code} className={`litem ${l.code === language ? "sel" : ""}`}
-                            onClick={() => { onSetLanguage(l.code); setOpen(false) }}>
-                            <span style={{ fontSize: 17 }}>{l.flag}</span>
-                            <span>{l.label}</span>
-                            {l.code === language && <span style={{ marginLeft: "auto", display: "flex" }}>{Icons.Check("var(--success-color)")}</span>}
-                        </div>
-                    ))}
-                </div>
+        <div className="lwrap" ref={ref}>
+            <button className={`ib ${open ? "active" : ""}`}
+                style={{ "--hi": "var(--accent)", width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties}
+                onClick={() => setOpen(v => !v)}>
+                {Icons.Globe(open ? "var(--secondary-background-color)" : "var(--primary-text-color)")}
+                {Icons.ChevDown("var(--secondary-text-color)", open ? 180 : 0)}
+            </button>
+            <div className={`ldrop ${open ? "open" : ""}`}>
+                {langs.map(l => (
+                    <div key={l.code} className={`litem ${l.code === language ? "sel" : ""}`}
+                        onClick={() => { onSetLanguage(l.code); setOpen(false) }}>
+                        <span style={{ fontSize: 17 }}>{l.flag}</span>
+                        <span>{l.label}</span>
+                        {l.code === language && <span style={{ marginLeft: "auto", display: "flex" }}>{Icons.Check("var(--success-color)")}</span>}
+                    </div>
+                ))}
             </div>
-
-
         </div>
     );
 }
