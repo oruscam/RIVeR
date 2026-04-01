@@ -3,6 +3,8 @@ import { UIState, ScreenSizes, ThemeType } from './types';
 
 const THEME_CYCLE: ThemeType[] = ['dark', 'light', 'dracula'];
 
+const savedLanguage = localStorage.getItem('language') || 'en';
+
 const initialState: UIState = {
   screenSizes: {
     width: window.innerWidth,
@@ -12,7 +14,7 @@ const initialState: UIState = {
   error: [],
   isLoading: false,
   seeAll: true,
-  language: 'en',
+  language: savedLanguage,
   isLatestVersion: undefined,
 };
 

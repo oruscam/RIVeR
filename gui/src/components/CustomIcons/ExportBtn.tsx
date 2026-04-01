@@ -36,7 +36,7 @@ export const ExportBtn: React.FC<ExportBtnProps> = ({ isCreating, onClick, class
             {...props}
             type="button"
             className={`ib ${phase === "running" ? "active" : ""} ${isDone ? "is-success" : ""} ${className}`}
-            style={{ cursor: phase === "running" ? "wait" : "pointer", "--secondary-background-color": "var(--bg)", ...style } as React.CSSProperties}
+            style={{ cursor: phase === "running" ? "wait" : "pointer", ...style } as React.CSSProperties}
             onClick={handleClick}
         >
             {rpl}

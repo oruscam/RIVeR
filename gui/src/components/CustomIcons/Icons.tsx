@@ -31,11 +31,25 @@ export const Icons = {
     ChevDown: (c?: string, rot?: number) => <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: `rotate(${rot || 0}deg)`, transition: "transform .2s" }}><path d="M6 9l6 6 6-6" /></svg>,
     Play: (c?: string) => <I color={c} d="M5 3l14 9-14 9V3z" />,
     Pause: (c?: string) => <I color={c} d="M6 4h4v16H6zM14 4h4v16h-4z" />,
-    Video: (c?: string) => <I color={c} d="M23 7l-7 5 7 5V7z" extra={["M1 5h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H1a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z".replace("-2", "0")]} />,
+    Video: (c?: string) => <I color={c} d="m22 8-6 4 6 4V8Z" extra={["M4 6h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2z"]} />,
     Loader: (c?: string) => <svg width={21} height={21} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><line x1="12" y1="2" x2="12" y2="6" /><line x1="12" y1="18" x2="12" y2="22" /><line x1="4.93" y1="4.93" x2="7.76" y2="7.76" /><line x1="16.24" y1="16.24" x2="19.07" y2="19.07" /><line x1="2" y1="12" x2="6" y2="12" /><line x1="18" y1="12" x2="22" y2="12" /><line x1="4.93" y1="19.07" x2="7.76" y2="16.24" /><line x1="16.24" y1="7.76" x2="19.07" y2="4.93" /></svg>,
     Download: (c?: string) => <I color={c} d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />,
     FrameBack: (c?: string) => <I color={c} d="M17 18l-6-6 6-6" extra={["M7 6v12"]} />,
     FrameNext: (c?: string) => <I color={c} d="M7 18l6-6-6-6" extra={["M17 6v12"]} />,
+    Sun: (color?: string) => (
+        <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={color || "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2" />
+            <path d="M12 20v2" />
+            <path d="m4.93 4.93 1.41 1.41" />
+            <path d="m17.66 17.66 1.41 1.41" />
+            <path d="M2 12h2" />
+            <path d="M20 12h2" />
+            <path d="m6.34 17.66-1.41 1.41" />
+            <path d="m19.07 4.93-1.41 1.41" />
+        </svg>
+    ),
+    Moon: (c?: string) => <I color={c} d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401" />,
     MaskAdd: (color: string) => (
         <svg
             width="24"

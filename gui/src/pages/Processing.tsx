@@ -7,6 +7,7 @@ import { useWizard } from "react-use-wizard"
 import { ButtonLock } from "../components/ButtonLock"
 import { FormProcessing } from "../components/Forms"
 import { LockBtn } from "../components/CustomIcons/LockBtn"
+import { ExportBtn } from "../components/CustomIcons/ExportBtn"
 
 export const Processing = () => {
     const { t } = useTranslation()
