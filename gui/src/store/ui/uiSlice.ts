@@ -1,6 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { UIState, ScreenSizes } from './types';
 
+const savedLanguage = localStorage.getItem('language') || 'en';
+
 const initialState: UIState = {
   screenSizes: {
     width: window.innerWidth,
@@ -10,7 +12,7 @@ const initialState: UIState = {
   error: [],
   isLoading: false,
   seeAll: true,
-  language: 'en',
+  language: savedLanguage,
   isLatestVersion: undefined,
 };
 
