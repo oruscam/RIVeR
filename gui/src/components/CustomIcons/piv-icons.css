@@ -266,12 +266,12 @@ body {
 
 .ldrop {
     position: absolute;
-    top: calc(100% + 8px);
+    bottom: calc(100% + 8px);
     left: 50%;
     transform: translateX(-50%) scaleY(0);
-    transform-origin: top;
-    background: #111c2d;
-    border: 1px solid var(--border);
+    transform-origin: bottom;
+    background: var(--secondary-background-color, #141414);
+    border: 1px solid var(--input-background, #323232);
     border-radius: 13px;
     padding: 6px;
     min-width: 152px;
@@ -297,15 +297,15 @@ body {
     cursor: pointer;
     font-size: 13px;
     transition: background .14s;
-    color: var(--text)
+    color: var(--primary-text-color, #fff)
 }
 
 .litem:hover {
-    background: rgba(56, 189, 248, .1)
+    background: var(--on-hover, #232222)
 }
 
 .litem.sel {
-    color: var(--accent)
+    color: var(--success-color, #62C655)
 }
 
 .card {

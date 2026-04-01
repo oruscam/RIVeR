@@ -9,10 +9,10 @@ let python: ChildProcess;
 async function executeRiverCli(
   options: (string | number)[],
   _mode: 'json' | 'text' = 'json',
-  output:  boolean = false,
+  output: boolean = false,
   logFile: string
 ): Promise<{ data: any; error: any }> {
-  
+
   const args = options.map((arg) => arg.toString());
   args.unshift(...['-m', 'river.cli']);
 
@@ -24,7 +24,7 @@ async function executeRiverCli(
 
     let stdoutData = '';
     let stderrData = '';
-    
+
     // Variables para throttling
     let lastStderrMessage = '';
     let lastSentTime = 0;
@@ -42,18 +42,18 @@ async function executeRiverCli(
     });
 
     python.stderr.on('data', (data) => {
-      const message = data. toString();
+      const message = data.toString();
       stderrData = message;
       console.log('stderr', message);
-      
+
       // Guardar el último mensaje
       lastStderrMessage = message;
-      
+
       // Output con throttling
       if (output === true) {
         const currentTime = Date.now();
         const timeSinceLastSent = currentTime - lastSentTime;
-        
+
         if (timeSinceLastSent >= THROTTLE_INTERVAL) {
           webContents.getAllWebContents().forEach((contents) => {
             contents.send('river-cli-message', message);
@@ -66,15 +66,15 @@ async function executeRiverCli(
     python.on('close', async (code) => {
       // Enviar el último mensaje antes de cerrar si no se envió
       if (output === true && lastStderrMessage) {
-        webContents. getAllWebContents().forEach((contents) => {
+        webContents.getAllWebContents().forEach((contents) => {
           contents.send('river-cli-message', lastStderrMessage);
         });
       }
-      
+
       if (code !== 0) {
         if (code === null) {
           resolve({
-            error:  {
+            error: {
               message: 'Process was killed',
             },
           });
@@ -95,7 +95,7 @@ async function executeRiverCli(
     });
   });
 
-  return result as { data: any; error:  any };
+  return result as { data: any; error: any };
 }
 
 async function killRiverCli() {
