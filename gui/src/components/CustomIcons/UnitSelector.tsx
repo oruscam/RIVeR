@@ -26,6 +26,7 @@ export function UnitBtn() {
             ...projectDetails,
             unitSistem: code
         });
+        localStorage.setItem("unitSystem", code)
         setOpen(false);
     };
 
@@ -40,7 +41,7 @@ export function UnitBtn() {
             <div className={`ldrop ${open ? "open" : ""}`} style={{ minWidth: 120 }}>
                 {unitSystems.map(u => (
                     <div key={u.code} className={`litem ${u.code === unitSistem ? "sel" : ""}`}
-                        onClick={() => handleSelect(u.code)}>
+                        onClick={() => { handleSelect(u.code); }}>
                         <span>{u.label}</span>
                         {u.code === unitSistem && <span style={{ marginLeft: "auto", display: "flex" }}>{Icons.Check("var(--success-color)")}</span>}
                     </div>

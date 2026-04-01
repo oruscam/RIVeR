@@ -54,7 +54,7 @@ export function LangBtn() {
             <div className={`ldrop ${open ? "open" : ""}`}>
                 {langs.map(l => (
                     <div key={l.code} className={`litem ${l.code === language ? "sel" : ""}`}
-                        onClick={() => { onSetLanguage(l.code); setOpen(false) }}>
+                        onClick={() => { onSetLanguage(l.code); localStorage.setItem('language', l.code); setOpen(false) }}>
                         <span style={{ fontSize: 17 }}>{l.flag}</span>
                         <span>{l.label}</span>
                         {l.code === language && <span style={{ marginLeft: "auto", display: "flex" }}>{Icons.Check("var(--success-color)")}</span>}

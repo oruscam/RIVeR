@@ -269,7 +269,8 @@ export const useProjectSlice = () => {
         dispatch(setProjectType(settings.footage));
 
         // Set language
-        dispatch(setLanguage(settings.language));
+        const savedLanguage = localStorage.getItem("language") || "en"
+        dispatch(setLanguage(savedLanguage));
 
         // Set video metadata
         dispatch(
@@ -301,7 +302,7 @@ export const useProjectSlice = () => {
           dispatch(setFirstFramePath(filePrefix + firstFrame));
         }
 
-        if(settings.colorbar_limits){
+        if (settings.colorbar_limits) {
           const { min, max } = settings.colorbar_limits;
           dispatch(setColorbarLimits({
             min: settings.colorbar_limits.min,
@@ -401,11 +402,12 @@ export const useProjectSlice = () => {
           // Load project details
           if (settings.river_name || settings.site || settings.unit_system || settings.medition_date) {
             console.log('loading project details')
+            const savedUnitSystem = localStorage.getItem("unitSystem") || "si"
             dispatch(
               setProjectDetails({
                 riverName: settings.river_name,
                 site: settings.site,
-                unitSistem: settings.unit_system,
+                unitSistem: savedUnitSystem,
                 meditionDate: settings.medition_date,
               })
             );
