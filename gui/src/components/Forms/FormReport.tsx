@@ -8,7 +8,7 @@ import '../../index.css';
 import { SuccessfulMessage } from '../Report';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
-import { ExportMp4 } from './Components';
+
 
 export const FormReport = ({
   isReportSaved,
@@ -47,9 +47,9 @@ export const FormReport = ({
 
   const { goToStep } = useWizard();
 
-  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUnitSistem(event.target.value);
-  };
+  // const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setUnitSistem(event.target.value);
+  // };
 
   const onHandleDataChange = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
@@ -169,7 +169,7 @@ export const FormReport = ({
           />
         </div>
 
-        <ExportMp4 />
+
 
         {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
       </form>
