@@ -1,0 +1,295 @@
+{
+    "MainPage": {
+        "start": "시작",
+        "loadProject": "프로젝트 불러오기",
+        "spanish": "스페인어",
+        "english": "영어",
+        "french": "프랑스어",
+        "italian": "이탈리아어",
+        "portuguese": "포르투갈어",
+        "german": "독일어",
+        "japanese": "일본어",
+        "chinese": "중국어",
+        "arabic": "아랍어",
+        "korean": "한국어",
+        "russian": "러시아어",
+        "hindi": "힌디어",
+        "Errors": {
+            "noSettingsFile": "선택한 디렉토리에 settings.json 파일이 없습니다",
+            "notValidDirectory": "유효한 디렉토리를 선택해 주세요",
+            "default": "프로젝트를 불러오는 중 오류가 발생했습니다"
+        },
+        "Version": {
+            "latest": "최신 버전을 사용하고 있습니다.",
+            "update": "새 버전이 있습니다: "
+        }
+    },
+    "Step-2": {
+        "title": "영상 유형 선택",
+        "pleaseSelectVideo": "동영상 파일을 선택해 주세요",
+        "invalidFileType": "유효하지 않은 파일 형식입니다. 동영상 파일을 선택해 주세요.",
+        "addYourFootage": "영상 추가",
+        "changeType": "유형 변경",
+        "dragAndDrop": "동영상 파일을 여기에 드래그 앤 드롭하세요",
+        "openFolders": "폴더 열기"
+    },
+    "Wizard": {
+        "back": "이전",
+        "next": "다음",
+        "save": "완료"
+    },
+    "VideoRange": {
+        "title": "동영상 범위",
+        "start": "시작",
+        "end": "종료",
+        "step": "단계",
+        "Errors": {
+            "start1": "유효하지 않은 시간 선택: 시작 시간은 0 이상이어야 합니다. 유효한 값을 입력해 주세요.",
+            "end1": "유효하지 않은 시간 선택: '종료' 값은 동영상 전체 길이를 초과할 수 없습니다. 유효한 값을 입력해 주세요.",
+            "end2": "유효하지 않은 시간 선택: '종료' 값은 0 이하일 수 없습니다. 유효한 값을 입력해 주세요.",
+            "end3": "유효하지 않은 시간 선택: '종료' 값은 '시작' 값과 같거나 작을 수 없습니다. 유효한 값을 입력해 주세요.",
+            "step": "유효하지 않은 단계 선택: '단계'는 1보다 큰 정수여야 합니다. 유효한 값을 입력해 주세요.",
+            "required": "모든 필드는 필수입니다. 동영상 범위 양식을 확인해 주세요.",
+            "formatInput": "형식이 올바르지 않습니다. '시작'과 '종료' 값은 '00:00' 형식이어야 합니다."
+        },
+        "ExtraInfo": {
+            "fileName": "파일명:",
+            "totalLength": "전체 길이: ",
+            "timeBetweenFrame": "프레임 간격: ",
+            "resolution": "해상도: ",
+            "numberOfFrames": "프레임 수: "
+        },
+        "framesResolution": "프레임 해상도"
+    },
+    "PixelSize": {
+        "title": "픽셀 크기",
+        "lineLength": "선 길이",
+        "pixelSize": "픽셀 크기",
+        "drawLine": "선 그리기",
+        "Errors": {
+            "required": "모든 필드는 필수입니다. 픽셀 크기 양식을 확인해 주세요.",
+            "lineLength": "유효하지 않은 선 길이: 양수(소수 포함)를 입력해 주세요.",
+            "pixelSize": "유효하지 않은 픽셀 크기: 양수(소수 포함)를 입력해 주세요."
+        },
+        "RealWorld": {
+            "title": "실세계 좌표",
+            "eastPoint1": "동향 점 1",
+            "eastPoint2": "동향 점 2",
+            "eastPoint3": "동향 점 3",
+            "eastPoint4": "동향 점 4",
+            "northPoint1": "북향 점 1",
+            "northPoint2": "북향 점 2",
+            "northPoint3": "북향 점 3",
+            "northPoint4": "북향 점 4"
+        },
+        "Pixel": {
+            "title": "픽셀 좌표",
+            "xPoint1": "X 점 1",
+            "xPoint2": "X 점 2",
+            "xPoint3": "X 점 3",
+            "xPoint4": "X 점 4",
+            "yPoint1": "Y 점 1",
+            "yPoint2": "Y 점 2",
+            "yPoint3": "Y 점 3",
+            "yPoint4": "Y 점 4"
+        }
+    },
+    "CrossSections": {
+        "title": "횡단면",
+        "drawLine": "방향 그리기",
+        "width": "폭",
+        "importBath": "수심 데이터 가져오기",
+        "level": "수위",
+        "leftBankStation": "좌안 측점",
+        "RealWorld": {
+            "title": "실세계 좌표",
+            "eastPoint1": "동향 (좌안)",
+            "northPoint1": "북향 (좌안)",
+            "eastPoint2": "동향 (우안)",
+            "northPoint2": "북향 (우안)"
+        },
+        "Pixel": {
+            "title": "픽셀 좌표",
+            "xPoint1": "X (좌)",
+            "yPoint1": "Y (좌)",
+            "xPoint2": "X (우)",
+            "yPoint2": "Y (우)"
+        },
+        "Errors": {
+            "levelError": "수위는 {{yMin}}에서 {{yMax}} 사이여야 합니다",
+            "leftBank": "좌안이 범위를 벗어났습니다",
+            "bathimetryNotValid": "수심 데이터가 유효하지 않습니다. 수위 {{level}}이 이 파일에 존재하지 않습니다",
+            "bathimetryIsRequired": "{{section_name}}에 수심 데이터가 필요합니다",
+            "rwLength": "{{section_name}}의 횡단면 길이는 0이 될 수 없습니다"
+        },
+        "warning": "{{section_name}}을(를) 삭제하시겠습니까?",
+        "warningTitle": "단면 삭제",
+        "mask": "마스크",
+        "addMask": "마스크 추가",
+        "bankRight": "우",
+        "bankLeft": "좌"
+    },
+    "Processing": {
+        "title": "처리",
+        "artificialSeeding": "인공 추적자",
+        "windowSizes": "상관 윈도우 크기",
+        "step1": "1단계",
+        "step2": "2단계",
+        "test": "테스트",
+        "analize": "분석",
+        "stop": "중지",
+        "roiAndMask": "관심 영역 및 마스크",
+        "roiHeight": "관심 영역 높이",
+        "preProcessingFilter": "전처리 필터링",
+        "grayscale": "그레이스케일",
+        "removeBackground": "배경 제거",
+        "clahe": "CLAHE",
+        "clipLimit": "클립 한계",
+        "processingSettings": "처리 설정",
+        "stdFiltering": "표준편차 필터링",
+        "medianTestFiltering": "중앙값 검정 필터링",
+        "epsilon": "엡실론",
+        "threshold": "임계값",
+        "carouselMedia": "중앙값",
+        "Plot": {
+            "u": "U 성분",
+            "v": "V 성분"
+        }
+    },
+    "Analizing": {
+        "title": "분석 중",
+        "analize": "분석",
+        "stop": "중지",
+        "remainingTime": "남은 시간: "
+    },
+    "Results": {
+        "title": "결과",
+        "measured": "실측값",
+        "interpolated": "보간값",
+        "alpha": "알파 계수",
+        "stationNumber": "측점 번호",
+        "showVelStd": "유속 표준편차 표시",
+        "showProfile": "5% | 95% 백분위 표시",
+        "interpolateProfile": "프로파일 보간",
+        "applyChanges": "변경 사항 적용"
+    },
+    "Graphs": {
+        "station": "측점",
+        "velocity": "유속",
+        "discharge": "유량",
+        "stage": "수위",
+        "level": "레벨"
+    },
+    "Report": {
+        "dischargeQ": "유량 Q",
+        "VideoInfo": {
+            "title": "동영상 정보",
+            "name": "이름",
+            "duration": "재생 시간",
+            "resolution": "해상도",
+            "fps": "fps",
+            "creationDate": "생성일"
+        },
+        "ProcessedRange": {
+            "title": "처리 범위",
+            "start": "시작",
+            "end": "종료",
+            "length": "길이",
+            "step": "단계",
+            "timeStep": "시간 단계"
+        },
+        "Summary": {
+            "title": "요약",
+            "width": "하천 폭",
+            "area": "단면적",
+            "q": "Q",
+            "meanV": "평균 유속",
+            "alpha": "알파 계수",
+            "averageVs": "평균 표면 유속",
+            "maxD": "최대 수심",
+            "meanD": "평균 수심",
+            "measured": "실측 비율 %",
+            "mean": "평균",
+            "stdDev": "표준편차",
+            "cov": "변동계수"
+        },
+        "Form": {
+            "riverName": "하천명",
+            "riverLocation": "관측 지점",
+            "unitSistem": "단위 체계",
+            "SI": "SI 단위계",
+            "imperial": "야드파운드법",
+            "date": "측정일",
+            "resolution": "해상도",
+            "colorbarLimits": "색상 막대 범위",
+            "minLimit": "최솟값",
+            "maxLimit": "최댓값",
+            "export": "MP4 내보내기"
+        },
+        "pixelTransformation": "픽셀 변환",
+        "processingParameters": "처리 매개변수",
+        "preProcessing": "전처리",
+        "postProcessing": "후처리",
+        "generatedBy": "RIVeR로 생성",
+        "date": "보고서 생성일",
+        "Success": {
+            "title": "분석 완료!",
+            "message": "RIVeR를 닫거나 이전 화면으로 돌아갈 수 있습니다 "
+        }
+    },
+    "ControlPoints": {
+        "title": "기준점",
+        "drawPoints": "기준점 표시",
+        "importDistances": "거리 가져오기",
+        "distance": "거리",
+        "length": "길이",
+        "Errors": {
+            "required": "모든 거리 필드는 필수입니다. 기준점 양식을 확인해 주세요",
+            "notNull": "모든 거리 필드는 0보다 커야 합니다. 기준점 양식을 확인해 주세요",
+            "notZero": "모든 거리 필드는 0이 아니어야 합니다. 기준점 양식을 확인해 주세요",
+            "positive": "모든 거리 필드는 양수여야 합니다. 기준점 양식을 확인해 주세요"
+        }
+    },
+    "ControlPoints3d": {
+        "importPoints": "기준점 가져오기",
+        "importImages": "이미지 가져오기",
+        "east": "동향",
+        "north": "북향",
+        "label": "레이블",
+        "northern": "북반구",
+        "southern": "남반구",
+        "directSolve": "직접 풀기",
+        "optimize": "최적화",
+        "reprojectionErrors": "재투영 오차: ",
+        "numberOfPoints": "기준점 수: ",
+        "cameraHeight": "카메라 높이: "
+    },
+    "Errors": {
+        "invalidPointsFileFormat": "기준점 파일 형식이 유효하지 않습니다.",
+        "invalidDistancesFileFormat": "거리 파일 형식이 유효하지 않습니다",
+        "invalidDistancesNotValidValue": "거리 파일 형식이 유효하지 않습니다. 일부 거리 값이 올바른 숫자가 아닙니다",
+        "invalidDistancesNegativeValue": "거리 파일 형식이 유효하지 않습니다. 음수 거리는 허용되지 않습니다",
+        "invalidBathimetryFileFormat": "수심 측량 파일 형식이 유효하지 않습니다",
+        "invalidImageExtension": "디렉토리에 이미지가 아닌 파일이 포함되어 있습니다",
+        "imagesFolderEmpty": "선택한 폴더에서 이미지를 찾을 수 없습니다",
+        "waitingForFrames": "프레임이 로드되기를 기다리고 있습니다. 잠시 후 다시 시도해 주세요",
+        "Cli": {
+            "windowsSizesError": "선택한 관심 영역에 비해 상관 윈도우 크기가 너무 큽니다.",
+            "bboxNotDefined": "관심 영역(ROI)이 정의되지 않았습니다."
+        }
+    },
+    "Loader": {
+        "extractingFrames": "동영상 프레임 추출 중",
+        "results": "유속 프로파일 통계 생성 중",
+        "videoConversion": "동영상을 MP4 형식으로 변환 중입니다. 잠시 기다려 주세요.",
+        "maskAndRoi": "관심 영역 및 마스크 정의 중"
+    },
+    "Commons": {
+        "yes": "예",
+        "no": "아니요",
+        "solve": "풀기",
+        "resourceNotFound": "리소스를 찾을 수 없습니다",
+        "randomError": "오류가 발생했습니다. 다시 시도해 주세요",
+        "dropHereText": "이 패널 어디에나 파일을 드롭하세요. 자동으로 위치를 감지합니다."
+    }
+}

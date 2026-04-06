@@ -20,8 +20,8 @@
     pointer-events: none;
 }
 
-.point-map{
-    border: 1px solid white;
+.point-map {
+    border: 1px solid var(--primary-text-color);
 }
 
 #quiver-test-plot{
@@ -57,4 +57,63 @@
 .bath-graph{
     display: flex;
     justify-content: center;
+}
+
+/* =================================================================
+   THEME-AWARE D3 SVG ELEMENTS
+   These classes let SVG text/lines inherit CSS custom properties
+   instead of relying on hardcoded 'white' attribute values.
+   ================================================================= */
+
+/* Axis tick labels and chart text */
+svg .graph-text,
+svg .y-axis .tick text,
+svg .y-axis-2 .tick text,
+svg .x-axis .tick text,
+svg .tick text {
+    fill: var(--primary-text-color);
+}
+
+/* Axis domain lines */
+svg .domain {
+    stroke: var(--secondary-text-color);
+    opacity: 0.4;
+}
+
+/* Tick mark lines */
+svg .tick line {
+    stroke: var(--primary-text-color);
+    opacity: 0.15;
+}
+
+/* Y-axis gridlines */
+svg .graph-grid line {
+    stroke: var(--primary-text-color);
+    opacity: 0.08;
+}
+
+/* Graph legend text */
+svg .legend-text {
+    fill: var(--primary-text-color);
+}
+
+/* Graph tooltip text */
+.graph-tooltip-text {
+    color: var(--primary-text-color);
+}
+
+/* Velocity line / bathimetry line / connector line (uses primary text color as stroke) */
+svg .graph-primary-stroke {
+    stroke: var(--primary-text-color);
+}
+
+/* Data point circles on velocity chart */
+svg .graph-primary-fill {
+    fill: var(--primary-text-color);
+}
+
+/* Bar outline on discharge chart */
+svg .bar-stroke-themed {
+    stroke: var(--primary-text-color);
+    stroke-opacity: 0.12;
 }

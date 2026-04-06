@@ -3,6 +3,8 @@ import { VideoPlayerButtons } from './VideoPlayerButtons.js';
 import { VideoPlayerSeekBar } from './VideoPlayerSeekBar.js';
 import { VideoPlayerTime } from './VideoPlayerTime.js';
 import '../components.css';
+import { PlayBtn } from '../CustomIcons/VideoPlayerIcons/PlayBtn.tsx';
+import { FrameBtn } from '../CustomIcons/VideoPlayerIcons/FrameBtn.tsx';
 
 export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: number }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -40,6 +42,12 @@ export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: 
       }
     }
   };
+  const handleFrameStep = () => {
+    if (videoRef.current && !videoRef.current.paused) {
+      videoRef.current.pause();
+      setControl((prev) => ({ ...prev, play: false }));
+    }
+  };
 
   return (
     <>
@@ -70,8 +78,26 @@ export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: 
               setControl={setControl}
               control={control}
             ></VideoPlayerSeekBar>
+            <div className="row" style={{ width: '100%', justifyContent: 'space-between', paddingTop: '10px' }}>
+              <FrameBtn
+                videoRef={videoRef}
+                direction="back"
+                onClick={handleFrameStep}
+              />
 
-            <VideoPlayerButtons videoRef={videoRef} setControl={setControl} control={control}></VideoPlayerButtons>
+              <PlayBtn
+                videoRef={videoRef}
+                setControl={setControl}
+                control={control}
+              />
+
+              <FrameBtn
+                videoRef={videoRef}
+                direction="next"
+                onClick={handleFrameStep}
+              />
+            </div>
+
           </div>
         </div>
       )}

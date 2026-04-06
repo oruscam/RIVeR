@@ -1,5 +1,5 @@
 {
-        "MainPage": {
+    "MainPage": {
         "start": "Starten",
         "loadProject": "Projekt laden",
         "spanish": "Spanisch",
@@ -8,6 +8,12 @@
         "italian": "Italienisch",
         "portuguese": "Portugiesisch",
         "german": "Deutsch",
+        "japanese": "Japanisch",
+        "chinese": "Chinesisch",
+        "arabic": "Arabisch",
+        "korean": "Koreanisch",
+        "russian": "Russisch",
+        "hindi": "Hindi",
         "Errors": {
             "noSettingsFile": " Die Datei settings.json wurde im ausgewählten Verzeichnis nicht gefunden",
             "notValidDirectory": "Bitte wählen Sie ein gültiges Verzeichnis aus",
@@ -19,12 +25,13 @@
         }
     },
     "Step-2": {
-    "title": " Wählen Sie den Typ des Videomaterials aus",
-    "pleaseSelectVideo": "Bitte wählen Sie eine Videodatei aus",
-    "addYourFootage": "Füge deine Aufnahme hinzu",
-    "changeType": "Typ ändern",
-    "dragAndDrop": "Ziehe deine Videodatei hierher und lasse sie los",
-    "openFolders": "Ordner öffnen"
+        "title": " Wählen Sie den Typ des Videomaterials aus",
+        "pleaseSelectVideo": "Bitte wählen Sie eine Videodatei aus",
+        "invalidFileType": "Ungültiger Dateityp. Bitte wählen Sie eine Videodatei aus.",
+        "addYourFootage": "Füge deine Aufnahme hinzu",
+        "changeType": "Typ ändern",
+        "dragAndDrop": "Ziehe deine Videodatei hierher und lasse sie los",
+        "openFolders": "Ordner öffnen"
     },
     "Wizard": {
         "back": "Zurück",
@@ -118,7 +125,9 @@
         "warning": "Sind Sie sicher, dass Sie {{section_name}} löschen möchten?",
         "warningTitle": "Abschnitt löschen",
         "mask": "Maske",
-        "addMask": "Maske hinzufügen"
+        "addMask": "Maske hinzufügen",
+        "bankRight": "R",
+        "bankLeft": "L"
     },
     "Processing": {
         "title": "Verarbeitung",
@@ -129,6 +138,7 @@
         "test": "Test",
         "analize": "Analysieren",
         "stop": "Stopp",
+        "roiAndMask": "ROI und Maske",
         "roiHeight": "ROI-Höhe",
         "preProcessingFilter": "Vorverarbeitungsfilter",
         "grayscale": "Graustufen",
@@ -168,7 +178,11 @@
         "velocity": "Geschwindigkeit",
         "discharge": "Abfluss",
         "stage": "Wasserstand",
-        "level": "Höhe"
+        "level": "Höhe",
+        "velStd": "Gesch. Std.",
+        "qLessThan5": "Q < 5%",
+        "qBetween5And10": "5% < Q < 10%",
+        "qGreaterThan10": "Q > 10%"
     },
     "Report": {
         "dischargeQ": "Abfluss Q",

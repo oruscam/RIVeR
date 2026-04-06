@@ -6,6 +6,8 @@ import { useTranslation } from "react-i18next"
 import { useWizard } from "react-use-wizard"
 import { ButtonLock } from "../components/ButtonLock"
 import { FormProcessing } from "../components/Forms"
+import { LockBtn } from "../components/CustomIcons/LockBtn"
+import { ExportBtn } from "../components/CustomIcons/ExportBtn"
 
 export const Processing = () => {
     const { t } = useTranslation()
@@ -22,8 +24,8 @@ export const Processing = () => {
 
         try {
             await onGetResultData('all');
-                onSetSeeAll(false);
-                nextStep();
+            onSetSeeAll(false);
+            nextStep();
         } catch (error) {
             onSetErrorMessage((error as Error).message);
         }
@@ -32,7 +34,7 @@ export const Processing = () => {
     return (
         <div className="regular-page">
             <div className="media-container">
-                <ImageProcessing showMedian={showMedian} />    
+                <ImageProcessing showMedian={showMedian} />
                 <Carousel
                     images={paths}
                     active={active}
@@ -41,20 +43,20 @@ export const Processing = () => {
                     setShowMedian={setShowMedian}
                     mode="analize"
                 />
-                <Error/>
+                <Error />
             </div>
             <div className="form-container">
-                <FormHeader title={t('Processing.title')} showSections={false}/>
-                <FormProcessing extraFields={extraFields} setShowMedian={setShowMedian} showMedian={showMedian}/>
+                <FormHeader title={t('Processing.title')} showSections={false} />
+                <FormProcessing extraFields={extraFields} setShowMedian={setShowMedian} showMedian={showMedian} />
                 <div className="footer">
-                    <ButtonLock
-                    setLocalExtraFields={setExtraFields}
-                    localExtraFields={extraFields}
-                    footerElementID="processing-footer"
-                    headerElementID="processing-header"
-                    disabled={isBackendWorking}
+                    <LockBtn
+                        setLocalExtraFields={setExtraFields}
+                        localExtraFields={extraFields}
+                        footerElementID="processing-footer"
+                        headerElementID="processing-header"
+                        disabled={isBackendWorking}
                     />
-                    <WizardButtons onClickNext={handleNext} canFollow={quiver !== null && quiver.test === false}/>
+                    <WizardButtons onClickNext={handleNext} canFollow={quiver !== null && quiver.test === false} />
                 </div>
             </div>
         </div>

@@ -8,6 +8,12 @@
         "italian": "Italiano",
         "portuguese": "Portugués",
         "german": "Alemán",
+        "japanese": "Japonés",
+        "chinese": "Chino",
+        "arabic": "Árabe",
+        "korean": "Coreano",
+        "russian": "Ruso",
+        "hindi": "Hindi",
         "Errors": {
             "noSettingsFile": "El directorio seleccionado no contiene un archivo settings.json",
             "notValidDirectory": "Por favor seleccione un directorio válido",
@@ -119,7 +125,9 @@
         "warning": "¿Está seguro que desea eliminar {{section_name}}?",
         "warningTitle": "Eliminar Sección",
         "mask": "Máscara",
-        "addMask": "Agregar Máscara"
+        "addMask": "Agregar Máscara",
+        "bankRight": "D",
+        "bankLeft": "I"
     },
     "Processing": {
         "title": "Procesamiento",
@@ -130,6 +138,7 @@
         "test": "Chequear",
         "analize": "Analizar",
         "stop": "Detener",
+        "roiAndMask": "ROI y máscara",
         "roiHeight": "Altura RDI",
         "preProcessingFilter": "Filtro de Preprocesamiento",
         "grayscale": "Escala de Grises",
@@ -169,7 +178,11 @@
         "velocity": "Velocidad",
         "discharge": "Caudal",
         "stage": "Nivel",
-        "level": "Nivel"
+        "level": "Nivel",
+        "velStd": "Vel std",
+        "qLessThan5": "Q < 5%",
+        "qBetween5And10": "5% < Q < 10%",
+        "qGreaterThan10": "Q > 10%"
     },
     "Report": {
         "dischargeQ": "Caudal Q: ",
@@ -226,7 +239,7 @@
         "Success": {
             "title": "¡Análisis completo!",
             "message": "Puedes cerrar RIVeR o volver a la página de "
-        }   
+        }
     },
     "ControlPoints": {
         "title": "Puntos de Control",
@@ -256,7 +269,6 @@
         "cameraHeight": "Altura de Cámara"
     },
     "Errors": {
-        "invalidDistancesFormat": "Formato de distancias inválido.",
         "imagesFolderEmpty": "No se encontraron imágenes en la carpeta seleccionada.",
         "invalidImageExtension": "El directorio contiene archivos que no son imágenes.",
         "waitingForFrames": "Esperando que se carguen las imágenes. Intente nuevamente en unos segundos.",

@@ -139,7 +139,7 @@ export const useDataSlice = () => {
           },
         })
       );
-      
+
 
       dispatch(setBackendWorking(false));
     } catch (error) {
@@ -176,7 +176,7 @@ export const useDataSlice = () => {
         console.log(error.message);
         if (error.message === 'Process was killed') return;
         throw new Error(error.message);
-      } 
+      }
       const { x, y, u, v, typevector, u_median, v_median } = data;
       dispatch(
         setQuiver({
@@ -207,7 +207,7 @@ export const useDataSlice = () => {
     const environment = process.env.NODE_ENV;
 
     const handler = environment === 'development' ? 'kill-river-cli' : 'kill-river-cli';
-    
+
     try {
       await ipcRenderer.invoke(handler);
       dispatch(setBackendWorking(false));
@@ -367,8 +367,8 @@ export const useDataSlice = () => {
     // Triangle points
     const points = [
       { x: (width * factor) / 2, y: (height * factor) / 2 - (height * factor) * 0.1 },
-      { x: (width * factor) / 2 - (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1},
-      { x:  (width * factor) / 2 + (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1},
+      { x: (width * factor) / 2 - (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1 },
+      { x: (width * factor) / 2 + (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1 },
     ];
 
     dispatch(setHasChanged({ value: true }));
@@ -382,19 +382,19 @@ export const useDataSlice = () => {
 
   const onUpdateMaskPoints = (maskIndex: number, points: { x: number; y: number }[]) => {
     dispatch(setHasChanged({ value: true }));
-    dispatch(updateMask({index: maskIndex, points}));
+    dispatch(updateMask({ index: maskIndex, points }));
   }
 
   const onUpdateActiveMask = (index: number) => {
-    if ( index === processing.activeMaskIndex ){
+    if (index === processing.activeMaskIndex) {
       dispatch(updateMask(null))
       return
     }
-    dispatch(updateMask({index}));
+    dispatch(updateMask({ index }));
   }
 
   const onSetManualColorbarLimits = (min: number, max: number, refresh: boolean) => {
-    if (refresh){
+    if (refresh) {
       window.ipcRenderer.invoke('set-colorbar-limits', { min: null, max: null });
       dispatch(setColorbarLimits({ min: null, max: null, default: true }));
     } else {
@@ -411,7 +411,7 @@ export const useDataSlice = () => {
     colorbarLimits: { min: number; max: number };
   }
 
-  const onExportGif = async ({image, factor, fps, step, colorbarLimits} : ExportGifParams) => {
+  const onExportGif = async ({ image, factor, fps, step, colorbarLimits }: ExportGifParams) => {
     // dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
 
@@ -445,7 +445,7 @@ export const useDataSlice = () => {
     processing,
     quiver,
     colorbarLimits,
-    
+
 
     // METHODS
     onAddMask,

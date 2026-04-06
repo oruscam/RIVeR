@@ -1,5 +1,5 @@
 {
-        "MainPage": {
+    "MainPage": {
         "start": "Avvia",
         "loadProject": "Carica progetto",
         "spanish": "Spagnolo",
@@ -8,6 +8,12 @@
         "italian": "Italiano",
         "portuguese": "Portoghese",
         "german": "Tedesco",
+        "japanese": "Giapponese",
+        "chinese": "Cinese",
+        "arabic": "Arabo",
+        "korean": "Coreano",
+        "russian": "Russo",
+        "hindi": "Hindi",
         "Errors": {
             "noSettingsFile": "La directory selezionata non contiene un file settings.json",
             "notValidDirectory": "Seleziona una directory valida",
@@ -19,14 +25,13 @@
         }
     },
     "Step-2": {
-    "title": "Seleziona il tipo di filmato",
-    "pleaseSelectVideo": "Seleziona un file video",
-    "invalidFileType": "Tipo di file non valido. Seleziona un file video.",
-    "addYourFootage": "Aggiungi il tuo filmato",
-    "changeType": "Cambia tipo",
-    "dragAndDrop": "Trascina e rilascia qui il tuo file video",
-    "openFolders": "Apri cartella"
-    
+        "title": "Seleziona il tipo di filmato",
+        "pleaseSelectVideo": "Seleziona un file video",
+        "invalidFileType": "Tipo di file non valido. Seleziona un file video.",
+        "addYourFootage": "Aggiungi il tuo filmato",
+        "changeType": "Cambia tipo",
+        "dragAndDrop": "Trascina e rilascia qui il tuo file video",
+        "openFolders": "Apri cartella"
     },
     "Wizard": {
         "back": "Indietro",
@@ -120,7 +125,9 @@
         "warning": "Sei sicuro di voler eliminare {{section_name}}?",
         "warningTitle": "Elimina Sezione",
         "mask": "Maschera",
-        "addMask": "Aggiungi Maschera"
+        "addMask": "Aggiungi Maschera",
+        "bankRight": "D",
+        "bankLeft": "S"
     },
     "Processing": {
         "title": "Elaborazione",
@@ -131,6 +138,7 @@
         "test": "Test",
         "analize": "Analizza",
         "stop": "Ferma",
+        "roiAndMask": "ROI e maschera",
         "roiHeight": "Altezza ROI",
         "preProcessingFilter": "Filtro di Pre-elaborazione",
         "grayscale": "Scala di Grigi",
@@ -170,7 +178,11 @@
         "velocity": "Velocità",
         "discharge": "Portata",
         "stage": "Fase",
-        "level": "Livello"
+        "level": "Livello",
+        "velStd": "Vel std",
+        "qLessThan5": "Q < 5%",
+        "qBetween5And10": "5% < Q < 10%",
+        "qGreaterThan10": "Q > 10%"
     },
     "Report": {
         "dischargeQ": "Portata Q",

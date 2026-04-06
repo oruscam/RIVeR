@@ -1,6 +1,6 @@
 import { Error } from './Error';
 import { Icon } from './Icon';
-import { LanguageSelector } from './LanguageSelector';
+import { LangBtn as LanguageSelector } from './CustomIcons/LanguageSelector';
 import { ThemeToggle } from './ThemeToggle';
 import { WizardButtons } from './WizzardButtons';
 import { Loading } from './Loading';

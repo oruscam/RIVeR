@@ -89,15 +89,14 @@ export const createVelocityChart = ({
 
   svg
     .append('g')
-    .attr('class', 'grid')
+    .attr('class', 'grid graph-grid')
     .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`)
     .call(
       makeYGridlines()
         .tickSize(-width + margin.left + margin.right * 2)
         .tickFormat('' as any)
     )
-    .attr('stroke', 'grey')
-    .attr('stroke-width', 0.15);
+    .attr('stroke-width', 0.5);
 
   const filteredData = magnitude.map((d, i) => {
     if (check[i] === false && interpolated === false) {
@@ -176,6 +175,28 @@ export const createVelocityChart = ({
     .y0((d) => yScale(d.percentile5))
     .y1((d) => yScale(d.percentile95));
 
+  // Boundary line generators for percentile band edges
+  const linePercentile95 = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.percentile95 !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.percentile95!));
+
+  const linePercentile5 = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.percentile5 !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.percentile5!));
+
+  // Boundary line generators for std band edges
+  const linePlusStd = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.plusStd !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.plusStd!));
+
+  const lineMinusStd = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.minusStd !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.minusStd!));
+
   let legendGroupOffsetY = 5;
 
   // Add the percentile area
@@ -184,6 +205,14 @@ export const createVelocityChart = ({
     .datum(filteredData)
     .attr('fill', showPercentile ? COLORS.PERCENTILE_AREA : COLORS.TRANSPARENT)
     .attr('d', areaPercentile);
+
+  // Percentile band boundary strokes
+  if (showPercentile) {
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.PERCENTILE_STROKE).attr('stroke-width', 1).attr('d', linePercentile95);
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.PERCENTILE_STROKE).attr('stroke-width', 1).attr('d', linePercentile5);
+  }
 
   if (isReport === false) {
     legendGroupOffsetY = -28;
@@ -200,7 +229,8 @@ export const createVelocityChart = ({
     .attr('width', 15)
     .attr('height', 15)
     .attr('fill', showPercentile ? COLORS.PERCENTILE_AREA : COLORS.TRANSPARENT)
-    .attr('stroke', COLORS.WHITE);
+    .attr('stroke', showPercentile ? COLORS.PERCENTILE_STROKE : COLORS.WHITE)
+    .attr('stroke-width', showPercentile ? 1.5 : 1);
 
   // Append text  next to the rectangle
   legendGroupPercentile
@@ -208,7 +238,7 @@ export const createVelocityChart = ({
     .attr('x', 20) // ajustar la posición horizontal para que no se superponga con el rectángulo
     .attr('y', 13) // ajustar la posición vertical para alinear con el rectángulo
     .attr('font-size', '15px')
-    .attr('fill', 'white')
+    .attr('class', 'legend-text')
     .text('5% - 95%');
 
   // Add the std area
@@ -217,6 +247,14 @@ export const createVelocityChart = ({
     .datum(filteredData)
     .attr('fill', showStd ? COLORS.STD_AREA : COLORS.TRANSPARENT)
     .attr('d', areaStd);
+
+  // Std band boundary strokes
+  if (showStd) {
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.STD_STROKE).attr('stroke-width', 1).attr('d', linePlusStd);
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.STD_STROKE).attr('stroke-width', 1).attr('d', lineMinusStd);
+  }
 
   // Create leyend for std area
   const legendGroupStd = svg
@@ -232,17 +270,18 @@ export const createVelocityChart = ({
     .attr('width', 15)
     .attr('height', 15)
     .attr('fill', showStd ? COLORS.STD_AREA : COLORS.TRANSPARENT)
-    .attr('stroke', COLORS.WHITE);
+    .attr('stroke', showStd ? COLORS.STD_STROKE : COLORS.WHITE)
+    .attr('stroke-width', showStd ? 1.5 : 1);
 
   // Append text next to the rectangle
 
   legendGroupStd
     .append('text')
-    .attr('x', 20) // ajustar la posición horizontal para que no se superponga con el rectángulo
-    .attr('y', 13) // ajustar la posición vertical para alinear con el rectángulo
+    .attr('x', 20)
+    .attr('y', 13)
     .attr('font-size', '15px')
-    .attr('fill', COLORS.WHITE)
-    .text('Vel std');
+    .attr('class', 'legend-text')
+    .text(t('Graphs.velStd'));
 
   if (isReport === false) {
     // Append active/disable percentile legend
@@ -260,13 +299,12 @@ export const createVelocityChart = ({
       // Append float legend for percentile
       const floatLegendPercentile = svg
         .append('text')
-        .attr('x', 10) // posición inicial
-        .attr('y', 10) // posición inicial
-        .attr('visibility', 'hidden') // oculto por defecto
+        .attr('x', 10)
+        .attr('y', 10)
+        .attr('visibility', 'hidden')
         .attr('font-size', '15px')
-        .attr('fill', COLORS.WHITE);
+        .attr('class', 'graph-text');
 
-      // Agregar eventos de mouseover y mouseout
       areaPathPercentile.on('mouseover', function (_event) {
         floatLegendPercentile.attr('visibility', 'visible').text('5% | 95% percentile');
       });
@@ -274,7 +312,7 @@ export const createVelocityChart = ({
       areaPathPercentile.on('mousemove', function (event) {
         const [x, y] = d3.pointer(event);
         floatLegendPercentile
-          .attr('x', x + 10) // ajustar la posición de la leyenda
+          .attr('x', x + 10)
           .attr('y', y - 10);
       });
 
@@ -286,11 +324,11 @@ export const createVelocityChart = ({
     if (showStd) {
       const floatLegendStd = svg
         .append('text')
-        .attr('x', 10) // posición inicial
-        .attr('y', 10) // posición inicial
-        .attr('visibility', 'hidden') // oculto por defecto
+        .attr('x', 10)
+        .attr('y', 10)
+        .attr('visibility', 'hidden')
         .attr('font-size', '15px')
-        .attr('fill', COLORS.WHITE);
+        .attr('class', 'graph-text');
 
       // Agregar eventos de mouseover y mouseout
 
@@ -313,11 +351,11 @@ export const createVelocityChart = ({
 
   // Add the velocity line with segments in red where data is interpolated
 
-  // 1️⃣ White base line
+  // 1️⃣ Primary-color base line (theme-aware via currentColor)
   svg.append("path")
     .datum(filteredData)
     .attr("fill", "none")
-    .attr("stroke", COLORS.WHITE)
+    .attr("class", "graph-primary-stroke")
     .attr("stroke-width", 2)
     .attr("d", line);
 
@@ -351,22 +389,21 @@ export const createVelocityChart = ({
   const tooltip = d3
     .select('body')
     .append('div')
-    .attr('class', 'tooltip')
+    .attr('class', 'tooltip graph-tooltip-text')
     .style('position', 'absolute')
     .style('font-size', '16px')
     .style('font-weight', '500')
     .style('background', 'transparent')
     .style('border', 'none')
     .style('padding', '5px')
-    .style('color', COLORS.WHITE)
     .style('display', 'none');
 
   const formatValue = d3.format('.2f');
 
-  // Dibuja la línea que conectará el punto con el tooltip
+  // Line connecting data point to tooltip
   const lineToTooltip = svg
     .append('line')
-    .attr('stroke', COLORS.WHITE)
+    .attr('class', 'graph-primary-stroke')
     .attr('stroke-width', 1)
     .attr('display', 'none');
 
@@ -383,10 +420,8 @@ export const createVelocityChart = ({
     .attr('cx', (d) => xScale(d.distance))
     .attr('cy', (d) => yScale(d.velocity!))
     .attr('r', 2.5) // Radio del círculo
-    .attr('fill', (d) => {
-      if (d.interpolated) return COLORS.RED;
-      else return COLORS.WHITE;
-    })
+    .attr('class', (d) => d.interpolated ? '' : 'graph-primary-fill')
+    .attr('fill', (d) => d.interpolated ? COLORS.RED : null)
     .on('mouseover', function (_event, _d) {
       d3.select(this).attr('r', 4);
       tooltip.style('display', 'block');
@@ -419,12 +454,11 @@ export const createVelocityChart = ({
   // label for Velocity
   svg
     .append('text')
-    .attr('class', 'y-axis-label')
+    .attr('class', 'y-axis-label graph-text')
     .attr('text-anchor', 'middle')
     .attr('x', -(graphHeight * 2) + (isReport ? 90 : 140))
     .attr('y', margin.left - 30)
     .attr('transform', 'rotate(-90)')
-    .attr('fill', 'white')
     .attr('font-size', '22px')
     .text(t('Graphs.velocity'));
 };

@@ -3,6 +3,9 @@ import DataGrid, { SelectColumn } from 'react-data-grid';
 import { useEffect, useMemo, useState } from 'react';
 import { useSectionSlice } from '../hooks';
 import { Clipboard } from './Clipboard';
+import { CopyBtn } from './CustomIcons/CopyBtn';
+import { LuSpline } from 'react-icons/lu';
+import { useTranslation } from 'react-i18next';
 
 interface Row {
   key: number;
@@ -37,7 +40,14 @@ const getCellValue = (
 
 export const Grid = () => {
   const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
-  const { sections, activeSection, onChangeDataValues } = useSectionSlice();
+  const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
+  const { t } = useTranslation();
+
+  const interpolated = sections[activeSection]?.interpolated ?? false;
+
+  const handleInterpolateToggle = () => {
+    onUpdateSection({ interpolated: 'interpolated' }, undefined);
+  };
 
   const copyAllDataToClipboard = () => {
     const section = sections[activeSection];
@@ -80,7 +90,7 @@ export const Grid = () => {
   const getCellClass = (row: any) => {
     let cellClas = 'centered-cell';
     const { data } = sections[activeSection];
-    if ( data === undefined) return cellClas;
+    if (data === undefined) return cellClas;
 
     const { displacement_x } = data
     if (!data?.check[row.id] || displacement_x[row.id] === null) {
@@ -153,15 +163,15 @@ export const Grid = () => {
       const { num_stations, distance, depth, Q, A, check, activeMagnitude, activeCheck, interpolated } =
         section.data;
 
-        return Array.from({ length: num_stations }, (_, i) => ({
-          key: i,
-          id: i,
-          x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
-          d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
-          A: typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
-          Vs: getCellValue(activeMagnitude, check, activeCheck, i, interpolated),
-          Q: typeof Q[i] === 'number' ? getCellValue(Q, check, activeCheck, i, interpolated) : '-',
-        }));
+      return Array.from({ length: num_stations }, (_, i) => ({
+        key: i,
+        id: i,
+        x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
+        d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
+        A: typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
+        Vs: getCellValue(activeMagnitude, check, activeCheck, i, interpolated),
+        Q: typeof Q[i] === 'number' ? getCellValue(Q, check, activeCheck, i, interpolated) : '-',
+      }));
     }
     return [];
   }, [sections, activeSection]);
@@ -182,7 +192,30 @@ export const Grid = () => {
 
   return (
     <div className="grid-and-clipboard">
-      <Clipboard onClickFunction={onClickClipboard} />
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        width: '96%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '6px',
+      }}>
+        <CopyBtn onClickFunction={onClickClipboard} />
+        <div
+          className="switch-container-results"
+          style={{ width: 'auto', margin: 0, cursor: 'pointer', gap: '8px' }}
+          onClick={handleInterpolateToggle}
+        >
+          <LuSpline size={15} color={interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)'} />
+          <span style={{ fontSize: '13px', color: interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)', whiteSpace: 'nowrap' }}>
+            {t('Results.interpolateProfile')}
+          </span>
+          <label className="switch" style={{ marginLeft: '6px' }} onClick={(e) => e.stopPropagation()}>
+            <input
+              type="checkbox"
+              checked={interpolated}
+              onChange={handleInterpolateToggle}
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
+      </div>
       <div className="grid-container">
         <DataGrid
           className="grid"
