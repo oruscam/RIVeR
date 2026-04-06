@@ -8,7 +8,7 @@ import { Icons } from './CustomIcons/Icons';
 const THEMES: { value: ThemeType; label: string; icon: React.ReactNode }[] = [
   { value: 'dark', label: 'Dark', icon: Icons.Moon() },
   { value: 'light', label: 'Light', icon: Icons.Sun() },
-  { value: 'dracula', label: 'Dracula', icon: '🧛' },
+  { value: 'dracula', label: 'Dracula', icon: Icons.Dracula() },
 ];
 
 export const ThemeToggle = () => {
