@@ -5,17 +5,17 @@
     bottom: 25px;
 }
 
-#version-number{
+#version-number {
     margin-top: auto;
     margin-bottom: 10px;
-    color: #575757;
+    color: var(--secondary-text-color);
     font-size: 20px;
     font-weight: bold;
 }
 
-#version-message{
+#version-message {
     display: flex;
-    color: #575757;
+    color: var(--secondary-text-color);
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 50px;
@@ -26,7 +26,7 @@
 }
 
 #version-message a {
-    color: #575757;
+    color: var(--secondary-text-color);
     text-decoration: underline;
     cursor: pointer;
 }
@@ -125,10 +125,10 @@
 }
 
 .video-player-seekbar{
-    --bg-track-color: rgba(255,255,255,0.2);
-    --buffered-track-color: rgba(255,255,255, 0.4);
-    --progress-track-color: #0678BE;
-    --thumb-color: #fff;
+    --bg-track-color: rgba(128,128,128,0.3);
+    --buffered-track-color: rgba(128,128,128, 0.5);
+    --progress-track-color: var(--accent-color);
+    --thumb-color: var(--primary-text-color);
     --seekbar-thumb-size: 15px;
     --seekbar-height: 12px;
     --seekbar-parent-height: var(--seekbar-thumb-size);
@@ -472,13 +472,13 @@
     font-size: 1.5rem;
 }
 
-.carousel-input{
+.carousel-input {
     width: 50px;
     text-align: end;
     margin-right: 5px;
     font-weight: bold;
     font-size: 1.8rem;
-    color: white;
+    color: var(--primary-text-color);
     background-color: transparent;
     border: none;
 }
@@ -510,32 +510,32 @@
     z-index: 1;
 }
 
-.img-water-mark{
+.img-water-mark {
     position: absolute;
     top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 50px;
     font-weight: 900;
-    color: rgba(255,255,255,0.5);
+    color: var(--overlay-text-color);
     width: 100%;
     text-align: center;
-    white-space: nowrap; 
+    white-space: nowrap;
 }
 
-.img-water-mark-ipcam{
+.img-water-mark-ipcam {
     position: absolute;
     top: 45%;
     left: 50%;
     transform: translate(-50%, -50%);
     font-size: 20px;
     font-weight: 600;
-    color: rgba(255,255,255,0.8);
+    color: var(--overlay-text-color);
     width: 100%;
     text-align: center;
-    white-space: normal; /* Allows text to wrap */
-    word-wrap: break-word; /* Breaks long words */
-    padding: 0 10px; /* Adds padding to prevent text from touching edges */
+    white-space: normal;
+    word-wrap: break-word;
+    padding: 0 10px;
 }
 
 .image-with-data-container{
@@ -584,19 +584,18 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background-color: #1e2525;
+  background-color: var(--colorbar-bg);
   padding: 4px 6px;
   border-radius: 15px;
   z-index: 1000;
   min-width: 200px;
   max-width: 500px;
-
 }
 
-.colorbar-container button{
+.colorbar-container button {
     background-color: transparent;
     border: none;
-    color: white;
+    color: var(--primary-text-color);
     font-size: 20px;
     display: flex;
     align-items: center;
@@ -626,9 +625,9 @@
     font-size: 1.3rem;
 }
 
-.colorbar-input{
+.colorbar-input {
     background-color: transparent;
-    color: white;
+    color: var(--primary-text-color);
     border: none;
     border-radius: 8px;
     font-size: 18px;
@@ -636,18 +635,18 @@
     text-align: center;
 }
 
-.colorbar-input:focus{    
+.colorbar-input:focus {
     outline: none;
 }
 
-.colorbar-input:hover{    
+.colorbar-input:hover {
     background-color: var(--input-background);
 }
 
 .colorbar-labels {
     display: flex;
     gap: 8px;
-    color: white;
+    color: var(--primary-text-color);
     font-size: 14px;
 }
 
@@ -671,14 +670,18 @@
     align-items: center;
 }
 
-.grid-container{
+.grid-container {
     width: 96%;
     margin-left: auto;
-    margin-right: auto; 
+    margin-right: auto;
     max-height: 500px;
     overflow-y: auto;
     overflow-x: auto;
     flex-shrink: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 #ipcam-grid{
@@ -687,9 +690,25 @@
     block-size: auto;
 }
 
-.grid{
+.grid {
     width: 100%;
     height: 100%;
+
+    /* react-data-grid theme overrides — driven by CSS variables */
+    --rdg-background-color:          var(--grid-bg-odd);
+    --rdg-header-background-color:   var(--grid-header-bg);
+    --rdg-row-hover-background-color: var(--on-hover);
+    --rdg-border-color:              var(--border-color);
+    --rdg-selection-color:           var(--grid-selection-color);
+    --rdg-color:                     var(--primary-text-color);
+    --rdg-font-size:                 0.85rem;
+    --rdg-checkbox-color:            var(--accent-color);
+    --rdg-checkbox-focus-color:      var(--accent-color);
+}
+
+/* Native checkbox accent follows the theme accent color (purple in Dracula, blue in dark/light) */
+.grid input[type="checkbox"] {
+    accent-color: var(--accent-color);
 }
 
 .grid.disabled{
@@ -706,11 +725,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100%; /* Asegura que el contenido ocupe toda la altura de la celda */
-    text-align: center; /* Alinea el texto en el centro */
-    background-color: black;
-    font-size: 1.1rem;
-    color: white;
+    height: 100%;
+    text-align: center;
+    background-color: inherit;
+    font-size: 0.85rem;
+    color: inherit;
+    letter-spacing: 0.02em;
 }
 
 .label-cell{
@@ -723,15 +743,35 @@
 }
 
 .select-cell1 {
-    background-color: black;
+    background-color: inherit;
 }
 
 .select-cell-grid-results {
-    background-color: black;
+    background-color: inherit;
     pointer-events: none;
 }
+
 .cell-red-values{
     color: #ED6B57;
+    font-weight: 500;
+}
+
+/* Header accent border */
+.grid .rdg-header-row {
+    border-bottom: 2px solid var(--accent-color);
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--grid-header-color);
+}
+
+/* Zebra striping */
+.grid .rdg-row:nth-child(even) {
+    background-color: var(--grid-bg-even);
+}
+.grid .rdg-row:nth-child(odd) {
+    background-color: var(--grid-bg-odd);
 }
 
 .point-label-cell{
@@ -746,8 +786,9 @@
     background-color: yellow; /* Puedes cambiar el color según tus necesidades */
 }
 
-.points-map{
-    background-color: white;
+.points-map {
+    /* This map always has a white background regardless of theme (it's a map/chart canvas) */
+    background-color: #ffffff;
 }
 
 #error-message-link{
@@ -755,11 +796,11 @@
     font-weight: bold;
 }
 
-.header-fixed{
+.header-fixed {
     position: sticky;
     top: 0;
     overflow: none;
-    background-color: black;
+    background-color: var(--background-color);
 }
 
 .clipboard-container{

@@ -5,6 +5,7 @@ import { COLORS, GRAPHS } from '../../constants/constants';
 import { scaleBar } from './scaleBar';
 import { Point } from '../../types';
 import { getLineColor, getOrthoImageDimensions } from '../../helpers';
+import { getDistanceColors } from '../../helpers/getCSSVar';
 
 export const OrthoImage = ({
   solution,
@@ -109,7 +110,7 @@ export const OrthoImage = ({
             .attr('y1', yScale(d.y))
             .attr('x2', xScale(coordinates[i + 2].x))
             .attr('y2', yScale(coordinates[i + 2].y))
-            .attr('stroke', i === 0 ? COLORS.CONTROL_POINTS.D13 : COLORS.CONTROL_POINTS.D24)
+            .attr('stroke', i === 0 ? getDistanceColors().D13 : getDistanceColors().D24)
             .attr('stroke-width', 2);
         }
 

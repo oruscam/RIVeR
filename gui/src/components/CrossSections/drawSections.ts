@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import { t } from "i18next";
 import { COLORS, MARKS } from "../../constants/constants";
 import { pinGreen, pinRed, pin } from "../../assets/icons/icons";
 import { getPositionSectionText } from "../../../commons/sectionTextPosition";
@@ -146,7 +147,7 @@ const drawIcon = (
 ) => {
   const isLeft = type === "L";
   const href = module === "uav" ? pin : isLeft ? pinRed : pinGreen;
-  const labelColor = module === "uav" ? COLORS.MARK_R : isLeft ? COLORS.MARK_L : COLORS.MARK_R;
+  const labelColor = module === "uav" ? COLORS.LIGHT_BLUE : isLeft ? COLORS.RED : COLORS.GREEN;
 
   const icon = layer
     .append("image")
@@ -159,25 +160,42 @@ const drawIcon = (
     .attr("pointer-events", draggable ? "all" : "none")
     .attr("class", `pin-${draggable ? "draggable" : "static"} pin-${type} ${extraClass}`.trim());
 
-  let text: string = type;
-  let offsetX = 5;
-  let offsetY = 23;
-  if (module === "uav") {
-    text = type === "L" ? "1" : "2";
-  } else if (type === "R") {
-    offsetX = 6;
-  }
+  const badgeText =
+    module === "uav"
+      ? type === "L" ? "1" : "2"
+      : type === "L"
+        ? t("CrossSections.bankLeft")
+        : t("CrossSections.bankRight");
+  const badgeWidth = 20;
+  const badgeHeight = 16;
+  const badgeX = position.x - badgeWidth / 2;
+  const badgeY = position.y - MARKS.OFFSET_Y - 14;
 
-  layer
-    .append("text")
+  const badge = layer
+    .append("g")
     .attr("class", `pin-label-${draggable ? "draggable" : "static"} pin-label-${type} ${extraClass}`.trim())
-    .attr("x", position.x - offsetX)
-    .attr("y", position.y - offsetY)
-    .text(text)
-    .attr("font-size", 19)
-    .attr("font-weight", "600")
-    .attr("fill", labelColor)
     .attr("pointer-events", "none");
+
+  badge
+    .append("rect")
+    .attr("x", badgeX)
+    .attr("y", badgeY)
+    .attr("width", badgeWidth)
+    .attr("height", badgeHeight)
+    .attr("rx", 3)
+    .attr("ry", 3)
+    .attr("fill", "rgba(50,50,50,0.85)");
+
+  badge
+    .append("text")
+    .attr("x", position.x)
+    .attr("y", badgeY + badgeHeight / 2)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "central")
+    .text(badgeText)
+    .attr("font-size", 11)
+    .attr("font-weight", "600")
+    .attr("fill", labelColor);
 
   return icon;
 };

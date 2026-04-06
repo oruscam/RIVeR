@@ -1,7 +1,7 @@
-import { COLORS } from '../constants/constants';
+import { getDistanceColors } from './getCSSVar';
 
 const getLineColor = (index: number) => {
-  const { D12, D23, D34, D14 } = COLORS.CONTROL_POINTS;
+  const { D12, D23, D34, D14 } = getDistanceColors();
 
   switch (index) {
     case 0:

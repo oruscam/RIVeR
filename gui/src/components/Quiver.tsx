@@ -24,11 +24,11 @@ export const Quiver = ({ factor, data, showMedian, layers }: QuiverProps) => {
     if (!quiverLayerRef.current) return;
     const quiverLayerSel = d3.select(quiverLayerRef.current);
 
-    quiverLayerSel.selectAll('*').remove(); 
-    if (quiver === null ) return;
-    
+    quiverLayerSel.selectAll('*').remove();
+    if (quiver === null) return;
+
     drawQuiver(quiverLayerSel as any, data, factor);
-  }, [quiver, images.active, factor, showMedian, quiverLayerRef]);
+  }, [quiver, images.active, factor, showMedian, quiverLayerRef, data]);
 
   return null;
 };

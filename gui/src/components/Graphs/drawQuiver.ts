@@ -32,8 +32,8 @@ export const drawQuiver = (
             .attr('id', 'quiver-tooltip')
             .style('position', () => 'absolute')
             .style('top', () => '0px')
-            .style('background', () => 'white')
-            .style('border', () => '1px solid #ccc')
+            .style('background', () => 'rgba(50, 50, 50, 0.85)')
+            .style('border', () => '1px solid #262626')
             .style('padding', () => '5px 10px')
             .style('border-radius', () => '5px')
             .style('pointer-events', () => 'none')
@@ -74,7 +74,9 @@ export const drawQuiver = (
             tooltip.html(`${d.velocity.toFixed(2)}`)
                 .style("left", () => (event.pageX + 10) + "px")
                 .style("top", () => (event.pageY - 28) + "px")
-                .style('background', () => 'rgba(255, 255, 255, 0.4)')
+                .style('background', () => 'rgba(50, 50, 50, 0.85)')
+                .style('border', () => '1px solid #262626')
+                .style('color', () => d.color)
                 .style("z-index", () => "1000");
         })
         .on("mousemove", function (event: MouseEvent) {

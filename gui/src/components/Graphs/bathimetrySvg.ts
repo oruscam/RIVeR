@@ -82,7 +82,7 @@ export const bathimetrySvg = ({
       .attr('x', isReport ? -graphHeight * 3 + 160 : -graphHeight * 3 + 180)
       .attr('y', sizes.margin.left - 30)
       .attr('transform', 'rotate(-90)')
-      .attr('fill', 'white')
+      .attr('class', 'y-axis-label graph-text')
       .attr('font-size', '22px')
       .text(t('Graphs.stage'));
 
@@ -105,7 +105,7 @@ export const bathimetrySvg = ({
       .attr('x', -height / 2 + margin.bottom)
       .attr('dy', '.75em')
       .attr('transform', 'rotate(-90)')
-      .attr('fill', 'white')
+      .attr('class', 'y-axis-label graph-text')
       .attr('font-size', '22px')
       .text(t('Graphs.stage'));
 
@@ -148,7 +148,7 @@ export const bathimetrySvg = ({
     .selectAll('.tick text')
     .style('font-size', '14px');
 
-  svg.selectAll('.tick line').attr('stroke', 'lightgrey').attr('stroke-width', 0.2);
+  svg.selectAll('.tick line').attr('stroke-width', 0.5);
 
   // Create and add Y gridlines
 
@@ -156,7 +156,7 @@ export const bathimetrySvg = ({
 
   svg
     .append('g')
-    .attr('class', 'grid')
+    .attr('class', 'grid graph-grid')
     .attr('transform', `translate(${translateX},0)`)
     .call(
       makeYGridlines()
@@ -165,8 +165,7 @@ export const bathimetrySvg = ({
         )
         .tickFormat('' as any)
     )
-    .attr('stroke', 'grey')
-    .attr('stroke-width', 0.15);
+    .attr('stroke-width', 0.5);
 
   // Sombrear el área entre la línea horizontal y la gráfica original
   const area = d3
@@ -187,7 +186,7 @@ export const bathimetrySvg = ({
   svg
     .append('path')
     .datum(clipPathData)
-    .attr('fill', COLORS.TRANSPARENT_WHITE)
+    .attr('fill', '#6CD4FF28')  // subtle water-blue, replaces flat white
     .attr('d', area)
     .attr('clip-path', `clip-bathimetry-${svgElement.id}`); // Aplicar clip-path
 
@@ -195,19 +194,18 @@ export const bathimetrySvg = ({
 
   svg
     .append('text')
-    .attr('class', 'x-axis-label')
+    .attr('class', 'x-axis-label graph-text')
     .attr('x', width / 2 - margin.right)
     .attr('y', height - 5)
-    .attr('fill', 'white')
     .attr('font-size', '22px')
     .text(t('Graphs.station'));
 
-  // Bathymetry line
+  // Bathymetry line (theme-aware)
   svg
     .append('path')
     .datum(data)
     .attr('fill', 'none')
-    .attr('stroke', COLORS.WHITE)
+    .attr('class', 'graph-primary-stroke')
     .attr('stroke-width', 1.5)
     .attr('d', line);
 

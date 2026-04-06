@@ -22,6 +22,8 @@ const defaultVideo = {
   },
 };
 
+const savedUnitSystem = localStorage.getItem('unitSystem') || 'si';
+
 const initialState: ProjectState = {
   projectDirectory: '',
   video: defaultVideo,
@@ -30,7 +32,7 @@ const initialState: ProjectState = {
   projectDetails: {
     riverName: '',
     site: '',
-    unitSistem: 'si',
+    unitSistem: savedUnitSystem,
     meditionDate: '',
   },
 };

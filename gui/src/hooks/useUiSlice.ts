@@ -6,6 +6,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import {
   changeTheme,
+  setTheme,
   setErrorMessage,
   clearErrorMessage,
   setSeeAll,
@@ -13,6 +14,7 @@ import {
   setLanguage,
   setIsLastVersion,
 } from '../store/ui/uiSlice';
+import { ThemeType } from '../store/ui/types';
 import { RootState } from '../store/store';
 import { getNewImageResolution } from '../helpers';
 
@@ -21,16 +23,25 @@ import { getNewImageResolution } from '../helpers';
  */
 
 export const useUiSlice = () => {
-  const { darkMode, error, isLoading, seeAll, screenSizes, message, language, isLatestVersion, latestVersion } =
+  const { theme, error, isLoading, seeAll, screenSizes, message, language, isLatestVersion, latestVersion } =
     useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
 
-  /**
-   * Method to change the theme of the application
-   */
+  /** Derived boolean for backward-compat code that checks darkMode */
+  const darkMode = theme !== 'light';
 
+  /**
+   * Cycle through themes: dark → light → dracula → dark
+   */
   const onChangeTheme = () => {
     dispatch(changeTheme());
+  };
+
+  /**
+   * Directly set a specific theme
+   */
+  const onSetTheme = (t: ThemeType) => {
+    dispatch(setTheme(t));
   };
 
   /**
@@ -142,7 +153,8 @@ export const useUiSlice = () => {
   };
 
   return {
-    // ATRIBUTES
+    // ATTRIBUTES
+    theme,
     darkMode,
     error,
     isLoading,
@@ -155,6 +167,7 @@ export const useUiSlice = () => {
 
     // METHODS
     onChangeTheme,
+    onSetTheme,
     onSetErrorMessage,
     onSetSeeAll,
     onSetScreen,

@@ -14,6 +14,7 @@ import {
   getGifDimensions,
   loadSectionValues
 } from "./utils/gifFunctions";
+import { getQuiverValues } from "../../commons/vectors";
 import { PROJECT_CONFIG } from "../main";
 
 const DEV_SERVER = process.env.VITE_DEV_SERVER_URL;
@@ -108,14 +109,6 @@ async function getGif() {
         dimensions.dh
       );
 
-      // Watermark
-      drawWatermark(
-        ctx,
-        watermark,
-        dimensions.outWidth,
-        dimensions.outHeight
-      );
-
       // Sections
       drawSection(ctx, sectionValues, factor, dimensions.outHeight);
 
@@ -128,7 +121,8 @@ async function getGif() {
         factor,
         fps,
         step,
-        dimensions.outWidth
+        dimensions.outWidth,
+        colorbarLimits
       );
 
       // Colorbar
@@ -136,6 +130,14 @@ async function getGif() {
         ctx,
         colorbarLimits.min,
         colorbarLimits.max,
+        dimensions.outWidth,
+        dimensions.outHeight
+      );
+
+      // Watermark — drawn last so it always appears on top of arrows and colorbar
+      drawWatermark(
+        ctx,
+        watermark,
         dimensions.outWidth,
         dimensions.outHeight
       );

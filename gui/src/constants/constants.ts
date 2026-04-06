@@ -60,8 +60,10 @@ export const COLORS = {
   BLACK: '#000000',
   TRANSPARENT_WHITE: '#FFFFFF80', // 50% opacity
   TRANSPARENT: '#00000000', // fully transparent
-  PERCENTILE_AREA: '#ED6B5740',
-  STD_AREA: '#62C65533', // 'rgba(98, 198, 85, 0.2)'
+  PERCENTILE_AREA: '#ED6B5766',   // ~40% opacity – boosted from 25% for dark bg
+  PERCENTILE_STROKE: '#ED6B5799', // boundary edge stroke ~60% opacity
+  STD_AREA: '#62C65550',          // ~31% opacity – boosted from 20% for dark bg
+  STD_STROKE: '#62C65599',        // boundary edge stroke ~60% opacity
   MARK_NUMBER: '#3396BF',
   MARK_L: '#6B120B',
   MARK_R: '#2D671B',
@@ -110,23 +112,23 @@ export const VECTORS = {
  */
 
 export const MARKS = {
-  WIDTH: 40,
-  HEIGHT: 40,
-  OFFSET_X: 22,
-  OFFSET_Y: 44,
+  WIDTH: 34,
+  HEIGHT: 34,
+  OFFSET_X: 20,
+  OFFSET_Y: 36,
   NUMBER_OFFSET_X: 5,
   NUMBER_OFFSET_Y: 35,
-  NUMBER_FONT_SIZE: 17,
-  LETTER_FONT_SIZE: 15,
-  WIDTH_REPORT: 25,
-  HEIGHT_REPORT: 25,
-  OFFSET_X_REPORT: 12,
-  OFFSET_Y_REPORT: 25,
+  NUMBER_FONT_SIZE: 13,
+  LETTER_FONT_SIZE: 13,
+  WIDTH_REPORT: 20,
+  HEIGHT_REPORT: 20,
+  OFFSET_X_REPORT: 10,
+  OFFSET_Y_REPORT: 18,
   NUMBER_OFFSET_X_REPORT: 2.5,
-  NUMBER_OFFSET_Y_REPORT: 14,
+  NUMBER_OFFSET_Y_REPORT: 6,
   STROKE_WIDTH: 3,
-  IPCAM_OFFSET_X: 20,
-  IPCAM_OFFSET_Y: 39,
+  IPCAM_OFFSET_X: 17,
+  IPCAM_OFFSET_Y: 31,
 };
 
 /**

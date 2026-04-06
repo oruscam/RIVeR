@@ -65,15 +65,14 @@ export const createDischargeChart = ({
 
   svg
     .append('g')
-    .attr('class', 'grid')
+    .attr('class', 'grid graph-grid')
     .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`)
     .call(
       makeYGridlines()
         .tickSize(-width + margin.left + margin.right * 2)
         .tickFormat('' as any)
     )
-    .attr('stroke', 'grey')
-    .attr('stroke-width', 0.15);
+    .attr('stroke-width', 0.5);
 
   const filteredQ = Q.map((d, i) => ({
     distance: distance[i],
@@ -93,6 +92,8 @@ export const createDischargeChart = ({
     .attr('y', (d) => yScale(Math.max(0, d.discharge))) // Ajustar para valores negativos
     .attr('height', (d) => Math.abs(yScale(d.discharge) - yScale(0))) // Ajustar la altura de las barras
     .attr('width', bandwidth) // Ajustar el ancho de las barras
+    .attr('class', 'bar-stroke-themed')
+    .attr('stroke-width', 0.5)
     .attr('fill', (d) => {
       if (d.QPortion === 0) {
         return COLORS.BLUE;
@@ -115,15 +116,15 @@ export const createDischargeChart = ({
 
     legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('fill', COLORS.GREEN);
 
-    legendGroup.append('text').attr('x', 20).attr('y', 12).attr('fill', 'white').text('Q < 5%');
+    legendGroup.append('text').attr('x', 20).attr('y', 12).attr('class', 'legend-text').text(t('Graphs.qLessThan5'));
 
     legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('x', 90).attr('fill', COLORS.YELLOW);
 
-    legendGroup.append('text').attr('x', 110).attr('y', 12).attr('fill', 'white').text('5% < Q < 10%');
+    legendGroup.append('text').attr('x', 110).attr('y', 12).attr('class', 'legend-text').text(t('Graphs.qBetween5And10'));
 
     legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('x', 220).attr('fill', COLORS.RED);
 
-    legendGroup.append('text').attr('x', 240).attr('y', 12).attr('fill', 'white').text('Q > 10%');
+    legendGroup.append('text').attr('x', 240).attr('y', 12).attr('class', 'legend-text').text(t('Graphs.qGreaterThan10'));
   }
 
   // Add tooltip to bars
@@ -139,18 +140,17 @@ export const createDischargeChart = ({
         .attr('x', parseFloat(d3.select(event.currentTarget).attr('x')) + bandwidth / 2)
         .attr('y', parseFloat(d3.select(event.currentTarget).attr('y')) - 25)
         .attr('text-anchor', 'middle')
-        .attr('fill', 'white')
+        .attr('class', 'tooltip graph-text')
         .style('font-size', '16px')
         .style('font-weight', '500')
         .text(`Discharge: ${yValue}`);
 
       svg
         .append('text')
-        .attr('class', 'tooltip')
+        .attr('class', 'tooltip graph-text')
         .attr('x', parseFloat(d3.select(event.currentTarget).attr('x')) + bandwidth / 2)
         .attr('y', parseFloat(d3.select(event.currentTarget).attr('y')) - 10)
         .attr('text-anchor', 'middle')
-        .attr('fill', 'white')
         .style('font-size', '16px')
         .style('font-weight', '500')
         .text(`Distance: ${xValue}`);
@@ -162,12 +162,11 @@ export const createDischargeChart = ({
   // Label
   svg
     .append('text')
-    .attr('class', 'y-axis-label')
+    .attr('class', 'y-axis-label graph-text')
     .attr('text-anchor', 'middle')
     .attr('x', -graphHeight + (isReport ? 75 : 115))
     .attr('y', margin.left - 30)
     .attr('transform', 'rotate(-90)')
-    .attr('fill', 'white')
     .attr('font-size', '22px')
     .text(t('Graphs.discharge'));
 };
