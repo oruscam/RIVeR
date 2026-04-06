@@ -72,4 +72,24 @@ export const Icons = {
             <line x1="18" y1="16" x2="18" y2="22" />
         </svg>
     ),
+    Dracula: (color?: string) => (
+        <svg width="21" height="21" viewBox="0 0 22.4 19.3" fill="none" stroke={color || "currentColor"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <g>
+                <polyline points="14.7 9.1 13.2 9.1 13.2 9.7"/>
+                <line x1="13.2" y1="12.4" x2="11.1" y2="12.4"/>
+                <line x1="12.7" y1="14.2" x2="12.7" y2="12.4"/>
+                <path d="M11.2.5c6,0,7.5,7.6,7.5,7.6,0,0-2.8-7.1-7.5-1.8"/>
+                <path d="M18.7,8.1s3.1-.7,3.2,1.9-3.2,3-3.2,3"/>
+                <path d="M18.7,11s-.8,7.8-7.5,7.8"/>
+            </g>
+            <g>
+                <polyline points="7.7 9.1 9.2 9.1 9.2 9.7"/>
+                <line x1="9.2" y1="12.4" x2="11.3" y2="12.4"/>
+                <line x1="9.7" y1="14.2" x2="9.7" y2="12.4"/>
+                <path d="M11.2.5c-6,0-7.5,7.6-7.5,7.6,0,0,2.8-7.1,7.5-1.8"/>
+                <path d="M3.7,8.1s-3.1-.7-3.2,1.9c0,2.6,3.2,3,3.2,3"/>
+                <path d="M3.7,11s.8,7.8,7.5,7.8"/>
+            </g>
+        </svg>
+    ),
 };
