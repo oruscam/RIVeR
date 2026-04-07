@@ -51,6 +51,11 @@ def piv_fftmulti(
 	"""
 	Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
 
+	Algorithm origin: Python translation of PIVlab 2.6's piv_FFTmulti.m (MATLAB).
+	Reference: Thielicke, W. & Stamhuis, E.J. (2014). PIVlab - Towards User-friendly,
+	Affordable and Accurate Digital Particle Image Velocimetry in MATLAB.
+	Journal of Open Research Software, 2(1), e30. DOI: 10.5334/jors.bl
+
 	Parameters:
 	image1, image2 : np.ndarray
 		The input images for PIV analysis.
@@ -524,6 +529,9 @@ def compute_convolution(image1_cut: np.ndarray, image2_cut: np.ndarray) -> np.nd
 	"""
 	Compute cross-correlation for each interrogation window using FFT.
 
+	FFT-based cross-correlation (DFT approach):
+	Thielicke & Stamhuis (2014), DOI: 10.5334/jors.bl
+
 	This function calculates the cross-correlation between corresponding interrogation windows
 	from two input image stacks using a batched FFT approach. The result is a set of correlation
 	maps with the zero-lag peak centered.
@@ -707,6 +715,9 @@ def subpixgauss(
 	"""
 	Perform subpixel Gaussian peak fitting on a convolution result with size consistency checks.
 
+	Three-point Gaussian sub-pixel peak estimator:
+	Thielicke & Stamhuis (2014), DOI: 10.5334/jors.bl
+
 	Parameters:
 	result_conv (numpy.ndarray): 3D array of convolution results.
 	half_ia (int): Half size of the interrogation area.
@@ -877,6 +888,9 @@ def filter_std(utable: np.ndarray, vtable: np.ndarray, standard_threshold: float
 	"""
 	Filter outliers in utable and vtable based on mean and standard deviation.
 
+	Global standard deviation filter:
+	Thielicke & Stamhuis (2014), DOI: 10.5334/jors.bl
+
 	Parameters:
 	utable (numpy.ndarray): 2D array of u-values.
 	vtable (numpy.ndarray): 2D array of v-values.
@@ -910,6 +924,10 @@ def filter_fluctuations(
 ) -> tuple:
 	"""
 	Detect and filter outliers in velocity components based on normalized fluctuations.
+
+	Normalized median test (universal outlier detection):
+	Westerweel, J. & Scarano, F. (2005). Experiments in Fluids, 39, 1096-1100.
+	DOI: 10.1007/s00348-005-0016-6
 
 	Parameters:
 	utable (numpy.ndarray): 2D array of u-values.
@@ -1116,6 +1134,9 @@ def deform_window(
 	"""
 	Deform the second ROI image using interpolated displacement fields.
 
+	Window deformation technique (bilinear interpolation):
+	Thielicke & Stamhuis (2014), DOI: 10.5334/jors.bl
+
 	This function replicates the behavior of RegularGridInterpolator-based.
 	It performs bilinear interpolation to upsample displacement
 	fields and uses OpenCV to remap the image accordingly.
@@ -1258,6 +1279,10 @@ def smoothn(y: np.ndarray,
 	"""
     N-dimensional smoothing with DCT regularisation (≈ MATLAB smoothn).
     NaNs are ignored and re-inserted.
+
+    Reference: García, D. (2010). Robust smoothing of gridded data in one and higher
+    dimensions with missing values. Computational Statistics & Data Analysis, 54(4),
+    1167-1178. DOI: 10.1016/j.csda.2009.09.020
 
     Parameters
     ----------
