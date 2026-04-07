@@ -1,5 +1,4 @@
 import json
-from io import TextIOWrapper
 from pathlib import Path
 from typing import Optional
 
@@ -10,6 +9,14 @@ from river.cli.commands.utils import render_response
 from river.core.piv_pipeline import run_analyze_all, run_test
 
 
+def _load_mask(mask_path: Path) -> np.ndarray:
+	"""Load a mask from .npy (new format) or .json (backward compat)."""
+	if mask_path.suffix == '.npy':
+		return np.load(mask_path)
+	with mask_path.open("r", encoding="utf-8") as f:
+		return np.array(json.loads(f.read()))
+
+
 @click.argument(
 	"image_2", type=click.Path(exists=True, file_okay=True, readable=True, resolve_path=True, path_type=Path)
 )
@@ -17,7 +24,9 @@ from river.core.piv_pipeline import run_analyze_all, run_test
 	"image_1", type=click.Path(exists=True, file_okay=True, readable=True, resolve_path=True, path_type=Path)
 )
 @click.option(
-	"-m", "--mask", envvar="MASK_PATH", type=click.File(), default=None, help="The mask for the region of interest"
+	"-m", "--mask", envvar="MASK_PATH",
+	type=click.Path(exists=True, file_okay=True, readable=True, resolve_path=True, path_type=Path),
+	default=None, help="The mask for the region of interest"
 )
 @click.option(
 	"-bb",
@@ -110,8 +119,8 @@ from river.core.piv_pipeline import run_analyze_all, run_test
 def piv_test(
 	image_1: Path,
 	image_2: Path,
-	mask: Optional[TextIOWrapper],
-	bbox: Optional[TextIOWrapper],
+	mask: Optional[Path],
+	bbox,
 	interrogation_area_1: int,
 	interrogation_area_2: Optional[int],
 	mask_auto: bool,
@@ -128,7 +137,7 @@ def piv_test(
 	filter_sub_background: bool,
 ):
 	if mask is not None:
-		mask = np.array(json.loads(mask.read()))
+		mask = _load_mask(mask)
 
 	if bbox is not None:
 		bbox = json.loads(bbox.read())
@@ -159,7 +168,9 @@ def piv_test(
 	"images-location", type=click.Path(exists=True, dir_okay=True, readable=True, resolve_path=True, path_type=Path)
 )
 @click.option(
-	"-m", "--mask", envvar="MASK_PATH", type=click.File(), default=None, help="The mask for the region of interest"
+	"-m", "--mask", envvar="MASK_PATH",
+	type=click.Path(exists=True, file_okay=True, readable=True, resolve_path=True, path_type=Path),
+	default=None, help="The mask for the region of interest"
 )
 @click.option(
 	"-bb",
@@ -262,8 +273,8 @@ def piv_test(
 @render_response
 def piv_analyze(
 	images_location: Path,
-	mask: Optional[TextIOWrapper],
-	bbox: Optional[TextIOWrapper],
+	mask: Optional[Path],
+	bbox,
 	interrogation_area_1: int,
 	interrogation_area_2: Optional[int],
 	mask_auto: bool,
@@ -282,7 +293,7 @@ def piv_analyze(
 	workdir: Path,
 ):
 	if mask is not None:
-		mask = np.array(json.loads(mask.read()))
+		mask = _load_mask(mask)
 
 	if bbox is not None:
 		bbox = json.loads(bbox.read())

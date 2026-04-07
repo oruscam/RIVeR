@@ -13,6 +13,14 @@ from river.cli.commands.exceptions import MissingWorkdir
 from river.cli.commands.utils import render_response
 
 
+def load_mask(path: Path) -> np.ndarray:
+	"""Load a mask from .npy (new format) or .json (backward compat)."""
+	if path.suffix == '.npy':
+		return np.load(path).astype(np.uint8)
+	with path.open("r", encoding="utf-8") as f:
+		return np.array(json.load(f), dtype=np.uint8)
+
+
 def get_png_mask(mask: np.ndarray) -> Image:
 	"""
 	Render a binary mask (0/1) as an RGBA overlay for the GUI.
@@ -114,11 +122,10 @@ def create_mask_and_bbox(
 		height_roi=height_roi,
 	)
 
-	mask_json_path = workdir / "mask.json"
+	mask_npy_path = workdir / "mask.npy"
 	bbox_json_path = workdir / "bbox.json"
 
-	with mask_json_path.open("w", encoding="utf-8") as f:
-		json.dump(mask.tolist(), f, separators=(",", ":"))
+	np.save(mask_npy_path, mask)
 
 	with bbox_json_path.open("w", encoding="utf-8") as f:
 		json.dump(bbox, f, separators=(",", ":"))
@@ -128,16 +135,16 @@ def create_mask_and_bbox(
 		png_path = workdir / "mask.png"
 		png_mask.save(png_path)
 
-	return { "bbox": bbox, "bbox_path": str(bbox_json_path), "mask_json_path": str(mask_json_path), "mask_png_path": str(png_path) if save_png_mask else None}
+	return { "bbox": bbox, "bbox_path": str(bbox_json_path), "mask_npy_path": str(mask_npy_path), "mask_png_path": str(png_path) if save_png_mask else None}
 
 
-@click.command(help="Create a user polygon mask and save usr_mask_N.json and usr_mask_N.png.")
+@click.command(help="Create a user polygon mask and save usr_mask_N.npy and usr_mask_N.png.")
 @click.argument("image", type=click.Path(exists=True, file_okay=True, readable=True, resolve_path=True, path_type=Path))
 @click.option(
 	"-w",
 	"--workdir",
 	envvar="WORKDIR",
-	help="Directory to save usr_mask_N.json and usr_mask_N.png.",
+	help="Directory to save usr_mask_N.npy and usr_mask_N.png.",
 	type=click.Path(exists=True, dir_okay=True, writable=True, resolve_path=True, path_type=Path),
 	required=True,
 )
@@ -202,10 +209,9 @@ def create_user_mask(
 			
 			mask = rm.create_user_polygon_mask(image_shape=(h, w), points=points)
 
-			mask_json_path = workdir / f"usr_mask_{mask_index}.json"
-			masks_paths.append(str(mask_json_path))
-			with mask_json_path.open("w", encoding="utf-8") as f:
-				json.dump(mask.tolist(), f, separators=(",", ":"))
+			mask_npy_path = workdir / f"usr_mask_{mask_index}.npy"
+			masks_paths.append(str(mask_npy_path))
+			np.save(mask_npy_path, mask)
 
 			png_path = None
 			if save_png_mask:
@@ -216,7 +222,7 @@ def create_user_mask(
 		return {
 			"user_masks_paths": masks_paths
 		}
-	
+
 	elif masks_file:
 		with masks_file.open("r", encoding="utf-8") as f:
 			masks = json.load(f)
@@ -232,10 +238,9 @@ def create_user_mask(
 			
 			mask = rm.create_user_polygon_mask(image_shape=(h, w), points=points)
 
-			mask_json_path = workdir / f"usr_mask_{mask_index}.json"
-			masks_paths.append(str(mask_json_path))
-			with mask_json_path.open("w", encoding="utf-8") as f:
-				json.dump(mask.tolist(), f, separators=(",", ":"))
+			mask_npy_path = workdir / f"usr_mask_{mask_index}.npy"
+			masks_paths.append(str(mask_npy_path))
+			np.save(mask_npy_path, mask)
 
 			png_path = None
 			if save_png_mask:
@@ -259,9 +264,8 @@ def create_user_mask(
 		points = [{"x": x, "y": y} for (x, y) in point]
 		mask = rm.create_user_polygon_mask(image_shape=(h, w), points=points)
 
-		mask_json_path = workdir / f"usr_mask_{index}.json"
-		with mask_json_path.open("w", encoding="utf-8") as f:
-			json.dump(mask.tolist(), f, separators=(",", ":"))
+		mask_npy_path = workdir / f"usr_mask_{index}.npy"
+		np.save(mask_npy_path, mask)
 
 		png_path = None
 		if save_png_mask:
@@ -270,7 +274,7 @@ def create_user_mask(
 			png_img.save(png_path)
 
 		return {
-			"usr_mask_json": str(mask_json_path),
+			"usr_mask_npy": str(mask_npy_path),
 			"usr_mask_png": str(png_path) if png_path is not None else None,
 			"index": index,
 			"num_points": len(point),
@@ -289,14 +293,14 @@ def create_user_mask(
 @click.option(
 	"--roi",
 	"roi_path",
-	help="Path to ROI mask.json",
+	help="Path to ROI mask (.npy or .json for backward compat).",
 	type=click.Path(exists=True, file_okay=True, readable=True, resolve_path=True, path_type=Path),
 	required=True,
 )
 @click.option(
 	"--usr",
 	"usr_paths",
-	help="Path to a user mask JSON. Repeat for multiple: --usr a.json --usr b.json",
+	help="Path to a user mask (.npy or .json). Repeat for multiple: --usr a.npy --usr b.npy",
 	type=click.Path(exists=True, file_okay=True, readable=True, resolve_path=True, path_type=Path),
 	multiple=True,
 	required=False,
@@ -304,9 +308,9 @@ def create_user_mask(
 @click.option(
 	"--out",
 	"out_path",
-	help="Output filename for final mask JSON. If relative, saved under workdir.",
+	help="Output filename for final mask. If relative, saved under workdir.",
 	type=click.Path(dir_okay=False, resolve_path=False, path_type=Path),
-	default=Path("final_mask.json"),
+	default=Path("final_mask.npy"),
 	show_default=True,
 )
 @click.option("--save-png-mask", is_flag=True, help="Also save final_mask.png using the same overlay logic.")
@@ -322,36 +326,31 @@ def compile_masks(
 
 	# Resolve output path
 	if out_path.is_absolute():
-		final_json_path = out_path
+		final_npy_path = out_path
 	else:
-		final_json_path = workdir / out_path
+		final_npy_path = workdir / out_path
 
-	# Load ROI mask
-	with roi_path.open("r", encoding="utf-8") as f:
-		roi_mask = np.array(json.load(f), dtype=np.uint8)
+	# Load ROI mask (supports .npy and .json for backward compat)
+	roi_mask = load_mask(roi_path)
 
 	# Load user masks
 	user_masks: List[np.ndarray] = []
 	for p in usr_paths:
-		with p.open("r", encoding="utf-8") as f:
-			user_masks.append(np.array(json.load(f), dtype=np.uint8))
+		user_masks.append(load_mask(p))
 
 	# Compile with 0-dominant AND merge
 	final_mask = rm.compile_masks(roi_mask=roi_mask, user_masks=user_masks if len(user_masks) > 0 else None)
 
-	# Save compact JSON, no spaces
-	with final_json_path.open("w", encoding="utf-8") as f:
-		json.dump(final_mask.tolist(), f, separators=(",", ":"))
-
+	np.save(final_npy_path, final_mask)
 
 	final_png_path = None
 	if save_png_mask:
-		final_png_path = final_json_path.with_suffix(".png")
+		final_png_path = final_npy_path.with_suffix(".png")
 		png_img = get_png_mask(final_mask)
 		png_img.save(final_png_path)
 
 	return {
-		"final_mask_json": str(final_json_path),
+		"final_mask_npy": str(final_npy_path),
 		"final_mask_png": str(final_png_path) if final_png_path is not None else None,
 		"roi": str(roi_path),
 		"usr": [str(p) for p in usr_paths],
