@@ -2,7 +2,6 @@ import * as d3 from "d3";
 import { t } from "i18next";
 import { COLORS, MARKS } from "../../constants/constants";
 import { pinGreen, pinRed, pin } from "../../assets/icons/icons";
-import { getPositionSectionText } from "../../../commons/sectionTextPosition";
 
 type Point = { x: number; y: number };
 
@@ -20,6 +19,9 @@ interface DrawSvgStaticSectionProps {
   position: { x: number; y: number };
   seeAll: boolean;
   isActive?: boolean;
+  /** When true, skip drawing lines and pins (interactive effect handles them)
+   *  but still render the section label. Used for the active section in x-sections. */
+  skipLine?: boolean;
 }
 
 export const getResizedPoint = (point: Point, factor: number | { x: number; y: number }) => {
@@ -232,9 +234,22 @@ const toScreenFactory = ({
 };
 
 /**
- * Minimal, shared label renderer that mimics the static behavior.
- * - Uses getPositionSectionText in IMAGE space for a nice placement & rotation.
- * - Projects to screen via current viewport, keeping font size constant.
+ * Badge-style label for a cross-section.
+ *
+ * Positioning rules:
+ *  - Anchored at the **midpoint** of the section line (sectionPoints), so the
+ *    label is always centred over the cross-section regardless of line length.
+ *  - Offset **perpendicular** to the section line (i.e. in the flow direction)
+ *    so it never sits on top of the dashed line.  Of the two perpendicular
+ *    directions, we pick the one whose candidate position is closer to the
+ *    image centre — this keeps the label within the image bounds in the vast
+ *    majority of layouts.  The result is clamped to safe margins as a final
+ *    safety net.
+ *  - Rotation is **normalised to [-90°, 90°]** so the text is always legible
+ *    and never rendered upside-down, regardless of the line orientation.
+ *
+ * Visual style: rounded-rect badge with the same dark semi-transparent fill
+ * and font weight used by the L / R pin-badge labels.
  */
 const drawSectionLabel = ({
   uiLayer,
@@ -245,10 +260,10 @@ const drawSectionLabel = ({
   resizeFactor,
   color,
   className,
-  dy = 25,
 }: {
   uiLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
   text: string;
+  /** The two endpoints of the cross-section line (sectionPoints) in full-image space */
   points: [Point, Point];
   viewport: {
     imageWidth: number;
@@ -260,17 +275,8 @@ const drawSectionLabel = ({
   resizeFactor: number;
   color: string;
   className: string;
-  dy?: number;
 }) => {
   const { fx, fy } = normalizeFactor(factor);
-
-  const { point, rotation } = getPositionSectionText(
-    points[0],
-    points[1],
-    viewport.imageWidth,
-    viewport.imageHeight,
-    typeof factor === "number" ? factor : fx
-  );
 
   const toScreen = toScreenFactory({
     imageWidth: viewport.imageWidth,
@@ -280,20 +286,88 @@ const drawSectionLabel = ({
     fx,
     fy,
   });
-  const screenPoint = toScreen(point);
 
-  uiLayer
-    .append("text")
+  // --- Geometry (all in display space) ---
+  const p0d = { x: points[0].x / fx, y: points[0].y / fy };
+  const p1d = { x: points[1].x / fx, y: points[1].y / fy };
+
+  // Midpoint of the section line → natural centre for the label
+  const midD = { x: (p0d.x + p1d.x) / 2, y: (p0d.y + p1d.y) / 2 };
+
+  // Direction vector of the section line
+  const dxD = p1d.x - p0d.x;
+  const dyD = p1d.y - p0d.y;
+
+  // Rotation angle, normalised to [-90, 90] so text is never upside-down
+  let rotation = Math.atan2(dyD, dxD) * (180 / Math.PI);
+  if (rotation > 90)  rotation -= 180;
+  if (rotation < -90) rotation += 180;
+
+  // Unit vector perpendicular to the section line (= flow direction)
+  const lineLen = Math.sqrt(dxD * dxD + dyD * dyD);
+  const perpX = lineLen > 0 ? -dyD / lineLen : 0;
+  const perpY = lineLen > 0 ?  dxD / lineLen : 1;
+
+  // Candidate label positions on either side of the section line
+  const LABEL_OFFSET = 20; // display-space pixels — close to but not touching the 4 px stroke
+  const imageCx = viewport.imageWidth  / 2;
+  const imageCy = viewport.imageHeight / 2;
+
+  const c1 = { x: midD.x + perpX * LABEL_OFFSET, y: midD.y + perpY * LABEL_OFFSET };
+  const c2 = { x: midD.x - perpX * LABEL_OFFSET, y: midD.y - perpY * LABEL_OFFSET };
+
+  // Prefer the candidate closer to the image centre (stays within bounds more often)
+  const d1sq = (c1.x - imageCx) ** 2 + (c1.y - imageCy) ** 2;
+  const d2sq = (c2.x - imageCx) ** 2 + (c2.y - imageCy) ** 2;
+  let labelD = d1sq <= d2sq ? { ...c1 } : { ...c2 };
+
+  // Clamp to safe margins
+  const MX = 50, MY = 16;
+  labelD.x = Math.max(MX, Math.min(viewport.imageWidth  - MX, labelD.x));
+  labelD.y = Math.max(MY, Math.min(viewport.imageHeight - MY, labelD.y));
+
+  // Back to full-image space → screen coords
+  const screenPoint = toScreen({ x: labelD.x * fx, y: labelD.y * fy });
+
+  // --- Badge rendering — same style as the L / R pin badges ---
+  const FONT_SIZE = 13 / resizeFactor;
+
+  const g = uiLayer
+    .append("g")
     .attr("class", className)
+    .attr("pointer-events", "none");
+
+  const textEl = g
+    .append("text")
     .attr("x", screenPoint.x)
     .attr("y", screenPoint.y)
-    .attr("dy", dy)
+    .attr("text-anchor", "middle")
+    .attr("dominant-baseline", "central")
     .text(text)
-    .attr("font-size", 20 / resizeFactor)
+    .attr("font-size", FONT_SIZE)
+    .attr("font-weight", "600")
     .attr("fill", color)
-    .attr("font-weight", "500")
-    .attr("transform", `rotate(${rotation}, ${screenPoint.x}, ${screenPoint.y})`)
-    .attr("pointer-events", "none");
+    .attr("font-family", "inherit");
+
+  // Measure the rendered text and insert the background rect behind it
+  try {
+    const node = textEl.node() as SVGTextElement;
+    const bbox = node.getBBox();
+    const padX = 6, padY = 3;
+    g.insert("rect", "text")
+      .attr("x",      bbox.x - padX)
+      .attr("y",      bbox.y - padY)
+      .attr("width",  bbox.width  + padX * 2)
+      .attr("height", bbox.height + padY * 2)
+      .attr("rx", 3)
+      .attr("ry", 3)
+      .attr("fill", "rgba(50, 50, 50, 0.85)"); // matches pin-badge fill
+  } catch (_) {
+    // getBBox may fail if not yet attached to the DOM — silently skip
+  }
+
+  // Rotate the whole badge after the bbox has been captured
+  g.attr("transform", `rotate(${rotation}, ${screenPoint.x}, ${screenPoint.y})`);
 };
 
 /**
@@ -315,6 +389,7 @@ const drawStaticSection = ({
   position,
   seeAll,
   isActive = true,
+  skipLine = false,
 }: DrawSvgStaticSectionProps) => {
   const { fx, fy } = normalizeFactor(factor);
   const { resizeFactor, lineColor, textColor } = getSectionStyles(module);
@@ -345,36 +420,48 @@ const drawStaticSection = ({
   // Group inside zoom layer for this section
   const g = zoomLayer.append("g").attr("class", `section-layer ${sectionClass}`);
 
-  // Direction line
-  if (dirPoints.length > 0) {
-    drawLine({
-      points: [dirPoints[0], dirPoints[1]],
-      group: useZoomLayer ? g : uiLayer,
-      color: lineColor,
-      resizeFactor,
-      fx,
-      fy,
-      dashed: false,
-      className: `static-dir-line ${sectionClass}`,
-    });
+  // Determine whether dirPoints and sectionPoints carry real data
+  const hasMeaningfulDirPoints =
+    dirPoints.length >= 2 &&
+    !(dirPoints[0].x === dirPoints[1].x && dirPoints[0].y === dirPoints[1].y);
+
+  const hasMeaningfulSectionPoints =
+    sectionPoints.length >= 2 &&
+    !(sectionPoints[0].x === sectionPoints[1].x && sectionPoints[0].y === sectionPoints[1].y);
+
+  if (!skipLine) {
+    // Direction line
+    if (hasMeaningfulDirPoints) {
+      drawLine({
+        points: [dirPoints[0], dirPoints[1]],
+        group: useZoomLayer ? g : uiLayer,
+        color: lineColor,
+        resizeFactor,
+        fx,
+        fy,
+        dashed: false,
+        className: `static-dir-line ${sectionClass}`,
+      });
+    }
+
+    // Section line (dashed)
+    if (hasMeaningfulSectionPoints) {
+      drawLine({
+        points: [sectionPoints[0], sectionPoints[1]],
+        group: useZoomLayer ? g : uiLayer,
+        color: lineColor,
+        resizeFactor,
+        fx,
+        fy,
+        dashed: true,
+        className: `static-section-line ${sectionClass}`,
+      });
+    }
   }
 
-  // Section line (dashed)
-  if (sectionPoints.length > 0) {
-    drawLine({
-      points: [sectionPoints[0], sectionPoints[1]],
-      group: useZoomLayer ? g : uiLayer,
-      color: lineColor,
-      resizeFactor,
-      fx,
-      fy,
-      dashed: true,
-      className: `static-section-line ${sectionClass}`,
-    });
-  }
-
-  // Label in UI (screen space)
-  if (module !== "report" && sectionPoints.length > 0) {
+  // Label in UI (screen space) — always drawn, even for the active section (skipLine).
+  // Only skip for the report module and when sectionPoints have not yet been computed.
+  if (module !== "report" && hasMeaningfulSectionPoints) {
     drawSectionLabel({
       uiLayer,
       text: name,
@@ -387,8 +474,8 @@ const drawStaticSection = ({
     });
   }
 
-  // Icons in UI (screen space)
-  if (module === "x-sections" && dirPoints.length > 0) {
+  // Icons in UI (screen space) — only when not deferring to interactive layer
+  if (!skipLine && module === "x-sections" && hasMeaningfulDirPoints) {
     const toScreen = toScreenFactory({ imageWidth, imageHeight, position, scale, fx, fy });
     const p0 = toScreen(dirPoints[0]);
     const p1 = toScreen(dirPoints[1]);
@@ -462,16 +549,20 @@ const drawInteractiveSection = ({
   viewport,
   module,
 }: DrawSvgInteractiveSectionProps) => {
-  const { resizeFactor, lineColor, textColor } = getSectionStyles(module);
+  const { resizeFactor, lineColor } = getSectionStyles(module);
 
   const token = toSectionToken(name ? name : "uav");
   const sectionClass = `section-${token}`;
 
-  // Clean only this section while dragging
-  layer.selectAll(`.${sectionClass}`).remove();
-  uiLayer.selectAll(`.${sectionClass}`).remove();
+  // Interactive-layer elements use a dedicated UI class so that cleaning them
+  // does not accidentally remove the static label drawn by the static effect.
+  const interactiveUiClass = `interactive-ui-${token}`;
 
-  // Interactive line (zoom-space)
+  // Clean only interactive-layer elements (zoom layer) and interactive UI overlays
+  layer.selectAll(`.${sectionClass}`).remove();
+  uiLayer.selectAll(`.${interactiveUiClass}`).remove();
+
+  // Interactive direction line (zoom-space, drawn while dragging or after drop)
   if (startPoint && endPoint) {
     drawLine({
       points: [startPoint, endPoint],
@@ -485,7 +576,7 @@ const drawInteractiveSection = ({
     });
   }
 
-  // Section dashed line + label when not dragging
+  // Section dashed line when not dragging — label is now owned by the static effect
   if (sectionPoints !== undefined && sectionPoints.length > 0 && !mousePressed) {
     drawLine({
       points: [sectionPoints[0], sectionPoints[1]],
@@ -496,17 +587,6 @@ const drawInteractiveSection = ({
       fy: typeof factor === "number" ? factor : factor.y,
       dashed: true,
       className: `final-section-line ${sectionClass}`,
-    });
-
-    drawSectionLabel({
-      uiLayer,
-      text: name || "",
-      points: [sectionPoints[0], sectionPoints[1]],
-      viewport,
-      factor,
-      resizeFactor,
-      color: textColor,
-      className: `interactive-section-label ${sectionClass}`,
     });
   }
 
@@ -580,16 +660,17 @@ const drawInteractiveSection = ({
       }
     });
 
-  // Icons in UI (screen-space)
+  // Icons in UI (screen-space) — tagged with interactiveUiClass so they are
+  // cleaned up on the next render without touching the static label.
   if (startPoint) {
     const pScreen = toScreenFromZoom(startPoint);
-    const c1 = drawIcon(pScreen, "L", uiLayer, true, sectionClass, module);
+    const c1 = drawIcon(pScreen, "L", uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module);
     c1.call(dragStartPoint as any);
   }
 
   if (endPoint) {
     const pScreen = toScreenFromZoom(endPoint);
-    const c2 = drawIcon(pScreen, "R", uiLayer, true, sectionClass, module);
+    const c2 = drawIcon(pScreen, "R", uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module);
     c2.call(dragEndPoint as any);
   }
 };
