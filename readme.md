@@ -132,7 +132,7 @@ river-cli get-uav-transformation-matrix 100 200 300 400 0 0 10 10 \
 --image-path ./frames/frame_001.jpg
 
 # 3. Create ROI mask from cross-sections
-# This writes mask.json, bbox.json and mask.png into --workdir
+# This writes mask.npy, bbox.json and mask.png into --workdir
 river-cli create-mask-and-bbox 3 \
 ./frames/frame_001.jpg \
 ./xsections.json \
@@ -155,15 +155,15 @@ river-cli create-user-mask ./frames/frame_001.jpg \
 # 0 is dominant: final = ROI AND all user masks
 river-cli compile-masks \
 --workdir ./workdir \
---roi ./workdir/mask.json \
---usr ./workdir/usr_mask_1.json \
---usr ./workdir/usr_mask_2.json \
---out final_mask.json \
+--roi ./workdir/mask.npy \
+--usr ./workdir/usr_mask_1.npy \
+--usr ./workdir/usr_mask_2.npy \
+--out final_mask.npy \
 --save-png-mask
 
 # 6. Run PIV analysis using the final mask
 river-cli piv-analyze ./frames \
---mask ./workdir/final_mask.json \
+--mask ./workdir/final_mask.npy \
 --workdir ./results
 
 # 7. Calculate discharge
