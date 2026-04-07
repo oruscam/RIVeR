@@ -269,6 +269,7 @@ If you use RIVeR in your research, please cite:
 ### Development Team
 - **Nicolas Stefani** - *CLI & Backend Development*
 - **Tomas Stefani** - *Frontend Development*
+- **Agustín Patrito** - *Frontend Development*
 
 ---
 
