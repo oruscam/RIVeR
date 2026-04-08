@@ -485,12 +485,10 @@
 
 .img-carousel-active{
     border: 4px solid var(--accent-color);
-    filter: brightness(1);
 }
 
 .img-carousel-second{
     border: 4px solid var(--accent-color);
-    filter: brightness(1);
 }
 
 .img-carousel-container{
@@ -510,6 +508,9 @@
     height: auto;
     border-radius: 20px;
     z-index: 1;
+}
+
+.img-carousel:not(.img-carousel-active):not(.img-carousel-second){
     filter: brightness(0.42);
 }
 
