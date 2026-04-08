@@ -484,11 +484,13 @@
 }
 
 .img-carousel-active{
-    border: 4px solid var(--primary-text-color);
+    border: 4px solid var(--accent-color);
+    filter: brightness(1);
 }
 
 .img-carousel-second{
-    border: 4px solid #6CD4FF;
+    border: 4px solid var(--accent-color);
+    filter: brightness(1);
 }
 
 .img-carousel-container{
@@ -508,6 +510,7 @@
     height: auto;
     border-radius: 20px;
     z-index: 1;
+    filter: brightness(0.42);
 }
 
 .img-water-mark {
