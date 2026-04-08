@@ -66,6 +66,13 @@ export const App: React.FC = () => {
     if (images.paths.length === 0) {
       window.ipcRenderer.on('all-frames', handleAllFrames);
     }
+
+    // Remove this specific listener on cleanup so that if images.paths
+    // changes reference (e.g. project reset) before 'all-frames' fires,
+    // the old listener does not accumulate alongside the new one.
+    return () => {
+      window.ipcRenderer.removeListener('all-frames', handleAllFrames);
+    };
   }, [images.paths]);
 
   return (
