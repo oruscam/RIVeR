@@ -483,10 +483,7 @@
     border: none;
 }
 
-.img-carousel-active{
-    border: 4px solid var(--accent-color);
-}
-
+.img-carousel-active,
 .img-carousel-second{
     border: 4px solid var(--accent-color);
 }
