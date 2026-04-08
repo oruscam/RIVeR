@@ -54,6 +54,18 @@ async function getDistances() {
 }
 
 const transformDistances = (distances: any[]) => {
+  distances = distances.map((row: any[]) => 
+    row.map((cell: any) => {
+      if (typeof cell === 'string') {
+        const replaced = cell.replace(',', '.');
+        if (!isNaN(Number(replaced)) && replaced.trim() !== '') {
+          return Number(replaced);
+        }
+      }
+      return cell;
+    })
+  );
+
   const distancesObject: { [key: string]: number } = {};
   const keys = ['d12', 'd23', 'd34', 'd41', 'd13', 'd24'];
 
