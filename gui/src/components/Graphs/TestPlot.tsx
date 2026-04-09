@@ -23,6 +23,22 @@ export const TestPlot = ({ showMedian, width: fixedWidth }: { showMedian: boolea
       const accentColor = getCSSVar('--accent-color');
       const textColor = getCSSVar('--primary-text-color');
 
+      // Compute global axis limits across all frames so the axes stay fixed
+      // while navigating frames. v is inverted in testPlotSvg so we invert here too.
+      let axisLimits: { uMin: number; uMax: number; vMin: number; vMax: number } | undefined;
+      if (!quiver.test) {
+        const allU = (quiver.u as number[][]).flat();
+        const allV = (quiver.v as number[][]).flat().map((d) => -d);
+        const minOf = (arr: number[]) => arr.reduce((a, b) => Math.min(a, b), Infinity);
+        const maxOf = (arr: number[]) => arr.reduce((a, b) => Math.max(a, b), -Infinity);
+        axisLimits = {
+          uMin: minOf(allU),
+          uMax: maxOf(allU),
+          vMin: minOf(allV),
+          vMax: maxOf(allV),
+        };
+      }
+
       testPlotSvg({
         svgElement: svgRef.current,
         quiver: {
@@ -32,6 +48,7 @@ export const TestPlot = ({ showMedian, width: fixedWidth }: { showMedian: boolea
         t,
         accentColor,
         textColor,
+        axisLimits,
       });
     }
   }, [quiver, graphWidth, images.active, showMedian, theme]);

@@ -24,12 +24,14 @@ export const testPlotSvg = ({
   t,
   accentColor,
   textColor,
+  axisLimits,
 }: {
   svgElement: SVGSVGElement;
   quiver: { u: number[]; v: number[] };
   t: (key: string) => string;
   accentColor: string;
   textColor: string;
+  axisLimits?: { uMin: number; uMax: number; vMin: number; vMax: number };
 }) => {
   // Clear any existing content in the SVG element
   d3.select(svgElement).selectAll('*').remove();
@@ -50,10 +52,10 @@ export const testPlotSvg = ({
 
   // Define padding for the scales
   const padding = 0.1;
-  let uMin = d3.min(u) ?? 0;
-  let uMax = d3.max(u) ?? 0;
-  let vMin = d3.min(v) ?? 0;
-  let vMax = d3.max(v) ?? 0;
+  let uMin = axisLimits?.uMin ?? d3.min(u) ?? 0;
+  let uMax = axisLimits?.uMax ?? d3.max(u) ?? 0;
+  let vMin = axisLimits?.vMin ?? d3.min(v) ?? 0;
+  let vMax = axisLimits?.vMax ?? d3.max(v) ?? 0;
 
   // Adjust the min and max values with padding
   uMin -= padding * (uMax - uMin);
