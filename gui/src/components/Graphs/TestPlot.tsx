@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 
 export const TestPlot = ({showMedian} : {showMedian: boolean}) => {
   const svgRef = useRef(null);
-  const { screenSizes } = useUiSlice();
+  const { screenSizes, theme } = useUiSlice();
   const { quiver, images } = useDataSlice();
   const { t } = useTranslation();
 
@@ -33,7 +33,7 @@ export const TestPlot = ({showMedian} : {showMedian: boolean}) => {
         textColor,
       });
     }
-  }, [quiver, graphWidth, images.active, showMedian]);
+  }, [quiver, graphWidth, images.active, showMedian, theme]);
 
   return (
     <div>{quiver && <svg ref={svgRef} width={graphWidth} height={graphWidth * 0.8} id="quiver-test-plot" />}</div>
