@@ -5,17 +5,18 @@ import { testPlotSvg } from './testPlotSvg';
 import { useTranslation } from 'react-i18next';
 import { getCSSVar } from '../../helpers/getCSSVar';
 
-export const TestPlot = ({showMedian} : {showMedian: boolean}) => {
+export const TestPlot = ({ showMedian, width: fixedWidth }: { showMedian: boolean; width?: number }) => {
   const svgRef = useRef(null);
   const { screenSizes, theme } = useUiSlice();
   const { quiver, images } = useDataSlice();
   const { t } = useTranslation();
 
   const { width: screenWidth } = screenSizes;
-  const graphWidth =
+  const graphWidth = fixedWidth ?? (
     screenWidth * GRAPHS.PLOT_TEST_PROPORTION > GRAPHS.MIN_WIDTH
       ? screenWidth * GRAPHS.PLOT_TEST_PROPORTION
-      : GRAPHS.MIN_WIDTH;
+      : GRAPHS.MIN_WIDTH
+  );
 
   useEffect(() => {
     if (quiver && svgRef.current) {
