@@ -3,7 +3,7 @@ import { useUiSlice } from '../hooks';
 import { TestPlot } from './Graphs';
 import { getCSSVar } from '../helpers/getCSSVar';
 
-const PANEL_WIDTH = 180;
+const PANEL_WIDTH = 220;
 const PANEL_HEIGHT = Math.round(PANEL_WIDTH * 0.8); // 144
 const MARGIN = 12;
 
