@@ -124,7 +124,7 @@ export const FormProcessing = ({extraFields, showMedian, setShowMedian}: {extraF
                             ) 
                         }
 
-                        <HardModeProcessing active={extraFields} showMedian={showMedian} />
+                        <HardModeProcessing active={extraFields} />
                     </form>
                 </FormProvider>
             </div>
