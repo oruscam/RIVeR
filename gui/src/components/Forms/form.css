@@ -367,6 +367,30 @@ transform-origin: 14px 22px;
     background-color: var(--on-hover);
 }
 
+.btn-step {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--secondary-input-background);
+  background: transparent;
+  color: var(--secondary-text-color);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+  padding: 0;
+  line-height: 1;
+}
+
+.btn-step:hover {
+  background: var(--input-background);
+  color: var(--primary-text-color);
+  border-color: var(--primary-text-color);
+}
+
 .input-field-select {
     flex-shrink: 0;
     appearance: none;
