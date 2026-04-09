@@ -3,6 +3,7 @@ import { useDataSlice, useUiSlice } from '../../hooks';
 import { GRAPHS } from '../../constants/constants';
 import { testPlotSvg } from './testPlotSvg';
 import { useTranslation } from 'react-i18next';
+import { getCSSVar } from '../../helpers/getCSSVar';
 
 export const TestPlot = ({showMedian} : {showMedian: boolean}) => {
   const svgRef = useRef(null);
@@ -18,9 +19,8 @@ export const TestPlot = ({showMedian} : {showMedian: boolean}) => {
 
   useEffect(() => {
     if (quiver && svgRef.current) {
-      const style = getComputedStyle(document.documentElement);
-      const accentColor = style.getPropertyValue('--accent-color').trim();
-      const textColor = style.getPropertyValue('--primary-text-color').trim();
+      const accentColor = getCSSVar('--accent-color');
+      const textColor = getCSSVar('--primary-text-color');
 
       testPlotSvg({
         svgElement: svgRef.current,
