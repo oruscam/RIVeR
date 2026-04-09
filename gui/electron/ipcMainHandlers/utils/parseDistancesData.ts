@@ -29,6 +29,7 @@ export const smartParseFloat = (cell: unknown): number => {
     }
   }
 
+
   if (hasComma) {
     // Only commas — treat as decimal separator. e.g. '19,97' → '19.97'
     return parseFloat(s.replace(',', '.'));
