@@ -110,7 +110,9 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
           <label className="read-only me-1" htmlFor="stations-number">
             {t('Results.stationNumber')}
           </label>
-          <button type="button" className="btn-step" onClick={() => handleStep(-1)}>−</button>
+          <button type="button" className="btn-step" onClick={() => handleStep(-1)}>
+            −
+          </button>
           <input
             className="input-field-little"
             type="number"
@@ -119,7 +121,9 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
             onKeyDown={handleOnChangeInput}
             onBlur={handleOnChangeInput}
           />
-          <button type="button" className="btn-step" onClick={() => handleStep(1)}>+</button>
+          <button type="button" className="btn-step" onClick={() => handleStep(1)}>
+            +
+          </button>
         </div>
 
         <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '720px' }}>
