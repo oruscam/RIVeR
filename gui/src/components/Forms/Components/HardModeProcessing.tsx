@@ -3,13 +3,11 @@ import { useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
 import { WINDOW_SIZES } from '../../../constants/constants';
 
-export const HardModeProcessing = ({ active, showMedian }: { active: boolean, showMedian: boolean }) => {
+export const HardModeProcessing = ({ active }: { active: boolean }) => {
   const { register, reset } = useFormContext();
   const { processing, onUpdateProcessing, onReCalculateMask } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
-
-  const { quiver } = useDataSlice();
 
   const { t } = useTranslation();
 
