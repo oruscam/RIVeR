@@ -290,6 +290,7 @@ transform-origin: 14px 22px;
 .input-container-2{
     width: 100%;
     display: flex;
+    align-items: center;
     justify-content: center;
     padding-left: clamp(10px, 6%, 60px);
     padding-right: clamp(10px, 6%, 60px);
