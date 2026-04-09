@@ -1,10 +1,10 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useUiSlice } from '../hooks';
 import { TestPlot } from './Graphs';
 import { getCSSVar } from '../helpers/getCSSVar';
 
 const PANEL_WIDTH = 180;
-const PANEL_HEIGHT = 144; // PANEL_WIDTH * 0.8
+const PANEL_HEIGHT = Math.round(PANEL_WIDTH * 0.8); // 144
 const MARGIN = 12;
 
 interface FloatingPlotProps {
@@ -21,12 +21,19 @@ const hexToRgba = (hex: string, alpha: number): string => {
 };
 
 export const FloatingPlot = ({ showMedian, containerWidth, containerHeight }: FloatingPlotProps) => {
-  const { theme } = useUiSlice(); // subscribes to theme changes so getCSSVar re-reads on re-render
+  const { theme } = useUiSlice();
 
   const [position, setPosition] = useState({
     x: containerWidth - PANEL_WIDTH - MARGIN,
     y: containerHeight - PANEL_HEIGHT - MARGIN,
   });
+  const [isDragging, setIsDragging] = useState(false);
+  const cleanupRef = useRef<(() => void) | null>(null);
+
+  // Remove any lingering window listeners if the component unmounts mid-drag
+  useEffect(() => {
+    return () => cleanupRef.current?.();
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -40,21 +47,27 @@ export const FloatingPlot = ({ showMedian, containerWidth, containerHeight }: Fl
     };
 
     const onUp = () => {
+      setIsDragging(false);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
+      cleanupRef.current = null;
     };
 
+    cleanupRef.current = onUp;
+    setIsDragging(true);
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
   };
 
-  const cardSurface = getCSSVar('--card-surface');
-  const accentColor = getCSSVar('--accent-color');
-  const bgColor = hexToRgba(cardSurface, 0.88);
-  const borderColor = `${accentColor}80`;
-
-  // suppress unused-var lint warning — theme is read to trigger re-renders on theme switch
-  void theme;
+  // Re-read CSS vars whenever theme changes
+  const { bgColor, borderColor } = useMemo(() => {
+    const cardSurface = getCSSVar('--card-surface', '#141414');
+    const accentColor = getCSSVar('--accent-color', '#0678BE');
+    return {
+      bgColor: hexToRgba(cardSurface, 0.88),
+      borderColor: `${accentColor}80`,
+    };
+  }, [theme]);
 
   return (
     <div
@@ -68,7 +81,7 @@ export const FloatingPlot = ({ showMedian, containerWidth, containerHeight }: Fl
         border: `1px solid ${borderColor}`,
         borderRadius: '10px',
         boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
-        cursor: 'grab',
+        cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',
         padding: '4px',
       }}
