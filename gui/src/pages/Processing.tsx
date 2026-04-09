@@ -8,7 +8,6 @@ import { ButtonLock } from "../components/ButtonLock"
 import { FormProcessing } from "../components/Forms"
 import { LockBtn } from "../components/CustomIcons/LockBtn"
 import { ExportBtn } from "../components/CustomIcons/ExportBtn"
-import { TestPlot } from "../components/Graphs"
 
 export const Processing = () => {
     const { t } = useTranslation()
@@ -44,9 +43,6 @@ export const Processing = () => {
                     setShowMedian={setShowMedian}
                     mode="analize"
                 />
-                {extraFields && quiver && (
-                    <TestPlot showMedian={showMedian} />
-                )}
                 <Error />
             </div>
             <div className="form-container">
