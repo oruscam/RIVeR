@@ -26,6 +26,14 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
     }
   };
 
+  const handleStep = (delta: number) => {
+    const next = numStations + delta;
+    if (next >= 3) {
+      onUpdateSection({ numStations: next }, undefined);
+      setValue(`${name}_STATIONS_NUMBER`, next);
+    }
+  };
+
   const handleOnChangeInput = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
   ) => {
@@ -98,20 +106,24 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
           ></input>
         </div>
 
-        <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '720px' }}>
-          <AllInOne isReport={false} height={700} />
-        </div>
-
-        <div className="switch-container-results">
-          <h3 className="field-title me-2 mt-3"> {t('Results.stationNumber')}</h3>
+        <div className="input-container-2 mt-2">
+          <label className="read-only me-1" htmlFor="stations-number">
+            {t('Results.stationNumber')}
+          </label>
+          <button type="button" className="btn-step" onClick={() => handleStep(-1)}>−</button>
           <input
-            className="input-field-little mt-3"
+            className="input-field-little"
             type="number"
             {...register(`${name}_STATIONS_NUMBER`)}
             id="stations-number"
             onKeyDown={handleOnChangeInput}
             onBlur={handleOnChangeInput}
-          ></input>
+          />
+          <button type="button" className="btn-step" onClick={() => handleStep(1)}>+</button>
+        </div>
+
+        <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '720px' }}>
+          <AllInOne isReport={false} height={700} />
         </div>
 
         <div className="switch-container-results mt-2">
