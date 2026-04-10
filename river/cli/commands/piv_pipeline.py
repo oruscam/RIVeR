@@ -3,18 +3,9 @@ from pathlib import Path
 from typing import Optional
 
 import click
-import numpy as np
 
-from river.cli.commands.utils import render_response
+from river.cli.commands.utils import load_mask, render_response
 from river.core.piv_pipeline import run_analyze_all, run_test
-
-
-def _load_mask(mask_path: Path) -> np.ndarray:
-	"""Load a mask from .npy (new format) or .json (backward compat)."""
-	if mask_path.suffix == '.npy':
-		return np.load(mask_path)
-	with mask_path.open("r", encoding="utf-8") as f:
-		return np.array(json.loads(f.read()))
 
 
 @click.argument(
@@ -137,7 +128,7 @@ def piv_test(
 	filter_sub_background: bool,
 ):
 	if mask is not None:
-		mask = _load_mask(mask)
+		mask = load_mask(mask)
 
 	if bbox is not None:
 		bbox = json.loads(bbox.read())
@@ -293,7 +284,7 @@ def piv_analyze(
 	workdir: Path,
 ):
 	if mask is not None:
-		mask = _load_mask(mask)
+		mask = load_mask(mask)
 
 	if bbox is not None:
 		bbox = json.loads(bbox.read())
