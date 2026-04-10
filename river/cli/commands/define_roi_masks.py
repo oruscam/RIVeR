@@ -10,15 +10,8 @@ from PIL import Image
 
 import river.core.define_roi_masks as rm
 from river.cli.commands.exceptions import MissingWorkdir
-from river.cli.commands.utils import render_response
+from river.cli.commands.utils import load_mask, render_response
 
-
-def load_mask(path: Path) -> np.ndarray:
-	"""Load a mask from .npy (new format) or .json (backward compat)."""
-	if path.suffix == '.npy':
-		return np.load(path).astype(np.uint8)
-	with path.open("r", encoding="utf-8") as f:
-		return np.array(json.load(f), dtype=np.uint8)
 
 
 def get_png_mask(mask: np.ndarray) -> Image:
