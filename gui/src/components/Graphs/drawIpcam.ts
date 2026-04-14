@@ -40,8 +40,8 @@ const drawIpcam = ({ layer, uiLayer, localPoints, factor, scale, activePoint, se
           const y = event.y;
     
           d3.select<SVGImageElement, { index: number }>(this)
-            .attr("x", x   - MARKS.OFFSET_X)
-            .attr("y", y  - MARKS.OFFSET_Y);
+            .attr("x", x - MARKS.IPCAM_OFFSET_X / scale)
+            .attr("y", y - MARKS.IPCAM_OFFSET_Y / scale);
         })
         .on("end", function (event, d) {
           if ( activePoint !== d.index ) return;
