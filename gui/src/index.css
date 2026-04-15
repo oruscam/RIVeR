@@ -903,3 +903,32 @@ input:checked + .slider:before {
   height: 100%;
   border-radius: 5px;
 }
+
+/* =============================================================================
+   MASK MODE — disable CS pin interaction
+   When a mask is being defined, the .mask-mode-active class is added to the
+   overlay SVG. This forces pointer-events: none on every element inside the
+   .overlay-ui group (the CS pins), overriding SVG presentation attributes
+   such as pointer-events="all" that D3 applies to draggable pin icons.
+   ============================================================================= */
+
+svg.mask-mode-active .overlay-ui,
+svg.mask-mode-active .overlay-ui * {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+/* =============================================================================
+   CONFIRM MASK BUTTON — floating green tick at mask centroid
+   ============================================================================= */
+
+.confirm-mask-btn {
+  opacity: 0.85;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.confirm-mask-btn:hover {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.2) !important;
+}
