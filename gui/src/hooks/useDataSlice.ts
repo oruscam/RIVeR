@@ -19,6 +19,7 @@ import {
   deleteMask,
   updateMask,
   setColorbarLimits,
+  toggleMaskVisibility,
 } from '../store/data/dataSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { setHasChanged, setSectionData, setSummary } from '../store/section/sectionSlice';
@@ -393,6 +394,10 @@ export const useDataSlice = () => {
     dispatch(updateMask({ index }));
   }
 
+  const onToggleMaskVisibility = (index: number) => {
+    dispatch(toggleMaskVisibility(index));
+  };
+
   const onSetManualColorbarLimits = (min: number, max: number, refresh: boolean) => {
     if (refresh) {
       window.ipcRenderer.invoke('set-colorbar-limits', { min: null, max: null });
@@ -462,6 +467,7 @@ export const useDataSlice = () => {
     onSetManualColorbarLimits,
     onSetQuiverAll,
     onSetQuiverTest,
+    onToggleMaskVisibility,
     onUpdateActiveMask,
     onUpdateMaskPoints,
     onUpdateProcessing,

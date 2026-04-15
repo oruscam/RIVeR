@@ -7,6 +7,7 @@ export type OverlayLayers = {
   staticLayerRef: React.RefObject<SVGGElement>;
   quiverLayerRef: React.RefObject<SVGGElement>;
   interactiveLayerRef: React.RefObject<SVGGElement>;
+  staticMaskLayerRef: React.RefObject<SVGGElement>;
   maskLayerRef: React.RefObject<SVGGElement>;
   uiLayerRef: React.RefObject<SVGGElement>;
 };
@@ -26,6 +27,7 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
   const staticLayerRef = useRef<SVGGElement | null>(null);
   const quiverLayerRef = useRef<SVGGElement | null>(null);
   const interactiveLayerRef = useRef<SVGGElement | null>(null);
+  const staticMaskLayerRef = useRef<SVGGElement | null>(null);
   const maskLayerRef = useRef<SVGGElement | null>(null);
   const uiLayerRef = useRef<SVGGElement | null>(null);
 
@@ -54,12 +56,15 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
 
     const overlayZoom = svg.append("g").attr("class", "overlay-zoom");
     const interactiveLayer = overlayZoom.append("g").attr("class", "interactive-section-layer");
+    // Static (non-active) mask polygons — below the active mask layer
+    const staticMaskLayer = overlayZoom.append("g").attr("class", "static-mask-layer");
     const maskLayer = overlayZoom.append("g").attr("class", "mask-layer");
     const staticLayer = overlayZoom.append("g").attr("class", "static-section-layer");
     const quiverLayer = overlayZoom.append("g").attr("class", "quiver-layer"); // por encima de static
     const uiLayer = svg.append("g").attr("class", "overlay-ui"); // SIEMPRE por encima de overlayZoom
 
     interactiveLayerRef.current = interactiveLayer.node();
+    staticMaskLayerRef.current = staticMaskLayer.node();
     maskLayerRef.current = maskLayer.node();
 
     staticLayerRef.current = staticLayer.node();
@@ -80,6 +85,7 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
     staticLayerRef,
     quiverLayerRef,
     interactiveLayerRef,
+    staticMaskLayerRef,
     maskLayerRef,
     uiLayerRef,
   };
