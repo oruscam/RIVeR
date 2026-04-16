@@ -1,15 +1,16 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { Error, ImageOblique, ImageObliqueNew, WizardButtons } from '../components';
+import { Error, ImageOblique, WizardButtons } from '../components';
 import { FormOblique } from '../components/Forms';
 import { useGlobalSlice, useObliqueSlice, useUiSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
 import { useEffect, useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers';
-import { ButtonLock } from '../components/ButtonLock';
 import { Point } from '../types';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
+
+
 
 const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates: Point[]) => {
   const defaultValues = {
