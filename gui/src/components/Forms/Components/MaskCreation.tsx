@@ -1,4 +1,3 @@
-import { GrTrash } from "react-icons/gr";
 import { useDataSlice } from "../../../hooks"
 import { useTranslation } from "react-i18next";
 import { EyeBtn } from "../../CustomIcons/EyeBtn";
