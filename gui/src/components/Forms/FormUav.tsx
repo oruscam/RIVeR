@@ -132,13 +132,11 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
             onBlur={handlePixelSizeInput}
           />
         </div>
-
-        {solution !== null && <OrthoImage solution={solution} secondPoint={solution.secondPoint} />}
-
-        {
-          extraFields && <HardModeUav />
-        }
       </form>
+
+      {solution !== null && <OrthoImage solution={solution} secondPoint={solution.secondPoint} />}
+
+      {extraFields && <HardModeUav />}
     </div>
   )
 };
