@@ -58,22 +58,22 @@
 }
 
 .read-only {
+    width: 132px;
     background-color: var(--input-background);
     color: var(--primary-text-color);
     border: solid 0.1px;
-    font-size: 22px;
     text-align: center;
-    line-height: 45px;
+    line-height: 50px;
     border-radius: 20px;
     flex: 1 1 auto;
     min-width: 100px;
     max-width: 210px;
     height: 50px;
-    word-wrap: break-word;
-    font-size: auto;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-size: clamp(13px, 1.5vw, 20px);
+    padding-inline: 8px;
 }
 
 .read-only-oblique {
@@ -591,7 +591,10 @@
     position: relative;
     display: flex;
     align-items: center;
-    width: 100%;
+    flex: 1 1 auto;
+    width: 150px;
+    min-width: 70px;
+    max-width: 160px;
 }
 
 .unit-label {
@@ -601,4 +604,12 @@
     opacity: 0.7;
     pointer-events: none;
     font-weight: 500;
+}
+
+/* When inside a positioned container, inputs fill it so unit-label overlays correctly */
+.input-field-container .input-field,
+.input-field-container .input-field-read-only {
+    width: 100%;
+    max-width: none;
+    flex: 1 1 auto;
 }

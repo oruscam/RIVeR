@@ -3,6 +3,7 @@ import { useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../
 import { DropHereText, HardModeCrossSections } from './Components/index';
 import { Bathimetry } from '../Graphs';
 import { useTranslation } from 'react-i18next';
+import { UNITS } from '../../constants/constants';
 interface FormCrossSectionsProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void;
   name: string;
@@ -20,7 +21,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   } = useSectionSlice();
   const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
   const { onSetErrorMessage } = useUiSlice();
-  const { type } = useProjectSlice();
+  const { type, projectDetails } = useProjectSlice();
   const { cameraSolution } = useIpcamSlice();
 
   const { t } = useTranslation();
@@ -183,7 +184,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               <span className='read-only bg-transparent'></span>
             </div>
 
-            <div className="input-container-2">
+            <div className="input-container-2 mt-1">
               <input
                 type="file"
                 id={`${name}_CS_BATHIMETRY`}
@@ -198,7 +199,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 })}
               />
               <button
-                className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
+                className={`wizard-button form-button bathimetry-button me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
                 onClick={handleImportBath}
                 disabled={
                   transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
@@ -207,7 +208,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 {' '}
                 {t('CrossSections.importBath')}{' '}
               </button>
-              <label className="read-only bg-transparent mt-1">
+              <label className="read-only bg-transparent">
                 {bathimetry.name !== '' ? bathimetry.name : ''}
               </label>
             </div>
@@ -220,33 +221,39 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
           <label className="read-only me-1" htmlFor="LEVEL">
             {t('CrossSections.level')}
           </label>
-          <input
-            type="number"
-            step="any"
-            className="input-field"
-            {...register(`${name}_LEVEL`, {
-              validate: () => bathimetry.level !== 0,
-            })}
-            id="LEVEL"
-            onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
-            onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
-          />
+          <div className="input-field-container">
+            <input
+              type="number"
+              step="any"
+              className="input-field"
+              {...register(`${name}_LEVEL`, {
+                validate: () => bathimetry.level !== 0,
+              })}
+              id="LEVEL"
+              onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
+              onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
+            />
+            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+          </div>
         </div>
 
         <div className="input-container-2 mb-1">
           <label className="read-only me-1" htmlFor="CS_LENGTH">
             {t('CrossSections.width')}
           </label>
-          <input
-            type="number"
-            className="input-field-read-only"
-            disabled={true}
-            {...register(`${name}_CS_LENGTH`, {
-              validate: (value) => value != 0 || t('CrossSections.Errors.rwLength', { section_name: name }),
-            })}
-            id="CS_LENGTH"
-            readOnly={true}
-          />
+          <div className="input-field-container">
+            <input
+              type="number"
+              className="input-field-read-only"
+              disabled={true}
+              {...register(`${name}_CS_LENGTH`, {
+                validate: (value) => value != 0 || t('CrossSections.Errors.rwLength', { section_name: name }),
+              })}
+              id="CS_LENGTH"
+              readOnly={true}
+            />
+            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+          </div>
         </div>
 
         <Bathimetry showLeftBank={true} />
