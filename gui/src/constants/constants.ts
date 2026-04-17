@@ -155,6 +155,12 @@ export const WINDOW_SIZES = {
   TINY: 64,
 };
 
+
+export const UNIT_CONVERSIONS = {
+  FT_TO_M: 0.3048,
+  M_TO_FT: 1 / 0.3048,
+};
+
 export const UNITS = {
   SI: {
     FLOW: 'm³/s',

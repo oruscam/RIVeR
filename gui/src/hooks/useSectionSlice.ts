@@ -618,12 +618,13 @@ export const useSectionSlice = () => {
   const onGetBathimetry = async (values: onGetBathimetryTypes) => {
     const ipcRenderer = window.ipcRenderer;
 
-    const { cameraMatrix, zLimits, bathimetryPath } = values;
+    const { cameraMatrix, zLimits, bathimetryPath, unitSistem } = values;
 
     try {
       const { path, line, name, error } = await ipcRenderer.invoke('get-bathimetry', {
         path: bathimetryPath,
         zLimits,
+        unitSistem,
       });
 
       if (error?.message) {

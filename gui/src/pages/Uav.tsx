@@ -2,7 +2,8 @@ import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { FormUav } from '../components/Forms/index';
 import { WizardButtons, Error, Progress, ImageUav } from '../components/index';
-import { useGlobalSlice, useUavSlice, useUiSlice } from '../hooks/index';
+import { useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../hooks/index';
+import { UNIT_CONVERSIONS } from '../constants/constants';
 
 import './pages.css';
 import { useEffect } from 'react';
@@ -14,9 +15,19 @@ import { Point } from '../types/index.js';
 import { ImageUavNew } from '../components/ImageUavNew.js';
 import { LockBtn } from '../components/CustomIcons/LockBtn.js';
 
-const createDefaultState = (dirPoints: Point[], rwPoints: Point[], rwLength: number, size: number) => {
+const createDefaultState = (
+  dirPoints: Point[],
+  rwPoints: Point[],
+  rwLength: number,
+  size: number,
+  unitSistem: string
+) => {
+  // The store always holds SI values (metres). Convert to feet for display only.
+  const displayLength =
+    unitSistem === 'imperial' ? rwLength * UNIT_CONVERSIONS.M_TO_FT : rwLength;
+
   const defaultValues = {
-    uav_lineLength: formatNumberTo2Decimals(rwLength),
+    uav_lineLength: formatNumberTo2Decimals(displayLength),
     uav_pixelSize: formatNumberToPrecision4(size),
     uav_eastPoint1: rwPoints[0].x,
     uav_eastPoint2: rwPoints[1].x,
@@ -26,7 +37,7 @@ const createDefaultState = (dirPoints: Point[], rwPoints: Point[], rwLength: num
     uav_xPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
     uav_yPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
     uav_yPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].y,
-  }
+  };
 
   return defaultValues;
 }
@@ -44,9 +55,11 @@ export const Uav = () => {
   } = useUavSlice();
   const { t } = useTranslation();
   const { isBackendWorking } = useGlobalSlice();
+  const { projectDetails } = useProjectSlice();
+  const { unitSistem } = projectDetails;
 
   // * Estado inicial del formulario
-  const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size) });
+  const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size, unitSistem) });
 
   const { nextStep } = useWizard();
   const { onSetErrorMessage } = useUiSlice();
@@ -70,8 +83,8 @@ export const Uav = () => {
   };
 
   useEffect(() => {
-    methods.reset(createDefaultState(dirPoints, rwPoints, rwLength, size));
-  }, [dirPoints, rwPoints, size, rwLength, methods]);
+    methods.reset(createDefaultState(dirPoints, rwPoints, rwLength, size, unitSistem));
+  }, [dirPoints, rwPoints, size, rwLength, unitSistem, methods]);
 
   return (
     <div className="regular-page">

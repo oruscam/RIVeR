@@ -23,7 +23,9 @@ async function getBathimetry() {
 
   // Handle the 'get-bathimetry' IPC event
   ipcMain.handle('get-bathimetry', async (_event, args) => {
-    const { path, zLimits } = args;
+    const { path, zLimits, unitSistem } = args;
+    const FT_TO_M = 0.3048;
+    const isImperial = unitSistem === 'imperial';
     // If the file is dropped, the path is provided in args. But we need to validate it.
     let isValidPath = validateFile(path);
 
@@ -131,6 +133,12 @@ async function getBathimetry() {
         })
         .filter((row: any) => !isNaN(row.x) && !isNaN(row.y));
 
+      // Convert ft -> m when the user is working in imperial units.
+      // The store and any file consumed by the Python backend must always be SI.
+      if (isImperial) {
+        line = line.map(({ x, y }) => ({ x: x * FT_TO_M, y: y * FT_TO_M }));
+      }
+
       line.forEach((row, idx) => {
           if (row.y > maxY) {
               maxY = row.y;
@@ -145,9 +153,9 @@ async function getBathimetry() {
       const { newLine, changed } = transformLine(line, isDecreced, isDepth, maxY, zLimits?.min);
 
       // Write a normalized file if data was transformed OR the source format was non-standard
-      // (Python CLI expects standard comma-separated CSV)
+      // OR the user is working in imperial units (Python CLI expects standard SI comma-separated CSV).
       let newFilePath = bathPath;
-      if (changed || needsNormalization) {
+      if (changed || needsNormalization || isImperial) {
         // Convert the JSON back to a sheet
         const newSheet = utils.json_to_sheet(newLine);
 

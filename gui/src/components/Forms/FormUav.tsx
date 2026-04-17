@@ -4,7 +4,7 @@ import { useFormContext } from 'react-hook-form';
 import { useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../../hooks';
 import { HardModeUav } from './Components/index';
 import { OrthoImage } from '../Graphs';
-import { UNITS } from '../../constants/constants';
+import { UNITS, UNIT_CONVERSIONS } from '../../constants/constants';
 
 interface MyFormProps {
   onSubmit: (values: any) => void;
@@ -33,9 +33,14 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
   ) => {
     if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') {
       event.preventDefault();
-      const value = parseFloat(event.currentTarget.value);
-      if (value > 0) {
-        onUpdatePixelSize({ length: value });
+      const rawValue = parseFloat(event.currentTarget.value);
+      if (rawValue > 0) {
+        // Convert to metres if the user is working in imperial units
+        const valueInMeters =
+          projectDetails.unitSistem === 'imperial'
+            ? rawValue * UNIT_CONVERSIONS.FT_TO_M
+            : rawValue;
+        onUpdatePixelSize({ length: valueInMeters });
       } else {
         const error = {
           uav_lineLength: {
