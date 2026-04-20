@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import * as d3 from 'd3';
 import './components.css';
-import { useDataSlice } from '../hooks';
+import { useDataSlice, useProjectSlice } from '../hooks';
 import { QuiverData } from '../../commons/types';
 import { drawQuiver } from './Graphs/drawQuiver';
 import { OverlayLayers } from './OverlaySvg';
@@ -17,6 +17,7 @@ interface QuiverProps {
 
 export const Quiver = ({ factor, data, showMedian, layers }: QuiverProps) => {
   const { images, quiver } = useDataSlice();
+  const { projectDetails } = useProjectSlice();
 
   const { quiverLayerRef } = layers;
 
@@ -27,8 +28,8 @@ export const Quiver = ({ factor, data, showMedian, layers }: QuiverProps) => {
     quiverLayerSel.selectAll('*').remove();
     if (quiver === null) return;
 
-    drawQuiver(quiverLayerSel as any, data, factor);
-  }, [quiver, images.active, factor, showMedian, quiverLayerRef, data]);
+    drawQuiver(quiverLayerSel as any, data, factor, projectDetails.unitSistem);
+  }, [quiver, images.active, factor, showMedian, quiverLayerRef, data, projectDetails.unitSistem]);
 
   return null;
 };
