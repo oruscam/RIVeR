@@ -33,7 +33,7 @@ import {
   setChangesByForm,
 } from '../helpers';
 import { setProcessingMask, setQuiver, updateProcessingForm } from '../store/data/dataSlice';
-import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS } from '../constants/constants';
+import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS, UNIT_CONVERSIONS } from '../constants/constants';
 import { CanvasPoint, FormPoint, onGetBathimetryTypes, Point } from '../types';
 import { ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
@@ -57,6 +57,11 @@ export const useSectionSlice = () => {
     isSectionWorking,
   } = useSelector((state: RootState) => state.section);
   const { processing } = useSelector((state: RootState) => state.data);
+  // The store always holds real-world coordinates in SI (m). We need the user's
+  // selected unit to convert their input back to SI before dispatching.
+  const unitSistem = useSelector((state: RootState) => state.project.projectDetails.unitSistem);
+  const toSI = (value: number) =>
+    unitSistem === 'imperial' ? value * UNIT_CONVERSIONS.FT_TO_M : value;
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -207,7 +212,11 @@ export const useSectionSlice = () => {
     let newPoints: Point[];
     let flag1 = false;
     let flag2 = false;
-    const { points, firstFlag, secondFlag } = setChangesByForm({ value, position }, rwPoints);
+    // The form holds values in the user's unit (ft when imperial); the store
+    // must stay in SI, so convert before feeding setChangesByForm.
+    const numericValue = typeof value === 'number' ? value : parseFloat(value);
+    const siValue = isFinite(numericValue) ? toSI(numericValue) : value;
+    const { points, firstFlag, secondFlag } = setChangesByForm({ value: siValue, position }, rwPoints);
     newPoints = points;
     flag1 = firstFlag;
     flag2 = secondFlag;
