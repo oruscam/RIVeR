@@ -7,15 +7,15 @@ import { PROJECT_CONFIG } from '../main';
 function initProject() {
   ipcMain.handle(
     'init-project',
-    async (_event, args: { path: string; name: string; type: string; language: string }) => {
-      const { name, path, type, language } = args;
+    async (_event, args: { path: string; name: string; type: string; language: string; unitSystem: string }) => {
+      const { name, path, type, language, unitSystem } = args;
 
       const [videoName] = name.split('.');
       const newDirectory = join(PROJECT_CONFIG.mainDirectory, videoName);
 
       try {
         const result = await getVideoMetadata(path);
-        const directory = await createFolderStructure(newDirectory, type, language, result.path, name, result);
+        const directory = await createFolderStructure(newDirectory, type, language, result.path, name, result, unitSystem);
 
         PROJECT_CONFIG.projectDirectory = directory;
         PROJECT_CONFIG.type = type;

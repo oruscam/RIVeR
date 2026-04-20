@@ -39,7 +39,8 @@ export const FootageMode = () => {
   const onSubmit = async () => {
     if (video) {
       try {
-        await onInitProject(video, currentLanguage);
+        const currentUnitSystem = localStorage.getItem("unitSystem") || "si";
+        await onInitProject(video, currentLanguage, currentUnitSystem);
         nextStep();
       } catch (error) {
         if (error instanceof OperationCanceledError) previousStep();

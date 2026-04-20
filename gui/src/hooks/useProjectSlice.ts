@@ -97,7 +97,7 @@ export const useProjectSlice = () => {
     }
   };
 
-  const onInitProject = async (videoInput: { path: string; name: string; type: string }, language: string) => {
+  const onInitProject = async (videoInput: { path: string; name: string; type: string }, language: string, unitSystem: string) => {
     dispatch(setLoading(true));
 
     const extension = videoInput.name.split('.').pop();
@@ -113,6 +113,7 @@ export const useProjectSlice = () => {
         name: videoInput.name,
         type: videoInput.type,
         language: language,
+        unitSystem: unitSystem,
       });
 
       if (error) {
@@ -402,7 +403,7 @@ export const useProjectSlice = () => {
           // Load project details
           if (settings.river_name || settings.site || settings.unit_system || settings.medition_date) {
             console.log('loading project details')
-            const savedUnitSystem = localStorage.getItem("unitSystem") || "si"
+            const savedUnitSystem = settings.unit_system || localStorage.getItem("unitSystem") || "si"
             dispatch(
               setProjectDetails({
                 riverName: settings.river_name,
