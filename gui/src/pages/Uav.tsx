@@ -22,17 +22,18 @@ const createDefaultState = (
   size: number,
   unitSistem: string
 ) => {
+  const isImperial = unitSistem === 'imperial';
   // The store always holds SI values (metres). Convert to feet for display only.
-  const displayLength =
-    unitSistem === 'imperial' ? rwLength * UNIT_CONVERSIONS.M_TO_FT : rwLength;
+  const displayLength = isImperial ? rwLength * UNIT_CONVERSIONS.M_TO_FT : rwLength;
+  const displaySize = isImperial ? size * UNIT_CONVERSIONS.M_TO_FT : size;
 
   const defaultValues = {
     uav_lineLength: formatNumberTo2Decimals(displayLength),
-    uav_pixelSize: formatNumberToPrecision4(size),
-    uav_eastPoint1: rwPoints[0].x,
-    uav_eastPoint2: rwPoints[1].x,
-    uav_northPoint1: rwPoints[0].y,
-    uav_northPoint2: rwPoints[1].y,
+    uav_pixelSize: formatNumberToPrecision4(displaySize),
+    uav_eastPoint1: isImperial ? rwPoints[0].x * UNIT_CONVERSIONS.M_TO_FT : rwPoints[0].x,
+    uav_eastPoint2: isImperial ? rwPoints[1].x * UNIT_CONVERSIONS.M_TO_FT : rwPoints[1].x,
+    uav_northPoint1: isImperial ? rwPoints[0].y * UNIT_CONVERSIONS.M_TO_FT : rwPoints[0].y,
+    uav_northPoint2: isImperial ? rwPoints[1].y * UNIT_CONVERSIONS.M_TO_FT : rwPoints[1].y,
     uav_xPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].x,
     uav_xPoint2: dirPoints.length === 0 ? 0 : dirPoints[1].x,
     uav_yPoint1: dirPoints.length === 0 ? 0 : dirPoints[0].y,
@@ -65,6 +66,7 @@ export const Uav = () => {
   const { onSetErrorMessage } = useUiSlice();
 
   const onSubmit = (_data: FieldValues) => {
+    console.log(rwPoints);
     nextStep();
   };
 
