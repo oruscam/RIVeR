@@ -277,7 +277,7 @@ export const useDataSlice = () => {
           numSections: sections.length,
         });
         if (error?.message) {
-          throw new Error(error);
+          throw new Error(error.message);
         }
 
         sections.map((section, index) => {
