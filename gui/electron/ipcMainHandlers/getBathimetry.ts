@@ -163,7 +163,7 @@ async function getBathimetry() {
       if (changed || needsNormalization || isImperial) {
         // Generate a new file name with _modified.csv suffix (always CSV for Python compatibility)
         newFilePath = join(
-          PROJECT_CONFIG.mainDirectory,
+          PROJECT_CONFIG.projectDirectory,
           basename(bathPath, bathimetryExt) + '_modified.csv'
         );
 
