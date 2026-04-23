@@ -262,6 +262,7 @@ const drawColorBar = (
   max,
   canvasWidth,
   canvasHeight,
+  unitSistem: string = 'si',
 ) => {
   // === Layout ===
   // Fully proportional sizing — no pixel caps — for harmonious proportions at any resolution
@@ -312,8 +313,13 @@ const drawColorBar = (
 
   const centerY = y + containerHeight / 2;
 
-  const minText = min.toFixed(2);
-  const maxText = max.toFixed(2);
+  const isImperial = unitSistem === 'imperial';
+  const M_TO_FT = 3.28084;
+  const unitLabel = isImperial ? 'ft/s' : 'm/s';
+  const displayMin = isImperial ? min * M_TO_FT : min;
+  const displayMax = isImperial ? max * M_TO_FT : max;
+  const minText = `${displayMin.toFixed(2)} ${unitLabel}`;
+  const maxText = `${displayMax.toFixed(2)} ${unitLabel}`;
 
   const minTextWidth = ctx.measureText(minText).width;
   const maxTextWidth = ctx.measureText(maxText).width;
