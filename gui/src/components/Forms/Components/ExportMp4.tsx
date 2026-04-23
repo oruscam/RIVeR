@@ -7,9 +7,7 @@ import { ExportBtn } from "../../CustomIcons/ExportBtn";
 export const ExportMp4 = () => {
     const { t } = useTranslation();
     const { onExportGif, colorbarLimits, quiver, images } = useDataSlice();
-    const { video, projectDetails } = useProjectSlice();
-    const isImperial = projectDetails.unitSistem === 'imperial';
-    const M_TO_FT = 3.28084;
+    const { video } = useProjectSlice();
     const { transformationMatrix } = useSectionSlice();
     const { width, height, fps } = video.data;
     const { factor, step } = video.parameters;
@@ -60,7 +58,7 @@ export const ExportMp4 = () => {
                 min: minValue,
                 max: maxValue,
             },
-            unitSistem: projectDetails.unitSistem,
+            unitSistem: 'si',
         }).then(() => {
             setIsCreatingGif(false);
         }).catch((error) => {
