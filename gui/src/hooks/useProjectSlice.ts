@@ -403,7 +403,7 @@ export const useProjectSlice = () => {
           // Load project details
           if (settings.river_name || settings.site || settings.unit_system || settings.medition_date) {
             console.log('loading project details')
-            const savedUnitSystem = settings.unit_system || localStorage.getItem("unitSystem") || "si"
+            const savedUnitSystem = localStorage.getItem("unitSystem") || settings.unit_system || "si"
             dispatch(
               setProjectDetails({
                 riverName: settings.river_name,
