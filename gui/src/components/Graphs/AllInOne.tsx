@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import './graphs.css';
 import * as d3 from 'd3';
-import { useSectionSlice, useUiSlice } from '../../hooks';
+import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { createDischargeChart } from './dischargeSvg';
 import { createVelocityChart } from './velocitySvg';
 import { bathimetrySvg } from './bathimetrySvg';
@@ -31,6 +31,8 @@ export const AllInOne = ({
   const { data, bathimetry, name } = sections[index ? index : activeSection];
   const { level, x1Intersection, x2Intersection, width: bathWidth } = bathimetry;
   const { screenSizes, theme } = useUiSlice();
+  const { projectDetails } = useProjectSlice();
+  const { unitSistem } = projectDetails;
   const { width: screenWidth } = screenSizes;
 
   const graphWidth =
@@ -128,6 +130,7 @@ export const AllInOne = ({
         showStd: showVelocityStd,
         isReport,
         onChangeDataValues,
+        unitSistem,
       });
 
       bathimetrySvg({
@@ -140,7 +143,7 @@ export const AllInOne = ({
         isReport,
       });
     }
-  }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check, theme]);
+  }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check, theme, unitSistem]);
 
   return (
     <svg

@@ -159,6 +159,7 @@ export const WINDOW_SIZES = {
 export const UNIT_CONVERSIONS = {
   FT_TO_M: 0.3048,
   M_TO_FT: 1 / 0.3048,
+  M3_TO_FT3: 35.3147,
 };
 
 export const UNITS = {
