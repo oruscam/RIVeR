@@ -14,6 +14,7 @@ interface PointsMapSvgProps {
   orthoImagePath: string | undefined;
   cameraPosition: number[] | undefined;
   orthoExtent: number[] | undefined;
+  unitSistem?: string;
 }
 
 export const pointsMapSvg = ({
@@ -23,6 +24,7 @@ export const pointsMapSvg = ({
   orthoImagePath,
   cameraPosition,
   orthoExtent,
+  unitSistem,
 }: PointsMapSvgProps) => {
   const svg = d3.select(svgElement);
 
@@ -75,7 +77,8 @@ export const pointsMapSvg = ({
       height,
       svg,
       xScale,
-      yScale
+      yScale,
+      unitSistem
     );
     return;
   } else {
@@ -208,7 +211,8 @@ const drawAnalizeResult = (
   height: number,
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
   xScale: d3.ScaleLinear<number, number>,
-  yScale: d3.ScaleLinear<number, number>
+  yScale: d3.ScaleLinear<number, number>,
+  unitSistem?: string
 ) => {
   margin.left = 80;
   margin.bottom = 80;
@@ -249,7 +253,7 @@ const drawAnalizeResult = (
     .attr('height', Math.abs(yScale(y + imgHeight) - yScale(y)))
     .attr('clip-path', 'url(#clip)');
 
-  scaleBar(orthoExtent, svg.node() as SVGSVGElement, xScale, yScale, 'clip', margin.left, margin.top);
+  scaleBar(orthoExtent, svg.node() as SVGSVGElement, xScale, yScale, 'clip', margin.left, margin.top, unitSistem);
 
   // Append the camera icon
   const xOffset = -15;
@@ -361,7 +365,7 @@ const drawAnalizeResult = (
     svg.select('.x-axis').call(d3.axisBottom(newXScale).ticks(3));
     svg.select('.y-axis').call(d3.axisLeft(newYScale).ticks(5));
 
-    scaleBar(orthoExtent, svg.node() as SVGSVGElement, newXScale, newYScale, 'clip', margin.left, margin.top);
+    scaleBar(orthoExtent, svg.node() as SVGSVGElement, newXScale, newYScale, 'clip', margin.left, margin.top, unitSistem);
   }
 
   svg
