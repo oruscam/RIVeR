@@ -9,7 +9,7 @@ async function createFolderStructure(
   videoPath: string,
   videoName: string,
   result: { width: number; height: number; fps: number; duration: string },
-  unitSystem: string
+  unitSistem: string
 ) {
   const dateSuffix = getFormattedDate();
   const datedDirPath = path.join(newDirPath, dateSuffix);
@@ -79,7 +79,7 @@ async function createFolderStructure(
     creation_date: dateSuffix,
     footage: type,
     language: language,
-    unit_system: unitSystem,
+    unit_system: unitSistem,
     video: {
       filepath: videoPath,
       name: videoName,

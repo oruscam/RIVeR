@@ -97,7 +97,7 @@ export const useProjectSlice = () => {
     }
   };
 
-  const onInitProject = async (videoInput: { path: string; name: string; type: string }, language: string, unitSystem: string) => {
+  const onInitProject = async (videoInput: { path: string; name: string; type: string }, language: string, unitSistem: string) => {
     dispatch(setLoading(true));
 
     const extension = videoInput.name.split('.').pop();
@@ -113,7 +113,7 @@ export const useProjectSlice = () => {
         name: videoInput.name,
         type: videoInput.type,
         language: language,
-        unitSystem: unitSystem,
+        unitSistem: unitSistem,
       });
 
       if (error) {
