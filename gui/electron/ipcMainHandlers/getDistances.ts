@@ -19,7 +19,9 @@ async function getDistances() {
   };
 
   ipcMain.handle('import-distances', async (_event, args) => {
-    const { path } = args;
+    const { path, unitSistem } = args;
+    const FT_TO_M = 0.3048;
+    const isImperial = unitSistem === 'imperial';
 
     options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
 
@@ -48,6 +50,12 @@ async function getDistances() {
       const data = utils.sheet_to_json(sheet, { header: 1 });
 
       const distances = parseDistancesData(data as unknown[][]);
+
+      if (isImperial) {
+        for (const key of Object.keys(distances)) {
+          distances[key] = distances[key] * FT_TO_M;
+        }
+      }
 
       return {
         distances,

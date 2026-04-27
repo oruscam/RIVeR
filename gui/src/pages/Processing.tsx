@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Carousel, Error, ImageProcessing, WizardButtons } from "../components"
 import { useDataSlice, useUiSlice } from "../hooks"
 import { FormHeader } from "../components/Forms/Components"
@@ -14,8 +14,14 @@ export const Processing = () => {
     const { nextStep } = useWizard()
     const { onSetErrorMessage, onSetSeeAll } = useUiSlice()
     const { images, quiver, isBackendWorking, onSetActiveImage, onGetResultData } = useDataSlice()
-    const [showMedian, setShowMedian] = useState(false)
+    const [showMedian, setShowMedian] = useState(quiver !== null && quiver.test === false);
     const [extraFields, setExtraFields] = useState(false);
+
+    useEffect(() => {
+        if (quiver !== null && quiver.test === false) {
+            setShowMedian(true);
+        }
+    }, [quiver?.test]);
 
     const { paths, active } = images
 
