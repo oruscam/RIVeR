@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { COLORS, GRAPHS } from '../../constants/constants';
+import { COLORS, GRAPHS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 import { generateYAxisTicks } from '../../helpers';
 import './graphs.css';
 import { t } from 'i18next';
@@ -29,6 +29,7 @@ interface CreateVelocityChartProps {
   interpolated: boolean;
   check: boolean[];
   onChangeDataValues?: any;
+  unitSistem?: string;
 }
 
 export const createVelocityChart = ({
@@ -47,19 +48,23 @@ export const createVelocityChart = ({
   showPercentile = true,
   isReport = false,
   onChangeDataValues,
+  unitSistem = 'si',
 }: CreateVelocityChartProps) => {
+  const isImperial = unitSistem === 'imperial';
+  const velocityFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
+  const unitLabel = isImperial ? UNITS.IMPERIAL.VELOCITY : UNITS.SI.VELOCITY;
   const svg = d3.select(SVGElement);
   const { margin, graphHeight, width } = sizes;
 
   const minDomainValue = Math.min(
-    d3.min(percentile5.filter((d) => d !== null))!,
-    d3.min(minusStd.filter((d) => d !== null))!,
-    d3.min(magnitude.filter((d) => d !== null))!
+    d3.min(percentile5.filter((d) => d !== null))! * velocityFactor,
+    d3.min(minusStd.filter((d) => d !== null))! * velocityFactor,
+    d3.min(magnitude.filter((d) => d !== null))! * velocityFactor,
   );
   const maxDomainValue = Math.max(
-    d3.max(percentile95.filter((d) => d !== null))!,
-    d3.max(plusStd.filter((d) => d !== null))!,
-    d3.max(magnitude.filter((d) => d !== null))!
+    d3.max(percentile95.filter((d) => d !== null))! * velocityFactor,
+    d3.max(plusStd.filter((d) => d !== null))! * velocityFactor,
+    d3.max(magnitude.filter((d) => d !== null))! * velocityFactor,
   );
 
   // y Scale
@@ -110,7 +115,7 @@ export const createVelocityChart = ({
       };
     } else if (check[i] === false && interpolated === true) {
       return {
-        velocity: d,
+        velocity: d !== null ? d * velocityFactor : null,
         distance: distance[i],
         plusStd: null,
         minusStd: null,
@@ -120,12 +125,12 @@ export const createVelocityChart = ({
       }
     } else {
       return {
-        velocity: d,
+        velocity: d !== null ? d * velocityFactor : null,
         distance: distance[i],
-        plusStd: plusStd[i],
-        minusStd: minusStd[i],
-        percentile5: percentile5[i],
-        percentile95: percentile95[i],
+        plusStd: plusStd[i] * velocityFactor,
+        minusStd: minusStd[i] * velocityFactor,
+        percentile5: percentile5[i] * velocityFactor,
+        percentile95: percentile95[i] * velocityFactor,
         interpolated: false
       };
     }
@@ -434,7 +439,7 @@ export const createVelocityChart = ({
           const cy = yScale(d.velocity!);
 
           tooltip
-            .html(`Velocity: ${formatValue(d.velocity!)}<br>Distance: ${formatValue(d.distance)}`)
+            .html(`Velocity: ${formatValue(d.velocity!)} ${unitLabel}<br>Distance: ${formatValue(d.distance)}`)
             .style('left', `${event.pageX + 10}px`)
             .style('top', `${event.pageY - 100}px`);
 
@@ -460,5 +465,5 @@ export const createVelocityChart = ({
     .attr('y', margin.left - 30)
     .attr('transform', 'rotate(-90)')
     .attr('font-size', '22px')
-    .text(t('Graphs.velocity'));
+    .text(`${t('Graphs.velocity')} (${unitLabel})`);
 };

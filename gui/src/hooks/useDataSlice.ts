@@ -278,7 +278,7 @@ export const useDataSlice = () => {
           numSections: sections.length,
         });
         if (error?.message) {
-          throw new Error(error);
+          throw new Error(error.message);
         }
 
         sections.map((section, index) => {
@@ -414,9 +414,10 @@ export const useDataSlice = () => {
     fps: number;
     step: number;
     colorbarLimits: { min: number; max: number };
+    unitSistem: string;
   }
 
-  const onExportGif = async ({ image, factor, fps, step, colorbarLimits }: ExportGifParams) => {
+  const onExportGif = async ({ image, factor, fps, step, colorbarLimits, unitSistem }: ExportGifParams) => {
     // dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
 
@@ -429,7 +430,8 @@ export const useDataSlice = () => {
         sections,
         transformationMatrix,
         step,
-        colorbarLimits
+        colorbarLimits,
+        unitSistem,
       })
       // dispatch(setBackendWorking(false));
 

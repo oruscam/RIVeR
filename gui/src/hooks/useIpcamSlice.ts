@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { useTranslation } from 'react-i18next';
+
 import {
   setActiveImage,
   setActivePoint,
@@ -16,12 +17,10 @@ import { appendSolutionToIpcamPoints } from '../helpers/appendSolutionsToImporte
 import { setDefaultSectionState } from '../store/section/sectionSlice';
 
 export const useIpcamSlice = () => {
-  // Get the dispatch function from the Redux store
   const dispatch = useDispatch();
-  // Selectors to access specific parts of the Redux state
-  // ipcam state handles everything related to ipcam mode
   const ipcam = useSelector((state: RootState) => state.ipcam);
-  // Translation function from react-i18next
+  const { projectDetails } = useSelector((state: RootState) => state.project);
+  const { unitSistem } = projectDetails;
   const { t } = useTranslation();
 
   // Method to get points from a file path
@@ -35,6 +34,7 @@ export const useIpcamSlice = () => {
       // Opening a dialog to select the file if path is undefined
       const { data, error } = await ipcRenderer.invoke('import-points', {
         path: path,
+        unitSistem,
       });
       // If there's an error with a message, throw it to be caught below
       if (error?.message) {
@@ -223,10 +223,13 @@ export const useIpcamSlice = () => {
   };
 
   const onGetCameraSolution = async (mode: string) => {
-    // turn on the backend working flag
     dispatch(setIsBackendWorking(true));
-    // Access the ipcRenderer from the global window object
     const ipcRenderer = window.ipcRenderer;
+
+    console.log(
+      `[${mode}] Puntos enviados al backend (en metros):`,
+      ipcam.points?.map((p) => ({ label: p.label, X: p.X, Y: p.Y, Z: p.Z }))
+    );
 
     try {
       const { data, error }: { data: BackendCameraSolution; error: any } = await ipcRenderer.invoke(
