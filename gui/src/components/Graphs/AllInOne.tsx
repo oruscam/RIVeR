@@ -5,7 +5,7 @@ import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { createDischargeChart } from './dischargeSvg';
 import { createVelocityChart } from './velocitySvg';
 import { bathimetrySvg } from './bathimetrySvg';
-import { GRAPHS } from '../../constants/constants';
+import { GRAPHS, UNIT_CONVERSIONS } from '../../constants/constants';
 import { adapterBathimetry, adapterData } from '../../helpers';
 import { generateXAxisTicks } from '../../helpers/graphsHelpers';
 
@@ -74,8 +74,9 @@ export const AllInOne = ({
 
       // Common xAxis
       const ticks = generateXAxisTicks(x1Intersection!, x2Intersection!, bathWidth!);
+      const displayFactor = unitSistem === 'imperial' ? UNIT_CONVERSIONS.M_TO_FT : 1;
 
-      const xAxis = d3.axisBottom(xScale).tickValues(ticks).tickFormat(d3.format('.1f'));
+      const xAxis = d3.axisBottom(xScale).tickValues(ticks).tickFormat((d) => ((d as number) * displayFactor).toFixed(1));
 
       // Append xAxis
 
@@ -141,6 +142,7 @@ export const AllInOne = ({
         sizes: { width, height, margin, graphHeight },
         xScaleAllInOne: xScale,
         isReport,
+        unitSistem,
       });
     }
   }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check, theme, unitSistem]);
