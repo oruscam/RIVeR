@@ -62,6 +62,9 @@ export const Grid = () => {
     const { num_stations, distance, depth, Q, A, check, activeMagnitude, activeCheck, interpolated } =
       section.data;
 
+    const scaledMagnitude = activeMagnitude.map((v) => v * lFactor);
+    const scaledQ = Q.map((v) => v * qFactor);
+
     // Create headers for the table
     const headers = ['#', 'x', 'd', 'A', 'Vs', 'Q'];
 
@@ -71,8 +74,8 @@ export const Grid = () => {
       typeof distance[i] === 'number' ? (distance[i] * lFactor).toFixed(2) : '-',
       typeof depth[i] === 'number' ? (depth[i] * lFactor).toFixed(2) : '-',
       typeof A[i] === 'number' ? (A[i] * aFactor).toFixed(2) : '-',
-      getCellValue(activeMagnitude.map((v) => v * lFactor), check, activeCheck, i, interpolated),
-      typeof Q[i] === 'number' ? getCellValue(Q.map((v) => v * qFactor), check, activeCheck, i, interpolated) : '-',
+      getCellValue(scaledMagnitude, check, activeCheck, i, interpolated),
+      typeof Q[i] === 'number' ? getCellValue(scaledQ, check, activeCheck, i, interpolated) : '-',
     ]);
 
     // Combine headers and data rows
@@ -169,14 +172,17 @@ export const Grid = () => {
       const { num_stations, distance, depth, Q, A, check, activeMagnitude, activeCheck, interpolated } =
         section.data;
 
+      const scaledMagnitude = activeMagnitude.map((v) => v * lFactor);
+      const scaledQ = Q.map((v) => v * qFactor);
+
       return Array.from({ length: num_stations }, (_, i) => ({
         key: i,
         id: i,
         x: typeof distance[i] === 'number' ? (distance[i] * lFactor).toFixed(2) : '-',
         d: typeof depth[i] === 'number' ? (depth[i] * lFactor).toFixed(2) : '-',
         A: typeof A[i] === 'number' ? (A[i] * aFactor).toFixed(2) : '-',
-        Vs: getCellValue(activeMagnitude.map((v) => v * lFactor), check, activeCheck, i, interpolated),
-        Q: typeof Q[i] === 'number' ? getCellValue(Q.map((v) => v * qFactor), check, activeCheck, i, interpolated) : '-',
+        Vs: getCellValue(scaledMagnitude, check, activeCheck, i, interpolated),
+        Q: typeof Q[i] === 'number' ? getCellValue(scaledQ, check, activeCheck, i, interpolated) : '-',
       }));
     }
     return [];
