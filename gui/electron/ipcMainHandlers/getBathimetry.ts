@@ -199,7 +199,9 @@ const analyzeLine = (line: { x: number; y: number }[], maxYIndex: number) => {
   // Otherwise, it represents depth.
   const isDepth = !(
     maxYIndex === 0 ||
-    maxYIndex === line.length - 1
+    maxYIndex === line.length - 1 ||
+    maxYIndex === 1 ||
+    maxYIndex === line.length - 2
   );
   return { isDecreced, isDepth };
 };
