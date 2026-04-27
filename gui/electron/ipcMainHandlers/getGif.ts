@@ -38,7 +38,8 @@ async function getGif() {
       transformationMatrix,
       fps,
       step,
-      colorbarLimits
+      colorbarLimits,
+      unitSistem,
     } = args;
 
     const maskPath = path.join(projectDirectory, "mask.png");
@@ -131,7 +132,8 @@ async function getGif() {
         colorbarLimits.min,
         colorbarLimits.max,
         dimensions.outWidth,
-        dimensions.outHeight
+        dimensions.outHeight,
+        unitSistem,
       );
 
       // Watermark — drawn last so it always appears on top of arrows and colorbar

@@ -1,10 +1,15 @@
 import { getUnit } from '../../helpers';
 import { useProjectSlice } from '../../hooks';
+import { UNIT_CONVERSIONS } from '../../constants/constants';
 import { SectionData } from '../../store/section/types';
 
 export const ReportSectionTable = ({ data }: { data: SectionData }) => {
   const { projectDetails } = useProjectSlice();
   const { unitSistem } = projectDetails;
+  const isImperial = unitSistem === 'imperial';
+  const lFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
+  const aFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT * UNIT_CONVERSIONS.M_TO_FT : 1;
+  const qFactor = isImperial ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
 
   const half = Math.ceil(data.id.length / 2);
   const firstHalf = {
@@ -56,11 +61,11 @@ export const ReportSectionTable = ({ data }: { data: SectionData }) => {
         {data.id.map((row: number, index: number) => (
           <tr key={index}>
             <td>{row}</td>
-            <td>{data.distance[index] != null ? data.distance[index].toFixed(2) : '-'}</td>
-            <td>{data.depth[index] != null ? data.depth[index].toFixed(2) : '-'}</td>
-            <td>{data.A[index] != null ? data.A[index].toFixed(2) : '-'}</td>
-            <td>{data.streamwise_magnitude[index] != null ? data.streamwise_magnitude[index].toFixed(2) : '-'}</td>
-            <td>{data.Q[index] != null ? data.Q[index].toFixed(2) : '-'}</td>
+            <td>{data.distance[index] != null ? (data.distance[index] * lFactor).toFixed(2) : '-'}</td>
+            <td>{data.depth[index] != null ? (data.depth[index] * lFactor).toFixed(2) : '-'}</td>
+            <td>{data.A[index] != null ? (data.A[index] * aFactor).toFixed(2) : '-'}</td>
+            <td>{data.streamwise_magnitude[index] != null ? (data.streamwise_magnitude[index] * lFactor).toFixed(2) : '-'}</td>
+            <td>{data.Q[index] != null ? (data.Q[index] * qFactor).toFixed(2) : '-'}</td>
           </tr>
         ))}
       </tbody>

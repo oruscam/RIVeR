@@ -1,9 +1,10 @@
 import { useFormContext } from 'react-hook-form';
-import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { AllInOne } from '../Graphs/AllInOne';
 import { Grid } from '../index';
 import { useTranslation } from 'react-i18next';
 import { LuWand2 } from 'react-icons/lu';
+import { UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 
 interface FormResultProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void;
@@ -16,8 +17,17 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   const { name, data, numStations, alpha, artificialSeeding } = sections[activeSection];
   const { isBackendWorking } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
+  const { projectDetails } = useProjectSlice();
 
   const { t } = useTranslation();
+
+  const isImperial = projectDetails.unitSistem === 'imperial';
+  const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
+  const displayQ = data?.total_Q != null
+    ? isImperial
+      ? (data.total_Q * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(3)
+      : data.total_Q
+    : null;
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const id = e.target.id;
@@ -69,7 +79,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
         id="form-result"
       >
         <div id="result-info">
-          <p id="result-number">{data?.total_Q}</p>
+          <p id="result-number">{displayQ} <span style={{ fontSize: '0.45em', opacity: 0.7 }}>{flowUnit}</span></p>
           <div>
             <p id="result-measured">
               {' '}

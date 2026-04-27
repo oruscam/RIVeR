@@ -4,7 +4,7 @@ import { Icons } from "./Icons";
 import "./piv-icons.css";
 import { useProjectSlice } from "../../hooks";
 
-const unitSystems = [
+const unitSistems = [
     { code: 'si', label: 'SI (default)' },
     { code: 'imperial', label: 'Imperial' }
 ];
@@ -39,7 +39,7 @@ export function UnitBtn() {
                 {Icons.ChevDown("var(--secondary-text-color)", open ? 180 : 0)}
             </button>
             <div className={`ldrop ${open ? "open" : ""}`} style={{ minWidth: 120 }}>
-                {unitSystems.map(u => (
+                {unitSistems.map(u => (
                     <div key={u.code} className={`litem ${u.code === unitSistem ? "sel" : ""}`}
                         onClick={() => { handleSelect(u.code); }}>
                         <span>{u.label}</span>

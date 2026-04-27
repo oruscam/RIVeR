@@ -39,7 +39,8 @@ export const FootageMode = () => {
   const onSubmit = async () => {
     if (video) {
       try {
-        await onInitProject(video, currentLanguage);
+        const currentUnitSystem = localStorage.getItem("unitSystem") || "si"
+        await onInitProject(video, currentLanguage, currentUnitSystem);
         nextStep();
       } catch (error) {
         if (error instanceof OperationCanceledError) previousStep();
@@ -109,14 +110,14 @@ export const FootageMode = () => {
         <div className={`browse-video-container${footageType || video ? ' visible' : ''}`}>
           <div className="browse-video-header">
             {
-              footageType !== null 
-              ? 
+              footageType !== null
+                ?
                 <>
-                  <p>{ footageType && video === null ? t(`Step-2.addYourFootage`) : '' }</p>
-                  <p onClick={() => onChangeType()}>{ footageType ? t(`Step-2.changeType`): undefined} </p>
+                  <p>{footageType && video === null ? t(`Step-2.addYourFootage`) : ''}</p>
+                  <p onClick={() => onChangeType()}>{footageType ? t(`Step-2.changeType`) : undefined} </p>
                 </>
-              :
-              <></>
+                :
+                <></>
             }
           </div>
           <div
