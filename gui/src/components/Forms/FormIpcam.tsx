@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useGlobalSlice, useIpcamSlice, useUiSlice } from '../../hooks';
+import { useGlobalSlice, useIpcamSlice, useProjectSlice, useUiSlice } from '../../hooks';
+import { UNIT_CONVERSIONS } from '../../constants/constants';
 import { PointsMap } from '../Graphs';
 import { IpcamGrid } from '../index';
 import { useState } from 'react';
@@ -19,7 +20,10 @@ export const FormIpcam = () => {
   } = useIpcamSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { onSetErrorMessage } = useUiSlice();
+  const { projectDetails } = useProjectSlice();
   const { t } = useTranslation();
+  const isImperial = projectDetails.unitSistem === 'imperial';
+  const heightFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
 
   const handleOnClickImport = async (event: React.MouseEvent<HTMLButtonElement>) => {
     const id = (event.target as HTMLButtonElement).id;
@@ -108,7 +112,7 @@ export const FormIpcam = () => {
                 </div>
                 <div className="form-video-extra-info-row mb-2">
                   <p> {t('ControlPoints3d.cameraHeight')} </p>
-                  <p> {cameraSolution.cameraPosition[2].toFixed(2)} </p>
+                  <p> {(cameraSolution.cameraPosition[2] * heightFactor).toFixed(2)} </p>
                 </div>
               </div>
             )}

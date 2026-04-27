@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { COLORS, GRAPHS } from '../../constants/constants';
+import { COLORS, GRAPHS, UNIT_CONVERSIONS } from '../../constants/constants';
 import { Point } from '../../types';
 import { generateXAxisTicks, generateYAxisTicks } from '../../helpers';
 import { t } from 'i18next';
@@ -34,6 +34,7 @@ interface BathimetryChartProps {
   isReport?: boolean;
   x1Intersection?: number;
   x2Intersection?: number;
+  unitSistem?: string;
 }
 
 export const bathimetrySvg = ({
@@ -48,7 +49,12 @@ export const bathimetrySvg = ({
   isReport = false,
   x1Intersection,
   x2Intersection,
+  unitSistem,
 }: BathimetryChartProps) => {
+  // Data and scale domains stay in SI; only tick labels are converted for display.
+  const displayFactor = unitSistem === 'imperial' ? UNIT_CONVERSIONS.M_TO_FT : 1;
+  const formatTick = (digits: number) => (d: d3.NumberValue) =>
+    ((typeof d === 'number' ? d : d.valueOf()) * displayFactor).toFixed(digits);
   const svg = d3.select(svgElement);
   const width = +svg.attr('width');
   const height = +svg.attr('height');
@@ -113,7 +119,7 @@ export const bathimetrySvg = ({
 
     const ticks = generateXAxisTicks(xMin, xMax, xMax - xMin);
 
-    const xAxis = d3.axisBottom(xScale).tickValues(ticks).tickFormat(d3.format('.1f'));
+    const xAxis = d3.axisBottom(xScale).tickValues(ticks).tickFormat(formatTick(1));
 
     svg
       .append('g')
@@ -139,7 +145,7 @@ export const bathimetrySvg = ({
   // Create and add Y ticks
   const ticks = generateYAxisTicks(undefined, yMin, yMax);
 
-  const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.2f'));
+  const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(formatTick(2));
 
   svg
     .append('g')

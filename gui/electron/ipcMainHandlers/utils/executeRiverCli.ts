@@ -18,6 +18,7 @@ async function executeRiverCli(
 
   console.log('You are using river-cli', PROJECT_CONFIG.pythonPath);
   console.log('Arguments: ', options)
+  console.log("EJECUTANDO COMANDO:", args.join(" "));
 
   const result = await new Promise((resolve, reject) => {
     python = spawn(PROJECT_CONFIG.pythonPath, args);

@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { getUnit } from '../../helpers';
 import { useProjectSlice, useSectionSlice } from '../../hooks';
+import { UNIT_CONVERSIONS } from '../../constants/constants';
 
 export const Summary = () => {
   const { t } = useTranslation();
@@ -11,6 +12,11 @@ export const Summary = () => {
   if (summary === undefined) return null;
 
   const { mean, std, cov } = summary;
+  const isImperial = unitSistem === 'imperial';
+  const lF = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
+  const aF = isImperial ? UNIT_CONVERSIONS.M_TO_FT * UNIT_CONVERSIONS.M_TO_FT : 1;
+  const qF = isImperial ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
+  const cv = (v: number, f: number) => (v * f).toFixed(2);
 
   return (
     <>
@@ -69,40 +75,40 @@ export const Summary = () => {
               return (
                 <tr key={index} className={index === sections.length - 1 ? 'summary-last-section' : ''}>
                   <td> {name} </td>
-                  <td> {bathimetry.width?.toFixed(2)} </td>
-                  <td> {total_A} </td>
-                  <td> {total_Q} </td>
-                  <td> {mean_V.toFixed(2)}</td>
+                  <td> {bathimetry.width != null ? cv(bathimetry.width, lF) : '-'} </td>
+                  <td> {cv(total_A, aF)} </td>
+                  <td> {cv(total_Q, qF)} </td>
+                  <td> {cv(mean_V, lF)} </td>
                   <td> {alpha} </td>
-                  <td> {mean_Vs.toFixed(2)} </td>
-                  <td> {max_depth.toFixed(2)} </td>
-                  <td> {average_depth.toFixed(2)} </td>
+                  <td> {cv(mean_Vs, lF)} </td>
+                  <td> {cv(max_depth, lF)} </td>
+                  <td> {cv(average_depth, lF)} </td>
                   <td> {measured_Q * 100}</td>
                 </tr>
               );
             })}
             <tr style={{ height: '30px' }}>
               <td> {t('Report.Summary.mean')} </td>
-              <td> {mean.total_W} </td>
-              <td> {mean.total_A} </td>
-              <td> {mean.total_Q} </td>
-              <td> {mean.mean_V} </td>
+              <td> {cv(mean.total_W, lF)} </td>
+              <td> {cv(mean.total_A, aF)} </td>
+              <td> {cv(mean.total_Q, qF)} </td>
+              <td> {cv(mean.mean_V, lF)} </td>
               <td> {mean.alpha} </td>
-              <td> {mean.mean_Vs} </td>
-              <td> {mean.max_depth} </td>
-              <td> {mean.average_depth} </td>
+              <td> {cv(mean.mean_Vs, lF)} </td>
+              <td> {cv(mean.max_depth, lF)} </td>
+              <td> {cv(mean.average_depth, lF)} </td>
               <td> {mean.measured_Q * 100} </td>
             </tr>
             <tr style={{ height: '30px' }}>
               <td> {t('Report.Summary.stdDev')} </td>
-              <td> {std.total_W} </td>
-              <td> {std.total_A} </td>
-              <td> {std.total_Q} </td>
-              <td> {std.mean_V} </td>
+              <td> {cv(std.total_W, lF)} </td>
+              <td> {cv(std.total_A, aF)} </td>
+              <td> {cv(std.total_Q, qF)} </td>
+              <td> {cv(std.mean_V, lF)} </td>
               <td> {std.alpha} </td>
-              <td> {std.mean_Vs} </td>
-              <td> {std.max_depth} </td>
-              <td> {std.average_depth} </td>
+              <td> {cv(std.mean_Vs, lF)} </td>
+              <td> {cv(std.max_depth, lF)} </td>
+              <td> {cv(std.average_depth, lF)} </td>
               <td> {std.measured_Q * 100} </td>
             </tr>
             <tr style={{ height: '30px' }}>

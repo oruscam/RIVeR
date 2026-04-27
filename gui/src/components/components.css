@@ -650,6 +650,12 @@
     font-size: 14px;
 }
 
+.colorbar-unit-label {
+    color: var(--primary-text-color);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
 .values-info{
     position: absolute;
     bottom: 10px;
