@@ -27,6 +27,8 @@ const Icons = {
   Video: (c) => <I color={c} d="M23 7l-7 5 7 5V7z" extra={["M1 5h13a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H1a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2z".replace("-2", "0")]} />,
   Loader: (c) => <svg width={21} height={21} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round"><line x1="12" y1="2" x2="12" y2="6" /><line x1="12" y1="18" x2="12" y2="22" /><line x1="4.93" y1="4.93" x2="7.76" y2="7.76" /><line x1="16.24" y1="16.24" x2="19.07" y2="19.07" /><line x1="2" y1="12" x2="6" y2="12" /><line x1="18" y1="12" x2="22" y2="12" /><line x1="4.93" y1="19.07" x2="7.76" y2="16.24" /><line x1="16.24" y1="7.76" x2="19.07" y2="4.93" /></svg>,
   Download: (c) => <I color={c} d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />,
+  SoundOn: (c) => <I color={c} d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" extra={["M16 9a5 5 0 0 1 0 6", "M19.364 18.364a9 9 0 0 0 0-12.728"]} />,
+  SoundOff: (c) => <I color={c} d="M16 9a5 5 0 0 1 .95 2.293" extra={["M19.364 5.636a9 9 0 0 1 1.889 9.96", "m2 2 20 20", "m7 7-.587.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298V11", "M9.828 4.172A.686.686 0 0 1 11 4.657v.686"]} />
 };
 
 
@@ -270,6 +272,24 @@ export function ExportBtn({ isCreating, onClick }) {
         </span>
         <span className={`cl ${phase === "done" ? "show bdrop" : "hide"}`}>{Icons.Download("var(--green)")}</span>
       </button>
+    </div>
+  );
+}
+
+/* ── 9. SOUND ── */
+export function SoundBtn() {
+  const [muted, setMuted] = useState(true);
+  const [rpl, fire] = useRipple();
+  return (
+    <div className="row">
+      <button className={`ib ${muted ? "active" : ""}`} style={{ "--hi": "var(--accent)" }}
+        onClick={() => { setMuted(v => !v); fire("var(--accent)"); }}>
+        {rpl}
+        <span className={`cl ${muted ? "show" : "hide"}`}>{Icons.SoundOff("var(--muted)")}</span>
+        <span className={`cl ${muted ? "hide" : "show"}`}>{Icons.SoundOn("var(--accent)")}</span>
+      </button>
+      <Info name="SoundOn / SoundOff" desc="Toggle mute. Muted by default. Swaps icon on each click."
+        pill={<Pill label={muted ? "MUTED" : "SOUND ON"} color={muted ? "var(--muted)" : "var(--accent)"} />} />
     </div>
   );
 }
