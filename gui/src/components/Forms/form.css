@@ -384,6 +384,7 @@
 
 #apply-changes {
     font-size: 1.1em;
+    padding: 8px 20px;
 }
 
 .simple-input-container {
@@ -500,7 +501,7 @@
 .solver-button {
     width: 210px;
     margin-top: auto;
-    margin-bottom: 10px;
+    margin-bottom: 30px;
 }
 
 #ortho-image-solution {
