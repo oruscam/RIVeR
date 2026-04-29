@@ -123,15 +123,18 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
 
         <div className="input-container-2 mt-1 mb-2">
           <label className="read-only me-1">{t('PixelSize.pixelSize')}</label>
-          <input
-            className="input-field"
-            {...register('uav_pixelSize')}
-            type="number"
-            id="UAV-PIXEL_SIZE"
-            step="any"
-            onKeyDown={handlePixelSizeInput}
-            onBlur={handlePixelSizeInput}
-          />
+          <div className="input-field-container">
+            <input
+              className="input-field"
+              {...register('uav_pixelSize')}
+              type="number"
+              id="UAV-PIXEL_SIZE"
+              step="any"
+              onKeyDown={handlePixelSizeInput}
+              onBlur={handlePixelSizeInput}
+            />
+            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+          </div>
         </div>
       </form>
 
