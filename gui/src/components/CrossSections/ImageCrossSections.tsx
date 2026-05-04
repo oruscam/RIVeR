@@ -114,18 +114,21 @@ export const ImageCrossSections = () => {
 
       {/* Floating confirm button — follows the active mask centroid */}
       {confirmBtnPos && (
-        <ConfirmMaskBtn
-          onClick={() => onUpdateActiveMask(activeMaskIndex!)}
-          title="Confirm mask"
+        <div
           style={{
             position: 'absolute',
             left: confirmBtnPos.x,
             top: confirmBtnPos.y,
             zIndex: 10,
-            pointerEvents: 'auto',
             transform: 'translate(-50%, -50%)',
           }}
-        />
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <ConfirmMaskBtn
+            onClick={() => onUpdateActiveMask(activeMaskIndex!)}
+            title="Confirm mask"
+          />
+        </div>
       )}
     </div>
   );
