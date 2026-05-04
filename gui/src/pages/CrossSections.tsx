@@ -43,9 +43,9 @@ export const CrossSections = () => {
               const displayLevel =
                 error?.value !== undefined
                   ? (projectDetails.unitSistem === 'imperial'
-                      ? error.value * UNIT_CONVERSIONS.M_TO_FT
-                      : error.value
-                    ).toFixed(2)
+                    ? error.value * UNIT_CONVERSIONS.M_TO_FT
+                    : error.value
+                  ).toFixed(2)
                   : error?.value;
               onSetErrorMessage({
                 Bathimetry: {
@@ -65,10 +65,12 @@ export const CrossSections = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <div style={{ width: '95%', display: 'flex', justifyContent: 'flex-end', padding: '10px 0' }}>
-          <AddMaskButton />
+        <div style={{ position: 'relative', margin: 'auto 0' }}>
+          <ImageCrossSections />
+          <div style={{ position: 'absolute', top: '-50px', right: '10px', zIndex: 10 }}>
+            <AddMaskButton />
+          </div>
         </div>
-        <ImageCrossSections />
         <Error></Error>
       </div>
       <div
