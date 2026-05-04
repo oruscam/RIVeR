@@ -55,9 +55,9 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
     svg.selectAll("*").remove();
 
     const overlayZoom = svg.append("g").attr("class", "overlay-zoom");
-    const interactiveLayer = overlayZoom.append("g").attr("class", "interactive-section-layer");
-    // Static (non-active) mask polygons — below the active mask layer
+    // Static (non-active) mask polygons — below sections and pins
     const staticMaskLayer = overlayZoom.append("g").attr("class", "static-mask-layer");
+    const interactiveLayer = overlayZoom.append("g").attr("class", "interactive-section-layer");
     const maskLayer = overlayZoom.append("g").attr("class", "mask-layer");
     const staticLayer = overlayZoom.append("g").attr("class", "static-section-layer");
     const quiverLayer = overlayZoom.append("g").attr("class", "quiver-layer"); // por encima de static

@@ -933,5 +933,5 @@ svg.mask-mode-active .overlay-ui * {
 
 .confirm-mask-btn:hover {
   opacity: 1;
-  transform: translate(-50%, -50%) scale(1.2) !important;
+  transform: scale(1.2);
 }
