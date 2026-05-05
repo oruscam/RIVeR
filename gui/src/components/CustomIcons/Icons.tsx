@@ -28,6 +28,7 @@ export const Icons = {
     BoxSel: (c?: string) => <svg width={21} height={21} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3H3v2" /><path d="M19 3h2v2" /><path d="M5 21H3v-2" /><path d="M19 21h2v-2" /><path strokeDasharray="3 3" d="M3 9v6M21 9v6M9 3h6M9 21h6" /></svg>,
     PenLine: (c?: string) => <I color={c} d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />,
     Globe: (c?: string) => <I color={c} d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" extra={["M2 12h20", "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"]} />,
+    Settings: (c?: string) => <I color={c} d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" extra={["M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"]} />,
     ChevDown: (c?: string, rot?: number) => <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: `rotate(${rot || 0}deg)`, transition: "transform .2s" }}><path d="M6 9l6 6 6-6" /></svg>,
     Play: (c?: string) => <I color={c} d="M5 3l14 9-14 9V3z" />,
     Pause: (c?: string) => <I color={c} d="M6 4h4v16H6zM14 4h4v16h-4z" />,
