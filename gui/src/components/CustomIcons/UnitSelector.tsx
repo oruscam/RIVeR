@@ -1,19 +1,21 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Icons } from "./Icons";
 import "./piv-icons.css";
 import { useProjectSlice } from "../../hooks";
 
-const unitSistems = [
-    { code: 'si', label: 'SI (default)' },
-    { code: 'imperial', label: 'Imperial' }
-];
-
 export function SettingsBtn() {
+    const { t } = useTranslation();
     const { projectDetails, onProjectDetailsChange } = useProjectSlice();
     const { unitSistem } = projectDetails;
     const [open, setOpen] = useState(false);
     const [unitOpen, setUnitOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
+
+    const unitSistems = [
+        { code: 'si', label: t('MainPage.Settings.si') },
+        { code: 'imperial', label: t('MainPage.Settings.imperial') },
+    ];
 
     useEffect(() => {
         const h = (e: MouseEvent) => {
@@ -50,7 +52,6 @@ export function SettingsBtn() {
                 {Icons.ChevDown("var(--secondary-text-color)", open ? 180 : 0)}
             </button>
             <div className={`ldrop ${open ? "open" : ""}`} style={{ minWidth: 160 }}>
-                {/* Unit system — hover or click to open nested sub-menu */}
                 <div
                     style={{ position: 'relative' }}
                     onMouseEnter={() => setUnitOpen(true)}
@@ -58,7 +59,7 @@ export function SettingsBtn() {
                     onClick={() => setUnitOpen(v => !v)}
                 >
                     <div className="litem">
-                        <span>Unit system</span>
+                        <span>{t('MainPage.Settings.unitSystem')}</span>
                         <span style={{ marginLeft: 'auto', display: 'flex' }}>
                             {Icons.ChevDown("var(--secondary-text-color)", -90)}
                         </span>
@@ -94,9 +95,8 @@ export function SettingsBtn() {
                         </div>
                     )}
                 </div>
-                {/* River folder — opens the directory picker */}
                 <div className="litem" onClick={handleChoosePath}>
-                    <span>River folder</span>
+                    <span>{t('MainPage.Settings.riverFolder')}</span>
                 </div>
             </div>
         </div>
