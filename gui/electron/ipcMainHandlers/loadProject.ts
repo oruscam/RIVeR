@@ -67,7 +67,7 @@ function populateProjectConfig(
   PROJECT_CONFIG.videoPath = settingsParsed.video.filepath;
   PROJECT_CONFIG.defaultFilesPath = path.dirname(settingsParsed.video.filepath);
   PROJECT_CONFIG.logsPath = path.join(folderPath, 'river.log');
-  PROJECT_CONFIG.maskPath = getMask(folderPath, 'json');
+  PROJECT_CONFIG.maskPath = getMask(folderPath, 'npy');
   PROJECT_CONFIG.bboxPath = fs.existsSync(path.join(folderPath, 'bbox.json'))
     ? path.join(folderPath, 'bbox.json')
     : undefined;
@@ -83,14 +83,24 @@ function populateProjectConfig(
   }
 }
 
-function getMask(directory: string, type: 'json' | 'png'): string | undefined{
-  if (fs.existsSync(path.join(PROJECT_CONFIG.projectDirectory, `final_mask.${type}`))){
-    return path.join(directory, `final_mask.${type}`)
-  } else if (fs.existsSync(path.join(PROJECT_CONFIG.projectDirectory, `mask.${type}`))){
-    return path.join(directory, `mask.${type}`)
-  } else {
-    return undefined
+function getMask(directory: string, type: 'npy' | 'png'): string | undefined {
+  if (type === 'npy') {
+    // Try .npy first (new format), then .json (backward compat)
+    for (const prefix of ['final_mask', 'mask']) {
+      for (const ext of ['npy', 'json']) {
+        if (fs.existsSync(path.join(PROJECT_CONFIG.projectDirectory, `${prefix}.${ext}`))) {
+          return path.join(directory, `${prefix}.${ext}`);
+        }
+      }
+    }
+    return undefined;
   }
+  if (fs.existsSync(path.join(PROJECT_CONFIG.projectDirectory, `final_mask.png`))) {
+    return path.join(directory, `final_mask.png`);
+  } else if (fs.existsSync(path.join(PROJECT_CONFIG.projectDirectory, `mask.png`))) {
+    return path.join(directory, `mask.png`);
+  }
+  return undefined;
 }
 
 // Main function to handle the loading of a project

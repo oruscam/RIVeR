@@ -7,7 +7,7 @@ export const HardModeOblique = ({extraFields} : {extraFields: boolean}) => {
 
     return (
         <div className={extraFields ? 'mt-2' : 'hidden'}>
-            <RealWorldCoordinates step={3} onSetRealWorld={onChangeRealWorldCoordinates}/>
+            <RealWorldCoordinates step={3} onSetRealWorld={onChangeRealWorldCoordinates} showUnitLabel/>
             <PixelCoordinates step={3} onSetDirPoints={onChangeCoordinates}/>
             <span id="span-footer"/>
         </div>

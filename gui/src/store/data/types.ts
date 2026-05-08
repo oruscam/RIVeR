@@ -1,8 +1,5 @@
-<<<<<<< HEAD
 import { Point } from "../../types";
-=======
 import { Quiver } from "../../../commons/types";
->>>>>>> 3.4.0
 
 interface FormProcessing {
   artificialSeeding: boolean;

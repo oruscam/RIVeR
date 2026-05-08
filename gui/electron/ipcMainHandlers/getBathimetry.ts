@@ -4,6 +4,7 @@ import { readFile, utils, set_fs, writeFile } from 'xlsx';
 import * as fs from 'fs';
 import { EXTENSIONS, validateFile } from './utils/validateFile';
 import { PROJECT_CONFIG } from '../main';
+import { smartParseFloat } from './utils/parseDistancesData';
 
 // Set the file system for xlsx library
 set_fs(fs);
@@ -22,7 +23,9 @@ async function getBathimetry() {
 
   // Handle the 'get-bathimetry' IPC event
   ipcMain.handle('get-bathimetry', async (_event, args) => {
-    const { path, zLimits } = args;
+    const { path, zLimits, unitSistem } = args;
+    const FT_TO_M = 0.3048;
+    const isImperial = unitSistem === 'imperial';
     // If the file is dropped, the path is provided in args. But we need to validate it.
     let isValidPath = validateFile(path);
 
@@ -41,6 +44,9 @@ async function getBathimetry() {
       if (bathPath === undefined) {
         const result = await dialog.showOpenDialog(options);
         bathPath = result.filePaths[0];
+        if (bathPath === undefined) {
+          return { path: '' };
+        }
       }
 
       // Get the name of the bathymetry file and extension
@@ -55,31 +61,93 @@ async function getBathimetry() {
       const sheet = workbook.Sheets[sheetName];
 
       // Convert the sheet to JSON format
-      const data = utils.sheet_to_json(sheet, { header: 1 });
+      let data: unknown[][] = [];
+      let needsNormalization = false; // Track if the source format is non-standard
+      if (bathimetryExt.toLowerCase() === '.csv') {
+          const content = fs.readFileSync(bathPath, 'utf-8');
+          const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
+          data = lines.map(line => {
+              if (line.includes(';') || line.includes('\t')) {
+                  needsNormalization = true; // Non-standard separator detected
+                  return line.split(/[;\t]/);
+              }
+              const parts = line.split(',');
+              if (parts.length === 3) {
+                  // Ambiguous comma case e.g., "0,1,765" -> "0" and "1.765"
+                  needsNormalization = true;
+                  return [parts[0], parts[1] + '.' + parts[2]];
+              }
+              if (parts.length === 4) {
+                 // Broken case: "1,501,1,632" -> "1.501" and "1.632"
+                 needsNormalization = true;
+                 return [parts[0] + '.' + parts[1], parts[2] + '.' + parts[3]];
+              }
+              return parts;
+          });
+      } else {
+          const sheet = workbook.Sheets[sheetName];
+          data = utils.sheet_to_json(sheet, { header: 1 });
+      }
 
       let maxY = -Infinity;
       let maxYIndex = -1;
 
+      // Filter out completely empty rows first
+      const validRows = (data as unknown[][]).filter(
+        (row) => row.length > 0 && row.some((cell) => cell !== null && cell !== undefined && String(cell).trim() !== '')
+      );
+
       // Map the data to an array of objects with x and y properties
-      let line = data
-        .map((row: any, index: number) => {
-          const keys = Object.keys(row);
-          const x = parseFloat(row[keys[0]]);
-          const y = parseFloat(row[keys[1]]);
+      let line = validRows
+        .map((row: unknown[], index: number) => {
+          let xRaw = row[0];
+          let yRaw = row[1];
+          
+          if (row.length === 1 && typeof row[0] === 'string') {
+             // Handle cases where SheetJS fails to split columns due to unusual delimiters
+             const parts = (row[0] as string).split(/[;\t]/);
+             if (parts.length >= 2) {
+                 xRaw = parts[0];
+                 yRaw = parts[1];
+             } else {
+                 const spaceParts = (row[0] as string).trim().split(/\s+/);
+                 if (spaceParts.length >= 2) {
+                     xRaw = spaceParts[0];
+                     yRaw = spaceParts[1];
+                 } else {
+                     const commaParts = (row[0] as string).split(',');
+                     if (commaParts.length >= 2) {
+                         // Fallback for cases like "1.5, 2.5"
+                         xRaw = commaParts[0];
+                         yRaw = commaParts[1];
+                     }
+                 }
+             }
+          }
+
+          const x = smartParseFloat(xRaw);
+          const y = smartParseFloat(yRaw);
 
           if ((isNaN(x) || isNaN(y)) && index !== 0) {
             throw new Error('invalidBathimetryFileFormat');
           }
 
-          // Find the maximum y value and its index
-          if (!isNaN(y) && y > maxY) {
-            maxY = y;
-            maxYIndex = index;
-          }
-
           return { x, y };
         })
         .filter((row: any) => !isNaN(row.x) && !isNaN(row.y));
+
+      // Convert ft -> m when the user is working in imperial units.
+      // The store and any file consumed by the Python backend must always be SI.
+      if (isImperial) {
+        line = line.map(({ x, y }) => ({ x: x * FT_TO_M, y: y * FT_TO_M }));
+      }
+
+      line.forEach((row, idx) => {
+          if (row.y > maxY) {
+              maxY = row.y;
+              maxYIndex = idx;
+          }
+      });
 
       // Analyze the line to determine if it is decreced and if it represents depth
       const { isDecreced, isDepth } = analyzeLine(line, maxYIndex);
@@ -87,25 +155,25 @@ async function getBathimetry() {
       // Transform the line if necessary
       const { newLine, changed } = transformLine(line, isDecreced, isDepth, maxY, zLimits?.min);
 
-      // If the line was changed, create new file with adapted values
+      // Write a normalized/converted CSV file if data was transformed, format was non-standard,
+      // or the user is working in imperial units.
+      // IMPORTANT: Always write as CSV regardless of source format.
+      // tablib (used by river-cli) cannot parse ODS files generated by SheetJS, but reads CSV reliably.
       let newFilePath = bathPath;
-      if (changed) {
-        // Convert the JSON back to a sheet
-        const newSheet = utils.json_to_sheet(newLine);
-
-        // Replace the original sheet with the new one
-        workbook.Sheets[sheetName] = newSheet;
-
-        // Generate a new file name with a suffix
+      if (changed || needsNormalization || isImperial) {
+        // Generate a new file name with _modified.csv suffix (always CSV for Python compatibility)
         newFilePath = join(
-          PROJECT_CONFIG.mainDirectory,
-          basename(bathPath, bathimetryExt) + '_modified' + bathimetryExt
+          PROJECT_CONFIG.projectDirectory,
+          basename(bathPath, bathimetryExt) + '_modified.csv'
         );
 
-        // Write the workbook to a new file
-        await writeFile(workbook, newFilePath);
+        // Write as plain CSV: "x,y" rows, no header
+        const csvContent = newLine
+          .map((row: { x: number; y: number }) => `${row.x},${row.y}`)
+          .join('\n');
+        await fs.promises.writeFile(newFilePath, csvContent, 'utf-8');
 
-        console.log(`New file created: ${newFilePath}`);
+        console.log(`New CSV file created: ${newFilePath}`);
       }
 
       line = newLine;
@@ -118,10 +186,8 @@ async function getBathimetry() {
         changed: changed,
       };
     } catch (error) {
-      if (error.message === 'invalidBathimetryFileFormat') {
-        return { error };
-      }
       console.log(error);
+      return { error };
     }
   });
 }
@@ -129,11 +195,13 @@ async function getBathimetry() {
 // Analyze the line to determine if it is decreced and if it represents depth
 const analyzeLine = (line: { x: number; y: number }[], maxYIndex: number) => {
   const isDecreced = line[0].x > line[line.length - 1].x;
+  // If the maximum value is precisely at the first or last valid point, it is treated as an elevation profile.
+  // Otherwise, it represents depth.
   const isDepth = !(
     maxYIndex === 0 ||
     maxYIndex === line.length - 1 ||
     maxYIndex === 1 ||
-    maxYIndex === line.length
+    maxYIndex === line.length - 2
   );
   return { isDecreced, isDepth };
 };

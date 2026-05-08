@@ -25,7 +25,7 @@ export const VelocityVector = ({
   layers
 }: VelocityVectorProps) => {
   const { interactiveLayerRef } = layers;
-  const { video } = useProjectSlice();
+  const { video, projectDetails } = useProjectSlice();
   const { sections, activeSection, transformationMatrix } = useSectionSlice();
 
   const { seeAll } = useUiSlice();
@@ -57,7 +57,8 @@ export const VelocityVector = ({
           imageWidth,
           imageHeight,
           globalMin,
-          globalMax
+          globalMax,
+          projectDetails.unitSistem
         );
       } else {
         if (isReport && sectionIndex !== index) return;
@@ -73,7 +74,8 @@ export const VelocityVector = ({
             imageWidth,
             imageHeight,
             globalMin,
-            globalMax
+            globalMax,
+            projectDetails.unitSistem
           );
         }
       }
