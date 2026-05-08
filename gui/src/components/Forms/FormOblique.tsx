@@ -68,7 +68,7 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
         >
           <div className="input-container-2">
             <button
-              className={`wizard-button button-rectification me-1 ${drawPoints ? 'wizard-button-active' : ''}`}
+              className={`wizard-button form-button me-1 ${drawPoints ? 'wizard-button-active' : ''}`}
               id="draw-coordinates"
               type="button"
               onClick={onSetDrawPoints}
@@ -76,8 +76,11 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
               {' '}
               {t('ControlPoints.drawPoints')}{' '}
             </button>
+            <span className="read-only bg-transparent" />
+          </div>
+          <div className="input-container-2 mt-1">
             <button
-              className={`wizard-button button-rectification ${isDistancesLoaded ? 'wizard-button-active' : ''}`}
+              className={`wizard-button form-button me-1 ${isDistancesLoaded ? 'wizard-button-active' : ''}`}
               id="import-distances"
               type="button"
               onClick={handleOnClickImportDistances}
@@ -86,6 +89,7 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
               {' '}
               {t('ControlPoints.importDistances')}{' '}
             </button>
+            <span className="read-only bg-transparent" />
           </div>
 
           <DropHereText text={t('Commons.dropHereText')} show={isDistancesLoaded === false} />
@@ -94,10 +98,10 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
             distancesLabels.map((label, i) => {
               return (
                 <div className={`input-container-2 mt-${i > 0 ? 1 : 2}`} key={i}>
-                  <label className="read-only-oblique me-1" id={'D' + distancesID[i]}>
+                  <label className="read-only me-1" id={'D' + distancesID[i]}>
                     {label}
                   </label>
-                  <div className='input-field-container' style={{ width: '175px', flexShrink: 0 }}>
+                  <div className='input-field-container'>
                     <input
                       className='input-field-oblique'
                       type='number'
