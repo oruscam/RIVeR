@@ -1,11 +1,12 @@
 import * as d3 from 'd3';
 import { QuiverData } from '../../helpers/drawVectorsFunctions';
-import { VECTORS } from '../../constants/constants';
+import { UNIT_CONVERSIONS, UNITS, VECTORS } from '../../constants/constants';
 
 export const drawQuiver = (
     svg: d3.Selection<SVGGElement, unknown, null, undefined>,
     data: QuiverData[],
-    factor: number
+    factor: number,
+    unitSistem?: string
 ) => {
     const defs = svg.append('defs');
     data.forEach((d, i) => {
@@ -71,7 +72,10 @@ export const drawQuiver = (
         .style('cursor', () => 'pointer')
         .on("mouseover", function (event: MouseEvent, d: QuiverData) {
             tooltip.transition().duration(200).style("opacity", 1);
-            tooltip.html(`${d.velocity.toFixed(2)}`)
+            const isImperial = unitSistem === 'imperial';
+            const displayVel = isImperial ? d.velocity * UNIT_CONVERSIONS.M_TO_FT : d.velocity;
+            const unitLabel = isImperial ? UNITS.IMPERIAL.VELOCITY : UNITS.SI.VELOCITY;
+            tooltip.html(`${displayVel.toFixed(2)} ${unitLabel}`)
                 .style("left", () => (event.pageX + 10) + "px")
                 .style("top", () => (event.pageY - 28) + "px")
                 .style('background', () => 'rgba(50, 50, 50, 0.85)')

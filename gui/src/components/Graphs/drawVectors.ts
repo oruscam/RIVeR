@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 import { calculateArrowWidth, calculateMultipleArrowsAdaptative } from '../../helpers';
 import { SectionData } from '../../store/section/types';
+import { UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 
 export const drawVectors = (
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
@@ -13,7 +14,8 @@ export const drawVectors = (
   imageWidth: number,
   imageHeight: number,
   globalMin: number,
-  globalMax: number
+  globalMax: number,
+  unitSistem?: string
 ) => {
   // Data for drawing the vectors
   const { east, north, streamwise_velocity_magnitude, distance, check, activeMagnitude, Q } = data;
@@ -86,9 +88,12 @@ export const drawVectors = (
         }
 
         polygon.on('mouseover', function (event) {
-          polygon.attr('fill-opacity', 1); 
+          polygon.attr('fill-opacity', 1);
           tooltip.transition().duration(200).style("opacity", 1);
-          tooltip.html(`${arrow.magnitude!.toFixed(2)}`)
+          const isImperial = unitSistem === 'imperial';
+          const displayMag = isImperial ? arrow.magnitude! * UNIT_CONVERSIONS.M_TO_FT : arrow.magnitude!;
+          const unitLabel = isImperial ? UNITS.IMPERIAL.VELOCITY : UNITS.SI.VELOCITY;
+          tooltip.html(`${displayMag.toFixed(2)} ${unitLabel}`)
               .style("left", (event.pageX) + "px")
               .style("top", (event.pageY) + "px")
               .style('background', 'rgba(50, 50, 50, 0.85)')

@@ -1,12 +1,13 @@
 import { useFormContext } from 'react-hook-form';
-import { useGlobalSlice, useObliqueSlice, useUiSlice } from '../../hooks';
-import { FormChild  } from '../../types';
+import { useGlobalSlice, useObliqueSlice, useUiSlice, useProjectSlice } from '../../hooks';
+import { FormChild } from '../../types';
 import { getValidationRules } from '../../helpers';
 import { useTranslation } from 'react-i18next';
 import { OrthoImage } from '../Graphs';
 import { DropHereText } from './Components/DropHereText';
 import { HardModeOblique } from './Components';
 import { KeyboardEvent, FocusEvent } from 'react';
+import { UNITS } from '../../constants/constants';
 
 const distancesLabels = ['1-2', '2-3', '3-4', '4-1', '1-3', '2-4'];
 const distancesID = ['12', '23', '34', '41', '13', '24'];
@@ -26,6 +27,8 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
 
   const { onSetErrorMessage } = useUiSlice();
 
+  const { projectDetails } = useProjectSlice();
+
   const { t } = useTranslation();
 
   const { register, getValues } = useFormContext();
@@ -38,18 +41,18 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
 
   const handleInputBehavior = (
     event: KeyboardEvent<HTMLInputElement> | FocusEvent<HTMLInputElement, Element>,
-    nextID: number 
+    nextID: number
   ): void => {
-    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter'){
+    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter') {
       event.preventDefault();
-          let nextElement: string = '';
-          if (nextID === 6) {
-            nextElement = 'solve-oblique';
-          } else {
-            nextElement = 'distance' + distancesID[nextID];
-          }
-      
-          document.getElementById(nextElement)?.focus();
+      let nextElement: string = '';
+      if (nextID === 6) {
+        nextElement = 'solve-oblique';
+      } else {
+        nextElement = 'distance' + distancesID[nextID];
+      }
+
+      document.getElementById(nextElement)?.focus();
     }
   };
 
@@ -57,12 +60,12 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
     <div className='body'>
       <div className="wraper">
 
-      <form
-        onSubmit={onSubmit}
-        onError={onError}
-        id="form-control-points"
-        className={`${isBackendWorking ? 'disabled' : ''}`}
-      >
+        <form
+          onSubmit={onSubmit}
+          onError={onError}
+          id="form-control-points"
+          className={`${isBackendWorking ? 'disabled' : ''}`}
+        >
           <div className="input-container-2">
             <button
               className={`wizard-button button-rectification me-1 ${drawPoints ? 'wizard-button-active' : ''}`}
@@ -94,28 +97,32 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
                   <label className="read-only-oblique me-1" id={'D' + distancesID[i]}>
                     {label}
                   </label>
-                  <input
-                    className='input-field-oblique'
-                    type='number'
-                    id={'distance' + distancesID[i]}
-                    disabled={isDefaultCoordinates}
-                    {...register('distance' + distancesID[i], validationRules.distances)}
-                    step={0.01}
-                    onKeyDown={(event) => handleInputBehavior(event, i + 1)}
-                    onBlur={(event) => handleInputBehavior(event, i + 1)}
-                  />
+                  <div className='input-field-container' style={{ width: '175px', flexShrink: 0 }}>
+                    <input
+                      className='input-field-oblique'
+                      type='number'
+                      id={'distance' + distancesID[i]}
+                      disabled={isDefaultCoordinates}
+                      {...register('distance' + distancesID[i], validationRules.distances)}
+                      step={0.01}
+                      onKeyDown={(event) => handleInputBehavior(event, i + 1)}
+                      onBlur={(event) => handleInputBehavior(event, i + 1)}
+                    />
+                    <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+                  </div>
+
                 </div>
               )
             })
           }
-          
-            
+
+
           {solution && <OrthoImage solution={solution} coordinates={rwCoordinates} />}
 
-          {solution === null && <span className='mb-2 mt-1'/>}
-        
+          {solution === null && <span className='mb-2 mt-1' />}
+
           <HardModeOblique extraFields={extraFields} />
-      </form>
+        </form>
       </div>
     </div>
   );

@@ -7,7 +7,7 @@ import { ExportBtn } from "../../CustomIcons/ExportBtn";
 export const ExportMp4 = () => {
     const { t } = useTranslation();
     const { onExportGif, colorbarLimits, quiver, images } = useDataSlice();
-    const { video } = useProjectSlice();
+    const { video, projectDetails } = useProjectSlice();
     const { transformationMatrix } = useSectionSlice();
     const { width, height, fps } = video.data;
     const { factor, step } = video.parameters;
@@ -24,7 +24,8 @@ export const ExportMp4 = () => {
             setMinValue(colorbarLimits.min);
             setMaxValue(colorbarLimits.max);
         } else if (quiver) {
-            const { min, max } = getQuiverValues(quiver, false, images.active, step, fps, transformationMatrix);
+            const showMedian = quiver.test === false;
+            const { min, max } = getQuiverValues(quiver, showMedian, images.active, step, fps, transformationMatrix);
             setMinValue(min);
             setMaxValue(max);
         }
@@ -57,7 +58,8 @@ export const ExportMp4 = () => {
             colorbarLimits: {
                 min: minValue,
                 max: maxValue,
-            }
+            },
+            unitSistem: projectDetails.unitSistem,
         }).then(() => {
             setIsCreatingGif(false);
         }).catch((error) => {

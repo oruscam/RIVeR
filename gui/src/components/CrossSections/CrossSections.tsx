@@ -7,23 +7,27 @@ import { useEffect } from 'react';
 import { Section } from '../../store/section/types';
 import { useTranslation } from 'react-i18next';
 import { formatNumberTo2Decimals } from '../../helpers';
+import { UNIT_CONVERSIONS } from '../../constants/constants';
 
-const createInitialState = (sections: Section[]) => {
+const createInitialState = (sections: Section[], unitSistem: string) => {
   let defaultValues = {};
+  // The store always holds SI values (metres). Convert to feet for display only.
+  const toDisplay = (value: number | undefined) =>
+    value === undefined ? value : unitSistem === 'imperial' ? value * UNIT_CONVERSIONS.M_TO_FT : value;
 
   sections.forEach((section) => {
     const { name, dirPoints, rwPoints, bathimetry, numStations, alpha } = section;
     const baseKey = name;
     defaultValues = {
       ...defaultValues,
-      [`${baseKey}_CS_LENGTH`]: formatNumberTo2Decimals(bathimetry.width),
+      [`${baseKey}_CS_LENGTH`]: formatNumberTo2Decimals(toDisplay(bathimetry.width) ?? 0),
       [`${baseKey}_CS_BATHIMETRY`]: bathimetry.path,
-      [`${baseKey}_LEVEL`]: bathimetry.level,
-      [`${baseKey}_LEFT_BANK`]: bathimetry.leftBank,
-      [`${baseKey}_eastPoint1`]: rwPoints[0].x.toFixed(2),
-      [`${baseKey}_northPoint1`]: rwPoints[0].y.toFixed(2),
-      [`${baseKey}_eastPoint2`]: rwPoints[1].x.toFixed(2),
-      [`${baseKey}_northPoint2`]: rwPoints[1].y.toFixed(2),
+      [`${baseKey}_LEVEL`]: formatNumberTo2Decimals(toDisplay(bathimetry.level)),
+      [`${baseKey}_LEFT_BANK`]: formatNumberTo2Decimals(toDisplay(bathimetry.leftBank)),
+      [`${baseKey}_eastPoint1`]: (toDisplay(rwPoints[0].x) ?? 0).toFixed(2),
+      [`${baseKey}_northPoint1`]: (toDisplay(rwPoints[0].y) ?? 0).toFixed(2),
+      [`${baseKey}_eastPoint2`]: (toDisplay(rwPoints[1].x) ?? 0).toFixed(2),
+      [`${baseKey}_northPoint2`]: (toDisplay(rwPoints[1].y) ?? 0).toFixed(2),
       [`${baseKey}_xPoint1`]: dirPoints.length === 0 ? 0 : dirPoints[0].x.toFixed(1),
       [`${baseKey}_yPoint1`]: dirPoints.length === 0 ? 0 : dirPoints[0].y.toFixed(1),
       [`${baseKey}_xPoint2`]: dirPoints.length === 0 ? 0 : dirPoints[1].x.toFixed(1),
@@ -44,11 +48,11 @@ type CrossSectionsProps = {
 export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSectionsProps) => {
   const { sections, activeSection, onSetSections } = useSectionSlice(); // Wrap the sections variable inside an array
   const { onSetErrorMessage } = useUiSlice();
-  
-  const methods = useForm({ defaultValues: createInitialState(sections) });
+  const { type, projectDetails } = useProjectSlice();
+
+  const methods = useForm({ defaultValues: createInitialState(sections, projectDetails.unitSistem) });
   const { nextStep } = useWizard();
   const { t } = useTranslation();
-  const { type } = useProjectSlice();
 
   const { images } = useDataSlice();
 
@@ -87,8 +91,8 @@ export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSect
 
   // * Actualiza el formulario
   useEffect(() => {
-    methods.reset(createInitialState(sections));
-  }, [sections[activeSection]]);
+    methods.reset(createInitialState(sections, projectDetails.unitSistem));
+  }, [sections[activeSection], projectDetails.unitSistem]);
 
   return (  
     <div className='body'>

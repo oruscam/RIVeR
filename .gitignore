@@ -197,3 +197,4 @@ deb/
 .env.local
 
 # End of https://www.toptal.com/developers/gitignore/api/python,react
+.claude/
