@@ -129,41 +129,47 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
                {' '}
                {t('VideoRange.start')}
              </button>
-             <input
-               className="input-field"
-               defaultValue="00:00"
-               id="start"
-               type="text"
-               {...register('start', validationRules.start)}
-               onBlur={handleBlur}
-               onKeyDown={handleKeyDown}
-             />
+             <div className="input-field-container">
+               <input
+                 className="input-field"
+                 defaultValue="00:00"
+                 id="start"
+                 type="text"
+                 {...register('start', validationRules.start)}
+                 onBlur={handleBlur}
+                 onKeyDown={handleKeyDown}
+               />
+             </div>
           </div>
           <div className="input-container-2 mt-1">
             <button type="button" className="wizard-button form-button me-1" onClick={handleClick} id="end-button">
               {' '}
               {t('VideoRange.end')}{' '}
             </button>
-            <input
-              type="text"
-              className="input-field"
-              defaultValue="00:00"
-              id="end"
-              {...register('end', validationRules.end)}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-            />
+            <div className="input-field-container">
+              <input
+                type="text"
+                className="input-field"
+                defaultValue="00:00"
+                id="end"
+                {...register('end', validationRules.end)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
           </div>
           <div className="input-container-2 mt-1">
             <label className="read-only me-1"> {t('VideoRange.step')} </label>
-            <input
-              type="number"
-              id="input-step"
-              defaultValue={1}
-              className="input-field"
-              onKeyDown={handleKeyDown}
-              {...register('step', validationRules.step)}
-            />
+            <div className="input-field-container">
+              <input
+                type="number"
+                id="input-step"
+                defaultValue={1}
+                className="input-field"
+                onKeyDown={handleKeyDown}
+                {...register('step', validationRules.step)}
+              />
+            </div>
           </div>
           <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
           {
