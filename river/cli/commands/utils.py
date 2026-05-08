@@ -2,11 +2,12 @@ import json
 from dataclasses import asdict, dataclass, field
 from functools import update_wrapper
 from typing import Callable
-
+from pathlib import Path
 import click
 
 from river.cli.commands.exceptions import RiverCLIException
 from river.core.exceptions import RiverCoreException
+import numpy as np
 
 
 @dataclass(frozen=True)
@@ -18,6 +19,13 @@ class RiverResponse:
 	)
 	error: dict = field(default_factory=dict)
 
+
+def load_mask(path:Path) -> np.ndarray:
+	"""Load a mask from .npy (new format) or .json (old format) file."""
+	if path.suffix == ".npy":
+		return np.load(path).astype(np.uint8)
+	with path.open("r", encoding="utf-8") as f:
+		return np.array(json.load(f), dtype=np.uint8)
 
 def render_response(func: Callable[..., dict]):
 	"""Decorator for echoing the output of the river commands.

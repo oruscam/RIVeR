@@ -4,6 +4,7 @@ import { drone, oblique, ipcam } from '../../assets/icons/icons.js';
 import { useSectionSlice } from '../../hooks/useSectionSlice.js';
 import { useProjectSlice } from '../../hooks/useProjectSlice.js';
 import { getUnit } from '../../helpers/unitSistem.js';
+import { UNIT_CONVERSIONS } from '../../constants/constants';
 
 export const Header = () => {
   const { sections } = useSectionSlice();
@@ -13,20 +14,14 @@ export const Header = () => {
   const divider = sections.length;
 
   const sum = sections.reduce((acc, section) => {
-    console.log('section data', section.data);
     if (section.data) {
-      // Filtra los elementos que no deben ser sumados
-      const filteredQ = section.data.Q.filter((q) => {
-        // Reemplaza esta condición con la lógica para excluir elementos no deseados
-        return q !== null && q !== undefined && q >= 0;
-      });
-
-      return acc + filteredQ.reduce((acc, q) => acc + q, 0);
+      return acc + section.data.total_Q;
     }
     return acc;
   }, 0);
 
-  const average = sum / (divider !== 0 ? divider : 1);
+  const qF = unitSistem === 'imperial' ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
+  const average = (sum / (divider !== 0 ? divider : 1)) * qF;
 
   return (
     <div id="report-header-container">
