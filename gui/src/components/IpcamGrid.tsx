@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
 import { useIpcamSlice, useProjectSlice } from '../hooks';
+import { UNIT_CONVERSIONS } from '../constants/constants';
 import DataGrid, { SelectColumn } from 'react-data-grid';
 import { useTranslation } from 'react-i18next';
 
@@ -26,9 +27,11 @@ export const IpcamGrid = () => {
   const { points, activePoint, onChangePointSelected, onSetPointPixelCoordinates, onChangeActiveImage } =
     useIpcamSlice();
 
-  const { video } = useProjectSlice();
+  const { video, projectDetails } = useProjectSlice();
   const { width, height } = video.data;
   const { factor: imageReduceFactor } = video.parameters;
+  const isImperial = projectDetails.unitSistem === 'imperial';
+  const coordFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
   const { t } = useTranslation();
 
   const rows = useMemo(() => {
@@ -50,12 +53,12 @@ export const IpcamGrid = () => {
         label: point.label,
         x: point.x,
         y: point.y,
-        X: point.X,
-        Y: point.Y,
-        Z: point.Z,
+        X: parseFloat((point.X * coordFactor).toFixed(2)),
+        Y: parseFloat((point.Y * coordFactor).toFixed(2)),
+        Z: parseFloat((point.Z * coordFactor).toFixed(2)),
       }));
     }
-  }, [points]);
+  }, [points, coordFactor]);
 
   const columns = [
     {

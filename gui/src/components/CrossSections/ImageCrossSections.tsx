@@ -1,4 +1,4 @@
-import { useDataSlice, useImageZoomPan, useProjectSlice, useUiSlice } from "../../hooks";
+import { useImageZoomPan, useProjectSlice, useUiSlice } from "../../hooks";
 import { OverlaySvg } from "../OverlaySvg";
 import { DrawSectionsD3 } from "./DrawSectionsD3";
 import { DrawMask } from "../DrawMask";

@@ -42,7 +42,7 @@ export const VideoInfo = () => {
             <span> {fps} </span>
           </div>
           <div className="report-info-item">
-            <span> {recortStringDate(meditionDate)} </span>
+            <span> {meditionDate ? recortStringDate(meditionDate) : '-'} </span>
           </div>
         </div>
       </div>

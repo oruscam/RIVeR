@@ -10,7 +10,7 @@ export const HardModeCrossSections = ({ extraFields, name }: { extraFields: bool
         <div className={extraFields ? 'mt-5 hard-mode-processing' : 'hidden'}>
 
 
-            <RealWorldCoordinates section={name} step={4} onSetRealWorld={onSetRealWorld} />
+            <RealWorldCoordinates section={name} step={4} onSetRealWorld={onSetRealWorld} showUnitLabel />
 
             <PixelCoordinates section={name} step={4} onSetDirPoints={onSetDirPoints} />
             <span className='divider-line mt-2 mb-1' />

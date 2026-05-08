@@ -18,6 +18,7 @@ import { setDefaultSectionState, setTransformationMatrix } from '../store/sectio
 import { CliError, CliErrorMessage, ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
 import { FieldValues } from 'react-hook-form';
+import { UNIT_CONVERSIONS } from '../constants/constants';
 
 // Hook to interact with the oblique slice state and actions
 // This hook provides methods to update coordinates, fetch distances, and call the compute of oblique transformation matrix
@@ -32,6 +33,11 @@ export const useObliqueSlice = () => {
   const oblique = useSelector((state: RootState) => state.oblique);
   // global state handles application-wide flags
   const global = useSelector((state: RootState) => state.global);
+  // project state exposes the selected unit system so we can convert user input
+  // (ft) to the SI values the backend and store always expect (m).
+  const unitSistem = useSelector((state: RootState) => state.project.projectDetails.unitSistem);
+  const isImperial = unitSistem === 'imperial';
+  const toSI = (value: number) => (isImperial ? value * UNIT_CONVERSIONS.FT_TO_M : value);
   // Translation function from react-i18next
   const { t } = useTranslation();
 
@@ -134,7 +140,7 @@ export const useObliqueSlice = () => {
     }
     try {
       // Open a dialog to select distances file if no path is provided
-      const { distances: newDistances, error } = await ipcRenderer.invoke('import-distances', { path });
+      const { distances: newDistances, error } = await ipcRenderer.invoke('import-distances', { path, unitSistem });
 
       // Handle errors from the IPC call
       // Error can be a wrong file format or user canceling the dialog
@@ -178,8 +184,13 @@ export const useObliqueSlice = () => {
     // Destructure coordinates and distances from oblique state
     const { coordinates, distances } = oblique;
     // Parse and adapt distances from the form input
-    // to match the expected format for the backend
-    const newDistances = adapterObliquePointsDistances(formDistances);
+    // to match the expected format for the backend.
+    // Form values are displayed in the user's chosen unit (ft when imperial);
+    // the store and backend always work in SI (m), so convert here.
+    const rawDistances = adapterObliquePointsDistances(formDistances);
+    const newDistances = Object.fromEntries(
+      Object.entries(rawDistances).map(([key, value]) => [key, toSI(value)])
+    ) as typeof rawDistances;
     // Create a flag to track if there are changes
     // This flag is initially set to the global hasChanged state
     let changed = global.hasChanged;
@@ -268,7 +279,9 @@ export const useObliqueSlice = () => {
   }
 
   const onChangeRealWorldCoordinates = (value: number, position: string) => {
-    const { points } = setChangesByForm({ value, position }, oblique.rwCoordinates);
+    // The user types in ft when imperial; the store always holds m.
+    const siValue = toSI(value);
+    const { points } = setChangesByForm({ value: siValue, position }, oblique.rwCoordinates);
 
     const newDistances = getPointsDistances(points)
 

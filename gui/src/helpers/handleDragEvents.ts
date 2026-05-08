@@ -15,6 +15,11 @@ const handleDragLeave = (
 ) => {
   e.preventDefault();
 
+  // Only clear drag state when the cursor leaves the container entirely.
+  // Without this check, dragleave fires on every child element transition,
+  // causing the highlight to flicker.
+  if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+
   if (nullType) {
     setDragOver(null);
   } else {
