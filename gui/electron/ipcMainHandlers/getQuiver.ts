@@ -14,7 +14,7 @@ async function getQuiver(riverCli: Function) {
     const { framesToTest, formValues } = args;
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
-    filePrefix = filePrefix === undefined ? '' : filePrefix;
+    filePrefix = filePrefix === undefined ? '' : filePrefix.replace(/\/$/, '');
 
     await clearResultsPiv(resultsPath, settingsPath);
     await clearCrossSections(xsectionsPath);

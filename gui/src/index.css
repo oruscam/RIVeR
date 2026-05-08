@@ -405,7 +405,7 @@
   font-size: 20px;
   text-align: center;
   border-radius: 20px;
-  width: 175px;
+  width: 100%;
   height: 50px;
 }
 
@@ -429,7 +429,10 @@
   font-size: 20px;
   text-align: center;
   border-radius: 20px;
+  flex: 1 1 auto;
   width: 150px;
+  min-width: 70px;
+  max-width: 160px;
   height: 50px;
 }
 

@@ -18,7 +18,9 @@ async function getPoints() {
   };
 
   ipcMain.handle('import-points', async (_event, args) => {
-    const { path } = args;
+    const { path, unitSistem } = args;
+    const isImperial = unitSistem === 'imperial';
+    const FT_TO_M = 0.3048;
 
     options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
 
@@ -36,7 +38,7 @@ async function getPoints() {
       const sheet = workbook.Sheets[sheetName];
 
       let values = utils.sheet_to_json(sheet, { header: 1 });
-      const { points, zMax, zMin } = transformPoints(values as [[]]);
+      const { points, zMax, zMin } = transformPoints(values as [[]], isImperial, FT_TO_M);
 
       return {
         data: {
@@ -56,7 +58,7 @@ async function getPoints() {
   });
 }
 
-function transformPoints(points: [[]]) {
+function transformPoints(points: [[]], isImperial: boolean, FT_TO_M: number) {
   if (points[0].length < 4) {
     throw new Error('invalidPointsFileFormat');
   }
@@ -79,9 +81,13 @@ function transformPoints(points: [[]]) {
         return undefined;
       }
 
-      const X = parseFloat(Number(point[1]).toFixed(2));
-      const Y = parseFloat(Number(point[2]).toFixed(2));
-      const Z = parseFloat(Number(point[3]).toFixed(2));
+      const rawX = parseFloat(Number(point[1]).toFixed(2));
+      const rawY = parseFloat(Number(point[2]).toFixed(2));
+      const rawZ = parseFloat(Number(point[3]).toFixed(2));
+
+      const X = isImperial ? parseFloat((rawX * FT_TO_M).toFixed(4)) : rawX;
+      const Y = isImperial ? parseFloat((rawY * FT_TO_M).toFixed(4)) : rawY;
+      const Z = isImperial ? parseFloat((rawZ * FT_TO_M).toFixed(4)) : rawZ;
       let x = 0;
       let y = 0;
       let wasEstablished = false;

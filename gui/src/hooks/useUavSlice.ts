@@ -7,15 +7,20 @@ import {
   getNewCanvasPositions,
   setChangesByForm,
 } from '../helpers';
-import { computePixelSize, computeRwDistance, getLinesCoordinates, transformPixelToRealWorld} from '../../commons/coordinates';
+import { computePixelSize, computeRwDistance, getLinesCoordinates, transformPixelToRealWorld } from '../../commons/coordinates';
 import { setDefaultSectionState, setTransformationMatrix } from '../store/section/sectionSlice';
 import { DEFAULT_POINTS } from '../constants/constants';
 import { setHasChanged, setIsBackendWorking } from '../store/global/globalSlice';
+import { UNIT_CONVERSIONS } from '../constants/constants';
+
 
 export const useUavSlice = () => {
   const dispatch = useDispatch();
   const uav = useSelector((state: RootState) => state.uav);
   const { hasChanged } = useSelector((state: RootState) => state.global);
+
+  const { projectDetails } = useSelector((state: RootState) => state.project);
+  const { unitSistem } = projectDetails;
 
   const onGetUavTransformationMatrix = async () => {
     dispatch(setIsBackendWorking(true));
@@ -140,12 +145,15 @@ export const useUavSlice = () => {
   const onSetPixelRealWorld = (value: string | number, position: string) => {
     const { rwPoints } = uav;
 
+    const numericValue = typeof value === 'string' ? parseFloat(value) : value;
+    const valueInMeters = unitSistem === 'imperial' ? numericValue * UNIT_CONVERSIONS.FT_TO_M : numericValue;
+
     let newPoints;
     let flag1 = false;
     let flag2 = false;
 
-    const { points, firstFlag, secondFlag } = setChangesByForm({ value, position }, rwPoints);
-    
+    const { points, firstFlag, secondFlag } = setChangesByForm({ value: valueInMeters, position }, rwPoints);
+
     newPoints = points;
     flag1 = firstFlag;
     flag2 = secondFlag;
@@ -181,9 +189,10 @@ export const useUavSlice = () => {
     }
 
     if (value.length !== undefined) {
+      const lengthInMeters = unitSistem === 'imperial' ? value.length * UNIT_CONVERSIONS.FT_TO_M : value.length;
       const resetRealWorld = [
         { x: 0, y: 0 },
-        { x: value.length, y: 0 },
+        { x: lengthInMeters, y: 0 },
       ];
       const { size, rwLength } = computePixelSize(dirPoints, resetRealWorld);
       updatedPixelSize.size = size;
@@ -193,11 +202,12 @@ export const useUavSlice = () => {
     }
 
     if (value.pixelSize !== undefined) {
+      const pixelSizeInMeters = unitSistem === 'imperial' ? value.pixelSize * UNIT_CONVERSIONS.FT_TO_M : value.pixelSize;
       if ((dirPoints[0] === DEFAULT_POINTS[0] && dirPoints[1] === DEFAULT_POINTS[1]) || dirPoints.length === 0) {
         const newDirPoints = getLinesCoordinates(value.imageWidth!, value.imageHeight!);
-        const rwLength = computeRwDistance(newDirPoints, value.pixelSize);
+        const rwLength = computeRwDistance(newDirPoints, pixelSizeInMeters);
         updatedPixelSize.dirPoints = newDirPoints;
-        updatedPixelSize.size = value.pixelSize;
+        updatedPixelSize.size = pixelSizeInMeters;
         updatedPixelSize.rwLength = rwLength;
         updatedPixelSize.rwPoints = [
           { x: 0, y: 0 },
@@ -206,8 +216,8 @@ export const useUavSlice = () => {
         updatedPixelSize.drawLine = true;
         updatedPixelSize.solution = null;
       } else {
-        const rwLength = computeRwDistance(dirPoints, value.pixelSize);
-        updatedPixelSize.size = value.pixelSize;
+        const rwLength = computeRwDistance(dirPoints, pixelSizeInMeters);
+        updatedPixelSize.size = pixelSizeInMeters;
         updatedPixelSize.rwLength = rwLength;
         updatedPixelSize.rwPoints = [
           { x: 0, y: 0 },
