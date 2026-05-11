@@ -525,7 +525,11 @@ const getVelocityLimits = (sections: Section[], active: number) => {
     return { max, min };
   }
   const { activeMagnitude } = data;
-  
+
+  if (!Array.isArray(activeMagnitude)) {
+    return { max, min };
+  }
+
   const filteredMagnitude = activeMagnitude.filter((value: number) => value !== null && !isNaN(value as number));
   max = Math.max(max, ...filteredMagnitude);
   min = Math.min(min, ...filteredMagnitude);
