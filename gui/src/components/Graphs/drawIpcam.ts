@@ -9,6 +9,8 @@ interface drawIpcamProps {
   localPoints: IpcamPoint[] | null;
   factor: number;
   scale: number;
+  width: number;
+  height: number;
   activePoint: number | null;
   setMousePressed: ( value: boolean ) => void;
   onSetPointInStore: ( props: SetPointPixelCoordinatesProps) => void;
@@ -16,42 +18,41 @@ interface drawIpcamProps {
   cameraSolution: any | null;
 }
 
-const drawIpcam = ({ layer, uiLayer, localPoints, factor, scale, activePoint, setMousePressed, onSetPointInStore, onSetActivePoint, cameraSolution }: drawIpcamProps) => {
+const drawIpcam = ({ layer, uiLayer, localPoints, factor, scale, width, height, activePoint, setMousePressed, onSetPointInStore, onSetActivePoint, cameraSolution }: drawIpcamProps) => {
     d3.selectAll(layer.selectAll("*")).remove();
     d3.selectAll(uiLayer.selectAll("*")).remove();
 
     // Draw each point
     if (localPoints === null) return;
-    
+
     const dragPoint = d3
         .drag<SVGImageElement, { index: number }, { x: number; y: number }>()
-        .subject((event, d) => {
-          const p = localPoints[d.index];
-          return { x: p.x, y: p.y };
-        })
+        .subject((event) => ({ x: event.x, y: event.y }))
         .on("start", function (_event, d) {
             onSetActivePoint( d.index );
+            d3.select(this.ownerSVGElement).style("cursor", "default");
         })
         .on("drag", function (event, d) {
           if ( activePoint !== d.index ) return;
           setMousePressed(true);
 
-          const x = event.x;
-          const y = event.y;
-    
+          const x = Math.max(0, Math.min(width, event.x));
+          const y = Math.max(0, Math.min(height, event.y));
+
           d3.select<SVGImageElement, { index: number }>(this)
-            .attr("x", x   - MARKS.OFFSET_X)
-            .attr("y", y  - MARKS.OFFSET_Y);
+            .attr("x", x - MARKS.IPCAM_OFFSET_X / scale)
+            .attr("y", y - MARKS.IPCAM_OFFSET_Y / scale);
         })
         .on("end", function (event, d) {
           if ( activePoint !== d.index ) return;
 
           setMousePressed(false);
-    
-          const x = event.x;
-          const y = event.y;
-          
-          onSetPointInStore({ index: d.index, point: { x: x * factor, y: y * factor }}  )    
+          d3.select(this.ownerSVGElement).style("cursor", null);
+
+          const x = Math.max(0, Math.min(width, event.x));
+          const y = Math.max(0, Math.min(height, event.y));
+
+          onSetPointInStore({ index: d.index, point: { x: x * factor, y: y * factor }});
         });
 
     localPoints.forEach((point, index) => {
@@ -71,7 +72,7 @@ const drawIpcam = ({ layer, uiLayer, localPoints, factor, scale, activePoint, se
             .datum({ index })
             .attr("width", MARKS.WIDTH / scale)
             .attr("height", MARKS.HEIGHT / scale)
-            .attr("cursor", "move")
+            .attr("cursor", "default")
             .call(dragPoint);
     });
 }

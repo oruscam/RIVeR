@@ -1,12 +1,22 @@
-import { useImageZoomPan, useProjectSlice, useUiSlice } from "../../hooks";
+import { useCallback, useState } from "react";
+import { useDataSlice, useImageZoomPan, useProjectSlice, useUiSlice } from "../../hooks";
 import { OverlaySvg } from "../OverlaySvg";
 import { DrawSectionsD3 } from "./DrawSectionsD3";
 import { DrawMask } from "../DrawMask";
+import { ConfirmMaskBtn } from "../CustomIcons/ConfirmMaskBtn";
 
 export const ImageCrossSections = () => {
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { firstFramePath } = useProjectSlice();
+  const { processing, onUpdateActiveMask } = useDataSlice();
+  const { masks, activeMaskIndex } = processing;
+
+  // Live points streamed from DrawMask during drag — enables real-time button tracking
+  const [livePoints, setLivePoints] = useState<{ x: number; y: number }[]>([]);
+  const handleLivePoints = useCallback((pts: { x: number; y: number }[]) => {
+    setLivePoints(pts);
+  }, []);
 
   const {
     scale,
@@ -27,6 +37,25 @@ export const ImageCrossSections = () => {
     keyboardStep: 25,
   });
 
+
+  // Compute screen-space position of the active mask centroid.
+  // Prefer livePoints (updated every frame during drag) over Redux state (updated on mouseup).
+  const confirmBtnPos = (() => {
+    if (activeMaskIndex === null) return null;
+    const pts = livePoints.length > 0 ? livePoints : masks[activeMaskIndex];
+    if (!pts || pts.length === 0) return null;
+    const cx = imageWidth! / 2;
+    const cy = imageHeight! / 2;
+    // Centroid X and Y — button sits at the center of the polygon
+    const sumX = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+    const sumY = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+    const vpX = sumX / factor!;
+    const vpY = sumY / factor!;
+    return {
+      x: position.x + cx + (vpX - cx) * scale,
+      y: position.y + cy + (vpY - cy) * scale,
+    };
+  })();
 
   return (
     <div
@@ -67,8 +96,9 @@ export const ImageCrossSections = () => {
               factor={factor!}
               layers={layers}
               scale={scale}
+              onLivePoints={handleLivePoints}
             />
-            
+
             <DrawSectionsD3
               width={imageWidth!}
               height={imageHeight!}
@@ -81,6 +111,25 @@ export const ImageCrossSections = () => {
           </>
         )}
       </OverlaySvg>
+
+      {/* Floating confirm button — follows the active mask centroid */}
+      {confirmBtnPos && (
+        <div
+          style={{
+            position: 'absolute',
+            left: confirmBtnPos.x,
+            top: confirmBtnPos.y,
+            zIndex: 10,
+            transform: 'translate(-50%, -50%)',
+          }}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <ConfirmMaskBtn
+            onClick={() => onUpdateActiveMask(activeMaskIndex!)}
+            title="Confirm mask"
+          />
+        </div>
+      )}
     </div>
   );
 };
