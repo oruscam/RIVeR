@@ -570,9 +570,8 @@
 
 .mask-actions {
     display: flex;
-    justify-content: space-between;
-    align-content: space-between;
-    width: 120px;
+    align-items: center;
+    gap: 6px;
 }
 
 .trash-icon {
