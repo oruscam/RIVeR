@@ -40,6 +40,8 @@ export const DrawIpcam = ({
         localPoints,
         factor,
         scale,
+        width,
+        height,
         activePoint,
         setMousePressed,
         onSetPointInStore: onSetPointPixelCoordinates,

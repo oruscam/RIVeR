@@ -53,7 +53,7 @@ export const FormIpcam = () => {
         <form id="form-control-points" className={`${isBackendWorking ? 'disabled' : ''}`}>
             <div className="input-container-2">
               <button
-                className={`wizard-button me-1 button-rectification ${points !== null ? 'wizard-button-active' : ''}`}
+                className={`wizard-button form-button me-1 ${points !== null ? 'wizard-button-active' : ''}`}
                 id="import-points"
                 type="button"
                 onClick={handleOnClickImport}
@@ -61,8 +61,11 @@ export const FormIpcam = () => {
                 {' '}
                 {t('ControlPoints3d.importPoints')}{' '}
               </button>
+              <span className="read-only bg-transparent" />
+            </div>
+            <div className="input-container-2 mt-1">
               <button
-                className={`wizard-button button-rectification ${imagesPath !== null ? 'wizard-button-active' : ''}`}
+                className={`wizard-button form-button me-1 ${imagesPath !== null ? 'wizard-button-active' : ''}`}
                 id="import-images"
                 type="button"
                 onClick={handleOnClickImport}
@@ -70,6 +73,7 @@ export const FormIpcam = () => {
                 {' '}
                 {t('ControlPoints3d.importImages')}{' '}
               </button>
+              <span className="read-only bg-transparent" />
             </div>
 
             <DropHereText text={t('Commons.dropHereText')} show={pointsPath === null} />
