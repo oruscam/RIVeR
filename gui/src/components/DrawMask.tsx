@@ -121,7 +121,7 @@ export const DrawMask = ({
         .attr('fill', 'url(#dashFill)')  // pattern defined on svgRef root — always available
         .attr('stroke', '#ED6B57')
         .attr('stroke-width', 1.5)
-        .attr('opacity', 0.65)
+        .attr('opacity', 0.75)
         .style('pointer-events', 'none');
     });
   }, [masks, activeMaskIndex, visibleMaskIndices, factor, staticMaskLayerRef]);
