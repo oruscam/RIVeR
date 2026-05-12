@@ -363,9 +363,6 @@
     transition: background-color 0.15s ease;
 }
 
-.switch-container-results:hover {
-    background-color: var(--on-hover);
-}
 
 .input-field-select {
     flex-shrink: 0;
@@ -384,7 +381,11 @@
 
 #apply-changes {
     font-size: 1.1em;
-    padding: 8px 20px;
+    padding: 8px 24px;
+    white-space: nowrap;
+    width: auto;
+    max-width: none;
+    text-align: center;
 }
 
 .simple-input-container {
