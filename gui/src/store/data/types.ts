@@ -23,6 +23,8 @@ interface Processing {
   bbox?: number[];
   masks: Point[][];
   activeMaskIndex: number | null;
+  /** Indices of masks that are currently visible as static overlays */
+  visibleMaskIndices: number[];
 }
 
 interface Images {
