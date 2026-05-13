@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import { dialog, ipcMain } from 'electron';
+import { BrowserWindow, dialog, ipcMain } from 'electron';
 import { getVideoMetadata } from './utils/getVideoMetadata';
 import { ProjectConfig } from './interfaces';
 import { readResultsPiv } from './utils/readResultsPiv';
@@ -104,9 +104,11 @@ function getMask(directory: string, type: 'npy' | 'png'): string | undefined {
 }
 
 // Main function to handle the loading of a project
-async function handleLoadProject(PROJECT_CONFIG: ProjectConfig, options: Electron.OpenDialogOptions) {
+async function handleLoadProject(PROJECT_CONFIG: ProjectConfig, options: Electron.OpenDialogOptions, win: BrowserWindow | null) {
   // Open a dialog to select a directory
-  const result = await dialog.showOpenDialog(options);
+  const result = win
+    ? await dialog.showOpenDialog(win, options)
+    : await dialog.showOpenDialog(options);
   if (result.canceled || result.filePaths.length === 0)
     return { success: false, message: 'No directory selected' };
 
@@ -182,9 +184,10 @@ function loadProject() {
     defaultPath: PROJECT_CONFIG.mainDirectory,
   };
 
-  ipcMain.handle('load-project', async () => {
+  ipcMain.handle('load-project', async (event) => {
+    const win = BrowserWindow.fromWebContents(event.sender);
     try {
-      return await handleLoadProject(PROJECT_CONFIG, options);
+      return await handleLoadProject(PROJECT_CONFIG, options, win);
     } catch (error: unknown) {
       console.error(error);
       return { success: false, message: (error as Error).message };
