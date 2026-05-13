@@ -64,29 +64,29 @@ async function getBathimetry() {
       let data: unknown[][] = [];
       let needsNormalization = false; // Track if the source format is non-standard
       if (bathimetryExt.toLowerCase() === '.csv') {
-          const content = fs.readFileSync(bathPath, 'utf-8');
-          const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
-          data = lines.map(line => {
-              if (line.includes(';') || line.includes('\t')) {
-                  needsNormalization = true; // Non-standard separator detected
-                  return line.split(/[;\t]/);
-              }
-              const parts = line.split(',');
-              if (parts.length === 3) {
-                  // Ambiguous comma case e.g., "0,1,765" -> "0" and "1.765"
-                  needsNormalization = true;
-                  return [parts[0], parts[1] + '.' + parts[2]];
-              }
-              if (parts.length === 4) {
-                 // Broken case: "1,501,1,632" -> "1.501" and "1.632"
-                 needsNormalization = true;
-                 return [parts[0] + '.' + parts[1], parts[2] + '.' + parts[3]];
-              }
-              return parts;
-          });
+        const content = fs.readFileSync(bathPath, 'utf-8');
+        const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
+        data = lines.map(line => {
+          if (line.includes(';') || line.includes('\t')) {
+            needsNormalization = true; // Non-standard separator detected
+            return line.split(/[;\t]/);
+          }
+          const parts = line.split(',');
+          if (parts.length === 3) {
+            // Ambiguous comma case e.g., "0,1,765" -> "0" and "1.765"
+            needsNormalization = true;
+            return [parts[0], parts[1] + '.' + parts[2]];
+          }
+          if (parts.length === 4) {
+            // Broken case: "1,501,1,632" -> "1.501" and "1.632"
+            needsNormalization = true;
+            return [parts[0] + '.' + parts[1], parts[2] + '.' + parts[3]];
+          }
+          return parts;
+        });
       } else {
-          const sheet = workbook.Sheets[sheetName];
-          data = utils.sheet_to_json(sheet, { header: 1 });
+        const sheet = workbook.Sheets[sheetName];
+        data = utils.sheet_to_json(sheet, { header: 1 });
       }
 
       let maxY = -Infinity;
@@ -102,27 +102,27 @@ async function getBathimetry() {
         .map((row: unknown[], index: number) => {
           let xRaw = row[0];
           let yRaw = row[1];
-          
+
           if (row.length === 1 && typeof row[0] === 'string') {
-             // Handle cases where SheetJS fails to split columns due to unusual delimiters
-             const parts = (row[0] as string).split(/[;\t]/);
-             if (parts.length >= 2) {
-                 xRaw = parts[0];
-                 yRaw = parts[1];
-             } else {
-                 const spaceParts = (row[0] as string).trim().split(/\s+/);
-                 if (spaceParts.length >= 2) {
-                     xRaw = spaceParts[0];
-                     yRaw = spaceParts[1];
-                 } else {
-                     const commaParts = (row[0] as string).split(',');
-                     if (commaParts.length >= 2) {
-                         // Fallback for cases like "1.5, 2.5"
-                         xRaw = commaParts[0];
-                         yRaw = commaParts[1];
-                     }
-                 }
-             }
+            // Handle cases where SheetJS fails to split columns due to unusual delimiters
+            const parts = (row[0] as string).split(/[;\t]/);
+            if (parts.length >= 2) {
+              xRaw = parts[0];
+              yRaw = parts[1];
+            } else {
+              const spaceParts = (row[0] as string).trim().split(/\s+/);
+              if (spaceParts.length >= 2) {
+                xRaw = spaceParts[0];
+                yRaw = spaceParts[1];
+              } else {
+                const commaParts = (row[0] as string).split(',');
+                if (commaParts.length >= 2) {
+                  // Fallback for cases like "1.5, 2.5"
+                  xRaw = commaParts[0];
+                  yRaw = commaParts[1];
+                }
+              }
+            }
           }
 
           const x = smartParseFloat(xRaw);
@@ -143,10 +143,10 @@ async function getBathimetry() {
       }
 
       line.forEach((row, idx) => {
-          if (row.y > maxY) {
-              maxY = row.y;
-              maxYIndex = idx;
-          }
+        if (row.y > maxY) {
+          maxY = row.y;
+          maxYIndex = idx;
+        }
       });
 
       // Analyze the line to determine if it is decreced and if it represents depth
