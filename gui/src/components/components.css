@@ -697,10 +697,9 @@
     margin-right: auto;
     max-height: 500px;
     overflow-y: auto;
-    overflow-x: auto;
+    overflow-x: hidden;
     flex-shrink: 0;
     border-radius: 10px;
-    overflow: hidden;
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }

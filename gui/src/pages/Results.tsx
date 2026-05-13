@@ -41,7 +41,6 @@ export const Results = () => {
             onClick={handleOnClickApplyChanges}
             id="apply-changes"
             type="button">
-            {' '}
             {t('Results.applyChanges')}
           </button>
           <WizardButtons formId="form-result" canFollow={true} />
