@@ -7,7 +7,7 @@ export const HardModeCrossSections = ({ extraFields, name }: { extraFields: bool
     const { onSetRealWorld, onSetDirPoints } = useSectionSlice()
 
     return (
-        <div className={extraFields ? 'mt-5 hard-mode-processing' : 'hidden'}>
+        <div className={extraFields ? 'mt-5 hard-mode-processing' : 'hidden'} style={{ paddingLeft: 0, paddingRight: 0 }}>
 
 
             <RealWorldCoordinates section={name} step={4} onSetRealWorld={onSetRealWorld} showUnitLabel />

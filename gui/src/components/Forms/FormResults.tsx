@@ -97,15 +97,17 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
             {' '}
             {t('Results.alpha')}{' '}
           </label>
-          <input
-            className="input-field"
-            id="alpha"
-            type="number"
-            step="any"
-            {...register(`${name}_ALPHA`)}
-            onKeyDown={handleOnChangeInput}
-            onBlur={handleOnChangeInput}
-          ></input>
+          <div className="input-field-container">
+            <input
+              className="input-field"
+              id="alpha"
+              type="number"
+              step="any"
+              {...register(`${name}_ALPHA`)}
+              onKeyDown={handleOnChangeInput}
+              onBlur={handleOnChangeInput}
+            ></input>
+          </div>
         </div>
 
         <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '720px' }}>
