@@ -173,16 +173,9 @@ app.whenReady().then(async () => {
   if (config) {
     PROJECT_CONFIG.mainDirectory = config.riverPath;
   } else {
-    const result = await dialog.showOpenDialog({
-      title: 'Choose where to store River data',
-      properties: ['openDirectory', 'createDirectory'],
-      buttonLabel: 'Choose Folder',
-    });
-    const chosen = result.canceled
-      ? path.join(userDir, 'River')
-      : path.join(result.filePaths[0], 'River');
-    PROJECT_CONFIG.mainDirectory = chosen;
-    saveRiverConfig({ riverPath: chosen });
+    const defaultPath = path.join(userDir, 'River');
+    PROJECT_CONFIG.mainDirectory = defaultPath;
+    saveRiverConfig({ riverPath: defaultPath });
   }
 
   calculate3dRectification(riverCli);

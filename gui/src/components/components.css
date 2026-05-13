@@ -79,6 +79,7 @@
     flex-shrink: 1;
     border-top: 8px solid var(--secondary-background-color);
     padding-top: 15px;
+    position: relative;
 }
 
 .media-container::-webkit-scrollbar {
