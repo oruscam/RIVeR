@@ -535,7 +535,7 @@ export const useProjectSlice = () => {
 
   const onProjectDetailsChange = (data: onClickFinishInterface) => {
     dispatch(setLoading(true));
-    if (data.riverName) {
+    if (data.riverName !== undefined) {
       dispatch(
         setProjectDetails({
           ...projectDetails,
@@ -544,7 +544,7 @@ export const useProjectSlice = () => {
           unitSistem: data.unitSistem,
         })
       );
-    } else if (data.site) {
+    } else if (data.site !== undefined) {
       dispatch(
         setProjectDetails({
           ...projectDetails,
