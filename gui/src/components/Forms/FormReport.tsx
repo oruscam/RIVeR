@@ -115,6 +115,14 @@ export const FormReport = ({
             id="river-name"
             onBlur={onHandleDataChange}
             onKeyDown={onHandleDataChange}
+            onChange={(e) => {
+              onProjectDetailsChange({
+                riverName: e.target.value,
+                unitSistem: unitSistem,
+                meditionDate: dateToStringDate(meditionDate),
+              });
+              setIsReportSaved(false);
+            }}
           />
         </div>
 
@@ -127,6 +135,14 @@ export const FormReport = ({
             id="river-site"
             onBlur={onHandleDataChange}
             onKeyDown={onHandleDataChange}
+            onChange={(e) => {
+              onProjectDetailsChange({
+                site: e.target.value,
+                unitSistem: unitSistem,
+                meditionDate: dateToStringDate(meditionDate),
+              });
+              setIsReportSaved(false);
+            }}
           />
         </div>
 

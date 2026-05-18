@@ -388,6 +388,11 @@
     text-align: center;
 }
 
+#apply-changes:hover {
+    background-color: var(--primary-text-color);
+    color: var(--background-color);
+}
+
 .simple-input-container {
     display: flex;
     flex-direction: column;
