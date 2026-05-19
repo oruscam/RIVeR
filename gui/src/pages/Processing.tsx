@@ -40,7 +40,7 @@ export const Processing = () => {
     return (
         <div className="regular-page">
             <div className="media-container">
-                <ImageProcessing showMedian={showMedian} />
+                <ImageProcessing showMedian={showMedian} extraFields={extraFields} />
                 <Carousel
                     images={paths}
                     active={active}

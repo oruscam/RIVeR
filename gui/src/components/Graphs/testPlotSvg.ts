@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import { COLORS } from '../../constants/constants';
 
 /**
  * Generates a plot within an SVG element using D3.js.
@@ -10,6 +9,8 @@ import { COLORS } from '../../constants/constants';
  * @param {number[]} params.quiver.u - The u component of the quiver data.
  * @param {number[]} params.quiver.v - The v component of the quiver data.
  * @param {Function} params.t - A translation function for localizing axis labels.
+ * @param {string} params.accentColor - The accent color for the scatter plot dots.
+ * @param {string} params.textColor - The text color for labels and contours.
  *
  * @description
  * This function clears any existing content in the provided SVG element and generates a new plot based on the provided quiver data.
@@ -21,10 +22,16 @@ export const testPlotSvg = ({
   svgElement,
   quiver,
   t,
+  accentColor,
+  textColor,
+  axisLimits,
 }: {
   svgElement: SVGSVGElement;
   quiver: { u: number[]; v: number[] };
   t: (key: string) => string;
+  accentColor: string;
+  textColor: string;
+  axisLimits?: { uMin: number; uMax: number; vMin: number; vMax: number };
 }) => {
   // Clear any existing content in the SVG element
   d3.select(svgElement).selectAll('*').remove();
@@ -45,10 +52,10 @@ export const testPlotSvg = ({
 
   // Define padding for the scales
   const padding = 0.1;
-  let uMin = d3.min(u) ?? 0;
-  let uMax = d3.max(u) ?? 0;
-  let vMin = d3.min(v) ?? 0;
-  let vMax = d3.max(v) ?? 0;
+  let uMin = axisLimits?.uMin ?? d3.min(u) ?? 0;
+  let uMax = axisLimits?.uMax ?? d3.max(u) ?? 0;
+  let vMin = axisLimits?.vMin ?? d3.min(v) ?? 0;
+  let vMax = axisLimits?.vMax ?? d3.max(v) ?? 0;
 
   // Adjust the min and max values with padding
   uMin -= padding * (uMax - uMin);
@@ -115,7 +122,7 @@ export const testPlotSvg = ({
     .attr('cx', (d) => xScale(d.u))
     .attr('cy', (d) => yScale(d.v))
     .attr('r', 3)
-    .attr('fill', COLORS.BLUE_WITH_TRANSPARENCY)
+    .attr('fill', accentColor + '95')
     .on('mouseover', function (_event, d) {
       d3.select(this).attr('r', 6);
       svg
@@ -124,7 +131,7 @@ export const testPlotSvg = ({
         .attr('x', xScale(d.u) + 15)
         .attr('y', yScale(d.v) - 10)
         .attr('font-size', 16)
-        .attr('fill', 'white')
+        .attr('fill', textColor)
         .text(`u: ${d.u.toFixed(2)}px`);
       svg
         .append('text')
@@ -132,11 +139,11 @@ export const testPlotSvg = ({
         .attr('x', xScale(d.u) + 15)
         .attr('y', yScale(d.v) + 8)
         .attr('font-size', 16)
-        .attr('fill', 'white')
+        .attr('fill', textColor)
         .text(`v: ${d.v.toFixed(2)}px`);
     })
     .on('mouseout', function () {
-      d3.select(this).attr('r', 3).attr('fill', COLORS.BLUE);
+      d3.select(this).attr('r', 3).attr('fill', accentColor);
       svg.select('#tooltip-u').remove();
       svg.select('#tooltip-v').remove();
     });
@@ -156,7 +163,7 @@ export const testPlotSvg = ({
     .append('path')
     .attr('d', d3.geoPath())
     .attr('fill', 'none')
-    .attr('stroke', 'white')
+    .attr('stroke', textColor)
     .attr('stroke-width', 1)
     .attr('opacity', 0.3)
     .attr('clip-path', 'url(#clip)');
@@ -185,7 +192,7 @@ export const testPlotSvg = ({
     .attr('dy', -4)
     .attr('text-anchor', 'end')
     .attr('font-size', 16)
-    .attr('fill', 'white')
+    .attr('fill', textColor)
     .attr('font-weight', '600')
     .text(t('Processing.Plot.u'));
 
@@ -197,7 +204,7 @@ export const testPlotSvg = ({
     .attr('dy', -4)
     .attr('text-anchor', 'middle')
     .attr('font-size', 16)
-    .attr('fill', 'white')
+    .attr('fill', textColor)
     .attr('font-weight', '600')
     .attr('transform', 'rotate(-90)')
     .text(t('Processing.Plot.v'));

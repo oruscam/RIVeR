@@ -498,12 +498,9 @@
     border: none;
 }
 
-.img-carousel-active {
-    border: 4px solid var(--primary-text-color);
-}
-
+.img-carousel-active,
 .img-carousel-second {
-    border: 4px solid #6CD4FF;
+    border: 4px solid var(--accent-color);
 }
 
 .img-carousel-container {
@@ -523,6 +520,10 @@
     height: auto;
     border-radius: 20px;
     z-index: 1;
+}
+
+.img-carousel:not(.img-carousel-active):not(.img-carousel-second) {
+    filter: brightness(0.42);
 }
 
 .img-water-mark {

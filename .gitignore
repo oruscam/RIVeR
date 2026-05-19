@@ -199,3 +199,4 @@ deb/
 # End of https://www.toptal.com/developers/gitignore/api/python,react
 .claude/
 CLAUDE.md
+.superpowers/
