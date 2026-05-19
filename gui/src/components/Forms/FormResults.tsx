@@ -122,20 +122,22 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
           <label className="read-only me-1" htmlFor="stations-number">
             {t('Results.stationNumber')}
           </label>
-          <button type="button" className="btn-step" onClick={() => handleStep(-1)}>
-            −
-          </button>
-          <input
-            className="input-field-little"
-            type="number"
-            {...register(`${name}_STATIONS_NUMBER`)}
-            id="stations-number"
-            onKeyDown={handleOnChangeInput}
-            onBlur={handleOnChangeInput}
-          />
-          <button type="button" className="btn-step" onClick={() => handleStep(1)}>
-            +
-          </button>
+          <div className="input-field-container" style={{ justifyContent: 'center', gap: '6px' }}>
+            <button type="button" className="btn-step" onClick={() => handleStep(-1)}>
+              −
+            </button>
+            <input
+              className="input-field-little"
+              type="number"
+              {...register(`${name}_STATIONS_NUMBER`)}
+              id="stations-number"
+              onKeyDown={handleOnChangeInput}
+              onBlur={handleOnChangeInput}
+            />
+            <button type="button" className="btn-step" onClick={() => handleStep(1)}>
+              +
+            </button>
+          </div>
         </div>
 
         <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '720px' }}>
