@@ -60,6 +60,7 @@ const projectSlice = createSlice({
       state.projectDetails = action.payload;
     },
     setDefaultProjectState: (state) => {
+      const preservedUnitSystem = localStorage.getItem('unitSystem') || 'si';
       state.projectDirectory = '';
       state.video = defaultVideo;
       state.type = '';
@@ -67,7 +68,7 @@ const projectSlice = createSlice({
       state.projectDetails = {
         riverName: '',
         site: '',
-        unitSistem: 'si',
+        unitSistem: preservedUnitSystem,
         meditionDate: '',
       };
     },

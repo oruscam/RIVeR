@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useIpcamSlice, useUiSlice } from '../../hooks';
+import { useIpcamSlice, useProjectSlice, useUiSlice } from '../../hooks';
 import { GRAPHS } from '../../constants/constants';
 import * as d3 from 'd3';
 import { pointsMapSvg } from './pointsMapSvg';
@@ -8,6 +8,7 @@ export const PointsMap = () => {
   const svgRef = useRef(null);
   const { screenSizes } = useUiSlice();
   const { points, activePoint, cameraSolution } = useIpcamSlice();
+  const { projectDetails } = useProjectSlice();
 
   const cameraPosition = cameraSolution?.cameraPosition;
   const orthoExtent = cameraSolution?.orthoExtent;
@@ -30,9 +31,10 @@ export const PointsMap = () => {
         orthoImagePath,
         cameraPosition,
         orthoExtent,
+        unitSistem: projectDetails.unitSistem,
       });
     }
-  }, [points, graphWidth, cameraPosition]);
+  }, [points, graphWidth, cameraPosition, projectDetails.unitSistem]);
 
   return (
     <div>

@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next';
-import { useGlobalSlice, useIpcamSlice, useUiSlice } from '../../hooks';
+import { useGlobalSlice, useIpcamSlice, useProjectSlice, useUiSlice } from '../../hooks';
+import { UNIT_CONVERSIONS } from '../../constants/constants';
 import { PointsMap } from '../Graphs';
 import { IpcamGrid } from '../index';
 import { useState } from 'react';
@@ -19,7 +20,10 @@ export const FormIpcam = () => {
   } = useIpcamSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { onSetErrorMessage } = useUiSlice();
+  const { projectDetails } = useProjectSlice();
   const { t } = useTranslation();
+  const isImperial = projectDetails.unitSistem === 'imperial';
+  const heightFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
 
   const handleOnClickImport = async (event: React.MouseEvent<HTMLButtonElement>) => {
     const id = (event.target as HTMLButtonElement).id;
@@ -49,7 +53,7 @@ export const FormIpcam = () => {
         <form id="form-control-points" className={`${isBackendWorking ? 'disabled' : ''}`}>
             <div className="input-container-2">
               <button
-                className={`wizard-button me-1 button-rectification ${points !== null ? 'wizard-button-active' : ''}`}
+                className={`wizard-button form-button me-1 ${points !== null ? 'wizard-button-active' : ''}`}
                 id="import-points"
                 type="button"
                 onClick={handleOnClickImport}
@@ -57,8 +61,11 @@ export const FormIpcam = () => {
                 {' '}
                 {t('ControlPoints3d.importPoints')}{' '}
               </button>
+              <span className="read-only bg-transparent" />
+            </div>
+            <div className="input-container-2 mt-1">
               <button
-                className={`wizard-button button-rectification ${imagesPath !== null ? 'wizard-button-active' : ''}`}
+                className={`wizard-button form-button me-1 ${imagesPath !== null ? 'wizard-button-active' : ''}`}
                 id="import-images"
                 type="button"
                 onClick={handleOnClickImport}
@@ -66,6 +73,7 @@ export const FormIpcam = () => {
                 {' '}
                 {t('ControlPoints3d.importImages')}{' '}
               </button>
+              <span className="read-only bg-transparent" />
             </div>
 
             <DropHereText text={t('Commons.dropHereText')} show={pointsPath === null} />
@@ -108,7 +116,7 @@ export const FormIpcam = () => {
                 </div>
                 <div className="form-video-extra-info-row mb-2">
                   <p> {t('ControlPoints3d.cameraHeight')} </p>
-                  <p> {cameraSolution.cameraPosition[2].toFixed(2)} </p>
+                  <p> {(cameraSolution.cameraPosition[2] * heightFactor).toFixed(2)} </p>
                 </div>
               </div>
             )}

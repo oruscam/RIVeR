@@ -19,6 +19,7 @@ import {
   deleteMask,
   updateMask,
   setColorbarLimits,
+  toggleMaskVisibility,
 } from '../store/data/dataSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { setHasChanged, setSectionData, setSummary } from '../store/section/sectionSlice';
@@ -277,7 +278,7 @@ export const useDataSlice = () => {
           numSections: sections.length,
         });
         if (error?.message) {
-          throw new Error(error);
+          throw new Error(error.message);
         }
 
         sections.map((section, index) => {
@@ -393,6 +394,10 @@ export const useDataSlice = () => {
     dispatch(updateMask({ index }));
   }
 
+  const onToggleMaskVisibility = (index: number) => {
+    dispatch(toggleMaskVisibility(index));
+  };
+
   const onSetManualColorbarLimits = (min: number, max: number, refresh: boolean) => {
     if (refresh) {
       window.ipcRenderer.invoke('set-colorbar-limits', { min: null, max: null });
@@ -409,9 +414,10 @@ export const useDataSlice = () => {
     fps: number;
     step: number;
     colorbarLimits: { min: number; max: number };
+    unitSistem: string;
   }
 
-  const onExportGif = async ({ image, factor, fps, step, colorbarLimits }: ExportGifParams) => {
+  const onExportGif = async ({ image, factor, fps, step, colorbarLimits, unitSistem }: ExportGifParams) => {
     // dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
 
@@ -424,7 +430,8 @@ export const useDataSlice = () => {
         sections,
         transformationMatrix,
         step,
-        colorbarLimits
+        colorbarLimits,
+        unitSistem,
       })
       // dispatch(setBackendWorking(false));
 
@@ -462,6 +469,7 @@ export const useDataSlice = () => {
     onSetManualColorbarLimits,
     onSetQuiverAll,
     onSetQuiverTest,
+    onToggleMaskVisibility,
     onUpdateActiveMask,
     onUpdateMaskPoints,
     onUpdateProcessing,

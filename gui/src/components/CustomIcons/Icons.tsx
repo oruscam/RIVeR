@@ -26,8 +26,10 @@ export const Icons = {
     Check: (c?: string) => <I color={c} d="M20 6L9 17l-5-5" />,
     Trash: (c?: string) => <I color={c} d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />,
     BoxSel: (c?: string) => <svg width={21} height={21} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3H3v2" /><path d="M19 3h2v2" /><path d="M5 21H3v-2" /><path d="M19 21h2v-2" /><path strokeDasharray="3 3" d="M3 9v6M21 9v6M9 3h6M9 21h6" /></svg>,
-    PenLine: (c?: string) => <I color={c} d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />,
+    Pincel: (c?: string) => <I color={c} d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" extra={["m15 5 4 4"]} />,
+    PincelCrossed: (c?: string) => <I color={c} d="m10 10-6.157 6.162a2 2 0 0 0-.5.833l-1.322 4.36a.5.5 0 0 0 .622.624l4.358-1.323a2 2 0 0 0 .83-.5L14 13.982" extra={["m12.829 7.172 4.359-4.346a1 1 0 1 1 3.986 3.986l-4.353 4.353", "m2 2 20 20"]} />,
     Globe: (c?: string) => <I color={c} d="M12 2a10 10 0 1 0 0 20A10 10 0 0 0 12 2z" extra={["M2 12h20", "M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"]} />,
+    Settings: (c?: string) => <I color={c} d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" extra={["M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"]} />,
     ChevDown: (c?: string, rot?: number) => <svg width={13} height={13} viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: `rotate(${rot || 0}deg)`, transition: "transform .2s" }}><path d="M6 9l6 6 6-6" /></svg>,
     Play: (c?: string) => <I color={c} d="M5 3l14 9-14 9V3z" />,
     Pause: (c?: string) => <I color={c} d="M6 4h4v16H6zM14 4h4v16h-4z" />,
@@ -36,6 +38,8 @@ export const Icons = {
     Download: (c?: string) => <I color={c} d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />,
     FrameBack: (c?: string) => <I color={c} d="M17 18l-6-6 6-6" extra={["M7 6v12"]} />,
     FrameNext: (c?: string) => <I color={c} d="M7 18l6-6-6-6" extra={["M17 6v12"]} />,
+    SoundOn: (c?: string) => <I color={c} d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z" extra={["M16 9a5 5 0 0 1 0 6", "M19.364 18.364a9 9 0 0 0 0-12.728"]} />,
+    SoundOff: (c?: string) => <I color={c} d="M16 9a5 5 0 0 1 .95 2.293" extra={["M19.364 5.636a9 9 0 0 1 1.889 9.96", "m2 2 20 20", "m7 7-.587.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298V11", "M9.828 4.172A.686.686 0 0 1 11 4.657v.686"]} />,
     Sun: (color?: string) => (
         <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke={color || "currentColor"} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="12" cy="12" r="4" />
