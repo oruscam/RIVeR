@@ -1,7 +1,8 @@
 import 'react-data-grid/lib/styles.css';
 import DataGrid, { SelectColumn } from 'react-data-grid';
 import { useEffect, useMemo, useState } from 'react';
-import { useSectionSlice } from '../hooks';
+import { useProjectSlice, useSectionSlice } from '../hooks';
+import { UNIT_CONVERSIONS } from '../constants/constants';
 import { Clipboard } from './Clipboard';
 import { CopyBtn } from './CustomIcons/CopyBtn';
 import { LuSpline } from 'react-icons/lu';
@@ -41,7 +42,12 @@ const getCellValue = (
 export const Grid = () => {
   const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
   const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
+  const { projectDetails } = useProjectSlice();
   const { t } = useTranslation();
+  const isImperial = projectDetails.unitSistem === 'imperial';
+  const lFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
+  const aFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT * UNIT_CONVERSIONS.M_TO_FT : 1;
+  const qFactor = isImperial ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
 
   const interpolated = sections[activeSection]?.interpolated ?? false;
 
@@ -56,17 +62,20 @@ export const Grid = () => {
     const { num_stations, distance, depth, Q, A, check, activeMagnitude, activeCheck, interpolated } =
       section.data;
 
+    const scaledMagnitude = activeMagnitude.map((v) => v * lFactor);
+    const scaledQ = Q.map((v) => v * qFactor);
+
     // Create headers for the table
     const headers = ['#', 'x', 'd', 'A', 'Vs', 'Q'];
 
     // Create data rows
     const dataRows = Array.from({ length: num_stations }, (_, i) => [
       i.toString(),
-      typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
-      typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
-      typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
-      getCellValue(activeMagnitude, check, activeCheck, i, interpolated),
-      typeof Q[i] === 'number' ? getCellValue(Q, check, activeCheck, i, interpolated) : '-',
+      typeof distance[i] === 'number' ? (distance[i] * lFactor).toFixed(2) : '-',
+      typeof depth[i] === 'number' ? (depth[i] * lFactor).toFixed(2) : '-',
+      typeof A[i] === 'number' ? (A[i] * aFactor).toFixed(2) : '-',
+      getCellValue(scaledMagnitude, check, activeCheck, i, interpolated),
+      typeof Q[i] === 'number' ? getCellValue(scaledQ, check, activeCheck, i, interpolated) : '-',
     ]);
 
     // Combine headers and data rows
@@ -163,18 +172,21 @@ export const Grid = () => {
       const { num_stations, distance, depth, Q, A, check, activeMagnitude, activeCheck, interpolated } =
         section.data;
 
+      const scaledMagnitude = activeMagnitude.map((v) => v * lFactor);
+      const scaledQ = Q.map((v) => v * qFactor);
+
       return Array.from({ length: num_stations }, (_, i) => ({
         key: i,
         id: i,
-        x: typeof distance[i] === 'number' ? distance[i].toFixed(2) : '-',
-        d: typeof depth[i] === 'number' ? depth[i].toFixed(2) : '-',
-        A: typeof A[i] === 'number' ? A[i].toFixed(2) : '-',
-        Vs: getCellValue(activeMagnitude, check, activeCheck, i, interpolated),
-        Q: typeof Q[i] === 'number' ? getCellValue(Q, check, activeCheck, i, interpolated) : '-',
+        x: typeof distance[i] === 'number' ? (distance[i] * lFactor).toFixed(2) : '-',
+        d: typeof depth[i] === 'number' ? (depth[i] * lFactor).toFixed(2) : '-',
+        A: typeof A[i] === 'number' ? (A[i] * aFactor).toFixed(2) : '-',
+        Vs: getCellValue(scaledMagnitude, check, activeCheck, i, interpolated),
+        Q: typeof Q[i] === 'number' ? getCellValue(scaledQ, check, activeCheck, i, interpolated) : '-',
       }));
     }
     return [];
-  }, [sections, activeSection]);
+  }, [sections, activeSection, lFactor, aFactor, qFactor]);
 
   useEffect(() => {
     const section = sections[activeSection];

@@ -79,15 +79,17 @@ export const PixelCoordinates = ({
                 {' '}
                 {t(`${modeName}.Pixel.${name}`)}{' '}
               </label>
-              <input
-                type="number"
-                step="any"
-                className={`input-field ${ i === pointsNames.length -1 ? 'mb-2' : ''}`}
-                id={`${name}`}
-                {...register(`${prefix}_${name}`)}
-                onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
-                onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
-              />
+              <div className='input-field-container'>
+                <input
+                  type="number"
+                  step="any"
+                  className="input-field"
+                  id={`${name}`}
+                  {...register(`${prefix}_${name}`)}
+                  onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
+                  onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
+                />
+              </div>
             </div>
         )})
       }

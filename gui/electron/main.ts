@@ -2,6 +2,7 @@ import { app, BrowserWindow, dialog, ipcMain, screen } from 'electron';
 import { fileURLToPath } from 'node:url';
 import * as path from 'node:path';
 import * as os from 'os';
+import { readRiverConfig, saveRiverConfig } from './riverConfig.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const userDir = os.homedir();
 
@@ -152,7 +153,31 @@ ipcMain.handle('delete-confirmation', async (_event, args) => {
   return response;
 });
 
-app.whenReady().then(() => {
+ipcMain.handle('choose-river-path', async () => {
+  const result = await dialog.showOpenDialog({
+    title: 'Choose River data folder',
+    properties: ['openDirectory', 'createDirectory'],
+    buttonLabel: 'Choose Folder',
+  });
+  if (result.canceled) return null;
+  const newPath = path.join(result.filePaths[0], 'River');
+  PROJECT_CONFIG.mainDirectory = newPath;
+  saveRiverConfig({ riverPath: newPath });
+  return newPath;
+});
+
+ipcMain.handle('get-river-path', () => PROJECT_CONFIG.mainDirectory);
+
+app.whenReady().then(async () => {
+  const config = readRiverConfig();
+  if (config) {
+    PROJECT_CONFIG.mainDirectory = config.riverPath;
+  } else {
+    const defaultPath = path.join(userDir, 'River');
+    PROJECT_CONFIG.mainDirectory = defaultPath;
+    saveRiverConfig({ riverPath: defaultPath });
+  }
+
   calculate3dRectification(riverCli);
   createMaskAndBbox(riverCli);
   createWindow();

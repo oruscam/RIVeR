@@ -69,7 +69,7 @@ async function calculate3dRectification(riverCli: Function) {
           const { X, Y, Z, x, y } = point;
 
           if (x === 0 && y === 0) {
-            return;
+            return acc;
           }
 
           acc.X.push(X);
