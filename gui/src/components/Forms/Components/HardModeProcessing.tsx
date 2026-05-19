@@ -1,16 +1,13 @@
 import { useFormContext } from 'react-hook-form';
 import { useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
-import { TestPlot } from '../../Graphs';
 import { WINDOW_SIZES } from '../../../constants/constants';
 
-export const HardModeProcessing = ({ active, showMedian }: { active: boolean, showMedian: boolean }) => {
+export const HardModeProcessing = ({ active }: { active: boolean }) => {
   const { register, reset } = useFormContext();
   const { processing, onUpdateProcessing, onReCalculateMask } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
-
-  const { quiver } = useDataSlice();
 
   const { t } = useTranslation();
 
@@ -39,8 +36,6 @@ export const HardModeProcessing = ({ active, showMedian }: { active: boolean, sh
 
   return (
     <div className={`hard-mode-processing mt-5 ${active ? '' : 'hidden'}`} id="processing-footer">
-      {quiver && <TestPlot showMedian={showMedian}/>}
-
       <span className='divider-line mt-2'/>
 
       <div className="input-container-2 mt-2">

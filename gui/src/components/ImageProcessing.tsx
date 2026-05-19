@@ -8,8 +8,9 @@ import { OverlaySvg } from "./OverlaySvg";
 import { QuiverData } from "../../commons/types";
 import { getQuiverValues, createColorMap, Normalize } from '../../commons/vectors';
 import { ExportMp4 } from "./Forms/Components";
+import { FloatingPlot } from './FloatingPlot';
 
-export const ImageProcessing = ({ showMedian }: { showMedian?: boolean }) => {
+export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: boolean; extraFields?: boolean }) => {
     const { screenSizes } = useUiSlice();
     const { video } = useProjectSlice();
     const { processing, images, quiver, colorbarLimits } = useDataSlice();
@@ -144,6 +145,14 @@ export const ImageProcessing = ({ showMedian }: { showMedian?: boolean }) => {
             {/* ColorBar out of the container with zoom */}
             {min !== undefined && max !== undefined && activeMaskIndex === null && (
                 <ColorBar min={min} max={max} />
+            )}
+
+            {extraFields && activeMaskIndex === null && (
+                <FloatingPlot
+                    showMedian={showMedian ?? false}
+                    containerWidth={realWidth!}
+                    containerHeight={realHeight!}
+                />
             )}
         </div>
     )
