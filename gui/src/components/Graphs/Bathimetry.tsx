@@ -13,7 +13,7 @@ interface BathimetryProps {
 
 export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
   const { sections, activeSection } = useSectionSlice();
-  const { screenSizes } = useUiSlice();
+  const { screenSizes, language } = useUiSlice();
   const { projectDetails } = useProjectSlice();
   const { width: screenWidth } = screenSizes;
   const { bathimetry, name } = sections[activeSection];
@@ -46,7 +46,7 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
         });
       }
     }
-  }, [path, level, leftBank, rwLength, screenWidth, projectDetails.unitSistem]);
+  }, [path, level, leftBank, rwLength, screenWidth, projectDetails.unitSistem, language]);
 
   return (
     <div className={`bath-graph ${path === undefined ? 'hidden' : ''} mb-3`}>

@@ -26,7 +26,7 @@ export const DrawSectionsD3 = ({
   sectionIndex?: number;
 }) => {
   const { sections, activeSection, onSetDirPoints } = useSectionSlice();
-  const { seeAll } = useUiSlice();
+  const { seeAll, language } = useUiSlice();
 
   const { svgRef, overlayZoomRef, staticLayerRef, interactiveLayerRef, uiLayerRef } = layers;
 
@@ -82,7 +82,7 @@ export const DrawSectionsD3 = ({
         skipLine,
       });
     });
-  }, [sections, activeSection, factor, seeAll, scale, position, width, height, staticLayerRef, uiLayerRef, module, sectionIndex]);
+  }, [sections, activeSection, factor, seeAll, scale, position, width, height, staticLayerRef, uiLayerRef, module, sectionIndex, language]);
 
   // Interactive drawing
   useEffect(() => {

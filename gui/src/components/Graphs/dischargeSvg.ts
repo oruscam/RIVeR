@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { GRAPHS, COLORS } from '../../constants/constants';
+import { GRAPHS, COLORS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 import { generateYAxisTicks } from '../../helpers';
 import { t } from 'i18next';
 
@@ -21,6 +21,7 @@ interface CreateDischargeChartProps {
   QPortion: number[];
   isReport?: boolean;
   xScale: d3.ScaleLinear<number, number>;
+  unitSistem?: string;
 }
 
 export const createDischargeChart = ({
@@ -31,7 +32,11 @@ export const createDischargeChart = ({
   sizes,
   isReport = false,
   xScale,
+  unitSistem = 'si',
 }: CreateDischargeChartProps) => {
+  const isImperial = unitSistem === 'imperial';
+  const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
+  const lengthUnit = isImperial ? UNITS.IMPERIAL.LONGITUDE : UNITS.SI.LONGITUDE;
   const svg = d3.select(SVGElement);
   const { width, margin, graphHeight } = sizes;
 
@@ -86,13 +91,12 @@ export const createDischargeChart = ({
     .data(filteredQ)
     .enter()
     .append('rect')
-    .attr('class', 'bar')
+    .attr('class', 'bar bar-stroke-themed')
     .attr('data-x', (d) => d.distance.toFixed(2))
-    .attr('x', (d) => xScale(d.distance) - bandwidth / 2) // Ajustar la posición de las barras
-    .attr('y', (d) => yScale(Math.max(0, d.discharge))) // Ajustar para valores negativos
-    .attr('height', (d) => Math.abs(yScale(d.discharge) - yScale(0))) // Ajustar la altura de las barras
-    .attr('width', bandwidth) // Ajustar el ancho de las barras
-    .attr('class', 'bar-stroke-themed')
+    .attr('x', (d) => xScale(d.distance) - bandwidth / 2)
+    .attr('y', (d) => yScale(Math.max(0, d.discharge)))
+    .attr('height', (d) => Math.abs(yScale(d.discharge) - yScale(0)))
+    .attr('width', bandwidth)
     .attr('stroke-width', 0.5)
     .attr('fill', (d) => {
       if (d.QPortion === 0) {
@@ -131,42 +135,52 @@ export const createDischargeChart = ({
   svg
     .selectAll('.bar')
     .on('mouseover', (event, d) => {
-      const xValue = d3.select(event.currentTarget).attr('data-x'); // Asumiendo que tienes un atributo data-x con el valor de x
-      const yValue = d.discharge.toFixed(2);
-
-      svg
-        .append('text')
-        .attr('class', 'tooltip')
-        .attr('x', parseFloat(d3.select(event.currentTarget).attr('x')) + bandwidth / 2)
-        .attr('y', parseFloat(d3.select(event.currentTarget).attr('y')) - 25)
-        .attr('text-anchor', 'middle')
-        .attr('class', 'tooltip graph-text')
-        .style('font-size', '16px')
-        .style('font-weight', '500')
-        .text(`Discharge: ${yValue}`);
+      const barX = parseFloat(d3.select(event.currentTarget).attr('x'));
+      const barY = parseFloat(d3.select(event.currentTarget).attr('y'));
+      const dischargeDisplay = isImperial
+        ? (d.discharge * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(2)
+        : d.discharge.toFixed(2);
+      const distanceDisplay = isImperial
+        ? (d.distance * UNIT_CONVERSIONS.M_TO_FT).toFixed(2)
+        : d.distance.toFixed(2);
 
       svg
         .append('text')
         .attr('class', 'tooltip graph-text')
-        .attr('x', parseFloat(d3.select(event.currentTarget).attr('x')) + bandwidth / 2)
-        .attr('y', parseFloat(d3.select(event.currentTarget).attr('y')) - 10)
+        .attr('x', barX + bandwidth / 2)
+        .attr('y', barY - 25)
         .attr('text-anchor', 'middle')
         .style('font-size', '16px')
         .style('font-weight', '500')
-        .text(`Distance: ${xValue}`);
+        .text(`Discharge: ${dischargeDisplay} ${flowUnit}`);
+
+      svg
+        .append('text')
+        .attr('class', 'tooltip graph-text')
+        .attr('x', barX + bandwidth / 2)
+        .attr('y', barY - 10)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '16px')
+        .style('font-weight', '500')
+        .text(`Distance: ${distanceDisplay} ${lengthUnit}`);
     })
     .on('mouseout', () => {
       svg.selectAll('.tooltip').remove();
     });
 
   // Label
-  svg
+  const dischargeLabel = svg
     .append('text')
     .attr('class', 'y-axis-label graph-text')
     .attr('text-anchor', 'middle')
     .attr('x', -graphHeight + (isReport ? 75 : 115))
     .attr('y', margin.left - 30)
     .attr('transform', 'rotate(-90)')
-    .attr('font-size', '22px')
-    .text(t('Graphs.discharge'));
+    .attr('font-size', '22px');
+  dischargeLabel.append('tspan').text(t('Graphs.discharge'));
+  dischargeLabel.append('tspan')
+    .attr('font-size', '14px')
+    .attr('opacity', '0.7')
+    .attr('dx', '4')
+    .text(`(${flowUnit})`);
 };
