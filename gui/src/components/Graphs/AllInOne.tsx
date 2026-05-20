@@ -30,7 +30,7 @@ export const AllInOne = ({
   const { sections, activeSection, onChangeDataValues } = useSectionSlice();
   const { data, bathimetry, name } = sections[index ? index : activeSection];
   const { level, x1Intersection, x2Intersection, width: bathWidth } = bathimetry;
-  const { screenSizes, theme } = useUiSlice();
+  const { screenSizes, theme, language } = useUiSlice();
   const { projectDetails } = useProjectSlice();
   const { unitSistem } = projectDetails;
   const { width: screenWidth } = screenSizes;
@@ -113,6 +113,7 @@ export const AllInOne = ({
         QPortion: Q_portion,
         sizes: { width, height, margin, graphHeight },
         isReport,
+        unitSistem,
       });
 
       createVelocityChart({
@@ -145,7 +146,7 @@ export const AllInOne = ({
         unitSistem,
       });
     }
-  }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check, theme, unitSistem]);
+  }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check, theme, unitSistem, language]);
 
   return (
     <svg

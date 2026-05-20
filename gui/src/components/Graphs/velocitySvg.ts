@@ -457,13 +457,18 @@ export const createVelocityChart = ({
     });
 
   // label for Velocity
-  svg
+  const velocityLabel = svg
     .append('text')
     .attr('class', 'y-axis-label graph-text')
     .attr('text-anchor', 'middle')
     .attr('x', -(graphHeight * 2) + (isReport ? 90 : 140))
     .attr('y', margin.left - 30)
     .attr('transform', 'rotate(-90)')
-    .attr('font-size', '22px')
-    .text(`${t('Graphs.velocity')} (${unitLabel})`);
+    .attr('font-size', '22px');
+  velocityLabel.append('tspan').text(t('Graphs.velocity'));
+  velocityLabel.append('tspan')
+    .attr('font-size', '14px')
+    .attr('opacity', '0.7')
+    .attr('dx', '4')
+    .text(`${unitLabel}`);
 };
