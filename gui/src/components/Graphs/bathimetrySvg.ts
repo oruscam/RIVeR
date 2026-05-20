@@ -95,7 +95,7 @@ export const bathimetrySvg = ({
       .attr('font-size', '14px')
       .attr('opacity', '0.7')
       .attr('dx', '4')
-      .text(`(${lengthUnit})`);
+      .text(`${lengthUnit}`);
 
     translateX = marginAllInOne.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE;
   } else {
@@ -122,7 +122,7 @@ export const bathimetrySvg = ({
       .attr('font-size', '14px')
       .attr('opacity', '0.7')
       .attr('dx', '4')
-      .text(`(${lengthUnit})`);
+      .text(`${lengthUnit}`);
 
     // Añado eje x solo si no es all in one
 
@@ -218,7 +218,7 @@ export const bathimetrySvg = ({
     .attr('font-size', '14px')
     .attr('opacity', '0.7')
     .attr('dx', '4')
-    .text(`(${lengthUnit})`);
+    .text(`${lengthUnit}`);
 
   // Bathymetry line (theme-aware)
   svg

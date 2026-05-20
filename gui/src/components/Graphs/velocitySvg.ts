@@ -470,5 +470,5 @@ export const createVelocityChart = ({
     .attr('font-size', '14px')
     .attr('opacity', '0.7')
     .attr('dx', '4')
-    .text(`(${unitLabel})`);
+    .text(`${unitLabel}`);
 };
