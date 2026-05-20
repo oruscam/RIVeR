@@ -8,7 +8,7 @@ export const ConfirmMaskBtn: React.FC<ConfirmMaskBtnProps> = ({ onClick, classNa
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation();
-        fire('var(--success-color, #62C655)');
+        fire('rgba(255,255,255,0.4)');
         e.currentTarget.blur();
         if (onClick) onClick(e);
     };
@@ -19,8 +19,9 @@ export const ConfirmMaskBtn: React.FC<ConfirmMaskBtnProps> = ({ onClick, classNa
             type="button"
             className={`confirm-mask-btn ${className}`}
             style={{
-                background: 'transparent',
-                border: '2px solid #62C655',
+                background: '#ED6B57',
+                border: 'none',
+                borderRadius: '8px',
                 cursor: 'pointer',
                 padding: '4px',
                 display: 'flex',
@@ -32,8 +33,8 @@ export const ConfirmMaskBtn: React.FC<ConfirmMaskBtnProps> = ({ onClick, classNa
             onClick={handleClick}
         >
             {rpl}
-            <svg width={26} height={26} viewBox="0 0 24 24" fill="none"
-                stroke="#62C655" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width={18} height={18} viewBox="0 0 24 24" fill="none"
+                stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M20 6L9 17l-5-5" />
             </svg>
         </button>
