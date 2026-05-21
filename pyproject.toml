@@ -110,3 +110,6 @@ push = true
 "river/__init__.py" = ["{version}"]
 "gui/package.json" = ["\"version\": \"{version}\""]
 "gui/index.html" = ["RIVeR {version}"]
+"gui/.env.example" = ["VITE_APP_VERSION={version}"]
+"gui/.env.development" = ["VITE_APP_VERSION={version}"]
+
