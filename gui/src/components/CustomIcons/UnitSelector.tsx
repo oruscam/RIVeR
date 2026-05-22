@@ -4,12 +4,35 @@ import { Icons } from "./Icons";
 import "./piv-icons.css";
 import { useProjectSlice } from "../../hooks";
 
-export function SettingsBtn() {
+export function FolderBtn() {
+    const [currentPath, setCurrentPath] = useState<string>('');
+
+    useEffect(() => {
+        window.ipcRenderer.invoke('get-river-path').then((p: string) => setCurrentPath(p ?? ''));
+    }, []);
+
+    const handleChoosePath = async () => {
+        const newPath = await window.ipcRenderer.invoke('choose-river-path');
+        if (newPath) setCurrentPath(newPath);
+    };
+
+    return (
+        <button
+            className="ib"
+            style={{ "--hi": "var(--accent)", border: 'none' } as React.CSSProperties}
+            title={currentPath}
+            onClick={handleChoosePath}
+        >
+            {Icons.Folder("var(--primary-text-color)")}
+        </button>
+    );
+}
+
+export function UnitBtn() {
     const { t } = useTranslation();
     const { projectDetails, onProjectDetailsChange } = useProjectSlice();
     const { unitSistem } = projectDetails;
     const [open, setOpen] = useState(false);
-    const [unitOpen, setUnitOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
     const unitSistems = [
@@ -21,7 +44,6 @@ export function SettingsBtn() {
         const h = (e: MouseEvent) => {
             if (ref.current && !ref.current.contains(e.target as Node)) {
                 setOpen(false);
-                setUnitOpen(false);
             }
         };
         document.addEventListener("mousedown", h);
@@ -32,13 +54,6 @@ export function SettingsBtn() {
         onProjectDetailsChange({ ...projectDetails, unitSistem: code });
         localStorage.setItem("unitSystem", code);
         setOpen(false);
-        setUnitOpen(false);
-    };
-
-    const handleChoosePath = async () => {
-        setOpen(false);
-        setUnitOpen(false);
-        await window.ipcRenderer.invoke('choose-river-path');
     };
 
     return (
@@ -46,59 +61,32 @@ export function SettingsBtn() {
             <button
                 className={`ib ${open ? "active" : ""}`}
                 style={{ "--hi": "var(--accent)", width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties}
-                onClick={() => { setOpen(v => !v); if (open) setUnitOpen(false); }}
+                onClick={() => setOpen(v => !v)}
             >
-                {Icons.Settings(open ? "var(--secondary-background-color)" : "var(--primary-text-color)")}
+                {Icons.Ruler(open ? "var(--secondary-background-color)" : "var(--primary-text-color)")}
                 {Icons.ChevDown("var(--secondary-text-color)", open ? 180 : 0)}
             </button>
-            <div className={`ldrop ${open ? "open" : ""}`} style={{ minWidth: 160 }}>
-                <div
-                    style={{ position: 'relative' }}
-                    onMouseEnter={() => setUnitOpen(true)}
-                    onMouseLeave={() => setUnitOpen(false)}
-                    onClick={() => setUnitOpen(v => !v)}
-                >
-                    <div className="litem">
-                        <span>{t('MainPage.Settings.unitSystem')}</span>
-                        <span style={{ marginLeft: 'auto', display: 'flex' }}>
-                            {Icons.ChevDown("var(--secondary-text-color)", -90)}
-                        </span>
+            <div className={`ldrop ${open ? "open" : ""}`} style={{ minWidth: 130 }}>
+                {unitSistems.map(u => (
+                    <div
+                        key={u.code}
+                        className={`litem ${u.code === unitSistem ? "sel" : ""}`}
+                        onClick={() => handleSelectUnit(u.code)}
+                    >
+                        <span>{u.label}</span>
+                        {u.code === unitSistem && (
+                            <span style={{ marginLeft: "auto", display: "flex" }}>
+                                {Icons.Check("var(--success-color)")}
+                            </span>
+                        )}
                     </div>
-                    {unitOpen && (
-                        <div
-                            className="ldrop"
-                            style={{
-                                position: 'absolute',
-                                right: 'calc(100% + 4px)',
-                                top: 0,
-                                bottom: 'auto',
-                                left: 'auto',
-                                transform: 'none',
-                                opacity: 1,
-                                pointerEvents: 'all',
-                            }}
-                        >
-                            {unitSistems.map(u => (
-                                <div
-                                    key={u.code}
-                                    className={`litem ${u.code === unitSistem ? "sel" : ""}`}
-                                    onClick={(e) => { e.stopPropagation(); handleSelectUnit(u.code); }}
-                                >
-                                    <span>{u.label}</span>
-                                    {u.code === unitSistem && (
-                                        <span style={{ marginLeft: "auto", display: "flex" }}>
-                                            {Icons.Check("var(--success-color)")}
-                                        </span>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-                <div className="litem" onClick={handleChoosePath}>
-                    <span>{t('MainPage.Settings.riverFolder')}</span>
-                </div>
+                ))}
             </div>
         </div>
     );
+}
+
+/** @deprecated Use FolderBtn and UnitBtn separately */
+export function SettingsBtn() {
+    return null;
 }

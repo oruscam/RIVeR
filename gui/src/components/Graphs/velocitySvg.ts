@@ -469,6 +469,6 @@ export const createVelocityChart = ({
   velocityLabel.append('tspan')
     .attr('font-size', '14px')
     .attr('opacity', '0.7')
-    .attr('dx', '4')
+    .attr('dx', '10')
     .text(`${unitLabel}`);
 };
