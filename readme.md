@@ -92,6 +92,12 @@ If you don't want to bother with code at all (we get it, sometimes you just want
 
 These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application — no Python or JavaScript knowledge required!
 
+> **macOS users:** If Gatekeeper blocks the app after installing, open a terminal and run:
+> ```bash
+> xattr -rd com.apple.quarantine /Applications/RIVeR.app
+> ```
+> Or right-click the app → Open → Open anyway.
+
 ---
 ## 🧑‍💻 Developer Installation & Usage
 
