@@ -1,7 +1,10 @@
 name: Build RIVeR
 
 on:
-  workflow_dispatch: # Para correrlo local o manual
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   # ─────────────────────────────────────────────
