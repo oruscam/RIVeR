@@ -55,7 +55,7 @@ please refer to the **[User Manual](user-manual.md)**.
 * Process footage from multiple sources:
   * UAV/drone aerial imagery
   * Oblique view camera (from riverbank)
-  * Fixed station cameras (contiunous monitoring)
+  * Fixed station cameras (continous monitoring)
 * Drag-and-drop interface for quick video and data imports
 * Frame extraction from videos with customizable parameters
 * FFT-based PIV analysis with multi-pass support for increased accuracy
@@ -64,6 +64,7 @@ please refer to the **[User Manual](user-manual.md)**.
 * Multi Cross-sectional flow analysis
 * Automated beautiful report generation ([like this one !](https://oruscam.github.io/RIVeR/sample_report.html))
 * Multi-platform support (**Windows**, **macOS**, **Linux**)
+* Multi-units support (SI, imperial)
 
 
 ---
@@ -87,9 +88,15 @@ If you don't want to bother with code at all (we get it, sometimes you just want
 
 | ⊞ Windows | ⌘ macOS | ◆ Linux |
 |:---:|:---:|:---:|
-| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.4.0/RIVeR-Windows-3.4.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.4.0/RIVeR-Mac-3.4.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.4.0/RIVeR-Linux-3.4.0.deb) |
+| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.5.0/RIVeR-Windows-3.5.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.5.0/RIVeR-Mac-3.5.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.5.0/RIVeR-Linux-3.5.0.deb) |
 
 These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application — no Python or JavaScript knowledge required!
+
+> **macOS users:** If Gatekeeper blocks the app after installing, open a terminal and run:
+> ```bash
+> xattr -rd com.apple.quarantine /Applications/RIVeR.app
+> ```
+> Or right-click the app → Open → Open anyway.
 
 ---
 ## 🧑‍💻 Developer Installation & Usage

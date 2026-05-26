@@ -59,7 +59,7 @@ export const bathimetrySvg = ({
   const svg = d3.select(svgElement);
   const width = +svg.attr('width');
   const height = +svg.attr('height');
-  const margin = { top: 20, right: 30, bottom: 50, left: 60 };
+  const margin = { top: 20, right: 30, bottom: 50, left: 70 };
 
   const xMin = d3.min(data, (d) => d.x)!;
   const xMax = d3.max(data, (d) => d.x)!;
@@ -87,14 +87,14 @@ export const bathimetrySvg = ({
       .attr('class', 'y-axis-label graph-text')
       .attr('text-anchor', 'end')
       .attr('x', isReport ? -graphHeight * 3 + 160 : -graphHeight * 3 + 180)
-      .attr('y', sizes.margin.left - 30)
+      .attr('y', sizes.margin.left - 32)
       .attr('transform', 'rotate(-90)')
       .attr('font-size', '22px');
     stageLabelAllInOne.append('tspan').text(t('Graphs.stage'));
     stageLabelAllInOne.append('tspan')
       .attr('font-size', '14px')
       .attr('opacity', '0.7')
-      .attr('dx', '4')
+      .attr('dx', '12')
       .text(`${lengthUnit}`);
 
     translateX = marginAllInOne.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE;
@@ -121,7 +121,7 @@ export const bathimetrySvg = ({
     stageLabelStandalone.append('tspan')
       .attr('font-size', '14px')
       .attr('opacity', '0.7')
-      .attr('dx', '4')
+      .attr('dx', '12')
       .text(`${lengthUnit}`);
 
     // Añado eje x solo si no es all in one
@@ -217,7 +217,7 @@ export const bathimetrySvg = ({
   stationLabel.append('tspan')
     .attr('font-size', '14px')
     .attr('opacity', '0.7')
-    .attr('dx', '4')
+    .attr('dx', '10')
     .text(`${lengthUnit}`);
 
   // Bathymetry line (theme-aware)
