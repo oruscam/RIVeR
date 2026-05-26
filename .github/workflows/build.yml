@@ -1,7 +1,10 @@
 name: Build RIVeR
 
 on:
-  workflow_dispatch: # Para correrlo local o manual
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   # ─────────────────────────────────────────────
@@ -17,7 +20,7 @@ jobs:
       - name: 2. Install Node.js and Yarn
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: 3. Install uv
         uses: astral-sh/setup-uv@v3
@@ -87,7 +90,7 @@ jobs:
       - name: 2. Install Node.js and Yarn
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: 3. Install uv
         uses: astral-sh/setup-uv@v3
@@ -178,7 +181,7 @@ jobs:
       - name: 2. Install Node.js and Yarn
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: 3. Install uv
         uses: astral-sh/setup-uv@v3
