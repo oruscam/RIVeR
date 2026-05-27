@@ -11,7 +11,7 @@ export const Results = () => {
   const { firstFramePath } = useProjectSlice();
   const { sections, activeSection } = useSectionSlice();
   const { t } = useTranslation();
-  const { onGetResultData, isBackendWorking} = useDataSlice();
+  const { onGetResultData, isBackendWorking } = useDataSlice();
 
   const { max, min } = useMemo(() => {
     return getVelocityLimits(sections, activeSection);
@@ -22,14 +22,14 @@ export const Results = () => {
   const handleOnClickApplyChanges = () => {
     onGetResultData('single').catch((error) => onSetErrorMessage(error.message));
   };
-  
+
   return (
     <div className="regular-page">
       <div className="media-container">
-          <ImageResults />          
-          {/* <img src={firstFramePath} width={width} height={height} /> */}
-          {/* <VelocityVector height={height} width={width} factor={factor} seeAll={seeAll} /> */}
-          {/* <ColorBar min={min} max={max} /> */}
+        <ImageResults />
+        {/* <img src={firstFramePath} width={width} height={height} /> */}
+        {/* <VelocityVector height={height} width={width} factor={factor} seeAll={seeAll} /> */}
+        {/* <ColorBar min={min} max={max} /> */}
         <Error />
       </div>
       <div className="form-container">
@@ -41,7 +41,6 @@ export const Results = () => {
             onClick={handleOnClickApplyChanges}
             id="apply-changes"
             type="button">
-            {' '}
             {t('Results.applyChanges')}
           </button>
           <WizardButtons formId="form-result" canFollow={true} />

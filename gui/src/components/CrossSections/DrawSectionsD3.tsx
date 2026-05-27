@@ -26,7 +26,7 @@ export const DrawSectionsD3 = ({
   sectionIndex?: number;
 }) => {
   const { sections, activeSection, onSetDirPoints } = useSectionSlice();
-  const { seeAll } = useUiSlice();
+  const { seeAll, language } = useUiSlice();
 
   const { svgRef, overlayZoomRef, staticLayerRef, interactiveLayerRef, uiLayerRef } = layers;
 
@@ -55,10 +55,15 @@ export const DrawSectionsD3 = ({
     uiLayerSel.selectAll("*").remove();
 
     sections.forEach((section, index) => {
-      if (module === 'x-sections' && index === activeSection) return 
       if (module === 'report' && sectionIndex !== undefined && index !== sectionIndex) return
 
       const { dirPoints, sectionPoints, name } = section;
+      const isActive = index === activeSection;
+
+      // For x-sections, the interactive layer owns the direction/section lines and
+      // draggable pins of the active section — but the label is always drawn here
+      // so it is never lost when only the static effect re-runs.
+      const skipLine = module === 'x-sections' && isActive;
 
       drawStaticSection({
         zoomLayer: staticLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
@@ -73,10 +78,11 @@ export const DrawSectionsD3 = ({
         scale,
         position,
         seeAll,
-        isActive: index === activeSection
+        isActive,
+        skipLine,
       });
     });
-  }, [sections, activeSection, factor, seeAll, scale, position, width, height, staticLayerRef, uiLayerRef, module, sectionIndex]);
+  }, [sections, activeSection, factor, seeAll, scale, position, width, height, staticLayerRef, uiLayerRef, module, sectionIndex, language]);
 
   // Interactive drawing
   useEffect(() => {

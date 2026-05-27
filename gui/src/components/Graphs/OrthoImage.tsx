@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { useUiSlice } from '../../hooks';
-import { COLORS, GRAPHS } from '../../constants/constants';
+import { useProjectSlice, useUiSlice } from '../../hooks';
+import { COLORS, GRAPHS, UNIT_CONVERSIONS } from '../../constants/constants';
 import { scaleBar } from './scaleBar';
 import { Point } from '../../types';
 import { getLineColor, getOrthoImageDimensions } from '../../helpers';
+import { getDistanceColors } from '../../helpers/getCSSVar';
 
 export const OrthoImage = ({
   solution,
@@ -19,7 +20,9 @@ export const OrthoImage = ({
 }) => {
   const ref = useRef<SVGSVGElement>(null);
   const { screenSizes } = useUiSlice();
+  const { projectDetails } = useProjectSlice();
   const { width: screenWidth } = screenSizes;
+  const unitSistem = projectDetails.unitSistem;
 
   const { orthoImage, extent, width: orthoWidth, height: orthoHeight } = solution!;
   const imgWidth = Math.abs(extent[1] - extent[0]);
@@ -66,11 +69,17 @@ export const OrthoImage = ({
       .attr('width', xScale(x + imgWidth) - xScale(x))
       .attr('height', Math.abs(yScale(y + imgHeight) - yScale(y)));
 
+    // Axes stay in SI for positioning; tick labels alone are converted so the
+    // user sees ft when imperial is active.
+    const displayFactor = unitSistem === 'imperial' ? UNIT_CONVERSIONS.M_TO_FT : 1;
+    const formatTick = (d: d3.NumberValue) =>
+      ((typeof d === 'number' ? d : d.valueOf()) * displayFactor).toFixed(2);
+
     // Add X Axis with 5 ticks and increased font size
     svg
       .append('g')
       .attr('transform', `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(xScale).ticks(5))
+      .call(d3.axisBottom(xScale).ticks(5).tickFormat(formatTick))
       .selectAll('text')
       .style('font-size', '12px');
 
@@ -78,7 +87,7 @@ export const OrthoImage = ({
     svg
       .append('g')
       .attr('transform', `translate(${margin.left},0)`)
-      .call(d3.axisLeft(yScale).ticks(5))
+      .call(d3.axisLeft(yScale).ticks(5).tickFormat(formatTick))
       .selectAll('text')
       .style('font-size', '12px');
 
@@ -109,7 +118,7 @@ export const OrthoImage = ({
             .attr('y1', yScale(d.y))
             .attr('x2', xScale(coordinates[i + 2].x))
             .attr('y2', yScale(coordinates[i + 2].y))
-            .attr('stroke', i === 0 ? COLORS.CONTROL_POINTS.D13 : COLORS.CONTROL_POINTS.D24)
+            .attr('stroke', i === 0 ? getDistanceColors().D13 : getDistanceColors().D24)
             .attr('stroke-width', 2);
         }
 
@@ -181,8 +190,8 @@ export const OrthoImage = ({
     }
 
     // Scale bar
-    scaleBar(extent, ref.current, xScale, yScale, '', 0, 0);
-  }, [solution, maxGraphWidth]);
+    scaleBar(extent, ref.current, xScale, yScale, '', 0, 0, unitSistem);
+  }, [solution, maxGraphWidth, unitSistem]);
 
   return (
     <div id="ortho-image-solution" className="mb-2 mt-1">

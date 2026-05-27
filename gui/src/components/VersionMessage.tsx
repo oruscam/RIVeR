@@ -1,22 +1,13 @@
-import { useMemo, useState } from 'react';
 import { useUiSlice } from '../hooks';
 import { useTranslation } from 'react-i18next';
 import { COLORS } from '../constants/constants';
 
 export const VersionMessage = () => {
-  const [versionMessage, setVersionMessage] = useState('');
   const { isLatestVersion, latestVersion } = useUiSlice();
   const { t } = useTranslation();
 
   const latestLink = `https://github.com/oruscam/RIVeR/releases/tag/v${latestVersion}`;
-
-  useMemo(() => {
-    if (isLatestVersion) {
-      setVersionMessage('latest');
-    } else {
-      setVersionMessage('update');
-    }
-  }, [isLatestVersion]);
+  const versionMessage = isLatestVersion ? 'latest' : 'update';
 
   return (
     <div id="version-message">

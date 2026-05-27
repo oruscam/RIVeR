@@ -11,13 +11,13 @@
     top: 0;
 }
 
-.sections-layer{
+.sections-layer {
     display: flex;
-    border-bottom: solid 1px white;
+    border-bottom: solid 1px var(--primary-text-color);
     height: 42px;
 }
 
-.section{
+.section {
     background-color: transparent;
     color: var(--primary-text-color);
     border: none;
@@ -32,8 +32,8 @@
     align-items: center;
     justify-content: space-between;
     padding-left: 8px;
-    padding-right: 8px;    
-    border-bottom: solid 1px white;
+    padding-right: 8px;
+    border-bottom: solid 1px var(--primary-text-color);
     flex-shrink: 1;
 }
     
@@ -56,12 +56,11 @@
     flex-shrink: 0;
 }
 
-.section-button1{
+.section-button1 {
     background-color: transparent;
     border: none;
     font-size: 20px;
-    color: white;
-    transition: transform 0.3s ease;
+    color: var(--primary-text-color);
     cursor: pointer;
     margin-left: 5px;
     width: 22px;
@@ -71,7 +70,7 @@
     justify-content: center;
     padding-bottom: 3px;
     border-radius: 50%;
-    transition: transform 0.1s ;
+    transition: transform 0.1s;
     flex-shrink: 0;
 }
 

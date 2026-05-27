@@ -1,8 +1,10 @@
 import { useFormContext } from 'react-hook-form';
-import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { AllInOne } from '../Graphs/AllInOne';
 import { Grid } from '../index';
 import { useTranslation } from 'react-i18next';
+import { LuWand2 } from 'react-icons/lu';
+import { UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 
 interface FormResultProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void;
@@ -15,22 +17,30 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   const { name, data, numStations, alpha, artificialSeeding } = sections[activeSection];
   const { isBackendWorking } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
+  const { projectDetails } = useProjectSlice();
 
   const { t } = useTranslation();
 
+  const isImperial = projectDetails.unitSistem === 'imperial';
+  const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
+  const displayQ = data?.total_Q != null
+    ? isImperial
+      ? (data.total_Q * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(3)
+      : data.total_Q
+    : null;
+
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const id = e.target.id;
-    switch (id) {
-      case 'interpolated-profile':
-        onUpdateSection({ interpolated: 'interpolated' }, undefined);
-        break;
+    if (id === 'artificial-seeding') {
+      onUpdateSection({ artificialSeeding: 'artificial-seeding' }, undefined);
+    }
+  };
 
-      case 'artificial-seeding':
-        onUpdateSection({ artificialSeeding: 'artificial-seeding' }, undefined);
-        break;
-
-      default:
-        break;
+  const handleStep = (delta: number) => {
+    const next = numStations + delta;
+    if (next >= 3) {
+      onUpdateSection({ numStations: next }, undefined);
+      setValue(`${name}_STATIONS_NUMBER`, next);
     }
   };
 
@@ -77,7 +87,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
         id="form-result"
       >
         <div id="result-info">
-          <p id="result-number">{data?.total_Q}</p>
+          <p id="result-number">{displayQ} <span style={{ fontSize: '0.45em', opacity: 0.7 }}>{flowUnit}</span></p>
           <div>
             <p id="result-measured">
               {' '}
@@ -95,35 +105,50 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
             {' '}
             {t('Results.alpha')}{' '}
           </label>
-          <input
-            className="input-field"
-            id="alpha"
-            type="number"
-            step="any"
-            {...register(`${name}_ALPHA`)}
-            onKeyDown={handleOnChangeInput}
-            onBlur={handleOnChangeInput}
-          ></input>
+          <div className="input-field-container">
+            <input
+              className="input-field"
+              id="alpha"
+              type="number"
+              step="any"
+              {...register(`${name}_ALPHA`)}
+              onKeyDown={handleOnChangeInput}
+              onBlur={handleOnChangeInput}
+            ></input>
+          </div>
+        </div>
+
+        <div className="input-container-2 mt-2">
+          <label className="read-only me-1" htmlFor="stations-number">
+            {t('Results.stationNumber')}
+          </label>
+          <div className="input-field-container" style={{ justifyContent: 'center', gap: '6px' }}>
+            <button type="button" className="btn-step" onClick={() => handleStep(-1)}>
+              −
+            </button>
+            <input
+              className="input-field-little"
+              type="number"
+              {...register(`${name}_STATIONS_NUMBER`)}
+              id="stations-number"
+              onKeyDown={handleOnChangeInput}
+              onBlur={handleOnChangeInput}
+            />
+            <button type="button" className="btn-step" onClick={() => handleStep(1)}>
+              +
+            </button>
+          </div>
         </div>
 
         <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '720px' }}>
           <AllInOne isReport={false} height={700} />
         </div>
 
-        <div className="switch-container-results">
-          <h3 className="field-title me-2 mt-3"> {t('Results.stationNumber')}</h3>
-          <input
-            className="input-field-little mt-3"
-            type="number"
-            {...register(`${name}_STATIONS_NUMBER`)}
-            id="stations-number"
-            onKeyDown={handleOnChangeInput}
-            onBlur={handleOnChangeInput}
-          ></input>
-        </div>
-
         <div className="switch-container-results mt-2">
-          <h3 className="field-title"> {t('Processing.artificialSeeding')} </h3>
+          <h3 className="field-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <LuWand2 size={15} />
+            {t('Processing.artificialSeeding')}
+          </h3>
           <label className="switch">
             <input
               type="checkbox"
@@ -131,20 +156,6 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
               id="artificial-seeding"
               onChange={handleOnChange}
               defaultChecked={artificialSeeding}
-            />
-            <span className="slider"></span>
-          </label>
-        </div>
-
-        <div className="switch-container-results mt-1 ">
-          <h3 className="field-title">{t('Results.interpolateProfile')}</h3>
-          <label className="switch">
-            <input
-              type="checkbox"
-              {...register(`${name}_INTERPOLATED_PROFILE`)}
-              defaultChecked={data?.showInterpolateProfile}
-              id="interpolated-profile"
-              onChange={handleOnChange}
             />
             <span className="slider"></span>
           </label>

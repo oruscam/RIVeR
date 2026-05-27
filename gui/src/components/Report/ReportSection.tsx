@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { REPORT_IMAGES } from '../../constants/constants';
+import { REPORT_IMAGES, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 import { useProjectSlice, useSectionSlice } from '../../hooks';
 import { AllInOne, VelocityVector } from '../Graphs';
 import { ReportSectionTable } from './ReportSectionTable';
@@ -17,7 +17,10 @@ interface ReportSectionProps {
 export const ReportSection = ({ index, factor, vertical }: ReportSectionProps) => {
   const { sections } = useSectionSlice();
   const { name, data } = sections[index];
-  const { firstFramePath } = useProjectSlice();
+  const { firstFramePath, projectDetails } = useProjectSlice();
+  const isImperial = projectDetails.unitSistem === 'imperial';
+  const qFactor = isImperial ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
+  const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
   const { t } = useTranslation();
 
   if (!data) return null;
@@ -34,7 +37,7 @@ export const ReportSection = ({ index, factor, vertical }: ReportSectionProps) =
           <h1 className="report-section-title"> {name} </h1>
           <h3 id="report-section-discharge-label">
             {' '}
-            {t('Report.dischargeQ')} {total_Q} m&sup3;/s (&plusmn; {total_q_std.toFixed(2)} m&sup3;/s)
+            {t('Report.dischargeQ')} {(total_Q * qFactor).toFixed(3)} {flowUnit} (&plusmn; {(total_q_std * qFactor).toFixed(2)} {flowUnit})
           </h3>
           <div className={`top-left${vertical ? '-vertical' : ''}`}>
             <div className={`top-left-medition-info${vertical ? '-vertical' : ''}`}>

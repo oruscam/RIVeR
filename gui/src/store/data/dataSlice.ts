@@ -23,6 +23,7 @@ const defaultProcessing = {
   maskPath: '',
   masks: [],
   activeMaskIndex: null,
+  visibleMaskIndices: [] as number[],
 };
 
 const initialState: DataState = {
@@ -93,27 +94,48 @@ const dataSlice = createSlice({
         state.processing.masks = [];
       }
       state.processing.masks.push(action.payload);
-      state.processing.activeMaskIndex = state.processing.masks.length - 1;
-    },
-    deleteMask: (state, action: PayloadAction<number>) => {
-      if (state.processing.masks){
-        state.processing.masks.splice(action.payload, 1);
-        state.processing.activeMaskIndex = 0;
+      const newIndex = state.processing.masks.length - 1;
+      state.processing.activeMaskIndex = newIndex;
+      // Auto-show the new mask
+      if (!state.processing.visibleMaskIndices.includes(newIndex)) {
+        state.processing.visibleMaskIndices.push(newIndex);
       }
     },
-    updateMask: (state, action: PayloadAction<{ index: number ; points?: Point[] } | null>) => {
+    deleteMask: (state, action: PayloadAction<number>) => {
+      if (state.processing.masks) {
+        state.processing.masks.splice(action.payload, 1);
+        state.processing.activeMaskIndex = state.processing.masks.length > 0 ? 0 : null;
+        // Rebuild visible indices: remove deleted, shift down higher indices
+        state.processing.visibleMaskIndices = state.processing.visibleMaskIndices
+          .filter((i) => i !== action.payload)
+          .map((i) => (i > action.payload ? i - 1 : i));
+      }
+    },
+    updateMask: (state, action: PayloadAction<{ index: number; points?: Point[] } | null>) => {
       if (action.payload && action.payload.points) {
         state.processing.masks![action.payload.index] = action.payload.points;
       } else if (action.payload) {
         state.processing.activeMaskIndex = action.payload.index;
       }
-      if (action.payload === null){
+      if (action.payload === null) {
         state.processing.activeMaskIndex = null;
       }
     },
     loadMasks: (state, action: PayloadAction<Point[][]>) => {
       state.processing.masks = action.payload;
       state.processing.activeMaskIndex = null;
+      // All loaded masks start as visible
+      state.processing.visibleMaskIndices = action.payload.map((_, i) => i);
+    },
+    toggleMaskVisibility: (state, action: PayloadAction<number>) => {
+      const idx = action.payload;
+      const visible = state.processing.visibleMaskIndices;
+      const pos = visible.indexOf(idx);
+      if (pos === -1) {
+        visible.push(idx);
+      } else {
+        visible.splice(pos, 1);
+      }
     },
     setColorbarLimits: (state, action: PayloadAction<{ min: number | null; max: number | null; default: boolean }>) => {
       state.colorbarLimits.min = action.payload.min;
@@ -137,7 +159,8 @@ export const {
   deleteMask,
   updateMask,
   loadMasks,
-  setColorbarLimits
+  setColorbarLimits,
+  toggleMaskVisibility,
 } = dataSlice.actions;
 
 export default dataSlice.reducer;

@@ -1,16 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { UIState, ScreenSizes } from './types';
+import { UIState, ScreenSizes, ThemeType } from './types';
+
+const THEME_CYCLE: ThemeType[] = ['dark', 'light', 'dracula'];
+
+const savedLanguage = localStorage.getItem('language') || 'en';
+const savedTheme = (localStorage.getItem('theme') as ThemeType | null) || 'dark';
 
 const initialState: UIState = {
   screenSizes: {
     width: window.innerWidth,
     height: window.innerHeight,
   },
-  darkMode: true,
+  theme: THEME_CYCLE.includes(savedTheme) ? savedTheme : 'dark',
   error: [],
   isLoading: false,
   seeAll: true,
-  language: 'en',
+  language: savedLanguage,
   isLatestVersion: undefined,
 };
 
@@ -19,7 +24,13 @@ const uiSlice = createSlice({
   initialState,
   reducers: {
     changeTheme: (state) => {
-      state.darkMode = !state.darkMode;
+      const currentIndex = THEME_CYCLE.indexOf(state.theme);
+      state.theme = THEME_CYCLE[(currentIndex + 1) % THEME_CYCLE.length];
+      localStorage.setItem('theme', state.theme);
+    },
+    setTheme: (state, action: PayloadAction<ThemeType>) => {
+      state.theme = action.payload;
+      localStorage.setItem('theme', action.payload);
     },
     setErrorMessage: (state, action: PayloadAction<string[]>) => {
       const errorDiv = document.getElementById('error-message-div');
@@ -59,6 +70,7 @@ const uiSlice = createSlice({
 
 export const {
   changeTheme,
+  setTheme,
   clearErrorMessage,
   clearMessage,
   setErrorMessage,

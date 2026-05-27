@@ -55,7 +55,7 @@ please refer to the **[User Manual](user-manual.md)**.
 * Process footage from multiple sources:
   * UAV/drone aerial imagery
   * Oblique view camera (from riverbank)
-  * Fixed station cameras (contiunous monitoring)
+  * Fixed station cameras (continous monitoring)
 * Drag-and-drop interface for quick video and data imports
 * Frame extraction from videos with customizable parameters
 * FFT-based PIV analysis with multi-pass support for increased accuracy
@@ -64,20 +64,22 @@ please refer to the **[User Manual](user-manual.md)**.
 * Multi Cross-sectional flow analysis
 * Automated beautiful report generation ([like this one !](https://oruscam.github.io/RIVeR/sample_report.html))
 * Multi-platform support (**Windows**, **macOS**, **Linux**)
+* Multi-units support (SI, imperial)
 
 
 ---
 
 ## 🌍 Multi-Language Support
 
-- RIVeR available in multiple languages!
-  - English 🇺🇸
-  - Spanish 🇦🇷
-  - French 🇫🇷
-  - Italian 🇮🇹
-  - Portuguese 🇧🇷
-  - German 🇩🇪
-  - [More coming soon!]
+RIVeR is available in 12 languages, with technical terminology reviewed for hydrology, PIV and bathymetry domains:
+
+| | | | |
+|:---|:---|:---|:---|
+| 🇬🇧 English | 🇯🇵 Japanese | 🇸🇦 Arabic | 🇷🇺 Russian |
+| 🇦🇷 Spanish | 🇨🇳 Chinese | 🇰🇷 Korean | 🇮🇳 Hindi |
+| 🇫🇷 French | 🇩🇪 German | 🇮🇹 Italian | 🇧🇷 Portuguese |
+
+Want to contribute a new language? Translation files are located in `gui/src/translations/` — add a new folder with a `global.json` file following the existing structure and open a Pull Request!
 
 ---
 ## 📥 Download Compiled Releases
@@ -86,13 +88,15 @@ If you don't want to bother with code at all (we get it, sometimes you just want
 
 | ⊞ Windows | ⌘ macOS | ◆ Linux |
 |:---:|:---:|:---:|
-| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.4.0/RIVeR-Windows-3.3.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.4.0/RIVeR-Mac-3.3.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.4.0/RIVeR-Linux-3.3.0.deb) [RPM](https://github.com/oruscam/RIVeR/releases/download/v3.4.0/RIVeR-Linux-3.3.0.rpm) |
+| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.5.0/RIVeR-Windows-3.5.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.5.0/RIVeR-Mac-3.5.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.5.0/RIVeR-Linux-3.5.0.deb) |
 
+These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application — no Python or JavaScript knowledge required!
 
-These packages include both the GUI and CLI tools in a ready-to-use application. No Python or JavaScript knowledge required!
-
-
-These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application - no Python or JavaScript knowledge required!
+> **macOS users:** If Gatekeeper blocks the app after installing, open a terminal and run:
+> ```bash
+> xattr -rd com.apple.quarantine /Applications/RIVeR.app
+> ```
+> Or right-click the app → Open → Open anyway.
 
 ---
 ## 🧑‍💻 Developer Installation & Usage
@@ -135,7 +139,7 @@ river-cli get-uav-transformation-matrix 100 200 300 400 0 0 10 10 \
 --image-path ./frames/frame_001.jpg
 
 # 3. Create ROI mask from cross-sections
-# This writes mask.json, bbox.json and mask.png into --workdir
+# This writes mask.npy, bbox.json and mask.png into --workdir
 river-cli create-mask-and-bbox 3 \
 ./frames/frame_001.jpg \
 ./xsections.json \
@@ -158,15 +162,15 @@ river-cli create-user-mask ./frames/frame_001.jpg \
 # 0 is dominant: final = ROI AND all user masks
 river-cli compile-masks \
 --workdir ./workdir \
---roi ./workdir/mask.json \
---usr ./workdir/usr_mask_1.json \
---usr ./workdir/usr_mask_2.json \
---out final_mask.json \
+--roi ./workdir/mask.npy \
+--usr ./workdir/usr_mask_1.npy \
+--usr ./workdir/usr_mask_2.npy \
+--out final_mask.npy \
 --save-png-mask
 
 # 6. Run PIV analysis using the final mask
 river-cli piv-analyze ./frames \
---mask ./workdir/final_mask.json \
+--mask ./workdir/final_mask.npy \
 --workdir ./results
 
 # 7. Calculate discharge
@@ -272,6 +276,7 @@ If you use RIVeR in your research, please cite:
 ### Development Team
 - **Nicolas Stefani** - *CLI & Backend Development*
 - **Tomas Stefani** - *Frontend Development*
+- **Agustín Patrito** - *Frontend Development*
 
 ---
 

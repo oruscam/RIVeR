@@ -5,6 +5,40 @@ All notable changes to the RIVeR project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+# [3.5.0] - 2026-05-21
+
+## GUI
+
+### Added
+
+- Mute/unmute toggle in the VideoRange video player
+- Settings option to choose the RIVeR data folder location
+- First launch no longer prompts for folder selection — uses the default path automatically
+- Mask confirmation button now appears outside the mask polygon for easier access
+- Three new system themes: dark, dracula and light
+- Keyboard shortcuts to cycle theme (Cmd/Ctrl+T) and language (Cmd/Ctrl+L)
+
+### Changed
+
+- Station number moved above the velocity plots in the results view
+- Homogenized labels and button sizes across control point and cross-section forms
+- Mask storage migrated to .npy format
+- Export video button moved from Results page to Processing page
+
+
+
+### Fixed
+
+- Results, charts, report, and MP4 export not respecting the selected unit system
+- Zoom interaction breaking station markers in the results view
+- Control point pins overlapping the mask area; masks now have an individual edit mode
+- App getting stuck on the loading screen after dismissing the directory selector dialog
+- Graph unit labels, hover tooltips, and language not updating live when changed
+- Fixed colorbar limits that didn’t work
+- Exported video didn’t respect the colorBarLimits set by the user.
+
+
 # [3.4.0] - 2026-02-09
 
 ## GUI

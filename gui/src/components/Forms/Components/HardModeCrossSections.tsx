@@ -7,17 +7,18 @@ export const HardModeCrossSections = ({ extraFields, name }: { extraFields: bool
     const { onSetRealWorld, onSetDirPoints } = useSectionSlice()
 
     return (
-        <div className={extraFields ? 'mt-5 hard-mode-processing' : 'hidden'}>
-            <span className='divider-line mt-2 mb-1'/>
+        <div className={extraFields ? 'mt-5 hard-mode-processing' : 'hidden'} style={{ paddingLeft: 0, paddingRight: 0 }}>
 
-            <MaskCreation/>
-            <span className='divider-line mb-2'/>
 
-            <RealWorldCoordinates section={name} step={4} onSetRealWorld={onSetRealWorld}/>
+            <RealWorldCoordinates section={name} step={4} onSetRealWorld={onSetRealWorld} showUnitLabel />
 
-            <PixelCoordinates section={name} step={4} onSetDirPoints={onSetDirPoints}/>
-            <span id={`span-footer-${name}`}/>
+            <PixelCoordinates section={name} step={4} onSetDirPoints={onSetDirPoints} />
+            <span className='divider-line mt-2 mb-1' />
+            <MaskCreation />
+            <span className='divider-line mb-2' />
+            <span id={`span-footer-${name}`} />
             <span id={`${name}-form-cross-section-footer`} />
+
         </div>
     )
 }

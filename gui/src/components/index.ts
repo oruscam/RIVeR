@@ -1,6 +1,6 @@
 import { Error } from './Error';
 import { Icon } from './Icon';
-import { LanguageSelector } from './LanguageSelector';
+import { LangBtn as LanguageSelector } from './CustomIcons/LanguageSelector';
 import { ThemeToggle } from './ThemeToggle';
 import { WizardButtons } from './WizzardButtons';
 import { Loading } from './Loading';
@@ -14,6 +14,7 @@ import { Clipboard } from './Clipboard';
 import { ColorBar } from './ColorBar';
 import { DrawMask } from './DrawMask';
 import { DrawUav } from './DrawUav';
+import { FloatingPlot } from './FloatingPlot';
 import { ImageResults } from './ImageResults';
 import { ImageProcessing } from './ImageProcessing';
 import { ImageOblique } from './ImageOblique';
@@ -30,6 +31,7 @@ export {
   DrawOblique,
   DrawUav,
   Error,
+  FloatingPlot,
   Grid,
   Icon,
   ImageIpcam,

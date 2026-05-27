@@ -52,29 +52,27 @@ function firstFrame(riverCli: Function) {
 
     try {
       console.time('Extracting frames');
-      riverCli(options, 'json', false, logsPath).then(() => {
-        const files = fs.readdirSync(framesPath).map((file) => path.join(filePrefix, framesPath, file));
-        mainWindow.webContents.send('all-frames', files);
-      });
+
+      // Await the full extraction before returning.
+      // Previously riverCli() was fire-and-forget (.then()), so the handler
+      // returned after ~1 s (first frame found via polling), flipping
+      // isBackendWorking back to false on the frontend while images.paths
+      // was still empty — letting the user reach CrossSections's "Next" guard
+      // too early and triggering the "waiting for frames" error.
+      // Awaiting here keeps isBackendWorking=true until every frame is on disk.
+      await riverCli(options, 'json', false, logsPath);
+
       console.timeEnd('Extracting frames');
 
-      let flag = false;
-      let firstFrame = '';
-      let attempts = 0;
-      const maxAttempts = 30; // Limit to 30 seconds
+      // Read all extracted frames (sorted for cross-platform consistency).
+      const fileNames = fs.readdirSync(framesPath).sort();
+      const files = fileNames.map((file) => path.join(filePrefix, framesPath, file));
 
-      while (!flag && attempts < maxAttempts) {
-        if (fs.existsSync(PROJECT_CONFIG.framesPath)) {
-          const files = await fs.promises.readdir(PROJECT_CONFIG.framesPath);
-          if (files.length > 0) {
-            flag = true;
-            firstFrame = path.join(framesPath, files[0]);
-          }
-        }
-        attempts++;
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for 1 second before checking again
-      }
+      // Send all-frames BEFORE returning so that images.paths is populated
+      // in the renderer before isBackendWorking flips back to false.
+      mainWindow.webContents.send('all-frames', files);
 
+      const firstFrame = fileNames.length > 0 ? path.join(framesPath, fileNames[0]) : '';
       PROJECT_CONFIG.firstFrame = firstFrame;
 
       return {

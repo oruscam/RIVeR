@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
 import './graphs.css';
 import * as d3 from 'd3';
-import { useSectionSlice, useUiSlice } from '../../hooks';
+import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { createDischargeChart } from './dischargeSvg';
 import { createVelocityChart } from './velocitySvg';
 import { bathimetrySvg } from './bathimetrySvg';
-import { GRAPHS } from '../../constants/constants';
+import { GRAPHS, UNIT_CONVERSIONS } from '../../constants/constants';
 import { adapterBathimetry, adapterData } from '../../helpers';
 import { generateXAxisTicks } from '../../helpers/graphsHelpers';
 
@@ -30,7 +30,9 @@ export const AllInOne = ({
   const { sections, activeSection, onChangeDataValues } = useSectionSlice();
   const { data, bathimetry, name } = sections[index ? index : activeSection];
   const { level, x1Intersection, x2Intersection, width: bathWidth } = bathimetry;
-  const { screenSizes } = useUiSlice();
+  const { screenSizes, theme, language } = useUiSlice();
+  const { projectDetails } = useProjectSlice();
+  const { unitSistem } = projectDetails;
   const { width: screenWidth } = screenSizes;
 
   const graphWidth =
@@ -72,8 +74,9 @@ export const AllInOne = ({
 
       // Common xAxis
       const ticks = generateXAxisTicks(x1Intersection!, x2Intersection!, bathWidth!);
+      const displayFactor = unitSistem === 'imperial' ? UNIT_CONVERSIONS.M_TO_FT : 1;
 
-      const xAxis = d3.axisBottom(xScale).tickValues(ticks).tickFormat(d3.format('.1f'));
+      const xAxis = d3.axisBottom(xScale).tickValues(ticks).tickFormat((d) => ((d as number) * displayFactor).toFixed(1));
 
       // Append xAxis
 
@@ -110,6 +113,7 @@ export const AllInOne = ({
         QPortion: Q_portion,
         sizes: { width, height, margin, graphHeight },
         isReport,
+        unitSistem,
       });
 
       createVelocityChart({
@@ -128,6 +132,7 @@ export const AllInOne = ({
         showStd: showVelocityStd,
         isReport,
         onChangeDataValues,
+        unitSistem,
       });
 
       bathimetrySvg({
@@ -138,9 +143,10 @@ export const AllInOne = ({
         sizes: { width, height, margin, graphHeight },
         xScaleAllInOne: xScale,
         isReport,
+        unitSistem,
       });
     }
-  }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check]);
+  }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check, theme, unitSistem, language]);
 
   return (
     <svg
