@@ -1,14 +1,9 @@
-import * as path from "path";
-import * as fs from "fs";
-import { ProjectConfig } from "../interfaces";
+import * as path from 'path';
+import * as fs from 'fs';
+import { ProjectConfig } from '../interfaces';
 
-async function createMatrix(
-  message: string,
-  PROJECT_CONFIG: ProjectConfig,
-  settings: any,
-): Promise<string> {
-  const { projectDirectory, resultsPath, bboxPath, xsectionsPath, maskPath } =
-    PROJECT_CONFIG;
+async function createMatrix(message: string, PROJECT_CONFIG: ProjectConfig, settings: any): Promise<string> {
+  const { projectDirectory, resultsPath, bboxPath, xsectionsPath, maskPath } = PROJECT_CONFIG;
 
   if (settings.xsections) {
     delete settings.xsections;
@@ -39,16 +34,16 @@ async function createMatrix(
   }
 
   return new Promise((resolve, reject) => {
-    const matrixPath = path.join(projectDirectory, "transformation_matrix.json");
+    const matrixPath = path.join(projectDirectory, 'transformation_matrix.json');
 
     fs.promises
-      .writeFile(matrixPath, JSON.stringify(message), "utf-8")
+      .writeFile(matrixPath, JSON.stringify(message), 'utf-8')
       .then(() => {
         resolve(matrixPath);
       })
       .catch((err) => {
         console.log(err);
-        reject("Error al crear uav_transformation_matrix.json");
+        reject('Error al crear uav_transformation_matrix.json');
       });
   });
 }

@@ -1,76 +1,88 @@
-import { app, ipcMain, webContents } from "electron";
-import { ChildProcess, spawn } from "child_process";
-import * as path from "path";
-import * as fs from "fs";
+import { app, ipcMain, webContents } from 'electron';
+import { ChildProcess, spawn } from 'child_process';
+import * as path from 'path';
+import * as fs from 'fs';
+import { PROJECT_CONFIG } from '../../main';
 
 let python: ChildProcess;
-const DEV_SERVER = process.env.VITE_DEV_SERVER_URL;
 
 async function executeRiverCli(
   options: (string | number)[],
-  _mode: "json" | "text" = "json",
+  _mode: 'json' | 'text' = 'json',
   output: boolean = false,
-  logFile: string,
+  logFile: string
 ): Promise<{ data: any; error: any }> {
-  let riverCliPath: string;
-  if (DEV_SERVER) {
-    riverCliPath = path.join(app.getAppPath(), "river-cli", "river-cli");
-  } else {
-    riverCliPath = path.join(app.getAppPath(), "..", "river-cli", "river-cli");
-  }
 
   const args = options.map((arg) => arg.toString());
+  args.unshift(...['-m', 'river.cli']);
 
-  console.log("you are using river-cli", riverCliPath);
-  console.log(options);
+  console.log('You are using river-cli', PROJECT_CONFIG.pythonPath);
+  console.log('Arguments: ', options)
+  console.log("EJECUTANDO COMANDO:", args.join(" "));
 
   const result = await new Promise((resolve, reject) => {
-    python = spawn(riverCliPath, args);
+    python = spawn(PROJECT_CONFIG.pythonPath, args);
 
-    let stdoutData = "";
-    let stderrData = "";
+    let stdoutData = '';
+    let stderrData = '';
 
-    python.stdout.on("data", (data) => {
+    // Variables para throttling
+    let lastStderrMessage = '';
+    let lastSentTime = 0;
+    const THROTTLE_INTERVAL = 500; // 500ms = 2 mensajes por segundo
+
+    python.stdout.on('data', (data) => {
       const message = data.toString();
 
       if (output) {
-        // This is because, when cli has user processing errors, like
-        // windows-size. Launches Processing message... and object {data, error}
-        //  stdout identifies two messages like one
-        //  We need to split the message and get the last one.
-
-        const messages = message.split("\n").filter((msg) => msg.trim() !== "");
+        const messages = message.split('\n').filter((msg) => msg.trim() !== '');
         stdoutData = messages[messages.length - 1];
       } else {
         stdoutData += message;
       }
     });
 
-    python.stderr.on("data", (data) => {
+    python.stderr.on('data', (data) => {
       const message = data.toString();
       stderrData = message;
-      console.log("stderr", message);
-      // Output
+      console.log('stderr', message);
+
+      // Guardar el último mensaje
+      lastStderrMessage = message;
+
+      // Output con throttling
       if (output === true) {
-        webContents.getAllWebContents().forEach((contents) => {
-          contents.send("river-cli-message", message);
-        });
+        const currentTime = Date.now();
+        const timeSinceLastSent = currentTime - lastSentTime;
+
+        if (timeSinceLastSent >= THROTTLE_INTERVAL) {
+          webContents.getAllWebContents().forEach((contents) => {
+            contents.send('river-cli-message', message);
+          });
+          lastSentTime = currentTime;
+        }
       }
     });
 
-    python.on("close", async(code) => {
+    python.on('close', async (code) => {
+      // Enviar el último mensaje antes de cerrar si no se envió
+      if (output === true && lastStderrMessage) {
+        webContents.getAllWebContents().forEach((contents) => {
+          contents.send('river-cli-message', lastStderrMessage);
+        });
+      }
+
       if (code !== 0) {
         if (code === null) {
           resolve({
             error: {
-              message: "Process was killed",
+              message: 'Process was killed',
             },
           });
           return;
         }
       } else {
-        console.log("river-cli process finished");
-        resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, "null")));
+        resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, 'null')));
         await killRiverCli();
       }
 
@@ -78,7 +90,7 @@ async function executeRiverCli(
       appendLog(logFile, args, stdoutData, stderrData);
     });
 
-    python.on("error", (error) => {
+    python.on('error', (error) => {
       console.log(`error river-cli: ${error.message}`);
       reject(error);
     });
@@ -90,20 +102,20 @@ async function executeRiverCli(
 async function killRiverCli() {
   if (python) {
     python.kill();
-    console.log("Process killed successfully");
+    console.log('Process killed successfully');
     return true;
   }
   return false;
 }
 
-ipcMain.handle("kill-river-cli", async () => {
-  console.log("kill-river-cli");
+ipcMain.handle('kill-river-cli', async () => {
+  console.log('kill-river-cli');
   return killRiverCli();
 });
 
-app.on("before-quit", async (event) => {
+app.on('before-quit', async (event) => {
   if (python) {
-    console.log("App is quitting. Killing river-cli process");
+    console.log('App is quitting. Killing river-cli process');
     await killRiverCli();
   }
   app.exit(); // Ensure the app exits after handling the process
@@ -123,51 +135,46 @@ app.on("before-quit", async (event) => {
  * The log entry includes the CLI command options, the processed output, and any error message.
  */
 
-function appendLog(
-  path: string,
-  args: string[],
-  data: string,
-  error: string = "",
-) {
-  let output = "";
+function appendLog(path: string, args: string[], data: string, error: string = '') {
+  let output = '';
 
-  if (args[0] === "create-mask-and-bbox" && error === "") {
+  if (args[0] === 'create-mask-and-bbox' && error === '') {
     const parsedData = JSON.parse(data);
     if (parsedData.error && Object.keys(parsedData.error).length !== 0) {
       output = parsedData.error;
     } else {
-      output = "Mask and Bbox created successfully";
+      output = 'Mask and Bbox created successfully';
     }
   }
 
-  if (args[0] === "piv-test" && error === "") {
-    const parsedData = JSON.parse(data.replace(/\bNaN\b/g, "null"));
+  if (args[0] === 'piv-test' && error === '') {
+    const parsedData = JSON.parse(data.replace(/\bNaN\b/g, 'null'));
     if (parsedData.error && Object.keys(parsedData.error).length !== 0) {
       output = parsedData.error;
     } else {
-      output = "piv-test finished successfully";
+      output = 'piv-test finished successfully';
     }
   }
 
-  if (args[0] === "update-xsection" && error === "") {
-    const parsedData = JSON.parse(data.replace(/\bNaN\b/g, "null"));
+  if (args[0] === 'update-xsection' && error === '') {
+    const parsedData = JSON.parse(data.replace(/\bNaN\b/g, 'null'));
     if (parsedData.error && Object.keys(parsedData.error).length !== 0) {
       output = parsedData.error;
     } else {
-      output = "x-sections updated successfully";
+      output = 'x-sections updated successfully';
     }
   }
 
   const log = {
     options: args,
-    output: output !== "" ? output : data,
+    output: output !== '' ? output : data,
     error: error,
   };
 
   let parsedLog = JSON.stringify(log, null, 4);
-  parsedLog = parsedLog + "\n";
+  parsedLog = parsedLog + '\n';
 
-  fs.promises.appendFile(path, parsedLog, "utf-8");
+  fs.promises.appendFile(path, parsedLog, 'utf-8');
 }
 
 export { executeRiverCli, killRiverCli };

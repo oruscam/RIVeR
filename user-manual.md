@@ -50,13 +50,14 @@ Key GUI features:
 ---
 # 2. Installation
 
-You can install RIVeR using **precompiled standalone packages** for your operating system. No Python or developer tools are required.
+You can install RIVeR using **precompiled standalone packages** for your operating system.  
+No Python or developer tools are required.
 
 | OS        | Package Type | Download Link                                                                                      |
-|-----------|--------------|---------------------------------------------------------------------------------------------------|
-| Windows   | `.exe`      | [RIVeR-Windows-3.1.0-Setup.exe](https://github.com/oruscam/RIVeR/releases/download/v3.1.0/RIVeR-Windows-3.1.0-Setup.exe) |
-| macOS     | `.dmg`      | [RIVeR-Mac-3.1.0-Installer.dmg](https://github.com/oruscam/RIVeR/releases/download/v3.1.0/RIVeR-Mac-3.1.0-Installer.dmg) |
-| Linux     | `.deb` / `.rpm` | [RIVeR-Linux-3.1.0.deb](https://github.com/oruscam/RIVeR/releases/download/v3.1.0/RIVeR-Linux-3.1.0.deb) / [RIVeR-Linux-3.1.0.rpm](https://github.com/oruscam/RIVeR/releases/download/v3.1.0/RIVeR-Linux-3.1.0.rpm) |
+|------------|--------------|---------------------------------------------------------------------------------------------------|
+| **Windows** | `.exe`       | [RIVeR-Windows-3.3.0-Setup.exe](https://github.com/oruscam/RIVeR/releases/download/v3.3.0/RIVeR-Windows-3.3.0-Setup.exe) |
+| **macOS**   | `.dmg`       | [RIVeR-Mac-3.3.0-Installer.dmg](https://github.com/oruscam/RIVeR/releases/download/v3.3.0/RIVeR-Mac-3.3.0-Installer.dmg) |
+| **Linux**   | `.deb` / `.rpm` | [RIVeR-Linux-3.3.0.deb](https://github.com/oruscam/RIVeR/releases/download/v3.3.0/RIVeR-Linux-3.3.0.deb) / [RIVeR-Linux-3.3.0.rpm](https://github.com/oruscam/RIVeR/releases/download/v3.3.0/RIVeR-Linux-3.3.0.rpm) |
 
 ## Installation Steps
 
@@ -143,10 +144,11 @@ Once loaded, you can continue the analysis, adjust settings, or directly export 
 
 <figure>
     <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/01%20-%20Footage.png?raw=true" width=800>
-    <p><i>Select the kind of footage to process</i></p>
+    <p><i>Select the kind of footage to process and add your video file</i></p>
 </figure>
 
-After clicking **Start** on the Home screen, you will be asked to select the type of footage you want to process.
+After clicking **Start** on the Home screen, you will be asked to select the type of footage you want to process.  
+The interface now includes a **drag-and-drop area** and an **“Open Folders”** button for convenient file selection.
 
 You can choose between:
 
@@ -162,18 +164,23 @@ You can choose between:
   Footage from a permanently installed, fixed-position camera for continuous monitoring.  
   Involves more complex rectification using camera calibration and detailed ground surveys.
 
-Behind the scenes, this choice determines **how pixel coordinates will be related to real-world coordinates** (rectification).  
+Behind the scenes, this choice determines **how pixel coordinates are related to real-world coordinates** (rectification).  
 It defines whether a simple scale, a homography matrix, or a full camera matrix will be used to transform image measurements into physical units.
 
 > 💡 **Note:**  
 > From left to right, the options represent increasing complexity in topographic correction.  
 > However, RIVeR allows flexibility — you can process any footage type, even if, for example, your drone footage was recorded with an oblique angle.
 
-##  Selecting the Video
+---
 
-Once you select the footage type, RIVeR will prompt you to **browse and select the video file** you want to process.
-After selecting the video, you **must click “Next”** to continue to the next step.
+## Selecting the Video
 
+Once you have selected the footage type, RIVeR will prompt you to **add your video file** in one of two ways:
+
+1. **Drag and drop** your video directly into the highlighted area.  
+2. Click **“Open Folders”** to browse and select the video file manually.
+
+After adding your footage, click **“Next”** to continue to the next step.
 
 > **Advanced context (for reference, not required to use RIVeR):**  
 > Rectification methods in RIVeR rely on projective geometry concepts such as camera matrices and homography matrices.  

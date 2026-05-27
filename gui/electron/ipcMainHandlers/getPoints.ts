@@ -1,33 +1,28 @@
-import { dialog, ipcMain } from "electron";
-import { readFile, utils, set_fs, writeFile } from "xlsx";
-import * as fs from "fs";
+import { dialog, ipcMain } from 'electron';
+import { readFile, utils, set_fs, writeFile } from 'xlsx';
+import * as fs from 'fs';
+import { EXTENSIONS } from './utils/validateFile';
+import { PROJECT_CONFIG } from '../main';
 
 set_fs(fs);
 
 async function getPoints() {
   const options: Electron.OpenDialogOptions = {
-    properties: ["openFile"],
+    properties: ['openFile'],
     filters: [
       {
-        name: "Documents",
-        extensions: [
-          "csv",
-          "tsv",
-          "xlsx",
-          "xls",
-          "xlsm",
-          "ods",
-          "fods",
-          "prn",
-          "dif",
-          "sylk",
-        ],
+        name: 'Documents',
+        extensions: EXTENSIONS,
       },
     ],
   };
 
-  ipcMain.handle("import-points", async (_event, args) => {
-    const { path } = args;
+  ipcMain.handle('import-points', async (_event, args) => {
+    const { path, unitSistem } = args;
+    const isImperial = unitSistem === 'imperial';
+    const FT_TO_M = 0.3048;
+
+    options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
 
     try {
       let pointsPath: string = path;
@@ -43,7 +38,7 @@ async function getPoints() {
       const sheet = workbook.Sheets[sheetName];
 
       let values = utils.sheet_to_json(sheet, { header: 1 });
-      const { points, zMax, zMin } = transformPoints(values as [[]]);
+      const { points, zMax, zMin } = transformPoints(values as [[]], isImperial, FT_TO_M);
 
       return {
         data: {
@@ -56,16 +51,16 @@ async function getPoints() {
         },
       };
     } catch (error) {
-      if (error.message === "invalidPointsFileFormat") {
+      if (error.message === 'invalidPointsFileFormat') {
         return { error };
       }
     }
   });
 }
 
-function transformPoints(points: [[]]) {
+function transformPoints(points: [[]], isImperial: boolean, FT_TO_M: number) {
   if (points[0].length < 4) {
-    throw new Error("invalidPointsFileFormat");
+    throw new Error('invalidPointsFileFormat');
   }
 
   let zMax = -Infinity;
@@ -77,24 +72,28 @@ function transformPoints(points: [[]]) {
       const label = point[0];
 
       if (
-        typeof label === "string" &&
-        label.toUpperCase() === "LABEL" &&
-        typeof point[1] === "string" &&
-        typeof point[2] === "string" &&
-        typeof point[3] === "string"
+        typeof label === 'string' &&
+        label.toUpperCase() === 'LABEL' &&
+        typeof point[1] === 'string' &&
+        typeof point[2] === 'string' &&
+        typeof point[3] === 'string'
       ) {
         return undefined;
       }
 
-      const X = parseFloat(Number(point[1]).toFixed(2));
-      const Y = parseFloat(Number(point[2]).toFixed(2));
-      const Z = parseFloat(Number(point[3]).toFixed(2));
+      const rawX = parseFloat(Number(point[1]).toFixed(2));
+      const rawY = parseFloat(Number(point[2]).toFixed(2));
+      const rawZ = parseFloat(Number(point[3]).toFixed(2));
+
+      const X = isImperial ? parseFloat((rawX * FT_TO_M).toFixed(4)) : rawX;
+      const Y = isImperial ? parseFloat((rawY * FT_TO_M).toFixed(4)) : rawY;
+      const Z = isImperial ? parseFloat((rawZ * FT_TO_M).toFixed(4)) : rawZ;
       let x = 0;
       let y = 0;
       let wasEstablished = false;
 
       if (isNaN(X) || isNaN(Y) || isNaN(Z)) {
-        throw new Error("invalidPointsFileFormat");
+        throw new Error('invalidPointsFileFormat');
       }
 
       if (point.length > 4) {

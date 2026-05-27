@@ -1,7 +1,8 @@
-import { SectionData } from "../store/section/types";
-import { Point } from "../types";
+import { GRAPHS } from '../constants/constants';
+import { SectionData } from '../store/section/types';
+import { Point } from '../types';
 
-export const adapterData = (data: SectionData, x1Intersection: number) => {
+const adapterData = (data: SectionData, x1Intersection: number) => {
   const {
     distance,
     plus_std,
@@ -14,7 +15,7 @@ export const adapterData = (data: SectionData, x1Intersection: number) => {
     activeMagnitude,
     interpolated,
   } = data;
-  
+
   const newDistance = distance.map((d) => {
     return d + x1Intersection!;
   });
@@ -41,27 +42,20 @@ export const adapterData = (data: SectionData, x1Intersection: number) => {
   };
 };
 
-export const adapterBathimetry = (
+const adapterBathimetry = (
   line: Point[],
   x1Intersection: number,
   x2Intersection: number,
-  level: number,
+  level: number
 ): Point[] => {
-  const newBathLine = line?.filter(
-    (d) => d.y <= level! && d.x >= x1Intersection! && d.x <= x2Intersection!,
-  );
+  const newBathLine = line?.filter((d) => d.y <= level! && d.x >= x1Intersection! && d.x <= x2Intersection!);
 
   newBathLine?.unshift({ x: x1Intersection!, y: level! });
   newBathLine?.push({ x: x2Intersection!, y: level! });
 
   return newBathLine;
 };
-
-export const generateXAxisTicks = (
-  x1Intersection: number,
-  x2Intersection: number,
-  width: number,
-): number[] => {
+const generateXAxisTicks = (x1Intersection: number, x2Intersection: number, width: number): number[] => {
   let step = 0;
 
   if (width < 10) {
@@ -78,11 +72,7 @@ export const generateXAxisTicks = (
   ticks.push(x1Intersection);
 
   // Generar los valores entre x1Intersection y x2Intersection
-  for (
-    let i = Math.ceil(x1Intersection / step) * step;
-    i < x2Intersection;
-    i += step
-  ) {
+  for (let i = Math.ceil(x1Intersection / step) * step; i < x2Intersection; i += step) {
     if (Math.abs(i - x1Intersection) > 2 && Math.abs(i - x2Intersection) > 2) {
       ticks.push(i);
     }
@@ -94,26 +84,51 @@ export const generateXAxisTicks = (
   return ticks;
 };
 
-export const generateYAxisTicks = (
-  array?: (number | null)[],
-  min?: number,
-  max?: number,
-): number[] => {
+const generateYAxisTicks = (array?: (number | null)[], min?: number, max?: number): number[] => {
   const minValue = min ? min : 0;
-  const maxValue = max
-    ? max
-    : Math.max(...array!.filter((value): value is number => value !== null));
+  const maxValue = max ? max : Math.max(...array!.filter((value): value is number => value !== null));
 
   const range = maxValue - minValue;
   const step = range / 4;
 
-  const ticks = [
-    minValue,
-    minValue + step,
-    minValue + 2 * step,
-    minValue + 3 * step,
-    maxValue,
-  ];
+  const ticks = [minValue, minValue + step, minValue + 2 * step, minValue + 3 * step, maxValue];
 
   return ticks;
 };
+
+const getOrthoImageDimensions = (screenWidth: number, orthoWidth: number, orthoHeight: number ) => {
+  let graphWidth;
+  let graphHeight;
+  const maxGraphWidth = screenWidth * GRAPHS.IPCAM_GRID_PROPORTION;
+  
+  const vertical = orthoHeight > orthoWidth;
+  
+  if (!vertical) {
+    if (orthoWidth < maxGraphWidth) {
+      graphWidth = orthoWidth;
+      graphHeight = orthoHeight;
+    } else {
+      graphWidth = maxGraphWidth;
+      graphHeight = (maxGraphWidth * orthoHeight) / orthoWidth;
+    }
+    if (graphWidth < GRAPHS.ORTHO_IMAGE_MIN_WIDTH) {
+      graphWidth = GRAPHS.ORTHO_IMAGE_MIN_WIDTH;
+      graphHeight = (GRAPHS.ORTHO_IMAGE_MIN_WIDTH * orthoHeight) / orthoWidth;
+    }
+  } else {
+    const WIDTH_INCREASER = 1.1; // For better visualization, I have to figure out what happen // ! PROVISIONAL.
+
+    if (orthoHeight < maxGraphWidth) {
+      graphHeight = orthoHeight;
+      graphWidth = orthoWidth * WIDTH_INCREASER;
+    } else {
+      graphHeight = maxGraphWidth;
+      graphWidth = ((maxGraphWidth * orthoWidth) / orthoHeight) * WIDTH_INCREASER;
+    }
+  }
+  
+  return { graphWidth, graphHeight, maxGraphWidth };
+}
+
+
+export { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks, getOrthoImageDimensions };

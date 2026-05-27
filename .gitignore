@@ -189,4 +189,14 @@ psd
 thumb
 sketch
 
+artifacts/
+deb/
+.cache/act/
+.uv/
+*.bak
+.env.local
+
 # End of https://www.toptal.com/developers/gitignore/api/python,react
+.claude/
+CLAUDE.md
+docs/superpowers/

@@ -1,10 +1,11 @@
-import { defineConfig } from "vite";
-import path from "node:path";
-import electron from "vite-plugin-electron/simple";
-import react from "@vitejs/plugin-react";
-import * as os from "os";
+import { defineConfig } from 'vite';
+import path from 'node:path';
+import electron from 'vite-plugin-electron/simple';
+import react from '@vitejs/plugin-react';
+import * as os from 'os';
 
-// https://vitejs.dev/config/
+const EXTERNAL_NATIVE = ['skia-canvas'];
+
 export default defineConfig({
   server: {
     fs: {
@@ -16,30 +17,45 @@ export default defineConfig({
     react(),
     electron({
       main: {
-        // Shortcut of `build.lib.entry`.
-        entry: "electron/main.ts",
+        entry: 'electron/main.ts',
+        // si el plugin tiene opciones de build/vite para main, podemos también pasar externals ahí:
+        vite: {
+          build: {
+            rollupOptions: {
+              external: EXTERNAL_NATIVE,
+            },
+          },
+        },
       },
       preload: {
-        // Shortcut of `build.rollupOptions.input`.
-        // Preload scripts may contain Web assets, so use the `build.rollupOptions.input` instead `build.lib.entry`.
-        input: path.join(__dirname, "electron/preload.ts"),
+        input: path.join(__dirname, 'electron/preload.ts'),
+        vite: {
+          build: {
+            rollupOptions: {
+              external: EXTERNAL_NATIVE,
+            },
+          },
+        },
       },
-      // Ployfill the Electron and Node.js API for Renderer process.
-      // If you want use Node.js in Renderer process, the `nodeIntegration` needs to be enabled in the Main process.
-      // See 👉 https://github.com/electron-vite/vite-plugin-electron-renderer
+      // Renderer stay default (no node native here)
       renderer:
-        process.env.NODE_ENV === "test"
-          ? // https://github.com/electron-vite/vite-plugin-electron-renderer/issues/78#issuecomment-2053600808
-            undefined
-          : {},
+        process.env.NODE_ENV === 'test' ? undefined : {},
     }),
   ],
+  // Evita que Vite pre-bundlee canvas en dev (esbuild prebundle)
+  optimizeDeps: {
+    exclude: EXTERNAL_NATIVE,
+  },
+  // Evita que Vite lo incluya en el bundle SSR
+  ssr: {
+    external: EXTERNAL_NATIVE,
+  },
   build: {
     rollupOptions: {
-      external: ["tree-kill"],
+      external: EXTERNAL_NATIVE,
     },
   },
   define: {
-    "process.env": process.env,
+    'process.env': process.env,
   },
 });

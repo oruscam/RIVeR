@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { DataState, FormProcessing, Quiver } from "./types";
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { DataState, FormProcessing, Quiver } from './types';
+import { Point } from '../../types';
 
 const defaultFormProcessing = {
   artificialSeeding: false,
@@ -18,8 +19,11 @@ const defaultFormProcessing = {
 
 const defaultProcessing = {
   form: defaultFormProcessing,
-  parImages: ["", "1", "", "2"],
-  maskPath: "",
+  parImages: ['', '1', '', '2'],
+  maskPath: '',
+  masks: [],
+  activeMaskIndex: null,
+  visibleMaskIndices: [] as number[],
 };
 
 const initialState: DataState = {
@@ -28,31 +32,34 @@ const initialState: DataState = {
     paths: [],
     active: 0,
   },
+  quiver: null,
   isBackendWorking: false,
   isDataLoaded: false,
   hasChanged: false,
+  colorbarLimits: {
+    min: null,
+    max: null,
+    default: true
+  }
 };
 
 const dataSlice = createSlice({
-  name: "data",
+  name: 'data',
   initialState,
   reducers: {
     updateProcessingForm: (state, action: PayloadAction<FormProcessing>) => {
       state.processing.form = action.payload;
       state.hasChanged = true;
+      state.quiver = null;
     },
     updateProcessingPar: (state, action: PayloadAction<string[]>) => {
       state.processing.parImages = action.payload;
     },
-    setBackendWorkingFlag: (state, action: PayloadAction<boolean>) => {
+    setBackendWorking: (state, action: PayloadAction<boolean>) => {
       state.isBackendWorking = action.payload;
     },
-    setProcessingMask: (
-      state,
-      action: PayloadAction<{ mask: string; bbox: number[] }>,
-    ) => {
-      state.processing.maskPath =
-        action.payload.mask + `?t=${new Date().getTime()}`;
+    setProcessingMask: (state, action: PayloadAction<{ mask: string; bbox: number[] }>) => {
+      state.processing.maskPath = action.payload.mask + `?t=${new Date().getTime()}`;
       state.processing.bbox = action.payload.bbox;
     },
     setImages: (state, action: PayloadAction<{ paths: string[] }>) => {
@@ -60,17 +67,16 @@ const dataSlice = createSlice({
     },
     setActiveImage: (state, action: PayloadAction<number>) => {
       state.images.active = action.payload;
+
     },
-    setQuiver: (
-      state,
-      action: PayloadAction<{ quiver: Quiver | undefined; test: boolean }>,
-    ) => {
+    setQuiver: (state, action: PayloadAction<{ quiver: Quiver | null }>) => {
       state.quiver = action.payload.quiver;
-      if (action.payload.test) {
+      if (action.payload.quiver?.test) {
         state.hasChanged = true;
       } else {
         state.hasChanged = false;
       }
+      state.processing.activeMaskIndex = null;
     },
     setDataLoaded: (state, action: PayloadAction<boolean>) => {
       state.isDataLoaded = action.payload;
@@ -82,19 +88,79 @@ const dataSlice = createSlice({
       state.isBackendWorking = false;
       state.isDataLoaded = false;
     },
+
+    addMask: (state, action: PayloadAction<Point[]>) => {
+      if (!state.processing.masks) {
+        state.processing.masks = [];
+      }
+      state.processing.masks.push(action.payload);
+      const newIndex = state.processing.masks.length - 1;
+      state.processing.activeMaskIndex = newIndex;
+      // Auto-show the new mask
+      if (!state.processing.visibleMaskIndices.includes(newIndex)) {
+        state.processing.visibleMaskIndices.push(newIndex);
+      }
+    },
+    deleteMask: (state, action: PayloadAction<number>) => {
+      if (state.processing.masks) {
+        state.processing.masks.splice(action.payload, 1);
+        state.processing.activeMaskIndex = state.processing.masks.length > 0 ? 0 : null;
+        // Rebuild visible indices: remove deleted, shift down higher indices
+        state.processing.visibleMaskIndices = state.processing.visibleMaskIndices
+          .filter((i) => i !== action.payload)
+          .map((i) => (i > action.payload ? i - 1 : i));
+      }
+    },
+    updateMask: (state, action: PayloadAction<{ index: number; points?: Point[] } | null>) => {
+      if (action.payload && action.payload.points) {
+        state.processing.masks![action.payload.index] = action.payload.points;
+      } else if (action.payload) {
+        state.processing.activeMaskIndex = action.payload.index;
+      }
+      if (action.payload === null) {
+        state.processing.activeMaskIndex = null;
+      }
+    },
+    loadMasks: (state, action: PayloadAction<Point[][]>) => {
+      state.processing.masks = action.payload;
+      state.processing.activeMaskIndex = null;
+      // All loaded masks start as visible
+      state.processing.visibleMaskIndices = action.payload.map((_, i) => i);
+    },
+    toggleMaskVisibility: (state, action: PayloadAction<number>) => {
+      const idx = action.payload;
+      const visible = state.processing.visibleMaskIndices;
+      const pos = visible.indexOf(idx);
+      if (pos === -1) {
+        visible.push(idx);
+      } else {
+        visible.splice(pos, 1);
+      }
+    },
+    setColorbarLimits: (state, action: PayloadAction<{ min: number | null; max: number | null; default: boolean }>) => {
+      state.colorbarLimits.min = action.payload.min;
+      state.colorbarLimits.max = action.payload.max;
+      state.colorbarLimits.default = action.payload.default;
+    }
   },
 });
 
 export const {
   setDefaultDataState,
   setActiveImage,
-  setBackendWorkingFlag,
+  setBackendWorking,
   setDataLoaded,
   setImages,
   setProcessingMask,
   setQuiver,
   updateProcessingForm,
   updateProcessingPar,
+  addMask,
+  deleteMask,
+  updateMask,
+  loadMasks,
+  setColorbarLimits,
+  toggleMaskVisibility,
 } = dataSlice.actions;
 
 export default dataSlice.reducer;

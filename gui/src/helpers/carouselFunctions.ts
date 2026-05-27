@@ -1,5 +1,5 @@
-import { FixedSizeList } from "react-window";
-import { ScreenSizes } from "../store/ui/types";
+import { FixedSizeList } from 'react-window';
+import { ScreenSizes } from '../store/ui/types';
 
 // This function is used to handle the onClick event of the image carousel
 // It sets the active image to the clicked image and updates the default value
@@ -13,12 +13,9 @@ const carouselClickImage = (
   setShowMedian: ((value: boolean) => void) | undefined,
   onSetActiveImage: (value: number) => void,
   setDefaultValue: (value: number) => void,
-  mode: string,
+  mode: string
 ) => {
-  if (
-    index !== (mode === "ipcam" ? paths.length : paths.length - 1) &&
-    !isBackendWorking
-  ) {
+  if (index !== (mode === 'ipcam' ? paths.length : paths.length - 1) && !isBackendWorking) {
     onSetActiveImage(index);
     setDefaultValue(index + 1);
     if (index > active) {
@@ -42,47 +39,37 @@ const carouselKeyDown = (
   setDefaultValue: (value: number) => void,
   active: number,
   listRef: FixedSizeList,
-  mode: string,
+  mode: string
 ) => {
-  if (event.key === "Enter") {
+  if (event.key === 'Enter') {
     const value = parseInt(event.currentTarget.value);
-    if (
-      value > 0 &&
-      value <= (mode === "ipcam" ? paths.length : paths.length - 1)
-    ) {
+    if (value > 0 && value <= (mode === 'ipcam' ? paths.length : paths.length - 1)) {
       onSetActiveImage(value - 1);
       setDefaultValue(value);
-      listRef.scrollToItem(value - 1, "center");
+      listRef.scrollToItem(value - 1, 'center');
     } else {
       setDefaultValue(active + 1);
     }
   }
 };
 
-const carouselMediaClick = (
-  setShowMedian: ((value: boolean) => void) | undefined,
-) => {
+const carouselMediaClick = (setShowMedian: ((value: boolean) => void) | undefined) => {
   setShowMedian!(true);
 };
 
-const scroll = (
-  direction: "forward" | "backward",
-  listRef: any,
-  speed: number = 300,
-) => {
+const scroll = (direction: 'forward' | 'backward', listRef: any, speed: number = 300) => {
   if (listRef.current) {
     const currentOffset = listRef.current.state.scrollOffset;
-    const newOffset =
-      direction === "forward" ? currentOffset + speed : currentOffset - speed;
+    const newOffset = direction === 'forward' ? currentOffset + speed : currentOffset - speed;
     listRef.current.scrollTo(newOffset);
   }
 };
 
 const carouselMouseDown = (
-  direction: "forward" | "backward",
+  direction: 'forward' | 'backward',
   listRef: any,
   setScrollInterval: (value: any) => void,
-  setSpeedUpTimeout: (value: any) => void,
+  setSpeedUpTimeout: (value: any) => void
 ) => {
   scroll(direction, listRef);
   const interval = setInterval(() => scroll(direction, listRef), 100);
@@ -90,10 +77,7 @@ const carouselMouseDown = (
 
   const timeout = setTimeout(() => {
     clearInterval(interval);
-    const fastInterval = setInterval(
-      () => scroll(direction, listRef, 600),
-      100,
-    );
+    const fastInterval = setInterval(() => scroll(direction, listRef, 600), 100);
     setScrollInterval(fastInterval);
   }, 2000);
   setSpeedUpTimeout(timeout);
@@ -103,7 +87,7 @@ const carouselMouseUp = (
   scrollInterval: NodeJS.Timeout | null,
   speedUpTimeout: NodeJS.Timeout | null,
   setScrollInterval: (value: any) => void,
-  setSpeedUpTimeout: (value: any) => void,
+  setSpeedUpTimeout: (value: any) => void
 ) => {
   if (scrollInterval) {
     clearInterval(scrollInterval);
@@ -115,12 +99,15 @@ const carouselMouseUp = (
   }
 };
 
-const setCarouselDimensions = ( screenSizes: ScreenSizes, setItemWidth: (value: number) => void, setCarouselHeight: (value: number) => void ) => {
-  
+const setCarouselDimensions = (
+  screenSizes: ScreenSizes,
+  setItemWidth: (value: number) => void,
+  setCarouselHeight: (value: number) => void
+) => {
   const { imageWidth, imageHeight, vertical, height } = screenSizes;
 
-  if ( vertical ) {
-    if ( height < 700 ){
+  if (vertical) {
+    if (height < 700) {
       setItemWidth(100);
       setCarouselHeight(190);
     } else {
@@ -147,8 +134,7 @@ const setCarouselDimensions = ( screenSizes: ScreenSizes, setItemWidth: (value: 
       }
     }
   }
-}
-
+};
 
 export {
   carouselClickImage,
@@ -156,5 +142,5 @@ export {
   carouselMediaClick,
   carouselMouseDown,
   carouselMouseUp,
-  setCarouselDimensions
+  setCarouselDimensions,
 };

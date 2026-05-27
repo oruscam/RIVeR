@@ -1,15 +1,22 @@
-import { useEffect, useState } from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import { set, useForm } from "react-hook-form";
-import { useDataSlice, useMatrixSlice, useProjectSlice, useSectionSlice } from "../../hooks";
-import { dateToStringDate, stringDateToDate } from "../../helpers";
-import "../../index.css";
-import { SuccessfulMessage } from "../Report";
-import { useTranslation } from "react-i18next";
-import { useWizard } from "react-use-wizard";
+import { useEffect, useState } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
+import { useForm } from 'react-hook-form';
+import { useProjectSlice } from '../../hooks';
+import { dateToStringDate, stringDateToDate } from '../../helpers';
+import '../../index.css';
+import { SuccessfulMessage } from '../Report';
+import { useTranslation } from 'react-i18next';
+import { useWizard } from 'react-use-wizard';
 
-export const FormReport = ({ isReportSaved, setIsReportSaved } : { isReportSaved: boolean; setIsReportSaved: React.Dispatch<React.SetStateAction<boolean>> }) => {
+
+export const FormReport = ({
+  isReportSaved,
+  setIsReportSaved,
+}: {
+  isReportSaved: boolean;
+  setIsReportSaved: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const { video, onProjectDetailsChange, projectDetails, onSetDefaultProjectState } = useProjectSlice();
   const { creation } = video.data;
   const { t } = useTranslation();
@@ -22,8 +29,8 @@ export const FormReport = ({ isReportSaved, setIsReportSaved } : { isReportSaved
       : today;
 
   const [meditionDate, setMeditionDate] = useState<Date>(defaultDate);
-  const [unitSistem, setUnitSistem] = useState<string>("si");
-  const { register } = useForm({
+  const [unitSistem, setUnitSistem] = useState<string>(projectDetails.unitSistem || 'si');
+  const { register, setValue } = useForm({
     defaultValues: {
       riverName: projectDetails.riverName,
       site: projectDetails.site,
@@ -31,40 +38,38 @@ export const FormReport = ({ isReportSaved, setIsReportSaved } : { isReportSaved
     },
   });
 
+  useEffect(() => {
+    if (projectDetails.unitSistem && projectDetails.unitSistem !== unitSistem) {
+      setUnitSistem(projectDetails.unitSistem);
+      setValue('unitSistem', projectDetails.unitSistem);
+    }
+  }, [projectDetails.unitSistem, unitSistem, setValue]);
+
   const { goToStep } = useWizard();
 
-  const { onSetDefaultMatrixState } = useMatrixSlice();
-  const { onSetDefaultDataState} = useDataSlice();
-  const { onSetDefaultSectionState } = useSectionSlice(); 
-
-  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUnitSistem(event.target.value);
-  };
+  // const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setUnitSistem(event.target.value);
+  // };
 
   const onHandleDataChange = (
-    event:
-      | React.KeyboardEvent<HTMLInputElement>
-      | React.FocusEvent<HTMLInputElement>,
+    event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
   ) => {
-    if (
-      (event as React.KeyboardEvent<HTMLInputElement>).key === "Enter" ||
-      event.type === "blur"
-    ) {
+    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') {
       event.preventDefault();
       const value = (event.target as HTMLInputElement).value;
       const id = (event.target as HTMLInputElement).id;
 
-      if (value === "") {
+      if (value === '') {
         return;
       }
-      if (id === "river-name") {
+      if (id === 'river-name') {
         onProjectDetailsChange({
           riverName: value,
           unitSistem: unitSistem,
           meditionDate: dateToStringDate(meditionDate),
         });
         setIsReportSaved(false);
-      } else if (id === "river-site") {
+      } else if (id === 'river-site') {
         onProjectDetailsChange({
           site: value,
           unitSistem: unitSistem,
@@ -84,26 +89,40 @@ export const FormReport = ({ isReportSaved, setIsReportSaved } : { isReportSaved
   }, [meditionDate, unitSistem]);
 
   const handleNewProject = () => {
-    onSetDefaultMatrixState();
-    onSetDefaultDataState();
-    onSetDefaultSectionState();
     onSetDefaultProjectState();
     goToStep(0);
-  }
+  };
+
+  useEffect(() => {
+    if (isReportSaved) {
+      const id = document.getElementById('successful-message');
+      console.log('id', id);
+      if (id) {
+        id.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  }, [isReportSaved]);
 
   return (
-    <>
-      <h1 className="form-title"> {t('Report.Summary.title')} </h1>
-      <form className="form-base-2">
+    <div className='body'>
+      <form className='form-report'>
         <div className="simple-input-container">
           <label>{t('Report.Form.riverName')}</label>
           <input
             type="text"
             required
-            {...register("riverName")}
+            {...register('riverName')}
             id="river-name"
             onBlur={onHandleDataChange}
             onKeyDown={onHandleDataChange}
+            onChange={(e) => {
+              onProjectDetailsChange({
+                riverName: e.target.value,
+                unitSistem: unitSistem,
+                meditionDate: dateToStringDate(meditionDate),
+              });
+              setIsReportSaved(false);
+            }}
           />
         </div>
 
@@ -112,38 +131,46 @@ export const FormReport = ({ isReportSaved, setIsReportSaved } : { isReportSaved
           <input
             type="text"
             required
-            {...register("site")}
+            {...register('site')}
             id="river-site"
             onBlur={onHandleDataChange}
             onKeyDown={onHandleDataChange}
+            onChange={(e) => {
+              onProjectDetailsChange({
+                site: e.target.value,
+                unitSistem: unitSistem,
+                meditionDate: dateToStringDate(meditionDate),
+              });
+              setIsReportSaved(false);
+            }}
           />
         </div>
 
-        <div className="simple-input-container">
-          <label id="label-unit-sistem"> {t('Report.Form.unitSistem')} </label>
+        {/* <div className="simple-input-container">
+            <label id="label-unit-sistem"> {t('Report.Form.unitSistem')} </label>
 
-          <div className="last-settings-form-field-radio">
-            <label> {t('Report.Form.SI')} </label>
-            <input
-              type="radio"
-              value="si"
-              {...register("unitSistem")}
-              id="river-medition-si"
-              onChange={handleRadioChange}
-            />
-          </div>
+            <div className="last-settings-form-field-radio">
+              <label> {t('Report.Form.SI')} </label>
+              <input
+                type="radio"
+                value="si"
+                {...register('unitSistem')}
+                id="river-medition-si"
+                onChange={handleRadioChange}
+              />
+            </div>
 
-          <div className="last-settings-form-field-radio">
-            <label> {t('Report.Form.imperial')} </label>
-            <input
-              type="radio"
-              value="imperial"
-              {...register("unitSistem")}
-              id="river-medition-imperial"
-              onChange={handleRadioChange}
-            />
-          </div>
-        </div>
+            <div className="last-settings-form-field-radio">
+              <label> {t('Report.Form.imperial')} </label>
+              <input
+                type="radio"
+                value="imperial"
+                {...register('unitSistem')}
+                id="river-medition-imperial"
+                onChange={handleRadioChange}
+              />
+            </div>
+          </div> */}
 
         <div className="simple-input-container">
           <label> {t('Report.Form.date')} </label>
@@ -157,13 +184,11 @@ export const FormReport = ({ isReportSaved, setIsReportSaved } : { isReportSaved
             timeIntervals={15}
           />
         </div>
-        
-        {
-          isReportSaved && (
-            <SuccessfulMessage goToHomePage={handleNewProject}/>
-          )
-        }
+
+
+
+        {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
       </form>
-    </>
+    </div>
   );
 };

@@ -1,20 +1,11 @@
-import { Section } from "../store/section/types";
+import { Section } from '../store/section/types';
 
 export const adapterCrossSections = (sections: Section[]) => {
   const transformSection = (section: Section) => {
-    const {
-      name,
-      dirPoints,
-      sectionPoints,
-      bathimetry,
-      numStations,
-      alpha,
-      rwPoints,
-      sectionPointsRW,
-    } = section;
+    const { name, dirPoints, sectionPoints, bathimetry, numStations, alpha, rwPoints, sectionPointsRW } = section;
 
     if (sectionPointsRW === undefined) return;
-    console.log("aqui alpha es del tipo ", typeof alpha);
+
     return {
       [name]: {
         bath: bathimetry.path,

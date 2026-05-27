@@ -1,5 +1,5 @@
-import { KonvaEventObject } from "konva/lib/Node";
-import { Point } from "../types";
+import { KonvaEventObject } from 'konva/lib/Node';
+import { Point } from '../types';
 
 export const getRelativePointerPosition = (node: any) => {
   const transform = node.getAbsoluteTransform().copy();
@@ -11,7 +11,7 @@ export const getRelativePointerPosition = (node: any) => {
 export const imageZoom = (
   event: KonvaEventObject<WheelEvent>,
   setResizeFactor: (factor: number) => void,
-  isDraggable: boolean,
+  isDraggable: boolean
 ) => {
   event.evt.preventDefault();
   const stage = event.target.getStage();
@@ -64,7 +64,7 @@ export const onMouseDownPixelSize = (
   event: KonvaEventObject<MouseEvent>,
   setLocalPoints: (points: Point[]) => void,
   setCurrentMousePosition: (position: Point) => void,
-  setMousePressed: (pressed: boolean) => void,
+  setMousePressed: (pressed: boolean) => void
 ) => {
   const stage = event.target.getStage();
   const pointerPosition = getRelativePointerPosition(stage);
@@ -78,7 +78,7 @@ export const onMouseUpPixelSize = (
   event: KonvaEventObject<MouseEvent>,
   localPoints: Point[],
   setLocalPoints: (points: Point[]) => void,
-  setMousePressed: (pressed: boolean) => void,
+  setMousePressed: (pressed: boolean) => void
 ) => {
   const stage = event.target.getStage();
   const pointerPosition = getRelativePointerPosition(stage);

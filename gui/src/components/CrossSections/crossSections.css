@@ -3,24 +3,28 @@
     height: 50px;
     overflow-x: auto;
     overflow-y: hidden;
-    margin-bottom: 5px;
+    margin-top: 15px;
+    margin-bottom: 15px;
     flex-shrink: 0;
     user-select: none;
+    position: sticky;
+    top: 0;
 }
 
-.sections-layer{
+.sections-layer {
     display: flex;
-    border-bottom: solid 1px white;
+    border-bottom: solid 1px var(--primary-text-color);
+    height: 42px;
 }
 
-.section{
+.section {
     background-color: transparent;
     color: var(--primary-text-color);
     border: none;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
     width: auto;
-    height: 40px;
+    height: 42px;
     cursor: pointer;
     margin-bottom: -1px;
     font-size: 17px;
@@ -28,8 +32,8 @@
     align-items: center;
     justify-content: space-between;
     padding-left: 8px;
-    padding-right: 8px;    
-    border-bottom: solid 1px white;
+    padding-right: 8px;
+    border-bottom: solid 1px var(--primary-text-color);
     flex-shrink: 1;
 }
     
@@ -52,13 +56,11 @@
     flex-shrink: 0;
 }
 
-
-.section-button1{
+.section-button1 {
     background-color: transparent;
     border: none;
     font-size: 20px;
-    color: white;
-    transition: transform 0.3s ease;
+    color: var(--primary-text-color);
     cursor: pointer;
     margin-left: 5px;
     width: 22px;
@@ -68,7 +70,7 @@
     justify-content: center;
     padding-bottom: 3px;
     border-radius: 50%;
-    transition: transform 0.1s ;
+    transition: transform 0.1s;
     flex-shrink: 0;
 }
 
@@ -117,7 +119,6 @@
 .sections-title{
     margin-left: -15px;
 }
-
 
 /* EYEBALL  */
 
@@ -178,8 +179,6 @@
 .pupil--open {
     animation: pupil--open .5s ease-in-out forwards;
 }
-
-
 
 @keyframes lid--close {
 from {

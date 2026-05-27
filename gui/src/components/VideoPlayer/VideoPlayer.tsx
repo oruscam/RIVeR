@@ -1,22 +1,19 @@
-import { useRef, useState } from "react";
-import { VideoPlayerButtons } from "./VideoPlayerButtons.js";
-import { VideoPlayerSeekBar } from "./VideoPlayerSeekBar.js";
-import { VideoPlayerTime } from "./VideoPlayerTime.js";
-import "../components.css";
+import { useRef, useState } from 'react';
+import { VideoPlayerButtons } from './VideoPlayerButtons.js';
+import { VideoPlayerSeekBar } from './VideoPlayerSeekBar.js';
+import { VideoPlayerTime } from './VideoPlayerTime.js';
+import '../components.css';
+import { PlayBtn } from '../CustomIcons/VideoPlayerIcons/PlayBtn.tsx';
+import { FrameBtn } from '../CustomIcons/VideoPlayerIcons/FrameBtn.tsx';
+import { SoundBtn } from '../CustomIcons/VideoPlayerIcons/SoundBtn.tsx';
 
-export const VideoPlayer = ({
-  fileURL,
-  duration,
-}: {
-  fileURL: string;
-  duration: number;
-}) => {
+export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: number }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [bufferAmount, setBufferAmount] = useState<number>(0);
   const [progressAmount, setProgressAmount] = useState<number>(0);
   const [control, setControl] = useState<{ play: boolean; volume: boolean }>({
     play: false,
-    volume: false,
+    volume: true,
   });
   const [currentTime, setCurrentTime] = useState<number>(0);
 
@@ -25,16 +22,11 @@ export const VideoPlayer = ({
       if (duration > 0) {
         for (let i = 0; i < videoRef.current.buffered.length; i++) {
           if (
-            videoRef.current.buffered.start(
-              videoRef.current.buffered.length - 1 + i,
-            ) < (videoRef.current.currentTime || 0)
+            videoRef.current.buffered.start(videoRef.current.buffered.length - 1 + i) <
+            (videoRef.current.currentTime || 0)
           ) {
             setBufferAmount(
-              (videoRef.current.buffered.end(
-                videoRef.current.buffered.length - 1 + i,
-              ) *
-                100) /
-                duration,
+              (videoRef.current.buffered.end(videoRef.current.buffered.length - 1 + i) * 100) / duration
             );
             break;
           }
@@ -47,17 +39,24 @@ export const VideoPlayer = ({
     if (videoRef.current) {
       if (duration > 0) {
         setCurrentTime(videoRef.current.currentTime || 0);
-        setProgressAmount(
-          ((videoRef.current.currentTime || 0) / duration) * 100,
-        );
+        setProgressAmount(((videoRef.current.currentTime || 0) / duration) * 100);
       }
+    }
+  };
+  const handleFrameStep = () => {
+    if (videoRef.current && !videoRef.current.paused) {
+      videoRef.current.pause();
+      setControl((prev) => ({ ...prev, play: false }));
     }
   };
 
   return (
     <>
-      {fileURL ? (
+      {fileURL && (
         <div className="video-player">
+          <div style={{ position: 'absolute', top: 12, right: 12 }}>
+            <SoundBtn videoRef={videoRef} control={control} setControl={setControl} />
+          </div>
           <div className="video">
             <video
               className="video"
@@ -83,16 +82,28 @@ export const VideoPlayer = ({
               setControl={setControl}
               control={control}
             ></VideoPlayerSeekBar>
+            <div className="row" style={{ width: '100%', justifyContent: 'space-between', paddingTop: '10px' }}>
+              <FrameBtn
+                videoRef={videoRef}
+                direction="back"
+                onClick={handleFrameStep}
+              />
 
-            <VideoPlayerButtons
-              videoRef={videoRef}
-              setControl={setControl}
-              control={control}
-            ></VideoPlayerButtons>
+              <PlayBtn
+                videoRef={videoRef}
+                setControl={setControl}
+                control={control}
+              />
+
+              <FrameBtn
+                videoRef={videoRef}
+                direction="next"
+                onClick={handleFrameStep}
+              />
+            </div>
+
           </div>
         </div>
-      ) : (
-        <h1>ERROR EN VIDEO PLAYER</h1>
       )}
     </>
   );

@@ -1,68 +1,34 @@
-import {
-  getDistanceBetweenPoints,
-  computePixelSize,
-  transformPixelToRealWorld,
-  transformRealWorldToPixel,
-  computeRwDistance,
-  getLinesCoordinates,
-} from "./coordinates";
-import { getPointNames } from "./getPointNames";
-import { getNewImageResolution } from "./getNewImageResolution";
-import { getValidationRules } from "./validationRules";
-import { formatTime, parseTime } from "./formatTime";
-import {
-  adaptStringDate,
-  dateToStringDate,
-  recortStringDate,
-  stringDateToDate,
-} from "./dateFunctions";
-import { getUnit } from "./unitSistem";
-import { getDirectionVector } from "./getDirectionVector";
-import {
-  getBathimetryValues,
-  getIntersectionPoints,
-} from "./getBathimetryValues";
-import { adapterCrossSections } from "./adapterCrossSections";
-import {
-  imageZoom,
-  onMouseDownPixelSize,
-  onMouseUpPixelSize,
-  getRelativePointerPosition,
-} from "./konvaActions";
-import {
-  adapterData,
-  adapterBathimetry,
-  generateXAxisTicks,
-  generateYAxisTicks,
-} from "./graphsHelpers";
-import {
-  formatNumberToPrecision2,
-  formatNumberToPrecision4,
-  formatNumberTo2Decimals,
-} from "./adapterNumbers";
-import { carouselClickImage, carouselKeyDown, setCarouselDimensions } from "./carouselFunctions";
-import {
-  calculateArrowWidth,
-  calculateMultipleArrowsAdaptative,
-} from "./drawVectorsFunctions";
+import { getPointNames, getLabelStyle, getPointsDistances } from './hardModeFormHelpers';
+import { getNewImageResolution } from './getNewImageResolution';
+import { getValidationRules } from './validationRules';
+import { formatTime, parseTime } from './formatTime';
+import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate } from './dateFunctions';
+import { getUnit } from './unitSistem';
+import { getDirectionVector } from './getDirectionVector';
+import { getBathimetryValues, getIntersectionPoints } from './getBathimetryValues';
+import { adapterCrossSections } from './adapterCrossSections';
+import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks, getOrthoImageDimensions } from './graphsHelpers';
+import { formatNumberToPrecision2, formatNumberToPrecision4, formatNumberTo2Decimals } from './adapterNumbers';
+import { carouselClickImage, carouselKeyDown, setCarouselDimensions } from './carouselFunctions';
+import { calculateArrowWidth, calculateMultipleArrowsAdaptative, getVelocityLimits } from './drawArrows';
 import {
   createSquare,
   getObliquePointsDistances,
   adapterObliquePointsDistances,
-} from "./useMatrixHelpers";
+  adjustCoordinates,
+} from './useObliqueHelpers';
 import {
   onLoadCrossSections,
   onLoadObliquePoints,
   onLoadPixelSize,
   onLoadProcessingForm,
   onLoadVideoParameters,
-} from "./loadProjectHelpers";
-import { getPositionSectionText } from "./getPositionSectionText";
-import { appendSolutionToImportedPoints } from "./appendSolutionsToImportedPoints";
-import { verifyWindowsSizes } from "./verifyWindowsSizes";
-import { getNewCanvasPositions, setChangesByForm } from "./sectionsHelpers";
-import getLineColor from "./getLineColor";
-import { getImageSize } from "./getImageSize";
+} from './loadProjectHelpers';
+import { verifyWindowsSizes } from './verifyWindowsSizes';
+import { getNewCanvasPositions, setChangesByForm } from './sectionsHelpers';
+import getLineColor from './getLineColor';
+import { getImageSize } from './getImageSize';
+import { handleDragLeave, handleDragOver } from './handleDragEvents';
 
 export {
   adapterBathimetry,
@@ -70,13 +36,11 @@ export {
   adapterData,
   adapterObliquePointsDistances,
   adaptStringDate,
-  appendSolutionToImportedPoints,
+  adjustCoordinates,
   calculateArrowWidth,
   calculateMultipleArrowsAdaptative,
   carouselClickImage,
   carouselKeyDown,
-  computePixelSize,
-  computeRwDistance,
   createSquare,
   dateToStringDate,
   formatNumberTo2Decimals,
@@ -87,33 +51,30 @@ export {
   generateYAxisTicks,
   getBathimetryValues,
   getDirectionVector,
-  getDistanceBetweenPoints,
   getImageSize,
   getIntersectionPoints,
+  getLabelStyle,
   getLineColor,
-  getLinesCoordinates,
   getNewCanvasPositions,
   getNewImageResolution,
   getObliquePointsDistances,
+  getOrthoImageDimensions,
   getPointNames,
-  getPositionSectionText,
-  getRelativePointerPosition,
+  getPointsDistances,
   getUnit,
   getValidationRules,
-  imageZoom,
+  getVelocityLimits,
+  handleDragLeave,
+  handleDragOver,
   onLoadCrossSections,
   onLoadObliquePoints,
   onLoadPixelSize,
   onLoadProcessingForm,
   onLoadVideoParameters,
-  onMouseDownPixelSize,
-  onMouseUpPixelSize,
   parseTime,
   recortStringDate,
   setCarouselDimensions,
   setChangesByForm,
   stringDateToDate,
-  transformPixelToRealWorld,
-  transformRealWorldToPixel,
   verifyWindowsSizes,
 };
