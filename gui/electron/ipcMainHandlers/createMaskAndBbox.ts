@@ -33,7 +33,7 @@ async function createMaskAndBbox(riverCli: Function) {
 
     try {
       const { data, error } = (await riverCli(maskAndBboxArgs, 'json', false, logsPath)) as {
-        data: { bbox: number[], bbox_path: string; mask_json_path: string; mask_png_path: string };
+        data: { bbox: number[], bbox_path: string; mask_npy_path: string; mask_png_path: string };
         error: { message: string };
       };
 
@@ -44,7 +44,7 @@ async function createMaskAndBbox(riverCli: Function) {
       }
 
       PROJECT_CONFIG.bboxPath = data.bbox_path;
-      PROJECT_CONFIG.maskPath = data.mask_json_path;
+      PROJECT_CONFIG.maskPath = data.mask_npy_path;
       let user_masks_paths: string[] = []
       outPngMask = data.mask_png_path;
 
@@ -70,7 +70,7 @@ async function createMaskAndBbox(riverCli: Function) {
           // We need to create the same directionary structure as in create-user-mask
           if ( user_masks_paths.length === 0 ){
             user_masks.forEach( (_mask: any, index: number) => {
-              user_masks_paths.push( path.join( projectDirectory, `usr_mask_${index}.json`))
+              user_masks_paths.push( path.join( projectDirectory, `usr_mask_${index}.npy`))
             });
           }
 
@@ -80,7 +80,7 @@ async function createMaskAndBbox(riverCli: Function) {
             '-w',
             projectDirectory,
             '--roi',
-            data.mask_json_path,
+            data.mask_npy_path,
           ]
   
           user_masks_paths.forEach((path: string) => {
@@ -89,7 +89,7 @@ async function createMaskAndBbox(riverCli: Function) {
   
           const { data: compileData, error: compileError } = await riverCli(compileMasksArgs, 'json', false, logsPath);
   
-          PROJECT_CONFIG.maskPath = compileData.final_mask_json;
+          PROJECT_CONFIG.maskPath = compileData.final_mask_npy;
           outPngMask = compileData.final_mask_png;
       }
 

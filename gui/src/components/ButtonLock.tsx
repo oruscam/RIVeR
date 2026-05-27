@@ -80,6 +80,16 @@ export const ButtonLock = ({
         break;
 
       default:
+        if (localExtraFields) {
+          const headerElement = document.getElementById(headerElementID);
+          headerElement?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          const footerElement = document.getElementById(footerElementID);
+          setTimeout(() => {
+            footerElement?.scrollIntoView({ behavior: 'smooth' });
+          }, 50);
+        }
+        setLocalExtraFields(!localExtraFields);
         break;
     }
   };

@@ -1,0 +1,301 @@
+{
+  "MainPage": {
+    "start": "開始",
+    "loadProject": "プロジェクトを読み込む",
+    "spanish": "スペイン語",
+    "english": "英語",
+    "french": "フランス語",
+    "italian": "イタリア語",
+    "portuguese": "ポルトガル語",
+    "german": "ドイツ語",
+    "japanese": "日本語",
+    "chinese": "中文",
+    "arabic": "アラビア語",
+    "korean": "한국어",
+    "russian": "ロシア語",
+    "hindi": "ヒンディー語",
+    "Errors": {
+      "noSettingsFile": "選択したディレクトリにsettings.jsonファイルが含まれていません",
+      "notValidDirectory": "有効なディレクトリを選択してください",
+      "default": "プロジェクトの読み込み中にエラーが発生しました"
+    },
+    "Version": {
+      "latest": "最新バージョンを使用しています。",
+      "update": "新しいバージョンが利用可能です: "
+    },
+    "Settings": {
+      "unitSystem": "単位系",
+      "riverFolder": "RIVeRフォルダ",
+      "si": "SI（デフォルト）",
+      "imperial": "ヤード・ポンド法"
+    }
+  },
+  "Step-2": {
+    "title": "映像の種類を選択",
+    "pleaseSelectVideo": "動画ファイルを選択してください",
+    "invalidFileType": "無効なファイル形式です。動画ファイルを選択してください。",
+    "addYourFootage": "映像を追加",
+    "changeType": "種類を変更",
+    "dragAndDrop": "動画ファイルをここにドラッグ＆ドロップ",
+    "openFolders": "フォルダを開く"
+  },
+  "Wizard": {
+    "back": "戻る",
+    "next": "次へ",
+    "save": "完了"
+  },
+  "VideoRange": {
+    "title": "動画範囲",
+    "start": "開始",
+    "end": "終了",
+    "step": "ステップ",
+    "Errors": {
+      "start1": "無効な時間選択: 開始時間は0以上でなければなりません。有効な値を入力してください。",
+      "end1": "無効な時間選択: 「終了」の値は動画の総再生時間を超えることはできません。有効な値を入力してください。",
+      "end2": "無効な時間選択: 「終了」の値は0以下にはできません。有効な値を入力してください。",
+      "end3": "無効な時間選択: 「終了」の値は「開始」の値以下にはできません。有効な値を入力してください。",
+      "step": "無効なステップ選択: 「ステップ」は1より大きい整数でなければなりません。有効な値を入力してください。",
+      "required": "すべてのフィールドは必須です。動画範囲フォームを確認してください。",
+      "formatInput": "形式が正しくありません。「開始」と「終了」は「00:00」形式で入力してください。"
+    },
+    "ExtraInfo": {
+      "fileName": "ファイル名:",
+      "totalLength": "総再生時間: ",
+      "timeBetweenFrame": "フレーム間隔: ",
+      "resolution": "解像度: ",
+      "numberOfFrames": "フレーム数: "
+    },
+    "framesResolution": "フレーム解像度"
+  },
+  "PixelSize": {
+    "title": "ピクセルサイズ",
+    "lineLength": "線の長さ",
+    "pixelSize": "ピクセルサイズ",
+    "drawLine": "線を描く",
+    "Errors": {
+      "required": "すべてのフィールドは必須です。ピクセルサイズフォームを確認してください。",
+      "lineLength": "無効な線の長さ: 正の数（小数可）を入力してください。",
+      "pixelSize": "無効なピクセルサイズ: 正の数（小数可）を入力してください。"
+    },
+    "RealWorld": {
+      "title": "実世界座標",
+      "eastPoint1": "東点1",
+      "eastPoint2": "東点2",
+      "eastPoint3": "東点3",
+      "eastPoint4": "東点4",
+      "northPoint1": "北点1",
+      "northPoint2": "北点2",
+      "northPoint3": "北点3",
+      "northPoint4": "北点4"
+    },
+    "Pixel": {
+      "title": "ピクセル座標",
+      "xPoint1": "X点1",
+      "xPoint2": "X点2",
+      "xPoint3": "X点3",
+      "xPoint4": "X点4",
+      "yPoint1": "Y点1",
+      "yPoint2": "Y点2",
+      "yPoint3": "Y点3",
+      "yPoint4": "Y点4"
+    }
+  },
+  "CrossSections": {
+    "title": "横断面",
+    "drawLine": "方向を描く",
+    "width": "幅",
+    "importBath": "測深データを読み込む",
+    "level": "水位",
+    "leftBankStation": "左岸測点",
+    "RealWorld": {
+      "title": "実世界座標",
+      "eastPoint1": "東（左岸）",
+      "northPoint1": "北（左岸）",
+      "eastPoint2": "東（右岸）",
+      "northPoint2": "北（右岸）"
+    },
+    "Pixel": {
+      "title": "ピクセル座標",
+      "xPoint1": "X（左）",
+      "yPoint1": "Y（左）",
+      "xPoint2": "X（右）",
+      "yPoint2": "Y（右）"
+    },
+    "Errors": {
+      "levelError": "水位は{{yMin}}から{{yMax}}の範囲でなければなりません",
+      "leftBank": "左岸が範囲外です",
+      "bathimetryNotValid": "測深データが無効です。水位{{level}}はこのファイルに存在しません",
+      "bathimetryIsRequired": "{{section_name}}には測深データが必要です",
+      "rwLength": "{{section_name}}の横断面長さは0にできません"
+    },
+    "warning": "{{section_name}}を削除してもよいですか？",
+    "warningTitle": "断面の削除",
+    "mask": "マスク",
+    "addMask": "マスクを追加",
+    "bankRight": "右",
+    "bankLeft": "左"
+  },
+  "Processing": {
+    "title": "処理",
+    "artificialSeeding": "人工トレーサー",
+    "windowSizes": "相関窓サイズ",
+    "step1": "ステップ1",
+    "step2": "ステップ2",
+    "test": "テスト",
+    "analize": "解析",
+    "stop": "停止",
+    "roiAndMask": "ROIとマスク",
+    "roiHeight": "ROI高さ",
+    "preProcessingFilter": "前処理フィルタリング",
+    "grayscale": "グレースケール",
+    "removeBackground": "背景除去",
+    "clahe": "CLAHE",
+    "clipLimit": "クリップ制限",
+    "processingSettings": "処理設定",
+    "stdFiltering": "標準偏差フィルタリング",
+    "medianTestFiltering": "メジアンテストフィルタリング",
+    "epsilon": "イプシロン",
+    "threshold": "しきい値",
+    "carouselMedia": "メジアン",
+    "Plot": {
+      "u": "U成分",
+      "v": "V成分"
+    }
+  },
+  "Analizing": {
+    "title": "解析中",
+    "analize": "解析",
+    "stop": "停止",
+    "remainingTime": "残り時間: "
+  },
+  "Results": {
+    "title": "結果",
+    "measured": "実測値",
+    "interpolated": "補間値",
+    "alpha": "アルファ係数",
+    "stationNumber": "測点番号",
+    "showVelStd": "流速標準偏差を表示",
+    "showProfile": "5% | 95% パーセンタイルを表示",
+    "interpolateProfile": "プロファイルを補間",
+    "applyChanges": "変更を適用"
+  },
+  "Graphs": {
+    "station": "測点",
+    "velocity": "流速",
+    "discharge": "流量",
+    "stage": "水位",
+    "level": "レベル"
+  },
+  "Report": {
+    "dischargeQ": "流量 Q",
+    "VideoInfo": {
+      "title": "動画情報",
+      "name": "名前",
+      "duration": "再生時間",
+      "resolution": "解像度",
+      "fps": "fps",
+      "creationDate": "作成日"
+    },
+    "ProcessedRange": {
+      "title": "処理範囲",
+      "start": "開始",
+      "end": "終了",
+      "length": "長さ",
+      "step": "ステップ",
+      "timeStep": "時間ステップ"
+    },
+    "Summary": {
+      "title": "概要",
+      "width": "川幅",
+      "area": "断面積",
+      "q": "Q",
+      "meanV": "平均流速",
+      "alpha": "アルファ係数",
+      "averageVs": "平均表面流速",
+      "maxD": "最大水深",
+      "meanD": "平均水深",
+      "measured": "実測割合 %",
+      "mean": "平均",
+      "stdDev": "標準偏差",
+      "cov": "変動係数"
+    },
+    "Form": {
+      "riverName": "河川名",
+      "riverLocation": "観測地点",
+      "unitSistem": "単位系",
+      "SI": "SI",
+      "imperial": "ヤード・ポンド法",
+      "date": "測定日",
+      "resolution": "解像度",
+      "colorbarLimits": "カラーバー範囲",
+      "minLimit": "最小",
+      "maxLimit": "最大",
+      "export": "MP4エクスポート"
+    },
+    "pixelTransformation": "ピクセル変換",
+    "processingParameters": "処理パラメータ",
+    "preProcessing": "前処理",
+    "postProcessing": "後処理",
+    "generatedBy": "RIVeRで生成",
+    "date": "レポート作成日",
+    "Success": {
+      "title": "解析完了！",
+      "message": "RIVeRを閉じるか、前の画面に戻ることができます "
+    }
+  },
+  "ControlPoints": {
+    "title": "コントロールポイント",
+    "drawPoints": "点を描く",
+    "importDistances": "距離を読み込む",
+    "distance": "距離",
+    "length": "長さ",
+    "Errors": {
+      "required": "すべての距離フィールドは必須です。コントロールポイントフォームを確認してください",
+      "notNull": "すべての距離フィールドは0より大きくなければなりません。コントロールポイントフォームを確認してください",
+      "notZero": "すべての距離フィールドは0以外でなければなりません。コントロールポイントフォームを確認してください",
+      "positive": "すべての距離フィールドは正の値でなければなりません。コントロールポイントフォームを確認してください"
+    }
+  },
+  "ControlPoints3d": {
+    "importPoints": "点を読み込む",
+    "importImages": "画像を読み込む",
+    "east": "東",
+    "north": "北",
+    "label": "ラベル",
+    "northern": "北半球",
+    "southern": "南半球",
+    "directSolve": "直接解法",
+    "optimize": "最適化",
+    "reprojectionErrors": "再投影誤差: ",
+    "numberOfPoints": "点の数: ",
+    "cameraHeight": "カメラ高さ: "
+  },
+  "Errors": {
+    "invalidPointsFileFormat": "無効なポイントファイル形式です。",
+    "invalidDistancesFileFormat": "無効な距離ファイル形式です",
+    "invalidDistancesNotValidValue": "無効な距離ファイル形式です。一部の距離値が有効な数値ではありません",
+    "invalidDistancesNegativeValue": "無効な距離ファイル形式です。負の距離は許可されていません",
+    "invalidBathimetryFileFormat": "無効な測深ファイル形式です",
+    "invalidImageExtension": "ディレクトリに画像以外のファイルが含まれています",
+    "imagesFolderEmpty": "選択したフォルダに画像が見つかりません",
+    "waitingForFrames": "フレームの読み込みを待っています。数秒後に再試行してください",
+    "Cli": {
+      "windowsSizesError": "選択した関心領域に対して相関窓サイズが大きすぎます。",
+      "bboxNotDefined": "関心領域（ROI）が定義されていません。"
+    }
+  },
+  "Loader": {
+    "extractingFrames": "動画フレームを抽出中",
+    "results": "流速プロファイル統計を生成中",
+    "videoConversion": "動画をMP4形式に変換中です。しばらくお待ちください。",
+    "maskAndRoi": "ROIとマスクを定義中"
+  },
+  "Commons": {
+    "yes": "はい",
+    "no": "いいえ",
+    "solve": "解析",
+    "resourceNotFound": "リソースが見つかりません",
+    "randomError": "エラーが発生しました。再試行してください",
+    "dropHereText": "このパネルにファイルをドロップしてください。自動的に適切な場所に配置します。"
+  }
+}

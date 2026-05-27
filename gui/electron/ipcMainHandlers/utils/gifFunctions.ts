@@ -7,28 +7,30 @@
  * @returns object containing output width, height, and drawing coordinates
  */
 
+import { max, min } from "d3";
 import { getPositionSectionText } from "../../../commons/sectionTextPosition";
 import { getQuiverValues } from "../../../commons/vectors";
+import { setColorbarLimits } from "../setColorbarLimits";
 
-const getGifDimensions = ( imgWidth, imgHeight, factor ) => {
-    const outWidth = Math.round(imgWidth * factor);
-    const outHeight = Math.round(imgHeight * factor);
+const getGifDimensions = (imgWidth, imgHeight, factor) => {
+  const outWidth = Math.round(imgWidth * factor);
+  const outHeight = Math.round(imgHeight * factor);
 
-    const originalRatio = imgWidth / imgHeight;
-    const outRatio = outWidth / outHeight;
+  const originalRatio = imgWidth / imgHeight;
+  const outRatio = outWidth / outHeight;
 
-    let dw = outWidth, dh = outHeight, dx = 0, dy = 0;
-    if ( originalRatio > outRatio ) {
-        dw = outWidth;
-        dh = Math.round(outWidth / originalRatio);
-        dy = Math.round((outHeight - dh) / 2);
-    } else {
-        dh = outHeight;
-        dw = Math.round(outHeight * originalRatio);
-        dx = Math.round((outWidth - dw) / 2);
-    }
+  let dw = outWidth, dh = outHeight, dx = 0, dy = 0;
+  if (originalRatio > outRatio) {
+    dw = outWidth;
+    dh = Math.round(outWidth / originalRatio);
+    dy = Math.round((outHeight - dh) / 2);
+  } else {
+    dh = outHeight;
+    dw = Math.round(outHeight * originalRatio);
+    dx = Math.round((outWidth - dw) / 2);
+  }
 
-    return { outWidth, outHeight, dw, dh, dx, dy };
+  return { outWidth, outHeight, dw, dh, dx, dy };
 }
 
 /**
@@ -42,25 +44,25 @@ const getGifDimensions = ( imgWidth, imgHeight, factor ) => {
  * @returns array of objects containing resized points, name position, rotation, and section name
  */
 
-const loadSectionValues = ( sections, width, height, factor ) => {
+const loadSectionValues = (sections, width, height, factor) => {
   console.log('width: ', width, 'height: ', height, 'factor: ', factor)
-    const values = sections.map((section) => {
-        const { dirPoints, sectionPoints } = section
+  const values = sections.map((section) => {
+    const { dirPoints, sectionPoints } = section
 
-        const resizeFactor = width / (width * factor);
+    const resizeFactor = width / (width * factor);
 
-        const { point, rotation } = getPositionSectionText(sectionPoints[0], sectionPoints[1], width * factor, height * factor, resizeFactor);
+    const { point, rotation } = getPositionSectionText(sectionPoints[0], sectionPoints[1], width * factor, height * factor, resizeFactor);
 
-        return {
-            dirPoints: dirPoints.map(p => ({ x: p.x * factor,  y: p.y * factor })),
-            sectionPoints: sectionPoints.map(p => ({ x: p.x * factor,  y: p.y * factor })),
-            namePoint: { x: point.x * factor, y: (point.y * factor) + 15 },
-            rotation,
-            name: section.name
-        }
-    })
+    return {
+      dirPoints: dirPoints.map(p => ({ x: p.x * factor, y: p.y * factor })),
+      sectionPoints: sectionPoints.map(p => ({ x: p.x * factor, y: p.y * factor })),
+      namePoint: { x: point.x * factor, y: (point.y * factor) + 15 },
+      rotation,
+      name: section.name
+    }
+  })
 
-    return values;
+  return values;
 }
 
 /**
@@ -72,109 +74,109 @@ const loadSectionValues = ( sections, width, height, factor ) => {
  */
 
 const drawWatermark = (
-    ctx,
-    watermarkImage,
-    canvasWidth,
-    canvasHeight,
+  ctx,
+  watermarkImage,
+  canvasWidth,
+  canvasHeight,
 ) => {
-        const opacity = 1
-        const scale = 0.1;  // 10%
-        const margin = 20;
+  const opacity = 1
+  const scale = 0.18;  // 18% of canvas width for better visibility
+  const margin = canvasWidth * 0.02;  // 2% of canvas width — proportional margin
 
-        const originalW = watermarkImage.width;
-        const originalH = watermarkImage.height;
+  const originalW = watermarkImage.width;
+  const originalH = watermarkImage.height;
 
-        const canvasW = canvasWidth;
-        const canvasH = canvasHeight;
+  const canvasW = canvasWidth;
+  const canvasH = canvasHeight;
 
-        // We want the watermark to occupy 10% of the image WIDTH
-        const targetWidth = canvasW * scale;
-        const aspectRatio = originalW / originalH;
+  // We want the watermark to occupy 18% of the image WIDTH
+  const targetWidth = canvasW * scale;
+  const aspectRatio = originalW / originalH;
 
-        // Calculate the corresponding height
-        const targetHeight = targetWidth / aspectRatio;
+  // Calculate the corresponding height
+  const targetHeight = targetWidth / aspectRatio;
 
-        // If for some reason it is taller than 10% of the height, adjust using height
-        let finalW = targetWidth;
-        let finalH = targetHeight;
+  // If for some reason it is taller than 18% of the height, adjust using height
+  let finalW = targetWidth;
+  let finalH = targetHeight;
 
-        if (finalH > canvasH * scale) {
-          // scale according to height
-          finalH = canvasH * scale;
-          finalW = finalH * aspectRatio;
-        }
+  if (finalH > canvasH * scale) {
+    // scale according to height
+    finalH = canvasH * scale;
+    finalW = finalH * aspectRatio;
+  }
 
-        // Calculate the position at bottom-left corner
-        const x = margin;
-        const y = canvasHeight - finalH - margin;
+  // Calculate the position at bottom-left corner
+  const x = margin;
+  const y = canvasHeight - finalH - margin;
 
-        // Save the current context
-        ctx.save();
+  // Save the current context
+  ctx.save();
 
-        // Apply transparency
-        ctx.globalAlpha = opacity;
+  // Apply transparency
+  ctx.globalAlpha = opacity;
 
-        // Draw the watermark
-        ctx.drawImage(
-            watermarkImage,
-            0, 0, watermarkImage.width, watermarkImage.height,
-            x, y, finalW, finalH
-        );
+  // Draw the watermark
+  ctx.drawImage(
+    watermarkImage,
+    0, 0, watermarkImage.width, watermarkImage.height,
+    x, y, finalW, finalH
+  );
 
-        // Restore the context
-        ctx.restore();
+  // Restore the context
+  ctx.restore();
 };
 
 const drawSection = (ctx, values, factor, imageHeight) => {
-    const lineWidth = imageHeight * 0.004;
+  const lineWidth = imageHeight * 0.004;
 
-    values.forEach((section) => {
-        const { dirPoints, sectionPoints, namePoint, rotation, name } = section
+  values.forEach((section) => {
+    const { dirPoints, sectionPoints, namePoint, rotation, name } = section
 
-        // Draw direction line - it is a solid line drawn by the user
-        ctx.beginPath();
-        ctx.moveTo(dirPoints[0].x, dirPoints[0].y);
-        ctx.lineTo(dirPoints[1].x, dirPoints[1].y);
-        ctx.strokeStyle = '#545454';
-        ctx.lineWidth = lineWidth;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-        ctx.closePath();
+    // Draw direction line - it is a solid line drawn by the user
+    ctx.beginPath();
+    ctx.moveTo(dirPoints[0].x, dirPoints[0].y);
+    ctx.lineTo(dirPoints[1].x, dirPoints[1].y);
+    ctx.strokeStyle = '#545454';
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.stroke();
+    ctx.closePath();
 
-        // Draw section line - it is a dashed line in the same direction than the direction line, but with maybe a different length
-        ctx.beginPath();
-        ctx.setLineDash([5, 10]);
-        ctx.strokeStyle = '#545454';
-        ctx.lineWidth = lineWidth;
-        ctx.lineCap = 'round'; 
-        ctx.moveTo(sectionPoints[0].x, sectionPoints[0].y);
-        ctx.lineTo(sectionPoints[1].x, sectionPoints[1].y);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.closePath();
+    // Draw section line - it is a dashed line in the same direction than the direction line, but with maybe a different length
+    ctx.beginPath();
+    ctx.setLineDash([5, 10]);
+    ctx.strokeStyle = '#545454';
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.moveTo(sectionPoints[0].x, sectionPoints[0].y);
+    ctx.lineTo(sectionPoints[1].x, sectionPoints[1].y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.closePath();
 
-        // Save context before drawing text
-        ctx.save()
+    // Save context before drawing text
+    ctx.save()
 
-        // Translate and rotate context to draw the text
-        // If rotation can be undefined, use 0
-        const rot = typeof rotation === 'number' ? rotation : 0
-        ctx.translate(namePoint.x, namePoint.y)
-        ctx.rotate(rot * Math.PI / 180)
+    // Translate and rotate context to draw the text
+    // If rotation can be undefined, use 0
+    const rot = typeof rotation === 'number' ? rotation : 0
+    ctx.translate(namePoint.x, namePoint.y)
+    ctx.rotate(rot * Math.PI / 180)
 
-        // Text style
-        // Adjust font size based on factor
-        const fontSize = imageHeight * 0.02; // 3% of image height
-        ctx.font = `${fontSize}px Arial`
-        ctx.fillStyle = '#222'
-        ctx.fontWeight = '500'
+    // Text style
+    // Adjust font size based on factor
+    const fontSize = imageHeight * 0.02; // 3% of image height
+    ctx.font = `${fontSize}px Arial`
+    ctx.fillStyle = '#222'
+    ctx.fontWeight = '500'
 
-        // Draw text
-        ctx.fillStyle = '#000000'
-        ctx.fillText(name, 0, 0)
+    // Draw text
+    ctx.fillStyle = '#000000'
+    ctx.fillText(name, 0, 0)
 
-        ctx.restore()
-    })
+    ctx.restore()
+  })
 }
 
 const drawQuiver = (
@@ -185,26 +187,31 @@ const drawQuiver = (
   factor,
   fps,
   step,
-  imageWidth
+  imageWidth,
+  colorbarLimits?: { min: number; max: number }
 ) => {
   // Get quiver data for the current frame
-  const { data } = getQuiverValues(quiver, false, frameIndex, step, fps, transformationMatrix);
+  const { data } = getQuiverValues(quiver, false, frameIndex, step, fps, transformationMatrix, { min: colorbarLimits.min, max: colorbarLimits.max });
 
   // Used for avoid arrows going beyond the line end
-  const delta = 3
+  const delta = 0
 
-  
+
   // Set line width
-  const lineWidth = imageWidth * 0.0015;
-  const amplitudeFactor = 15;
-  
+  const lineWidth = imageWidth * 0.0012;
+  const amplitudeFactor = 10;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
   // Draw each vector as an arrow
   for (let i = 0; i < data.length; i++) {
     const d = data[i];
     const x1 = d.x * factor;
     const y1 = d.y * factor;
-    const dx = (d.u * amplitudeFactor * factor) ;
-    const dy = (d.v * amplitudeFactor * factor) ;
+    const dx = (d.u * amplitudeFactor * factor);
+    const dy = (d.v * amplitudeFactor * factor);
     const x2 = x1 + dx;
     const y2 = y1 + dy;
 
@@ -218,22 +225,22 @@ const drawQuiver = (
     // New end point to avoid overlapping with arrow head
     const newX2 = x1 + Math.cos(angle) * newLength;
     const newY2 = y1 + Math.sin(angle) * newLength;
-    ctx.lineTo(newX2 , newY2);
+    ctx.lineTo(newX2, newY2);
     ctx.strokeStyle = d.color;
     ctx.stroke();
 
     // Draw the arrow
-    const arrowLength = lineWidth * 5;
+    const arrowLength = lineWidth * 8;
 
     ctx.beginPath();
     ctx.moveTo(x2, y2);
     ctx.lineTo(
-      x2 - arrowLength * Math.cos(angle - Math.PI / 6),
-      y2 - arrowLength * Math.sin(angle - Math.PI / 6)
+      x2 - arrowLength * Math.cos(angle - Math.PI / 7),
+      y2 - arrowLength * Math.sin(angle - Math.PI / 7)
     );
     ctx.lineTo(
-      x2 - arrowLength * Math.cos(angle + Math.PI / 6),
-      y2 - arrowLength * Math.sin(angle + Math.PI / 6)
+      x2 - arrowLength * Math.cos(angle + Math.PI / 7),
+      y2 - arrowLength * Math.sin(angle + Math.PI / 7)
     );
     ctx.closePath();
     ctx.fillStyle = d.color;
@@ -255,11 +262,13 @@ const drawColorBar = (
   max,
   canvasWidth,
   canvasHeight,
+  unitSistem: string = 'si',
 ) => {
   // === Layout ===
-  const margin = canvasWidth * 0.015;
-  const containerWidth = canvasWidth * 0.32 > 450 ? 450 : canvasWidth * 0.35;
-  const containerHeight = canvasHeight * 0.060 > 40 ? 40 : canvasHeight * 0.060;
+  // Fully proportional sizing — no pixel caps — for harmonious proportions at any resolution
+  const margin = canvasWidth * 0.02;          // 2% of canvas width
+  const containerWidth = canvasWidth * 0.38;  // 38% of canvas width
+  const containerHeight = canvasHeight * 0.08; // 8% of canvas height
 
   const x = canvasWidth - containerWidth - margin;
   const y = canvasHeight - containerHeight - margin;
@@ -304,8 +313,13 @@ const drawColorBar = (
 
   const centerY = y + containerHeight / 2;
 
-  const minText = min.toFixed(2);
-  const maxText = max.toFixed(2);
+  const isImperial = unitSistem === 'imperial';
+  const M_TO_FT = 3.28084;
+  const unitLabel = isImperial ? 'ft/s' : 'm/s';
+  const displayMin = isImperial ? min * M_TO_FT : min;
+  const displayMax = isImperial ? max * M_TO_FT : max;
+  const minText = `${displayMin.toFixed(2)} ${unitLabel}`;
+  const maxText = `${displayMax.toFixed(2)} ${unitLabel}`;
 
   const minTextWidth = ctx.measureText(minText).width;
   const maxTextWidth = ctx.measureText(maxText).width;

@@ -1,5 +1,7 @@
 // * Archivo para almacenar los tipos e interfaces.
 
+type ThemeType = 'dark' | 'light' | 'dracula';
+
 interface ScreenSizes {
   width: number;
   height: number;
@@ -16,7 +18,7 @@ interface ScreenSizes {
 
 interface UIState {
   screenSizes: ScreenSizes;
-  darkMode: boolean;
+  theme: ThemeType;
   error: string[];
   isLoading: boolean;
   seeAll: boolean;
@@ -26,4 +28,4 @@ interface UIState {
   latestVersion?: string;
 }
 
-export type { ScreenSizes, UIState };
+export type { ScreenSizes, UIState, ThemeType };

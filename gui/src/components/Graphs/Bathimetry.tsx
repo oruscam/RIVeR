@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useSectionSlice, useUiSlice } from '../../hooks';
+import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { bathimetrySvg } from './bathimetrySvg';
 import * as d3 from 'd3';
 import { GRAPHS } from '../../constants/constants';
@@ -13,7 +13,8 @@ interface BathimetryProps {
 
 export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
   const { sections, activeSection } = useSectionSlice();
-  const { screenSizes } = useUiSlice();
+  const { screenSizes, language } = useUiSlice();
+  const { projectDetails } = useProjectSlice();
   const { width: screenWidth } = screenSizes;
   const { bathimetry, name } = sections[activeSection];
   const { x1Intersection, leftBank, level, line, path, x2Intersection } = bathimetry;
@@ -41,10 +42,11 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
           rightBank: (x1Intersection ?? 0) + (leftBank ?? 0) + rwLength,
           x1Intersection: x1Intersection ?? 0,
           x2Intersection: x2Intersection ?? 0 + rwLength,
+          unitSistem: projectDetails.unitSistem,
         });
       }
     }
-  }, [path, level, leftBank, rwLength, screenWidth]);
+  }, [path, level, leftBank, rwLength, screenWidth, projectDetails.unitSistem, language]);
 
   return (
     <div className={`bath-graph ${path === undefined ? 'hidden' : ''} mb-3`}>

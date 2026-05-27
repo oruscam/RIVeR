@@ -8,7 +8,7 @@ import '../../index.css';
 import { SuccessfulMessage } from '../Report';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
-import { ExportMp4 } from './Components';
+
 
 export const FormReport = ({
   isReportSaved,
@@ -29,8 +29,8 @@ export const FormReport = ({
       : today;
 
   const [meditionDate, setMeditionDate] = useState<Date>(defaultDate);
-  const [unitSistem, setUnitSistem] = useState<string>('si');
-  const { register } = useForm({
+  const [unitSistem, setUnitSistem] = useState<string>(projectDetails.unitSistem || 'si');
+  const { register, setValue } = useForm({
     defaultValues: {
       riverName: projectDetails.riverName,
       site: projectDetails.site,
@@ -38,11 +38,18 @@ export const FormReport = ({
     },
   });
 
+  useEffect(() => {
+    if (projectDetails.unitSistem && projectDetails.unitSistem !== unitSistem) {
+      setUnitSistem(projectDetails.unitSistem);
+      setValue('unitSistem', projectDetails.unitSistem);
+    }
+  }, [projectDetails.unitSistem, unitSistem, setValue]);
+
   const { goToStep } = useWizard();
 
-  const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUnitSistem(event.target.value);
-  };
+  // const handleRadioChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  //   setUnitSistem(event.target.value);
+  // };
 
   const onHandleDataChange = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
@@ -87,10 +94,10 @@ export const FormReport = ({
   };
 
   useEffect(() => {
-    if(isReportSaved){
+    if (isReportSaved) {
       const id = document.getElementById('successful-message');
       console.log('id', id);
-      if(id){
+      if (id) {
         id.scrollIntoView({ behavior: 'smooth' });
       }
     }
@@ -99,31 +106,47 @@ export const FormReport = ({
   return (
     <div className='body'>
       <form className='form-report'>
-          <div className="simple-input-container">
-            <label>{t('Report.Form.riverName')}</label>
-            <input
-              type="text"
-              required
-              {...register('riverName')}
-              id="river-name"
-              onBlur={onHandleDataChange}
-              onKeyDown={onHandleDataChange}
-            />
-          </div>
+        <div className="simple-input-container">
+          <label>{t('Report.Form.riverName')}</label>
+          <input
+            type="text"
+            required
+            {...register('riverName')}
+            id="river-name"
+            onBlur={onHandleDataChange}
+            onKeyDown={onHandleDataChange}
+            onChange={(e) => {
+              onProjectDetailsChange({
+                riverName: e.target.value,
+                unitSistem: unitSistem,
+                meditionDate: dateToStringDate(meditionDate),
+              });
+              setIsReportSaved(false);
+            }}
+          />
+        </div>
 
-          <div className="simple-input-container">
-            <label> {t('Report.Form.riverLocation')} </label>
-            <input
-              type="text"
-              required
-              {...register('site')}
-              id="river-site"
-              onBlur={onHandleDataChange}
-              onKeyDown={onHandleDataChange}
-            />
-          </div>
+        <div className="simple-input-container">
+          <label> {t('Report.Form.riverLocation')} </label>
+          <input
+            type="text"
+            required
+            {...register('site')}
+            id="river-site"
+            onBlur={onHandleDataChange}
+            onKeyDown={onHandleDataChange}
+            onChange={(e) => {
+              onProjectDetailsChange({
+                site: e.target.value,
+                unitSistem: unitSistem,
+                meditionDate: dateToStringDate(meditionDate),
+              });
+              setIsReportSaved(false);
+            }}
+          />
+        </div>
 
-          <div className="simple-input-container">
+        {/* <div className="simple-input-container">
             <label id="label-unit-sistem"> {t('Report.Form.unitSistem')} </label>
 
             <div className="last-settings-form-field-radio">
@@ -147,24 +170,24 @@ export const FormReport = ({
                 onChange={handleRadioChange}
               />
             </div>
-          </div>
+          </div> */}
 
-          <div className="simple-input-container">
-            <label> {t('Report.Form.date')} </label>
-            <DatePicker
-              selected={meditionDate}
-              onChange={(date) => setMeditionDate(date ?? new Date())}
-              maxDate={today}
-              dateFormat="dd/MM/yyyy HH:mm"
-              showTimeSelect
-              timeFormat="HH:mm"
-              timeIntervals={15}
-            />
-          </div>
+        <div className="simple-input-container">
+          <label> {t('Report.Form.date')} </label>
+          <DatePicker
+            selected={meditionDate}
+            onChange={(date) => setMeditionDate(date ?? new Date())}
+            maxDate={today}
+            dateFormat="dd/MM/yyyy HH:mm"
+            showTimeSelect
+            timeFormat="HH:mm"
+            timeIntervals={15}
+          />
+        </div>
 
-          <ExportMp4 />
 
-          {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
+
+        {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
       </form>
     </div>
   );

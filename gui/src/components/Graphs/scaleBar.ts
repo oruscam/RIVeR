@@ -1,4 +1,5 @@
 import * as d3 from 'd3';
+import { UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 
 export const scaleBar = (
   extent: number[],
@@ -7,8 +8,16 @@ export const scaleBar = (
   yScale: d3.ScaleLinear<number, number>,
   clipPath: string,
   marginLeft: number,
-  marginTop: number
+  marginTop: number,
+  unitSistem?: string
 ) => {
+  // extent/scales live in SI (m). The bar geometry is chosen in SI so the on-screen
+  // length stays identical across unit systems; only the *label* is converted to
+  // the user's unit, matching the bathymetry graph convention.
+  const isImperial = unitSistem === 'imperial';
+  const displayFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
+  const unitLabel = isImperial ? UNITS.IMPERIAL.LONGITUDE : UNITS.SI.LONGITUDE;
+
   // Define scale. With the extent of the image, we can calculate the scale of the image.
   let scaleLength = (extent[1] - extent[0]) * 0.2;
   scaleLength =
@@ -49,5 +58,5 @@ export const scaleBar = (
     .style('font-size', '14px')
     .attr('fill', 'white')
     .attr('font-weight', 'bold')
-    .text(`${scaleLength.toFixed(2)} m`);
+    .text(`${(scaleLength * displayFactor).toFixed(2)} ${unitLabel}`);
 };

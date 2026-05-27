@@ -97,7 +97,7 @@ export const useProjectSlice = () => {
     }
   };
 
-  const onInitProject = async (videoInput: { path: string; name: string; type: string }, language: string) => {
+  const onInitProject = async (videoInput: { path: string; name: string; type: string }, language: string, unitSistem: string) => {
     dispatch(setLoading(true));
 
     const extension = videoInput.name.split('.').pop();
@@ -113,6 +113,7 @@ export const useProjectSlice = () => {
         name: videoInput.name,
         type: videoInput.type,
         language: language,
+        unitSistem: unitSistem,
       });
 
       if (error) {
@@ -269,7 +270,8 @@ export const useProjectSlice = () => {
         dispatch(setProjectType(settings.footage));
 
         // Set language
-        dispatch(setLanguage(settings.language));
+        const savedLanguage = localStorage.getItem("language") || "en"
+        dispatch(setLanguage(savedLanguage));
 
         // Set video metadata
         dispatch(
@@ -301,7 +303,7 @@ export const useProjectSlice = () => {
           dispatch(setFirstFramePath(filePrefix + firstFrame));
         }
 
-        if(settings.colorbar_limits){
+        if (settings.colorbar_limits) {
           const { min, max } = settings.colorbar_limits;
           dispatch(setColorbarLimits({
             min: settings.colorbar_limits.min,
@@ -401,11 +403,12 @@ export const useProjectSlice = () => {
           // Load project details
           if (settings.river_name || settings.site || settings.unit_system || settings.medition_date) {
             console.log('loading project details')
+            const savedUnitSystem = settings.unit_system || localStorage.getItem("unitSystem") || "si"
             dispatch(
               setProjectDetails({
                 riverName: settings.river_name,
                 site: settings.site,
-                unitSistem: settings.unit_system,
+                unitSistem: savedUnitSystem,
                 meditionDate: settings.medition_date,
               })
             );
@@ -532,7 +535,7 @@ export const useProjectSlice = () => {
 
   const onProjectDetailsChange = (data: onClickFinishInterface) => {
     dispatch(setLoading(true));
-    if (data.riverName) {
+    if (data.riverName !== undefined) {
       dispatch(
         setProjectDetails({
           ...projectDetails,
@@ -541,7 +544,7 @@ export const useProjectSlice = () => {
           unitSistem: data.unitSistem,
         })
       );
-    } else if (data.site) {
+    } else if (data.site !== undefined) {
       dispatch(
         setProjectDetails({
           ...projectDetails,

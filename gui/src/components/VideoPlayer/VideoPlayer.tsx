@@ -3,6 +3,9 @@ import { VideoPlayerButtons } from './VideoPlayerButtons.js';
 import { VideoPlayerSeekBar } from './VideoPlayerSeekBar.js';
 import { VideoPlayerTime } from './VideoPlayerTime.js';
 import '../components.css';
+import { PlayBtn } from '../CustomIcons/VideoPlayerIcons/PlayBtn.tsx';
+import { FrameBtn } from '../CustomIcons/VideoPlayerIcons/FrameBtn.tsx';
+import { SoundBtn } from '../CustomIcons/VideoPlayerIcons/SoundBtn.tsx';
 
 export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: number }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -10,7 +13,7 @@ export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: 
   const [progressAmount, setProgressAmount] = useState<number>(0);
   const [control, setControl] = useState<{ play: boolean; volume: boolean }>({
     play: false,
-    volume: false,
+    volume: true,
   });
   const [currentTime, setCurrentTime] = useState<number>(0);
 
@@ -40,11 +43,20 @@ export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: 
       }
     }
   };
+  const handleFrameStep = () => {
+    if (videoRef.current && !videoRef.current.paused) {
+      videoRef.current.pause();
+      setControl((prev) => ({ ...prev, play: false }));
+    }
+  };
 
   return (
     <>
       {fileURL && (
         <div className="video-player">
+          <div style={{ position: 'absolute', top: 12, right: 12 }}>
+            <SoundBtn videoRef={videoRef} control={control} setControl={setControl} />
+          </div>
           <div className="video">
             <video
               className="video"
@@ -70,8 +82,26 @@ export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: 
               setControl={setControl}
               control={control}
             ></VideoPlayerSeekBar>
+            <div className="row" style={{ width: '100%', justifyContent: 'space-between', paddingTop: '10px' }}>
+              <FrameBtn
+                videoRef={videoRef}
+                direction="back"
+                onClick={handleFrameStep}
+              />
 
-            <VideoPlayerButtons videoRef={videoRef} setControl={setControl} control={control}></VideoPlayerButtons>
+              <PlayBtn
+                videoRef={videoRef}
+                setControl={setControl}
+                control={control}
+              />
+
+              <FrameBtn
+                videoRef={videoRef}
+                direction="next"
+                onClick={handleFrameStep}
+              />
+            </div>
+
           </div>
         </div>
       )}

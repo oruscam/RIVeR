@@ -8,7 +8,7 @@ import { Layer, Stage } from 'react-konva';
 import { useMemo, useRef } from 'react';
 import { ColorBar } from './ColorBar';
 import { QuiverData } from '../../commons/types';
-import { getQuiverValues } from '../../commons/vectors';
+import { getQuiverValues, createColorMap, Normalize } from '../../commons/vectors';
 
 export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
   const { screenSizes } = useUiSlice();
@@ -37,7 +37,7 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
     max: number;
   };
 
-  const prevRef = useRef<PrevRefType>({activeImage: images.active, data: [], min: 0, max: 0});
+  const prevRef = useRef<PrevRefType>({ activeImage: images.active, data: [], min: 0, max: 0 });
 
   const { transformationMatrix } = useSectionSlice();
 
@@ -49,8 +49,8 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
 
   const { data, min, max } = useMemo(() => {
 
-    if ( quiver === null ){
-      prevRef.current = {activeImage: images.active, data: [], min: 0, max: 0};
+    if (quiver === null) {
+      prevRef.current = { activeImage: images.active, data: [], min: 0, max: 0 };
       return { data: [], min: 0, max: 0 };
     }
     if (prevRef.current.activeImage !== images.active && activeStep === MODULE_NUMBER.PROCESSING) {
@@ -59,22 +59,32 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
     }
 
     const { data, min, max } = getQuiverValues(quiver, showMedian as boolean, images.active, parameters.step, videoData.fps, transformationMatrix);
-    prevRef.current = {activeImage: images.active, data, min, max};
+    prevRef.current = { activeImage: images.active, data, min, max };
 
     if (colorbarLimits.default === false) {
-      return { data, min: colorbarLimits.min!, max: colorbarLimits.max! };
+      const manualMin = colorbarLimits.min!;
+      const manualMax = colorbarLimits.max!;
+      const norm = new Normalize(manualMin, manualMax);
+      const colorMap = createColorMap();
+      const recoloredData = data.map((d) => {
+        const clamped = Math.max(manualMin, Math.min(manualMax, d.velocity));
+        const normalizedValue = norm.normalize(clamped);
+        const colorIndex = Math.max(0, Math.min(Math.floor(normalizedValue * (colorMap.length - 1)), colorMap.length - 1));
+        return { ...d, color: colorMap[colorIndex] };
+      });
+      return { data: recoloredData, min: manualMin, max: manualMax };
     }
 
     return { data, min, max };
 
-  }, [quiver, images.active, showMedian, colorbarLimits.default]);
+  }, [quiver, images.active, showMedian, colorbarLimits.default, colorbarLimits.min, colorbarLimits.max]);
 
   return (
     <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>
       <img src={paths[active]} className="simple-image" />
       <img src={processing.maskPath} className="mask" />
 
-      { data.length !== 0 && <ColorBar min={min} max={max} /> }
+      {data.length !== 0 && <ColorBar min={min} max={max} />}
 
       <Stage
         width={vertical ? widthReduced : width}

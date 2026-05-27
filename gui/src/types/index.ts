@@ -37,6 +37,7 @@ type onGetBathimetryTypes = {
   bathimetryPath?: string;
   cameraMatrix?: number[][];
   zLimits?: { min: number; max: number };
+  unitSistem?: string;
 };
 
 interface factor {
