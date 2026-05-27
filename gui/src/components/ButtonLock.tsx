@@ -1,10 +1,10 @@
-import { useWizard } from "react-use-wizard";
-import { useSectionSlice } from "../hooks";
-import { MODULE_NUMBER } from "../constants/constants";
+import { useWizard } from 'react-use-wizard';
+import { useSectionSlice } from '../hooks';
+import { MODULE_NUMBER } from '../constants/constants';
 
 interface ButtonLockProps {
   localExtraFields?: boolean;
-  localSetExtraFields?: any;
+  setLocalExtraFields?: any;
   footerElementID: string;
   headerElementID: string;
   disabled: boolean;
@@ -12,9 +12,9 @@ interface ButtonLockProps {
 
 export const ButtonLock = ({
   localExtraFields,
-  localSetExtraFields,
-  footerElementID = "",
-  headerElementID = "",
+  setLocalExtraFields,
+  footerElementID = '',
+  headerElementID = '',
   disabled,
 }: ButtonLockProps) => {
   const { onSetExtraFields, sections, activeSection } = useSectionSlice();
@@ -25,15 +25,15 @@ export const ButtonLock = ({
     switch (activeStep) {
       case MODULE_NUMBER.CROSS_SECTIONS:
         if (extraFields) {
-          const header = name + "-" + headerElementID;
+          const header = name + '-' + headerElementID;
           const headerElement = document.getElementById(header);
-          headerElement?.scrollIntoView({ behavior: "smooth" });
+          headerElement?.scrollIntoView({ behavior: 'smooth' });
         } else {
-          const footer = name + "-" + footerElementID;
+          const footer = name + '-' + footerElementID;
 
           const footerElement = document.getElementById(footer);
           setTimeout(() => {
-            footerElement?.scrollIntoView({ behavior: "smooth" });
+            footerElement?.scrollIntoView({ behavior: 'smooth' });
           }, 50);
         }
         onSetExtraFields();
@@ -42,43 +42,54 @@ export const ButtonLock = ({
       case MODULE_NUMBER.PIXEL_SIZE:
         if (extraFields) {
           const headerElement = document.getElementById(headerElementID);
-          headerElement?.scrollIntoView({ behavior: "smooth" });
+          headerElement?.scrollIntoView({ behavior: 'smooth' });
         } else {
           const footerElement = document.getElementById(footerElementID);
+          console.log('footerElementID', footerElementID);
           setTimeout(() => {
-            footerElement?.scrollIntoView({ behavior: "smooth" });
-          }, 50);
+            footerElement?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
         }
-        localSetExtraFields();
+        setLocalExtraFields();
         break;
 
       case MODULE_NUMBER.VIDEO_RANGE:
         if (extraFields) {
           const headerElement = document.getElementById(headerElementID);
-          headerElement?.scrollIntoView({ behavior: "smooth" });
+          headerElement?.scrollIntoView({ behavior: 'smooth' });
         } else {
           const footerElement = document.getElementById(footerElementID);
           setTimeout(() => {
-            footerElement?.scrollIntoView({ behavior: "smooth" });
+            footerElement?.scrollIntoView({ behavior: 'smooth' });
           }, 50);
         }
-        localSetExtraFields(!localExtraFields);
+        setLocalExtraFields(!localExtraFields);
         break;
 
       case MODULE_NUMBER.PROCESSING:
         if (localExtraFields) {
           const headerElement = document.getElementById(headerElementID);
-          headerElement?.scrollIntoView({ behavior: "smooth" });
+          headerElement?.scrollIntoView({ behavior: 'smooth' });
         } else {
           const footerElement = document.getElementById(footerElementID);
           setTimeout(() => {
-            footerElement?.scrollIntoView({ behavior: "smooth" });
+            footerElement?.scrollIntoView({ behavior: 'smooth' });
           }, 50);
         }
-        localSetExtraFields(!localExtraFields);
+        setLocalExtraFields(!localExtraFields);
         break;
 
       default:
+        if (localExtraFields) {
+          const headerElement = document.getElementById(headerElementID);
+          headerElement?.scrollIntoView({ behavior: 'smooth' });
+        } else {
+          const footerElement = document.getElementById(footerElementID);
+          setTimeout(() => {
+            footerElement?.scrollIntoView({ behavior: 'smooth' });
+          }, 50);
+        }
+        setLocalExtraFields(!localExtraFields);
         break;
     }
   };
@@ -88,9 +99,7 @@ export const ButtonLock = ({
       <input
         id="inpLock"
         type="checkbox"
-        checked={
-          localExtraFields !== undefined ? !localExtraFields : !extraFields
-        }
+        checked={localExtraFields !== undefined ? !localExtraFields : !extraFields}
         onChange={handleOnChange}
         disabled={disabled}
       />
@@ -100,10 +109,7 @@ export const ButtonLock = ({
             className="lockb"
             d="M27 27C27 34.1797 21.1797 40 14 40C6.8203 40 1 34.1797 1 27C1 19.8203 6.8203 14 14 14C21.1797 14 27 19.8203 27 27ZM15.6298 26.5191C16.4544 25.9845 17 25.056 17 24C17 22.3431 15.6569 21 14 21C12.3431 21 11 22.3431 11 24C11 25.056 11.5456 25.9845 12.3702 26.5191L11 32H17L15.6298 26.5191Z"
           ></path>
-          <path
-            className="lock"
-            d="M6 21V10C6 5.58172 9.58172 2 14 2V2C18.4183 2 22 5.58172 22 10V21"
-          ></path>
+          <path className="lock" d="M6 21V10C6 5.58172 9.58172 2 14 2V2C18.4183 2 22 5.58172 22 10V21"></path>
           <path className="bling" d="M29 20L31 22"></path>
           <path className="bling" d="M31.5 15H34.5"></path>
           <path className="bling" d="M29 10L31 8"></path>

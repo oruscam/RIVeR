@@ -1,31 +1,66 @@
-:root {
-  --background-color: #d4bdbd;
-  --foreground-color: #003cff;
-  --primary-text-color: #000000;
-  --secondary-text-color: #ffffff;
-  --on-hover: #4d4b4b;
+/* =============================================================================
+   THEME SYSTEM
+   Three themes: dark (default), light (warm cream), dracula
+   All themes define the same set of CSS custom properties.
+   ============================================================================= */
 
-/* REPORT COLORS */
+/* --------------------------------------------------------------------------
+   DARK THEME (default)
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] {
+  /* Backgrounds */
+  --background-color:           #000000;
+  --secondary-background-color: #141414;
+  --input-background:           #323232;
+  --input-background-disabled:  #191919;
+  --secondary-input-background: #646464;
+
+  /* Text */
+  --primary-text-color:   #ffffff;
+  --secondary-text-color: #797979;
+
+  /* Interactive states */
+  --on-hover:        #232222;
+  --disabled-button: #808080;
+
+  /* Accent (buttons, progress, selection) */
+  --accent-color: #0678BE;
+
+  /* Toggle switch active color — lighter cyan blue */
+  --toggle-active-color: #6CD4FF;
+
+  /* Semantic colors */
+  --background-error:   #ED6B57;
+  --success-color:      #62C655;
+  --success-background: #2D671B;
+
+  /* Borders & grid */
+  --border-color:         #2a2a2a;
+  --grid-bg-even:         #161616;
+  --grid-bg-odd:          #111111;
+  --grid-header-bg:       #1a1a1a;
+  --grid-header-color:    #a0a0a0;
+  --grid-selection-color: #0678BE;
+
+  /* Component-specific surfaces */
+  --slider-bg:        #3a3a3a;
+  --slider-border:    #555555;
+  --slider-hover-bg:  #444444;
+  --colorbar-bg:      #1e2525;
+  --card-surface:     #141414;
+
+  /* Overlay text on images */
+  --overlay-text-color: rgba(255, 255, 255, 0.5);
+
+  /* Hard-mode on/off highlights */
+  --inverse-bg:   #ffffff;
+  --inverse-text: #000000;
+
+  /* Report */
   --report-gradient-1: #0678BE;
   --report-gradient-2: #033858;
 
-}
-
-[data-theme="dark"]{
-  --background-color: #000000;
-  --secondary-background-color: #141414;
-  --primary-text-color: #ffffff;
-  --secondary-text-color: #797979;
-  --on-hover: #232222;
-  --input-background: #323232;
-  --input-background-disabled: #191919;
-  --secondary-input-background: #646464;
-  --disabled-button: #808080;
-  --background-error: #ED6B57;
-  --success-color: #62C655;
-  --success-background: #2D671B;
-
-  /* CONTROL POINTS DISTANCES */
+  /* Control point distance colors */
   --d12: #6CD4FF;
   --d13: #CC4BC2;
   --d14: #F5BF61;
@@ -34,33 +69,184 @@
   --d34: #ED6B57;
 }
 
-*{
+/* --------------------------------------------------------------------------
+   LIGHT THEME (warm cream — inspired by Claude's interface background)
+   -------------------------------------------------------------------------- */
+[data-theme="light"] {
+  /* Backgrounds */
+  --background-color:           #F5F0EB;
+  --secondary-background-color: #EDE7DF;
+  --input-background:           #E2DDD6;
+  --input-background-disabled:  #D4CFC8;
+  --secondary-input-background: #C0BBB4;
+
+  /* Text — dark grey instead of pure black */
+  --primary-text-color:   #333333;
+  --secondary-text-color: #757575;
+
+  /* Interactive states */
+  --on-hover:        #DDD8D0;
+  --disabled-button: #A8A8A8;
+
+  /* Accent (warm amber — Claude palette) */
+  --accent-color: #CC7741;
+
+  /* Toggle switch active color — warm amber */
+  --toggle-active-color: #CC7741;
+
+  /* Semantic colors */
+  --background-error:   #C0392B;
+  --success-color:      #2E7D32;
+  --success-background: #E8F5E9;
+
+  /* Borders & grid */
+  --border-color:         #CCC8C0;
+  --grid-bg-even:         #F0EBE4;
+  --grid-bg-odd:          #F7F3EE;
+  --grid-header-bg:       #EAE4DC;
+  --grid-header-color:    #555555;
+  --grid-selection-color: #CC7741;
+
+  /* Component-specific surfaces */
+  --slider-bg:        #C5C0B8;
+  --slider-border:    #AEAAA2;
+  --slider-hover-bg:  #B5B0A8;
+  --colorbar-bg:      #E5E0D8;
+  --card-surface:     #EDE7DF;
+
+  /* Overlay text on images */
+  --overlay-text-color: rgba(0, 0, 0, 0.35);
+
+  /* Hard-mode on/off highlights */
+  --inverse-bg:   #1A1A1A;
+  --inverse-text: #ffffff;
+
+  /* Report */
+  --report-gradient-1: #0678BE;
+  --report-gradient-2: #033858;
+
+  /* Control point distance colors — same vivid values as dark theme */
+  --d12: #6CD4FF;
+  --d13: #CC4BC2;
+  --d14: #F5BF61;
+  --d23: #62C655;
+  --d24: #7765E3;
+  --d34: #ED6B57;
+}
+
+/* --------------------------------------------------------------------------
+   DRACULA THEME (inspired by VS Code Dracula)
+   -------------------------------------------------------------------------- */
+[data-theme="dracula"] {
+  /* Backgrounds */
+  --background-color:           #282a36;
+  --secondary-background-color: #21222c;
+  --input-background:           #44475a;
+  --input-background-disabled:  #1e2029;
+  --secondary-input-background: #6272a4;
+
+  /* Text */
+  --primary-text-color:   #f8f8f2;
+  --secondary-text-color: #6272a4;
+
+  /* Interactive states */
+  --on-hover:        #44475a;
+  --disabled-button: #6272a4;
+
+  /* Accent (using Dracula purple) */
+  --accent-color: #bd93f9;
+
+  /* Toggle switch active color — Dracula purple */
+  --toggle-active-color: #bd93f9;
+
+  /* Semantic colors */
+  --background-error:   #ff5555;
+  --success-color:      #50fa7b;
+  --success-background: #1a3a22;
+
+  /* Borders & grid */
+  --border-color:         #44475a;
+  --grid-bg-even:         #252736;
+  --grid-bg-odd:          #282a36;
+  --grid-header-bg:       #21222c;
+  --grid-header-color:    #6272a4;
+  --grid-selection-color: #bd93f9;
+
+  /* Component-specific surfaces */
+  --slider-bg:        #44475a;
+  --slider-border:    #6272a4;
+  --slider-hover-bg:  #565970;
+  --colorbar-bg:      #21222c;
+  --card-surface:     #21222c;
+
+  /* Overlay text on images */
+  --overlay-text-color: rgba(248, 248, 242, 0.5);
+
+  /* Hard-mode on/off highlights */
+  --inverse-bg:   #f8f8f2;
+  --inverse-text: #282a36;
+
+  /* Report */
+  --report-gradient-1: #bd93f9;
+  --report-gradient-2: #6272a4;
+
+  /* Control point distance colors (matching Dracula palette) */
+  --d12: #8be9fd;   /* cyan */
+  --d13: #ff79c6;   /* pink */
+  --d14: #ffb86c;   /* orange */
+  --d23: #50fa7b;   /* green */
+  --d24: #bd93f9;   /* purple */
+  --d34: #ff5555;   /* red */
+}
+
+/* =============================================================================
+   GLOBAL RESETS & BASE
+   ============================================================================= */
+
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
-.danger-button{
-  width: 232px;
-  height: 50px;
+.default-app-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background-color);
+  color: var(--primary-text-color);
+  transition: background-color 0.25s ease-in-out, color 0.25s ease-in-out;
+}
+
+/* =============================================================================
+   BUTTONS
+   ============================================================================= */
+
+.danger-button {
+  min-width: 165px;
+  height: auto;
+  min-height: 50px;
   background-color: var(--background-error);
   border: 2px solid;
-  border-radius: 20px; 
-  font-size: 18px; 
+  border-radius: 20px;
+  font-size: 18px;
   font-weight: 500;
   transition: transform 0.1s;
 }
 
 .danger-button:hover {
-  color: white;
+  color: var(--inverse-text);
 }
 
 .danger-button:active {
   transform: translateY(-10px);
 }
 
-.danger-button:disabled{
+.danger-button:disabled {
   background-color: var(--disabled-button);
   color: var(--background-color);
   transform: none;
@@ -70,14 +256,10 @@
   background-color: transparent;
   color: var(--primary-text-color);
   border: none;
-  transition: transform 0.3s ease; /* Añade una transición suave */
+  transition: transform 0.3s ease;
 }
 
-.button-transparent:hover {
-  transform: scale(1.1); /* Escala el botón al 110% de su tamaño original */
-}
-
-.button-1{
+.button-1 {
   width: 232px;
   height: 50px;
   background-color: var(--background-color);
@@ -97,18 +279,17 @@
 
 .button-1:active {
   background-color: var(--primary-text-color);
-  color: black;
-  /* transform: scale(0.9); */
+  color: var(--background-color);
   transform: translateY(4px);
 }
 
-.label-1{
+.label-1 {
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.wizard-button{
+.wizard-button {
   width: 132px;
   height: auto;
   min-height: 50px;
@@ -124,129 +305,36 @@
   padding: 3px;
 }
 
-/* .wizard-button:hover {
-  background-color: var(--primary-text-color);
-  color: var(--background-color);
-} */
-
 .wizard-button:active {
-  background-color: white;
-  color: black;
-  /* transform: scale(0.9); */
+  background-color: var(--inverse-bg);
+  color: var(--inverse-text);
   transform: translateY(4px);
 }
 
-.wizard-button-active{
-  background-color: white;
-  color: black;
-  /* transform: scale(0.9); */
+.wizard-button-active {
+  background-color: var(--inverse-bg);
+  color: var(--inverse-text);
   transform: translateY(4px);
 }
 
-
-.wizard-button:disabled{
+.wizard-button:disabled {
   background-color: var(--background-color);
   color: var(--disabled-button);
   border-color: var(--disabled-button);
   transform: translateY(0px);
-  
 }
 
-.input-field{
-  background-color: var(--input-background);
-  color: var(--primary-text-color);
-  border: none;
-  font-size: 20px;
-  text-align: center;
-  border-radius: 20px;
-  width: 150px;
-  height: 50px;
-  
-}
-
-.input-field-rectification-2d{
-  background-color: var(--input-background);
-  color: var(--primary-text-color);
-  border: none;
-  font-size: 20px;
-  text-align: center;
-  border-radius: 20px;
-  width: 175px;
-  height: 50px;
-}
-
-.input-field-little{
-  background-color: var(--input-background);
-  color: var(--primary-text-color);
-  border: none;
-  font-size: 20px;
-  text-align: center;
-  border-radius: 15px;
-  width: 90px;
-  height: 35px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.input-field-read-only{
-  background-color: var(--input-background);
-  color: var(--primary-text-color);
-  border: none;
-  font-size: 20px;
-  text-align: center;
-  border-radius: 20px;
-  width: 150px;
-  height: 50px;
-}
-
-.input-field-read-only:focus{
-    outline: none;
-}
-
-.input-field-read-only:disabled{
-  background-color: var(--input-background-disabled);
-}
-
-.input-field-little-read-only{
-  background-color: var(--input-background);
-  color: var(--primary-text-color);
-  border: none;
-  font-size: 20px;
-  text-align: center;
-  border-radius: 15px;
-  width: 90px;
-  height: 35px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.input-field-little-read-only:focus{
-    outline: none;
-}
-
-.input-field-little:disabled{
-  background-color: var(--input-background-disabled);
-}
-
-.form-button{
-  min-width: 200px;
-  cursor: pointer;
-  flex-shrink: 0;
-  height: auto;
-}
-
-.video-button{
+.video-button {
   background-color: transparent;
   border: none;
-  color: white;
+  color: var(--primary-text-color);
   padding: 5px;
   transition: transform 0.3s ease;
   cursor: pointer;
   width: 50px;
 }
 
-.video-button:hover{
-  transform: scale(1.1);
+.video-button:hover {
   transform: translateY(-1px);
 }
 
@@ -254,201 +342,11 @@
   transform: scale(0.9);
 }
 
-.svg-icon .cls-1{
-  fill: currentColor;
-  stroke: currentColor;
-}
-
-input::-webkit-inner-spin-button, input::-webkit-outer-spin-button{
-  display: none;
-  margin: 0;
-}
-
-/* .button-1.clicked{
-  background-color: white;
-  color: black;
-  transform: scale(0.9);
-} */
-
-.mt-1{
-  margin-top: 15px;
-}
-
-.mt-2{
-  margin-top: 25px;
-}
-
-.mt-3{
-  margin-top: 40px;
-
-}
-
-.mt-4{
-  margin-top: 50px;
-}
-
-.mt-5{
-  margin-top: 60px;
-}
-
-
-.mb-1{
-  margin-bottom: 15px;
-}
-
-.mb-2{
-  margin-bottom: 25px;
-}
-
-.mb-3{
-  margin-bottom: 40px;
-}
-
-.mb-4{
-  margin-bottom: 50px;
-}
-
-.mb-5{
-  margin-bottom: 60px;
-}
-
-.me-1{
-  margin-right: 15px;
-}
-
-.me-2{
-  margin-right: 25px;
-}
-
-.ms-1{
-  margin-left: 15px;
-}
-
-.ms-2{
-  margin-left: 25px;
-}
-
-.mtn-1{
-  margin-top: -15px;
-}
-
-.mtn-2{
-  margin-top: -25px;
-}
-
-.mtn-3{
-  margin-top: -40px;
-}
-
-.red{
-  color: #ED6B57;
-}
-
-.green{
-  color: #62C655
-}
-
-/* Scroll Bar */
-
- /* width */
- ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
- 
-}
-
-/* Track */
-::-webkit-scrollbar-track {
-  background: transparent;
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-}
-
-/* Handle */
-::-webkit-scrollbar-thumb {
-  background: var(--primary-text-color);
-  outline: 1px solid slategrey;
-  border-radius: 8px;
-}
-
-/* Handle on hover */
-::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary-text-color);
-
-} 
-
-/* * TOGGLE SWITCH */
-.switch {
-  position: relative;
-  display: inline-block;
-  margin-left: 20px;
-  width: 56px;
-  height: 26px;
-}
-
-.switch input { 
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.slider{
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--input-background);
-    -webkit-transition: .4s;
-    transition: .4s;
-    border-radius: 30px;
-    
-}
-
-.slider:before{
-    position: absolute;
-    content: "";
-    height: 19px;
-    width: 19px;
-    left: 5px;
-    bottom: 3.5px;
-    background-color: #FFFFFF;
-    -webkit-transition: .4s;
-    transition: .4s;
-    border-radius: 50%;
-}
-
-input:checked + .slider{
-    background-color: #0678BE;
-}
-
-input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
-}
-
-input:checked + .slider:before {
-    transform: translateX(27px);
-}
-
-
-.loader-little{
-  border: 5px solid var(--secondary-background-color);
-  border-radius: 50%;
-  border-top: 5px solid var(--primary-text-color);
-  width: 40px;
-  height: 40px;
-  animation: spin 1.5s linear infinite;    
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.button-with-loader{
+.button-with-loader {
   display: flex;
   width: 165px;
-  height: 60px;
+  height: auto;
+  min-height: 50px;
   background-color: var(--background-color);
   color: var(--primary-text-color);
   border: 2px solid;
@@ -460,26 +358,463 @@ input:checked + .slider:before {
   flex-shrink: 0;
 }
 
-.button-with-loader p{
+.button-with-loader p {
   font-size: 20px;
   font-weight: 500;
 }
 
-.button-with-loader:hover{
+.button-with-loader:hover {
   background-color: var(--primary-text-color);
   color: var(--background-color);
 }
 
-.button-with-loader-active{
+.button-with-loader-active {
   background-color: var(--primary-text-color);
   color: var(--background-color);
 }
 
-.hidden{
+.button-with-loader:disabled {
+  background-color: var(--input-background);
+  color: var(--background-color);
+  border-color: var(--border-color);
+  cursor: default;
+}
+
+/* =============================================================================
+   FORM INPUTS
+   ============================================================================= */
+
+.input-field {
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 20px;
+  flex: 1 1 auto;
+  width: 150px;
+  min-width: 70px;
+  max-width: 160px;
+  height: 50px;
+}
+
+.input-field-oblique {
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 20px;
+  width: 100%;
+  height: 50px;
+}
+
+.input-field-little {
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 15px;
+  width: 90px;
+  height: 35px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.input-field-read-only {
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 20px;
+  flex: 1 1 auto;
+  width: 150px;
+  min-width: 70px;
+  max-width: 160px;
+  height: 50px;
+}
+
+.input-field-read-only:focus {
+  outline: none;
+}
+
+.input-field-read-only:disabled {
+  background-color: var(--input-background-disabled);
+}
+
+.input-field-little-read-only {
+  background-color: var(--input-background);
+  color: var(--primary-text-color);
+  border: none;
+  font-size: 20px;
+  text-align: center;
+  border-radius: 15px;
+  width: 90px;
+  height: 35px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.input-field-little-read-only:focus {
+  outline: none;
+}
+
+.input-field-little:disabled {
+  background-color: var(--input-background-disabled);
+}
+
+.form-button {
+  flex: 1 1 auto;
+  min-width: 110px;
+  max-width: 210px;
+  cursor: pointer;
+  height: auto;
+}
+
+input::-webkit-inner-spin-button,
+input::-webkit-outer-spin-button {
   display: none;
+  margin: 0;
 }
 
-.react-datepicker{
+/* Focus ring on text/number inputs — follows theme accent color */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+/* =============================================================================
+   TOGGLE SWITCH (two-state, used for form options)
+   ============================================================================= */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  margin-left: 20px;
+  width: 52px;
+  height: 28px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--slider-bg);
+  border: 1px solid var(--slider-border);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  border-radius: 28px;
+}
+
+.slider:hover {
+  background-color: var(--slider-hover-bg);
+  border-color: var(--secondary-input-background);
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: var(--secondary-text-color);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  transition: transform 0.25s ease, background-color 0.25s ease;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--toggle-active-color);
+  border-color: var(--toggle-active-color);
+}
+
+input:checked + .slider:hover {
+  opacity: 0.9;
+}
+
+input:focus-visible + .slider {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--toggle-active-color) 35%, transparent);
+}
+
+input:checked + .slider:before {
+  transform: translateY(-50%) translateX(24px);
+  background-color: var(--primary-text-color);
+}
+
+/* =============================================================================
+   THEME SEGMENTED CONTROL (3-way: Dark / Light / Dracula)
+   ============================================================================= */
+
+.theme-segmented-control {
+  display: inline-flex;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background-color: var(--secondary-background-color);
+}
+
+.theme-segment-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 14px;
+  border: none;
+  background-color: transparent;
+  color: var(--secondary-text-color);
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  min-width: 60px;
+}
+
+.theme-segment-btn + .theme-segment-btn {
+  border-left: 1px solid var(--border-color);
+}
+
+.theme-segment-btn:hover {
+  background-color: var(--on-hover);
+  color: var(--primary-text-color);
+}
+
+.theme-segment-btn--active {
+  background-color: var(--accent-color);
+  color: #ffffff;
+}
+
+.theme-segment-btn--active:hover {
+  background-color: var(--accent-color);
+  opacity: 0.9;
+  color: #ffffff;
+}
+
+.theme-segment-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.theme-segment-label {
+  line-height: 1;
+}
+
+/* =============================================================================
+   LOADERS
+   ============================================================================= */
+
+.loader-little {
+  border: 5px solid var(--secondary-background-color);
+  border-radius: 50%;
+  border-top: 5px solid var(--primary-text-color);
+  width: 40px;
+  height: 40px;
+  animation: spin 1.5s linear infinite;
+}
+
+/* MID */
+.loader-container-mid {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  align-items: center;
+  width: 100%;
+  user-select: none;
+}
+
+.loader-wrapper-mid {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 80px;
+  height: 80px;
+  margin-bottom: 40px;
+}
+
+.loader-mid {
+  border: 10px solid var(--primary-text-color);
+  border-radius: 50%;
+  border-top: 10px solid var(--secondary-background-color);
+  width: 80px;
+  height: 80px;
+  animation: spin 1.5s linear infinite;
+}
+
+.loader-percentage-mid {
+  position: absolute;
+  font-size: 1.2em;
+  color: var(--primary-text-color);
+}
+
+/* BIG */
+.loader-container-big {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  align-items: center;
+  width: 100%;
+}
+
+.loader-wrapper-big {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 160px;
+  height: 160px;
+}
+
+.loader-big {
+  border: 12px solid var(--primary-text-color);
+  border-radius: 50%;
+  border-top: 12px solid var(--secondary-background-color);
+  width: 120px;
+  height: 120px;
+  animation: spin 1.5s linear infinite;
+}
+
+.loader-percentage-big {
+  position: absolute;
+  font-size: 1.8em;
+  font-weight: bold;
+  color: var(--primary-text-color);
+}
+
+.loader-complete-big {
+  animation: none;
+  border: 12px solid var(--primary-text-color);
+}
+
+.loader-remaining-time {
+  font-size: 1.6em !important;
+  font-weight: 500;
+}
+
+@keyframes spin {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* =============================================================================
+   PROGRESS INDICATORS
+   ============================================================================= */
+
+.progress-indicator-container {
+  position: absolute;
+  top: 15px;
+  width: 90%;
+  height: 10px;
+  display: flex;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+
+.progress-indicator {
+  background-color: var(--secondary-input-background);
+  width: auto;
+  min-width: 56px;
+  height: 10px;
+  border-radius: 5px;
+  max-width: 65px;
+}
+
+.progress-indicator-active {
+  background-color: var(--primary-text-color);
+}
+
+/* =============================================================================
+   UTILITY — COLORS
+   ============================================================================= */
+
+.red        { color: var(--d34); }
+.green      { color: var(--d23); }
+.lightblue  { color: var(--d12); }
+
+/* =============================================================================
+   UTILITY — SPACING
+   ============================================================================= */
+
+.mt-1 { margin-top: 15px; }
+.mt-2 { margin-top: 25px; }
+.mt-3 { margin-top: 40px; }
+.mt-4 { margin-top: 50px; }
+.mt-5 { margin-top: 60px; }
+
+.mb-1 { margin-bottom: 15px; }
+.mb-2 { margin-bottom: 25px; }
+.mb-3 { margin-bottom: 40px; }
+.mb-4 { margin-bottom: 50px; }
+.mb-5 { margin-bottom: 60px; }
+
+.me-1 { margin-right: 15px; }
+.me-2 { margin-right: 25px; }
+.ms-1 { margin-left: 15px; }
+.ms-2 { margin-left: 25px; }
+
+.mtn-1 { margin-top: -15px; }
+.mtn-2 { margin-top: -25px; }
+.mtn-3 { margin-top: -40px; }
+
+.w-100  { width: 100%; }
+.hidden { display: none; }
+
+/* =============================================================================
+   SVG ICONS
+   ============================================================================= */
+
+.svg-icon .cls-1 {
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+/* =============================================================================
+   SCROLLBAR
+   ============================================================================= */
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary-text-color);
+  outline: 1px solid var(--border-color);
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-text-color);
+}
+
+/* =============================================================================
+   REACT DATEPICKER OVERRIDES
+   ============================================================================= */
+
+.react-datepicker {
   background-color: var(--secondary-background-color);
   color: var(--primary-text-color);
   border: 1px solid var(--input-background);
@@ -539,6 +874,64 @@ input:checked + .slider:before {
   color: var(--primary-text-color);
 }
 
-.w-100{
+/* =============================================================================
+   INFO TOOLTIP (provisional)
+   ============================================================================= */
+
+.info-icon {
+  font-size: 30px;
+  margin-left: 10px;
+  margin-top: 5px;
+  font-weight: bold;
+  top: 150px;
+  left: 10px;
+  transition: transform 0.1s ease;
+}
+
+.info-icon:hover {
+  cursor: pointer;
+  transform: scaleY(1.1);
+}
+
+.info-animation {
+  position: absolute;
+  top: 180px;
+  width: 150px;
+  height: 100px;
+  z-index: 10;
+}
+
+.info-gif {
   width: 100%;
+  height: 100%;
+  border-radius: 5px;
+}
+
+/* =============================================================================
+   MASK MODE — disable CS pin interaction
+   When a mask is being defined, the .mask-mode-active class is added to the
+   overlay SVG. This forces pointer-events: none on every element inside the
+   .overlay-ui group (the CS pins), overriding SVG presentation attributes
+   such as pointer-events="all" that D3 applies to draggable pin icons.
+   ============================================================================= */
+
+svg.mask-mode-active .overlay-ui,
+svg.mask-mode-active .overlay-ui * {
+  pointer-events: none !important;
+  cursor: default !important;
+}
+
+/* =============================================================================
+   CONFIRM MASK BUTTON — floating green tick at mask centroid
+   ============================================================================= */
+
+.confirm-mask-btn {
+  opacity: 0.85;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.5));
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.confirm-mask-btn:hover {
+  opacity: 1;
+  transform: scale(1.2);
 }

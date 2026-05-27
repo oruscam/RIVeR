@@ -3,9 +3,9 @@
  */
 
 export const FOOTAGE_TYPES = {
-  IPCAM: "ipcam",
-  OBLIQUE: "oblique",
-  UAV: "uav",
+  IPCAM: 'ipcam',
+  OBLIQUE: 'oblique',
+  UAV: 'uav',
 };
 
 /**
@@ -15,12 +15,11 @@ export const FOOTAGE_TYPES = {
 export const IMAGE_WIDTH_FACTOR = 0.62;
 
 /**
- *  Next both factors are used to calculate the new image resolution, when the image resolution 
- *  is vertical. 
+ *  Next both factors are used to calculate the new image resolution, when the image resolution
+ *  is vertical.
  */
-export const IMAGE_HEIGHT_FACTOR = 0.90;
+export const IMAGE_HEIGHT_FACTOR = 0.9;
 export const IMAGE_HEIGHT_REDUCED_FACTOR = 0.64;
-
 
 /**
  * Default section
@@ -38,9 +37,8 @@ export const DEFAULT_POINTS = [
  */
 
 export const MODULE_NUMBER = {
-  REPORT: 8,
-  RESULTS: 7,
-  ANALIZING: 6,
+  REPORT: 7,
+  RESULTS: 6,
   PROCESSING: 5,
   CROSS_SECTIONS: 4,
   PIXEL_SIZE: 3,
@@ -51,33 +49,35 @@ export const MODULE_NUMBER = {
  * Colors
  */
 export const COLORS = {
-  RED: "#ED6B57",
-  GREEN: "#62C655",
-  YELLOW: "#F5BF61",
-  BLUE: "#0678BE",
-  BLUE_WITH_TRANSPARENCY: "#0678BE95",
-  LIGHT_BLUE: "#6CD4FF",
-  DARK_GREY: "#545454",
-  WHITE: "#FFFFFF",
-  BLACK: "#000000",
-  TRANSPARENT_WHITE: "#FFFFFF80", // 50% opacity
-  TRANSPARENT: "#00000000", // fully transparent
-  PERCENTILE_AREA: "#ED6B5740",
-  STD_AREA: "#62C65533", // 'rgba(98, 198, 85, 0.2)'
-  MARK_NUMBER: "#3396BF",
-  MARK_L: "#6B120B",
-  MARK_R: "#2D671B",
+  RED: '#ED6B57',
+  GREEN: '#62C655',
+  YELLOW: '#F5BF61',
+  BLUE: '#0678BE',
+  BLUE_WITH_TRANSPARENCY: '#0678BE95',
+  LIGHT_BLUE: '#6CD4FF',
+  DARK_GREY: '#545454',
+  WHITE: '#FFFFFF',
+  BLACK: '#000000',
+  TRANSPARENT_WHITE: '#FFFFFF80', // 50% opacity
+  TRANSPARENT: '#00000000', // fully transparent
+  PERCENTILE_AREA: '#ED6B5766',   // ~40% opacity – boosted from 25% for dark bg
+  PERCENTILE_STROKE: '#ED6B5799', // boundary edge stroke ~60% opacity
+  STD_AREA: '#62C65550',          // ~31% opacity – boosted from 20% for dark bg
+  STD_STROKE: '#62C65599',        // boundary edge stroke ~60% opacity
+  MARK_NUMBER: '#3396BF',
+  MARK_L: '#6B120B',
+  MARK_R: '#2D671B',
   CONTROL_POINTS: {
-    D12: "#6CD4FF",
-    D13: "#CC4BC2",
-    D14: "#F5BF61",
-    D23: "#62C655",
-    D24: "#7765E3",
-    D34: "#ED6B57",
+    D12: '#6CD4FF',
+    D13: '#CC4BC2',
+    D14: '#F5BF61',
+    D23: '#62C655',
+    D24: '#7765E3',
+    D34: '#ED6B57',
   },
   ELLIPSE: {
-    FILL: "#D2AF7970",
-    STROKE: "#D2AF79",
+    FILL: '#D2AF7970',
+    STROKE: '#D2AF79',
   },
 };
 
@@ -87,9 +87,10 @@ export const COLORS = {
 export const GRAPHS = {
   BAR_PADDING: 5,
   WIDTH_PROPORTION: 0.22,
+  MAX_BATHIMETRY_WIDTH: 500,
   MIN_WIDTH: 375,
   GRID_Y_OFFSET_ALL_IN_ONE: 35,
-  IPCAM_GRID_PROPORTION: 0.27,
+  IPCAM_GRID_PROPORTION: 0.26,
   IPCAM_GRID_PADDING: 10,
   GRID_Y_OFFSET_BATHIMETRY: 10,
   PLOT_TEST_PROPORTION: 0.23,
@@ -102,7 +103,7 @@ export const GRAPHS = {
  * Quiver y Velocity Vectoy
  */
 export const VECTORS = {
-  VELOCITY_AMPLITUDE_FACTOR: 20,
+  VELOCITY_AMPLITUDE_FACTOR: 10,
   QUIVER_AMPLITUDE_FACTOR: 10,
 };
 
@@ -111,20 +112,23 @@ export const VECTORS = {
  */
 
 export const MARKS = {
-  WIDTH: 40,
-  HEIGHT: 40,
+  WIDTH: 34,
+  HEIGHT: 34,
   OFFSET_X: 20,
-  OFFSET_Y: 39,
+  OFFSET_Y: 36,
   NUMBER_OFFSET_X: 5,
   NUMBER_OFFSET_Y: 35,
-  NUMBER_FONT_SIZE: 17,
-  LETTER_FONT_SIZE: 15,
-  WIDTH_REPORT: 25,
-  HEIGHT_REPORT: 25,
-  OFFSET_X_REPORT: 12,
-  OFFSET_Y_REPORT: 25,
+  NUMBER_FONT_SIZE: 13,
+  LETTER_FONT_SIZE: 13,
+  WIDTH_REPORT: 20,
+  HEIGHT_REPORT: 20,
+  OFFSET_X_REPORT: 10,
+  OFFSET_Y_REPORT: 18,
   NUMBER_OFFSET_X_REPORT: 2.5,
-  NUMBER_OFFSET_Y_REPORT: 14,
+  NUMBER_OFFSET_Y_REPORT: 6,
+  STROKE_WIDTH: 3,
+  IPCAM_OFFSET_X: 17,
+  IPCAM_OFFSET_Y: 31,
 };
 
 /**
@@ -151,17 +155,24 @@ export const WINDOW_SIZES = {
   TINY: 64,
 };
 
+
+export const UNIT_CONVERSIONS = {
+  FT_TO_M: 0.3048,
+  M_TO_FT: 1 / 0.3048,
+  M3_TO_FT3: 35.3147,
+};
+
 export const UNITS = {
   SI: {
-    FLOW: "m³/s",
-    LONGITUDE: "m",
-    AREA: "m²",
-    VELOCITY: "m/s",
+    FLOW: 'm³/s',
+    LONGITUDE: 'm',
+    AREA: 'm²',
+    VELOCITY: 'm/s',
   },
   IMPERIAL: {
-    FLOW: "cfs",
-    LONGITUDE: "ft",
-    AREA: "ft²",
-    VELOCITY: "ft/s",
+    FLOW: 'cfs',
+    LONGITUDE: 'ft',
+    AREA: 'ft²',
+    VELOCITY: 'ft/s',
   },
 };

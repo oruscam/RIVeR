@@ -3,34 +3,45 @@
  * @description This file contains the custom hook for the UI slice.
  */
 
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector } from 'react-redux';
 import {
   changeTheme,
+  setTheme,
   setErrorMessage,
   clearErrorMessage,
   setSeeAll,
   setScreen,
   setLanguage,
   setIsLastVersion,
-} from "../store/ui/uiSlice";
-import { RootState } from "../store/store";
-import { getNewImageResolution } from "../helpers";
+} from '../store/ui/uiSlice';
+import { ThemeType } from '../store/ui/types';
+import { RootState } from '../store/store';
+import { getNewImageResolution } from '../helpers';
 
 /**
  * @returns - Object with the methods and attributes to interact with the ui slice
  */
 
 export const useUiSlice = () => {
-  const { darkMode, error, isLoading, seeAll, screenSizes, message, language, isLatestVersion, latestVersion } =
+  const { theme, error, isLoading, seeAll, screenSizes, message, language, isLatestVersion, latestVersion } =
     useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
 
-  /**
-   * Method to change the theme of the application
-   */
+  /** Derived boolean for backward-compat code that checks darkMode */
+  const darkMode = theme !== 'light';
 
+  /**
+   * Cycle through themes: dark → light → dracula → dark
+   */
   const onChangeTheme = () => {
     dispatch(changeTheme());
+  };
+
+  /**
+   * Directly set a specific theme
+   */
+  const onSetTheme = (t: ThemeType) => {
+    dispatch(setTheme(t));
   };
 
   /**
@@ -40,18 +51,16 @@ export const useUiSlice = () => {
    * @param error - Object with the error message
    */
 
-  const onSetErrorMessage = (
-    error: Record<string, { type: string; message: string }> | string,
-  ) => {
-    if (typeof error === "string") {
+  const onSetErrorMessage = (error: Record<string, { type: string; message: string }> | string) => {
+    if (typeof error === 'string') {
       dispatch(setErrorMessage([error]));
     } else {
       let arrayOfErrors: string[] = [];
       if (error !== undefined) {
         Object.entries(error).every(([, value]) => {
-          if (typeof value === "string") {
+          if (typeof value === 'string') {
             arrayOfErrors.push(value);
-          } else if (value && value.type === "required") {
+          } else if (value && value.type === 'required') {
             arrayOfErrors = [value.message];
             return false;
           } else if (value) {
@@ -74,7 +83,7 @@ export const useUiSlice = () => {
    * By default is true
    */
 
-  const onSetSeeAll = ( value?: boolean) => {
+  const onSetSeeAll = (value?: boolean) => {
     dispatch(setSeeAll(value));
   };
 
@@ -95,12 +104,7 @@ export const useUiSlice = () => {
     const { windowWidth, windowHeight, imageWidth, imageHeight } = values;
 
     if (imageWidth && imageHeight) {
-      const result = getNewImageResolution(
-        windowWidth,
-        windowHeight,
-        imageWidth,
-        imageHeight,
-      );
+      const result = getNewImageResolution(windowWidth, windowHeight, imageWidth, imageHeight);
 
       dispatch(
         setScreen({
@@ -114,7 +118,7 @@ export const useUiSlice = () => {
           heightReduced: result.heightReduced,
           widthReduced: result.widthReduced,
           factorReduced: result.factorReduced,
-        }),
+        })
       );
       return;
     }
@@ -128,26 +132,29 @@ export const useUiSlice = () => {
 
   const onCheckVersion = () => {
     // If isLatestVersion is already set, do not fetch the latest version
-    if ( isLatestVersion !== undefined) return;
+    if (isLatestVersion !== undefined) return;
 
     // Check if the current version is the latest version
     // Fetch the latest version from the GitHub API
-    fetch("https://api.github.com/repos/oruscam/RIVeR/releases/latest").then(async (response) => {
+    fetch('https://api.github.com/repos/oruscam/RIVeR/releases/latest').then(async (response) => {
       if (response.status === 200) {
         const data = await response.json();
         const latestVersion = data.tag_name.slice(1);
         const currentVersion = import.meta.env.VITE_APP_VERSION;
 
-        dispatch(setIsLastVersion({
-          isLatest: currentVersion === latestVersion,
-          latest: latestVersion,
-        }));
+        dispatch(
+          setIsLastVersion({
+            isLatest: currentVersion === latestVersion,
+            latest: latestVersion,
+          })
+        );
       }
-    })
-  }
+    });
+  };
 
   return {
-    // ATRIBUTES
+    // ATTRIBUTES
+    theme,
     darkMode,
     error,
     isLoading,
@@ -160,6 +167,7 @@ export const useUiSlice = () => {
 
     // METHODS
     onChangeTheme,
+    onSetTheme,
     onSetErrorMessage,
     onSetSeeAll,
     onSetScreen,

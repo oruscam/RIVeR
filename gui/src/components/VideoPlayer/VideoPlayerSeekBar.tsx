@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from 'react';
 
 interface VideoPlayerSeekBarProps {
   bufferAmount: number;
@@ -8,9 +8,7 @@ interface VideoPlayerSeekBarProps {
     play: boolean;
   };
   videoRef: React.RefObject<HTMLVideoElement>;
-  setControl: React.Dispatch<
-    React.SetStateAction<{ play: boolean; volume: boolean }>
-  >;
+  setControl: React.Dispatch<React.SetStateAction<{ play: boolean; volume: boolean }>>;
 }
 
 export const VideoPlayerSeekBar = ({
@@ -32,12 +30,8 @@ export const VideoPlayerSeekBar = ({
         videoRef.current.pause();
       }
       const progress = Math.min(
-        Math.max(
-          ((event.clientX - seekBar.current.offsetLeft) * 100) /
-            seekBar.current.clientWidth,
-          0,
-        ),
-        100,
+        Math.max(((event.clientX - seekBar.current.offsetLeft) * 100) / seekBar.current.clientWidth, 0),
+        100
       );
       setProgressAmount(progress);
     }
@@ -46,12 +40,8 @@ export const VideoPlayerSeekBar = ({
   const onScrub = (event: MouseEvent) => {
     if (seekBar.current && scrubbing) {
       const progress = Math.min(
-        Math.max(
-          ((event.clientX - seekBar.current.offsetLeft) * 100) /
-            seekBar.current.clientWidth,
-          0,
-        ),
-        100,
+        Math.max(((event.clientX - seekBar.current.offsetLeft) * 100) / seekBar.current.clientWidth, 0),
+        100
       );
       setProgressAmount(progress);
     }
@@ -62,12 +52,8 @@ export const VideoPlayerSeekBar = ({
       setScrubbing(false);
       if (videoRef.current) {
         const percentage = Math.min(
-          Math.max(
-            (event.clientX - seekBar.current.offsetLeft) /
-              seekBar.current.clientWidth,
-            0,
-          ),
-          1,
+          Math.max((event.clientX - seekBar.current.offsetLeft) / seekBar.current.clientWidth, 0),
+          1
         );
         const time = percentage * videoRef.current.duration;
         videoRef.current.currentTime = time;
@@ -80,34 +66,21 @@ export const VideoPlayerSeekBar = ({
   };
 
   useEffect(() => {
-    document.addEventListener("mousemove", onScrub);
-    document.addEventListener("mouseup", onScrubEnd);
+    document.addEventListener('mousemove', onScrub);
+    document.addEventListener('mouseup', onScrubEnd);
 
     return () => {
-      document.removeEventListener("mousemove", onScrub);
-      document.removeEventListener("mouseup", onScrubEnd);
+      document.removeEventListener('mousemove', onScrub);
+      document.removeEventListener('mouseup', onScrubEnd);
     };
   }, [scrubbing, onScrub, onScrubEnd]);
 
   return (
-    <div
-      className="video-player-seekbar"
-      ref={seekBar}
-      onMouseDown={onScrubStart}
-    >
+    <div className="video-player-seekbar" ref={seekBar} onMouseDown={onScrubStart}>
       <span id="background-track"></span>
-      <span
-        id="buffered-track"
-        style={{ "--buffer": `${bufferAmount}%` } as React.CSSProperties}
-      ></span>
-      <span
-        id="progress-track"
-        style={{ "--progress": `${progressAmount}%` } as React.CSSProperties}
-      ></span>
-      <span
-        id="thumb"
-        style={{ "--progress": `${progressAmount}%` } as React.CSSProperties}
-      ></span>
+      <span id="buffered-track" style={{ '--buffer': `${bufferAmount}%` } as React.CSSProperties}></span>
+      <span id="progress-track" style={{ '--progress': `${progressAmount}%` } as React.CSSProperties}></span>
+      <span id="thumb" style={{ '--progress': `${progressAmount}%` } as React.CSSProperties}></span>
     </div>
   );
 };

@@ -14,6 +14,7 @@
 [![React Version](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
 [![PyPI version](https://img.shields.io/pypi/v/river-cli.svg)](https://pypi.org/project/river-cli/)
 [![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue)](https://doi.org/10.1016/j.cageo.2017.07.009)
+[![YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?logo=youtube)](https://www.youtube.com/@orus-xm3dn)
 
 ---
 
@@ -54,7 +55,8 @@ please refer to the **[User Manual](user-manual.md)**.
 * Process footage from multiple sources:
   * UAV/drone aerial imagery
   * Oblique view camera (from riverbank)
-  * Fixed station cameras (contiunous monitoring)
+  * Fixed station cameras (continous monitoring)
+* Drag-and-drop interface for quick video and data imports
 * Frame extraction from videos with customizable parameters
 * FFT-based PIV analysis with multi-pass support for increased accuracy
 * Interactive result visualization with customizable vector fields
@@ -62,20 +64,22 @@ please refer to the **[User Manual](user-manual.md)**.
 * Multi Cross-sectional flow analysis
 * Automated beautiful report generation ([like this one !](https://oruscam.github.io/RIVeR/sample_report.html))
 * Multi-platform support (**Windows**, **macOS**, **Linux**)
+* Multi-units support (SI, imperial)
 
 
 ---
 
 ## 🌍 Multi-Language Support
 
-- RIVeR available in multiple languages!
-  - English 🇺🇸
-  - Spanish 🇦🇷
-  - French 🇫🇷
-  - Italian 🇮🇹
-  - Portuguese 🇧🇷
-  - German 🇩🇪
-  - [More coming soon!]
+RIVeR is available in 12 languages, with technical terminology reviewed for hydrology, PIV and bathymetry domains:
+
+| | | | |
+|:---|:---|:---|:---|
+| 🇬🇧 English | 🇯🇵 Japanese | 🇸🇦 Arabic | 🇷🇺 Russian |
+| 🇦🇷 Spanish | 🇨🇳 Chinese | 🇰🇷 Korean | 🇮🇳 Hindi |
+| 🇫🇷 French | 🇩🇪 German | 🇮🇹 Italian | 🇧🇷 Portuguese |
+
+Want to contribute a new language? Translation files are located in `gui/src/translations/` — add a new folder with a `global.json` file following the existing structure and open a Pull Request!
 
 ---
 ## 📥 Download Compiled Releases
@@ -84,13 +88,15 @@ If you don't want to bother with code at all (we get it, sometimes you just want
 
 | ⊞ Windows | ⌘ macOS | ◆ Linux |
 |:---:|:---:|:---:|
-| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.2.0/RIVeR-Windows-3.2.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.2.0/RIVeR-Mac-3.2.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.2.0/RIVeR-Linux-3.2.0.deb) [RPM](https://github.com/oruscam/RIVeR/releases/download/v3.2.0/RIVeR-Linux-3.2.0.rpm) |
+| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.5.0/RIVeR-Windows-3.5.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.5.0/RIVeR-Mac-3.5.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.5.0/RIVeR-Linux-3.5.0.deb) |
 
+These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application — no Python or JavaScript knowledge required!
 
-These packages include both the GUI and CLI tools in a ready-to-use application. No Python or JavaScript knowledge required!
-
-
-These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application - no Python or JavaScript knowledge required!
+> **macOS users:** If Gatekeeper blocks the app after installing, open a terminal and run:
+> ```bash
+> xattr -rd com.apple.quarantine /Applications/RIVeR.app
+> ```
+> Or right-click the app → Open → Open anyway.
 
 ---
 ## 🧑‍💻 Developer Installation & Usage
@@ -129,16 +135,51 @@ river-cli --help
 river-cli video-to-frames river_video.mp4 ./frames --every 2
 
 # 2. Generate transformation matrix
-river-cli get-uav-transformation-matrix 100 200 300 400 0 0 10 10 --image-path ./frames/frame_001.jpg
+river-cli get-uav-transformation-matrix 100 200 300 400 0 0 10 10 \
+--image-path ./frames/frame_001.jpg
 
-# 3. Create masks for PIV analysis
-river-cli create-mask-and-bbox 3 ./frames/frame_001.jpg ./xsections.json ./transformation_matrix.json --save-png-mask
+# 3. Create ROI mask from cross-sections
+# This writes mask.npy, bbox.json and mask.png into --workdir
+river-cli create-mask-and-bbox 3 \
+./frames/frame_001.jpg \
+./xsections.json \
+./transformation_matrix.json \
+--workdir ./workdir \
+--save-png-mask
 
-# 4. Run PIV analysis
-river-cli piv-analyze ./frames --mask ./mask.json --workdir ./results
+# 4. (Optional) Create one or more user masks from polygon coordinates
+river-cli create-user-mask ./frames/frame_001.jpg \
+--workdir ./workdir \
+--index 1 \
+--point 120 340 --point 220 500 --point 400 420
 
-# 5. Calculate discharge
-river-cli update-xsection ./xsections.json ./results/piv_results.json ./transformation_matrix.json --step 2 --fps 30 --id-section 0
+river-cli create-user-mask ./frames/frame_001.jpg \
+--workdir ./workdir \
+--index 2 \
+--point 600 300 --point 750 600 --point 900 450
+
+# 5. Compile ROI mask and user masks into a final mask
+# 0 is dominant: final = ROI AND all user masks
+river-cli compile-masks \
+--workdir ./workdir \
+--roi ./workdir/mask.npy \
+--usr ./workdir/usr_mask_1.npy \
+--usr ./workdir/usr_mask_2.npy \
+--out final_mask.npy \
+--save-png-mask
+
+# 6. Run PIV analysis using the final mask
+river-cli piv-analyze ./frames \
+--mask ./workdir/final_mask.npy \
+--workdir ./results
+
+# 7. Calculate discharge
+river-cli update-xsection \
+./xsections.json \
+./results/piv_results.json \
+./transformation_matrix.json \
+--step 2 --fps 30 --id-section 0
+
 ```
 
 ### Graphical User Interface (GUI)
@@ -235,6 +276,7 @@ If you use RIVeR in your research, please cite:
 ### Development Team
 - **Nicolas Stefani** - *CLI & Backend Development*
 - **Tomas Stefani** - *Frontend Development*
+- **Agustín Patrito** - *Frontend Development*
 
 ---
 

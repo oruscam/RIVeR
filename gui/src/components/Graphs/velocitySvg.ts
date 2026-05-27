@@ -1,8 +1,8 @@
-import * as d3 from "d3";
-import { COLORS, GRAPHS } from "../../constants/constants";
-import { generateYAxisTicks } from "../../helpers";
-import "./graphs.css";
-import { t } from "i18next";
+import * as d3 from 'd3';
+import { COLORS, GRAPHS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
+import { generateYAxisTicks } from '../../helpers';
+import './graphs.css';
+import { t } from 'i18next';
 interface CreateVelocityChartProps {
   sizes: {
     width: number;
@@ -29,6 +29,7 @@ interface CreateVelocityChartProps {
   interpolated: boolean;
   check: boolean[];
   onChangeDataValues?: any;
+  unitSistem?: string;
 }
 
 export const createVelocityChart = ({
@@ -47,89 +48,90 @@ export const createVelocityChart = ({
   showPercentile = true,
   isReport = false,
   onChangeDataValues,
+  unitSistem = 'si',
 }: CreateVelocityChartProps) => {
+  const isImperial = unitSistem === 'imperial';
+  const velocityFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
+  const unitLabel = isImperial ? UNITS.IMPERIAL.VELOCITY : UNITS.SI.VELOCITY;
   const svg = d3.select(SVGElement);
   const { margin, graphHeight, width } = sizes;
 
   const minDomainValue = Math.min(
-    d3.min(percentile5.filter((d) => d !== null))!,
-    d3.min(minusStd.filter((d) => d !== null))!,
-    d3.min(magnitude.filter((d) => d !== null))!,
+    d3.min(percentile5.filter((d) => d !== null))! * velocityFactor,
+    d3.min(minusStd.filter((d) => d !== null))! * velocityFactor,
+    d3.min(magnitude.filter((d) => d !== null))! * velocityFactor,
   );
   const maxDomainValue = Math.max(
-    d3.max(percentile95.filter((d) => d !== null))!,
-    d3.max(plusStd.filter((d) => d !== null))!,
-    d3.max(magnitude.filter((d) => d !== null))!,
+    d3.max(percentile95.filter((d) => d !== null))! * velocityFactor,
+    d3.max(plusStd.filter((d) => d !== null))! * velocityFactor,
+    d3.max(magnitude.filter((d) => d !== null))! * velocityFactor,
   );
 
   // y Scale
-
   const yScale = d3
     .scaleLinear()
     .domain([minDomainValue, maxDomainValue])
-    .range([
-      graphHeight * 2 + (isReport ? -40 : -50),
-      graphHeight + (isReport ? 30 : -10),
-    ]);
+    .range([graphHeight * 2 + (isReport ? -40 : -50), graphHeight + (isReport ? 30 : -10)]);
 
   // y Axis
 
   // Create and add Y ticks
   const ticks = generateYAxisTicks(magnitude, minDomainValue, maxDomainValue);
 
-  const yAxis = d3
-    .axisLeft(yScale)
-    .tickValues(ticks)
-    .tickFormat(d3.format(".2f"));
+  const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.2f'));
 
   svg
-    .append("g")
-    .attr("class", "y-axis y-axis-2")
-    .attr(
-      "transform",
-      `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`,
-    )
+    .append('g')
+    .attr('class', 'y-axis y-axis-2')
+    .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`)
     .call(yAxis)
-    .selectAll(".tick text")
-    .style("font-size", "14px");
+    .selectAll('.tick text')
+    .style('font-size', '14px');
 
   // Create and add Y gridlines
 
   const makeYGridlines = () => d3.axisLeft(yScale).tickValues(ticks);
 
   svg
-    .append("g")
-    .attr("class", "grid")
-    .attr(
-      "transform",
-      `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`,
-    )
+    .append('g')
+    .attr('class', 'grid graph-grid')
+    .attr('transform', `translate(${margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE},0)`)
     .call(
       makeYGridlines()
         .tickSize(-width + margin.left + margin.right * 2)
-        .tickFormat("" as any),
+        .tickFormat('' as any)
     )
-    .attr("stroke", "grey")
-    .attr("stroke-width", 0.15);
+    .attr('stroke-width', 0.5);
 
   const filteredData = magnitude.map((d, i) => {
-    if (interpolated === false && check[i] === false) {
+    if (check[i] === false && interpolated === false) {
       return {
         velocity: null,
         distance: distance[i],
-        plusStd: plusStd[i],
-        minusStd: minusStd[i],
-        percentile5: percentile5[i],
-        percentile95: percentile95[i],
+        plusStd: null,
+        minusStd: null,
+        percentile5: null,
+        percentile95: null,
       };
+    } else if (check[i] === false && interpolated === true) {
+      return {
+        velocity: d !== null ? d * velocityFactor : null,
+        distance: distance[i],
+        plusStd: null,
+        minusStd: null,
+        percentile5: null,
+        percentile95: null,
+        interpolated: true
+      }
     } else {
       return {
-        velocity: d,
+        velocity: d !== null ? d * velocityFactor : null,
         distance: distance[i],
-        plusStd: plusStd[i],
-        minusStd: minusStd[i],
-        percentile5: percentile5[i],
-        percentile95: percentile95[i],
+        plusStd: plusStd[i] * velocityFactor,
+        minusStd: minusStd[i] * velocityFactor,
+        percentile5: percentile5[i] * velocityFactor,
+        percentile95: percentile95[i] * velocityFactor,
+        interpolated: false
       };
     }
   });
@@ -142,10 +144,11 @@ export const createVelocityChart = ({
       minusStd: number;
       percentile5: number;
       percentile95: number;
+      interpolated: boolean;
     }>()
     .defined((d) => d.velocity !== null)
     .x((d) => xScale(d.distance))
-    .y((d) => yScale(d.velocity!));
+    .y((d) => yScale(d.velocity!))
 
   // std Area
   const areaStd = d3
@@ -177,188 +180,237 @@ export const createVelocityChart = ({
     .y0((d) => yScale(d.percentile5))
     .y1((d) => yScale(d.percentile95));
 
+  // Boundary line generators for percentile band edges
+  const linePercentile95 = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.percentile95 !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.percentile95!));
+
+  const linePercentile5 = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.percentile5 !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.percentile5!));
+
+  // Boundary line generators for std band edges
+  const linePlusStd = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.plusStd !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.plusStd!));
+
+  const lineMinusStd = d3.line<typeof filteredData[0]>()
+    .defined((d) => d.minusStd !== null)
+    .x((d) => xScale(d.distance))
+    .y((d) => yScale(d.minusStd!));
+
   let legendGroupOffsetY = 5;
 
   // Add the percentile area
   const areaPathPercentile = svg
-    .append("path")
+    .append('path')
     .datum(filteredData)
-    .attr("fill", showPercentile ? COLORS.PERCENTILE_AREA : COLORS.TRANSPARENT)
-    .attr("d", areaPercentile);
+    .attr('fill', showPercentile ? COLORS.PERCENTILE_AREA : COLORS.TRANSPARENT)
+    .attr('d', areaPercentile);
+
+  // Percentile band boundary strokes
+  if (showPercentile) {
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.PERCENTILE_STROKE).attr('stroke-width', 1).attr('d', linePercentile95);
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.PERCENTILE_STROKE).attr('stroke-width', 1).attr('d', linePercentile5);
+  }
 
   if (isReport === false) {
     legendGroupOffsetY = -28;
   }
 
   const legendGroupPercentile = svg
-    .append("g")
-    .attr("class", "legend-group")
-    .attr(
-      "transform",
-      `translate(${(width / 4) * 1 + 30}, ${graphHeight + legendGroupOffsetY})`,
-    );
+    .append('g')
+    .attr('class', 'legend-group')
+    .attr('transform', `translate(${(width / 4) * 1 + 30}, ${graphHeight + legendGroupOffsetY})`);
 
   // Append a colored rectangle for percentile
   legendGroupPercentile
-    .append("rect")
-    .attr("width", 15)
-    .attr("height", 15)
-    .attr("fill", showPercentile ? COLORS.PERCENTILE_AREA : COLORS.TRANSPARENT)
-    .attr("stroke", COLORS.WHITE);
+    .append('rect')
+    .attr('width', 15)
+    .attr('height', 15)
+    .attr('fill', showPercentile ? COLORS.PERCENTILE_AREA : COLORS.TRANSPARENT)
+    .attr('stroke', showPercentile ? COLORS.PERCENTILE_STROKE : COLORS.WHITE)
+    .attr('stroke-width', showPercentile ? 1.5 : 1);
 
   // Append text  next to the rectangle
   legendGroupPercentile
-    .append("text")
-    .attr("x", 20) // ajustar la posición horizontal para que no se superponga con el rectángulo
-    .attr("y", 13) // ajustar la posición vertical para alinear con el rectángulo
-    .attr("font-size", "15px")
-    .attr("fill", "white")
-    .text("5% - 95%");
+    .append('text')
+    .attr('x', 20) // ajustar la posición horizontal para que no se superponga con el rectángulo
+    .attr('y', 13) // ajustar la posición vertical para alinear con el rectángulo
+    .attr('font-size', '15px')
+    .attr('class', 'legend-text')
+    .text('5% - 95%');
 
   // Add the std area
   const areaPathStd = svg
-    .append("path")
+    .append('path')
     .datum(filteredData)
-    .attr("fill", showStd ? COLORS.STD_AREA : COLORS.TRANSPARENT)
-    .attr("d", areaStd);
+    .attr('fill', showStd ? COLORS.STD_AREA : COLORS.TRANSPARENT)
+    .attr('d', areaStd);
+
+  // Std band boundary strokes
+  if (showStd) {
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.STD_STROKE).attr('stroke-width', 1).attr('d', linePlusStd);
+    svg.append('path').datum(filteredData).attr('fill', 'none')
+      .attr('stroke', COLORS.STD_STROKE).attr('stroke-width', 1).attr('d', lineMinusStd);
+  }
 
   // Create leyend for std area
   const legendGroupStd = svg
-    .append("g")
-    .attr("class", "legend-group")
-    .attr(
-      "transform",
-      `translate(${(width / 4) * 2 + 48}, ${graphHeight + legendGroupOffsetY})`,
-    );
+    .append('g')
+    .attr('class', 'legend-group')
+    .attr('transform', `translate(${(width / 4) * 2 + 48}, ${graphHeight + legendGroupOffsetY})`);
 
   // Append a colored rectangle for std
   legendGroupStd
-    .append("rect")
-    .attr("x", 0)
-    .attr("y", 0)
-    .attr("width", 15)
-    .attr("height", 15)
-    .attr("fill", showStd ? COLORS.STD_AREA : COLORS.TRANSPARENT)
-    .attr("stroke", COLORS.WHITE);
+    .append('rect')
+    .attr('x', 0)
+    .attr('y', 0)
+    .attr('width', 15)
+    .attr('height', 15)
+    .attr('fill', showStd ? COLORS.STD_AREA : COLORS.TRANSPARENT)
+    .attr('stroke', showStd ? COLORS.STD_STROKE : COLORS.WHITE)
+    .attr('stroke-width', showStd ? 1.5 : 1);
 
   // Append text next to the rectangle
 
   legendGroupStd
-    .append("text")
-    .attr("x", 20) // ajustar la posición horizontal para que no se superponga con el rectángulo
-    .attr("y", 13) // ajustar la posición vertical para alinear con el rectángulo
-    .attr("font-size", "15px")
-    .attr("fill", COLORS.WHITE)
-    .text("Vel std");
+    .append('text')
+    .attr('x', 20)
+    .attr('y', 13)
+    .attr('font-size', '15px')
+    .attr('class', 'legend-text')
+    .text(t('Graphs.velStd'));
 
   if (isReport === false) {
     // Append active/disable percentile legend
-    legendGroupPercentile.select("rect").on("click", function () {
+    legendGroupPercentile.select('rect').on('click', function () {
       // Acción a realizar cuando se hace clic en el rectángulo de la leyenda
-      onChangeDataValues({ type: "showPercentile" });
+      onChangeDataValues({ type: 'showPercentile' });
     });
 
     // Append active/disable std legend
-    legendGroupStd.select("rect").on("click", function () {
-      onChangeDataValues({ type: "showVelocityStd" });
+    legendGroupStd.select('rect').on('click', function () {
+      onChangeDataValues({ type: 'showVelocityStd' });
     });
 
     if (showPercentile) {
       // Append float legend for percentile
       const floatLegendPercentile = svg
-        .append("text")
-        .attr("x", 10) // posición inicial
-        .attr("y", 10) // posición inicial
-        .attr("visibility", "hidden") // oculto por defecto
-        .attr("font-size", "15px")
-        .attr("fill", COLORS.WHITE);
+        .append('text')
+        .attr('x', 10)
+        .attr('y', 10)
+        .attr('visibility', 'hidden')
+        .attr('font-size', '15px')
+        .attr('class', 'graph-text');
 
-      // Agregar eventos de mouseover y mouseout
-      areaPathPercentile.on("mouseover", function (_event) {
-        floatLegendPercentile
-          .attr("visibility", "visible")
-          .text("5% | 95% percentile");
+      areaPathPercentile.on('mouseover', function (_event) {
+        floatLegendPercentile.attr('visibility', 'visible').text('5% | 95% percentile');
       });
 
-      areaPathPercentile.on("mousemove", function (event) {
+      areaPathPercentile.on('mousemove', function (event) {
         const [x, y] = d3.pointer(event);
         floatLegendPercentile
-          .attr("x", x + 10) // ajustar la posición de la leyenda
-          .attr("y", y - 10);
+          .attr('x', x + 10)
+          .attr('y', y - 10);
       });
 
-      areaPathPercentile.on("mouseout", function () {
-        floatLegendPercentile.attr("visibility", "hidden");
+      areaPathPercentile.on('mouseout', function () {
+        floatLegendPercentile.attr('visibility', 'hidden');
       });
     }
 
     if (showStd) {
       const floatLegendStd = svg
-        .append("text")
-        .attr("x", 10) // posición inicial
-        .attr("y", 10) // posición inicial
-        .attr("visibility", "hidden") // oculto por defecto
-        .attr("font-size", "15px")
-        .attr("fill", COLORS.WHITE);
+        .append('text')
+        .attr('x', 10)
+        .attr('y', 10)
+        .attr('visibility', 'hidden')
+        .attr('font-size', '15px')
+        .attr('class', 'graph-text');
 
       // Agregar eventos de mouseover y mouseout
 
-      areaPathStd.on("mouseover", function (_event) {
-        floatLegendStd.attr("visibility", "visible").text("± std");
+      areaPathStd.on('mouseover', function (_event) {
+        floatLegendStd.attr('visibility', 'visible').text('± std');
       });
 
-      areaPathStd.on("mousemove", function (event) {
+      areaPathStd.on('mousemove', function (event) {
         const [x, y] = d3.pointer(event);
         floatLegendStd
-          .attr("x", x + 10) // ajustar la posición de la leyenda
-          .attr("y", y - 10);
+          .attr('x', x + 10) // ajustar la posición de la leyenda
+          .attr('y', y - 10);
       });
 
-      areaPathStd.on("mouseout", function () {
-        floatLegendStd.attr("visibility", "hidden");
+      areaPathStd.on('mouseout', function () {
+        floatLegendStd.attr('visibility', 'hidden');
       });
     }
   }
 
-  // }
-  // else {
-  //     // Crear un elemento de texto para la leyenda
+  // Add the velocity line with segments in red where data is interpolated
 
-  // }
-
-  // Add the velocity line
-
-  svg
-    .append("path")
+  // 1️⃣ Primary-color base line (theme-aware via currentColor)
+  svg.append("path")
     .datum(filteredData)
     .attr("fill", "none")
+    .attr("class", "graph-primary-stroke")
     .attr("stroke-width", 2)
-    .attr("stroke", COLORS.WHITE)
     .attr("d", line);
+
+  // 2️⃣ Draw segments of red line
+  const redSegments: typeof filteredData[] = [];
+  let segment: typeof filteredData = [];
+
+  for (let i = 0; i < filteredData.length; i++) {
+    const d = filteredData[i];
+
+    if (d.interpolated) segment.push(d);
+    else if (segment.length) {
+      redSegments.push([...segment]);
+      segment = [];
+    }
+  }
+  if (segment.length) redSegments.push(segment);
+
+  // 3️⃣ Draw only red segments
+  redSegments.forEach(seg => {
+    svg.append("path")
+      .datum(seg)
+      .attr("fill", "none")
+      .attr("stroke", COLORS.RED)
+      .attr("stroke-width", 2)
+      .attr("d", line);
+  });
 
   // Add the circles and tooltip
 
   const tooltip = d3
-    .select("body")
-    .append("div")
-    .attr("class", "tooltip")
-    .style("position", "absolute")
-    .style("font-size", "16px")
-    .style("font-weight", "500")
-    .style("background", "transparent")
-    .style("border", "none")
-    .style("padding", "5px")
-    .style("color", COLORS.WHITE)
-    .style("display", "none");
+    .select('body')
+    .append('div')
+    .attr('class', 'tooltip graph-tooltip-text')
+    .style('position', 'absolute')
+    .style('font-size', '16px')
+    .style('font-weight', '500')
+    .style('background', 'transparent')
+    .style('border', 'none')
+    .style('padding', '5px')
+    .style('display', 'none');
 
-  const formatValue = d3.format(".2f");
+  const formatValue = d3.format('.2f');
 
-  // Dibuja la línea que conectará el punto con el tooltip
+  // Line connecting data point to tooltip
   const lineToTooltip = svg
-    .append("line")
-    .attr("stroke", COLORS.WHITE)
-    .attr("stroke-width", 1)
-    .style("display", "none");
+    .append('line')
+    .attr('class', 'graph-primary-stroke')
+    .attr('stroke-width', 1)
+    .attr('display', 'none');
 
   // Elimino los valores nulos de magnitude
 
@@ -366,63 +418,57 @@ export const createVelocityChart = ({
 
   // Dibuja los círculos en cada vértice con interactividad
   svg
-    .selectAll("circle")
+    .selectAll('circle')
     .data(filteredPoints)
     .enter()
-    .append("circle")
-    .attr("cx", (d) => xScale(d.distance))
-    .attr("cy", (d) => yScale(d.velocity!))
-    .attr("r", 2.5) // Radio del círculo
-    .attr("fill", COLORS.WHITE)
-    .on("mouseover", function (_event, _d) {
-      d3.select(this).attr("r", 4);
-      tooltip.style("display", "block");
-      lineToTooltip.style("display", "block");
+    .append('circle')
+    .attr('cx', (d) => xScale(d.distance))
+    .attr('cy', (d) => yScale(d.velocity!))
+    .attr('r', 2.5) // Radio del círculo
+    .attr('class', (d) => d.interpolated ? '' : 'graph-primary-fill')
+    .attr('fill', (d) => d.interpolated ? COLORS.RED : null)
+    .on('mouseover', function (_event, _d) {
+      d3.select(this).attr('r', 4);
+      tooltip.style('display', 'block');
+      lineToTooltip.attr('display', 'block');
     })
     .each(function (d, i) {
       d3.select(this)
-        .on("mousemove", function (event) {
+        .on('mousemove', function (event) {
           const cx = xScale(d.distance);
           const cy = yScale(d.velocity!);
 
           tooltip
-            .html(
-              `Velocity: ${formatValue(d.velocity!)}<br>Distance: ${formatValue(d.distance)}`,
-            )
-            .style("left", `${event.pageX + 10}px`)
-            .style("top", `${event.pageY - 100}px`);
+            .html(`Velocity: ${formatValue(d.velocity!)} ${unitLabel}<br>Distance: ${formatValue(d.distance)}`)
+            .style('left', `${event.pageX + 10}px`)
+            .style('top', `${event.pageY - 100}px`);
 
           lineToTooltip
-            .attr("x1", cx)
-            .attr("y1", cy)
-            .attr(
-              "x2",
-              event.pageX -
-                (svg.node()?.getBoundingClientRect().left ?? 0) +
-                10,
-            )
-            .attr(
-              "y2",
-              event.pageY - (svg.node()?.getBoundingClientRect().top ?? 0) - 60,
-            );
+            .attr('x1', cx)
+            .attr('y1', cy)
+            .attr('x2', event.pageX - (svg.node()?.getBoundingClientRect().left ?? 0) + 10)
+            .attr('y2', event.pageY - (svg.node()?.getBoundingClientRect().top ?? 0) - 60);
         })
-        .on("mouseout", function () {
-          d3.select(this).attr("r", 2.5);
-          tooltip.style("display", "none");
-          lineToTooltip.style("display", "none");
+        .on('mouseout', function () {
+          d3.select(this).attr('r', 2.5);
+          tooltip.style('display', 'none');
+          lineToTooltip.attr('display', 'none');
         });
     });
 
   // label for Velocity
-
-  svg
-    .append("text")
-    .attr("class", "y-axis-label")
-    .attr("text-anchor", "middle")
-    .attr("x", -(graphHeight * 2) + (isReport ? 90 : 140))
-    .attr("y", margin.left - 30)
-    .attr("transform", "rotate(-90)")
-    .attr("fill", "white")
-    .attr("font-size", "22px")
-    .text(t("Graphs.velocity"));
+  const velocityLabel = svg
+    .append('text')
+    .attr('class', 'y-axis-label graph-text')
+    .attr('text-anchor', 'middle')
+    .attr('x', -(graphHeight * 2) + (isReport ? 90 : 140))
+    .attr('y', margin.left - 30)
+    .attr('transform', 'rotate(-90)')
+    .attr('font-size', '22px');
+  velocityLabel.append('tspan').text(t('Graphs.velocity'));
+  velocityLabel.append('tspan')
+    .attr('font-size', '14px')
+    .attr('opacity', '0.7')
+    .attr('dx', '10')
+    .text(`${unitLabel}`);
 };

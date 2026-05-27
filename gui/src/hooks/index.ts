@@ -1,12 +1,21 @@
-import { useUiSlice } from "./useUiSlice";
-import { useSectionSlice } from "./useSectionSlice";
-import { useProjectSlice } from "./useProjectSlice";
-import { useDataSlice } from "./useDataSlice";
-import { useMatrixSlice } from "./useMatrixSlice";
+
+import { useUiSlice } from './useUiSlice';
+import { useSectionSlice } from './useSectionSlice';
+import { useProjectSlice } from './useProjectSlice';
+import { useDataSlice } from './useDataSlice';
+import { useUavSlice } from './useUavSlice';
+import { useObliqueSlice } from './useObliqueSlice';
+import { useGlobalSlice } from './useGlobalSlice';
+import { useIpcamSlice } from './useIpcamSlice';
+import { useImageZoomPan } from './useImageZoomPan';
 
 export {
   useDataSlice,
-  useMatrixSlice,
+  useGlobalSlice,
+  useImageZoomPan,
+  useIpcamSlice,
+  useUavSlice,
+  useObliqueSlice,
   useProjectSlice,
   useSectionSlice,
   useUiSlice,

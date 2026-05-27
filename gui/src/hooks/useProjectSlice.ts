@@ -3,15 +3,9 @@
  * @description This file contains the custom hook to interact with the project slice.
  */
 
-import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../store/store";
-import {
-  clearErrorMessage,
-  clearMessage,
-  setLanguage,
-  setLoading,
-  setMessage,
-} from "../store/ui/uiSlice";
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../store/store';
+import { clearErrorMessage, clearMessage, setLanguage, setLoading, setMessage } from '../store/ui/uiSlice';
 import {
   setProjectDirectory,
   setProjectType,
@@ -20,40 +14,46 @@ import {
   setVideoParameters,
   setProjectDetails,
   setDefaultProjectState,
-} from "../store/project/projectSlice";
-import { FieldValues } from "react-hook-form";
+} from '../store/project/projectSlice';
+import { FieldValues } from 'react-hook-form';
 import {
   addSection,
+  setDefaultSectionState,
   setSummary,
   setTransformationMatrix,
   updateSection,
-} from "../store/section/sectionSlice";
-import { MODULE_NUMBER } from "../constants/constants";
+} from '../store/section/sectionSlice';
+import { MODULE_NUMBER } from '../constants/constants';
 import {
+  setColorbarLimits,
+  loadMasks,
   setDataLoaded,
+  setDefaultDataState,
   setImages,
   setProcessingMask,
   setQuiver,
   updateProcessingForm,
-} from "../store/data/dataSlice";
+} from '../store/data/dataSlice';
 import {
   onLoadObliquePoints,
   onLoadCrossSections,
   onLoadPixelSize,
   onLoadProcessingForm,
   onLoadVideoParameters,
-} from "../helpers/index";
-import { OperationCanceledError, UserSelectionError } from "../errors/errors";
-import { parseTime } from "../helpers";
+} from '../helpers/index';
+import { OperationCanceledError, UserSelectionError } from '../errors/errors';
+import { parseTime } from '../helpers';
+import { setDefaultUavState, updatePixelSize } from '../store/uav/uavSlice';
 import {
-  setIpcamCameraSolution,
-  setIpcamImages,
-  setIpcamPoints,
-  setObliquePoints,
-  updatePixelSize,
-} from "../store/matrix/matrixSlice";
-import { onLoad3dRectification } from "../helpers/loadProjectHelpers";
-import { useTranslation } from "react-i18next";
+  setDefaultIpcamState,
+  setCameraSolution as setIpcamCameraSolution,
+  setImages as setIpcamImages,
+  setPoints as setIpcamPoints,
+} from '../store/ipcam/ipcamSlice';
+import { onLoad3dRectification } from '../helpers/loadProjectHelpers';
+import { useTranslation } from 'react-i18next';
+import { setDefaultObliqueState, setObliquePoints } from '../store/oblique/obliqueSlice';
+import { resetAll } from '../store/global/globalSlice';
 
 /**
  * Interface to define the methods and attributes to interact with the project slice, and access to the sections slice.
@@ -62,14 +62,15 @@ import { useTranslation } from "react-i18next";
 
 export const useProjectSlice = () => {
   const dispatch = useDispatch();
-  const { projectDirectory, video, type, firstFramePath, projectDetails } =
-    useSelector((state: RootState) => state.project);
+  const { projectDirectory, video, type, firstFramePath, projectDetails } = useSelector(
+    (state: RootState) => state.project
+  );
   const { sections } = useSelector((state: RootState) => state.section);
-  const { pixelSize } = useSelector((state: RootState) => state.matrix);
+  const uav = useSelector((state: RootState) => state.uav);
   const { t } = useTranslation();
 
   let filePrefix = import.meta.env.VITE_FILE_PREFIX;
-  filePrefix = filePrefix === undefined ? "" : filePrefix;
+  filePrefix = filePrefix === undefined ? '' : filePrefix;
 
   /**
    * Method to initialize the project with the video file and the type of project.
@@ -80,11 +81,11 @@ export const useProjectSlice = () => {
   const onGetVideo = async () => {
     const ipcRenderer = window.ipcRenderer;
     try {
-      const { result, error } = await ipcRenderer.invoke("get-video");
+      const { result, error } = await ipcRenderer.invoke('get-video');
 
       if (error) {
         console.log(error);
-        if (error.type === "user-selection-error") {
+        if (error.type === 'user-selection-error') {
           throw new UserSelectionError(error.message);
         }
       }
@@ -96,29 +97,27 @@ export const useProjectSlice = () => {
     }
   };
 
-  const onInitProject = async (
-    videoInput: { path: string; name: string; type: string },
-    language: string,
-  ) => {
+  const onInitProject = async (videoInput: { path: string; name: string; type: string }, language: string, unitSistem: string) => {
     dispatch(setLoading(true));
 
-    const extension = videoInput.name.split(".").pop();
-    if (extension?.toUpperCase() !== "MP4") {
-      dispatch(setMessage(t("Loader.videoConversion")));
+    const extension = videoInput.name.split('.').pop();
+    if (extension?.toUpperCase() !== 'MP4') {
+      dispatch(setMessage(t('Loader.videoConversion')));
     }
 
     const ipcRenderer = window.ipcRenderer;
 
     try {
-      const { result, error } = await ipcRenderer.invoke("init-project", {
+      const { result, error } = await ipcRenderer.invoke('init-project', {
         path: videoInput.path,
         name: videoInput.name,
         type: videoInput.type,
         language: language,
+        unitSistem: unitSistem,
       });
 
       if (error) {
-        if (error.type === "user-cancel-operation") {
+        if (error.type === 'user-cancel-operation') {
           throw new OperationCanceledError(error.message);
         }
       }
@@ -137,7 +136,7 @@ export const useProjectSlice = () => {
       // By default, if the video is 2688x1520 or less, the factor is 1. Orginal resolution.
       // When the resolution is higher than 2688x1520 and less than 3840x2160, the factor is 0.5.
       // If the resolution is higher than 3840x2160, the factor is 0.25
-      if ( result.width > result.height ) {
+      if (result.width > result.height) {
         if (result.width <= 2688 && result.height <= 1520) {
           dispatch(setVideoParameters({ ...video.parameters, factor: 1 }));
         } else if (result.width <= 3840 && result.height <= 2160) {
@@ -174,7 +173,7 @@ export const useProjectSlice = () => {
         ...video.parameters,
         factor: factor,
         factorChanged: true,
-      }),
+      })
     );
   };
 
@@ -185,10 +184,9 @@ export const useProjectSlice = () => {
 
   const onSetVideoParameters = async (data: FieldValues) => {
     dispatch(setLoading(true));
-    dispatch(setMessage(t("Loader.extractingFrames")));
+    dispatch(setMessage(t('Loader.extractingFrames')));
 
-    const { startTime, endTime, step, factor, factorChanged } =
-      video.parameters;
+    const { startTime, endTime, step, factor, factorChanged } = video.parameters;
 
     const parsedStart = parseTime(data.start);
     const parsedEnd = parseTime(data.end);
@@ -217,7 +215,7 @@ export const useProjectSlice = () => {
     const ipcRenderer = window.ipcRenderer;
 
     try {
-      const result = await ipcRenderer.invoke("first-frame", {
+      const result = await ipcRenderer.invoke('first-frame', {
         start_frame: parameters.startFrame,
         end_frame: parameters.endFrame,
         step: parameters.step,
@@ -243,13 +241,13 @@ export const useProjectSlice = () => {
    * It initializes the state with the loaded project data and determines the next step.
    * @returns - number - The step to go to after loading the project.
    */
-  
+
   const onLoadProject = async () => {
     dispatch(setLoading(true));
     const ipcRenderer = window.ipcRenderer;
 
     try {
-      const result = await ipcRenderer.invoke("load-project");
+      const result = await ipcRenderer.invoke('load-project');
 
       if (result.success) {
         const {
@@ -272,7 +270,8 @@ export const useProjectSlice = () => {
         dispatch(setProjectType(settings.footage));
 
         // Set language
-        dispatch(setLanguage(settings.language));
+        const savedLanguage = localStorage.getItem("language") || "en"
+        dispatch(setLanguage(savedLanguage));
 
         // Set video metadata
         dispatch(
@@ -284,7 +283,7 @@ export const useProjectSlice = () => {
             duration: videoMetadata.duration,
             creation: videoMetadata.creation,
             name: videoMetadata.name,
-          }),
+          })
         );
 
         dispatch(clearErrorMessage());
@@ -300,8 +299,21 @@ export const useProjectSlice = () => {
         }
 
         // Load first frame
-        if (firstFrame !== "") {
+        if (firstFrame !== '') {
           dispatch(setFirstFramePath(filePrefix + firstFrame));
+        }
+
+        if (settings.colorbar_limits) {
+          const { min, max } = settings.colorbar_limits;
+          dispatch(setColorbarLimits({
+            min: settings.colorbar_limits.min,
+            max: settings.colorbar_limits.max,
+            default: min !== null && max !== null ? false : true,
+          }))
+        }
+
+        if (settings.user_masks) {
+          dispatch(loadMasks(settings.user_masks));
         }
 
         dispatch(setLoading(false));
@@ -312,12 +324,12 @@ export const useProjectSlice = () => {
           if (settings.pixel_size) {
             onLoadPixelSize(
               settings.pixel_size,
-              pixelSize,
+              uav,
               dispatch,
               updatePixelSize,
               orthoImage,
               settings.transformation,
-              matrix,
+              matrix
             );
           }
 
@@ -329,7 +341,7 @@ export const useProjectSlice = () => {
               setObliquePoints,
               orthoImage,
               settings.transformation,
-              matrix,
+              matrix
             );
           }
 
@@ -340,24 +352,19 @@ export const useProjectSlice = () => {
               dispatch,
               setIpcamPoints,
               setIpcamCameraSolution,
-              setIpcamImages,
+              setIpcamImages
             );
           }
 
           // Load video parameters
-          onLoadVideoParameters(
-            settings.video_range,
-            dispatch,
-            setVideoParameters,
-            videoMetadata.fps,
-          );
+          onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps);
 
           // Load processing mask
           dispatch(
             setProcessingMask({
               mask: filePrefix + mask,
               bbox,
-            }),
+            })
           );
 
           // Load cross sections
@@ -368,16 +375,12 @@ export const useProjectSlice = () => {
             addSection,
             sections,
             window.ipcRenderer,
-            setSummary,
+            setSummary
           );
 
           // Load processing form
           if (settings.processing) {
-            onLoadProcessingForm(
-              settings.processing,
-              dispatch,
-              updateProcessingForm,
-            );
+            onLoadProcessingForm(settings.processing, dispatch, updateProcessingForm);
           }
 
           // Load quiver data
@@ -394,27 +397,23 @@ export const useProjectSlice = () => {
                 v_median,
                 test: false,
               },
-              test: false,
-            }),
+            })
           );
 
           // Load project details
-          if (
-            settings.river_name ||
-            settings.site ||
-            settings.unit_system ||
-            settings.medition_date
-          ) {
+          if (settings.river_name || settings.site || settings.unit_system || settings.medition_date) {
+            console.log('loading project details')
+            const savedUnitSystem = settings.unit_system || localStorage.getItem("unitSystem") || "si"
             dispatch(
               setProjectDetails({
                 riverName: settings.river_name,
                 site: settings.site,
-                unitSistem: settings.unit_system,
+                unitSistem: savedUnitSystem,
                 meditionDate: settings.medition_date,
-              }),
+              })
             );
 
-            return MODULE_NUMBER.REPORT;
+            return STEP;
           }
 
           if (STEP === MODULE_NUMBER.RESULTS) {
@@ -429,12 +428,12 @@ export const useProjectSlice = () => {
           if (settings.pixel_size) {
             onLoadPixelSize(
               settings.pixel_size,
-              pixelSize,
+              uav,
               dispatch,
               updatePixelSize,
               orthoImage,
               settings.transformation,
-              matrix,
+              matrix
             );
           }
 
@@ -445,7 +444,7 @@ export const useProjectSlice = () => {
               setObliquePoints,
               orthoImage,
               settings.transformation,
-              matrix,
+              matrix
             );
           }
 
@@ -455,58 +454,37 @@ export const useProjectSlice = () => {
               dispatch,
               setIpcamPoints,
               setIpcamCameraSolution,
-              setIpcamImages,
+              setIpcamImages
             );
           }
 
-          onLoadVideoParameters(
-            settings.video_range,
-            dispatch,
-            setVideoParameters,
-            videoMetadata.fps,
-          );
+          onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps);
 
           dispatch(
             setProcessingMask({
               mask: filePrefix + mask,
               bbox,
-            }),
+            })
           );
 
-          onLoadCrossSections(
-            xsections,
-            dispatch,
-            updateSection,
-            addSection,
-            sections,
-            window.ipcRenderer,
-          );
+          onLoadCrossSections(xsections, dispatch, updateSection, addSection, sections, window.ipcRenderer);
 
           if (settings.processing) {
-            onLoadProcessingForm(
-              settings.processing,
-              dispatch,
-              updateProcessingForm,
-            );
+            onLoadProcessingForm(settings.processing, dispatch, updateProcessingForm);
           }
 
           return MODULE_NUMBER.PROCESSING;
         } else if (settings.pixel_size) {
           onLoadPixelSize(
             settings.pixel_size,
-            pixelSize,
+            uav,
             dispatch,
             updatePixelSize,
             orthoImage,
             settings.transformation,
-            matrix,
+            matrix
           );
-          onLoadVideoParameters(
-            settings.video_range,
-            dispatch,
-            setVideoParameters,
-            videoMetadata.fps,
-          );
+          onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps);
 
           return MODULE_NUMBER.CROSS_SECTIONS;
         } else if (settings.control_points) {
@@ -516,32 +494,16 @@ export const useProjectSlice = () => {
             setObliquePoints,
             orthoImage,
             settings.transformation,
-            matrix,
+            matrix
           );
-          onLoadVideoParameters(
-            settings.video_range,
-            dispatch,
-            setVideoParameters,
-            videoMetadata.fps,
-          );
+          onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps);
 
           return MODULE_NUMBER.CROSS_SECTIONS;
         } else if (settings.grp_3d) {
-          onLoad3dRectification(
-            rectification3D,
-            dispatch,
-            setIpcamPoints,
-            setIpcamCameraSolution,
-            setIpcamImages,
-          );
+          onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setIpcamImages);
           return MODULE_NUMBER.CROSS_SECTIONS;
         } else if (settings.video_range) {
-          onLoadVideoParameters(
-            settings.video_range,
-            dispatch,
-            setVideoParameters,
-            videoMetadata.fps,
-          );
+          onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps);
 
           return MODULE_NUMBER.PIXEL_SIZE;
         } else {
@@ -552,9 +514,9 @@ export const useProjectSlice = () => {
         return result.message;
       }
     } catch (error) {
-      console.error("Error loading project:", error);
+      console.error('Error loading project:', error);
       dispatch(setLoading(false));
-      return "notValidDirectory";
+      return 'notValidDirectory';
     }
   };
 
@@ -573,23 +535,23 @@ export const useProjectSlice = () => {
 
   const onProjectDetailsChange = (data: onClickFinishInterface) => {
     dispatch(setLoading(true));
-    if (data.riverName) {
+    if (data.riverName !== undefined) {
       dispatch(
         setProjectDetails({
           ...projectDetails,
           riverName: data.riverName,
           meditionDate: data.meditionDate,
           unitSistem: data.unitSistem,
-        }),
+        })
       );
-    } else if (data.site) {
+    } else if (data.site !== undefined) {
       dispatch(
         setProjectDetails({
           ...projectDetails,
           site: data.site,
           meditionDate: data.meditionDate,
           unitSistem: data.unitSistem,
-        }),
+        })
       );
     } else {
       dispatch(
@@ -597,7 +559,7 @@ export const useProjectSlice = () => {
           ...projectDetails,
           meditionDate: data.meditionDate,
           unitSistem: data.unitSistem,
-        }),
+        })
       );
     }
     dispatch(setLoading(false));
@@ -606,13 +568,24 @@ export const useProjectSlice = () => {
   const onSaveProjectDetails = async () => {
     const ipcRenderer = window.ipcRenderer;
 
-    await ipcRenderer.invoke("set-project-metadata", projectDetails);
+    await ipcRenderer.invoke('set-project-metadata', projectDetails);
   };
 
   const onSetDefaultProjectState = () => {
+    if (type === 'uav') {
+      dispatch(setDefaultUavState());
+    } else if (type === 'ipcam') {
+      dispatch(setDefaultIpcamState());
+    } else {
+      dispatch(setDefaultObliqueState());
+    }
+
+    // Global variables as default
+    dispatch(resetAll());
+    dispatch(setDefaultDataState());
+    dispatch(setDefaultSectionState());
     dispatch(setDefaultProjectState());
   };
-
 
   return {
     // ATRIBUTES

@@ -1,24 +1,32 @@
-import { useEffect, useState } from "react";
-import { useUiSlice } from "../../hooks";
+import { useEffect, useState } from 'react';
 
-export const EyeBall = () => {
-  const [lidClass, setLidClass] = useState("lid lid--open");
-  const [pupilClass, setPupilClass] = useState(
-    "pupil pupil--open pupil-shadow",
-  );
-  const { onSetSeeAll, seeAll } = useUiSlice();
+
+interface EyeProps {
+  active: boolean;
+  action: () => void;
+  index?: number;
+}
+export const EyeBall = ({ active, action, index }: EyeProps) => {
+  const [lidClass, setLidClass] = useState('lid lid--open');
+  const [pupilClass, setPupilClass] = useState('pupil pupil--open pupil-shadow');
+
   useEffect(() => {
-    if (seeAll) {
-      setLidClass("lid lid--open");
-      setPupilClass("pupil pupil--open");
+    if (active) {
+      setLidClass('lid lid--open');
+      setPupilClass('pupil pupil--open');
     } else {
-      setLidClass("lid lid--close");
-      setPupilClass("pupil pupil--close");
+      setLidClass('lid lid--close');
+      setPupilClass('pupil pupil--close');
     }
-  }, [seeAll]); // Ejecuta este efecto cuando `seeAll` cambie
+  }, [active])
+
 
   const handleClick = () => {
-    onSetSeeAll(); // Cambia el estado de `seeAll`
+    if (index === undefined) {
+      action()
+    } else {
+      action(index);
+    }
   };
 
   return (

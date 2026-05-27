@@ -1,33 +1,33 @@
-import { useTranslation } from "react-i18next";
-import { useWizard } from "react-use-wizard";
-import { LanguageSelector } from "../components/LanguageSelector";
-import image from "../assets/logo.png";
-import "./pages.css";
-import { useProjectSlice, useUiSlice } from "../hooks";
-import { useEffect } from "react";
-import { VersionMessage } from "../components";
-// import { ThemeToggle } from '../components/ThemeToggle';
+import { useTranslation } from 'react-i18next';
+import { useWizard } from 'react-use-wizard';
+import { LangBtn } from '../components/CustomIcons/LanguageSelector';
+import { FolderBtn, UnitBtn } from '../components/CustomIcons/UnitSelector';
+import image from '../assets/logo.png';
+import imageLigtht from '../assets/logo_light.png';
+import './pages.css';
+import { useProjectSlice, useUiSlice } from '../hooks';
+import { useEffect } from 'react';
+import { VersionMessage } from '../components';
+import { ThemeToggle } from '../components/ThemeToggle';
 
 export const HomePage: React.FC = () => {
   const { t } = useTranslation();
   const { nextStep, goToStep } = useWizard();
   const { onLoadProject } = useProjectSlice();
-  const { onSetErrorMessage, error, onCheckVersion, isLatestVersion } = useUiSlice();
+  const { onSetErrorMessage, error, onCheckVersion, isLatestVersion, theme } = useUiSlice();
 
-  const handleNewProjectClick = async (
-    event: React.MouseEvent<HTMLButtonElement>,
-  ) => {
-    if (event.currentTarget.id === "new-project") {
+  const handleNewProjectClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (event.currentTarget.id === 'new-project') {
       nextStep();
     } else {
       const result = await onLoadProject();
-      if (typeof result === "number") {
+      if (typeof result === 'number') {
         goToStep(result);
       } else {
         onSetErrorMessage(
-          t("MainPage.Errors." + result, {
-            defaultValue: t("MainPage.Errors.default"),
-          }),
+          t('MainPage.Errors.' + result, {
+            defaultValue: t('MainPage.Errors.default'),
+          })
         );
       }
     }
@@ -35,36 +35,29 @@ export const HomePage: React.FC = () => {
 
   useEffect(() => {
     onCheckVersion();
-  }, [])
+  }, []);
 
   return (
-    <div className="App">
-      <img src={image} className="home-page-image" alt="RIVeR Logo" />
+    <div className="default-app-container">
+      <img src={theme === 'light' ? imageLigtht : image} className="home-page-image" alt="RIVeR Logo" />
       <div className="home-page-buttons">
-        <button
-          className="button-1"
-          onClick={handleNewProjectClick}
-          id="new-project"
-        >
-          {t("MainPage.start")}
+        <button className="button-1" onClick={handleNewProjectClick} id="new-project">
+          {t('MainPage.start')}
         </button>
-        <button
-          className="button-1"
-          onClick={handleNewProjectClick}
-          id="load-project"
-        >
-          {t("MainPage.loadProject")}
+        <button className="button-1" onClick={handleNewProjectClick} id="load-project">
+          {t('MainPage.loadProject')}
         </button>
       </div>
       {error && <h4 className="home-page-error mb-1"> {error} </h4>}
       <p id="version-number">{import.meta.env.VITE_APP_VERSION}</p>
-      {
-        isLatestVersion !== undefined && (
-          <VersionMessage/>
-        )
-      }
-      <LanguageSelector />
-      {/* <ThemeToggle /> */}
+      {isLatestVersion !== undefined && <VersionMessage />}
+      <div className="row" style={{ position: 'absolute', bottom: '30px', right: '50px' }}>
+        <FolderBtn />
+        <UnitBtn />
+        <LangBtn />
+        <ThemeToggle />
+      </div>
+
     </div>
   );
 };

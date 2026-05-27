@@ -1,11 +1,7 @@
 """
 File Name: define_roi_masks.py
-Project Name: RIVeR-LAC
-Description: Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
-
-Created Date: 2024-07-04
 Author: Antoine Patalano
-Email: antoine.patalano@unc.edu.ar
+Email: antoine.patalano@unc.edu.ar / contact@orus.cam
 Company: UNC / ORUS
 
 This script contains functions for roi and mask creation
@@ -271,6 +267,89 @@ def recommend_height_roi(xsections: dict, window_size: int, transformation_matri
 
 	return recommended_height_roi
 
+def create_user_polygon_mask(
+	image_shape: tuple[int, int],
+	points: list[dict],
+) -> np.ndarray:
+	"""
+	Create a binary mask (0/1) from polygon points.
+
+	Args:
+		image_shape: (height, width)
+		points: list of {"x": float, "y": float}, length >= 3
+
+	Returns:
+		np.ndarray uint8 of shape (H, W) with values 0/1.
+	"""
+	h, w = image_shape
+
+	if len(points) < 3:
+		raise ValueError("Polygon must have at least 3 points.")
+
+	poly = np.empty((len(points), 2), dtype=np.int32)
+	for i, p in enumerate(points):
+		x = int(round(float(p["x"])))
+		y = int(round(float(p["y"])))
+		x = int(np.clip(x, 0, w - 1))
+		y = int(np.clip(y, 0, h - 1))
+		poly[i, 0] = x
+		poly[i, 1] = y
+
+	mask = np.ones((h, w), dtype=np.uint8)
+	cv2.fillPoly(mask, [poly], 0)
+	return mask
+import numpy as np
+
+
+def combine_binary_masks_and(masks: list[np.ndarray]) -> np.ndarray:
+	"""
+	Combine binary masks with AND logic (0 dominant).
+
+	Conventions:
+	- Masks contain values {0, 1}
+	- 0 is dominant (any 0 anywhere → 0 in output)
+
+	Args:
+		masks: list of np.ndarray, all same shape
+
+	Returns:
+		np.ndarray uint8 with values {0,1}
+	"""
+	if not masks:
+		raise ValueError("combine_binary_masks_and: at least one mask is required")
+
+	base_shape = masks[0].shape
+	for i, m in enumerate(masks):
+		if m.shape != base_shape:
+			raise ValueError(
+				f"Mask at index {i} has shape {m.shape}, expected {base_shape}"
+			)
+
+	# Boolean AND, then cast back to uint8
+	out = masks[0].astype(bool)
+	for m in masks[1:]:
+		out &= m.astype(bool)
+
+	return out.astype(np.uint8)
+
+
+def compile_masks(
+	roi_mask: np.ndarray,
+	user_masks: list[np.ndarray],
+) -> np.ndarray:
+	"""
+	Compile ROI mask and user masks into a final mask.
+
+	Rule:
+	- 0 is dominant
+	- final = ROI AND all user masks
+	"""
+	masks = [roi_mask]
+
+	if user_masks:
+		masks.extend(user_masks)
+
+	return combine_binary_masks_and(masks)
 
 # # Example usage:
 # import matplotlib.pyplot as plt
