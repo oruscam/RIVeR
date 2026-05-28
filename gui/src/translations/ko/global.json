@@ -297,5 +297,41 @@
     "resourceNotFound": "리소스를 찾을 수 없습니다",
     "randomError": "오류가 발생했습니다. 다시 시도해 주세요",
     "dropHereText": "이 패널 어디에나 파일을 드롭하세요. 자동으로 위치를 감지합니다."
+  },
+  "Calibration": {
+    "title": "카메라 캘리브레이션",
+    "close": "닫기",
+    "board": "보드 표시",
+    "import": "이미지 가져오기",
+    "solve": "풀기",
+    "solving": "계산 중…",
+    "overlay": "오버레이",
+    "undistorted": "왜곡 보정",
+    "heatmap": "히트맵",
+    "dropZone": "캘리브레이션 이미지 폴더를 드롭",
+    "dropHint": "또는 이미지 가져오기 사용",
+    "notUsed": "캘리브레이션에 미사용",
+    "readyToSolve": "이미지가 로드되었습니다. 풀기를 눌러 캘리브레이션을 실행하세요.",
+    "emptyHint": "이미지 폴더를 가져오거나 드롭하여 시작하세요.",
+    "errorGeneric": "캘리브레이션 중 오류가 발생했습니다.",
+    "recommendations": "권장 사항",
+    "histogram": "뷰별 RMS 분포",
+    "histogramX": "재투영 오차 (px)",
+    "profileName": "프로파일 이름",
+    "saveProfile": "저장",
+    "savedTo": "저장 위치",
+    "outputs": "출력 파일",
+    "overlaysDir": "오버레이 폴더 열기",
+    "undistortedDir": "왜곡 보정 폴더 열기",
+    "profileJson": "캘리브레이션 프로파일 열기",
+    "undistortedHint": "왜곡 보정된 이미지는 출력 폴더에 저장됩니다.",
+    "metrics": {
+      "medianRms": "중앙값 RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "커버리지",
+      "edgeReach": "가장자리 도달",
+      "poseSpread": "자세 분산",
+      "centerOffset": "중심 오프셋"
+    }
   }
 }

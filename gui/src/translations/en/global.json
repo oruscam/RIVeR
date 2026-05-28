@@ -300,5 +300,41 @@
     "resourceNotFound": "Resource not found",
     "randomError": "Something went wrong. Please try again",
     "dropHereText": "Drop a file anywhere on this panel. I'll auto-detect where it belongs."
+  },
+  "Calibration": {
+    "title": "Camera Calibration",
+    "close": "Close",
+    "board": "Show Board",
+    "import": "Import Images",
+    "solve": "Solve",
+    "solving": "Solving…",
+    "overlay": "Overlay",
+    "undistorted": "Undistorted",
+    "heatmap": "Heatmap",
+    "dropZone": "Drop a folder of calibration images",
+    "dropHint": "or use Import Images",
+    "notUsed": "Not used in calibration",
+    "readyToSolve": "Images loaded. Press Solve to run calibration.",
+    "emptyHint": "Import or drop a folder of images to get started.",
+    "errorGeneric": "An error occurred during calibration.",
+    "recommendations": "Recommendations",
+    "histogram": "Per-view RMS distribution",
+    "histogramX": "Reprojection error (px)",
+    "profileName": "Profile name",
+    "saveProfile": "Save",
+    "savedTo": "Saved to",
+    "outputs": "Output files",
+    "overlaysDir": "Open overlays folder",
+    "undistortedDir": "Open undistorted folder",
+    "profileJson": "Open calibration profile",
+    "undistortedHint": "Undistorted images are saved to the output folder.",
+    "metrics": {
+      "medianRms": "Median RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "Coverage",
+      "edgeReach": "Edge Reach",
+      "poseSpread": "Pose Spread",
+      "centerOffset": "Center Offset"
+    }
   }
 }

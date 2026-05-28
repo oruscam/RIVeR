@@ -297,5 +297,41 @@
     "resourceNotFound": "找不到资源",
     "randomError": "发生错误，请重试",
     "dropHereText": "将文件拖放至此面板，系统将自动识别其所属位置。"
+  },
+  "Calibration": {
+    "title": "相机标定",
+    "close": "关闭",
+    "board": "显示标定板",
+    "import": "导入图像",
+    "solve": "求解",
+    "solving": "求解中…",
+    "overlay": "叠加图",
+    "undistorted": "去畸变",
+    "heatmap": "热力图",
+    "dropZone": "拖入标定图像文件夹",
+    "dropHint": "或使用导入图像",
+    "notUsed": "未参与标定",
+    "readyToSolve": "图像已加载。点击求解开始标定。",
+    "emptyHint": "导入或拖入图像文件夹以开始。",
+    "errorGeneric": "标定过程中发生错误。",
+    "recommendations": "建议",
+    "histogram": "每视图 RMS 分布",
+    "histogramX": "重投影误差 (px)",
+    "profileName": "配置文件名称",
+    "saveProfile": "保存",
+    "savedTo": "已保存至",
+    "outputs": "输出文件",
+    "overlaysDir": "打开叠加图文件夹",
+    "undistortedDir": "打开去畸变文件夹",
+    "profileJson": "打开标定配置文件",
+    "undistortedHint": "去畸变图像已保存至输出文件夹。",
+    "metrics": {
+      "medianRms": "中位 RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "覆盖率",
+      "edgeReach": "边缘覆盖",
+      "poseSpread": "姿态分散度",
+      "centerOffset": "中心偏移"
+    }
   }
 }

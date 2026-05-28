@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, screen } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, protocol, screen } from 'electron';
 import { fileURLToPath } from 'node:url';
 import * as path from 'node:path';
 import * as os from 'os';
@@ -8,6 +8,7 @@ const userDir = os.homedir();
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js';
 import {
+  cameraCalibration,
   initProject,
   firstFrame,
   setPixelSize,
@@ -29,7 +30,7 @@ import {
   createMaskAndBbox,
   recommendRoiHeight,
   getGif,
-  setColorbarLimits
+  setColorbarLimits,
 } from './ipcMainHandlers/index.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
 
@@ -44,7 +45,7 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 
 let win: BrowserWindow | null;
 
-let riverCli: Function = executeRiverCli;
+let riverCli: typeof executeRiverCli = executeRiverCli;
 
 async function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -84,7 +85,6 @@ async function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
-
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'));
@@ -134,10 +134,20 @@ export const PROJECT_CONFIG: ProjectConfig = {
   defaultFilesPath: '',
   filePrefix: filePrefix,
   pythonPath: VITE_DEV_SERVER_URL
-    ? path.join(app.getAppPath(), '..', 'venv', ...(process.platform === 'win32' ? ['Scripts', 'python.exe'] : ['bin', 'python']))
-    : path.join(app.getAppPath(), '..', 'river-cli', 'python', ...(process.platform === 'win32' ? ['python.exe'] : ['bin', 'python'])),
+    ? path.join(
+        app.getAppPath(),
+        '..',
+        'venv',
+        ...(process.platform === 'win32' ? ['Scripts', 'python.exe'] : ['bin', 'python'])
+      )
+    : path.join(
+        app.getAppPath(),
+        '..',
+        'river-cli',
+        'python',
+        ...(process.platform === 'win32' ? ['python.exe'] : ['bin', 'python'])
+      ),
 };
-
 
 // General window dialog to confirm deletes.
 ipcMain.handle('delete-confirmation', async (_event, args) => {
@@ -169,6 +179,12 @@ ipcMain.handle('choose-river-path', async () => {
 ipcMain.handle('get-river-path', () => PROJECT_CONFIG.mainDirectory);
 
 app.whenReady().then(async () => {
+  // Serve local files for calibration image preview.
+  protocol.registerFileProtocol('cal-file', (request, callback) => {
+    const filePath = decodeURIComponent(request.url.replace('cal-file://', ''));
+    callback({ path: filePath });
+  });
+
   const config = readRiverConfig();
   if (config) {
     PROJECT_CONFIG.mainDirectory = config.riverPath;
@@ -178,6 +194,7 @@ app.whenReady().then(async () => {
     saveRiverConfig({ riverPath: defaultPath });
   }
 
+  cameraCalibration(riverCli);
   calculate3dRectification(riverCli);
   createMaskAndBbox(riverCli);
   createWindow();

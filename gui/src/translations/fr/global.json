@@ -301,5 +301,41 @@
     "resourceNotFound": "Ressource non trouvée",
     "randomError": "Quelque chose s'est mal passé. Veuillez réessayer",
     "dropHereText": "Déposez un fichier n'importe où sur ce panneau. Je détecterai automatiquement où il doit aller."
+  },
+  "Calibration": {
+    "title": "Calibration Caméra",
+    "close": "Fermer",
+    "board": "Afficher la mire",
+    "import": "Importer des images",
+    "solve": "Résoudre",
+    "solving": "En cours…",
+    "overlay": "Superposition",
+    "undistorted": "Sans distorsion",
+    "heatmap": "Carte de chaleur",
+    "dropZone": "Déposez un dossier d'images de calibration",
+    "dropHint": "ou utilisez Importer des images",
+    "notUsed": "Non utilisé dans la calibration",
+    "readyToSolve": "Images chargées. Appuyez sur Résoudre pour calibrer.",
+    "emptyHint": "Importez ou déposez un dossier d'images pour commencer.",
+    "errorGeneric": "Une erreur s'est produite lors de la calibration.",
+    "recommendations": "Recommandations",
+    "histogram": "Distribution RMS par vue",
+    "histogramX": "Erreur de reprojection (px)",
+    "profileName": "Nom du profil",
+    "saveProfile": "Enregistrer",
+    "savedTo": "Enregistré dans",
+    "outputs": "Fichiers de sortie",
+    "overlaysDir": "Ouvrir le dossier de superpositions",
+    "undistortedDir": "Ouvrir le dossier sans distorsion",
+    "profileJson": "Ouvrir le profil de calibration",
+    "undistortedHint": "Les images sans distorsion sont enregistrées dans le dossier de sortie.",
+    "metrics": {
+      "medianRms": "RMS Médiane",
+      "p90Rms": "RMS P90",
+      "coverage": "Couverture",
+      "edgeReach": "Portée bord",
+      "poseSpread": "Dispersion pose",
+      "centerOffset": "Décalage centre"
+    }
   }
 }
