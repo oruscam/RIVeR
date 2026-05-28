@@ -301,5 +301,41 @@
     "resourceNotFound": "Ressource nicht gefunden",
     "randomError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut",
     "dropHereText": "Lege eine Datei irgendwo in diesem Bereich ab. Ich erkenne automatisch, wohin sie gehört."
+  },
+  "Calibration": {
+    "title": "Kamerakalibrierung",
+    "close": "Schließen",
+    "board": "Schachbrett anzeigen",
+    "import": "Bilder importieren",
+    "solve": "Lösen",
+    "solving": "Löse…",
+    "overlay": "Überlagerung",
+    "undistorted": "Entzerrt",
+    "heatmap": "Heatmap",
+    "dropZone": "Kalibrierbilder-Ordner ablegen",
+    "dropHint": "oder Bilder importieren",
+    "notUsed": "Nicht in der Kalibrierung verwendet",
+    "readyToSolve": "Bilder geladen. Klicke Lösen zum Kalibrieren.",
+    "emptyHint": "Importiere oder lege einen Bildordner ab, um zu beginnen.",
+    "errorGeneric": "Bei der Kalibrierung ist ein Fehler aufgetreten.",
+    "recommendations": "Empfehlungen",
+    "histogram": "RMS-Verteilung pro Bild",
+    "histogramX": "Reprojektionsfehler (px)",
+    "profileName": "Profilname",
+    "saveProfile": "Speichern",
+    "savedTo": "Gespeichert unter",
+    "outputs": "Ausgabedateien",
+    "overlaysDir": "Überlagerungsordner öffnen",
+    "undistortedDir": "Entzerrungsordner öffnen",
+    "profileJson": "Kalibrierungsprofil öffnen",
+    "undistortedHint": "Entzerrte Bilder werden im Ausgabeordner gespeichert.",
+    "metrics": {
+      "medianRms": "Median RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "Abdeckung",
+      "edgeReach": "Randreichweite",
+      "poseSpread": "Posen-Streuung",
+      "centerOffset": "Mittenversatz"
+    }
   }
 }

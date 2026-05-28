@@ -297,5 +297,41 @@
     "resourceNotFound": "المورد غير موجود",
     "randomError": "حدث خطأ ما. الرجاء المحاولة مرة أخرى",
     "dropHereText": "أفلت الملف في أي مكان على هذه اللوحة. سيتم التعرف على موضعه تلقائياً."
+  },
+  "Calibration": {
+    "title": "معايرة الكاميرا",
+    "close": "إغلاق",
+    "board": "عرض اللوحة",
+    "import": "استيراد الصور",
+    "solve": "حل",
+    "solving": "جارٍ الحل…",
+    "overlay": "تراكب",
+    "undistorted": "بدون تشويه",
+    "heatmap": "خريطة حرارية",
+    "dropZone": "أسقط مجلد صور المعايرة هنا",
+    "dropHint": "أو استخدم استيراد الصور",
+    "notUsed": "غير مستخدم في المعايرة",
+    "readyToSolve": "تم تحميل الصور. اضغط حل لبدء المعايرة.",
+    "emptyHint": "استورد أو أسقط مجلد صور للبدء.",
+    "errorGeneric": "حدث خطأ أثناء المعايرة.",
+    "recommendations": "التوصيات",
+    "histogram": "توزيع RMS لكل منظور",
+    "histogramX": "خطأ إعادة الإسقاط (px)",
+    "profileName": "اسم الملف الشخصي",
+    "saveProfile": "حفظ",
+    "savedTo": "تم الحفظ في",
+    "outputs": "ملفات الإخراج",
+    "overlaysDir": "فتح مجلد التراكبات",
+    "undistortedDir": "فتح مجلد الصور بدون تشويه",
+    "profileJson": "فتح ملف المعايرة",
+    "undistortedHint": "يتم حفظ الصور غير المشوهة في مجلد الإخراج.",
+    "metrics": {
+      "medianRms": "RMS الوسيط",
+      "p90Rms": "RMS P90",
+      "coverage": "التغطية",
+      "edgeReach": "وصول الحافة",
+      "poseSpread": "انتشار الوضع",
+      "centerOffset": "إزاحة المركز"
+    }
   }
 }

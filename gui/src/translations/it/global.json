@@ -301,5 +301,41 @@
     "resourceNotFound": "Risorsa non trovata",
     "randomError": "Qualcosa è andato storto. Riprova",
     "dropHereText": "Rilascia un file in qualsiasi punto di questo pannello. Rileverò automaticamente dove deve andare."
+  },
+  "Calibration": {
+    "title": "Calibrazione Fotocamera",
+    "close": "Chiudi",
+    "board": "Mostra Scacchiera",
+    "import": "Importa Immagini",
+    "solve": "Risolvi",
+    "solving": "Elaborazione…",
+    "overlay": "Sovrapposizione",
+    "undistorted": "Senza Distorsione",
+    "heatmap": "Mappa di Calore",
+    "dropZone": "Rilascia una cartella di immagini di calibrazione",
+    "dropHint": "o usa Importa Immagini",
+    "notUsed": "Non utilizzato nella calibrazione",
+    "readyToSolve": "Immagini caricate. Premi Risolvi per calibrare.",
+    "emptyHint": "Importa o rilascia una cartella di immagini per iniziare.",
+    "errorGeneric": "Si è verificato un errore durante la calibrazione.",
+    "recommendations": "Raccomandazioni",
+    "histogram": "Distribuzione RMS per vista",
+    "histogramX": "Errore di riproiezione (px)",
+    "profileName": "Nome profilo",
+    "saveProfile": "Salva",
+    "savedTo": "Salvato in",
+    "outputs": "File di output",
+    "overlaysDir": "Apri cartella sovrapposizioni",
+    "undistortedDir": "Apri cartella senza distorsione",
+    "profileJson": "Apri profilo calibrazione",
+    "undistortedHint": "Le immagini senza distorsione vengono salvate nella cartella di output.",
+    "metrics": {
+      "medianRms": "RMS Mediana",
+      "p90Rms": "RMS P90",
+      "coverage": "Copertura",
+      "edgeReach": "Portata bordo",
+      "poseSpread": "Dispersione posa",
+      "centerOffset": "Offset centro"
+    }
   }
 }

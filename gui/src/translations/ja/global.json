@@ -297,5 +297,41 @@
     "resourceNotFound": "リソースが見つかりません",
     "randomError": "エラーが発生しました。再試行してください",
     "dropHereText": "このパネルにファイルをドロップしてください。自動的に適切な場所に配置します。"
+  },
+  "Calibration": {
+    "title": "カメラキャリブレーション",
+    "close": "閉じる",
+    "board": "ボードを表示",
+    "import": "画像をインポート",
+    "solve": "解析",
+    "solving": "解析中…",
+    "overlay": "オーバーレイ",
+    "undistorted": "歪み補正",
+    "heatmap": "ヒートマップ",
+    "dropZone": "キャリブレーション画像フォルダをドロップ",
+    "dropHint": "または画像をインポート",
+    "notUsed": "キャリブレーションに未使用",
+    "readyToSolve": "画像を読み込みました。解析を押してキャリブレーションを実行します。",
+    "emptyHint": "画像フォルダをインポートまたはドロップして開始してください。",
+    "errorGeneric": "キャリブレーション中にエラーが発生しました。",
+    "recommendations": "推奨事項",
+    "histogram": "ビューごとのRMS分布",
+    "histogramX": "再投影誤差 (px)",
+    "profileName": "プロファイル名",
+    "saveProfile": "保存",
+    "savedTo": "保存先",
+    "outputs": "出力ファイル",
+    "overlaysDir": "オーバーレイフォルダを開く",
+    "undistortedDir": "歪み補正フォルダを開く",
+    "profileJson": "キャリブレーションプロファイルを開く",
+    "undistortedHint": "歪み補正された画像は出力フォルダに保存されます。",
+    "metrics": {
+      "medianRms": "中央値RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "カバレッジ",
+      "edgeReach": "端部到達",
+      "poseSpread": "姿勢分散",
+      "centerOffset": "中心オフセット"
+    }
   }
 }

@@ -301,5 +301,41 @@
     "resourceNotFound": "Recurso no encontrado.",
     "randomError": "Algo salió mal. Por favor intente nuevamente.",
     "dropHereText": "Suelta un archivo en cualquier parte de este panel. Detectaré automáticamente dónde corresponde."
+  },
+  "Calibration": {
+    "title": "Calibración de Cámara",
+    "close": "Cerrar",
+    "board": "Mostrar Tablero",
+    "import": "Importar Imágenes",
+    "solve": "Resolver",
+    "solving": "Resolviendo…",
+    "overlay": "Superposición",
+    "undistorted": "Sin Distorsión",
+    "heatmap": "Mapa de Calor",
+    "dropZone": "Suelta una carpeta de imágenes de calibración",
+    "dropHint": "o usa Importar Imágenes",
+    "notUsed": "No usado en la calibración",
+    "readyToSolve": "Imágenes cargadas. Presiona Resolver para calibrar.",
+    "emptyHint": "Importa o suelta una carpeta de imágenes para comenzar.",
+    "errorGeneric": "Ocurrió un error durante la calibración.",
+    "recommendations": "Recomendaciones",
+    "histogram": "Distribución de RMS por vista",
+    "histogramX": "Error de reproyección (px)",
+    "profileName": "Nombre del perfil",
+    "saveProfile": "Guardar",
+    "savedTo": "Guardado en",
+    "outputs": "Archivos de salida",
+    "overlaysDir": "Abrir carpeta de superposiciones",
+    "undistortedDir": "Abrir carpeta sin distorsión",
+    "profileJson": "Abrir perfil de calibración",
+    "undistortedHint": "Las imágenes sin distorsión se guardan en la carpeta de salida.",
+    "metrics": {
+      "medianRms": "RMS Mediana",
+      "p90Rms": "RMS P90",
+      "coverage": "Cobertura",
+      "edgeReach": "Alcance Borde",
+      "poseSpread": "Dispersión Pose",
+      "centerOffset": "Offset Centro"
+    }
   }
 }

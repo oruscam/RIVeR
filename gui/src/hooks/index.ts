@@ -1,4 +1,5 @@
 
+import { useCalibrationSlice } from './useCalibrationSlice';
 import { useUiSlice } from './useUiSlice';
 import { useSectionSlice } from './useSectionSlice';
 import { useProjectSlice } from './useProjectSlice';
@@ -10,6 +11,7 @@ import { useIpcamSlice } from './useIpcamSlice';
 import { useImageZoomPan } from './useImageZoomPan';
 
 export {
+  useCalibrationSlice,
   useDataSlice,
   useGlobalSlice,
   useImageZoomPan,

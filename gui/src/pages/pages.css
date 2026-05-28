@@ -201,3 +201,567 @@
     color: var(--secondary-text-color);
     margin-bottom: 15px;
 }
+
+/* =============================================================================
+   CAMERA CALIBRATION OVERLAY
+   ============================================================================= */
+
+.cal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: var(--background-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ── Header ── */
+.cal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 18px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0;
+    background: var(--secondary-background-color);
+}
+
+.cal-header-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cal-header-icon {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+}
+
+.cal-header-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+    letter-spacing: 0.03em;
+}
+
+.cal-close-btn {
+    background: none;
+    border: none;
+    color: var(--secondary-text-color);
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: color 0.15s, background 0.15s;
+}
+
+.cal-close-btn:hover {
+    color: var(--primary-text-color);
+    background: var(--on-hover);
+}
+
+/* ── Body ── */
+.cal-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ══ LEFT PANEL ══ */
+.cal-left {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    gap: 10px;
+    border-right: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.cal-canvas {
+    flex: 1 1 0;
+    min-height: 0;
+    background: #0a0a0a;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+[data-theme="light"] .cal-canvas {
+    background: #d8d3cc;
+}
+
+.cal-canvas-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.cal-canvas-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--secondary-text-color);
+}
+
+.cal-progress-text {
+    font-size: 0.82rem;
+    color: var(--secondary-text-color);
+}
+
+.cal-canvas-placeholder {
+    color: var(--secondary-text-color);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 20px;
+}
+
+.cal-drop-zone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px;
+    width: 100%;
+    height: 100%;
+}
+
+.cal-drop-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--secondary-text-color);
+}
+
+.cal-drop-hint {
+    font-size: 0.78rem;
+    color: var(--secondary-text-color);
+    opacity: 0.6;
+}
+
+.cal-view-tabs {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(6px);
+    border-radius: 20px;
+    padding: 3px;
+}
+
+[data-theme="light"] .cal-view-tabs {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.cal-view-tab {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.cal-view-tab.active,
+.cal-view-tab:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+
+/* Carousel */
+.cal-carousel {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 2px 2px 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+    flex-shrink: 0;
+}
+
+.cal-thumb {
+    flex-shrink: 0;
+    width: 56px;
+    height: 42px;
+    border-radius: 5px;
+    border: 2px solid transparent;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--secondary-background-color);
+    padding: 0;
+    position: relative;
+    transition: border-color 0.15s, opacity 0.15s;
+    opacity: 0.7;
+}
+
+.cal-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.cal-thumb.active {
+    border-color: var(--accent-color);
+    opacity: 1;
+}
+
+.cal-thumb.unused {
+    opacity: 0.35;
+}
+
+.cal-thumb:hover {
+    opacity: 1;
+}
+
+.cal-thumb-dot {
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.4);
+}
+
+.cal-thumb-dot.used {
+    background: var(--success-color);
+}
+
+.cal-thumb-dot.unused {
+    background: var(--background-error);
+}
+
+/* Heatmap pill */
+.cal-heatmap-pill {
+    align-self: flex-start;
+    background: var(--secondary-background-color);
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text-color);
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.cal-heatmap-pill:hover,
+.cal-heatmap-pill.active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+    color: #ffffff;
+}
+
+/* ══ RIGHT PANEL ══ */
+.cal-right {
+    width: 300px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 14px;
+    gap: 12px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
+/* Action buttons */
+.cal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cal-action-btn {
+    width: 100%;
+}
+
+/* Streaming status */
+.cal-stream-msg {
+    font-size: 0.78rem;
+    color: var(--secondary-text-color);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* Error chip */
+.cal-error-chip {
+    background: rgba(237, 107, 87, 0.12);
+    border: 1px solid var(--background-error);
+    color: var(--background-error);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+/* ── Solved results ── */
+.cal-results {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Overall grade badge */
+.cal-badge {
+    align-self: flex-start;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid currentColor;
+}
+
+.cal-badge-good  { color: var(--success-color); }
+.cal-badge-fair  { color: #F5BF61; }
+.cal-badge-bad   { color: var(--background-error); }
+
+/* Metrics grid */
+.cal-metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.cal-metric {
+    background: var(--secondary-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 7px 9px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.cal-metric-label {
+    font-size: 0.65rem;
+    color: var(--secondary-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.cal-metric-value {
+    font-size: 0.88rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.cal-metric-good { color: var(--success-color); }
+.cal-metric-fair { color: #F5BF61; }
+.cal-metric-bad  { color: var(--background-error); }
+
+/* Recommendations */
+.cal-recommendations {
+    background: rgba(246, 191, 97, 0.07);
+    border: 1px solid rgba(245, 191, 97, 0.25);
+    border-radius: 6px;
+    padding: 9px 11px;
+}
+
+.cal-rec-title {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #F5BF61;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.cal-recommendations ul {
+    margin: 0;
+    padding-left: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.cal-recommendations li {
+    font-size: 0.76rem;
+    color: var(--primary-text-color);
+    line-height: 1.4;
+}
+
+.cal-divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 0;
+}
+
+/* Histogram */
+.cal-histogram {}
+
+.cal-section-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--secondary-text-color);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 6px;
+}
+
+.cal-histogram-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 72px;
+    padding: 0 2px;
+}
+
+.cal-bar-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    height: 100%;
+    justify-content: flex-end;
+    gap: 2px;
+}
+
+.cal-bar {
+    width: 100%;
+    background: var(--accent-color);
+    border-radius: 2px 2px 0 0;
+    min-height: 2px;
+    opacity: 0.75;
+    transition: opacity 0.15s;
+}
+
+.cal-bar:hover {
+    opacity: 1;
+}
+
+.cal-bar-label {
+    font-size: 0.5rem;
+    color: var(--secondary-text-color);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.cal-histogram-axes {
+    display: flex;
+    justify-content: center;
+    margin-top: 3px;
+}
+
+.cal-histogram-axes span {
+    font-size: 0.65rem;
+    color: var(--secondary-text-color);
+}
+
+/* Save profile row */
+.cal-save-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.cal-name-input {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.8rem !important;
+    padding: 6px 8px !important;
+    height: auto !important;
+}
+
+.cal-save-btn {
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    padding: 6px 10px;
+}
+
+.cal-save-confirm {
+    font-size: 0.75rem;
+    color: var(--success-color);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+}
+
+/* Clickable path links */
+.cal-link {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-all;
+    transition: opacity 0.15s;
+}
+
+.cal-link:hover {
+    opacity: 0.75;
+}
+
+/* Validation card */
+.cal-validation-card {
+    background: var(--secondary-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 9px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+/* Solving spinner inside button */
+.cal-solving-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.cal-btn-spinner {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+/* HomePage calibration icon button */
+.cal-home-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, opacity 0.15s;
+}
+
+.cal-home-btn:hover {
+    background: var(--on-hover);
+}
+
+.cal-home-btn:hover img {
+    opacity: 1 !important;
+}
+
+/* Ready hints */
+.cal-ready-hint {
+    font-size: 0.8rem;
+    color: var(--secondary-text-color);
+    text-align: center;
+    padding: 8px 0;
+    line-height: 1.5;
+}
