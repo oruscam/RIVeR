@@ -48,6 +48,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     errorMsg,
     profilePath,
     onOpenFolder,
+    onDropFolder,
     onOpenBoard,
     onSolve,
     onRevealPath,
@@ -56,6 +57,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>('snapshot');
   const [solveValidation, setSolveValidation] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
   const calCarouselRef = useRef<HTMLDivElement>(null);
 
@@ -128,21 +130,31 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     return () => window.removeEventListener('keydown', handler);
   }, [images.length, viewMode, status, onClose]);
 
-  const handleDrop = useCallback(async (e: React.DragEvent) => {
-    e.preventDefault();
-    const items = e.dataTransfer.items;
-    for (let i = 0; i < items.length; i++) {
-      const entry = items[i].webkitGetAsEntry?.();
-      if (entry?.isDirectory) {
-        const file = items[i].getAsFile();
-        if (file) {
-          const dirPath = window.webUtils.getPathForFile(file);
-          const parentDir = dirPath.substring(0, dirPath.lastIndexOf('/'));
-          await window.ipcRenderer.invoke('calibration-scan-images', { dir: parentDir });
+  const handleDrop = useCallback(
+    async (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      const items = e.dataTransfer.items;
+      for (let i = 0; i < items.length; i++) {
+        const entry = items[i].webkitGetAsEntry?.();
+        if (entry?.isDirectory) {
+          const file = items[i].getAsFile();
+          if (file) {
+            await onDropFolder(window.webUtils.getPathForFile(file));
+            return;
+          }
         }
       }
-    }
-  }, []);
+      // Fallback: individual image files → use parent directory of first file
+      const files = Array.from(e.dataTransfer.files);
+      const first = files.find((f) => /\.(jpg|jpeg|png)$/i.test(f.name));
+      if (first) {
+        const p = window.webUtils.getPathForFile(first);
+        await onDropFolder(p.substring(0, p.lastIndexOf('/')));
+      }
+    },
+    [onDropFolder]
+  );
 
   const getCanvasContent = () => {
     if (status === 'error' || images.length === 0) return null;
@@ -373,7 +385,16 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
       <div className="cal-body">
         {/* ══════════════ LEFT PANEL ══════════════ */}
-        <div className="cal-left" onDragOver={(e) => e.preventDefault()} onDrop={handleDrop}>
+        <div
+          className={`cal-left${dragOver ? ' drag-over-cal' : ''}`}
+          onDragOver={(e) => {
+            e.preventDefault();
+            setDragOver(true);
+          }}
+          onDragLeave={() => setDragOver(false)}
+          onDragEnd={() => setDragOver(false)}
+          onDrop={handleDrop}
+        >
           {/* Canvas */}
           <div className="cal-canvas">
             {images.length === 0 ? (
