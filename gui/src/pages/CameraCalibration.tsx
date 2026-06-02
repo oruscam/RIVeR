@@ -403,36 +403,34 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                 <p className="cal-drop-hint">{t('Calibration.dropHint')}</p>
               </div>
             ) : (
-              <>
-                {getCanvasContent()}
-                {status === 'solved' && viewMode !== 'heatmap' && (
-                  <div className="cal-view-tabs">
-                    <button
-                      className={`cal-view-tab ${viewMode === 'overlay' ? 'active' : ''}`}
-                      onClick={() => setViewMode('overlay')}
-                    >
-                      1 {t('Calibration.overlay')}
-                    </button>
-                    <button
-                      className={`cal-view-tab ${viewMode === 'undistorted' ? 'active' : ''}`}
-                      onClick={() => setViewMode('undistorted')}
-                    >
-                      2 {t('Calibration.undistorted')}
-                    </button>
-                  </div>
-                )}
-              </>
+              getCanvasContent()
             )}
           </div>
 
-          {/* Heatmap pill */}
-          {status === 'solved' && heatmapBase64 && (
-            <button
-              className={`button-1 cal-heatmap-toggle ${viewMode === 'heatmap' ? 'active' : ''}`}
-              onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
-            >
-              ▣ {t('Calibration.heatmap')}
-            </button>
+          {/* View controls */}
+          {status === 'solved' && (
+            <div className="cal-view-controls">
+              <button
+                className={`button-1 cal-view-btn ${viewMode === 'overlay' ? 'active' : ''}`}
+                onClick={() => setViewMode('overlay')}
+              >
+                {t('Calibration.overlay')}
+              </button>
+              <button
+                className={`button-1 cal-view-btn ${viewMode === 'undistorted' ? 'active' : ''}`}
+                onClick={() => setViewMode('undistorted')}
+              >
+                {t('Calibration.undistorted')}
+              </button>
+              {heatmapBase64 && (
+                <button
+                  className={`button-1 cal-view-btn ${viewMode === 'heatmap' ? 'active' : ''}`}
+                  onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
+                >
+                  {t('Calibration.heatmap')}
+                </button>
+              )}
+            </div>
           )}
 
           {/* Carousel */}
