@@ -222,12 +222,18 @@ export const useProjectSlice = () => {
         factor: factor,
       });
 
+      if (result?.error) {
+        throw new Error(result.error);
+      }
+
       dispatch(clearMessage());
       dispatch(setFirstFramePath(filePrefix + result.initial_frame));
       dispatch(setVideoParameters(parameters));
       dispatch(setLoading(false));
     } catch (error) {
       console.log(error);
+      dispatch(setLoading(false));
+      dispatch(clearMessage());
     }
   };
 

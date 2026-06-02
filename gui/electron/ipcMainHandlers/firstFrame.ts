@@ -80,6 +80,7 @@ function firstFrame(riverCli: Function) {
       };
     } catch (error) {
       console.log(error);
+      return { error: error instanceof Error ? error.message : String(error) };
     }
   });
 }
