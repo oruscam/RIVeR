@@ -323,6 +323,7 @@
     "profileName": "Profile name",
     "saveProfile": "Save",
     "savedTo": "Saved to",
+    "validationDone": "Calibration solved",
     "outputs": "Output files",
     "overlaysDir": "Open overlays folder",
     "undistortedDir": "Open undistorted folder",

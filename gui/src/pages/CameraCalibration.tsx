@@ -1,7 +1,31 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo, memo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useCalibrationSlice } from '../hooks';
+import { useCalibrationSlice, useResizableCarousel } from '../hooks';
 import camCalIcon from '../assets/cam_calibration.svg';
+
+interface ThumbProps {
+  img: string;
+  idx: number;
+  active: boolean;
+  unused: boolean;
+  showDot: boolean;
+  notUsedLabel: string;
+  onSelect: React.Dispatch<React.SetStateAction<number>>;
+}
+
+const CalThumb = memo(({ img, idx, active, unused, showDot, notUsedLabel, onSelect }: ThumbProps) => {
+  const handleClick = useCallback(() => onSelect(idx), [onSelect, idx]);
+  return (
+    <button
+      className={`cal-thumb ${active ? 'active' : ''} ${unused ? 'unused' : ''}`}
+      onClick={handleClick}
+      title={unused ? notUsedLabel : img.split('/').pop()}
+    >
+      <img src={`cal-file://${img}`} alt="" loading="lazy" />
+      {showDot && <span className={`cal-thumb-dot ${unused ? 'unused' : 'used'}`} />}
+    </button>
+  );
+});
 
 type ViewMode = 'snapshot' | 'overlay' | 'undistorted' | 'heatmap';
 
@@ -19,32 +43,63 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     csvRows,
     heatmapBase64,
     overlayPaths,
-    profilePath,
+    undistortedPaths,
     progressMsg,
     errorMsg,
+    profilePath,
     onOpenFolder,
     onOpenBoard,
     onSolve,
-    onSaveProfile,
     onRevealPath,
   } = useCalibrationSlice();
 
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>('snapshot');
-  const [profileName, setProfileName] = useState('calibration_profile');
-  const [saveConfirm, setSaveConfirm] = useState('');
+  const [solveValidation, setSolveValidation] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const calCarouselRef = useRef<HTMLDivElement>(null);
 
-  const isUsed = (imgPath: string) => usedImages.includes(imgPath);
+  const { height: thumbHeight, onDragHandleMouseDown: onCalResizeDrag } = useResizableCarousel({
+    storageKey: 'river-cal-carousel-height',
+    defaultHeight: 42,
+    minHeight: 28,
+    maxHeight: 120,
+    onDragProgress: (h) => {
+      const w = Math.round(h * (56 / 42));
+      calCarouselRef.current?.style.setProperty('--thumb-height', `${h}px`);
+      calCarouselRef.current?.style.setProperty('--thumb-width', `${w}px`);
+    },
+  });
+  const thumbWidth = Math.round(thumbHeight * (56 / 42));
+
+  // O(1) membership check instead of O(n) Array.includes on every thumb.
+  const usedSet = useMemo(() => new Set(usedImages), [usedImages]);
 
   // After solve, switch to overlay and reset selection to first used frame.
   useEffect(() => {
     if (status === 'solved') {
       setViewMode('overlay');
-      const firstUsedIdx = images.findIndex((img) => usedImages.includes(img));
+      const firstUsedIdx = images.findIndex((img) => usedSet.has(img));
       setSelectedIdx(firstUsedIdx >= 0 ? firstUsedIdx : 0);
+      setSolveValidation(true);
+      const timer = setTimeout(() => setSolveValidation(false), 5000);
+      return () => clearTimeout(timer);
     }
-  }, [status, images, usedImages]);
+  }, [status, images, usedSet]);
+
+  // Preload neighbours so canvas swap feels instant.
+  // img.decode() forces eager JPEG decode so the bitmap is ready before the user switches.
+  useEffect(() => {
+    const preload = (p: string) => {
+      const img = new Image();
+      img.src = `cal-file://${p}`;
+      img.decode().catch(() => {});
+    };
+    for (let d = 1; d <= 3; d++) {
+      if (images[selectedIdx - d]) preload(images[selectedIdx - d]);
+      if (images[selectedIdx + d]) preload(images[selectedIdx + d]);
+    }
+  }, [selectedIdx, images]);
 
   // Keyboard navigation.
   useEffect(() => {
@@ -89,29 +144,16 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     }
   }, []);
 
-  const handleSave = async () => {
-    const dest = await onSaveProfile(profileName);
-    if (dest) {
-      setSaveConfirm(typeof dest === 'string' ? dest : '');
-      setTimeout(() => setSaveConfirm(''), 4000);
-    }
-  };
-
   const getCanvasContent = () => {
     if (status === 'error' || images.length === 0) return null;
 
     if (status === 'idle') {
       return (
-        <img className="cal-canvas-img" src={`cal-file://${images[selectedIdx]}`} alt={`Frame ${selectedIdx + 1}`} />
-      );
-    }
-
-    if (status === 'solving') {
-      return (
-        <div className="cal-canvas-overlay">
-          <div className="loader-little" />
-          <p className="cal-progress-text">{progressMsg || t('Calibration.solving')}</p>
-        </div>
+        <img
+          className="cal-canvas-img"
+          src={`cal-file://${images[selectedIdx]}`}
+          alt={`Frame ${selectedIdx + 1}`}
+        />
       );
     }
 
@@ -127,9 +169,13 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     }
 
     if (viewMode === 'undistorted') {
+      const undistorted = getUndistortedForSelected();
+      if (undistorted) {
+        return <img className="cal-canvas-img" src={`cal-file://${undistorted}`} alt="Undistorted" />;
+      }
       return (
         <div className="cal-canvas-placeholder">
-          <p>{t('Calibration.undistortedHint')}</p>
+          <p>{t('Calibration.notUsed')}</p>
         </div>
       );
     }
@@ -147,25 +193,170 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     return overlayPaths[usedIdx] ?? null;
   };
 
-  const gradeColor = (grade: string) => {
-    if (grade === 'good') return 'cal-badge-good';
-    if (grade === 'fair') return 'cal-badge-fair';
-    return 'cal-badge-bad';
+  const getUndistortedForSelected = () => {
+    const selectedImg = images[selectedIdx];
+    if (!selectedImg) return null;
+    const usedIdx = usedImages.indexOf(selectedImg);
+    if (usedIdx < 0) return null;
+    return undistortedPaths[usedIdx] ?? null;
   };
 
-  const metricTint = (value: number, goodThresh: number, badThresh: number, higherIsBetter = true) => {
-    if (higherIsBetter) {
-      if (value >= goodThresh) return 'cal-metric-good';
-      if (value >= badThresh) return 'cal-metric-fair';
-      return 'cal-metric-bad';
-    } else {
-      if (value <= goodThresh) return 'cal-metric-good';
-      if (value <= badThresh) return 'cal-metric-fair';
-      return 'cal-metric-bad';
-    }
-  };
+  const capitalize = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
+  const maxCsvCount = useMemo(
+    () => (csvRows.length > 0 ? Math.max(...csvRows.map((r) => r.count)) : 1),
+    [csvRows]
+  );
 
-  const maxCsvCount = csvRows.length > 0 ? Math.max(...csvRows.map((r) => r.count)) : 1;
+  const rightPanel = useMemo(
+    () => (
+      <div className="cal-right">
+        <h1 className="cal-panel-title">{t('Calibration.title')}</h1>
+
+        <div className="cal-actions">
+          <div className="cal-actions-row">
+            <button
+              className="button-1 cal-action-btn"
+              onClick={() => onOpenBoard()}
+              disabled={status === 'solving'}
+            >
+              {t('Calibration.board')}
+            </button>
+            <button className="button-1 cal-action-btn" onClick={onOpenFolder} disabled={status === 'solving'}>
+              {t('Calibration.import')}
+            </button>
+          </div>
+          <button
+            className="button-1 cal-action-btn"
+            onClick={onSolve}
+            disabled={status === 'solving' || images.length === 0}
+          >
+            {t('Calibration.solve')}
+          </button>
+        </div>
+
+        {status === 'solving' && (
+          <div className="cal-solving-loader">
+            <div className="loader-wrapper-big">
+              <div className="loader-big" />
+            </div>
+            {progressMsg && <p className="cal-progress-text">{progressMsg}</p>}
+          </div>
+        )}
+
+        {(status === 'error' || errorMsg) && (
+          <div className="cal-error-chip">⚠ {errorMsg || t('Calibration.errorGeneric')}</div>
+        )}
+
+        {solveValidation && profilePath && (
+          <div className="cal-save-confirm-box">
+            <span className="cal-confirm-title">✓ {t('Calibration.validationDone')}</span>
+            <button className="cal-confirm-link" onClick={() => onRevealPath(profilePath)}>
+              {profilePath}
+            </button>
+          </div>
+        )}
+
+        {status === 'solved' && summary && (
+          <div className="cal-results">
+            <div className="cal-overall-row">
+              <span className="cal-overall-text">Overall</span>
+              <span className={`cal-grade-pill ${summary.verdict?.grade_overall ?? ''}`}>
+                {capitalize(summary.verdict?.grade_overall ?? '')}
+              </span>
+            </div>
+
+            <div className="cal-metrics-list">
+              {[
+                { label: t('Calibration.metrics.medianRms'), grade: summary.verdict?.grades?.median_rms },
+                { label: t('Calibration.metrics.p90Rms'), grade: summary.verdict?.grades?.p90_rms },
+                { label: t('Calibration.metrics.coverage'), grade: summary.verdict?.grades?.coverage },
+                { label: t('Calibration.metrics.edgeReach'), grade: summary.verdict?.grades?.edge_reach },
+                { label: t('Calibration.metrics.poseSpread'), grade: summary.verdict?.grades?.pose_spread },
+                { label: t('Calibration.metrics.centerOffset'), grade: summary.verdict?.grades?.center_offset },
+              ].map(({ label, grade }) => (
+                <div key={label} className="cal-metric-row">
+                  <span className="cal-metric-label">{label}</span>
+                  <span className={`cal-metric-grade cal-metric-${grade ?? 'bad'}`}>
+                    {capitalize(grade ?? '')}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {summary.verdict?.actions?.length > 0 && (
+              <ul className="cal-rec-list">
+                {summary.verdict.actions.map((a, i) => (
+                  <li key={i} className="cal-rec-item">
+                    {a}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <hr className="cal-divider" />
+
+            {csvRows.length > 0 && (
+              <div className="cal-histogram">
+                <p className="cal-section-label">{t('Calibration.histogram')}</p>
+                <div className="cal-histogram-wrapper">
+                  <div className="cal-histogram-yaxis">
+                    <span className="cal-yaxis-label">{t('Calibration.histogramX')}</span>
+                  </div>
+                  <div className="cal-histogram-inner">
+                    <div className="cal-histogram-chart">
+                      {csvRows.map((row, i) => (
+                        <div key={i} className="cal-bar-col">
+                          <div
+                            className="cal-bar"
+                            style={{ height: `${(row.count / maxCsvCount) * 100}%` }}
+                            title={`${row.bin_center_px.toFixed(3)} px: ${row.count}`}
+                          />
+                          {i % 4 === 0 && <span className="cal-bar-label">{row.bin_center_px.toFixed(2)}</span>}
+                        </div>
+                      ))}
+                    </div>
+                    <div className="cal-histogram-axes">
+                      <span>Count</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {status === 'idle' && images.length > 0 && (
+          <p className="cal-ready-hint">{t('Calibration.readyToSolve')}</p>
+        )}
+        {status === 'idle' && images.length === 0 && (
+          <p className="cal-ready-hint">{t('Calibration.emptyHint')}</p>
+        )}
+
+        <div className="cal-back-section">
+          <button className="button-1 cal-action-btn" onClick={onClose}>
+            {t('Wizard.back')}
+          </button>
+        </div>
+      </div>
+    ),
+    [
+      status,
+      summary,
+      csvRows,
+      maxCsvCount,
+      progressMsg,
+      errorMsg,
+      solveValidation,
+      profilePath,
+      images.length,
+      onOpenBoard,
+      onOpenFolder,
+      onSolve,
+      onRevealPath,
+      onClose,
+      t,
+    ]
+  );
 
   return (
     <div className="cal-overlay" ref={overlayRef}>
@@ -213,216 +404,49 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
             )}
           </div>
 
-          {/* Carousel */}
-          {images.length > 0 && (
-            <div className="cal-carousel">
-              {images.map((img, idx) => {
-                const used = isUsed(img);
-                const active = idx === selectedIdx;
-                return (
-                  <button
-                    key={img}
-                    className={`cal-thumb ${active ? 'active' : ''} ${status === 'solved' && !used ? 'unused' : ''}`}
-                    onClick={() => setSelectedIdx(idx)}
-                    title={status === 'solved' && !used ? t('Calibration.notUsed') : img.split('/').pop()}
-                  >
-                    <img src={`cal-file://${img}`} alt="" />
-                    {status === 'solved' && <span className={`cal-thumb-dot ${used ? 'used' : 'unused'}`} />}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
           {/* Heatmap pill */}
           {status === 'solved' && heatmapBase64 && (
             <button
-              className={`cal-heatmap-pill ${viewMode === 'heatmap' ? 'active' : ''}`}
+              className={`button-1 cal-heatmap-toggle ${viewMode === 'heatmap' ? 'active' : ''}`}
               onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
             >
               ▣ {t('Calibration.heatmap')}
             </button>
           )}
+
+          {/* Carousel */}
+          {images.length > 0 && (
+            <>
+              <div className="cal-resize-handle" onMouseDown={onCalResizeDrag} />
+              <div
+                ref={calCarouselRef}
+                className="cal-carousel"
+                style={
+                  {
+                    '--thumb-height': `${thumbHeight}px`,
+                    '--thumb-width': `${thumbWidth}px`,
+                  } as React.CSSProperties
+                }
+              >
+                {images.map((img, idx) => (
+                  <CalThumb
+                    key={img}
+                    img={img}
+                    idx={idx}
+                    active={idx === selectedIdx}
+                    unused={status === 'solved' && !usedSet.has(img)}
+                    showDot={status === 'solved'}
+                    notUsedLabel={t('Calibration.notUsed')}
+                    onSelect={setSelectedIdx}
+                  />
+                ))}
+              </div>
+            </>
+          )}
         </div>
 
         {/* ══════════════ RIGHT PANEL ══════════════ */}
-        <div className="cal-right">
-          {/* Buttons */}
-          <div className="cal-actions">
-            <button
-              className="button-1 cal-action-btn"
-              onClick={() => onOpenBoard()}
-              disabled={status === 'solving'}
-            >
-              {t('Calibration.board')}
-            </button>
-            <button className="button-1 cal-action-btn" onClick={onOpenFolder} disabled={status === 'solving'}>
-              {t('Calibration.import')}
-            </button>
-            <button
-              className={`button-1 cal-action-btn ${status === 'solving' ? 'button-with-loader-active' : ''}`}
-              onClick={onSolve}
-              disabled={status === 'solving' || images.length === 0}
-            >
-              {status === 'solving' ? (
-                <span className="cal-solving-label">
-                  <span className="loader-little cal-btn-spinner" />
-                  {t('Calibration.solving')}
-                </span>
-              ) : (
-                t('Calibration.solve')
-              )}
-            </button>
-          </div>
-
-          {/* Streaming status */}
-          {status === 'solving' && progressMsg && <p className="cal-stream-msg">{progressMsg}</p>}
-
-          {/* Error chip */}
-          {(status === 'error' || errorMsg) && (
-            <div className="cal-error-chip">⚠ {errorMsg || t('Calibration.errorGeneric')}</div>
-          )}
-
-          {/* ── Solved state ── */}
-          {status === 'solved' && summary && (
-            <div className="cal-results">
-              {/* Overall badge */}
-              <div className={`cal-badge ${gradeColor(summary.verdict?.grade_overall ?? '')}`}>
-                {(summary.verdict?.grade_overall ?? '').toUpperCase()}
-              </div>
-
-              {/* Metrics grid */}
-              <div className="cal-metrics-grid">
-                <div className="cal-metric">
-                  <span className="cal-metric-label">{t('Calibration.metrics.medianRms')}</span>
-                  <span className={`cal-metric-value ${metricTint(summary.median_rms, 0.5, 1.0, false)}`}>
-                    {summary.median_rms?.toFixed(3)} px
-                  </span>
-                </div>
-                <div className="cal-metric">
-                  <span className="cal-metric-label">{t('Calibration.metrics.p90Rms')}</span>
-                  <span
-                    className={`cal-metric-value ${metricTint(summary.verdict?.p90_rms ?? 0, 0.8, 1.5, false)}`}
-                  >
-                    {summary.verdict?.p90_rms?.toFixed(3)} px
-                  </span>
-                </div>
-                <div className="cal-metric">
-                  <span className="cal-metric-label">{t('Calibration.metrics.coverage')}</span>
-                  <span className={`cal-metric-value ${metricTint(summary.coverage_percent, 60, 40, true)}`}>
-                    {summary.coverage_percent?.toFixed(1)} %
-                  </span>
-                </div>
-                <div className="cal-metric">
-                  <span className="cal-metric-label">{t('Calibration.metrics.edgeReach')}</span>
-                  <span className={`cal-metric-value ${metricTint(summary.edge_reach_median, 0.7, 0.5, true)}`}>
-                    {summary.edge_reach_median?.toFixed(3)}
-                  </span>
-                </div>
-                <div className="cal-metric">
-                  <span className="cal-metric-label">{t('Calibration.metrics.poseSpread')}</span>
-                  <span className={`cal-metric-value ${metricTint(summary.pose_spread_median_deg, 20, 10, true)}`}>
-                    {summary.pose_spread_median_deg?.toFixed(1)} °
-                  </span>
-                </div>
-                <div className="cal-metric">
-                  <span className="cal-metric-label">{t('Calibration.metrics.centerOffset')}</span>
-                  <span
-                    className={`cal-metric-value ${metricTint(summary.verdict?.center_offset_max_pct ?? 0, 5, 10, false)}`}
-                  >
-                    {summary.verdict?.center_offset_max_pct?.toFixed(1)} %
-                  </span>
-                </div>
-              </div>
-
-              {/* Recommendations */}
-              {summary.verdict?.actions?.length > 0 && (
-                <div className="cal-recommendations">
-                  <p className="cal-rec-title">{t('Calibration.recommendations')}</p>
-                  <ul>
-                    {summary.verdict.actions.map((a, i) => (
-                      <li key={i}>{a}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-
-              <hr className="cal-divider" />
-
-              {/* Per-view RMS histogram */}
-              {csvRows.length > 0 && (
-                <div className="cal-histogram">
-                  <p className="cal-section-label">{t('Calibration.histogram')}</p>
-                  <div className="cal-histogram-chart">
-                    {csvRows.map((row, i) => (
-                      <div key={i} className="cal-bar-col">
-                        <div
-                          className="cal-bar"
-                          style={{ height: `${(row.count / maxCsvCount) * 100}%` }}
-                          title={`${row.bin_center_px.toFixed(3)} px: ${row.count}`}
-                        />
-                        {i % 4 === 0 && <span className="cal-bar-label">{row.bin_center_px.toFixed(2)}</span>}
-                      </div>
-                    ))}
-                  </div>
-                  <div className="cal-histogram-axes">
-                    <span>{t('Calibration.histogramX')}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Save profile */}
-              <div className="cal-save-row">
-                <input
-                  className="input-field cal-name-input"
-                  type="text"
-                  value={profileName}
-                  onChange={(e) => setProfileName(e.target.value)}
-                  placeholder={t('Calibration.profileName')}
-                />
-                <button className="button-1 cal-save-btn" onClick={handleSave}>
-                  {t('Calibration.saveProfile')}
-                </button>
-              </div>
-              {saveConfirm && (
-                <p className="cal-save-confirm">
-                  ✓ {t('Calibration.savedTo')}{' '}
-                  <button className="cal-link" onClick={() => onRevealPath(saveConfirm)}>
-                    {saveConfirm}
-                  </button>
-                </p>
-              )}
-
-              {/* Validation card */}
-              <div className="cal-validation-card">
-                <p className="cal-section-label">{t('Calibration.outputs')}</p>
-                {summary.overlays_dir && (
-                  <button className="cal-link" onClick={() => onRevealPath(summary.overlays_dir)}>
-                    {t('Calibration.overlaysDir')}
-                  </button>
-                )}
-                {summary.undistorted_dir && (
-                  <button className="cal-link" onClick={() => onRevealPath(summary.undistorted_dir)}>
-                    {t('Calibration.undistortedDir')}
-                  </button>
-                )}
-                {profilePath && (
-                  <button className="cal-link" onClick={() => onRevealPath(profilePath)}>
-                    {t('Calibration.profileJson')}
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Empty/ready state hint */}
-          {status === 'idle' && images.length > 0 && (
-            <p className="cal-ready-hint">{t('Calibration.readyToSolve')}</p>
-          )}
-          {status === 'idle' && images.length === 0 && (
-            <p className="cal-ready-hint">{t('Calibration.emptyHint')}</p>
-          )}
-        </div>
+        {rightPanel}
       </div>
     </div>
   );

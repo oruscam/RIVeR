@@ -324,6 +324,7 @@
     "profileName": "Profilname",
     "saveProfile": "Speichern",
     "savedTo": "Gespeichert unter",
+    "validationDone": "Kalibrierung abgeschlossen",
     "outputs": "Ausgabedateien",
     "overlaysDir": "Überlagerungsordner öffnen",
     "undistortedDir": "Entzerrungsordner öffnen",

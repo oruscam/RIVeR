@@ -10,6 +10,7 @@ const initialState: CalibrationState = {
   csvRows: [],
   heatmapBase64: null,
   overlayPaths: [],
+  undistortedPaths: [],
   profilePath: '',
   progressMsg: '',
   errorMsg: '',
@@ -45,6 +46,7 @@ const calibrationSlice = createSlice({
       csvRows: CsvRow[];
       heatmapBase64: string | null;
       overlayPaths: string[];
+      undistortedPaths: string[];
     }>) => {
       state.usedImages = action.payload.usedImages;
       state.profilePath = action.payload.profilePath;
@@ -52,6 +54,7 @@ const calibrationSlice = createSlice({
       state.csvRows = action.payload.csvRows;
       state.heatmapBase64 = action.payload.heatmapBase64;
       state.overlayPaths = action.payload.overlayPaths;
+      state.undistortedPaths = action.payload.undistortedPaths;
       state.status = 'solved';
     },
     setProgressMsg: (state, action: PayloadAction<string>) => {

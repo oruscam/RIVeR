@@ -1,3 +1,4 @@
+import { useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import {
@@ -14,7 +15,7 @@ export const useCalibrationSlice = () => {
   const state = useSelector((s: RootState) => s.calibration);
   const dispatch = useDispatch();
 
-  const onOpenFolder = async () => {
+  const onOpenFolder = useCallback(async () => {
     const dir: string | null = await window.ipcRenderer.invoke('calibration-open-folder');
     if (!dir) return;
 
@@ -22,13 +23,13 @@ export const useCalibrationSlice = () => {
 
     const files: string[] = await window.ipcRenderer.invoke('calibration-scan-images', { dir });
     dispatch(setImages(files ?? []));
-  };
+  }, [dispatch]);
 
-  const onOpenBoard = async (board = '20x15') => {
+  const onOpenBoard = useCallback(async (board = '20x15') => {
     await window.ipcRenderer.invoke('calibration-write-board', { board });
-  };
+  }, []);
 
-  const onSolve = async () => {
+  const onSolve = useCallback(async () => {
     if (!state.imageDir) return;
 
     dispatch(setStatus('solving'));
@@ -36,7 +37,7 @@ export const useCalibrationSlice = () => {
 
     const reportDir = `${state.imageDir}/out/report`;
     const undistortedDir = `${state.imageDir}/out/undistorted`;
-    const profilePath = `${state.imageDir}/calibration_profile_temp.json`;
+    const profilePath = `${state.imageDir}/calibration_profile.json`;
 
     const handleMsg = (_evt: unknown, msg: string) => {
       dispatch(setProgressMsg(msg.trim()));
@@ -68,6 +69,7 @@ export const useCalibrationSlice = () => {
           csvRows: report?.csvRows ?? [],
           heatmapBase64: report?.heatmapBase64 ?? null,
           overlayPaths: report?.overlayPaths ?? [],
+          undistortedPaths: report?.undistortedPaths ?? [],
         })
       );
     } catch (err) {
@@ -75,23 +77,26 @@ export const useCalibrationSlice = () => {
     } finally {
       window.ipcRenderer.removeListener('river-cli-message', handleMsg);
     }
-  };
+  }, [dispatch, state.imageDir]);
 
-  const onSaveProfile = async (name: string): Promise<string | false> => {
-    if (!state.profilePath || !name.trim()) return false;
-    const dest = `${state.imageDir}/${name.trim()}.json`;
-    const result = await window.ipcRenderer.invoke('calibration-copy-file', {
-      src: state.profilePath,
-      dest,
-    });
-    return result?.success ? dest : false;
-  };
+  const onSaveProfile = useCallback(
+    async (name: string): Promise<string | false> => {
+      if (!state.profilePath || !name.trim()) return false;
+      const dest = `${state.imageDir}/${name.trim()}.json`;
+      const result = await window.ipcRenderer.invoke('calibration-copy-file', {
+        src: state.profilePath,
+        dest,
+      });
+      return result?.success ? dest : false;
+    },
+    [state.profilePath, state.imageDir]
+  );
 
-  const onRevealPath = (targetPath: string) => {
+  const onRevealPath = useCallback((targetPath: string) => {
     window.ipcRenderer.invoke('calibration-reveal-path', { targetPath });
-  };
+  }, []);
 
-  const onReset = () => dispatch(resetCalibration());
+  const onReset = useCallback(() => dispatch(resetCalibration()), [dispatch]);
 
   return {
     ...state,

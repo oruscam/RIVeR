@@ -324,6 +324,7 @@
     "profileName": "Nombre del perfil",
     "saveProfile": "Guardar",
     "savedTo": "Guardado en",
+    "validationDone": "Calibración resuelta",
     "outputs": "Archivos de salida",
     "overlaysDir": "Abrir carpeta de superposiciones",
     "undistortedDir": "Abrir carpeta sin distorsión",
