@@ -320,6 +320,7 @@
     "profileName": "配置文件名称",
     "saveProfile": "保存",
     "savedTo": "已保存至",
+    "validationDone": "标定完成",
     "outputs": "输出文件",
     "overlaysDir": "打开叠加图文件夹",
     "undistortedDir": "打开去畸变文件夹",

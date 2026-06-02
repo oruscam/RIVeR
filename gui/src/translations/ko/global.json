@@ -320,6 +320,7 @@
     "profileName": "프로파일 이름",
     "saveProfile": "저장",
     "savedTo": "저장 위치",
+    "validationDone": "보정 완료",
     "outputs": "출력 파일",
     "overlaysDir": "오버레이 폴더 열기",
     "undistortedDir": "왜곡 보정 폴더 열기",

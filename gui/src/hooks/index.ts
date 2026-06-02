@@ -9,6 +9,7 @@ import { useObliqueSlice } from './useObliqueSlice';
 import { useGlobalSlice } from './useGlobalSlice';
 import { useIpcamSlice } from './useIpcamSlice';
 import { useImageZoomPan } from './useImageZoomPan';
+import { useResizableCarousel } from './useResizableCarousel';
 
 export {
   useCalibrationSlice,
@@ -16,6 +17,7 @@ export {
   useGlobalSlice,
   useImageZoomPan,
   useIpcamSlice,
+  useResizableCarousel,
   useUavSlice,
   useObliqueSlice,
   useProjectSlice,

@@ -5,6 +5,15 @@ export interface CalibrationVerdict {
   p90_rms: number;
   center_offset_max_pct: number;
   actions: string[];
+  grades?: {
+    median_rms: string;
+    p90_rms: string;
+    coverage: string;
+    pose_spread: string;
+    edge_reach: string;
+    center_offset: string;
+    skew_ratio?: string;
+  };
 }
 
 export interface CalibrationSummary {
@@ -34,6 +43,7 @@ export interface CalibrationState {
   csvRows: CsvRow[];
   heatmapBase64: string | null;
   overlayPaths: string[];
+  undistortedPaths: string[];
   profilePath: string;
   progressMsg: string;
   errorMsg: string;

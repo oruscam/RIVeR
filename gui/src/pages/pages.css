@@ -383,6 +383,28 @@
 }
 
 /* Carousel */
+.cal-resize-handle {
+    height: 8px;
+    cursor: ns-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cal-resize-handle::after {
+    content: '';
+    width: 36px;
+    height: 3px;
+    background: var(--border-color);
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+
+.cal-resize-handle:hover::after {
+    background: var(--accent-color);
+}
+
 .cal-carousel {
     display: flex;
     gap: 6px;
@@ -395,8 +417,8 @@
 
 .cal-thumb {
     flex-shrink: 0;
-    width: 56px;
-    height: 42px;
+    width: var(--thumb-width, 56px);
+    height: var(--thumb-height, 42px);
     border-radius: 5px;
     border: 2px solid transparent;
     overflow: hidden;
@@ -446,34 +468,46 @@
     background: var(--background-error);
 }
 
-/* Heatmap pill */
-.cal-heatmap-pill {
-    align-self: flex-start;
-    background: var(--secondary-background-color);
-    border: 1px solid var(--border-color);
-    color: var(--secondary-text-color);
-    font-size: 0.75rem;
-    padding: 4px 12px;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s, border-color 0.15s;
+/* Solving loader — shown in right panel while solver runs */
+.cal-solving-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 0;
+    gap: 12px;
+    flex: 1;
 }
 
-.cal-heatmap-pill:hover,
-.cal-heatmap-pill.active {
-    background: var(--accent-color);
-    border-color: var(--accent-color);
-    color: #ffffff;
+/* Heatmap toggle */
+.cal-heatmap-toggle {
+    align-self: flex-start;
+    width: auto;
+    padding-left: 28px;
+    padding-right: 28px;
+}
+
+.cal-heatmap-toggle.active {
+    background-color: var(--primary-text-color);
+    color: var(--background-color);
 }
 
 /* ══ RIGHT PANEL ══ */
+.cal-panel-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-text-color);
+    margin: 0;
+}
+
 .cal-right {
-    width: 300px;
+    width: 340px;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    padding: 14px;
-    gap: 12px;
+    padding: 20px;
+    gap: 20px;
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
@@ -483,11 +517,25 @@
 .cal-actions {
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 12px;
+}
+
+.cal-actions-row {
+    display: flex;
+    gap: 10px;
+}
+
+.cal-actions-row .cal-action-btn {
+    flex: 1;
 }
 
 .cal-action-btn {
     width: 100%;
+}
+
+.cal-actions > .cal-action-btn {
+    width: 100%;
+    margin-top: 4px;
 }
 
 /* Streaming status */
@@ -513,86 +561,76 @@
 .cal-results {
     display: flex;
     flex-direction: column;
+    gap: 16px;
+}
+
+/* Overall grade row */
+.cal-overall-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 12px;
 }
 
-/* Overall grade badge */
-.cal-badge {
-    align-self: flex-start;
-    font-size: 0.65rem;
+.cal-overall-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+}
+
+.cal-grade-pill {
+    font-size: 0.9rem;
     font-weight: 700;
-    letter-spacing: 0.12em;
-    padding: 3px 10px;
-    border-radius: 4px;
-    border: 1px solid currentColor;
+    padding: 4px 18px;
+    border-radius: 20px;
+    color: #fff;
 }
 
-.cal-badge-good  { color: var(--success-color); }
-.cal-badge-fair  { color: #F5BF61; }
-.cal-badge-bad   { color: var(--background-error); }
+.cal-grade-pill.good { background: var(--success-color); }
+.cal-grade-pill.fair { background: #F5BF61; color: #1a1a1a; }
+.cal-grade-pill.bad  { background: var(--background-error); }
 
-/* Metrics grid */
-.cal-metrics-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-}
-
-.cal-metric {
-    background: var(--secondary-background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 7px 9px;
+/* Metrics flat list */
+.cal-metrics-list {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 12px;
+}
+
+.cal-metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
 }
 
 .cal-metric-label {
-    font-size: 0.65rem;
-    color: var(--secondary-text-color);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: 1rem;
+    color: var(--primary-text-color);
 }
 
-.cal-metric-value {
-    font-size: 0.88rem;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
+.cal-metric-grade {
+    font-size: 1rem;
+    font-weight: 700;
 }
 
 .cal-metric-good { color: var(--success-color); }
 .cal-metric-fair { color: #F5BF61; }
 .cal-metric-bad  { color: var(--background-error); }
 
-/* Recommendations */
-.cal-recommendations {
-    background: rgba(246, 191, 97, 0.07);
-    border: 1px solid rgba(245, 191, 97, 0.25);
-    border-radius: 6px;
-    padding: 9px 11px;
-}
-
-.cal-rec-title {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: #F5BF61;
-    margin-bottom: 5px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.cal-recommendations ul {
+/* Recommendations — plain italic list */
+.cal-rec-list {
+    list-style: none;
     margin: 0;
-    padding-left: 14px;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 6px;
 }
 
-.cal-recommendations li {
-    font-size: 0.76rem;
-    color: var(--primary-text-color);
+.cal-rec-item {
+    font-size: 0.88rem;
+    font-style: italic;
+    color: var(--secondary-text-color);
     line-height: 1.4;
 }
 
@@ -605,21 +643,50 @@
 /* Histogram */
 .cal-histogram {}
 
+.cal-histogram-wrapper {
+    display: flex;
+    gap: 4px;
+    align-items: stretch;
+}
+
+.cal-histogram-yaxis {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    flex-shrink: 0;
+}
+
+.cal-yaxis-label {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    font-size: 0.65rem;
+    color: var(--secondary-text-color);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+}
+
+.cal-histogram-inner {
+    flex: 1;
+    min-width: 0;
+}
+
 .cal-section-label {
-    font-size: 0.7rem;
+    font-size: 0.78rem;
     font-weight: 600;
     color: var(--secondary-text-color);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
 }
 
 .cal-histogram-chart {
     display: flex;
     align-items: flex-end;
     gap: 2px;
-    height: 72px;
+    height: 100px;
     padding: 0 2px;
+    margin-bottom: 18px;
 }
 
 .cal-bar-col {
@@ -629,7 +696,7 @@
     flex: 1;
     height: 100%;
     justify-content: flex-end;
-    gap: 2px;
+    position: relative;
 }
 
 .cal-bar {
@@ -646,6 +713,10 @@
 }
 
 .cal-bar-label {
+    position: absolute;
+    bottom: -16px;
+    left: 50%;
+    transform: translateX(-50%);
     font-size: 0.5rem;
     color: var(--secondary-text-color);
     font-variant-numeric: tabular-nums;
@@ -663,37 +734,75 @@
     color: var(--secondary-text-color);
 }
 
-/* Save profile row */
+/* Save profile section */
+.cal-back-section {
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+.cal-save-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
 .cal-save-row {
     display: flex;
+    flex-direction: column;
     gap: 6px;
-    align-items: center;
 }
 
 .cal-name-input {
-    flex: 1;
-    min-width: 0;
+    width: 100% !important;
+    max-width: none !important;
     font-size: 0.8rem !important;
     padding: 6px 8px !important;
     height: auto !important;
+    box-sizing: border-box;
+    text-align: center !important;
 }
 
 .cal-save-btn {
-    flex-shrink: 0;
     font-size: 0.8rem;
     padding: 6px 10px;
+    height: 36px;
 }
 
-.cal-save-confirm {
-    font-size: 0.75rem;
-    color: var(--success-color);
+/* Green confirmation box */
+.cal-save-confirm-box {
+    background: var(--success-color);
+    border-radius: 10px;
+    padding: 12px 14px;
     display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 5px;
 }
 
-/* Clickable path links */
+.cal-confirm-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+}
+
+.cal-confirm-link {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.73rem;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-all;
+    transition: opacity 0.15s;
+}
+
+.cal-confirm-link:hover {
+    opacity: 0.75;
+}
+
+/* Clickable path links (generic) */
 .cal-link {
     background: none;
     border: none;
@@ -710,17 +819,6 @@
 
 .cal-link:hover {
     opacity: 0.75;
-}
-
-/* Validation card */
-.cal-validation-card {
-    background: var(--secondary-background-color);
-    border: 1px solid var(--border-color);
-    border-radius: 6px;
-    padding: 9px 11px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
 }
 
 /* Solving spinner inside button */

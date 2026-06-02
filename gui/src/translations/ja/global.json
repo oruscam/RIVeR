@@ -320,6 +320,7 @@
     "profileName": "プロファイル名",
     "saveProfile": "保存",
     "savedTo": "保存先",
+    "validationDone": "キャリブレーション完了",
     "outputs": "出力ファイル",
     "overlaysDir": "オーバーレイフォルダを開く",
     "undistortedDir": "歪み補正フォルダを開く",

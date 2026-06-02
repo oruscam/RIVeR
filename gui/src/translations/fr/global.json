@@ -324,6 +324,7 @@
     "profileName": "Nom du profil",
     "saveProfile": "Enregistrer",
     "savedTo": "Enregistré dans",
+    "validationDone": "Calibration résolue",
     "outputs": "Fichiers de sortie",
     "overlaysDir": "Ouvrir le dossier de superpositions",
     "undistortedDir": "Ouvrir le dossier sans distorsion",

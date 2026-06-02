@@ -320,6 +320,7 @@
     "profileName": "Имя профиля",
     "saveProfile": "Сохранить",
     "savedTo": "Сохранено в",
+    "validationDone": "Калибровка завершена",
     "outputs": "Выходные файлы",
     "overlaysDir": "Открыть папку наложений",
     "undistortedDir": "Открыть папку без искажений",

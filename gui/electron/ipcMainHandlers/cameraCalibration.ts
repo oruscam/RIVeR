@@ -43,8 +43,19 @@ function cameraCalibration(riverCli: RiverCli) {
     // Embed PNG as a data-URI so the window can load it without cross-origin issues.
     const imgBase64 = fs.readFileSync(boardPath).toString('base64');
     const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>ChArUco Board</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{background:#fff;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;overflow:hidden}img{max-width:100%;max-height:100%;object-fit:contain}</style></head>
-<body><img src="data:image/png;base64,${imgBase64}"></body></html>`;
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#fff;display:flex;align-items:center;justify-content:center;width:100vw;height:100vh;overflow:hidden}
+img{max-width:100%;max-height:100%;object-fit:contain}
+#save-btn{position:fixed;bottom:24px;right:24px;background:#111;color:#fff;border:none;border-radius:10px;padding:10px 22px;font-size:15px;font-family:system-ui,sans-serif;cursor:pointer;opacity:0.85;transition:opacity 0.15s}
+#save-btn:hover{opacity:1}
+#hint{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.55);color:#fff;font-family:system-ui,sans-serif;font-size:13px;padding:6px 16px;border-radius:20px}
+</style></head>
+<body>
+<img src="data:image/png;base64,${imgBase64}">
+<div id="hint">ESC para cerrar</div>
+<a id="save-btn" href="data:image/png;base64,${imgBase64}" download="charuco_board.png">⬇ Guardar PNG</a>
+</body></html>`;
 
     const tmpHtml = path.join(os.tmpdir(), 'charuco_board_viewer.html');
     fs.writeFileSync(tmpHtml, html, 'utf-8');
@@ -150,7 +161,18 @@ function cameraCalibration(riverCli: RiverCli) {
         .map((f) => path.join(overlaysDir, f));
     }
 
-    return { summary, csvRows, heatmapBase64, overlayPaths };
+    // Collect undistorted image paths from summary.undistorted_dir.
+    let undistortedPaths: string[] = [];
+    const undistortedDir = (summary as Record<string, unknown>)?.undistorted_dir as string | undefined;
+    if (undistortedDir && fs.existsSync(undistortedDir)) {
+      undistortedPaths = fs
+        .readdirSync(undistortedDir)
+        .filter((f) => /\.(png|jpe?g)$/i.test(f))
+        .sort()
+        .map((f) => path.join(undistortedDir, f));
+    }
+
+    return { summary, csvRows, heatmapBase64, overlayPaths, undistortedPaths };
   });
 
   // Scan a directory for image files (jpg, jpeg, png).

@@ -422,6 +422,29 @@
     border-radius: 5px;
 }
 
+.carousel-resize-handle {
+    height: 8px;
+    cursor: ns-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.carousel-resize-handle::after {
+    content: '';
+    width: 36px;
+    height: 3px;
+    background: var(--border-color);
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+
+.carousel-resize-handle:hover::after {
+    background: var(--accent-color);
+}
+
 .carousel-container {
     margin-top: 5px;
     width: 98%;

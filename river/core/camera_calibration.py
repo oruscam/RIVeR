@@ -157,6 +157,7 @@ class RiverCalibrator:
 			raise RuntimeError("No images found.")
 
 		detector = cv.aruco.ArucoDetector(_aruco_dict(), _aruco_params()) if hasattr(cv.aruco, 'ArucoDetector') else None
+		charuco_detector = cv.aruco.CharucoDetector(self.board) if hasattr(cv.aruco, 'CharucoDetector') else None
 
 		records: List[FrameRecord] = []
 		image_size = None
@@ -183,48 +184,53 @@ class RiverCalibrator:
 			if _var_laplacian(gray) < self.blur_threshold:
 				continue
 
-			# ---- detect ArUco markers ----
-			if detector is not None:
-				corners, ids, rejected = detector.detectMarkers(gray)
+			# ---- detect ChArUco corners ----
+			if charuco_detector is not None:
+				# OpenCV 4.7+ new API: detectBoard handles marker detection + interpolation in one call
+				ch_corners, ch_ids, _mkr_corners, _mkr_ids = charuco_detector.detectBoard(gray)
+				ok = ch_corners is not None and ch_ids is not None and len(ch_ids) > 0
 			else:
-				corners, ids, rejected = cv.aruco.detectMarkers(gray, _aruco_dict(), parameters=_aruco_params())
+				# Legacy API (OpenCV < 4.7)
+				if detector is not None:
+					corners, ids, rejected = detector.detectMarkers(gray)
+				else:
+					corners, ids, rejected = cv.aruco.detectMarkers(gray, _aruco_dict(), parameters=_aruco_params())
 
-			if corners is None or len(corners) == 0 or ids is None or len(ids) == 0:
-				continue
+				if corners is None or len(corners) == 0 or ids is None or len(ids) == 0:
+					continue
 
-			# Try to recover borderline markers near edges
-			try:
-				cv.aruco.refineDetectedMarkers(
-					image=gray,
-					board=self.board,
-					detectedCorners=corners,
-					detectedIds=ids,
-					rejectedCorners=rejected
-				)
-			except Exception:
-				pass
+				# Try to recover borderline markers near edges
+				try:
+					cv.aruco.refineDetectedMarkers(
+						image=gray,
+						board=self.board,
+						detectedCorners=corners,
+						detectedIds=ids,
+						rejectedCorners=rejected
+					)
+				except Exception:
+					pass
 
-			if corners is None or len(corners) == 0 or ids is None or len(ids) == 0:
-				continue
+				if corners is None or len(corners) == 0 or ids is None or len(ids) == 0:
+					continue
 
-			# Normalize types
-			if isinstance(corners, tuple):
-				corners = list(corners)
-			corners = [np.asarray(c, dtype=np.float32) for c in corners]
-			ids = np.asarray(ids, dtype=np.int32)
+				# Normalize types
+				if isinstance(corners, tuple):
+					corners = list(corners)
+				corners = [np.asarray(c, dtype=np.float32) for c in corners]
+				ids = np.asarray(ids, dtype=np.int32)
 
-			# Subpixel refine marker corners
-			crit = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.01)
-			for c in corners:
-				cv.cornerSubPix(gray, c, (5, 5), (-1, -1), crit)
+				# Subpixel refine marker corners
+				crit = (cv.TERM_CRITERIA_EPS + cv.TERM_CRITERIA_MAX_ITER, 30, 0.01)
+				for c in corners:
+					cv.cornerSubPix(gray, c, (5, 5), (-1, -1), crit)
 
-			# ChArUco interpolation (guarded)
-			try:
-				ok, ch_corners, ch_ids = cv.aruco.interpolateCornersCharuco(
-					markerCorners=corners, markerIds=ids, image=gray, board=self.board
-				)
-			except cv.error:
-				ok, ch_corners, ch_ids = False, None, None
+				try:
+					ok, ch_corners, ch_ids = cv.aruco.interpolateCornersCharuco(
+						markerCorners=corners, markerIds=ids, image=gray, board=self.board
+					)
+				except cv.error:
+					ok, ch_corners, ch_ids = False, None, None
 
 			if not ok or ch_ids is None:
 				continue
@@ -237,7 +243,7 @@ class RiverCalibrator:
 
 			records.append(FrameRecord(path=p, img=img, corners=ch_corners.copy(), ids=ch_ids.copy()))
 
-		if len(records) < 8:
+		if len(records) < 6:
 			raise RuntimeError(f"Not enough valid views ({len(records)}). Capture more sharp, angled shots.")
 
 		# ----------- prioritize edge-heavy frames before solving -----------
@@ -274,9 +280,18 @@ class RiverCalibrator:
 		dist0 = np.zeros((8, 1), np.float64)
 
 		def solve(corners, ids):
-			return cv.aruco.calibrateCameraCharucoExtended(
-				charucoCorners=corners, charucoIds=ids, board=self.board,
-				imageSize=image_size, cameraMatrix=K0, distCoeffs=dist0, flags=flags)
+			if hasattr(cv.aruco, 'calibrateCameraCharucoExtended'):
+				return cv.aruco.calibrateCameraCharucoExtended(
+					charucoCorners=corners, charucoIds=ids, board=self.board,
+					imageSize=image_size, cameraMatrix=K0, distCoeffs=dist0, flags=flags)
+			# OpenCV 4.7+: use matchImagePoints + calibrateCameraExtended
+			obj_pts_list, img_pts_list = [], []
+			for c, i in zip(corners, ids):
+				obj_pts, img_pts = self.board.matchImagePoints(c, i)
+				obj_pts_list.append(obj_pts)
+				img_pts_list.append(img_pts)
+			return cv.calibrateCameraExtended(
+				obj_pts_list, img_pts_list, image_size, K0.copy(), dist0.copy(), flags=flags)
 
 		rms, K, dist, rvecs, tvecs, _, _, per_view = solve(all_corners, all_ids)
 		keep_idx = list(range(len(all_corners)))
@@ -284,7 +299,7 @@ class RiverCalibrator:
 			errs = per_view.reshape(-1)
 			med, std = float(np.median(errs)), float(np.std(errs))
 			keep_idx = [i for i, e in enumerate(errs) if e <= min(med + 1.5 * max(std, 1e-6), 1.6)]
-			if 0 < len(keep_idx) < len(all_corners) and len(keep_idx) >= 8:
+			if 0 < len(keep_idx) < len(all_corners) and len(keep_idx) >= 6:
 				filt_c = [all_corners[i] for i in keep_idx]
 				filt_i = [all_ids[i] for i in keep_idx]
 				rms, K, dist, rvecs, tvecs, _, _, _ = solve(filt_c, filt_i)
@@ -327,12 +342,12 @@ def apply_undistort(frame: np.ndarray,
 
 
 
-def write_pattern_png(path: str, cols_rows=(20, 15), min_corner_px=12, max_px=2400, marker_ratio=0.7, margin_px=6):
+def write_pattern_png(path: str, cols_rows=(20, 15), min_corner_px=12, max_px=6000, marker_ratio=0.7, margin_px=20):
 	dict_ = cv.aruco.getPredefinedDictionary(cv.aruco.DICT_5X5_1000)
 	square_len = 1.0
 	marker_len = square_len * marker_ratio
 	board = cv.aruco.CharucoBoard(cols_rows, square_len, marker_len, dict_)
-	approx_square_px = max(min_corner_px * 3, 36)
+	approx_square_px = max(min_corner_px * 3, 120)  # ~120px/square → print-ready at A3/A4
 	img_w = int(min(max_px, approx_square_px * (cols_rows[0] + 0)))
 	img_h = int(min(max_px, approx_square_px * (cols_rows[1] + 0)))
 	img = board.generateImage((img_w, img_h), marginSize=margin_px)
@@ -578,9 +593,13 @@ def make_report(report_dir: str, records: List[FrameRecord], K: np.ndarray, dist
 def _gather_images(dirpath: Optional[str], patterns: List[str], exts: str) -> List[str]:
 	paths = []
 	if dirpath:
-		ext_list = [e.lower().strip().lstrip('.') for e in exts.split(',')]
-		for e in ext_list:
-			paths.extend(glob.glob(os.path.join(dirpath, f"*.{e}")))
+		ext_set = {e.lower().strip().lstrip('.') for e in exts.split(',')}
+		try:
+			for f in os.listdir(dirpath):
+				if os.path.splitext(f)[1].lower().lstrip('.') in ext_set:
+					paths.append(os.path.join(dirpath, f))
+		except OSError:
+			pass
 	for pat in patterns or []:
 		paths.extend(glob.glob(pat))
 	return sorted(list(dict.fromkeys(paths)))

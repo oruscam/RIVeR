@@ -1,5 +1,5 @@
-import { app, BrowserWindow, dialog, ipcMain, protocol, screen } from 'electron';
-import { fileURLToPath } from 'node:url';
+import { app, BrowserWindow, dialog, ipcMain, net, protocol, screen } from 'electron';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as path from 'node:path';
 import * as os from 'os';
 import { readRiverConfig, saveRiverConfig } from './riverConfig.js';
@@ -180,9 +180,14 @@ ipcMain.handle('get-river-path', () => PROJECT_CONFIG.mainDirectory);
 
 app.whenReady().then(async () => {
   // Serve local files for calibration image preview.
-  protocol.registerFileProtocol('cal-file', (request, callback) => {
-    const filePath = decodeURIComponent(request.url.replace('cal-file://', ''));
-    callback({ path: filePath });
+  // Uses protocol.handle (Electron 25+) so we can set Cache-Control: immutable —
+  // without this Chromium re-decodes the JPEG on every image switch.
+  protocol.handle('cal-file', async (request) => {
+    const filePath = decodeURIComponent(request.url.slice('cal-file://'.length));
+    const resp = await net.fetch(pathToFileURL(filePath).toString());
+    const headers = new Headers(resp.headers);
+    headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    return new Response(resp.body, { status: resp.status, headers });
   });
 
   const config = readRiverConfig();
