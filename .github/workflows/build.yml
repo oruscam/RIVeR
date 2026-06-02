@@ -15,15 +15,15 @@ jobs:
 
     steps:
       - name: 1. Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 2. Install Node.js and Yarn
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
 
       - name: 3. Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v8.1.0
 
       - name: 4. Install Python Portable and rename folder
         run: |
@@ -72,7 +72,7 @@ jobs:
           yarn build-linux
 
       - name: 8. Upload artifact (.deb)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: RIVeR-Linux-deb
           path: gui/release/**/*.deb
@@ -85,15 +85,15 @@ jobs:
 
     steps:
       - name: 1. Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: 2. Install Node.js and Yarn
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
 
       - name: 3. Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v8.1.0
 
       - name: 4. Install Python Portable and rename folder
         shell: powershell
@@ -163,7 +163,7 @@ jobs:
           yarn build-win
 
       - name: 8. Upload artifact (.exe)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: RIVeR-Windows-Setup
           path: gui/release/**/*.exe
@@ -176,15 +176,16 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: 1. Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
+
 
       - name: 2. Install Node.js and Yarn
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
 
       - name: 3. Install uv
-        uses: astral-sh/setup-uv@v3
+        uses: astral-sh/setup-uv@v8.1.0
 
       - name: 4. Install Python Portable (Apple Silicon)
         run: |
@@ -246,7 +247,7 @@ jobs:
           yarn build-mac
 
       - name: 8. Upload artifact (.dmg)
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: RIVeR-Mac-ARM64
           path: gui/release/**/*.dmg
