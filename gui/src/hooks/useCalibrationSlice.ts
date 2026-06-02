@@ -25,6 +25,15 @@ export const useCalibrationSlice = () => {
     dispatch(setImages(files ?? []));
   }, [dispatch]);
 
+  const onDropFolder = useCallback(
+    async (dir: string) => {
+      dispatch(setImageDir(dir));
+      const files: string[] = await window.ipcRenderer.invoke('calibration-scan-images', { dir });
+      dispatch(setImages(files ?? []));
+    },
+    [dispatch]
+  );
+
   const onOpenBoard = useCallback(async (board = '20x15') => {
     await window.ipcRenderer.invoke('calibration-write-board', { board });
   }, []);
@@ -101,6 +110,7 @@ export const useCalibrationSlice = () => {
   return {
     ...state,
     onOpenFolder,
+    onDropFolder,
     onOpenBoard,
     onSolve,
     onSaveProfile,

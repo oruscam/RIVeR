@@ -132,6 +132,11 @@
     border-color: var(--primary-text-color);
 }
 
+.drag-over-cal {
+    border: 2px dashed var(--primary-text-color);
+    border-radius: 8px;
+}
+
 .drag-over-uav {
     border-color: var(--primary-text-color);
 }
