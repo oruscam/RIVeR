@@ -309,11 +309,11 @@ jobs:
 
           echo "Downloading static ffmpeg for macOS Intel (x86_64)..."
           mkdir -p ffmpeg/bin
-          curl -L https://github.com/BtbN/FFmpeg-Builds/releases/latest/download/ffmpeg-master-latest-macos64-gpl.tar.xz -o ffmpeg.tar.xz
-          tar -xf ffmpeg.tar.xz
-          cp ffmpeg-master-latest-macos64-gpl/bin/ffmpeg ffmpeg/bin/
-          cp ffmpeg-master-latest-macos64-gpl/bin/ffprobe ffmpeg/bin/
-          rm -rf ffmpeg-master-latest-macos64-gpl ffmpeg.tar.xz
+          curl -L https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip -o ffmpeg.zip
+          curl -L https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip -o ffprobe.zip
+          unzip ffmpeg.zip -d ffmpeg/bin/
+          unzip ffprobe.zip -d ffmpeg/bin/
+          rm ffmpeg.zip ffprobe.zip
 
           export CSC_IDENTITY_AUTO_DISCOVERY=false
 
