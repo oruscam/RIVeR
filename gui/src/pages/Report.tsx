@@ -73,17 +73,17 @@ export const Report = () => {
           <link rel="stylesheet" href="/src/components/Report/report.css">
           <style>
             ${Array.from(document.styleSheets)
-              .map((styleSheet) => {
-                try {
-                  return Array.from(styleSheet.cssRules)
-                    .map((rule) => rule.cssText)
-                    .join('');
-                } catch (e) {
-                  console.error(e);
-                  return '';
-                }
-              })
-              .join('')}
+          .map((styleSheet) => {
+            try {
+              return Array.from(styleSheet.cssRules)
+                .map((rule) => rule.cssText)
+                .join('');
+            } catch (e) {
+              console.error(e);
+              return '';
+            }
+          })
+          .join('')}
           </style>
         </head>
         <body>
@@ -128,7 +128,7 @@ export const Report = () => {
             <VideoInfo />
             <ProcessedRange />
             <div id="report-section-wrapper">
-              <h2 className="report-title-field mt-1"> {t('CrossSections.title')} (s)</h2>
+              <h2 className="report-title-field mt-1"> {t('CrossSections.title')}</h2>
               {[...sections.keys()].map((index) => (
                 <ReportSection key={index} index={index} factor={factor} vertical={screenSizes.vertical} />
               ))}
@@ -146,7 +146,7 @@ export const Report = () => {
         </div>
       </div>
       <div className="form-container">
-        <FormHeader title={t('Report.Summary.title')} showSections={false}/>
+        <FormHeader title={t('Report.Summary.title')} showSections={false} />
         <FormReport isReportSaved={isReportSaved} setIsReportSaved={setIsReportSaved} />
         <div className='footer'>
           <WizardButtons onClickNext={generateHTML} />

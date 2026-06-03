@@ -1,8 +1,11 @@
 import { defineConfig } from 'vite';
 import path from 'node:path';
+import { readFileSync } from 'node:fs';
 import electron from 'vite-plugin-electron/simple';
 import react from '@vitejs/plugin-react';
 import * as os from 'os';
+
+const { version } = JSON.parse(readFileSync('./package.json', 'utf-8'));
 
 const EXTERNAL_NATIVE = ['skia-canvas'];
 
@@ -56,6 +59,7 @@ export default defineConfig({
     },
   },
   define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(version),
     'process.env': process.env,
   },
 });
