@@ -5,6 +5,7 @@ const initialState: CalibrationState = {
   status: 'idle',
   imageDir: '',
   images: [],
+  thumbs: [],
   usedImages: [],
   summary: null,
   csvRows: [],
@@ -26,6 +27,7 @@ const calibrationSlice = createSlice({
     setImageDir: (state, action: PayloadAction<string>) => {
       state.imageDir = action.payload;
       state.images = [];
+      state.thumbs = [];
       state.usedImages = [];
       state.summary = null;
       state.csvRows = [];
@@ -36,18 +38,22 @@ const calibrationSlice = createSlice({
       state.errorMsg = '';
       state.status = 'idle';
     },
-    setImages: (state, action: PayloadAction<string[]>) => {
-      state.images = action.payload;
+    setImages: (state, action: PayloadAction<{ images: string[]; thumbs: string[] }>) => {
+      state.images = action.payload.images;
+      state.thumbs = action.payload.thumbs;
     },
-    setSolveResult: (state, action: PayloadAction<{
-      usedImages: string[];
-      profilePath: string;
-      summary: CalibrationSummary | null;
-      csvRows: CsvRow[];
-      heatmapBase64: string | null;
-      overlayPaths: string[];
-      undistortedPaths: string[];
-    }>) => {
+    setSolveResult: (
+      state,
+      action: PayloadAction<{
+        usedImages: string[];
+        profilePath: string;
+        summary: CalibrationSummary | null;
+        csvRows: CsvRow[];
+        heatmapBase64: string | null;
+        overlayPaths: string[];
+        undistortedPaths: string[];
+      }>
+    ) => {
       state.usedImages = action.payload.usedImages;
       state.profilePath = action.payload.profilePath;
       state.summary = action.payload.summary;
@@ -68,14 +74,7 @@ const calibrationSlice = createSlice({
   },
 });
 
-export const {
-  setStatus,
-  setImageDir,
-  setImages,
-  setSolveResult,
-  setProgressMsg,
-  setErrorMsg,
-  resetCalibration,
-} = calibrationSlice.actions;
+export const { setStatus, setImageDir, setImages, setSolveResult, setProgressMsg, setErrorMsg, resetCalibration } =
+  calibrationSlice.actions;
 
 export default calibrationSlice.reducer;

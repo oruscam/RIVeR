@@ -21,15 +21,21 @@ export const useCalibrationSlice = () => {
 
     dispatch(setImageDir(dir));
 
-    const files: string[] = await window.ipcRenderer.invoke('calibration-scan-images', { dir });
-    dispatch(setImages(files ?? []));
+    const result: { images: string[]; thumbs: string[] } = await window.ipcRenderer.invoke(
+      'calibration-scan-images',
+      { dir }
+    );
+    dispatch(setImages({ images: result?.images ?? [], thumbs: result?.thumbs ?? [] }));
   }, [dispatch]);
 
   const onDropFolder = useCallback(
     async (dir: string) => {
       dispatch(setImageDir(dir));
-      const files: string[] = await window.ipcRenderer.invoke('calibration-scan-images', { dir });
-      dispatch(setImages(files ?? []));
+      const result: { images: string[]; thumbs: string[] } = await window.ipcRenderer.invoke(
+        'calibration-scan-images',
+        { dir }
+      );
+      dispatch(setImages({ images: result?.images ?? [], thumbs: result?.thumbs ?? [] }));
     },
     [dispatch]
   );

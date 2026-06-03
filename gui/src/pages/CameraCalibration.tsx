@@ -5,6 +5,7 @@ import camCalIcon from '../assets/cam_calibration.svg';
 
 interface ThumbProps {
   img: string;
+  thumbSrc: string;
   idx: number;
   active: boolean;
   unused: boolean;
@@ -13,7 +14,7 @@ interface ThumbProps {
   onSelect: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const CalThumb = memo(({ img, idx, active, unused, showDot, notUsedLabel, onSelect }: ThumbProps) => {
+const CalThumb = memo(({ img, thumbSrc, idx, active, unused, showDot, notUsedLabel, onSelect }: ThumbProps) => {
   const handleClick = useCallback(() => onSelect(idx), [onSelect, idx]);
   return (
     <button
@@ -21,7 +22,7 @@ const CalThumb = memo(({ img, idx, active, unused, showDot, notUsedLabel, onSele
       onClick={handleClick}
       title={unused ? notUsedLabel : img.split('/').pop()}
     >
-      <img src={`cal-file://${img}`} alt="" loading="lazy" />
+      <img src={`cal-file://${thumbSrc}`} alt="" loading="lazy" />
       {showDot && <span className={`cal-thumb-dot ${unused ? 'unused' : 'used'}`} />}
     </button>
   );
@@ -38,6 +39,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   const {
     status,
     images,
+    thumbs,
     usedImages,
     summary,
     csvRows,
@@ -451,6 +453,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                   <CalThumb
                     key={img}
                     img={img}
+                    thumbSrc={thumbs[idx] ?? img}
                     idx={idx}
                     active={idx === selectedIdx}
                     unused={status === 'solved' && !usedSet.has(img)}

@@ -1,4 +1,5 @@
-import { ipcMain, dialog, BrowserWindow, shell } from 'electron';
+import { ipcMain, dialog, BrowserWindow, shell, nativeImage } from 'electron';
+import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -175,7 +176,7 @@ img{max-width:100%;max-height:100%;object-fit:contain}
     return { summary, csvRows, heatmapBase64, overlayPaths, undistortedPaths };
   });
 
-  // Scan a directory for image files (jpg, jpeg, png).
+  // Scan a directory for image files (jpg, jpeg, png) and generate small thumbnails.
   ipcMain.handle('calibration-scan-images', async (_event, args: { dir: string }) => {
     const { dir } = args;
     try {
@@ -185,9 +186,43 @@ img{max-width:100%;max-height:100%;object-fit:contain}
         .filter((f) => exts.has(path.extname(f).toLowerCase()))
         .sort()
         .map((f) => path.join(dir, f));
-      return files;
+
+      // Each source dir gets its own thumb folder under tmpdir so there are no
+      // filename collisions when the user loads different folders.
+      const dirHash = crypto.createHash('md5').update(dir).digest('hex').slice(0, 12);
+      const thumbDir = path.join(os.tmpdir(), `river-cal-thumbs-${dirHash}`);
+      fs.mkdirSync(thumbDir, { recursive: true });
+
+      const thumbs: string[] = [];
+      for (const f of files) {
+        const fileHash = crypto.createHash('md5').update(f).digest('hex').slice(0, 8);
+        const thumbPath = path.join(thumbDir, `${fileHash}.jpg`);
+
+        if (!fs.existsSync(thumbPath)) {
+          try {
+            const img = nativeImage.createFromPath(f);
+            if (!img.isEmpty()) {
+              const resized = img.resize({ width: 200, quality: 'good' });
+              fs.writeFileSync(thumbPath, resized.toJPEG(80));
+            } else {
+              thumbs.push(f);
+              await new Promise<void>((resolve) => setImmediate(resolve));
+              continue;
+            }
+          } catch {
+            thumbs.push(f);
+            await new Promise<void>((resolve) => setImmediate(resolve));
+            continue;
+          }
+        }
+        thumbs.push(thumbPath);
+        // Yield between images so the main process stays responsive.
+        await new Promise<void>((resolve) => setImmediate(resolve));
+      }
+
+      return { images: files, thumbs };
     } catch {
-      return [];
+      return { images: [], thumbs: [] };
     }
   });
 

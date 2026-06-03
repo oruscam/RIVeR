@@ -35,6 +35,8 @@ export const useResizableCarousel = ({
   // Always points to the latest onDragProgress without adding it to useCallback deps.
   const onDragProgressRef = useRef(onDragProgress);
   onDragProgressRef.current = onDragProgress;
+  // Pending rAF id — ensures at most one paint per frame during drag.
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     heightRef.current = height;
@@ -56,16 +58,28 @@ export const useResizableCarousel = ({
       const onMouseMove = (ev: MouseEvent) => {
         const delta = startY - ev.clientY;
         const next = Math.min(maxHeight, Math.max(minHeight, startHeight + delta));
+        // Always store the latest value synchronously so mouseup reads it correctly.
         heightRef.current = next;
-        if (onDragProgressRef.current) {
-          // Direct DOM update — zero React re-renders during drag.
-          onDragProgressRef.current(next);
-        } else {
-          setHeight(next);
-        }
+        // Throttle DOM / React updates to one per animation frame.
+        if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+        rafRef.current = requestAnimationFrame(() => {
+          rafRef.current = null;
+          const h = heightRef.current;
+          if (onDragProgressRef.current) {
+            // Direct DOM update — zero React re-renders during drag.
+            onDragProgressRef.current(h);
+          } else {
+            setHeight(h);
+          }
+        });
       };
 
       const onMouseUp = () => {
+        // Cancel any pending frame so we don't fire after cleanup.
+        if (rafRef.current !== null) {
+          cancelAnimationFrame(rafRef.current);
+          rafRef.current = null;
+        }
         // Sync React state once at the end so stored height and derived values update.
         setHeight(heightRef.current);
         localStorage.setItem(storageKey, String(heightRef.current));

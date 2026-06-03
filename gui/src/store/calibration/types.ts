@@ -38,6 +38,7 @@ export interface CalibrationState {
   status: CalibrationStatus;
   imageDir: string;
   images: string[];
+  thumbs: string[];
   usedImages: string[];
   summary: CalibrationSummary | null;
   csvRows: CsvRow[];
