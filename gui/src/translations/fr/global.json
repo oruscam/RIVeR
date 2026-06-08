@@ -65,7 +65,9 @@
       "resolution": "Résolution : ",
       "numberOfFrames": "Nombre d'Images : "
     },
-    "framesResolution": "Résolution des Images"
+    "framesResolution": "Résolution des Images",
+    "lensCorrection": "Correction de l'objectif",
+    "noProfiles": "Aucun profil — aller à Calibration"
   },
   "PixelSize": {
     "title": "Taille de Pixel",

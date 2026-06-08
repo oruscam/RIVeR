@@ -48,18 +48,20 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     undistortedPaths,
     progressMsg,
     errorMsg,
-    profilePath,
     onOpenFolder,
     onDropFolder,
     onOpenBoard,
     onSolve,
+    onSaveProfile,
     onRevealPath,
   } = useCalibrationSlice();
 
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>('snapshot');
-  const [solveValidation, setSolveValidation] = useState(false);
   const [dragOver, setDragOver] = useState(false);
+  const [profileName, setProfileName] = useState('');
+  const [savedPath, setSavedPath] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const calCarouselRef = useRef<HTMLDivElement>(null);
 
@@ -85,9 +87,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       setViewMode('overlay');
       const firstUsedIdx = images.findIndex((img) => usedSet.has(img));
       setSelectedIdx(firstUsedIdx >= 0 ? firstUsedIdx : 0);
-      setSolveValidation(true);
-      const timer = setTimeout(() => setSolveValidation(false), 5000);
-      return () => clearTimeout(timer);
+      setSavedPath(null);
+      setSaveError(null);
     }
   }, [status, images, usedSet]);
 
@@ -108,6 +109,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   // Keyboard navigation.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
       if (e.key === 'Escape') {
         if (viewMode === 'heatmap') {
           setViewMode('overlay');
@@ -261,15 +263,6 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
           <div className="cal-error-chip">⚠ {errorMsg || t('Calibration.errorGeneric')}</div>
         )}
 
-        {solveValidation && profilePath && (
-          <div className="cal-save-confirm-box">
-            <span className="cal-confirm-title">✓ {t('Calibration.validationDone')}</span>
-            <button className="cal-confirm-link" onClick={() => onRevealPath(profilePath)}>
-              {profilePath}
-            </button>
-          </div>
-        )}
-
         {status === 'solved' && summary && (
           <div className="cal-results">
             <div className="cal-overall-row">
@@ -346,10 +339,52 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
           <p className="cal-ready-hint">{t('Calibration.emptyHint')}</p>
         )}
 
+        {status === 'solved' && (
+          <>
+            <hr className="cal-divider" />
+            <div className="cal-save-section">
+              <input
+                className="input-field-oblique"
+                type="text"
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                placeholder={t('Calibration.profileName') + ' (e.g. GoPro Hero 11 · x0.3)'}
+              />
+              {savedPath && (
+                <div className="cal-save-confirm-box">
+                  <span className="cal-confirm-title">✓ {t('Calibration.savedTo')}</span>
+                  <button className="cal-confirm-link" onClick={() => onRevealPath(savedPath)}>
+                    {savedPath}
+                  </button>
+                </div>
+              )}
+              {saveError && <p className="cal-error-chip">{saveError}</p>}
+            </div>
+          </>
+        )}
+
         <div className="cal-back-section">
           <button className="button-1 cal-action-btn" onClick={onClose}>
             {t('Wizard.back')}
           </button>
+          {status === 'solved' && (
+            <button
+              className="button-1 cal-action-btn cal-save-btn"
+              onClick={async () => {
+                setSaveError(null);
+                const result = await onSaveProfile(profileName);
+                if (result) {
+                  setSavedPath(result);
+                  setProfileName('');
+                } else {
+                  setSaveError(t('Calibration.errorGeneric'));
+                }
+              }}
+              disabled={!profileName.trim()}
+            >
+              {t('Calibration.saveProfile')}
+            </button>
+          )}
         </div>
       </div>
     ),
@@ -360,12 +395,14 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       maxCsvCount,
       progressMsg,
       errorMsg,
-      solveValidation,
-      profilePath,
+      profileName,
+      savedPath,
+      saveError,
       images.length,
       onOpenBoard,
       onOpenFolder,
       onSolve,
+      onSaveProfile,
       onRevealPath,
       onClose,
       t,

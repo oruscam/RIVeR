@@ -65,7 +65,9 @@
       "resolution": "Auflösung: ",
       "numberOfFrames": "Anzahl der Frames: "
     },
-    "framesResolution": "Auflösung der Frames"
+    "framesResolution": "Auflösung der Frames",
+    "lensCorrection": "Linsenkorrektur",
+    "noProfiles": "Keine Profile — zur Kalibrierung"
   },
   "PixelSize": {
     "title": "Pixelgröße",

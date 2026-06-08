@@ -8,7 +8,7 @@ import { useProjectSlice } from '../../hooks';
 import './form.css';
 import { formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
-import { VideoMetadata, FramesResolution } from './Components/index';
+import { VideoMetadata, FramesResolution, LensCorrection } from './Components/index';
 
 export const FormVideo = ({ duration, extraFields }: { duration: number, extraFields: boolean }) => {
   const { onSetVideoParameters, video: videoData} = useProjectSlice();
@@ -172,9 +172,8 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
             </div>
           </div>
           <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
-          {
-            extraFields && <FramesResolution active={extraFields} />
-          }
+          {extraFields && <FramesResolution active={extraFields} />}
+          {extraFields && <LensCorrection />}
         </form>
       </div>      
   )

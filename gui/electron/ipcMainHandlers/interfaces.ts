@@ -94,6 +94,7 @@ export interface FirstFrameArgs {
   end_frame: number;
   step: number;
   factor: number;
+  lensCorrection: string | false;
 }
 
 export interface ProjectConfig {

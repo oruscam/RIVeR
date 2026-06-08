@@ -65,7 +65,9 @@
       "resolution": "解像度: ",
       "numberOfFrames": "フレーム数: "
     },
-    "framesResolution": "フレーム解像度"
+    "framesResolution": "フレーム解像度",
+    "lensCorrection": "レンズ補正",
+    "noProfiles": "プロファイルなし — キャリブレーションへ"
   },
   "PixelSize": {
     "title": "ピクセルサイズ",

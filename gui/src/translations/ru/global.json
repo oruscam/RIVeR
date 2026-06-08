@@ -65,7 +65,9 @@
       "resolution": "Разрешение: ",
       "numberOfFrames": "Количество кадров: "
     },
-    "framesResolution": "Разрешение кадров"
+    "framesResolution": "Разрешение кадров",
+    "lensCorrection": "Коррекция объектива",
+    "noProfiles": "Нет профилей — перейти к калибровке"
   },
   "PixelSize": {
     "title": "Размер пикселя",
