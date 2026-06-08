@@ -42,7 +42,9 @@ def undistort_frame(frame, map1, map2, roi):
 
 	if roi is not None:
 		x, y, w, h = roi
-		und = und[y:y+h, x:x+w]
+		# Guard against zero-sized ROI (mismatched calibration profile resolution)
+		if w > 0 and h > 0:
+			und = und[y:y+h, x:x+w]
 
 	return und
 
@@ -200,4 +202,11 @@ def video_to_frames(
 				)
 			)
 
-	return sorted(frames_dir.glob("*"))[0]
+	frames = sorted(frames_dir.glob("*"))
+	if not frames:
+		raise RuntimeError(
+			"No frames were extracted from the video. "
+			"If --undistort is enabled, ensure the calibration profile "
+			"was created from images with the same resolution as the video."
+		)
+	return frames[0]
