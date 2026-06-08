@@ -65,7 +65,9 @@
       "resolution": "रिज़ॉल्यूशन: ",
       "numberOfFrames": "फ़्रेम की संख्या: "
     },
-    "framesResolution": "फ़्रेम रिज़ॉल्यूशन"
+    "framesResolution": "फ़्रेम रिज़ॉल्यूशन",
+    "lensCorrection": "लेंस सुधार",
+    "noProfiles": "कोई प्रोफ़ाइल नहीं — कैलिब्रेशन पर जाएं"
   },
   "PixelSize": {
     "title": "पिक्सेल आकार",

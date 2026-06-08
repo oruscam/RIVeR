@@ -52,7 +52,6 @@ export const useCalibrationSlice = () => {
 
     const reportDir = `${state.imageDir}/out/report`;
     const undistortedDir = `${state.imageDir}/out/undistorted`;
-    const profilePath = `${state.imageDir}/calibration_profile.json`;
 
     const handleMsg = (_evt: unknown, msg: string) => {
       dispatch(setProgressMsg(msg.trim()));
@@ -62,7 +61,6 @@ export const useCalibrationSlice = () => {
     try {
       const result = await window.ipcRenderer.invoke('calibration-solve', {
         dir: state.imageDir,
-        profilePath,
         reportDir,
         undistortedDir,
       });
@@ -73,13 +71,14 @@ export const useCalibrationSlice = () => {
       }
 
       const data = result?.data ?? result;
+      const tempProfilePath: string = result?.tempProfilePath ?? data?.profile_path ?? '';
 
       const report = await window.ipcRenderer.invoke('calibration-read-results', { reportDir });
 
       dispatch(
         setSolveResult({
           usedImages: data?.used_images ?? [],
-          profilePath: data?.profile_path ?? profilePath,
+          profilePath: tempProfilePath,
           summary: report?.summary ?? null,
           csvRows: report?.csvRows ?? [],
           heatmapBase64: report?.heatmapBase64 ?? null,
@@ -97,12 +96,13 @@ export const useCalibrationSlice = () => {
   const onSaveProfile = useCallback(
     async (name: string): Promise<string | false> => {
       if (!state.profilePath || !name.trim()) return false;
-      const dest = `${state.imageDir}/${name.trim()}.json`;
-      const result = await window.ipcRenderer.invoke('calibration-copy-file', {
-        src: state.profilePath,
-        dest,
+      const result = await window.ipcRenderer.invoke('calibration-save-profile', {
+        name: name.trim(),
+        profileSrc: state.profilePath,
+        reportSrc: `${state.imageDir}/out/report`,
+        undistortedSrc: `${state.imageDir}/out/undistorted`,
       });
-      return result?.success ? dest : false;
+      return result?.success ? result.savedProfilePath : false;
     },
     [state.profilePath, state.imageDir]
   );

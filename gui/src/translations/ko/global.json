@@ -65,7 +65,9 @@
       "resolution": "해상도: ",
       "numberOfFrames": "프레임 수: "
     },
-    "framesResolution": "프레임 해상도"
+    "framesResolution": "프레임 해상도",
+    "lensCorrection": "렌즈 교정",
+    "noProfiles": "프로필 없음 — 보정으로 이동"
   },
   "PixelSize": {
     "title": "픽셀 크기",

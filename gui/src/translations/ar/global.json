@@ -65,7 +65,9 @@
       "resolution": "الدقة: ",
       "numberOfFrames": "عدد الإطارات: "
     },
-    "framesResolution": "دقة الإطارات"
+    "framesResolution": "دقة الإطارات",
+    "lensCorrection": "تصحيح العدسة",
+    "noProfiles": "لا توجد ملفات تعريف — انتقل إلى المعايرة"
   },
   "PixelSize": {
     "title": "حجم البكسل",

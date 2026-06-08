@@ -716,6 +716,9 @@
 .cal-back-section {
     margin-top: auto;
     padding-top: 8px;
+    display: flex;
+    flex-direction: row;
+    gap: 8px;
 }
 
 .cal-save-section {
@@ -724,20 +727,8 @@
     gap: 8px;
 }
 
-.cal-save-row {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
-
-.cal-name-input {
-    width: 100% !important;
-    max-width: none !important;
-    font-size: 0.8rem !important;
-    padding: 6px 8px !important;
-    height: auto !important;
-    box-sizing: border-box;
-    text-align: center !important;
+.cal-save-section input::placeholder {
+    font-size: clamp(11px, 1.1vw, 14px);
 }
 
 .cal-save-btn {

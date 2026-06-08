@@ -65,7 +65,9 @@
       "resolution": "Resolução: ",
       "numberOfFrames": "Número de quadros: "
     },
-    "framesResolution": "Resolução dos quadros"
+    "framesResolution": "Resolução dos quadros",
+    "lensCorrection": "Correção de lente",
+    "noProfiles": "Sem perfis — ir para Calibração"
   },
   "PixelSize": {
     "title": "Tamanho do Pixel",

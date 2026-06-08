@@ -85,13 +85,14 @@ img{max-width:100%;max-height:100%;object-fit:contain}
       _event,
       args: {
         dir: string;
-        profilePath: string;
         reportDir: string;
         undistortedDir: string;
         board?: string;
       }
     ) => {
-      const { dir, profilePath, reportDir, undistortedDir, board = '20x15' } = args;
+      const { dir, reportDir, undistortedDir, board = '20x15' } = args;
+      // Save to tmpdir so no file lands in the user's image folder before they choose to save.
+      const profilePath = path.join(os.tmpdir(), 'river_cal_profile.json');
 
       const options = [
         'camera-calibration',
@@ -114,7 +115,7 @@ img{max-width:100%;max-height:100%;object-fit:contain}
           true,
           PROJECT_CONFIG.logsPath || path.join(os.tmpdir(), 'river_cal.log')
         );
-        return result;
+        return { ...result, tempProfilePath: profilePath };
       } catch (err) {
         return { error: { message: String(err) } };
       }
@@ -226,6 +227,34 @@ img{max-width:100%;max-height:100%;object-fit:contain}
     }
   });
 
+  // Save a solved calibration profile to ~/River/calibration_profiles/<name>/.
+  ipcMain.handle(
+    'calibration-save-profile',
+    async (_event, args: { name: string; profileSrc: string; reportSrc: string; undistortedSrc: string }) => {
+      const { name, profileSrc, reportSrc, undistortedSrc } = args;
+      const profilesBaseDir = path.join(PROJECT_CONFIG.mainDirectory, 'calibration_profiles');
+      const profileDir = path.join(profilesBaseDir, name);
+
+      try {
+        fs.mkdirSync(profileDir, { recursive: true });
+
+        fs.copyFileSync(profileSrc, path.join(profileDir, 'profile.json'));
+
+        if (fs.existsSync(reportSrc)) {
+          fs.cpSync(reportSrc, path.join(profileDir, 'report'), { recursive: true });
+        }
+
+        if (fs.existsSync(undistortedSrc)) {
+          fs.cpSync(undistortedSrc, path.join(profileDir, 'undistorted_samples'), { recursive: true });
+        }
+
+        return { success: true, savedProfilePath: path.join(profileDir, 'profile.json') };
+      } catch (err) {
+        return { success: false, error: String(err) };
+      }
+    }
+  );
+
   // Copy a file from src to dest.
   ipcMain.handle('calibration-copy-file', async (_event, args: { src: string; dest: string }) => {
     const { src, dest } = args;
@@ -234,6 +263,27 @@ img{max-width:100%;max-height:100%;object-fit:contain}
       return { success: true };
     } catch (err) {
       return { success: false, error: String(err) };
+    }
+  });
+
+  // List saved calibration profiles from ~/River/calibration_profiles/.
+  ipcMain.handle('calibration-list-profiles', async () => {
+    const profilesBaseDir = path.join(PROJECT_CONFIG.mainDirectory, 'calibration_profiles');
+    if (!fs.existsSync(profilesBaseDir)) return [];
+
+    try {
+      return fs
+        .readdirSync(profilesBaseDir, { withFileTypes: true })
+        .filter((entry) => {
+          if (!entry.isDirectory()) return false;
+          return fs.existsSync(path.join(profilesBaseDir, entry.name, 'profile.json'));
+        })
+        .map((entry) => ({
+          name: entry.name,
+          path: path.join(profilesBaseDir, entry.name, 'profile.json'),
+        }));
+    } catch {
+      return [];
     }
   });
 

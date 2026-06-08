@@ -19,7 +19,13 @@ import { BackendCameraSolution, IpcamPoint } from '../store/ipcam/types';
  * @returns - void
  */
 
-const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoParameters: any, fps: number) => {
+const onLoadVideoParameters = (
+  video_range: VideoRange,
+  dispatch: any,
+  setVideoParameters: any,
+  fps: number,
+  lensCorrection?: string | null
+) => {
   const { step, start, end, factor } = video_range;
   dispatch(
     setVideoParameters({
@@ -30,6 +36,8 @@ const onLoadVideoParameters = (video_range: VideoRange, dispatch: any, setVideoP
       endFrame: end,
       factor,
       factorChanged: false,
+      lensCorrection: lensCorrection ?? null,
+      lensCorrectionChanged: false,
     })
   );
   return;

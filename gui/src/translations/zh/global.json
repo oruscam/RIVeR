@@ -65,7 +65,9 @@
       "resolution": "分辨率: ",
       "numberOfFrames": "帧数: "
     },
-    "framesResolution": "帧分辨率"
+    "framesResolution": "帧分辨率",
+    "lensCorrection": "镜头校正",
+    "noProfiles": "无配置文件 — 前往校准"
   },
   "PixelSize": {
     "title": "像素尺寸",
