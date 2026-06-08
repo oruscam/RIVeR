@@ -5,7 +5,7 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { clearErrorMessage, clearMessage, setLanguage, setLoading, setMessage } from '../store/ui/uiSlice';
+import { clearErrorMessage, clearMessage, setErrorMessage, setLanguage, setLoading, setMessage } from '../store/ui/uiSlice';
 import {
   setProjectDirectory,
   setProjectType,
@@ -228,6 +228,8 @@ export const useProjectSlice = () => {
     };
     const ipcRenderer = window.ipcRenderer;
 
+    dispatch(clearErrorMessage());
+
     try {
       const result = await ipcRenderer.invoke('first-frame', {
         start_frame: parameters.startFrame,
@@ -237,12 +239,21 @@ export const useProjectSlice = () => {
         lensCorrection: lensCorrection,
       });
 
+      if (!result || result.error || !result.initial_frame) {
+        const errMsg = result?.error ?? 'Frame extraction failed';
+        console.log('first-frame error:', errMsg);
+        dispatch(setErrorMessage([errMsg]));
+        return;
+      }
+
       dispatch(clearMessage());
       dispatch(setFirstFramePath(filePrefix + result.initial_frame));
       dispatch(setVideoParameters(parameters));
-      dispatch(setLoading(false));
     } catch (error) {
       console.log(error);
+      dispatch(setErrorMessage([String(error)]));
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 
