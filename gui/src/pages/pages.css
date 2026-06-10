@@ -278,12 +278,16 @@
 .cal-left {
     flex: 1 1 0;
     min-width: 0;
+    height: 98%;
+    align-self: center;
     display: flex;
     flex-direction: column;
     padding: 14px;
     gap: 10px;
-    border-right: 1px solid var(--border-color);
     overflow: hidden;
+    background-color: var(--secondary-background-color);
+    border-radius: 20px;
+    margin-right: 5px;
 }
 
 .cal-canvas {
@@ -480,7 +484,10 @@
 }
 
 .cal-right {
-    width: 340px;
+    min-width: 400px;
+    width: 29%;
+    height: 98%;
+    align-self: center;
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
@@ -489,6 +496,8 @@
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--border-color) transparent;
+    background-color: var(--secondary-background-color);
+    border-radius: 1rem;
 }
 
 /* Action buttons */
@@ -505,15 +514,22 @@
 
 .cal-actions-row .cal-action-btn {
     flex: 1;
+    font-size: 18px;
 }
 
 .cal-action-btn {
     width: 100%;
 }
 
+.button-1.cal-action-btn {
+    width: 100%;
+    height: 50px;
+    font-size: 20px;
+    white-space: nowrap;
+}
+
 .cal-actions > .cal-action-btn {
     width: 100%;
-    margin-top: 4px;
 }
 
 /* Streaming status */
@@ -714,11 +730,13 @@
 
 /* Save profile section */
 .cal-back-section {
-    margin-top: auto;
-    padding-top: 8px;
+    width: 90%;
     display: flex;
-    flex-direction: row;
-    gap: 8px;
+    justify-content: space-between;
+    align-self: center;
+    margin-top: auto;
+    margin-bottom: 20px;
+    padding-top: 10px;
 }
 
 .cal-save-section {

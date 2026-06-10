@@ -75,6 +75,8 @@ async function createWindow() {
       nodeIntegration: true,
       contextIsolation: true,
       webSecurity: VITE_DEV_SERVER_URL ? false : true,
+      defaultFontSize: 16,
+      defaultMonospaceFontSize: 14,
     },
   });
 
