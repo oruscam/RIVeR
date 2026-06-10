@@ -9,12 +9,11 @@ interface ThumbProps {
   idx: number;
   active: boolean;
   unused: boolean;
-  showDot: boolean;
   notUsedLabel: string;
   onSelect: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const CalThumb = memo(({ img, thumbSrc, idx, active, unused, showDot, notUsedLabel, onSelect }: ThumbProps) => {
+const CalThumb = memo(({ img, thumbSrc, idx, active, unused, notUsedLabel, onSelect }: ThumbProps) => {
   const handleClick = useCallback(() => onSelect(idx), [onSelect, idx]);
   return (
     <button
@@ -23,10 +22,19 @@ const CalThumb = memo(({ img, thumbSrc, idx, active, unused, showDot, notUsedLab
       title={unused ? notUsedLabel : img.split('/').pop()}
     >
       <img src={`cal-file://${thumbSrc}`} alt="" loading="lazy" />
-      {showDot && <span className={`cal-thumb-dot ${unused ? 'unused' : 'used'}`} />}
     </button>
   );
 });
+
+const ACTION_KEY_MAP: Record<string, string> = {
+  'Add frames hitting edges/corners; vary angle & distance.': 'Calibration.actions.addFrames',
+  'Push board nearer sensor edges; allow some marker clipping.': 'Calibration.actions.pushBoard',
+  'Increase sharpness (more light, lower ISO), reduce screen moiré (resize board).':
+    'Calibration.actions.increaseSharpness',
+  'Capture from varied viewpoints (tilt/pan/roll) and distances.': 'Calibration.actions.varyViewpoints',
+  'Ensure corners appear across the whole sensor; avoid heavy cropping.': 'Calibration.actions.ensureCorners',
+  'Re-shoot with better coverage; if persists, inspect image readout/metadata.': 'Calibration.actions.reshoot',
+};
 
 type ViewMode = 'snapshot' | 'overlay' | 'undistorted' | 'heatmap';
 
@@ -294,7 +302,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
               <ul className="cal-rec-list">
                 {summary.verdict.actions.map((a, i) => (
                   <li key={i} className="cal-rec-item">
-                    {a}
+                    {t(ACTION_KEY_MAP[a] ?? a, a)}
                   </li>
                 ))}
               </ul>
@@ -494,7 +502,6 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                     idx={idx}
                     active={idx === selectedIdx}
                     unused={status === 'solved' && !usedSet.has(img)}
-                    showDot={status === 'solved'}
                     notUsedLabel={t('Calibration.notUsed')}
                     onSelect={setSelectedIdx}
                   />

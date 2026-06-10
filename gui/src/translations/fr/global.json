@@ -339,6 +339,14 @@
       "edgeReach": "Portée bord",
       "poseSpread": "Dispersion pose",
       "centerOffset": "Décalage centre"
+    },
+    "actions": {
+      "addFrames": "Ajoutez des vues couvrant les bords/coins; variez l'angle et la distance.",
+      "pushBoard": "Rapprochez la mire des bords du capteur; un léger recadrage des marqueurs est acceptable.",
+      "increaseSharpness": "Améliorez la netteté (plus de lumière, ISO bas), réduisez le moiré d'écran (redimensionnez la mire).",
+      "varyViewpoints": "Capturez depuis différents points de vue (inclinaison/panoramique/roulis) et distances.",
+      "ensureCorners": "Assurez-vous que les coins apparaissent sur tout le capteur; évitez les recadrages importants.",
+      "reshoot": "Reprenez la capture avec une meilleure couverture; si le problème persiste, vérifiez les métadonnées."
     }
   }
 }

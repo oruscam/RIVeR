@@ -339,6 +339,14 @@
       "edgeReach": "Alcance borda",
       "poseSpread": "Dispersão pose",
       "centerOffset": "Offset centro"
+    },
+    "actions": {
+      "addFrames": "Adicione quadros que atinjam bordas/cantos; varie o ângulo e a distância.",
+      "pushBoard": "Aproxime a placa das bordas do sensor; algum corte dos marcadores é permitido.",
+      "increaseSharpness": "Aumente a nitidez (mais luz, ISO baixo), reduza o moiré da tela (redimensione a placa).",
+      "varyViewpoints": "Capture de diferentes pontos de vista (inclinação/panorâmica/rotação) e distâncias.",
+      "ensureCorners": "Certifique-se de que os cantos apareçam em todo o sensor; evite recorte excessivo.",
+      "reshoot": "Refaça a captura com melhor cobertura; se persistir, verifique os metadados da imagem."
     }
   }
 }
