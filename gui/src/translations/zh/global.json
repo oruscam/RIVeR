@@ -335,6 +335,14 @@
       "edgeReach": "边缘覆盖",
       "poseSpread": "姿态分散度",
       "centerOffset": "中心偏移"
+    },
+    "actions": {
+      "addFrames": "添加覆盖边缘/角落的帧；改变角度和距离。",
+      "pushBoard": "将标定板靠近传感器边缘；允许少量标记被裁剪。",
+      "increaseSharpness": "提高清晰度（更多光线、低ISO），减少屏幕摩尔纹（调整标定板大小）。",
+      "varyViewpoints": "从不同角度（倾斜/平移/滚转）和距离拍摄。",
+      "ensureCorners": "确保角落出现在整个传感器范围内；避免过度裁剪。",
+      "reshoot": "以更好的覆盖率重新拍摄；如果问题持续，请检查图像元数据。"
     }
   }
 }

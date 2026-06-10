@@ -339,6 +339,14 @@
       "edgeReach": "Randreichweite",
       "poseSpread": "Posen-Streuung",
       "centerOffset": "Mittenversatz"
+    },
+    "actions": {
+      "addFrames": "Füge Aufnahmen hinzu, die Kanten/Ecken erfassen; variiere Winkel und Abstand.",
+      "pushBoard": "Rücke das Schachbrett näher an die Sensorränder; etwas Zuschnitt der Marker ist erlaubt.",
+      "increaseSharpness": "Verbessere die Schärfe (mehr Licht, niedrigeres ISO), reduziere Moiré (Kalibrierboard verkleinern).",
+      "varyViewpoints": "Aufnahmen aus verschiedenen Blickwinkeln (Neigung/Schwenk/Rotation) und Abständen.",
+      "ensureCorners": "Stelle sicher, dass Ecken den gesamten Sensor abdecken; vermeide starkes Beschneiden.",
+      "reshoot": "Neu aufnehmen mit besserer Abdeckung; falls Probleme bestehen, Bildmetadaten prüfen."
     }
   }
 }

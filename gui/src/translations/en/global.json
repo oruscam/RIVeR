@@ -338,6 +338,14 @@
       "edgeReach": "Edge Reach",
       "poseSpread": "Pose Spread",
       "centerOffset": "Center Offset"
+    },
+    "actions": {
+      "addFrames": "Add frames hitting edges/corners; vary angle & distance.",
+      "pushBoard": "Push board nearer sensor edges; allow some marker clipping.",
+      "increaseSharpness": "Increase sharpness (more light, lower ISO), reduce screen moiré (resize board).",
+      "varyViewpoints": "Capture from varied viewpoints (tilt/pan/roll) and distances.",
+      "ensureCorners": "Ensure corners appear across the whole sensor; avoid heavy cropping.",
+      "reshoot": "Re-shoot with better coverage; if persists, inspect image readout/metadata."
     }
   }
 }
