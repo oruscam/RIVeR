@@ -203,11 +203,17 @@
    GLOBAL RESETS & BASE
    ============================================================================= */
 
+html {
+  font-size: 16px;
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 .default-app-container {
@@ -234,7 +240,8 @@
   border: 2px solid;
   border-radius: 20px;
   font-size: 18px;
-  font-weight: 500;
+  font-weight: 400;
+  white-space: nowrap;
   transition: transform 0.1s;
 }
 
@@ -268,7 +275,8 @@
   color: var(--primary-text-color);
   border-radius: 20px;
   font-size: 20px;
-  font-weight: 500;
+  font-weight: 400;
+  white-space: nowrap;
   transition: background-color 0.1s, transform 0.1s;
 }
 
@@ -299,7 +307,8 @@
   color: var(--primary-text-color);
   border-radius: 20px;
   font-size: 20px;
-  font-weight: 500;
+  font-weight: 400;
+  white-space: nowrap;
   transition: background-color 0.1s, transform 0.1s;
   cursor: pointer;
   padding: 3px;
@@ -360,7 +369,7 @@
 
 .button-with-loader p {
   font-size: 20px;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .button-with-loader:hover {

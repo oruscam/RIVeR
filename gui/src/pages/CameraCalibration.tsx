@@ -372,12 +372,12 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
         )}
 
         <div className="cal-back-section">
-          <button className="button-1 cal-action-btn" onClick={onClose}>
+          <button className="wizard-button button-1" onClick={onClose}>
             {t('Wizard.back')}
           </button>
           {status === 'solved' && (
             <button
-              className="button-1 cal-action-btn cal-save-btn"
+              className="wizard-button button-1"
               onClick={async () => {
                 setSaveError(null);
                 const result = await onSaveProfile(profileName);
