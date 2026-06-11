@@ -707,6 +707,37 @@
     font-size: clamp(11px, 1.1vw, 14px);
 }
 
+.cal-combo {
+    position: relative;
+}
+
+.cal-combo-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: var(--secondary-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+    overflow: hidden;
+}
+
+.cal-combo-list li {
+    padding: 8px 18px;
+    font-size: 15px;
+    color: var(--primary-text-color);
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.cal-combo-list li:hover {
+    background: var(--on-hover);
+}
+
 .cal-save-btn {
     font-size: 0.8rem;
     padding: 6px 10px;
