@@ -2,27 +2,73 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectSlice } from '../../../hooks';
 
+type ProfileGroup = {
+  camera: string;
+  isLegacy: boolean;
+  path?: string;
+  lenses?: { name: string; path: string }[];
+};
+
 export const LensCorrection = () => {
   const { t } = useTranslation();
   const { video, onSetLensCorrection } = useProjectSlice();
   const { lensCorrection } = video.parameters;
 
-  const [profiles, setProfiles] = useState<{ name: string; path: string }[]>([]);
+  const [profiles, setProfiles] = useState<ProfileGroup[]>([]);
+  const [selectedCamera, setSelectedCamera] = useState<string>('');
 
   useEffect(() => {
-    window.ipcRenderer.invoke('calibration-list-profiles').then((result: { name: string; path: string }[]) => {
-      setProfiles(result ?? []);
+    window.ipcRenderer.invoke('calibration-list-profiles').then((result: ProfileGroup[]) => {
+      const groups = result ?? [];
+      setProfiles(groups);
+
+      if (lensCorrection && groups.length > 0) {
+        for (const group of groups) {
+          if (group.isLegacy && group.path === lensCorrection) {
+            setSelectedCamera(group.camera);
+            return;
+          }
+          if (!group.isLegacy && group.lenses) {
+            for (const lens of group.lenses) {
+              if (lens.path === lensCorrection) {
+                setSelectedCamera(group.camera);
+                return;
+              }
+            }
+          }
+        }
+      }
     });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const noProfiles = profiles.length === 0;
   const enabled = lensCorrection !== null;
+  const selectedGroup = profiles.find((g) => g.camera === selectedCamera) ?? null;
 
   const handleToggle = (checked: boolean) => {
     if (!checked) {
       onSetLensCorrection(null);
-    } else if (!noProfiles) {
-      onSetLensCorrection(profiles[0].path);
+      setSelectedCamera('');
+      return;
+    }
+    if (noProfiles) return;
+    const first = profiles[0];
+    setSelectedCamera(first.camera);
+    if (first.isLegacy) {
+      onSetLensCorrection(first.path!);
+    } else {
+      onSetLensCorrection(first.lenses![0].path);
+    }
+  };
+
+  const handleCameraChange = (camera: string) => {
+    setSelectedCamera(camera);
+    const group = profiles.find((g) => g.camera === camera);
+    if (!group) return;
+    if (group.isLegacy) {
+      onSetLensCorrection(group.path!);
+    } else {
+      onSetLensCorrection(group.lenses![0].path);
     }
   };
 
@@ -46,17 +92,32 @@ export const LensCorrection = () => {
             {t('VideoRange.noProfiles')}
           </p>
         ) : (
-          <select
-            className="input-field-oblique input-field-select mt-1"
-            value={lensCorrection ?? ''}
-            onChange={(e) => onSetLensCorrection(e.target.value)}
-          >
-            {profiles.map((p) => (
-              <option key={p.path} value={p.path}>
-                {p.name}
-              </option>
-            ))}
-          </select>
+          <>
+            <select
+              className="input-field-oblique input-field-select mt-1"
+              value={selectedCamera}
+              onChange={(e) => handleCameraChange(e.target.value)}
+            >
+              {profiles.map((g) => (
+                <option key={g.camera} value={g.camera}>
+                  {g.camera}
+                </option>
+              ))}
+            </select>
+            {selectedGroup && !selectedGroup.isLegacy && (
+              <select
+                className="input-field-oblique input-field-select mt-1"
+                value={lensCorrection ?? ''}
+                onChange={(e) => onSetLensCorrection(e.target.value)}
+              >
+                {selectedGroup.lenses!.map((l) => (
+                  <option key={l.path} value={l.path}>
+                    {l.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </>
         ))}
     </div>
   );

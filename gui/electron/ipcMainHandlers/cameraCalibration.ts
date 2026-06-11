@@ -12,6 +12,10 @@ type RiverCli = (
   logFile: string
 ) => Promise<{ data: unknown; error: unknown }>;
 
+function sanitizeDirName(name: string): string {
+  return name.trim().replace(/[/\\:*?"<>|]/g, '_');
+}
+
 function cameraCalibration(riverCli: RiverCli) {
   // Open a folder picker and return the selected path.
   ipcMain.handle('calibration-open-folder', async () => {
@@ -221,19 +225,30 @@ img{max-width:100%;max-height:100%;object-fit:contain}
         await new Promise<void>((resolve) => setImmediate(resolve));
       }
 
-      return { images: files, thumbs };
+      let imageSize: { width: number; height: number } | null = null;
+      if (files.length > 0) {
+        try {
+          const firstImg = nativeImage.createFromPath(files[0]);
+          if (!firstImg.isEmpty()) imageSize = firstImg.getSize();
+        } catch {}
+      }
+
+      return { images: files, thumbs, imageSize };
     } catch {
-      return { images: [], thumbs: [] };
+      return { images: [], thumbs: [], imageSize: null };
     }
   });
 
-  // Save a solved calibration profile to ~/River/calibration_profiles/<name>/.
+  // Save a solved calibration profile to ~/River/calibration_profiles/<camera>/<lens>/.
   ipcMain.handle(
     'calibration-save-profile',
-    async (_event, args: { name: string; profileSrc: string; reportSrc: string; undistortedSrc: string }) => {
-      const { name, profileSrc, reportSrc, undistortedSrc } = args;
+    async (
+      _event,
+      args: { cameraName: string; lensName: string; profileSrc: string; reportSrc: string; undistortedSrc: string }
+    ) => {
+      const { cameraName, lensName, profileSrc, reportSrc, undistortedSrc } = args;
       const profilesBaseDir = path.join(PROJECT_CONFIG.mainDirectory, 'calibration_profiles');
-      const profileDir = path.join(profilesBaseDir, name);
+      const profileDir = path.join(profilesBaseDir, sanitizeDirName(cameraName), sanitizeDirName(lensName));
 
       try {
         fs.mkdirSync(profileDir, { recursive: true });
@@ -267,21 +282,50 @@ img{max-width:100%;max-height:100%;object-fit:contain}
   });
 
   // List saved calibration profiles from ~/River/calibration_profiles/.
+  // Returns grouped structure: legacy (flat) profiles are shown as-is;
+  // new-format profiles are grouped by camera with a lenses array.
   ipcMain.handle('calibration-list-profiles', async () => {
     const profilesBaseDir = path.join(PROJECT_CONFIG.mainDirectory, 'calibration_profiles');
     if (!fs.existsSync(profilesBaseDir)) return [];
 
+    type ProfileGroup = {
+      camera: string;
+      isLegacy: boolean;
+      path?: string;
+      lenses?: { name: string; path: string }[];
+    };
+
+    const result: ProfileGroup[] = [];
+
     try {
-      return fs
-        .readdirSync(profilesBaseDir, { withFileTypes: true })
-        .filter((entry) => {
-          if (!entry.isDirectory()) return false;
-          return fs.existsSync(path.join(profilesBaseDir, entry.name, 'profile.json'));
-        })
-        .map((entry) => ({
-          name: entry.name,
-          path: path.join(profilesBaseDir, entry.name, 'profile.json'),
-        }));
+      const topEntries = fs.readdirSync(profilesBaseDir, { withFileTypes: true }).filter((e) => e.isDirectory());
+
+      for (const entry of topEntries) {
+        const entryPath = path.join(profilesBaseDir, entry.name);
+        const directProfilePath = path.join(entryPath, 'profile.json');
+
+        if (fs.existsSync(directProfilePath)) {
+          // Legacy flat structure: calibration_profiles/<name>/profile.json
+          result.push({ camera: entry.name, isLegacy: true, path: directProfilePath });
+        } else {
+          // New structure: calibration_profiles/<camera>/<lens>/profile.json
+          const lenses: { name: string; path: string }[] = [];
+          try {
+            const subEntries = fs.readdirSync(entryPath, { withFileTypes: true }).filter((e) => e.isDirectory());
+            for (const sub of subEntries) {
+              const lensProfilePath = path.join(entryPath, sub.name, 'profile.json');
+              if (fs.existsSync(lensProfilePath)) {
+                lenses.push({ name: sub.name, path: lensProfilePath });
+              }
+            }
+          } catch {}
+          if (lenses.length > 0) {
+            result.push({ camera: entry.name, isLegacy: false, lenses });
+          }
+        }
+      }
+
+      return result;
     } catch {
       return [];
     }

@@ -222,50 +222,6 @@
 }
 
 /* ── Header ── */
-.cal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 18px;
-    border-bottom: 1px solid var(--border-color);
-    flex-shrink: 0;
-    background: var(--secondary-background-color);
-}
-
-.cal-header-left {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.cal-header-icon {
-    width: 20px;
-    height: 20px;
-    opacity: 0.8;
-}
-
-.cal-header-title {
-    font-size: 0.95rem;
-    font-weight: 600;
-    color: var(--primary-text-color);
-    letter-spacing: 0.03em;
-}
-
-.cal-close-btn {
-    background: none;
-    border: none;
-    color: var(--secondary-text-color);
-    cursor: pointer;
-    font-size: 1.1rem;
-    padding: 4px 8px;
-    border-radius: 4px;
-    transition: color 0.15s, background 0.15s;
-}
-
-.cal-close-btn:hover {
-    color: var(--primary-text-color);
-    background: var(--on-hover);
-}
 
 /* ── Body ── */
 .cal-body {
@@ -504,7 +460,10 @@
 .cal-actions {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
+    width: 90%;
+    align-self: center;
+    --cal-btn-w: calc((100% - 10px) / 2);
 }
 
 .cal-actions-row {
@@ -517,19 +476,15 @@
     font-size: 18px;
 }
 
-.cal-action-btn {
-    width: 100%;
-}
-
 .button-1.cal-action-btn {
-    width: 100%;
     height: 50px;
-    font-size: 20px;
+    font-size: clamp(13px, 1.3vw, 18px);
     white-space: nowrap;
 }
 
-.cal-actions > .cal-action-btn {
-    width: 100%;
+.cal-actions > .button-1.cal-action-btn {
+    width: var(--cal-btn-w);
+    align-self: center;
 }
 
 /* Streaming status */
@@ -695,7 +650,7 @@
 
 .cal-bar {
     width: 100%;
-    background: var(--accent-color);
+    background: var(--primary-text-color);
     border-radius: 2px 2px 0 0;
     min-height: 2px;
     opacity: 0.75;
@@ -743,6 +698,8 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    width: 90%;
+    align-self: center;
 }
 
 .cal-save-section input::placeholder {
