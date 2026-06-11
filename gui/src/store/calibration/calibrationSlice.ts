@@ -6,6 +6,7 @@ const initialState: CalibrationState = {
   imageDir: '',
   images: [],
   thumbs: [],
+  imageResolution: null,
   usedImages: [],
   summary: null,
   csvRows: [],
@@ -28,6 +29,7 @@ const calibrationSlice = createSlice({
       state.imageDir = action.payload;
       state.images = [];
       state.thumbs = [];
+      state.imageResolution = null;
       state.usedImages = [];
       state.summary = null;
       state.csvRows = [];
@@ -38,9 +40,17 @@ const calibrationSlice = createSlice({
       state.errorMsg = '';
       state.status = 'idle';
     },
-    setImages: (state, action: PayloadAction<{ images: string[]; thumbs: string[] }>) => {
+    setImages: (
+      state,
+      action: PayloadAction<{
+        images: string[];
+        thumbs: string[];
+        imageResolution?: { width: number; height: number } | null;
+      }>
+    ) => {
       state.images = action.payload.images;
       state.thumbs = action.payload.thumbs;
+      state.imageResolution = action.payload.imageResolution ?? null;
     },
     setSolveResult: (
       state,

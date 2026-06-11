@@ -407,6 +407,10 @@ html {
   height: 50px;
 }
 
+.input-field:focus {
+  outline: none;
+}
+
 .input-field-oblique {
   background-color: var(--input-background);
   color: var(--primary-text-color);
@@ -416,6 +420,10 @@ html {
   border-radius: 20px;
   width: 100%;
   height: 50px;
+}
+
+.input-field-oblique:focus {
+  outline: none;
 }
 
 .input-field-little {
@@ -429,6 +437,10 @@ html {
   height: 35px;
   padding-left: 5px;
   padding-right: 5px;
+}
+
+.input-field-little:focus {
+  outline: none;
 }
 
 .input-field-read-only {
@@ -489,8 +501,8 @@ input::-webkit-outer-spin-button {
 }
 
 /* Focus ring on text/number inputs — follows theme accent color */
-input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus-visible,
-select:focus-visible,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.input-field):not(.input-field-oblique):not(.input-field-little):focus-visible,
+select:not(.input-field-oblique):not(.input-field-select):focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 1px;

@@ -39,6 +39,7 @@ export interface CalibrationState {
   imageDir: string;
   images: string[];
   thumbs: string[];
+  imageResolution: { width: number; height: number } | null;
   usedImages: string[];
   summary: CalibrationSummary | null;
   csvRows: CsvRow[];

@@ -21,21 +21,29 @@ export const useCalibrationSlice = () => {
 
     dispatch(setImageDir(dir));
 
-    const result: { images: string[]; thumbs: string[] } = await window.ipcRenderer.invoke(
-      'calibration-scan-images',
-      { dir }
+    const result: { images: string[]; thumbs: string[]; imageSize: { width: number; height: number } | null } =
+      await window.ipcRenderer.invoke('calibration-scan-images', { dir });
+    dispatch(
+      setImages({
+        images: result?.images ?? [],
+        thumbs: result?.thumbs ?? [],
+        imageResolution: result?.imageSize ?? null,
+      })
     );
-    dispatch(setImages({ images: result?.images ?? [], thumbs: result?.thumbs ?? [] }));
   }, [dispatch]);
 
   const onDropFolder = useCallback(
     async (dir: string) => {
       dispatch(setImageDir(dir));
-      const result: { images: string[]; thumbs: string[] } = await window.ipcRenderer.invoke(
-        'calibration-scan-images',
-        { dir }
+      const result: { images: string[]; thumbs: string[]; imageSize: { width: number; height: number } | null } =
+        await window.ipcRenderer.invoke('calibration-scan-images', { dir });
+      dispatch(
+        setImages({
+          images: result?.images ?? [],
+          thumbs: result?.thumbs ?? [],
+          imageResolution: result?.imageSize ?? null,
+        })
       );
-      dispatch(setImages({ images: result?.images ?? [], thumbs: result?.thumbs ?? [] }));
     },
     [dispatch]
   );
@@ -94,10 +102,11 @@ export const useCalibrationSlice = () => {
   }, [dispatch, state.imageDir]);
 
   const onSaveProfile = useCallback(
-    async (name: string): Promise<string | false> => {
-      if (!state.profilePath || !name.trim()) return false;
+    async (cameraName: string, lensName: string): Promise<string | false> => {
+      if (!state.profilePath || !cameraName.trim() || !lensName.trim()) return false;
       const result = await window.ipcRenderer.invoke('calibration-save-profile', {
-        name: name.trim(),
+        cameraName: cameraName.trim(),
+        lensName: lensName.trim(),
         profileSrc: state.profilePath,
         reportSrc: `${state.imageDir}/out/report`,
         undistortedSrc: `${state.imageDir}/out/undistorted`,

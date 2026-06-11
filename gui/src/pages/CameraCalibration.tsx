@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCalibrationSlice, useResizableCarousel } from '../hooks';
-import camCalIcon from '../assets/cam_calibration.svg';
 
 interface ThumbProps {
   img: string;
@@ -49,6 +48,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     images,
     thumbs,
     usedImages,
+    imageResolution,
     summary,
     csvRows,
     heatmapBase64,
@@ -67,7 +67,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [viewMode, setViewMode] = useState<ViewMode>('snapshot');
   const [dragOver, setDragOver] = useState(false);
-  const [profileName, setProfileName] = useState('');
+  const [cameraName, setCameraName] = useState('');
+  const [lensName, setLensName] = useState('');
   const [savedPath, setSavedPath] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
@@ -354,9 +355,25 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
               <input
                 className="input-field-oblique"
                 type="text"
-                value={profileName}
-                onChange={(e) => setProfileName(e.target.value)}
-                placeholder={t('Calibration.profileName') + ' (e.g. GoPro Hero 11 · x0.3)'}
+                value={cameraName}
+                onChange={(e) => setCameraName(e.target.value)}
+                placeholder={t('Calibration.cameraName')}
+              />
+              <input
+                className="input-field-oblique mt-1"
+                type="text"
+                value={lensName}
+                onChange={(e) => setLensName(e.target.value)}
+                placeholder={t('Calibration.lensName')}
+              />
+              <input
+                className="input-field-oblique mt-1"
+                type="text"
+                value={imageResolution ? `${imageResolution.width} × ${imageResolution.height} px` : ''}
+                readOnly
+                tabIndex={-1}
+                placeholder={t('Calibration.resolution')}
+                style={{ background: 'var(--input-background-disabled)', cursor: 'default' }}
               />
               {savedPath && (
                 <div className="cal-save-confirm-box">
@@ -380,15 +397,16 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
               className="wizard-button button-1"
               onClick={async () => {
                 setSaveError(null);
-                const result = await onSaveProfile(profileName);
+                const result = await onSaveProfile(cameraName, lensName);
                 if (result) {
                   setSavedPath(result);
-                  setProfileName('');
+                  setCameraName('');
+                  setLensName('');
                 } else {
                   setSaveError(t('Calibration.errorGeneric'));
                 }
               }}
-              disabled={!profileName.trim()}
+              disabled={!cameraName.trim() || !lensName.trim()}
             >
               {t('Calibration.saveProfile')}
             </button>
@@ -403,7 +421,9 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       maxCsvCount,
       progressMsg,
       errorMsg,
-      profileName,
+      cameraName,
+      lensName,
+      imageResolution,
       savedPath,
       saveError,
       images.length,
@@ -419,17 +439,6 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
   return (
     <div className="cal-overlay" ref={overlayRef}>
-      {/* ── Header bar ── */}
-      <div className="cal-header">
-        <div className="cal-header-left">
-          <img src={camCalIcon} className="cal-header-icon" alt="" />
-          <span className="cal-header-title">{t('Calibration.title')}</span>
-        </div>
-        <button className="cal-close-btn" onClick={onClose} aria-label={t('Calibration.close')}>
-          ✕
-        </button>
-      </div>
-
       <div className="cal-body">
         {/* ══════════════ LEFT PANEL ══════════════ */}
         <div
