@@ -502,7 +502,7 @@ input::-webkit-outer-spin-button {
 
 /* Focus ring on text/number inputs — follows theme accent color */
 input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.input-field):not(.input-field-oblique):not(.input-field-little):focus-visible,
-select:not(.input-field-oblique):not(.input-field-select):focus-visible,
+select:not(.input-field-oblique):not(.input-field-select):not(.lens-row-select):focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 1px;

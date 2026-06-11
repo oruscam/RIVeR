@@ -467,20 +467,14 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
           {status === 'solved' && (
             <div className="cal-view-controls">
               <button
-                className={`button-1 cal-view-btn ${viewMode === 'overlay' ? 'active' : ''}`}
-                onClick={() => setViewMode('overlay')}
+                className={`button-1 cal-view-btn${viewMode !== 'heatmap' ? ' cal-view-btn--active' : ''}`}
+                onClick={() => setViewMode(viewMode === 'overlay' ? 'undistorted' : 'overlay')}
               >
-                {t('Calibration.overlay')}
-              </button>
-              <button
-                className={`button-1 cal-view-btn ${viewMode === 'undistorted' ? 'active' : ''}`}
-                onClick={() => setViewMode('undistorted')}
-              >
-                {t('Calibration.undistorted')}
+                {viewMode === 'undistorted' ? t('Calibration.undistorted') : t('Calibration.overlay')}
               </button>
               {heatmapBase64 && (
                 <button
-                  className={`button-1 cal-view-btn ${viewMode === 'heatmap' ? 'active' : ''}`}
+                  className={`button-1 cal-view-btn${viewMode === 'heatmap' ? ' cal-view-btn--active' : ''}`}
                   onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
                 >
                   {t('Calibration.heatmap')}
