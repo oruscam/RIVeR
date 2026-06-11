@@ -92,32 +92,44 @@ export const LensCorrection = () => {
             {t('VideoRange.noProfiles')}
           </p>
         ) : (
-          <>
-            <select
-              className="input-field-oblique input-field-select mt-1"
-              value={selectedCamera}
-              onChange={(e) => handleCameraChange(e.target.value)}
-            >
-              {profiles.map((g) => (
-                <option key={g.camera} value={g.camera}>
-                  {g.camera}
-                </option>
-              ))}
-            </select>
+          <div className="lens-settings">
+            <div className="lens-row">
+              <span className="lens-row-label">{t('Calibration.cameraName')}</span>
+              <div className="lens-row-right">
+                <select
+                  className="lens-row-select"
+                  value={selectedCamera}
+                  onChange={(e) => handleCameraChange(e.target.value)}
+                >
+                  {profiles.map((g) => (
+                    <option key={g.camera} value={g.camera}>
+                      {g.camera}
+                    </option>
+                  ))}
+                </select>
+                <span className="lens-row-chevron">›</span>
+              </div>
+            </div>
             {selectedGroup && !selectedGroup.isLegacy && (
-              <select
-                className="input-field-oblique input-field-select mt-1"
-                value={lensCorrection ?? ''}
-                onChange={(e) => onSetLensCorrection(e.target.value)}
-              >
-                {selectedGroup.lenses!.map((l) => (
-                  <option key={l.path} value={l.path}>
-                    {l.name}
-                  </option>
-                ))}
-              </select>
+              <div className="lens-row">
+                <span className="lens-row-label">{t('Calibration.lensName')}</span>
+                <div className="lens-row-right">
+                  <select
+                    className="lens-row-select"
+                    value={lensCorrection ?? ''}
+                    onChange={(e) => onSetLensCorrection(e.target.value)}
+                  >
+                    {selectedGroup.lenses!.map((l) => (
+                      <option key={l.path} value={l.path}>
+                        {l.name}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="lens-row-chevron">›</span>
+                </div>
+              </div>
             )}
-          </>
+          </div>
         ))}
     </div>
   );
