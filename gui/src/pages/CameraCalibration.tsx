@@ -71,6 +71,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   const [lensName, setLensName] = useState('');
   const [savedPath, setSavedPath] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [existingCameras, setExistingCameras] = useState<string[]>([]);
+  const [comboOpen, setComboOpen] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
   const calCarouselRef = useRef<HTMLDivElement>(null);
 
@@ -89,6 +91,24 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
   // O(1) membership check instead of O(n) Array.includes on every thumb.
   const usedSet = useMemo(() => new Set(usedImages), [usedImages]);
+
+  // Fetch existing camera names for combobox autocomplete.
+  useEffect(() => {
+    window.ipcRenderer
+      .invoke('calibration-list-profiles')
+      .then((result: { camera: string }[]) => {
+        setExistingCameras((result ?? []).map((g) => g.camera));
+      })
+      .catch(() => {});
+  }, []);
+
+  const cameraSuggestions = useMemo(
+    () =>
+      cameraName.trim().length > 0
+        ? existingCameras.filter((c) => c.toLowerCase().includes(cameraName.toLowerCase()) && c !== cameraName)
+        : [],
+    [cameraName, existingCameras]
+  );
 
   // After solve, switch to overlay and reset selection to first used frame.
   useEffect(() => {
@@ -352,13 +372,35 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
           <>
             <hr className="cal-divider" />
             <div className="cal-save-section">
-              <input
-                className="input-field-oblique"
-                type="text"
-                value={cameraName}
-                onChange={(e) => setCameraName(e.target.value)}
-                placeholder={t('Calibration.cameraName')}
-              />
+              <div className="cal-combo">
+                <input
+                  className="input-field-oblique"
+                  type="text"
+                  value={cameraName}
+                  onChange={(e) => {
+                    setCameraName(e.target.value);
+                    setComboOpen(true);
+                  }}
+                  onFocus={() => setComboOpen(true)}
+                  onBlur={() => setTimeout(() => setComboOpen(false), 150)}
+                  placeholder={t('Calibration.cameraName')}
+                />
+                {comboOpen && cameraSuggestions.length > 0 && (
+                  <ul className="cal-combo-list">
+                    {cameraSuggestions.map((c) => (
+                      <li
+                        key={c}
+                        onMouseDown={() => {
+                          setCameraName(c);
+                          setComboOpen(false);
+                        }}
+                      >
+                        {c}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
               <input
                 className="input-field-oblique mt-1"
                 type="text"
@@ -426,6 +468,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       imageResolution,
       savedPath,
       saveError,
+      cameraSuggestions,
+      comboOpen,
       images.length,
       onOpenBoard,
       onOpenFolder,
