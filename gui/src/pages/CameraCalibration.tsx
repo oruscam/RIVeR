@@ -254,7 +254,16 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
   const rightPanel = useMemo(
     () => (
-      <div className="cal-right">
+      <div
+        className={`cal-right${dragOver ? ' drag-over-cal' : ''}`}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDragEnd={() => setDragOver(false)}
+        onDrop={handleDrop}
+      >
         <h1 className="cal-panel-title">{t('Calibration.title')}</h1>
 
         <div className="cal-actions">
@@ -477,6 +486,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       onSaveProfile,
       onRevealPath,
       onClose,
+      dragOver,
+      handleDrop,
       t,
     ]
   );
@@ -485,27 +496,9 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     <div className="cal-overlay" ref={overlayRef}>
       <div className="cal-body">
         {/* ══════════════ LEFT PANEL ══════════════ */}
-        <div
-          className={`cal-left${dragOver ? ' drag-over-cal' : ''}`}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDragEnd={() => setDragOver(false)}
-          onDrop={handleDrop}
-        >
+        <div className="cal-left">
           {/* Canvas */}
-          <div className="cal-canvas">
-            {images.length === 0 ? (
-              <div className="cal-drop-zone">
-                <p className="cal-drop-text">{t('Calibration.dropZone')}</p>
-                <p className="cal-drop-hint">{t('Calibration.dropHint')}</p>
-              </div>
-            ) : (
-              getCanvasContent()
-            )}
-          </div>
+          <div className="cal-canvas">{images.length > 0 && getCanvasContent()}</div>
 
           {/* View controls */}
           {status === 'solved' && (
