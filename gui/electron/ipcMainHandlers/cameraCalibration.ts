@@ -16,6 +16,9 @@ function sanitizeDirName(name: string): string {
   return name.trim().replace(/[/\\:*?"<>|]/g, '_');
 }
 
+// Singleton board window — prevents double-click from opening a second window.
+let boardWin: BrowserWindow | null = null;
+
 function cameraCalibration(riverCli: RiverCli) {
   // Open a folder picker and return the selected path.
   ipcMain.handle('calibration-open-folder', async () => {
@@ -65,7 +68,13 @@ img{max-width:100%;max-height:100%;object-fit:contain}
     const tmpHtml = path.join(os.tmpdir(), 'charuco_board_viewer.html');
     fs.writeFileSync(tmpHtml, html, 'utf-8');
 
-    const boardWin = new BrowserWindow({
+    // If the board window is already open, just bring it to the front.
+    if (boardWin && !boardWin.isDestroyed()) {
+      boardWin.focus();
+      return { path: boardPath };
+    }
+
+    boardWin = new BrowserWindow({
       fullscreen: true,
       frame: false,
       alwaysOnTop: true,
@@ -76,7 +85,14 @@ img{max-width:100%;max-height:100%;object-fit:contain}
 
     // Close on Escape.
     boardWin.webContents.on('before-input-event', (_e, input) => {
-      if (input.key === 'Escape') boardWin.close();
+      if (boardWin && input.key === 'Escape') boardWin.close();
+    });
+
+    // When the board window closes, reset the reference and restore focus to the main app window.
+    boardWin.on('closed', () => {
+      boardWin = null;
+      const mainWin = BrowserWindow.getAllWindows().find((w) => !w.isDestroyed());
+      mainWin?.focus();
     });
 
     return { path: boardPath };
