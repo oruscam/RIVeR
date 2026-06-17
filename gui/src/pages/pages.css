@@ -833,6 +833,21 @@
 }
 
 /* ── Lens correction settings rows (VideoRange) ──────────────── */
+.lens-correction-section {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.lens-correction-section .switch-container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.lens-correction-section .switch-container:hover {
+    background-color: transparent;
+}
+
 .lens-settings {
     display: flex;
     flex-direction: column;
@@ -864,23 +879,17 @@
     min-width: 0;
 }
 
-.lens-row-select {
+.lens-row-trigger {
     background: transparent;
     border: none;
     color: var(--primary-text-color);
     font-size: 16px;
     font-family: inherit;
     cursor: pointer;
-    appearance: none;
-    -webkit-appearance: none;
-    max-width: 160px;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    text-align: right;
-}
-
-.lens-row-select:focus,
-.lens-row-select:focus-visible {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
     outline: none;
 }
 
