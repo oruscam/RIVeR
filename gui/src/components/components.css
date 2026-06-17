@@ -492,7 +492,7 @@
 .carousel-info input {
     font-size: 1.5rem;
     background-color: var(--input-background);
-    border-radius: 8px;
+    border-radius: 20px;
     width: 85px;
     border: none;
     color: var(--primary-text-color);
@@ -503,7 +503,7 @@
 }
 
 .carousel-info input:focus {
-    outline: none;
+    outline: 2px solid var(--accent-color);
 }
 
 .carousel-info p {

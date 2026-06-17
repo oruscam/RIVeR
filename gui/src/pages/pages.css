@@ -321,8 +321,6 @@
 }
 
 .cal-view-btn {
-    height: 36px;
-    font-size: 15px;
     padding: 0 20px;
     min-width: 0;
     width: auto;
@@ -719,7 +717,7 @@
     z-index: 20;
     background: var(--secondary-background-color);
     border: 1px solid var(--border-color);
-    border-radius: 12px;
+    border-radius: 20px;
     list-style: none;
     margin: 0;
     padding: 4px 0;
@@ -736,12 +734,6 @@
 
 .cal-combo-list li:hover {
     background: var(--on-hover);
-}
-
-.cal-save-btn {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-    height: 36px;
 }
 
 /* Green confirmation box */

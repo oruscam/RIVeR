@@ -250,7 +250,7 @@ html {
 }
 
 .danger-button:active {
-  transform: translateY(-10px);
+  transform: translateY(4px);
 }
 
 .danger-button:disabled {
