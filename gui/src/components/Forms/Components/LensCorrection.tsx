@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectSlice } from '../../../hooks';
+import { LensDropdown } from './LensDropdown';
 
 type ProfileGroup = {
   camera: string;
@@ -73,7 +74,7 @@ export const LensCorrection = () => {
   };
 
   return (
-    <div className="mt-1">
+    <div className="lens-correction-section mt-1">
       <div className="switch-container">
         <h3 className="field-title">{t('VideoRange.lensCorrection')}</h3>
         <label className="switch">
@@ -96,36 +97,22 @@ export const LensCorrection = () => {
             <div className="lens-row">
               <span className="lens-row-label">{t('Calibration.cameraName')}</span>
               <div className="lens-row-right">
-                <select
-                  className="lens-row-select"
+                <LensDropdown
+                  options={profiles.map((g) => ({ label: g.camera, value: g.camera }))}
                   value={selectedCamera}
-                  onChange={(e) => handleCameraChange(e.target.value)}
-                >
-                  {profiles.map((g) => (
-                    <option key={g.camera} value={g.camera}>
-                      {g.camera}
-                    </option>
-                  ))}
-                </select>
-                <span className="lens-row-chevron">›</span>
+                  onChange={(v) => handleCameraChange(v as string)}
+                />
               </div>
             </div>
             {selectedGroup && !selectedGroup.isLegacy && (
               <div className="lens-row">
                 <span className="lens-row-label">{t('Calibration.lensName')}</span>
                 <div className="lens-row-right">
-                  <select
-                    className="lens-row-select"
+                  <LensDropdown
+                    options={selectedGroup.lenses!.map((l) => ({ label: l.name, value: l.path }))}
                     value={lensCorrection ?? ''}
-                    onChange={(e) => onSetLensCorrection(e.target.value)}
-                  >
-                    {selectedGroup.lenses!.map((l) => (
-                      <option key={l.path} value={l.path}>
-                        {l.name}
-                      </option>
-                    ))}
-                  </select>
-                  <span className="lens-row-chevron">›</span>
+                    onChange={(v) => onSetLensCorrection(v as string)}
+                  />
                 </div>
               </div>
             )}
