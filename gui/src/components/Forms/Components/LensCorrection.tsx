@@ -54,6 +54,11 @@ export const LensCorrection = () => {
   }, [enabled]);
   const selectedGroup = profiles.find((g) => g.camera === selectedCamera) ?? null;
 
+  const scrollBodyToBottom = () => {
+    const body = settingsRef.current?.closest('.body') as HTMLElement | null;
+    if (body) body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+  };
+
   const handleToggle = (checked: boolean) => {
     if (!checked) {
       onSetLensCorrection(null);
@@ -109,6 +114,7 @@ export const LensCorrection = () => {
                   options={profiles.map((g) => ({ label: g.camera, value: g.camera }))}
                   value={selectedCamera}
                   onChange={(v) => handleCameraChange(v as string)}
+                  onOpen={scrollBodyToBottom}
                 />
               </div>
             </div>
@@ -120,6 +126,7 @@ export const LensCorrection = () => {
                     options={selectedGroup.lenses!.map((l) => ({ label: l.name, value: l.path }))}
                     value={lensCorrection ?? ''}
                     onChange={(v) => onSetLensCorrection(v as string)}
+                    onOpen={scrollBodyToBottom}
                   />
                 </div>
               </div>
