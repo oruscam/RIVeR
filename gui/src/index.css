@@ -277,7 +277,7 @@ html {
   font-size: 20px;
   font-weight: 400;
   white-space: nowrap;
-  transition: background-color 0.1s, transform 0.1s;
+  transition: background-color 0.1s, color 0.1s, transform 0.1s;
 }
 
 .button-1:hover {
@@ -309,9 +309,14 @@ html {
   font-size: 20px;
   font-weight: 400;
   white-space: nowrap;
-  transition: background-color 0.1s, transform 0.1s;
+  transition: background-color 0.1s, color 0.1s, transform 0.1s;
   cursor: pointer;
   padding: 3px;
+}
+
+.wizard-button:hover:not(:disabled) {
+  background-color: var(--inverse-bg);
+  color: var(--inverse-text);
 }
 
 .wizard-button:active {

@@ -6,9 +6,10 @@ type Props = {
   options: Option[];
   value: string | number;
   onChange: (value: string | number) => void;
+  disabled?: boolean;
 };
 
-export const LensDropdown = ({ options, value, onChange }: Props) => {
+export const LensDropdown = ({ options, value, onChange, disabled }: Props) => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -24,7 +25,7 @@ export const LensDropdown = ({ options, value, onChange }: Props) => {
 
   return (
     <div className="lwrap" ref={ref}>
-      <button type="button" className="lens-row-trigger" onClick={() => setOpen((v) => !v)}>
+      <button type="button" className="lens-row-trigger" onClick={() => setOpen((v) => !v)} disabled={disabled}>
         <span>{current?.label ?? ''}</span>
         <span className="lens-row-chevron">›</span>
       </button>
