@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectSlice } from '../../../hooks';
 import { LensDropdown } from './LensDropdown';
@@ -42,8 +42,16 @@ export const LensCorrection = () => {
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const settingsRef = useRef<HTMLDivElement>(null);
+
   const noProfiles = profiles.length === 0;
   const enabled = lensCorrection !== null;
+
+  useEffect(() => {
+    if (enabled) {
+      setTimeout(() => settingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+    }
+  }, [enabled]);
   const selectedGroup = profiles.find((g) => g.camera === selectedCamera) ?? null;
 
   const handleToggle = (checked: boolean) => {
@@ -93,7 +101,7 @@ export const LensCorrection = () => {
             {t('VideoRange.noProfiles')}
           </p>
         ) : (
-          <div className="lens-settings">
+          <div className="lens-settings" ref={settingsRef}>
             <div className="lens-row">
               <span className="lens-row-label">{t('Calibration.cameraName')}</span>
               <div className="lens-row-right">
