@@ -74,11 +74,6 @@ export const Carousel: React.FC<CarouselProps> = ({
     defaultHeight: baseCarouselHeight,
     minHeight: 80,
     maxHeight: 350,
-    onDragProgress: (h) => {
-      if (listOuterRef.current) {
-        listOuterRef.current.style.height = `${h}px`;
-      }
-    },
   });
 
   const itemWidth = Math.round(carouselHeight * ratioRef.current);
