@@ -56,7 +56,8 @@
       "end3": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser 0 o menor que el 'Inicio'. Ingrese un valor válido.",
       "step": "Selección de Paso de Tiempo inválida: el parámetro 'Paso de Tiempo' debe ser un número entero mayor que 1. Ingrese un valor válido.",
       "required": "Todos los campos son obligatorios. Por favor consulte el formato del intervalo de video.",
-      "formatInput": "Formato incorrecto. El formato de 'Inicio' y 'Fin' debe ser '00:00'."
+      "formatInput": "Formato incorrecto. El formato de 'Inicio' y 'Fin' debe ser '00:00'.",
+      "profileResolutionMismatch": "La resolución del perfil ({{calW}}×{{calH}}) no coincide con el video. Seleccioná otro modelo de cámara o calibrá para esta resolución."
     },
     "ExtraInfo": {
       "fileName": "Nombre de Archivo: ",

@@ -56,7 +56,8 @@
       "end3": "Invalid Time Selection:  The 'End' value cannot be equal or less than 'Start' value. Please enter a valid value.",
       "step": "Invalid Step Selection: The 'Step' parameter must be a integer greater than 1. Please enter a valid value.",
       "required": "All the fields are obligatory. Please check video range form.",
-      "formatInput": "Incorrect format. 'Start' and 'End' values must be in '00:00' format."
+      "formatInput": "Incorrect format. 'Start' and 'End' values must be in '00:00' format.",
+      "profileResolutionMismatch": "The profile resolution ({{calW}}×{{calH}}) does not match video. Select another camera model or calibrate for this resolution."
     },
     "ExtraInfo": {
       "fileName": "File Name:",
