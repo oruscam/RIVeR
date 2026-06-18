@@ -174,9 +174,9 @@ def video_to_frames(
 		if cal_size != (video_width, video_height):
 			capture.release()
 			raise ValueError(
-				f"Calibration profile resolution {cal_size[0]}×{cal_size[1]} "
-				f"does not match video resolution {video_width}×{video_height}. "
-				"Re-run calibration at the video's native resolution."
+				f"The profile resolution ({cal_size[0]}×{cal_size[1]}) "
+				f"does not match video. "
+				"Select another camera model or calibrate for this resolution."
 			)
 
 	if end_frame_number is None:

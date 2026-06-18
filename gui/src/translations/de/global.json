@@ -56,7 +56,8 @@
       "end3": "Ungültige Zeitauswahl: Der 'Ende'-Wert darf nicht gleich oder kleiner als der 'Start'-Wert sein. Bitte geben Sie einen gültigen Wert ein.",
       "step": "Ungültige Zeitschrittauswahl: Der Parameter 'Zeitschritt' muss eine ganze Zahl größer als 1 sein. Bitte geben Sie einen gültigen Wert ein.",
       "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für den Video-Bereich.",
-      "formatInput": "Falsches Format. 'Start'- und 'Ende'-Werte müssen im Format '00:00' sein."
+      "formatInput": "Falsches Format. 'Start'- und 'Ende'-Werte müssen im Format '00:00' sein.",
+      "profileResolutionMismatch": "Die Profilauflösung ({{calW}}×{{calH}}) stimmt nicht mit dem Video überein. Wählen Sie ein anderes Kameramodell oder kalibrieren Sie für diese Auflösung."
     },
     "ExtraInfo": {
       "fileName": "Dateiname:",

@@ -109,7 +109,7 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
         const { width: vidW, height: vidH } = videoData.data;
         if (profileSize.width !== vidW || profileSize.height !== vidH) {
           onSetErrorMessage(
-            `Calibration profile resolution ${profileSize.width}×${profileSize.height} does not match video resolution ${vidW}×${vidH}. Re-run calibration at the video's native resolution.`
+            t('VideoRange.Errors.profileResolutionMismatch', { calW: profileSize.width, calH: profileSize.height })
           );
           return;
         }

@@ -56,7 +56,8 @@
       "end3": "Sélection de temps invalide : La valeur 'Fin' ne peut pas être égale ou inférieure à la valeur 'Début'. Veuillez entrer une valeur valide.",
       "step": "Sélection de pas invalide : Le paramètre 'Pas' doit être un entier supérieur à 1. Veuillez entrer une valeur valide.",
       "required": "Tous les champs sont obligatoires. Veuillez vérifier le formulaire de plage vidéo.",
-      "formatInput": "Format incorrect. Les valeurs 'Début' et 'Fin' doivent être au format '00:00'."
+      "formatInput": "Format incorrect. Les valeurs 'Début' et 'Fin' doivent être au format '00:00'.",
+      "profileResolutionMismatch": "La résolution du profil ({{calW}}×{{calH}}) ne correspond pas à la vidéo. Sélectionnez un autre modèle de caméra ou calibrez pour cette résolution."
     },
     "ExtraInfo": {
       "fileName": "Nom du Fichier :",
