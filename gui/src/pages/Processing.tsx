@@ -8,6 +8,7 @@ import { ButtonLock } from "../components/ButtonLock"
 import { FormProcessing } from "../components/Forms"
 import { LockBtn } from "../components/CustomIcons/LockBtn"
 import { ExportBtn } from "../components/CustomIcons/ExportBtn"
+import { ExportMp4 } from "../components/Forms/Components"
 
 export const Processing = () => {
     const { t } = useTranslation()
@@ -40,6 +41,9 @@ export const Processing = () => {
     return (
         <div className="regular-page">
             <div className="media-container">
+                <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 1000 }}>
+                    <ExportMp4 />
+                </div>
                 <ImageProcessing showMedian={showMedian} extraFields={extraFields} />
                 <Carousel
                     images={paths}

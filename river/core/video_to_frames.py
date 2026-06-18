@@ -19,8 +19,9 @@ def load_profile(profile_path):
 
 	K = np.array(p["K"], dtype=np.float64)
 	dist = np.array(p["dist"], dtype=np.float64).reshape(-1, 1)
+	image_size = tuple(p["image_size"])
 
-	return K, dist
+	return K, dist, image_size
 
 
 def build_undistort_maps(K, dist, image_size, alpha):
@@ -92,7 +93,13 @@ def extract_frames(
 
 	# Initialize undistortion map if needed
 	if undistort and profile_path:
-		K, dist = load_profile(profile_path)
+		K, dist, cal_size = load_profile(profile_path)
+		if cal_size != (width, height):
+			raise ValueError(
+				f"Calibration profile resolution {cal_size[0]}×{cal_size[1]} "
+				f"does not match video resolution {width}×{height}. "
+				"Re-run calibration at the video's native resolution."
+			)
 		map1, map2, roi = build_undistort_maps(K, dist, (width, height), undistort_alpha)
 	else:
 		map1 = map2 = roi = None
@@ -159,6 +166,18 @@ def video_to_frames(
 
 	capture = cv2.VideoCapture(video_path)  # load the video
 	total_video_frames = int(capture.get(cv2.CAP_PROP_FRAME_COUNT))
+	video_width = int(capture.get(cv2.CAP_PROP_FRAME_WIDTH))
+	video_height = int(capture.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+	if undistort and profile_path:
+		_, _, cal_size = load_profile(profile_path)
+		if cal_size != (video_width, video_height):
+			capture.release()
+			raise ValueError(
+				f"Calibration profile resolution {cal_size[0]}×{cal_size[1]} "
+				f"does not match video resolution {video_width}×{video_height}. "
+				"Re-run calibration at the video's native resolution."
+			)
 
 	if end_frame_number is None:
 		end_frame_number = total_video_frames
