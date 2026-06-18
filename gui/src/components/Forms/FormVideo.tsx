@@ -102,6 +102,19 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
   };
 
   const onSubmit = async (data: FieldValues) => {
+    const lensCorrection = videoData.parameters.lensCorrection;
+    if (lensCorrection) {
+      const profileSize = await window.ipcRenderer.invoke('calibration-get-profile-size', { profilePath: lensCorrection });
+      if (profileSize) {
+        const { width: vidW, height: vidH } = videoData.data;
+        if (profileSize.width !== vidW || profileSize.height !== vidH) {
+          onSetErrorMessage(
+            `Calibration profile resolution ${profileSize.width}×${profileSize.height} does not match video resolution ${vidW}×${vidH}. Re-run calibration at the video's native resolution.`
+          );
+          return;
+        }
+      }
+    }
     onSetVideoParameters(data);
     nextStep();
   };

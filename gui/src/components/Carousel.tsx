@@ -120,10 +120,12 @@ export const Carousel: React.FC<CarouselProps> = ({
         style={style}
       >
         <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
-        <div className={`img-water-mark${mode === 'ipcam' ? '-ipcam' : ''}`}>
-          {' '}
-          {mode === 'ipcam' ? getFileNameWithoutExtension(images[index]) : index + 1}
-        </div>
+        {mode !== 'ipcam' && (
+          <div className="img-water-mark">
+            {' '}
+            {index + 1}
+          </div>
+        )}
       </div>
     );
   };

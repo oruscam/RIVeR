@@ -351,6 +351,17 @@ img{max-width:100%;max-height:100%;object-fit:contain}
   ipcMain.handle('calibration-reveal-path', async (_event, args: { targetPath: string }) => {
     shell.showItemInFolder(args.targetPath);
   });
+
+  ipcMain.handle('calibration-get-profile-size', async (_event, args: { profilePath: string }) => {
+    try {
+      const raw = fs.readFileSync(args.profilePath, 'utf-8');
+      const profile = JSON.parse(raw);
+      const [width, height] = profile.image_size as [number, number];
+      return { width, height };
+    } catch {
+      return null;
+    }
+  });
 }
 
 export { cameraCalibration };
