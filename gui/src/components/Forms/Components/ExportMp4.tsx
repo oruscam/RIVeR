@@ -96,7 +96,7 @@ export const ExportMp4 = () => {
                 title={t("Report.Form.resolution")}
             />
             
-            <div className={`ldrop ${open ? "open" : ""}`} style={{ minWidth: 150, top: "calc(100% + 8px)", bottom: "auto", transformOrigin: "top right" }}>
+            <div className={`ldrop ldrop--right ${open ? "open" : ""}`} style={{ minWidth: 150, top: "calc(100% + 8px)", bottom: "auto" }}>
                 {resolutions.map((res, index) => (
                     <div key={index} className="litem" onClick={(e) => handleSelectResolution(res.factor, e)}>
                         <span>{res.factor * 100}%</span>

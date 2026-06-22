@@ -1,4 +1,4 @@
-import { useDataSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useUiSlice, useResizableCarousel } from '../hooks';
 import React, { useRef, useState, useEffect } from 'react';
 import { useWizard } from 'react-use-wizard';
 import { MODULE_NUMBER } from '../constants/constants';
@@ -59,8 +59,24 @@ export const Carousel: React.FC<CarouselProps> = ({
   const [width, setWidth] = useState<number>(500);
   const { screenSizes } = useUiSlice();
 
-  const [itemWidth, setItemWidth] = useState<number>(275);
-  const [carouselHeight, setCarouselHeight] = useState<number>(itemWidth - 85);
+  const [baseItemWidth, setBaseItemWidth] = useState<number>(275);
+  const [baseCarouselHeight, setBaseCarouselHeight] = useState<number>(190);
+  const ratioRef = useRef<number>(275 / 190);
+
+  useEffect(() => {
+    if (baseCarouselHeight > 0) {
+      ratioRef.current = baseItemWidth / baseCarouselHeight;
+    }
+  }, [baseItemWidth, baseCarouselHeight]);
+
+  const { height: carouselHeight, onDragHandleMouseDown } = useResizableCarousel({
+    storageKey: 'river-main-carousel-height',
+    defaultHeight: baseCarouselHeight,
+    minHeight: 80,
+    maxHeight: 350,
+  });
+
+  const itemWidth = Math.round(carouselHeight * ratioRef.current);
 
   const [defaultValue, setDefaultValue] = useState<string | number>((active + 1) as string | number);
   const [scrollInterval, setScrollInterval] = useState<NodeJS.Timeout | null>(null);
@@ -68,6 +84,7 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<List>(null);
+  const listOuterRef = useRef<HTMLDivElement>(null);
 
   const { activeStep } = useWizard();
 
@@ -103,10 +120,12 @@ export const Carousel: React.FC<CarouselProps> = ({
         style={style}
       >
         <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
-        <div className={`img-water-mark${mode === 'ipcam' ? '-ipcam' : ''}`}>
-          {' '}
-          {mode === 'ipcam' ? getFileNameWithoutExtension(images[index]) : index + 1}
-        </div>
+        {mode !== 'ipcam' && (
+          <div className="img-water-mark">
+            {' '}
+            {index + 1}
+          </div>
+        )}
       </div>
     );
   };
@@ -116,7 +135,7 @@ export const Carousel: React.FC<CarouselProps> = ({
       if (containerRef.current) {
         setWidth(containerRef.current.offsetWidth);
       }
-      setCarouselDimensions(screenSizes, setItemWidth, setCarouselHeight);
+      setCarouselDimensions(screenSizes, setBaseItemWidth, setBaseCarouselHeight);
     };
 
     updateDimensions(); // Set initial dimensions
@@ -136,10 +155,8 @@ export const Carousel: React.FC<CarouselProps> = ({
   }
 
   return (
-    <div
-      ref={containerRef}
-      className={`carousel-container mt-1 ${isBackendWorking ? 'disabled' : ''}`}
-    >
+    <div ref={containerRef} className={`carousel-container mt-1 ${isBackendWorking ? 'disabled' : ''}`}>
+      <div className="carousel-resize-handle" onMouseDown={onDragHandleMouseDown} />
       <div className="carousel-info">
         {activeStep === MODULE_NUMBER.PROCESSING && (
           <button
@@ -176,13 +193,14 @@ export const Carousel: React.FC<CarouselProps> = ({
           <Icon path={back} />{' '}
         </button>
         <List
-          height={carouselHeight} // Altura del contenedor del carrusel
-          itemCount={images.length} // Número total de elementos
-          itemSize={itemWidth} // Ancho de cada elemento
-          layout="horizontal" // Disposición horizontal
-          width={width} // Ancho del contenedor del carrusel
-          className="carousel-list" // Clase del contenedor del carrusel
+          height={carouselHeight}
+          itemCount={images.length}
+          itemSize={itemWidth}
+          layout="horizontal"
+          width={width}
+          className="carousel-list"
           ref={listRef}
+          outerRef={listOuterRef}
         >
           {Row}
         </List>

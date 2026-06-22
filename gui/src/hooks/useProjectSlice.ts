@@ -5,7 +5,7 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { clearErrorMessage, clearMessage, setLanguage, setLoading, setMessage } from '../store/ui/uiSlice';
+import { clearErrorMessage, clearMessage, setErrorMessage, setLanguage, setLoading, setMessage } from '../store/ui/uiSlice';
 import {
   setProjectDirectory,
   setProjectType,
@@ -182,11 +182,22 @@ export const useProjectSlice = () => {
    * @param data | FieldValues - from useFormHook
    */
 
+  const onSetLensCorrection = (profilePath: string | null) => {
+    dispatch(
+      setVideoParameters({
+        ...video.parameters,
+        lensCorrection: profilePath,
+        lensCorrectionChanged: true,
+      })
+    );
+  };
+
   const onSetVideoParameters = async (data: FieldValues) => {
     dispatch(setLoading(true));
     dispatch(setMessage(t('Loader.extractingFrames')));
 
-    const { startTime, endTime, step, factor, factorChanged } = video.parameters;
+    const { startTime, endTime, step, factor, factorChanged, lensCorrection, lensCorrectionChanged } =
+      video.parameters;
 
     const parsedStart = parseTime(data.start);
     const parsedEnd = parseTime(data.end);
@@ -195,7 +206,8 @@ export const useProjectSlice = () => {
       parsedStart === startTime &&
       parsedEnd === endTime &&
       parseFloat(data.step) === step &&
-      factorChanged === false
+      factorChanged === false &&
+      lensCorrectionChanged === false
     ) {
       dispatch(setLoading(false));
       dispatch(clearMessage());
@@ -211,8 +223,12 @@ export const useProjectSlice = () => {
       endFrame: Math.floor(parsedEnd * video.data.fps),
       factor: factor,
       factorChanged: factorChanged,
+      lensCorrection: lensCorrection,
+      lensCorrectionChanged: false,
     };
     const ipcRenderer = window.ipcRenderer;
+
+    dispatch(clearErrorMessage());
 
     try {
       const result = await ipcRenderer.invoke('first-frame', {
@@ -220,20 +236,24 @@ export const useProjectSlice = () => {
         end_frame: parameters.endFrame,
         step: parameters.step,
         factor: factor,
+        lensCorrection: lensCorrection,
       });
 
-      if (result?.error) {
-        throw new Error(result.error);
+      if (!result || result.error || !result.initial_frame) {
+        const errMsg = result?.error ?? 'Frame extraction failed';
+        console.log('first-frame error:', errMsg);
+        dispatch(setErrorMessage([errMsg]));
+        return;
       }
 
       dispatch(clearMessage());
       dispatch(setFirstFramePath(filePrefix + result.initial_frame));
       dispatch(setVideoParameters(parameters));
-      dispatch(setLoading(false));
     } catch (error) {
       console.log(error);
+      dispatch(setErrorMessage([String(error)]));
+    } finally {
       dispatch(setLoading(false));
-      dispatch(clearMessage());
     }
   };
 
@@ -363,7 +383,13 @@ export const useProjectSlice = () => {
           }
 
           // Load video parameters
-          onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps);
+          onLoadVideoParameters(
+            settings.video_range,
+            dispatch,
+            setVideoParameters,
+            videoMetadata.fps,
+            settings.lens_correction ?? null
+          );
 
           // Load processing mask
           dispatch(
@@ -464,7 +490,13 @@ export const useProjectSlice = () => {
             );
           }
 
-          onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps);
+          onLoadVideoParameters(
+            settings.video_range,
+            dispatch,
+            setVideoParameters,
+            videoMetadata.fps,
+            settings.lens_correction ?? null
+          );
 
           dispatch(
             setProcessingMask({
@@ -490,7 +522,13 @@ export const useProjectSlice = () => {
             settings.transformation,
             matrix
           );
-          onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps);
+          onLoadVideoParameters(
+            settings.video_range,
+            dispatch,
+            setVideoParameters,
+            videoMetadata.fps,
+            settings.lens_correction ?? null
+          );
 
           return MODULE_NUMBER.CROSS_SECTIONS;
         } else if (settings.control_points) {
@@ -502,14 +540,26 @@ export const useProjectSlice = () => {
             settings.transformation,
             matrix
           );
-          onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps);
+          onLoadVideoParameters(
+            settings.video_range,
+            dispatch,
+            setVideoParameters,
+            videoMetadata.fps,
+            settings.lens_correction ?? null
+          );
 
           return MODULE_NUMBER.CROSS_SECTIONS;
         } else if (settings.grp_3d) {
           onLoad3dRectification(rectification3D, dispatch, setIpcamPoints, setIpcamCameraSolution, setIpcamImages);
           return MODULE_NUMBER.CROSS_SECTIONS;
         } else if (settings.video_range) {
-          onLoadVideoParameters(settings.video_range, dispatch, setVideoParameters, videoMetadata.fps);
+          onLoadVideoParameters(
+            settings.video_range,
+            dispatch,
+            setVideoParameters,
+            videoMetadata.fps,
+            settings.lens_correction ?? null
+          );
 
           return MODULE_NUMBER.PIXEL_SIZE;
         } else {
@@ -609,6 +659,7 @@ export const useProjectSlice = () => {
     onProjectDetailsChange,
     onSetDefaultProjectState,
     onSaveProjectDetails,
+    onSetLensCorrection,
     onSetVideoParameters,
   };
 };

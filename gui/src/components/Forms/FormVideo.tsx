@@ -8,7 +8,7 @@ import { useProjectSlice } from '../../hooks';
 import './form.css';
 import { formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
-import { VideoMetadata, FramesResolution } from './Components/index';
+import { VideoMetadata, FramesResolution, LensCorrection } from './Components/index';
 
 export const FormVideo = ({ duration, extraFields }: { duration: number, extraFields: boolean }) => {
   const { onSetVideoParameters, video: videoData} = useProjectSlice();
@@ -102,6 +102,19 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
   };
 
   const onSubmit = async (data: FieldValues) => {
+    const lensCorrection = videoData.parameters.lensCorrection;
+    if (lensCorrection) {
+      const profileSize = await window.ipcRenderer.invoke('calibration-get-profile-size', { profilePath: lensCorrection });
+      if (profileSize) {
+        const { width: vidW, height: vidH } = videoData.data;
+        if (profileSize.width !== vidW || profileSize.height !== vidH) {
+          onSetErrorMessage(
+            t('VideoRange.Errors.profileResolutionMismatch', { calW: profileSize.width, calH: profileSize.height })
+          );
+          return;
+        }
+      }
+    }
     onSetVideoParameters(data);
     nextStep();
   };
@@ -172,9 +185,8 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
             </div>
           </div>
           <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
-          {
-            extraFields && <FramesResolution active={extraFields} />
-          }
+          {extraFields && <FramesResolution />}
+          {extraFields && <LensCorrection />}
         </form>
       </div>      
   )

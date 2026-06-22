@@ -65,11 +65,11 @@ export const CrossSections = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
+        <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10 }}>
+          <AddMaskButton />
+        </div>
         <div style={{ position: 'relative', margin: 'auto 0' }}>
           <ImageCrossSections />
-          <div style={{ position: 'absolute', top: '-50px', right: '10px', zIndex: 10 }}>
-            <AddMaskButton />
-          </div>
         </div>
         <Error></Error>
       </div>
