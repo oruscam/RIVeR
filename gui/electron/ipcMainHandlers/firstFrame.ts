@@ -17,12 +17,12 @@ function firstFrame(riverCli: Function) {
     }
 
     const { videoPath, framesPath, logsPath } = PROJECT_CONFIG;
-    const { start_frame, end_frame, step, factor } = args;
+    const { start_frame, end_frame, step, factor, lensCorrection } = args;
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
     filePrefix = filePrefix === undefined ? '' : filePrefix;
 
-    const options = [
+    const options: (string | number)[] = [
       'video-to-frames',
       videoPath,
       framesPath,
@@ -37,6 +37,10 @@ function firstFrame(riverCli: Function) {
       '--overwrite',
     ];
 
+    if (lensCorrection) {
+      options.push('--undistort', '--profile-path', lensCorrection);
+    }
+
     const json = await fs.promises.readFile(PROJECT_CONFIG.settingsPath, 'utf-8');
     const jsonParsed = JSON.parse(json);
 
@@ -46,6 +50,8 @@ function firstFrame(riverCli: Function) {
       step: step,
       factor: factor,
     };
+
+    jsonParsed.lens_correction = lensCorrection || null;
 
     const updatedContent = JSON.stringify(jsonParsed, null, 4);
     await fs.promises.writeFile(PROJECT_CONFIG.settingsPath, updatedContent, 'utf-8');
@@ -60,9 +66,13 @@ function firstFrame(riverCli: Function) {
       // was still empty — letting the user reach CrossSections's "Next" guard
       // too early and triggering the "waiting for frames" error.
       // Awaiting here keeps isBackendWorking=true until every frame is on disk.
-      await riverCli(options, 'json', false, logsPath);
+      const cliResult = await riverCli(options, 'json', false, logsPath);
 
       console.timeEnd('Extracting frames');
+
+      if ((cliResult as any)?.error?.message) {
+        return { error: (cliResult as any).error.message, initial_frame: '' };
+      }
 
       // Read all extracted frames (sorted for cross-platform consistency).
       const fileNames = fs.readdirSync(framesPath).sort();
@@ -80,7 +90,7 @@ function firstFrame(riverCli: Function) {
       };
     } catch (error) {
       console.log(error);
-      return { error: error instanceof Error ? error.message : String(error) };
+      return { error: error instanceof Error ? error.message : String(error), initial_frame: '' };
     }
   });
 }

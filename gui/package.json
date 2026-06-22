@@ -25,6 +25,7 @@
     "test:watch": "jest --watchAll"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.2.8",
     "@reduxjs/toolkit": "^2.2.4",
     "@theme-toggles/react": "^4.1.0",
     "d3": "^7.9.0",

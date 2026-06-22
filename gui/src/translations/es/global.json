@@ -56,7 +56,8 @@
       "end3": "Selección de intervalo de tiempo inválido: el 'Fin' no puede ser 0 o menor que el 'Inicio'. Ingrese un valor válido.",
       "step": "Selección de Paso de Tiempo inválida: el parámetro 'Paso de Tiempo' debe ser un número entero mayor que 1. Ingrese un valor válido.",
       "required": "Todos los campos son obligatorios. Por favor consulte el formato del intervalo de video.",
-      "formatInput": "Formato incorrecto. El formato de 'Inicio' y 'Fin' debe ser '00:00'."
+      "formatInput": "Formato incorrecto. El formato de 'Inicio' y 'Fin' debe ser '00:00'.",
+      "profileResolutionMismatch": "La resolución del perfil ({{calW}}×{{calH}}) no coincide con el video. Seleccioná otro modelo de cámara o calibrá para esta resolución."
     },
     "ExtraInfo": {
       "fileName": "Nombre de Archivo: ",
@@ -65,7 +66,9 @@
       "resolution": "Resolución: ",
       "numberOfFrames": "Número de Imágenes: "
     },
-    "framesResolution": "Resolución de Imágenes"
+    "framesResolution": "Resolución de Imágenes",
+    "lensCorrection": "Corrección de lente",
+    "noProfiles": "Sin perfiles — ir a Calibración"
   },
   "PixelSize": {
     "title": "Tamaño de Píxel",
@@ -301,5 +304,53 @@
     "resourceNotFound": "Recurso no encontrado.",
     "randomError": "Algo salió mal. Por favor intente nuevamente.",
     "dropHereText": "Suelta un archivo en cualquier parte de este panel. Detectaré automáticamente dónde corresponde."
+  },
+  "Calibration": {
+    "title": "Calibración de Cámara",
+    "close": "Cerrar",
+    "board": "Mostrar Tablero",
+    "import": "Importar Imágenes",
+    "solve": "Resolver",
+    "solving": "Resolviendo…",
+    "overlay": "Superposición",
+    "undistorted": "Sin Distorsión",
+    "heatmap": "Mapa de Calor",
+    "dropZone": "Suelta una carpeta de imágenes de calibración",
+    "dropHint": "o usa Importar Imágenes",
+    "notUsed": "No usado en la calibración",
+    "readyToSolve": "Imágenes cargadas. Presiona Resolver para calibrar.",
+    "emptyHint": "Importa o suelta una carpeta de imágenes para comenzar.",
+    "errorGeneric": "Ocurrió un error durante la calibración.",
+    "recommendations": "Recomendaciones",
+    "histogram": "Distribución de RMS por vista",
+    "histogramX": "Error de reproyección (px)",
+    "profileName": "Nombre del perfil",
+    "cameraName": "Nombre de cámara",
+    "lensName": "Lente / zoom",
+    "resolution": "Resolución",
+    "saveProfile": "Guardar",
+    "savedTo": "Guardado en",
+    "validationDone": "Calibración resuelta",
+    "outputs": "Archivos de salida",
+    "overlaysDir": "Abrir carpeta de superposiciones",
+    "undistortedDir": "Abrir carpeta sin distorsión",
+    "profileJson": "Abrir perfil de calibración",
+    "undistortedHint": "Las imágenes sin distorsión se guardan en la carpeta de salida.",
+    "metrics": {
+      "medianRms": "RMS Mediana",
+      "p90Rms": "RMS P90",
+      "coverage": "Cobertura",
+      "edgeReach": "Alcance Borde",
+      "poseSpread": "Dispersión Pose",
+      "centerOffset": "Offset Centro"
+    },
+    "actions": {
+      "addFrames": "Agrega capturas que lleguen a los bordes/esquinas; varía el ángulo y la distancia.",
+      "pushBoard": "Acerca el tablero a los bordes del sensor; se permite algo de recorte de marcadores.",
+      "increaseSharpness": "Aumenta la nitidez (más luz, ISO bajo), reduce el moiré de pantalla (redimensiona el tablero).",
+      "varyViewpoints": "Captura desde ángulos variados (inclinación/panorámica/rotación) y distancias.",
+      "ensureCorners": "Asegúrate de que las esquinas aparezcan en todo el sensor; evita recortes excesivos.",
+      "reshoot": "Vuelve a capturar con mejor cobertura; si persiste, revisa la lectura/metadatos de la imagen."
+    }
   }
 }

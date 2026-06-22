@@ -288,6 +288,17 @@ body {
     pointer-events: all
 }
 
+.ldrop--right {
+    left: auto;
+    right: 0;
+    transform: scaleY(0);
+    transform-origin: top right;
+}
+
+.ldrop--right.open {
+    transform: scaleY(1);
+}
+
 .litem {
     display: flex;
     align-items: center;
