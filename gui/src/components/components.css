@@ -422,6 +422,29 @@
     border-radius: 5px;
 }
 
+.carousel-resize-handle {
+    height: 8px;
+    cursor: ns-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 100%;
+}
+
+.carousel-resize-handle::after {
+    content: '';
+    width: 36px;
+    height: 3px;
+    background: var(--border-color);
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+
+.carousel-resize-handle:hover::after {
+    background: var(--accent-color);
+}
+
 .carousel-container {
     margin-top: 5px;
     width: 98%;
@@ -469,7 +492,7 @@
 .carousel-info input {
     font-size: 1.5rem;
     background-color: var(--input-background);
-    border-radius: 8px;
+    border-radius: 20px;
     width: 85px;
     border: none;
     color: var(--primary-text-color);
@@ -480,7 +503,7 @@
 }
 
 .carousel-info input:focus {
-    outline: none;
+    outline: 2px solid var(--accent-color);
 }
 
 .carousel-info p {

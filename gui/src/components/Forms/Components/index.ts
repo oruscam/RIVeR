@@ -1,5 +1,6 @@
 import { DropHereText } from "./DropHereText";
 import { FramesResolution } from "./FramesResolution";
+import { LensCorrection } from "./LensCorrection";
 import { HardModeProcessing } from "./HardModeProcessing";
 import { PixelCoordinates } from "./PixelCoordinates";
 import { RealWorldCoordinates } from "./RealWorldCoordinates";
@@ -15,6 +16,7 @@ import { AddMaskButton } from './AddMaskButton';
 
 export {
     AddMaskButton,
+    LensCorrection,
     AnalyzingProgress,
     DropHereText,
     ExportMp4,

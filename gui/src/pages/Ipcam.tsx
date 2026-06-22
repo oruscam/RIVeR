@@ -8,7 +8,6 @@ import { useIpcamSlice } from '../hooks/index';
 import { useTranslation } from 'react-i18next';
 import { FormHeader } from '../components/Forms/Components/FormHeader.tsx';
 import { ImageIpcam } from '../components/index.ts';
-
 export const Ipcam = () => {
   const { importedImages, cameraSolution, activeImage, onChangeActiveImage, onGetPoints, onGetImages } =
     useIpcamSlice();

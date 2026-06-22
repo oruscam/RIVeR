@@ -7,6 +7,7 @@ import uavReducer from './uav/uavSlice';
 import obliqueReducer from './oblique/obliqueSlice';
 import globalReducer from './global/globalSlice';
 import ipcamReducer from './ipcam/ipcamSlice';
+import calibrationReducer from './calibration/calibrationSlice';
 
 const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
     global: globalReducer,
     oblique: obliqueReducer,
     ipcam: ipcamReducer,
+    calibration: calibrationReducer,
   },
 });
 
