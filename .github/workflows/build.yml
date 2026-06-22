@@ -251,3 +251,77 @@ jobs:
         with:
           name: RIVeR-Mac-ARM64
           path: gui/release/**/*.dmg
+
+  # ─────────────────────────────────────────────
+  #  macOS (Intel - x86_64)
+  # ─────────────────────────────────────────────
+  build-mac-intel:
+    runs-on: macos-13
+
+    steps:
+      - name: 1. Checkout
+        uses: actions/checkout@v6
+
+      - name: 2. Install Node.js and Yarn
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: 3. Install uv
+        uses: astral-sh/setup-uv@v8.1.0
+
+      - name: 4. Install Python Portable (Intel x86_64)
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/gui/river-cli"
+          export UV_PYTHON_INSTALL_DIR="$GITHUB_WORKSPACE/gui/river-cli"
+
+          echo "Instalando Python..."
+          uv python install 3.11
+
+          cd "$GITHUB_WORKSPACE/gui/river-cli"
+
+          REAL_DIR=$(ls -d cpython-* | head -n 1)
+          echo "Detectado: $REAL_DIR"
+
+          cp -RL "$REAL_DIR" python_temp
+          rm -rf "$REAL_DIR"
+          mv python_temp python
+
+          echo "Verificación de portabilidad:"
+          ls -la python/bin/python3
+
+      - name: 5. Install dependencies and RIVeR CLI
+        run: |
+          cd gui/river-cli
+          ./python/bin/python -m pip install --break-system-packages -r ../../requirements.txt
+          ./python/bin/python -m pip install --break-system-packages ../../
+
+      - name: 6. Install GUI dependencies (Yarn)
+        run: |
+          npm install -g yarn
+          cd gui
+          yarn install
+
+      - name: 7. Package ffmpeg and Compile Mac (.dmg Intel Unsigned)
+        run: |
+          cd gui
+          rm -rf ffmpeg release
+
+          echo "Downloading static ffmpeg for macOS Intel (x86_64)..."
+          mkdir -p ffmpeg/bin
+          curl -L https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip -o ffmpeg.zip
+          curl -L https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip -o ffprobe.zip
+          unzip ffmpeg.zip -d ffmpeg/bin/
+          unzip ffprobe.zip -d ffmpeg/bin/
+          rm ffmpeg.zip ffprobe.zip
+
+          export CSC_IDENTITY_AUTO_DISCOVERY=false
+
+          yarn build
+          yarn build-mac -- --x64
+
+      - name: 8. Upload artifact (.dmg)
+        uses: actions/upload-artifact@v7
+        with:
+          name: RIVeR-Mac-x64
+          path: gui/release/**/*.dmg
