@@ -73,18 +73,14 @@ async function executeRiverCli(
       }
 
       if (code !== 0) {
-        if (code === null) {
-          resolve({
-            error: {
-              message: 'Process was killed',
-            },
-          });
-          return;
-        }
-      } else {
-        resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, 'null')));
-        await killRiverCli();
+        const errMsg = code === null ? 'Process was killed' : stderrData || `Process exited with code ${code}`;
+        resolve({ error: { message: errMsg } });
+        appendLog(logFile, args, stdoutData, stderrData);
+        return;
       }
+
+      resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, 'null')));
+      await killRiverCli();
 
       // Append log to log-file
       appendLog(logFile, args, stdoutData, stderrData);
