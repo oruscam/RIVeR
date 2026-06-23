@@ -2,7 +2,7 @@
 File Name:   piv_fftmulti.py
 Project:     RIVeR - Rectification of Image Velocity Results
 Description: FFT-based multi-pass PIV displacement estimation with window deformation.
-Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+Authors:     Antoine Patalano
 Institution: ORUS / UNC
 License:     AGPL-3.0-or-later
 """

@@ -2,7 +2,7 @@
 File Name:   image_preprocessing.py
 Project:     RIVeR - Rectification of Image Velocity Results
 Description: Image filtering utilities (grayscale conversion, CLAHE, background subtraction) for PIV preprocessing.
-Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+Authors:     Antoine Patalano
 Institution: ORUS / UNC
 License:     AGPL-3.0-or-later
 """
