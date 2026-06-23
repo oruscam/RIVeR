@@ -35,7 +35,10 @@ def test_stabilize_flag_calls_stabilize_frames(tmp_path):
 		]
 	}))
 
-	mock_sanity = tmp_path / "frames_stabilized" / "sanity_check.jpg"
+	stabilized_dir = tmp_path / "frames_stabilized"
+	stabilized_dir.mkdir()
+	mock_sanity = stabilized_dir / "sanity_check.jpg"
+	mock_sanity.write_bytes(b"fake")
 
 	with patch("river.cli.commands.video_to_frames.vtf") as mock_vtf, \
 		 patch("river.cli.commands.video_to_frames.stabilize_frames") as mock_stab:
@@ -55,7 +58,7 @@ def test_stabilize_flag_calls_stabilize_frames(tmp_path):
 	mock_stab.assert_called_once_with(frames_dir, regions_path, expected_stabilized_dir)
 
 	assert "stabilized_dir" in response["data"]
-	assert "sanity_check" in response["data"]
+	assert response["data"]["sanity_check"] == str(frames_dir.parent / "sanity_check.jpg")
 
 
 def test_no_stabilize_flag_does_not_call_stabilize_frames(tmp_path):
