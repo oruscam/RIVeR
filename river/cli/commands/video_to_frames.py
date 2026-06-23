@@ -1,8 +1,11 @@
 from pathlib import Path
+from typing import Optional
 
 import click
 
+from river.cli.commands.exceptions import RiverCLIException
 from river.cli.commands.utils import render_response
+from river.core.stabilize_frames import stabilize_frames
 from river.core.video_to_frames import video_to_frames as vtf
 
 
@@ -16,46 +19,62 @@ from river.core.video_to_frames import video_to_frames as vtf
 @click.option(
 	"--resize-factor", type=click.FloatRange(min=0.0, max=1.0), default=1.0, help="Factor to resize the frames."
 )
+@click.option("--stabilize", is_flag=True, default=False, help="Stabilize frames after extraction.")
+@click.option(
+	"--stabilization-regions",
+	type=click.Path(exists=True),
+	default=None,
+	help="Path to stabilization_regions.json (required when --stabilize is set).",
+)
 @click.pass_context
 @render_response
 def video_to_frames(
 	ctx: click.Context,
-	video_path: Path,
-	frames_dir: Path,
+	video_path: str,
+	frames_dir: str,
 	start_frame: int,
-	end_frame: int,
+	end_frame: Optional[int],
 	every: int,
 	overwrite: bool,
 	resize_factor: float,
+	stabilize: bool,
+	stabilization_regions: Optional[str],
 ) -> dict:
-	"""Command to process the given video into frames.
-
-	Args:
-		ctx (click.Context): Click context.
-		video_path (Path): Path of the video to process.
-		frames_dir (Path): Path of the directory to store the frames.
-		start_frame (int): Frame number to start.
-		end_frame (int): Frame number to end.
-		every (int): Step to extract frames.
-		overwrite (bool): Overwrite frames if exists.
-		resize_factor (float, optional): Factor to resize the frames (<=1.0). Defaults to 1.0.
-	"""
+	"""Command to process the given video into frames."""
+	if stabilize and stabilization_regions is None:
+		raise RiverCLIException(
+			"--stabilization-regions is required when --stabilize is set"
+		)
 
 	if ctx.obj["verbose"]:
 		click.echo(f"Extracting frames from '{video_path}' ...")
 
-	frames_dir = Path(frames_dir)
+	frames_dir_path = Path(frames_dir)
 
-	if not frames_dir.exists():
-		frames_dir.mkdir()
+	if not frames_dir_path.exists():
+		frames_dir_path.mkdir()
 
 	initial_frame: Path = vtf(
 		video_path=Path(video_path),
-		frames_dir=frames_dir,
+		frames_dir=frames_dir_path,
 		start_frame_number=start_frame,
 		end_frame_number=end_frame,
 		every=every,
 		overwrite=overwrite,
 		resize_factor=resize_factor,
 	)
-	return {"initial_frame": str(initial_frame)}
+
+	result: dict = {"initial_frame": str(initial_frame)}
+
+	if stabilize:
+		regions_path = Path(stabilization_regions)
+		stabilized_dir = frames_dir_path.parent / (frames_dir_path.name + "_stabilized")
+
+		if ctx.obj["verbose"]:
+			click.echo(f"Stabilizing frames into '{stabilized_dir}' ...")
+
+		sanity_path = stabilize_frames(frames_dir_path, regions_path, stabilized_dir)
+		result["stabilized_dir"] = str(stabilized_dir)
+		result["sanity_check"] = str(sanity_path)
+
+	return result
