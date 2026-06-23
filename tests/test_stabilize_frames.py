@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 import cv2
 from pathlib import Path
+from unittest.mock import patch
 
 from river.core.stabilize_frames import (
 	_load_tracking_regions,
@@ -154,3 +155,31 @@ def test_stabilize_frames_raises_on_missing_regions(tmp_path):
 
 	with pytest.raises(FileNotFoundError):
 		stabilize_frames(frames_dir, tmp_path / "missing.json", tmp_path / "out")
+
+
+def test_stabilize_frames_handles_lk_failure(tmp_path):
+	frames_dir = tmp_path / "frames"
+	frames_dir.mkdir()
+	stabilized_dir = tmp_path / "frames_stabilized"
+	regions_path = tmp_path / "regions.json"
+
+	_write_test_frames(frames_dir, [(0, 0), (2, 1), (0, 0)])
+	_write_regions_json(regions_path)
+
+	original_lk = cv2.calcOpticalFlowPyrLK
+
+	call_count = 0
+	def mock_lk(prev, cur, pts, next_pts, **kwargs):
+		nonlocal call_count
+		call_count += 1
+		# First call is frame 1 forward pass — simulate complete failure
+		if call_count == 1:
+			return None, None, None
+		return original_lk(prev, cur, pts, next_pts, **kwargs)
+
+	with patch("river.core.stabilize_frames.cv2.calcOpticalFlowPyrLK", side_effect=mock_lk):
+		sanity_path = stabilize_frames(frames_dir, regions_path, stabilized_dir)
+
+	assert sanity_path.exists()
+	output_jpgs = [f for f in sorted(stabilized_dir.glob("*.jpg")) if f.name != "sanity_check.jpg"]
+	assert len(output_jpgs) == 3
