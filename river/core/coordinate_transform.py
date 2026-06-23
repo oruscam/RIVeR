@@ -2,7 +2,7 @@
 File Name:   coordinate_transform.py
 Project:     RIVeR - Rectification of Image Velocity Results
 Description: Pixel-to-real-world and real-world-to-pixel coordinate transforms via homography and camera models.
-Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+Authors:     Antoine Patalano
 Institution: ORUS / UNC
 License:     AGPL-3.0-or-later
 """

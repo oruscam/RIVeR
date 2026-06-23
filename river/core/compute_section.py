@@ -2,7 +2,7 @@
 File Name:   compute_section.py
 Project:     RIVeR - Rectification of Image Velocity Results
 Description: Cross-section discharge and velocity profile computation from PIV results.
-Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+Authors:     Antoine Patalano
              Leandro Massó
 Institution: ORUS / UNC
 License:     AGPL-3.0-or-later

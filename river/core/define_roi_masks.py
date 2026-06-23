@@ -2,7 +2,7 @@
 File Name:   define_roi_masks.py
 Project:     RIVeR - Rectification of Image Velocity Results
 Description: Region-of-interest mask generation and compilation for PIV analysis.
-Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+Authors:     Antoine Patalano
 Institution: ORUS / UNC
 License:     AGPL-3.0-or-later
 """
