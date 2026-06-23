@@ -1,14 +1,10 @@
 """
-File Name: piv_fftmulti.py
-Project Name: RIVeR-LAC
-Description: Perform Particle Image Velocimetry (PIV) analysis using FFT and multiple passes.
-
-Author: Antoine Patalano
-Email: antoine.patalano@unc.edu.ar / contact@orus.cam
-Company: UNC / ORUS
-www.orus.cam
-
-This script contains functions for processing and analyzing PIV images.
+File Name:   piv_fftmulti.py
+Project:     RIVeR - Rectification of Image Velocity Results
+Description: FFT-based multi-pass PIV displacement estimation with window deformation.
+Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+Institution: ORUS / UNC
+License:     AGPL-3.0-or-later
 """
 
 import cv2

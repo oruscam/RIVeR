@@ -1,3 +1,11 @@
+"""
+File Name:   piv_pipeline.py
+Project:     RIVeR - Rectification of Image Velocity Results
+Description: End-to-end PIV pipeline orchestration for test and full analysis runs.
+Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+Institution: ORUS / UNC
+License:     AGPL-3.0-or-later
+"""
 import multiprocessing
 import time
 from concurrent.futures import ProcessPoolExecutor
