@@ -1,3 +1,4 @@
+import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -26,6 +27,12 @@ from river.core.video_to_frames import video_to_frames as vtf
 	default=None,
 	help="Path to stabilization_regions.json (required when --stabilize is set).",
 )
+@click.option(
+	"--replace",
+	is_flag=True,
+	default=False,
+	help="Replace original extracted frames with stabilized ones (requires --stabilize).",
+)
 @click.pass_context
 @render_response
 def video_to_frames(
@@ -39,11 +46,16 @@ def video_to_frames(
 	resize_factor: float,
 	stabilize: bool,
 	stabilization_regions: Optional[str],
+	replace: bool,
 ) -> dict:
 	"""Command to process the given video into frames."""
 	if stabilize and stabilization_regions is None:
 		raise RiverCLIException(
 			"--stabilization-regions is required when --stabilize is set"
+		)
+	if replace and not stabilize:
+		raise RiverCLIException(
+			"--replace requires --stabilize"
 		)
 
 	if ctx.obj["verbose"]:
@@ -74,7 +86,16 @@ def video_to_frames(
 			click.echo(f"Stabilizing frames into '{stabilized_dir}' ...")
 
 		sanity_path = stabilize_frames(frames_dir_path, regions_path, stabilized_dir)
-		result["stabilized_dir"] = str(stabilized_dir)
-		result["sanity_check"] = str(sanity_path)
+
+		if replace:
+			for f in frames_dir_path.glob("*.jpg"):
+				f.unlink()
+			for f in stabilized_dir.glob("*.jpg"):
+				shutil.move(str(f), str(frames_dir_path / f.name))
+			shutil.rmtree(stabilized_dir)
+			result["sanity_check"] = str(frames_dir_path / "sanity_check.jpg")
+		else:
+			result["stabilized_dir"] = str(stabilized_dir)
+			result["sanity_check"] = str(sanity_path)
 
 	return result
