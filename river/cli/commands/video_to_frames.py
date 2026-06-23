@@ -86,6 +86,8 @@ def video_to_frames(
 			click.echo(f"Stabilizing frames into '{stabilized_dir}' ...")
 
 		sanity_path = stabilize_frames(frames_dir_path, regions_path, stabilized_dir)
+		sanity_dest = frames_dir_path.parent / "sanity_check.jpg"
+		shutil.move(str(sanity_path), str(sanity_dest))
 
 		if replace:
 			for f in frames_dir_path.glob("*.jpg"):
@@ -93,9 +95,9 @@ def video_to_frames(
 			for f in stabilized_dir.glob("*.jpg"):
 				shutil.move(str(f), str(frames_dir_path / f.name))
 			shutil.rmtree(stabilized_dir)
-			result["sanity_check"] = str(frames_dir_path / "sanity_check.jpg")
 		else:
 			result["stabilized_dir"] = str(stabilized_dir)
-			result["sanity_check"] = str(sanity_path)
+
+		result["sanity_check"] = str(sanity_dest)
 
 	return result
