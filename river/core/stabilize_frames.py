@@ -165,6 +165,14 @@ def stabilize_frames(
 		cur_gray = cv2.cvtColor(cur_bgr, cv2.COLOR_BGR2GRAY)
 
 		cur_pts, status_fwd, _ = cv2.calcOpticalFlowPyrLK(prev_gray, cur_gray, prev_pts, None, **lk_params)
+
+		if cur_pts is None:
+			# LK failed completely — write warped frame with last good transform and continue
+			M_inv = cv2.invertAffineTransform(last_good_M)
+			stabilized = cv2.warpAffine(cur_bgr, M_inv, (width, height))
+			cv2.imwrite(str(stabilized_dir / fpath.name), stabilized, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
+			continue
+
 		back_pts, status_bwd, _ = cv2.calcOpticalFlowPyrLK(cur_gray, prev_gray, cur_pts, None, **lk_params)
 
 		fb_err = np.linalg.norm(prev_pts.reshape(-1, 2) - back_pts.reshape(-1, 2), axis=1)
