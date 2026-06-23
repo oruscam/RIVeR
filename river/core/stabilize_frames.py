@@ -1,12 +1,10 @@
 """
-File Name: stabilize_frames.py
-Project Name: RIVeR-LAC
-Description: Stabilize extracted frames using Lucas-Kanade point tracking.
-
-Created Date: 2026-06-22
-Author: Antoine Patalano
-Email: antoine.patalano@unc.edu.ar
-Company: UNC / ORUS
+File Name:   stabilize_frames.py
+Project:     RIVeR - Rectification of Image Velocity Results
+Description: UAV frame stabilization via Lucas-Kanade point tracking and similarity transform.
+Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+Institution: ORUS / UNC
+License:     AGPL-3.0-or-later
 """
 
 import json

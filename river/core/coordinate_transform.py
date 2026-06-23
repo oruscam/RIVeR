@@ -1,3 +1,11 @@
+"""
+File Name:   coordinate_transform.py
+Project:     RIVeR - Rectification of Image Velocity Results
+Description: Pixel-to-real-world and real-world-to-pixel coordinate transforms via homography and camera models.
+Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+Institution: ORUS / UNC
+License:     AGPL-3.0-or-later
+"""
 import random
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union

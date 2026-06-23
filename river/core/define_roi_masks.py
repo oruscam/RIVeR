@@ -1,10 +1,10 @@
 """
-File Name: define_roi_masks.py
-Author: Antoine Patalano
-Email: antoine.patalano@unc.edu.ar / contact@orus.cam
-Company: UNC / ORUS
-
-This script contains functions for roi and mask creation
+File Name:   define_roi_masks.py
+Project:     RIVeR - Rectification of Image Velocity Results
+Description: Region-of-interest mask generation and compilation for PIV analysis.
+Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+Institution: ORUS / UNC
+License:     AGPL-3.0-or-later
 """
 
 from logging import getLogger

@@ -1,3 +1,12 @@
+"""
+File Name:   compute_section.py
+Project:     RIVeR - Rectification of Image Velocity Results
+Description: Cross-section discharge and velocity profile computation from PIV results.
+Authors:     Antoine Patalano <antoine.patalano@unc.edu.ar>
+             Leandro Massó
+Institution: ORUS / UNC
+License:     AGPL-3.0-or-later
+"""
 import platform
 from pathlib import Path
 from typing import Optional, Tuple
