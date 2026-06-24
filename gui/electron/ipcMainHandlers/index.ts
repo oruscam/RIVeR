@@ -23,8 +23,10 @@ import { recommendRoiHeight } from './recommendRoiHeight';
 import { saveReportHtml } from './saveReportHtml';
 import { getGif } from './getGif';
 import { setColorbarLimits } from './setColorbarLimits';
+import { cameraCalibration } from './cameraCalibration';
 
 export {
+  cameraCalibration,
   calculate3dRectification,
   createFolderStructure,
   createMaskAndBbox,

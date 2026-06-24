@@ -56,7 +56,8 @@
       "end3": "유효하지 않은 시간 선택: '종료' 값은 '시작' 값과 같거나 작을 수 없습니다. 유효한 값을 입력해 주세요.",
       "step": "유효하지 않은 단계 선택: '단계'는 1보다 큰 정수여야 합니다. 유효한 값을 입력해 주세요.",
       "required": "모든 필드는 필수입니다. 동영상 범위 양식을 확인해 주세요.",
-      "formatInput": "형식이 올바르지 않습니다. '시작'과 '종료' 값은 '00:00' 형식이어야 합니다."
+      "formatInput": "형식이 올바르지 않습니다. '시작'과 '종료' 값은 '00:00' 형식이어야 합니다.",
+      "profileResolutionMismatch": "프로파일 해상도({{calW}}×{{calH}})가 동영상과 일치하지 않습니다. 다른 카메라 모델을 선택하거나 이 해상도로 교정하세요."
     },
     "ExtraInfo": {
       "fileName": "파일명:",
@@ -65,7 +66,9 @@
       "resolution": "해상도: ",
       "numberOfFrames": "프레임 수: "
     },
-    "framesResolution": "프레임 해상도"
+    "framesResolution": "프레임 해상도",
+    "lensCorrection": "렌즈 교정",
+    "noProfiles": "프로필 없음 — 보정으로 이동"
   },
   "PixelSize": {
     "title": "픽셀 크기",
@@ -297,5 +300,53 @@
     "resourceNotFound": "리소스를 찾을 수 없습니다",
     "randomError": "오류가 발생했습니다. 다시 시도해 주세요",
     "dropHereText": "이 패널 어디에나 파일을 드롭하세요. 자동으로 위치를 감지합니다."
+  },
+  "Calibration": {
+    "title": "카메라 캘리브레이션",
+    "close": "닫기",
+    "board": "보드 표시",
+    "import": "이미지 가져오기",
+    "solve": "풀기",
+    "solving": "계산 중…",
+    "overlay": "오버레이",
+    "undistorted": "왜곡 보정",
+    "heatmap": "히트맵",
+    "dropZone": "캘리브레이션 이미지 폴더를 드롭",
+    "dropHint": "또는 이미지 가져오기 사용",
+    "notUsed": "캘리브레이션에 미사용",
+    "readyToSolve": "이미지가 로드되었습니다. 풀기를 눌러 캘리브레이션을 실행하세요.",
+    "emptyHint": "이미지 폴더를 가져오거나 드롭하여 시작하세요.",
+    "errorGeneric": "캘리브레이션 중 오류가 발생했습니다.",
+    "recommendations": "권장 사항",
+    "histogram": "뷰별 RMS 분포",
+    "histogramX": "재투영 오차 (px)",
+    "profileName": "프로파일 이름",
+    "cameraName": "카메라 이름",
+    "lensName": "렌즈 / 줌",
+    "resolution": "해상도",
+    "saveProfile": "저장",
+    "savedTo": "저장 위치",
+    "validationDone": "보정 완료",
+    "outputs": "출력 파일",
+    "overlaysDir": "오버레이 폴더 열기",
+    "undistortedDir": "왜곡 보정 폴더 열기",
+    "profileJson": "캘리브레이션 프로파일 열기",
+    "undistortedHint": "왜곡 보정된 이미지는 출력 폴더에 저장됩니다.",
+    "metrics": {
+      "medianRms": "중앙값 RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "커버리지",
+      "edgeReach": "가장자리 도달",
+      "poseSpread": "자세 분산",
+      "centerOffset": "중심 오프셋"
+    },
+    "actions": {
+      "addFrames": "모서리/코너를 포함하는 프레임을 추가하고 각도와 거리를 다양하게 하세요.",
+      "pushBoard": "보드를 센서 가장자리에 더 가깝게 배치하세요. 일부 마커 잘림은 허용됩니다.",
+      "increaseSharpness": "선명도를 높이세요(더 많은 빛, 낮은 ISO), 화면 모아레를 줄이세요(보드 크기 조정).",
+      "varyViewpoints": "다양한 시점(기울기/패닝/롤링)과 거리에서 촬영하세요.",
+      "ensureCorners": "코너가 전체 센서에 걸쳐 나타나도록 하고, 과도한 잘림을 피하세요.",
+      "reshoot": "더 나은 커버리지로 재촬영하세요. 문제가 지속되면 이미지 메타데이터를 확인하세요."
+    }
   }
 }

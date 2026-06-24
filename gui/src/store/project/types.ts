@@ -17,6 +17,8 @@ interface VideoParameters {
   endFrame: number;
   factor: number;
   factorChanged: boolean;
+  lensCorrection: string | null;
+  lensCorrectionChanged: boolean;
 }
 
 interface Video {

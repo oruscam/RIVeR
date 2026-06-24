@@ -1,56 +1,47 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectSlice } from '../../../hooks';
-import { useEffect } from 'react';
+import { LensDropdown } from './LensDropdown';
 
-export const FramesResolution = ({ active }: { active: boolean }) => {
+export const FramesResolution = () => {
   const { t } = useTranslation();
-  const { video, onChangeFramesResolution } = useProjectSlice();
+  const { video, onChangeFramesResolution, type } = useProjectSlice();
   const { data, parameters } = video;
   const { factor } = parameters;
   const { width, height } = data;
 
-  // The first value is the original resolution
-  // The second value is the resolution divided by 2
-  // The third value is the resolution divided by 4
-  const value1 = `${width}x${height}`;
-  const value2 = `${width / 2}x${height / 2}`;
-  const value3 = `${width / 4}x${height / 4}`;
+  const readOnly = type === 'ipcam';
 
-  const onClickResolution = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const id = parseFloat((event.target as HTMLButtonElement).id);
+  useEffect(() => {
+    if (readOnly) onChangeFramesResolution(1);
+  }, [readOnly]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    if (id !== factor) {
-      onChangeFramesResolution(id);
-    }
-  };
+  const resolutions = readOnly
+    ? [{ label: `${width}x${height}`, value: 1 }]
+    : [
+        { label: `${width}x${height}`, value: 1 },
+        { label: `${width / 2}x${height / 2}`, value: 0.5 },
+        { label: `${width / 4}x${height / 4}`, value: 0.25 },
+      ];
 
   return (
-    <div className='video-resolution' id="video-resolution">
-      <h2> {t('VideoRange.framesResolution')} </h2>
-      <button
-        className={`wizard-button mt-1 ${factor === 1 ? 'wizard-button-active' : ''}`}
-        type="button"
-        id="1"
-        onClick={onClickResolution}
-      >
-        {value1}
-      </button>
-      <button
-        className={`wizard-button mt-1 ${factor === 0.5 ? 'wizard-button-active' : ''}`}
-        type="button"
-        id="0.5"
-        onClick={onClickResolution}
-      >
-        {value2}
-      </button>
-      <button
-        className={`wizard-button mt-1 ${factor === 0.25 ? 'wizard-button-active' : ''}`}
-        type="button"
-        id="0.25"
-        onClick={onClickResolution}
-      >
-        {value3}
-      </button>
+    <div className="lens-correction-section mt-1" id="video-resolution">
+      <h3 className="field-title" style={{ padding: '6px 0' }}>
+        {t('VideoRange.framesResolution')}
+      </h3>
+      <div className="lens-settings">
+        <div className="lens-row" style={{ borderBottom: 'none' }}>
+          <span className="lens-row-label">{t('VideoRange.ExtraInfo.resolution').replace(':', '').trim()}</span>
+          <div className="lens-row-right">
+            <LensDropdown
+              options={resolutions}
+              value={readOnly ? 1 : factor}
+              onChange={(v) => onChangeFramesResolution(v as number)}
+              disabled={readOnly}
+            />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
