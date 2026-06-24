@@ -19,6 +19,8 @@ const defaultVideo = {
     endFrame: 0,
     factor: 1,
     factorChanged: false,
+    lensCorrection: null,
+    lensCorrectionChanged: false,
   },
 };
 

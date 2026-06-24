@@ -33,6 +33,8 @@ from river.core.video_to_frames import video_to_frames as vtf
 	default=False,
 	help="Replace original extracted frames with stabilized ones (requires --stabilize).",
 )
+@click.option("--undistort", is_flag=True, default=False, help="Apply lens undistortion to extracted frames.")
+@click.option("--profile-path", type=click.Path(exists=True), default=None, help="Path to calibration profile.json.")
 @click.pass_context
 @render_response
 def video_to_frames(
@@ -44,6 +46,7 @@ def video_to_frames(
 	every: int,
 	overwrite: bool,
 	resize_factor: float,
+<<<<<<< HEAD
 	stabilize: bool,
 	stabilization_regions: Optional[str],
 	replace: bool,
@@ -57,6 +60,25 @@ def video_to_frames(
 		raise RiverCLIException(
 			"--replace requires --stabilize"
 		)
+=======
+	undistort: bool,
+	profile_path: str,
+) -> dict:
+	"""Command to process the given video into frames.
+
+	Args:
+		ctx (click.Context): Click context.
+		video_path (Path): Path of the video to process.
+		frames_dir (Path): Path of the directory to store the frames.
+		start_frame (int): Frame number to start.
+		end_frame (int): Frame number to end.
+		every (int): Step to extract frames.
+		overwrite (bool): Overwrite frames if exists.
+		resize_factor (float, optional): Factor to resize the frames (<=1.0). Defaults to 1.0.
+		undistort (bool): Apply lens undistortion using calibration profile. Defaults to False.
+		profile_path (str, optional): Path to calibration profile.json. Required when undistort=True.
+	"""
+>>>>>>> develop
 
 	if ctx.obj["verbose"]:
 		click.echo(f"Extracting frames from '{video_path}' ...")
@@ -74,6 +96,8 @@ def video_to_frames(
 		every=every,
 		overwrite=overwrite,
 		resize_factor=resize_factor,
+		undistort=undistort,
+		profile_path=profile_path,
 	)
 
 	result: dict = {"initial_frame": str(initial_frame)}

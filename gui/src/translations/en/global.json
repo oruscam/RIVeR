@@ -56,7 +56,8 @@
       "end3": "Invalid Time Selection:  The 'End' value cannot be equal or less than 'Start' value. Please enter a valid value.",
       "step": "Invalid Step Selection: The 'Step' parameter must be a integer greater than 1. Please enter a valid value.",
       "required": "All the fields are obligatory. Please check video range form.",
-      "formatInput": "Incorrect format. 'Start' and 'End' values must be in '00:00' format."
+      "formatInput": "Incorrect format. 'Start' and 'End' values must be in '00:00' format.",
+      "profileResolutionMismatch": "The profile resolution ({{calW}}×{{calH}}) does not match video. Select another camera model or calibrate for this resolution."
     },
     "ExtraInfo": {
       "fileName": "File Name:",
@@ -65,7 +66,9 @@
       "resolution": "Resolution: ",
       "numberOfFrames": "Number of Frames: "
     },
-    "framesResolution": "Frames Resolution"
+    "framesResolution": "Frames Resolution",
+    "lensCorrection": "Lens correction",
+    "noProfiles": "No profiles — go to Calibration"
   },
   "PixelSize": {
     "title": "Pixel Size",
@@ -300,5 +303,53 @@
     "resourceNotFound": "Resource not found",
     "randomError": "Something went wrong. Please try again",
     "dropHereText": "Drop a file anywhere on this panel. I'll auto-detect where it belongs."
+  },
+  "Calibration": {
+    "title": "Camera Calibration",
+    "close": "Close",
+    "board": "Show Board",
+    "import": "Import Images",
+    "solve": "Solve",
+    "solving": "Solving…",
+    "overlay": "Overlay",
+    "undistorted": "Undistorted",
+    "heatmap": "Heatmap",
+    "dropZone": "Drop a folder of calibration images",
+    "dropHint": "or use Import Images",
+    "notUsed": "Not used in calibration",
+    "readyToSolve": "Images loaded. Press Solve to run calibration.",
+    "emptyHint": "Import or drop a folder of images to get started.",
+    "errorGeneric": "An error occurred during calibration.",
+    "recommendations": "Recommendations",
+    "histogram": "Per-view RMS distribution",
+    "histogramX": "Reprojection error (px)",
+    "profileName": "Profile name",
+    "cameraName": "Camera name",
+    "lensName": "Lens / zoom",
+    "resolution": "Resolution",
+    "saveProfile": "Save",
+    "savedTo": "Saved to",
+    "validationDone": "Calibration solved",
+    "outputs": "Output files",
+    "overlaysDir": "Open overlays folder",
+    "undistortedDir": "Open undistorted folder",
+    "profileJson": "Open calibration profile",
+    "undistortedHint": "Undistorted images are saved to the output folder.",
+    "metrics": {
+      "medianRms": "Median RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "Coverage",
+      "edgeReach": "Edge Reach",
+      "poseSpread": "Pose Spread",
+      "centerOffset": "Center Offset"
+    },
+    "actions": {
+      "addFrames": "Add frames hitting edges/corners; vary angle & distance.",
+      "pushBoard": "Push board nearer sensor edges; allow some marker clipping.",
+      "increaseSharpness": "Increase sharpness (more light, lower ISO), reduce screen moiré (resize board).",
+      "varyViewpoints": "Capture from varied viewpoints (tilt/pan/roll) and distances.",
+      "ensureCorners": "Ensure corners appear across the whole sensor; avoid heavy cropping.",
+      "reshoot": "Re-shoot with better coverage; if persists, inspect image readout/metadata."
+    }
   }
 }

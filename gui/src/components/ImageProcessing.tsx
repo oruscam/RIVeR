@@ -7,7 +7,6 @@ import { DrawSectionsD3 } from "./CrossSections/DrawSectionsD3";
 import { OverlaySvg } from "./OverlaySvg";
 import { QuiverData } from "../../commons/types";
 import { getQuiverValues, createColorMap, Normalize } from '../../commons/vectors';
-import { ExportMp4 } from "./Forms/Components";
 import { FloatingPlot } from './FloatingPlot';
 
 export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: boolean; extraFields?: boolean }) => {
@@ -111,9 +110,7 @@ export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: bool
                     draggable={false}
                 />
             </div>
-            <div style={{ position: 'absolute', top: '15px', right: '20px', zIndex: 1000, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
-                <ExportMp4 />
-            </div>
+
 
             {
                 data.length === 0 && activeMaskIndex === null && (
