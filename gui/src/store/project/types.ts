@@ -9,6 +9,13 @@ interface VideoData {
   creation: string;
 }
 
+interface StabilizationRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 interface VideoParameters {
   step: number;
   startTime: number;
@@ -19,6 +26,9 @@ interface VideoParameters {
   factorChanged: boolean;
   lensCorrection: string | null;
   lensCorrectionChanged: boolean;
+  stabilization: boolean;
+  stabilizationRegions: StabilizationRegion[];
+  stabilizationChanged: boolean;
 }
 
 interface Video {
@@ -39,6 +49,7 @@ interface ProjectState {
   type: 'uav' | 'ipcam' | 'oblique' | '';
   firstFramePath: string;
   projectDetails: ProjectDetails;
+  stabilizationActiveRegionIndex: number | null;
 }
 
-export type { ProjectState, VideoData, VideoParameters, Video, ProjectDetails };
+export type { ProjectState, VideoData, VideoParameters, Video, ProjectDetails, StabilizationRegion };

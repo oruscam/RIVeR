@@ -68,7 +68,13 @@
     },
     "framesResolution": "帧分辨率",
     "lensCorrection": "镜头校正",
-    "noProfiles": "无配置文件 — 前往校准"
+    "noProfiles": "无配置文件 — 前往校准",
+    "stabilizeVideo": "稳定视频",
+    "stabilizationRegion": "区域",
+    "editingRegion": "编辑区域 {{n}}",
+    "addRegion": "添加区域",
+    "exitRegionMode": "退出区域编辑",
+    "minRegionsWarning": "请至少添加 2 个区域以进行稳定"
   },
   "PixelSize": {
     "title": "像素尺寸",

@@ -14,7 +14,9 @@ import {
   setVideoParameters,
   setProjectDetails,
   setDefaultProjectState,
+  setStabilizationActiveRegionIndex,
 } from '../store/project/projectSlice';
+import { StabilizationRegion } from '../store/project/types';
 import { FieldValues } from 'react-hook-form';
 import {
   addSection,
@@ -62,7 +64,7 @@ import { resetAll } from '../store/global/globalSlice';
 
 export const useProjectSlice = () => {
   const dispatch = useDispatch();
-  const { projectDirectory, video, type, firstFramePath, projectDetails } = useSelector(
+  const { projectDirectory, video, type, firstFramePath, projectDetails, stabilizationActiveRegionIndex } = useSelector(
     (state: RootState) => state.project
   );
   const { sections } = useSelector((state: RootState) => state.section);
@@ -196,7 +198,7 @@ export const useProjectSlice = () => {
     dispatch(setLoading(true));
     dispatch(setMessage(t('Loader.extractingFrames')));
 
-    const { startTime, endTime, step, factor, factorChanged, lensCorrection, lensCorrectionChanged } =
+    const { startTime, endTime, step, factor, factorChanged, lensCorrection, lensCorrectionChanged, stabilization, stabilizationRegions, stabilizationChanged } =
       video.parameters;
 
     const parsedStart = parseTime(data.start);
@@ -207,7 +209,8 @@ export const useProjectSlice = () => {
       parsedEnd === endTime &&
       parseFloat(data.step) === step &&
       factorChanged === false &&
-      lensCorrectionChanged === false
+      lensCorrectionChanged === false &&
+      stabilizationChanged === false
     ) {
       dispatch(setLoading(false));
       dispatch(clearMessage());
@@ -225,8 +228,13 @@ export const useProjectSlice = () => {
       factorChanged: factorChanged,
       lensCorrection: lensCorrection,
       lensCorrectionChanged: false,
+      stabilization: stabilization,
+      stabilizationRegions: stabilizationRegions,
+      stabilizationChanged: false,
     };
     const ipcRenderer = window.ipcRenderer;
+
+    const effectiveStabilization = stabilization && stabilizationRegions.length >= 2;
 
     dispatch(clearErrorMessage());
 
@@ -237,6 +245,8 @@ export const useProjectSlice = () => {
         step: parameters.step,
         factor: factor,
         lensCorrection: lensCorrection,
+        stabilization: effectiveStabilization,
+        stabilizationRegions: effectiveStabilization ? stabilizationRegions : [],
       });
 
       if (!result || result.error || !result.initial_frame) {
@@ -342,6 +352,15 @@ export const useProjectSlice = () => {
           dispatch(loadMasks(settings.user_masks));
         }
 
+        // Load stabilization regions from disk if available
+        let loadedStabilizationRegions: Array<{ x: number; y: number; width: number; height: number }> | null = null;
+        if (settings.stabilization && settings.stabilization_regions_path) {
+          const regResult = await ipcRenderer.invoke('read-stabilization-regions', {
+            regionsPath: settings.stabilization_regions_path,
+          });
+          loadedStabilizationRegions = regResult?.regions ?? null;
+        }
+
         dispatch(setLoading(false));
 
         // Handle PIV results
@@ -388,7 +407,9 @@ export const useProjectSlice = () => {
             dispatch,
             setVideoParameters,
             videoMetadata.fps,
-            settings.lens_correction ?? null
+            settings.lens_correction ?? null,
+            settings.stabilization ?? null,
+            loadedStabilizationRegions
           );
 
           // Load processing mask
@@ -495,7 +516,9 @@ export const useProjectSlice = () => {
             dispatch,
             setVideoParameters,
             videoMetadata.fps,
-            settings.lens_correction ?? null
+            settings.lens_correction ?? null,
+            settings.stabilization ?? null,
+            loadedStabilizationRegions
           );
 
           dispatch(
@@ -527,7 +550,9 @@ export const useProjectSlice = () => {
             dispatch,
             setVideoParameters,
             videoMetadata.fps,
-            settings.lens_correction ?? null
+            settings.lens_correction ?? null,
+            settings.stabilization ?? null,
+            loadedStabilizationRegions
           );
 
           return MODULE_NUMBER.CROSS_SECTIONS;
@@ -545,7 +570,9 @@ export const useProjectSlice = () => {
             dispatch,
             setVideoParameters,
             videoMetadata.fps,
-            settings.lens_correction ?? null
+            settings.lens_correction ?? null,
+            settings.stabilization ?? null,
+            loadedStabilizationRegions
           );
 
           return MODULE_NUMBER.CROSS_SECTIONS;
@@ -558,7 +585,9 @@ export const useProjectSlice = () => {
             dispatch,
             setVideoParameters,
             videoMetadata.fps,
-            settings.lens_correction ?? null
+            settings.lens_correction ?? null,
+            settings.stabilization ?? null,
+            loadedStabilizationRegions
           );
 
           return MODULE_NUMBER.PIXEL_SIZE;
@@ -627,6 +656,73 @@ export const useProjectSlice = () => {
     await ipcRenderer.invoke('set-project-metadata', projectDetails);
   };
 
+  const onSetStabilization = (enabled: boolean) => {
+    const regions = enabled ? video.parameters.stabilizationRegions : [];
+    dispatch(
+      setVideoParameters({
+        ...video.parameters,
+        stabilization: enabled,
+        stabilizationRegions: regions,
+        stabilizationChanged: true,
+      })
+    );
+    if (!enabled) {
+      dispatch(setStabilizationActiveRegionIndex(null));
+    }
+  };
+
+  const onAddStabilizationRegion = () => {
+    const { width, height } = video.data;
+    const rw = 150;
+    const rh = 100;
+    const newRegion: StabilizationRegion = {
+      x: Math.max(0, Math.round((width - rw) / 2)),
+      y: Math.max(0, Math.round((height - rh) / 2)),
+      width: rw,
+      height: rh,
+    };
+    const newRegions = [...video.parameters.stabilizationRegions, newRegion];
+    dispatch(
+      setVideoParameters({
+        ...video.parameters,
+        stabilizationRegions: newRegions,
+        stabilizationChanged: true,
+      })
+    );
+    dispatch(setStabilizationActiveRegionIndex(newRegions.length - 1));
+  };
+
+  const onUpdateStabilizationRegion = (index: number, region: StabilizationRegion) => {
+    const newRegions = video.parameters.stabilizationRegions.map((r, i) => (i === index ? region : r));
+    dispatch(
+      setVideoParameters({
+        ...video.parameters,
+        stabilizationRegions: newRegions,
+        stabilizationChanged: true,
+      })
+    );
+  };
+
+  const onDeleteStabilizationRegion = (index: number) => {
+    const newRegions = video.parameters.stabilizationRegions.filter((_, i) => i !== index);
+    dispatch(
+      setVideoParameters({
+        ...video.parameters,
+        stabilizationRegions: newRegions,
+        stabilizationChanged: true,
+      })
+    );
+    if (stabilizationActiveRegionIndex === index) {
+      dispatch(setStabilizationActiveRegionIndex(null));
+    } else if (stabilizationActiveRegionIndex !== null && stabilizationActiveRegionIndex > index) {
+      dispatch(setStabilizationActiveRegionIndex(stabilizationActiveRegionIndex - 1));
+    }
+  };
+
+  const onSetStabilizationActiveRegionIndex = (index: number | null) => {
+    dispatch(setStabilizationActiveRegionIndex(index));
+  };
+
   const onSetDefaultProjectState = () => {
     if (type === 'uav') {
       dispatch(setDefaultUavState());
@@ -648,11 +744,14 @@ export const useProjectSlice = () => {
     firstFramePath,
     projectDetails,
     projectDirectory,
+    stabilizationActiveRegionIndex,
     type,
     video,
 
     // METHODS
+    onAddStabilizationRegion,
     onChangeFramesResolution,
+    onDeleteStabilizationRegion,
     onGetVideo,
     onInitProject,
     onLoadProject,
@@ -660,6 +759,9 @@ export const useProjectSlice = () => {
     onSetDefaultProjectState,
     onSaveProjectDetails,
     onSetLensCorrection,
+    onSetStabilization,
+    onSetStabilizationActiveRegionIndex,
     onSetVideoParameters,
+    onUpdateStabilizationRegion,
   };
 };

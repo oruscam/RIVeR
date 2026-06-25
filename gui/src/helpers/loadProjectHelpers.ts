@@ -24,7 +24,9 @@ const onLoadVideoParameters = (
   dispatch: any,
   setVideoParameters: any,
   fps: number,
-  lensCorrection?: string | null
+  lensCorrection?: string | null,
+  stabilization?: boolean | null,
+  stabilizationRegions?: Array<{ x: number; y: number; width: number; height: number }> | null
 ) => {
   const { step, start, end, factor } = video_range;
   dispatch(
@@ -38,6 +40,9 @@ const onLoadVideoParameters = (
       factorChanged: false,
       lensCorrection: lensCorrection ?? null,
       lensCorrectionChanged: false,
+      stabilization: stabilization ?? false,
+      stabilizationRegions: stabilizationRegions ?? [],
+      stabilizationChanged: false,
     })
   );
   return;

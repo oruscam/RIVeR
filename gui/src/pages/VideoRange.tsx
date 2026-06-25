@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import { VideoPlayer } from '../components/VideoPlayer/VideoPlayer';
+import { StabilizationCanvas } from '../components/VideoPlayer/StabilizationCanvas';
 import { FormVideo } from '../components/Forms/FormVideo';
 import { Error } from '../components/Error';
 import { useProjectSlice } from '../hooks';
@@ -9,22 +11,39 @@ import { useState } from 'react';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
 
 export const VideoRange = () => {
-  const { video } = useProjectSlice();
-  const { path } = video.data;
-  const { duration } = video.data;
+  const {
+    video,
+    stabilizationActiveRegionIndex,
+    onUpdateStabilizationRegion,
+    onSetStabilizationActiveRegionIndex,
+  } = useProjectSlice();
+  const { path, duration, width: videoWidth, height: videoHeight } = video.data;
+  const { stabilization, stabilizationRegions } = video.parameters;
   const { t } = useTranslation();
   const [extraFields, setExtraFields] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const stabilizationOverlay = stabilization ? (
+    <StabilizationCanvas
+      videoWidth={videoWidth}
+      videoHeight={videoHeight}
+      regions={stabilizationRegions}
+      activeRegionIndex={stabilizationActiveRegionIndex}
+      onUpdateRegion={onUpdateStabilizationRegion}
+      onConfirm={() => onSetStabilizationActiveRegionIndex(null)}
+    />
+  ) : undefined;
 
   return (
     <div className="regular-page">
       <div className="media-container">
-        {path && <VideoPlayer fileURL={path} duration={duration} />}
+        {path && <VideoPlayer ref={videoRef} fileURL={path} duration={duration} overlay={stabilizationOverlay} />}
         <Error />
       </div>
-      <div className='form-container'>
+      <div className="form-container">
         <FormHeader title={t('VideoRange.title')} showSections={false} />
         <FormVideo duration={duration} extraFields={extraFields} />
-        <div className='footer'>
+        <div className="footer">
           <LockBtn
             localExtraFields={extraFields}
             setLocalExtraFields={setExtraFields}

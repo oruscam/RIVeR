@@ -8,7 +8,7 @@ import { useProjectSlice } from '../../hooks';
 import './form.css';
 import { formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
-import { VideoMetadata, FramesResolution, LensCorrection } from './Components/index';
+import { VideoMetadata, FramesResolution, LensCorrection, StabilizationRegions } from './Components/index';
 
 export const FormVideo = ({ duration, extraFields }: { duration: number, extraFields: boolean }) => {
   const { onSetVideoParameters, video: videoData} = useProjectSlice();
@@ -115,6 +115,11 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
         }
       }
     }
+    const { stabilization, stabilizationRegions } = videoData.parameters;
+    if (stabilization && stabilizationRegions.length < 2) {
+      onSetErrorMessage(t('VideoRange.minRegionsWarning', { defaultValue: 'Add at least 2 regions for stabilization' }));
+      return;
+    }
     onSetVideoParameters(data);
     nextStep();
   };
@@ -187,6 +192,7 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
           <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
           {extraFields && <FramesResolution />}
           {extraFields && <LensCorrection />}
+          {extraFields && <StabilizationRegions />}
         </form>
       </div>      
   )

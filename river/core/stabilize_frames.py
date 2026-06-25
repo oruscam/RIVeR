@@ -8,6 +8,7 @@ License:     AGPL-3.0-or-later
 """
 
 import json
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -192,9 +193,8 @@ def stabilize_frames(
 		prev_pts = next_pts
 
 		if idx % 50 == 0:
-			print(f"  frame {idx}/{total - 1}  tracked={n_tracked}/{len(ref_pts)}")
+			print(f"  frame {idx}/{total - 1}  tracked={n_tracked}/{len(ref_pts)}", file=sys.stderr)
 
-	print(f"\nStabilization complete: {total} frames processed.")
-	print(f"  Output: {stabilized_dir}")
+	print(f"Stabilization complete: {total} frames processed.", file=sys.stderr)
 
 	return _make_sanity_check(stabilized_dir)

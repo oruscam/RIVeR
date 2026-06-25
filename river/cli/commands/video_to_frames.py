@@ -1,4 +1,6 @@
 import shutil
+import sys
+import threading
 from pathlib import Path
 from typing import Optional
 
@@ -8,6 +10,18 @@ from river.cli.commands.exceptions import RiverCLIException
 from river.cli.commands.utils import render_response
 from river.core.stabilize_frames import stabilize_frames
 from river.core.video_to_frames import video_to_frames as vtf
+
+
+def _monitor_extraction(frames_dir: Path, expected: int, stop: threading.Event) -> None:
+	"""Reports frame-extraction progress to stderr every 2 s."""
+	while not stop.is_set():
+		try:
+			count = sum(1 for _ in frames_dir.glob("*.jpg"))
+		except Exception:
+			count = 0
+		total_str = str(expected) if expected > 0 else "?"
+		print(f"  frame {count}/{total_str}", file=sys.stderr, flush=True)
+		stop.wait(timeout=2.0)
 
 
 @click.command(help="Transforms the given video to frames and return the initial frame path.")
@@ -62,25 +76,36 @@ def video_to_frames(
 			"--replace requires --stabilize"
 		)
 
-	if ctx.obj["verbose"]:
-		click.echo(f"Extracting frames from '{video_path}' ...")
-
 	frames_dir_path = Path(frames_dir)
-
 	if not frames_dir_path.exists():
 		frames_dir_path.mkdir()
 
-	initial_frame: Path = vtf(
-		video_path=Path(video_path),
-		frames_dir=frames_dir_path,
-		start_frame_number=start_frame,
-		end_frame_number=end_frame,
-		every=every,
-		overwrite=overwrite,
-		resize_factor=resize_factor,
-		undistort=undistort,
-		profile_path=profile_path,
+	expected = (end_frame - start_frame) // every if end_frame is not None else 0
+
+	print("Extracting frames...", file=sys.stderr, flush=True)
+	stop = threading.Event()
+	monitor = threading.Thread(
+		target=_monitor_extraction,
+		args=(frames_dir_path, expected, stop),
+		daemon=True,
 	)
+	monitor.start()
+
+	try:
+		initial_frame: Path = vtf(
+			video_path=Path(video_path),
+			frames_dir=frames_dir_path,
+			start_frame_number=start_frame,
+			end_frame_number=end_frame,
+			every=every,
+			overwrite=overwrite,
+			resize_factor=resize_factor,
+			undistort=undistort,
+			profile_path=profile_path,
+		)
+	finally:
+		stop.set()
+		monitor.join(timeout=3.0)
 
 	result: dict = {"initial_frame": str(initial_frame)}
 
@@ -88,9 +113,7 @@ def video_to_frames(
 		regions_path = Path(stabilization_regions)
 		stabilized_dir = frames_dir_path.parent / (frames_dir_path.name + "_stabilized")
 
-		if ctx.obj["verbose"]:
-			click.echo(f"Stabilizing frames into '{stabilized_dir}' ...")
-
+		print("Stabilizing frames...", file=sys.stderr, flush=True)
 		sanity_path = stabilize_frames(frames_dir_path, regions_path, stabilized_dir)
 		sanity_dest = frames_dir_path.parent / "sanity_check.jpg"
 		shutil.move(str(sanity_path), str(sanity_dest))

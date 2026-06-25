@@ -1,5 +1,4 @@
-import { useRef, useState } from 'react';
-import { VideoPlayerButtons } from './VideoPlayerButtons.js';
+import React, { forwardRef, useRef, useState } from 'react';
 import { VideoPlayerSeekBar } from './VideoPlayerSeekBar.js';
 import { VideoPlayerTime } from './VideoPlayerTime.js';
 import '../components.css';
@@ -7,104 +6,105 @@ import { PlayBtn } from '../CustomIcons/VideoPlayerIcons/PlayBtn.tsx';
 import { FrameBtn } from '../CustomIcons/VideoPlayerIcons/FrameBtn.tsx';
 import { SoundBtn } from '../CustomIcons/VideoPlayerIcons/SoundBtn.tsx';
 
-export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: number }) => {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [bufferAmount, setBufferAmount] = useState<number>(0);
-  const [progressAmount, setProgressAmount] = useState<number>(0);
-  const [control, setControl] = useState<{ play: boolean; volume: boolean }>({
-    play: false,
-    volume: true,
-  });
-  const [currentTime, setCurrentTime] = useState<number>(0);
+interface VideoPlayerProps {
+  fileURL: string;
+  duration: number;
+  overlay?: React.ReactNode;
+}
 
-  const onVideoProgress = () => {
-    if (videoRef.current) {
-      if (duration > 0) {
-        for (let i = 0; i < videoRef.current.buffered.length; i++) {
-          if (
-            videoRef.current.buffered.start(videoRef.current.buffered.length - 1 + i) <
-            (videoRef.current.currentTime || 0)
-          ) {
-            setBufferAmount(
-              (videoRef.current.buffered.end(videoRef.current.buffered.length - 1 + i) * 100) / duration
-            );
-            break;
+export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
+  ({ fileURL, duration, overlay }, ref) => {
+    const internalRef = useRef<HTMLVideoElement>(null);
+    const videoRef = (ref as React.RefObject<HTMLVideoElement> | null) ?? internalRef;
+
+    const [bufferAmount, setBufferAmount] = useState<number>(0);
+    const [progressAmount, setProgressAmount] = useState<number>(0);
+    const [control, setControl] = useState<{ play: boolean; volume: boolean }>({
+      play: false,
+      volume: true,
+    });
+    const [currentTime, setCurrentTime] = useState<number>(0);
+
+    const onVideoProgress = () => {
+      if (videoRef.current) {
+        if (duration > 0) {
+          for (let i = 0; i < videoRef.current.buffered.length; i++) {
+            if (
+              videoRef.current.buffered.start(videoRef.current.buffered.length - 1 + i) <
+              (videoRef.current.currentTime || 0)
+            ) {
+              setBufferAmount(
+                (videoRef.current.buffered.end(videoRef.current.buffered.length - 1 + i) * 100) / duration
+              );
+              break;
+            }
           }
         }
       }
-    }
-  };
+    };
 
-  const onVideoTimeUpdate = () => {
-    if (videoRef.current) {
-      if (duration > 0) {
-        setCurrentTime(videoRef.current.currentTime || 0);
-        setProgressAmount(((videoRef.current.currentTime || 0) / duration) * 100);
+    const onVideoTimeUpdate = () => {
+      if (videoRef.current) {
+        if (duration > 0) {
+          setCurrentTime(videoRef.current.currentTime || 0);
+          setProgressAmount(((videoRef.current.currentTime || 0) / duration) * 100);
+        }
       }
-    }
-  };
-  const handleFrameStep = () => {
-    if (videoRef.current && !videoRef.current.paused) {
-      videoRef.current.pause();
-      setControl((prev) => ({ ...prev, play: false }));
-    }
-  };
+    };
 
-  return (
-    <>
-      {fileURL && (
-        <div className="video-player">
-          <div style={{ position: 'absolute', top: 12, right: 12 }}>
-            <SoundBtn videoRef={videoRef} control={control} setControl={setControl} />
-          </div>
-          <div className="video">
-            <video
-              className="video"
-              loop={true}
-              ref={videoRef}
-              src={fileURL}
-              autoPlay={false}
-              controls={false}
-              muted={control.volume}
-              onProgress={onVideoProgress}
-              onTimeUpdate={onVideoTimeUpdate}
-              id="video"
-            ></video>
-          </div>
+    const handleFrameStep = () => {
+      if (videoRef.current && !videoRef.current.paused) {
+        videoRef.current.pause();
+        setControl((prev) => ({ ...prev, play: false }));
+      }
+    };
 
-          <div className="video-controls">
-            <VideoPlayerTime duration={duration} currentTime={currentTime} />
-            <VideoPlayerSeekBar
-              bufferAmount={bufferAmount}
-              progressAmount={progressAmount}
-              setProgressAmount={setProgressAmount}
-              videoRef={videoRef}
-              setControl={setControl}
-              control={control}
-            ></VideoPlayerSeekBar>
-            <div className="row" style={{ width: '100%', justifyContent: 'space-between', paddingTop: '10px' }}>
-              <FrameBtn
-                videoRef={videoRef}
-                direction="back"
-                onClick={handleFrameStep}
-              />
+    return (
+      <>
+        {fileURL && (
+          <div className="video-player">
+            <div style={{ position: 'absolute', top: 12, right: 12 }}>
+              <SoundBtn videoRef={videoRef} control={control} setControl={setControl} />
+            </div>
+            <div className="video" style={{ position: 'relative' }}>
+              <video
+                className="video"
+                loop={true}
+                ref={videoRef}
+                src={fileURL}
+                autoPlay={false}
+                controls={false}
+                muted={control.volume}
+                onProgress={onVideoProgress}
+                onTimeUpdate={onVideoTimeUpdate}
+                id="video"
+              ></video>
+              {overlay}
+            </div>
 
-              <PlayBtn
+            <div className="video-controls">
+              <VideoPlayerTime duration={duration} currentTime={currentTime} />
+              <VideoPlayerSeekBar
+                bufferAmount={bufferAmount}
+                progressAmount={progressAmount}
+                setProgressAmount={setProgressAmount}
                 videoRef={videoRef}
                 setControl={setControl}
                 control={control}
-              />
+              ></VideoPlayerSeekBar>
+              <div className="row" style={{ width: '100%', justifyContent: 'space-between', paddingTop: '10px' }}>
+                <FrameBtn videoRef={videoRef} direction="back" onClick={handleFrameStep} />
 
-              <FrameBtn
-                videoRef={videoRef}
-                direction="next"
-                onClick={handleFrameStep}
-              />
+                <PlayBtn videoRef={videoRef} setControl={setControl} control={control} />
+
+                <FrameBtn videoRef={videoRef} direction="next" onClick={handleFrameStep} />
+              </div>
             </div>
-
           </div>
-        </div>
-      )}
-    </>
-  );
-};
+        )}
+      </>
+    );
+  }
+);
+
+VideoPlayer.displayName = 'VideoPlayer';
