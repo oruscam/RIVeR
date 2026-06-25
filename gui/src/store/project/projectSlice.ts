@@ -21,6 +21,9 @@ const defaultVideo = {
     factorChanged: false,
     lensCorrection: null,
     lensCorrectionChanged: false,
+    stabilization: false,
+    stabilizationRegions: [],
+    stabilizationChanged: false,
   },
 };
 
@@ -37,6 +40,7 @@ const initialState: ProjectState = {
     unitSistem: savedUnitSystem,
     meditionDate: '',
   },
+  stabilizationActiveRegionIndex: null,
 };
 
 const projectSlice = createSlice({
@@ -61,12 +65,16 @@ const projectSlice = createSlice({
     setProjectDetails: (state, action: PayloadAction<ProjectDetails>) => {
       state.projectDetails = action.payload;
     },
+    setStabilizationActiveRegionIndex: (state, action: PayloadAction<number | null>) => {
+      state.stabilizationActiveRegionIndex = action.payload;
+    },
     setDefaultProjectState: (state) => {
       const preservedUnitSystem = localStorage.getItem('unitSystem') || 'si';
       state.projectDirectory = '';
       state.video = defaultVideo;
       state.type = '';
       state.firstFramePath = '';
+      state.stabilizationActiveRegionIndex = null;
       state.projectDetails = {
         riverName: '',
         site: '',
@@ -85,6 +93,7 @@ export const {
   setVideoData,
   setVideoParameters,
   setDefaultProjectState,
+  setStabilizationActiveRegionIndex,
 } = projectSlice.actions;
 
 export default projectSlice.reducer;

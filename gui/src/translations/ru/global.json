@@ -68,7 +68,13 @@
     },
     "framesResolution": "Разрешение кадров",
     "lensCorrection": "Коррекция объектива",
-    "noProfiles": "Нет профилей — перейти к калибровке"
+    "noProfiles": "Нет профилей — перейти к калибровке",
+    "stabilizeVideo": "Стабилизировать видео",
+    "stabilizationRegion": "Область",
+    "editingRegion": "Редактирование области {{n}}",
+    "addRegion": "Добавить область",
+    "exitRegionMode": "Выйти из редактирования",
+    "minRegionsWarning": "Добавьте не менее 2 областей для стабилизации"
   },
   "PixelSize": {
     "title": "Размер пикселя",

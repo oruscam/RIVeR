@@ -68,7 +68,13 @@
     },
     "framesResolution": "फ़्रेम रिज़ॉल्यूशन",
     "lensCorrection": "लेंस सुधार",
-    "noProfiles": "कोई प्रोफ़ाइल नहीं — कैलिब्रेशन पर जाएं"
+    "noProfiles": "कोई प्रोफ़ाइल नहीं — कैलिब्रेशन पर जाएं",
+    "stabilizeVideo": "वीडियो स्थिर करें",
+    "stabilizationRegion": "क्षेत्र",
+    "editingRegion": "क्षेत्र {{n}} संपादित हो रहा है",
+    "addRegion": "क्षेत्र जोड़ें",
+    "exitRegionMode": "क्षेत्र संपादन से बाहर निकलें",
+    "minRegionsWarning": "स्थिरीकरण के लिए कम से कम 2 क्षेत्र जोड़ें"
   },
   "PixelSize": {
     "title": "पिक्सेल आकार",

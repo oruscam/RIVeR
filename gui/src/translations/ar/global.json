@@ -68,7 +68,13 @@
     },
     "framesResolution": "دقة الإطارات",
     "lensCorrection": "تصحيح العدسة",
-    "noProfiles": "لا توجد ملفات تعريف — انتقل إلى المعايرة"
+    "noProfiles": "لا توجد ملفات تعريف — انتقل إلى المعايرة",
+    "stabilizeVideo": "تثبيت الفيديو",
+    "stabilizationRegion": "منطقة",
+    "editingRegion": "تحرير المنطقة {{n}}",
+    "addRegion": "إضافة منطقة",
+    "exitRegionMode": "الخروج من وضع التحرير",
+    "minRegionsWarning": "أضف منطقتين على الأقل للتثبيت"
   },
   "PixelSize": {
     "title": "حجم البكسل",

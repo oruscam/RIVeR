@@ -68,7 +68,13 @@
     },
     "framesResolution": "Auflösung der Frames",
     "lensCorrection": "Linsenkorrektur",
-    "noProfiles": "Keine Profile — zur Kalibrierung"
+    "noProfiles": "Keine Profile — zur Kalibrierung",
+    "stabilizeVideo": "Video stabilisieren",
+    "stabilizationRegion": "Bereich",
+    "editingRegion": "Bereich {{n}} bearbeiten",
+    "addRegion": "Bereich hinzufügen",
+    "exitRegionMode": "Bearbeitung beenden",
+    "minRegionsWarning": "Mindestens 2 Bereiche für die Stabilisierung hinzufügen"
   },
   "PixelSize": {
     "title": "Pixelgröße",

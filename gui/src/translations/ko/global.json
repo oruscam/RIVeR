@@ -68,7 +68,13 @@
     },
     "framesResolution": "프레임 해상도",
     "lensCorrection": "렌즈 교정",
-    "noProfiles": "프로필 없음 — 보정으로 이동"
+    "noProfiles": "프로필 없음 — 보정으로 이동",
+    "stabilizeVideo": "비디오 안정화",
+    "stabilizationRegion": "영역",
+    "editingRegion": "영역 {{n}} 편집 중",
+    "addRegion": "영역 추가",
+    "exitRegionMode": "영역 편집 종료",
+    "minRegionsWarning": "안정화를 위해 최소 2개의 영역을 추가하세요"
   },
   "PixelSize": {
     "title": "픽셀 크기",
