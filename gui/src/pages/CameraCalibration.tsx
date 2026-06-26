@@ -345,7 +345,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                 <p className="cal-section-label">{t('Calibration.histogram')}</p>
                 <div className="cal-histogram-wrapper">
                   <div className="cal-histogram-yaxis">
-                    <span className="cal-yaxis-label">{t('Calibration.histogramX')}</span>
+                    <span className="cal-yaxis-label">Count</span>
                   </div>
                   <div className="cal-histogram-inner">
                     <div className="cal-histogram-chart">
@@ -361,7 +361,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                       ))}
                     </div>
                     <div className="cal-histogram-axes">
-                      <span>Count</span>
+                      <span>{t('Calibration.histogramX')}</span>
                     </div>
                   </div>
                 </div>
