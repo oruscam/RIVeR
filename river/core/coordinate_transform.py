@@ -558,7 +558,7 @@ def get_camera_solution(
 			)
 			result.update({"ortho_image": ortho_img, "ortho_extent": extent})
 		except Exception as e:
-			print(f"Warning: Failed to generate orthorectified image: {str(e)}")
+			print(f"Warning: Failed to generate orthorectified image: {str(e)}", file=sys.stderr)
 
 	return result
 
