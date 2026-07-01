@@ -242,6 +242,8 @@ html {
   font-size: 18px;
   font-weight: 400;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: transform 0.1s;
 }
 
@@ -277,6 +279,8 @@ html {
   font-size: 20px;
   font-weight: 400;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: background-color 0.1s, color 0.1s, transform 0.1s;
 }
 
@@ -309,6 +313,8 @@ html {
   font-size: 20px;
   font-weight: 400;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: background-color 0.1s, color 0.1s, transform 0.1s;
   cursor: pointer;
   padding: 3px;
@@ -375,6 +381,10 @@ html {
 .button-with-loader p {
   font-size: 20px;
   font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .button-with-loader:hover {
