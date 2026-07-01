@@ -32,14 +32,7 @@ async function executeRiverCli(
     const THROTTLE_INTERVAL = 500; // 500ms = 2 mensajes por segundo
 
     python.stdout.on('data', (data) => {
-      const message = data.toString();
-
-      if (output) {
-        const messages = message.split('\n').filter((msg) => msg.trim() !== '');
-        stdoutData = messages[messages.length - 1];
-      } else {
-        stdoutData += message;
-      }
+      stdoutData += data.toString();
     });
 
     python.stderr.on('data', (data) => {

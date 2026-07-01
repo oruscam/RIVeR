@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo, memo } from 'react';
+import { useEffect, useRef, useState, useCallback, useMemo, memo, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCalibrationSlice, useResizableCarousel } from '../hooks';
 
@@ -37,6 +37,107 @@ const ACTION_KEY_MAP: Record<string, string> = {
 
 type ViewMode = 'snapshot' | 'overlay' | 'undistorted' | 'heatmap';
 
+interface FrameCorners {
+  detected: number[][];
+  projected: number[][];
+  rms: number;
+}
+
+interface UndistortedOverlayProps {
+  src: string;
+  corners: FrameCorners;
+}
+
+const UndistortedOverlay: FC<UndistortedOverlayProps> = ({ src, corners }) => {
+  const imgRef = useRef<HTMLImageElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const draw = useCallback(() => {
+    const img = imgRef.current;
+    const canvas = canvasRef.current;
+    if (!img || !canvas) return;
+
+    const iw = img.clientWidth;
+    const ih = img.clientHeight;
+    if (!iw || !ih) return;
+
+    // Size canvas buffer to match the rendered image, then position it exactly over the image.
+    canvas.width = iw;
+    canvas.height = ih;
+    canvas.style.width = `${iw}px`;
+    canvas.style.height = `${ih}px`;
+    canvas.style.left = `${img.offsetLeft}px`;
+    canvas.style.top = `${img.offsetTop}px`;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const scaleX = iw / img.naturalWidth;
+    const scaleY = ih / img.naturalHeight;
+
+    ctx.clearRect(0, 0, iw, ih);
+
+    corners.detected.forEach(([dx, dy], i) => {
+      const px = [corners.projected[i][0] * scaleX, corners.projected[i][1] * scaleY];
+      const dp = [dx * scaleX, dy * scaleY];
+
+      ctx.strokeStyle = 'rgba(50, 180, 255, 0.9)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(dp[0], dp[1]);
+      ctx.lineTo(px[0], px[1]);
+      ctx.stroke();
+
+      ctx.fillStyle = 'rgb(240, 0, 0)';
+      ctx.beginPath();
+      ctx.arc(dp[0], dp[1], 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgb(240, 240, 240)';
+      ctx.beginPath();
+      ctx.arc(px[0], px[1], 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    ctx.fillStyle = 'white';
+    ctx.font = 'bold 13px Inter, sans-serif';
+    ctx.fillText(`RMS ${corners.rms.toFixed(3)} px`, 10, 22);
+  }, [corners]);
+
+  useEffect(() => {
+    const img = imgRef.current;
+    if (!img) return;
+    if (img.complete && img.naturalWidth) {
+      draw();
+    } else {
+      img.addEventListener('load', draw);
+      return () => img.removeEventListener('load', draw);
+    }
+  }, [draw]);
+
+  useEffect(() => {
+    const obs = new ResizeObserver(draw);
+    if (imgRef.current) obs.observe(imgRef.current);
+    return () => obs.disconnect();
+  }, [draw]);
+
+  return (
+    <div
+      style={{
+        position: 'relative',
+        width: '100%',
+        height: '100%',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <img ref={imgRef} className="cal-canvas-img" src={src} alt="Undistorted" />
+      <canvas ref={canvasRef} style={{ position: 'absolute', left: 0, top: 0, pointerEvents: 'none' }} />
+    </div>
+  );
+};
+
 interface Props {
   onClose: () => void;
 }
@@ -52,8 +153,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     summary,
     csvRows,
     heatmapBase64,
-    overlayPaths,
     undistortedPaths,
+    perFrameCorners,
     progressMsg,
     errorMsg,
     onOpenFolder,
@@ -110,10 +211,10 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     [cameraName, existingCameras]
   );
 
-  // After solve, switch to overlay and reset selection to first used frame.
+  // After solve, switch to undistorted (corrected view with canvas overlay) and reset selection to first used frame.
   useEffect(() => {
     if (status === 'solved') {
-      setViewMode('overlay');
+      setViewMode('undistorted');
       const firstUsedIdx = images.findIndex((img) => usedSet.has(img));
       setSelectedIdx(firstUsedIdx >= 0 ? firstUsedIdx : 0);
       setSavedPath(null);
@@ -206,36 +307,37 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       return <img className="cal-canvas-img" src={`data:image/png;base64,${heatmapBase64}`} alt="Heatmap" />;
     }
 
-    if (viewMode === 'overlay' && overlayPaths.length > 0) {
-      const overlayForSelected = getOverlayForSelected();
-      if (overlayForSelected) {
-        return <img className="cal-canvas-img" src={`cal-file://${overlayForSelected}`} alt="Overlay" />;
-      }
+    if (viewMode === 'overlay') {
+      return (
+        <img
+          className="cal-canvas-img"
+          src={`cal-file://${images[selectedIdx]}`}
+          alt={`Frame ${selectedIdx + 1}`}
+        />
+      );
     }
 
     if (viewMode === 'undistorted') {
       const undistorted = getUndistortedForSelected();
-      if (undistorted) {
-        return <img className="cal-canvas-img" src={`cal-file://${undistorted}`} alt="Undistorted" />;
+      if (!undistorted) {
+        return (
+          <div className="cal-canvas-placeholder">
+            <p>{t('Calibration.notUsed')}</p>
+          </div>
+        );
       }
-      return (
-        <div className="cal-canvas-placeholder">
-          <p>{t('Calibration.notUsed')}</p>
-        </div>
-      );
+      const selectedImg = images[selectedIdx];
+      const usedIdx = selectedImg ? usedImages.indexOf(selectedImg) : -1;
+      const corners = usedIdx >= 0 ? perFrameCorners[usedIdx] : undefined;
+      if (corners) {
+        return <UndistortedOverlay src={`cal-file://${undistorted}`} corners={corners} />;
+      }
+      return <img className="cal-canvas-img" src={`cal-file://${undistorted}`} alt="Undistorted" />;
     }
 
     return (
       <img className="cal-canvas-img" src={`cal-file://${images[selectedIdx]}`} alt={`Frame ${selectedIdx + 1}`} />
     );
-  };
-
-  const getOverlayForSelected = () => {
-    const selectedImg = images[selectedIdx];
-    if (!selectedImg) return null;
-    const usedIdx = usedImages.indexOf(selectedImg);
-    if (usedIdx < 0) return null;
-    return overlayPaths[usedIdx] ?? null;
   };
 
   const getUndistortedForSelected = () => {
@@ -345,7 +447,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                 <p className="cal-section-label">{t('Calibration.histogram')}</p>
                 <div className="cal-histogram-wrapper">
                   <div className="cal-histogram-yaxis">
-                    <span className="cal-yaxis-label">{t('Calibration.histogramX')}</span>
+                    <span className="cal-yaxis-label">Count</span>
                   </div>
                   <div className="cal-histogram-inner">
                     <div className="cal-histogram-chart">
@@ -361,7 +463,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                       ))}
                     </div>
                     <div className="cal-histogram-axes">
-                      <span>Count</span>
+                      <span>{t('Calibration.histogramX')}</span>
                     </div>
                   </div>
                 </div>
