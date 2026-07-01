@@ -1,4 +1,5 @@
 import random
+import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
@@ -216,8 +217,8 @@ def orthorectify_image_with_size_limit(
 	x_size = int(x_range / output_resolution)
 	y_size = int(y_range / output_resolution)
 
-	print(f"Using resolution: {output_resolution:.4f} units/pixel")
-	print(f"Output image dimensions: {x_size} x {y_size} pixels")
+	print(f"Using resolution: {output_resolution:.4f} units/pixel", file=sys.stderr)
+	print(f"Output image dimensions: {x_size} x {y_size} pixels", file=sys.stderr)
 
 	# Create real-world coordinates grid
 	rw_x_coords = np.linspace(x_min_rw, x_max_rw, x_size)
@@ -549,7 +550,7 @@ def get_camera_solution(
 			)
 			result.update({"ortho_image": ortho_img, "ortho_extent": extent})
 		except Exception as e:
-			print(f"Warning: Failed to generate orthorectified image: {str(e)}")
+			print(f"Warning: Failed to generate orthorectified image: {str(e)}", file=sys.stderr)
 
 	return result
 
