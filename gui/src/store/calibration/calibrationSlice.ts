@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CalibrationState, CalibrationStatus, CalibrationSummary, CsvRow } from './types';
+import { CalibrationState, CalibrationStatus, CalibrationSummary, CsvRow, FrameCorners } from './types';
 
 const initialState: CalibrationState = {
   status: 'idle',
@@ -13,6 +13,7 @@ const initialState: CalibrationState = {
   heatmapBase64: null,
   overlayPaths: [],
   undistortedPaths: [],
+  perFrameCorners: [],
   profilePath: '',
   progressMsg: '',
   errorMsg: '',
@@ -62,6 +63,7 @@ const calibrationSlice = createSlice({
         heatmapBase64: string | null;
         overlayPaths: string[];
         undistortedPaths: string[];
+        perFrameCorners: FrameCorners[];
       }>
     ) => {
       state.usedImages = action.payload.usedImages;
@@ -71,6 +73,7 @@ const calibrationSlice = createSlice({
       state.heatmapBase64 = action.payload.heatmapBase64;
       state.overlayPaths = action.payload.overlayPaths;
       state.undistortedPaths = action.payload.undistortedPaths;
+      state.perFrameCorners = action.payload.perFrameCorners;
       state.status = 'solved';
     },
     setProgressMsg: (state, action: PayloadAction<string>) => {

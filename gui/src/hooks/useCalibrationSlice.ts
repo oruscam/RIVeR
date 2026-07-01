@@ -92,6 +92,7 @@ export const useCalibrationSlice = () => {
           heatmapBase64: report?.heatmapBase64 ?? null,
           overlayPaths: report?.overlayPaths ?? [],
           undistortedPaths: report?.undistortedPaths ?? [],
+          perFrameCorners: report?.perFrameCorners ?? [],
         })
       );
     } catch (err) {

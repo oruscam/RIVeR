@@ -1,4 +1,5 @@
 import multiprocessing
+import sys
 import time
 from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
@@ -130,7 +131,7 @@ def run_analyze_all(
     if total_frames == 0:
         raise ImageReadError(f"No JPG images found in {images_location}")
 
-    print(f"Processing {total_frames} frames...")
+    print(f"Processing {total_frames} frames...", file=sys.stderr)
 
     max_workers = min(8, multiprocessing.cpu_count())
 
