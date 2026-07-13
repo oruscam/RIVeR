@@ -19,11 +19,11 @@ export const StabilizationRegions = () => {
 
   const { stabilization, stabilizationRegions } = video.parameters;
 
-  // While stabilization is on: briefly show the green "add 2 regions" hint,
-  // then hand off to a persistent yellow "editing regions" status until the
-  // user turns stabilization off (or leaves this step).
+  // While a region is actively being placed/edited: briefly show the green
+  // "add 2 regions" hint, then hand off to a persistent yellow "editing
+  // regions" status until that region is confirmed (or editing is exited).
   useEffect(() => {
-    if (!stabilization) {
+    if (!stabilization || stabilizationActiveRegionIndex === null) {
       onClearWarningMessage();
       return;
     }
@@ -43,7 +43,7 @@ export const StabilizationRegions = () => {
       onClearWarningMessage();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stabilization]);
+  }, [stabilization, stabilizationActiveRegionIndex]);
 
   const handleToggle = (checked: boolean) => {
     onSetStabilization(checked);

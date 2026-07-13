@@ -8,7 +8,7 @@ import { Warning } from '../components/Warning';
 import { useProjectSlice } from '../hooks';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
-import { WizardButtons } from '../components';
+import { FocusOverlay, WizardButtons } from '../components';
 import { useState } from 'react';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
 
@@ -59,6 +59,7 @@ export const VideoRange = () => {
           />
           <WizardButtons formId="form-video" canFollow={true} />
         </div>
+        <FocusOverlay active={stabilizationActiveRegionIndex !== null} />
       </div>
     </div>
   );

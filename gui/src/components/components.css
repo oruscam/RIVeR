@@ -252,6 +252,30 @@
 .message-stack .warning { z-index: 2; }
 .message-stack .info { z-index: 1; }
 
+/* Generic "focus mode" overlay: place inside any position:relative container
+   (e.g. .form-container) and toggle .focus-overlay-active to blur/dim its
+   contents, drawing attention to whatever sits outside that container
+   (e.g. the media/canvas panel while a region is being edited). */
+.focus-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    border-radius: inherit;
+    background-color: var(--secondary-background-color);
+    opacity: 0;
+    pointer-events: none;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: opacity 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out;
+}
+
+.focus-overlay-active {
+    opacity: 0.6;
+    pointer-events: auto;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
 .error {
     background-color: var(--background-error);
     width: 100%;
