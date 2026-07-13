@@ -1,4 +1,5 @@
 import { Error } from './Error';
+import { FocusOverlay } from './FocusOverlay';
 import { Info } from './Info';
 import { Warning } from './Warning';
 import { Icon } from './Icon';
@@ -34,6 +35,7 @@ export {
   DrawUav,
   Error,
   FloatingPlot,
+  FocusOverlay,
   Grid,
   Icon,
   ImageIpcam,
