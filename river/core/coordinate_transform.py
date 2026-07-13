@@ -144,6 +144,7 @@ def orthorectify_image_with_size_limit(
 	min_resolution: float = 0.01,
 	flip_x: bool = False,
 	flip_y: bool = False,
+	extent_override: Optional[Tuple[float, float, float, float]] = None,
 ) -> Tuple[np.ndarray, List[float]]:
 	"""
 	Transform an input image using a transformation matrix with a specified ROI,
@@ -158,6 +159,13 @@ def orthorectify_image_with_size_limit(
 		min_resolution (float): Minimum resolution in real-world units per pixel
 		flip_x (bool): Whether to flip the image horizontally
 		flip_y (bool): Whether to flip the image vertically
+		extent_override (Optional[Tuple[float, float, float, float]]): Real-world
+			(x_min, x_max, y_min, y_max) to use directly instead of deriving the
+			extent from the ROI's pixel-space corners. Useful when the ROI is an
+			axis-aligned bounding box whose corners don't all correspond to real
+			observed points (e.g. an oblique-view quadrilateral), since projecting
+			such synthetic corners through the transform can extrapolate far
+			outside the actually observed scene.
 
 	Returns:
 		Tuple[np.ndarray, List[float]]:
@@ -178,16 +186,19 @@ def orthorectify_image_with_size_limit(
 	x_coords = np.arange(x_min, x_max)
 	X, Y = np.meshgrid(x_coords, y_coords)
 
-	# Convert ROI corners to real-world coordinates to determine extent
-	corners = [(x_min, y_min), (x_max, y_min), (x_min, y_max), (x_max, y_max)]
+	if extent_override is not None:
+		x_min_rw, x_max_rw, y_min_rw, y_max_rw = extent_override
+	else:
+		# Convert ROI corners to real-world coordinates to determine extent
+		corners = [(x_min, y_min), (x_max, y_min), (x_min, y_max), (x_max, y_max)]
 
-	real_world_corners = [transform_pixel_to_real_world(x, y, transformation_matrix) for x, y in corners]
-	rw_x_coords = [corner[0] for corner in real_world_corners]
-	rw_y_coords = [corner[1] for corner in real_world_corners]
+		real_world_corners = [transform_pixel_to_real_world(x, y, transformation_matrix) for x, y in corners]
+		rw_x_coords = [corner[0] for corner in real_world_corners]
+		rw_y_coords = [corner[1] for corner in real_world_corners]
 
-	# Determine real-world extent
-	x_min_rw, x_max_rw = min(rw_x_coords), max(rw_x_coords)
-	y_min_rw, y_max_rw = min(rw_y_coords), max(rw_y_coords)
+		# Determine real-world extent
+		x_min_rw, x_max_rw = min(rw_x_coords), max(rw_x_coords)
+		y_min_rw, y_max_rw = min(rw_y_coords), max(rw_y_coords)
 
 	# Add small margin
 	margin = 0.05  # 5% margin
@@ -912,6 +923,20 @@ def oblique_view_transformation_matrix(
 		x_min, y_min, width, height = roi_rect
 		roi_for_ortho = (int(y_min), int(y_min + height), int(x_min), int(x_min + width))
 
+		# Derive the output extent from the actual control-point quadrilateral
+		# (already known in real-world coordinates) rather than from the ROI's
+		# pixel-space bounding-box corners: two of those corners are synthetic
+		# (not real observed points), and projecting them through the transform
+		# for a steep oblique view can extrapolate far outside the actual scene.
+		quad_east = real_world_coords[:, 0]
+		quad_north = real_world_coords[:, 1]
+		extent_override = (
+			float(quad_east.min()),
+			float(quad_east.max()),
+			float(quad_north.min()),
+			float(quad_north.max()),
+		)
+
 		transformed_img, extent = orthorectify_image_with_size_limit(
 			image,
 			transformation_matrix,
@@ -920,6 +945,7 @@ def oblique_view_transformation_matrix(
 			min_resolution=min_resolution,
 			flip_x=flip_x,
 			flip_y=flip_y,
+			extent_override=extent_override,
 		)
 
 		result["transformed_img"] = transformed_img
