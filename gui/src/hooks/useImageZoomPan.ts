@@ -34,19 +34,29 @@ export const useImageZoomPan = ({ containerWidth, containerHeight, minScale, max
         };
     }, [containerWidth, containerHeight, minScale]);
 
-    // Handle zooming with mouse wheel
+    // Handle zooming with mouse wheel, keeping the point under the cursor fixed
     const handleWheel = useCallback((e: React.WheelEvent) => {
         // e.preventDefault();
         e.stopPropagation();
-        
+
         const delta = e.deltaY * -zoomSpeed;
         const newScale = Math.min(Math. max(minScale, scale + delta), maxScale);
-        
+
+        if (newScale === scale) return;
+
+        const rect = e.currentTarget.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left - containerWidth / 2;
+        const mouseY = e.clientY - rect.top - containerHeight / 2;
+        const scaleRatio = newScale / scale;
+
+        const newX = mouseX - scaleRatio * (mouseX - position.x);
+        const newY = mouseY - scaleRatio * (mouseY - position.y);
+
         setScale(newScale);
-        
-        const limitedPosition = applyPositionLimits(position.x, position.y, newScale);
+
+        const limitedPosition = applyPositionLimits(newX, newY, newScale);
         setPosition(limitedPosition);
-    }, [scale, position, applyPositionLimits, minScale, maxScale, zoomSpeed]);
+    }, [scale, position, applyPositionLimits, minScale, maxScale, zoomSpeed, containerWidth, containerHeight]);
 
     // Verificar si el click es en un elemento interactivo de la máscara
     const isClickOnMaskPoint = useCallback((target: HTMLElement) => {

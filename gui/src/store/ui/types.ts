@@ -20,6 +20,8 @@ interface UIState {
   screenSizes: ScreenSizes;
   theme: ThemeType;
   error: string[];
+  info: string[];
+  warning: string[];
   isLoading: boolean;
   seeAll: boolean;
   message?: string;

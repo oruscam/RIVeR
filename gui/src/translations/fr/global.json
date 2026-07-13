@@ -74,7 +74,8 @@
     "editingRegion": "Modification de la région {{n}}",
     "addRegion": "Ajouter une région",
     "exitRegionMode": "Quitter l'édition de région",
-    "minRegionsWarning": "Ajoutez au moins 2 régions pour la stabilisation"
+    "minRegionsWarning": "Ajoutez au moins 2 régions pour la stabilisation",
+    "editingRegionsWarning": "Modification des régions de stabilisation"
   },
   "PixelSize": {
     "title": "Taille de Pixel",

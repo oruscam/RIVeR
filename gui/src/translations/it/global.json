@@ -74,7 +74,8 @@
     "editingRegion": "Modifica regione {{n}}",
     "addRegion": "Aggiungi regione",
     "exitRegionMode": "Esci dalla modifica regione",
-    "minRegionsWarning": "Aggiungere almeno 2 regioni per la stabilizzazione"
+    "minRegionsWarning": "Aggiungere almeno 2 regioni per la stabilizzazione",
+    "editingRegionsWarning": "Modifica delle regioni di stabilizzazione"
   },
   "PixelSize": {
     "title": "Dimensione Pixel",

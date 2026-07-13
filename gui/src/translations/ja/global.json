@@ -74,7 +74,8 @@
     "editingRegion": "領域 {{n}} を編集中",
     "addRegion": "領域を追加",
     "exitRegionMode": "領域編集を終了",
-    "minRegionsWarning": "安定化には少なくとも2つの領域が必要です"
+    "minRegionsWarning": "安定化には少なくとも2つの領域が必要です",
+    "editingRegionsWarning": "安定化領域を編集中"
   },
   "PixelSize": {
     "title": "ピクセルサイズ",

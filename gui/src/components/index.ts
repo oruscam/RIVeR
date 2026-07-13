@@ -1,4 +1,6 @@
 import { Error } from './Error';
+import { Info } from './Info';
+import { Warning } from './Warning';
 import { Icon } from './Icon';
 import { LangBtn as LanguageSelector } from './CustomIcons/LanguageSelector';
 import { ThemeToggle } from './ThemeToggle';
@@ -38,6 +40,7 @@ export {
   ImageOblique,
   ImageProcessing,
   ImageResults,
+  Info,
   IpcamGrid,
   LanguageSelector,
   Loading,
@@ -45,5 +48,6 @@ export {
   Results,
   ThemeToggle,
   VersionMessage,
+  Warning,
   WizardButtons,
 };

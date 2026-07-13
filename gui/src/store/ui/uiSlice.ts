@@ -13,6 +13,8 @@ const initialState: UIState = {
   },
   theme: THEME_CYCLE.includes(savedTheme) ? savedTheme : 'dark',
   error: [],
+  info: [],
+  warning: [],
   isLoading: false,
   seeAll: true,
   language: savedLanguage,
@@ -41,6 +43,22 @@ const uiSlice = createSlice({
     },
     clearErrorMessage: (state) => {
       state.error = [];
+    },
+    setInfoMessage: (state, action: PayloadAction<string[]>) => {
+      const infoDiv = document.getElementById('info-message-div');
+      if (infoDiv) {
+        infoDiv.scrollIntoView({ behavior: 'smooth' });
+      }
+      state.info = action.payload;
+    },
+    clearInfoMessage: (state) => {
+      state.info = [];
+    },
+    setWarningMessage: (state, action: PayloadAction<string[]>) => {
+      state.warning = action.payload;
+    },
+    clearWarningMessage: (state) => {
+      state.warning = [];
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
@@ -72,9 +90,13 @@ export const {
   changeTheme,
   setTheme,
   clearErrorMessage,
+  clearInfoMessage,
   clearMessage,
+  clearWarningMessage,
   setErrorMessage,
+  setInfoMessage,
   setLoading,
+  setWarningMessage,
   setMessage,
   setScreen,
   setSeeAll,
