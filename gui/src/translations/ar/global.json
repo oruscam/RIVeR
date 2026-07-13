@@ -74,7 +74,8 @@
     "editingRegion": "تحرير المنطقة {{n}}",
     "addRegion": "إضافة منطقة",
     "exitRegionMode": "الخروج من وضع التحرير",
-    "minRegionsWarning": "أضف منطقتين على الأقل للتثبيت"
+    "minRegionsWarning": "أضف منطقتين على الأقل للتثبيت",
+    "editingRegionsWarning": "جارٍ تحرير مناطق التثبيت"
   },
   "PixelSize": {
     "title": "حجم البكسل",

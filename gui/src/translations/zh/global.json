@@ -74,7 +74,8 @@
     "editingRegion": "编辑区域 {{n}}",
     "addRegion": "添加区域",
     "exitRegionMode": "退出区域编辑",
-    "minRegionsWarning": "请至少添加 2 个区域以进行稳定"
+    "minRegionsWarning": "请至少添加 2 个区域以进行稳定",
+    "editingRegionsWarning": "正在编辑稳定区域"
   },
   "PixelSize": {
     "title": "像素尺寸",

@@ -57,6 +57,16 @@ import { useTranslation } from 'react-i18next';
 import { setDefaultObliqueState, setObliquePoints } from '../store/oblique/obliqueSlice';
 import { resetAll } from '../store/global/globalSlice';
 
+const createDefaultStabilizationRegion = (videoWidth: number, videoHeight: number): StabilizationRegion => {
+  const size = 150;
+  return {
+    x: Math.max(0, Math.round((videoWidth - size) / 2)),
+    y: Math.max(0, Math.round((videoHeight - size) / 2)),
+    width: size,
+    height: size,
+  };
+};
+
 /**
  * Interface to define the methods and attributes to interact with the project slice, and access to the sections slice.
  * @returns - Object with the methods and attributes to interact with the project slice
@@ -657,7 +667,12 @@ export const useProjectSlice = () => {
   };
 
   const onSetStabilization = (enabled: boolean) => {
-    const regions = enabled ? video.parameters.stabilizationRegions : [];
+    const existingRegions = video.parameters.stabilizationRegions;
+    const regions = enabled
+      ? existingRegions.length > 0
+        ? existingRegions
+        : [createDefaultStabilizationRegion(video.data.width, video.data.height)]
+      : [];
     dispatch(
       setVideoParameters({
         ...video.parameters,
@@ -666,21 +681,12 @@ export const useProjectSlice = () => {
         stabilizationChanged: true,
       })
     );
-    if (!enabled) {
-      dispatch(setStabilizationActiveRegionIndex(null));
-    }
+    dispatch(setStabilizationActiveRegionIndex(enabled ? regions.length - 1 : null));
   };
 
   const onAddStabilizationRegion = () => {
     const { width, height } = video.data;
-    const rw = 150;
-    const rh = 100;
-    const newRegion: StabilizationRegion = {
-      x: Math.max(0, Math.round((width - rw) / 2)),
-      y: Math.max(0, Math.round((height - rh) / 2)),
-      width: rw,
-      height: rh,
-    };
+    const newRegion = createDefaultStabilizationRegion(width, height);
     const newRegions = [...video.parameters.stabilizationRegions, newRegion];
     dispatch(
       setVideoParameters({

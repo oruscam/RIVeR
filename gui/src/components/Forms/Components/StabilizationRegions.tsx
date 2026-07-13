@@ -1,5 +1,6 @@
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useProjectSlice } from '../../../hooks';
+import { useProjectSlice, useUiSlice } from '../../../hooks';
 import { EditMaskBtn } from '../../CustomIcons/EditMaskBtn';
 import { TrashBtn } from '../../CustomIcons/TrashBtn';
 import { MaskBtn } from '../../CustomIcons/MaskBtn';
@@ -14,8 +15,35 @@ export const StabilizationRegions = () => {
     onDeleteStabilizationRegion,
     onSetStabilizationActiveRegionIndex,
   } = useProjectSlice();
+  const { onSetInfoMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
 
   const { stabilization, stabilizationRegions } = video.parameters;
+
+  // While stabilization is on: briefly show the green "add 2 regions" hint,
+  // then hand off to a persistent yellow "editing regions" status until the
+  // user turns stabilization off (or leaves this step).
+  useEffect(() => {
+    if (!stabilization) {
+      onClearWarningMessage();
+      return;
+    }
+
+    onSetInfoMessage(
+      t('VideoRange.minRegionsWarning', { defaultValue: 'Add at least 2 regions for stabilization' })
+    );
+
+    const timer = setTimeout(() => {
+      onSetWarningMessage(
+        t('VideoRange.editingRegionsWarning', { defaultValue: 'Editing stabilization regions' })
+      );
+    }, 5000);
+
+    return () => {
+      clearTimeout(timer);
+      onClearWarningMessage();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stabilization]);
 
   const handleToggle = (checked: boolean) => {
     onSetStabilization(checked);
@@ -26,11 +54,7 @@ export const StabilizationRegions = () => {
   };
 
   const handleAddClick = () => {
-    if (stabilizationActiveRegionIndex !== null) {
-      onSetStabilizationActiveRegionIndex(null);
-    } else {
-      onAddStabilizationRegion();
-    }
+    onAddStabilizationRegion();
   };
 
   return (
@@ -62,38 +86,12 @@ export const StabilizationRegions = () => {
           ))}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-            {stabilizationActiveRegionIndex !== null && (
-              <span style={{ fontSize: '13px', color: 'var(--secondary-text-color)', fontStyle: 'italic' }}>
-                {t('VideoRange.editingRegion', {
-                  defaultValue: 'Editing region {{n}}',
-                  n: stabilizationActiveRegionIndex + 1,
-                })}
-              </span>
-            )}
             <MaskBtn
               onClick={handleAddClick}
-              title={
-                stabilizationActiveRegionIndex !== null
-                  ? t('VideoRange.exitRegionMode', { defaultValue: 'Exit region editing' })
-                  : t('VideoRange.addRegion', { defaultValue: 'Add region' })
-              }
+              disabled={stabilizationActiveRegionIndex !== null}
+              title={t('VideoRange.addRegion', { defaultValue: 'Add region' })}
             />
           </div>
-
-          {stabilization && stabilizationRegions.length < 2 && (
-            <p
-              style={{
-                fontSize: '13px',
-                color: 'var(--secondary-text-color)',
-                marginTop: '6px',
-                fontStyle: 'italic',
-              }}
-            >
-              {t('VideoRange.minRegionsWarning', {
-                defaultValue: 'Add at least 2 regions for stabilization',
-              })}
-            </p>
-          )}
         </>
       )}
     </div>

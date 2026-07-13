@@ -74,7 +74,8 @@
     "editingRegion": "Editing region {{n}}",
     "addRegion": "Add region",
     "exitRegionMode": "Exit region editing",
-    "minRegionsWarning": "Add at least 2 regions for stabilization"
+    "minRegionsWarning": "Add at least 2 regions for stabilization",
+    "editingRegionsWarning": "Editing stabilization regions"
   },
   "PixelSize": {
     "title": "Pixel Size",

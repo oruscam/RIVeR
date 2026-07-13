@@ -1,10 +1,11 @@
-import React, { forwardRef, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useRef, useState } from 'react';
 import { VideoPlayerSeekBar } from './VideoPlayerSeekBar.js';
 import { VideoPlayerTime } from './VideoPlayerTime.js';
 import '../components.css';
 import { PlayBtn } from '../CustomIcons/VideoPlayerIcons/PlayBtn.tsx';
 import { FrameBtn } from '../CustomIcons/VideoPlayerIcons/FrameBtn.tsx';
 import { SoundBtn } from '../CustomIcons/VideoPlayerIcons/SoundBtn.tsx';
+import { useImageZoomPan } from '../../hooks';
 
 interface VideoPlayerProps {
   fileURL: string;
@@ -16,6 +17,39 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
   ({ fileURL, duration, overlay }, ref) => {
     const internalRef = useRef<HTMLVideoElement>(null);
     const videoRef = (ref as React.RefObject<HTMLVideoElement> | null) ?? internalRef;
+    const zoomContainerRef = useRef<HTMLDivElement>(null);
+    const [zoomContainerSize, setZoomContainerSize] = useState({ width: 0, height: 0 });
+
+    useEffect(() => {
+      const el = zoomContainerRef.current;
+      if (!el) return;
+
+      const observer = new ResizeObserver((entries) => {
+        const entry = entries[0];
+        if (entry) {
+          setZoomContainerSize({ width: entry.contentRect.width, height: entry.contentRect.height });
+        }
+      });
+      observer.observe(el);
+      return () => observer.disconnect();
+    }, []);
+
+    const {
+      scale,
+      position,
+      handleWheel,
+      handleMouseDown: handleZoomMouseDown,
+      handleMouseMove: handleZoomMouseMove,
+      handleMouseUp: handleZoomMouseUp,
+      handleDoubleClick: handleZoomDoubleClick,
+      handleDragStart: handleZoomDragStart,
+    } = useImageZoomPan({
+      containerWidth: zoomContainerSize.width,
+      containerHeight: zoomContainerSize.height,
+      minScale: 1,
+      maxScale: 5,
+      zoomSpeed: 0.0015,
+    });
 
     const [bufferAmount, setBufferAmount] = useState<number>(0);
     const [progressAmount, setProgressAmount] = useState<number>(0);
@@ -66,20 +100,41 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
             <div style={{ position: 'absolute', top: 12, right: 12 }}>
               <SoundBtn videoRef={videoRef} control={control} setControl={setControl} />
             </div>
-            <div className="video" style={{ position: 'relative' }}>
-              <video
-                className="video"
-                loop={true}
-                ref={videoRef}
-                src={fileURL}
-                autoPlay={false}
-                controls={false}
-                muted={control.volume}
-                onProgress={onVideoProgress}
-                onTimeUpdate={onVideoTimeUpdate}
-                id="video"
-              ></video>
-              {overlay}
+            <div
+              className="video"
+              ref={zoomContainerRef}
+              style={{ position: 'relative', overflow: 'hidden' }}
+              onWheel={handleWheel}
+              onMouseDown={handleZoomMouseDown}
+              onMouseMove={handleZoomMouseMove}
+              onMouseUp={handleZoomMouseUp}
+              onMouseLeave={handleZoomMouseUp}
+              onDoubleClick={handleZoomDoubleClick}
+              onDragStart={handleZoomDragStart}
+            >
+              <div
+                style={{
+                  position: 'relative',
+                  display: 'inline-block',
+                  transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
+                  transformOrigin: '50% 50%',
+                  willChange: 'transform',
+                }}
+              >
+                <video
+                  className="video"
+                  loop={true}
+                  ref={videoRef}
+                  src={fileURL}
+                  autoPlay={false}
+                  controls={false}
+                  muted={control.volume}
+                  onProgress={onVideoProgress}
+                  onTimeUpdate={onVideoTimeUpdate}
+                  id="video"
+                ></video>
+                {overlay}
+              </div>
             </div>
 
             <div className="video-controls">

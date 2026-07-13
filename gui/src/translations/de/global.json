@@ -74,7 +74,8 @@
     "editingRegion": "Bereich {{n}} bearbeiten",
     "addRegion": "Bereich hinzufügen",
     "exitRegionMode": "Bearbeitung beenden",
-    "minRegionsWarning": "Mindestens 2 Bereiche für die Stabilisierung hinzufügen"
+    "minRegionsWarning": "Mindestens 2 Bereiche für die Stabilisierung hinzufügen",
+    "editingRegionsWarning": "Stabilisierungsbereiche werden bearbeitet"
   },
   "PixelSize": {
     "title": "Pixelgröße",

@@ -2,8 +2,9 @@ import { useRef, useState, useCallback } from 'react';
 import { StabilizationRegion } from '../../store/project/types';
 import { ConfirmMaskBtn } from '../CustomIcons/ConfirmMaskBtn';
 
-const MASK_COLOR = '#ED6B57';
-const HANDLE_RADIUS = 8;
+const MASK_COLOR = 'var(--d12)';
+const HANDLE_RADIUS = 7;
+const HANDLE_HOVER_RADIUS = 11;
 
 type Handle = 'tl' | 'tr' | 'bl' | 'br' | 'body';
 
@@ -34,6 +35,7 @@ export const StabilizationCanvas = ({
 }: Props) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
+  const [hoveredHandle, setHoveredHandle] = useState<Handle | null>(null);
 
   const svgCoords = useCallback(
     (clientX: number, clientY: number): { x: number; y: number } => {
@@ -134,12 +136,6 @@ export const StabilizationCanvas = ({
         onMouseUp={handleMouseUp}
         onMouseLeave={handleMouseUp}
       >
-        <defs>
-          <pattern id="stab-dashFill" patternUnits="userSpaceOnUse" width={10} height={10}>
-            <path d="M0 10 L10 0" stroke={MASK_COLOR} strokeWidth={1} />
-          </pattern>
-        </defs>
-
         {regions.map((region, index) => {
           const isActive = index === activeRegionIndex;
           const { x, y, width, height } = region;
@@ -151,55 +147,53 @@ export const StabilizationCanvas = ({
                 y={y}
                 width={width}
                 height={height}
-                fill="url(#stab-dashFill)"
+                fill="transparent"
                 stroke={MASK_COLOR}
-                strokeWidth={isActive ? 2.5 : 1.5}
-                strokeDasharray="6 4"
+                strokeWidth={isActive ? 2 : 1.5}
                 style={{ cursor: isActive ? 'grab' : 'default' }}
                 onMouseDown={(e) => handleMouseDown(e, index, 'body')}
               />
-              <text
-                x={x + 6}
-                y={y + 18}
-                fill={MASK_COLOR}
-                fontSize={14}
-                style={{ userSelect: 'none', pointerEvents: 'none' }}
-              >
-                {index + 1}
-              </text>
 
               {isActive && (
                 <>
                   <circle
                     cx={x}
                     cy={y}
-                    r={HANDLE_RADIUS}
+                    r={hoveredHandle === 'tl' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS}
                     fill={MASK_COLOR}
-                    style={{ cursor: 'nw-resize' }}
+                    style={{ cursor: 'nw-resize', transition: 'r 150ms' }}
+                    onMouseEnter={() => setHoveredHandle('tl')}
+                    onMouseLeave={() => setHoveredHandle(null)}
                     onMouseDown={(e) => handleMouseDown(e, index, 'tl')}
                   />
                   <circle
                     cx={x + width}
                     cy={y}
-                    r={HANDLE_RADIUS}
+                    r={hoveredHandle === 'tr' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS}
                     fill={MASK_COLOR}
-                    style={{ cursor: 'ne-resize' }}
+                    style={{ cursor: 'ne-resize', transition: 'r 150ms' }}
+                    onMouseEnter={() => setHoveredHandle('tr')}
+                    onMouseLeave={() => setHoveredHandle(null)}
                     onMouseDown={(e) => handleMouseDown(e, index, 'tr')}
                   />
                   <circle
                     cx={x}
                     cy={y + height}
-                    r={HANDLE_RADIUS}
+                    r={hoveredHandle === 'bl' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS}
                     fill={MASK_COLOR}
-                    style={{ cursor: 'sw-resize' }}
+                    style={{ cursor: 'sw-resize', transition: 'r 150ms' }}
+                    onMouseEnter={() => setHoveredHandle('bl')}
+                    onMouseLeave={() => setHoveredHandle(null)}
                     onMouseDown={(e) => handleMouseDown(e, index, 'bl')}
                   />
                   <circle
                     cx={x + width}
                     cy={y + height}
-                    r={HANDLE_RADIUS}
+                    r={hoveredHandle === 'br' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS}
                     fill={MASK_COLOR}
-                    style={{ cursor: 'se-resize' }}
+                    style={{ cursor: 'se-resize', transition: 'r 150ms' }}
+                    onMouseEnter={() => setHoveredHandle('br')}
+                    onMouseLeave={() => setHoveredHandle(null)}
                     onMouseDown={(e) => handleMouseDown(e, index, 'br')}
                   />
                 </>
@@ -220,7 +214,7 @@ export const StabilizationCanvas = ({
           }}
           onMouseDown={(e) => e.stopPropagation()}
         >
-          <ConfirmMaskBtn onClick={onConfirm} title="Confirm region" />
+          <ConfirmMaskBtn onClick={onConfirm} title="Confirm region" style={{ background: MASK_COLOR }} />
         </div>
       )}
     </>
