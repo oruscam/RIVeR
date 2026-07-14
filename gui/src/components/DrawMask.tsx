@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import * as d3 from "d3";
+import { useTranslation } from 'react-i18next';
 import { useDataSlice } from "../hooks";
-import { drawMask } from "./Graphs/drawMask";
+import { drawMask, drawMaskLabel } from "./Graphs/drawMask";
 import type { OverlayLayers } from "./OverlaySvg";
 
 export const DrawMask = ({
@@ -18,6 +19,7 @@ export const DrawMask = ({
 }) => {
   const { processing, onUpdateMaskPoints } = useDataSlice();
   const { masks, activeMaskIndex, visibleMaskIndices } = processing;
+  const { t } = useTranslation();
 
   const { svgRef, overlayZoomRef, maskLayerRef, staticMaskLayerRef } = layers;
 
@@ -74,7 +76,7 @@ export const DrawMask = ({
 
     if (masks.length === 0 || activeMaskIndex === null) {
       // Only remove mask drawing elements, not <defs> (pattern lives on svgRef)
-      layerSel.selectAll('polygon, line, circle, rect, text').remove();
+      layerSel.selectAll('polygon, line, circle, rect, text, g.mask-label').remove();
       return;
     }
 
@@ -88,9 +90,10 @@ export const DrawMask = ({
       points,
       transformToViewport,
       transformToImage,
-      scale
+      scale,
+      `${t('CrossSections.mask', { defaultValue: 'Mask' })} ${activeMaskIndex + 1}`
     );
-  }, [points, maskLayerRef, overlayZoomRef, svgRef, scale]);
+  }, [points, maskLayerRef, overlayZoomRef, svgRef, scale, activeMaskIndex, t]);
 
   // Toggle .mask-mode-active on the SVG root so the CSS rule with !important
   // can suppress pointer-events on the CS pin icons (which have pointer-events="all"
@@ -109,12 +112,15 @@ export const DrawMask = ({
     const layer = d3.select(staticMaskLayerRef.current);
     layer.selectAll('*').remove();
 
+    const size = (px: number) => px / (scale || 1);
+
     masks.forEach((mask, i) => {
       // Skip: actively being edited (rendered interactively in maskLayerRef)
       if (i === activeMaskIndex) return;
       // Skip: eye is closed (user toggled this mask invisible)
       if (!visibleMaskIndices.includes(i)) return;
-      const pts = mask.map((p) => `${p.x / factor},${p.y / factor}`).join(' ');
+      const viewportPoints = mask.map((p) => ({ x: p.x / factor, y: p.y / factor }));
+      const pts = viewportPoints.map((p) => `${p.x},${p.y}`).join(' ');
       layer
         .append('polygon')
         .attr('points', pts)
@@ -123,8 +129,22 @@ export const DrawMask = ({
         .attr('stroke-width', 1.5)
         .attr('opacity', 0.75)
         .style('pointer-events', 'none');
+
+      if (viewportPoints.length > 0) {
+        const minX = Math.min(...viewportPoints.map((p) => p.x));
+        const maxX = Math.max(...viewportPoints.map((p) => p.x));
+        const minY = Math.min(...viewportPoints.map((p) => p.y));
+        drawMaskLabel(
+          layer as any,
+          `static-${i}`,
+          `${t('CrossSections.mask', { defaultValue: 'Mask' })} ${i + 1}`,
+          (minX + maxX) / 2,
+          minY - size(14),
+          size
+        );
+      }
     });
-  }, [masks, activeMaskIndex, visibleMaskIndices, factor, staticMaskLayerRef]);
+  }, [masks, activeMaskIndex, visibleMaskIndices, factor, staticMaskLayerRef, scale, t]);
 
   useEffect(() => {
     // Cuando cambian la máscara activa o sus puntos, resetea estado local e ids

@@ -2,6 +2,57 @@ import * as d3 from 'd3';
 import type { RefObject } from 'react';
 
 /**
+ * Floating badge label above a mask (or any point), same visual style as the
+ * region labels used for stabilization: dark rounded chip, auto-sized to fit
+ * the text. `key` scopes the label so multiple independent labels can be
+ * drawn into the same layer without clobbering each other.
+ */
+export const drawMaskLabel = (
+  svg: d3.Selection<SVGSVGElement | SVGGElement, unknown, HTMLElement, any>,
+  key: string,
+  text: string,
+  x: number,
+  y: number,
+  size: (px: number) => number
+) => {
+  const className = `mask-label-${key}`;
+  let label = svg.select<SVGGElement>(`g.${className}`);
+
+  if (label.empty()) {
+    label = svg.append('g').attr('class', `mask-label ${className}`).style('pointer-events', 'none');
+    label.append('rect').attr('rx', 3).attr('ry', 3).attr('fill', 'rgba(50, 50, 50, 0.85)');
+    label
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'central')
+      .attr('font-weight', 600)
+      .attr('fill', '#ED6B57');
+  }
+
+  const textEl = label
+    .select<SVGTextElement>('text')
+    .style('font-size', `${size(13)}px`)
+    .attr('x', x)
+    .attr('y', y)
+    .text(text);
+
+  const node = textEl.node();
+  if (node) {
+    const bbox = node.getBBox();
+    const padX = size(6);
+    const padY = size(3);
+    label
+      .select<SVGRectElement>('rect')
+      .attr('x', bbox.x - padX)
+      .attr('y', bbox.y - padY)
+      .attr('width', bbox.width + padX * 2)
+      .attr('height', bbox.height + padY * 2);
+  }
+
+  label.raise();
+};
+
+/**
  * Renders an interactive SVG mask editor with:
  * - A filled polygon representing the mask
  * - Dashed edges between mask points
@@ -24,7 +75,8 @@ export const drawMask = (
   points: { id: string | number; x: number; y: number }[],
   transformToViewport: (x: number, y: number) => { x: number; y: number },
   transformToImage: (x: number, y: number) => { x: number; y: number },
-  zoomFactor: number
+  zoomFactor: number,
+  label: string
 ) => {
   const isFirstRender = svg.select('defs').empty();
 
@@ -51,6 +103,13 @@ export const drawMask = (
 
   const transformedPoints = points.map((p) => transformToViewport(p.x, p.y));
   const polygonPoints = transformedPoints.map((p) => `${p.x},${p.y}`).join(' ');
+
+  if (transformedPoints.length > 0) {
+    const minX = Math.min(...transformedPoints.map((p) => p.x));
+    const maxX = Math.max(...transformedPoints.map((p) => p.x));
+    const minY = Math.min(...transformedPoints.map((p) => p.y));
+    drawMaskLabel(svg, 'active', label, (minX + maxX) / 2, minY - size(14), size);
+  }
 
   let polygon = svg.select<SVGPolygonElement>('polygon.mask-polygon');
   if (polygon.empty()) {
