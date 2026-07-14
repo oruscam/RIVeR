@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { WizardButtons, Error } from '../components';
+import { WizardButtons, Error, FocusOverlay } from '../components';
 import { CrossSections as CrossSectionsComponent } from '../components/CrossSections/index';
-import { useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { useTranslation } from 'react-i18next';
 import { handleDragLeave, handleDragOver } from '../helpers';
 import { FormHeader } from '../components/Forms/Components';
@@ -10,13 +10,14 @@ import { LockBtn } from '../components/CustomIcons/LockBtn';
 import { AddMaskButton } from '../components/Forms/Components';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 export const CrossSections = () => {
-  const { activeSection, sections, onGetBathimetry } = useSectionSlice();
+  const { activeSection, sections, isDraggingPoint, onGetBathimetry } = useSectionSlice();
   const [dragOver, setDragOver] = useState<boolean>(false);
   const [deletedSections, setDeletedSections] = useState('');
   const { t } = useTranslation();
   const { onSetErrorMessage } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
   const { cameraSolution } = useIpcamSlice();
+  const { processing } = useDataSlice();
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -89,6 +90,9 @@ export const CrossSections = () => {
           />
           <WizardButtons formId="form-cross-section" canFollow={sections[0].sectionPoints[0].x !== 0} />
         </div>
+        <FocusOverlay
+          active={sections[activeSection].drawLine || isDraggingPoint || processing.activeMaskIndex !== null}
+        />
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { Error, ImageOblique, WizardButtons } from '../components';
+import { Error, FocusOverlay, ImageOblique, WizardButtons } from '../components';
 import { FormOblique } from '../components/Forms';
 import { useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
@@ -48,7 +48,18 @@ const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates:
 }
 
 export const Oblique = () => {
-  const { solution, distances, coordinates, rwCoordinates, extraFields, onChangeExtraFields, onGetObliqueTransformationMatrix, onGetDistances, isDefaultCoordinates } = useObliqueSlice();
+  const {
+    solution,
+    distances,
+    coordinates,
+    rwCoordinates,
+    extraFields,
+    isDraggingPoint,
+    onChangeExtraFields,
+    onGetObliqueTransformationMatrix,
+    onGetDistances,
+    isDefaultCoordinates,
+  } = useObliqueSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { projectDetails } = useProjectSlice();
   const { onSetErrorMessage } = useUiSlice();
@@ -124,6 +135,7 @@ export const Oblique = () => {
           />
           <WizardButtons formId="form-control-points" canFollow={solution !== null} />
         </div>
+        <FocusOverlay active={isDraggingPoint} />
       </div>
     </div>
   );

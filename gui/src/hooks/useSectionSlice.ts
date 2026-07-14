@@ -7,6 +7,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
 import {
   setDirPoints,
+  setDrawLine,
+  setIsDraggingPoint,
   addSection,
   setActiveSection,
   setPixelSize,
@@ -55,6 +57,7 @@ export const useSectionSlice = () => {
     transformationMatrix,
     pixelSolution,
     isSectionWorking,
+    isDraggingPoint,
   } = useSelector((state: RootState) => state.section);
   const { processing } = useSelector((state: RootState) => state.data);
   // The store always holds real-world coordinates in SI (m). We need the user's
@@ -126,12 +129,12 @@ export const useSectionSlice = () => {
         flag1 = false;
         flag2 = false;
         dispatch(setDirPoints(newPoints as Point[]));
-        dispatch(updateSection({
-          ...sections[activeSection],
-          drawLine: false
-        }))
+        // Releasing the mouse always ends "draw direction" mode, whether the
+        // line just drawn is valid (below) or degenerate (reverted, here).
+        dispatch(setDrawLine(false));
       } else {
         dispatch(setDirPoints(newPoints as Point[]));
+        dispatch(setDrawLine(false));
       }
     }
 
@@ -757,9 +760,17 @@ export const useSectionSlice = () => {
     dispatch(setDefaultSectionState());
   };
 
+  // Mirrors whether a point/handle is currently being dragged on the canvas
+  // (initial direction-line draw, or a later endpoint fine-tune), so the UI
+  // can react to it (e.g. the form-panel focus overlay).
+  const onSetIsDraggingPoint = (value: boolean) => {
+    dispatch(setIsDraggingPoint(value));
+  };
+
   return {
     activeSection,
     isSectionWorking,
+    isDraggingPoint,
     sections,
     pixelSolution,
     summary,
@@ -774,6 +785,7 @@ export const useSectionSlice = () => {
     onSetActiveSection,
     onSetDirPoints,
     onSetExtraFields,
+    onSetIsDraggingPoint,
     onSetRealWorld,
     onSetSections,
     onUpdateSection,

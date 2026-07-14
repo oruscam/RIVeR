@@ -25,7 +25,7 @@ export const DrawSectionsD3 = ({
   layers: OverlayLayers;
   sectionIndex?: number;
 }) => {
-  const { sections, activeSection, onSetDirPoints } = useSectionSlice();
+  const { sections, activeSection, onSetDirPoints, onSetIsDraggingPoint } = useSectionSlice();
   const { seeAll, language } = useUiSlice();
 
   const { svgRef, overlayZoomRef, staticLayerRef, interactiveLayerRef, uiLayerRef } = layers;
@@ -39,6 +39,22 @@ export const DrawSectionsD3 = ({
     dirPoints.length > 0 ? getResizedPoint(dirPoints[1], factor) : null
   );
   const [mousePressed, setMousePressed] = useState<boolean>(false);
+
+  // Mirror the drag state into Redux (only meaningful for the interactive
+  // x-sections module) so other parts of the page — e.g. the form-panel
+  // focus overlay — can react to it, whether it's the initial direction-line
+  // draw or a later endpoint fine-tune.
+  useEffect(() => {
+    if (module !== 'x-sections') return;
+    onSetIsDraggingPoint(mousePressed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mousePressed, module]);
+
+  useEffect(() => {
+    if (module !== 'x-sections') return undefined;
+    return () => onSetIsDraggingPoint(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [module]);
 
   const getPointerInZoom = useCallback((nativeEvt: Event) => {
     const container = overlayZoomRef.current ?? svgRef.current;
