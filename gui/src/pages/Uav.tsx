@@ -1,7 +1,7 @@
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { FormUav } from '../components/Forms/index';
-import { WizardButtons, Error, Progress, ImageUav } from '../components/index';
+import { WizardButtons, Error, Progress, ImageUav, FocusOverlay } from '../components/index';
 import { useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../hooks/index';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
@@ -51,6 +51,7 @@ export const Uav = () => {
     rwLength,
     solution,
     extraFields,
+    drawLine,
     onGetUavTransformationMatrix,
     onUpdatePixelSize
   } = useUavSlice();
@@ -119,6 +120,7 @@ export const Uav = () => {
           />
           <WizardButtons canFollow={solution?.orthoImage !== undefined} formId="form-pixel-size" />
         </div>
+        <FocusOverlay active={drawLine} />
       </div>
     </div>
   );

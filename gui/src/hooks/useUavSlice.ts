@@ -123,7 +123,9 @@ export const useUavSlice = () => {
         newPoints = dirPoints; // Revertir a los puntos originales
         flag1 = false;
         flag2 = false;
-        dispatch(setPixelSizePoints({ points: newPoints, type: 'dir' }));
+        // Releasing the mouse always ends "draw line" mode, whether the line
+        // just drawn is valid (below) or degenerate (reverted, here).
+        dispatch(updatePixelSize({ ...uav, dirPoints: newPoints, drawLine: false }));
         dispatch(setHasChanged(true));
       } else {
         const { size } = computePixelSize(newPoints, rwPoints);
@@ -133,6 +135,7 @@ export const useUavSlice = () => {
             dirPoints: newPoints,
             size,
             solution: null,
+            drawLine: false,
           })
         );
         dispatch(setHasChanged(true));
