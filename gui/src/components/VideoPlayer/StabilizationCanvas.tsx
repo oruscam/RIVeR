@@ -20,7 +20,7 @@ const RegionLabel = ({ x, y, text }: { x: number; y: number; text: string }) => 
     if (textRef.current) {
       setBox(textRef.current.getBBox());
     }
-  }, [text]);
+  }, [text, x, y]);
 
   const padX = 6;
   const padY = 3;
