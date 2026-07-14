@@ -1,12 +1,58 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useLayoutEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { StabilizationRegion } from '../../store/project/types';
 import { ConfirmMaskBtn } from '../CustomIcons/ConfirmMaskBtn';
 
 const MASK_COLOR = 'var(--d12)';
 const HANDLE_RADIUS = 7;
 const HANDLE_HOVER_RADIUS = 11;
+const LABEL_OFFSET = 14;
 
 type Handle = 'tl' | 'tr' | 'bl' | 'br' | 'body';
+
+// Small floating badge above each region, same look as the pin labels
+// used elsewhere in the app (dark rounded chip, auto-sized to the text).
+const RegionLabel = ({ x, y, text }: { x: number; y: number; text: string }) => {
+  const textRef = useRef<SVGTextElement>(null);
+  const [box, setBox] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
+
+  useLayoutEffect(() => {
+    if (textRef.current) {
+      setBox(textRef.current.getBBox());
+    }
+  }, [text]);
+
+  const padX = 6;
+  const padY = 3;
+
+  return (
+    <g style={{ pointerEvents: 'none' }}>
+      {box && (
+        <rect
+          x={box.x - padX}
+          y={box.y - padY}
+          width={box.width + padX * 2}
+          height={box.height + padY * 2}
+          rx={3}
+          ry={3}
+          fill="rgba(50, 50, 50, 0.85)"
+        />
+      )}
+      <text
+        ref={textRef}
+        x={x}
+        y={y}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={13}
+        fontWeight={600}
+        fill={MASK_COLOR}
+      >
+        {text}
+      </text>
+    </g>
+  );
+};
 
 interface DragState {
   handle: Handle;
@@ -36,6 +82,7 @@ export const StabilizationCanvas = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [hoveredHandle, setHoveredHandle] = useState<Handle | null>(null);
+  const { t } = useTranslation();
 
   const svgCoords = useCallback(
     (clientX: number, clientY: number): { x: number; y: number } => {
@@ -152,6 +199,12 @@ export const StabilizationCanvas = ({
                 strokeWidth={isActive ? 2 : 1.5}
                 style={{ cursor: isActive ? 'grab' : 'default' }}
                 onMouseDown={(e) => handleMouseDown(e, index, 'body')}
+              />
+
+              <RegionLabel
+                x={x + width / 2}
+                y={y - LABEL_OFFSET}
+                text={`${t('VideoRange.stabilizationRegion', { defaultValue: 'Region' })} ${index + 1}`}
               />
 
               {isActive && (

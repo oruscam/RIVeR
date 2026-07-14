@@ -54,6 +54,7 @@ export const Oblique = () => {
     coordinates,
     rwCoordinates,
     extraFields,
+    drawPoints,
     isDraggingPoint,
     onChangeExtraFields,
     onGetObliqueTransformationMatrix,
@@ -135,7 +136,7 @@ export const Oblique = () => {
           />
           <WizardButtons formId="form-control-points" canFollow={solution !== null} />
         </div>
-        <FocusOverlay active={isDraggingPoint} />
+        <FocusOverlay active={(drawPoints && isDefaultCoordinates) || isDraggingPoint} />
       </div>
     </div>
   );
