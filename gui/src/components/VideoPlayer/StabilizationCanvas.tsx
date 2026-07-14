@@ -7,8 +7,49 @@ const MASK_COLOR = 'var(--d12)';
 const HANDLE_RADIUS = 7;
 const HANDLE_HOVER_RADIUS = 11;
 const LABEL_OFFSET = 14;
+const CONFIRM_BTN_MARGIN_PX = 32;
+const CONFIRM_BTN_HALF_SIZE_PX = 20;
 
 type Handle = 'tl' | 'tr' | 'bl' | 'br' | 'body';
+
+// Picks a spot for the confirm button around the region (right/left/bottom/top,
+// in that order of preference) that keeps it fully inside the visible video
+// frame, same approach used for the mask confirm button in ImageCrossSections.
+function computeRegionConfirmBtnPos(
+  region: StabilizationRegion,
+  videoWidth: number,
+  videoHeight: number,
+  scaleX: number,
+  scaleY: number
+): { x: number; y: number } {
+  const marginX = CONFIRM_BTN_MARGIN_PX * scaleX;
+  const marginY = CONFIRM_BTN_MARGIN_PX * scaleY;
+  const halfW = CONFIRM_BTN_HALF_SIZE_PX * scaleX;
+  const halfH = CONFIRM_BTN_HALF_SIZE_PX * scaleY;
+
+  const centerX = region.x + region.width / 2;
+  const centerY = region.y + region.height / 2;
+
+  const candidates = [
+    { x: region.x + region.width + marginX, y: centerY }, // right
+    { x: region.x - marginX, y: centerY }, // left
+    { x: centerX, y: region.y + region.height + marginY }, // bottom
+    { x: centerX, y: region.y - marginY }, // top
+  ];
+
+  const inBounds = (c: { x: number; y: number }) =>
+    c.x - halfW >= 0 && c.x + halfW <= videoWidth && c.y - halfH >= 0 && c.y + halfH <= videoHeight;
+
+  const valid = candidates.find(inBounds);
+  if (valid) return valid;
+
+  // Fallback: clamp the preferred (right) candidate directly into bounds
+  const fallback = candidates[0];
+  return {
+    x: Math.min(Math.max(fallback.x, halfW), videoWidth - halfW),
+    y: Math.min(Math.max(fallback.y, halfH), videoHeight - halfH),
+  };
+}
 
 // Small floating badge above each region, same look as the pin labels
 // used elsewhere in the app (dark rounded chip, auto-sized to the text).
@@ -160,10 +201,18 @@ export const StabilizationCanvas = ({
   if (videoWidth === 0 || videoHeight === 0) return null;
 
   const activeRegion = activeRegionIndex !== null ? regions[activeRegionIndex] : null;
-  const confirmBtnLeft = activeRegion ? `${((activeRegion.x + activeRegion.width) / videoWidth) * 100}%` : '0';
-  const confirmBtnTop = activeRegion
-    ? `${((activeRegion.y + activeRegion.height / 2) / videoHeight) * 100}%`
-    : '0';
+
+  let confirmBtnLeft = '0';
+  let confirmBtnTop = '0';
+
+  if (activeRegion) {
+    const rect = svgRef.current?.getBoundingClientRect();
+    const scaleX = rect && rect.width > 0 ? videoWidth / rect.width : 1;
+    const scaleY = rect && rect.height > 0 ? videoHeight / rect.height : 1;
+    const btnPos = computeRegionConfirmBtnPos(activeRegion, videoWidth, videoHeight, scaleX, scaleY);
+    confirmBtnLeft = `${(btnPos.x / videoWidth) * 100}%`;
+    confirmBtnTop = `${(btnPos.y / videoHeight) * 100}%`;
+  }
 
   return (
     <>
@@ -262,7 +311,7 @@ export const StabilizationCanvas = ({
             position: 'absolute',
             left: confirmBtnLeft,
             top: confirmBtnTop,
-            transform: 'translate(8px, -50%)',
+            transform: 'translate(-50%, -50%)',
             zIndex: 10,
           }}
           onMouseDown={(e) => e.stopPropagation()}
