@@ -18,12 +18,13 @@ const defaultVideo = {
     startFrame: 0,
     endFrame: 0,
     factor: 1,
-    factorChanged: false,
     lensCorrection: null,
-    lensCorrectionChanged: false,
     stabilization: false,
     stabilizationRegions: [],
-    stabilizationChanged: false,
+    committedFactor: 1,
+    committedLensCorrection: null,
+    committedStabilization: false,
+    committedStabilizationRegions: [],
   },
 };
 
