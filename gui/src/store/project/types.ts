@@ -23,12 +23,16 @@ interface VideoParameters {
   startFrame: number;
   endFrame: number;
   factor: number;
-  factorChanged: boolean;
   lensCorrection: string | null;
-  lensCorrectionChanged: boolean;
   stabilization: boolean;
   stabilizationRegions: StabilizationRegion[];
-  stabilizationChanged: boolean;
+  // The config actually used for the frames currently on disk — every field
+  // is compared against its committed counterpart before re-extracting, so
+  // toggling a setting and reverting it doesn't force a needless re-extraction.
+  committedFactor: number;
+  committedLensCorrection: string | null;
+  committedStabilization: boolean;
+  committedStabilizationRegions: StabilizationRegion[];
 }
 
 interface Video {

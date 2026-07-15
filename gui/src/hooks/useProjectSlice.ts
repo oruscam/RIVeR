@@ -68,6 +68,36 @@ const createDefaultStabilizationRegion = (videoWidth: number, videoHeight: numbe
 };
 
 /**
+ * Whether a stabilization config would produce the same result as the one
+ * already extracted to disk — used to avoid marking stabilization as
+ * "changed" (and forcing a re-extraction) when edits net out to a no-op,
+ * e.g. enabling stabilization and disabling it again. Mirrors the >= 2
+ * regions requirement used to gate the actual backend call.
+ */
+
+const isSameStabilizationConfig = (
+  enabled: boolean,
+  regions: StabilizationRegion[],
+  committedEnabled: boolean,
+  committedRegions: StabilizationRegion[]
+): boolean => {
+  const effective = enabled && regions.length >= 2;
+  const committedEffective = committedEnabled && committedRegions.length >= 2;
+
+  if (effective !== committedEffective) return false;
+  if (!effective) return true;
+
+  if (regions.length !== committedRegions.length) return false;
+  return regions.every(
+    (r, i) =>
+      r.x === committedRegions[i].x &&
+      r.y === committedRegions[i].y &&
+      r.width === committedRegions[i].width &&
+      r.height === committedRegions[i].height
+  );
+};
+
+/**
  * Interface to define the methods and attributes to interact with the project slice, and access to the sections slice.
  * @returns - Object with the methods and attributes to interact with the project slice
  */
@@ -184,7 +214,6 @@ export const useProjectSlice = () => {
       setVideoParameters({
         ...video.parameters,
         factor: factor,
-        factorChanged: true,
       })
     );
   };
@@ -199,7 +228,6 @@ export const useProjectSlice = () => {
       setVideoParameters({
         ...video.parameters,
         lensCorrection: profilePath,
-        lensCorrectionChanged: true,
       })
     );
   };
@@ -208,19 +236,39 @@ export const useProjectSlice = () => {
     dispatch(setLoading(true));
     dispatch(setMessage(t('Loader.extractingFrames')));
 
-    const { startTime, endTime, step, factor, factorChanged, lensCorrection, lensCorrectionChanged, stabilization, stabilizationRegions, stabilizationChanged } =
-      video.parameters;
+    const {
+      startTime,
+      endTime,
+      step,
+      factor,
+      lensCorrection,
+      stabilization,
+      stabilizationRegions,
+      committedFactor,
+      committedLensCorrection,
+      committedStabilization,
+      committedStabilizationRegions,
+    } = video.parameters;
 
     const parsedStart = parseTime(data.start);
     const parsedEnd = parseTime(data.end);
 
+    // Every field is compared directly against the config actually used for
+    // the frames on disk (rather than an imperative "did the user touch this"
+    // flag) — so toggling something and reverting it never forces a needless
+    // re-extraction.
     if (
       parsedStart === startTime &&
       parsedEnd === endTime &&
       parseFloat(data.step) === step &&
-      factorChanged === false &&
-      lensCorrectionChanged === false &&
-      stabilizationChanged === false
+      factor === committedFactor &&
+      lensCorrection === committedLensCorrection &&
+      isSameStabilizationConfig(
+        stabilization,
+        stabilizationRegions,
+        committedStabilization,
+        committedStabilizationRegions
+      )
     ) {
       dispatch(setLoading(false));
       dispatch(clearMessage());
@@ -228,6 +276,9 @@ export const useProjectSlice = () => {
     }
 
     dispatch(setImages({ paths: [] }));
+
+    const effectiveStabilization = stabilization && stabilizationRegions.length >= 2;
+
     const parameters = {
       step: parseFloat(data.step),
       startTime: parsedStart,
@@ -235,16 +286,18 @@ export const useProjectSlice = () => {
       startFrame: Math.floor(parsedStart * video.data.fps),
       endFrame: Math.floor(parsedEnd * video.data.fps),
       factor: factor,
-      factorChanged: factorChanged,
       lensCorrection: lensCorrection,
-      lensCorrectionChanged: false,
       stabilization: stabilization,
       stabilizationRegions: stabilizationRegions,
-      stabilizationChanged: false,
+      // Record the config actually used for this extraction as the new
+      // baseline, so future edits that net out to this same result don't
+      // trigger another one.
+      committedFactor: factor,
+      committedLensCorrection: lensCorrection,
+      committedStabilization: effectiveStabilization,
+      committedStabilizationRegions: effectiveStabilization ? stabilizationRegions : [],
     };
     const ipcRenderer = window.ipcRenderer;
-
-    const effectiveStabilization = stabilization && stabilizationRegions.length >= 2;
 
     dispatch(clearErrorMessage());
 
@@ -683,7 +736,6 @@ export const useProjectSlice = () => {
         ...video.parameters,
         stabilization: enabled,
         stabilizationRegions: regions,
-        stabilizationChanged: true,
       })
     );
     dispatch(setStabilizationActiveRegionIndex(enabled ? regions.length - 1 : null));
@@ -697,7 +749,6 @@ export const useProjectSlice = () => {
       setVideoParameters({
         ...video.parameters,
         stabilizationRegions: newRegions,
-        stabilizationChanged: true,
       })
     );
     dispatch(setStabilizationActiveRegionIndex(newRegions.length - 1));
@@ -709,7 +760,6 @@ export const useProjectSlice = () => {
       setVideoParameters({
         ...video.parameters,
         stabilizationRegions: newRegions,
-        stabilizationChanged: true,
       })
     );
   };
@@ -720,7 +770,6 @@ export const useProjectSlice = () => {
       setVideoParameters({
         ...video.parameters,
         stabilizationRegions: newRegions,
-        stabilizationChanged: true,
       })
     );
     if (stabilizationActiveRegionIndex === index) {

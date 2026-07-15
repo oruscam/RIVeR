@@ -37,12 +37,13 @@ const onLoadVideoParameters = (
       startFrame: start,
       endFrame: end,
       factor,
-      factorChanged: false,
       lensCorrection: lensCorrection ?? null,
-      lensCorrectionChanged: false,
       stabilization: stabilization ?? false,
       stabilizationRegions: stabilizationRegions ?? [],
-      stabilizationChanged: false,
+      committedFactor: factor,
+      committedLensCorrection: lensCorrection ?? null,
+      committedStabilization: stabilization ?? false,
+      committedStabilizationRegions: stabilizationRegions ?? [],
     })
   );
   return;
