@@ -315,6 +315,11 @@ export const useProjectSlice = () => {
         dispatch(setProjectDirectory(projectDirectory));
         dispatch(setProjectType(settings.footage));
 
+        // Loading a project must never inherit a stabilization region left
+        // "active" (in focus mode) from a previous project/session in this
+        // renderer — VideoRange's FocusOverlay is driven directly by this value.
+        dispatch(setStabilizationActiveRegionIndex(null));
+
         // Set language
         const savedLanguage = localStorage.getItem("language") || "en"
         dispatch(setLanguage(savedLanguage));

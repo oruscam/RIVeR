@@ -142,6 +142,7 @@
     "warningTitle": "断面の削除",
     "mask": "マスク",
     "addMask": "マスクを追加",
+    "editingMaskWarning": "マスク{{n}}を編集中",
     "bankRight": "右",
     "bankLeft": "左"
   },
@@ -296,6 +297,7 @@
   },
   "Loader": {
     "extractingFrames": "動画フレームを抽出中",
+    "stabilizingFrames": "動画フレームを安定化中",
     "results": "流速プロファイル統計を生成中",
     "videoConversion": "動画をMP4形式に変換中です。しばらくお待ちください。",
     "maskAndRoi": "ROIとマスクを定義中"

@@ -142,6 +142,7 @@
     "warningTitle": "删除断面",
     "mask": "掩膜",
     "addMask": "添加掩膜",
+    "editingMaskWarning": "正在编辑掩膜 {{n}}",
     "bankRight": "右",
     "bankLeft": "左"
   },
@@ -296,6 +297,7 @@
   },
   "Loader": {
     "extractingFrames": "正在提取视频帧",
+    "stabilizingFrames": "正在稳定视频帧",
     "results": "正在生成流速剖面统计数据",
     "videoConversion": "正在将视频转换为 MP4 格式，请稍候。",
     "maskAndRoi": "正在定义 ROI 与掩膜"

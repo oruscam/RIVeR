@@ -142,6 +142,7 @@
     "warningTitle": "Delete Section",
     "mask": "Mask",
     "addMask": "Add Mask",
+    "editingMaskWarning": "Editing mask {{n}}",
     "bankRight": "R",
     "bankLeft": "L"
   },
@@ -299,6 +300,7 @@
   },
   "Loader": {
     "extractingFrames": "Extracting Video Frames",
+    "stabilizingFrames": "Stabilizing Video Frames",
     "results": "Generating velocity profile statistics",
     "videoConversion": "We are converting the video to mp4 format. Please wait a moment.",
     "maskAndRoi": "Defining ROI and masks"

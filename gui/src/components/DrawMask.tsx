@@ -9,11 +9,16 @@ export const DrawMask = ({
   factor,
   layers,
   scale,
+  imageWidth,
+  imageHeight,
   onLivePoints,
 }: {
   factor: number;
   layers: OverlayLayers;
   scale: number;
+  /** Viewport-space size the mask labels' background box must stay fully inside. */
+  imageWidth: number;
+  imageHeight: number;
   /** Called with current image-space points on every live update (including during drag) */
   onLivePoints?: (points: { x: number; y: number }[]) => void;
 }) => {
@@ -45,6 +50,12 @@ export const DrawMask = ({
   const transformToImage = (vx: number, vy: number) => {
     return { x: vx * factor, y: vy * factor };
   };
+
+  // Native image-space bounds (same space mask points are persisted in) — used
+  // to keep dragged masks from leaving the image, mirroring how stabilization
+  // regions are clamped to videoWidth/videoHeight in StabilizationCanvas.tsx.
+  const nativeWidth = imageWidth * factor;
+  const nativeHeight = imageHeight * factor;
 
   // Define #dashFill once on the SVG root so it survives mask mode changes.
   // drawMask() also checks for this pattern, but scoped to the mask-layer group;
@@ -91,9 +102,10 @@ export const DrawMask = ({
       transformToViewport,
       transformToImage,
       scale,
-      `${t('CrossSections.mask', { defaultValue: 'Mask' })} ${activeMaskIndex + 1}`
+      `${t('CrossSections.mask', { defaultValue: 'Mask' })} ${activeMaskIndex + 1}`,
+      { width: imageWidth, height: imageHeight }
     );
-  }, [points, maskLayerRef, overlayZoomRef, svgRef, scale, activeMaskIndex, t]);
+  }, [points, maskLayerRef, overlayZoomRef, svgRef, scale, activeMaskIndex, t, imageWidth, imageHeight]);
 
   // Toggle .mask-mode-active on the SVG root so the CSS rule with !important
   // can suppress pointer-events on the CS pin icons (which have pointer-events="all"
@@ -131,20 +143,22 @@ export const DrawMask = ({
         .style('pointer-events', 'none');
 
       if (viewportPoints.length > 0) {
-        const minX = Math.min(...viewportPoints.map((p) => p.x));
-        const maxX = Math.max(...viewportPoints.map((p) => p.x));
-        const minY = Math.min(...viewportPoints.map((p) => p.y));
+        // Anchor to the mask's own topmost vertex rather than the bounding box's
+        // horizontal center — for elongated/diagonal masks the bbox center can sit
+        // far from the actual polygon, leaving the label floating away from it.
+        const topPoint = viewportPoints.reduce((top, p) => (p.y < top.y ? p : top));
         drawMaskLabel(
           layer as any,
           `static-${i}`,
           `${t('CrossSections.mask', { defaultValue: 'Mask' })} ${i + 1}`,
-          (minX + maxX) / 2,
-          minY - size(14),
-          size
+          topPoint.x,
+          topPoint.y - size(14),
+          size,
+          { width: imageWidth, height: imageHeight }
         );
       }
     });
-  }, [masks, activeMaskIndex, visibleMaskIndices, factor, staticMaskLayerRef, scale, t]);
+  }, [masks, activeMaskIndex, visibleMaskIndices, factor, staticMaskLayerRef, scale, t, imageWidth, imageHeight]);
 
   useEffect(() => {
     // Cuando cambian la máscara activa o sus puntos, resetea estado local e ids
@@ -180,8 +194,20 @@ export const DrawMask = ({
         const dx = x - dragStartZoom.x;
         const dy = y - dragStartZoom.y;
 
-        const deltaImgX = dx * factor;
-        const deltaImgY = dy * factor;
+        let deltaImgX = dx * factor;
+        let deltaImgY = dy * factor;
+
+        // Clamp the whole-mask translation so its bounding box never leaves the
+        // image, without deforming the shape (unlike clamping each point on its own).
+        const minX = Math.min(...points.map((p) => p.x));
+        const maxX = Math.max(...points.map((p) => p.x));
+        const minY = Math.min(...points.map((p) => p.y));
+        const maxY = Math.max(...points.map((p) => p.y));
+
+        if (minX + deltaImgX < 0) deltaImgX = -minX;
+        else if (maxX + deltaImgX > nativeWidth) deltaImgX = nativeWidth - maxX;
+        if (minY + deltaImgY < 0) deltaImgY = -minY;
+        else if (maxY + deltaImgY > nativeHeight) deltaImgY = nativeHeight - maxY;
 
         setPoints((pts) => pts.map((p) => ({ ...p, x: p.x + deltaImgX, y: p.y + deltaImgY })));
         setDragStartZoom({ x, y });
@@ -189,10 +215,12 @@ export const DrawMask = ({
         event.stopPropagation();
         const [x, y] = d3.pointer(event, zoomNode);
         const img = transformToImage(x, y);
+        const clampedX = Math.min(Math.max(img.x, 0), nativeWidth);
+        const clampedY = Math.min(Math.max(img.y, 0), nativeHeight);
         setPoints((pts) => {
           const next = [...pts];
           const idx = next.findIndex((p) => p.id === draggingId);
-          if (idx >= 0) next[idx] = { ...next[idx], x: img.x, y: img.y };
+          if (idx >= 0) next[idx] = { ...next[idx], x: clampedX, y: clampedY };
           return next;
         });
       }
@@ -226,6 +254,10 @@ export const DrawMask = ({
     dragStartZoom,
     points,
     factor,
+    imageWidth,
+    imageHeight,
+    nativeWidth,
+    nativeHeight,
     activeMaskIndex,
     onUpdateMaskPoints
   ]);

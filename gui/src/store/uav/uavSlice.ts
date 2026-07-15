@@ -5,6 +5,7 @@ import { UavMode } from './types';
 
 const initialState: UavMode = {
   drawLine: false,
+  isDraggingPoint: false,
   dirPoints: [],
   rwPoints: DEFAULT_POINTS,
   size: 0,
@@ -33,9 +34,12 @@ const uavSlice = createSlice({
     setDefaultUavState: () => {
       return initialState;
     },
+    setIsDraggingPoint: (state, action: PayloadAction<boolean>) => {
+      state.isDraggingPoint = action.payload;
+    },
   },
 });
 
-export const { setPixelSizePoints, updatePixelSize, setDefaultUavState } = uavSlice.actions;
+export const { setPixelSizePoints, updatePixelSize, setDefaultUavState, setIsDraggingPoint } = uavSlice.actions;
 
 export default uavSlice.reducer;

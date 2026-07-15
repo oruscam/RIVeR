@@ -13,7 +13,10 @@ export const drawMaskLabel = (
   text: string,
   x: number,
   y: number,
-  size: (px: number) => number
+  size: (px: number) => number,
+  // Viewport-space bounds the label's background box must stay fully inside —
+  // same "never leave the visible screen" rule as the mask/region confirm buttons.
+  bounds: { width: number; height: number }
 ) => {
   const className = `mask-label-${key}`;
   let label = svg.select<SVGGElement>(`g.${className}`);
@@ -37,10 +40,22 @@ export const drawMaskLabel = (
     .text(text);
 
   const node = textEl.node();
+  let dx = 0;
+  let dy = 0;
   if (node) {
     const bbox = node.getBBox();
     const padX = size(6);
     const padY = size(3);
+    const left = bbox.x - padX;
+    const right = bbox.x + bbox.width + padX;
+    const top = bbox.y - padY;
+    const bottom = bbox.y + bbox.height + padY;
+
+    if (left < 0) dx = -left;
+    else if (right > bounds.width) dx = bounds.width - right;
+    if (top < 0) dy = -top;
+    else if (bottom > bounds.height) dy = bounds.height - bottom;
+
     label
       .select<SVGRectElement>('rect')
       .attr('x', bbox.x - padX)
@@ -49,6 +64,7 @@ export const drawMaskLabel = (
       .attr('height', bbox.height + padY * 2);
   }
 
+  label.attr('transform', `translate(${dx}, ${dy})`);
   label.raise();
 };
 
@@ -76,7 +92,8 @@ export const drawMask = (
   transformToViewport: (x: number, y: number) => { x: number; y: number },
   transformToImage: (x: number, y: number) => { x: number; y: number },
   zoomFactor: number,
-  label: string
+  label: string,
+  bounds: { width: number; height: number }
 ) => {
   const isFirstRender = svg.select('defs').empty();
 
@@ -105,10 +122,11 @@ export const drawMask = (
   const polygonPoints = transformedPoints.map((p) => `${p.x},${p.y}`).join(' ');
 
   if (transformedPoints.length > 0) {
-    const minX = Math.min(...transformedPoints.map((p) => p.x));
-    const maxX = Math.max(...transformedPoints.map((p) => p.x));
-    const minY = Math.min(...transformedPoints.map((p) => p.y));
-    drawMaskLabel(svg, 'active', label, (minX + maxX) / 2, minY - size(14), size);
+    // Anchor to the mask's own topmost vertex rather than the bounding box's
+    // horizontal center — for elongated/diagonal masks the bbox center can sit
+    // far from the actual polygon, leaving the label floating away from it.
+    const topPoint = transformedPoints.reduce((top, p) => (p.y < top.y ? p : top));
+    drawMaskLabel(svg, 'active', label, topPoint.x, topPoint.y - size(14), size, bounds);
   }
 
   let polygon = svg.select<SVGPolygonElement>('polygon.mask-polygon');
