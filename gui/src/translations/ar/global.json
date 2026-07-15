@@ -142,6 +142,7 @@
     "warningTitle": "حذف المقطع",
     "mask": "القناع",
     "addMask": "إضافة قناع",
+    "editingMaskWarning": "جارٍ تحرير القناع {{n}}",
     "bankRight": "م",
     "bankLeft": "س"
   },
@@ -296,6 +297,7 @@
   },
   "Loader": {
     "extractingFrames": "جارٍ استخراج إطارات الفيديو",
+    "stabilizingFrames": "جارٍ تثبيت إطارات الفيديو",
     "results": "جارٍ إنشاء إحصاءات مقطع السرعة",
     "videoConversion": "جارٍ تحويل الفيديو إلى تنسيق MP4. الرجاء الانتظار.",
     "maskAndRoi": "جارٍ تحديد منطقة الاهتمام والأقنعة"

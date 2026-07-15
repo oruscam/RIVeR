@@ -142,6 +142,7 @@
     "warningTitle": "단면 삭제",
     "mask": "마스크",
     "addMask": "마스크 추가",
+    "editingMaskWarning": "마스크 {{n}} 편집 중",
     "bankRight": "우",
     "bankLeft": "좌"
   },
@@ -296,6 +297,7 @@
   },
   "Loader": {
     "extractingFrames": "동영상 프레임 추출 중",
+    "stabilizingFrames": "동영상 프레임 안정화 중",
     "results": "유속 프로파일 통계 생성 중",
     "videoConversion": "동영상을 MP4 형식으로 변환 중입니다. 잠시 기다려 주세요.",
     "maskAndRoi": "관심 영역 및 마스크 정의 중"

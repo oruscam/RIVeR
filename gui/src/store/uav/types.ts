@@ -11,6 +11,7 @@ interface pixelSolution {
 
 interface UavMode {
   drawLine: boolean;
+  isDraggingPoint: boolean;
   dirPoints: Point[];
   rwPoints: Point[];
   size: number;

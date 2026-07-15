@@ -23,7 +23,7 @@ export const DrawUav = ({
 }) => {
     const { overlayZoomRef, interactiveLayerRef, uiLayerRef, svgRef } = layers;
 
-    const { dirPoints, onSetPixelDirection } = useUavSlice();
+    const { dirPoints, onSetPixelDirection, onSetIsDraggingPoint } = useUavSlice();
 
     // Local interactive state (in overlay-zoom coordinate system)
     const [startPoint, setStartPoint] = useState<Point | null>(
@@ -33,6 +33,16 @@ export const DrawUav = ({
         dirPoints.length > 0 ? getResizedPoint(dirPoints[1], factor) : null
     );
     const [mousePressed, setMousePressed] = useState<boolean>(false);
+
+  useEffect(() => {
+    onSetIsDraggingPoint(mousePressed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mousePressed]);
+
+  useEffect(() => {
+    return () => onSetIsDraggingPoint(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
     const getPointerInZoom = useCallback((nativeEvt: Event) => {
     const container = overlayZoomRef.current ?? svgRef.current;

@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { CanvasPoint, FormPoint, UpdatePixelSize } from '../types';
-import { setPixelSizePoints, updatePixelSize } from '../store/uav/uavSlice';
+import { setPixelSizePoints, updatePixelSize, setIsDraggingPoint } from '../store/uav/uavSlice';
 import {
   getImageSize,
   getNewCanvasPositions,
@@ -237,6 +237,10 @@ export const useUavSlice = () => {
     dispatch(setHasChanged(true));
   };
 
+  const onSetIsDraggingPoint = (value: boolean) => {
+    dispatch(setIsDraggingPoint(value));
+  };
+
   return {
     // ATRIBUTES
     ...uav,
@@ -247,5 +251,6 @@ export const useUavSlice = () => {
     onSetPixelDirection,
     onSetPixelRealWorld,
     onUpdatePixelSize,
+    onSetIsDraggingPoint,
   };
 };

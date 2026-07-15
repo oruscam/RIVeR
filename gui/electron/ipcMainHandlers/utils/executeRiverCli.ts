@@ -45,14 +45,30 @@ async function executeRiverCli(
 
       // Output con throttling
       if (output === true) {
-        const currentTime = Date.now();
-        const timeSinceLastSent = currentTime - lastSentTime;
+        // Phase-transition markers ("Extracting frames..." / "Stabilizing frames...")
+        // must always reach the renderer, even under throttling — with a long video
+        // a burst of frame-progress lines can otherwise overwrite this one-off line
+        // before the 500ms window opens, silently dropping the phase change.
+        const phaseLine = message
+          .split('\n')
+          .map((line: string) => line.trim())
+          .find((line: string) => line.startsWith('Extracting') || line.startsWith('Stabilizing'));
 
-        if (timeSinceLastSent >= THROTTLE_INTERVAL) {
+        if (phaseLine) {
           webContents.getAllWebContents().forEach((contents) => {
-            contents.send('river-cli-message', message);
+            contents.send('river-cli-message', phaseLine);
           });
-          lastSentTime = currentTime;
+          lastSentTime = Date.now();
+        } else {
+          const currentTime = Date.now();
+          const timeSinceLastSent = currentTime - lastSentTime;
+
+          if (timeSinceLastSent >= THROTTLE_INTERVAL) {
+            webContents.getAllWebContents().forEach((contents) => {
+              contents.send('river-cli-message', message);
+            });
+            lastSentTime = currentTime;
+          }
         }
       }
     });

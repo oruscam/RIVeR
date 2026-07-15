@@ -163,6 +163,8 @@ export const ImageCrossSections = () => {
               factor={factor!}
               layers={layers}
               scale={scale}
+              imageWidth={imageWidth!}
+              imageHeight={imageHeight!}
               onLivePoints={handleLivePoints}
             />
 

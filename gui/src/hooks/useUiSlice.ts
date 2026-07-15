@@ -17,6 +17,7 @@ import {
   setScreen,
   setLanguage,
   setIsLastVersion,
+  setMessage,
 } from '../store/ui/uiSlice';
 import { ThemeType } from '../store/ui/types';
 import { RootState } from '../store/store';
@@ -121,6 +122,17 @@ export const useUiSlice = () => {
   };
 
   /**
+   * Method to overwrite the persistent loading message on the UI slice
+   * (e.g. switching the loader header from "Extracting frames" to
+   * "Stabilizing frames" mid-way through the same backend call).
+   * @param message - String with the new loading message
+   */
+
+  const onSetMessage = (message: string) => {
+    dispatch(setMessage(message));
+  };
+
+  /**
    * Method to set the seeAll attribute to true.
    * seeAll corresponds to the eye in FormCrossSctions, Step 5.
    * When seeAll is true, the user can see all the cross sections.
@@ -218,6 +230,7 @@ export const useUiSlice = () => {
     onSetInfoMessage,
     onSetWarningMessage,
     onClearWarningMessage,
+    onSetMessage,
     onSetSeeAll,
     onSetScreen,
     onSetLanguage,

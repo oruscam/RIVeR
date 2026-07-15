@@ -53,7 +53,25 @@ function computeRegionConfirmBtnPos(
 
 // Small floating badge above each region, same look as the pin labels
 // used elsewhere in the app (dark rounded chip, auto-sized to the text).
-const RegionLabel = ({ x, y, text }: { x: number; y: number; text: string }) => {
+const RegionLabel = ({
+  x,
+  y,
+  text,
+  size,
+  videoWidth,
+  videoHeight,
+}: {
+  x: number;
+  y: number;
+  text: string;
+  /** Converts a desired constant on-screen pixel size into viewBox units — same
+   *  helper used for the corner handles, so the label matches the mask label size. */
+  size: (px: number) => number;
+  /** Bounds the label's background box must stay fully inside — same
+   *  "never leave the visible screen" rule as the region confirm button. */
+  videoWidth: number;
+  videoHeight: number;
+}) => {
   const textRef = useRef<SVGTextElement>(null);
   const [box, setBox] = useState<{ x: number; y: number; width: number; height: number } | null>(null);
 
@@ -61,13 +79,27 @@ const RegionLabel = ({ x, y, text }: { x: number; y: number; text: string }) => 
     if (textRef.current) {
       setBox(textRef.current.getBBox());
     }
-  }, [text, x, y]);
+  }, [text, x, y, size]);
 
-  const padX = 6;
-  const padY = 3;
+  const padX = size(6);
+  const padY = size(3);
+
+  let dx = 0;
+  let dy = 0;
+  if (box) {
+    const left = box.x - padX;
+    const right = box.x + box.width + padX;
+    const top = box.y - padY;
+    const bottom = box.y + box.height + padY;
+
+    if (left < 0) dx = -left;
+    else if (right > videoWidth) dx = videoWidth - right;
+    if (top < 0) dy = -top;
+    else if (bottom > videoHeight) dy = videoHeight - bottom;
+  }
 
   return (
-    <g style={{ pointerEvents: 'none' }}>
+    <g style={{ pointerEvents: 'none' }} transform={`translate(${dx}, ${dy})`}>
       {box && (
         <rect
           x={box.x - padX}
@@ -85,7 +117,7 @@ const RegionLabel = ({ x, y, text }: { x: number; y: number; text: string }) => 
         y={y}
         textAnchor="middle"
         dominantBaseline="central"
-        fontSize={13}
+        fontSize={size(13)}
         fontWeight={600}
         fill={MASK_COLOR}
       >
@@ -143,7 +175,17 @@ export const StabilizationCanvas = ({
     [videoWidth, videoHeight]
   );
 
-  const clampRegion = (r: StabilizationRegion): StabilizationRegion => {
+  const clampRegion = (r: StabilizationRegion, handle: Handle): StabilizationRegion => {
+    if (handle === 'body') {
+      // Dragging the whole region must never shrink it — only its position is
+      // constrained, so it stops flush against an edge instead of squashing.
+      const width = Math.max(10, Math.min(r.width, videoWidth));
+      const height = Math.max(10, Math.min(r.height, videoHeight));
+      const x = Math.max(0, Math.min(r.x, videoWidth - width));
+      const y = Math.max(0, Math.min(r.y, videoHeight - height));
+      return { x, y, width, height };
+    }
+
     const x = Math.max(0, Math.min(r.x, videoWidth - 10));
     const y = Math.max(0, Math.min(r.y, videoHeight - 10));
     const width = Math.max(10, Math.min(r.width, videoWidth - x));
@@ -193,7 +235,7 @@ export const StabilizationCanvas = ({
         break;
     }
 
-    onUpdateRegion(drag.regionIndex, clampRegion(next));
+    onUpdateRegion(drag.regionIndex, clampRegion(next, drag.handle));
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
@@ -206,13 +248,18 @@ export const StabilizationCanvas = ({
 
   const activeRegion = activeRegionIndex !== null ? regions[activeRegionIndex] : null;
 
+  // viewBox units per on-screen pixel at the current render size/zoom level —
+  // multiplying a desired constant screen-pixel size by this keeps handles the
+  // same on-screen size regardless of zoom, same behavior as the mask points.
+  const rect = svgRef.current?.getBoundingClientRect();
+  const scaleX = rect && rect.width > 0 ? videoWidth / rect.width : 1;
+  const scaleY = rect && rect.height > 0 ? videoHeight / rect.height : 1;
+  const size = (px: number) => px * ((scaleX + scaleY) / 2);
+
   let confirmBtnLeft = '0';
   let confirmBtnTop = '0';
 
   if (activeRegion) {
-    const rect = svgRef.current?.getBoundingClientRect();
-    const scaleX = rect && rect.width > 0 ? videoWidth / rect.width : 1;
-    const scaleY = rect && rect.height > 0 ? videoHeight / rect.height : 1;
     const btnPos = computeRegionConfirmBtnPos(activeRegion, videoWidth, videoHeight, scaleX, scaleY);
     confirmBtnLeft = `${(btnPos.x / videoWidth) * 100}%`;
     confirmBtnTop = `${(btnPos.y / videoHeight) * 100}%`;
@@ -257,8 +304,11 @@ export const StabilizationCanvas = ({
 
               <RegionLabel
                 x={x + width / 2}
-                y={y - LABEL_OFFSET}
+                y={y - size(LABEL_OFFSET)}
                 text={`${t('VideoRange.stabilizationRegion', { defaultValue: 'Region' })} ${index + 1}`}
+                size={size}
+                videoWidth={videoWidth}
+                videoHeight={videoHeight}
               />
 
               {isActive && (
@@ -266,7 +316,7 @@ export const StabilizationCanvas = ({
                   <circle
                     cx={x}
                     cy={y}
-                    r={hoveredHandle === 'tl' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS}
+                    r={size(hoveredHandle === 'tl' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
                     fill={MASK_COLOR}
                     style={{ cursor: 'nw-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('tl')}
@@ -276,7 +326,7 @@ export const StabilizationCanvas = ({
                   <circle
                     cx={x + width}
                     cy={y}
-                    r={hoveredHandle === 'tr' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS}
+                    r={size(hoveredHandle === 'tr' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
                     fill={MASK_COLOR}
                     style={{ cursor: 'ne-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('tr')}
@@ -286,7 +336,7 @@ export const StabilizationCanvas = ({
                   <circle
                     cx={x}
                     cy={y + height}
-                    r={hoveredHandle === 'bl' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS}
+                    r={size(hoveredHandle === 'bl' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
                     fill={MASK_COLOR}
                     style={{ cursor: 'sw-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('bl')}
@@ -296,7 +346,7 @@ export const StabilizationCanvas = ({
                   <circle
                     cx={x + width}
                     cy={y + height}
-                    r={hoveredHandle === 'br' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS}
+                    r={size(hoveredHandle === 'br' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
                     fill={MASK_COLOR}
                     style={{ cursor: 'se-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('br')}

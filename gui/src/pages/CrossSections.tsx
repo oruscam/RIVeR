@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { WizardButtons, Error, FocusOverlay } from '../components';
+import { WizardButtons, Error, Warning, FocusOverlay } from '../components';
 import { CrossSections as CrossSectionsComponent } from '../components/CrossSections/index';
 import { useDataSlice, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { useTranslation } from 'react-i18next';
@@ -72,7 +72,10 @@ export const CrossSections = () => {
         <div style={{ position: 'relative', margin: 'auto 0' }}>
           <ImageCrossSections />
         </div>
-        <Error></Error>
+        <div className="message-stack">
+          <Error />
+          <Warning />
+        </div>
       </div>
       <div
         className={`form-container ${dragOver ? 'drag-over' : ''}`}

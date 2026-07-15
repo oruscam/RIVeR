@@ -52,6 +52,7 @@ export const Uav = () => {
     solution,
     extraFields,
     drawLine,
+    isDraggingPoint,
     onGetUavTransformationMatrix,
     onUpdatePixelSize
   } = useUavSlice();
@@ -120,7 +121,7 @@ export const Uav = () => {
           />
           <WizardButtons canFollow={solution?.orthoImage !== undefined} formId="form-pixel-size" />
         </div>
-        <FocusOverlay active={drawLine} />
+        <FocusOverlay active={drawLine || isDraggingPoint} />
       </div>
     </div>
   );
