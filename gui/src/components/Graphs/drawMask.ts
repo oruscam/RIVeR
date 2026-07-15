@@ -126,10 +126,10 @@ export const drawMask = (
   polygon.style('pointer-events', 'auto').style('cursor', 'move');
 
   polygon.on('mousedown', function (event) {
-    if (!svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const vx = event.clientX - rect.left;
-    const vy = event.clientY - rect.top;
+    // Use the same coordinate space as the mousemove handler (d3.pointer against
+    // the zoomed group) instead of svgRef's un-zoomed rect — otherwise the first
+    // move after mousedown jumps by the current zoom/pan offset before tracking correctly.
+    const [vx, vy] = d3.pointer(event, this);
     setDragStart({ x: vx, y: vy });
     setDraggingAll(true);
   });

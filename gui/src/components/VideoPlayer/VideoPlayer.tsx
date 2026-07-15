@@ -10,7 +10,9 @@ import { useImageZoomPan } from '../../hooks';
 interface VideoPlayerProps {
   fileURL: string;
   duration: number;
-  overlay?: React.ReactNode;
+  /** Receives the current zoom scale so overlay controls (e.g. a confirm
+   *  button) can counteract it and keep a constant on-screen size. */
+  overlay?: (zoom: { scale: number }) => React.ReactNode;
 }
 
 export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
@@ -133,7 +135,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                   onTimeUpdate={onVideoTimeUpdate}
                   id="video"
                 ></video>
-                {overlay}
+                {overlay?.({ scale })}
               </div>
             </div>
 

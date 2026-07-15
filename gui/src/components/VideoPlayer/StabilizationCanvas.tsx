@@ -110,6 +110,9 @@ interface Props {
   activeRegionIndex: number | null;
   onUpdateRegion: (index: number, region: StabilizationRegion) => void;
   onConfirm: () => void;
+  /** Current video zoom scale — used to counter-scale the confirm button so
+   *  it keeps a constant on-screen size, same as the mask confirm button. */
+  zoomScale: number;
 }
 
 export const StabilizationCanvas = ({
@@ -117,6 +120,7 @@ export const StabilizationCanvas = ({
   videoHeight,
   regions,
   activeRegionIndex,
+  zoomScale,
   onUpdateRegion,
   onConfirm,
 }: Props) => {
@@ -246,6 +250,7 @@ export const StabilizationCanvas = ({
                 fill="transparent"
                 stroke={MASK_COLOR}
                 strokeWidth={isActive ? 2 : 1.5}
+                vectorEffect="non-scaling-stroke"
                 style={{ cursor: isActive ? 'grab' : 'default' }}
                 onMouseDown={(e) => handleMouseDown(e, index, 'body')}
               />
@@ -311,7 +316,9 @@ export const StabilizationCanvas = ({
             position: 'absolute',
             left: confirmBtnLeft,
             top: confirmBtnTop,
-            transform: 'translate(-50%, -50%)',
+            // Counteract the video's own zoom scale (applied by an ancestor)
+            // so the button stays the same on-screen size at any zoom level.
+            transform: `translate(-50%, -50%) scale(${1 / zoomScale})`,
             zIndex: 10,
           }}
           onMouseDown={(e) => e.stopPropagation()}
