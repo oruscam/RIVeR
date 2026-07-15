@@ -25,16 +25,19 @@ export const VideoRange = () => {
   const [extraFields, setExtraFields] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const stabilizationOverlay = stabilization ? (
-    <StabilizationCanvas
-      videoWidth={videoWidth}
-      videoHeight={videoHeight}
-      regions={stabilizationRegions}
-      activeRegionIndex={stabilizationActiveRegionIndex}
-      onUpdateRegion={onUpdateStabilizationRegion}
-      onConfirm={() => onSetStabilizationActiveRegionIndex(null)}
-    />
-  ) : undefined;
+  const stabilizationOverlay = stabilization
+    ? ({ scale }: { scale: number }) => (
+        <StabilizationCanvas
+          videoWidth={videoWidth}
+          videoHeight={videoHeight}
+          regions={stabilizationRegions}
+          activeRegionIndex={stabilizationActiveRegionIndex}
+          onUpdateRegion={onUpdateStabilizationRegion}
+          onConfirm={() => onSetStabilizationActiveRegionIndex(null)}
+          zoomScale={scale}
+        />
+      )
+    : undefined;
 
   return (
     <div className="regular-page">

@@ -91,7 +91,10 @@ const onLoadPixelSize = async (
         { x: x1, y: y1 },
         { x: x2, y: y2 },
       ],
-      drawLine: true,
+      // `drawLine` means "actively drawing/editing right now" everywhere it's
+      // read (button active-state, focus overlay) — a loaded, already-solved
+      // pixel size line is the opposite of that.
+      drawLine: false,
       solution:
         transformation !== undefined
           ? {
@@ -251,7 +254,10 @@ const onLoadCrossSections = (
           updateSection({
             ...sections[0],
             name: key,
-            drawLine: true,
+            // See onLoadPixelSize: `drawLine` means "actively drawing right
+            // now", not "this section already has a line" — a loaded section
+            // is the opposite of that.
+            drawLine: false,
             sectionPoints: [
               { x: xl, y: yl },
               { x: xr, y: yr },
@@ -289,7 +295,7 @@ const onLoadCrossSections = (
         dispatch(
           addSection({
             name: key,
-            drawLine: true,
+            drawLine: false,
             sectionPoints: [
               { x: xl, y: yl },
               { x: xr, y: yr },
