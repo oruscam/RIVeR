@@ -2,13 +2,21 @@
 // purely for the IPC handler; these tests only exercise the pure helper
 // functions, so those side-effecting imports are mocked out (same approach
 // as distances.test.ts).
-jest.mock('electron', () => ({
-  ipcMain: { handle: jest.fn() },
-  dialog: { showOpenDialog: jest.fn() },
-}));
+jest.mock('electron', () => {
+  let registeredHandler: (event: any, args: any) => any;
+  return {
+    ipcMain: {
+      handle: jest.fn((channel: string, handler: (event: any, args: any) => any) => {
+        if (channel === 'get-bathimetry') registeredHandler = handler;
+      }),
+      _triggerGetBathimetry: async (event: any, args: any) => registeredHandler(event, args),
+    },
+    dialog: { showOpenDialog: jest.fn().mockResolvedValue({ filePaths: [] }) },
+  };
+});
 
 jest.mock('xlsx', () => ({
-  readFile: jest.fn(),
+  readFile: jest.fn(() => ({ SheetNames: ['Sheet1'], Sheets: { Sheet1: {} } })),
   utils: { sheet_to_json: jest.fn() },
   set_fs: jest.fn(),
   writeFile: jest.fn(),
@@ -27,7 +35,10 @@ jest.mock('../main', () => ({
   PROJECT_CONFIG: { defaultFilesPath: '/default/path', projectDirectory: '/default/path' },
 }));
 
-import { analyzeLine, transformLine } from './getBathimetry';
+import { analyzeLine, transformLine, getBathimetry } from './getBathimetry';
+import { ipcMain } from 'electron';
+import { utils } from 'xlsx';
+import { validateFile } from './utils/validateFile';
 
 describe('analyzeLine / transformLine — depth vs elevation classification', () => {
   it('classifies as depth a channel whose deepest point sits near one bank (reported bug)', () => {
@@ -120,5 +131,56 @@ describe('analyzeLine / transformLine — depth vs elevation classification', ()
     expect(newLine[0].x).toBe(0);
     expect(newLine[newLine.length - 1].x).toBe(20);
     expect(newLine[2].y).toBeCloseTo(0, 5);
+  });
+});
+
+describe('getBathimetry — header row handling (integration)', () => {
+  beforeAll(() => {
+    getBathimetry();
+  });
+
+  beforeEach(() => {
+    (validateFile as jest.Mock).mockReturnValue(true);
+  });
+
+  const trigger = async (args: any) => {
+    // @ts-expect-error — test-only helper added to the electron mock
+    return await ipcMain._triggerGetBathimetry({}, args);
+  };
+
+  // Same reported repro case (deepest point near a bank), with and without
+  // a header row, to confirm header stripping doesn't affect classification.
+  const dataRows = [
+    [0, 0],
+    [5, 0.45],
+    [7.5, 0.62],
+    [10, 0.72],
+    [12.5, 0.9],
+    [15, 1.05],
+    [17.5, 1.1],
+    [20, 1.2],
+    [22.5, 1.3],
+    [24, 1.31],
+    [27, 0],
+  ];
+
+  it('inverts the depth profile correctly when the file has a header row', async () => {
+    (utils.sheet_to_json as jest.Mock).mockReturnValue([['Station', 'Depth'], ...dataRows]);
+    const response = await trigger({ path: 'valid.xlsx', unitSistem: 'metric' });
+
+    expect(response.error).toBeUndefined();
+    expect(response.changed).toBe(true);
+    expect(response.line[0].y).toBeCloseTo(1.31, 5);
+    expect(response.line[9].y).toBeCloseTo(0, 5);
+  });
+
+  it('inverts the depth profile correctly when the file has no header row', async () => {
+    (utils.sheet_to_json as jest.Mock).mockReturnValue(dataRows);
+    const response = await trigger({ path: 'valid.xlsx', unitSistem: 'metric' });
+
+    expect(response.error).toBeUndefined();
+    expect(response.changed).toBe(true);
+    expect(response.line[0].y).toBeCloseTo(1.31, 5);
+    expect(response.line[9].y).toBeCloseTo(0, 5);
   });
 });
