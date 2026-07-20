@@ -291,6 +291,7 @@
     "invalidDistancesNotValidValue": "Formato das distâncias inválido. Alguns valores não são números válidos",
     "invalidDistancesNegativeValue": "Formato das distâncias inválido. Distâncias negativas não são permitidas",
     "invalidBathimetryFileFormat": "Formato de arquivo de batimetria inválido",
+    "bathimetryOutOfZRange": "Os níveis da batimetria estão muito distantes do intervalo Z dos pontos de controle. Verifique o arquivo ou as unidades.",
     "invalidImageExtension": "A pasta contém arquivos que não são imagens",
     "imagesFolderEmpty": "Nenhuma imagem encontrada na pasta selecionada",
     "waitingForFrames": "Aguardando o carregamento dos quadros. Tente novamente em alguns segundos",

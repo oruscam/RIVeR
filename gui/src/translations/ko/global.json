@@ -287,6 +287,7 @@
     "invalidDistancesNotValidValue": "거리 파일 형식이 유효하지 않습니다. 일부 거리 값이 올바른 숫자가 아닙니다",
     "invalidDistancesNegativeValue": "거리 파일 형식이 유효하지 않습니다. 음수 거리는 허용되지 않습니다",
     "invalidBathimetryFileFormat": "수심 측량 파일 형식이 유효하지 않습니다",
+    "bathimetryOutOfZRange": "측심 레벨이 기준점의 Z 범위를 크게 벗어났습니다. 파일 또는 단위를 확인하세요.",
     "invalidImageExtension": "디렉토리에 이미지가 아닌 파일이 포함되어 있습니다",
     "imagesFolderEmpty": "선택한 폴더에서 이미지를 찾을 수 없습니다",
     "waitingForFrames": "프레임이 로드되기를 기다리고 있습니다. 잠시 후 다시 시도해 주세요",

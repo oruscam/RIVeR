@@ -291,6 +291,7 @@
     "invalidDistancesNotValidValue": "Formato delle Distanze dei Punti non valido. Alcuni valori non sono numeri validi",
     "invalidDistancesNegativeValue": "Formato delle Distanze dei Punti non valido. Distanze negative non sono ammesse",
     "invalidBathimetryFileFormat": "Formato del file Batimetria non valido",
+    "bathimetryOutOfZRange": "I livelli della batimetria sono molto al di fuori dell'intervallo Z dei punti di controllo. Controlla il file o le unità.",
     "invalidImageExtension": "La directory contiene file che non sono immagini",
     "imagesFolderEmpty": "Nessuna immagine trovata nella cartella selezionata",
     "waitingForFrames": "Stiamo caricando i fotogrammi. Riprova tra qualche secondo",
