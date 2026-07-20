@@ -287,6 +287,7 @@
     "invalidDistancesNotValidValue": "無効な距離ファイル形式です。一部の距離値が有効な数値ではありません",
     "invalidDistancesNegativeValue": "無効な距離ファイル形式です。負の距離は許可されていません",
     "invalidBathimetryFileFormat": "無効な測深ファイル形式です",
+    "bathimetryOutOfZRange": "測深レベルがコントロールポイントのZ範囲から大きく外れています。ファイルまたは単位を確認してください。",
     "invalidImageExtension": "ディレクトリに画像以外のファイルが含まれています",
     "imagesFolderEmpty": "選択したフォルダに画像が見つかりません",
     "waitingForFrames": "フレームの読み込みを待っています。数秒後に再試行してください",

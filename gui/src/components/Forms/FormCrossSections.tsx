@@ -23,7 +23,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
   const { onSetErrorMessage } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
-  const { cameraSolution } = useIpcamSlice();
+  const { cameraSolution, zLimits: controlPointsZLimits } = useIpcamSlice();
 
   const { t } = useTranslation();
 
@@ -79,6 +79,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       onGetBathimetry({
         cameraMatrix: cameraSolution?.cameraMatrix,
         zLimits: { min: yMin ?? 0, max: yMax ?? 0 },
+        controlPointsZLimits,
         unitSistem: projectDetails.unitSistem,
       })
         // First error is when the bathimetry format is correct, but not the values

@@ -630,7 +630,7 @@ export const useSectionSlice = () => {
   const onGetBathimetry = async (values: onGetBathimetryTypes) => {
     const ipcRenderer = window.ipcRenderer;
 
-    const { cameraMatrix, zLimits, bathimetryPath, unitSistem } = values;
+    const { cameraMatrix, zLimits, controlPointsZLimits, bathimetryPath, unitSistem } = values;
 
     try {
       const { path, line, name, error } = await ipcRenderer.invoke('get-bathimetry', {
@@ -641,6 +641,18 @@ export const useSectionSlice = () => {
 
       if (error?.message) {
         throw new Error(error.message);
+      }
+
+      // A bathimetry file whose level values don't overlap the real-world Z
+      // range spanned by the project's control points at all is almost
+      // certainly the wrong file (or the wrong units) — reject it outright
+      // instead of accepting data that can't correspond to this project.
+      if (controlPointsZLimits && line?.length > 0) {
+        const fileMin = Math.min(...line.map((point: Point) => point.y));
+        const fileMax = Math.max(...line.map((point: Point) => point.y));
+        if (fileMax < controlPointsZLimits.min || fileMin > controlPointsZLimits.max) {
+          throw new Error('bathimetryOutOfZRange');
+        }
       }
 
       if (path !== '' && path !== sections[activeSection].bathimetry.path) {
