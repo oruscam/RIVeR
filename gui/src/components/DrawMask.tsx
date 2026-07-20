@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { useTranslation } from 'react-i18next';
 import { useDataSlice } from "../hooks";
@@ -60,7 +60,13 @@ export const DrawMask = ({
   // Define #dashFill once on the SVG root so it survives mask mode changes.
   // drawMask() also checks for this pattern, but scoped to the mask-layer group;
   // defining it here ensures static masks can always reference it.
-  useLayoutEffect(() => {
+  // Must be a useEffect (not useLayoutEffect): OverlaySvg's own useLayoutEffect
+  // does svg.selectAll("*").remove() on mount, and layout effects run child-before-
+  // parent — so on first mount (e.g. masks already loaded from a saved project)
+  // this would create the pattern only for OverlaySvg's wipe to immediately delete
+  // it, with nothing left to trigger a re-run. useEffect always fires after every
+  // useLayoutEffect in the tree, so it's guaranteed to run after the wipe.
+  useEffect(() => {
     if (!svgRef.current) return;
     const svgSel = d3.select(svgRef.current);
     if (svgSel.select('#dashFill').empty()) {
