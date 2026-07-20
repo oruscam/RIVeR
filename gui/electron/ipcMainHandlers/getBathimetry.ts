@@ -195,14 +195,39 @@ async function getBathimetry() {
 // Analyze the line to determine if it is decreced and if it represents depth
 const analyzeLine = (line: { x: number; y: number }[], maxYIndex: number) => {
   const isDecreced = line[0].x > line[line.length - 1].x;
-  // If the maximum value is precisely at the first or last valid point, it is treated as an elevation profile.
-  // Otherwise, it represents depth.
-  const isDepth = !(
-    maxYIndex === 0 ||
-    maxYIndex === line.length - 1 ||
-    maxYIndex === 1 ||
-    maxYIndex === line.length - 2
-  );
+
+  // Compare the profile against the chord (straight line) connecting its two
+  // endpoints, using the signed area between the curve and the chord.
+  // A depth profile is "hill"-shaped: low at the banks (endpoints), high in
+  // between, so it bulges above the chord (positive area).
+  // An elevation/stage profile is already "valley"-shaped: high at the
+  // banks, low in the channel, so it sits below the chord (negative area).
+  // Unlike checking the position of the max point, this holds even when the
+  // deepest point sits close to one bank, which is common in real, asymmetric
+  // river channels.
+  const first = line[0];
+  const last = line[line.length - 1];
+  const dx = last.x - first.x;
+
+  if (dx === 0) {
+    // Degenerate case (no horizontal spread): fall back to the old,
+    // position-based check.
+    const isDepth = !(maxYIndex === 0 || maxYIndex === line.length - 1);
+    return { isDecreced, isDepth };
+  }
+
+  const chordY = (x: number) => first.y + ((x - first.x) / dx) * (last.y - first.y);
+
+  let signedArea = 0;
+  let prevDeviation = 0; // line[0].y - chordY(line[0].x) is 0 by construction
+  for (let i = 1; i < line.length; i++) {
+    const deviation = line[i].y - chordY(line[i].x);
+    const segmentDx = Math.abs(line[i].x - line[i - 1].x);
+    signedArea += ((prevDeviation + deviation) / 2) * segmentDx;
+    prevDeviation = deviation;
+  }
+
+  const isDepth = signedArea > 0;
   return { isDecreced, isDepth };
 };
 
@@ -251,4 +276,4 @@ const transformLine = (line, isDecreced: boolean, isDepth: boolean, maxY: number
   return { newLine, changed: true };
 };
 
-export { getBathimetry };
+export { getBathimetry, analyzeLine, transformLine };
