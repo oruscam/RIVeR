@@ -24,6 +24,7 @@ jest.mock('xlsx', () => ({
 
 jest.mock('fs', () => ({
   promises: { writeFile: jest.fn() },
+  readFileSync: jest.fn(),
 }));
 
 jest.mock('./utils/validateFile', () => ({
@@ -38,6 +39,7 @@ jest.mock('../main', () => ({
 import { analyzeLine, transformLine, getBathimetry } from './getBathimetry';
 import { ipcMain } from 'electron';
 import { utils } from 'xlsx';
+import * as fs from 'fs';
 import { validateFile } from './utils/validateFile';
 
 describe('analyzeLine / transformLine — depth vs elevation classification', () => {
@@ -182,5 +184,56 @@ describe('getBathimetry — header row handling (integration)', () => {
     expect(response.changed).toBe(true);
     expect(response.line[0].y).toBeCloseTo(1.31, 5);
     expect(response.line[9].y).toBeCloseTo(0, 5);
+  });
+});
+
+describe('getBathimetry — non-CSV source is always rewritten as CSV', () => {
+  beforeAll(() => {
+    getBathimetry();
+  });
+
+  beforeEach(() => {
+    (validateFile as jest.Mock).mockReturnValue(true);
+    (fs.promises.writeFile as jest.Mock).mockClear();
+  });
+
+  const trigger = async (args: any) => {
+    // @ts-expect-error — test-only helper added to the electron mock
+    return await ipcMain._triggerGetBathimetry({}, args);
+  };
+
+  it('writes a normalized CSV even when the profile needs no inversion (reported LibreOffice/ODS case)', async () => {
+    // Valley-shaped profile (already elevation, changed === false), same
+    // shape as the real .ods file that reproduced the bug: previously this
+    // meant nothing got rewritten and the original .ods — with its
+    // locale-formatted, comma-decimal display text — was handed straight to
+    // the Python backend, which failed to parse it as a float.
+    const valleyProfile = [
+      [0, 0.542],
+      [0.45, 0.374],
+      [1.45, 0.265],
+      [7.45, 0],
+      [14.45, 0.397],
+      [15.85, 0.542],
+    ];
+    (utils.sheet_to_json as jest.Mock).mockReturnValue(valleyProfile);
+    const response = await trigger({ path: 'valid.ods', unitSistem: 'metric' });
+
+    expect(response.error).toBeUndefined();
+    expect(response.changed).toBe(false); // no depth inversion needed
+    expect(response.path).not.toBe('valid.ods'); // but still rewritten
+    expect(response.path.endsWith('_modified.csv')).toBe(true);
+    expect(fs.promises.writeFile).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not rewrite an already-clean CSV that needs no changes', async () => {
+    (fs.readFileSync as jest.Mock).mockReturnValue('0,10\n5,4\n10,1\n15,4\n20,10');
+
+    const response = await trigger({ path: 'valid.csv', unitSistem: 'metric' });
+
+    expect(response.error).toBeUndefined();
+    expect(response.changed).toBe(false);
+    expect(response.path).toBe('valid.csv');
+    expect(fs.promises.writeFile).not.toHaveBeenCalled();
   });
 });
