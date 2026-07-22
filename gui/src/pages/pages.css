@@ -477,7 +477,6 @@
 
 .button-1.cal-action-btn {
     height: 50px;
-    font-size: clamp(13px, 1.3vw, 18px);
     white-space: nowrap;
 }
 
@@ -535,7 +534,7 @@
 }
 
 .cal-grade-pill.good { background: var(--success-color); }
-.cal-grade-pill.fair { background: #F5BF61; color: #1a1a1a; }
+.cal-grade-pill.fair { background: var(--warning-color); color: #1a1a1a; }
 .cal-grade-pill.bad  { background: var(--background-error); }
 
 /* Metrics flat list */
@@ -562,7 +561,7 @@
 }
 
 .cal-metric-good { color: var(--success-color); }
-.cal-metric-fair { color: #F5BF61; }
+.cal-metric-fair { color: var(--warning-color); }
 .cal-metric-bad  { color: var(--background-error); }
 
 /* Recommendations — plain italic list */
