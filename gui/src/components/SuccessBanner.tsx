@@ -13,7 +13,7 @@ export const SuccessBanner = ({ icon: IconComponent, title, compact = false, chi
     <div className={`success-banner${compact ? ' success-banner-compact' : ''}`}>
       <IconComponent className="success-banner-icon" aria-hidden="true" />
       <div className="success-banner-body">
-        <h3 className="success-banner-title">{title}</h3>
+        <p className="success-banner-title">{title}</p>
         <div className="success-banner-message">{children}</div>
       </div>
     </div>
