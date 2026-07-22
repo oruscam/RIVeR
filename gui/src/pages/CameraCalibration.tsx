@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, useCallback, useMemo, memo, FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CircleCheckBig } from 'lucide-react';
 import { useCalibrationSlice, useResizableCarousel } from '../hooks';
+import { SuccessBanner } from '../components';
 
 interface ThumbProps {
   img: string;
@@ -529,12 +531,11 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                 style={{ background: 'var(--input-background-disabled)', cursor: 'default' }}
               />
               {savedPath && (
-                <div className="cal-save-confirm-box">
-                  <span className="cal-confirm-title">✓ {t('Calibration.savedTo')}</span>
-                  <button className="cal-confirm-link" onClick={() => onRevealPath(savedPath)}>
+                <SuccessBanner compact icon={CircleCheckBig} title={t('Calibration.savedTo')}>
+                  <button className="cal-link" onClick={() => onRevealPath(savedPath)}>
                     {savedPath}
                   </button>
-                </div>
+                </SuccessBanner>
               )}
               {saveError && <p className="cal-error-chip">{saveError}</p>}
             </div>

@@ -737,40 +737,6 @@
     background: var(--on-hover);
 }
 
-/* Green confirmation box */
-.cal-save-confirm-box {
-    background: var(--success-color);
-    border-radius: 10px;
-    padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.cal-confirm-title {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #fff;
-}
-
-.cal-confirm-link {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.73rem;
-    cursor: pointer;
-    padding: 0;
-    text-align: left;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    word-break: break-all;
-    transition: opacity 0.15s;
-}
-
-.cal-confirm-link:hover {
-    opacity: 0.75;
-}
-
 /* Clickable path links (generic) */
 .cal-link {
     background: none;
