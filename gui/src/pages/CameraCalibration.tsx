@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, useCallback, useMemo, memo, FC } from 'rea
 import { useTranslation } from 'react-i18next';
 import { CircleCheckBig } from 'lucide-react';
 import { useCalibrationSlice, useResizableCarousel } from '../hooks';
-import { SuccessBanner } from '../components';
+import { Loading, SuccessBanner } from '../components';
 import { CalibrationHistogram } from '../components/Graphs';
 
 interface ThumbProps {
@@ -159,6 +159,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     undistortedPaths,
     perFrameCorners,
     progressMsg,
+    progressPercentage,
+    progressTime,
     errorMsg,
     onOpenFolder,
     onDropFolder,
@@ -352,6 +354,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   };
 
   const capitalize = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
+  const remainingTimeLabel = t('Analizing.remainingTime');
 
   const rightPanel = useMemo(
     () => (
@@ -391,9 +394,12 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
         {status === 'solving' && (
           <div className="cal-solving-loader">
-            <div className="loader-wrapper-big">
-              <div className="loader-big" />
-            </div>
+            <Loading
+              percentage={progressPercentage}
+              time={progressTime ? `${remainingTimeLabel}${progressTime}` : ''}
+              size="big"
+              isComplete={progressPercentage === '100%'}
+            />
             {progressMsg && <p className="cal-progress-text">{progressMsg}</p>}
           </div>
         )}
@@ -549,6 +555,9 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       summary,
       csvRows,
       progressMsg,
+      progressPercentage,
+      progressTime,
+      remainingTimeLabel,
       errorMsg,
       cameraName,
       lensName,

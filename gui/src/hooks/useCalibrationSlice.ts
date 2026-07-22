@@ -6,10 +6,11 @@ import {
   setImages,
   setStatus,
   setSolveResult,
-  setProgressMsg,
+  setProgress,
   setErrorMsg,
   resetCalibration,
 } from '../store/calibration/calibrationSlice';
+import { parseCliProgress } from '../helpers/parseCliProgress';
 
 export const useCalibrationSlice = () => {
   const state = useSelector((s: RootState) => s.calibration);
@@ -56,13 +57,15 @@ export const useCalibrationSlice = () => {
     if (!state.imageDir) return;
 
     dispatch(setStatus('solving'));
-    dispatch(setProgressMsg(''));
+    dispatch(setProgress({ msg: '', percentage: '', time: '' }));
 
     const reportDir = `${state.imageDir}/out/report`;
     const undistortedDir = `${state.imageDir}/out/undistorted`;
 
     const handleMsg = (_evt: unknown, msg: string) => {
-      dispatch(setProgressMsg(msg.trim()));
+      const trimmed = msg.trim();
+      const { percentage, time } = parseCliProgress(trimmed);
+      dispatch(setProgress({ msg: trimmed, percentage, time }));
     };
     window.ipcRenderer.on('river-cli-message', handleMsg);
 
