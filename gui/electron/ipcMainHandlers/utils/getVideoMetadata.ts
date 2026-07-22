@@ -89,7 +89,7 @@ async function convertToMp4(videoPath: string): Promise<string> {
     ffmpeg(videoPath)
       .output(outputFilePath)
       .on('end', () => resolve(outputFilePath))
-      .on('error', (err: Error) => reject('No se pudo convertir el video a mp4'))
+      .on('error', () => reject('No se pudo convertir el video a mp4'))
       .run();
   });
 }

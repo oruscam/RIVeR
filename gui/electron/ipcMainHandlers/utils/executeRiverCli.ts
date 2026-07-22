@@ -1,6 +1,5 @@
 import { app, ipcMain, webContents } from 'electron';
 import { ChildProcess, spawn } from 'child_process';
-import * as path from 'path';
 import * as fs from 'fs';
 import { PROJECT_CONFIG } from '../../main';
 
@@ -8,17 +7,17 @@ let python: ChildProcess;
 
 async function executeRiverCli(
   options: (string | number)[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for positional compatibility with callers
   _mode: 'json' | 'text' = 'json',
   output: boolean = false,
   logFile: string
 ): Promise<{ data: any; error: any }> {
-
   const args = options.map((arg) => arg.toString());
   args.unshift(...['-m', 'river.cli']);
 
   console.log('You are using river-cli', PROJECT_CONFIG.pythonPath);
-  console.log('Arguments: ', options)
-  console.log("EJECUTANDO COMANDO:", args.join(" "));
+  console.log('Arguments: ', options);
+  console.log('EJECUTANDO COMANDO:', args.join(' '));
 
   const result = await new Promise((resolve, reject) => {
     python = spawn(PROJECT_CONFIG.pythonPath, args);
@@ -102,7 +101,7 @@ ipcMain.handle('kill-river-cli', async () => {
   return killRiverCli();
 });
 
-app.on('before-quit', async (event) => {
+app.on('before-quit', async () => {
   if (python) {
     console.log('App is quitting. Killing river-cli process');
     await killRiverCli();

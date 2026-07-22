@@ -104,11 +104,13 @@ function getMask(directory: string, type: 'npy' | 'png'): string | undefined {
 }
 
 // Main function to handle the loading of a project
-async function handleLoadProject(PROJECT_CONFIG: ProjectConfig, options: Electron.OpenDialogOptions, win: BrowserWindow | null) {
+async function handleLoadProject(
+  PROJECT_CONFIG: ProjectConfig,
+  options: Electron.OpenDialogOptions,
+  win: BrowserWindow | null
+) {
   // Open a dialog to select a directory
-  const result = win
-    ? await dialog.showOpenDialog(win, options)
-    : await dialog.showOpenDialog(options);
+  const result = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options);
   if (result.canceled || result.filePaths.length === 0)
     return { success: false, message: 'No directory selected' };
 

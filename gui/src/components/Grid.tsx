@@ -3,7 +3,6 @@ import DataGrid, { SelectColumn } from 'react-data-grid';
 import { useEffect, useMemo, useState } from 'react';
 import { useProjectSlice, useSectionSlice } from '../hooks';
 import { UNIT_CONVERSIONS } from '../constants/constants';
-import { Clipboard } from './Clipboard';
 import { CopyBtn } from './CustomIcons/CopyBtn';
 import { LuSpline } from 'react-icons/lu';
 import { useTranslation } from 'react-i18next';
@@ -101,7 +100,7 @@ export const Grid = () => {
     const { data } = sections[activeSection];
     if (data === undefined) return cellClas;
 
-    const { displacement_x } = data
+    const { displacement_x } = data;
     if (!data?.check[row.id] || displacement_x[row.id] === null) {
       if (data?.interpolated) {
         cellClas = 'centered-cell cell-red-values';
@@ -204,10 +203,17 @@ export const Grid = () => {
 
   return (
     <div className="grid-and-clipboard">
-      <div style={{
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        width: '96%', marginLeft: 'auto', marginRight: 'auto', marginBottom: '6px',
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          width: '96%',
+          marginLeft: 'auto',
+          marginRight: 'auto',
+          marginBottom: '6px',
+        }}
+      >
         <CopyBtn onClickFunction={onClickClipboard} />
         <div
           className="switch-container-results"
@@ -215,15 +221,17 @@ export const Grid = () => {
           onClick={handleInterpolateToggle}
         >
           <LuSpline size={15} color={interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)'} />
-          <span style={{ fontSize: '13px', color: interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)', whiteSpace: 'nowrap' }}>
+          <span
+            style={{
+              fontSize: '13px',
+              color: interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)',
+              whiteSpace: 'nowrap',
+            }}
+          >
             {t('Results.interpolateProfile')}
           </span>
           <label className="switch" style={{ marginLeft: '6px' }} onClick={(e) => e.stopPropagation()}>
-            <input
-              type="checkbox"
-              checked={interpolated}
-              onChange={handleInterpolateToggle}
-            />
+            <input type="checkbox" checked={interpolated} onChange={handleInterpolateToggle} />
             <span className="slider"></span>
           </label>
         </div>

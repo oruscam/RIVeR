@@ -12,7 +12,7 @@ export const Ipcam = () => {
   const { importedImages, cameraSolution, activeImage, onChangeActiveImage, onGetPoints, onGetImages } =
     useIpcamSlice();
   const { onSetErrorMessage } = useUiSlice();
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const { nextStep } = useWizard();
 
   const [dragOver, setDragOver] = useState<boolean>(false);
@@ -65,7 +65,7 @@ export const Ipcam = () => {
       >
         <FormHeader title={t('ControlPoints.title')} showSections={false} />
         <FormIpcam />
-        <div className='footer'>
+        <div className="footer">
           <WizardButtons canFollow={cameraSolution !== null} onClickNext={handleOnClickNext} />
         </div>
       </div>

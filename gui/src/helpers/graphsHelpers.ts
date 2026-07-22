@@ -96,13 +96,13 @@ const generateYAxisTicks = (array?: (number | null)[], min?: number, max?: numbe
   return ticks;
 };
 
-const getOrthoImageDimensions = (screenWidth: number, orthoWidth: number, orthoHeight: number ) => {
+const getOrthoImageDimensions = (screenWidth: number, orthoWidth: number, orthoHeight: number) => {
   let graphWidth;
   let graphHeight;
   const maxGraphWidth = screenWidth * GRAPHS.IPCAM_GRID_PROPORTION;
-  
+
   const vertical = orthoHeight > orthoWidth;
-  
+
   if (!vertical) {
     if (orthoWidth < maxGraphWidth) {
       graphWidth = orthoWidth;
@@ -126,9 +126,8 @@ const getOrthoImageDimensions = (screenWidth: number, orthoWidth: number, orthoH
       graphWidth = ((maxGraphWidth * orthoWidth) / orthoHeight) * WIDTH_INCREASER;
     }
   }
-  
-  return { graphWidth, graphHeight, maxGraphWidth };
-}
 
+  return { graphWidth, graphHeight, maxGraphWidth };
+};
 
 export { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks, getOrthoImageDimensions };

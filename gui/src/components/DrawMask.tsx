@@ -1,8 +1,8 @@
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import * as d3 from "d3";
-import { useDataSlice } from "../hooks";
-import { drawMask } from "./Graphs/drawMask";
-import type { OverlayLayers } from "./OverlaySvg";
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import * as d3 from 'd3';
+import { useDataSlice } from '../hooks';
+import { drawMask } from './Graphs/drawMask';
+import type { OverlayLayers } from './OverlaySvg';
 
 export const DrawMask = ({
   factor,
@@ -51,20 +51,14 @@ export const DrawMask = ({
     if (!svgRef.current) return;
     const svgSel = d3.select(svgRef.current);
     if (svgSel.select('#dashFill').empty()) {
-      const defs = svgSel.select('defs').empty()
-        ? svgSel.insert('defs', ':first-child')
-        : svgSel.select('defs');
+      const defs = svgSel.select('defs').empty() ? svgSel.insert('defs', ':first-child') : svgSel.select('defs');
       const pattern = defs
         .append('pattern')
         .attr('id', 'dashFill')
         .attr('patternUnits', 'userSpaceOnUse')
         .attr('width', 10)
         .attr('height', 10);
-      pattern
-        .append('path')
-        .attr('d', 'M0 10 L10 0')
-        .attr('stroke', '#ED6B57')
-        .attr('stroke-width', 1);
+      pattern.append('path').attr('d', 'M0 10 L10 0').attr('stroke', '#ED6B57').attr('stroke-width', 1);
     }
   }, [svgRef, masks]);
 
@@ -118,7 +112,7 @@ export const DrawMask = ({
       layer
         .append('polygon')
         .attr('points', pts)
-        .attr('fill', 'url(#dashFill)')  // pattern defined on svgRef root — always available
+        .attr('fill', 'url(#dashFill)') // pattern defined on svgRef root — always available
         .attr('stroke', '#ED6B57')
         .attr('stroke-width', 1.5)
         .attr('opacity', 0.75)
@@ -191,12 +185,12 @@ export const DrawMask = ({
       setDragStartZoom(null);
     };
 
-    svgSel.on("mousemove.mask", onMouseMove);
-    svgSel.on("mouseup.mask", onMouseUp);
-    svgSel.on("mouseleave.mask", onMouseUp);
+    svgSel.on('mousemove.mask', onMouseMove);
+    svgSel.on('mouseup.mask', onMouseUp);
+    svgSel.on('mouseleave.mask', onMouseUp);
 
     return () => {
-      svgSel.on(".mask", null);
+      svgSel.on('.mask', null);
     };
   }, [
     svgRef,
@@ -207,7 +201,7 @@ export const DrawMask = ({
     points,
     factor,
     activeMaskIndex,
-    onUpdateMaskPoints
+    onUpdateMaskPoints,
   ]);
 
   return null;

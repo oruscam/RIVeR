@@ -18,11 +18,7 @@ let currentPyShell: PythonShell | null = null;
 const PYTHON_PATH = import.meta.env.VITE_PYTHON_PATH;
 const RIVER_CLI_PATH = import.meta.env.VITE_RIVER_CLI_PATH;
 
-async function executePythonShell(
-  args: (string | number)[],
-  mode: 'json' | 'text' = 'json',
-  output: boolean = false
-) {
+async function executePythonShell(args: (string | number)[], mode: 'json' | 'text' = 'json') {
   /**
    * Options to execute the python shell.
    * pythonPath: Path to the python executable
@@ -67,8 +63,7 @@ async function executePythonShell(
         console.log(message);
         try {
           resolve(JSON.parse(message.replace(/\bNaN\b/g, 'null')));
-        } catch (error) {
-        }
+        } catch {}
       } else {
         console.log(message);
         resolve(message);

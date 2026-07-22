@@ -9,16 +9,15 @@ export const PixelCoordinates = ({
   onSetDirPoints,
 }: {
   section?: string;
-  step: number
+  step: number;
   onSetDirPoints: (arg1: any, arg2: { value: number; position: string }) => void;
 }) => {
   const { register, resetField } = useFormContext();
   const { onSetErrorMessage } = useUiSlice();
-  const { type } = useProjectSlice()
+  const { type } = useProjectSlice();
   const { t } = useTranslation();
 
   const modeName = section ? 'CrossSections' : 'PixelSize';
-
 
   const fields = type === 'oblique' && step === 3 ? 8 : 4;
 
@@ -49,10 +48,10 @@ export const PixelCoordinates = ({
         resetField(fieldName);
         return;
       }
-      
+
       for (let i = 0; i < fields; i++) {
         if (target.id === pointsNames[i]) {
-          let position = (i % 2 === 0 ? 'x' : 'y') + `${Math.ceil((i +1)/2)}`;
+          let position = (i % 2 === 0 ? 'x' : 'y') + `${Math.ceil((i + 1) / 2)}`;
           onSetDirPoints(null, { value: value, position: `${position}` });
           break;
         }
@@ -67,32 +66,28 @@ export const PixelCoordinates = ({
         {t(`${modeName}.Pixel.title`)}{' '}
       </h2>
 
-      {
-        pointsNames.map((name, i) => {
-          const style = getLabelStyle(type, step, fields, i) 
+      {pointsNames.map((name, i) => {
+        const style = getLabelStyle(type, step, fields, i);
 
-          const prefix = step === 3 ? type : section;
+        const prefix = step === 3 ? type : section;
 
-          return (
-            <div className='input-container-2 mt-1' key={i}>
-              <label className={`read-only me-1 ${style}`}>
-                {' '}
-                {t(`${modeName}.Pixel.${name}`)}{' '}
-              </label>
-              <div className='input-field-container'>
-                <input
-                  type="number"
-                  step="any"
-                  className="input-field"
-                  id={`${name}`}
-                  {...register(`${prefix}_${name}`)}
-                  onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
-                  onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
-                />
-              </div>
+        return (
+          <div className="input-container-2 mt-1" key={i}>
+            <label className={`read-only me-1 ${style}`}> {t(`${modeName}.Pixel.${name}`)} </label>
+            <div className="input-field-container">
+              <input
+                type="number"
+                step="any"
+                className="input-field"
+                id={`${name}`}
+                {...register(`${prefix}_${name}`)}
+                onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
+                onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
+              />
             </div>
-        )})
-      }
+          </div>
+        );
+      })}
     </>
   );
 };

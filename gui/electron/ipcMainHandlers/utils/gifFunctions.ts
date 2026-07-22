@@ -1,4 +1,3 @@
-
 /**
  * Calculate GIF dimensions maintaining aspect ratio
  * @param imgWidth | original image width
@@ -7,10 +6,8 @@
  * @returns object containing output width, height, and drawing coordinates
  */
 
-import { max, min } from "d3";
-import { getPositionSectionText } from "../../../commons/sectionTextPosition";
-import { getQuiverValues } from "../../../commons/vectors";
-import { setColorbarLimits } from "../setColorbarLimits";
+import { getPositionSectionText } from '../../../commons/sectionTextPosition';
+import { getQuiverValues } from '../../../commons/vectors';
 
 const getGifDimensions = (imgWidth, imgHeight, factor) => {
   const outWidth = Math.round(imgWidth * factor);
@@ -19,7 +16,10 @@ const getGifDimensions = (imgWidth, imgHeight, factor) => {
   const originalRatio = imgWidth / imgHeight;
   const outRatio = outWidth / outHeight;
 
-  let dw = outWidth, dh = outHeight, dx = 0, dy = 0;
+  let dw = outWidth,
+    dh = outHeight,
+    dx = 0,
+    dy = 0;
   if (originalRatio > outRatio) {
     dw = outWidth;
     dh = Math.round(outWidth / originalRatio);
@@ -31,7 +31,7 @@ const getGifDimensions = (imgWidth, imgHeight, factor) => {
   }
 
   return { outWidth, outHeight, dw, dh, dx, dy };
-}
+};
 
 /**
  * Load section values for GIF generation
@@ -45,43 +45,44 @@ const getGifDimensions = (imgWidth, imgHeight, factor) => {
  */
 
 const loadSectionValues = (sections, width, height, factor) => {
-  console.log('width: ', width, 'height: ', height, 'factor: ', factor)
+  console.log('width: ', width, 'height: ', height, 'factor: ', factor);
   const values = sections.map((section) => {
-    const { dirPoints, sectionPoints } = section
+    const { dirPoints, sectionPoints } = section;
 
     const resizeFactor = width / (width * factor);
 
-    const { point, rotation } = getPositionSectionText(sectionPoints[0], sectionPoints[1], width * factor, height * factor, resizeFactor);
+    const { point, rotation } = getPositionSectionText(
+      sectionPoints[0],
+      sectionPoints[1],
+      width * factor,
+      height * factor,
+      resizeFactor
+    );
 
     return {
-      dirPoints: dirPoints.map(p => ({ x: p.x * factor, y: p.y * factor })),
-      sectionPoints: sectionPoints.map(p => ({ x: p.x * factor, y: p.y * factor })),
-      namePoint: { x: point.x * factor, y: (point.y * factor) + 15 },
+      dirPoints: dirPoints.map((p) => ({ x: p.x * factor, y: p.y * factor })),
+      sectionPoints: sectionPoints.map((p) => ({ x: p.x * factor, y: p.y * factor })),
+      namePoint: { x: point.x * factor, y: point.y * factor + 15 },
       rotation,
-      name: section.name
-    }
-  })
+      name: section.name,
+    };
+  });
 
   return values;
-}
+};
 
 /**
- * 
- * @param ctx 
- * @param watermarkImage 
- * @param canvasWidth 
- * @param canvasHeight 
+ *
+ * @param ctx
+ * @param watermarkImage
+ * @param canvasWidth
+ * @param canvasHeight
  */
 
-const drawWatermark = (
-  ctx,
-  watermarkImage,
-  canvasWidth,
-  canvasHeight,
-) => {
-  const opacity = 1
-  const scale = 0.18;  // 18% of canvas width for better visibility
-  const margin = canvasWidth * 0.02;  // 2% of canvas width — proportional margin
+const drawWatermark = (ctx, watermarkImage, canvasWidth, canvasHeight) => {
+  const opacity = 1;
+  const scale = 0.18; // 18% of canvas width for better visibility
+  const margin = canvasWidth * 0.02; // 2% of canvas width — proportional margin
 
   const originalW = watermarkImage.width;
   const originalH = watermarkImage.height;
@@ -117,11 +118,7 @@ const drawWatermark = (
   ctx.globalAlpha = opacity;
 
   // Draw the watermark
-  ctx.drawImage(
-    watermarkImage,
-    0, 0, watermarkImage.width, watermarkImage.height,
-    x, y, finalW, finalH
-  );
+  ctx.drawImage(watermarkImage, 0, 0, watermarkImage.width, watermarkImage.height, x, y, finalW, finalH);
 
   // Restore the context
   ctx.restore();
@@ -131,7 +128,7 @@ const drawSection = (ctx, values, factor, imageHeight) => {
   const lineWidth = imageHeight * 0.004;
 
   values.forEach((section) => {
-    const { dirPoints, sectionPoints, namePoint, rotation, name } = section
+    const { dirPoints, sectionPoints, namePoint, rotation, name } = section;
 
     // Draw direction line - it is a solid line drawn by the user
     ctx.beginPath();
@@ -156,28 +153,28 @@ const drawSection = (ctx, values, factor, imageHeight) => {
     ctx.closePath();
 
     // Save context before drawing text
-    ctx.save()
+    ctx.save();
 
     // Translate and rotate context to draw the text
     // If rotation can be undefined, use 0
-    const rot = typeof rotation === 'number' ? rotation : 0
-    ctx.translate(namePoint.x, namePoint.y)
-    ctx.rotate(rot * Math.PI / 180)
+    const rot = typeof rotation === 'number' ? rotation : 0;
+    ctx.translate(namePoint.x, namePoint.y);
+    ctx.rotate((rot * Math.PI) / 180);
 
     // Text style
     // Adjust font size based on factor
     const fontSize = imageHeight * 0.02; // 3% of image height
-    ctx.font = `${fontSize}px Arial`
-    ctx.fillStyle = '#222'
-    ctx.fontWeight = '500'
+    ctx.font = `${fontSize}px Arial`;
+    ctx.fillStyle = '#222';
+    ctx.fontWeight = '500';
 
     // Draw text
-    ctx.fillStyle = '#000000'
-    ctx.fillText(name, 0, 0)
+    ctx.fillStyle = '#000000';
+    ctx.fillText(name, 0, 0);
 
-    ctx.restore()
-  })
-}
+    ctx.restore();
+  });
+};
 
 const drawQuiver = (
   ctx,
@@ -191,11 +188,13 @@ const drawQuiver = (
   colorbarLimits?: { min: number; max: number }
 ) => {
   // Get quiver data for the current frame
-  const { data } = getQuiverValues(quiver, false, frameIndex, step, fps, transformationMatrix, { min: colorbarLimits.min, max: colorbarLimits.max });
+  const { data } = getQuiverValues(quiver, false, frameIndex, step, fps, transformationMatrix, {
+    min: colorbarLimits.min,
+    max: colorbarLimits.max,
+  });
 
   // Used for avoid arrows going beyond the line end
-  const delta = 0
-
+  const delta = 0;
 
   // Set line width
   const lineWidth = imageWidth * 0.0012;
@@ -210,8 +209,8 @@ const drawQuiver = (
     const d = data[i];
     const x1 = d.x * factor;
     const y1 = d.y * factor;
-    const dx = (d.u * amplitudeFactor * factor);
-    const dy = (d.v * amplitudeFactor * factor);
+    const dx = d.u * amplitudeFactor * factor;
+    const dy = d.v * amplitudeFactor * factor;
     const x2 = x1 + dx;
     const y2 = y1 + dy;
 
@@ -234,14 +233,8 @@ const drawQuiver = (
 
     ctx.beginPath();
     ctx.moveTo(x2, y2);
-    ctx.lineTo(
-      x2 - arrowLength * Math.cos(angle - Math.PI / 7),
-      y2 - arrowLength * Math.sin(angle - Math.PI / 7)
-    );
-    ctx.lineTo(
-      x2 - arrowLength * Math.cos(angle + Math.PI / 7),
-      y2 - arrowLength * Math.sin(angle + Math.PI / 7)
-    );
+    ctx.lineTo(x2 - arrowLength * Math.cos(angle - Math.PI / 7), y2 - arrowLength * Math.sin(angle - Math.PI / 7));
+    ctx.lineTo(x2 - arrowLength * Math.cos(angle + Math.PI / 7), y2 - arrowLength * Math.sin(angle + Math.PI / 7));
     ctx.closePath();
     ctx.fillStyle = d.color;
     ctx.fill();
@@ -256,18 +249,11 @@ const drawQuiver = (
  * @param canvasWidth | canvas width
  * @param canvasHeight | canvas height
  */
-const drawColorBar = (
-  ctx,
-  min,
-  max,
-  canvasWidth,
-  canvasHeight,
-  unitSistem: string = 'si',
-) => {
+const drawColorBar = (ctx, min, max, canvasWidth, canvasHeight, unitSistem: string = 'si') => {
   // === Layout ===
   // Fully proportional sizing — no pixel caps — for harmonious proportions at any resolution
-  const margin = canvasWidth * 0.02;          // 2% of canvas width
-  const containerWidth = canvasWidth * 0.38;  // 38% of canvas width
+  const margin = canvasWidth * 0.02; // 2% of canvas width
+  const containerWidth = canvasWidth * 0.38; // 38% of canvas width
   const containerHeight = canvasHeight * 0.08; // 8% of canvas height
 
   const x = canvasWidth - containerWidth - margin;
@@ -280,8 +266,8 @@ const drawColorBar = (
     '#6CD4FF', // light blue
     '#62C655', // green
     '#F5BF61', // yellow
-    '#ED6B57'  // red
-  ]
+    '#ED6B57', // red
+  ];
 
   // === Container ===
   ctx.save();
@@ -292,12 +278,7 @@ const drawColorBar = (
   ctx.lineTo(x + containerWidth - radius, y);
   ctx.quadraticCurveTo(x + containerWidth, y, x + containerWidth, y + radius);
   ctx.lineTo(x + containerWidth, y + containerHeight - radius);
-  ctx.quadraticCurveTo(
-    x + containerWidth,
-    y + containerHeight,
-    x + containerWidth - radius,
-    y + containerHeight
-  );
+  ctx.quadraticCurveTo(x + containerWidth, y + containerHeight, x + containerWidth - radius, y + containerHeight);
   ctx.lineTo(x + radius, y + containerHeight);
   ctx.quadraticCurveTo(x, y + containerHeight, x, y + containerHeight - radius);
   ctx.lineTo(x, y + radius);
@@ -340,12 +321,7 @@ const drawColorBar = (
   const barWidth = maxX - barX - padding;
   const barY = y + (containerHeight - barHeight) / 2;
 
-  const gradient = ctx.createLinearGradient(
-    barX,
-    0,
-    barX + barWidth,
-    0
-  );
+  const gradient = ctx.createLinearGradient(barX, 0, barX + barWidth, 0);
 
   colors.forEach((color, i) => {
     gradient.addColorStop(i / (colors.length - 1), color);
@@ -358,12 +334,7 @@ const drawColorBar = (
   ctx.lineTo(barX + barWidth - barRadius, barY);
   ctx.quadraticCurveTo(barX + barWidth, barY, barX + barWidth, barY + barRadius);
   ctx.lineTo(barX + barWidth, barY + barHeight - barRadius);
-  ctx.quadraticCurveTo(
-    barX + barWidth,
-    barY + barHeight,
-    barX + barWidth - barRadius,
-    barY + barHeight
-  );
+  ctx.quadraticCurveTo(barX + barWidth, barY + barHeight, barX + barWidth - barRadius, barY + barHeight);
   ctx.lineTo(barX + barRadius, barY + barHeight);
   ctx.quadraticCurveTo(barX, barY + barHeight, barX, barY + barHeight - barRadius);
   ctx.lineTo(barX, barY + barRadius);
@@ -373,6 +344,5 @@ const drawColorBar = (
 
   ctx.restore();
 };
-
 
 export { getGifDimensions, loadSectionValues, drawWatermark, drawSection, drawQuiver, drawColorBar };

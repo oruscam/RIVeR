@@ -13,13 +13,7 @@ interface FormCrossSectionsProps {
 
 export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsProps) => {
   const { register, setValue } = useFormContext();
-  const {
-    sections,
-    activeSection,
-    onUpdateSection,
-    onGetBathimetry,
-    transformationMatrix,
-  } = useSectionSlice();
+  const { sections, activeSection, onUpdateSection, onGetBathimetry, transformationMatrix } = useSectionSlice();
   const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
   const { onSetErrorMessage } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
@@ -98,7 +92,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
         // Second error is when the bathimetry format is incorrect
         .catch((error) => onSetErrorMessage(error.message));
     } else {
-      onGetBathimetry({ unitSistem: projectDetails.unitSistem }).catch((error) => onSetErrorMessage(error.message)); // Incorrect format
+      onGetBathimetry({ unitSistem: projectDetails.unitSistem }).catch((error) =>
+        onSetErrorMessage(error.message)
+      ); // Incorrect format
     }
   };
 
@@ -130,10 +126,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   };
   return (
     <div id="form-section-div" className={activeSection !== index ? 'hidden' : ''}>
-      <form
-        onSubmit={onSubmit}
-        id="form-cross-section"
-      >
+      <form onSubmit={onSubmit} id="form-cross-section">
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
         {type === 'ipcam' ? (
@@ -178,7 +171,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 {' '}
                 {t('CrossSections.drawLine')}{' '}
               </button>
-              <span className='read-only bg-transparent'></span>
+              <span className="read-only bg-transparent"></span>
             </div>
           </>
         ) : (
@@ -194,7 +187,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 {' '}
                 {t('CrossSections.drawLine')}{' '}
               </button>
-              <span className='read-only bg-transparent'></span>
+              <span className="read-only bg-transparent"></span>
             </div>
 
             <div className="input-container-2 mt-1">
@@ -221,9 +214,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 {' '}
                 {t('CrossSections.importBath')}{' '}
               </button>
-              <label className="read-only bg-transparent">
-                {bathimetry.name !== '' ? bathimetry.name : ''}
-              </label>
+              <label className="read-only bg-transparent">{bathimetry.name !== '' ? bathimetry.name : ''}</label>
             </div>
           </>
         )}
@@ -246,7 +237,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
               onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
             />
-            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+            <span className="unit-label">
+              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            </span>
           </div>
         </div>
 
@@ -265,7 +258,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               id="CS_LENGTH"
               readOnly={true}
             />
-            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+            <span className="unit-label">
+              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            </span>
           </div>
         </div>
 
@@ -285,7 +280,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               onKeyDown={handleLeftBankInput}
               onBlur={handleLeftBankInput}
             />
-            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+            <span className="unit-label">
+              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            </span>
           </div>
         </div>
 

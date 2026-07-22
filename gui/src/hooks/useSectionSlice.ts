@@ -37,7 +37,12 @@ import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS, UNIT_CONVERSIONS }
 import { CanvasPoint, FormPoint, onGetBathimetryTypes, Point } from '../types';
 import { ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
-import { transformPixelToRealWorld, transformRealWorldToPixel, computePixelSize, getTransformationFromCameraMatrix} from '../../commons/coordinates';
+import {
+  transformPixelToRealWorld,
+  transformRealWorldToPixel,
+  computePixelSize,
+  getTransformationFromCameraMatrix,
+} from '../../commons/coordinates';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -60,8 +65,7 @@ export const useSectionSlice = () => {
   // The store always holds real-world coordinates in SI (m). We need the user's
   // selected unit to convert their input back to SI before dispatching.
   const unitSistem = useSelector((state: RootState) => state.project.projectDetails.unitSistem);
-  const toSI = (value: number) =>
-    unitSistem === 'imperial' ? value * UNIT_CONVERSIONS.FT_TO_M : value;
+  const toSI = (value: number) => (unitSistem === 'imperial' ? value * UNIT_CONVERSIONS.FT_TO_M : value);
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -126,10 +130,12 @@ export const useSectionSlice = () => {
         flag1 = false;
         flag2 = false;
         dispatch(setDirPoints(newPoints as Point[]));
-        dispatch(updateSection({
-          ...sections[activeSection],
-          drawLine: false
-        }))
+        dispatch(
+          updateSection({
+            ...sections[activeSection],
+            drawLine: false,
+          })
+        );
       } else {
         dispatch(setDirPoints(newPoints as Point[]));
       }
@@ -342,8 +348,7 @@ export const useSectionSlice = () => {
 
     dispatch(updateSectionsCounter(sections.length));
     const data = adapterCrossSections(updatedSection);
-    const { masks } = processing
-    
+    const { masks } = processing;
 
     /**
      * The sections are stored in the section slice.
@@ -364,7 +369,7 @@ export const useSectionSlice = () => {
         height_roi: height_roi,
         data: false,
         user_masks: masks,
-        is_roi_calulation: false
+        is_roi_calulation: false,
       });
       dispatch(updateProcessingForm({ ...processing.form, heightRoi: height_roi }));
       dispatch(setProcessingMask({ mask: filePrefix + maskPath, bbox }));
@@ -698,7 +703,7 @@ export const useSectionSlice = () => {
           ...sections[activeSection],
           bathimetry: { path: undefined, level: 0, name: undefined },
           sectionPoints: DEFAULT_POINTS,
-          extraFields: false
+          extraFields: false,
         })
       );
       if (error instanceof Error) {

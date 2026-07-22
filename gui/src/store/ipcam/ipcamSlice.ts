@@ -57,7 +57,14 @@ const ipcamSlice = createSlice({
   },
 });
 
-export const { setPoints, setImages, setCustomPoint, setCameraSolution, setActiveImage, setDefaultIpcamState, setActivePoint } =
-  ipcamSlice.actions;
+export const {
+  setPoints,
+  setImages,
+  setCustomPoint,
+  setCameraSolution,
+  setActiveImage,
+  setDefaultIpcamState,
+  setActivePoint,
+} = ipcamSlice.actions;
 
 export default ipcamSlice.reducer;

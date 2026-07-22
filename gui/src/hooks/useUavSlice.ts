@@ -2,17 +2,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { CanvasPoint, FormPoint, UpdatePixelSize } from '../types';
 import { setPixelSizePoints, updatePixelSize } from '../store/uav/uavSlice';
+import { getImageSize, getNewCanvasPositions, setChangesByForm } from '../helpers';
 import {
-  getImageSize,
-  getNewCanvasPositions,
-  setChangesByForm,
-} from '../helpers';
-import { computePixelSize, computeRwDistance, getLinesCoordinates, transformPixelToRealWorld } from '../../commons/coordinates';
+  computePixelSize,
+  computeRwDistance,
+  getLinesCoordinates,
+  transformPixelToRealWorld,
+} from '../../commons/coordinates';
 import { setDefaultSectionState, setTransformationMatrix } from '../store/section/sectionSlice';
 import { DEFAULT_POINTS } from '../constants/constants';
 import { setHasChanged, setIsBackendWorking } from '../store/global/globalSlice';
 import { UNIT_CONVERSIONS } from '../constants/constants';
-
 
 export const useUavSlice = () => {
   const dispatch = useDispatch();
@@ -149,14 +149,10 @@ export const useUavSlice = () => {
     const valueInMeters = unitSistem === 'imperial' ? numericValue * UNIT_CONVERSIONS.FT_TO_M : numericValue;
 
     let newPoints;
-    let flag1 = false;
-    let flag2 = false;
 
-    const { points, firstFlag, secondFlag } = setChangesByForm({ value: valueInMeters, position }, rwPoints);
+    const { points } = setChangesByForm({ value: valueInMeters, position }, rwPoints);
 
     newPoints = points;
-    flag1 = firstFlag;
-    flag2 = secondFlag;
 
     /**
      * The new real world coordinates are stored in the section slice.
@@ -166,8 +162,6 @@ export const useUavSlice = () => {
       if (newPoints[0].x === newPoints[1].x && newPoints[0].y === newPoints[1].y) {
         console.error('Los puntos no pueden ser iguales.');
         newPoints = rwPoints;
-        flag1 = false;
-        flag2 = false;
       } else {
         dispatch(setPixelSizePoints({ points: newPoints, type: 'rw' }));
         dispatch(setHasChanged(true));
@@ -202,7 +196,8 @@ export const useUavSlice = () => {
     }
 
     if (value.pixelSize !== undefined) {
-      const pixelSizeInMeters = unitSistem === 'imperial' ? value.pixelSize * UNIT_CONVERSIONS.FT_TO_M : value.pixelSize;
+      const pixelSizeInMeters =
+        unitSistem === 'imperial' ? value.pixelSize * UNIT_CONVERSIONS.FT_TO_M : value.pixelSize;
       if ((dirPoints[0] === DEFAULT_POINTS[0] && dirPoints[1] === DEFAULT_POINTS[1]) || dirPoints.length === 0) {
         const newDirPoints = getLinesCoordinates(value.imageWidth!, value.imageHeight!);
         const rwLength = computeRwDistance(newDirPoints, pixelSizeInMeters);

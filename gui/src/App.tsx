@@ -39,7 +39,7 @@ export const App: React.FC = () => {
         return <Ipcam />;
 
       default:
-        return <HomePage/>;
+        return <HomePage />;
     }
   };
 

@@ -5,7 +5,14 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { clearErrorMessage, clearMessage, setErrorMessage, setLanguage, setLoading, setMessage } from '../store/ui/uiSlice';
+import {
+  clearErrorMessage,
+  clearMessage,
+  setErrorMessage,
+  setLanguage,
+  setLoading,
+  setMessage,
+} from '../store/ui/uiSlice';
 import {
   setProjectDirectory,
   setProjectType,
@@ -97,7 +104,11 @@ export const useProjectSlice = () => {
     }
   };
 
-  const onInitProject = async (videoInput: { path: string; name: string; type: string }, language: string, unitSistem: string) => {
+  const onInitProject = async (
+    videoInput: { path: string; name: string; type: string },
+    language: string,
+    unitSistem: string
+  ) => {
     dispatch(setLoading(true));
 
     const extension = videoInput.name.split('.').pop();
@@ -296,7 +307,7 @@ export const useProjectSlice = () => {
         dispatch(setProjectType(settings.footage));
 
         // Set language
-        const savedLanguage = localStorage.getItem("language") || "en"
+        const savedLanguage = localStorage.getItem('language') || 'en';
         dispatch(setLanguage(savedLanguage));
 
         // Set video metadata
@@ -331,11 +342,13 @@ export const useProjectSlice = () => {
 
         if (settings.colorbar_limits) {
           const { min, max } = settings.colorbar_limits;
-          dispatch(setColorbarLimits({
-            min: settings.colorbar_limits.min,
-            max: settings.colorbar_limits.max,
-            default: min !== null && max !== null ? false : true,
-          }))
+          dispatch(
+            setColorbarLimits({
+              min: settings.colorbar_limits.min,
+              max: settings.colorbar_limits.max,
+              default: min !== null && max !== null ? false : true,
+            })
+          );
         }
 
         if (settings.user_masks) {
@@ -434,8 +447,8 @@ export const useProjectSlice = () => {
 
           // Load project details
           if (settings.river_name || settings.site || settings.unit_system || settings.medition_date) {
-            console.log('loading project details')
-            const savedUnitSystem = settings.unit_system || localStorage.getItem("unitSystem") || "si"
+            console.log('loading project details');
+            const savedUnitSystem = settings.unit_system || localStorage.getItem('unitSystem') || 'si';
             dispatch(
               setProjectDetails({
                 riverName: settings.river_name,

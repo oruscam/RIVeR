@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 
-
 interface EyeProps {
   active: boolean;
   action: () => void;
@@ -18,12 +17,11 @@ export const EyeBall = ({ active, action, index }: EyeProps) => {
       setLidClass('lid lid--close');
       setPupilClass('pupil pupil--close');
     }
-  }, [active])
-
+  }, [active]);
 
   const handleClick = () => {
     if (index === undefined) {
-      action()
+      action();
     } else {
       action(index);
     }

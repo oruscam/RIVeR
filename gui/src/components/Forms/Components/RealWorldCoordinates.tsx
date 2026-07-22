@@ -11,13 +11,13 @@ export const RealWorldCoordinates = ({
   showUnitLabel = false,
 }: {
   section?: string;
-  step: number
+  step: number;
   onSetRealWorld: (value: number, key: string) => void;
   showUnitLabel?: boolean;
 }) => {
   const { register, resetField } = useFormContext();
   const { onSetErrorMessage } = useUiSlice();
-  const { type, projectDetails } = useProjectSlice()
+  const { type, projectDetails } = useProjectSlice();
   const unitLabel = projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE;
 
   const modeName = section ? 'CrossSections' : 'PixelSize';
@@ -72,17 +72,14 @@ export const RealWorldCoordinates = ({
       </h2>
 
       {pointsNames.map((name, i) => {
-        const style = getLabelStyle(type, step, fields, i)
+        const style = getLabelStyle(type, step, fields, i);
         const prefix = step === 3 ? type : section;
 
         return (
-          <div className='input-container-2 mt-1' key={i}>
-            <label className={`read-only me-1 ${style}`}>
-              {' '}
-              {t(`${modeName}.RealWorld.${name}`)}{' '}
-            </label>
+          <div className="input-container-2 mt-1" key={i}>
+            <label className={`read-only me-1 ${style}`}> {t(`${modeName}.RealWorld.${name}`)} </label>
             {showUnitLabel ? (
-              <div className='input-field-container'>
+              <div className="input-field-container">
                 <input
                   type="number"
                   step="any"
@@ -95,7 +92,7 @@ export const RealWorldCoordinates = ({
                 <span className="unit-label">{unitLabel}</span>
               </div>
             ) : (
-              <div className='input-field-container'>
+              <div className="input-field-container">
                 <input
                   type="number"
                   step="any"
@@ -108,7 +105,7 @@ export const RealWorldCoordinates = ({
               </div>
             )}
           </div>
-        )
+        );
       })}
     </>
   );

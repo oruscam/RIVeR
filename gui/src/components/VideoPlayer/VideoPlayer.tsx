@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react';
-import { VideoPlayerButtons } from './VideoPlayerButtons.js';
 import { VideoPlayerSeekBar } from './VideoPlayerSeekBar.js';
 import { VideoPlayerTime } from './VideoPlayerTime.js';
 import '../components.css';
@@ -83,25 +82,12 @@ export const VideoPlayer = ({ fileURL, duration }: { fileURL: string; duration: 
               control={control}
             ></VideoPlayerSeekBar>
             <div className="row" style={{ width: '100%', justifyContent: 'space-between', paddingTop: '10px' }}>
-              <FrameBtn
-                videoRef={videoRef}
-                direction="back"
-                onClick={handleFrameStep}
-              />
+              <FrameBtn videoRef={videoRef} direction="back" onClick={handleFrameStep} />
 
-              <PlayBtn
-                videoRef={videoRef}
-                setControl={setControl}
-                control={control}
-              />
+              <PlayBtn videoRef={videoRef} setControl={setControl} control={control} />
 
-              <FrameBtn
-                videoRef={videoRef}
-                direction="next"
-                onClick={handleFrameStep}
-              />
+              <FrameBtn videoRef={videoRef} direction="next" onClick={handleFrameStep} />
             </div>
-
           </div>
         </div>
       )}

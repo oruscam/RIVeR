@@ -43,9 +43,9 @@ export const CrossSections = () => {
               const displayLevel =
                 error?.value !== undefined
                   ? (projectDetails.unitSistem === 'imperial'
-                    ? error.value * UNIT_CONVERSIONS.M_TO_FT
-                    : error.value
-                  ).toFixed(2)
+                      ? error.value * UNIT_CONVERSIONS.M_TO_FT
+                      : error.value
+                    ).toFixed(2)
                   : error?.value;
               onSetErrorMessage({
                 Bathimetry: {
@@ -57,7 +57,9 @@ export const CrossSections = () => {
           })
           .catch((error) => onSetErrorMessage(error.message));
       } else {
-        onGetBathimetry({ bathimetryPath: path, unitSistem: projectDetails.unitSistem }).catch((error) => onSetErrorMessage(error.message));
+        onGetBathimetry({ bathimetryPath: path, unitSistem: projectDetails.unitSistem }).catch((error) =>
+          onSetErrorMessage(error.message)
+        );
       }
     }
   };
@@ -77,11 +79,18 @@ export const CrossSections = () => {
         className={`form-container ${dragOver ? 'drag-over' : ''}`}
         onDragOver={(event) => handleDragOver(event, setDragOver)}
         onDragLeave={(event) => handleDragLeave(event, setDragOver, false)}
-        onDrop={handleDrop}>
-        <FormHeader title={t('CrossSections.title')} showProgress={true} showSections={true} setDeletedSections={setDeletedSections} canEdit={true} />
+        onDrop={handleDrop}
+      >
+        <FormHeader
+          title={t('CrossSections.title')}
+          showProgress={true}
+          showSections={true}
+          setDeletedSections={setDeletedSections}
+          canEdit={true}
+        />
         <CrossSectionsComponent deletedSections={deletedSections} setDeletedSections={setDeletedSections} />
 
-        <div className='footer'>
+        <div className="footer">
           <LockBtn
             disabled={sections[activeSection].bathimetry.width === undefined}
             footerElementID="form-cross-section-footer"

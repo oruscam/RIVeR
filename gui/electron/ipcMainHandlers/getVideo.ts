@@ -17,7 +17,7 @@ async function getVideo() {
       PROJECT_CONFIG.videoPath = videoPath;
 
       return { result: { path: videoPath, name: videoName } };
-    } catch (error) {
+    } catch {
       return {
         error: {
           type: 'user-selection-error',

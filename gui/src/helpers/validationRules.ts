@@ -1,16 +1,5 @@
 import { parseTime } from './formatTime';
 
-interface ValidationRules {
-  [key: string]: {
-    required?: string;
-    pattern?: {
-      value: RegExp;
-      message: string;
-    };
-    validate?: (value: string) => string | boolean;
-  };
-}
-
 /**
  * Generates validation rules for video range inputs.
  *

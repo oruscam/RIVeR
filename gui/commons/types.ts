@@ -35,11 +35,4 @@ interface Section {
   sectionPoints: Point[];
 }
 
-export type {
-  QuiverData,
-  QuiverValuesResult,
-  Point,
-  Quiver,
-  Section
-};
-
+export type { QuiverData, QuiverValuesResult, Point, Quiver, Section };

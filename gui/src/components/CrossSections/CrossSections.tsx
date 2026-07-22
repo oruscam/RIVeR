@@ -94,8 +94,8 @@ export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSect
     methods.reset(createInitialState(sections, projectDetails.unitSistem));
   }, [sections[activeSection], projectDetails.unitSistem]);
 
-  return (  
-    <div className='body'>
+  return (
+    <div className="body">
       <FormProvider {...methods}>
         {sections.map((section, index: number) => {
           return (
@@ -109,5 +109,5 @@ export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSect
         })}
       </FormProvider>
     </div>
-  )
+  );
 };

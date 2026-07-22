@@ -9,7 +9,7 @@ const initialState: ObliqueMode = {
   isDefaultCoordinates: true,
   isDistancesLoaded: false,
   solution: null,
-  extraFields: false
+  extraFields: false,
 };
 
 const obliqueSlice = createSlice({
@@ -32,7 +32,7 @@ const obliqueSlice = createSlice({
     },
     setExtraFields: (state) => {
       state.extraFields = !state.extraFields;
-    }
+    },
   },
 });
 
