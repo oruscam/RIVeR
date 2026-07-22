@@ -71,7 +71,12 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
   svg
     .append('g')
     .attr('transform', `translate(0,${height - margin.bottom})`)
-    .call(d3.axisBottom(xScale).ticks(6).tickFormat(d3.format('.2f') as (v: d3.NumberValue) => string))
+    .call(
+      d3
+        .axisBottom(xScale)
+        .ticks(6)
+        .tickFormat(d3.format('.2f') as (v: d3.NumberValue) => string)
+    )
     .selectAll('.tick text')
     .style('font-size', '9px');
 
@@ -79,7 +84,12 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
   svg
     .append('g')
     .attr('transform', `translate(${margin.left},0)`)
-    .call(d3.axisLeft(yScale).ticks(4).tickFormat(d3.format('d') as (v: d3.NumberValue) => string))
+    .call(
+      d3
+        .axisLeft(yScale)
+        .ticks(4)
+        .tickFormat(d3.format('d') as (v: d3.NumberValue) => string)
+    )
     .selectAll('.tick text')
     .style('font-size', '9px');
 
