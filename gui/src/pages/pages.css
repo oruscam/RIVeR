@@ -592,34 +592,6 @@
 /* Histogram */
 .cal-histogram {}
 
-.cal-histogram-wrapper {
-    display: flex;
-    gap: 4px;
-    align-items: stretch;
-}
-
-.cal-histogram-yaxis {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 14px;
-    flex-shrink: 0;
-}
-
-.cal-yaxis-label {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    font-size: 0.65rem;
-    color: var(--secondary-text-color);
-    white-space: nowrap;
-    letter-spacing: 0.03em;
-}
-
-.cal-histogram-inner {
-    flex: 1;
-    min-width: 0;
-}
-
 .cal-section-label {
     font-size: 0.78rem;
     font-weight: 600;
@@ -627,60 +599,6 @@
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin-bottom: 8px;
-}
-
-.cal-histogram-chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 2px;
-    height: 100px;
-    padding: 0 2px;
-    margin-bottom: 18px;
-}
-
-.cal-bar-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    height: 100%;
-    justify-content: flex-end;
-    position: relative;
-}
-
-.cal-bar {
-    width: 100%;
-    background: var(--primary-text-color);
-    border-radius: 2px 2px 0 0;
-    min-height: 2px;
-    opacity: 0.75;
-    transition: opacity 0.15s;
-}
-
-.cal-bar:hover {
-    opacity: 1;
-}
-
-.cal-bar-label {
-    position: absolute;
-    bottom: -16px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.5rem;
-    color: var(--secondary-text-color);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-
-.cal-histogram-axes {
-    display: flex;
-    justify-content: center;
-    margin-top: 3px;
-}
-
-.cal-histogram-axes span {
-    font-size: 0.65rem;
-    color: var(--secondary-text-color);
 }
 
 /* Save profile section */
