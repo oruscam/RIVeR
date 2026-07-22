@@ -931,11 +931,27 @@
 }
 
 .success-banner-icon {
-    width: 50px;
-    height: 50px;
     flex-shrink: 0;
     margin-top: 15px;
     color: var(--success-color);
+}
+
+.success-banner-link {
+    background: none;
+    border: none;
+    font: inherit;
+    color: var(--success-color);
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-all;
+    transition: opacity 0.15s;
+}
+
+.success-banner-link:hover {
+    opacity: 0.75;
 }
 
 .success-banner-body {
@@ -969,8 +985,6 @@
 }
 
 .success-banner-compact .success-banner-icon {
-    width: 22px;
-    height: 22px;
     margin-top: 0;
 }
 

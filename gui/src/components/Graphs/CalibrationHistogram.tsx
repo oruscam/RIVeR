@@ -6,7 +6,7 @@ interface CalibrationHistogramProps {
   rows: { bin_center_px: number; count: number }[];
 }
 
-const HEIGHT = 140;
+const HEIGHT = 170;
 
 export const CalibrationHistogram = ({ rows }: CalibrationHistogramProps) => {
   const containerRef = useRef<HTMLDivElement>(null);

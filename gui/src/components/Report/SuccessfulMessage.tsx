@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { CircleCheckBig } from 'lucide-react';
+import { LuCheckCircle } from 'react-icons/lu';
 import { SuccessBanner } from '../SuccessBanner';
 
 export const SuccessfulMessage = ({ goToHomePage }: { goToHomePage: () => void }) => {
@@ -10,12 +10,9 @@ export const SuccessfulMessage = ({ goToHomePage }: { goToHomePage: () => void }
 
   return (
     <div id="successful-message" className="mt-4">
-      <SuccessBanner icon={CircleCheckBig} title={t('Report.Success.title')}>
+      <SuccessBanner icon={LuCheckCircle} title={t('Report.Success.title')}>
         {t('Report.Success.message')}
-        <a
-          onClick={goToHomePage}
-          style={{ cursor: 'pointer', color: 'var(--success-color)', textDecoration: 'underline' }}
-        >
+        <a onClick={goToHomePage} className="success-banner-link">
           {hyperlinkWord}
         </a>
       </SuccessBanner>
