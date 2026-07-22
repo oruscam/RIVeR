@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CircleCheckBig } from 'lucide-react';
 import { useCalibrationSlice, useResizableCarousel } from '../hooks';
 import { SuccessBanner } from '../components';
+import { CalibrationHistogram } from '../components/Graphs';
 
 interface ThumbProps {
   img: string;
@@ -351,10 +352,6 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   };
 
   const capitalize = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
-  const maxCsvCount = useMemo(
-    () => (csvRows.length > 0 ? Math.max(...csvRows.map((r) => r.count)) : 1),
-    [csvRows]
-  );
 
   const rightPanel = useMemo(
     () => (
@@ -447,28 +444,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
             {csvRows.length > 0 && (
               <div className="cal-histogram">
                 <p className="cal-section-label">{t('Calibration.histogram')}</p>
-                <div className="cal-histogram-wrapper">
-                  <div className="cal-histogram-yaxis">
-                    <span className="cal-yaxis-label">Count</span>
-                  </div>
-                  <div className="cal-histogram-inner">
-                    <div className="cal-histogram-chart">
-                      {csvRows.map((row, i) => (
-                        <div key={i} className="cal-bar-col">
-                          <div
-                            className="cal-bar"
-                            style={{ height: `${(row.count / maxCsvCount) * 100}%` }}
-                            title={`${row.bin_center_px.toFixed(3)} px: ${row.count}`}
-                          />
-                          {i % 4 === 0 && <span className="cal-bar-label">{row.bin_center_px.toFixed(2)}</span>}
-                        </div>
-                      ))}
-                    </div>
-                    <div className="cal-histogram-axes">
-                      <span>{t('Calibration.histogramX')}</span>
-                    </div>
-                  </div>
-                </div>
+                <CalibrationHistogram rows={csvRows} />
               </div>
             )}
           </div>
@@ -572,7 +548,6 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       status,
       summary,
       csvRows,
-      maxCsvCount,
       progressMsg,
       errorMsg,
       cameraName,
