@@ -19,7 +19,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
 
   const width = +svg.attr('width');
   const height = +svg.attr('height');
-  const margin = { top: 10, right: 14, bottom: 34, left: 34 };
+  const margin = { top: 10, right: 14, bottom: 38, left: 38 };
 
   const xMin = d3.min(rows, (d) => d.bin_center_px)!;
   const xMax = d3.max(rows, (d) => d.bin_center_px)!;
@@ -66,7 +66,26 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     .attr('fill-opacity', 0.75)
     .attr('stroke-width', 0.5);
 
-  bars.append('title').text((d) => `${d.bin_center_px.toFixed(3)} px: ${d.count}`);
+  // Custom in-SVG tooltip (matches dischargeSvg.ts's convention) instead of a
+  // native <title> element, so it renders in the app's own font/colors rather
+  // than the OS's native tooltip styling.
+  bars
+    .on('mouseover', (event, d) => {
+      const barX = parseFloat(d3.select(event.currentTarget).attr('x'));
+      const barY = parseFloat(d3.select(event.currentTarget).attr('y'));
+      svg
+        .append('text')
+        .attr('class', 'tooltip graph-text')
+        .attr('x', barX + bandwidth / 2)
+        .attr('y', barY - 6)
+        .attr('text-anchor', 'middle')
+        .style('font-size', '11px')
+        .style('font-weight', '500')
+        .text(`${d.bin_center_px.toFixed(3)} px: ${d.count}`);
+    })
+    .on('mouseout', () => {
+      svg.selectAll('.tooltip').remove();
+    });
 
   // X axis
   svg
@@ -79,7 +98,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
         .tickFormat(d3.format('.2f') as (v: d3.NumberValue) => string)
     )
     .selectAll('.tick text')
-    .style('font-size', '9px');
+    .style('font-size', '11px');
 
   // Y axis
   svg
@@ -92,7 +111,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
         .tickFormat(d3.format('d') as (v: d3.NumberValue) => string)
     )
     .selectAll('.tick text')
-    .style('font-size', '9px');
+    .style('font-size', '11px');
 
   // X axis label
   svg
@@ -101,7 +120,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     .attr('text-anchor', 'middle')
     .attr('x', width / 2)
     .attr('y', height - 4)
-    .attr('font-size', '9px')
+    .attr('font-size', '12px')
     .text(t('Calibration.histogramX'));
 
   // Y axis label ("Count" — kept as a literal string, matching the pre-existing
@@ -111,8 +130,8 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     .attr('class', 'y-axis-label graph-text')
     .attr('text-anchor', 'middle')
     .attr('x', -height / 2)
-    .attr('y', 10)
+    .attr('y', 12)
     .attr('transform', 'rotate(-90)')
-    .attr('font-size', '9px')
+    .attr('font-size', '12px')
     .text('Count');
 };

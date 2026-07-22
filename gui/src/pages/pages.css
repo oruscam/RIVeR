@@ -278,11 +278,6 @@
     color: var(--secondary-text-color);
 }
 
-.cal-progress-text {
-    font-size: 0.82rem;
-    color: var(--secondary-text-color);
-}
-
 .cal-canvas-placeholder {
     color: var(--secondary-text-color);
     font-size: 0.85rem;
