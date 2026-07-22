@@ -38,6 +38,7 @@ from typing import Dict, List, Optional, Tuple
 
 import cv2 as cv
 import numpy as np
+from tqdm import tqdm
 
 
 # ---------------- helpers ----------------
@@ -162,7 +163,7 @@ class RiverCalibrator:
 		records: List[FrameRecord] = []
 		image_size = None
 
-		for p in sorted(image_paths):
+		for p in tqdm(sorted(image_paths), desc="Detecting calibration corners"):
 			img = cv.imread(p, cv.IMREAD_COLOR)
 			if img is None:
 				continue
