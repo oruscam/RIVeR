@@ -158,7 +158,6 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     heatmapBase64,
     undistortedPaths,
     perFrameCorners,
-    progressMsg,
     progressPercentage,
     progressTime,
     errorMsg,
@@ -391,7 +390,6 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
               size="big"
               isComplete={progressPercentage === '100%'}
             />
-            {progressMsg && <p className="cal-progress-text">{progressMsg}</p>}
           </div>
         )}
 
@@ -459,6 +457,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
             <hr className="cal-divider" />
             <div className="cal-save-section">
               <div className="cal-combo">
+                <p className="cal-section-label">{t('Calibration.cameraName')}</p>
                 <input
                   className="input-field-oblique"
                   type="text"
@@ -487,22 +486,28 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                   </ul>
                 )}
               </div>
-              <input
-                className="input-field-oblique mt-1"
-                type="text"
-                value={lensName}
-                onChange={(e) => setLensName(e.target.value)}
-                placeholder={t('Calibration.lensName')}
-              />
-              <input
-                className="input-field-oblique mt-1"
-                type="text"
-                value={imageResolution ? `${imageResolution.width} × ${imageResolution.height} px` : ''}
-                readOnly
-                tabIndex={-1}
-                placeholder={t('Calibration.resolution')}
-                style={{ background: 'var(--input-background-disabled)', cursor: 'default' }}
-              />
+              <div className="mt-1">
+                <p className="cal-section-label">{t('Calibration.lensName')}</p>
+                <input
+                  className="input-field-oblique"
+                  type="text"
+                  value={lensName}
+                  onChange={(e) => setLensName(e.target.value)}
+                  placeholder={t('Calibration.lensName')}
+                />
+              </div>
+              <div className="mt-1">
+                <p className="cal-section-label">{t('Calibration.resolution')}</p>
+                <input
+                  className="input-field-oblique"
+                  type="text"
+                  value={imageResolution ? `${imageResolution.width} × ${imageResolution.height} px` : ''}
+                  readOnly
+                  tabIndex={-1}
+                  placeholder={t('Calibration.resolution')}
+                  style={{ background: 'var(--input-background-disabled)', cursor: 'default' }}
+                />
+              </div>
               {savedPath && (
                 <SuccessBanner compact icon={CircleCheckBig} title={t('Calibration.savedTo')}>
                   <button className="cal-link" onClick={() => onRevealPath(savedPath)}>
@@ -545,7 +550,6 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       status,
       summary,
       csvRows,
-      progressMsg,
       progressPercentage,
       progressTime,
       remainingTimeLabel,
