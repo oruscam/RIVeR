@@ -600,7 +600,16 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
         {/* ══════════════ LEFT PANEL ══════════════ */}
         <div className="cal-left">
           {/* Canvas */}
-          <div className="cal-canvas">{images.length > 0 && getCanvasContent()}</div>
+          <div className="cal-canvas">
+            {images.length > 0 ? (
+              getCanvasContent()
+            ) : (
+              <div className="cal-drop-zone">
+                <p className="cal-drop-text">{t('Calibration.dropZone')}</p>
+                <p className="cal-drop-hint">{t('Calibration.dropHint')}</p>
+              </div>
+            )}
+          </div>
 
           {/* View controls */}
           {status === 'solved' && (
