@@ -46,7 +46,8 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
         .ticks(4)
         .tickSize(-(width - margin.left - margin.right))
         .tickFormat(() => '')
-    );
+    )
+    .attr('stroke-width', 0.5);
 
   // Bars
   const bandwidth = Math.max(1, (width - margin.left - margin.right) / rows.length - 2);
