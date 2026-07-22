@@ -18,9 +18,6 @@ export const IpcamPixelTransformation = ({ factor, vertical }: IpcamPixelTransfo
 
   const { t } = useTranslation();
 
-  if (cameraSolution === null) return null;
-  const { meanError, cameraPosition, reprojectionErrors } = cameraSolution;
-
   const width = vertical ? REPORT_IMAGES.VERTICAL_IMAGES_WIDTH : REPORT_IMAGES.HORIZONTAL_IMAGES_WIDTH;
   const height = vertical ? REPORT_IMAGES.VERTICAL_IMAGES_HEIGHT : REPORT_IMAGES.HORIZONTAL_IMAGES_HEIGHT;
 
@@ -36,6 +33,9 @@ export const IpcamPixelTransformation = ({ factor, vertical }: IpcamPixelTransfo
       });
     }
   }, [points]);
+
+  if (cameraSolution === null) return null;
+  const { meanError, cameraPosition, reprojectionErrors } = cameraSolution;
 
   return (
     <div className={`pixel-transformation-with-image${vertical ? '-vertical' : ''}`}>

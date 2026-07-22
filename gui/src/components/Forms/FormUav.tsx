@@ -13,13 +13,7 @@ interface MyFormProps {
 
 export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
   const { t } = useTranslation();
-  const {
-    extraFields,
-    dirPoints,
-    drawLine,
-    solution,
-    onUpdatePixelSize,
-  } = useUavSlice();
+  const { extraFields, dirPoints, drawLine, solution, onUpdatePixelSize } = useUavSlice();
   const { video, projectDetails } = useProjectSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { isBackendWorking } = useGlobalSlice();
@@ -82,8 +76,13 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
   };
 
   return (
-    <div className='body mt-2'>
-      <form onSubmit={onSubmit} onError={onError} id="form-pixel-size" className={`${isBackendWorking ? 'disabled' : ''}`}>
+    <div className="body mt-2">
+      <form
+        onSubmit={onSubmit}
+        onError={onError}
+        id="form-pixel-size"
+        className={`${isBackendWorking ? 'disabled' : ''}`}
+      >
         <div className="input-container-2">
           <button
             className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
@@ -117,7 +116,9 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
               onKeyDown={handleLineLengthInput}
               onBlur={handleLineLengthInput}
             ></input>
-            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+            <span className="unit-label">
+              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            </span>
           </div>
         </div>
 
@@ -133,7 +134,9 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
               onKeyDown={handlePixelSizeInput}
               onBlur={handlePixelSizeInput}
             />
-            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+            <span className="unit-label">
+              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            </span>
           </div>
         </div>
       </form>
@@ -142,5 +145,5 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
 
       {extraFields && <HardModeUav />}
     </div>
-  )
+  );
 };

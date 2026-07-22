@@ -1,4 +1,4 @@
-import { Progress, WizardButtons } from '../components';
+import { WizardButtons } from '../components';
 import {
   ProcessedRange,
   VideoInfo,
@@ -73,17 +73,17 @@ export const Report = () => {
           <link rel="stylesheet" href="/src/components/Report/report.css">
           <style>
             ${Array.from(document.styleSheets)
-          .map((styleSheet) => {
-            try {
-              return Array.from(styleSheet.cssRules)
-                .map((rule) => rule.cssText)
-                .join('');
-            } catch (e) {
-              console.error(e);
-              return '';
-            }
-          })
-          .join('')}
+              .map((styleSheet) => {
+                try {
+                  return Array.from(styleSheet.cssRules)
+                    .map((rule) => rule.cssText)
+                    .join('');
+                } catch (e) {
+                  console.error(e);
+                  return '';
+                }
+              })
+              .join('')}
           </style>
         </head>
         <body>
@@ -148,7 +148,7 @@ export const Report = () => {
       <div className="form-container">
         <FormHeader title={t('Report.Summary.title')} showSections={false} />
         <FormReport isReportSaved={isReportSaved} setIsReportSaved={setIsReportSaved} />
-        <div className='footer'>
+        <div className="footer">
           <WizardButtons onClickNext={generateHTML} />
         </div>
       </div>

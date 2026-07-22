@@ -1,4 +1,4 @@
-import { Point } from "./types";
+import { Point } from './types';
 
 /**
  * This function is used to calculate the midpoint of one section line and the angle between two points.
@@ -82,14 +82,14 @@ const getPositionSectionText = (
   factor: number
 ) => {
   // To not show default point
-  if ( point1.x === point2.x && point1.y === point2.y ) {
+  if (point1.x === point2.x && point1.y === point2.y) {
     return {
       point: {
         x: -5000,
         y: -5000,
       },
-      rotation: 0
-    }
+      rotation: 0,
+    };
   }
 
   const { angle } = calculateMidpointAndAngle(point1, point2);

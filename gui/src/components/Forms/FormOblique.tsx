@@ -57,9 +57,8 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
   };
 
   return (
-    <div className='body'>
+    <div className="body">
       <div className="wraper">
-
         <form
           onSubmit={onSubmit}
           onError={onError}
@@ -94,36 +93,34 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
 
           <DropHereText text={t('Commons.dropHereText')} show={isDistancesLoaded === false} />
 
-          {
-            distancesLabels.map((label, i) => {
-              return (
-                <div className={`input-container-2 mt-${i > 0 ? 1 : 2}`} key={i}>
-                  <label className="read-only me-1" id={'D' + distancesID[i]}>
-                    {label}
-                  </label>
-                  <div className='input-field-container'>
-                    <input
-                      className='input-field-oblique'
-                      type='number'
-                      id={'distance' + distancesID[i]}
-                      disabled={isDefaultCoordinates}
-                      {...register('distance' + distancesID[i], validationRules.distances)}
-                      step={0.01}
-                      onKeyDown={(event) => handleInputBehavior(event, i + 1)}
-                      onBlur={(event) => handleInputBehavior(event, i + 1)}
-                    />
-                    <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
-                  </div>
-
+          {distancesLabels.map((label, i) => {
+            return (
+              <div className={`input-container-2 mt-${i > 0 ? 1 : 2}`} key={i}>
+                <label className="read-only me-1" id={'D' + distancesID[i]}>
+                  {label}
+                </label>
+                <div className="input-field-container">
+                  <input
+                    className="input-field-oblique"
+                    type="number"
+                    id={'distance' + distancesID[i]}
+                    disabled={isDefaultCoordinates}
+                    {...register('distance' + distancesID[i], validationRules.distances)}
+                    step={0.01}
+                    onKeyDown={(event) => handleInputBehavior(event, i + 1)}
+                    onBlur={(event) => handleInputBehavior(event, i + 1)}
+                  />
+                  <span className="unit-label">
+                    {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+                  </span>
                 </div>
-              )
-            })
-          }
-
+              </div>
+            );
+          })}
 
           {solution && <OrthoImage solution={solution} coordinates={rwCoordinates} />}
 
-          {solution === null && <span className='mb-2 mt-1' />}
+          {solution === null && <span className="mb-2 mt-1" />}
 
           <HardModeOblique extraFields={extraFields} />
         </form>

@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
-import * as d3 from "d3";
-import { useSectionSlice, useUiSlice } from "../../hooks";
-import { drawInteractiveSection, drawStaticSection, getResizedPoint } from "./drawSections";
-import type { OverlayLayers } from "../OverlaySvg";
+import { useCallback, useEffect, useState } from 'react';
+import * as d3 from 'd3';
+import { useSectionSlice, useUiSlice } from '../../hooks';
+import { drawInteractiveSection, drawStaticSection, getResizedPoint } from './drawSections';
+import type { OverlayLayers } from '../OverlaySvg';
 
 type Point = { x: number; y: number };
 
@@ -40,10 +40,13 @@ export const DrawSectionsD3 = ({
   );
   const [mousePressed, setMousePressed] = useState<boolean>(false);
 
-  const getPointerInZoom = useCallback((nativeEvt: Event) => {
-    const container = overlayZoomRef.current ?? svgRef.current;
-    return d3.pointer(nativeEvt as any, container as any);
-  }, [overlayZoomRef, svgRef]);
+  const getPointerInZoom = useCallback(
+    (nativeEvt: Event) => {
+      const container = overlayZoomRef.current ?? svgRef.current;
+      return d3.pointer(nativeEvt as any, container as any);
+    },
+    [overlayZoomRef, svgRef]
+  );
 
   // Static drawing
   useEffect(() => {
@@ -51,11 +54,11 @@ export const DrawSectionsD3 = ({
     const staticLayerSel = d3.select(staticLayerRef.current);
     const uiLayerSel = d3.select(uiLayerRef.current);
 
-    staticLayerSel.selectAll("*").remove();
-    uiLayerSel.selectAll("*").remove();
+    staticLayerSel.selectAll('*').remove();
+    uiLayerSel.selectAll('*').remove();
 
     sections.forEach((section, index) => {
-      if (module === 'report' && sectionIndex !== undefined && index !== sectionIndex) return
+      if (module === 'report' && sectionIndex !== undefined && index !== sectionIndex) return;
 
       const { dirPoints, sectionPoints, name } = section;
       const isActive = index === activeSection;
@@ -82,7 +85,21 @@ export const DrawSectionsD3 = ({
         skipLine,
       });
     });
-  }, [sections, activeSection, factor, seeAll, scale, position, width, height, staticLayerRef, uiLayerRef, module, sectionIndex, language]);
+  }, [
+    sections,
+    activeSection,
+    factor,
+    seeAll,
+    scale,
+    position,
+    width,
+    height,
+    staticLayerRef,
+    uiLayerRef,
+    module,
+    sectionIndex,
+    language,
+  ]);
 
   // Interactive drawing
   useEffect(() => {
@@ -93,7 +110,7 @@ export const DrawSectionsD3 = ({
     const uiLayerSel = d3.select(uiLayerRef.current);
     const zoomLayerNode = overlayZoomRef.current!;
 
-    layerSel.selectAll("*").remove();
+    layerSel.selectAll('*').remove();
 
     drawInteractiveSection({
       layer: layerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
@@ -113,13 +130,13 @@ export const DrawSectionsD3 = ({
         imageWidth: width,
         imageHeight: height,
         position,
-        scale
+        scale,
       },
-      module: 'x-sections'
-    })
+      module: 'x-sections',
+    });
 
     return () => {
-      layerSel.on(".drag", null);
+      layerSel.on('.drag', null);
     };
   }, [
     startPoint,
@@ -136,7 +153,7 @@ export const DrawSectionsD3 = ({
     interactiveLayerRef,
     uiLayerRef,
     overlayZoomRef,
-    seeAll
+    seeAll,
   ]);
 
   // Attach root SVG listeners for section creation (namespaced)
@@ -166,21 +183,18 @@ export const DrawSectionsD3 = ({
       if (module !== 'x-sections') return;
       if (mousePressed && startPoint && endPoint && dirPoints.length === 0) {
         setMousePressed(false);
-        onSetDirPoints(
-          { points: [startPoint, endPoint], factor: factor as number, index: null },
-          null
-        );
+        onSetDirPoints({ points: [startPoint, endPoint], factor: factor as number, index: null }, null);
       } else {
         setMousePressed(false);
       }
     };
 
-    svgSel.on("mousedown.sections", onMouseDown);
-    svgSel.on("mousemove.sections", onMouseMove);
-    svgSel.on("mouseup.sections", onMouseUp);
+    svgSel.on('mousedown.sections', onMouseDown);
+    svgSel.on('mousemove.sections', onMouseMove);
+    svgSel.on('mouseup.sections', onMouseUp);
 
     return () => {
-      svgSel.on(".sections", null);
+      svgSel.on('.sections', null);
     };
   }, [
     svgRef,

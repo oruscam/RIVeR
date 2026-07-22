@@ -4,7 +4,6 @@ import { useSectionSlice, useUiSlice } from '../hooks';
 import { COLORS, MODULE_NUMBER } from '../constants/constants';
 import { getPositionSectionText } from '../../commons/sectionTextPosition';
 
-
 interface LineAndTextProps {
   localPoints?: { x: number; y: number }[];
   isPixelSize: boolean;

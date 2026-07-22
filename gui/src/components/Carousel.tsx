@@ -28,24 +28,6 @@ interface RowProps {
   style: React.CSSProperties;
 }
 
-function getFileNameWithoutExtension(filePath: string): string {
-  // Remove the 'file:\', '@fs', prefix if it exists - DEV MODE
-  let filePrefix = import.meta.env.VITE_FILE_PREFIX;
-  filePrefix = filePrefix === undefined ? '' : filePrefix;
-
-  if (filePath.startsWith(filePrefix)) {
-    filePath = filePath.slice(filePrefix.length);
-  }
-
-  // Extract the base name
-  const baseName = filePath.split(/[/\\]/).pop() || '';
-
-  // Remove the extension
-  const fileNameWithoutExtension = baseName.split('.').slice(0, -1).join('.');
-
-  return fileNameWithoutExtension;
-}
-
 export const Carousel: React.FC<CarouselProps> = ({
   images,
   active,
@@ -55,7 +37,7 @@ export const Carousel: React.FC<CarouselProps> = ({
   mode,
 }) => {
   const { t } = useTranslation();
-  const { isBackendWorking, quiver } = useDataSlice();
+  const { isBackendWorking } = useDataSlice();
   const [width, setWidth] = useState<number>(500);
   const { screenSizes } = useUiSlice();
 
@@ -120,12 +102,7 @@ export const Carousel: React.FC<CarouselProps> = ({
         style={style}
       >
         <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
-        {mode !== 'ipcam' && (
-          <div className="img-water-mark">
-            {' '}
-            {index + 1}
-          </div>
-        )}
+        {mode !== 'ipcam' && <div className="img-water-mark"> {index + 1}</div>}
       </div>
     );
   };
@@ -146,13 +123,11 @@ export const Carousel: React.FC<CarouselProps> = ({
     };
   }, [screenSizes.height]);
 
-  if (mode === 'ipcam') {
-    useEffect(() => {
-      if (listRef.current) {
-        listRef.current.scrollToItem(active, 'center');
-      }
-    }, [active]);
-  }
+  useEffect(() => {
+    if (mode === 'ipcam' && listRef.current) {
+      listRef.current.scrollToItem(active, 'center');
+    }
+  }, [active, mode]);
 
   return (
     <div ref={containerRef} className={`carousel-container mt-1 ${isBackendWorking ? 'disabled' : ''}`}>

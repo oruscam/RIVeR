@@ -1,5 +1,5 @@
-import { Point } from "../../types";
-import { Quiver } from "../../../commons/types";
+import { Point } from '../../types';
+import { Quiver } from '../../../commons/types';
 
 interface FormProcessing {
   artificialSeeding: boolean;

@@ -91,11 +91,11 @@ export const useObliqueSlice = () => {
         })
       );
       return;
-    } 
+    }
 
     if (formPoint) {
       const { points } = setChangesByForm(formPoint, oblique.coordinates);
-      
+
       dispatch(setHasChanged(true));
       dispatch(
         setObliquePoints({
@@ -107,7 +107,6 @@ export const useObliqueSlice = () => {
       );
       return;
     }
-
   };
   // Method to toggle the drawPoints flag in the oblique state
   // This flag indicates whether points should be drawn on the image
@@ -140,7 +139,10 @@ export const useObliqueSlice = () => {
     }
     try {
       // Open a dialog to select distances file if no path is provided
-      const { distances: newDistances, error } = await ipcRenderer.invoke('import-distances', { path, unitSistem });
+      const { distances: newDistances, error } = await ipcRenderer.invoke('import-distances', {
+        path,
+        unitSistem,
+      });
 
       // Handle errors from the IPC call
       // Error can be a wrong file format or user canceling the dialog
@@ -265,8 +267,8 @@ export const useObliqueSlice = () => {
       dispatch(setIsBackendWorking(false));
       // Handle errors by throwing a CliError with the error message
       if (error instanceof Error) {
-        if (error.message.includes('Anchor')){
-          throw new CliErrorMessage(error.message)
+        if (error.message.includes('Anchor')) {
+          throw new CliErrorMessage(error.message);
         } else {
           throw new CliError(error.message, t);
         }
@@ -275,15 +277,15 @@ export const useObliqueSlice = () => {
   };
 
   const onChangeExtraFields = () => {
-    dispatch(setExtraFields())
-  }
+    dispatch(setExtraFields());
+  };
 
   const onChangeRealWorldCoordinates = (value: number, position: string) => {
     // The user types in ft when imperial; the store always holds m.
     const siValue = toSI(value);
     const { points } = setChangesByForm({ value: siValue, position }, oblique.rwCoordinates);
 
-    const newDistances = getPointsDistances(points)
+    const newDistances = getPointsDistances(points);
 
     dispatch(setHasChanged(true));
     dispatch(
@@ -295,8 +297,7 @@ export const useObliqueSlice = () => {
       })
     );
     return;
-  }
-
+  };
 
   return {
     // ATRIBUTES

@@ -42,11 +42,7 @@ export const drawMask = (
       .attr('width', 10)
       .attr('height', 10);
 
-    pattern
-      .append('path')
-      .attr('d', 'M0 10 L10 0')
-      .attr('stroke', '#ED6B57')
-      .attr('stroke-width', 1);
+    pattern.append('path').attr('d', 'M0 10 L10 0').attr('stroke', '#ED6B57').attr('stroke-width', 1);
   }
 
   const transformedPoints = points.map((p) => transformToViewport(p.x, p.y));
@@ -177,10 +173,16 @@ export const drawMask = (
   svg
     .selectAll<SVGRectElement, any>('rect.plus-rect')
     .on('mouseover', function (_event, d: any) {
-      d3.select(`circle.plus-circle:nth-of-type(${d.index + 1})`).transition().duration(150).attr('r', size(13));
+      d3.select(`circle.plus-circle:nth-of-type(${d.index + 1})`)
+        .transition()
+        .duration(150)
+        .attr('r', size(13));
     })
     .on('mouseout', function (_event, d: any) {
-      d3.select(`circle.plus-circle:nth-of-type(${d.index + 1})`).transition().duration(150).attr('r', size(10));
+      d3.select(`circle.plus-circle:nth-of-type(${d.index + 1})`)
+        .transition()
+        .duration(150)
+        .attr('r', size(10));
     })
     .on('click', function (event, d: any) {
       event.stopPropagation();

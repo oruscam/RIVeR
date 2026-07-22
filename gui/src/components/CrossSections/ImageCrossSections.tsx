@@ -1,9 +1,9 @@
-import { useCallback, useState } from "react";
-import { useDataSlice, useImageZoomPan, useProjectSlice, useUiSlice } from "../../hooks";
-import { OverlaySvg } from "../OverlaySvg";
-import { DrawSectionsD3 } from "./DrawSectionsD3";
-import { DrawMask } from "../DrawMask";
-import { ConfirmMaskBtn } from "../CustomIcons/ConfirmMaskBtn";
+import { useCallback, useState } from 'react';
+import { useDataSlice, useImageZoomPan, useProjectSlice, useUiSlice } from '../../hooks';
+import { OverlaySvg } from '../OverlaySvg';
+import { DrawSectionsD3 } from './DrawSectionsD3';
+import { DrawMask } from '../DrawMask';
+import { ConfirmMaskBtn } from '../CustomIcons/ConfirmMaskBtn';
 
 const CONFIRM_BTN_MARGIN_PX = 32;
 const CONFIRM_BTN_HALF_SIZE = 20;
@@ -115,7 +115,6 @@ export const ImageCrossSections = () => {
     keyboardStep: 25,
   });
 
-
   // Prefer livePoints (updated every frame during drag) over Redux state (updated on mouseup).
   const confirmBtnPos = (() => {
     if (activeMaskIndex === null) return null;
@@ -130,8 +129,8 @@ export const ImageCrossSections = () => {
       style={{
         width: imageWidth,
         height: imageHeight,
-        position: "relative",
-        overflow: "hidden",
+        position: 'relative',
+        overflow: 'hidden',
       }}
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
@@ -143,8 +142,8 @@ export const ImageCrossSections = () => {
       <div
         style={{
           transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-          transformOrigin: "50% 50%",
-          willChange: "transform",
+          transformOrigin: '50% 50%',
+          willChange: 'transform',
         }}
       >
         <img
@@ -152,19 +151,14 @@ export const ImageCrossSections = () => {
           className="simple-image"
           draggable={false}
           onDragStart={handleDragStart}
-          style={{ display: "block", userSelect: "none", pointerEvents: "none" }}
+          style={{ display: 'block', userSelect: 'none', pointerEvents: 'none' }}
         />
       </div>
 
       <OverlaySvg width={imageWidth!} height={imageHeight!} scale={scale} position={position}>
         {(layers) => (
           <>
-            <DrawMask
-              factor={factor!}
-              layers={layers}
-              scale={scale}
-              onLivePoints={handleLivePoints}
-            />
+            <DrawMask factor={factor!} layers={layers} scale={scale} onLivePoints={handleLivePoints} />
 
             <DrawSectionsD3
               width={imageWidth!}
@@ -191,10 +185,7 @@ export const ImageCrossSections = () => {
           }}
           onMouseDown={(e) => e.stopPropagation()}
         >
-          <ConfirmMaskBtn
-            onClick={() => onUpdateActiveMask(activeMaskIndex!)}
-            title="Confirm mask"
-          />
+          <ConfirmMaskBtn onClick={() => onUpdateActiveMask(activeMaskIndex!)} title="Confirm mask" />
         </div>
       )}
     </div>

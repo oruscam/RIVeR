@@ -22,7 +22,7 @@ export const VelocityVector = ({
   factor,
   isReport = false,
   sectionIndex,
-  layers
+  layers,
 }: VelocityVectorProps) => {
   const { interactiveLayerRef } = layers;
   const { video, projectDetails } = useProjectSlice();

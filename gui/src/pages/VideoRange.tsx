@@ -21,10 +21,10 @@ export const VideoRange = () => {
         {path && <VideoPlayer fileURL={path} duration={duration} />}
         <Error />
       </div>
-      <div className='form-container'>
+      <div className="form-container">
         <FormHeader title={t('VideoRange.title')} showSections={false} />
         <FormVideo duration={duration} extraFields={extraFields} />
-        <div className='footer'>
+        <div className="footer">
           <LockBtn
             localExtraFields={extraFields}
             setLocalExtraFields={setExtraFields}

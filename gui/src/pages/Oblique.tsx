@@ -11,13 +11,10 @@ import { useTranslation } from 'react-i18next';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
-
-
 const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates: Point[], unitSistem?: string) => {
   // The store keeps distances and real-world coords in SI (m); the form displays
   // the user's chosen unit. Pixel coords (x/y of `coordinates`) are never converted.
-  const toDisplay = (value: number) =>
-    unitSistem === 'imperial' ? value * UNIT_CONVERSIONS.M_TO_FT : value;
+  const toDisplay = (value: number) => (unitSistem === 'imperial' ? value * UNIT_CONVERSIONS.M_TO_FT : value);
 
   const defaultValues = {
     distance12: toDisplay(distances.d12).toFixed(2),
@@ -42,13 +39,23 @@ const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates:
     oblique_northPoint3: toDisplay(rwCoordinates[2].y).toFixed(2),
     oblique_eastPoint4: toDisplay(rwCoordinates[3].x).toFixed(2),
     oblique_northPoint4: toDisplay(rwCoordinates[3].y).toFixed(2),
-  }
+  };
 
   return defaultValues;
-}
+};
 
 export const Oblique = () => {
-  const { solution, distances, coordinates, rwCoordinates, extraFields, onChangeExtraFields, onGetObliqueTransformationMatrix, onGetDistances, isDefaultCoordinates } = useObliqueSlice();
+  const {
+    solution,
+    distances,
+    coordinates,
+    rwCoordinates,
+    extraFields,
+    onChangeExtraFields,
+    onGetObliqueTransformationMatrix,
+    onGetDistances,
+    isDefaultCoordinates,
+  } = useObliqueSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { projectDetails } = useProjectSlice();
   const { onSetErrorMessage } = useUiSlice();
@@ -57,7 +64,9 @@ export const Oblique = () => {
 
   const [dragOver, setDragOver] = useState<boolean>(false);
 
-  const methods = useForm({ defaultValues: createDefaultState(distances, coordinates, rwCoordinates, projectDetails.unitSistem) });
+  const methods = useForm({
+    defaultValues: createDefaultState(distances, coordinates, rwCoordinates, projectDetails.unitSistem),
+  });
 
   const onSubmit = () => {
     nextStep();
@@ -69,7 +78,7 @@ export const Oblique = () => {
 
   const onClickSolveButton = () => {
     onGetObliqueTransformationMatrix(methods.getValues()).catch((error) => onSetErrorMessage(error.message));
-  }
+  };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -106,7 +115,7 @@ export const Oblique = () => {
           <FormOblique onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
 
-        <div className='footer'>
+        <div className="footer">
           <button
             className="wizard-button form-button solver-button"
             id="solve-oblique"

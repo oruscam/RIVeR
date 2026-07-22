@@ -56,7 +56,9 @@ export const LanguageSelector = () => {
       <select className="language-selector-select" value={language} onChange={handleOnChange}>
         {availableLanguages.map((lang) => (
           <option key={lang} value={lang}>
-            {languageFlags[lang] ? `${languageFlags[lang]} ${languageNames[lang] || lang}` : languageNames[lang] || lang}
+            {languageFlags[lang]
+              ? `${languageFlags[lang]} ${languageNames[lang] || lang}`
+              : languageNames[lang] || lang}
           </option>
         ))}
       </select>

@@ -39,8 +39,8 @@ const initialState: DataState = {
   colorbarLimits: {
     min: null,
     max: null,
-    default: true
-  }
+    default: true,
+  },
 };
 
 const dataSlice = createSlice({
@@ -67,7 +67,6 @@ const dataSlice = createSlice({
     },
     setActiveImage: (state, action: PayloadAction<number>) => {
       state.images.active = action.payload;
-
     },
     setQuiver: (state, action: PayloadAction<{ quiver: Quiver | null }>) => {
       state.quiver = action.payload.quiver;
@@ -137,11 +136,14 @@ const dataSlice = createSlice({
         visible.splice(pos, 1);
       }
     },
-    setColorbarLimits: (state, action: PayloadAction<{ min: number | null; max: number | null; default: boolean }>) => {
+    setColorbarLimits: (
+      state,
+      action: PayloadAction<{ min: number | null; max: number | null; default: boolean }>
+    ) => {
       state.colorbarLimits.min = action.payload.min;
       state.colorbarLimits.max = action.payload.max;
       state.colorbarLimits.default = action.payload.default;
-    }
+    },
   },
 });
 

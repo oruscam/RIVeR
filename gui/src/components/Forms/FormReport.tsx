@@ -9,7 +9,6 @@ import { SuccessfulMessage } from '../Report';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
 
-
 export const FormReport = ({
   isReportSaved,
   setIsReportSaved,
@@ -104,8 +103,8 @@ export const FormReport = ({
   }, [isReportSaved]);
 
   return (
-    <div className='body'>
-      <form className='form-report'>
+    <div className="body">
+      <form className="form-report">
         <div className="simple-input-container">
           <label>{t('Report.Form.riverName')}</label>
           <input
@@ -184,8 +183,6 @@ export const FormReport = ({
             timeIntervals={15}
           />
         </div>
-
-
 
         {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
       </form>

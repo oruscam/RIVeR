@@ -1,11 +1,11 @@
 const CANONICAL_KEYS = ['d12', 'd23', 'd34', 'd41', 'd13', 'd24'] as const;
 
-  /**
-   * Converts a cell value to a float, handling regional decimal formats.
-   * - Numbers pass through directly.
-   * - Strings handle both '19,97' (EU) and '1.234,56' (EU with thousands).
-   * - Anything else returns NaN.
-   */
+/**
+ * Converts a cell value to a float, handling regional decimal formats.
+ * - Numbers pass through directly.
+ * - Strings handle both '19,97' (EU) and '1.234,56' (EU with thousands).
+ * - Anything else returns NaN.
+ */
 export const smartParseFloat = (cell: unknown): number => {
   if (typeof cell === 'number') return cell;
   if (typeof cell !== 'string') return NaN;
@@ -14,21 +14,20 @@ export const smartParseFloat = (cell: unknown): number => {
   if (s === '') return NaN;
 
   const hasComma = s.includes(',');
-  const hasDot   = s.includes('.');
+  const hasDot = s.includes('.');
 
   if (hasComma && hasDot) {
     // Both separators present — the last one is the decimal separator.
     // e.g. '1.234,56' → remove dots → '1234,56' → replace comma → '1234.56'
     // e.g. '1,234.56' → remove commas → '1234.56'
     const lastComma = s.lastIndexOf(',');
-    const lastDot   = s.lastIndexOf('.');
+    const lastDot = s.lastIndexOf('.');
     if (lastComma > lastDot) {
       return parseFloat(s.replace(/\./g, '').replace(',', '.'));
     } else {
       return parseFloat(s.replace(/,/g, ''));
     }
   }
-
 
   if (hasComma) {
     // Only commas — treat as decimal separator. e.g. '19,97' → '19.97'
@@ -69,27 +68,26 @@ export const normalizeDistanceKey = (rawKey: unknown): string => {
   return `d${stripped.split('').sort().join('')}`;
 };
 
-  /**
-   * Parses a raw 2D grid (from SheetJS sheet_to_json with header:1) into a
-   * structured distances object. Pure function — no I/O, no side effects.
-   *
-   * Handles:
-   *  - 1-column format: 6 numeric values in canonical order
-   *  - 2-column format: [label, value] pairs in any order
-   *  - Optional header row (detected, not assumed by row count alone)
-   *  - Regional decimal separators ('19,97' → 19.97)
-   *  - Blank/empty rows anywhere in the grid
-   */
+/**
+ * Parses a raw 2D grid (from SheetJS sheet_to_json with header:1) into a
+ * structured distances object. Pure function — no I/O, no side effects.
+ *
+ * Handles:
+ *  - 1-column format: 6 numeric values in canonical order
+ *  - 2-column format: [label, value] pairs in any order
+ *  - Optional header row (detected, not assumed by row count alone)
+ *  - Regional decimal separators ('19,97' → 19.97)
+ *  - Blank/empty rows anywhere in the grid
+ */
 export const parseDistancesData = (grid: unknown[][]): Record<string, number> => {
   // Step 1: strip empty rows
-  const rows = grid.filter(
-    (row) => row.some((cell) => cell !== null && cell !== undefined && String(cell).trim() !== '')
+  const rows = grid.filter((row) =>
+    row.some((cell) => cell !== null && cell !== undefined && String(cell).trim() !== '')
   );
 
   // Step 2: detect and strip header
   // A row is a header if none of its cells parse as a finite number.
-  const rowHasNumber = (row: unknown[]) =>
-    row.some((cell) => isFinite(smartParseFloat(cell)));
+  const rowHasNumber = (row: unknown[]) => row.some((cell) => isFinite(smartParseFloat(cell)));
 
   let data = rows;
   if (rows.length === 7) {
@@ -117,9 +115,7 @@ export const parseDistancesData = (grid: unknown[][]): Record<string, number> =>
 
   // 2-col: col[0] is a distance label, col[1] is a parseable number — for all 6 rows.
   // 1-col: col[0] is a parseable number — for all 6 rows.
-  const isTwoCol = data.every((row) =>
-    isDistanceLabel(row[0]) && isFinite(smartParseFloat(row[1]))
-  );
+  const isTwoCol = data.every((row) => isDistanceLabel(row[0]) && isFinite(smartParseFloat(row[1])));
 
   const isOneCol = data.every((row) => isFinite(smartParseFloat(row[0])));
 
@@ -151,7 +147,7 @@ export const parseDistancesData = (grid: unknown[][]): Record<string, number> =>
   for (let i = 0; i < values.length; i++) {
     const v = values[i];
     if (!isFinite(v)) throw new Error('invalidDistancesNotValidValue');
-    if (v < 0)        throw new Error('invalidDistancesNegativeValue');
+    if (v < 0) throw new Error('invalidDistancesNegativeValue');
     result[CANONICAL_KEYS[i]] = v;
   }
 

@@ -12,9 +12,7 @@ export const OrthoImage = ({
   coordinates,
   secondPoint,
 }: {
-  solution:
-    | { orthoImage: string; extent: number[]; resolution: number; width: number; height: number }
-    | null;
+  solution: { orthoImage: string; extent: number[]; resolution: number; width: number; height: number } | null;
   coordinates?: Point[];
   secondPoint?: Point;
 }) => {

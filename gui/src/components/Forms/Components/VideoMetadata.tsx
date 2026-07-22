@@ -1,11 +1,16 @@
 import { useTranslation } from 'react-i18next';
 import { useProjectSlice } from '../../../hooks';
 
-export const VideoMetadata = ({timeBetweenFrames, numberOfFrames} : {timeBetweenFrames: string, numberOfFrames: number}) => {
+export const VideoMetadata = ({
+  timeBetweenFrames,
+  numberOfFrames,
+}: {
+  timeBetweenFrames: string;
+  numberOfFrames: number;
+}) => {
   const { t } = useTranslation();
   const { video } = useProjectSlice();
   const { name, width, height, duration, fps } = video.data;
-
 
   return (
     <div className="form-video-extra-info">

@@ -1,10 +1,10 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { FirstFrameArgs } from './interfaces';
+import { FirstFrameArgs, RiverCli } from './interfaces';
 import * as fs from 'fs';
 import path from 'path';
 import { PROJECT_CONFIG } from '../main';
 
-function firstFrame(riverCli: Function) {
+function firstFrame(riverCli: RiverCli) {
   const mainWindow = BrowserWindow.getAllWindows()[0];
 
   ipcMain.handle('first-frame', async (_event, args: FirstFrameArgs) => {

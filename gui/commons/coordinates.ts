@@ -33,7 +33,7 @@ const computePixelSize = (pixelPoints, rwPoints) => {
  * @param {number} pixelSize
  * @returns {number}
  */
-const computeRwDistance = (pixelPoints: Array<{ x: number; y: number; }>, pixelSize: number): number => {
+const computeRwDistance = (pixelPoints: Array<{ x: number; y: number }>, pixelSize: number): number => {
   const pixelDistance = getDistanceBetweenPoints(pixelPoints);
   const rwLength = pixelDistance * pixelSize;
   return parseFloat(rwLength.toFixed(2));
@@ -66,7 +66,7 @@ function transformPixelToRealWorld(x_pix, y_pix, transformationMatrix) {
   const pixelVector = [x_pix, y_pix, 1];
 
   const realWorldVector = transformationMatrix.map((row) =>
-   row.reduce((sum: number, value: number, index: string | number) => sum + value * pixelVector[index], 0)
+    row.reduce((sum: number, value: number, index: string | number) => sum + value * pixelVector[index], 0)
   );
 
   const w = realWorldVector[2] || 1;
