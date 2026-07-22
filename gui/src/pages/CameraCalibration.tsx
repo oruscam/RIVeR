@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, useMemo, memo, FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CircleCheckBig } from 'lucide-react';
+import { LuCheckCircle } from 'react-icons/lu';
 import { useCalibrationSlice, useResizableCarousel } from '../hooks';
 import { Loading, SuccessBanner } from '../components';
 import { CalibrationHistogram } from '../components/Graphs';
@@ -457,7 +457,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
             <hr className="cal-divider" />
             <div className="cal-save-section">
               <div className="cal-combo">
-                <p className="cal-section-label">{t('Calibration.cameraName')}</p>
+                <p className="cal-field-label">{t('Calibration.cameraName')}</p>
                 <input
                   className="input-field-oblique"
                   type="text"
@@ -487,7 +487,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                 )}
               </div>
               <div className="mt-1">
-                <p className="cal-section-label">{t('Calibration.lensName')}</p>
+                <p className="cal-field-label">{t('Calibration.lensName')}</p>
                 <input
                   className="input-field-oblique"
                   type="text"
@@ -497,7 +497,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                 />
               </div>
               <div className="mt-1">
-                <p className="cal-section-label">{t('Calibration.resolution')}</p>
+                <p className="cal-field-label">{t('Calibration.resolution')}</p>
                 <input
                   className="input-field-oblique"
                   type="text"
@@ -509,8 +509,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                 />
               </div>
               {savedPath && (
-                <SuccessBanner compact icon={CircleCheckBig} title={t('Calibration.savedTo')}>
-                  <button className="cal-link" onClick={() => onRevealPath(savedPath)}>
+                <SuccessBanner compact icon={LuCheckCircle} title={t('Calibration.savedTo')}>
+                  <button className="success-banner-link" onClick={() => onRevealPath(savedPath)}>
                     {savedPath}
                   </button>
                 </SuccessBanner>

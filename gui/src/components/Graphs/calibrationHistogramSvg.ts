@@ -19,7 +19,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
 
   const width = +svg.attr('width');
   const height = +svg.attr('height');
-  const margin = { top: 10, right: 14, bottom: 38, left: 38 };
+  const margin = { top: 10, right: 14, bottom: 48, left: 46 };
 
   const xMin = d3.min(rows, (d) => d.bin_center_px)!;
   const xMax = d3.max(rows, (d) => d.bin_center_px)!;
@@ -79,7 +79,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
         .attr('x', barX + bandwidth / 2)
         .attr('y', barY - 6)
         .attr('text-anchor', 'middle')
-        .style('font-size', '11px')
+        .style('font-size', '14px')
         .style('font-weight', '500')
         .text(`${d.bin_center_px.toFixed(3)} px: ${d.count}`);
     })
@@ -98,7 +98,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
         .tickFormat(d3.format('.2f') as (v: d3.NumberValue) => string)
     )
     .selectAll('.tick text')
-    .style('font-size', '11px');
+    .style('font-size', '14px');
 
   // Y axis
   svg
@@ -111,7 +111,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
         .tickFormat(d3.format('d') as (v: d3.NumberValue) => string)
     )
     .selectAll('.tick text')
-    .style('font-size', '11px');
+    .style('font-size', '14px');
 
   // X axis label
   svg
@@ -120,7 +120,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     .attr('text-anchor', 'middle')
     .attr('x', width / 2)
     .attr('y', height - 4)
-    .attr('font-size', '12px')
+    .attr('font-size', '16px')
     .text(t('Calibration.histogramX'));
 
   // Y axis label ("Count" — kept as a literal string, matching the pre-existing
@@ -130,8 +130,8 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     .attr('class', 'y-axis-label graph-text')
     .attr('text-anchor', 'middle')
     .attr('x', -height / 2)
-    .attr('y', 12)
+    .attr('y', 14)
     .attr('transform', 'rotate(-90)')
-    .attr('font-size', '12px')
+    .attr('font-size', '16px')
     .text('Count');
 };

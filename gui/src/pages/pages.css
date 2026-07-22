@@ -619,6 +619,16 @@
     font-size: clamp(11px, 1.1vw, 14px);
 }
 
+/* Matches the label convention used everywhere else in RIVeR's forms
+   (e.g. FormReport's .simple-input-container label): a visible, normal-case
+   label above the field, not a small-caps section heading. */
+.cal-field-label {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--primary-text-color);
+    margin: 0 0 4px;
+}
+
 .cal-combo {
     position: relative;
 }
