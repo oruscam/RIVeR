@@ -237,17 +237,21 @@
     align-self: center;
     display: flex;
     flex-direction: column;
-    padding: 14px;
+    align-items: center;
+    padding-top: 15px;
+    padding-bottom: 14px;
     gap: 10px;
     overflow: hidden;
     background-color: var(--secondary-background-color);
     border-radius: 20px;
+    border-top: 8px solid var(--secondary-background-color);
     margin-right: 5px;
 }
 
 .cal-canvas {
     flex: 1 1 0;
     min-height: 0;
+    width: 98%;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -279,6 +283,7 @@
 }
 
 .cal-view-controls {
+    width: 90%;
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -320,6 +325,7 @@
 }
 
 .cal-carousel {
+    width: 98%;
     display: flex;
     gap: 6px;
     overflow-x: auto;
