@@ -570,30 +570,31 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
           {/* Canvas */}
           <div className="cal-canvas">{images.length > 0 && getCanvasContent()}</div>
 
-          {/* View controls */}
-          {status === 'solved' && (
-            <div className="cal-view-controls">
-              <button
-                className={`button-1 cal-view-btn${viewMode !== 'heatmap' ? ' cal-view-btn--active' : ''}`}
-                onClick={() => setViewMode(viewMode === 'overlay' ? 'undistorted' : 'overlay')}
-              >
-                {viewMode === 'undistorted' ? t('Calibration.undistorted') : t('Calibration.overlay')}
-              </button>
-              {heatmapBase64 && (
-                <button
-                  className={`button-1 cal-view-btn${viewMode === 'heatmap' ? ' cal-view-btn--active' : ''}`}
-                  onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
-                >
-                  {t('Calibration.heatmap')}
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Carousel */}
+          {/* Carousel (resize handle, then view controls, then thumbnails — matching the
+              real Carousel component's resize-handle → carousel-info → thumbnail-list order) */}
           {images.length > 0 && (
             <>
               <div className="cal-resize-handle" onMouseDown={onCalResizeDrag} />
+
+              {status === 'solved' && (
+                <div className="cal-view-controls">
+                  <button
+                    className={`button-1 cal-view-btn${viewMode !== 'heatmap' ? ' cal-view-btn--active' : ''}`}
+                    onClick={() => setViewMode(viewMode === 'overlay' ? 'undistorted' : 'overlay')}
+                  >
+                    {viewMode === 'undistorted' ? t('Calibration.undistorted') : t('Calibration.overlay')}
+                  </button>
+                  {heatmapBase64 && (
+                    <button
+                      className={`button-1 cal-view-btn${viewMode === 'heatmap' ? ' cal-view-btn--active' : ''}`}
+                      onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
+                    >
+                      {t('Calibration.heatmap')}
+                    </button>
+                  )}
+                </div>
+              )}
+
               <div
                 ref={calCarouselRef}
                 className="cal-carousel"
