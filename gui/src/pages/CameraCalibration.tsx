@@ -433,10 +433,9 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
           </div>
         )}
 
-        <DropHereText
-          text={`${t('Calibration.dropZone')} ${t('Calibration.dropHint')}`}
-          show={images.length === 0}
-        />
+        {images.length === 0 && (
+          <DropHereText text={`${t('Calibration.dropZone')} ${t('Calibration.dropHint')}`} show={true} />
+        )}
 
         {status === 'solved' && (
           <>
