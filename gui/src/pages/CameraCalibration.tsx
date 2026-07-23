@@ -448,7 +448,6 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
         {status === 'solved' && (
           <>
-            <hr className="cal-divider" />
             <div className="cal-save-section">
               <div className="simple-input-container cal-combo">
                 <label>{t('Calibration.cameraName')}</label>
