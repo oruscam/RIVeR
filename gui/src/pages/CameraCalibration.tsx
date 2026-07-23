@@ -4,6 +4,7 @@ import { LuCheckCircle } from 'react-icons/lu';
 import { useCalibrationSlice, useResizableCarousel } from '../hooks';
 import { Loading, SuccessBanner } from '../components';
 import { CalibrationHistogram } from '../components/Graphs';
+import { DropHereText } from '../components/Forms/Components';
 
 interface ThumbProps {
   img: string;
@@ -445,12 +446,10 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
           </div>
         )}
 
-        {status === 'idle' && images.length > 0 && (
-          <p className="cal-ready-hint">{t('Calibration.readyToSolve')}</p>
-        )}
-        {status === 'idle' && images.length === 0 && (
-          <p className="cal-ready-hint">{t('Calibration.emptyHint')}</p>
-        )}
+        <DropHereText
+          text={`${t('Calibration.dropZone')} ${t('Calibration.dropHint')}`}
+          show={images.length === 0}
+        />
 
         {status === 'solved' && (
           <>
@@ -587,15 +586,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
           onDrop={handleDrop}
         >
           {/* Canvas */}
-          <div className="cal-canvas">
-            {images.length > 0 ? (
-              getCanvasContent()
-            ) : (
-              <div className="cal-drop-zone">
-                <p className="cal-drop-text">{t('Calibration.dropZone')}</p>
-                <p className="cal-drop-hint">{t('Calibration.dropHint')}</p>
-              </div>
-            )}
+          <div className={`cal-canvas${images.length === 0 ? ' cal-canvas-empty' : ''}`}>
+            {images.length > 0 && getCanvasContent()}
           </div>
 
           {/* View controls */}
