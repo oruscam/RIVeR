@@ -447,67 +447,65 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
         )}
 
         {status === 'solved' && (
-          <>
-            <div className="cal-save-section">
-              <div className="simple-input-container cal-combo">
-                <label>{t('Calibration.cameraName')}</label>
-                <input
-                  type="text"
-                  value={cameraName}
-                  onChange={(e) => {
-                    setCameraName(e.target.value);
-                    setComboOpen(true);
-                  }}
-                  onFocus={() => setComboOpen(true)}
-                  onBlur={() => setTimeout(() => setComboOpen(false), 150)}
-                  placeholder={t('Calibration.cameraName')}
-                />
-                {comboOpen && cameraSuggestions.length > 0 && (
-                  <ul className="cal-combo-list">
-                    {cameraSuggestions.map((c) => (
-                      <li
-                        key={c}
-                        onMouseDown={() => {
-                          setCameraName(c);
-                          setComboOpen(false);
-                        }}
-                      >
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div className="simple-input-container">
-                <label>{t('Calibration.lensName')}</label>
-                <input
-                  type="text"
-                  value={lensName}
-                  onChange={(e) => setLensName(e.target.value)}
-                  placeholder={t('Calibration.lensName')}
-                />
-              </div>
-              <div className="simple-input-container">
-                <label>{t('Calibration.resolution')}</label>
-                <input
-                  type="text"
-                  value={imageResolution ? `${imageResolution.width} × ${imageResolution.height} px` : ''}
-                  readOnly
-                  tabIndex={-1}
-                  placeholder={t('Calibration.resolution')}
-                  style={{ background: 'var(--input-background-disabled)', cursor: 'default' }}
-                />
-              </div>
-              {savedPath && (
-                <SuccessBanner compact icon={LuCheckCircle} title={t('Calibration.savedTo')}>
-                  <button className="success-banner-link" onClick={() => onRevealPath(savedPath)}>
-                    {savedPath}
-                  </button>
-                </SuccessBanner>
+          <div className="cal-save-section">
+            <div className="simple-input-container cal-combo">
+              <label>{t('Calibration.cameraName')}</label>
+              <input
+                type="text"
+                value={cameraName}
+                onChange={(e) => {
+                  setCameraName(e.target.value);
+                  setComboOpen(true);
+                }}
+                onFocus={() => setComboOpen(true)}
+                onBlur={() => setTimeout(() => setComboOpen(false), 150)}
+                placeholder={t('Calibration.cameraName')}
+              />
+              {comboOpen && cameraSuggestions.length > 0 && (
+                <ul className="cal-combo-list">
+                  {cameraSuggestions.map((c) => (
+                    <li
+                      key={c}
+                      onMouseDown={() => {
+                        setCameraName(c);
+                        setComboOpen(false);
+                      }}
+                    >
+                      {c}
+                    </li>
+                  ))}
+                </ul>
               )}
-              {saveError && <p className="cal-error-chip">{saveError}</p>}
             </div>
-          </>
+            <div className="simple-input-container">
+              <label>{t('Calibration.lensName')}</label>
+              <input
+                type="text"
+                value={lensName}
+                onChange={(e) => setLensName(e.target.value)}
+                placeholder={t('Calibration.lensName')}
+              />
+            </div>
+            <div className="simple-input-container">
+              <label>{t('Calibration.resolution')}</label>
+              <input
+                type="text"
+                value={imageResolution ? `${imageResolution.width} × ${imageResolution.height} px` : ''}
+                readOnly
+                tabIndex={-1}
+                placeholder={t('Calibration.resolution')}
+                style={{ background: 'var(--input-background-disabled)', cursor: 'default' }}
+              />
+            </div>
+            {savedPath && (
+              <SuccessBanner compact icon={LuCheckCircle} title={t('Calibration.savedTo')}>
+                <button className="success-banner-link" onClick={() => onRevealPath(savedPath)}>
+                  {savedPath}
+                </button>
+              </SuccessBanner>
+            )}
+            {saveError && <p className="cal-error-chip">{saveError}</p>}
+          </div>
         )}
 
         <div className="cal-back-section">
