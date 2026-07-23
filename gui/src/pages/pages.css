@@ -262,6 +262,11 @@
     background: #d8d3cc;
 }
 
+.cal-canvas.cal-canvas-empty {
+    background: transparent;
+    border: none;
+}
+
 .cal-canvas-img {
     max-width: 100%;
     max-height: 100%;
@@ -282,31 +287,6 @@
     font-size: 0.85rem;
     text-align: center;
     padding: 20px;
-}
-
-.cal-drop-zone {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 32px;
-    width: 100%;
-    height: 100%;
-    border: 1px dashed gray;
-    border-radius: 20px;
-}
-
-.cal-drop-text {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--secondary-text-color);
-}
-
-.cal-drop-hint {
-    font-size: 0.78rem;
-    color: var(--secondary-text-color);
-    opacity: 0.6;
 }
 
 .cal-view-controls {
@@ -710,15 +690,6 @@
 
 .cal-home-btn:hover img {
     opacity: 1 !important;
-}
-
-/* Ready hints */
-.cal-ready-hint {
-    font-size: 0.8rem;
-    color: var(--secondary-text-color);
-    text-align: center;
-    padding: 8px 0;
-    line-height: 1.5;
 }
 
 /* ── Lens correction settings rows (VideoRange) ──────────────── */
