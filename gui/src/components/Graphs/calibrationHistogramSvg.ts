@@ -52,7 +52,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
   // Bars
   const bandwidth = Math.max(1, (width - margin.left - margin.right) / rows.length - 2);
 
-  const bars = svg
+  svg
     .selectAll('.cal-hist-bar')
     .data(rows)
     .enter()
@@ -65,27 +65,6 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     .attr('fill', 'var(--primary-text-color)')
     .attr('fill-opacity', 0.75)
     .attr('stroke-width', 0.5);
-
-  // Custom in-SVG tooltip (matches dischargeSvg.ts's convention) instead of a
-  // native <title> element, so it renders in the app's own font/colors rather
-  // than the OS's native tooltip styling.
-  bars
-    .on('mouseover', (event, d) => {
-      const barX = parseFloat(d3.select(event.currentTarget).attr('x'));
-      const barY = parseFloat(d3.select(event.currentTarget).attr('y'));
-      svg
-        .append('text')
-        .attr('class', 'tooltip graph-text')
-        .attr('x', barX + bandwidth / 2)
-        .attr('y', barY - 6)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '14px')
-        .style('font-weight', '500')
-        .text(`${d.bin_center_px.toFixed(3)} px: ${d.count}`);
-    })
-    .on('mouseout', () => {
-      svg.selectAll('.tooltip').remove();
-    });
 
   // X axis
   svg

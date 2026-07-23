@@ -427,7 +427,6 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
             {csvRows.length > 0 && (
               <div className="cal-histogram">
-                <p className="cal-section-label">{t('Calibration.histogram')}</p>
                 <CalibrationHistogram rows={csvRows} />
               </div>
             )}
