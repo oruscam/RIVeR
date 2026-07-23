@@ -34,7 +34,7 @@ export const ObliquePixelTransformation = ({ factor, vertical }: ObliquePixelTra
         height: height,
       });
     }
-  }, [factor, coordinates, distances]);
+  }, [factor, coordinates, distances, width, height]);
 
   return (
     <div className={`pixel-transformation-with-image${vertical ? '-vertical' : ''}`}>

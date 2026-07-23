@@ -46,7 +46,19 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
         });
       }
     }
-  }, [path, level, leftBank, rwLength, screenWidth, projectDetails.unitSistem, language]);
+  }, [
+    path,
+    level,
+    leftBank,
+    rwLength,
+    screenWidth,
+    projectDetails.unitSistem,
+    language,
+    line,
+    showLeftBank,
+    x1Intersection,
+    x2Intersection,
+  ]);
 
   return (
     <div className={`bath-graph ${path === undefined ? 'hidden' : ''} mb-3`}>

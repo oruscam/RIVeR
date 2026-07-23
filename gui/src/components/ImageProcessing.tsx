@@ -80,7 +80,17 @@ export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: bool
       return { data: recoloredData, min: manualMin, max: manualMax };
     }
     return { data, min, max };
-  }, [quiver, images.active, showMedian, colorbarLimits.default, colorbarLimits.min, colorbarLimits.max]);
+  }, [
+    quiver,
+    images.active,
+    showMedian,
+    colorbarLimits.default,
+    colorbarLimits.min,
+    colorbarLimits.max,
+    parameters.step,
+    videoData.fps,
+    transformationMatrix,
+  ]);
 
   const { isDragging, scale, position } = useImageZoomPan({
     containerWidth: realWidth!,

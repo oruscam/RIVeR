@@ -1,31 +1,6 @@
 // src/components/CustomIcons/Icons.tsx
 
-import React from 'react';
-
-/* ─── INLINE SVG ICONS (Lucide paths, no library needed) ─── */
-interface IProps {
-  d: string;
-  size?: number;
-  color?: string;
-  extra?: string[];
-}
-
-const I: React.FC<IProps> = ({ d, size = 21, color = 'currentColor', extra = [] }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={color}
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    {[d, ...extra].map((path, i) => (
-      <path key={i} d={path} />
-    ))}
-  </svg>
-);
+import { IconPath as I } from './IconPath';
 
 export const Icons = {
   Eye: (c?: string) => (

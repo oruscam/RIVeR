@@ -138,6 +138,10 @@ export const DrawSectionsD3 = ({
     return () => {
       layerSel.on('.drag', null);
     };
+    // onSetDirPoints is recreated every render; `sectionPoints`/`name` (already tracked) act as
+    // the proxy for "this section's data changed". Adding it directly would tear down and
+    // reattach the D3 drag handlers on every parent re-render, interrupting an active drag.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     startPoint,
     endPoint,

@@ -59,7 +59,7 @@ export const TestPlot = ({ showMedian, width: fixedWidth }: { showMedian: boolea
         axisLimits,
       });
     }
-  }, [quiver, graphWidth, images.active, showMedian, theme]);
+  }, [quiver, graphWidth, images.active, showMedian, theme, t]);
 
   return (
     <div>{quiver && <svg ref={svgRef} width={graphWidth} height={graphWidth * 0.8} id="quiver-test-plot" />}</div>

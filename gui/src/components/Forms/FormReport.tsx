@@ -85,7 +85,10 @@ export const FormReport = ({
       unitSistem: unitSistem,
     });
     setIsReportSaved(false);
-  }, [meditionDate, unitSistem]);
+    // onProjectDetailsChange is recreated every render; adding it directly would re-run this
+    // effect (and hide the just-shown success message) on every unrelated parent re-render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meditionDate, unitSistem, setIsReportSaved]);
 
   const handleNewProject = () => {
     onSetDefaultProjectState();

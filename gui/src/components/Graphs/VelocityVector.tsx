@@ -80,6 +80,22 @@ export const VelocityVector = ({
         }
       }
     });
-  }, [factor, seeAll, sections, activeSection]);
+  }, [
+    factor,
+    seeAll,
+    sections,
+    activeSection,
+    height,
+    width,
+    isReport,
+    sectionIndex,
+    interactiveLayerRef,
+    transformationMatrix,
+    imageWidth,
+    imageHeight,
+    globalMin,
+    globalMax,
+    projectDetails.unitSistem,
+  ]);
   return null;
 };

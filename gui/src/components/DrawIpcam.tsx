@@ -47,7 +47,21 @@ export const DrawIpcam = ({
       onSetActivePoint,
       cameraSolution,
     });
-  }, [localPoints, activePoint, scale, position, factor, width, height]);
+    // onSetActivePoint/onSetPointPixelCoordinates are recreated every render; adding them would
+    // clear and redraw the interactive layer on every parent re-render, interrupting an active drag
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    localPoints,
+    activePoint,
+    scale,
+    position,
+    factor,
+    width,
+    height,
+    cameraSolution,
+    interactiveLayerRef,
+    uiLayerRef,
+  ]);
 
   useEffect(() => {
     setLocalPoints(transformPointCoordinates(points, factor));

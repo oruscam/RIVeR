@@ -189,7 +189,7 @@ export const OrthoImage = ({
 
     // Scale bar
     scaleBar(extent, ref.current, xScale, yScale, '', 0, 0, unitSistem);
-  }, [solution, maxGraphWidth, unitSistem]);
+  }, [solution, maxGraphWidth, unitSistem, coordinates, extent, imgHeight, imgWidth, orthoImage, secondPoint]);
 
   return (
     <div id="ortho-image-solution" className="mb-2 mt-1">

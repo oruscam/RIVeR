@@ -48,7 +48,7 @@ export const LanguageSelector = () => {
 
   useEffect(() => {
     i18n.changeLanguage(language);
-  }, [language]);
+  }, [language, i18n]);
 
   return (
     <div className="language-selector">
