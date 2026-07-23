@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDataSlice } from '../../../hooks';
 import { Loading } from '../../Loading';
+import { parseCliProgress } from '../../../helpers/parseCliProgress';
 
 export const AnalyzingProgress = ({ resetProgress }: { resetProgress: boolean }) => {
   const { t } = useTranslation();
@@ -13,13 +14,9 @@ export const AnalyzingProgress = ({ resetProgress }: { resetProgress: boolean })
 
   useEffect(() => {
     const handleRiverCliMessage = (_event: any, text: string) => {
-      // Expresión regular para extraer el porcentaje
-      const percentageMatch = text.match(/(\d+%)\|/);
-      let newPercentage = percentageMatch ? percentageMatch[1] : '';
-
-      // Expresión regular para extraer el tiempo
-      const timeMatch = text.match(/\[(\d{2}:\d{2})<(\d{2}:\d{2})/);
-      let newTime = timeMatch ? timeMatch[2] : '';
+      const parsed = parseCliProgress(text);
+      let newPercentage = parsed.percentage;
+      let newTime = parsed.time;
 
       if (isBackendWorking === false && quiver !== null) {
         newPercentage = '100%';

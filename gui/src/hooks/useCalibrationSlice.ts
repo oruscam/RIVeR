@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import {
@@ -6,14 +6,16 @@ import {
   setImages,
   setStatus,
   setSolveResult,
-  setProgressMsg,
+  setProgress,
   setErrorMsg,
   resetCalibration,
 } from '../store/calibration/calibrationSlice';
+import { parseCliProgress } from '../helpers/parseCliProgress';
 
 export const useCalibrationSlice = () => {
   const state = useSelector((s: RootState) => s.calibration);
   const dispatch = useDispatch();
+  const lastProgressRef = useRef({ percentage: '', time: '' });
 
   const onOpenFolder = useCallback(async () => {
     const dir: string | null = await window.ipcRenderer.invoke('calibration-open-folder');
@@ -56,13 +58,22 @@ export const useCalibrationSlice = () => {
     if (!state.imageDir) return;
 
     dispatch(setStatus('solving'));
-    dispatch(setProgressMsg(''));
+    lastProgressRef.current = { percentage: '', time: '' };
+    dispatch(setProgress({ msg: '', percentage: '', time: '' }));
 
     const reportDir = `${state.imageDir}/out/report`;
     const undistortedDir = `${state.imageDir}/out/undistorted`;
 
     const handleMsg = (_evt: unknown, msg: string) => {
-      dispatch(setProgressMsg(msg.trim()));
+      const trimmed = msg.trim();
+      const parsed = parseCliProgress(trimmed);
+      // Not every stderr line during solve carries a percentage (e.g. "RMS: ..."
+      // or "Saved profile → ..." after the corner-detection loop finishes) — keep
+      // showing the last real percentage/time instead of blanking the ring out.
+      const percentage = parsed.percentage || lastProgressRef.current.percentage;
+      const time = parsed.time || lastProgressRef.current.time;
+      lastProgressRef.current = { percentage, time };
+      dispatch(setProgress({ msg: trimmed, percentage, time }));
     };
     window.ipcRenderer.on('river-cli-message', handleMsg);
 

@@ -55,5 +55,7 @@ export interface CalibrationState {
   perFrameCorners: FrameCorners[];
   profilePath: string;
   progressMsg: string;
+  progressPercentage: string;
+  progressTime: string;
   errorMsg: string;
 }
