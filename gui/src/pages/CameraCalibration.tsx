@@ -2,9 +2,10 @@ import { useEffect, useRef, useState, useCallback, useMemo, memo, FC } from 'rea
 import { useTranslation } from 'react-i18next';
 import { LuCheckCircle } from 'react-icons/lu';
 import { useCalibrationSlice, useResizableCarousel } from '../hooks';
-import { Loading, SuccessBanner } from '../components';
+import { Icon, Loading, SuccessBanner } from '../components';
 import { CalibrationHistogram } from '../components/Graphs';
 import { DropHereText } from '../components/Forms/Components';
+import { back, play } from '../assets/icons/icons';
 
 interface ThumbProps {
   img: string;
@@ -184,9 +185,9 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
   const { height: thumbHeight, onDragHandleMouseDown: onCalResizeDrag } = useResizableCarousel({
     storageKey: 'river-cal-carousel-height',
-    defaultHeight: 42,
-    minHeight: 28,
-    maxHeight: 120,
+    defaultHeight: 90,
+    minHeight: 50,
+    maxHeight: 220,
     onDragProgress: (h) => {
       const w = Math.round(h * (56 / 42));
       calCarouselRef.current?.style.setProperty('--thumb-height', `${h}px`);
@@ -194,6 +195,13 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     },
   });
   const thumbWidth = Math.round(thumbHeight * (56 / 42));
+
+  const scrollCalCarousel = useCallback((direction: 'backward' | 'forward') => {
+    const el = calCarouselRef.current;
+    if (!el) return;
+    const amount = el.clientWidth * 0.8 * (direction === 'backward' ? -1 : 1);
+    el.scrollBy({ left: amount, behavior: 'smooth' });
+  }, []);
 
   // O(1) membership check instead of O(n) Array.includes on every thumb.
   const usedSet = useMemo(() => new Set(usedImages), [usedImages]);
@@ -595,28 +603,36 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                 </div>
               )}
 
-              <div
-                ref={calCarouselRef}
-                className="cal-carousel"
-                style={
-                  {
-                    '--thumb-height': `${thumbHeight}px`,
-                    '--thumb-width': `${thumbWidth}px`,
-                  } as React.CSSProperties
-                }
-              >
-                {images.map((img, idx) => (
-                  <CalThumb
-                    key={img}
-                    img={img}
-                    thumbSrc={thumbs[idx] ?? img}
-                    idx={idx}
-                    active={idx === selectedIdx}
-                    unused={status === 'solved' && !usedSet.has(img)}
-                    notUsedLabel={t('Calibration.notUsed')}
-                    onSelect={setSelectedIdx}
-                  />
-                ))}
+              <div className="cal-carousel-row">
+                <button className="video-button" onClick={() => scrollCalCarousel('backward')}>
+                  <Icon path={back} />
+                </button>
+                <div
+                  ref={calCarouselRef}
+                  className="cal-carousel"
+                  style={
+                    {
+                      '--thumb-height': `${thumbHeight}px`,
+                      '--thumb-width': `${thumbWidth}px`,
+                    } as React.CSSProperties
+                  }
+                >
+                  {images.map((img, idx) => (
+                    <CalThumb
+                      key={img}
+                      img={img}
+                      thumbSrc={thumbs[idx] ?? img}
+                      idx={idx}
+                      active={idx === selectedIdx}
+                      unused={status === 'solved' && !usedSet.has(img)}
+                      notUsedLabel={t('Calibration.notUsed')}
+                      onSelect={setSelectedIdx}
+                    />
+                  ))}
+                </div>
+                <button className="video-button" onClick={() => scrollCalCarousel('forward')}>
+                  <Icon path={play} />
+                </button>
               </div>
             </>
           )}
