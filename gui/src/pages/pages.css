@@ -531,8 +531,7 @@
 }
 
 .cal-rec-item {
-    font-size: 0.88rem;
-    font-style: italic;
+    font-size: 1.15rem;
     color: var(--secondary-text-color);
     line-height: 1.4;
 }
