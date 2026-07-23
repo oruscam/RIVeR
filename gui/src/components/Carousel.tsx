@@ -121,7 +121,7 @@ export const Carousel: React.FC<CarouselProps> = ({
     return () => {
       window.removeEventListener('resize', updateDimensions); // Cleanup event listener
     };
-  }, [screenSizes.height]);
+  }, [screenSizes]);
 
   useEffect(() => {
     if (mode === 'ipcam' && listRef.current) {

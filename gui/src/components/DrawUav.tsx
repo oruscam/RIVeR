@@ -70,7 +70,22 @@ export const DrawUav = ({
     return () => {
       layerSel.on('.drag', null);
     };
-  }, [startPoint, endPoint, factor, scale, position]);
+    // onSetPixelDirection is recreated every render but only ever dispatches based on its
+    // arguments, no render state captured — adding it would refire this effect on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    startPoint,
+    endPoint,
+    factor,
+    scale,
+    position,
+    width,
+    height,
+    mousePressed,
+    interactiveLayerRef,
+    uiLayerRef,
+    overlayZoomRef,
+  ]);
 
   // Attach root SVG listeners for section creation (namespaced)
   useEffect(() => {

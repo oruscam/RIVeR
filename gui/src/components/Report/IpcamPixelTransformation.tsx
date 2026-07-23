@@ -32,7 +32,7 @@ export const IpcamPixelTransformation = ({ factor, vertical }: IpcamPixelTransfo
         height: height,
       });
     }
-  }, [points]);
+  }, [points, factor, width, height]);
 
   if (cameraSolution === null) return null;
   const { meanError, cameraPosition, reprojectionErrors } = cameraSolution;

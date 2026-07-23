@@ -84,16 +84,21 @@ export const DrawMask = ({
       transformToImage,
       scale
     );
-  }, [points, maskLayerRef, overlayZoomRef, svgRef, scale]);
+    // addPoint/transformToViewport/transformToImage are recreated every render but only ever
+    // change together with `points`/`factor` (already tracked); adding them directly would
+    // re-run this effect (and reset the D3 drag handlers) on every unrelated parent re-render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [points, maskLayerRef, overlayZoomRef, svgRef, scale, factor, activeMaskIndex, masks.length]);
 
   // Toggle .mask-mode-active on the SVG root so the CSS rule with !important
   // can suppress pointer-events on the CS pin icons (which have pointer-events="all"
   // as SVG presentation attributes that D3's .style() on a parent group cannot override)
   useEffect(() => {
-    if (!svgRef.current) return;
-    svgRef.current.classList.toggle('mask-mode-active', activeMaskIndex !== null);
+    const svgNode = svgRef.current;
+    if (!svgNode) return;
+    svgNode.classList.toggle('mask-mode-active', activeMaskIndex !== null);
     return () => {
-      svgRef.current?.classList.remove('mask-mode-active');
+      svgNode.classList.remove('mask-mode-active');
     };
   }, [activeMaskIndex, svgRef]);
 
@@ -192,6 +197,8 @@ export const DrawMask = ({
     return () => {
       svgSel.on('.mask', null);
     };
+    // transformToImage is recreated every render but only ever changes with `factor` (already tracked)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     svgRef,
     overlayZoomRef,

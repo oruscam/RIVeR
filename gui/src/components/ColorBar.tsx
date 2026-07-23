@@ -55,6 +55,9 @@ export const ColorBar = ({ min, max }: { min: number; max: number }) => {
   useEffect(() => {
     setDefaultMin(toDisplay(min).toFixed(2));
     setDefaultMax(toDisplay(max).toFixed(2));
+    // toDisplay's behavior depends only on isImperial (already tracked); adding it here
+    // would recreate it every render and reset the inputs while the user is typing
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [min, max, isImperial]);
 
   return (

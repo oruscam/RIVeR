@@ -20,7 +20,7 @@ export const Processing = () => {
     if (quiver !== null && quiver.test === false) {
       setShowMedian(true);
     }
-  }, [quiver?.test]);
+  }, [quiver]);
 
   const { paths, active } = images;
 

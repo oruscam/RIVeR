@@ -149,17 +149,23 @@ export const AllInOne = ({
         unitSistem,
       });
     }
+    // onChangeDataValues is recreated every render but only ever changes together with `data`
+    // (already tracked); adding it directly would redraw this chart on every unrelated re-render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeSection,
-    data?.showVelocityStd,
-    data?.showPercentile,
+    data,
     index,
     screenWidth,
-    data?.Q,
-    data?.check,
     theme,
     unitSistem,
     language,
+    isReport,
+    level,
+    x1Intersection,
+    x2Intersection,
+    bathWidth,
+    bathimetry.line,
   ]);
 
   return (

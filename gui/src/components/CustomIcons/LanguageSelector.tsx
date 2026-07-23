@@ -56,7 +56,7 @@ export function LangBtn() {
 
   useEffect(() => {
     i18n.changeLanguage(language);
-  }, [language]);
+  }, [language, i18n]);
 
   return (
     <div className="lwrap" ref={ref}>

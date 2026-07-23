@@ -144,7 +144,7 @@ export const IpcamGrid = () => {
       setPreviousSelectedRows(new Set(selectedRowIndices));
     }
     changeSelectRow(activePoint ? activePoint : undefined);
-  }, [points]);
+  }, [points, activePoint]);
 
   // This use effect is used to trigger the action when all the points are selected or unselected
   // I don't identify some event to capture the click on the header select-cell
@@ -157,7 +157,7 @@ export const IpcamGrid = () => {
         setPreviousSelectedRows(selectedRows);
       }
     }
-  }, [selectedRows.size, rows.length]);
+  }, [selectedRows, rows.length, points?.length, previousSelectedRows.size, onChangePointSelected]);
 
   return (
     <div className="grid-container mt-2 mb-2" id="ipcam-grid">

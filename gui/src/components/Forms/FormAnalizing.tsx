@@ -71,7 +71,7 @@ export const FormAnalizing = ({
     return () => {
       window.ipcRenderer.removeListener('river-cli-message', handleRiverCliMessage);
     };
-  }, [percentage, time]);
+  }, [percentage, time, isBackendWorking, quiver, legend]);
 
   return (
     <div className="body mt-3" id="form-analizing">

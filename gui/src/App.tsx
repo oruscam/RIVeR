@@ -63,6 +63,8 @@ export const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+    // i18n is a stable singleton; onChangeTheme/onSetLanguage only dispatch and capture no render state
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [language, LANGUAGES]);
 
   useEffect(() => {
@@ -82,6 +84,8 @@ export const App: React.FC = () => {
     handleResize();
 
     return () => window.removeEventListener('resize', handleResize);
+    // onSetScreen only dispatches based on its arguments, no render state captured
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, factor]);
 
   useEffect(() => {
@@ -99,6 +103,8 @@ export const App: React.FC = () => {
     return () => {
       window.ipcRenderer.removeListener('all-frames', handleAllFrames);
     };
+    // onSetImages only dispatches based on its arguments, no render state captured
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images.paths]);
 
   return (

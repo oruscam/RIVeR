@@ -50,8 +50,12 @@ export const DrawOblique = ({
       scale,
       isDefaultCoordinates,
     });
+    // onChangeCoordinates is recreated every render but only ever dispatches based on its
+    // arguments, no render state captured — adding it would refire this effect on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     interactiveLayerRef,
+    uiLayerRef,
     coordinates,
     scale,
     position,
@@ -111,7 +115,12 @@ export const DrawOblique = ({
     return () => {
       svgSel.on('.control_points', null);
     };
-  }, [coordinates, isDefaultCoordinates, drawPoints, mousePressed]);
+    // localPoints/onSetCoordinatesCanvas intentionally excluded: localPoints is only read fresh
+    // per pointer event (point[0] must stay fixed for the whole drag gesture), and
+    // onSetCoordinatesCanvas only dispatches based on its arguments — including them would
+    // reattach these D3 listeners on every mousemove during an active drag
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [coordinates, isDefaultCoordinates, drawPoints, mousePressed, svgRef, screenSizes]);
 
   useEffect(() => {
     setLocalPoints(coordinates.map((point) => ({ x: point.x / factor, y: point.y / factor })));

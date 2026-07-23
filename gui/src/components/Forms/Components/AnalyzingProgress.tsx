@@ -41,7 +41,7 @@ export const AnalyzingProgress = ({ resetProgress }: { resetProgress: boolean })
     return () => {
       window.ipcRenderer.removeListener('river-cli-message', handleRiverCliMessage);
     };
-  }, [percentage, time]);
+  }, [percentage, time, isBackendWorking, quiver, legend]);
 
   useEffect(() => {
     if (resetProgress) {
