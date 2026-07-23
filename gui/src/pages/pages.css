@@ -339,7 +339,7 @@
     flex-shrink: 0;
     width: var(--thumb-width, 56px);
     height: var(--thumb-height, 42px);
-    border-radius: 5px;
+    border-radius: 20px;
     border: 4px solid transparent;
     overflow: hidden;
     cursor: pointer;
