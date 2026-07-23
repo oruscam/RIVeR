@@ -107,15 +107,21 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     .attr('font-size', '22px')
     .text(t('Calibration.histogramX'));
 
-  const xLabelWidth = xLabel.node()?.getBBox().width ?? 0;
-  const xAvailableWidth = width - 8;
-  if (xLabelWidth > xAvailableWidth) {
-    xLabel.attr('font-size', `${Math.max(12, Math.floor((22 * xAvailableWidth) / xLabelWidth))}px`);
+  // getBBox may fail if the element isn't yet attached to the DOM — same defensive
+  // pattern as drawSections.ts's text-measurement code.
+  try {
+    const xLabelWidth = xLabel.node()?.getBBox().width ?? 0;
+    const xAvailableWidth = width - 8;
+    if (xLabelWidth > xAvailableWidth) {
+      xLabel.attr('font-size', `${Math.max(12, Math.floor((22 * xAvailableWidth) / xLabelWidth))}px`);
+    }
+  } catch (_) {
+    // getBBox unavailable — leave the label at its default font-size.
   }
 
   // Y axis label ("Count" — kept as a literal string, matching the pre-existing
   // unlocalized "Count" label this replaces; not introducing new i18n scope here).
-  // Position/anchor copied from bathimetrySvg.ts's/dischargeSvg.ts's y-axis-label
+  // Position/anchor copied from bathimetrySvg.ts's standalone-chart y-axis-label
   // convention (text-anchor: end, offset from center by margin.bottom, rotated).
   svg
     .append('text')
