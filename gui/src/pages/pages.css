@@ -285,7 +285,7 @@
 .cal-view-controls {
     width: 90%;
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 10px;
     flex-shrink: 0;
 }
