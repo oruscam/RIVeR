@@ -115,7 +115,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     if (xLabelWidth > xAvailableWidth) {
       xLabel.attr('font-size', `${Math.max(12, Math.floor((22 * xAvailableWidth) / xLabelWidth))}px`);
     }
-  } catch (_) {
+  } catch {
     // getBBox unavailable — leave the label at its default font-size.
   }
 
