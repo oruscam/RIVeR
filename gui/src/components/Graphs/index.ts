@@ -1,5 +1,6 @@
 import { Bathimetry } from './Bathimetry';
 import { VelocityVector } from './VelocityVector';
+import { CalibrationHistogram } from './CalibrationHistogram';
 import { AllInOne } from './AllInOne';
 import { drawVectors } from './drawVectors';
 import { PointsMap } from './PointsMap';
@@ -14,6 +15,7 @@ import { drawQuiver } from './drawQuiver';
 export {
   AllInOne,
   Bathimetry,
+  CalibrationHistogram,
   createPinsBase64,
   drawQuiver,
   drawVectors,
