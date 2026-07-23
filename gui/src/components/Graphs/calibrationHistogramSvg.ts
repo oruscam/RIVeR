@@ -99,7 +99,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     .attr('text-anchor', 'middle')
     .attr('x', width / 2)
     .attr('y', height - 4)
-    .attr('font-size', '16px')
+    .attr('font-size', '22px')
     .text(t('Calibration.histogramX'));
 
   // Y axis label ("Count" — kept as a literal string, matching the pre-existing
@@ -111,6 +111,6 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     .attr('x', -height / 2)
     .attr('y', 14)
     .attr('transform', 'rotate(-90)')
-    .attr('font-size', '16px')
+    .attr('font-size', '22px')
     .text('Count');
 };
