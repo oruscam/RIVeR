@@ -201,8 +201,7 @@
 }
 
 .browse-video-drop-area p {
-    font-size: 1.3rem;
-    font-weight: 600;
+    font-size: 1.15rem;
     color: var(--secondary-text-color);
     margin-bottom: 15px;
 }
