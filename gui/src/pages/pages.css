@@ -248,7 +248,6 @@
 .cal-canvas {
     flex: 1 1 0;
     min-height: 0;
-    background: #0a0a0a;
     border-radius: 8px;
     border: 1px solid var(--border-color);
     display: flex;
@@ -256,15 +255,6 @@
     justify-content: center;
     position: relative;
     overflow: hidden;
-}
-
-[data-theme="light"] .cal-canvas {
-    background: #d8d3cc;
-}
-
-.cal-canvas.cal-canvas-empty {
-    background: transparent;
-    border: none;
 }
 
 .cal-canvas-img {
