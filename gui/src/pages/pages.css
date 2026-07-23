@@ -545,15 +545,6 @@
 /* Histogram */
 .cal-histogram {}
 
-.cal-section-label {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--secondary-text-color);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 8px;
-}
-
 /* Save profile section */
 .cal-back-section {
     width: 90%;
