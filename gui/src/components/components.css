@@ -989,11 +989,9 @@
 }
 
 .success-banner-compact .success-banner-title {
-    font-size: 0.82rem;
     font-weight: 700;
 }
 
 .success-banner-compact .success-banner-message {
     margin-top: 2px;
-    font-size: 0.73rem;
 }
