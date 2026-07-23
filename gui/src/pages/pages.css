@@ -435,29 +435,9 @@
 .cal-actions {
     display: flex;
     flex-direction: column;
+    align-items: center;
     gap: 10px;
     width: 90%;
-    align-self: center;
-    --cal-btn-w: calc((100% - 10px) / 2);
-}
-
-.cal-actions-row {
-    display: flex;
-    gap: 10px;
-}
-
-.cal-actions-row .cal-action-btn {
-    flex: 1;
-    font-size: 18px;
-}
-
-.button-1.cal-action-btn {
-    height: 50px;
-    white-space: nowrap;
-}
-
-.cal-actions > .button-1.cal-action-btn {
-    width: var(--cal-btn-w);
     align-self: center;
 }
 

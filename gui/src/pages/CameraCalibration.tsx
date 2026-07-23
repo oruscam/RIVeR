@@ -362,23 +362,13 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
         <h1 className="cal-panel-title">{t('Calibration.title')}</h1>
 
         <div className="cal-actions">
-          <div className="cal-actions-row">
-            <button
-              className="button-1 cal-action-btn"
-              onClick={() => onOpenBoard()}
-              disabled={status === 'solving'}
-            >
-              {t('Calibration.board')}
-            </button>
-            <button className="button-1 cal-action-btn" onClick={onOpenFolder} disabled={status === 'solving'}>
-              {t('Calibration.import')}
-            </button>
-          </div>
-          <button
-            className="button-1 cal-action-btn"
-            onClick={onSolve}
-            disabled={status === 'solving' || images.length === 0}
-          >
+          <button className="button-1" onClick={() => onOpenBoard()} disabled={status === 'solving'}>
+            {t('Calibration.board')}
+          </button>
+          <button className="button-1" onClick={onOpenFolder} disabled={status === 'solving'}>
+            {t('Calibration.import')}
+          </button>
+          <button className="button-1" onClick={onSolve} disabled={status === 'solving' || images.length === 0}>
             {t('Calibration.solve')}
           </button>
         </div>
