@@ -324,21 +324,26 @@
     background: var(--accent-color);
 }
 
-.cal-carousel {
+.cal-carousel-row {
     width: 98%;
     display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    padding: 2px 2px 4px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-color) transparent;
+    align-items: center;
     flex-shrink: 0;
+}
+
+.cal-carousel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    gap: 10px;
+    overflow-x: scroll;
+    padding: 2px 2px 4px;
 }
 
 .cal-thumb {
     flex-shrink: 0;
-    width: var(--thumb-width, 56px);
-    height: var(--thumb-height, 42px);
+    width: var(--thumb-width, 120px);
+    height: var(--thumb-height, 90px);
     border-radius: 20px;
     border: 4px solid transparent;
     overflow: hidden;
