@@ -488,10 +488,9 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                   placeholder={t('Calibration.lensName')}
                 />
               </div>
-              <div className="mt-1">
-                <p className="cal-field-label">{t('Calibration.resolution')}</p>
+              <div className="simple-input-container">
+                <label>{t('Calibration.resolution')}</label>
                 <input
-                  className="input-field-oblique"
                   type="text"
                   value={imageResolution ? `${imageResolution.width} × ${imageResolution.height} px` : ''}
                   readOnly
