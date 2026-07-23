@@ -19,7 +19,7 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
 
   const width = +svg.attr('width');
   const height = +svg.attr('height');
-  const margin = { top: 10, right: 14, bottom: 48, left: 46 };
+  const margin = { top: 10, right: 14, bottom: 54, left: 50 };
 
   const xMin = d3.min(rows, (d) => d.bin_center_px)!;
   const xMax = d3.max(rows, (d) => d.bin_center_px)!;
@@ -92,24 +92,37 @@ export const calibrationHistogramSvg = ({ svgElement, rows }: CalibrationHistogr
     .selectAll('.tick text')
     .style('font-size', '14px');
 
-  // X axis label
-  svg
+  // X axis label — position matches the app's other charts' axis-title convention
+  // (bathimetrySvg.ts's stationLabel: centered on the plot area, sitting just above
+  // the bottom edge). Shrinks itself if the rendered string would overflow this
+  // chart's (responsive, sometimes narrow) width — the chart's canvas is far
+  // smaller than the full-size Cross Sections/Report charts this convention was
+  // designed for, so a fixed 22px can't be guaranteed to fit every container width.
+  const xLabel = svg
     .append('text')
     .attr('class', 'x-axis-label graph-text')
     .attr('text-anchor', 'middle')
-    .attr('x', width / 2)
-    .attr('y', height - 4)
+    .attr('x', width / 2 - margin.right)
+    .attr('y', height - 5)
     .attr('font-size', '22px')
     .text(t('Calibration.histogramX'));
 
+  const xLabelWidth = xLabel.node()?.getBBox().width ?? 0;
+  const xAvailableWidth = width - 8;
+  if (xLabelWidth > xAvailableWidth) {
+    xLabel.attr('font-size', `${Math.max(12, Math.floor((22 * xAvailableWidth) / xLabelWidth))}px`);
+  }
+
   // Y axis label ("Count" — kept as a literal string, matching the pre-existing
   // unlocalized "Count" label this replaces; not introducing new i18n scope here).
+  // Position/anchor copied from bathimetrySvg.ts's/dischargeSvg.ts's y-axis-label
+  // convention (text-anchor: end, offset from center by margin.bottom, rotated).
   svg
     .append('text')
     .attr('class', 'y-axis-label graph-text')
-    .attr('text-anchor', 'middle')
-    .attr('x', -height / 2)
-    .attr('y', 14)
+    .attr('text-anchor', 'end')
+    .attr('x', -height / 2 + margin.bottom)
+    .attr('dy', '.75em')
     .attr('transform', 'rotate(-90)')
     .attr('font-size', '22px')
     .text('Count');
