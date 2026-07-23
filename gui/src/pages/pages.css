@@ -525,12 +525,6 @@
     line-height: 1.4;
 }
 
-.cal-divider {
-    border: none;
-    border-top: 1px solid var(--border-color);
-    margin: 0;
-}
-
 /* Histogram */
 .cal-histogram {}
 
