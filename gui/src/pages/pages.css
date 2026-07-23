@@ -574,6 +574,10 @@
     align-self: center;
 }
 
+.cal-save-section .simple-input-container {
+    align-self: center;
+}
+
 .cal-save-section input::placeholder {
     font-size: clamp(11px, 1.1vw, 14px);
 }

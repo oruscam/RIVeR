@@ -445,10 +445,9 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
           <>
             <hr className="cal-divider" />
             <div className="cal-save-section">
-              <div className="cal-combo">
-                <p className="cal-field-label">{t('Calibration.cameraName')}</p>
+              <div className="simple-input-container cal-combo">
+                <label>{t('Calibration.cameraName')}</label>
                 <input
-                  className="input-field-oblique"
                   type="text"
                   value={cameraName}
                   onChange={(e) => {
@@ -475,10 +474,9 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                   </ul>
                 )}
               </div>
-              <div className="mt-1">
-                <p className="cal-field-label">{t('Calibration.lensName')}</p>
+              <div className="simple-input-container">
+                <label>{t('Calibration.lensName')}</label>
                 <input
-                  className="input-field-oblique"
                   type="text"
                   value={lensName}
                   onChange={(e) => setLensName(e.target.value)}
