@@ -285,20 +285,20 @@
 .cal-view-controls {
     width: 90%;
     display: flex;
+    align-items: center;
     justify-content: flex-start;
     gap: 10px;
     flex-shrink: 0;
 }
 
-.cal-view-btn {
-    padding: 0 20px;
-    min-width: 0;
-    width: auto;
-}
-
-.cal-view-btn--active {
-    background-color: var(--primary-text-color);
-    color: var(--background-color);
+.cal-carousel-counter {
+    margin-left: auto;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-text-color);
 }
 
 /* Carousel */

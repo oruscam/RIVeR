@@ -587,19 +587,23 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
               {status === 'solved' && (
                 <div className="cal-view-controls">
                   <button
-                    className={`button-1 cal-view-btn${viewMode !== 'heatmap' ? ' cal-view-btn--active' : ''}`}
+                    className={`wizard-button${viewMode !== 'heatmap' ? ' wizard-button-active' : ''}`}
                     onClick={() => setViewMode(viewMode === 'overlay' ? 'undistorted' : 'overlay')}
                   >
                     {viewMode === 'undistorted' ? t('Calibration.undistorted') : t('Calibration.overlay')}
                   </button>
                   {heatmapBase64 && (
                     <button
-                      className={`button-1 cal-view-btn${viewMode === 'heatmap' ? ' cal-view-btn--active' : ''}`}
+                      className={`wizard-button${viewMode === 'heatmap' ? ' wizard-button-active' : ''}`}
                       onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
                     >
                       {t('Calibration.heatmap')}
                     </button>
                   )}
+                  <div className="cal-carousel-counter">
+                    <span>{selectedIdx + 1}</span>
+                    <p> / {images.length}</p>
+                  </div>
                 </div>
               )}
 
