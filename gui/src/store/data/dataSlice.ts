@@ -33,6 +33,7 @@ const initialState: DataState = {
     active: 0,
   },
   quiver: null,
+  fullQuiver: null,
   isBackendWorking: false,
   isDataLoaded: false,
   hasChanged: false,
@@ -51,6 +52,7 @@ const dataSlice = createSlice({
       state.processing.form = action.payload;
       state.hasChanged = true;
       state.quiver = null;
+      state.fullQuiver = null;
     },
     updateProcessingPar: (state, action: PayloadAction<string[]>) => {
       state.processing.parImages = action.payload;
@@ -69,11 +71,18 @@ const dataSlice = createSlice({
       state.images.active = action.payload;
     },
     setQuiver: (state, action: PayloadAction<{ quiver: Quiver | null }>) => {
-      state.quiver = action.payload.quiver;
-      if (action.payload.quiver?.test) {
+      const incoming = action.payload.quiver;
+      state.quiver = incoming;
+      if (incoming?.test) {
+        // A "Test" run only affects the single tested frame pair, it must
+        // never overwrite the persisted full-analize result.
         state.hasChanged = true;
       } else {
+        // Either a full "Analize" result (test: false) or an explicit clear
+        // (null) coming from a parameter/mask change: both are authoritative
+        // over the full-analize result, so keep them in sync.
         state.hasChanged = false;
+        state.fullQuiver = incoming;
       }
       state.processing.activeMaskIndex = null;
     },

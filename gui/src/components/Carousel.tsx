@@ -20,6 +20,7 @@ interface CarouselProps {
   setActiveImage: (index: number) => void;
   showMedian?: boolean;
   setShowMedian?: (value: boolean) => void;
+  canToggleMedian?: boolean;
   mode: 'processing' | 'analize' | 'ipcam';
 }
 
@@ -34,6 +35,7 @@ export const Carousel: React.FC<CarouselProps> = ({
   setActiveImage,
   showMedian,
   setShowMedian,
+  canToggleMedian,
   mode,
 }) => {
   const { t } = useTranslation();
@@ -137,6 +139,7 @@ export const Carousel: React.FC<CarouselProps> = ({
           <button
             className={`wizard-button ${showMedian ? 'wizard-button-active' : ''}`}
             onClick={() => carouselMediaClick(setShowMedian)}
+            disabled={!canToggleMedian}
           >
             {' '}
             {t('Processing.carouselMedia')}{' '}

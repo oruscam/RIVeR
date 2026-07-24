@@ -33,9 +33,8 @@ import { verifyWindowsSizes } from '../helpers';
 
 export const useDataSlice = () => {
   const dispatch = useDispatch();
-  const { processing, images, quiver, isBackendWorking, isDataLoaded, hasChanged, colorbarLimits } = useSelector(
-    (state: RootState) => state.data
-  );
+  const { processing, images, quiver, fullQuiver, isBackendWorking, isDataLoaded, hasChanged, colorbarLimits } =
+    useSelector((state: RootState) => state.data);
   const { sections, activeSection, transformationMatrix } = useSelector((state: RootState) => state.section);
   const { video } = useSelector((state: RootState) => state.project);
 
@@ -137,6 +136,7 @@ export const useDataSlice = () => {
             u_median: data.u_median,
             v_median: data.v_median,
             test: true,
+            testFrameIndex: active,
           },
         })
       );
@@ -449,6 +449,7 @@ export const useDataSlice = () => {
     images,
     processing,
     quiver,
+    fullQuiver,
     colorbarLimits,
 
     // METHODS
