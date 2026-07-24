@@ -12,15 +12,15 @@ export const Processing = () => {
   const { t } = useTranslation();
   const { nextStep } = useWizard();
   const { onSetErrorMessage, onSetSeeAll } = useUiSlice();
-  const { images, quiver, isBackendWorking, onSetActiveImage, onGetResultData } = useDataSlice();
-  const [showMedian, setShowMedian] = useState(quiver !== null && quiver.test === false);
+  const { images, fullQuiver, isBackendWorking, onSetActiveImage, onGetResultData } = useDataSlice();
+  const [showMedian, setShowMedian] = useState(fullQuiver !== null);
   const [extraFields, setExtraFields] = useState(false);
 
   useEffect(() => {
-    if (quiver !== null && quiver.test === false) {
+    if (fullQuiver !== null) {
       setShowMedian(true);
     }
-  }, [quiver]);
+  }, [fullQuiver]);
 
   const { paths, active } = images;
 
@@ -47,7 +47,8 @@ export const Processing = () => {
           images={paths}
           active={active}
           setActiveImage={onSetActiveImage}
-          showMedian={showMedian && quiver?.test === false}
+          showMedian={showMedian && fullQuiver !== null}
+          canToggleMedian={fullQuiver !== null}
           setShowMedian={setShowMedian}
           mode="analize"
         />
@@ -64,7 +65,7 @@ export const Processing = () => {
             headerElementID="processing-header"
             disabled={isBackendWorking}
           />
-          <WizardButtons onClickNext={handleNext} canFollow={quiver !== null && quiver.test === false} />
+          <WizardButtons onClickNext={handleNext} canFollow={fullQuiver !== null} />
         </div>
       </div>
     </div>

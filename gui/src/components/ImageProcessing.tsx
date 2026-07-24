@@ -5,14 +5,13 @@ import { WindowSizesNew } from './WindowSizesNew';
 import { Quiver } from './Quiver';
 import { DrawSectionsD3 } from './CrossSections/DrawSectionsD3';
 import { OverlaySvg } from './OverlaySvg';
-import { QuiverData } from '../../commons/types';
 import { getQuiverValues, createColorMap, Normalize } from '../../commons/vectors';
 import { FloatingPlot } from './FloatingPlot';
 
 export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: boolean; extraFields?: boolean }) => {
   const { screenSizes } = useUiSlice();
   const { video } = useProjectSlice();
-  const { processing, images, quiver, colorbarLimits } = useDataSlice();
+  const { processing, images, quiver, fullQuiver, colorbarLimits } = useDataSlice();
   const { transformationMatrix } = useSectionSlice();
   const {
     imageWidth: width,
@@ -30,38 +29,29 @@ export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: bool
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  type PrevRefType = {
-    activeImage: typeof images.active;
-    data: QuiverData[];
-    min: number;
-    max: number;
-  };
-
-  const prevRef = useRef<PrevRefType>({ activeImage: images.active, data: [], min: 0, max: 0 });
-
   const realWidth = vertical ? widthReduced : width;
   const realHeight = vertical ? heightReduced : height;
   const realFactor = vertical ? factorReduced : factor;
 
   const { data, min, max } = useMemo(() => {
-    if (quiver === null) {
-      prevRef.current = { activeImage: images.active, data: [], min: 0, max: 0 };
-      return { data: [], min: 0, max: 0 };
-    }
-    if (prevRef.current.activeImage !== images.active && quiver.test) {
-      prevRef.current.activeImage = images.active;
+    // The "Test" result only covers the frame pair it was run on. Show it
+    // while that pair is active; otherwise fall back to the last full
+    // "Analize" result (if any) instead of blanking the vector map.
+    const isTestFrame = quiver !== null && quiver.test === true && quiver.testFrameIndex === images.active;
+    const displayQuiver = isTestFrame ? quiver : fullQuiver;
+
+    if (displayQuiver === null) {
       return { data: [], min: 0, max: 0 };
     }
 
     const { data, min, max } = getQuiverValues(
-      quiver,
+      displayQuiver,
       showMedian as boolean,
       images.active,
       parameters.step,
       videoData.fps,
       transformationMatrix
     );
-    prevRef.current = { activeImage: images.active, data, min, max };
     // If the user has set custom colorbar limits, apply them
     if (colorbarLimits.default === false) {
       const manualMin = colorbarLimits.min!;
@@ -82,6 +72,7 @@ export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: bool
     return { data, min, max };
   }, [
     quiver,
+    fullQuiver,
     images.active,
     showMedian,
     colorbarLimits.default,

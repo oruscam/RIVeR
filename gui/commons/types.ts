@@ -27,6 +27,7 @@ interface Quiver {
   u_median?: number[];
   v_median?: number[];
   test: boolean;
+  testFrameIndex?: number;
 }
 
 interface Section {
