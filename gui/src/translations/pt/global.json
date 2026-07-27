@@ -283,6 +283,7 @@
     "invalidDistancesNotValidValue": "Formato das distâncias inválido. Alguns valores não são números válidos",
     "invalidDistancesNegativeValue": "Formato das distâncias inválido. Distâncias negativas não são permitidas",
     "invalidBathimetryFileFormat": "Formato de arquivo de batimetria inválido",
+    "invalidBathimetryDepthNotAllowed": "Arquivos de batimetria de profundidade não são suportados neste modo. Importe um perfil de nível/elevação.",
     "invalidImageExtension": "A pasta contém arquivos que não são imagens",
     "imagesFolderEmpty": "Nenhuma imagem encontrada na pasta selecionada",
     "waitingForFrames": "Aguardando o carregamento dos quadros. Tente novamente em alguns segundos",
