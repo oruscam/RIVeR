@@ -116,6 +116,18 @@ describe('analyzeLine / transformLine — depth vs elevation classification', ()
     expect(isDepth).toBe(false);
   });
 
+  it('classifies a perfectly flat two-point profile (rectangular channel) as depth', () => {
+    // Zero relief either way, but a flat "elevation" profile can't describe
+    // a real channel (the middle can't be higher than or equal to the
+    // banks), so ties must default to depth.
+    const line = [
+      { x: 0, y: 5 },
+      { x: 10, y: 5 },
+    ];
+    const { isDepth } = analyzeLine(line, 0);
+    expect(isDepth).toBe(true);
+  });
+
   it('reorders and inverts a depth profile given with descending stations', () => {
     const line = [
       { x: 20, y: 0 },
@@ -254,6 +266,49 @@ describe('getBathimetry — depth profiles are rejected in 3D (IPCam) mode', () 
 
     expect(response.error).toBeUndefined();
     expect(response.changed).toBe(false);
+  });
+});
+
+describe('getBathimetry — depth profiles are anchored at 0 on both banks', () => {
+  beforeAll(() => {
+    getBathimetry();
+  });
+
+  beforeEach(() => {
+    (validateFile as jest.Mock).mockReturnValue(true);
+  });
+
+  const trigger = async (args: any) => {
+    // @ts-expect-error — test-only helper added to the electron mock
+    return await ipcMain._triggerGetBathimetry({}, args);
+  };
+
+  it('adds 0-depth points at both ends for a flat rectangular channel (reported bug)', async () => {
+    (utils.sheet_to_json as jest.Mock).mockReturnValue([
+      [0, 5],
+      [10, 5],
+    ]);
+    const response = await trigger({ path: 'valid.xlsx', unitSistem: 'metric' });
+
+    expect(response.error).toBeUndefined();
+    // Banks (real relief now) end up at the max elevation, flat bottom at 0.
+    expect(response.line).toHaveLength(4);
+    expect(response.line[0]).toMatchObject({ x: 0, y: expect.closeTo(5, 5) });
+    expect(response.line[1]).toMatchObject({ x: 0, y: expect.closeTo(0, 5) });
+    expect(response.line[2]).toMatchObject({ x: 10, y: expect.closeTo(0, 5) });
+    expect(response.line[3]).toMatchObject({ x: 10, y: expect.closeTo(5, 5) });
+  });
+
+  it('does not duplicate points when the file already has 0 depth at both banks', async () => {
+    (utils.sheet_to_json as jest.Mock).mockReturnValue([
+      [0, 0],
+      [5, 1],
+      [10, 0],
+    ]);
+    const response = await trigger({ path: 'valid.xlsx', unitSistem: 'metric' });
+
+    expect(response.error).toBeUndefined();
+    expect(response.line).toHaveLength(3);
   });
 });
 

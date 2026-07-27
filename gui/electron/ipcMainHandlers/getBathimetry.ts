@@ -157,6 +157,20 @@ async function getBathimetry() {
         throw new Error('invalidBathimetryDepthNotAllowed');
       }
 
+      // A depth profile's banks are, by definition, at the water's edge (depth 0).
+      // If the file doesn't already say so explicitly, anchor both ends at 0 so a
+      // flat or near-flat profile (e.g. a rectangular channel given as just its
+      // two bottom corners) still has real relief once inverted, instead of a
+      // degenerate flat line.
+      if (isDepth) {
+        if (line[0].y !== 0) {
+          line = [{ x: line[0].x, y: 0 }, ...line];
+        }
+        if (line[line.length - 1].y !== 0) {
+          line = [...line, { x: line[line.length - 1].x, y: 0 }];
+        }
+      }
+
       // Transform the line if necessary
       const { newLine, changed } = transformLine(line, isDecreced, isDepth, maxY, zLimits?.min);
 
@@ -232,7 +246,12 @@ const analyzeLine = (line: { x: number; y: number }[], maxYIndex: number) => {
     prevDeviation = deviation;
   }
 
-  const isDepth = signedArea > 0;
+  // A perfectly flat profile (zero signed area, e.g. a rectangular channel
+  // sampled with just its two bottom corners) has no relief either way, so it
+  // can't be valid elevation data for a channel — a channel's middle must sit
+  // lower than its banks. Depth has no such requirement (a uniform depth is a
+  // normal, flat-bottomed channel), so ties default to depth.
+  const isDepth = signedArea >= 0;
   return { isDecreced, isDepth };
 };
 
