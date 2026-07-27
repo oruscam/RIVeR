@@ -85,8 +85,9 @@ const generateXAxisTicks = (x1Intersection: number, x2Intersection: number, widt
 };
 
 const generateYAxisTicks = (array?: (number | null)[], min?: number, max?: number): number[] => {
-  const minValue = min ? min : 0;
-  const maxValue = max ? max : Math.max(...array!.filter((value): value is number => value !== null));
+  const minValue = min !== undefined ? min : 0;
+  const maxValue =
+    max !== undefined ? max : Math.max(...array!.filter((value): value is number => value !== null));
 
   const range = maxValue - minValue;
   const step = range / 4;
