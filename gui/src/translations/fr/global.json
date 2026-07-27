@@ -283,6 +283,7 @@
     "invalidDistancesNotValidValue": "Format de distances de points invalide. Certaines valeurs de distance ne sont pas des nombres valides.",
     "invalidDistancesNegativeValue": "Format de distances de points invalide. Les distances négatives ne sont pas autorisées.",
     "invalidBathimetryFileFormat": "Format de fichier bathymétrique invalide.",
+    "invalidBathimetryDepthNotAllowed": "Les fichiers de bathymétrie en profondeur ne sont pas pris en charge dans ce mode. Importez plutôt un profil de niveau/altitude.",
     "invalidImageExtension": "Le répertoire contient des fichiers qui ne sont pas des images.",
     "imagesFolderEmpty": "Aucune image trouvée dans le dossier sélectionné.",
     "waitingForFrames": "Nous attendons que les images soient chargées. Veuillez réessayer dans quelques secondes.",

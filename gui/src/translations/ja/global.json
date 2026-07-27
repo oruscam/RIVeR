@@ -279,6 +279,7 @@
     "invalidDistancesNotValidValue": "無効な距離ファイル形式です。一部の距離値が有効な数値ではありません",
     "invalidDistancesNegativeValue": "無効な距離ファイル形式です。負の距離は許可されていません",
     "invalidBathimetryFileFormat": "無効な測深ファイル形式です",
+    "invalidBathimetryDepthNotAllowed": "このモードでは深度の測深ファイルはサポートされていません。代わりに水位/標高プロファイルをインポートしてください。",
     "invalidImageExtension": "ディレクトリに画像以外のファイルが含まれています",
     "imagesFolderEmpty": "選択したフォルダに画像が見つかりません",
     "waitingForFrames": "フレームの読み込みを待っています。数秒後に再試行してください",

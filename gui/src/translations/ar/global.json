@@ -279,6 +279,7 @@
     "invalidDistancesNotValidValue": "تنسيق ملف المسافات غير صالح. بعض قيم المسافات ليست أرقاماً صالحة",
     "invalidDistancesNegativeValue": "تنسيق ملف المسافات غير صالح. لا يُسمح بالمسافات السالبة",
     "invalidBathimetryFileFormat": "تنسيق ملف القياس البتيمتري غير صالح",
+    "invalidBathimetryDepthNotAllowed": "لا يتم دعم ملفات القياس البتيمتري للعمق في هذا الوضع. يرجى استيراد ملف تعريف المنسوب/الارتفاع بدلاً من ذلك.",
     "invalidImageExtension": "يحتوي المجلد على ملفات ليست صوراً",
     "imagesFolderEmpty": "لم يتم العثور على صور في المجلد المحدد",
     "waitingForFrames": "في انتظار تحميل الإطارات. الرجاء المحاولة مرة أخرى بعد لحظات",

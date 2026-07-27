@@ -150,6 +150,13 @@ async function getBathimetry() {
       // Analyze the line to determine if it is decreced and if it represents depth
       const { isDecreced, isDepth } = analyzeLine(line, maxYIndex);
 
+      // IPCam (3D) needs the bathymetry expressed as absolute elevation, in the same
+      // reference frame as the camera solution's control points. Depth (relative to
+      // whatever the water surface happens to be) can't be placed in that frame.
+      if (isDepth && zLimits !== undefined) {
+        throw new Error('invalidBathimetryDepthNotAllowed');
+      }
+
       // Transform the line if necessary
       const { newLine, changed } = transformLine(line, isDecreced, isDepth, maxY, zLimits?.min);
 

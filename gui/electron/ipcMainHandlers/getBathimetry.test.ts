@@ -187,6 +187,76 @@ describe('getBathimetry — header row handling (integration)', () => {
   });
 });
 
+describe('getBathimetry — depth profiles are rejected in 3D (IPCam) mode', () => {
+  beforeAll(() => {
+    getBathimetry();
+  });
+
+  beforeEach(() => {
+    (validateFile as jest.Mock).mockReturnValue(true);
+  });
+
+  const trigger = async (args: any) => {
+    // @ts-expect-error — test-only helper added to the electron mock
+    return await ipcMain._triggerGetBathimetry({}, args);
+  };
+
+  // Same hill-shaped depth profile used in the classification tests above.
+  const depthRows = [
+    [0, 0],
+    [5, 0.45],
+    [7.5, 0.62],
+    [10, 0.72],
+    [12.5, 0.9],
+    [15, 1.05],
+    [17.5, 1.1],
+    [20, 1.2],
+    [22.5, 1.3],
+    [24, 1.31],
+    [27, 0],
+  ];
+
+  const elevationRows = [
+    [0, 10],
+    [5, 4],
+    [10, 1],
+    [15, 4],
+    [20, 10],
+  ];
+
+  it('rejects a depth profile when zLimits is present (3D/IPCam)', async () => {
+    (utils.sheet_to_json as jest.Mock).mockReturnValue(depthRows);
+    const response = await trigger({
+      path: 'valid.xlsx',
+      unitSistem: 'metric',
+      zLimits: { min: 0, max: 0 },
+    });
+
+    expect(response.error?.message).toBe('invalidBathimetryDepthNotAllowed');
+    expect(response.line).toBeUndefined();
+  });
+
+  it('accepts the same depth profile when zLimits is absent (UAV/Oblique)', async () => {
+    (utils.sheet_to_json as jest.Mock).mockReturnValue(depthRows);
+    const response = await trigger({ path: 'valid.xlsx', unitSistem: 'metric' });
+
+    expect(response.error).toBeUndefined();
+    expect(response.changed).toBe(true);
+  });
+
+  it('accepts an already-elevation profile even when zLimits is present (3D/IPCam)', async () => {
+    (utils.sheet_to_json as jest.Mock).mockReturnValue(elevationRows);
+    const response = await trigger({
+      path: 'valid.xlsx',
+      unitSistem: 'metric',
+      zLimits: { min: 0, max: 0 },
+    });
+
+    expect(response.error).toBeUndefined();
+    expect(response.changed).toBe(false);
+  });
+});
+
 describe('getBathimetry — non-CSV source is always rewritten as CSV', () => {
   beforeAll(() => {
     getBathimetry();

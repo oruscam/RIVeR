@@ -42,7 +42,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       const valueInMeters = toSI(rawValue);
       if (valueInMeters === bathimetry.level) return;
 
-      if (yMax !== undefined && yMin !== undefined && valueInMeters <= yMax && valueInMeters >= yMin) {
+      if (yMax !== undefined && yMin !== undefined && valueInMeters <= yMax && valueInMeters > yMin) {
         onUpdateSection({ level: valueInMeters }, cameraSolution?.cameraMatrix);
         document.getElementById(nextFieldId)?.focus();
       } else {

@@ -282,6 +282,7 @@
     "invalidDistancesNotValidValue": "Invalid Points Distances format. Some distance values are not valid numbers",
     "invalidDistancesNegativeValue": "Invalid Points Distances format. Negative distances are not allowed",
     "invalidBathimetryFileFormat": "Invalid Bathimetry file format",
+    "invalidBathimetryDepthNotAllowed": "Depth bathymetry files aren't supported in this mode. Import a level/elevation profile instead.",
     "invalidImageExtension": "The directory contains files that are not images",
     "imagesFolderEmpty": "No images found in the selected folder",
     "waitingForFrames": "We are waiting for the frames to be loaded. Please try again in a few seconds",
