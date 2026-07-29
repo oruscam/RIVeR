@@ -180,6 +180,95 @@ def convert_displacement_field_numba(
     return EAST, NORTH, Displacement_EAST, Displacement_NORTH
 
 
+def _find_crossings(
+    stations: np.ndarray, stages: np.ndarray, level: float
+) -> tuple:
+    """
+    Insert every crossing between the bed profile and the water level into the
+    station/stage arrays and sort them, along with a boolean mask marking which
+    points are at or below the water level (wet).
+
+    Shared by find_wet_segments and calculate_station_coordinates so both stay
+    consistent with a single crossing-detection implementation.
+
+    Returns:
+        np.ndarray: all_stations, original stations plus interpolated crossings, sorted.
+        np.ndarray: all_stages, the corresponding stages, sorted the same way.
+        np.ndarray: valid_indices, boolean mask where all_stages <= level.
+    """
+    crossings = []
+    crossing_stages = []
+
+    # Find where the level crosses the bathymetry (stages) and interpolate those points
+    for i in range(len(stations) - 1):
+        if (stages[i] < level and stages[i + 1] > level) or (
+            stages[i] > level and stages[i + 1] < level
+        ):
+            # Linear interpolation to find the crossing station
+            interp_station = stations[i] + (level - stages[i]) * (
+                stations[i + 1] - stations[i]
+            ) / (stages[i + 1] - stages[i])
+            crossings.append(interp_station)
+            crossing_stages.append(level)
+
+    # Convert crossings to numpy array for further operations
+    crossings = np.array(crossings)
+    crossing_stages = np.array(crossing_stages)
+
+    # Combine original stations/stages with crossings and filter those below or equal to the level
+    all_stations = np.concatenate([stations, crossings])
+    all_stages = np.concatenate([stages, crossing_stages])
+
+    # Sort the stations and stages by the station values (to maintain proper order)
+    sorted_indices = np.argsort(all_stations)
+    all_stations = all_stations[sorted_indices]
+    all_stages = all_stages[sorted_indices]
+
+    valid_indices = all_stages <= level
+
+    return all_stations, all_stages, valid_indices
+
+
+def find_wet_segments(
+    stations: np.ndarray, stages: np.ndarray, level: float
+) -> list:
+    """
+    Find the contiguous wet segments of a bathymetry profile at a given water level.
+
+    Finds every crossing between the bed and the water level (not just the
+    first/last), then groups the resulting wet points into contiguous runs. A
+    profile with an island in the middle of the channel yields two or more
+    segments instead of one continuous range bridging over the island.
+
+    Parameters:
+    stations : np.ndarray
+            Array representing the stations of the bathymetry.
+    stages : np.ndarray
+            Array representing the bathymetry (depth profile) at each station.
+    level : float
+            The water level for the current cross-section.
+
+    Returns:
+        list[tuple[float, float]]:
+                A list of (start, end) station pairs, one per wet segment, in the
+                original station coordinates (not shifted).
+    """
+    all_stations, _, valid_indices = _find_crossings(stations, stages, level)
+
+    segments = []
+    start = None
+    for i, is_wet in enumerate(valid_indices):
+        if is_wet and start is None:
+            start = i
+        elif not is_wet and start is not None:
+            segments.append((float(all_stations[start]), float(all_stations[i - 1])))
+            start = None
+    if start is not None:
+        segments.append((float(all_stations[start]), float(all_stations[-1])))
+
+    return segments
+
+
 def calculate_station_coordinates(
     east_l: float,
     north_l: float,
@@ -219,38 +308,15 @@ def calculate_station_coordinates(
                     The updated stations after including crossings and filtering by level.
             np.ndarray:
                     The updated stages after filtering by level.
+        list[tuple[float, float]]:
+                The wet segments (start, end), in the same shifted station coordinates
+                as the returned stations, one pair per contiguous wet stretch (e.g. two
+                pairs when an island splits the channel in two).
     """
-
-    crossings = []
-    crossing_stages = []
-
-    # Find where the level crosses the bathymetry (stages) and interpolate those points
-    for i in range(len(stations) - 1):
-        if (stages[i] < level and stages[i + 1] > level) or (
-            stages[i] > level and stages[i + 1] < level
-        ):
-            # Linear interpolation to find the crossing station
-            interp_station = stations[i] + (level - stages[i]) * (
-                stations[i + 1] - stations[i]
-            ) / (stages[i + 1] - stages[i])
-            crossings.append(interp_station)
-            crossing_stages.append(level)
-
-    # Convert crossings to numpy array for further operations
-    crossings = np.array(crossings)
-    crossing_stages = np.array(crossing_stages)
-
-    # Combine original stations/stages with crossings and filter those below or equal to the level
-    all_stations = np.concatenate([stations, crossings])
-    all_stages = np.concatenate([stages, crossing_stages])
-
-    # Sort the stations and stages by the station values (to maintain proper order)
-    sorted_indices = np.argsort(all_stations)
-    all_stations = all_stations[sorted_indices]
-    all_stages = all_stages[sorted_indices]
+    all_stations, all_stages, valid_indices = _find_crossings(stations, stages, level)
+    wet_segments = find_wet_segments(stations, stages, level)
 
     # Filter out stations where stages > level
-    valid_indices = all_stages <= level
     filtered_stations = all_stations[valid_indices]
     filtered_stages = all_stages[valid_indices]
 
@@ -258,7 +324,14 @@ def calculate_station_coordinates(
     shifted_stations = filtered_stations - left_station
 
     # Must start from 0
-    shifted_stations = shifted_stations - shifted_stations[0]
+    shift_offset = shifted_stations[0]
+    shifted_stations = shifted_stations - shift_offset
+
+    # Express the wet segments in the same shifted station coordinates
+    shifted_wet_segments = [
+        (start - left_station - shift_offset, end - left_station - shift_offset)
+        for start, end in wet_segments
+    ]
 
     # Calculate the total distance between the two points
     total_distance = np.linalg.norm([east_r - east_l, north_r - north_l])
@@ -271,7 +344,7 @@ def calculate_station_coordinates(
         shifted_stations, direction_vector
     )
 
-    return shifted_stations, filtered_stages, station_coordinates
+    return shifted_stations, filtered_stages, station_coordinates, shifted_wet_segments
 
 
 def find_crossing_stations(
@@ -1327,7 +1400,7 @@ def update_current_x_section(
     level = x_sections[current_x_section]["level"]
 
     # Calculate shifted station positions and their real-world coordinates
-    shifted_stations, filtered_stages, station_coordinates = (
+    shifted_stations, filtered_stages, station_coordinates, wet_segments = (
         calculate_station_coordinates(
             east_l,
             north_l,
@@ -1352,6 +1425,11 @@ def update_current_x_section(
         extended_north_r,
         num_stations,
     )
+
+    # Store the wet segments (start/end pairs) so downstream consumers (PIV mask,
+    # GUI multi-segment rendering) can exclude dry stretches like islands without
+    # re-deriving them from the raw bathymetry.
+    table_results["wet_segments"] = [list(segment) for segment in wet_segments]
 
     # Add pixel coordinates to the table results using the transformation matrix
     table_results = add_pixel_coordinates(table_results, transformation_matrix)
