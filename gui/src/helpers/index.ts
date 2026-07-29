@@ -5,7 +5,12 @@ import { formatTime, parseTime } from './formatTime';
 import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate } from './dateFunctions';
 import { getUnit } from './unitSistem';
 import { getDirectionVector } from './getDirectionVector';
-import { getBathimetryValues, getIntersectionPoints } from './getBathimetryValues';
+import {
+  getBathimetryValues,
+  getIntersectionPoints,
+  findWetSegments,
+  buildWetSegmentsProfile,
+} from './getBathimetryValues';
 import { adapterCrossSections } from './adapterCrossSections';
 import {
   adapterData,
@@ -43,12 +48,14 @@ export {
   adapterObliquePointsDistances,
   adaptStringDate,
   adjustCoordinates,
+  buildWetSegmentsProfile,
   calculateArrowWidth,
   calculateMultipleArrowsAdaptative,
   carouselClickImage,
   carouselKeyDown,
   createSquare,
   dateToStringDate,
+  findWetSegments,
   formatNumberTo2Decimals,
   formatNumberToPrecision2,
   formatNumberToPrecision4,

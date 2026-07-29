@@ -26,9 +26,9 @@ import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import {
   adapterCrossSections,
+  findWetSegments,
   getBathimetryValues,
   getDirectionVector,
-  getIntersectionPoints,
   getNewCanvasPositions,
   setChangesByForm,
 } from '../helpers';
@@ -446,8 +446,10 @@ export const useSectionSlice = () => {
 
         for (let i = 0; i < sections.length; i++) {
           const { bathimetry, pixelSize, dirPoints } = sections[i];
-          const intersectionPoints = bathimetry.line ? getIntersectionPoints(bathimetry.line, value.level) : [];
-          const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x;
+          const wetSegments = bathimetry.line ? findWetSegments(bathimetry.line, value.level) : [];
+          const x1Intersection = wetSegments[0]?.x1 ?? 0;
+          const x2Intersection = wetSegments[wetSegments.length - 1]?.x2 ?? 0;
+          const bathWidth = x2Intersection - x1Intersection;
 
           const par1 = transformPixelToRealWorld(dirPoints[0].x, dirPoints[0].y, matrix);
           const par2 = transformPixelToRealWorld(dirPoints[1].x, dirPoints[1].y, matrix);
@@ -464,8 +466,9 @@ export const useSectionSlice = () => {
                 ...bathimetry,
                 level: value.level,
                 width: bathWidth,
-                x1Intersection: intersectionPoints[0].x,
-                x2Intersection: intersectionPoints[1].x,
+                x1Intersection,
+                x2Intersection,
+                wetSegments,
               },
               index: i,
             })
@@ -473,10 +476,10 @@ export const useSectionSlice = () => {
         }
         return;
       }
-      const intersectionPoints = section.bathimetry.line
-        ? getIntersectionPoints(section.bathimetry.line, value.level)
-        : [];
-      const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x;
+      const wetSegments = section.bathimetry.line ? findWetSegments(section.bathimetry.line, value.level) : [];
+      const x1Intersection = wetSegments[0]?.x1 ?? 0;
+      const x2Intersection = wetSegments[wetSegments.length - 1]?.x2 ?? 0;
+      const bathWidth = x2Intersection - x1Intersection;
 
       dispatch(
         setBathimetry({
@@ -484,8 +487,9 @@ export const useSectionSlice = () => {
             ...section.bathimetry,
             level: value.level,
             width: bathWidth,
-            x1Intersection: intersectionPoints[0].x,
-            x2Intersection: intersectionPoints[1].x,
+            x1Intersection,
+            x2Intersection,
+            wetSegments,
           },
         })
       );
