@@ -19,6 +19,47 @@ BINARY_FORMATS = [ODS_FORMAT, XLS_FORMAT, XLSX_FORMAT]
 FILE_FORMATS = [CSV_FORMAT] + BINARY_FORMATS
 
 
+def load_bathymetry(bath_file_path: str) -> tuple:
+    """
+    Load the station/stage bathymetry profile from a tabular file.
+
+    Parameters:
+    bath_file_path : str
+            Path to the bathymetry file (csv, xls, xlsx or ods). The first column
+            is assumed to be the station and the second the bed elevation (stage);
+            the first row is treated as a header and skipped.
+
+    Returns:
+        np.ndarray: stations
+        np.ndarray: stages
+    """
+    if platform.system() == "Windows":
+        bath_file_path = bath_file_path.encode("latin-1").decode()
+    bath_file_path = Path(bath_file_path)
+
+    file_format = bath_file_path.suffix.removeprefix(".")
+
+    if file_format not in FILE_FORMATS:
+        raise NotSupportedFormatError(
+            f"The '{file_format}' format is not supported for bathymetry files. Please use one of {FILE_FORMATS}"
+        )
+
+    mode = "r"
+    data = Dataset()
+
+    if file_format in BINARY_FORMATS:
+        mode = mode + "b"
+
+    # Load bathymetry data from tabular dataset file
+    data.load(bath_file_path.open(mode=mode), format=file_format, headers=False)
+
+    # Assuming the first column is 'station' and the second is 'level'
+    stations = [float(i) if i is not None else float(0) for i in data.get_col(0)[1:]]
+    stages = [float(i) if i is not None else float(0) for i in data.get_col(1)[1:]]
+
+    return np.array(stations), np.array(stages)
+
+
 @jit(nopython=True)
 def _interpolate_gradient_numba(
     points: np.ndarray, values: np.ndarray, coords: np.ndarray
@@ -1355,9 +1396,6 @@ def update_current_x_section(
 
     # Retrieve bathymetry file path and the left station position
     bath_file_path: str = x_sections[current_x_section]["bath"]
-    if platform.system() == "Windows":
-        bath_file_path = bath_file_path.encode("latin-1").decode()
-    bath_file_path = Path(bath_file_path)
     left_station = x_sections[current_x_section]["left_station"]
 
     # Retrieve the alpha coefficient
@@ -1366,29 +1404,7 @@ def update_current_x_section(
     else:
         x_sections[current_x_section]["alpha"] = alpha
 
-    file_format = bath_file_path.suffix.removeprefix(".")
-
-    if file_format not in FILE_FORMATS:
-        raise NotSupportedFormatError(
-            f"The '{file_format}' format is not supported for bathymetry files. Please use one of {FILE_FORMATS}"
-        )
-
-    mode = "r"
-    data = Dataset()
-
-    if file_format in BINARY_FORMATS:
-        mode = mode + "b"
-
-    # Load bathymetry data from tabular dataset file
-    data.load(bath_file_path.open(mode=mode), format=file_format, headers=False)
-
-    # Assuming the first column is 'station' and the second is 'level'
-    stations = [float(i) if i is not None else float(0) for i in data.get_col(0)[1:]]
-    stages = [float(i) if i is not None else float(0) for i in data.get_col(1)[1:]]
-
-    # Convert stations and stages lists to NumPy arrays for calculations
-    stations = np.array(stations)
-    stages = np.array(stages)
+    stations, stages = load_bathymetry(bath_file_path)
 
     # Retrieve left and right bank coordinates
     east_l = x_sections[current_x_section]["east_l"]

@@ -15,6 +15,7 @@ import scipy.optimize as opt
 
 import river.core.coordinate_transform as ct
 from river.core import exceptions
+from river.core.compute_section import find_wet_segments, load_bathymetry
 
 logger = getLogger()
 
@@ -105,6 +106,67 @@ def create_mask(image: np.ndarray, pixel_box: np.ndarray) -> np.ndarray:
 	return mask
 
 
+def create_island_exclusion_mask(
+	image: np.ndarray, section_data: dict, height_roi: int, transformation_matrix: np.ndarray
+) -> np.ndarray:
+	"""
+	Build a mask that is 0 over any island (a dry stretch of bed between two wet
+	segments) within a cross-section's analyzed span, and 1 everywhere else, so PIV
+	does not search for velocity over dry ground in the middle of the channel.
+
+	Args:
+	    image (np.ndarray): The image for which the mask is to be created.
+	    section_data (dict): A single cross-section's data (needs "bath" and "level"
+	        to find wet segments, and "east_l"/"north_l"/"east_r"/"north_r" to place
+	        islands in real-world coordinates).
+	    height_roi (int): Height of the rectangular box, same as the section's ROI box.
+	    transformation_matrix (np.ndarray): Matrix to convert real-world coordinates to pixel coordinates.
+
+	Returns:
+	    np.ndarray: uint8 mask of shape (H, W) with values {0, 1}; all 1 if there is
+	        no island (or the section is missing bathymetry data).
+	"""
+	mask = np.ones((image.shape[0], image.shape[1]), dtype=np.uint8)
+
+	if "bath" not in section_data or "level" not in section_data:
+		return mask
+
+	stations, stages = load_bathymetry(section_data["bath"])
+	wet_segments = find_wet_segments(stations, stages, section_data["level"])
+
+	if len(wet_segments) < 2:
+		return mask
+
+	east_left = section_data["east_l"]
+	north_left = section_data["north_l"]
+	east_right = section_data["east_r"]
+	north_right = section_data["north_r"]
+
+	total_distance = np.linalg.norm([east_right - east_left, north_right - north_left])
+	direction_vector = np.array([east_right - east_left, north_right - north_left]) / total_distance
+	first_wet_station = wet_segments[0][0]
+
+	def to_real_world(station: float) -> tuple:
+		offset = station - first_wet_station
+		point = np.array([east_left, north_left]) + offset * direction_vector
+		return point[0], point[1]
+
+	for i in range(len(wet_segments) - 1):
+		gap_start = wet_segments[i][1]
+		gap_end = wet_segments[i + 1][0]
+
+		island_east_l, island_north_l = to_real_world(gap_start)
+		island_east_r, island_north_r = to_real_world(gap_end)
+
+		rw_box = create_rw_box(island_east_l, island_north_l, island_east_r, island_north_r, height_roi)
+		pixel_box = rw_box_to_pixel(rw_box, transformation_matrix)
+		island_mask = create_mask(image, pixel_box)
+
+		mask = cv2.bitwise_and(mask, 1 - island_mask)
+
+	return mask
+
+
 def find_bounding_box(pixel_boxes: list) -> tuple:
 	"""
 	Find the minimum bounding box that contains all the given pixel boxes.
@@ -159,6 +221,8 @@ def create_mask_and_bbox(
 		pixel_boxes.append(pixel_box)
 
 		mask = create_mask(image, pixel_box)
+		island_mask = create_island_exclusion_mask(image, section_data, height_roi, transformation_matrix)
+		mask = cv2.bitwise_and(mask, island_mask)
 		combined_mask = cv2.bitwise_or(combined_mask, mask)
 
 	min_x, min_y, max_x, max_y = find_bounding_box(pixel_boxes)

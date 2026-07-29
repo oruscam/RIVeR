@@ -7,6 +7,7 @@ from river.core.compute_section import (
     calculate_station_coordinates,
     divide_segment_to_dict,
     find_wet_segments,
+    load_bathymetry,
 )
 
 # Bathymetry with an island: the bed rises above the water level (10.0) between
@@ -147,3 +148,16 @@ def test_calculate_station_coordinates_wet_segments_matches_find_wet_segments():
     ):
         assert shifted_start == pytest.approx(raw_start - left_station - offset)
         assert shifted_end == pytest.approx(raw_end - left_station - offset)
+
+
+def test_load_bathymetry_reads_stations_and_stages(tmp_path):
+    bath_path = tmp_path / "island.csv"
+    bath_path.write_text(
+        "station,level\n"
+        + "\n".join(f"{s},{z}" for s, z in zip(ISLAND_STATIONS, ISLAND_STAGES))
+    )
+
+    stations, stages = load_bathymetry(str(bath_path))
+
+    assert stations == pytest.approx(ISLAND_STATIONS)
+    assert stages == pytest.approx(ISLAND_STAGES)
