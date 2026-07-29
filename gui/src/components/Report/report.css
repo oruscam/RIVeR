@@ -89,7 +89,7 @@ body {
 
 #report-video-info-container {
     width: 100%;
-    border: solid;
+    border: solid #000000;
     border-radius: 20px;
     margin-top: 20px;
 }
@@ -132,7 +132,7 @@ body {
 
 #report-processed-range-container {
     width: 100%;
-    border: solid;
+    border: solid #000000;
     border-radius: 20px;
     margin-top: 20px;
     display: flex;
@@ -184,7 +184,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: var(--primary-text-color);
     border-radius: 20px;
     padding-top: 20px;
     padding-left: 40px;

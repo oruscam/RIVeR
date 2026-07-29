@@ -45,7 +45,7 @@ export const Report = () => {
   const { width: videoWidth, height: videoHeight } = video.data;
   const { factor: imageReduceFactor } = video.parameters;
 
-  const { screenSizes } = useUiSlice();
+  const { screenSizes, theme } = useUiSlice();
   const [isReportSaved, setIsReportSaved] = useState(false);
 
   const generateHTML = async () => {
@@ -69,6 +69,7 @@ export const Report = () => {
         <head>
           <meta charset="UTF-8">
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <meta name="color-scheme" content="light">
           <title>Report</title>
           <link rel="stylesheet" href="/src/components/Report/report.css">
           <style>
@@ -86,7 +87,7 @@ export const Report = () => {
               .join('')}
           </style>
         </head>
-        <body>
+        <body data-theme="${theme}" style="color: #000000; color-scheme: light only;">
           ${input.outerHTML}
         </body>
         </html>
