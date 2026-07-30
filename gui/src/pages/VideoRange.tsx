@@ -15,6 +15,7 @@ import { LockBtn } from '../components/CustomIcons/LockBtn';
 export const VideoRange = () => {
   const {
     video,
+    type,
     stabilizationActiveRegionIndex,
     onUpdateStabilizationRegion,
     onSetStabilizationActiveRegionIndex,
@@ -25,19 +26,23 @@ export const VideoRange = () => {
   const [extraFields, setExtraFields] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const stabilizationOverlay = stabilization
-    ? ({ scale }: { scale: number }) => (
-        <StabilizationCanvas
-          videoWidth={videoWidth}
-          videoHeight={videoHeight}
-          regions={stabilizationRegions}
-          activeRegionIndex={stabilizationActiveRegionIndex}
-          onUpdateRegion={onUpdateStabilizationRegion}
-          onConfirm={() => onSetStabilizationActiveRegionIndex(null)}
-          zoomScale={scale}
-        />
-      )
-    : undefined;
+  // Stabilization only applies to UAV footage — oblique/ipcam cameras are fixed.
+  // Guards against stale `stabilization: true` left over from switching footage
+  // mode after having enabled it on a UAV project.
+  const stabilizationOverlay =
+    stabilization && type === 'uav'
+      ? ({ scale }: { scale: number }) => (
+          <StabilizationCanvas
+            videoWidth={videoWidth}
+            videoHeight={videoHeight}
+            regions={stabilizationRegions}
+            activeRegionIndex={stabilizationActiveRegionIndex}
+            onUpdateRegion={onUpdateStabilizationRegion}
+            onConfirm={() => onSetStabilizationActiveRegionIndex(null)}
+            zoomScale={scale}
+          />
+        )
+      : undefined;
 
   return (
     <div className="regular-page">

@@ -287,7 +287,8 @@ export const useProjectSlice = () => {
 
     dispatch(setImages({ paths: [] }));
 
-    const effectiveStabilization = stabilization && stabilizationRegions.length >= 2;
+    // Stabilization only applies to UAV footage — oblique/ipcam cameras are fixed.
+    const effectiveStabilization = type === 'uav' && stabilization && stabilizationRegions.length >= 2;
 
     const parameters = {
       step: parseFloat(data.step),
