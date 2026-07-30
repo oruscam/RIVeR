@@ -11,7 +11,7 @@ import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
 import { VideoMetadata, FramesResolution, LensCorrection, StabilizationRegions } from './Components/index';
 
 export const FormVideo = ({ duration, extraFields }: { duration: number; extraFields: boolean }) => {
-  const { onSetVideoParameters, video: videoData } = useProjectSlice();
+  const { onSetVideoParameters, video: videoData, type } = useProjectSlice();
   const { startTime, endTime, step } = videoData.parameters;
 
   const { fps } = videoData.data;
@@ -190,7 +190,8 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
         <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
         {extraFields && <FramesResolution />}
         {extraFields && <LensCorrection />}
-        {extraFields && <StabilizationRegions />}
+        {/* Stabilization only makes sense for UAV footage — oblique/ipcam cameras are fixed. */}
+        {extraFields && type === 'uav' && <StabilizationRegions />}
       </form>
     </div>
   );
