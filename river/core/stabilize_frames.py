@@ -16,12 +16,17 @@ import cv2
 import numpy as np
 
 
-def _load_tracking_regions(path: Path) -> tuple[np.ndarray, tuple[int, int]]:
+def _load_tracking_regions(path: Path, scale: float = 1.0) -> tuple[np.ndarray, tuple[int, int]]:
 	"""Load regions from stabilization_regions.json.
 
+	Region coordinates are authored against the native video resolution. `scale`
+	converts them into the coordinate space of the frames actually being
+	stabilized (e.g. the `--resize-factor` applied during frame extraction), so
+	pass 1.0 when frames were extracted at native resolution.
+
 	Returns:
-		points   — (n, 2) float32 array of region centres (x, y).
-		win_size — (w, h) tuple, largest drawn box size, for lk_win_size.
+		points   — (n, 2) float32 array of region centres (x, y), scaled.
+		win_size — (w, h) tuple, largest drawn box size, scaled, for lk_win_size.
 	"""
 	if not path.exists():
 		raise FileNotFoundError(f"Regions file not found: {path}")
@@ -30,9 +35,9 @@ def _load_tracking_regions(path: Path) -> tuple[np.ndarray, tuple[int, int]]:
 	regions = data["regions"]
 	if len(regions) < 2:
 		raise ValueError(f"Need at least 2 tracking regions, got {len(regions)}")
-	points = np.array([r["center"] for r in regions], dtype=np.float32)
-	max_w = max(r["win_size"][0] for r in regions)
-	max_h = max(r["win_size"][1] for r in regions)
+	points = np.array([r["center"] for r in regions], dtype=np.float32) * scale
+	max_w = max(r["win_size"][0] for r in regions) * scale
+	max_h = max(r["win_size"][1] for r in regions) * scale
 	return points, (int(max_w), int(max_h))
 
 
@@ -103,6 +108,7 @@ def stabilize_frames(
 	frames_dir: Path,
 	regions_path: Path,
 	stabilized_dir: Path,
+	scale: float = 1.0,
 ) -> Path:
 	"""Stabilize extracted JPEG frames using incremental LK point tracking.
 
@@ -116,6 +122,9 @@ def stabilize_frames(
 		frames_dir:     Directory of extracted JPEG frames (sorted by filename).
 		regions_path:   Path to stabilization_regions.json defining tracking points.
 		stabilized_dir: Directory to write stabilized frames (created if absent).
+		scale:          Factor converting region coordinates (authored against the
+		                native video resolution) into the extracted frames' coordinate
+		                space — pass the same value as `--resize-factor`.
 
 	Returns:
 		Path to the sanity check image written inside stabilized_dir.
@@ -128,7 +137,7 @@ def stabilize_frames(
 	if not frame_files:
 		raise ValueError(f"No JPEG frames found in {frames_dir}")
 
-	ref_points, lk_win_size = _load_tracking_regions(regions_path)
+	ref_points, lk_win_size = _load_tracking_regions(regions_path, scale=scale)
 
 	stabilized_dir.mkdir(parents=True, exist_ok=True)
 

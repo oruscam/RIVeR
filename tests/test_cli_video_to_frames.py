@@ -55,7 +55,7 @@ def test_stabilize_flag_calls_stabilize_frames(tmp_path):
 	assert response["error"] == {}
 
 	expected_stabilized_dir = frames_dir.parent / (frames_dir.name + "_stabilized")
-	mock_stab.assert_called_once_with(frames_dir, regions_path, expected_stabilized_dir)
+	mock_stab.assert_called_once_with(frames_dir, regions_path, expected_stabilized_dir, scale=1.0)
 
 	assert "stabilized_dir" in response["data"]
 	assert response["data"]["sanity_check"] == str(frames_dir.parent / "sanity_check.jpg")
