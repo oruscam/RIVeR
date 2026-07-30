@@ -296,6 +296,7 @@
     "invalidDistancesNegativeValue": "Formato de distancias de puntos inválido. No se permiten valores negativos de distancias.",
     "invalidBathimetryFileFormat": "Formato de Batimetría inválido.",
     "bathimetryOutOfZRange": "Los niveles de la batimetría están muy lejos del rango Z de los puntos de control. Revisá el archivo o las unidades.",
+    "invalidBathimetryDepthNotAllowed": "Los archivos de batimetría de profundidad no son compatibles con este modo. Importá un perfil de nivel/altura en su lugar.",
     "Cli": {
       "windowsSizesError": "El tamaño de la ventana es demasiado grande para la Región De Interés seleccionada.",
       "bboxNotDefined": "Región De Interés no definida."

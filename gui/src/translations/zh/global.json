@@ -289,6 +289,7 @@
     "invalidDistancesNegativeValue": "距离文件格式无效，不允许使用负距离",
     "invalidBathimetryFileFormat": "测深文件格式无效",
     "bathimetryOutOfZRange": "测深水位值远超出控制点的 Z 值范围。请检查文件或单位。",
+    "invalidBathimetryDepthNotAllowed": "此模式不支持深度测深文件。请改为导入水位/高程剖面。",
     "invalidImageExtension": "所选目录包含非图像文件",
     "imagesFolderEmpty": "所选文件夹中未找到图像",
     "waitingForFrames": "正在等待帧加载完成，请数秒后重试",

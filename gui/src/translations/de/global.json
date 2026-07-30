@@ -293,6 +293,7 @@
     "invalidDistancesNegativeValue": "Ungültiges Distanzformat. Negative Distanzen sind nicht erlaubt",
     "invalidBathimetryFileFormat": "Ungültiges Bathymetrie-Dateiformat",
     "bathimetryOutOfZRange": "Die Tiefenwerte liegen weit außerhalb des Z-Bereichs der Passpunkte. Prüfen Sie die Datei oder die Einheiten.",
+    "invalidBathimetryDepthNotAllowed": "Tiefen-Bathymetriedateien werden in diesem Modus nicht unterstützt. Importieren Sie stattdessen ein Pegel-/Höhenprofil.",
     "invalidImageExtension": "Der Ordner enthält keine Bilddateien",
     "imagesFolderEmpty": "Keine Bilder im ausgewählten Ordner gefunden",
     "waitingForFrames": " Warten auf das Laden der Frames. Bitte versuchen Sie es in wenigen Sekunden erneut",
