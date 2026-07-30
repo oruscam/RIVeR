@@ -114,7 +114,7 @@ def video_to_frames(
 		stabilized_dir = frames_dir_path.parent / (frames_dir_path.name + "_stabilized")
 
 		print("Stabilizing frames...", file=sys.stderr, flush=True)
-		sanity_path = stabilize_frames(frames_dir_path, regions_path, stabilized_dir)
+		sanity_path = stabilize_frames(frames_dir_path, regions_path, stabilized_dir, scale=resize_factor)
 		sanity_dest = frames_dir_path.parent / "sanity_check.jpg"
 		shutil.move(str(sanity_path), str(sanity_dest))
 
