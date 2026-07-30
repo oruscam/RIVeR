@@ -237,7 +237,7 @@ const onLoadCrossSections = (
 
       const { data } = getBathimetryValues(line, level);
 
-      const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = data
+      const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width, wetSegments } = data
         ? data
         : {
             yMax: 0,
@@ -247,6 +247,7 @@ const onLoadCrossSections = (
             x1Intersection: 0,
             x2Intersection: 0,
             width: 0,
+            wetSegments: [],
           };
 
       if (flag) {
@@ -283,6 +284,7 @@ const onLoadCrossSections = (
               leftBank: left_station,
               x1Intersection: x1Intersection,
               x2Intersection: x2Intersection,
+              wetSegments: wetSegments,
               path: bath,
               name: name,
             },
@@ -321,6 +323,7 @@ const onLoadCrossSections = (
               leftBank: left_station,
               x1Intersection: x1Intersection,
               x2Intersection: x2Intersection,
+              wetSegments: wetSegments,
               path: bath,
               name: name,
             },

@@ -1,6 +1,7 @@
 import { GRAPHS } from '../constants/constants';
 import { SectionData } from '../store/section/types';
 import { Point } from '../types';
+import { buildWetSegmentsProfile, WetSegment } from './getBathimetryValues';
 
 const adapterData = (data: SectionData, x1Intersection: number) => {
   const {
@@ -42,18 +43,8 @@ const adapterData = (data: SectionData, x1Intersection: number) => {
   };
 };
 
-const adapterBathimetry = (
-  line: Point[],
-  x1Intersection: number,
-  x2Intersection: number,
-  level: number
-): Point[] => {
-  const newBathLine = line?.filter((d) => d.y <= level! && d.x >= x1Intersection! && d.x <= x2Intersection!);
-
-  newBathLine?.unshift({ x: x1Intersection!, y: level! });
-  newBathLine?.push({ x: x2Intersection!, y: level! });
-
-  return newBathLine;
+const adapterBathimetry = (line: Point[], wetSegments: WetSegment[], level: number): Point[] => {
+  return buildWetSegmentsProfile(line, wetSegments, level);
 };
 const generateXAxisTicks = (x1Intersection: number, x2Intersection: number, width: number): number[] => {
   let step = 0;
