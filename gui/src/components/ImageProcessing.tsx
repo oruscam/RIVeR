@@ -34,11 +34,12 @@ export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: bool
   const realFactor = vertical ? factorReduced : factor;
 
   const { data, min, max } = useMemo(() => {
-    // The "Test" result only covers the frame pair it was run on. Show it
-    // while that pair is active; otherwise fall back to the last full
-    // "Analize" result (if any) instead of blanking the vector map.
+    // The "Test" result only covers the frame pair it was run on, and has no
+    // median (a median is meaningless for a single pair). Show it while that
+    // pair is active and median isn't requested; otherwise fall back to the
+    // last full "Analize" result (if any) instead of blanking the vector map.
     const isTestFrame = quiver !== null && quiver.test === true && quiver.testFrameIndex === images.active;
-    const displayQuiver = isTestFrame ? quiver : fullQuiver;
+    const displayQuiver = isTestFrame && !showMedian ? quiver : fullQuiver;
 
     if (displayQuiver === null) {
       return { data: [], min: 0, max: 0 };
