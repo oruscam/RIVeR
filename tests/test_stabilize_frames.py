@@ -32,6 +32,20 @@ def test_load_tracking_regions_returns_points_and_win_size(tmp_path):
 	assert win_size == (15, 13)  # largest of the two
 
 
+def test_load_tracking_regions_applies_scale(tmp_path):
+	regions_file = tmp_path / "regions.json"
+	regions_file.write_text(json.dumps({
+		"regions": [
+			{"center": [800.0, 400.0], "win_size": [200.0, 100.0]},
+			{"center": [3600.0, 2000.0], "win_size": [300.0, 250.0]},
+		]
+	}))
+	points, win_size = _load_tracking_regions(regions_file, scale=0.5)
+	np.testing.assert_allclose(points[0], [400.0, 200.0])
+	np.testing.assert_allclose(points[1], [1800.0, 1000.0])
+	assert win_size == (150, 125)  # largest of the two, scaled
+
+
 def test_load_tracking_regions_raises_if_fewer_than_two(tmp_path):
 	regions_file = tmp_path / "regions.json"
 	regions_file.write_text(json.dumps({
@@ -155,6 +169,41 @@ def test_stabilize_frames_raises_on_missing_regions(tmp_path):
 
 	with pytest.raises(FileNotFoundError):
 		stabilize_frames(frames_dir, tmp_path / "missing.json", tmp_path / "out")
+
+
+def test_stabilize_frames_scales_regions_to_frame_resolution(tmp_path):
+	"""Regions are authored against the native video resolution; when frames were
+	extracted at a reduced resize-factor, region coordinates must be scaled down
+	to match, or they land outside the actual (smaller) frame entirely."""
+	frames_dir = tmp_path / "frames"
+	frames_dir.mkdir()
+	stabilized_dir = tmp_path / "frames_stabilized"
+	regions_path = tmp_path / "regions.json"
+
+	# Frames extracted at 120x120 (i.e. resize-factor 0.5 of a 240x240 native video).
+	_write_test_frames(frames_dir, [(0, 0), (2, 1), (-1, 2)])
+
+	# Regions authored in native (240x240) coordinates — corners at 50/150.
+	regions_path.write_text(json.dumps({
+		"regions": [
+			{"center": [50.0, 50.0], "win_size": [26, 26]},
+			{"center": [150.0, 50.0], "win_size": [26, 26]},
+			{"center": [50.0, 150.0], "win_size": [26, 26]},
+			{"center": [150.0, 150.0], "win_size": [26, 26]},
+		]
+	}))
+
+	# Without the scale correction, every region center falls at x/y >= 100,
+	# outside the 120x120 frame minus win margins, so tracking degrades to
+	# near-zero usable points. With scale=0.5 applied they land on the four
+	# bright corners placed at (25,25)/(75,25)/(25,75)/(75,75) and stabilize cleanly.
+	sanity_path = stabilize_frames(frames_dir, regions_path, stabilized_dir, scale=0.5)
+
+	assert sanity_path.exists()
+	last_frame = cv2.imread(str(stabilized_dir / "0000000002.jpg"))
+	# The shifted frame (-1, 2) should be warped back close to the reference
+	# corner positions; a bright pixel should reappear near (25, 25).
+	assert last_frame[25, 25].max() > 100
 
 
 def test_stabilize_frames_handles_lk_failure(tmp_path):
