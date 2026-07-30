@@ -1,5 +1,5 @@
 import { dialog, ipcMain } from 'electron';
-import { readFile, utils, set_fs, writeFile } from 'xlsx';
+import { readFile, utils, set_fs } from 'xlsx';
 import * as fs from 'fs';
 import { EXTENSIONS } from './utils/validateFile';
 import { PROJECT_CONFIG } from '../main';

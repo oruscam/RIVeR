@@ -38,6 +38,6 @@ module.exports = [
     },
   },
   {
-    ignores: ["dist", "node_modules", "build", ".turbo", ".next"],
+    ignores: ["dist", "dist-electron", "node_modules", "build", ".turbo", ".next"],
   },
 ];

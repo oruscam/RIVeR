@@ -9,7 +9,6 @@ import { SuccessfulMessage } from '../Report';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
 
-
 export const FormReport = ({
   isReportSaved,
   setIsReportSaved,
@@ -86,7 +85,10 @@ export const FormReport = ({
       unitSistem: unitSistem,
     });
     setIsReportSaved(false);
-  }, [meditionDate, unitSistem]);
+    // onProjectDetailsChange is recreated every render; adding it directly would re-run this
+    // effect (and hide the just-shown success message) on every unrelated parent re-render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meditionDate, unitSistem, setIsReportSaved]);
 
   const handleNewProject = () => {
     onSetDefaultProjectState();
@@ -95,17 +97,16 @@ export const FormReport = ({
 
   useEffect(() => {
     if (isReportSaved) {
-      const id = document.getElementById('successful-message');
-      console.log('id', id);
-      if (id) {
-        id.scrollIntoView({ behavior: 'smooth' });
+      const el = document.getElementById('successful-message');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
       }
     }
   }, [isReportSaved]);
 
   return (
-    <div className='body'>
-      <form className='form-report'>
+    <div className="body">
+      <form className="form-report">
         <div className="simple-input-container">
           <label>{t('Report.Form.riverName')}</label>
           <input
@@ -184,8 +185,6 @@ export const FormReport = ({
             timeIntervals={15}
           />
         </div>
-
-
 
         {isReportSaved && <SuccessfulMessage goToHomePage={handleNewProject} />}
       </form>

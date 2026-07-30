@@ -4,7 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { Loading } from '../Loading';
 import React, { useEffect } from 'react';
 
-export const FormAnalizing = ({setShowMedian}: {setShowMedian: React.Dispatch<React.SetStateAction<boolean>>}) => {
+export const FormAnalizing = ({
+  setShowMedian,
+}: {
+  setShowMedian: React.Dispatch<React.SetStateAction<boolean>>;
+}) => {
   const { onSetQuiverAll, isBackendWorking, onKillBackend, quiver } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { t } = useTranslation();
@@ -37,7 +41,6 @@ export const FormAnalizing = ({setShowMedian}: {setShowMedian: React.Dispatch<Re
     setPercentage('100%');
   }
 
-
   useEffect(() => {
     const handleRiverCliMessage = (_event: any, text: string) => {
       // Expresión regular para extraer el porcentaje
@@ -68,34 +71,34 @@ export const FormAnalizing = ({setShowMedian}: {setShowMedian: React.Dispatch<Re
     return () => {
       window.ipcRenderer.removeListener('river-cli-message', handleRiverCliMessage);
     };
-  }, [percentage, time]);
+  }, [percentage, time, isBackendWorking, quiver, legend]);
 
   return (
     <div className="body mt-3" id="form-analizing">
-        <div className="input-container-2">
-          <button
-            className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
-            onClick={handleAnalize}
-          >
-            {t('Analizing.analize')}
-          </button>
-        </div>
-
-        <div className="analizing-output">
-          {percentage !== '' && (
-            <Loading percentage={percentage} time={time} size={'big'} isComplete={percentage === '100%'} />
-          )}
-        </div>
-
+      <div className="input-container-2">
         <button
-          id="stop-analize"
-          className={`danger-button ${isBackendWorking ?  'danger-button-active' : ''}`}
-          onClick={handleStop}
-          disabled={!isBackendWorking}
+          className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
+          onClick={handleAnalize}
         >
-          {' '}
-          {t('Analizing.stop')}{' '}
+          {t('Analizing.analize')}
         </button>
+      </div>
+
+      <div className="analizing-output">
+        {percentage !== '' && (
+          <Loading percentage={percentage} time={time} size={'big'} isComplete={percentage === '100%'} />
+        )}
+      </div>
+
+      <button
+        id="stop-analize"
+        className={`danger-button ${isBackendWorking ? 'danger-button-active' : ''}`}
+        onClick={handleStop}
+        disabled={!isBackendWorking}
+      >
+        {' '}
+        {t('Analizing.stop')}{' '}
+      </button>
     </div>
   );
 };

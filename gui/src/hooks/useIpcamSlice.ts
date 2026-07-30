@@ -47,7 +47,6 @@ export const useIpcamSlice = () => {
           path: data.path,
           counter: data.points.length,
           zLimits: data.zLimits,
-          
         })
       );
       // Reset the camera solution in the matrix slice
@@ -279,9 +278,9 @@ export const useIpcamSlice = () => {
     }
   };
 
-  const onSetActivePoint = ( index: number ) => {
-    dispatch( setActivePoint( index ) );
-  }
+  const onSetActivePoint = (index: number) => {
+    dispatch(setActivePoint(index));
+  };
 
   return {
     // Atributes

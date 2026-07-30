@@ -2,11 +2,10 @@
  * This file contains utility functions for generating color maps and vector operations.
  * It is used in Renderer and Main process.
  * @module commons/vectors
-*/
+ */
 
-import { transformPixelToRealWorld } from "./coordinates";
-import { Quiver } from "./types";
-
+import { transformPixelToRealWorld } from './coordinates';
+import { Quiver } from './types';
 
 /**
  * Generates a custom colormap with a smooth gradient transition between predefined colors.
@@ -122,13 +121,23 @@ class Normalize {
  * @param {number} index
  * @returns {number|null}
  */
-const getComponent = (arr: number[] | number[][] | null | undefined, median: number[] | null | undefined, showMedian: boolean, activeImage: number, index: number): number | null => {
+const getComponent = (
+  arr: number[] | number[][] | null | undefined,
+  median: number[] | null | undefined,
+  showMedian: boolean,
+  activeImage: number,
+  index: number
+): number | null => {
   if (showMedian) return median ? median[index] : null;
 
   if (Array.isArray(arr)) {
     return Array.isArray(arr[0])
-      ? (arr[activeImage] && arr[activeImage][index] !== undefined ? arr[activeImage][index] : null)
-      : (arr[index] !== undefined ? arr[index] : null);
+      ? arr[activeImage] && arr[activeImage][index] !== undefined
+        ? arr[activeImage][index]
+        : null
+      : arr[index] !== undefined
+        ? arr[index]
+        : null;
   }
 
   return null;
@@ -145,7 +154,19 @@ const getComponent = (arr: number[] | number[][] | null | undefined, median: num
  * @param {number[][]} transformationMatrix
  * @returns {{ data: Array<{x:number,y:number,u:number,v:number,velocity:number,color:string}>, min:number, max:number }}
  */
-const getQuiverValues = (quiver: Quiver, showMedian: boolean, activeImage: number, step: number, fps: number, transformationMatrix: number[][], colorBarLimits?: { min: number; max: number }): { data: Array<{ x: number; y: number; u: number; v: number; velocity: number; color: string; }>; min: number; max: number; } => {
+const getQuiverValues = (
+  quiver: Quiver,
+  showMedian: boolean,
+  activeImage: number,
+  step: number,
+  fps: number,
+  transformationMatrix: number[][],
+  colorBarLimits?: { min: number; max: number }
+): {
+  data: Array<{ x: number; y: number; u: number; v: number; velocity: number; color: string }>;
+  min: number;
+  max: number;
+} => {
   const { x, y: yArray, u: uArray, v: vArray, u_median, v_median } = quiver;
 
   let data = x
@@ -170,7 +191,7 @@ const getQuiverValues = (quiver: Quiver, showMedian: boolean, activeImage: numbe
           u,
           v,
           velocity,
-          color: "transparent",
+          color: 'transparent',
         };
       }
       return null;
@@ -181,10 +202,7 @@ const getQuiverValues = (quiver: Quiver, showMedian: boolean, activeImage: numbe
   const minVelocity = velocities.length ? Math.min(...velocities) : 0;
   const maxVelocity = velocities.length ? Math.max(...velocities) : 1;
 
-  const norm = new Normalize(
-    colorBarLimits?.min ?? minVelocity,
-    colorBarLimits?.max ?? maxVelocity
-  );
+  const norm = new Normalize(colorBarLimits?.min ?? minVelocity, colorBarLimits?.max ?? maxVelocity);
   const colorMap = createColorMap();
 
   data = data.map((d) => {

@@ -1,10 +1,10 @@
 import { ipcMain } from 'electron';
 import * as fs from 'fs';
-import { pixelSizeHandleArgs } from './interfaces';
+import { pixelSizeHandleArgs, RiverCli } from './interfaces';
 import { createMatrix } from './utils/createMatrix';
 import { PROJECT_CONFIG } from '../main';
 
-function setPixelSize(riverCli: Function) {
+function setPixelSize(riverCli: RiverCli) {
   ipcMain.handle('set-pixel-size', async (_event, args: pixelSizeHandleArgs) => {
     const { projectDirectory, settingsPath, logsPath, firstFrame, filePrefix } = PROJECT_CONFIG;
     const { dirPoints, rwPoints, pixelSize, rwLength } = args;

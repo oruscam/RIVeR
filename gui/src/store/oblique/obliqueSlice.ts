@@ -10,7 +10,7 @@ const initialState: ObliqueMode = {
   isDefaultCoordinates: true,
   isDistancesLoaded: false,
   solution: null,
-  extraFields: false
+  extraFields: false,
 };
 
 const obliqueSlice = createSlice({
@@ -40,12 +40,7 @@ const obliqueSlice = createSlice({
   },
 });
 
-export const {
-  setObliquePoints,
-  setDrawPoints,
-  setDefaultObliqueState,
-  setExtraFields,
-  setIsDraggingPoint,
-} = obliqueSlice.actions;
+export const { setObliquePoints, setDrawPoints, setDefaultObliqueState, setExtraFields, setIsDraggingPoint } =
+  obliqueSlice.actions;
 
 export default obliqueSlice.reducer;

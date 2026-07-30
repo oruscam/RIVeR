@@ -1,7 +1,7 @@
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { FormUav } from '../components/Forms/index';
-import { WizardButtons, Error, Progress, ImageUav, FocusOverlay } from '../components/index';
+import { WizardButtons, Error, FocusOverlay } from '../components/index';
 import { useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../hooks/index';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
@@ -10,7 +10,6 @@ import { useEffect } from 'react';
 import { formatNumberTo2Decimals, formatNumberToPrecision4 } from '../helpers/adapterNumbers.js';
 import { FormHeader } from '../components/Forms/Components/FormHeader.js';
 import { useTranslation } from 'react-i18next';
-import { ButtonLock } from '../components/ButtonLock.js';
 import { Point } from '../types/index.js';
 import { ImageUavNew } from '../components/ImageUavNew.js';
 import { LockBtn } from '../components/CustomIcons/LockBtn.js';
@@ -41,7 +40,7 @@ const createDefaultState = (
   };
 
   return defaultValues;
-}
+};
 
 export const Uav = () => {
   const {
@@ -54,7 +53,7 @@ export const Uav = () => {
     drawLine,
     isDraggingPoint,
     onGetUavTransformationMatrix,
-    onUpdatePixelSize
+    onUpdatePixelSize,
   } = useUavSlice();
   const { t } = useTranslation();
   const { isBackendWorking } = useGlobalSlice();
@@ -67,7 +66,7 @@ export const Uav = () => {
   const { nextStep } = useWizard();
   const { onSetErrorMessage } = useUiSlice();
 
-  const onSubmit = (_data: FieldValues) => {
+  const onSubmit = () => {
     console.log(rwPoints);
     nextStep();
   };
@@ -80,7 +79,7 @@ export const Uav = () => {
 
   const onClickSolveButton = () => {
     onGetUavTransformationMatrix();
-  }
+  };
 
   const onChangeExtraFields = () => {
     onUpdatePixelSize({ extraFields: true });
@@ -96,14 +95,14 @@ export const Uav = () => {
         <ImageUavNew />
         <Error />
       </div>
-      <div className='form-container'>
+      <div className="form-container">
         <FormHeader title={t('PixelSize.title')} showSections={false} />
 
         <FormProvider {...methods}>
           <FormUav onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
 
-        <div className='footer'>
+        <div className="footer">
           <button
             className="wizard-button form-button solver-button"
             id="solve-pixelsize"

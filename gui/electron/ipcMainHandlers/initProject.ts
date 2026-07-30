@@ -15,7 +15,15 @@ function initProject() {
 
       try {
         const result = await getVideoMetadata(path);
-        const directory = await createFolderStructure(newDirectory, type, language, result.path, name, result, unitSistem);
+        const directory = await createFolderStructure(
+          newDirectory,
+          type,
+          language,
+          result.path,
+          name,
+          result,
+          unitSistem
+        );
 
         PROJECT_CONFIG.projectDirectory = directory;
         PROJECT_CONFIG.type = type;

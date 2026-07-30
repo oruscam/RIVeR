@@ -1007,3 +1007,89 @@
     left: 0;
     z-index: 10;
 }
+
+/* =============================================================================
+   SUCCESS BANNER
+   Shared validation/save-confirmation message, used by the Report success
+   screen and Camera Calibration's save confirmation.
+   ============================================================================= */
+
+.success-banner {
+    background-color: var(--success-background);
+    color: var(--success-color);
+    width: 90%;
+    max-width: 500px;
+    display: flex;
+    align-items: flex-start;
+    padding: 25px 50px 30px 10px;
+    border-radius: 20px;
+    gap: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.success-banner-icon {
+    flex-shrink: 0;
+    margin-top: 15px;
+    color: var(--success-color);
+}
+
+.success-banner-link {
+    background: none;
+    border: none;
+    font: inherit;
+    color: var(--success-color);
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-all;
+    transition: opacity 0.15s;
+}
+
+.success-banner-link:hover {
+    opacity: 0.75;
+}
+
+.success-banner-body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex: 1;
+    padding-right: 15px;
+}
+
+.success-banner-title {
+    font-size: 1.4rem;
+    margin: 0;
+    color: var(--primary-text-color);
+}
+
+.success-banner-message {
+    margin-top: 10px;
+    color: var(--primary-text-color);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Compact variant — inline in a narrow side panel (Camera Calibration) */
+.success-banner-compact {
+    width: 100%;
+    max-width: none;
+    padding: 12px 14px;
+    align-items: center;
+    gap: 8px;
+}
+
+.success-banner-compact .success-banner-icon {
+    margin-top: 0;
+}
+
+.success-banner-compact .success-banner-title {
+    font-weight: 700;
+}
+
+.success-banner-compact .success-banner-message {
+    margin-top: 2px;
+}

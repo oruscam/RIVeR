@@ -64,7 +64,11 @@ export const ReportSectionTable = ({ data }: { data: SectionData }) => {
             <td>{data.distance[index] != null ? (data.distance[index] * lFactor).toFixed(2) : '-'}</td>
             <td>{data.depth[index] != null ? (data.depth[index] * lFactor).toFixed(2) : '-'}</td>
             <td>{data.A[index] != null ? (data.A[index] * aFactor).toFixed(2) : '-'}</td>
-            <td>{data.streamwise_magnitude[index] != null ? (data.streamwise_magnitude[index] * lFactor).toFixed(2) : '-'}</td>
+            <td>
+              {data.streamwise_magnitude[index] != null
+                ? (data.streamwise_magnitude[index] * lFactor).toFixed(2)
+                : '-'}
+            </td>
             <td>{data.Q[index] != null ? (data.Q[index] * qFactor).toFixed(2) : '-'}</td>
           </tr>
         ))}

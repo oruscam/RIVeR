@@ -7,7 +7,13 @@ import { getUnit } from './unitSistem';
 import { getDirectionVector } from './getDirectionVector';
 import { getBathimetryValues, getIntersectionPoints } from './getBathimetryValues';
 import { adapterCrossSections } from './adapterCrossSections';
-import { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks, getOrthoImageDimensions } from './graphsHelpers';
+import {
+  adapterData,
+  adapterBathimetry,
+  generateXAxisTicks,
+  generateYAxisTicks,
+  getOrthoImageDimensions,
+} from './graphsHelpers';
 import { formatNumberToPrecision2, formatNumberToPrecision4, formatNumberTo2Decimals } from './adapterNumbers';
 import { carouselClickImage, carouselKeyDown, setCarouselDimensions } from './carouselFunctions';
 import { calculateArrowWidth, calculateMultipleArrowsAdaptative, getVelocityLimits } from './drawArrows';

@@ -1,23 +1,18 @@
-const transformData = (data: any, all: boolean): any => {
+const transformData = (data: any): any => {
   const result: any = {};
 
   for (const key in data) {
     const section = data[key];
     let magnitude = section.streamwise_velocity_magnitude;
-    let magnitude_name = 'streamwise_velocity_magnitude';
     if (section.num_stations > 0) {
       if (section.interpolated === true && section.artificial_seeding === true) {
         magnitude = section.filled_seeded_vel_profile;
-        magnitude_name = 'filled_seeded_vel_profile';
       } else if (section.interpolated === true && section.artificial_seeding === false) {
         magnitude = section.filled_streamwise_velocity_magnitude;
-        magnitude_name = 'filled_streamwise_velocity_magnitude';
       } else if (section.interpolated === false && section.artificial_seeding === false) {
         magnitude = section.streamwise_velocity_magnitude;
-        magnitude_name = 'streamwise_velocity_magnitude';
       } else if (section.interpolated === false && section.artificial_seeding === true) {
         magnitude = section.seeded_vel_profile;
-        magnitude_name = 'seeded_vel_profile';
       }
     }
     result[key] = {
