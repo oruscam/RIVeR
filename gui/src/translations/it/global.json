@@ -82,6 +82,7 @@
     "lineLength": "Lunghezza della linea",
     "pixelSize": "Dimensione Pixel",
     "drawLine": "Disegna Linea",
+    "carouselStabilization": "Stabilizzazione",
     "Errors": {
       "required": "Tutti i campi sono obbligatori. Controlla il modulo della Dimensione Pixel.",
       "lineLength": "Lunghezza della linea non valida: la lunghezza deve essere un numero positivo, anche con decimali. Inserisci un valore valido.",

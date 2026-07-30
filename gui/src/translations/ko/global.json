@@ -82,6 +82,7 @@
     "lineLength": "선 길이",
     "pixelSize": "픽셀 크기",
     "drawLine": "선 그리기",
+    "carouselStabilization": "안정화",
     "Errors": {
       "required": "모든 필드는 필수입니다. 픽셀 크기 양식을 확인해 주세요.",
       "lineLength": "유효하지 않은 선 길이: 양수(소수 포함)를 입력해 주세요.",

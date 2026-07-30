@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { WizardButtons, Error, Warning, FocusOverlay } from '../components';
+import { Carousel, WizardButtons, Error, Warning, FocusOverlay } from '../components';
 import { CrossSections as CrossSectionsComponent } from '../components/CrossSections/index';
 import { useDataSlice, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { useTranslation } from 'react-i18next';
@@ -17,7 +17,8 @@ export const CrossSections = () => {
   const { onSetErrorMessage } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
   const { cameraSolution } = useIpcamSlice();
-  const { processing } = useDataSlice();
+  const { processing, images } = useDataSlice();
+  const [activeFrame, setActiveFrame] = useState<number>(0);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -72,8 +73,11 @@ export const CrossSections = () => {
           <AddMaskButton />
         </div>
         <div style={{ position: 'relative', margin: 'auto 0' }}>
-          <ImageCrossSections />
+          <ImageCrossSections imageSrc={images.paths.length > 0 ? images.paths[activeFrame] : undefined} />
         </div>
+        {images.paths.length > 0 && (
+          <Carousel images={images.paths} active={activeFrame} setActiveImage={setActiveFrame} mode="select" />
+        )}
         <div className="message-stack">
           <Error />
           <Warning />

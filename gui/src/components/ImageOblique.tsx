@@ -2,8 +2,13 @@ import { useImageZoomPan, useObliqueSlice, useProjectSlice, useUiSlice } from '.
 import { DrawOblique } from './DrawOblique';
 import { OverlaySvg } from './OverlaySvg';
 
-export const ImageOblique = () => {
+interface ImageObliqueProps {
+  imageSrc?: string;
+}
+
+export const ImageOblique = ({ imageSrc }: ImageObliqueProps) => {
   const { firstFramePath } = useProjectSlice();
+  const src = imageSrc ?? firstFramePath;
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { isDefaultCoordinates } = useObliqueSlice();
@@ -42,7 +47,7 @@ export const ImageOblique = () => {
         }}
       >
         <img
-          src={firstFramePath}
+          src={src}
           className="simple-image"
           draggable={false}
           onDragStart={handleDragStart}

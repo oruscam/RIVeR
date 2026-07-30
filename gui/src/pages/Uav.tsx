@@ -1,12 +1,12 @@
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { FormUav } from '../components/Forms/index';
-import { WizardButtons, Error, FocusOverlay } from '../components/index';
-import { useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../hooks/index';
+import { WizardButtons, Error, FocusOverlay, Carousel } from '../components/index';
+import { useDataSlice, useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../hooks/index';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
 import './pages.css';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { formatNumberTo2Decimals, formatNumberToPrecision4 } from '../helpers/adapterNumbers.js';
 import { FormHeader } from '../components/Forms/Components/FormHeader.js';
 import { useTranslation } from 'react-i18next';
@@ -57,8 +57,27 @@ export const Uav = () => {
   } = useUavSlice();
   const { t } = useTranslation();
   const { isBackendWorking } = useGlobalSlice();
-  const { projectDetails } = useProjectSlice();
+  const { projectDetails, projectDirectory, video } = useProjectSlice();
   const { unitSistem } = projectDetails;
+  const { images } = useDataSlice();
+  const [activeFrame, setActiveFrame] = useState<number>(0);
+  const [showStabilization, setShowStabilization] = useState<boolean>(false);
+
+  let filePrefix = import.meta.env.VITE_FILE_PREFIX;
+  filePrefix = filePrefix === undefined ? '' : filePrefix;
+
+  // sanity_check.jpg is overwritten in place on every re-extraction, so bust the cache
+  // whenever a fresh set of frames arrives.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const sanityCheckCacheBust = useMemo(() => Date.now(), [images.paths]);
+  const sanityCheckPath = `${filePrefix}${projectDirectory}/sanity_check.jpg?t=${sanityCheckCacheBust}`;
+  const canToggleStabilization = video.parameters.committedStabilization;
+
+  const activeImageSrc = showStabilization
+    ? sanityCheckPath
+    : images.paths.length > 0
+      ? images.paths[activeFrame]
+      : undefined;
 
   // * Estado inicial del formulario
   const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size, unitSistem) });
@@ -92,7 +111,18 @@ export const Uav = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageUavNew />
+        <ImageUavNew imageSrc={activeImageSrc} />
+        {images.paths.length > 0 && (
+          <Carousel
+            images={images.paths}
+            active={activeFrame}
+            setActiveImage={setActiveFrame}
+            showMedian={showStabilization}
+            setShowMedian={setShowStabilization}
+            canToggleMedian={canToggleStabilization}
+            mode="select"
+          />
+        )}
         <Error />
       </div>
       <div className="form-container">
