@@ -68,13 +68,21 @@
     },
     "framesResolution": "دقة الإطارات",
     "lensCorrection": "تصحيح العدسة",
-    "noProfiles": "لا توجد ملفات تعريف — انتقل إلى المعايرة"
+    "noProfiles": "لا توجد ملفات تعريف — انتقل إلى المعايرة",
+    "stabilizeVideo": "تثبيت الفيديو",
+    "stabilizationRegion": "منطقة",
+    "editingRegion": "تحرير المنطقة {{n}}",
+    "addRegion": "إضافة منطقة",
+    "exitRegionMode": "الخروج من وضع التحرير",
+    "minRegionsWarning": "أضف منطقتين على الأقل للتثبيت",
+    "editingRegionsWarning": "جارٍ تحرير مناطق التثبيت"
   },
   "PixelSize": {
     "title": "حجم البكسل",
     "lineLength": "طول الخط",
     "pixelSize": "حجم البكسل",
     "drawLine": "رسم خط",
+    "carouselStabilization": "تثبيت",
     "Errors": {
       "required": "جميع الحقول إلزامية. الرجاء مراجعة نموذج حجم البكسل.",
       "lineLength": "طول خط غير صالح: يجب أن يكون الطول عدداً موجباً (يمكن أن يتضمن كسوراً عشرية). الرجاء إدخال قيمة صالحة.",
@@ -135,6 +143,7 @@
     "warningTitle": "حذف المقطع",
     "mask": "القناع",
     "addMask": "إضافة قناع",
+    "editingMaskWarning": "جارٍ تحرير القناع {{n}}",
     "bankRight": "م",
     "bankLeft": "س"
   },
@@ -279,6 +288,7 @@
     "invalidDistancesNotValidValue": "تنسيق ملف المسافات غير صالح. بعض قيم المسافات ليست أرقاماً صالحة",
     "invalidDistancesNegativeValue": "تنسيق ملف المسافات غير صالح. لا يُسمح بالمسافات السالبة",
     "invalidBathimetryFileFormat": "تنسيق ملف القياس البتيمتري غير صالح",
+    "bathimetryOutOfZRange": "مستويات القياس العمقي بعيدة جدًا عن نطاق Z لنقاط التحكم. تحقق من الملف أو الوحدات.",
     "invalidImageExtension": "يحتوي المجلد على ملفات ليست صوراً",
     "imagesFolderEmpty": "لم يتم العثور على صور في المجلد المحدد",
     "waitingForFrames": "في انتظار تحميل الإطارات. الرجاء المحاولة مرة أخرى بعد لحظات",
@@ -289,6 +299,7 @@
   },
   "Loader": {
     "extractingFrames": "جارٍ استخراج إطارات الفيديو",
+    "stabilizingFrames": "جارٍ تثبيت إطارات الفيديو",
     "results": "جارٍ إنشاء إحصاءات مقطع السرعة",
     "videoConversion": "جارٍ تحويل الفيديو إلى تنسيق MP4. الرجاء الانتظار.",
     "maskAndRoi": "جارٍ تحديد منطقة الاهتمام والأقنعة"

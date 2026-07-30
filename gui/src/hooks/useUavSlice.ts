@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { CanvasPoint, FormPoint, UpdatePixelSize } from '../types';
-import { setPixelSizePoints, updatePixelSize } from '../store/uav/uavSlice';
+import { setPixelSizePoints, updatePixelSize, setIsDraggingPoint } from '../store/uav/uavSlice';
 import { getImageSize, getNewCanvasPositions, setChangesByForm } from '../helpers';
 import {
   computePixelSize,
@@ -123,7 +123,9 @@ export const useUavSlice = () => {
         newPoints = dirPoints; // Revertir a los puntos originales
         flag1 = false;
         flag2 = false;
-        dispatch(setPixelSizePoints({ points: newPoints, type: 'dir' }));
+        // Releasing the mouse always ends "draw line" mode, whether the line
+        // just drawn is valid (below) or degenerate (reverted, here).
+        dispatch(updatePixelSize({ ...uav, dirPoints: newPoints, drawLine: false }));
         dispatch(setHasChanged(true));
       } else {
         const { size } = computePixelSize(newPoints, rwPoints);
@@ -133,6 +135,7 @@ export const useUavSlice = () => {
             dirPoints: newPoints,
             size,
             solution: null,
+            drawLine: false,
           })
         );
         dispatch(setHasChanged(true));
@@ -229,6 +232,10 @@ export const useUavSlice = () => {
     dispatch(setHasChanged(true));
   };
 
+  const onSetIsDraggingPoint = (value: boolean) => {
+    dispatch(setIsDraggingPoint(value));
+  };
+
   return {
     // ATRIBUTES
     ...uav,
@@ -239,5 +246,6 @@ export const useUavSlice = () => {
     onSetPixelDirection,
     onSetPixelRealWorld,
     onUpdatePixelSize,
+    onSetIsDraggingPoint,
   };
 };

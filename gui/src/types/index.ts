@@ -37,6 +37,10 @@ type onGetBathimetryTypes = {
   bathimetryPath?: string;
   cameraMatrix?: number[][];
   zLimits?: { min: number; max: number };
+  // Real-world Z range spanned by the project's control points — used to
+  // reject a bathymetry file whose level values don't overlap it at all
+  // (a strong signal the wrong file, or the wrong units, were selected).
+  controlPointsZLimits?: { min: number; max: number };
   unitSistem?: string;
 };
 

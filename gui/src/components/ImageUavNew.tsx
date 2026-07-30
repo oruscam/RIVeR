@@ -2,10 +2,15 @@ import { useImageZoomPan, useProjectSlice, useUiSlice } from '../hooks';
 import { DrawUav } from './DrawUav';
 import { OverlaySvg } from './OverlaySvg';
 
-export const ImageUavNew = () => {
+interface ImageUavNewProps {
+  imageSrc?: string;
+}
+
+export const ImageUavNew = ({ imageSrc }: ImageUavNewProps) => {
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { firstFramePath } = useProjectSlice();
+  const src = imageSrc ?? firstFramePath;
 
   const {
     scale,
@@ -50,7 +55,7 @@ export const ImageUavNew = () => {
         }}
       >
         <img
-          src={firstFramePath}
+          src={src}
           className="simple-image"
           draggable={false}
           onDragStart={handleDragStart}

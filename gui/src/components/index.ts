@@ -1,4 +1,7 @@
 import { Error } from './Error';
+import { FocusOverlay } from './FocusOverlay';
+import { Info } from './Info';
+import { Warning } from './Warning';
 import { Icon } from './Icon';
 import { LangBtn as LanguageSelector } from './CustomIcons/LanguageSelector';
 import { ThemeToggle } from './ThemeToggle';
@@ -33,12 +36,14 @@ export {
   DrawUav,
   Error,
   FloatingPlot,
+  FocusOverlay,
   Grid,
   Icon,
   ImageIpcam,
   ImageOblique,
   ImageProcessing,
   ImageResults,
+  Info,
   IpcamGrid,
   LanguageSelector,
   Loading,
@@ -47,5 +52,6 @@ export {
   SuccessBanner,
   ThemeToggle,
   VersionMessage,
+  Warning,
   WizardButtons,
 };

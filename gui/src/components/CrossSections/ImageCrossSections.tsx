@@ -83,10 +83,15 @@ function computeConfirmButtonPos(
   return best;
 }
 
-export const ImageCrossSections = () => {
+interface ImageCrossSectionsProps {
+  imageSrc?: string;
+}
+
+export const ImageCrossSections = ({ imageSrc }: ImageCrossSectionsProps) => {
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { firstFramePath } = useProjectSlice();
+  const src = imageSrc ?? firstFramePath;
   const { processing, onUpdateActiveMask } = useDataSlice();
   const { masks, activeMaskIndex } = processing;
 
@@ -147,7 +152,7 @@ export const ImageCrossSections = () => {
         }}
       >
         <img
-          src={firstFramePath}
+          src={src}
           className="simple-image"
           draggable={false}
           onDragStart={handleDragStart}
@@ -158,7 +163,14 @@ export const ImageCrossSections = () => {
       <OverlaySvg width={imageWidth!} height={imageHeight!} scale={scale} position={position}>
         {(layers) => (
           <>
-            <DrawMask factor={factor!} layers={layers} scale={scale} onLivePoints={handleLivePoints} />
+            <DrawMask
+              factor={factor!}
+              layers={layers}
+              scale={scale}
+              imageWidth={imageWidth!}
+              imageHeight={imageHeight!}
+              onLivePoints={handleLivePoints}
+            />
 
             <DrawSectionsD3
               width={imageWidth!}

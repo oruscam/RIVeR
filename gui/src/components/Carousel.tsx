@@ -21,7 +21,7 @@ interface CarouselProps {
   showMedian?: boolean;
   setShowMedian?: (value: boolean) => void;
   canToggleMedian?: boolean;
-  mode: 'processing' | 'analize' | 'ipcam';
+  mode: 'processing' | 'analize' | 'ipcam' | 'select';
 }
 
 interface RowProps {
@@ -72,6 +72,10 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   const { activeStep } = useWizard();
 
+  // Only Processing pairs consecutive frames for PIV — every other mode is a plain single-frame browser.
+  const isPairMode = mode === 'analize';
+  const isSingleSelectMode = !isPairMode;
+
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setDefaultValue(event.currentTarget.value);
   };
@@ -80,7 +84,7 @@ export const Carousel: React.FC<CarouselProps> = ({
     let className = 'img-carousel';
     if (index === active && !showMedian) {
       className = 'img-carousel-active img-carousel';
-    } else if (index === active + 1 && !showMedian && mode !== 'ipcam') {
+    } else if (index === active + 1 && !showMedian && isPairMode) {
       className = 'img-carousel-second img-carousel';
     }
 
@@ -126,10 +130,10 @@ export const Carousel: React.FC<CarouselProps> = ({
   }, [screenSizes]);
 
   useEffect(() => {
-    if (mode === 'ipcam' && listRef.current) {
+    if (isSingleSelectMode && listRef.current) {
       listRef.current.scrollToItem(active, 'center');
     }
-  }, [active, mode]);
+  }, [active, isSingleSelectMode]);
 
   return (
     <div ref={containerRef} className={`carousel-container mt-1 ${isBackendWorking ? 'disabled' : ''}`}>
@@ -143,6 +147,17 @@ export const Carousel: React.FC<CarouselProps> = ({
           >
             {' '}
             {t('Processing.carouselMedia')}{' '}
+          </button>
+        )}
+        {/* Pixel Size reuses the same showMedian/setShowMedian/canToggleMedian wiring to
+            toggle the stabilization sanity-check image instead of a median composite. */}
+        {activeStep === MODULE_NUMBER.PIXEL_SIZE && canToggleMedian && (
+          <button
+            className={`wizard-button ${showMedian ? 'wizard-button-active' : ''}`}
+            onClick={() => setShowMedian!(!showMedian)}
+          >
+            {' '}
+            {t('PixelSize.carouselStabilization')}{' '}
           </button>
         )}
         <div>

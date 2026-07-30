@@ -111,12 +111,24 @@ const dataSlice = createSlice({
     },
     deleteMask: (state, action: PayloadAction<number>) => {
       if (state.processing.masks) {
-        state.processing.masks.splice(action.payload, 1);
-        state.processing.activeMaskIndex = state.processing.masks.length > 0 ? 0 : null;
+        const deletedIndex = action.payload;
+        state.processing.masks.splice(deletedIndex, 1);
+
+        // Only clear/shift the active mask if it's the one that got deleted or
+        // sits after it — never force-select a different mask (e.g. index 0)
+        // when nothing was being edited, or when editing a mask untouched by
+        // this deletion.
+        const current = state.processing.activeMaskIndex;
+        if (current === deletedIndex) {
+          state.processing.activeMaskIndex = null;
+        } else if (current !== null && current > deletedIndex) {
+          state.processing.activeMaskIndex = current - 1;
+        }
+
         // Rebuild visible indices: remove deleted, shift down higher indices
         state.processing.visibleMaskIndices = state.processing.visibleMaskIndices
-          .filter((i) => i !== action.payload)
-          .map((i) => (i > action.payload ? i - 1 : i));
+          .filter((i) => i !== deletedIndex)
+          .map((i) => (i > deletedIndex ? i - 1 : i));
       }
     },
     updateMask: (state, action: PayloadAction<{ index: number; points?: Point[] } | null>) => {

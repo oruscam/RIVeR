@@ -68,13 +68,21 @@
     },
     "framesResolution": "Resolução dos quadros",
     "lensCorrection": "Correção de lente",
-    "noProfiles": "Sem perfis — ir para Calibração"
+    "noProfiles": "Sem perfis — ir para Calibração",
+    "stabilizeVideo": "Estabilizar vídeo",
+    "stabilizationRegion": "Região",
+    "editingRegion": "Editando região {{n}}",
+    "addRegion": "Adicionar região",
+    "exitRegionMode": "Sair da edição de região",
+    "minRegionsWarning": "Adicione pelo menos 2 regiões para a estabilização",
+    "editingRegionsWarning": "Editando as regiões de estabilização"
   },
   "PixelSize": {
     "title": "Tamanho do Pixel",
     "lineLength": "Comprimento da linha",
     "pixelSize": "Tamanho do Pixel",
     "drawLine": "Desenhar Linha",
+    "carouselStabilization": "Estabilização",
     "Errors": {
       "required": "Todos os campos são obrigatórios. Verifique o formulário de Tamanho do Pixel.",
       "lineLength": "Comprimento da linha inválido: deve ser um número positivo, podendo incluir decimais. Insira um valor válido.",
@@ -135,6 +143,7 @@
     "warningTitle": "Excluir Seção",
     "mask": "Máscara",
     "addMask": "Adicionar Máscara",
+    "editingMaskWarning": "Editando a máscara {{n}}",
     "bankRight": "D",
     "bankLeft": "E"
   },
@@ -283,6 +292,7 @@
     "invalidDistancesNotValidValue": "Formato das distâncias inválido. Alguns valores não são números válidos",
     "invalidDistancesNegativeValue": "Formato das distâncias inválido. Distâncias negativas não são permitidas",
     "invalidBathimetryFileFormat": "Formato de arquivo de batimetria inválido",
+    "bathimetryOutOfZRange": "Os níveis da batimetria estão muito distantes do intervalo Z dos pontos de controle. Verifique o arquivo ou as unidades.",
     "invalidImageExtension": "A pasta contém arquivos que não são imagens",
     "imagesFolderEmpty": "Nenhuma imagem encontrada na pasta selecionada",
     "waitingForFrames": "Aguardando o carregamento dos quadros. Tente novamente em alguns segundos",
@@ -293,6 +303,7 @@
   },
   "Loader": {
     "extractingFrames": "Extraindo Quadros do Vídeo",
+    "stabilizingFrames": "Estabilizando Quadros do Vídeo",
     "results": "Gerando estatísticas do perfil de velocidade",
     "videoConversion": "Convertendo o vídeo para o formato mp4. Aguarde um momento.",
     "maskAndRoi": "Definindo ROI e máscaras"

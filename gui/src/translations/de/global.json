@@ -68,13 +68,21 @@
     },
     "framesResolution": "Auflösung der Frames",
     "lensCorrection": "Linsenkorrektur",
-    "noProfiles": "Keine Profile — zur Kalibrierung"
+    "noProfiles": "Keine Profile — zur Kalibrierung",
+    "stabilizeVideo": "Video stabilisieren",
+    "stabilizationRegion": "Bereich",
+    "editingRegion": "Bereich {{n}} bearbeiten",
+    "addRegion": "Bereich hinzufügen",
+    "exitRegionMode": "Bearbeitung beenden",
+    "minRegionsWarning": "Mindestens 2 Bereiche für die Stabilisierung hinzufügen",
+    "editingRegionsWarning": "Stabilisierungsbereiche werden bearbeitet"
   },
   "PixelSize": {
     "title": "Pixelgröße",
     "lineLength": "Linienlänge",
     "pixelSize": "Pixelgröße",
     "drawLine": "Linie zeichnen",
+    "carouselStabilization": "Stabilisierung",
     "Errors": {
       "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für die Pixelgröße.",
       "lineLength": "Ungültige Linienlänge: Die Länge muss eine positive Zahl sein und kann Dezimalstellen enthalten. Bitte geben Sie einen gültigen Wert ein.",
@@ -135,6 +143,7 @@
     "warningTitle": "Abschnitt löschen",
     "mask": "Maske",
     "addMask": "Maske hinzufügen",
+    "editingMaskWarning": "Maske {{n}} wird bearbeitet",
     "bankRight": "R",
     "bankLeft": "L"
   },
@@ -283,6 +292,7 @@
     "invalidDistancesNotValidValue": "Ungültiges Distanzformat. Einige Werte sind keine gültigen Zahlen",
     "invalidDistancesNegativeValue": "Ungültiges Distanzformat. Negative Distanzen sind nicht erlaubt",
     "invalidBathimetryFileFormat": "Ungültiges Bathymetrie-Dateiformat",
+    "bathimetryOutOfZRange": "Die Tiefenwerte liegen weit außerhalb des Z-Bereichs der Passpunkte. Prüfen Sie die Datei oder die Einheiten.",
     "invalidImageExtension": "Der Ordner enthält keine Bilddateien",
     "imagesFolderEmpty": "Keine Bilder im ausgewählten Ordner gefunden",
     "waitingForFrames": " Warten auf das Laden der Frames. Bitte versuchen Sie es in wenigen Sekunden erneut",
@@ -293,6 +303,7 @@
   },
   "Loader": {
     "extractingFrames": "Videoframes extrahieren",
+    "stabilizingFrames": "Videoframes werden stabilisiert",
     "results": "Erzeuge Geschwindigkeitsprofil-Statistiken",
     "videoConversion": "Das Video wird in das mp4-Format konvertiert. Bitte warten.",
     "maskAndRoi": "ROI und Masken definieren"

@@ -23,14 +23,33 @@ export const DrawOblique = ({
 }) => {
   const { interactiveLayerRef, uiLayerRef, svgRef } = layers;
 
-  const { coordinates, isDefaultCoordinates, drawPoints, onChangeCoordinates, onSetCoordinatesCanvas } =
-    useObliqueSlice();
+  const {
+    coordinates,
+    isDefaultCoordinates,
+    drawPoints,
+    onChangeCoordinates,
+    onSetCoordinatesCanvas,
+    onSetIsDraggingPoint,
+  } = useObliqueSlice();
   const { screenSizes, theme } = useUiSlice();
 
   const [localPoints, setLocalPoints] = useState<Point[]>(
     coordinates.map((point) => ({ x: point.x / factor, y: point.y / factor }))
   );
   const [mousePressed, setMousePressed] = useState(false);
+
+  // Mirror the drag state into Redux so other parts of the page (e.g. the
+  // focus overlay on the form panel) can react to it, whether the drag is
+  // the initial rectangle placement or a later single-corner adjustment.
+  useEffect(() => {
+    onSetIsDraggingPoint(mousePressed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mousePressed]);
+
+  useEffect(() => {
+    return () => onSetIsDraggingPoint(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!interactiveLayerRef.current) return;
