@@ -76,7 +76,10 @@ export const AllInOne = ({
       const ticks = generateXAxisTicks(x1Intersection!, x2Intersection!, bathWidth!);
       const displayFactor = unitSistem === 'imperial' ? UNIT_CONVERSIONS.M_TO_FT : 1;
 
-      const xAxis = d3.axisBottom(xScale).tickValues(ticks).tickFormat((d) => ((d as number) * displayFactor).toFixed(1));
+      const xAxis = d3
+        .axisBottom(xScale)
+        .tickValues(ticks)
+        .tickFormat((d) => ((d as number) * displayFactor).toFixed(1));
 
       // Append xAxis
 
@@ -146,7 +149,24 @@ export const AllInOne = ({
         unitSistem,
       });
     }
-  }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check, theme, unitSistem, language]);
+    // onChangeDataValues is recreated every render but only ever changes together with `data`
+    // (already tracked); adding it directly would redraw this chart on every unrelated re-render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    activeSection,
+    data,
+    index,
+    screenWidth,
+    theme,
+    unitSistem,
+    language,
+    isReport,
+    level,
+    x1Intersection,
+    x2Intersection,
+    bathWidth,
+    bathimetry.line,
+  ]);
 
   return (
     <svg

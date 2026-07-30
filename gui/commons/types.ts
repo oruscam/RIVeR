@@ -27,6 +27,7 @@ interface Quiver {
   u_median?: number[];
   v_median?: number[];
   test: boolean;
+  testFrameIndex?: number;
 }
 
 interface Section {
@@ -35,11 +36,4 @@ interface Section {
   sectionPoints: Point[];
 }
 
-export type {
-  QuiverData,
-  QuiverValuesResult,
-  Point,
-  Quiver,
-  Section
-};
-
+export type { QuiverData, QuiverValuesResult, Point, Quiver, Section };

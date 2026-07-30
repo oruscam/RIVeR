@@ -1,6 +1,11 @@
 import { useEffect, useRef, useState, useCallback, useMemo, memo, FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { LuCheckCircle } from 'react-icons/lu';
 import { useCalibrationSlice, useResizableCarousel } from '../hooks';
+import { Icon, Loading, SuccessBanner } from '../components';
+import { CalibrationHistogram } from '../components/Graphs';
+import { DropHereText } from '../components/Forms/Components';
+import { back, play } from '../assets/icons/icons';
 
 interface ThumbProps {
   img: string;
@@ -155,7 +160,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     heatmapBase64,
     undistortedPaths,
     perFrameCorners,
-    progressMsg,
+    progressPercentage,
+    progressTime,
     errorMsg,
     onOpenFolder,
     onDropFolder,
@@ -179,9 +185,9 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
   const { height: thumbHeight, onDragHandleMouseDown: onCalResizeDrag } = useResizableCarousel({
     storageKey: 'river-cal-carousel-height',
-    defaultHeight: 42,
-    minHeight: 28,
-    maxHeight: 120,
+    defaultHeight: 90,
+    minHeight: 50,
+    maxHeight: 220,
     onDragProgress: (h) => {
       const w = Math.round(h * (56 / 42));
       calCarouselRef.current?.style.setProperty('--thumb-height', `${h}px`);
@@ -189,6 +195,13 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     },
   });
   const thumbWidth = Math.round(thumbHeight * (56 / 42));
+
+  const scrollCalCarousel = useCallback((direction: 'backward' | 'forward') => {
+    const el = calCarouselRef.current;
+    if (!el) return;
+    const amount = el.clientWidth * 0.8 * (direction === 'backward' ? -1 : 1);
+    el.scrollBy({ left: amount, behavior: 'smooth' });
+  }, []);
 
   // O(1) membership check instead of O(n) Array.includes on every thumb.
   const usedSet = useMemo(() => new Set(usedImages), [usedImages]);
@@ -349,10 +362,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   };
 
   const capitalize = (s: string) => (s ? s.charAt(0).toUpperCase() + s.slice(1) : '');
-  const maxCsvCount = useMemo(
-    () => (csvRows.length > 0 ? Math.max(...csvRows.map((r) => r.count)) : 1),
-    [csvRows]
-  );
+  const remainingTimeLabel = t('Analizing.remainingTime');
 
   const rightPanel = useMemo(
     () => (
@@ -369,33 +379,25 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
         <h1 className="cal-panel-title">{t('Calibration.title')}</h1>
 
         <div className="cal-actions">
-          <div className="cal-actions-row">
-            <button
-              className="button-1 cal-action-btn"
-              onClick={() => onOpenBoard()}
-              disabled={status === 'solving'}
-            >
-              {t('Calibration.board')}
-            </button>
-            <button className="button-1 cal-action-btn" onClick={onOpenFolder} disabled={status === 'solving'}>
-              {t('Calibration.import')}
-            </button>
-          </div>
-          <button
-            className="button-1 cal-action-btn"
-            onClick={onSolve}
-            disabled={status === 'solving' || images.length === 0}
-          >
+          <button className="button-1" onClick={() => onOpenBoard()} disabled={status === 'solving'}>
+            {t('Calibration.board')}
+          </button>
+          <button className="button-1" onClick={onOpenFolder} disabled={status === 'solving'}>
+            {t('Calibration.import')}
+          </button>
+          <button className="button-1" onClick={onSolve} disabled={status === 'solving' || images.length === 0}>
             {t('Calibration.solve')}
           </button>
         </div>
 
         {status === 'solving' && (
           <div className="cal-solving-loader">
-            <div className="loader-wrapper-big">
-              <div className="loader-big" />
-            </div>
-            {progressMsg && <p className="cal-progress-text">{progressMsg}</p>}
+            <Loading
+              percentage={progressPercentage}
+              time={progressTime ? `${remainingTimeLabel}${progressTime}` : ''}
+              size="big"
+              isComplete={progressPercentage === '100%'}
+            />
           </div>
         )}
 
@@ -440,87 +442,61 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
               </ul>
             )}
 
-            <hr className="cal-divider" />
-
             {csvRows.length > 0 && (
               <div className="cal-histogram">
-                <p className="cal-section-label">{t('Calibration.histogram')}</p>
-                <div className="cal-histogram-wrapper">
-                  <div className="cal-histogram-yaxis">
-                    <span className="cal-yaxis-label">Count</span>
-                  </div>
-                  <div className="cal-histogram-inner">
-                    <div className="cal-histogram-chart">
-                      {csvRows.map((row, i) => (
-                        <div key={i} className="cal-bar-col">
-                          <div
-                            className="cal-bar"
-                            style={{ height: `${(row.count / maxCsvCount) * 100}%` }}
-                            title={`${row.bin_center_px.toFixed(3)} px: ${row.count}`}
-                          />
-                          {i % 4 === 0 && <span className="cal-bar-label">{row.bin_center_px.toFixed(2)}</span>}
-                        </div>
-                      ))}
-                    </div>
-                    <div className="cal-histogram-axes">
-                      <span>{t('Calibration.histogramX')}</span>
-                    </div>
-                  </div>
-                </div>
+                <CalibrationHistogram rows={csvRows} />
               </div>
             )}
           </div>
         )}
 
-        {status === 'idle' && images.length > 0 && (
-          <p className="cal-ready-hint">{t('Calibration.readyToSolve')}</p>
-        )}
-        {status === 'idle' && images.length === 0 && (
-          <p className="cal-ready-hint">{t('Calibration.emptyHint')}</p>
+        {images.length === 0 && (
+          <DropHereText text={`${t('Calibration.dropZone')} ${t('Calibration.dropHint')}`} show={true} />
         )}
 
         {status === 'solved' && (
-          <>
-            <hr className="cal-divider" />
-            <div className="cal-save-section">
-              <div className="cal-combo">
-                <input
-                  className="input-field-oblique"
-                  type="text"
-                  value={cameraName}
-                  onChange={(e) => {
-                    setCameraName(e.target.value);
-                    setComboOpen(true);
-                  }}
-                  onFocus={() => setComboOpen(true)}
-                  onBlur={() => setTimeout(() => setComboOpen(false), 150)}
-                  placeholder={t('Calibration.cameraName')}
-                />
-                {comboOpen && cameraSuggestions.length > 0 && (
-                  <ul className="cal-combo-list">
-                    {cameraSuggestions.map((c) => (
-                      <li
-                        key={c}
-                        onMouseDown={() => {
-                          setCameraName(c);
-                          setComboOpen(false);
-                        }}
-                      >
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
+          <div className="cal-save-section">
+            <div className="simple-input-container cal-combo">
+              <label>{t('Calibration.cameraName')}</label>
               <input
-                className="input-field-oblique mt-1"
+                type="text"
+                value={cameraName}
+                onChange={(e) => {
+                  setCameraName(e.target.value);
+                  setComboOpen(true);
+                }}
+                onFocus={() => setComboOpen(true)}
+                onBlur={() => setTimeout(() => setComboOpen(false), 150)}
+                placeholder={t('Calibration.cameraName')}
+              />
+              {comboOpen && cameraSuggestions.length > 0 && (
+                <ul className="cal-combo-list">
+                  {cameraSuggestions.map((c) => (
+                    <li
+                      key={c}
+                      onMouseDown={() => {
+                        setCameraName(c);
+                        setComboOpen(false);
+                      }}
+                    >
+                      {c}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+            <div className="simple-input-container">
+              <label>{t('Calibration.lensName')}</label>
+              <input
                 type="text"
                 value={lensName}
                 onChange={(e) => setLensName(e.target.value)}
                 placeholder={t('Calibration.lensName')}
               />
+            </div>
+            <div className="simple-input-container">
+              <label>{t('Calibration.resolution')}</label>
               <input
-                className="input-field-oblique mt-1"
                 type="text"
                 value={imageResolution ? `${imageResolution.width} × ${imageResolution.height} px` : ''}
                 readOnly
@@ -528,17 +504,16 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                 placeholder={t('Calibration.resolution')}
                 style={{ background: 'var(--input-background-disabled)', cursor: 'default' }}
               />
-              {savedPath && (
-                <div className="cal-save-confirm-box">
-                  <span className="cal-confirm-title">✓ {t('Calibration.savedTo')}</span>
-                  <button className="cal-confirm-link" onClick={() => onRevealPath(savedPath)}>
-                    {savedPath}
-                  </button>
-                </div>
-              )}
-              {saveError && <p className="cal-error-chip">{saveError}</p>}
             </div>
-          </>
+            {savedPath && (
+              <SuccessBanner compact icon={LuCheckCircle} title={t('Calibration.savedTo')}>
+                <button className="success-banner-link" onClick={() => onRevealPath(savedPath)}>
+                  {savedPath}
+                </button>
+              </SuccessBanner>
+            )}
+            {saveError && <p className="cal-error-chip">{saveError}</p>}
+          </div>
         )}
 
         <div className="cal-back-section">
@@ -571,8 +546,9 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       status,
       summary,
       csvRows,
-      maxCsvCount,
-      progressMsg,
+      progressPercentage,
+      progressTime,
+      remainingTimeLabel,
       errorMsg,
       cameraName,
       lensName,
@@ -582,14 +558,14 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       cameraSuggestions,
       comboOpen,
       images.length,
+      dragOver,
+      handleDrop,
       onOpenBoard,
       onOpenFolder,
       onSolve,
       onSaveProfile,
       onRevealPath,
       onClose,
-      dragOver,
-      handleDrop,
       t,
     ]
   );
@@ -602,52 +578,65 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
           {/* Canvas */}
           <div className="cal-canvas">{images.length > 0 && getCanvasContent()}</div>
 
-          {/* View controls */}
-          {status === 'solved' && (
-            <div className="cal-view-controls">
-              <button
-                className={`button-1 cal-view-btn${viewMode !== 'heatmap' ? ' cal-view-btn--active' : ''}`}
-                onClick={() => setViewMode(viewMode === 'overlay' ? 'undistorted' : 'overlay')}
-              >
-                {viewMode === 'undistorted' ? t('Calibration.undistorted') : t('Calibration.overlay')}
-              </button>
-              {heatmapBase64 && (
-                <button
-                  className={`button-1 cal-view-btn${viewMode === 'heatmap' ? ' cal-view-btn--active' : ''}`}
-                  onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
-                >
-                  {t('Calibration.heatmap')}
-                </button>
-              )}
-            </div>
-          )}
-
-          {/* Carousel */}
+          {/* Carousel (resize handle, then view controls, then thumbnails — matching the
+              real Carousel component's resize-handle → carousel-info → thumbnail-list order) */}
           {images.length > 0 && (
             <>
               <div className="cal-resize-handle" onMouseDown={onCalResizeDrag} />
-              <div
-                ref={calCarouselRef}
-                className="cal-carousel"
-                style={
-                  {
-                    '--thumb-height': `${thumbHeight}px`,
-                    '--thumb-width': `${thumbWidth}px`,
-                  } as React.CSSProperties
-                }
-              >
-                {images.map((img, idx) => (
-                  <CalThumb
-                    key={img}
-                    img={img}
-                    thumbSrc={thumbs[idx] ?? img}
-                    idx={idx}
-                    active={idx === selectedIdx}
-                    unused={status === 'solved' && !usedSet.has(img)}
-                    notUsedLabel={t('Calibration.notUsed')}
-                    onSelect={setSelectedIdx}
-                  />
-                ))}
+
+              {status === 'solved' && (
+                <div className="cal-view-controls">
+                  <button
+                    className={`wizard-button${viewMode !== 'heatmap' ? ' wizard-button-active' : ''}`}
+                    onClick={() => setViewMode(viewMode === 'overlay' ? 'undistorted' : 'overlay')}
+                  >
+                    {viewMode === 'undistorted' ? t('Calibration.undistorted') : t('Calibration.overlay')}
+                  </button>
+                  {heatmapBase64 && (
+                    <button
+                      className={`wizard-button${viewMode === 'heatmap' ? ' wizard-button-active' : ''}`}
+                      onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
+                    >
+                      {t('Calibration.heatmap')}
+                    </button>
+                  )}
+                  <div className="cal-carousel-counter">
+                    <span>{selectedIdx + 1}</span>
+                    <p> / {images.length}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="cal-carousel-row">
+                <button className="video-button" onClick={() => scrollCalCarousel('backward')}>
+                  <Icon path={back} />
+                </button>
+                <div
+                  ref={calCarouselRef}
+                  className="cal-carousel"
+                  style={
+                    {
+                      '--thumb-height': `${thumbHeight}px`,
+                      '--thumb-width': `${thumbWidth}px`,
+                    } as React.CSSProperties
+                  }
+                >
+                  {images.map((img, idx) => (
+                    <CalThumb
+                      key={img}
+                      img={img}
+                      thumbSrc={thumbs[idx] ?? img}
+                      idx={idx}
+                      active={idx === selectedIdx}
+                      unused={status === 'solved' && !usedSet.has(img)}
+                      notUsedLabel={t('Calibration.notUsed')}
+                      onSelect={setSelectedIdx}
+                    />
+                  ))}
+                </div>
+                <button className="video-button" onClick={() => scrollCalCarousel('forward')}>
+                  <Icon path={play} />
+                </button>
               </div>
             </>
           )}

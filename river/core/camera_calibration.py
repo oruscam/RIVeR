@@ -38,6 +38,7 @@ from typing import Dict, List, Optional, Tuple
 
 import cv2 as cv
 import numpy as np
+from tqdm import tqdm
 
 
 # ---------------- helpers ----------------
@@ -162,7 +163,7 @@ class RiverCalibrator:
 		records: List[FrameRecord] = []
 		image_size = None
 
-		for p in sorted(image_paths):
+		for p in tqdm(sorted(image_paths), desc="Detecting calibration corners"):
 			img = cv.imread(p, cv.IMREAD_COLOR)
 			if img is None:
 				continue
@@ -435,7 +436,7 @@ def _evaluate_quality(summary: Dict, K: np.ndarray, image_size: Tuple[int, int])
 	g = {}
 	g["median_rms"]	= _grade(median_rms, thr_good=1.0, thr_fair=1.5, invert=False)
 	g["p90_rms"]	   = _grade(p90_rms,	thr_good=1.4, thr_fair=1.8, invert=False)
-	g["coverage"]	  = _grade(cov_pct,	thr_good=60.0, thr_fair=45.0, invert=True)
+	g["coverage"]	  = _grade(cov_pct,	thr_good=60.0, thr_fair=20.0, invert=True)
 	g["pose_spread"]   = _grade(pose_med_deg, thr_good=22.0, thr_fair=12.0, invert=True)
 	g["edge_reach"]	= _grade(edge_med,   thr_good=0.80, thr_fair=0.65, invert=True)
 	g["center_offset"] = _grade(center_off, thr_good=7.0, thr_fair=12.0, invert=False)

@@ -151,6 +151,13 @@ export interface ProjectConfig {
   pythonPath: string;
 }
 
+export type RiverCli = (
+  options: (string | number)[],
+  mode?: 'json' | 'text',
+  output?: boolean | string,
+  logFile?: string
+) => Promise<{ data: any; error: any }>;
+
 interface Point {
   x: number;
   y: number;

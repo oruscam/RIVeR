@@ -66,6 +66,4 @@ async function getDistances() {
   });
 }
 
-
-
 export { getDistances };

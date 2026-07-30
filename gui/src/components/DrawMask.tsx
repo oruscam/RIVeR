@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import * as d3 from "d3";
+import { useEffect, useRef, useState } from 'react';
+import * as d3 from 'd3';
 import { useTranslation } from 'react-i18next';
-import { useDataSlice } from "../hooks";
-import { drawMask, drawMaskLabel } from "./Graphs/drawMask";
-import type { OverlayLayers } from "./OverlaySvg";
+import { useDataSlice } from '../hooks';
+import { drawMask, drawMaskLabel } from './Graphs/drawMask';
+import type { OverlayLayers } from './OverlaySvg';
 
 export const DrawMask = ({
   factor,
@@ -70,20 +70,14 @@ export const DrawMask = ({
     if (!svgRef.current) return;
     const svgSel = d3.select(svgRef.current);
     if (svgSel.select('#dashFill').empty()) {
-      const defs = svgSel.select('defs').empty()
-        ? svgSel.insert('defs', ':first-child')
-        : svgSel.select('defs');
+      const defs = svgSel.select('defs').empty() ? svgSel.insert('defs', ':first-child') : svgSel.select('defs');
       const pattern = defs
         .append('pattern')
         .attr('id', 'dashFill')
         .attr('patternUnits', 'userSpaceOnUse')
         .attr('width', 10)
         .attr('height', 10);
-      pattern
-        .append('path')
-        .attr('d', 'M0 10 L10 0')
-        .attr('stroke', '#ED6B57')
-        .attr('stroke-width', 1);
+      pattern.append('path').attr('d', 'M0 10 L10 0').attr('stroke', '#ED6B57').attr('stroke-width', 1);
     }
   }, [svgRef, masks]);
 
@@ -111,16 +105,32 @@ export const DrawMask = ({
       `${t('CrossSections.mask', { defaultValue: 'Mask' })} ${activeMaskIndex + 1}`,
       { width: imageWidth, height: imageHeight }
     );
-  }, [points, maskLayerRef, overlayZoomRef, svgRef, scale, activeMaskIndex, t, imageWidth, imageHeight]);
+    // addPoint/transformToViewport/transformToImage are recreated every render but only ever
+    // change together with `points`/`factor` (already tracked); adding them directly would
+    // re-run this effect (and reset the D3 drag handlers) on every unrelated parent re-render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    points,
+    maskLayerRef,
+    overlayZoomRef,
+    svgRef,
+    scale,
+    activeMaskIndex,
+    t,
+    imageWidth,
+    imageHeight,
+    masks.length,
+  ]);
 
   // Toggle .mask-mode-active on the SVG root so the CSS rule with !important
   // can suppress pointer-events on the CS pin icons (which have pointer-events="all"
   // as SVG presentation attributes that D3's .style() on a parent group cannot override)
   useEffect(() => {
-    if (!svgRef.current) return;
-    svgRef.current.classList.toggle('mask-mode-active', activeMaskIndex !== null);
+    const svgNode = svgRef.current;
+    if (!svgNode) return;
+    svgNode.classList.toggle('mask-mode-active', activeMaskIndex !== null);
     return () => {
-      svgRef.current?.classList.remove('mask-mode-active');
+      svgNode.classList.remove('mask-mode-active');
     };
   }, [activeMaskIndex, svgRef]);
 
@@ -142,7 +152,7 @@ export const DrawMask = ({
       layer
         .append('polygon')
         .attr('points', pts)
-        .attr('fill', 'url(#dashFill)')  // pattern defined on svgRef root — always available
+        .attr('fill', 'url(#dashFill)') // pattern defined on svgRef root — always available
         .attr('stroke', '#ED6B57')
         .attr('stroke-width', 1.5)
         .attr('opacity', 0.75)
@@ -245,13 +255,15 @@ export const DrawMask = ({
       setDragStartZoom(null);
     };
 
-    svgSel.on("mousemove.mask", onMouseMove);
-    svgSel.on("mouseup.mask", onMouseUp);
-    svgSel.on("mouseleave.mask", onMouseUp);
+    svgSel.on('mousemove.mask', onMouseMove);
+    svgSel.on('mouseup.mask', onMouseUp);
+    svgSel.on('mouseleave.mask', onMouseUp);
 
     return () => {
-      svgSel.on(".mask", null);
+      svgSel.on('.mask', null);
     };
+    // transformToImage is recreated every render but only ever changes with `factor` (already tracked)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     svgRef,
     overlayZoomRef,
@@ -265,7 +277,7 @@ export const DrawMask = ({
     nativeWidth,
     nativeHeight,
     activeMaskIndex,
-    onUpdateMaskPoints
+    onUpdateMaskPoints,
   ]);
 
   return null;

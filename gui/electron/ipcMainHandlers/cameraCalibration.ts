@@ -194,12 +194,18 @@ img{max-width:100%;max-height:100%;object-fit:contain}
         .map((f) => path.join(undistortedDir, f));
     }
 
-    const perFrameCorners =
-      (summary as Record<string, unknown>)?.per_frame_corners as
-        | { detected: number[][]; projected: number[][]; rms: number }[]
-        | undefined;
+    const perFrameCorners = (summary as Record<string, unknown>)?.per_frame_corners as
+      | { detected: number[][]; projected: number[][]; rms: number }[]
+      | undefined;
 
-    return { summary, csvRows, heatmapBase64, overlayPaths, undistortedPaths, perFrameCorners: perFrameCorners ?? [] };
+    return {
+      summary,
+      csvRows,
+      heatmapBase64,
+      overlayPaths,
+      undistortedPaths,
+      perFrameCorners: perFrameCorners ?? [],
+    };
   });
 
   // Scan a directory for image files (jpg, jpeg, png) and generate small thumbnails.

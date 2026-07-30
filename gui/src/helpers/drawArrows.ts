@@ -1,7 +1,6 @@
-import { transformRealWorldToPixel } from "../../commons/coordinates";
-import { createColorMap, interpolate, Normalize } from "../../commons/vectors";
-import { Section } from "../store/section/types";
-
+import { transformRealWorldToPixel } from '../../commons/coordinates';
+import { createColorMap, interpolate, Normalize } from '../../commons/vectors';
+import { Section } from '../store/section/types';
 
 /**
  * Calculates the width of an arrow based on the differences between consecutive distances.
@@ -482,7 +481,7 @@ const calculateMultipleArrowsAdaptative = (
 };
 
 /**
- * Get global maximum and minimum magnitudes across all sections. 
+ * Get global maximum and minimum magnitudes across all sections.
  */
 const getGlobalMagnitudes = (sections: any) => {
   let max = 0;
@@ -516,7 +515,7 @@ const getGlobalMagnitudes = (sections: any) => {
 const getVelocityLimits = (sections: Section[], active: number) => {
   let max = 0;
   let min = 0;
-  
+
   if (sections.length === 0) {
     return { max, min };
   }
@@ -533,8 +532,14 @@ const getVelocityLimits = (sections: Section[], active: number) => {
   const filteredMagnitude = activeMagnitude.filter((value: number) => value !== null && !isNaN(value as number));
   max = Math.max(max, ...filteredMagnitude);
   min = Math.min(min, ...filteredMagnitude);
-  
+
   return { max, min };
 };
 
-export { calculateArrowWidth, calculateMultipleArrows, calculateMultipleArrowsAdaptative, getGlobalMagnitudes, getVelocityLimits};
+export {
+  calculateArrowWidth,
+  calculateMultipleArrows,
+  calculateMultipleArrowsAdaptative,
+  getGlobalMagnitudes,
+  getVelocityLimits,
+};

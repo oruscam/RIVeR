@@ -11,6 +11,7 @@ import { Progress } from './Progress';
 import { Carousel } from './Carousel';
 import { Grid } from './Grid';
 import { Results } from './Results';
+import { SuccessBanner } from './SuccessBanner';
 import { IpcamGrid } from './IpcamGrid';
 import { VersionMessage } from './VersionMessage';
 import { Clipboard } from './Clipboard';
@@ -48,6 +49,7 @@ export {
   Loading,
   Progress,
   Results,
+  SuccessBanner,
   ThemeToggle,
   VersionMessage,
   Warning,

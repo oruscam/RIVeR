@@ -41,8 +41,7 @@ export default defineConfig({
         },
       },
       // Renderer stay default (no node native here)
-      renderer:
-        process.env.NODE_ENV === 'test' ? undefined : {},
+      renderer: process.env.NODE_ENV === 'test' ? undefined : {},
     }),
   ],
   // Evita que Vite pre-bundlee canvas en dev (esbuild prebundle)

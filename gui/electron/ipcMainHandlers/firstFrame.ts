@@ -1,10 +1,10 @@
 import { ipcMain, BrowserWindow } from 'electron';
-import { FirstFrameArgs } from './interfaces';
+import { FirstFrameArgs, RiverCli } from './interfaces';
 import * as fs from 'fs';
 import path from 'path';
 import { PROJECT_CONFIG } from '../main';
 
-function firstFrame(riverCli: Function) {
+function firstFrame(riverCli: RiverCli) {
   const mainWindow = BrowserWindow.getAllWindows()[0];
 
   ipcMain.handle('first-frame', async (_event, args: FirstFrameArgs) => {
@@ -48,7 +48,11 @@ function firstFrame(riverCli: Function) {
         center: [r.x + r.width / 2, r.y + r.height / 2],
         win_size: [r.width, r.height],
       }));
-      await fs.promises.writeFile(stabilizationRegionsPath, JSON.stringify({ regions: backendRegions }, null, 2), 'utf-8');
+      await fs.promises.writeFile(
+        stabilizationRegionsPath,
+        JSON.stringify({ regions: backendRegions }, null, 2),
+        'utf-8'
+      );
       options.push('--stabilize', '--stabilization-regions', stabilizationRegionsPath, '--replace');
     }
 

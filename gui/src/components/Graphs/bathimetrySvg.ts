@@ -91,7 +91,8 @@ export const bathimetrySvg = ({
       .attr('transform', 'rotate(-90)')
       .attr('font-size', '22px');
     stageLabelAllInOne.append('tspan').text(t('Graphs.stage'));
-    stageLabelAllInOne.append('tspan')
+    stageLabelAllInOne
+      .append('tspan')
       .attr('font-size', '14px')
       .attr('opacity', '0.7')
       .attr('dx', '12')
@@ -118,7 +119,8 @@ export const bathimetrySvg = ({
       .attr('transform', 'rotate(-90)')
       .attr('font-size', '22px');
     stageLabelStandalone.append('tspan').text(t('Graphs.stage'));
-    stageLabelStandalone.append('tspan')
+    stageLabelStandalone
+      .append('tspan')
       .attr('font-size', '14px')
       .attr('opacity', '0.7')
       .attr('dx', '12')
@@ -187,7 +189,7 @@ export const bathimetrySvg = ({
     .area<{ x: number; y: number }>()
     .x((d) => xScale(d.x))
     .y0((d) => yScale(Math.min(d.y, level)))
-    .y1((_d) => yScale(level));
+    .y1(() => yScale(level));
 
   // Definir clip-path
   svg
@@ -201,7 +203,7 @@ export const bathimetrySvg = ({
   svg
     .append('path')
     .datum(clipPathData)
-    .attr('fill', '#6CD4FF28')  // subtle water-blue, replaces flat white
+    .attr('fill', '#6CD4FF28') // subtle water-blue, replaces flat white
     .attr('d', area)
     .attr('clip-path', `clip-bathimetry-${svgElement.id}`); // Aplicar clip-path
 
@@ -214,7 +216,8 @@ export const bathimetrySvg = ({
     .attr('y', height - 5)
     .attr('font-size', '22px');
   stationLabel.append('tspan').text(t('Graphs.station'));
-  stationLabel.append('tspan')
+  stationLabel
+    .append('tspan')
     .attr('font-size', '14px')
     .attr('opacity', '0.7')
     .attr('dx', '10')
