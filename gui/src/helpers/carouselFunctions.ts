@@ -15,7 +15,9 @@ const carouselClickImage = (
   setDefaultValue: (value: number) => void,
   mode: string
 ) => {
-  if (index !== (mode === 'ipcam' ? paths.length : paths.length - 1) && !isBackendWorking) {
+  // Only Processing ('analize') needs a trailing pair of frames for PIV, so it can't select the last frame alone.
+  const lastSelectableIndex = mode === 'analize' ? paths.length - 1 : paths.length;
+  if (index !== lastSelectableIndex && !isBackendWorking) {
     onSetActiveImage(index);
     setDefaultValue(index + 1);
     if (index > active) {
@@ -43,7 +45,8 @@ const carouselKeyDown = (
 ) => {
   if (event.key === 'Enter') {
     const value = parseInt(event.currentTarget.value);
-    if (value > 0 && value <= (mode === 'ipcam' ? paths.length : paths.length - 1)) {
+    const lastSelectableValue = mode === 'analize' ? paths.length - 1 : paths.length;
+    if (value > 0 && value <= lastSelectableValue) {
       onSetActiveImage(value - 1);
       setDefaultValue(value);
       listRef.scrollToItem(value - 1, 'center');

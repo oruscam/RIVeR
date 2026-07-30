@@ -82,6 +82,7 @@
     "lineLength": "Line Length",
     "pixelSize": "Pixel Size",
     "drawLine": "Draw Line",
+    "carouselStabilization": "Stabilization",
     "Errors": {
       "required": "All the fields are obligatory. Please check Pixel Size form.",
       "lineLength": "Invalid Line Length: The line length must be a positive number, which can include decimals. Please enter a valid value.",

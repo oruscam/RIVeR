@@ -82,6 +82,7 @@
     "lineLength": "线段长度",
     "pixelSize": "像素尺寸",
     "drawLine": "绘制线段",
+    "carouselStabilization": "稳定",
     "Errors": {
       "required": "所有字段均为必填项，请检查像素尺寸表单。",
       "lineLength": "线段长度无效：长度必须为正数（可含小数），请输入有效值。",

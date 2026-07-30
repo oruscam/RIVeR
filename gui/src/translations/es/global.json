@@ -82,6 +82,7 @@
     "lineLength": "Longitud de Línea",
     "pixelSize": "Tamaño de Píxel",
     "drawLine": "Dibujar Línea",
+    "carouselStabilization": "Estabilización",
     "Errors": {
       "required": "Todos los campos son obligatorios. Por favor consulte el formato de Tamaño de Píxel.",
       "lineLength": "Longitud de Línea inválida: la Longitud de Línea debe ser un número positivo, que puede incluir decimales. Ingrese un valor válido.",

@@ -82,6 +82,7 @@
     "lineLength": "線の長さ",
     "pixelSize": "ピクセルサイズ",
     "drawLine": "線を描く",
+    "carouselStabilization": "安定化",
     "Errors": {
       "required": "すべてのフィールドは必須です。ピクセルサイズフォームを確認してください。",
       "lineLength": "無効な線の長さ: 正の数（小数可）を入力してください。",

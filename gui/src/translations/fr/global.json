@@ -82,6 +82,7 @@
     "lineLength": "Longueur de Ligne",
     "pixelSize": "Taille de Pixel",
     "drawLine": "Tracer une Ligne",
+    "carouselStabilization": "Stabilisation",
     "Errors": {
       "required": "Tous les champs sont obligatoires. Veuillez vérifier la Taille de Pixel.",
       "lineLength": "Longueur de ligne invalide : La longueur de ligne doit être un nombre positif, qui peut inclure des décimales. Veuillez entrer une valeur valide.",

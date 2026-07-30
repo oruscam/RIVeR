@@ -82,6 +82,7 @@
     "lineLength": "Comprimento da linha",
     "pixelSize": "Tamanho do Pixel",
     "drawLine": "Desenhar Linha",
+    "carouselStabilization": "Estabilização",
     "Errors": {
       "required": "Todos os campos são obrigatórios. Verifique o formulário de Tamanho do Pixel.",
       "lineLength": "Comprimento da linha inválido: deve ser um número positivo, podendo incluir decimais. Insira um valor válido.",
