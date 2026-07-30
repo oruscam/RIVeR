@@ -68,13 +68,21 @@
     },
     "framesResolution": "Risoluzione dei fotogrammi",
     "lensCorrection": "Correzione obiettivo",
-    "noProfiles": "Nessun profilo — vai a Calibrazione"
+    "noProfiles": "Nessun profilo — vai a Calibrazione",
+    "stabilizeVideo": "Stabilizza video",
+    "stabilizationRegion": "Regione",
+    "editingRegion": "Modifica regione {{n}}",
+    "addRegion": "Aggiungi regione",
+    "exitRegionMode": "Esci dalla modifica regione",
+    "minRegionsWarning": "Aggiungere almeno 2 regioni per la stabilizzazione",
+    "editingRegionsWarning": "Modifica delle regioni di stabilizzazione"
   },
   "PixelSize": {
     "title": "Dimensione Pixel",
     "lineLength": "Lunghezza della linea",
     "pixelSize": "Dimensione Pixel",
     "drawLine": "Disegna Linea",
+    "carouselStabilization": "Stabilizzazione",
     "Errors": {
       "required": "Tutti i campi sono obbligatori. Controlla il modulo della Dimensione Pixel.",
       "lineLength": "Lunghezza della linea non valida: la lunghezza deve essere un numero positivo, anche con decimali. Inserisci un valore valido.",
@@ -135,6 +143,7 @@
     "warningTitle": "Elimina Sezione",
     "mask": "Maschera",
     "addMask": "Aggiungi Maschera",
+    "editingMaskWarning": "Modifica della maschera {{n}}",
     "bankRight": "D",
     "bankLeft": "S"
   },
@@ -283,6 +292,7 @@
     "invalidDistancesNotValidValue": "Formato delle Distanze dei Punti non valido. Alcuni valori non sono numeri validi",
     "invalidDistancesNegativeValue": "Formato delle Distanze dei Punti non valido. Distanze negative non sono ammesse",
     "invalidBathimetryFileFormat": "Formato del file Batimetria non valido",
+    "bathimetryOutOfZRange": "I livelli della batimetria sono molto al di fuori dell'intervallo Z dei punti di controllo. Controlla il file o le unità.",
     "invalidImageExtension": "La directory contiene file che non sono immagini",
     "imagesFolderEmpty": "Nessuna immagine trovata nella cartella selezionata",
     "waitingForFrames": "Stiamo caricando i fotogrammi. Riprova tra qualche secondo",
@@ -293,6 +303,7 @@
   },
   "Loader": {
     "extractingFrames": "Estrazione dei Fotogrammi del Video",
+    "stabilizingFrames": "Stabilizzazione dei Fotogrammi del Video",
     "results": "Generazione delle statistiche del profilo di velocità",
     "videoConversion": "Stiamo convertendo il video in formato mp4. Attendere un momento.",
     "maskAndRoi": "Definizione di ROI e maschere"

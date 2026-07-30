@@ -1,3 +1,11 @@
+"""
+File Name:   piv_loop.py
+Project:     RIVeR - Rectification of Image Velocity Results
+Description: Iterative PIV loop with window shifting and displacement field refinement.
+Authors:     Antoine Patalano
+Institution: ORUS / UNC
+License:     AGPL-3.0-or-later
+"""
 from pathlib import Path
 import numpy as np
 import river.core.image_preprocessing as impp

@@ -1,9 +1,9 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { Error, ImageOblique, WizardButtons } from '../components';
+import { Carousel, Error, FocusOverlay, ImageOblique, WizardButtons } from '../components';
 import { FormOblique } from '../components/Forms';
-import { useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers';
 import { Point } from '../types';
 import { FormHeader } from '../components/Forms/Components';
@@ -51,18 +51,39 @@ export const Oblique = () => {
     coordinates,
     rwCoordinates,
     extraFields,
+    drawPoints,
+    isDraggingPoint,
     onChangeExtraFields,
     onGetObliqueTransformationMatrix,
     onGetDistances,
     isDefaultCoordinates,
   } = useObliqueSlice();
   const { isBackendWorking } = useGlobalSlice();
-  const { projectDetails } = useProjectSlice();
+  const { projectDetails, projectDirectory, video } = useProjectSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { nextStep } = useWizard();
   const { t } = useTranslation();
+  const { images } = useDataSlice();
 
   const [dragOver, setDragOver] = useState<boolean>(false);
+  const [activeFrame, setActiveFrame] = useState<number>(0);
+  const [showStabilization, setShowStabilization] = useState<boolean>(false);
+
+  let filePrefix = import.meta.env.VITE_FILE_PREFIX;
+  filePrefix = filePrefix === undefined ? '' : filePrefix;
+
+  // sanity_check.jpg is overwritten in place on every re-extraction, so bust the cache
+  // whenever a fresh set of frames arrives.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const sanityCheckCacheBust = useMemo(() => Date.now(), [images.paths]);
+  const sanityCheckPath = `${filePrefix}${projectDirectory}/sanity_check.jpg?t=${sanityCheckCacheBust}`;
+  const canToggleStabilization = video.parameters.committedStabilization;
+
+  const activeImageSrc = showStabilization
+    ? sanityCheckPath
+    : images.paths.length > 0
+      ? images.paths[activeFrame]
+      : undefined;
 
   const methods = useForm({
     defaultValues: createDefaultState(distances, coordinates, rwCoordinates, projectDetails.unitSistem),
@@ -100,7 +121,18 @@ export const Oblique = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageOblique />
+        <ImageOblique imageSrc={activeImageSrc} />
+        {images.paths.length > 0 && (
+          <Carousel
+            images={images.paths}
+            active={activeFrame}
+            setActiveImage={setActiveFrame}
+            showMedian={showStabilization}
+            setShowMedian={setShowStabilization}
+            canToggleMedian={canToggleStabilization}
+            mode="select"
+          />
+        )}
         <Error />
       </div>
       <div
@@ -133,6 +165,7 @@ export const Oblique = () => {
           />
           <WizardButtons formId="form-control-points" canFollow={solution !== null} />
         </div>
+        <FocusOverlay active={(drawPoints && isDefaultCoordinates) || isDraggingPoint} />
       </div>
     </div>
   );

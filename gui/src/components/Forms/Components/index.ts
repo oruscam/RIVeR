@@ -13,6 +13,7 @@ import { AnalyzingProgress } from './AnalyzingProgress';
 import { MaskCreation } from './MaskCreation';
 import { ExportMp4 } from './ExportMp4';
 import { AddMaskButton } from './AddMaskButton';
+import { StabilizationRegions } from './StabilizationRegions';
 
 export {
   AddMaskButton,
@@ -29,5 +30,6 @@ export {
   MaskCreation,
   PixelCoordinates,
   RealWorldCoordinates,
+  StabilizationRegions,
   VideoMetadata,
 };

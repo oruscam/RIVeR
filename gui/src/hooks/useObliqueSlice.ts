@@ -12,7 +12,12 @@ import {
 } from '../helpers';
 import { transformPixelToRealWorld } from '../../commons/coordinates';
 import { resetAll, setHasChanged, setIsBackendWorking } from '../store/global/globalSlice';
-import { setDrawPoints, setExtraFields, setObliquePoints } from '../store/oblique/obliqueSlice';
+import {
+  setDrawPoints,
+  setExtraFields,
+  setIsDraggingPoint,
+  setObliquePoints,
+} from '../store/oblique/obliqueSlice';
 import { defaultCoordinates, defaultDistances } from '../store/oblique/types';
 import { setDefaultSectionState, setTransformationMatrix } from '../store/section/sectionSlice';
 import { CliError, CliErrorMessage, ResourceNotFoundError } from '../errors/errors';
@@ -280,6 +285,12 @@ export const useObliqueSlice = () => {
     dispatch(setExtraFields());
   };
 
+  // Method to reflect whether a control point is currently being dragged
+  // on the canvas (initial square drag or a single-corner adjustment).
+  const onSetIsDraggingPoint = (value: boolean) => {
+    dispatch(setIsDraggingPoint(value));
+  };
+
   const onChangeRealWorldCoordinates = (value: number, position: string) => {
     // The user types in ft when imperial; the store always holds m.
     const siValue = toSI(value);
@@ -310,6 +321,7 @@ export const useObliqueSlice = () => {
     onGetObliqueTransformationMatrix,
     onSetCoordinatesCanvas,
     onSetDrawPoints,
+    onSetIsDraggingPoint,
     onChangeRealWorldCoordinates,
   };
 };

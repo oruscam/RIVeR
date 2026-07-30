@@ -22,7 +22,7 @@ export const DrawUav = ({
 }) => {
   const { overlayZoomRef, interactiveLayerRef, uiLayerRef, svgRef } = layers;
 
-  const { dirPoints, onSetPixelDirection } = useUavSlice();
+  const { dirPoints, onSetPixelDirection, onSetIsDraggingPoint } = useUavSlice();
 
   // Local interactive state (in overlay-zoom coordinate system)
   const [startPoint, setStartPoint] = useState<Point | null>(
@@ -86,6 +86,19 @@ export const DrawUav = ({
     uiLayerRef,
     overlayZoomRef,
   ]);
+
+  // Mirror the drag state into Redux so other parts of the page (e.g. the
+  // focus overlay on the form panel) can react to it, whether the drag is
+  // the initial direction-line placement or a later endpoint fine-tune.
+  useEffect(() => {
+    onSetIsDraggingPoint(mousePressed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mousePressed]);
+
+  useEffect(() => {
+    return () => onSetIsDraggingPoint(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Attach root SVG listeners for section creation (namespaced)
   useEffect(() => {

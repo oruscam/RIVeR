@@ -68,13 +68,21 @@
     },
     "framesResolution": "Résolution des Images",
     "lensCorrection": "Correction de l'objectif",
-    "noProfiles": "Aucun profil — aller à Calibration"
+    "noProfiles": "Aucun profil — aller à Calibration",
+    "stabilizeVideo": "Stabiliser la vidéo",
+    "stabilizationRegion": "Région",
+    "editingRegion": "Modification de la région {{n}}",
+    "addRegion": "Ajouter une région",
+    "exitRegionMode": "Quitter l'édition de région",
+    "minRegionsWarning": "Ajoutez au moins 2 régions pour la stabilisation",
+    "editingRegionsWarning": "Modification des régions de stabilisation"
   },
   "PixelSize": {
     "title": "Taille de Pixel",
     "lineLength": "Longueur de Ligne",
     "pixelSize": "Taille de Pixel",
     "drawLine": "Tracer une Ligne",
+    "carouselStabilization": "Stabilisation",
     "Errors": {
       "required": "Tous les champs sont obligatoires. Veuillez vérifier la Taille de Pixel.",
       "lineLength": "Longueur de ligne invalide : La longueur de ligne doit être un nombre positif, qui peut inclure des décimales. Veuillez entrer une valeur valide.",
@@ -135,6 +143,7 @@
     "warningTitle": "Supprimer la Section",
     "mask": "Masque",
     "addMask": "Ajouter un Masque",
+    "editingMaskWarning": "Modification du masque {{n}}",
     "bankRight": "D",
     "bankLeft": "G"
   },
@@ -283,6 +292,7 @@
     "invalidDistancesNotValidValue": "Format de distances de points invalide. Certaines valeurs de distance ne sont pas des nombres valides.",
     "invalidDistancesNegativeValue": "Format de distances de points invalide. Les distances négatives ne sont pas autorisées.",
     "invalidBathimetryFileFormat": "Format de fichier bathymétrique invalide.",
+    "bathimetryOutOfZRange": "Les niveaux de la bathymétrie sont très éloignés de la plage Z des points de contrôle. Vérifiez le fichier ou les unités.",
     "invalidImageExtension": "Le répertoire contient des fichiers qui ne sont pas des images.",
     "imagesFolderEmpty": "Aucune image trouvée dans le dossier sélectionné.",
     "waitingForFrames": "Nous attendons que les images soient chargées. Veuillez réessayer dans quelques secondes.",
@@ -293,6 +303,7 @@
   },
   "Loader": {
     "extractingFrames": "Extraction des images vidéo",
+    "stabilizingFrames": "Stabilisation des images vidéo",
     "results": "Génération des statistiques de profil de vitesse",
     "videoConversion": "Nous convertissons la vidéo au format mp4. Veuillez patienter un moment.",
     "maskAndRoi": "Définition de la RDI et des masques"

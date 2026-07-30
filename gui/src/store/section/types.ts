@@ -148,6 +148,7 @@ interface SectionState {
   transformationMatrix: [number[], number[], number[]] | [];
   pixelSolution?: PixelSolution;
   isSectionWorking: boolean;
+  isDraggingPoint: boolean;
 }
 
 export type {

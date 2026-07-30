@@ -95,6 +95,8 @@ export interface FirstFrameArgs {
   step: number;
   factor: number;
   lensCorrection: string | false;
+  stabilization: boolean;
+  stabilizationRegions: Array<{ x: number; y: number; width: number; height: number }>;
 }
 
 export interface ProjectConfig {

@@ -2,6 +2,73 @@ import * as d3 from 'd3';
 import type { RefObject } from 'react';
 
 /**
+ * Floating badge label above a mask (or any point), same visual style as the
+ * region labels used for stabilization: dark rounded chip, auto-sized to fit
+ * the text. `key` scopes the label so multiple independent labels can be
+ * drawn into the same layer without clobbering each other.
+ */
+export const drawMaskLabel = (
+  svg: d3.Selection<SVGSVGElement | SVGGElement, unknown, HTMLElement, any>,
+  key: string,
+  text: string,
+  x: number,
+  y: number,
+  size: (px: number) => number,
+  // Viewport-space bounds the label's background box must stay fully inside —
+  // same "never leave the visible screen" rule as the mask/region confirm buttons.
+  bounds: { width: number; height: number }
+) => {
+  const className = `mask-label-${key}`;
+  let label = svg.select<SVGGElement>(`g.${className}`);
+
+  if (label.empty()) {
+    label = svg.append('g').attr('class', `mask-label ${className}`).style('pointer-events', 'none');
+    label.append('rect').attr('rx', 3).attr('ry', 3).attr('fill', 'rgba(50, 50, 50, 0.85)');
+    label
+      .append('text')
+      .attr('text-anchor', 'middle')
+      .attr('dominant-baseline', 'central')
+      .attr('font-weight', 600)
+      .attr('fill', '#ED6B57');
+  }
+
+  const textEl = label
+    .select<SVGTextElement>('text')
+    .style('font-size', `${size(13)}px`)
+    .attr('x', x)
+    .attr('y', y)
+    .text(text);
+
+  const node = textEl.node();
+  let dx = 0;
+  let dy = 0;
+  if (node) {
+    const bbox = node.getBBox();
+    const padX = size(6);
+    const padY = size(3);
+    const left = bbox.x - padX;
+    const right = bbox.x + bbox.width + padX;
+    const top = bbox.y - padY;
+    const bottom = bbox.y + bbox.height + padY;
+
+    if (left < 0) dx = -left;
+    else if (right > bounds.width) dx = bounds.width - right;
+    if (top < 0) dy = -top;
+    else if (bottom > bounds.height) dy = bounds.height - bottom;
+
+    label
+      .select<SVGRectElement>('rect')
+      .attr('x', bbox.x - padX)
+      .attr('y', bbox.y - padY)
+      .attr('width', bbox.width + padX * 2)
+      .attr('height', bbox.height + padY * 2);
+  }
+
+  label.attr('transform', `translate(${dx}, ${dy})`);
+  label.raise();
+};
+
+/**
  * Renders an interactive SVG mask editor with:
  * - A filled polygon representing the mask
  * - Dashed edges between mask points
@@ -24,7 +91,9 @@ export const drawMask = (
   points: { id: string | number; x: number; y: number }[],
   transformToViewport: (x: number, y: number) => { x: number; y: number },
   transformToImage: (x: number, y: number) => { x: number; y: number },
-  zoomFactor: number
+  zoomFactor: number,
+  label: string,
+  bounds: { width: number; height: number }
 ) => {
   const isFirstRender = svg.select('defs').empty();
 
@@ -48,6 +117,14 @@ export const drawMask = (
   const transformedPoints = points.map((p) => transformToViewport(p.x, p.y));
   const polygonPoints = transformedPoints.map((p) => `${p.x},${p.y}`).join(' ');
 
+  if (transformedPoints.length > 0) {
+    // Anchor to the mask's own topmost vertex rather than the bounding box's
+    // horizontal center — for elongated/diagonal masks the bbox center can sit
+    // far from the actual polygon, leaving the label floating away from it.
+    const topPoint = transformedPoints.reduce((top, p) => (p.y < top.y ? p : top));
+    drawMaskLabel(svg, 'active', label, topPoint.x, topPoint.y - size(14), size, bounds);
+  }
+
   let polygon = svg.select<SVGPolygonElement>('polygon.mask-polygon');
   if (polygon.empty()) {
     polygon = svg
@@ -63,10 +140,10 @@ export const drawMask = (
   polygon.style('pointer-events', 'auto').style('cursor', 'move');
 
   polygon.on('mousedown', function (event) {
-    if (!svgRef.current) return;
-    const rect = svgRef.current.getBoundingClientRect();
-    const vx = event.clientX - rect.left;
-    const vy = event.clientY - rect.top;
+    // Use the same coordinate space as the mousemove handler (d3.pointer against
+    // the zoomed group) instead of svgRef's un-zoomed rect — otherwise the first
+    // move after mousedown jumps by the current zoom/pan offset before tracking correctly.
+    const [vx, vy] = d3.pointer(event, this);
     setDragStart({ x: vx, y: vy });
     setDraggingAll(true);
   });
