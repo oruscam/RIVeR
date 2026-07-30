@@ -29,7 +29,7 @@ export const AllInOne = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const { sections, activeSection, onChangeDataValues } = useSectionSlice();
   const { data, bathimetry, name } = sections[index ? index : activeSection];
-  const { level, x1Intersection, x2Intersection, width: bathWidth } = bathimetry;
+  const { level, x1Intersection, x2Intersection, width: bathWidth, wetSegments } = bathimetry;
   const { screenSizes, theme, language } = useUiSlice();
   const { projectDetails } = useProjectSlice();
   const { unitSistem } = projectDetails;
@@ -63,7 +63,7 @@ export const AllInOne = ({
       } = adapterData(data, x1Intersection!);
       const { showPercentile, showVelocityStd } = data;
 
-      const bathData = adapterBathimetry(bathimetry.line!, x1Intersection!, x2Intersection!, level!);
+      const bathData = adapterBathimetry(bathimetry.line!, wetSegments ?? [], level!);
 
       // xScale for velocity and bathimetry
 
@@ -166,6 +166,7 @@ export const AllInOne = ({
     x2Intersection,
     bathWidth,
     bathimetry.line,
+    wetSegments,
   ]);
 
   return (

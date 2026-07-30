@@ -40,7 +40,7 @@ Homepage = "https://github.com/aPatal/RIVeR/"
 river-cli = "river.cli.__main__:cli"
 
 [project.optional-dependencies]
-dev = ["ruff", "bumpver"]
+dev = ["ruff", "bumpver", "pytest"]
 
 [tool.setuptools]
 packages = ["river", "river.core", 'river.cli', 'river.cli.commands']

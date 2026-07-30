@@ -1,7 +1,8 @@
 import * as d3 from 'd3';
 import { COLORS, GRAPHS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 import { Point } from '../../types';
-import { generateXAxisTicks, generateYAxisTicks } from '../../helpers';
+import { generateXAxisTicks, generateYAxisTicks, buildWetSegmentsProfile } from '../../helpers';
+import { WetSegment } from '../../helpers/getBathimetryValues';
 import { t } from 'i18next';
 
 /**
@@ -34,6 +35,7 @@ interface BathimetryChartProps {
   isReport?: boolean;
   x1Intersection?: number;
   x2Intersection?: number;
+  wetSegments?: WetSegment[];
   unitSistem?: string;
 }
 
@@ -49,6 +51,7 @@ export const bathimetrySvg = ({
   isReport = false,
   x1Intersection,
   x2Intersection,
+  wetSegments,
   unitSistem,
 }: BathimetryChartProps) => {
   // Data and scale domains stay in SI; only tick labels are converted for display.
@@ -141,10 +144,10 @@ export const bathimetrySvg = ({
 
     translateX = margin.left + GRAPHS.GRID_Y_OFFSET_BATHIMETRY;
 
-    if (x1Intersection && x2Intersection) {
-      clipPathData = data.filter((d) => d.x >= x1Intersection && d.x <= x2Intersection);
-      clipPathData.unshift({ x: x1Intersection, y: level });
-      clipPathData.push({ x: x2Intersection, y: level });
+    if (wetSegments && wetSegments.length > 0) {
+      clipPathData = buildWetSegmentsProfile(data, wetSegments, level);
+    } else if (x1Intersection && x2Intersection) {
+      clipPathData = buildWetSegmentsProfile(data, [{ x1: x1Intersection, x2: x2Intersection }], level);
     }
   }
 
