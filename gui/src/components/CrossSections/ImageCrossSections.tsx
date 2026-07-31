@@ -1,9 +1,9 @@
-import { useCallback, useState } from "react";
-import { useDataSlice, useImageZoomPan, useProjectSlice, useUiSlice } from "../../hooks";
-import { OverlaySvg } from "../OverlaySvg";
-import { DrawSectionsD3 } from "./DrawSectionsD3";
-import { DrawMask } from "../DrawMask";
-import { ConfirmMaskBtn } from "../CustomIcons/ConfirmMaskBtn";
+import { useCallback, useState } from 'react';
+import { useDataSlice, useImageZoomPan, useProjectSlice, useUiSlice } from '../../hooks';
+import { OverlaySvg } from '../OverlaySvg';
+import { DrawSectionsD3 } from './DrawSectionsD3';
+import { DrawMask } from '../DrawMask';
+import { ConfirmMaskBtn } from '../CustomIcons/ConfirmMaskBtn';
 
 const CONFIRM_BTN_MARGIN_PX = 32;
 const CONFIRM_BTN_HALF_SIZE = 20;
@@ -83,10 +83,15 @@ function computeConfirmButtonPos(
   return best;
 }
 
-export const ImageCrossSections = () => {
+interface ImageCrossSectionsProps {
+  imageSrc?: string;
+}
+
+export const ImageCrossSections = ({ imageSrc }: ImageCrossSectionsProps) => {
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { firstFramePath } = useProjectSlice();
+  const src = imageSrc ?? firstFramePath;
   const { processing, onUpdateActiveMask } = useDataSlice();
   const { masks, activeMaskIndex } = processing;
 
@@ -115,7 +120,6 @@ export const ImageCrossSections = () => {
     keyboardStep: 25,
   });
 
-
   // Prefer livePoints (updated every frame during drag) over Redux state (updated on mouseup).
   const confirmBtnPos = (() => {
     if (activeMaskIndex === null) return null;
@@ -130,8 +134,8 @@ export const ImageCrossSections = () => {
       style={{
         width: imageWidth,
         height: imageHeight,
-        position: "relative",
-        overflow: "hidden",
+        position: 'relative',
+        overflow: 'hidden',
       }}
       onWheel={handleWheel}
       onMouseDown={handleMouseDown}
@@ -143,16 +147,16 @@ export const ImageCrossSections = () => {
       <div
         style={{
           transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
-          transformOrigin: "50% 50%",
-          willChange: "transform",
+          transformOrigin: '50% 50%',
+          willChange: 'transform',
         }}
       >
         <img
-          src={firstFramePath}
+          src={src}
           className="simple-image"
           draggable={false}
           onDragStart={handleDragStart}
-          style={{ display: "block", userSelect: "none", pointerEvents: "none" }}
+          style={{ display: 'block', userSelect: 'none', pointerEvents: 'none' }}
         />
       </div>
 
@@ -163,6 +167,8 @@ export const ImageCrossSections = () => {
               factor={factor!}
               layers={layers}
               scale={scale}
+              imageWidth={imageWidth!}
+              imageHeight={imageHeight!}
               onLivePoints={handleLivePoints}
             />
 
@@ -191,10 +197,7 @@ export const ImageCrossSections = () => {
           }}
           onMouseDown={(e) => e.stopPropagation()}
         >
-          <ConfirmMaskBtn
-            onClick={() => onUpdateActiveMask(activeMaskIndex!)}
-            title="Confirm mask"
-          />
+          <ConfirmMaskBtn onClick={() => onUpdateActiveMask(activeMaskIndex!)} title="Confirm mask" />
         </div>
       )}
     </div>

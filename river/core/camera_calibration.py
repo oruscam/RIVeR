@@ -38,6 +38,7 @@ from typing import Dict, List, Optional, Tuple
 
 import cv2 as cv
 import numpy as np
+from tqdm import tqdm
 
 
 # ---------------- helpers ----------------
@@ -162,7 +163,7 @@ class RiverCalibrator:
 		records: List[FrameRecord] = []
 		image_size = None
 
-		for p in sorted(image_paths):
+		for p in tqdm(sorted(image_paths), desc="Detecting calibration corners"):
 			img = cv.imread(p, cv.IMREAD_COLOR)
 			if img is None:
 				continue
@@ -435,7 +436,7 @@ def _evaluate_quality(summary: Dict, K: np.ndarray, image_size: Tuple[int, int])
 	g = {}
 	g["median_rms"]	= _grade(median_rms, thr_good=1.0, thr_fair=1.5, invert=False)
 	g["p90_rms"]	   = _grade(p90_rms,	thr_good=1.4, thr_fair=1.8, invert=False)
-	g["coverage"]	  = _grade(cov_pct,	thr_good=60.0, thr_fair=45.0, invert=True)
+	g["coverage"]	  = _grade(cov_pct,	thr_good=60.0, thr_fair=20.0, invert=True)
 	g["pose_spread"]   = _grade(pose_med_deg, thr_good=22.0, thr_fair=12.0, invert=True)
 	g["edge_reach"]	= _grade(edge_med,   thr_good=0.80, thr_fair=0.65, invert=True)
 	g["center_offset"] = _grade(center_off, thr_good=7.0, thr_fair=12.0, invert=False)
@@ -490,7 +491,12 @@ def make_report(report_dir: str, records: List[FrameRecord], K: np.ndarray, dist
 	os.makedirs(overlay_dir, exist_ok=True)
 
 	H, W = records[0].img.shape[:2]
-	map1, map2, roi = build_undistort_maps(K, dist, (W, H), alpha=1.0)
+	newK, roi = cv.getOptimalNewCameraMatrix(K, dist, (W, H), 1.0, (W, H), centerPrincipalPoint=True)
+	map1, map2, _ = build_undistort_maps(K, dist, (W, H), alpha=1.0)
+	zeros_dist = np.zeros_like(dist)
+	roi_x, roi_y = roi[0], roi[1]
+
+	per_frame_corners: List[Dict] = []
 
 	for i, rec in enumerate(records):
 		img = rec.img.copy()
@@ -504,19 +510,32 @@ def make_report(report_dir: str, records: List[FrameRecord], K: np.ndarray, dist
 		per_view_rms.append(rms)
 		all_pts.append(det)
 
-		# overlay
+		# overlay on distorted image
 		for p, q in zip(det.astype(int), proj.astype(int)):
-			cv.circle(img, tuple(p), 3, (240, 0, 0), -1)		  # detected
-			cv.circle(img, tuple(q), 2, (240, 240, 240), -1)	  # projected
-			cv.arrowedLine(img, tuple(p), tuple(q), (50, 180, 255), 1, tipLength=0.2)
-		cv.putText(img, f"RMS {rms:.3f} px", (12, 28), cv.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 255), 2, cv.LINE_AA)
-		cv.putText(img, os.path.basename(rec.path), (12, img.shape[0] - 10), cv.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2, cv.LINE_AA)
+			cv.circle(img, tuple(p), 8, (240, 0, 0), -1)		  # detected
+			cv.circle(img, tuple(q), 6, (240, 240, 240), -1)	  # projected
+			cv.arrowedLine(img, tuple(p), tuple(q), (50, 180, 255), 2, tipLength=0.3)
+		cv.putText(img, f"RMS {rms:.3f} px", (12, 48), cv.FONT_HERSHEY_SIMPLEX, 1.6, (255, 255, 255), 3, cv.LINE_AA)
+		cv.putText(img, os.path.basename(rec.path), (12, img.shape[0] - 16), cv.FONT_HERSHEY_SIMPLEX, 1.2, (255, 255, 255), 3, cv.LINE_AA)
 
 		cv.imwrite(os.path.join(overlay_dir, f"{i:03d}_rms{rms:.3f}.png"), img)
 
+		# compute corners in undistorted image space for frontend canvas rendering
+		proj_und = _project_charuco_points(board, rec.ids, rvecs[i], tvecs[i], newK, zeros_dist)
+		det_und = cv.undistortPoints(det.reshape(-1, 1, 2).astype(np.float32), K, dist, P=newK).reshape(-1, 2)
+		proj_und_c = proj_und - np.array([roi_x, roi_y])
+		det_und_c = det_und - np.array([roi_x, roi_y])
+		und_errs = np.linalg.norm(det_und_c - proj_und_c, axis=1)
+		und_rms = float(np.sqrt(np.mean(und_errs ** 2))) if len(und_errs) else 0.0
+		per_frame_corners.append({
+			"detected": det_und_c.tolist(),
+			"projected": proj_und_c.tolist(),
+			"rms": und_rms,
+		})
+
 		if save_undistorted_dir:
-			und = apply_undistort(rec.img, map1, map2, roi)
-			cv.imwrite(os.path.join(save_undistorted_dir, f"{i:03d}_undist.png"), und)
+			und_clean = apply_undistort(rec.img, map1, map2, roi)
+			cv.imwrite(os.path.join(save_undistorted_dir, f"{i:03d}_undist.png"), und_clean)
 
 	# coverage heatmap (OpenCV INFERNO)
 	H, W = records[0].img.shape[:2]
@@ -579,6 +598,7 @@ def make_report(report_dir: str, records: List[FrameRecord], K: np.ndarray, dist
 		"rms_hist_csv": csv_path,
 		"overlays_dir": overlay_dir,
 		"undistorted_dir": save_undistorted_dir or "",
+		"per_frame_corners": per_frame_corners,
 	}
 	verdict = _evaluate_quality(summary, K, (W, H))
 	summary["verdict"] = verdict

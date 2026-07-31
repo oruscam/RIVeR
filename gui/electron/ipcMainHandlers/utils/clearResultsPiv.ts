@@ -11,10 +11,10 @@ async function clearResultsPiv(resultsPath: string, settingsPath: string) {
   await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 4), 'utf-8');
 
   try {
-    if (fs.existsSync(resultsPath)){
+    if (fs.existsSync(resultsPath)) {
       await fs.promises.unlink(resultsPath);
       console.log(`File ${resultsPath} was deleted successfully`);
-    }else{
+    } else {
       return;
     }
   } catch (error) {

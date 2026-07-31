@@ -19,7 +19,7 @@ export const WizardButtons = ({
 }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep, isLastStep } = useWizard();
   const { onSetActiveSection } = useSectionSlice();
-  const { onClearQuiver, isBackendWorking } = useDataSlice();
+  const { isBackendWorking } = useDataSlice();
   const { onSetDefaultProjectState } = useProjectSlice();
   const { onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();

@@ -1,6 +1,7 @@
 import { GRAPHS } from '../constants/constants';
 import { SectionData } from '../store/section/types';
 import { Point } from '../types';
+import { buildWetSegmentsProfile, WetSegment } from './getBathimetryValues';
 
 const adapterData = (data: SectionData, x1Intersection: number) => {
   const {
@@ -42,18 +43,8 @@ const adapterData = (data: SectionData, x1Intersection: number) => {
   };
 };
 
-const adapterBathimetry = (
-  line: Point[],
-  x1Intersection: number,
-  x2Intersection: number,
-  level: number
-): Point[] => {
-  const newBathLine = line?.filter((d) => d.y <= level! && d.x >= x1Intersection! && d.x <= x2Intersection!);
-
-  newBathLine?.unshift({ x: x1Intersection!, y: level! });
-  newBathLine?.push({ x: x2Intersection!, y: level! });
-
-  return newBathLine;
+const adapterBathimetry = (line: Point[], wetSegments: WetSegment[], level: number): Point[] => {
+  return buildWetSegmentsProfile(line, wetSegments, level);
 };
 const generateXAxisTicks = (x1Intersection: number, x2Intersection: number, width: number): number[] => {
   let step = 0;
@@ -85,8 +76,9 @@ const generateXAxisTicks = (x1Intersection: number, x2Intersection: number, widt
 };
 
 const generateYAxisTicks = (array?: (number | null)[], min?: number, max?: number): number[] => {
-  const minValue = min ? min : 0;
-  const maxValue = max ? max : Math.max(...array!.filter((value): value is number => value !== null));
+  const minValue = min !== undefined ? min : 0;
+  const maxValue =
+    max !== undefined ? max : Math.max(...array!.filter((value): value is number => value !== null));
 
   const range = maxValue - minValue;
   const step = range / 4;
@@ -96,13 +88,13 @@ const generateYAxisTicks = (array?: (number | null)[], min?: number, max?: numbe
   return ticks;
 };
 
-const getOrthoImageDimensions = (screenWidth: number, orthoWidth: number, orthoHeight: number ) => {
+const getOrthoImageDimensions = (screenWidth: number, orthoWidth: number, orthoHeight: number) => {
   let graphWidth;
   let graphHeight;
   const maxGraphWidth = screenWidth * GRAPHS.IPCAM_GRID_PROPORTION;
-  
+
   const vertical = orthoHeight > orthoWidth;
-  
+
   if (!vertical) {
     if (orthoWidth < maxGraphWidth) {
       graphWidth = orthoWidth;
@@ -126,9 +118,8 @@ const getOrthoImageDimensions = (screenWidth: number, orthoWidth: number, orthoH
       graphWidth = ((maxGraphWidth * orthoWidth) / orthoHeight) * WIDTH_INCREASER;
     }
   }
-  
-  return { graphWidth, graphHeight, maxGraphWidth };
-}
 
+  return { graphWidth, graphHeight, maxGraphWidth };
+};
 
 export { adapterData, adapterBathimetry, generateXAxisTicks, generateYAxisTicks, getOrthoImageDimensions };

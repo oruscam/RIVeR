@@ -1,4 +1,5 @@
 import { Point } from '../../types';
+import { WetSegment } from '../../helpers/getBathimetryValues';
 
 interface Bathimetry {
   path: string | undefined;
@@ -13,6 +14,7 @@ interface Bathimetry {
   yMax?: number;
   x1Intersection?: number;
   x2Intersection?: number;
+  wetSegments?: WetSegment[];
 }
 
 interface PixelSize {
@@ -148,6 +150,7 @@ interface SectionState {
   transformationMatrix: [number[], number[], number[]] | [];
   pixelSolution?: PixelSolution;
   isSectionWorking: boolean;
+  isDraggingPoint: boolean;
 }
 
 export type {

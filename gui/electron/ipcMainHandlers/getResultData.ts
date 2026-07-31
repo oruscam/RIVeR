@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import { transformData } from './utils/transformCrossSectionsData';
 import { platform } from 'os';
 import { PROJECT_CONFIG } from '../main';
+import { RiverCli } from './interfaces';
 
 let encoding: BufferEncoding = 'utf-8';
 
@@ -10,7 +11,7 @@ if (platform() === 'win32') {
   encoding = 'latin1';
 }
 
-async function getResultData(riverCli: Function) {
+async function getResultData(riverCli: RiverCli) {
   ipcMain.handle('get-results-single', async (_event, args) => {
     const {
       step,
@@ -78,7 +79,7 @@ async function getResultData(riverCli: Function) {
       await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2), { encoding: encoding });
 
       return {
-        data: transformData(data, false),
+        data: transformData(data),
       };
     } catch (error) {
       console.log(error);
@@ -145,7 +146,7 @@ async function getResultData(riverCli: Function) {
         await fs.promises.writeFile(xSections, JSON.stringify(xSectionsFileParsed, null, 2), {
           encoding: encoding,
         });
-        finalData = transformData(xSectionsFileParsed, true);
+        finalData = transformData(xSectionsFileParsed);
         finalError = error;
       } catch (error) {
         console.log(error);

@@ -8,12 +8,12 @@ import { useProjectSlice } from '../../hooks';
 import './form.css';
 import { formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
-import { VideoMetadata, FramesResolution, LensCorrection } from './Components/index';
+import { VideoMetadata, FramesResolution, LensCorrection, StabilizationRegions } from './Components/index';
 
-export const FormVideo = ({ duration, extraFields }: { duration: number, extraFields: boolean }) => {
-  const { onSetVideoParameters, video: videoData} = useProjectSlice();
+export const FormVideo = ({ duration, extraFields }: { duration: number; extraFields: boolean }) => {
+  const { onSetVideoParameters, video: videoData, type } = useProjectSlice();
   const { startTime, endTime, step } = videoData.parameters;
-  
+
   const { fps } = videoData.data;
 
   const { handleSubmit, register, setValue, getValues, watch } = useForm({
@@ -104,7 +104,9 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
   const onSubmit = async (data: FieldValues) => {
     const lensCorrection = videoData.parameters.lensCorrection;
     if (lensCorrection) {
-      const profileSize = await window.ipcRenderer.invoke('calibration-get-profile-size', { profilePath: lensCorrection });
+      const profileSize = await window.ipcRenderer.invoke('calibration-get-profile-size', {
+        profilePath: lensCorrection,
+      });
       if (profileSize) {
         const { width: vidW, height: vidH } = videoData.data;
         if (profileSize.width !== vidW || profileSize.height !== vidH) {
@@ -114,6 +116,13 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
           return;
         }
       }
+    }
+    const { stabilization, stabilizationRegions } = videoData.parameters;
+    if (stabilization && stabilizationRegions.length < 2) {
+      onSetErrorMessage(
+        t('VideoRange.minRegionsWarning', { defaultValue: 'Add at least 2 regions for stabilization' })
+      );
+      return;
     }
     onSetVideoParameters(data);
     nextStep();
@@ -128,66 +137,62 @@ export const FormVideo = ({ duration, extraFields }: { duration: number, extraFi
     setVideo(document.getElementById('video') as HTMLVideoElement);
   }, [watchStep]);
 
-
-  return (      
-      <div className='body'>
-        <form onSubmit={handleSubmit(onSubmit, onError)} id='form-video'>
-          <div className='input-container-2 mt-2'>
-            <button
-               type="button"
-               onClick={handleClick}
-               className="wizard-button form-button me-1"
-               id="start-button"
-             >
-               {' '}
-               {t('VideoRange.start')}
-             </button>
-             <div className="input-field-container">
-               <input
-                 className="input-field"
-                 defaultValue="00:00"
-                 id="start"
-                 type="text"
-                 {...register('start', validationRules.start)}
-                 onBlur={handleBlur}
-                 onKeyDown={handleKeyDown}
-               />
-             </div>
+  return (
+    <div className="body">
+      <form onSubmit={handleSubmit(onSubmit, onError)} id="form-video">
+        <div className="input-container-2 mt-2">
+          <button type="button" onClick={handleClick} className="wizard-button form-button me-1" id="start-button">
+            {' '}
+            {t('VideoRange.start')}
+          </button>
+          <div className="input-field-container">
+            <input
+              className="input-field"
+              defaultValue="00:00"
+              id="start"
+              type="text"
+              {...register('start', validationRules.start)}
+              onBlur={handleBlur}
+              onKeyDown={handleKeyDown}
+            />
           </div>
-          <div className="input-container-2 mt-1">
-            <button type="button" className="wizard-button form-button me-1" onClick={handleClick} id="end-button">
-              {' '}
-              {t('VideoRange.end')}{' '}
-            </button>
-            <div className="input-field-container">
-              <input
-                type="text"
-                className="input-field"
-                defaultValue="00:00"
-                id="end"
-                {...register('end', validationRules.end)}
-                onBlur={handleBlur}
-                onKeyDown={handleKeyDown}
-              />
-            </div>
+        </div>
+        <div className="input-container-2 mt-1">
+          <button type="button" className="wizard-button form-button me-1" onClick={handleClick} id="end-button">
+            {' '}
+            {t('VideoRange.end')}{' '}
+          </button>
+          <div className="input-field-container">
+            <input
+              type="text"
+              className="input-field"
+              defaultValue="00:00"
+              id="end"
+              {...register('end', validationRules.end)}
+              onBlur={handleBlur}
+              onKeyDown={handleKeyDown}
+            />
           </div>
-          <div className="input-container-2 mt-1">
-            <label className="read-only me-1"> {t('VideoRange.step')} </label>
-            <div className="input-field-container">
-              <input
-                type="number"
-                id="input-step"
-                defaultValue={1}
-                className="input-field"
-                onKeyDown={handleKeyDown}
-                {...register('step', validationRules.step)}
-              />
-            </div>
+        </div>
+        <div className="input-container-2 mt-1">
+          <label className="read-only me-1"> {t('VideoRange.step')} </label>
+          <div className="input-field-container">
+            <input
+              type="number"
+              id="input-step"
+              defaultValue={1}
+              className="input-field"
+              onKeyDown={handleKeyDown}
+              {...register('step', validationRules.step)}
+            />
           </div>
-          <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
-          {extraFields && <FramesResolution />}
-          {extraFields && <LensCorrection />}
-        </form>
-      </div>      
-  )
+        </div>
+        <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
+        {extraFields && <FramesResolution />}
+        {extraFields && <LensCorrection />}
+        {/* Stabilization only makes sense for UAV footage — oblique/ipcam cameras are fixed. */}
+        {extraFields && type === 'uav' && <StabilizationRegions />}
+      </form>
+    </div>
+  );
 };

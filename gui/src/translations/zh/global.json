@@ -68,13 +68,21 @@
     },
     "framesResolution": "帧分辨率",
     "lensCorrection": "镜头校正",
-    "noProfiles": "无配置文件 — 前往校准"
+    "noProfiles": "无配置文件 — 前往校准",
+    "stabilizeVideo": "稳定视频",
+    "stabilizationRegion": "区域",
+    "editingRegion": "编辑区域 {{n}}",
+    "addRegion": "添加区域",
+    "exitRegionMode": "退出区域编辑",
+    "minRegionsWarning": "请至少添加 2 个区域以进行稳定",
+    "editingRegionsWarning": "正在编辑稳定区域"
   },
   "PixelSize": {
     "title": "像素尺寸",
     "lineLength": "线段长度",
     "pixelSize": "像素尺寸",
     "drawLine": "绘制线段",
+    "carouselStabilization": "稳定",
     "Errors": {
       "required": "所有字段均为必填项，请检查像素尺寸表单。",
       "lineLength": "线段长度无效：长度必须为正数（可含小数），请输入有效值。",
@@ -135,6 +143,7 @@
     "warningTitle": "删除断面",
     "mask": "掩膜",
     "addMask": "添加掩膜",
+    "editingMaskWarning": "正在编辑掩膜 {{n}}",
     "bankRight": "右",
     "bankLeft": "左"
   },
@@ -279,6 +288,8 @@
     "invalidDistancesNotValidValue": "距离文件格式无效，部分距离值不是有效数字",
     "invalidDistancesNegativeValue": "距离文件格式无效，不允许使用负距离",
     "invalidBathimetryFileFormat": "测深文件格式无效",
+    "bathimetryOutOfZRange": "测深水位值远超出控制点的 Z 值范围。请检查文件或单位。",
+    "invalidBathimetryDepthNotAllowed": "此模式不支持深度测深文件。请改为导入水位/高程剖面。",
     "invalidImageExtension": "所选目录包含非图像文件",
     "imagesFolderEmpty": "所选文件夹中未找到图像",
     "waitingForFrames": "正在等待帧加载完成，请数秒后重试",
@@ -289,6 +300,7 @@
   },
   "Loader": {
     "extractingFrames": "正在提取视频帧",
+    "stabilizingFrames": "正在稳定视频帧",
     "results": "正在生成流速剖面统计数据",
     "videoConversion": "正在将视频转换为 MP4 格式，请稍候。",
     "maskAndRoi": "正在定义 ROI 与掩膜"
@@ -308,8 +320,8 @@
     "import": "导入图像",
     "solve": "求解",
     "solving": "求解中…",
-    "overlay": "叠加图",
-    "undistorted": "去畸变",
+    "overlay": "原图",
+    "undistorted": "已校正",
     "heatmap": "热力图",
     "dropZone": "拖入标定图像文件夹",
     "dropHint": "或使用导入图像",

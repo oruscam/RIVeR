@@ -24,7 +24,9 @@ const onLoadVideoParameters = (
   dispatch: any,
   setVideoParameters: any,
   fps: number,
-  lensCorrection?: string | null
+  lensCorrection?: string | null,
+  stabilization?: boolean | null,
+  stabilizationRegions?: Array<{ x: number; y: number; width: number; height: number }> | null
 ) => {
   const { step, start, end, factor } = video_range;
   dispatch(
@@ -35,9 +37,13 @@ const onLoadVideoParameters = (
       startFrame: start,
       endFrame: end,
       factor,
-      factorChanged: false,
       lensCorrection: lensCorrection ?? null,
-      lensCorrectionChanged: false,
+      stabilization: stabilization ?? false,
+      stabilizationRegions: stabilizationRegions ?? [],
+      committedFactor: factor,
+      committedLensCorrection: lensCorrection ?? null,
+      committedStabilization: stabilization ?? false,
+      committedStabilizationRegions: stabilizationRegions ?? [],
     })
   );
   return;
@@ -86,7 +92,10 @@ const onLoadPixelSize = async (
         { x: x1, y: y1 },
         { x: x2, y: y2 },
       ],
-      drawLine: true,
+      // `drawLine` means "actively drawing/editing right now" everywhere it's
+      // read (button active-state, focus overlay) — a loaded, already-solved
+      // pixel size line is the opposite of that.
+      drawLine: false,
       solution:
         transformation !== undefined
           ? {
@@ -228,7 +237,7 @@ const onLoadCrossSections = (
 
       const { data } = getBathimetryValues(line, level);
 
-      const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width } = data
+      const { yMax, yMin, xMax, xMin, x1Intersection, x2Intersection, width, wetSegments } = data
         ? data
         : {
             yMax: 0,
@@ -238,6 +247,7 @@ const onLoadCrossSections = (
             x1Intersection: 0,
             x2Intersection: 0,
             width: 0,
+            wetSegments: [],
           };
 
       if (flag) {
@@ -246,7 +256,10 @@ const onLoadCrossSections = (
           updateSection({
             ...sections[0],
             name: key,
-            drawLine: true,
+            // See onLoadPixelSize: `drawLine` means "actively drawing right
+            // now", not "this section already has a line" — a loaded section
+            // is the opposite of that.
+            drawLine: false,
             sectionPoints: [
               { x: xl, y: yl },
               { x: xr, y: yr },
@@ -271,6 +284,7 @@ const onLoadCrossSections = (
               leftBank: left_station,
               x1Intersection: x1Intersection,
               x2Intersection: x2Intersection,
+              wetSegments: wetSegments,
               path: bath,
               name: name,
             },
@@ -284,7 +298,7 @@ const onLoadCrossSections = (
         dispatch(
           addSection({
             name: key,
-            drawLine: true,
+            drawLine: false,
             sectionPoints: [
               { x: xl, y: yl },
               { x: xr, y: yr },
@@ -309,6 +323,7 @@ const onLoadCrossSections = (
               leftBank: left_station,
               x1Intersection: x1Intersection,
               x2Intersection: x2Intersection,
+              wetSegments: wetSegments,
               path: bath,
               name: name,
             },

@@ -5,7 +5,14 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
-import { clearErrorMessage, clearMessage, setErrorMessage, setLanguage, setLoading, setMessage } from '../store/ui/uiSlice';
+import {
+  clearErrorMessage,
+  clearMessage,
+  setErrorMessage,
+  setLanguage,
+  setLoading,
+  setMessage,
+} from '../store/ui/uiSlice';
 import {
   setProjectDirectory,
   setProjectType,
@@ -14,7 +21,9 @@ import {
   setVideoParameters,
   setProjectDetails,
   setDefaultProjectState,
+  setStabilizationActiveRegionIndex,
 } from '../store/project/projectSlice';
+import { StabilizationRegion } from '../store/project/types';
 import { FieldValues } from 'react-hook-form';
 import {
   addSection,
@@ -55,6 +64,46 @@ import { useTranslation } from 'react-i18next';
 import { setDefaultObliqueState, setObliquePoints } from '../store/oblique/obliqueSlice';
 import { resetAll } from '../store/global/globalSlice';
 
+const createDefaultStabilizationRegion = (videoWidth: number, videoHeight: number): StabilizationRegion => {
+  const size = 150;
+  return {
+    x: Math.max(0, Math.round((videoWidth - size) / 2)),
+    y: Math.max(0, Math.round((videoHeight - size) / 2)),
+    width: size,
+    height: size,
+  };
+};
+
+/**
+ * Whether a stabilization config would produce the same result as the one
+ * already extracted to disk — used to avoid marking stabilization as
+ * "changed" (and forcing a re-extraction) when edits net out to a no-op,
+ * e.g. enabling stabilization and disabling it again. Mirrors the >= 2
+ * regions requirement used to gate the actual backend call.
+ */
+
+const isSameStabilizationConfig = (
+  enabled: boolean,
+  regions: StabilizationRegion[],
+  committedEnabled: boolean,
+  committedRegions: StabilizationRegion[]
+): boolean => {
+  const effective = enabled && regions.length >= 2;
+  const committedEffective = committedEnabled && committedRegions.length >= 2;
+
+  if (effective !== committedEffective) return false;
+  if (!effective) return true;
+
+  if (regions.length !== committedRegions.length) return false;
+  return regions.every(
+    (r, i) =>
+      r.x === committedRegions[i].x &&
+      r.y === committedRegions[i].y &&
+      r.width === committedRegions[i].width &&
+      r.height === committedRegions[i].height
+  );
+};
+
 /**
  * Interface to define the methods and attributes to interact with the project slice, and access to the sections slice.
  * @returns - Object with the methods and attributes to interact with the project slice
@@ -62,9 +111,8 @@ import { resetAll } from '../store/global/globalSlice';
 
 export const useProjectSlice = () => {
   const dispatch = useDispatch();
-  const { projectDirectory, video, type, firstFramePath, projectDetails } = useSelector(
-    (state: RootState) => state.project
-  );
+  const { projectDirectory, video, type, firstFramePath, projectDetails, stabilizationActiveRegionIndex } =
+    useSelector((state: RootState) => state.project);
   const { sections } = useSelector((state: RootState) => state.section);
   const uav = useSelector((state: RootState) => state.uav);
   const { t } = useTranslation();
@@ -97,7 +145,11 @@ export const useProjectSlice = () => {
     }
   };
 
-  const onInitProject = async (videoInput: { path: string; name: string; type: string }, language: string, unitSistem: string) => {
+  const onInitProject = async (
+    videoInput: { path: string; name: string; type: string },
+    language: string,
+    unitSistem: string
+  ) => {
     dispatch(setLoading(true));
 
     const extension = videoInput.name.split('.').pop();
@@ -172,7 +224,6 @@ export const useProjectSlice = () => {
       setVideoParameters({
         ...video.parameters,
         factor: factor,
-        factorChanged: true,
       })
     );
   };
@@ -187,7 +238,6 @@ export const useProjectSlice = () => {
       setVideoParameters({
         ...video.parameters,
         lensCorrection: profilePath,
-        lensCorrectionChanged: true,
       })
     );
   };
@@ -196,18 +246,39 @@ export const useProjectSlice = () => {
     dispatch(setLoading(true));
     dispatch(setMessage(t('Loader.extractingFrames')));
 
-    const { startTime, endTime, step, factor, factorChanged, lensCorrection, lensCorrectionChanged } =
-      video.parameters;
+    const {
+      startTime,
+      endTime,
+      step,
+      factor,
+      lensCorrection,
+      stabilization,
+      stabilizationRegions,
+      committedFactor,
+      committedLensCorrection,
+      committedStabilization,
+      committedStabilizationRegions,
+    } = video.parameters;
 
     const parsedStart = parseTime(data.start);
     const parsedEnd = parseTime(data.end);
 
+    // Every field is compared directly against the config actually used for
+    // the frames on disk (rather than an imperative "did the user touch this"
+    // flag) — so toggling something and reverting it never forces a needless
+    // re-extraction.
     if (
       parsedStart === startTime &&
       parsedEnd === endTime &&
       parseFloat(data.step) === step &&
-      factorChanged === false &&
-      lensCorrectionChanged === false
+      factor === committedFactor &&
+      lensCorrection === committedLensCorrection &&
+      isSameStabilizationConfig(
+        stabilization,
+        stabilizationRegions,
+        committedStabilization,
+        committedStabilizationRegions
+      )
     ) {
       dispatch(setLoading(false));
       dispatch(clearMessage());
@@ -215,6 +286,10 @@ export const useProjectSlice = () => {
     }
 
     dispatch(setImages({ paths: [] }));
+
+    // Stabilization only applies to UAV footage — oblique/ipcam cameras are fixed.
+    const effectiveStabilization = type === 'uav' && stabilization && stabilizationRegions.length >= 2;
+
     const parameters = {
       step: parseFloat(data.step),
       startTime: parsedStart,
@@ -222,9 +297,16 @@ export const useProjectSlice = () => {
       startFrame: Math.floor(parsedStart * video.data.fps),
       endFrame: Math.floor(parsedEnd * video.data.fps),
       factor: factor,
-      factorChanged: factorChanged,
       lensCorrection: lensCorrection,
-      lensCorrectionChanged: false,
+      stabilization: stabilization,
+      stabilizationRegions: stabilizationRegions,
+      // Record the config actually used for this extraction as the new
+      // baseline, so future edits that net out to this same result don't
+      // trigger another one.
+      committedFactor: factor,
+      committedLensCorrection: lensCorrection,
+      committedStabilization: effectiveStabilization,
+      committedStabilizationRegions: effectiveStabilization ? stabilizationRegions : [],
     };
     const ipcRenderer = window.ipcRenderer;
 
@@ -237,6 +319,8 @@ export const useProjectSlice = () => {
         step: parameters.step,
         factor: factor,
         lensCorrection: lensCorrection,
+        stabilization: effectiveStabilization,
+        stabilizationRegions: effectiveStabilization ? stabilizationRegions : [],
       });
 
       if (!result || result.error || !result.initial_frame) {
@@ -295,8 +379,13 @@ export const useProjectSlice = () => {
         dispatch(setProjectDirectory(projectDirectory));
         dispatch(setProjectType(settings.footage));
 
+        // Loading a project must never inherit a stabilization region left
+        // "active" (in focus mode) from a previous project/session in this
+        // renderer — VideoRange's FocusOverlay is driven directly by this value.
+        dispatch(setStabilizationActiveRegionIndex(null));
+
         // Set language
-        const savedLanguage = localStorage.getItem("language") || "en"
+        const savedLanguage = localStorage.getItem('language') || 'en';
         dispatch(setLanguage(savedLanguage));
 
         // Set video metadata
@@ -331,15 +420,27 @@ export const useProjectSlice = () => {
 
         if (settings.colorbar_limits) {
           const { min, max } = settings.colorbar_limits;
-          dispatch(setColorbarLimits({
-            min: settings.colorbar_limits.min,
-            max: settings.colorbar_limits.max,
-            default: min !== null && max !== null ? false : true,
-          }))
+          dispatch(
+            setColorbarLimits({
+              min: settings.colorbar_limits.min,
+              max: settings.colorbar_limits.max,
+              default: min !== null && max !== null ? false : true,
+            })
+          );
         }
 
         if (settings.user_masks) {
           dispatch(loadMasks(settings.user_masks));
+        }
+
+        // Load stabilization regions from disk if available
+        let loadedStabilizationRegions: Array<{ x: number; y: number; width: number; height: number }> | null =
+          null;
+        if (settings.stabilization && settings.stabilization_regions_path) {
+          const regResult = await ipcRenderer.invoke('read-stabilization-regions', {
+            regionsPath: settings.stabilization_regions_path,
+          });
+          loadedStabilizationRegions = regResult?.regions ?? null;
         }
 
         dispatch(setLoading(false));
@@ -388,7 +489,9 @@ export const useProjectSlice = () => {
             dispatch,
             setVideoParameters,
             videoMetadata.fps,
-            settings.lens_correction ?? null
+            settings.lens_correction ?? null,
+            settings.stabilization ?? null,
+            loadedStabilizationRegions
           );
 
           // Load processing mask
@@ -434,8 +537,8 @@ export const useProjectSlice = () => {
 
           // Load project details
           if (settings.river_name || settings.site || settings.unit_system || settings.medition_date) {
-            console.log('loading project details')
-            const savedUnitSystem = settings.unit_system || localStorage.getItem("unitSystem") || "si"
+            console.log('loading project details');
+            const savedUnitSystem = settings.unit_system || localStorage.getItem('unitSystem') || 'si';
             dispatch(
               setProjectDetails({
                 riverName: settings.river_name,
@@ -495,7 +598,9 @@ export const useProjectSlice = () => {
             dispatch,
             setVideoParameters,
             videoMetadata.fps,
-            settings.lens_correction ?? null
+            settings.lens_correction ?? null,
+            settings.stabilization ?? null,
+            loadedStabilizationRegions
           );
 
           dispatch(
@@ -527,7 +632,9 @@ export const useProjectSlice = () => {
             dispatch,
             setVideoParameters,
             videoMetadata.fps,
-            settings.lens_correction ?? null
+            settings.lens_correction ?? null,
+            settings.stabilization ?? null,
+            loadedStabilizationRegions
           );
 
           return MODULE_NUMBER.CROSS_SECTIONS;
@@ -545,7 +652,9 @@ export const useProjectSlice = () => {
             dispatch,
             setVideoParameters,
             videoMetadata.fps,
-            settings.lens_correction ?? null
+            settings.lens_correction ?? null,
+            settings.stabilization ?? null,
+            loadedStabilizationRegions
           );
 
           return MODULE_NUMBER.CROSS_SECTIONS;
@@ -558,7 +667,9 @@ export const useProjectSlice = () => {
             dispatch,
             setVideoParameters,
             videoMetadata.fps,
-            settings.lens_correction ?? null
+            settings.lens_correction ?? null,
+            settings.stabilization ?? null,
+            loadedStabilizationRegions
           );
 
           return MODULE_NUMBER.PIXEL_SIZE;
@@ -627,6 +738,65 @@ export const useProjectSlice = () => {
     await ipcRenderer.invoke('set-project-metadata', projectDetails);
   };
 
+  const onSetStabilization = (enabled: boolean) => {
+    const existingRegions = video.parameters.stabilizationRegions;
+    const regions = enabled
+      ? existingRegions.length > 0
+        ? existingRegions
+        : [createDefaultStabilizationRegion(video.data.width, video.data.height)]
+      : [];
+    dispatch(
+      setVideoParameters({
+        ...video.parameters,
+        stabilization: enabled,
+        stabilizationRegions: regions,
+      })
+    );
+    dispatch(setStabilizationActiveRegionIndex(enabled ? regions.length - 1 : null));
+  };
+
+  const onAddStabilizationRegion = () => {
+    const { width, height } = video.data;
+    const newRegion = createDefaultStabilizationRegion(width, height);
+    const newRegions = [...video.parameters.stabilizationRegions, newRegion];
+    dispatch(
+      setVideoParameters({
+        ...video.parameters,
+        stabilizationRegions: newRegions,
+      })
+    );
+    dispatch(setStabilizationActiveRegionIndex(newRegions.length - 1));
+  };
+
+  const onUpdateStabilizationRegion = (index: number, region: StabilizationRegion) => {
+    const newRegions = video.parameters.stabilizationRegions.map((r, i) => (i === index ? region : r));
+    dispatch(
+      setVideoParameters({
+        ...video.parameters,
+        stabilizationRegions: newRegions,
+      })
+    );
+  };
+
+  const onDeleteStabilizationRegion = (index: number) => {
+    const newRegions = video.parameters.stabilizationRegions.filter((_, i) => i !== index);
+    dispatch(
+      setVideoParameters({
+        ...video.parameters,
+        stabilizationRegions: newRegions,
+      })
+    );
+    if (stabilizationActiveRegionIndex === index) {
+      dispatch(setStabilizationActiveRegionIndex(null));
+    } else if (stabilizationActiveRegionIndex !== null && stabilizationActiveRegionIndex > index) {
+      dispatch(setStabilizationActiveRegionIndex(stabilizationActiveRegionIndex - 1));
+    }
+  };
+
+  const onSetStabilizationActiveRegionIndex = (index: number | null) => {
+    dispatch(setStabilizationActiveRegionIndex(index));
+  };
+
   const onSetDefaultProjectState = () => {
     if (type === 'uav') {
       dispatch(setDefaultUavState());
@@ -648,11 +818,14 @@ export const useProjectSlice = () => {
     firstFramePath,
     projectDetails,
     projectDirectory,
+    stabilizationActiveRegionIndex,
     type,
     video,
 
     // METHODS
+    onAddStabilizationRegion,
     onChangeFramesResolution,
+    onDeleteStabilizationRegion,
     onGetVideo,
     onInitProject,
     onLoadProject,
@@ -660,6 +833,9 @@ export const useProjectSlice = () => {
     onSetDefaultProjectState,
     onSaveProjectDetails,
     onSetLensCorrection,
+    onSetStabilization,
+    onSetStabilizationActiveRegionIndex,
     onSetVideoParameters,
+    onUpdateStabilizationRegion,
   };
 };

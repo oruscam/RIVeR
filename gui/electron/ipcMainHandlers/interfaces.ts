@@ -95,6 +95,8 @@ export interface FirstFrameArgs {
   step: number;
   factor: number;
   lensCorrection: string | false;
+  stabilization: boolean;
+  stabilizationRegions: Array<{ x: number; y: number; width: number; height: number }>;
 }
 
 export interface ProjectConfig {
@@ -148,6 +150,13 @@ export interface ProjectConfig {
   // Python executable path
   pythonPath: string;
 }
+
+export type RiverCli = (
+  options: (string | number)[],
+  mode?: 'json' | 'text',
+  output?: boolean | string,
+  logFile?: string
+) => Promise<{ data: any; error: any }>;
 
 interface Point {
   x: number;

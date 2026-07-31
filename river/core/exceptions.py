@@ -1,3 +1,11 @@
+"""
+File Name:   exceptions.py
+Project:     RIVeR - Rectification of Image Velocity Results
+Description: Custom exception classes for RIVeR core errors.
+Authors:     Nicolas Stefani
+Institution: ORUS / UNC
+License:     AGPL-3.0-or-later
+"""
 class RiverCoreException(Exception):
 	pass
 

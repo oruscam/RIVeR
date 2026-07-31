@@ -365,7 +365,16 @@ const drawAnalizeResult = (
     svg.select('.x-axis').call(d3.axisBottom(newXScale).ticks(3));
     svg.select('.y-axis').call(d3.axisLeft(newYScale).ticks(5));
 
-    scaleBar(orthoExtent, svg.node() as SVGSVGElement, newXScale, newYScale, 'clip', margin.left, margin.top, unitSistem);
+    scaleBar(
+      orthoExtent,
+      svg.node() as SVGSVGElement,
+      newXScale,
+      newYScale,
+      'clip',
+      margin.left,
+      margin.top,
+      unitSistem
+    );
   }
 
   svg

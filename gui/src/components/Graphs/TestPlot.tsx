@@ -12,11 +12,11 @@ export const TestPlot = ({ showMedian, width: fixedWidth }: { showMedian: boolea
   const { t } = useTranslation();
 
   const { width: screenWidth } = screenSizes;
-  const graphWidth = fixedWidth ?? (
-    screenWidth * GRAPHS.PLOT_TEST_PROPORTION > GRAPHS.MIN_WIDTH
+  const graphWidth =
+    fixedWidth ??
+    (screenWidth * GRAPHS.PLOT_TEST_PROPORTION > GRAPHS.MIN_WIDTH
       ? screenWidth * GRAPHS.PLOT_TEST_PROPORTION
-      : GRAPHS.MIN_WIDTH
-  );
+      : GRAPHS.MIN_WIDTH);
 
   useEffect(() => {
     if (quiver && svgRef.current) {
@@ -42,8 +42,16 @@ export const TestPlot = ({ showMedian, width: fixedWidth }: { showMedian: boolea
       testPlotSvg({
         svgElement: svgRef.current,
         quiver: {
-          u: quiver.test ? quiver.u as number[] : showMedian ? quiver.u_median as number[] : quiver.u[images.active] as number[],
-          v: quiver.test ? quiver.v as number[] : showMedian ? quiver.v_median as number[] : quiver.v[images.active] as number[],
+          u: quiver.test
+            ? (quiver.u as number[])
+            : showMedian
+              ? (quiver.u_median as number[])
+              : (quiver.u[images.active] as number[]),
+          v: quiver.test
+            ? (quiver.v as number[])
+            : showMedian
+              ? (quiver.v_median as number[])
+              : (quiver.v[images.active] as number[]),
         },
         t,
         accentColor,
@@ -51,7 +59,7 @@ export const TestPlot = ({ showMedian, width: fixedWidth }: { showMedian: boolea
         axisLimits,
       });
     }
-  }, [quiver, graphWidth, images.active, showMedian, theme]);
+  }, [quiver, graphWidth, images.active, showMedian, theme, t]);
 
   return (
     <div>{quiver && <svg ref={svgRef} width={graphWidth} height={graphWidth * 0.8} id="quiver-test-plot" />}</div>

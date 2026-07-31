@@ -89,7 +89,7 @@ body {
 
 #report-video-info-container {
     width: 100%;
-    border: solid;
+    border: solid #000000;
     border-radius: 20px;
     margin-top: 20px;
 }
@@ -132,7 +132,7 @@ body {
 
 #report-processed-range-container {
     width: 100%;
-    border: solid;
+    border: solid #000000;
     border-radius: 20px;
     margin-top: 20px;
     display: flex;
@@ -184,7 +184,6 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    color: var(--primary-text-color);
     border-radius: 20px;
     padding-top: 20px;
     padding-left: 40px;
@@ -678,60 +677,4 @@ body {
 
 #ipcam-transformation-info p {
     margin-bottom: 8px;
-}
-
-#successful-container {
-    background-color: var(--success-background);
-    color: var(--success-color);
-    width: 90%;
-    max-width: 500px;
-    height: auto;
-    display: flex;
-    padding: 25px 50px 30px 10px;
-    border-radius: 20px;
-    word-wrap: break-word;
-    /* Permite que las palabras largas se dividan */
-    overflow-wrap: break-word;
-    /* Asegura que el texto se ajuste dentro del contenedor */
-}
-
-#check-icon svg {
-    width: 50px;
-    height: 50px;
-    margin-right: 10px;
-    margin-top: 15px;
-    fill: var(--success-color);
-}
-
-#successful-title {
-    font-size: 1.4rem;
-}
-
-#successful-message-container {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: auto;
-    flex: 1;
-    /* Permite que el contenedor de mensajes ocupe el espacio disponible */
-    padding-right: 15px;
-}
-
-#successful-message-container p {
-    margin: 0;
-    /* Elimina márgenes adicionales */
-    margin-top: 10px;
-    margin-right: 10px;
-    word-wrap: break-word;
-    /* Permite que las palabras largas se dividan */
-    overflow-wrap: break-word;
-    /* Asegura que el texto se ajuste dentro del contenedor */
-}
-
-#successful-message-container p span {
-    font-weight: 700;
-    word-wrap: break-word;
-    /* Permite que las palabras largas se dividan */
-    overflow-wrap: break-word;
-    /* Asegura que el texto se ajuste dentro del contenedor */
 }

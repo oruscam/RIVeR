@@ -228,6 +228,54 @@
 }
 
 
+/* Stacks Error/Info/Warning on top of each other (instead of one after another)
+   so a higher-priority banner (e.g. error) can overlap a persistent one
+   (e.g. warning) for a few seconds without pushing it out of the layout. */
+.message-stack {
+    position: relative;
+    width: 100%;
+    min-height: 35px;
+    margin-top: auto;
+}
+
+.message-stack .error,
+.message-stack .info,
+.message-stack .warning {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-top: 0;
+}
+
+.message-stack .error { z-index: 3; }
+.message-stack .warning { z-index: 2; }
+.message-stack .info { z-index: 1; }
+
+/* Generic "focus mode" overlay: place inside any position:relative container
+   (e.g. .form-container) and toggle .focus-overlay-active to blur/dim its
+   contents, drawing attention to whatever sits outside that container
+   (e.g. the media/canvas panel while a region is being edited). */
+.focus-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    border-radius: inherit;
+    background-color: var(--secondary-background-color);
+    opacity: 0;
+    pointer-events: none;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+    transition: opacity 0.3s ease-in-out, backdrop-filter 0.3s ease-in-out;
+}
+
+.focus-overlay-active {
+    opacity: 0.6;
+    pointer-events: auto;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
 .error {
     background-color: var(--background-error);
     width: 100%;
@@ -248,6 +296,56 @@
     margin-left: 25px;
     font-size: 18px;
     font-weight: bold;
+    margin-top: 1px;
+    height: auto;
+}
+
+.info {
+    background-color: var(--success-color);
+    width: 100%;
+    min-height: 35px;
+    height: auto;
+    margin-top: auto;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: first baseline;
+    padding: 5px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.info-text {
+    margin-left: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    font-style: normal;
+    margin-top: 1px;
+    height: auto;
+}
+
+.warning {
+    background-color: var(--d14);
+    width: 100%;
+    min-height: 35px;
+    height: auto;
+    margin-top: auto;
+    border-bottom-right-radius: 20px;
+    border-bottom-left-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: first baseline;
+    padding: 5px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.warning-text {
+    margin-left: 25px;
+    font-size: 18px;
+    font-weight: bold;
+    font-style: normal;
     margin-top: 1px;
     height: auto;
 }
@@ -908,4 +1006,90 @@
     top: 0;
     left: 0;
     z-index: 10;
+}
+
+/* =============================================================================
+   SUCCESS BANNER
+   Shared validation/save-confirmation message, used by the Report success
+   screen and Camera Calibration's save confirmation.
+   ============================================================================= */
+
+.success-banner {
+    background-color: var(--success-background);
+    color: var(--success-color);
+    width: 90%;
+    max-width: 500px;
+    display: flex;
+    align-items: flex-start;
+    padding: 25px 50px 30px 10px;
+    border-radius: 20px;
+    gap: 10px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.success-banner-icon {
+    flex-shrink: 0;
+    margin-top: 15px;
+    color: var(--success-color);
+}
+
+.success-banner-link {
+    background: none;
+    border: none;
+    font: inherit;
+    color: var(--success-color);
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-all;
+    transition: opacity 0.15s;
+}
+
+.success-banner-link:hover {
+    opacity: 0.75;
+}
+
+.success-banner-body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    flex: 1;
+    padding-right: 15px;
+}
+
+.success-banner-title {
+    font-size: 1.4rem;
+    margin: 0;
+    color: var(--primary-text-color);
+}
+
+.success-banner-message {
+    margin-top: 10px;
+    color: var(--primary-text-color);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+/* Compact variant — inline in a narrow side panel (Camera Calibration) */
+.success-banner-compact {
+    width: 100%;
+    max-width: none;
+    padding: 12px 14px;
+    align-items: center;
+    gap: 8px;
+}
+
+.success-banner-compact .success-banner-icon {
+    margin-top: 0;
+}
+
+.success-banner-compact .success-banner-title {
+    font-weight: 700;
+}
+
+.success-banner-compact .success-banner-message {
+    margin-top: 2px;
 }

@@ -68,13 +68,21 @@
     },
     "framesResolution": "フレーム解像度",
     "lensCorrection": "レンズ補正",
-    "noProfiles": "プロファイルなし — キャリブレーションへ"
+    "noProfiles": "プロファイルなし — キャリブレーションへ",
+    "stabilizeVideo": "ビデオを安定化",
+    "stabilizationRegion": "領域",
+    "editingRegion": "領域 {{n}} を編集中",
+    "addRegion": "領域を追加",
+    "exitRegionMode": "領域編集を終了",
+    "minRegionsWarning": "安定化には少なくとも2つの領域が必要です",
+    "editingRegionsWarning": "安定化領域を編集中"
   },
   "PixelSize": {
     "title": "ピクセルサイズ",
     "lineLength": "線の長さ",
     "pixelSize": "ピクセルサイズ",
     "drawLine": "線を描く",
+    "carouselStabilization": "安定化",
     "Errors": {
       "required": "すべてのフィールドは必須です。ピクセルサイズフォームを確認してください。",
       "lineLength": "無効な線の長さ: 正の数（小数可）を入力してください。",
@@ -135,6 +143,7 @@
     "warningTitle": "断面の削除",
     "mask": "マスク",
     "addMask": "マスクを追加",
+    "editingMaskWarning": "マスク{{n}}を編集中",
     "bankRight": "右",
     "bankLeft": "左"
   },
@@ -279,6 +288,8 @@
     "invalidDistancesNotValidValue": "無効な距離ファイル形式です。一部の距離値が有効な数値ではありません",
     "invalidDistancesNegativeValue": "無効な距離ファイル形式です。負の距離は許可されていません",
     "invalidBathimetryFileFormat": "無効な測深ファイル形式です",
+    "bathimetryOutOfZRange": "測深レベルがコントロールポイントのZ範囲から大きく外れています。ファイルまたは単位を確認してください。",
+    "invalidBathimetryDepthNotAllowed": "このモードでは深度の測深ファイルはサポートされていません。代わりに水位/標高プロファイルをインポートしてください。",
     "invalidImageExtension": "ディレクトリに画像以外のファイルが含まれています",
     "imagesFolderEmpty": "選択したフォルダに画像が見つかりません",
     "waitingForFrames": "フレームの読み込みを待っています。数秒後に再試行してください",
@@ -289,6 +300,7 @@
   },
   "Loader": {
     "extractingFrames": "動画フレームを抽出中",
+    "stabilizingFrames": "動画フレームを安定化中",
     "results": "流速プロファイル統計を生成中",
     "videoConversion": "動画をMP4形式に変換中です。しばらくお待ちください。",
     "maskAndRoi": "ROIとマスクを定義中"
@@ -308,8 +320,8 @@
     "import": "画像をインポート",
     "solve": "解析",
     "solving": "解析中…",
-    "overlay": "オーバーレイ",
-    "undistorted": "歪み補正",
+    "overlay": "オリジナル",
+    "undistorted": "補正済み",
     "heatmap": "ヒートマップ",
     "dropZone": "キャリブレーション画像フォルダをドロップ",
     "dropHint": "または画像をインポート",
