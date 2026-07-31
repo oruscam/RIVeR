@@ -125,26 +125,26 @@ Once calibrated, a camera can be **saved as a reusable profile** and later selec
 
 ## Workflow steps
 
-1️⃣ **Show Board**
+1. **Show Board**
 - Click **Show Board** to generate a printable/displayable **calibration pattern** (a checkerboard combined with ArUco markers) and open it full-screen in a separate window.
 - Print this pattern, or display it on a second screen or tablet.
 - Click **⬇ Save PNG** (bottom-right of the board window) to save the pattern image, or press **Esc** to close the board window.
 
-2️⃣ **Photograph the board**
+2. **Photograph the board**
 - Using the camera you want to calibrate (the same camera/lens you will use to record your river footage), take **many photos** of the printed/displayed board:
   - Vary the **distance**, **angle**, and **position** of the board within the frame (center, corners, edges).
   - Make sure the pattern is **in focus** and well lit — blurry photos are automatically skipped during calibration.
   - The more varied and numerous the photos, the more accurate and reliable the calibration.
 
-3️⃣ **Import Images**
+3. **Import Images**
 - Click **Import Images** and select the folder containing your photos, or **drag and drop** the folder directly onto the right panel.
 - Imported photos appear as a **thumbnail carousel** at the bottom of the left panel; click a thumbnail (or use the ◀️ ▶️ arrow keys) to preview it full-size.
 
-4️⃣ **Solve**
+4. **Solve**
 - Click **Solve** to run the calibration.
 - A progress ring shows the percentage complete while RIVeR detects the calibration pattern in each photo.
 
-5️⃣ **Review the results**
+5. **Review the results**
 
 <figure>
     <img src="river/docs/_static/09%20-%20Calibration%20-%20results.png" width=800>
@@ -164,7 +164,7 @@ On the left panel, use the view buttons above the carousel (or keyboard shortcut
 > 📌 **Tip:**  
 > Photos that couldn't be used (too blurry, or the pattern wasn't detected) are shown **dimmed** in the carousel, with a "Not used in calibration" tooltip — you don't need to remove them manually.
 
-6️⃣ **Save as a camera profile**
+6. **Save as a camera profile**
 - Fill in a **Camera name** and **Lens** (e.g. zoom level) to identify this calibration — existing names are suggested as you type, so you can add more lenses to a camera you already calibrated.
 - The **Resolution** field is filled in automatically from your photos.
 - Click **Save**. RIVeR confirms with the folder where the profile was saved.
@@ -419,6 +419,7 @@ This step defines how RIVeR transforms image measurements (in pixels) into real-
 
 For UAV footage (top-down view), the rectification workflow is simple:
 
+
 - **Draw a reference line** on the image between two known points.
   - Click **Draw Line**, then go to the left panel and **click-drag between `Point 1` <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pin.svg" alt="red pin" width="16"/> and `Point 2`** <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pin.svg" alt="red pin" width="16"/>. 
   - This defines the segment that will be used for scale.
@@ -484,6 +485,7 @@ Once everything is set, click **Next** to continue to the common workflow.
 </figure>
 
 For oblique views (e.g., from a riverbank), the rectification workflow involves selecting control points and defining their real-world distances.
+
 
 - **Select at least four control points** on the image:
   - Click **Draw Points**, then go to the left panel.
@@ -624,8 +626,8 @@ You can define **one or multiple cross sections**, depending on the complexity a
 
 - To **add a new cross section**, click the **`✚` tab**.
 - To **remove a cross section**, click the **`ˣ`** that appears next to its name.
-- You can **rename any cross section** by clicking on its name.
-- Use the **eye icon** to toggle visibility between the currently selected cross section and all defined cross sections.
+- You can **rename any cross section** by clicking on its name.- Use the **eye icon** to toggle visibility between the currently selected cross section and all defined cross sections.
+
 
 
 ## How to define a cross section
@@ -644,10 +646,6 @@ You can define **one or multiple cross sections**, depending on the complexity a
 - The file must be a text or Excel file with **two columns**:
   - **Distance from the left bank** (station)
   - **Either stage (level)** or **depth** at that location
-
-> 💡 RIVeR will automatically detect if the second column represents **depth or stage**.  
-> If it's depth, the profile is **inverted** to transform it into a level-based elevation profile.
-
 - The imported profile is shown on the right as a stage vs. station plot.
 
 3️⃣ **Enter water surface level (stage)**
