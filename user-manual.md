@@ -17,15 +17,16 @@
 [1. Introduction](#1-introduction)  
 [2. Installation](#2-installation)  
 [3. Home Screen](#3-home-screen)  
-[4. Starting a New Project / Loading an Existing One](#4-starting-a-new-project--loading-an-existing-one)  
-[5. Select Kind of Footage](#5-select-kind-of-footage)  
-[6. Define Video Range](#6-define-video-range)  
-[7. Rectification Step (Depends on Footage Type)](#7-rectification-step-depends-on-footage-type)  
-[8. Define Cross Section(s)](#8-define-cross-sections)  
-[9. Define PIV Parameters](#9-define-piv-parameters)  
-[10. Analyze All Frames](#10-analyze-all-frames)  
-[11. View Results](#11-view-results)  
-[12. Export Summary](#12-export-summary)
+[4. Camera Calibration (Optional Tool)](#4-camera-calibration-optional-tool)  
+[5. Starting a New Project / Loading an Existing One](#5-starting-a-new-project--loading-an-existing-one)  
+[6. Select Kind of Footage](#6-select-kind-of-footage)  
+[7. Define Video Range](#7-define-video-range)  
+[8. Rectification Step (Depends on Footage Type)](#8-rectification-step-depends-on-footage-type)  
+[9. Define Cross Section(s)](#9-define-cross-sections)  
+[10. Define PIV Parameters](#10-define-piv-parameters)  
+[11. Analyze All Frames](#11-analyze-all-frames)  
+[12. View Results](#12-view-results)  
+[13. Export Summary](#13-export-summary)
 
 
 
@@ -96,6 +97,7 @@ Here you can:
 
 - **Start** → Begin a new project.
 - **Load Project** → Open a previously saved project.
+- **Calibrate Camera** (camera icon, bottom-left) → Open the Camera Calibration tool. See [4. Camera Calibration (Optional Tool)](#4-camera-calibration-optional-tool).
 - **Check Version** → See the current installed version (shown at the bottom).
 - **Select Language** → Change the interface language (bottom, globe icon).
 
@@ -104,7 +106,77 @@ Once you start or load a project, the interface switches to the two-panel workfl
 
 ---
 
-# 4. Starting a New Project / Loading an Existing One
+# 4. Camera Calibration (Optional Tool)
+
+<figure>
+    <img src="river/docs/_static/09%20-%20Calibration.png" width=800>
+    <p><i>Camera Calibration tool, opened from the Home screen</i></p>
+</figure>
+
+This tool is **independent of any project** — it can be opened at any time from the **camera icon** in the bottom-left corner of the Home screen, before you start or load a project. It doesn't require a video; instead, it works from a folder of still photos of a calibration pattern.
+
+> 💡 **Note:**  
+> This is not the same as the **Fixed Camera — Control Points** step described in [8. Rectification Step](#8-rectification-step-depends-on-footage-type).  
+> - **Camera Calibration** (this tool) solves the camera's **intrinsic** parameters — focal length, principal point, and lens distortion — from photos of a calibration board. Its only purpose is to **undistort (correct lens distortion in) extracted video frames** before they are processed.  
+> - **Fixed Camera — Control Points** solves the camera's **extrinsic** parameters (position and orientation in the world) from ground control points, to convert pixel coordinates into real-world coordinates for a specific project.  
+> You can use Camera Calibration on its own, or combine it with any footage type that benefits from lens correction (most commonly UAV footage from cameras with noticeable lens distortion, e.g. wide-angle or action-cam lenses).
+
+Once calibrated, a camera can be **saved as a reusable profile** and later selected from the **Define Video Range** step (see [7. Define Video Range](#7-define-video-range)) in any project, without having to recalibrate.
+
+## Workflow steps
+
+1️⃣ **Show Board**
+- Click **Show Board** to generate a printable/displayable **calibration pattern** (a checkerboard combined with ArUco markers) and open it full-screen in a separate window.
+- Print this pattern, or display it on a second screen or tablet.
+- Click **⬇ Save PNG** (bottom-right of the board window) to save the pattern image, or press **Esc** to close the board window.
+
+2️⃣ **Photograph the board**
+- Using the camera you want to calibrate (the same camera/lens you will use to record your river footage), take **many photos** of the printed/displayed board:
+  - Vary the **distance**, **angle**, and **position** of the board within the frame (center, corners, edges).
+  - Make sure the pattern is **in focus** and well lit — blurry photos are automatically skipped during calibration.
+  - The more varied and numerous the photos, the more accurate and reliable the calibration.
+
+3️⃣ **Import Images**
+- Click **Import Images** and select the folder containing your photos, or **drag and drop** the folder directly onto the right panel.
+- Imported photos appear as a **thumbnail carousel** at the bottom of the left panel; click a thumbnail (or use the ◀️ ▶️ arrow keys) to preview it full-size.
+
+4️⃣ **Solve**
+- Click **Solve** to run the calibration.
+- A progress ring shows the percentage complete while RIVeR detects the calibration pattern in each photo.
+
+5️⃣ **Review the results**
+
+<figure>
+    <img src="river/docs/_static/09%20-%20Calibration%20-%20results.png" width=800>
+    <p><i>Calibration results: quality grades, histogram, and recommendations</i></p>
+</figure>
+
+Once solved, the right panel shows:
+- An **overall quality grade** (Good / Fair / Bad), plus individual grades for: Median RMS, P90 RMS, Coverage, Edge Reach, Pose Spread, and Center Offset.
+- A list of **recommendations** for any metric that isn't graded "Good" (e.g. *"Add frames hitting edges/corners; vary angle & distance."*) — follow these and re-import more photos if you want to improve the result.
+- A **reprojection error histogram**, showing how accurately the model predicts each detected corner (lower is better).
+
+On the left panel, use the view buttons above the carousel (or keyboard shortcuts `1`, `2`, `h`) to switch between:
+- **Original** — the raw photo.
+- **Corrected** — the undistorted (lens-corrected) version of the same photo, with the detected corners (red), the model's predicted corners (white), and the error between them (cyan lines) overlaid.
+- **Heatmap** — a coverage map showing which parts of the sensor were well sampled by your photos (bright) versus poorly covered (dark).
+
+> 📌 **Tip:**  
+> Photos that couldn't be used (too blurry, or the pattern wasn't detected) are shown **dimmed** in the carousel, with a "Not used in calibration" tooltip — you don't need to remove them manually.
+
+6️⃣ **Save as a camera profile**
+- Fill in a **Camera name** and **Lens** (e.g. zoom level) to identify this calibration — existing names are suggested as you type, so you can add more lenses to a camera you already calibrated.
+- The **Resolution** field is filled in automatically from your photos.
+- Click **Save**. RIVeR confirms with the folder where the profile was saved.
+
+> ⚠️ **Important:**  
+> A saved profile is tied to the **resolution** of the photos used to calibrate it. When selecting a profile later in the Define Video Range step, the video's resolution must match — otherwise RIVeR will ask you to pick a different profile or calibrate again at the correct resolution.
+
+Click **Back** to close the tool and return to the Home screen.
+
+---
+
+# 5. Starting a New Project / Loading an Existing One
 
 From the Home screen, you can choose:
 
@@ -140,7 +212,7 @@ Once loaded, you can continue the analysis, adjust settings, or directly export 
 > 📌  **Tip:** Use the “Load Project” option if you want to revisit past work, compare different settings, or avoid reprocessing.
 ---
 
-# 5. Select Kind of Footage
+# 6. Select Kind of Footage
 
 <figure>
     <img src="river/docs/_static/01%20-%20Footage.png" width=800>
@@ -201,7 +273,7 @@ This makes the workflow **linear but flexible**, ensuring all required informati
 
 ---
 
-# 6. Define Video Range
+# 7. Define Video Range
 
 <figure>
     <img src="river/docs/_static/02%20-%20Video%20Range.png" width=800>
@@ -283,6 +355,42 @@ For example, at the Video Range selection step, unlocking the lock reveals **fra
 > 💡 **Note:**
 > Higher resolutions mean significantly **larger processing time and data size** — adjust with care.
 
+Unlocking the lock also reveals two additional options: **Lens Correction** and, for UAV footage only, **Video Stabilization**.
+
+### Lens Correction
+
+If you have previously calibrated your camera using the [Camera Calibration tool](#4-camera-calibration-optional-tool), you can select the matching **camera / lens profile** here.  
+When enabled, RIVeR undistorts every extracted frame using that profile before any further processing.
+
+> ⚠️ **Important:**  
+> The profile's calibrated resolution must match your video's resolution. If it doesn't, RIVeR will block you from continuing and ask you to pick another profile or calibrate again at the correct resolution.  
+> If no profiles have been saved yet, this toggle is disabled with a hint pointing you to the Camera Calibration tool.
+
+### Video Stabilization (UAV footage only)
+
+<figure>
+    <img src="river/docs/_static/02lock%20-%20Stabilization.png" width=500>
+    <p><i>Stabilize video toggle and region editor (UAV footage)</i></p>
+</figure>
+
+If your drone footage suffers from camera shake or vibration (e.g. hovering drift, wind gusts, gimbal jitter), RIVeR can stabilize the extracted frames before analysis. This option only appears for **UAV footage** — oblique and fixed-camera setups assume a static camera and don't need it.
+
+- Turn on **Stabilize video** to start defining **stabilization regions**.
+- A **stabilization region** is a small box you place over a **fixed, static feature** in the scene — for example a rock, a bridge pier, or any solid structure that does **not** move (avoid placing it on the water itself). RIVeR tracks this feature across frames and uses its motion to work out — and cancel out — the camera's own shake.
+- **At least 2 regions are required** (RIVeR needs two tracked points to solve for translation, rotation, and scale).
+
+**Placing and editing regions:**
+- Click **Add region** to drop a new box (150×150 px by default) onto the video frame.
+- **Drag** the box to move it, or drag its **corner handles** to resize it.
+- Click the green **confirm** button next to the box once you're happy with its position, or the pencil icon on a region in the list to edit it again.
+- Use the trash icon to delete a region.
+- While a region is being edited, the rest of the interface dims to keep your focus on placement; you can also **zoom in** (scroll/pinch, centered on your cursor) for more precise placement.
+
+> 💡 **Note:**  
+> RIVeR remembers your original (unstabilized) frames — if you toggle stabilization off, or edit regions back to what they were before, it won't waste time re-extracting frames unnecessarily.
+
+Once frames are extracted, you can visually verify the result on the **UAV — Pixel Size** step using the **Stabilization** sanity-check view — see [8. Rectification Step → UAV/Drone — Pixel Size](#8-rectification-step-depends-on-footage-type).
+
 
 ## Navigation: Next and Back Buttons
 
@@ -295,7 +403,7 @@ This lets you review or adjust settings anytime without skipping essential steps
 
 ---
 
-# 7. Rectification Step (Depends on Footage Type)
+# 8. Rectification Step (Depends on Footage Type)
 
 After selecting the video range, the next screen will depend on the footage type you selected.  
 This step defines how RIVeR transforms image measurements (in pixels) into real-world distances — a process called **rectification**.
@@ -342,6 +450,24 @@ If you unlock the **lock icon (🔒)**, you can manually enter:
 - Exact pixel coordinates in the image (X/Y).
 
 This offers full control for expert users who need precise calibration.
+
+### Checking Stabilization Results
+
+<figure>
+    <img src="river/docs/_static/03%20-%20Pixel%20Size%20-%20Stabilization.png" width=800>
+    <p><i>Stabilization sanity-check view (only shown if Video Stabilization was enabled)</i></p>
+</figure>
+
+If you enabled **Video Stabilization** in the [Define Video Range](#7-define-video-range) step, a **Stabilization** button appears alongside the frame carousel here.  
+Clicking it replaces the preview with a diagnostic composite image built from your stabilized frames:
+
+- **Dark areas** → these regions stayed consistent across frames — stabilization worked well there.
+- **Bright / hot areas** → these regions still shifted between frames — stabilization struggled there (e.g. the tracked feature wasn't actually static, or tracking failed).
+
+> 📌 **Tip:**  
+> If large parts of the frame appear bright, go back to Define Video Range and try repositioning your stabilization regions onto more clearly static, well-textured features.
+
+Click the **Stabilization** button again to return to browsing individual frames in the carousel.
 
 
 Once everything is set, click **Next** to continue to the common workflow.
@@ -480,7 +606,7 @@ Once you are satisfied with the results, click **Next** to continue to the commo
 
 ---
 
-# 8. Define Cross Section(s)
+# 9. Define Cross Section(s)
 
 <figure>
     <img src="river/docs/_static/04%20-%20Cross%20Sections.png" width=800>
@@ -566,7 +692,7 @@ If you unlock the **lock icon (🔒)**, you will see:
 Once the section is fully defined and checked, click **Next** to proceed to the PIV parameter settings.
 
 ---
-# 9. Define PIV Parameters
+# 10. Define PIV Parameters
 
 <figure>
     <img src="river/docs/_static/05%20-Processing.png" width=800>
@@ -670,7 +796,7 @@ Once you're happy with the test results, click **Next** to proceed to full PIV p
 
 ---
 
-# 10. Analyze All Frames
+# 11. Analyze All Frames
 
 <figure>
     <img src="river/docs/_static/06%20-%20Analizing.png" width=800>
@@ -711,7 +837,7 @@ When you’re ready, click **Next** to move on to discharge calculation.
 
 ---
 
-# 11. View Results
+# 12. View Results
 
 <figure>
     <img src="river/docs/_static/07%20-%20Results.png" width=800>
@@ -803,7 +929,7 @@ Then click **Next** to proceed to the export step.
 
 ---
 
-# 12. Export Summary
+# 13. Export Summary
 
 <figure>
   <img src="river/docs/_static/08%20-%20Summary.png" width=800>
