@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 interface VideoPlayerSeekBarProps {
   bufferAmount: number;
@@ -37,33 +37,39 @@ export const VideoPlayerSeekBar = ({
     }
   };
 
-  const onScrub = (event: MouseEvent) => {
-    if (seekBar.current && scrubbing) {
-      const progress = Math.min(
-        Math.max(((event.clientX - seekBar.current.offsetLeft) * 100) / seekBar.current.clientWidth, 0),
-        100
-      );
-      setProgressAmount(progress);
-    }
-  };
-
-  const onScrubEnd = (event: MouseEvent) => {
-    if (seekBar.current && scrubbing) {
-      setScrubbing(false);
-      if (videoRef.current) {
-        const percentage = Math.min(
-          Math.max((event.clientX - seekBar.current.offsetLeft) / seekBar.current.clientWidth, 0),
-          1
+  const onScrub = useCallback(
+    (event: MouseEvent) => {
+      if (seekBar.current && scrubbing) {
+        const progress = Math.min(
+          Math.max(((event.clientX - seekBar.current.offsetLeft) * 100) / seekBar.current.clientWidth, 0),
+          100
         );
-        const time = percentage * videoRef.current.duration;
-        videoRef.current.currentTime = time;
+        setProgressAmount(progress);
+      }
+    },
+    [scrubbing, setProgressAmount]
+  );
+
+  const onScrubEnd = useCallback(
+    (event: MouseEvent) => {
+      if (seekBar.current && scrubbing) {
+        setScrubbing(false);
         if (videoRef.current) {
-          setControl((prevControl) => ({ ...prevControl, play: true }));
-          videoRef.current.play();
+          const percentage = Math.min(
+            Math.max((event.clientX - seekBar.current.offsetLeft) / seekBar.current.clientWidth, 0),
+            1
+          );
+          const time = percentage * videoRef.current.duration;
+          videoRef.current.currentTime = time;
+          if (videoRef.current) {
+            setControl((prevControl) => ({ ...prevControl, play: true }));
+            videoRef.current.play();
+          }
         }
       }
-    }
-  };
+    },
+    [scrubbing, videoRef, setControl]
+  );
 
   useEffect(() => {
     document.addEventListener('mousemove', onScrub);

@@ -3,13 +3,14 @@ import { defaultCoordinates, defaultDistances, ObliqueMode } from './types';
 
 const initialState: ObliqueMode = {
   drawPoints: false,
+  isDraggingPoint: false,
   coordinates: defaultCoordinates,
   rwCoordinates: defaultCoordinates,
   distances: defaultDistances,
   isDefaultCoordinates: true,
   isDistancesLoaded: false,
   solution: null,
-  extraFields: false
+  extraFields: false,
 };
 
 const obliqueSlice = createSlice({
@@ -32,10 +33,14 @@ const obliqueSlice = createSlice({
     },
     setExtraFields: (state) => {
       state.extraFields = !state.extraFields;
-    }
+    },
+    setIsDraggingPoint: (state, action: PayloadAction<boolean>) => {
+      state.isDraggingPoint = action.payload;
+    },
   },
 });
 
-export const { setObliquePoints, setDrawPoints, setDefaultObliqueState, setExtraFields } = obliqueSlice.actions;
+export const { setObliquePoints, setDrawPoints, setDefaultObliqueState, setExtraFields, setIsDraggingPoint } =
+  obliqueSlice.actions;
 
 export default obliqueSlice.reducer;

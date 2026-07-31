@@ -68,13 +68,21 @@
     },
     "framesResolution": "Resolución de Imágenes",
     "lensCorrection": "Corrección de lente",
-    "noProfiles": "Sin perfiles — ir a Calibración"
+    "noProfiles": "Sin perfiles — ir a Calibración",
+    "stabilizeVideo": "Estabilizar video",
+    "stabilizationRegion": "Región",
+    "editingRegion": "Editando región {{n}}",
+    "addRegion": "Agregar región",
+    "exitRegionMode": "Salir de edición de región",
+    "minRegionsWarning": "Agregá al menos 2 regiones para la estabilización",
+    "editingRegionsWarning": "Editando las regiones de estabilización"
   },
   "PixelSize": {
     "title": "Tamaño de Píxel",
     "lineLength": "Longitud de Línea",
     "pixelSize": "Tamaño de Píxel",
     "drawLine": "Dibujar Línea",
+    "carouselStabilization": "Estabilización",
     "Errors": {
       "required": "Todos los campos son obligatorios. Por favor consulte el formato de Tamaño de Píxel.",
       "lineLength": "Longitud de Línea inválida: la Longitud de Línea debe ser un número positivo, que puede incluir decimales. Ingrese un valor válido.",
@@ -135,6 +143,7 @@
     "warningTitle": "Eliminar Sección",
     "mask": "Máscara",
     "addMask": "Agregar Máscara",
+    "editingMaskWarning": "Editando la máscara {{n}}",
     "bankRight": "D",
     "bankLeft": "I"
   },
@@ -286,6 +295,8 @@
     "invalidDistancesNotValidValue": "Formato de distancias de puntos inválido. Algunos valores de distancias no son números válidos.",
     "invalidDistancesNegativeValue": "Formato de distancias de puntos inválido. No se permiten valores negativos de distancias.",
     "invalidBathimetryFileFormat": "Formato de Batimetría inválido.",
+    "bathimetryOutOfZRange": "Los niveles de la batimetría están muy lejos del rango Z de los puntos de control. Revisá el archivo o las unidades.",
+    "invalidBathimetryDepthNotAllowed": "Los archivos de batimetría de profundidad no son compatibles con este modo. Importá un perfil de nivel/altura en su lugar.",
     "Cli": {
       "windowsSizesError": "El tamaño de la ventana es demasiado grande para la Región De Interés seleccionada.",
       "bboxNotDefined": "Región De Interés no definida."
@@ -293,6 +304,7 @@
   },
   "Loader": {
     "extractingFrames": "Extrayendo imágenes de video.",
+    "stabilizingFrames": "Estabilizando imágenes de video.",
     "results": "Generando estadísticas del perfil de velocidad.",
     "videoConversion": "Convirtiendo el video a formato mp4. Por favor espere.",
     "maskAndRoi": "Definiendo RDI y máscaras."
@@ -312,8 +324,8 @@
     "import": "Importar Imágenes",
     "solve": "Resolver",
     "solving": "Resolviendo…",
-    "overlay": "Superposición",
-    "undistorted": "Sin Distorsión",
+    "overlay": "Original",
+    "undistorted": "Corregida",
     "heatmap": "Mapa de Calor",
     "dropZone": "Suelta una carpeta de imágenes de calibración",
     "dropHint": "o usa Importar Imágenes",

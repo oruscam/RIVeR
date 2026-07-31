@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { CalibrationState, CalibrationStatus, CalibrationSummary, CsvRow } from './types';
+import { CalibrationState, CalibrationStatus, CalibrationSummary, CsvRow, FrameCorners } from './types';
 
 const initialState: CalibrationState = {
   status: 'idle',
@@ -13,8 +13,11 @@ const initialState: CalibrationState = {
   heatmapBase64: null,
   overlayPaths: [],
   undistortedPaths: [],
+  perFrameCorners: [],
   profilePath: '',
   progressMsg: '',
+  progressPercentage: '',
+  progressTime: '',
   errorMsg: '',
 };
 
@@ -37,6 +40,8 @@ const calibrationSlice = createSlice({
       state.overlayPaths = [];
       state.profilePath = '';
       state.progressMsg = '';
+      state.progressPercentage = '';
+      state.progressTime = '';
       state.errorMsg = '';
       state.status = 'idle';
     },
@@ -62,6 +67,7 @@ const calibrationSlice = createSlice({
         heatmapBase64: string | null;
         overlayPaths: string[];
         undistortedPaths: string[];
+        perFrameCorners: FrameCorners[];
       }>
     ) => {
       state.usedImages = action.payload.usedImages;
@@ -71,10 +77,13 @@ const calibrationSlice = createSlice({
       state.heatmapBase64 = action.payload.heatmapBase64;
       state.overlayPaths = action.payload.overlayPaths;
       state.undistortedPaths = action.payload.undistortedPaths;
+      state.perFrameCorners = action.payload.perFrameCorners;
       state.status = 'solved';
     },
-    setProgressMsg: (state, action: PayloadAction<string>) => {
-      state.progressMsg = action.payload;
+    setProgress: (state, action: PayloadAction<{ msg: string; percentage: string; time: string }>) => {
+      state.progressMsg = action.payload.msg;
+      state.progressPercentage = action.payload.percentage;
+      state.progressTime = action.payload.time;
     },
     setErrorMsg: (state, action: PayloadAction<string>) => {
       state.errorMsg = action.payload;
@@ -84,7 +93,7 @@ const calibrationSlice = createSlice({
   },
 });
 
-export const { setStatus, setImageDir, setImages, setSolveResult, setProgressMsg, setErrorMsg, resetCalibration } =
+export const { setStatus, setImageDir, setImages, setSolveResult, setProgress, setErrorMsg, resetCalibration } =
   calibrationSlice.actions;
 
 export default calibrationSlice.reducer;

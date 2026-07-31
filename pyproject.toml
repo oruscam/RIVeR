@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "river-cli"
-version = "3.5.1"
+version = "3.5.2"
 description = "A CLI application for Large Scale Particle Image Velocimetry (LSPIV)."
 readme = "readme.md"
 authors = [
@@ -40,7 +40,7 @@ Homepage = "https://github.com/aPatal/RIVeR/"
 river-cli = "river.cli.__main__:cli"
 
 [project.optional-dependencies]
-dev = ["ruff", "bumpver"]
+dev = ["ruff", "bumpver", "pytest"]
 
 [tool.setuptools]
 packages = ["river", "river.core", 'river.cli', 'river.cli.commands']
@@ -98,7 +98,7 @@ docstring-code-format = false
 docstring-code-line-length = "dynamic"
 
 [tool.bumpver]
-current_version = "3.5.1"
+current_version = "3.5.2"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true

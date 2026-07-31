@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
-import { ProjectConfig } from './interfaces';
+import { ProjectConfig, RiverCli } from './interfaces';
 
-async function realWorldToPixel(PROJECT_CONFIG: ProjectConfig, riverCli: Function) {
+async function realWorldToPixel(PROJECT_CONFIG: ProjectConfig, riverCli: RiverCli) {
   ipcMain.handle('real-world-to-pixel', async (_event, args) => {
     const options = [
       'transform-real-world-to-pixel',

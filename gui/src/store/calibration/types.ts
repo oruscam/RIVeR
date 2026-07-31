@@ -34,6 +34,12 @@ export interface CsvRow {
   count: number;
 }
 
+export interface FrameCorners {
+  detected: number[][];
+  projected: number[][];
+  rms: number;
+}
+
 export interface CalibrationState {
   status: CalibrationStatus;
   imageDir: string;
@@ -46,7 +52,10 @@ export interface CalibrationState {
   heatmapBase64: string | null;
   overlayPaths: string[];
   undistortedPaths: string[];
+  perFrameCorners: FrameCorners[];
   profilePath: string;
   progressMsg: string;
+  progressPercentage: string;
+  progressTime: string;
   errorMsg: string;
 }

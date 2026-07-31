@@ -1,7 +1,8 @@
 import { ipcMain } from 'electron';
 import { PROJECT_CONFIG } from '../main';
+import { RiverCli } from './interfaces';
 
-async function recommendRoiHeight(riverCli: Function) {
+async function recommendRoiHeight(riverCli: RiverCli) {
   ipcMain.handle('recommend-roi-height', async () => {
     const { xsectionsPath, logsPath, matrixPath } = PROJECT_CONFIG;
 

@@ -1,10 +1,10 @@
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
 const ffmpeg = require('fluent-ffmpeg');
-import { getFFMPEG } from "./getFFMPEG";
-import * as fs from "fs/promises";
-import fsSync from "fs";
-import path from "path";
+import { getFFMPEG } from './getFFMPEG';
+import * as fs from 'fs/promises';
+import fsSync from 'fs';
+import path from 'path';
 
 const { ffmpegPath, ffprobePath } = getFFMPEG();
 
@@ -16,9 +16,9 @@ if (ffmpegPath && ffprobePath) {
 function runFfmpegPromise(command: any): Promise<void> {
   return new Promise((resolve, reject) => {
     command
-      .on("end", () => resolve())
-      .on("error", (err: any, stdout: any, stderr: any) => {
-        reject(new Error(String(err) + "\n" + String(stderr || stdout || "")));
+      .on('end', () => resolve())
+      .on('error', (err: any, stdout: any, stderr: any) => {
+        reject(new Error(String(err) + '\n' + String(stderr || stdout || '')));
       })
       .run();
   });
@@ -37,26 +37,21 @@ type OutputFormat = 'gif' | 'mp4';
  *
  * Estrategia:
  * - Lee todos los archivos *.jpg que tienen nombres únicamente numéricos.
- * - Ordena por el valor numérico. 
+ * - Ordena por el valor numérico.
  * - Construye un archivo temporal de tipo "concat" que indica la duración de cada frame (1/fps).
  * - Para GIF:  Usa palettegen y paletteuse para obtener colores correctos.
  * - Para MP4: Usa codec H.264 con configuración optimizada.
  */
-async function createVideoFromFrames(
-  folder: string,
-  outputPath: string,
-  fps: number,
-  format: OutputFormat
-) {
-  console.log(`Creating ${format. toUpperCase()} at: `, outputPath);
-  console.log("Using frames from:", folder);
-  console.log("Frames per second (fps):", fps);
+async function createVideoFromFrames(folder: string, outputPath: string, fps: number, format: OutputFormat) {
+  console.log(`Creating ${format.toUpperCase()} at: `, outputPath);
+  console.log('Using frames from:', folder);
+  console.log('Frames per second (fps):', fps);
 
   if (!folder || !outputPath) {
-    throw new Error("folder and outputPath are required");
+    throw new Error('folder and outputPath are required');
   }
   if (!Number.isFinite(fps) || fps <= 0) {
-    throw new Error("fps must be a positive number");
+    throw new Error('fps must be a positive number');
   }
   if (format !== 'gif' && format !== 'mp4') {
     throw new Error("format must be either 'gif' or 'mp4'");
@@ -74,7 +69,7 @@ async function createVideoFromFrames(
     .filter(Boolean) as { name: string; num: number }[];
 
   if (matched.length === 0) {
-    throw new Error("No JPG files with numeric names found in folder: " + folder);
+    throw new Error('No JPG files with numeric names found in folder: ' + folder);
   }
 
   // Ordenar por valor numérico para mantener el orden aun con saltos
@@ -90,18 +85,18 @@ async function createVideoFromFrames(
   }
 
   // Archivos temporales
-  const palettePath = path. join(outDir, ".tmp_palette.png");
-  const listPath = path.join(outDir, ".tmp_frames_list. txt");
+  const palettePath = path.join(outDir, '.tmp_palette.png');
+  const listPath = path.join(outDir, '.tmp_frames_list. txt');
 
   // Construir contenido del archivo concat.
   // Formato:
   // file '/abs/path/to/frame1.jpg'
   // duration 0.1
-  // ... 
+  // ...
   const frameDuration = 1 / fps;
-  let listContent = "";
+  let listContent = '';
   for (const p of framePaths) {
-    const safePath = p. includes("'") ? p.replace(/'/g, "'\\''") : p;
+    const safePath = p.includes("'") ? p.replace(/'/g, "'\\''") : p;
     listContent += `file '${safePath}'\n`;
     listContent += `duration ${frameDuration}\n`;
   }
@@ -112,7 +107,7 @@ async function createVideoFromFrames(
 
   try {
     // escribir el archivo temporal list.txt
-    await fs.writeFile(listPath, listContent, "utf8");
+    await fs.writeFile(listPath, listContent, 'utf8');
 
     console.log(`Built concat list with ${framePaths.length} frames at ${listPath}`);
 
@@ -123,46 +118,49 @@ async function createVideoFromFrames(
       // 1) Generar paleta usando concat demuxer
       const paletteCmd = ffmpeg()
         .input(listPath)
-        .inputOptions(["-f", "concat", "-safe", "0"])
+        .inputOptions(['-f', 'concat', '-safe', '0'])
         .videoFilters(`fps=${fps},palettegen`)
-        .outputOptions(["-y"])
+        .outputOptions(['-y'])
         .output(palettePath);
 
       await runFfmpegPromise(paletteCmd);
 
-      console.log("Palette generated. Creating GIF using palette...");
+      console.log('Palette generated. Creating GIF using palette...');
 
       // 2) Crear GIF usando la paleta generada
       const gifCmd = ffmpeg()
         .input(listPath)
-        .inputOptions(["-f", "concat", "-safe", "0"])
+        .inputOptions(['-f', 'concat', '-safe', '0'])
         .input(palettePath)
         .complexFilter([`fps=${fps},paletteuse`])
-        .outputOptions(["-y", "-loop", "0"])
+        .outputOptions(['-y', '-loop', '0'])
         .output(outputPath);
 
       await runFfmpegPromise(gifCmd);
 
-      console.log("GIF created successfully at:", outputPath);
+      console.log('GIF created successfully at:', outputPath);
     } else {
       // === CREAR MP4 ===
-      console.log("Creating MP4 with H.264 codec...");
+      console.log('Creating MP4 with H.264 codec...');
 
       const mp4Cmd = ffmpeg()
         .input(listPath)
-        .inputOptions(["-f", "concat", "-safe", "0"])
-        .videoCodec("libx264")
+        .inputOptions(['-f', 'concat', '-safe', '0'])
+        .videoCodec('libx264')
         .outputOptions([
-          "-y",
-          "-pix_fmt", "yuv420p", // Compatibilidad con reproductores
-          "-preset", "medium", // Balance entre velocidad y calidad
-          "-crf", "23" // Calidad (18-28, menor = mejor calidad)
+          '-y',
+          '-pix_fmt',
+          'yuv420p', // Compatibilidad con reproductores
+          '-preset',
+          'medium', // Balance entre velocidad y calidad
+          '-crf',
+          '23', // Calidad (18-28, menor = mejor calidad)
         ])
         .output(outputPath);
 
       await runFfmpegPromise(mp4Cmd);
 
-      console.log("MP4 created successfully at:", outputPath);
+      console.log('MP4 created successfully at:', outputPath);
     }
   } finally {
     // limpiar archivos temporales (ignorar errores)

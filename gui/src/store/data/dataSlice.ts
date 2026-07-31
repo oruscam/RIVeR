@@ -33,14 +33,15 @@ const initialState: DataState = {
     active: 0,
   },
   quiver: null,
+  fullQuiver: null,
   isBackendWorking: false,
   isDataLoaded: false,
   hasChanged: false,
   colorbarLimits: {
     min: null,
     max: null,
-    default: true
-  }
+    default: true,
+  },
 };
 
 const dataSlice = createSlice({
@@ -51,6 +52,7 @@ const dataSlice = createSlice({
       state.processing.form = action.payload;
       state.hasChanged = true;
       state.quiver = null;
+      state.fullQuiver = null;
     },
     updateProcessingPar: (state, action: PayloadAction<string[]>) => {
       state.processing.parImages = action.payload;
@@ -67,14 +69,20 @@ const dataSlice = createSlice({
     },
     setActiveImage: (state, action: PayloadAction<number>) => {
       state.images.active = action.payload;
-
     },
     setQuiver: (state, action: PayloadAction<{ quiver: Quiver | null }>) => {
-      state.quiver = action.payload.quiver;
-      if (action.payload.quiver?.test) {
+      const incoming = action.payload.quiver;
+      state.quiver = incoming;
+      if (incoming?.test) {
+        // A "Test" run only affects the single tested frame pair, it must
+        // never overwrite the persisted full-analize result.
         state.hasChanged = true;
       } else {
+        // Either a full "Analize" result (test: false) or an explicit clear
+        // (null) coming from a parameter/mask change: both are authoritative
+        // over the full-analize result, so keep them in sync.
         state.hasChanged = false;
+        state.fullQuiver = incoming;
       }
       state.processing.activeMaskIndex = null;
     },
@@ -103,12 +111,24 @@ const dataSlice = createSlice({
     },
     deleteMask: (state, action: PayloadAction<number>) => {
       if (state.processing.masks) {
-        state.processing.masks.splice(action.payload, 1);
-        state.processing.activeMaskIndex = state.processing.masks.length > 0 ? 0 : null;
+        const deletedIndex = action.payload;
+        state.processing.masks.splice(deletedIndex, 1);
+
+        // Only clear/shift the active mask if it's the one that got deleted or
+        // sits after it — never force-select a different mask (e.g. index 0)
+        // when nothing was being edited, or when editing a mask untouched by
+        // this deletion.
+        const current = state.processing.activeMaskIndex;
+        if (current === deletedIndex) {
+          state.processing.activeMaskIndex = null;
+        } else if (current !== null && current > deletedIndex) {
+          state.processing.activeMaskIndex = current - 1;
+        }
+
         // Rebuild visible indices: remove deleted, shift down higher indices
         state.processing.visibleMaskIndices = state.processing.visibleMaskIndices
-          .filter((i) => i !== action.payload)
-          .map((i) => (i > action.payload ? i - 1 : i));
+          .filter((i) => i !== deletedIndex)
+          .map((i) => (i > deletedIndex ? i - 1 : i));
       }
     },
     updateMask: (state, action: PayloadAction<{ index: number; points?: Point[] } | null>) => {
@@ -137,11 +157,14 @@ const dataSlice = createSlice({
         visible.splice(pos, 1);
       }
     },
-    setColorbarLimits: (state, action: PayloadAction<{ min: number | null; max: number | null; default: boolean }>) => {
+    setColorbarLimits: (
+      state,
+      action: PayloadAction<{ min: number | null; max: number | null; default: boolean }>
+    ) => {
       state.colorbarLimits.min = action.payload.min;
       state.colorbarLimits.max = action.payload.max;
       state.colorbarLimits.default = action.payload.default;
-    }
+    },
   },
 });
 

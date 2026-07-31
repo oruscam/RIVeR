@@ -24,9 +24,8 @@ export const Header = () => {
   const average = (sum / (divider !== 0 ? divider : 1)) * qF;
 
   const titleText = `${riverName}@${site}`;
-  const titleFontSize = titleText.length > 20
-    ? `${Math.max(1.0, 2 - (titleText.length - 20) * 0.04)}em`
-    : undefined;
+  const titleFontSize =
+    titleText.length > 20 ? `${Math.max(1.0, 2 - (titleText.length - 20) * 0.04)}em` : undefined;
 
   return (
     <div id="report-header-container">

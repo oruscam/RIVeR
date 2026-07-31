@@ -1,14 +1,10 @@
 """
-File Name: image_preprocessing.py
-Project Name: RIVeR-LAC
-Description: Perform image filtering before Particle Image Velocimetry (PIV).
-
-Created Date: 2024-07-22
-Author: Antoine Patalano
-Email: antoine.patalano@unc.edu.ar
-Company: UNC / ORUS
-
-This script contains functions for processing and analyzing PIV images.
+File Name:   image_preprocessing.py
+Project:     RIVeR - Rectification of Image Velocity Results
+Description: Image filtering utilities (grayscale conversion, CLAHE, background subtraction) for PIV preprocessing.
+Authors:     Antoine Patalano
+Institution: ORUS / UNC
+License:     AGPL-3.0-or-later
 """
 
 from concurrent.futures import ThreadPoolExecutor

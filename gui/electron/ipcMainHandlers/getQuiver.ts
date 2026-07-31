@@ -2,22 +2,23 @@ import { ipcMain } from 'electron';
 import { readResultsPiv } from './utils/readResultsPiv';
 import * as fs from 'fs';
 import * as path from 'path';
-import { clearResultsPiv } from './utils/clearResultsPiv';
 import { clearCrossSections } from './utils/clearCrossSections';
 import { PROJECT_CONFIG } from '../main';
-import { ProjectConfig } from './interfaces';
+import { ProjectConfig, RiverCli } from './interfaces';
 
-async function getQuiver(riverCli: Function) {
+async function getQuiver(riverCli: RiverCli) {
   ipcMain.handle('get-quiver-test', async (_event, args) => {
-    const { resultsPath, settingsPath, logsPath, xsectionsPath } = PROJECT_CONFIG;
+    const { logsPath } = PROJECT_CONFIG;
 
     const { framesToTest, formValues } = args;
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
     filePrefix = filePrefix === undefined ? '' : filePrefix.replace(/\/$/, '');
 
-    await clearResultsPiv(resultsPath, settingsPath);
-    await clearCrossSections(xsectionsPath);
+    // A "Test" run is transient and never persists results to disk, so it
+    // must not clear the piv_results.json / cross-sections state left by a
+    // previous full "Analize" — that data is still valid and is what lets
+    // the user proceed to Results without re-running the full analysis.
 
     let frames = [];
 

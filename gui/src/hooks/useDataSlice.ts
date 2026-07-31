@@ -33,9 +33,8 @@ import { verifyWindowsSizes } from '../helpers';
 
 export const useDataSlice = () => {
   const dispatch = useDispatch();
-  const { processing, images, quiver, isBackendWorking, isDataLoaded, hasChanged, colorbarLimits } = useSelector(
-    (state: RootState) => state.data
-  );
+  const { processing, images, quiver, fullQuiver, isBackendWorking, isDataLoaded, hasChanged, colorbarLimits } =
+    useSelector((state: RootState) => state.data);
   const { sections, activeSection, transformationMatrix } = useSelector((state: RootState) => state.section);
   const { video } = useSelector((state: RootState) => state.project);
 
@@ -137,10 +136,10 @@ export const useDataSlice = () => {
             u_median: data.u_median,
             v_median: data.v_median,
             test: true,
+            testFrameIndex: active,
           },
         })
       );
-
 
       dispatch(setBackendWorking(false));
     } catch (error) {
@@ -327,7 +326,7 @@ export const useDataSlice = () => {
         height_roi: value,
         data: isDataLoaded,
         user_masks: processing.masks,
-        is_roi_calulation: true
+        is_roi_calulation: true,
       });
 
       if (error?.message) {
@@ -361,38 +360,38 @@ export const useDataSlice = () => {
   };
 
   const onAddMask = () => {
-    const { data, parameters } = video
-    const { width, height } = data
-    const { factor } = parameters
+    const { data, parameters } = video;
+    const { width, height } = data;
+    const { factor } = parameters;
 
     // Triangle points
     const points = [
-      { x: (width * factor) / 2, y: (height * factor) / 2 - (height * factor) * 0.1 },
-      { x: (width * factor) / 2 - (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1 },
-      { x: (width * factor) / 2 + (width * factor) * 0.075, y: (height * factor) / 2 + (height * factor) * 0.1 },
+      { x: (width * factor) / 2, y: (height * factor) / 2 - height * factor * 0.1 },
+      { x: (width * factor) / 2 - width * factor * 0.075, y: (height * factor) / 2 + height * factor * 0.1 },
+      { x: (width * factor) / 2 + width * factor * 0.075, y: (height * factor) / 2 + height * factor * 0.1 },
     ];
 
     dispatch(setHasChanged({ value: true }));
     dispatch(addMask(points));
-  }
+  };
 
   const onDeleteMask = (index: number) => {
     dispatch(setHasChanged({ value: true }));
     dispatch(deleteMask(index));
-  }
+  };
 
   const onUpdateMaskPoints = (maskIndex: number, points: { x: number; y: number }[]) => {
     dispatch(setHasChanged({ value: true }));
     dispatch(updateMask({ index: maskIndex, points }));
-  }
+  };
 
   const onUpdateActiveMask = (index: number) => {
     if (index === processing.activeMaskIndex) {
-      dispatch(updateMask(null))
-      return
+      dispatch(updateMask(null));
+      return;
     }
     dispatch(updateMask({ index }));
-  }
+  };
 
   const onToggleMaskVisibility = (index: number) => {
     dispatch(toggleMaskVisibility(index));
@@ -406,7 +405,7 @@ export const useDataSlice = () => {
       window.ipcRenderer.invoke('set-colorbar-limits', { min: min, max: max });
       dispatch(setColorbarLimits({ min: min, max: max, default: false }));
     }
-  }
+  };
 
   interface ExportGifParams {
     image: { width: number; height: number };
@@ -432,18 +431,17 @@ export const useDataSlice = () => {
         step,
         colorbarLimits,
         unitSistem,
-      })
+      });
       // dispatch(setBackendWorking(false));
 
       return { time, path };
-
     } catch (error) {
       console.log(error);
       return {
-        message: 'Error creating gif'
-      }
+        message: 'Error creating gif',
+      };
     }
-  }
+  };
 
   return {
     // ATRIBUTES
@@ -451,8 +449,8 @@ export const useDataSlice = () => {
     images,
     processing,
     quiver,
+    fullQuiver,
     colorbarLimits,
-
 
     // METHODS
     onAddMask,

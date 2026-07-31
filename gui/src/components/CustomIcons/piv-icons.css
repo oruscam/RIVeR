@@ -59,6 +59,13 @@ body {
     transform: scale(0.92);
 }
 
+.ib:disabled {
+    border-color: var(--disabled-button);
+    color: var(--disabled-button);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .ib.active {
     background: var(--primary-text-color, #fff);
     color: var(--secondary-background-color, #000);

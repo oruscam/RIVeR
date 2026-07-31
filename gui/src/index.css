@@ -33,6 +33,7 @@
   --background-error:   #ED6B57;
   --success-color:      #62C655;
   --success-background: #2D671B;
+  --warning-color:      #F5BF61;
 
   /* Borders & grid */
   --border-color:         #2a2a2a;
@@ -98,6 +99,7 @@
   --background-error:   #C0392B;
   --success-color:      #2E7D32;
   --success-background: #E8F5E9;
+  --warning-color:      #B8860B;
 
   /* Borders & grid */
   --border-color:         #CCC8C0;
@@ -163,6 +165,7 @@
   --background-error:   #ff5555;
   --success-color:      #50fa7b;
   --success-background: #1a3a22;
+  --warning-color:      #ffb86c;
 
   /* Borders & grid */
   --border-color:         #44475a;
@@ -242,6 +245,8 @@ html {
   font-size: 18px;
   font-weight: 400;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: transform 0.1s;
 }
 
@@ -277,6 +282,8 @@ html {
   font-size: 20px;
   font-weight: 400;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: background-color 0.1s, color 0.1s, transform 0.1s;
 }
 
@@ -309,6 +316,8 @@ html {
   font-size: 20px;
   font-weight: 400;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
   transition: background-color 0.1s, color 0.1s, transform 0.1s;
   cursor: pointer;
   padding: 3px;
@@ -375,6 +384,10 @@ html {
 .button-with-loader p {
   font-size: 20px;
   font-weight: 400;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
 
 .button-with-loader:hover {

@@ -88,7 +88,7 @@ If you don't want to bother with code at all (we get it, sometimes you just want
 
 | ⊞ Windows | ⌘ macOS | ◆ Linux |
 |:---:|:---:|:---:|
-| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.5.1/RIVeR-Windows-3.5.1-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.5.1/RIVeR-Mac-3.5.1-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.5.1/RIVeR-Linux-3.5.1.deb) |
+| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.5.2/RIVeR-Windows-3.5.2-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.5.2/RIVeR-Mac-3.5.2-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.5.2/RIVeR-Linux-3.5.2.deb) |
 
 These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application — no Python or JavaScript knowledge required!
 

@@ -19,7 +19,7 @@ interface obliqueSvgProps {
   height: number;
 }
 
-export const obliqueSvg = ({ factor, coordinates, distances, svgElement, width, height }: obliqueSvgProps) => {
+export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: obliqueSvgProps) => {
   const svg = d3.select(svgElement);
 
   svg.attr('width', width).attr('height', height).style('background-color', 'transparent');

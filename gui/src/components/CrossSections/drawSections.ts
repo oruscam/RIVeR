@@ -1,7 +1,7 @@
-import * as d3 from "d3";
-import { t } from "i18next";
-import { COLORS, MARKS } from "../../constants/constants";
-import { pinGreen, pinRed, pin } from "../../assets/icons/icons";
+import * as d3 from 'd3';
+import { t } from 'i18next';
+import { COLORS, MARKS } from '../../constants/constants';
+import { pinGreen, pinRed, pin } from '../../assets/icons/icons';
 
 type Point = { x: number; y: number };
 
@@ -14,7 +14,7 @@ interface DrawSvgStaticSectionProps {
   name: string;
   imageWidth: number;
   imageHeight: number;
-  module: "x-sections" | "processing" | "results" | "report" | string;
+  module: 'x-sections' | 'processing' | 'results' | 'report' | string;
   scale: number;
   position: { x: number; y: number };
   seeAll: boolean;
@@ -26,17 +26,17 @@ interface DrawSvgStaticSectionProps {
 
 export const getResizedPoint = (point: Point, factor: number | { x: number; y: number }) => {
   return {
-    x: point.x / (typeof factor === "number" ? factor : factor.x),
-    y: point.y / (typeof factor === "number" ? factor : factor.y),
+    x: point.x / (typeof factor === 'number' ? factor : factor.x),
+    y: point.y / (typeof factor === 'number' ? factor : factor.y),
   };
 };
 
 const toSectionToken = (name: string) => {
-  return (name || "unnamed")
+  return (name || 'unnamed')
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, "-")
-    .replace(/[^a-z0-9_-]/g, "");
+    .replace(/\s+/g, '-')
+    .replace(/[^a-z0-9_-]/g, '');
 };
 
 /**
@@ -44,8 +44,8 @@ const toSectionToken = (name: string) => {
  */
 const normalizeFactor = (factor: number | { x: number; y: number }) => {
   return {
-    fx: typeof factor === "number" ? factor : factor.x,
-    fy: typeof factor === "number" ? factor : factor.y,
+    fx: typeof factor === 'number' ? factor : factor.x,
+    fy: typeof factor === 'number' ? factor : factor.y,
   };
 };
 
@@ -58,31 +58,31 @@ const getSectionStyles = (module: string) => {
   let textColor = COLORS.BLACK;
 
   switch (module) {
-    case "uav":
+    case 'uav':
       resizeFactor = 1;
       lineColor = COLORS.LIGHT_BLUE;
       textColor = COLORS.MARK_R;
       break;
 
-    case "x-sections":
+    case 'x-sections':
       resizeFactor = 1;
       lineColor = COLORS.YELLOW;
       textColor = COLORS.YELLOW;
       break;
 
-    case "processing":
+    case 'processing':
       resizeFactor = 1;
       lineColor = COLORS.DARK_GREY;
       textColor = COLORS.BLACK;
       break;
 
-    case "results":
+    case 'results':
       resizeFactor = 1;
       lineColor = COLORS.YELLOW;
       textColor = COLORS.YELLOW;
       break;
 
-    case "report":
+    case 'report':
       resizeFactor = 1.2;
       lineColor = COLORS.YELLOW;
       textColor = COLORS.YELLOW;
@@ -123,17 +123,17 @@ const drawLine = ({
   className: string;
 }) => {
   group
-    .append("line")
-    .attr("class", className)
-    .attr("x1", points[0].x / fx)
-    .attr("y1", points[0].y / fy)
-    .attr("x2", points[1].x / fx)
-    .attr("y2", points[1].y / fy)
-    .attr("stroke", color)
-    .attr("stroke-width", 4 / resizeFactor)
-    .attr("stroke-linecap", "round")
-    .attr("vector-effect", "non-scaling-stroke")
-    .attr("stroke-dasharray", dashed ? "5,10" : null);
+    .append('line')
+    .attr('class', className)
+    .attr('x1', points[0].x / fx)
+    .attr('y1', points[0].y / fy)
+    .attr('x2', points[1].x / fx)
+    .attr('y2', points[1].y / fy)
+    .attr('stroke', color)
+    .attr('stroke-width', 4 / resizeFactor)
+    .attr('stroke-linecap', 'round')
+    .attr('vector-effect', 'non-scaling-stroke')
+    .attr('stroke-dasharray', dashed ? '5,10' : null);
 };
 
 /**
@@ -141,63 +141,65 @@ const drawLine = ({
  */
 const drawIcon = (
   position: Point,
-  type: "L" | "R",
+  type: 'L' | 'R',
   layer: d3.Selection<SVGGElement, unknown, null, undefined>,
   draggable: boolean,
-  extraClass: string = "",
+  extraClass: string = '',
   module: string
 ) => {
-  const isLeft = type === "L";
-  const href = module === "uav" ? pin : isLeft ? pinRed : pinGreen;
-  const labelColor = module === "uav" ? COLORS.LIGHT_BLUE : isLeft ? COLORS.RED : COLORS.GREEN;
+  const isLeft = type === 'L';
+  const href = module === 'uav' ? pin : isLeft ? pinRed : pinGreen;
+  const labelColor = module === 'uav' ? COLORS.LIGHT_BLUE : isLeft ? COLORS.RED : COLORS.GREEN;
 
   const icon = layer
-    .append("image")
-    .attr("href", href)
-    .attr("width", MARKS.WIDTH + 5)
-    .attr("height", MARKS.HEIGHT + 5)
-    .attr("x", position.x - MARKS.OFFSET_X)
-    .attr("y", position.y - MARKS.OFFSET_Y)
-    .attr("cursor", draggable ? "move" : "default")
-    .attr("pointer-events", draggable ? "all" : "none")
-    .attr("class", `pin-${draggable ? "draggable" : "static"} pin-${type} ${extraClass}`.trim());
+    .append('image')
+    .attr('href', href)
+    .attr('width', MARKS.WIDTH + 5)
+    .attr('height', MARKS.HEIGHT + 5)
+    .attr('x', position.x - MARKS.OFFSET_X)
+    .attr('y', position.y - MARKS.OFFSET_Y)
+    .attr('cursor', draggable ? 'move' : 'default')
+    .attr('pointer-events', draggable ? 'all' : 'none')
+    .attr('class', `pin-${draggable ? 'draggable' : 'static'} pin-${type} ${extraClass}`.trim());
 
   const badgeText =
-    module === "uav"
-      ? type === "L" ? "1" : "2"
-      : type === "L"
-        ? t("CrossSections.bankLeft")
-        : t("CrossSections.bankRight");
+    module === 'uav'
+      ? type === 'L'
+        ? '1'
+        : '2'
+      : type === 'L'
+        ? t('CrossSections.bankLeft')
+        : t('CrossSections.bankRight');
   const badgeWidth = 20;
   const badgeHeight = 16;
   const badgeX = position.x - badgeWidth / 2;
   const badgeY = position.y - MARKS.OFFSET_Y - 14;
 
   const badge = layer
-    .append("g")
-    .attr("class", `pin-label-${draggable ? "draggable" : "static"} pin-label-${type} ${extraClass}`.trim())
-    .attr("pointer-events", "none");
+    .append('g')
+    .attr('class', `pin-label-${draggable ? 'draggable' : 'static'} pin-label-${type} ${extraClass}`.trim())
+    .attr('pointer-events', 'none');
 
   badge
-    .append("rect")
-    .attr("x", badgeX)
-    .attr("y", badgeY)
-    .attr("width", badgeWidth)
-    .attr("height", badgeHeight)
-    .attr("rx", 3)
-    .attr("ry", 3)
-    .attr("fill", "rgba(50,50,50,0.85)");
+    .append('rect')
+    .attr('x', badgeX)
+    .attr('y', badgeY)
+    .attr('width', badgeWidth)
+    .attr('height', badgeHeight)
+    .attr('rx', 3)
+    .attr('ry', 3)
+    .attr('fill', 'rgba(50,50,50,0.85)');
 
   badge
-    .append("text")
-    .attr("x", position.x)
-    .attr("y", badgeY + badgeHeight / 2)
-    .attr("text-anchor", "middle")
-    .attr("dominant-baseline", "central")
+    .append('text')
+    .attr('x', position.x)
+    .attr('y', badgeY + badgeHeight / 2)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
     .text(badgeText)
-    .attr("font-size", 11)
-    .attr("font-weight", "600")
-    .attr("fill", labelColor);
+    .attr('font-size', 11)
+    .attr('font-weight', '600')
+    .attr('fill', labelColor);
 
   return icon;
 };
@@ -300,17 +302,17 @@ const drawSectionLabel = ({
 
   // Rotation angle, normalised to [-90, 90] so text is never upside-down
   let rotation = Math.atan2(dyD, dxD) * (180 / Math.PI);
-  if (rotation > 90)  rotation -= 180;
+  if (rotation > 90) rotation -= 180;
   if (rotation < -90) rotation += 180;
 
   // Unit vector perpendicular to the section line (= flow direction)
   const lineLen = Math.sqrt(dxD * dxD + dyD * dyD);
   const perpX = lineLen > 0 ? -dyD / lineLen : 0;
-  const perpY = lineLen > 0 ?  dxD / lineLen : 1;
+  const perpY = lineLen > 0 ? dxD / lineLen : 1;
 
   // Candidate label positions on either side of the section line
   const LABEL_OFFSET = 20; // display-space pixels — close to but not touching the 4 px stroke
-  const imageCx = viewport.imageWidth  / 2;
+  const imageCx = viewport.imageWidth / 2;
   const imageCy = viewport.imageHeight / 2;
 
   const c1 = { x: midD.x + perpX * LABEL_OFFSET, y: midD.y + perpY * LABEL_OFFSET };
@@ -322,8 +324,9 @@ const drawSectionLabel = ({
   let labelD = d1sq <= d2sq ? { ...c1 } : { ...c2 };
 
   // Clamp to safe margins
-  const MX = 50, MY = 16;
-  labelD.x = Math.max(MX, Math.min(viewport.imageWidth  - MX, labelD.x));
+  const MX = 50,
+    MY = 16;
+  labelD.x = Math.max(MX, Math.min(viewport.imageWidth - MX, labelD.x));
   labelD.y = Math.max(MY, Math.min(viewport.imageHeight - MY, labelD.y));
 
   // Back to full-image space → screen coords
@@ -332,42 +335,40 @@ const drawSectionLabel = ({
   // --- Badge rendering — same style as the L / R pin badges ---
   const FONT_SIZE = 13 / resizeFactor;
 
-  const g = uiLayer
-    .append("g")
-    .attr("class", className)
-    .attr("pointer-events", "none");
+  const g = uiLayer.append('g').attr('class', className).attr('pointer-events', 'none');
 
   const textEl = g
-    .append("text")
-    .attr("x", screenPoint.x)
-    .attr("y", screenPoint.y)
-    .attr("text-anchor", "middle")
-    .attr("dominant-baseline", "central")
+    .append('text')
+    .attr('x', screenPoint.x)
+    .attr('y', screenPoint.y)
+    .attr('text-anchor', 'middle')
+    .attr('dominant-baseline', 'central')
     .text(text)
-    .attr("font-size", FONT_SIZE)
-    .attr("font-weight", "600")
-    .attr("fill", color)
-    .attr("font-family", "inherit");
+    .attr('font-size', FONT_SIZE)
+    .attr('font-weight', '600')
+    .attr('fill', color)
+    .attr('font-family', 'inherit');
 
   // Measure the rendered text and insert the background rect behind it
   try {
     const node = textEl.node() as SVGTextElement;
     const bbox = node.getBBox();
-    const padX = 6, padY = 3;
-    g.insert("rect", "text")
-      .attr("x",      bbox.x - padX)
-      .attr("y",      bbox.y - padY)
-      .attr("width",  bbox.width  + padX * 2)
-      .attr("height", bbox.height + padY * 2)
-      .attr("rx", 3)
-      .attr("ry", 3)
-      .attr("fill", "rgba(50, 50, 50, 0.85)"); // matches pin-badge fill
-  } catch (_) {
+    const padX = 6,
+      padY = 3;
+    g.insert('rect', 'text')
+      .attr('x', bbox.x - padX)
+      .attr('y', bbox.y - padY)
+      .attr('width', bbox.width + padX * 2)
+      .attr('height', bbox.height + padY * 2)
+      .attr('rx', 3)
+      .attr('ry', 3)
+      .attr('fill', 'rgba(50, 50, 50, 0.85)'); // matches pin-badge fill
+  } catch {
     // getBBox may fail if not yet attached to the DOM — silently skip
   }
 
   // Rotate the whole badge after the bbox has been captured
-  g.attr("transform", `rotate(${rotation}, ${screenPoint.x}, ${screenPoint.y})`);
+  g.attr('transform', `rotate(${rotation}, ${screenPoint.x}, ${screenPoint.y})`);
 };
 
 /**
@@ -397,17 +398,17 @@ const drawStaticSection = ({
   const token = toSectionToken(name);
   const sectionClass = `section-${token}`;
 
-  const isXSections = module === "x-sections";
-  const isProcessing = module === "processing";
+  const isXSections = module === 'x-sections';
+  const isProcessing = module === 'processing';
   const useZoomLayer = isXSections || isProcessing;
 
-  if (seeAll === false && module === "x-sections") {
+  if (seeAll === false && module === 'x-sections') {
     zoomLayer.selectAll(`.${sectionClass}`).remove();
     uiLayer.selectAll(`.${sectionClass}`).remove();
     return;
   }
 
-  if (seeAll === false && !isActive && module === "results") {
+  if (seeAll === false && !isActive && module === 'results') {
     zoomLayer.selectAll(`.${sectionClass}`).remove();
     uiLayer.selectAll(`.${sectionClass}`).remove();
     return;
@@ -418,12 +419,11 @@ const drawStaticSection = ({
   uiLayer.selectAll(`.${sectionClass}`).remove();
 
   // Group inside zoom layer for this section
-  const g = zoomLayer.append("g").attr("class", `section-layer ${sectionClass}`);
+  const g = zoomLayer.append('g').attr('class', `section-layer ${sectionClass}`);
 
   // Determine whether dirPoints and sectionPoints carry real data
   const hasMeaningfulDirPoints =
-    dirPoints.length >= 2 &&
-    !(dirPoints[0].x === dirPoints[1].x && dirPoints[0].y === dirPoints[1].y);
+    dirPoints.length >= 2 && !(dirPoints[0].x === dirPoints[1].x && dirPoints[0].y === dirPoints[1].y);
 
   const hasMeaningfulSectionPoints =
     sectionPoints.length >= 2 &&
@@ -461,7 +461,7 @@ const drawStaticSection = ({
 
   // Label in UI (screen space) — always drawn, even for the active section (skipLine).
   // Only skip for the report module and when sectionPoints have not yet been computed.
-  if (module !== "report" && hasMeaningfulSectionPoints) {
+  if (module !== 'report' && hasMeaningfulSectionPoints) {
     drawSectionLabel({
       uiLayer,
       text: name,
@@ -475,13 +475,13 @@ const drawStaticSection = ({
   }
 
   // Icons in UI (screen space) — only when not deferring to interactive layer
-  if (!skipLine && module === "x-sections" && hasMeaningfulDirPoints) {
+  if (!skipLine && module === 'x-sections' && hasMeaningfulDirPoints) {
     const toScreen = toScreenFactory({ imageWidth, imageHeight, position, scale, fx, fy });
     const p0 = toScreen(dirPoints[0]);
     const p1 = toScreen(dirPoints[1]);
 
-    drawIcon(p0, "L", uiLayer, false, sectionClass, module);
-    drawIcon(p1, "R", uiLayer, false, sectionClass, module);
+    drawIcon(p0, 'L', uiLayer, false, sectionClass, module);
+    drawIcon(p1, 'R', uiLayer, false, sectionClass, module);
   }
 };
 
@@ -517,10 +517,7 @@ interface DrawSvgInteractiveSectionProps {
   setMousePressed: (pressed: boolean) => void;
   setStartPoint: (point: Point) => void;
   setEndPoint: (point: Point) => void;
-  onSetDirPoints: (
-    data: { points: Point[]; factor: number; index: number; mode?: string },
-    arg2: any
-  ) => void;
+  onSetDirPoints: (data: { points: Point[]; factor: number; index: number; mode?: string }, arg2: any) => void;
   factor: number | { x: number; y: number };
   mousePressed: boolean;
   viewport: {
@@ -551,7 +548,7 @@ const drawInteractiveSection = ({
 }: DrawSvgInteractiveSectionProps) => {
   const { resizeFactor, lineColor } = getSectionStyles(module);
 
-  const token = toSectionToken(name ? name : "uav");
+  const token = toSectionToken(name ? name : 'uav');
   const sectionClass = `section-${token}`;
 
   // Interactive-layer elements use a dedicated UI class so that cleaning them
@@ -583,8 +580,8 @@ const drawInteractiveSection = ({
       group: layer,
       color: lineColor,
       resizeFactor,
-      fx: typeof factor === "number" ? factor : factor.x,
-      fy: typeof factor === "number" ? factor : factor.y,
+      fx: typeof factor === 'number' ? factor : factor.x,
+      fy: typeof factor === 'number' ? factor : factor.y,
       dashed: true,
       className: `final-section-line ${sectionClass}`,
     });
@@ -602,8 +599,8 @@ const drawInteractiveSection = ({
   const dragStartPoint = d3
     .drag<SVGImageElement, unknown, { x: number; y: number }>()
     .container(() => zoomLayerNode) // coordenadas del puntero en zoom-space
-    .on("start", () => setMousePressed(true))
-    .on("drag", function (event) {
+    .on('start', () => setMousePressed(true))
+    .on('drag', function (event) {
       const x = event.x;
       const y = event.y;
 
@@ -613,10 +610,10 @@ const drawInteractiveSection = ({
       // Mueve el ícono en screen-space inmediatamente
       const pScreen = toScreenFromZoom({ x, y });
       d3.select<SVGImageElement, unknown>(this)
-        .attr("x", pScreen.x - MARKS.OFFSET_X)
-        .attr("y", pScreen.y - MARKS.OFFSET_Y);
+        .attr('x', pScreen.x - MARKS.OFFSET_X)
+        .attr('y', pScreen.y - MARKS.OFFSET_Y);
     })
-    .on("end", function (event) {
+    .on('end', function (event) {
       setMousePressed(false);
       if (endPoint) {
         const x = event.x;
@@ -635,12 +632,13 @@ const drawInteractiveSection = ({
     .container(() => zoomLayerNode)
     .subject(() => {
       if (endPoint) {
-        return { x: endPoint.x, y: endPoint.y }
+        return { x: endPoint.x, y: endPoint.y };
       } else {
-        return { x: 0, y: 0}
-      }})
-    .on("start", () => setMousePressed(true))
-    .on("drag", function (event) {
+        return { x: 0, y: 0 };
+      }
+    })
+    .on('start', () => setMousePressed(true))
+    .on('drag', function (event) {
       const x = event.x;
       const y = event.y;
 
@@ -648,10 +646,10 @@ const drawInteractiveSection = ({
 
       const pScreen = toScreenFromZoom({ x, y });
       d3.select<SVGImageElement, unknown>(this)
-        .attr("x", pScreen.x - MARKS.OFFSET_X)
-        .attr("y", pScreen.y - MARKS.OFFSET_Y);
+        .attr('x', pScreen.x - MARKS.OFFSET_X)
+        .attr('y', pScreen.y - MARKS.OFFSET_Y);
     })
-    .on("end", function (event) {
+    .on('end', function (event) {
       setMousePressed(false);
       if (startPoint) {
         const x = event.x;
@@ -664,13 +662,13 @@ const drawInteractiveSection = ({
   // cleaned up on the next render without touching the static label.
   if (startPoint) {
     const pScreen = toScreenFromZoom(startPoint);
-    const c1 = drawIcon(pScreen, "L", uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module);
+    const c1 = drawIcon(pScreen, 'L', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module);
     c1.call(dragStartPoint as any);
   }
 
   if (endPoint) {
     const pScreen = toScreenFromZoom(endPoint);
-    const c2 = drawIcon(pScreen, "R", uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module);
+    const c2 = drawIcon(pScreen, 'R', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module);
     c2.call(dragEndPoint as any);
   }
 };

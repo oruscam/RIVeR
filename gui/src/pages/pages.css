@@ -201,8 +201,7 @@
 }
 
 .browse-video-drop-area p {
-    font-size: 1.3rem;
-    font-weight: 600;
+    font-size: 1.15rem;
     color: var(--secondary-text-color);
     margin-bottom: 15px;
 }
@@ -238,29 +237,27 @@
     align-self: center;
     display: flex;
     flex-direction: column;
-    padding: 14px;
+    align-items: center;
+    padding-top: 15px;
+    padding-bottom: 40px;
     gap: 10px;
     overflow: hidden;
     background-color: var(--secondary-background-color);
     border-radius: 20px;
+    border-top: 8px solid var(--secondary-background-color);
     margin-right: 5px;
 }
 
 .cal-canvas {
     flex: 1 1 0;
     min-height: 0;
-    background: #0a0a0a;
+    width: 98%;
     border-radius: 8px;
-    border: 1px solid var(--border-color);
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
-}
-
-[data-theme="light"] .cal-canvas {
-    background: #d8d3cc;
 }
 
 .cal-canvas-img {
@@ -278,11 +275,6 @@
     color: var(--secondary-text-color);
 }
 
-.cal-progress-text {
-    font-size: 0.82rem;
-    color: var(--secondary-text-color);
-}
-
 .cal-canvas-placeholder {
     color: var(--secondary-text-color);
     font-size: 0.85rem;
@@ -290,45 +282,23 @@
     padding: 20px;
 }
 
-.cal-drop-zone {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 32px;
-    width: 100%;
-    height: 100%;
-}
-
-.cal-drop-text {
-    font-size: 1rem;
-    font-weight: 600;
-    color: var(--secondary-text-color);
-}
-
-.cal-drop-hint {
-    font-size: 0.78rem;
-    color: var(--secondary-text-color);
-    opacity: 0.6;
-}
-
 .cal-view-controls {
+    width: 90%;
     display: flex;
-    justify-content: center;
+    align-items: center;
+    justify-content: flex-start;
     gap: 10px;
     flex-shrink: 0;
 }
 
-.cal-view-btn {
-    padding: 0 20px;
-    min-width: 0;
-    width: auto;
-}
-
-.cal-view-btn--active {
-    background-color: var(--primary-text-color);
-    color: var(--background-color);
+.cal-carousel-counter {
+    margin-left: auto;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-text-color);
 }
 
 /* Carousel */
@@ -354,29 +324,35 @@
     background: var(--accent-color);
 }
 
-.cal-carousel {
+.cal-carousel-row {
+    width: 98%;
     display: flex;
-    gap: 6px;
-    overflow-x: auto;
-    padding: 2px 2px 4px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-color) transparent;
+    align-items: center;
     flex-shrink: 0;
+}
+
+.cal-carousel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    gap: 10px;
+    overflow-x: scroll;
+    padding: 2px 2px 4px;
 }
 
 .cal-thumb {
     flex-shrink: 0;
-    width: var(--thumb-width, 56px);
-    height: var(--thumb-height, 42px);
-    border-radius: 5px;
-    border: 2px solid transparent;
+    width: var(--thumb-width, 120px);
+    height: var(--thumb-height, 90px);
+    border-radius: 20px;
+    border: 4px solid transparent;
     overflow: hidden;
     cursor: pointer;
     background: var(--secondary-background-color);
     padding: 0;
     position: relative;
-    transition: border-color 0.15s, opacity 0.15s;
-    opacity: 0.7;
+    transition: border-color 0.15s, filter 0.15s;
+    filter: brightness(0.42);
 }
 
 .cal-thumb img {
@@ -388,15 +364,15 @@
 
 .cal-thumb.active {
     border-color: var(--accent-color);
-    opacity: 1;
+    filter: brightness(1);
 }
 
 .cal-thumb.unused {
-    opacity: 0.35;
+    filter: brightness(0.25);
 }
 
 .cal-thumb:hover {
-    opacity: 1;
+    filter: brightness(1);
 }
 
 .cal-thumb-dot {
@@ -435,7 +411,7 @@
     font-size: 2rem;
     font-weight: 700;
     color: var(--primary-text-color);
-    margin: 0;
+    margin: 6vh 0 0;
 }
 
 .cal-right {
@@ -446,7 +422,7 @@
     flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    padding: 20px;
+    padding: 0 20px 20px;
     gap: 20px;
     overflow-y: auto;
     scrollbar-width: thin;
@@ -461,28 +437,6 @@
     flex-direction: column;
     gap: 10px;
     width: 90%;
-    align-self: center;
-    --cal-btn-w: calc((100% - 10px) / 2);
-}
-
-.cal-actions-row {
-    display: flex;
-    gap: 10px;
-}
-
-.cal-actions-row .cal-action-btn {
-    flex: 1;
-    font-size: 18px;
-}
-
-.button-1.cal-action-btn {
-    height: 50px;
-    font-size: clamp(13px, 1.3vw, 18px);
-    white-space: nowrap;
-}
-
-.cal-actions > .button-1.cal-action-btn {
-    width: var(--cal-btn-w);
     align-self: center;
 }
 
@@ -535,7 +489,7 @@
 }
 
 .cal-grade-pill.good { background: var(--success-color); }
-.cal-grade-pill.fair { background: #F5BF61; color: #1a1a1a; }
+.cal-grade-pill.fair { background: var(--warning-color); color: #1a1a1a; }
 .cal-grade-pill.bad  { background: var(--background-error); }
 
 /* Metrics flat list */
@@ -562,125 +516,28 @@
 }
 
 .cal-metric-good { color: var(--success-color); }
-.cal-metric-fair { color: #F5BF61; }
+.cal-metric-fair { color: var(--warning-color); }
 .cal-metric-bad  { color: var(--background-error); }
 
 /* Recommendations — plain italic list */
 .cal-rec-list {
     list-style: none;
-    margin: 0;
+    margin: 8px auto;
     padding: 0;
+    width: 75%;
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
 .cal-rec-item {
-    font-size: 0.88rem;
-    font-style: italic;
+    font-size: 1.15rem;
     color: var(--secondary-text-color);
     line-height: 1.4;
 }
 
-.cal-divider {
-    border: none;
-    border-top: 1px solid var(--border-color);
-    margin: 0;
-}
-
 /* Histogram */
 .cal-histogram {}
-
-.cal-histogram-wrapper {
-    display: flex;
-    gap: 4px;
-    align-items: stretch;
-}
-
-.cal-histogram-yaxis {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 14px;
-    flex-shrink: 0;
-}
-
-.cal-yaxis-label {
-    writing-mode: vertical-rl;
-    transform: rotate(180deg);
-    font-size: 0.65rem;
-    color: var(--secondary-text-color);
-    white-space: nowrap;
-    letter-spacing: 0.03em;
-}
-
-.cal-histogram-inner {
-    flex: 1;
-    min-width: 0;
-}
-
-.cal-section-label {
-    font-size: 0.78rem;
-    font-weight: 600;
-    color: var(--secondary-text-color);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 8px;
-}
-
-.cal-histogram-chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 2px;
-    height: 100px;
-    padding: 0 2px;
-    margin-bottom: 18px;
-}
-
-.cal-bar-col {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    height: 100%;
-    justify-content: flex-end;
-    position: relative;
-}
-
-.cal-bar {
-    width: 100%;
-    background: var(--primary-text-color);
-    border-radius: 2px 2px 0 0;
-    min-height: 2px;
-    opacity: 0.75;
-    transition: opacity 0.15s;
-}
-
-.cal-bar:hover {
-    opacity: 1;
-}
-
-.cal-bar-label {
-    position: absolute;
-    bottom: -16px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.5rem;
-    color: var(--secondary-text-color);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-}
-
-.cal-histogram-axes {
-    display: flex;
-    justify-content: center;
-    margin-top: 3px;
-}
-
-.cal-histogram-axes span {
-    font-size: 0.65rem;
-    color: var(--secondary-text-color);
-}
 
 /* Save profile section */
 .cal-back-section {
@@ -698,6 +555,10 @@
     flex-direction: column;
     gap: 8px;
     width: 90%;
+    align-self: center;
+}
+
+.cal-save-section .simple-input-container {
     align-self: center;
 }
 
@@ -734,40 +595,6 @@
 
 .cal-combo-list li:hover {
     background: var(--on-hover);
-}
-
-/* Green confirmation box */
-.cal-save-confirm-box {
-    background: var(--success-color);
-    border-radius: 10px;
-    padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.cal-confirm-title {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: #fff;
-}
-
-.cal-confirm-link {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 0.73rem;
-    cursor: pointer;
-    padding: 0;
-    text-align: left;
-    text-decoration: underline;
-    text-underline-offset: 2px;
-    word-break: break-all;
-    transition: opacity 0.15s;
-}
-
-.cal-confirm-link:hover {
-    opacity: 0.75;
 }
 
 /* Clickable path links (generic) */
@@ -821,15 +648,6 @@
 
 .cal-home-btn:hover img {
     opacity: 1 !important;
-}
-
-/* Ready hints */
-.cal-ready-hint {
-    font-size: 0.8rem;
-    color: var(--secondary-text-color);
-    text-align: center;
-    padding: 8px 0;
-    line-height: 1.5;
 }
 
 /* ── Lens correction settings rows (VideoRange) ──────────────── */

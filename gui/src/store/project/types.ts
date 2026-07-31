@@ -9,6 +9,13 @@ interface VideoData {
   creation: string;
 }
 
+interface StabilizationRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 interface VideoParameters {
   step: number;
   startTime: number;
@@ -16,9 +23,16 @@ interface VideoParameters {
   startFrame: number;
   endFrame: number;
   factor: number;
-  factorChanged: boolean;
   lensCorrection: string | null;
-  lensCorrectionChanged: boolean;
+  stabilization: boolean;
+  stabilizationRegions: StabilizationRegion[];
+  // The config actually used for the frames currently on disk — every field
+  // is compared against its committed counterpart before re-extracting, so
+  // toggling a setting and reverting it doesn't force a needless re-extraction.
+  committedFactor: number;
+  committedLensCorrection: string | null;
+  committedStabilization: boolean;
+  committedStabilizationRegions: StabilizationRegion[];
 }
 
 interface Video {
@@ -39,6 +53,7 @@ interface ProjectState {
   type: 'uav' | 'ipcam' | 'oblique' | '';
   firstFramePath: string;
   projectDetails: ProjectDetails;
+  stabilizationActiveRegionIndex: number | null;
 }
 
-export type { ProjectState, VideoData, VideoParameters, Video, ProjectDetails };
+export type { ProjectState, VideoData, VideoParameters, Video, ProjectDetails, StabilizationRegion };
