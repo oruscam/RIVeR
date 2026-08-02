@@ -185,7 +185,14 @@ app.whenReady().then(async () => {
   // Uses protocol.handle (Electron 25+) so we can set Cache-Control: immutable —
   // without this Chromium re-decodes the JPEG on every image switch.
   protocol.handle('cal-file', async (request) => {
-    const filePath = decodeURIComponent(request.url.slice('cal-file://'.length));
+    let filePath = decodeURIComponent(request.url.slice('cal-file://'.length));
+    // Windows drive-letter paths are sent as "/C:/Users/..." (see CameraCalibration.tsx
+    // toCalFileUrl) — backslash isn't a valid separator for non-special URL schemes like
+    // this one, so the renderer sends forward slashes with a leading "/" to keep the URL
+    // host empty. Strip that leading slash so path.resolve() sees a real Windows path.
+    if (process.platform === 'win32' && /^\/[a-zA-Z]:\//.test(filePath)) {
+      filePath = filePath.slice(1);
+    }
     const resp = await net.fetch(pathToFileURL(filePath).toString());
     const headers = new Headers(resp.headers);
     headers.set('Cache-Control', 'public, max-age=31536000, immutable');

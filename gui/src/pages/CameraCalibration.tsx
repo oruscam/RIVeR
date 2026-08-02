@@ -7,6 +7,15 @@ import { CalibrationHistogram } from '../components/Graphs';
 import { DropHereText } from '../components/Forms/Components';
 import { back, play } from '../assets/icons/icons';
 
+// Backslash isn't a valid separator for the "cal-file" URL scheme (only special schemes
+// like http/file get that WHATWG normalization), so Windows paths (C:\Users\...) must be
+// converted to forward slashes with a leading "/" before the drive letter — mirrored on
+// the main-process side in main.ts's cal-file protocol.handle.
+const toCalFileUrl = (p: string) => {
+  const normalized = p.replace(/\\/g, '/');
+  return `cal-file://${normalized.startsWith('/') ? '' : '/'}${normalized}`;
+};
+
 interface ThumbProps {
   img: string;
   thumbSrc: string;
@@ -25,7 +34,7 @@ const CalThumb = memo(({ img, thumbSrc, idx, active, unused, notUsedLabel, onSel
       onClick={handleClick}
       title={unused ? notUsedLabel : img.split('/').pop()}
     >
-      <img src={`cal-file://${thumbSrc}`} alt="" loading="lazy" />
+      <img src={toCalFileUrl(thumbSrc)} alt="" loading="lazy" />
     </button>
   );
 });
@@ -240,7 +249,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   useEffect(() => {
     const preload = (p: string) => {
       const img = new Image();
-      img.src = `cal-file://${p}`;
+      img.src = toCalFileUrl(p);
       img.decode().catch(() => {});
     };
     for (let d = 1; d <= 3; d++) {
@@ -308,11 +317,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
     if (status === 'idle') {
       return (
-        <img
-          className="cal-canvas-img"
-          src={`cal-file://${images[selectedIdx]}`}
-          alt={`Frame ${selectedIdx + 1}`}
-        />
+        <img className="cal-canvas-img" src={toCalFileUrl(images[selectedIdx])} alt={`Frame ${selectedIdx + 1}`} />
       );
     }
 
@@ -322,11 +327,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
     if (viewMode === 'overlay') {
       return (
-        <img
-          className="cal-canvas-img"
-          src={`cal-file://${images[selectedIdx]}`}
-          alt={`Frame ${selectedIdx + 1}`}
-        />
+        <img className="cal-canvas-img" src={toCalFileUrl(images[selectedIdx])} alt={`Frame ${selectedIdx + 1}`} />
       );
     }
 
@@ -343,13 +344,13 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
       const usedIdx = selectedImg ? usedImages.indexOf(selectedImg) : -1;
       const corners = usedIdx >= 0 ? perFrameCorners[usedIdx] : undefined;
       if (corners) {
-        return <UndistortedOverlay src={`cal-file://${undistorted}`} corners={corners} />;
+        return <UndistortedOverlay src={toCalFileUrl(undistorted)} corners={corners} />;
       }
-      return <img className="cal-canvas-img" src={`cal-file://${undistorted}`} alt="Undistorted" />;
+      return <img className="cal-canvas-img" src={toCalFileUrl(undistorted)} alt="Undistorted" />;
     }
 
     return (
-      <img className="cal-canvas-img" src={`cal-file://${images[selectedIdx]}`} alt={`Frame ${selectedIdx + 1}`} />
+      <img className="cal-canvas-img" src={toCalFileUrl(images[selectedIdx])} alt={`Frame ${selectedIdx + 1}`} />
     );
   };
 
