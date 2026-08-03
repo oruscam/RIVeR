@@ -11,17 +11,14 @@ export const Header = () => {
   const { projectDetails, type } = useProjectSlice();
   const { riverName, site, meditionDate, unitSistem } = projectDetails;
 
-  const divider = sections.length;
+  const validQs = sections
+    .map((section) => section.data?.total_Q)
+    .filter((totalQ): totalQ is number => typeof totalQ === 'number' && !Number.isNaN(totalQ));
 
-  const sum = sections.reduce((acc, section) => {
-    if (section.data) {
-      return acc + section.data.total_Q;
-    }
-    return acc;
-  }, 0);
+  const sum = validQs.reduce((acc, totalQ) => acc + totalQ, 0);
 
   const qF = unitSistem === 'imperial' ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
-  const average = (sum / (divider !== 0 ? divider : 1)) * qF;
+  const average = (sum / (validQs.length !== 0 ? validQs.length : 1)) * qF;
 
   const titleText = `${riverName}@${site}`;
   const titleFontSize =
