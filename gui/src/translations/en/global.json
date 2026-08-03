@@ -137,7 +137,8 @@
       "leftBank": "Left bank is out of range",
       "bathimetryNotValid": "The bathimetry is not valid. Level {{level}} do not exist in this file",
       "bathimetryIsRequired": "Bathimetry is required in {{section_name}}",
-      "rwLength": "The value of CS Length can not be 0 in {{section_name}}"
+      "rwLength": "The value of CS Length can not be 0 in {{section_name}}",
+      "levelRequired": "The value of Level can not be 0 in {{section_name}}"
     },
     "warning": "Are you sure you want to delete {{section_name}}?",
     "warningTitle": "Delete Section",

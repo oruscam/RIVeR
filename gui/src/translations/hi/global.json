@@ -137,7 +137,8 @@
       "leftBank": "बायाँ किनारा सीमा से बाहर है",
       "bathimetryNotValid": "जल गहराई डेटा अमान्य है। जल स्तर {{level}} इस फ़ाइल में मौजूद नहीं है",
       "bathimetryIsRequired": "{{section_name}} के लिए जल गहराई डेटा आवश्यक है",
-      "rwLength": "{{section_name}} में अनुप्रस्थ काट की लंबाई 0 नहीं हो सकती"
+      "rwLength": "{{section_name}} में अनुप्रस्थ काट की लंबाई 0 नहीं हो सकती",
+      "levelRequired": "{{section_name}} में स्तर 0 नहीं हो सकता"
     },
     "warning": "क्या आप {{section_name}} हटाना चाहते हैं?",
     "warningTitle": "काट हटाएँ",

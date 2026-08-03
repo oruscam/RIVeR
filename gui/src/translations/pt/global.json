@@ -137,7 +137,8 @@
       "leftBank": "A margem esquerda está fora do intervalo",
       "bathimetryNotValid": "A batimetria não é válida. O nível {{level}} não existe neste arquivo",
       "bathimetryIsRequired": "A batimetria é obrigatória em {{section_name}}",
-      "rwLength": "O valor do comprimento da seção não pode ser 0 em {{section_name}}"
+      "rwLength": "O valor do comprimento da seção não pode ser 0 em {{section_name}}",
+      "levelRequired": "O valor do nível não pode ser 0 em {{section_name}}"
     },
     "warning": "Tem certeza de que deseja excluir {{section_name}}?",
     "warningTitle": "Excluir Seção",

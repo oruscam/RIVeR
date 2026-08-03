@@ -137,7 +137,8 @@
       "leftBank": "La rive gauche est hors limites",
       "bathimetryNotValid": "La bathymétrie n'est pas valide. Le niveau {{level}} n'existe pas dans ce fichier",
       "bathimetryIsRequired": "La bathymétrie est requise pour {{section_name}}",
-      "rwLength": "La longueur de la section ne peut pas être 0 pour {{section_name}}"
+      "rwLength": "La longueur de la section ne peut pas être 0 pour {{section_name}}",
+      "levelRequired": "La valeur du niveau ne peut pas être 0 pour {{section_name}}"
     },
     "warning": "Êtes-vous sûr de vouloir supprimer {{section_name}} ?",
     "warningTitle": "Supprimer la Section",

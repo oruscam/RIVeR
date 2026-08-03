@@ -137,7 +137,8 @@
       "leftBank": "La sponda sinistra è fuori intervallo",
       "bathimetryNotValid": "La batimetria non è valida. Il livello {{level}} non esiste in questo file",
       "bathimetryIsRequired": "La batimetria è obbligatoria in {{section_name}}",
-      "rwLength": "Il valore della lunghezza della sezione non può essere 0 in {{section_name}}"
+      "rwLength": "Il valore della lunghezza della sezione non può essere 0 in {{section_name}}",
+      "levelRequired": "Il valore del livello non può essere 0 in {{section_name}}"
     },
     "warning": "Sei sicuro di voler eliminare {{section_name}}?",
     "warningTitle": "Elimina Sezione",

@@ -137,7 +137,8 @@
       "leftBank": "좌안이 범위를 벗어났습니다",
       "bathimetryNotValid": "수심 데이터가 유효하지 않습니다. 수위 {{level}}이 이 파일에 존재하지 않습니다",
       "bathimetryIsRequired": "{{section_name}}에 수심 데이터가 필요합니다",
-      "rwLength": "{{section_name}}의 횡단면 길이는 0이 될 수 없습니다"
+      "rwLength": "{{section_name}}의 횡단면 길이는 0이 될 수 없습니다",
+      "levelRequired": "{{section_name}}의 수위는 0이 될 수 없습니다"
     },
     "warning": "{{section_name}}을(를) 삭제하시겠습니까?",
     "warningTitle": "단면 삭제",
