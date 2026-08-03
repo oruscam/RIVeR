@@ -82,6 +82,8 @@
     "lineLength": "طول الخط",
     "pixelSize": "حجم البكسل",
     "drawLine": "رسم خط",
+    "drawingLineWarning": "جارٍ رسم الخط",
+    "modifyingLineWarning": "جارٍ تعديل الخط",
     "carouselStabilization": "تثبيت",
     "Errors": {
       "required": "جميع الحقول إلزامية. الرجاء مراجعة نموذج حجم البكسل.",
@@ -261,6 +263,8 @@
   "ControlPoints": {
     "title": "نقاط التحكم",
     "drawPoints": "تحديد نقاط التحكم",
+    "drawingPointsWarning": "جارٍ تحديد نقاط التحكم",
+    "modifyingPointsWarning": "جارٍ تعديل نقاط التحكم",
     "importDistances": "استيراد المسافات",
     "distance": "المسافة",
     "length": "الطول",
@@ -283,7 +287,8 @@
     "optimize": "تحسين",
     "reprojectionErrors": "أخطاء إعادة الإسقاط: ",
     "numberOfPoints": "عدد النقاط: ",
-    "cameraHeight": "ارتفاع الكاميرا: "
+    "cameraHeight": "ارتفاع الكاميرا: ",
+    "movingPointWarning": "جارٍ نقل {{label}}"
   },
   "Errors": {
     "invalidPointsFileFormat": "تنسيق ملف نقاط التحكم غير صالح.",

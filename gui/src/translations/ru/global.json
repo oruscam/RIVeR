@@ -82,6 +82,8 @@
     "lineLength": "Длина линии",
     "pixelSize": "Размер пикселя",
     "drawLine": "Нарисовать линию",
+    "drawingLineWarning": "Рисование линии",
+    "modifyingLineWarning": "Изменение линии",
     "carouselStabilization": "Стабилизация",
     "Errors": {
       "required": "Все поля обязательны для заполнения. Пожалуйста, проверьте форму размера пикселя.",
@@ -261,6 +263,8 @@
   "ControlPoints": {
     "title": "Опорные точки",
     "drawPoints": "Указать опорные точки",
+    "drawingPointsWarning": "Указание опорных точек",
+    "modifyingPointsWarning": "Изменение опорных точек",
     "importDistances": "Импорт расстояний",
     "distance": "Расстояние",
     "length": "Длина",
@@ -283,7 +287,8 @@
     "optimize": "Оптимизировать",
     "reprojectionErrors": "Ошибки репроекции: ",
     "numberOfPoints": "Количество точек: ",
-    "cameraHeight": "Высота камеры: "
+    "cameraHeight": "Высота камеры: ",
+    "movingPointWarning": "Перемещение {{label}}"
   },
   "Errors": {
     "invalidPointsFileFormat": "Недопустимый формат файла опорных точек.",
