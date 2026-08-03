@@ -82,6 +82,8 @@
     "lineLength": "Linienlänge",
     "pixelSize": "Pixelgröße",
     "drawLine": "Linie zeichnen",
+    "drawingLineWarning": "Linie wird gezeichnet",
+    "modifyingLineWarning": "Linie wird geändert",
     "carouselStabilization": "Stabilisierung",
     "Errors": {
       "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für die Pixelgröße.",
@@ -265,6 +267,8 @@
   "ControlPoints": {
     "title": "Kontrollpunkte",
     "drawPoints": "Punkte zeichnen",
+    "drawingPointsWarning": "Punkte werden gezeichnet",
+    "modifyingPointsWarning": "Punkte werden geändert",
     "importDistances": "Distanzen importieren",
     "distance": "Distanz",
     "length": "Länge",
@@ -287,7 +291,8 @@
     "optimize": "Optimieren",
     "reprojectionErrors": "Reprojektionsfehler: ",
     "numberOfPoints": "Anzahl der Punkte: ",
-    "cameraHeight": "Kamerahöhe: "
+    "cameraHeight": "Kamerahöhe: ",
+    "movingPointWarning": "{{label}} wird bewegt"
   },
   "Errors": {
     "invalidPointsFileFormat": "Ungültiges Punkte-Dateiformat.",
