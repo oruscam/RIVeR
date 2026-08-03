@@ -137,7 +137,8 @@
       "leftBank": "الضفة اليسرى خارج النطاق",
       "bathimetryNotValid": "بيانات القياس البتيمتري غير صالحة. منسوب المياه {{level}} غير موجود في هذا الملف",
       "bathimetryIsRequired": "بيانات القياس البتيمتري مطلوبة في {{section_name}}",
-      "rwLength": "لا يمكن أن يكون طول المقطع العرضي صفراً في {{section_name}}"
+      "rwLength": "لا يمكن أن يكون طول المقطع العرضي صفراً في {{section_name}}",
+      "levelRequired": "لا يمكن أن تكون قيمة المستوى صفراً في {{section_name}}"
     },
     "warning": "هل أنت متأكد من حذف {{section_name}}؟",
     "warningTitle": "حذف المقطع",

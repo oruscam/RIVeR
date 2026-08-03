@@ -14,7 +14,7 @@ interface FormCrossSectionsProps {
 export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsProps) => {
   const { register, setValue } = useFormContext();
   const { sections, activeSection, onUpdateSection, onGetBathimetry, transformationMatrix } = useSectionSlice();
-  const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
+  const { drawLine, bathimetry, extraFields, pixelSize } = sections[index];
   const { onSetErrorMessage } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
   const { cameraSolution, zLimits: controlPointsZLimits } = useIpcamSlice();
@@ -232,7 +232,8 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               step="any"
               className="input-field"
               {...register(`${name}_LEVEL`, {
-                validate: () => bathimetry.level !== 0,
+                validate: () =>
+                  bathimetry.level !== 0 || t('CrossSections.Errors.levelRequired', { section_name: name }),
               })}
               id="LEVEL"
               onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}

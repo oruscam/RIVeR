@@ -137,7 +137,8 @@
       "leftBank": "Das linke Ufer liegt außerhalb des Bereichs",
       "bathimetryNotValid": "Die Bathymetrie ist ungültig. Der Pegel {{level}} existiert nicht in dieser Datei",
       "bathimetryIsRequired": " Bathymetrie ist in {{section_name}} erforderlich",
-      "rwLength": "Der Wert der Querschnittslänge darf in {{section_name}} nicht null sein"
+      "rwLength": "Der Wert der Querschnittslänge darf in {{section_name}} nicht null sein",
+      "levelRequired": "Der Wert des Pegels darf in {{section_name}} nicht null sein"
     },
     "warning": "Sind Sie sicher, dass Sie {{section_name}} löschen möchten?",
     "warningTitle": "Abschnitt löschen",

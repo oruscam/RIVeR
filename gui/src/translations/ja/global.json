@@ -137,7 +137,8 @@
       "leftBank": "左岸が範囲外です",
       "bathimetryNotValid": "測深データが無効です。水位{{level}}はこのファイルに存在しません",
       "bathimetryIsRequired": "{{section_name}}には測深データが必要です",
-      "rwLength": "{{section_name}}の横断面長さは0にできません"
+      "rwLength": "{{section_name}}の横断面長さは0にできません",
+      "levelRequired": "{{section_name}}の水位は0にできません"
     },
     "warning": "{{section_name}}を削除してもよいですか？",
     "warningTitle": "断面の削除",

@@ -74,12 +74,12 @@ export const useUiSlice = () => {
       let arrayOfErrors: string[] = [];
       if (error !== undefined) {
         Object.entries(error).every(([, value]) => {
-          if (typeof value === 'string') {
+          if (typeof value === 'string' && value) {
             arrayOfErrors.push(value);
-          } else if (value && value.type === 'required') {
+          } else if (value && value.type === 'required' && value.message) {
             arrayOfErrors = [value.message];
             return false;
-          } else if (value) {
+          } else if (value && value.message) {
             arrayOfErrors.push(value.message);
           }
           return true;

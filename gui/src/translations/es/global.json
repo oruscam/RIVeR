@@ -137,7 +137,8 @@
       "leftBank": "Margen Izquierda está fuera de rango",
       "bathimetryNotValid": "La batimetría es inválida. El {{level}} no existe en este archivo",
       "bathimetryIsRequired": "La batimetría es necesaria para {{section_name}}",
-      "rwLength": "La longitud de la Sección no puede ser 0 para {{section_name}}"
+      "rwLength": "La longitud de la Sección no puede ser 0 para {{section_name}}",
+      "levelRequired": "El valor de Nivel no puede ser 0 para {{section_name}}"
     },
     "warning": "¿Está seguro que desea eliminar {{section_name}}?",
     "warningTitle": "Eliminar Sección",

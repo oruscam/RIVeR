@@ -137,7 +137,8 @@
       "leftBank": "左岸超出范围",
       "bathimetryNotValid": "测深数据无效，水位 {{level}} 在此文件中不存在",
       "bathimetryIsRequired": "{{section_name}} 需要测深数据",
-      "rwLength": "{{section_name}} 的横断面长度不能为 0"
+      "rwLength": "{{section_name}} 的横断面长度不能为 0",
+      "levelRequired": "{{section_name}} 的水位不能为 0"
     },
     "warning": "确定要删除 {{section_name}} 吗？",
     "warningTitle": "删除断面",
