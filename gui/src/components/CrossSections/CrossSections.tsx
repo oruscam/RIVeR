@@ -46,8 +46,8 @@ type CrossSectionsProps = {
 };
 
 export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSectionsProps) => {
-  const { sections, activeSection, onSetSections } = useSectionSlice(); // Wrap the sections variable inside an array
-  const { onSetErrorMessage } = useUiSlice();
+  const { sections, activeSection, onSetSections, isDraggingPoint } = useSectionSlice(); // Wrap the sections variable inside an array
+  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
 
   const methods = useForm({ defaultValues: createInitialState(sections, projectDetails.unitSistem) });
@@ -101,6 +101,35 @@ export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSect
     // the full `sections` array would reset in-progress edits on non-active section forms.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSectionData, projectDetails.unitSistem, methods]);
+
+  // Persistent yellow "drawing/modifying section X" status while a section's direction is
+  // being drawn or an already-drawn endpoint pin is being dragged, same behavior as the mask
+  // editing warning. `drawLine` takes priority since it's also true while the initial draw's
+  // drag is in progress (isDraggingPoint is true then too).
+  useEffect(() => {
+    if (activeSectionData.drawLine) {
+      onSetWarningMessage(
+        t('CrossSections.drawingSectionWarning', {
+          defaultValue: 'Drawing section {{name}}',
+          name: activeSectionData.name,
+        })
+      );
+      return () => onClearWarningMessage();
+    }
+
+    if (isDraggingPoint) {
+      onSetWarningMessage(
+        t('CrossSections.modifyingSectionWarning', {
+          defaultValue: 'Modifying section {{name}}',
+          name: activeSectionData.name,
+        })
+      );
+      return () => onClearWarningMessage();
+    }
+
+    onClearWarningMessage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSectionData.drawLine, activeSectionData.name, isDraggingPoint]);
 
   return (
     <div className="body">

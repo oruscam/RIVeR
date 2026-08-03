@@ -145,6 +145,8 @@
     "mask": "Маска",
     "addMask": "Добавить маску",
     "editingMaskWarning": "Редактирование маски {{n}}",
+    "drawingSectionWarning": "Рисование сечения {{name}}",
+    "modifyingSectionWarning": "Изменение сечения {{name}}",
     "bankRight": "П",
     "bankLeft": "Л"
   },
