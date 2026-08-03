@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as d3 from 'd3';
-import { useSectionSlice, useUiSlice } from '../../hooks';
+import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { drawInteractiveSection, drawStaticSection, getResizedPoint } from './drawSections';
 import type { OverlayLayers } from '../OverlaySvg';
 
@@ -27,10 +27,11 @@ export const DrawSectionsD3 = ({
 }) => {
   const { sections, activeSection, onSetDirPoints, onSetIsDraggingPoint } = useSectionSlice();
   const { seeAll, language } = useUiSlice();
+  const { type } = useProjectSlice();
 
   const { svgRef, overlayZoomRef, staticLayerRef, interactiveLayerRef, uiLayerRef } = layers;
 
-  const { dirPoints, sectionPoints, name } = sections[activeSection];
+  const { dirPoints, sectionPoints, name, bathimetry } = sections[activeSection];
 
   const [startPoint, setStartPoint] = useState<Point | null>(
     dirPoints.length > 0 ? getResizedPoint(dirPoints[0], factor) : null
@@ -183,6 +184,11 @@ export const DrawSectionsD3 = ({
 
     const onMouseDown = (event: any) => {
       if (module !== 'x-sections') return;
+      // IPCam requires a bathymetry before the direction line makes sense (the workflow
+      // there is import-then-draw). UAV/Oblique is the opposite: drawing the direction
+      // is what produces the pixel size that unlocks bathymetry import, so it must stay
+      // allowed pre-bathymetry.
+      if (type === 'ipcam' && bathimetry.path === undefined) return;
       if (dirPoints.length === 0) {
         setMousePressed(true);
         const [x, y] = getPointerInZoom(event);
@@ -220,6 +226,8 @@ export const DrawSectionsD3 = ({
     svgRef,
     module,
     dirPoints.length,
+    bathimetry.path,
+    type,
     mousePressed,
     startPoint,
     endPoint,

@@ -167,7 +167,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 type="button"
                 id={`${name}-DRAW_LINE`}
                 onClick={() => onUpdateSection({ drawLine: true }, undefined)}
-                disabled={transformationMatrix.length === 0}
+                disabled={transformationMatrix.length === 0 || bathimetry.path === undefined}
               >
                 {' '}
                 {t('CrossSections.drawLine')}{' '}

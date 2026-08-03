@@ -145,6 +145,8 @@
     "mask": "마스크",
     "addMask": "마스크 추가",
     "editingMaskWarning": "마스크 {{n}} 편집 중",
+    "drawingSectionWarning": "단면 {{name}} 그리는 중",
+    "modifyingSectionWarning": "단면 {{name}} 수정 중",
     "bankRight": "우",
     "bankLeft": "좌"
   },
