@@ -20,7 +20,7 @@ const transformData = (data: any): any => {
       alpha: section.alpha !== undefined ? parseFloat(section.alpha.toFixed(2)) : null,
       percentile_5th: section['5th_percentile'],
       percentile_95th: section['95th_percentile'],
-      total_Q: section.total_Q !== undefined ? section.total_Q.toFixed(2) : null,
+      total_Q: section.total_Q !== undefined ? section.total_Q : null,
       measured_Q: section.measured_Q !== undefined ? section.measured_Q.toFixed(2) : null,
       interpolated_Q: section.interpolated_Q !== undefined ? section.interpolated_Q.toFixed(2) : null,
       total_A: section.total_A !== undefined ? section.total_A.toFixed(2) : null,

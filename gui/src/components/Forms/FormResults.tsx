@@ -27,7 +27,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
     data?.total_Q != null
       ? isImperial
         ? (data.total_Q * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(3)
-        : data.total_Q
+        : data.total_Q.toFixed(2)
       : null;
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
