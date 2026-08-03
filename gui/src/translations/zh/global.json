@@ -145,6 +145,8 @@
     "mask": "掩膜",
     "addMask": "添加掩膜",
     "editingMaskWarning": "正在编辑掩膜 {{n}}",
+    "drawingSectionWarning": "正在绘制断面 {{name}}",
+    "modifyingSectionWarning": "正在修改断面 {{name}}",
     "bankRight": "右",
     "bankLeft": "左"
   },

@@ -145,6 +145,8 @@
     "mask": "मास्क",
     "addMask": "मास्क जोड़ें",
     "editingMaskWarning": "मास्क {{n}} संपादित किया जा रहा है",
+    "drawingSectionWarning": "खंड {{name}} बनाया जा रहा है",
+    "modifyingSectionWarning": "खंड {{name}} संशोधित किया जा रहा है",
     "bankRight": "द",
     "bankLeft": "ब"
   },

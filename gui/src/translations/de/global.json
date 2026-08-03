@@ -145,6 +145,8 @@
     "mask": "Maske",
     "addMask": "Maske hinzufügen",
     "editingMaskWarning": "Maske {{n}} wird bearbeitet",
+    "drawingSectionWarning": "Abschnitt {{name}} wird gezeichnet",
+    "modifyingSectionWarning": "Abschnitt {{name}} wird geändert",
     "bankRight": "R",
     "bankLeft": "L"
   },

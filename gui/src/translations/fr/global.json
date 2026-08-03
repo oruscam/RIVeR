@@ -145,6 +145,8 @@
     "mask": "Masque",
     "addMask": "Ajouter un Masque",
     "editingMaskWarning": "Modification du masque {{n}}",
+    "drawingSectionWarning": "Dessin de la section {{name}}",
+    "modifyingSectionWarning": "Modification de la section {{name}}",
     "bankRight": "D",
     "bankLeft": "G"
   },
