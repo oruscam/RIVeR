@@ -145,6 +145,8 @@
     "mask": "マスク",
     "addMask": "マスクを追加",
     "editingMaskWarning": "マスク{{n}}を編集中",
+    "drawingSectionWarning": "断面{{name}}を描画中",
+    "modifyingSectionWarning": "断面{{name}}を変更中",
     "bankRight": "右",
     "bankLeft": "左"
   },

@@ -145,6 +145,8 @@
     "mask": "القناع",
     "addMask": "إضافة قناع",
     "editingMaskWarning": "جارٍ تحرير القناع {{n}}",
+    "drawingSectionWarning": "جارٍ رسم المقطع {{name}}",
+    "modifyingSectionWarning": "جارٍ تعديل المقطع {{name}}",
     "bankRight": "م",
     "bankLeft": "س"
   },

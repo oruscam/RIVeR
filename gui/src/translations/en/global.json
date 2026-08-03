@@ -145,6 +145,8 @@
     "mask": "Mask",
     "addMask": "Add Mask",
     "editingMaskWarning": "Editing mask {{n}}",
+    "drawingSectionWarning": "Drawing section {{name}}",
+    "modifyingSectionWarning": "Modifying section {{name}}",
     "bankRight": "R",
     "bankLeft": "L"
   },
