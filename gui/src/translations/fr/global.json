@@ -82,6 +82,8 @@
     "lineLength": "Longueur de Ligne",
     "pixelSize": "Taille de Pixel",
     "drawLine": "Tracer une Ligne",
+    "drawingLineWarning": "Dessin de la ligne",
+    "modifyingLineWarning": "Modification de la ligne",
     "carouselStabilization": "Stabilisation",
     "Errors": {
       "required": "Tous les champs sont obligatoires. Veuillez vérifier la Taille de Pixel.",
@@ -265,6 +267,8 @@
   "ControlPoints": {
     "title": "Points de Contrôle",
     "drawPoints": "Dessiner les Points",
+    "drawingPointsWarning": "Dessin des points",
+    "modifyingPointsWarning": "Modification des points",
     "importDistances": "Importer les Distances",
     "distance": "Distance",
     "length": "Longueur",
@@ -287,7 +291,8 @@
     "optimize": "Optimiser",
     "reprojectionErrors": "Erreurs de Reprojection : ",
     "numberOfPoints": "Nombre de Points : ",
-    "cameraHeight": "Hauteur de Caméra : "
+    "cameraHeight": "Hauteur de Caméra : ",
+    "movingPointWarning": "Déplacement de {{label}}"
   },
   "Errors": {
     "invalidPointsFileFormat": "Format de fichier de points invalide.",

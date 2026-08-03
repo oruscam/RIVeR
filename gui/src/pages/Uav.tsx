@@ -1,7 +1,7 @@
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { FormUav } from '../components/Forms/index';
-import { WizardButtons, Error, FocusOverlay, Carousel } from '../components/index';
+import { WizardButtons, Error, Warning, FocusOverlay, Carousel } from '../components/index';
 import { useDataSlice, useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../hooks/index';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
@@ -83,7 +83,7 @@ export const Uav = () => {
   const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size, unitSistem) });
 
   const { nextStep } = useWizard();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
 
   const onSubmit = () => {
     console.log(rwPoints);
@@ -108,6 +108,25 @@ export const Uav = () => {
     methods.reset(createDefaultState(dirPoints, rwPoints, rwLength, size, unitSistem));
   }, [dirPoints, rwPoints, size, rwLength, unitSistem, methods]);
 
+  // Persistent yellow "drawing/modifying line" status while the pixel-size line is being
+  // drawn or an already-drawn endpoint pin is being dragged, same behavior as the
+  // cross-section direction warning. `drawLine` takes priority since it's also true while
+  // the initial draw's own drag is in progress (isDraggingPoint is true then too).
+  useEffect(() => {
+    if (drawLine) {
+      onSetWarningMessage(t('PixelSize.drawingLineWarning', { defaultValue: 'Drawing line' }));
+      return () => onClearWarningMessage();
+    }
+
+    if (isDraggingPoint) {
+      onSetWarningMessage(t('PixelSize.modifyingLineWarning', { defaultValue: 'Modifying line' }));
+      return () => onClearWarningMessage();
+    }
+
+    onClearWarningMessage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drawLine, isDraggingPoint]);
+
   return (
     <div className="regular-page">
       <div className="media-container">
@@ -123,7 +142,10 @@ export const Uav = () => {
             mode="select"
           />
         )}
-        <Error />
+        <div className="message-stack">
+          <Error />
+          <Warning />
+        </div>
       </div>
       <div className="form-container">
         <FormHeader title={t('PixelSize.title')} showSections={false} />
