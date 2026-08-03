@@ -82,6 +82,8 @@
     "lineLength": "線の長さ",
     "pixelSize": "ピクセルサイズ",
     "drawLine": "線を描く",
+    "drawingLineWarning": "線を描画中",
+    "modifyingLineWarning": "線を変更中",
     "carouselStabilization": "安定化",
     "Errors": {
       "required": "すべてのフィールドは必須です。ピクセルサイズフォームを確認してください。",
@@ -261,6 +263,8 @@
   "ControlPoints": {
     "title": "コントロールポイント",
     "drawPoints": "点を描く",
+    "drawingPointsWarning": "点を描画中",
+    "modifyingPointsWarning": "点を変更中",
     "importDistances": "距離を読み込む",
     "distance": "距離",
     "length": "長さ",
@@ -283,7 +287,8 @@
     "optimize": "最適化",
     "reprojectionErrors": "再投影誤差: ",
     "numberOfPoints": "点の数: ",
-    "cameraHeight": "カメラ高さ: "
+    "cameraHeight": "カメラ高さ: ",
+    "movingPointWarning": "{{label}}を移動中"
   },
   "Errors": {
     "invalidPointsFileFormat": "無効なポイントファイル形式です。",

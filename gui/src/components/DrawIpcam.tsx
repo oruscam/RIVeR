@@ -20,11 +20,30 @@ export const DrawIpcam = ({
   position: { x: number; y: number };
   layers: OverlayLayers;
 }) => {
-  const { points, activePoint, onSetPointPixelCoordinates, onSetActivePoint, cameraSolution } = useIpcamSlice();
+  const {
+    points,
+    activePoint,
+    onSetPointPixelCoordinates,
+    onSetActivePoint,
+    onSetIsDraggingPoint,
+    cameraSolution,
+  } = useIpcamSlice();
   const { interactiveLayerRef, uiLayerRef } = layers;
 
   const [localPoints, setLocalPoints] = useState<IpcamPoint[] | null>(transformPointCoordinates(points, factor));
-  const [, setMousePressed] = useState(false);
+  const [mousePressed, setMousePressed] = useState(false);
+
+  // Mirror the drag state into Redux so other parts of the page (e.g. the
+  // yellow "moving point" warning) can react to it.
+  useEffect(() => {
+    onSetIsDraggingPoint(mousePressed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mousePressed]);
+
+  useEffect(() => {
+    return () => onSetIsDraggingPoint(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!interactiveLayerRef.current) return;

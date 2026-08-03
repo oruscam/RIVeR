@@ -82,6 +82,8 @@
     "lineLength": "रेखा की लंबाई",
     "pixelSize": "पिक्सेल आकार",
     "drawLine": "रेखा खींचें",
+    "drawingLineWarning": "रेखा खींची जा रही है",
+    "modifyingLineWarning": "रेखा संशोधित की जा रही है",
     "carouselStabilization": "स्थिरीकरण",
     "Errors": {
       "required": "सभी फ़ील्ड अनिवार्य हैं। कृपया पिक्सेल आकार फ़ॉर्म जाँचें।",
@@ -261,6 +263,8 @@
   "ControlPoints": {
     "title": "नियंत्रण बिंदु",
     "drawPoints": "नियंत्रण बिंदु चिह्नित करें",
+    "drawingPointsWarning": "नियंत्रण बिंदु चिह्नित किए जा रहे हैं",
+    "modifyingPointsWarning": "नियंत्रण बिंदु संशोधित किए जा रहे हैं",
     "importDistances": "दूरियाँ आयात करें",
     "distance": "दूरी",
     "length": "लंबाई",
@@ -283,7 +287,8 @@
     "optimize": "अनुकूलित करें",
     "reprojectionErrors": "पुनः प्रक्षेपण त्रुटियाँ: ",
     "numberOfPoints": "बिंदुओं की संख्या: ",
-    "cameraHeight": "कैमरा ऊँचाई: "
+    "cameraHeight": "कैमरा ऊँचाई: ",
+    "movingPointWarning": "{{label}} स्थानांतरित किया जा रहा है"
   },
   "Errors": {
     "invalidPointsFileFormat": "नियंत्रण बिंदु फ़ाइल का प्रारूप अमान्य है।",

@@ -82,6 +82,8 @@
     "lineLength": "线段长度",
     "pixelSize": "像素尺寸",
     "drawLine": "绘制线段",
+    "drawingLineWarning": "正在绘制线段",
+    "modifyingLineWarning": "正在修改线段",
     "carouselStabilization": "稳定",
     "Errors": {
       "required": "所有字段均为必填项，请检查像素尺寸表单。",
@@ -261,6 +263,8 @@
   "ControlPoints": {
     "title": "控制点",
     "drawPoints": "标记控制点",
+    "drawingPointsWarning": "正在标记控制点",
+    "modifyingPointsWarning": "正在修改控制点",
     "importDistances": "导入距离",
     "distance": "距离",
     "length": "长度",
@@ -283,7 +287,8 @@
     "optimize": "优化",
     "reprojectionErrors": "重投影误差: ",
     "numberOfPoints": "控制点数量: ",
-    "cameraHeight": "相机高度: "
+    "cameraHeight": "相机高度: ",
+    "movingPointWarning": "正在移动 {{label}}"
   },
   "Errors": {
     "invalidPointsFileFormat": "控制点文件格式无效。",

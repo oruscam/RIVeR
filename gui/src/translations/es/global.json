@@ -82,6 +82,8 @@
     "lineLength": "Longitud de Línea",
     "pixelSize": "Tamaño de Píxel",
     "drawLine": "Dibujar Línea",
+    "drawingLineWarning": "Dibujando línea",
+    "modifyingLineWarning": "Modificando línea",
     "carouselStabilization": "Estabilización",
     "Errors": {
       "required": "Todos los campos son obligatorios. Por favor consulte el formato de Tamaño de Píxel.",
@@ -265,6 +267,8 @@
   "ControlPoints": {
     "title": "Puntos de Control",
     "drawPoints": "Dibujar Puntos",
+    "drawingPointsWarning": "Dibujando puntos",
+    "modifyingPointsWarning": "Modificando puntos",
     "importDistances": "Importar Distancias",
     "distance": "Distancia",
     "length": "Longitud",
@@ -287,7 +291,8 @@
     "optimize": "Solución Óptima",
     "reprojectionErrors": "Errores de Reproyección",
     "numberOfPoints": "Número de Puntos",
-    "cameraHeight": "Altura de Cámara"
+    "cameraHeight": "Altura de Cámara",
+    "movingPointWarning": "Moviendo {{label}}"
   },
   "Errors": {
     "imagesFolderEmpty": "No se encontraron imágenes en la carpeta seleccionada.",

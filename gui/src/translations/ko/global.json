@@ -82,6 +82,8 @@
     "lineLength": "선 길이",
     "pixelSize": "픽셀 크기",
     "drawLine": "선 그리기",
+    "drawingLineWarning": "선 그리는 중",
+    "modifyingLineWarning": "선 수정 중",
     "carouselStabilization": "안정화",
     "Errors": {
       "required": "모든 필드는 필수입니다. 픽셀 크기 양식을 확인해 주세요.",
@@ -261,6 +263,8 @@
   "ControlPoints": {
     "title": "기준점",
     "drawPoints": "기준점 표시",
+    "drawingPointsWarning": "기준점 표시 중",
+    "modifyingPointsWarning": "기준점 수정 중",
     "importDistances": "거리 가져오기",
     "distance": "거리",
     "length": "길이",
@@ -283,7 +287,8 @@
     "optimize": "최적화",
     "reprojectionErrors": "재투영 오차: ",
     "numberOfPoints": "기준점 수: ",
-    "cameraHeight": "카메라 높이: "
+    "cameraHeight": "카메라 높이: ",
+    "movingPointWarning": "{{label}} 이동 중"
   },
   "Errors": {
     "invalidPointsFileFormat": "기준점 파일 형식이 유효하지 않습니다.",

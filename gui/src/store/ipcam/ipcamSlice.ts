@@ -8,6 +8,7 @@ const initialState: Ipcam = {
   importedImages: null,
   activeImage: null,
   activePoint: null,
+  isDraggingPoint: false,
   cameraSolution: null,
   selectedCounter: 0,
   zLimits: {
@@ -54,6 +55,9 @@ const ipcamSlice = createSlice({
     setActivePoint: (state, action: PayloadAction<number | null>) => {
       state.activePoint = action.payload;
     },
+    setIsDraggingPoint: (state, action: PayloadAction<boolean>) => {
+      state.isDraggingPoint = action.payload;
+    },
   },
 });
 
@@ -65,6 +69,7 @@ export const {
   setActiveImage,
   setDefaultIpcamState,
   setActivePoint,
+  setIsDraggingPoint,
 } = ipcamSlice.actions;
 
 export default ipcamSlice.reducer;

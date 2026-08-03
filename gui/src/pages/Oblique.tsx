@@ -1,5 +1,5 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { Carousel, Error, FocusOverlay, ImageOblique, WizardButtons } from '../components';
+import { Carousel, Error, FocusOverlay, ImageOblique, Warning, WizardButtons } from '../components';
 import { FormOblique } from '../components/Forms';
 import { useDataSlice, useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
@@ -60,7 +60,7 @@ export const Oblique = () => {
   } = useObliqueSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { projectDetails, projectDirectory, video } = useProjectSlice();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
   const { nextStep } = useWizard();
   const { t } = useTranslation();
   const { images } = useDataSlice();
@@ -118,6 +118,27 @@ export const Oblique = () => {
     methods.reset(createDefaultState(distances, coordinates, rwCoordinates, projectDetails.unitSistem));
   }, [distances, methods, coordinates, rwCoordinates, projectDetails.unitSistem]);
 
+  // Persistent yellow "drawing/modifying points" status while the user is placing the
+  // control-points square or dragging an already-placed pin, same behavior as the
+  // FocusOverlay dimming above. `drawPoints` alone stays true even after the square is
+  // drawn (the button toggles back only on a manual click), so `isDefaultCoordinates` is
+  // what actually marks the active drawing session; it takes priority over isDraggingPoint
+  // since dragging the square's corner during the initial draw sets both.
+  useEffect(() => {
+    if (drawPoints && isDefaultCoordinates) {
+      onSetWarningMessage(t('ControlPoints.drawingPointsWarning', { defaultValue: 'Drawing points' }));
+      return () => onClearWarningMessage();
+    }
+
+    if (isDraggingPoint) {
+      onSetWarningMessage(t('ControlPoints.modifyingPointsWarning', { defaultValue: 'Modifying points' }));
+      return () => onClearWarningMessage();
+    }
+
+    onClearWarningMessage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drawPoints, isDefaultCoordinates, isDraggingPoint]);
+
   return (
     <div className="regular-page">
       <div className="media-container">
@@ -133,7 +154,10 @@ export const Oblique = () => {
             mode="select"
           />
         )}
-        <Error />
+        <div className="message-stack">
+          <Error />
+          <Warning />
+        </div>
       </div>
       <div
         className={`form-container ${dragOver ? 'drag-over' : ''}`}
