@@ -48,7 +48,7 @@
     "title": "Sélection de Séquence",
     "start": "Début",
     "end": "Fin",
-    "step": "Pas de Temps",
+    "step": "Pas",
     "Errors": {
       "start1": "Sélection de temps invalide : Le temps de début ne peut pas être inférieur à 0. Veuillez entrer une valeur valide.",
       "end1": "Sélection de temps invalide : La valeur 'Fin' ne peut pas être supérieure à la durée totale de la vidéo. Veuillez entrer une valeur valide.",

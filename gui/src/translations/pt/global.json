@@ -48,7 +48,7 @@
     "title": "Intervalo de Vídeo",
     "start": "Início",
     "end": "Fim",
-    "step": "Passo Temporal",
+    "step": "Passo",
     "Errors": {
       "start1": "Seleção de tempo inválida: o tempo de início não pode ser menor que 0. Por favor, insira um valor válido.",
       "end1": "Seleção de tempo inválida: o valor de 'Fim' não pode ser maior que a duração total do vídeo. Por favor, insira um valor válido.",

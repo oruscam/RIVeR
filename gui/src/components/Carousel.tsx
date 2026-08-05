@@ -1,4 +1,4 @@
-import { useDataSlice, useUiSlice, useResizableCarousel } from '../hooks';
+import { useAutoShrinkFont, useDataSlice, useUiSlice, useResizableCarousel } from '../hooks';
 import React, { useRef, useState, useEffect } from 'react';
 import { useWizard } from 'react-use-wizard';
 import { MODULE_NUMBER } from '../constants/constants';
@@ -69,6 +69,7 @@ export const Carousel: React.FC<CarouselProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<List>(null);
   const listOuterRef = useRef<HTMLDivElement>(null);
+  const stabilizationButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
 
   const { activeStep } = useWizard();
 
@@ -153,6 +154,7 @@ export const Carousel: React.FC<CarouselProps> = ({
             toggle the stabilization sanity-check image instead of a median composite. */}
         {activeStep === MODULE_NUMBER.PIXEL_SIZE && canToggleMedian && (
           <button
+            ref={stabilizationButtonRef}
             className={`wizard-button ${showMedian ? 'wizard-button-active' : ''}`}
             onClick={() => setShowMedian!(!showMedian)}
           >

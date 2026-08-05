@@ -48,7 +48,7 @@
     "title": "Video-Bereich",
     "start": "Start",
     "end": "Ende",
-    "step": "Zeitschritt",
+    "step": "Schritt",
     "Errors": {
       "start1": "Ungültige Zeitauswahl: Der Startzeitpunkt darf nicht kleiner als 0 sein. Bitte geben Sie einen gültigen Wert ein.",
       "end1": "Ungültige Zeitauswahl: Der 'Ende'-Wert darf nicht größer als die Gesamtlänge des Videos sein. Bitte geben Sie einen gültigen Wert ein.",

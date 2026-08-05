@@ -1,3 +1,4 @@
+import { useAutoShrinkFont } from './useAutoShrinkFont';
 import { useCalibrationSlice } from './useCalibrationSlice';
 import { useUiSlice } from './useUiSlice';
 import { useSectionSlice } from './useSectionSlice';
@@ -11,6 +12,7 @@ import { useImageZoomPan } from './useImageZoomPan';
 import { useResizableCarousel } from './useResizableCarousel';
 
 export {
+  useAutoShrinkFont,
   useCalibrationSlice,
   useDataSlice,
   useGlobalSlice,
