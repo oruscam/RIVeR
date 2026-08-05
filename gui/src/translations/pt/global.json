@@ -84,7 +84,7 @@
     "drawLine": "Desenhar Linha",
     "drawingLineWarning": "Desenhando a linha",
     "modifyingLineWarning": "Modificando a linha",
-    "carouselStabilization": "Estabilização",
+    "carouselStabilization": "Verificação de estabilização",
     "Errors": {
       "required": "Todos os campos são obrigatórios. Verifique o formulário de Tamanho do Pixel.",
       "lineLength": "Comprimento da linha inválido: deve ser um número positivo, podendo incluir decimais. Insira um valor válido.",

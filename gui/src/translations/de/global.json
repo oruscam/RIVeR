@@ -84,7 +84,7 @@
     "drawLine": "Linie zeichnen",
     "drawingLineWarning": "Linie wird gezeichnet",
     "modifyingLineWarning": "Linie wird geändert",
-    "carouselStabilization": "Stabilisierung",
+    "carouselStabilization": "Stabilisierungsprüfung",
     "Errors": {
       "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für die Pixelgröße.",
       "lineLength": "Ungültige Linienlänge: Die Länge muss eine positive Zahl sein und kann Dezimalstellen enthalten. Bitte geben Sie einen gültigen Wert ein.",
