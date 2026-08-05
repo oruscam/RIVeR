@@ -84,7 +84,7 @@
     "drawLine": "Draw Line",
     "drawingLineWarning": "Drawing line",
     "modifyingLineWarning": "Modifying line",
-    "carouselStabilization": "Stabilization",
+    "carouselStabilization": "Stabilization Check",
     "Errors": {
       "required": "All the fields are obligatory. Please check Pixel Size form.",
       "lineLength": "Invalid Line Length: The line length must be a positive number, which can include decimals. Please enter a valid value.",
