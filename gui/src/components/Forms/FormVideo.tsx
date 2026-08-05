@@ -140,51 +140,58 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
   return (
     <div className="body">
       <form onSubmit={handleSubmit(onSubmit, onError)} id="form-video">
-        <div className="input-container-2 mt-2">
-          <button type="button" onClick={handleClick} className="wizard-button form-button me-1" id="start-button">
-            {' '}
-            {t('VideoRange.start')}
-          </button>
-          <div className="input-field-container">
-            <input
-              className="input-field"
-              defaultValue="00:00"
-              id="start"
-              type="text"
-              {...register('start', validationRules.start)}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-            />
+        <div className="form-video-fields">
+          <div className="input-container-2 mt-2">
+            <button
+              type="button"
+              onClick={handleClick}
+              className="wizard-button form-button me-1"
+              id="start-button"
+            >
+              {' '}
+              {t('VideoRange.start')}
+            </button>
+            <div className="input-field-container">
+              <input
+                className="input-field"
+                defaultValue="00:00"
+                id="start"
+                type="text"
+                {...register('start', validationRules.start)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
           </div>
-        </div>
-        <div className="input-container-2 mt-1">
-          <button type="button" className="wizard-button form-button me-1" onClick={handleClick} id="end-button">
-            {' '}
-            {t('VideoRange.end')}{' '}
-          </button>
-          <div className="input-field-container">
-            <input
-              type="text"
-              className="input-field"
-              defaultValue="00:00"
-              id="end"
-              {...register('end', validationRules.end)}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-            />
+          <div className="input-container-2 mt-1">
+            <button type="button" className="wizard-button form-button me-1" onClick={handleClick} id="end-button">
+              {' '}
+              {t('VideoRange.end')}{' '}
+            </button>
+            <div className="input-field-container">
+              <input
+                type="text"
+                className="input-field"
+                defaultValue="00:00"
+                id="end"
+                {...register('end', validationRules.end)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+              />
+            </div>
           </div>
-        </div>
-        <div className="input-container-2 mt-1">
-          <label className="read-only me-1"> {t('VideoRange.step')} </label>
-          <div className="input-field-container">
-            <input
-              type="number"
-              id="input-step"
-              defaultValue={1}
-              className="input-field"
-              onKeyDown={handleKeyDown}
-              {...register('step', validationRules.step)}
-            />
+          <div className="input-container-2 mt-1">
+            <label className="read-only me-1"> {t('VideoRange.step')} </label>
+            <div className="input-field-container">
+              <input
+                type="number"
+                id="input-step"
+                defaultValue={1}
+                className="input-field"
+                onKeyDown={handleKeyDown}
+                {...register('step', validationRules.step)}
+              />
+            </div>
           </div>
         </div>
         <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />

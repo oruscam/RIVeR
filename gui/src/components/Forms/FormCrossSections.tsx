@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useAutoShrinkFont, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { DropHereText, HardModeCrossSections } from './Components/index';
 import { Bathimetry } from '../Graphs';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,14 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   const { cameraSolution, zLimits: controlPointsZLimits } = useIpcamSlice();
 
   const { t } = useTranslation();
+
+  // All sections mount together and the inactive ones are hidden via a parent
+  // display:none — a section measures 0×0 while hidden, so re-fit once it
+  // actually becomes the visible one instead of relying only on [t].
+  const isActiveSection = activeSection === index;
+  const drawLineButtonRef = useAutoShrinkFont<HTMLButtonElement>([t, isActiveSection]);
+  const importBathButtonRef = useAutoShrinkFont<HTMLButtonElement>([t, isActiveSection]);
+  const leftBankStationLabelRef = useAutoShrinkFont<HTMLLabelElement>([t, isActiveSection]);
 
   const { yMax, yMin, xMin, x1Intersection, leftBank, xMax } = bathimetry;
 
@@ -148,6 +156,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 })}
               />
               <button
+                ref={importBathButtonRef}
                 className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
                 onClick={handleImportBath}
                 disabled={
@@ -163,6 +172,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             </div>
             <div className="input-container-2">
               <button
+                ref={drawLineButtonRef}
                 className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
                 type="button"
                 id={`${name}-DRAW_LINE`}
@@ -179,6 +189,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
           <>
             <div className="input-container-2">
               <button
+                ref={drawLineButtonRef}
                 className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
                 type="button"
                 id={`${name}-DRAW_LINE`}
@@ -206,6 +217,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 })}
               />
               <button
+                ref={importBathButtonRef}
                 className={`wizard-button form-button bathimetry-button me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
                 onClick={handleImportBath}
                 disabled={
@@ -269,7 +281,12 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
         <Bathimetry showLeftBank={true} />
 
         <div className="input-container-2 mb-4" id="left-bank-station-container">
-          <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">
+          <label
+            ref={leftBankStationLabelRef}
+            className="read-only me-1"
+            htmlFor="left-bank-station-input"
+            id="left-bank-station-label"
+          >
             {t('CrossSections.leftBankStation')}
           </label>
           <div className="input-field-container">

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo, memo, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCheckCircle } from 'react-icons/lu';
-import { useCalibrationSlice, useResizableCarousel } from '../hooks';
+import { useAutoShrinkFont, useCalibrationSlice, useResizableCarousel } from '../hooks';
 import { Icon, Loading, SuccessBanner } from '../components';
 import { CalibrationHistogram } from '../components/Graphs';
 import { DropHereText } from '../components/Forms/Components';
@@ -191,6 +191,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   const [comboOpen, setComboOpen] = useState(false);
   const overlayRef = useRef<HTMLDivElement>(null);
   const calCarouselRef = useRef<HTMLDivElement>(null);
+  const heatmapButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
 
   const { height: thumbHeight, onDragHandleMouseDown: onCalResizeDrag } = useResizableCarousel({
     storageKey: 'river-cal-carousel-height',
@@ -595,6 +596,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                   </button>
                   {heatmapBase64 && (
                     <button
+                      ref={heatmapButtonRef}
                       className={`wizard-button${viewMode === 'heatmap' ? ' wizard-button-active' : ''}`}
                       onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
                     >

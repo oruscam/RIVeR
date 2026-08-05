@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { useDataSlice, useUiSlice } from '../../../hooks';
+import { useAutoShrinkFont, useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
 import { WINDOW_SIZES } from '../../../constants/constants';
 
@@ -10,6 +10,10 @@ export const HardModeProcessing = ({ active }: { active: boolean }) => {
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
 
   const { t } = useTranslation();
+
+  // This block is mounted but hidden (display:none via .hidden) until the
+  // user expands "advanced" options — re-fit once it actually becomes visible.
+  const roiHeightLabelRef = useAutoShrinkFont<HTMLLabelElement>([t, active]);
 
   const handleHeightRoiInput = async (event: React.SyntheticEvent<HTMLInputElement>) => {
     if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') {
@@ -39,7 +43,9 @@ export const HardModeProcessing = ({ active }: { active: boolean }) => {
       <span className="divider-line mt-2" />
 
       <div className="input-container-2 mt-2">
-        <label className="read-only me-1">{t('Processing.roiHeight')}</label>
+        <label ref={roiHeightLabelRef} className="read-only me-1">
+          {t('Processing.roiHeight')}
+        </label>
         <input
           className="input-field"
           {...register('roi_height')}
