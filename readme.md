@@ -237,7 +237,11 @@ river/
 
 ## 📚 Jupyter Examples
 
-Browse through our collection of Jupyter Notebook examples to learn how to use RIVeR for various analyses (requires development installation):
+Browse through our collection of Jupyter Notebook examples to learn how to use RIVeR for various analyses (requires development installation with the `examples` extra):
+
+```bash
+pip install -e ".[examples]"
+```
 
 - [Introduction to RIVeR](examples/00_introduction.ipynb)
 - [Video Frame Extraction](examples/01_video_to_frames.ipynb)
@@ -248,7 +252,7 @@ Browse through our collection of Jupyter Notebook examples to learn how to use R
 - [PIV Analysis Workflow](examples/04_piv_analysis.ipynb)
 - [Discharge Calculation](examples/05_discharge_calculation.ipynb)
 
-These interactive examples provide step-by-step guidance for common RIVeR workflows. To run them, make sure you've completed the development installation described above.
+These interactive examples provide step-by-step guidance for common RIVeR workflows. To run them, make sure you've completed the development installation with the `examples` extra shown above.
 ## 🔬 Citation
 
 If you use RIVeR in your research, please cite:
