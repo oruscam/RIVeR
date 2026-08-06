@@ -318,6 +318,16 @@
     padding-right: 30px;
 }
 
+/* Start/End render as buttons (.form-button, fixed 132px) while Step is a
+   plain .read-only label, which defaults to flex:1 1 auto and grows up to
+   210px — wider than the buttons even though the row is centered, so its
+   pill reads as a different size. Pin it to the same fixed column width so
+   all three rows match. */
+.form-video-fields .input-container-2 .read-only {
+    flex: 0 0 132px;
+    width: 132px;
+    max-width: 132px;
+}
 
 .only-one-item {
     display: flex;
