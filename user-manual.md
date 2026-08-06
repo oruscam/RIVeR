@@ -3,7 +3,7 @@
 <div align="center">
 <h1 align="center">User Manual</h1>
 <br />
-  <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/river_logo.svg" width="350px">
+  <img src="river/docs/_static/river_logo.svg" width="350px">
   <br />
   <br />
   <p>
@@ -17,15 +17,16 @@
 [1. Introduction](#1-introduction)  
 [2. Installation](#2-installation)  
 [3. Home Screen](#3-home-screen)  
-[4. Starting a New Project / Loading an Existing One](#4-starting-a-new-project--loading-an-existing-one)  
-[5. Select Kind of Footage](#5-select-kind-of-footage)  
-[6. Define Video Range](#6-define-video-range)  
-[7. Rectification Step (Depends on Footage Type)](#7-rectification-step-depends-on-footage-type)  
-[8. Define Cross Section(s)](#8-define-cross-sections)  
-[9. Define PIV Parameters](#9-define-piv-parameters)  
-[10. Analyze All Frames](#10-analyze-all-frames)  
-[11. View Results](#11-view-results)  
-[12. Export Summary](#12-export-summary)
+[4. Camera Calibration (Optional Tool)](#4-camera-calibration-optional-tool)  
+[5. Starting a New Project / Loading an Existing One](#5-starting-a-new-project--loading-an-existing-one)  
+[6. Select Kind of Footage](#6-select-kind-of-footage)  
+[7. Define Video Range](#7-define-video-range)  
+[8. Rectification Step (Depends on Footage Type)](#8-rectification-step-depends-on-footage-type)  
+[9. Define Cross Section(s)](#9-define-cross-sections)  
+[10. Define PIV Parameters](#10-define-piv-parameters)  
+[11. Analyze All Frames](#11-analyze-all-frames)  
+[12. View Results](#12-view-results)  
+[13. Export Summary](#13-export-summary)
 
 
 
@@ -82,7 +83,7 @@ For a deeper understanding of LSPIV measurement techniques, rectification method
 # 3. Home Screen
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/00%20-%20Home.png?raw=true" width=800>
+    <img src="river/docs/_static/00%20-%20Home.png" width=800>
     <p><i>RIVeR 3.1.0 Home screen</i></p>
 </figure>
 
@@ -96,6 +97,7 @@ Here you can:
 
 - **Start** → Begin a new project.
 - **Load Project** → Open a previously saved project.
+- **Calibrate Camera** (camera icon, bottom-left) → Open the Camera Calibration tool. See [4. Camera Calibration (Optional Tool)](#4-camera-calibration-optional-tool).
 - **Check Version** → See the current installed version (shown at the bottom).
 - **Select Language** → Change the interface language (bottom, globe icon).
 
@@ -104,7 +106,77 @@ Once you start or load a project, the interface switches to the two-panel workfl
 
 ---
 
-# 4. Starting a New Project / Loading an Existing One
+# 4. Camera Calibration (Optional Tool)
+
+<figure>
+    <img src="river/docs/_static/09%20-%20Calibration.png" width=800>
+    <p><i>Camera Calibration tool, opened from the Home screen</i></p>
+</figure>
+
+This tool is **independent of any project** — it can be opened at any time from the **camera icon** in the bottom-left corner of the Home screen, before you start or load a project. It doesn't require a video; instead, it works from a folder of still photos of a calibration pattern.
+
+> 💡 **Note:**  
+> This is not the same as the **Fixed Camera — Control Points** step described in [8. Rectification Step](#8-rectification-step-depends-on-footage-type).  
+> - **Camera Calibration** (this tool) solves the camera's **intrinsic** parameters — focal length, principal point, and lens distortion — from photos of a calibration board. Its only purpose is to **undistort (correct lens distortion in) extracted video frames** before they are processed.  
+> - **Fixed Camera — Control Points** solves the camera's **extrinsic** parameters (position and orientation in the world) from ground control points, to convert pixel coordinates into real-world coordinates for a specific project.  
+> You can use Camera Calibration on its own, or combine it with any footage type that benefits from lens correction (most commonly UAV footage from cameras with noticeable lens distortion, e.g. wide-angle or action-cam lenses).
+
+Once calibrated, a camera can be **saved as a reusable profile** and later selected from the **Define Video Range** step (see [7. Define Video Range](#7-define-video-range)) in any project, without having to recalibrate.
+
+## Workflow steps
+
+1. **Show Board**
+- Click **Show Board** to generate a printable/displayable **calibration pattern** (a checkerboard combined with ArUco markers) and open it full-screen in a separate window.
+- Print this pattern, or display it on a second screen or tablet.
+- Click **⬇ Save PNG** (bottom-right of the board window) to save the pattern image, or press **Esc** to close the board window.
+
+2. **Photograph the board**
+- Using the camera you want to calibrate (the same camera/lens you will use to record your river footage), take **many photos** of the printed/displayed board:
+  - Vary the **distance**, **angle**, and **position** of the board within the frame (center, corners, edges).
+  - Make sure the pattern is **in focus** and well lit — blurry photos are automatically skipped during calibration.
+  - The more varied and numerous the photos, the more accurate and reliable the calibration.
+
+3. **Import Images**
+- Click **Import Images** and select the folder containing your photos, or **drag and drop** the folder directly onto the right panel.
+- Imported photos appear as a **thumbnail carousel** at the bottom of the left panel; click a thumbnail (or use the ◀️ ▶️ arrow keys) to preview it full-size.
+
+4. **Solve**
+- Click **Solve** to run the calibration.
+- A progress ring shows the percentage complete while RIVeR detects the calibration pattern in each photo.
+
+5. **Review the results**
+
+<figure>
+    <img src="river/docs/_static/09%20-%20Calibration%20-%20results.png" width=800>
+    <p><i>Calibration results: quality grades, histogram, and recommendations</i></p>
+</figure>
+
+Once solved, the right panel shows:
+- An **overall quality grade** (Good / Fair / Bad), plus individual grades for: Median RMS, P90 RMS, Coverage, Edge Reach, Pose Spread, and Center Offset.
+- A list of **recommendations** for any metric that isn't graded "Good" (e.g. *"Add frames hitting edges/corners; vary angle & distance."*) — follow these and re-import more photos if you want to improve the result.
+- A **reprojection error histogram**, showing how accurately the model predicts each detected corner (lower is better).
+
+On the left panel, use the view buttons above the carousel (or keyboard shortcuts `1`, `2`, `h`) to switch between:
+- **Original** — the raw photo.
+- **Corrected** — the undistorted (lens-corrected) version of the same photo, with the detected corners (red), the model's predicted corners (white), and the error between them (cyan lines) overlaid.
+- **Heatmap** — a coverage map showing which parts of the sensor were well sampled by your photos (bright) versus poorly covered (dark).
+
+> 📌 **Tip:**  
+> Photos that couldn't be used (too blurry, or the pattern wasn't detected) are shown **dimmed** in the carousel, with a "Not used in calibration" tooltip — you don't need to remove them manually.
+
+6. **Save as a camera profile**
+- Fill in a **Camera name** and **Lens** (e.g. zoom level) to identify this calibration — existing names are suggested as you type, so you can add more lenses to a camera you already calibrated.
+- The **Resolution** field is filled in automatically from your photos.
+- Click **Save**. RIVeR confirms with the folder where the profile was saved.
+
+> ⚠️ **Important:**  
+> A saved profile is tied to the **resolution** of the photos used to calibrate it. When selecting a profile later in the Define Video Range step, the video's resolution must match — otherwise RIVeR will ask you to pick a different profile or calibrate again at the correct resolution.
+
+Click **Back** to close the tool and return to the Home screen.
+
+---
+
+# 5. Starting a New Project / Loading an Existing One
 
 From the Home screen, you can choose:
 
@@ -140,10 +212,10 @@ Once loaded, you can continue the analysis, adjust settings, or directly export 
 > 📌  **Tip:** Use the “Load Project” option if you want to revisit past work, compare different settings, or avoid reprocessing.
 ---
 
-# 5. Select Kind of Footage
+# 6. Select Kind of Footage
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/01%20-%20Footage.png?raw=true" width=800>
+    <img src="river/docs/_static/01%20-%20Footage.png" width=800>
     <p><i>Select the kind of footage to process and add your video file</i></p>
 </figure>
 
@@ -201,10 +273,10 @@ This makes the workflow **linear but flexible**, ensuring all required informati
 
 ---
 
-# 6. Define Video Range
+# 7. Define Video Range
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/02%20-%20Video%20Range.png?raw=true" width=800>
+    <img src="river/docs/_static/02%20-%20Video%20Range.png" width=800>
     <p><i>Define the video range for frame extraction</i></p>
 </figure>
 
@@ -272,7 +344,7 @@ However, advanced users can **unlock the lock** to access additional features.
 For example, at the Video Range selection step, unlocking the lock reveals **frame extraction resolution options**:
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/02lock%20-%20Video%20Range.png?raw=true" width=500>
+    <img src="river/docs/_static/02lock%20-%20Video%20Range.png" width=500>
     <p><i>Select frame extraction resolution (advanced option)</i></p>
 </figure>
 
@@ -282,6 +354,42 @@ For example, at the Video Range selection step, unlocking the lock reveals **fra
 
 > 💡 **Note:**
 > Higher resolutions mean significantly **larger processing time and data size** — adjust with care.
+
+Unlocking the lock also reveals two additional options: **Lens Correction** and, for UAV footage only, **Video Stabilization**.
+
+### Lens Correction
+
+If you have previously calibrated your camera using the [Camera Calibration tool](#4-camera-calibration-optional-tool), you can select the matching **camera / lens profile** here.  
+When enabled, RIVeR undistorts every extracted frame using that profile before any further processing.
+
+> ⚠️ **Important:**  
+> The profile's calibrated resolution must match your video's resolution. If it doesn't, RIVeR will block you from continuing and ask you to pick another profile or calibrate again at the correct resolution.  
+> If no profiles have been saved yet, this toggle is disabled with a hint pointing you to the Camera Calibration tool.
+
+### Video Stabilization (UAV footage only)
+
+<figure>
+    <img src="river/docs/_static/02lock%20-%20Stabilization.png" width=500>
+    <p><i>Stabilize video toggle and region editor (UAV footage)</i></p>
+</figure>
+
+If your drone footage suffers from camera shake or vibration (e.g. hovering drift, wind gusts, gimbal jitter), RIVeR can stabilize the extracted frames before analysis. This option only appears for **UAV footage** — oblique and fixed-camera setups assume a static camera and don't need it.
+
+- Turn on **Stabilize video** to start defining **stabilization regions**.
+- A **stabilization region** is a small box you place over a **fixed, static feature** in the scene — for example a rock, a bridge pier, or any solid structure that does **not** move (avoid placing it on the water itself). RIVeR tracks this feature across frames and uses its motion to work out — and cancel out — the camera's own shake.
+- **At least 2 regions are required** (RIVeR needs two tracked points to solve for translation, rotation, and scale).
+
+**Placing and editing regions:**
+- Click **Add region** to drop a new box (150×150 px by default) onto the video frame.
+- **Drag** the box to move it, or drag its **corner handles** to resize it.
+- Click the green **confirm** button next to the box once you're happy with its position, or the pencil icon on a region in the list to edit it again.
+- Use the trash icon to delete a region.
+- While a region is being edited, the rest of the interface dims to keep your focus on placement; you can also **zoom in** (scroll/pinch, centered on your cursor) for more precise placement.
+
+> 💡 **Note:**  
+> RIVeR remembers your original (unstabilized) frames — if you toggle stabilization off, or edit regions back to what they were before, it won't waste time re-extracting frames unnecessarily.
+
+Once frames are extracted, you can visually verify the result on the **UAV — Pixel Size** step using the **Stabilization** sanity-check view — see [8. Rectification Step → UAV/Drone — Pixel Size](#8-rectification-step-depends-on-footage-type).
 
 
 ## Navigation: Next and Back Buttons
@@ -295,21 +403,22 @@ This lets you review or adjust settings anytime without skipping essential steps
 
 ---
 
-# 7. Rectification Step (Depends on Footage Type)
+# 8. Rectification Step (Depends on Footage Type)
 
 After selecting the video range, the next screen will depend on the footage type you selected.  
 This step defines how RIVeR transforms image measurements (in pixels) into real-world distances — a process called **rectification**.
 
 
-## <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/drone.png?raw=true" alt="drone" width="24"/> UAV / Drone — Pixel Size
+## <img src="river/docs/_static/drone.png" alt="drone" width="24"/> UAV / Drone — Pixel Size
 
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03%20-%20Pixel%20Size.png?raw=true" width=800>
+    <img src="river/docs/_static/03%20-%20Pixel%20Size.png" width=800>
     <p><i>Define pixel size for UAV/drone footage</i></p>
 </figure>
 
 For UAV footage (top-down view), the rectification workflow is simple:
+
 
 - **Draw a reference line** on the image between two known points.
   - Click **Draw Line**, then go to the left panel and **click-drag between `Point 1` <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pin.svg" alt="red pin" width="16"/> and `Point 2`** <img src="https://raw.githubusercontent.com/oruscam/RIVeR/b30280046107d2c2d71f7b25153e452c2e25aa70/gui/src/assets/icons/pin.svg" alt="red pin" width="16"/>. 
@@ -333,7 +442,7 @@ Once solved, the right panel will display a **real-world view with a scale**, co
 ### Advanced Settings
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03lock%20-%20Pixel%20Size.png?raw=true" width=500>
+    <img src="river/docs/_static/03lock%20-%20Pixel%20Size.png" width=500>
     <p><i>Unlock advanced settings to enter exact coordinates</i></p>
 </figure>
 
@@ -343,21 +452,40 @@ If you unlock the **lock icon (🔒)**, you can manually enter:
 
 This offers full control for expert users who need precise calibration.
 
+### Checking Stabilization Results
+
+<figure>
+    <img src="river/docs/_static/03%20-%20Pixel%20Size%20-%20Stabilization.png" width=800>
+    <p><i>Stabilization sanity-check view (only shown if Video Stabilization was enabled)</i></p>
+</figure>
+
+If you enabled **Video Stabilization** in the [Define Video Range](#7-define-video-range) step, a **Stabilization** button appears alongside the frame carousel here.  
+Clicking it replaces the preview with a diagnostic composite image built from your stabilized frames:
+
+- **Dark areas** → these regions stayed consistent across frames — stabilization worked well there.
+- **Bright / hot areas** → these regions still shifted between frames — stabilization struggled there (e.g. the tracked feature wasn't actually static, or tracking failed).
+
+> 📌 **Tip:**  
+> If large parts of the frame appear bright, go back to Define Video Range and try repositioning your stabilization regions onto more clearly static, well-textured features.
+
+Click the **Stabilization** button again to return to browsing individual frames in the carousel.
+
 
 Once everything is set, click **Next** to continue to the common workflow.
 
 ---
 
-## <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/oblique.png?raw=true" alt="oblique camera" width="24"/> Oblique Camera — Control Points (Distances)
+## <img src="river/docs/_static/oblique.png" alt="oblique camera" width="24"/> Oblique Camera — Control Points (Distances)
 
 
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03%20-%20Control%20Points%20(oblique).png?raw=true" width=800>
+    <img src="river/docs/_static/03%20-%20Control%20Points%20(oblique).png" width=800>
     <p><i>Define control points and distances (oblique camera)</i></p>
 </figure>
 
 For oblique views (e.g., from a riverbank), the rectification workflow involves selecting control points and defining their real-world distances.
+
 
 - **Select at least four control points** on the image:
   - Click **Draw Points**, then go to the left panel.
@@ -393,10 +521,10 @@ Once finished, click **Next** to continue to the shared workflow.
 
 ---
 
-## <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/ipcam.png?raw=true" alt="fixed camera" width="24"/> Fixed Camera — Control Points (Coordinates)
+## <img src="river/docs/_static/ipcam.png" alt="fixed camera" width="24"/> Fixed Camera — Control Points (Coordinates)
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera).png?raw=true" width=800>
+    <img src="river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera).png" width=800>
     <p><i>Import control point coordinates (fixed camera)</i></p>
 </figure>
 
@@ -436,7 +564,7 @@ This enables RIVeR to compute a precise **camera calibration matrix** for rectif
 4️⃣ **Associate points to pixels**
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera)%20-%20single%20point.png?raw=true" width=800>
+    <img src="river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera)%20-%20single%20point.png" width=800>
     <p><i>Example: selecting and placing a control point</i></p>
 </figure>
 
@@ -458,7 +586,7 @@ This enables RIVeR to compute a precise **camera calibration matrix** for rectif
 5️⃣ **Solve camera calibration**
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera)%20-%20results.png?raw=true" width=800>
+    <img src="river/docs/_static/03%20-%20Control%20Points%20(fixed%20camera)%20-%20results.png" width=800>
     <p><i>View after solving the camera matrix</i></p>
 </figure>
 
@@ -480,10 +608,10 @@ Once you are satisfied with the results, click **Next** to continue to the commo
 
 ---
 
-# 8. Define Cross Section(s)
+# 9. Define Cross Section(s)
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/04%20-%20Cross%20Sections.png?raw=true" width=800>
+    <img src="river/docs/_static/04%20-%20Cross%20Sections.png" width=800>
     <p><i>Define one or more cross sections for discharge calculation</i></p>
 </figure>
 
@@ -492,14 +620,14 @@ You can define **one or multiple cross sections**, depending on the complexity a
 
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/04%20-%20Cross%20Sections%20-%20tabs.png?raw=true" width=500>
+    <img src="river/docs/_static/04%20-%20Cross%20Sections%20-%20tabs.png" width=500>
     <p><i>Managing multiple cross sections via tabs</i></p>
 </figure>
 
 - To **add a new cross section**, click the **`✚` tab**.
 - To **remove a cross section**, click the **`ˣ`** that appears next to its name.
-- You can **rename any cross section** by clicking on its name.
-- Use the **eye icon** to toggle visibility between the currently selected cross section and all defined cross sections.
+- You can **rename any cross section** by clicking on its name.- Use the **eye icon** to toggle visibility between the currently selected cross section and all defined cross sections.
+
 
 
 ## How to define a cross section
@@ -518,10 +646,6 @@ You can define **one or multiple cross sections**, depending on the complexity a
 - The file must be a text or Excel file with **two columns**:
   - **Distance from the left bank** (station)
   - **Either stage (level)** or **depth** at that location
-
-> 💡 RIVeR will automatically detect if the second column represents **depth or stage**.  
-> If it's depth, the profile is **inverted** to transform it into a level-based elevation profile.
-
 - The imported profile is shown on the right as a stage vs. station plot.
 
 3️⃣ **Enter water surface level (stage)**
@@ -553,7 +677,7 @@ To verify that everything is correctly aligned:
 ### Advanced Settings
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/04lock%20-%20Cross%20Sections.png?raw=true" width=500>
+    <img src="river/docs/_static/04lock%20-%20Cross%20Sections.png" width=500>
     <p><i>Advanced settings: pin coordinates and Left Bank Station</i></p>
 </figure>
 
@@ -566,10 +690,10 @@ If you unlock the **lock icon (🔒)**, you will see:
 Once the section is fully defined and checked, click **Next** to proceed to the PIV parameter settings.
 
 ---
-# 9. Define PIV Parameters
+# 10. Define PIV Parameters
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/05%20-Processing.png?raw=true" width=800>
+    <img src="river/docs/_static/05%20-Processing.png" width=800>
     <p><i>Test and adjust PIV settings before full processing</i></p>
 </figure>
 
@@ -623,7 +747,7 @@ RIVeR uses a two-pass FFT-based PIV algorithm, with **50% overlap** in both hori
 ## Filtering Options
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/05lock%20-Processing.png?raw=true" width=500>
+    <img src="river/docs/_static/05lock%20-Processing.png" width=500>
     <p><i>Advanced settings (visible after unlocking)</i></p>
 </figure>
 
@@ -670,10 +794,10 @@ Once you're happy with the test results, click **Next** to proceed to full PIV p
 
 ---
 
-# 10. Analyze All Frames
+# 11. Analyze All Frames
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/06%20-%20Analizing.png?raw=true" width=800>
+    <img src="river/docs/_static/06%20-%20Analizing.png" width=800>
     <p><i>Run full PIV analysis on all frames</i></p>
 </figure>
 
@@ -711,10 +835,10 @@ When you’re ready, click **Next** to move on to discharge calculation.
 
 ---
 
-# 11. View Results
+# 12. View Results
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/07%20-%20Results.png?raw=true" width=800>
+    <img src="river/docs/_static/07%20-%20Results.png" width=800>
     <p><i>Discharge estimation using the computed velocity field and bathymetry</i></p>
 </figure>
 
@@ -763,7 +887,7 @@ Three plots are displayed on the right panel:
 
 
 <figure>
-    <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/07%20%20-%20Results%20-%20table.png?raw=true" width=500>
+    <img src="river/docs/_static/07%20%20-%20Results%20-%20table.png" width=500>
     <p><i>Summary table and manual profile adjustment</i></p>
 </figure>
 
@@ -803,10 +927,10 @@ Then click **Next** to proceed to the export step.
 
 ---
 
-# 12. Export Summary
+# 13. Export Summary
 
 <figure>
-  <img src="https://github.com/oruscam/RIVeR/blob/main/river/docs/_static/08%20-%20Summary.png?raw=true" width=800>
+  <img src="river/docs/_static/08%20-%20Summary.png" width=800>
   <p><i>Final summary screen with auto-generated HTML report</i></p>
 </figure>
 

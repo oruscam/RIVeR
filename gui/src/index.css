@@ -505,9 +505,10 @@ html {
 }
 
 .form-button {
-  flex: 1 1 auto;
-  min-width: 110px;
-  max-width: 210px;
+  flex: 0 0 auto;
+  width: 132px;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
   height: auto;
 }
