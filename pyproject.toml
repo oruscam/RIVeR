@@ -41,6 +41,7 @@ river-cli = "river.cli.__main__:cli"
 
 [project.optional-dependencies]
 dev = ["ruff", "bumpver", "pytest"]
+examples = ["pandas", "jupyter", "ipykernel"]
 
 [tool.setuptools]
 packages = ["river", "river.core", 'river.cli', 'river.cli.commands']
