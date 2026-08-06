@@ -318,15 +318,18 @@
     padding-right: 30px;
 }
 
-/* Start/End render as buttons (.form-button, fixed 132px) while Step is a
-   plain .read-only label, which defaults to flex:1 1 auto and grows up to
-   210px — wider than the buttons even though the row is centered, so its
-   pill reads as a different size. Pin it to the same fixed column width so
-   all three rows match. */
+
+/* main's .form-button was flex:1 1 auto (grows to fill the row, same bounds
+   as .read-only); develop hardened the shared .form-button rule to a fixed
+   132px for the useAutoShrinkFont treatment other pages use. Start/End/Step
+   here never got that treatment, so give them back their original flexible,
+   equally-large sizing — matching main. */
+.form-video-fields .input-container-2 .form-button,
 .form-video-fields .input-container-2 .read-only {
-    flex: 0 0 132px;
-    width: 132px;
-    max-width: 132px;
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 110px;
+    max-width: 210px;
 }
 
 .only-one-item {
