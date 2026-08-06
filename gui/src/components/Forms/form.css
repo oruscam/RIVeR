@@ -319,25 +319,6 @@
 }
 
 
-.form-video-fields {
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.form-video-fields .input-container-2 {
-    padding-left: 0;
-    padding-right: 0;
-    justify-content: flex-start;
-}
-
-
-.form-video-fields .input-container-2 .read-only {
-    flex: 0 0 132px;
-    width: 132px;
-    max-width: 132px;
-}
-
 .only-one-item {
     display: flex;
     align-self: flex-start;
