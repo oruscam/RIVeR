@@ -84,7 +84,7 @@
     "drawLine": "線を描く",
     "drawingLineWarning": "線を描画中",
     "modifyingLineWarning": "線を変更中",
-    "carouselStabilization": "安定化",
+    "carouselStabilization": "安定化チェック",
     "Errors": {
       "required": "すべてのフィールドは必須です。ピクセルサイズフォームを確認してください。",
       "lineLength": "無効な線の長さ: 正の数（小数可）を入力してください。",

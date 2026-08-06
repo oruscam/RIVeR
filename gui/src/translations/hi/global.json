@@ -84,7 +84,7 @@
     "drawLine": "रेखा खींचें",
     "drawingLineWarning": "रेखा खींची जा रही है",
     "modifyingLineWarning": "रेखा संशोधित की जा रही है",
-    "carouselStabilization": "स्थिरीकरण",
+    "carouselStabilization": "स्थिरीकरण जांच",
     "Errors": {
       "required": "सभी फ़ील्ड अनिवार्य हैं। कृपया पिक्सेल आकार फ़ॉर्म जाँचें।",
       "lineLength": "अमान्य रेखा लंबाई: लंबाई एक धनात्मक संख्या (दशमलव सहित) होनी चाहिए। कृपया एक वैध मान दर्ज करें।",

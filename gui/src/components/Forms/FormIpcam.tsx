@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useGlobalSlice, useIpcamSlice, useProjectSlice, useUiSlice } from '../../hooks';
+import { useAutoShrinkFont, useGlobalSlice, useIpcamSlice, useProjectSlice, useUiSlice } from '../../hooks';
 import { UNIT_CONVERSIONS } from '../../constants/constants';
 import { PointsMap } from '../Graphs';
 import { IpcamGrid } from '../index';
@@ -22,6 +22,12 @@ export const FormIpcam = () => {
   const { onSetErrorMessage } = useUiSlice();
   const { projectDetails } = useProjectSlice();
   const { t } = useTranslation();
+
+  const importPointsButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
+  const importImagesButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
+  const directSolveButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
+  const optimizeSolutionButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
+
   const isImperial = projectDetails.unitSistem === 'imperial';
   const heightFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
 
@@ -52,6 +58,7 @@ export const FormIpcam = () => {
         <form id="form-control-points" className={`${isBackendWorking ? 'disabled' : ''}`}>
           <div className="input-container-2">
             <button
+              ref={importPointsButtonRef}
               className={`wizard-button form-button me-1 ${points !== null ? 'wizard-button-active' : ''}`}
               id="import-points"
               type="button"
@@ -64,6 +71,7 @@ export const FormIpcam = () => {
           </div>
           <div className="input-container-2 mt-1">
             <button
+              ref={importImagesButtonRef}
               className={`wizard-button form-button me-1 ${imagesPath !== null ? 'wizard-button-active' : ''}`}
               id="import-images"
               type="button"
@@ -83,6 +91,7 @@ export const FormIpcam = () => {
 
           <div className="input-container-2 mt-1">
             <button
+              ref={directSolveButtonRef}
               className={`wizard-button me-1 button-rectification ${cameraSolution === null ? 'mb-2' : ''} ${cameraSolution?.mode === 'direct-solve' || mode === 'direct-solve' ? 'wizard-button-active' : ''}`}
               id="direct-solve"
               type="button"
@@ -92,6 +101,7 @@ export const FormIpcam = () => {
               {t('ControlPoints3d.directSolve')}
             </button>
             <button
+              ref={optimizeSolutionButtonRef}
               className={`wizard-button button-rectification ${cameraSolution === null ? 'mb-2' : ''} ${cameraSolution?.mode === 'optimize-solution' || mode === 'optimize-solution' ? 'wizard-button-active' : ''}`}
               id="optimize-solution"
               type="button"
