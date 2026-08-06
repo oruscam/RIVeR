@@ -48,7 +48,7 @@
     "title": "Intervallo Video",
     "start": "Inizio",
     "end": "Fine",
-    "step": "Passo Temporale",
+    "step": "Passo",
     "Errors": {
       "start1": "Selezione del tempo non valida: il tempo di inizio non può essere inferiore a 0. Inserisci un valore valido.",
       "end1": "Selezione del tempo non valida: il valore di 'Fine' non può essere maggiore della durata totale del video. Inserisci un valore valido.",
@@ -84,7 +84,7 @@
     "drawLine": "Disegna Linea",
     "drawingLineWarning": "Disegno della linea",
     "modifyingLineWarning": "Modifica della linea",
-    "carouselStabilization": "Stabilizzazione",
+    "carouselStabilization": "Controllo stabilizzazione",
     "Errors": {
       "required": "Tutti i campi sono obbligatori. Controlla il modulo della Dimensione Pixel.",
       "lineLength": "Lunghezza della linea non valida: la lunghezza deve essere un numero positivo, anche con decimali. Inserisci un valore valido.",

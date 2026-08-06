@@ -84,7 +84,7 @@
     "drawLine": "رسم خط",
     "drawingLineWarning": "جارٍ رسم الخط",
     "modifyingLineWarning": "جارٍ تعديل الخط",
-    "carouselStabilization": "تثبيت",
+    "carouselStabilization": "فحص التثبيت",
     "Errors": {
       "required": "جميع الحقول إلزامية. الرجاء مراجعة نموذج حجم البكسل.",
       "lineLength": "طول خط غير صالح: يجب أن يكون الطول عدداً موجباً (يمكن أن يتضمن كسوراً عشرية). الرجاء إدخال قيمة صالحة.",

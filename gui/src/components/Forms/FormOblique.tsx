@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { useGlobalSlice, useObliqueSlice, useUiSlice, useProjectSlice } from '../../hooks';
+import { useAutoShrinkFont, useGlobalSlice, useObliqueSlice, useUiSlice, useProjectSlice } from '../../hooks';
 import { FormChild } from '../../types';
 import { getValidationRules } from '../../helpers';
 import { useTranslation } from 'react-i18next';
@@ -30,6 +30,9 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
   const { projectDetails } = useProjectSlice();
 
   const { t } = useTranslation();
+
+  const drawPointsButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
+  const importDistancesButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
 
   const { register, getValues } = useFormContext();
 
@@ -67,6 +70,7 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
         >
           <div className="input-container-2">
             <button
+              ref={drawPointsButtonRef}
               className={`wizard-button form-button me-1 ${drawPoints ? 'wizard-button-active' : ''}`}
               id="draw-coordinates"
               type="button"
@@ -79,6 +83,7 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
           </div>
           <div className="input-container-2 mt-1">
             <button
+              ref={importDistancesButtonRef}
               className={`wizard-button form-button me-1 ${isDistancesLoaded ? 'wizard-button-active' : ''}`}
               id="import-distances"
               type="button"

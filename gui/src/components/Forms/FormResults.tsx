@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useAutoShrinkFont, useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { AllInOne } from '../Graphs/AllInOne';
 import { Grid } from '../index';
 import { useTranslation } from 'react-i18next';
@@ -20,6 +20,11 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   const { projectDetails } = useProjectSlice();
 
   const { t } = useTranslation();
+
+  // All sections mount together and the inactive ones are hidden via a parent
+  // display:none — re-fit once this section actually becomes the visible one.
+  const isActiveSection = activeSection === index;
+  const stationNumberLabelRef = useAutoShrinkFont<HTMLLabelElement>([t, isActiveSection]);
 
   const isImperial = projectDetails.unitSistem === 'imperial';
   const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
@@ -118,7 +123,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
         </div>
 
         <div className="input-container-2 mt-2">
-          <label className="read-only me-1" htmlFor="stations-number">
+          <label ref={stationNumberLabelRef} className="read-only me-1" htmlFor="stations-number">
             {t('Results.stationNumber')}
           </label>
           <div className="input-field-container" style={{ justifyContent: 'center', gap: '6px' }}>
