@@ -296,8 +296,12 @@ export const StabilizationCanvas = ({
                 height={height}
                 fill="transparent"
                 stroke={MASK_COLOR}
-                strokeWidth={isActive ? 2 : 1.5}
-                vectorEffect="non-scaling-stroke"
+                // Zoom here is a CSS `transform: scale()` on an ancestor div (see
+                // VideoPlayer.tsx), not an SVG-internal transform, so vector-effect:
+                // non-scaling-stroke (which only cancels the SVG's own coordinate
+                // system) can't counter it. Scale the width explicitly instead, same
+                // "constant on-screen px" trick used below for handles/labels.
+                strokeWidth={size(isActive ? 2 : 1.5)}
                 style={{ cursor: isActive ? 'grab' : 'default' }}
                 onMouseDown={(e) => handleMouseDown(e, index, 'body')}
               />
