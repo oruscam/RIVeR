@@ -135,7 +135,7 @@
 }
 
 .frames-info {
-    /* min-width removed — was causing overflow on small screens */
+    
 }
 
 .bathimetry-button p {
@@ -297,11 +297,8 @@
     gap: 8px;
 }
 
-/* Row pattern: a label/button on the left paired with a short-value input on the
-   right (time, count, single number). The value never needs more than a fixed
-   compact width, so give the freed space to the label — translated strings vary a
-   lot in length and would otherwise get ellipsis-truncated. Pair both classes on
-   the same row. */
+
+
 .label-priority.form-button,
 .label-priority.read-only {
     flex: 3 1 auto;
@@ -315,19 +312,13 @@
     max-width: 130px;
 }
 
-/* Centered text grows outward in both directions, so a long value (e.g. a
-   computed pixel size with several decimals — its length isn't bounded the
-   way a typed distance is) keeps encroaching on the fixed-position unit
-   overlay no matter how much padding is reserved. Right-aligning anchors the
-   value's edge next to the unit instead, so only its unused left side grows. */
+
 .input-field-container-compact .input-field:has(+ .unit-label) {
     text-align: right;
     padding-right: 30px;
 }
 
-/* Reuses the same width:90% + auto-margin inset as .form-video-extra-info so the
-   start/end/step row labels line up with the metadata labels below them, instead
-   of approximating the same edge with a different padding formula. */
+
 .form-video-fields {
     width: 90%;
     margin-left: auto;
@@ -338,6 +329,13 @@
     padding-left: 0;
     padding-right: 0;
     justify-content: flex-start;
+}
+
+
+.form-video-fields .input-container-2 .read-only {
+    flex: 0 0 132px;
+    width: 132px;
+    max-width: 132px;
 }
 
 .only-one-item {
