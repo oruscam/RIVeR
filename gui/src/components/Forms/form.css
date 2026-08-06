@@ -318,19 +318,6 @@
     padding-right: 30px;
 }
 
-
-/* main's .form-button was flex:1 1 auto (grows to fill the row, same bounds
-   as .read-only); develop hardened the shared .form-button rule to a fixed
-   132px for the useAutoShrinkFont treatment other pages use. Start/End/Step
-   here never got that treatment, so give them back their original flexible,
-   equally-large sizing — matching main. */
-.form-video-fields .input-container-2 .form-button,
-.form-video-fields .input-container-2 .read-only {
-    flex: 1 1 auto;
-    min-width: 110px;
-    max-width: 210px;
-}
-
 .only-one-item {
     display: flex;
     align-self: flex-start;
