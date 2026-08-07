@@ -56,10 +56,9 @@ No Python or developer tools are required.
 
 | OS        | Package Type | Download Link                                                                                      |
 |------------|--------------|---------------------------------------------------------------------------------------------------|
-| **Windows** | `.exe`       | [RIVeR-Windows-3.3.0-Setup.exe](https://github.com/oruscam/RIVeR/releases/download/v3.3.0/RIVeR-Windows-3.3.0-Setup.exe) |
-| **macOS**   | `.dmg`       | [RIVeR-Mac-3.3.0-Installer.dmg](https://github.com/oruscam/RIVeR/releases/download/v3.3.0/RIVeR-Mac-3.3.0-Installer.dmg) |
-| **Linux**   | `.deb` / `.rpm` | [RIVeR-Linux-3.3.0.deb](https://github.com/oruscam/RIVeR/releases/download/v3.3.0/RIVeR-Linux-3.3.0.deb) / [RIVeR-Linux-3.3.0.rpm](https://github.com/oruscam/RIVeR/releases/download/v3.3.0/RIVeR-Linux-3.3.0.rpm) |
-
+| **Windows** | `.exe`       | [RIVeR-Windows-3.6.0-Setup.exe](https://github.com/oruscam/RIVeR/releases/download/v3.6.0/RIVeR-Windows-3.6.0-Setup.exe) |
+| **macOS**   | `.dmg`       | [RIVeR-Mac-3.6.0-Installer.dmg](https://github.com/oruscam/RIVeR/releases/download/v3.6.0/RIVeR-Mac-3.6.0-Installer.dmg) |
+| **Linux**   | `.deb` / | [RIVeR-Linux-3.6.0.deb](https://github.com/oruscam/RIVeR/releases/download/v3.3.0/RIVeR-Linux-3.6.0.deb)
 ## Installation Steps
 
 1. Download the installer for your OS.
