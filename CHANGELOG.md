@@ -6,6 +6,46 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+# [3.6.0] - 2026-08-07
+
+## GUI
+
+### Added
+
+- Camera calibration tool (ChArUco board) for lens distortion correction, with camera/lens profile management and undistorted image preview
+- UAV video stabilization with interactive region selection
+- Frame carousel in the Pixel Size and Cross Sections steps
+- Warning and dimmed UI while moving or drawing control points in UAV, Oblique and IPCam
+- Warning while drawing or modifying a cross-section's direction
+
+### Changed
+
+- Video Range form fields realigned and buttons resized for consistency
+
+### Fixed
+
+- Report Total Q showing NaN with 2 or more cross sections
+- Cross Sections validation reading the wrong section's data
+- HTML report rendering with broken styles on some machines
+- Islands within a channel not excluded from the PIV velocity search mask/ROI
+- Crash on rectangular (flat) bathymetry profiles
+- Negative and depth-based bathymetry handling, including rejecting depth bathymetry in 3D mode
+- Mask hatch fill not rendering when navigating back to an already-loaded project
+- Mask and stabilization region editing bugs, including missing region labels
+- Crash on bathymetry files outside the control points' Z range
+- Frames being re-extracted unnecessarily when settings were reverted to their original value
+- Running Test after a full Analyze no longer wipes existing results
+- Buttons and labels now shrink instead of truncating text on narrow widths
+- Stabilization line thickness increasing when zooming in
+
+## CLI
+
+### Added
+
+- `camera_calibration` and `write_charuco_board` commands for lens calibration from ChArUco images
+- `--stabilize`, `--stabilization-regions` and `--replace` options in `video_to_frames`
+
+
 # [3.5.2] - 2026-07-21
 
 ## GUI
