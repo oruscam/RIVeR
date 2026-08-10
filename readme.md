@@ -311,7 +311,20 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 ---
 
 ## 📜 License
-RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
+RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-or-later).
+
+RIVeR redistributes third-party software inside its installers, including static FFmpeg binaries. Their
+licences and copyright notices are listed in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
+
+The complete corresponding source for any released version is this repository, at the matching tag. For
+the source of a bundled third-party component, or a copy on physical media, write to `contact@orus.cam`.
+
+### Data
+
+- **Sample data** in `examples/data/` (videos, frames, bathymetry) is © UNC / CONICET / ORUS and is
+  released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- **Documentation images** in `river/docs/_static/` are © UNC / CONICET / ORUS, released under
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
 ---
 
