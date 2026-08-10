@@ -1,7 +1,10 @@
 # pyproject.toml
 
 [build-system]
-requires = ["setuptools>=65.5.0", "wheel"]
+# setuptools >= 77 is required for the PEP 639 `license = "<SPDX expression>"`
+# form below. On older setuptools it silently degrades to a free-text License
+# field and the declared licence stops being machine-readable.
+requires = ["setuptools>=77.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
