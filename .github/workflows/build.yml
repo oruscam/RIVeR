@@ -65,7 +65,19 @@ jobs:
           tar -xf ffmpeg-release-amd64-static.tar.xz
           cp ffmpeg-*-static/ffmpeg ffmpeg/bin/
           cp ffmpeg-*-static/ffprobe ffmpeg/bin/
+
+          # These builds are GPL-3.0, so the licence must ship with them.
+          # Prefer the distributor's own copy; fall back to the text in the repo.
+          cp ffmpeg-*-static/GPLv3.txt ffmpeg/LICENSE.txt 2>/dev/null \
+            || cp ffmpeg-*-static/LICENSE ffmpeg/LICENSE.txt 2>/dev/null \
+            || cp licenses/GPL-3.0-ffmpeg.txt ffmpeg/LICENSE.txt
+          cp ffmpeg-*-static/readme.txt ffmpeg/README.txt 2>/dev/null || true
+          test -s ffmpeg/LICENSE.txt || { echo "::error::ffmpeg licence text missing"; exit 1; }
+
           rm -rf ffmpeg-*-static ffmpeg-release-amd64-static.tar.xz
+
+          # RIVeR's own licence and the third-party notice ship in the artifact.
+          cp ../LICENSE ../THIRD-PARTY-LICENSES.md licenses/
 
           # 3. Compile (ffmpeg is already in extraResources of electron-builder.json5)
           yarn build
@@ -156,6 +168,23 @@ jobs:
           $ffDir = Get-ChildItem -Directory ffmpeg-tmp | Select-Object -First 1
           Copy-Item "$($ffDir.FullName)\bin\ffmpeg.exe"  "ffmpeg\bin\ffmpeg.exe"
           Copy-Item "$($ffDir.FullName)\bin\ffprobe.exe" "ffmpeg\bin\ffprobe.exe"
+
+          # These builds are GPL-3.0, so the licence must ship with them.
+          # Prefer the distributor's own copy; fall back to the text in the repo.
+          $ffLicense = Join-Path $ffDir.FullName "LICENSE"
+          if (Test-Path $ffLicense) {
+            Copy-Item $ffLicense "ffmpeg\LICENSE.txt"
+          } else {
+            Copy-Item "licenses\GPL-3.0-ffmpeg.txt" "ffmpeg\LICENSE.txt"
+          }
+          if (-not (Test-Path "ffmpeg\LICENSE.txt")) {
+            Write-Host "::error::ffmpeg licence text missing"; exit 1
+          }
+
+          # RIVeR's own licence and the third-party notice ship in the artifact.
+          Copy-Item "..\LICENSE" "licenses\LICENSE"
+          Copy-Item "..\THIRD-PARTY-LICENSES.md" "licenses\THIRD-PARTY-LICENSES.md"
+
           Remove-Item -Recurse -Force ffmpeg-tmp, ffmpeg-win.zip
 
           # 3. Compile (ffmpeg is already in extraResources of electron-builder.json5)
@@ -238,6 +267,14 @@ jobs:
           unzip ffmpeg.zip -d ffmpeg/bin/
           unzip ffprobe.zip -d ffmpeg/bin/
           rm ffmpeg.zip ffprobe.zip
+
+          # evermeet.cx builds are configured with --enable-gpl --enable-version3
+          # and ship no licence file in the zip, so supply the text from the repo.
+          cp licenses/GPL-3.0-ffmpeg.txt ffmpeg/LICENSE.txt
+          test -s ffmpeg/LICENSE.txt || { echo "::error::ffmpeg licence text missing"; exit 1; }
+
+          # RIVeR's own licence and the third-party notice ship in the artifact.
+          cp ../LICENSE ../THIRD-PARTY-LICENSES.md licenses/
 
           # Obligamos a Electron Builder a NO buscar certificados
           export CSC_IDENTITY_AUTO_DISCOVERY=false
