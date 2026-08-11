@@ -8,6 +8,7 @@ import {
   setCameraSolution,
   setCustomPoint,
   setImages,
+  setIsDraggingPoint,
   setPoints,
 } from '../store/ipcam/ipcamSlice';
 import { CliError, ResourceNotFoundError } from '../errors/errors';
@@ -47,7 +48,6 @@ export const useIpcamSlice = () => {
           path: data.path,
           counter: data.points.length,
           zLimits: data.zLimits,
-          
         })
       );
       // Reset the camera solution in the matrix slice
@@ -279,9 +279,14 @@ export const useIpcamSlice = () => {
     }
   };
 
-  const onSetActivePoint = ( index: number ) => {
-    dispatch( setActivePoint( index ) );
-  }
+  const onSetActivePoint = (index: number) => {
+    dispatch(setActivePoint(index));
+  };
+
+  // Method to reflect whether a control point is currently being dragged on the canvas
+  const onSetIsDraggingPoint = (value: boolean) => {
+    dispatch(setIsDraggingPoint(value));
+  };
 
   return {
     // Atributes
@@ -295,5 +300,6 @@ export const useIpcamSlice = () => {
     onSetPointPixelCoordinates,
     onGetCameraSolution,
     onSetActivePoint,
+    onSetIsDraggingPoint,
   };
 };

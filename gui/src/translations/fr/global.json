@@ -48,7 +48,7 @@
     "title": "Sélection de Séquence",
     "start": "Début",
     "end": "Fin",
-    "step": "Pas de Temps",
+    "step": "Pas",
     "Errors": {
       "start1": "Sélection de temps invalide : Le temps de début ne peut pas être inférieur à 0. Veuillez entrer une valeur valide.",
       "end1": "Sélection de temps invalide : La valeur 'Fin' ne peut pas être supérieure à la durée totale de la vidéo. Veuillez entrer une valeur valide.",
@@ -56,7 +56,8 @@
       "end3": "Sélection de temps invalide : La valeur 'Fin' ne peut pas être égale ou inférieure à la valeur 'Début'. Veuillez entrer une valeur valide.",
       "step": "Sélection de pas invalide : Le paramètre 'Pas' doit être un entier supérieur à 1. Veuillez entrer une valeur valide.",
       "required": "Tous les champs sont obligatoires. Veuillez vérifier le formulaire de plage vidéo.",
-      "formatInput": "Format incorrect. Les valeurs 'Début' et 'Fin' doivent être au format '00:00'."
+      "formatInput": "Format incorrect. Les valeurs 'Début' et 'Fin' doivent être au format '00:00'.",
+      "profileResolutionMismatch": "La résolution du profil ({{calW}}×{{calH}}) ne correspond pas à la vidéo. Sélectionnez un autre modèle de caméra ou calibrez pour cette résolution."
     },
     "ExtraInfo": {
       "fileName": "Nom du Fichier :",
@@ -65,13 +66,25 @@
       "resolution": "Résolution : ",
       "numberOfFrames": "Nombre d'Images : "
     },
-    "framesResolution": "Résolution des Images"
+    "framesResolution": "Résolution des Images",
+    "lensCorrection": "Correction de l'objectif",
+    "noProfiles": "Aucun profil — aller à Calibration",
+    "stabilizeVideo": "Stabiliser la vidéo",
+    "stabilizationRegion": "Région",
+    "editingRegion": "Modification de la région {{n}}",
+    "addRegion": "Ajouter une région",
+    "exitRegionMode": "Quitter l'édition de région",
+    "minRegionsWarning": "Ajoutez au moins 2 régions pour la stabilisation",
+    "editingRegionsWarning": "Modification des régions de stabilisation"
   },
   "PixelSize": {
     "title": "Taille de Pixel",
     "lineLength": "Longueur de Ligne",
     "pixelSize": "Taille de Pixel",
     "drawLine": "Tracer une Ligne",
+    "drawingLineWarning": "Dessin de la ligne",
+    "modifyingLineWarning": "Modification de la ligne",
+    "carouselStabilization": "Contrôle de stabilisation",
     "Errors": {
       "required": "Tous les champs sont obligatoires. Veuillez vérifier la Taille de Pixel.",
       "lineLength": "Longueur de ligne invalide : La longueur de ligne doit être un nombre positif, qui peut inclure des décimales. Veuillez entrer une valeur valide.",
@@ -126,12 +139,16 @@
       "leftBank": "La rive gauche est hors limites",
       "bathimetryNotValid": "La bathymétrie n'est pas valide. Le niveau {{level}} n'existe pas dans ce fichier",
       "bathimetryIsRequired": "La bathymétrie est requise pour {{section_name}}",
-      "rwLength": "La longueur de la section ne peut pas être 0 pour {{section_name}}"
+      "rwLength": "La longueur de la section ne peut pas être 0 pour {{section_name}}",
+      "levelRequired": "La valeur du niveau ne peut pas être 0 pour {{section_name}}"
     },
     "warning": "Êtes-vous sûr de vouloir supprimer {{section_name}} ?",
     "warningTitle": "Supprimer la Section",
     "mask": "Masque",
     "addMask": "Ajouter un Masque",
+    "editingMaskWarning": "Modification du masque {{n}}",
+    "drawingSectionWarning": "Dessin de la section {{name}}",
+    "modifyingSectionWarning": "Modification de la section {{name}}",
     "bankRight": "D",
     "bankLeft": "G"
   },
@@ -250,6 +267,8 @@
   "ControlPoints": {
     "title": "Points de Contrôle",
     "drawPoints": "Dessiner les Points",
+    "drawingPointsWarning": "Dessin des points",
+    "modifyingPointsWarning": "Modification des points",
     "importDistances": "Importer les Distances",
     "distance": "Distance",
     "length": "Longueur",
@@ -272,7 +291,8 @@
     "optimize": "Optimiser",
     "reprojectionErrors": "Erreurs de Reprojection : ",
     "numberOfPoints": "Nombre de Points : ",
-    "cameraHeight": "Hauteur de Caméra : "
+    "cameraHeight": "Hauteur de Caméra : ",
+    "movingPointWarning": "Déplacement de {{label}}"
   },
   "Errors": {
     "invalidPointsFileFormat": "Format de fichier de points invalide.",
@@ -280,6 +300,8 @@
     "invalidDistancesNotValidValue": "Format de distances de points invalide. Certaines valeurs de distance ne sont pas des nombres valides.",
     "invalidDistancesNegativeValue": "Format de distances de points invalide. Les distances négatives ne sont pas autorisées.",
     "invalidBathimetryFileFormat": "Format de fichier bathymétrique invalide.",
+    "bathimetryOutOfZRange": "Les niveaux de la bathymétrie sont très éloignés de la plage Z des points de contrôle. Vérifiez le fichier ou les unités.",
+    "invalidBathimetryDepthNotAllowed": "Les fichiers de bathymétrie en profondeur ne sont pas pris en charge dans ce mode. Importez plutôt un profil de niveau/altitude.",
     "invalidImageExtension": "Le répertoire contient des fichiers qui ne sont pas des images.",
     "imagesFolderEmpty": "Aucune image trouvée dans le dossier sélectionné.",
     "waitingForFrames": "Nous attendons que les images soient chargées. Veuillez réessayer dans quelques secondes.",
@@ -290,6 +312,7 @@
   },
   "Loader": {
     "extractingFrames": "Extraction des images vidéo",
+    "stabilizingFrames": "Stabilisation des images vidéo",
     "results": "Génération des statistiques de profil de vitesse",
     "videoConversion": "Nous convertissons la vidéo au format mp4. Veuillez patienter un moment.",
     "maskAndRoi": "Définition de la RDI et des masques"
@@ -301,5 +324,53 @@
     "resourceNotFound": "Ressource non trouvée",
     "randomError": "Quelque chose s'est mal passé. Veuillez réessayer",
     "dropHereText": "Déposez un fichier n'importe où sur ce panneau. Je détecterai automatiquement où il doit aller."
+  },
+  "Calibration": {
+    "title": "Calibration Caméra",
+    "close": "Fermer",
+    "board": "Afficher la mire",
+    "import": "Importer des images",
+    "solve": "Résoudre",
+    "solving": "En cours…",
+    "overlay": "Original",
+    "undistorted": "Corrigée",
+    "heatmap": "Carte de chaleur",
+    "dropZone": "Déposez un dossier d'images de calibration",
+    "dropHint": "ou utilisez Importer des images",
+    "notUsed": "Non utilisé dans la calibration",
+    "readyToSolve": "Images chargées. Appuyez sur Résoudre pour calibrer.",
+    "emptyHint": "Importez ou déposez un dossier d'images pour commencer.",
+    "errorGeneric": "Une erreur s'est produite lors de la calibration.",
+    "recommendations": "Recommandations",
+    "histogram": "Distribution RMS par vue",
+    "histogramX": "Erreur de reprojection (px)",
+    "profileName": "Nom du profil",
+    "cameraName": "Nom de la caméra",
+    "lensName": "Objectif / zoom",
+    "resolution": "Résolution",
+    "saveProfile": "Enregistrer",
+    "savedTo": "Enregistré dans",
+    "validationDone": "Calibration résolue",
+    "outputs": "Fichiers de sortie",
+    "overlaysDir": "Ouvrir le dossier de superpositions",
+    "undistortedDir": "Ouvrir le dossier sans distorsion",
+    "profileJson": "Ouvrir le profil de calibration",
+    "undistortedHint": "Les images sans distorsion sont enregistrées dans le dossier de sortie.",
+    "metrics": {
+      "medianRms": "RMS Médiane",
+      "p90Rms": "RMS P90",
+      "coverage": "Couverture",
+      "edgeReach": "Portée bord",
+      "poseSpread": "Dispersion pose",
+      "centerOffset": "Décalage centre"
+    },
+    "actions": {
+      "addFrames": "Ajoutez des vues couvrant les bords/coins; variez l'angle et la distance.",
+      "pushBoard": "Rapprochez la mire des bords du capteur; un léger recadrage des marqueurs est acceptable.",
+      "increaseSharpness": "Améliorez la netteté (plus de lumière, ISO bas), réduisez le moiré d'écran (redimensionnez la mire).",
+      "varyViewpoints": "Capturez depuis différents points de vue (inclinaison/panoramique/roulis) et distances.",
+      "ensureCorners": "Assurez-vous que les coins apparaissent sur tout le capteur; évitez les recadrages importants.",
+      "reshoot": "Reprenez la capture avec une meilleure couverture; si le problème persiste, vérifiez les métadonnées."
+    }
   }
 }

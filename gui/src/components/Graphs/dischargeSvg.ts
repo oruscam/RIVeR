@@ -120,15 +120,30 @@ export const createDischargeChart = ({
 
     legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('fill', COLORS.GREEN);
 
-    legendGroup.append('text').attr('x', 20).attr('y', 12).attr('class', 'legend-text').text(t('Graphs.qLessThan5'));
+    legendGroup
+      .append('text')
+      .attr('x', 20)
+      .attr('y', 12)
+      .attr('class', 'legend-text')
+      .text(t('Graphs.qLessThan5'));
 
     legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('x', 90).attr('fill', COLORS.YELLOW);
 
-    legendGroup.append('text').attr('x', 110).attr('y', 12).attr('class', 'legend-text').text(t('Graphs.qBetween5And10'));
+    legendGroup
+      .append('text')
+      .attr('x', 110)
+      .attr('y', 12)
+      .attr('class', 'legend-text')
+      .text(t('Graphs.qBetween5And10'));
 
     legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('x', 220).attr('fill', COLORS.RED);
 
-    legendGroup.append('text').attr('x', 240).attr('y', 12).attr('class', 'legend-text').text(t('Graphs.qGreaterThan10'));
+    legendGroup
+      .append('text')
+      .attr('x', 240)
+      .attr('y', 12)
+      .attr('class', 'legend-text')
+      .text(t('Graphs.qGreaterThan10'));
   }
 
   // Add tooltip to bars
@@ -178,7 +193,8 @@ export const createDischargeChart = ({
     .attr('transform', 'rotate(-90)')
     .attr('font-size', '22px');
   dischargeLabel.append('tspan').text(t('Graphs.discharge'));
-  dischargeLabel.append('tspan')
+  dischargeLabel
+    .append('tspan')
     .attr('font-size', '14px')
     .attr('opacity', '0.7')
     .attr('dx', '10')

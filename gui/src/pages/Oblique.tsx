@@ -1,9 +1,9 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { Error, ImageOblique, WizardButtons } from '../components';
+import { Carousel, Error, FocusOverlay, ImageOblique, Warning, WizardButtons } from '../components';
 import { FormOblique } from '../components/Forms';
-import { useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers';
 import { Point } from '../types';
 import { FormHeader } from '../components/Forms/Components';
@@ -11,13 +11,10 @@ import { useTranslation } from 'react-i18next';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
-
-
 const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates: Point[], unitSistem?: string) => {
   // The store keeps distances and real-world coords in SI (m); the form displays
   // the user's chosen unit. Pixel coords (x/y of `coordinates`) are never converted.
-  const toDisplay = (value: number) =>
-    unitSistem === 'imperial' ? value * UNIT_CONVERSIONS.M_TO_FT : value;
+  const toDisplay = (value: number) => (unitSistem === 'imperial' ? value * UNIT_CONVERSIONS.M_TO_FT : value);
 
   const defaultValues = {
     distance12: toDisplay(distances.d12).toFixed(2),
@@ -42,22 +39,55 @@ const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates:
     oblique_northPoint3: toDisplay(rwCoordinates[2].y).toFixed(2),
     oblique_eastPoint4: toDisplay(rwCoordinates[3].x).toFixed(2),
     oblique_northPoint4: toDisplay(rwCoordinates[3].y).toFixed(2),
-  }
+  };
 
   return defaultValues;
-}
+};
 
 export const Oblique = () => {
-  const { solution, distances, coordinates, rwCoordinates, extraFields, onChangeExtraFields, onGetObliqueTransformationMatrix, onGetDistances, isDefaultCoordinates } = useObliqueSlice();
+  const {
+    solution,
+    distances,
+    coordinates,
+    rwCoordinates,
+    extraFields,
+    drawPoints,
+    isDraggingPoint,
+    onChangeExtraFields,
+    onGetObliqueTransformationMatrix,
+    onGetDistances,
+    isDefaultCoordinates,
+  } = useObliqueSlice();
   const { isBackendWorking } = useGlobalSlice();
-  const { projectDetails } = useProjectSlice();
-  const { onSetErrorMessage } = useUiSlice();
+  const { projectDetails, projectDirectory, video } = useProjectSlice();
+  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
   const { nextStep } = useWizard();
   const { t } = useTranslation();
+  const { images } = useDataSlice();
 
   const [dragOver, setDragOver] = useState<boolean>(false);
+  const [activeFrame, setActiveFrame] = useState<number>(0);
+  const [showStabilization, setShowStabilization] = useState<boolean>(false);
 
-  const methods = useForm({ defaultValues: createDefaultState(distances, coordinates, rwCoordinates, projectDetails.unitSistem) });
+  let filePrefix = import.meta.env.VITE_FILE_PREFIX;
+  filePrefix = filePrefix === undefined ? '' : filePrefix;
+
+  // sanity_check.jpg is overwritten in place on every re-extraction, so bust the cache
+  // whenever a fresh set of frames arrives.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const sanityCheckCacheBust = useMemo(() => Date.now(), [images.paths]);
+  const sanityCheckPath = `${filePrefix}${projectDirectory}/sanity_check.jpg?t=${sanityCheckCacheBust}`;
+  const canToggleStabilization = video.parameters.committedStabilization;
+
+  const activeImageSrc = showStabilization
+    ? sanityCheckPath
+    : images.paths.length > 0
+      ? images.paths[activeFrame]
+      : undefined;
+
+  const methods = useForm({
+    defaultValues: createDefaultState(distances, coordinates, rwCoordinates, projectDetails.unitSistem),
+  });
 
   const onSubmit = () => {
     nextStep();
@@ -69,7 +99,7 @@ export const Oblique = () => {
 
   const onClickSolveButton = () => {
     onGetObliqueTransformationMatrix(methods.getValues()).catch((error) => onSetErrorMessage(error.message));
-  }
+  };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -88,11 +118,46 @@ export const Oblique = () => {
     methods.reset(createDefaultState(distances, coordinates, rwCoordinates, projectDetails.unitSistem));
   }, [distances, methods, coordinates, rwCoordinates, projectDetails.unitSistem]);
 
+  // Persistent yellow "drawing/modifying points" status while the user is placing the
+  // control-points square or dragging an already-placed pin, same behavior as the
+  // FocusOverlay dimming above. `drawPoints` alone stays true even after the square is
+  // drawn (the button toggles back only on a manual click), so `isDefaultCoordinates` is
+  // what actually marks the active drawing session; it takes priority over isDraggingPoint
+  // since dragging the square's corner during the initial draw sets both.
+  useEffect(() => {
+    if (drawPoints && isDefaultCoordinates) {
+      onSetWarningMessage(t('ControlPoints.drawingPointsWarning', { defaultValue: 'Drawing points' }));
+      return () => onClearWarningMessage();
+    }
+
+    if (isDraggingPoint) {
+      onSetWarningMessage(t('ControlPoints.modifyingPointsWarning', { defaultValue: 'Modifying points' }));
+      return () => onClearWarningMessage();
+    }
+
+    onClearWarningMessage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [drawPoints, isDefaultCoordinates, isDraggingPoint]);
+
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageOblique />
-        <Error />
+        <ImageOblique imageSrc={activeImageSrc} />
+        {images.paths.length > 0 && (
+          <Carousel
+            images={images.paths}
+            active={activeFrame}
+            setActiveImage={setActiveFrame}
+            showMedian={showStabilization}
+            setShowMedian={setShowStabilization}
+            canToggleMedian={canToggleStabilization}
+            mode="select"
+          />
+        )}
+        <div className="message-stack">
+          <Error />
+          <Warning />
+        </div>
       </div>
       <div
         className={`form-container ${dragOver ? 'drag-over' : ''}`}
@@ -106,7 +171,7 @@ export const Oblique = () => {
           <FormOblique onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
 
-        <div className='footer'>
+        <div className="footer">
           <button
             className="wizard-button form-button solver-button"
             id="solve-oblique"
@@ -124,6 +189,7 @@ export const Oblique = () => {
           />
           <WizardButtons formId="form-control-points" canFollow={solution !== null} />
         </div>
+        <FocusOverlay active={(drawPoints && isDefaultCoordinates) || isDraggingPoint} />
       </div>
     </div>
   );

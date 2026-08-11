@@ -12,7 +12,7 @@ interface QuiverProps {
   factor: number;
   data: QuiverData[];
   showMedian?: boolean;
-  layers: OverlayLayers
+  layers: OverlayLayers;
 }
 
 export const Quiver = ({ factor, data, showMedian, layers }: QuiverProps) => {

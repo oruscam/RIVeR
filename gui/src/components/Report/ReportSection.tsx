@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { REPORT_IMAGES, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 import { useProjectSlice, useSectionSlice } from '../../hooks';
-import { AllInOne, VelocityVector } from '../Graphs';
+import { AllInOne } from '../Graphs';
 import { ReportSectionTable } from './ReportSectionTable';
 import { ImageResults } from '../ImageResults';
 
@@ -17,7 +17,7 @@ interface ReportSectionProps {
 export const ReportSection = ({ index, factor, vertical }: ReportSectionProps) => {
   const { sections } = useSectionSlice();
   const { name, data } = sections[index];
-  const { firstFramePath, projectDetails } = useProjectSlice();
+  const { projectDetails } = useProjectSlice();
   const isImperial = projectDetails.unitSistem === 'imperial';
   const qFactor = isImperial ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
   const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
@@ -37,7 +37,8 @@ export const ReportSection = ({ index, factor, vertical }: ReportSectionProps) =
           <h1 className="report-section-title"> {name} </h1>
           <h3 id="report-section-discharge-label">
             {' '}
-            {t('Report.dischargeQ')} {(total_Q * qFactor).toFixed(3)} {flowUnit} (&plusmn; {(total_q_std * qFactor).toFixed(2)} {flowUnit})
+            {t('Report.dischargeQ')} {(total_Q * qFactor).toFixed(3)} {flowUnit} (&plusmn;{' '}
+            {(total_q_std * qFactor).toFixed(2)} {flowUnit})
           </h3>
           <div className={`top-left${vertical ? '-vertical' : ''}`}>
             <div className={`top-left-medition-info${vertical ? '-vertical' : ''}`}>
@@ -59,15 +60,13 @@ export const ReportSection = ({ index, factor, vertical }: ReportSectionProps) =
               </h3>
             </div>
             <div className={`image-and-svg-container ${vertical ? '-vertical' : ''}`}>
-              <ImageResults reportFactor={factor} reportWidth={width} reportHeight={height} isReport={true} sectionIndex={index}/>
-              {/* <img src={firstFramePath} className="image-border-radius" width={width} height={height} />
-              <VelocityVector
-                width={width}
-                height={height}
-                factor={factor}
+              <ImageResults
+                reportFactor={factor}
+                reportWidth={width}
+                reportHeight={height}
                 isReport={true}
                 sectionIndex={index}
-              /> */}
+              />
             </div>
           </div>
         </div>

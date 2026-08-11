@@ -7,6 +7,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
 import {
   setDirPoints,
+  setDrawLine,
+  setIsDraggingPoint,
   addSection,
   setActiveSection,
   setPixelSize,
@@ -26,9 +28,9 @@ import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
 import {
   adapterCrossSections,
+  findWetSegments,
   getBathimetryValues,
   getDirectionVector,
-  getIntersectionPoints,
   getNewCanvasPositions,
   setChangesByForm,
 } from '../helpers';
@@ -37,7 +39,12 @@ import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS, UNIT_CONVERSIONS }
 import { CanvasPoint, FormPoint, onGetBathimetryTypes, Point } from '../types';
 import { ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
-import { transformPixelToRealWorld, transformRealWorldToPixel, computePixelSize, getTransformationFromCameraMatrix} from '../../commons/coordinates';
+import {
+  transformPixelToRealWorld,
+  transformRealWorldToPixel,
+  computePixelSize,
+  getTransformationFromCameraMatrix,
+} from '../../commons/coordinates';
 
 /**
  * Interface to define the methods and attributes to interact with the section slice.
@@ -55,13 +62,13 @@ export const useSectionSlice = () => {
     transformationMatrix,
     pixelSolution,
     isSectionWorking,
+    isDraggingPoint,
   } = useSelector((state: RootState) => state.section);
   const { processing } = useSelector((state: RootState) => state.data);
   // The store always holds real-world coordinates in SI (m). We need the user's
   // selected unit to convert their input back to SI before dispatching.
   const unitSistem = useSelector((state: RootState) => state.project.projectDetails.unitSistem);
-  const toSI = (value: number) =>
-    unitSistem === 'imperial' ? value * UNIT_CONVERSIONS.FT_TO_M : value;
+  const toSI = (value: number) => (unitSistem === 'imperial' ? value * UNIT_CONVERSIONS.FT_TO_M : value);
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
@@ -126,12 +133,12 @@ export const useSectionSlice = () => {
         flag1 = false;
         flag2 = false;
         dispatch(setDirPoints(newPoints as Point[]));
-        dispatch(updateSection({
-          ...sections[activeSection],
-          drawLine: false
-        }))
+        // Releasing the mouse always ends "draw direction" mode, whether the
+        // line just drawn is valid (below) or degenerate (reverted, here).
+        dispatch(setDrawLine(false));
       } else {
         dispatch(setDirPoints(newPoints as Point[]));
+        dispatch(setDrawLine(false));
       }
     }
 
@@ -342,8 +349,7 @@ export const useSectionSlice = () => {
 
     dispatch(updateSectionsCounter(sections.length));
     const data = adapterCrossSections(updatedSection);
-    const { masks } = processing
-    
+    const { masks } = processing;
 
     /**
      * The sections are stored in the section slice.
@@ -364,7 +370,7 @@ export const useSectionSlice = () => {
         height_roi: height_roi,
         data: false,
         user_masks: masks,
-        is_roi_calulation: false
+        is_roi_calulation: false,
       });
       dispatch(updateProcessingForm({ ...processing.form, heightRoi: height_roi }));
       dispatch(setProcessingMask({ mask: filePrefix + maskPath, bbox }));
@@ -441,8 +447,10 @@ export const useSectionSlice = () => {
 
         for (let i = 0; i < sections.length; i++) {
           const { bathimetry, pixelSize, dirPoints } = sections[i];
-          const intersectionPoints = bathimetry.line ? getIntersectionPoints(bathimetry.line, value.level) : [];
-          const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x;
+          const wetSegments = bathimetry.line ? findWetSegments(bathimetry.line, value.level) : [];
+          const x1Intersection = wetSegments[0]?.x1 ?? 0;
+          const x2Intersection = wetSegments[wetSegments.length - 1]?.x2 ?? 0;
+          const bathWidth = x2Intersection - x1Intersection;
 
           const par1 = transformPixelToRealWorld(dirPoints[0].x, dirPoints[0].y, matrix);
           const par2 = transformPixelToRealWorld(dirPoints[1].x, dirPoints[1].y, matrix);
@@ -459,8 +467,9 @@ export const useSectionSlice = () => {
                 ...bathimetry,
                 level: value.level,
                 width: bathWidth,
-                x1Intersection: intersectionPoints[0].x,
-                x2Intersection: intersectionPoints[1].x,
+                x1Intersection,
+                x2Intersection,
+                wetSegments,
               },
               index: i,
             })
@@ -468,10 +477,10 @@ export const useSectionSlice = () => {
         }
         return;
       }
-      const intersectionPoints = section.bathimetry.line
-        ? getIntersectionPoints(section.bathimetry.line, value.level)
-        : [];
-      const bathWidth = intersectionPoints[1].x - intersectionPoints[0].x;
+      const wetSegments = section.bathimetry.line ? findWetSegments(section.bathimetry.line, value.level) : [];
+      const x1Intersection = wetSegments[0]?.x1 ?? 0;
+      const x2Intersection = wetSegments[wetSegments.length - 1]?.x2 ?? 0;
+      const bathWidth = x2Intersection - x1Intersection;
 
       dispatch(
         setBathimetry({
@@ -479,8 +488,9 @@ export const useSectionSlice = () => {
             ...section.bathimetry,
             level: value.level,
             width: bathWidth,
-            x1Intersection: intersectionPoints[0].x,
-            x2Intersection: intersectionPoints[1].x,
+            x1Intersection,
+            x2Intersection,
+            wetSegments,
           },
         })
       );
@@ -627,7 +637,7 @@ export const useSectionSlice = () => {
   const onGetBathimetry = async (values: onGetBathimetryTypes) => {
     const ipcRenderer = window.ipcRenderer;
 
-    const { cameraMatrix, zLimits, bathimetryPath, unitSistem } = values;
+    const { cameraMatrix, zLimits, controlPointsZLimits, bathimetryPath, unitSistem } = values;
 
     try {
       const { path, line, name, error } = await ipcRenderer.invoke('get-bathimetry', {
@@ -638,6 +648,18 @@ export const useSectionSlice = () => {
 
       if (error?.message) {
         throw new Error(error.message);
+      }
+
+      // A bathimetry file whose level values don't overlap the real-world Z
+      // range spanned by the project's control points at all is almost
+      // certainly the wrong file (or the wrong units) — reject it outright
+      // instead of accepting data that can't correspond to this project.
+      if (controlPointsZLimits && line?.length > 0) {
+        const fileMin = Math.min(...line.map((point: Point) => point.y));
+        const fileMax = Math.max(...line.map((point: Point) => point.y));
+        if (fileMax < controlPointsZLimits.min || fileMin > controlPointsZLimits.max) {
+          throw new Error('bathimetryOutOfZRange');
+        }
       }
 
       if (path !== '' && path !== sections[activeSection].bathimetry.path) {
@@ -698,7 +720,7 @@ export const useSectionSlice = () => {
           ...sections[activeSection],
           bathimetry: { path: undefined, level: 0, name: undefined },
           sectionPoints: DEFAULT_POINTS,
-          extraFields: false
+          extraFields: false,
         })
       );
       if (error instanceof Error) {
@@ -757,9 +779,17 @@ export const useSectionSlice = () => {
     dispatch(setDefaultSectionState());
   };
 
+  // Mirrors whether a point/handle is currently being dragged on the canvas
+  // (initial direction-line draw, or a later endpoint fine-tune), so the UI
+  // can react to it (e.g. the form-panel focus overlay).
+  const onSetIsDraggingPoint = (value: boolean) => {
+    dispatch(setIsDraggingPoint(value));
+  };
+
   return {
     activeSection,
     isSectionWorking,
+    isDraggingPoint,
     sections,
     pixelSolution,
     summary,
@@ -774,6 +804,7 @@ export const useSectionSlice = () => {
     onSetActiveSection,
     onSetDirPoints,
     onSetExtraFields,
+    onSetIsDraggingPoint,
     onSetRealWorld,
     onSetSections,
     onUpdateSection,

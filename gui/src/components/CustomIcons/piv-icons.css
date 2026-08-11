@@ -59,6 +59,13 @@ body {
     transform: scale(0.92);
 }
 
+.ib:disabled {
+    border-color: var(--disabled-button);
+    color: var(--disabled-button);
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
 .ib.active {
     background: var(--primary-text-color, #fff);
     color: var(--secondary-background-color, #000);
@@ -286,6 +293,17 @@ body {
     transform: translateX(-50%) scaleY(1);
     opacity: 1;
     pointer-events: all
+}
+
+.ldrop--right {
+    left: auto;
+    right: 0;
+    transform: scaleY(0);
+    transform-origin: top right;
+}
+
+.ldrop--right.open {
+    transform: scaleY(1);
 }
 
 .litem {

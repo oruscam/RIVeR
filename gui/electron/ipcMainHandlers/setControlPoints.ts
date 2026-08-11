@@ -2,8 +2,9 @@ import { ipcMain } from 'electron';
 import * as fs from 'fs';
 import { createMatrix } from './utils/createMatrix';
 import { PROJECT_CONFIG } from '../main';
+import { RiverCli } from './interfaces';
 
-function setControlPoints(riverCli: Function) {
+function setControlPoints(riverCli: RiverCli) {
   ipcMain.handle('set-control-points', async (_event, args) => {
     const { settingsPath, projectDirectory, logsPath, firstFrame, filePrefix } = PROJECT_CONFIG;
     const { coordinates, distances, rwCoordinates } = args;
@@ -55,8 +56,8 @@ function setControlPoints(riverCli: Function) {
     ];
 
     let secondCase = [];
-    const DISTANCE_TOLERANCE = 1 
-    
+    const DISTANCE_TOLERANCE = 1;
+
     if (rwCoordinates[0].x !== 0 || rwCoordinates[0].y !== 0 || rwCoordinates[1].y !== 0) {
       secondCase = [
         '--east1',
@@ -69,8 +70,8 @@ function setControlPoints(riverCli: Function) {
         rwCoordinates[1].y,
         '--enforce-d12',
         '--distance-tolerance',
-        DISTANCE_TOLERANCE
-      ]
+        DISTANCE_TOLERANCE,
+      ];
     }
 
     if (secondCase.length > 0) {

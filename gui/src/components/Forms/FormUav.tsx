@@ -1,7 +1,7 @@
 import './form.css';
 import { useTranslation } from 'react-i18next';
 import { useFormContext } from 'react-hook-form';
-import { useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../../hooks';
+import { useAutoShrinkFont, useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../../hooks';
 import { HardModeUav } from './Components/index';
 import { OrthoImage } from '../Graphs';
 import { UNITS } from '../../constants/constants';
@@ -13,13 +13,7 @@ interface MyFormProps {
 
 export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
   const { t } = useTranslation();
-  const {
-    extraFields,
-    dirPoints,
-    drawLine,
-    solution,
-    onUpdatePixelSize,
-  } = useUavSlice();
+  const { extraFields, dirPoints, drawLine, solution, onUpdatePixelSize } = useUavSlice();
   const { video, projectDetails } = useProjectSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { isBackendWorking } = useGlobalSlice();
@@ -27,6 +21,10 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
   const { factor: imageReducedFactor } = video.parameters;
 
   const { register } = useFormContext();
+
+  const drawLineButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
+  const lineLengthLabelRef = useAutoShrinkFont<HTMLLabelElement>([t]);
+  const pixelSizeLabelRef = useAutoShrinkFont<HTMLLabelElement>([t]);
 
   const handleLineLengthInput = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
@@ -82,10 +80,16 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
   };
 
   return (
-    <div className='body mt-2'>
-      <form onSubmit={onSubmit} onError={onError} id="form-pixel-size" className={`${isBackendWorking ? 'disabled' : ''}`}>
+    <div className="body mt-2">
+      <form
+        onSubmit={onSubmit}
+        onError={onError}
+        id="form-pixel-size"
+        className={`${isBackendWorking ? 'disabled' : ''}`}
+      >
         <div className="input-container-2">
           <button
+            ref={drawLineButtonRef}
             className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
             type="button"
             onClick={onClickDrawLine}
@@ -97,7 +101,9 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
         </div>
 
         <div className="input-container-2 mt-2">
-          <label className="read-only me-1">{t('PixelSize.lineLength')}</label>
+          <label ref={lineLengthLabelRef} className="read-only me-1">
+            {t('PixelSize.lineLength')}
+          </label>
           <div className="input-field-container">
             <input
               className="input-field"
@@ -117,12 +123,16 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
               onKeyDown={handleLineLengthInput}
               onBlur={handleLineLengthInput}
             ></input>
-            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+            <span className="unit-label">
+              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            </span>
           </div>
         </div>
 
         <div className="input-container-2 mt-1 mb-2">
-          <label className="read-only me-1">{t('PixelSize.pixelSize')}</label>
+          <label ref={pixelSizeLabelRef} className="read-only me-1">
+            {t('PixelSize.pixelSize')}
+          </label>
           <div className="input-field-container">
             <input
               className="input-field"
@@ -133,7 +143,9 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
               onKeyDown={handlePixelSizeInput}
               onBlur={handlePixelSizeInput}
             />
-            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+            <span className="unit-label">
+              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            </span>
           </div>
         </div>
       </form>
@@ -142,5 +154,5 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
 
       {extraFields && <HardModeUav />}
     </div>
-  )
+  );
 };

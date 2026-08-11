@@ -17,7 +17,7 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
   const { projectDetails } = useProjectSlice();
   const { width: screenWidth } = screenSizes;
   const { bathimetry, name } = sections[activeSection];
-  const { x1Intersection, leftBank, level, line, path, x2Intersection } = bathimetry;
+  const { x1Intersection, leftBank, level, line, path, x2Intersection, wetSegments } = bathimetry;
   const { rwLength } = sections[activeSection].pixelSize;
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -42,11 +42,25 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
           rightBank: (x1Intersection ?? 0) + (leftBank ?? 0) + rwLength,
           x1Intersection: x1Intersection ?? 0,
           x2Intersection: x2Intersection ?? 0 + rwLength,
+          wetSegments,
           unitSistem: projectDetails.unitSistem,
         });
       }
     }
-  }, [path, level, leftBank, rwLength, screenWidth, projectDetails.unitSistem, language]);
+  }, [
+    path,
+    level,
+    leftBank,
+    rwLength,
+    screenWidth,
+    projectDetails.unitSistem,
+    language,
+    line,
+    showLeftBank,
+    x1Intersection,
+    x2Intersection,
+    wetSegments,
+  ]);
 
   return (
     <div className={`bath-graph ${path === undefined ? 'hidden' : ''} mb-3`}>

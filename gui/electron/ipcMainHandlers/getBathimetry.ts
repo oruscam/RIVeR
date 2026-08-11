@@ -1,6 +1,6 @@
 import { dialog, ipcMain } from 'electron';
 import { basename, extname, join } from 'path';
-import { readFile, utils, set_fs, writeFile } from 'xlsx';
+import { readFile, utils, set_fs } from 'xlsx';
 import * as fs from 'fs';
 import { EXTENSIONS, validateFile } from './utils/validateFile';
 import { PROJECT_CONFIG } from '../main';
@@ -57,16 +57,13 @@ async function getBathimetry() {
       const workbook = readFile(bathPath);
       const sheetName = workbook.SheetNames[0];
 
-      // Get the first sheet from the workbook
-      const sheet = workbook.Sheets[sheetName];
-
       // Convert the sheet to JSON format
       let data: unknown[][] = [];
       let needsNormalization = false; // Track if the source format is non-standard
       if (bathimetryExt.toLowerCase() === '.csv') {
         const content = fs.readFileSync(bathPath, 'utf-8');
-        const lines = content.split(/\r?\n/).filter(line => line.trim() !== '');
-        data = lines.map(line => {
+        const lines = content.split(/\r?\n/).filter((line) => line.trim() !== '');
+        data = lines.map((line) => {
           if (line.includes(';') || line.includes('\t')) {
             needsNormalization = true; // Non-standard separator detected
             return line.split(/[;\t]/);
@@ -94,7 +91,8 @@ async function getBathimetry() {
 
       // Filter out completely empty rows first
       const validRows = (data as unknown[][]).filter(
-        (row) => row.length > 0 && row.some((cell) => cell !== null && cell !== undefined && String(cell).trim() !== '')
+        (row) =>
+          row.length > 0 && row.some((cell) => cell !== null && cell !== undefined && String(cell).trim() !== '')
       );
 
       // Map the data to an array of objects with x and y properties
@@ -152,6 +150,27 @@ async function getBathimetry() {
       // Analyze the line to determine if it is decreced and if it represents depth
       const { isDecreced, isDepth } = analyzeLine(line, maxYIndex);
 
+      // IPCam (3D) needs the bathymetry expressed as absolute elevation, in the same
+      // reference frame as the camera solution's control points. Depth (relative to
+      // whatever the water surface happens to be) can't be placed in that frame.
+      if (isDepth && zLimits !== undefined) {
+        throw new Error('invalidBathimetryDepthNotAllowed');
+      }
+
+      // A depth profile's banks are, by definition, at the water's edge (depth 0).
+      // If the file doesn't already say so explicitly, anchor both ends at 0 so a
+      // flat or near-flat profile (e.g. a rectangular channel given as just its
+      // two bottom corners) still has real relief once inverted, instead of a
+      // degenerate flat line.
+      if (isDepth) {
+        if (line[0].y !== 0) {
+          line = [{ x: line[0].x, y: 0 }, ...line];
+        }
+        if (line[line.length - 1].y !== 0) {
+          line = [...line, { x: line[line.length - 1].x, y: 0 }];
+        }
+      }
+
       // Transform the line if necessary
       const { newLine, changed } = transformLine(line, isDecreced, isDepth, maxY, zLimits?.min);
 
@@ -167,15 +186,10 @@ async function getBathimetry() {
       let newFilePath = bathPath;
       if (changed || needsNormalization || isImperial || !isSourceCsv) {
         // Generate a new file name with _modified.csv suffix (always CSV for Python compatibility)
-        newFilePath = join(
-          PROJECT_CONFIG.projectDirectory,
-          basename(bathPath, bathimetryExt) + '_modified.csv'
-        );
+        newFilePath = join(PROJECT_CONFIG.projectDirectory, basename(bathPath, bathimetryExt) + '_modified.csv');
 
         // Write as plain CSV: "x,y" rows, no header
-        const csvContent = newLine
-          .map((row: { x: number; y: number }) => `${row.x},${row.y}`)
-          .join('\n');
+        const csvContent = newLine.map((row: { x: number; y: number }) => `${row.x},${row.y}`).join('\n');
         await fs.promises.writeFile(newFilePath, csvContent, 'utf-8');
 
         console.log(`New CSV file created: ${newFilePath}`);
@@ -232,7 +246,12 @@ const analyzeLine = (line: { x: number; y: number }[], maxYIndex: number) => {
     prevDeviation = deviation;
   }
 
-  const isDepth = signedArea > 0;
+  // A perfectly flat profile (zero signed area, e.g. a rectangular channel
+  // sampled with just its two bottom corners) has no relief either way, so it
+  // can't be valid elevation data for a channel — a channel's middle must sit
+  // lower than its banks. Depth has no such requirement (a uniform depth is a
+  // normal, flat-bottomed channel), so ties default to depth.
+  const isDepth = signedArea >= 0;
   return { isDecreced, isDepth };
 };
 

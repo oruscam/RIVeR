@@ -1,23 +1,18 @@
-const transformData = (data: any, all: boolean): any => {
+const transformData = (data: any): any => {
   const result: any = {};
 
   for (const key in data) {
     const section = data[key];
     let magnitude = section.streamwise_velocity_magnitude;
-    let magnitude_name = 'streamwise_velocity_magnitude';
     if (section.num_stations > 0) {
       if (section.interpolated === true && section.artificial_seeding === true) {
         magnitude = section.filled_seeded_vel_profile;
-        magnitude_name = 'filled_seeded_vel_profile';
       } else if (section.interpolated === true && section.artificial_seeding === false) {
         magnitude = section.filled_streamwise_velocity_magnitude;
-        magnitude_name = 'filled_streamwise_velocity_magnitude';
       } else if (section.interpolated === false && section.artificial_seeding === false) {
         magnitude = section.streamwise_velocity_magnitude;
-        magnitude_name = 'streamwise_velocity_magnitude';
       } else if (section.interpolated === false && section.artificial_seeding === true) {
         magnitude = section.seeded_vel_profile;
-        magnitude_name = 'seeded_vel_profile';
       }
     }
     result[key] = {
@@ -25,7 +20,7 @@ const transformData = (data: any, all: boolean): any => {
       alpha: section.alpha !== undefined ? parseFloat(section.alpha.toFixed(2)) : null,
       percentile_5th: section['5th_percentile'],
       percentile_95th: section['95th_percentile'],
-      total_Q: section.total_Q !== undefined ? section.total_Q.toFixed(2) : null,
+      total_Q: section.total_Q !== undefined ? section.total_Q : null,
       measured_Q: section.measured_Q !== undefined ? section.measured_Q.toFixed(2) : null,
       interpolated_Q: section.interpolated_Q !== undefined ? section.interpolated_Q.toFixed(2) : null,
       total_A: section.total_A !== undefined ? section.total_A.toFixed(2) : null,

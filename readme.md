@@ -62,6 +62,8 @@ please refer to the **[User Manual](user-manual.md)**.
 * Interactive result visualization with customizable vector fields
 * Georeferencing and coordinate transformations
 * Multi Cross-sectional flow analysis
+* Camera calibration tool for lens distortion correction, with reusable camera/lens profiles
+* UAV video stabilization to counter camera shake before analysis
 * Automated beautiful report generation ([like this one !](https://oruscam.github.io/RIVeR/sample_report.html))
 * Multi-platform support (**Windows**, **macOS**, **Linux**)
 * Multi-units support (SI, imperial)
@@ -88,7 +90,7 @@ If you don't want to bother with code at all (we get it, sometimes you just want
 
 | ⊞ Windows | ⌘ macOS | ◆ Linux |
 |:---:|:---:|:---:|
-| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.5.2/RIVeR-Windows-3.5.2-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.5.2/RIVeR-Mac-3.5.2-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.5.2/RIVeR-Linux-3.5.2.deb) |
+| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.6.0/RIVeR-Windows-3.6.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.6.0/RIVeR-Mac-3.6.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.6.0/RIVeR-Linux-3.6.0.deb) |
 
 These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application — no Python or JavaScript knowledge required!
 
@@ -180,6 +182,20 @@ river-cli update-xsection \
 ./transformation_matrix.json \
 --step 2 --fps 30 --id-section 0
 
+# 8. (Optional) Generate a ChArUco calibration board to print/display
+river-cli write-charuco-board --output ./board.png --board 20x15
+
+# 9. (Optional) Calibrate camera intrinsics from a folder of board photos,
+# then reuse the profile to undistort frames during extraction
+river-cli camera-calibration --dir ./calibration_photos --save ./profile.json
+
+river-cli video-to-frames river_video.mp4 ./frames --every 2 \
+--undistort --profile-path ./profile.json
+
+# 10. (Optional, UAV footage only) Stabilize extracted frames against camera shake
+river-cli video-to-frames river_video.mp4 ./frames --every 2 \
+--stabilize --stabilization-regions ./stabilization_regions.json
+
 ```
 
 ### Graphical User Interface (GUI)
@@ -190,6 +206,8 @@ Key GUI features include:
 - Interactive workflow interface
 - Visual cross-section creation
 - Real-time PIV analysis visualization
+- Camera calibration tool with reusable camera/lens profiles
+- UAV video stabilization with a sanity-check view
 - Result export capabilities
 
 For detailed information about installation, usage, and features of the GUI, please see the dedicated [GUI documentation](gui/README.md).
@@ -221,6 +239,7 @@ river/
 └── river
     ├── cli
     ├── core
+    │   ├── camera_calibration.py    # Intrinsic lens calibration from ChArUco images
     │   ├── compute_section.py       # Section computation utilities
     │   ├── coordinate_transform.py   # Coordinate system transformations
     │   ├── define_roi_masks.py      # ROI and mask definitions
@@ -230,6 +249,7 @@ river/
     │   ├── piv_fftmulti.py         # FFT-based PIV processing
     │   ├── piv_loop.py             # PIV processing loop
     │   ├── piv_pipeline.py         # Main PIV pipeline
+    │   ├── stabilize_frames.py     # UAV frame stabilization via LK point tracking
     │   └── video_to_frames.py      # Video frame extraction
     └── docs
 ```
@@ -237,7 +257,11 @@ river/
 
 ## 📚 Jupyter Examples
 
-Browse through our collection of Jupyter Notebook examples to learn how to use RIVeR for various analyses (requires development installation):
+Browse through our collection of Jupyter Notebook examples to learn how to use RIVeR for various analyses (requires development installation with the `examples` extra):
+
+```bash
+pip install -e ".[examples]"
+```
 
 - [Introduction to RIVeR](examples/00_introduction.ipynb)
 - [Video Frame Extraction](examples/01_video_to_frames.ipynb)
@@ -248,7 +272,7 @@ Browse through our collection of Jupyter Notebook examples to learn how to use R
 - [PIV Analysis Workflow](examples/04_piv_analysis.ipynb)
 - [Discharge Calculation](examples/05_discharge_calculation.ipynb)
 
-These interactive examples provide step-by-step guidance for common RIVeR workflows. To run them, make sure you've completed the development installation described above.
+These interactive examples provide step-by-step guidance for common RIVeR workflows. To run them, make sure you've completed the development installation with the `examples` extra shown above.
 ## 🔬 Citation
 
 If you use RIVeR in your research, please cite:

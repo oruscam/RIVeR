@@ -1,5 +1,5 @@
-import { Point } from "../../types";
-import { Quiver } from "../../../commons/types";
+import { Point } from '../../types';
+import { Quiver } from '../../../commons/types';
 
 interface FormProcessing {
   artificialSeeding: boolean;
@@ -42,6 +42,7 @@ interface DataState {
   processing: Processing;
   images: Images;
   quiver: Quiver | null;
+  fullQuiver: Quiver | null;
   isBackendWorking: boolean;
   isDataLoaded: boolean;
   hasChanged: boolean;

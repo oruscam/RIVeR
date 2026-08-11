@@ -56,7 +56,8 @@
       "end3": "유효하지 않은 시간 선택: '종료' 값은 '시작' 값과 같거나 작을 수 없습니다. 유효한 값을 입력해 주세요.",
       "step": "유효하지 않은 단계 선택: '단계'는 1보다 큰 정수여야 합니다. 유효한 값을 입력해 주세요.",
       "required": "모든 필드는 필수입니다. 동영상 범위 양식을 확인해 주세요.",
-      "formatInput": "형식이 올바르지 않습니다. '시작'과 '종료' 값은 '00:00' 형식이어야 합니다."
+      "formatInput": "형식이 올바르지 않습니다. '시작'과 '종료' 값은 '00:00' 형식이어야 합니다.",
+      "profileResolutionMismatch": "프로파일 해상도({{calW}}×{{calH}})가 동영상과 일치하지 않습니다. 다른 카메라 모델을 선택하거나 이 해상도로 교정하세요."
     },
     "ExtraInfo": {
       "fileName": "파일명:",
@@ -65,13 +66,25 @@
       "resolution": "해상도: ",
       "numberOfFrames": "프레임 수: "
     },
-    "framesResolution": "프레임 해상도"
+    "framesResolution": "프레임 해상도",
+    "lensCorrection": "렌즈 교정",
+    "noProfiles": "프로필 없음 — 보정으로 이동",
+    "stabilizeVideo": "비디오 안정화",
+    "stabilizationRegion": "영역",
+    "editingRegion": "영역 {{n}} 편집 중",
+    "addRegion": "영역 추가",
+    "exitRegionMode": "영역 편집 종료",
+    "minRegionsWarning": "안정화를 위해 최소 2개의 영역을 추가하세요",
+    "editingRegionsWarning": "안정화 영역 편집 중"
   },
   "PixelSize": {
     "title": "픽셀 크기",
     "lineLength": "선 길이",
     "pixelSize": "픽셀 크기",
     "drawLine": "선 그리기",
+    "drawingLineWarning": "선 그리는 중",
+    "modifyingLineWarning": "선 수정 중",
+    "carouselStabilization": "안정화 점검",
     "Errors": {
       "required": "모든 필드는 필수입니다. 픽셀 크기 양식을 확인해 주세요.",
       "lineLength": "유효하지 않은 선 길이: 양수(소수 포함)를 입력해 주세요.",
@@ -126,12 +139,16 @@
       "leftBank": "좌안이 범위를 벗어났습니다",
       "bathimetryNotValid": "수심 데이터가 유효하지 않습니다. 수위 {{level}}이 이 파일에 존재하지 않습니다",
       "bathimetryIsRequired": "{{section_name}}에 수심 데이터가 필요합니다",
-      "rwLength": "{{section_name}}의 횡단면 길이는 0이 될 수 없습니다"
+      "rwLength": "{{section_name}}의 횡단면 길이는 0이 될 수 없습니다",
+      "levelRequired": "{{section_name}}의 수위는 0이 될 수 없습니다"
     },
     "warning": "{{section_name}}을(를) 삭제하시겠습니까?",
     "warningTitle": "단면 삭제",
     "mask": "마스크",
     "addMask": "마스크 추가",
+    "editingMaskWarning": "마스크 {{n}} 편집 중",
+    "drawingSectionWarning": "단면 {{name}} 그리는 중",
+    "modifyingSectionWarning": "단면 {{name}} 수정 중",
     "bankRight": "우",
     "bankLeft": "좌"
   },
@@ -246,6 +263,8 @@
   "ControlPoints": {
     "title": "기준점",
     "drawPoints": "기준점 표시",
+    "drawingPointsWarning": "기준점 표시 중",
+    "modifyingPointsWarning": "기준점 수정 중",
     "importDistances": "거리 가져오기",
     "distance": "거리",
     "length": "길이",
@@ -268,7 +287,8 @@
     "optimize": "최적화",
     "reprojectionErrors": "재투영 오차: ",
     "numberOfPoints": "기준점 수: ",
-    "cameraHeight": "카메라 높이: "
+    "cameraHeight": "카메라 높이: ",
+    "movingPointWarning": "{{label}} 이동 중"
   },
   "Errors": {
     "invalidPointsFileFormat": "기준점 파일 형식이 유효하지 않습니다.",
@@ -276,6 +296,8 @@
     "invalidDistancesNotValidValue": "거리 파일 형식이 유효하지 않습니다. 일부 거리 값이 올바른 숫자가 아닙니다",
     "invalidDistancesNegativeValue": "거리 파일 형식이 유효하지 않습니다. 음수 거리는 허용되지 않습니다",
     "invalidBathimetryFileFormat": "수심 측량 파일 형식이 유효하지 않습니다",
+    "bathimetryOutOfZRange": "측심 레벨이 기준점의 Z 범위를 크게 벗어났습니다. 파일 또는 단위를 확인하세요.",
+    "invalidBathimetryDepthNotAllowed": "이 모드에서는 수심(depth) 측심 파일을 지원하지 않습니다. 대신 수위/표고 프로파일을 가져오세요.",
     "invalidImageExtension": "디렉토리에 이미지가 아닌 파일이 포함되어 있습니다",
     "imagesFolderEmpty": "선택한 폴더에서 이미지를 찾을 수 없습니다",
     "waitingForFrames": "프레임이 로드되기를 기다리고 있습니다. 잠시 후 다시 시도해 주세요",
@@ -286,6 +308,7 @@
   },
   "Loader": {
     "extractingFrames": "동영상 프레임 추출 중",
+    "stabilizingFrames": "동영상 프레임 안정화 중",
     "results": "유속 프로파일 통계 생성 중",
     "videoConversion": "동영상을 MP4 형식으로 변환 중입니다. 잠시 기다려 주세요.",
     "maskAndRoi": "관심 영역 및 마스크 정의 중"
@@ -297,5 +320,53 @@
     "resourceNotFound": "리소스를 찾을 수 없습니다",
     "randomError": "오류가 발생했습니다. 다시 시도해 주세요",
     "dropHereText": "이 패널 어디에나 파일을 드롭하세요. 자동으로 위치를 감지합니다."
+  },
+  "Calibration": {
+    "title": "카메라 캘리브레이션",
+    "close": "닫기",
+    "board": "보드 표시",
+    "import": "이미지 가져오기",
+    "solve": "풀기",
+    "solving": "계산 중…",
+    "overlay": "원본",
+    "undistorted": "보정됨",
+    "heatmap": "히트맵",
+    "dropZone": "캘리브레이션 이미지 폴더를 드롭",
+    "dropHint": "또는 이미지 가져오기 사용",
+    "notUsed": "캘리브레이션에 미사용",
+    "readyToSolve": "이미지가 로드되었습니다. 풀기를 눌러 캘리브레이션을 실행하세요.",
+    "emptyHint": "이미지 폴더를 가져오거나 드롭하여 시작하세요.",
+    "errorGeneric": "캘리브레이션 중 오류가 발생했습니다.",
+    "recommendations": "권장 사항",
+    "histogram": "뷰별 RMS 분포",
+    "histogramX": "재투영 오차 (px)",
+    "profileName": "프로파일 이름",
+    "cameraName": "카메라 이름",
+    "lensName": "렌즈 / 줌",
+    "resolution": "해상도",
+    "saveProfile": "저장",
+    "savedTo": "저장 위치",
+    "validationDone": "보정 완료",
+    "outputs": "출력 파일",
+    "overlaysDir": "오버레이 폴더 열기",
+    "undistortedDir": "왜곡 보정 폴더 열기",
+    "profileJson": "캘리브레이션 프로파일 열기",
+    "undistortedHint": "왜곡 보정된 이미지는 출력 폴더에 저장됩니다.",
+    "metrics": {
+      "medianRms": "중앙값 RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "커버리지",
+      "edgeReach": "가장자리 도달",
+      "poseSpread": "자세 분산",
+      "centerOffset": "중심 오프셋"
+    },
+    "actions": {
+      "addFrames": "모서리/코너를 포함하는 프레임을 추가하고 각도와 거리를 다양하게 하세요.",
+      "pushBoard": "보드를 센서 가장자리에 더 가깝게 배치하세요. 일부 마커 잘림은 허용됩니다.",
+      "increaseSharpness": "선명도를 높이세요(더 많은 빛, 낮은 ISO), 화면 모아레를 줄이세요(보드 크기 조정).",
+      "varyViewpoints": "다양한 시점(기울기/패닝/롤링)과 거리에서 촬영하세요.",
+      "ensureCorners": "코너가 전체 센서에 걸쳐 나타나도록 하고, 과도한 잘림을 피하세요.",
+      "reshoot": "더 나은 커버리지로 재촬영하세요. 문제가 지속되면 이미지 메타데이터를 확인하세요."
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useAutoShrinkFont, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { DropHereText, HardModeCrossSections } from './Components/index';
 import { Bathimetry } from '../Graphs';
 import { useTranslation } from 'react-i18next';
@@ -13,19 +13,21 @@ interface FormCrossSectionsProps {
 
 export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsProps) => {
   const { register, setValue } = useFormContext();
-  const {
-    sections,
-    activeSection,
-    onUpdateSection,
-    onGetBathimetry,
-    transformationMatrix,
-  } = useSectionSlice();
-  const { drawLine, bathimetry, extraFields, pixelSize } = sections[activeSection];
+  const { sections, activeSection, onUpdateSection, onGetBathimetry, transformationMatrix } = useSectionSlice();
+  const { drawLine, bathimetry, extraFields, pixelSize } = sections[index];
   const { onSetErrorMessage } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
-  const { cameraSolution } = useIpcamSlice();
+  const { cameraSolution, zLimits: controlPointsZLimits } = useIpcamSlice();
 
   const { t } = useTranslation();
+
+  // All sections mount together and the inactive ones are hidden via a parent
+  // display:none — a section measures 0×0 while hidden, so re-fit once it
+  // actually becomes the visible one instead of relying only on [t].
+  const isActiveSection = activeSection === index;
+  const drawLineButtonRef = useAutoShrinkFont<HTMLButtonElement>([t, isActiveSection]);
+  const importBathButtonRef = useAutoShrinkFont<HTMLButtonElement>([t, isActiveSection]);
+  const leftBankStationLabelRef = useAutoShrinkFont<HTMLLabelElement>([t, isActiveSection]);
 
   const { yMax, yMin, xMin, x1Intersection, leftBank, xMax } = bathimetry;
 
@@ -48,7 +50,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       const valueInMeters = toSI(rawValue);
       if (valueInMeters === bathimetry.level) return;
 
-      if (yMax !== undefined && yMin !== undefined && valueInMeters <= yMax && valueInMeters >= yMin) {
+      if (yMax !== undefined && yMin !== undefined && valueInMeters <= yMax && valueInMeters > yMin) {
         onUpdateSection({ level: valueInMeters }, cameraSolution?.cameraMatrix);
         document.getElementById(nextFieldId)?.focus();
       } else {
@@ -79,6 +81,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       onGetBathimetry({
         cameraMatrix: cameraSolution?.cameraMatrix,
         zLimits: { min: yMin ?? 0, max: yMax ?? 0 },
+        controlPointsZLimits,
         unitSistem: projectDetails.unitSistem,
       })
         // First error is when the bathimetry format is correct, but not the values
@@ -98,7 +101,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
         // Second error is when the bathimetry format is incorrect
         .catch((error) => onSetErrorMessage(error.message));
     } else {
-      onGetBathimetry({ unitSistem: projectDetails.unitSistem }).catch((error) => onSetErrorMessage(error.message)); // Incorrect format
+      onGetBathimetry({ unitSistem: projectDetails.unitSistem }).catch((error) =>
+        onSetErrorMessage(error.message)
+      ); // Incorrect format
     }
   };
 
@@ -130,10 +135,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   };
   return (
     <div id="form-section-div" className={activeSection !== index ? 'hidden' : ''}>
-      <form
-        onSubmit={onSubmit}
-        id="form-cross-section"
-      >
+      <form onSubmit={onSubmit} id="form-cross-section">
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
         {type === 'ipcam' ? (
@@ -154,6 +156,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 })}
               />
               <button
+                ref={importBathButtonRef}
                 className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
                 onClick={handleImportBath}
                 disabled={
@@ -169,22 +172,24 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             </div>
             <div className="input-container-2">
               <button
+                ref={drawLineButtonRef}
                 className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
                 type="button"
                 id={`${name}-DRAW_LINE`}
                 onClick={() => onUpdateSection({ drawLine: true }, undefined)}
-                disabled={transformationMatrix.length === 0}
+                disabled={transformationMatrix.length === 0 || bathimetry.path === undefined}
               >
                 {' '}
                 {t('CrossSections.drawLine')}{' '}
               </button>
-              <span className='read-only bg-transparent'></span>
+              <span className="read-only bg-transparent"></span>
             </div>
           </>
         ) : (
           <>
             <div className="input-container-2">
               <button
+                ref={drawLineButtonRef}
                 className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
                 type="button"
                 id={`${name}-DRAW_LINE`}
@@ -194,7 +199,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 {' '}
                 {t('CrossSections.drawLine')}{' '}
               </button>
-              <span className='read-only bg-transparent'></span>
+              <span className="read-only bg-transparent"></span>
             </div>
 
             <div className="input-container-2 mt-1">
@@ -212,6 +217,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 })}
               />
               <button
+                ref={importBathButtonRef}
                 className={`wizard-button form-button bathimetry-button me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
                 onClick={handleImportBath}
                 disabled={
@@ -221,9 +227,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
                 {' '}
                 {t('CrossSections.importBath')}{' '}
               </button>
-              <label className="read-only bg-transparent">
-                {bathimetry.name !== '' ? bathimetry.name : ''}
-              </label>
+              <label className="read-only bg-transparent">{bathimetry.name !== '' ? bathimetry.name : ''}</label>
             </div>
           </>
         )}
@@ -240,13 +244,16 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               step="any"
               className="input-field"
               {...register(`${name}_LEVEL`, {
-                validate: () => bathimetry.level !== 0,
+                validate: () =>
+                  bathimetry.level !== 0 || t('CrossSections.Errors.levelRequired', { section_name: name }),
               })}
               id="LEVEL"
               onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
               onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
             />
-            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+            <span className="unit-label">
+              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            </span>
           </div>
         </div>
 
@@ -265,14 +272,21 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               id="CS_LENGTH"
               readOnly={true}
             />
-            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+            <span className="unit-label">
+              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            </span>
           </div>
         </div>
 
         <Bathimetry showLeftBank={true} />
 
         <div className="input-container-2 mb-4" id="left-bank-station-container">
-          <label className="read-only me-1" htmlFor="left-bank-station-input" id="left-bank-station-label">
+          <label
+            ref={leftBankStationLabelRef}
+            className="read-only me-1"
+            htmlFor="left-bank-station-input"
+            id="left-bank-station-label"
+          >
             {t('CrossSections.leftBankStation')}
           </label>
           <div className="input-field-container">
@@ -285,7 +299,9 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               onKeyDown={handleLeftBankInput}
               onBlur={handleLeftBankInput}
             />
-            <span className="unit-label">{projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}</span>
+            <span className="unit-label">
+              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            </span>
           </div>
         </div>
 

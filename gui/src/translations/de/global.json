@@ -48,7 +48,7 @@
     "title": "Video-Bereich",
     "start": "Start",
     "end": "Ende",
-    "step": "Zeitschritt",
+    "step": "Schritt",
     "Errors": {
       "start1": "Ungültige Zeitauswahl: Der Startzeitpunkt darf nicht kleiner als 0 sein. Bitte geben Sie einen gültigen Wert ein.",
       "end1": "Ungültige Zeitauswahl: Der 'Ende'-Wert darf nicht größer als die Gesamtlänge des Videos sein. Bitte geben Sie einen gültigen Wert ein.",
@@ -56,7 +56,8 @@
       "end3": "Ungültige Zeitauswahl: Der 'Ende'-Wert darf nicht gleich oder kleiner als der 'Start'-Wert sein. Bitte geben Sie einen gültigen Wert ein.",
       "step": "Ungültige Zeitschrittauswahl: Der Parameter 'Zeitschritt' muss eine ganze Zahl größer als 1 sein. Bitte geben Sie einen gültigen Wert ein.",
       "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für den Video-Bereich.",
-      "formatInput": "Falsches Format. 'Start'- und 'Ende'-Werte müssen im Format '00:00' sein."
+      "formatInput": "Falsches Format. 'Start'- und 'Ende'-Werte müssen im Format '00:00' sein.",
+      "profileResolutionMismatch": "Die Profilauflösung ({{calW}}×{{calH}}) stimmt nicht mit dem Video überein. Wählen Sie ein anderes Kameramodell oder kalibrieren Sie für diese Auflösung."
     },
     "ExtraInfo": {
       "fileName": "Dateiname:",
@@ -65,13 +66,25 @@
       "resolution": "Auflösung: ",
       "numberOfFrames": "Anzahl der Frames: "
     },
-    "framesResolution": "Auflösung der Frames"
+    "framesResolution": "Auflösung der Frames",
+    "lensCorrection": "Linsenkorrektur",
+    "noProfiles": "Keine Profile — zur Kalibrierung",
+    "stabilizeVideo": "Video stabilisieren",
+    "stabilizationRegion": "Bereich",
+    "editingRegion": "Bereich {{n}} bearbeiten",
+    "addRegion": "Bereich hinzufügen",
+    "exitRegionMode": "Bearbeitung beenden",
+    "minRegionsWarning": "Mindestens 2 Bereiche für die Stabilisierung hinzufügen",
+    "editingRegionsWarning": "Stabilisierungsbereiche werden bearbeitet"
   },
   "PixelSize": {
     "title": "Pixelgröße",
     "lineLength": "Linienlänge",
     "pixelSize": "Pixelgröße",
     "drawLine": "Linie zeichnen",
+    "drawingLineWarning": "Linie wird gezeichnet",
+    "modifyingLineWarning": "Linie wird geändert",
+    "carouselStabilization": "Stabilisierungsprüfung",
     "Errors": {
       "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für die Pixelgröße.",
       "lineLength": "Ungültige Linienlänge: Die Länge muss eine positive Zahl sein und kann Dezimalstellen enthalten. Bitte geben Sie einen gültigen Wert ein.",
@@ -126,12 +139,16 @@
       "leftBank": "Das linke Ufer liegt außerhalb des Bereichs",
       "bathimetryNotValid": "Die Bathymetrie ist ungültig. Der Pegel {{level}} existiert nicht in dieser Datei",
       "bathimetryIsRequired": " Bathymetrie ist in {{section_name}} erforderlich",
-      "rwLength": "Der Wert der Querschnittslänge darf in {{section_name}} nicht null sein"
+      "rwLength": "Der Wert der Querschnittslänge darf in {{section_name}} nicht null sein",
+      "levelRequired": "Der Wert des Pegels darf in {{section_name}} nicht null sein"
     },
     "warning": "Sind Sie sicher, dass Sie {{section_name}} löschen möchten?",
     "warningTitle": "Abschnitt löschen",
     "mask": "Maske",
     "addMask": "Maske hinzufügen",
+    "editingMaskWarning": "Maske {{n}} wird bearbeitet",
+    "drawingSectionWarning": "Abschnitt {{name}} wird gezeichnet",
+    "modifyingSectionWarning": "Abschnitt {{name}} wird geändert",
     "bankRight": "R",
     "bankLeft": "L"
   },
@@ -250,6 +267,8 @@
   "ControlPoints": {
     "title": "Kontrollpunkte",
     "drawPoints": "Punkte zeichnen",
+    "drawingPointsWarning": "Punkte werden gezeichnet",
+    "modifyingPointsWarning": "Punkte werden geändert",
     "importDistances": "Distanzen importieren",
     "distance": "Distanz",
     "length": "Länge",
@@ -272,7 +291,8 @@
     "optimize": "Optimieren",
     "reprojectionErrors": "Reprojektionsfehler: ",
     "numberOfPoints": "Anzahl der Punkte: ",
-    "cameraHeight": "Kamerahöhe: "
+    "cameraHeight": "Kamerahöhe: ",
+    "movingPointWarning": "{{label}} wird bewegt"
   },
   "Errors": {
     "invalidPointsFileFormat": "Ungültiges Punkte-Dateiformat.",
@@ -280,6 +300,8 @@
     "invalidDistancesNotValidValue": "Ungültiges Distanzformat. Einige Werte sind keine gültigen Zahlen",
     "invalidDistancesNegativeValue": "Ungültiges Distanzformat. Negative Distanzen sind nicht erlaubt",
     "invalidBathimetryFileFormat": "Ungültiges Bathymetrie-Dateiformat",
+    "bathimetryOutOfZRange": "Die Tiefenwerte liegen weit außerhalb des Z-Bereichs der Passpunkte. Prüfen Sie die Datei oder die Einheiten.",
+    "invalidBathimetryDepthNotAllowed": "Tiefen-Bathymetriedateien werden in diesem Modus nicht unterstützt. Importieren Sie stattdessen ein Pegel-/Höhenprofil.",
     "invalidImageExtension": "Der Ordner enthält keine Bilddateien",
     "imagesFolderEmpty": "Keine Bilder im ausgewählten Ordner gefunden",
     "waitingForFrames": " Warten auf das Laden der Frames. Bitte versuchen Sie es in wenigen Sekunden erneut",
@@ -290,6 +312,7 @@
   },
   "Loader": {
     "extractingFrames": "Videoframes extrahieren",
+    "stabilizingFrames": "Videoframes werden stabilisiert",
     "results": "Erzeuge Geschwindigkeitsprofil-Statistiken",
     "videoConversion": "Das Video wird in das mp4-Format konvertiert. Bitte warten.",
     "maskAndRoi": "ROI und Masken definieren"
@@ -301,5 +324,53 @@
     "resourceNotFound": "Ressource nicht gefunden",
     "randomError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut",
     "dropHereText": "Lege eine Datei irgendwo in diesem Bereich ab. Ich erkenne automatisch, wohin sie gehört."
+  },
+  "Calibration": {
+    "title": "Kamerakalibrierung",
+    "close": "Schließen",
+    "board": "Schachbrett anzeigen",
+    "import": "Bilder importieren",
+    "solve": "Lösen",
+    "solving": "Löse…",
+    "overlay": "Original",
+    "undistorted": "Korrigiert",
+    "heatmap": "Heatmap",
+    "dropZone": "Kalibrierbilder-Ordner ablegen",
+    "dropHint": "oder Bilder importieren",
+    "notUsed": "Nicht in der Kalibrierung verwendet",
+    "readyToSolve": "Bilder geladen. Klicke Lösen zum Kalibrieren.",
+    "emptyHint": "Importiere oder lege einen Bildordner ab, um zu beginnen.",
+    "errorGeneric": "Bei der Kalibrierung ist ein Fehler aufgetreten.",
+    "recommendations": "Empfehlungen",
+    "histogram": "RMS-Verteilung pro Bild",
+    "histogramX": "Reprojektionsfehler (px)",
+    "profileName": "Profilname",
+    "cameraName": "Kameraname",
+    "lensName": "Objektiv / Zoom",
+    "resolution": "Auflösung",
+    "saveProfile": "Speichern",
+    "savedTo": "Gespeichert unter",
+    "validationDone": "Kalibrierung abgeschlossen",
+    "outputs": "Ausgabedateien",
+    "overlaysDir": "Überlagerungsordner öffnen",
+    "undistortedDir": "Entzerrungsordner öffnen",
+    "profileJson": "Kalibrierungsprofil öffnen",
+    "undistortedHint": "Entzerrte Bilder werden im Ausgabeordner gespeichert.",
+    "metrics": {
+      "medianRms": "Median RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "Abdeckung",
+      "edgeReach": "Randreichweite",
+      "poseSpread": "Posen-Streuung",
+      "centerOffset": "Mittenversatz"
+    },
+    "actions": {
+      "addFrames": "Füge Aufnahmen hinzu, die Kanten/Ecken erfassen; variiere Winkel und Abstand.",
+      "pushBoard": "Rücke das Schachbrett näher an die Sensorränder; etwas Zuschnitt der Marker ist erlaubt.",
+      "increaseSharpness": "Verbessere die Schärfe (mehr Licht, niedrigeres ISO), reduziere Moiré (Kalibrierboard verkleinern).",
+      "varyViewpoints": "Aufnahmen aus verschiedenen Blickwinkeln (Neigung/Schwenk/Rotation) und Abständen.",
+      "ensureCorners": "Stelle sicher, dass Ecken den gesamten Sensor abdecken; vermeide starkes Beschneiden.",
+      "reshoot": "Neu aufnehmen mit besserer Abdeckung; falls Probleme bestehen, Bildmetadaten prüfen."
+    }
   }
 }

@@ -31,6 +31,7 @@ const initialState: SectionState = {
   sectionsCounter: 1,
   transformationMatrix: [],
   isSectionWorking: false,
+  isDraggingPoint: false,
 };
 
 const sectionSlice = createSlice({
@@ -47,6 +48,12 @@ const sectionSlice = createSlice({
     },
     setRealWorldPoints: (state, action: PayloadAction<Point[]>) => {
       state.sections[state.activeSection].rwPoints = action.payload;
+    },
+    setDrawLine: (state, action: PayloadAction<boolean>) => {
+      state.sections[state.activeSection].drawLine = action.payload;
+    },
+    setIsDraggingPoint: (state, action: PayloadAction<boolean>) => {
+      state.isDraggingPoint = action.payload;
     },
     addSection: (state, action: PayloadAction<Section>) => {
       state.sections.push(action.payload);
@@ -128,7 +135,9 @@ export const {
   setActiveSection,
   setBathimetry,
   setDirPoints,
+  setDrawLine,
   setHasChanged,
+  setIsDraggingPoint,
   setPixelSize,
   setRealWorldPoints,
   setSectionData,

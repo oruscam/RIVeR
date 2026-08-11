@@ -1,5 +1,5 @@
-import { app, BrowserWindow, dialog, ipcMain, screen } from 'electron';
-import { fileURLToPath } from 'node:url';
+import { app, BrowserWindow, dialog, ipcMain, net, protocol, screen } from 'electron';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as path from 'node:path';
 import * as os from 'os';
 import { readRiverConfig, saveRiverConfig } from './riverConfig.js';
@@ -8,6 +8,7 @@ const userDir = os.homedir();
 
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js';
 import {
+  cameraCalibration,
   initProject,
   firstFrame,
   setPixelSize,
@@ -29,7 +30,7 @@ import {
   createMaskAndBbox,
   recommendRoiHeight,
   getGif,
-  setColorbarLimits
+  setColorbarLimits,
 } from './ipcMainHandlers/index.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
 
@@ -44,7 +45,7 @@ process.env.VITE_PUBLIC = VITE_DEV_SERVER_URL ? path.join(process.env.APP_ROOT, 
 
 let win: BrowserWindow | null;
 
-let riverCli: Function = executeRiverCli;
+let riverCli: typeof executeRiverCli = executeRiverCli;
 
 async function createWindow() {
   const primaryDisplay = screen.getPrimaryDisplay();
@@ -74,6 +75,8 @@ async function createWindow() {
       nodeIntegration: true,
       contextIsolation: true,
       webSecurity: VITE_DEV_SERVER_URL ? false : true,
+      defaultFontSize: 16,
+      defaultMonospaceFontSize: 14,
     },
   });
 
@@ -84,7 +87,6 @@ async function createWindow() {
 
   if (VITE_DEV_SERVER_URL) {
     win.loadURL(VITE_DEV_SERVER_URL);
-
   } else {
     // win.loadFile('dist/index.html')
     win.loadFile(path.join(RENDERER_DIST, 'index.html'));
@@ -134,10 +136,20 @@ export const PROJECT_CONFIG: ProjectConfig = {
   defaultFilesPath: '',
   filePrefix: filePrefix,
   pythonPath: VITE_DEV_SERVER_URL
-    ? path.join(app.getAppPath(), '..', 'venv', ...(process.platform === 'win32' ? ['Scripts', 'python.exe'] : ['bin', 'python']))
-    : path.join(app.getAppPath(), '..', 'river-cli', 'python', ...(process.platform === 'win32' ? ['python.exe'] : ['bin', 'python'])),
+    ? path.join(
+        app.getAppPath(),
+        '..',
+        'venv',
+        ...(process.platform === 'win32' ? ['Scripts', 'python.exe'] : ['bin', 'python'])
+      )
+    : path.join(
+        app.getAppPath(),
+        '..',
+        'river-cli',
+        'python',
+        ...(process.platform === 'win32' ? ['python.exe'] : ['bin', 'python'])
+      ),
 };
-
 
 // General window dialog to confirm deletes.
 ipcMain.handle('delete-confirmation', async (_event, args) => {
@@ -169,6 +181,24 @@ ipcMain.handle('choose-river-path', async () => {
 ipcMain.handle('get-river-path', () => PROJECT_CONFIG.mainDirectory);
 
 app.whenReady().then(async () => {
+  // Serve local files for calibration image preview.
+  // Uses protocol.handle (Electron 25+) so we can set Cache-Control: immutable —
+  // without this Chromium re-decodes the JPEG on every image switch.
+  protocol.handle('cal-file', async (request) => {
+    let filePath = decodeURIComponent(request.url.slice('cal-file://'.length));
+    // Windows drive-letter paths are sent as "/C:/Users/..." (see CameraCalibration.tsx
+    // toCalFileUrl) — backslash isn't a valid separator for non-special URL schemes like
+    // this one, so the renderer sends forward slashes with a leading "/" to keep the URL
+    // host empty. Strip that leading slash so path.resolve() sees a real Windows path.
+    if (process.platform === 'win32' && /^\/[a-zA-Z]:\//.test(filePath)) {
+      filePath = filePath.slice(1);
+    }
+    const resp = await net.fetch(pathToFileURL(filePath).toString());
+    const headers = new Headers(resp.headers);
+    headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    return new Response(resp.body, { status: resp.status, headers });
+  });
+
   const config = readRiverConfig();
   if (config) {
     PROJECT_CONFIG.mainDirectory = config.riverPath;
@@ -178,6 +208,7 @@ app.whenReady().then(async () => {
     saveRiverConfig({ riverPath: defaultPath });
   }
 
+  cameraCalibration(riverCli);
   calculate3dRectification(riverCli);
   createMaskAndBbox(riverCli);
   createWindow();

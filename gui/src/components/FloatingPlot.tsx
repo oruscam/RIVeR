@@ -59,7 +59,8 @@ export const FloatingPlot = ({ showMedian, containerWidth, containerHeight }: Fl
     window.addEventListener('mouseup', onUp);
   };
 
-  // Re-read CSS vars whenever theme changes
+  // Re-read CSS vars whenever theme changes. `theme` isn't used in the body — getCSSVar reads
+  // straight from the DOM — but it's needed in the deps to invalidate the memo on theme change.
   const { bgColor, borderColor } = useMemo(() => {
     const cardSurface = getCSSVar('--card-surface', '#141414');
     const accentColor = getCSSVar('--accent-color', '#0678BE');
@@ -67,6 +68,7 @@ export const FloatingPlot = ({ showMedian, containerWidth, containerHeight }: Fl
       bgColor: hexToRgba(cardSurface, 0.88),
       borderColor: `${accentColor}80`,
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [theme]);
 
   return (

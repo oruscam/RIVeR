@@ -18,7 +18,7 @@ export const drawVectors = (
   unitSistem?: string
 ) => {
   // Data for drawing the vectors
-  const { east, north, streamwise_velocity_magnitude, distance, check, activeMagnitude, Q } = data;
+  const { east, north, streamwise_velocity_magnitude, distance, check, activeMagnitude } = data;
 
   if (!east || !north || !streamwise_velocity_magnitude || !distance) return;
 
@@ -39,22 +39,25 @@ export const drawVectors = (
   );
 
   // Tooltip div
-  let tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any> = d3.select<HTMLDivElement, unknown>('#vectors-tooltip');
+  let tooltip: d3.Selection<HTMLDivElement, unknown, HTMLElement, any> = d3.select<HTMLDivElement, unknown>(
+    '#vectors-tooltip'
+  );
   if (tooltip.empty()) {
-    tooltip = d3.select<HTMLDivElement, unknown>('body')
-        .append('div')
-        .attr('id', 'vectors-tooltip')
-        .style('position', () => 'absolute')
-        .style('top', () => '0px')
-        .style('background', () => 'rgba(50, 50, 50, 0.85)')
-        .style('border', () => '1px solid #262626')
-        .style('padding', () => '5px 10px')
-        .style('border-radius', () => '5px')
-        .style('pointer-events', () => 'none')
-        .style('opacity', () => '0');
+    tooltip = d3
+      .select<HTMLDivElement, unknown>('body')
+      .append('div')
+      .attr('id', 'vectors-tooltip')
+      .style('position', () => 'absolute')
+      .style('top', () => '0px')
+      .style('background', () => 'rgba(50, 50, 50, 0.85)')
+      .style('border', () => '1px solid #262626')
+      .style('padding', () => '5px 10px')
+      .style('border-radius', () => '5px')
+      .style('pointer-events', () => 'none')
+      .style('opacity', () => '0');
   } else {
-      // Reuse existing tooltip (reset opacity/position if needed)
-      tooltip.style('opacity', () => '0').style('top', () => '0px');
+    // Reuse existing tooltip (reset opacity/position if needed)
+    tooltip.style('opacity', () => '0').style('top', () => '0px');
   }
 
   if (arrows === undefined) return;
@@ -82,29 +85,25 @@ export const drawVectors = (
         .classed(`section-${sectionIndex}`, true);
 
       if (isReport == false && typeof factor === 'number') {
-        let textOffset = 10;
-        if (arrow.points[2][1] > arrow.points[0][1]) {
-          textOffset = -20;
-        }
-
         polygon.on('mouseover', function (event) {
           polygon.attr('fill-opacity', 1);
-          tooltip.transition().duration(200).style("opacity", 1);
+          tooltip.transition().duration(200).style('opacity', 1);
           const isImperial = unitSistem === 'imperial';
           const displayMag = isImperial ? arrow.magnitude! * UNIT_CONVERSIONS.M_TO_FT : arrow.magnitude!;
           const unitLabel = isImperial ? UNITS.IMPERIAL.VELOCITY : UNITS.SI.VELOCITY;
-          tooltip.html(`${displayMag.toFixed(2)} ${unitLabel}`)
-              .style("left", (event.pageX) + "px")
-              .style("top", (event.pageY) + "px")
-              .style('background', 'rgba(50, 50, 50, 0.85)')
-              .style('border', '1px solid #262626')
-              .style('color', arrow.color)
-              .style("z-index", 1000);
+          tooltip
+            .html(`${displayMag.toFixed(2)} ${unitLabel}`)
+            .style('left', event.pageX + 'px')
+            .style('top', event.pageY + 'px')
+            .style('background', 'rgba(50, 50, 50, 0.85)')
+            .style('border', '1px solid #262626')
+            .style('color', arrow.color)
+            .style('z-index', 1000);
         });
 
         polygon.on('mouseout', function () {
-          polygon.attr('fill-opacity', 0.7); 
-          tooltip.transition().duration(300).style("opacity", 0);
+          polygon.attr('fill-opacity', 0.7);
+          tooltip.transition().duration(300).style('opacity', 0);
         });
       }
     }

@@ -3,7 +3,7 @@ import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import './crossSections.css';
 import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { useWizard } from 'react-use-wizard';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Section } from '../../store/section/types';
 import { useTranslation } from 'react-i18next';
 import { formatNumberTo2Decimals } from '../../helpers';
@@ -46,8 +46,8 @@ type CrossSectionsProps = {
 };
 
 export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSectionsProps) => {
-  const { sections, activeSection, onSetSections } = useSectionSlice(); // Wrap the sections variable inside an array
-  const { onSetErrorMessage } = useUiSlice();
+  const { sections, activeSection, onSetSections, isDraggingPoint } = useSectionSlice(); // Wrap the sections variable inside an array
+  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
 
   const methods = useForm({ defaultValues: createInitialState(sections, projectDetails.unitSistem) });
@@ -56,16 +56,19 @@ export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSect
 
   const { images } = useDataSlice();
 
-  const unregisterFieldsStartingWith = (prefix: string) => {
-    const allValues = methods.getValues(); // Obtiene todos los campos registrados y sus valores
-    const fieldNames = Object.keys(allValues); // Obtiene los nombres de todos los campos
+  const unregisterFieldsStartingWith = useCallback(
+    (prefix: string) => {
+      const allValues = methods.getValues(); // Obtiene todos los campos registrados y sus valores
+      const fieldNames = Object.keys(allValues); // Obtiene los nombres de todos los campos
 
-    // Filtra los nombres de los campos que comienzan con el prefijo deseado
-    const fieldsToUnregister = fieldNames.filter((fieldName) => fieldName.startsWith(prefix));
+      // Filtra los nombres de los campos que comienzan con el prefijo deseado
+      const fieldsToUnregister = fieldNames.filter((fieldName) => fieldName.startsWith(prefix));
 
-    // Desregistra cada campo que coincide
-    fieldsToUnregister.forEach((fieldName) => methods.unregister(fieldName));
-  };
+      // Desregistra cada campo que coincide
+      fieldsToUnregister.forEach((fieldName) => methods.unregister(fieldName));
+    },
+    [methods]
+  );
 
   const onSubmit = (data: FieldValues) => {
     if (images.paths.length === 0) {
@@ -87,15 +90,49 @@ export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSect
       unregisterFieldsStartingWith(deletedSections);
     }
     setDeletedSections('');
-  }, [deletedSections]);
+  }, [deletedSections, setDeletedSections, unregisterFieldsStartingWith]);
+
+  const activeSectionData = sections[activeSection];
 
   // * Actualiza el formulario
   useEffect(() => {
     methods.reset(createInitialState(sections, projectDetails.unitSistem));
-  }, [sections[activeSection], projectDetails.unitSistem]);
+    // Only reacts to the active section's own data (or which section is active) — reacting to
+    // the full `sections` array would reset in-progress edits on non-active section forms.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSectionData, projectDetails.unitSistem, methods]);
 
-  return (  
-    <div className='body'>
+  // Persistent yellow "drawing/modifying section X" status while a section's direction is
+  // being drawn or an already-drawn endpoint pin is being dragged, same behavior as the mask
+  // editing warning. `drawLine` takes priority since it's also true while the initial draw's
+  // drag is in progress (isDraggingPoint is true then too).
+  useEffect(() => {
+    if (activeSectionData.drawLine) {
+      onSetWarningMessage(
+        t('CrossSections.drawingSectionWarning', {
+          defaultValue: 'Drawing section {{name}}',
+          name: activeSectionData.name,
+        })
+      );
+      return () => onClearWarningMessage();
+    }
+
+    if (isDraggingPoint) {
+      onSetWarningMessage(
+        t('CrossSections.modifyingSectionWarning', {
+          defaultValue: 'Modifying section {{name}}',
+          name: activeSectionData.name,
+        })
+      );
+      return () => onClearWarningMessage();
+    }
+
+    onClearWarningMessage();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeSectionData.drawLine, activeSectionData.name, isDraggingPoint]);
+
+  return (
+    <div className="body">
       <FormProvider {...methods}>
         {sections.map((section, index: number) => {
           return (
@@ -109,5 +146,5 @@ export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSect
         })}
       </FormProvider>
     </div>
-  )
+  );
 };

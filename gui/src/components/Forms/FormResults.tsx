@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useAutoShrinkFont, useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { AllInOne } from '../Graphs/AllInOne';
 import { Grid } from '../index';
 import { useTranslation } from 'react-i18next';
@@ -21,13 +21,19 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
 
   const { t } = useTranslation();
 
+  // All sections mount together and the inactive ones are hidden via a parent
+  // display:none — re-fit once this section actually becomes the visible one.
+  const isActiveSection = activeSection === index;
+  const stationNumberLabelRef = useAutoShrinkFont<HTMLLabelElement>([t, isActiveSection]);
+
   const isImperial = projectDetails.unitSistem === 'imperial';
   const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
-  const displayQ = data?.total_Q != null
-    ? isImperial
-      ? (data.total_Q * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(3)
-      : data.total_Q
-    : null;
+  const displayQ =
+    data?.total_Q != null
+      ? isImperial
+        ? (data.total_Q * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(3)
+        : data.total_Q.toFixed(2)
+      : null;
 
   const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const id = e.target.id;
@@ -81,13 +87,11 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
 
   return (
     <div id="form-section-div" className={activeSection !== index ? 'hidden' : 'wrapper'}>
-      <form
-        className={`${isBackendWorking ? 'disabled' : ''}`}
-        onSubmit={onSubmit}
-        id="form-result"
-      >
+      <form className={`${isBackendWorking ? 'disabled' : ''}`} onSubmit={onSubmit} id="form-result">
         <div id="result-info">
-          <p id="result-number">{displayQ} <span style={{ fontSize: '0.45em', opacity: 0.7 }}>{flowUnit}</span></p>
+          <p id="result-number">
+            {displayQ} <span style={{ fontSize: '0.45em', opacity: 0.7 }}>{flowUnit}</span>
+          </p>
           <div>
             <p id="result-measured">
               {' '}
@@ -119,7 +123,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
         </div>
 
         <div className="input-container-2 mt-2">
-          <label className="read-only me-1" htmlFor="stations-number">
+          <label ref={stationNumberLabelRef} className="read-only me-1" htmlFor="stations-number">
             {t('Results.stationNumber')}
           </label>
           <div className="input-field-container" style={{ justifyContent: 'center', gap: '6px' }}>
