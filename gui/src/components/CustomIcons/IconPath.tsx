@@ -2,7 +2,14 @@
 
 import React from 'react';
 
-/* ─── INLINE SVG ICON (Lucide paths, no library needed) ─── */
+/* ─── INLINE SVG ICON ───
+ * The `d` path data passed to this component is derived from Lucide
+ * (https://lucide.dev), ISC License, Copyright (c) 2022 Lucide Contributors.
+ * Lucide is itself derived from Feather (https://feathericons.com),
+ * MIT License, Copyright (c) 2013-2022 Cole Bemis.
+ * Inlined rather than imported so no icon library ships with the app.
+ * See THIRD-PARTY-LICENSES.md.
+ */
 interface IconPathProps {
   d: string;
   size?: number;
