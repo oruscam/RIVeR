@@ -1,6 +1,5 @@
 import { app, ipcMain, webContents } from 'electron';
 import { ChildProcess, spawn } from 'child_process';
-import * as path from 'path';
 import * as fs from 'fs';
 import { PROJECT_CONFIG } from '../../main';
 
@@ -8,17 +7,17 @@ let python: ChildProcess;
 
 async function executeRiverCli(
   options: (string | number)[],
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for positional compatibility with callers
   _mode: 'json' | 'text' = 'json',
   output: boolean = false,
   logFile: string
 ): Promise<{ data: any; error: any }> {
-
   const args = options.map((arg) => arg.toString());
   args.unshift(...['-m', 'river.cli']);
 
   console.log('You are using river-cli', PROJECT_CONFIG.pythonPath);
-  console.log('Arguments: ', options)
-  console.log("EJECUTANDO COMANDO:", args.join(" "));
+  console.log('Arguments: ', options);
+  console.log('EJECUTANDO COMANDO:', args.join(' '));
 
   const result = await new Promise((resolve, reject) => {
     python = spawn(PROJECT_CONFIG.pythonPath, args);
@@ -32,14 +31,7 @@ async function executeRiverCli(
     const THROTTLE_INTERVAL = 500; // 500ms = 2 mensajes por segundo
 
     python.stdout.on('data', (data) => {
-      const message = data.toString();
-
-      if (output) {
-        const messages = message.split('\n').filter((msg) => msg.trim() !== '');
-        stdoutData = messages[messages.length - 1];
-      } else {
-        stdoutData += message;
-      }
+      stdoutData += data.toString();
     });
 
     python.stderr.on('data', (data) => {
@@ -52,14 +44,30 @@ async function executeRiverCli(
 
       // Output con throttling
       if (output === true) {
-        const currentTime = Date.now();
-        const timeSinceLastSent = currentTime - lastSentTime;
+        // Phase-transition markers ("Extracting frames..." / "Stabilizing frames...")
+        // must always reach the renderer, even under throttling — with a long video
+        // a burst of frame-progress lines can otherwise overwrite this one-off line
+        // before the 500ms window opens, silently dropping the phase change.
+        const phaseLine = message
+          .split('\n')
+          .map((line: string) => line.trim())
+          .find((line: string) => line.startsWith('Extracting') || line.startsWith('Stabilizing'));
 
-        if (timeSinceLastSent >= THROTTLE_INTERVAL) {
+        if (phaseLine) {
           webContents.getAllWebContents().forEach((contents) => {
-            contents.send('river-cli-message', message);
+            contents.send('river-cli-message', phaseLine);
           });
-          lastSentTime = currentTime;
+          lastSentTime = Date.now();
+        } else {
+          const currentTime = Date.now();
+          const timeSinceLastSent = currentTime - lastSentTime;
+
+          if (timeSinceLastSent >= THROTTLE_INTERVAL) {
+            webContents.getAllWebContents().forEach((contents) => {
+              contents.send('river-cli-message', message);
+            });
+            lastSentTime = currentTime;
+          }
         }
       }
     });
@@ -73,18 +81,14 @@ async function executeRiverCli(
       }
 
       if (code !== 0) {
-        if (code === null) {
-          resolve({
-            error: {
-              message: 'Process was killed',
-            },
-          });
-          return;
-        }
-      } else {
-        resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, 'null')));
-        await killRiverCli();
+        const errMsg = code === null ? 'Process was killed' : stderrData || `Process exited with code ${code}`;
+        resolve({ error: { message: errMsg } });
+        appendLog(logFile, args, stdoutData, stderrData);
+        return;
       }
+
+      resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, 'null')));
+      await killRiverCli();
 
       // Append log to log-file
       appendLog(logFile, args, stdoutData, stderrData);
@@ -113,7 +117,7 @@ ipcMain.handle('kill-river-cli', async () => {
   return killRiverCli();
 });
 
-app.on('before-quit', async (event) => {
+app.on('before-quit', async () => {
   if (python) {
     console.log('App is quitting. Killing river-cli process');
     await killRiverCli();

@@ -59,12 +59,12 @@ export const createVelocityChart = ({
   const minDomainValue = Math.min(
     d3.min(percentile5.filter((d) => d !== null))! * velocityFactor,
     d3.min(minusStd.filter((d) => d !== null))! * velocityFactor,
-    d3.min(magnitude.filter((d) => d !== null))! * velocityFactor,
+    d3.min(magnitude.filter((d) => d !== null))! * velocityFactor
   );
   const maxDomainValue = Math.max(
     d3.max(percentile95.filter((d) => d !== null))! * velocityFactor,
     d3.max(plusStd.filter((d) => d !== null))! * velocityFactor,
-    d3.max(magnitude.filter((d) => d !== null))! * velocityFactor,
+    d3.max(magnitude.filter((d) => d !== null))! * velocityFactor
   );
 
   // y Scale
@@ -121,8 +121,8 @@ export const createVelocityChart = ({
         minusStd: null,
         percentile5: null,
         percentile95: null,
-        interpolated: true
-      }
+        interpolated: true,
+      };
     } else {
       return {
         velocity: d !== null ? d * velocityFactor : null,
@@ -131,7 +131,7 @@ export const createVelocityChart = ({
         minusStd: minusStd[i] * velocityFactor,
         percentile5: percentile5[i] * velocityFactor,
         percentile95: percentile95[i] * velocityFactor,
-        interpolated: false
+        interpolated: false,
       };
     }
   });
@@ -148,7 +148,7 @@ export const createVelocityChart = ({
     }>()
     .defined((d) => d.velocity !== null)
     .x((d) => xScale(d.distance))
-    .y((d) => yScale(d.velocity!))
+    .y((d) => yScale(d.velocity!));
 
   // std Area
   const areaStd = d3
@@ -181,23 +181,27 @@ export const createVelocityChart = ({
     .y1((d) => yScale(d.percentile95));
 
   // Boundary line generators for percentile band edges
-  const linePercentile95 = d3.line<typeof filteredData[0]>()
+  const linePercentile95 = d3
+    .line<(typeof filteredData)[0]>()
     .defined((d) => d.percentile95 !== null)
     .x((d) => xScale(d.distance))
     .y((d) => yScale(d.percentile95!));
 
-  const linePercentile5 = d3.line<typeof filteredData[0]>()
+  const linePercentile5 = d3
+    .line<(typeof filteredData)[0]>()
     .defined((d) => d.percentile5 !== null)
     .x((d) => xScale(d.distance))
     .y((d) => yScale(d.percentile5!));
 
   // Boundary line generators for std band edges
-  const linePlusStd = d3.line<typeof filteredData[0]>()
+  const linePlusStd = d3
+    .line<(typeof filteredData)[0]>()
     .defined((d) => d.plusStd !== null)
     .x((d) => xScale(d.distance))
     .y((d) => yScale(d.plusStd!));
 
-  const lineMinusStd = d3.line<typeof filteredData[0]>()
+  const lineMinusStd = d3
+    .line<(typeof filteredData)[0]>()
     .defined((d) => d.minusStd !== null)
     .x((d) => xScale(d.distance))
     .y((d) => yScale(d.minusStd!));
@@ -213,10 +217,20 @@ export const createVelocityChart = ({
 
   // Percentile band boundary strokes
   if (showPercentile) {
-    svg.append('path').datum(filteredData).attr('fill', 'none')
-      .attr('stroke', COLORS.PERCENTILE_STROKE).attr('stroke-width', 1).attr('d', linePercentile95);
-    svg.append('path').datum(filteredData).attr('fill', 'none')
-      .attr('stroke', COLORS.PERCENTILE_STROKE).attr('stroke-width', 1).attr('d', linePercentile5);
+    svg
+      .append('path')
+      .datum(filteredData)
+      .attr('fill', 'none')
+      .attr('stroke', COLORS.PERCENTILE_STROKE)
+      .attr('stroke-width', 1)
+      .attr('d', linePercentile95);
+    svg
+      .append('path')
+      .datum(filteredData)
+      .attr('fill', 'none')
+      .attr('stroke', COLORS.PERCENTILE_STROKE)
+      .attr('stroke-width', 1)
+      .attr('d', linePercentile5);
   }
 
   if (isReport === false) {
@@ -255,10 +269,20 @@ export const createVelocityChart = ({
 
   // Std band boundary strokes
   if (showStd) {
-    svg.append('path').datum(filteredData).attr('fill', 'none')
-      .attr('stroke', COLORS.STD_STROKE).attr('stroke-width', 1).attr('d', linePlusStd);
-    svg.append('path').datum(filteredData).attr('fill', 'none')
-      .attr('stroke', COLORS.STD_STROKE).attr('stroke-width', 1).attr('d', lineMinusStd);
+    svg
+      .append('path')
+      .datum(filteredData)
+      .attr('fill', 'none')
+      .attr('stroke', COLORS.STD_STROKE)
+      .attr('stroke-width', 1)
+      .attr('d', linePlusStd);
+    svg
+      .append('path')
+      .datum(filteredData)
+      .attr('fill', 'none')
+      .attr('stroke', COLORS.STD_STROKE)
+      .attr('stroke-width', 1)
+      .attr('d', lineMinusStd);
   }
 
   // Create leyend for std area
@@ -310,15 +334,13 @@ export const createVelocityChart = ({
         .attr('font-size', '15px')
         .attr('class', 'graph-text');
 
-      areaPathPercentile.on('mouseover', function (_event) {
+      areaPathPercentile.on('mouseover', function () {
         floatLegendPercentile.attr('visibility', 'visible').text('5% | 95% percentile');
       });
 
       areaPathPercentile.on('mousemove', function (event) {
         const [x, y] = d3.pointer(event);
-        floatLegendPercentile
-          .attr('x', x + 10)
-          .attr('y', y - 10);
+        floatLegendPercentile.attr('x', x + 10).attr('y', y - 10);
       });
 
       areaPathPercentile.on('mouseout', function () {
@@ -337,7 +359,7 @@ export const createVelocityChart = ({
 
       // Agregar eventos de mouseover y mouseout
 
-      areaPathStd.on('mouseover', function (_event) {
+      areaPathStd.on('mouseover', function () {
         floatLegendStd.attr('visibility', 'visible').text('± std');
       });
 
@@ -357,15 +379,16 @@ export const createVelocityChart = ({
   // Add the velocity line with segments in red where data is interpolated
 
   // 1️⃣ Primary-color base line (theme-aware via currentColor)
-  svg.append("path")
+  svg
+    .append('path')
     .datum(filteredData)
-    .attr("fill", "none")
-    .attr("class", "graph-primary-stroke")
-    .attr("stroke-width", 2)
-    .attr("d", line);
+    .attr('fill', 'none')
+    .attr('class', 'graph-primary-stroke')
+    .attr('stroke-width', 2)
+    .attr('d', line);
 
   // 2️⃣ Draw segments of red line
-  const redSegments: typeof filteredData[] = [];
+  const redSegments: (typeof filteredData)[] = [];
   let segment: typeof filteredData = [];
 
   for (let i = 0; i < filteredData.length; i++) {
@@ -380,13 +403,14 @@ export const createVelocityChart = ({
   if (segment.length) redSegments.push(segment);
 
   // 3️⃣ Draw only red segments
-  redSegments.forEach(seg => {
-    svg.append("path")
+  redSegments.forEach((seg) => {
+    svg
+      .append('path')
       .datum(seg)
-      .attr("fill", "none")
-      .attr("stroke", COLORS.RED)
-      .attr("stroke-width", 2)
-      .attr("d", line);
+      .attr('fill', 'none')
+      .attr('stroke', COLORS.RED)
+      .attr('stroke-width', 2)
+      .attr('d', line);
   });
 
   // Add the circles and tooltip
@@ -425,14 +449,14 @@ export const createVelocityChart = ({
     .attr('cx', (d) => xScale(d.distance))
     .attr('cy', (d) => yScale(d.velocity!))
     .attr('r', 2.5) // Radio del círculo
-    .attr('class', (d) => d.interpolated ? '' : 'graph-primary-fill')
-    .attr('fill', (d) => d.interpolated ? COLORS.RED : null)
-    .on('mouseover', function (_event, _d) {
+    .attr('class', (d) => (d.interpolated ? '' : 'graph-primary-fill'))
+    .attr('fill', (d) => (d.interpolated ? COLORS.RED : null))
+    .on('mouseover', function () {
       d3.select(this).attr('r', 4);
       tooltip.style('display', 'block');
       lineToTooltip.attr('display', 'block');
     })
-    .each(function (d, i) {
+    .each(function (d) {
       d3.select(this)
         .on('mousemove', function (event) {
           const cx = xScale(d.distance);
@@ -466,7 +490,8 @@ export const createVelocityChart = ({
     .attr('transform', 'rotate(-90)')
     .attr('font-size', '22px');
   velocityLabel.append('tspan').text(t('Graphs.velocity'));
-  velocityLabel.append('tspan')
+  velocityLabel
+    .append('tspan')
     .attr('font-size', '14px')
     .attr('opacity', '0.7')
     .attr('dx', '10')

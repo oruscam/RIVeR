@@ -48,7 +48,7 @@
     "title": "Intervallo Video",
     "start": "Inizio",
     "end": "Fine",
-    "step": "Passo Temporale",
+    "step": "Passo",
     "Errors": {
       "start1": "Selezione del tempo non valida: il tempo di inizio non può essere inferiore a 0. Inserisci un valore valido.",
       "end1": "Selezione del tempo non valida: il valore di 'Fine' non può essere maggiore della durata totale del video. Inserisci un valore valido.",
@@ -56,7 +56,8 @@
       "end3": "Selezione del tempo non valida: il valore di 'Fine' non può essere uguale o inferiore al valore di 'Inizio'. Inserisci un valore valido.",
       "step": "Selezione dell’Passo Temporale non valida: il parametro 'Passo Temporale' deve essere un intero maggiore di 1. Inserisci un valore valido.",
       "required": "Tutti i campi sono obbligatori. Controlla il modulo dell'intervallo video.",
-      "formatInput": "Formato non corretto. I valori di 'Inizio' e 'Fine' devono essere nel formato '00:00'."
+      "formatInput": "Formato non corretto. I valori di 'Inizio' e 'Fine' devono essere nel formato '00:00'.",
+      "profileResolutionMismatch": "La risoluzione del profilo ({{calW}}×{{calH}}) non corrisponde al video. Seleziona un altro modello di fotocamera o calibra per questa risoluzione."
     },
     "ExtraInfo": {
       "fileName": "Nome file:",
@@ -65,13 +66,25 @@
       "resolution": "Risoluzione: ",
       "numberOfFrames": "Numero di fotogrammi: "
     },
-    "framesResolution": "Risoluzione dei fotogrammi"
+    "framesResolution": "Risoluzione dei fotogrammi",
+    "lensCorrection": "Correzione obiettivo",
+    "noProfiles": "Nessun profilo — vai a Calibrazione",
+    "stabilizeVideo": "Stabilizza video",
+    "stabilizationRegion": "Regione",
+    "editingRegion": "Modifica regione {{n}}",
+    "addRegion": "Aggiungi regione",
+    "exitRegionMode": "Esci dalla modifica regione",
+    "minRegionsWarning": "Aggiungere almeno 2 regioni per la stabilizzazione",
+    "editingRegionsWarning": "Modifica delle regioni di stabilizzazione"
   },
   "PixelSize": {
     "title": "Dimensione Pixel",
     "lineLength": "Lunghezza della linea",
     "pixelSize": "Dimensione Pixel",
     "drawLine": "Disegna Linea",
+    "drawingLineWarning": "Disegno della linea",
+    "modifyingLineWarning": "Modifica della linea",
+    "carouselStabilization": "Controllo stabilizzazione",
     "Errors": {
       "required": "Tutti i campi sono obbligatori. Controlla il modulo della Dimensione Pixel.",
       "lineLength": "Lunghezza della linea non valida: la lunghezza deve essere un numero positivo, anche con decimali. Inserisci un valore valido.",
@@ -126,12 +139,16 @@
       "leftBank": "La sponda sinistra è fuori intervallo",
       "bathimetryNotValid": "La batimetria non è valida. Il livello {{level}} non esiste in questo file",
       "bathimetryIsRequired": "La batimetria è obbligatoria in {{section_name}}",
-      "rwLength": "Il valore della lunghezza della sezione non può essere 0 in {{section_name}}"
+      "rwLength": "Il valore della lunghezza della sezione non può essere 0 in {{section_name}}",
+      "levelRequired": "Il valore del livello non può essere 0 in {{section_name}}"
     },
     "warning": "Sei sicuro di voler eliminare {{section_name}}?",
     "warningTitle": "Elimina Sezione",
     "mask": "Maschera",
     "addMask": "Aggiungi Maschera",
+    "editingMaskWarning": "Modifica della maschera {{n}}",
+    "drawingSectionWarning": "Disegno della sezione {{name}}",
+    "modifyingSectionWarning": "Modifica della sezione {{name}}",
     "bankRight": "D",
     "bankLeft": "S"
   },
@@ -250,6 +267,8 @@
   "ControlPoints": {
     "title": "Punti di Controllo",
     "drawPoints": "Disegna Punti",
+    "drawingPointsWarning": "Disegno dei punti",
+    "modifyingPointsWarning": "Modifica dei punti",
     "importDistances": "Importa Distanze",
     "distance": "Distanza",
     "length": "Lunghezza",
@@ -272,7 +291,8 @@
     "optimize": "Ottimizza",
     "reprojectionErrors": "Errori di Riproiezione: ",
     "numberOfPoints": "Numero di Punti: ",
-    "cameraHeight": "Altezza della Telecamera: "
+    "cameraHeight": "Altezza della Telecamera: ",
+    "movingPointWarning": "Spostamento di {{label}}"
   },
   "Errors": {
     "invalidPointsFileFormat": "Formato del file Punti non valido.",
@@ -280,6 +300,8 @@
     "invalidDistancesNotValidValue": "Formato delle Distanze dei Punti non valido. Alcuni valori non sono numeri validi",
     "invalidDistancesNegativeValue": "Formato delle Distanze dei Punti non valido. Distanze negative non sono ammesse",
     "invalidBathimetryFileFormat": "Formato del file Batimetria non valido",
+    "bathimetryOutOfZRange": "I livelli della batimetria sono molto al di fuori dell'intervallo Z dei punti di controllo. Controlla il file o le unità.",
+    "invalidBathimetryDepthNotAllowed": "I file di batimetria di profondità non sono supportati in questa modalità. Importa invece un profilo di livello/quota.",
     "invalidImageExtension": "La directory contiene file che non sono immagini",
     "imagesFolderEmpty": "Nessuna immagine trovata nella cartella selezionata",
     "waitingForFrames": "Stiamo caricando i fotogrammi. Riprova tra qualche secondo",
@@ -290,6 +312,7 @@
   },
   "Loader": {
     "extractingFrames": "Estrazione dei Fotogrammi del Video",
+    "stabilizingFrames": "Stabilizzazione dei Fotogrammi del Video",
     "results": "Generazione delle statistiche del profilo di velocità",
     "videoConversion": "Stiamo convertendo il video in formato mp4. Attendere un momento.",
     "maskAndRoi": "Definizione di ROI e maschere"
@@ -301,5 +324,53 @@
     "resourceNotFound": "Risorsa non trovata",
     "randomError": "Qualcosa è andato storto. Riprova",
     "dropHereText": "Rilascia un file in qualsiasi punto di questo pannello. Rileverò automaticamente dove deve andare."
+  },
+  "Calibration": {
+    "title": "Calibrazione Fotocamera",
+    "close": "Chiudi",
+    "board": "Mostra Scacchiera",
+    "import": "Importa Immagini",
+    "solve": "Risolvi",
+    "solving": "Elaborazione…",
+    "overlay": "Originale",
+    "undistorted": "Corretta",
+    "heatmap": "Mappa di Calore",
+    "dropZone": "Rilascia una cartella di immagini di calibrazione",
+    "dropHint": "o usa Importa Immagini",
+    "notUsed": "Non utilizzato nella calibrazione",
+    "readyToSolve": "Immagini caricate. Premi Risolvi per calibrare.",
+    "emptyHint": "Importa o rilascia una cartella di immagini per iniziare.",
+    "errorGeneric": "Si è verificato un errore durante la calibrazione.",
+    "recommendations": "Raccomandazioni",
+    "histogram": "Distribuzione RMS per vista",
+    "histogramX": "Errore di riproiezione (px)",
+    "profileName": "Nome profilo",
+    "cameraName": "Nome fotocamera",
+    "lensName": "Obiettivo / zoom",
+    "resolution": "Risoluzione",
+    "saveProfile": "Salva",
+    "savedTo": "Salvato in",
+    "validationDone": "Calibrazione completata",
+    "outputs": "File di output",
+    "overlaysDir": "Apri cartella sovrapposizioni",
+    "undistortedDir": "Apri cartella senza distorsione",
+    "profileJson": "Apri profilo calibrazione",
+    "undistortedHint": "Le immagini senza distorsione vengono salvate nella cartella di output.",
+    "metrics": {
+      "medianRms": "RMS Mediana",
+      "p90Rms": "RMS P90",
+      "coverage": "Copertura",
+      "edgeReach": "Portata bordo",
+      "poseSpread": "Dispersione posa",
+      "centerOffset": "Offset centro"
+    },
+    "actions": {
+      "addFrames": "Aggiungi fotogrammi che raggiungano bordi/angoli; varia angolo e distanza.",
+      "pushBoard": "Avvicina la tavola ai bordi del sensore; un leggero ritaglio dei marker è ammesso.",
+      "increaseSharpness": "Migliora la nitidezza (più luce, ISO basso), riduci il moiré dello schermo (ridimensiona la tavola).",
+      "varyViewpoints": "Cattura da diversi punti di vista (inclinazione/panoramica/rotazione) e distanze.",
+      "ensureCorners": "Assicurati che gli angoli appaiano su tutto il sensore; evita ritagli eccessivi.",
+      "reshoot": "Ripeti la cattura con copertura migliore; se persiste, controlla i metadati dell'immagine."
+    }
   }
 }

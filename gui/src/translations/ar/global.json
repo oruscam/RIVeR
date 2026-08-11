@@ -56,7 +56,8 @@
       "end3": "اختيار زمني غير صالح: لا يمكن أن تكون قيمة «النهاية» مساوية لقيمة «البداية» أو أقل منها. الرجاء إدخال قيمة صالحة.",
       "step": "اختيار خطوة غير صالح: يجب أن تكون «الخطوة» عدداً صحيحاً أكبر من 1. الرجاء إدخال قيمة صالحة.",
       "required": "جميع الحقول إلزامية. الرجاء مراجعة نموذج نطاق الفيديو.",
-      "formatInput": "تنسيق غير صحيح. يجب أن تكون قيم «البداية» و«النهاية» بتنسيق «00:00»."
+      "formatInput": "تنسيق غير صحيح. يجب أن تكون قيم «البداية» و«النهاية» بتنسيق «00:00».",
+      "profileResolutionMismatch": "دقة الملف الشخصي ({{calW}}×{{calH}}) لا تتطابق مع الفيديو. حدد طراز كاميرا آخر أو أجرِ معايرة لهذه الدقة."
     },
     "ExtraInfo": {
       "fileName": "اسم الملف:",
@@ -65,13 +66,25 @@
       "resolution": "الدقة: ",
       "numberOfFrames": "عدد الإطارات: "
     },
-    "framesResolution": "دقة الإطارات"
+    "framesResolution": "دقة الإطارات",
+    "lensCorrection": "تصحيح العدسة",
+    "noProfiles": "لا توجد ملفات تعريف — انتقل إلى المعايرة",
+    "stabilizeVideo": "تثبيت الفيديو",
+    "stabilizationRegion": "منطقة",
+    "editingRegion": "تحرير المنطقة {{n}}",
+    "addRegion": "إضافة منطقة",
+    "exitRegionMode": "الخروج من وضع التحرير",
+    "minRegionsWarning": "أضف منطقتين على الأقل للتثبيت",
+    "editingRegionsWarning": "جارٍ تحرير مناطق التثبيت"
   },
   "PixelSize": {
     "title": "حجم البكسل",
     "lineLength": "طول الخط",
     "pixelSize": "حجم البكسل",
     "drawLine": "رسم خط",
+    "drawingLineWarning": "جارٍ رسم الخط",
+    "modifyingLineWarning": "جارٍ تعديل الخط",
+    "carouselStabilization": "فحص التثبيت",
     "Errors": {
       "required": "جميع الحقول إلزامية. الرجاء مراجعة نموذج حجم البكسل.",
       "lineLength": "طول خط غير صالح: يجب أن يكون الطول عدداً موجباً (يمكن أن يتضمن كسوراً عشرية). الرجاء إدخال قيمة صالحة.",
@@ -126,12 +139,16 @@
       "leftBank": "الضفة اليسرى خارج النطاق",
       "bathimetryNotValid": "بيانات القياس البتيمتري غير صالحة. منسوب المياه {{level}} غير موجود في هذا الملف",
       "bathimetryIsRequired": "بيانات القياس البتيمتري مطلوبة في {{section_name}}",
-      "rwLength": "لا يمكن أن يكون طول المقطع العرضي صفراً في {{section_name}}"
+      "rwLength": "لا يمكن أن يكون طول المقطع العرضي صفراً في {{section_name}}",
+      "levelRequired": "لا يمكن أن تكون قيمة المستوى صفراً في {{section_name}}"
     },
     "warning": "هل أنت متأكد من حذف {{section_name}}؟",
     "warningTitle": "حذف المقطع",
     "mask": "القناع",
     "addMask": "إضافة قناع",
+    "editingMaskWarning": "جارٍ تحرير القناع {{n}}",
+    "drawingSectionWarning": "جارٍ رسم المقطع {{name}}",
+    "modifyingSectionWarning": "جارٍ تعديل المقطع {{name}}",
     "bankRight": "م",
     "bankLeft": "س"
   },
@@ -246,6 +263,8 @@
   "ControlPoints": {
     "title": "نقاط التحكم",
     "drawPoints": "تحديد نقاط التحكم",
+    "drawingPointsWarning": "جارٍ تحديد نقاط التحكم",
+    "modifyingPointsWarning": "جارٍ تعديل نقاط التحكم",
     "importDistances": "استيراد المسافات",
     "distance": "المسافة",
     "length": "الطول",
@@ -268,7 +287,8 @@
     "optimize": "تحسين",
     "reprojectionErrors": "أخطاء إعادة الإسقاط: ",
     "numberOfPoints": "عدد النقاط: ",
-    "cameraHeight": "ارتفاع الكاميرا: "
+    "cameraHeight": "ارتفاع الكاميرا: ",
+    "movingPointWarning": "جارٍ نقل {{label}}"
   },
   "Errors": {
     "invalidPointsFileFormat": "تنسيق ملف نقاط التحكم غير صالح.",
@@ -276,6 +296,8 @@
     "invalidDistancesNotValidValue": "تنسيق ملف المسافات غير صالح. بعض قيم المسافات ليست أرقاماً صالحة",
     "invalidDistancesNegativeValue": "تنسيق ملف المسافات غير صالح. لا يُسمح بالمسافات السالبة",
     "invalidBathimetryFileFormat": "تنسيق ملف القياس البتيمتري غير صالح",
+    "bathimetryOutOfZRange": "مستويات القياس العمقي بعيدة جدًا عن نطاق Z لنقاط التحكم. تحقق من الملف أو الوحدات.",
+    "invalidBathimetryDepthNotAllowed": "لا يتم دعم ملفات القياس البتيمتري للعمق في هذا الوضع. يرجى استيراد ملف تعريف المنسوب/الارتفاع بدلاً من ذلك.",
     "invalidImageExtension": "يحتوي المجلد على ملفات ليست صوراً",
     "imagesFolderEmpty": "لم يتم العثور على صور في المجلد المحدد",
     "waitingForFrames": "في انتظار تحميل الإطارات. الرجاء المحاولة مرة أخرى بعد لحظات",
@@ -286,6 +308,7 @@
   },
   "Loader": {
     "extractingFrames": "جارٍ استخراج إطارات الفيديو",
+    "stabilizingFrames": "جارٍ تثبيت إطارات الفيديو",
     "results": "جارٍ إنشاء إحصاءات مقطع السرعة",
     "videoConversion": "جارٍ تحويل الفيديو إلى تنسيق MP4. الرجاء الانتظار.",
     "maskAndRoi": "جارٍ تحديد منطقة الاهتمام والأقنعة"
@@ -297,5 +320,53 @@
     "resourceNotFound": "المورد غير موجود",
     "randomError": "حدث خطأ ما. الرجاء المحاولة مرة أخرى",
     "dropHereText": "أفلت الملف في أي مكان على هذه اللوحة. سيتم التعرف على موضعه تلقائياً."
+  },
+  "Calibration": {
+    "title": "معايرة الكاميرا",
+    "close": "إغلاق",
+    "board": "عرض اللوحة",
+    "import": "استيراد الصور",
+    "solve": "حل",
+    "solving": "جارٍ الحل…",
+    "overlay": "أصلي",
+    "undistorted": "مُصحَّح",
+    "heatmap": "خريطة حرارية",
+    "dropZone": "أسقط مجلد صور المعايرة هنا",
+    "dropHint": "أو استخدم استيراد الصور",
+    "notUsed": "غير مستخدم في المعايرة",
+    "readyToSolve": "تم تحميل الصور. اضغط حل لبدء المعايرة.",
+    "emptyHint": "استورد أو أسقط مجلد صور للبدء.",
+    "errorGeneric": "حدث خطأ أثناء المعايرة.",
+    "recommendations": "التوصيات",
+    "histogram": "توزيع RMS لكل منظور",
+    "histogramX": "خطأ إعادة الإسقاط (px)",
+    "profileName": "اسم الملف الشخصي",
+    "cameraName": "اسم الكاميرا",
+    "lensName": "العدسة / التكبير",
+    "resolution": "الدقة",
+    "saveProfile": "حفظ",
+    "savedTo": "تم الحفظ في",
+    "validationDone": "اكتملت المعايرة",
+    "outputs": "ملفات الإخراج",
+    "overlaysDir": "فتح مجلد التراكبات",
+    "undistortedDir": "فتح مجلد الصور بدون تشويه",
+    "profileJson": "فتح ملف المعايرة",
+    "undistortedHint": "يتم حفظ الصور غير المشوهة في مجلد الإخراج.",
+    "metrics": {
+      "medianRms": "RMS الوسيط",
+      "p90Rms": "RMS P90",
+      "coverage": "التغطية",
+      "edgeReach": "وصول الحافة",
+      "poseSpread": "انتشار الوضع",
+      "centerOffset": "إزاحة المركز"
+    },
+    "actions": {
+      "addFrames": "أضف صوراً تغطي الحواف والزوايا؛ غيّر الزاوية والمسافة.",
+      "pushBoard": "قرّب اللوحة من حواف المستشعر؛ يُسمح ببعض اقتطاع العلامات.",
+      "increaseSharpness": "حسّن الحدة (مزيد من الإضاءة، ISO منخفض)، قلّل تأثير مواريه على الشاشة (أعد تحجيم اللوحة).",
+      "varyViewpoints": "التقط من زوايا متنوعة (إمالة/تدوير/انتشار) ومسافات مختلفة.",
+      "ensureCorners": "تأكد من ظهور الزوايا عبر المستشعر بالكامل؛ تجنب القص الشديد.",
+      "reshoot": "أعد التصوير بتغطية أفضل؛ إن استمرت المشكلة، افحص بيانات الصورة."
+    }
   }
 }

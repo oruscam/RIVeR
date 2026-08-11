@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
-import { useDataSlice, useUiSlice } from "../hooks";
-import * as d3 from "d3";
+import { useEffect, useRef } from 'react';
+import { useDataSlice, useUiSlice } from '../hooks';
+import * as d3 from 'd3';
 
-export const WindowSizesNew = ({width, height}: {width: number; height: number}) => {
+export const WindowSizesNew = ({ width, height }: { width: number; height: number }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const { processing } = useDataSlice();
   const { step1 } = processing.form;
@@ -17,11 +17,11 @@ export const WindowSizesNew = ({width, height}: {width: number; height: number})
     const yCenter = height / 2;
 
     // Limpiar el SVG antes de redibujar
-    const svg = d3.select(svgRef. current);
+    const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove();
 
     // Crear el grupo
-    const group = svg. append('g');
+    const group = svg.append('g');
 
     // Rectángulo exterior (azul)
     group
@@ -46,8 +46,7 @@ export const WindowSizesNew = ({width, height}: {width: number; height: number})
       .attr('stroke-width', 2.5)
       .attr('stroke-dasharray', '5,3')
       .attr('fill', 'none');
-
   }, [width, height, step1, factor]);
 
-  return <svg ref={svgRef} width={width} height={height} className="window-size"/>;
-}
+  return <svg ref={svgRef} width={width} height={height} className="window-size" />;
+};

@@ -56,7 +56,8 @@
       "end3": "时间选择无效：「结束」值不能等于或小于「开始」值，请输入有效值。",
       "step": "步长选择无效：「步长」必须为大于 1 的整数，请输入有效值。",
       "required": "所有字段均为必填项，请检查视频范围表单。",
-      "formatInput": "格式不正确，「开始」和「结束」值必须为「00:00」格式。"
+      "formatInput": "格式不正确，「开始」和「结束」值必须为「00:00」格式。",
+      "profileResolutionMismatch": "配置文件分辨率 ({{calW}}×{{calH}}) 与视频不匹配。请选择其他相机型号或针对此分辨率重新标定。"
     },
     "ExtraInfo": {
       "fileName": "文件名:",
@@ -65,13 +66,25 @@
       "resolution": "分辨率: ",
       "numberOfFrames": "帧数: "
     },
-    "framesResolution": "帧分辨率"
+    "framesResolution": "帧分辨率",
+    "lensCorrection": "镜头校正",
+    "noProfiles": "无配置文件 — 前往校准",
+    "stabilizeVideo": "稳定视频",
+    "stabilizationRegion": "区域",
+    "editingRegion": "编辑区域 {{n}}",
+    "addRegion": "添加区域",
+    "exitRegionMode": "退出区域编辑",
+    "minRegionsWarning": "请至少添加 2 个区域以进行稳定",
+    "editingRegionsWarning": "正在编辑稳定区域"
   },
   "PixelSize": {
     "title": "像素尺寸",
     "lineLength": "线段长度",
     "pixelSize": "像素尺寸",
     "drawLine": "绘制线段",
+    "drawingLineWarning": "正在绘制线段",
+    "modifyingLineWarning": "正在修改线段",
+    "carouselStabilization": "稳定检查",
     "Errors": {
       "required": "所有字段均为必填项，请检查像素尺寸表单。",
       "lineLength": "线段长度无效：长度必须为正数（可含小数），请输入有效值。",
@@ -126,12 +139,16 @@
       "leftBank": "左岸超出范围",
       "bathimetryNotValid": "测深数据无效，水位 {{level}} 在此文件中不存在",
       "bathimetryIsRequired": "{{section_name}} 需要测深数据",
-      "rwLength": "{{section_name}} 的横断面长度不能为 0"
+      "rwLength": "{{section_name}} 的横断面长度不能为 0",
+      "levelRequired": "{{section_name}} 的水位不能为 0"
     },
     "warning": "确定要删除 {{section_name}} 吗？",
     "warningTitle": "删除断面",
     "mask": "掩膜",
     "addMask": "添加掩膜",
+    "editingMaskWarning": "正在编辑掩膜 {{n}}",
+    "drawingSectionWarning": "正在绘制断面 {{name}}",
+    "modifyingSectionWarning": "正在修改断面 {{name}}",
     "bankRight": "右",
     "bankLeft": "左"
   },
@@ -246,6 +263,8 @@
   "ControlPoints": {
     "title": "控制点",
     "drawPoints": "标记控制点",
+    "drawingPointsWarning": "正在标记控制点",
+    "modifyingPointsWarning": "正在修改控制点",
     "importDistances": "导入距离",
     "distance": "距离",
     "length": "长度",
@@ -268,7 +287,8 @@
     "optimize": "优化",
     "reprojectionErrors": "重投影误差: ",
     "numberOfPoints": "控制点数量: ",
-    "cameraHeight": "相机高度: "
+    "cameraHeight": "相机高度: ",
+    "movingPointWarning": "正在移动 {{label}}"
   },
   "Errors": {
     "invalidPointsFileFormat": "控制点文件格式无效。",
@@ -276,6 +296,8 @@
     "invalidDistancesNotValidValue": "距离文件格式无效，部分距离值不是有效数字",
     "invalidDistancesNegativeValue": "距离文件格式无效，不允许使用负距离",
     "invalidBathimetryFileFormat": "测深文件格式无效",
+    "bathimetryOutOfZRange": "测深水位值远超出控制点的 Z 值范围。请检查文件或单位。",
+    "invalidBathimetryDepthNotAllowed": "此模式不支持深度测深文件。请改为导入水位/高程剖面。",
     "invalidImageExtension": "所选目录包含非图像文件",
     "imagesFolderEmpty": "所选文件夹中未找到图像",
     "waitingForFrames": "正在等待帧加载完成，请数秒后重试",
@@ -286,6 +308,7 @@
   },
   "Loader": {
     "extractingFrames": "正在提取视频帧",
+    "stabilizingFrames": "正在稳定视频帧",
     "results": "正在生成流速剖面统计数据",
     "videoConversion": "正在将视频转换为 MP4 格式，请稍候。",
     "maskAndRoi": "正在定义 ROI 与掩膜"
@@ -297,5 +320,53 @@
     "resourceNotFound": "找不到资源",
     "randomError": "发生错误，请重试",
     "dropHereText": "将文件拖放至此面板，系统将自动识别其所属位置。"
+  },
+  "Calibration": {
+    "title": "相机标定",
+    "close": "关闭",
+    "board": "显示标定板",
+    "import": "导入图像",
+    "solve": "求解",
+    "solving": "求解中…",
+    "overlay": "原图",
+    "undistorted": "已校正",
+    "heatmap": "热力图",
+    "dropZone": "拖入标定图像文件夹",
+    "dropHint": "或使用导入图像",
+    "notUsed": "未参与标定",
+    "readyToSolve": "图像已加载。点击求解开始标定。",
+    "emptyHint": "导入或拖入图像文件夹以开始。",
+    "errorGeneric": "标定过程中发生错误。",
+    "recommendations": "建议",
+    "histogram": "每视图 RMS 分布",
+    "histogramX": "重投影误差 (px)",
+    "profileName": "配置文件名称",
+    "cameraName": "相机名称",
+    "lensName": "镜头 / 变焦",
+    "resolution": "分辨率",
+    "saveProfile": "保存",
+    "savedTo": "已保存至",
+    "validationDone": "标定完成",
+    "outputs": "输出文件",
+    "overlaysDir": "打开叠加图文件夹",
+    "undistortedDir": "打开去畸变文件夹",
+    "profileJson": "打开标定配置文件",
+    "undistortedHint": "去畸变图像已保存至输出文件夹。",
+    "metrics": {
+      "medianRms": "中位 RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "覆盖率",
+      "edgeReach": "边缘覆盖",
+      "poseSpread": "姿态分散度",
+      "centerOffset": "中心偏移"
+    },
+    "actions": {
+      "addFrames": "添加覆盖边缘/角落的帧；改变角度和距离。",
+      "pushBoard": "将标定板靠近传感器边缘；允许少量标记被裁剪。",
+      "increaseSharpness": "提高清晰度（更多光线、低ISO），减少屏幕摩尔纹（调整标定板大小）。",
+      "varyViewpoints": "从不同角度（倾斜/平移/滚转）和距离拍摄。",
+      "ensureCorners": "确保角落出现在整个传感器范围内；避免过度裁剪。",
+      "reshoot": "以更好的覆盖率重新拍摄；如果问题持续，请检查图像元数据。"
+    }
   }
 }

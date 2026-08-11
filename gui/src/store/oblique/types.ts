@@ -27,6 +27,7 @@ interface ObliqueSolution {
 
 interface ObliqueMode {
   drawPoints: boolean;
+  isDraggingPoint: boolean;
   coordinates: Point[];
   rwCoordinates: Point[];
   distances: {

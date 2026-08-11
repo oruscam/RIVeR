@@ -66,6 +66,8 @@ interface Ipcam {
   activeImage: number | null;
   // Index of the active point in importedPoints array
   activePoint: number | null;
+  // Whether a control point is currently being dragged on the canvas
+  isDraggingPoint: boolean;
   // Camera solution after running the calibration
   cameraSolution: CameraSolution | null;
   selectedCounter: number;

@@ -41,14 +41,11 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
 
   const { transformationMatrix } = useSectionSlice();
 
-  if (!width || !height || !factor) return null;
-
   const realWidth = vertical ? widthReduced : width;
   const realHeight = vertical ? heightReduced : height;
   const realFactor = vertical ? factorReduced : factor;
 
   const { data, min, max } = useMemo(() => {
-
     if (quiver === null) {
       prevRef.current = { activeImage: images.active, data: [], min: 0, max: 0 };
       return { data: [], min: 0, max: 0 };
@@ -58,7 +55,14 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
       return { data: [], min: 0, max: 0 };
     }
 
-    const { data, min, max } = getQuiverValues(quiver, showMedian as boolean, images.active, parameters.step, videoData.fps, transformationMatrix);
+    const { data, min, max } = getQuiverValues(
+      quiver,
+      showMedian as boolean,
+      images.active,
+      parameters.step,
+      videoData.fps,
+      transformationMatrix
+    );
     prevRef.current = { activeImage: images.active, data, min, max };
 
     if (colorbarLimits.default === false) {
@@ -69,15 +73,19 @@ export const ImageWithData = ({ showMedian }: { showMedian?: boolean }) => {
       const recoloredData = data.map((d) => {
         const clamped = Math.max(manualMin, Math.min(manualMax, d.velocity));
         const normalizedValue = norm.normalize(clamped);
-        const colorIndex = Math.max(0, Math.min(Math.floor(normalizedValue * (colorMap.length - 1)), colorMap.length - 1));
+        const colorIndex = Math.max(
+          0,
+          Math.min(Math.floor(normalizedValue * (colorMap.length - 1)), colorMap.length - 1)
+        );
         return { ...d, color: colorMap[colorIndex] };
       });
       return { data: recoloredData, min: manualMin, max: manualMax };
     }
 
     return { data, min, max };
-
   }, [quiver, images.active, showMedian, colorbarLimits.default, colorbarLimits.min, colorbarLimits.max]);
+
+  if (!width || !height || !factor) return null;
 
   return (
     <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>

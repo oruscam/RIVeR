@@ -8,9 +8,7 @@
 export const getCSSVar = (name: string, fallback = ''): string => {
   // data-theme is set on the app root div, not on <html>, so we must read
   // computed styles from that element to get the correct theme variables.
-  const themedEl =
-    (document.querySelector('[data-theme]') as HTMLElement | null) ??
-    document.documentElement;
+  const themedEl = (document.querySelector('[data-theme]') as HTMLElement | null) ?? document.documentElement;
   return getComputedStyle(themedEl).getPropertyValue(name).trim() || fallback;
 };
 

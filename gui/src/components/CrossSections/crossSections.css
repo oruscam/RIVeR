@@ -14,20 +14,20 @@
 .sections-layer {
     display: flex;
     border-bottom: solid 1px var(--primary-text-color);
-    height: 42px;
+    height: 50px;
 }
 
 .section {
     background-color: transparent;
     color: var(--primary-text-color);
     border: none;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
     width: auto;
-    height: 42px;
+    height: 50px;
     cursor: pointer;
     margin-bottom: -1px;
-    font-size: 17px;
+    font-size: 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -49,9 +49,9 @@
 }
 
 .active{
-    border-top: solid 1px ;
-    border-left: solid 1px ;
-    border-right: solid 1px ;
+    border-top: solid 1px var(--primary-text-color);
+    border-left: solid 1px var(--primary-text-color);
+    border-right: solid 1px var(--primary-text-color);
     border-bottom: solid 2px var(--secondary-background-color);
     flex-shrink: 0;
 }

@@ -56,7 +56,8 @@
       "end3": "無効な時間選択: 「終了」の値は「開始」の値以下にはできません。有効な値を入力してください。",
       "step": "無効なステップ選択: 「ステップ」は1より大きい整数でなければなりません。有効な値を入力してください。",
       "required": "すべてのフィールドは必須です。動画範囲フォームを確認してください。",
-      "formatInput": "形式が正しくありません。「開始」と「終了」は「00:00」形式で入力してください。"
+      "formatInput": "形式が正しくありません。「開始」と「終了」は「00:00」形式で入力してください。",
+      "profileResolutionMismatch": "プロファイルの解像度 ({{calW}}×{{calH}}) が動画と一致しません。別のカメラモデルを選択するか、この解像度でキャリブレーションしてください。"
     },
     "ExtraInfo": {
       "fileName": "ファイル名:",
@@ -65,13 +66,25 @@
       "resolution": "解像度: ",
       "numberOfFrames": "フレーム数: "
     },
-    "framesResolution": "フレーム解像度"
+    "framesResolution": "フレーム解像度",
+    "lensCorrection": "レンズ補正",
+    "noProfiles": "プロファイルなし — キャリブレーションへ",
+    "stabilizeVideo": "ビデオを安定化",
+    "stabilizationRegion": "領域",
+    "editingRegion": "領域 {{n}} を編集中",
+    "addRegion": "領域を追加",
+    "exitRegionMode": "領域編集を終了",
+    "minRegionsWarning": "安定化には少なくとも2つの領域が必要です",
+    "editingRegionsWarning": "安定化領域を編集中"
   },
   "PixelSize": {
     "title": "ピクセルサイズ",
     "lineLength": "線の長さ",
     "pixelSize": "ピクセルサイズ",
     "drawLine": "線を描く",
+    "drawingLineWarning": "線を描画中",
+    "modifyingLineWarning": "線を変更中",
+    "carouselStabilization": "安定化チェック",
     "Errors": {
       "required": "すべてのフィールドは必須です。ピクセルサイズフォームを確認してください。",
       "lineLength": "無効な線の長さ: 正の数（小数可）を入力してください。",
@@ -126,12 +139,16 @@
       "leftBank": "左岸が範囲外です",
       "bathimetryNotValid": "測深データが無効です。水位{{level}}はこのファイルに存在しません",
       "bathimetryIsRequired": "{{section_name}}には測深データが必要です",
-      "rwLength": "{{section_name}}の横断面長さは0にできません"
+      "rwLength": "{{section_name}}の横断面長さは0にできません",
+      "levelRequired": "{{section_name}}の水位は0にできません"
     },
     "warning": "{{section_name}}を削除してもよいですか？",
     "warningTitle": "断面の削除",
     "mask": "マスク",
     "addMask": "マスクを追加",
+    "editingMaskWarning": "マスク{{n}}を編集中",
+    "drawingSectionWarning": "断面{{name}}を描画中",
+    "modifyingSectionWarning": "断面{{name}}を変更中",
     "bankRight": "右",
     "bankLeft": "左"
   },
@@ -246,6 +263,8 @@
   "ControlPoints": {
     "title": "コントロールポイント",
     "drawPoints": "点を描く",
+    "drawingPointsWarning": "点を描画中",
+    "modifyingPointsWarning": "点を変更中",
     "importDistances": "距離を読み込む",
     "distance": "距離",
     "length": "長さ",
@@ -268,7 +287,8 @@
     "optimize": "最適化",
     "reprojectionErrors": "再投影誤差: ",
     "numberOfPoints": "点の数: ",
-    "cameraHeight": "カメラ高さ: "
+    "cameraHeight": "カメラ高さ: ",
+    "movingPointWarning": "{{label}}を移動中"
   },
   "Errors": {
     "invalidPointsFileFormat": "無効なポイントファイル形式です。",
@@ -276,6 +296,8 @@
     "invalidDistancesNotValidValue": "無効な距離ファイル形式です。一部の距離値が有効な数値ではありません",
     "invalidDistancesNegativeValue": "無効な距離ファイル形式です。負の距離は許可されていません",
     "invalidBathimetryFileFormat": "無効な測深ファイル形式です",
+    "bathimetryOutOfZRange": "測深レベルがコントロールポイントのZ範囲から大きく外れています。ファイルまたは単位を確認してください。",
+    "invalidBathimetryDepthNotAllowed": "このモードでは深度の測深ファイルはサポートされていません。代わりに水位/標高プロファイルをインポートしてください。",
     "invalidImageExtension": "ディレクトリに画像以外のファイルが含まれています",
     "imagesFolderEmpty": "選択したフォルダに画像が見つかりません",
     "waitingForFrames": "フレームの読み込みを待っています。数秒後に再試行してください",
@@ -286,6 +308,7 @@
   },
   "Loader": {
     "extractingFrames": "動画フレームを抽出中",
+    "stabilizingFrames": "動画フレームを安定化中",
     "results": "流速プロファイル統計を生成中",
     "videoConversion": "動画をMP4形式に変換中です。しばらくお待ちください。",
     "maskAndRoi": "ROIとマスクを定義中"
@@ -297,5 +320,53 @@
     "resourceNotFound": "リソースが見つかりません",
     "randomError": "エラーが発生しました。再試行してください",
     "dropHereText": "このパネルにファイルをドロップしてください。自動的に適切な場所に配置します。"
+  },
+  "Calibration": {
+    "title": "カメラキャリブレーション",
+    "close": "閉じる",
+    "board": "ボードを表示",
+    "import": "画像をインポート",
+    "solve": "解析",
+    "solving": "解析中…",
+    "overlay": "オリジナル",
+    "undistorted": "補正済み",
+    "heatmap": "ヒートマップ",
+    "dropZone": "キャリブレーション画像フォルダをドロップ",
+    "dropHint": "または画像をインポート",
+    "notUsed": "キャリブレーションに未使用",
+    "readyToSolve": "画像を読み込みました。解析を押してキャリブレーションを実行します。",
+    "emptyHint": "画像フォルダをインポートまたはドロップして開始してください。",
+    "errorGeneric": "キャリブレーション中にエラーが発生しました。",
+    "recommendations": "推奨事項",
+    "histogram": "ビューごとのRMS分布",
+    "histogramX": "再投影誤差 (px)",
+    "profileName": "プロファイル名",
+    "cameraName": "カメラ名",
+    "lensName": "レンズ / ズーム",
+    "resolution": "解像度",
+    "saveProfile": "保存",
+    "savedTo": "保存先",
+    "validationDone": "キャリブレーション完了",
+    "outputs": "出力ファイル",
+    "overlaysDir": "オーバーレイフォルダを開く",
+    "undistortedDir": "歪み補正フォルダを開く",
+    "profileJson": "キャリブレーションプロファイルを開く",
+    "undistortedHint": "歪み補正された画像は出力フォルダに保存されます。",
+    "metrics": {
+      "medianRms": "中央値RMS",
+      "p90Rms": "P90 RMS",
+      "coverage": "カバレッジ",
+      "edgeReach": "端部到達",
+      "poseSpread": "姿勢分散",
+      "centerOffset": "中心オフセット"
+    },
+    "actions": {
+      "addFrames": "エッジ/コーナーに達するフレームを追加し、角度と距離を変えてください。",
+      "pushBoard": "ボードをセンサーの端に近づけてください。マーカーの一部が切れても構いません。",
+      "increaseSharpness": "シャープネスを上げてください（明るい環境、低ISO）、モアレを減らしてください（ボードをリサイズ）。",
+      "varyViewpoints": "さまざまな視点（チルト/パン/ロール）と距離から撮影してください。",
+      "ensureCorners": "コーナーがセンサー全体に映るようにし、大きなクロップを避けてください。",
+      "reshoot": "より良いカバレッジで再撮影してください。問題が続く場合は画像メタデータを確認してください。"
+    }
   }
 }

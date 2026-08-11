@@ -132,6 +132,11 @@
     border-color: var(--primary-text-color);
 }
 
+.drag-over-cal {
+    border: 2px dashed var(--primary-text-color);
+    border-radius: 1rem;
+}
+
 .drag-over-uav {
     border-color: var(--primary-text-color);
 }
@@ -196,8 +201,519 @@
 }
 
 .browse-video-drop-area p {
-    font-size: 1.3rem;
-    font-weight: 600;
+    font-size: 1.15rem;
     color: var(--secondary-text-color);
     margin-bottom: 15px;
+}
+
+/* =============================================================================
+   CAMERA CALIBRATION OVERLAY
+   ============================================================================= */
+
+.cal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 999;
+    background: var(--background-color);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* ── Header ── */
+
+/* ── Body ── */
+.cal-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* ══ LEFT PANEL ══ */
+.cal-left {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 98%;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 15px;
+    padding-bottom: 40px;
+    gap: 10px;
+    overflow: hidden;
+    background-color: var(--secondary-background-color);
+    border-radius: 20px;
+    border-top: 8px solid var(--secondary-background-color);
+    margin-right: 5px;
+}
+
+.cal-canvas {
+    flex: 1 1 0;
+    min-height: 0;
+    width: 98%;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.cal-canvas-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.cal-canvas-overlay {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    color: var(--secondary-text-color);
+}
+
+.cal-canvas-placeholder {
+    color: var(--secondary-text-color);
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 20px;
+}
+
+.cal-view-controls {
+    width: 90%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.cal-carousel-counter {
+    margin-left: auto;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary-text-color);
+}
+
+/* Carousel */
+.cal-resize-handle {
+    height: 8px;
+    cursor: ns-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cal-resize-handle::after {
+    content: '';
+    width: 36px;
+    height: 3px;
+    background: var(--border-color);
+    border-radius: 2px;
+    transition: background 0.15s;
+}
+
+.cal-resize-handle:hover::after {
+    background: var(--accent-color);
+}
+
+.cal-carousel-row {
+    width: 98%;
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.cal-carousel {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    gap: 10px;
+    overflow-x: scroll;
+    padding: 2px 2px 4px;
+}
+
+.cal-thumb {
+    flex-shrink: 0;
+    width: var(--thumb-width, 120px);
+    height: var(--thumb-height, 90px);
+    border-radius: 20px;
+    border: 4px solid transparent;
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--secondary-background-color);
+    padding: 0;
+    position: relative;
+    transition: border-color 0.15s, filter 0.15s;
+    filter: brightness(0.42);
+}
+
+.cal-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.cal-thumb.active {
+    border-color: var(--accent-color);
+    filter: brightness(1);
+}
+
+.cal-thumb.unused {
+    filter: brightness(0.25);
+}
+
+.cal-thumb:hover {
+    filter: brightness(1);
+}
+
+.cal-thumb-dot {
+    position: absolute;
+    bottom: 3px;
+    right: 3px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: 1px solid rgba(0,0,0,0.4);
+}
+
+.cal-thumb-dot.used {
+    background: var(--success-color);
+}
+
+.cal-thumb-dot.unused {
+    background: var(--background-error);
+}
+
+/* Solving loader — shown in right panel while solver runs */
+.cal-solving-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px 0;
+    gap: 12px;
+    flex: 1;
+}
+
+
+/* ══ RIGHT PANEL ══ */
+.cal-panel-title {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary-text-color);
+    margin: 6vh 0 0;
+}
+
+.cal-right {
+    min-width: 400px;
+    width: 29%;
+    height: 98%;
+    align-self: center;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px 20px;
+    gap: 20px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+    background-color: var(--secondary-background-color);
+    border-radius: 1rem;
+}
+
+/* Action buttons */
+.cal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 90%;
+    align-self: center;
+}
+
+/* Streaming status */
+.cal-stream-msg {
+    font-size: 0.78rem;
+    color: var(--secondary-text-color);
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+/* Error chip */
+.cal-error-chip {
+    background: rgba(237, 107, 87, 0.12);
+    border: 1px solid var(--background-error);
+    color: var(--background-error);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+}
+
+/* ── Solved results ── */
+.cal-results {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Overall grade row */
+.cal-overall-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.cal-overall-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--primary-text-color);
+}
+
+.cal-grade-pill {
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 4px 18px;
+    border-radius: 20px;
+    color: #fff;
+}
+
+.cal-grade-pill.good { background: var(--success-color); }
+.cal-grade-pill.fair { background: var(--warning-color); color: #1a1a1a; }
+.cal-grade-pill.bad  { background: var(--background-error); }
+
+/* Metrics flat list */
+.cal-metrics-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.cal-metric-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.cal-metric-label {
+    font-size: 1rem;
+    color: var(--primary-text-color);
+}
+
+.cal-metric-grade {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.cal-metric-good { color: var(--success-color); }
+.cal-metric-fair { color: var(--warning-color); }
+.cal-metric-bad  { color: var(--background-error); }
+
+/* Recommendations — plain italic list */
+.cal-rec-list {
+    list-style: none;
+    margin: 8px auto;
+    padding: 0;
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.cal-rec-item {
+    font-size: 1.15rem;
+    color: var(--secondary-text-color);
+    line-height: 1.4;
+}
+
+/* Histogram */
+.cal-histogram {}
+
+/* Save profile section */
+.cal-back-section {
+    width: 90%;
+    display: flex;
+    justify-content: space-between;
+    align-self: center;
+    margin-top: auto;
+    margin-bottom: 20px;
+    padding-top: 10px;
+}
+
+.cal-save-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 90%;
+    align-self: center;
+}
+
+.cal-save-section .simple-input-container {
+    align-self: center;
+}
+
+.cal-save-section input::placeholder {
+    font-size: clamp(11px, 1.1vw, 14px);
+}
+
+.cal-combo {
+    position: relative;
+}
+
+.cal-combo-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    background: var(--secondary-background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 20px;
+    list-style: none;
+    margin: 0;
+    padding: 4px 0;
+    overflow: hidden;
+}
+
+.cal-combo-list li {
+    padding: 8px 18px;
+    font-size: 15px;
+    color: var(--primary-text-color);
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.cal-combo-list li:hover {
+    background: var(--on-hover);
+}
+
+/* Clickable path links (generic) */
+.cal-link {
+    background: none;
+    border: none;
+    color: var(--accent-color);
+    font-size: 0.75rem;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    word-break: break-all;
+    transition: opacity 0.15s;
+}
+
+.cal-link:hover {
+    opacity: 0.75;
+}
+
+/* Solving spinner inside button */
+.cal-solving-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.cal-btn-spinner {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+/* HomePage calibration icon button */
+.cal-home-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s, opacity 0.15s;
+}
+
+.cal-home-btn:hover {
+    background: var(--on-hover);
+}
+
+.cal-home-btn:hover img {
+    opacity: 1 !important;
+}
+
+/* ── Lens correction settings rows (VideoRange) ──────────────── */
+.lens-correction-section {
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.lens-correction-section .switch-container {
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.lens-correction-section .switch-container:hover {
+    background-color: transparent;
+}
+
+.lens-settings {
+    display: flex;
+    flex-direction: column;
+    margin-top: 8px;
+}
+
+.lens-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.lens-row:last-child {
+    border-bottom: none;
+}
+
+.lens-row-label {
+    color: var(--secondary-text-color);
+    font-size: 16px;
+    flex-shrink: 0;
+}
+
+.lens-row-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 0;
+}
+
+.lens-row-trigger {
+    background: transparent;
+    border: none;
+    color: var(--primary-text-color);
+    font-size: 16px;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0;
+    outline: none;
+}
+
+.lens-row-chevron {
+    font-size: 14px;
+    color: var(--secondary-text-color);
+    pointer-events: none;
+    flex-shrink: 0;
 }

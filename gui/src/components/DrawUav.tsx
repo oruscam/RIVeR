@@ -1,118 +1,143 @@
-import { useCallback, useEffect, useState } from "react";
-import * as d3 from "d3";
-import { drawInteractiveSection, getResizedPoint } from "./CrossSections/drawSections";
-import { Point } from "../types";
-import { useUavSlice } from "../hooks";
-import { OverlayLayers } from "./OverlaySvg";
-import { set } from "react-hook-form";
+import { useCallback, useEffect, useState } from 'react';
+import * as d3 from 'd3';
+import { drawInteractiveSection, getResizedPoint } from './CrossSections/drawSections';
+import { Point } from '../types';
+import { useUavSlice } from '../hooks';
+import { OverlayLayers } from './OverlaySvg';
 
 export const DrawUav = ({
-    width,
-    height,
+  width,
+  height,
+  factor,
+  scale,
+  position,
+  layers,
+}: {
+  width: number;
+  height: number;
+  factor: number;
+  scale: number;
+  position: { x: number; y: number };
+  layers: OverlayLayers;
+}) => {
+  const { overlayZoomRef, interactiveLayerRef, uiLayerRef, svgRef } = layers;
+
+  const { dirPoints, onSetPixelDirection, onSetIsDraggingPoint } = useUavSlice();
+
+  // Local interactive state (in overlay-zoom coordinate system)
+  const [startPoint, setStartPoint] = useState<Point | null>(
+    dirPoints.length > 0 ? getResizedPoint(dirPoints[0], factor) : null
+  );
+  const [endPoint, setEndPoint] = useState<Point | null>(
+    dirPoints.length > 0 ? getResizedPoint(dirPoints[1], factor) : null
+  );
+  const [mousePressed, setMousePressed] = useState<boolean>(false);
+
+  const getPointerInZoom = useCallback(
+    (nativeEvt: Event) => {
+      const container = overlayZoomRef.current ?? svgRef.current;
+      return d3.pointer(nativeEvt as any, container as any);
+    },
+    [overlayZoomRef, svgRef]
+  );
+
+  useEffect(() => {
+    const layerSel = d3.select(interactiveLayerRef.current);
+    const uiLayerSel = d3.select(uiLayerRef.current);
+    const zoomLayerNode = overlayZoomRef.current!;
+
+    drawInteractiveSection({
+      layer: layerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
+      uiLayer: uiLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
+      zoomLayerNode,
+      startPoint,
+      endPoint,
+      setMousePressed,
+      setStartPoint,
+      setEndPoint,
+      onSetDirPoints: onSetPixelDirection,
+      factor,
+      mousePressed,
+      viewport: {
+        imageWidth: width,
+        imageHeight: height,
+        position,
+        scale,
+      },
+      module: 'uav',
+    });
+
+    return () => {
+      layerSel.on('.drag', null);
+    };
+    // onSetPixelDirection is recreated every render but only ever dispatches based on its
+    // arguments, no render state captured — adding it would refire this effect on every render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    startPoint,
+    endPoint,
     factor,
     scale,
     position,
-    layers
-}: {
-    width: number;
-    height: number;
-    factor: number;
-    scale: number;
-    position: { x: number; y: number };
-    layers: OverlayLayers;
-}) => {
-    const { overlayZoomRef, interactiveLayerRef, uiLayerRef, svgRef } = layers;
+    width,
+    height,
+    mousePressed,
+    interactiveLayerRef,
+    uiLayerRef,
+    overlayZoomRef,
+  ]);
 
-    const { dirPoints, onSetPixelDirection } = useUavSlice();
+  // Mirror the drag state into Redux so other parts of the page (e.g. the
+  // focus overlay on the form panel) can react to it, whether the drag is
+  // the initial direction-line placement or a later endpoint fine-tune.
+  useEffect(() => {
+    onSetIsDraggingPoint(mousePressed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mousePressed]);
 
-    // Local interactive state (in overlay-zoom coordinate system)
-    const [startPoint, setStartPoint] = useState<Point | null>(
-        dirPoints.length > 0 ? getResizedPoint(dirPoints[0], factor) : null
-    );
-    const [endPoint, setEndPoint] = useState<Point | null>(
-        dirPoints.length > 0 ? getResizedPoint(dirPoints[1], factor) : null
-    );
-    const [mousePressed, setMousePressed] = useState<boolean>(false);
+  useEffect(() => {
+    return () => onSetIsDraggingPoint(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-    const getPointerInZoom = useCallback((nativeEvt: Event) => {
-    const container = overlayZoomRef.current ?? svgRef.current;
-    return d3.pointer(nativeEvt as any, container as any);
-    }, [overlayZoomRef, svgRef]);
-
-    
-    useEffect(() => {
-        const layerSel = d3.select(interactiveLayerRef.current);
-        const uiLayerSel = d3.select(uiLayerRef.current);
-        const zoomLayerNode = overlayZoomRef.current!;
-
-        drawInteractiveSection({
-            layer: layerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
-            uiLayer: uiLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
-            zoomLayerNode,
-            startPoint,
-            endPoint,
-            setMousePressed,
-            setStartPoint,
-            setEndPoint,
-            onSetDirPoints: onSetPixelDirection,
-            factor,
-            mousePressed,
-            viewport: {
-                imageWidth: width,
-                imageHeight: height,
-                position,
-                scale
-            },
-            module: 'uav'
-        })
-
-        return () => {
-            layerSel.on(".drag", null);
-        }
-
-    }, [startPoint, endPoint, factor, scale, position]);
-
-    // Attach root SVG listeners for section creation (namespaced)
-    useEffect(() => {
+  // Attach root SVG listeners for section creation (namespaced)
+  useEffect(() => {
     if (!svgRef.current) return;
     const svgSel = d3.select(svgRef.current);
 
     const onMouseDown = (event: any) => {
-        if (dirPoints.length === 0) {
+      if (dirPoints.length === 0) {
         setMousePressed(true);
         const [x, y] = getPointerInZoom(event);
         setStartPoint({ x, y });
         setEndPoint({ x, y });
-        }
+      }
     };
 
     const onMouseMove = (event: any) => {
-        if (mousePressed && dirPoints.length === 0) {
+      if (mousePressed && dirPoints.length === 0) {
         const [x, y] = getPointerInZoom(event);
         setEndPoint({ x, y });
-        }
+      }
     };
 
     const onMouseUp = () => {
-        if (mousePressed && startPoint && endPoint && dirPoints.length === 0) {
+      if (mousePressed && startPoint && endPoint && dirPoints.length === 0) {
         setMousePressed(false);
-        onSetPixelDirection(
-            { points: [startPoint, endPoint], factor: factor as number, index: null },
-            null
-        );
-        } else {
-            setMousePressed(false);
-        }
+        onSetPixelDirection({ points: [startPoint, endPoint], factor: factor as number, index: null }, null);
+      } else {
+        setMousePressed(false);
+      }
     };
 
-    svgSel.on("mousedown.sections", onMouseDown);
-    svgSel.on("mousemove.sections", onMouseMove);
-    svgSel.on("mouseup.sections", onMouseUp);
+    svgSel.on('mousedown.sections', onMouseDown);
+    svgSel.on('mousemove.sections', onMouseMove);
+    svgSel.on('mouseup.sections', onMouseUp);
 
     return () => {
-        svgSel.on(".sections", null);
+      svgSel.on('.sections', null);
     };
-    }, [
+  }, [
     svgRef,
     dirPoints.length,
     mousePressed,
@@ -121,17 +146,17 @@ export const DrawUav = ({
     onSetPixelDirection,
     factor,
     getPointerInZoom,
-    ]);
+  ]);
 
-    useEffect(() => {
-        if (dirPoints.length !== 0) {
-            setStartPoint(getResizedPoint(dirPoints[0], factor));
-            setEndPoint(getResizedPoint(dirPoints[1], factor));
-        } else {
-            setStartPoint(null);
-            setEndPoint(null);
-        }
-    }, [dirPoints, factor]);
-        
-    return null
-}   
+  useEffect(() => {
+    if (dirPoints.length !== 0) {
+      setStartPoint(getResizedPoint(dirPoints[0], factor));
+      setEndPoint(getResizedPoint(dirPoints[1], factor));
+    } else {
+      setStartPoint(null);
+      setEndPoint(null);
+    }
+  }, [dirPoints, factor]);
+
+  return null;
+};

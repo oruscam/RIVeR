@@ -1,7 +1,7 @@
 // Helper functions for Hard Mode forms
 
-import { defaultDistances } from "../store/oblique/types";
-import { Point } from "../types";
+import { defaultDistances } from '../store/oblique/types';
+import { Point } from '../types';
 
 // These functions assist in generating point names and determining label styles based on mode and type.
 // They are used in forms that require user input for coordinates.
@@ -30,7 +30,7 @@ const getLabelStyle = (type: string, step: number, fields: number, index: number
   }
 
   return style;
-}
+};
 
 const getPointsDistances = (points: Point[]) => {
   let distances = { ...defaultDistances };
@@ -50,6 +50,6 @@ const getPointsDistances = (points: Point[]) => {
   }
 
   return distances;
-}
+};
 
 export { getPointNames, getLabelStyle, getPointsDistances };

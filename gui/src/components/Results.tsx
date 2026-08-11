@@ -33,7 +33,7 @@ export const Results = () => {
   const section = sections[activeSection];
   const methods = useForm({ defaultValues: createInitialState(sections) });
 
-  console.log(sections[activeSection])
+  console.log(sections[activeSection]);
 
   const { nextStep } = useWizard();
 
@@ -46,12 +46,10 @@ export const Results = () => {
   }, [section, methods, sections]);
 
   return (
-    <div className='body'>
+    <div className="body">
       <FormProvider {...methods}>
         {sections.map((section, index: number) => {
-          return (
-            <FormResults key={section.name} index={index} onSubmit={methods.handleSubmit(onSubmit)}/>
-          );
+          return <FormResults key={section.name} index={index} onSubmit={methods.handleSubmit(onSubmit)} />;
         })}
       </FormProvider>
     </div>

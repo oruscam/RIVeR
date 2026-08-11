@@ -9,10 +9,15 @@ import {
   setTheme,
   setErrorMessage,
   clearErrorMessage,
+  setInfoMessage,
+  clearInfoMessage,
+  setWarningMessage,
+  clearWarningMessage,
   setSeeAll,
   setScreen,
   setLanguage,
   setIsLastVersion,
+  setMessage,
 } from '../store/ui/uiSlice';
 import { ThemeType } from '../store/ui/types';
 import { RootState } from '../store/store';
@@ -23,8 +28,19 @@ import { getNewImageResolution } from '../helpers';
  */
 
 export const useUiSlice = () => {
-  const { theme, error, isLoading, seeAll, screenSizes, message, language, isLatestVersion, latestVersion } =
-    useSelector((state: RootState) => state.ui);
+  const {
+    theme,
+    error,
+    info,
+    warning,
+    isLoading,
+    seeAll,
+    screenSizes,
+    message,
+    language,
+    isLatestVersion,
+    latestVersion,
+  } = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
 
   /** Derived boolean for backward-compat code that checks darkMode */
@@ -58,12 +74,12 @@ export const useUiSlice = () => {
       let arrayOfErrors: string[] = [];
       if (error !== undefined) {
         Object.entries(error).every(([, value]) => {
-          if (typeof value === 'string') {
+          if (typeof value === 'string' && value) {
             arrayOfErrors.push(value);
-          } else if (value && value.type === 'required') {
+          } else if (value && value.type === 'required' && value.message) {
             arrayOfErrors = [value.message];
             return false;
-          } else if (value) {
+          } else if (value && value.message) {
             arrayOfErrors.push(value.message);
           }
           return true;
@@ -74,6 +90,46 @@ export const useUiSlice = () => {
     setTimeout(() => {
       dispatch(clearErrorMessage());
     }, 5000);
+  };
+
+  /**
+   * Method to set an informational (non-error) message on the UI slice.
+   * After 5 seconds the info message will be cleared.
+   * @param info - String with the info message
+   */
+
+  const onSetInfoMessage = (info: string) => {
+    dispatch(setInfoMessage([info]));
+    setTimeout(() => {
+      dispatch(clearInfoMessage());
+    }, 5000);
+  };
+
+  /**
+   * Method to set a persistent warning message on the UI slice, shown while an
+   * action is ongoing (e.g. editing stabilization regions). Unlike error/info,
+   * it does not auto-clear on a timer — the caller must clear it explicitly
+   * with onClearWarningMessage once the action finishes.
+   * @param warning - String with the warning message
+   */
+
+  const onSetWarningMessage = (warning: string) => {
+    dispatch(setWarningMessage([warning]));
+  };
+
+  const onClearWarningMessage = () => {
+    dispatch(clearWarningMessage());
+  };
+
+  /**
+   * Method to overwrite the persistent loading message on the UI slice
+   * (e.g. switching the loader header from "Extracting frames" to
+   * "Stabilizing frames" mid-way through the same backend call).
+   * @param message - String with the new loading message
+   */
+
+  const onSetMessage = (message: string) => {
+    dispatch(setMessage(message));
   };
 
   /**
@@ -157,6 +213,8 @@ export const useUiSlice = () => {
     theme,
     darkMode,
     error,
+    info,
+    warning,
     isLoading,
     seeAll,
     screenSizes,
@@ -169,6 +227,10 @@ export const useUiSlice = () => {
     onChangeTheme,
     onSetTheme,
     onSetErrorMessage,
+    onSetInfoMessage,
+    onSetWarningMessage,
+    onClearWarningMessage,
+    onSetMessage,
     onSetSeeAll,
     onSetScreen,
     onSetLanguage,

@@ -29,7 +29,7 @@ export const AllInOne = ({
   const svgRef = useRef<SVGSVGElement>(null);
   const { sections, activeSection, onChangeDataValues } = useSectionSlice();
   const { data, bathimetry, name } = sections[index ? index : activeSection];
-  const { level, x1Intersection, x2Intersection, width: bathWidth } = bathimetry;
+  const { level, x1Intersection, x2Intersection, width: bathWidth, wetSegments } = bathimetry;
   const { screenSizes, theme, language } = useUiSlice();
   const { projectDetails } = useProjectSlice();
   const { unitSistem } = projectDetails;
@@ -63,7 +63,7 @@ export const AllInOne = ({
       } = adapterData(data, x1Intersection!);
       const { showPercentile, showVelocityStd } = data;
 
-      const bathData = adapterBathimetry(bathimetry.line!, x1Intersection!, x2Intersection!, level!);
+      const bathData = adapterBathimetry(bathimetry.line!, wetSegments ?? [], level!);
 
       // xScale for velocity and bathimetry
 
@@ -76,7 +76,10 @@ export const AllInOne = ({
       const ticks = generateXAxisTicks(x1Intersection!, x2Intersection!, bathWidth!);
       const displayFactor = unitSistem === 'imperial' ? UNIT_CONVERSIONS.M_TO_FT : 1;
 
-      const xAxis = d3.axisBottom(xScale).tickValues(ticks).tickFormat((d) => ((d as number) * displayFactor).toFixed(1));
+      const xAxis = d3
+        .axisBottom(xScale)
+        .tickValues(ticks)
+        .tickFormat((d) => ((d as number) * displayFactor).toFixed(1));
 
       // Append xAxis
 
@@ -146,7 +149,25 @@ export const AllInOne = ({
         unitSistem,
       });
     }
-  }, [activeSection, data?.showVelocityStd, data?.showPercentile, index, screenWidth, data?.Q, data?.check, theme, unitSistem, language]);
+    // onChangeDataValues is recreated every render but only ever changes together with `data`
+    // (already tracked); adding it directly would redraw this chart on every unrelated re-render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    activeSection,
+    data,
+    index,
+    screenWidth,
+    theme,
+    unitSistem,
+    language,
+    isReport,
+    level,
+    x1Intersection,
+    x2Intersection,
+    bathWidth,
+    bathimetry.line,
+    wetSegments,
+  ]);
 
   return (
     <svg

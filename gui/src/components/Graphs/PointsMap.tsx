@@ -34,7 +34,7 @@ export const PointsMap = () => {
         unitSistem: projectDetails.unitSistem,
       });
     }
-  }, [points, graphWidth, cameraPosition, projectDetails.unitSistem]);
+  }, [points, graphWidth, cameraPosition, projectDetails.unitSistem, activePoint, orthoExtent, orthoImagePath]);
 
   return (
     <div>

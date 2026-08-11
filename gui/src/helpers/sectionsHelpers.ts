@@ -52,8 +52,6 @@ const setChangesByForm = (formPoint: FormPoint, dirPoints: Point[]) => {
 
   let flag1 = false;
   let flag2 = false;
-  let flag3 = false;
-  let flag4 = false
 
   for (let i = 1; i <= dirPoints.length; i++) {
     if (position === `x${i}`) {
@@ -62,8 +60,6 @@ const setChangesByForm = (formPoint: FormPoint, dirPoints: Point[]) => {
         newPoints[i - 1] = { x: parseFloat(value as string), y: dirPoints[i - 1].y };
         if (i === 1) flag1 = true;
         if (i === 2) flag2 = true;
-        if (i === 3) flag3 = true;
-        if (i === 4) flag4 = true;
       }
     } else if (position === `y${i}`) {
       if (value !== dirPoints[i - 1].y) {
@@ -71,14 +67,9 @@ const setChangesByForm = (formPoint: FormPoint, dirPoints: Point[]) => {
         newPoints[i - 1] = { x: dirPoints[i - 1].x, y: parseFloat(value as string) };
         if (i === 1) flag1 = true;
         if (i === 2) flag2 = true;
-        if (i === 3) flag3 = true;
-        if (i === 4) flag4 = true;
       }
     }
   }
-
-
-
 
   return { points: newPoints, firstFlag: flag1, secondFlag: flag2 };
 };
