@@ -13,12 +13,32 @@
     font-weight: bold;
 }
 
+#version-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
 #version-message {
     display: flex;
     color: var(--secondary-text-color);
     font-size: 16px;
     font-weight: bold;
-    margin-bottom: 50px;
+}
+
+#source-offer {
+    margin-top: 4px;
+    color: var(--secondary-text-color);
+    font-size: 13px;
+    font-weight: normal;
+    text-decoration: underline;
+    cursor: pointer;
+    opacity: 0.75;
+}
+
+#source-offer:hover {
+    opacity: 1;
 }
 
 #version-message p {
