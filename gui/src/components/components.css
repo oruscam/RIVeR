@@ -632,6 +632,19 @@
 
 }
 
+/* STI strips are far wider than they are tall, so inside the fixed row height that
+   react-window sets inline they render at the top while .img-water-mark (top: 45%)
+   and the carousel arrows sit near the middle — three different vertical positions.
+   Centring the strip puts all three on one line.
+   The base class is compounded on deliberately: .img-carousel-container sets
+   display: inline-block at the same specificity, and relying on source order to win
+   would break the moment either rule moves. */
+.img-carousel-container.img-carousel-container-centered {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 .img-carousel-container:hover {
     cursor: pointer;
 }
@@ -658,6 +671,11 @@
     width: 100%;
     text-align: center;
     white-space: nowrap;
+    /* Must out-stack .img-carousel's z-index: 1. That z-index is inert while the
+       container is inline-block (it applies only to positioned elements), but the
+       STI carousel's container is a flex box, where z-index DOES apply to flex
+       items — so without this the thumbnail paints over the station number. */
+    z-index: 2;
 }
 
 .img-water-mark-ipcam {
@@ -1120,8 +1138,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     width: 100%;
+    height: 100%;
 }
 
 .sti-context {
@@ -1163,17 +1183,13 @@
     pointer-events: none;
 }
 
+/* Box style (background, border, padding, radius) and font come from
+   .velocity-readout, shared with the PIV arrow tooltip. Only placement and the
+   multi-line layout are specific to the badge. */
 .sti-badge {
     position: absolute;
     top: 8px;
     right: 8px;
-    background: var(--secondary-background-color);
-    border: 1px solid var(--accent-color);
-    color: var(--accent-color);
-    border-radius: 6px;
-    padding: 5px 9px;
-    font-size: 11px;
-    font-weight: 600;
     line-height: 1.5;
 }
 

@@ -11,6 +11,8 @@
   /* Backgrounds */
   --background-color:           #000000;
   --secondary-background-color: #141414;
+  --readout-background: rgba(50, 50, 50, 0.85);
+  --readout-border: #262626;
   --input-background:           #323232;
   --input-background-disabled:  #191919;
   --secondary-input-background: #646464;
@@ -77,6 +79,8 @@
   /* Backgrounds */
   --background-color:           #F5F0EB;
   --secondary-background-color: #EDE7DF;
+  --readout-background: rgba(245, 240, 233, 0.92);
+  --readout-border: #C9BFB2;
   --input-background:           #E2DDD6;
   --input-background-disabled:  #D4CFC8;
   --secondary-input-background: #C0BBB4;
@@ -143,6 +147,8 @@
   /* Backgrounds */
   --background-color:           #282a36;
   --secondary-background-color: #21222c;
+  --readout-background: rgba(40, 42, 54, 0.9);
+  --readout-border: #44475a;
   --input-background:           #44475a;
   --input-background-disabled:  #1e2029;
   --secondary-input-background: #6272a4;
@@ -973,4 +979,17 @@ svg.mask-mode-active .overlay-ui * {
 .confirm-mask-btn:hover {
   opacity: 1;
   transform: scale(1.2);
+}
+
+/* =============================================================================
+   Velocity readout — the PIV arrow tooltip (appended to <body> by drawQuiver.ts)
+   and the STI badge. One class so the two cannot drift apart.
+   Deliberately sets no font rules: both must inherit the app font identically,
+   which is what makes them look like the same control.
+   ============================================================================= */
+.velocity-readout {
+    background: var(--readout-background);
+    border: 1px solid var(--readout-border);
+    padding: 5px 10px;
+    border-radius: 5px;
 }

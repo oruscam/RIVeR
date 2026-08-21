@@ -6,6 +6,8 @@ import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate }
 import { getUnit } from './unitSistem';
 import { getDirectionVector } from './getDirectionVector';
 import { computeStationPixelPositions, computeStationSearchLines, computeSearchLinesFromCenters } from './stationPositions';
+import { getStiColorScale, STI_FALLBACK_COLOR } from './stiColorScale';
+import type { StiColorScale } from './stiColorScale';
 import {
   getBathimetryValues,
   getIntersectionPoints,
@@ -44,7 +46,7 @@ import { handleDragLeave, handleDragOver } from './handleDragEvents';
 import { froudeFilledProfile, computeDischarge, getEffectiveTechniqueData } from './techniqueDischarge';
 import type { Technique, DischargeResult, TechniqueDischargeData, TechniqueOptions } from './techniqueDischarge';
 
-export type { Technique, DischargeResult, TechniqueDischargeData, TechniqueOptions };
+export type { StiColorScale, Technique, DischargeResult, TechniqueDischargeData, TechniqueOptions };
 
 export {
   adapterBathimetry,
@@ -85,6 +87,7 @@ export {
   getOrthoImageDimensions,
   getPointNames,
   getPointsDistances,
+  getStiColorScale,
   getUnit,
   getValidationRules,
   getVelocityLimits,
@@ -99,6 +102,7 @@ export {
   recortStringDate,
   setCarouselDimensions,
   setChangesByForm,
+  STI_FALLBACK_COLOR,
   stringDateToDate,
   verifyWindowsSizes,
 };

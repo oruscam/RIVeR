@@ -87,7 +87,7 @@ export const Carousel: React.FC<CarouselProps> = ({
     return (
       <div
         key={index}
-        className="img-carousel-container"
+        className={`img-carousel-container${mode === 'processing' ? ' img-carousel-container-centered' : ''}`}
         onClick={() =>
           carouselClickImage(
             active,

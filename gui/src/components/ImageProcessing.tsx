@@ -7,6 +7,7 @@ import { DrawSectionsD3 } from './CrossSections/DrawSectionsD3';
 import { OverlaySvg } from './OverlaySvg';
 import { StationSearchLines } from './StationSearchLines';
 import { getQuiverValues, createColorMap, Normalize } from '../../commons/vectors';
+import { getStiColorScale } from '../helpers';
 import { FloatingPlot } from './FloatingPlot';
 import { StiViewer } from './StiViewer';
 
@@ -26,7 +27,7 @@ export const ImageProcessing = ({
   const { screenSizes } = useUiSlice();
   const { video } = useProjectSlice();
   const { processing, images, quiver, fullQuiver, colorbarLimits } = useDataSlice();
-  const { transformationMatrix } = useSectionSlice();
+  const { transformationMatrix, sections, activeSection } = useSectionSlice();
   const {
     imageWidth: width,
     imageHeight: height,
@@ -111,6 +112,14 @@ export const ImageProcessing = ({
   if (!width || !height || !factor) return null;
 
   if (stiMode) {
+    // Same bounds the STI's ticks, lines, and badge use, so the bar is a legend for
+    // exactly what is drawn. ColorBar writes through to the shared colorbarLimits,
+    // which is what makes manually locked limits apply to the PIV view too.
+    const { min: stiMin, max: stiMax } = getStiColorScale(
+      sections[activeSection]?.data?.stiv_velocity_profile,
+      colorbarLimits
+    );
+
     return (
       <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>
         <StiViewer
@@ -120,6 +129,7 @@ export const ImageProcessing = ({
           containerWidth={realWidth!}
           containerHeight={realHeight! - 90}
         />
+        {stiMin !== null && stiMax !== null && <ColorBar min={stiMin} max={stiMax} />}
       </div>
     );
   }
