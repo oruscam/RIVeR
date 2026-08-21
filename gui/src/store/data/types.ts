@@ -51,4 +51,4 @@ interface DataState {
   colorbarLimits: ColorbarLimits;
 }
 
-export type { DataState, Processing, FormProcessing, Quiver };
+export type { ColorbarLimits, DataState, Processing, FormProcessing, Quiver };

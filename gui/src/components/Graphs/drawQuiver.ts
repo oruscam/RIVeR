@@ -34,12 +34,9 @@ export const drawQuiver = (
       .select<HTMLDivElement, unknown>('body')
       .append('div')
       .attr('id', 'quiver-tooltip')
+      .attr('class', 'velocity-readout')
       .style('position', () => 'absolute')
       .style('top', () => '0px')
-      .style('background', () => 'rgba(50, 50, 50, 0.85)')
-      .style('border', () => '1px solid #262626')
-      .style('padding', () => '5px 10px')
-      .style('border-radius', () => '5px')
       .style('pointer-events', () => 'none')
       .style('opacity', () => '0');
   } else {
@@ -84,8 +81,6 @@ export const drawQuiver = (
         .html(`${displayVel.toFixed(2)} ${unitLabel}`)
         .style('left', () => event.pageX + 10 + 'px')
         .style('top', () => event.pageY - 28 + 'px')
-        .style('background', () => 'rgba(50, 50, 50, 0.85)')
-        .style('border', () => '1px solid #262626')
         .style('color', () => d.color)
         .style('z-index', () => '1000');
     })

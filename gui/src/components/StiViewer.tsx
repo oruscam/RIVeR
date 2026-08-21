@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDataSlice, useProjectSlice, useSectionSlice } from '../hooks';
-import { createColorMap, Normalize } from '../../commons/vectors';
+import { getStiColorScale, STI_FALLBACK_COLOR } from '../helpers';
 import { UNIT_CONVERSIONS, UNITS } from '../constants/constants';
 import './components.css';
 
@@ -53,25 +53,17 @@ export const StiViewer = ({
   const velocity = data?.stiv_velocity_profile?.[activeStation] ?? null;
   const sign = data?.stiv_sign_profile?.[activeStation] ?? '';
 
-  const stationColors = useMemo(() => {
-    const profile = data?.stiv_velocity_profile;
-    if (!profile) return [];
-    const values = profile.filter((v): v is number => v !== null);
-    if (values.length === 0) return [];
-    const min = colorbarLimits.default === false ? colorbarLimits.min! : Math.min(...values);
-    const max = colorbarLimits.default === false ? colorbarLimits.max! : Math.max(...values);
-    const norm = new Normalize(min, max);
-    const colorMap = createColorMap();
-    return profile.map((v) => {
-      if (v === null) return 'transparent';
-      const clamped = Math.max(min, Math.min(max, v));
-      const index = Math.max(
-        0,
-        Math.min(Math.floor(norm.normalize(clamped) * (colorMap.length - 1)), colorMap.length - 1)
-      );
-      return colorMap[index];
-    });
-  }, [data?.stiv_velocity_profile, colorbarLimits.default, colorbarLimits.min, colorbarLimits.max]);
+  const { colors: stationColors } = useMemo(
+    () => getStiColorScale(data?.stiv_velocity_profile, colorbarLimits),
+    [data?.stiv_velocity_profile, colorbarLimits]
+  );
+
+  // The lines and the badge must stay visible even where STIV produced no value for
+  // this station, so they take the fallback rather than the ticks' 'transparent'.
+  const readoutColor =
+    stationColors[activeStation] && stationColors[activeStation] !== 'transparent'
+      ? stationColors[activeStation]
+      : STI_FALLBACK_COLOR;
 
   if (stiPaths.length === 0) {
     return <p className="sti-empty">{t('Processing.stiNoData')}</p>;
@@ -144,9 +136,7 @@ export const StiViewer = ({
           src={stiPaths[activeStation]}
           className="sti-image"
           draggable={false}
-          onLoad={(e) =>
-            setNatural({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })
-          }
+          onLoad={(e) => setNatural({ w: e.currentTarget.naturalWidth, h: e.currentTarget.naturalHeight })}
           style={{
             transform: `translateY(${offsetY}px) scale(${scale}) translateX(${-windowStart}px)`,
             transformOrigin: 'top left',
@@ -154,17 +144,29 @@ export const StiViewer = ({
         />
         {angleRad !== null && (
           <svg className="sti-overlay" width={viewW} height={viewH}>
-            <line
-              x1={viewW / 2 - (Math.cos(angleRad) * Math.min(viewW, viewH) * 0.8) / 2}
-              y1={viewH / 2 - (Math.sin(angleRad) * Math.min(viewW, viewH) * 0.8) / 2}
-              x2={viewW / 2 + (Math.cos(angleRad) * Math.min(viewW, viewH) * 0.8) / 2}
-              y2={viewH / 2 + (Math.sin(angleRad) * Math.min(viewW, viewH) * 0.8) / 2}
-              stroke="var(--accent-color)"
-              strokeWidth={2}
-            />
+            {/* One line per quarter of the frame width, all at the reported angle, so
+                the angle can be checked against streaks in more than one region.
+                Each keeps the length the single centre line used. Outer lines may run
+                past the frame on steep angles; .sti-frame clips them. */}
+            {[0.25, 0.5, 0.75].map((fraction) => {
+              const halfLength = (Math.min(viewW, viewH) * 0.8) / 2;
+              const cx = viewW * fraction;
+              const cy = viewH / 2;
+              return (
+                <line
+                  key={fraction}
+                  x1={cx - Math.cos(angleRad) * halfLength}
+                  y1={cy - Math.sin(angleRad) * halfLength}
+                  x2={cx + Math.cos(angleRad) * halfLength}
+                  y2={cy + Math.sin(angleRad) * halfLength}
+                  stroke={readoutColor}
+                  strokeWidth={3}
+                />
+              );
+            })}
           </svg>
         )}
-        <div className="sti-badge">
+        <div className="sti-badge velocity-readout" style={{ color: readoutColor }}>
           {t('Processing.stiStation')} {stiStations[activeStation] ?? activeStation + 1}
           <br />
           {angle === null ? '—' : `${angle.toFixed(1)}°`}
