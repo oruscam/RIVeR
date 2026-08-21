@@ -17,9 +17,9 @@ import river.core.coordinate_transform as ct
 # ---------------------------------------------------------------------------
 
 RW_STEP_M = 0.02
-TTA_PASSES = 8
 STRIDE_FRAC = 0.25
 SIGMA_FLOOR = 0.05
+MIN_TOTAL_QUALITY = 0.05
 STIV_COLUMNS = [
 	"stiv_velocity_profile",
 	"stiv_sigma_profile",
@@ -29,8 +29,7 @@ STIV_COLUMNS = [
 
 _MODEL_DIR = Path(__file__).parent / "stiv_model"
 
-_angle_model = None
-_angle_norm_params: Optional[dict] = None
+_angle_members: Optional[list] = None
 _sign_model = None
 _sign_target_size: int = 256
 
@@ -217,32 +216,38 @@ def theta_to_velocity(theta_deg: float, seconds_per_pix: float, meters_per_pix: 
 # ---------------------------------------------------------------------------
 
 def load_models():
-	"""Lazy-load and cache angle + sign models.
+	"""Lazy-load and cache the angle ensemble + sign model.
 
-	Returns (angle_model, norm_params, sign_model, sign_target_size).
+	Returns (angle_members, sign_model, sign_tsz) where angle_members is a
+	list of (model, norm_params) pairs, one per ensemble member in
+	river/core/stiv_model/angle/seed*/ — norm_params carries its own
+	target_size/min_angle/max_angle.
 	"""
-	global _angle_model, _angle_norm_params, _sign_model, _sign_target_size
+	global _angle_members, _sign_model, _sign_target_size
 
-	if _angle_model is not None:
-		return _angle_model, _angle_norm_params, _sign_model, _sign_target_size
+	if _angle_members is not None:
+		return _angle_members, _sign_model, _sign_target_size
 
 	import torch
 	from river.core.stiv_model.models import get_model
 
-	angle_dir = _MODEL_DIR / "angle"
-	with open(angle_dir / "runtime_config.json") as f:
-		cfg = json.load(f)
-	model_name = cfg.get("model_name", "GELUModel5Block")
-	target_size = int(cfg.get("target_size", 256))
+	angle_root = _MODEL_DIR / "angle"
+	members = []
+	for seed_dir in sorted(p for p in angle_root.iterdir() if p.is_dir()):
+		with open(seed_dir / "runtime_config.json") as f:
+			cfg = json.load(f)
+		model_name = cfg.get("model_name", "Wide5BlockAA")
+		target_size = int(cfg.get("target_size", 256))
 
-	with open(angle_dir / "norm_params.json") as f:
-		norm_params = json.load(f)
-	norm_params["target_size"] = target_size
+		with open(seed_dir / "norm_params.json") as f:
+			norm_params = json.load(f)
+		norm_params["target_size"] = target_size
 
-	angle_model = get_model(model_name, input_height=target_size, input_width=target_size)
-	sd = torch.load(str(angle_dir / "best_model.pth"), map_location="cpu", weights_only=True)
-	angle_model.load_state_dict(sd)
-	angle_model.eval()
+		model = get_model(model_name, input_height=target_size, input_width=target_size)
+		sd = torch.load(str(seed_dir / "best_model.pth"), map_location="cpu", weights_only=True)
+		model.load_state_dict(sd)
+		model.eval()
+		members.append((model, norm_params))
 
 	sign_dir = _MODEL_DIR / "sign"
 	with open(sign_dir / "sign_model_meta.json") as f:
@@ -255,10 +260,9 @@ def load_models():
 	sign_model.load_state_dict(sign_sd)
 	sign_model.eval()
 
-	_angle_model = angle_model
-	_angle_norm_params = norm_params
+	_angle_members = members
 	_sign_model = sign_model
-	return _angle_model, _angle_norm_params, _sign_model, _sign_target_size
+	return _angle_members, _sign_model, _sign_target_size
 
 
 # ---------------------------------------------------------------------------
@@ -277,29 +281,25 @@ def _sliding_window_positions(H: int, W: int, stride_frac: float = STRIDE_FRAC):
 	return positions, along_time, N
 
 
-def _run_tta(crop_f32: np.ndarray, model, norm_params: dict, n_passes: int = TTA_PASSES):
-	"""Noise-TTA inference on a single crop. Returns (mean_angle_deg, std_angle_deg, confidence)."""
+def _run_ensemble(crop_f32: np.ndarray, angle_members: list) -> tuple[float, float, float]:
+	"""One clean forward pass per ensemble member (no noise-TTA).
+
+	Returns (mean_angle_deg, std_angle_deg, confidence), where std/confidence
+	come from inter-member (seed) disagreement rather than per-model noise
+	response — sti_training's frozen 256px benchmark showed noise-TTA hurts
+	at this resolution, so the ensemble's own seed spread replaces it.
+	"""
 	import torch
-	sz = int(norm_params.get("target_size", 256))
-	interp = cv2.INTER_AREA if crop_f32.shape[0] > sz else cv2.INTER_CUBIC
-	arr = np.clip(cv2.resize(crop_f32.astype(np.float32), (sz, sz), interpolation=interp), 0.0, 1.0)
-	zero_mask = arr == 0.0
-	rng = np.random.default_rng(0)
-	patch_std = float(arr.std()) or 0.15
-	sigma_scale = patch_std / 0.15
-	noise_sigmas = [0.02 if i % 2 == 0 else 0.04 for i in range(n_passes - 1)]
-
-	def _noisy(s):
-		n = np.clip(arr + rng.normal(0, s * sigma_scale, arr.shape).astype(np.float32), 0, 1)
-		n[zero_mask] = 0.0
-		return n
-
-	augs = [arr] + [_noisy(s) for s in noise_sigmas]
-	batch = np.stack(augs)[:, np.newaxis]
-	with torch.no_grad():
-		raw = model(torch.from_numpy(batch).float()).reshape(-1).cpu().numpy()
-	mn, mx = norm_params["min_angle"], norm_params["max_angle"]
-	thetas = (raw + 0.5) * (mx - mn) + mn
+	thetas = []
+	for model, norm_params in angle_members:
+		sz = int(norm_params.get("target_size", 256))
+		interp = cv2.INTER_AREA if crop_f32.shape[0] > sz else cv2.INTER_CUBIC
+		arr = np.clip(cv2.resize(crop_f32.astype(np.float32), (sz, sz), interpolation=interp), 0.0, 1.0)
+		tensor = torch.from_numpy(arr[np.newaxis, np.newaxis]).float()
+		with torch.no_grad():
+			raw = float(model(tensor).reshape(-1)[0])
+		mn, mx = norm_params["min_angle"], norm_params["max_angle"]
+		thetas.append((raw + 0.5) * (mx - mn) + mn)
 	mean_t = float(np.mean(thetas))
 	std_t = float(np.std(thetas))
 	conf = float(max(0.0, 1.0 - std_t / 8.0))
@@ -322,8 +322,7 @@ def _run_sign_classify(crop_f32: np.ndarray, sign_model, target_size: int) -> st
 
 def profile_station(
 	sti: np.ndarray,
-	angle_model,
-	norm_params: dict,
+	angle_members: list,
 	sign_model,
 	sign_target_size: int,
 	seconds_per_pix: float,
@@ -334,6 +333,8 @@ def profile_station(
 	Returns (velocity_m_s, sigma_v, sign_label, angle_deg).
 	velocity, sigma, and angle are None if the STI is degenerate (all-zero after NaN fill).
 	"""
+	from river.core.stiv_model.crop_quality import crop_quality, robust_slope_aggregate, weighted_median
+
 	sti_clean = np.nan_to_num(sti.astype(np.float32), nan=0.0)
 	if sti_clean.max() == sti_clean.min():
 		return None, None, "zero", None
@@ -342,39 +343,79 @@ def profile_station(
 	arr_f32 = preprocess_crop(sti_clean)
 	positions, along_time, N = _sliding_window_positions(H, W)
 
-	angles, stds, confs, signs = [], [], [], []
+	angles, confs, quals, signs, stds = [], [], [], [], []
 	for _, start in positions:
 		crop_raw = arr_f32[:, start : start + N] if along_time else arr_f32[start : start + N, :]
+		# crop_quality's RMS_FEATURELESS/RMS_STRONG thresholds are calibrated on
+		# native [0,1] pixel contrast, so it must score the un-stretched STI.
+		# arr_f32 is globally contrast-stretched across the whole STI, which
+		# inflates a crop's local RMS by ~1/(max-min) of the scene and would let
+		# glare/featureless crops pass the texture gate on low-contrast STIs.
+		# The model-input path below still uses the arr_f32-derived crop.
+		crop_native = sti_clean[:, start : start + N] if along_time else sti_clean[start : start + N, :]
 		crop_f32 = preprocess_crop(crop_raw)
 		sign_label = _run_sign_classify(crop_f32, sign_model, sign_target_size)
 		signs.append(sign_label)
 
 		if sign_label == "zero":
 			angles.append(0.0)
-			stds.append(0.0)
 			confs.append(0.5)
+			quals.append(0.0)
+			stds.append(0.0)
 		else:
 			crop_for_angle = crop_f32[:, ::-1].copy() if sign_label == "negative" else crop_f32
-			mean_t, std_t, conf = _run_tta(crop_for_angle, angle_model, norm_params)
+			mean_t, std_t, conf = _run_ensemble(crop_for_angle, angle_members)
 			if sign_label == "negative":
 				mean_t = 180.0 - mean_t
 			angles.append(mean_t)
-			stds.append(std_t)
 			confs.append(conf)
+			stds.append(std_t)
+			quals.append(crop_quality(crop_native, mean_t)["q"])
 
 	nz_mask = np.array([s != "zero" for s in signs])
-	if nz_mask.any():
-		c_nz = np.array(confs)[nz_mask]
-		a_nz = np.array(angles)[nz_mask]
-		w = c_nz / (c_nz.sum() + 1e-12)
-		wmean = float(np.dot(w, a_nz))
-		sigma_theta = float(np.mean(np.array(stds)[nz_mask]))
+	if not nz_mask.any():
+		return theta_to_velocity(0.0, seconds_per_pix, meters_per_pix), SIGMA_FLOOR, "zero", 0.0
+
+	angles_a = np.array(angles)[nz_mask]
+	confs_a = np.array(confs)[nz_mask]
+	quals_a = np.array(quals)[nz_mask]
+	stds_a = np.array(stds)[nz_mask]
+	weights = quals_a * confs_a
+
+	if weights.sum() < MIN_TOTAL_QUALITY:
+		# Every crop in this station looks like junk to crop_quality — trust
+		# the plain confidence-weighted mean rather than a near-zero-weight median.
+		w_legacy = confs_a / (confs_a.sum() + 1e-12)
+		wmean = float(np.dot(w_legacy, angles_a))
+		# Honest dispersion of the crops around that mean, pushed through the
+		# same slope-space Jacobian as the robust branch.
+		angle_std_deg = float(np.sqrt(np.dot(w_legacy, (angles_a - wmean) ** 2)))
+		sigma_slope = (1.0 + np.tan(np.radians(wmean)) ** 2) * np.radians(angle_std_deg)
+		sigma_v = abs(float(sigma_slope) * (meters_per_pix / seconds_per_pix))
 	else:
-		wmean = 0.0
-		sigma_theta = 0.0
+		wmean = robust_slope_aggregate(angles_a, weights)
+		slopes = np.tan(np.radians(angles_a))
+		s_agg = np.tan(np.radians(wmean))
+
+		# within-crop (model/ensemble) uncertainty per crop: convert per-crop
+		# std_t (degrees) to slope-space via d(tan theta)/d(theta) = 1 + tan^2(theta),
+		# evaluated at each crop's own angle, then take the quality-weighted
+		# "typical" value across the crops that matter. Without this term sigma
+		# collapses to the floor in the single-dominant-crop case that motivates
+		# this whole aggregation: that crop *is* the weighted median, so its own
+		# deviation from the aggregate — and hence the MAD — is zero.
+		slope_stds = (1.0 + slopes ** 2) * np.radians(stds_a)
+		sigma_slope_within = weighted_median(slope_stds, weights)
+
+		mad = weighted_median(np.abs(slopes - s_agg), weights)
+		sigma_slope_between = 1.4826 * mad
+
+		# Independent uncertainty sources -> combine in quadrature.
+		sigma_slope = float(np.sqrt(sigma_slope_between ** 2 + sigma_slope_within ** 2))
+		sigma_v = abs(sigma_slope * (meters_per_pix / seconds_per_pix))
 
 	velocity = theta_to_velocity(wmean, seconds_per_pix, meters_per_pix)
-	sigma_v = abs(theta_to_velocity(wmean + sigma_theta, seconds_per_pix, meters_per_pix) - velocity)
+	sigma_v = max(sigma_v, SIGMA_FLOOR)
 
 	nz_signs = [s for s in signs if s != "zero"]
 	sign_majority = Counter(nz_signs).most_common(1)[0][0] if nz_signs else "zero"
@@ -533,7 +574,7 @@ def run_stiv_analysis(
 			img = ((arr - amin) / (amax - amin + 1e-12) * 255).astype(np.uint8)
 			cv2.imwrite(str(out / f"sti_{sid}.png"), img)
 
-	angle_model, norm_params, sign_model, sign_tsz = models if models is not None else load_models()
+	angle_members, sign_model, sign_tsz = models if models is not None else load_models()
 
 	seconds_per_pix = step / float(fps)
 	meters_per_pix = RW_STEP_M
@@ -553,7 +594,7 @@ def run_stiv_analysis(
 				progress(idx + 1, n)
 			continue
 		v, sigma, sign, angle = profile_station(
-			sti, angle_model, norm_params, sign_model, sign_tsz,
+			sti, angle_members, sign_model, sign_tsz,
 			seconds_per_pix, meters_per_pix,
 		)
 		if v is not None:
