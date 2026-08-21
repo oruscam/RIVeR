@@ -5,6 +5,7 @@
   "version": "3.5.2",
   "type": "module",
   "description": "Software for calculating water discharge from videos using LSPIV technique",
+  "license": "AGPL-3.0-or-later",
   "author": {
     "name": "Orus",
     "email": "contact@orus.cam"

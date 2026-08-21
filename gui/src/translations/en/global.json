@@ -21,7 +21,8 @@
     },
     "Version": {
       "latest": "You are using the latest version.",
-      "update": "A newer version is available: "
+      "update": "A newer version is available: ",
+      "source": "Free software (AGPL-3.0) — source code and third-party licences"
     },
     "Settings": {
       "unitSystem": "Unit system",

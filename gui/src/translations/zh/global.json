@@ -21,7 +21,8 @@
     },
     "Version": {
       "latest": "您正在使用最新版本。",
-      "update": "有新版本可用: "
+      "update": "有新版本可用: ",
+      "source": "自由软件 (AGPL-3.0) — 源代码与第三方许可"
     },
     "Settings": {
       "unitSystem": "单位系统",

@@ -1,0 +1,80 @@
+cff-version: 1.2.0
+message: >-
+  If you use RIVeR in your research, please cite the RIVeR paper below. If you use
+  the iWave technique, please also cite Dolcetti et al. (2022).
+title: "RIVeR: Rectification of Image Velocity Results"
+version: 3.5.2
+type: software
+license: AGPL-3.0-or-later
+repository-code: "https://github.com/oruscam/RIVeR"
+authors:
+  - family-names: Patalano
+    given-names: Antoine
+    email: antoine.patalano@unc.edu.ar
+    affiliation: "Universidad Nacional de Córdoba / ORUS"
+  - family-names: Massó
+    given-names: Leandro
+    affiliation: "Universidad Nacional de Córdoba / ORUS"
+  - family-names: Stefani
+    given-names: Nicolas
+  - family-names: Stefani
+    given-names: Tomas
+  - family-names: Patrito
+    given-names: Agustín
+preferred-citation:
+  type: article
+  title: >-
+    Rectification of Image Velocity Results (RIVeR): A simple and user-friendly
+    toolbox for large scale water surface Particle Image Velocimetry (PIV) and
+    Particle Tracking Velocimetry (PTV)
+  authors:
+    - family-names: Patalano
+      given-names: Antoine
+    - family-names: García
+      given-names: Carlos Marcelo
+    - family-names: Rodríguez
+      given-names: Andrés
+  journal: "Computers & Geosciences"
+  volume: 105
+  start: 103
+  end: 114
+  year: 2017
+  publisher:
+    name: Elsevier
+  doi: "10.1016/j.cageo.2017.07.009"
+references:
+  - type: article
+    title: >-
+      Using Noncontact Measurement of Water Surface Dynamics to Estimate River
+      Discharge
+    authors:
+      - family-names: Dolcetti
+        given-names: G.
+      - family-names: Hortobágyi
+        given-names: B.
+      - family-names: Perks
+        given-names: M.
+      - family-names: Tait
+        given-names: S. J.
+      - family-names: Dervilis
+        given-names: N.
+    journal: "Water Resources Research"
+    volume: 58
+    issue: 9
+    number: e2022WR032829
+    year: 2022
+    doi: "10.1029/2022WR032829"
+    notes: >-
+      The method implemented by the IWaVE package, which RIVeR bundles unmodified
+      as its iWave technique.
+  - type: software
+    title: "IWaVE: Image-based Wave Velocimetry Estimation"
+    version: "0.4.0"
+    repository-code: "https://github.com/DataForWater/IWaVE"
+    authors:
+      - family-names: Dolcetti
+        given-names: Giulio
+      - family-names: Peña-Haro
+        given-names: Salvador
+      - family-names: Winsemius
+        given-names: Hessel

@@ -1013,3 +1013,24 @@ When ready:
   You can now close RIVeR or return to Home.
 
 > 💡 **Note:**  The report will be saved where you choose and includes all metadata, results, and figures from the session.
+
+---
+
+## Credits, citation and licences
+
+RIVeR is free software under the **GNU Affero General Public License v3.0 or later**. The complete
+source for any released version is at <https://github.com/oruscam/RIVeR>, at the matching tag.
+
+If you use RIVeR in your research, please cite Patalano, García & Rodríguez (2017),
+*Computers & Geosciences* 105, 103–114, [doi:10.1016/j.cageo.2017.07.009](https://doi.org/10.1016/j.cageo.2017.07.009).
+
+If you use the **iWave** technique, please also cite the method it implements:
+
+> Dolcetti, G., Hortobágyi, B., Perks, M., Tait, S. J., & Dervilis, N. (2022). Using Noncontact
+> Measurement of Water Surface Dynamics to Estimate River Discharge. *Water Resources Research*, 58(9),
+> e2022WR032829. [doi:10.1029/2022WR032829](https://doi.org/10.1029/2022WR032829)
+
+iWave is provided by the [IWaVE](https://github.com/DataForWater/IWaVE) package, which RIVeR bundles
+unmodified. RIVeR also bundles static FFmpeg binaries and other third-party components; all of their
+licences and copyright notices are listed in
+[THIRD-PARTY-LICENSES.md](https://github.com/oruscam/RIVeR/blob/main/THIRD-PARTY-LICENSES.md).

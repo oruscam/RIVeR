@@ -1,7 +1,10 @@
 # pyproject.toml
 
 [build-system]
-requires = ["setuptools>=65.5.0", "wheel"]
+# setuptools >= 77 is required for the PEP 639 `license = "<SPDX expression>"`
+# form below. On older setuptools it silently degrades to a free-text License
+# field and the declared licence stops being machine-readable.
+requires = ["setuptools>=77.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -24,7 +27,11 @@ dependencies = [
     "tablib[xlsx,xls,ods] == 3.8.0",
     "pyfftw == 0.15.0",
     "torch >= 2.0.0",
-    "iwave >= 0.4.0",
+    # Pinned to a tested range: river/core/iwave_pipeline.py calls IWaVE's
+    # internal modules (spectral, window, optimise) rather than the public
+    # Iwave class, so a minor release can change those signatures without
+    # notice. Re-test before widening. See THIRD-PARTY-LICENSES.md.
+    "iwave >= 0.4.0, < 0.5",
     "numexpr",
     "rocket-fft"
 ]

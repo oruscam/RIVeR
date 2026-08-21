@@ -21,7 +21,8 @@
     },
     "Version": {
       "latest": "Está usando la última versión.",
-      "update": "Hay una versión más reciente disponible: "
+      "update": "Hay una versión más reciente disponible: ",
+      "source": "Software libre (AGPL-3.0) — código fuente y licencias de terceros"
     },
     "Settings": {
       "unitSystem": "Sistema de unidades",

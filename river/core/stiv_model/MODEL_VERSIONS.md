@@ -29,3 +29,10 @@ git commit (not bundled with unrelated changes) referencing this run_name.
 
 - **2026-06-16** (repo-embed commit `03c5dab`) — `sign_20260611_200106`
   (`SignClassifier5Block`, val accuracy 0.9906). Current, unchanged.
+
+## Provenance and licence
+
+The training data behind every weights file recorded above originates with
+UNC / CONICET / ORUS. The weights are released under the same terms as RIVeR
+itself (AGPL-3.0-or-later). See `THIRD-PARTY-LICENSES.md` at the repository
+root for everything RIVeR redistributes from third parties.

@@ -204,3 +204,4 @@ docs/superpowers/
 snapshots/
 .superpowers/
 .worktrees/
+.license-audit/
