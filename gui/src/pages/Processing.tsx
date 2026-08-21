@@ -7,6 +7,8 @@ import { useWizard } from 'react-use-wizard';
 import { FormProcessing } from '../components/Forms';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
 import { ExportMp4 } from '../components/Forms/Components';
+import type { PreviewMode } from '../store/ui/types';
+import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
 
 export const Processing = () => {
   const { t } = useTranslation();
@@ -15,9 +17,12 @@ export const Processing = () => {
   const { images, fullQuiver, isBackendWorking, onSetActiveImage, onGetResultData } = useDataSlice();
   const [showMedian, setShowMedian] = useState(fullQuiver !== null);
   const [extraFields, setExtraFields] = useState(false);
-  const [stiMode, setStiMode] = useState(false);
+  const [previewMode, setPreviewMode] = useState<PreviewMode>('frames');
   const [stiPaths, setStiPaths] = useState<string[]>([]);
   const [stiStations, setStiStations] = useState<number[]>([]);
+  const [spectrumPaths, setSpectrumPaths] = useState<string[]>([]);
+  const [spectrumStations, setSpectrumStations] = useState<number[]>([]);
+  const [spectraSidecar, setSpectraSidecar] = useState<IwaveSpectraSidecar | null>(null);
 
   const { sections, activeSection } = useSectionSlice();
   const activeSectionName = sections[activeSection]?.name;
@@ -61,16 +66,42 @@ export const Processing = () => {
   }, [activeSectionName, fullQuiver]);
 
   useEffect(() => {
-    if (stiPaths.length === 0) setStiMode(false);
-  }, [stiPaths]);
+    let cancelled = false;
+    window.ipcRenderer
+      .invoke('get-iwave-spectra', { sectionName: activeSectionName })
+      .then((result: { stations: number[]; paths: string[]; sidecar: IwaveSpectraSidecar | null }) => {
+        if (cancelled) return;
+        setSpectrumStations(result.stations);
+        setSpectrumPaths(result.paths);
+        setSpectraSidecar(result.sidecar);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setSpectrumStations([]);
+        setSpectrumPaths([]);
+        setSpectraSidecar(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeSectionName, fullQuiver]);
+
+  useEffect(() => {
+    if (previewMode === 'sti' && stiPaths.length === 0) setPreviewMode('frames');
+    if (previewMode === 'iwave' && spectrumPaths.length === 0) setPreviewMode('frames');
+  }, [previewMode, stiPaths, spectrumPaths]);
 
   const { paths, active } = images;
 
+  // Each mode has its own list length; a station index valid in one can be out
+  // of range in another, so clamp whenever the active list changes.
+  const activeList = previewMode === 'sti' ? stiPaths : previewMode === 'iwave' ? spectrumPaths : paths;
+
   useEffect(() => {
-    if (stiMode && stiPaths.length > 0 && active >= stiPaths.length) {
+    if (previewMode !== 'frames' && activeList.length > 0 && active >= activeList.length) {
       onSetActiveImage(0);
     }
-  }, [stiMode, stiPaths, active, onSetActiveImage]);
+  }, [previewMode, activeList, active, onSetActiveImage]);
 
   const handleNext = async () => {
     nextStep();
@@ -93,17 +124,20 @@ export const Processing = () => {
         <ImageProcessing
           showMedian={showMedian}
           extraFields={extraFields}
-          stiMode={stiMode}
+          previewMode={previewMode}
           stiPaths={stiPaths}
           stiStations={stiStations}
+          spectrumPaths={spectrumPaths}
+          spectrumStations={spectrumStations}
+          spectraSidecar={spectraSidecar}
         />
         <Carousel
-          images={stiMode ? stiPaths : paths}
+          images={activeList}
           active={active}
           setActiveImage={onSetActiveImage}
           showMedian={showMedian && fullQuiver !== null}
           setShowMedian={setShowMedian}
-          mode={stiMode ? 'processing' : 'analize'}
+          mode={previewMode === 'frames' ? 'analize' : 'processing'}
         />
         <Error />
       </div>
@@ -113,9 +147,10 @@ export const Processing = () => {
           extraFields={extraFields}
           showMedian={showMedian}
           setShowMedian={setShowMedian}
-          stiMode={stiMode}
-          setStiMode={setStiMode}
+          previewMode={previewMode}
+          setPreviewMode={setPreviewMode}
           canToggleSti={stiPaths.length > 0}
+          canToggleIwave={spectrumPaths.length > 0}
           canToggleMedian={fullQuiver !== null}
         />
         <div className="footer">

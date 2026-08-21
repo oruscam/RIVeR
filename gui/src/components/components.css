@@ -1201,3 +1201,62 @@
     text-align: center;
     padding: 40px 0;
 }
+
+/* iWave spectrum preview — reuses .sti-viewer / .sti-frame / .sti-overlay /
+   .sti-badge from the STI viewer, and adds the axis labels and curve legend
+   that are specific to a spectrum. */
+.iwave-frame {
+    position: relative;
+}
+
+.iwave-spectrum-image {
+    display: block;
+    /* The spectrum is a data image; smoothing would invent structure that is
+       not in the underlying array. */
+    image-rendering: pixelated;
+}
+
+.iwave-plot {
+    position: relative;
+    display: inline-block;
+    /* Room for the axis labels, which must sit OUTSIDE .sti-frame because
+       that element clips its overflow to keep STI angle lines contained. */
+    padding: 0 0 20px 16px;
+}
+
+.iwave-axis {
+    position: absolute;
+    font-size: 11px;
+    color: var(--secondary-text-color);
+    pointer-events: none;
+}
+
+.iwave-axis-x {
+    bottom: 0;
+    left: calc(50% + 8px);
+    transform: translateX(-50%);
+}
+
+.iwave-axis-y {
+    left: 0;
+    top: calc(50% - 10px);
+    transform: translateY(-50%) rotate(-90deg);
+    transform-origin: center;
+}
+
+.iwave-legend {
+    position: absolute;
+    left: 8px;
+    bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 11px;
+    padding: 4px 8px;
+}
+
+.iwave-legend span {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}

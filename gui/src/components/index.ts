@@ -25,6 +25,7 @@ import { ImageOblique } from './ImageOblique';
 import { DrawOblique } from './DrawOblique';
 import { ImageIpcam } from './ImageIpcam';
 import { DrawIpcam } from './DrawIpcam';
+import { IWaveViewer } from './IWaveViewer';
 
 export {
   Carousel,
@@ -39,6 +40,7 @@ export {
   FocusOverlay,
   Grid,
   Icon,
+  IWaveViewer,
   ImageIpcam,
   ImageOblique,
   ImageProcessing,

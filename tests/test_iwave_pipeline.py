@@ -1,5 +1,6 @@
 """Tests for river.core.iwave_pipeline geometry helpers (no iwave package required)."""
 import cv2
+import json
 import numpy as np
 import pytest
 
@@ -8,7 +9,10 @@ from river.core.iwave_pipeline import (
 	OrthoGrid,
 	build_ortho_stack,
 	build_warp_matrix,
+	build_spectra_sidecar,
 	compute_extent,
+	extract_ky0_slice,
+	normalize_to_uint8,
 	pick_resolution,
 	_flow_direction_from_margins,
 	_crosswise_streamwise_unit,
@@ -117,9 +121,283 @@ def test_build_ortho_stack_without_save_dir_has_no_side_effects(tmp_path):
 	assert sorted(p.name for p in tmp_path.iterdir()) == ["frames"]
 
 
-iwave_pkg = pytest.importorskip("iwave")
+def test_extract_ky0_slice_picks_row_nearest_zero():
+	# spec is (n_kt, n_ky, n_kx); mark each ky plane with its own constant
+	spec = np.zeros((4, 3, 5), dtype=np.float32)
+	spec[:, 0, :] = 10.0
+	spec[:, 1, :] = 20.0
+	spec[:, 2, :] = 30.0
+	ky = np.array([-2.0, 0.0, 2.0])
 
-from river.core.iwave_pipeline import run_iwave_analysis, IWAVE_COLUMNS  # noqa: E402
+	sl = extract_ky0_slice(spec, ky)
+
+	assert sl.shape == (4, 5)
+	assert np.all(sl == 20.0)
+
+
+def test_extract_ky0_slice_handles_no_exact_zero():
+	spec = np.zeros((2, 3, 4), dtype=np.float32)
+	spec[:, 2, :] = 7.0
+	# nearest to zero is index 2 (-0.1), not an exact 0.0
+	ky = np.array([-5.0, -3.0, -0.1])
+
+	sl = extract_ky0_slice(spec, ky)
+
+	assert sl.shape == (2, 4)
+	assert np.all(sl == 7.0)
+
+
+def test_extract_ky0_slice_does_not_pin_the_full_spectrum():
+	# A basic-slice index (spec[:, idx, :]) returns a VIEW whose .base is the
+	# full spectrum, keeping it alive in memory. The returned slice must be
+	# an independent copy instead.
+	spec = np.zeros((4, 3, 5), dtype=np.float64)
+	ky = np.array([-2.0, 0.0, 2.0])
+
+	sl = extract_ky0_slice(spec, ky)
+
+	assert sl.base is None
+	assert not np.shares_memory(sl, spec)
+
+
+def test_normalize_to_uint8_spans_full_range():
+	arr = np.array([[0.0, 5.0], [10.0, 2.5]], dtype=np.float32)
+
+	img = normalize_to_uint8(arr)
+
+	assert img.dtype == np.uint8
+	assert img.min() == 0
+	assert img.max() == 255
+
+
+def test_normalize_to_uint8_constant_array_does_not_divide_by_zero():
+	arr = np.full((3, 3), 4.2, dtype=np.float32)
+
+	img = normalize_to_uint8(arr)
+
+	assert img.dtype == np.uint8
+	assert np.all(img == 0)
+
+
+def test_normalize_to_uint8_replaces_nan():
+	arr = np.array([[0.0, np.nan], [10.0, 5.0]], dtype=np.float32)
+
+	img = normalize_to_uint8(arr)
+
+	assert img.dtype == np.uint8
+	assert not np.isnan(img).any()
+
+
+def test_build_spectra_sidecar_shape_and_extents():
+	entries = [
+		{
+			"station": 3,
+			"kx": np.array([-1.0, 0.0, 1.0]),
+			"kt": np.array([-4.0, 0.0, 4.0]),
+			"kt_gw": np.array([-2.0, 0.0, 2.0]),
+			"kt_turb": np.array([-1.0, 0.0, 1.0]),
+		}
+	]
+
+	out = build_spectra_sidecar(entries)
+
+	assert out["version"] == 1
+	assert len(out["stations"]) == 1
+	st = out["stations"][0]
+	assert st["station"] == 3
+	assert st["kx_min"] == pytest.approx(-1.0)
+	assert st["kx_max"] == pytest.approx(1.0)
+	assert st["kt_min"] == pytest.approx(-4.0)
+	assert st["kt_max"] == pytest.approx(4.0)
+	assert st["curves"]["gravity"] == [[-1.0, -2.0], [0.0, 0.0], [1.0, 2.0]]
+	assert st["curves"]["turbulence"] == [[-1.0, -1.0], [0.0, 0.0], [1.0, 1.0]]
+
+
+def test_build_spectra_sidecar_is_json_serialisable():
+	# numpy scalars are the classic json.dumps failure; assert we emit plain floats
+	entries = [
+		{
+			"station": 1,
+			"kx": np.array([0.0, 1.0], dtype=np.float32),
+			"kt": np.array([0.0, 2.0], dtype=np.float32),
+			"kt_gw": np.array([0.0, 1.0], dtype=np.float32),
+			"kt_turb": np.array([0.0, 0.5], dtype=np.float32),
+		}
+	]
+
+	out = build_spectra_sidecar(entries)
+
+	json.dumps(out)  # must not raise
+	assert isinstance(out["stations"][0]["kx_min"], float)
+	assert isinstance(out["stations"][0]["station"], int)
+
+
+def test_build_spectra_sidecar_skips_curves_with_nan():
+	entries = [
+		{
+			"station": 2,
+			"kx": np.array([0.0, 1.0, 2.0]),
+			"kt": np.array([0.0, 1.0, 2.0]),
+			"kt_gw": np.array([0.0, np.nan, 2.0]),
+			"kt_turb": np.array([0.0, 1.0, 2.0]),
+		}
+	]
+
+	out = build_spectra_sidecar(entries)
+
+	# the NaN point is dropped, not emitted as null — the GUI draws a polyline
+	assert out["stations"][0]["curves"]["gravity"] == [[0.0, 0.0], [2.0, 2.0]]
+
+
+def test_build_spectra_sidecar_empty_entries():
+	out = build_spectra_sidecar([])
+
+	assert out == {"version": 1, "stations": []}
+
+
+def test_write_spectra_creates_images_and_sidecar(tmp_path):
+	from river.core.iwave_pipeline import write_spectra
+
+	entries = [
+		{
+			"station": 1,
+			"slice": np.array([[0.0, 1.0], [2.0, 3.0]], dtype=np.float32),
+			"kx": np.array([0.0, 1.0]),
+			"kt": np.array([0.0, 1.0]),
+			"kt_gw": np.array([0.0, 1.0]),
+			"kt_turb": np.array([0.0, 0.5]),
+		},
+		{
+			"station": 10,
+			"slice": np.array([[5.0, 6.0], [7.0, 8.0]], dtype=np.float32),
+			"kx": np.array([0.0, 1.0]),
+			"kt": np.array([0.0, 1.0]),
+			"kt_gw": np.array([0.0, 1.0]),
+			"kt_turb": np.array([0.0, 0.5]),
+		},
+	]
+	out = tmp_path / "iwave_spectra" / "CS_default_1"
+
+	write_spectra(str(out), entries)
+
+	assert (out / "spectrum_1.png").exists()
+	assert (out / "spectrum_10.png").exists()
+	sidecar = json.loads((out / "spectra.json").read_text())
+	assert [s["station"] for s in sidecar["stations"]] == [1, 10]
+
+
+def test_write_spectra_image_is_readable_and_correctly_shaped(tmp_path):
+	from river.core.iwave_pipeline import write_spectra
+
+	entries = [
+		{
+			"station": 4,
+			"slice": np.arange(12, dtype=np.float32).reshape(3, 4),
+			"kx": np.array([0.0, 1.0]),
+			"kt": np.array([0.0, 1.0]),
+			"kt_gw": np.array([0.0, 1.0]),
+			"kt_turb": np.array([0.0, 0.5]),
+		}
+	]
+	out = tmp_path / "spectra"
+
+	write_spectra(str(out), entries)
+
+	img = cv2.imread(str(out / "spectrum_4.png"), cv2.IMREAD_GRAYSCALE)
+	assert img is not None
+	assert img.shape == (3, 4)
+	assert img.min() == 0
+	assert img.max() == 255
+
+
+def test_write_spectra_flips_slice_vertically(tmp_path):
+	# kt from the iwave package ascends from zero (low frequency in row 0)
+	# and is never fftshifted. write_spectra must flip the slice so the PNG's
+	# TOP row is the HIGHEST frequency. Row 0 of the input is all zeros
+	# (lowest), the last row is all high values (highest); after the flip
+	# the PNG's top row must be the high-value row, not the zero row. A test
+	# that only checked img.min()/img.max() would pass with or without the
+	# flip, so this checks row ORDER instead.
+	from river.core.iwave_pipeline import write_spectra
+
+	slice_ = np.zeros((4, 5), dtype=np.float32)
+	slice_[0, :] = 0.0
+	slice_[1, :] = 50.0
+	slice_[2, :] = 100.0
+	slice_[3, :] = 200.0
+	entries = [
+		{
+			"station": 7,
+			"slice": slice_,
+			"kx": np.array([0.0, 1.0]),
+			"kt": np.array([0.0, 1.0]),
+			"kt_gw": np.array([0.0, 1.0]),
+			"kt_turb": np.array([0.0, 0.5]),
+		}
+	]
+	out = tmp_path / "spectra"
+
+	write_spectra(str(out), entries)
+
+	img = cv2.imread(str(out / "spectrum_7.png"), cv2.IMREAD_GRAYSCALE)
+	assert img is not None
+	# The row order in the PNG must be the reverse of the input slice's:
+	# the input's last (highest-value) row lands in the PNG's row 0, and the
+	# input's first (lowest-value, zero) row lands in the PNG's last row.
+	expected = normalize_to_uint8(slice_[::-1])
+	np.testing.assert_array_equal(img, expected)
+	assert img[0, 0] > img[-1, 0]  # highest frequency row is on top
+
+
+def test_write_spectra_clears_stale_files(tmp_path):
+	from river.core.iwave_pipeline import write_spectra
+
+	out = tmp_path / "spectra"
+	out.mkdir(parents=True)
+	(out / "spectrum_99.png").write_bytes(b"stale")
+	# Create unrelated content that must survive
+	(out / "notes.txt").write_text("important data")
+	unrelated_subdir = out / "nested" / "deep"
+	unrelated_subdir.mkdir(parents=True)
+	(unrelated_subdir / "other.txt").write_text("unrelated")
+
+	entries = [
+		{
+			"station": 1,
+			"slice": np.zeros((2, 2), dtype=np.float32),
+			"kx": np.array([0.0, 1.0]),
+			"kt": np.array([0.0, 1.0]),
+			"kt_gw": np.array([0.0, 1.0]),
+			"kt_turb": np.array([0.0, 0.5]),
+		}
+	]
+	write_spectra(str(out), entries)
+
+	assert not (out / "spectrum_99.png").exists()
+	assert (out / "spectrum_1.png").exists()
+	assert (out / "notes.txt").read_text() == "important data"
+	assert (unrelated_subdir / "other.txt").read_text() == "unrelated"
+
+
+def test_run_iwave_analysis_signature_defaults_spectra_dir_to_none():
+	import inspect
+
+	from river.core.iwave_pipeline import run_iwave_analysis
+
+	sig = inspect.signature(run_iwave_analysis)
+	assert "spectra_dir" in sig.parameters
+	assert sig.parameters["spectra_dir"].default is None
+
+
+# Check if iwave is available for tests that require it
+try:
+	import iwave
+	HAS_IWAVE = True
+except ImportError:
+	HAS_IWAVE = False
+
+if HAS_IWAVE:
+	from river.core.iwave_pipeline import run_iwave_analysis, IWAVE_COLUMNS
 
 
 def _synthetic_project(tmp_path, n_frames=128, size=96, speed_px=1.0):
@@ -153,6 +431,7 @@ def _synthetic_project(tmp_path, n_frames=128, size=96, speed_px=1.0):
 import cv2  # noqa: E402
 
 
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
 def test_run_iwave_analysis_recovers_advection(tmp_path):
 	frames_dir, H, xsections = _synthetic_project(tmp_path)
 	fps = 20.0
@@ -170,3 +449,43 @@ def test_run_iwave_analysis_recovers_advection(tmp_path):
 	# cross-section runs north->south, so streamwise (+90deg CCW of l->r) = +east... sign positive.
 	assert abs(abs(v) - 1.0) < 0.5
 	assert progress_calls == [(1, 1)]
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_writes_spectra_when_dir_given(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	spectra_dir = tmp_path / "iwave_spectra" / "CS1"
+
+	run_iwave_analysis(
+		xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0,
+		spectra_dir=str(spectra_dir),
+	)
+
+	img_path = spectra_dir / "spectrum_1.png"
+	assert img_path.exists()
+	img = cv2.imread(str(img_path), cv2.IMREAD_GRAYSCALE)
+	assert img is not None
+	assert img.ndim == 2
+	# A real spectrum has structure; a blank image would mean we saved the
+	# wrong array or normalised a constant.
+	assert img.max() > img.min()
+
+	sidecar = json.loads((spectra_dir / "spectra.json").read_text())
+	assert [s["station"] for s in sidecar["stations"]] == [1]
+	station = sidecar["stations"][0]
+	assert station["kx_max"] > station["kx_min"]
+	assert station["kt_max"] > station["kt_min"]
+	# Both dispersion curves must carry points, mapped over the kx axis.
+	assert len(station["curves"]["gravity"]) > 1
+	assert len(station["curves"]["turbulence"]) > 1
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_writes_nothing_without_spectra_dir(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+
+	run_iwave_analysis(
+		xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0,
+	)
+
+	assert not (tmp_path / "iwave_spectra").exists()

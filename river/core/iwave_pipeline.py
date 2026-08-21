@@ -11,6 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
+import json
 
 import cv2
 import numpy as np
@@ -198,6 +199,111 @@ def _crosswise_streamwise_unit(section: dict):
 
 
 # ---------------------------------------------------------------------------
+# Spectrum preview (pure numpy — no iwave import, so this stays testable)
+# ---------------------------------------------------------------------------
+
+
+def extract_ky0_slice(spec: np.ndarray, ky: np.ndarray) -> np.ndarray:
+    """The ky=0 cross-section of a (n_kt, n_ky, n_kx) spectrum.
+
+    This is the slice the iwave package's own diagnostic plots use
+    (iwave/plots.py), the one the dispersion curves are drawn against.
+    ky rarely contains an exact 0.0, so take the row nearest to it.
+    """
+    idx = int(np.argmin(np.abs(ky)))
+    # .copy(): a basic-slice index like this returns a VIEW whose .base is
+    # the full 4-D spectrum, so without copying, every retained slice would
+    # pin the entire (much larger) spectrum array in memory until
+    # write_spectra runs.
+    return np.asarray(spec)[:, idx, :].copy()
+
+
+def normalize_to_uint8(arr: np.ndarray) -> np.ndarray:
+    """Min/max normalise to 0-255, matching how STI images are written
+    (stiv_pipeline.py). The 1e-12 guard keeps a constant slice from
+    dividing by zero."""
+    arr = np.nan_to_num(np.asarray(arr, dtype=np.float32), nan=0.0)
+    amin, amax = arr.min(), arr.max()
+    return ((arr - amin) / (amax - amin + 1e-12) * 255).astype(np.uint8)
+
+
+def _curve_points(kx: np.ndarray, kt_curve: np.ndarray) -> list:
+    """Pair kx with a curve's frequencies, dropping non-finite points.
+
+    Dropped rather than emitted as null: the GUI renders these as a single
+    SVG polyline, which has no way to express a gap.
+    """
+    pts = []
+    for x, t in zip(np.asarray(kx).ravel(), np.asarray(kt_curve).ravel()):
+        if np.isfinite(x) and np.isfinite(t):
+            pts.append([float(x), float(t)])
+    return pts
+
+
+def build_spectra_sidecar(entries: list) -> dict:
+    """JSON-serialisable description of one section's spectrum previews.
+
+    Everything is converted to plain Python scalars: json.dumps cannot
+    serialise numpy types.
+    """
+    stations = []
+    for e in entries:
+        kx = np.asarray(e["kx"])
+        kt = np.asarray(e["kt"])
+        stations.append(
+            {
+                "station": int(e["station"]),
+                "kx_min": float(kx.min()),
+                "kx_max": float(kx.max()),
+                "kt_min": float(kt.min()),
+                "kt_max": float(kt.max()),
+                "curves": {
+                    "gravity": _curve_points(kx, e["kt_gw"]),
+                    "turbulence": _curve_points(kx, e["kt_turb"]),
+                },
+            }
+        )
+    return {"version": 1, "stations": stations}
+
+
+def write_spectra(spectra_dir: str, entries: list) -> None:
+    """Write one section's spectrum previews: a bare grayscale PNG per
+    station plus a spectra.json sidecar.
+
+    Stale spectrum images (from a prior run with more stations) are deleted
+    so a re-run with fewer stations cannot leave old spectrum_*.png files
+    behind. However, this uses targeted cleanup (deleting only spectrum_*.png
+    and spectra.json) rather than a recursive rmtree, because the path is
+    caller-supplied. This ensures that if a caller mistakenly points at a
+    directory containing unrelated content, we only remove the files we own.
+    """
+    out = Path(spectra_dir)
+    out.mkdir(parents=True, exist_ok=True)
+
+    # Clean up stale spectrum files from prior runs (targeted, not recursive)
+    if out.exists():
+        for stale in out.glob("spectrum_*.png"):
+            stale.unlink()
+        sidecar = out / "spectra.json"
+        if sidecar.exists():
+            sidecar.unlink()
+
+    for e in entries:
+        # Flip vertically: iwave's kt (river/../iwave/spectral.py) is built
+        # from np.fft.fftfreq and truncated to positive frequencies, so it
+        # ascends from zero and is never fftshifted -- row 0 of the raw
+        # slice is the LOWEST frequency. Flipping puts the HIGHEST frequency
+        # in row 0 (the PNG's top edge), which is the conventional
+        # orientation for a spectrum plot and matches the GUI's y-axis
+        # inversion in spectrumGeometry.ts (SVG y grows downward while
+        # frequency grows upward). These two must be changed together.
+        img = normalize_to_uint8(e["slice"][::-1])
+        cv2.imwrite(str(out / f"spectrum_{int(e['station'])}.png"), img)
+
+    (out / "spectra.json").write_text(json.dumps(build_spectra_sidecar(entries)))
+
+
+# ---------------------------------------------------------------------------
 # Spectral fit (iwave package)
 # ---------------------------------------------------------------------------
 
@@ -210,13 +316,20 @@ def _process_station(
     time_size: int,
     time_overlap: int,
 ) -> dict:
-    """Spectral velocity fit for one station window. Returns vy/vx/d/quality (None on failure)."""
-    from iwave import spectral, window as iw_window, optimise
+    """Spectral velocity fit for one station window. Returns vy/vx/d/quality
+    (None on failure), plus the ky=0 spectrum slice, its kx/kt axes, and the
+    two theoretical dispersion curves for the preview."""
+    from iwave import spectral, window as iw_window, optimise, dispersion as iw_dispersion
     from iwave.iwave import OPTIM_KWARGS_SADE
+
+    empty = dict(
+        vy=None, vx=None, d=None, quality=None,
+        slice=None, kx=None, kt=None, kt_gw=None, kt_turb=None,
+    )
 
     win = crop.shape[-1]
     if not np.any(crop):
-        return dict(vy=None, vx=None, d=None, quality=None)
+        return empty
     # normalize over time like LazyWindowArray(norm="time"), then flip y so +y = north
     w = iw_window.normalize(crop[None, ...], mode="time")
     w = w[:, :, ::-1, :]
@@ -230,7 +343,21 @@ def _process_station(
         penalty_weight=1, gravity_waves_switch=True, turbulence_switch=True,
         pass_downsampling=[2, 1], gauss_width=1, kwargs=dict(OPTIM_KWARGS_SADE),
     )
-    return dict(vy=float(vy), vx=float(vx), d=float(d), quality=float(quality))
+
+    # Preview: the ky=0 cross-section with the fitted dispersion relations on
+    # top — the diagnostic the iwave package documents in iwave/plots.py.
+    # dispersion() needs the 2D velocity, which the caller collapses away.
+    kt_gw, kt_turb = iw_dispersion.dispersion(ky, kx, (vy, vx), d, alpha)
+    ky0 = int(np.argmin(np.abs(ky)))
+
+    return dict(
+        vy=float(vy), vx=float(vx), d=float(d), quality=float(quality),
+        slice=extract_ky0_slice(spec[0], ky),
+        kx=kx,
+        kt=kt,
+        kt_gw=np.asarray(kt_gw)[0, ky0, :],
+        kt_turb=np.asarray(kt_turb)[0, ky0, :],
+    )
 
 
 def run_iwave_analysis(
@@ -243,13 +370,16 @@ def run_iwave_analysis(
     bbox: Optional[list] = None,
     stack: Optional[np.ndarray] = None,
     grid: Optional[OrthoGrid] = None,
+    spectra_dir: Optional[str] = None,
     progress: Optional[Callable[[int, int], None]] = None,
 ) -> dict:
     """Run iWave spectral velocimetry for one cross-section's stations.
 
     Adds 3 per-station lists: iwave_velocity_profile (signed streamwise, m/s),
     iwave_quality_profile, iwave_depth_profile. Pass a prebuilt (stack, grid)
-    pair to reuse the warped frames across sections.
+    pair to reuse the warped frames across sections. If spectra_dir is given,
+    each station's ky=0 spectrum preview is saved there as
+    spectrum_<station_id>.png alongside a spectra.json sidecar.
     """
     section_keys = [k for k in xsections if k != "summary"]
     current_key = section_keys[id_section]
@@ -282,6 +412,7 @@ def run_iwave_analysis(
     vel: list[Optional[float]] = [None] * n
     quality: list[Optional[float]] = [None] * n
     depth: list[Optional[float]] = [None] * n
+    spectra_entries: list = []
 
     for i in range(n):
         crop = _station_window(stack, grid, east[i], north[i], win)
@@ -294,8 +425,22 @@ def run_iwave_analysis(
             vel[i] = float(v_e * u_stream[0] + v_n * u_stream[1])
             quality[i] = r["quality"]
             depth[i] = r["d"]
+            if spectra_dir is not None and r["slice"] is not None:
+                spectra_entries.append(
+                    {
+                        "station": int(cs["id"][i]),
+                        "slice": r["slice"],
+                        "kx": r["kx"],
+                        "kt": r["kt"],
+                        "kt_gw": r["kt_gw"],
+                        "kt_turb": r["kt_turb"],
+                    }
+                )
         if progress is not None:
             progress(i + 1, n)
+
+    if spectra_dir is not None:
+        write_spectra(spectra_dir, spectra_entries)
 
     xsections[current_key]["iwave_velocity_profile"] = vel
     xsections[current_key]["iwave_quality_profile"] = quality

@@ -12,6 +12,7 @@ import { getVideo } from './getVideo';
 import { getBathimetry } from './getBathimetry';
 import { calculate3dRectification } from './calculate3dRectification';
 import { getIpcamImages } from './getIpcamImages';
+import { getIwaveSpectra } from './getIwaveSpectra';
 import { getPoints } from './getPoints';
 import { getDistances } from './getDistances';
 import { saveTransformationMatrix } from './saveTransformationMatrix';
@@ -38,6 +39,7 @@ export {
   getGif,
   getImages,
   getIpcamImages,
+  getIwaveSpectra,
   getPoints,
   getQuiver,
   getResultData,
