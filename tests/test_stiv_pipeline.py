@@ -192,6 +192,7 @@ def test_run_stiv_analysis_adds_keys():
 			"summary": {},
 		}
 
+		progress_calls = []
 		result = run_stiv_analysis(
 			xsections=xsections,
 			transformation_matrix=T,
@@ -200,6 +201,7 @@ def test_run_stiv_analysis_adds_keys():
 			fps=30.0,
 			id_section=0,
 			height_roi_m=0.4,
+			progress=lambda current, total: progress_calls.append((current, total)),
 		)
 
 	cs_result = result["CS_default_1"]
@@ -207,3 +209,4 @@ def test_run_stiv_analysis_adds_keys():
 		assert key in cs_result
 	for key in ("fused_velocity_profile", "fused_sigma_profile", "fusion_confidence_profile", "Q_fused"):
 		assert key not in cs_result
+	assert progress_calls == [(1, 3), (2, 3), (3, 3)]

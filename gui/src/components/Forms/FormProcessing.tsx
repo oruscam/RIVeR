@@ -14,7 +14,7 @@ export const FormProcessing = ({
 }) => {
   const { t } = useTranslation();
   const { onSetErrorMessage } = useUiSlice();
-  const { isBackendWorking, processing, onSetQuiverTest, onSetQuiverAll, onKillBackend, onAddMask } =
+  const { isBackendWorking, processing, onSetQuiverTest, onSetQuiverAll, onKillBackend, onAddMask, onUpdateProcessing } =
     useDataSlice();
   const { sections, activeSection, onUpdateSection } = useSectionSlice();
 
@@ -29,6 +29,8 @@ export const FormProcessing = ({
     medianTestFiltering,
     medianTestEpsilon,
     medianTestThreshold,
+    stiv,
+    iwave,
   } = processing.form;
   const { name, numStations } = sections[activeSection];
 
@@ -148,6 +150,28 @@ export const FormProcessing = ({
                   +
                 </button>
               </div>
+            </div>
+            <div className="switch-container mt-1">
+              <h3 className="field-title">STIV</h3>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={stiv}
+                  onChange={(event) => onUpdateProcessing({ stiv: event.currentTarget.checked })}
+                />
+                <span className="slider"></span>
+              </label>
+            </div>
+            <div className="switch-container mt-1">
+              <h3 className="field-title">iWave</h3>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={iwave}
+                  onChange={(event) => onUpdateProcessing({ iwave: event.currentTarget.checked })}
+                />
+                <span className="slider"></span>
+              </label>
             </div>
             <div className="input-container-2 mt-2">
               <button

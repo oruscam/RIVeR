@@ -30,6 +30,10 @@ interface CreateVelocityChartProps {
   check: boolean[];
   onChangeDataValues?: any;
   unitSistem?: string;
+  stivProfile?: (number | null)[];
+  iwaveProfile?: (number | null)[];
+  showStiv?: boolean;
+  showIwave?: boolean;
 }
 
 export const createVelocityChart = ({
@@ -49,6 +53,10 @@ export const createVelocityChart = ({
   isReport = false,
   onChangeDataValues,
   unitSistem = 'si',
+  stivProfile = [],
+  iwaveProfile = [],
+  showStiv = true,
+  showIwave = true,
 }: CreateVelocityChartProps) => {
   const isImperial = unitSistem === 'imperial';
   const velocityFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
@@ -67,16 +75,23 @@ export const createVelocityChart = ({
     d3.max(magnitude.filter((d) => d !== null))! * velocityFactor
   );
 
+  const extraSeries = [
+    ...(showStiv ? stivProfile : []),
+    ...(showIwave ? iwaveProfile : []),
+  ].filter((d): d is number => d !== null && d !== undefined).map((d) => d * velocityFactor);
+  const minDomain = extraSeries.length ? Math.min(minDomainValue, ...extraSeries) : minDomainValue;
+  const maxDomain = extraSeries.length ? Math.max(maxDomainValue, ...extraSeries) : maxDomainValue;
+
   // y Scale
   const yScale = d3
     .scaleLinear()
-    .domain([minDomainValue, maxDomainValue])
+    .domain([minDomain, maxDomain])
     .range([graphHeight * 2 + (isReport ? -40 : -50), graphHeight + (isReport ? 30 : -10)]);
 
   // y Axis
 
   // Create and add Y ticks
-  const ticks = generateYAxisTicks(magnitude, minDomainValue, maxDomainValue);
+  const ticks = generateYAxisTicks(magnitude, minDomain, maxDomain);
 
   const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.2f'));
 
@@ -412,6 +427,59 @@ export const createVelocityChart = ({
       .attr('stroke-width', 2)
       .attr('d', line);
   });
+
+  // Raw method overlays: STIV (orange squares) and iWave (green diamonds)
+  const drawMethodProfile = (
+    profile: (number | null)[],
+    color: string,
+    symbolType: d3.SymbolType,
+    label: string,
+    visible: boolean,
+  ) => {
+    if (!visible || profile.length === 0 || profile.every((d) => d === null || d === undefined)) return;
+    const points = profile
+      .map((v, i) => ({ velocity: v !== null && v !== undefined ? v * velocityFactor : null, distance: distance[i] }))
+      .filter((d): d is { velocity: number; distance: number } => d.velocity !== null);
+    const methodLine = d3
+      .line<{ velocity: number; distance: number }>()
+      .x((d) => xScale(d.distance))
+      .y((d) => yScale(d.velocity));
+    svg
+      .append('path')
+      .datum(points)
+      .attr('fill', 'none')
+      .attr('stroke', color)
+      .attr('stroke-width', 1.5)
+      .attr('stroke-dasharray', '5,3')
+      .attr('d', methodLine);
+    const symbol = d3.symbol().type(symbolType).size(45);
+    svg
+      .selectAll(`.method-marker-${label}`)
+      .data(points)
+      .enter()
+      .append('path')
+      .attr('class', `method-marker-${label}`)
+      .attr('d', symbol)
+      .attr('fill', color)
+      .attr('transform', (d) => `translate(${xScale(d.distance)},${yScale(d.velocity)})`);
+    // STIV anchors from the left just past the std/percentile legends; iWave anchors
+    // from the right edge with a fixed margin so it can never overflow the SVG at
+    // narrow widths (GRAPHS.MIN_WIDTH). Both sit on the same baseline as the
+    // existing legend row (graphHeight + legendGroupOffsetY, +13 for the local
+    // text offset those legends use inside their own <g> translate).
+    svg
+      .append('text')
+      .attr('class', `method-legend-${label}`)
+      .attr('x', label === 'stiv' ? (width / 4) * 3 + 10 : width - 10)
+      .attr('y', graphHeight + legendGroupOffsetY + 13)
+      .attr('text-anchor', label === 'stiv' ? 'start' : 'end')
+      .attr('fill', color)
+      .style('font-size', '12px')
+      .text(label === 'stiv' ? 'STIV' : 'iWave');
+  };
+
+  drawMethodProfile(stivProfile, '#ff7f0e', d3.symbolSquare, 'stiv', showStiv);
+  drawMethodProfile(iwaveProfile, '#2ca02c', d3.symbolDiamond, 'iwave', showIwave);
 
   // Add the circles and tooltip
 

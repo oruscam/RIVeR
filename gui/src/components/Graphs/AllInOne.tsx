@@ -136,6 +136,10 @@ export const AllInOne = ({
         isReport,
         onChangeDataValues,
         unitSistem,
+        stivProfile: data.stiv_velocity_profile ?? [],
+        iwaveProfile: data.iwave_velocity_profile ?? [],
+        showStiv: data.showStiv !== false,
+        showIwave: data.showIwave !== false,
       });
 
       bathimetrySvg({

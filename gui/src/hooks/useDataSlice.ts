@@ -49,6 +49,7 @@ export const useDataSlice = () => {
     clipLimit?: string;
     grayscale?: boolean;
     images?: string[];
+    iwave?: boolean;
     medianTestEpsilon?: string;
     medianTestFiltering?: boolean;
     medianTestThreshold?: string;
@@ -57,6 +58,7 @@ export const useDataSlice = () => {
     stdThreshold?: number;
     step1?: number;
     step2?: number;
+    stiv?: boolean;
     heightRoi?: number;
     showMask?: boolean;
   }
@@ -171,6 +173,7 @@ export const useDataSlice = () => {
 
       const { data, error } = await ipcRenderer.invoke('get-quiver-all', {
         formValues: processing.form,
+        numStationsList: sections.map((section) => section.numStations),
       });
       if (error?.message) {
         console.log(error.message);
@@ -306,6 +309,35 @@ export const useDataSlice = () => {
           throw new CliError(error.message, t);
         }
         dispatch(clearMessage());
+      }
+    }
+  };
+
+  const onLoadResultData = async () => {
+    const ipcRenderer = window.ipcRenderer;
+    dispatch(setLoading(true));
+    try {
+      const { data } = await ipcRenderer.invoke('get-results-load');
+      sections.map((section, index) => {
+        if (data[section.name]) {
+          dispatch(
+            setSectionData({
+              sectionIndex: index,
+              sectionData: {
+                ...data[section.name],
+                activeCheck: data[section.name].check,
+              },
+            })
+          );
+        }
+      });
+      dispatch(setSummary(data.summary));
+      dispatch(setDataLoaded(true));
+      dispatch(setLoading(false));
+    } catch (error) {
+      dispatch(setLoading(false));
+      if (error instanceof Error) {
+        throw new CliError(error.message, t);
       }
     }
   };
@@ -460,6 +492,7 @@ export const useDataSlice = () => {
     onExportGif,
     onGetResultData,
     onKillBackend,
+    onLoadResultData,
     onReCalculateMask,
     onSetActiveImage,
     onSetAnalizing,

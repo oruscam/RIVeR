@@ -5,7 +5,7 @@ import json
 import re
 from collections import Counter
 from pathlib import Path
-from typing import Optional
+from typing import Callable, Optional
 
 import cv2
 import numpy as np
@@ -511,6 +511,7 @@ def run_stiv_analysis(
 	stis_dir: Optional[str] = None,
 	plot_path: Optional[str] = None,
 	models: Optional[tuple] = None,
+	progress: Optional[Callable[[int, int], None]] = None,
 ) -> dict:
 	"""Run STIV analysis for the current cross-section and return updated xsections.
 
@@ -548,6 +549,8 @@ def run_stiv_analysis(
 	for idx, sid in enumerate(ids):
 		sti = stis.get(sid)
 		if sti is None:
+			if progress is not None:
+				progress(idx + 1, n)
 			continue
 		v, sigma, sign, angle = profile_station(
 			sti, angle_model, norm_params, sign_model, sign_tsz,
@@ -559,6 +562,8 @@ def run_stiv_analysis(
 			stiv_valid_arr[idx] = True
 			stiv_angle_list[idx] = float(angle)
 		stiv_sign_list[idx] = sign
+		if progress is not None:
+			progress(idx + 1, n)
 
 	xsections[current_key]["stiv_velocity_profile"] = [
 		float(stiv_v_arr[i]) if stiv_valid_arr[i] else None for i in range(n)
