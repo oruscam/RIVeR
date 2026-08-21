@@ -125,12 +125,33 @@ const sectionSlice = createSlice({
     setSectionWorking: (state, action: PayloadAction<boolean>) => {
       state.isSectionWorking = action.payload;
     },
+    /**
+     * Drop every result derived from the current cross-section geometry.
+     *
+     * Editing any section's markers changes the mask and ROI, which are built
+     * from all sections together, so the PIV run behind every section's results
+     * is invalidated — not just the edited one's. Anything left behind renders
+     * as though it still described the new geometry: the station search lines
+     * in particular prefer `data.east`/`data.north` as authoritative station
+     * centres (StationSearchLines.tsx), so stale data pins them to the old
+     * positions no matter where the markers moved.
+     *
+     * Only results are cleared. numStations and alpha are user choices that the
+     * backend happens to echo back, so they survive.
+     */
+    clearResults: (state) => {
+      state.sections.forEach((section) => {
+        section.data = undefined;
+      });
+      state.summary = undefined;
+    },
   },
 });
 
 export const {
   addSection,
   changeSectionData,
+  clearResults,
   deleteSection,
   setDefaultSectionState,
   setActiveSection,
