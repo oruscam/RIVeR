@@ -204,6 +204,16 @@ export const FormProcessing = ({
             <div className="technique-row-processing">
               <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.stiv }} />
               <h3 className="field-title">STIV</h3>
+              {hasAnyStivOverride && (
+                <button
+                  type="button"
+                  className="sti-angle-reset"
+                  title={t('Processing.stiAngleResetAllTitle')}
+                  onClick={resetAllStivAngles}
+                >
+                  {t('Processing.stiAngleResetAll')}
+                </button>
+              )}
               <label className="switch">
                 <input
                   type="checkbox"
@@ -222,16 +232,6 @@ export const FormProcessing = ({
               >
                 {previewMode === 'sti' ? <LuEye size={15} /> : <LuEyeOff size={15} />}
               </button>
-              {hasAnyStivOverride && (
-                <button
-                  type="button"
-                  className="sti-angle-reset"
-                  title={t('Processing.stiAngleResetAllTitle')}
-                  onClick={resetAllStivAngles}
-                >
-                  {t('Processing.stiAngleResetAll')}
-                </button>
-              )}
             </div>
             <div className="technique-row-processing">
               <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.iwave }} />

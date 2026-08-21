@@ -8,9 +8,15 @@ jest.mock('../main', () => ({
   PROJECT_CONFIG: { xsectionsPath: '/fake/xsections.json' },
 }));
 
-jest.mock('fs');
+// Automock (`jest.mock('fs')`) doesn't reach the `fs.promises` getter, so the
+// registered-handler tests below need `readFile`/`writeFile` as real jest.fn()s.
+jest.mock('fs', () => ({
+  promises: { readFile: jest.fn(), writeFile: jest.fn() },
+}));
 
-import { applyManualAngles } from './setStivManualAngles';
+import { ipcMain } from 'electron';
+import * as fs from 'fs';
+import { applyManualAngles, setStivManualAngles } from './setStivManualAngles';
 
 describe('applyManualAngles', () => {
   const parsed = () => ({
@@ -51,5 +57,42 @@ describe('applyManualAngles', () => {
   it('never touches summary', () => {
     const out = applyManualAngles(parsed(), 'summary', [null, 45, null]);
     expect((out.summary as Record<string, unknown>).stiv_angle_manual_profile).toBeUndefined();
+  });
+});
+
+describe('the registered set-stiv-manual-angles handler', () => {
+  // Capture the handler setStivManualAngles() registers, the same way the mocked
+  // ipcMain.handle call receives it — this exercises the real read/parse/write
+  // path, not just the pure applyManualAngles merge.
+  const getHandler = () => {
+    setStivManualAngles();
+    const call = (ipcMain.handle as jest.Mock).mock.calls.find(
+      ([channel]) => channel === 'set-stiv-manual-angles'
+    );
+    return call[1];
+  };
+
+  it('parses xsections.json even when it contains literal NaN tokens', async () => {
+    const withNaN = JSON.stringify({
+      CS_default_1: { num_stations: 1, displacement_x: [1] },
+    }).replace('[1]', '[NaN]');
+    (fs.promises.readFile as jest.Mock).mockResolvedValue(withNaN);
+    const written: string[] = [];
+    (fs.promises.writeFile as jest.Mock).mockImplementation((_path, content) => {
+      written.push(content as string);
+      return Promise.resolve();
+    });
+
+    const handler = getHandler();
+    await expect(handler(null, { sectionName: 'CS_default_1', angles: [45] })).resolves.toBeUndefined();
+
+    expect(written).toHaveLength(1);
+    const result = JSON.parse(written[0]);
+    expect(result.CS_default_1.stiv_angle_manual_profile).toEqual([45]);
+    // The pre-existing NaN in an unrelated field must survive the round trip as
+    // `null` — JS's native JSON.stringify (unlike Python's json.dumps) has no
+    // literal-NaN output, so `null` is the correct, non-corrupted result. This
+    // confirms the sanitized field wasn't dropped or otherwise mangled.
+    expect(result.CS_default_1.displacement_x).toEqual([null]);
   });
 });

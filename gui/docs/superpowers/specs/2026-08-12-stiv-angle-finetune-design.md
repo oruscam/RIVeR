@@ -231,8 +231,15 @@ all fifteen" with "check these four".
 
 Because the merge happens upstream, Results needs no new concept.
 `getEffectiveTechniqueData` takes the merged profile as its `baseProfile` when
-`technique === 'stiv'`, and the profile chart, Q table, graphs, report and
-export all keep reading one profile, unchanged.
+`technique === 'stiv'`, and the profile chart, Q table, graphs and the
+clipboard export all keep reading one profile, unchanged.
+
+The HTML report is the one exception: `Report/ReportSection.tsx` and
+`ReportSectionTable.tsx` read `data.total_Q` / `data.Q` /
+`streamwise_velocity_magnitude` directly — the backend's LSPIV values,
+technique-agnostic, predating this feature. A STIV override does not reach
+the report. Pre-existing, out of scope here; noted so "one profile everywhere"
+isn't read as covering it.
 
 Two visible touches:
 
@@ -243,13 +250,40 @@ Two visible touches:
 
 | Case | Behaviour |
 |---|---|
-| θ → 90° | Storable range clamped to 0.5–179.5°, so velocity is always finite |
+| θ → 90° | `tan` diverges exactly there, not merely near the ends — clamping to 0.5–179.5° alone does not prevent it, since 90° sits in the interior of that range. `clampAngle` additionally pushes any value landing in [89.5°, 90.5°] out to the nearer edge, so 90.0° itself can never be stored; the warning band (85–95°) still applies at and around those edges |
 | θ ≤ 0.5° | Velocity ≈ 0. Legal — this is how "no detectable motion" is recorded |
 | Station has no automatic angle | Override allowed. A station STIV gave up on is a prime candidate for a human read |
 | Station is unchecked | Override stored but excluded from Q, like any unchecked station. Re-checking restores it |
 | Station Number changes | Overrides stripped with the other STIV arrays |
 | Analize re-run | Overrides cleared by `run_stiv_analysis` |
+| Cross-section geometry edited (endpoints, water level, bathymetry) without a Station Number change | Not stripped — pre-existing gap shared with the automatic STIV/iWave arrays themselves (`compute_section.py` only strips on a station-count change). The override is no worse off than the fit it replaces; flagged here rather than fixed, since fixing it means fixing it for the automatic arrays too |
 | Sign | Derived from θ, never stored, so it cannot contradict the angle |
+
+## Known limitations
+
+Both surfaced by the final whole-branch review, evaluated and accepted as
+non-blocking rather than fixed in this iteration:
+
+- **Keyboard nudge cannot cross the 90° singularity band upward.** The 90°
+  guard's tie-break (a value landing on exactly 90.0° resolves to 89.5°, not
+  90.5°) means an ArrowRight/Shift+ArrowRight nudge starting at 89.5° repeatedly
+  computes 90.0° and snaps back to 89.5° — it never advances. ArrowLeft from
+  90.5° crosses down to 89.5° in one press; the trap is one-directional.
+  Dragging the bars or the slider is unaffected (both compute an absolute
+  angle from pointer position each move, not an incremental step, so they
+  pass through the band in transit rather than landing on its exact centre).
+  Fix, if taken up: in `StiAngleTuner`'s keyboard handler, detect a nudge
+  landing inside the band and jump to the far edge in the key's direction of
+  travel, rather than changing `clampAngle`'s direction-agnostic tie-break.
+- **The debounced disk write has a narrow residual race with "Next."**
+  `flushStivAngleWrites` (awaited before Processing's "Next" re-reads
+  `xsections.json`) removes its own bookkeeping entry before its IPC write
+  settles, so a click landing in that narrow window — a single IPC round trip
+  plus one file write, not the debounce's full 300 ms — can still see nothing
+  pending and let the read win. Narrowed from the original bug by two orders
+  of magnitude; not eliminated. Fix, if taken up: keep the pending entry (or
+  its promise) until the write settles, and have the flush await in-flight
+  writes as well as scheduled ones.
 
 ## Testing
 

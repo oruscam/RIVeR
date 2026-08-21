@@ -1,7 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDataSlice, useProjectSlice, useSectionSlice, useStivAngleOverride } from '../hooks';
-import { getStiColorScale, STI_FALLBACK_COLOR, thetaToSign, thetaToVelocity } from '../helpers';
+import {
+  getStiColorScale,
+  isAnglePoorlyConstrained,
+  STI_FALLBACK_COLOR,
+  thetaToSign,
+  thetaToVelocity,
+} from '../helpers';
 import { UNIT_CONVERSIONS, UNITS } from '../constants/constants';
 import { StiAngleTuner } from './StiAngleTuner';
 import './components.css';
@@ -22,10 +28,10 @@ interface StiViewerProps {
  *  the offline STIV diagnostic figures use. */
 const WINDOW_COLUMNS = 600;
 
-/** Height reserved under the frame for the tuner's slider row, so the frame plus
- *  the row still fit the space the frame alone used to have — anything taller
+/** Height reserved under the frame for the tuner's single slider row, so the frame
+ *  plus the row still fit the space the frame alone used to have — anything taller
  *  would push the row down onto the floating colour bar. */
-const CONTROLS_HEIGHT = 48;
+const CONTROLS_HEIGHT = 32;
 
 export const StiViewer = ({
   stiPaths,
@@ -65,6 +71,10 @@ export const StiViewer = ({
   const { angle } = useStivAngleOverride(activeStation);
   const velocity = angle === null ? null : thetaToVelocity(angle, parameters.step, videoData.fps);
   const sign = angle === null ? '' : thetaToSign(angle);
+
+  // The warning describes an angle somebody chose, so it stays quiet on the
+  // neutral fallback the tuner draws for a station STIV never fitted.
+  const isAngleWarned = angle !== null && isAnglePoorlyConstrained(angle);
 
   // Bounds come from the raw profile — exactly what ImageProcessing feeds the
   // ColorBar beside this view, so the two never disagree.
@@ -106,11 +116,9 @@ export const StiViewer = ({
   // clamps to 0 and vertical dragging simply has no effect.
   const maxOffsetY = Math.max(0, (natural?.h ?? 0) * scale - viewH);
 
-  // Shift is the pan modifier: a plain drag belongs to StiAngleTuner, which rotates
-  // the angle bars. The tuner declines Shift-held events without consuming them, so
-  // they bubble here.
+  // A plain drag pans the STI; the angle is set by the tuner's slider under it,
+  // which stops its own events so a drag of the thumb never reaches here.
   const handlePointerDown = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (!event.shiftKey) return;
     dragRef.current = {
       startX: event.clientX,
       startY: event.clientY,
@@ -123,12 +131,6 @@ export const StiViewer = ({
   const handlePointerMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag) return;
-    // Releasing Shift mid-pan ends the pan rather than freezing it: resuming from a
-    // stale origin would make the image jump by however far the pointer had moved.
-    if (!event.shiftKey) {
-      handlePointerUp();
-      return;
-    }
     // Dragging right should reveal earlier columns, so the offset moves opposite
     // to the pointer. windowStart is in source-image columns, hence dividing by scale.
     const nextStart = drag.originX - (event.clientX - drag.startX) / scale;
@@ -168,14 +170,24 @@ export const StiViewer = ({
           viewW={viewW}
           viewH={viewH}
           color={readoutColor}
-          velocity={velocity}
-          isImperial={isImperial}
           rowContainer={viewerEl}
         />
         <div className="sti-badge velocity-readout" style={{ color: readoutColor }}>
           {t('Processing.stiStation')} {stiStations[activeStation] ?? activeStation + 1}
           <br />
-          {angle === null ? '—' : `${angle.toFixed(1)}°`}
+          {angle === null ? (
+            '—'
+          ) : (
+            <>
+              {angle.toFixed(1)}°
+              {isAngleWarned && (
+                <span className="sti-badge-warn" title={t('Processing.stiAngleWarnExtreme')}>
+                  {' '}
+                  ⚠
+                </span>
+              )}
+            </>
+          )}
           <br />
           {velocity === null
             ? '—'

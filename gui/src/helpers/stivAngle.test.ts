@@ -12,6 +12,7 @@ import {
   mergedSigmaProfile,
   mergedVelocityProfile,
   metersPerSlope,
+  nextAngleFromSlider,
   setOverride,
   thetaToSign,
   thetaToVelocity,
@@ -87,6 +88,45 @@ describe('clampAngle', () => {
   it('leaves values right at the singularity band edges untouched', () => {
     expect(clampAngle(89.5)).toBe(89.5);
     expect(clampAngle(90.5)).toBe(90.5);
+  });
+});
+
+describe('nextAngleFromSlider', () => {
+  it('crosses the singularity band upward instead of snapping back', () => {
+    // The exact case that traps the slider: stepping + 0.5 from the low edge.
+    expect(nextAngleFromSlider(90, 89.5)).toBe(90.5);
+  });
+
+  it('crosses the singularity band downward instead of snapping back', () => {
+    expect(nextAngleFromSlider(90, 90.5)).toBe(89.5);
+  });
+
+  it('resolves any in-band value by direction of travel, not proximity', () => {
+    // 89.6 is nearer the low edge, but the user is moving up.
+    expect(nextAngleFromSlider(89.6, 89.5)).toBe(90.5);
+    // 90.4 is nearer the high edge, but the user is moving down.
+    expect(nextAngleFromSlider(90.4, 90.5)).toBe(89.5);
+  });
+
+  it('leaves values outside the band to clampAngle', () => {
+    expect(nextAngleFromSlider(45, 60)).toBe(45);
+    expect(nextAngleFromSlider(120, 45)).toBe(120);
+    expect(nextAngleFromSlider(89.5, 45)).toBe(89.5);
+    expect(nextAngleFromSlider(90.5, 120)).toBe(90.5);
+  });
+
+  it('still enforces the storable range', () => {
+    expect(nextAngleFromSlider(-10, 45)).toBe(ANGLE_MIN);
+    expect(nextAngleFromSlider(200, 45)).toBe(ANGLE_MAX);
+  });
+
+  it('never returns a value inside the band, from any approach', () => {
+    for (const current of [0.5, 45, 89.5, 90.5, 120, 179.5]) {
+      for (const raw of [89.6, 89.9, 90, 90.1, 90.4]) {
+        const next = nextAngleFromSlider(raw, current);
+        expect(next === 89.5 || next === 90.5).toBe(true);
+      }
+    }
   });
 });
 

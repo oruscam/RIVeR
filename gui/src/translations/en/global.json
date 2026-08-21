@@ -193,12 +193,10 @@
     "pivOnly": "PIV only",
     "stationsCount": "{{count}} stations",
     "stiAngleTuned": "tuned",
-    "stiAngleAuto": "auto {{angle}}°",
     "stiAngleReset": "Reset to automatic",
     "stiAngleResetAll": "Reset all angles",
     "stiAngleResetAllTitle": "Discard every manual angle in this cross-section",
     "stiAngleWarnExtreme": "Velocity is poorly constrained at this angle",
-    "stiAngleDragHint": "Drag to rotate · Shift+drag to pan",
     "stiAngleLowConfidence": "The automatic fit is uncertain here (σ > velocity)",
     "Plot": {
       "u": "U Component",
