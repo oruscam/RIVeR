@@ -312,6 +312,79 @@ def test_no_legacy_cache_completes_without_error(tmp_path):
 
 
 # ---------------------------------------------------------------------------
+# STIV/iWave staleness on a Station Number change — update_current_x_section
+# rebuilds geometry (id/east/north/distance/...) at the new num_stations by
+# merging table_results into x_sections[current_x_section] key-by-key, but
+# never itself computes STIV_COLUMNS/IWAVE_COLUMNS (those come only from
+# run_full_analysis's STIV/iWave stages). Left alone, old per-station STIV/
+# iWave arrays from a previous, differently-sized Analize run would silently
+# survive the merge, misaligned against the newly-rebuilt station positions.
+# ---------------------------------------------------------------------------
+
+_STIV_IWAVE_COLUMNS = (
+    "stiv_velocity_profile", "stiv_sigma_profile", "stiv_angle_profile", "stiv_sign_profile",
+    "iwave_velocity_profile", "iwave_quality_profile", "iwave_depth_profile",
+)
+
+
+def _add_stiv_iwave_columns(x_sections, section_name="CS1"):
+    n = x_sections[section_name]["num_stations"]
+    for col in _STIV_IWAVE_COLUMNS:
+        x_sections[section_name][col] = [0.5] * n
+
+
+def test_num_stations_change_strips_stale_stiv_iwave_columns(tmp_path):
+    x_sections, piv, T = _make_full_xsection_fixture(tmp_path)
+    _add_stiv_iwave_columns(x_sections)  # populated at the fixture's num_stations=5
+
+    result = update_current_x_section(
+        x_sections, piv, T,
+        step=1, fps=25.0, id_section=0,
+        interpolate=False, artificial_seeding=False, alpha=None,
+        num_stations=7,  # different from the fixture's 5 — the reported-bug scenario
+        stats_cache={},
+    )
+
+    for col in _STIV_IWAVE_COLUMNS:
+        assert col not in result["CS1"], f"{col} should have been dropped on a num_stations change"
+
+
+def test_num_stations_unchanged_keeps_stiv_iwave_columns(tmp_path):
+    x_sections, piv, T = _make_full_xsection_fixture(tmp_path)
+    _add_stiv_iwave_columns(x_sections)
+
+    result = update_current_x_section(
+        x_sections, piv, T,
+        step=1, fps=25.0, id_section=0,
+        interpolate=False, artificial_seeding=False, alpha=None,
+        num_stations=5,  # same as the fixture — no reason to invalidate anything
+        stats_cache={},
+    )
+
+    for col in _STIV_IWAVE_COLUMNS:
+        assert result["CS1"][col] == [0.5] * 5
+
+
+def test_num_stations_none_keeps_stiv_iwave_columns(tmp_path):
+    """num_stations=None means 'keep whatever this section already has' (the
+    CLI's --num-stations is only passed when the caller wants a change) — must
+    not be misread as a change and strip valid, still-aligned data."""
+    x_sections, piv, T = _make_full_xsection_fixture(tmp_path)
+    _add_stiv_iwave_columns(x_sections)
+
+    result = update_current_x_section(
+        x_sections, piv, T,
+        step=1, fps=25.0, id_section=0,
+        interpolate=False, artificial_seeding=False, alpha=None,
+        num_stations=None,
+        stats_cache={},
+    )
+
+    for col in _STIV_IWAVE_COLUMNS:
+        assert result["CS1"][col] == [0.5] * 5
+
+
+# ---------------------------------------------------------------------------
 # CLI sidecar round trip — river.cli.commands.compute_section.update_xsection
 # ---------------------------------------------------------------------------
 

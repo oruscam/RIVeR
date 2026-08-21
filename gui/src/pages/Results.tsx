@@ -1,7 +1,5 @@
-import { useMemo } from 'react';
-import { ColorBar, Error, ImageResults, Results as ResultsComponent, WizardButtons } from '../components';
-import { useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
-import { getVelocityLimits } from '../helpers';
+import { Error, ImageResults, Results as ResultsComponent, WizardButtons } from '../components';
+import { useUiSlice } from '../hooks';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 
@@ -10,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 // getEffectiveTechniqueData), matching the validated design preview. Nothing here needs a
 // backend round-trip anymore.
 export const Results = () => {
-  const { screenSizes, seeAll } = useUiSlice();
+  const { screenSizes } = useUiSlice();
   const { imageWidth: width, imageHeight: height, factor } = screenSizes;
   const { t } = useTranslation();
 

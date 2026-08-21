@@ -1164,24 +1164,6 @@
     height: 100%;
 }
 
-.sti-context {
-    display: flex;
-    gap: 3px;
-    width: 96%;
-    padding: 6px 0;
-}
-
-.sti-context-tick {
-    flex: 1;
-    height: 14px;
-    border-radius: 2px;
-}
-
-.sti-context-tick-active {
-    outline: 2px solid var(--primary-text-color);
-    outline-offset: 1px;
-}
-
 .sti-frame {
     position: relative;
     overflow: hidden;

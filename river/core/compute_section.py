@@ -20,6 +20,8 @@ import hashlib
 
 import river.core.coordinate_transform as ct
 from river.core.exceptions import NotSupportedFormatError
+from river.core.iwave_pipeline import IWAVE_COLUMNS
+from river.core.stiv_pipeline import STIV_COLUMNS
 
 N_CACHE_POINTS = 200
 
@@ -1394,10 +1396,29 @@ def update_current_x_section(
     # Calculate the time between frames using the given step and frames per second
     time_between_frames = step / fps
 
+    previous_num_stations = x_sections[current_x_section].get("num_stations")
     if num_stations is None:
-        num_stations = x_sections[current_x_section]["num_stations"]
+        num_stations = previous_num_stations
     else:
         x_sections[current_x_section]["num_stations"] = num_stations
+
+    # This function rebuilds station geometry (id/east/north/distance/...) below at
+    # `num_stations`, but never touches STIV_COLUMNS/IWAVE_COLUMNS — those are written
+    # once, per-station, by run_full_analysis's STIV/iWave stages, and this function
+    # only merges its own rebuilt keys into x_sections[current_x_section] (see the
+    # `for key, value in table_results.items()` loop at the end), never replacing the
+    # dict outright. So when num_stations changes here (e.g. entering Results with a
+    # different Station Number than the analyze-all run used, without re-running
+    # Analize), the old STIV/iWave arrays survive at their old length/station
+    # positions, silently misaligned against the newly-rebuilt geometry: "station 6"
+    # in the new geometry is a different real-world location than "station 6" was in
+    # whichever run actually measured that STIV/iWave data. Drop them here so a stale,
+    # misaligned profile is never displayed — the honest state is "not run at this
+    # station count", which the frontend already renders correctly (getEffectiveTechniqueData
+    # returns null for a missing profile, hiding that technique) until Analize reruns.
+    if previous_num_stations is not None and previous_num_stations != num_stations:
+        for stale_key in (*STIV_COLUMNS, *IWAVE_COLUMNS):
+            x_sections[current_x_section].pop(stale_key, None)
 
     # Check if statistics already exist and are valid
     required_stats = [

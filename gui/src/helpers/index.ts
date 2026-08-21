@@ -5,7 +5,11 @@ import { formatTime, parseTime } from './formatTime';
 import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate } from './dateFunctions';
 import { getUnit } from './unitSistem';
 import { getDirectionVector } from './getDirectionVector';
-import { computeStationPixelPositions, computeStationSearchLines, computeSearchLinesFromCenters } from './stationPositions';
+import {
+  computeStationPixelPositions,
+  computeStationSearchLines,
+  computeSearchLinesFromCenters,
+} from './stationPositions';
 import { getStiColorScale, STI_FALLBACK_COLOR } from './stiColorScale';
 import type { StiColorScale } from './stiColorScale';
 import {
@@ -25,6 +29,16 @@ import {
 import { formatNumberToPrecision2, formatNumberToPrecision4, formatNumberTo2Decimals } from './adapterNumbers';
 import { carouselClickImage, carouselKeyDown, setCarouselDimensions } from './carouselFunctions';
 import { calculateArrowWidth, calculateMultipleArrowsAdaptative, getVelocityLimits } from './drawArrows';
+import {
+  flowDirection,
+  chevronCount,
+  formatSignedVelocity,
+  PITCH_FRACTION,
+  MAX_CHEVRON_COUNT,
+  THICKNESS_FACTOR,
+  WING_SPAN,
+  DEFAULT_PERIOD_S,
+} from './chevronGlyph';
 import {
   createSquare,
   getObliquePointsDistances,
@@ -60,16 +74,20 @@ export {
   calculateMultipleArrowsAdaptative,
   carouselClickImage,
   carouselKeyDown,
+  chevronCount,
   computeDischarge,
   computeSearchLinesFromCenters,
   computeStationPixelPositions,
   computeStationSearchLines,
   createSquare,
+  DEFAULT_PERIOD_S,
   dateToStringDate,
   findWetSegments,
+  flowDirection,
   formatNumberTo2Decimals,
   formatNumberToPrecision2,
   formatNumberToPrecision4,
+  formatSignedVelocity,
   formatTime,
   froudeFilledProfile,
   generateXAxisTicks,
@@ -93,16 +111,20 @@ export {
   getVelocityLimits,
   handleDragLeave,
   handleDragOver,
+  MAX_CHEVRON_COUNT,
   onLoadCrossSections,
   onLoadObliquePoints,
   onLoadPixelSize,
   onLoadProcessingForm,
   onLoadVideoParameters,
   parseTime,
+  PITCH_FRACTION,
   recortStringDate,
   setCarouselDimensions,
   setChangesByForm,
   STI_FALLBACK_COLOR,
   stringDateToDate,
+  THICKNESS_FACTOR,
   verifyWindowsSizes,
+  WING_SPAN,
 };

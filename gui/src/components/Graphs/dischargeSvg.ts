@@ -18,23 +18,23 @@ interface CreateDischargeChartProps {
   SVGElement: SVGSVGElement;
   distance: number[];
   Q: (number | null)[];
-  /** Active technique's identity color — bars are colored by which technique is active,
-   *  not by discharge-portion thresholds. */
-  color: string;
   isReport?: boolean;
   xScale: d3.ScaleLinear<number, number>;
   unitSistem?: string;
+  /** Station index currently hovered anywhere in the Results panel, so the bars
+   *  dim in sympathy with the velocity chart and the grid. */
+  hoveredStation?: number | null;
 }
 
 export const createDischargeChart = ({
   SVGElement,
   distance,
   Q,
-  color,
   sizes,
   isReport = false,
   xScale,
   unitSistem = 'si',
+  hoveredStation = null,
 }: CreateDischargeChartProps) => {
   const isImperial = unitSistem === 'imperial';
   const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
@@ -80,12 +80,22 @@ export const createDischargeChart = ({
     )
     .attr('stroke-width', 0.5);
 
+  // Keep the station index: `filteredQ` drops null stations, so its array
+  // position is not the station number the rest of the panel hovers by.
   const filteredQ = Q.map((d, i) => ({
     distance: distance[i],
     discharge: d,
+    index: i,
   })).filter((d) => d.discharge !== null);
 
-  // Append Bars — solid fill in the active technique's identity color
+  // Brightness carries each station's share of the total, so the distribution
+  // reads at a glance without spending colour on it — colour is reserved for
+  // technique identity elsewhere in the panel. Scaled against the largest
+  // contribution rather than the total, so the peak always reaches full
+  // strength whatever the station count.
+  const maxAbsQ = Math.max(...filteredQ.map((d) => Math.abs(d.discharge!)), 0);
+  const shareOpacity = (q: number) => 0.25 + 0.75 * (maxAbsQ > 0 ? Math.abs(q) / maxAbsQ : 0);
+
   svg
     .selectAll('.bar')
     .data(filteredQ)
@@ -98,8 +108,12 @@ export const createDischargeChart = ({
     .attr('height', (d) => Math.abs(yScale(d.discharge!) - yScale(0)))
     .attr('width', bandwidth)
     .attr('stroke-width', 0.5)
-    .attr('fill', color)
-    .attr('opacity', 0.85);
+    .attr('fill', 'var(--primary-text-color)')
+    .attr('opacity', (d) => {
+      const base = shareOpacity(d.discharge!);
+      if (hoveredStation === null) return base;
+      return d.index === hoveredStation ? 1 : base * 0.35;
+    });
 
   // Label
   const dischargeLabel = svg

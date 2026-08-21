@@ -114,16 +114,6 @@ export const StiViewer = ({
 
   return (
     <div className="sti-viewer">
-      <div className="sti-context">
-        {stationColors.map((color, i) => (
-          <span
-            key={i}
-            className={`sti-context-tick${i === activeStation ? ' sti-context-tick-active' : ''}`}
-            style={{ background: color }}
-          />
-        ))}
-      </div>
-
       <div
         className="sti-frame"
         style={{ width: viewW, height: viewH, cursor: isDragging ? 'grabbing' : 'grab' }}
