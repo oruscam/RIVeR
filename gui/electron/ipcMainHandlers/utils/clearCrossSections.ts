@@ -2,7 +2,12 @@ import * as fs from 'fs';
 
 async function clearCrossSections(filepath: string) {
   const xSectionsFile = await fs.promises.readFile(filepath, 'utf-8');
-  const data = JSON.parse(xSectionsFile);
+  // xsections.json can contain literal NaN tokens (Python's json.dumps allows them
+  // by default; JSON.parse does not) once analyze-all has populated it with results
+  // (e.g. displacement_x/y for the edge stations). Re-running Analize after that —
+  // e.g. after visiting Results and coming back to Processing — parses this same
+  // file again, so it needs the same sanitization as executeRiverCli.ts/loadResults.ts.
+  const data = JSON.parse(xSectionsFile.replace(/\bNaN\b/g, 'null'));
 
   const basicKeys = [
     'bath',

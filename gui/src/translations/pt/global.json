@@ -195,7 +195,13 @@
     "title": "Análise",
     "analize": "Analisar",
     "stop": "Parar",
-    "remainingTime": "Tempo Restante: "
+    "remainingTime": "Tempo Restante: ",
+    "estimating": "Estimating…",
+    "stage": {
+      "lspiv": "Computing LSPIV velocity field",
+      "stiv": "Computing STIV velocities",
+      "iwave": "Computing iWave velocities"
+    }
   },
   "Results": {
     "title": "Resultados",

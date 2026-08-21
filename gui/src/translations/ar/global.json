@@ -195,7 +195,13 @@
     "title": "جارٍ التحليل",
     "analize": "تحليل",
     "stop": "إيقاف",
-    "remainingTime": "الوقت المتبقي: "
+    "remainingTime": "الوقت المتبقي: ",
+    "estimating": "Estimating…",
+    "stage": {
+      "lspiv": "Computing LSPIV velocity field",
+      "stiv": "Computing STIV velocities",
+      "iwave": "Computing iWave velocities"
+    }
   },
   "Results": {
     "title": "النتائج",

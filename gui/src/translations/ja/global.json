@@ -195,7 +195,13 @@
     "title": "解析中",
     "analize": "解析",
     "stop": "停止",
-    "remainingTime": "残り時間: "
+    "remainingTime": "残り時間: ",
+    "estimating": "Estimating…",
+    "stage": {
+      "lspiv": "Computing LSPIV velocity field",
+      "stiv": "Computing STIV velocities",
+      "iwave": "Computing iWave velocities"
+    }
   },
   "Results": {
     "title": "結果",
