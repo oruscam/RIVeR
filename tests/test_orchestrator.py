@@ -44,7 +44,7 @@ def fake_project(tmp_path, monkeypatch):
 		calls["lspiv"] += 1
 		return xs
 	monkeypatch.setattr(orch, "update_current_x_section", fake_update)
-	monkeypatch.setattr(orch, "load_models", lambda: ("m", {}, "s", 256))
+	monkeypatch.setattr(orch, "load_models", lambda: ("m", "s", 256))
 	def fake_stiv(**kwargs):
 		calls["stiv"] += 1
 		return kwargs["xsections"]
