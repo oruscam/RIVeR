@@ -102,6 +102,12 @@ const getSectionStyles = (module: string) => {
 /**
  * Append a line with standard attributes and optional dash.
  * Points are in "image space" unless fx/fy=1 (zoom space).
+ *
+ * Draws a dark contrast halo behind the colored line so it stays legible
+ * over any video footage (a flat single-width stroke can wash out over
+ * light or busy backgrounds), and — for the dashed section line — small
+ * perpendicular ticks at both ends so it reads as a measurement transect
+ * rather than an arbitrary segment.
  */
 const drawLine = ({
   points,
@@ -122,18 +128,63 @@ const drawLine = ({
   dashed?: boolean;
   className: string;
 }) => {
+  const x1 = points[0].x / fx;
+  const y1 = points[0].y / fy;
+  const x2 = points[1].x / fx;
+  const y2 = points[1].y / fy;
+  const strokeWidth = 4 / resizeFactor;
+
   group
     .append('line')
-    .attr('class', className)
-    .attr('x1', points[0].x / fx)
-    .attr('y1', points[0].y / fy)
-    .attr('x2', points[1].x / fx)
-    .attr('y2', points[1].y / fy)
-    .attr('stroke', color)
-    .attr('stroke-width', 4 / resizeFactor)
+    .attr('class', `${className}-halo`)
+    .attr('x1', x1)
+    .attr('y1', y1)
+    .attr('x2', x2)
+    .attr('y2', y2)
+    .attr('stroke', 'rgba(0, 0, 0, 0.45)')
+    .attr('stroke-width', strokeWidth + 3)
     .attr('stroke-linecap', 'round')
     .attr('vector-effect', 'non-scaling-stroke')
     .attr('stroke-dasharray', dashed ? '5,10' : null);
+
+  group
+    .append('line')
+    .attr('class', className)
+    .attr('x1', x1)
+    .attr('y1', y1)
+    .attr('x2', x2)
+    .attr('y2', y2)
+    .attr('stroke', color)
+    .attr('stroke-width', strokeWidth)
+    .attr('stroke-linecap', 'round')
+    .attr('vector-effect', 'non-scaling-stroke')
+    .attr('stroke-dasharray', dashed ? '5,10' : null);
+
+  if (dashed) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const len = Math.sqrt(dx * dx + dy * dy) || 1;
+    const perpX = -dy / len;
+    const perpY = dx / len;
+    const tickLen = 10 / resizeFactor;
+
+    [
+      [x1, y1],
+      [x2, y2],
+    ].forEach(([tx, ty]) => {
+      group
+        .append('line')
+        .attr('class', `${className}-tick`)
+        .attr('x1', tx - perpX * tickLen)
+        .attr('y1', ty - perpY * tickLen)
+        .attr('x2', tx + perpX * tickLen)
+        .attr('y2', ty + perpY * tickLen)
+        .attr('stroke', color)
+        .attr('stroke-width', 2 / resizeFactor)
+        .attr('stroke-linecap', 'round')
+        .attr('vector-effect', 'non-scaling-stroke');
+    });
+  }
 };
 
 /**
@@ -430,21 +481,8 @@ const drawStaticSection = ({
     !(sectionPoints[0].x === sectionPoints[1].x && sectionPoints[0].y === sectionPoints[1].y);
 
   if (!skipLine) {
-    // Direction line
-    if (hasMeaningfulDirPoints) {
-      drawLine({
-        points: [dirPoints[0], dirPoints[1]],
-        group: useZoomLayer ? g : uiLayer,
-        color: lineColor,
-        resizeFactor,
-        fx,
-        fy,
-        dashed: false,
-        className: `static-dir-line ${sectionClass}`,
-      });
-    }
-
-    // Section line (dashed)
+    // Section line (dashed) — drawn first so the solid direction line paints
+    // on top of it where the two overlap.
     if (hasMeaningfulSectionPoints) {
       drawLine({
         points: [sectionPoints[0], sectionPoints[1]],
@@ -455,6 +493,20 @@ const drawStaticSection = ({
         fy,
         dashed: true,
         className: `static-section-line ${sectionClass}`,
+      });
+    }
+
+    // Direction line (solid)
+    if (hasMeaningfulDirPoints) {
+      drawLine({
+        points: [dirPoints[0], dirPoints[1]],
+        group: useZoomLayer ? g : uiLayer,
+        color: lineColor,
+        resizeFactor,
+        fx,
+        fy,
+        dashed: false,
+        className: `static-dir-line ${sectionClass}`,
       });
     }
   }
@@ -559,6 +611,22 @@ const drawInteractiveSection = ({
   layer.selectAll(`.${sectionClass}`).remove();
   uiLayer.selectAll(`.${interactiveUiClass}`).remove();
 
+  // Section dashed line when not dragging — drawn first so the solid direction
+  // line paints on top of it where the two overlap. Label is owned by the
+  // static effect.
+  if (sectionPoints !== undefined && sectionPoints.length > 0 && !mousePressed) {
+    drawLine({
+      points: [sectionPoints[0], sectionPoints[1]],
+      group: layer,
+      color: lineColor,
+      resizeFactor,
+      fx: typeof factor === 'number' ? factor : factor.x,
+      fy: typeof factor === 'number' ? factor : factor.y,
+      dashed: true,
+      className: `final-section-line ${sectionClass}`,
+    });
+  }
+
   // Interactive direction line (zoom-space, drawn while dragging or after drop)
   if (startPoint && endPoint) {
     drawLine({
@@ -570,20 +638,6 @@ const drawInteractiveSection = ({
       fy: 1,
       dashed: false,
       className: `final-line ${sectionClass}`,
-    });
-  }
-
-  // Section dashed line when not dragging — label is now owned by the static effect
-  if (sectionPoints !== undefined && sectionPoints.length > 0 && !mousePressed) {
-    drawLine({
-      points: [sectionPoints[0], sectionPoints[1]],
-      group: layer,
-      color: lineColor,
-      resizeFactor,
-      fx: typeof factor === 'number' ? factor : factor.x,
-      fy: typeof factor === 'number' ? factor : factor.y,
-      dashed: true,
-      className: `final-section-line ${sectionClass}`,
     });
   }
 

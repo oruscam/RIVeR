@@ -29,6 +29,9 @@ interface UIState {
   isLatestVersion?: boolean;
   latestVersion?: string;
   hoveredStation: number | null;
+  /** Interrogation-window size preview on the Processing image. Off by default —
+   *  it's a reference overlay, not something needed on every frame. */
+  showInterrogationWindow: boolean;
 }
 
 export type { ScreenSizes, UIState, ThemeType };
