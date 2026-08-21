@@ -195,7 +195,13 @@
     "title": "분석 중",
     "analize": "분석",
     "stop": "중지",
-    "remainingTime": "남은 시간: "
+    "remainingTime": "남은 시간: ",
+    "estimating": "Estimating…",
+    "stage": {
+      "lspiv": "Computing LSPIV velocity field",
+      "stiv": "Computing STIV velocities",
+      "iwave": "Computing iWave velocities"
+    }
   },
   "Results": {
     "title": "결과",

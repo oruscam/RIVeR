@@ -110,6 +110,7 @@ def run_full_analysis(
 	# ── Stage 3: STIV ───────────────────────────────────────────────────────
 	if stiv:
 		try:
+			_log("STIV: loading models")
 			models = load_models()
 			stis_root = frames_dir.parent / "stis"
 			total_stiv_stations = sum(len(xsections[k]["id"]) for k in section_keys)

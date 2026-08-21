@@ -84,6 +84,20 @@ def test_engines_off_strip_columns(fake_project):
 	assert calls["stiv"] == 0 and calls["iwave"] == 0
 
 
+def test_stiv_logs_loading_models_marker(fake_project, capsys):
+	tmp_path, calls = fake_project
+	_run(tmp_path)
+	captured = capsys.readouterr()
+	assert "STIV: loading models" in captured.err
+
+
+def test_stiv_disabled_no_loading_models_marker(fake_project, capsys):
+	tmp_path, calls = fake_project
+	_run(tmp_path, stiv=False)
+	captured = capsys.readouterr()
+	assert "STIV: loading models" not in captured.err
+
+
 def test_stats_cache_sidecar_read_once_write_once(fake_project, monkeypatch):
 	"""Stage 2's `_stats_cache.json` sidecar wiring: read exactly once
 	before the loop starts (verified by counting `Path.read_text` calls

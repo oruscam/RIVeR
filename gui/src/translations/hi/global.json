@@ -195,7 +195,13 @@
     "title": "विश्लेषण हो रहा है",
     "analize": "विश्लेषण",
     "stop": "रोकें",
-    "remainingTime": "शेष समय: "
+    "remainingTime": "शेष समय: ",
+    "estimating": "Estimating…",
+    "stage": {
+      "lspiv": "Computing LSPIV velocity field",
+      "stiv": "Computing STIV velocities",
+      "iwave": "Computing iWave velocities"
+    }
   },
   "Results": {
     "title": "परिणाम",

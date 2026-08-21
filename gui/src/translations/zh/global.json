@@ -195,7 +195,13 @@
     "title": "分析中",
     "analize": "分析",
     "stop": "停止",
-    "remainingTime": "剩余时间: "
+    "remainingTime": "剩余时间: ",
+    "estimating": "Estimating…",
+    "stage": {
+      "lspiv": "Computing LSPIV velocity field",
+      "stiv": "Computing STIV velocities",
+      "iwave": "Computing iWave velocities"
+    }
   },
   "Results": {
     "title": "结果",

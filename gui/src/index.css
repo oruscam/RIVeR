@@ -754,6 +754,18 @@ input:checked + .slider:before {
   font-weight: 500;
 }
 
+.analize-stage-breadcrumb {
+  text-align: center;
+  color: var(--secondary-text-color);
+  font-size: 0.85em;
+  margin-bottom: 8px;
+}
+
+.analize-stage-breadcrumb-active {
+  color: var(--primary-text-color);
+  font-weight: 600;
+}
+
 @keyframes spin {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
