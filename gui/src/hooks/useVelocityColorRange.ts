@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useDataSlice } from './useDataSlice';
+import { useProjectSlice } from './useProjectSlice';
 import { useSectionSlice } from './useSectionSlice';
 import { Section } from '../store/section/types';
 import { getEffectiveTechniqueData } from '../helpers';
@@ -22,6 +23,7 @@ import { getGlobalMagnitudes } from '../helpers/drawArrows';
 export const useVelocityColorRange = (): { min: number; max: number } => {
   const { sections } = useSectionSlice();
   const { colorbarLimits } = useDataSlice();
+  const { video } = useProjectSlice();
 
   // The same live resolution the velocity chart and the chevrons use (active
   // technique + interpolate + artificial seeding + per-station checks). One
@@ -34,10 +36,12 @@ export const useVelocityColorRange = (): { min: number; max: number } => {
           interpolated: section.interpolated,
           artificialSeeding: section.artificialSeeding,
           alpha: section.alpha,
+          step: video.parameters.step,
+          fps: video.data.fps,
         });
         return effective ? effective.resolved : null;
       }),
-    [sections]
+    [sections, video]
   );
 
   const { max: dataMax, min: dataMin } = useMemo(() => {

@@ -45,10 +45,12 @@ export const VelocityVector = ({
           interpolated: section.interpolated,
           artificialSeeding: section.artificialSeeding,
           alpha: section.alpha,
+          step: video.parameters.step,
+          fps: video.data.fps,
         });
         return effective ? effective.resolved : null;
       }),
-    [sections]
+    [sections, video]
   );
 
   // Same shared computation the colour bar reads (`ImageResults`), so the

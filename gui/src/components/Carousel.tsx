@@ -1,9 +1,9 @@
-import { useAutoShrinkFont, useDataSlice, useUiSlice, useResizableCarousel } from '../hooks';
+import { useAutoShrinkFont, useDataSlice, useSectionSlice, useUiSlice, useResizableCarousel } from '../hooks';
 import React, { useRef, useState, useEffect } from 'react';
 import { useWizard } from 'react-use-wizard';
 import { MODULE_NUMBER } from '../constants/constants';
 import { FixedSizeList as List } from 'react-window';
-import { carouselClickImage, carouselKeyDown } from '../helpers';
+import { carouselClickImage, carouselKeyDown, isStationTuned } from '../helpers';
 import { useTranslation } from 'react-i18next';
 import { carouselMouseDown, carouselMouseUp, setCarouselDimensions } from '../helpers/carouselFunctions';
 import { back, play as next } from '../assets/icons/icons';
@@ -17,6 +17,9 @@ interface CarouselProps {
   setShowMedian?: (value: boolean) => void;
   canToggleMedian?: boolean;
   mode: 'processing' | 'analize' | 'ipcam' | 'select';
+  /** True only for the STI station strip — `mode==='processing'` alone also
+   *  covers the iWave strip, where these indices point at a different, sparser list. */
+  showStivMarkers?: boolean;
 }
 
 interface RowProps {
@@ -32,11 +35,17 @@ export const Carousel: React.FC<CarouselProps> = ({
   setShowMedian,
   canToggleMedian,
   mode,
+  showStivMarkers,
 }) => {
   const { t } = useTranslation();
   const { isBackendWorking } = useDataSlice();
   const [width, setWidth] = useState<number>(500);
   const { screenSizes } = useUiSlice();
+  // Only needed for the STI station strip's tuned/low-confidence markers (see
+  // showStivMarkers) — the thumbnail's own index doubles as the profile-array
+  // station index there, matching the water-mark label below (`index + 1`).
+  const { sections, activeSection } = useSectionSlice();
+  const sectionData = sections[activeSection]?.data;
 
   const [baseItemWidth, setBaseItemWidth] = useState<number>(275);
   const [baseCarouselHeight, setBaseCarouselHeight] = useState<number>(190);
@@ -84,6 +93,16 @@ export const Carousel: React.FC<CarouselProps> = ({
       className = 'img-carousel-second img-carousel';
     }
 
+    // A dry bank station has v = 0 and sigma at its 0.05 floor, which satisfies
+    // sigma > |v| while meaning nothing — the v !== 0 guard keeps that station
+    // from being flagged as low-confidence.
+    const v = sectionData?.stiv_velocity_profile?.[index];
+    const s = sectionData?.stiv_sigma_profile?.[index];
+    const lowConfidence =
+      v !== null && v !== undefined && v !== 0 && s !== null && s !== undefined && s > Math.abs(v);
+    const tuned = isStationTuned(sectionData?.stiv_angle_manual_profile, index);
+    const showMarkers = showStivMarkers === true && (tuned || lowConfidence);
+
     return (
       <div
         key={index}
@@ -105,6 +124,46 @@ export const Carousel: React.FC<CarouselProps> = ({
       >
         <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
         {mode !== 'ipcam' && <div className="img-water-mark"> {index + 1}</div>}
+        {showMarkers && (
+          <div
+            style={{
+              position: 'absolute',
+              top: 6,
+              right: 8,
+              zIndex: 3,
+              display: 'flex',
+              gap: 4,
+              pointerEvents: 'none',
+            }}
+          >
+            {tuned && (
+              <span
+                title={t('Processing.stiAngleTuned')}
+                style={{
+                  width: 9,
+                  height: 9,
+                  borderRadius: '50%',
+                  background: 'var(--accent-color)',
+                  border: '1px solid var(--overlay-text-color)',
+                  pointerEvents: 'auto',
+                }}
+              />
+            )}
+            {lowConfidence && (
+              <span
+                title={t('Processing.stiAngleLowConfidence')}
+                style={{
+                  width: 9,
+                  height: 9,
+                  borderRadius: '50%',
+                  background: 'var(--warning-color)',
+                  border: '1px solid var(--overlay-text-color)',
+                  pointerEvents: 'auto',
+                }}
+              />
+            )}
+          </div>
+        )}
       </div>
     );
   };

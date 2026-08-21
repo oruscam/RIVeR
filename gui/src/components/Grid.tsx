@@ -37,7 +37,7 @@ export const Grid = () => {
   const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
   const [copied, setCopied] = useState(false);
   const { sections, activeSection, onChangeDataValues } = useSectionSlice();
-  const { projectDetails } = useProjectSlice();
+  const { projectDetails, video } = useProjectSlice();
   const { hoveredStation, onSetHoveredStation } = useUiSlice();
   const { t } = useTranslation();
   const isImperial = projectDetails.unitSistem === 'imperial';
@@ -52,6 +52,8 @@ export const Grid = () => {
     interpolated: section?.interpolated ?? false,
     artificialSeeding: section?.artificialSeeding ?? false,
     alpha: section?.alpha ?? 1,
+    step: video.parameters.step,
+    fps: video.data.fps,
   };
 
   const copyAllDataToClipboard = () => {
@@ -167,6 +169,8 @@ export const Grid = () => {
       interpolated: section.interpolated,
       artificialSeeding: section.artificialSeeding,
       alpha: section.alpha,
+      step: video.parameters.step,
+      fps: video.data.fps,
     });
     if (!effective) return [];
 
@@ -185,7 +189,7 @@ export const Grid = () => {
       interpolated: interpFlags[i],
       excluded: !activeCheck[i] && !interpFlags[i],
     }));
-  }, [section, lFactor, aFactor, qFactor]);
+  }, [section, lFactor, aFactor, qFactor, video]);
 
   useEffect(() => {
     if (section && section.data && Array.isArray(section.data.activeCheck)) {

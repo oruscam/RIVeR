@@ -12,6 +12,9 @@ export interface VelocitySeriesPoint {
   interp: boolean;
   i: number;
   quality: number | null;
+  /** STIV only: was this station's velocity derived from a user-set angle
+   *  rather than the automatic fit. Always false for LSPIV/iWave. */
+  tuned: boolean;
 }
 
 export interface VelocityBand {
@@ -220,6 +223,12 @@ export const createVelocityChart = ({
 
     const showQuality = s.key === 'iwave' && s.showQuality && qualityColorScale && qualityRadiusScale;
 
+    // STIV only: an automatic (untuned, non-estimated) station renders as an open
+    // ring rather than the solid dot every other point uses, so a hand-tuned
+    // station — which keeps the solid fill — reads as visibly different at a
+    // glance rather than only on hover.
+    const isStivHollow = (d: VelocitySeriesPoint) => s.key === 'stiv' && !d.interp && !d.tuned;
+
     svg
       .selectAll(`.marker-${s.key}`)
       .data(s.points.filter((p) => p.v !== null))
@@ -234,10 +243,14 @@ export const createVelocityChart = ({
           ? 'var(--accent-color)'
           : showQuality && d.quality !== null
             ? qualityColorScale!(d.quality)
-            : strokeColor
+            : isStivHollow(d)
+              ? 'var(--background-color)'
+              : strokeColor
       )
-      .attr('stroke', (d) => (showQuality && d.quality !== null ? 'var(--background-color)' : 'none'))
-      .attr('stroke-width', (d) => (showQuality && d.quality !== null ? 0.75 : 0))
+      .attr('stroke', (d) =>
+        showQuality && d.quality !== null ? 'var(--background-color)' : isStivHollow(d) ? strokeColor : 'none'
+      )
+      .attr('stroke-width', (d) => (showQuality && d.quality !== null ? 0.75 : isStivHollow(d) ? 1.5 : 0))
       .attr('opacity', baseOpacity);
   });
 

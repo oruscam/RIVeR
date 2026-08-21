@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { TECHNIQUE_COLORS } from '../../constants/constants';
 import { LuEye, LuEyeOff } from 'react-icons/lu';
 import type { PreviewMode } from '../../store/ui/types';
+import { useStivAngleOverride } from '../../hooks';
 
 export const FormProcessing = ({
   extraFields,
@@ -54,6 +55,9 @@ export const FormProcessing = ({
     iwave,
   } = processing.form;
   const { name, numStations } = sections[activeSection];
+  // Station index is irrelevant for hasAny/resetAll — they operate on the whole
+  // manual-angle array, not one station.
+  const { hasAny: hasAnyStivOverride, resetAll: resetAllStivAngles } = useStivAngleOverride(0);
 
   const [isTesting, setIsTesting] = useState<boolean>(false);
 
@@ -218,6 +222,16 @@ export const FormProcessing = ({
               >
                 {previewMode === 'sti' ? <LuEye size={15} /> : <LuEyeOff size={15} />}
               </button>
+              {hasAnyStivOverride && (
+                <button
+                  type="button"
+                  className="sti-angle-reset"
+                  title={t('Processing.stiAngleResetAllTitle')}
+                  onClick={resetAllStivAngles}
+                >
+                  {t('Processing.stiAngleResetAll')}
+                </button>
+              )}
             </div>
             <div className="technique-row-processing">
               <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.iwave }} />

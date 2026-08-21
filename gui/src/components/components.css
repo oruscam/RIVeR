@@ -1193,6 +1193,9 @@
     top: 8px;
     right: 8px;
     line-height: 1.5;
+    /* A readout, not a target — otherwise it would swallow the pointer over its
+       corner of the angle overlay. */
+    pointer-events: none;
 }
 
 .sti-empty {
@@ -1200,6 +1203,101 @@
     font-size: 13px;
     text-align: center;
     padding: 40px 0;
+}
+
+/* STIV angle tuner — the rotatable bars over the STI, and the slider row that
+   mirrors them. Overrides .sti-overlay's pointer-events: this overlay is the
+   drag target; only Shift-held events pass through to the frame's pan. */
+.sti-angle-overlay {
+    pointer-events: auto;
+    cursor: crosshair;
+    /* Keeps a rotation drag from also scrolling/zooming the panel on a touchpad. */
+    touch-action: none;
+}
+
+.sti-angle-overlay.is-rotating {
+    cursor: grabbing;
+}
+
+/* The end handles read as "this is grabbable" on approach, and stay out of the
+   way of the streaks the rest of the time. */
+.sti-angle-handle {
+    stroke: #000000;
+    stroke-width: 1.5;
+    opacity: 0;
+    transition: opacity 0.12s ease-in-out;
+}
+
+.sti-angle-overlay:hover .sti-angle-handle,
+.sti-angle-overlay:focus .sti-angle-handle {
+    opacity: 1;
+}
+
+/* Sits under .sti-frame, never inside it: the frame clips its overflow. */
+.sti-angle-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.sti-angle-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sti-angle-slider {
+    flex: 1;
+    min-width: 0;
+    cursor: pointer;
+}
+
+.sti-angle-value {
+    font-size: 12px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.sti-angle-reset {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--primary-text-color);
+    border-radius: 3px;
+    padding: 3px 9px;
+    font-size: 12px;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.sti-angle-reset:hover:not(:disabled) {
+    background: var(--on-hover);
+}
+
+.sti-angle-reset:disabled {
+    color: var(--disabled-button);
+    cursor: default;
+}
+
+.sti-angle-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    min-height: 14px;
+}
+
+.sti-angle-hint {
+    color: var(--secondary-text-color);
+    margin-right: auto;
+}
+
+.sti-angle-warning {
+    color: var(--warning-color);
+}
+
+.sti-angle-tuned {
+    color: var(--secondary-text-color);
 }
 
 /* iWave spectrum preview — reuses .sti-viewer / .sti-frame / .sti-overlay /

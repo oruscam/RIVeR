@@ -53,7 +53,7 @@ export const AllInOne = ({
   const { data, bathimetry, name, activeTechnique, interpolated, artificialSeeding, alpha } = section;
   const { level, x1Intersection, x2Intersection, width: bathWidth, wetSegments } = bathimetry;
   const { screenSizes, theme, language, hoveredStation, onSetHoveredStation } = useUiSlice();
-  const { projectDetails } = useProjectSlice();
+  const { projectDetails, video } = useProjectSlice();
   const { unitSistem } = projectDetails;
   const { width: screenWidth } = screenSizes;
 
@@ -72,7 +72,13 @@ export const AllInOne = ({
       const height = +svg.attr('height');
       const margin = { top: 20, right: 30, bottom: 40, left: 50 };
       const graphHeight = height / 3;
-      const techOptions = { interpolated, artificialSeeding, alpha };
+      const techOptions = {
+        interpolated,
+        artificialSeeding,
+        alpha,
+        step: video.parameters.step,
+        fps: video.data.fps,
+      };
 
       const shiftedDistance = data.distance.map((d) => d + x1Intersection!);
       const bathData = adapterBathimetry(bathimetry.line!, wetSegments ?? [], level!);
@@ -156,6 +162,7 @@ export const AllInOne = ({
             interp: effective.interpFlags[i],
             i,
             quality: key === 'iwave' ? (data.iwave_quality_profile?.[i] ?? null) : null,
+            tuned: effective.tunedFlags[i],
           }));
 
           const s: VelocitySeries = {
@@ -170,15 +177,14 @@ export const AllInOne = ({
             if (data.showVelocityStd) s.stdBand = { minus: data.minus_std, plus: data.plus_std };
             if (data.showPercentile) s.percentileBand = { minus: data.percentile_5th, plus: data.percentile_95th };
           }
-          if (key === 'stiv' && data.showStivStd && data.stiv_sigma_profile) {
-            const sigma = data.stiv_sigma_profile;
+          if (key === 'stiv' && data.showStivStd) {
+            // Sigma comes pre-nulled for tuned stations (mergedSigmaProfile), and the
+            // band is built off the merged velocity so a tuned station's band (if any)
+            // matches the line actually drawn rather than the pre-override profile.
+            const sigma = effective.sigma;
             s.stdBand = {
-              minus: data.stiv_velocity_profile!.map((v, i) =>
-                v === null || sigma[i] === null ? null : v - sigma[i]!
-              ),
-              plus: data.stiv_velocity_profile!.map((v, i) =>
-                v === null || sigma[i] === null ? null : v + sigma[i]!
-              ),
+              minus: effective.resolved.map((v, i) => (v === null || sigma[i] === null ? null : v - sigma[i]!)),
+              plus: effective.resolved.map((v, i) => (v === null || sigma[i] === null ? null : v + sigma[i]!)),
             };
           }
           if (key === 'iwave') {
@@ -341,6 +347,7 @@ export const AllInOne = ({
     bathimetry.line,
     wetSegments,
     hoveredStation,
+    video,
   ]);
 
   return (

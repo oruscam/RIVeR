@@ -34,6 +34,7 @@ import {
   recommendRoiHeight,
   getGif,
   setColorbarLimits,
+  setStivManualAngles,
 } from './ipcMainHandlers/index.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
 
@@ -234,6 +235,7 @@ app.whenReady().then(async () => {
   saveReportHtml();
   saveTransformationMatrix();
   setColorbarLimits();
+  setStivManualAngles();
   setControlPoints(riverCli);
   setPixelSize(riverCli);
   setProjectMetadata();

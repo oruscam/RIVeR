@@ -82,6 +82,9 @@ interface SectionData {
   stiv_sigma_profile?: (number | null)[];
   stiv_angle_profile?: (number | null)[];
   stiv_sign_profile?: string[];
+  /** Per-station angle set by the user in the STI viewer, in degrees. null = use
+   *  the automatic fit. Written only by the GUI; never produced by the pipeline. */
+  stiv_angle_manual_profile?: (number | null)[];
   iwave_velocity_profile?: (number | null)[];
   iwave_quality_profile?: (number | null)[];
   iwave_depth_profile?: (number | null)[];

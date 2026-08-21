@@ -384,6 +384,39 @@ def test_num_stations_none_keeps_stiv_iwave_columns(tmp_path):
         assert result["CS1"][col] == [0.5] * 5
 
 
+def test_manual_angles_stripped_when_num_stations_changes(tmp_path):
+    """A manual angle is pinned to a station position; rebuilding the geometry at a
+    different station count moves that position, so the override must not survive."""
+    x_sections, piv, T = _make_full_xsection_fixture(tmp_path)
+    x_sections["CS1"]["stiv_angle_manual_profile"] = [None, None, None, None, 45.0]
+
+    result = update_current_x_section(
+        x_sections, piv, T,
+        step=1, fps=25.0, id_section=0,
+        interpolate=False, artificial_seeding=False, alpha=None,
+        num_stations=7,  # different from the fixture's 5
+        stats_cache={},
+    )
+
+    assert "stiv_angle_manual_profile" not in result["CS1"]
+
+
+def test_manual_angles_survive_recompute_at_the_same_num_stations(tmp_path):
+    """An ordinary Results recompute is not a re-run and must preserve the user's work."""
+    x_sections, piv, T = _make_full_xsection_fixture(tmp_path)
+    x_sections["CS1"]["stiv_angle_manual_profile"] = [None, None, None, None, 45.0]
+
+    result = update_current_x_section(
+        x_sections, piv, T,
+        step=1, fps=25.0, id_section=0,
+        interpolate=False, artificial_seeding=False, alpha=None,
+        num_stations=5,  # same as the fixture — no reason to invalidate anything
+        stats_cache={},
+    )
+
+    assert result["CS1"]["stiv_angle_manual_profile"][4] == 45.0
+
+
 # ---------------------------------------------------------------------------
 # CLI sidecar round trip — river.cli.commands.compute_section.update_xsection
 # ---------------------------------------------------------------------------
