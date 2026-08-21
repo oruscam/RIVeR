@@ -632,6 +632,16 @@ export const useSectionSlice = () => {
         dispatch(changeSectionData({ ...data, showPercentile: !data.showPercentile }));
       }
     }
+    if (object.type === 'showStiv') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, showStiv: data.showStiv === false ? true : false }));
+      }
+    }
+    if (object.type === 'showIwave') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, showIwave: data.showIwave === false ? true : false }));
+      }
+    }
   };
 
   const onGetBathimetry = async (values: onGetBathimetryTypes) => {

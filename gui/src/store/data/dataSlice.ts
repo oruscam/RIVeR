@@ -7,6 +7,7 @@ const defaultFormProcessing = {
   clahe: true,
   clipLimit: 5,
   heightRoi: 0,
+  iwave: true,
   medianTestEpsilon: 0.02,
   medianTestFiltering: true,
   medianTestThreshold: 2,
@@ -15,6 +16,7 @@ const defaultFormProcessing = {
   stdThreshold: 4,
   step1: 128,
   step2: 64,
+  stiv: true,
 };
 
 const defaultProcessing = {

@@ -1343,6 +1343,7 @@ def update_current_x_section(
     artificial_seeding: bool = False,
     alpha: Optional[float] = None,
     num_stations: Optional[int] = None,
+    stats_cache: Optional[dict] = None,
 ) -> dict:
     """
     Enrich the cross-section data with the PIV results and other parameters.
@@ -1358,6 +1359,13 @@ def update_current_x_section(
             artificial_seeding (bool, optional): Whether to use artificial seeding for velocity profiles.
             alpha (Optional[float], optional): Velocity coefficient. Defaults to None.
             num_stations (Optional[int], optional): Number of stations in the cross-section. Defaults to None.
+            stats_cache (Optional[dict], optional): Dict keyed by section name, holding each
+                section's internal per-frame velocity/gradient cache entry (used to speed up
+                recomputing per-station statistics when only cheap parameters like
+                num_stations or alpha change). The caller owns reading/writing this to/from
+                disk (this function never touches the filesystem) — it lives in a sidecar
+                file, not in x_sections/xsections.json. If None, treated as an empty dict for
+                this call (cache reads simply miss, matching "no cache" behavior).
 
     Returns:
         dict: The updated cross-section data.
@@ -1373,6 +1381,15 @@ def update_current_x_section(
     ]
     for key in keys_to_remove:
         x_sections[current_x_section].pop(key)
+
+    if stats_cache is None:
+        stats_cache = {}
+    # Migrate a legacy embedded cache from older xsections.json files (pre-sidecar-file
+    # design) onto the caller-owned stats_cache dict, and strip it from x_sections so it
+    # never gets serialized back into xsections.json.
+    legacy_cache = x_sections[current_x_section].pop("_stats_cache", None)
+    if legacy_cache is not None and current_x_section not in stats_cache:
+        stats_cache[current_x_section] = legacy_cache
 
     # Calculate the time between frames using the given step and frames per second
     time_between_frames = step / fps
@@ -1503,7 +1520,7 @@ def update_current_x_section(
             east_l, north_l, east_r, north_r, level,
             left_station, step, fps, transformation_matrix,
         )
-        existing_cache = x_sections[current_x_section].get("_stats_cache")
+        existing_cache = stats_cache.get(current_x_section)
 
         if existing_cache and existing_cache.get("geometry_hash") == geometry_hash:
             # dtype=float64 is required: NaN values in the cache round-trip through the
@@ -1521,7 +1538,7 @@ def update_current_x_section(
                 dense_north,
                 time_between_frames,
             )
-            x_sections[current_x_section]["_stats_cache"] = {
+            stats_cache[current_x_section] = {
                 "geometry_hash": geometry_hash,
                 "dense_distances": dense_distances.tolist(),
                 "streamwise_vel_frames": streamwise_vel_frames.tolist(),

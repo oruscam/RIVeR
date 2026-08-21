@@ -6,6 +6,7 @@ interface FormProcessing {
   clahe: boolean;
   clipLimit: number;
   heightRoi: number;
+  iwave: boolean;
   medianTestEpsilon: number;
   medianTestFiltering: boolean;
   medianTestThreshold: number;
@@ -14,6 +15,7 @@ interface FormProcessing {
   stdThreshold: number;
   step1: number;
   step2: number;
+  stiv: boolean;
 }
 
 interface Processing {

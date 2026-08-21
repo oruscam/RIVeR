@@ -23,7 +23,10 @@ dependencies = [
     "numba == 0.60.0",
     "tablib[xlsx,xls,ods] == 3.8.0",
     "pyfftw == 0.15.0",
-    "torch >= 2.0.0"
+    "torch >= 2.0.0",
+    "iwave >= 0.4.0",
+    "numexpr",
+    "rocket-fft"
 ]
 license = "AGPL-3.0-or-later"
 classifiers = [

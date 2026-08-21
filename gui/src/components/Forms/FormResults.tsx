@@ -13,7 +13,7 @@ interface FormResultProps {
 
 export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   const { register, setValue } = useFormContext();
-  const { sections, activeSection, onUpdateSection } = useSectionSlice();
+  const { sections, activeSection, onUpdateSection, onChangeDataValues } = useSectionSlice();
   const { name, data, alpha, artificialSeeding } = sections[activeSection];
   const { isBackendWorking } = useDataSlice();
   const { projectDetails } = useProjectSlice();
@@ -112,6 +112,31 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
               id="artificial-seeding"
               onChange={handleOnChange}
               defaultChecked={artificialSeeding}
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
+
+        <div className="switch-container-results mt-2">
+          <h3 className="field-title">STIV</h3>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={data?.showStiv !== false}
+              onChange={() => onChangeDataValues({ type: 'showStiv' })}
+              disabled={!data?.stiv_velocity_profile}
+            />
+            <span className="slider"></span>
+          </label>
+        </div>
+        <div className="switch-container-results mt-2">
+          <h3 className="field-title">iWave</h3>
+          <label className="switch">
+            <input
+              type="checkbox"
+              checked={data?.showIwave !== false}
+              onChange={() => onChangeDataValues({ type: 'showIwave' })}
+              disabled={!data?.iwave_velocity_profile}
             />
             <span className="slider"></span>
           </label>

@@ -27,6 +27,7 @@ import {
   setControlPoints,
   setProjectMetadata,
   getResultData,
+  loadResults,
   createMaskAndBbox,
   recommendRoiHeight,
   getGif,
@@ -224,6 +225,7 @@ app.whenReady().then(async () => {
   getVideo();
   initProject();
   loadProject();
+  loadResults();
   recommendRoiHeight(riverCli);
   saveReportHtml();
   saveTransformationMatrix();

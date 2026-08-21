@@ -1,4 +1,6 @@
 import json
+import os
+import sys
 from dataclasses import asdict, dataclass, field
 from functools import update_wrapper
 from typing import Callable
@@ -44,5 +46,17 @@ def render_response(func: Callable[..., dict]):
 			response = RiverResponse(error={"message": message})
 
 		click.echo(json.dumps(asdict(response)))
+
+		# Force an immediate, clean process exit right after the JSON response
+		# has been fully printed. Some CLI commands (anything touching the
+		# third-party `iwave` package's ProcessPoolExecutor) segfault during
+		# normal Python interpreter shutdown (atexit/GC teardown) even though
+		# all real work (writing files, printing this response) has already
+		# completed successfully. os._exit() skips that teardown entirely,
+		# bypassing the native-library crash. Flush stdout/stderr first since
+		# os._exit() does not flush Python-buffered output on the way out.
+		sys.stdout.flush()
+		sys.stderr.flush()
+		os._exit(0)
 
 	return update_wrapper(inner, func)

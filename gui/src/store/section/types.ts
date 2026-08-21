@@ -76,6 +76,15 @@ interface SectionData {
   streamwise_y: number[];
   seeded_vel_profile: number[];
   filled_seeded_vel_profile: number[];
+  stiv_velocity_profile?: (number | null)[];
+  stiv_sigma_profile?: (number | null)[];
+  stiv_angle_profile?: (number | null)[];
+  stiv_sign_profile?: string[];
+  iwave_velocity_profile?: (number | null)[];
+  iwave_quality_profile?: (number | null)[];
+  iwave_depth_profile?: (number | null)[];
+  showStiv?: boolean;
+  showIwave?: boolean;
   activeMagnitude: number[];
   activeCheck: boolean[];
   interpolated: boolean;

@@ -45,10 +45,10 @@ async function getQuiver(riverCli: RiverCli) {
   });
 
   ipcMain.handle('get-quiver-all', async (_event, args) => {
-    const { formValues } = args;
+    const { formValues, numStationsList } = args;
     const { settingsPath, logsPath, xsectionsPath } = PROJECT_CONFIG;
 
-    const options = await createOptions('all', PROJECT_CONFIG, [], formValues);
+    const options = await createOptions('all', PROJECT_CONFIG, [], formValues, numStationsList);
     await clearCrossSections(xsectionsPath);
 
     try {
@@ -86,7 +86,8 @@ async function createOptions(
   mode: string,
   PROJECT_CONFIG: ProjectConfig,
   framesToTest: string[],
-  formValues: any
+  formValues: any,
+  numStationsList: number[] = []
 ) {
   const { bboxPath, maskPath, projectDirectory, framesPath, settingsPath } = PROJECT_CONFIG;
   const {
@@ -118,22 +119,45 @@ async function createOptions(
     median_test_filtering: medianTestFiltering,
     median_test_epsilon: medianTestEpsilon,
     median_test_threshold: medianTestThreshold,
+    stiv: formValues.stiv,
+    iwave: formValues.iwave,
   };
 
   await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 2));
 
+  if (mode === 'test') {
+    const options = [
+      'piv-test',
+      '--bbox', bboxPath,
+      '--mask', maskPath,
+      '--interrogation-area-1', step1,
+      '--interrogation-area-2', step1 / 2,
+      stdFiltering ? '--standard-threshold' : '--no-standard-filter',
+      stdFiltering ? stdThreshold : '',
+      medianTestFiltering ? '--epsilon' : '--no-median-test-filter',
+      medianTestFiltering ? medianTestEpsilon : '',
+      medianTestFiltering ? '--threshold' : '',
+      medianTestFiltering ? medianTestThreshold : '',
+      clahe ? '--clip-limit-clahe' : '--no-filter-clahe',
+      clahe ? clipLimit : '',
+      removeBackground ? '--filter-sub-background' : '',
+      framesToTest[0],
+      framesToTest[1],
+    ];
+    return options.filter((item) => item !== '');
+  }
+
+  const { stiv, iwave } = formValues;
+  const step = settingsParsed.video_range?.step ?? 1;
+  const fps = settingsParsed.video.fps;
+
   const options = [
-    mode === 'test' ? 'piv-test' : 'piv-analyze',
-    mode !== 'test' ? '--workdir' : '',
-    mode !== 'test' ? projectDirectory : '',
-    '--bbox',
-    bboxPath,
-    '--mask',
-    maskPath,
-    '--interrogation-area-1',
-    step1,
-    '--interrogation-area-2',
-    step1 / 2,
+    'analyze-all',
+    '--workdir', projectDirectory,
+    '--bbox', bboxPath,
+    '--mask', maskPath,
+    '--interrogation-area-1', step1,
+    '--interrogation-area-2', step1 / 2,
     stdFiltering ? '--standard-threshold' : '--no-standard-filter',
     stdFiltering ? stdThreshold : '',
     medianTestFiltering ? '--epsilon' : '--no-median-test-filter',
@@ -143,11 +167,16 @@ async function createOptions(
     clahe ? '--clip-limit-clahe' : '--no-filter-clahe',
     clahe ? clipLimit : '',
     removeBackground ? '--filter-sub-background' : '',
-    // artificialSeeding ? '' : '--no-seeding-filter',
-    mode === 'test' ? framesToTest[0] : framesPath,
-    mode === 'test' ? framesToTest[1] : '',
+    '--step', step,
+    '--fps', fps,
+    ...numStationsList.flatMap((ns: number) => ['--num-stations', ns]),
+    stiv ? '--stiv' : '--no-stiv',
+    iwave ? '--iwave' : '--no-iwave',
+    '--interpolate',
+    framesPath,
+    PROJECT_CONFIG.xsectionsPath,
+    PROJECT_CONFIG.matrixPath,
   ];
-
   return options.filter((item) => item !== '');
 }
 

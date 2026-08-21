@@ -19,6 +19,7 @@ import { setControlPoints } from './setControlPoints';
 import { setProjectMetadata } from './setProjectMetadata';
 import { createMaskAndBbox } from './createMaskAndBbox';
 import { getResultData } from './getResultData';
+import { loadResults } from './loadResults';
 import { recommendRoiHeight } from './recommendRoiHeight';
 import { saveReportHtml } from './saveReportHtml';
 import { getGif } from './getGif';
@@ -42,6 +43,7 @@ export {
   getVideo,
   initProject,
   loadProject,
+  loadResults,
   pixelToRealWorld,
   realWorldToPixel,
   recommendRoiHeight,
