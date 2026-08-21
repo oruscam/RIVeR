@@ -4,6 +4,7 @@ import { useDataSlice, useSectionSlice } from '../hooks';
 import { computeStationSearchLines, computeSearchLinesFromCenters } from '../helpers';
 import { transformPixelToRealWorld } from '../../commons/coordinates';
 import { STIV_DEFAULT_HEIGHT_ROI_M } from '../constants/constants';
+import { getCSSVar } from '../helpers/getCSSVar';
 import { OverlayLayers } from './OverlaySvg';
 
 interface StationSearchLinesProps {
@@ -84,6 +85,23 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
         );
     if (lines.length === 0) return;
 
+    const accentColor = getCSSVar('--accent-color', '#0678BE');
+
+    // Dark halo behind each line so it stays legible over any video
+    // background, matching the treatment used on the cross-section line.
+    layer
+      .selectAll('line.station-search-line-halo')
+      .data(lines)
+      .enter()
+      .append('line')
+      .attr('class', 'station-search-line-halo')
+      .attr('x1', (d) => d.a.x / factor)
+      .attr('y1', (d) => d.a.y / factor)
+      .attr('x2', (d) => d.b.x / factor)
+      .attr('y2', (d) => d.b.y / factor)
+      .attr('stroke', 'rgba(0, 0, 0, 0.45)')
+      .attr('stroke-width', 3.5);
+
     layer
       .selectAll('line.station-search-line')
       .data(lines)
@@ -94,7 +112,7 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
       .attr('y1', (d) => d.a.y / factor)
       .attr('x2', (d) => d.b.x / factor)
       .attr('y2', (d) => d.b.y / factor)
-      .attr('stroke', 'var(--accent-color)')
+      .attr('stroke', accentColor)
       .attr('stroke-width', 1.5);
 
     layer
@@ -106,19 +124,50 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
       .attr('cx', (d) => d.a.x / factor)
       .attr('cy', (d) => d.a.y / factor)
       .attr('r', 3)
-      .attr('fill', 'var(--accent-color)');
+      .attr('fill', accentColor)
+      .attr('stroke', 'rgba(0, 0, 0, 0.45)')
+      .attr('stroke-width', 1);
 
-    layer
-      .selectAll('text.station-search-label')
+    // Station number labels — rounded dark badge behind the text, matching
+    // the pin (L/R) and cross-section-name badges used elsewhere in the app,
+    // instead of raw colored text floating directly on the video.
+    const labelGroups = layer
+      .selectAll('g.station-search-label')
       .data(lines)
       .enter()
-      .append('text')
+      .append('g')
       .attr('class', 'station-search-label')
-      .attr('x', (d) => d.b.x / factor + 6)
-      .attr('y', (d) => d.b.y / factor + 4)
-      .attr('fill', 'var(--accent-color)')
+      .attr('transform', (d) => `translate(${d.b.x / factor}, ${d.b.y / factor})`);
+
+    labelGroups
+      .append('text')
+      .attr('x', 10)
+      .attr('y', 0)
+      .attr('dominant-baseline', 'central')
+      .attr('fill', accentColor)
       .attr('font-size', '11px')
+      .attr('font-weight', '600')
       .text((d) => d.station);
+
+    labelGroups.each(function () {
+      const g = d3.select(this);
+      const textNode = g.select('text').node() as SVGTextElement;
+      try {
+        const bbox = textNode.getBBox();
+        const padX = 4;
+        const padY = 2;
+        g.insert('rect', 'text')
+          .attr('x', bbox.x - padX)
+          .attr('y', bbox.y - padY)
+          .attr('width', bbox.width + padX * 2)
+          .attr('height', bbox.height + padY * 2)
+          .attr('rx', 3)
+          .attr('ry', 3)
+          .attr('fill', 'rgba(50, 50, 50, 0.85)');
+      } catch {
+        // getBBox may fail if not yet attached to the DOM — silently skip
+      }
+    });
   }, [
     numStations,
     sectionPoints,

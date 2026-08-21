@@ -24,7 +24,7 @@ export const ImageProcessing = ({
   stiPaths?: string[];
   stiStations?: number[];
 }) => {
-  const { screenSizes } = useUiSlice();
+  const { screenSizes, showInterrogationWindow } = useUiSlice();
   const { video } = useProjectSlice();
   const { processing, images, quiver, fullQuiver, colorbarLimits } = useDataSlice();
   const { transformationMatrix, sections, activeSection } = useSectionSlice();
@@ -149,7 +149,9 @@ export const ImageProcessing = ({
         <img src={processing.maskPath} className="mask" draggable={false} />
       </div>
 
-      {data.length === 0 && activeMaskIndex === null && <WindowSizesNew width={realWidth!} height={realHeight!} />}
+      {data.length === 0 && activeMaskIndex === null && showInterrogationWindow && (
+        <WindowSizesNew width={realWidth!} height={realHeight!} />
+      )}
 
       {activeMaskIndex === null && (
         <OverlaySvg width={realWidth!} height={realHeight!} scale={scale} position={position}>

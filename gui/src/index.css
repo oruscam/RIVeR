@@ -48,6 +48,7 @@
   --slider-bg:        #3a3a3a;
   --slider-border:    #555555;
   --slider-hover-bg:  #444444;
+  --slider-thumb-active-color: #ffffff;
   --colorbar-bg:      #1e2525;
   --card-surface:     #141414;
 
@@ -75,55 +76,60 @@
    LIGHT THEME (warm cream — inspired by Claude's interface background)
    -------------------------------------------------------------------------- */
 [data-theme="light"] {
-  /* Backgrounds */
-  --background-color:           #F5F0EB;
-  --secondary-background-color: #EDE7DF;
-  --readout-border: #C9BFB2;
-  --input-background:           #E2DDD6;
-  --input-background-disabled:  #D4CFC8;
-  --secondary-input-background: #C0BBB4;
+  /* Backgrounds — cool blue, stronger contrast against the text/borders below */
+  --background-color:           #F0F4F9;
+  --secondary-background-color: #E3E9F1;
+  --readout-border: #B9C6D6;
+  --input-background:           #DCE4EE;
+  --input-background-disabled:  #CFD8E3;
+  --secondary-input-background: #A8B7CA;
 
-  /* Text — dark grey instead of pure black */
-  --primary-text-color:   #333333;
-  --secondary-text-color: #757575;
+  /* Text — deep slate blue: real contrast, but still blue rather than
+     neutral black. Buttons/toggles use this directly as their border/fill
+     (see components.css). */
+  --primary-text-color:   #2E3A4D;
+  --secondary-text-color: #64748A;
 
   /* Interactive states */
-  --on-hover:        #DDD8D0;
-  --disabled-button: #A8A8A8;
+  --on-hover:        #D2DCE8;
+  --disabled-button: #93A2B5;
 
-  /* Accent (warm amber — Claude palette) */
-  --accent-color: #CC7741;
+  /* Accent (deeper, more saturated blue, no orange) */
+  --accent-color: #3D6D9E;
 
-  /* Toggle switch active color — warm amber */
-  --toggle-active-color: #CC7741;
+  /* Toggle switch active color — matches accent */
+  --toggle-active-color: #3D6D9E;
 
-  /* Semantic colors */
-  --background-error:   #C0392B;
-  --success-color:      #2E7D32;
-  --success-background: #E8F5E9;
-  --warning-color:      #B8860B;
+  /* Semantic colors — kept in the same cool family for harmony */
+  --background-error:   #B4453A;
+  --success-color:      #3F7A5E;
+  --success-background: #DCEAE1;
+  --warning-color:      #A97A2E;
 
-  /* Borders & grid */
-  --border-color:         #CCC8C0;
-  --grid-bg-even:         #F0EBE4;
-  --grid-bg-odd:          #F7F3EE;
-  --grid-header-bg:       #EAE4DC;
-  --grid-header-color:    #555555;
-  --grid-selection-color: #CC7741;
+  /* Borders & grid — visibly stronger than a whisper-line */
+  --border-color:         #B9C6D6;
+  --grid-bg-even:         #E9EEF5;
+  --grid-bg-odd:          #F5F8FC;
+  --grid-header-bg:       #DEE6F0;
+  --grid-header-color:    #45536B;
+  --grid-selection-color: #3D6D9E;
 
-  /* Component-specific surfaces */
-  --slider-bg:        #C5C0B8;
-  --slider-border:    #AEAAA2;
-  --slider-hover-bg:  #B5B0A8;
-  --colorbar-bg:      #E5E0D8;
-  --card-surface:     #EDE7DF;
+  /* Component-specific surfaces — track brightened well past the knob/border
+     tones so the OFF-state knob (--secondary-text-color) reads clearly
+     against it */
+  --slider-bg:        #DCE6F0;
+  --slider-border:    #B9C6D6;
+  --slider-hover-bg:  #CDD9E6;
+  --slider-thumb-active-color: #FFFFFF;
+  --colorbar-bg:      #D9E2ED;
+  --card-surface:     #E3E9F1;
 
   /* Overlay text on images */
-  --overlay-text-color: rgba(0, 0, 0, 0.35);
+  --overlay-text-color: rgba(20, 30, 45, 0.4);
 
-  /* Hard-mode on/off highlights */
-  --inverse-bg:   #1A1A1A;
-  --inverse-text: #ffffff;
+  /* Hard-mode on/off highlights — matched to primary text */
+  --inverse-bg:   #2E3A4D;
+  --inverse-text: #FFFFFF;
 
   /* Report */
   --report-gradient-1: #0678BE;
@@ -182,6 +188,7 @@
   --slider-bg:        #44475a;
   --slider-border:    #6272a4;
   --slider-hover-bg:  #565970;
+  --slider-thumb-active-color: #f8f8f2;
   --colorbar-bg:      #21222c;
   --card-surface:     #21222c;
 
@@ -595,7 +602,7 @@ input:focus-visible + .slider {
 
 input:checked + .slider:before {
   transform: translateY(-50%) translateX(24px);
-  background-color: var(--primary-text-color);
+  background-color: var(--slider-thumb-active-color);
 }
 
 /* =============================================================================

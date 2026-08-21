@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import { useAutoShrinkFont, useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
 import { WINDOW_SIZES } from '../../../constants/constants';
+import { EyeBtn } from '../../CustomIcons/EyeBtn';
 
 export const HardModeProcessing = ({
   active,
@@ -14,7 +15,7 @@ export const HardModeProcessing = ({
 }) => {
   const { register, reset } = useFormContext();
   const { processing, onUpdateProcessing, onReCalculateMask, isBackendWorking } = useDataSlice();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetErrorMessage, showInterrogationWindow, onSetShowInterrogationWindow } = useUiSlice();
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
 
   const { t } = useTranslation();
@@ -184,7 +185,14 @@ export const HardModeProcessing = ({
         />
       </div>
 
-      <h2 className="field-title mt-2"> {t('Processing.windowSizes')} </h2>
+      <div className="switch-container mt-2">
+        <h2 className="field-title"> {t('Processing.windowSizes')} </h2>
+        <EyeBtn
+          active={showInterrogationWindow}
+          action={() => onSetShowInterrogationWindow(!showInterrogationWindow)}
+          noBorder={true}
+        />
+      </div>
 
       <div className="switch-container mt-1">
         <h3 className="field-title"> {t('Processing.step1')} </h3>

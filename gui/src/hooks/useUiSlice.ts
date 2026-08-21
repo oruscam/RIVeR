@@ -19,6 +19,7 @@ import {
   setIsLastVersion,
   setMessage,
   setHoveredStation,
+  setShowInterrogationWindow,
 } from '../store/ui/uiSlice';
 import { ThemeType } from '../store/ui/types';
 import { RootState } from '../store/store';
@@ -42,6 +43,7 @@ export const useUiSlice = () => {
     isLatestVersion,
     latestVersion,
     hoveredStation,
+    showInterrogationWindow,
   } = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
 
@@ -198,6 +200,14 @@ export const useUiSlice = () => {
     dispatch(setHoveredStation(index));
   };
 
+  /**
+   * Method to toggle the interrogation-window size preview on the Processing
+   * image. Off by default (see uiSlice initial state).
+   */
+  const onSetShowInterrogationWindow = (value: boolean) => {
+    dispatch(setShowInterrogationWindow(value));
+  };
+
   const onCheckVersion = () => {
     // If isLatestVersion is already set, do not fetch the latest version
     if (isLatestVersion !== undefined) return;
@@ -235,6 +245,7 @@ export const useUiSlice = () => {
     isLatestVersion,
     latestVersion,
     hoveredStation,
+    showInterrogationWindow,
 
     // METHODS
     onChangeTheme,
@@ -249,5 +260,6 @@ export const useUiSlice = () => {
     onSetLanguage,
     onCheckVersion,
     onSetHoveredStation,
+    onSetShowInterrogationWindow,
   };
 };
