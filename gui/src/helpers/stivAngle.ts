@@ -50,6 +50,24 @@ export const clampAngle = (deg: number): number => {
   return clamped;
 };
 
+/**
+ * The angle a slider move should produce, given where the slider was.
+ *
+ * clampAngle resolves the 90° band by proximity, which makes both of its edges
+ * fixed points: stepping +0.5 from 89.5 lands on 90.0 and comes straight back.
+ * That is fine for a drag, which passes through the band on its way somewhere
+ * else, and fatal for a slider, which is the only input and steps into it.
+ *
+ * Here the direction of travel decides instead, so the band is crossed rather
+ * than bounced off. Outside the band this is exactly clampAngle.
+ */
+export const nextAngleFromSlider = (raw: number, current: number): number => {
+  if (raw > ANGLE_SINGULARITY_LOW && raw < ANGLE_SINGULARITY_HIGH) {
+    return raw > current ? ANGLE_SINGULARITY_HIGH : ANGLE_SINGULARITY_LOW;
+  }
+  return clampAngle(raw);
+};
+
 /** Velocity per unit slope: metres_per_pix / seconds_per_pix, where
  *  seconds_per_pix = step / fps. */
 export const metersPerSlope = (step: number, fps: number): number => (RW_STEP_M * fps) / step;

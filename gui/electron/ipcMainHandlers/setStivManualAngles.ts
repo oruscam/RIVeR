@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron';
 import * as fs from 'fs';
 import { platform } from 'os';
+import { sanitizeNonStandardJsonTokens } from './utils/sanitizeJson';
 import { PROJECT_CONFIG } from '../main';
 
 // xsections.json is written with latin1 on Windows elsewhere in this folder
@@ -40,7 +41,14 @@ function setStivManualAngles() {
     const xSections = PROJECT_CONFIG.xsectionsPath;
 
     const raw = await fs.promises.readFile(xSections, { encoding });
-    const parsed = applyManualAngles(JSON.parse(raw), sectionName, angles);
+    // xsections.json can contain literal NaN/Infinity/-Infinity tokens (see
+    // sanitizeNonStandardJsonTokens for why) — sanitize before parsing, same as
+    // loadResults.ts and clearCrossSections.ts do for this same file. This call
+    // site writes the sanitized result back to disk (unlike loadResults.ts,
+    // which only reads), so null-for-NaN/Infinity becomes the persisted
+    // representation the first time a section's angle is tuned — the same
+    // convention clearCrossSections.ts already establishes for writes to this file.
+    const parsed = applyManualAngles(JSON.parse(sanitizeNonStandardJsonTokens(raw)), sectionName, angles);
 
     await fs.promises.writeFile(xSections, JSON.stringify(parsed, null, 2), { encoding });
     return;
