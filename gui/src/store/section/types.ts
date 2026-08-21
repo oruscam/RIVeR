@@ -1,6 +1,8 @@
 import { Point } from '../../types';
 import { WetSegment } from '../../helpers/getBathimetryValues';
 
+type Technique = 'lspiv' | 'stiv' | 'iwave';
+
 interface Bathimetry {
   path: string | undefined;
   name: string | undefined;
@@ -83,8 +85,11 @@ interface SectionData {
   iwave_velocity_profile?: (number | null)[];
   iwave_quality_profile?: (number | null)[];
   iwave_depth_profile?: (number | null)[];
+  showLspiv?: boolean;
   showStiv?: boolean;
   showIwave?: boolean;
+  showStivStd?: boolean;
+  showIwaveQuality?: boolean;
   activeMagnitude: number[];
   activeCheck: boolean[];
   interpolated: boolean;
@@ -104,6 +109,7 @@ interface Section {
   numStations: number;
   interpolated: boolean;
   artificialSeeding: boolean;
+  activeTechnique: Technique;
   sectionPointsRW?: Point[];
   data?: SectionData;
   hasChanged: boolean;
@@ -172,4 +178,5 @@ export type {
   SectionData,
   Summary,
   PixelSolution,
+  Technique,
 };

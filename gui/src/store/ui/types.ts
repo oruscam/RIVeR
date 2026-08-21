@@ -28,6 +28,7 @@ interface UIState {
   language: string;
   isLatestVersion?: boolean;
   latestVersion?: string;
+  hoveredStation: number | null;
 }
 
 export type { ScreenSizes, UIState, ThemeType };

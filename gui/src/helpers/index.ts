@@ -40,6 +40,10 @@ import { getNewCanvasPositions, setChangesByForm } from './sectionsHelpers';
 import getLineColor from './getLineColor';
 import { getImageSize } from './getImageSize';
 import { handleDragLeave, handleDragOver } from './handleDragEvents';
+import { froudeFilledProfile, computeDischarge, getEffectiveTechniqueData } from './techniqueDischarge';
+import type { Technique, DischargeResult, TechniqueDischargeData, TechniqueOptions } from './techniqueDischarge';
+
+export type { Technique, DischargeResult, TechniqueDischargeData, TechniqueOptions };
 
 export {
   adapterBathimetry,
@@ -53,6 +57,7 @@ export {
   calculateMultipleArrowsAdaptative,
   carouselClickImage,
   carouselKeyDown,
+  computeDischarge,
   createSquare,
   dateToStringDate,
   findWetSegments,
@@ -60,9 +65,11 @@ export {
   formatNumberToPrecision2,
   formatNumberToPrecision4,
   formatTime,
+  froudeFilledProfile,
   generateXAxisTicks,
   generateYAxisTicks,
   getBathimetryValues,
+  getEffectiveTechniqueData,
   getDirectionVector,
   getImageSize,
   getIntersectionPoints,

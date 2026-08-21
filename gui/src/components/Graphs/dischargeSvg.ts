@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { GRAPHS, COLORS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
+import { GRAPHS, UNITS } from '../../constants/constants';
 import { generateYAxisTicks } from '../../helpers';
 import { t } from 'i18next';
 
@@ -18,7 +18,9 @@ interface CreateDischargeChartProps {
   SVGElement: SVGSVGElement;
   distance: number[];
   Q: (number | null)[];
-  QPortion: number[];
+  /** Active technique's identity color — bars are colored by which technique is active,
+   *  not by discharge-portion thresholds. */
+  color: string;
   isReport?: boolean;
   xScale: d3.ScaleLinear<number, number>;
   unitSistem?: string;
@@ -28,7 +30,7 @@ export const createDischargeChart = ({
   SVGElement,
   distance,
   Q,
-  QPortion,
+  color,
   sizes,
   isReport = false,
   xScale,
@@ -36,7 +38,6 @@ export const createDischargeChart = ({
 }: CreateDischargeChartProps) => {
   const isImperial = unitSistem === 'imperial';
   const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
-  const lengthUnit = isImperial ? UNITS.IMPERIAL.LONGITUDE : UNITS.SI.LONGITUDE;
   const svg = d3.select(SVGElement);
   const { width, margin, graphHeight } = sizes;
 
@@ -82,10 +83,9 @@ export const createDischargeChart = ({
   const filteredQ = Q.map((d, i) => ({
     distance: distance[i],
     discharge: d,
-    QPortion: QPortion[i],
   })).filter((d) => d.discharge !== null);
 
-  // Append Bars
+  // Append Bars — solid fill in the active technique's identity color
   svg
     .selectAll('.bar')
     .data(filteredQ)
@@ -94,94 +94,12 @@ export const createDischargeChart = ({
     .attr('class', 'bar bar-stroke-themed')
     .attr('data-x', (d) => d.distance.toFixed(2))
     .attr('x', (d) => xScale(d.distance) - bandwidth / 2)
-    .attr('y', (d) => yScale(Math.max(0, d.discharge)))
-    .attr('height', (d) => Math.abs(yScale(d.discharge) - yScale(0)))
+    .attr('y', (d) => yScale(Math.max(0, d.discharge!)))
+    .attr('height', (d) => Math.abs(yScale(d.discharge!) - yScale(0)))
     .attr('width', bandwidth)
     .attr('stroke-width', 0.5)
-    .attr('fill', (d) => {
-      if (d.QPortion === 0) {
-        return COLORS.BLUE;
-      } else {
-        if (d.QPortion < 0.05) {
-          return COLORS.GREEN;
-        } else if (d.QPortion < 0.1) {
-          return COLORS.YELLOW;
-        }
-        return COLORS.RED;
-      }
-    });
-
-  if (isReport) {
-    // Add legends
-    const legendGroup = svg
-      .append('g')
-      .attr('class', 'legend-group')
-      .attr('transform', `translate(${margin.left + 40}, ${margin.top})`);
-
-    legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('fill', COLORS.GREEN);
-
-    legendGroup
-      .append('text')
-      .attr('x', 20)
-      .attr('y', 12)
-      .attr('class', 'legend-text')
-      .text(t('Graphs.qLessThan5'));
-
-    legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('x', 90).attr('fill', COLORS.YELLOW);
-
-    legendGroup
-      .append('text')
-      .attr('x', 110)
-      .attr('y', 12)
-      .attr('class', 'legend-text')
-      .text(t('Graphs.qBetween5And10'));
-
-    legendGroup.append('rect').attr('width', 15).attr('height', 15).attr('x', 220).attr('fill', COLORS.RED);
-
-    legendGroup
-      .append('text')
-      .attr('x', 240)
-      .attr('y', 12)
-      .attr('class', 'legend-text')
-      .text(t('Graphs.qGreaterThan10'));
-  }
-
-  // Add tooltip to bars
-  svg
-    .selectAll('.bar')
-    .on('mouseover', (event, d) => {
-      const barX = parseFloat(d3.select(event.currentTarget).attr('x'));
-      const barY = parseFloat(d3.select(event.currentTarget).attr('y'));
-      const dischargeDisplay = isImperial
-        ? (d.discharge * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(2)
-        : d.discharge.toFixed(2);
-      const distanceDisplay = isImperial
-        ? (d.distance * UNIT_CONVERSIONS.M_TO_FT).toFixed(2)
-        : d.distance.toFixed(2);
-
-      svg
-        .append('text')
-        .attr('class', 'tooltip graph-text')
-        .attr('x', barX + bandwidth / 2)
-        .attr('y', barY - 25)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '16px')
-        .style('font-weight', '500')
-        .text(`Discharge: ${dischargeDisplay} ${flowUnit}`);
-
-      svg
-        .append('text')
-        .attr('class', 'tooltip graph-text')
-        .attr('x', barX + bandwidth / 2)
-        .attr('y', barY - 10)
-        .attr('text-anchor', 'middle')
-        .style('font-size', '16px')
-        .style('font-weight', '500')
-        .text(`Distance: ${distanceDisplay} ${lengthUnit}`);
-    })
-    .on('mouseout', () => {
-      svg.selectAll('.tooltip').remove();
-    });
+    .attr('fill', color)
+    .attr('opacity', 0.85);
 
   // Label
   const dischargeLabel = svg

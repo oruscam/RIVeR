@@ -117,3 +117,196 @@ svg .bar-stroke-themed {
     stroke: var(--primary-text-color, #ffffff);
     stroke-opacity: 0.12;
 }
+
+/* =============================================================================
+   TECHNIQUE LEGEND (Results panel) — click name to activate, eye to show/hide,
+   trailing glyphs toggle that technique's uncertainty band/quality shading.
+   Row look follows the same list-row spec as piv-icons.css's .litem.
+   ============================================================================= */
+.technique-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.technique-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 9px;
+    transition: background-color 0.14s ease;
+}
+
+.technique-row:hover {
+    background-color: var(--on-hover);
+}
+
+.technique-row-hidden {
+    opacity: 0.4;
+}
+
+.technique-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.technique-name {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--secondary-text-color);
+    cursor: pointer;
+}
+
+.technique-name-active {
+    color: var(--primary-text-color);
+}
+
+.technique-row-hidden .technique-name {
+    text-decoration: line-through;
+}
+
+.technique-seed-flag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 8px;
+    border: 1px solid var(--secondary-text-color);
+    color: var(--secondary-text-color);
+    white-space: nowrap;
+}
+
+/* Seeded = normal/positive state, takes the theme accent color; unseeded stays a neutral
+   gray above — it's an expected mode, not a warning. */
+.technique-seed-flag-seeded {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.technique-band-glyphs {
+    display: flex;
+    gap: 2px;
+}
+
+.technique-band-glyph {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    color: var(--secondary-text-color);
+}
+
+.technique-band-glyph:hover {
+    background: var(--input-background);
+    color: var(--primary-text-color);
+}
+
+.technique-band-glyph-on {
+    background: var(--accent-color);
+    color: #fff;
+}
+
+.technique-band-glyph-on:hover {
+    background: var(--accent-color);
+    opacity: 0.85;
+}
+
+.technique-eye-btn {
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--secondary-text-color);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.technique-eye-btn:hover:not(:disabled) {
+    background: var(--input-background);
+    color: var(--primary-text-color);
+}
+
+.technique-eye-btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* =============================================================================
+   UNIFIED HOVER TOOLTIP (velocity chart) — one card for Q + every visible velocity
+   profile + stage, instead of a tooltip per series. RIVeR popup chrome (.ldrop spec).
+   ============================================================================= */
+.velocity-tooltip {
+    position: fixed;
+    display: none;
+    min-width: 160px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--input-background);
+    background: var(--secondary-background-color);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    font-size: 12px;
+    z-index: 200;
+}
+
+.velocity-tooltip-head {
+    font-size: 10.5px;
+    color: var(--secondary-text-color);
+    font-weight: 600;
+    margin-bottom: 6px;
+    white-space: nowrap;
+}
+
+.velocity-tooltip-row {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 2px 0;
+    white-space: nowrap;
+}
+
+.velocity-tooltip-row-active .velocity-tooltip-label,
+.velocity-tooltip-row-active .velocity-tooltip-val {
+    font-weight: 700;
+}
+
+.velocity-tooltip-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.velocity-tooltip-label {
+    flex: 1;
+    color: var(--primary-text-color);
+    font-weight: 500;
+}
+
+.velocity-tooltip-val {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--primary-text-color);
+    margin-left: 10px;
+}
+
+.hover-guide-line {
+    pointer-events: none;
+}

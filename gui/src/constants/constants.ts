@@ -82,6 +82,17 @@ export const COLORS = {
 };
 
 /**
+ * Per-technique identity color for the Results panel (legend, chart lines/markers).
+ * LSPIV = cyan, STIV = clear red, iWave = clear green — RIVeR's own palette above,
+ * not an arbitrary/matplotlib-style scheme.
+ */
+export const TECHNIQUE_COLORS = {
+  lspiv: COLORS.LIGHT_BLUE,
+  stiv: COLORS.RED,
+  iwave: COLORS.GREEN,
+};
+
+/**
  * Constants for GRAPHS
  */
 export const GRAPHS = {

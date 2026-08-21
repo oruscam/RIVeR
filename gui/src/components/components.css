@@ -897,9 +897,31 @@
     pointer-events: none;
 }
 
-.cell-red-values {
-    color: #ED6B57;
+/* Interpolated table values use the theme accent color, not a fixed hue — STIV owns
+   RIVeR's own "clear red" as its identity color, so reusing red here would read as
+   "this is STIV" rather than "this value was estimated." */
+.cell-interpolated-values {
+    color: var(--accent-color);
     font-weight: 500;
+    font-style: italic;
+}
+
+.header-subtech {
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 500;
+    text-transform: none;
+    color: var(--accent-color);
+    letter-spacing: 0;
+    margin-top: 1px;
+}
+
+.copy-btn-wrap {
+    display: inline-flex;
+}
+
+.row-hovered-from-chart {
+    background-color: var(--on-hover) !important;
 }
 
 /* Header accent border */

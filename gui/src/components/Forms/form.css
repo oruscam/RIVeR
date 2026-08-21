@@ -666,3 +666,110 @@
     max-width: none;
     flex: 1 1 auto;
 }
+
+/* =============================================================================
+   RESULTS PANEL — zone titles, collapsed "Computation settings" disclosure,
+   alpha chip + popover. Reuses the app's existing .ib/.ldrop popup-panel spec
+   (radius, animation, shadow) rather than introducing a new one.
+   ============================================================================= */
+.zone-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--secondary-text-color);
+    font-weight: 600;
+    margin-left: 82px;
+    margin-bottom: 8px;
+}
+
+.disclosure {
+    width: 65%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.disclosure summary {
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--secondary-text-color);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    padding: 6px 0;
+}
+
+.disclosure summary:hover {
+    color: var(--primary-text-color);
+}
+
+.disclosure summary::-webkit-details-marker {
+    display: none;
+}
+
+.disclosure summary .chev {
+    transition: transform 0.2s ease;
+}
+
+.disclosure[open] summary .chev {
+    transform: rotate(180deg);
+}
+
+.disclosure-body {
+    padding: 8px 2px 4px;
+}
+
+.alpha-wrap {
+    position: relative;
+}
+
+.alpha-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 20px;
+    background: var(--input-background);
+    color: var(--primary-text-color);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.15s ease;
+}
+
+.alpha-chip:hover {
+    background: var(--secondary-input-background);
+}
+
+.alpha-popover {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    transform-origin: top right;
+    transform: scaleY(0);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
+    min-width: 220px;
+    padding: 14px;
+    border-radius: 13px;
+    border: 1px solid var(--input-background);
+    background: var(--secondary-background-color);
+    box-shadow: 0 14px 44px rgba(0, 0, 0, 0.45);
+    z-index: 20;
+}
+
+.alpha-popover.open {
+    transform: scaleY(1);
+    opacity: 1;
+    pointer-events: all;
+}
+
+.alpha-help {
+    color: var(--secondary-text-color);
+    margin-top: 10px;
+    line-height: 1.5;
+    font-size: 13px;
+}
