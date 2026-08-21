@@ -37,6 +37,7 @@ import {
 import { setProcessingMask, setQuiver, updateProcessingForm } from '../store/data/dataSlice';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS, UNIT_CONVERSIONS } from '../constants/constants';
 import { CanvasPoint, FormPoint, onGetBathimetryTypes, Point } from '../types';
+import { Section, Technique } from '../store/section/types';
 import { ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
 import {
@@ -566,13 +567,12 @@ export const useSectionSlice = () => {
       sectionNumber += 1;
       str = `CS_default_${sectionNumber}`;
     }
-    const section = {
+    const section: Section = {
       name: str,
       drawLine: false,
       sectionPoints: DEFAULT_POINTS,
       dirPoints: DEFAULT_POINTS,
       bathimetry: {
-        blob: '',
         path: undefined,
         name: undefined,
       },
@@ -584,6 +584,7 @@ export const useSectionSlice = () => {
       interpolated: true,
       hasChanged: false,
       artificialSeeding: false,
+      activeTechnique: 'lspiv',
     };
     dispatch(addSection(section));
   };
@@ -600,6 +601,11 @@ export const useSectionSlice = () => {
   const onSetExtraFields = () => {
     const section = sections[activeSection];
     dispatch(updateSection({ ...section, extraFields: !section.extraFields }));
+  };
+
+  const onSetActiveTechnique = (technique: Technique) => {
+    const section = sections[activeSection];
+    dispatch(updateSection({ ...section, activeTechnique: technique }));
   };
 
   interface ChangeDataValues {
@@ -640,6 +646,21 @@ export const useSectionSlice = () => {
     if (object.type === 'showIwave') {
       if (data) {
         dispatch(changeSectionData({ ...data, showIwave: data.showIwave === false ? true : false }));
+      }
+    }
+    if (object.type === 'showLspiv') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, showLspiv: data.showLspiv === false ? true : false }));
+      }
+    }
+    if (object.type === 'showStivStd') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, showStivStd: !data.showStivStd }));
+      }
+    }
+    if (object.type === 'showIwaveQuality') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, showIwaveQuality: !data.showIwaveQuality }));
       }
     }
   };
@@ -812,6 +833,7 @@ export const useSectionSlice = () => {
     onGetBathimetry,
     onSetDefaultSectionState,
     onSetActiveSection,
+    onSetActiveTechnique,
     onSetDirPoints,
     onSetExtraFields,
     onSetIsDraggingPoint,

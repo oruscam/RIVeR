@@ -1,19 +1,20 @@
-import { Error, ImageResults, Results as ResultsComponent, WizardButtons } from '../components';
-import { useDataSlice, useUiSlice } from '../hooks';
+import { useMemo } from 'react';
+import { ColorBar, Error, ImageResults, Results as ResultsComponent, WizardButtons } from '../components';
+import { useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
+import { getVelocityLimits } from '../helpers';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 
+// No "Apply Changes" button — every control in this step (technique, interpolate, alpha,
+// artificial seeding, station check/uncheck) recomputes live client-side (see
+// getEffectiveTechniqueData), matching the validated design preview. Nothing here needs a
+// backend round-trip anymore.
 export const Results = () => {
-  const { screenSizes, onSetErrorMessage } = useUiSlice();
+  const { screenSizes, seeAll } = useUiSlice();
   const { imageWidth: width, imageHeight: height, factor } = screenSizes;
   const { t } = useTranslation();
-  const { onGetResultData, isBackendWorking } = useDataSlice();
 
   if (!width || !height || !factor) return null;
-
-  const handleOnClickApplyChanges = () => {
-    onGetResultData('single').catch((error) => onSetErrorMessage(error.message));
-  };
 
   return (
     <div className="regular-page">
@@ -25,14 +26,6 @@ export const Results = () => {
         <FormHeader title={t('Results.title')} canEdit={false} showSections={true} />
         <ResultsComponent />
         <div className="footer">
-          <button
-            className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
-            onClick={handleOnClickApplyChanges}
-            id="apply-changes"
-            type="button"
-          >
-            {t('Results.applyChanges')}
-          </button>
           <WizardButtons formId="form-result" canFollow={true} />
         </div>
       </div>

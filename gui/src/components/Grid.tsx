@@ -1,13 +1,13 @@
 import 'react-data-grid/lib/styles.css';
-import DataGrid, { SelectColumn } from 'react-data-grid';
+import DataGrid, { Row, SelectColumn } from 'react-data-grid';
 import { useEffect, useMemo, useState } from 'react';
-import { useProjectSlice, useSectionSlice } from '../hooks';
+import { useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 import { CopyBtn } from './CustomIcons/CopyBtn';
-import { LuSpline } from 'react-icons/lu';
 import { useTranslation } from 'react-i18next';
+import { getEffectiveTechniqueData } from '../helpers';
 
-interface Row {
+interface TableRow {
   key: number;
   id: number;
   x: string;
@@ -15,100 +15,77 @@ interface Row {
   A: string;
   Vs: string;
   Q: string;
+  excluded: boolean;
+  interpolated: boolean;
 }
 
-const rowKeyGetter = (row: Row): number => {
+const rowKeyGetter = (row: TableRow): number => {
   return row.id;
 };
 
-const getCellValue = (
-  magnitude: number[],
-  check: boolean[],
-  activeCheck: boolean[],
-  index: number,
-  interpolated: boolean
-) => {
-  if (check[index] === activeCheck[index] && Array.isArray(magnitude) && typeof magnitude[index] === 'number') {
-    if (check[index] === false && interpolated === false) {
-      return '-';
-    }
-    return magnitude[index].toFixed(3);
-  } else {
-    return '-';
-  }
-};
+const TECHNIQUE_LABEL = { lspiv: 'LSPIV', stiv: 'STIV', iwave: 'iWave' };
+
+const formatCell = (v: number | null) => (v === null ? '-' : v.toFixed(3));
 
 export const Grid = () => {
   const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());
-  const { sections, activeSection, onChangeDataValues, onUpdateSection } = useSectionSlice();
+  const [copied, setCopied] = useState(false);
+  const { sections, activeSection, onChangeDataValues } = useSectionSlice();
   const { projectDetails } = useProjectSlice();
+  const { hoveredStation, onSetHoveredStation } = useUiSlice();
   const { t } = useTranslation();
   const isImperial = projectDetails.unitSistem === 'imperial';
   const lFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
   const aFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT * UNIT_CONVERSIONS.M_TO_FT : 1;
   const qFactor = isImperial ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
 
-  const interpolated = sections[activeSection]?.interpolated ?? false;
-
-  const handleInterpolateToggle = () => {
-    onUpdateSection({ interpolated: 'interpolated' }, undefined);
+  const section = sections[activeSection];
+  const activeTechnique = section?.activeTechnique ?? 'lspiv';
+  const activeTechniqueLabel = TECHNIQUE_LABEL[activeTechnique];
+  const techOptions = {
+    interpolated: section?.interpolated ?? false,
+    artificialSeeding: section?.artificialSeeding ?? false,
+    alpha: section?.alpha ?? 1,
   };
 
   const copyAllDataToClipboard = () => {
-    const section = sections[activeSection];
     if (!section || !section.data) return;
+    const { data } = section;
+    const effective = getEffectiveTechniqueData(data, activeTechnique, techOptions);
+    if (!effective) return;
 
-    const { num_stations, distance, depth, Q, A, check, activeMagnitude, activeCheck, interpolated } =
-      section.data;
+    const { num_stations, distance, depth } = data;
+    const { resolved, A, Q } = effective;
 
-    const scaledMagnitude = activeMagnitude.map((v) => v * lFactor);
-    const scaledQ = Q.map((v) => v * qFactor);
+    const headers = ['#', 'x', 'd', 'A', `Vs (${activeTechniqueLabel})`, 'Q'];
 
-    // Create headers for the table
-    const headers = ['#', 'x', 'd', 'A', 'Vs', 'Q'];
-
-    // Create data rows
     const dataRows = Array.from({ length: num_stations }, (_, i) => [
       i.toString(),
       typeof distance[i] === 'number' ? (distance[i] * lFactor).toFixed(2) : '-',
       typeof depth[i] === 'number' ? (depth[i] * lFactor).toFixed(2) : '-',
       typeof A[i] === 'number' ? (A[i] * aFactor).toFixed(2) : '-',
-      getCellValue(scaledMagnitude, check, activeCheck, i, interpolated),
-      typeof Q[i] === 'number' ? getCellValue(scaledQ, check, activeCheck, i, interpolated) : '-',
+      formatCell(resolved[i] === null ? null : resolved[i]! * lFactor),
+      formatCell(resolved[i] === null ? null : Q[i] * qFactor),
     ]);
 
-    // Combine headers and data rows
     const allRows = [headers, ...dataRows];
-
-    // Convert to tab-separated values
     const textData = allRows.map((row) => row.join('\t')).join('\n');
 
-    // Copy to clipboard
     navigator.clipboard
       .writeText(textData)
       .then(() => {
-        // Optionally, you can show a success message or log it
-        console.log('Table copy to clipboard successful!');
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
       })
       .catch((err) => {
         console.error('Error trying to copy table:', err);
       });
   };
 
-  const getCellClass = (row: any) => {
-    let cellClas = 'centered-cell';
-    const { data } = sections[activeSection];
-    if (data === undefined) return cellClas;
-
-    const { displacement_x } = data;
-    if (!data?.check[row.id] || displacement_x[row.id] === null) {
-      if (data?.interpolated) {
-        cellClas = 'centered-cell cell-red-values';
-      } else {
-        cellClas = 'centered-cell disabled-cell';
-      }
-    }
-    return cellClas;
+  const getCellClass = (row: TableRow) => {
+    if (row.interpolated) return 'centered-cell cell-interpolated-values';
+    if (row.excluded) return 'centered-cell disabled-cell';
+    return 'centered-cell';
   };
 
   const columns = [
@@ -122,40 +99,50 @@ export const Grid = () => {
       name: '#',
       cellClass: 'centered-cell',
       headerCellClass: 'centered-cell',
+      renderHeaderCell: () => <span title={t('Results.stationTooltip')}>#</span>,
     },
     {
       key: 'x',
       name: 'x',
       cellClass: 'centered-cell',
       headerCellClass: 'centered-cell',
+      renderHeaderCell: () => <span title={t('Results.xTooltip')}>x</span>,
     },
     {
       key: 'd',
       name: 'd',
       cellClass: 'centered-cell',
       headerCellClass: 'centered-cell',
+      renderHeaderCell: () => <span title={t('Results.dTooltip')}>d</span>,
     },
     {
       key: 'A',
       name: 'A',
       cellClass: 'centered-cell',
       headerCellClass: 'centered-cell',
+      renderHeaderCell: () => <span title={t('Results.aTooltip')}>A</span>,
     },
     {
       key: 'Vs',
       name: 'Vs',
       cellClass: getCellClass,
       headerCellClass: 'centered-cell',
+      renderHeaderCell: () => (
+        <span title={t('Results.vsTooltip')}>
+          Vs<span className="header-subtech">({activeTechniqueLabel})</span>
+        </span>
+      ),
     },
     {
       key: 'Q',
       name: 'Q',
       cellClass: getCellClass,
       headerCellClass: 'centered-cell',
+      renderHeaderCell: () => <span title={t('Results.qTooltip')}>Q</span>,
     },
   ];
 
-  const handleCellClick = (cell: { row: any; column: any }) => {
+  const handleCellClick = (cell: { row: TableRow; column: { key: string } }) => {
     const { row, column } = cell;
     if (column.key === 'select-row') {
       onChangeDataValues({
@@ -165,41 +152,47 @@ export const Grid = () => {
     }
   };
 
-  const rows = useMemo(() => {
-    const section = sections[activeSection];
-    if (section && section.data) {
-      const { num_stations, distance, depth, Q, A, check, activeMagnitude, activeCheck, interpolated } =
-        section.data;
+  const rows = useMemo((): TableRow[] => {
+    if (!section || !section.data) return [];
+    const { data } = section;
+    const effective = getEffectiveTechniqueData(data, section.activeTechnique, {
+      interpolated: section.interpolated,
+      artificialSeeding: section.artificialSeeding,
+      alpha: section.alpha,
+    });
+    if (!effective) return [];
 
-      const scaledMagnitude = activeMagnitude.map((v) => v * lFactor);
-      const scaledQ = Q.map((v) => v * qFactor);
+    const { num_stations, distance, depth, activeCheck } = data;
+    const { resolved, A, Q, interpFlags } = effective;
 
-      return Array.from({ length: num_stations }, (_, i) => ({
-        key: i,
-        id: i,
-        x: typeof distance[i] === 'number' ? (distance[i] * lFactor).toFixed(2) : '-',
-        d: typeof depth[i] === 'number' ? (depth[i] * lFactor).toFixed(2) : '-',
-        A: typeof A[i] === 'number' ? (A[i] * aFactor).toFixed(2) : '-',
-        Vs: getCellValue(scaledMagnitude, check, activeCheck, i, interpolated),
-        Q: typeof Q[i] === 'number' ? getCellValue(scaledQ, check, activeCheck, i, interpolated) : '-',
-      }));
-    }
-    return [];
-  }, [sections, activeSection, lFactor, aFactor, qFactor]);
+    return Array.from({ length: num_stations }, (_, i) => ({
+      key: i,
+      id: i,
+      x: typeof distance[i] === 'number' ? (distance[i] * lFactor).toFixed(2) : '-',
+      d: typeof depth[i] === 'number' ? (depth[i] * lFactor).toFixed(2) : '-',
+      A: typeof A[i] === 'number' ? (A[i] * aFactor).toFixed(2) : '-',
+      Vs: formatCell(resolved[i] === null ? null : resolved[i]! * lFactor),
+      Q: formatCell(resolved[i] === null ? null : Q[i] * qFactor),
+      interpolated: interpFlags[i],
+      excluded: !activeCheck[i] && !interpFlags[i],
+    }));
+  }, [section, lFactor, aFactor, qFactor]);
 
   useEffect(() => {
-    const section = sections[activeSection];
     if (section && section.data && Array.isArray(section.data.activeCheck)) {
       const selectedRowIndices = section.data.activeCheck
         .map((isSelected, index) => (isSelected ? index : null))
         .filter((index) => index !== null);
       setSelectedRows(new Set(selectedRowIndices));
     }
-  }, [sections, activeSection]);
+  }, [section]);
 
   const onClickClipboard = () => {
     copyAllDataToClipboard();
   };
+
+  const onRowMouseEnter = (rowIdx: number) => onSetHoveredStation(rowIdx);
+  const onRowMouseLeave = () => onSetHoveredStation(null);
 
   return (
     <div className="grid-and-clipboard">
@@ -214,26 +207,8 @@ export const Grid = () => {
           marginBottom: '6px',
         }}
       >
-        <CopyBtn onClickFunction={onClickClipboard} />
-        <div
-          className="switch-container-results"
-          style={{ width: 'auto', margin: 0, cursor: 'pointer', gap: '8px' }}
-          onClick={handleInterpolateToggle}
-        >
-          <LuSpline size={15} color={interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)'} />
-          <span
-            style={{
-              fontSize: '13px',
-              color: interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {t('Results.interpolateProfile')}
-          </span>
-          <label className="switch" style={{ marginLeft: '6px' }} onClick={(e) => e.stopPropagation()}>
-            <input type="checkbox" checked={interpolated} onChange={handleInterpolateToggle} />
-            <span className="slider"></span>
-          </label>
+        <div className="copy-btn-wrap" title={copied ? t('Results.copied') : t('Results.copyTable')}>
+          <CopyBtn onClickFunction={onClickClipboard} />
         </div>
       </div>
       <div className="grid-container">
@@ -246,6 +221,17 @@ export const Grid = () => {
           rowKeyGetter={rowKeyGetter}
           onCellClick={handleCellClick}
           enableVirtualization={true}
+          rowClass={(row) => (row.id === hoveredStation ? 'row-hovered-from-chart' : '')}
+          renderers={{
+            renderRow: (key, props) => (
+              <Row
+                key={key}
+                {...props}
+                onMouseEnter={() => onRowMouseEnter(props.row.id)}
+                onMouseLeave={onRowMouseLeave}
+              />
+            ),
+          }}
         />
       </div>
     </div>

@@ -9,6 +9,19 @@ import { parseGrp3dPoints } from './utils/parseGrp3dPoints';
 import { parsedCameraSolution } from './utils/parsedCameraSolution';
 import { PROJECT_CONFIG } from '../main';
 
+// The Python backend's json.dump() emits bare NaN/Infinity/-Infinity tokens by default for
+// float('nan')/inf values (e.g. displacement at zero-depth bank stations) — valid for
+// Python's own lenient json.loads, but not valid strict JSON, so Node's JSON.parse rejects
+// it. Sanitize to null before parsing, consistent with how the frontend already treats
+// missing/invalid values everywhere else (velocity/displacement arrays are typed
+// (number | null)[] throughout). Only matches the bare token as a JSON value (preceded by
+// ':', '[' or ',' and followed by ',', ']' or '}'), so it never touches a quoted "NaN" string.
+function sanitizeNonStandardJsonTokens(raw: string): string {
+  return raw
+    .replace(/(?<=[:[,]\s*)-?Infinity(?=\s*[,\]}])/g, 'null')
+    .replace(/(?<=[:[,]\s*)NaN(?=\s*[,\]}])/g, 'null');
+}
+
 // Function to load and parse the settings.json file
 async function loadSettings(settingsPath: string) {
   const data = await fs.promises.readFile(settingsPath, 'utf-8');
@@ -19,7 +32,7 @@ async function loadSettings(settingsPath: string) {
 async function loadOptionalFile(filePath: string, parseJson = false) {
   if (fs.existsSync(filePath)) {
     const data = await fs.promises.readFile(filePath, 'utf-8');
-    return parseJson ? JSON.parse(data) : data;
+    return parseJson ? JSON.parse(sanitizeNonStandardJsonTokens(data)) : data;
   }
   console.warn(`Warning: ${filePath} does not exist.`);
   return undefined;

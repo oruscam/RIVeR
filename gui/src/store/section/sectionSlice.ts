@@ -3,7 +3,7 @@ import { SectionState, PixelSize, Section, SectionData, Bathimetry, Summary } fr
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS } from '../../constants/constants';
 import { Point } from '../../types';
 
-const defaultSections = [
+const defaultSections: Section[] = [
   {
     name: 'CS_default_1',
     drawLine: false,
@@ -21,6 +21,7 @@ const defaultSections = [
     interpolated: true,
     hasChanged: false,
     artificialSeeding: false,
+    activeTechnique: 'lspiv',
   },
 ];
 

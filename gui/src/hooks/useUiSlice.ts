@@ -18,6 +18,7 @@ import {
   setLanguage,
   setIsLastVersion,
   setMessage,
+  setHoveredStation,
 } from '../store/ui/uiSlice';
 import { ThemeType } from '../store/ui/types';
 import { RootState } from '../store/store';
@@ -40,6 +41,7 @@ export const useUiSlice = () => {
     language,
     isLatestVersion,
     latestVersion,
+    hoveredStation,
   } = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
 
@@ -186,6 +188,16 @@ export const useUiSlice = () => {
     dispatch(setLanguage(language));
   };
 
+  /**
+   * Shared hover-station bridge between the Results table (Grid.tsx) and the charts
+   * (AllInOne.tsx/velocitySvg.ts) — hovering a row highlights the same station on the
+   * charts and vice versa. Lives in Redux rather than React Context, matching how every
+   * other piece of shared UI state in this app already works.
+   */
+  const onSetHoveredStation = (index: number | null) => {
+    dispatch(setHoveredStation(index));
+  };
+
   const onCheckVersion = () => {
     // If isLatestVersion is already set, do not fetch the latest version
     if (isLatestVersion !== undefined) return;
@@ -222,6 +234,7 @@ export const useUiSlice = () => {
     language,
     isLatestVersion,
     latestVersion,
+    hoveredStation,
 
     // METHODS
     onChangeTheme,
@@ -235,5 +248,6 @@ export const useUiSlice = () => {
     onSetScreen,
     onSetLanguage,
     onCheckVersion,
+    onSetHoveredStation,
   };
 };

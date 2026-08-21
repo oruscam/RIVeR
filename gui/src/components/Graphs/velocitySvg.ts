@@ -1,8 +1,35 @@
 import * as d3 from 'd3';
-import { COLORS, GRAPHS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
+import { GRAPHS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 import { generateYAxisTicks } from '../../helpers';
+import { getCSSVar } from '../../helpers/getCSSVar';
+import { Technique } from '../../store/section/types';
 import './graphs.css';
 import { t } from 'i18next';
+
+export interface VelocitySeriesPoint {
+  x: number;
+  v: number | null;
+  interp: boolean;
+  i: number;
+  quality: number | null;
+}
+
+export interface VelocityBand {
+  minus: (number | null)[];
+  plus: (number | null)[];
+}
+
+export interface VelocitySeries {
+  key: Technique;
+  label: string;
+  color: string;
+  isActive: boolean;
+  points: VelocitySeriesPoint[];
+  stdBand?: VelocityBand;
+  percentileBand?: VelocityBand;
+  showQuality?: boolean;
+}
+
 interface CreateVelocityChartProps {
   sizes: {
     width: number;
@@ -17,46 +44,31 @@ interface CreateVelocityChartProps {
   };
   SVGElement: SVGSVGElement;
   xScale: d3.ScaleLinear<number, number>;
-  magnitude: (number | null)[];
-  percentile5: number[];
-  percentile95: number[];
-  minusStd: number[];
-  plusStd: number[];
-  distance: number[];
-  showStd?: boolean;
-  showPercentile?: boolean;
+  series: VelocitySeries[];
   isReport?: boolean;
-  interpolated: boolean;
-  check: boolean[];
-  onChangeDataValues?: any;
   unitSistem?: string;
-  stivProfile?: (number | null)[];
-  iwaveProfile?: (number | null)[];
-  showStiv?: boolean;
-  showIwave?: boolean;
+  hoveredStation?: number | null;
 }
 
+/**
+ * Unified velocity-profile panel: every visible technique renders with the same line
+ * weight/marker geometry, differentiated only by color — the active technique in the theme
+ * foreground color at full opacity, inactive ones in their own identity color at reduced
+ * opacity. Uncertainty bands and iWave's quality shading are opt-in (goal 4) and controlled
+ * from TechniqueLegend, not from clickable swatches in the chart itself.
+ *
+ * Hover/tooltip is NOT handled here — AllInOne.tsx owns one combined overlay + tooltip
+ * spanning all three stacked panels (Q, velocity, stage), so there's a single hover
+ * experience for the whole chart instead of a tooltip per panel.
+ */
 export const createVelocityChart = ({
   SVGElement,
   xScale,
-  magnitude,
-  percentile5,
-  percentile95,
-  minusStd,
-  plusStd,
-  distance,
-  interpolated,
-  check,
+  series,
   sizes,
-  showStd = true,
-  showPercentile = true,
   isReport = false,
-  onChangeDataValues,
   unitSistem = 'si',
-  stivProfile = [],
-  iwaveProfile = [],
-  showStiv = true,
-  showIwave = true,
+  hoveredStation = null,
 }: CreateVelocityChartProps) => {
   const isImperial = unitSistem === 'imperial';
   const velocityFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
@@ -64,35 +76,23 @@ export const createVelocityChart = ({
   const svg = d3.select(SVGElement);
   const { margin, graphHeight, width } = sizes;
 
-  const minDomainValue = Math.min(
-    d3.min(percentile5.filter((d) => d !== null))! * velocityFactor,
-    d3.min(minusStd.filter((d) => d !== null))! * velocityFactor,
-    d3.min(magnitude.filter((d) => d !== null))! * velocityFactor
+  const allValues = series.flatMap((s) => s.points.map((p) => p.v).filter((v): v is number => v !== null));
+  const bandValues = series.flatMap((s) =>
+    [
+      ...(s.stdBand ? [...s.stdBand.minus, ...s.stdBand.plus] : []),
+      ...(s.percentileBand ? [...s.percentileBand.minus, ...s.percentileBand.plus] : []),
+    ].filter((v): v is number => v !== null)
   );
-  const maxDomainValue = Math.max(
-    d3.max(percentile95.filter((d) => d !== null))! * velocityFactor,
-    d3.max(plusStd.filter((d) => d !== null))! * velocityFactor,
-    d3.max(magnitude.filter((d) => d !== null))! * velocityFactor
-  );
+  const domainValues = [...allValues, ...bandValues].map((v) => v * velocityFactor);
+  const minDomain = domainValues.length ? Math.min(...domainValues) : 0;
+  const maxDomain = domainValues.length ? Math.max(...domainValues) : 1;
 
-  const extraSeries = [
-    ...(showStiv ? stivProfile : []),
-    ...(showIwave ? iwaveProfile : []),
-  ].filter((d): d is number => d !== null && d !== undefined).map((d) => d * velocityFactor);
-  const minDomain = extraSeries.length ? Math.min(minDomainValue, ...extraSeries) : minDomainValue;
-  const maxDomain = extraSeries.length ? Math.max(maxDomainValue, ...extraSeries) : maxDomainValue;
-
-  // y Scale
   const yScale = d3
     .scaleLinear()
     .domain([minDomain, maxDomain])
     .range([graphHeight * 2 + (isReport ? -40 : -50), graphHeight + (isReport ? 30 : -10)]);
 
-  // y Axis
-
-  // Create and add Y ticks
-  const ticks = generateYAxisTicks(magnitude, minDomain, maxDomain);
-
+  const ticks = generateYAxisTicks(allValues, minDomain, maxDomain);
   const yAxis = d3.axisLeft(yScale).tickValues(ticks).tickFormat(d3.format('.2f'));
 
   svg
@@ -103,10 +103,7 @@ export const createVelocityChart = ({
     .selectAll('.tick text')
     .style('font-size', '14px');
 
-  // Create and add Y gridlines
-
   const makeYGridlines = () => d3.axisLeft(yScale).tickValues(ticks);
-
   svg
     .append('g')
     .attr('class', 'grid graph-grid')
@@ -118,435 +115,131 @@ export const createVelocityChart = ({
     )
     .attr('stroke-width', 0.5);
 
-  const filteredData = magnitude.map((d, i) => {
-    if (check[i] === false && interpolated === false) {
-      return {
-        velocity: null,
-        distance: distance[i],
-        plusStd: null,
-        minusStd: null,
-        percentile5: null,
-        percentile95: null,
-      };
-    } else if (check[i] === false && interpolated === true) {
-      return {
-        velocity: d !== null ? d * velocityFactor : null,
-        distance: distance[i],
-        plusStd: null,
-        minusStd: null,
-        percentile5: null,
-        percentile95: null,
-        interpolated: true,
-      };
-    } else {
-      return {
-        velocity: d !== null ? d * velocityFactor : null,
-        distance: distance[i],
-        plusStd: plusStd[i] * velocityFactor,
-        minusStd: minusStd[i] * velocityFactor,
-        percentile5: percentile5[i] * velocityFactor,
-        percentile95: percentile95[i] * velocityFactor,
-        interpolated: false,
-      };
-    }
-  });
-
-  const line = d3
-    .line<{
-      velocity: number | null;
-      distance: number;
-      plusStd: number;
-      minusStd: number;
-      percentile5: number;
-      percentile95: number;
-      interpolated: boolean;
-    }>()
-    .defined((d) => d.velocity !== null)
-    .x((d) => xScale(d.distance))
-    .y((d) => yScale(d.velocity!));
-
-  // std Area
-  const areaStd = d3
-    .area<{
-      velocity: number | null;
-      distance: number;
-      plusStd: number;
-      minusStd: number;
-      percentile5: number;
-      percentile95: number;
-    }>()
-    .defined((d) => d.plusStd !== null && d.minusStd !== null)
-    .x((d) => xScale(d.distance))
-    .y0((d) => yScale(d.plusStd))
-    .y1((d) => yScale(d.minusStd));
-
-  // Percentile 5th and 95th area
-  const areaPercentile = d3
-    .area<{
-      velocity: number | null;
-      distance: number;
-      plusStd: number;
-      minusStd: number;
-      percentile5: number;
-      percentile95: number;
-    }>()
-    .defined((d) => d.percentile5 !== null && d.percentile95 !== null)
-    .x((d) => xScale(d.distance))
-    .y0((d) => yScale(d.percentile5))
-    .y1((d) => yScale(d.percentile95));
-
-  // Boundary line generators for percentile band edges
-  const linePercentile95 = d3
-    .line<(typeof filteredData)[0]>()
-    .defined((d) => d.percentile95 !== null)
-    .x((d) => xScale(d.distance))
-    .y((d) => yScale(d.percentile95!));
-
-  const linePercentile5 = d3
-    .line<(typeof filteredData)[0]>()
-    .defined((d) => d.percentile5 !== null)
-    .x((d) => xScale(d.distance))
-    .y((d) => yScale(d.percentile5!));
-
-  // Boundary line generators for std band edges
-  const linePlusStd = d3
-    .line<(typeof filteredData)[0]>()
-    .defined((d) => d.plusStd !== null)
-    .x((d) => xScale(d.distance))
-    .y((d) => yScale(d.plusStd!));
-
-  const lineMinusStd = d3
-    .line<(typeof filteredData)[0]>()
-    .defined((d) => d.minusStd !== null)
-    .x((d) => xScale(d.distance))
-    .y((d) => yScale(d.minusStd!));
-
-  let legendGroupOffsetY = 5;
-
-  // Add the percentile area
-  const areaPathPercentile = svg
-    .append('path')
-    .datum(filteredData)
-    .attr('fill', showPercentile ? COLORS.PERCENTILE_AREA : COLORS.TRANSPARENT)
-    .attr('d', areaPercentile);
-
-  // Percentile band boundary strokes
-  if (showPercentile) {
-    svg
-      .append('path')
-      .datum(filteredData)
-      .attr('fill', 'none')
-      .attr('stroke', COLORS.PERCENTILE_STROKE)
-      .attr('stroke-width', 1)
-      .attr('d', linePercentile95);
-    svg
-      .append('path')
-      .datum(filteredData)
-      .attr('fill', 'none')
-      .attr('stroke', COLORS.PERCENTILE_STROKE)
-      .attr('stroke-width', 1)
-      .attr('d', linePercentile5);
-  }
-
-  if (isReport === false) {
-    legendGroupOffsetY = -28;
-  }
-
-  const legendGroupPercentile = svg
-    .append('g')
-    .attr('class', 'legend-group')
-    .attr('transform', `translate(${(width / 4) * 1 + 30}, ${graphHeight + legendGroupOffsetY})`);
-
-  // Append a colored rectangle for percentile
-  legendGroupPercentile
-    .append('rect')
-    .attr('width', 15)
-    .attr('height', 15)
-    .attr('fill', showPercentile ? COLORS.PERCENTILE_AREA : COLORS.TRANSPARENT)
-    .attr('stroke', showPercentile ? COLORS.PERCENTILE_STROKE : COLORS.WHITE)
-    .attr('stroke-width', showPercentile ? 1.5 : 1);
-
-  // Append text  next to the rectangle
-  legendGroupPercentile
-    .append('text')
-    .attr('x', 20) // ajustar la posición horizontal para que no se superponga con el rectángulo
-    .attr('y', 13) // ajustar la posición vertical para alinear con el rectángulo
-    .attr('font-size', '15px')
-    .attr('class', 'legend-text')
-    .text('5% - 95%');
-
-  // Add the std area
-  const areaPathStd = svg
-    .append('path')
-    .datum(filteredData)
-    .attr('fill', showStd ? COLORS.STD_AREA : COLORS.TRANSPARENT)
-    .attr('d', areaStd);
-
-  // Std band boundary strokes
-  if (showStd) {
-    svg
-      .append('path')
-      .datum(filteredData)
-      .attr('fill', 'none')
-      .attr('stroke', COLORS.STD_STROKE)
-      .attr('stroke-width', 1)
-      .attr('d', linePlusStd);
-    svg
-      .append('path')
-      .datum(filteredData)
-      .attr('fill', 'none')
-      .attr('stroke', COLORS.STD_STROKE)
-      .attr('stroke-width', 1)
-      .attr('d', lineMinusStd);
-  }
-
-  // Create leyend for std area
-  const legendGroupStd = svg
-    .append('g')
-    .attr('class', 'legend-group')
-    .attr('transform', `translate(${(width / 4) * 2 + 48}, ${graphHeight + legendGroupOffsetY})`);
-
-  // Append a colored rectangle for std
-  legendGroupStd
-    .append('rect')
-    .attr('x', 0)
-    .attr('y', 0)
-    .attr('width', 15)
-    .attr('height', 15)
-    .attr('fill', showStd ? COLORS.STD_AREA : COLORS.TRANSPARENT)
-    .attr('stroke', showStd ? COLORS.STD_STROKE : COLORS.WHITE)
-    .attr('stroke-width', showStd ? 1.5 : 1);
-
-  // Append text next to the rectangle
-
-  legendGroupStd
-    .append('text')
-    .attr('x', 20)
-    .attr('y', 13)
-    .attr('font-size', '15px')
-    .attr('class', 'legend-text')
-    .text(t('Graphs.velStd'));
-
-  if (isReport === false) {
-    // Append active/disable percentile legend
-    legendGroupPercentile.select('rect').on('click', function () {
-      // Acción a realizar cuando se hace clic en el rectángulo de la leyenda
-      onChangeDataValues({ type: 'showPercentile' });
-    });
-
-    // Append active/disable std legend
-    legendGroupStd.select('rect').on('click', function () {
-      onChangeDataValues({ type: 'showVelocityStd' });
-    });
-
-    if (showPercentile) {
-      // Append float legend for percentile
-      const floatLegendPercentile = svg
-        .append('text')
-        .attr('x', 10)
-        .attr('y', 10)
-        .attr('visibility', 'hidden')
-        .attr('font-size', '15px')
-        .attr('class', 'graph-text');
-
-      areaPathPercentile.on('mouseover', function () {
-        floatLegendPercentile.attr('visibility', 'visible').text('5% | 95% percentile');
-      });
-
-      areaPathPercentile.on('mousemove', function (event) {
-        const [x, y] = d3.pointer(event);
-        floatLegendPercentile.attr('x', x + 10).attr('y', y - 10);
-      });
-
-      areaPathPercentile.on('mouseout', function () {
-        floatLegendPercentile.attr('visibility', 'hidden');
-      });
-    }
-
-    if (showStd) {
-      const floatLegendStd = svg
-        .append('text')
-        .attr('x', 10)
-        .attr('y', 10)
-        .attr('visibility', 'hidden')
-        .attr('font-size', '15px')
-        .attr('class', 'graph-text');
-
-      // Agregar eventos de mouseover y mouseout
-
-      areaPathStd.on('mouseover', function () {
-        floatLegendStd.attr('visibility', 'visible').text('± std');
-      });
-
-      areaPathStd.on('mousemove', function (event) {
-        const [x, y] = d3.pointer(event);
-        floatLegendStd
-          .attr('x', x + 10) // ajustar la posición de la leyenda
-          .attr('y', y - 10);
-      });
-
-      areaPathStd.on('mouseout', function () {
-        floatLegendStd.attr('visibility', 'hidden');
-      });
-    }
-  }
-
-  // Add the velocity line with segments in red where data is interpolated
-
-  // 1️⃣ Primary-color base line (theme-aware via currentColor)
-  svg
-    .append('path')
-    .datum(filteredData)
-    .attr('fill', 'none')
-    .attr('class', 'graph-primary-stroke')
-    .attr('stroke-width', 2)
-    .attr('d', line);
-
-  // 2️⃣ Draw segments of red line
-  const redSegments: (typeof filteredData)[] = [];
-  let segment: typeof filteredData = [];
-
-  for (let i = 0; i < filteredData.length; i++) {
-    const d = filteredData[i];
-
-    if (d.interpolated) segment.push(d);
-    else if (segment.length) {
-      redSegments.push([...segment]);
-      segment = [];
-    }
-  }
-  if (segment.length) redSegments.push(segment);
-
-  // 3️⃣ Draw only red segments
-  redSegments.forEach((seg) => {
-    svg
-      .append('path')
-      .datum(seg)
-      .attr('fill', 'none')
-      .attr('stroke', COLORS.RED)
-      .attr('stroke-width', 2)
-      .attr('d', line);
-  });
-
-  // Raw method overlays: STIV (orange squares) and iWave (green diamonds)
-  const drawMethodProfile = (
-    profile: (number | null)[],
-    color: string,
-    symbolType: d3.SymbolType,
-    label: string,
-    visible: boolean,
-  ) => {
-    if (!visible || profile.length === 0 || profile.every((d) => d === null || d === undefined)) return;
-    const points = profile
-      .map((v, i) => ({ velocity: v !== null && v !== undefined ? v * velocityFactor : null, distance: distance[i] }))
-      .filter((d): d is { velocity: number; distance: number } => d.velocity !== null);
-    const methodLine = d3
-      .line<{ velocity: number; distance: number }>()
-      .x((d) => xScale(d.distance))
-      .y((d) => yScale(d.velocity));
-    svg
-      .append('path')
-      .datum(points)
-      .attr('fill', 'none')
-      .attr('stroke', color)
-      .attr('stroke-width', 1.5)
-      .attr('stroke-dasharray', '5,3')
-      .attr('d', methodLine);
-    const symbol = d3.symbol().type(symbolType).size(45);
-    svg
-      .selectAll(`.method-marker-${label}`)
-      .data(points)
-      .enter()
-      .append('path')
-      .attr('class', `method-marker-${label}`)
-      .attr('d', symbol)
-      .attr('fill', color)
-      .attr('transform', (d) => `translate(${xScale(d.distance)},${yScale(d.velocity)})`);
-    // STIV anchors from the left just past the std/percentile legends; iWave anchors
-    // from the right edge with a fixed margin so it can never overflow the SVG at
-    // narrow widths (GRAPHS.MIN_WIDTH). Both sit on the same baseline as the
-    // existing legend row (graphHeight + legendGroupOffsetY, +13 for the local
-    // text offset those legends use inside their own <g> translate).
-    svg
-      .append('text')
-      .attr('class', `method-legend-${label}`)
-      .attr('x', label === 'stiv' ? (width / 4) * 3 + 10 : width - 10)
-      .attr('y', graphHeight + legendGroupOffsetY + 13)
-      .attr('text-anchor', label === 'stiv' ? 'start' : 'end')
-      .attr('fill', color)
-      .style('font-size', '12px')
-      .text(label === 'stiv' ? 'STIV' : 'iWave');
+  // ---- Uncertainty bands (behind lines, opt-in per technique, tied to that technique's
+  // own identity color rather than a fixed hue). Percentile is drawn fainter/wider than
+  // std so both can be told apart when a technique shows both at once. ----
+  const drawBand = (s: VelocitySeries, band: VelocityBand, opacity: number) => {
+    const pts = s.points.map((p, idx) => ({ x: p.x, lo: band.minus[idx], hi: band.plus[idx] }));
+    const area = d3
+      .area<{ x: number; lo: number | null; hi: number | null }>()
+      .defined((d) => d.lo !== null && d.hi !== null)
+      .x((d) => xScale(d.x))
+      .y0((d) => yScale((d.lo as number) * velocityFactor))
+      .y1((d) => yScale((d.hi as number) * velocityFactor));
+    svg.append('path').datum(pts).attr('fill', s.color).attr('opacity', opacity).attr('d', area);
   };
+  series.forEach((s) => {
+    if (s.percentileBand) drawBand(s, s.percentileBand, 0.1);
+    if (s.stdBand) drawBand(s, s.stdBand, 0.22);
+  });
 
-  drawMethodProfile(stivProfile, '#ff7f0e', d3.symbolSquare, 'stiv', showStiv);
-  drawMethodProfile(iwaveProfile, '#2ca02c', d3.symbolDiamond, 'iwave', showIwave);
+  // ---- iWave quality → color + radius scale (green↔foreground gradient), stretched
+  // across the actual data range so real, if narrow, differences read clearly ----
+  const qualitySeries = series.find((s) => s.key === 'iwave' && s.showQuality);
+  let qualityColorScale: ((q: number) => string) | null = null;
+  let qualityRadiusScale: ((q: number) => number) | null = null;
+  if (qualitySeries) {
+    const qVals = qualitySeries.points.map((p) => p.quality).filter((q): q is number => q !== null);
+    if (qVals.length) {
+      const qDomain: [number, number] = [Math.min(...qVals), Math.max(...qVals)];
+      const baseColor = qualitySeries.isActive
+        ? getCSSVar('--primary-text-color', '#ffffff')
+        : qualitySeries.color;
+      const bg = getCSSVar('--background-color', '#000000');
+      const paleBase = d3.interpolateRgb(bg, baseColor)(0.3);
+      const colorInterp = d3.interpolateRgb(paleBase, baseColor);
+      const qualityNorm = d3.scaleLinear().domain(qDomain).range([0, 1]).clamp(true);
+      qualityColorScale = (q: number) => colorInterp(qualityNorm(q));
+      qualityRadiusScale = d3.scaleLinear().domain(qDomain).range([4, 8]).clamp(true) as (q: number) => number;
+    }
+  }
 
-  // Add the circles and tooltip
+  // ---- Shared vertical guide line, reflects hoveredStation regardless of hover origin
+  // (table row or chart marker) ----
+  if (hoveredStation !== null && hoveredStation !== undefined) {
+    const hoveredPoint = series[0]?.points.find((p) => p.i === hoveredStation);
+    if (hoveredPoint) {
+      svg
+        .append('line')
+        .attr('class', 'hover-guide-line')
+        .attr('x1', xScale(hoveredPoint.x))
+        .attr('x2', xScale(hoveredPoint.x))
+        .attr('y1', margin.top)
+        .attr('y2', graphHeight * 3 - margin.bottom)
+        .attr('stroke', 'var(--accent-color)')
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', '3,3');
+    }
+  }
 
-  const tooltip = d3
-    .select('body')
-    .append('div')
-    .attr('class', 'tooltip graph-tooltip-text')
-    .style('position', 'absolute')
-    .style('font-size', '16px')
-    .style('font-weight', '500')
-    .style('background', 'transparent')
-    .style('border', 'none')
-    .style('padding', '5px')
-    .style('display', 'none');
+  // ---- Lines + markers, one pass per visible technique ----
+  series.forEach((s) => {
+    const isActive = s.isActive;
+    const strokeColor = isActive ? 'var(--primary-text-color)' : s.color;
+    const baseOpacity = isActive ? 1 : 0.55;
 
-  const formatValue = d3.format('.2f');
+    const line = d3
+      .line<VelocitySeriesPoint>()
+      .defined((d) => d.v !== null)
+      .x((d) => xScale(d.x))
+      .y((d) => yScale((d.v as number) * velocityFactor));
 
-  // Line connecting data point to tooltip
-  const lineToTooltip = svg
-    .append('line')
-    .attr('class', 'graph-primary-stroke')
-    .attr('stroke-width', 1)
-    .attr('display', 'none');
+    svg
+      .append('path')
+      .datum(s.points)
+      .attr('d', line)
+      .attr('fill', 'none')
+      .attr('stroke', strokeColor)
+      .attr('stroke-width', isActive ? 2 : 1.2)
+      .attr('opacity', baseOpacity);
 
-  // Elimino los valores nulos de magnitude
+    // Interpolated segments render in the theme accent color rather than a fixed hue —
+    // since STIV now owns RIVeR's own "clear red" as its identity color, reusing red here
+    // would read as "this is STIV" rather than "this point was estimated."
+    if (isActive) {
+      const segments: VelocitySeriesPoint[][] = [];
+      let current: VelocitySeriesPoint[] = [];
+      s.points.forEach((p) => {
+        if (p.interp) current.push(p);
+        else if (current.length) {
+          segments.push(current);
+          current = [];
+        }
+      });
+      if (current.length) segments.push(current);
+      segments.forEach((seg) => {
+        svg
+          .append('path')
+          .datum(seg)
+          .attr('d', line)
+          .attr('fill', 'none')
+          .attr('stroke', 'var(--accent-color)')
+          .attr('stroke-width', 2);
+      });
+    }
 
-  const filteredPoints = filteredData.filter((d) => d.velocity !== null);
+    const showQuality = s.key === 'iwave' && s.showQuality && qualityColorScale && qualityRadiusScale;
 
-  // Dibuja los círculos en cada vértice con interactividad
-  svg
-    .selectAll('circle')
-    .data(filteredPoints)
-    .enter()
-    .append('circle')
-    .attr('cx', (d) => xScale(d.distance))
-    .attr('cy', (d) => yScale(d.velocity!))
-    .attr('r', 2.5) // Radio del círculo
-    .attr('class', (d) => (d.interpolated ? '' : 'graph-primary-fill'))
-    .attr('fill', (d) => (d.interpolated ? COLORS.RED : null))
-    .on('mouseover', function () {
-      d3.select(this).attr('r', 4);
-      tooltip.style('display', 'block');
-      lineToTooltip.attr('display', 'block');
-    })
-    .each(function (d) {
-      d3.select(this)
-        .on('mousemove', function (event) {
-          const cx = xScale(d.distance);
-          const cy = yScale(d.velocity!);
-
-          tooltip
-            .html(`Velocity: ${formatValue(d.velocity!)} ${unitLabel}<br>Distance: ${formatValue(d.distance)}`)
-            .style('left', `${event.pageX + 10}px`)
-            .style('top', `${event.pageY - 100}px`);
-
-          lineToTooltip
-            .attr('x1', cx)
-            .attr('y1', cy)
-            .attr('x2', event.pageX - (svg.node()?.getBoundingClientRect().left ?? 0) + 10)
-            .attr('y2', event.pageY - (svg.node()?.getBoundingClientRect().top ?? 0) - 60);
-        })
-        .on('mouseout', function () {
-          d3.select(this).attr('r', 2.5);
-          tooltip.style('display', 'none');
-          lineToTooltip.attr('display', 'none');
-        });
-    });
+    svg
+      .selectAll(`.marker-${s.key}`)
+      .data(s.points.filter((p) => p.v !== null))
+      .enter()
+      .append('circle')
+      .attr('class', `marker-${s.key}`)
+      .attr('cx', (d) => xScale(d.x))
+      .attr('cy', (d) => yScale((d.v as number) * velocityFactor))
+      .attr('r', (d) => (showQuality && d.quality !== null ? qualityRadiusScale!(d.quality) : isActive ? 3 : 2.2))
+      .attr('fill', (d) =>
+        d.interp
+          ? 'var(--accent-color)'
+          : showQuality && d.quality !== null
+            ? qualityColorScale!(d.quality)
+            : strokeColor
+      )
+      .attr('stroke', (d) => (showQuality && d.quality !== null ? 'var(--background-color)' : 'none'))
+      .attr('stroke-width', (d) => (showQuality && d.quality !== null ? 0.75 : 0))
+      .attr('opacity', baseOpacity);
+  });
 
   // label for Velocity
   const velocityLabel = svg
