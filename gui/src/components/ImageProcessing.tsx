@@ -5,10 +5,24 @@ import { WindowSizesNew } from './WindowSizesNew';
 import { Quiver } from './Quiver';
 import { DrawSectionsD3 } from './CrossSections/DrawSectionsD3';
 import { OverlaySvg } from './OverlaySvg';
+import { StationSearchLines } from './StationSearchLines';
 import { getQuiverValues, createColorMap, Normalize } from '../../commons/vectors';
 import { FloatingPlot } from './FloatingPlot';
+import { StiViewer } from './StiViewer';
 
-export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: boolean; extraFields?: boolean }) => {
+export const ImageProcessing = ({
+  showMedian,
+  extraFields,
+  stiMode,
+  stiPaths,
+  stiStations,
+}: {
+  showMedian?: boolean;
+  extraFields?: boolean;
+  stiMode?: boolean;
+  stiPaths?: string[];
+  stiStations?: number[];
+}) => {
   const { screenSizes } = useUiSlice();
   const { video } = useProjectSlice();
   const { processing, images, quiver, fullQuiver, colorbarLimits } = useDataSlice();
@@ -96,6 +110,20 @@ export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: bool
 
   if (!width || !height || !factor) return null;
 
+  if (stiMode) {
+    return (
+      <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>
+        <StiViewer
+          stiPaths={stiPaths ?? []}
+          stiStations={stiStations ?? []}
+          activeStation={active}
+          containerWidth={realWidth!}
+          containerHeight={realHeight! - 90}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
@@ -126,6 +154,7 @@ export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: bool
                 position={position}
                 layers={layers}
               />
+              <StationSearchLines factor={realFactor!} layers={layers} />
               <Quiver
                 width={realWidth!}
                 height={realHeight!}

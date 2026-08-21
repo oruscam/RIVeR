@@ -3,9 +3,17 @@ import { useAutoShrinkFont, useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
 import { WINDOW_SIZES } from '../../../constants/constants';
 
-export const HardModeProcessing = ({ active }: { active: boolean }) => {
+export const HardModeProcessing = ({
+  active,
+  onClickTest,
+  isTesting,
+}: {
+  active: boolean;
+  onClickTest: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  isTesting: boolean;
+}) => {
   const { register, reset } = useFormContext();
-  const { processing, onUpdateProcessing, onReCalculateMask } = useDataSlice();
+  const { processing, onUpdateProcessing, onReCalculateMask, isBackendWorking } = useDataSlice();
   const { onSetErrorMessage } = useUiSlice();
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
 
@@ -40,6 +48,22 @@ export const HardModeProcessing = ({ active }: { active: boolean }) => {
 
   return (
     <div className={`hard-mode-processing mt-5 ${active ? '' : 'hidden'}`} id="processing-footer">
+      <span className="divider-line mt-2" />
+
+      <div className="input-container-2 mt-1">
+        <button
+          className={`button-with-loader me-1 ${isBackendWorking && isTesting ? 'button-with-loader-active' : ''}`}
+          onClick={onClickTest}
+          type="button"
+          id="test-button"
+          disabled={isBackendWorking && isTesting === false}
+        >
+          <p className="button-name"> {t('Processing.test')} </p>
+          {isBackendWorking && isTesting && <span className="loader-little" />}
+        </button>
+        <div className="spacer-div" />
+      </div>
+
       <span className="divider-line mt-2" />
 
       <div className="input-container-2 mt-2">

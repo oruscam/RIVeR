@@ -1115,3 +1115,71 @@
 .success-banner-compact .success-banner-message {
     margin-top: 2px;
 }
+
+.sti-viewer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+.sti-context {
+    display: flex;
+    gap: 3px;
+    width: 96%;
+    padding: 6px 0;
+}
+
+.sti-context-tick {
+    flex: 1;
+    height: 14px;
+    border-radius: 2px;
+}
+
+.sti-context-tick-active {
+    outline: 2px solid var(--primary-text-color);
+    outline-offset: 1px;
+}
+
+.sti-frame {
+    position: relative;
+    overflow: hidden;
+    border-radius: 6px;
+    background: var(--background-color);
+}
+
+.sti-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    image-rendering: pixelated;
+}
+
+.sti-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+}
+
+.sti-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--secondary-background-color);
+    border: 1px solid var(--accent-color);
+    color: var(--accent-color);
+    border-radius: 6px;
+    padding: 5px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.sti-empty {
+    color: var(--secondary-text-color);
+    font-size: 13px;
+    text-align: center;
+    padding: 40px 0;
+}

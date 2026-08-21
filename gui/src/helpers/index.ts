@@ -5,6 +5,7 @@ import { formatTime, parseTime } from './formatTime';
 import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate } from './dateFunctions';
 import { getUnit } from './unitSistem';
 import { getDirectionVector } from './getDirectionVector';
+import { computeStationPixelPositions, computeStationSearchLines, computeSearchLinesFromCenters } from './stationPositions';
 import {
   getBathimetryValues,
   getIntersectionPoints,
@@ -58,6 +59,9 @@ export {
   carouselClickImage,
   carouselKeyDown,
   computeDischarge,
+  computeSearchLinesFromCenters,
+  computeStationPixelPositions,
+  computeStationSearchLines,
   createSquare,
   dateToStringDate,
   findWetSegments,

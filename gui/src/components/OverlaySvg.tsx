@@ -6,6 +6,7 @@ export type OverlayLayers = {
   overlayZoomRef: React.RefObject<SVGGElement>;
   staticLayerRef: React.RefObject<SVGGElement>;
   quiverLayerRef: React.RefObject<SVGGElement>;
+  stationLayerRef: React.RefObject<SVGGElement>;
   interactiveLayerRef: React.RefObject<SVGGElement>;
   staticMaskLayerRef: React.RefObject<SVGGElement>;
   maskLayerRef: React.RefObject<SVGGElement>;
@@ -26,6 +27,7 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
   const overlayZoomRef = useRef<SVGGElement | null>(null);
   const staticLayerRef = useRef<SVGGElement | null>(null);
   const quiverLayerRef = useRef<SVGGElement | null>(null);
+  const stationLayerRef = useRef<SVGGElement | null>(null);
   const interactiveLayerRef = useRef<SVGGElement | null>(null);
   const staticMaskLayerRef = useRef<SVGGElement | null>(null);
   const maskLayerRef = useRef<SVGGElement | null>(null);
@@ -60,6 +62,7 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
     const interactiveLayer = overlayZoom.append('g').attr('class', 'interactive-section-layer');
     const maskLayer = overlayZoom.append('g').attr('class', 'mask-layer');
     const staticLayer = overlayZoom.append('g').attr('class', 'static-section-layer');
+    const stationLayer = overlayZoom.append('g').attr('class', 'station-layer');
     const quiverLayer = overlayZoom.append('g').attr('class', 'quiver-layer'); // por encima de static
     const uiLayer = svg.append('g').attr('class', 'overlay-ui'); // SIEMPRE por encima de overlayZoom
 
@@ -68,6 +71,7 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
     maskLayerRef.current = maskLayer.node();
 
     staticLayerRef.current = staticLayer.node();
+    stationLayerRef.current = stationLayer.node();
     quiverLayerRef.current = quiverLayer.raise().node();
 
     overlayZoomRef.current = overlayZoom.node();
@@ -84,6 +88,7 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
     overlayZoomRef,
     staticLayerRef,
     quiverLayerRef,
+    stationLayerRef,
     interactiveLayerRef,
     staticMaskLayerRef,
     maskLayerRef,

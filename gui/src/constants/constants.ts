@@ -119,6 +119,14 @@ export const VECTORS = {
 };
 
 /**
+ * Fallback STIV sampling height in metres, used only when the processing form's
+ * ROI Height is unset (0). Mirrors the CLI's `--height-roi-stiv` default, so the
+ * drawn search-line preview matches what the backend will actually sample in that
+ * case — the GUI omits the flag when ROI Height is 0, letting the CLI default apply.
+ */
+export const STIV_DEFAULT_HEIGHT_ROI_M = 6.0;
+
+/**
  * Constants for marks
  */
 

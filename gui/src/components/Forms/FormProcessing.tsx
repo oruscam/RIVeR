@@ -3,14 +3,25 @@ import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { useTranslation } from 'react-i18next';
 import { AnalyzingProgress, HardModeProcessing } from './Components';
 import { useState } from 'react';
+import { TECHNIQUE_COLORS } from '../../constants/constants';
+import { LuEye, LuEyeOff } from 'react-icons/lu';
 
 export const FormProcessing = ({
   extraFields,
+  showMedian,
   setShowMedian,
+  stiMode,
+  setStiMode,
+  canToggleSti,
+  canToggleMedian,
 }: {
   extraFields: boolean;
   showMedian: boolean;
   setShowMedian: React.Dispatch<React.SetStateAction<boolean>>;
+  stiMode: boolean;
+  setStiMode: (value: boolean) => void;
+  canToggleSti: boolean;
+  canToggleMedian: boolean;
 }) => {
   const { t } = useTranslation();
   const { onSetErrorMessage } = useUiSlice();
@@ -151,7 +162,33 @@ export const FormProcessing = ({
                 </button>
               </div>
             </div>
-            <div className="switch-container mt-1">
+
+            <span className="divider-line mt-2 mb-1" />
+
+            <div className="technique-row-processing">
+              <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.lspiv }} />
+              <h3 className="field-title">LSPIV</h3>
+              <button
+                type="button"
+                className={`technique-seed-flag${showMedian ? ' technique-seed-flag-seeded' : ''}${
+                  canToggleMedian ? '' : ' technique-flag-off'
+                }`}
+                title={t('Processing.medianHint')}
+                onClick={canToggleMedian ? () => setShowMedian(!showMedian) : undefined}
+              >
+                {t('Processing.carouselMedia')}
+              </button>
+              <button
+                type="button"
+                className={`technique-eye-btn${stiMode ? '' : ' technique-eye-btn-on'}`}
+                title={t('Processing.showLspivFrames')}
+                onClick={stiMode ? () => setStiMode(false) : undefined}
+              >
+                {stiMode ? <LuEyeOff size={15} /> : <LuEye size={15} />}
+              </button>
+            </div>
+            <div className="technique-row-processing">
+              <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.stiv }} />
               <h3 className="field-title">STIV</h3>
               <label className="switch">
                 <input
@@ -161,8 +198,19 @@ export const FormProcessing = ({
                 />
                 <span className="slider"></span>
               </label>
+              <button
+                type="button"
+                className={`technique-eye-btn${stiMode ? ' technique-eye-btn-on' : ''}${
+                  canToggleSti ? '' : ' technique-eye-btn-off'
+                }`}
+                title={canToggleSti ? t('Processing.showStivStis') : t('Processing.noStisYet')}
+                onClick={canToggleSti && !stiMode ? () => setStiMode(true) : undefined}
+              >
+                {stiMode ? <LuEye size={15} /> : <LuEyeOff size={15} />}
+              </button>
             </div>
-            <div className="switch-container mt-1">
+            <div className="technique-row-processing">
+              <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.iwave }} />
               <h3 className="field-title">iWave</h3>
               <label className="switch">
                 <input
@@ -172,20 +220,17 @@ export const FormProcessing = ({
                 />
                 <span className="slider"></span>
               </label>
-            </div>
-            <div className="input-container-2 mt-2">
               <button
-                className={`button-with-loader me-1 ${isBackendWorking && isTesting ? 'button-with-loader-active' : ''}`}
-                onClick={handleOnClickTest}
                 type="button"
-                id="test-button"
-                disabled={isBackendWorking && isTesting === false}
+                className="technique-eye-btn technique-eye-btn-off"
+                title={t('Processing.iwaveNoPreview')}
               >
-                <p className="button-name"> {t('Processing.test')} </p>
-                {isBackendWorking && isTesting && <span className="loader-little" />}
+                <LuEyeOff size={15} />
               </button>
-              <div className="spacer-div" />
             </div>
+
+            <span className="divider-line mt-2 mb-1" />
+
             <div className="input-container-2 mt-1">
               <button
                 className="button-with-loader me-1"
@@ -208,7 +253,7 @@ export const FormProcessing = ({
             </div>
             {isBackendWorking && isTesting === false && <AnalyzingProgress resetProgress={resetProgress} />}
 
-            <HardModeProcessing active={extraFields} />
+            <HardModeProcessing active={extraFields} onClickTest={handleOnClickTest} isTesting={isTesting} />
           </form>
         </FormProvider>
       </div>

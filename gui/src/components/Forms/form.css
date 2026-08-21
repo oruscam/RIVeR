@@ -614,7 +614,8 @@
     background-color: var(--border-color);
 }
 
-#form-result .divider-line {
+#form-result .divider-line,
+#form-processing .divider-line {
     width: 96%;
     margin-left: auto;
     margin-right: auto;
@@ -696,4 +697,51 @@
     width: 96%;
     margin-left: auto;
     margin-right: auto;
+}
+
+.technique-row-processing {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 10px;
+    border-radius: 20px;
+    transition: background-color 0.15s ease;
+}
+
+.technique-row-processing:hover {
+    background-color: var(--on-hover);
+}
+
+.technique-row-processing .field-title {
+    flex: 1;
+}
+
+.technique-swatch-processing {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.technique-always {
+    font-size: 11px;
+    color: var(--secondary-text-color);
+}
+
+/* Eye/flag states for the Processing technique rows. The Results module's
+   .technique-eye-btn / .technique-seed-flag supply the base look; these add the
+   on/off states this panel needs without the native :disabled attribute, which
+   would suppress the title tooltips. */
+.technique-eye-btn.technique-eye-btn-on {
+    color: var(--accent-color);
+}
+
+.technique-eye-btn.technique-eye-btn-off {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.technique-seed-flag.technique-flag-off {
+    opacity: 0.35;
+    cursor: not-allowed;
 }

@@ -111,12 +111,14 @@ def run_full_analysis(
 	if stiv:
 		try:
 			models = load_models()
-			stis_dir = str(frames_dir.parent / "stis")
+			stis_root = frames_dir.parent / "stis"
 			total_stiv_stations = sum(len(xsections[k]["id"]) for k in section_keys)
 			with tqdm(total=total_stiv_stations, desc="STIV", file=sys.stderr) as pbar:
 				def stiv_progress(current, total):
 					pbar.update(1)
 				for i, _key in enumerate(section_keys):
+					# One folder per cross-section: a flat shared folder made each
+					# section overwrite the previous one's sti_<id>.png.
 					xsections = run_stiv_analysis(
 						xsections=xsections,
 						transformation_matrix=transformation_matrix,
@@ -126,7 +128,7 @@ def run_full_analysis(
 						id_section=i,
 						height_roi_m=height_roi_stiv,
 						models=models,
-						stis_dir=stis_dir,
+						stis_dir=str(stis_root / _key),
 						progress=stiv_progress,
 					)
 		except Exception as err:  # noqa: BLE001 — engine failure must not kill the run

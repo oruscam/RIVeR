@@ -361,6 +361,8 @@ const onLoadProcessingForm = (values: ProcessingValues, dispatch: any, updateFor
     interrogation_area_1,
     interrogation_area_2,
     roi_height,
+    stiv,
+    iwave,
   } = values;
 
   dispatch(
@@ -378,6 +380,11 @@ const onLoadProcessingForm = (values: ProcessingValues, dispatch: any, updateFor
       step1: interrogation_area_1,
       step2: interrogation_area_2,
       heightRoi: roi_height,
+      // Projects saved before these fields existed have them undefined; fall back to
+      // the slice defaults rather than dispatching undefined, which would leave the
+      // toggles uncontrolled.
+      stiv: stiv ?? true,
+      iwave: iwave ?? true,
     })
   );
 };
@@ -554,6 +561,8 @@ interface ProcessingValues {
   interrogation_area_1?: number;
   interrogation_area_2?: number;
   roi_height?: number;
+  stiv?: boolean;
+  iwave?: boolean;
 }
 
 interface control_points {

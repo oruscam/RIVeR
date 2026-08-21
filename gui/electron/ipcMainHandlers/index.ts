@@ -19,6 +19,7 @@ import { setControlPoints } from './setControlPoints';
 import { setProjectMetadata } from './setProjectMetadata';
 import { createMaskAndBbox } from './createMaskAndBbox';
 import { getResultData } from './getResultData';
+import { getStis } from './getStis';
 import { loadResults } from './loadResults';
 import { recommendRoiHeight } from './recommendRoiHeight';
 import { saveReportHtml } from './saveReportHtml';
@@ -40,6 +41,7 @@ export {
   getPoints,
   getQuiver,
   getResultData,
+  getStis,
   getVideo,
   initProject,
   loadProject,
