@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useDataSlice, useProjectSlice, useSectionSlice } from '../../hooks';
 import { AllInOne } from '../Graphs/AllInOne';
 import { TechniqueLegend } from '../Graphs/TechniqueLegend';
 import { Grid } from '../index';

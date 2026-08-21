@@ -15,7 +15,7 @@ export const Processing = () => {
   const { t } = useTranslation();
   const { nextStep } = useWizard();
   const { onSetErrorMessage, onSetSeeAll } = useUiSlice();
-  const { images, fullQuiver, isBackendWorking, onSetActiveImage, onGetResultData } = useDataSlice();
+  const { images, fullQuiver, isBackendWorking, onSetActiveImage, onLoadResultData } = useDataSlice();
   const [showMedian, setShowMedian] = useState(fullQuiver !== null);
   const [extraFields, setExtraFields] = useState(false);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('frames');
@@ -41,7 +41,7 @@ export const Processing = () => {
     if (fullQuiver !== null) {
       setShowMedian(true);
       if (fullQuiver !== prevFullQuiverRef.current) {
-        onGetResultData('all').catch(() => {});
+        onLoadResultData().catch(() => {});
       }
     }
     prevFullQuiverRef.current = fullQuiver;
@@ -105,14 +105,12 @@ export const Processing = () => {
   }, [previewMode, activeList, active, onSetActiveImage]);
 
   const handleNext = async () => {
-    nextStep();
-
     try {
-      // onGetResultData re-reads xsections.json and replaces section.data
+      // onLoadResultData re-reads xsections.json and replaces section.data
       // wholesale, so any angle write still sitting in the debounce window has
       // to land on disk first or it would be read back as if it never happened.
       await flushStivAngleWrites();
-      await onGetResultData('all');
+      await onLoadResultData();
       onSetSeeAll(false);
       nextStep();
     } catch (error) {
