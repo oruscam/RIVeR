@@ -143,6 +143,7 @@ def run_full_analysis(
 	if iwave:
 		try:
 			_log("iWave: warping frames onto ortho grid")
+			spectra_root = frames_dir.parent / "iwave_spectra"
 			stack, grid = build_ortho_stack(
 				str(frames_dir), transformation_matrix, xsections, bbox=None,
 				save_dir=str(frames_dir.parent / "rectified"),
@@ -161,6 +162,7 @@ def run_full_analysis(
 						id_section=i,
 						stack=stack,
 						grid=grid,
+						spectra_dir=str(spectra_root / _key),
 						progress=iwave_progress,
 					)
 		except Exception as err:  # noqa: BLE001

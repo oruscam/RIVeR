@@ -10,19 +10,28 @@ import { getQuiverValues, createColorMap, Normalize } from '../../commons/vector
 import { getStiColorScale } from '../helpers';
 import { FloatingPlot } from './FloatingPlot';
 import { StiViewer } from './StiViewer';
+import { IWaveViewer } from './IWaveViewer';
+import type { PreviewMode } from '../store/ui/types';
+import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
 
 export const ImageProcessing = ({
   showMedian,
   extraFields,
-  stiMode,
+  previewMode = 'frames',
   stiPaths,
   stiStations,
+  spectrumPaths,
+  spectrumStations,
+  spectraSidecar,
 }: {
   showMedian?: boolean;
   extraFields?: boolean;
-  stiMode?: boolean;
+  previewMode?: PreviewMode;
   stiPaths?: string[];
   stiStations?: number[];
+  spectrumPaths?: string[];
+  spectrumStations?: number[];
+  spectraSidecar?: IwaveSpectraSidecar | null;
 }) => {
   const { screenSizes, showInterrogationWindow } = useUiSlice();
   const { video } = useProjectSlice();
@@ -111,7 +120,7 @@ export const ImageProcessing = ({
 
   if (!width || !height || !factor) return null;
 
-  if (stiMode) {
+  if (previewMode === 'sti') {
     // Same bounds the STI's ticks, lines, and badge use, so the bar is a legend for
     // exactly what is drawn. ColorBar writes through to the shared colorbarLimits,
     // which is what makes manually locked limits apply to the PIV view too.
@@ -127,9 +136,24 @@ export const ImageProcessing = ({
           stiStations={stiStations ?? []}
           activeStation={active}
           containerWidth={realWidth!}
-          containerHeight={realHeight! - 90}
+          containerHeight={Math.max(0, realHeight! - 90)}
         />
         {stiMin !== null && stiMax !== null && <ColorBar min={stiMin} max={stiMax} />}
+      </div>
+    );
+  }
+
+  if (previewMode === 'iwave') {
+    return (
+      <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>
+        <IWaveViewer
+          spectrumPaths={spectrumPaths ?? []}
+          spectrumStations={spectrumStations ?? []}
+          sidecar={spectraSidecar ?? null}
+          activeStation={active}
+          containerWidth={realWidth!}
+          containerHeight={Math.max(0, realHeight! - 90)}
+        />
       </div>
     );
   }

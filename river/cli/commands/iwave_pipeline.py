@@ -33,6 +33,12 @@ from river.core.iwave_pipeline import run_iwave_analysis
 	default=False,
 	help="Write results back to the xsections file.",
 )
+@click.option(
+	"--save-spectra",
+	is_flag=True,
+	default=False,
+	help="Save per-station spectrum previews next to the frames directory.",
+)
 @render_response
 def iwave_analyze(
 	xsections: str,
@@ -43,9 +49,12 @@ def iwave_analyze(
 	id_section: int,
 	bbox,
 	write: bool,
+	save_spectra: bool,
 ) -> dict:
 	"""Run iWave analysis for the current cross-section."""
 	xsections_path = Path(xsections)
+	session_dir = Path(frames_dir).parent
+	spectra_dir = str(session_dir / "iwave_spectra") if save_spectra else None
 	result = run_iwave_analysis(
 		xsections=json.loads(xsections_path.read_text()),
 		transformation_matrix=json.loads(transformation_matrix.read()),
@@ -54,6 +63,7 @@ def iwave_analyze(
 		fps=fps,
 		id_section=id_section,
 		bbox=json.loads(bbox.read()) if bbox is not None else None,
+		spectra_dir=spectra_dir,
 	)
 	if write:
 		xsections_path.write_text(json.dumps(result))

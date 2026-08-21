@@ -59,8 +59,17 @@ import { getImageSize } from './getImageSize';
 import { handleDragLeave, handleDragOver } from './handleDragEvents';
 import { froudeFilledProfile, computeDischarge, getEffectiveTechniqueData } from './techniqueDischarge';
 import type { Technique, DischargeResult, TechniqueDischargeData, TechniqueOptions } from './techniqueDischarge';
+import { curveToPolylinePoints } from './spectrumGeometry';
+import type { SpectrumExtent } from './spectrumGeometry';
 
-export type { StiColorScale, Technique, DischargeResult, TechniqueDischargeData, TechniqueOptions };
+export type {
+  StiColorScale,
+  Technique,
+  DischargeResult,
+  TechniqueDischargeData,
+  TechniqueOptions,
+  SpectrumExtent,
+};
 
 export {
   adapterBathimetry,
@@ -79,6 +88,7 @@ export {
   computeSearchLinesFromCenters,
   computeStationPixelPositions,
   computeStationSearchLines,
+  curveToPolylinePoints,
   createSquare,
   DEFAULT_PERIOD_S,
   dateToStringDate,

@@ -5,28 +5,38 @@ import { AnalyzingProgress, HardModeProcessing } from './Components';
 import { useState } from 'react';
 import { TECHNIQUE_COLORS } from '../../constants/constants';
 import { LuEye, LuEyeOff } from 'react-icons/lu';
+import type { PreviewMode } from '../../store/ui/types';
 
 export const FormProcessing = ({
   extraFields,
   showMedian,
   setShowMedian,
-  stiMode,
-  setStiMode,
+  previewMode,
+  setPreviewMode,
   canToggleSti,
+  canToggleIwave,
   canToggleMedian,
 }: {
   extraFields: boolean;
   showMedian: boolean;
   setShowMedian: React.Dispatch<React.SetStateAction<boolean>>;
-  stiMode: boolean;
-  setStiMode: (value: boolean) => void;
+  previewMode: PreviewMode;
+  setPreviewMode: (value: PreviewMode) => void;
   canToggleSti: boolean;
+  canToggleIwave: boolean;
   canToggleMedian: boolean;
 }) => {
   const { t } = useTranslation();
   const { onSetErrorMessage } = useUiSlice();
-  const { isBackendWorking, processing, onSetQuiverTest, onSetQuiverAll, onKillBackend, onAddMask, onUpdateProcessing } =
-    useDataSlice();
+  const {
+    isBackendWorking,
+    processing,
+    onSetQuiverTest,
+    onSetQuiverAll,
+    onKillBackend,
+    onAddMask,
+    onUpdateProcessing,
+  } = useDataSlice();
   const { sections, activeSection, onUpdateSection } = useSectionSlice();
 
   const {
@@ -180,11 +190,11 @@ export const FormProcessing = ({
               </button>
               <button
                 type="button"
-                className={`technique-eye-btn${stiMode ? '' : ' technique-eye-btn-on'}`}
+                className={`technique-eye-btn${previewMode === 'frames' ? ' technique-eye-btn-on' : ''}`}
                 title={t('Processing.showLspivFrames')}
-                onClick={stiMode ? () => setStiMode(false) : undefined}
+                onClick={previewMode !== 'frames' ? () => setPreviewMode('frames') : undefined}
               >
-                {stiMode ? <LuEyeOff size={15} /> : <LuEye size={15} />}
+                {previewMode === 'frames' ? <LuEye size={15} /> : <LuEyeOff size={15} />}
               </button>
             </div>
             <div className="technique-row-processing">
@@ -200,13 +210,13 @@ export const FormProcessing = ({
               </label>
               <button
                 type="button"
-                className={`technique-eye-btn${stiMode ? ' technique-eye-btn-on' : ''}${
+                className={`technique-eye-btn${previewMode === 'sti' ? ' technique-eye-btn-on' : ''}${
                   canToggleSti ? '' : ' technique-eye-btn-off'
                 }`}
                 title={canToggleSti ? t('Processing.showStivStis') : t('Processing.noStisYet')}
-                onClick={canToggleSti && !stiMode ? () => setStiMode(true) : undefined}
+                onClick={canToggleSti && previewMode !== 'sti' ? () => setPreviewMode('sti') : undefined}
               >
-                {stiMode ? <LuEye size={15} /> : <LuEyeOff size={15} />}
+                {previewMode === 'sti' ? <LuEye size={15} /> : <LuEyeOff size={15} />}
               </button>
             </div>
             <div className="technique-row-processing">
@@ -222,10 +232,13 @@ export const FormProcessing = ({
               </label>
               <button
                 type="button"
-                className="technique-eye-btn technique-eye-btn-off"
-                title={t('Processing.iwaveNoPreview')}
+                className={`technique-eye-btn${previewMode === 'iwave' ? ' technique-eye-btn-on' : ''}${
+                  canToggleIwave ? '' : ' technique-eye-btn-off'
+                }`}
+                title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
+                onClick={canToggleIwave && previewMode !== 'iwave' ? () => setPreviewMode('iwave') : undefined}
               >
-                <LuEyeOff size={15} />
+                {previewMode === 'iwave' ? <LuEye size={15} /> : <LuEyeOff size={15} />}
               </button>
             </div>
 

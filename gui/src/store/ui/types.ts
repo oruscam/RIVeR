@@ -16,6 +16,9 @@ interface ScreenSizes {
   factorReduced?: number;
 }
 
+/** Which per-technique preview the Processing left panel is showing. */
+type PreviewMode = 'frames' | 'sti' | 'iwave';
+
 interface UIState {
   screenSizes: ScreenSizes;
   theme: ThemeType;
@@ -34,4 +37,4 @@ interface UIState {
   showInterrogationWindow: boolean;
 }
 
-export type { ScreenSizes, UIState, ThemeType };
+export type { ScreenSizes, UIState, ThemeType, PreviewMode };
