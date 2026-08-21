@@ -21,7 +21,7 @@ const visibilityField = (key: Technique): 'showLspiv' | 'showStiv' | 'showIwave'
  * technique itself is hidden — nothing to control for a series that isn't drawn.
  */
 export const TechniqueLegend = () => {
-  const { sections, activeSection, onSetActiveTechnique, onChangeDataValues } = useSectionSlice();
+  const { sections, activeSection, onSetActiveTechnique, onChangeDataValues, onUpdateSection } = useSectionSlice();
   const { t } = useTranslation();
   const section = sections[activeSection];
   const data = section?.data;
@@ -67,12 +67,14 @@ export const TechniqueLegend = () => {
               {label}
             </span>
             {key === 'lspiv' && (
-              <span
+              <button
+                type="button"
                 className={`technique-seed-flag${section.artificialSeeding ? ' technique-seed-flag-seeded' : ''}`}
                 title={section.artificialSeeding ? t('Results.seededHint') : t('Results.unseededHint')}
+                onClick={() => onUpdateSection({ artificialSeeding: 'artificial-seeding' }, undefined)}
               >
                 {t(section.artificialSeeding ? 'Results.seeded' : 'Results.unseeded')}
-              </span>
+              </button>
             )}
             {visible && (
               <span className="technique-band-glyphs">

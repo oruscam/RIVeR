@@ -180,6 +180,13 @@ svg .bar-stroke-themed {
     border: 1px solid var(--secondary-text-color);
     color: var(--secondary-text-color);
     white-space: nowrap;
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 0.14s ease;
+}
+
+.technique-seed-flag:hover {
+    background: var(--input-background);
 }
 
 /* Seeded = normal/positive state, takes the theme accent color; unseeded stays a neutral

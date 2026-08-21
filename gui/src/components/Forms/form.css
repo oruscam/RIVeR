@@ -263,15 +263,23 @@
 
 #result-info {
     display: flex;
-    align-self: flex-start;
-    margin-bottom: 30px;
-    padding-left: 60px;
+    align-items: center;
+    gap: 14px;
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0;
+}
+
+.result-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
 }
 
 #result-info #result-number {
     font-size: 2.2rem;
     font-weight: bold;
-    margin-right: 10px;
 }
 
 #result-measured {
@@ -350,41 +358,24 @@
 }
 
 /* Dracula theme: label text reflects toggle state (violet = on, muted = off) */
-[data-theme="dracula"] .switch-container p,
-[data-theme="dracula"] .switch-container-results p {
+[data-theme="dracula"] .switch-container p {
     color: var(--secondary-text-color);
     transition: color 0.2s ease;
 }
 
-[data-theme="dracula"] .switch-container:has(input:checked) p,
-[data-theme="dracula"] .switch-container-results:has(input:checked) p {
+[data-theme="dracula"] .switch-container:has(input:checked) p {
     color: var(--toggle-active-color);
 }
 
 /* Light theme: label text reflects toggle state (amber = on, muted = off) */
-[data-theme="light"] .switch-container p,
-[data-theme="light"] .switch-container-results p {
+[data-theme="light"] .switch-container p {
     color: var(--secondary-text-color);
     transition: color 0.2s ease;
 }
 
-[data-theme="light"] .switch-container:has(input:checked) p,
-[data-theme="light"] .switch-container-results:has(input:checked) p {
+[data-theme="light"] .switch-container:has(input:checked) p {
     color: var(--toggle-active-color);
 }
-
-.switch-container-results {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 65%;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 6px 10px;
-    border-radius: 20px;
-    transition: background-color 0.15s ease;
-}
-
 
 .btn-step {
     width: 26px;
@@ -422,7 +413,10 @@
 .all-in-one-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #apply-changes {
@@ -614,10 +608,16 @@
 }
 
 .divider-line {
+    display: block;
     width: 100%;
     height: 1px;
     background-color: var(--border-color);
-    align-self: center;
+}
+
+#form-result .divider-line {
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .mask-actions {
@@ -668,9 +668,7 @@
 }
 
 /* =============================================================================
-   RESULTS PANEL — zone titles, collapsed "Computation settings" disclosure,
-   alpha chip + popover. Reuses the app's existing .ib/.ldrop popup-panel spec
-   (radius, animation, shadow) rather than introducing a new one.
+   RESULTS PANEL — zone titles, alpha input, pill row.
    ============================================================================= */
 .zone-title {
     font-size: 13px;
@@ -678,98 +676,24 @@
     letter-spacing: 0.06em;
     color: var(--secondary-text-color);
     font-weight: 600;
-    margin-left: 82px;
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
     margin-bottom: 8px;
 }
 
-.disclosure {
-    width: 65%;
-    margin-left: auto;
-    margin-right: auto;
+.pill-alpha-label {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-text-color);
 }
 
-.disclosure summary {
-    cursor: pointer;
-    font-size: 16px;
-    color: var(--secondary-text-color);
-    list-style: none;
+.pill-row {
     display: flex;
     align-items: center;
     gap: 8px;
-    user-select: none;
-    padding: 6px 0;
-}
-
-.disclosure summary:hover {
-    color: var(--primary-text-color);
-}
-
-.disclosure summary::-webkit-details-marker {
-    display: none;
-}
-
-.disclosure summary .chev {
-    transition: transform 0.2s ease;
-}
-
-.disclosure[open] summary .chev {
-    transform: rotate(180deg);
-}
-
-.disclosure-body {
-    padding: 8px 2px 4px;
-}
-
-.alpha-wrap {
-    position: relative;
-}
-
-.alpha-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 14px;
-    border-radius: 20px;
-    background: var(--input-background);
-    color: var(--primary-text-color);
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: background-color 0.15s ease;
-}
-
-.alpha-chip:hover {
-    background: var(--secondary-input-background);
-}
-
-.alpha-popover {
-    position: absolute;
-    right: 0;
-    top: calc(100% + 8px);
-    transform-origin: top right;
-    transform: scaleY(0);
-    opacity: 0;
-    pointer-events: none;
-    transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.15s ease;
-    min-width: 220px;
-    padding: 14px;
-    border-radius: 13px;
-    border: 1px solid var(--input-background);
-    background: var(--secondary-background-color);
-    box-shadow: 0 14px 44px rgba(0, 0, 0, 0.45);
-    z-index: 20;
-}
-
-.alpha-popover.open {
-    transform: scaleY(1);
-    opacity: 1;
-    pointer-events: all;
-}
-
-.alpha-help {
-    color: var(--secondary-text-color);
-    margin-top: 10px;
-    line-height: 1.5;
-    font-size: 13px;
+    margin-top: 14px;
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
 }
