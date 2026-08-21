@@ -290,6 +290,27 @@ If you use RIVeR in your research, please cite:
     publisher={Elsevier}
 }
 ```
+
+RIVeR's **iWave** technique implements the image wave velocimetry method of Dolcetti et al., by way of
+the [IWaVE](https://github.com/DataForWater/IWaVE) package, which RIVeR bundles unmodified. If you use
+iWave results, please also cite:
+
+```bibtex
+@article{dolcetti2022noncontact,
+    title={Using Noncontact Measurement of Water Surface Dynamics to Estimate River Discharge},
+    author={Dolcetti, G. and Hortob{\'a}gyi, B. and Perks, M. and Tait, S. J. and Dervilis, N.},
+    journal={Water Resources Research},
+    volume={58},
+    number={9},
+    pages={e2022WR032829},
+    year={2022},
+    doi={10.1029/2022WR032829}
+}
+```
+
+See [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) for the licences of IWaVE and everything else
+RIVeR redistributes.
+
 ---
 ## 👥 Authors
 
@@ -311,7 +332,23 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 ---
 
 ## 📜 License
-RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0).
+RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-or-later).
+
+RIVeR redistributes third-party software inside its installers, including the
+[IWaVE](https://github.com/DataForWater/IWaVE) velocimetry package and static FFmpeg binaries. Their
+licences and copyright notices are listed in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
+
+The complete corresponding source for any released version is this repository, at the matching tag. For
+the source of a bundled third-party component, or a copy on physical media, write to `contact@orus.cam`.
+
+### Data and models
+
+- **Sample data** in `examples/data/` (videos, frames, bathymetry) is © UNC / CONICET / ORUS and is
+  released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- **Documentation images** in `river/docs/_static/` are © UNC / CONICET / ORUS, released under
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- **STIV model weights** in `river/core/stiv_model/` were trained on data from UNC / CONICET / ORUS and
+  are released under the same terms as RIVeR itself (AGPL-3.0-or-later).
 
 ---
 
@@ -324,3 +361,4 @@ RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (A
 
 - [WMO HydroHub](https://wmo.int/media/update/winner-of-wmo-hydrohub-innovation-call-latin-america-and-caribbean?book=21576): For funding the development of RIVeR 3 (2024-2025)
 - [PIVlab project](https://la.mathworks.com/matlabcentral/fileexchange/27659-pivlab-particle-image-velocimetry-piv-tool-with-gui): The pioneering PIV analysis tool that inspired aspects of RIVeR's development
+- [IWaVE](https://github.com/DataForWater/IWaVE) by Giulio Dolcetti (University of Trento), Salvador Peña-Haro and Hessel Winsemius, maintained under the [DataForWater](https://github.com/DataForWater) organisation: the image wave velocimetry engine behind RIVeR's iWave technique

@@ -26,6 +26,15 @@
       "to": "logo.png",
       "filter": ["**/*"]
     },
+    // Licence texts for bundled components that do not carry their own inside
+    // the artifact (ffmpeg binaries, Inter, tqdm), plus RIVeR's own LICENSE and
+    // THIRD-PARTY-LICENSES.md, which the build copies in from the repo root.
+    // See THIRD-PARTY-LICENSES.md.
+    {
+      "from": "licenses",
+      "to": "licenses",
+      "filter": ["**/*"]
+    },
   ],
   "mac": {
     "target": [
