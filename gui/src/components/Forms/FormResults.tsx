@@ -1,5 +1,5 @@
 import { useFormContext } from 'react-hook-form';
-import { useAutoShrinkFont, useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { AllInOne } from '../Graphs/AllInOne';
 import { Grid } from '../index';
 import { useTranslation } from 'react-i18next';
@@ -14,17 +14,11 @@ interface FormResultProps {
 export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   const { register, setValue } = useFormContext();
   const { sections, activeSection, onUpdateSection } = useSectionSlice();
-  const { name, data, numStations, alpha, artificialSeeding } = sections[activeSection];
+  const { name, data, alpha, artificialSeeding } = sections[activeSection];
   const { isBackendWorking } = useDataSlice();
-  const { onSetErrorMessage } = useUiSlice();
   const { projectDetails } = useProjectSlice();
 
   const { t } = useTranslation();
-
-  // All sections mount together and the inactive ones are hidden via a parent
-  // display:none — re-fit once this section actually becomes the visible one.
-  const isActiveSection = activeSection === index;
-  const stationNumberLabelRef = useAutoShrinkFont<HTMLLabelElement>([t, isActiveSection]);
 
   const isImperial = projectDetails.unitSistem === 'imperial';
   const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
@@ -42,14 +36,6 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
     }
   };
 
-  const handleStep = (delta: number) => {
-    const next = numStations + delta;
-    if (next >= 3) {
-      onUpdateSection({ numStations: next }, undefined);
-      setValue(`${name}_STATIONS_NUMBER`, next);
-    }
-  };
-
   const handleOnChangeInput = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
   ) => {
@@ -58,18 +44,6 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
       const value = parseFloat((event.target as HTMLInputElement).value);
       const id = (event.target as HTMLInputElement).id;
       switch (id) {
-        case 'stations-number':
-          if (isNaN(value) === false && value >= 3) {
-            if (value !== numStations) {
-              onUpdateSection({ numStations: value }, undefined);
-            }
-          } else {
-            setValue(`${name}_STATIONS_NUMBER`, numStations);
-            if (typeof value === 'number') {
-              onSetErrorMessage('The number of stations must be greater than 2');
-            }
-          }
-          break;
         case 'alpha':
           if (value !== 0 && value !== alpha && isNaN(value) === false) {
             onUpdateSection({ alpha: value }, undefined);
@@ -119,28 +93,6 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
               onKeyDown={handleOnChangeInput}
               onBlur={handleOnChangeInput}
             ></input>
-          </div>
-        </div>
-
-        <div className="input-container-2 mt-2">
-          <label ref={stationNumberLabelRef} className="read-only me-1" htmlFor="stations-number">
-            {t('Results.stationNumber')}
-          </label>
-          <div className="input-field-container" style={{ justifyContent: 'center', gap: '6px' }}>
-            <button type="button" className="btn-step" onClick={() => handleStep(-1)}>
-              −
-            </button>
-            <input
-              className="input-field-little"
-              type="number"
-              {...register(`${name}_STATIONS_NUMBER`)}
-              id="stations-number"
-              onKeyDown={handleOnChangeInput}
-              onBlur={handleOnChangeInput}
-            />
-            <button type="button" className="btn-step" onClick={() => handleStep(1)}>
-              +
-            </button>
           </div>
         </div>
 

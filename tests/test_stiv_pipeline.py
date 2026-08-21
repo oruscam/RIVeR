@@ -12,7 +12,6 @@ from river.core.stiv_pipeline import (
 	build_stis_for_cross_section,
 	central_tangent,
 	cross_z,
-	fuse_profiles,
 	preprocess_crop,
 	rot90_ccw,
 	run_stiv_analysis,
@@ -141,64 +140,6 @@ def test_theta_to_velocity_negative():
 
 
 # ---------------------------------------------------------------------------
-# Fusion
-# ---------------------------------------------------------------------------
-
-def test_fuse_profiles_both_valid():
-	stiv_v = np.array([1.0, 2.0])
-	stiv_sigma = np.array([0.1, 0.1])
-	stiv_valid = np.array([True, True])
-	lspiv_v = np.array([1.2, 1.8])
-	lspiv_spread = np.array([0.2, 0.2])
-	fused_v, fused_sigma, confidence = fuse_profiles(stiv_v, stiv_sigma, stiv_valid, lspiv_v, lspiv_spread)
-	# Fused must lie between the two inputs
-	for i in range(2):
-		lo = min(float(stiv_v[i]), float(lspiv_v[i]))
-		hi = max(float(stiv_v[i]), float(lspiv_v[i]))
-		assert lo - 1e-9 <= fused_v[i] <= hi + 1e-9
-	assert all(c in ("HIGH", "MEDIUM") for c in confidence)
-	assert len(fused_sigma) == 2
-
-
-def test_fuse_profiles_stiv_invalid():
-	fused_v, fused_sigma, confidence = fuse_profiles(
-		stiv_v=np.array([1.0]),
-		stiv_sigma=np.array([0.1]),
-		stiv_valid=np.array([False]),
-		lspiv_v=np.array([1.5]),
-		lspiv_spread=np.array([0.2]),
-	)
-	assert abs(fused_v[0] - 1.5) < 1e-9
-	assert confidence[0] == "MEDIUM"
-
-
-def test_fuse_profiles_nan_lspiv_no_nan_output():
-	"""When LSPIV is NaN (null station) but STIV is valid, fused must not be NaN."""
-	fused_v, fused_sigma, confidence = fuse_profiles(
-		stiv_v=np.array([0.57]),
-		stiv_sigma=np.array([0.1]),
-		stiv_valid=np.array([True]),
-		lspiv_v=np.array([float("nan")]),
-		lspiv_spread=np.array([float("nan")]),
-	)
-	assert not np.isnan(fused_v[0]), "fused_v must not be NaN when STIV is valid"
-	assert abs(fused_v[0] - 0.57) < 1e-6
-	assert confidence[0] == "MEDIUM"
-
-
-def test_fuse_profiles_lspiv_spread_too_high():
-	fused_v, fused_sigma, confidence = fuse_profiles(
-		stiv_v=np.array([1.0]),
-		stiv_sigma=np.array([0.1]),
-		stiv_valid=np.array([True]),
-		lspiv_v=np.array([1.5]),
-		lspiv_spread=np.array([2.0]),  # > LSPIV_SPREAD_THRESHOLD=1.0
-	)
-	assert abs(fused_v[0] - 1.0) < 1e-9
-	assert confidence[0] == "MEDIUM"
-
-
-# ---------------------------------------------------------------------------
 # Inference (requires torch)
 # ---------------------------------------------------------------------------
 
@@ -220,11 +161,13 @@ def test_profile_station_returns_tuple():
 	rng = np.random.default_rng(0)
 	# 301 rows × 50 frames synthetic STI with slight diagonal signal
 	sti = rng.random((50, 50)).astype(np.float32) * 0.5
-	v, sigma, sign = profile_station(
+	v, sigma, sign, angle = profile_station(
 		sti, angle_model, norm_params, sign_model, sign_tsz,
 		seconds_per_pix=0.1, meters_per_pix=0.02,
 	)
 	assert sign in ("positive", "negative", "zero")
+	if v is not None:
+		assert isinstance(angle, float)
 	if v is not None:
 		assert isinstance(v, float)
 		assert sigma is not None and sigma >= 0.0
@@ -260,12 +203,7 @@ def test_run_stiv_analysis_adds_keys():
 		)
 
 	cs_result = result["CS_default_1"]
-	for key in (
-		"stiv_velocity_profile",
-		"stiv_sigma_profile",
-		"stiv_sign_profile",
-		"fused_velocity_profile",
-		"fusion_confidence_profile",
-	):
-		assert key in cs_result, f"Missing key: {key}"
-		assert len(cs_result[key]) == 3, f"{key}: expected len 3, got {len(cs_result[key])}"
+	for key in ("stiv_velocity_profile", "stiv_sigma_profile", "stiv_angle_profile", "stiv_sign_profile"):
+		assert key in cs_result
+	for key in ("fused_velocity_profile", "fused_sigma_profile", "fusion_confidence_profile", "Q_fused"):
+		assert key not in cs_result

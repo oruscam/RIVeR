@@ -1506,9 +1506,12 @@ def update_current_x_section(
         existing_cache = x_sections[current_x_section].get("_stats_cache")
 
         if existing_cache and existing_cache.get("geometry_hash") == geometry_hash:
-            streamwise_vel_frames = np.array(existing_cache["streamwise_vel_frames"])
-            gradient_frames = np.array(existing_cache["gradient_frames"])
-            dense_distances = np.array(existing_cache["dense_distances"])
+            # dtype=float64 is required: NaN values in the cache round-trip through the
+            # Electron layer as JSON null (JSON has no NaN), which np.array() would
+            # otherwise load as dtype=object instead of coercing back to nan.
+            streamwise_vel_frames = np.array(existing_cache["streamwise_vel_frames"], dtype=np.float64)
+            gradient_frames = np.array(existing_cache["gradient_frames"], dtype=np.float64)
+            dense_distances = np.array(existing_cache["dense_distances"], dtype=np.float64)
         else:
             streamwise_vel_frames, gradient_frames = _compute_stats_cache(
                 piv_results,

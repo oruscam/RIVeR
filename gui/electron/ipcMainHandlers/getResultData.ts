@@ -107,7 +107,7 @@ async function getResultData(riverCli: RiverCli) {
 
     let updatedSections = {};
 
-    const { step, fps, numSections } = args;
+    const { step, fps, numSections, numStationsList } = args;
 
     let finalData = null;
     let finalError = null;
@@ -121,6 +121,8 @@ async function getResultData(riverCli: RiverCli) {
         parseFloat(fps),
         '--id-section',
         i,
+        '--num-stations',
+        numStationsList[i],
         '--interpolate',
         xSections,
         pivResults,

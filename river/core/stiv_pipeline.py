@@ -1,4 +1,4 @@
-"""STIV pipeline: STI building, angle+sign inference, and LSPIV fusion."""
+"""STIV pipeline: STI building and angle+sign inference."""
 from __future__ import annotations
 
 import json
@@ -20,8 +20,12 @@ RW_STEP_M = 0.02
 TTA_PASSES = 8
 STRIDE_FRAC = 0.25
 SIGMA_FLOOR = 0.05
-STIV_SIGMA_THRESHOLD = 0.5
-LSPIV_SPREAD_THRESHOLD = 1.0
+STIV_COLUMNS = [
+	"stiv_velocity_profile",
+	"stiv_sigma_profile",
+	"stiv_angle_profile",
+	"stiv_sign_profile",
+]
 
 _MODEL_DIR = Path(__file__).parent / "stiv_model"
 
@@ -324,15 +328,15 @@ def profile_station(
 	sign_target_size: int,
 	seconds_per_pix: float,
 	meters_per_pix: float,
-) -> tuple[Optional[float], Optional[float], str]:
+) -> tuple[Optional[float], Optional[float], str, Optional[float]]:
 	"""Run full sliding-window inference on one station's STI.
 
-	Returns (velocity_m_s, sigma_v, sign_label).
-	velocity and sigma are None if the STI is degenerate (all-zero after NaN fill).
+	Returns (velocity_m_s, sigma_v, sign_label, angle_deg).
+	velocity, sigma, and angle are None if the STI is degenerate (all-zero after NaN fill).
 	"""
 	sti_clean = np.nan_to_num(sti.astype(np.float32), nan=0.0)
 	if sti_clean.max() == sti_clean.min():
-		return None, None, "zero"
+		return None, None, "zero", None
 
 	H, W = sti_clean.shape
 	arr_f32 = preprocess_crop(sti_clean)
@@ -375,64 +379,7 @@ def profile_station(
 	nz_signs = [s for s in signs if s != "zero"]
 	sign_majority = Counter(nz_signs).most_common(1)[0][0] if nz_signs else "zero"
 
-	return velocity, sigma_v, sign_majority
-
-
-# ---------------------------------------------------------------------------
-# Fusion
-# ---------------------------------------------------------------------------
-
-def fuse_profiles(
-	stiv_v: np.ndarray,
-	stiv_sigma: np.ndarray,
-	stiv_valid: np.ndarray,
-	lspiv_v: np.ndarray,
-	lspiv_spread: np.ndarray,
-) -> tuple[np.ndarray, list[str]]:
-	"""Inverse-variance fusion of STIV and LSPIV velocity profiles.
-
-	Returns (fused_v, confidence_labels) where confidence_labels are
-	'HIGH', 'MEDIUM', 'LOW', or 'PRIOR_ONLY' per station.
-	"""
-	n = len(stiv_v)
-	fused_v = np.zeros(n, dtype=float)
-	fused_sigma = np.full(n, np.nan, dtype=float)
-	confidence = []
-
-	for i in range(n):
-		stiv_ok = bool(stiv_valid[i]) and (float(stiv_sigma[i]) <= STIV_SIGMA_THRESHOLD)
-		lspiv_ok = float(lspiv_spread[i]) <= LSPIV_SPREAD_THRESHOLD
-
-		w_s = 1.0 / max(float(stiv_sigma[i]), SIGMA_FLOOR) ** 2 if stiv_ok else 0.0
-		w_l = 1.0 / max(float(lspiv_spread[i]), SIGMA_FLOOR) ** 2 if lspiv_ok else 0.0
-		total_w = w_s + w_l
-
-		if total_w > 0:
-			fused_v[i] = (
-				(w_s * float(stiv_v[i]) if stiv_ok else 0.0)
-				+ (w_l * float(lspiv_v[i]) if lspiv_ok else 0.0)
-			) / total_w
-			fused_sigma[i] = 1.0 / total_w ** 0.5
-		else:
-			vals = []
-			if bool(stiv_valid[i]):
-				vals.append(float(stiv_v[i]))
-			if not np.isnan(float(lspiv_v[i])):
-				vals.append(float(lspiv_v[i]))
-			fused_v[i] = float(np.mean(vals)) if vals else 0.0
-			fused_sigma[i] = max(float(stiv_sigma[i]), float(lspiv_spread[i]))
-
-		if stiv_ok and lspiv_ok:
-			conf = "HIGH" if fused_sigma[i] < 0.1 else "MEDIUM"
-		elif stiv_ok or lspiv_ok:
-			conf = "MEDIUM"
-		elif bool(stiv_valid[i]) or not np.isnan(float(lspiv_v[i])):
-			conf = "LOW"
-		else:
-			conf = "PRIOR_ONLY"
-		confidence.append(conf)
-
-	return fused_v, fused_sigma, confidence
+	return velocity, sigma_v, sign_majority, wmean
 
 
 # ---------------------------------------------------------------------------
@@ -463,22 +410,15 @@ def plot_stiv_results(cs: dict, section_name: str, output_path: str) -> None:
 
 	stiv_v      = _nanlist("stiv_velocity_profile")
 	stiv_sig    = _nanlist("stiv_sigma_profile", 0.0)
-	fused_v     = _nanlist("fused_velocity_profile")
-	fused_sig   = _nanlist("fused_sigma_profile", 0.0)
-	confidence  = cs.get("fusion_confidence_profile", ["PRIOR_ONLY"] * n)
 	signs       = cs.get("stiv_sign_profile", ["zero"] * n)
-	q_fused_arr = _nanlist("Q_fused")
 
 	total_Q          = cs.get("total_Q", float("nan"))
 	total_q_std      = cs.get("total_q_std", float("nan"))
-	total_Q_fused    = cs.get("total_Q_fused", float("nan"))
-	total_Q_fused_sigma = cs.get("total_Q_fused_sigma", float("nan"))
 	mean_V    = cs.get("mean_V", float("nan"))
 	total_W   = cs.get("total_W", float("nan"))
 	max_depth = cs.get("max_depth", float("nan"))
 	alpha     = cs.get("alpha", float("nan"))
 
-	CONF_COLOR = {"HIGH": "#2ca02c", "MEDIUM": "#ff7f0e", "LOW": "#d62728", "PRIOR_ONLY": "#9467bd"}
 	SIGN_MARKER = {"positive": "^", "negative": "v", "zero": "o"}
 
 	fig = plt.figure(figsize=(14, 10))
@@ -509,21 +449,11 @@ def plot_stiv_results(cs: dict, section_name: str, output_path: str) -> None:
 				label=f"STIV ({sign_label})" if mask.any() else None, zorder=5,
 			)
 
-	# Fused — 90 % CI band (±1.645 σ) then median line + confidence-coloured dots
-	CI = 1.645
-	ax_v.fill_between(dist, fused_v - CI * fused_sig, fused_v + CI * fused_sig,
-	                  alpha=0.20, color="#5c3d82", label="Fused 90 % CI")
-	ax_v.plot(dist, fused_v, "-", color="#5c3d82", lw=2.5, zorder=6, label="Fused median")
-	for i, (d, v, c) in enumerate(zip(dist, fused_v, confidence)):
-		ax_v.scatter(d, v, color=CONF_COLOR.get(c, "gray"), s=70, zorder=7, edgecolors="white", lw=0.5)
-
 	ax_v.set_ylabel("Velocity (m/s)", fontsize=11)
 	ax_v.grid(True, alpha=0.3)
-	q_fused_str = f"{total_Q_fused:.2f} ± {CI * total_Q_fused_sigma:.2f}" if not np.isnan(total_Q_fused) else "—"
 	ax_v.set_title(
 		f"{section_name}\n"
 		f"Q LSPIV = {total_Q:.2f} ± {total_q_std:.2f} m³/s   |   "
-		f"Q fused = {q_fused_str} m³/s (90 % CI)   |   "
 		f"W = {total_W:.1f} m   max depth = {max_depth:.2f} m   α = {alpha}",
 		fontsize=9,
 	)
@@ -533,16 +463,12 @@ def plot_stiv_results(cs: dict, section_name: str, output_path: str) -> None:
 		Line2D([0], [0], color="steelblue", lw=2, marker="o", label="LSPIV"),
 		mpatches.Patch(color="steelblue", alpha=0.25, label="LSPIV ±std / 5–95th"),
 		Line2D([0], [0], color="tomato", lw=1.2, marker="s", label="STIV ±σ"),
-		Line2D([0], [0], color="#5c3d82", lw=2.5, label="Fused median"),
-		mpatches.Patch(color="#5c3d82", alpha=0.25, label="Fused 90 % CI"),
 	]
-	conf_patches = [mpatches.Patch(color=c, label=lbl) for lbl, c in CONF_COLOR.items()]
-	ax_v.legend(handles=legend_lines + conf_patches, fontsize=8, ncol=4, loc="upper left")
+	ax_v.legend(handles=legend_lines, fontsize=8, ncol=3, loc="upper left")
 
-	# ── Unit discharge panel — LSPIV bars + fused line ──────────────────────
+	# ── Unit discharge panel — LSPIV bars ──────────────────────
 	bar_w = np.diff(dist).mean() * 0.4
-	ax_q.bar(dist - bar_w / 2, q_arr, width=bar_w, color="steelblue", alpha=0.7, label="q LSPIV")
-	ax_q.bar(dist + bar_w / 2, q_fused_arr, width=bar_w, color="#5c3d82", alpha=0.7, label="q fused")
+	ax_q.bar(dist, q_arr, width=bar_w, color="steelblue", alpha=0.7, label="q LSPIV")
 	q_minus = _nanlist("Q_minus_std")
 	q_plus  = _nanlist("Q_plus_std")
 	ax_q.fill_between(dist, q_minus, q_plus, alpha=0.15, color="steelblue")
@@ -584,11 +510,11 @@ def run_stiv_analysis(
 	height_roi_m: float = 6.0,
 	stis_dir: Optional[str] = None,
 	plot_path: Optional[str] = None,
+	models: Optional[tuple] = None,
 ) -> dict:
 	"""Run STIV analysis for the current cross-section and return updated xsections.
 
-	Adds 5 new per-station lists: stiv_velocity_profile, stiv_sigma_profile,
-	stiv_sign_profile, fused_velocity_profile, fusion_confidence_profile.
+	Adds 4 new per-station lists: stiv_velocity_profile (signed streamwise, m/s), stiv_sigma_profile, stiv_angle_profile (degrees), stiv_sign_profile.
 	If stis_dir is provided, each STI is saved as sti_<station_id>.npy in that directory.
 	"""
 	section_keys = [k for k in xsections if k != "summary"]
@@ -606,7 +532,7 @@ def run_stiv_analysis(
 			img = ((arr - amin) / (amax - amin + 1e-12) * 255).astype(np.uint8)
 			cv2.imwrite(str(out / f"sti_{sid}.png"), img)
 
-	angle_model, norm_params, sign_model, sign_tsz = load_models()
+	angle_model, norm_params, sign_model, sign_tsz = models if models is not None else load_models()
 
 	seconds_per_pix = step / float(fps)
 	meters_per_pix = RW_STEP_M
@@ -617,12 +543,13 @@ def run_stiv_analysis(
 	stiv_sigma_arr = np.full(n, SIGMA_FLOOR, dtype=float)
 	stiv_valid_arr = np.zeros(n, dtype=bool)
 	stiv_sign_list = ["zero"] * n
+	stiv_angle_list: list[Optional[float]] = [None] * n
 
 	for idx, sid in enumerate(ids):
 		sti = stis.get(sid)
 		if sti is None:
 			continue
-		v, sigma, sign = profile_station(
+		v, sigma, sign, angle = profile_station(
 			sti, angle_model, norm_params, sign_model, sign_tsz,
 			seconds_per_pix, meters_per_pix,
 		)
@@ -630,22 +557,8 @@ def run_stiv_analysis(
 			stiv_v_arr[idx] = v
 			stiv_sigma_arr[idx] = sigma if sigma is not None else SIGMA_FLOOR
 			stiv_valid_arr[idx] = True
+			stiv_angle_list[idx] = float(angle)
 		stiv_sign_list[idx] = sign
-
-	lspiv_v = np.array(cs.get("streamwise_velocity_magnitude", [0.0] * n), dtype=float)
-	plus_std = np.array(cs.get("plus_std", [LSPIV_SPREAD_THRESHOLD + 1] * n), dtype=float)
-	minus_std = np.array(cs.get("minus_std", [0.0] * n), dtype=float)
-	lspiv_spread = (plus_std - minus_std) / 2.0
-
-	fused_v, fused_sigma, confidence = fuse_profiles(stiv_v_arr, stiv_sigma_arr, stiv_valid_arr, lspiv_v, lspiv_spread)
-
-	# Discharge from fused profile: Q_fused = alpha * Σ fused_v[i] * A[i]
-	alpha = float(cs.get("alpha", 0.85))
-	area_arr = np.array(cs.get("A", [0.0] * n), dtype=float)
-	q_fused_arr = alpha * fused_v * area_arr
-	q_fused_sigma_arr = alpha * fused_sigma * area_arr
-	total_Q_fused = float(np.nansum(q_fused_arr))
-	total_Q_fused_sigma = float(np.sqrt(np.nansum(q_fused_sigma_arr ** 2)))
 
 	xsections[current_key]["stiv_velocity_profile"] = [
 		float(stiv_v_arr[i]) if stiv_valid_arr[i] else None for i in range(n)
@@ -654,12 +567,7 @@ def run_stiv_analysis(
 		float(stiv_sigma_arr[i]) if stiv_valid_arr[i] else None for i in range(n)
 	]
 	xsections[current_key]["stiv_sign_profile"] = stiv_sign_list
-	xsections[current_key]["fused_velocity_profile"] = fused_v.tolist()
-	xsections[current_key]["fused_sigma_profile"] = fused_sigma.tolist()
-	xsections[current_key]["fusion_confidence_profile"] = confidence
-	xsections[current_key]["Q_fused"] = q_fused_arr.tolist()
-	xsections[current_key]["total_Q_fused"] = total_Q_fused
-	xsections[current_key]["total_Q_fused_sigma"] = total_Q_fused_sigma
+	xsections[current_key]["stiv_angle_profile"] = stiv_angle_list
 
 	if plot_path is not None:
 		plot_stiv_results(xsections[current_key], current_key, plot_path)
