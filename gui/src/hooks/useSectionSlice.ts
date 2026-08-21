@@ -23,6 +23,7 @@ import {
   setTransformationMatrix,
   setDefaultSectionState,
   setSectionWorking,
+  clearResults,
 } from '../store/section/sectionSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
@@ -84,6 +85,16 @@ export const useSectionSlice = () => {
     // Clean section points for better visualization.
     onUpdateSectionPoints([]);
     dispatch(setHasChanged({ value: true }));
+
+    // Moving a marker changes the geometry every downstream result was computed
+    // from, so those results are now wrong. Drop them here rather than waiting
+    // for the next run: until they are cleared the UI keeps rendering them as
+    // if they described the new geometry — most visibly the station search
+    // lines, which take their positions from data.east/data.north and would
+    // otherwise stay pinned where the markers used to be.
+    // The mask and ROI height are rebuilt from ALL sections in onSetSections,
+    // which is why this invalidates every section's results, not just this one.
+    dispatch(clearResults());
 
     /**
      * The flags are used to avoid unnecessary calculations.
@@ -812,13 +823,6 @@ export const useSectionSlice = () => {
     dispatch(setSectionPoints({ points: sectionPoints, index }));
   };
 
-  const onCleanSectionsData = () => {
-    sections.map((section, index) => {
-      if (index === 0) return;
-      dispatch(updateSection({ ...section, data: undefined }));
-    });
-  };
-
   const onSetDefaultSectionState = () => {
     dispatch(setDefaultSectionState());
   };
@@ -841,7 +845,6 @@ export const useSectionSlice = () => {
 
     onAddSection,
     onChangeDataValues,
-    onCleanSectionsData,
     onDeleteSection,
     onGetBathimetry,
     onSetDefaultSectionState,
