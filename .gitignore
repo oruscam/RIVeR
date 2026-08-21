@@ -203,3 +203,4 @@ CLAUDE.md
 docs/superpowers/
 snapshots/
 .superpowers/
+.worktrees/

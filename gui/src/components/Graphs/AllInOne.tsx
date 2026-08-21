@@ -293,6 +293,7 @@ export const AllInOne = ({
     data,
     index,
     screenWidth,
+    width,
     theme,
     unitSistem,
     language,

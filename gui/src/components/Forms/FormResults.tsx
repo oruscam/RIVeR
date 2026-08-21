@@ -5,9 +5,10 @@ import { AllInOne } from '../Graphs/AllInOne';
 import { TechniqueLegend } from '../Graphs/TechniqueLegend';
 import { Grid } from '../index';
 import { useTranslation } from 'react-i18next';
-import { LuChevronDown, LuSpline, LuWand2 } from 'react-icons/lu';
+import { LuSpline } from 'react-icons/lu';
 import { UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 import { getEffectiveTechniqueData } from '../../helpers';
+import '../CustomIcons/piv-icons.css';
 
 interface FormResultProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void;
@@ -23,17 +24,19 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
 
   const { t } = useTranslation();
 
-  const [alphaOpen, setAlphaOpen] = useState(false);
-  const alphaRef = useRef<HTMLDivElement>(null);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [chartWidth, setChartWidth] = useState<number | undefined>(undefined);
 
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (alphaRef.current && !alphaRef.current.contains(e.target as Node)) {
-        setAlphaOpen(false);
+    const el = chartContainerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setChartWidth(entry.contentRect.width);
       }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   const isImperial = projectDetails.unitSistem === 'imperial';
@@ -45,16 +48,9 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   const displayQ =
     effective?.total_Q != null
       ? isImperial
-        ? (effective.total_Q * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(3)
-        : effective.total_Q.toFixed(3)
+        ? (effective.total_Q * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(2)
+        : effective.total_Q.toFixed(2)
       : null;
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const id = e.target.id;
-    if (id === 'artificial-seeding') {
-      onUpdateSection({ artificialSeeding: 'artificial-seeding' }, undefined);
-    }
-  };
 
   const handleOnChangeInput = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
@@ -70,7 +66,6 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
           } else {
             setValue(`${name}_ALPHA`, alpha);
           }
-          onUpdateSection({ alpha: value }, undefined);
           break;
 
         default:
@@ -92,116 +87,65 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
       <form className={`${isBackendWorking ? 'disabled' : ''}`} onSubmit={onSubmit} id="form-result">
         {/* ZONE A — RESULT */}
         <div id="result-info">
-          <p id="result-number">
-            {displayQ} <span style={{ fontSize: '0.45em', opacity: 0.7 }}>{flowUnit}</span>
-          </p>
-          <div>
-            <p id="result-measured">
-              {' '}
-              {((effective?.measured_Q ?? 0) * 100).toFixed(1)}% {t('Results.measured')}
+          <button
+            type="button"
+            className={hasGaps ? `ib${interpolated ? ' active' : ''}` : 'ib ib-off'}
+            title={
+              hasGaps
+                ? t('Results.interpolateProfile')
+                : t('Results.interpolateProfileDisabled', { technique: activeTechniqueLabel })
+            }
+            aria-label={
+              hasGaps
+                ? t('Results.interpolateProfile')
+                : t('Results.interpolateProfileDisabled', { technique: activeTechniqueLabel })
+            }
+            onClick={hasGaps ? handleInterpolateToggle : undefined}
+          >
+            <LuSpline size={20} />
+          </button>
+          <div className="result-value-row">
+            <p id="result-number">
+              {displayQ} <span style={{ fontSize: '0.45em', opacity: 0.7 }}>{flowUnit}</span>
             </p>
-            <p>
-              {' '}
-              {((effective?.interpolated_Q ?? 0) * 100).toFixed(1)}% {t('Results.interpolated')}{' '}
-            </p>
+            <div>
+              <p id="result-measured">
+                {' '}
+                {((effective?.measured_Q ?? 0) * 100).toFixed(1)}% {t('Results.measured')}
+              </p>
+              <p>
+                {' '}
+                {((effective?.interpolated_Q ?? 0) * 100).toFixed(1)}% {t('Results.interpolated')}{' '}
+              </p>
+            </div>
           </div>
         </div>
 
         <span className="divider-line mt-2 mb-1" />
 
         {/* ZONE B — COMPUTATION */}
-        <h3 className="zone-title">{t('Results.computation')}</h3>
-        <div
-          className="switch-container-results"
-          style={{
-            width: 'auto',
-            margin: '0 auto',
-            cursor: hasGaps ? 'pointer' : 'not-allowed',
-            gap: '8px',
-            opacity: hasGaps ? 1 : 0.4,
-          }}
-          onClick={hasGaps ? handleInterpolateToggle : undefined}
-          title={hasGaps ? '' : t('Results.interpolateProfileDisabled', { technique: activeTechniqueLabel })}
-        >
-          <LuSpline size={15} color={interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)'} />
-          <span
-            style={{
-              fontSize: '13px',
-              color: interpolated ? 'var(--accent-color)' : 'var(--secondary-text-color)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {t('Results.interpolateProfile')}
-          </span>
-          <label className="switch" style={{ marginLeft: '6px' }} onClick={(e) => e.stopPropagation()}>
-            <input
-              type="checkbox"
-              checked={interpolated}
-              onChange={hasGaps ? handleInterpolateToggle : undefined}
-              disabled={!hasGaps}
-            />
-            <span className="slider"></span>
+        <div className="pill-row">
+          <label className="pill-alpha-label" htmlFor="alpha">
+            α
           </label>
+          <input
+            className="input-field-little"
+            id="alpha"
+            type="number"
+            step="any"
+            {...register(`${name}_ALPHA`)}
+            onKeyDown={handleOnChangeInput}
+            onBlur={handleOnChangeInput}
+          />
         </div>
-
-        <details className="disclosure mt-1">
-          <summary>
-            <LuChevronDown className="chev" size={13} />
-            {t('Results.computationSettings')}
-          </summary>
-          <div className="disclosure-body">
-            <div className="input-container-2">
-              <label className="read-only me-1" htmlFor="alpha">
-                {t('Results.alpha')}
-              </label>
-              <div className="alpha-wrap" ref={alphaRef}>
-                <button type="button" className="alpha-chip" onClick={() => setAlphaOpen((v) => !v)}>
-                  α {alpha.toFixed(2)}
-                </button>
-                <div className={`alpha-popover${alphaOpen ? ' open' : ''}`}>
-                  <div className="input-field-container">
-                    <input
-                      className="input-field-little"
-                      id="alpha"
-                      type="number"
-                      step="any"
-                      {...register(`${name}_ALPHA`)}
-                      onKeyDown={handleOnChangeInput}
-                      onBlur={handleOnChangeInput}
-                    ></input>
-                  </div>
-                  <p className="alpha-help">{t('Results.alphaHelp')}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="switch-container-results mt-1">
-              <h3 className="field-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <LuWand2 size={15} />
-                {t('Processing.artificialSeeding')}
-              </h3>
-              <label className="switch">
-                <input
-                  type="checkbox"
-                  {...register(`${name}_ARTIFICIAL_SEEDING`)}
-                  id="artificial-seeding"
-                  onChange={handleOnChange}
-                  defaultChecked={artificialSeeding}
-                />
-                <span className="slider"></span>
-              </label>
-            </div>
-          </div>
-        </details>
 
         <span className="divider-line mt-2 mb-1" />
 
         {/* ZONE C — DISPLAY */}
-        <h3 className="zone-title">{t('Results.display')}</h3>
         <TechniqueLegend />
 
-        <div className="mt-1 all-in-one-container" style={{ width: '100%', height: '720px' }}>
-          <AllInOne isReport={false} height={700} />
+        <div className="mt-1 all-in-one-container" ref={chartContainerRef} style={{ height: '720px' }}>
+          <AllInOne isReport={false} height={700} width={chartWidth} />
         </div>
 
         <span className="divider-line mt-2 mb-1" />
