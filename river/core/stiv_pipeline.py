@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 from collections import Counter
 from pathlib import Path
 from typing import Callable, Optional
@@ -567,6 +568,8 @@ def run_stiv_analysis(
 
 	if stis_dir is not None:
 		out = Path(stis_dir)
+		if out.exists():
+			shutil.rmtree(out)
 		out.mkdir(parents=True, exist_ok=True)
 		for sid, sti in stis.items():
 			arr = np.nan_to_num(sti.astype(np.float32), nan=0.0)

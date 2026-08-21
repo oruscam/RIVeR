@@ -550,6 +550,19 @@ export const useSectionSlice = () => {
       updatedSection.extraFields = false;
     }
 
+    // num_stations and alpha are the two fields here that adapterCrossSections writes
+    // into xsections.json, and that write only happens via set-sections — which
+    // onSetSections skips wholesale when no section is flagged as changed. Without
+    // flagging, the new value lives in the store but never reaches the file, so the
+    // next Analize runs `--num-stations <new>` against an xsections.json still holding
+    // the old count and its old-length per-station arrays. Moving a bank point was the
+    // only way to set this flag, which is why nudging one "fixed" the error.
+    // interpolated/artificialSeeding are deliberately excluded: they reach the backend
+    // as CLI flags, not through xsections.json.
+    if (value.numStations !== undefined || value.alpha !== undefined) {
+      dispatch(setHasChanged({ value: true }));
+    }
+
     dispatch(updateSection(updatedSection));
   };
 

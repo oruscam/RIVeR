@@ -169,6 +169,7 @@ async function createOptions(
     removeBackground ? '--filter-sub-background' : '',
     '--step', step,
     '--fps', fps,
+    ...(heightRoi > 0 ? ['--height-roi-stiv', heightRoi] : []),
     ...numStationsList.flatMap((ns: number) => ['--num-stations', ns]),
     stiv ? '--stiv' : '--no-stiv',
     iwave ? '--iwave' : '--no-iwave',

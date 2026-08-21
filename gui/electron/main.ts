@@ -27,6 +27,7 @@ import {
   setControlPoints,
   setProjectMetadata,
   getResultData,
+  getStis,
   loadResults,
   createMaskAndBbox,
   recommendRoiHeight,
@@ -222,6 +223,7 @@ app.whenReady().then(async () => {
   getPoints();
   getQuiver(riverCli);
   getResultData(riverCli);
+  getStis();
   getVideo();
   initProject();
   loadProject();

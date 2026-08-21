@@ -134,6 +134,15 @@ async function getBathimetry() {
         })
         .filter((row: any) => !isNaN(row.x) && !isNaN(row.y));
 
+      // The Python backend's load_bathymetry() reads the profile with
+      // `data.get_col(0)[1:]` — it discards the first row unconditionally, header or
+      // not. Our own parse drops a header implicitly (it keeps only numeric rows), so
+      // the count difference is how we know whether the source had one. Any file we
+      // hand to the backend must carry a header row; otherwise the first real point —
+      // typically the left water edge — is silently eaten, which shrinks the wetted
+      // width and relocates every station.
+      const hadHeaderRow = validRows.length > line.length;
+
       // Convert ft -> m when the user is working in imperial units.
       // The store and any file consumed by the Python backend must always be SI.
       if (isImperial) {
@@ -184,12 +193,17 @@ async function getBathimetry() {
       // and re-wrote ourselves is guaranteed to match what tablib will read.
       const isSourceCsv = bathimetryExt.toLowerCase() === '.csv';
       let newFilePath = bathPath;
-      if (changed || needsNormalization || isImperial || !isSourceCsv) {
+      if (changed || needsNormalization || isImperial || !isSourceCsv || !hadHeaderRow) {
         // Generate a new file name with _modified.csv suffix (always CSV for Python compatibility)
         newFilePath = join(PROJECT_CONFIG.projectDirectory, basename(bathPath, bathimetryExt) + '_modified.csv');
 
-        // Write as plain CSV: "x,y" rows, no header
-        const csvContent = newLine.map((row: { x: number; y: number }) => `${row.x},${row.y}`).join('\n');
+        // Write as plain CSV: a header row followed by "x,y" data rows. The header is
+        // required — the backend always skips the first row, so writing the data
+        // headerless would cost us the first station (see hadHeaderRow above).
+        const csvContent = [
+          'station,stage',
+          ...newLine.map((row: { x: number; y: number }) => `${row.x},${row.y}`),
+        ].join('\n');
         await fs.promises.writeFile(newFilePath, csvContent, 'utf-8');
 
         console.log(`New CSV file created: ${newFilePath}`);

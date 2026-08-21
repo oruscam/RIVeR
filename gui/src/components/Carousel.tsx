@@ -5,12 +5,7 @@ import { MODULE_NUMBER } from '../constants/constants';
 import { FixedSizeList as List } from 'react-window';
 import { carouselClickImage, carouselKeyDown } from '../helpers';
 import { useTranslation } from 'react-i18next';
-import {
-  carouselMediaClick,
-  carouselMouseDown,
-  carouselMouseUp,
-  setCarouselDimensions,
-} from '../helpers/carouselFunctions';
+import { carouselMouseDown, carouselMouseUp, setCarouselDimensions } from '../helpers/carouselFunctions';
 import { back, play as next } from '../assets/icons/icons';
 import { Icon } from './Icon';
 
@@ -140,16 +135,6 @@ export const Carousel: React.FC<CarouselProps> = ({
     <div ref={containerRef} className={`carousel-container mt-1 ${isBackendWorking ? 'disabled' : ''}`}>
       <div className="carousel-resize-handle" onMouseDown={onDragHandleMouseDown} />
       <div className="carousel-info">
-        {activeStep === MODULE_NUMBER.PROCESSING && (
-          <button
-            className={`wizard-button ${showMedian ? 'wizard-button-active' : ''}`}
-            onClick={() => carouselMediaClick(setShowMedian)}
-            disabled={!canToggleMedian}
-          >
-            {' '}
-            {t('Processing.carouselMedia')}{' '}
-          </button>
-        )}
         {/* Pixel Size reuses the same showMedian/setShowMedian/canToggleMedian wiring to
             toggle the stabilization sanity-check image instead of a median composite. */}
         {activeStep === MODULE_NUMBER.PIXEL_SIZE && canToggleMedian && (
