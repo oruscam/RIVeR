@@ -16,8 +16,103 @@ from numba import jit
 from scipy.interpolate import griddata
 from tablib import Dataset
 
+import hashlib
+
 import river.core.coordinate_transform as ct
 from river.core.exceptions import NotSupportedFormatError
+
+N_CACHE_POINTS = 200
+
+
+def _compute_geometry_hash(
+    east_l: float,
+    north_l: float,
+    east_r: float,
+    north_r: float,
+    level: float,
+    left_station: float,
+    step: int,
+    fps: float,
+    transformation_matrix,
+) -> str:
+    # Note: bathymetry file content is not hashed — changes to the bath file
+    # without changing bank coords or level will not invalidate the cache.
+    tm_flat = ",".join(str(v) for v in np.array(transformation_matrix).flatten())
+    data = f"{east_l},{north_l},{east_r},{north_r},{level},{left_station},{step},{fps},{tm_flat}"
+    return hashlib.md5(data.encode()).hexdigest()
+
+
+def _compute_stats_cache(
+    piv_results: dict,
+    transformation_matrix: np.ndarray,
+    rw_to_xsection: np.ndarray,
+    dense_east: np.ndarray,
+    dense_north: np.ndarray,
+    time_between_frames: float,
+) -> tuple[np.ndarray, np.ndarray]:
+    xtable = np.asarray(piv_results["x"], dtype=np.float64).reshape(piv_results["shape"])
+    ytable = np.asarray(piv_results["y"], dtype=np.float64).reshape(piv_results["shape"])
+
+    u_all = np.asarray(piv_results["u"], dtype=np.float64).reshape(
+        (len(piv_results["u"]),) + tuple(piv_results["shape"])
+    )
+    v_all = np.asarray(piv_results["v"], dtype=np.float64).reshape(
+        (len(piv_results["v"]),) + tuple(piv_results["shape"])
+    )
+    grad_all = np.asarray(piv_results["gradient"], dtype=np.float64).reshape(
+        (len(piv_results["gradient"]),) + tuple(piv_results["shape"])
+    )
+
+    n_frames = len(u_all)
+    streamwise_vel_frames = np.zeros((n_frames, N_CACHE_POINTS))
+    gradient_frames = np.zeros((n_frames, N_CACHE_POINTS))
+
+    for i in range(n_frames):
+        EAST, NORTH, disp_east, disp_north = convert_displacement_field_numba(
+            xtable, ytable, u_all[i], v_all[i], transformation_matrix
+        )
+        interp_east, interp_north = get_cs_displacements(
+            dense_east, dense_north, EAST, NORTH, disp_east, disp_north
+        )
+        _, streamwise = get_streamwise_crosswise(interp_east, interp_north, rw_to_xsection)
+        streamwise_vel_frames[i] = streamwise / time_between_frames
+        gradient_frames[i] = get_cs_gradient_optimized(
+            dense_east, dense_north, EAST, NORTH, grad_all[i]
+        )
+
+    return streamwise_vel_frames, gradient_frames
+
+
+def _compute_stats_from_cache(
+    streamwise_vel_frames: np.ndarray,
+    gradient_frames: np.ndarray,
+    dense_distances: np.ndarray,
+    table_results: dict,
+) -> dict:
+    station_distances = np.asarray(table_results["distance"], dtype=np.float64)
+    n_stations = len(station_distances)
+    n_frames = len(streamwise_vel_frames)
+
+    vel_at_stations = np.zeros((n_frames, n_stations))
+    grad_at_stations = np.zeros((n_frames, n_stations))
+
+    for i in range(n_frames):
+        vel_at_stations[i] = np.interp(station_distances, dense_distances, streamwise_vel_frames[i])
+        grad_at_stations[i] = np.interp(station_distances, dense_distances, gradient_frames[i])
+
+    std = np.std(vel_at_stations, axis=0)
+    median_vel = np.asarray(table_results["streamwise_velocity_magnitude"], dtype=np.float64)
+
+    table_results["minus_std"] = median_vel - std
+    table_results["plus_std"] = median_vel + std
+    table_results["5th_percentile"] = np.percentile(vel_at_stations, 5, axis=0)
+    table_results["95th_percentile"] = np.percentile(vel_at_stations, 95, axis=0)
+    table_results["seeded_vel_profile"] = get_artificial_seeded_profile_optimized(
+        vel_at_stations.T, grad_at_stations.T
+    )
+
+    return table_results
+
 
 CSV_FORMAT = "csv"
 ODS_FORMAT = "ods"
@@ -1237,99 +1332,6 @@ def get_general_statistics(x_sections: dict) -> dict:
     return x_sections
 
 
-def add_statistics(
-    results: dict,
-    table_results: dict,
-    transformation_matrix: np.ndarray,
-    time_between_frames: float,
-    rw_to_xsection: np.ndarray,
-) -> dict:
-    """ """
-    # Convert inputs to proper numpy arrays
-    xtable = np.asarray(results["x"], dtype=np.float64).reshape(results["shape"])
-    ytable = np.asarray(results["y"], dtype=np.float64).reshape(results["shape"])
-
-    u_all = np.asarray(results["u"], dtype=np.float64).reshape(
-        (len(results["u"]),) + tuple(results["shape"])
-    )
-    v_all = np.asarray(results["v"], dtype=np.float64).reshape(
-        (len(results["v"]),) + tuple(results["shape"])
-    )
-    grad_all = np.asarray(results["gradient"], dtype=np.float64).reshape(
-        (len(results["gradient"]),) + tuple(results["shape"])
-    )
-
-    transformation_matrix = np.asarray(transformation_matrix, dtype=np.float64)
-    rw_to_xsection = np.asarray(rw_to_xsection, dtype=np.float64)
-
-    # Pre-allocate arrays for results
-    n_frames = len(u_all)
-    streamwise_vel_magnitude_list = []
-    gradient_list = []
-
-    # Process frames
-    for num in range(n_frames):
-        U = u_all[num]
-        V = v_all[num]
-        GRAD = grad_all[num]
-
-        # Convert displacement field using Numba-optimized function
-        EAST, NORTH, displacement_east, displacement_north = (
-            convert_displacement_field_numba(
-                xtable, ytable, U, V, transformation_matrix
-            )
-        )
-
-        # Use original functions for the rest to maintain exact results
-        disp_east, disp_north = get_cs_displacements(
-            table_results["east"],
-            table_results["north"],
-            EAST,
-            NORTH,
-            displacement_east,
-            displacement_north,
-        )
-
-        crosswise, streamwise = get_streamwise_crosswise(
-            disp_east, disp_north, rw_to_xsection
-        )
-
-        # Store results
-        streamwise_vel_magnitude_list.append(streamwise / time_between_frames)
-        gradient_list.append(
-            get_cs_gradient(
-                table_results["east"], table_results["north"], EAST, NORTH, GRAD
-            )
-        )
-
-    # Convert lists to arrays
-    streamwise_vel_magnitude_array = np.array(streamwise_vel_magnitude_list)
-    gradient_array = np.array(gradient_list)
-
-    # Calculate statistics
-    streamwise_vel_magnitude_std = np.std(streamwise_vel_magnitude_array, axis=0)
-    seeded_vel_profile = get_artificial_seeded_profile_optimized(
-        streamwise_vel_magnitude_array.T, gradient_array.T
-    )
-
-    # Update table_results
-    table_results["minus_std"] = (
-        table_results["streamwise_velocity_magnitude"] - streamwise_vel_magnitude_std
-    )
-    table_results["plus_std"] = (
-        table_results["streamwise_velocity_magnitude"] + streamwise_vel_magnitude_std
-    )
-    table_results["5th_percentile"] = np.percentile(
-        streamwise_vel_magnitude_array, 5, axis=0
-    )
-    table_results["95th_percentile"] = np.percentile(
-        streamwise_vel_magnitude_array, 95, axis=0
-    )
-    table_results["seeded_vel_profile"] = seeded_vel_profile
-
-    return table_results
-
-
 def update_current_x_section(
     x_sections: dict,
     piv_results: dict,
@@ -1394,14 +1396,7 @@ def update_current_x_section(
         and len(x_sections[current_x_section][stat]) == num_stations
         for stat in required_stats
     )
-    # If stats exist and are valid, convert them to the table_results format
-    if stats_exist:
-        table_results = {}
-        for stat in required_stats:
-            table_results[stat] = np.array(x_sections[current_x_section][stat])
-        needs_statistics = False
-    else:
-        needs_statistics = True
+    needs_statistics = not stats_exist
 
     # Retrieve bathymetry file path and the left station position
     bath_file_path: str = x_sections[current_x_section]["bath"]
@@ -1491,12 +1486,50 @@ def update_current_x_section(
 
     # Only calculate statistics if needed
     if needs_statistics:
-        table_results = add_statistics(
-            piv_results,
+        # Build dense grid (N_CACHE_POINTS points, independent of num_stations)
+        dense_table = divide_segment_to_dict(
+            extended_east_l,
+            extended_north_l,
+            extended_east_r,
+            extended_north_r,
+            N_CACHE_POINTS,
+        )
+        dense_distances = np.array(dense_table["distance"])
+        dense_east = np.array(dense_table["east"])
+        dense_north = np.array(dense_table["north"])
+
+        # Check whether the cached per-frame data is still valid
+        geometry_hash = _compute_geometry_hash(
+            east_l, north_l, east_r, north_r, level,
+            left_station, step, fps, transformation_matrix,
+        )
+        existing_cache = x_sections[current_x_section].get("_stats_cache")
+
+        if existing_cache and existing_cache.get("geometry_hash") == geometry_hash:
+            streamwise_vel_frames = np.array(existing_cache["streamwise_vel_frames"])
+            gradient_frames = np.array(existing_cache["gradient_frames"])
+            dense_distances = np.array(existing_cache["dense_distances"])
+        else:
+            streamwise_vel_frames, gradient_frames = _compute_stats_cache(
+                piv_results,
+                np.array(transformation_matrix, dtype=np.float64),
+                rw_to_xsection,
+                dense_east,
+                dense_north,
+                time_between_frames,
+            )
+            x_sections[current_x_section]["_stats_cache"] = {
+                "geometry_hash": geometry_hash,
+                "dense_distances": dense_distances.tolist(),
+                "streamwise_vel_frames": streamwise_vel_frames.tolist(),
+                "gradient_frames": gradient_frames.tolist(),
+            }
+
+        table_results = _compute_stats_from_cache(
+            streamwise_vel_frames,
+            gradient_frames,
+            dense_distances,
             table_results,
-            transformation_matrix,
-            time_between_frames,
-            rw_to_xsection,
         )
     else:
         # Add existing statistics to table_results
@@ -1508,7 +1541,6 @@ def update_current_x_section(
             "seeded_vel_profile",
         ]
         for key in stat_keys:
-            # Convert to numpy array and replace None with np.nan
             values = np.array(x_sections[current_x_section][key])
             values[values == None] = np.nan
             table_results[key] = values

@@ -40,7 +40,7 @@ Homepage = "https://github.com/aPatal/RIVeR/"
 river-cli = "river.cli.__main__:cli"
 
 [project.optional-dependencies]
-dev = ["ruff", "bumpver", "pytest"]
+dev = ["ruff", "bumpver", "pytest", "pytest-timeout"]
 examples = ["pandas", "jupyter", "ipykernel"]
 
 [tool.setuptools]
