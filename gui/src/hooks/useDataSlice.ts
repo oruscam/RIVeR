@@ -275,6 +275,7 @@ export const useDataSlice = () => {
           step: video.parameters.step,
           fps: video.data.fps,
           numSections: sections.length,
+          numStationsList: sections.map((section) => section.numStations),
         });
         if (error?.message) {
           throw new Error(error.message);

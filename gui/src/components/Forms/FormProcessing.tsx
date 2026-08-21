@@ -1,5 +1,5 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { useDataSlice, useUiSlice } from '../../hooks';
+import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { useTranslation } from 'react-i18next';
 import { AnalyzingProgress, HardModeProcessing } from './Components';
 import { useState } from 'react';
@@ -16,6 +16,7 @@ export const FormProcessing = ({
   const { onSetErrorMessage } = useUiSlice();
   const { isBackendWorking, processing, onSetQuiverTest, onSetQuiverAll, onKillBackend, onAddMask } =
     useDataSlice();
+  const { sections, activeSection, onUpdateSection } = useSectionSlice();
 
   const {
     step1,
@@ -29,6 +30,7 @@ export const FormProcessing = ({
     medianTestEpsilon,
     medianTestThreshold,
   } = processing.form;
+  const { name, numStations } = sections[activeSection];
 
   const [isTesting, setIsTesting] = useState<boolean>(false);
 
@@ -49,6 +51,33 @@ export const FormProcessing = ({
       median_threshold: medianTestThreshold,
     },
   });
+
+  const handleStationsStep = (delta: number) => {
+    const next = numStations + delta;
+    if (next >= 3) {
+      onUpdateSection({ numStations: next }, undefined);
+      methods.setValue(`${name}_STATIONS_NUMBER`, next);
+    }
+  };
+
+  const handleStationsChangeInput = (
+    event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
+  ) => {
+    if ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') {
+      event.preventDefault();
+      const value = parseFloat((event.target as HTMLInputElement).value);
+      if (isNaN(value) === false && value >= 3) {
+        if (value !== numStations) {
+          onUpdateSection({ numStations: value }, undefined);
+        }
+      } else {
+        methods.setValue(`${name}_STATIONS_NUMBER`, numStations);
+        if (typeof value === 'number') {
+          onSetErrorMessage('The number of stations must be greater than 2');
+        }
+      }
+    }
+  };
 
   const handleTab = () => {
     console.log('handle tab');
@@ -99,7 +128,28 @@ export const FormProcessing = ({
             onKeyDown={handleTab}
           >
             <span id="processing-header" />
-            <div className="input-container-2">
+            <div className="switch-container mt-2">
+              <h3 className="field-title">{t('Results.stationNumber')}</h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <button type="button" className="btn-step" onClick={() => handleStationsStep(-1)}>
+                  −
+                </button>
+                <input
+                  key={name}
+                  className="input-field-little"
+                  type="number"
+                  defaultValue={numStations}
+                  {...methods.register(`${name}_STATIONS_NUMBER`)}
+                  id="stations-number"
+                  onKeyDown={handleStationsChangeInput}
+                  onBlur={handleStationsChangeInput}
+                />
+                <button type="button" className="btn-step" onClick={() => handleStationsStep(1)}>
+                  +
+                </button>
+              </div>
+            </div>
+            <div className="input-container-2 mt-2">
               <button
                 className={`button-with-loader me-1 ${isBackendWorking && isTesting ? 'button-with-loader-active' : ''}`}
                 onClick={handleOnClickTest}
