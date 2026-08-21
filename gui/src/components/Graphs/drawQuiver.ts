@@ -1,6 +1,8 @@
 import * as d3 from 'd3';
 import { QuiverData } from '../../helpers/drawVectorsFunctions';
-import { UNIT_CONVERSIONS, UNITS, VECTORS } from '../../constants/constants';
+import { VECTORS } from '../../constants/constants';
+import { formatSignedVelocity } from '../../helpers/chevronGlyph';
+import { getThemedHost } from '../../helpers/themedHost';
 
 export const drawQuiver = (
   svg: d3.Selection<SVGGElement, unknown, null, undefined>,
@@ -31,7 +33,7 @@ export const drawQuiver = (
   );
   if (tooltip.empty()) {
     tooltip = d3
-      .select<HTMLDivElement, unknown>('body')
+      .select<HTMLDivElement, unknown>(getThemedHost() as HTMLDivElement)
       .append('div')
       .attr('id', 'quiver-tooltip')
       .attr('class', 'velocity-readout')
@@ -74,11 +76,10 @@ export const drawQuiver = (
     .style('cursor', () => 'pointer')
     .on('mouseover', function (event: MouseEvent, d: QuiverData) {
       tooltip.transition().duration(200).style('opacity', 1);
-      const isImperial = unitSistem === 'imperial';
-      const displayVel = isImperial ? d.velocity * UNIT_CONVERSIONS.M_TO_FT : d.velocity;
-      const unitLabel = isImperial ? UNITS.IMPERIAL.VELOCITY : UNITS.SI.VELOCITY;
       tooltip
-        .html(`${displayVel.toFixed(2)} ${unitLabel}`)
+        // Same formatter as the Results chevron readout, so the two agree on the
+        // explicit +/- sign, the true minus glyph and the unit conversion.
+        .html(formatSignedVelocity(d.velocity, unitSistem === 'imperial'))
         .style('left', () => event.pageX + 10 + 'px')
         .style('top', () => event.pageY - 28 + 'px')
         .style('color', () => d.color)

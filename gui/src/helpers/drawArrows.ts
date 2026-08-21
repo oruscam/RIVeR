@@ -1,6 +1,5 @@
 import { transformRealWorldToPixel } from '../../commons/coordinates';
 import { createColorMap, interpolate, Normalize } from '../../commons/vectors';
-import { Section } from '../store/section/types';
 
 /**
  * Calculates the width of an arrow based on the differences between consecutive distances.
@@ -481,20 +480,24 @@ const calculateMultipleArrowsAdaptative = (
 };
 
 /**
- * Get global maximum and minimum magnitudes across all sections.
+ * Get global maximum and minimum magnitudes across all sections, for the shared
+ * arrow color scale.
+ *
+ * Takes the already-resolved per-station velocities (one array per section, null
+ * for a section with no data) rather than reading them off the sections — the
+ * arrows are drawn from the active technique's resolved profile, so the colour
+ * scale has to be built from those same numbers or the colours won't match the
+ * arrows they tint. The range always spans 0, as it did before.
  */
-const getGlobalMagnitudes = (sections: any) => {
+const getGlobalMagnitudes = (magnitudesPerSection: ((number | null)[] | null)[]) => {
   let max = 0;
   let min = 0;
 
-  for (let i = 0; i < sections.length; i++) {
-    const { data } = sections[i];
-    if (data === undefined) {
-      continue;
-    }
-    const { activeMagnitude } = data;
+  for (const magnitudes of magnitudesPerSection) {
+    if (!magnitudes) continue;
 
-    const filteredMagnitude = activeMagnitude.filter((value: number) => value !== null && !isNaN(value as number));
+    const filteredMagnitude = magnitudes.filter((value): value is number => value !== null && !isNaN(value));
+    if (filteredMagnitude.length === 0) continue;
 
     max = Math.max(max, ...filteredMagnitude);
     min = Math.min(min, ...filteredMagnitude);
@@ -507,33 +510,25 @@ const getGlobalMagnitudes = (sections: any) => {
 };
 
 /**
- * Get velocity limits for a specific section.
- * @param sections - Section[]
- * @param active - number
- * @returns - {max: number, min: number}
+ * Velocity range for the colour bar in Results, spanning zero.
+ *
+ * Takes the section's already-resolved per-station velocities (the same array
+ * the chevrons and the velocity chart use) rather than reading a fixed LSPIV
+ * column off the section — the bar has to be labelled with the numbers that
+ * actually coloured the glyphs, or it mislabels the scale whenever the user
+ * selects STIV or iWave.
  */
-const getVelocityLimits = (sections: Section[], active: number) => {
+const getVelocityLimits = (magnitudes: (number | null)[] | null): { min: number; max: number } => {
   let max = 0;
   let min = 0;
+  if (!magnitudes) return { min, max };
 
-  if (sections.length === 0) {
-    return { max, min };
-  }
-  const { data } = sections[active];
-  if (data === undefined) {
-    return { max, min };
-  }
-  const { activeMagnitude } = data;
+  const filtered = magnitudes.filter((value): value is number => value !== null && !isNaN(value));
+  if (filtered.length === 0) return { min, max };
 
-  if (!Array.isArray(activeMagnitude)) {
-    return { max, min };
-  }
-
-  const filteredMagnitude = activeMagnitude.filter((value: number) => value !== null && !isNaN(value as number));
-  max = Math.max(max, ...filteredMagnitude);
-  min = Math.min(min, ...filteredMagnitude);
-
-  return { max, min };
+  max = Math.max(max, ...filtered);
+  min = Math.min(min, ...filtered);
+  return { min, max };
 };
 
 export {

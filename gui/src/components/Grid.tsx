@@ -9,7 +9,13 @@ import { getEffectiveTechniqueData } from '../helpers';
 
 interface TableRow {
   key: number;
+  /** 0-based array index. Internal only — drives hover-sync with the chart and
+   *  indexes into the per-station arrays when toggling a station's check. Never
+   *  displayed: `station` is what the user sees. */
   id: number;
+  /** 1-based station number as shown to the user, matching the backend's own
+   *  `id` field, the sti_<id>.png filenames, and Processing's STI badge. */
+  station: number;
   x: string;
   d: string;
   A: string;
@@ -60,7 +66,9 @@ export const Grid = () => {
     const headers = ['#', 'x', 'd', 'A', `Vs (${activeTechniqueLabel})`, 'Q'];
 
     const dataRows = Array.from({ length: num_stations }, (_, i) => [
-      i.toString(),
+      // 1-based station number, matching the '#' column, the backend's `id`
+      // field and Processing's STI badge — not the 0-based array index.
+      (i + 1).toString(),
       typeof distance[i] === 'number' ? (distance[i] * lFactor).toFixed(2) : '-',
       typeof depth[i] === 'number' ? (depth[i] * lFactor).toFixed(2) : '-',
       typeof A[i] === 'number' ? (A[i] * aFactor).toFixed(2) : '-',
@@ -95,7 +103,7 @@ export const Grid = () => {
       headerCellClass: 'select-cell-grid-results',
     },
     {
-      key: 'id',
+      key: 'station',
       name: '#',
       cellClass: 'centered-cell',
       headerCellClass: 'centered-cell',
@@ -168,6 +176,7 @@ export const Grid = () => {
     return Array.from({ length: num_stations }, (_, i) => ({
       key: i,
       id: i,
+      station: i + 1,
       x: typeof distance[i] === 'number' ? (distance[i] * lFactor).toFixed(2) : '-',
       d: typeof depth[i] === 'number' ? (depth[i] * lFactor).toFixed(2) : '-',
       A: typeof A[i] === 'number' ? (A[i] * aFactor).toFixed(2) : '-',

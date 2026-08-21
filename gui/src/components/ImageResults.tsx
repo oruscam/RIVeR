@@ -1,4 +1,5 @@
-import { useImageZoomPan, useProjectSlice, useUiSlice } from '../hooks';
+import { useImageZoomPan, useProjectSlice, useUiSlice, useVelocityColorRange } from '../hooks';
+import { ColorBar } from './ColorBar';
 import { DrawSectionsD3 } from './CrossSections/DrawSectionsD3';
 import { VelocityVector } from './Graphs';
 import { OverlaySvg } from './OverlaySvg';
@@ -19,6 +20,15 @@ export const ImageResults = ({
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { firstFramePath } = useProjectSlice();
+
+  // The bar has to be labelled with the numbers that actually colour the
+  // glyphs. With `seeAll` the default, glyphs from every section are drawn
+  // over the same image at once, so the range is the cross-section
+  // aggregate, not just the active section — the identical computation
+  // `VelocityVector` uses for the chevrons themselves, via one shared hook so
+  // the two can't drift apart. A manually locked range wins in both, exactly
+  // as it does in Processing.
+  const { min, max } = useVelocityColorRange();
 
   const { scale, position } = useImageZoomPan({
     containerWidth: imageWidth!,
@@ -100,6 +110,8 @@ export const ImageResults = ({
           )}
         </OverlaySvg>
       )}
+      {/* Outside the zoomed element so the bar keeps its size and corner. */}
+      {isReport === false && <ColorBar min={min} max={max} />}
     </div>
   );
 };
