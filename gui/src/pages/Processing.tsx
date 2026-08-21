@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Carousel, Error, ImageProcessing, WizardButtons } from '../components';
 import { useDataSlice, useSectionSlice, useUiSlice } from '../hooks';
+import { flushStivAngleWrites } from '../hooks/useStivAngleOverride';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
@@ -107,6 +108,10 @@ export const Processing = () => {
     nextStep();
 
     try {
+      // onGetResultData re-reads xsections.json and replaces section.data
+      // wholesale, so any angle write still sitting in the debounce window has
+      // to land on disk first or it would be read back as if it never happened.
+      await flushStivAngleWrites();
       await onGetResultData('all');
       onSetSeeAll(false);
       nextStep();
@@ -138,6 +143,7 @@ export const Processing = () => {
           showMedian={showMedian && fullQuiver !== null}
           setShowMedian={setShowMedian}
           mode={previewMode === 'frames' ? 'analize' : 'processing'}
+          showStivMarkers={previewMode === 'sti'}
         />
         <Error />
       </div>

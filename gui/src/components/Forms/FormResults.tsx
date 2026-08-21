@@ -20,7 +20,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   const { sections, activeSection, onUpdateSection } = useSectionSlice();
   const { name, data, alpha, artificialSeeding, activeTechnique, interpolated } = sections[activeSection];
   const { isBackendWorking } = useDataSlice();
-  const { projectDetails } = useProjectSlice();
+  const { projectDetails, video } = useProjectSlice();
 
   const { t } = useTranslation();
 
@@ -43,7 +43,13 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
 
   const effective = data
-    ? getEffectiveTechniqueData(data, activeTechnique, { interpolated, artificialSeeding, alpha })
+    ? getEffectiveTechniqueData(data, activeTechnique, {
+        interpolated,
+        artificialSeeding,
+        alpha,
+        step: video.parameters.step,
+        fps: video.data.fps,
+      })
     : null;
   const displayQ =
     effective?.total_Q != null

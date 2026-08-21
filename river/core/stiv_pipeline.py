@@ -26,6 +26,10 @@ STIV_COLUMNS = [
 	"stiv_sigma_profile",
 	"stiv_angle_profile",
 	"stiv_sign_profile",
+	# Written by the GUI, not this pipeline — but it is pinned to station positions
+	# exactly like the arrays above, so it must be stripped with them when the
+	# geometry is rebuilt (see update_current_x_section in compute_section.py).
+	"stiv_angle_manual_profile",
 ]
 
 _MODEL_DIR = Path(__file__).parent / "stiv_model"
@@ -617,6 +621,11 @@ def run_stiv_analysis(
 	]
 	xsections[current_key]["stiv_sign_profile"] = stiv_sign_list
 	xsections[current_key]["stiv_angle_profile"] = stiv_angle_list
+	# A manual angle was judged by eye against the STIs this run has just replaced,
+	# so it does not describe the new ones. Clearing is the honest default: silently
+	# keeping it would apply the previous run's judgement to different images with
+	# no indication that it had.
+	xsections[current_key]["stiv_angle_manual_profile"] = [None] * n
 
 	if plot_path is not None:
 		plot_stiv_results(xsections[current_key], current_key, plot_path)

@@ -18,6 +18,7 @@ import { getDistances } from './getDistances';
 import { saveTransformationMatrix } from './saveTransformationMatrix';
 import { setControlPoints } from './setControlPoints';
 import { setProjectMetadata } from './setProjectMetadata';
+import { setStivManualAngles } from './setStivManualAngles';
 import { createMaskAndBbox } from './createMaskAndBbox';
 import { getResultData } from './getResultData';
 import { getStis } from './getStis';
@@ -58,4 +59,5 @@ export {
   setPixelSize,
   setProjectMetadata,
   setSections,
+  setStivManualAngles,
 };

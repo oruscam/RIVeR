@@ -38,7 +38,7 @@ import {
 import { setProcessingMask, setQuiver, updateProcessingForm } from '../store/data/dataSlice';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS, UNIT_CONVERSIONS } from '../constants/constants';
 import { CanvasPoint, FormPoint, onGetBathimetryTypes, Point } from '../types';
-import { Section, Technique } from '../store/section/types';
+import { Section, SectionData, Technique } from '../store/section/types';
 import { ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
 import {
@@ -689,6 +689,13 @@ export const useSectionSlice = () => {
     }
   };
 
+  /** Replace section.data wholesale. onChangeDataValues covers the fixed set of
+   *  toggles it knows about; this is for callers that compute the next data
+   *  themselves, like the STIV angle override. */
+  const onChangeSectionData = (data: SectionData) => {
+    dispatch(changeSectionData(data));
+  };
+
   const onGetBathimetry = async (values: onGetBathimetryTypes) => {
     const ipcRenderer = window.ipcRenderer;
 
@@ -845,6 +852,7 @@ export const useSectionSlice = () => {
 
     onAddSection,
     onChangeDataValues,
+    onChangeSectionData,
     onDeleteSection,
     onGetBathimetry,
     onSetDefaultSectionState,

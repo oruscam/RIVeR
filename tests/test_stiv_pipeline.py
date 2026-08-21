@@ -226,6 +226,37 @@ def test_run_stiv_analysis_adds_keys():
 	assert progress_calls == [(1, 3), (2, 3), (3, 3)]
 
 
+def test_run_stiv_analysis_clears_manual_angles():
+	"""Re-running STIV rebuilds the STIs, so a by-eye angle set against the previous
+	image must not carry over onto the new one."""
+	with tempfile.TemporaryDirectory() as tmp:
+		cs, T, frames_dir = _make_synthetic_session(tmp, n_frames=30)
+
+		xsections = {
+			"CS_default_1": dict(
+				cs,
+				num_stations=3,
+				streamwise_velocity_magnitude=[0.5, 0.8, 0.6],
+				minus_std=[0.4, 0.7, 0.5],
+				plus_std=[0.6, 0.9, 0.7],
+				stiv_angle_manual_profile=[45.0, None, None],
+			),
+			"summary": {},
+		}
+
+		result = run_stiv_analysis(
+			xsections=xsections,
+			transformation_matrix=T,
+			frames_dir=frames_dir,
+			step=3,
+			fps=30.0,
+			id_section=0,
+			height_roi_m=0.4,
+		)
+
+	assert result["CS_default_1"]["stiv_angle_manual_profile"] == [None, None, None]
+
+
 def test_profile_station_robust_median_beats_confident_noise_majority(monkeypatch):
 	"""17-crop synthetic STI: 16 crops are low-contrast noise, 1 crop (index 8,
 	columns [120:180)) is a clean 35-degree stripe. The angle "model" is faked

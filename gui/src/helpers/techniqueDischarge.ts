@@ -1,4 +1,5 @@
 import { SectionData, Technique } from '../store/section/types';
+import { isStationTuned, mergedSigmaProfile, mergedVelocityProfile } from './stivAngle';
 
 export type { Technique };
 
@@ -95,6 +96,9 @@ export interface TechniqueOptions {
   artificialSeeding: boolean;
   /** Section.alpha — LSPIV-only; ignored for STIV/iWave. */
   alpha: number;
+  /** Frame step and video fps — needed to turn a manual STIV angle into a velocity. */
+  step: number;
+  fps: number;
 }
 
 export interface TechniqueDischargeData {
@@ -113,6 +117,10 @@ export interface TechniqueDischargeData {
   measured_Q: number;
   interpolated_Q: number;
   hasGaps: boolean;
+  /** Per-station: was this velocity derived from a user-set angle rather than the fit. */
+  tunedFlags: boolean[];
+  /** Per-station uncertainty, null where the station was tuned by hand. */
+  sigma: (number | null)[];
 }
 
 /**
@@ -129,16 +137,32 @@ export function getEffectiveTechniqueData(
   technique: Technique,
   options: TechniqueOptions
 ): TechniqueDischargeData | null {
+  const manualAngles = data.stiv_angle_manual_profile;
+
   const baseProfile: (number | null)[] | undefined =
     technique === 'lspiv'
       ? options.artificialSeeding && data.seeded_vel_profile
         ? data.seeded_vel_profile
         : data.streamwise_velocity_magnitude
       : technique === 'stiv'
-        ? data.stiv_velocity_profile
+        ? // A manual angle overrides the fitted one, so STIV's profile is rebuilt from
+          // the merged angles rather than read straight from stiv_velocity_profile.
+          data.stiv_angle_profile
+          ? mergedVelocityProfile(data.stiv_angle_profile, manualAngles, options.step, options.fps)
+          : data.stiv_velocity_profile
         : data.iwave_velocity_profile;
 
   if (!baseProfile) return null;
+
+  const tunedFlags =
+    technique === 'stiv'
+      ? baseProfile.map((_, i) => isStationTuned(manualAngles, i))
+      : baseProfile.map(() => false);
+
+  const sigma =
+    technique === 'stiv' && data.stiv_sigma_profile
+      ? mergedSigmaProfile(data.stiv_sigma_profile, manualAngles)
+      : baseProfile.map(() => null);
 
   const activeCheck = data.activeCheck ?? data.check;
   const filled = froudeFilledProfile(baseProfile, data.depth, activeCheck);
@@ -182,5 +206,7 @@ export function getEffectiveTechniqueData(
     measured_Q,
     interpolated_Q,
     hasGaps,
+    tunedFlags,
+    sigma,
   };
 }

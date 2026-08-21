@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDataSlice, useProjectSlice, useSectionSlice } from '../hooks';
-import { getStiColorScale, STI_FALLBACK_COLOR } from '../helpers';
+import { useDataSlice, useProjectSlice, useSectionSlice, useStivAngleOverride } from '../hooks';
+import { getStiColorScale, STI_FALLBACK_COLOR, thetaToSign, thetaToVelocity } from '../helpers';
 import { UNIT_CONVERSIONS, UNITS } from '../constants/constants';
+import { StiAngleTuner } from './StiAngleTuner';
 import './components.css';
 
 interface StiViewerProps {
@@ -21,6 +22,11 @@ interface StiViewerProps {
  *  the offline STIV diagnostic figures use. */
 const WINDOW_COLUMNS = 600;
 
+/** Height reserved under the frame for the tuner's slider row, so the frame plus
+ *  the row still fit the space the frame alone used to have — anything taller
+ *  would push the row down onto the floating colour bar. */
+const CONTROLS_HEIGHT = 48;
+
 export const StiViewer = ({
   stiPaths,
   stiStations,
@@ -30,10 +36,11 @@ export const StiViewer = ({
 }: StiViewerProps) => {
   const { sections, activeSection } = useSectionSlice();
   const { colorbarLimits } = useDataSlice();
-  const { projectDetails } = useProjectSlice();
+  const { projectDetails, video } = useProjectSlice();
   const { t } = useTranslation();
 
   const isImperial = projectDetails.unitSistem === 'imperial';
+  const { parameters, data: videoData } = video;
 
   const section = sections[activeSection];
   const data = section?.data;
@@ -43,27 +50,41 @@ export const StiViewer = ({
   const dragRef = useRef<{ startX: number; startY: number; originX: number; originY: number } | null>(null);
   const [offsetY, setOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  // Held as state rather than a ref so the tuner re-renders once the element
+  // exists and its portalled slider row can mount into it.
+  const [viewerEl, setViewerEl] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setWindowStart(0);
     setOffsetY(0);
   }, [activeStation]);
 
-  const angle = data?.stiv_angle_profile?.[activeStation] ?? null;
-  const velocity = data?.stiv_velocity_profile?.[activeStation] ?? null;
-  const sign = data?.stiv_sign_profile?.[activeStation] ?? '';
+  // The effective angle: the user's override where there is one, else the fit.
+  // Velocity and sign follow from it rather than from the stored profiles, so the
+  // badge tracks a drag on the same frame the bars do.
+  const { angle } = useStivAngleOverride(activeStation);
+  const velocity = angle === null ? null : thetaToVelocity(angle, parameters.step, videoData.fps);
+  const sign = angle === null ? '' : thetaToSign(angle);
 
-  const { colors: stationColors } = useMemo(
+  // Bounds come from the raw profile — exactly what ImageProcessing feeds the
+  // ColorBar beside this view, so the two never disagree.
+  const { min, max } = useMemo(
     () => getStiColorScale(data?.stiv_velocity_profile, colorbarLimits),
     [data?.stiv_velocity_profile, colorbarLimits]
   );
 
-  // The lines and the badge must stay visible even where STIV produced no value for
-  // this station, so they take the fallback rather than the ticks' 'transparent'.
-  const readoutColor =
-    stationColors[activeStation] && stationColors[activeStation] !== 'transparent'
-      ? stationColors[activeStation]
-      : STI_FALLBACK_COLOR;
+  // The live colour for this station alone, taken with those bounds locked. Locking
+  // them is what keeps a drag from redefining the scale: thetaToVelocity is a tan,
+  // so sweeping through 90° passes through hundreds of m/s, and an automatic scale
+  // would rescale to that and wash every other station out. Locked, the colour
+  // simply saturates at the end of the scale the legend shows.
+  const readoutColor = useMemo(() => {
+    if (velocity === null || min === null || max === null) return STI_FALLBACK_COLOR;
+    const color = getStiColorScale([velocity], { min, max, default: false }).colors[0];
+    // Must stay visible where STIV produced no value, so it takes the fallback
+    // rather than the ticks' 'transparent'.
+    return color && color !== 'transparent' ? color : STI_FALLBACK_COLOR;
+  }, [velocity, min, max]);
 
   if (stiPaths.length === 0) {
     return <p className="sti-empty">{t('Processing.stiNoData')}</p>;
@@ -74,7 +95,8 @@ export const StiViewer = ({
   // would no longer align with the streaks it describes.
   const cropWidth = Math.min(WINDOW_COLUMNS, natural?.w ?? WINDOW_COLUMNS);
   const cropHeight = natural?.h ?? 301;
-  const scale = Math.min(containerWidth / cropWidth, containerHeight / cropHeight);
+  const frameHeight = Math.max(1, containerHeight - CONTROLS_HEIGHT);
+  const scale = Math.min(containerWidth / cropWidth, frameHeight / cropHeight);
   const viewW = cropWidth * scale;
   const viewH = cropHeight * scale;
 
@@ -84,9 +106,11 @@ export const StiViewer = ({
   // clamps to 0 and vertical dragging simply has no effect.
   const maxOffsetY = Math.max(0, (natural?.h ?? 0) * scale - viewH);
 
-  const angleRad = angle === null ? null : (angle * Math.PI) / 180;
-
+  // Shift is the pan modifier: a plain drag belongs to StiAngleTuner, which rotates
+  // the angle bars. The tuner declines Shift-held events without consuming them, so
+  // they bubble here.
   const handlePointerDown = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!event.shiftKey) return;
     dragRef.current = {
       startX: event.clientX,
       startY: event.clientY,
@@ -99,6 +123,12 @@ export const StiViewer = ({
   const handlePointerMove = (event: React.MouseEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag) return;
+    // Releasing Shift mid-pan ends the pan rather than freezing it: resuming from a
+    // stale origin would make the image jump by however far the pointer had moved.
+    if (!event.shiftKey) {
+      handlePointerUp();
+      return;
+    }
     // Dragging right should reveal earlier columns, so the offset moves opposite
     // to the pointer. windowStart is in source-image columns, hence dividing by scale.
     const nextStart = drag.originX - (event.clientX - drag.startX) / scale;
@@ -113,7 +143,7 @@ export const StiViewer = ({
   };
 
   return (
-    <div className="sti-viewer">
+    <div className="sti-viewer" ref={setViewerEl}>
       <div
         className="sti-frame"
         style={{ width: viewW, height: viewH, cursor: isDragging ? 'grabbing' : 'grab' }}
@@ -132,30 +162,16 @@ export const StiViewer = ({
             transformOrigin: 'top left',
           }}
         />
-        {angleRad !== null && (
-          <svg className="sti-overlay" width={viewW} height={viewH}>
-            {/* One line per quarter of the frame width, all at the reported angle, so
-                the angle can be checked against streaks in more than one region.
-                Each keeps the length the single centre line used. Outer lines may run
-                past the frame on steep angles; .sti-frame clips them. */}
-            {[0.25, 0.5, 0.75].map((fraction) => {
-              const halfLength = (Math.min(viewW, viewH) * 0.8) / 2;
-              const cx = viewW * fraction;
-              const cy = viewH / 2;
-              return (
-                <line
-                  key={fraction}
-                  x1={cx - Math.cos(angleRad) * halfLength}
-                  y1={cy - Math.sin(angleRad) * halfLength}
-                  x2={cx + Math.cos(angleRad) * halfLength}
-                  y2={cy + Math.sin(angleRad) * halfLength}
-                  stroke={readoutColor}
-                  strokeWidth={3}
-                />
-              );
-            })}
-          </svg>
-        )}
+        <StiAngleTuner
+          stationIndex={activeStation}
+          stationId={stiStations[activeStation] ?? activeStation + 1}
+          viewW={viewW}
+          viewH={viewH}
+          color={readoutColor}
+          velocity={velocity}
+          isImperial={isImperial}
+          rowContainer={viewerEl}
+        />
         <div className="sti-badge velocity-readout" style={{ color: readoutColor }}>
           {t('Processing.stiStation')} {stiStations[activeStation] ?? activeStation + 1}
           <br />

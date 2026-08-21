@@ -26,6 +26,7 @@ import { DrawOblique } from './DrawOblique';
 import { ImageIpcam } from './ImageIpcam';
 import { DrawIpcam } from './DrawIpcam';
 import { IWaveViewer } from './IWaveViewer';
+import { StiAngleTuner } from './StiAngleTuner';
 
 export {
   Carousel,
@@ -51,6 +52,7 @@ export {
   Loading,
   Progress,
   Results,
+  StiAngleTuner,
   SuccessBanner,
   ThemeToggle,
   VersionMessage,
