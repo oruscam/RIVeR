@@ -55,6 +55,17 @@ def render_response(func: Callable[..., dict]):
 		# completed successfully. os._exit() skips that teardown entirely,
 		# bypassing the native-library crash. Flush stdout/stderr first since
 		# os._exit() does not flush Python-buffered output on the way out.
+		#
+		# This is safe in production because every CLI invocation from the GUI
+		# runs as its own OS subprocess (executeRiverCli.ts spawns `python -m
+		# river.cli ...`) — os._exit() only ever kills that one short-lived
+		# process. But tests exercise commands in-process via Click's
+		# CliRunner.invoke(), which runs `inner()` inside the pytest process
+		# itself; an unconditional os._exit(0) there kills the entire test run
+		# silently (no traceback, no failing test — pytest just stops). Skip it
+		# under test, where RIVER_CLI_TESTING is set once by tests/conftest.py.
+		if os.environ.get("RIVER_CLI_TESTING"):
+			return
 		sys.stdout.flush()
 		sys.stderr.flush()
 		os._exit(0)

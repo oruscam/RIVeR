@@ -45,7 +45,11 @@ def test_stabilize_flag_calls_stabilize_frames(tmp_path):
 		mock_vtf.return_value = frames_dir / "0000000000.jpg"
 		mock_stab.return_value = mock_sanity
 
-		runner = CliRunner()
+		# mix_stderr=False: the command prints progress ("Extracting frames...")
+		# to stderr and its JSON response to stdout: result.output must be pure
+		# JSON here, so the two streams can't be merged as CliRunner does by
+		# default.
+		runner = CliRunner(mix_stderr=False)
 		result = runner.invoke(cli, [
 			"video-to-frames", str(video_path), str(frames_dir),
 			"--stabilize", "--stabilization-regions", str(regions_path),
@@ -71,7 +75,8 @@ def test_no_stabilize_flag_does_not_call_stabilize_frames(tmp_path):
 		 patch("river.cli.commands.video_to_frames.stabilize_frames") as mock_stab:
 		mock_vtf.return_value = frames_dir / "0000000000.jpg"
 
-		runner = CliRunner()
+		# See the mix_stderr=False comment in test_stabilize_flag_calls_stabilize_frames above.
+		runner = CliRunner(mix_stderr=False)
 		result = runner.invoke(cli, [
 			"video-to-frames", str(video_path), str(frames_dir),
 		])
