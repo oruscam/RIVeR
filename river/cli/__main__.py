@@ -5,6 +5,7 @@ import river.cli.commands.define_roi_masks as rm
 from river.cli.commands import piv_pipeline
 from river.cli.commands.camera_calibration import camera_calibration, write_charuco_board
 from river.cli.commands.compute_section import update_xsection
+from river.cli.commands.stiv_pipeline import stiv_analyze
 from river.cli.commands.video_to_frames import video_to_frames
 
 from multiprocessing import freeze_support
@@ -32,6 +33,7 @@ cli.add_command(piv_pipeline.piv_test)
 cli.add_command(piv_pipeline.piv_analyze)
 cli.add_command(update_xsection)
 cli.add_command(write_charuco_board)
+cli.add_command(stiv_analyze)
 
 if __name__ == "__main__":
 	freeze_support()  # For Windows compatibility with multiprocessing

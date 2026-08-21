@@ -22,7 +22,8 @@ dependencies = [
     "tqdm >= 4.67.0",
     "numba == 0.60.0",
     "tablib[xlsx,xls,ods] == 3.8.0",
-    "pyfftw == 0.15.0"
+    "pyfftw == 0.15.0",
+    "torch >= 2.0.0"
 ]
 license = "AGPL-3.0-or-later"
 classifiers = [
@@ -44,7 +45,7 @@ dev = ["ruff", "bumpver", "pytest", "pytest-timeout"]
 examples = ["pandas", "jupyter", "ipykernel"]
 
 [tool.setuptools]
-packages = ["river", "river.core", 'river.cli', 'river.cli.commands']
+packages = ["river", "river.core", "river.cli", "river.cli.commands", "river.core.stiv_model"]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
