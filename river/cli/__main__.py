@@ -5,7 +5,7 @@ import river.cli.commands.define_roi_masks as rm
 from river.cli.commands import piv_pipeline
 from river.cli.commands.camera_calibration import camera_calibration, write_charuco_board
 from river.cli.commands.compute_section import update_xsection
-from river.cli.commands.stiv_pipeline import stiv_analyze
+from river.cli.commands.stiv_pipeline import stiv_analyze, stiv_status
 from river.cli.commands.iwave_pipeline import iwave_analyze
 from river.cli.commands.orchestrator import analyze_all
 from river.cli.commands.video_to_frames import video_to_frames
@@ -36,6 +36,7 @@ cli.add_command(piv_pipeline.piv_analyze)
 cli.add_command(update_xsection)
 cli.add_command(write_charuco_board)
 cli.add_command(stiv_analyze)
+cli.add_command(stiv_status)
 cli.add_command(iwave_analyze)
 cli.add_command(analyze_all)
 

@@ -4,7 +4,14 @@ from pathlib import Path
 import click
 
 from river.cli.commands.utils import render_response
-from river.core.stiv_pipeline import run_stiv_analysis
+from river.core.stiv_pipeline import run_stiv_analysis, stiv_weights_available
+
+
+@click.command(help="Check whether STIV model weights are present on disk (no torch import).")
+@render_response
+def stiv_status() -> dict:
+	"""Report STIV weight availability without loading the model."""
+	return stiv_weights_available()
 
 
 @click.command(help="Run STIV analysis for the current cross-section and fuse with LSPIV results.")
