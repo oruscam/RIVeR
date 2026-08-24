@@ -20,8 +20,7 @@
       "default": "प्रोजेक्ट लोड करते समय एक त्रुटि हुई"
     },
     "Version": {
-      "latest": "आप नवीनतम संस्करण का उपयोग कर रहे हैं।",
-      "update": "एक नया संस्करण उपलब्ध है: ",
+      "experimental": "प्रायोगिक बिल्ड।",
       "source": "मुक्त सॉफ़्टवेयर (AGPL-3.0) — स्रोत कोड और तृतीय-पक्ष लाइसेंस"
     },
     "Settings": {
@@ -182,7 +181,8 @@
     "showLspivFrames": "Show LSPIV frames",
     "showStivStis": "Show STIV space-time images",
     "noStisYet": "Run STIV to see space-time images",
-    "iwaveNoPreview": "iWave has no per-station preview",
+    "stivWeightsMissing": "STIV model weights not found — download from Zenodo (see README)",
+    "iwaveNoPreview": "IWV has no per-station preview",
     "medianHint": "Show the median velocity field",
     "pivOnly": "PIV only",
     "stationsCount": "{{count}} stations",
@@ -200,7 +200,7 @@
     "stage": {
       "lspiv": "Computing LSPIV velocity field",
       "stiv": "Computing STIV velocities",
-      "iwave": "Computing iWave velocities"
+      "iwave": "Computing IWV velocities"
     }
   },
   "Results": {
@@ -222,7 +222,7 @@
     "activeTechnique": "Active technique",
     "activateTechnique": "Click to make {{technique}} the active technique",
     "showStivStd": "Show STIV ± sigma",
-    "showIwaveQuality": "Shade iWave markers by quality score",
+    "showIwaveQuality": "Shade IWV markers by quality score",
     "cantHideActiveTechnique": "Active technique can't be hidden — switch technique first",
     "hideTechnique": "Hide {{technique}}",
     "showTechnique": "Show {{technique}}",

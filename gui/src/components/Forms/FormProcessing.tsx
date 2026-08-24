@@ -2,9 +2,8 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { useTranslation } from 'react-i18next';
 import { AnalyzingProgress, HardModeProcessing } from './Components';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { TECHNIQUE_COLORS } from '../../constants/constants';
-import { LuEye, LuEyeOff } from 'react-icons/lu';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
 
@@ -17,6 +16,7 @@ export const FormProcessing = ({
   canToggleSti,
   canToggleIwave,
   canToggleMedian,
+  stivAvailable,
 }: {
   extraFields: boolean;
   showMedian: boolean;
@@ -26,6 +26,7 @@ export const FormProcessing = ({
   canToggleSti: boolean;
   canToggleIwave: boolean;
   canToggleMedian: boolean;
+  stivAvailable: boolean;
 }) => {
   const { t } = useTranslation();
   const { onSetErrorMessage } = useUiSlice();
@@ -58,6 +59,13 @@ export const FormProcessing = ({
   // Station index is irrelevant for hasAny/resetAll — they operate on the whole
   // manual-angle array, not one station.
   const { hasAny: hasAnyStivOverride, resetAll: resetAllStivAngles } = useStivAngleOverride(0);
+
+  // Don't let a persisted `stiv: true` from a previous session/machine (where
+  // weights were present) silently run and fail — flip it off the moment we
+  // learn the weights aren't here.
+  useEffect(() => {
+    if (!stivAvailable && stiv) onUpdateProcessing({ stiv: false });
+  }, [stivAvailable, stiv, onUpdateProcessing]);
 
   const [isTesting, setIsTesting] = useState<boolean>(false);
 
@@ -179,7 +187,11 @@ export const FormProcessing = ({
 
             <span className="divider-line mt-2 mb-1" />
 
-            <div className="technique-row-processing">
+            <div
+              className={`technique-row-processing${previewMode === 'frames' ? ' technique-row-processing-active' : ''}`}
+              title={t('Processing.showLspivFrames')}
+              onClick={() => previewMode !== 'frames' && setPreviewMode('frames')}
+            >
               <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.lspiv }} />
               <h3 className="field-title">LSPIV</h3>
               <button
@@ -188,20 +200,27 @@ export const FormProcessing = ({
                   canToggleMedian ? '' : ' technique-flag-off'
                 }`}
                 title={t('Processing.medianHint')}
-                onClick={canToggleMedian ? () => setShowMedian(!showMedian) : undefined}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  if (canToggleMedian) setShowMedian(!showMedian);
+                }}
               >
                 {t('Processing.carouselMedia')}
               </button>
-              <button
-                type="button"
-                className={`technique-eye-btn${previewMode === 'frames' ? ' technique-eye-btn-on' : ''}`}
-                title={t('Processing.showLspivFrames')}
-                onClick={previewMode !== 'frames' ? () => setPreviewMode('frames') : undefined}
-              >
-                {previewMode === 'frames' ? <LuEye size={15} /> : <LuEyeOff size={15} />}
-              </button>
             </div>
-            <div className="technique-row-processing">
+            <div
+              className={`technique-row-processing${previewMode === 'sti' ? ' technique-row-processing-active' : ''}${
+                canToggleSti ? '' : ' technique-row-processing-disabled'
+              }${stivAvailable ? '' : ' technique-row-processing-unavailable'}`}
+              title={
+                !stivAvailable
+                  ? t('Processing.stivWeightsMissing')
+                  : canToggleSti
+                    ? t('Processing.showStivStis')
+                    : t('Processing.noStisYet')
+              }
+              onClick={() => canToggleSti && previewMode !== 'sti' && setPreviewMode('sti')}
+            >
               <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.stiv }} />
               <h3 className="field-title">STIV</h3>
               {hasAnyStivOverride && (
@@ -209,34 +228,36 @@ export const FormProcessing = ({
                   type="button"
                   className="sti-angle-reset"
                   title={t('Processing.stiAngleResetAllTitle')}
-                  onClick={resetAllStivAngles}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    resetAllStivAngles();
+                  }}
                 >
                   {t('Processing.stiAngleResetAll')}
                 </button>
               )}
-              <label className="switch">
+              <label className="switch" onClick={(event) => event.stopPropagation()}>
                 <input
                   type="checkbox"
-                  checked={stiv}
+                  checked={stiv && stivAvailable}
+                  disabled={!stivAvailable}
                   onChange={(event) => onUpdateProcessing({ stiv: event.currentTarget.checked })}
                 />
                 <span className="slider"></span>
               </label>
-              <button
-                type="button"
-                className={`technique-eye-btn${previewMode === 'sti' ? ' technique-eye-btn-on' : ''}${
-                  canToggleSti ? '' : ' technique-eye-btn-off'
-                }`}
-                title={canToggleSti ? t('Processing.showStivStis') : t('Processing.noStisYet')}
-                onClick={canToggleSti && previewMode !== 'sti' ? () => setPreviewMode('sti') : undefined}
-              >
-                {previewMode === 'sti' ? <LuEye size={15} /> : <LuEyeOff size={15} />}
-              </button>
             </div>
-            <div className="technique-row-processing">
+            <div
+              className={`technique-row-processing${previewMode === 'iwave' ? ' technique-row-processing-active' : ''}${
+                canToggleIwave ? '' : ' technique-row-processing-disabled'
+              }`}
+              title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
+              onClick={() => canToggleIwave && previewMode !== 'iwave' && setPreviewMode('iwave')}
+            >
               <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.iwave }} />
-              <h3 className="field-title">iWave</h3>
-              <label className="switch">
+              <h3 className="field-title">
+                IWV<span className="technique-name-note"> (iWave)</span>
+              </h3>
+              <label className="switch" onClick={(event) => event.stopPropagation()}>
                 <input
                   type="checkbox"
                   checked={iwave}
@@ -244,16 +265,6 @@ export const FormProcessing = ({
                 />
                 <span className="slider"></span>
               </label>
-              <button
-                type="button"
-                className={`technique-eye-btn${previewMode === 'iwave' ? ' technique-eye-btn-on' : ''}${
-                  canToggleIwave ? '' : ' technique-eye-btn-off'
-                }`}
-                title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
-                onClick={canToggleIwave && previewMode !== 'iwave' ? () => setPreviewMode('iwave') : undefined}
-              >
-                {previewMode === 'iwave' ? <LuEye size={15} /> : <LuEyeOff size={15} />}
-              </button>
             </div>
 
             <span className="divider-line mt-2 mb-1" />
