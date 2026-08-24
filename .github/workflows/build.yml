@@ -35,23 +35,29 @@ jobs:
           # Rename the extracted cpython folder to 'python'
           mv cpython-3.12.1-linux-x86_64-gnu python
 
-      - name: 5. Install dependencies and RIVeR CLI
+      - name: 5. Download STIV weights
+        run: .github/scripts/download_stiv_weights.sh
+
+      - name: 6. Install dependencies and RIVeR CLI
         run: |
           cd gui/river-cli
 
           # 1. Install dependencies from requirements.txt
           ./python/bin/python -m pip install -r ../../requirements.txt --break-system-packages
 
-          # 2. Install local package (uses pyproject.toml)
+          # 2. Install local package (uses pyproject.toml). Must run AFTER the
+          # STIV weights download above: setuptools only bundles the data
+          # files (see [tool.setuptools.package-data] in pyproject.toml) that
+          # exist in river/core/stiv_model/ at install time.
           ./python/bin/python -m pip install --break-system-packages ../../
 
-      - name: 6. Install GUI dependencies (Yarn)
+      - name: 7. Install GUI dependencies (Yarn)
         run: |
           npm install -g yarn
           cd gui
           yarn install
 
-      - name: 7. Package ffmpeg and Compile Linux (.deb)
+      - name: 8. Package ffmpeg and Compile Linux (.deb)
         run: |
           cd gui
 
@@ -83,7 +89,7 @@ jobs:
           yarn build
           yarn build-linux
 
-      - name: 8. Upload artifact (.deb)
+      - name: 9. Upload artifact (.deb)
         uses: actions/upload-artifact@v7
         with:
           name: RIVeR-Linux-deb
@@ -134,24 +140,31 @@ jobs:
               Get-ChildItem  # Esto nos va a mostrar en el log qué hay realmente ahí
               exit 1
           }
-      - name: 5. Install dependencies and RIVeR CLI
+      - name: 5. Download STIV weights
+        shell: powershell
+        run: .github\scripts\download_stiv_weights.ps1
+
+      - name: 6. Install dependencies and RIVeR CLI
         shell: powershell
         run: |
           Set-Location gui\river-cli
 
-          # 1. Install dependencies from requirements.txt 
+          # 1. Install dependencies from requirements.txt
           .\python\python.exe -m pip install -r ..\..\requirements.txt --break-system-packages
 
-          # 2. Install local package (uses pyproject.toml)
+          # 2. Install local package (uses pyproject.toml). Must run AFTER the
+          # STIV weights download above: setuptools only bundles the data
+          # files (see [tool.setuptools.package-data] in pyproject.toml) that
+          # exist in river/core/stiv_model/ at install time.
           .\python\python.exe -m pip install ..\.. --break-system-packages
 
-      - name: 6. Install GUI dependencies (Yarn)
+      - name: 7. Install GUI dependencies (Yarn)
         run: |
           npm install -g yarn
           cd gui
           yarn install
 
-      - name: 7. Package ffmpeg and Compile Windows (.exe)
+      - name: 8. Package ffmpeg and Compile Windows (.exe)
         shell: powershell
         run: |
           Set-Location gui
@@ -191,7 +204,7 @@ jobs:
           yarn build
           yarn build-win
 
-      - name: 8. Upload artifact (.exe)
+      - name: 9. Upload artifact (.exe)
         uses: actions/upload-artifact@v7
         with:
           name: RIVeR-Windows-Setup
@@ -240,20 +253,25 @@ jobs:
           echo "Verificación de portabilidad:"
           ls -la python/bin/python3
 
-      - name: 5. Install dependencies and RIVeR CLI
+      - name: 5. Download STIV weights
+        run: .github/scripts/download_stiv_weights.sh
+
+      - name: 6. Install dependencies and RIVeR CLI
         run: |
           cd gui/river-cli
           # En Mac el ejecutable está en bin/python
+          # (must run AFTER the STIV weights download above — see the Linux
+          # job's equivalent step for why)
           ./python/bin/python -m pip install --break-system-packages -r ../../requirements.txt
           ./python/bin/python -m pip install --break-system-packages ../../
 
-      - name: 6. Install GUI dependencies (Yarn)
+      - name: 7. Install GUI dependencies (Yarn)
         run: |
           npm install -g yarn
           cd gui
           yarn install
 
-      - name: 7. Package ffmpeg and Compile Mac (.dmg Unsigned)
+      - name: 8. Package ffmpeg and Compile Mac (.dmg Unsigned)
         run: |
           cd gui
           rm -rf ffmpeg release
@@ -283,7 +301,7 @@ jobs:
           # Build específico para arm64 (Apple Silicon)
           yarn build-mac
 
-      - name: 8. Upload artifact (.dmg)
+      - name: 9. Upload artifact (.dmg)
         uses: actions/upload-artifact@v7
         with:
           name: RIVeR-Mac-ARM64
