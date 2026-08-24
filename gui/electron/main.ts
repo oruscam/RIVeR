@@ -9,6 +9,7 @@ const userDir = os.homedir();
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js';
 import {
   cameraCalibration,
+  checkStivWeights,
   initProject,
   firstFrame,
   setPixelSize,
@@ -214,6 +215,7 @@ app.whenReady().then(async () => {
 
   cameraCalibration(riverCli);
   calculate3dRectification(riverCli);
+  checkStivWeights(riverCli);
   createMaskAndBbox(riverCli);
   createWindow();
   firstFrame(riverCli);
