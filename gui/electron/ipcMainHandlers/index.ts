@@ -11,6 +11,7 @@ import { getQuiver } from './getQuiver';
 import { getVideo } from './getVideo';
 import { getBathimetry } from './getBathimetry';
 import { calculate3dRectification } from './calculate3dRectification';
+import { checkStivWeights } from './checkStivWeights';
 import { getIpcamImages } from './getIpcamImages';
 import { getIwaveSpectra } from './getIwaveSpectra';
 import { getPoints } from './getPoints';
@@ -32,6 +33,7 @@ import { cameraCalibration } from './cameraCalibration';
 export {
   cameraCalibration,
   calculate3dRectification,
+  checkStivWeights,
   createFolderStructure,
   createMaskAndBbox,
   firstFrame,
