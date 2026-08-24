@@ -1,4 +1,46 @@
 
+# ⚠️ Experimental Branch — RIVeR with STIV & IWave
+
+This branch adds two new velocimetry techniques alongside RIVeR's original **LSPIV**:
+
+- **STIV** — a CNN-based Space-Time Image Velocimetry model, trained in-house.
+- **IWave** — a different velocimetry approach, developed by [dataforwater](https://github.com/dataforwater/iwave). Included here with credit to its original authors; not developed by the RIVeR team.
+
+This makes RIVeR the first software to offer all three techniques in one place.
+
+**Status:** Experimental. Not yet peer-reviewed or formally validated. Interfaces, outputs, and model performance may change before a stable release. Feedback is welcome via [Issues](https://github.com/oruscam/RIVeR/issues).
+
+## STIV model weights
+
+This branch includes STIV's code but not its trained weights, to keep the repo lean. Weights are hosted on Zenodo and downloaded automatically during the build (see `.github/scripts/download_stiv_weights.sh`).
+
+Manual download: https://zenodo.org/records/22050810
+DOI: https://doi.org/10.5281/zenodo.22050810
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22050810.svg)](https://doi.org/10.5281/zenodo.22050810)
+
+License and usage terms for the weights (separate from RIVeR's AGPLv3 license) are on the Zenodo record — research/non-commercial use, no redistribution, cite the DOI if used in published work.
+
+Without the weights file present, the STIV option will be unavailable (greyed out) in the app — see `river.core.stiv_pipeline.stiv_weights_available()`.
+
+> **Known gap:** as of this writing, the Zenodo record's `angle.zip` ships only the angle ensemble
+> (`angle/seed1..3/best_model.pth`). It does not include the sign-classifier weights
+> (`sign/sign_model.pth`) that STIV also requires, so STIV currently ships disabled even in official
+> builds until that file is published too. The build workflow warns loudly about this rather than
+> failing silently.
+
+## Citing this release
+
+- RIVeR software: use the DOI already referenced below (`10.1016/j.cageo.2017.07.009`)
+- STIV weights: https://doi.org/10.5281/zenodo.22050810
+- IWave: see [dataforwater/iwave](https://github.com/dataforwater/iwave) for their own citation guidance.
+
+## License
+
+RIVeR source code is licensed under **AGPLv3** (see LICENSE). STIV model weights are licensed separately — see the Zenodo record above.
+
+---
+
 <div align="center">
   <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/river_logo.svg" width="350px">
   <br />
@@ -347,8 +389,10 @@ the source of a bundled third-party component, or a copy on physical media, writ
   released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - **Documentation images** in `river/docs/_static/` are © UNC / CONICET / ORUS, released under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-- **STIV model weights** in `river/core/stiv_model/` were trained on data from UNC / CONICET / ORUS and
-  are released under the same terms as RIVeR itself (AGPL-3.0-or-later).
+- **STIV model weights** were trained on data from UNC / CONICET / ORUS and are hosted separately on
+  [Zenodo](https://doi.org/10.5281/zenodo.22050810) under a research/non-commercial use license — **not**
+  RIVeR's AGPL-3.0-or-later. No redistribution; cite the DOI if used in published work. See the "STIV
+  model weights" section above and the Zenodo record for the full terms.
 
 ---
 
