@@ -205,3 +205,10 @@ snapshots/
 .superpowers/
 .worktrees/
 .license-audit/
+
+# STIV model weights — downloaded from Zenodo (see .github/scripts/download_
+# stiv_weights.sh and river/README.md), not committed. Research/non-commercial
+# licence, separate from RIVeR's own AGPLv3 — see the Zenodo record.
+river/core/stiv_model/angle/*/best_model.pth
+river/core/stiv_model/sign/sign_model.pth
+angle.zip
