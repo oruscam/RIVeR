@@ -699,21 +699,50 @@
     margin-right: auto;
 }
 
+/* Same box as the Results module's .technique-row (Graphs/graphs.css) — padding,
+   corner radius, everything — so the two selectors read as one shared pattern. */
 .technique-row-processing {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 6px 10px;
-    border-radius: 20px;
-    transition: background-color 0.15s ease;
+    padding: 8px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background-color 0.14s ease;
 }
 
 .technique-row-processing:hover {
     background-color: var(--on-hover);
 }
 
+/* Matches the Results module's TechniqueLegend: the inactive/active distinction is a
+   text colour swap, nothing more — see .technique-name / .technique-name-active in
+   Graphs/graphs.css. */
 .technique-row-processing .field-title {
     flex: 1;
+    color: var(--secondary-text-color);
+}
+
+.technique-row-processing-active .field-title {
+    color: var(--primary-text-color);
+}
+
+/* STIV/iWave before their STI images or spectra exist yet — nothing to preview. */
+.technique-row-processing-disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.technique-row-processing-disabled:hover {
+    background-color: transparent;
+}
+
+/* STIV weights not present on disk (see stivAvailable in Processing.tsx) —
+   the whole row reads as inactive, not just the preview-click affordance,
+   since the toggle itself is disabled too. */
+.technique-row-processing-unavailable .field-title {
+    color: var(--secondary-text-color);
+    opacity: 0.6;
 }
 
 .technique-swatch-processing {

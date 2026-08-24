@@ -605,6 +605,16 @@ input:checked + .slider:before {
   background-color: var(--slider-thumb-active-color);
 }
 
+input:disabled + .slider {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+input:disabled + .slider:hover {
+  background-color: var(--slider-bg);
+  border-color: var(--slider-border);
+}
+
 /* =============================================================================
    THEME SEGMENTED CONTROL (3-way: Dark / Light / Dracula)
    ============================================================================= */

@@ -20,8 +20,7 @@
       "default": "An error occurred while trying to load the project"
     },
     "Version": {
-      "latest": "You are using the latest version.",
-      "update": "A newer version is available: ",
+      "experimental": "Experimental build.",
       "source": "Free software (AGPL-3.0) — source code and third-party licences"
     },
     "Settings": {
@@ -181,9 +180,10 @@
     "showLspivFrames": "Show LSPIV frames",
     "showStivStis": "Show STIV space-time images",
     "noStisYet": "Run STIV to see space-time images",
-    "showIwaveSpectra": "Show iWave spectra",
-    "noSpectraYet": "Run iWave to see spectra",
-    "iwaveNoData": "Run iWave to see spectra",
+    "stivWeightsMissing": "STIV model weights not found — download from Zenodo (see README)",
+    "showIwaveSpectra": "Show IWV spectra",
+    "noSpectraYet": "Run IWV to see spectra",
+    "iwaveNoData": "Run IWV to see spectra",
     "spectrumKx": "kx (rad/m)",
     "spectrumKt": "ω (rad/s)",
     "spectrumGravity": "Gravity waves",
@@ -212,7 +212,7 @@
     "stage": {
       "lspiv": "Computing LSPIV velocity field",
       "stiv": "Computing STIV velocities",
-      "iwave": "Computing iWave velocities"
+      "iwave": "Computing IWV velocities"
     }
   },
   "Results": {
@@ -234,7 +234,7 @@
     "activeTechnique": "Active technique",
     "activateTechnique": "Click to make {{technique}} the active technique",
     "showStivStd": "Show STIV ± sigma",
-    "showIwaveQuality": "Shade iWave markers by quality score",
+    "showIwaveQuality": "Shade IWV markers by quality score",
     "cantHideActiveTechnique": "Active technique can't be hidden — switch technique first",
     "hideTechnique": "Hide {{technique}}",
     "showTechnique": "Show {{technique}}",

@@ -20,8 +20,7 @@
       "default": "Ocurrió un error al intentar cargar el proyecto"
     },
     "Version": {
-      "latest": "Está usando la última versión.",
-      "update": "Hay una versión más reciente disponible: ",
+      "experimental": "Compilación experimental.",
       "source": "Software libre (AGPL-3.0) — código fuente y licencias de terceros"
     },
     "Settings": {
@@ -182,7 +181,8 @@
     "showLspivFrames": "Show LSPIV frames",
     "showStivStis": "Show STIV space-time images",
     "noStisYet": "Run STIV to see space-time images",
-    "iwaveNoPreview": "iWave has no per-station preview",
+    "stivWeightsMissing": "STIV model weights not found — download from Zenodo (see README)",
+    "iwaveNoPreview": "IWV has no per-station preview",
     "medianHint": "Show the median velocity field",
     "pivOnly": "PIV only",
     "stationsCount": "{{count}} stations",
@@ -200,7 +200,7 @@
     "stage": {
       "lspiv": "Computing LSPIV velocity field",
       "stiv": "Computing STIV velocities",
-      "iwave": "Computing iWave velocities"
+      "iwave": "Computing IWV velocities"
     }
   },
   "Results": {
@@ -222,7 +222,7 @@
     "activeTechnique": "Active technique",
     "activateTechnique": "Click to make {{technique}} the active technique",
     "showStivStd": "Show STIV ± sigma",
-    "showIwaveQuality": "Shade iWave markers by quality score",
+    "showIwaveQuality": "Shade IWV markers by quality score",
     "cantHideActiveTechnique": "Active technique can't be hidden — switch technique first",
     "hideTechnique": "Hide {{technique}}",
     "showTechnique": "Show {{technique}}",

@@ -24,6 +24,10 @@ export const Processing = () => {
   const [spectrumPaths, setSpectrumPaths] = useState<string[]>([]);
   const [spectrumStations, setSpectrumStations] = useState<number[]>([]);
   const [spectraSidecar, setSpectraSidecar] = useState<IwaveSpectraSidecar | null>(null);
+  // Optimistic default: assume available so the checkbox doesn't flash
+  // disabled on every mount while the (Python-backed) check is in flight —
+  // the common case is that the weights are there.
+  const [stivAvailable, setStivAvailable] = useState<boolean>(true);
 
   const { sections, activeSection } = useSectionSlice();
   const activeSectionName = sections[activeSection]?.name;
@@ -86,6 +90,21 @@ export const Processing = () => {
       cancelled = true;
     };
   }, [activeSectionName, fullQuiver]);
+
+  useEffect(() => {
+    let cancelled = false;
+    window.ipcRenderer
+      .invoke('check-stiv-weights')
+      .then((result: { available: boolean }) => {
+        if (!cancelled) setStivAvailable(result.available);
+      })
+      .catch(() => {
+        if (!cancelled) setStivAvailable(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (previewMode === 'sti' && stiPaths.length === 0) setPreviewMode('frames');
@@ -156,6 +175,7 @@ export const Processing = () => {
           canToggleSti={stiPaths.length > 0}
           canToggleIwave={spectrumPaths.length > 0}
           canToggleMedian={fullQuiver !== null}
+          stivAvailable={stivAvailable}
         />
         <div className="footer">
           <LockBtn
