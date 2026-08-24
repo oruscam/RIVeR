@@ -220,6 +220,24 @@ def theta_to_velocity(theta_deg: float, seconds_per_pix: float, meters_per_pix: 
 # Model loading (lazy, module-level cache)
 # ---------------------------------------------------------------------------
 
+def stiv_weights_available() -> dict:
+	"""Check whether the STIV model weight files are present on disk.
+
+	Deliberately does not import torch or touch the model classes — this has to
+	stay cheap enough to call before every analysis run (and from the GUI on
+	page load) so STIV can be greyed out instead of failing at runtime when the
+	weights haven't been downloaded (see river/README.md's STIV weights section).
+	"""
+	required = [
+		_MODEL_DIR / "angle" / "seed1" / "best_model.pth",
+		_MODEL_DIR / "angle" / "seed2" / "best_model.pth",
+		_MODEL_DIR / "angle" / "seed3" / "best_model.pth",
+		_MODEL_DIR / "sign" / "sign_model.pth",
+	]
+	missing = [str(p) for p in required if not p.is_file()]
+	return {"available": not missing, "missing": missing}
+
+
 def load_models():
 	"""Lazy-load and cache the angle ensemble + sign model.
 
