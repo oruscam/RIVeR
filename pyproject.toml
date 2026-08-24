@@ -57,6 +57,25 @@ examples = ["pandas", "jupyter", "ipykernel"]
 [tool.setuptools]
 packages = ["river", "river.core", "river.cli", "river.cli.commands", "river.core.stiv_model"]
 
+# river.core.stiv_model ships its model config/metadata (and, when present, the
+# downloaded weight files — see .github/workflows/build.yml) as data alongside
+# its .py files. Without this, `pip install` silently drops everything but the
+# .py files: STIV would fail at runtime in every packaged build, weights or
+# not, because load_models() also needs these JSON files to construct the
+# model before it ever gets to torch.load() on the weights.
+[tool.setuptools.package-data]
+"river.core.stiv_model" = [
+    "*.md",
+    "angle/seed1/*.json",
+    "angle/seed1/*.pth",
+    "angle/seed2/*.json",
+    "angle/seed2/*.pth",
+    "angle/seed3/*.json",
+    "angle/seed3/*.pth",
+    "sign/*.json",
+    "sign/*.pth",
+]
+
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 include = ["river/**/*.py",]
