@@ -19,6 +19,10 @@ jobs:
   # ─────────────────────────────────────────────
   build-linux:
     runs-on: ubuntu-24.04
+    # Safety net: without this the job inherits GitHub's 6h default, so a
+    # stalled download (e.g. ffmpeg below) hangs until someone cancels it by
+    # hand instead of failing on its own.
+    timeout-minutes: 30
 
     steps:
       - name: 1. Checkout
@@ -74,7 +78,11 @@ jobs:
           # 2. Download static ffmpeg binaries
           echo "Downloading static ffmpeg..."
           mkdir -p ffmpeg/bin
-          wget -q https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+          # --timeout/--tries bound each attempt: johnvansickle.com is a
+          # single-maintainer host that occasionally stalls mid-download, and
+          # wget's defaults (no timeout, 20 retries) can hang for a very long
+          # time with -q giving no sign of progress in the log.
+          wget --timeout=30 --tries=3 https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
           tar -xf ffmpeg-release-amd64-static.tar.xz
           cp ffmpeg-*-static/ffmpeg ffmpeg/bin/
           cp ffmpeg-*-static/ffprobe ffmpeg/bin/
@@ -107,6 +115,7 @@ jobs:
   # ─────────────────────────────────────────────
   build-windows:
     runs-on: windows-latest
+    timeout-minutes: 30
 
     steps:
       - name: 1. Checkout
@@ -183,7 +192,10 @@ jobs:
           # 2. Download ffmpeg for Windows
           Write-Host "Downloading ffmpeg for Windows..."
           New-Item -ItemType Directory -Force -Path ffmpeg\bin
-          Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile ffmpeg-win.zip
+          # -TimeoutSec bounds the request: Invoke-WebRequest has no default
+          # timeout, so a stalled connection to gyan.dev would otherwise hang
+          # until the job-level timeout-minutes above cuts it off.
+          Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile ffmpeg-win.zip -TimeoutSec 60
           Expand-Archive -Path ffmpeg-win.zip -DestinationPath ffmpeg-tmp
           $ffDir = Get-ChildItem -Directory ffmpeg-tmp | Select-Object -First 1
           Copy-Item "$($ffDir.FullName)\bin\ffmpeg.exe"  "ffmpeg\bin\ffmpeg.exe"
@@ -222,6 +234,7 @@ jobs:
   # ─────────────────────────────────────────────
   build-mac:
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - name: 1. Checkout
         uses: actions/checkout@v6
@@ -285,8 +298,9 @@ jobs:
           echo "Downloading static ffmpeg for Apple Silicon..."
           mkdir -p ffmpeg/bin
           # Usamos una fuente confiable de binarios estáticos para Mac
-          curl -L https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip -o ffmpeg.zip
-          curl -L https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip -o ffprobe.zip
+          # --max-time bounds each request so a stall doesn't hang past it.
+          curl -L --max-time 60 https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip -o ffmpeg.zip
+          curl -L --max-time 60 https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip -o ffprobe.zip
           unzip ffmpeg.zip -d ffmpeg/bin/
           unzip ffprobe.zip -d ffmpeg/bin/
           rm ffmpeg.zip ffprobe.zip
