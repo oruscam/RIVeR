@@ -65,7 +65,7 @@ foreach ($seed in @("seed1", "seed2", "seed3")) {
   }
 }
 if ($missing) {
-  Write-Host "::error::STIV angle weights incomplete after extracting angle.zip — failing the build rather than shipping a broken STIV option."
+  Write-Host "::error::STIV angle weights incomplete after extracting angle.zip —- failing the build rather than shipping a broken STIV option."
   exit 1
 }
 
