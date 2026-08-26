@@ -19,6 +19,10 @@ jobs:
   # ─────────────────────────────────────────────
   build-linux:
     runs-on: ubuntu-24.04
+    # Safety net: without this the job inherits GitHub's 6h default, so a
+    # stalled download (e.g. ffmpeg below) hangs until someone cancels it by
+    # hand instead of failing on its own.
+    timeout-minutes: 30
 
     steps:
       - name: 1. Checkout
@@ -49,10 +53,21 @@ jobs:
         run: |
           cd gui/river-cli
 
-          # 1. Install dependencies from requirements.txt
+          # 1. Install CPU-only PyTorch first. pyproject.toml only requires
+          # "torch >= 2.0.0" with no CPU/GPU distinction, so an unconstrained
+          # install pulls PyPI's default CUDA-enabled Linux wheel — several
+          # GB of bundled NVIDIA libraries (cublas, cudnn, cusolver, ...)
+          # that this portable Electron app never uses (STIV only ever runs
+          # CPU inference here). That bloat is what pushed the packaged
+          # .deb past GitHub Releases' 2 GB asset limit. Installing the CPU
+          # wheel from PyTorch's own index first satisfies the ">= 2.0.0"
+          # constraint so the steps below don't re-resolve it against PyPI.
+          ./python/bin/python -m pip install --break-system-packages torch --index-url https://download.pytorch.org/whl/cpu
+
+          # 2. Install dependencies from requirements.txt
           ./python/bin/python -m pip install -r ../../requirements.txt --break-system-packages
 
-          # 2. Install local package (uses pyproject.toml). Must run AFTER the
+          # 3. Install local package (uses pyproject.toml). Must run AFTER the
           # STIV weights download above: setuptools only bundles the data
           # files (see [tool.setuptools.package-data] in pyproject.toml) that
           # exist in river/core/stiv_model/ at install time.
@@ -74,20 +89,43 @@ jobs:
           # 2. Download static ffmpeg binaries
           echo "Downloading static ffmpeg..."
           mkdir -p ffmpeg/bin
-          wget -q https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
-          tar -xf ffmpeg-release-amd64-static.tar.xz
-          cp ffmpeg-*-static/ffmpeg ffmpeg/bin/
-          cp ffmpeg-*-static/ffprobe ffmpeg/bin/
+          # Moved off johnvansickle.com: that single-maintainer host proved
+          # unreliable from CI (corrupted downloads, connection timeouts on
+          # consecutive runs). BtbN/FFmpeg-Builds publishes the same kind of
+          # static GPL build as a GitHub release asset instead, served from
+          # GitHub's own CDN. The "latest" tag's assets get refreshed over
+          # time (same non-pinned "current build" semantics as before), but
+          # the version-numbered filename below (n9.0) will eventually be
+          # replaced by a newer one on BtbN's end and 404 — if this download
+          # starts failing with 404, check
+          # https://github.com/BtbN/FFmpeg-Builds/releases/tag/latest for the
+          # current filename and bump it here.
+          curl -fSL --retry 3 --retry-delay 5 -o ffmpeg-linux.tar.xz \
+            https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n9.0-latest-linux64-gpl-9.0.tar.xz
+
+          # Some failure modes (maintenance pages, rate limiting) come back
+          # as a 200 with an HTML body rather than a real HTTP error (see
+          # download_stiv_weights.sh) — confirm the payload is actually a
+          # valid xz archive before trusting it.
+          if ! xz -t ffmpeg-linux.tar.xz 2>/dev/null; then
+            echo "::error::Downloaded ffmpeg archive is not a valid xz file (likely an HTML error page). First 300 bytes:"
+            head -c 300 ffmpeg-linux.tar.xz
+            echo
+            exit 1
+          fi
+
+          tar -xf ffmpeg-linux.tar.xz
+          ffdir=$(tar -tf ffmpeg-linux.tar.xz | head -1 | cut -d/ -f1)
+          cp "$ffdir/bin/ffmpeg" ffmpeg/bin/
+          cp "$ffdir/bin/ffprobe" ffmpeg/bin/
 
           # These builds are GPL-3.0, so the licence must ship with them.
           # Prefer the distributor's own copy; fall back to the text in the repo.
-          cp ffmpeg-*-static/GPLv3.txt ffmpeg/LICENSE.txt 2>/dev/null \
-            || cp ffmpeg-*-static/LICENSE ffmpeg/LICENSE.txt 2>/dev/null \
+          cp "$ffdir/LICENSE.txt" ffmpeg/LICENSE.txt 2>/dev/null \
             || cp licenses/GPL-3.0-ffmpeg.txt ffmpeg/LICENSE.txt
-          cp ffmpeg-*-static/readme.txt ffmpeg/README.txt 2>/dev/null || true
           test -s ffmpeg/LICENSE.txt || { echo "::error::ffmpeg licence text missing"; exit 1; }
 
-          rm -rf ffmpeg-*-static ffmpeg-release-amd64-static.tar.xz
+          rm -rf "$ffdir" ffmpeg-linux.tar.xz
 
           # RIVeR's own licence and the third-party notice ship in the artifact.
           cp ../LICENSE ../THIRD-PARTY-LICENSES.md licenses/
@@ -107,6 +145,7 @@ jobs:
   # ─────────────────────────────────────────────
   build-windows:
     runs-on: windows-latest
+    timeout-minutes: 30
 
     steps:
       - name: 1. Checkout
@@ -156,10 +195,16 @@ jobs:
         run: |
           Set-Location gui\river-cli
 
-          # 1. Install dependencies from requirements.txt
+          # 1. Install CPU-only PyTorch first — see the build-linux job's
+          # equivalent step for why: an unconstrained install otherwise pulls
+          # PyPI's default CUDA-enabled Windows wheel (several GB of bundled
+          # NVIDIA libraries this portable app never uses).
+          .\python\python.exe -m pip install --break-system-packages torch --index-url https://download.pytorch.org/whl/cpu
+
+          # 2. Install dependencies from requirements.txt
           .\python\python.exe -m pip install -r ..\..\requirements.txt --break-system-packages
 
-          # 2. Install local package (uses pyproject.toml). Must run AFTER the
+          # 3. Install local package (uses pyproject.toml). Must run AFTER the
           # STIV weights download above: setuptools only bundles the data
           # files (see [tool.setuptools.package-data] in pyproject.toml) that
           # exist in river/core/stiv_model/ at install time.
@@ -183,7 +228,20 @@ jobs:
           # 2. Download ffmpeg for Windows
           Write-Host "Downloading ffmpeg for Windows..."
           New-Item -ItemType Directory -Force -Path ffmpeg\bin
-          Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile ffmpeg-win.zip
+          # Moved off gyan.dev: that single-maintainer host proved unreliable
+          # from CI (503s, stalled connections) — see the build-linux job's
+          # equivalent step for the same story on johnvansickle.com.
+          # BtbN/FFmpeg-Builds publishes the same kind of static GPL build as
+          # a GitHub release asset instead, served from GitHub's own CDN. The
+          # version-numbered filename below (n9.0) will eventually be
+          # replaced by a newer one on BtbN's end and 404 — if this download
+          # starts failing, check
+          # https://github.com/BtbN/FFmpeg-Builds/releases/tag/latest for the
+          # current filename and bump it here.
+          # -TimeoutSec bounds the request: Invoke-WebRequest has no default
+          # timeout, so a stalled connection would otherwise hang until the
+          # job-level timeout-minutes above cuts it off.
+          Invoke-WebRequest -Uri "https://github.com/BtbN/FFmpeg-Builds/releases/download/latest/ffmpeg-n9.0-latest-win64-gpl-9.0.zip" -OutFile ffmpeg-win.zip -TimeoutSec 60
           Expand-Archive -Path ffmpeg-win.zip -DestinationPath ffmpeg-tmp
           $ffDir = Get-ChildItem -Directory ffmpeg-tmp | Select-Object -First 1
           Copy-Item "$($ffDir.FullName)\bin\ffmpeg.exe"  "ffmpeg\bin\ffmpeg.exe"
@@ -191,7 +249,7 @@ jobs:
 
           # These builds are GPL-3.0, so the licence must ship with them.
           # Prefer the distributor's own copy; fall back to the text in the repo.
-          $ffLicense = Join-Path $ffDir.FullName "LICENSE"
+          $ffLicense = Join-Path $ffDir.FullName "LICENSE.txt"
           if (Test-Path $ffLicense) {
             Copy-Item $ffLicense "ffmpeg\LICENSE.txt"
           } else {
@@ -215,13 +273,23 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: RIVeR-Windows-Setup
-          path: gui/release/**/*.exe
+          # Not gui/release/**/*.exe: electron-builder also leaves a
+          # win-unpacked/ dir next to the installer with an unpacked copy of
+          # everything in extraResources — including river-cli/python/
+          # python.exe. A recursive glob picks that up too, and since
+          # `gh release create` (in the publish job) names each asset after
+          # its basename, uploading two files both called python.exe fails
+          # with "ReleaseAsset.name already exists". Restricting to one
+          # directory level keeps this to the installer in release/<version>/
+          # and skips win-unpacked/ entirely.
+          path: gui/release/*/*.exe
 
   # ─────────────────────────────────────────────
   #  macOS (Apple Silicon - arm64)
   # ─────────────────────────────────────────────
   build-mac:
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
       - name: 1. Checkout
         uses: actions/checkout@v6
@@ -285,8 +353,9 @@ jobs:
           echo "Downloading static ffmpeg for Apple Silicon..."
           mkdir -p ffmpeg/bin
           # Usamos una fuente confiable de binarios estáticos para Mac
-          curl -L https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip -o ffmpeg.zip
-          curl -L https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip -o ffprobe.zip
+          # --max-time bounds each request so a stall doesn't hang past it.
+          curl -L --max-time 60 https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip -o ffmpeg.zip
+          curl -L --max-time 60 https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip -o ffprobe.zip
           unzip ffmpeg.zip -d ffmpeg/bin/
           unzip ffprobe.zip -d ffmpeg/bin/
           rm ffmpeg.zip ffprobe.zip
