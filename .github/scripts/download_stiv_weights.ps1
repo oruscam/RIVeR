@@ -1,7 +1,8 @@
-# Downloads and installs the STIV angle-ensemble weights from Zenodo into the
-# checkout, so pyproject.toml's [tool.setuptools.package-data] picks them up
-# on the `pip install` step that follows this one. Windows build job only —
-# see download_stiv_weights.sh for the Linux/macOS equivalent.
+# Downloads and installs the STIV weights (angle ensemble + sign classifier)
+# from Zenodo into the checkout, so pyproject.toml's
+# [tool.setuptools.package-data] picks them up on the `pip install` step that
+# follows this one. Windows build job only — see download_stiv_weights.sh for
+# the Linux/macOS equivalent.
 #
 # Run from the repo root (GitHub Actions' default working directory).
 $ErrorActionPreference = "Stop"
@@ -68,16 +69,22 @@ if ($missing) {
   exit 1
 }
 
-# NOTE: as of this writing, the Zenodo record only ships the angle ensemble.
-# The sign classifier (river\core\stiv_model\sign\sign_model.pth) is a
-# separate file that load_models() also requires; without it,
-# river.core.stiv_pipeline.stiv_weights_available() still reports STIV as
-# unavailable and the GUI keeps it greyed out. That's a known, non-fatal gap
-# (not a download/extraction failure) — flag it loudly but don't fail the
-# build over it, since LSPIV/iWave must still ship.
-if (-not (Test-Path "$destDir\sign\sign_model.pth")) {
-  Write-Host "::warning::sign_model.pth is not present (the Zenodo angle.zip record does not include it) — STIV will ship disabled in this build until sign-classifier weights are published and this script is updated to fetch them."
+# angle.zip now also ships the sign classifier (river\core\stiv_model\sign\)
+# alongside the angle ensemble — load_models() requires both, and
+# river.core.stiv_pipeline.stiv_weights_available() greys out STIV in the GUI
+# if either is missing. Copy it the same way as angle\.
+if (-not (Test-Path "$extractDir\sign")) {
+  Write-Host "::error::angle.zip did not contain the expected top-level 'sign\' directory"
+  exit 1
 }
 
-Write-Host "STIV angle weights installed."
+New-Item -ItemType Directory -Force -Path "$destDir\sign" | Out-Null
+Copy-Item -Path "$extractDir\sign\*" -Destination "$destDir\sign" -Recurse -Force
+
+if (-not (Test-Path "$destDir\sign\sign_model.pth")) {
+  Write-Host "::error::Missing $destDir\sign\sign_model.pth after extraction"
+  exit 1
+}
+
+Write-Host "STIV weights installed."
 Remove-Item -Recurse -Force $workDir -ErrorAction SilentlyContinue

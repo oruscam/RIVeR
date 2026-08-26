@@ -23,12 +23,6 @@ License and usage terms for the weights (separate from RIVeR's AGPLv3 license) a
 
 Without the weights file present, the STIV option will be unavailable (greyed out) in the app — see `river.core.stiv_pipeline.stiv_weights_available()`.
 
-> **Known gap:** as of this writing, the Zenodo record's `angle.zip` ships only the angle ensemble
-> (`angle/seed1..3/best_model.pth`). It does not include the sign-classifier weights
-> (`sign/sign_model.pth`) that STIV also requires, so STIV currently ships disabled even in official
-> builds until that file is published too. The build workflow warns loudly about this rather than
-> failing silently.
-
 ## Citing this release
 
 - RIVeR software: use the DOI already referenced below (`10.1016/j.cageo.2017.07.009`)
