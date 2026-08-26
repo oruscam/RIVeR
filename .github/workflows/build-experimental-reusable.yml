@@ -1,0 +1,313 @@
+name: Build RIVeR Experimental (reusable artifacts)
+
+# Internal building block: NOT meant to be run by hand. It only reacts to
+# `workflow_call`, so it has no "Run workflow" button of its own — it's
+# invoked by build-experimental.yml (mutable "experimental" tag) and
+# build-experimental-snapshot.yml (one new tag per run), which both need the
+# exact same Linux/Windows/macOS builds and only differ in how they publish
+# the result. Keeping the compile steps here avoids maintaining two copies.
+#
+# Mirrors the build-linux / build-windows / build-mac jobs in build.yml
+# (official releases) — see that file if these steps need to change too.
+
+on:
+  workflow_call:
+
+jobs:
+  # ─────────────────────────────────────────────
+  #  Linux (.deb)
+  # ─────────────────────────────────────────────
+  build-linux:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: 1. Checkout
+        uses: actions/checkout@v6
+
+      - name: 2. Install Node.js and Yarn
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: 3. Install uv
+        uses: astral-sh/setup-uv@v8.1.0
+
+      - name: 4. Install Python Portable and rename folder
+        run: |
+          mkdir -p gui/river-cli
+          export UV_PYTHON_INSTALL_DIR=$GITHUB_WORKSPACE/gui/river-cli
+          uv python install 3.12.1
+
+          cd gui/river-cli
+          # Rename the extracted cpython folder to 'python'
+          mv cpython-3.12.1-linux-x86_64-gnu python
+
+      - name: 5. Download STIV weights
+        run: .github/scripts/download_stiv_weights.sh
+
+      - name: 6. Install dependencies and RIVeR CLI
+        run: |
+          cd gui/river-cli
+
+          # 1. Install dependencies from requirements.txt
+          ./python/bin/python -m pip install -r ../../requirements.txt --break-system-packages
+
+          # 2. Install local package (uses pyproject.toml). Must run AFTER the
+          # STIV weights download above: setuptools only bundles the data
+          # files (see [tool.setuptools.package-data] in pyproject.toml) that
+          # exist in river/core/stiv_model/ at install time.
+          ./python/bin/python -m pip install --break-system-packages ../../
+
+      - name: 7. Install GUI dependencies (Yarn)
+        run: |
+          npm install -g yarn
+          cd gui
+          yarn install
+
+      - name: 8. Package ffmpeg and Compile Linux (.deb)
+        run: |
+          cd gui
+
+          # 1. Clean up (in case act is run multiple times)
+          rm -rf ffmpeg release
+
+          # 2. Download static ffmpeg binaries
+          echo "Downloading static ffmpeg..."
+          mkdir -p ffmpeg/bin
+          wget -q https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz
+          tar -xf ffmpeg-release-amd64-static.tar.xz
+          cp ffmpeg-*-static/ffmpeg ffmpeg/bin/
+          cp ffmpeg-*-static/ffprobe ffmpeg/bin/
+
+          # These builds are GPL-3.0, so the licence must ship with them.
+          # Prefer the distributor's own copy; fall back to the text in the repo.
+          cp ffmpeg-*-static/GPLv3.txt ffmpeg/LICENSE.txt 2>/dev/null \
+            || cp ffmpeg-*-static/LICENSE ffmpeg/LICENSE.txt 2>/dev/null \
+            || cp licenses/GPL-3.0-ffmpeg.txt ffmpeg/LICENSE.txt
+          cp ffmpeg-*-static/readme.txt ffmpeg/README.txt 2>/dev/null || true
+          test -s ffmpeg/LICENSE.txt || { echo "::error::ffmpeg licence text missing"; exit 1; }
+
+          rm -rf ffmpeg-*-static ffmpeg-release-amd64-static.tar.xz
+
+          # RIVeR's own licence and the third-party notice ship in the artifact.
+          cp ../LICENSE ../THIRD-PARTY-LICENSES.md licenses/
+
+          # 3. Compile (ffmpeg is already in extraResources of electron-builder.json5)
+          yarn build
+          yarn build-linux
+
+      - name: 9. Upload artifact (.deb)
+        uses: actions/upload-artifact@v7
+        with:
+          name: RIVeR-Linux-deb
+          path: gui/release/**/*.deb
+
+  # ─────────────────────────────────────────────
+  #  Windows (.exe NSIS installer)
+  # ─────────────────────────────────────────────
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: 1. Checkout
+        uses: actions/checkout@v6
+
+      - name: 2. Install Node.js and Yarn
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: 3. Install uv
+        uses: astral-sh/setup-uv@v8.1.0
+
+      - name: 4. Install Python Portable and rename folder
+        shell: powershell
+        run: |
+          # 1. Limpieza y creación de la ruta absoluta
+          $basePath = Get-Location
+          $targetPath = Join-Path $basePath "gui\river-cli"
+
+          if (Test-Path $targetPath) { Remove-Item -Recurse -Force $targetPath }
+          New-Item -ItemType Directory -Force -Path $targetPath
+
+          # 2. Forzar a uv a instalarlo EXACTAMENTE ahí
+          $env:UV_PYTHON_INSTALL_DIR = $targetPath
+          Write-Host "Instalando Python en: $env:UV_PYTHON_INSTALL_DIR"
+          uv python install 3.12.1 --force
+
+          # 3. Renombrar con búsqueda robusta
+          Set-Location $targetPath
+          $dir = Get-ChildItem -Directory -Filter "cpython-*" | Select-Object -First 1
+
+          if ($null -ne $dir) {
+              Write-Host "Carpeta encontrada: $($dir.Name). Renombrando a 'python'..."
+              Rename-Item $dir.FullName "python"
+          } else {
+              Write-Host "Error: No se encontró la carpeta cpython en $targetPath"
+              Get-ChildItem  # Esto nos va a mostrar en el log qué hay realmente ahí
+              exit 1
+          }
+      - name: 5. Download STIV weights
+        shell: powershell
+        run: .github\scripts\download_stiv_weights.ps1
+
+      - name: 6. Install dependencies and RIVeR CLI
+        shell: powershell
+        run: |
+          Set-Location gui\river-cli
+
+          # 1. Install dependencies from requirements.txt
+          .\python\python.exe -m pip install -r ..\..\requirements.txt --break-system-packages
+
+          # 2. Install local package (uses pyproject.toml). Must run AFTER the
+          # STIV weights download above: setuptools only bundles the data
+          # files (see [tool.setuptools.package-data] in pyproject.toml) that
+          # exist in river/core/stiv_model/ at install time.
+          .\python\python.exe -m pip install ..\.. --break-system-packages
+
+      - name: 7. Install GUI dependencies (Yarn)
+        run: |
+          npm install -g yarn
+          cd gui
+          yarn install
+
+      - name: 8. Package ffmpeg and Compile Windows (.exe)
+        shell: powershell
+        run: |
+          Set-Location gui
+
+          # 1. Clean up
+          if (Test-Path ffmpeg) { Remove-Item -Recurse -Force ffmpeg }
+          if (Test-Path release) { Remove-Item -Recurse -Force release }
+
+          # 2. Download ffmpeg for Windows
+          Write-Host "Downloading ffmpeg for Windows..."
+          New-Item -ItemType Directory -Force -Path ffmpeg\bin
+          Invoke-WebRequest -Uri "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" -OutFile ffmpeg-win.zip
+          Expand-Archive -Path ffmpeg-win.zip -DestinationPath ffmpeg-tmp
+          $ffDir = Get-ChildItem -Directory ffmpeg-tmp | Select-Object -First 1
+          Copy-Item "$($ffDir.FullName)\bin\ffmpeg.exe"  "ffmpeg\bin\ffmpeg.exe"
+          Copy-Item "$($ffDir.FullName)\bin\ffprobe.exe" "ffmpeg\bin\ffprobe.exe"
+
+          # These builds are GPL-3.0, so the licence must ship with them.
+          # Prefer the distributor's own copy; fall back to the text in the repo.
+          $ffLicense = Join-Path $ffDir.FullName "LICENSE"
+          if (Test-Path $ffLicense) {
+            Copy-Item $ffLicense "ffmpeg\LICENSE.txt"
+          } else {
+            Copy-Item "licenses\GPL-3.0-ffmpeg.txt" "ffmpeg\LICENSE.txt"
+          }
+          if (-not (Test-Path "ffmpeg\LICENSE.txt")) {
+            Write-Host "::error::ffmpeg licence text missing"; exit 1
+          }
+
+          # RIVeR's own licence and the third-party notice ship in the artifact.
+          Copy-Item "..\LICENSE" "licenses\LICENSE"
+          Copy-Item "..\THIRD-PARTY-LICENSES.md" "licenses\THIRD-PARTY-LICENSES.md"
+
+          Remove-Item -Recurse -Force ffmpeg-tmp, ffmpeg-win.zip
+
+          # 3. Compile (ffmpeg is already in extraResources of electron-builder.json5)
+          yarn build
+          yarn build-win
+
+      - name: 9. Upload artifact (.exe)
+        uses: actions/upload-artifact@v7
+        with:
+          name: RIVeR-Windows-Setup
+          path: gui/release/**/*.exe
+
+  # ─────────────────────────────────────────────
+  #  macOS (Apple Silicon - arm64)
+  # ─────────────────────────────────────────────
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - name: 1. Checkout
+        uses: actions/checkout@v6
+
+      - name: 2. Install Node.js and Yarn
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+
+      - name: 3. Install uv
+        uses: astral-sh/setup-uv@v8.1.0
+
+      - name: 4. Install Python Portable (Apple Silicon)
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/gui/river-cli"
+          export UV_PYTHON_INSTALL_DIR="$GITHUB_WORKSPACE/gui/river-cli"
+
+          echo "Instalando Python..."
+          uv python install 3.11
+
+          cd "$GITHUB_WORKSPACE/gui/river-cli"
+
+          # 1. Encontrar el nombre de la carpeta real/link que creó uv
+          REAL_DIR=$(ls -d cpython-* | head -n 1)
+          echo "Detectado: $REAL_DIR"
+
+          # Esto copia el CONTENIDO al que apunta el link, no el link en sí.
+          cp -RL "$REAL_DIR" python_temp
+
+          # 3. Limpiar y dejar la carpeta final
+          rm -rf "$REAL_DIR"
+          mv python_temp python
+
+          echo "Verificación de portabilidad:"
+          ls -la python/bin/python3
+
+      - name: 5. Download STIV weights
+        run: .github/scripts/download_stiv_weights.sh
+
+      - name: 6. Install dependencies and RIVeR CLI
+        run: |
+          cd gui/river-cli
+          # En Mac el ejecutable está en bin/python
+          # (must run AFTER the STIV weights download above — see the Linux
+          # job's equivalent step for why)
+          ./python/bin/python -m pip install --break-system-packages -r ../../requirements.txt
+          ./python/bin/python -m pip install --break-system-packages ../../
+
+      - name: 7. Install GUI dependencies (Yarn)
+        run: |
+          npm install -g yarn
+          cd gui
+          yarn install
+
+      - name: 8. Package ffmpeg and Compile Mac (.dmg Unsigned)
+        run: |
+          cd gui
+          rm -rf ffmpeg release
+
+          # Descargar FFmpeg para macOS (64-bit ARM)
+          echo "Downloading static ffmpeg for Apple Silicon..."
+          mkdir -p ffmpeg/bin
+          # Usamos una fuente confiable de binarios estáticos para Mac
+          curl -L https://evermeet.cx/ffmpeg/getrelease/ffmpeg/zip -o ffmpeg.zip
+          curl -L https://evermeet.cx/ffmpeg/getrelease/ffprobe/zip -o ffprobe.zip
+          unzip ffmpeg.zip -d ffmpeg/bin/
+          unzip ffprobe.zip -d ffmpeg/bin/
+          rm ffmpeg.zip ffprobe.zip
+
+          # evermeet.cx builds are configured with --enable-gpl --enable-version3
+          # and ship no licence file in the zip, so supply the text from the repo.
+          cp licenses/GPL-3.0-ffmpeg.txt ffmpeg/LICENSE.txt
+          test -s ffmpeg/LICENSE.txt || { echo "::error::ffmpeg licence text missing"; exit 1; }
+
+          # RIVeR's own licence and the third-party notice ship in the artifact.
+          cp ../LICENSE ../THIRD-PARTY-LICENSES.md licenses/
+
+          # Obligamos a Electron Builder a NO buscar certificados
+          export CSC_IDENTITY_AUTO_DISCOVERY=false
+
+          yarn build
+          # Build específico para arm64 (Apple Silicon)
+          yarn build-mac
+
+      - name: 9. Upload artifact (.dmg)
+        uses: actions/upload-artifact@v7
+        with:
+          name: RIVeR-Mac-ARM64
+          path: gui/release/**/*.dmg
