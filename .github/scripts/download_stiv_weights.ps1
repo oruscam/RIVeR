@@ -1,7 +1,7 @@
 # Downloads and installs the STIV weights (angle ensemble + sign classifier)
 # from Zenodo into the checkout, so pyproject.toml's
 # [tool.setuptools.package-data] picks them up on the `pip install` step that
-# follows this one. Windows build job only — see download_stiv_weights.sh for
+# follows this one. Windows build job only - see download_stiv_weights.sh for
 # the Linux/macOS equivalent.
 #
 # Run from the repo root (GitHub Actions' default working directory).
@@ -65,12 +65,12 @@ foreach ($seed in @("seed1", "seed2", "seed3")) {
   }
 }
 if ($missing) {
-  Write-Host "::error::STIV angle weights incomplete after extracting angle.zip —- failing the build rather than shipping a broken STIV option."
+  Write-Host "::error::STIV angle weights incomplete after extracting angle.zip - failing the build rather than shipping a broken STIV option."
   exit 1
 }
 
 # angle.zip now also ships the sign classifier (river\core\stiv_model\sign\)
-# alongside the angle ensemble — load_models() requires both, and
+# alongside the angle ensemble - load_models() requires both, and
 # river.core.stiv_pipeline.stiv_weights_available() greys out STIV in the GUI
 # if either is missing. Copy it the same way as angle\.
 if (-not (Test-Path "$extractDir\sign")) {
