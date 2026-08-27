@@ -62,10 +62,8 @@ jobs:
           release, this specific link and its assets will not be overwritten
           by future builds.
 
-          STIV requires model weights not bundled in this repo — see the
-          README's \"STIV model weights\" section. If the sign-classifier
-          weights are still unpublished, STIV ships disabled (greyed out) in
-          this build; LSPIV and IWave are unaffected.
+          STIV model weights are bundled in this build — no extra download
+          needed.
 
           Not peer-reviewed or formally validated. Interfaces and outputs may
           change without notice."
