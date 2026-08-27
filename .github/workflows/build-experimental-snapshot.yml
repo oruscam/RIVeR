@@ -1,0 +1,69 @@
+name: Build RIVeR Experimental (snapshot)
+
+# Manual-only. Builds the river-labs branch (STIV + IWave) for Linux/Windows/
+# macOS and publishes them to a NEW pre-release every run, tagged
+#   experimental-<UTC date+time>-<short commit sha>
+# Past snapshots are never touched or deleted, so every build stays
+# downloadable — but each run hands out a different link. If you want one
+# stable link that always points at the latest build instead, use
+# build-experimental.yml.
+#
+# To run: Actions tab → "Build RIVeR Experimental (snapshot)" → Run workflow →
+# pick the branch to build (river-labs).
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-experimental-reusable.yml
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: 1. Checkout
+        uses: actions/checkout@v6
+
+      - name: 2. Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: 3. List downloaded files (debug)
+        run: find artifacts -type f
+
+      - name: 4. Compute a unique snapshot tag
+        id: tag
+        run: |
+          echo "tag=experimental-$(date -u +%Y%m%d-%H%M%S)-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: 5. Create tag
+        run: |
+          git tag "${{ steps.tag.outputs.tag }}"
+          git push origin "${{ steps.tag.outputs.tag }}"
+
+      - name: 6. Publish pre-release
+        run: |
+          shopt -s globstar
+          gh release create "${{ steps.tag.outputs.tag }}" \
+            artifacts/**/*.deb artifacts/**/*.exe artifacts/**/*.dmg \
+            --prerelease \
+            --title "RIVeR Experimental Snapshot (${{ steps.tag.outputs.tag }})" \
+            --notes "Automated snapshot build from the \`river-labs\` branch at commit ${{ github.sha }}.
+
+          This is a permanent snapshot: unlike the rolling \`experimental\`
+          release, this specific link and its assets will not be overwritten
+          by future builds.
+
+          STIV model weights are bundled in this build — no extra download
+          needed.
+
+          Not peer-reviewed or formally validated. Interfaces and outputs may
+          change without notice."
