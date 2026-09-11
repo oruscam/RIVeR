@@ -49,3 +49,23 @@ describe('.btn button component', () => {
     expect(ruleBody('.btn:disabled')).toMatch(/opacity:\s*0\.38/);
   });
 });
+
+describe('.field-row component', () => {
+  it('lays out label / value / trailing action as a three-column grid', () => {
+    const body = ruleBody('.field-row');
+    expect(body).toMatch(/display:\s*grid/);
+    expect(body).toMatch(/grid-template-columns:\s*minmax\(0,\s*1fr\)\s+128px\s+32px/);
+  });
+
+  it('.field is a right-aligned value box using the field surface token', () => {
+    const body = ruleBody('.field');
+    expect(body).toMatch(/background-color:\s*var\(--input-background\)/);
+    expect(body).toMatch(/border-radius:\s*var\(--radius-md\)/);
+    expect(body).toMatch(/text-align:\s*right/);
+  });
+
+  it('a focused field gets an accent ring, not the browser default', () => {
+    const focusWithin = ruleBody('.field:focus-within');
+    expect(focusWithin).toMatch(/box-shadow:\s*0 0 0 2px var\(--accent-color\)/);
+  });
+});
