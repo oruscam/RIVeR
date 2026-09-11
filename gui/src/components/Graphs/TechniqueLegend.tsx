@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { LuEye, LuEyeOff } from 'react-icons/lu';
 import { useSectionSlice } from '../../hooks';
-import { getTechniqueColors } from '../../helpers/getCSSVar';
 import { Technique } from '../../store/section/types';
 import './graphs.css';
 
@@ -25,7 +24,6 @@ export const TechniqueLegend = () => {
   const { t } = useTranslation();
   const section = sections[activeSection];
   const data = section?.data;
-  const technique = getTechniqueColors();
 
   if (!data) return null;
 
@@ -53,7 +51,7 @@ export const TechniqueLegend = () => {
       {TECHNIQUES.filter((tech) => hasData(tech.key)).map(({ key, label }) => {
         const isActive = key === section.activeTechnique;
         const visible = isVisible(key);
-        const color = isActive ? 'var(--primary-text-color)' : technique[key];
+        const color = isActive ? 'var(--primary-text-color)' : `var(--tech-${key})`;
 
         return (
           <div key={key} className={`technique-row${visible ? '' : ' technique-row-hidden'}`}>

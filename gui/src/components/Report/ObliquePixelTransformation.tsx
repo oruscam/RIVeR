@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { useObliqueSlice, useProjectSlice } from '../../hooks';
+import { useObliqueSlice, useProjectSlice, useUiSlice } from '../../hooks';
 import { REPORT_IMAGES, UNITS } from '../../constants/constants';
 import { factor } from '../../types';
 import { obliqueSvg } from '../Graphs';
@@ -15,6 +15,7 @@ export const ObliquePixelTransformation = ({ factor, vertical }: ObliquePixelTra
   const svgRef = useRef<SVGSVGElement>(null);
   const { firstFramePath, projectDetails } = useProjectSlice();
   const { coordinates, distances } = useObliqueSlice();
+  const { theme } = useUiSlice();
   const { t } = useTranslation();
 
   const { unitSistem } = projectDetails;
@@ -22,6 +23,8 @@ export const ObliquePixelTransformation = ({ factor, vertical }: ObliquePixelTra
   const width = vertical ? REPORT_IMAGES.VERTICAL_IMAGES_WIDTH : REPORT_IMAGES.HORIZONTAL_IMAGES_WIDTH;
   const height = vertical ? REPORT_IMAGES.VERTICAL_IMAGES_HEIGHT : REPORT_IMAGES.HORIZONTAL_IMAGES_HEIGHT;
 
+  // Re-draw whenever theme changes. `theme` isn't used in the body — obliqueSvg reads CSS vars
+  // straight from the DOM — but it's needed in the deps to force a redraw on theme change.
   useEffect(() => {
     d3.select(svgRef.current).selectAll('*').remove();
     if (svgRef.current) {
@@ -34,7 +37,7 @@ export const ObliquePixelTransformation = ({ factor, vertical }: ObliquePixelTra
         height: height,
       });
     }
-  }, [factor, coordinates, distances, width, height]);
+  }, [factor, coordinates, distances, width, height, theme]);
 
   return (
     <div className={`pixel-transformation-with-image${vertical ? '-vertical' : ''}`}>

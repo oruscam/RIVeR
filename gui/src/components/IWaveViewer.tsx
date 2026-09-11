@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { useProjectSlice, useSectionSlice } from '../hooks';
 import { curveToPolylinePoints, SpectrumExtent } from '../helpers';
 import { UNIT_CONVERSIONS, UNITS } from '../constants/constants';
-import { getTechniqueColors } from '../helpers/getCSSVar';
 import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
 import './components.css';
 
@@ -31,7 +30,7 @@ export const IWaveViewer = ({
   const { sections, activeSection } = useSectionSlice();
   const { projectDetails } = useProjectSlice();
   const { t } = useTranslation();
-  const { iwave: iwaveColor } = getTechniqueColors();
+  const iwaveColor = 'var(--tech-iwave)';
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
 
   const isImperial = projectDetails.unitSistem === 'imperial';

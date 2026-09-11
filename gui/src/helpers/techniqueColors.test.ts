@@ -26,9 +26,12 @@ describe('technique colour tokens', () => {
 
 describe('technique colours vs status colours (must stay separate — Critical audit finding)', () => {
   it.each(['dark', 'light', 'dracula'])(
-    '%s: STIV is not the error colour and iWave is not the success colour',
+    '%s: STIV is not the error/warning colour and iWave is not the success colour',
     (theme) => {
+      expect(themes[theme]['--tech-stiv']).toBeDefined();
       expect(themes[theme]['--tech-stiv']).not.toBe(themes[theme]['--background-error']);
+      expect(themes[theme]['--tech-stiv']).not.toBe(themes[theme]['--warning-color']);
+      expect(themes[theme]['--tech-iwave']).toBeDefined();
       expect(themes[theme]['--tech-iwave']).not.toBe(themes[theme]['--success-color']);
     }
   );
