@@ -158,10 +158,21 @@ svg .bar-stroke-themed {
 
 .technique-name {
     flex: 1;
+    font-family: inherit;
     font-size: 16px;
     font-weight: 600;
     color: var(--secondary-text-color);
     cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+    text-align: left;
+}
+
+.technique-name:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+    border-radius: 4px;
 }
 
 .technique-name-active {

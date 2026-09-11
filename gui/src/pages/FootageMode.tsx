@@ -97,10 +97,19 @@ export const FootageMode = () => {
             <div
               key={id}
               className={`footage-button-container ${dragOver === id ? `drag-over-${id}` : ''} ${footageType === id ? 'selected-footage-type' : ''}`}
+              role="button"
+              tabIndex={0}
+              aria-pressed={footageType === id}
               onDragOver={(event) => handleDragOver(event, setDragOver, id)}
               onDragLeave={(event) => handleDragLeave(event, setDragOver, true)}
               onDrop={handleDrop(id)}
               onClick={() => setFootageType(id)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  setFootageType(id);
+                }
+              }}
               id={id}
             >
               <Icon path={icon} />
