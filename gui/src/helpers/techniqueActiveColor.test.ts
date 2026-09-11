@@ -32,17 +32,18 @@ describe('active technique keeps its own colour (no white-on-active regression)'
 
   it('form.css does not recolour the active processing row label to --primary-text-color', () => {
     const css = read('components', 'Forms', 'form.css');
-    expect(css).not.toMatch(
-      /\.technique-row-processing-active \.field-title\s*\{[^}]*color:\s*var\(--primary-text-color\)/
-    );
+    expect(css).not.toMatch(/\.technique-row-active \.field-title\s*\{[^}]*color:\s*var\(--primary-text-color\)/);
   });
 
-  it('the shared TechniqueRow CSS and form.css give the active row a background instead', () => {
+  it('the shared TechniqueRow CSS gives the active row a background instead', () => {
     expect(read('components', 'components.css')).toMatch(
       /\.technique-row\.technique-row-active\s*\{[^}]*background-color:\s*var\(--surface-field\)/
     );
-    expect(read('components', 'Forms', 'form.css')).toMatch(
-      /\.technique-row-processing\.technique-row-processing-active\s*\{[^}]*background-color:\s*var\(--surface-field\)/
-    );
+  });
+
+  it('form.css no longer duplicates the row box or the swatch shapes (both now shared via TechniqueRow)', () => {
+    const css = read('components', 'Forms', 'form.css');
+    expect(css).not.toMatch(/\.technique-swatch-processing/);
+    expect(css).not.toMatch(/\.technique-row-processing\s*\{[^}]*display:\s*flex/);
   });
 });
