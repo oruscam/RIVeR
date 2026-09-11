@@ -715,9 +715,8 @@
     background-color: var(--on-hover);
 }
 
-/* Matches the Results module's TechniqueLegend: the inactive/active distinction is a
-   text colour swap, nothing more — see .technique-name / .technique-name-active in
-   Graphs/graphs.css. */
+/* The active row gets a background (see .technique-row-processing-active above)
+   and bold text; colour stays the technique's own, set inline in FormProcessing.tsx. */
 .technique-row-processing .field-title {
     flex: 1;
     color: var(--secondary-text-color);
@@ -726,8 +725,8 @@
 /* Active row keeps its own technique colour (set inline in FormProcessing.tsx)
    and gains a background plus bold text instead of recolouring to
    --primary-text-color — matches .technique-row-active in Graphs/graphs.css. */
-.technique-row-processing-active {
-    background-color: var(--surface-raised);
+.technique-row-processing.technique-row-processing-active {
+    background-color: var(--surface-field);
 }
 
 .technique-row-processing-active .field-title {
