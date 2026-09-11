@@ -723,8 +723,15 @@
     color: var(--secondary-text-color);
 }
 
+/* Active row keeps its own technique colour (set inline in FormProcessing.tsx)
+   and gains a background plus bold text instead of recolouring to
+   --primary-text-color — matches .technique-row-active in Graphs/graphs.css. */
+.technique-row-processing-active {
+    background-color: var(--surface-raised);
+}
+
 .technique-row-processing-active .field-title {
-    color: var(--primary-text-color);
+    font-weight: 700;
 }
 
 /* STIV/iWave before their STI images or spectra exist yet — nothing to preview. */
@@ -750,6 +757,23 @@
     height: 9px;
     border-radius: 50%;
     flex-shrink: 0;
+}
+
+/* Compound with .technique-swatch-processing (not a bare class) so this
+   always wins over its own border-radius:50% regardless of CSS file load
+   order. Mirrors .technique-swatch.technique-swatch-lspiv/stiv/iwave in
+   Graphs/graphs.css — same shapes, same class names, different base class. */
+.technique-swatch-processing.technique-swatch-lspiv {
+    border-radius: 50%;
+}
+
+.technique-swatch-processing.technique-swatch-stiv {
+    border-radius: 2px;
+}
+
+.technique-swatch-processing.technique-swatch-iwave {
+    border-radius: 0;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 
 .technique-always {

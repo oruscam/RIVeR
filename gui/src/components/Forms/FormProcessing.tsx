@@ -191,8 +191,16 @@ export const FormProcessing = ({
               title={t('Processing.showLspivFrames')}
               onClick={() => previewMode !== 'frames' && setPreviewMode('frames')}
             >
-              <span className="technique-swatch-processing" style={{ background: 'var(--tech-lspiv)' }} />
-              <h3 className="field-title">LSPIV</h3>
+              <span
+                className="technique-swatch-processing technique-swatch-lspiv"
+                style={{ background: 'var(--tech-lspiv)' }}
+              />
+              <h3
+                className="field-title"
+                style={previewMode === 'frames' ? { color: 'var(--tech-lspiv)' } : undefined}
+              >
+                LSPIV
+              </h3>
               <button
                 type="button"
                 className={`technique-seed-flag${showMedian ? ' technique-seed-flag-seeded' : ''}${
@@ -220,8 +228,16 @@ export const FormProcessing = ({
               }
               onClick={() => canToggleSti && previewMode !== 'sti' && setPreviewMode('sti')}
             >
-              <span className="technique-swatch-processing" style={{ background: 'var(--tech-stiv)' }} />
-              <h3 className="field-title">STIV</h3>
+              <span
+                className="technique-swatch-processing technique-swatch-stiv"
+                style={{ background: 'var(--tech-stiv)' }}
+              />
+              <h3
+                className="field-title"
+                style={previewMode === 'sti' ? { color: 'var(--tech-stiv)' } : undefined}
+              >
+                STIV
+              </h3>
               {hasAnyStivOverride && (
                 <button
                   type="button"
@@ -252,8 +268,14 @@ export const FormProcessing = ({
               title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
               onClick={() => canToggleIwave && previewMode !== 'iwave' && setPreviewMode('iwave')}
             >
-              <span className="technique-swatch-processing" style={{ background: 'var(--tech-iwave)' }} />
-              <h3 className="field-title">
+              <span
+                className="technique-swatch-processing technique-swatch-iwave"
+                style={{ background: 'var(--tech-iwave)' }}
+              />
+              <h3
+                className="field-title"
+                style={previewMode === 'iwave' ? { color: 'var(--tech-iwave)' } : undefined}
+              >
                 iWave
               </h3>
               <label className="switch" onClick={(event) => event.stopPropagation()}>
