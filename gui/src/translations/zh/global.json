@@ -54,7 +54,7 @@
       "end1": "时间选择无效：「结束」值不能超过视频总时长，请输入有效值。",
       "end2": "时间选择无效：「结束」值不能为 0 或更小，请输入有效值。",
       "end3": "时间选择无效：「结束」值不能等于或小于「开始」值，请输入有效值。",
-      "step": "步长选择无效：「步长」必须为大于 1 的整数，请输入有效值。",
+      "step": "步长选择无效：「步长」必须为大于或等于 1 的整数，请输入有效值。",
       "required": "所有字段均为必填项，请检查视频范围表单。",
       "formatInput": "格式不正确，「开始」和「结束」值必须为「00:00」格式。",
       "profileResolutionMismatch": "配置文件分辨率 ({{calW}}×{{calH}}) 与视频不匹配。请选择其他相机型号或针对此分辨率重新标定。"
@@ -182,7 +182,7 @@
     "showStivStis": "Show STIV space-time images",
     "noStisYet": "Run STIV to see space-time images",
     "stivWeightsMissing": "STIV model weights not found — download from Zenodo (see README)",
-    "iwaveNoPreview": "IWV has no per-station preview",
+    "iwaveNoPreview": "iWave has no per-station preview",
     "medianHint": "Show the median velocity field",
     "pivOnly": "PIV only",
     "stationsCount": "{{count}} stations",
@@ -200,7 +200,7 @@
     "stage": {
       "lspiv": "Computing LSPIV velocity field",
       "stiv": "Computing STIV velocities",
-      "iwave": "Computing IWV velocities"
+      "iwave": "Computing iWave velocities"
     }
   },
   "Results": {
@@ -222,7 +222,7 @@
     "activeTechnique": "Active technique",
     "activateTechnique": "Click to make {{technique}} the active technique",
     "showStivStd": "Show STIV ± sigma",
-    "showIwaveQuality": "Shade IWV markers by quality score",
+    "showIwaveQuality": "Shade iWave markers by quality score",
     "cantHideActiveTechnique": "Active technique can't be hidden — switch technique first",
     "hideTechnique": "Hide {{technique}}",
     "showTechnique": "Show {{technique}}",

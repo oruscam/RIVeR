@@ -54,7 +54,7 @@
       "end1": "Sélection de temps invalide : La valeur 'Fin' ne peut pas être supérieure à la durée totale de la vidéo. Veuillez entrer une valeur valide.",
       "end2": "Sélection de temps invalide : La valeur 'Fin' ne peut pas être 0 ou moins. Veuillez entrer une valeur valide.",
       "end3": "Sélection de temps invalide : La valeur 'Fin' ne peut pas être égale ou inférieure à la valeur 'Début'. Veuillez entrer une valeur valide.",
-      "step": "Sélection de pas invalide : Le paramètre 'Pas' doit être un entier supérieur à 1. Veuillez entrer une valeur valide.",
+      "step": "Sélection de pas invalide : Le paramètre 'Pas' doit être un entier supérieur ou égal à 1. Veuillez entrer une valeur valide.",
       "required": "Tous les champs sont obligatoires. Veuillez vérifier le formulaire de plage vidéo.",
       "formatInput": "Format incorrect. Les valeurs 'Début' et 'Fin' doivent être au format '00:00'.",
       "profileResolutionMismatch": "La résolution du profil ({{calW}}×{{calH}}) ne correspond pas à la vidéo. Sélectionnez un autre modèle de caméra ou calibrez pour cette résolution."
@@ -182,7 +182,7 @@
     "showStivStis": "Show STIV space-time images",
     "noStisYet": "Run STIV to see space-time images",
     "stivWeightsMissing": "STIV model weights not found — download from Zenodo (see README)",
-    "iwaveNoPreview": "IWV has no per-station preview",
+    "iwaveNoPreview": "iWave has no per-station preview",
     "medianHint": "Show the median velocity field",
     "pivOnly": "PIV only",
     "stationsCount": "{{count}} stations",
@@ -200,7 +200,7 @@
     "stage": {
       "lspiv": "Computing LSPIV velocity field",
       "stiv": "Computing STIV velocities",
-      "iwave": "Computing IWV velocities"
+      "iwave": "Computing iWave velocities"
     }
   },
   "Results": {
@@ -222,7 +222,7 @@
     "activeTechnique": "Active technique",
     "activateTechnique": "Click to make {{technique}} the active technique",
     "showStivStd": "Show STIV ± sigma",
-    "showIwaveQuality": "Shade IWV markers by quality score",
+    "showIwaveQuality": "Shade iWave markers by quality score",
     "cantHideActiveTechnique": "Active technique can't be hidden — switch technique first",
     "hideTechnique": "Hide {{technique}}",
     "showTechnique": "Show {{technique}}",

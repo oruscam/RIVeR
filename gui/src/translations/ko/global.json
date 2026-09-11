@@ -54,7 +54,7 @@
       "end1": "유효하지 않은 시간 선택: '종료' 값은 동영상 전체 길이를 초과할 수 없습니다. 유효한 값을 입력해 주세요.",
       "end2": "유효하지 않은 시간 선택: '종료' 값은 0 이하일 수 없습니다. 유효한 값을 입력해 주세요.",
       "end3": "유효하지 않은 시간 선택: '종료' 값은 '시작' 값과 같거나 작을 수 없습니다. 유효한 값을 입력해 주세요.",
-      "step": "유효하지 않은 단계 선택: '단계'는 1보다 큰 정수여야 합니다. 유효한 값을 입력해 주세요.",
+      "step": "유효하지 않은 단계 선택: '단계'는 1 이상의 정수여야 합니다. 유효한 값을 입력해 주세요.",
       "required": "모든 필드는 필수입니다. 동영상 범위 양식을 확인해 주세요.",
       "formatInput": "형식이 올바르지 않습니다. '시작'과 '종료' 값은 '00:00' 형식이어야 합니다.",
       "profileResolutionMismatch": "프로파일 해상도({{calW}}×{{calH}})가 동영상과 일치하지 않습니다. 다른 카메라 모델을 선택하거나 이 해상도로 교정하세요."
@@ -182,7 +182,7 @@
     "showStivStis": "Show STIV space-time images",
     "noStisYet": "Run STIV to see space-time images",
     "stivWeightsMissing": "STIV model weights not found — download from Zenodo (see README)",
-    "iwaveNoPreview": "IWV has no per-station preview",
+    "iwaveNoPreview": "iWave has no per-station preview",
     "medianHint": "Show the median velocity field",
     "pivOnly": "PIV only",
     "stationsCount": "{{count}} stations",
@@ -200,7 +200,7 @@
     "stage": {
       "lspiv": "Computing LSPIV velocity field",
       "stiv": "Computing STIV velocities",
-      "iwave": "Computing IWV velocities"
+      "iwave": "Computing iWave velocities"
     }
   },
   "Results": {
@@ -222,7 +222,7 @@
     "activeTechnique": "Active technique",
     "activateTechnique": "Click to make {{technique}} the active technique",
     "showStivStd": "Show STIV ± sigma",
-    "showIwaveQuality": "Shade IWV markers by quality score",
+    "showIwaveQuality": "Shade iWave markers by quality score",
     "cantHideActiveTechnique": "Active technique can't be hidden — switch technique first",
     "hideTechnique": "Hide {{technique}}",
     "showTechnique": "Show {{technique}}",

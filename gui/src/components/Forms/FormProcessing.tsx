@@ -255,7 +255,7 @@ export const FormProcessing = ({
             >
               <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.iwave }} />
               <h3 className="field-title">
-                IWV<span className="technique-name-note"> (iWave)</span>
+                iWave
               </h3>
               <label className="switch" onClick={(event) => event.stopPropagation()}>
                 <input
