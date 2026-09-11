@@ -54,7 +54,7 @@
       "end1": "अमान्य समय चयन: 'समाप्ति' मान वीडियो की कुल अवधि से अधिक नहीं हो सकता। कृपया एक वैध मान दर्ज करें।",
       "end2": "अमान्य समय चयन: 'समाप्ति' मान 0 या उससे कम नहीं हो सकता। कृपया एक वैध मान दर्ज करें।",
       "end3": "अमान्य समय चयन: 'समाप्ति' मान 'प्रारंभ' मान के बराबर या उससे कम नहीं हो सकता। कृपया एक वैध मान दर्ज करें।",
-      "step": "अमान्य चरण चयन: 'चरण' 1 से बड़ा पूर्णांक होना चाहिए। कृपया एक वैध मान दर्ज करें।",
+      "step": "अमान्य चरण चयन: 'चरण' 1 या उससे बड़ा पूर्णांक होना चाहिए। कृपया एक वैध मान दर्ज करें।",
       "required": "सभी फ़ील्ड अनिवार्य हैं। कृपया वीडियो सीमा फ़ॉर्म जाँचें।",
       "formatInput": "गलत प्रारूप। 'प्रारंभ' और 'समाप्ति' मान '00:00' प्रारूप में होने चाहिए।",
       "profileResolutionMismatch": "प्रोफ़ाइल रिज़ॉल्यूशन ({{calW}}×{{calH}}) वीडियो से मेल नहीं खाता। कोई अन्य कैमरा मॉडल चुनें या इस रिज़ॉल्यूशन के लिए कैलिब्रेट करें।"
@@ -182,7 +182,7 @@
     "showStivStis": "Show STIV space-time images",
     "noStisYet": "Run STIV to see space-time images",
     "stivWeightsMissing": "STIV model weights not found — download from Zenodo (see README)",
-    "iwaveNoPreview": "IWV has no per-station preview",
+    "iwaveNoPreview": "iWave has no per-station preview",
     "medianHint": "Show the median velocity field",
     "pivOnly": "PIV only",
     "stationsCount": "{{count}} stations",
@@ -200,7 +200,7 @@
     "stage": {
       "lspiv": "Computing LSPIV velocity field",
       "stiv": "Computing STIV velocities",
-      "iwave": "Computing IWV velocities"
+      "iwave": "Computing iWave velocities"
     }
   },
   "Results": {
@@ -222,7 +222,7 @@
     "activeTechnique": "Active technique",
     "activateTechnique": "Click to make {{technique}} the active technique",
     "showStivStd": "Show STIV ± sigma",
-    "showIwaveQuality": "Shade IWV markers by quality score",
+    "showIwaveQuality": "Shade iWave markers by quality score",
     "cantHideActiveTechnique": "Active technique can't be hidden — switch technique first",
     "hideTechnique": "Hide {{technique}}",
     "showTechnique": "Show {{technique}}",

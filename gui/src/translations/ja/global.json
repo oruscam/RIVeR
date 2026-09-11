@@ -54,7 +54,7 @@
       "end1": "無効な時間選択: 「終了」の値は動画の総再生時間を超えることはできません。有効な値を入力してください。",
       "end2": "無効な時間選択: 「終了」の値は0以下にはできません。有効な値を入力してください。",
       "end3": "無効な時間選択: 「終了」の値は「開始」の値以下にはできません。有効な値を入力してください。",
-      "step": "無効なステップ選択: 「ステップ」は1より大きい整数でなければなりません。有効な値を入力してください。",
+      "step": "無効なステップ選択: 「ステップ」は1以上の整数でなければなりません。有効な値を入力してください。",
       "required": "すべてのフィールドは必須です。動画範囲フォームを確認してください。",
       "formatInput": "形式が正しくありません。「開始」と「終了」は「00:00」形式で入力してください。",
       "profileResolutionMismatch": "プロファイルの解像度 ({{calW}}×{{calH}}) が動画と一致しません。別のカメラモデルを選択するか、この解像度でキャリブレーションしてください。"
@@ -182,7 +182,7 @@
     "showStivStis": "Show STIV space-time images",
     "noStisYet": "Run STIV to see space-time images",
     "stivWeightsMissing": "STIV model weights not found — download from Zenodo (see README)",
-    "iwaveNoPreview": "IWV has no per-station preview",
+    "iwaveNoPreview": "iWave has no per-station preview",
     "medianHint": "Show the median velocity field",
     "pivOnly": "PIV only",
     "stationsCount": "{{count}} stations",
@@ -200,7 +200,7 @@
     "stage": {
       "lspiv": "Computing LSPIV velocity field",
       "stiv": "Computing STIV velocities",
-      "iwave": "Computing IWV velocities"
+      "iwave": "Computing iWave velocities"
     }
   },
   "Results": {
@@ -222,7 +222,7 @@
     "activeTechnique": "Active technique",
     "activateTechnique": "Click to make {{technique}} the active technique",
     "showStivStd": "Show STIV ± sigma",
-    "showIwaveQuality": "Shade IWV markers by quality score",
+    "showIwaveQuality": "Shade iWave markers by quality score",
     "cantHideActiveTechnique": "Active technique can't be hidden — switch technique first",
     "hideTechnique": "Hide {{technique}}",
     "showTechnique": "Show {{technique}}",
