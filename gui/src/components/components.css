@@ -296,8 +296,18 @@
     -webkit-backdrop-filter: blur(14px);
 }
 
+.message-region {
+    width: 100%;
+    min-height: 35px;
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
 .error {
     background-color: var(--background-error);
+    color: var(--on-error);
     width: 100%;
     min-height: 35px;
     height: auto;
@@ -322,6 +332,7 @@
 
 .info {
     background-color: var(--success-color);
+    color: var(--on-success);
     width: 100%;
     min-height: 35px;
     height: auto;
@@ -347,6 +358,7 @@
 
 .warning {
     background-color: var(--d14);
+    color: var(--on-warning);
     width: 100%;
     min-height: 35px;
     height: auto;
@@ -999,9 +1011,10 @@
     background-color: #ffffff;
 }
 
-#error-message-link {
-    color: var(--primary-text-color);
+.error-message-link {
+    color: inherit;
     font-weight: bold;
+    text-decoration: underline;
 }
 
 .header-fixed {
