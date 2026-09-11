@@ -37,8 +37,8 @@ describe('active technique keeps its own colour (no white-on-active regression)'
     );
   });
 
-  it('graphs.css and form.css give the active row a background instead', () => {
-    expect(read('components', 'Graphs', 'graphs.css')).toMatch(
+  it('the shared TechniqueRow CSS and form.css give the active row a background instead', () => {
+    expect(read('components', 'components.css')).toMatch(
       /\.technique-row\.technique-row-active\s*\{[^}]*background-color:\s*var\(--surface-field\)/
     );
     expect(read('components', 'Forms', 'form.css')).toMatch(
