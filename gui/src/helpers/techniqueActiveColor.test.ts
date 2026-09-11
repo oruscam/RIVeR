@@ -46,4 +46,27 @@ describe('active technique keeps its own colour (no white-on-active regression)'
     expect(css).not.toMatch(/\.technique-swatch-processing/);
     expect(css).not.toMatch(/\.technique-row-processing\s*\{[^}]*display:\s*flex/);
   });
+
+  it('the disabled processing row keeps beating the shared .technique-row:hover across files', () => {
+    expect(read('components', 'Forms', 'form.css')).toMatch(
+      /\.technique-row\.technique-row-processing-disabled:hover\s*\{[^}]*background-color:\s*transparent/
+    );
+  });
+
+  it('form.css bolds the active processing row label', () => {
+    expect(read('components', 'Forms', 'form.css')).toMatch(
+      /\.technique-row-active \.field-title\s*\{[^}]*font-weight:\s*700/
+    );
+  });
+
+  it('graphs.css no longer duplicates the row box or the swatch shapes (both now shared via TechniqueRow)', () => {
+    const css = read('components', 'Graphs', 'graphs.css');
+    expect(css).not.toMatch(/\.technique-swatch\s*\{/);
+    expect(css).not.toMatch(/\.technique-row\s*\{[^}]*display:\s*flex/);
+  });
+
+  it('TechniqueRow adds no interaction of its own — each screen supplies its own via forwarded props/children', () => {
+    const source = read('components', 'TechniqueRow.tsx');
+    expect(source).not.toMatch(/\b(role|tabIndex|onClick|onKeyDown)=/);
+  });
 });
