@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectSlice, useSectionSlice } from '../hooks';
 import { curveToPolylinePoints, SpectrumExtent } from '../helpers';
-import { UNIT_CONVERSIONS, UNITS, TECHNIQUE_COLORS } from '../constants/constants';
+import { UNIT_CONVERSIONS, UNITS } from '../constants/constants';
+import { getTechniqueColors } from '../helpers/getCSSVar';
 import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
 import './components.css';
 
@@ -30,6 +31,7 @@ export const IWaveViewer = ({
   const { sections, activeSection } = useSectionSlice();
   const { projectDetails } = useProjectSlice();
   const { t } = useTranslation();
+  const { iwave: iwaveColor } = getTechniqueColors();
   const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
 
   const isImperial = projectDetails.unitSistem === 'imperial';
@@ -86,13 +88,13 @@ export const IWaveViewer = ({
           {extent && (
             <svg className="sti-overlay" width={viewW} height={viewH}>
               {gravityPoints && (
-                <polyline points={gravityPoints} fill="none" stroke={TECHNIQUE_COLORS.iwave} strokeWidth={2} />
+                <polyline points={gravityPoints} fill="none" stroke={iwaveColor} strokeWidth={2} />
               )}
               {turbulencePoints && (
                 <polyline
                   points={turbulencePoints}
                   fill="none"
-                  stroke={TECHNIQUE_COLORS.iwave}
+                  stroke={iwaveColor}
                   strokeWidth={2}
                   strokeDasharray="5,4"
                   strokeOpacity={0.75}
@@ -100,7 +102,7 @@ export const IWaveViewer = ({
               )}
             </svg>
           )}
-          <div className="sti-badge velocity-readout" style={{ color: TECHNIQUE_COLORS.iwave }}>
+          <div className="sti-badge velocity-readout" style={{ color: iwaveColor }}>
             {t('Processing.stiStation')} {stationId ?? activeStation + 1}
             <br />
             {velocity === null
@@ -114,7 +116,7 @@ export const IWaveViewer = ({
           <div className="iwave-legend velocity-readout">
             <span>
               <svg width="18" height="8">
-                <line x1="0" y1="4" x2="18" y2="4" stroke={TECHNIQUE_COLORS.iwave} strokeWidth="2" />
+                <line x1="0" y1="4" x2="18" y2="4" stroke={iwaveColor} strokeWidth="2" />
               </svg>
               {t('Processing.spectrumGravity')}
             </span>
@@ -125,7 +127,7 @@ export const IWaveViewer = ({
                   y1="4"
                   x2="18"
                   y2="4"
-                  stroke={TECHNIQUE_COLORS.iwave}
+                  stroke={iwaveColor}
                   strokeWidth="2"
                   strokeDasharray="5,4"
                   strokeOpacity="0.75"
