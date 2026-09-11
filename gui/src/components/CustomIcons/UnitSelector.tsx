@@ -17,12 +17,7 @@ export function FolderBtn() {
   };
 
   return (
-    <button
-      className="ib"
-      style={{ '--hi': 'var(--accent)', border: 'none' } as React.CSSProperties}
-      title={currentPath}
-      onClick={handleChoosePath}
-    >
+    <button className="ib" style={{ border: 'none' }} title={currentPath} onClick={handleChoosePath}>
       {Icons.Folder('var(--primary-text-color)')}
     </button>
   );
@@ -60,9 +55,7 @@ export function UnitBtn() {
     <div className="lwrap" ref={ref}>
       <button
         className={`ib ${open ? 'active' : ''}`}
-        style={
-          { '--hi': 'var(--accent)', width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties
-        }
+        style={{ width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties}
         onClick={() => setOpen((v) => !v)}
       >
         {Icons.Ruler(open ? 'var(--secondary-background-color)' : 'var(--primary-text-color)')}

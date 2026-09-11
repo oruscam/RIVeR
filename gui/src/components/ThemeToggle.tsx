@@ -30,9 +30,7 @@ export const ThemeToggle = () => {
     <div className="lwrap" ref={ref}>
       <button
         className={`ib ${open ? 'active' : ''}`}
-        style={
-          { '--hi': 'var(--accent)', width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties
-        }
+        style={{ width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties}
         onClick={() => setOpen((v) => !v)}
       >
         <span style={{ fontSize: 17 }}>{currentTheme.icon}</span>

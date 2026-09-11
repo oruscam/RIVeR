@@ -1,32 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@400;600;700&display=swap');
-
 *,
 *::before,
 *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0
-}
-
-:root {
-    --bg: #080c14;
-    --surf: #0d1623;
-    --border: rgba(99, 179, 237, 0.13);
-    --text: #cdd9f0;
-    --muted: rgba(255, 255, 255, 0.28);
-    --accent: #38bdf8;
-    --violet: #818cf8;
-    --green: #34d399;
-    --red: #f87171;
-    --amber: #fbbf24;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'Outfit', sans-serif;
-}
-
-body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans)
 }
 
 .ib {
@@ -49,8 +26,8 @@ body {
 }
 
 .ib.is-success {
-    color: var(--green);
-    border-color: var(--green);
+    color: var(--success-color);
+    border-color: var(--success-color);
     background-color: var(--primary-text-color);
 }
 
@@ -337,8 +314,8 @@ body {
 }
 
 .card {
-    background: var(--surf);
-    border: 1px solid var(--border);
+    background: var(--card-surface);
+    border: 1px solid var(--border-color);
     border-radius: 18px;
     padding: 20px 22px;
     display: flex;
@@ -354,7 +331,7 @@ body {
 
 .pill {
     display: inline-block;
-    font-family: var(--mono);
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     font-size: 10px;
     padding: 3px 9px;
     border-radius: 20px;
