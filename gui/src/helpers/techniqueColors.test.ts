@@ -39,3 +39,32 @@ describe('technique colours: non-text contrast (WCAG 1.4.11, >=3:1 against the p
     });
   });
 });
+
+describe('surface/text/status alias tokens (pure aliases — no new colour values)', () => {
+  const css = readFileSync(join(__dirname, '..', 'index.css'), 'utf8');
+  const themeBlock = (theme: string): string => {
+    const match = css.match(new RegExp(`\\[data-theme="${theme}"\\]\\s*\\{([^}]*)\\}`));
+    if (!match) throw new Error(`No [data-theme="${theme}"] block found`);
+    return match[1];
+  };
+
+  const ALIASES: [string, string][] = [
+    ['--surface-frame', '--background-color'],
+    ['--surface-panel', '--secondary-background-color'],
+    ['--surface-raised', '--card-surface'],
+    ['--surface-field', '--input-background'],
+    ['--text-primary', '--primary-text-color'],
+    ['--text-subdued', '--secondary-text-color'],
+    ['--status-good', '--success-color'],
+    ['--status-fair', '--warning-color'],
+    ['--status-bad', '--background-error'],
+  ];
+
+  describe.each(['dark', 'light', 'dracula'])('%s theme', (theme) => {
+    it.each(ALIASES)('%s aliases var(%s)', (alias, target) => {
+      const block = themeBlock(theme);
+      const pattern = new RegExp(`${alias}\\s*:\\s*var\\(\\s*${target}\\s*\\)\\s*;`);
+      expect(block).toMatch(pattern);
+    });
+  });
+});

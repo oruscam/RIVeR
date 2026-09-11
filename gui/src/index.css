@@ -69,6 +69,18 @@
   --tech-stiv:  #E69F00;
   --tech-iwave: #009E73;
 
+  /* Aliases Phase 3's components are written against — each one points at
+     a token this theme block already declares above. No new colour values. */
+  --surface-frame:  var(--background-color);
+  --surface-panel:  var(--secondary-background-color);
+  --surface-raised: var(--card-surface);
+  --surface-field:  var(--input-background);
+  --text-primary:   var(--primary-text-color);
+  --text-subdued:   var(--secondary-text-color);
+  --status-good:    var(--success-color);
+  --status-fair:    var(--warning-color);
+  --status-bad:     var(--background-error);
+
   /* Toggle switch active color — lighter cyan blue */
   --toggle-active-color: #6CD4FF;
 
@@ -152,6 +164,18 @@
   --tech-stiv:  #B86E00;
   --tech-iwave: #00795A;
 
+  /* Aliases Phase 3's components are written against — each one points at
+     a token this theme block already declares above. No new colour values. */
+  --surface-frame:  var(--background-color);
+  --surface-panel:  var(--secondary-background-color);
+  --surface-raised: var(--card-surface);
+  --surface-field:  var(--input-background);
+  --text-primary:   var(--primary-text-color);
+  --text-subdued:   var(--secondary-text-color);
+  --status-good:    var(--success-color);
+  --status-fair:    var(--warning-color);
+  --status-bad:     var(--background-error);
+
   /* Toggle switch active color — matches accent */
   --toggle-active-color: #3D6D9E;
 
@@ -234,6 +258,18 @@
   --tech-lspiv: #8BE9FD;
   --tech-stiv:  #E0954D;
   --tech-iwave: #4DD9B0;
+
+  /* Aliases Phase 3's components are written against — each one points at
+     a token this theme block already declares above. No new colour values. */
+  --surface-frame:  var(--background-color);
+  --surface-panel:  var(--secondary-background-color);
+  --surface-raised: var(--card-surface);
+  --surface-field:  var(--input-background);
+  --text-primary:   var(--primary-text-color);
+  --text-subdued:   var(--secondary-text-color);
+  --status-good:    var(--success-color);
+  --status-fair:    var(--warning-color);
+  --status-bad:     var(--background-error);
 
   /* Toggle switch active color — Dracula purple */
   --toggle-active-color: #bd93f9;
