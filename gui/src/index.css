@@ -18,7 +18,7 @@
 
   /* Text */
   --primary-text-color:   #ffffff;
-  --secondary-text-color: #797979;
+  --secondary-text-color: #9E9E9E;
 
   /* Interactive states */
   --on-hover:        #232222;
@@ -26,6 +26,12 @@
 
   /* Accent (buttons, progress, selection) */
   --accent-color: #0678BE;
+
+  /* Text drawn on top of filled accent / semantic backgrounds */
+  --on-accent:  #FFFFFF;
+  --on-warning: #000000;
+  --on-error:   #000000;
+  --on-success: #000000;
 
   /* Toggle switch active color — lighter cyan blue */
   --toggle-active-color: #6CD4FF;
@@ -73,7 +79,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   LIGHT THEME (warm cream — inspired by Claude's interface background)
+   LIGHT THEME (cool blue-grey)
    -------------------------------------------------------------------------- */
 [data-theme="light"] {
   /* Backgrounds — cool blue, stronger contrast against the text/borders below */
@@ -88,7 +94,7 @@
      neutral black. Buttons/toggles use this directly as their border/fill
      (see components.css). */
   --primary-text-color:   #2E3A4D;
-  --secondary-text-color: #64748A;
+  --secondary-text-color: #4E5B6B;
 
   /* Interactive states */
   --on-hover:        #D2DCE8;
@@ -96,6 +102,12 @@
 
   /* Accent (deeper, more saturated blue, no orange) */
   --accent-color: #3D6D9E;
+
+  /* Text drawn on top of filled accent / semantic backgrounds */
+  --on-accent:  #FFFFFF;
+  --on-warning: #2E3A4D;
+  --on-error:   #FFFFFF;
+  --on-success: #FFFFFF;
 
   /* Toggle switch active color — matches accent */
   --toggle-active-color: #3D6D9E;
@@ -158,7 +170,7 @@
 
   /* Text */
   --primary-text-color:   #f8f8f2;
-  --secondary-text-color: #6272a4;
+  --secondary-text-color: #B4B9D4;
 
   /* Interactive states */
   --on-hover:        #44475a;
@@ -166,6 +178,12 @@
 
   /* Accent (using Dracula purple) */
   --accent-color: #bd93f9;
+
+  /* Text drawn on top of filled accent / semantic backgrounds */
+  --on-accent:  #282A36;
+  --on-warning: #282A36;
+  --on-error:   #191A21;
+  --on-success: #282A36;
 
   /* Toggle switch active color — Dracula purple */
   --toggle-active-color: #bd93f9;
@@ -181,7 +199,7 @@
   --grid-bg-even:         #252736;
   --grid-bg-odd:          #282a36;
   --grid-header-bg:       #21222c;
-  --grid-header-color:    #6272a4;
+  --grid-header-color:    #B4B9D4;
   --grid-selection-color: #bd93f9;
 
   /* Component-specific surfaces */
@@ -656,13 +674,13 @@ input:disabled + .slider:hover {
 
 .theme-segment-btn--active {
   background-color: var(--accent-color);
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 .theme-segment-btn--active:hover {
   background-color: var(--accent-color);
   opacity: 0.9;
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 .theme-segment-icon {
