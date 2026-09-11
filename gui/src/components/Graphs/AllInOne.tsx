@@ -238,7 +238,7 @@ export const AllInOne = ({
               const p = s.points.find((pt) => pt.i === i);
               if (!p) return '';
               const valueText = p.v === null ? '—' : `${formatValue(p.v * velocityFactor)} ${unitLabel}`;
-              const dotColor = s.isActive ? 'var(--primary-text-color)' : s.color;
+              const dotColor = s.color;
               return `<div class="velocity-tooltip-row${s.isActive ? ' velocity-tooltip-row-active' : ''}">
                 <span class="velocity-tooltip-dot" style="background:${dotColor}"></span>
                 <span class="velocity-tooltip-label" style="color:${dotColor}">${s.label}</span>

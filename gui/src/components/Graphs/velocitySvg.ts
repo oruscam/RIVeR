@@ -145,9 +145,7 @@ export const createVelocityChart = ({
     const qVals = qualitySeries.points.map((p) => p.quality).filter((q): q is number => q !== null);
     if (qVals.length) {
       const qDomain: [number, number] = [Math.min(...qVals), Math.max(...qVals)];
-      const baseColor = qualitySeries.isActive
-        ? getCSSVar('--primary-text-color', '#ffffff')
-        : qualitySeries.color;
+      const baseColor = qualitySeries.color;
       const bg = getCSSVar('--background-color', '#000000');
       const paleBase = d3.interpolateRgb(bg, baseColor)(0.3);
       const colorInterp = d3.interpolateRgb(paleBase, baseColor);
@@ -178,7 +176,7 @@ export const createVelocityChart = ({
   // ---- Lines + markers, one pass per visible technique ----
   series.forEach((s) => {
     const isActive = s.isActive;
-    const strokeColor = isActive ? 'var(--primary-text-color)' : s.color;
+    const strokeColor = s.color;
     const baseOpacity = isActive ? 1 : 0.55;
 
     const line = d3

@@ -51,16 +51,20 @@ export const TechniqueLegend = () => {
       {TECHNIQUES.filter((tech) => hasData(tech.key)).map(({ key, label }) => {
         const isActive = key === section.activeTechnique;
         const visible = isVisible(key);
-        const color = isActive ? 'var(--primary-text-color)' : `var(--tech-${key})`;
+        const color = `var(--tech-${key})`;
 
         return (
-          <div key={key} className={`technique-row${visible ? '' : ' technique-row-hidden'}`}>
-            <span className="technique-swatch" style={{ background: color }} />
+          <div
+            key={key}
+            className={`technique-row${visible ? '' : ' technique-row-hidden'}${isActive ? ' technique-row-active' : ''}`}
+          >
+            <span className={`technique-swatch technique-swatch-${key}`} style={{ background: color }} />
             <button
               type="button"
               className={`technique-name${isActive ? ' technique-name-active' : ''}`}
               aria-pressed={isActive}
               onClick={() => handleActivate(key)}
+              style={isActive ? { color } : undefined}
               title={
                 isActive ? t('Results.activeTechnique') : t('Results.activateTechnique', { technique: label })
               }
