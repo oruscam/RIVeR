@@ -12,17 +12,17 @@ const read = (...parts: string[]): string => readFileSync(join(__dirname, '..', 
 describe('active technique keeps its own colour (no white-on-active regression)', () => {
   it('TechniqueLegend.tsx does not swap the swatch colour for --primary-text-color when active', () => {
     const source = read('components', 'Graphs', 'TechniqueLegend.tsx');
-    expect(source).not.toMatch(/isActive\s*\?\s*'var\(--primary-text-color\)'/);
+    expect(source).not.toMatch(/isActive[\s\S]{0,120}--primary-text-color/);
   });
 
   it('velocitySvg.ts does not swap the line/marker colour for --primary-text-color when active', () => {
     const source = read('components', 'Graphs', 'velocitySvg.ts');
-    expect(source).not.toMatch(/isActive\s*\?\s*'var\(--primary-text-color\)'/);
+    expect(source).not.toMatch(/--primary-text-color/);
   });
 
   it('AllInOne.tsx does not swap the tooltip dot colour for --primary-text-color when active', () => {
     const source = read('components', 'Graphs', 'AllInOne.tsx');
-    expect(source).not.toMatch(/isActive\s*\?\s*'var\(--primary-text-color\)'/);
+    expect(source).not.toMatch(/isActive[\s\S]{0,120}--primary-text-color/);
   });
 
   it('graphs.css does not recolour the active technique name to --primary-text-color', () => {
@@ -39,10 +39,10 @@ describe('active technique keeps its own colour (no white-on-active regression)'
 
   it('graphs.css and form.css give the active row a background instead', () => {
     expect(read('components', 'Graphs', 'graphs.css')).toMatch(
-      /\.technique-row-active\s*\{[^}]*background-color:\s*var\(--surface-raised\)/
+      /\.technique-row\.technique-row-active\s*\{[^}]*background-color:\s*var\(--surface-field\)/
     );
     expect(read('components', 'Forms', 'form.css')).toMatch(
-      /\.technique-row-processing-active\s*\{[^}]*background-color:\s*var\(--surface-raised\)/
+      /\.technique-row-processing\.technique-row-processing-active\s*\{[^}]*background-color:\s*var\(--surface-field\)/
     );
   });
 });

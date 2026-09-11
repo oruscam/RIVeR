@@ -2,7 +2,7 @@
    SCALE TOKENS
    Spacing, radius and motion — identical across all three themes, so they
    live in one bare :root block instead of being repeated per [data-theme].
-   Consumed starting in Phase 3; nothing reads these yet.
+   Consumed starting in Phase 3a.
    ============================================================================= */
 :root {
   /* Radius */
