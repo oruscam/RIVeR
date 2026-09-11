@@ -44,7 +44,21 @@ describe('CSS rules', () => {
 
 describe('piv-icons palette removal', () => {
   const piv = read(join(SRC, 'components', 'CustomIcons', 'piv-icons.css'));
-  const ORPHANS = ['bg', 'surf', 'border', 'text', 'muted', 'accent', 'violet', 'green', 'red', 'amber', 'mono', 'sans', 'hi'];
+  const ORPHANS = [
+    'bg',
+    'surf',
+    'border',
+    'text',
+    'muted',
+    'accent',
+    'violet',
+    'green',
+    'red',
+    'amber',
+    'mono',
+    'sans',
+    'hi',
+  ];
 
   const sourceFiles = (dir: string): string[] =>
     readdirSync(dir).flatMap((name) => {
