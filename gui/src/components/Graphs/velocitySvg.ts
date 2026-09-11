@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import { GRAPHS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 import { generateYAxisTicks } from '../../helpers';
 import { getCSSVar } from '../../helpers/getCSSVar';
+import { TECHNIQUE_MARKER_SHAPE } from '../../helpers/techniqueMarkers';
 import { Technique } from '../../store/section/types';
 import './graphs.css';
 import { t } from 'i18next';
@@ -227,29 +228,73 @@ export const createVelocityChart = ({
     // glance rather than only on hover.
     const isStivHollow = (d: VelocitySeriesPoint) => s.key === 'stiv' && !d.interp && !d.tuned;
 
-    svg
-      .selectAll(`.marker-${s.key}`)
-      .data(s.points.filter((p) => p.v !== null))
-      .enter()
-      .append('circle')
-      .attr('class', `marker-${s.key}`)
-      .attr('cx', (d) => xScale(d.x))
-      .attr('cy', (d) => yScale((d.v as number) * velocityFactor))
-      .attr('r', (d) => (showQuality && d.quality !== null ? qualityRadiusScale!(d.quality) : isActive ? 3 : 2.2))
-      .attr('fill', (d) =>
-        d.interp
-          ? 'var(--accent-color)'
-          : showQuality && d.quality !== null
-            ? qualityColorScale!(d.quality)
-            : isStivHollow(d)
-              ? 'var(--background-color)'
-              : strokeColor
-      )
-      .attr('stroke', (d) =>
-        showQuality && d.quality !== null ? 'var(--background-color)' : isStivHollow(d) ? strokeColor : 'none'
-      )
-      .attr('stroke-width', (d) => (showQuality && d.quality !== null ? 0.75 : isStivHollow(d) ? 1.5 : 0))
-      .attr('opacity', baseOpacity);
+    const markerRadius = (d: VelocitySeriesPoint): number =>
+      showQuality && d.quality !== null ? qualityRadiusScale!(d.quality) : isActive ? 3 : 2.2;
+    const markerFill = (d: VelocitySeriesPoint): string =>
+      d.interp
+        ? 'var(--accent-color)'
+        : showQuality && d.quality !== null
+          ? qualityColorScale!(d.quality)
+          : isStivHollow(d)
+            ? 'var(--background-color)'
+            : strokeColor;
+    const markerStroke = (d: VelocitySeriesPoint): string =>
+      showQuality && d.quality !== null ? 'var(--background-color)' : isStivHollow(d) ? strokeColor : 'none';
+    const markerStrokeWidth = (d: VelocitySeriesPoint): number =>
+      showQuality && d.quality !== null ? 0.75 : isStivHollow(d) ? 1.5 : 0;
+
+    const markerPoints = s.points.filter((p) => p.v !== null);
+    const shape = TECHNIQUE_MARKER_SHAPE[s.key];
+
+    // One marker shape per technique (circle/square/triangle), matching the
+    // swatch in TechniqueLegend/FormProcessing — colour is never the only signal.
+    if (shape === 'square') {
+      svg
+        .selectAll(`.marker-${s.key}`)
+        .data(markerPoints)
+        .enter()
+        .append('rect')
+        .attr('class', `marker-${s.key}`)
+        .attr('x', (d) => xScale(d.x) - markerRadius(d))
+        .attr('y', (d) => yScale((d.v as number) * velocityFactor) - markerRadius(d))
+        .attr('width', (d) => markerRadius(d) * 2)
+        .attr('height', (d) => markerRadius(d) * 2)
+        .attr('fill', markerFill)
+        .attr('stroke', markerStroke)
+        .attr('stroke-width', markerStrokeWidth)
+        .attr('opacity', baseOpacity);
+    } else if (shape === 'triangle') {
+      svg
+        .selectAll(`.marker-${s.key}`)
+        .data(markerPoints)
+        .enter()
+        .append('polygon')
+        .attr('class', `marker-${s.key}`)
+        .attr('points', (d) => {
+          const cx = xScale(d.x);
+          const cy = yScale((d.v as number) * velocityFactor);
+          const r = markerRadius(d) * 1.6;
+          return `${cx},${cy - r * 0.6} ${cx + r * 0.6},${cy + r * 0.4} ${cx - r * 0.6},${cy + r * 0.4}`;
+        })
+        .attr('fill', markerFill)
+        .attr('stroke', markerStroke)
+        .attr('stroke-width', markerStrokeWidth)
+        .attr('opacity', baseOpacity);
+    } else {
+      svg
+        .selectAll(`.marker-${s.key}`)
+        .data(markerPoints)
+        .enter()
+        .append('circle')
+        .attr('class', `marker-${s.key}`)
+        .attr('cx', (d) => xScale(d.x))
+        .attr('cy', (d) => yScale((d.v as number) * velocityFactor))
+        .attr('r', markerRadius)
+        .attr('fill', markerFill)
+        .attr('stroke', markerStroke)
+        .attr('stroke-width', markerStrokeWidth)
+        .attr('opacity', baseOpacity);
+    }
   });
 
   // label for Velocity
