@@ -7,7 +7,7 @@ import { parseAnalyzeStage, StageKey } from '../../../helpers/parseAnalyzeStage'
 const STAGE_ORDER: StageKey[] = ['lspiv', 'stiv', 'iwave'];
 
 // LSPIV/STIV/iWave are proper nouns/acronyms that are never translated in this app (see e.g.
-// TECHNIQUE_COLORS keys and the technique row labels in FormProcessing.tsx, which use these
+// the technique row labels in FormProcessing.tsx, which use these
 // bare names directly rather than translation keys). The breadcrumb's short per-item label
 // uses this fixed map instead of deriving it from the translated headline string, which would
 // break once any locale gets a real (non-placeholder) translation for Analizing.stage.*.

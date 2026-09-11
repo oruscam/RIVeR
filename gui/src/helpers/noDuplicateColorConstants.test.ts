@@ -18,4 +18,9 @@ describe('no duplicate, theme-frozen colour constants', () => {
     expect(source).not.toMatch(/COLORS\.CONTROL_POINTS/);
     expect(source).toMatch(/getDistanceColors/);
   });
+
+  it('constants.ts no longer exports the static TECHNIQUE_COLORS (every consumer now reads getTechniqueColors live)', () => {
+    const constants = readFileSync(join(__dirname, '..', 'constants', 'constants.ts'), 'utf8');
+    expect(constants).not.toMatch(/export const TECHNIQUE_COLORS/);
+  });
 });
