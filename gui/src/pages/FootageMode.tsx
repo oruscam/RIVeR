@@ -17,9 +17,9 @@ type Video = {
 };
 
 const footageTypes = [
-  { id: 'uav', icon: drone },
-  { id: 'oblique', icon: oblique },
-  { id: 'ipcam', icon: ipcam },
+  { id: 'uav', icon: drone, label: 'Drone' },
+  { id: 'oblique', icon: oblique, label: 'Oblique' },
+  { id: 'ipcam', icon: ipcam, label: 'Fixed camera' },
 ];
 
 export const FootageMode = () => {
@@ -93,13 +93,14 @@ export const FootageMode = () => {
       <h2 className="step-2-title">{t('Step-2.title')}</h2>
       <form className="file-upload-container" onSubmit={handleSubmit(onSubmit)} id={formId}>
         <div className="type-footage-container">
-          {footageTypes.map(({ id, icon }) => (
+          {footageTypes.map(({ id, icon, label }) => (
             <div
               key={id}
               className={`footage-button-container ${dragOver === id ? `drag-over-${id}` : ''} ${footageType === id ? 'selected-footage-type' : ''}`}
               role="button"
               tabIndex={0}
               aria-pressed={footageType === id}
+              aria-label={t('Step-2.footageType.' + id, { defaultValue: label })}
               onDragOver={(event) => handleDragOver(event, setDragOver, id)}
               onDragLeave={(event) => handleDragLeave(event, setDragOver, true)}
               onDrop={handleDrop(id)}
