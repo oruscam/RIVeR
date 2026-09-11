@@ -774,6 +774,57 @@ textarea:focus-visible {
 }
 
 /* =============================================================================
+   FIELD ROW (.field-row / .field)
+   Label + value + optional trailing icon button, from the design audit's
+   Field rows component sheet. Not consumed yet — existing .read-only label
+   pills and .input-field-* inputs keep their current classes until a later
+   phase migrates each screen onto this.
+   ============================================================================= */
+
+.field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 128px 32px;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: 40px;
+}
+
+.field-row > span:first-child {
+  color: var(--secondary-text-color);
+  font-size: 14px;
+}
+
+.field {
+  height: 36px;
+  border-radius: var(--radius-md);
+  background-color: var(--input-background);
+  border: none;
+  color: var(--primary-text-color);
+  font-size: 14px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  padding: 0 var(--space-3);
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+.field em {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--secondary-text-color);
+}
+
+.field.focus,
+.field:focus-within {
+  box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+/* =============================================================================
    TOGGLE SWITCH (two-state, used for form options)
    ============================================================================= */
 
