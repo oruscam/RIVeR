@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { LuEye, LuEyeOff } from 'react-icons/lu';
 import { useSectionSlice } from '../../hooks';
 import { Technique } from '../../store/section/types';
+import { TechniqueRow } from '../TechniqueRow';
 import './graphs.css';
 
 const TECHNIQUES: { key: Technique; label: string }[] = [
@@ -54,11 +55,7 @@ export const TechniqueLegend = () => {
         const color = `var(--tech-${key})`;
 
         return (
-          <div
-            key={key}
-            className={`technique-row${visible ? '' : ' technique-row-hidden'}${isActive ? ' technique-row-active' : ''}`}
-          >
-            <span className={`technique-swatch technique-swatch-${key}`} style={{ background: color }} />
+          <TechniqueRow key={key} technique={key} active={isActive} hidden={!visible}>
             <button
               type="button"
               className={`technique-name${isActive ? ' technique-name-active' : ''}`}
@@ -138,7 +135,7 @@ export const TechniqueLegend = () => {
             >
               {visible ? <LuEye size={15} /> : <LuEyeOff size={15} />}
             </button>
-          </div>
+          </TechniqueRow>
         );
       })}
     </div>
