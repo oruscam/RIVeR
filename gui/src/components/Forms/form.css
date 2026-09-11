@@ -61,7 +61,7 @@
     width: 132px;
     background-color: var(--input-background);
     color: var(--primary-text-color);
-    border: solid 0.1px;
+    border: 1px solid color-mix(in srgb, var(--primary-text-color) 45%, transparent);
     text-align: center;
     line-height: 50px;
     border-radius: 20px;
@@ -79,7 +79,7 @@
 .read-only-oblique {
     background-color: var(--input-background);
     color: var(--primary-text-color);
-    border: solid 0.1px;
+    border: 1px solid color-mix(in srgb, var(--primary-text-color) 45%, transparent);
     font-size: 22px;
     text-align: center;
     line-height: 45px;

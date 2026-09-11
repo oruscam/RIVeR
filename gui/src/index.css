@@ -554,6 +554,18 @@ textarea:focus-visible {
   outline-offset: 1px;
 }
 
+/* The input classes above drop the outline on mouse focus; keyboard focus
+   still needs a visible ring. Same specificity as their :focus rules and
+   declared later, so it wins when focus comes from the keyboard. */
+.input-field:focus-visible,
+.input-field-oblique:focus-visible,
+.input-field-little:focus-visible,
+.input-field-read-only:focus-visible,
+.input-field-little-read-only:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
 /* =============================================================================
    TOGGLE SWITCH (two-state, used for form options)
    ============================================================================= */
