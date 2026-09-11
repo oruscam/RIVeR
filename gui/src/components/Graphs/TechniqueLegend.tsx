@@ -57,15 +57,17 @@ export const TechniqueLegend = () => {
         return (
           <div key={key} className={`technique-row${visible ? '' : ' technique-row-hidden'}`}>
             <span className="technique-swatch" style={{ background: color }} />
-            <span
+            <button
+              type="button"
               className={`technique-name${isActive ? ' technique-name-active' : ''}`}
+              aria-pressed={isActive}
               onClick={() => handleActivate(key)}
               title={
                 isActive ? t('Results.activeTechnique') : t('Results.activateTechnique', { technique: label })
               }
             >
               {label}
-            </span>
+            </button>
             {key === 'lspiv' && (
               <button
                 type="button"
