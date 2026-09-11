@@ -24,3 +24,15 @@ export const getDistanceColors = () => ({
   D24: getCSSVar('--d24', '#7765E3'),
   D34: getCSSVar('--d34', '#ED6B57'),
 });
+
+/**
+ * Returns the three per-technique identity colors (LSPIV/STIV/iWave) from
+ * the current theme's CSS variables. Deliberately separate from status
+ * colors (good/fair/bad) and the accent color — see index.css's --tech-*
+ * tokens. Fallbacks are the dark theme's values.
+ */
+export const getTechniqueColors = () => ({
+  lspiv: getCSSVar('--tech-lspiv', '#56B4E9'),
+  stiv: getCSSVar('--tech-stiv', '#E69F00'),
+  iwave: getCSSVar('--tech-iwave', '#009E73'),
+});
