@@ -62,9 +62,7 @@ export function LangBtn() {
     <div className="lwrap" ref={ref}>
       <button
         className={`ib ${open ? 'active' : ''}`}
-        style={
-          { '--hi': 'var(--accent)', width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties
-        }
+        style={{ width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties}
         onClick={() => setOpen((v) => !v)}
       >
         {Icons.Globe(open ? 'var(--secondary-background-color)' : 'var(--primary-text-color)')}

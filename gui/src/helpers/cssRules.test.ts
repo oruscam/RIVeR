@@ -41,3 +41,34 @@ describe('CSS rules', () => {
     expect(read(join(SRC, 'components', 'components.css'))).not.toMatch(/background-color:\s*(red|yellow)\s*;/);
   });
 });
+
+describe('piv-icons palette removal', () => {
+  const piv = read(join(SRC, 'components', 'CustomIcons', 'piv-icons.css'));
+  const ORPHANS = ['bg', 'surf', 'border', 'text', 'muted', 'accent', 'violet', 'green', 'red', 'amber', 'mono', 'sans', 'hi'];
+
+  const sourceFiles = (dir: string): string[] =>
+    readdirSync(dir).flatMap((name) => {
+      const full = join(dir, name);
+      if (statSync(full).isDirectory()) return sourceFiles(full);
+      return /\.(ts|tsx|css)$/.test(name) && !name.endsWith('.test.ts') ? [full] : [];
+    });
+
+  it('does not download fonts at runtime', () => {
+    expect(piv).not.toMatch(/@import\s+url\(\s*['"]?https?:/);
+  });
+
+  it('does not define its own :root palette or restyle body', () => {
+    expect(piv).not.toMatch(/:root\s*\{/);
+    expect(piv).not.toMatch(/(^|\n)\s*body\s*\{/);
+  });
+
+  it('leaves no source file using the orphaned variables', () => {
+    const offenders = sourceFiles(SRC).flatMap((file) => {
+      const text = read(file);
+      return ORPHANS.filter((name) => new RegExp(`var\\(--${name}\\)|['"]--${name}['"]\\s*:`).test(text)).map(
+        (name) => `${file.replace(SRC, 'src')} uses --${name}`
+      );
+    });
+    expect(offenders).toEqual([]);
+  });
+});

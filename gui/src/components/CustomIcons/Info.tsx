@@ -11,8 +11,18 @@ interface InfoProps {
 export const Info: React.FC<InfoProps> = ({ name, desc, pill }) => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-      <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--accent)' }}>{name}</span>
-      <span style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.55, maxWidth: 270 }}>{desc}</span>
+      <span
+        style={{
+          fontFamily: "ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
+          fontSize: 12,
+          color: 'var(--accent-color)',
+        }}
+      >
+        {name}
+      </span>
+      <span style={{ fontSize: 12, color: 'var(--secondary-text-color)', lineHeight: 1.55, maxWidth: 270 }}>
+        {desc}
+      </span>
       {pill}
     </div>
   );

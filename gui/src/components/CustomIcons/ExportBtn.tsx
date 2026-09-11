@@ -23,7 +23,7 @@ export const ExportBtn: React.FC<ExportBtnProps> = ({ isCreating, onClick, class
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (phase !== 'idle') return;
-    fire('var(--text)');
+    fire('var(--primary-text-color)');
 
     if (onClick) onClick(e);
   };
@@ -45,7 +45,9 @@ export const ExportBtn: React.FC<ExportBtnProps> = ({ isCreating, onClick, class
       <span className={`cl ${phase === 'running' ? 'show' : 'hide'}`}>
         <span className="spin">{Icons.Loader('currentColor')}</span>
       </span>
-      <span className={`cl ${phase === 'done' ? 'show bdrop' : 'hide'}`}>{Icons.Download('var(--green)')}</span>
+      <span className={`cl ${phase === 'done' ? 'show bdrop' : 'hide'}`}>
+        {Icons.Download('var(--success-color)')}
+      </span>
     </button>
   );
 };
