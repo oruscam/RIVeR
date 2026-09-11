@@ -2,6 +2,7 @@ import { factor, Point } from '../../types';
 import * as d3 from 'd3';
 import { COLORS, MARKS } from '../../constants/constants';
 import { createPinsBase64 } from './createPinsBase64';
+import { getDistanceColors } from '../../helpers/getCSSVar';
 
 interface obliqueSvgProps {
   factor: factor;
@@ -26,6 +27,8 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
 
   const { pinRedSVGBase64, pinSVGBase64 } = createPinsBase64();
 
+  const DC = getDistanceColors();
+
   // Add lines between points
   for (let i = 0; i < coordinates.length - 1; i++) {
     svg
@@ -37,15 +40,15 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
       .attr('stroke', () => {
         switch (i) {
           case 0:
-            return COLORS.CONTROL_POINTS.D12;
+            return DC.D12;
             break;
 
           case 1:
-            return COLORS.CONTROL_POINTS.D23;
+            return DC.D23;
             break;
 
           case 2:
-            return COLORS.CONTROL_POINTS.D34;
+            return DC.D34;
             break;
 
           default:
@@ -62,7 +65,7 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
       .attr('y1', coordinates[coordinates.length - 1].y / factor.y)
       .attr('x2', coordinates[0].x / factor.x)
       .attr('y2', coordinates[0].y / factor.y)
-      .attr('stroke', COLORS.CONTROL_POINTS.D14)
+      .attr('stroke', DC.D14)
       .attr('stroke-width', 2);
 
     svg
@@ -71,7 +74,7 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
       .attr('y1', coordinates[0].y / factor.y)
       .attr('x2', coordinates[2].x / factor.x)
       .attr('y2', coordinates[2].y / factor.y)
-      .attr('stroke', COLORS.CONTROL_POINTS.D13)
+      .attr('stroke', DC.D13)
       .attr('stroke-width', 2);
 
     svg
@@ -80,7 +83,7 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
       .attr('y1', coordinates[1].y / factor.y)
       .attr('x2', coordinates[3].x / factor.x)
       .attr('y2', coordinates[3].y / factor.y)
-      .attr('stroke', COLORS.CONTROL_POINTS.D24)
+      .attr('stroke', DC.D24)
       .attr('stroke-width', 2);
   }
 

@@ -67,14 +67,6 @@ export const COLORS = {
   MARK_NUMBER: '#3396BF',
   MARK_L: '#6B120B',
   MARK_R: '#2D671B',
-  CONTROL_POINTS: {
-    D12: '#6CD4FF',
-    D13: '#CC4BC2',
-    D14: '#F5BF61',
-    D23: '#62C655',
-    D24: '#7765E3',
-    D34: '#ED6B57',
-  },
   ELLIPSE: {
     FILL: '#D2AF7970',
     STROKE: '#D2AF79',
