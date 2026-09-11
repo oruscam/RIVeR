@@ -1,4 +1,33 @@
 /* =============================================================================
+   SCALE TOKENS
+   Spacing, radius and motion — identical across all three themes, so they
+   live in one bare :root block instead of being repeated per [data-theme].
+   Consumed starting in Phase 3; nothing reads these yet.
+   ============================================================================= */
+:root {
+  /* Radius */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-full: 999px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Motion */
+  --motion-fast:  120ms;
+  --motion-base:  200ms;
+  --motion-slow:  320ms;
+  --motion-ease:  cubic-bezier(.2,0,0,1);
+}
+
+/* =============================================================================
    THEME SYSTEM
    Three themes: dark (default), light (cool blue-grey), dracula
    All themes define the same set of CSS custom properties.
