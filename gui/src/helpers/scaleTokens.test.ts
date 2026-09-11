@@ -25,8 +25,9 @@ describe('scale tokens', () => {
   });
 
   it('does not redeclare any token a [data-theme] block already owns', () => {
-    const themedTokens = [...css.matchAll(/\[data-theme="[a-z]+"\]\s*\{([^}]*)\}/g)]
-      .flatMap((m) => [...m[1].matchAll(/(--[a-z0-9-]+)\s*:/g)].map((t) => t[1]));
+    const themedTokens = [...css.matchAll(/\[data-theme="[a-z]+"\]\s*\{([^}]*)\}/g)].flatMap((m) =>
+      [...m[1].matchAll(/(--[a-z0-9-]+)\s*:/g)].map((t) => t[1])
+    );
     const rootTokens = [...rootBlock().matchAll(/(--[a-z0-9-]+)\s*:/g)].map((t) => t[1]);
     const overlap = rootTokens.filter((t) => themedTokens.includes(t));
     expect(overlap).toEqual([]);
