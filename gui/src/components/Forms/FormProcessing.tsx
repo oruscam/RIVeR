@@ -5,6 +5,7 @@ import { AnalyzingProgress, HardModeProcessing } from './Components';
 import { useEffect, useState } from 'react';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
+import { TechniqueRow } from '../TechniqueRow';
 
 export const FormProcessing = ({
   extraFields,
@@ -186,15 +187,13 @@ export const FormProcessing = ({
 
             <span className="divider-line mt-2 mb-1" />
 
-            <div
-              className={`technique-row-processing${previewMode === 'frames' ? ' technique-row-processing-active' : ''}`}
+            <TechniqueRow
+              technique="lspiv"
+              active={previewMode === 'frames'}
+              className="technique-row-processing"
               title={t('Processing.showLspivFrames')}
               onClick={() => previewMode !== 'frames' && setPreviewMode('frames')}
             >
-              <span
-                className="technique-swatch-processing technique-swatch-lspiv"
-                style={{ background: 'var(--tech-lspiv)' }}
-              />
               <h3
                 className="field-title"
                 style={previewMode === 'frames' ? { color: 'var(--tech-lspiv)' } : undefined}
@@ -214,11 +213,13 @@ export const FormProcessing = ({
               >
                 {t('Processing.carouselMedia')}
               </button>
-            </div>
-            <div
-              className={`technique-row-processing${previewMode === 'sti' ? ' technique-row-processing-active' : ''}${
-                canToggleSti ? '' : ' technique-row-processing-disabled'
-              }${stivAvailable ? '' : ' technique-row-processing-unavailable'}`}
+            </TechniqueRow>
+            <TechniqueRow
+              technique="stiv"
+              active={previewMode === 'sti'}
+              className={`technique-row-processing${canToggleSti ? '' : ' technique-row-processing-disabled'}${
+                stivAvailable ? '' : ' technique-row-processing-unavailable'
+              }`}
               title={
                 !stivAvailable
                   ? t('Processing.stivWeightsMissing')
@@ -228,10 +229,6 @@ export const FormProcessing = ({
               }
               onClick={() => canToggleSti && previewMode !== 'sti' && setPreviewMode('sti')}
             >
-              <span
-                className="technique-swatch-processing technique-swatch-stiv"
-                style={{ background: 'var(--tech-stiv)' }}
-              />
               <h3
                 className="field-title"
                 style={previewMode === 'sti' ? { color: 'var(--tech-stiv)' } : undefined}
@@ -260,18 +257,14 @@ export const FormProcessing = ({
                 />
                 <span className="slider"></span>
               </label>
-            </div>
-            <div
-              className={`technique-row-processing${previewMode === 'iwave' ? ' technique-row-processing-active' : ''}${
-                canToggleIwave ? '' : ' technique-row-processing-disabled'
-              }`}
+            </TechniqueRow>
+            <TechniqueRow
+              technique="iwave"
+              active={previewMode === 'iwave'}
+              className={`technique-row-processing${canToggleIwave ? '' : ' technique-row-processing-disabled'}`}
               title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
               onClick={() => canToggleIwave && previewMode !== 'iwave' && setPreviewMode('iwave')}
             >
-              <span
-                className="technique-swatch-processing technique-swatch-iwave"
-                style={{ background: 'var(--tech-iwave)' }}
-              />
               <h3
                 className="field-title"
                 style={previewMode === 'iwave' ? { color: 'var(--tech-iwave)' } : undefined}
@@ -286,7 +279,7 @@ export const FormProcessing = ({
                 />
                 <span className="slider"></span>
               </label>
-            </div>
+            </TechniqueRow>
 
             <span className="divider-line mt-2 mb-1" />
 

@@ -699,37 +699,24 @@
     margin-right: auto;
 }
 
-/* Same box as the Results module's .technique-row (Graphs/graphs.css) — padding,
-   corner radius, everything — so the two selectors read as one shared pattern. */
+/* The row's box (padding, corner radius, hover, active background) now
+   comes from the shared .technique-row in components.css via the
+   TechniqueRow component — this class only adds the whole-row-is-clickable
+   cursor Processing needs that Results' rows don't. */
 .technique-row-processing {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border-radius: 9px;
     cursor: pointer;
-    transition: background-color 0.14s ease;
 }
 
-.technique-row-processing:hover {
-    background-color: var(--on-hover);
-}
-
-/* The active row gets a background (see .technique-row-processing-active above)
-   and bold text; colour stays the technique's own, set inline in FormProcessing.tsx. */
 .technique-row-processing .field-title {
     flex: 1;
     color: var(--secondary-text-color);
 }
 
-/* Active row keeps its own technique colour (set inline in FormProcessing.tsx)
-   and gains a background plus bold text instead of recolouring to
-   --primary-text-color — matches .technique-row-active in Graphs/graphs.css. */
-.technique-row-processing.technique-row-processing-active {
-    background-color: var(--surface-field);
-}
-
-.technique-row-processing-active .field-title {
+/* The active row's background comes from the shared .technique-row-active
+   in components.css (added by TechniqueRow); this just bolds this screen's
+   own label element. Colour stays the technique's own, set inline in
+   FormProcessing.tsx. */
+.technique-row-active .field-title {
     font-weight: 700;
 }
 
@@ -739,7 +726,11 @@
     opacity: 0.5;
 }
 
-.technique-row-processing-disabled:hover {
+/* Compound with .technique-row (not bare) so this keeps beating the shared
+   .technique-row:hover in components.css regardless of which file's CSS
+   import runs first — the same cross-file specificity tie Phase 3a found
+   and fixed once already for the active-row background. */
+.technique-row.technique-row-processing-disabled:hover {
     background-color: transparent;
 }
 
@@ -749,30 +740,6 @@
 .technique-row-processing-unavailable .field-title {
     color: var(--secondary-text-color);
     opacity: 0.6;
-}
-
-.technique-swatch-processing {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-/* Compound with .technique-swatch-processing (not a bare class) so this
-   always wins over its own border-radius:50% regardless of CSS file load
-   order. Mirrors .technique-swatch.technique-swatch-lspiv/stiv/iwave in
-   Graphs/graphs.css — same shapes, same class names, different base class. */
-.technique-swatch-processing.technique-swatch-lspiv {
-    border-radius: 50%;
-}
-
-.technique-swatch-processing.technique-swatch-stiv {
-    border-radius: 2px;
-}
-
-.technique-swatch-processing.technique-swatch-iwave {
-    border-radius: 0;
-    clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 
 .technique-always {
