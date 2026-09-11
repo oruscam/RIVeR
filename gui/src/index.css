@@ -62,6 +62,13 @@
   --on-error:   #000000;
   --on-success: #000000;
 
+  /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
+     lines/markers, Processing technique rows. Deliberately its own set,
+     never the same colour as accent or the status pair above. */
+  --tech-lspiv: #56B4E9;
+  --tech-stiv:  #E69F00;
+  --tech-iwave: #009E73;
+
   /* Toggle switch active color — lighter cyan blue */
   --toggle-active-color: #6CD4FF;
 
@@ -138,6 +145,13 @@
   --on-error:   #FFFFFF;
   --on-success: #FFFFFF;
 
+  /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
+     lines/markers, Processing technique rows. Deliberately its own set,
+     never the same colour as accent or the status pair above. */
+  --tech-lspiv: #0072B2;
+  --tech-stiv:  #B86E00;
+  --tech-iwave: #00795A;
+
   /* Toggle switch active color — matches accent */
   --toggle-active-color: #3D6D9E;
 
@@ -213,6 +227,13 @@
   --on-warning: #282A36;
   --on-error:   #191A21;
   --on-success: #282A36;
+
+  /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
+     lines/markers, Processing technique rows. Deliberately its own set,
+     never the same colour as accent or the status pair above. */
+  --tech-lspiv: #8BE9FD;
+  --tech-stiv:  #E0954D;
+  --tech-iwave: #4DD9B0;
 
   /* Toggle switch active color — Dracula purple */
   --toggle-active-color: #bd93f9;
