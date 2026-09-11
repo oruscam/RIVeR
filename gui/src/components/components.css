@@ -305,6 +305,17 @@
     justify-content: flex-end;
 }
 
+/* Inside .message-stack, the bars overlap (see .message-stack above) instead
+   of stacking one after another — the wrapper must get out of normal flow
+   too, or it reserves its own 35px per bar on top of the stack's shared one. */
+.message-stack .message-region {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    min-height: 0;
+}
+
 .error {
     background-color: var(--background-error);
     color: var(--on-error);
