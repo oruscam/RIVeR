@@ -48,16 +48,12 @@ export const WizardButtons = ({
 
   return (
     <div className="wizard-container">
-      <button
-        className="wizard-button button-1"
-        onClick={handlePreviuos}
-        disabled={isFirstStep || isBackendWorking}
-      >
+      <button className="btn btn-tertiary" onClick={handlePreviuos} disabled={isFirstStep || isBackendWorking}>
         {t('Wizard.back')}
       </button>
 
       <button
-        className="wizard-button button-1"
+        className="btn btn-primary"
         disabled={!canFollow || isBackendWorking}
         form={formId}
         onClick={onClickNext}
