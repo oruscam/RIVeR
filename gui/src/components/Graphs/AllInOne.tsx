@@ -5,7 +5,8 @@ import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { createDischargeChart } from './dischargeSvg';
 import { createVelocityChart, VelocitySeries } from './velocitySvg';
 import { bathimetrySvg } from './bathimetrySvg';
-import { GRAPHS, TECHNIQUE_COLORS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
+import { GRAPHS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
+import { getTechniqueColors } from '../../helpers/getCSSVar';
 import { adapterBathimetry, getEffectiveTechniqueData } from '../../helpers';
 import { generateXAxisTicks } from '../../helpers/graphsHelpers';
 import { Technique } from '../../store/section/types';
@@ -150,6 +151,8 @@ export const AllInOne = ({
         iwave: data.showIwave !== false,
       };
 
+      const technique = getTechniqueColors();
+
       const series: VelocitySeries[] = TECHNIQUE_ORDER.filter((key) => visibility[key])
         .map((key): VelocitySeries | null => {
           const effective = getEffectiveTechniqueData(data, key, techOptions);
@@ -168,7 +171,7 @@ export const AllInOne = ({
           const s: VelocitySeries = {
             key,
             label: TECHNIQUE_LABEL[key],
-            color: TECHNIQUE_COLORS[key],
+            color: technique[key],
             isActive,
             points,
           };

@@ -3,7 +3,7 @@ import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { useTranslation } from 'react-i18next';
 import { AnalyzingProgress, HardModeProcessing } from './Components';
 import { useEffect, useState } from 'react';
-import { TECHNIQUE_COLORS } from '../../constants/constants';
+import { getTechniqueColors } from '../../helpers/getCSSVar';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
 
@@ -29,6 +29,7 @@ export const FormProcessing = ({
   stivAvailable: boolean;
 }) => {
   const { t } = useTranslation();
+  const technique = getTechniqueColors();
   const { onSetErrorMessage } = useUiSlice();
   const {
     isBackendWorking,
@@ -192,7 +193,7 @@ export const FormProcessing = ({
               title={t('Processing.showLspivFrames')}
               onClick={() => previewMode !== 'frames' && setPreviewMode('frames')}
             >
-              <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.lspiv }} />
+              <span className="technique-swatch-processing" style={{ background: technique.lspiv }} />
               <h3 className="field-title">LSPIV</h3>
               <button
                 type="button"
@@ -221,7 +222,7 @@ export const FormProcessing = ({
               }
               onClick={() => canToggleSti && previewMode !== 'sti' && setPreviewMode('sti')}
             >
-              <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.stiv }} />
+              <span className="technique-swatch-processing" style={{ background: technique.stiv }} />
               <h3 className="field-title">STIV</h3>
               {hasAnyStivOverride && (
                 <button
@@ -253,7 +254,7 @@ export const FormProcessing = ({
               title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
               onClick={() => canToggleIwave && previewMode !== 'iwave' && setPreviewMode('iwave')}
             >
-              <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.iwave }} />
+              <span className="technique-swatch-processing" style={{ background: technique.iwave }} />
               <h3 className="field-title">
                 iWave
               </h3>
