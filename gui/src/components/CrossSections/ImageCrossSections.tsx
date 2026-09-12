@@ -180,6 +180,7 @@ export const ImageCrossSections = ({ imageSrc }: ImageCrossSectionsProps) => {
               scale={scale}
               position={position}
               layers={layers}
+              imageSrc={src}
             />
           </>
         )}

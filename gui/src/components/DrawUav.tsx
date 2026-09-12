@@ -12,6 +12,7 @@ export const DrawUav = ({
   scale,
   position,
   layers,
+  imageSrc,
 }: {
   width: number;
   height: number;
@@ -19,6 +20,7 @@ export const DrawUav = ({
   scale: number;
   position: { x: number; y: number };
   layers: OverlayLayers;
+  imageSrc: string;
 }) => {
   const { overlayZoomRef, interactiveLayerRef, uiLayerRef, svgRef } = layers;
 
@@ -65,6 +67,7 @@ export const DrawUav = ({
         scale,
       },
       module: 'uav',
+      imageSrc,
     });
 
     return () => {
@@ -85,6 +88,7 @@ export const DrawUav = ({
     interactiveLayerRef,
     uiLayerRef,
     overlayZoomRef,
+    imageSrc,
   ]);
 
   // Mirror the drag state into Redux so other parts of the page (e.g. the

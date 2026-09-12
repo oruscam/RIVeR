@@ -73,6 +73,7 @@ export const ImageUavNew = ({ imageSrc }: ImageUavNewProps) => {
               scale={scale}
               position={position}
               layers={layers}
+              imageSrc={src}
             />
           </>
         )}

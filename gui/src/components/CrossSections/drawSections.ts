@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
-import { t } from 'i18next';
-import { COLORS, MARKS } from '../../constants/constants';
-import { pinGreen, pinRed, pin } from '../../assets/icons/icons';
+import { COLORS } from '../../constants/constants';
+import { drawPin, PinKind } from '../Graphs/drawPin';
+import { showMagnifier, hideMagnifier } from '../Graphs/drawMagnifier';
 
 type Point = { x: number; y: number };
 
@@ -188,7 +188,9 @@ const drawLine = ({
 };
 
 /**
- * Draw a pin icon (L or R) plus its tiny label (L/R).
+ * Draw one crosshair pin (L or R for cross-sections, 1/2 for UAV pixel
+ * size) via the shared drawPin module. `draggable` only affects
+ * pointer-events/cursor — the caller decides whether to attach d3.drag().
  */
 const drawIcon = (
   position: Point,
@@ -199,60 +201,19 @@ const drawIcon = (
   module: string
 ) => {
   const isLeft = type === 'L';
-  const href = module === 'uav' ? pin : isLeft ? pinRed : pinGreen;
-  const labelColor = module === 'uav' ? COLORS.LIGHT_BLUE : isLeft ? COLORS.RED : COLORS.GREEN;
+  const kind: PinKind = module === 'uav' ? 'point' : isLeft ? 'left' : 'right';
+  const label = module === 'uav' ? (isLeft ? '1' : '2') : isLeft ? 'L' : 'R';
 
-  const icon = layer
-    .append('image')
-    .attr('href', href)
-    .attr('width', MARKS.WIDTH + 5)
-    .attr('height', MARKS.HEIGHT + 5)
-    .attr('x', position.x - MARKS.OFFSET_X)
-    .attr('y', position.y - MARKS.OFFSET_Y)
-    .attr('cursor', draggable ? 'move' : 'default')
-    .attr('pointer-events', draggable ? 'all' : 'none')
-    .attr('class', `pin-${draggable ? 'draggable' : 'static'} pin-${type} ${extraClass}`.trim());
+  const g = drawPin({
+    layer,
+    tip: position,
+    kind,
+    label,
+    className: `pin-${draggable ? 'draggable' : 'static'} pin-${type} ${extraClass}`.trim(),
+  });
+  g.attr('cursor', draggable ? 'move' : 'default').attr('pointer-events', draggable ? 'all' : 'none');
 
-  const badgeText =
-    module === 'uav'
-      ? type === 'L'
-        ? '1'
-        : '2'
-      : type === 'L'
-        ? t('CrossSections.bankLeft')
-        : t('CrossSections.bankRight');
-  const badgeWidth = 20;
-  const badgeHeight = 16;
-  const badgeX = position.x - badgeWidth / 2;
-  const badgeY = position.y - MARKS.OFFSET_Y - 14;
-
-  const badge = layer
-    .append('g')
-    .attr('class', `pin-label-${draggable ? 'draggable' : 'static'} pin-label-${type} ${extraClass}`.trim())
-    .attr('pointer-events', 'none');
-
-  badge
-    .append('rect')
-    .attr('x', badgeX)
-    .attr('y', badgeY)
-    .attr('width', badgeWidth)
-    .attr('height', badgeHeight)
-    .attr('rx', 3)
-    .attr('ry', 3)
-    .attr('fill', 'rgba(50,50,50,0.85)');
-
-  badge
-    .append('text')
-    .attr('x', position.x)
-    .attr('y', badgeY + badgeHeight / 2)
-    .attr('text-anchor', 'middle')
-    .attr('dominant-baseline', 'central')
-    .text(badgeText)
-    .attr('font-size', 11)
-    .attr('font-weight', '600')
-    .attr('fill', labelColor);
-
-  return icon;
+  return g;
 };
 
 /**
@@ -579,6 +540,7 @@ interface DrawSvgInteractiveSectionProps {
     scale: number;
   };
   module: string;
+  imageSrc: string;
 }
 
 const drawInteractiveSection = ({
@@ -597,6 +559,7 @@ const drawInteractiveSection = ({
   mousePressed,
   viewport,
   module,
+  imageSrc,
 }: DrawSvgInteractiveSectionProps) => {
   const { resizeFactor, lineColor } = getSectionStyles(module);
 
@@ -649,9 +612,12 @@ const drawInteractiveSection = ({
     scale: viewport.scale,
   });
 
-  // Drag para startPoint: usa subject + container(zoomLayerNode) para mantener el offset
+  // The screen position each pin was actually drawn at, captured once per
+  // render — the fixed point every 'drag' tick's transform is relative to.
+  const startScreenAtDraw = startPoint ? toScreenFromZoom(startPoint) : null;
+
   const dragStartPoint = d3
-    .drag<SVGImageElement, unknown, { x: number; y: number }>()
+    .drag<SVGGElement, unknown, { x: number; y: number }>()
     .container(() => zoomLayerNode) // coordenadas del puntero en zoom-space
     .on('start', () => setMousePressed(true))
     .on('drag', function (event) {
@@ -661,14 +627,27 @@ const drawInteractiveSection = ({
       // Actualiza el modelo en zoom-space
       setStartPoint({ x, y });
 
-      // Mueve el ícono en screen-space inmediatamente
+      // Mueve el pin en screen-space inmediatamente (sin recrearlo — ver nota
+      // arriba), y actualiza el magnifier.
       const pScreen = toScreenFromZoom({ x, y });
-      d3.select<SVGImageElement, unknown>(this)
-        .attr('x', pScreen.x - MARKS.OFFSET_X)
-        .attr('y', pScreen.y - MARKS.OFFSET_Y);
+      if (startScreenAtDraw) {
+        d3.select<SVGGElement, unknown>(this).attr(
+          'transform',
+          `translate(${pScreen.x - startScreenAtDraw.x}, ${pScreen.y - startScreenAtDraw.y})`
+        );
+      }
+      showMagnifier({
+        layer: uiLayer,
+        point: pScreen,
+        imageSrc,
+        imageWidth: viewport.imageWidth,
+        imageHeight: viewport.imageHeight,
+        coordinateFactor: typeof factor === 'number' ? factor : factor.x,
+      });
     })
     .on('end', function (event) {
       setMousePressed(false);
+      hideMagnifier(uiLayer);
       if (endPoint) {
         const x = event.x;
         const y = event.y;
@@ -681,8 +660,10 @@ const drawInteractiveSection = ({
   }
 
   // Drag para endPoint: igual patrón subject + container(zoomLayerNode)
+  const endScreenAtDraw = endPoint ? toScreenFromZoom(endPoint) : null;
+
   const dragEndPoint = d3
-    .drag<SVGImageElement, unknown, { x: number; y: number }>()
+    .drag<SVGGElement, unknown, { x: number; y: number }>()
     .container(() => zoomLayerNode)
     .subject(() => {
       if (endPoint) {
@@ -699,12 +680,24 @@ const drawInteractiveSection = ({
       setEndPoint({ x, y });
 
       const pScreen = toScreenFromZoom({ x, y });
-      d3.select<SVGImageElement, unknown>(this)
-        .attr('x', pScreen.x - MARKS.OFFSET_X)
-        .attr('y', pScreen.y - MARKS.OFFSET_Y);
+      if (endScreenAtDraw) {
+        d3.select<SVGGElement, unknown>(this).attr(
+          'transform',
+          `translate(${pScreen.x - endScreenAtDraw.x}, ${pScreen.y - endScreenAtDraw.y})`
+        );
+      }
+      showMagnifier({
+        layer: uiLayer,
+        point: pScreen,
+        imageSrc,
+        imageWidth: viewport.imageWidth,
+        imageHeight: viewport.imageHeight,
+        coordinateFactor: typeof factor === 'number' ? factor : factor.x,
+      });
     })
     .on('end', function (event) {
       setMousePressed(false);
+      hideMagnifier(uiLayer);
       if (startPoint) {
         const x = event.x;
         const y = event.y;

@@ -38,7 +38,7 @@ export const showMagnifier = (options: MagnifierOptions): void => {
   const d = (n: number) => n / divisor;
 
   let g = layer.select<SVGGElement>('g.magnifier');
-  let clipId = g.attr('data-clip-id');
+  let clipId: string;
   if (g.empty()) {
     clipCounter += 1;
     clipId = `magnifier-clip-${clipCounter}`;
@@ -55,6 +55,8 @@ export const showMagnifier = (options: MagnifierOptions): void => {
     g.append('circle').attr('class', 'magnifier-border');
     g.append('rect').attr('class', 'magnifier-readout-bg');
     g.append('text').attr('class', 'magnifier-readout-text');
+  } else {
+    clipId = g.attr('data-clip-id')!;
   }
 
   const radius = d(60);
