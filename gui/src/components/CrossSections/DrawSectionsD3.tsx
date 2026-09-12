@@ -15,6 +15,7 @@ export const DrawSectionsD3 = ({
   position,
   layers,
   sectionIndex,
+  imageSrc,
 }: {
   width: number;
   height: number;
@@ -24,6 +25,7 @@ export const DrawSectionsD3 = ({
   position: { x: number; y: number };
   layers: OverlayLayers;
   sectionIndex?: number;
+  imageSrc: string;
 }) => {
   const { sections, activeSection, onSetDirPoints, onSetIsDraggingPoint } = useSectionSlice();
   const { seeAll, language } = useUiSlice();
@@ -150,6 +152,7 @@ export const DrawSectionsD3 = ({
         scale,
       },
       module: 'x-sections',
+      imageSrc,
     });
 
     return () => {
@@ -175,6 +178,7 @@ export const DrawSectionsD3 = ({
     uiLayerRef,
     overlayZoomRef,
     seeAll,
+    imageSrc,
   ]);
 
   // Attach root SVG listeners for section creation (namespaced)
