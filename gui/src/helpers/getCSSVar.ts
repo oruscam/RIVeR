@@ -36,3 +36,33 @@ export const getTechniqueColors = () => ({
   stiv: getCSSVar('--tech-stiv', '#E69F00'),
   iwave: getCSSVar('--tech-iwave', '#009E73'),
 });
+
+/**
+ * Returns the Pin component's colours from the current theme's CSS
+ * variables. `left`/`right` are the cross-section L/R pins (RIVeR's
+ * historical red-left/green-right convention); `point` is the plain pin
+ * used everywhere else (UAV pixel size, Oblique corners, ipcam control
+ * points); `muted` is an unselected/inactive point (ipcam only); `ink` is
+ * the label colour drawn inside every pin's head, the same in all themes.
+ * Note: in test environments without document/DOM, returns the dark theme
+ * fallback values directly.
+ */
+export const getPinColors = () => {
+  // In test environments without document/DOM, return the dark theme fallback values
+  if (typeof document === 'undefined') {
+    return {
+      left: '#ED6B57',
+      right: '#62C655',
+      point: '#6CD4FF',
+      muted: '#808080',
+      ink: '#0B0D10',
+    };
+  }
+  return {
+    left: getCSSVar('--pin-left', '#ED6B57'),
+    right: getCSSVar('--pin-right', '#62C655'),
+    point: getCSSVar('--pin-point', '#6CD4FF'),
+    muted: getCSSVar('--pin-muted', '#808080'),
+    ink: getCSSVar('--pin-ink', '#0B0D10'),
+  };
+};

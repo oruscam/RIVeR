@@ -25,6 +25,12 @@
   --motion-base:  200ms;
   --motion-slow:  320ms;
   --motion-ease:  cubic-bezier(.2,0,0,1);
+
+  /* Pin ink — the label colour drawn inside a pin's head. Always a near-black,
+     since every pin fill (left/right/point) is a light, saturated colour in
+     every theme; unlike --pin-left/right/point/muted below, this one value
+     works everywhere and isn't redeclared per theme. */
+  --pin-ink: #0B0D10;
 }
 
 /* =============================================================================
@@ -124,6 +130,17 @@
   --d23: #62C655;
   --d24: #7765E3;
   --d34: #ED6B57;
+
+  /* Pin colours — cross-section left/right pins, and the plain "point" pin
+     used everywhere else (UAV pixel size, Oblique corners, ipcam control
+     points). Historically duplicated as pinRed.svg/pinGreen.svg/pin.svg/
+     pinGrey.svg and, separately, createPinsBase64.ts's inline SVG strings —
+     with the two reds actually different values (#ED6B57 vs #FF6C6C). One
+     set of tokens now. */
+  --pin-left:  #ED6B57;
+  --pin-right: #62C655;
+  --pin-point: #6CD4FF;
+  --pin-muted: #808080;
 }
 
 /* --------------------------------------------------------------------------
@@ -221,6 +238,13 @@
   --d23: #62C655;
   --d24: #7765E3;
   --d34: #ED6B57;
+
+  /* Pin colours — same vivid values as dark theme (canvas overlay colours
+     read against video footage, not the panel background). */
+  --pin-left:  #ED6B57;
+  --pin-right: #62C655;
+  --pin-point: #6CD4FF;
+  --pin-muted: #808080;
 }
 
 /* --------------------------------------------------------------------------
@@ -314,6 +338,14 @@
   --d23: #50fa7b;   /* green */
   --d24: #bd93f9;   /* purple */
   --d34: #ff5555;   /* red */
+
+  /* Pin colours — mapped onto Dracula's own red/green/cyan/comment-grey
+     (matching --background-error/--success-color/--tech-lspiv/--disabled-button
+     above) instead of the dark/light theme's literal hex values. */
+  --pin-left:  #ff5555;
+  --pin-right: #50fa7b;
+  --pin-point: #8be9fd;
+  --pin-muted: #6272a4;
 }
 
 /* =============================================================================
