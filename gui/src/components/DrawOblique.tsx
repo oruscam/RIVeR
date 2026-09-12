@@ -13,6 +13,7 @@ export const DrawOblique = ({
   scale,
   position,
   layers,
+  imageSrc,
 }: {
   width: number;
   height: number;
@@ -20,6 +21,7 @@ export const DrawOblique = ({
   scale: number;
   position: { x: number; y: number };
   layers: OverlayLayers;
+  imageSrc: string;
 }) => {
   const { interactiveLayerRef, uiLayerRef, svgRef } = layers;
 
@@ -68,6 +70,9 @@ export const DrawOblique = ({
       setPointsInStore: onChangeCoordinates,
       scale,
       isDefaultCoordinates,
+      imageSrc,
+      imageWidth: width,
+      imageHeight: height,
     });
     // onChangeCoordinates is recreated every render but only ever dispatches based on its
     // arguments, no render state captured — adding it would refire this effect on every render
@@ -85,6 +90,7 @@ export const DrawOblique = ({
     localPoints,
     isDefaultCoordinates,
     theme,
+    imageSrc,
   ]);
 
   // To create initial points
