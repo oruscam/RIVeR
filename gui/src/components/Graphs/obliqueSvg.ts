@@ -1,8 +1,8 @@
 import { factor, Point } from '../../types';
 import * as d3 from 'd3';
-import { COLORS, MARKS } from '../../constants/constants';
-import { createPinsBase64 } from './createPinsBase64';
+import { COLORS } from '../../constants/constants';
 import { getDistanceColors } from '../../helpers/getCSSVar';
+import { drawPin } from './drawPin';
 
 interface obliqueSvgProps {
   factor: factor;
@@ -24,8 +24,6 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
   const svg = d3.select(svgElement);
 
   svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
-
-  const { pinRedSVGBase64, pinSVGBase64 } = createPinsBase64();
 
   const DC = getDistanceColors();
 
@@ -87,48 +85,16 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
       .attr('stroke-width', 2);
   }
 
-  svg
-    .selectAll('image')
-    .data(coordinates)
-    .enter()
-    .append('image')
-    .attr('x', (d) => d.x / factor.x - MARKS.OFFSET_X_REPORT) // Adjusting for image width
-    .attr('y', (d) => d.y / factor.y - MARKS.OFFSET_Y_REPORT) // Adjusting for image height
-    .attr('width', MARKS.WIDTH_REPORT)
-    .attr('height', MARKS.HEIGHT_REPORT)
-    .attr('xlink:href', (_d, i: number) => {
-      if (i === 0) return pinRedSVGBase64;
-      return pinSVGBase64;
+  // Every corner is the plain blue "point" pin, at the report's fixed
+  // resizeFactor of 1.2 — matches drawOblique.ts's own migration (point 0
+  // no longer gets its own red accent).
+  coordinates.forEach((point, i) => {
+    drawPin({
+      layer: svg as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
+      tip: { x: point.x / factor.x, y: point.y / factor.y },
+      kind: 'point',
+      label: `${i + 1}`,
+      divisor: 1.2,
     });
-
-  // Badge background
-  svg
-    .selectAll('rect.pin-badge-bg')
-    .data(coordinates)
-    .enter()
-    .append('rect')
-    .attr('class', 'pin-badge-bg')
-    .attr('x', (d) => d.x / factor.x - 9)
-    .attr('y', (d) => d.y / factor.y - MARKS.OFFSET_Y_REPORT - 13)
-    .attr('width', 18)
-    .attr('height', 13)
-    .attr('rx', 2)
-    .attr('ry', 2)
-    .attr('fill', 'rgba(50,50,50,0.85)');
-
-  // Badge text
-  svg
-    .selectAll('text.pin-badge-text')
-    .data(coordinates)
-    .enter()
-    .append('text')
-    .attr('class', 'pin-badge-text')
-    .attr('x', (d) => d.x / factor.x)
-    .attr('y', (d) => d.y / factor.y - MARKS.OFFSET_Y_REPORT - 6.5)
-    .attr('text-anchor', 'middle')
-    .attr('dominant-baseline', 'central')
-    .attr('font-size', '9px')
-    .attr('font-weight', 'bold')
-    .attr('fill', (_d, i) => (i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE))
-    .text((_d, i) => i + 1);
+  });
 };

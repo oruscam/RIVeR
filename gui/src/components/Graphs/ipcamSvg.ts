@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
 import { factor } from '../../types';
 import { IpcamPoint } from '../../store/ipcam/types';
-import { COLORS, MARKS } from '../../constants/constants';
-import { createPinsBase64 } from './createPinsBase64';
+import { COLORS } from '../../constants/constants';
+import { drawPin } from './drawPin';
 
 interface ipcamSvgProps {
   factor: factor;
@@ -68,20 +68,12 @@ export const ipcamSvg = ({ factor, points, svgElement, width, height }: ipcamSvg
     }
 
     if (x && y) {
-      const { pinSVGBase64, pinGreySVGBase64 } = createPinsBase64();
-      clippedGroup
-        .append('image')
-        .attr('x', x / factor.x - MARKS.OFFSET_X_REPORT)
-        .attr('y', y / factor.y - MARKS.OFFSET_Y_REPORT)
-        .attr('width', MARKS.WIDTH_REPORT)
-        .attr('height', MARKS.HEIGHT_REPORT)
-        .attr('xlink:href', () => {
-          if (selected) {
-            return pinSVGBase64;
-          } else {
-            return pinGreySVGBase64;
-          }
-        });
+      drawPin({
+        layer: clippedGroup, // already a Selection<SVGGElement, ...> — no cast needed
+        tip: { x: x / factor.x, y: y / factor.y },
+        kind: selected ? 'point' : 'muted',
+        divisor: 1.2,
+      });
     }
   }
 };
