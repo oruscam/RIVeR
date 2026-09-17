@@ -1,7 +1,8 @@
 import * as d3 from 'd3';
-import { pinRed, pin, pinGrey } from '../../assets/icons/icons';
-import { COLORS, MARKS } from '../../constants/constants';
+import { COLORS } from '../../constants/constants';
 import { IpcamPoint, SetPointPixelCoordinatesProps } from '../../store/ipcam/types';
+import { drawPin, PinKind } from './drawPin';
+import { showMagnifier, hideMagnifier } from './drawMagnifier';
 
 interface drawIpcamProps {
   layer: d3.Selection<SVGGElement, unknown, null, undefined>;
@@ -16,6 +17,7 @@ interface drawIpcamProps {
   onSetPointInStore: (props: SetPointPixelCoordinatesProps) => void;
   onSetActivePoint: (index: number) => void;
   cameraSolution: any | null;
+  imageSrc: string;
 }
 
 const drawIpcam = ({
@@ -31,15 +33,16 @@ const drawIpcam = ({
   onSetPointInStore,
   onSetActivePoint,
   cameraSolution,
+  imageSrc,
 }: drawIpcamProps) => {
-  d3.selectAll(layer.selectAll('*')).remove();
+  layer.selectAll('*:not(.magnifier):not(.magnifier *)').remove();
   d3.selectAll(uiLayer.selectAll('*')).remove();
 
   // Draw each point
   if (localPoints === null) return;
 
   const dragPoint = d3
-    .drag<SVGImageElement, { index: number }, { x: number; y: number }>()
+    .drag<SVGGElement, { index: number }, { x: number; y: number }>()
     .subject((event) => ({ x: event.x, y: event.y }))
     .on('start', function (_event, d) {
       onSetActivePoint(d.index);
@@ -51,15 +54,29 @@ const drawIpcam = ({
 
       const x = Math.max(0, Math.min(width, event.x));
       const y = Math.max(0, Math.min(height, event.y));
+      // Where this pin was actually drawn (this render's localPoints) — see
+      // the equivalent note in drawOblique.ts's migration (Task 7).
+      const origin = localPoints![d.index];
 
-      d3.select<SVGImageElement, { index: number }>(this)
-        .attr('x', x - MARKS.IPCAM_OFFSET_X / scale)
-        .attr('y', y - MARKS.IPCAM_OFFSET_Y / scale);
+      d3.select<SVGGElement, { index: number }>(this).attr(
+        'transform',
+        `translate(${x - origin.x}, ${y - origin.y})`
+      );
+      showMagnifier({
+        layer,
+        point: { x, y },
+        imageSrc,
+        imageWidth: width,
+        imageHeight: height,
+        coordinateFactor: factor,
+        divisor: scale,
+      });
     })
     .on('end', function (event, d) {
       if (activePoint !== d.index) return;
 
       setMousePressed(false);
+      hideMagnifier(layer);
       d3.select(this.ownerSVGElement).style('cursor', null);
 
       const x = Math.max(0, Math.min(width, event.x));
@@ -67,6 +84,15 @@ const drawIpcam = ({
 
       onSetPointInStore({ index: d.index, point: { x: x * factor, y: y * factor } });
     });
+
+  // No label — matches today's behaviour (ipcam control points have never
+  // shown a number/letter). "active" (currently selected for editing) no
+  // longer gets its own pin colour — see this plan's scoping decisions —
+  // and instead gains an accent ring via drawPin's `active` flag.
+  const getPinKind = (index: number, selected: boolean): PinKind => {
+    if (activePoint === index) return 'point';
+    return selected ? 'point' : 'muted';
+  };
 
   localPoints.forEach((point, index) => {
     if (cameraSolution === null && point.selected === false) return;
@@ -77,29 +103,17 @@ const drawIpcam = ({
       drawProjectionPoint(point, layer, factor, scale);
     }
 
-    layer
-      .append('image')
-      .attr('xlink:href', getIcon(index, activePoint, point.selected))
-      .attr('x', point.x - MARKS.IPCAM_OFFSET_X / scale)
-      .attr('y', point.y - MARKS.IPCAM_OFFSET_Y / scale)
+    const g = drawPin({
+      layer,
+      tip: point,
+      kind: getPinKind(index, point.selected),
+      divisor: scale,
+      active: activePoint === index,
+    });
+    g.attr('cursor', 'default')
       .datum({ index })
-      .attr('width', MARKS.WIDTH / scale)
-      .attr('height', MARKS.HEIGHT / scale)
-      .attr('cursor', 'default')
-      .call(dragPoint);
+      .call(dragPoint as any);
   });
-};
-
-const getIcon = (index: number, activePoint: number | null, selected: boolean) => {
-  if (activePoint === index) {
-    return pinRed;
-  } else {
-    if (selected) {
-      return pin;
-    } else {
-      return pinGrey;
-    }
-  }
 };
 
 const transformPointCoordinates = (points: IpcamPoint[] | null, factor: number): IpcamPoint[] | null => {
