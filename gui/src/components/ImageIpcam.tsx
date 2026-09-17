@@ -70,6 +70,7 @@ export const ImageIpcam = () => {
             scale={scale}
             position={position}
             layers={layers}
+            imageSrc={newImageSrc}
           />
         )}
       </OverlaySvg>
