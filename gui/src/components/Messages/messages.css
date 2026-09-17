@@ -1,0 +1,27 @@
+/* Phase 4a: mode hint, field error, step alert, toast, dialog. Every colour
+   here is an existing Phase 2 token — no new theme-block entries. */
+
+.mode-hint {
+    position: absolute;
+    left: 50%;
+    bottom: var(--space-4);
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    background: rgba(10, 12, 14, 0.82);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #fff;
+    border-radius: var(--radius-full);
+    padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.mode-hint-meta {
+    color: rgba(255, 255, 255, 0.75);
+}
