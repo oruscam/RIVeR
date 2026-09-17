@@ -31,33 +31,50 @@ export const getMagnifierLensCenter = (
 /**
  * Builds the lens's centre and the crop rect for its zoomed `<image>`. The
  * `<image>` is the same frame image rendered at `zoom`× its normal size and
- * offset so `point` lands exactly at `center` — clipped to a circle of
- * `radius` by the caller (drawMagnifier.ts owns the clip-path element).
- * `zoom` is the lens's own magnification, independent of any canvas
- * pan/zoom the caller may also be applying.
+ * offset so `imagePoint` (defaulting to `point`) lands exactly at `center` —
+ * clipped to a circle of `radius` by the caller (drawMagnifier.ts owns the
+ * clip-path element). `zoom` is the lens's own magnification, independent of
+ * any canvas pan/zoom the caller may also be applying. `point` and
+ * `imagePoint` are only different when the caller draws the magnifier into a
+ * layer that does NOT share the pan/zoom-transformed space the image itself
+ * lives in (e.g. a constant-screen-size overlay layer) — see `imagePoint`'s
+ * own doc comment below.
  */
 export const getMagnifierGeometry = ({
   point,
+  imagePoint,
   imageWidth,
   imageHeight,
   radius = 60,
   zoom = 4,
   distance = 90,
 }: {
+  /** Where to place the lens on screen (and anchor the guide line). */
   point: Point;
+  /**
+   * The point's position within the underlying image's own content —
+   * used only for the crop offset. Defaults to `point`. Only needs to
+   * differ from `point` when the caller draws the magnifier into a layer
+   * that is NOT the same pan/zoom-transformed space the image itself
+   * lives in (e.g. a constant-screen-size overlay layer) — in that case
+   * `point` has the canvas's pan/zoom already baked in and no longer
+   * matches image-content coordinates.
+   */
+  imagePoint?: Point;
   imageWidth: number;
   imageHeight: number;
   radius?: number;
   zoom?: number;
   distance?: number;
 }): MagnifierGeometry => {
+  const cropPoint = imagePoint ?? point;
   const center = getMagnifierLensCenter(point, imageWidth, imageHeight, radius, distance);
   return {
     center,
     radius,
     image: {
-      x: center.x - point.x * zoom,
-      y: center.y - point.y * zoom,
+      x: center.x - cropPoint.x * zoom,
+      y: center.y - cropPoint.y * zoom,
       width: imageWidth * zoom,
       height: imageHeight * zoom,
     },

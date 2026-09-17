@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { MARKS } from '../../constants/constants';
 import { getDistanceColors } from '../../helpers/getCSSVar';
 import { drawPin } from './drawPin';
-import { showMagnifier, hideMagnifier } from './drawMagnifier';
+import { showMagnifier, hideMagnifier, NOT_MAGNIFIER } from './drawMagnifier';
 
 interface drawObliqueProps {
   layer: d3.Selection<SVGGElement, unknown, null, undefined>;
@@ -86,7 +86,7 @@ export const drawOblique = ({
       setPointsInStore({ points: next, factor, index: d.index }, null);
     });
 
-  layer.selectAll('*:not(.magnifier):not(.magnifier *)').remove();
+  layer.selectAll(NOT_MAGNIFIER).remove();
   uiLayer.selectAll('*').remove();
 
   // Dibuja líneas y pins — colors read from current theme's CSS variables

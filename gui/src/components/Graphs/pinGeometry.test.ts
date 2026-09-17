@@ -28,7 +28,7 @@ describe('getPinGeometry', () => {
     expect(g.centerDot).toEqual({ x: 100, y: 200 });
   });
 
-  it('runs the needle from the head\'s bottom edge to the ring\'s top edge', () => {
+  it("runs the needle from the head's bottom edge to the ring's top edge", () => {
     const g = getPinGeometry({ x: 100, y: 200 });
     // head bottom edge = 166 + 12 = 178; ring top edge = 200 - 6.5 = 193.5
     expect(g.needle).toEqual({ x: 100, y1: 178, y2: 193.5 });

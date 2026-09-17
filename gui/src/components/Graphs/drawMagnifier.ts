@@ -4,13 +4,38 @@ import { getMagnifierGeometry, formatPinCoordinates } from './magnifierGeometry'
 
 let clipCounter = 0;
 
+/**
+ * Selector excluding the magnifier's own <g> and all of its descendants
+ * from a blanket `layer.selectAll('*').remove()` sweep. Any file that
+ * redraws its whole layer on every state change (which several of this
+ * codebase's D3 draw files do, since a redraw is cheaper to reason about
+ * than incremental diffing) must use this instead of a bare `'*'`, or the
+ * magnifier gets wiped almost immediately after every drag tick draws it.
+ * BOTH :not() clauses are required — the magnifier's own child elements
+ * (.magnifier-guide, .magnifier-border, etc.) don't carry the `magnifier`
+ * class themselves, so excluding only the outer <g> leaves them exposed
+ * and they get stripped anyway, leaving an empty, invisible shell.
+ */
+export const NOT_MAGNIFIER = '*:not(.magnifier):not(.magnifier *)';
+
 export interface MagnifierOptions {
   /** Layer to draw into — the same space the caller's own pins live in
    *  (uiLayer for screen-space pins, or the pan/zoom layer for pins that
    *  divide their own dimensions by `scale`). */
   layer: d3.Selection<SVGGElement, unknown, null, undefined>;
-  /** The dragged point, in the same coordinate space as `layer`. */
+  /** Where to place the lens on screen (and anchor the guide line), in the
+   *  same coordinate space as `layer`. */
   point: Point;
+  /**
+   * The point's position within the underlying image's own content —
+   * used only for the crop offset and the coordinate readout. Defaults to
+   * `point`. Only needs to differ from `point` when `layer` is NOT the
+   * same pan/zoom-transformed space the image itself lives in (e.g. a
+   * constant-screen-size overlay layer) — in that case `point` has the
+   * canvas's pan/zoom already baked in and no longer matches image-content
+   * coordinates.
+   */
+  imagePoint?: Point;
   /** Href of the current frame image (the same <img> the page shows behind
    *  the SVG overlay) — cropped and magnified inside the lens. Named to
    *  match every call site's local variable (each interactive file already
@@ -31,10 +56,16 @@ export interface MagnifierOptions {
  * the dragged point, a zoomed crop of the current frame clipped to a
  * circle, an inner crosshair marking the lens's own centre pixel, and a
  * coordinate readout below it. Call again on every 'drag' tick to move it;
- * call hideMagnifier on 'end'.
+ * call hideMagnifier on 'end'. The lens's 4× magnification means something
+ * numerically different depending on the caller: for callers that draw the
+ * magnifier inside a pan/zoom-transformed layer (Oblique, ipcam), 4× is
+ * relative to the image's current on-screen size; for callers that draw it
+ * into a constant-screen-size overlay (cross-sections/UAV, via `imagePoint`),
+ * 4× is relative to the unzoomed image — both look the same at the canvas's
+ * default (unzoomed) view.
  */
 export const showMagnifier = (options: MagnifierOptions): void => {
-  const { layer, point, imageSrc, imageWidth, imageHeight, coordinateFactor, divisor = 1 } = options;
+  const { layer, point, imagePoint, imageSrc, imageWidth, imageHeight, coordinateFactor, divisor = 1 } = options;
   const d = (n: number) => n / divisor;
 
   let g = layer.select<SVGGElement>('g.magnifier');
@@ -58,9 +89,18 @@ export const showMagnifier = (options: MagnifierOptions): void => {
   } else {
     clipId = g.attr('data-clip-id')!;
   }
+  g.raise();
 
   const radius = d(60);
-  const geo = getMagnifierGeometry({ point, imageWidth, imageHeight, radius, zoom: 4, distance: d(90) });
+  const geo = getMagnifierGeometry({
+    point,
+    imagePoint,
+    imageWidth,
+    imageHeight,
+    radius,
+    zoom: 4,
+    distance: d(90),
+  });
   const { center, image } = geo;
 
   g.select('clipPath circle').attr('cx', center.x).attr('cy', center.y).attr('r', radius);
@@ -142,7 +182,7 @@ export const showMagnifier = (options: MagnifierOptions): void => {
     .attr('font-size', d(11))
     .attr('font-weight', 600)
     .attr('fill', '#fff')
-    .text(formatPinCoordinates(point, coordinateFactor));
+    .text(formatPinCoordinates(imagePoint ?? point, coordinateFactor));
 
   try {
     const bbox = (text.node() as SVGTextElement).getBBox();
@@ -155,10 +195,6 @@ export const showMagnifier = (options: MagnifierOptions): void => {
       .attr('height', bbox.height + padY * 2)
       .attr('rx', d(4))
       .attr('fill', 'rgba(10,12,14,.8)');
-    (g.select('.magnifier-readout-bg').node() as Element)?.parentNode?.insertBefore(
-      g.select('.magnifier-readout-bg').node() as Node,
-      text.node()
-    );
   } catch {
     // getBBox may fail before the text is attached to a rendered document — skip the backing rect.
   }

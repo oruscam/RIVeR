@@ -3,6 +3,7 @@ import { useObliqueSlice, useUiSlice } from '../hooks';
 import { OverlayLayers } from './OverlaySvg';
 import * as d3 from 'd3';
 import { drawOblique } from './Graphs/drawOblique';
+import { NOT_MAGNIFIER } from './Graphs/drawMagnifier';
 
 type Point = { x: number; y: number };
 
@@ -58,7 +59,7 @@ export const DrawOblique = ({
     const interactiveLayerSel = d3.select(interactiveLayerRef.current);
     const uiLayerSel = d3.select(uiLayerRef.current);
 
-    interactiveLayerSel.selectAll('*:not(.magnifier):not(.magnifier *)').remove();
+    interactiveLayerSel.selectAll(NOT_MAGNIFIER).remove();
 
     drawOblique({
       layer: interactiveLayerSel,

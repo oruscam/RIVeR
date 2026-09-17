@@ -6,6 +6,9 @@
  * @param fallback - Value returned if the property is not set
  */
 export const getCSSVar = (name: string, fallback = ''): string => {
+  // Test environments in this repo run without jsdom, so document is
+  // undefined — return the fallback rather than dereferencing it.
+  if (typeof document === 'undefined') return fallback;
   // data-theme is set on the app root div, not on <html>, so we must read
   // computed styles from that element to get the correct theme variables.
   const themedEl = (document.querySelector('[data-theme]') as HTMLElement | null) ?? document.documentElement;
@@ -44,25 +47,13 @@ export const getTechniqueColors = () => ({
  * used everywhere else (UAV pixel size, Oblique corners, ipcam control
  * points); `muted` is an unselected/inactive point (ipcam only); `ink` is
  * the label colour drawn inside every pin's head, the same in all themes.
- * Note: in test environments without document/DOM, returns the dark theme
- * fallback values directly.
+ * Note: in test environments without document/DOM, getCSSVar returns each
+ * fallback below directly (the dark theme's values).
  */
-export const getPinColors = () => {
-  // In test environments without document/DOM, return the dark theme fallback values
-  if (typeof document === 'undefined') {
-    return {
-      left: '#ED6B57',
-      right: '#62C655',
-      point: '#6CD4FF',
-      muted: '#808080',
-      ink: '#0B0D10',
-    };
-  }
-  return {
-    left: getCSSVar('--pin-left', '#ED6B57'),
-    right: getCSSVar('--pin-right', '#62C655'),
-    point: getCSSVar('--pin-point', '#6CD4FF'),
-    muted: getCSSVar('--pin-muted', '#808080'),
-    ink: getCSSVar('--pin-ink', '#0B0D10'),
-  };
-};
+export const getPinColors = () => ({
+  left: getCSSVar('--pin-left', '#ED6B57'),
+  right: getCSSVar('--pin-right', '#62C655'),
+  point: getCSSVar('--pin-point', '#6CD4FF'),
+  muted: getCSSVar('--pin-muted', '#808080'),
+  ink: getCSSVar('--pin-ink', '#0B0D10'),
+});

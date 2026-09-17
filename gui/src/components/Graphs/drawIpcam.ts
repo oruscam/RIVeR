@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { COLORS } from '../../constants/constants';
 import { IpcamPoint, SetPointPixelCoordinatesProps } from '../../store/ipcam/types';
 import { drawPin, PinKind } from './drawPin';
-import { showMagnifier, hideMagnifier } from './drawMagnifier';
+import { showMagnifier, hideMagnifier, NOT_MAGNIFIER } from './drawMagnifier';
 
 interface drawIpcamProps {
   layer: d3.Selection<SVGGElement, unknown, null, undefined>;
@@ -35,7 +35,7 @@ const drawIpcam = ({
   cameraSolution,
   imageSrc,
 }: drawIpcamProps) => {
-  layer.selectAll('*:not(.magnifier):not(.magnifier *)').remove();
+  layer.selectAll(NOT_MAGNIFIER).remove();
   d3.selectAll(uiLayer.selectAll('*')).remove();
 
   // Draw each point

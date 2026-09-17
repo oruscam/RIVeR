@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useIpcamSlice } from '../hooks';
 import { OverlayLayers } from './OverlaySvg';
 import { drawIpcam, transformPointCoordinates } from './Graphs/drawIpcam';
+import { NOT_MAGNIFIER } from './Graphs/drawMagnifier';
 import { IpcamPoint } from '../store/ipcam/types';
 
 export const DrawIpcam = ({
@@ -52,7 +53,7 @@ export const DrawIpcam = ({
     const interactiveLayerSel = d3.select(interactiveLayerRef.current);
     const uiLayerSel = d3.select(uiLayerRef.current);
 
-    interactiveLayerSel.selectAll('*:not(.magnifier):not(.magnifier *)').remove();
+    interactiveLayerSel.selectAll(NOT_MAGNIFIER).remove();
 
     drawIpcam({
       layer: interactiveLayerSel,
