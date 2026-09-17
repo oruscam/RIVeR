@@ -19,12 +19,21 @@ interface ScreenSizes {
 /** Which per-technique preview the Processing left panel is showing. */
 type PreviewMode = 'frames' | 'sti' | 'iwave';
 
+/** One card in the panel's step-alert list — persists until whatever caused it clears. */
+interface StepAlert {
+  /** Stable id so a caller can clear exactly the alert it raised, e.g. `'stabilization-min-regions'`. */
+  id: string;
+  level: 'info' | 'warning' | 'error';
+  text: string;
+}
+
 interface UIState {
   screenSizes: ScreenSizes;
   theme: ThemeType;
-  error: string[];
-  info: string[];
-  warning: string[];
+  modeHint: { text: string; meta?: string } | null;
+  fieldErrors: Record<string, string>;
+  stepAlerts: StepAlert[];
+  toast: { text: string; actionLabel?: string } | null;
   isLoading: boolean;
   seeAll: boolean;
   message?: string;
@@ -37,4 +46,4 @@ interface UIState {
   showInterrogationWindow: boolean;
 }
 
-export type { ScreenSizes, UIState, ThemeType, PreviewMode };
+export type { ScreenSizes, UIState, ThemeType, PreviewMode, StepAlert };
