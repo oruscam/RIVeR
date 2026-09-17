@@ -1,20 +1,21 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { UIState, ScreenSizes, ThemeType } from './types';
+import { UIState, ScreenSizes, ThemeType, StepAlert } from './types';
 
 const THEME_CYCLE: ThemeType[] = ['dark', 'light', 'dracula'];
 
-const savedLanguage = localStorage.getItem('language') || 'en';
-const savedTheme = (localStorage.getItem('theme') as ThemeType | null) || 'dark';
+const savedLanguage = typeof localStorage !== 'undefined' ? (localStorage.getItem('language') || 'en') : 'en';
+const savedTheme = typeof localStorage !== 'undefined' ? ((localStorage.getItem('theme') as ThemeType | null) || 'dark') : 'dark';
 
 const initialState: UIState = {
   screenSizes: {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0,
   },
   theme: THEME_CYCLE.includes(savedTheme) ? savedTheme : 'dark',
-  error: [],
-  info: [],
-  warning: [],
+  modeHint: null,
+  fieldErrors: {},
+  stepAlerts: [],
+  toast: null,
   isLoading: false,
   seeAll: true,
   language: savedLanguage,
@@ -36,31 +37,40 @@ const uiSlice = createSlice({
       state.theme = action.payload;
       localStorage.setItem('theme', action.payload);
     },
-    setErrorMessage: (state, action: PayloadAction<string[]>) => {
-      const errorDiv = document.getElementById('error-message-div');
-      if (errorDiv) {
-        errorDiv.scrollIntoView({ behavior: 'smooth' });
+    setModeHint: (state, action: PayloadAction<{ text: string; meta?: string }>) => {
+      state.modeHint = action.payload;
+    },
+    clearModeHint: (state) => {
+      state.modeHint = null;
+    },
+    setFieldError: (state, action: PayloadAction<{ name: string; message: string }>) => {
+      state.fieldErrors[action.payload.name] = action.payload.message;
+    },
+    clearFieldError: (state, action: PayloadAction<string>) => {
+      delete state.fieldErrors[action.payload];
+    },
+    clearAllFieldErrors: (state) => {
+      state.fieldErrors = {};
+    },
+    addStepAlert: (state, action: PayloadAction<StepAlert>) => {
+      const existingIndex = state.stepAlerts.findIndex((a) => a.id === action.payload.id);
+      if (existingIndex === -1) {
+        state.stepAlerts.push(action.payload);
+      } else {
+        state.stepAlerts[existingIndex] = action.payload;
       }
-      state.error = action.payload;
     },
-    clearErrorMessage: (state) => {
-      state.error = [];
+    clearStepAlert: (state, action: PayloadAction<string>) => {
+      state.stepAlerts = state.stepAlerts.filter((a) => a.id !== action.payload);
     },
-    setInfoMessage: (state, action: PayloadAction<string[]>) => {
-      const infoDiv = document.getElementById('info-message-div');
-      if (infoDiv) {
-        infoDiv.scrollIntoView({ behavior: 'smooth' });
-      }
-      state.info = action.payload;
+    clearAllStepAlerts: (state) => {
+      state.stepAlerts = [];
     },
-    clearInfoMessage: (state) => {
-      state.info = [];
+    showToast: (state, action: PayloadAction<{ text: string; actionLabel?: string }>) => {
+      state.toast = action.payload;
     },
-    setWarningMessage: (state, action: PayloadAction<string[]>) => {
-      state.warning = action.payload;
-    },
-    clearWarningMessage: (state) => {
-      state.warning = [];
+    clearToast: (state) => {
+      state.toast = null;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
@@ -97,14 +107,18 @@ const uiSlice = createSlice({
 export const {
   changeTheme,
   setTheme,
-  clearErrorMessage,
-  clearInfoMessage,
+  setModeHint,
+  clearModeHint,
+  setFieldError,
+  clearFieldError,
+  clearAllFieldErrors,
+  addStepAlert,
+  clearStepAlert,
+  clearAllStepAlerts,
+  showToast,
+  clearToast,
   clearMessage,
-  clearWarningMessage,
-  setErrorMessage,
-  setInfoMessage,
   setLoading,
-  setWarningMessage,
   setMessage,
   setScreen,
   setSeeAll,
