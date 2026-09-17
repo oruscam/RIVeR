@@ -7,12 +7,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import {
   changeTheme,
   setTheme,
-  setErrorMessage,
-  clearErrorMessage,
-  setInfoMessage,
-  clearInfoMessage,
-  setWarningMessage,
-  clearWarningMessage,
+  setModeHint,
+  clearModeHint,
+  setFieldError,
+  clearFieldError,
+  clearAllFieldErrors,
+  addStepAlert,
+  clearStepAlert,
+  clearAllStepAlerts,
+  showToast,
+  clearToast,
   setSeeAll,
   setScreen,
   setLanguage,
@@ -32,9 +36,10 @@ import { getNewImageResolution } from '../helpers';
 export const useUiSlice = () => {
   const {
     theme,
-    error,
-    info,
-    warning,
+    modeHint,
+    fieldErrors,
+    stepAlerts,
+    toast,
     isLoading,
     seeAll,
     screenSizes,
@@ -65,64 +70,66 @@ export const useUiSlice = () => {
   };
 
   /**
-   * Method to set the error message on the UI slice.
-   * After 4 seconds the error message will be cleared.
-   * @param error - String with the error message
-   * @param error - Object with the error message
+   * Sets the persistent canvas-adjacent mode hint (e.g. "Drawing line",
+   * "Editing mask 2"). Unlike the old warning/info bars, there is exactly one
+   * mode hint at a time and it never auto-clears — the caller clears it
+   * explicitly with onClearModeHint once the mode ends.
+   * @param text - What mode the user is in.
+   * @param meta - Optional short status alongside it (e.g. "1 of 2 min.").
    */
+  const onSetModeHint = (text: string, meta?: string) => {
+    dispatch(setModeHint({ text, meta }));
+  };
 
-  const onSetErrorMessage = (error: Record<string, { type: string; message: string }> | string) => {
-    if (typeof error === 'string') {
-      dispatch(setErrorMessage([error]));
-    } else {
-      let arrayOfErrors: string[] = [];
-      if (error !== undefined) {
-        Object.entries(error).every(([, value]) => {
-          if (typeof value === 'string' && value) {
-            arrayOfErrors.push(value);
-          } else if (value && value.type === 'required' && value.message) {
-            arrayOfErrors = [value.message];
-            return false;
-          } else if (value && value.message) {
-            arrayOfErrors.push(value.message);
-          }
-          return true;
-        });
-        dispatch(setErrorMessage(arrayOfErrors));
-      }
-    }
-    setTimeout(() => {
-      dispatch(clearErrorMessage());
-    }, 5000);
+  const onClearModeHint = () => {
+    dispatch(clearModeHint());
   };
 
   /**
-   * Method to set an informational (non-error) message on the UI slice.
-   * After 5 seconds the info message will be cleared.
-   * @param info - String with the info message
+   * Sets the inline error for one named field. Persists until the field is
+   * corrected (the caller clears it, usually right before re-validating).
    */
+  const onSetFieldError = (name: string, message: string) => {
+    dispatch(setFieldError({ name, message }));
+  };
 
-  const onSetInfoMessage = (info: string) => {
-    dispatch(setInfoMessage([info]));
-    setTimeout(() => {
-      dispatch(clearInfoMessage());
-    }, 5000);
+  const onClearFieldError = (name: string) => {
+    dispatch(clearFieldError(name));
+  };
+
+  const onClearAllFieldErrors = () => {
+    dispatch(clearAllFieldErrors());
   };
 
   /**
-   * Method to set a persistent warning message on the UI slice, shown while an
-   * action is ongoing (e.g. editing stabilization regions). Unlike error/info,
-   * it does not auto-clear on a timer — the caller must clear it explicitly
-   * with onClearWarningMessage once the action finishes.
-   * @param warning - String with the warning message
+   * Adds (or replaces, by id) one step alert in the panel's alert list. Stays
+   * until the caller clears that same id — typically when the condition that
+   * raised it no longer holds.
    */
-
-  const onSetWarningMessage = (warning: string) => {
-    dispatch(setWarningMessage([warning]));
+  const onAddStepAlert = (id: string, level: 'info' | 'warning' | 'error', text: string) => {
+    dispatch(addStepAlert({ id, level, text }));
   };
 
-  const onClearWarningMessage = () => {
-    dispatch(clearWarningMessage());
+  const onClearStepAlert = (id: string) => {
+    dispatch(clearStepAlert(id));
+  };
+
+  const onClearAllStepAlerts = () => {
+    dispatch(clearAllStepAlerts());
+  };
+
+  /**
+   * Shows a toast for 4 seconds, then clears itself. A second call while one
+   * is showing replaces it outright (one toast at a time), matching the
+   * audit's "bottom of the window, 4 seconds" spec.
+   * @param actionLabel - e.g. "Undo" — Toast.tsx renders it as a click target;
+   *   the caller is responsible for what it does (see Task 12).
+   */
+  const onShowToast = (text: string, actionLabel?: string) => {
+    dispatch(showToast({ text, actionLabel }));
+    setTimeout(() => {
+      dispatch(clearToast());
+    }, 4000);
   };
 
   /**
@@ -234,9 +241,10 @@ export const useUiSlice = () => {
     // ATTRIBUTES
     theme,
     darkMode,
-    error,
-    info,
-    warning,
+    modeHint,
+    fieldErrors,
+    stepAlerts,
+    toast,
     isLoading,
     seeAll,
     screenSizes,
@@ -250,10 +258,15 @@ export const useUiSlice = () => {
     // METHODS
     onChangeTheme,
     onSetTheme,
-    onSetErrorMessage,
-    onSetInfoMessage,
-    onSetWarningMessage,
-    onClearWarningMessage,
+    onSetModeHint,
+    onClearModeHint,
+    onSetFieldError,
+    onClearFieldError,
+    onClearAllFieldErrors,
+    onAddStepAlert,
+    onClearStepAlert,
+    onClearAllStepAlerts,
+    onShowToast,
     onSetMessage,
     onSetSeeAll,
     onSetScreen,
