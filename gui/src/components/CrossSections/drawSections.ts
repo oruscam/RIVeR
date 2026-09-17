@@ -639,6 +639,7 @@ const drawInteractiveSection = ({
       showMagnifier({
         layer: uiLayer,
         point: pScreen,
+        imagePoint: { x, y },
         imageSrc,
         imageWidth: viewport.imageWidth,
         imageHeight: viewport.imageHeight,
@@ -689,6 +690,7 @@ const drawInteractiveSection = ({
       showMagnifier({
         layer: uiLayer,
         point: pScreen,
+        imagePoint: { x, y },
         imageSrc,
         imageWidth: viewport.imageWidth,
         imageHeight: viewport.imageHeight,

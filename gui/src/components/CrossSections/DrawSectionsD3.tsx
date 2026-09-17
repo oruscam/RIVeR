@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { drawInteractiveSection, drawStaticSection, getResizedPoint } from './drawSections';
 import type { OverlayLayers } from '../OverlaySvg';
+import { NOT_MAGNIFIER } from '../Graphs/drawMagnifier';
 
 type Point = { x: number; y: number };
 
@@ -74,7 +75,7 @@ export const DrawSectionsD3 = ({
     const uiLayerSel = d3.select(uiLayerRef.current);
 
     staticLayerSel.selectAll('*').remove();
-    uiLayerSel.selectAll('*').remove();
+    uiLayerSel.selectAll(NOT_MAGNIFIER).remove();
 
     sections.forEach((section, index) => {
       if (module === 'report' && sectionIndex !== undefined && index !== sectionIndex) return;
