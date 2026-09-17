@@ -59,8 +59,8 @@ Wording rules (§ Messages, apply to every string this plan touches): say what h
 | `src/components/StiAngleTuner.tsx`, `src/components/Forms/FormProcessing.tsx`, `src/hooks/useStivAngleOverride.ts` | Toast, Undo deferred (Task 12) |
 | `src/components/CrossSections/Sections.tsx`, `electron/main.ts` | Dialog (Task 13) + field errors (Task 16) |
 | `src/components/Forms/FormVideo.tsx` | Field error + step alert (Task 14) |
-| `src/components/Forms/FormProcessing.tsx`, `src/components/Forms/Components/HardModeProcessing.tsx` | Field error + step alert (Task 15) |
-| `src/components/Forms/FormCrossSections.tsx` | Field error + step alert (Task 16) |
+| `src/components/Forms/FormProcessing.tsx`, `src/components/Forms/Components/HardModeProcessing.tsx`, `src/components/Forms/FormAnalizing.tsx` | Field error + step alert (Task 15) — `FormAnalizing.tsx` added: a gap found in Task 2's review, dead code but still migrated |
+| `src/components/Forms/FormCrossSections.tsx`, `src/pages/CrossSections.tsx` | Field error + step alert (Task 16) — `pages/CrossSections.tsx` added: a gap found in Task 2's review (its own drag-and-drop bathymetry import) |
 | `src/components/Forms/FormOblique.tsx` | Step alert (Task 17) |
 | `src/components/Forms/FormIpcam.tsx` | Step alert (Task 18) |
 | `src/components/Forms/FormUav.tsx`, `src/components/Forms/Components/PixelCoordinates.tsx`, `src/components/Forms/Components/RealWorldCoordinates.tsx` | Field error (Task 19) |
@@ -1751,16 +1751,17 @@ git commit -m "Migrate FormVideo's field validation and step alerts off the old 
 
 ---
 
-## Task 15: Field error + step alert — `FormProcessing.tsx` + `HardModeProcessing.tsx`
+## Task 15: Field error + step alert — `FormProcessing.tsx` + `HardModeProcessing.tsx` + `FormAnalizing.tsx`
 
 **Files:**
 - Modify: `src/components/Forms/FormProcessing.tsx`
 - Modify: `src/components/Forms/Components/HardModeProcessing.tsx`
+- Modify: `src/components/Forms/FormAnalizing.tsx`
 
 **Interfaces:**
 - Consumes: `onSetFieldError`, `onClearFieldError`, `onAddStepAlert`, `onClearStepAlert` (Task 2); `FieldError` (Task 4).
 
-**Triage:** the stations-count check is tied to the stations-number input → field error. The test/analyze backend failures (`handleOnClickTest`, `handleOnClick`'s `analize-button` branch) are not field-shaped → step alert (id `'processing-backend-error'`, cleared at the start of the next attempt). `HardModeProcessing.tsx`'s ROI-height recalculation failure is also not field-shaped (it's a backend/IPC failure surfaced after a value already changed) → step alert (id `'processing-roi-recalc-error'`).
+**Triage:** the stations-count check is tied to the stations-number input → field error. The test/analyze backend failures (`handleOnClickTest`, `handleOnClick`'s `analize-button` branch) are not field-shaped → step alert (id `'processing-backend-error'`, cleared at the start of the next attempt). `HardModeProcessing.tsx`'s ROI-height recalculation failure is also not field-shaped (it's a backend/IPC failure surfaced after a value already changed) → step alert (id `'processing-roi-recalc-error'`). `FormAnalizing.tsx`'s `handleAnalize` catch is the exact same conceptual operation as `FormProcessing.tsx`'s `analize-button` branch (`onSetQuiverAll().catch(...)`) → step alert, reusing the same `'processing-backend-error'` id — **note for whoever implements this: `FormAnalizing.tsx` is exported from `src/components/Forms/index.ts` but nothing in the app currently imports and renders it (verified: `grep -rn "FormAnalizing" src --include="*.tsx" | grep -v "FormAnalizing.tsx\|Forms/index.ts"` returns nothing) — it's dead code, superseded by `FormProcessing.tsx`'s near-identical live logic. It still needs this migration so the file compiles cleanly (Task 21's final `grep` check would otherwise fail on it), but there is no live UI path to manually verify.**
 
 - [ ] **Step 1: `FormProcessing.tsx` — stations field error**
 
@@ -1849,35 +1850,80 @@ Clear it right before the `try`:
 ```
 Update its `useUiSlice()` destructure accordingly.
 
-- [ ] **Step 4: Run the full suite and typecheck**
+- [ ] **Step 4: `FormAnalizing.tsx`**
 
-Run: `npx jest && npx tsc --noEmit -p tsconfig.json 2>&1 | grep -c "error TS"`
-Expected: no new jest failures; tsc count strictly lower.
+Update the `useUiSlice()` destructure — replace `onSetErrorMessage` with `onAddStepAlert, onClearStepAlert`. Replace:
+```tsx
+  const handleAnalize = () => {
+    if (isBackendWorking) return;
+    setPercentage('');
+    setTime('');
+    onSetQuiverAll()
+      .then(() => setShowMedian(true))
+      .catch((error) => onSetErrorMessage(error.message));
+  };
+```
+with:
+```tsx
+  const handleAnalize = () => {
+    if (isBackendWorking) return;
+    setPercentage('');
+    setTime('');
+    onClearStepAlert('processing-backend-error');
+    onSetQuiverAll()
+      .then(() => setShowMedian(true))
+      .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
+  };
+```
 
-- [ ] **Step 5: Manual check-in**
+- [ ] **Step 5: Run the full suite and typecheck**
 
-On Processing: type "1" into the stations field and tab out — confirm the field error shows under that input, not a bottom bar. Trigger a backend test/analyze failure (e.g. stop mid-run then retry with a bad config, if reproducible locally) — confirm it shows as a step-alert card in the panel.
+Run: `npx jest`. Expected: no new failures.
 
-- [ ] **Step 6: Commit**
+For the typecheck, **do not trust `npx tsc --noEmit -p tsconfig.json 2>&1 | grep -c "error TS"` alone** — this project's `tsconfig.json` references `tsconfig.node.json` (the `electron`/`commons` sub-project), and in plain `--noEmit` mode tsc reports only that reference's `TS6305` build-staleness errors (a constant 64, unrelated to anything in `src/`) without ever reaching `src/`'s own type errors. To actually see `src/`'s type errors, create a scratch config (do not commit it) at `gui/tsconfig.tmp-check.json`:
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020", "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"], "module": "ESNext",
+    "skipLibCheck": true, "moduleResolution": "node", "esModuleInterop": true,
+    "allowImportingTsExtensions": true, "resolveJsonModule": true,
+    "isolatedModules": true, "noEmit": true, "jsx": "react-jsx",
+    "strict": true, "noUnusedLocals": true, "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true, "types": ["jest"]
+  },
+  "include": ["src"]
+}
+```
+Run `npx tsc --noEmit -p tsconfig.tmp-check.json 2>&1 | grep -c "error TS"`, then delete the scratch file. This real count includes a large number of pre-existing errors unrelated to this plan (confirmed during Task 2's review — do not attempt to fix those) plus the deliberately-deferred old-message-API call sites this plan's later tasks (9–21) haven't reached yet. Report the count; a task's own contribution is judged by whether ITS OWN files' errors (the ones this task's diff touches) are gone, not by the grand total.
+
+- [ ] **Step 6: Manual check-in**
+
+On Processing: type "1" into the stations field and tab out — confirm the field error shows under that input, not a bottom bar. Trigger a backend test/analyze failure (e.g. stop mid-run then retry with a bad config, if reproducible locally) — confirm it shows as a step-alert card in the panel. (`FormAnalizing.tsx` is dead code — nothing to manually check there, see Step 4's note.)
+
+- [ ] **Step 7: Commit**
 
 ```bash
-git add src/components/Forms/FormProcessing.tsx src/components/Forms/Components/HardModeProcessing.tsx
-git commit -m "Migrate FormProcessing/HardModeProcessing field and step errors"
+git add src/components/Forms/FormProcessing.tsx src/components/Forms/Components/HardModeProcessing.tsx src/components/Forms/FormAnalizing.tsx
+git commit -m "Migrate FormProcessing/HardModeProcessing/FormAnalizing field and step errors"
 ```
 
 ---
 
-## Task 16: Field error + step alert — `FormCrossSections.tsx` + `Sections.tsx` + `CrossSections.tsx` (page)
+## Task 16: Field error + step alert — Cross Sections (form, component, and page)
+
+**Naming warning — this codebase has two different `CrossSections.tsx` files, and this task touches both:** `src/components/CrossSections/CrossSections.tsx` (the section-editing form component, rendered inside the page) and `src/pages/CrossSections.tsx` (the page shell, with its own separate drag-and-drop bathymetry import). Every step below spells out the full path — never edit one when the step names the other.
 
 **Files:**
 - Modify: `src/components/Forms/FormCrossSections.tsx`
 - Modify: `src/components/CrossSections/Sections.tsx`
 - Modify: `src/components/CrossSections/CrossSections.tsx`
+- Modify: `src/pages/CrossSections.tsx`
 
 **Interfaces:**
 - Consumes: `onSetFieldError`, `onClearFieldError`, `onAddStepAlert`, `onClearStepAlert` (Task 2); `FieldError` (Task 4).
 
-**Triage:** `FormCrossSections.tsx`'s Level and LeftBank errors are each tied to one field (`Level`, `LeftBank`) → field errors. Its bathymetry-import failures are not field-shaped (they come from a file-picker/IPC round trip, not a single input) → step alert (id `'bathymetry-import-error'`). `Sections.tsx`'s three rename-validation errors are all tied to the section-name input → field error, keyed per-section (`` `section-name-${index}` ``, since more than one section's name field can exist at once). `CrossSections.tsx`'s "waiting for frames" and the multi-field `onError` are page-level submit failures, not one field → step alerts.
+**Triage:** `FormCrossSections.tsx`'s Level and LeftBank errors are each tied to one field (`Level`, `LeftBank`) → field errors. Its bathymetry-import failures are not field-shaped (they come from a file-picker/IPC round trip, not a single input) → step alert (id `'bathymetry-import-error'`). `Sections.tsx`'s three rename-validation errors are all tied to the section-name input → field error, keyed per-section (`` `section-name-${index}` ``, since more than one section's name field can exist at once). `src/components/CrossSections/CrossSections.tsx`'s "waiting for frames" and the multi-field `onError` are page-level submit failures, not one field → step alerts. **`src/pages/CrossSections.tsx`'s own `handleDrop`** (found during Task 2's review — missing from the original triage) drag-and-drops a bathymetry file and is the exact same conceptual operation as `FormCrossSections.tsx`'s click-triggered `handleImportBath` (same two-stage `.then((error) => ...)` / `.catch((error) => ...)` shape, same underlying `onGetBathimetry` call) → step alert, reusing the same `'bathymetry-import-error'` id so either path's success clears the other's alert.
 
 - [ ] **Step 1: `FormCrossSections.tsx` — Level and LeftBank field errors**
 
@@ -1971,7 +2017,7 @@ and clear it in the success branch:
 ```
 Add `<FieldError name={`section-name-${index}`} />` right after each section's `<input className="input-section" .../>`.
 
-- [ ] **Step 4: `CrossSections.tsx` (page) — step alerts**
+- [ ] **Step 4: `src/components/CrossSections/CrossSections.tsx` — step alerts**
 
 Update the `useUiSlice()` destructure similarly. Replace:
 ```tsx
@@ -2011,20 +2057,80 @@ Clear both at the top of `onSubmit`:
     if (images.paths.length === 0) {
 ```
 
-- [ ] **Step 5: Run the full suite and typecheck**
+- [ ] **Step 5: `src/pages/CrossSections.tsx` — drag-and-drop bathymetry step alert**
 
-Run: `npx jest && npx tsc --noEmit -p tsconfig.json 2>&1 | grep -c "error TS"`
-Expected: no new jest failures; tsc count strictly lower.
+Update the `useUiSlice()` destructure — replace `onSetErrorMessage` with `onAddStepAlert, onClearStepAlert`. Replace:
+```tsx
+          .then((error) => {
+            if (error?.message) {
+              const message = 'CrossSections.Errors.' + error.message;
+              const displayLevel =
+                error?.value !== undefined
+                  ? (projectDetails.unitSistem === 'imperial'
+                      ? error.value * UNIT_CONVERSIONS.M_TO_FT
+                      : error.value
+                    ).toFixed(2)
+                  : error?.value;
+              onSetErrorMessage({
+                Bathimetry: {
+                  type: 'error',
+                  message: t(message, { level: displayLevel }),
+                },
+              });
+            }
+          })
+          .catch((error) => onSetErrorMessage(error.message));
+      } else {
+        onGetBathimetry({ bathimetryPath: path, unitSistem: projectDetails.unitSistem }).catch((error) =>
+          onSetErrorMessage(error.message)
+        );
+      }
+```
+with:
+```tsx
+          .then((error) => {
+            if (error?.message) {
+              const message = 'CrossSections.Errors.' + error.message;
+              const displayLevel =
+                error?.value !== undefined
+                  ? (projectDetails.unitSistem === 'imperial'
+                      ? error.value * UNIT_CONVERSIONS.M_TO_FT
+                      : error.value
+                    ).toFixed(2)
+                  : error?.value;
+              onAddStepAlert('bathymetry-import-error', 'error', t(message, { level: displayLevel }));
+            }
+          })
+          .catch((error) => onAddStepAlert('bathymetry-import-error', 'error', error.message));
+      } else {
+        onGetBathimetry({ bathimetryPath: path, unitSistem: projectDetails.unitSistem }).catch((error) =>
+          onAddStepAlert('bathymetry-import-error', 'error', error.message)
+        );
+      }
+```
+Clear it at the top of `handleDrop`, right after `setDragOver(false);`:
+```tsx
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragOver(false);
+    onClearStepAlert('bathymetry-import-error');
+```
 
-- [ ] **Step 6: Manual check-in**
+- [ ] **Step 6: Run the full suite and typecheck**
 
-On Cross Sections: set a bathymetry level out of range — confirm the field error shows under that field. Try importing a malformed bathymetry file (or check the code path manually) — confirm a step-alert card. Rename a section to an existing name — confirm the field error shows under the name input, not a bottom bar. Try to proceed with no frames loaded — confirm a step alert.
+Run: `npx jest`. Expected: no new failures.
 
-- [ ] **Step 7: Commit**
+For the typecheck, use the scratch-`tsconfig` real check, not the project's own `-p tsconfig.json` (which only reports a constant, unrelated `TS6305` count — see Task 15 Step 5 for the full explanation and the scratch config's exact contents). Report the real count; judge this task by whether the 4 files it touches are now clean of `onSetErrorMessage`/etc references, not the grand total.
+
+- [ ] **Step 7: Manual check-in**
+
+On Cross Sections: set a bathymetry level out of range — confirm the field error shows under that field. Try importing a malformed bathymetry file via the button (or check the code path manually) — confirm a step-alert card. Try the same via drag-and-drop onto the canvas — confirm the same step alert (same id as the button path). Rename a section to an existing name — confirm the field error shows under the name input, not a bottom bar. Try to proceed with no frames loaded — confirm a step alert.
+
+- [ ] **Step 8: Commit**
 
 ```bash
-git add src/components/Forms/FormCrossSections.tsx src/components/CrossSections/Sections.tsx src/components/CrossSections/CrossSections.tsx
-git commit -m "Migrate Cross Sections field and step errors"
+git add src/components/Forms/FormCrossSections.tsx src/components/CrossSections/Sections.tsx src/components/CrossSections/CrossSections.tsx src/pages/CrossSections.tsx
+git commit -m "Migrate Cross Sections field and step errors (form, component, and page)"
 ```
 
 ---
