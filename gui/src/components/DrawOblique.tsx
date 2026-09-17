@@ -58,7 +58,7 @@ export const DrawOblique = ({
     const interactiveLayerSel = d3.select(interactiveLayerRef.current);
     const uiLayerSel = d3.select(uiLayerRef.current);
 
-    interactiveLayerSel.selectAll('*').remove();
+    interactiveLayerSel.selectAll('*:not(.magnifier):not(.magnifier *)').remove();
 
     drawOblique({
       layer: interactiveLayerSel,

@@ -86,7 +86,7 @@ export const drawOblique = ({
       setPointsInStore({ points: next, factor, index: d.index }, null);
     });
 
-  layer.selectAll('*').remove();
+  layer.selectAll('*:not(.magnifier):not(.magnifier *)').remove();
   uiLayer.selectAll('*').remove();
 
   // Dibuja líneas y pins — colors read from current theme's CSS variables
