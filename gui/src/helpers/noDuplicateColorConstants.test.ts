@@ -23,4 +23,26 @@ describe('no duplicate, theme-frozen colour constants', () => {
     const constants = readFileSync(join(__dirname, '..', 'constants', 'constants.ts'), 'utf8');
     expect(constants).not.toMatch(/export const TECHNIQUE_COLORS/);
   });
+
+  it('the pin colour duplication is fixed: createPinsBase64.ts is gone, and nothing reads the old pin*.svg assets', () => {
+    const iconsSource = readFileSync(join(__dirname, '..', 'assets', 'icons', 'icons.ts'), 'utf8');
+    expect(iconsSource).not.toMatch(/pinRed|pinGreen|pinGrey|from '\.\/pin\.svg'/);
+    expect(() =>
+      readFileSync(join(__dirname, '..', 'components', 'Graphs', 'createPinsBase64.ts'), 'utf8')
+    ).toThrow();
+  });
+
+  it('every migrated pin call site reads colours from getPinColors, not COLORS.RED/GREEN/LIGHT_BLUE for pins', () => {
+    const files = [
+      ['components', 'CrossSections', 'drawSections.ts'],
+      ['components', 'Graphs', 'drawOblique.ts'],
+      ['components', 'Graphs', 'drawIpcam.ts'],
+      ['components', 'Graphs', 'obliqueSvg.ts'],
+      ['components', 'Graphs', 'ipcamSvg.ts'],
+    ];
+    files.forEach((segments) => {
+      const source = readFileSync(join(__dirname, '..', ...segments), 'utf8');
+      expect(source).not.toMatch(/pinRed|pinGreen|pinGrey|createPinsBase64/);
+    });
+  });
 });
