@@ -38,7 +38,7 @@ export const Grid = () => {
   const [copied, setCopied] = useState(false);
   const { sections, activeSection, onChangeDataValues } = useSectionSlice();
   const { projectDetails, video } = useProjectSlice();
-  const { hoveredStation, onSetHoveredStation, onShowToast } = useUiSlice();
+  const { hoveredStation, onSetHoveredStation, onPinStation, onShowToast } = useUiSlice();
   const { t } = useTranslation();
   const isImperial = projectDetails.unitSistem === 'imperial';
   const lFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
@@ -243,6 +243,7 @@ export const Grid = () => {
                 {...props}
                 onMouseEnter={() => onRowMouseEnter(props.row.id)}
                 onMouseLeave={onRowMouseLeave}
+                onClick={() => onPinStation(props.row.id)}
               />
             ),
           }}

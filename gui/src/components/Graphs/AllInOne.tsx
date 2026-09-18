@@ -53,7 +53,7 @@ export const AllInOne = ({
   const section = sections[index !== undefined ? index : activeSection];
   const { data, bathimetry, name, activeTechnique, interpolated, artificialSeeding, alpha } = section;
   const { level, x1Intersection, x2Intersection, width: bathWidth, wetSegments } = bathimetry;
-  const { screenSizes, theme, language, hoveredStation, onSetHoveredStation } = useUiSlice();
+  const { screenSizes, theme, language, hoveredStation, onSetHoveredStation, onPinStation } = useUiSlice();
   const { projectDetails, video } = useProjectSlice();
   const { unitSistem } = projectDetails;
   const { width: screenWidth } = screenSizes;
@@ -299,6 +299,21 @@ export const AllInOne = ({
         };
         const hideTooltip = () => tooltip.style('display', 'none');
 
+        const findNearestStation = (event: MouseEvent): number => {
+          const [mx] = d3.pointer(event, svg.node());
+          const x0 = xScale.invert(mx);
+          let idx = 0;
+          let best = Infinity;
+          shiftedDistance.forEach((d, i) => {
+            const diff = Math.abs(d - x0);
+            if (diff < best) {
+              best = diff;
+              idx = i;
+            }
+          });
+          return idx;
+        };
+
         svg
           .append('rect')
           .attr('class', 'chart-hover-overlay')
@@ -309,23 +324,16 @@ export const AllInOne = ({
           .attr('fill', 'transparent')
           .style('cursor', 'crosshair')
           .on('mousemove', function (event) {
-            const [mx] = d3.pointer(event, svg.node());
-            const x0 = xScale.invert(mx);
-            let idx = 0,
-              best = Infinity;
-            shiftedDistance.forEach((d, i) => {
-              const diff = Math.abs(d - x0);
-              if (diff < best) {
-                best = diff;
-                idx = i;
-              }
-            });
+            const idx = findNearestStation(event);
             onSetHoveredStation(idx);
             showTooltip(idx, event.clientX, event.clientY);
           })
           .on('mouseleave', () => {
             onSetHoveredStation(null);
             hideTooltip();
+          })
+          .on('click', function (event) {
+            onPinStation(findNearestStation(event));
           });
       }
     }
