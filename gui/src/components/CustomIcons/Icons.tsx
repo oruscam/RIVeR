@@ -42,6 +42,9 @@ export const Icons = {
   Trash: (c?: string) => (
     <I color={c} d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
   ),
+  Undo: (c?: string) => (
+    <I color={c} d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" extra={['M3 3v5h5']} />
+  ),
   BoxSel: (c?: string) => (
     <svg
       width={21}

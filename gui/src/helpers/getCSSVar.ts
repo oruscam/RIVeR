@@ -57,3 +57,13 @@ export const getPinColors = () => ({
   muted: getCSSVar('--pin-muted', '#808080'),
   ink: getCSSVar('--pin-ink', '#0B0D10'),
 });
+
+/**
+ * Returns the mask/region overlay drawing colours from the current theme's
+ * CSS variables. Both are theme-invariant (declared once in the bare
+ * :root block, like --pin-ink) — see index.css.
+ */
+export const getOverlayColors = () => ({
+  line: getCSSVar('--overlay-line', '#FFFFFF'),
+  dim: getCSSVar('--overlay-dim', 'rgba(0, 0, 0, 0.4)'),
+});
