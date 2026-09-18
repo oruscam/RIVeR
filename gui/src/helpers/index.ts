@@ -5,6 +5,7 @@ import { formatTime, parseTime } from './formatTime';
 import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate } from './dateFunctions';
 import { getUnit } from './unitSistem';
 import { getDirectionVector } from './getDirectionVector';
+import { isLowConfidence } from './lowConfidence';
 import {
   computeStationPixelPositions,
   computeStationSearchLines,
@@ -154,6 +155,7 @@ export {
   handleDragOver,
   hasAnyOverride,
   isAnglePoorlyConstrained,
+  isLowConfidence,
   isStationTuned,
   MAX_CHEVRON_COUNT,
   mergeAngleProfile,
