@@ -81,7 +81,10 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
       } else if (!isValidString(value)) {
         input.value = sections[index].name;
         input.readOnly = true;
-        onSetFieldError(`section-name-${index}`, 'Section name can only contain letters, numbers, and underscores');
+        onSetFieldError(
+          `section-name-${index}`,
+          'Section name can only contain letters, numbers, and underscores'
+        );
       } else if (sections.map((section) => section.name).includes(value)) {
         input.value = sections[index].name;
         input.readOnly = true;

@@ -3,8 +3,9 @@ import { UIState, ScreenSizes, ThemeType, StepAlert } from './types';
 
 const THEME_CYCLE: ThemeType[] = ['dark', 'light', 'dracula'];
 
-const savedLanguage = typeof localStorage !== 'undefined' ? (localStorage.getItem('language') || 'en') : 'en';
-const savedTheme = typeof localStorage !== 'undefined' ? ((localStorage.getItem('theme') as ThemeType | null) || 'dark') : 'dark';
+const savedLanguage = typeof localStorage !== 'undefined' ? localStorage.getItem('language') || 'en' : 'en';
+const savedTheme =
+  typeof localStorage !== 'undefined' ? (localStorage.getItem('theme') as ThemeType | null) || 'dark' : 'dark';
 
 const initialState: UIState = {
   screenSizes: {
