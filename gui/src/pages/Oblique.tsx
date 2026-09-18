@@ -1,4 +1,4 @@
-import { FormProvider, useForm } from 'react-hook-form';
+import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import {
   Carousel,
   ModeHint,
@@ -98,11 +98,15 @@ export const Oblique = () => {
   });
 
   const onSubmit = () => {
+    onClearStepAlert('oblique-form-error');
     nextStep();
   };
 
-  const onError = (error: string) => {
-    onAddStepAlert('oblique-form-error', 'error', error);
+  const onError = (errors: FieldValues) => {
+    const messages = Object.values(errors)
+      .map((value) => (value as { message?: string })?.message)
+      .filter((message): message is string => Boolean(message));
+    onAddStepAlert('oblique-form-error', 'error', messages.join(' '));
   };
 
   const onClickSolveButton = () => {
