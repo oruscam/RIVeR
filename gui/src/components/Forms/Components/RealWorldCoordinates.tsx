@@ -3,6 +3,7 @@ import { getLabelStyle, getPointNames } from '../../../helpers/index';
 import { useProjectSlice, useUiSlice } from '../../../hooks/index.ts';
 import { useTranslation } from 'react-i18next';
 import { UNITS } from '../../../constants/constants';
+import { FieldError } from '../../index';
 
 export const RealWorldCoordinates = ({
   section,
@@ -16,7 +17,7 @@ export const RealWorldCoordinates = ({
   showUnitLabel?: boolean;
 }) => {
   const { register, resetField } = useFormContext();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetFieldError, onClearFieldError } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
   const unitLabel = projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE;
 
@@ -41,19 +42,13 @@ export const RealWorldCoordinates = ({
       const target = event.target as HTMLInputElement;
 
       if (isNaN(value)) {
-        const error = {
-          [target.id]: {
-            type: 'required',
-            message: `The value ${target.id} must be a number`,
-          },
-        };
-
-        onSetErrorMessage(error);
+        onSetFieldError(target.id, `The value ${target.id} must be a number`);
         const fieldName = `${modeName}_${target.id}`;
         resetField(fieldName);
         return;
       }
 
+      onClearFieldError(target.id);
       for (let i = 0; i < fields; i++) {
         if (target.id === pointsNames[i]) {
           let position = (i % 2 === 0 ? 'x' : 'y') + `${Math.ceil((i + 1) / 2)}`;
@@ -90,6 +85,7 @@ export const RealWorldCoordinates = ({
                   onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
                 />
                 <span className="unit-label">{unitLabel}</span>
+                <FieldError name={pointsNames[i]} />
               </div>
             ) : (
               <div className="input-field-container">
@@ -102,6 +98,7 @@ export const RealWorldCoordinates = ({
                   onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
                   onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
                 />
+                <FieldError name={pointsNames[i]} />
               </div>
             )}
           </div>

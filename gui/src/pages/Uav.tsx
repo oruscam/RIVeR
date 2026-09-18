@@ -83,17 +83,20 @@ export const Uav = () => {
   const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size, unitSistem) });
 
   const { nextStep } = useWizard();
-  const { onSetErrorMessage, onSetModeHint, onClearModeHint } = useUiSlice();
+  const { onSetModeHint, onClearModeHint, onAddStepAlert } = useUiSlice();
 
   const onSubmit = () => {
     console.log(rwPoints);
     nextStep();
   };
 
-  const onError = (error: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
+  const onError = (errors: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
     if (event === undefined) return;
 
-    onSetErrorMessage(error);
+    const messages = Object.values(errors)
+      .map((value) => (value as { message?: string })?.message)
+      .filter((message): message is string => Boolean(message));
+    onAddStepAlert('uav-form-error', 'error', messages.join(' '));
   };
 
   const onClickSolveButton = () => {
