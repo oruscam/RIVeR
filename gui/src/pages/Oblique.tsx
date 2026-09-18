@@ -60,7 +60,7 @@ export const Oblique = () => {
   } = useObliqueSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { projectDetails, projectDirectory, video } = useProjectSlice();
-  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
+  const { onSetErrorMessage, onSetModeHint, onClearModeHint } = useUiSlice();
   const { nextStep } = useWizard();
   const { t } = useTranslation();
   const { images } = useDataSlice();
@@ -126,16 +126,16 @@ export const Oblique = () => {
   // since dragging the square's corner during the initial draw sets both.
   useEffect(() => {
     if (drawPoints && isDefaultCoordinates) {
-      onSetWarningMessage(t('ControlPoints.drawingPointsWarning', { defaultValue: 'Drawing points' }));
-      return () => onClearWarningMessage();
+      onSetModeHint(t('ControlPoints.drawingPointsWarning', { defaultValue: 'Drawing points' }));
+      return () => onClearModeHint();
     }
 
     if (isDraggingPoint) {
-      onSetWarningMessage(t('ControlPoints.modifyingPointsWarning', { defaultValue: 'Modifying points' }));
-      return () => onClearWarningMessage();
+      onSetModeHint(t('ControlPoints.modifyingPointsWarning', { defaultValue: 'Modifying points' }));
+      return () => onClearModeHint();
     }
 
-    onClearWarningMessage();
+    onClearModeHint();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawPoints, isDefaultCoordinates, isDraggingPoint]);
 
