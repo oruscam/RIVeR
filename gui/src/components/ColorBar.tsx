@@ -21,6 +21,18 @@ export const ColorBar = ({ min, max }: { min: number; max: number }) => {
   const [defaultMin, setDefaultMin] = useState(toDisplay(min).toFixed(2));
   const [defaultMax, setDefaultMax] = useState(toDisplay(max).toFixed(2));
 
+  const [hoverFraction, setHoverFraction] = useState<number | null>(null);
+
+  const handleGradientMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const fraction = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+    setHoverFraction(fraction);
+  };
+
+  const handleGradientMouseLeave = () => setHoverFraction(null);
+
+  const hoveredValue = hoverFraction === null ? null : toDisplay(min) + hoverFraction * (toDisplay(max) - toDisplay(min));
+
   const { activeStep } = useWizard();
   const { screenSizes } = useUiSlice();
   const { imageWidth } = screenSizes;
@@ -71,7 +83,18 @@ export const ColorBar = ({ min, max }: { min: number; max: number }) => {
         onKeyDown={(e) => e.key === 'Enter' && applyChanges()}
         onBlur={applyChanges}
       />
-      <div className="colorbar" style={{ background: gradient }} />
+      <div
+        className="colorbar"
+        style={{ background: gradient }}
+        onMouseMove={handleGradientMouseMove}
+        onMouseLeave={handleGradientMouseLeave}
+      >
+        {hoverFraction !== null && (
+          <div className="colorbar-marker" style={{ left: `${hoverFraction * 100}%` }}>
+            <span>{hoveredValue!.toFixed(2)}</span>
+          </div>
+        )}
+      </div>
       <input
         value={defaultMax}
         className="colorbar-input"

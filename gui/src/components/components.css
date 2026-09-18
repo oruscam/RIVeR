@@ -692,9 +692,35 @@
 }
 
 .colorbar {
+    position: relative;
     flex: 1;
     height: 14px;
     border-radius: 10px;
+    cursor: crosshair;
+}
+
+.colorbar-marker {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.colorbar-marker span {
+    position: absolute;
+    bottom: 19px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    color: #0B0D10;
+    font: 700 10.5px var(--ui, inherit);
+    padding: 1px 5px;
+    border-radius: 4px;
+    white-space: nowrap;
 }
 
 #colorbar-label {
