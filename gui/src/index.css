@@ -31,6 +31,14 @@
      every theme; unlike --pin-left/right/point/muted below, this one value
      works everywhere and isn't redeclared per theme. */
   --pin-ink: #0B0D10;
+
+  /* Mask overlay colours — white outline/hatch over a dimmed fill, per the
+     design audit's Canvas overlays finding ("Masks use the same red as
+     errors and the left bank"). Like --pin-ink, these sit on footage rather
+     than app chrome, so one value works in every theme and isn't
+     redeclared per [data-theme]. */
+  --overlay-line: #FFFFFF;
+  --overlay-dim:  rgba(0, 0, 0, 0.4);
 }
 
 /* =============================================================================
