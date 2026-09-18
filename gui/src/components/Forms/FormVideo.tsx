@@ -34,6 +34,10 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
   const watchStartTime = watch('start');
   const watchEndTime = watch('end');
 
+  useEffect(() => {
+    onClearFieldError('step');
+  }, [watchStep]);
+
   const validationRules = getValidationRules(t, getValues, duration);
 
   const timeBetweenFrames = ((1 / (fps || 0)) * watchStep * 1000).toFixed(2);
