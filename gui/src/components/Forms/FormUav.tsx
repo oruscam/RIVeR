@@ -4,6 +4,7 @@ import { useFormContext } from 'react-hook-form';
 import { useAutoShrinkFont, useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../../hooks';
 import { HardModeUav } from './Components/index';
 import { OrthoImage } from '../Graphs';
+import { FieldError } from '../index';
 import { UNITS } from '../../constants/constants';
 
 interface MyFormProps {
@@ -15,7 +16,7 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
   const { t } = useTranslation();
   const { extraFields, dirPoints, drawLine, solution, onUpdatePixelSize } = useUavSlice();
   const { video, projectDetails } = useProjectSlice();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetFieldError, onClearFieldError } = useUiSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { width, height } = video.data;
   const { factor: imageReducedFactor } = video.parameters;
@@ -34,15 +35,10 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
       // Pass the raw user value — unit conversion is handled inside onUpdatePixelSize (useUavSlice)
       const rawValue = parseFloat(event.currentTarget.value);
       if (rawValue > 0) {
+        onClearFieldError('uav_lineLength');
         onUpdatePixelSize({ length: rawValue });
       } else {
-        const error = {
-          uav_lineLength: {
-            type: 'required',
-            message: t('PixelSize.Errors.lineLength'),
-          },
-        };
-        onSetErrorMessage(error);
+        onSetFieldError('uav_lineLength', t('PixelSize.Errors.lineLength'));
       }
       (event.target as HTMLInputElement).blur();
     }
@@ -56,19 +52,14 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
       const value = parseFloat((event.target as HTMLInputElement).value);
 
       if (value > 0) {
+        onClearFieldError('uav_pixelSize');
         onUpdatePixelSize({
           pixelSize: value,
           imageWidth: width * imageReducedFactor,
           imageHeight: height * imageReducedFactor,
         });
       } else {
-        const error = {
-          uav_pixelSize: {
-            type: 'required',
-            message: t('PixelSize.Errors.pixelSize'),
-          },
-        };
-        onSetErrorMessage(error);
+        onSetFieldError('uav_pixelSize', t('PixelSize.Errors.pixelSize'));
       }
     }
   };
@@ -127,6 +118,7 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
               {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
             </span>
           </div>
+          <FieldError name="uav_lineLength" />
         </div>
 
         <div className="input-container-2 mt-1 mb-2">
@@ -147,6 +139,7 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
               {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
             </span>
           </div>
+          <FieldError name="uav_pixelSize" />
         </div>
       </form>
 

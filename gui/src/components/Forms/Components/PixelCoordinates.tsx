@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import { useProjectSlice, useUiSlice } from '../../../hooks/index.ts';
 import { getLabelStyle, getPointNames } from '../../../helpers/index.ts';
 import { useTranslation } from 'react-i18next';
+import { FieldError } from '../../index';
 
 export const PixelCoordinates = ({
   section,
@@ -13,7 +14,7 @@ export const PixelCoordinates = ({
   onSetDirPoints: (arg1: any, arg2: { value: number; position: string }) => void;
 }) => {
   const { register, resetField } = useFormContext();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetFieldError, onClearFieldError } = useUiSlice();
   const { type } = useProjectSlice();
   const { t } = useTranslation();
 
@@ -37,18 +38,13 @@ export const PixelCoordinates = ({
       const target = event.target as HTMLInputElement;
 
       if (value < 0 || isNaN(value)) {
-        const error = {
-          [target.id]: {
-            type: 'required',
-            message: `The value ${target.id} must be greater than 0 and can't be empty`,
-          },
-        };
-        onSetErrorMessage(error);
+        onSetFieldError(target.id, `The value ${target.id} must be greater than 0 and can't be empty`);
         const fieldName = `${modeName}_${target.id}`;
         resetField(fieldName);
         return;
       }
 
+      onClearFieldError(target.id);
       for (let i = 0; i < fields; i++) {
         if (target.id === pointsNames[i]) {
           let position = (i % 2 === 0 ? 'x' : 'y') + `${Math.ceil((i + 1) / 2)}`;
@@ -84,6 +80,7 @@ export const PixelCoordinates = ({
                 onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
                 onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
               />
+              <FieldError name={pointsNames[i]} />
             </div>
           </div>
         );
