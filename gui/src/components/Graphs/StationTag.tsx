@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuPin, LuPinOff } from 'react-icons/lu';
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
@@ -19,7 +20,21 @@ export const StationTag = () => {
 
   const section = sections[activeSection];
   const data = section?.data;
-  const stationIndex = pinnedStation ?? hoveredStation;
+
+  const [latchedStation, setLatchedStation] = useState<number | null>(null);
+  useEffect(() => {
+    if (hoveredStation !== null) setLatchedStation(hoveredStation);
+  }, [hoveredStation]);
+  // A latched station number is only meaningful for the section it was latched on —
+  // switching sections already resets hoveredStation/pinnedStation in the store (see
+  // uiSlice's extraReducers on setActiveSection/addSection/deleteSection); this local
+  // latch needs the same reset so it can't keep the tag showing a stale index against
+  // the newly active section's data.
+  useEffect(() => {
+    setLatchedStation(null);
+  }, [activeSection]);
+
+  const stationIndex = pinnedStation ?? hoveredStation ?? latchedStation;
 
   if (!data || stationIndex === null) return null;
 
@@ -41,7 +56,7 @@ export const StationTag = () => {
   const isPinned = pinnedStation !== null;
 
   return (
-    <div className="station-tag">
+    <div className="station-tag" onMouseLeave={() => setLatchedStation(null)}>
       <div className="station-tag-header">
         <b>
           {t('Graphs.station')} {content.stationNumber}
@@ -83,9 +98,11 @@ export const StationTag = () => {
         ))}
       </div>
       <p className="station-tag-hint">
-        {t('Results.stationTagHint', {
-          defaultValue: 'Click the station to keep this open while you change layers',
-        })}
+        {isPinned
+          ? t('Results.stationTagPinnedHint', { defaultValue: 'Pinned — click the pin to release' })
+          : t('Results.stationTagHint', {
+              defaultValue: 'Click the station to keep this open while you change layers',
+            })}
       </p>
     </div>
   );

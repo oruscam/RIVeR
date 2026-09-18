@@ -82,6 +82,11 @@ export const TechniqueLegend = () => {
         const effective = getEffectiveTechniqueData(data, key, techOptions);
         const totalText = effective ? (effective.total_Q * flowFactor).toFixed(2) : '—';
         const isOpen = expanded[key];
+        const hasBody =
+          visible &&
+          (key === 'lspiv' ||
+            (key === 'stiv' && !!data.stiv_sigma_profile) ||
+            (key === 'iwave' && !!data.iwave_quality_profile));
 
         return (
           <Fragment key={key}>
@@ -114,27 +119,29 @@ export const TechniqueLegend = () => {
               >
                 {visible ? <LuEye size={15} /> : <LuEyeOff size={15} />}
               </button>
-              <button
-                type="button"
-                className={`technique-disclosure-btn${isOpen ? ' technique-disclosure-btn-open' : ''}`}
-                aria-expanded={isOpen}
-                aria-label={
-                  isOpen
-                    ? t('Results.collapseTechnique', {
-                        defaultValue: 'Collapse {{technique}} layers',
-                        technique: label,
-                      })
-                    : t('Results.expandTechnique', {
-                        defaultValue: 'Expand {{technique}} layers',
-                        technique: label,
-                      })
-                }
-                onClick={() => toggleExpanded(key)}
-              >
-                <LuChevronRight size={15} />
-              </button>
+              {hasBody && (
+                <button
+                  type="button"
+                  className={`technique-disclosure-btn${isOpen ? ' technique-disclosure-btn-open' : ''}`}
+                  aria-expanded={isOpen}
+                  aria-label={
+                    isOpen
+                      ? t('Results.collapseTechnique', {
+                          defaultValue: 'Collapse {{technique}} layers',
+                          technique: label,
+                        })
+                      : t('Results.expandTechnique', {
+                          defaultValue: 'Expand {{technique}} layers',
+                          technique: label,
+                        })
+                  }
+                  onClick={() => toggleExpanded(key)}
+                >
+                  <LuChevronRight size={15} />
+                </button>
+              )}
             </TechniqueRow>
-            {isOpen && visible && (
+            {isOpen && hasBody && (
               <div className="technique-row-body">
                 {key === 'lspiv' && (
                   <button

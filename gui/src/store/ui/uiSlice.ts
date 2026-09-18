@@ -1,5 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { UIState, ScreenSizes, ThemeType, StepAlert } from './types';
+import { setActiveSection, addSection, deleteSection } from '../section/sectionSlice';
 
 const THEME_CYCLE: ThemeType[] = ['dark', 'light', 'dracula'];
 
@@ -109,6 +110,25 @@ const uiSlice = createSlice({
     setShowInterrogationWindow: (state, action: PayloadAction<boolean>) => {
       state.showInterrogationWindow = action.payload;
     },
+  },
+  // A hovered/pinned station number is only meaningful for the section it was
+  // set on — switching which section is active (chip click, adding/removing a
+  // section) must not leave a stale index silently retargeting to a different
+  // section's station of the same number.
+  extraReducers: (builder) => {
+    builder
+      .addCase(setActiveSection, (state) => {
+        state.hoveredStation = null;
+        state.pinnedStation = null;
+      })
+      .addCase(addSection, (state) => {
+        state.hoveredStation = null;
+        state.pinnedStation = null;
+      })
+      .addCase(deleteSection, (state) => {
+        state.hoveredStation = null;
+        state.pinnedStation = null;
+      });
   },
 });
 
