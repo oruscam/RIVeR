@@ -1,6 +1,7 @@
 import { SectionData, Technique } from '../../store/section/types';
 import { getEffectiveTechniqueData } from '../../helpers/techniqueDischarge';
 import { isLowConfidence } from '../../helpers/lowConfidence';
+import { isStationTuned } from '../../helpers/stivAngle';
 import { UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 
 const TECHNIQUE_ORDER: Technique[] = ['lspiv', 'stiv', 'iwave'];
@@ -99,7 +100,8 @@ export const buildStationTagContent = ({
         } ${areaUnit}`
       : '—';
 
-  const stageText = typeof depth === 'number' ? `${((level - depth) * lengthFactor).toFixed(2)} ${lengthUnit}` : '—';
+  const stageText =
+    typeof depth === 'number' ? `${((level - depth) * lengthFactor).toFixed(2)} ${lengthUnit}` : '—';
 
   const distanceText = `x ${(data.distance[stationIndex] * lengthFactor).toFixed(2)} ${lengthUnit}`;
 
@@ -137,7 +139,10 @@ export const buildStationTagContent = ({
 
       if (key === 'stiv') {
         const sigma = effective.sigma[stationIndex];
-        const lowConf = isLowConfidence(data.stiv_velocity_profile?.[stationIndex], data.stiv_sigma_profile?.[stationIndex]);
+        const tuned = isStationTuned(data.stiv_angle_manual_profile, stationIndex);
+        const lowConf =
+          !tuned &&
+          isLowConfidence(data.stiv_velocity_profile?.[stationIndex], data.stiv_sigma_profile?.[stationIndex]);
         return {
           key,
           label: TECHNIQUE_LABEL[key],

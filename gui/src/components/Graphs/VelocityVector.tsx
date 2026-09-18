@@ -124,7 +124,7 @@ export const VelocityVector = ({
           globalMax,
           phase,
           animated,
-          hoveredStation,
+          index === activeSection ? hoveredStation : null,
           onSetHoveredStation,
           onPinStation
         );
@@ -153,6 +153,10 @@ export const VelocityVector = ({
         }
       }
     });
+    // onSetHoveredStation/onPinStation are recreated every render by useUiSlice but only ever
+    // change together with the state they close over (already tracked); adding them directly
+    // would redraw this chart on every unrelated re-render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     factor,
     seeAll,

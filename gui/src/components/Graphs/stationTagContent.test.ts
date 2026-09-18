@@ -82,6 +82,18 @@ describe('buildStationTagContent', () => {
     expect(stivRow?.spreadText).toBe('±0.500');
   });
 
+  it('does not flag a STIV station as low confidence when it has been manually tuned', () => {
+    // station 1: v = 0.05, sigma = 0.5 — otherwise low confidence, but tuned here
+    const content = buildStationTagContent({
+      data: baseData({ stiv_angle_manual_profile: [null, 42, null] }),
+      stationIndex: 1,
+      ...opts,
+    });
+    const stivRow = content?.rows.find((r) => r.key === 'stiv');
+    expect(stivRow?.qualityText).toBe('—');
+    expect(stivRow?.qualityWarn).toBe(false);
+  });
+
   it('does not flag a STIV station whose sigma is below |v|', () => {
     // station 0: v = 1.1, sigma = 0.2
     const content = buildStationTagContent({ data: baseData(), stationIndex: 0, ...opts });

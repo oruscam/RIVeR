@@ -243,7 +243,11 @@ export const Grid = () => {
                 {...props}
                 onMouseEnter={() => onRowMouseEnter(props.row.id)}
                 onMouseLeave={onRowMouseLeave}
-                onClick={() => onPinStation(props.row.id)}
+                onClick={(event: React.MouseEvent) => {
+                  const target = event.target as HTMLElement;
+                  if (target.closest('.rdg-checkbox-input, input[type="checkbox"]')) return;
+                  onPinStation(props.row.id);
+                }}
               />
             ),
           }}
