@@ -14,7 +14,7 @@ export const CrossSections = () => {
   const [dragOver, setDragOver] = useState<boolean>(false);
   const [deletedSections, setDeletedSections] = useState('');
   const { t } = useTranslation();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
   const { cameraSolution } = useIpcamSlice();
   const { processing, images } = useDataSlice();
@@ -23,6 +23,7 @@ export const CrossSections = () => {
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragOver(false);
+    onClearStepAlert('bathymetry-import-error');
 
     const bathimetry = sections[activeSection].bathimetry;
 
@@ -49,18 +50,13 @@ export const CrossSections = () => {
                       : error.value
                     ).toFixed(2)
                   : error?.value;
-              onSetErrorMessage({
-                Bathimetry: {
-                  type: 'error',
-                  message: t(message, { level: displayLevel }),
-                },
-              });
+              onAddStepAlert('bathymetry-import-error', 'error', t(message, { level: displayLevel }));
             }
           })
-          .catch((error) => onSetErrorMessage(error.message));
+          .catch((error) => onAddStepAlert('bathymetry-import-error', 'error', error.message));
       } else {
         onGetBathimetry({ bathimetryPath: path, unitSistem: projectDetails.unitSistem }).catch((error) =>
-          onSetErrorMessage(error.message)
+          onAddStepAlert('bathymetry-import-error', 'error', error.message)
         );
       }
     }

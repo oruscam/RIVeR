@@ -5,6 +5,7 @@ import { isValidString } from '../../helpers/regex';
 import { useTranslation } from 'react-i18next';
 import { EyeBtn } from '../CustomIcons/EyeBtn';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
+import { FieldError } from '../index';
 
 interface Sections {
   setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -15,7 +16,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
   const { register } = useForm();
   const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onUpdateSection } =
     useSectionSlice();
-  const { onSetErrorMessage, seeAll, onSetSeeAll } = useUiSlice();
+  const { onSetFieldError, onClearFieldError, seeAll, onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();
   const [dialog, confirmDialog] = useConfirmDialog();
 
@@ -76,22 +77,17 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
       if (value === '') {
         input.value = sections[index].name;
         input.readOnly = true;
-        onSetErrorMessage({
-          message: 'Section name can not be empty',
-        });
+        onSetFieldError(`section-name-${index}`, 'Section name cannot be empty');
       } else if (!isValidString(value)) {
         input.value = sections[index].name;
         input.readOnly = true;
-        onSetErrorMessage({
-          message: 'Section name can only contain letters, numbers, and under scores',
-        });
+        onSetFieldError(`section-name-${index}`, 'Section name can only contain letters, numbers, and underscores');
       } else if (sections.map((section) => section.name).includes(value)) {
         input.value = sections[index].name;
         input.readOnly = true;
-        onSetErrorMessage({
-          message: 'Section name already exists',
-        });
+        onSetFieldError(`section-name-${index}`, 'Section name already exists');
       } else {
+        onClearFieldError(`section-name-${index}`);
         input.readOnly = true;
         onUpdateSection({ sectionName: value }, undefined);
       }
@@ -133,6 +129,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
                   onKeyDown={(event) => handleInputNameSection(event, index)}
                   onBlur={(event) => handleInputNameSection(event, index)}
                 />
+                <FieldError name={`section-name-${index}`} />
                 {canEdit && (
                   <button
                     className="section-button1"
