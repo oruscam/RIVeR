@@ -41,6 +41,8 @@
 
 .step-alert {
     display: flex;
+    align-items: flex-start;
+    gap: var(--space-2);
     background: var(--surface-raised);
     border-radius: var(--radius-md);
     padding: var(--space-2) var(--space-3);
@@ -48,9 +50,18 @@
     color: var(--text-primary);
 }
 
-.step-alert-info { border-left: 3px solid var(--accent-color); }
-.step-alert-warning { border-left: 3px solid var(--status-fair); }
-.step-alert-error { border-left: 3px solid var(--status-bad); }
+.step-alert::before {
+    content: "";
+    flex: none;
+    width: 8px;
+    height: 8px;
+    margin-top: 4px;
+    border-radius: 50%;
+}
+
+.step-alert-info::before { background: var(--accent-color); }
+.step-alert-warning::before { background: var(--status-fair); }
+.step-alert-error::before { background: var(--status-bad); }
 
 .step-alert-link {
     color: var(--accent-color);
