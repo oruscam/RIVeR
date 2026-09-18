@@ -248,30 +248,6 @@
 }
 
 
-/* Stacks Error/Info/Warning on top of each other (instead of one after another)
-   so a higher-priority banner (e.g. error) can overlap a persistent one
-   (e.g. warning) for a few seconds without pushing it out of the layout. */
-.message-stack {
-    position: relative;
-    width: 100%;
-    min-height: 35px;
-    margin-top: auto;
-}
-
-.message-stack .error,
-.message-stack .info,
-.message-stack .warning {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin-top: 0;
-}
-
-.message-stack .error { z-index: 3; }
-.message-stack .warning { z-index: 2; }
-.message-stack .info { z-index: 1; }
-
 /* Generic "focus mode" overlay: place inside any position:relative container
    (e.g. .form-container) and toggle .focus-overlay-active to blur/dim its
    contents, drawing attention to whatever sits outside that container
@@ -303,17 +279,6 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-}
-
-/* Inside .message-stack, the bars overlap (see .message-stack above) instead
-   of stacking one after another — the wrapper must get out of normal flow
-   too, or it reserves its own 35px per bar on top of the stack's shared one. */
-.message-stack .message-region {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    min-height: 0;
 }
 
 .error {

@@ -1,7 +1,7 @@
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { FormUav } from '../components/Forms/index';
-import { WizardButtons, Error, Warning, FocusOverlay, Carousel } from '../components/index';
+import { WizardButtons, ModeHint, StepAlertList, Toast, FocusOverlay, Carousel } from '../components/index';
 import { useDataSlice, useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../hooks/index';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
@@ -142,13 +142,11 @@ export const Uav = () => {
             mode="select"
           />
         )}
-        <div className="message-stack">
-          <Error />
-          <Warning />
-        </div>
+        <ModeHint />
       </div>
       <div className="form-container">
         <FormHeader title={t('PixelSize.title')} showSections={false} />
+        <StepAlertList />
 
         <FormProvider {...methods}>
           <FormUav onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
@@ -174,6 +172,7 @@ export const Uav = () => {
         </div>
         <FocusOverlay active={drawLine || isDraggingPoint} />
       </div>
+      <Toast />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { Carousel, Error, FocusOverlay, ImageOblique, Warning, WizardButtons } from '../components';
+import { Carousel, ModeHint, StepAlertList, Toast, FocusOverlay, ImageOblique, WizardButtons } from '../components';
 import { FormOblique } from '../components/Forms';
 import { useDataSlice, useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
@@ -154,10 +154,7 @@ export const Oblique = () => {
             mode="select"
           />
         )}
-        <div className="message-stack">
-          <Error />
-          <Warning />
-        </div>
+        <ModeHint />
       </div>
       <div
         className={`form-container ${dragOver ? 'drag-over' : ''}`}
@@ -166,6 +163,7 @@ export const Oblique = () => {
         onDrop={handleDrop}
       >
         <FormHeader title={t('ControlPoints.title')} showSections={false} />
+        <StepAlertList />
 
         <FormProvider {...methods}>
           <FormOblique onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
@@ -191,6 +189,7 @@ export const Oblique = () => {
         </div>
         <FocusOverlay active={(drawPoints && isDefaultCoordinates) || isDraggingPoint} />
       </div>
+      <Toast />
     </div>
   );
 };

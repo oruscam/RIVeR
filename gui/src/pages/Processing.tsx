@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Carousel, Error, ImageProcessing, WizardButtons } from '../components';
+import { Carousel, StepAlertList, Toast, ImageProcessing, WizardButtons } from '../components';
 import { useDataSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { flushStivAngleWrites } from '../hooks/useStivAngleOverride';
 import { FormHeader } from '../components/Forms/Components';
@@ -162,10 +162,10 @@ export const Processing = () => {
           mode={previewMode === 'frames' ? 'analize' : 'processing'}
           showStivMarkers={previewMode === 'sti'}
         />
-        <Error />
       </div>
       <div className="form-container">
         <FormHeader title={t('Processing.title')} showSections={false} />
+        <StepAlertList />
         <FormProcessing
           extraFields={extraFields}
           showMedian={showMedian}
@@ -188,6 +188,7 @@ export const Processing = () => {
           <WizardButtons onClickNext={handleNext} canFollow={fullQuiver !== null} />
         </div>
       </div>
+      <Toast />
     </div>
   );
 };

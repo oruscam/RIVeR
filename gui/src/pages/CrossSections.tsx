@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Carousel, WizardButtons, Error, Warning, FocusOverlay } from '../components';
+import { Carousel, WizardButtons, ModeHint, StepAlertList, Toast, FocusOverlay } from '../components';
 import { CrossSections as CrossSectionsComponent } from '../components/CrossSections/index';
 import { useDataSlice, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
 import { useTranslation } from 'react-i18next';
@@ -78,10 +78,7 @@ export const CrossSections = () => {
         {images.paths.length > 0 && (
           <Carousel images={images.paths} active={activeFrame} setActiveImage={setActiveFrame} mode="select" />
         )}
-        <div className="message-stack">
-          <Error />
-          <Warning />
-        </div>
+        <ModeHint />
       </div>
       <div
         className={`form-container ${dragOver ? 'drag-over' : ''}`}
@@ -96,6 +93,7 @@ export const CrossSections = () => {
           setDeletedSections={setDeletedSections}
           canEdit={true}
         />
+        <StepAlertList />
         <CrossSectionsComponent deletedSections={deletedSections} setDeletedSections={setDeletedSections} />
 
         <div className="footer">
@@ -110,6 +108,7 @@ export const CrossSections = () => {
           active={sections[activeSection].drawLine || isDraggingPoint || processing.activeMaskIndex !== null}
         />
       </div>
+      <Toast />
     </div>
   );
 };
