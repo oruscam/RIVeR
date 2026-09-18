@@ -5,13 +5,11 @@ import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { createDischargeChart } from './dischargeSvg';
 import { createVelocityChart, VelocitySeries } from './velocitySvg';
 import { bathimetrySvg } from './bathimetrySvg';
-import { GRAPHS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
+import { GRAPHS, UNIT_CONVERSIONS } from '../../constants/constants';
 import { getTechniqueColors } from '../../helpers/getCSSVar';
 import { adapterBathimetry, getEffectiveTechniqueData } from '../../helpers';
 import { generateXAxisTicks } from '../../helpers/graphsHelpers';
 import { Technique } from '../../store/section/types';
-import { t } from 'i18next';
-import { getThemedHost } from '../../helpers/themedHost';
 
 /**
  * * Version 0.0.1
@@ -21,21 +19,6 @@ import { getThemedHost } from '../../helpers/themedHost';
 
 const TECHNIQUE_ORDER: Technique[] = ['lspiv', 'stiv', 'iwave'];
 const TECHNIQUE_LABEL: Record<Technique, string> = { lspiv: 'LSPIV', stiv: 'STIV', iwave: 'iWave' };
-
-function getOrCreateTooltip(): d3.Selection<HTMLDivElement, unknown, HTMLElement, any> {
-  let el = d3.select<HTMLDivElement, unknown>('.combined-chart-tooltip');
-  if (el.empty()) {
-    // Appended to the themed host, not <body>: the app's CSS custom properties
-    // are declared on [data-theme] (a div inside body), so a tooltip parented to
-    // body falls outside that scope and its var()-driven background and border
-    // resolve to nothing. See helpers/themedHost.ts.
-    el = d3
-      .select(getThemedHost())
-      .append('div')
-      .attr('class', 'velocity-tooltip graph-tooltip-text combined-chart-tooltip') as any;
-  }
-  return el;
-}
 
 export const AllInOne = ({
   width,
@@ -222,83 +205,10 @@ export const AllInOne = ({
         stationStage: shiftedDistance.map((_, i) => (level ?? 0) - data.depth[i]),
       });
 
-      // ---- Unified hover: one overlay spanning all three panels, one combined tooltip
-      // (Q + every visible velocity + stage), instead of a tooltip per chart. ----
+      // ---- Unified hover: one overlay spanning all three panels, driving
+      // uiSlice.hoveredStation/pinnedStation. The readout itself (Q + every
+      // visible velocity + stage) is rendered by the docked StationTag, not here. ----
       if (!isReport) {
-        const isImperial = unitSistem === 'imperial';
-        const velocityFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
-        const flowFactor = isImperial ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
-        const lengthFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
-        const unitLabel = isImperial ? UNITS.IMPERIAL.VELOCITY : UNITS.SI.VELOCITY;
-        const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
-        const lengthUnit = isImperial ? UNITS.IMPERIAL.LONGITUDE : UNITS.SI.LONGITUDE;
-        const formatValue = d3.format('.3f');
-        const tooltip = getOrCreateTooltip();
-
-        const showTooltip = (i: number, clientX: number, clientY: number) => {
-          const rows = series
-            .map((s) => {
-              const p = s.points.find((pt) => pt.i === i);
-              if (!p) return '';
-              const valueText = p.v === null ? '—' : `${formatValue(p.v * velocityFactor)} ${unitLabel}`;
-              const dotColor = s.color;
-              return `<div class="velocity-tooltip-row${s.isActive ? ' velocity-tooltip-row-active' : ''}">
-                <span class="velocity-tooltip-dot" style="background:${dotColor}"></span>
-                <span class="velocity-tooltip-label" style="color:${dotColor}">${s.label}</span>
-                <span class="velocity-tooltip-val">${valueText}</span>
-              </div>`;
-            })
-            .join('');
-          const qVal = activeQ[i];
-          const stageVal = (level ?? 0) - data.depth[i];
-          // Share of the section's total discharge, from the same resolved
-          // computation the bars are drawn from.
-          const qShare = activeEffective?.Q_portion?.[i];
-          const qShareText =
-            qShare !== null && qShare !== undefined && isFinite(qShare)
-              ? `  ·  ${(qShare * 100).toFixed(1)}%`
-              : '';
-          const qText =
-            qVal !== null && qVal !== undefined
-              ? `${(qVal * flowFactor).toFixed(3)} ${flowUnit}${qShareText}`
-              : '—';
-          tooltip
-            .html(
-              `<div class="velocity-tooltip-head">${t('Graphs.station')} ${i + 1}</div>
-              <div class="velocity-tooltip-row">
-                <span class="velocity-tooltip-dot" style="background:var(--primary-text-color)"></span>
-                <span class="velocity-tooltip-label">${t('Graphs.discharge')}</span>
-                <span class="velocity-tooltip-val">${qText}</span>
-              </div>
-              ${rows}
-              <div class="velocity-tooltip-row">
-                <span class="velocity-tooltip-dot" style="background:var(--secondary-text-color)"></span>
-                <span class="velocity-tooltip-label">${t('Graphs.stage')}</span>
-                <span class="velocity-tooltip-val">${(stageVal * lengthFactor).toFixed(2)} ${lengthUnit}</span>
-              </div>`
-            )
-            .style('display', 'block');
-
-          // Place it only after the content is in and visible, so the measured
-          // box is the real one. The tooltip is position:fixed, so clientX/Y and
-          // window bounds are the same coordinate space. Flip to the pointer's
-          // left (and clamp vertically) rather than letting it run off the
-          // window edge, which hid it entirely near the right border.
-          const GAP = 14;
-          const EDGE = 8;
-          const node = tooltip.node() as HTMLElement | null;
-          const box = node?.getBoundingClientRect();
-          const tw = box?.width ?? 0;
-          const th = box?.height ?? 0;
-          let left = clientX + GAP;
-          if (left + tw > window.innerWidth - EDGE) left = clientX - tw - GAP;
-          left = Math.max(EDGE, Math.min(left, window.innerWidth - tw - EDGE));
-          let top = clientY - 10;
-          top = Math.max(EDGE, Math.min(top, window.innerHeight - th - EDGE));
-          tooltip.style('left', `${left}px`).style('top', `${top}px`);
-        };
-        const hideTooltip = () => tooltip.style('display', 'none');
-
         const findNearestStation = (event: MouseEvent): number => {
           const [mx] = d3.pointer(event, svg.node());
           const x0 = xScale.invert(mx);
@@ -324,13 +234,10 @@ export const AllInOne = ({
           .attr('fill', 'transparent')
           .style('cursor', 'crosshair')
           .on('mousemove', function (event) {
-            const idx = findNearestStation(event);
-            onSetHoveredStation(idx);
-            showTooltip(idx, event.clientX, event.clientY);
+            onSetHoveredStation(findNearestStation(event));
           })
           .on('mouseleave', () => {
             onSetHoveredStation(null);
-            hideTooltip();
           })
           .on('click', function (event) {
             onPinStation(findNearestStation(event));

@@ -243,62 +243,117 @@ svg .bar-stroke-themed {
 }
 
 /* =============================================================================
-   UNIFIED HOVER TOOLTIP (velocity chart) — one card for Q + every visible velocity
-   profile + stage, instead of a tooltip per series. RIVeR popup chrome (.ldrop spec).
+   STATION TAG (Results canvas) — docked, pinnable readout for one station.
+   Replaces the old cursor-following combined tooltip and the canvas chevrons'
+   own velocity-only tooltip with a single card, per-technique spread/quality.
    ============================================================================= */
-.velocity-tooltip {
-    position: fixed;
-    display: none;
-    min-width: 160px;
-    padding: 9px 12px;
+.station-tag {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 1000;
+    min-width: 220px;
+    max-width: 280px;
+    padding: 10px 12px;
     border-radius: 12px;
     border: 1px solid var(--input-background);
     background: var(--secondary-background-color);
     box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4);
-    pointer-events: none;
     font-size: 12px;
-    z-index: 200;
 }
 
-.velocity-tooltip-head {
-    font-size: 10.5px;
-    color: var(--secondary-text-color);
-    font-weight: 600;
-    margin-bottom: 6px;
-    white-space: nowrap;
-}
-
-.velocity-tooltip-row {
+.station-tag-header {
     display: flex;
     align-items: center;
-    gap: 7px;
-    padding: 2px 0;
+    gap: 8px;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--input-background);
+}
+
+.station-tag-header b {
+    font-size: 13.5px;
     white-space: nowrap;
 }
 
-.velocity-tooltip-row-active .velocity-tooltip-label,
-.velocity-tooltip-row-active .velocity-tooltip-val {
-    font-weight: 700;
+.station-tag-header span {
+    color: var(--secondary-text-color);
+    flex: 1;
 }
 
-.velocity-tooltip-dot {
-    width: 7px;
-    height: 7px;
+.station-tag-pin-btn {
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    background: transparent;
+    color: var(--secondary-text-color);
+    cursor: pointer;
     flex-shrink: 0;
 }
 
-.velocity-tooltip-label {
-    flex: 1;
+.station-tag-pin-btn:hover {
+    background: var(--input-background);
     color: var(--primary-text-color);
-    font-weight: 500;
 }
 
-.velocity-tooltip-val {
-    font-variant-numeric: tabular-nums;
+.station-tag-pin-btn-on {
+    color: var(--accent-color);
+}
+
+.station-tag-kv {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 2px 10px;
+    padding-bottom: 6px;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--input-background);
+}
+
+.station-tag-kv span {
+    color: var(--secondary-text-color);
+}
+
+.station-tag-kv b {
+    text-align: right;
     font-weight: 600;
-    color: var(--primary-text-color);
-    margin-left: 10px;
+    font-variant-numeric: tabular-nums;
+}
+
+.station-tag-table {
+    display: grid;
+    gap: 4px;
+}
+
+.station-tag-row {
+    display: grid;
+    grid-template-columns: 12px auto 1fr auto auto;
+    gap: 6px;
+    align-items: center;
+    white-space: nowrap;
+}
+
+.station-tag-row b {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+}
+
+.station-tag-row span {
+    color: var(--secondary-text-color);
+    font-size: 11px;
+}
+
+.station-tag-warn {
+    color: var(--status-fair);
+}
+
+.station-tag-hint {
+    margin: 7px 0 0;
+    color: var(--secondary-text-color);
+    font-size: 10.5px;
 }
 
 .hover-guide-line {

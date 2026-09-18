@@ -2,6 +2,7 @@ import { useImageZoomPan, useProjectSlice, useUiSlice, useVelocityColorRange } f
 import { ColorBar } from './ColorBar';
 import { DrawSectionsD3 } from './CrossSections/DrawSectionsD3';
 import { VelocityVector } from './Graphs';
+import { StationTag } from './Graphs/StationTag';
 import { OverlaySvg } from './OverlaySvg';
 
 export const ImageResults = ({
@@ -110,8 +111,9 @@ export const ImageResults = ({
           )}
         </OverlaySvg>
       )}
-      {/* Outside the zoomed element so the bar keeps its size and corner. */}
+      {/* Outside the zoomed element so the bar/tag keep their size and corner. */}
       {isReport === false && hasData && <ColorBar min={min} max={max} />}
+      {isReport === false && <StationTag />}
     </div>
   );
 };
