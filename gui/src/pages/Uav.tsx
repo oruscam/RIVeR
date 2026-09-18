@@ -83,9 +83,10 @@ export const Uav = () => {
   const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size, unitSistem) });
 
   const { nextStep } = useWizard();
-  const { onSetModeHint, onClearModeHint, onAddStepAlert } = useUiSlice();
+  const { onSetModeHint, onClearModeHint, onAddStepAlert, onClearStepAlert } = useUiSlice();
 
   const onSubmit = () => {
+    onClearStepAlert('uav-form-error');
     console.log(rwPoints);
     nextStep();
   };

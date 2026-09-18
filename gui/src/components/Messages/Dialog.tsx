@@ -28,10 +28,10 @@ export const Dialog = ({
         <b id="dialog-title">{options.title}</b>
         <p>{options.body}</p>
         <div className="dialog-actions">
-          <button type="button" className="btn-secondary" onClick={onCancel}>
+          <button type="button" className="btn btn-secondary" onClick={onCancel} autoFocus>
             {options.cancelLabel ?? 'Cancel'}
           </button>
-          <button type="button" className="btn-danger" onClick={onConfirm} autoFocus>
+          <button type="button" className="btn btn-danger" onClick={onConfirm}>
             {options.confirmLabel}
           </button>
         </div>

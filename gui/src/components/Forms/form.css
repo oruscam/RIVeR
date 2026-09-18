@@ -298,6 +298,7 @@
 .input-container-2 {
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     padding-left: clamp(10px, 6%, 60px);
@@ -644,6 +645,7 @@
 .input-field-container {
     position: relative;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     flex: 1 1 auto;
     width: 150px;

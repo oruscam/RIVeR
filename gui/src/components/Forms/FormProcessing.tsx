@@ -183,12 +183,12 @@ export const FormProcessing = ({
                   onKeyDown={handleStationsChangeInput}
                   onBlur={handleStationsChangeInput}
                 />
-                <FieldError name="stations-number" />
                 <button type="button" className="btn-step" onClick={() => handleStationsStep(1)}>
                   +
                 </button>
               </div>
             </div>
+            <FieldError name="stations-number" />
 
             <span className="divider-line mt-2 mb-1" />
 

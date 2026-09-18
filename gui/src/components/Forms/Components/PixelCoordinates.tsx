@@ -24,6 +24,11 @@ export const PixelCoordinates = ({
 
   const pointsNames = getPointNames('pixel', fields);
 
+  // Scope the field-error key per section so switching tabs doesn't show a
+  // stale error from a different section under the same-named field. Uav/Oblique
+  // render only one set of coordinates (no `section`), so the key stays bare.
+  const fieldErrorName = (id: string) => (section ? `${section}_${id}` : id);
+
   const handleInputField = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>,
     nextFieldId: string
@@ -38,13 +43,16 @@ export const PixelCoordinates = ({
       const target = event.target as HTMLInputElement;
 
       if (value < 0 || isNaN(value)) {
-        onSetFieldError(target.id, `The value ${target.id} must be greater than 0 and can't be empty`);
+        onSetFieldError(
+          fieldErrorName(target.id),
+          `The value ${target.id} must be greater than 0 and can't be empty`
+        );
         const fieldName = `${modeName}_${target.id}`;
         resetField(fieldName);
         return;
       }
 
-      onClearFieldError(target.id);
+      onClearFieldError(fieldErrorName(target.id));
       for (let i = 0; i < fields; i++) {
         if (target.id === pointsNames[i]) {
           let position = (i % 2 === 0 ? 'x' : 'y') + `${Math.ceil((i + 1) / 2)}`;
@@ -80,7 +88,7 @@ export const PixelCoordinates = ({
                 onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
                 onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
               />
-              <FieldError name={pointsNames[i]} />
+              <FieldError name={fieldErrorName(pointsNames[i])} />
             </div>
           </div>
         );
