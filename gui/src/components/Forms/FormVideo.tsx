@@ -9,6 +9,7 @@ import './form.css';
 import { formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
 import { VideoMetadata, FramesResolution, LensCorrection, StabilizationRegions } from './Components/index';
+import { FieldError } from '../index';
 
 export const FormVideo = ({ duration, extraFields }: { duration: number; extraFields: boolean }) => {
   const { onSetVideoParameters, video: videoData, type } = useProjectSlice();
@@ -27,7 +28,7 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
   const { t } = useTranslation();
   const { nextStep } = useWizard();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetFieldError, onClearFieldError, onAddStepAlert, onClearStepAlert } = useUiSlice();
 
   const watchStep = watch('step');
   const watchStartTime = watch('start');
@@ -59,6 +60,8 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
     const id = event.target.id;
     const timeformat = identifyTimeFormat(value);
 
+    onClearFieldError(id);
+
     if (timeformat === 'mm:ss') {
       setValue(id as 'start' | 'end' | 'step', value, { shouldValidate: true });
     } else if (timeformat === 'seconds') {
@@ -81,6 +84,8 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
       let value = (event.target as HTMLInputElement).value;
       const timeformat = identifyTimeFormat(value);
 
+      onClearFieldError(id);
+
       if (timeformat === 'mm:ss') {
         setValue(id as 'start' | 'end' | 'step', value, {
           shouldValidate: true,
@@ -102,6 +107,8 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
   };
 
   const onSubmit = async (data: FieldValues) => {
+    onClearStepAlert('lens-correction-mismatch');
+    onClearStepAlert('stabilization-min-regions');
     const lensCorrection = videoData.parameters.lensCorrection;
     if (lensCorrection) {
       const profileSize = await window.ipcRenderer.invoke('calibration-get-profile-size', {
@@ -110,7 +117,9 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
       if (profileSize) {
         const { width: vidW, height: vidH } = videoData.data;
         if (profileSize.width !== vidW || profileSize.height !== vidH) {
-          onSetErrorMessage(
+          onAddStepAlert(
+            'lens-correction-mismatch',
+            'error',
             t('VideoRange.Errors.profileResolutionMismatch', { calW: profileSize.width, calH: profileSize.height })
           );
           return;
@@ -119,7 +128,9 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
     }
     const { stabilization, stabilizationRegions } = videoData.parameters;
     if (stabilization && stabilizationRegions.length < 2) {
-      onSetErrorMessage(
+      onAddStepAlert(
+        'stabilization-min-regions',
+        'error',
         t('VideoRange.minRegionsWarning', { defaultValue: 'Add at least 2 regions for stabilization' })
       );
       return;
@@ -128,9 +139,11 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
     nextStep();
   };
 
-  const onError = (error: any) => {
-    console.log(error);
-    onSetErrorMessage(error);
+  const onError = (errors: FieldValues) => {
+    Object.entries(errors).forEach(([name, value]) => {
+      const message = (value as { message?: string })?.message;
+      if (message) onSetFieldError(name, message);
+    });
   };
 
   useEffect(() => {
@@ -161,6 +174,7 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
               />
+              <FieldError name="start" />
             </div>
           </div>
           <div className="input-container-2 mt-1">
@@ -178,6 +192,7 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
               />
+              <FieldError name="end" />
             </div>
           </div>
           <div className="input-container-2 mt-1">
@@ -191,6 +206,7 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
                 onKeyDown={handleKeyDown}
                 {...register('step', validationRules.step)}
               />
+              <FieldError name="step" />
             </div>
           </div>
         </div>
