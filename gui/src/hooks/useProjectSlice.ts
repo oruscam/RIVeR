@@ -6,9 +6,9 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
 import {
-  clearErrorMessage,
+  addStepAlert,
   clearMessage,
-  setErrorMessage,
+  clearStepAlert,
   setLanguage,
   setLoading,
   setMessage,
@@ -310,7 +310,7 @@ export const useProjectSlice = () => {
     };
     const ipcRenderer = window.ipcRenderer;
 
-    dispatch(clearErrorMessage());
+    dispatch(clearStepAlert('first-frame-error'));
 
     try {
       const result = await ipcRenderer.invoke('first-frame', {
@@ -326,7 +326,7 @@ export const useProjectSlice = () => {
       if (!result || result.error || !result.initial_frame) {
         const errMsg = result?.error ?? 'Frame extraction failed';
         console.log('first-frame error:', errMsg);
-        dispatch(setErrorMessage([errMsg]));
+        dispatch(addStepAlert({ id: 'first-frame-error', level: 'error', text: errMsg }));
         return;
       }
 
@@ -335,7 +335,7 @@ export const useProjectSlice = () => {
       dispatch(setVideoParameters(parameters));
     } catch (error) {
       console.log(error);
-      dispatch(setErrorMessage([String(error)]));
+      dispatch(addStepAlert({ id: 'first-frame-error', level: 'error', text: String(error) }));
     } finally {
       dispatch(setLoading(false));
     }
@@ -401,7 +401,7 @@ export const useProjectSlice = () => {
           })
         );
 
-        dispatch(clearErrorMessage());
+        dispatch(clearStepAlert('first-frame-error'));
 
         // Load paths for images
         if (paths && paths.length !== 0) {
