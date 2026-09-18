@@ -10,7 +10,7 @@ export const FormAnalizing = ({
   setShowMedian: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const { onSetQuiverAll, isBackendWorking, onKillBackend, quiver } = useDataSlice();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert } = useUiSlice();
   const { t } = useTranslation();
 
   const [percentage, setPercentage] = React.useState<string>('');
@@ -22,9 +22,10 @@ export const FormAnalizing = ({
     if (isBackendWorking) return;
     setPercentage('');
     setTime('');
+    onClearStepAlert('processing-backend-error');
     onSetQuiverAll()
       .then(() => setShowMedian(true))
-      .catch((error) => onSetErrorMessage(error.message));
+      .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
   };
 
   const handleStop = async () => {
