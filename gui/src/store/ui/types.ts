@@ -41,6 +41,11 @@ interface UIState {
   isLatestVersion?: boolean;
   latestVersion?: string;
   hoveredStation: number | null;
+  /** Set by clicking a station (canvas chevron, chart position, or Grid row) —
+   *  survives the pointer moving away so a user can toggle technique layers
+   *  without losing the detail view. Clicking the same station again, or the
+   *  station tag's own pin button, clears it. */
+  pinnedStation: number | null;
   /** Interrogation-window size preview on the Processing image. Off by default —
    *  it's a reference overlay, not something needed on every frame. */
   showInterrogationWindow: boolean;
