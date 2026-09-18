@@ -95,3 +95,38 @@
     padding: 0;
     cursor: pointer;
 }
+
+.dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 40;
+}
+
+.dialog {
+    background: var(--surface-panel);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    max-width: 360px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+}
+
+.dialog b {
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.dialog p {
+    color: var(--text-subdued);
+    font-size: 13px;
+    margin: var(--space-2) 0 var(--space-4);
+}
+
+.dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--space-2);
+}
