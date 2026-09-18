@@ -61,9 +61,11 @@ interface CreateVelocityChartProps {
  * opacity. Uncertainty bands and iWave's quality shading are opt-in (goal 4) and controlled
  * from TechniqueLegend, not from clickable swatches in the chart itself.
  *
- * Hover/tooltip is NOT handled here — AllInOne.tsx owns one combined overlay + tooltip
- * spanning all three stacked panels (Q, velocity, stage), so there's a single hover
- * experience for the whole chart instead of a tooltip per panel.
+ * Hover is driven by AllInOne.tsx's shared overlay (and, as of Phase 4c, the canvas
+ * and Grid too, via uiSlice.hoveredStation) — this module only draws its own segment
+ * of the crosshair and its own series markers; discharge and stage each draw their own
+ * matching segment (dischargeSvg.ts/bathimetrySvg.ts) instead of relying on one line
+ * bleeding across a shared SVG.
  */
 export const createVelocityChart = ({
   SVGElement,
@@ -166,8 +168,8 @@ export const createVelocityChart = ({
         .attr('class', 'hover-guide-line')
         .attr('x1', xScale(hoveredPoint.x))
         .attr('x2', xScale(hoveredPoint.x))
-        .attr('y1', margin.top)
-        .attr('y2', graphHeight * 3 - margin.bottom)
+        .attr('y1', graphHeight)
+        .attr('y2', graphHeight * 2)
         .attr('stroke', 'var(--accent-color)')
         .attr('stroke-width', 1)
         .attr('stroke-dasharray', '3,3');
