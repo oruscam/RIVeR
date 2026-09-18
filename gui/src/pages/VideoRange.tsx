@@ -2,13 +2,10 @@ import { useRef } from 'react';
 import { VideoPlayer } from '../components/VideoPlayer/VideoPlayer';
 import { StabilizationCanvas } from '../components/VideoPlayer/StabilizationCanvas';
 import { FormVideo } from '../components/Forms/FormVideo';
-import { Error } from '../components/Error';
-import { Info } from '../components/Info';
-import { Warning } from '../components/Warning';
 import { useProjectSlice } from '../hooks';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
-import { FocusOverlay, WizardButtons } from '../components';
+import { FocusOverlay, WizardButtons, ModeHint, StepAlertList, Toast } from '../components';
 import { useState } from 'react';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
 
@@ -48,14 +45,11 @@ export const VideoRange = () => {
     <div className="regular-page">
       <div className="media-container">
         {path && <VideoPlayer ref={videoRef} fileURL={path} duration={duration} overlay={stabilizationOverlay} />}
-        <div className="message-stack">
-          <Error />
-          <Info />
-          <Warning />
-        </div>
+        <ModeHint />
       </div>
       <div className="form-container">
         <FormHeader title={t('VideoRange.title')} showSections={false} />
+        <StepAlertList />
         <FormVideo duration={duration} extraFields={extraFields} />
         <div className="footer">
           <LockBtn
@@ -69,6 +63,7 @@ export const VideoRange = () => {
         </div>
         <FocusOverlay active={stabilizationActiveRegionIndex !== null} />
       </div>
+      <Toast />
     </div>
   );
 };

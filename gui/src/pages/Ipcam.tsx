@@ -1,6 +1,6 @@
 import { useWizard } from 'react-use-wizard';
 import { FormIpcam } from '../components/Forms/FormIpcam.tsx';
-import { Carousel, Error, FocusOverlay, Warning, WizardButtons } from '../components/index';
+import { Carousel, ModeHint, StepAlertList, Toast, FocusOverlay, WizardButtons } from '../components/index';
 import { useEffect, useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers/handleDragEvents.ts';
 import { useUiSlice } from '../hooks/useUiSlice.ts';
@@ -84,10 +84,7 @@ export const Ipcam = () => {
             mode="ipcam"
           />
         )}
-        <div className="message-stack">
-          <Error />
-          <Warning />
-        </div>
+        <ModeHint />
       </div>
       <div
         className={`form-container ${dragOver ? 'drag-over' : ''}`}
@@ -96,12 +93,14 @@ export const Ipcam = () => {
         onDrop={handleDrop}
       >
         <FormHeader title={t('ControlPoints.title')} showSections={false} />
+        <StepAlertList />
         <FormIpcam />
         <div className="footer">
           <WizardButtons canFollow={cameraSolution !== null} onClickNext={handleOnClickNext} />
         </div>
         <FocusOverlay active={isDraggingPoint} />
       </div>
+      <Toast />
     </div>
   );
 };

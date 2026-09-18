@@ -1,4 +1,4 @@
-import { Error, ImageResults, Results as ResultsComponent, WizardButtons } from '../components';
+import { StepAlertList, Toast, ImageResults, Results as ResultsComponent, WizardButtons } from '../components';
 import { useUiSlice } from '../hooks';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
@@ -18,15 +18,16 @@ export const Results = () => {
     <div className="regular-page">
       <div className="media-container">
         <ImageResults />
-        <Error />
       </div>
       <div className="form-container">
         <FormHeader title={t('Results.title')} canEdit={false} showSections={true} />
+        <StepAlertList />
         <ResultsComponent />
         <div className="footer">
           <WizardButtons formId="form-result" canFollow={true} />
         </div>
       </div>
+      <Toast />
     </div>
   );
 };
