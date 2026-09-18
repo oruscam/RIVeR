@@ -29,7 +29,7 @@ export const FormProcessing = ({
   stivAvailable: boolean;
 }) => {
   const { t } = useTranslation();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetErrorMessage, onShowToast } = useUiSlice();
   const {
     isBackendWorking,
     processing,
@@ -243,6 +243,12 @@ export const FormProcessing = ({
                   onClick={(event) => {
                     event.stopPropagation();
                     resetAllStivAngles();
+                    onShowToast(
+                      t('Processing.stiAngleResetAllToast', {
+                        defaultValue: 'Angles reset for {{section}}',
+                        section: name,
+                      })
+                    );
                   }}
                 >
                   {t('Processing.stiAngleResetAll')}
