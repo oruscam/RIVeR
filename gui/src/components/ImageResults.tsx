@@ -28,7 +28,7 @@ export const ImageResults = ({
   // `VelocityVector` uses for the chevrons themselves, via one shared hook so
   // the two can't drift apart. A manually locked range wins in both, exactly
   // as it does in Processing.
-  const { min, max } = useVelocityColorRange();
+  const { min, max, hasData } = useVelocityColorRange();
 
   const { scale, position } = useImageZoomPan({
     containerWidth: imageWidth!,
@@ -111,7 +111,7 @@ export const ImageResults = ({
         </OverlaySvg>
       )}
       {/* Outside the zoomed element so the bar keeps its size and corner. */}
-      {isReport === false && <ColorBar min={min} max={max} />}
+      {isReport === false && hasData && <ColorBar min={min} max={max} />}
     </div>
   );
 };
