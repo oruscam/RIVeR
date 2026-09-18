@@ -244,8 +244,9 @@ export const AllInOne = ({
           });
       }
     }
-    // onChangeDataValues is recreated every render but only ever changes together with `data`
-    // (already tracked); adding it directly would redraw this chart on every unrelated re-render
+    // onSetHoveredStation/onPinStation are recreated every render by useUiSlice but only ever
+    // change together with the state they close over (already tracked); adding them directly
+    // would redraw this chart on every unrelated re-render
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeSection,

@@ -1243,10 +1243,11 @@
 /* =============================================================================
    TECHNIQUE ROW (shared shell — Results' TechniqueLegend + Processing's
    FormProcessing render through the TechniqueRow component onto this box).
-   Screen-specific extras (Results: .technique-name/.technique-seed-flag/
-   .technique-band-glyph/.technique-eye-btn in Graphs/graphs.css; Processing:
-   cursor/disabled/unavailable modifiers and .field-title in Forms/form.css)
-   stay in their own files — only the row box and the swatch are shared.
+   Screen-specific extras (Results: .technique-name/.technique-row-total/
+   .technique-disclosure-btn/.technique-row-body*/.technique-eye-btn in
+   Graphs/graphs.css; Processing: .technique-seed-flag, cursor/disabled/
+   unavailable modifiers and .field-title in Forms/form.css) stay in their own
+   files — only the row box and the swatch are shared.
    ============================================================================= */
 .technique-row {
     display: flex;

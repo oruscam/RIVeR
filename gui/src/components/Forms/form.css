@@ -750,7 +750,9 @@
 }
 
 /* Eye/flag states for the Processing technique rows. The Results module's
-   .technique-eye-btn / .technique-seed-flag supply the base look; these add the
+   .technique-eye-btn supplies the base look for the eye button; .technique-seed-flag's
+   base look lives right below, in this same file, since Results no longer uses it
+   (Processing's "Median" pill is its only remaining consumer). These add the
    on/off states this panel needs without the native :disabled attribute, which
    would suppress the title tooltips. */
 .technique-eye-btn.technique-eye-btn-on {
@@ -760,6 +762,30 @@
 .technique-eye-btn.technique-eye-btn-off {
     opacity: 0.35;
     cursor: not-allowed;
+}
+
+.technique-seed-flag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 8px;
+    border: 1px solid var(--secondary-text-color);
+    color: var(--secondary-text-color);
+    white-space: nowrap;
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 0.14s ease;
+}
+
+.technique-seed-flag:hover {
+    background: var(--input-background);
+}
+
+/* Seeded = normal/positive state, takes the theme accent color; unseeded stays a neutral
+   gray above — it's an expected mode, not a warning. */
+.technique-seed-flag-seeded {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
 }
 
 .technique-seed-flag.technique-flag-off {
