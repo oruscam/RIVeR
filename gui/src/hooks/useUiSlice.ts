@@ -132,6 +132,10 @@ export const useUiSlice = () => {
     }, 4000);
   };
 
+  const onClearToast = () => {
+    dispatch(clearToast());
+  };
+
   /**
    * Method to overwrite the persistent loading message on the UI slice
    * (e.g. switching the loader header from "Extracting frames" to
@@ -267,6 +271,7 @@ export const useUiSlice = () => {
     onClearStepAlert,
     onClearAllStepAlerts,
     onShowToast,
+    onClearToast,
     onSetMessage,
     onSetSeeAll,
     onSetScreen,
