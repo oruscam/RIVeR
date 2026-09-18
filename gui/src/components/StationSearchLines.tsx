@@ -5,6 +5,7 @@ import {
   computeStationSearchLines,
   computeSearchLinesFromCenters,
   getStiColorScale,
+  isLowConfidence,
   isStationTuned,
 } from '../helpers';
 import { getSearchLineVisual } from './Graphs/searchLineState';
@@ -17,12 +18,6 @@ interface StationSearchLinesProps {
   factor: number;
   layers: OverlayLayers;
 }
-
-/** Mirrors Carousel.tsx's lowConfidence check exactly: a dry-bank station has
- *  v = 0 and sigma at its floor, which would otherwise satisfy sigma > |v|
- *  while meaning nothing. */
-const isLowConfidence = (v: number | null | undefined, sigma: number | null | undefined): boolean =>
-  v !== null && v !== undefined && v !== 0 && sigma !== null && sigma !== undefined && sigma > Math.abs(v);
 
 /**
  * Draws the line along which each station's STI will be sampled, previewing the
