@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useDataSlice } from '../hooks';
 import { drawMask, drawMaskLabel } from './Graphs/drawMask';
 import { getOverlayColors } from '../helpers/getCSSVar';
+import { popLastMaskPoint } from '../helpers/maskPoints';
 import type { OverlayLayers } from './OverlaySvg';
 
 export const DrawMask = ({
@@ -13,6 +14,7 @@ export const DrawMask = ({
   imageWidth,
   imageHeight,
   onLivePoints,
+  registerActions,
 }: {
   factor: number;
   layers: OverlayLayers;
@@ -22,6 +24,9 @@ export const DrawMask = ({
   imageHeight: number;
   /** Called with current image-space points on every live update (including during drag) */
   onLivePoints?: (points: { x: number; y: number }[]) => void;
+  /** Called on every render with the current undo action, so the parent's
+   *  toolbar always invokes it against up-to-date `points`/`activeMaskIndex`. */
+  registerActions?: (actions: { undoLastPoint: () => void }) => void;
 }) => {
   const { processing, onUpdateMaskPoints } = useDataSlice();
   const { masks, activeMaskIndex, visibleMaskIndices } = processing;
@@ -200,6 +205,12 @@ export const DrawMask = ({
   useEffect(() => {
     onLivePoints?.(points.map((p) => ({ x: p.x, y: p.y })));
   }, [points, onLivePoints]);
+
+  useEffect(() => {
+    registerActions?.({
+      undoLastPoint: () => setPoints((pts) => popLastMaskPoint(pts)),
+    });
+  }, [registerActions]);
 
   const addPoint = (index: number, xImg: number, yImg: number) => {
     const newPoints = [...points];
