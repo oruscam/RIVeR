@@ -2,6 +2,7 @@ import { useFormContext } from 'react-hook-form';
 import { useAutoShrinkFont, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { DropHereText, HardModeCrossSections } from './Components/index';
 import { Bathimetry } from '../Graphs';
+import { FieldError } from '../index';
 import { useTranslation } from 'react-i18next';
 import { UNITS, UNIT_CONVERSIONS } from '../../constants/constants';
 import { formatNumberTo2Decimals } from '../../helpers';
@@ -15,7 +16,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   const { register, setValue } = useFormContext();
   const { sections, activeSection, onUpdateSection, onGetBathimetry, transformationMatrix } = useSectionSlice();
   const { drawLine, bathimetry, extraFields, pixelSize } = sections[index];
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetFieldError, onClearFieldError, onAddStepAlert, onClearStepAlert } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
   const { cameraSolution, zLimits: controlPointsZLimits } = useIpcamSlice();
 
@@ -51,25 +52,25 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       if (valueInMeters === bathimetry.level) return;
 
       if (yMax !== undefined && yMin !== undefined && valueInMeters <= yMax && valueInMeters > yMin) {
+        onClearFieldError('Level');
         onUpdateSection({ level: valueInMeters }, cameraSolution?.cameraMatrix);
         document.getElementById(nextFieldId)?.focus();
       } else {
         setValue(`${name}_LEVEL`, formatNumberTo2Decimals(toDisplay(bathimetry.level)));
-        onSetErrorMessage({
-          Level: {
-            type: 'error',
-            message: t('CrossSections.Errors.levelError', {
-              yMin: yMin !== undefined ? (toDisplay(yMin) as number).toFixed(2) : undefined,
-              yMax: yMax !== undefined ? (toDisplay(yMax) as number).toFixed(2) : undefined,
-            }),
-          },
-        });
+        onSetFieldError(
+          'Level',
+          t('CrossSections.Errors.levelError', {
+            yMin: yMin !== undefined ? (toDisplay(yMin) as number).toFixed(2) : undefined,
+            yMax: yMax !== undefined ? (toDisplay(yMax) as number).toFixed(2) : undefined,
+          })
+        );
       }
     }
   };
 
   const handleImportBath = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
+    onClearStepAlert('bathymetry-import-error');
 
     // When clicking the button, if there is already a bathimetry, clear it
     if (bathimetry.path !== undefined) {
@@ -90,19 +91,14 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             const message = 'CrossSections.Errors.' + error.message;
             const displayLevel =
               error?.value !== undefined ? (toDisplay(error.value) as number).toFixed(2) : error?.value;
-            onSetErrorMessage({
-              Bathimetry: {
-                type: 'error',
-                message: t(message, { level: displayLevel }),
-              },
-            });
+            onAddStepAlert('bathymetry-import-error', 'error', t(message, { level: displayLevel }));
           }
         })
         // Second error is when the bathimetry format is incorrect
-        .catch((error) => onSetErrorMessage(error.message));
+        .catch((error) => onAddStepAlert('bathymetry-import-error', 'error', error.message));
     } else {
       onGetBathimetry({ unitSistem: projectDetails.unitSistem }).catch((error) =>
-        onSetErrorMessage(error.message)
+        onAddStepAlert('bathymetry-import-error', 'error', error.message)
       ); // Incorrect format
     }
   };
@@ -120,15 +116,11 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
         (x1Intersection ?? 0) + valueInMeters >= (xMin ?? 0) &&
         (x1Intersection ?? 0) + valueInMeters <= (xMax ?? 0)
       ) {
+        onClearFieldError('LeftBank');
         document.getElementById('wizard-next')?.focus();
         onUpdateSection({ leftBank: valueInMeters }, undefined);
       } else {
-        onSetErrorMessage({
-          LeftBank: {
-            type: 'Error',
-            message: t('CrossSections.Errors.leftBank'),
-          },
-        });
+        onSetFieldError('LeftBank', t('CrossSections.Errors.leftBank'));
         setValue(`${name}_LEFT_BANK`, leftBank === undefined ? leftBank : toDisplay(leftBank));
       }
     }
@@ -255,6 +247,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
             </span>
           </div>
+          <FieldError name="Level" />
         </div>
 
         <div className="input-container-2 mb-1">
@@ -303,6 +296,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
             </span>
           </div>
+          <FieldError name="LeftBank" />
         </div>
 
         <HardModeCrossSections extraFields={extraFields} name={name} />
