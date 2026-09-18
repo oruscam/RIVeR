@@ -20,7 +20,16 @@ import { getGlobalMagnitudes } from '../helpers/drawArrows';
  * structurally impossible for the bar and the glyphs to disagree in the
  * unlocked state — there is only one computation to read.
  */
-export const useVelocityColorRange = (): { min: number; max: number } => {
+/**
+ * True once at least one section has at least one resolved (non-null)
+ * velocity. Exported and pure so it's unit-testable in isolation — unlike
+ * min/max (via getGlobalMagnitudes), a station's real value can legitimately
+ * be 0, so "min === 0 && max === 0" can't be used to mean "no data yet".
+ */
+export const hasResolvedData = (resolvedPerSection: ((number | null)[] | null)[]): boolean =>
+  resolvedPerSection.some((arr) => arr !== null && arr.some((v) => v !== null));
+
+export const useVelocityColorRange = (): { min: number; max: number; hasData: boolean } => {
   const { sections } = useSectionSlice();
   const { colorbarLimits } = useDataSlice();
   const { video } = useProjectSlice();
@@ -48,10 +57,12 @@ export const useVelocityColorRange = (): { min: number; max: number } => {
     return getGlobalMagnitudes(resolvedPerSection);
   }, [resolvedPerSection]);
 
+  const hasData = useMemo(() => hasResolvedData(resolvedPerSection), [resolvedPerSection]);
+
   return useMemo(() => {
     if (colorbarLimits.default === false) {
-      return { min: colorbarLimits.min as number, max: colorbarLimits.max as number };
+      return { min: colorbarLimits.min as number, max: colorbarLimits.max as number, hasData };
     }
-    return { min: dataMin, max: dataMax };
-  }, [colorbarLimits.default, colorbarLimits.min, colorbarLimits.max, dataMin, dataMax]);
+    return { min: dataMin, max: dataMax, hasData };
+  }, [colorbarLimits.default, colorbarLimits.min, colorbarLimits.max, dataMin, dataMax, hasData]);
 };
