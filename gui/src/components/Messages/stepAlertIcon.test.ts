@@ -1,6 +1,4 @@
-jest.mock('../../hooks/useUiSlice', () => ({ useUiSlice: () => ({ stepAlerts: [] }) }));
-
-import { stepAlertClassName } from './StepAlert';
+import { stepAlertClassName } from './stepAlertClassName';
 
 describe('stepAlertClassName', () => {
   it.each([

@@ -1,11 +1,4 @@
-// Mock useUiSlice before importing ModeHint to handle import.meta.env in node test environment
-jest.mock('../../hooks/useUiSlice', () => ({
-  useUiSlice: () => ({
-    modeHint: null,
-  }),
-}));
-
-import { buildModeHintAriaLabel } from './ModeHint';
+import { buildModeHintAriaLabel } from './modeHintText';
 
 describe('buildModeHintAriaLabel', () => {
   it('returns the text alone when there is no meta', () => {

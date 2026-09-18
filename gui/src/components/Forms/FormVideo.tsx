@@ -36,6 +36,7 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
 
   useEffect(() => {
     onClearFieldError('step');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchStep]);
 
   const validationRules = getValidationRules(t, getValues, duration);
