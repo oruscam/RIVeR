@@ -217,6 +217,9 @@ export const AllInOne = ({
         xScaleAllInOne: xScale,
         isReport,
         unitSistem,
+        hoveredStation,
+        stationDistances: shiftedDistance,
+        stationStage: shiftedDistance.map((_, i) => (level ?? 0) - data.depth[i]),
       });
 
       // ---- Unified hover: one overlay spanning all three panels, one combined tooltip
