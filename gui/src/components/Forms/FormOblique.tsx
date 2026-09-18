@@ -25,7 +25,7 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
   } = useObliqueSlice();
   const { isBackendWorking } = useGlobalSlice();
 
-  const { onSetErrorMessage } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert } = useUiSlice();
 
   const { projectDetails } = useProjectSlice();
 
@@ -39,7 +39,8 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
   const validationRules = getValidationRules(t, getValues, 0);
 
   const handleOnClickImportDistances = () => {
-    onGetDistances().catch((error) => onSetErrorMessage(error.message));
+    onClearStepAlert('oblique-import-distances');
+    onGetDistances().catch((error) => onAddStepAlert('oblique-import-distances', 'error', error.message));
   };
 
   const handleInputBehavior = (
