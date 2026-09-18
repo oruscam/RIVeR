@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import type { RefObject } from 'react';
+import { getOverlayColors } from '../../helpers/getCSSVar';
 
 /**
  * Floating badge label above a mask (or any point), same visual style as the
@@ -29,7 +30,7 @@ export const drawMaskLabel = (
       .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central')
       .attr('font-weight', 600)
-      .attr('fill', '#ED6B57');
+      .attr('fill', '#fff');
   }
 
   const textEl = label
@@ -102,6 +103,8 @@ export const drawMask = (
 
   const t = svg.transition().duration(0).ease(d3.easeQuadOut);
 
+  const overlay = getOverlayColors();
+
   if (isFirstRender) {
     const defs = svg.append('defs');
     const pattern = defs
@@ -111,7 +114,7 @@ export const drawMask = (
       .attr('width', 10)
       .attr('height', 10);
 
-    pattern.append('path').attr('d', 'M0 10 L10 0').attr('stroke', '#ED6B57').attr('stroke-width', 1);
+    pattern.append('path').attr('d', 'M0 10 L10 0').attr('stroke', overlay.line).attr('stroke-width', 1);
   }
 
   const transformedPoints = points.map((p) => transformToViewport(p.x, p.y));
@@ -123,6 +126,19 @@ export const drawMask = (
     // far from the actual polygon, leaving the label floating away from it.
     const topPoint = transformedPoints.reduce((top, p) => (p.y < top.y ? p : top));
     drawMaskLabel(svg, 'active', label, topPoint.x, topPoint.y - size(14), size, bounds);
+  }
+
+  let dimFill = svg.select<SVGPolygonElement>('polygon.mask-dim');
+  if (dimFill.empty()) {
+    dimFill = svg
+      .insert('polygon', 'polygon.mask-polygon')
+      .attr('class', 'mask-dim')
+      .attr('fill', overlay.dim)
+      .attr('stroke', 'none')
+      .attr('points', polygonPoints)
+      .style('pointer-events', 'none');
+  } else {
+    dimFill.transition(t as any).attr('points', polygonPoints);
   }
 
   let polygon = svg.select<SVGPolygonElement>('polygon.mask-polygon');
@@ -164,7 +180,7 @@ export const drawMask = (
     .enter()
     .append('line')
     .attr('class', 'edge-line')
-    .attr('stroke', '#ED6B57')
+    .attr('stroke', overlay.line)
     .attr('stroke-width', 2)
     .style('vector-effect', 'non-scaling-stroke')
     .attr('stroke-dasharray', '6 4')
@@ -190,7 +206,7 @@ export const drawMask = (
     .append('circle')
     .attr('class', 'plus-circle')
     .attr('r', size(10))
-    .attr('fill', '#ED6B57')
+    .attr('fill', overlay.line)
     .style('pointer-events', 'none')
     .attr('cx', (d) => d.mx)
     .attr('cy', (d) => d.my)
@@ -269,34 +285,55 @@ export const drawMask = (
 
   plusRects.exit().remove();
 
-  // Draggable control points (constantes en px)
-  const circles = svg.selectAll<SVGCircleElement, any>('circle.point').data(points, (d: any) => d.id);
+  // Draggable control points — square handles, matching the audit's mask spec
+  // (round handles stay pin/vertex-only elsewhere; masks are the one overlay
+  // whose handles are explicitly square).
+  const squareSide = (r: number) => 2 * r;
+  const points_ = svg.selectAll<SVGRectElement, any>('rect.point').data(points, (d: any) => d.id);
 
-  const circlesEnter = circles
+  const pointsEnter = points_
     .enter()
-    .append('circle')
+    .append('rect')
     .attr('class', 'point')
-    .attr('r', size(8))
-    .attr('fill', '#ED6B57')
+    .attr('width', squareSide(size(8)))
+    .attr('height', squareSide(size(8)))
+    .attr('fill', overlay.line)
+    .attr('stroke', 'rgba(0, 0, 0, 0.75)')
+    .attr('stroke-width', 1.5)
     .style('cursor', 'pointer')
     .style('pointer-events', 'auto')
-    .attr('cx', (d) => transformToViewport(d.x, d.y).x)
-    .attr('cy', (d) => transformToViewport(d.x, d.y).y);
+    .attr('x', (d) => transformToViewport(d.x, d.y).x - squareSide(size(8)) / 2)
+    .attr('y', (d) => transformToViewport(d.x, d.y).y - squareSide(size(8)) / 2);
 
-  circlesEnter
-    .merge(circles as any)
+  pointsEnter
+    .merge(points_ as any)
     .transition(t as any)
-    .attr('r', size(7))
-    .attr('cx', (d) => transformToViewport(d.x, d.y).x)
-    .attr('cy', (d) => transformToViewport(d.x, d.y).y);
+    .attr('width', squareSide(size(7)))
+    .attr('height', squareSide(size(7)))
+    .attr('x', (d) => transformToViewport(d.x, d.y).x - squareSide(size(7)) / 2)
+    .attr('y', (d) => transformToViewport(d.x, d.y).y - squareSide(size(7)) / 2);
 
   svg
-    .selectAll<SVGCircleElement, any>('circle.point')
-    .on('mouseover', function () {
-      d3.select(this).transition().duration(150).attr('r', size(11));
+    .selectAll<SVGRectElement, any>('rect.point')
+    .on('mouseover', function (_event, d: any) {
+      const half = squareSide(size(11)) / 2;
+      d3.select(this)
+        .transition()
+        .duration(150)
+        .attr('width', squareSide(size(11)))
+        .attr('height', squareSide(size(11)))
+        .attr('x', transformToViewport(d.x, d.y).x - half)
+        .attr('y', transformToViewport(d.x, d.y).y - half);
     })
-    .on('mouseout', function () {
-      d3.select(this).transition().duration(150).attr('r', size(8));
+    .on('mouseout', function (_event, d: any) {
+      const half = squareSide(size(8)) / 2;
+      d3.select(this)
+        .transition()
+        .duration(150)
+        .attr('width', squareSide(size(8)))
+        .attr('height', squareSide(size(8)))
+        .attr('x', transformToViewport(d.x, d.y).x - half)
+        .attr('y', transformToViewport(d.x, d.y).y - half);
     })
     .on('mousedown', function (event, d: any) {
       event.stopPropagation();
@@ -304,7 +341,7 @@ export const drawMask = (
       setDragging(d.id);
     });
 
-  circles.exit().remove();
+  points_.exit().remove();
 
-  svg.selectAll('circle.point').raise();
+  svg.selectAll('rect.point').raise();
 };
