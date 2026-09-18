@@ -23,6 +23,8 @@ import {
   setIsLastVersion,
   setMessage,
   setHoveredStation,
+  setPinnedStation,
+  toggleStationPin,
   setShowInterrogationWindow,
 } from '../store/ui/uiSlice';
 import { ThemeType } from '../store/ui/types';
@@ -48,6 +50,7 @@ export const useUiSlice = () => {
     isLatestVersion,
     latestVersion,
     hoveredStation,
+    pinnedStation,
     showInterrogationWindow,
   } = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
@@ -212,6 +215,20 @@ export const useUiSlice = () => {
   };
 
   /**
+   * Pins the station tag to a station so it survives the pointer moving
+   * away — clicking an already-pinned station unpins it. Triggered from the
+   * canvas chevrons, the chart hover overlay, and a Grid row (StationTag.tsx).
+   */
+  const onPinStation = (index: number) => {
+    dispatch(toggleStationPin(index));
+  };
+
+  /** Explicit unpin, used by the station tag's own pin button. */
+  const onUnpinStation = () => {
+    dispatch(setPinnedStation(null));
+  };
+
+  /**
    * Method to toggle the interrogation-window size preview on the Processing
    * image. Off by default (see uiSlice initial state).
    */
@@ -257,6 +274,7 @@ export const useUiSlice = () => {
     isLatestVersion,
     latestVersion,
     hoveredStation,
+    pinnedStation,
     showInterrogationWindow,
 
     // METHODS
@@ -278,6 +296,8 @@ export const useUiSlice = () => {
     onSetLanguage,
     onCheckVersion,
     onSetHoveredStation,
+    onPinStation,
+    onUnpinStation,
     onSetShowInterrogationWindow,
   };
 };

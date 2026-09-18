@@ -22,6 +22,7 @@ const initialState: UIState = {
   language: savedLanguage,
   isLatestVersion: undefined,
   hoveredStation: null,
+  pinnedStation: null,
   showInterrogationWindow: false,
 };
 
@@ -99,6 +100,12 @@ const uiSlice = createSlice({
     setHoveredStation: (state, action: PayloadAction<number | null>) => {
       state.hoveredStation = action.payload;
     },
+    setPinnedStation: (state, action: PayloadAction<number | null>) => {
+      state.pinnedStation = action.payload;
+    },
+    toggleStationPin: (state, action: PayloadAction<number>) => {
+      state.pinnedStation = state.pinnedStation === action.payload ? null : action.payload;
+    },
     setShowInterrogationWindow: (state, action: PayloadAction<boolean>) => {
       state.showInterrogationWindow = action.payload;
     },
@@ -126,6 +133,8 @@ export const {
   setLanguage,
   setIsLastVersion,
   setHoveredStation,
+  setPinnedStation,
+  toggleStationPin,
   setShowInterrogationWindow,
 } = uiSlice.actions;
 

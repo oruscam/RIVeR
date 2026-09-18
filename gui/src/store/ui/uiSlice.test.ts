@@ -9,6 +9,8 @@ import reducer, {
   clearAllStepAlerts,
   showToast,
   clearToast,
+  setPinnedStation,
+  toggleStationPin,
 } from './uiSlice';
 import { UIState } from './types';
 
@@ -24,6 +26,7 @@ const baseState = (overrides: Partial<UIState> = {}): UIState =>
     seeAll: true,
     language: 'en',
     hoveredStation: null,
+    pinnedStation: null,
     showInterrogationWindow: false,
     ...overrides,
   }) as UIState;
@@ -106,5 +109,27 @@ describe('toast', () => {
   it('clears to null', () => {
     const withOne = baseState({ toast: { text: 'first' } });
     expect(reducer(withOne, clearToast()).toast).toBeNull();
+  });
+});
+
+describe('pinnedStation', () => {
+  it('pins a station from null', () => {
+    const state = reducer(baseState(), toggleStationPin(3));
+    expect(state.pinnedStation).toBe(3);
+  });
+
+  it('unpins when the same station is toggled again', () => {
+    const pinned = baseState({ pinnedStation: 3 });
+    expect(reducer(pinned, toggleStationPin(3)).pinnedStation).toBeNull();
+  });
+
+  it('switches the pin to a different station', () => {
+    const pinned = baseState({ pinnedStation: 3 });
+    expect(reducer(pinned, toggleStationPin(7)).pinnedStation).toBe(7);
+  });
+
+  it('setPinnedStation(null) always clears, regardless of toggle parity', () => {
+    const pinned = baseState({ pinnedStation: 3 });
+    expect(reducer(pinned, setPinnedStation(null)).pinnedStation).toBeNull();
   });
 });
