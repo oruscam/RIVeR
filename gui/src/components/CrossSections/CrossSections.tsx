@@ -47,7 +47,7 @@ type CrossSectionsProps = {
 
 export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSectionsProps) => {
   const { sections, activeSection, onSetSections, isDraggingPoint } = useSectionSlice(); // Wrap the sections variable inside an array
-  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
+  const { onSetErrorMessage, onSetModeHint, onClearModeHint } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
 
   const methods = useForm({ defaultValues: createInitialState(sections, projectDetails.unitSistem) });
@@ -108,26 +108,26 @@ export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSect
   // drag is in progress (isDraggingPoint is true then too).
   useEffect(() => {
     if (activeSectionData.drawLine) {
-      onSetWarningMessage(
+      onSetModeHint(
         t('CrossSections.drawingSectionWarning', {
           defaultValue: 'Drawing section {{name}}',
           name: activeSectionData.name,
         })
       );
-      return () => onClearWarningMessage();
+      return () => onClearModeHint();
     }
 
     if (isDraggingPoint) {
-      onSetWarningMessage(
+      onSetModeHint(
         t('CrossSections.modifyingSectionWarning', {
           defaultValue: 'Modifying section {{name}}',
           name: activeSectionData.name,
         })
       );
-      return () => onClearWarningMessage();
+      return () => onClearModeHint();
     }
 
-    onClearWarningMessage();
+    onClearModeHint();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSectionData.drawLine, activeSectionData.name, isDraggingPoint]);
 

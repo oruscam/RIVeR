@@ -20,7 +20,7 @@ export const Ipcam = () => {
     onGetPoints,
     onGetImages,
   } = useIpcamSlice();
-  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
+  const { onSetErrorMessage, onSetModeHint, onClearModeHint } = useUiSlice();
   const { t } = useTranslation();
   const { nextStep } = useWizard();
 
@@ -33,11 +33,11 @@ export const Ipcam = () => {
   // Persistent yellow "moving CP#" status while a control point is being dragged on the canvas.
   useEffect(() => {
     if (!isDraggingPoint || activePoint === null || points === null) {
-      onClearWarningMessage();
+      onClearModeHint();
       return;
     }
 
-    onSetWarningMessage(
+    onSetModeHint(
       t('ControlPoints3d.movingPointWarning', {
         defaultValue: 'Moving {{label}}',
         label: points[activePoint]?.label,
@@ -45,7 +45,7 @@ export const Ipcam = () => {
     );
 
     return () => {
-      onClearWarningMessage();
+      onClearModeHint();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isDraggingPoint, activePoint, points]);

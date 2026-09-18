@@ -83,7 +83,7 @@ export const Uav = () => {
   const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size, unitSistem) });
 
   const { nextStep } = useWizard();
-  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
+  const { onSetErrorMessage, onSetModeHint, onClearModeHint } = useUiSlice();
 
   const onSubmit = () => {
     console.log(rwPoints);
@@ -114,16 +114,16 @@ export const Uav = () => {
   // the initial draw's own drag is in progress (isDraggingPoint is true then too).
   useEffect(() => {
     if (drawLine) {
-      onSetWarningMessage(t('PixelSize.drawingLineWarning', { defaultValue: 'Drawing line' }));
-      return () => onClearWarningMessage();
+      onSetModeHint(t('PixelSize.drawingLineWarning', { defaultValue: 'Drawing line' }));
+      return () => onClearModeHint();
     }
 
     if (isDraggingPoint) {
-      onSetWarningMessage(t('PixelSize.modifyingLineWarning', { defaultValue: 'Modifying line' }));
-      return () => onClearWarningMessage();
+      onSetModeHint(t('PixelSize.modifyingLineWarning', { defaultValue: 'Modifying line' }));
+      return () => onClearModeHint();
     }
 
-    onClearWarningMessage();
+    onClearModeHint();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawLine, isDraggingPoint]);
 
