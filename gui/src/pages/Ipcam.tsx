@@ -20,7 +20,7 @@ export const Ipcam = () => {
     onGetPoints,
     onGetImages,
   } = useIpcamSlice();
-  const { onSetErrorMessage, onSetModeHint, onClearModeHint } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert, onSetModeHint, onClearModeHint } = useUiSlice();
   const { t } = useTranslation();
   const { nextStep } = useWizard();
 
@@ -61,12 +61,14 @@ export const Ipcam = () => {
       const path = window.webUtils.getPathForFile(file);
 
       if (!file.type) {
+        onClearStepAlert('ipcam-import-images');
         onGetImages(path).catch((error) => {
-          onSetErrorMessage(error.message);
+          onAddStepAlert('ipcam-import-images', 'error', error.message);
         });
       } else {
+        onClearStepAlert('ipcam-import-points');
         onGetPoints(path).catch((error) => {
-          onSetErrorMessage(error.message);
+          onAddStepAlert('ipcam-import-points', 'error', error.message);
         });
       }
     }
