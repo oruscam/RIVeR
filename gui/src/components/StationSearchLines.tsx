@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { useDataSlice, useSectionSlice, useUiSlice } from '../hooks';
 import {
@@ -10,7 +10,7 @@ import {
 import { getSearchLineVisual } from './Graphs/searchLineState';
 import { transformPixelToRealWorld } from '../../commons/coordinates';
 import { STIV_DEFAULT_HEIGHT_ROI_M } from '../constants/constants';
-import { getCSSVar } from '../helpers/getCSSVar';
+import { getCSSVar, getOverlayColors } from '../helpers/getCSSVar';
 import { OverlayLayers } from './OverlaySvg';
 
 interface StationSearchLinesProps {
@@ -40,6 +40,14 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
   const { hoveredStation, onSetHoveredStation } = useUiSlice();
   const { stationLayerRef } = layers;
 
+  // Keep the dispatcher fresh without putting it in the main effect's deps —
+  // its identity changes every render (useUiSlice doesn't memoize it), which
+  // would otherwise tear down and rebuild the whole overlay on every render.
+  const onSetHoveredStationRef = useRef(onSetHoveredStation);
+  useEffect(() => {
+    onSetHoveredStationRef.current = onSetHoveredStation;
+  });
+
   const section = sections[activeSection];
   const numStations = section?.numStations;
   const sectionPoints = section?.sectionPoints;
@@ -55,16 +63,8 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
     if (!sectionPoints || sectionPoints.length < 2) return;
     if (transformationMatrix.length !== 3) return;
 
-    const [sx, sy] = transformPixelToRealWorld(
-      sectionPoints[0].x,
-      sectionPoints[0].y,
-      transformationMatrix
-    );
-    const [ex, ey] = transformPixelToRealWorld(
-      sectionPoints[1].x,
-      sectionPoints[1].y,
-      transformationMatrix
-    );
+    const [sx, sy] = transformPixelToRealWorld(sectionPoints[0].x, sectionPoints[0].y, transformationMatrix);
+    const [ex, ey] = transformPixelToRealWorld(sectionPoints[1].x, sectionPoints[1].y, transformationMatrix);
 
     // ROI Height is 0 until the recommendation step runs; the backend omits the flag
     // in that case and the CLI applies its own default, so mirror that here.
@@ -89,17 +89,11 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
           lengthM,
           transformationMatrix
         )
-      : computeStationSearchLines(
-          { x: sx, y: sy },
-          { x: ex, y: ey },
-          numStations,
-          lengthM,
-          transformationMatrix
-        );
+      : computeStationSearchLines({ x: sx, y: sy }, { x: ex, y: ey }, numStations, lengthM, transformationMatrix);
     if (lines.length === 0) return;
 
     const visualColors = {
-      preview: getCSSVar('--overlay-line', '#FFFFFF'),
+      preview: getOverlayColors().line,
       accent: getCSSVar('--accent-color', '#0678BE'),
       muted: getCSSVar('--pin-muted', '#808080'),
       warning: getCSSVar('--status-fair', '#F5BF61'),
@@ -109,6 +103,11 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
     const stivProfile = data?.stiv_velocity_profile;
     const stivSigma = data?.stiv_sigma_profile;
     const manualAngles = data?.stiv_angle_manual_profile;
+    // Generic cross-section fields (num_stations/east/north) are populated by ANY
+    // completed analysis, not specifically STIV — stiv_velocity_profile is a separate,
+    // optional field. Without this guard, an LSPIV-only project would render every
+    // search line in the "no data" error state instead of the plain accent colour.
+    const hasStivRun = hasAuthoritativeCenters && Array.isArray(stivProfile);
     const { colors: stivColors } = hasAuthoritativeCenters
       ? getStiColorScale(stivProfile, colorbarLimits)
       : { colors: [] as string[] };
@@ -117,11 +116,13 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
       const stationIndex = line.station - 1; // display number is 1-based; array index is 0-based
       const rawColor = stivColors[stationIndex];
       return getSearchLineVisual({
-        hasRun: hasAuthoritativeCenters,
+        hasRun: hasStivRun,
         velocityColor: rawColor && rawColor !== 'transparent' ? rawColor : null,
         isHovered: hoveredStation === stationIndex,
-        tuned: hasAuthoritativeCenters ? isStationTuned(manualAngles, stationIndex) : false,
-        lowConfidence: hasAuthoritativeCenters ? isLowConfidence(stivProfile?.[stationIndex], stivSigma?.[stationIndex]) : false,
+        tuned: hasStivRun ? isStationTuned(manualAngles, stationIndex) : false,
+        lowConfidence: hasStivRun
+          ? isLowConfidence(stivProfile?.[stationIndex], stivSigma?.[stationIndex])
+          : false,
         colors: visualColors,
       });
     });
@@ -227,8 +228,8 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
       .attr('stroke', 'transparent')
       .attr('stroke-width', 14)
       .style('cursor', 'pointer')
-      .on('mouseenter', (_event, d) => onSetHoveredStation(d.station - 1))
-      .on('mouseleave', () => onSetHoveredStation(null));
+      .on('mouseenter', (_event, d) => onSetHoveredStationRef.current(d.station - 1))
+      .on('mouseleave', () => onSetHoveredStationRef.current(null));
   }, [
     numStations,
     sectionPoints,
@@ -239,7 +240,6 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
     stationLayerRef,
     colorbarLimits,
     hoveredStation,
-    onSetHoveredStation,
   ]);
 
   return null;

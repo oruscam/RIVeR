@@ -2,7 +2,6 @@ import { useRef, useState, useCallback, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StabilizationRegion } from '../../store/project/types';
 import { ConfirmMaskBtn } from '../CustomIcons/ConfirmMaskBtn';
-import { getCSSVar } from '../../helpers/getCSSVar';
 
 const INACTIVE_COLOR = 'var(--pin-muted)';
 const HANDLE_RADIUS = 7;
@@ -68,7 +67,15 @@ const RegionBadge = ({
 }) => (
   <g style={{ pointerEvents: 'none' }}>
     <circle cx={x} cy={y} r={size(11)} fill="rgba(0, 0, 0, 0.6)" stroke={color} strokeWidth={size(1.5)} />
-    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={size(11)} fontWeight={700} fill="#fff">
+    <text
+      x={x}
+      y={y}
+      textAnchor="middle"
+      dominantBaseline="central"
+      fontSize={size(11)}
+      fontWeight={700}
+      fill="#fff"
+    >
       {n}
     </text>
   </g>
@@ -186,7 +193,7 @@ export const StabilizationCanvas = ({
   const [hoveredHandle, setHoveredHandle] = useState<Handle | null>(null);
   const { t } = useTranslation();
 
-  const accentColor = getCSSVar('--accent-color', '#0678BE');
+  const accentColor = 'var(--accent-color)';
 
   const svgCoords = useCallback(
     (clientX: number, clientY: number): { x: number; y: number } => {
