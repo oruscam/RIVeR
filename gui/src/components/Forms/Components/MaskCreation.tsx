@@ -8,23 +8,23 @@ import { EditMaskBtn } from '../../CustomIcons/EditMaskBtn';
 export const MaskCreation = () => {
   const { t } = useTranslation();
   const { processing, onToggleMaskVisibility, onDeleteMask, onUpdateActiveMask } = useDataSlice();
-  const { onSetWarningMessage, onClearWarningMessage } = useUiSlice();
+  const { onSetModeHint, onClearModeHint } = useUiSlice();
   const { masks, visibleMaskIndices, activeMaskIndex } = processing;
 
   // Persistent yellow "editing mask N" status while a mask is being edited,
   // same behavior as the stabilization regions' editing warning.
   useEffect(() => {
     if (activeMaskIndex === null) {
-      onClearWarningMessage();
+      onClearModeHint();
       return;
     }
 
-    onSetWarningMessage(
+    onSetModeHint(
       t('CrossSections.editingMaskWarning', { defaultValue: 'Editing mask {{n}}', n: activeMaskIndex + 1 })
     );
 
     return () => {
-      onClearWarningMessage();
+      onClearModeHint();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMaskIndex]);

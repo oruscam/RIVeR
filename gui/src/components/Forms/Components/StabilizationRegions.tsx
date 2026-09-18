@@ -15,35 +15,29 @@ export const StabilizationRegions = () => {
     onDeleteStabilizationRegion,
     onSetStabilizationActiveRegionIndex,
   } = useProjectSlice();
-  const { onSetInfoMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
+  const { onSetModeHint, onClearModeHint } = useUiSlice();
 
   const { stabilization, stabilizationRegions } = video.parameters;
 
-  // While a region is actively being placed/edited: briefly show the green
-  // "add 2 regions" hint, then hand off to a persistent yellow "editing
-  // regions" status until that region is confirmed (or editing is exited).
+  // While a region is actively being placed/edited: show a persistent mode hint
+  // with the live region count as meta. When editing is exited, clear the hint.
   useEffect(() => {
     if (!stabilization || stabilizationActiveRegionIndex === null) {
-      onClearWarningMessage();
+      onClearModeHint();
       return;
     }
 
-    onSetInfoMessage(
-      t('VideoRange.minRegionsWarning', { defaultValue: 'Add at least 2 regions for stabilization' })
+    onSetModeHint(
+      t('VideoRange.editingRegionsWarning', { defaultValue: 'Editing regions' }),
+      t('VideoRange.minRegionsCount', {
+        defaultValue: '{{count}} of 2 min.',
+        count: stabilizationRegions.length,
+      })
     );
 
-    const timer = setTimeout(() => {
-      onSetWarningMessage(
-        t('VideoRange.editingRegionsWarning', { defaultValue: 'Editing stabilization regions' })
-      );
-    }, 5000);
-
-    return () => {
-      clearTimeout(timer);
-      onClearWarningMessage();
-    };
+    return () => onClearModeHint();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stabilization, stabilizationActiveRegionIndex]);
+  }, [stabilization, stabilizationActiveRegionIndex, stabilizationRegions.length]);
 
   const handleToggle = (checked: boolean) => {
     onSetStabilization(checked);
