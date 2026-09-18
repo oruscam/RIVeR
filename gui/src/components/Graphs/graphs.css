@@ -159,63 +159,66 @@ svg .bar-stroke-themed {
     text-decoration: line-through;
 }
 
-.technique-seed-flag {
-    font-size: 11px;
+.technique-row-total {
+    font-size: 13px;
     font-weight: 600;
-    padding: 1px 6px;
-    border-radius: 8px;
-    border: 1px solid var(--secondary-text-color);
+    font-variant-numeric: tabular-nums;
     color: var(--secondary-text-color);
     white-space: nowrap;
-    background: transparent;
-    cursor: pointer;
-    transition: background-color 0.14s ease;
 }
 
-.technique-seed-flag:hover {
-    background: var(--input-background);
-}
-
-/* Seeded = normal/positive state, takes the theme accent color; unseeded stays a neutral
-   gray above — it's an expected mode, not a warning. */
-.technique-seed-flag-seeded {
-    border-color: var(--accent-color);
-    color: var(--accent-color);
-}
-
-.technique-band-glyphs {
-    display: flex;
-    gap: 2px;
-}
-
-.technique-band-glyph {
-    width: 26px;
-    height: 26px;
+.technique-disclosure-btn {
+    width: 22px;
+    height: 22px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
     border: none;
-    cursor: pointer;
     background: transparent;
     color: var(--secondary-text-color);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: transform 0.14s ease, color 0.14s ease, background-color 0.14s ease;
 }
 
-.technique-band-glyph:hover {
+.technique-disclosure-btn:hover {
     background: var(--input-background);
     color: var(--primary-text-color);
 }
 
-.technique-band-glyph-on {
-    background: var(--accent-color);
-    color: #fff;
+.technique-disclosure-btn-open {
+    transform: rotate(90deg);
+    color: var(--primary-text-color);
 }
 
-.technique-band-glyph-on:hover {
-    background: var(--accent-color);
-    opacity: 0.85;
+.technique-row-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 4px 8px 10px 34px;
+}
+
+.technique-row-body-toggle {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--secondary-text-color);
+    color: var(--secondary-text-color);
+    background: transparent;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease;
+}
+
+.technique-row-body-toggle:hover {
+    background: var(--input-background);
+}
+
+.technique-row-body-toggle-on {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
 }
 
 .technique-eye-btn {
