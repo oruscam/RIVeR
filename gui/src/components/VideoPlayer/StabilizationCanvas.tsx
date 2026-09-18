@@ -2,8 +2,9 @@ import { useRef, useState, useCallback, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StabilizationRegion } from '../../store/project/types';
 import { ConfirmMaskBtn } from '../CustomIcons/ConfirmMaskBtn';
+import { getCSSVar } from '../../helpers/getCSSVar';
 
-const MASK_COLOR = 'var(--d12)';
+const INACTIVE_COLOR = 'var(--pin-muted)';
 const HANDLE_RADIUS = 7;
 const HANDLE_HOVER_RADIUS = 11;
 const LABEL_OFFSET = 14;
@@ -51,12 +52,35 @@ function computeRegionConfirmBtnPos(
   };
 }
 
+/** Small circular number chip at a region's top-left corner. */
+const RegionBadge = ({
+  x,
+  y,
+  n,
+  color,
+  size,
+}: {
+  x: number;
+  y: number;
+  n: number;
+  color: string;
+  size: (px: number) => number;
+}) => (
+  <g style={{ pointerEvents: 'none' }}>
+    <circle cx={x} cy={y} r={size(11)} fill="rgba(0, 0, 0, 0.6)" stroke={color} strokeWidth={size(1.5)} />
+    <text x={x} y={y} textAnchor="middle" dominantBaseline="central" fontSize={size(11)} fontWeight={700} fill="#fff">
+      {n}
+    </text>
+  </g>
+);
+
 // Small floating badge above each region, same look as the pin labels
 // used elsewhere in the app (dark rounded chip, auto-sized to the text).
 const RegionLabel = ({
   x,
   y,
   text,
+  color,
   size,
   videoWidth,
   videoHeight,
@@ -64,6 +88,7 @@ const RegionLabel = ({
   x: number;
   y: number;
   text: string;
+  color: string;
   /** Converts a desired constant on-screen pixel size into viewBox units — same
    *  helper used for the corner handles, so the label matches the mask label size. */
   size: (px: number) => number;
@@ -119,7 +144,7 @@ const RegionLabel = ({
         dominantBaseline="central"
         fontSize={size(13)}
         fontWeight={600}
-        fill={MASK_COLOR}
+        fill={color}
       >
         {text}
       </text>
@@ -160,6 +185,8 @@ export const StabilizationCanvas = ({
   const [drag, setDrag] = useState<DragState | null>(null);
   const [hoveredHandle, setHoveredHandle] = useState<Handle | null>(null);
   const { t } = useTranslation();
+
+  const accentColor = getCSSVar('--accent-color', '#0678BE');
 
   const svgCoords = useCallback(
     (clientX: number, clientY: number): { x: number; y: number } => {
@@ -295,7 +322,7 @@ export const StabilizationCanvas = ({
                 width={width}
                 height={height}
                 fill="transparent"
-                stroke={MASK_COLOR}
+                stroke={isActive ? accentColor : INACTIVE_COLOR}
                 // Zoom here is a CSS `transform: scale()` on an ancestor div (see
                 // VideoPlayer.tsx), not an SVG-internal transform, so vector-effect:
                 // non-scaling-stroke (which only cancels the SVG's own coordinate
@@ -306,10 +333,13 @@ export const StabilizationCanvas = ({
                 onMouseDown={(e) => handleMouseDown(e, index, 'body')}
               />
 
+              <RegionBadge x={x} y={y} n={index + 1} color={isActive ? accentColor : INACTIVE_COLOR} size={size} />
+
               <RegionLabel
                 x={x + width / 2}
                 y={y - size(LABEL_OFFSET)}
                 text={`${t('VideoRange.stabilizationRegion', { defaultValue: 'Region' })} ${index + 1}`}
+                color={isActive ? accentColor : INACTIVE_COLOR}
                 size={size}
                 videoWidth={videoWidth}
                 videoHeight={videoHeight}
@@ -321,7 +351,7 @@ export const StabilizationCanvas = ({
                     cx={x}
                     cy={y}
                     r={size(hoveredHandle === 'tl' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
-                    fill={MASK_COLOR}
+                    fill={accentColor}
                     style={{ cursor: 'nw-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('tl')}
                     onMouseLeave={() => setHoveredHandle(null)}
@@ -331,7 +361,7 @@ export const StabilizationCanvas = ({
                     cx={x + width}
                     cy={y}
                     r={size(hoveredHandle === 'tr' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
-                    fill={MASK_COLOR}
+                    fill={accentColor}
                     style={{ cursor: 'ne-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('tr')}
                     onMouseLeave={() => setHoveredHandle(null)}
@@ -341,7 +371,7 @@ export const StabilizationCanvas = ({
                     cx={x}
                     cy={y + height}
                     r={size(hoveredHandle === 'bl' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
-                    fill={MASK_COLOR}
+                    fill={accentColor}
                     style={{ cursor: 'sw-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('bl')}
                     onMouseLeave={() => setHoveredHandle(null)}
@@ -351,7 +381,7 @@ export const StabilizationCanvas = ({
                     cx={x + width}
                     cy={y + height}
                     r={size(hoveredHandle === 'br' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
-                    fill={MASK_COLOR}
+                    fill={accentColor}
                     style={{ cursor: 'se-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('br')}
                     onMouseLeave={() => setHoveredHandle(null)}
@@ -377,7 +407,7 @@ export const StabilizationCanvas = ({
           }}
           onMouseDown={(e) => e.stopPropagation()}
         >
-          <ConfirmMaskBtn onClick={onConfirm} title="Confirm region" style={{ background: MASK_COLOR }} />
+          <ConfirmMaskBtn onClick={onConfirm} title="Confirm region" style={{ background: accentColor }} />
         </div>
       )}
     </>
