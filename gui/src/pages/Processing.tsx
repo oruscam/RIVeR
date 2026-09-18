@@ -14,7 +14,7 @@ import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwav
 export const Processing = () => {
   const { t } = useTranslation();
   const { nextStep } = useWizard();
-  const { onSetErrorMessage, onSetSeeAll } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert, onSetSeeAll } = useUiSlice();
   const { images, fullQuiver, isBackendWorking, onSetActiveImage, onLoadResultData } = useDataSlice();
   const [showMedian, setShowMedian] = useState(fullQuiver !== null);
   const [extraFields, setExtraFields] = useState(false);
@@ -125,6 +125,7 @@ export const Processing = () => {
 
   const handleNext = async () => {
     try {
+      onClearStepAlert('processing-load-results');
       // onLoadResultData re-reads xsections.json and replaces section.data
       // wholesale, so any angle write still sitting in the debounce window has
       // to land on disk first or it would be read back as if it never happened.
@@ -133,7 +134,7 @@ export const Processing = () => {
       onSetSeeAll(false);
       nextStep();
     } catch (error) {
-      onSetErrorMessage((error as Error).message);
+      onAddStepAlert('processing-load-results', 'error', (error as Error).message);
     }
   };
 

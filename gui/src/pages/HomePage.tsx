@@ -8,7 +8,7 @@ import './pages.css';
 import { Icons } from '../components/CustomIcons/Icons';
 import { useProjectSlice, useUiSlice } from '../hooks';
 import { useEffect, useState } from 'react';
-import { VersionMessage } from '../components';
+import { VersionMessage, StepAlertList } from '../components';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { CameraCalibration } from './CameraCalibration';
 
@@ -16,18 +16,21 @@ export const HomePage: React.FC = () => {
   const { t } = useTranslation();
   const { nextStep, goToStep } = useWizard();
   const { onLoadProject } = useProjectSlice();
-  const { onSetErrorMessage, error, onCheckVersion, isLatestVersion, theme } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert, onCheckVersion, isLatestVersion, theme } = useUiSlice();
   const [showCalibration, setShowCalibration] = useState(false);
 
   const handleNewProjectClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     if (event.currentTarget.id === 'new-project') {
       nextStep();
     } else {
+      onClearStepAlert('home-load-project');
       const result = await onLoadProject();
       if (typeof result === 'number') {
         goToStep(result);
       } else {
-        onSetErrorMessage(
+        onAddStepAlert(
+          'home-load-project',
+          'error',
           t('MainPage.Errors.' + result, {
             defaultValue: t('MainPage.Errors.default'),
           })
@@ -53,7 +56,7 @@ export const HomePage: React.FC = () => {
           {t('MainPage.loadProject')}
         </button>
       </div>
-      {error && <h4 className="home-page-error mb-1"> {error} </h4>}
+      <StepAlertList />
       <p id="version-number">{import.meta.env.VITE_APP_VERSION}</p>
       {isLatestVersion !== undefined && <VersionMessage />}
       <div className="row" style={{ position: 'absolute', bottom: '30px', right: '50px' }}>
