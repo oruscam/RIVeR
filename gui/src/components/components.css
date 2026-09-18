@@ -1256,3 +1256,47 @@
     border-radius: 0;
     clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
+
+.mask-toolbar {
+    position: absolute;
+    display: flex;
+    gap: 2px;
+    background: rgba(10, 12, 14, 0.86);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: var(--radius-full);
+    padding: 3px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    z-index: 10;
+}
+
+.mask-toolbar-btn {
+    border: 0;
+    background: transparent;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color var(--motion-fast) var(--motion-ease);
+}
+
+.mask-toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.mask-toolbar-btn:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+.mask-toolbar-btn-danger:hover {
+    color: var(--status-bad);
+}
+
+.mask-toolbar-btn-done {
+    color: var(--status-good);
+}

@@ -1,9 +1,9 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useDataSlice, useImageZoomPan, useProjectSlice, useUiSlice } from '../../hooks';
 import { OverlaySvg } from '../OverlaySvg';
 import { DrawSectionsD3 } from './DrawSectionsD3';
 import { DrawMask } from '../DrawMask';
-import { ConfirmMaskBtn } from '../CustomIcons/ConfirmMaskBtn';
+import { MaskToolbar } from '../MaskToolbar';
 
 const CONFIRM_BTN_MARGIN_PX = 32;
 const CONFIRM_BTN_HALF_SIZE = 20;
@@ -92,13 +92,18 @@ export const ImageCrossSections = ({ imageSrc }: ImageCrossSectionsProps) => {
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { firstFramePath } = useProjectSlice();
   const src = imageSrc ?? firstFramePath;
-  const { processing, onUpdateActiveMask } = useDataSlice();
+  const { processing, onUpdateActiveMask, onDeleteMask } = useDataSlice();
   const { masks, activeMaskIndex } = processing;
 
   // Live points streamed from DrawMask during drag — enables real-time button tracking
   const [livePoints, setLivePoints] = useState<{ x: number; y: number }[]>([]);
   const handleLivePoints = useCallback((pts: { x: number; y: number }[]) => {
     setLivePoints(pts);
+  }, []);
+
+  const actionsRef = useRef<{ undoLastPoint: () => void } | null>(null);
+  const registerActions = useCallback((actions: { undoLastPoint: () => void }) => {
+    actionsRef.current = actions;
   }, []);
 
   const {
@@ -170,6 +175,7 @@ export const ImageCrossSections = ({ imageSrc }: ImageCrossSectionsProps) => {
               imageWidth={imageWidth!}
               imageHeight={imageHeight!}
               onLivePoints={handleLivePoints}
+              registerActions={registerActions}
             />
 
             <DrawSectionsD3
@@ -186,20 +192,19 @@ export const ImageCrossSections = ({ imageSrc }: ImageCrossSectionsProps) => {
         )}
       </OverlaySvg>
 
-      {/* Floating confirm button — follows the active mask centroid */}
+      {/* Floating toolbar — follows the active mask centroid */}
       {confirmBtnPos && (
-        <div
+        <MaskToolbar
           style={{
-            position: 'absolute',
             left: confirmBtnPos.x,
             top: confirmBtnPos.y,
-            zIndex: 10,
             transform: 'translate(-50%, -50%)',
           }}
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          <ConfirmMaskBtn onClick={() => onUpdateActiveMask(activeMaskIndex!)} title="Confirm mask" />
-        </div>
+          canUndo={livePoints.length > 1}
+          onUndoPoint={() => actionsRef.current?.undoLastPoint()}
+          onDelete={() => onDeleteMask(activeMaskIndex!)}
+          onDone={() => onUpdateActiveMask(activeMaskIndex!)}
+        />
       )}
     </div>
   );
