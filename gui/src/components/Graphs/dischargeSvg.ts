@@ -115,6 +115,23 @@ export const createDischargeChart = ({
       return d.index === hoveredStation ? 1 : base * 0.35;
     });
 
+  // ---- Crosshair: this chart's own segment of the vertical guide line,
+  // drawn regardless of which of {chart, Grid, canvas} set hoveredStation.
+  // Own bounds (margin.top..graphHeight), not shared with the other two
+  // stacked charts — each of the three now draws exactly its own line. ----
+  if (hoveredStation !== null && hoveredStation >= 0 && hoveredStation < distance.length) {
+    svg
+      .append('line')
+      .attr('class', 'hover-guide-line')
+      .attr('x1', xScale(distance[hoveredStation]))
+      .attr('x2', xScale(distance[hoveredStation]))
+      .attr('y1', margin.top)
+      .attr('y2', graphHeight)
+      .attr('stroke', 'var(--accent-color)')
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', '3,3');
+  }
+
   // Label
   const dischargeLabel = svg
     .append('text')
