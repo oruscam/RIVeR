@@ -67,3 +67,31 @@
     color: var(--accent-color);
     text-decoration: underline;
 }
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: var(--space-5);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    background: var(--surface-raised);
+    color: var(--text-primary);
+    border-radius: var(--radius-md);
+    padding: var(--space-2) var(--space-4);
+    font-size: 13.5px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    z-index: 30;
+}
+
+.toast-action {
+    border: 0;
+    background: transparent;
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: inherit;
+    text-decoration: underline;
+    padding: 0;
+    cursor: pointer;
+}
