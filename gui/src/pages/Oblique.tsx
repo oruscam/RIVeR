@@ -60,7 +60,7 @@ export const Oblique = () => {
   } = useObliqueSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { projectDetails, projectDirectory, video } = useProjectSlice();
-  const { onSetErrorMessage, onSetModeHint, onClearModeHint } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert, onSetModeHint, onClearModeHint } = useUiSlice();
   const { nextStep } = useWizard();
   const { t } = useTranslation();
   const { images } = useDataSlice();
@@ -94,11 +94,14 @@ export const Oblique = () => {
   };
 
   const onError = (error: string) => {
-    onSetErrorMessage(error);
+    onAddStepAlert('oblique-form-error', 'error', error);
   };
 
   const onClickSolveButton = () => {
-    onGetObliqueTransformationMatrix(methods.getValues()).catch((error) => onSetErrorMessage(error.message));
+    onClearStepAlert('oblique-solve');
+    onGetObliqueTransformationMatrix(methods.getValues()).catch((error) =>
+      onAddStepAlert('oblique-solve', 'error', error.message)
+    );
   };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -110,7 +113,8 @@ export const Oblique = () => {
       const file = files[0];
       const path = window.webUtils.getPathForFile(file);
 
-      onGetDistances(path).catch((error) => onSetErrorMessage(error.message));
+      onClearStepAlert('oblique-import-distances');
+      onGetDistances(path).catch((error) => onAddStepAlert('oblique-import-distances', 'error', error.message));
     }
   };
 
