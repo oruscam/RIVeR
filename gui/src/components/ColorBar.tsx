@@ -33,7 +33,8 @@ export const ColorBar = ({ min, max }: { min: number; max: number }) => {
 
   const handleGradientMouseLeave = () => setHoverFraction(null);
 
-  const hoveredValue = hoverFraction === null ? null : toDisplay(min) + hoverFraction * (toDisplay(max) - toDisplay(min));
+  const hoveredValue =
+    hoverFraction === null ? null : toDisplay(min) + hoverFraction * (toDisplay(max) - toDisplay(min));
 
   const { activeStep } = useWizard();
   const { screenSizes } = useUiSlice();
@@ -108,7 +109,7 @@ export const ColorBar = ({ min, max }: { min: number; max: number }) => {
       />
       <span className="colorbar-unit-label">{unitLabel}</span>
 
-      {colorbarLimits.default === false && (
+      {colorbarLimits.default === false && activeStep !== 7 && (
         <span className="colorbar-manual-badge">{t('Processing.colorbarManual', { defaultValue: 'Manual' })}</span>
       )}
       {activeStep !== 7 && (

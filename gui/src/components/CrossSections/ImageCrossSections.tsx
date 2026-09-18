@@ -92,7 +92,7 @@ export const ImageCrossSections = ({ imageSrc }: ImageCrossSectionsProps) => {
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { firstFramePath } = useProjectSlice();
   const src = imageSrc ?? firstFramePath;
-  const { processing, onUpdateActiveMask, onDeleteMask } = useDataSlice();
+  const { processing, onUpdateActiveMask, onDeleteMask, onUpdateMaskPoints } = useDataSlice();
   const { masks, activeMaskIndex } = processing;
 
   // Live points streamed from DrawMask during drag — enables real-time button tracking
@@ -200,10 +200,13 @@ export const ImageCrossSections = ({ imageSrc }: ImageCrossSectionsProps) => {
             top: confirmBtnPos.y,
             transform: 'translate(-50%, -50%)',
           }}
-          canUndo={livePoints.length > 1}
+          canUndo={livePoints.length > 3}
           onUndoPoint={() => actionsRef.current?.undoLastPoint()}
           onDelete={() => onDeleteMask(activeMaskIndex!)}
-          onDone={() => onUpdateActiveMask(activeMaskIndex!)}
+          onDone={() => {
+            onUpdateMaskPoints(activeMaskIndex!, livePoints);
+            onUpdateActiveMask(activeMaskIndex!);
+          }}
         />
       )}
     </div>

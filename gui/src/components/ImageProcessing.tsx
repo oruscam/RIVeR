@@ -205,7 +205,9 @@ export const ImageProcessing = ({
       )}
 
       {/* ColorBar out of the container with zoom */}
-      {min !== undefined && max !== undefined && activeMaskIndex === null && <ColorBar min={min} max={max} />}
+      {min !== undefined && max !== undefined && data.length !== 0 && activeMaskIndex === null && (
+        <ColorBar min={min} max={max} />
+      )}
 
       {extraFields && activeMaskIndex === null && (
         <FloatingPlot showMedian={showMedian ?? false} containerWidth={realWidth!} containerHeight={realHeight!} />

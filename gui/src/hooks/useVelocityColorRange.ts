@@ -7,6 +7,15 @@ import { getEffectiveTechniqueData } from '../helpers';
 import { getGlobalMagnitudes } from '../helpers/drawArrows';
 
 /**
+ * True once at least one section has at least one resolved (non-null)
+ * velocity. Exported and pure so it's unit-testable in isolation — unlike
+ * min/max (via getGlobalMagnitudes), a station's real value can legitimately
+ * be 0, so "min === 0 && max === 0" can't be used to mean "no data yet".
+ */
+export const hasResolvedData = (resolvedPerSection: ((number | null)[] | null)[]): boolean =>
+  resolvedPerSection.some((arr) => arr !== null && arr.some((v) => v !== null));
+
+/**
  * Single source of truth for the velocity colour scale shared by the Results
  * colour bar (`ColorBar`) and the chevron overlay (`VelocityVector`).
  *
@@ -20,15 +29,6 @@ import { getGlobalMagnitudes } from '../helpers/drawArrows';
  * structurally impossible for the bar and the glyphs to disagree in the
  * unlocked state — there is only one computation to read.
  */
-/**
- * True once at least one section has at least one resolved (non-null)
- * velocity. Exported and pure so it's unit-testable in isolation — unlike
- * min/max (via getGlobalMagnitudes), a station's real value can legitimately
- * be 0, so "min === 0 && max === 0" can't be used to mean "no data yet".
- */
-export const hasResolvedData = (resolvedPerSection: ((number | null)[] | null)[]): boolean =>
-  resolvedPerSection.some((arr) => arr !== null && arr.some((v) => v !== null));
-
 export const useVelocityColorRange = (): { min: number; max: number; hasData: boolean } => {
   const { sections } = useSectionSlice();
   const { colorbarLimits } = useDataSlice();

@@ -24,8 +24,9 @@ export const DrawMask = ({
   imageHeight: number;
   /** Called with current image-space points on every live update (including during drag) */
   onLivePoints?: (points: { x: number; y: number }[]) => void;
-  /** Called on every render with the current undo action, so the parent's
-   *  toolbar always invokes it against up-to-date `points`/`activeMaskIndex`. */
+  /** Called once (this effect's dependency array is `[registerActions]` only) to
+   *  register the undo action; safe because `undoLastPoint` uses a functional
+   *  `setState` update and never closes over `points`/`activeMaskIndex` directly. */
   registerActions?: (actions: { undoLastPoint: () => void }) => void;
 }) => {
   const { processing, onUpdateMaskPoints } = useDataSlice();
@@ -83,7 +84,11 @@ export const DrawMask = ({
         .attr('patternUnits', 'userSpaceOnUse')
         .attr('width', 10)
         .attr('height', 10);
-      pattern.append('path').attr('d', 'M0 10 L10 0').attr('stroke', getOverlayColors().line).attr('stroke-width', 1);
+      pattern
+        .append('path')
+        .attr('d', 'M0 10 L10 0')
+        .attr('stroke', getOverlayColors().line)
+        .attr('stroke-width', 1);
     }
   }, [svgRef, masks]);
 
@@ -148,6 +153,7 @@ export const DrawMask = ({
     layer.selectAll('*').remove();
 
     const size = (px: number) => px / (scale || 1);
+    const overlay = getOverlayColors();
 
     masks.forEach((mask, i) => {
       // Skip: actively being edited (rendered interactively in maskLayerRef)
@@ -159,7 +165,7 @@ export const DrawMask = ({
       layer
         .append('polygon')
         .attr('points', pts)
-        .attr('fill', getOverlayColors().dim)
+        .attr('fill', overlay.dim)
         .attr('stroke', 'none')
         .style('pointer-events', 'none');
 
@@ -167,7 +173,7 @@ export const DrawMask = ({
         .append('polygon')
         .attr('points', pts)
         .attr('fill', 'url(#dashFill)') // pattern defined on svgRef root — always available
-        .attr('stroke', getOverlayColors().line)
+        .attr('stroke', overlay.line)
         .attr('stroke-width', 1.5)
         .attr('opacity', 0.75)
         .style('pointer-events', 'none');
