@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import { useTranslation } from 'react-i18next';
 import { useDataSlice } from '../hooks';
 import { drawMask, drawMaskLabel } from './Graphs/drawMask';
+import { getOverlayColors } from '../helpers/getCSSVar';
 import type { OverlayLayers } from './OverlaySvg';
 
 export const DrawMask = ({
@@ -77,7 +78,7 @@ export const DrawMask = ({
         .attr('patternUnits', 'userSpaceOnUse')
         .attr('width', 10)
         .attr('height', 10);
-      pattern.append('path').attr('d', 'M0 10 L10 0').attr('stroke', '#ED6B57').attr('stroke-width', 1);
+      pattern.append('path').attr('d', 'M0 10 L10 0').attr('stroke', getOverlayColors().line).attr('stroke-width', 1);
     }
   }, [svgRef, masks]);
 
@@ -153,8 +154,15 @@ export const DrawMask = ({
       layer
         .append('polygon')
         .attr('points', pts)
+        .attr('fill', getOverlayColors().dim)
+        .attr('stroke', 'none')
+        .style('pointer-events', 'none');
+
+      layer
+        .append('polygon')
+        .attr('points', pts)
         .attr('fill', 'url(#dashFill)') // pattern defined on svgRef root — always available
-        .attr('stroke', '#ED6B57')
+        .attr('stroke', getOverlayColors().line)
         .attr('stroke-width', 1.5)
         .attr('opacity', 0.75)
         .style('pointer-events', 'none');
