@@ -38,7 +38,7 @@ export const Grid = () => {
   const [copied, setCopied] = useState(false);
   const { sections, activeSection, onChangeDataValues } = useSectionSlice();
   const { projectDetails, video } = useProjectSlice();
-  const { hoveredStation, onSetHoveredStation } = useUiSlice();
+  const { hoveredStation, onSetHoveredStation, onShowToast } = useUiSlice();
   const { t } = useTranslation();
   const isImperial = projectDetails.unitSistem === 'imperial';
   const lFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
@@ -86,6 +86,7 @@ export const Grid = () => {
       .then(() => {
         setCopied(true);
         setTimeout(() => setCopied(false), 1500);
+        onShowToast(t('Results.copied', { defaultValue: 'Table copied to clipboard' }));
       })
       .catch((err) => {
         console.error('Error trying to copy table:', err);
