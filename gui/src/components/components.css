@@ -272,92 +272,6 @@
     -webkit-backdrop-filter: blur(14px);
 }
 
-.message-region {
-    width: 100%;
-    min-height: 35px;
-    margin-top: auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-}
-
-.error {
-    background-color: var(--background-error);
-    color: var(--on-error);
-    width: 100%;
-    min-height: 35px;
-    height: auto;
-    margin-top: auto;
-    border-bottom-right-radius: 20px;
-    border-bottom-left-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: first baseline;
-    padding: 5px;
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
-.error-text {
-    margin-left: 25px;
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 1px;
-    height: auto;
-}
-
-.info {
-    background-color: var(--success-color);
-    color: var(--on-success);
-    width: 100%;
-    min-height: 35px;
-    height: auto;
-    margin-top: auto;
-    border-bottom-right-radius: 20px;
-    border-bottom-left-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: first baseline;
-    padding: 5px;
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
-.info-text {
-    margin-left: 25px;
-    font-size: 18px;
-    font-weight: bold;
-    font-style: normal;
-    margin-top: 1px;
-    height: auto;
-}
-
-.warning {
-    background-color: var(--d14);
-    color: var(--on-warning);
-    width: 100%;
-    min-height: 35px;
-    height: auto;
-    margin-top: auto;
-    border-bottom-right-radius: 20px;
-    border-bottom-left-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: first baseline;
-    padding: 5px;
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
-.warning-text {
-    margin-left: 25px;
-    font-size: 18px;
-    font-weight: bold;
-    font-style: normal;
-    margin-top: 1px;
-    height: auto;
-}
-
 .image-with-marks {
     margin: auto 0;
 }
@@ -976,12 +890,6 @@
 .points-map {
     /* This map always has a white background regardless of theme (it's a map/chart canvas) */
     background-color: #ffffff;
-}
-
-.error-message-link {
-    color: inherit;
-    font-weight: bold;
-    text-decoration: underline;
 }
 
 .header-fixed {
