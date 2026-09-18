@@ -174,6 +174,28 @@ export const drawMask = (
     return { va, vb, mx, my, index: i, id: `edge-${a.id}-${b.id}` };
   });
 
+  const edgeHalos = svg.selectAll<SVGLineElement, any>('line.edge-halo').data(edgesData, (d: any) => d.id);
+
+  edgeHalos
+    .enter()
+    .insert('line', 'line.edge-line')
+    .attr('class', 'edge-halo')
+    .attr('stroke', 'rgba(0, 0, 0, 0.55)')
+    .attr('stroke-width', 4)
+    .style('pointer-events', 'none')
+    .attr('x1', (d) => d.va.x)
+    .attr('y1', (d) => d.va.y)
+    .attr('x2', (d) => d.vb.x)
+    .attr('y2', (d) => d.vb.y)
+    .merge(edgeHalos as any)
+    .transition(t as any)
+    .attr('x1', (d) => d.va.x)
+    .attr('y1', (d) => d.va.y)
+    .attr('x2', (d) => d.vb.x)
+    .attr('y2', (d) => d.vb.y);
+
+  edgeHalos.exit().remove();
+
   const lines = svg.selectAll<SVGLineElement, any>('line.edge-line').data(edgesData, (d: any) => d.id);
 
   lines
@@ -284,6 +306,29 @@ export const drawMask = (
     });
 
   plusRects.exit().remove();
+
+  // Vertex halo squares behind each control point
+  const vertexHalos = svg.selectAll<SVGRectElement, any>('rect.point-halo').data(points, (d: any) => d.id);
+
+  const haloSide = (r: number) => 2 * r + 3;
+  vertexHalos
+    .enter()
+    .insert('rect', 'rect.point')
+    .attr('class', 'point-halo')
+    .attr('fill', 'rgba(0, 0, 0, 0.55)')
+    .style('pointer-events', 'none')
+    .attr('width', haloSide(size(8)))
+    .attr('height', haloSide(size(8)))
+    .attr('x', (d) => transformToViewport(d.x, d.y).x - haloSide(size(8)) / 2)
+    .attr('y', (d) => transformToViewport(d.x, d.y).y - haloSide(size(8)) / 2)
+    .merge(vertexHalos as any)
+    .transition(t as any)
+    .attr('width', haloSide(size(7)))
+    .attr('height', haloSide(size(7)))
+    .attr('x', (d) => transformToViewport(d.x, d.y).x - haloSide(size(7)) / 2)
+    .attr('y', (d) => transformToViewport(d.x, d.y).y - haloSide(size(7)) / 2);
+
+  vertexHalos.exit().remove();
 
   // Draggable control points — square handles, matching the audit's mask spec
   // (round handles stay pin/vertex-only elsewhere; masks are the one overlay
