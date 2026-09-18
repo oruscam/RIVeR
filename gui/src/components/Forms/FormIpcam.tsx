@@ -19,7 +19,7 @@ export const FormIpcam = () => {
     pointsPath,
   } = useIpcamSlice();
   const { isBackendWorking } = useGlobalSlice();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert } = useUiSlice();
   const { projectDetails } = useProjectSlice();
   const { t } = useTranslation();
 
@@ -34,18 +34,21 @@ export const FormIpcam = () => {
   const handleOnClickImport = async (event: React.MouseEvent<HTMLButtonElement>) => {
     const id = (event.target as HTMLButtonElement).id;
     if (id === 'import-points') {
-      onGetPoints().catch((error) => onSetErrorMessage(error.message));
+      onClearStepAlert('ipcam-import-points');
+      onGetPoints().catch((error) => onAddStepAlert('ipcam-import-points', 'error', error.message));
     } else {
-      onGetImages(undefined).catch((error) => onSetErrorMessage(error.message));
+      onClearStepAlert('ipcam-import-images');
+      onGetImages(undefined).catch((error) => onAddStepAlert('ipcam-import-images', 'error', error.message));
     }
   };
 
   const handleOnClickAction = (event: React.MouseEvent<HTMLButtonElement>) => {
     const id = (event.target as HTMLButtonElement).id;
     setMode(id);
+    onClearStepAlert('ipcam-camera-solution');
     onGetCameraSolution(id)
       .catch((error) => {
-        onSetErrorMessage(error.message);
+        onAddStepAlert('ipcam-camera-solution', 'error', error.message);
       })
       .finally(() => {
         setMode('');
