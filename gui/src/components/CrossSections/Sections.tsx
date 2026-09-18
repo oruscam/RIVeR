@@ -132,7 +132,6 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
                   onKeyDown={(event) => handleInputNameSection(event, index)}
                   onBlur={(event) => handleInputNameSection(event, index)}
                 />
-                <FieldError name={`section-name-${index}`} />
                 {canEdit && (
                   <button
                     className="section-button1"
@@ -158,6 +157,9 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
           <span id="scroll-right" />
         </div>
       </div>
+      {sections.map((section, index: number) => (
+        <FieldError key={section.name} name={`section-name-${index}`} />
+      ))}
       {dialog}
     </>
   );

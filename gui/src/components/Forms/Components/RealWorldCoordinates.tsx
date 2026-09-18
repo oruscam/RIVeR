@@ -27,6 +27,11 @@ export const RealWorldCoordinates = ({
 
   const pointsNames = getPointNames('rw', fields);
 
+  // Scope the field-error key per section so switching tabs doesn't show a
+  // stale error from a different section under the same-named field. Uav/Oblique
+  // render only one set of coordinates (no `section`), so the key stays bare.
+  const fieldErrorName = (id: string) => (section ? `${section}_${id}` : id);
+
   const { t } = useTranslation();
 
   const handleInputField = (
@@ -42,13 +47,13 @@ export const RealWorldCoordinates = ({
       const target = event.target as HTMLInputElement;
 
       if (isNaN(value)) {
-        onSetFieldError(target.id, `The value ${target.id} must be a number`);
+        onSetFieldError(fieldErrorName(target.id), `The value ${target.id} must be a number`);
         const fieldName = `${modeName}_${target.id}`;
         resetField(fieldName);
         return;
       }
 
-      onClearFieldError(target.id);
+      onClearFieldError(fieldErrorName(target.id));
       for (let i = 0; i < fields; i++) {
         if (target.id === pointsNames[i]) {
           let position = (i % 2 === 0 ? 'x' : 'y') + `${Math.ceil((i + 1) / 2)}`;
@@ -85,7 +90,7 @@ export const RealWorldCoordinates = ({
                   onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
                 />
                 <span className="unit-label">{unitLabel}</span>
-                <FieldError name={pointsNames[i]} />
+                <FieldError name={fieldErrorName(pointsNames[i])} />
               </div>
             ) : (
               <div className="input-field-container">
@@ -98,7 +103,7 @@ export const RealWorldCoordinates = ({
                   onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
                   onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
                 />
-                <FieldError name={pointsNames[i]} />
+                <FieldError name={fieldErrorName(pointsNames[i])} />
               </div>
             )}
           </div>

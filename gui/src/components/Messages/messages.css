@@ -30,6 +30,8 @@
     color: var(--status-bad);
     font-size: 12.5px;
     margin-top: var(--space-1);
+    flex-basis: 100%;
+    width: 100%;
 }
 
 .step-alert-list {

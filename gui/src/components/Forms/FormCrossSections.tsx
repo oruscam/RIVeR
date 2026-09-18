@@ -52,13 +52,13 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       if (valueInMeters === bathimetry.level) return;
 
       if (yMax !== undefined && yMin !== undefined && valueInMeters <= yMax && valueInMeters > yMin) {
-        onClearFieldError('Level');
+        onClearFieldError(`${name}_Level`);
         onUpdateSection({ level: valueInMeters }, cameraSolution?.cameraMatrix);
         document.getElementById(nextFieldId)?.focus();
       } else {
         setValue(`${name}_LEVEL`, formatNumberTo2Decimals(toDisplay(bathimetry.level)));
         onSetFieldError(
-          'Level',
+          `${name}_Level`,
           t('CrossSections.Errors.levelError', {
             yMin: yMin !== undefined ? (toDisplay(yMin) as number).toFixed(2) : undefined,
             yMax: yMax !== undefined ? (toDisplay(yMax) as number).toFixed(2) : undefined,
@@ -116,11 +116,11 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
         (x1Intersection ?? 0) + valueInMeters >= (xMin ?? 0) &&
         (x1Intersection ?? 0) + valueInMeters <= (xMax ?? 0)
       ) {
-        onClearFieldError('LeftBank');
+        onClearFieldError(`${name}_LeftBank`);
         document.getElementById('wizard-next')?.focus();
         onUpdateSection({ leftBank: valueInMeters }, undefined);
       } else {
-        onSetFieldError('LeftBank', t('CrossSections.Errors.leftBank'));
+        onSetFieldError(`${name}_LeftBank`, t('CrossSections.Errors.leftBank'));
         setValue(`${name}_LEFT_BANK`, leftBank === undefined ? leftBank : toDisplay(leftBank));
       }
     }
@@ -247,7 +247,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
             </span>
           </div>
-          <FieldError name="Level" />
+          <FieldError name={`${name}_Level`} />
         </div>
 
         <div className="input-container-2 mb-1">
@@ -296,7 +296,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
             </span>
           </div>
-          <FieldError name="LeftBank" />
+          <FieldError name={`${name}_LeftBank`} />
         </div>
 
         <HardModeCrossSections extraFields={extraFields} name={name} />
