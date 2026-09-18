@@ -15,7 +15,7 @@ export const HardModeProcessing = ({
 }) => {
   const { register, reset } = useFormContext();
   const { processing, onUpdateProcessing, onReCalculateMask, isBackendWorking } = useDataSlice();
-  const { onSetErrorMessage, showInterrogationWindow, onSetShowInterrogationWindow } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert, showInterrogationWindow, onSetShowInterrogationWindow } = useUiSlice();
   const { medianTestFiltering, clahe, stdFiltering, heightRoi } = processing.form;
 
   const { t } = useTranslation();
@@ -29,13 +29,14 @@ export const HardModeProcessing = ({
       event.preventDefault();
       const value = parseInt((event.target as HTMLInputElement).value);
       if (value !== heightRoi) {
+        onClearStepAlert('processing-roi-recalc-error');
         try {
           await onReCalculateMask(value);
 
           onUpdateProcessing({ heightRoi: value });
           document.getElementById('processing-HEADER')?.focus();
         } catch (error) {
-          onSetErrorMessage((error as Error).message);
+          onAddStepAlert('processing-roi-recalc-error', 'error', (error as Error).message);
         }
       }
     }

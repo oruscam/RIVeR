@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
 import { TechniqueRow } from '../TechniqueRow';
+import { FieldError } from '../index';
 
 export const FormProcessing = ({
   extraFields,
@@ -29,7 +30,7 @@ export const FormProcessing = ({
   stivAvailable: boolean;
 }) => {
   const { t } = useTranslation();
-  const { onSetErrorMessage, onShowToast } = useUiSlice();
+  const { onSetFieldError, onClearFieldError, onAddStepAlert, onClearStepAlert, onShowToast } = useUiSlice();
   const {
     isBackendWorking,
     processing,
@@ -102,13 +103,14 @@ export const FormProcessing = ({
       event.preventDefault();
       const value = parseFloat((event.target as HTMLInputElement).value);
       if (isNaN(value) === false && value >= 3) {
+        onClearFieldError('stations-number');
         if (value !== numStations) {
           onUpdateSection({ numStations: value }, undefined);
         }
       } else {
         methods.setValue(`${name}_STATIONS_NUMBER`, numStations);
         if (typeof value === 'number') {
-          onSetErrorMessage('The number of stations must be greater than 2');
+          onSetFieldError('stations-number', 'The number of stations must be greater than 2');
         }
       }
     }
@@ -123,9 +125,10 @@ export const FormProcessing = ({
     event.preventDefault();
     setIsTesting(true);
     setResetProgress(true);
+    onClearStepAlert('processing-backend-error');
     onSetQuiverTest()
       .then(() => setIsTesting(false))
-      .catch((error) => onSetErrorMessage(error.message));
+      .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
   };
 
   const handleOnClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -134,11 +137,12 @@ export const FormProcessing = ({
     if (id === 'analize-button') {
       if (isBackendWorking) return;
       setIsTesting(false);
+      onClearStepAlert('processing-backend-error');
       onSetQuiverAll()
         .then(() => {
           setShowMedian(true);
         })
-        .catch((error) => onSetErrorMessage(error.message));
+        .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
     }
 
     if (id === 'stop-button') {
@@ -179,6 +183,7 @@ export const FormProcessing = ({
                   onKeyDown={handleStationsChangeInput}
                   onBlur={handleStationsChangeInput}
                 />
+                <FieldError name="stations-number" />
                 <button type="button" className="btn-step" onClick={() => handleStationsStep(1)}>
                   +
                 </button>
