@@ -156,20 +156,6 @@ export const PROJECT_CONFIG: ProjectConfig = {
       ),
 };
 
-// General window dialog to confirm deletes.
-ipcMain.handle('delete-confirmation', async (_event, args) => {
-  const { message, title } = args;
-  const { response } = await dialog.showMessageBox({
-    type: 'warning',
-    buttons: ['Yes', 'No'],
-    defaultId: 1,
-    title: title,
-    message: message,
-  });
-
-  return response;
-});
-
 ipcMain.handle('choose-river-path', async () => {
   const result = await dialog.showOpenDialog({
     title: 'Choose River data folder',

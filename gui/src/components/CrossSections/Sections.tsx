@@ -4,6 +4,7 @@ import { useSectionSlice, useUiSlice } from '../../hooks';
 import { isValidString } from '../../helpers/regex';
 import { useTranslation } from 'react-i18next';
 import { EyeBtn } from '../CustomIcons/EyeBtn';
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
 
 interface Sections {
   setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -16,6 +17,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
     useSectionSlice();
   const { onSetErrorMessage, seeAll, onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();
+  const [dialog, confirmDialog] = useConfirmDialog();
 
   // Set the active section, and logic for scrolling to the next section
   const onClickSection = (index: number) => {
@@ -41,14 +43,14 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
       onAddSection(sections.length);
     }
     if (event.currentTarget.id === 'delete' && setDeletedSections) {
-      const result = await window.ipcRenderer.invoke('delete-confirmation', {
-        message: t('CrossSections.warning', {
-          section_name: sections[activeSection].name,
-        }),
+      const confirmed = await confirmDialog({
         title: t('CrossSections.title'),
+        body: t('CrossSections.warning', { section_name: sections[activeSection].name }),
+        confirmLabel: t('CrossSections.deleteConfirm', { defaultValue: 'Delete section' }),
+        cancelLabel: t('CrossSections.deleteCancel', { defaultValue: 'Cancel' }),
       });
 
-      if (result === 0) {
+      if (confirmed) {
         setDeletedSections(sections[activeSection].name);
         onDeleteSection();
       }
@@ -105,55 +107,58 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
   }, [sections.length]);
 
   return (
-    <div className="sections">
-      <div className="sections-layer">
-        <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', paddingTop: '4px' }}>
-          <EyeBtn active={seeAll} action={() => onSetSeeAll(!seeAll)} noBorder={true} />
-        </div>
-        <span className="section" />
-        {sections.map((section, index: number) => {
-          return (
-            <div
-              key={index}
-              className={`section ${activeSection === index ? 'active' : ''}`}
-              id={section.name}
-              onClick={() => onClickSection(index)}
-            >
-              <input
-                type="text"
-                className="input-section"
-                defaultValue={section.name}
-                id={`${section.name}-input`}
-                {...register(`${section.name}-input`, { required: true })}
-                readOnly
-                onDoubleClick={handleDoubleClick}
-                onKeyDown={(event) => handleInputNameSection(event, index)}
-                onBlur={(event) => handleInputNameSection(event, index)}
-              />
-              {canEdit && (
-                <button
-                  className="section-button1"
-                  id="delete"
-                  onClick={onClickButtonSection}
-                  disabled={!(activeSection === index) || sections.length === 1}
-                >
-                  x
-                </button>
-              )}
-            </div>
-          );
-        })}
-
-        {canEdit && (
-          <div className="section section-add">
-            <button className="section-button2" id="add" onClick={onClickButtonSection}>
-              {' '}
-              +{' '}
-            </button>
+    <>
+      <div className="sections">
+        <div className="sections-layer">
+          <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', paddingTop: '4px' }}>
+            <EyeBtn active={seeAll} action={() => onSetSeeAll(!seeAll)} noBorder={true} />
           </div>
-        )}
-        <span id="scroll-right" />
+          <span className="section" />
+          {sections.map((section, index: number) => {
+            return (
+              <div
+                key={index}
+                className={`section ${activeSection === index ? 'active' : ''}`}
+                id={section.name}
+                onClick={() => onClickSection(index)}
+              >
+                <input
+                  type="text"
+                  className="input-section"
+                  defaultValue={section.name}
+                  id={`${section.name}-input`}
+                  {...register(`${section.name}-input`, { required: true })}
+                  readOnly
+                  onDoubleClick={handleDoubleClick}
+                  onKeyDown={(event) => handleInputNameSection(event, index)}
+                  onBlur={(event) => handleInputNameSection(event, index)}
+                />
+                {canEdit && (
+                  <button
+                    className="section-button1"
+                    id="delete"
+                    onClick={onClickButtonSection}
+                    disabled={!(activeSection === index) || sections.length === 1}
+                  >
+                    x
+                  </button>
+                )}
+              </div>
+            );
+          })}
+
+          {canEdit && (
+            <div className="section section-add">
+              <button className="section-button2" id="add" onClick={onClickButtonSection}>
+                {' '}
+                +{' '}
+              </button>
+            </div>
+          )}
+          <span id="scroll-right" />
+        </div>
       </div>
-    </div>
+      {dialog}
+    </>
   );
 };
