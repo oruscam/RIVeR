@@ -26,10 +26,10 @@ export const VelocityVector = ({
   layers,
 }: VelocityVectorProps) => {
   const { interactiveLayerRef } = layers;
-  const { video, projectDetails } = useProjectSlice();
+  const { video } = useProjectSlice();
   const { sections, activeSection, transformationMatrix } = useSectionSlice();
 
-  const { seeAll } = useUiSlice();
+  const { seeAll, hoveredStation, onSetHoveredStation, onPinStation } = useUiSlice();
 
   const { width: imageWidth, height: imageHeight } = video.data;
 
@@ -79,48 +79,6 @@ export const VelocityVector = ({
     return () => cancelAnimationFrame(rafRef.current);
   }, [animated]);
 
-  // Hover lives here, not as a DOM mutation inside drawVectors: the draw
-  // effect below tears down and rebuilds every polygon on each animation
-  // frame, so any opacity change written directly onto a polygon is gone by
-  // the next frame. Keeping it as state means the next draw (triggered by
-  // this very state change, see the dependency array below) renders the
-  // hovered station's chevrons at full opacity instead.
-  // (Unrelated to the `hoveredStation` in the ui slice used for chart/grid
-  // sync — this one is local to the image overlay.)
-  const [hoveredStation, setHoveredStation] = useState<number | null>(null);
-
-  // Defensive recovery for a stuck tooltip: if hover ever ends without the
-  // hit area's mouseout firing (e.g. its element was destroyed by a redraw
-  // while the pointer sat on it), this still hides the tooltip as soon as
-  // `hoveredStation` is cleared.
-  useEffect(() => {
-    if (hoveredStation === null) {
-      d3.select<HTMLDivElement, unknown>('#vectors-tooltip').style('opacity', 0);
-    }
-  }, [hoveredStation]);
-
-  // A tooltip must never survive a genuine context change (switching the
-  // active/report section, toggling seeAll) even if the hit area that opened
-  // it is long gone. This deliberately does NOT depend on `phase`: the draw
-  // effect below re-runs on every animation frame, and hiding the tooltip
-  // there raced the mouseover fade-in transition — the tooltip could only
-  // ever flash for ~200ms after arrival and then go dark, since nothing
-  // repaints it once the transition finishes and the next frame's cleanup
-  // (~16ms later) zeroes it again. Keying on the actual context instead of
-  // the render clock keeps that recovery without breaking "stays visible
-  // while hovering".
-  useEffect(() => {
-    d3.select<HTMLDivElement, unknown>('#vectors-tooltip').style('opacity', 0);
-  }, [activeSection, seeAll, sectionIndex]);
-
-  // Unmount-only hide, so the tooltip node appended to <body> can never
-  // outlive this component.
-  useEffect(() => {
-    return () => {
-      d3.select<HTMLDivElement, unknown>('#vectors-tooltip').style('opacity', 0);
-    };
-  }, []);
-
   useEffect(() => {
     d3.select(interactiveLayerRef.current).selectAll('*').remove();
     const svg = d3.select(interactiveLayerRef.current as SVGSVGElement);
@@ -167,8 +125,8 @@ export const VelocityVector = ({
           phase,
           animated,
           hoveredStation,
-          setHoveredStation,
-          projectDetails.unitSistem
+          onSetHoveredStation,
+          onPinStation
         );
       } else {
         if (isReport && sectionIndex !== index) return;
@@ -189,8 +147,8 @@ export const VelocityVector = ({
             phase,
             animated,
             hoveredStation,
-            setHoveredStation,
-            projectDetails.unitSistem
+            onSetHoveredStation,
+            onPinStation
           );
         }
       }
@@ -211,7 +169,6 @@ export const VelocityVector = ({
     globalMin,
     globalMax,
     resolvedPerSection,
-    projectDetails.unitSistem,
     phase,
     animated,
     hoveredStation,

@@ -3,15 +3,9 @@ import * as d3 from 'd3';
 // this is three levels up — unlike src/helpers/ or src/components/, which are one
 // level shallower and correctly use '../../commons/...'.
 import { createColorMap, Normalize } from '../../../commons/vectors';
-import {
-  chevronCount,
-  flowDirection,
-  formatSignedVelocity,
-  THICKNESS_FACTOR,
-  WING_SPAN,
-} from '../../helpers/chevronGlyph';
+import { chevronCount, flowDirection, THICKNESS_FACTOR, WING_SPAN } from '../../helpers/chevronGlyph';
 import { SectionData } from '../../store/section/types';
-import { getThemedHost } from '../../helpers/themedHost';
+import { getStationBadgeGeometry } from './stationBadgeGeometry';
 
 type Pt = { x: number; y: number };
 
@@ -109,7 +103,7 @@ export const drawVectors = (
   animated: boolean,
   hoveredStation: number | null,
   onHoverStation: (station: number | null) => void,
-  unitSistem?: string
+  onPinStation: (station: number) => void
 ) => {
   const { east, north, distance, check, streamwise_east, streamwise_north } = data;
   if (!east || !north || !magnitude || !distance) return;
@@ -131,24 +125,6 @@ export const drawVectors = (
   const norm = new Normalize(globalMin, globalMax);
   const range = Math.max(Math.abs(globalMin), Math.abs(globalMax)) || 1;
   const invMatrix = invert3x3(transformationMatrix);
-
-  // Tooltip: one lazily created node reused across renders. Styling comes from
-  // the shared .velocity-readout class — the same one the PIV arrow tooltip and
-  // the STI badge use — so the three cannot drift apart, and so the background
-  // follows the theme (it is cream in light and #282a36 in dracula, not the dark
-  // grey a hardcoded colour would pin it to).
-  let tooltip = d3.select<HTMLDivElement, unknown>('#vectors-tooltip');
-  if (tooltip.empty()) {
-    tooltip = d3
-      .select<HTMLDivElement, unknown>(getThemedHost() as HTMLDivElement)
-      .append('div')
-      .attr('id', 'vectors-tooltip')
-      .attr('class', 'velocity-readout')
-      .style('position', 'absolute')
-      .style('top', '0px')
-      .style('pointer-events', 'none')
-      .style('opacity', '0');
-  }
 
   magnitude.forEach((v, i) => {
     if (v === null || isNaN(v)) return;
@@ -233,29 +209,53 @@ export const drawVectors = (
 
     if (isReport === false && typeof factor === 'number') {
       // Hit area is the whole swept glyph, not the chevrons: chevrons move, so
-      // hit-testing them would make the tooltip flicker as they slide out from
-      // under the pointer.
+      // hit-testing them would make the highlight flicker as they slide out
+      // from under the pointer. Hover and pin both key off the shared
+      // uiSlice.hoveredStation/pinnedStation now — no tooltip of its own; the
+      // docked StationTag (ImageResults.tsx) reads that same state.
       const hit = [place(0, hw), place(lengthM, hw), place(lengthM, -hw), place(0, -hw)];
       svg
         .append('polygon')
         .attr('points', hit.map((p) => `${p.x},${p.y}`).join(' '))
         .attr('fill', 'transparent')
         .attr('pointer-events', 'all')
+        .style('cursor', 'pointer')
         .classed(`section-${sectionIndex}`, true)
-        .on('mouseover', function (event) {
+        .on('mouseover', function () {
           onHoverStation(i);
-          tooltip.transition().duration(200).style('opacity', 1);
-          tooltip
-            .html(formatSignedVelocity(v, unitSistem === 'imperial'))
-            .style('left', `${event.pageX}px`)
-            .style('top', `${event.pageY}px`)
-            .style('color', color)
-            .style('z-index', 1000);
         })
         .on('mouseout', function () {
           onHoverStation(null);
-          tooltip.transition().duration(300).style('opacity', 0);
+        })
+        .on('click', function () {
+          onPinStation(i);
         });
+    }
+
+    // Highlight: a badge at the hovered station's base point (the real
+    // station location — always defined, unlike the tip, which collapses at
+    // zero velocity). Drawn regardless of which of {canvas, chart, Grid} set
+    // hoveredStation, since it now reads the one shared value.
+    if (hoveredStation === i) {
+      const geo = getStationBadgeGeometry(base);
+      const badge = group.append('g').attr('class', 'station-badge').attr('pointer-events', 'none');
+      badge
+        .append('circle')
+        .attr('cx', geo.circle.cx)
+        .attr('cy', geo.circle.cy)
+        .attr('r', geo.circle.r)
+        .attr('fill', 'rgba(0, 0, 0, 0.6)')
+        .attr('stroke', 'var(--accent-color)')
+        .attr('stroke-width', 2);
+      badge
+        .append('text')
+        .attr('x', geo.label.x)
+        .attr('y', geo.label.y)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', 12)
+        .attr('font-weight', 700)
+        .attr('fill', '#fff')
+        .text(i + 1);
     }
   });
 };
