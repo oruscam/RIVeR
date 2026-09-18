@@ -1,7 +1,13 @@
 import { useEffect } from 'react';
 import * as d3 from 'd3';
-import { useDataSlice, useSectionSlice } from '../hooks';
-import { computeStationSearchLines, computeSearchLinesFromCenters } from '../helpers';
+import { useDataSlice, useSectionSlice, useUiSlice } from '../hooks';
+import {
+  computeStationSearchLines,
+  computeSearchLinesFromCenters,
+  getStiColorScale,
+  isStationTuned,
+} from '../helpers';
+import { getSearchLineVisual } from './Graphs/searchLineState';
 import { transformPixelToRealWorld } from '../../commons/coordinates';
 import { STIV_DEFAULT_HEIGHT_ROI_M } from '../constants/constants';
 import { getCSSVar } from '../helpers/getCSSVar';
@@ -11,6 +17,12 @@ interface StationSearchLinesProps {
   factor: number;
   layers: OverlayLayers;
 }
+
+/** Mirrors Carousel.tsx's lowConfidence check exactly: a dry-bank station has
+ *  v = 0 and sigma at its floor, which would otherwise satisfy sigma > |v|
+ *  while meaning nothing. */
+const isLowConfidence = (v: number | null | undefined, sigma: number | null | undefined): boolean =>
+  v !== null && v !== undefined && v !== 0 && sigma !== null && sigma !== undefined && sigma > Math.abs(v);
 
 /**
  * Draws the line along which each station's STI will be sampled, previewing the
@@ -24,7 +36,8 @@ interface StationSearchLinesProps {
  */
 export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) => {
   const { sections, activeSection, transformationMatrix } = useSectionSlice();
-  const { processing } = useDataSlice();
+  const { processing, colorbarLimits } = useDataSlice();
+  const { hoveredStation, onSetHoveredStation } = useUiSlice();
   const { stationLayerRef } = layers;
 
   const section = sections[activeSection];
@@ -85,7 +98,33 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
         );
     if (lines.length === 0) return;
 
-    const accentColor = getCSSVar('--accent-color', '#0678BE');
+    const visualColors = {
+      preview: getCSSVar('--overlay-line', '#FFFFFF'),
+      accent: getCSSVar('--accent-color', '#0678BE'),
+      muted: getCSSVar('--pin-muted', '#808080'),
+      warning: getCSSVar('--status-fair', '#F5BF61'),
+      badge: 'rgba(50, 50, 50, 0.85)',
+    };
+
+    const stivProfile = data?.stiv_velocity_profile;
+    const stivSigma = data?.stiv_sigma_profile;
+    const manualAngles = data?.stiv_angle_manual_profile;
+    const { colors: stivColors } = hasAuthoritativeCenters
+      ? getStiColorScale(stivProfile, colorbarLimits)
+      : { colors: [] as string[] };
+
+    const visuals = lines.map((line) => {
+      const stationIndex = line.station - 1; // display number is 1-based; array index is 0-based
+      const rawColor = stivColors[stationIndex];
+      return getSearchLineVisual({
+        hasRun: hasAuthoritativeCenters,
+        velocityColor: rawColor && rawColor !== 'transparent' ? rawColor : null,
+        isHovered: hoveredStation === stationIndex,
+        tuned: hasAuthoritativeCenters ? isStationTuned(manualAngles, stationIndex) : false,
+        lowConfidence: hasAuthoritativeCenters ? isLowConfidence(stivProfile?.[stationIndex], stivSigma?.[stationIndex]) : false,
+        colors: visualColors,
+      });
+    });
 
     // Dark halo behind each line so it stays legible over any video
     // background, matching the treatment used on the cross-section line.
@@ -99,8 +138,8 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
       .attr('y1', (d) => d.a.y / factor)
       .attr('x2', (d) => d.b.x / factor)
       .attr('y2', (d) => d.b.y / factor)
-      .attr('stroke', 'rgba(0, 0, 0, 0.45)')
-      .attr('stroke-width', 3.5);
+      .attr('stroke', (_d, i) => visuals[i].haloColor)
+      .attr('stroke-width', (_d, i) => visuals[i].haloWidth);
 
     layer
       .selectAll('line.station-search-line')
@@ -112,8 +151,9 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
       .attr('y1', (d) => d.a.y / factor)
       .attr('x2', (d) => d.b.x / factor)
       .attr('y2', (d) => d.b.y / factor)
-      .attr('stroke', accentColor)
-      .attr('stroke-width', 1.5);
+      .attr('stroke', (_d, i) => visuals[i].strokeColor)
+      .attr('stroke-width', (_d, i) => visuals[i].strokeWidth)
+      .attr('stroke-dasharray', (_d, i) => (visuals[i].dashed ? '5 4' : null));
 
     layer
       .selectAll('circle.station-search-dot')
@@ -124,7 +164,7 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
       .attr('cx', (d) => d.a.x / factor)
       .attr('cy', (d) => d.a.y / factor)
       .attr('r', 3)
-      .attr('fill', accentColor)
+      .attr('fill', (_d, i) => visuals[i].strokeColor)
       .attr('stroke', 'rgba(0, 0, 0, 0.45)')
       .attr('stroke-width', 1);
 
@@ -144,12 +184,12 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
       .attr('x', 10)
       .attr('y', 0)
       .attr('dominant-baseline', 'central')
-      .attr('fill', accentColor)
+      .attr('fill', '#fff')
       .attr('font-size', '11px')
       .attr('font-weight', '600')
-      .text((d) => d.station);
+      .text((d, i) => `${d.station}${visuals[i].labelSuffix}`);
 
-    labelGroups.each(function () {
+    labelGroups.each(function (_d, i) {
       const g = d3.select(this);
       const textNode = g.select('text').node() as SVGTextElement;
       try {
@@ -163,11 +203,32 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
           .attr('height', bbox.height + padY * 2)
           .attr('rx', 3)
           .attr('ry', 3)
-          .attr('fill', 'rgba(50, 50, 50, 0.85)');
+          .attr('fill', visuals[i].badgeBackground);
       } catch {
         // getBBox may fail if not yet attached to the DOM — silently skip
       }
     });
+
+    // Wide, invisible hit-line per station (the visible line is only
+    // 1.5–2.5px, too thin to hover reliably) that dispatches
+    // onSetHoveredStation. Appended last so it sits on top for pointer
+    // events without affecting paint order visually (fill/stroke:
+    // transparent never paints).
+    layer
+      .selectAll('line.station-search-hit')
+      .data(lines)
+      .enter()
+      .append('line')
+      .attr('class', 'station-search-hit')
+      .attr('x1', (d) => d.a.x / factor)
+      .attr('y1', (d) => d.a.y / factor)
+      .attr('x2', (d) => d.b.x / factor)
+      .attr('y2', (d) => d.b.y / factor)
+      .attr('stroke', 'transparent')
+      .attr('stroke-width', 14)
+      .style('cursor', 'pointer')
+      .on('mouseenter', (_event, d) => onSetHoveredStation(d.station - 1))
+      .on('mouseleave', () => onSetHoveredStation(null));
   }, [
     numStations,
     sectionPoints,
@@ -176,6 +237,9 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
     transformationMatrix,
     factor,
     stationLayerRef,
+    colorbarLimits,
+    hoveredStation,
+    onSetHoveredStation,
   ]);
 
   return null;
