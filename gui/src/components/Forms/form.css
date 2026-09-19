@@ -358,6 +358,19 @@
     background-color: var(--on-hover);
 }
 
+.advanced-mode-toggle {
+    width: 90%;
+    align-self: center;
+}
+
+.advanced-mode-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--secondary-text-color);
+}
+
 /* Dracula theme: label text reflects toggle state (violet = on, muted = off) */
 [data-theme="dracula"] .switch-container p {
     color: var(--secondary-text-color);
