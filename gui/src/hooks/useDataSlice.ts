@@ -20,6 +20,7 @@ import {
   updateMask,
   setColorbarLimits,
   toggleMaskVisibility,
+  toggleProcessingExtraFields,
 } from '../store/data/dataSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { setHasChanged, setSectionData, setSummary } from '../store/section/sectionSlice';
@@ -440,6 +441,10 @@ export const useDataSlice = () => {
     }
   };
 
+  const onToggleProcessingExtraFields = () => {
+    dispatch(toggleProcessingExtraFields());
+  };
+
   interface ExportGifParams {
     image: { width: number; height: number };
     factor: number;
@@ -502,6 +507,7 @@ export const useDataSlice = () => {
     onSetQuiverAll,
     onSetQuiverTest,
     onToggleMaskVisibility,
+    onToggleProcessingExtraFields,
     onUpdateActiveMask,
     onUpdateMaskPoints,
     onUpdateProcessing,

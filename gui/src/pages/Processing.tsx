@@ -15,9 +15,17 @@ export const Processing = () => {
   const { t } = useTranslation();
   const { nextStep } = useWizard();
   const { onAddStepAlert, onClearStepAlert, onSetSeeAll } = useUiSlice();
-  const { images, fullQuiver, isBackendWorking, onSetActiveImage, onLoadResultData } = useDataSlice();
+  const {
+    images,
+    fullQuiver,
+    isBackendWorking,
+    onSetActiveImage,
+    onLoadResultData,
+    processing,
+    onToggleProcessingExtraFields,
+  } = useDataSlice();
+  const { extraFields } = processing;
   const [showMedian, setShowMedian] = useState(fullQuiver !== null);
-  const [extraFields, setExtraFields] = useState(false);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('frames');
   const [stiPaths, setStiPaths] = useState<string[]>([]);
   const [stiStations, setStiStations] = useState<number[]>([]);
@@ -180,7 +188,7 @@ export const Processing = () => {
         />
         <div className="footer">
           <LockBtn
-            setLocalExtraFields={setExtraFields}
+            setLocalExtraFields={onToggleProcessingExtraFields}
             localExtraFields={extraFields}
             footerElementID="processing-footer"
             headerElementID="processing-header"
