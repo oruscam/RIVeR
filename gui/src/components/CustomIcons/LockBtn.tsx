@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { useRipple } from './useRipple';
+import { useTranslation } from 'react-i18next';
 import { Icons } from './Icons';
 import { useSectionSlice } from '../../hooks';
 import { useWizard } from 'react-use-wizard';
 import { MODULE_NUMBER } from '../../constants/constants';
+
 interface LockButtonProps {
   localExtraFields?: boolean;
   setLocalExtraFields?: any;
@@ -22,9 +22,9 @@ export function LockBtn({
   const { onSetExtraFields, sections, activeSection } = useSectionSlice();
   const { extraFields, name } = sections[activeSection];
   const { activeStep } = useWizard();
-  const [locked, setLocked] = useState(true);
-  const [shakeKey, setShakeKey] = useState(0);
-  const [rpl, fire] = useRipple();
+  const { t } = useTranslation();
+
+  const checked = localExtraFields !== undefined ? localExtraFields : extraFields;
 
   const handleOnChange = () => {
     switch (activeStep) {
@@ -50,7 +50,6 @@ export function LockBtn({
           headerElement?.scrollIntoView({ behavior: 'smooth' });
         } else {
           const footerElement = document.getElementById(footerElementID);
-          console.log('footerElementID', footerElementID);
           setTimeout(() => {
             footerElement?.scrollIntoView({ behavior: 'smooth' });
           }, 100);
@@ -99,30 +98,16 @@ export function LockBtn({
     }
   };
 
-  const toggle = () => {
-    handleOnChange();
-    if (locked) setShakeKey((k) => k + 1);
-    fire('var(--primary-text-color, #888)');
-    setLocked((v) => !v);
-  };
-
-  useEffect(() => {
-    if (localExtraFields !== undefined) {
-      setLocked(!localExtraFields);
-    } else {
-      setLocked(!extraFields);
-    }
-  }, [extraFields, activeSection, localExtraFields]);
-
   return (
-    <div className="row">
-      <button type="button" className={`ib ${locked ? '' : ''}`} disabled={disabled} onClick={toggle}>
-        {rpl}
-        <span key={shakeKey} className={`cl ${locked ? 'show' : 'hide'} ${shakeKey > 0 ? 'wiggle' : ''}`}>
-          {Icons.Lock('currentColor')}
-        </span>
-        <span className={`cl ${locked ? 'hide' : 'show'}`}>{Icons.Unlock('currentColor')}</span>
-      </button>
+    <div className="switch-container advanced-mode-toggle">
+      <span className="advanced-mode-label">
+        {Icons.Lock('currentColor')}
+        {t('Commons.advancedSettings', { defaultValue: 'Advanced settings' })}
+      </span>
+      <label className="switch">
+        <input type="checkbox" checked={checked} onChange={handleOnChange} disabled={disabled} />
+        <span className="slider"></span>
+      </label>
     </div>
   );
 }
