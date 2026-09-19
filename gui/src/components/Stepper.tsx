@@ -1,7 +1,7 @@
 import { useWizard } from 'react-use-wizard';
 import { useTranslation } from 'react-i18next';
 import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
-import { buildStepperContent, getStepLeaveEffect } from '../helpers';
+import { applyStepLeaveEffects, buildStepperContent } from '../helpers';
 
 export const Stepper = () => {
   const { activeStep, goToStep } = useWizard();
@@ -15,9 +15,7 @@ export const Stepper = () => {
 
   const handleJumpToStep = (target: number) => {
     if (isBackendWorking) return;
-    for (let step = activeStep; step > target; step--) {
-      getStepLeaveEffect(step, { onSetActiveSection, onSetSeeAll, onSetDefaultProjectState })?.();
-    }
+    applyStepLeaveEffects(activeStep, target, { onSetActiveSection, onSetSeeAll, onSetDefaultProjectState });
     goToStep(target);
   };
 
