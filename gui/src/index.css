@@ -1119,30 +1119,59 @@ input:disabled + .slider:hover {
 }
 
 /* =============================================================================
-   PROGRESS INDICATORS
+   STEPPER
    ============================================================================= */
 
-.progress-indicator-container {
-  position: absolute;
-  top: 15px;
+.stepper {
   width: 90%;
-  height: 10px;
+}
+
+.stepper-bars {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.stepper-bar {
+  flex: 1;
+  min-width: 0;
+  height: 4px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-color: var(--secondary-input-background);
+  cursor: default;
+}
+
+.stepper-bar-done {
+  background-color: var(--accent-color);
+  cursor: pointer;
+}
+
+.stepper-bar-done:hover {
+  opacity: 0.8;
+}
+
+.stepper-bar-done:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.stepper-bar-current {
+  background-color: var(--primary-text-color);
+}
+
+.stepper-caption {
   display: flex;
   justify-content: space-between;
-  flex-shrink: 0;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  font-size: 12px;
+  color: var(--secondary-text-color);
 }
 
-.progress-indicator {
-  background-color: var(--secondary-input-background);
-  width: auto;
-  min-width: 56px;
-  height: 10px;
-  border-radius: 5px;
-  max-width: 65px;
-}
-
-.progress-indicator-active {
-  background-color: var(--primary-text-color);
+.stepper-caption b {
+  color: var(--primary-text-color);
+  font-weight: 600;
 }
 
 /* =============================================================================

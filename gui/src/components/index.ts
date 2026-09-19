@@ -4,7 +4,7 @@ import { LangBtn as LanguageSelector } from './CustomIcons/LanguageSelector';
 import { ThemeToggle } from './ThemeToggle';
 import { WizardButtons } from './WizzardButtons';
 import { Loading } from './Loading';
-import { Progress } from './Progress';
+import { Stepper } from './Stepper';
 import { Carousel } from './Carousel';
 import { Grid } from './Grid';
 import { Results } from './Results';
@@ -49,9 +49,9 @@ export {
   LanguageSelector,
   Loading,
   ModeHint,
-  Progress,
   Results,
   StepAlertList,
+  Stepper,
   StiAngleTuner,
   SuccessBanner,
   ThemeToggle,
