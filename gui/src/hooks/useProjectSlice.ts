@@ -22,6 +22,7 @@ import {
   setProjectDetails,
   setDefaultProjectState,
   setStabilizationActiveRegionIndex,
+  toggleVideoExtraFields,
 } from '../store/project/projectSlice';
 import { StabilizationRegion } from '../store/project/types';
 import { FieldValues } from 'react-hook-form';
@@ -797,6 +798,10 @@ export const useProjectSlice = () => {
     dispatch(setStabilizationActiveRegionIndex(index));
   };
 
+  const onToggleVideoExtraFields = () => {
+    dispatch(toggleVideoExtraFields());
+  };
+
   const onSetDefaultProjectState = () => {
     if (type === 'uav') {
       dispatch(setDefaultUavState());
@@ -836,6 +841,7 @@ export const useProjectSlice = () => {
     onSetStabilization,
     onSetStabilizationActiveRegionIndex,
     onSetVideoParameters,
+    onToggleVideoExtraFields,
     onUpdateStabilizationRegion,
   };
 };

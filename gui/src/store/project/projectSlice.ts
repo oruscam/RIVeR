@@ -26,9 +26,10 @@ const defaultVideo = {
     committedStabilization: false,
     committedStabilizationRegions: [],
   },
+  extraFields: false,
 };
 
-const savedUnitSystem = localStorage.getItem('unitSystem') || 'si';
+const savedUnitSystem = typeof localStorage !== 'undefined' ? localStorage.getItem('unitSystem') || 'si' : 'si';
 
 const initialState: ProjectState = {
   projectDirectory: '',
@@ -69,8 +70,12 @@ const projectSlice = createSlice({
     setStabilizationActiveRegionIndex: (state, action: PayloadAction<number | null>) => {
       state.stabilizationActiveRegionIndex = action.payload;
     },
+    toggleVideoExtraFields: (state) => {
+      state.video.extraFields = !state.video.extraFields;
+    },
     setDefaultProjectState: (state) => {
-      const preservedUnitSystem = localStorage.getItem('unitSystem') || 'si';
+      const preservedUnitSystem =
+        typeof localStorage !== 'undefined' ? localStorage.getItem('unitSystem') || 'si' : 'si';
       state.projectDirectory = '';
       state.video = defaultVideo;
       state.type = '';
@@ -95,6 +100,7 @@ export const {
   setVideoParameters,
   setDefaultProjectState,
   setStabilizationActiveRegionIndex,
+  toggleVideoExtraFields,
 } = projectSlice.actions;
 
 export default projectSlice.reducer;
