@@ -28,3 +28,17 @@ export function getStepLeaveEffect(moduleNumber: number, handlers: StepLeaveHand
       return undefined;
   }
 }
+
+/**
+ * Applies every leave-effect for the steps strictly between `target` and
+ * `activeStep` (inclusive of `activeStep`, exclusive of `target`), in
+ * descending order — the same sequence a series of single Back-clicks from
+ * `activeStep` down to `target` would apply. Used by the step bar's
+ * multi-step jump, so a jump of N steps back applies every intermediate
+ * step's reset instead of skipping them.
+ */
+export function applyStepLeaveEffects(activeStep: number, target: number, handlers: StepLeaveHandlers): void {
+  for (let step = activeStep; step > target; step--) {
+    getStepLeaveEffect(step, handlers)?.();
+  }
+}

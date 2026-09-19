@@ -143,9 +143,10 @@ new, separately-written logic that could drift from the Back button's.
   <n> of 6"`, and, unless the current step is Report (module 7, the last of
   the 6), a second `"Next: <next step's label>"`.
 - `onClick` on a `done` segment calls a new `onJumpToStep(target:
-  MODULE_NUMBER)`: walks module numbers from `activeStep - 1` down to
-  `target` inclusive, calling `getStepLeaveEffect` (§5.1) for each and
-  invoking it if defined, then calls `goToStep(target)` once. This applies
+  MODULE_NUMBER)`: walks module numbers from `activeStep` down to, but
+  excluding, `target` (i.e. `target + 1` through `activeStep` inclusive),
+  calling `getStepLeaveEffect` (§5.1) for each and invoking it if defined,
+  then calls `goToStep(target)` once. This applies
   every reset a sequence of single Back-clicks from `activeStep` down to
   `target` would have applied, in the same order, before making the single
   jump — so, e.g., jumping from Results straight to Video Range still resets

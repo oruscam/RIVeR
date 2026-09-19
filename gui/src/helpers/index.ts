@@ -5,7 +5,7 @@ import { formatTime, parseTime } from './formatTime';
 import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate } from './dateFunctions';
 import { getUnit } from './unitSistem';
 import { getDirectionVector } from './getDirectionVector';
-import { getStepLeaveEffect } from './stepLeaveEffects';
+import { applyStepLeaveEffects, getStepLeaveEffect } from './stepLeaveEffects';
 import type { StepLeaveHandlers } from './stepLeaveEffects';
 import { buildStepperContent } from './stepperContent';
 import type { StepperContent, StepperStep, StepStatus } from './stepperContent';
@@ -115,6 +115,7 @@ export {
   ANGLE_WARN_HIGH,
   ANGLE_WARN_LOW,
   angleFromPointer,
+  applyStepLeaveEffects,
   buildStepperContent,
   buildWetSegmentsProfile,
   calculateArrowWidth,
