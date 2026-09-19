@@ -181,10 +181,12 @@ new, separately-written logic that could drift from the Back button's.
   padlock icon button to the app's existing `.switch-container` pattern
   (already used throughout `HardModeProcessing.tsx`, `StabilizationRegions.
   tsx`, `LensCorrection.tsx`, etc.): a small lock/unlock icon, the text
-  label "Advanced settings" (new translation key, added with real
-  translations to all 11 locale files, matching how every prior phase's new
-  copy was added — e.g. `fa91ffe`), and the standard `.switch`/`<input
-  type="checkbox">` toggle. The `toggle`/`handleOnChange` logic (which
+  label "Advanced settings" via `t(key, { defaultValue: 'Advanced
+  settings' })` — no locale JSON files are edited, matching every prior
+  phase on this branch (4a/4b/4c all introduced new copy this way,
+  deferring the actual translation entries to the translation team) — and
+  the standard `.switch`/`<input type="checkbox">` toggle. The
+  `toggle`/`handleOnChange` logic (which
   element to scroll to, which setter to call) is unchanged — only the JSX
   it returns changes.
 - This is one component edit that covers all 5 screens.
