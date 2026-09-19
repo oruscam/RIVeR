@@ -5,6 +5,8 @@ import { formatTime, parseTime } from './formatTime';
 import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate } from './dateFunctions';
 import { getUnit } from './unitSistem';
 import { getDirectionVector } from './getDirectionVector';
+import { getStepLeaveEffect } from './stepLeaveEffects';
+import type { StepLeaveHandlers } from './stepLeaveEffects';
 import { isLowConfidence } from './lowConfidence';
 import {
   computeStationPixelPositions,
@@ -87,6 +89,7 @@ import type { SpectrumExtent } from './spectrumGeometry';
 
 export type {
   StiColorScale,
+  StepLeaveHandlers,
   StivSign,
   Technique,
   DischargeResult,
@@ -147,6 +150,7 @@ export {
   getOrthoImageDimensions,
   getPointNames,
   getPointsDistances,
+  getStepLeaveEffect,
   getStiColorScale,
   getUnit,
   getValidationRules,
