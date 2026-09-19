@@ -38,6 +38,10 @@ interface VideoParameters {
 interface Video {
   data: VideoData;
   parameters: VideoParameters;
+  /** "Advanced settings" expanded state for Video Range's footer toggle.
+   *  Lives here (not component state) so it survives navigating away and
+   *  back, matching Cross Sections/UAV/Oblique's own extraFields. */
+  extraFields: boolean;
 }
 
 interface ProjectDetails {

@@ -6,7 +6,6 @@ import { useProjectSlice } from '../hooks';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 import { FocusOverlay, WizardButtons, ModeHint, StepAlertList, Toast } from '../components';
-import { useState } from 'react';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
 
 export const VideoRange = () => {
@@ -16,11 +15,12 @@ export const VideoRange = () => {
     stabilizationActiveRegionIndex,
     onUpdateStabilizationRegion,
     onSetStabilizationActiveRegionIndex,
+    onToggleVideoExtraFields,
   } = useProjectSlice();
   const { path, duration, width: videoWidth, height: videoHeight } = video.data;
   const { stabilization, stabilizationRegions } = video.parameters;
+  const { extraFields } = video;
   const { t } = useTranslation();
-  const [extraFields, setExtraFields] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Stabilization only applies to UAV footage — oblique/ipcam cameras are fixed.
@@ -54,7 +54,7 @@ export const VideoRange = () => {
         <div className="footer">
           <LockBtn
             localExtraFields={extraFields}
-            setLocalExtraFields={setExtraFields}
+            setLocalExtraFields={onToggleVideoExtraFields}
             disabled={false}
             headerElementID="start"
             footerElementID="video-resolution"
