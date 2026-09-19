@@ -7,6 +7,8 @@ import { getUnit } from './unitSistem';
 import { getDirectionVector } from './getDirectionVector';
 import { getStepLeaveEffect } from './stepLeaveEffects';
 import type { StepLeaveHandlers } from './stepLeaveEffects';
+import { buildStepperContent } from './stepperContent';
+import type { StepperContent, StepperStep, StepStatus } from './stepperContent';
 import { isLowConfidence } from './lowConfidence';
 import {
   computeStationPixelPositions,
@@ -90,6 +92,9 @@ import type { SpectrumExtent } from './spectrumGeometry';
 export type {
   StiColorScale,
   StepLeaveHandlers,
+  StepperContent,
+  StepperStep,
+  StepStatus,
   StivSign,
   Technique,
   DischargeResult,
@@ -110,6 +115,7 @@ export {
   ANGLE_WARN_HIGH,
   ANGLE_WARN_LOW,
   angleFromPointer,
+  buildStepperContent,
   buildWetSegmentsProfile,
   calculateArrowWidth,
   calculateMultipleArrowsAdaptative,
