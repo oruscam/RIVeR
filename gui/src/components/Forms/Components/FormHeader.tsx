@@ -1,5 +1,5 @@
 import { Sections } from '../../CrossSections';
-import { Progress } from '../../Progress';
+import { Stepper } from '../../Stepper';
 
 export const FormHeader = ({
   title,
@@ -16,7 +16,7 @@ export const FormHeader = ({
 }) => {
   return (
     <div className="header">
-      {showProgress && <Progress />}
+      {showProgress && <Stepper />}
 
       <h1 className="form-title">{title}</h1>
 
