@@ -716,3 +716,27 @@
     pointer-events: none;
     flex-shrink: 0;
 }
+
+.home-toolbar {
+    position: absolute;
+    left: 24px;
+    right: 24px;
+    bottom: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.home-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.home-toolbar-divider {
+    width: 1px;
+    height: 18px;
+    background: var(--border-color);
+    margin: 0 6px;
+}
