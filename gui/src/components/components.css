@@ -1347,3 +1347,10 @@
 .mask-toolbar-btn-done {
     color: var(--status-good);
 }
+
+.carousel-frame-pair-caption {
+    align-self: center;
+    margin-bottom: 6px;
+    font-size: 12px;
+    color: var(--secondary-text-color);
+}
