@@ -48,6 +48,7 @@ body {
 #header-icon svg {
     width: 65px;
     height: 65px;
+    stroke-width: 0.75;
 }
 
 #header-title-container {
