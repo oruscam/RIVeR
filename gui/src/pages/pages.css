@@ -96,6 +96,7 @@
 }
 
 .footage-button-container {
+    position: relative;
     padding-top: 30px;
     padding-bottom: 20px;
     width: 250px;
@@ -104,10 +105,53 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 8px;
     border-radius: 20px;
     border: 1px solid var(--border-color);
     cursor: pointer;
     transition: transform 0.2s ease, border-color 0.1s ease, box-shadow 0.1s ease;
+}
+
+.footage-button-container svg {
+    width: 40px;
+    height: 40px;
+    color: var(--secondary-text-color);
+    transition: color 0.15s ease;
+}
+
+.selected-footage-type svg {
+    color: var(--primary-text-color);
+}
+
+.footage-type-name {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.footage-type-description {
+    font-size: 13px;
+    color: var(--secondary-text-color);
+    text-align: center;
+    max-width: 180px;
+}
+
+.footage-check-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.footage-check-badge svg {
+    width: 14px;
+    height: 14px;
+    color: var(--on-accent);
 }
 
 .footage-button-container:hover {
