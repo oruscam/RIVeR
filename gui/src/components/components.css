@@ -563,9 +563,9 @@
 }
 
 /* STI strips are far wider than they are tall, so inside the fixed row height that
-   react-window sets inline they render at the top while .img-water-mark (top: 45%)
-   and the carousel arrows sit near the middle — three different vertical positions.
-   Centring the strip puts all three on one line.
+   react-window sets inline they render at the top while .img-water-mark (a
+   top-right corner badge) and the carousel arrows sit near the middle — different
+   vertical positions to reconcile. Centring the strip aligns it with the arrows.
    The base class is compounded on deliberately: .img-carousel-container sets
    display: inline-block at the same specificity, and relying on source order to win
    would break the moment either rule moves. */
