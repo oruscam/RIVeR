@@ -64,6 +64,8 @@ body {
 
 .header-title-text {
     color: #FFFFFF;
+    font-family: var(--font-display);
+    font-weight: 700;
 }
 
 #header-title-date {
