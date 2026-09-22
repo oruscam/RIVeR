@@ -26,6 +26,11 @@
   --motion-slow:  320ms;
   --motion-ease:  cubic-bezier(.2,0,0,1);
 
+  /* Type — Outfit for prominent headings/numbers (bundled via @fontsource/outfit,
+     matching how @fontsource/inter is bundled rather than loaded at runtime).
+     Body/interface text stays on the existing global Inter stack, untouched. */
+  --font-display: 'Outfit', 'Avenir Next', system-ui, sans-serif;
+
   /* Pin ink — the label colour drawn inside a pin's head. Always a near-black,
      since every pin fill (left/right/point) is a light, saturated colour in
      every theme; unlike --pin-left/right/point/muted below, this one value
