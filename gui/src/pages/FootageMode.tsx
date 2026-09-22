@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { useProjectSlice } from '../hooks/index.js';
 import { Icon } from '../components/Icon.js';
+import { Icons } from '../components/CustomIcons/Icons';
 import { useState } from 'react';
 import { OperationCanceledError, UserSelectionError } from '../errors/errors.js';
 import { drone, ipcam, oblique } from '../assets/icons/icons';
@@ -17,9 +18,9 @@ type Video = {
 };
 
 const footageTypes = [
-  { id: 'uav', icon: drone, label: 'Drone' },
-  { id: 'oblique', icon: oblique, label: 'Oblique' },
-  { id: 'ipcam', icon: ipcam, label: 'Fixed camera' },
+  { id: 'uav', icon: drone, label: 'Drone', description: 'Top-down view from above' },
+  { id: 'oblique', icon: oblique, label: 'Oblique', description: 'Tripod or camera on the bank' },
+  { id: 'ipcam', icon: ipcam, label: 'Fixed camera', description: 'IP or CCTV station' },
 ];
 
 export const FootageMode = () => {
@@ -93,7 +94,7 @@ export const FootageMode = () => {
       <h2 className="step-2-title">{t('Step-2.title')}</h2>
       <form className="file-upload-container" onSubmit={handleSubmit(onSubmit)} id={formId}>
         <div className="type-footage-container">
-          {footageTypes.map(({ id, icon, label }) => (
+          {footageTypes.map(({ id, icon, label, description }) => (
             <div
               key={id}
               className={`footage-button-container ${dragOver === id ? `drag-over-${id}` : ''} ${footageType === id ? 'selected-footage-type' : ''}`}
@@ -113,7 +114,16 @@ export const FootageMode = () => {
               }}
               id={id}
             >
+              {footageType === id && (
+                <span className="footage-check-badge" aria-hidden="true">
+                  {Icons.Check('var(--on-accent)')}
+                </span>
+              )}
               <Icon path={icon} />
+              <b className="footage-type-name">{t('Step-2.footageType.' + id, { defaultValue: label })}</b>
+              <small className="footage-type-description">
+                {t('Step-2.footageType.' + id + 'Description', { defaultValue: description })}
+              </small>
             </div>
           ))}
         </div>
