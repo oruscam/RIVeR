@@ -592,19 +592,20 @@
 
 .img-water-mark {
     position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 50px;
-    font-weight: 900;
+    top: 6px;
+    right: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
     color: var(--overlay-text-color);
-    width: 100%;
-    text-align: center;
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: 999px;
+    padding: 2px 6px;
     white-space: nowrap;
     /* Must out-stack .img-carousel's z-index: 1. That z-index is inert while the
        container is inline-block (it applies only to positioned elements), but the
        STI carousel's container is a flex box, where z-index DOES apply to flex
-       items — so without this the thumbnail paints over the station number. */
+       items — so without this the thumbnail paints over the frame badge. */
     z-index: 2;
 }
 
