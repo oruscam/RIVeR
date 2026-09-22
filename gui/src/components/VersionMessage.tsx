@@ -19,7 +19,9 @@ export const VersionMessage = () => {
           <>
             <span id="version-dot" data-status={isLatestVersion ? 'ok' : 'update'} aria-hidden="true" />
             <p style={{ color: isLatestVersion === false ? COLORS.RED : '' }}>
-              {t(`MainPage.Version.${versionMessage}`)}
+              {t(`MainPage.Version.${versionMessage}`, {
+                defaultValue: isLatestVersion ? 'Up to date' : 'Update available',
+              })}
             </p>
             {isLatestVersion === false && (
               <a href={latestLink} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.RED }}>

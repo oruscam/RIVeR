@@ -24,7 +24,7 @@
 
 .home-page-buttons {
     margin-top: 5%;
-    margin-bottom: 40px;
+    margin-bottom: auto;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
