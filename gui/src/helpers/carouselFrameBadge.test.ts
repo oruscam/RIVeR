@@ -14,7 +14,8 @@ describe('filmstrip frame number is a small corner badge', () => {
     const body = ruleBody('.img-water-mark');
     expect(body).toMatch(/font-size:\s*11px/);
     expect(body).toMatch(/top:\s*6px/);
-    expect(body).toMatch(/right:\s*6px/);
+    expect(body).toMatch(/left:\s*6px/);
+    expect(body).toMatch(/background:/);
     expect(body).not.toMatch(/font-size:\s*50px/);
     expect(body).not.toMatch(/left:\s*50%/);
     expect(body).not.toMatch(/transform:\s*translate/);
