@@ -563,9 +563,8 @@
 }
 
 /* STI strips are far wider than they are tall, so inside the fixed row height that
-   react-window sets inline they render at the top while .img-water-mark (a
-   top-right corner badge) and the carousel arrows sit near the middle — different
-   vertical positions to reconcile. Centring the strip aligns it with the arrows.
+   react-window sets inline they render at the top while the carousel arrows sit
+   near the middle. Centring the strip aligns it with the arrows.
    The base class is compounded on deliberately: .img-carousel-container sets
    display: inline-block at the same specificity, and relying on source order to win
    would break the moment either rule moves. */
@@ -593,11 +592,11 @@
 .img-water-mark {
     position: absolute;
     top: 6px;
-    right: 6px;
+    left: 6px;
     font-size: 11px;
     font-weight: 700;
     line-height: 1;
-    color: var(--overlay-text-color);
+    color: rgba(255, 255, 255, 0.92);
     background: rgba(0, 0, 0, 0.55);
     border-radius: 999px;
     padding: 2px 6px;
@@ -605,7 +604,7 @@
     /* Must out-stack .img-carousel's z-index: 1. That z-index is inert while the
        container is inline-block (it applies only to positioned elements), but the
        STI carousel's container is a flex box, where z-index DOES apply to flex
-       items — so without this the thumbnail paints over the frame badge. */
+       items — so without this the thumbnail paints over the badge. */
     z-index: 2;
 }
 

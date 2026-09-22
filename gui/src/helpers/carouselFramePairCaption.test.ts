@@ -6,7 +6,7 @@ const css = readFileSync(join(__dirname, '..', 'components', 'components.css'), 
 
 describe("Processing's paired-frame carousel explains the two-frame selection", () => {
   it('shows a "Frame pair" caption only in pair mode', () => {
-    expect(tsx).toMatch(/\{isPairMode && \(/);
+    expect(tsx).toMatch(/isPairMode && !showMedian/);
     expect(tsx).toMatch(/className="carousel-frame-pair-caption"/);
   });
 

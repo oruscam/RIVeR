@@ -218,7 +218,7 @@ export const Carousel: React.FC<CarouselProps> = ({
           <p> / {images.length} </p>
         </div>
       </div>
-      {isPairMode && (
+      {isPairMode && !showMedian && (
         <p className="carousel-frame-pair-caption">
           {t('Processing.framePairCaption', {
             defaultValue: 'Frame pair {{first}}–{{last}}',
