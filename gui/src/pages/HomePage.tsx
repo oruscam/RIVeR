@@ -16,7 +16,7 @@ export const HomePage: React.FC = () => {
   const { t } = useTranslation();
   const { nextStep, goToStep } = useWizard();
   const { onLoadProject } = useProjectSlice();
-  const { onAddStepAlert, onClearStepAlert, onCheckVersion, isLatestVersion, theme } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert, onCheckVersion, theme } = useUiSlice();
   const [showCalibration, setShowCalibration] = useState(false);
 
   const handleNewProjectClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -57,23 +57,20 @@ export const HomePage: React.FC = () => {
         </button>
       </div>
       <StepAlertList />
-      <p id="version-number">{import.meta.env.VITE_APP_VERSION}</p>
-      {isLatestVersion !== undefined && <VersionMessage />}
-      <div className="row" style={{ position: 'absolute', bottom: '30px', right: '50px' }}>
-        <FolderBtn />
-        <UnitBtn />
-        <LangBtn />
-        <ThemeToggle />
+      <div className="home-toolbar">
+        <button className="btn btn-tertiary" onClick={() => setShowCalibration(true)}>
+          {Icons.Camera('currentColor')}
+          {t('Calibration.title')}
+        </button>
+        <VersionMessage />
+        <div className="home-toolbar-group">
+          <FolderBtn />
+          <span className="home-toolbar-divider" />
+          <UnitBtn />
+          <LangBtn />
+          <ThemeToggle />
+        </div>
       </div>
-      <button
-        className="ib"
-        style={{ position: 'absolute', bottom: '30px', left: '50px', border: 'none' } as React.CSSProperties}
-        onClick={() => setShowCalibration(true)}
-        title={t('Calibration.title')}
-        aria-label={t('Calibration.title')}
-      >
-        {Icons.Camera('var(--primary-text-color)')}
-      </button>
     </div>
   );
 };
