@@ -1,5 +1,8 @@
 .form-title {
     margin-top: 6vh;
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 700;
 }
 
 .form-container {
