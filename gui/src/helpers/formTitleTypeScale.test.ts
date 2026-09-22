@@ -24,4 +24,11 @@ describe('Outfit display font powers the shared screen-title heading', () => {
     expect(match![1]).toMatch(/font-size:\s*24px/);
     expect(match![1]).toMatch(/font-weight:\s*700/);
   });
+
+  it('#result-info #result-number (the Results screen discharge readout) also uses the display font', () => {
+    const match = formCss.match(/#result-info #result-number\s*\{([^}]*)\}/);
+    expect(match).not.toBeNull();
+    expect(match![1]).toMatch(/font-family:\s*var\(--font-display\)/);
+    expect(match![1]).toMatch(/font-weight:\s*700/);
+  });
 });

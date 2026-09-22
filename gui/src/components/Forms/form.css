@@ -282,7 +282,8 @@
 
 #result-info #result-number {
     font-size: 2.2rem;
-    font-weight: bold;
+    font-weight: 700;
+    font-family: var(--font-display);
 }
 
 #result-measured {
