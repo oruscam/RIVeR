@@ -6,12 +6,20 @@ from river.core.iwave_params import (
 	IwaveOptions,
 	SceneParams,
 	VelocityEstimate,
+	build_params_record,
 	estimate_velocity,
 	get_considered_stations,
+	get_depth_bounds,
+	get_quality_flags,
+	get_section_gravity_waves,
 	get_station_velocity,
 	get_time_size,
 	get_widest_wet_width,
+	get_window_depth_reference,
 	get_window_size,
+	is_depth_at_bound,
+	is_dry_window,
+	needs_smax_rerun,
 	resolve_scene_params,
 )
 
@@ -181,3 +189,102 @@ def test_resolution_memory_guard_on_large_roi():
 	scene = resolve_scene_params(_estimate(0.3), {}, n_frames=900, fps_eff=30.0, span_m=140.0, options=IwaveOptions())
 	assert scene.resolution == pytest.approx(140.0 / 700)
 	assert scene.window_px == 32  # 2 m / 0.2 m = 10 px, clamped up
+
+
+def test_depth_reference_is_wet_mean_within_window():
+	section = _section(depth=[0.0, 0.2, 1.0, 1.2, 3.0], distance=[0, 1, 2, 3, 6])
+	# station 2 at 2 m, window 2.5 m -> distances within 0.75..3.25: stations 1..3, all wet
+	assert get_window_depth_reference(section, 2, 2.5) == pytest.approx((0.2 + 1.0 + 1.2) / 3)
+
+
+def test_depth_reference_without_depth_fields():
+	assert get_window_depth_reference(_section(lspiv=[1.0]), 0, 2.5) is None
+
+
+def test_depth_bounds_range_fixed_free():
+	assert get_depth_bounds(1.0, "range") == pytest.approx((0.5, 2.0))
+	assert get_depth_bounds(0.02, "range") == pytest.approx((0.05, 0.10))
+	assert get_depth_bounds(1.0, "fixed") == pytest.approx((1.0, 1.0))
+	assert get_depth_bounds(1.0, "free") == pytest.approx((0.01, 3.0))
+
+
+def test_depth_bounds_fallback_without_reference():
+	assert get_depth_bounds(None, "range") == pytest.approx((0.01, 3.0))
+	assert get_depth_bounds(float("nan"), "fixed") == pytest.approx((0.01, 3.0))
+
+
+def test_depth_at_bound():
+	assert is_depth_at_bound(0.505, (0.5, 2.0)) is True
+	assert is_depth_at_bound(1.98, (0.5, 2.0)) is True
+	assert is_depth_at_bound(1.0, (0.5, 2.0)) is False
+	assert is_depth_at_bound(1.0, (1.0, 1.0)) is False  # fixed depth is never "at a bound"
+
+
+def test_dry_window_threshold():
+	section = _section(depth=[-0.2, -0.1, 0.3, 0.5], distance=[0, 1, 2, 3])
+	assert is_dry_window(section, 0, 2.0) is True  # stations 0,1 dry of 0,1 -> 100 %
+	assert is_dry_window(section, 1, 2.0) is True  # stations 0,1,2 -> 2/3 dry
+	assert is_dry_window(section, 2, 2.0) is False  # stations 1,2,3 -> 1/3 dry
+
+
+def test_dry_window_without_depth_fields():
+	assert is_dry_window(_section(lspiv=[1.0]), 0, 2.0) is False
+
+
+def test_gravity_waves_auto_uses_median_froude():
+	depth = [1.0, 1.0, 1.0]
+	subcritical = _section(lspiv=[3.4, 3.4, 3.4], depth=depth)  # Fr = 3.4/3.13 = 1.09
+	supercritical = _section(lspiv=[4.1, 4.1, 4.1], depth=depth)  # Fr = 1.31
+	estimate = _estimate(4.1)
+	assert get_section_gravity_waves(subcritical, estimate, "auto") is True
+	assert get_section_gravity_waves(supercritical, estimate, "auto") is False
+
+
+def test_gravity_waves_untrusted_estimate_keeps_waves():
+	supercritical = _section(lspiv=[4.1, 4.1, 4.1], depth=[1.0, 1.0, 1.0])
+	assert get_section_gravity_waves(supercritical, NO_ESTIMATE, "auto") is True
+
+
+def test_gravity_waves_overrides():
+	section = _section(lspiv=[4.1], depth=[1.0])
+	assert get_section_gravity_waves(section, _estimate(4.1), "waves") is True
+	assert get_section_gravity_waves(section, NO_ESTIMATE, "no-waves") is False
+
+
+def _scene(smax=2.0, smax_is_auto=True):
+	return SceneParams(
+		smax=smax, smax_is_auto=smax_is_auto, window_m=2.4, window_px=48, resolution=0.05,
+		time_size=100, time_overlap=50, fps_eff=20.0, penalty_weight=1.0,
+	)
+
+
+def test_needs_smax_rerun():
+	assert needs_smax_rerun(1.85, 0.1, _scene()) is True
+	assert needs_smax_rerun(1.0, -1.0, _scene()) is False
+	assert needs_smax_rerun(1.85, 0.1, _scene(smax_is_auto=False)) is False
+	assert needs_smax_rerun(4.8, 0.0, _scene(smax=5.0)) is False  # already at the ceiling
+	assert needs_smax_rerun(float("nan"), float("nan"), _scene()) is False
+
+
+def test_quality_flags_threshold_and_neighbours():
+	quality = [0.9, 0.91, 0.84, 0.9, 0.7, None]
+	# station 2: 0.84 >= 0.8 but its neighbours' median (0.9) - 0.05 = 0.85 > 0.84 -> False
+	# station 4: below 0.8 -> False; station 5: no quality -> None
+	assert get_quality_flags(quality) == [True, True, False, True, False, None]
+
+
+def test_quality_flags_single_station_uses_absolute_rule_only():
+	assert get_quality_flags([0.81]) == [True]
+
+
+def test_params_record_is_json_ready():
+	import json
+
+	record = build_params_record(
+		_scene(), _estimate(1.0), IwaveOptions(), window_px=48, window_m=2.4, time_size=100,
+		gravity_waves=True, depth_at_bound=1, smax_reruns=0, skipped_dry=2,
+	)
+	json.dumps(record)
+	assert record["mode"] == {"smax": "auto", "window": "auto", "flow_type": "auto", "depth": "range"}
+	assert record["u_est"] == 1.0 and record["u_sources"] == ["lspiv"]
+	assert record["window_px"] == 48 and record["skipped_dry"] == 2
