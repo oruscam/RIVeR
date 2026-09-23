@@ -121,6 +121,17 @@ def test_build_ortho_stack_without_save_dir_has_no_side_effects(tmp_path):
 	assert sorted(p.name for p in tmp_path.iterdir()) == ["frames"]
 
 
+def test_build_ortho_stack_uses_given_resolution(tmp_path):
+	frames_dir = tmp_path / "frames"
+	frames_dir.mkdir()
+	_write_fake_frames(frames_dir, 3)
+	H = [[0.05, 0.0, 0.0], [0.0, -0.05, 0.0], [0.0, 0.0, 1.0]]
+	xsections = {"CS1": {"east": [0.5], "north": [-0.5]}}
+	stack, grid = build_ortho_stack(str(frames_dir), H, xsections, resolution=0.1)
+	assert grid.resolution == 0.1
+	assert stack.shape[1:] == (grid.height_px, grid.width_px)
+
+
 def test_extract_ky0_slice_picks_row_nearest_zero():
 	# spec is (n_kt, n_ky, n_kx); mark each ky plane with its own constant
 	spec = np.zeros((4, 3, 5), dtype=np.float32)
@@ -397,7 +408,8 @@ except ImportError:
 	HAS_IWAVE = False
 
 if HAS_IWAVE:
-	from river.core.iwave_pipeline import run_iwave_analysis, IWAVE_COLUMNS
+	from river.core.iwave_pipeline import run_iwave_analysis, IWAVE_COLUMNS, IWAVE_PARAMS_KEY
+	from river.core.iwave_params import SceneParams
 
 
 def _synthetic_project(tmp_path, n_frames=128, size=96, speed_px=1.0):
@@ -489,3 +501,64 @@ def test_run_iwave_analysis_writes_nothing_without_spectra_dir(tmp_path):
 	)
 
 	assert not (tmp_path / "iwave_spectra").exists()
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_records_params(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	result = run_iwave_analysis(xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0)
+	record = result["CS1"][IWAVE_PARAMS_KEY]
+	# No LSPIV/STIV in the synthetic project -> fallbacks
+	assert record["u_est"] is None and record["smax"] == 5.0
+	assert record["gravity_waves"] is True
+	assert record["fps_eff"] == 20.0
+	assert record["time_size"] == 100  # 6.4 s clip -> 5 s segments at 20 fps
+	assert result["CS1"]["iwave_valid_profile"][0] in (True, False)
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_reruns_station_pinned_at_auto_smax(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	scene = SceneParams(
+		smax=0.6, smax_is_auto=True, window_m=2.4, window_px=48, resolution=0.05,
+		time_size=64, time_overlap=32, fps_eff=20.0, penalty_weight=1.0,
+	)
+	result = run_iwave_analysis(
+		xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0, scene=scene,
+	)
+	assert result["CS1"][IWAVE_PARAMS_KEY]["smax_reruns"] == 1
+	# true speed is 1.0 m/s, out of reach of the first 0.6 m/s bound
+	assert abs(abs(result["CS1"]["iwave_velocity_profile"][0]) - 1.0) < 0.5
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_keeps_user_smax(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	scene = SceneParams(
+		smax=0.6, smax_is_auto=False, window_m=2.4, window_px=48, resolution=0.05,
+		time_size=64, time_overlap=32, fps_eff=20.0, penalty_weight=1.0,
+	)
+	result = run_iwave_analysis(
+		xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0, scene=scene,
+	)
+	assert result["CS1"][IWAVE_PARAMS_KEY]["smax_reruns"] == 0
+	# pass 2 may move 0.1 m/s past the bound, never to the true 1.0 m/s
+	assert abs(result["CS1"]["iwave_velocity_profile"][0]) < 0.8
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_skips_dry_station(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	xsections["CS1"]["distance"] = [0.0]
+	xsections["CS1"]["depth"] = [-0.3]
+	result = run_iwave_analysis(xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0)
+	for col in IWAVE_COLUMNS:
+		assert result["CS1"][col] == [None]
+	assert result["CS1"][IWAVE_PARAMS_KEY]["skipped_dry"] == 1
+
+
+def test_run_iwave_analysis_rejects_stack_without_scene():
+	with pytest.raises(ValueError):
+		from river.core.iwave_pipeline import run_iwave_analysis as run
+		run({"CS1": {}}, [[1, 0, 0], [0, 1, 0], [0, 0, 1]], "unused", step=1, fps=1.0, id_section=0,
+			stack=np.zeros((2, 4, 4), np.uint8), grid=object())
