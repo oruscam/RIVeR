@@ -43,6 +43,9 @@ from river.core.iwave_params import (
 
 MAX_FRAMES = 512
 EXTENT_MARGIN_M = 2.0
+# Fixed seed for iWave's differential evolution: without it the same project gave
+# velocities up to 20 % apart between identical runs (2026-09-23 benchmark).
+OPTIMIZER_SEED = 0
 
 IWAVE_COLUMNS = [
     "iwave_velocity_profile",
@@ -406,7 +409,7 @@ def _process_station(
     vy, vx, d, cost, quality, status, msg = optimise.optimize_single_spectrum_velocity(
         spec[0], bnds, alpha, window_dims, resolution, fps_eff,
         penalty_weight=penalty_weight, gravity_waves_switch=gravity_waves, turbulence_switch=True,
-        pass_downsampling=[2, 1], gauss_width=1, kwargs=dict(OPTIM_KWARGS_SADE),
+        pass_downsampling=[2, 1], gauss_width=1, kwargs=dict(OPTIM_KWARGS_SADE, seed=OPTIMIZER_SEED),
     )
 
     # Preview: the ky=0 cross-section with the fitted dispersion relations on
