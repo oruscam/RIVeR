@@ -285,7 +285,7 @@ def test_params_record_is_json_ready():
 		gravity_waves=True, depth_at_bound=1, smax_reruns=0, skipped_dry=2,
 	)
 	json.dumps(record)
-	assert record["mode"] == {"smax": "auto", "window": "auto", "flow_type": "auto", "depth": "range"}
+	assert record["mode"] == {"smax": "auto", "window": "auto", "flow_type": "auto", "depth": "free"}
 	assert record["u_est"] == 1.0 and record["u_sources"] == ["lspiv"]
 	assert record["window_px"] == 48 and record["skipped_dry"] == 2
 
@@ -293,3 +293,9 @@ def test_params_record_is_json_ready():
 def test_time_size_uses_full_clip_length_when_frames_are_capped():
 	# 40 s clip at 30 fps, only 512 frames warped: still a long clip -> 10 s segments
 	assert get_time_size(n_frames=512, fps_eff=30.0, clip_duration_s=40.0) == 300
+
+
+def test_depth_mode_defaults_to_free():
+	# Benchmark 2026-09-23: bathymetry-bounded depth railed on most stations and
+	# biased the velocity; free depth matched LSPIV better in 3 of 3 informative cases
+	assert IwaveOptions().depth_mode == "free"
