@@ -33,7 +33,8 @@ def fake_project(tmp_path, monkeypatch):
 			"stiv_velocity_profile": [0.1, 0.2], "iwave_velocity_profile": [0.3, 0.4],
 			"iwave_quality_profile": [0.9, 0.9], "iwave_depth_profile": [1.0, 1.0],
 			"stiv_sigma_profile": [0.1, 0.1], "stiv_angle_profile": [45.0, 50.0],
-			"stiv_sign_profile": ["positive", "positive"]},
+			"stiv_sign_profile": ["positive", "positive"],
+			"iwave_valid_profile": [True, True], "iwave_params": {"smax": 5.0}},
 	}
 	(tmp_path / "xsections.json").write_text(json.dumps(xsections))
 	(tmp_path / "transformation_matrix.json").write_text(json.dumps([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
@@ -52,6 +53,7 @@ def fake_project(tmp_path, monkeypatch):
 	monkeypatch.setattr(orch, "build_ortho_stack", lambda *a, **k: (np.zeros((2, 4, 4), np.uint8), None))
 	def fake_iwave(**kwargs):
 		calls["iwave"] += 1
+		calls["iwave_kwargs"] = kwargs
 		return kwargs["xsections"]
 	monkeypatch.setattr(orch, "run_iwave_analysis", fake_iwave)
 	return tmp_path, calls
@@ -81,6 +83,7 @@ def test_engines_off_strip_columns(fake_project):
 	xs = json.loads((tmp_path / "xsections.json").read_text())
 	for col in orch.STIV_COLUMNS + orch.IWAVE_COLUMNS:
 		assert col not in xs["CS1"]
+	assert orch.IWAVE_PARAMS_KEY not in xs["CS1"]
 	assert calls["stiv"] == 0 and calls["iwave"] == 0
 
 
@@ -174,3 +177,29 @@ def test_engine_failure_strips_and_continues(fake_project, monkeypatch):
 		assert col not in xs["CS1"]
 	for col in orch.IWAVE_COLUMNS:
 		assert col in xs["CS1"]
+
+
+def test_iwave_options_and_scene_reach_the_pipeline(fake_project):
+	from river.core.iwave_params import IwaveOptions, SceneParams
+
+	tmp_path, calls = fake_project
+	options = IwaveOptions(window_size=3.0, flow_type="waves")
+	_run(tmp_path, iwave_options=options)
+	kwargs = calls["iwave_kwargs"]
+	assert kwargs["options"] is options
+	assert isinstance(kwargs["scene"], SceneParams)
+	assert kwargs["scene"].window_m == 3.0
+	# stiv_velocity_profile [0.1, 0.2] in the fixture is trusted -> estimate from STIV
+	assert kwargs["estimate"].sources == ("stiv",)
+
+
+def test_iwave_scene_failure_strips_and_continues(fake_project, monkeypatch):
+	tmp_path, calls = fake_project
+	def boom(*args, **kwargs):
+		raise RuntimeError("scene exploded")
+	monkeypatch.setattr(orch, "prepare_iwave_scene", boom)
+	out = _run(tmp_path)
+	assert "iwave" in out["errors"]
+	xs = json.loads((tmp_path / "xsections.json").read_text())
+	for col in orch.IWAVE_COLUMNS + [orch.IWAVE_PARAMS_KEY]:
+		assert col not in xs["CS1"]
