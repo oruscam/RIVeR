@@ -45,8 +45,8 @@ def iwave_option_flags(func: Callable) -> Callable:
 			help="'no-waves' ignores gravity waves (supercritical flow); 'auto' decides from the Froude number."),
 		click.option("--iwave-penalty-weight", type=click.FloatRange(min=0), default=1.0, show_default=True,
 			help="iWave velocity penalty weight; 1.5-2 can help with foam or whitewater."),
-		click.option("--iwave-depth-mode", type=click.Choice(DEPTH_MODES), default="range", show_default=True,
-			help="Depth search: 'range' around the surveyed depth, 'fixed' to it, or 'free' (0.01-3 m)."),
+		click.option("--iwave-depth-mode", type=click.Choice(DEPTH_MODES), default="free", show_default=True,
+			help="Depth search: 'free' (0.01-3 m), 'range' around the surveyed depth, or 'fixed' to it."),
 	]
 	for decorator in reversed(decorators):
 		func = decorator(func)

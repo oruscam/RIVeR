@@ -89,13 +89,13 @@ class IwaveOptions:
 		smax (Optional[float]): Velocity search bound in m/s.
 		flow_type (str): "auto", "waves" or "no-waves". (default: "auto")
 		penalty_weight (float): iWave velocity penalty weight. (default: 1.0)
-		depth_mode (str): "range", "fixed" or "free". (default: "range")
+		depth_mode (str): "free", "range" or "fixed". (default: "free")
 	"""
 	window_size: Optional[float] = None
 	smax: Optional[float] = None
 	flow_type: str = "auto"
 	penalty_weight: float = 1.0
-	depth_mode: str = "range"
+	depth_mode: str = "free"
 
 	def __post_init__(self) -> None:
 		if self.flow_type not in FLOW_TYPES:
