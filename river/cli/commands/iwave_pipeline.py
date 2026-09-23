@@ -1,8 +1,10 @@
 import json
 from pathlib import Path
+from typing import Optional
 
 import click
 
+from river.cli.commands.iwave_options import build_iwave_options, iwave_option_flags
 from river.cli.commands.utils import render_response
 from river.core.iwave_pipeline import run_iwave_analysis
 
@@ -39,6 +41,7 @@ from river.core.iwave_pipeline import run_iwave_analysis
 	default=False,
 	help="Save per-station spectrum previews next to the frames directory.",
 )
+@iwave_option_flags
 @render_response
 def iwave_analyze(
 	xsections: str,
@@ -50,6 +53,11 @@ def iwave_analyze(
 	bbox,
 	write: bool,
 	save_spectra: bool,
+	iwave_window_size: Optional[float],
+	iwave_smax: Optional[float],
+	iwave_flow_type: str,
+	iwave_penalty_weight: float,
+	iwave_depth_mode: str,
 ) -> dict:
 	"""Run iWave analysis for the current cross-section."""
 	xsections_path = Path(xsections)
@@ -64,6 +72,9 @@ def iwave_analyze(
 		id_section=id_section,
 		bbox=json.loads(bbox.read()) if bbox is not None else None,
 		spectra_dir=spectra_dir,
+		options=build_iwave_options(
+			iwave_window_size, iwave_smax, iwave_flow_type, iwave_penalty_weight, iwave_depth_mode,
+		),
 	)
 	if write:
 		xsections_path.write_text(json.dumps(result))

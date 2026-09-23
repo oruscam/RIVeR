@@ -4,6 +4,7 @@ from typing import Optional
 
 import click
 
+from river.cli.commands.iwave_options import build_iwave_options, iwave_option_flags
 from river.cli.commands.utils import load_mask, render_response
 from river.core.orchestrator import run_full_analysis
 
@@ -47,6 +48,7 @@ from river.core.orchestrator import run_full_analysis
 @click.option("--iwave/--no-iwave", default=True, show_default=True, help="Run iWave analysis.")
 @click.option("-in", "--interpolate", is_flag=True, help="Whether to interpolate velocity and discharge results.")
 @click.option("--height-roi-stiv", type=float, default=6.0, show_default=True, help="STIV sampling window height (meters).")
+@iwave_option_flags
 @render_response
 def analyze_all(
 	frames_dir: Path,
@@ -72,6 +74,11 @@ def analyze_all(
 	iwave: bool,
 	interpolate: bool,
 	height_roi_stiv: float,
+	iwave_window_size: Optional[float],
+	iwave_smax: Optional[float],
+	iwave_flow_type: str,
+	iwave_penalty_weight: float,
+	iwave_depth_mode: str,
 ) -> dict:
 	"""Run PIV, LSPIV profiles, STIV, and iWave in one pass."""
 	mask_arr = load_mask(mask) if mask is not None else None
@@ -106,4 +113,7 @@ def analyze_all(
 		bbox=bbox_list,
 		piv_options=piv_options,
 		height_roi_stiv=height_roi_stiv,
+		iwave_options=build_iwave_options(
+			iwave_window_size, iwave_smax, iwave_flow_type, iwave_penalty_weight, iwave_depth_mode,
+		),
 	)
