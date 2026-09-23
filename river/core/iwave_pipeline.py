@@ -210,7 +210,8 @@ def prepare_iwave_scene(
     Returns:
         Tuple[VelocityEstimate, SceneParams]: Estimate and resolved parameters.
     """
-    n_frames = min(len(_collect_frames(frames_dir)), MAX_FRAMES)
+    n_frames_total = len(_collect_frames(frames_dir))
+    n_frames = min(n_frames_total, MAX_FRAMES)
     if n_frames == 0:
         raise FileNotFoundError(f"No frames (.jpg) found in {frames_dir}")
     extent = compute_extent(xsections, transformation_matrix, bbox)
@@ -218,7 +219,10 @@ def prepare_iwave_scene(
     # Effective fps of the extracted frames is raw fps divided by the frame step.
     fps_eff = float(fps) / float(step or 1)
     estimate = estimate_velocity(xsections)
-    scene = resolve_scene_params(estimate, xsections, n_frames, fps_eff, span_m, options or IwaveOptions())
+    scene = resolve_scene_params(
+        estimate, xsections, n_frames, fps_eff, span_m, options or IwaveOptions(),
+        clip_duration_s=n_frames_total / fps_eff,
+    )
     return estimate, scene
 
 
