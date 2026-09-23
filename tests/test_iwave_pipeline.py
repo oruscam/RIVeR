@@ -1,4 +1,5 @@
 """Tests for river.core.iwave_pipeline geometry helpers (no iwave package required)."""
+import copy
 import cv2
 import json
 import numpy as np
@@ -574,3 +575,15 @@ def test_prepare_iwave_scene_switches_on_full_clip_length(tmp_path, monkeypatch)
 	# 25 frames at 1 fps = 25 s clip (long) although only 10 frames are warped
 	_, scene = pipeline.prepare_iwave_scene(str(frames_dir), H_SIMPLE, xsections, step=1, fps=1.0)
 	assert scene.time_size == 10
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_is_reproducible(tmp_path):
+	# The spectral fit uses differential evolution; without a fixed seed the same
+	# project gave velocities up to 20 % apart between identical runs.
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	results = []
+	for _ in range(2):
+		result = run_iwave_analysis(copy.deepcopy(xsections), H, str(frames_dir), step=1, fps=20.0, id_section=0)
+		results.append((result["CS1"]["iwave_velocity_profile"], result["CS1"]["iwave_quality_profile"]))
+	assert results[0] == results[1]
