@@ -562,3 +562,15 @@ def test_run_iwave_analysis_rejects_stack_without_scene():
 		from river.core.iwave_pipeline import run_iwave_analysis as run
 		run({"CS1": {}}, [[1, 0, 0], [0, 1, 0], [0, 0, 1]], "unused", step=1, fps=1.0, id_section=0,
 			stack=np.zeros((2, 4, 4), np.uint8), grid=object())
+
+
+def test_prepare_iwave_scene_switches_on_full_clip_length(tmp_path, monkeypatch):
+	import river.core.iwave_pipeline as pipeline
+
+	monkeypatch.setattr(pipeline, "MAX_FRAMES", 10)
+	frames_dir = tmp_path / "frames"
+	_write_fake_frames(frames_dir, n=25)
+	xsections = {"CS1": {"east": [1.0, 4.0], "north": [2.0, 3.0], "alpha": 0.85}}
+	# 25 frames at 1 fps = 25 s clip (long) although only 10 frames are warped
+	_, scene = pipeline.prepare_iwave_scene(str(frames_dir), H_SIMPLE, xsections, step=1, fps=1.0)
+	assert scene.time_size == 10

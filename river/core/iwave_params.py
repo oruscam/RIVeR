@@ -308,17 +308,23 @@ def get_window_size(estimate: VelocityEstimate, xsections: dict, options: IwaveO
 	return window_m
 
 
-def get_time_size(n_frames: int, fps_eff: float) -> int:
+def get_time_size(n_frames: int, fps_eff: float, clip_duration_s: Optional[float] = None) -> int:
 	"""Frames per spectral segment: about 10 s, or 5 s for clips under 20 s.
 
+	The 10 s / 5 s switch follows the recording length, not the number of
+	frames warped: frames are capped (MAX_FRAMES), and at 30 fps the capped
+	count alone would always look like a short clip.
+
 	Args:
-		n_frames (int): Frames available.
+		n_frames (int): Frames available after capping.
 		fps_eff (float): Frame rate of the extracted frames.
+		clip_duration_s (Optional[float]): Full clip length in seconds.
+			(default: n_frames / fps_eff)
 
 	Returns:
 		int: Even number of frames, at most n_frames.
 	"""
-	duration_s = n_frames / fps_eff
+	duration_s = clip_duration_s if clip_duration_s is not None else n_frames / fps_eff
 	segment_s = TIME_SIZE_LONG_S if duration_s >= LONG_CLIP_S else TIME_SIZE_SHORT_S
 	frames = min(int(round(segment_s * fps_eff)), n_frames)
 	return max(2, frames - frames % 2)
@@ -331,6 +337,7 @@ def resolve_scene_params(
 	fps_eff: float,
 	span_m: float,
 	options: IwaveOptions,
+	clip_duration_s: Optional[float] = None,
 ) -> SceneParams:
 	"""Compute the scene-wide iWave parameters.
 
@@ -341,6 +348,8 @@ def resolve_scene_params(
 		fps_eff (float): Frame rate of the extracted frames.
 		span_m (float): Largest side of the ortho extent (m).
 		options (IwaveOptions): User overrides.
+		clip_duration_s (Optional[float]): Full clip length in seconds, before
+			frame capping. (default: n_frames / fps_eff)
 
 	Returns:
 		SceneParams: Resolved parameters.
@@ -355,7 +364,7 @@ def resolve_scene_params(
 	window_m = get_window_size(estimate, xsections, options)
 	resolution = max(window_m / WINDOW_TARGET_PX, RESOLUTION_MIN, span_m / MAX_GRID)
 	window_px = int(np.clip(round(window_m / resolution / 2) * 2, WINDOW_MIN_PX, WINDOW_MAX_PX))
-	time_size = get_time_size(n_frames, fps_eff)
+	time_size = get_time_size(n_frames, fps_eff, clip_duration_s)
 
 	return SceneParams(
 		smax=smax,
