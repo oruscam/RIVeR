@@ -229,3 +229,142 @@ def get_station_velocity(section: dict, estimate: VelocityEstimate) -> np.ndarra
 	result = np.full(n_stations, np.nan)
 	result[~all_nan] = np.nanmax(stacked[:, ~all_nan], axis=0)
 	return result
+
+
+@dataclass(frozen=True)
+class SceneParams:
+	"""iWave parameters shared by every cross-section of one run.
+
+	Attributes:
+		smax (float): Velocity search bound (m/s).
+		smax_is_auto (bool): False when the user set smax; disables the rerun check.
+		window_m (float): Target window side (m).
+		window_px (int): Window side in ortho pixels (even).
+		resolution (float): Ortho grid resolution (m/px).
+		time_size (int): Frames per spectral segment (even).
+		time_overlap (int): Overlap between segments (frames).
+		fps_eff (float): Frame rate of the extracted frames (fps / step).
+		penalty_weight (float): iWave velocity penalty weight.
+	"""
+	smax: float
+	smax_is_auto: bool
+	window_m: float
+	window_px: int
+	resolution: float
+	time_size: int
+	time_overlap: int
+	fps_eff: float
+	penalty_weight: float
+
+
+def get_widest_wet_width(xsections: dict) -> Optional[float]:
+	"""Widest contiguous wet stretch over all cross-sections.
+
+	Args:
+		xsections (dict): Cross-sections with "distance" and "depth".
+
+	Returns:
+		Optional[float]: Width in metres, or None when no section has both fields.
+	"""
+	widest = None
+	for section in get_section_items(xsections):
+		distance = to_float_array(section.get("distance"))
+		depth = to_float_array(section.get("depth"))
+		if distance is None or depth is None or len(distance) != len(depth):
+			continue
+		wet = depth > 0
+		run_start = None
+		for index in range(len(wet) + 1):
+			is_wet = index < len(wet) and wet[index]
+			if is_wet and run_start is None:
+				run_start = index
+			elif not is_wet and run_start is not None:
+				width = float(distance[index - 1] - distance[run_start])
+				widest = width if widest is None else max(widest, width)
+				run_start = None
+	return widest
+
+
+def get_window_size(estimate: VelocityEstimate, xsections: dict, options: IwaveOptions) -> float:
+	"""Window side in metres: a few dominant wavelengths, bounded by the wet width.
+
+	Args:
+		estimate (VelocityEstimate): Scene velocity estimate.
+		xsections (dict): Cross-sections (used for the wet width cap).
+		options (IwaveOptions): User overrides.
+
+	Returns:
+		float: Window side (m).
+	"""
+	if options.window_size is not None:
+		return float(options.window_size)
+	if estimate.u_est is None:
+		return WINDOW_FALLBACK_M
+	wavelength = WAVELENGTH_FACTOR * estimate.u_est ** 2
+	window_m = float(np.clip(WINDOW_WAVELENGTHS * wavelength, WINDOW_MIN_M, WINDOW_MAX_M))
+	wet_width = get_widest_wet_width(xsections)
+	if wet_width is not None:
+		window_m = max(min(window_m, wet_width), WINDOW_ABS_MIN_M)
+	return window_m
+
+
+def get_time_size(n_frames: int, fps_eff: float) -> int:
+	"""Frames per spectral segment: about 10 s, or 5 s for clips under 20 s.
+
+	Args:
+		n_frames (int): Frames available.
+		fps_eff (float): Frame rate of the extracted frames.
+
+	Returns:
+		int: Even number of frames, at most n_frames.
+	"""
+	duration_s = n_frames / fps_eff
+	segment_s = TIME_SIZE_LONG_S if duration_s >= LONG_CLIP_S else TIME_SIZE_SHORT_S
+	frames = min(int(round(segment_s * fps_eff)), n_frames)
+	return max(2, frames - frames % 2)
+
+
+def resolve_scene_params(
+	estimate: VelocityEstimate,
+	xsections: dict,
+	n_frames: int,
+	fps_eff: float,
+	span_m: float,
+	options: IwaveOptions,
+) -> SceneParams:
+	"""Compute the scene-wide iWave parameters.
+
+	Args:
+		estimate (VelocityEstimate): Scene velocity estimate.
+		xsections (dict): Cross-sections.
+		n_frames (int): Frames that will be warped (already capped).
+		fps_eff (float): Frame rate of the extracted frames.
+		span_m (float): Largest side of the ortho extent (m).
+		options (IwaveOptions): User overrides.
+
+	Returns:
+		SceneParams: Resolved parameters.
+	"""
+	if options.smax is not None:
+		smax, smax_is_auto = float(options.smax), False
+	elif estimate.u_est is None:
+		smax, smax_is_auto = SMAX_FALLBACK, True
+	else:
+		smax, smax_is_auto = float(np.clip(SMAX_FACTOR * estimate.u_est, SMAX_MIN, SMAX_MAX)), True
+
+	window_m = get_window_size(estimate, xsections, options)
+	resolution = max(window_m / WINDOW_TARGET_PX, RESOLUTION_MIN, span_m / MAX_GRID)
+	window_px = int(np.clip(round(window_m / resolution / 2) * 2, WINDOW_MIN_PX, WINDOW_MAX_PX))
+	time_size = get_time_size(n_frames, fps_eff)
+
+	return SceneParams(
+		smax=smax,
+		smax_is_auto=smax_is_auto,
+		window_m=window_m,
+		window_px=window_px,
+		resolution=resolution,
+		time_size=time_size,
+		time_overlap=time_size // 2,
+		fps_eff=fps_eff,
+		penalty_weight=float(options.penalty_weight),
+	)
