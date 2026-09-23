@@ -10,32 +10,48 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 import json
 
 import cv2
 import numpy as np
 
 from river.core.stiv_pipeline import _collect_frames
+from river.core.iwave_params import (
+    DEPTH_FALLBACK,
+    MAX_GRID,
+    SMAX_FALLBACK,
+    SMAX_MAX,
+    IwaveOptions,
+    SceneParams,
+    VelocityEstimate,
+    build_params_record,
+    estimate_velocity,
+    get_depth_bounds,
+    get_quality_flags,
+    get_section_gravity_waves,
+    get_window_depth_reference,
+    is_depth_at_bound,
+    is_dry_window,
+    needs_smax_rerun,
+    resolve_scene_params,
+)
 
 # ---------------------------------------------------------------------------
-# Constants (tuned values from analysis/iwave_stations.py)
+# Constants
 # ---------------------------------------------------------------------------
 
 MAX_FRAMES = 512
-MAX_GRID = 700
 EXTENT_MARGIN_M = 2.0
-WIN_TARGET_M = 2.5
-WIN_MIN = 32
-WIN_MAX = 64
-SMAX = 4.0
-DMIN, DMAX = 0.01, 3.0
 
 IWAVE_COLUMNS = [
     "iwave_velocity_profile",
     "iwave_quality_profile",
     "iwave_depth_profile",
+    "iwave_valid_profile",
 ]
+# Per-section dict (not a per-station list), stripped together with IWAVE_COLUMNS.
+IWAVE_PARAMS_KEY = "iwave_params"
 
 # ---------------------------------------------------------------------------
 # Ortho grid geometry
@@ -134,11 +150,14 @@ def build_ortho_stack(
     bbox: Optional[list] = None,
     max_frames: int = MAX_FRAMES,
     save_dir: Optional[str] = None,
+    resolution: Optional[float] = None,
 ) -> tuple[np.ndarray, OrthoGrid]:
     """Warp frames onto an ortho grid. Returns (stack uint8 (n, H, W), grid).
 
-    If save_dir is provided, each warped (rectified) frame is also written to
-    that directory as a zero-padded JPEG (e.g. "000000.jpg").
+    resolution (m/px) normally comes from resolve_scene_params; when omitted the
+    grid falls back to the ROI-size rule of pick_resolution. If save_dir is
+    provided, each warped (rectified) frame is also written to that directory
+    as a zero-padded JPEG (e.g. "000000.jpg").
     """
     frames = _collect_frames(frames_dir)
     if not frames:
@@ -146,7 +165,7 @@ def build_ortho_stack(
     frames = frames[:max_frames]
 
     extent = compute_extent(xsections, transformation_matrix, bbox)
-    grid = OrthoGrid(extent=extent, resolution=pick_resolution(extent))
+    grid = OrthoGrid(extent=extent, resolution=resolution if resolution is not None else pick_resolution(extent))
     matrix = build_warp_matrix(grid, transformation_matrix)
     size = (grid.width_px, grid.height_px)
 
@@ -163,6 +182,44 @@ def build_ortho_stack(
         if save_dir is not None:
             cv2.imwrite(str(Path(save_dir) / f"{i:06d}.jpg"), stack[i])
     return stack, grid
+
+
+def prepare_iwave_scene(
+    frames_dir: str,
+    transformation_matrix: list,
+    xsections: dict,
+    step: int,
+    fps: float,
+    bbox: Optional[list] = None,
+    options: Optional[IwaveOptions] = None,
+) -> Tuple[VelocityEstimate, SceneParams]:
+    """Resolve the scene-wide iWave parameters before any frame is warped.
+
+    Must run after the LSPIV and STIV stages have filled xsections, since the
+    velocity estimate is read from their profiles.
+
+    Args:
+        frames_dir (str): Directory of extracted frames.
+        transformation_matrix (list): 3x3 pixel -> real-world homography.
+        xsections (dict): Cross-sections.
+        step (int): Frame step used at extraction.
+        fps (float): Source video frame rate.
+        bbox (Optional[list]): Pixel-space ROI bbox.
+        options (Optional[IwaveOptions]): User overrides.
+
+    Returns:
+        Tuple[VelocityEstimate, SceneParams]: Estimate and resolved parameters.
+    """
+    n_frames = min(len(_collect_frames(frames_dir)), MAX_FRAMES)
+    if n_frames == 0:
+        raise FileNotFoundError(f"No frames (.jpg) found in {frames_dir}")
+    extent = compute_extent(xsections, transformation_matrix, bbox)
+    span_m = max(extent.east_max - extent.east_min, extent.north_max - extent.north_min)
+    # Effective fps of the extracted frames is raw fps divided by the frame step.
+    fps_eff = float(fps) / float(step or 1)
+    estimate = estimate_velocity(xsections)
+    scene = resolve_scene_params(estimate, xsections, n_frames, fps_eff, span_m, options or IwaveOptions())
+    return estimate, scene
 
 
 def _station_window(stack: np.ndarray, grid: OrthoGrid, east: float, north: float, win: int) -> np.ndarray:
@@ -315,6 +372,10 @@ def _process_station(
     alpha: float,
     time_size: int,
     time_overlap: int,
+    smax: float = SMAX_FALLBACK,
+    depth_bounds: Tuple[float, float] = DEPTH_FALLBACK,
+    gravity_waves: bool = True,
+    penalty_weight: float = 1.0,
 ) -> dict:
     """Spectral velocity fit for one station window. Returns vy/vx/d/quality
     (None on failure), plus the ky=0 spectrum slice, its kx/kt axes, and the
@@ -336,11 +397,11 @@ def _process_station(
     spec = spectral.sliding_window_spectrum(w, time_size, time_overlap)
     window_dims = (time_size, win, win)
     kt, ky, kx = spectral.wave_numbers(window_dims, resolution, fps_eff)
-    spec = spectral.spectrum_preprocessing(spec, kt, ky, kx, SMAX * 3, spectrum_threshold=1.0)
-    bnds = ((-SMAX, SMAX), (-SMAX, SMAX), (DMIN, DMAX))
+    spec = spectral.spectrum_preprocessing(spec, kt, ky, kx, smax * 3, spectrum_threshold=1.0)
+    bnds = ((-smax, smax), (-smax, smax), tuple(depth_bounds))
     vy, vx, d, cost, quality, status, msg = optimise.optimize_single_spectrum_velocity(
         spec[0], bnds, alpha, window_dims, resolution, fps_eff,
-        penalty_weight=1, gravity_waves_switch=True, turbulence_switch=True,
+        penalty_weight=penalty_weight, gravity_waves_switch=gravity_waves, turbulence_switch=True,
         pass_downsampling=[2, 1], gauss_width=1, kwargs=dict(OPTIM_KWARGS_SADE),
     )
 
@@ -372,34 +433,54 @@ def run_iwave_analysis(
     grid: Optional[OrthoGrid] = None,
     spectra_dir: Optional[str] = None,
     progress: Optional[Callable[[int, int], None]] = None,
+    scene: Optional[SceneParams] = None,
+    estimate: Optional[VelocityEstimate] = None,
+    options: Optional[IwaveOptions] = None,
 ) -> dict:
     """Run iWave spectral velocimetry for one cross-section's stations.
 
-    Adds 3 per-station lists: iwave_velocity_profile (signed streamwise, m/s),
-    iwave_quality_profile, iwave_depth_profile. Pass a prebuilt (stack, grid)
-    pair to reuse the warped frames across sections. If spectra_dir is given,
-    each station's ky=0 spectrum preview is saved there as
-    spectrum_<station_id>.png alongside a spectra.json sidecar.
+    Adds 4 per-station lists: iwave_velocity_profile (signed streamwise, m/s),
+    iwave_quality_profile, iwave_depth_profile, iwave_valid_profile, plus the
+    iwave_params dict of parameters actually used. Pass a prebuilt (stack, grid)
+    pair together with its scene to reuse the warped frames across sections;
+    without them everything is resolved here. If spectra_dir is given, each
+    station's ky=0 spectrum preview is saved there as spectrum_<station_id>.png
+    alongside a spectra.json sidecar.
     """
+    options = options or IwaveOptions()
+    if (stack is None) != (grid is None):
+        raise ValueError("run_iwave_analysis: pass both stack and grid, or neither")
+    if stack is not None and scene is None:
+        raise ValueError("run_iwave_analysis: a prebuilt stack needs the scene it was built with")
+    if scene is None:
+        estimate, scene = prepare_iwave_scene(
+            frames_dir, transformation_matrix, xsections, step, fps, bbox, options,
+        )
+    elif estimate is None:
+        estimate = estimate_velocity(xsections)
+
     section_keys = [k for k in xsections if k != "summary"]
     current_key = section_keys[id_section]
     cs = xsections[current_key]
 
-    if stack is None or grid is None:
-        stack, grid = build_ortho_stack(frames_dir, transformation_matrix, xsections, bbox)
+    if stack is None:
+        stack, grid = build_ortho_stack(
+            frames_dir, transformation_matrix, xsections, bbox, resolution=scene.resolution,
+        )
 
-    # Effective fps of the extracted frames is raw fps divided by the frame step.
-    fps_eff = float(fps) / float(step or 1)
     resolution = grid.resolution
-    time_size = min(256, stack.shape[0])
+    time_size = min(scene.time_size, stack.shape[0] - stack.shape[0] % 2)
     time_overlap = time_size // 2
-    win = int(np.clip(round(WIN_TARGET_M / resolution / 2) * 2, WIN_MIN, WIN_MAX))
-    win = min(win, (min(stack.shape[1], stack.shape[2]) // 2) * 2)
+    win = min(scene.window_px, (min(stack.shape[1], stack.shape[2]) // 2) * 2)
+    # Rules that look at neighbouring stations use the window actually cut, which
+    # can be smaller than the target on a small grid.
+    window_m = win * resolution
 
     east = [float(e) for e in cs["east"]]
     north = [float(n) for n in cs["north"]]
     n = len(east)
     alpha = float(cs.get("alpha", 0.85))
+    gravity_waves = get_section_gravity_waves(cs, estimate, options.flow_type)
 
     _, u_stream = _crosswise_streamwise_unit(cs)
     dir_e, dir_n = _flow_direction_from_margins(
@@ -413,10 +494,33 @@ def run_iwave_analysis(
     quality: list[Optional[float]] = [None] * n
     depth: list[Optional[float]] = [None] * n
     spectra_entries: list = []
+    skipped_dry = 0
+    smax_reruns = 0
+    depth_at_bound = 0
 
     for i in range(n):
+        if is_dry_window(cs, i, window_m):
+            skipped_dry += 1
+            if progress is not None:
+                progress(i + 1, n)
+            continue
+
+        depth_reference = get_window_depth_reference(cs, i, window_m)
+        depth_bounds = get_depth_bounds(depth_reference, options.depth_mode)
         crop = _station_window(stack, grid, east[i], north[i], win)
-        r = _process_station(crop, resolution, fps_eff, alpha, time_size, time_overlap)
+        station_kwargs = dict(
+            depth_bounds=depth_bounds, gravity_waves=gravity_waves, penalty_weight=scene.penalty_weight,
+        )
+        r = _process_station(
+            crop, resolution, scene.fps_eff, alpha, time_size, time_overlap, smax=scene.smax, **station_kwargs,
+        )
+        if r["vy"] is not None and needs_smax_rerun(r["vx"], r["vy"], scene):
+            # Pinned against an auto bound: LSPIV and STIV probably both underestimated.
+            smax_reruns += 1
+            r = _process_station(
+                crop, resolution, scene.fps_eff, alpha, time_size, time_overlap, smax=SMAX_MAX, **station_kwargs,
+            )
+
         if r["vy"] is not None:
             # pipeline convention (run_iwave.grid_to_real): v_north = -vy, v_east = vx
             v_e, v_n = r["vx"], -r["vy"]
@@ -425,6 +529,8 @@ def run_iwave_analysis(
             vel[i] = float(v_e * u_stream[0] + v_n * u_stream[1])
             quality[i] = r["quality"]
             depth[i] = r["d"]
+            if options.depth_mode == "range" and depth_reference is not None and is_depth_at_bound(r["d"], depth_bounds):
+                depth_at_bound += 1
             if spectra_dir is not None and r["slice"] is not None:
                 spectra_entries.append(
                     {
@@ -445,4 +551,10 @@ def run_iwave_analysis(
     xsections[current_key]["iwave_velocity_profile"] = vel
     xsections[current_key]["iwave_quality_profile"] = quality
     xsections[current_key]["iwave_depth_profile"] = depth
+    xsections[current_key]["iwave_valid_profile"] = get_quality_flags(quality)
+    xsections[current_key][IWAVE_PARAMS_KEY] = build_params_record(
+        scene, estimate, options,
+        window_px=win, window_m=window_m, time_size=time_size, gravity_waves=gravity_waves,
+        depth_at_bound=depth_at_bound, smax_reruns=smax_reruns, skipped_dry=skipped_dry,
+    )
     return xsections
