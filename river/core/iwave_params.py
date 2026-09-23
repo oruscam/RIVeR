@@ -368,3 +368,240 @@ def resolve_scene_params(
 		fps_eff=fps_eff,
 		penalty_weight=float(options.penalty_weight),
 	)
+
+
+def _get_window_mask(section: dict, station_index: int, window_m: float) -> Optional[np.ndarray]:
+	distance = to_float_array(section.get("distance"))
+	if distance is None or station_index >= len(distance):
+		return None
+	return np.abs(distance - distance[station_index]) <= window_m / 2
+
+
+def _get_depth(section: dict, n_expected: int) -> Optional[np.ndarray]:
+	depth = to_float_array(section.get("depth"))
+	if depth is None or len(depth) != n_expected:
+		return None
+	return depth
+
+
+def get_window_depth_reference(section: dict, station_index: int, window_m: float) -> Optional[float]:
+	"""Mean surveyed depth of the wet stations inside the window.
+
+	The window is 2-6 m wide; near banks the centre depth can be close to zero
+	while most of the window is deeper, so the mean describes it better.
+
+	Args:
+		section (dict): Cross-section with "distance" and "depth".
+		station_index (int): Station at the window centre.
+		window_m (float): Window side (m).
+
+	Returns:
+		Optional[float]: Depth (m), or None when unavailable.
+	"""
+	in_window = _get_window_mask(section, station_index, window_m)
+	if in_window is None:
+		return None
+	depth = _get_depth(section, len(in_window))
+	if depth is None:
+		return None
+	wet = in_window & (depth > 0)
+	if not wet.any():
+		return None
+	return float(depth[wet].mean())
+
+
+def get_depth_bounds(depth_reference: Optional[float], depth_mode: str) -> Tuple[float, float]:
+	"""Depth search bounds for iWave.
+
+	Args:
+		depth_reference (Optional[float]): Surveyed depth for the window (m).
+		depth_mode (str): "range", "fixed" or "free".
+
+	Returns:
+		Tuple[float, float]: (min, max) depth in metres.
+	"""
+	if depth_mode == "free" or depth_reference is None or not np.isfinite(depth_reference) or depth_reference <= 0:
+		return DEPTH_FALLBACK
+	if depth_mode == "fixed":
+		return (depth_reference, depth_reference)
+	return (
+		max(DEPTH_RANGE_LOW * depth_reference, DEPTH_MIN_LOW),
+		max(DEPTH_RANGE_HIGH * depth_reference, DEPTH_MIN_HIGH),
+	)
+
+
+def is_depth_at_bound(depth: float, bounds: Tuple[float, float]) -> bool:
+	"""Whether the fitted depth sits on a search bound (hint of bad bathymetry).
+
+	Args:
+		depth (float): Fitted depth (m).
+		bounds (Tuple[float, float]): Search bounds used.
+
+	Returns:
+		bool: True when within 2 % of either bound. Always False for a fixed depth.
+	"""
+	low, high = bounds
+	if low == high or not np.isfinite(depth):
+		return False
+	return bool(
+		abs(depth - low) <= DEPTH_AT_BOUND_TOLERANCE * low
+		or abs(depth - high) <= DEPTH_AT_BOUND_TOLERANCE * high
+	)
+
+
+def is_dry_window(section: dict, station_index: int, window_m: float) -> bool:
+	"""Whether most of the window is dry, so the fit would be meaningless.
+
+	Args:
+		section (dict): Cross-section with "distance" and "depth".
+		station_index (int): Station at the window centre.
+		window_m (float): Window side (m).
+
+	Returns:
+		bool: True when more than half of the stations inside the window are dry.
+	"""
+	in_window = _get_window_mask(section, station_index, window_m)
+	if in_window is None:
+		return False
+	depth = _get_depth(section, len(in_window))
+	if depth is None:
+		return False
+	known = in_window & np.isfinite(depth)
+	if not known.any():
+		return False
+	dry_fraction = float((depth[known] <= 0).sum()) / float(known.sum())
+	return dry_fraction > DRY_WINDOW_FRACTION
+
+
+def get_section_gravity_waves(section: dict, estimate: VelocityEstimate, flow_type: str) -> bool:
+	"""Whether iWave should model gravity waves for this section.
+
+	In auto mode waves are only turned off for clearly supercritical flow with a
+	trusted estimate; any doubt keeps them on, which is the safe default.
+
+	Args:
+		section (dict): Cross-section.
+		estimate (VelocityEstimate): Scene velocity estimate.
+		flow_type (str): "auto", "waves" or "no-waves".
+
+	Returns:
+		bool: Value for iWave's gravity_waves_switch.
+	"""
+	if flow_type == "waves":
+		return True
+	if flow_type == "no-waves":
+		return False
+	if estimate.u_est is None:
+		return True
+	velocity = get_station_velocity(section, estimate)
+	depth = _get_depth(section, len(velocity))
+	if depth is None:
+		return True
+	usable = get_considered_stations(section) & np.isfinite(velocity) & (depth > 0)
+	if not usable.any():
+		return True
+	froude = velocity[usable] / np.sqrt(GRAVITY * depth[usable])
+	return not float(np.median(froude)) > SUPERCRITICAL_FROUDE
+
+
+def needs_smax_rerun(vx: float, vy: float, scene: SceneParams) -> bool:
+	"""Whether a station's result is pinned against an auto smax that may be too low.
+
+	Args:
+		vx (float): Fitted x velocity (m/s).
+		vy (float): Fitted y velocity (m/s).
+		scene (SceneParams): Scene parameters used for the fit.
+
+	Returns:
+		bool: True when the station should be rerun with smax = SMAX_MAX.
+	"""
+	if not scene.smax_is_auto or scene.smax >= SMAX_MAX:
+		return False
+	if not (np.isfinite(vx) and np.isfinite(vy)):
+		return False
+	return max(abs(vx), abs(vy)) >= SMAX_RERUN_FRACTION * scene.smax
+
+
+def get_quality_flags(quality: Sequence[Optional[float]]) -> List[Optional[bool]]:
+	"""Flag stations whose iWave quality is acceptable.
+
+	A station passes when its quality is at least QUALITY_MIN and not clearly
+	below its neighbours (the IWaVE author's outlier check).
+
+	Args:
+		quality (Sequence[Optional[float]]): iWave quality per station.
+
+	Returns:
+		List[Optional[bool]]: Flag per station, None where there is no quality.
+	"""
+	values = to_float_array(quality)
+	flags: List[Optional[bool]] = []
+	for index, value in enumerate(values):
+		if not np.isfinite(value):
+			flags.append(None)
+			continue
+		start = max(0, index - QUALITY_NEIGHBOURS)
+		stop = min(len(values), index + QUALITY_NEIGHBOURS + 1)
+		neighbours = np.delete(values[start:stop], index - start)
+		neighbours = neighbours[np.isfinite(neighbours)]
+		is_valid = value >= QUALITY_MIN
+		if neighbours.size:
+			is_valid = is_valid and value >= float(np.median(neighbours)) - QUALITY_NEIGHBOUR_DROP
+		flags.append(bool(is_valid))
+	return flags
+
+
+def build_params_record(
+	scene: SceneParams,
+	estimate: VelocityEstimate,
+	options: IwaveOptions,
+	window_px: int,
+	window_m: float,
+	time_size: int,
+	gravity_waves: bool,
+	depth_at_bound: int,
+	smax_reruns: int,
+	skipped_dry: int,
+) -> dict:
+	"""JSON-ready record of the parameters actually used for one section.
+
+	window_px, window_m and time_size are the values after the pipeline fitted
+	them to the stack, which can be smaller than the scene targets.
+
+	Args:
+		scene (SceneParams): Scene parameters.
+		estimate (VelocityEstimate): Velocity estimate.
+		options (IwaveOptions): User overrides.
+		window_px (int): Window side used (px).
+		window_m (float): Window side used (m).
+		time_size (int): Segment length used (frames).
+		gravity_waves (bool): Gravity wave switch used for the section.
+		depth_at_bound (int): Stations whose depth hit a bound.
+		smax_reruns (int): Stations rerun with smax = SMAX_MAX.
+		skipped_dry (int): Stations skipped as dry.
+
+	Returns:
+		dict: Plain Python values only.
+	"""
+	return {
+		"mode": {
+			"smax": "auto" if options.smax is None else "user",
+			"window": "auto" if options.window_size is None else "user",
+			"flow_type": options.flow_type,
+			"depth": options.depth_mode,
+		},
+		"u_est": None if estimate.u_est is None else float(estimate.u_est),
+		"u_sources": list(estimate.sources),
+		"smax": float(scene.smax),
+		"window_m": float(window_m),
+		"window_px": int(window_px),
+		"resolution": float(scene.resolution),
+		"time_size": int(time_size),
+		"time_overlap": int(time_size // 2),
+		"fps_eff": float(scene.fps_eff),
+		"penalty_weight": float(scene.penalty_weight),
+		"gravity_waves": bool(gravity_waves),
+		"depth_at_bound": int(depth_at_bound),
+		"smax_reruns": int(smax_reruns),
+		"skipped_dry": int(skipped_dry),
+	}
