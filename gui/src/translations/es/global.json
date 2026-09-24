@@ -189,7 +189,22 @@
     "Plot": {
       "u": "Componente U",
       "v": "Componente V"
-    }
+    },
+    "iwaveGroupTitle": "IWV (iWave)",
+    "iwaveModeAuto": "Automático",
+    "iwaveModeManual": "Manual",
+    "iwaveFlowType": "Tipo de flujo",
+    "iwaveFlowWaves": "Con ondas",
+    "iwaveFlowNoWaves": "Sin ondas (supercrítico)",
+    "iwaveWindowSize": "Tamaño de ventana (m)",
+    "iwaveSmax": "Velocidad máxima (m/s)",
+    "iwaveHintPending": "La velocidad máxima y el tipo de flujo se estimarán a partir de LSPIV/STIV al ejecutar el análisis.",
+    "iwaveHintEstimated": "Estimado a partir de LSPIV/STIV.",
+    "iwaveReset": "Volver a automático",
+    "iwaveInvalidWindow": "El tamaño de ventana debe ser un número mayor que 0.",
+    "iwaveInvalidSmax": "La velocidad máxima debe ser un número mayor que 0 y de hasta 10 m/s.",
+    "iwaveStaleWindow": "La región cambió desde que se fijaron estos valores; la ventana automática ahora es {{window}} m.",
+    "iwaveShortClip": "Video corto ({{seconds}} s usados): los resultados de IWV pueden ser más ruidosos."
   },
   "Analizing": {
     "title": "Analizando",
@@ -237,7 +252,10 @@
     "vsTooltip": "Surface velocity (m/s)",
     "qTooltip": "Discharge (m³/s)",
     "copyTable": "Copy table",
-    "copied": "Copied"
+    "copied": "Copied",
+    "iwaveLowQualityExcluded": "{{count}} estaciones IWV de baja calidad excluidas (clic para incluir)",
+    "iwaveLowQualityIncluded": "Estaciones IWV de baja calidad incluidas (clic para excluir)",
+    "iwaveLowQualityCell": "Baja calidad: excluida"
   },
   "Graphs": {
     "station": "Progresiva",

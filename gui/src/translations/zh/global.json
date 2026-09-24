@@ -189,7 +189,22 @@
     "Plot": {
       "u": "U 分量",
       "v": "V 分量"
-    }
+    },
+    "iwaveGroupTitle": "IWV (iWave)",
+    "iwaveModeAuto": "自动",
+    "iwaveModeManual": "手动",
+    "iwaveFlowType": "流态",
+    "iwaveFlowWaves": "有波浪",
+    "iwaveFlowNoWaves": "无波浪（急流）",
+    "iwaveWindowSize": "窗口大小 (m)",
+    "iwaveSmax": "最大流速 (m/s)",
+    "iwaveHintPending": "运行分析时，将根据 LSPIV/STIV 估算最大流速和流态。",
+    "iwaveHintEstimated": "根据 LSPIV/STIV 估算。",
+    "iwaveReset": "恢复自动",
+    "iwaveInvalidWindow": "窗口大小必须是大于 0 的数字。",
+    "iwaveInvalidSmax": "最大流速必须是大于 0 且不超过 10 m/s 的数字。",
+    "iwaveStaleWindow": "设置这些值后区域已更改；自动窗口现在为 {{window}} m。",
+    "iwaveShortClip": "视频较短（使用 {{seconds}} 秒）：IWV 结果可能噪声较大。"
   },
   "Analizing": {
     "title": "分析中",
@@ -237,7 +252,10 @@
     "vsTooltip": "Surface velocity (m/s)",
     "qTooltip": "Discharge (m³/s)",
     "copyTable": "Copy table",
-    "copied": "Copied"
+    "copied": "Copied",
+    "iwaveLowQualityExcluded": "已排除 {{count}} 个低质量 IWV 测点（点击以包含）",
+    "iwaveLowQualityIncluded": "已包含低质量 IWV 测点（点击以排除）",
+    "iwaveLowQualityCell": "低质量：已排除"
   },
   "Graphs": {
     "station": "测点",

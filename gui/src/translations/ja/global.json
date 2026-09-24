@@ -189,7 +189,22 @@
     "Plot": {
       "u": "U成分",
       "v": "V成分"
-    }
+    },
+    "iwaveGroupTitle": "IWV (iWave)",
+    "iwaveModeAuto": "自動",
+    "iwaveModeManual": "手動",
+    "iwaveFlowType": "流れの種類",
+    "iwaveFlowWaves": "波あり",
+    "iwaveFlowNoWaves": "波なし（射流）",
+    "iwaveWindowSize": "ウィンドウサイズ (m)",
+    "iwaveSmax": "最大流速 (m/s)",
+    "iwaveHintPending": "最大流速と流れの種類は、解析実行時に LSPIV/STIV から推定されます。",
+    "iwaveHintEstimated": "LSPIV/STIV から推定。",
+    "iwaveReset": "自動に戻す",
+    "iwaveInvalidWindow": "ウィンドウサイズは 0 より大きい数値にしてください。",
+    "iwaveInvalidSmax": "最大流速は 0 より大きく 10 m/s 以下の数値にしてください。",
+    "iwaveStaleWindow": "これらの値を設定した後に領域が変更されました。自動ウィンドウは現在 {{window}} m です。",
+    "iwaveShortClip": "短いクリップ（{{seconds}} 秒使用）：IWV の結果はノイズが多くなる可能性があります。"
   },
   "Analizing": {
     "title": "解析中",
@@ -237,7 +252,10 @@
     "vsTooltip": "Surface velocity (m/s)",
     "qTooltip": "Discharge (m³/s)",
     "copyTable": "Copy table",
-    "copied": "Copied"
+    "copied": "Copied",
+    "iwaveLowQualityExcluded": "低品質の IWV 測点 {{count}} 点を除外中（クリックで含める）",
+    "iwaveLowQualityIncluded": "低品質の IWV 測点を含めています（クリックで除外）",
+    "iwaveLowQualityCell": "低品質：除外"
   },
   "Graphs": {
     "station": "測点",
