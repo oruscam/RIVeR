@@ -3,14 +3,14 @@ import { useAutoShrinkFont, useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
 import { WINDOW_SIZES } from '../../../constants/constants';
 import { EyeBtn } from '../../CustomIcons/EyeBtn';
+import { IwaveAdvancedGroup } from './IwaveAdvancedGroup';
 import type { IwaveDefaults } from '../../../../commons/iwave';
 
 export const HardModeProcessing = ({
   active,
   onClickTest,
   isTesting,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- rendered by IwaveAdvancedGroup, added in the next task
-  iwaveDefaults: _iwaveDefaults,
+  iwaveDefaults,
 }: {
   active: boolean;
   onClickTest: (event: React.MouseEvent<HTMLButtonElement>) => void;
@@ -82,6 +82,9 @@ export const HardModeProcessing = ({
           onBlur={(event) => handleHeightRoiInput(event)}
         ></input>
       </div>
+
+      <span className="divider-line mt-2" />
+      <IwaveAdvancedGroup defaults={iwaveDefaults} active={active} />
 
       <span className="divider-line mt-2" />
 

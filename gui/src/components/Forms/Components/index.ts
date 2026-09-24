@@ -8,6 +8,7 @@ import { VideoMetadata } from './VideoMetadata';
 import { HardModeUav } from './HardModeUav';
 import { HardModeCrossSections } from './HardModeCrossSections';
 import { HardModeOblique } from './HardModeOblique';
+import { IwaveAdvancedGroup } from './IwaveAdvancedGroup';
 import { FormHeader } from './FormHeader';
 import { AnalyzingProgress } from './AnalyzingProgress';
 import { MaskCreation } from './MaskCreation';
@@ -27,6 +28,7 @@ export {
   HardModeOblique,
   HardModeProcessing,
   HardModeUav,
+  IwaveAdvancedGroup,
   MaskCreation,
   PixelCoordinates,
   RealWorldCoordinates,
