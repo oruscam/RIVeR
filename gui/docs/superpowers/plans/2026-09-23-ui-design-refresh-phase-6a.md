@@ -576,6 +576,30 @@ In `src/helpers/chipSegPrimitives.test.ts`, inside the `describe('.seg primitive
 
 26px segments plus 3px of inset top and bottom is a 32px control. Both halves are asserted because either one alone would let the track drift.
 
+- [ ] **Step 2b: Harden the same file's `region()` helper**
+
+The fix wave's re-review flagged a latent weakness in `region()` in this same file: it slices from `css.indexOf('   CHIP (.chip family)')`, which lands *inside* the header's block comment, and ends at `'   FORM INPUTS'`, which is *inside* the next header's comment. So the slice both begins mid-comment and ends with an unmatched `/*`, and the `/\/\*[\s\S]*?\*\//g` strip cannot remove either dangling fragment. It is fail-safe today — a stray hex in that boundary prose would cause a false *failure*, not a false pass — but it is worth trimming now, because Task 4 reuses the same shape.
+
+Replace the existing `region()` definition with one that slices whole-comment boundaries, so only real CSS reaches the assertions:
+
+```ts
+  /** The CHIP + SEG region's CSS only, sliced past its own header comment and
+   *  stopping before the next one, so no comment prose can reach an assertion. */
+  const region = (): string => {
+    const header = css.indexOf('   CHIP (.chip family)');
+    expect(header).toBeGreaterThan(-1);
+    const start = css.indexOf('*/', header) + 2;
+    const nextHeader = css.indexOf('   FORM INPUTS', start);
+    expect(nextHeader).toBeGreaterThan(start);
+    const end = css.lastIndexOf('/*', nextHeader);
+    // Fully-paired inline comments inside the region are still stripped, so
+    // their prose can neither satisfy nor trip a colour assertion.
+    return css.slice(start, end).replace(/\/\*[\s\S]*?\*\//g, '');
+  };
+```
+
+Keep every assertion that uses it unchanged. After this edit the region is strictly narrower, so confirm the purity and `var()`-count assertions still pass — if the `var()` count assertion now fails, the slice is wrong, not the threshold.
+
 - [ ] **Step 3: Run both tests to verify they fail**
 
 Run: `npx jest src/helpers/typeScaleAndWashTokens.test.ts src/helpers/chipSegPrimitives.test.ts`
@@ -669,12 +693,20 @@ const ruleBody = (selector: string): string => {
   return match ? match[1] : '';
 };
 
-/** The LIST ROW region, comments stripped so prose can't false-positive. */
+/** The LIST ROW region's CSS only, sliced past its own header comment and
+ *  stopping before the next one, so no comment prose can reach an assertion.
+ *  (The chip/seg test's equivalent helper is hardened the same way in Task 3;
+ *  slicing from the header text itself starts mid-comment and ends on an
+ *  unmatched opener, which the strip below cannot clean.) */
 const region = (): string => {
-  const start = css.indexOf('   LIST ROW (.list-row family)');
-  const end = css.indexOf('   FORM INPUTS');
-  expect(start).toBeGreaterThan(-1);
-  expect(end).toBeGreaterThan(start);
+  const header = css.indexOf('   LIST ROW (.list-row family)');
+  expect(header).toBeGreaterThan(-1);
+  const start = css.indexOf('*/', header) + 2;
+  const nextHeader = css.indexOf('   FORM INPUTS', start);
+  expect(nextHeader).toBeGreaterThan(start);
+  const end = css.lastIndexOf('/*', nextHeader);
+  // Fully-paired inline comments inside the region are still stripped, so their
+  // prose can neither satisfy nor trip a colour assertion.
   return css.slice(start, end).replace(/\/\*[\s\S]*?\*\//g, '');
 };
 
