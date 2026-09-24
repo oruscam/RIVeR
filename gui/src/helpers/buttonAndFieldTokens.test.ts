@@ -71,6 +71,41 @@ describe('.btn button component', () => {
     const unguarded = selectors.filter((selector) => !selector.includes(':not([aria-disabled="true"])'));
     expect(unguarded).toEqual([]);
   });
+
+  it('gives .btn a pressed/selected state carrying all four meanings on one accent fill', () => {
+    // Four attributes, one visual: aria-pressed (toggle), aria-selected
+    // (tablist), data-complete (step finished), aria-busy (running). 6b records
+    // the meaning in the DOM so a later sub-plan can differentiate the visuals
+    // without re-reading 18 call sites. See plan ruling R2.
+    const rule = css.match(/\.btn\[aria-pressed="true"\][^{]*\{[^}]*\}/);
+    expect(rule).not.toBeNull();
+    const selector = rule![0].slice(0, rule![0].indexOf('{'));
+    for (const attr of [
+      'aria-pressed="true"',
+      'aria-selected="true"',
+      'data-complete="true"',
+      'aria-busy="true"',
+    ]) {
+      expect(selector).toContain(`.btn[${attr}]`);
+    }
+    expect(rule![0]).toContain('background-color: var(--accent-color)');
+    expect(rule![0]).toContain('color: var(--on-accent)');
+  });
+
+  it('gives .ibtn a pressed state, a danger variant and a success state', () => {
+    expect(css).toMatch(/\.ibtn\[aria-pressed="true"\][^{]*\{[^}]*background-color: var\(--accent-color\)/);
+    expect(css).toMatch(/\.ibtn-danger[^{]*\{[^}]*background-color: var\(--status-bad\)/);
+    expect(css).toMatch(/\.ibtn\[data-state="success"\][^{]*\{[^}]*color: var\(--status-good\)/);
+  });
+
+  it('the .ibtn danger fill fires on hover and when armed, but never when aria-disabled', () => {
+    const selectors = [...css.matchAll(/^\.ibtn-danger[^{\n]*\{/gm)].map((m) => m[0]);
+    expect(selectors.length).toBeGreaterThanOrEqual(1);
+    const fill = selectors.find((s) => s.includes(':hover'));
+    expect(fill).toBeDefined();
+    expect(fill).toContain(':not([aria-disabled="true"])');
+    expect(css).toContain('.ibtn-danger[data-armed="true"]');
+  });
 });
 
 describe('.field-row component', () => {

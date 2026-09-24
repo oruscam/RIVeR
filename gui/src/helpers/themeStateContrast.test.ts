@@ -89,6 +89,16 @@ const STATE_PAIRS: StatePair[] = [
     floor: 1.1,
     ratio: (t) => contrastRatio(resolveRgb(t, '--wash-2'), panel(t)),
   },
+  {
+    label: '.ibtn[data-state="success"] icon (--status-good) vs panel',
+    floor: 4.0,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--status-good'), panel(t)),
+  },
+  {
+    label: '.ibtn-danger fill (--status-bad) vs panel',
+    floor: 4.4,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--status-bad'), panel(t)),
+  },
 ];
 
 describe('theme token parsing', () => {
