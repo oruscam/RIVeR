@@ -925,3 +925,540 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 EOF
 )"
 ```
+
+---
+
+## Amendment — 2026-09-24, after this plan's second final whole-branch review
+
+That review found a **fifth** instance of one defect class: a state built by
+swapping one semantic surface token for another, where the two tokens resolve
+to the same or a near-identical colour in at least one theme. Counting the two
+Task-1/2 defects and the two found while fixing them, five defects of identical
+shape shipped and were caught by whichever reviewer happened to resolve the
+alias chain by hand. That is a machine's job. Task 5 gives it to a machine.
+
+Task 5 adds no CSS and changes no rule. It is the guard rail the remaining six
+sub-plans (6b–6g) are written against, and it must land before 6b starts.
+
+### Ruling on the threshold (controller, 2026-09-24)
+
+A naive "every surface pair clears 1.3:1" assertion fails immediately on
+pre-existing code: `--surface-field` against `--surface-panel` is **1.05:1** in
+the light theme, and `.input-field`/`.field` carry `border: none` across 31
+rules in four stylesheets. That is real, app-wide, predates Phase 6, is absent
+from the audit's 34 findings, and fixing it means changing a core palette token
+with visible consequences for every form in the light theme — a product
+owner's call, not a plan's. It stays carried-forward debt.
+
+So Task 5 splits the two concerns instead of conflating them:
+
+- **Interaction states Phase 6 introduces** get hard floors, set just under the
+  values the controller measured (below), so the test gates regressions without
+  encoding today's palette exactly.
+- **The pre-existing field-surface debt** gets an explicit named roster with
+  its measured ratio recorded. Adding a row to that roster takes a deliberate
+  edit; fixing the palette makes the roster fail and tells the author to delete
+  the entry. Either way the debt is visible to a machine instead of living in
+  one reviewer's head.
+- **Decorative washes are not states.** `--wash-2` is a bloom behind a logo,
+  intentionally near-invisible (1.16–1.33:1). It gets its own low floor whose
+  only job is to catch the 1.01:1 no-op the review found, not a state floor.
+
+**Controller-measured matrix** (resolved per theme, WCAG relative luminance;
+`color-mix(in srgb, X P%, transparent)` composited as `P·X + (1−P)·backdrop`):
+
+| Pair | dark | light | dracula | min | floor |
+|---|---|---|---|---|---|
+| accent fill vs field fill (`.chip`/`.seg` pressed, badge selected) | 2.71 | 4.22 | 3.79 | 2.71 | **2.50** |
+| `--on-accent` on `--accent-color` (label on a pressed chip/segment) | 4.73 | 5.41 | 5.90 | 4.73 | **4.50** |
+| `.list-row` selected **ring** vs panel | 3.89 | 4.43 | 6.55 | 3.89 | **3.00** |
+| `.list-row` hover ring vs panel | 18.42 | 9.40 | 14.81 | 9.40 | **3.00** |
+| `.chip` hover ring vs chip resting fill | 12.82 | 8.96 | 8.59 | 8.59 | **3.00** |
+| `.ibtn` hover wash (text 10%) vs panel | 1.31 | 1.18 | 1.34 | 1.18 | **1.12** |
+| `.list-row` selected **tint** (accent 14%) vs panel | 1.13 | 1.19 | 1.29 | 1.13 | **1.10** |
+| `.seg` resting label vs track | 4.79 | 5.40 | 4.72 | 4.72 | **4.50** |
+| disabled `.seg` label (0.7 over track) | 3.14 | 2.96 | 3.17 | 2.96 | **2.50** |
+| `--text-primary` vs panel | 18.42 | 9.40 | 14.81 | 9.40 | **4.50** |
+| `--wash-2` vs panel (decorative) | 1.33 | 1.16 | 1.18 | 1.16 | **1.10** |
+| *debt roster:* field fill vs panel | 1.44 | **1.05** | 1.73 | 1.05 | recorded, not gated |
+
+---
+
+## Task 5: A per-theme alias resolver, with contrast floors on every state this phase shipped
+
+**Files:**
+- Create: `src/helpers/themeTokens.ts`
+- Create: `src/helpers/themeStateContrast.test.ts`
+- Read only, do not modify: `src/index.css`
+
+**Interfaces:**
+- Consumes: nothing from earlier tasks at the code level. It asserts against the
+  CSS Tasks 1–4 wrote.
+- Produces, for 6b–6g's tests to import:
+  - `type ThemeName = 'dark' | 'light' | 'dracula'`
+  - `type Rgb = readonly [number, number, number]`
+  - `type ThemeTokens = Readonly<Record<string, string>>`
+  - `parseThemeTokens(css: string): Record<ThemeName, ThemeTokens>`
+  - `resolveToken(tokens: ThemeTokens, name: string): string`
+  - `parseHex(color: string): Rgb`
+  - `relativeLuminance(rgb: Rgb): number`
+  - `contrastRatio(a: Rgb, b: Rgb): number`
+  - `mixOverBackdrop(color: Rgb, fraction: number, backdrop: Rgb): Rgb`
+  - `resolveRgb(tokens: ThemeTokens, name: string): Rgb`
+
+**Two traps that have already cost this plan time. Read both.**
+
+1. **Never write the two characters `*` `/` inside a block comment in a `.ts`
+   file.** Writing a token family as `--text-` followed by a star and a slash
+   closes the comment early and produces `TS1160: Unterminated template
+   literal` or a cascade of parse errors. This trap has fired twice on this
+   plan. Write `--text-…` or "the `--text` tokens" instead.
+2. **Do not lower a floor to make the test pass.** The floors above are the
+   contract, already set under the measured values. If a floor fails, the CSS
+   regressed or the palette changed — report it as a finding. Adjusting the
+   number in the test is the one failure mode this task exists to prevent.
+
+- [ ] **Step 1: Write the failing test**
+
+Create `src/helpers/themeStateContrast.test.ts`:
+
+```ts
+import { readFileSync } from 'fs';
+import { join } from 'path';
+import {
+  contrastRatio,
+  mixOverBackdrop,
+  parseThemeTokens,
+  resolveRgb,
+  resolveToken,
+  type ThemeName,
+  type ThemeTokens,
+} from './themeTokens';
+
+const css = readFileSync(join(__dirname, '..', 'index.css'), 'utf8');
+const themes = parseThemeTokens(css);
+const NAMES: ThemeName[] = ['dark', 'light', 'dracula'];
+
+/**
+ * Every pair below is an interaction state this phase shipped, or a resting
+ * pair a state is measured against. `floor` sits just under the value the
+ * controller measured in the worst of the three themes, recorded in the
+ * amendment table of this task's plan.
+ *
+ * If one of these fails, the CSS regressed or the palette moved. Report it.
+ * Do not lower the floor.
+ */
+interface StatePair {
+  readonly label: string;
+  readonly floor: number;
+  readonly ratio: (t: ThemeTokens) => number;
+}
+
+const panel = (t: ThemeTokens) => resolveRgb(t, '--surface-panel');
+const field = (t: ThemeTokens) => resolveRgb(t, '--surface-field');
+const accent = (t: ThemeTokens) => resolveRgb(t, '--accent-color');
+
+const STATE_PAIRS: StatePair[] = [
+  {
+    label: 'accent fill vs field fill (.chip/.seg pressed, .list-row-badge selected)',
+    floor: 2.5,
+    ratio: (t) => contrastRatio(accent(t), field(t)),
+  },
+  {
+    label: '--on-accent label on --accent-color',
+    floor: 4.5,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--on-accent'), accent(t)),
+  },
+  {
+    label: '.list-row selected ring (accent) vs panel',
+    floor: 3.0,
+    ratio: (t) => contrastRatio(accent(t), panel(t)),
+  },
+  {
+    label: '.list-row hover ring (--primary-text-color) vs panel',
+    floor: 3.0,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--primary-text-color'), panel(t)),
+  },
+  {
+    label: '.chip hover ring (--primary-text-color) vs chip resting fill',
+    floor: 3.0,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--primary-text-color'), field(t)),
+  },
+  {
+    label: '.ibtn hover wash (--primary-text-color at 10%) vs panel',
+    floor: 1.12,
+    ratio: (t) =>
+      contrastRatio(
+        mixOverBackdrop(resolveRgb(t, '--primary-text-color'), 0.1, panel(t)),
+        panel(t)
+      ),
+  },
+  {
+    label: '.list-row selected tint (accent at 14%) vs panel',
+    floor: 1.1,
+    ratio: (t) => contrastRatio(mixOverBackdrop(accent(t), 0.14, panel(t)), panel(t)),
+  },
+  {
+    label: '.seg resting label (--text-subdued) vs seg track',
+    floor: 4.5,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--text-subdued'), field(t)),
+  },
+  {
+    label: 'disabled .seg label (--text-subdued at 0.7 opacity) vs seg track',
+    floor: 2.5,
+    ratio: (t) =>
+      contrastRatio(
+        mixOverBackdrop(resolveRgb(t, '--text-subdued'), 0.7, field(t)),
+        field(t)
+      ),
+  },
+  {
+    label: '--text-primary vs panel',
+    floor: 4.5,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--text-primary'), panel(t)),
+  },
+  {
+    label: '--wash-2 vs panel (decorative bloom, deliberately faint)',
+    floor: 1.1,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--wash-2'), panel(t)),
+  },
+];
+
+describe('theme token parsing', () => {
+  it('finds exactly the three theme blocks plus the shared root', () => {
+    expect(Object.keys(themes).sort()).toEqual(['dark', 'dracula', 'light']);
+  });
+
+  it('merges the bare :root scale tokens into every theme', () => {
+    for (const name of NAMES) {
+      expect(themes[name]['--text-body']).toBe('14px');
+      expect(themes[name]['--space-2']).toBe('8px');
+    }
+  });
+
+  it('resolves an alias chain to a literal colour', () => {
+    expect(resolveToken(themes.dark, '--surface-panel')).toBe('#141414');
+    expect(resolveToken(themes.dark, '--surface-raised')).toBe('#141414');
+  });
+
+  it('throws on an undeclared token rather than returning undefined', () => {
+    expect(() => resolveToken(themes.dark, '--no-such-token')).toThrow(
+      /--no-such-token/
+    );
+  });
+
+  it('throws on a circular alias chain', () => {
+    const cyclic: ThemeTokens = { '--a': 'var(--b)', '--b': 'var(--a)' };
+    expect(() => resolveToken(cyclic, '--a')).toThrow(/circular/i);
+  });
+});
+
+describe('contrast maths', () => {
+  it('computes the reference black-on-white ratio', () => {
+    expect(contrastRatio([0, 0, 0], [255, 255, 255])).toBeCloseTo(21, 1);
+  });
+
+  it('is symmetric', () => {
+    expect(contrastRatio([6, 120, 190], [20, 20, 20])).toBeCloseTo(
+      contrastRatio([20, 20, 20], [6, 120, 190]),
+      6
+    );
+  });
+
+  it('composites a partial-alpha colour over its backdrop', () => {
+    expect(mixOverBackdrop([255, 255, 255], 0.5, [0, 0, 0])).toEqual([
+      127.5, 127.5, 127.5,
+    ]);
+    expect(mixOverBackdrop([10, 20, 30], 1, [200, 200, 200])).toEqual([10, 20, 30]);
+  });
+});
+
+describe('interaction-state contrast floors, per theme', () => {
+  for (const pair of STATE_PAIRS) {
+    for (const name of NAMES) {
+      it(`${name}: ${pair.label} clears ${pair.floor}:1`, () => {
+        // toBeGreaterThanOrEqual prints the measured ratio on failure, so the
+        // report reads as a measurement rather than as an opaque boolean.
+        expect(pair.ratio(themes[name])).toBeGreaterThanOrEqual(pair.floor);
+      });
+    }
+  }
+});
+
+/**
+ * The documented alias collapse. These are not bugs to fix here — they are
+ * facts every later sub-plan has to design around, recorded so that a change
+ * to any of them breaks a test instead of silently breaking a state built on
+ * top of it. The spec's "Token collapse facts" table is the prose version.
+ */
+describe('documented alias collapse', () => {
+  it.each(NAMES)('%s: --surface-field is exactly --input-background', (name) => {
+    expect(resolveToken(themes[name], '--surface-field')).toBe(
+      resolveToken(themes[name], '--input-background')
+    );
+  });
+
+  it.each(NAMES)(
+    '%s: --surface-raised resolves to exactly --surface-panel, so it cannot carry a raised state',
+    (name) => {
+      expect(resolveToken(themes[name], '--surface-raised')).toBe(
+        resolveToken(themes[name], '--surface-panel')
+      );
+    }
+  );
+
+  it('dracula collapses --border-color, --on-hover and --input-background onto one value', () => {
+    const t = themes.dracula;
+    expect(resolveToken(t, '--border-color')).toBe(resolveToken(t, '--input-background'));
+    expect(resolveToken(t, '--on-hover')).toBe(resolveToken(t, '--input-background'));
+  });
+});
+
+/**
+ * Pre-existing field-surface debt, escalated to the product owner and
+ * deliberately NOT fixed in Phase 6: in the light theme the field fill sits at
+ * 1.05:1 against the panel it is drawn on, and `.input-field` and `.field`
+ * carry `border: none`, so the boundary of every text input, value readout,
+ * chip and seg track is invisible there.
+ *
+ * Recorded, not gated. If one of these assertions fails because the palette
+ * was corrected, delete that entry and the rules that lean on the collapse can
+ * be simplified. If it fails because a NEW pair joined the roster, that pair
+ * was introduced by mistake — a state must not be built on a 1.05:1 surface.
+ */
+describe('known field-surface debt (recorded, awaiting a palette decision)', () => {
+  const RECORDED: Record<ThemeName, number> = {
+    dark: 1.44,
+    light: 1.05,
+    dracula: 1.73,
+  };
+
+  it.each(NAMES)('%s: field fill against panel is still the recorded ratio', (name) => {
+    const measured = contrastRatio(field(themes[name]), panel(themes[name]));
+    expect(measured).toBeCloseTo(RECORDED[name], 1);
+  });
+
+  it('light theme is the one that is actually invisible', () => {
+    expect(RECORDED.light).toBeLessThan(1.1);
+  });
+});
+```
+
+- [ ] **Step 2: Run the test to verify it fails**
+
+Run: `npx jest src/helpers/themeStateContrast.test.ts`
+Expected: FAIL — `Cannot find module './themeTokens'`.
+
+- [ ] **Step 3: Write the helper module**
+
+Create `src/helpers/themeTokens.ts`:
+
+```ts
+/**
+ * Resolves this project's theme custom properties to literal colours, per
+ * theme, and computes WCAG contrast between them.
+ *
+ * It exists because the semantic aliases in `src/index.css` collapse onto each
+ * other — the field surface is exactly the input background, the raised
+ * surface resolves to exactly the panel, and dracula paints its border, hover
+ * and input surfaces the same value. So "use a different token" is not
+ * reliably a visible change, and five interaction states shipped invisible in
+ * at least one theme before a reviewer resolved the chain by hand. Tests use
+ * this module so that the resolution happens every run instead of whenever
+ * someone remembers to check.
+ *
+ * Test support: nothing in the app imports it, and it stays free of `fs` so it
+ * remains a pure function of the stylesheet text its caller reads.
+ */
+
+export type ThemeName = 'dark' | 'light' | 'dracula';
+
+export type Rgb = readonly [number, number, number];
+
+export type ThemeTokens = Readonly<Record<string, string>>;
+
+const THEME_NAMES: readonly ThemeName[] = ['dark', 'light', 'dracula'];
+
+const stripComments = (css: string): string => css.replace(/\/\*[\s\S]*?\*\//g, '');
+
+/**
+ * Slices one declaration block by its exact selector. The theme blocks and the
+ * bare `:root` block contain no nested braces, so the first closing brace ends
+ * the block — but only once comments are gone, because several of them contain
+ * braces in prose.
+ */
+const blockBody = (css: string, selector: string): string => {
+  const opener = `${selector} {`;
+  const first = css.indexOf(opener);
+  if (first < 0) {
+    throw new Error(`No "${opener}" block in the stylesheet`);
+  }
+  if (css.indexOf(opener, first + 1) >= 0) {
+    throw new Error(
+      `"${opener}" appears more than once; parseThemeTokens assumes one block per selector`
+    );
+  }
+  const start = first + opener.length;
+  const end = css.indexOf('}', start);
+  if (end < 0) {
+    throw new Error(`Unterminated "${opener}" block`);
+  }
+  return css.slice(start, end);
+};
+
+const declarations = (body: string): Record<string, string> => {
+  const out: Record<string, string> = {};
+  for (const match of body.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)) {
+    out[match[1]] = match[2].trim();
+  }
+  return out;
+};
+
+/**
+ * Reads the bare `:root` block and the three `[data-theme]` blocks, returning
+ * one flat token map per theme with the shared scale tokens merged in. A theme
+ * declaration wins over the shared one, matching the cascade.
+ */
+export const parseThemeTokens = (css: string): Record<ThemeName, ThemeTokens> => {
+  const bare = stripComments(css);
+  const shared = declarations(blockBody(bare, ':root'));
+  const result = {} as Record<ThemeName, ThemeTokens>;
+  for (const name of THEME_NAMES) {
+    result[name] = {
+      ...shared,
+      ...declarations(blockBody(bare, `[data-theme="${name}"]`)),
+    };
+  }
+  return result;
+};
+
+/**
+ * Follows `var(--x)` aliases until a literal value is reached. Throws rather
+ * than returning `undefined`, so a typo in a test surfaces as a named token
+ * instead of as a downstream NaN.
+ */
+export const resolveToken = (tokens: ThemeTokens, name: string): string => {
+  const seen = new Set<string>();
+  let current = name;
+  for (;;) {
+    if (seen.has(current)) {
+      throw new Error(
+        `Circular custom-property chain: ${[...seen, current].join(' -> ')}`
+      );
+    }
+    seen.add(current);
+    const value = tokens[current];
+    if (value === undefined) {
+      throw new Error(`Custom property ${current} is not declared in this theme`);
+    }
+    const alias = value.match(/^var\(\s*(--[\w-]+)\s*\)$/);
+    if (!alias) {
+      return value;
+    }
+    current = alias[1];
+  }
+};
+
+/** Parses `#rrggbb`. Deliberately narrow: every colour token in this project
+ * is six-digit hex, and a silent parse of some other notation would produce a
+ * plausible-looking wrong ratio. */
+export const parseHex = (color: string): Rgb => {
+  const match = color.trim().match(/^#([0-9a-fA-F]{6})$/);
+  if (!match) {
+    throw new Error(`Expected a #rrggbb colour, got "${color}"`);
+  }
+  const value = parseInt(match[1], 16);
+  return [(value >> 16) & 0xff, (value >> 8) & 0xff, value & 0xff];
+};
+
+/** Resolves a token to its literal colour in one step, the common case. */
+export const resolveRgb = (tokens: ThemeTokens, name: string): Rgb =>
+  parseHex(resolveToken(tokens, name));
+
+const channelLuminance = (channel: number): number => {
+  const scaled = channel / 255;
+  return scaled <= 0.03928
+    ? scaled / 12.92
+    : Math.pow((scaled + 0.055) / 1.055, 2.4);
+};
+
+export const relativeLuminance = ([r, g, b]: Rgb): number =>
+  0.2126 * channelLuminance(r) +
+  0.7152 * channelLuminance(g) +
+  0.0722 * channelLuminance(b);
+
+export const contrastRatio = (a: Rgb, b: Rgb): number => {
+  const first = relativeLuminance(a);
+  const second = relativeLuminance(b);
+  const lighter = Math.max(first, second);
+  const darker = Math.min(first, second);
+  return (lighter + 0.05) / (darker + 0.05);
+};
+
+/**
+ * The composite of `color-mix(in srgb, <color> <fraction>%, transparent)` — or
+ * equivalently of `opacity: <fraction>` — drawn over a known backdrop. Phase 6
+ * builds its faint states this way precisely because it cannot rely on a
+ * second surface token being a different colour.
+ */
+export const mixOverBackdrop = (color: Rgb, fraction: number, backdrop: Rgb): Rgb => {
+  if (fraction < 0 || fraction > 1) {
+    throw new Error(`fraction must be between 0 and 1, got ${fraction}`);
+  }
+  return [
+    fraction * color[0] + (1 - fraction) * backdrop[0],
+    fraction * color[1] + (1 - fraction) * backdrop[1],
+    fraction * color[2] + (1 - fraction) * backdrop[2],
+  ];
+};
+```
+
+- [ ] **Step 4: Run the test to verify it passes**
+
+Run: `npx jest src/helpers/themeStateContrast.test.ts`
+Expected: PASS.
+
+If any floor fails, **stop and report it as a finding** with the measured
+number and the theme. Do not change the floor, and do not change `src/index.css`
+— this task adds no CSS.
+
+- [ ] **Step 5: Prove the test would catch the defect class it exists for**
+
+This is a real step, not a formality: a guard rail that cannot fail is worse
+than none, because it reads as coverage.
+
+Temporarily edit `src/index.css` — one change at a time, reverting each with
+`git checkout -- src/index.css` before the next:
+
+1. Change the light theme's `--wash-2` back to `#DDEBF7`. Run the test.
+   Expected: the `light: --wash-2 …` case fails at 1.01.
+2. Change dark `--surface-raised` to `var(--input-background)`. Run the test.
+   Expected: the "resolves to exactly --surface-panel" case fails for dark.
+3. Change light `--input-background` to `#FFFFFF`. Run the test.
+   Expected: the debt roster's light case fails, because the recorded 1.05 no
+   longer holds.
+
+Confirm `git status` shows `src/index.css` unmodified before continuing, and
+record the three observed failures in your report.
+
+- [ ] **Step 6: Run the full suite, typecheck and lint**
+
+Run: `npx jest`, `npx tsc --noEmit -p tsconfig.json 2>&1 | grep -c "error TS"`, `npm run lint`
+
+Expected: all tests pass; tsc **64**; lint **20 problems (17 errors, 3 warnings)**.
+Report the actual numbers you measure, not a characterisation of them — if a
+count differs, give both the measured and the expected number. If lint rises,
+run `npx eslint src/helpers/themeTokens.ts src/helpers/themeStateContrast.test.ts --fix`
+and re-check.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add src/helpers/themeTokens.ts src/helpers/themeStateContrast.test.ts
+git commit -m "$(cat <<'EOF'
+Resolve theme aliases in a test and gate every state's contrast
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+EOF
+)"
+```
