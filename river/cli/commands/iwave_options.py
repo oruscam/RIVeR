@@ -38,7 +38,7 @@ def iwave_option_flags(func: Callable) -> Callable:
 	"""
 	decorators = [
 		click.option("--iwave-window-size", type=AutoOrPositiveFloat(), default="auto", show_default=True,
-			help="iWave window side in metres, or 'auto' (computed from the LSPIV/STIV speed)."),
+			help="iWave window side in metres, or 'auto' (2.5 m on the ROI-sized grid)."),
 		click.option("--iwave-smax", type=AutoOrPositiveFloat(), default="auto", show_default=True,
 			help="iWave maximum velocity in m/s, or 'auto'."),
 		click.option("--iwave-flow-type", type=click.Choice(FLOW_TYPES), default="auto", show_default=True,

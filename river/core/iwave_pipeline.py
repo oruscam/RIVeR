@@ -223,7 +223,7 @@ def prepare_iwave_scene(
     fps_eff = float(fps) / float(step or 1)
     estimate = estimate_velocity(xsections)
     scene = resolve_scene_params(
-        estimate, xsections, n_frames, fps_eff, span_m, options or IwaveOptions(),
+        estimate, n_frames, fps_eff, span_m, options or IwaveOptions(),
         clip_duration_s=n_frames_total / fps_eff,
     )
     return estimate, scene

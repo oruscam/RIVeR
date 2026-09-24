@@ -15,8 +15,6 @@ from typing import List, Optional, Sequence, Tuple
 import numpy as np
 
 GRAVITY = 9.81
-# Dominant river wavelength: lambda = 2 pi U^2 / g (about 0.64 U^2)
-WAVELENGTH_FACTOR = 2 * np.pi / GRAVITY
 
 # A velocity source is trusted when at least this fraction of the considered
 # stations has a value and its high percentile is not near zero.
@@ -34,11 +32,11 @@ SMAX_MAX = 5.0
 SMAX_FALLBACK = 5.0
 SMAX_RERUN_FRACTION = 0.9
 
-WINDOW_WAVELENGTHS = 4.0
-WINDOW_MIN_M = 2.0
-WINDOW_MAX_M = 6.0
-WINDOW_ABS_MIN_M = 1.5
-WINDOW_FALLBACK_M = 2.5
+# Automatic window: a 2.5 m target on the ROI-sized grid. In a 62-case LSPIV/STIV
+# benchmark (2026-09-23), wavelength-sized windows (4 lambda, 2-6 m) spanned
+# several stations and flattened the cross-section profile.
+AUTO_WINDOW_M = 2.5
+# A user-set window is cut at about this many pixels, coarsening the grid if needed
 WINDOW_TARGET_PX = 48
 WINDOW_MIN_PX = 32
 WINDOW_MAX_PX = 64
@@ -238,7 +236,7 @@ class SceneParams:
 	Attributes:
 		smax (float): Velocity search bound (m/s).
 		smax_is_auto (bool): False when the user set smax; disables the rerun check.
-		window_m (float): Target window side (m).
+		window_m (float): Window side actually cut, window_px · resolution (m).
 		window_px (int): Window side in ortho pixels (even).
 		resolution (float): Ortho grid resolution (m/px).
 		time_size (int): Frames per spectral segment (even).
@@ -255,57 +253,6 @@ class SceneParams:
 	time_overlap: int
 	fps_eff: float
 	penalty_weight: float
-
-
-def get_widest_wet_width(xsections: dict) -> Optional[float]:
-	"""Widest contiguous wet stretch over all cross-sections.
-
-	Args:
-		xsections (dict): Cross-sections with "distance" and "depth".
-
-	Returns:
-		Optional[float]: Width in metres, or None when no section has both fields.
-	"""
-	widest = None
-	for section in get_section_items(xsections):
-		distance = to_float_array(section.get("distance"))
-		depth = to_float_array(section.get("depth"))
-		if distance is None or depth is None or len(distance) != len(depth):
-			continue
-		wet = depth > 0
-		run_start = None
-		for index in range(len(wet) + 1):
-			is_wet = index < len(wet) and wet[index]
-			if is_wet and run_start is None:
-				run_start = index
-			elif not is_wet and run_start is not None:
-				width = float(distance[index - 1] - distance[run_start])
-				widest = width if widest is None else max(widest, width)
-				run_start = None
-	return widest
-
-
-def get_window_size(estimate: VelocityEstimate, xsections: dict, options: IwaveOptions) -> float:
-	"""Window side in metres: a few dominant wavelengths, bounded by the wet width.
-
-	Args:
-		estimate (VelocityEstimate): Scene velocity estimate.
-		xsections (dict): Cross-sections (used for the wet width cap).
-		options (IwaveOptions): User overrides.
-
-	Returns:
-		float: Window side (m).
-	"""
-	if options.window_size is not None:
-		return float(options.window_size)
-	if estimate.u_est is None:
-		return WINDOW_FALLBACK_M
-	wavelength = WAVELENGTH_FACTOR * estimate.u_est ** 2
-	window_m = float(np.clip(WINDOW_WAVELENGTHS * wavelength, WINDOW_MIN_M, WINDOW_MAX_M))
-	wet_width = get_widest_wet_width(xsections)
-	if wet_width is not None:
-		window_m = max(min(window_m, wet_width), WINDOW_ABS_MIN_M)
-	return window_m
 
 
 def get_time_size(n_frames: int, fps_eff: float, clip_duration_s: Optional[float] = None) -> int:
@@ -330,9 +277,33 @@ def get_time_size(n_frames: int, fps_eff: float, clip_duration_s: Optional[float
 	return max(2, frames - frames % 2)
 
 
+def get_window_geometry(span_m: float, options: IwaveOptions) -> Tuple[float, int]:
+	"""Ortho resolution and window side in pixels.
+
+	The automatic window keeps the ROI-sized grid (span / MAX_GRID) and cuts
+	AUTO_WINDOW_M on it, within [WINDOW_MIN_PX, WINDOW_MAX_PX]. A user-set window
+	instead coarsens the grid so the requested size fits in about
+	WINDOW_TARGET_PX pixels.
+
+	Args:
+		span_m (float): Largest side of the ortho extent (m).
+		options (IwaveOptions): User overrides.
+
+	Returns:
+		Tuple[float, int]: Resolution (m/px) and even window side (px).
+	"""
+	if options.window_size is None:
+		resolution = span_m / MAX_GRID
+		window_m = AUTO_WINDOW_M
+	else:
+		window_m = float(options.window_size)
+		resolution = max(window_m / WINDOW_TARGET_PX, RESOLUTION_MIN, span_m / MAX_GRID)
+	window_px = int(np.clip(round(window_m / resolution / 2) * 2, WINDOW_MIN_PX, WINDOW_MAX_PX))
+	return resolution, window_px
+
+
 def resolve_scene_params(
 	estimate: VelocityEstimate,
-	xsections: dict,
 	n_frames: int,
 	fps_eff: float,
 	span_m: float,
@@ -343,7 +314,6 @@ def resolve_scene_params(
 
 	Args:
 		estimate (VelocityEstimate): Scene velocity estimate.
-		xsections (dict): Cross-sections.
 		n_frames (int): Frames that will be warped (already capped).
 		fps_eff (float): Frame rate of the extracted frames.
 		span_m (float): Largest side of the ortho extent (m).
@@ -361,9 +331,8 @@ def resolve_scene_params(
 	else:
 		smax, smax_is_auto = float(np.clip(SMAX_FACTOR * estimate.u_est, SMAX_MIN, SMAX_MAX)), True
 
-	window_m = get_window_size(estimate, xsections, options)
-	resolution = max(window_m / WINDOW_TARGET_PX, RESOLUTION_MIN, span_m / MAX_GRID)
-	window_px = int(np.clip(round(window_m / resolution / 2) * 2, WINDOW_MIN_PX, WINDOW_MAX_PX))
+	resolution, window_px = get_window_geometry(span_m, options)
+	window_m = window_px * resolution
 	time_size = get_time_size(n_frames, fps_eff, clip_duration_s)
 
 	return SceneParams(
