@@ -155,7 +155,8 @@ export type RiverCli = (
   options: (string | number)[],
   mode?: 'json' | 'text',
   output?: boolean | string,
-  logFile?: string
+  logFile?: string,
+  tracked?: boolean
 ) => Promise<{ data: any; error: any }>;
 
 interface Point {
