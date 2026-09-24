@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { contrastRatio, parseThemeTokens } from './themeContrast';
+import { contrastRatio, parseThemeTokens, resolveRgb, type ThemeName } from './themeTokens';
 
 /**
  * The three technique-identity colours (LSPIV/STIV/iWave), one theme-tuned
@@ -9,6 +9,7 @@ import { contrastRatio, parseThemeTokens } from './themeContrast';
  * (good/fair/bad) and accent colours everywhere else in the app.
  */
 const themes = parseThemeTokens(readFileSync(join(__dirname, '..', 'index.css'), 'utf8'));
+const NAMES: ThemeName[] = ['dark', 'light', 'dracula'];
 
 const PALETTE: Record<string, { lspiv: string; stiv: string; iwave: string }> = {
   dark: { lspiv: '#56B4E9', stiv: '#E69F00', iwave: '#009E73' },
@@ -17,7 +18,7 @@ const PALETTE: Record<string, { lspiv: string; stiv: string; iwave: string }> = 
 };
 
 describe('technique colour tokens', () => {
-  describe.each(['dark', 'light', 'dracula'])('%s theme', (theme) => {
+  describe.each(NAMES)('%s theme', (theme) => {
     it.each(['lspiv', 'stiv', 'iwave'] as const)('--tech-%s matches the chosen palette', (key) => {
       expect(themes[theme][`--tech-${key}`]).toBe(PALETTE[theme][key]);
     });
@@ -25,24 +26,21 @@ describe('technique colour tokens', () => {
 });
 
 describe('technique colours vs status colours (must stay separate — Critical audit finding)', () => {
-  it.each(['dark', 'light', 'dracula'])(
-    '%s: STIV is not the error/warning colour and iWave is not the success colour',
-    (theme) => {
-      expect(themes[theme]['--tech-stiv']).toBeDefined();
-      expect(themes[theme]['--tech-stiv']).not.toBe(themes[theme]['--background-error']);
-      expect(themes[theme]['--tech-stiv']).not.toBe(themes[theme]['--warning-color']);
-      expect(themes[theme]['--tech-iwave']).toBeDefined();
-      expect(themes[theme]['--tech-iwave']).not.toBe(themes[theme]['--success-color']);
-    }
-  );
+  it.each(NAMES)('%s: STIV is not the error/warning colour and iWave is not the success colour', (theme) => {
+    expect(themes[theme]['--tech-stiv']).toBeDefined();
+    expect(themes[theme]['--tech-stiv']).not.toBe(themes[theme]['--background-error']);
+    expect(themes[theme]['--tech-stiv']).not.toBe(themes[theme]['--warning-color']);
+    expect(themes[theme]['--tech-iwave']).toBeDefined();
+    expect(themes[theme]['--tech-iwave']).not.toBe(themes[theme]['--success-color']);
+  });
 });
 
 describe('technique colours: non-text contrast (WCAG 1.4.11, >=3:1 against the panel)', () => {
-  describe.each(['dark', 'light', 'dracula'])('%s theme', (theme) => {
+  describe.each(NAMES)('%s theme', (theme) => {
     it.each(['lspiv', 'stiv', 'iwave'] as const)('--tech-%s reads against --secondary-background-color', (key) => {
       const tokens = themes[theme];
       expect(
-        contrastRatio(tokens[`--tech-${key}`], tokens['--secondary-background-color'])
+        contrastRatio(resolveRgb(tokens, `--tech-${key}`), resolveRgb(tokens, '--secondary-background-color'))
       ).toBeGreaterThanOrEqual(3);
     });
   });
@@ -68,7 +66,7 @@ describe('surface/text/status alias tokens (pure aliases — no new colour value
     ['--status-bad', '--background-error'],
   ];
 
-  describe.each(['dark', 'light', 'dracula'])('%s theme', (theme) => {
+  describe.each(NAMES)('%s theme', (theme) => {
     it.each(ALIASES)('%s aliases var(%s)', (alias, target) => {
       const block = themeBlock(theme);
       const pattern = new RegExp(`${alias}\\s*:\\s*var\\(\\s*${target}\\s*\\)\\s*;`);
