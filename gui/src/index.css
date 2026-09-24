@@ -31,6 +31,18 @@
      Body/interface text stays on the existing global Inter stack, untouched. */
   --font-display: 'Outfit', 'Avenir Next', system-ui, sans-serif;
 
+  /* Type scale — the design audit's six steps. Sizes only: weight and colour
+     stay with the consuming rule, because the same size appears at different
+     weights (14px Inter 400 body text vs. a 14px 600 value readout). Adopted
+     across the codebase in Phase 6g; declared here first so 6b-6f can use them
+     as they go. */
+  --text-display: 40px;
+  --text-title:   24px;
+  --text-section: 16px;
+  --text-body:    14px;
+  --text-meta:    13px;
+  --text-caption: 12px;
+
   /* Pin ink — the label colour drawn inside a pin's head. Always a near-black,
      since every pin fill (left/right/point) is a light, saturated colour in
      every theme; unlike --pin-left/right/point/muted below, this one value
@@ -154,6 +166,11 @@
   --pin-right: #62C655;
   --pin-point: #6CD4FF;
   --pin-muted: #808080;
+
+  /* Theme wash — the soft coloured bloom behind the Home screen's logo and at
+     the top of the Results panel. Theme-specific, so unlike the type scale it
+     cannot live in the bare :root block. Consumed in Phase 6f. */
+  --wash-2: #0B2D52;
 }
 
 /* --------------------------------------------------------------------------
@@ -258,6 +275,9 @@
   --pin-right: #62C655;
   --pin-point: #6CD4FF;
   --pin-muted: #808080;
+
+  /* Theme wash — see the dark theme's note. */
+  --wash-2: #DDEBF7;
 }
 
 /* --------------------------------------------------------------------------
@@ -359,6 +379,9 @@
   --pin-right: #50fa7b;
   --pin-point: #8be9fd;
   --pin-muted: #6272a4;
+
+  /* Theme wash — see the dark theme's note. */
+  --wash-2: #33294F;
 }
 
 /* =============================================================================
