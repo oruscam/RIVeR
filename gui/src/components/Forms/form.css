@@ -781,3 +781,40 @@
     opacity: 0.35;
     cursor: not-allowed;
 }
+
+.iwave-advanced-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.iwave-mode-tag {
+    font-size: 0.7rem;
+    padding: 0.05rem 0.45rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    color: var(--secondary-text-color);
+    white-space: nowrap;
+}
+
+.iwave-mode-tag-manual {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
+.iwave-advanced-hint,
+.iwave-advanced-warning {
+    margin: 0.35rem 0 0;
+    font-size: 0.75rem;
+    line-height: 1.25;
+    color: var(--secondary-text-color);
+}
+
+.iwave-advanced-warning {
+    color: var(--warning-color);
+}
+
+.iwave-advanced-group-disabled {
+    opacity: 0.5;
+}
