@@ -25,30 +25,27 @@ describe('.chip primitive', () => {
 
   it('shows its selected state through aria-pressed, not a separate class', () => {
     // The rule now has two selectors: aria-pressed and aria-selected
-    const regionText = css.slice(
-      css.indexOf('   CHIP (.chip family)'),
-      css.indexOf('   FORM INPUTS'),
-    );
+    const regionText = css.slice(css.indexOf('   CHIP (.chip family)'), css.indexOf('   FORM INPUTS'));
     expect(regionText).toContain('.chip[aria-pressed="true"],');
     expect(regionText).toContain('.chip[aria-selected="true"] {');
     // Verify the rule body has both accent tokens
-    const selectorPattern = /\.chip\[aria-pressed="true"\],[\s\n]*\.chip\[aria-selected="true"\]\s*\{[^}]*background-color:\s*var\(--accent-color\)/;
+    const selectorPattern =
+      /\.chip\[aria-pressed="true"\],[\s\n]*\.chip\[aria-selected="true"\]\s*\{[^}]*background-color:\s*var\(--accent-color\)/;
     expect(regionText).toMatch(selectorPattern);
-    const colorPattern = /\.chip\[aria-pressed="true"\],[\s\n]*\.chip\[aria-selected="true"\]\s*\{[^}]*color:\s*var\(--on-accent\)/;
+    const colorPattern =
+      /\.chip\[aria-pressed="true"\],[\s\n]*\.chip\[aria-selected="true"\]\s*\{[^}]*color:\s*var\(--on-accent\)/;
     expect(regionText).toMatch(colorPattern);
   });
 
   it('has a focus ring and a hover state', () => {
     expect(ruleBody('.chip:focus-visible')).toMatch(/outline:\s*2px solid var\(--accent-color\)/);
     // The hover selector is now long and includes aria-disabled and aria-pressed/selected guards
-    const regionText = css.slice(
-      css.indexOf('   CHIP (.chip family)'),
-      css.indexOf('   FORM INPUTS'),
-    );
+    const regionText = css.slice(css.indexOf('   CHIP (.chip family)'), css.indexOf('   FORM INPUTS'));
     const hoverSelector =
       '.chip:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {';
     expect(regionText).toContain(hoverSelector);
-    const hoverPattern = /\.chip:hover[^}]*\{[^}]*box-shadow:\s*inset\s+0\s+0\s+0\s+1px\s+var\(--primary-text-color\)/;
+    const hoverPattern =
+      /\.chip:hover[^}]*\{[^}]*box-shadow:\s*inset\s+0\s+0\s+0\s+1px\s+var\(--primary-text-color\)/;
     expect(regionText).toMatch(hoverPattern);
   });
 
@@ -71,29 +68,27 @@ describe('.seg primitive', () => {
   it('draws unselected segments subdued and the selected one on accent', () => {
     expect(ruleBody('.seg button')).toMatch(/color:\s*var\(--text-subdued\)/);
     // The selected rule now has two selectors: aria-pressed and aria-selected
-    const regionText = css.slice(
-      css.indexOf('   CHIP (.chip family)'),
-      css.indexOf('   FORM INPUTS'),
-    );
+    const regionText = css.slice(css.indexOf('   CHIP (.chip family)'), css.indexOf('   FORM INPUTS'));
     expect(regionText).toContain('.seg button[aria-pressed="true"],');
     expect(regionText).toContain('.seg button[aria-selected="true"] {');
-    const bgPattern = /\.seg button\[aria-pressed="true"\],[\s\n]*\.seg button\[aria-selected="true"\]\s*\{[^}]*background-color:\s*var\(--accent-color\)/;
+    const bgPattern =
+      /\.seg button\[aria-pressed="true"\],[\s\n]*\.seg button\[aria-selected="true"\]\s*\{[^}]*background-color:\s*var\(--accent-color\)/;
     expect(regionText).toMatch(bgPattern);
-    const colorPattern = /\.seg button\[aria-pressed="true"\],[\s\n]*\.seg button\[aria-selected="true"\]\s*\{[^}]*color:\s*var\(--on-accent\)/;
+    const colorPattern =
+      /\.seg button\[aria-pressed="true"\],[\s\n]*\.seg button\[aria-selected="true"\]\s*\{[^}]*color:\s*var\(--on-accent\)/;
     expect(regionText).toMatch(colorPattern);
   });
 
   it('dims disabled segments rather than hiding them', () => {
     // The disabled rule now has two selectors: :disabled and [aria-disabled="true"]
-    const regionText = css.slice(
-      css.indexOf('   CHIP (.chip family)'),
-      css.indexOf('   FORM INPUTS'),
-    );
+    const regionText = css.slice(css.indexOf('   CHIP (.chip family)'), css.indexOf('   FORM INPUTS'));
     expect(regionText).toContain('.seg button:disabled,');
     expect(regionText).toContain('.seg button[aria-disabled="true"] {');
-    const opacityPattern = /\.seg button:disabled,[\s\n]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*opacity:\s*0\.38/;
+    const opacityPattern =
+      /\.seg button:disabled,[\s\n]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*opacity:\s*0\.38/;
     expect(regionText).toMatch(opacityPattern);
-    const cursorPattern = /\.seg button:disabled,[\s\n]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*cursor:\s*not-allowed/;
+    const cursorPattern =
+      /\.seg button:disabled,[\s\n]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*cursor:\s*not-allowed/;
     expect(regionText).toMatch(cursorPattern);
   });
 });
@@ -120,9 +115,11 @@ describe('both primitives are token-driven', () => {
     const regionText = region();
     expect(regionText).toContain('.chip[aria-pressed="true"],');
     expect(regionText).toContain('.chip[aria-selected="true"] {');
-    const bgPattern = /\.chip\[aria-(?:pressed|selected)="true"\][^}]*\{[^}]*background-color:\s*var\(--accent-color\)[^}]*\}/;
+    const bgPattern =
+      /\.chip\[aria-(?:pressed|selected)="true"\][^}]*\{[^}]*background-color:\s*var\(--accent-color\)[^}]*\}/;
     expect(regionText).toMatch(bgPattern);
-    const colorPattern = /\.chip\[aria-(?:pressed|selected)="true"\][^}]*\{[^}]*color:\s*var\(--on-accent\)[^}]*\}/;
+    const colorPattern =
+      /\.chip\[aria-(?:pressed|selected)="true"\][^}]*\{[^}]*color:\s*var\(--on-accent\)[^}]*\}/;
     expect(regionText).toMatch(colorPattern);
   });
 
@@ -139,7 +136,8 @@ describe('both primitives are token-driven', () => {
     const hoverSelector =
       '.chip:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {';
     expect(regionText).toContain(hoverSelector);
-    const boxShadowPattern = /\.chip:hover[^}]*\{[^}]*box-shadow:\s*inset\s+0\s+0\s+0\s+1px\s+var\(--primary-text-color\)[^}]*\}/;
+    const boxShadowPattern =
+      /\.chip:hover[^}]*\{[^}]*box-shadow:\s*inset\s+0\s+0\s+0\s+1px\s+var\(--primary-text-color\)[^}]*\}/;
     expect(regionText).toMatch(boxShadowPattern);
   });
 
@@ -147,9 +145,11 @@ describe('both primitives are token-driven', () => {
     const regionText = region();
     expect(regionText).toContain('.seg button[aria-pressed="true"],');
     expect(regionText).toContain('.seg button[aria-selected="true"] {');
-    const bgPattern = /\.seg button\[aria-(?:pressed|selected)="true"\][^}]*\{[^}]*background-color:\s*var\(--accent-color\)[^}]*\}/;
+    const bgPattern =
+      /\.seg button\[aria-(?:pressed|selected)="true"\][^}]*\{[^}]*background-color:\s*var\(--accent-color\)[^}]*\}/;
     expect(regionText).toMatch(bgPattern);
-    const colorPattern = /\.seg button\[aria-(?:pressed|selected)="true"\][^}]*\{[^}]*color:\s*var\(--on-accent\)[^}]*\}/;
+    const colorPattern =
+      /\.seg button\[aria-(?:pressed|selected)="true"\][^}]*\{[^}]*color:\s*var\(--on-accent\)[^}]*\}/;
     expect(regionText).toMatch(colorPattern);
   });
 
@@ -157,7 +157,8 @@ describe('both primitives are token-driven', () => {
     const regionText = region();
     expect(regionText).toContain('.seg button:disabled,');
     expect(regionText).toContain('.seg button[aria-disabled="true"] {');
-    const opacityPattern = /\.seg button:disabled,[^}]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*opacity:\s*0\.38[^}]*\}/;
+    const opacityPattern =
+      /\.seg button:disabled,[^}]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*opacity:\s*0\.38[^}]*\}/;
     expect(regionText).toMatch(opacityPattern);
   });
 
