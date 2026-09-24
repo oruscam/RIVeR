@@ -2,6 +2,7 @@ import { PixelSize } from '../store/section/types';
 import { getBathimetryValues } from './getBathimetryValues';
 import { MODULE_NUMBER } from '../constants/constants';
 import { transformPixelToRealWorld } from '../../commons/coordinates';
+import { fromSettingsIwaveManual } from '../../commons/iwave';
 import { getImageSize } from '../helpers/index';
 import { appendSolutionToIpcamPoints } from './appendSolutionsToImportedPoints';
 import { BackendCameraSolution, IpcamPoint } from '../store/ipcam/types';
@@ -363,6 +364,7 @@ const onLoadProcessingForm = (values: ProcessingValues, dispatch: any, updateFor
     roi_height,
     stiv,
     iwave,
+    iwave_manual,
   } = values;
 
   dispatch(
@@ -385,6 +387,8 @@ const onLoadProcessingForm = (values: ProcessingValues, dispatch: any, updateFor
       // toggles uncontrolled.
       stiv: stiv ?? true,
       iwave: iwave ?? true,
+      // Missing, null or corrupt -> automatic; a malformed value must never reach the CLI.
+      iwaveManual: fromSettingsIwaveManual(iwave_manual),
     })
   );
 };
@@ -563,6 +567,7 @@ interface ProcessingValues {
   roi_height?: number;
   stiv?: boolean;
   iwave?: boolean;
+  iwave_manual?: unknown;
 }
 
 interface control_points {
