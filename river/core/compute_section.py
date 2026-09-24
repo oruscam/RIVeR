@@ -20,7 +20,7 @@ import hashlib
 
 import river.core.coordinate_transform as ct
 from river.core.exceptions import NotSupportedFormatError
-from river.core.iwave_pipeline import IWAVE_COLUMNS
+from river.core.iwave_pipeline import IWAVE_COLUMNS, IWAVE_PARAMS_KEY
 from river.core.stiv_pipeline import STIV_COLUMNS
 
 N_CACHE_POINTS = 200
@@ -1417,7 +1417,7 @@ def update_current_x_section(
     # station count", which the frontend already renders correctly (getEffectiveTechniqueData
     # returns null for a missing profile, hiding that technique) until Analize reruns.
     if previous_num_stations is not None and previous_num_stations != num_stations:
-        for stale_key in (*STIV_COLUMNS, *IWAVE_COLUMNS):
+        for stale_key in (*STIV_COLUMNS, *IWAVE_COLUMNS, IWAVE_PARAMS_KEY):
             x_sections[current_x_section].pop(stale_key, None)
 
     # Check if statistics already exist and are valid
