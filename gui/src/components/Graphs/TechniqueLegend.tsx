@@ -28,6 +28,8 @@ export const TechniqueLegend = () => {
 
   if (!data) return null;
 
+  const lowQualityCount = data.iwave_valid_profile?.filter((valid) => valid === false).length ?? 0;
+
   const hasData = (key: Technique): boolean => {
     if (key === 'lspiv') return true;
     if (key === 'stiv') return !!data.stiv_velocity_profile;
@@ -116,6 +118,20 @@ export const TechniqueLegend = () => {
                     onClick={() => onChangeDataValues({ type: 'showIwaveQuality' })}
                   >
                     Q
+                  </button>
+                )}
+                {key === 'iwave' && lowQualityCount > 0 && (
+                  <button
+                    type="button"
+                    className={`technique-band-glyph${data.includeIwaveLowQuality ? ' technique-band-glyph-on' : ''}`}
+                    title={
+                      data.includeIwaveLowQuality
+                        ? t('Results.iwaveLowQualityIncluded')
+                        : t('Results.iwaveLowQualityExcluded', { count: lowQualityCount })
+                    }
+                    onClick={() => onChangeDataValues({ type: 'includeIwaveLowQuality' })}
+                  >
+                    ⊘
                   </button>
                 )}
               </span>

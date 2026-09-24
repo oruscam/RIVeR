@@ -15,6 +15,9 @@ export interface VelocitySeriesPoint {
   /** STIV only: was this station's velocity derived from a user-set angle
    *  rather than the automatic fit. Always false for LSPIV/iWave. */
   tuned: boolean;
+  /** iWave only: raw velocity of a station excluded as low quality, drawn as a faded dashed
+   *  ring so it stays visible but reads as rejected. null otherwise. */
+  rejectedV: number | null;
 }
 
 export interface VelocityBand {
@@ -252,6 +255,21 @@ export const createVelocityChart = ({
       )
       .attr('stroke-width', (d) => (showQuality && d.quality !== null ? 0.75 : isStivHollow(d) ? 1.5 : 0))
       .attr('opacity', baseOpacity);
+
+    svg
+      .selectAll(`.marker-rejected-${s.key}`)
+      .data(s.points.filter((p) => p.rejectedV !== null))
+      .enter()
+      .append('circle')
+      .attr('class', `marker-rejected-${s.key}`)
+      .attr('cx', (d) => xScale(d.x))
+      .attr('cy', (d) => yScale((d.rejectedV as number) * velocityFactor))
+      .attr('r', isActive ? 3 : 2.2)
+      .attr('fill', 'var(--background-color)')
+      .attr('stroke', strokeColor)
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', '1.5 1')
+      .attr('opacity', 0.45);
   });
 
   // label for Velocity

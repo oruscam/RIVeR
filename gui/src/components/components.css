@@ -944,6 +944,12 @@
     font-style: italic;
 }
 
+.cell-low-quality {
+    color: var(--secondary-text-color);
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
 .header-subtech {
     display: block;
     font-size: 0.65rem;

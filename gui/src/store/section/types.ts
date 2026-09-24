@@ -88,11 +88,17 @@ interface SectionData {
   iwave_velocity_profile?: (number | null)[];
   iwave_quality_profile?: (number | null)[];
   iwave_depth_profile?: (number | null)[];
+  /** Per-station iWave quality flag from the pipeline: false = low quality, null = no score. */
+  iwave_valid_profile?: (boolean | null)[];
+  /** Parameters iWave actually used for this section (pipeline record). Not displayed yet. */
+  iwave_params?: Record<string, unknown>;
   showLspiv?: boolean;
   showStiv?: boolean;
   showIwave?: boolean;
   showStivStd?: boolean;
   showIwaveQuality?: boolean;
+  /** Results toggle: count low-quality iWave stations in discharge instead of treating them as gaps. */
+  includeIwaveLowQuality?: boolean;
   activeMagnitude: number[];
   activeCheck: boolean[];
   interpolated: boolean;

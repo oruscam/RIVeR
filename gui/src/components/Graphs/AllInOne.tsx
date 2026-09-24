@@ -163,6 +163,7 @@ export const AllInOne = ({
             i,
             quality: key === 'iwave' ? (data.iwave_quality_profile?.[i] ?? null) : null,
             tuned: effective.tunedFlags[i],
+            rejectedV: effective.lowQualityFlags[i] ? effective.profile[i] : null,
           }));
 
           const s: VelocitySeries = {
