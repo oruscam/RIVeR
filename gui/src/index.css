@@ -756,7 +756,8 @@ html {
    this codebase uses aria-disabled rather than :disabled wherever a title
    tooltip has to survive, because Chromium dispatches no pointer events on a
    natively disabled control (see form.css:769-774). */
-.ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]), .ibtn-danger[data-armed="true"] {
+.ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]),
+.ibtn-danger[data-armed="true"] {
   background-color: var(--status-bad);
   color: var(--on-error);
 }
