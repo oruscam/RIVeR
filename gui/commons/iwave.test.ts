@@ -21,6 +21,7 @@ const defaults: IwaveDefaults = {
   clipS: 18,
   iwaveS: 17.07,
   shortClip: false,
+  isFallback: false,
 };
 const manual: IwaveManual = { flowType: 'no-waves', windowSize: 4, smax: 2 };
 
@@ -44,6 +45,7 @@ describe('parseIwaveDefaults', () => {
       clipS: 3.2,
       iwaveS: 3.2,
       shortClip: true,
+      isFallback: false,
     });
   });
 
@@ -123,6 +125,11 @@ describe('isIwaveWindowStale', () => {
     expect(isIwaveWindowStale({ ...manual, windowSize: 2.39 }, d)).toBe(false);
     expect(isIwaveWindowStale({ ...manual, windowSize: 2.41 }, d)).toBe(true);
     expect(isIwaveWindowStale({ ...manual, windowSize: 1.59 }, d)).toBe(true);
+  });
+  it('never flags stale against the untouched fallback (no real fetch yet, or the fetch failed)', () => {
+    // The fallback's 2.5 m window is not a real automatic value for this project; comparing
+    // against it would fire on every mount (before the IPC answers) and forever on failure.
+    expect(isIwaveWindowStale({ ...manual, windowSize: 0.5 }, IWAVE_FALLBACK_DEFAULTS)).toBe(false);
   });
 });
 

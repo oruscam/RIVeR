@@ -72,6 +72,7 @@ describe('get-iwave-defaults', () => {
       clipS: 4,
       iwaveS: 4,
       shortClip: true,
+      isFallback: false,
     });
   });
 
