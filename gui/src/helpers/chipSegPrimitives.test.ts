@@ -79,13 +79,13 @@ describe('.seg primitive', () => {
     expect(regionText).toMatch(colorPattern);
   });
 
-  it('dims disabled segments rather than hiding them', () => {
+  it('dims disabled segments to 0.7, not the family-wide 0.38, since its resting colour is already subdued', () => {
     // The disabled rule now has two selectors: :disabled and [aria-disabled="true"]
     const regionText = css.slice(css.indexOf('   CHIP (.chip family)'), css.indexOf('   FORM INPUTS'));
     expect(regionText).toContain('.seg button:disabled,');
     expect(regionText).toContain('.seg button[aria-disabled="true"] {');
     const opacityPattern =
-      /\.seg button:disabled,[\s\n]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*opacity:\s*0\.38/;
+      /\.seg button:disabled,[\s\n]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*opacity:\s*0\.7/;
     expect(regionText).toMatch(opacityPattern);
     const cursorPattern =
       /\.seg button:disabled,[\s\n]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*cursor:\s*not-allowed/;
@@ -168,7 +168,7 @@ describe('both primitives are token-driven', () => {
     expect(regionText).toContain('.seg button:disabled,');
     expect(regionText).toContain('.seg button[aria-disabled="true"] {');
     const opacityPattern =
-      /\.seg button:disabled,[^}]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*opacity:\s*0\.38[^}]*\}/;
+      /\.seg button:disabled,[^}]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*opacity:\s*0\.7[^}]*\}/;
     expect(regionText).toMatch(opacityPattern);
   });
 

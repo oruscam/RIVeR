@@ -45,8 +45,9 @@ describe('.btn button component', () => {
     expect(body).toMatch(/width:\s*32px/);
   });
 
-  it('disabled buttons dim instead of changing shape', () => {
-    expect(ruleBody('.btn:disabled')).toMatch(/opacity:\s*0\.38/);
+  it('disabled buttons dim instead of changing shape, honouring :disabled or [aria-disabled]', () => {
+    const match = css.match(/\.btn:disabled,\s*\.btn\[aria-disabled="true"\]\s*\{([^}]*)\}/);
+    expect(match?.[1]).toMatch(/opacity:\s*0\.38/);
   });
 });
 

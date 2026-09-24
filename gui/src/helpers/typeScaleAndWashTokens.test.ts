@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 /**
- * Phase 6a's tokens. The six --text-* sizes are theme-invariant and live in the
+ * Phase 6a's tokens. The seven --text-* sizes are theme-invariant and live in the
  * bare :root scale block next to other scale tokens; --wash-2 is a
  * colour, so it is declared once per [data-theme] block instead.
  */
@@ -28,7 +28,7 @@ const TYPE_SCALE: [string, string][] = [
 
 const WASH: [string, string][] = [
   ['[data-theme="dark"]', '#0B2D52'],
-  ['[data-theme="light"]', '#DDEBF7'],
+  ['[data-theme="light"]', '#BFDDF5'],
   ['[data-theme="dracula"]', '#33294F'],
 ];
 
