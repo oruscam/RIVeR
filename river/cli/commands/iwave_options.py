@@ -3,6 +3,7 @@
 Created: 2026-09-23
 Author: Antoine Patalano
 """
+import math
 from typing import Callable, Optional
 
 import click
@@ -11,7 +12,7 @@ from river.core.iwave_params import DEPTH_MODES, FLOW_TYPES, IwaveOptions
 
 
 class AutoOrPositiveFloat(click.ParamType):
-	"""Accept "auto" (any case), returned as None, or a positive number."""
+	"""Accept "auto" (any case), returned as None, or a positive finite number."""
 
 	name = "auto|number"
 
@@ -22,6 +23,8 @@ class AutoOrPositiveFloat(click.ParamType):
 			number = float(value)
 		except (TypeError, ValueError):
 			self.fail(f"{value!r} is neither 'auto' nor a number", param, ctx)
+		if not math.isfinite(number):
+			self.fail(f"{value!r} must be a finite number", param, ctx)
 		if number <= 0:
 			self.fail(f"{value!r} must be greater than 0", param, ctx)
 		return number
@@ -41,11 +44,11 @@ def iwave_option_flags(func: Callable) -> Callable:
 			help="iWave window side in metres, or 'auto' (2.5 m on the ROI-sized grid)."),
 		click.option("--iwave-smax", type=AutoOrPositiveFloat(), default="auto", show_default=True,
 			help="iWave maximum velocity in m/s, or 'auto'."),
-		click.option("--iwave-flow-type", type=click.Choice(FLOW_TYPES), default="auto", show_default=True,
+		click.option("--iwave-flow-type", type=click.Choice(FLOW_TYPES, case_sensitive=False), default="auto", show_default=True,
 			help="'no-waves' ignores gravity waves (supercritical flow); 'auto' decides from the Froude number."),
 		click.option("--iwave-penalty-weight", type=click.FloatRange(min=0), default=1.0, show_default=True,
 			help="iWave velocity penalty weight; 1.5-2 can help with foam or whitewater."),
-		click.option("--iwave-depth-mode", type=click.Choice(DEPTH_MODES), default="free", show_default=True,
+		click.option("--iwave-depth-mode", type=click.Choice(DEPTH_MODES, case_sensitive=False), default="free", show_default=True,
 			help="Depth search: 'free' (0.01-3 m), 'range' around the surveyed depth, or 'fixed' to it."),
 	]
 	for decorator in reversed(decorators):
