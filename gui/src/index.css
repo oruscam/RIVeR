@@ -716,6 +716,110 @@ html {
 }
 
 /* =============================================================================
+   CHIP (.chip family)
+   Small selectable pill from the design audit, for lists the user picks from —
+   cross sections, masks — where a row of options with an "Add" at the end reads
+   better than the browser-style tabs those lists use today. Consumers arrive in
+   Phase 6c.
+   ============================================================================= */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-full);
+  border: 0;
+  background-color: var(--surface-field);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--motion-ease);
+}
+
+.chip:hover:not(:disabled) {
+  background-color: var(--border-color);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.chip[aria-pressed="true"] {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+.chip-sm {
+  height: 28px;
+  font-size: var(--text-caption);
+}
+
+.chip:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   SEGMENTED CONTROL (.seg)
+   Mutually exclusive view switch from the design audit, for places where one
+   canvas can show several things (Processing's Frames / Space-time / Spectrum,
+   calibration's Corrected / Heatmap). Deliberately distinct from .chip: a
+   segment is a view the canvas adopts, a chip is an object the user selects.
+   Consumers arrive in Phase 6d and 6e.
+   ============================================================================= */
+
+.seg {
+  display: inline-flex;
+  /* 3px is the track inset that centres a 28px segment in a 34px track, not a
+     spacing-scale value — hence the literal. */
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background-color: var(--surface-field);
+}
+
+.seg button {
+  height: 28px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--text-subdued);
+  font-family: inherit;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.seg button:hover:not(:disabled):not([aria-pressed="true"]) {
+  color: var(--text-primary);
+}
+
+.seg button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.seg button[aria-pressed="true"] {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+.seg button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
    FORM INPUTS
    ============================================================================= */
 
