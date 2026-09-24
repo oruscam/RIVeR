@@ -138,6 +138,23 @@ def test_user_window_resolution_floor():
 	assert window_px == 32
 
 
+def test_user_window_matching_automatic_reuses_its_geometry():
+	# GUI "freeze exactly as shown": a manual window equal to what automatic mode
+	# currently resolves to must give back that same geometry, not the coarser one
+	# the general user-window rule (WINDOW_TARGET_PX, 5 cm/px floor) would compute
+	# for an arbitrary value. Without this, freezing the displayed automatic window
+	# (e.g. by editing flow type or smax, which freezes all three shown values)
+	# silently changes the window from 0.82 m to 1.6 m on a small-river ROI.
+	span_m = 14.0
+	auto_resolution, auto_window_px = get_window_geometry(span_m, IwaveOptions())
+	auto_window_m = auto_window_px * auto_resolution
+	assert auto_window_m < 1.6  # the bug this guards against needs a small automatic window
+
+	resolution, window_px = get_window_geometry(span_m, IwaveOptions(window_size=auto_window_m))
+	assert resolution == pytest.approx(auto_resolution)
+	assert window_px == auto_window_px
+
+
 def test_time_size_long_and_short_clips():
 	assert get_time_size(n_frames=900, fps_eff=30.0) == 300  # 30 s clip -> 10 s
 	assert get_time_size(n_frames=450, fps_eff=30.0) == 150  # 15 s clip -> 5 s
