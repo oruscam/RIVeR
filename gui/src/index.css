@@ -36,13 +36,13 @@
      weights (14px Inter 400 body text vs. a 14px 600 value readout). Adopted
      across the codebase in Phase 6g; declared here first so 6b-6f can use them
      as they go. */
-  --text-display: 40px;
-  --text-title:   24px;
+  --text-display:  40px;
+  --text-title:    24px;
   --text-subtitle: 20px;
-  --text-section: 16px;
-  --text-body:    14px;
-  --text-meta:    13px;
-  --text-caption: 12px;
+  --text-section:  16px;
+  --text-body:     14px;
+  --text-meta:     13px;
+  --text-caption:  12px;
 
   /* Pin ink — the label colour drawn inside a pin's head. Always a near-black,
      since every pin fill (left/right/point) is a light, saturated colour in
@@ -779,7 +779,7 @@ html {
 
 .seg {
   display: inline-flex;
-  /* 3px is the track inset that centres a 28px segment in a 34px track, not a
+  /* 3px is the track inset that centres a 26px segment in a 32px track, not a
      spacing-scale value — hence the literal. */
   padding: 3px;
   border-radius: var(--radius-full);
