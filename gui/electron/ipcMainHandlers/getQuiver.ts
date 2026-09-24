@@ -5,6 +5,7 @@ import * as path from 'path';
 import { clearCrossSections } from './utils/clearCrossSections';
 import { PROJECT_CONFIG } from '../main';
 import { ProjectConfig, RiverCli } from './interfaces';
+import { buildIwaveArgs, toSettingsIwaveManual } from '../../commons/iwave';
 
 async function getQuiver(riverCli: RiverCli) {
   ipcMain.handle('get-quiver-test', async (_event, args) => {
@@ -121,6 +122,8 @@ async function createOptions(
     median_test_threshold: medianTestThreshold,
     stiv: formValues.stiv,
     iwave: formValues.iwave,
+    // null = automatic (the CLI computes every iWave value); otherwise the frozen manual set.
+    iwave_manual: toSettingsIwaveManual(formValues.iwaveManual ?? null),
   };
 
   await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 2));
@@ -128,10 +131,14 @@ async function createOptions(
   if (mode === 'test') {
     const options = [
       'piv-test',
-      '--bbox', bboxPath,
-      '--mask', maskPath,
-      '--interrogation-area-1', step1,
-      '--interrogation-area-2', step1 / 2,
+      '--bbox',
+      bboxPath,
+      '--mask',
+      maskPath,
+      '--interrogation-area-1',
+      step1,
+      '--interrogation-area-2',
+      step1 / 2,
       stdFiltering ? '--standard-threshold' : '--no-standard-filter',
       stdFiltering ? stdThreshold : '',
       medianTestFiltering ? '--epsilon' : '--no-median-test-filter',
@@ -153,11 +160,16 @@ async function createOptions(
 
   const options = [
     'analyze-all',
-    '--workdir', projectDirectory,
-    '--bbox', bboxPath,
-    '--mask', maskPath,
-    '--interrogation-area-1', step1,
-    '--interrogation-area-2', step1 / 2,
+    '--workdir',
+    projectDirectory,
+    '--bbox',
+    bboxPath,
+    '--mask',
+    maskPath,
+    '--interrogation-area-1',
+    step1,
+    '--interrogation-area-2',
+    step1 / 2,
     stdFiltering ? '--standard-threshold' : '--no-standard-filter',
     stdFiltering ? stdThreshold : '',
     medianTestFiltering ? '--epsilon' : '--no-median-test-filter',
@@ -167,12 +179,15 @@ async function createOptions(
     clahe ? '--clip-limit-clahe' : '--no-filter-clahe',
     clahe ? clipLimit : '',
     removeBackground ? '--filter-sub-background' : '',
-    '--step', step,
-    '--fps', fps,
+    '--step',
+    step,
+    '--fps',
+    fps,
     ...(heightRoi > 0 ? ['--height-roi-stiv', heightRoi] : []),
     ...numStationsList.flatMap((ns: number) => ['--num-stations', ns]),
     stiv ? '--stiv' : '--no-stiv',
     iwave ? '--iwave' : '--no-iwave',
+    ...buildIwaveArgs(iwave, formValues.iwaveManual ?? null),
     '--interpolate',
     framesPath,
     PROJECT_CONFIG.xsectionsPath,
