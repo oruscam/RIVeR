@@ -99,12 +99,21 @@ describe('.btn button component', () => {
   });
 
   it('the .ibtn danger fill fires on hover and when armed, but never when aria-disabled', () => {
-    const selectors = [...css.matchAll(/^\.ibtn-danger[^{\n]*\{/gm)].map((m) => m[0]);
-    expect(selectors.length).toBeGreaterThanOrEqual(1);
-    const fill = selectors.find((s) => s.includes(':hover'));
+    // Takes the whole selector list up to its brace, newlines included, then
+    // splits on commas, so the assertion holds however the list is wrapped.
+    // The first version of this test excluded newlines, which made it pass only
+    // while both selectors sat on one physical line — nothing enforces that,
+    // and prettier's print width is close enough to move it.
+    const rule = css.match(/\.ibtn-danger[^{}]*\{/);
+    expect(rule).not.toBeNull();
+    const selectors = rule![0]
+      .slice(0, -1)
+      .split(',')
+      .map((selector) => selector.trim());
+    const fill = selectors.find((selector) => selector.includes(':hover'));
     expect(fill).toBeDefined();
     expect(fill).toContain(':not([aria-disabled="true"])');
-    expect(css).toContain('.ibtn-danger[data-armed="true"]');
+    expect(selectors).toContain('.ibtn-danger[data-armed="true"]');
   });
 });
 
