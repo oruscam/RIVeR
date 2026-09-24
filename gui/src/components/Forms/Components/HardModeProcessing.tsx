@@ -3,15 +3,19 @@ import { useAutoShrinkFont, useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
 import { WINDOW_SIZES } from '../../../constants/constants';
 import { EyeBtn } from '../../CustomIcons/EyeBtn';
+import type { IwaveDefaults } from '../../../../commons/iwave';
 
 export const HardModeProcessing = ({
   active,
   onClickTest,
   isTesting,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars -- rendered by IwaveAdvancedGroup, added in the next task
+  iwaveDefaults: _iwaveDefaults,
 }: {
   active: boolean;
   onClickTest: (event: React.MouseEvent<HTMLButtonElement>) => void;
   isTesting: boolean;
+  iwaveDefaults: IwaveDefaults;
 }) => {
   const { register, reset } = useFormContext();
   const { processing, onUpdateProcessing, onReCalculateMask, isBackendWorking } = useDataSlice();

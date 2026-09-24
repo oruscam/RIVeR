@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { TECHNIQUE_COLORS } from '../../constants/constants';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
+import type { IwaveDefaults } from '../../../commons/iwave';
 
 export const FormProcessing = ({
   extraFields,
@@ -17,6 +18,7 @@ export const FormProcessing = ({
   canToggleIwave,
   canToggleMedian,
   stivAvailable,
+  iwaveDefaults,
 }: {
   extraFields: boolean;
   showMedian: boolean;
@@ -27,6 +29,7 @@ export const FormProcessing = ({
   canToggleIwave: boolean;
   canToggleMedian: boolean;
   stivAvailable: boolean;
+  iwaveDefaults: IwaveDefaults;
 }) => {
   const { t } = useTranslation();
   const { onSetErrorMessage } = useUiSlice();
@@ -266,6 +269,11 @@ export const FormProcessing = ({
                 <span className="slider"></span>
               </label>
             </div>
+            {iwave && iwaveDefaults.shortClip && iwaveDefaults.iwaveS !== null && (
+              <p className="technique-row-processing-note">
+                {t('Processing.iwaveShortClip', { seconds: iwaveDefaults.iwaveS.toFixed(1) })}
+              </p>
+            )}
 
             <span className="divider-line mt-2 mb-1" />
 
@@ -291,7 +299,12 @@ export const FormProcessing = ({
             </div>
             {isBackendWorking && isTesting === false && <AnalyzingProgress resetProgress={resetProgress} />}
 
-            <HardModeProcessing active={extraFields} onClickTest={handleOnClickTest} isTesting={isTesting} />
+            <HardModeProcessing
+              active={extraFields}
+              onClickTest={handleOnClickTest}
+              isTesting={isTesting}
+              iwaveDefaults={iwaveDefaults}
+            />
           </form>
         </FormProvider>
       </div>
