@@ -24,6 +24,11 @@ export interface IwaveDefaults {
   /** Seconds of frames IWaVE actually uses (frame cap applied). */
   iwaveS: number | null;
   shortClip: boolean;
+  /** True when windowSize is IWAVE_FALLBACK_DEFAULTS.windowSize rather than a value the CLI
+   *  actually computed for this project (no answer yet, or the fetch failed or was malformed).
+   *  isIwaveWindowStale must never compare against these: the fallback's 2.5 m is not a real
+   *  automatic value, so comparing against it would fire on every mount and on every failure. */
+  isFallback: boolean;
 }
 
 /** processing.iwave_manual in settings.json. */
@@ -45,6 +50,7 @@ export const IWAVE_FALLBACK_DEFAULTS: IwaveDefaults = {
   clipS: null,
   iwaveS: null,
   shortClip: false,
+  isFallback: true,
 };
 
 const isFlowType = (value: unknown): value is IwaveFlowType => value === 'waves' || value === 'no-waves';
@@ -54,8 +60,9 @@ const isPositiveNumber = (value: unknown): value is number =>
 
 export function parseIwaveDefaults(data: unknown): IwaveDefaults {
   const raw = (data ?? {}) as Record<string, unknown>;
+  const windowSizeIsReal = isPositiveNumber(raw.window_size);
   return {
-    windowSize: isPositiveNumber(raw.window_size) ? raw.window_size : IWAVE_FALLBACK_DEFAULTS.windowSize,
+    windowSize: windowSizeIsReal ? raw.window_size : IWAVE_FALLBACK_DEFAULTS.windowSize,
     smax: isPositiveNumber(raw.smax) ? raw.smax : IWAVE_FALLBACK_DEFAULTS.smax,
     flowType: isFlowType(raw.flow_type) ? raw.flow_type : IWAVE_FALLBACK_DEFAULTS.flowType,
     estimatedFrom:
@@ -63,6 +70,9 @@ export function parseIwaveDefaults(data: unknown): IwaveDefaults {
     clipS: isPositiveNumber(raw.clip_s) ? raw.clip_s : null,
     iwaveS: isPositiveNumber(raw.iwave_s) ? raw.iwave_s : null,
     shortClip: raw.short_clip === true,
+    // window_size is the field isIwaveWindowStale compares against, so its own presence (not
+    // the payload's as a whole) decides whether this answer is trustworthy for that comparison.
+    isFallback: !windowSizeIsReal,
   };
 }
 
@@ -105,7 +115,7 @@ export function freezeIwaveManual(
 }
 
 export function isIwaveWindowStale(manual: IwaveManual | null, defaults: IwaveDefaults): boolean {
-  if (manual === null) return false;
+  if (manual === null || defaults.isFallback) return false;
   return Math.abs(manual.windowSize - defaults.windowSize) > IWAVE_STALE_WINDOW_FRACTION * defaults.windowSize;
 }
 
