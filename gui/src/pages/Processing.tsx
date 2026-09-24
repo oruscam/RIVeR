@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Carousel, Error, ImageProcessing, WizardButtons } from '../components';
-import { useDataSlice, useSectionSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useIwaveDefaults, useSectionSlice, useUiSlice } from '../hooks';
 import { flushStivAngleWrites } from '../hooks/useStivAngleOverride';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
@@ -15,8 +15,13 @@ export const Processing = () => {
   const { t } = useTranslation();
   const { nextStep } = useWizard();
   const { onSetErrorMessage, onSetSeeAll } = useUiSlice();
-  const { images, fullQuiver, isBackendWorking, onSetActiveImage, onLoadResultData } = useDataSlice();
+  const { images, fullQuiver, isBackendWorking, processing, onSetActiveImage, onLoadResultData } = useDataSlice();
   const [showMedian, setShowMedian] = useState(fullQuiver !== null);
+  const iwaveDefaults = useIwaveDefaults({
+    fullQuiver,
+    heightRoi: processing.form.heightRoi,
+    enabled: !isBackendWorking,
+  });
   const [extraFields, setExtraFields] = useState(false);
   const [previewMode, setPreviewMode] = useState<PreviewMode>('frames');
   const [stiPaths, setStiPaths] = useState<string[]>([]);
@@ -176,6 +181,7 @@ export const Processing = () => {
           canToggleIwave={spectrumPaths.length > 0}
           canToggleMedian={fullQuiver !== null}
           stivAvailable={stivAvailable}
+          iwaveDefaults={iwaveDefaults}
         />
         <div className="footer">
           <LockBtn
