@@ -20,6 +20,7 @@ from river.core.stiv_pipeline import _collect_frames
 from river.core.iwave_params import (
     DEPTH_FALLBACK,
     MAX_GRID,
+    SHORT_CLIP_S,
     SMAX_FALLBACK,
     SMAX_MAX,
     IwaveOptions,
@@ -30,6 +31,7 @@ from river.core.iwave_params import (
     get_depth_bounds,
     get_quality_flags,
     get_section_gravity_waves,
+    get_section_items,
     get_window_depth_reference,
     is_depth_at_bound,
     is_dry_window,
@@ -227,6 +229,54 @@ def prepare_iwave_scene(
         clip_duration_s=n_frames_total / fps_eff,
     )
     return estimate, scene
+
+
+def get_iwave_defaults(
+    frames_dir: str,
+    transformation_matrix: list,
+    xsections: dict,
+    step: int,
+    fps: float,
+    bbox: Optional[list] = None,
+) -> dict:
+    """Automatic iWave parameters, as the GUI shows them, without running iWave.
+
+    smax and flow type come from the LSPIV/STIV profiles already in xsections, so
+    before any analysis they fall back to 5 m/s and gravity waves on. A manual
+    flow type applies to every section, so "no-waves" is only suggested when
+    every section is supercritical.
+
+    Args:
+        frames_dir (str): Directory of extracted frames.
+        transformation_matrix (list): 3x3 pixel -> real-world homography.
+        xsections (dict): Cross-sections.
+        step (int): Frame step used at extraction.
+        fps (float): Source video frame rate.
+        bbox (Optional[list]): Pixel-space ROI bbox.
+
+    Returns:
+        dict: window_size (m), smax (m/s), flow_type, estimated_from, clip_s,
+            iwave_s (seconds of frames iWave uses) and short_clip.
+    """
+    estimate, scene = prepare_iwave_scene(
+        frames_dir, transformation_matrix, xsections, step, fps, bbox, IwaveOptions(),
+    )
+    n_frames_total = len(_collect_frames(frames_dir))
+    seconds_per_frame = float(step or 1) / float(fps)
+    iwave_s = min(n_frames_total, MAX_FRAMES) * seconds_per_frame
+    sections = get_section_items(xsections)
+    every_section_supercritical = bool(sections) and all(
+        not get_section_gravity_waves(section, estimate, "auto") for section in sections
+    )
+    return {
+        "window_size": float(scene.window_m),
+        "smax": float(scene.smax),
+        "flow_type": "no-waves" if every_section_supercritical else "waves",
+        "estimated_from": "+".join(estimate.sources) if estimate.sources else "none",
+        "clip_s": n_frames_total * seconds_per_frame,
+        "iwave_s": iwave_s,
+        "short_clip": iwave_s < SHORT_CLIP_S,
+    }
 
 
 def _station_window(stack: np.ndarray, grid: OrthoGrid, east: float, north: float, win: int) -> np.ndarray:
