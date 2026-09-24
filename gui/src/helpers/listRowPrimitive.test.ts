@@ -58,8 +58,10 @@ describe('.list-row primitive', () => {
   });
 
   it('gives the badge the accent colour when the row is selected', () => {
+    // [^{}]* rather than [\s\S]{0,120}? — the latter can match a `}`, so it
+    // could be satisfied by an unrelated neighbouring rule.
     expect(region()).toMatch(
-      /\.list-row\[aria-selected="true"\] \.list-row-badge[\s\S]{0,120}?\{[^}]*background-color:\s*var\(--accent-color\)/
+      /\.list-row\[aria-selected="true"\] \.list-row-badge[^{}]*\{[^}]*background-color:\s*var\(--accent-color\)/
     );
   });
 
@@ -76,8 +78,13 @@ describe('.list-row primitive', () => {
 
   it('carries hover, focus and disabled affordances that work on a non-button host', () => {
     const text = region();
-    // Hover must not fight the selected state, the same guard .chip and .seg carry.
-    expect(text).toMatch(/\.list-row:hover:not\(\[aria-disabled="true"\]\)[^{]*:not\(\[aria-selected="true"\]\)/);
+    // Hover must not fight the disabled, pressed or selected state, the same
+    // guards .chip and .seg carry. All three are asserted explicitly — a
+    // mutation check confirmed dropping :not([aria-pressed="true"]) alone
+    // left this suite green when it was folded into a loose [^{]* gap.
+    expect(text).toMatch(
+      /\.list-row:hover:not\(\[aria-disabled="true"\]\)[^{]*:not\(\[aria-pressed="true"\]\)[^{]*:not\(\[aria-selected="true"\]\)/
+    );
     expect(ruleBody('.list-row:focus-visible')).toMatch(/outline:\s*2px solid var\(--accent-color\)/);
     expect(ruleBody('.list-row[aria-disabled="true"]')).toMatch(/opacity:\s*0\.38/);
   });

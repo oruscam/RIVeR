@@ -90,6 +90,17 @@ Token names are fixed here so the later sub-plans don't each invent their own: `
 | `--raised` | `--surface-raised` |
 | `--display` | `--font-display` |
 
+**Token collapse facts** (found during 6a's final review; record here so nobody "corrects" a rule toward one of these tokens and silently removes a state):
+
+| Collapse | All themes? |
+|---|---|
+| `--surface-field` ≡ `--input-background` | yes |
+| `--surface-raised` ≡ `--card-surface` ≡ `--surface-panel` — the audit's `--raised` has no distinct equivalent here | yes |
+| dracula only: `--border-color` ≡ `--on-hover` ≡ `--input-background` ≡ `#44475a` | dracula only |
+| light `--surface-field` vs `--surface-panel` | 1.05:1 |
+
+This is why several states in 6a (a selected `.list-row`, `.ibtn:hover`) use `color-mix()` or an inset ring rather than a surface token — swapping between these tokens cannot reliably produce a visible state change.
+
 `--wash-1`/`--wash-2` are the only genuinely new colour values, and unlike the scale tokens they are theme-specific, so they belong in each `[data-theme]` block rather than the bare `:root`.
 
 **Done means:** primitives exist, are theme-correct in all three themes, and are covered by source-text tests. Consumers arrive in 6c-6g, per the governing rule.
@@ -152,7 +163,7 @@ Two details settled here rather than left to the plan:
 - **Storage is renderer-side `localStorage`**, matching this codebase's established precedent for small persisted preferences (`language`, `unitSystem`, `river-main-carousel-height`). No new Electron-side store, no new IPC channel.
 - **Entries whose directory no longer exists are dropped**, not shown greyed out. The list is validated when Home mounts; a project that has been moved or deleted silently leaves the list. This avoids dead rows that fail on click, at the cost of a project reappearing only when next opened from disk.
 
-**Theme wash** (point 2 of the walkthrough): the audit's halo, using 6a's tokens — `radial-gradient(120% 70% at 50% 0%, var(--wash-2) 0%, var(--surface-panel) 60%)` on Home, and `linear-gradient(180deg, var(--wash-2) 0%, var(--surface-panel) 26%)` on the Results form panel, which is where the audit uses it a second time.
+**Theme wash** (point 2 of the walkthrough): the audit's halo, using 6a's tokens — `radial-gradient(120% 70% at 50% 0%, var(--wash-2) 0%, var(--surface-panel) 60%)` on Home, and `linear-gradient(180deg, var(--wash-2) 0%, var(--surface-panel) 26%)` on the Results form panel, which is where the audit uses it a second time. `--wash-2` is the phase's only genuinely new colour value, so 6f must eyeball the bloom in all three themes rather than trust the contrast numbers alone: the light value was corrected from `#DDEBF7` (1.01:1, invisible against this codebase's light panel) to `#BFDDF5` (1.16:1), but soft-by-design values like this one deserve a real look, not just a passing ratio.
 
 ### 6g — Type & radius sweep
 
@@ -164,7 +175,7 @@ Last in the order, so it sweeps the settled state rather than being re-broken by
 
 **This file is in scope too**: `src/index.css`'s own primitives violate the scale it defines — `.btn` is 14px, `.btn-lg` 16px, `.btn-sm` 13px, which are exactly `--text-body`, `--text-section` and `--text-meta`. 6g sweeps `index.css`, not only feature CSS.
 
-**Done means:** every `font-size` in `src/**/*.css` is either one of 6a's six scale tokens or a documented exception carrying a comment saying why (canvas-overlay text sized against image pixels is the expected class of exception); likewise every `border-radius` is one of `--radius-sm/md/lg/full` or a commented exception. The counts drop from 46 and 25 to the token sets plus that explicit, reviewable exception list — "zero exceptions" is not the target, "no unexplained values" is.
+**Done means:** every `font-size` in `src/**/*.css` is either one of 6a's seven scale tokens or a documented exception carrying a comment saying why (canvas-overlay text sized against image pixels is the expected class of exception); likewise every `border-radius` is one of `--radius-sm/md/lg/full` or a commented exception. The counts drop from 46 and 25 to the token sets plus that explicit, reviewable exception list — "zero exceptions" is not the target, "no unexplained values" is.
 
 ## 5. Out of scope
 
@@ -180,6 +191,7 @@ These were surfaced by Phase 5's reviews and remain open; Phase 6 does not addre
 - Missing translations for Phase 5's new copy: `Processing.framePairCaption`, `Step-2.footageType.{uav,oblique,ipcam}` and their `…Description` siblings, across all 12 locales (`ar de en es fr hi it ja ko pt ru zh`) — today every one of them falls through to the English `defaultValue`.
 - **`yarn.lock` is stale** relative to `package.json` (missing `@fontsource/outfit`). The CI release pipeline builds with `yarn install`/`yarn build`, so a release build from this branch fails until a dedicated lockfile sync lands. Phase 6 adds no new dependencies, so it neither worsens nor fixes this.
 - The manual three-theme Electron walkthrough owed since Phase 1. **This is now unblocked** — the local Electron install was repaired on 2026-09-23 — so for the first time the walkthrough can actually be performed, by the product owner, on their own machine.
+- **Three row/pill patterns already exist and are not yet unified with `.chip`/`.list-row`:** `.litem` (`src/components/CustomIcons/piv-icons.css:296-314`); `.technique-row`/`.technique-name`/`.technique-eye-btn` (`src/components/Graphs/graphs.css:124-230`, **built in Phase 5d on this same branch**, structurally identical to `.list-row` — a label plus per-row icon actions); and `.technique-row-body-toggle` (`graphs.css:202-222`, effectively a chip). Leaving these on private classes would reproduce, for rows and chips, the exact outcome Phase 6 exists to correct. This is not theoretical: `.technique-row-body-toggle:hover`'s `background: var(--input-background)` already has the light-theme 1.05:1 invisibility described in the token collapse facts above — the defect class 6a's review found is already live in shipped code today, just not yet in `.list-row`/`.ibtn`.
 
 ## 7. Constraints & conventions
 
