@@ -74,3 +74,19 @@ def test_iwave_analyze_passes_options(tmp_path):
 		])
 	assert json.loads(result.output)["error"] == {}
 	assert mock_run.call_args.kwargs["options"] == IwaveOptions(window_size=4.0)
+
+
+def test_cli_rejects_nan_and_inf(tmp_path):
+	for option in ("--iwave-smax", "--iwave-window-size"):
+		for bad in ("nan", "inf", "-inf", "NaN", "Infinity"):
+			result, mock_run = _invoke_analyze_all(tmp_path, option, bad)
+			assert result.exit_code != 0, f"{option} {bad} should be rejected"
+			mock_run.assert_not_called()
+
+
+def test_cli_choices_are_case_insensitive(tmp_path):
+	result, mock_run = _invoke_analyze_all(tmp_path, "--iwave-flow-type", "No-Waves", "--iwave-depth-mode", "FIXED")
+	assert json.loads(result.output)["error"] == {}
+	options = mock_run.call_args.kwargs["iwave_options"]
+	assert options.flow_type == "no-waves"
+	assert options.depth_mode == "fixed"
