@@ -81,6 +81,16 @@ describe('.list-row primitive', () => {
     expect(ruleBody('.list-row:focus-visible')).toMatch(/outline:\s*2px solid var\(--accent-color\)/);
     expect(ruleBody('.list-row[aria-disabled="true"]')).toMatch(/opacity:\s*0\.38/);
   });
+
+  it('keeps a nested action button hoverable on a selected row, where --surface-field would swallow its hover', () => {
+    const text = region();
+    expect(text).toMatch(
+      /\.list-row\[aria-selected="true"\] \.ibtn:hover[\s\S]{0,140}?\{[^}]*box-shadow:\s*inset 0 0 0 1px var\(--primary-text-color\)/
+    );
+    expect(text).toMatch(
+      /\.list-row\[aria-selected="true"\] \.ibtn:hover[\s\S]{0,140}?\{[^}]*background-color:\s*transparent/
+    );
+  });
 });
 
 describe('.ibtn-sm modifier', () => {

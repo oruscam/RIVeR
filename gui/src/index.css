@@ -890,6 +890,17 @@ html {
   color: var(--on-accent);
 }
 
+/* A selected row's surface is --surface-field, which is an alias of
+   --input-background — the very colour .ibtn:hover paints. Nested action
+   buttons would therefore lose their hover pill entirely, in every theme, so
+   inside a selected row they switch to the inset-ring hover this file uses
+   wherever a hover surface would collide with its resting one. */
+.list-row[aria-selected="true"] .ibtn:hover:not(:disabled),
+.list-row[aria-pressed="true"] .ibtn:hover:not(:disabled) {
+  background-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--primary-text-color);
+}
+
 /* Section and mask names are free-text user input and the panel is a fixed
    width, so the label truncates instead of pushing the actions out of view. */
 .list-row-label {
