@@ -208,7 +208,10 @@ In `src/index.css`, immediately after the `.btn:disabled, .btn[aria-disabled="tr
 In `src/index.css`, immediately after the `.ibtn:disabled, .ibtn[aria-disabled="true"]` rule (currently ending line 729):
 
 ```css
-.ibtn[aria-pressed="true"] {
+/* aria-busy is here, not added later by Task 8, so that no task has to perform
+   surgery on another task's rule. ExportBtn (Task 8) is its only consumer. */
+.ibtn[aria-pressed="true"],
+.ibtn[aria-busy="true"] {
   background-color: var(--accent-color);
   color: var(--on-accent);
 }
@@ -233,7 +236,7 @@ In `src/index.css`, immediately after the `.ibtn:disabled, .ibtn[aria-disabled="
 - [ ] **Step 5: Run the full suite and the gates**
 
 Run: `npx jest`
-Expected: **623 passed, 61 suites** (618 baseline + 3 new `buttonAndFieldTokens` + 2 new state pairs × 3 themes = 6 new test cases → confirm the exact number and record it; if it differs, count the `it.each`/loop expansion rather than assuming).
+Expected: **627 passed, 61 suites** — 618 baseline + 3 new `buttonAndFieldTokens` cases + 2 new `STATE_PAIRS` entries × 3 themes (6 cases, because the state-pair block loops over `NAMES`) = 9. If the number differs, count the loop expansion rather than adjusting the expectation.
 
 Run: `npx tsc --noEmit 2>&1 | grep -c "error TS"` → expect `64`.
 Run: `npm run lint` → expect `20 problems`. If prettier complains about the new CSS, run `npx eslint src/index.css --fix` is **not** applicable to CSS; fix the formatting by hand to match the surrounding two-space indentation.
@@ -448,7 +451,7 @@ Run: `npm run lint` → expect `20 problems`. Prettier may want to reflow a `cla
 - [ ] **Step 4: Verify the count by grep**
 
 Run: `grep -rn "wizard-button\|button-1" src --include="*.tsx" | wc -l`
-Expected: **20** (down from 30 matching lines; `CameraCalibration.tsx:592`/`:600` and the `wizard-button-active`-only matches remain for Tasks 4 and 5).
+Expected: **16**, down from **27** (measured on `89a5572`). The 11 removed are exactly this task's sites. The 16 remaining are Task 4's nine toggles and Task 5's seven completion/busy sites, less the two that share a line — verify the remainder is that set rather than only the count.
 
 - [ ] **Step 5: Commit**
 
@@ -536,7 +539,7 @@ Note on the two `FormIpcam` sites: the `mb-2` ternary stays in `className` becau
 Run: `npx jest` → unchanged count.
 Run: `npx tsc --noEmit 2>&1 | grep -c "error TS"` → expect `64`. A TS error here most likely means an `aria-pressed` expression is not a `boolean` — coerce with `!!`, do not cast.
 Run: `npm run lint` → expect `20 problems`.
-Run: `grep -rn "wizard-button-active" src --include="*.tsx" | wc -l` → expect **6** (Task 5's completion sites).
+Run: `grep -rn "wizard-button-active" src --include="*.tsx" | wc -l` → expect **7**, down from 16: Task 5's six completion sites plus `FormAnalizing.tsx:81`'s busy site.
 
 - [ ] **Step 4: Commit**
 
@@ -853,17 +856,7 @@ EOF
 | `ExportBtn.tsx:37` | `` `ib ${phase === 'running' ? 'active' : ''} ${isDone ? 'is-success' : ''} ${className}` `` | `` className={`ibtn ${className}`} `` + `aria-busy={phase === 'running'}` + `data-state={isDone ? 'success' : undefined}` |
 | `FormResults.tsx:98` | `` hasGaps ? `ib${interpolated ? ' active' : ''}` : 'ib ib-off' `` | `className="ibtn"` + `aria-pressed={interpolated}` + `aria-disabled={!hasGaps}` |
 
-**`ExportBtn` needs `aria-busy` styling on `.ibtn`.** Task 1 added `aria-busy` to the `.btn` rule but not to `.ibtn`. Add it now, next to the `.ibtn[aria-pressed="true"]` rule in `src/index.css`:
-
-```css
-.ibtn[aria-pressed="true"],
-.ibtn[aria-busy="true"] {
-  background-color: var(--accent-color);
-  color: var(--on-accent);
-}
-```
-
-(Replace the single-selector rule Task 1 wrote, and update the Task 1 assertion in `buttonAndFieldTokens.test.ts` only if it asserted the selector exactly — it asserts a regex containing `.ibtn[aria-pressed="true"]` followed by `background-color`, which a comma-separated selector list still satisfies. Verify by running the test rather than assuming.)
+**No CSS changes in this task.** `ExportBtn` needs `.ibtn[aria-busy="true"]`, and Task 1 already wrote it into the same rule as `.ibtn[aria-pressed="true"]` for exactly this reason — so no task has to edit another task's rule. If that selector is missing, stop and report it rather than adding it here.
 
 **`FormResults.tsx:98` is the important one.** It currently hand-rolls the `aria-disabled` workaround with `ib-off` because `.ib:disabled` sets `pointer-events: none`, which would kill the `title` explaining *why* interpolation is unavailable. The migration replaces that with the primitive's own contract: `aria-disabled={!hasGaps}` keeps the tooltip and dims the control. The existing `title` and `aria-label` ternaries stay exactly as they are.
 
@@ -878,7 +871,7 @@ onClick={() => {
 
 This is the same contract 6a documented for `.btn`/`.ibtn` and the reason the phase supports both disabled readings.
 
-- [ ] **Step 1: Apply the 7 changes and the `.ibtn` `aria-busy` addition**
+- [ ] **Step 1: Apply the 7 `className` and attribute changes**
 
 - [ ] **Step 2: Add the `FormResults` click guard**
 
@@ -892,7 +885,7 @@ Run: `grep -rnE 'className=[^>]*\bib\b(?!tn)' src --include="*.tsx" | wc -l` →
 - [ ] **Step 4: Commit**
 
 ```bash
-git add src/components/ThemeToggle.tsx src/components/CustomIcons/LanguageSelector.tsx src/components/CustomIcons/UnitSelector.tsx src/components/CustomIcons/CopyBtn.tsx src/components/CustomIcons/ExportBtn.tsx src/components/Forms/FormResults.tsx src/index.css
+git add src/components/ThemeToggle.tsx src/components/CustomIcons/LanguageSelector.tsx src/components/CustomIcons/UnitSelector.tsx src/components/CustomIcons/CopyBtn.tsx src/components/CustomIcons/ExportBtn.tsx src/components/Forms/FormResults.tsx
 git commit -m "$(cat <<'EOF'
 Move the chrome and selector icon buttons to .ibtn
 
@@ -1140,7 +1133,7 @@ A guard that cannot fail is worse than no guard. Verify each half actually bites
 
 - [ ] **Step 4: Full verification**
 
-Run: `npx jest` → previous count + 8.
+Run: `npx jest` → previous count + **9** (5 `it.each` retirement cases + 2 sweep cases + 2 counter-tests).
 Run: `npx tsc --noEmit 2>&1 | grep -c "error TS"` → expect `64`.
 Run: `npm run lint` → expect `20 problems`. This test is new TypeScript, so prettier may flag it; run `npx eslint src/helpers/legacyButtonRetirement.test.ts --fix` and re-measure.
 
@@ -1216,7 +1209,7 @@ EOF
 
 Before declaring 6b complete:
 
-1. `npx jest` — all suites pass. Expected total: **618 baseline + 3 (Task 1 CSS) + 6 (Task 1 contrast, 2 pairs × 3 themes) + 9 (Task 7) + 8 (Task 11) = 644 tests, 63 suites.** Confirm the real number; if it differs, account for the difference rather than adjusting the expectation.
+1. `npx jest` — all suites pass. Expected total: **618 baseline + 3 (Task 1 CSS) + 6 (Task 1 contrast, 2 pairs × 3 themes) + 9 (Task 7) + 9 (Task 11) = 645 tests, 63 suites.** Confirm the real number; if it differs, account for the difference rather than adjusting the expectation.
 2. `npx tsc --noEmit 2>&1 | grep -c "error TS"` → **64**, unchanged.
 3. `npm run lint` → **20 problems (17 errors, 3 warnings)**, unchanged.
 4. The three "done means" greps from Task 11 Step 5 all return nothing.
