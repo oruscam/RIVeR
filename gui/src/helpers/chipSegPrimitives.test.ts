@@ -14,6 +14,24 @@ const ruleBody = (selector: string): string => {
   return match ? match[1] : '';
 };
 
+/** The CHIP + SEG region's CSS only, sliced past our own header comment's
+ *  closing delimiter and stopping before the next header, so no comment prose
+ *  can reach an assertion. Stops at the LIST ROW header rather than
+ *  FORM INPUTS: Task 4 inserted a LIST ROW section between CHIP+SEG and
+ *  FORM INPUTS, so stopping at FORM INPUTS would silently pull list-row's CSS
+ *  into what is meant to be the chip/seg region only. */
+const region = (): string => {
+  const header = css.indexOf('   CHIP (.chip family)');
+  expect(header).toBeGreaterThan(-1);
+  const start = css.indexOf('*/', header) + 2;
+  const nextHeader = css.indexOf('   LIST ROW', start);
+  expect(nextHeader).toBeGreaterThan(start);
+  const end = css.lastIndexOf('/*', nextHeader);
+  // Fully-paired inline comments inside the region are still stripped, so
+  // their prose can neither satisfy nor trip a colour assertion.
+  return css.slice(start, end).replace(/\/\*[\s\S]*?\*\//g, '');
+};
+
 describe('.chip primitive', () => {
   it('is a pill on the field surface, sized from the type scale', () => {
     const body = ruleBody('.chip');
@@ -25,7 +43,7 @@ describe('.chip primitive', () => {
 
   it('shows its selected state through aria-pressed, not a separate class', () => {
     // The rule now has two selectors: aria-pressed and aria-selected
-    const regionText = css.slice(css.indexOf('   CHIP (.chip family)'), css.indexOf('   FORM INPUTS'));
+    const regionText = region();
     expect(regionText).toContain('.chip[aria-pressed="true"],');
     expect(regionText).toContain('.chip[aria-selected="true"] {');
     // Verify the rule body has both accent tokens
@@ -40,7 +58,7 @@ describe('.chip primitive', () => {
   it('has a focus ring and a hover state', () => {
     expect(ruleBody('.chip:focus-visible')).toMatch(/outline:\s*2px solid var\(--accent-color\)/);
     // The hover selector is now long and includes aria-disabled and aria-pressed/selected guards
-    const regionText = css.slice(css.indexOf('   CHIP (.chip family)'), css.indexOf('   FORM INPUTS'));
+    const regionText = region();
     const hoverSelector =
       '.chip:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {';
     expect(regionText).toContain(hoverSelector);
@@ -68,7 +86,7 @@ describe('.seg primitive', () => {
   it('draws unselected segments subdued and the selected one on accent', () => {
     expect(ruleBody('.seg button')).toMatch(/color:\s*var\(--text-subdued\)/);
     // The selected rule now has two selectors: aria-pressed and aria-selected
-    const regionText = css.slice(css.indexOf('   CHIP (.chip family)'), css.indexOf('   FORM INPUTS'));
+    const regionText = region();
     expect(regionText).toContain('.seg button[aria-pressed="true"],');
     expect(regionText).toContain('.seg button[aria-selected="true"] {');
     const bgPattern =
@@ -81,7 +99,7 @@ describe('.seg primitive', () => {
 
   it('dims disabled segments to 0.7, not the family-wide 0.38, since its resting colour is already subdued', () => {
     // The disabled rule now has two selectors: :disabled and [aria-disabled="true"]
-    const regionText = css.slice(css.indexOf('   CHIP (.chip family)'), css.indexOf('   FORM INPUTS'));
+    const regionText = region();
     expect(regionText).toContain('.seg button:disabled,');
     expect(regionText).toContain('.seg button[aria-disabled="true"] {');
     const opacityPattern =
@@ -99,20 +117,6 @@ describe('.seg primitive', () => {
 });
 
 describe('both primitives are token-driven', () => {
-  /** The CHIP + SEG region's CSS only, sliced past its own header comment and
-   *  stopping before the next one, so no comment prose can reach an assertion. */
-  const region = (): string => {
-    const header = css.indexOf('   CHIP (.chip family)');
-    expect(header).toBeGreaterThan(-1);
-    const start = css.indexOf('*/', header) + 2;
-    const nextHeader = css.indexOf('   FORM INPUTS', start);
-    expect(nextHeader).toBeGreaterThan(start);
-    const end = css.lastIndexOf('/*', nextHeader);
-    // Fully-paired inline comments inside the region are still stripped, so
-    // their prose can neither satisfy nor trip a colour assertion.
-    return css.slice(start, end).replace(/\/\*[\s\S]*?\*\//g, '');
-  };
-
   it('uses no literal colour values anywhere in the region, including rules added later', () => {
     expect(region().match(/#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)/g)).toBeNull();
   });
