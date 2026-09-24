@@ -189,7 +189,22 @@
     "Plot": {
       "u": "Компонента U",
       "v": "Компонента V"
-    }
+    },
+    "iwaveGroupTitle": "IWV (iWave)",
+    "iwaveModeAuto": "Автоматически",
+    "iwaveModeManual": "Вручную",
+    "iwaveFlowType": "Тип течения",
+    "iwaveFlowWaves": "С волнами",
+    "iwaveFlowNoWaves": "Без волн (бурное)",
+    "iwaveWindowSize": "Размер окна (м)",
+    "iwaveSmax": "Макс. скорость (м/с)",
+    "iwaveHintPending": "Макс. скорость и тип течения будут оценены по LSPIV/STIV при запуске анализа.",
+    "iwaveHintEstimated": "Оценено по LSPIV/STIV.",
+    "iwaveReset": "Вернуть автоматически",
+    "iwaveInvalidWindow": "Размер окна должен быть числом больше 0.",
+    "iwaveInvalidSmax": "Макс. скорость должна быть числом больше 0 и не более 10 м/с.",
+    "iwaveStaleWindow": "Область изменилась после задания этих значений; автоматическое окно теперь {{window}} м.",
+    "iwaveShortClip": "Короткое видео (использовано {{seconds}} с): результаты IWV могут быть более шумными."
   },
   "Analizing": {
     "title": "Выполняется анализ",
@@ -237,7 +252,10 @@
     "vsTooltip": "Surface velocity (m/s)",
     "qTooltip": "Discharge (m³/s)",
     "copyTable": "Copy table",
-    "copied": "Copied"
+    "copied": "Copied",
+    "iwaveLowQualityExcluded": "Исключено станций IWV низкого качества: {{count}} (нажмите, чтобы включить)",
+    "iwaveLowQualityIncluded": "Станции IWV низкого качества включены (нажмите, чтобы исключить)",
+    "iwaveLowQualityCell": "Низкое качество: исключено"
   },
   "Graphs": {
     "station": "Створ",

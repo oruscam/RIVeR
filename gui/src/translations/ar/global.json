@@ -189,7 +189,22 @@
     "Plot": {
       "u": "المركبة U",
       "v": "المركبة V"
-    }
+    },
+    "iwaveGroupTitle": "IWV (iWave)",
+    "iwaveModeAuto": "تلقائي",
+    "iwaveModeManual": "يدوي",
+    "iwaveFlowType": "نوع الجريان",
+    "iwaveFlowWaves": "مع أمواج",
+    "iwaveFlowNoWaves": "بدون أمواج (فوق حرج)",
+    "iwaveWindowSize": "حجم النافذة (م)",
+    "iwaveSmax": "السرعة القصوى (م/ث)",
+    "iwaveHintPending": "سيتم تقدير السرعة القصوى ونوع الجريان من LSPIV/STIV عند تشغيل التحليل.",
+    "iwaveHintEstimated": "مقدّر من LSPIV/STIV.",
+    "iwaveReset": "العودة إلى التلقائي",
+    "iwaveInvalidWindow": "يجب أن يكون حجم النافذة رقمًا أكبر من 0.",
+    "iwaveInvalidSmax": "يجب أن تكون السرعة القصوى رقمًا أكبر من 0 ولا تتجاوز 10 م/ث.",
+    "iwaveStaleWindow": "تغيّرت المنطقة منذ تعيين هذه القيم؛ النافذة التلقائية الآن {{window}} م.",
+    "iwaveShortClip": "مقطع قصير (استُخدمت {{seconds}} ث): قد تكون نتائج IWV أكثر تشويشًا."
   },
   "Analizing": {
     "title": "جارٍ التحليل",
@@ -237,7 +252,10 @@
     "vsTooltip": "Surface velocity (m/s)",
     "qTooltip": "Discharge (m³/s)",
     "copyTable": "Copy table",
-    "copied": "Copied"
+    "copied": "Copied",
+    "iwaveLowQualityExcluded": "تم استبعاد {{count}} محطات IWV منخفضة الجودة (انقر للتضمين)",
+    "iwaveLowQualityIncluded": "تم تضمين محطات IWV منخفضة الجودة (انقر للاستبعاد)",
+    "iwaveLowQualityCell": "جودة منخفضة: مستبعدة"
   },
   "Graphs": {
     "station": "نقطة القياس",
