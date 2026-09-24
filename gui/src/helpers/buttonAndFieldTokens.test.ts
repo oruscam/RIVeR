@@ -49,6 +49,28 @@ describe('.btn button component', () => {
     const match = css.match(/\.btn:disabled,\s*\.btn\[aria-disabled="true"\]\s*\{([^}]*)\}/);
     expect(match?.[1]).toMatch(/opacity:\s*0\.38/);
   });
+
+  /**
+   * Chromium suppresses pointer events — and therefore title tooltips — on a
+   * natively disabled control, so a button that must explain why it is
+   * unavailable carries [aria-disabled="true"] instead of the disabled
+   * attribute. Every hover and active rule in the family therefore has to
+   * exclude it, or an aria-disabled button still lights up under the cursor.
+   *
+   * Swept rather than enumerated: 6b adds more .btn variants, and the two
+   * rules this test was written for (.btn-secondary, .btn-tertiary) were
+   * themselves missed when the contract was first applied to .btn and .ibtn.
+   */
+  it('no hover or active rule in the .btn/.ibtn family can fire on an [aria-disabled] control', () => {
+    const selectors = [...css.matchAll(/^\.(?:btn|ibtn)[^{\n]*:(?:hover|active)[^{\n]*\{/gm)].map(
+      (match) => match[0]
+    );
+    // If this drops to zero the sweep has stopped sweeping — the family is
+    // known to have at least the four rules present when this was written.
+    expect(selectors.length).toBeGreaterThanOrEqual(4);
+    const unguarded = selectors.filter((selector) => !selector.includes(':not([aria-disabled="true"])'));
+    expect(unguarded).toEqual([]);
+  });
 });
 
 describe('.field-row component', () => {

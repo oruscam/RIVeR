@@ -650,7 +650,7 @@ html {
   box-shadow: inset 0 0 0 1px var(--secondary-text-color);
 }
 
-.btn-secondary:hover:not(:disabled) {
+.btn-secondary:hover:not(:disabled):not([aria-disabled="true"]) {
   box-shadow: inset 0 0 0 1px var(--primary-text-color);
 }
 
@@ -665,7 +665,7 @@ html {
   padding: 0 var(--space-3);
 }
 
-.btn-tertiary:hover:not(:disabled) {
+.btn-tertiary:hover:not(:disabled):not([aria-disabled="true"]) {
   color: var(--primary-text-color);
 }
 
