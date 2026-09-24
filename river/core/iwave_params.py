@@ -288,7 +288,14 @@ def get_window_geometry(span_m: float, options: IwaveOptions) -> Tuple[float, in
 	The automatic window keeps the ROI-sized grid (span / MAX_GRID) and cuts
 	AUTO_WINDOW_M on it, within [WINDOW_MIN_PX, WINDOW_MAX_PX]. A user-set window
 	instead coarsens the grid so the requested size fits in about
-	WINDOW_TARGET_PX pixels.
+	WINDOW_TARGET_PX pixels, with a resolution floor of RESOLUTION_MIN.
+
+	A user-set window equal to what automatic mode currently resolves to is an
+	exception: it reuses the automatic geometry exactly, rather than recomputing
+	through the coarser WINDOW_TARGET_PX/RESOLUTION_MIN rule. Without this, the
+	GUI's "freeze exactly as shown" (all three iWave values frozen together once
+	any one is edited) would silently change the window whenever the automatic
+	one falls under WINDOW_MIN_PX * RESOLUTION_MIN = 1.6 m, e.g. 0.82 m -> 1.6 m.
 
 	Args:
 		span_m (float): Largest side of the ortho extent (m).
@@ -297,12 +304,17 @@ def get_window_geometry(span_m: float, options: IwaveOptions) -> Tuple[float, in
 	Returns:
 		Tuple[float, int]: Resolution (m/px) and even window side (px).
 	"""
+	auto_resolution = span_m / MAX_GRID
+	auto_window_px = int(np.clip(round(AUTO_WINDOW_M / auto_resolution / 2) * 2, WINDOW_MIN_PX, WINDOW_MAX_PX))
 	if options.window_size is None:
-		resolution = span_m / MAX_GRID
-		window_m = AUTO_WINDOW_M
-	else:
-		window_m = float(options.window_size)
-		resolution = max(window_m / WINDOW_TARGET_PX, RESOLUTION_MIN, span_m / MAX_GRID)
+		return auto_resolution, auto_window_px
+
+	window_m = float(options.window_size)
+	auto_window_m = auto_window_px * auto_resolution
+	if np.isclose(window_m, auto_window_m, rtol=1e-9, atol=1e-9):
+		return auto_resolution, auto_window_px
+
+	resolution = max(window_m / WINDOW_TARGET_PX, RESOLUTION_MIN, span_m / MAX_GRID)
 	window_px = int(np.clip(round(window_m / resolution / 2) * 2, WINDOW_MIN_PX, WINDOW_MAX_PX))
 	return resolution, window_px
 
