@@ -31,7 +31,8 @@
      Body/interface text stays on the existing global Inter stack, untouched. */
   --font-display: 'Outfit', 'Avenir Next', system-ui, sans-serif;
 
-  /* Type scale — the design audit's six steps. Sizes only: weight and colour
+  /* Type scale — seven steps (six from the design audit, plus this
+     codebase's own --text-subtitle at 20px). Sizes only: weight and colour
      stay with the consuming rule, because the same size appears at different
      weights (14px Inter 400 body text vs. a 14px 600 value readout). Adopted
      across the codebase in Phase 6g; declared here first so 6b-6f can use them
@@ -277,8 +278,13 @@
   --pin-point: #6CD4FF;
   --pin-muted: #808080;
 
-  /* Theme wash — see the dark theme's note. */
-  --wash-2: #DDEBF7;
+  /* Theme wash — see the dark theme's note. Corrected from the audit's literal
+     #DDEBF7 (1.01:1 against this codebase's light panel #E3E9F1 — the audit's
+     own value was taken from a document whose panel colour differs from
+     this one and would render as a complete no-op here) to the audit's own
+     light --wash-1, #BFDDF5 (1.16:1) — soft, which suits a decorative bloom,
+     but actually visible. */
+  --wash-2: #BFDDF5;
 }
 
 /* --------------------------------------------------------------------------
@@ -620,11 +626,11 @@ html {
     color var(--motion-fast) var(--motion-ease);
 }
 
-.btn:hover:not(:disabled) {
+.btn:hover:not(:disabled):not([aria-disabled="true"]) {
   transform: scale(1.04);
 }
 
-.btn:active:not(:disabled) {
+.btn:active:not(:disabled):not([aria-disabled="true"]) {
   transform: scale(0.98);
 }
 
@@ -679,7 +685,8 @@ html {
   width: 100%;
 }
 
-.btn:disabled {
+.btn:disabled,
+.btn[aria-disabled="true"] {
   opacity: 0.38;
   transform: none;
   cursor: not-allowed;
@@ -701,9 +708,13 @@ html {
     background-color var(--motion-fast) var(--motion-ease);
 }
 
-.ibtn:hover:not(:disabled) {
+/* --input-background sits at 1.05:1 against the panel in light theme (the
+   same --surface-field collapse recorded at the LIST ROW section below), so
+   the hover pill would be invisible there. A text-tinted wash stays visible
+   on any panel surface regardless of theme. */
+.ibtn:hover:not(:disabled):not([aria-disabled="true"]) {
   color: var(--primary-text-color);
-  background-color: var(--input-background);
+  background-color: color-mix(in srgb, var(--primary-text-color) 10%, transparent);
 }
 
 .ibtn:focus-visible {
@@ -711,7 +722,8 @@ html {
   outline-offset: 2px;
 }
 
-.ibtn:disabled {
+.ibtn:disabled,
+.ibtn[aria-disabled="true"] {
   opacity: 0.38;
   cursor: not-allowed;
 }
@@ -739,7 +751,9 @@ html {
   font-weight: 500;
   white-space: nowrap;
   cursor: pointer;
-  transition: background-color var(--motion-fast) var(--motion-ease);
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
 }
 
 .chip:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {
@@ -818,9 +832,16 @@ html {
   color: var(--on-accent);
 }
 
+/* This family deviates from the codebase's 0.38-disabled convention: .seg
+   button's resting colour is already --text-subdued, so 0.38 on top of that
+   compounds to an unreadable 1.7-1.9:1. 0.7 keeps the label legible (6d needs
+   a user to read a disabled "Space-time" segment and hover it for why it's
+   disabled) while still reading as dimmed. Do not apply this elsewhere —
+   .btn, .ibtn, .chip and .list-row rest on full-contrast colours already, so
+   0.38 is correct for them. */
 .seg button:disabled,
 .seg button[aria-disabled="true"] {
-  opacity: 0.38;
+  opacity: 0.7;
   cursor: not-allowed;
 }
 
@@ -832,10 +853,18 @@ html {
    button may not nest the icon buttons and rename input these rows contain, so
    the row is a plain container whose state travels on ARIA attributes and which
    hosts its own focusable children.
-   Selection tints the row's surface rather than filling it with the accent
-   colour, following the audit's own region rows, where the row moves to a
-   raised surface and only the badge goes accent. An accent-filled row would
-   force every nested icon button to be recoloured against it.
+   Selection tints the row with a faint accent wash plus an accent ring; the
+   ring does the real work. A flat surface token cannot be made reliably
+   visible here — this codebase's semantic aliases collapse onto each other:
+   --surface-field is exactly --input-background in all three themes;
+   --surface-raised resolves through --card-surface to exactly --surface-panel
+   in all three themes (1.00:1, a total no-op — the audit's own "--raised"
+   selected-row surface has no distinct equivalent in this codebase, so do not
+   "correct" this rule toward a --surface-raised/--raised token, which would
+   silently delete the selection state); and in dracula specifically
+   --border-color, --on-hover and --input-background are all the same
+   #44475a. Do not rely on swapping between these tokens to make a state
+   visible; use color-mix() or an inset ring instead.
    Consumers arrive in Phase 6c.
    ============================================================================= */
 
@@ -849,11 +878,22 @@ html {
   background-color: transparent;
   color: var(--text-primary);
   font-size: var(--text-meta);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
 }
 
+/* A modest accent tint plus an accent ring — the ring carries the real
+   contrast. The tint alone (14% color-mix) only reaches 1.13-1.29:1 across
+   the three themes; against the light theme's panel in particular, filling
+   with --surface-field (an alias of --input-background) is 1.05:1 against
+   the panel's own #E3E9F1 and would make a selected row pixel-identical to
+   an unselected one whenever it has no badge (6c's mask rows have none). */
 .list-row[aria-selected="true"],
 .list-row[aria-pressed="true"] {
-  background-color: var(--surface-field);
+  background-color: color-mix(in srgb, var(--accent-color) 14%, transparent);
+  box-shadow: inset 0 0 0 1px var(--accent-color);
 }
 
 .list-row:hover:not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {
@@ -867,10 +907,12 @@ html {
 
 .list-row[aria-disabled="true"] {
   opacity: 0.38;
+  cursor: not-allowed;
 }
 
-/* Leading slot for a number or a swatch. Takes the accent colour only when its
-   row is selected — see the note above about why the row itself does not. */
+/* Leading slot for a number or a swatch. Fills solidly with the accent colour
+   when its row is selected, unlike the row itself, which only tints — see the
+   note above about why an accent-filled row is avoided. */
 .list-row-badge {
   flex: none;
   display: grid;
@@ -888,17 +930,6 @@ html {
 .list-row[aria-pressed="true"] .list-row-badge {
   background-color: var(--accent-color);
   color: var(--on-accent);
-}
-
-/* A selected row's surface is --surface-field, which is an alias of
-   --input-background — the very colour .ibtn:hover paints. Nested action
-   buttons would therefore lose their hover pill entirely, in every theme, so
-   inside a selected row they switch to the inset-ring hover this file uses
-   wherever a hover surface would collide with its resting one. */
-.list-row[aria-selected="true"] .ibtn:hover:not(:disabled),
-.list-row[aria-pressed="true"] .ibtn:hover:not(:disabled) {
-  background-color: transparent;
-  box-shadow: inset 0 0 0 1px var(--primary-text-color);
 }
 
 /* Section and mask names are free-text user input and the panel is a fixed

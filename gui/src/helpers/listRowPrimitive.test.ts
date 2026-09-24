@@ -44,16 +44,16 @@ describe('.list-row primitive', () => {
     expect(ruleBody('.list-row')).toMatch(/background-color:\s*transparent/);
   });
 
-  it('tints its surface when selected instead of filling with the accent colour', () => {
+  it('tints its surface with a faint accent wash and rings it with the accent colour when selected', () => {
     const text = region();
     expect(text).toContain('.list-row[aria-selected="true"],');
     expect(text).toMatch(
-      /\.list-row\[aria-selected="true"\],\s*\.list-row\[aria-pressed="true"\]\s*\{[^}]*background-color:\s*var\(--surface-field\)/
+      /\.list-row\[aria-selected="true"\],\s*\.list-row\[aria-pressed="true"\]\s*\{[^}]*background-color:\s*color-mix\(in srgb, var\(--accent-color\) 14%, transparent\)/
     );
-    // The accent belongs to the badge, not the row — otherwise every nested
-    // icon button would need recolouring against it.
-    expect(text).not.toMatch(
-      /\.list-row\[aria-selected="true"\],\s*\.list-row\[aria-pressed="true"\]\s*\{[^}]*var\(--accent-color\)/
+    // The ring carries the real contrast — the tint alone is too faint to be
+    // reliably visible across all three themes.
+    expect(text).toMatch(
+      /\.list-row\[aria-selected="true"\],\s*\.list-row\[aria-pressed="true"\]\s*\{[^}]*box-shadow:\s*inset 0 0 0 1px var\(--accent-color\)/
     );
   });
 
@@ -80,16 +80,6 @@ describe('.list-row primitive', () => {
     expect(text).toMatch(/\.list-row:hover:not\(\[aria-disabled="true"\]\)[^{]*:not\(\[aria-selected="true"\]\)/);
     expect(ruleBody('.list-row:focus-visible')).toMatch(/outline:\s*2px solid var\(--accent-color\)/);
     expect(ruleBody('.list-row[aria-disabled="true"]')).toMatch(/opacity:\s*0\.38/);
-  });
-
-  it('keeps a nested action button hoverable on a selected row, where --surface-field would swallow its hover', () => {
-    const text = region();
-    expect(text).toMatch(
-      /\.list-row\[aria-selected="true"\] \.ibtn:hover[\s\S]{0,140}?\{[^}]*box-shadow:\s*inset 0 0 0 1px var\(--primary-text-color\)/
-    );
-    expect(text).toMatch(
-      /\.list-row\[aria-selected="true"\] \.ibtn:hover[\s\S]{0,140}?\{[^}]*background-color:\s*transparent/
-    );
   });
 });
 
