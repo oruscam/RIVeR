@@ -14,9 +14,8 @@ from river.core.iwave_params import (
 	get_section_gravity_waves,
 	get_station_velocity,
 	get_time_size,
-	get_widest_wet_width,
 	get_window_depth_reference,
-	get_window_size,
+	get_window_geometry,
 	is_depth_at_bound,
 	is_dry_window,
 	needs_smax_rerun,
@@ -111,36 +110,32 @@ def _estimate(u):
 	return VelocityEstimate(u_est=u, sources=("lspiv",))
 
 
-def test_widest_wet_width_from_depth_runs():
-	section = _section(depth=[-0.1, 0.5, 0.8, 0.0, 0.3, 0.4], distance=[0, 2, 4, 6, 8, 9])
-	# runs: stations 1-2 (2 m) and 4-5 (1 m)
-	assert get_widest_wet_width({"CS1": section}) == pytest.approx(2.0)
+def test_auto_window_keeps_the_roi_grid():
+	# span 14 m -> 2 cm/px; 2.5 m / 0.02 = 125 px, capped at 64 px
+	resolution, window_px = get_window_geometry(14.0, IwaveOptions())
+	assert resolution == pytest.approx(0.02)
+	assert window_px == 64
 
 
-def test_widest_wet_width_none_without_fields():
-	assert get_widest_wet_width({"CS1": _section(lspiv=[1.0])}) is None
+def test_auto_window_on_a_large_roi():
+	# span 70 m -> 10 cm/px; 2.5 m -> 25 px, raised to the 32 px minimum
+	resolution, window_px = get_window_geometry(70.0, IwaveOptions())
+	assert resolution == pytest.approx(0.1)
+	assert window_px == 32
 
 
-def test_window_size_scales_with_wavelength():
-	# U = 1 m/s -> lambda = 0.64 m -> 4 lambda = 2.56 m
-	assert get_window_size(_estimate(1.0), {}, IwaveOptions()) == pytest.approx(4 * 2 * np.pi / 9.81)
+def test_user_window_coarsens_the_grid_to_fit():
+	# 4.8 m / 48 px = 10 cm/px, coarser than the 2 cm/px ROI grid
+	resolution, window_px = get_window_geometry(14.0, IwaveOptions(window_size=4.8))
+	assert resolution == pytest.approx(0.1)
+	assert window_px == 48
 
 
-def test_window_size_clamped_both_ends():
-	assert get_window_size(_estimate(0.3), {}, IwaveOptions()) == pytest.approx(2.0)
-	assert get_window_size(_estimate(3.0), {}, IwaveOptions()) == pytest.approx(6.0)
-
-
-def test_window_size_capped_by_wet_width_but_not_below_floor():
-	narrow = {"CS1": _section(depth=[0.5, 0.5], distance=[0.0, 1.0])}  # 1 m wide
-	assert get_window_size(_estimate(2.0), narrow, IwaveOptions()) == pytest.approx(1.5)
-	medium = {"CS1": _section(depth=[0.5, 0.5], distance=[0.0, 3.0])}
-	assert get_window_size(_estimate(2.0), medium, IwaveOptions()) == pytest.approx(3.0)
-
-
-def test_window_size_fallback_and_override():
-	assert get_window_size(NO_ESTIMATE, {}, IwaveOptions()) == pytest.approx(2.5)
-	assert get_window_size(_estimate(1.0), {}, IwaveOptions(window_size=4.2)) == pytest.approx(4.2)
+def test_user_window_resolution_floor():
+	# 1 m / 48 px = 2.1 cm/px, below the 5 cm/px floor
+	resolution, window_px = get_window_geometry(14.0, IwaveOptions(window_size=1.0))
+	assert resolution == pytest.approx(0.05)
+	assert window_px == 32
 
 
 def test_time_size_long_and_short_clips():
@@ -154,17 +149,18 @@ def test_time_size_capped_at_available_frames():
 
 
 def test_scene_params_from_estimate():
-	scene = resolve_scene_params(_estimate(1.0), {}, n_frames=900, fps_eff=30.0, span_m=20.0, options=IwaveOptions())
+	scene = resolve_scene_params(_estimate(1.0), n_frames=900, fps_eff=30.0, span_m=20.0, options=IwaveOptions())
 	assert scene.smax == pytest.approx(2.0)
 	assert scene.smax_is_auto is True
-	assert scene.resolution == pytest.approx(scene.window_m / 48)
-	assert scene.window_px == 48
+	assert scene.resolution == pytest.approx(20.0 / 700)
+	assert scene.window_px == 64
+	assert scene.window_m == pytest.approx(64 * 20.0 / 700)
 	assert scene.time_size == 300 and scene.time_overlap == 150
 	assert scene.fps_eff == 30.0 and scene.penalty_weight == 1.0
 
 
 def test_scene_params_smax_clamps_and_fallback():
-	common = dict(xsections={}, n_frames=900, fps_eff=30.0, span_m=20.0, options=IwaveOptions())
+	common = dict(n_frames=900, fps_eff=30.0, span_m=20.0, options=IwaveOptions())
 	assert resolve_scene_params(_estimate(0.2), **common).smax == pytest.approx(1.5)
 	assert resolve_scene_params(_estimate(4.0), **common).smax == pytest.approx(5.0)
 	fallback = resolve_scene_params(NO_ESTIMATE, **common)
@@ -173,22 +169,9 @@ def test_scene_params_smax_clamps_and_fallback():
 
 def test_scene_params_explicit_smax_is_not_auto():
 	scene = resolve_scene_params(
-		_estimate(1.0), {}, n_frames=900, fps_eff=30.0, span_m=20.0, options=IwaveOptions(smax=0.8),
+		_estimate(1.0), n_frames=900, fps_eff=30.0, span_m=20.0, options=IwaveOptions(smax=0.8),
 	)
 	assert scene.smax == pytest.approx(0.8) and scene.smax_is_auto is False
-
-
-def test_resolution_floor_in_small_rivers():
-	# W = 2 m -> 2/48 = 4.2 cm/px, below the 5 cm/px floor
-	scene = resolve_scene_params(_estimate(0.3), {}, n_frames=900, fps_eff=30.0, span_m=10.0, options=IwaveOptions())
-	assert scene.resolution == pytest.approx(0.05)
-	assert scene.window_px == 40
-
-
-def test_resolution_memory_guard_on_large_roi():
-	scene = resolve_scene_params(_estimate(0.3), {}, n_frames=900, fps_eff=30.0, span_m=140.0, options=IwaveOptions())
-	assert scene.resolution == pytest.approx(140.0 / 700)
-	assert scene.window_px == 32  # 2 m / 0.2 m = 10 px, clamped up
 
 
 def test_depth_reference_is_wet_mean_within_window():
