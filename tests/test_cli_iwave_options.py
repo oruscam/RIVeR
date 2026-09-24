@@ -90,3 +90,25 @@ def test_cli_choices_are_case_insensitive(tmp_path):
 	options = mock_run.call_args.kwargs["iwave_options"]
 	assert options.flow_type == "no-waves"
 	assert options.depth_mode == "fixed"
+
+
+def test_iwave_defaults_command_prints_defaults(tmp_path):
+	import cv2
+	import numpy as np
+
+	frames = tmp_path / "frames"
+	frames.mkdir()
+	for i in range(60):
+		cv2.imwrite(str(frames / f"frame_{i:04d}.jpg"), np.full((20, 20), i % 255, np.uint8))
+	xsections = tmp_path / "xsections.json"
+	xsections.write_text(json.dumps({"CS1": {"east": [1.0, 4.0], "north": [2.0, 3.0], "alpha": 0.85}}))
+	matrix = tmp_path / "transformation_matrix.json"
+	matrix.write_text("[[0.1, 0, 0], [0, -0.1, 0], [0, 0, 1]]")
+	result = CliRunner(mix_stderr=False).invoke(cli, [
+		"iwave-defaults", str(frames), str(xsections), str(matrix), "-s", "1", "-f", "10",
+	])
+	response = json.loads(result.output)
+	assert response["error"] == {}
+	assert response["data"]["smax"] == 5.0
+	assert response["data"]["flow_type"] == "waves"
+	assert response["data"]["short_clip"] is False

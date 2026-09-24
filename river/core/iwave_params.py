@@ -48,6 +48,11 @@ LONG_CLIP_S = 20.0
 TIME_SIZE_LONG_S = 10.0
 TIME_SIZE_SHORT_S = 5.0
 
+# Below this many seconds of frames seen by iWave, the GUI shows a "results may
+# be noisier" note. A 2026-09-23 sweep (15 cases cut to 2-20 s) found no failure
+# threshold, only more noise under about 5 s.
+SHORT_CLIP_S = 5.0
+
 DEPTH_RANGE_LOW = 0.5
 DEPTH_RANGE_HIGH = 2.0
 DEPTH_MIN_LOW = 0.05

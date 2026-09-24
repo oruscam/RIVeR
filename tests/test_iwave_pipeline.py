@@ -587,3 +587,84 @@ def test_run_iwave_analysis_is_reproducible(tmp_path):
 		result = run_iwave_analysis(copy.deepcopy(xsections), H, str(frames_dir), step=1, fps=20.0, id_section=0)
 		results.append((result["CS1"]["iwave_velocity_profile"], result["CS1"]["iwave_quality_profile"]))
 	assert results[0] == results[1]
+
+
+def _defaults_section(lspiv, depth):
+	n = len(lspiv)
+	return {
+		"id": list(range(1, n + 1)),
+		"east": [float(i) for i in range(n)],
+		"north": [1.0] * n,
+		"distance": [float(i) for i in range(n)],
+		"check": [True] * n,
+		"depth": depth,
+		"streamwise_velocity_magnitude": lspiv,
+		"alpha": 0.85,
+	}
+
+
+def test_iwave_defaults_without_estimate_use_fallbacks(tmp_path):
+	from river.core.iwave_pipeline import get_iwave_defaults
+
+	frames_dir = tmp_path / "frames"
+	_write_fake_frames(frames_dir, n=60)
+	xsections = {"CS1": {"east": [1.0, 4.0], "north": [2.0, 3.0], "alpha": 0.85}}
+	defaults = get_iwave_defaults(str(frames_dir), H_SIMPLE, xsections, step=1, fps=10.0)
+	assert set(defaults) == {"window_size", "smax", "flow_type", "estimated_from", "clip_s", "iwave_s", "short_clip"}
+	assert defaults["smax"] == pytest.approx(5.0)
+	assert defaults["flow_type"] == "waves"
+	assert defaults["estimated_from"] == "none"
+	assert defaults["window_size"] > 0
+	assert defaults["clip_s"] == pytest.approx(6.0)
+	assert defaults["short_clip"] is False
+
+
+def test_iwave_defaults_use_lspiv_estimate_and_supercritical_flow(tmp_path):
+	from river.core.iwave_pipeline import get_iwave_defaults
+
+	frames_dir = tmp_path / "frames"
+	_write_fake_frames(frames_dir, n=60)
+	# 2 m/s over 0.1 m depth: Froude about 2, clearly supercritical
+	xsections = {"CS1": _defaults_section([2.0] * 5, [0.1] * 5)}
+	defaults = get_iwave_defaults(str(frames_dir), H_SIMPLE, xsections, step=1, fps=10.0)
+	assert defaults["smax"] == pytest.approx(4.0)  # 2 x U_est
+	assert defaults["estimated_from"] == "lspiv"
+	assert defaults["flow_type"] == "no-waves"
+
+
+def test_iwave_defaults_keep_waves_when_any_section_is_subcritical(tmp_path):
+	from river.core.iwave_pipeline import get_iwave_defaults
+
+	frames_dir = tmp_path / "frames"
+	_write_fake_frames(frames_dir, n=60)
+	xsections = {
+		"CS1": _defaults_section([2.0] * 5, [0.1] * 5),
+		"CS2": _defaults_section([2.0] * 5, [10.0] * 5),  # Froude about 0.2
+	}
+	defaults = get_iwave_defaults(str(frames_dir), H_SIMPLE, xsections, step=1, fps=10.0)
+	assert defaults["flow_type"] == "waves"
+
+
+def test_iwave_defaults_short_clip_boundary(tmp_path):
+	from river.core.iwave_pipeline import get_iwave_defaults
+
+	xsections = {"CS1": {"east": [1.0, 4.0], "north": [2.0, 3.0], "alpha": 0.85}}
+	short_dir = tmp_path / "short"
+	_write_fake_frames(short_dir, n=49)  # 4.9 s at 10 fps
+	long_dir = tmp_path / "long"
+	_write_fake_frames(long_dir, n=50)  # 5.0 s
+	assert get_iwave_defaults(str(short_dir), H_SIMPLE, xsections, step=1, fps=10.0)["short_clip"] is True
+	assert get_iwave_defaults(str(long_dir), H_SIMPLE, xsections, step=1, fps=10.0)["short_clip"] is False
+
+
+def test_iwave_defaults_iwave_seconds_respect_frame_cap(tmp_path, monkeypatch):
+	import river.core.iwave_pipeline as pipeline
+
+	monkeypatch.setattr(pipeline, "MAX_FRAMES", 10)
+	frames_dir = tmp_path / "frames"
+	_write_fake_frames(frames_dir, n=25)
+	xsections = {"CS1": {"east": [1.0, 4.0], "north": [2.0, 3.0], "alpha": 0.85}}
+	defaults = pipeline.get_iwave_defaults(str(frames_dir), H_SIMPLE, xsections, step=2, fps=4.0)
+	# 2 frames of step per 4 fps -> 0.5 s per extracted frame
+	assert defaults["clip_s"] == pytest.approx(12.5)
+	assert defaults["iwave_s"] == pytest.approx(5.0)
