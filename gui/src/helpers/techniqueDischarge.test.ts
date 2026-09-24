@@ -67,3 +67,55 @@ describe('getEffectiveTechniqueData with a manual STIV angle', () => {
     expect(r.tunedFlags).toEqual([false, false, false]);
   });
 });
+
+const iwaveData = (valid?: (boolean | null)[], include?: boolean): SectionData =>
+  ({
+    distance: [0, 10, 20],
+    depth: [1, 1, 1],
+    check: [true, true, true],
+    activeCheck: [true, true, true],
+    streamwise_velocity_magnitude: [1, 1, 1],
+    iwave_velocity_profile: [1, 2, 1],
+    iwave_valid_profile: valid,
+    includeIwaveLowQuality: include,
+  }) as unknown as SectionData;
+
+describe('getEffectiveTechniqueData with the iWave quality flag', () => {
+  it('excludes low-quality iWave stations from discharge', () => {
+    const r = getEffectiveTechniqueData(iwaveData([true, false, true]), 'iwave', opts)!;
+    expect(r.resolved).toEqual([1, null, 1]);
+    expect(r.lowQualityFlags).toEqual([false, true, false]);
+    expect(r.hasGaps).toBe(true);
+    const all = getEffectiveTechniqueData(iwaveData([true, true, true]), 'iwave', opts)!;
+    expect(r.total_Q).toBeLessThan(all.total_Q);
+  });
+
+  it('keeps the raw value in profile for display', () => {
+    const r = getEffectiveTechniqueData(iwaveData([true, false, true]), 'iwave', opts)!;
+    expect(r.profile[1]).toBe(2);
+  });
+
+  it('fills an excluded station like any gap when interpolation is on', () => {
+    const r = getEffectiveTechniqueData(iwaveData([true, false, true]), 'iwave', { ...opts, interpolated: true })!;
+    expect(r.resolved[1]).not.toBeNull();
+    expect(r.resolved[1]).not.toBe(2); // filled from neighbours, not the rejected value
+    expect(r.interpFlags[1]).toBe(true);
+  });
+
+  it('counts low-quality stations again when the user includes them', () => {
+    const r = getEffectiveTechniqueData(iwaveData([true, false, true], true), 'iwave', opts)!;
+    expect(r.resolved).toEqual([1, 2, 1]);
+    expect(r.lowQualityFlags).toEqual([false, false, false]);
+  });
+
+  it('ignores null flags and projects without the flag array', () => {
+    expect(getEffectiveTechniqueData(iwaveData([null, null, null]), 'iwave', opts)!.resolved).toEqual([1, 2, 1]);
+    expect(getEffectiveTechniqueData(iwaveData(undefined), 'iwave', opts)!.resolved).toEqual([1, 2, 1]);
+  });
+
+  it('never affects LSPIV', () => {
+    const r = getEffectiveTechniqueData(iwaveData([false, false, false]), 'lspiv', opts)!;
+    expect(r.resolved).toEqual([1, 1, 1]);
+    expect(r.lowQualityFlags).toEqual([false, false, false]);
+  });
+});
