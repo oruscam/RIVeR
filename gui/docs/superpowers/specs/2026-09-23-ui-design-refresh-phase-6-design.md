@@ -55,7 +55,13 @@ Ordered by dependency. Each is independently reviewable and independently revert
 
 ### 6a — Primitives & tokens
 
-**Builds:** `.chip` / `.chip.sm` (with `aria-pressed` selected state), `.seg` segmented control, `--wash-1`/`--wash-2` theme tokens, and a type-scale token set matching the audit's six steps.
+**Builds:** `.chip` / `.chip-sm`, `.seg` segmented control, `.list-row` + `.ibtn-sm`, `--wash-2` theme token, and a type-scale token set.
+
+> **Amended 2026-09-24 (A1, A2, A3)** — after 6a's final review. Originally this sub-plan built only the chip, the seg, the wash and a six-step scale. Three additions and one correction, all decided with the product owner:
+> - **`.list-row` + `.ibtn-sm` are now part of 6a.** `.chip` was cut for the *shape* in the audit's mockups, not for the *markup* of the lists 6c must convert. Verified against the real code: `MaskCreation.tsx:36-51` rows are a label plus three icon buttons (`EyeBtn`/`EditMaskBtn`/`TrashBtn`); `StabilizationRegions.tsx` rows are a label plus two; the cross-section "tab" being replaced (`Sections.tsx:118-145`) contains a rename `<input type="text">` *and* a delete button. A `<button>` may not nest a button or an input, and on a `<div>` host `:disabled` never matches, `:focus-visible` needs a tabindex, and `aria-pressed` needs `role="button"` — which re-prohibits the nested content. So `.chip` serves the `[+] Add` affordance and plain single-choice selection (cross sections); everything with per-row actions uses `.list-row`, a container with a label and an actions slot. `.ibtn-sm` (~24px) comes with it, because `.ibtn` is 32px and would fill a 32px row edge-to-edge.
+> - **The type scale gains a seventh step, `--text-subtitle: 20px`.** The audit's six steps jump 16 → 24, but this codebase's mass sits at 20px: measured 17 declarations of `font-size: 20px` and 8 of `18px` across `src/**/*.css`. Without a 20px step, 6g stops being a mechanical sweep and becomes a design change that visibly resizes ~25 elements. A deliberate, documented deviation from the audit, taken because the audit never had to absorb this codebase's existing sizes.
+> - **`.seg` segments drop to 26px so the track is 32px**, matching `.chip`, `.btn-sm` and `.ibtn`. The audit's 28px segments in a 3px-inset track make a 34px control, which would sit 2px off its neighbours in 6e's calibration toolbar row.
+> - **`--wash-1` is not built.** It appears only in the audit document's own page-header rule; both RIVeR gradients ramp `--wash-2 → --surface-panel`. Declaring an unconsumed token is the mistake this phase exists to correct. If 6f needs a second colour stop it adds `--wash-1` there, with a consumer, in the same commit.
 
 **Audit source, verbatim:**
 - `.chip` — `height:32px; padding:0 14px; border-radius:999px; background:var(--field); color:var(--text); font:500 13px; ` selected: `background:var(--accent); color:var(--on-accent)`; `.chip.sm` — `height:28px; padding:0 11px; font-size:12.5px`
@@ -63,7 +69,12 @@ Ordered by dependency. Each is independently reviewable and independently revert
 - `--wash-1`/`--wash-2` — dark `#0E4C8F`/`#0B2D52`, light `#BFDDF5`/`#DDEBF7`, dracula `#4A3673`/`#33294F`
 - Type scale — 40px Outfit 700 · 24px Outfit 700 · 16px Inter 700 · 14px Inter 400 · 13px Inter 500 (subdued) · 12px Inter 400 (subdued)
 
-Token names are fixed here so the later sub-plans don't each invent their own: `--text-display` (40), `--text-title` (24), `--text-section` (16), `--text-body` (14), `--text-meta` (13), `--text-caption` (12). Sizes only — weight and colour stay with the consuming rule, since the same size appears at different weights (e.g. 14px Inter 400 body text vs. a 14px 600 value readout).
+Token names are fixed here so the later sub-plans don't each invent their own: `--text-display` (40), `--text-title` (24), **`--text-subtitle` (20)**, `--text-section` (16), `--text-body` (14), `--text-meta` (13), `--text-caption` (12). Sizes only — weight and colour stay with the consuming rule, since the same size appears at different weights (e.g. 14px Inter 400 body text vs. a 14px 600 value readout).
+
+**Two contracts, recorded here so 6c-6e don't each decide them separately:**
+
+- **Selected state is carried by an ARIA attribute, and both readings are supported.** `.chip` and `.seg button` match on `[aria-pressed="true"], [aria-selected="true"]`. A consumer may therefore use toggle-button semantics *or* the tablist/`aria-selected` pattern — which matters because 6d's `Frames | Space-time | Spectrum` is canonically a tablist, and had the CSS accepted only `aria-pressed` the primitive would have been re-cut on its first use.
+- **Disabled state is carried by either `:disabled` or `[aria-disabled="true"]`.** Chromium dispatches no pointer events on natively `disabled` controls, so a `disabled` button cannot show the explanatory tooltip that 6d ("Run STIV first") and 6e ("Name the camera to save") both require. This codebase already hit and documented that exact constraint — see the comment at `src/components/Forms/form.css:769-774`. Consumers needing a tooltip use `aria-disabled` plus their own click guard; consumers not needing one may use native `disabled`.
 
 **Token mapping** (audit name → this codebase, all of which already exist from Phases 2/3a/5d):
 
@@ -97,7 +108,9 @@ Placed early, before 6c-6f rearrange the same files, so the layout sub-plans inh
 
 The phase's main coherence fix, implementing §2's canvas rule.
 
-**Cross Sections** (`src/pages/CrossSections.tsx`, `src/components/Forms/Components/MaskCreation.tsx`, `AddMaskButton.tsx`, `HardModeCrossSections.tsx`): the mask list becomes `.chip` rows in the form panel with a trailing `[+] Add mask` chip, and **moves out from behind the Advanced-settings toggle** — today `MaskCreation` renders inside `HardModeCrossSections`, so a user who draws a mask cannot see the list of masks unless Advanced is on. The floating `AddMaskButton` (currently `position:absolute; top:12px; right:12px` inline-styled on the canvas) is removed; the `[+] Add mask` chip replaces it. Cross-section selection becomes chips too, per the audit ("Sections and masks are chips with 'Add' at the end, instead of browser-style tabs").
+**Which primitive for which list** (amended 2026-09-24, A1): `.chip` is for single-choice selection with no per-row controls — cross-section selection — and for every `[+] Add …` affordance. `.list-row` is for anything carrying per-row actions: mask rows (label + eye/edit/trash), region rows (label + edit/trash), and the cross-section row *if* inline rename survives the redesign. Do not reach for `.chip` and then bolt actions onto it; that is the ad-hoc widening this phase exists to prevent.
+
+**Cross Sections** (`src/pages/CrossSections.tsx`, `src/components/Forms/Components/MaskCreation.tsx`, `AddMaskButton.tsx`, `HardModeCrossSections.tsx`): the mask list becomes `.list-row` rows in the form panel with a trailing `[+] Add mask` chip, and **moves out from behind the Advanced-settings toggle** — today `MaskCreation` renders inside `HardModeCrossSections`, so a user who draws a mask cannot see the list of masks unless Advanced is on. The floating `AddMaskButton` (currently `position:absolute; top:12px; right:12px` inline-styled on the canvas) is removed; the `[+] Add mask` chip replaces it. Cross-section selection becomes chips too, per the audit ("Sections and masks are chips with 'Add' at the end, instead of browser-style tabs").
 
 **Video Range** (`src/pages/VideoRange.tsx`, `src/components/Forms/Components/StabilizationRegions.tsx`, `src/components/VideoPlayer/StabilizationCanvas.tsx`): the region list leaves the `extraFields &&` gate (`FormVideo.tsx:222`) and becomes the audit's numbered rows with a per-row delete button, always visible while stabilisation is on. Regions gain the **same Done / Undo point / Delete toolbar masks already have** — today they get a single `ConfirmMaskBtn` green tick (`StabilizationCanvas.tsx:417`) and no way to undo a point or delete from the canvas.
 
@@ -112,6 +125,8 @@ The phase's main coherence fix, implementing §2's canvas rule.
 This decouples two meanings that are currently conflated in one row: the row's **switch** decides whether a technique runs; the **segmented control** decides what the canvas shows. The technique rows keep their switches, their colour identity and their per-technique extras (Median pill, angle reset), and lose only the row-click-to-preview behaviour.
 
 `previewMode` moves from local `useState` (`Processing.tsx:29`) into `uiSlice`, since it becomes a first-class, user-visible view mode rather than component-local state.
+
+**Canvas chrome** (amended 2026-09-24, A4): this control sits *on* the canvas, which §2's rule otherwise reserves for the mode-hint pill and per-shape toolbars. The reconciliation: §2 bars *lists and Add actions* from the canvas, not view switches — a segmented control that changes what the canvas renders belongs on the canvas, the way the audit's own mockup places it. Over footage, though, the panel `.seg` is wrong: `--surface-field` is an opaque panel colour and gives no separation from video. 6d therefore owns a `.seg-float` variant on the translucent-dark-plus-blur backdrop this codebase already uses twice, un-tokenized — `.mode-hint` (`src/components/Messages/messages.css:12-14`, `rgba(10,12,14,.82)` + `blur(6px)`) and `.mask-toolbar` (`src/components/components.css:1309-1311`, `rgba(10,12,14,.86)` + `blur(6px)`). 6d extracts that into a `--canvas-chrome` token with those two existing rules plus `.seg-float` as its three consumers, which satisfies §2's build-then-adopt rule and removes a duplication rather than adding a third copy.
 
 **Done means:** a user can see, at a glance and without prior knowledge, which technique's imagery the canvas is showing and which others are available.
 
@@ -141,9 +156,13 @@ Two details settled here rather than left to the plan:
 
 ### 6g — Type & radius sweep
 
-**Adopts** 6a's scale across the codebase: Outfit on every heading and prominent number (D3), the 46 font sizes collapsed onto the six-step scale, and the 25 `border-radius` values onto `--radius-sm/md/lg/full`.
+**Adopts** 6a's scale across the codebase: Outfit on every heading and prominent number (D3), the 46 font sizes collapsed onto the **seven**-step scale, and the 25 `border-radius` values onto `--radius-sm/md/lg/full`.
 
 Last in the order, so it sweeps the settled state rather than being re-broken by 6c-6f.
+
+**What the 20px step buys** (amended 2026-09-24, A2): with `--text-subtitle: 20px` in the scale, this is a mechanical sweep. Without it, the 17 `font-size: 20px` and 8 `font-size: 18px` declarations measured across `src/**/*.css` would each have to jump to 16 or 24 — ~25 visible resizes, which is a design change requiring three-theme sign-off, not a token substitution. Two parts of the sweep remain non-mechanical regardless and should be budgeted as such: the 22 `em`/`rem`/`clamp()` values (deterministic to convert, since `html { font-size: 16px }`, but each needs a decision about whether it *should* be fixed-size), and the sub-12px values (`11px` ×7, plus `10.5`/`10px`), which have no scale step below `--text-caption` and must either grow to 12px or earn a documented exception.
+
+**This file is in scope too**: `src/index.css`'s own primitives violate the scale it defines — `.btn` is 14px, `.btn-lg` 16px, `.btn-sm` 13px, which are exactly `--text-body`, `--text-section` and `--text-meta`. 6g sweeps `index.css`, not only feature CSS.
 
 **Done means:** every `font-size` in `src/**/*.css` is either one of 6a's six scale tokens or a documented exception carrying a comment saying why (canvas-overlay text sized against image pixels is the expected class of exception); likewise every `border-radius` is one of `--radius-sm/md/lg/full` or a commented exception. The counts drop from 46 and 25 to the token sets plus that explicit, reviewable exception list — "zero exceptions" is not the target, "no unexplained values" is.
 
@@ -176,3 +195,24 @@ Inherited unchanged from Phases 1-5; every Phase 6 plan restates them in its own
 ## 8. Review and preview
 
 Four of the seven sub-plans (6c, 6d, 6e, 6f) change **where things live** rather than how they are coloured. For those, a static HTML preview of the proposed screens — in all three themes, in the manner of the audit artifact itself — should be produced and approved **before** implementation, since approving a picture is more reliable than approving prose for a layout change.
+
+---
+
+## 9. Amendment log
+
+Changes made to this spec after it was first approved, each with the evidence that prompted it. Recorded rather than silently edited, so the reasoning survives.
+
+### 2026-09-24 — after Phase 6a's final whole-branch review
+
+6a shipped its primitives and the final review then asked the question the spec had not: *will 6b-6g actually be able to adopt these without re-cutting them?* For `.chip` the answer was no. Four amendments followed, three of them decided with the product owner.
+
+| # | Amendment | Evidence that prompted it |
+|---|---|---|
+| **A1** | `.list-row` + `.ibtn-sm` added to 6a's scope; §4/6c now states which primitive each list uses | `.chip` was cut as a single-action `<button>`, but `MaskCreation.tsx:36-51` rows carry three icon buttons, `StabilizationRegions.tsx` rows carry two, and the cross-section "tab" at `Sections.tsx:118-145` contains a rename `<input>` plus a delete button. A `<button>` cannot nest a button or an input; a `<div>` host breaks `:disabled`, `:focus-visible` and `aria-pressed`. `.chip` could serve only 1 of 6c's 4 lists. `.ibtn` at 32px would also fill a 32px row edge-to-edge, hence `.ibtn-sm`. |
+| **A2** | Type scale gains a seventh step, `--text-subtitle: 20px`; §4/6g records what it buys and what stays non-mechanical | Measured across `src/**/*.css`: 17 declarations of `font-size: 20px` (the single most common size) and 8 of `18px`, against a scale that jumped 16 → 24. Without the step, 6g stops being a sweep and becomes ~25 visible resizes. |
+| **A3** | `.seg` segments 28px → 26px, so the track is 32px | `.chip`, `.btn-sm` and `.ibtn` are all 32px. The audit's 28px-in-3px-track makes 34px, which would sit 2px off its neighbours in 6e's calibration toolbar row. |
+| **A4** | §4/6d reconciled with §2's canvas rule, and given ownership of a `--canvas-chrome` token | §2 said the canvas carries *only* the mode-hint pill and per-shape toolbars, while §4/6d put a segmented control there. Reconciled: §2 bars lists and Add actions, not view switches. Separately, a panel `.seg` on `--surface-field` gives no separation over footage, and the translucent-dark-plus-blur idiom it needs is already duplicated un-tokenized in `messages.css:12-14` and `components.css:1309-1311`. |
+
+Also settled in 6a and recorded in §4/6a rather than left implicit: the **selected-state contract** (`[aria-pressed="true"], [aria-selected="true"]` both match, so a consumer may use toggle-button *or* tablist semantics) and the **disabled-state contract** (`:disabled` or `[aria-disabled="true"]`, because Chromium suppresses pointer events — and therefore tooltips — on natively disabled controls, which 6d and 6e both need). Both came out of the same review: as first cut, `.seg` would have been re-cut on its first use in 6d.
+
+**One process note worth carrying forward.** 6a waived the three-theme check on the grounds that nothing it added renders yet. That waiver is defensible but it is exactly what let two live defects through: a selected chip that de-selected and became illegible on hover (a specificity inversion), and a hover state that was a literal no-op in dracula and inverted in dark, because `--border-color` and `--input-background` resolve to the same `#44475a`. For a sub-phase that only adds token-consuming CSS, the cheap substitute for a walkthrough is a test that resolves the alias chain per theme and asserts the states actually differ. Worth adding when 6f touches `--wash-2`, which is the next genuinely new colour value.
