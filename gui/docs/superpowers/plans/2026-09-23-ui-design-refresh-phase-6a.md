@@ -512,3 +512,384 @@ EOF
 - **No consumers of any kind**, per the plan's Global Constraints. `.chip`, `.seg`, `--text-*` and `--wash-2` are unreferenced when this plan ends; 6b-6g adopt them. A reviewer should read that as intended, not as an incomplete migration.
 - **The `.chip` vs `.seg` distinction is a design decision worth preserving**: a chip is an object the user selects (which mask? which cross section?), a segment is a view the canvas adopts (show me frames / space-time / spectra). They look similar and are deliberately separate components; 6c-6e should not substitute one for the other.
 - The three-theme Electron walkthrough is **not** owed for this plan specifically, because nothing it adds renders anywhere yet. It is owed for 6c-6g, and the sub-plan that first consumes `--wash-2` (6f) should check the bloom in all three themes, since that is a new colour value rather than an alias.
+
+---
+
+## Amendment — 2026-09-24, after this plan's final whole-branch review
+
+The final review asked whether 6b-6g could adopt these primitives without re-cutting them, and for `.chip` the answer was no. Three additions were decided with the product owner and recorded as A1-A3 in the spec's §9 amendment log. Tasks 3 and 4 below implement them. Tasks 1 and 2 are complete and unchanged; the five review findings against them were fixed in commits `2622389` and `3450b58`.
+
+The Global Constraints above still bind, with the baseline updated: as of `3450b58` the suite is **59 suites / 550 tests passing, 64 tsc errors, 20 lint problems (17 errors, 3 warnings)**. The no-consumers rule still holds for both new tasks.
+
+**Additional file-map entries:**
+
+| File | Responsibility |
+|---|---|
+| `src/index.css` | Task 3: `--text-subtitle` in the `:root` scale; `.seg button` height 28px → 26px. Task 4: `.list-row` family and `.ibtn-sm` |
+| `src/helpers/typeScaleAndWashTokens.test.ts` | Task 3: cover the seventh scale step |
+| `src/helpers/chipSegPrimitives.test.ts` | Task 3: pin the 32px `.seg` track |
+| `src/helpers/listRowPrimitive.test.ts` (create) | Task 4 |
+
+---
+
+## Task 3: The 20px scale step, and a 32px `.seg` track
+
+**Files:**
+- Modify: `src/index.css`
+- Modify: `src/helpers/typeScaleAndWashTokens.test.ts`
+- Modify: `src/helpers/chipSegPrimitives.test.ts`
+
+**Interfaces:**
+- Produces: `--text-subtitle: 20px`, the scale's seventh step, consumed by 6g.
+- Changes: `.seg`'s track from 34px to 32px, matching `.chip`, `.btn-sm` and `.ibtn`.
+
+**Why 20px exists at all:** measured across `src/**/*.css`, `font-size: 20px` has **17** declarations — the single most common size in the codebase — and `18px` has 8 more, against a scale that jumped 16 → 24. Without this step, 6g would have to move ~25 declarations a visibly large amount, making it a design change rather than a sweep. This is a deliberate, documented deviation from the audit's six steps.
+
+- [ ] **Step 1: Extend the type-scale test**
+
+In `src/helpers/typeScaleAndWashTokens.test.ts`, find the `TYPE_SCALE` array and add the new step between `--text-title` and `--text-section`, so the array reads:
+
+```ts
+const TYPE_SCALE: [string, string][] = [
+  ['--text-display', '40px'],
+  ['--text-title', '24px'],
+  ['--text-subtitle', '20px'],
+  ['--text-section', '16px'],
+  ['--text-body', '14px'],
+  ['--text-meta', '13px'],
+  ['--text-caption', '12px'],
+];
+```
+
+This single change extends both existing `it` blocks — the per-token declaration check and the "no theme redeclares a size" check — to the new token, because both iterate the array.
+
+- [ ] **Step 2: Add a `.seg` track-height assertion**
+
+In `src/helpers/chipSegPrimitives.test.ts`, inside the `describe('.seg primitive', …)` block, add:
+
+```ts
+  it('sits on a 32px track, matching .chip/.btn-sm/.ibtn', () => {
+    expect(ruleBody('.seg')).toMatch(/padding:\s*3px/);
+    expect(ruleBody('.seg button')).toMatch(/height:\s*26px/);
+  });
+```
+
+26px segments plus 3px of inset top and bottom is a 32px control. Both halves are asserted because either one alone would let the track drift.
+
+- [ ] **Step 3: Run both tests to verify they fail**
+
+Run: `npx jest src/helpers/typeScaleAndWashTokens.test.ts src/helpers/chipSegPrimitives.test.ts`
+Expected: FAIL — `--text-subtitle` does not exist, and `.seg button` is still 28px.
+
+- [ ] **Step 4: Add the token**
+
+In `src/index.css`, find:
+
+```css
+  --text-title:   24px;
+```
+
+and replace it with:
+
+```css
+  --text-title:   24px;
+  --text-subtitle: 20px;
+```
+
+- [ ] **Step 5: Shrink the segment height**
+
+In `src/index.css`, inside the `.seg button` rule, find:
+
+```css
+  height: 28px;
+```
+
+**Confirm before editing that this occurrence is inside `.seg button` and not `.chip-sm`**, which also declares `height: 28px`. The `.seg button` rule is the one immediately followed by `padding: 0 var(--space-3);` and `border: 0;`. Replace only that one with:
+
+```css
+  height: 26px;
+```
+
+- [ ] **Step 6: Run the tests to verify they pass**
+
+Run: `npx jest src/helpers/typeScaleAndWashTokens.test.ts src/helpers/chipSegPrimitives.test.ts`
+Expected: PASS. Confirm `.chip-sm` is still 28px — if its assertion fails, you edited the wrong `height: 28px`.
+
+- [ ] **Step 7: Run the full suite, typecheck and lint**
+
+Run: `npx jest`, `npx tsc --noEmit -p tsconfig.json 2>&1 | grep -c "error TS"`, `npm run lint`
+Expected: all tests pass; tsc **64**; lint **20 problems (17 errors, 3 warnings)**. Report the actual numbers you measure, not a characterisation of them.
+
+- [ ] **Step 8: Commit**
+
+```bash
+git add src/index.css src/helpers/typeScaleAndWashTokens.test.ts src/helpers/chipSegPrimitives.test.ts
+git commit -m "$(cat <<'EOF'
+Add the 20px scale step and align the seg track to 32px
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+EOF
+)"
+```
+
+---
+
+## Task 4: `.list-row` and `.ibtn-sm`
+
+**Files:**
+- Modify: `src/index.css`
+- Test: `src/helpers/listRowPrimitive.test.ts` (create)
+
+**Interfaces:**
+- Produces: `.list-row` with three optional sub-elements — `.list-row-badge` (leading number or swatch), `.list-row-label` (truncating text), `.list-row-actions` (trailing icon buttons) — and `.ibtn-sm`, a 24px size modifier used alongside `.ibtn`. Consumed in 6c.
+
+**Why this exists rather than widening `.chip`:** `.chip` is a single-action `<button>`. The lists 6c must convert nest interactive content a button may not contain — `MaskCreation.tsx:36-51` rows carry three icon buttons (`EyeBtn`/`EditMaskBtn`/`TrashBtn`), `StabilizationRegions.tsx` rows carry two, and the cross-section row at `Sections.tsx:118-145` contains a rename `<input type="text">` plus a delete button. `.list-row` is therefore a plain container: it is not a button, its state travels on ARIA attributes, and it hosts its own focusable children.
+
+**Why selection tints rather than fills:** the audit's own region rows do exactly this — `.reg.on { background: var(--raised) }` with `.reg.on .regb { background: var(--accent); color: var(--on-accent) }`. The row moves to a subtle surface and only the badge takes the accent colour. That keeps nested icon buttons at normal contrast; an accent-filled row would need every nested `.ibtn` recoloured against it, which is the kind of cross-primitive coupling this phase should avoid.
+
+- [ ] **Step 1: Write the failing test**
+
+Create `src/helpers/listRowPrimitive.test.ts`:
+
+```ts
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
+/**
+ * Phase 6a's row primitive. Unlike .chip (a single-action button), a .list-row
+ * is a plain container that hosts its own focusable children — the mask,
+ * region and cross-section lists 6c converts all carry per-row icon buttons,
+ * and one carries a rename input, none of which may nest inside a button.
+ */
+const css = readFileSync(join(__dirname, '..', 'index.css'), 'utf8');
+
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const ruleBody = (selector: string): string => {
+  const match = css.match(new RegExp(`${escapeRegExp(selector)}\\s*\\{([^}]*)\\}`));
+  return match ? match[1] : '';
+};
+
+/** The LIST ROW region, comments stripped so prose can't false-positive. */
+const region = (): string => {
+  const start = css.indexOf('   LIST ROW (.list-row family)');
+  const end = css.indexOf('   FORM INPUTS');
+  expect(start).toBeGreaterThan(-1);
+  expect(end).toBeGreaterThan(start);
+  return css.slice(start, end).replace(/\/\*[\s\S]*?\*\//g, '');
+};
+
+describe('.list-row primitive', () => {
+  it('is a flex row tall enough to hold a 24px action button', () => {
+    const body = ruleBody('.list-row');
+    expect(body).toMatch(/display:\s*flex/);
+    expect(body).toMatch(/min-height:\s*32px/);
+    expect(body).toMatch(/gap:\s*var\(--space-2\)/);
+  });
+
+  it('rests on no background of its own, so an unselected list reads as a list', () => {
+    expect(ruleBody('.list-row')).toMatch(/background-color:\s*transparent/);
+  });
+
+  it('tints its surface when selected instead of filling with the accent colour', () => {
+    const text = region();
+    expect(text).toContain('.list-row[aria-selected="true"],');
+    expect(text).toMatch(
+      /\.list-row\[aria-selected="true"\],\s*\.list-row\[aria-pressed="true"\]\s*\{[^}]*background-color:\s*var\(--surface-field\)/
+    );
+    // The accent belongs to the badge, not the row — otherwise every nested
+    // icon button would need recolouring against it.
+    expect(text).not.toMatch(
+      /\.list-row\[aria-selected="true"\],\s*\.list-row\[aria-pressed="true"\]\s*\{[^}]*var\(--accent-color\)/
+    );
+  });
+
+  it('gives the badge the accent colour when the row is selected', () => {
+    expect(region()).toMatch(
+      /\.list-row\[aria-selected="true"\] \.list-row-badge[\s\S]{0,120}?\{[^}]*background-color:\s*var\(--accent-color\)/
+    );
+  });
+
+  it('truncates a long label rather than pushing the actions out of the panel', () => {
+    const body = ruleBody('.list-row-label');
+    expect(body).toMatch(/text-overflow:\s*ellipsis/);
+    expect(body).toMatch(/overflow:\s*hidden/);
+    expect(body).toMatch(/min-width:\s*0/);
+  });
+
+  it('keeps the actions slot from shrinking', () => {
+    expect(ruleBody('.list-row-actions')).toMatch(/flex:\s*none/);
+  });
+
+  it('carries hover, focus and disabled affordances that work on a non-button host', () => {
+    const text = region();
+    // Hover must not fight the selected state, the same guard .chip and .seg carry.
+    expect(text).toMatch(/\.list-row:hover:not\(\[aria-disabled="true"\]\)[^{]*:not\(\[aria-selected="true"\]\)/);
+    expect(ruleBody('.list-row:focus-visible')).toMatch(/outline:\s*2px solid var\(--accent-color\)/);
+    expect(ruleBody('.list-row[aria-disabled="true"]')).toMatch(/opacity:\s*0\.38/);
+  });
+});
+
+describe('.ibtn-sm modifier', () => {
+  it('is a 24px size modifier and nothing else', () => {
+    const body = ruleBody('.ibtn-sm');
+    expect(body).toMatch(/width:\s*24px/);
+    expect(body).toMatch(/height:\s*24px/);
+    // Colour and interaction stay with .ibtn, which it is applied alongside.
+    expect(body).not.toMatch(/color:|background-color:|transition:/);
+  });
+});
+
+describe('the row region is token-driven', () => {
+  it('uses no literal colour values, including in rules added later', () => {
+    expect(region().match(/#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)/g)).toBeNull();
+  });
+});
+```
+
+- [ ] **Step 2: Run the test to verify it fails**
+
+Run: `npx jest src/helpers/listRowPrimitive.test.ts`
+Expected: FAIL — none of these rules exist.
+
+- [ ] **Step 3: Add the row family**
+
+In `src/index.css`, find the `.seg button:disabled` rule and the section header that follows it:
+
+```css
+.seg button:disabled,
+.seg button[aria-disabled="true"] {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   FORM INPUTS
+   ============================================================================= */
+```
+
+and replace it with:
+
+```css
+.seg button:disabled,
+.seg button[aria-disabled="true"] {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   LIST ROW (.list-row family)
+   A row in a panel-side list of user-created objects — masks, stabilization
+   regions, cross sections — carrying a label and one to three per-row icon
+   actions. Deliberately not a .chip: a chip is a single-action <button>, and a
+   button may not nest the icon buttons and rename input these rows contain, so
+   the row is a plain container whose state travels on ARIA attributes and which
+   hosts its own focusable children.
+   Selection tints the row's surface rather than filling it with the accent
+   colour, following the audit's own region rows, where the row moves to a
+   raised surface and only the badge goes accent. An accent-filled row would
+   force every nested icon button to be recoloured against it.
+   Consumers arrive in Phase 6c.
+   ============================================================================= */
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-meta);
+}
+
+.list-row[aria-selected="true"],
+.list-row[aria-pressed="true"] {
+  background-color: var(--surface-field);
+}
+
+.list-row:hover:not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {
+  box-shadow: inset 0 0 0 1px var(--primary-text-color);
+}
+
+.list-row:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.list-row[aria-disabled="true"] {
+  opacity: 0.38;
+}
+
+/* Leading slot for a number or a swatch. Takes the accent colour only when its
+   row is selected — see the note above about why the row itself does not. */
+.list-row-badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-field);
+  color: var(--text-primary);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+
+.list-row[aria-selected="true"] .list-row-badge,
+.list-row[aria-pressed="true"] .list-row-badge {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+/* Section and mask names are free-text user input and the panel is a fixed
+   width, so the label truncates instead of pushing the actions out of view. */
+.list-row-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.list-row-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: none;
+}
+
+/* 24px icon button for use inside a 32px row, where .ibtn's own 32px would fill
+   the row edge to edge. Size only — applied alongside .ibtn, which keeps the
+   colour, hover, focus and disabled behaviour. */
+.ibtn-sm {
+  width: 24px;
+  height: 24px;
+}
+
+/* =============================================================================
+   FORM INPUTS
+   ============================================================================= */
+```
+
+- [ ] **Step 4: Run the test to verify it passes**
+
+Run: `npx jest src/helpers/listRowPrimitive.test.ts`
+Expected: PASS
+
+- [ ] **Step 5: Run the full suite, typecheck and lint**
+
+Run: `npx jest`, `npx tsc --noEmit -p tsconfig.json 2>&1 | grep -c "error TS"`, `npm run lint`
+Expected: all tests pass; tsc **64**; lint **20 problems (17 errors, 3 warnings)**. Report the actual numbers you measure. If lint rises, run `npx eslint <the files you touched> --fix` and re-check — a new test file is the usual cause.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add src/index.css src/helpers/listRowPrimitive.test.ts
+git commit -m "$(cat <<'EOF'
+Add the list-row primitive and a small icon-button modifier
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+EOF
+)"
+```
