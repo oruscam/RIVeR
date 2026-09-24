@@ -4,14 +4,18 @@ import * as fs from 'fs';
 import { PROJECT_CONFIG } from '../../main';
 import { detectPhaseTransition } from './detectPhaseTransition';
 
-let python: ChildProcess;
+let python: ChildProcess | undefined;
 
 async function executeRiverCli(
   options: (string | number)[],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for positional compatibility with callers
   _mode: 'json' | 'text' = 'json',
   output: boolean = false,
-  logFile: string
+  logFile: string,
+  /** false for quick status calls (stiv-status, recommend-height-roi, iwave-defaults): they are
+   *  not "the" river-cli process, so Stop / app quit never kill them and, more importantly, their
+   *  completion never kills a running analysis. */
+  tracked: boolean = true
 ): Promise<{ data: any; error: any }> {
   const args = options.map((arg) => arg.toString());
   args.unshift(...['-m', 'river.cli']);
@@ -21,7 +25,8 @@ async function executeRiverCli(
   console.log('EJECUTANDO COMANDO:', args.join(' '));
 
   const result = await new Promise((resolve, reject) => {
-    python = spawn(PROJECT_CONFIG.pythonPath, args);
+    const child = spawn(PROJECT_CONFIG.pythonPath, args);
+    if (tracked) python = child;
 
     let stdoutData = '';
     let stderrData = '';
@@ -32,11 +37,11 @@ async function executeRiverCli(
     const THROTTLE_INTERVAL = 500; // 500ms = 2 mensajes por segundo
     let lastDesc = '';
 
-    python.stdout.on('data', (data) => {
+    child.stdout.on('data', (data) => {
       stdoutData += data.toString();
     });
 
-    python.stderr.on('data', (data) => {
+    child.stderr.on('data', (data) => {
       const message = data.toString();
       stderrData = message;
       console.log('stderr', message);
@@ -75,7 +80,7 @@ async function executeRiverCli(
       }
     });
 
-    python.on('close', async (code) => {
+    child.on('close', async (code) => {
       // Enviar el último mensaje antes de cerrar si no se envió
       if (output === true && lastStderrMessage) {
         webContents.getAllWebContents().forEach((contents) => {
@@ -85,19 +90,22 @@ async function executeRiverCli(
 
       if (code !== 0) {
         const errMsg = code === null ? 'Process was killed' : stderrData || `Process exited with code ${code}`;
+        if (python === child) python = undefined;
         resolve({ error: { message: errMsg } });
         appendLog(logFile, args, stdoutData, stderrData);
         return;
       }
 
       resolve(JSON.parse(stdoutData.replace(/\bNaN\b/g, 'null')));
-      await killRiverCli();
+      // The process has exited; just forget it. Calling killRiverCli() here used to kill
+      // whatever the shared handle pointed to by now — possibly a different, running analysis.
+      if (python === child) python = undefined;
 
       // Append log to log-file
       appendLog(logFile, args, stdoutData, stderrData);
     });
 
-    python.on('error', (error) => {
+    child.on('error', (error) => {
       console.log(`error river-cli: ${error.message}`);
       reject(error);
     });
