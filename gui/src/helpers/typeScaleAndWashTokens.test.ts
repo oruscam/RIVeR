@@ -19,6 +19,7 @@ const blockBody = (selector: string): string => {
 const TYPE_SCALE: [string, string][] = [
   ['--text-display', '40px'],
   ['--text-title', '24px'],
+  ['--text-subtitle', '20px'],
   ['--text-section', '16px'],
   ['--text-body', '14px'],
   ['--text-meta', '13px'],

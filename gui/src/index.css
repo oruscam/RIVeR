@@ -38,6 +38,7 @@
      as they go. */
   --text-display: 40px;
   --text-title:   24px;
+  --text-subtitle: 20px;
   --text-section: 16px;
   --text-body:    14px;
   --text-meta:    13px;
@@ -786,7 +787,7 @@ html {
 }
 
 .seg button {
-  height: 28px;
+  height: 26px;
   padding: 0 var(--space-3);
   border: 0;
   border-radius: var(--radius-full);

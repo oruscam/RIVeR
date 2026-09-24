@@ -91,15 +91,25 @@ describe('.seg primitive', () => {
       /\.seg button:disabled,[\s\n]*\.seg button\[aria-disabled="true"\]\s*\{[^}]*cursor:\s*not-allowed/;
     expect(regionText).toMatch(cursorPattern);
   });
+
+  it('sits on a 32px track, matching .chip/.btn-sm/.ibtn', () => {
+    expect(ruleBody('.seg')).toMatch(/padding:\s*3px/);
+    expect(ruleBody('.seg button')).toMatch(/height:\s*26px/);
+  });
 });
 
 describe('both primitives are token-driven', () => {
-  /** The whole CHIP + SEG region, comments stripped so prose can't false-positive. */
+  /** The CHIP + SEG region's CSS only, sliced past its own header comment and
+   *  stopping before the next one, so no comment prose can reach an assertion. */
   const region = (): string => {
-    const start = css.indexOf('   CHIP (.chip family)');
-    const end = css.indexOf('   FORM INPUTS');
-    expect(start).toBeGreaterThan(-1);
-    expect(end).toBeGreaterThan(start);
+    const header = css.indexOf('   CHIP (.chip family)');
+    expect(header).toBeGreaterThan(-1);
+    const start = css.indexOf('*/', header) + 2;
+    const nextHeader = css.indexOf('   FORM INPUTS', start);
+    expect(nextHeader).toBeGreaterThan(start);
+    const end = css.lastIndexOf('/*', nextHeader);
+    // Fully-paired inline comments inside the region are still stripped, so
+    // their prose can neither satisfy nor trip a colour assertion.
     return css.slice(start, end).replace(/\/\*[\s\S]*?\*\//g, '');
   };
 
