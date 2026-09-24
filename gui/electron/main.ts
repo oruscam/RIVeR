@@ -21,6 +21,7 @@ import {
   getBathimetry,
   calculate3dRectification,
   getIpcamImages,
+  getIwaveDefaults,
   getIwaveSpectra,
   getPoints,
   getDistances,
@@ -224,6 +225,7 @@ app.whenReady().then(async () => {
   getGif();
   getImages();
   getIpcamImages();
+  getIwaveDefaults(riverCli);
   getIwaveSpectra();
   getPoints();
   getQuiver(riverCli);
