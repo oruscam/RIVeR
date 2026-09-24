@@ -741,8 +741,8 @@ html {
   transition: background-color var(--motion-fast) var(--motion-ease);
 }
 
-.chip:hover:not(:disabled) {
-  background-color: var(--border-color);
+.chip:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {
+  box-shadow: inset 0 0 0 1px var(--primary-text-color);
 }
 
 .chip:focus-visible {
@@ -750,7 +750,8 @@ html {
   outline-offset: 2px;
 }
 
-.chip[aria-pressed="true"] {
+.chip[aria-pressed="true"],
+.chip[aria-selected="true"] {
   background-color: var(--accent-color);
   color: var(--on-accent);
 }
@@ -760,7 +761,8 @@ html {
   font-size: var(--text-caption);
 }
 
-.chip:disabled {
+.chip:disabled,
+.chip[aria-disabled="true"] {
   opacity: 0.38;
   cursor: not-allowed;
 }
@@ -800,7 +802,7 @@ html {
     color var(--motion-fast) var(--motion-ease);
 }
 
-.seg button:hover:not(:disabled):not([aria-pressed="true"]) {
+.seg button:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {
   color: var(--text-primary);
 }
 
@@ -809,12 +811,14 @@ html {
   outline-offset: 2px;
 }
 
-.seg button[aria-pressed="true"] {
+.seg button[aria-pressed="true"],
+.seg button[aria-selected="true"] {
   background-color: var(--accent-color);
   color: var(--on-accent);
 }
 
-.seg button:disabled {
+.seg button:disabled,
+.seg button[aria-disabled="true"] {
   opacity: 0.38;
   cursor: not-allowed;
 }
