@@ -692,6 +692,22 @@ html {
   cursor: not-allowed;
 }
 
+/* Pressed / selected / complete / busy — one fill, four meanings.
+   `.wizard-button-active` carried all four before Phase 6b and rendered them
+   identically; the attributes keep them distinguishable in the DOM so a later
+   sub-plan can separate the visuals without re-auditing every call site.
+   aria-selected is here because 6d's Frames|Space-time|Spectrum is a tablist,
+   matching the contract .chip and .seg already declare.
+   Both colours are gated in themeStateContrast.test.ts (accent vs panel >= 3.0,
+   on-accent on accent >= 4.5). */
+.btn[aria-pressed="true"],
+.btn[aria-selected="true"],
+.btn[data-complete="true"],
+.btn[aria-busy="true"] {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
 .ibtn {
   width: 32px;
   height: 32px;
@@ -726,6 +742,29 @@ html {
 .ibtn[aria-disabled="true"] {
   opacity: 0.38;
   cursor: not-allowed;
+}
+
+/* aria-busy is here, not added later by Task 8, so that no task has to perform
+   surgery on another task's rule. ExportBtn (Task 8) is its only consumer. */
+.ibtn[aria-pressed="true"],
+.ibtn[aria-busy="true"] {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+/* Replaces .ib-danger. The fill must not appear on an aria-disabled control:
+   this codebase uses aria-disabled rather than :disabled wherever a title
+   tooltip has to survive, because Chromium dispatches no pointer events on a
+   natively disabled control (see form.css:769-774). */
+.ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]), .ibtn-danger[data-armed="true"] {
+  background-color: var(--status-bad);
+  color: var(--on-error);
+}
+
+/* Replaces .ib.is-success. Icon-only, so this is a non-text contrast pair;
+   measured worst case 4.136:1 in light, gated at 4.0. */
+.ibtn[data-state="success"] {
+  color: var(--status-good);
 }
 
 /* =============================================================================
