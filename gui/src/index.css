@@ -825,6 +825,97 @@ html {
 }
 
 /* =============================================================================
+   LIST ROW (.list-row family)
+   A row in a panel-side list of user-created objects — masks, stabilization
+   regions, cross sections — carrying a label and one to three per-row icon
+   actions. Deliberately not a .chip: a chip is a single-action <button>, and a
+   button may not nest the icon buttons and rename input these rows contain, so
+   the row is a plain container whose state travels on ARIA attributes and which
+   hosts its own focusable children.
+   Selection tints the row's surface rather than filling it with the accent
+   colour, following the audit's own region rows, where the row moves to a
+   raised surface and only the badge goes accent. An accent-filled row would
+   force every nested icon button to be recoloured against it.
+   Consumers arrive in Phase 6c.
+   ============================================================================= */
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-meta);
+}
+
+.list-row[aria-selected="true"],
+.list-row[aria-pressed="true"] {
+  background-color: var(--surface-field);
+}
+
+.list-row:hover:not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {
+  box-shadow: inset 0 0 0 1px var(--primary-text-color);
+}
+
+.list-row:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.list-row[aria-disabled="true"] {
+  opacity: 0.38;
+}
+
+/* Leading slot for a number or a swatch. Takes the accent colour only when its
+   row is selected — see the note above about why the row itself does not. */
+.list-row-badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-field);
+  color: var(--text-primary);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+
+.list-row[aria-selected="true"] .list-row-badge,
+.list-row[aria-pressed="true"] .list-row-badge {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+/* Section and mask names are free-text user input and the panel is a fixed
+   width, so the label truncates instead of pushing the actions out of view. */
+.list-row-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.list-row-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: none;
+}
+
+/* 24px icon button for use inside a 32px row, where .ibtn's own 32px would fill
+   the row edge to edge. Size only — applied alongside .ibtn, which keeps the
+   colour, hover, focus and disabled behaviour. */
+.ibtn-sm {
+  width: 24px;
+  height: 24px;
+}
+
+/* =============================================================================
    FORM INPUTS
    ============================================================================= */
 
