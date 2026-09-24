@@ -92,8 +92,24 @@ const STATE_PAIRS: StatePair[] = [
 ];
 
 describe('theme token parsing', () => {
-  it('finds exactly the three theme blocks plus the shared root', () => {
-    expect(Object.keys(themes).sort()).toEqual(['dark', 'dracula', 'light']);
+  // The parser builds its result from a fixed list of three theme names, so
+  // asserting that list back is circular. What is worth asserting is that each
+  // block was actually found and read: a selector that does not match yields a
+  // throw, and a block that matched but parsed badly yields a thin map.
+  it('reads a substantial token map for every theme', () => {
+    for (const name of NAMES) {
+      expect(Object.keys(themes[name]).length).toBeGreaterThan(60);
+      expect(themes[name]['--accent-color']).toMatch(/^#[0-9a-fA-F]{6}$/);
+    }
+  });
+
+  it('throws, rather than returning an empty map, when a theme block is absent', () => {
+    expect(() => parseThemeTokens(':root { --a: 1px; }')).toThrow(/data-theme="dark"/);
+  });
+
+  it('throws when a selector appears more than once, since it would silently read only the first', () => {
+    const doubled = '[data-theme="dark"] { --a: 1px; }'.repeat(2);
+    expect(() => parseThemeTokens(`:root { --b: 2px; }${doubled}`)).toThrow(/more than once/);
   });
 
   it('merges the bare :root scale tokens into every theme', () => {
@@ -101,6 +117,25 @@ describe('theme token parsing', () => {
       expect(themes[name]['--text-body']).toBe('14px');
       expect(themes[name]['--space-2']).toBe('8px');
     }
+  });
+
+  /**
+   * The :root block and the theme blocks happen to share no key today, so
+   * nothing in index.css exercises the documented precedence. Asserted against
+   * a synthetic stylesheet instead, so that flipping the spread order in
+   * parseThemeTokens fails a test rather than waiting for the first token that
+   * is declared in both places.
+   */
+  it('lets a theme declaration win over the shared :root one', () => {
+    const synthetic = [
+      ':root { --shared: #000000; --only-root: #111111; }',
+      '[data-theme="dark"] { --shared: #ffffff; }',
+      '[data-theme="light"] { --shared: #ffffff; }',
+      '[data-theme="dracula"] { --shared: #ffffff; }',
+    ].join('\n');
+    const parsed = parseThemeTokens(synthetic);
+    expect(parsed.dark['--shared']).toBe('#ffffff');
+    expect(parsed.dark['--only-root']).toBe('#111111');
   });
 
   it('resolves an alias chain to a literal colour', () => {
@@ -116,6 +151,26 @@ describe('theme token parsing', () => {
     const cyclic: ThemeTokens = { '--a': 'var(--b)', '--b': 'var(--a)' };
     expect(() => resolveToken(cyclic, '--a')).toThrow(/circular/i);
   });
+
+  /**
+   * A var() with a fallback resolves in the browser but not here. Returning it
+   * as a literal is the dangerous outcome: a string comparison against another
+   * unresolved value would pass, so a collapse test could report two tokens as
+   * equal when they render differently. index.css uses no fallbacks today; this
+   * makes the day one appears a loud failure rather than a quiet wrong answer.
+   */
+  it('throws on a var() form it cannot follow, instead of returning it as a literal', () => {
+    const withFallback: ThemeTokens = { '--a': 'var(--b, #ff0000)' };
+    expect(() => resolveToken(withFallback, '--a')).toThrow(/does not handle/);
+  });
+
+  it('confirms index.css itself contains no unresolvable var() form', () => {
+    for (const name of NAMES) {
+      for (const token of Object.keys(themes[name])) {
+        expect(() => resolveToken(themes[name], token)).not.toThrow();
+      }
+    }
+  });
 });
 
 describe('contrast maths', () => {
@@ -123,8 +178,18 @@ describe('contrast maths', () => {
     expect(contrastRatio([0, 0, 0], [255, 255, 255])).toBeCloseTo(21, 1);
   });
 
-  it('is symmetric', () => {
-    expect(contrastRatio([6, 120, 190], [20, 20, 20])).toBeCloseTo(contrastRatio([20, 20, 20], [6, 120, 190]), 6);
+  // Checked against externally known values rather than against the
+  // implementation's own behaviour: #767676 is the canonical "lightest grey
+  // that still passes AA on white" and #949494 the lightest that passes AA
+  // Large. A symmetry test would pass by construction, since contrastRatio
+  // orders the two luminances itself.
+  it('agrees with published reference ratios', () => {
+    expect(contrastRatio([0x76, 0x76, 0x76], [255, 255, 255])).toBeCloseTo(4.54, 2);
+    expect(contrastRatio([0x94, 0x94, 0x94], [255, 255, 255])).toBeCloseTo(3.03, 2);
+  });
+
+  it('gives 1 for a colour against itself', () => {
+    expect(contrastRatio([6, 120, 190], [6, 120, 190])).toBeCloseTo(1, 10);
   });
 
   it('composites a partial-alpha colour over its backdrop', () => {
@@ -194,7 +259,11 @@ describe('known field-surface debt (recorded, awaiting a palette decision)', () 
     expect(measured).toBeCloseTo(RECORDED[name], 1);
   });
 
-  it('light theme is the one that is actually invisible', () => {
-    expect(RECORDED.light).toBeLessThan(1.1);
+  // Asserts the measured CSS, not the constant above it — the constant
+  // comparing to itself would pass whatever the palette did. This is the
+  // tripwire: the day the light field surface is darkened, this fails and says
+  // the debt is gone.
+  it('light theme is still the one that is actually invisible', () => {
+    expect(contrastRatio(field(themes.light), panel(themes.light))).toBeLessThan(1.1);
   });
 });

@@ -28,8 +28,9 @@ const stripComments = (css: string): string => css.replace(/\/\*[\s\S]*?\*\//g, 
 /**
  * Slices one declaration block by its exact selector. The theme blocks and the
  * bare `:root` block contain no nested braces, so the first closing brace ends
- * the block — but only once comments are gone, because several of them contain
- * braces in prose.
+ * the block. Comments are stripped first so that a commented-out declaration
+ * cannot be read as a live one, and so that prose is never scanned for
+ * `--token: value` pairs.
  */
 const blockBody = (css: string, selector: string): string => {
   const opener = `${selector} {`;
@@ -93,6 +94,17 @@ export const resolveToken = (tokens: ThemeTokens, name: string): string => {
     }
     const alias = value.match(/^var\(\s*(--[\w-]+)\s*\)$/);
     if (!alias) {
+      // Only a bare var(--token) is an alias this resolver follows. Anything
+      // else containing var() — a fallback like var(--x, #ff0000), or a
+      // composed value — would otherwise be returned as though it were a
+      // literal colour, and parseHex would then reject it with a confusing
+      // message or, worse, a caller would compare it as a string and pass.
+      if (value.includes('var(')) {
+        throw new Error(
+          `${current} is "${value}", a var() form this resolver does not handle. ` +
+            'Extend resolveToken deliberately rather than letting it be treated as a literal.'
+        );
+      }
       return value;
     }
     current = alias[1];
