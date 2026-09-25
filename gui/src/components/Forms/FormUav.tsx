@@ -81,7 +81,8 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
         <div className="input-container-2">
           <button
             ref={drawLineButtonRef}
-            className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
+            className="btn btn-lg btn-secondary form-button me-1"
+            aria-pressed={drawLine}
             type="button"
             onClick={onClickDrawLine}
             id="draw-line-pixel"

@@ -165,7 +165,8 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             <div className="input-container-2">
               <button
                 ref={drawLineButtonRef}
-                className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
+                className="btn btn-lg btn-secondary form-button me-1"
+                aria-pressed={drawLine}
                 type="button"
                 id={`${name}-DRAW_LINE`}
                 onClick={() => onUpdateSection({ drawLine: true }, undefined)}
@@ -182,7 +183,8 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
             <div className="input-container-2">
               <button
                 ref={drawLineButtonRef}
-                className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
+                className="btn btn-lg btn-secondary form-button me-1"
+                aria-pressed={drawLine}
                 type="button"
                 id={`${name}-DRAW_LINE`}
                 onClick={() => onUpdateSection({ drawLine: true }, undefined)}
