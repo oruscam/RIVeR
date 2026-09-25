@@ -440,7 +440,9 @@ Edit each site per the table. Match on the exact current `className` string; two
 
 - [ ] **Step 2: Add the missing `type="button"`**
 
-`CameraCalibration.tsx:522` and `:527` have no `type` attribute. A `<button>` with no `type` inside a `<form>` defaults to `submit`. Add `type="button"` to both. Do not add it anywhere it is already present.
+`CameraCalibration.tsx:522` and `:527` have no `type` attribute, so they take the HTML default of `submit`. Add `type="button"` to both. Do not add it anywhere it is already present.
+
+**Corrected after Tasks 3-5 were reviewed:** an earlier version of this step claimed these two buttons "default to submit inside a `<form>`". They are not inside a form — `CameraCalibration.tsx` contains no `<form>` element, and neither does the `HomePage` that mounts it, so `type` has **no functional effect here today**. The addition is hygiene, not a bug fix: `submit` is the wrong default for a button that closes a dialog or saves a profile by callback, and 6e re-lays this screen out onto the standard workspace, where a surrounding form is likely. Do not go looking for the same "bug" elsewhere on the strength of the original wording.
 
 - [ ] **Step 3: Verify nothing regressed**
 
