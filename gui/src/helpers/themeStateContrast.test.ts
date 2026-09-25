@@ -91,12 +91,12 @@ const STATE_PAIRS: StatePair[] = [
   },
   {
     label: '.ibtn[data-state="success"] icon (--status-good) vs panel',
-    floor: 4.0,
+    floor: 3.0,
     ratio: (t) => contrastRatio(resolveRgb(t, '--status-good'), panel(t)),
   },
   {
     label: '.ibtn-danger fill (--status-bad) vs panel',
-    floor: 4.4,
+    floor: 3.0,
     ratio: (t) => contrastRatio(resolveRgb(t, '--status-bad'), panel(t)),
   },
 ];

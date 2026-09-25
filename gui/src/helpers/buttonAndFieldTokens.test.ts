@@ -15,6 +15,66 @@ const ruleBody = (selector: string): string => {
   return match ? match[1] : '';
 };
 
+/**
+ * Splits a selector list on its top-level commas only, so a comma inside
+ * `:not(a, b)` or `:is(a, b)` does not split the selector it belongs to.
+ */
+const splitSelectorList = (list: string): string[] => {
+  const parts: string[] = [];
+  let depth = 0;
+  let current = '';
+  for (const character of list) {
+    if (character === '(') depth += 1;
+    if (character === ')') depth -= 1;
+    if (character === ',' && depth === 0) {
+      parts.push(current);
+      current = '';
+      continue;
+    }
+    current += character;
+  }
+  parts.push(current);
+  return parts.map((part) => part.replace(/\s+/g, ' ').trim()).filter(Boolean);
+};
+
+/**
+ * Every rule in the stylesheet as {selectors, body}, one selectors entry per
+ * top-level comma. Deliberately NOT line-based: the family sweep below used to
+ * match whole physical lines, and silently stopped covering
+ * `.ibtn-danger:hover` the moment that rule's selector list was wrapped onto
+ * two lines — a guard that quietly narrows is worse than no guard. Comments are
+ * stripped so prose cannot be read as a selector, and at-rule preludes are
+ * skipped while the rules nested inside them still parse.
+ */
+interface CssRule {
+  readonly selectors: string[];
+  readonly body: string;
+}
+
+const rules = (): CssRule[] =>
+  // No leading delimiter in the pattern: a rule's closing brace would be
+  // consumed as the next rule's delimiter, and matchAll cannot overlap, so
+  // every second rule would be skipped. `[^{}@;]+?` already cannot cross a
+  // brace, so the selector list naturally starts after the previous rule.
+  [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}@;]+?)\s*\{([^{}]*)\}/g)].map((match) => ({
+    selectors: splitSelectorList(match[1]),
+    body: match[2],
+  }));
+
+/** Selectors in the .btn/.ibtn family that fire on hover or active. */
+const familyHoverSelectors = (): CssRule[] =>
+  rules().filter((rule) =>
+    rule.selectors.some((selector) => /^\.(?:btn|ibtn)\b/.test(selector) && /:(?:hover|active)\b/.test(selector))
+  );
+
+const STATE_ATTRIBUTES = [
+  'aria-pressed="true"',
+  'aria-selected="true"',
+  'aria-busy="true"',
+  'data-complete="true"',
+  'data-state="success"',
+];
+
 describe('.btn button component', () => {
   it('declares the base .btn using scale tokens for radius, gap and motion', () => {
     const body = ruleBody('.btn');
@@ -62,14 +122,41 @@ describe('.btn button component', () => {
    * themselves missed when the contract was first applied to .btn and .ibtn.
    */
   it('no hover or active rule in the .btn/.ibtn family can fire on an [aria-disabled] control', () => {
-    const selectors = [...css.matchAll(/^\.(?:btn|ibtn)[^{\n]*:(?:hover|active)[^{\n]*\{/gm)].map(
-      (match) => match[0]
+    const family = familyHoverSelectors().flatMap((rule) =>
+      rule.selectors.filter(
+        (selector) => /^\.(?:btn|ibtn)\b/.test(selector) && /:(?:hover|active)\b/.test(selector)
+      )
     );
-    // If this drops to zero the sweep has stopped sweeping — the family is
-    // known to have at least the four rules present when this was written.
-    expect(selectors.length).toBeGreaterThanOrEqual(4);
-    const unguarded = selectors.filter((selector) => !selector.includes(':not([aria-disabled="true"])'));
-    expect(unguarded).toEqual([]);
+    // If this drops the sweep has stopped sweeping. Six such selectors exist as
+    // of Phase 6b: .btn:hover, .btn:active, .btn-secondary:hover,
+    // .btn-tertiary:hover, .ibtn:hover, .ibtn-danger:hover.
+    expect(family.length).toBeGreaterThanOrEqual(6);
+    expect(family.filter((selector) => !selector.includes(':not([aria-disabled="true"])'))).toEqual([]);
+  });
+
+  /**
+   * The cascade counterpart of the test above, and the reason Phase 6b's states
+   * needed a second pass. A hover selector in this family carries four or more
+   * compound units, so it out-specifies the two- and three-unit state rules and
+   * repaints them away while the pointer rests on the control — which is
+   * precisely when a click-triggered state fires. ExportBtn's success flash
+   * lasts 2.5s and begins on the user's own click, so it would never be seen.
+   *
+   * Only rules that actually paint colour matter: `.btn:hover` sets nothing but
+   * `transform`, and a scale on a pressed button is correct.
+   */
+  it('a colour-painting hover rule in the family never repaints a state it out-specifies', () => {
+    const offenders = familyHoverSelectors()
+      .filter((rule) => /(^|[\s;])(background-)?color\s*:/.test(rule.body))
+      .flatMap((rule) =>
+        rule.selectors.filter(
+          (selector) =>
+            /^\.(?:btn|ibtn)\b/.test(selector) &&
+            /:(?:hover|active)\b/.test(selector) &&
+            !STATE_ATTRIBUTES.some((attribute) => selector.includes(attribute))
+        )
+      );
+    expect(offenders).toEqual([]);
   });
 
   it('gives .btn a pressed/selected state carrying all four meanings on one accent fill', () => {
@@ -77,19 +164,45 @@ describe('.btn button component', () => {
     // (tablist), data-complete (step finished), aria-busy (running). 6b records
     // the meaning in the DOM so a later sub-plan can differentiate the visuals
     // without re-reading 18 call sites. See plan ruling R2.
-    const rule = css.match(/\.btn\[aria-pressed="true"\][^{]*\{[^}]*\}/);
-    expect(rule).not.toBeNull();
-    const selector = rule![0].slice(0, rule![0].indexOf('{'));
-    for (const attr of [
+    const fill = rules().find((rule) =>
+      rule.selectors.some((selector) => selector.startsWith('.btn:is(') && selector.includes(':not('))
+    );
+    expect(fill).toBeDefined();
+    const selector = fill!.selectors[0];
+    for (const attribute of [
       'aria-pressed="true"',
       'aria-selected="true"',
       'data-complete="true"',
       'aria-busy="true"',
     ]) {
-      expect(selector).toContain(`.btn[${attr}]`);
+      expect(selector).toContain(attribute);
     }
-    expect(rule![0]).toContain('background-color: var(--accent-color)');
-    expect(rule![0]).toContain('color: var(--on-accent)');
+    expect(fill!.body).toContain('background-color: var(--accent-color)');
+    expect(fill!.body).toContain('color: var(--on-accent)');
+    // Excludes the variants that are already filled: on .btn-primary this rule
+    // would be a byte-identical no-op, and on .btn-danger it would repaint a
+    // destructive button accent blue.
+    expect(selector).toContain('.btn-primary');
+    expect(selector).toContain('.btn-danger');
+  });
+
+  it('an already-filled variant shows the state as an inset ring in its own on-colour', () => {
+    // .btn-primary's fill IS the accent colour, so a fill-based pressed state is
+    // invisible there; .btn-danger's fill carries meaning a repaint would erase.
+    // Both ring pairs are already gated (on-accent/accent, on-error/status-bad).
+    const ring = (variant: string): CssRule | undefined =>
+      rules().find((rule) => rule.selectors.some((selector) => selector.startsWith(`${variant}:is(`)));
+    for (const [variant, token] of [
+      ['.btn-primary', '--on-accent'],
+      ['.btn-danger', '--on-error'],
+    ]) {
+      const rule = ring(variant);
+      expect(rule).toBeDefined();
+      expect(rule!.body).toContain(`box-shadow: inset 0 0 0 2px var(${token})`);
+      for (const attribute of ['aria-pressed="true"', 'aria-busy="true"']) {
+        expect(rule!.selectors[0]).toContain(attribute);
+      }
+    }
   });
 
   it('gives .ibtn a pressed state, a danger variant and a success state', () => {
@@ -106,14 +219,13 @@ describe('.btn button component', () => {
     // and prettier's print width is close enough to move it.
     const rule = css.match(/\.ibtn-danger[^{}]*\{/);
     expect(rule).not.toBeNull();
-    const selectors = rule![0]
-      .slice(0, -1)
-      .split(',')
-      .map((selector) => selector.trim());
+    // splitSelectorList, not String.split(','), because the guards are written
+    // as `:not(a, b)` and a naive split would tear them apart mid-selector.
+    const selectors = splitSelectorList(rule![0].slice(0, -1));
     const fill = selectors.find((selector) => selector.includes(':hover'));
     expect(fill).toBeDefined();
     expect(fill).toContain(':not([aria-disabled="true"])');
-    expect(selectors).toContain('.ibtn-danger[data-armed="true"]');
+    expect(selectors.some((selector) => selector.startsWith('.ibtn-danger[data-armed="true"]'))).toBe(true);
   });
 });
 

@@ -650,7 +650,7 @@ html {
   box-shadow: inset 0 0 0 1px var(--secondary-text-color);
 }
 
-.btn-secondary:hover:not(:disabled):not([aria-disabled="true"]) {
+.btn-secondary:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-selected="true"], [data-complete="true"], [aria-busy="true"]) {
   box-shadow: inset 0 0 0 1px var(--primary-text-color);
 }
 
@@ -665,7 +665,7 @@ html {
   padding: 0 var(--space-3);
 }
 
-.btn-tertiary:hover:not(:disabled):not([aria-disabled="true"]) {
+.btn-tertiary:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-selected="true"], [data-complete="true"], [aria-busy="true"]) {
   color: var(--primary-text-color);
 }
 
@@ -699,13 +699,34 @@ html {
    aria-selected is here because 6d's Frames|Space-time|Spectrum is a tablist,
    matching the contract .chip and .seg already declare.
    Both colours are gated in themeStateContrast.test.ts (accent vs panel >= 3.0,
-   on-accent on accent >= 4.5). */
-.btn[aria-pressed="true"],
-.btn[aria-selected="true"],
-.btn[data-complete="true"],
-.btn[aria-busy="true"] {
+   on-accent on accent >= 4.5).
+
+   Excludes the two variants that are ALREADY filled: on .btn-primary this rule
+   would be a byte-identical no-op, and on .btn-danger it would repaint a
+   destructive button accent blue. Those two show the state as an inset ring
+   instead, below. The hover rules of the transparent variants carry matching
+   :not() guards, because .btn-tertiary:hover would otherwise win on
+   specificity and put a 2.12:1 label on the accent fill. */
+.btn:is([aria-pressed="true"], [aria-selected="true"], [data-complete="true"], [aria-busy="true"]):not(
+    .btn-primary,
+    .btn-danger
+  ) {
   background-color: var(--accent-color);
   color: var(--on-accent);
+  /* Drops .btn-secondary's resting ring, so a pressed secondary reads as a
+     filled button rather than a filled button wearing an outline. */
+  box-shadow: none;
+}
+
+/* An already-filled variant cannot show the state by filling, so it takes an
+   inset ring in its own on-colour. Both pairs are already gated: on-accent on
+   accent >= 4.5 (measured 4.73 worst) and on-error on status-bad (5.45 worst). */
+.btn-primary:is([aria-pressed="true"], [aria-selected="true"], [data-complete="true"], [aria-busy="true"]) {
+  box-shadow: inset 0 0 0 2px var(--on-accent);
+}
+
+.btn-danger:is([aria-pressed="true"], [aria-selected="true"], [data-complete="true"], [aria-busy="true"]) {
+  box-shadow: inset 0 0 0 2px var(--on-error);
 }
 
 .ibtn {
@@ -727,8 +748,15 @@ html {
 /* --input-background sits at 1.05:1 against the panel in light theme (the
    same --surface-field collapse recorded at the LIST ROW section below), so
    the hover pill would be invisible there. A text-tinted wash stays visible
-   on any panel surface regardless of theme. */
-.ibtn:hover:not(:disabled):not([aria-disabled="true"]) {
+   on any panel surface regardless of theme.
+
+   The state guards matter more here than anywhere else in the family: this
+   selector is (0,4,0) and would out-specify the (0,2,0) state rules below,
+   repainting them away in every theme. ExportBtn's running fill and its 2.5s
+   success flash are both entered by the user's own click, so the pointer is
+   still on the button — without these guards they would be invisible exactly
+   when they fire. .chip, .seg button and .list-row all carry the same guards. */
+.ibtn:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-busy="true"], [data-state="success"]) {
   color: var(--primary-text-color);
   background-color: color-mix(in srgb, var(--primary-text-color) 10%, transparent);
 }
@@ -756,14 +784,15 @@ html {
    this codebase uses aria-disabled rather than :disabled wherever a title
    tooltip has to survive, because Chromium dispatches no pointer events on a
    natively disabled control (see form.css:769-774). */
-.ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]),
-.ibtn-danger[data-armed="true"] {
+.ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-busy="true"], [data-state="success"]),
+.ibtn-danger[data-armed="true"]:not(:disabled):not([aria-disabled="true"]) {
   background-color: var(--status-bad);
   color: var(--on-error);
 }
 
-/* Replaces .ib.is-success. Icon-only, so this is a non-text contrast pair;
-   measured worst case 4.136:1 in light, gated at 4.0. */
+/* Replaces .ib.is-success. Icon-only, so WCAG 1.4.11 non-text applies: gated at
+   3.0 like the other non-text pairs in this phase, not at the measured value.
+   Measured worst case is 4.136:1 (light). */
 .ibtn[data-state="success"] {
   color: var(--status-good);
 }
