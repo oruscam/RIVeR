@@ -27,7 +27,12 @@ export function CopyBtn({ onClickFunction }: CopyBtnProps) {
   };
   return (
     <div className="row">
-      <button type="button" className={`ib ${isAnimating ? 'active' : ''}`} onClick={handleClick}>
+      <button
+        type="button"
+        className="ibtn"
+        data-state={isAnimating ? 'success' : undefined}
+        onClick={handleClick}
+      >
         <span className={`cl ${isAnimating ? 'hide' : 'show'}`}>{Icons.Copy('currentColor')}</span>
         <span className={`cl ${isAnimating ? 'show cpop' : 'hide'}`}>{Icons.Check('var(--success-color)')}</span>
       </button>
