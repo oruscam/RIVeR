@@ -727,6 +727,22 @@ html {
   color: var(--status-good);
 }
 
+/* The per-shape canvas toolbar. One of exactly two things allowed over footage
+   (spec section 2); the other is the mode-hint pill. Centred at the bottom so it
+   never covers the shape being edited, which is usually mid-frame. */
+.shape-toolbar {
+  position: absolute;
+  bottom: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  background-color: var(--surface-panel);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+}
+
 /* =============================================================================
    CHIP (.chip family)
    Small selectable pill from the design audit, for lists the user picks from —
