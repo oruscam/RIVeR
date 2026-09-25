@@ -562,9 +562,18 @@ html {
    button-with-loader"), so everything .btn already sets - height, border,
    radius, background, colour, font, hover, disabled - is deliberately absent
    here. Adding any of them back would override the primitive this modifies.
+
+   min-width is the exception, and the reason this rule is not empty of sizing.
+   The spinner is a conditionally rendered child (`{running && <span
+   class="loader-little" />}`), so a content-sized loader button changes width
+   the moment it starts working - the button jumps under the cursor that just
+   clicked it. The legacy rule bought stability with `width: 165px`; min-width
+   buys the same stability without the clipping a fixed width causes once a
+   label is translated into a longer locale.
    ============================================================================= */
 
 .button-with-loader {
+  min-width: 165px;
   justify-content: space-around;
   flex-shrink: 0;
 }

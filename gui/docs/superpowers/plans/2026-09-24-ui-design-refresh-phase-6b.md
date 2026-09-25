@@ -681,7 +681,9 @@ In `src/index.css`, replace the whole `.button-with-loader` rule (currently line
 }
 ```
 
-Note what is gone and why: `display: flex` (`.btn` is `inline-flex`), `width: 165px` / `min-height: 50px` (`.btn-lg` sizes it), `background-color` / `color` / `border` / `border-radius` (`.btn-primary` and `.btn` set these), `padding-left`/`padding-right` (`.btn-lg` has `padding: 0 var(--space-6)`), `align-items: center` (`.btn` has it), `font-size: 20px`/`font-weight: 400` on the `p` (`.btn` sets 14/16px 700 and the `p` should inherit), `.button-with-loader:hover`, `.button-with-loader-active` and `.button-with-loader:disabled` (`.btn` handles all three, the last two via `aria-busy` and `:disabled`).
+Note what is gone and why: `display: flex` (`.btn` is `inline-flex`), `min-height: 50px` (`.btn-lg` sizes it), `background-color` / `color` / `border` / `border-radius` (`.btn-primary` and `.btn` set these), `padding-left`/`padding-right` (`.btn-lg` has `padding: 0 var(--space-6)`), `align-items: center` (`.btn` has it), `font-size: 20px`/`font-weight: 400` on the `p` (`.btn` sets 14/16px 700 and the `p` should inherit), `.button-with-loader:hover`, `.button-with-loader-active` and `.button-with-loader:disabled` (`.btn` handles all three, the last two via `aria-busy` and `:disabled`).
+
+**Correction (amendment A8).** This step originally listed `width: 165px` among the properties `.btn-lg` replaces. It does not: `.btn-lg` sets height and horizontal padding, neither of which fixes a width. The spinner is a conditionally rendered child, so a content-sized loader button changes width the instant it starts working — the button jumps under the cursor that just clicked it. The surviving rule therefore keeps `min-width: 165px`, which holds the button stable across the spinner toggle without the clipping a fixed `width` causes once a label is translated into a longer locale. A property `.btn` does not provide is not a duplicate, and "the primitive handles sizing" has to be checked property by property rather than assumed.
 
 - [ ] **Step 3: Check the `button-with-loader-active` class is now unreferenced**
 
