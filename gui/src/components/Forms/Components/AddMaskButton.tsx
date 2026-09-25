@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { useDataSlice } from '../../../hooks';
-import { MaskBtn } from '../../CustomIcons/MaskBtn';
 
 export const AddMaskButton = () => {
   const { t } = useTranslation();
@@ -17,13 +16,17 @@ export const AddMaskButton = () => {
   };
 
   return (
-    <MaskBtn
+    <button
+      type="button"
+      className="chip chip-sm"
       onClick={handleClick}
       title={
         activeMaskIndex !== null
           ? t('CrossSections.exitMaskMode', { defaultValue: 'Exit mask editing' })
           : t('CrossSections.addMask', { defaultValue: 'Add mask' })
       }
-    />
+    >
+      + {t('CrossSections.addMask', { defaultValue: 'Add mask' })}
+    </button>
   );
 };

@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 import { useAutoShrinkFont, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
-import { DropHereText, HardModeCrossSections, MaskList } from './Components/index';
+import { AddMaskButton, DropHereText, HardModeCrossSections, MaskList } from './Components/index';
 import { Bathimetry } from '../Graphs';
 import { FieldError } from '../index';
 import { useTranslation } from 'react-i18next';
@@ -305,6 +305,7 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
 
         <span className="divider-line mt-2 mb-1" />
         <MaskList />
+        <AddMaskButton />
         <span className="divider-line mb-2" />
 
         <HardModeCrossSections extraFields={extraFields} name={name} />
