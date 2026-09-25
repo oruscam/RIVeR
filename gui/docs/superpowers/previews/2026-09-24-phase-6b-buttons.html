@@ -6,9 +6,10 @@
     <!-- Links the real stylesheet rather than copying rules, so this preview
          cannot drift from what ships. -->
     <link rel="stylesheet" href="../../../src/index.css" />
-    <!-- .ib lives here, not in index.css: it is imported per-component through
-         the bundler, so without this link the legacy icon row would render as
-         unstyled browser buttons and the comparison would be misleading. -->
+    <!-- .ib used to live here; Task 10 deleted it (see the inlined
+         .before-legacy rules below). This link stays for .ibtn's neighbours
+         (.cl, the wiggle keyframes) and so the "after" row keeps matching
+         what ships. -->
     <link rel="stylesheet" href="../../../src/components/CustomIcons/piv-icons.css" />
     <style>
       body {
@@ -49,6 +50,130 @@
         margin: 0 0 12px;
         line-height: 1.5;
       }
+
+      /* Task 10 (2026-09-25) deleted .wizard-button(-active), .button-1,
+         .danger-button from src/index.css and .ib, .ib.is-success, .ib:active,
+         .ib.active, .ib-danger, .ib-danger:hover from piv-icons.css — they had
+         zero remaining consumers once Tasks 1-9 migrated every call site. The
+         two <link>s above no longer style the "before" row at all, so its
+         declarations are inlined here (copied verbatim from git history at
+         54df396) purely so this comparison keeps rendering. This is dead CSS
+         kept alive only for this preview; it must never be copied back into a
+         real stylesheet. */
+      .before-legacy .danger-button {
+        min-width: 165px;
+        height: auto;
+        min-height: 50px;
+        background-color: var(--background-error);
+        border: 2px solid;
+        border-radius: 20px;
+        font-size: 18px;
+        font-weight: 400;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: transform 0.1s;
+      }
+      .before-legacy .danger-button:hover {
+        color: var(--inverse-text);
+      }
+      .before-legacy .danger-button:active {
+        transform: translateY(4px);
+      }
+      .before-legacy .button-1 {
+        width: 232px;
+        height: 50px;
+        background-color: var(--background-color);
+        border: 2px solid;
+        border-color: var(--primary-text-color);
+        color: var(--primary-text-color);
+        border-radius: 20px;
+        font-size: 20px;
+        font-weight: 400;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: background-color 0.1s, color 0.1s, transform 0.1s;
+      }
+      .before-legacy .button-1:hover {
+        background-color: var(--primary-text-color);
+        color: var(--background-color);
+      }
+      .before-legacy .button-1:active {
+        background-color: var(--primary-text-color);
+        color: var(--background-color);
+        transform: translateY(4px);
+      }
+      .before-legacy .wizard-button {
+        width: 132px;
+        height: auto;
+        min-height: 50px;
+        background-color: var(--background-color);
+        border: 2px solid;
+        border-color: var(--primary-text-color);
+        color: var(--primary-text-color);
+        border-radius: 20px;
+        font-size: 20px;
+        font-weight: 400;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        transition: background-color 0.1s, color 0.1s, transform 0.1s;
+        cursor: pointer;
+        padding: 3px;
+      }
+      .before-legacy .wizard-button:hover:not(:disabled) {
+        background-color: var(--inverse-bg);
+        color: var(--inverse-text);
+      }
+      .before-legacy .wizard-button:active {
+        background-color: var(--inverse-bg);
+        color: var(--inverse-text);
+        transform: translateY(4px);
+      }
+      .before-legacy .wizard-button-active {
+        background-color: var(--inverse-bg);
+        color: var(--inverse-text);
+        transform: translateY(4px);
+      }
+      .before-legacy .ib {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        border-radius: 8px;
+        border: 2px solid var(--primary-text-color, #fff);
+        background: transparent;
+        cursor: pointer;
+        overflow: hidden;
+        user-select: none;
+        flex-shrink: 0;
+        transition: background-color 0.2s, color 0.2s, transform 0.1s;
+        outline: none;
+        color: var(--primary-text-color, #fff);
+      }
+      .before-legacy .ib.is-success {
+        color: var(--success-color);
+        border-color: var(--success-color);
+        background-color: var(--primary-text-color);
+      }
+      .before-legacy .ib:active {
+        transform: scale(0.92);
+      }
+      .before-legacy .ib.active {
+        background: var(--primary-text-color, #fff);
+        color: var(--secondary-background-color, #000);
+      }
+      .before-legacy .ib-danger {
+        transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.1s;
+      }
+      .before-legacy .ib-danger:hover {
+        background: var(--background-error, #ED6B57);
+        color: #fff;
+        border-color: var(--background-error, #ED6B57);
+      }
     </style>
   </head>
   <body>
@@ -60,7 +185,7 @@
         <h2>${theme}</h2>
 
         <h3>before — legacy (50px tall, 20px font, fixed widths)</h3>
-        <div class="row">
+        <div class="row before-legacy">
           <button class="wizard-button">Draw line</button>
           <button class="wizard-button wizard-button-active">Draw line</button>
           <button class="button-1">New project</button>
@@ -110,7 +235,7 @@
         </div>
 
         <h3>icon buttons — .ib (45px, legacy) then .ibtn (32px) and .ibtn-sm (24px)</h3>
-        <div class="row">
+        <div class="row before-legacy">
           <button class="ib">&#9654;</button>
           <button class="ib active">&#9654;</button>
           <button class="ib ib-danger">&#128465;</button>
