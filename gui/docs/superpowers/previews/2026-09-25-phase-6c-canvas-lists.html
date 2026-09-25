@@ -128,6 +128,39 @@
       .bad {
         border-left-color: var(--status-bad);
       }
+      /* Technique rows: reserved trailing columns so the toggle column aligns
+         across all three rows even though only LSPIV carries export + Median. */
+      .tech-rows {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+      .tech-row {
+        display: grid;
+        grid-template-columns: 12px 1fr 28px 78px 28px;
+        gap: var(--space-2);
+        align-items: center;
+        min-height: 34px;
+        padding: 0 var(--space-2);
+        border-radius: var(--radius-md);
+        background: color-mix(in srgb, var(--text-subdued) 6%, transparent);
+      }
+      .swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      .tech-name {
+        font-size: var(--text-body);
+        font-weight: 600;
+      }
+      .cell {
+        display: flex;
+        justify-content: center;
+      }
+      .cell.median {
+        justify-content: flex-end;
+      }
     </style>
   </head>
   <body>
@@ -258,65 +291,78 @@
 
         <!-- ================= D. PROCESSING / EXPORT ================= -->
         <div class="panel">
-          <h3>Processing — MP4 export leaves the canvas</h3>
+          <h3>Processing — technique rows, toggles aligned</h3>
           <p class="sub">
-            Per decision D5 there will never be video export for STIV or iWave, so the control
-            says so rather than being silently inert. Today it is wrapped in
-            <code>opacity:0.5; pointer-events:none</code>, which explains nothing and also
-            suppresses the tooltip that would.
+            Approved direction: the export icon lives in the LSPIV row, not in an action row of its
+            own. Each technique's name sits in the same row as its toggle. LSPIV's toggle is on by
+            default and cannot be turned off. To the left of the toggle sits Median; to the left of
+            that, export video — both LSPIV-only.
           </p>
-          <p class="group-label">Option A — icon only, in the panel's action row (most discrete)</p>
-          <div class="list-row" style="cursor: default">
-            <span class="row-label" style="color: var(--text-subdued)">Velocity field</span>
-            ${iconBtn('&#11123;', 'Export MP4')}
-          </div>
-          <div class="list-row" style="cursor: default">
-            <span class="row-label" style="color: var(--text-subdued)">Velocity field</span>
-            <button
-              class="ibtn ibtn-sm"
-              aria-disabled="true"
-              title="Video export is available for LSPIV results only"
-            >
-              &#11123;
-            </button>
+
+          <div class="tech-rows">
+            <div class="tech-row">
+              <span class="swatch" style="background: var(--tech-lspiv)"></span>
+              <span class="tech-name" style="color: var(--tech-lspiv)">LSPIV</span>
+              <span class="cell">
+                <button class="ibtn ibtn-sm" title="Export MP4">&#11123;</button>
+              </span>
+              <span class="cell median">
+                <button class="chip chip-sm" aria-pressed="true">Median</button>
+              </span>
+              <span class="cell">
+                <button
+                  class="ibtn ibtn-sm"
+                  aria-pressed="true"
+                  aria-disabled="true"
+                  title="LSPIV is always computed and cannot be turned off"
+                >
+                  &#10003;
+                </button>
+              </span>
+            </div>
+
+            <div class="tech-row">
+              <span class="swatch" style="background: var(--tech-stiv)"></span>
+              <span class="tech-name">STIV</span>
+              <span class="cell"></span>
+              <span class="cell median"></span>
+              <span class="cell">
+                <button class="ibtn ibtn-sm" aria-pressed="true" title="STIV is on">&#10003;</button>
+              </span>
+            </div>
+
+            <div class="tech-row">
+              <span class="swatch" style="background: var(--tech-iwave)"></span>
+              <span class="tech-name">iWave</span>
+              <span class="cell"></span>
+              <span class="cell median"></span>
+              <span class="cell">
+                <button class="ibtn ibtn-sm" title="iWave is off">&#10005;</button>
+              </span>
+            </div>
           </div>
 
-          <p class="group-label">Option B — small text button, tertiary</p>
-          <div class="chip-row">
-            <button class="btn btn-sm btn-tertiary">&#11123; Export MP4</button>
-            <button
-              class="btn btn-sm btn-tertiary"
-              aria-disabled="true"
-              title="Video export is available for LSPIV results only"
-            >
-              &#11123; Export MP4
-            </button>
-          </div>
-
-          <p class="group-label">Option C — what the first draft showed, for comparison</p>
-          <div class="chip-row">
-            <button class="btn btn-secondary">Export MP4</button>
-            <button
-              class="btn btn-secondary"
-              aria-disabled="true"
-              title="Video export is available for LSPIV results only"
-            >
-              Export MP4
-            </button>
-          </div>
           <p class="verdict">
-            Each pair is available / unavailable. My recommendation is <strong>A</strong>: export is
-            an occasional action on a result, not a step in the wizard, and an icon button in the
-            panel keeps it findable without competing with Next. B stays discrete but keeps the word
-            "Export" visible, which is worth it if the icon alone is not obvious. C is too loud for
-            something used once per project.
+            The toggles align because the trailing controls sit in <strong>reserved grid
+            columns</strong>, not in a flex run. STIV and iWave leave the export and Median cells
+            empty rather than closing the gap — with plain flex their toggles would slide left by the
+            width of two controls and the column would not exist. The Median cell is a fixed width
+            for the same reason: a text label's width varies once translated.
+          </p>
+          <p class="verdict bad">
+            Two things this direction fixes that are defects today, not just layout. The whole row is
+            currently the click target, so the Median button needs
+            <code>event.stopPropagation()</code> to avoid also switching the preview — an explicit
+            toggle removes that. And the Results legend's eye control uses a native
+            <code>disabled</code> attribute together with a title explaining why it cannot be
+            toggled, so Chromium suppresses exactly the tooltip that carries the explanation. The
+            LSPIV toggle above is <code>aria-disabled</code> instead — hover it and the reason
+            appears.
           </p>
           <p class="verdict">
-            The second is <code>aria-disabled</code>, not <code>disabled</code>: Chromium sends no
-            pointer events to a natively disabled control, so a real
-            <code>disabled</code> attribute would suppress the very tooltip that carries the
-            explanation. Hover it — the tooltip must appear. It also needs an early-return guard in
-            its click handler, since aria-disabled is advisory only.
+            Scope note: the export's placement is 6c's, but rebuilding these rows is 6d's
+            (Processing preview control). Worth deciding which sub-plan takes it rather than letting
+            it fall between them.
           </p>
         </div>
       `;
