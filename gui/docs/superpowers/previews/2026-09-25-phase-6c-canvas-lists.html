@@ -276,17 +276,35 @@
           </p>
           <div class="rows">
             <div class="list-row" aria-selected="true">
-              <span class="row-label">1 — Region</span>
+              <span class="row-label">Region 1</span>
+              ${iconBtn(pencil, 'Edit region')}
               ${iconBtn(trash, 'Delete region', 'ibtn-danger')}
             </div>
             <div class="list-row">
-              <span class="row-label">2 — Region</span>
+              <span class="row-label">Region 2</span>
+              ${iconBtn(pencil, 'Edit region')}
               ${iconBtn(trash, 'Delete region', 'ibtn-danger')}
             </div>
           </div>
           <div class="chip-row" style="margin-top: 6px">
             <button class="chip chip-sm">+ Add region</button>
           </div>
+          <p class="verdict">
+            A region is editable, exactly as a mask is. They are different objects — a region has no
+            visibility toggle, so it takes edit and delete where a mask takes eye, edit and delete —
+            but "I drew this shape and now I want to adjust it" is the same need, and there is no
+            reason one shape type answers it and the other does not.
+          </p>
+          <p class="verdict">
+            This is why the canvas toolbar above matters rather than being cosmetic: Edit is what
+            puts a region back into point-placing mode, and that mode needs Undo point and Delete to
+            be usable. Today a region gets a single green tick and no way back, so editing one is not
+            merely missing from the list — there is nowhere for it to land.
+          </p>
+          <p class="verdict">
+            Labels follow the mask convention: <code>Region 1</code>, not <code>1 — Region</code>.
+            One numbering style for every user-created object in the app.
+          </p>
         </div>
 
         <!-- ================= D. PROCESSING / EXPORT ================= -->
