@@ -149,7 +149,8 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               />
               <button
                 ref={importBathButtonRef}
-                className={`wizard-button form-button bathimetry-button mt-1 me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
+                className="btn btn-lg btn-secondary form-button bathimetry-button mt-1 me-1"
+                data-complete={!!bathimetry.path}
                 onClick={handleImportBath}
                 disabled={
                   transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
@@ -212,7 +213,8 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               />
               <button
                 ref={importBathButtonRef}
-                className={`wizard-button form-button bathimetry-button me-1 ${bathimetry.path ? 'wizard-button-active' : ''}`}
+                className="btn btn-lg btn-secondary form-button bathimetry-button me-1"
+                data-complete={!!bathimetry.path}
                 onClick={handleImportBath}
                 disabled={
                   transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
