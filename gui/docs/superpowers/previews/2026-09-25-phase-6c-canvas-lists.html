@@ -174,13 +174,13 @@
               ${iconBtn(trash, 'Delete mask', 'ibtn-danger')}
             </div>
             <div class="list-row">
-              <span class="row-label">Mask 2 — a deliberately long name to show truncation</span>
+              <span class="row-label">Mask 2</span>
               ${iconBtn(eye, 'Hide mask')}
               ${iconBtn(pencil, 'Edit mask')}
               ${iconBtn(trash, 'Delete mask', 'ibtn-danger')}
             </div>
             <div class="list-row">
-              <span class="row-label">Mask 3 (hidden)</span>
+              <span class="row-label">Mask 3</span>
               ${iconBtn(eye, 'Show mask', '')}
               ${iconBtn(pencil, 'Edit mask')}
               ${iconBtn(trash, 'Delete mask', 'ibtn-danger')}
@@ -192,6 +192,14 @@
           <p class="verdict">
             The <code>[+] Add mask</code> chip here replaces the floating canvas button, so the
             affordance sits next to the list it adds to.
+          </p>
+          <p class="verdict">
+            Masks are <strong>numbered, never named</strong> — no inline rename, no free-text label.
+            That also settles the question the spec left open in A1: if no row needs a rename, the
+            cross-section row does not either, so nothing in this phase puts a text input inside a
+            row. And a numbered label cannot overflow, so the truncation case drawn in the first
+            draft of this preview simply does not exist. A hidden mask (row 3) is distinguished by
+            the eye control's own state rather than by dimming the label.
           </p>
         </div>
 
@@ -257,7 +265,36 @@
             <code>opacity:0.5; pointer-events:none</code>, which explains nothing and also
             suppresses the tooltip that would.
           </p>
-          <div class="chip-row" style="flex-direction: column; align-items: stretch; gap: 8px">
+          <p class="group-label">Option A — icon only, in the panel's action row (most discrete)</p>
+          <div class="list-row" style="cursor: default">
+            <span class="row-label" style="color: var(--text-subdued)">Velocity field</span>
+            ${iconBtn('&#11123;', 'Export MP4')}
+          </div>
+          <div class="list-row" style="cursor: default">
+            <span class="row-label" style="color: var(--text-subdued)">Velocity field</span>
+            <button
+              class="ibtn ibtn-sm"
+              aria-disabled="true"
+              title="Video export is available for LSPIV results only"
+            >
+              &#11123;
+            </button>
+          </div>
+
+          <p class="group-label">Option B — small text button, tertiary</p>
+          <div class="chip-row">
+            <button class="btn btn-sm btn-tertiary">&#11123; Export MP4</button>
+            <button
+              class="btn btn-sm btn-tertiary"
+              aria-disabled="true"
+              title="Video export is available for LSPIV results only"
+            >
+              &#11123; Export MP4
+            </button>
+          </div>
+
+          <p class="group-label">Option C — what the first draft showed, for comparison</p>
+          <div class="chip-row">
             <button class="btn btn-secondary">Export MP4</button>
             <button
               class="btn btn-secondary"
@@ -267,6 +304,13 @@
               Export MP4
             </button>
           </div>
+          <p class="verdict">
+            Each pair is available / unavailable. My recommendation is <strong>A</strong>: export is
+            an occasional action on a result, not a step in the wizard, and an icon button in the
+            panel keeps it findable without competing with Next. B stays discrete but keeps the word
+            "Export" visible, which is worth it if the icon alone is not obvious. C is too loud for
+            something used once per project.
+          </p>
           <p class="verdict">
             The second is <code>aria-disabled</code>, not <code>disabled</code>: Chromium sends no
             pointer events to a natively disabled control, so a real
