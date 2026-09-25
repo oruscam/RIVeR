@@ -109,13 +109,16 @@ export const TechniqueLegend = () => {
               <button
                 type="button"
                 className="technique-eye-btn"
-                disabled={isActive}
+                aria-disabled={isActive}
                 title={
                   isActive
                     ? t('Results.cantHideActiveTechnique')
                     : t(visible ? 'Results.hideTechnique' : 'Results.showTechnique', { technique: label })
                 }
-                onClick={() => handleToggleVisibility(key)}
+                onClick={() => {
+                  if (isActive) return;
+                  handleToggleVisibility(key);
+                }}
               >
                 {visible ? <LuEye size={15} /> : <LuEyeOff size={15} />}
               </button>

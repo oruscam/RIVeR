@@ -7,6 +7,7 @@ import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
 import { TechniqueRow } from '../TechniqueRow';
 import { FieldError } from '../index';
+import { Icons } from '../CustomIcons/Icons';
 
 export const FormProcessing = ({
   extraFields,
@@ -195,101 +196,132 @@ export const FormProcessing = ({
             <TechniqueRow
               technique="lspiv"
               active={previewMode === 'frames'}
-              className="technique-row-processing"
-              title={t('Processing.showLspivFrames')}
-              onClick={() => previewMode !== 'frames' && setPreviewMode('frames')}
+              className="tech-row technique-row-processing"
             >
-              <h3
+              <button
+                type="button"
                 className="field-title"
+                aria-pressed={previewMode === 'frames'}
+                title={t('Processing.showLspivFrames')}
+                onClick={() => previewMode !== 'frames' && setPreviewMode('frames')}
                 style={previewMode === 'frames' ? { color: 'var(--tech-lspiv)' } : undefined}
               >
                 LSPIV
-              </h3>
+              </button>
+              <span className="tech-cell" />
               <button
                 type="button"
                 className={`technique-seed-flag${showMedian ? ' technique-seed-flag-seeded' : ''}${
                   canToggleMedian ? '' : ' technique-flag-off'
                 }`}
                 title={t('Processing.medianHint')}
-                onClick={(event) => {
-                  event.stopPropagation();
+                onClick={() => {
                   if (canToggleMedian) setShowMedian(!showMedian);
                 }}
               >
                 {t('Processing.carouselMedia')}
               </button>
+              <button
+                type="button"
+                className="ibtn ibtn-sm"
+                aria-pressed="true"
+                aria-disabled="true"
+                title={t('Processing.lspivAlwaysOn', { defaultValue: "LSPIV can't be turned off" })}
+                onClick={() => {
+                  // LSPIV can never be turned off (D9) — permanently pressed/disabled above,
+                  // this guard keeps that contract even if the attribute is ever bypassed.
+                  return;
+                }}
+              >
+                {Icons.Check('currentColor')}
+              </button>
             </TechniqueRow>
             <TechniqueRow
               technique="stiv"
               active={previewMode === 'sti'}
-              className={`technique-row-processing${canToggleSti ? '' : ' technique-row-processing-disabled'}${
-                stivAvailable ? '' : ' technique-row-processing-unavailable'
-              }`}
-              title={
-                !stivAvailable
-                  ? t('Processing.stivWeightsMissing')
-                  : canToggleSti
-                    ? t('Processing.showStivStis')
-                    : t('Processing.noStisYet')
-              }
-              onClick={() => canToggleSti && previewMode !== 'sti' && setPreviewMode('sti')}
+              className={`tech-row technique-row-processing${
+                canToggleSti ? '' : ' technique-row-processing-disabled'
+              }${stivAvailable ? '' : ' technique-row-processing-unavailable'}`}
             >
-              <h3
-                className="field-title"
-                style={previewMode === 'sti' ? { color: 'var(--tech-stiv)' } : undefined}
-              >
-                STIV
-              </h3>
-              {hasAnyStivOverride && (
+              <span className="tech-name-cell">
                 <button
                   type="button"
-                  className="sti-angle-reset"
-                  title={t('Processing.stiAngleResetAllTitle')}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    resetAllStivAngles();
-                    onShowToast(
-                      t('Processing.stiAngleResetAllToast', {
-                        defaultValue: 'Angles reset for {{section}}',
-                        section: name,
-                      })
-                    );
-                  }}
+                  className="field-title"
+                  aria-pressed={previewMode === 'sti'}
+                  title={
+                    !stivAvailable
+                      ? t('Processing.stivWeightsMissing')
+                      : canToggleSti
+                        ? t('Processing.showStivStis')
+                        : t('Processing.noStisYet')
+                  }
+                  onClick={() => canToggleSti && previewMode !== 'sti' && setPreviewMode('sti')}
+                  style={previewMode === 'sti' ? { color: 'var(--tech-stiv)' } : undefined}
                 >
-                  {t('Processing.stiAngleResetAll')}
+                  STIV
                 </button>
-              )}
-              <label className="switch" onClick={(event) => event.stopPropagation()}>
-                <input
-                  type="checkbox"
-                  checked={stiv && stivAvailable}
-                  disabled={!stivAvailable}
-                  onChange={(event) => onUpdateProcessing({ stiv: event.currentTarget.checked })}
-                />
-                <span className="slider"></span>
-              </label>
+                {hasAnyStivOverride && (
+                  <button
+                    type="button"
+                    className="sti-angle-reset"
+                    title={t('Processing.stiAngleResetAllTitle')}
+                    onClick={() => {
+                      resetAllStivAngles();
+                      onShowToast(
+                        t('Processing.stiAngleResetAllToast', {
+                          defaultValue: 'Angles reset for {{section}}',
+                          section: name,
+                        })
+                      );
+                    }}
+                  >
+                    {t('Processing.stiAngleResetAll')}
+                  </button>
+                )}
+              </span>
+              <span className="tech-cell" />
+              <span className="tech-cell" />
+              <button
+                type="button"
+                className="ibtn ibtn-sm"
+                aria-pressed={stiv && stivAvailable}
+                aria-disabled={!stivAvailable}
+                title={!stivAvailable ? t('Processing.stivWeightsMissing') : undefined}
+                onClick={() => {
+                  if (!stivAvailable) return;
+                  onUpdateProcessing({ stiv: !stiv });
+                }}
+              >
+                {Icons.Check('currentColor')}
+              </button>
             </TechniqueRow>
             <TechniqueRow
               technique="iwave"
               active={previewMode === 'iwave'}
-              className={`technique-row-processing${canToggleIwave ? '' : ' technique-row-processing-disabled'}`}
-              title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
-              onClick={() => canToggleIwave && previewMode !== 'iwave' && setPreviewMode('iwave')}
+              className={`tech-row technique-row-processing${
+                canToggleIwave ? '' : ' technique-row-processing-disabled'
+              }`}
             >
-              <h3
+              <button
+                type="button"
                 className="field-title"
+                aria-pressed={previewMode === 'iwave'}
+                title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
+                onClick={() => canToggleIwave && previewMode !== 'iwave' && setPreviewMode('iwave')}
                 style={previewMode === 'iwave' ? { color: 'var(--tech-iwave)' } : undefined}
               >
                 iWave
-              </h3>
-              <label className="switch" onClick={(event) => event.stopPropagation()}>
-                <input
-                  type="checkbox"
-                  checked={iwave}
-                  onChange={(event) => onUpdateProcessing({ iwave: event.currentTarget.checked })}
-                />
-                <span className="slider"></span>
-              </label>
+              </button>
+              <span className="tech-cell" />
+              <span className="tech-cell" />
+              <button
+                type="button"
+                className="ibtn ibtn-sm"
+                aria-pressed={iwave}
+                onClick={() => onUpdateProcessing({ iwave: !iwave })}
+              >
+                {Icons.Check('currentColor')}
+              </button>
             </TechniqueRow>
 
             <span className="divider-line mt-2 mb-1" />
