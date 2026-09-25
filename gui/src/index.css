@@ -676,6 +676,29 @@ html {
   animation: wiggle 0.48s ease both;
 }
 
+/* The one motion opt-out in the codebase, added with the one animation this
+   phase re-introduces. A wiggle is decorative — it repeats the meaning the red
+   fill already carries — so honouring the OS setting costs nothing and removing
+   it costs a user with vestibular sensitivity a lurch on every hover over a
+   delete button.
+
+   Scoped to this animation on purpose. The app's transitions and :active
+   transforms are also unguarded, but sweeping those is a change to every
+   interactive surface, which belongs to a sub-plan that can verify it rather
+   than to a CSS deletion pass. Recorded as branch debt. */
+@media (prefers-reduced-motion: reduce) {
+  /* The selector repeats the trigger's guards verbatim, for two reasons. A media
+     query adds no specificity, so the short `.ibtn-danger:hover .cl` this was
+     first written as would have lost to the (0,6,0) rule above and silently done
+     nothing. And the family sweep in buttonAndFieldTokens.test.ts requires every
+     hover rule here to exclude [aria-disabled] — it flagged the short form,
+     which was harmless in this one case but is the check earning its keep, so
+     the rule matches the contract rather than the contract bending to the rule. */
+  .ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-busy="true"], [data-state="success"]) .cl {
+    animation: none;
+  }
+}
+
 /* Replaces .ib.is-success. Icon-only, so WCAG 1.4.11 non-text applies: gated at
    3.0 like the other non-text pairs in this phase, not at the measured value.
    Measured worst case is 4.136:1 (light). */

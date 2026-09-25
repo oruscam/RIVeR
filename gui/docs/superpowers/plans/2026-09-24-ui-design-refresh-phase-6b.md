@@ -1014,7 +1014,9 @@ Run: `npm run lint` → expect `20 problems`.
 
 - [ ] **Step 5: Confirm the deletions by grep**
 
-Run: `grep -rn "wizard-button\|button-1\|danger-button\|\.ib[ ,:.{]" src --include="*.css" | wc -l` → expect **0**.
+Run: `grep -rnE "^\s*\.(wizard-button|button-1|danger-button|ib)([ ,:.{]|$)" src --include="*.css" | wc -l` → expect **0**.
+
+**Correction (amendment A9).** This check was originally written as `grep -rn "wizard-button\|button-1\|danger-button\|\.ib[ ,:.{]" src --include="*.css"` expecting 0, and it returns 4 even when the deletion is complete and correct: all four matches are comment prose naming the classes that were removed (`.button-1, .wizard-button(-active) and .danger-button were the legacy equivalents`). A verification grep that a correct implementation fails is worse than no grep — it invites an implementer to either stop and ask or, far worse, delete the explanatory comments to make the number reach zero. The anchored form above matches only a selector at the start of a line, which is what the check was always trying to assert.
 
 - [ ] **Step 6: Commit**
 
