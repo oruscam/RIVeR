@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectSlice, useUiSlice } from '../../../hooks';
-import { EditMaskBtn } from '../../CustomIcons/EditMaskBtn';
-import { TrashBtn } from '../../CustomIcons/TrashBtn';
-import { MaskBtn } from '../../CustomIcons/MaskBtn';
+import { RegionList } from './RegionList';
 
 export const StabilizationRegions = () => {
   const { t } = useTranslation();
@@ -62,31 +60,13 @@ export const StabilizationRegions = () => {
       </div>
 
       {stabilization && (
-        <>
-          {stabilizationRegions.map((_region, index) => (
-            <div key={index} className="switch-container mt-1">
-              <h3 className="field-title">
-                {t('VideoRange.stabilizationRegion', { defaultValue: 'Region' })} {index + 1}
-              </h3>
-              <div className="mask-actions">
-                <EditMaskBtn
-                  action={handleEditClick}
-                  active={stabilizationActiveRegionIndex === index}
-                  index={index}
-                />
-                <TrashBtn onClickFunction={() => onDeleteStabilizationRegion(index)} />
-              </div>
-            </div>
-          ))}
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-            <MaskBtn
-              onClick={handleAddClick}
-              disabled={stabilizationActiveRegionIndex !== null}
-              title={t('VideoRange.addRegion', { defaultValue: 'Add region' })}
-            />
-          </div>
-        </>
+        <RegionList
+          regions={stabilizationRegions}
+          activeRegionIndex={stabilizationActiveRegionIndex}
+          onEdit={handleEditClick}
+          onDelete={onDeleteStabilizationRegion}
+          onAdd={handleAddClick}
+        />
       )}
     </div>
   );

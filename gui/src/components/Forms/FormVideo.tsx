@@ -223,8 +223,10 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
         <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
         {extraFields && <FramesResolution />}
         {extraFields && <LensCorrection />}
-        {/* Stabilization only makes sense for UAV footage — oblique/ipcam cameras are fixed. */}
-        {extraFields && type === 'uav' && <StabilizationRegions />}
+        {/* Stabilization only makes sense for UAV footage — oblique/ipcam cameras are fixed.
+            Not gated on extraFields/Advanced: regions must stay visible whenever stabilization
+            is on, and the on/off switch itself must always be reachable to turn it on. */}
+        {type === 'uav' && <StabilizationRegions />}
       </form>
     </div>
   );

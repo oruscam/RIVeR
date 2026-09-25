@@ -14,6 +14,7 @@ export const VideoRange = () => {
     type,
     stabilizationActiveRegionIndex,
     onUpdateStabilizationRegion,
+    onDeleteStabilizationRegion,
     onSetStabilizationActiveRegionIndex,
     onToggleVideoExtraFields,
   } = useProjectSlice();
@@ -36,6 +37,10 @@ export const VideoRange = () => {
             activeRegionIndex={stabilizationActiveRegionIndex}
             onUpdateRegion={onUpdateStabilizationRegion}
             onConfirm={() => onSetStabilizationActiveRegionIndex(null)}
+            onDelete={() => {
+              if (stabilizationActiveRegionIndex !== null)
+                onDeleteStabilizationRegion(stabilizationActiveRegionIndex);
+            }}
             zoomScale={scale}
           />
         )

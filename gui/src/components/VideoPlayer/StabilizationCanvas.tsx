@@ -1,55 +1,14 @@
 import { useRef, useState, useCallback, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StabilizationRegion } from '../../store/project/types';
-import { ConfirmMaskBtn } from '../CustomIcons/ConfirmMaskBtn';
+import { ShapeToolbar } from '../ShapeToolbar';
 
 const INACTIVE_COLOR = 'var(--pin-muted)';
 const HANDLE_RADIUS = 7;
 const HANDLE_HOVER_RADIUS = 11;
 const LABEL_OFFSET = 14;
-const CONFIRM_BTN_MARGIN_PX = 32;
-const CONFIRM_BTN_HALF_SIZE_PX = 20;
 
 type Handle = 'tl' | 'tr' | 'bl' | 'br' | 'body';
-
-// Picks a spot for the confirm button around the region (right/left/bottom/top,
-// in that order of preference) that keeps it fully inside the visible video
-// frame, same approach used for the mask confirm button in ImageCrossSections.
-function computeRegionConfirmBtnPos(
-  region: StabilizationRegion,
-  videoWidth: number,
-  videoHeight: number,
-  scaleX: number,
-  scaleY: number
-): { x: number; y: number } {
-  const marginX = CONFIRM_BTN_MARGIN_PX * scaleX;
-  const marginY = CONFIRM_BTN_MARGIN_PX * scaleY;
-  const halfW = CONFIRM_BTN_HALF_SIZE_PX * scaleX;
-  const halfH = CONFIRM_BTN_HALF_SIZE_PX * scaleY;
-
-  const centerX = region.x + region.width / 2;
-  const centerY = region.y + region.height / 2;
-
-  const candidates = [
-    { x: region.x + region.width + marginX, y: centerY }, // right
-    { x: region.x - marginX, y: centerY }, // left
-    { x: centerX, y: region.y + region.height + marginY }, // bottom
-    { x: centerX, y: region.y - marginY }, // top
-  ];
-
-  const inBounds = (c: { x: number; y: number }) =>
-    c.x - halfW >= 0 && c.x + halfW <= videoWidth && c.y - halfH >= 0 && c.y + halfH <= videoHeight;
-
-  const valid = candidates.find(inBounds);
-  if (valid) return valid;
-
-  // Fallback: clamp the preferred (right) candidate directly into bounds
-  const fallback = candidates[0];
-  return {
-    x: Math.min(Math.max(fallback.x, halfW), videoWidth - halfW),
-    y: Math.min(Math.max(fallback.y, halfH), videoHeight - halfH),
-  };
-}
 
 /** Small circular number chip at a region's top-left corner. */
 const RegionBadge = ({
@@ -174,7 +133,11 @@ interface Props {
   activeRegionIndex: number | null;
   onUpdateRegion: (index: number, region: StabilizationRegion) => void;
   onConfirm: () => void;
-  /** Current video zoom scale — used to counter-scale the confirm button so
+  /** Deletes the active region. Only called while a region is being edited,
+   *  so the caller can resolve it against the same activeRegionIndex it hands
+   *  us as a prop. */
+  onDelete: () => void;
+  /** Current video zoom scale — used to counter-scale the shape toolbar so
    *  it keeps a constant on-screen size, same as the mask confirm button. */
   zoomScale: number;
 }
@@ -187,6 +150,7 @@ export const StabilizationCanvas = ({
   zoomScale,
   onUpdateRegion,
   onConfirm,
+  onDelete,
 }: Props) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
@@ -290,14 +254,16 @@ export const StabilizationCanvas = ({
   const scaleY = rect && rect.height > 0 ? videoHeight / rect.height : 1;
   const size = (px: number) => px * ((scaleX + scaleY) / 2);
 
-  let confirmBtnLeft = '0';
-  let confirmBtnTop = '0';
-
-  if (activeRegion) {
-    const btnPos = computeRegionConfirmBtnPos(activeRegion, videoWidth, videoHeight, scaleX, scaleY);
-    confirmBtnLeft = `${(btnPos.x / videoWidth) * 100}%`;
-    confirmBtnTop = `${(btnPos.y / videoHeight) * 100}%`;
-  }
+  // Stabilization regions have no point history to undo — unlike a mask's
+  // polygon, a region is a plain {x,y,width,height} rect edited by dragging
+  // its corners/body, so there is nothing here for "undo last point" to act
+  // on. The button stays for toolbar parity with masks (ShapeToolbar is
+  // shared), but canUndo is permanently false; the guard below is what
+  // actually keeps a click inert, since aria-disabled is advisory only.
+  const canUndoRegion = false;
+  const handleUndoRegion = () => {
+    if (!canUndoRegion) return;
+  };
 
   return (
     <>
@@ -402,19 +368,31 @@ export const StabilizationCanvas = ({
       </svg>
 
       {activeRegion && (
+        // A full-canvas wrapper, not a small one positioned near the region: .shape-toolbar
+        // already centers itself at the bottom via its own CSS (position:absolute; left:50%;
+        // bottom:...), which needs its containing block to be the actual video box. Scaling
+        // this wrapper around its bottom-center origin counteracts the video's own zoom scale
+        // (applied by an ancestor) so the toolbar keeps a constant on-screen size at any zoom
+        // level, same idea as the mask confirm button used before it. pointer-events:none keeps
+        // this empty full-size layer from swallowing drags on the region beneath it — .shape-toolbar
+        // opts itself back in with pointer-events:auto.
         <div
           style={{
             position: 'absolute',
-            left: confirmBtnLeft,
-            top: confirmBtnTop,
-            // Counteract the video's own zoom scale (applied by an ancestor)
-            // so the button stays the same on-screen size at any zoom level.
-            transform: `translate(-50%, -50%) scale(${1 / zoomScale})`,
-            zIndex: 10,
+            inset: 0,
+            transform: `scale(${1 / zoomScale})`,
+            transformOrigin: 'center bottom',
+            pointerEvents: 'none',
           }}
           onMouseDown={(e) => e.stopPropagation()}
         >
-          <ConfirmMaskBtn onClick={onConfirm} title="Confirm region" style={{ background: accentColor }} />
+          <ShapeToolbar
+            onUndo={handleUndoRegion}
+            onDelete={onDelete}
+            onDone={onConfirm}
+            canUndo={canUndoRegion}
+            kind="region"
+          />
         </div>
       )}
     </>
