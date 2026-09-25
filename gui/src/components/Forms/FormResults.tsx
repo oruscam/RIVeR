@@ -80,6 +80,13 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
     }
   };
 
+  // Declared above the handler that closes over it, not below. aria-disabled is
+  // advisory only, so this guard is the one thing actually stopping the click —
+  // it and the attribute have to read the same expression, and a const the
+  // handler references from further down the body only works because a click
+  // cannot land before render finishes. That is a refactor away from a TDZ crash.
+  const hasGaps = effective?.hasGaps ?? false;
+
   const handleInterpolateToggle = () => {
     if (!hasGaps) return;
     onUpdateSection({ interpolated: 'interpolated' }, undefined);
@@ -87,7 +94,6 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
 
   const activeTechniqueLabel =
     activeTechnique === 'lspiv' ? 'LSPIV' : activeTechnique === 'stiv' ? 'STIV' : 'iWave';
-  const hasGaps = effective?.hasGaps ?? false;
 
   return (
     <div id="form-section-div" className={activeSection !== index ? 'hidden' : 'wrapper'}>
