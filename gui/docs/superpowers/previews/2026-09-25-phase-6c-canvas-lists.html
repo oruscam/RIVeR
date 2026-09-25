@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Phase 6c — canvas chrome &amp; lists, three themes</title>
+    <!-- The real stylesheets, not copies, so this preview cannot drift from what
+         ships. components.css carries .media-container and the panel chrome that
+         6c's lists actually sit inside. -->
+    <link rel="stylesheet" href="../../../src/index.css" />
+    <link rel="stylesheet" href="../../../src/components/components.css" />
+    <link rel="stylesheet" href="../../../src/components/CustomIcons/piv-icons.css" />
+    <style>
+      /* Preview scaffolding only. Everything inside a .panel uses real classes —
+         the 6b preview showed primitives without their layout co-classes, and so
+         could not have surfaced either geometry defect the final review found.
+         Here the rows and chips sit in a real panel box at a realistic width. */
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .pane {
+        background: var(--surface-frame);
+        color: var(--text-primary);
+        padding: 20px;
+        min-height: 100vh;
+        border-right: 1px solid var(--border-color);
+      }
+      .theme-name {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-subdued);
+        margin: 0 0 16px;
+      }
+      .panel {
+        background: var(--surface-panel);
+        border-radius: var(--radius-lg);
+        padding: 14px;
+        margin-bottom: 18px;
+      }
+      .panel h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .sub {
+        font-size: 11px;
+        color: var(--text-subdued);
+        margin: 0 0 10px;
+        line-height: 1.5;
+      }
+      .group-label {
+        font-size: 11px;
+        color: var(--text-subdued);
+        margin: 12px 0 6px;
+      }
+      .chip-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .rows {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .row-label {
+        flex: 1 1 auto;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      /* Stand-in for the image canvas, at roughly the real aspect ratio. */
+      .canvas {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        background:
+          repeating-linear-gradient(
+            45deg,
+            color-mix(in srgb, var(--text-subdued) 8%, transparent) 0 6px,
+            transparent 6px 12px
+          ),
+          var(--surface-field);
+        border-radius: var(--radius-md);
+        display: grid;
+        place-items: center;
+        font-size: 11px;
+        color: var(--text-subdued);
+      }
+      .floating-demo {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+      }
+      .shape-toolbar {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 4px;
+        padding: 4px;
+        border-radius: var(--radius-full);
+        background: var(--surface-panel);
+        box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+      }
+      .mode-pill {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: var(--radius-full);
+        background: var(--surface-panel);
+        color: var(--text-subdued);
+      }
+      .verdict {
+        font-size: 11px;
+        border-left: 2px solid var(--accent-color);
+        padding-left: 8px;
+        margin: 10px 0 0;
+        color: var(--text-subdued);
+        line-height: 1.5;
+      }
+      .bad {
+        border-left-color: var(--status-bad);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="pane" data-theme="dark"></div>
+    <div class="pane" data-theme="light"></div>
+    <div class="pane" data-theme="dracula"></div>
+    <script>
+      const eye = '&#128065;';
+      const pencil = '&#9998;';
+      const trash = '&#128465;';
+      const undo = '&#8630;';
+      const tick = '&#10003;';
+
+      const iconBtn = (glyph, title, extra = '') =>
+        `<button class="ibtn ibtn-sm ${extra}" title="${title}">${glyph}</button>`;
+
+      const body = (theme) => `
+        <p class="theme-name">${theme}</p>
+
+        <!-- ================= A. CROSS SECTIONS ================= -->
+        <div class="panel">
+          <h3>Cross Sections — sections as chips, masks as rows</h3>
+          <p class="sub">
+            Sections are single-choice with no per-row controls, so they are chips (spec A1).
+            Masks carry eye / edit / delete, so they are list rows. The mask list is no longer
+            behind Advanced settings: today MaskCreation renders inside HardModeCrossSections,
+            so drawing a mask and then not being able to see it is the default experience.
+          </p>
+
+          <p class="group-label">Sections</p>
+          <div class="chip-row">
+            <button class="chip" aria-selected="true">Section 1</button>
+            <button class="chip">Section 2</button>
+            <button class="chip">Section 3</button>
+            <button class="chip">+ Add section</button>
+          </div>
+
+          <p class="group-label">Masks</p>
+          <div class="rows">
+            <div class="list-row" aria-selected="true">
+              <span class="row-label">Mask 1</span>
+              ${iconBtn(eye, 'Hide mask')}
+              ${iconBtn(pencil, 'Edit mask')}
+              ${iconBtn(trash, 'Delete mask', 'ibtn-danger')}
+            </div>
+            <div class="list-row">
+              <span class="row-label">Mask 2 — a deliberately long name to show truncation</span>
+              ${iconBtn(eye, 'Hide mask')}
+              ${iconBtn(pencil, 'Edit mask')}
+              ${iconBtn(trash, 'Delete mask', 'ibtn-danger')}
+            </div>
+            <div class="list-row">
+              <span class="row-label">Mask 3 (hidden)</span>
+              ${iconBtn(eye, 'Show mask', '')}
+              ${iconBtn(pencil, 'Edit mask')}
+              ${iconBtn(trash, 'Delete mask', 'ibtn-danger')}
+            </div>
+          </div>
+          <div class="chip-row" style="margin-top: 6px">
+            <button class="chip chip-sm">+ Add mask</button>
+          </div>
+          <p class="verdict">
+            The <code>[+] Add mask</code> chip here replaces the floating canvas button, so the
+            affordance sits next to the list it adds to.
+          </p>
+        </div>
+
+        <!-- ================= B. THE CANVAS ITSELF ================= -->
+        <div class="panel">
+          <h3>The canvas — before</h3>
+          <div class="canvas">
+            <span>image canvas</span>
+            <div class="floating-demo">${iconBtn(pencil, 'Add mask')}</div>
+          </div>
+          <p class="verdict bad">
+            Today: an inline <code>position:absolute; top:12px; right:12px</code> wrapper at
+            CrossSections.tsx:68 floats the add-mask control over the footage, and Processing.tsx:152
+            does the same for the MP4 export at <code>z-index:1000</code>. The spec attributes the
+            first to AddMaskButton.tsx; it is actually at the call site.
+          </p>
+
+          <h3 style="margin-top: 14px">The canvas — after</h3>
+          <div class="canvas">
+            <span>image canvas</span>
+            <div class="mode-pill">Click to place a point</div>
+            <div class="shape-toolbar">
+              ${iconBtn(undo, 'Undo point')}
+              ${iconBtn(trash, 'Delete region', 'ibtn-danger')}
+              ${iconBtn(tick, 'Done')}
+            </div>
+          </div>
+          <p class="verdict">
+            Only two things may sit over footage: the mode-hint pill and the per-shape toolbar.
+            Regions get the same Done / Undo point / Delete toolbar masks already have — today
+            StabilizationCanvas.tsx:417 gives them one green tick and no way to undo a point.
+          </p>
+        </div>
+
+        <!-- ================= C. VIDEO RANGE ================= -->
+        <div class="panel">
+          <h3>Video Range — numbered stabilisation regions</h3>
+          <p class="sub">
+            Leaves the <code>extraFields &amp;&amp;</code> gate at FormVideo.tsx:227 and stays
+            visible whenever stabilisation is on.
+          </p>
+          <div class="rows">
+            <div class="list-row" aria-selected="true">
+              <span class="row-label">1 — Region</span>
+              ${iconBtn(trash, 'Delete region', 'ibtn-danger')}
+            </div>
+            <div class="list-row">
+              <span class="row-label">2 — Region</span>
+              ${iconBtn(trash, 'Delete region', 'ibtn-danger')}
+            </div>
+          </div>
+          <div class="chip-row" style="margin-top: 6px">
+            <button class="chip chip-sm">+ Add region</button>
+          </div>
+        </div>
+
+        <!-- ================= D. PROCESSING / EXPORT ================= -->
+        <div class="panel">
+          <h3>Processing — MP4 export leaves the canvas</h3>
+          <p class="sub">
+            Per decision D5 there will never be video export for STIV or iWave, so the control
+            says so rather than being silently inert. Today it is wrapped in
+            <code>opacity:0.5; pointer-events:none</code>, which explains nothing and also
+            suppresses the tooltip that would.
+          </p>
+          <div class="chip-row" style="flex-direction: column; align-items: stretch; gap: 8px">
+            <button class="btn btn-secondary">Export MP4</button>
+            <button
+              class="btn btn-secondary"
+              aria-disabled="true"
+              title="Video export is available for LSPIV results only"
+            >
+              Export MP4
+            </button>
+          </div>
+          <p class="verdict">
+            The second is <code>aria-disabled</code>, not <code>disabled</code>: Chromium sends no
+            pointer events to a natively disabled control, so a real
+            <code>disabled</code> attribute would suppress the very tooltip that carries the
+            explanation. Hover it — the tooltip must appear. It also needs an early-return guard in
+            its click handler, since aria-disabled is advisory only.
+          </p>
+        </div>
+      `;
+      document.querySelectorAll('.pane').forEach((pane) => {
+        pane.innerHTML = body(pane.dataset.theme);
+      });
+    </script>
+  </body>
+</html>
