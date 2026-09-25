@@ -199,7 +199,8 @@ export const Carousel: React.FC<CarouselProps> = ({
         {activeStep === MODULE_NUMBER.PIXEL_SIZE && canToggleMedian && (
           <button
             ref={stabilizationButtonRef}
-            className={`wizard-button button-rectification ${showMedian ? 'wizard-button-active' : ''}`}
+            className="btn btn-lg btn-secondary button-rectification"
+            aria-pressed={showMedian}
             onClick={() => setShowMedian!(!showMedian)}
           >
             {' '}

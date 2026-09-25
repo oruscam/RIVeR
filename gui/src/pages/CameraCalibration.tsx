@@ -596,9 +596,13 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
               <div className="cal-resize-handle" onMouseDown={onCalResizeDrag} />
 
               {status === 'solved' && (
+                /* Two mutually exclusive view modes: 6e converts this pair to 6a's .seg
+                    segmented control as part of the calibration re-layout. Kept as two
+                    aria-pressed buttons here so 6b's sweep guard holds. */
                 <div className="cal-view-controls">
                   <button
-                    className={`wizard-button${viewMode !== 'heatmap' ? ' wizard-button-active' : ''}`}
+                    className="btn btn-lg btn-secondary"
+                    aria-pressed={viewMode !== 'heatmap'}
                     onClick={() => setViewMode(viewMode === 'overlay' ? 'undistorted' : 'overlay')}
                   >
                     {viewMode === 'undistorted' ? t('Calibration.undistorted') : t('Calibration.overlay')}
@@ -606,7 +610,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
                   {heatmapBase64 && (
                     <button
                       ref={heatmapButtonRef}
-                      className={`wizard-button${viewMode === 'heatmap' ? ' wizard-button-active' : ''}`}
+                      className="btn btn-lg btn-secondary"
+                      aria-pressed={viewMode === 'heatmap'}
                       onClick={() => setViewMode(viewMode === 'heatmap' ? 'overlay' : 'heatmap')}
                     >
                       {t('Calibration.heatmap')}

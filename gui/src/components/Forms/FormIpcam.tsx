@@ -95,7 +95,8 @@ export const FormIpcam = () => {
           <div className="input-container-2 mt-1">
             <button
               ref={directSolveButtonRef}
-              className={`wizard-button me-1 button-rectification ${cameraSolution === null ? 'mb-2' : ''} ${cameraSolution?.mode === 'direct-solve' || mode === 'direct-solve' ? 'wizard-button-active' : ''}`}
+              className={`btn btn-lg btn-secondary me-1 button-rectification ${cameraSolution === null ? 'mb-2' : ''}`}
+              aria-pressed={cameraSolution?.mode === 'direct-solve' || mode === 'direct-solve'}
               id="direct-solve"
               type="button"
               onClick={handleOnClickAction}
@@ -105,7 +106,8 @@ export const FormIpcam = () => {
             </button>
             <button
               ref={optimizeSolutionButtonRef}
-              className={`wizard-button button-rectification ${cameraSolution === null ? 'mb-2' : ''} ${cameraSolution?.mode === 'optimize-solution' || mode === 'optimize-solution' ? 'wizard-button-active' : ''}`}
+              className={`btn btn-lg btn-secondary button-rectification ${cameraSolution === null ? 'mb-2' : ''}`}
+              aria-pressed={cameraSolution?.mode === 'optimize-solution' || mode === 'optimize-solution'}
               id="optimize-solution"
               type="button"
               onClick={handleOnClickAction}

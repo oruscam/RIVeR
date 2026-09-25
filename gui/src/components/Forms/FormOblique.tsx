@@ -72,7 +72,8 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
           <div className="input-container-2">
             <button
               ref={drawPointsButtonRef}
-              className={`wizard-button form-button me-1 ${drawPoints ? 'wizard-button-active' : ''}`}
+              className="btn btn-lg btn-secondary form-button me-1"
+              aria-pressed={drawPoints}
               id="draw-coordinates"
               type="button"
               onClick={onSetDrawPoints}
