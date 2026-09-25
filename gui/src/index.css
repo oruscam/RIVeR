@@ -729,7 +729,12 @@ html {
 
 /* The per-shape canvas toolbar. One of exactly two things allowed over footage
    (spec section 2); the other is the mode-hint pill. Centred at the bottom so it
-   never covers the shape being edited, which is usually mid-frame. */
+   never covers the shape being edited, which is usually mid-frame.
+   pointer-events: auto is explicit, not the default no-op it looks like: a
+   zoomable canvas (StabilizationCanvas) wraps this in a full-size
+   pointer-events: none layer to counter-scale it against zoom without
+   swallowing drags elsewhere on the canvas, and inherited none would make the
+   toolbar itself unclickable without this override. */
 .shape-toolbar {
   position: absolute;
   bottom: var(--space-3);
@@ -741,6 +746,7 @@ html {
   border-radius: var(--radius-full);
   background-color: var(--surface-panel);
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+  pointer-events: auto;
 }
 
 /* =============================================================================
