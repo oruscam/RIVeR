@@ -26,9 +26,9 @@ interface TechniqueRowProps extends Omit<HTMLAttributes<HTMLDivElement>, 'classN
  * both Results (TechniqueLegend) and Processing (FormProcessing). Owns the
  * row container, the active/hidden state classes, and the colour+shape
  * swatch. Deliberately does NOT own any interaction (no onClick/role/tabIndex
- * of its own) — the two screens' selection models differ (Results: the name
- * is the clickable control; Processing: the whole row is) and each supplies
- * its own via `children` and forwarded div props (onClick, title, ...rest).
+ * of its own) — both screens now share the same selection model (the name is
+ * the clickable control, not the row) and each supplies its own trailing
+ * controls via `children` and forwarded div props (title, ...rest).
  */
 export const TechniqueRow = ({
   technique,

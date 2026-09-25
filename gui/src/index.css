@@ -979,6 +979,30 @@ html {
 }
 
 /* =============================================================================
+   TECHNIQUE ROW GRID — Processing screen only. Overrides the shared flex
+   .technique-row shell (components.css) for the rows that also carry this
+   class; TechniqueLegend's Results rows never carry it and stay flex. Relies
+   on index.css loading after components.css (via TechniqueRow.tsx's own
+   `import './components.css'`), the same cascade every other primitive here
+   (.chip, .list-row, .ibtn) already depends on.
+   ============================================================================= */
+
+/* Reserved trailing columns, not a flex run. Only LSPIV carries Median and the
+   MP4 export, so in a flex row STIV's and iWave's toggles would slide left by
+   the width of two controls and the aligned toggle column the design requires
+   would not exist. The Median cell is a fixed width for the same reason: a text
+   label's width changes once translated, and this app ships 12 locales. */
+.tech-row {
+  display: grid;
+  grid-template-columns: 12px 1fr 28px 78px 28px;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: 34px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+}
+
+/* =============================================================================
    FORM INPUTS
    ============================================================================= */
 

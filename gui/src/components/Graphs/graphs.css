@@ -235,12 +235,16 @@ svg .bar-stroke-themed {
     flex-shrink: 0;
 }
 
-.technique-eye-btn:hover:not(:disabled) {
+.technique-eye-btn:hover:not(:disabled):not([aria-disabled="true"]) {
     background: var(--input-background);
     color: var(--primary-text-color);
 }
 
-.technique-eye-btn:disabled {
+/* aria-disabled, not the native attribute — the active technique's eye button
+   stays inert but keeps its title tooltip, which Chromium suppresses on a
+   natively disabled control (see form.css:769-774 for the same contract). */
+.technique-eye-btn:disabled,
+.technique-eye-btn[aria-disabled="true"] {
     cursor: not-allowed;
     opacity: 0.5;
 }
