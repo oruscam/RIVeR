@@ -1217,7 +1217,14 @@ EOF
 
 Before declaring 6b complete:
 
-1. `npx jest` — all suites pass. Expected total: **618 baseline + 3 (Task 1 CSS) + 6 (Task 1 contrast, 2 pairs × 3 themes) + 9 (Task 7) + 9 (Task 11) = 645 tests, 63 suites.** Confirm the real number; if it differs, account for the difference rather than adjusting the expectation.
+1. `npx jest` — all suites pass. **Measured: 649 tests, 63 suites.**
+
+   Accounted against the original prediction of 645, as this step required rather than adjusting the expectation. The 4-test difference is two separate additions, both made after the plan was written and both deliberate:
+
+   - **+2 during Task 1's cascade fixes.** The Opus review of Task 1 found that every hover rule in the family out-specified the new state rules and repainted them away. Fixing it needed two new guards the plan had not foreseen: the family-wide "a colour-painting hover rule never repaints a state it out-specifies" sweep, and the "an already-filled variant shows the state as an inset ring" test for `.btn-primary`/`.btn-danger`.
+   - **+2 in Task 11.** Beyond the 9 the plan specified, Task 11 carried the controller's added requirement (ruling R12) to pair every `aria-disabled` button with an early-return click guard: the pairing sweep itself, plus a canary that fails if the sweep ever degrades to finding nothing.
+
+   So: 618 baseline + 3 (Task 1 CSS) + 6 (Task 1 contrast, 2 pairs × 3 themes) + 2 (Task 1 cascade guards) + 9 (Task 7) + 11 (Task 11) = **649**.
 2. `npx tsc --noEmit 2>&1 | grep -c "error TS"` → **64**, unchanged.
 3. `npm run lint` → **20 problems (17 errors, 3 warnings)**, unchanged.
 4. The three "done means" greps from Task 11 Step 5 all return nothing.
