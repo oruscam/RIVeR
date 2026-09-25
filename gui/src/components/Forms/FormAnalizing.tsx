@@ -78,7 +78,8 @@ export const FormAnalizing = ({
     <div className="body mt-3" id="form-analizing">
       <div className="input-container-2">
         <button
-          className={`wizard-button form-button ${isBackendWorking ? 'wizard-button-active' : ''}`}
+          className="btn btn-lg btn-primary form-button"
+          aria-busy={isBackendWorking}
           onClick={handleAnalize}
         >
           {t('Analizing.analize')}

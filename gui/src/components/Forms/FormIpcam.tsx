@@ -62,7 +62,8 @@ export const FormIpcam = () => {
           <div className="input-container-2">
             <button
               ref={importPointsButtonRef}
-              className={`wizard-button form-button me-1 ${points !== null ? 'wizard-button-active' : ''}`}
+              className="btn btn-lg btn-secondary form-button me-1"
+              data-complete={points !== null}
               id="import-points"
               type="button"
               onClick={handleOnClickImport}
@@ -75,7 +76,8 @@ export const FormIpcam = () => {
           <div className="input-container-2 mt-1">
             <button
               ref={importImagesButtonRef}
-              className={`wizard-button form-button me-1 ${imagesPath !== null ? 'wizard-button-active' : ''}`}
+              className="btn btn-lg btn-secondary form-button me-1"
+              data-complete={imagesPath !== null}
               id="import-images"
               type="button"
               onClick={handleOnClickImport}

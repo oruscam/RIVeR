@@ -86,7 +86,8 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
           <div className="input-container-2 mt-1">
             <button
               ref={importDistancesButtonRef}
-              className={`wizard-button form-button me-1 ${isDistancesLoaded ? 'wizard-button-active' : ''}`}
+              className="btn btn-lg btn-secondary form-button me-1"
+              data-complete={isDistancesLoaded}
               id="import-distances"
               type="button"
               onClick={handleOnClickImportDistances}

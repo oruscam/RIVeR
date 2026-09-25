@@ -149,7 +149,8 @@ export const FootageMode = () => {
             {video && <p>{video.name}</p>}
 
             <button
-              className={`button-1 ${video ? 'wizard-button-active' : ''}`}
+              className="btn btn-lg btn-secondary"
+              data-complete={!!video}
               onClick={onClickOpenFolder}
               type="button"
             >
