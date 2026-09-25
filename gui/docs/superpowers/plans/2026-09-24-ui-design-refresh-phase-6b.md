@@ -585,7 +585,9 @@ These seven sites (six completion, one busy) also used `wizard-button-active`, b
 | `FootageMode.tsx:152` | `video` | `"btn btn-lg btn-secondary"` | `data-complete={!!video}` |
 | `FormAnalizing.tsx:81` | `isBackendWorking` | `"btn btn-lg btn-primary form-button"` | `aria-busy={isBackendWorking}` |
 
-**`data-*` attributes need a string or boolean.** React renders `data-complete={true}` as `data-complete="true"` and omits the attribute entirely when the value is `false` — which is exactly what the CSS selector `[data-complete="true"]` wants. But React will **throw at runtime** if the value is a non-boolean truthy object, and `bathimetry.path` is a string. Hence `!!` on the three string/object cases above; it is required, not cosmetic.
+**`data-*` attributes need a boolean here, and `!!` is required on three of them.** React 18.3.1 renders `data-complete={true}` as `data-complete="true"` and `data-complete={false}` as **`data-complete="false"`** — it does *not* omit the attribute for `false` (only `undefined` and `null` omit it; verified with `renderToStaticMarkup` during Task 1's review). The CSS selector is `[data-complete="true"]`, so `"false"` simply does not match and the state is off, which is the behaviour we want either way.
+
+What the `!!` is for is different: `bathimetry.path` and `video` are a string and an object, and React would render `data-complete="/some/path.csv"` — which never matches `[data-complete="true"]`, so the state would be silently dead rather than erroring. Hence `!!` on the three non-boolean cases above. It is required, not cosmetic.
 
 `aria-busy` is a real ARIA attribute and takes the boolean directly.
 
