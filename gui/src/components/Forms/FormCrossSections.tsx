@@ -1,6 +1,6 @@
 import { useFormContext } from 'react-hook-form';
 import { useAutoShrinkFont, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
-import { DropHereText, HardModeCrossSections } from './Components/index';
+import { DropHereText, HardModeCrossSections, MaskList } from './Components/index';
 import { Bathimetry } from '../Graphs';
 import { FieldError } from '../index';
 import { useTranslation } from 'react-i18next';
@@ -302,6 +302,10 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
           </div>
           <FieldError name={`${name}_LeftBank`} />
         </div>
+
+        <span className="divider-line mt-2 mb-1" />
+        <MaskList />
+        <span className="divider-line mb-2" />
 
         <HardModeCrossSections extraFields={extraFields} name={name} />
       </form>

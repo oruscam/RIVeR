@@ -11,6 +11,7 @@ import { HardModeOblique } from './HardModeOblique';
 import { FormHeader } from './FormHeader';
 import { AnalyzingProgress } from './AnalyzingProgress';
 import { MaskCreation } from './MaskCreation';
+import { MaskList } from './MaskList';
 import { ExportMp4 } from './ExportMp4';
 import { AddMaskButton } from './AddMaskButton';
 import { StabilizationRegions } from './StabilizationRegions';
@@ -28,6 +29,7 @@ export {
   HardModeProcessing,
   HardModeUav,
   MaskCreation,
+  MaskList,
   PixelCoordinates,
   RealWorldCoordinates,
   StabilizationRegions,
