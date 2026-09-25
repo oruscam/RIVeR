@@ -554,46 +554,26 @@ html {
   transform: scale(0.9);
 }
 
+/* =============================================================================
+   BUTTON-WITH-LOADER (modifier)
+   The one legacy button class that survives Phase 6b, per spec section 4/6b:
+   it carries the in-button progress layout, which the .btn family has no
+   equivalent for. Applied alongside .btn (className="btn btn-lg btn-primary
+   button-with-loader"), so everything .btn already sets - height, border,
+   radius, background, colour, font, hover, disabled - is deliberately absent
+   here. Adding any of them back would override the primitive this modifies.
+   ============================================================================= */
+
 .button-with-loader {
-  display: flex;
-  width: 165px;
-  height: auto;
-  min-height: 50px;
-  background-color: var(--background-color);
-  color: var(--primary-text-color);
-  border: 2px solid;
-  border-radius: 20px;
-  align-items: center;
   justify-content: space-around;
-  padding-left: 10px;
-  padding-right: 10px;
   flex-shrink: 0;
 }
 
 .button-with-loader p {
-  font-size: 20px;
-  font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
-}
-
-.button-with-loader:hover {
-  background-color: var(--primary-text-color);
-  color: var(--background-color);
-}
-
-.button-with-loader-active {
-  background-color: var(--primary-text-color);
-  color: var(--background-color);
-}
-
-.button-with-loader:disabled {
-  background-color: var(--input-background);
-  color: var(--background-color);
-  border-color: var(--border-color);
-  cursor: default;
 }
 
 /* =============================================================================

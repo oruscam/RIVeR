@@ -296,7 +296,7 @@ export const FormProcessing = ({
 
             <div className="input-container-2 mt-1">
               <button
-                className="button-with-loader me-1"
+                className="btn btn-lg btn-primary button-with-loader me-1"
                 type="button"
                 onClick={handleOnClick}
                 id="analize-button"
@@ -306,7 +306,7 @@ export const FormProcessing = ({
               </button>
               <button
                 id="stop-button"
-                className="danger-button"
+                className="btn btn-lg btn-danger"
                 disabled={!isBackendWorking || isTesting === true}
                 onClick={handleOnClick}
                 type="button"

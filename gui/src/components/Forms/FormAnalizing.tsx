@@ -94,7 +94,7 @@ export const FormAnalizing = ({
 
       <button
         id="stop-analize"
-        className={`danger-button ${isBackendWorking ? 'danger-button-active' : ''}`}
+        className="btn btn-lg btn-danger"
         onClick={handleStop}
         disabled={!isBackendWorking}
       >
