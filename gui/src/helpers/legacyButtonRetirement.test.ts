@@ -32,9 +32,26 @@ const relative = (path: string): string => path.slice(SRC.length + 1);
  * `//` line comments to explain retired class names anywhere today, and
  * stripping `//` safely would require distinguishing it from string/URL
  * content, which a source-text sweep cannot do reliably.
+ *
+ * String literals are blanked FIRST, and that order is the whole point. The
+ * first version of this stripper ran the lazy `/\*[\s\S]*?\*\/` alone, which a
+ * single unmatched `/*`-looking substring inside a string could defeat: given
+ * `content: "see /* docs";` it opened a comment there and blanked everything up
+ * to the next real `*\/` anywhere later in the file, swallowing whole rules. The
+ * sweep then reported no offenders because it could no longer see them - a guard
+ * that silently goes blind, which is the exact failure this phase has now found
+ * four separate times. Blanking string bodies first means a `/*` inside a string
+ * is gone before comment detection ever runs, and a retired class name inside a
+ * string literal was never a real usage anyway.
+ *
+ * The canary test at the bottom of this file asserts the stripper still leaves
+ * known-real rules intact, so this cannot regress unnoticed.
  */
+const blankStringLiterals = (text: string): string =>
+  text.replace(/(['"])(?:\\.|(?!\1)[^\\\n])*\1?/g, (literal) => literal.replace(/[^\n'"]/g, ' '));
+
 const stripBlockComments = (text: string): string =>
-  text.replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ' '));
+  blankStringLiterals(text).replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ' '));
 
 const offenders = (extensions: string[], pattern: RegExp): string[] =>
   walk(SRC, extensions)
@@ -182,10 +199,20 @@ describe('the .btn and .ibtn families are actually adopted', () => {
  *    expression (e.g. both mention `hasGaps`).
  *
  * What it deliberately does NOT catch (documented, not hidden):
+ *  - it only inspects elements carrying an `onClick` attribute. An
+ *    `aria-disabled` element wired to `onMouseDown`, `onKeyDown` or `onPointerUp`
+ *    with no guard at all produces no pairing record, so it is invisible to both
+ *    the assertion AND the canary below. Nothing in this codebase activates a
+ *    button that way today, and widening the sweep to every React event prop
+ *    would multiply the handler-resolution surface for a shape that does not
+ *    exist here - but a future `onKeyDown`-activated control needs this sweep
+ *    widened rather than assumed covered;
  *  - it checks the guard's condition shares the aria-disabled expression's
  *    base identifier, not full semantic equivalence - `if (hasGaps === false)
  *    return` and `if (!hasGaps || debugForceEnabled) return` would both count
- *    as "the same expression" here even though the second is weaker;
+ *    as "the same expression" here even though the second is weaker. A full
+ *    polarity inversion (`if (hasGaps) return`, guarding exactly backwards)
+ *    also passes, which is the sharpest case this limit admits;
  *  - it does not check the early return is the FIRST statement, only that one
  *    exists mentioning that identifier;
  *  - a tag is matched by scanning for the next unescaped `>` at brace-depth 0
@@ -284,5 +311,43 @@ describe('an aria-disabled button always pairs with an early-return guard', () =
   it('actually verified at least one aria-disabled/guard pairing', () => {
     const verified = pairings().filter((pairing) => pairing.ok !== null);
     expect(verified.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+/**
+ * The stripper is the single point of failure for every sweep above: it runs
+ * before each one, and if it blanks real code the sweeps report no offenders and
+ * pass. That is worse than a missing check, because a green guard is read as
+ * evidence. The first version of it could be defeated by one unmatched
+ * `/*`-looking substring inside a string literal, which swallowed everything up
+ * to the next real close-comment - found in review, not by these tests, which is
+ * why the stripper now gets tests of its own rather than only a fix.
+ */
+describe('the comment stripper cannot blind the sweeps', () => {
+  it('leaves real rules intact when a string literal contains a comment opener', () => {
+    const css = ['.foo::after { content: "see /* docs"; }', '.wizard-button { color: red; }', '/* real */'].join(
+      '\n'
+    );
+    expect(stripBlockComments(css)).toContain('.wizard-button');
+  });
+
+  it('still blanks genuine block comments', () => {
+    expect(stripBlockComments('/* .wizard-button was here */\n.btn { color: red; }')).not.toContain(
+      'wizard-button'
+    );
+  });
+
+  it('preserves line count, so reported line numbers stay accurate', () => {
+    const source = '.a {}\n/* two\n   lines */\n.b {}';
+    expect(stripBlockComments(source).split('\n')).toHaveLength(source.split('\n').length);
+  });
+
+  it('leaves the real stylesheet’s known rules visible', () => {
+    // If a future edit to the stripper swallows live CSS, this fails here rather
+    // than turning the retirement sweeps silently green.
+    const stripped = stripBlockComments(readFileSync(join(SRC, 'index.css'), 'utf8'));
+    for (const selector of ['.btn', '.ibtn', '.button-with-loader']) {
+      expect(stripped).toContain(`${selector} {`);
+    }
   });
 });
