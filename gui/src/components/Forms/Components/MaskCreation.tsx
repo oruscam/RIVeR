@@ -1,15 +1,20 @@
 import { useEffect } from 'react';
 import { useDataSlice, useUiSlice } from '../../../hooks';
 import { useTranslation } from 'react-i18next';
-import { EyeBtn } from '../../CustomIcons/EyeBtn';
-import { TrashBtn } from '../../CustomIcons/TrashBtn';
-import { EditMaskBtn } from '../../CustomIcons/EditMaskBtn';
 
+/**
+ * Drawing-mode concern only: shows a persistent "Editing mask N" mode-hint
+ * pill while a mask is being edited on the canvas, mirroring the
+ * stabilization regions' editing warning. The mask list itself moved to
+ * MaskList.tsx, rendered unconditionally outside Advanced — masks are no
+ * longer gated behind extraFields, but the editing-warning side effect
+ * still belongs with the drawing controls, not the list.
+ */
 export const MaskCreation = () => {
   const { t } = useTranslation();
-  const { processing, onToggleMaskVisibility, onDeleteMask, onUpdateActiveMask } = useDataSlice();
+  const { processing } = useDataSlice();
   const { onSetModeHint, onClearModeHint } = useUiSlice();
-  const { masks, visibleMaskIndices, activeMaskIndex } = processing;
+  const { activeMaskIndex } = processing;
 
   // Persistent yellow "editing mask N" status while a mask is being edited,
   // same behavior as the stabilization regions' editing warning.
@@ -29,27 +34,5 @@ export const MaskCreation = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeMaskIndex]);
 
-  return (
-    <div className="hard-mode-processing">
-      {masks !== undefined &&
-        masks.map((_mask, index) => (
-          <div key={index} className="switch-container mt-1">
-            <h3 className="field-title">
-              {' '}
-              {t('CrossSections.mask')} {index + 1}{' '}
-            </h3>
-            <div className="mask-actions">
-              <EyeBtn
-                key={index}
-                action={onToggleMaskVisibility}
-                active={visibleMaskIndices.includes(index)}
-                index={index}
-              />
-              <EditMaskBtn action={onUpdateActiveMask} active={activeMaskIndex === index} index={index} />
-              <TrashBtn onClickFunction={() => onDeleteMask(index)} />
-            </div>
-          </div>
-        ))}
-    </div>
-  );
+  return null;
 };
