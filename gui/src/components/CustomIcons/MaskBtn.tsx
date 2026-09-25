@@ -2,9 +2,11 @@ import React from 'react';
 import { Icons } from './Icons';
 import { useRipple } from './useRipple';
 
-type MaskBtnProps = React.ButtonHTMLAttributes<HTMLButtonElement>;
+type MaskBtnProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
+  size?: 'md' | 'sm';
+};
 
-export const MaskBtn: React.FC<MaskBtnProps> = ({ onClick, className = '', style, ...props }) => {
+export const MaskBtn: React.FC<MaskBtnProps> = ({ onClick, className = '', style, size = 'md', ...props }) => {
   const [rpl, fire] = useRipple();
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -26,7 +28,7 @@ export const MaskBtn: React.FC<MaskBtnProps> = ({ onClick, className = '', style
     <button
       {...props}
       type="button"
-      className={`ib ${className}`} // Solo usa .ib, quitamos .active y .pulse
+      className={`ibtn${size === 'sm' ? ' ibtn-sm' : ''} ${className}`}
       style={style}
       onClick={handleClick}
     >
