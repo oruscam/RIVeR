@@ -18,6 +18,16 @@ interface RegionListProps {
 export const RegionList = ({ regions, activeRegionIndex, onEdit, onDelete, onAdd }: RegionListProps) => {
   const { t } = useTranslation();
 
+  // aria-disabled, not native disabled: Chromium suppresses a native-disabled
+  // control's title tooltip, and this chip needs its tooltip reachable while
+  // inert. aria-disabled is advisory only, so the guard below — reading the
+  // same condition — is what actually stops the click.
+  const addDisabled = activeRegionIndex !== null;
+  const handleAdd = () => {
+    if (addDisabled) return;
+    onAdd();
+  };
+
   return (
     <div className="mt-1">
       {regions.map((_region, index) => (
@@ -49,8 +59,8 @@ export const RegionList = ({ regions, activeRegionIndex, onEdit, onDelete, onAdd
       <button
         type="button"
         className="chip chip-sm mt-1"
-        onClick={onAdd}
-        disabled={activeRegionIndex !== null}
+        onClick={handleAdd}
+        aria-disabled={addDisabled}
         title={t('VideoRange.addRegion', { defaultValue: 'Add region' })}
       >
         + {t('VideoRange.addRegion', { defaultValue: 'Add region' })}

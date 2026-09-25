@@ -256,14 +256,11 @@ export const StabilizationCanvas = ({
 
   // Stabilization regions have no point history to undo — unlike a mask's
   // polygon, a region is a plain {x,y,width,height} rect edited by dragging
-  // its corners/body, so there is nothing here for "undo last point" to act
-  // on. The button stays for toolbar parity with masks (ShapeToolbar is
-  // shared), but canUndo is permanently false; the guard below is what
-  // actually keeps a click inert, since aria-disabled is advisory only.
+  // its corners/body, so there is nothing for "undo last point" to act on.
+  // ShapeToolbar omits its undo button entirely for kind="region", so these
+  // are unused placeholders satisfying its (mask-only) required props.
   const canUndoRegion = false;
-  const handleUndoRegion = () => {
-    if (!canUndoRegion) return;
-  };
+  const handleUndoRegion = () => {};
 
   return (
     <>
