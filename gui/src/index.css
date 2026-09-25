@@ -424,118 +424,6 @@ html {
    BUTTONS
    ============================================================================= */
 
-.danger-button {
-  min-width: 165px;
-  height: auto;
-  min-height: 50px;
-  background-color: var(--background-error);
-  border: 2px solid;
-  border-radius: 20px;
-  font-size: 18px;
-  font-weight: 400;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: transform 0.1s;
-}
-
-.danger-button:hover {
-  color: var(--inverse-text);
-}
-
-.danger-button:active {
-  transform: translateY(4px);
-}
-
-.danger-button:disabled {
-  background-color: var(--disabled-button);
-  color: var(--background-color);
-  transform: none;
-}
-
-.button-transparent {
-  background-color: transparent;
-  color: var(--primary-text-color);
-  border: none;
-  transition: transform 0.3s ease;
-}
-
-.button-1 {
-  width: 232px;
-  height: 50px;
-  background-color: var(--background-color);
-  border: 2px solid;
-  border-color: var(--primary-text-color);
-  color: var(--primary-text-color);
-  border-radius: 20px;
-  font-size: 20px;
-  font-weight: 400;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background-color 0.1s, color 0.1s, transform 0.1s;
-}
-
-.button-1:hover {
-  background-color: var(--primary-text-color);
-  color: var(--background-color);
-}
-
-.button-1:active {
-  background-color: var(--primary-text-color);
-  color: var(--background-color);
-  transform: translateY(4px);
-}
-
-.label-1 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.wizard-button {
-  width: 132px;
-  height: auto;
-  min-height: 50px;
-  background-color: var(--background-color);
-  border: 2px solid;
-  border-color: var(--primary-text-color);
-  color: var(--primary-text-color);
-  border-radius: 20px;
-  font-size: 20px;
-  font-weight: 400;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background-color 0.1s, color 0.1s, transform 0.1s;
-  cursor: pointer;
-  padding: 3px;
-}
-
-.wizard-button:hover:not(:disabled) {
-  background-color: var(--inverse-bg);
-  color: var(--inverse-text);
-}
-
-.wizard-button:active {
-  background-color: var(--inverse-bg);
-  color: var(--inverse-text);
-  transform: translateY(4px);
-}
-
-.wizard-button-active {
-  background-color: var(--inverse-bg);
-  color: var(--inverse-text);
-  transform: translateY(4px);
-}
-
-.wizard-button:disabled {
-  background-color: var(--background-color);
-  color: var(--disabled-button);
-  border-color: var(--disabled-button);
-  transform: translateY(0px);
-}
-
 .video-button {
   background-color: transparent;
   border: none;
@@ -587,10 +475,9 @@ html {
 
 /* =============================================================================
    BUTTON COMPONENT (.btn family)
-   New pill-shaped buttons from the design audit. Coexists with
-   .button-1/.wizard-button/.danger-button — those keep working and are
-   migrated screen by screen starting with WizzardButtons.tsx (Task 2); the
-   rest move in Phase 5.
+   Pill-shaped buttons from the design audit. .button-1, .wizard-button(-active)
+   and .danger-button were the legacy equivalents; all call sites migrated in
+   Phase 6b Tasks 1-9 and the rules themselves were deleted in Task 10.
    ============================================================================= */
 
 .btn {
@@ -777,6 +664,16 @@ html {
 .ibtn-danger[data-armed="true"]:not(:disabled):not([aria-disabled="true"]) {
   background-color: var(--status-bad);
   color: var(--on-error);
+}
+
+/* Re-hooks the `wiggle` keyframes (declared globally in piv-icons.css) onto
+   TrashBtn's `.cl` icon stack. `.ib-danger:hover .cl` was the only trigger
+   before Task 10 deleted `.ib-danger`; this carries the same guard as the
+   `.ibtn-danger` fill above it so the icon only wiggles when the fill itself
+   is showing — no animation on a disabled, aria-disabled, pressed, busy or
+   already-armed control. */
+.ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-busy="true"], [data-state="success"]) .cl {
+  animation: wiggle 0.48s ease both;
 }
 
 /* Replaces .ib.is-success. Icon-only, so WCAG 1.4.11 non-text applies: gated at
