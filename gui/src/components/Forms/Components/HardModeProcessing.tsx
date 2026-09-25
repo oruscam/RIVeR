@@ -54,7 +54,8 @@ export const HardModeProcessing = ({
 
       <div className="input-container-2 mt-1">
         <button
-          className={`button-with-loader me-1 ${isBackendWorking && isTesting ? 'button-with-loader-active' : ''}`}
+          className="btn btn-lg btn-primary button-with-loader me-1"
+          aria-busy={isBackendWorking && isTesting}
           onClick={onClickTest}
           type="button"
           id="test-button"
