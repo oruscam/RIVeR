@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useSectionSlice, useUiSlice } from '../../hooks';
-import { isValidString } from '../../helpers/regex';
 import { useTranslation } from 'react-i18next';
 import { EyeBtn } from '../CustomIcons/EyeBtn';
+import { Icons } from '../CustomIcons/Icons';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
-import { FieldError } from '../index';
 
 interface Sections {
   setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -13,10 +11,8 @@ interface Sections {
 }
 
 export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
-  const { register } = useForm();
-  const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onUpdateSection } =
-    useSectionSlice();
-  const { onSetFieldError, onClearFieldError, seeAll, onSetSeeAll } = useUiSlice();
+  const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection } = useSectionSlice();
+  const { seeAll, onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();
   const [dialog, confirmDialog] = useConfirmDialog();
 
@@ -38,65 +34,32 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
     onSetActiveSection(index);
   };
 
-  const onClickButtonSection = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleAddSection = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    if (event.currentTarget.id === 'add') {
-      onAddSection(sections.length);
-    }
-    if (event.currentTarget.id === 'delete' && setDeletedSections) {
-      const confirmed = await confirmDialog({
-        title: t('CrossSections.title'),
-        body: t('CrossSections.warning', { section_name: sections[activeSection].name }),
-        confirmLabel: t('CrossSections.deleteConfirm', { defaultValue: 'Delete section' }),
-        cancelLabel: t('CrossSections.deleteCancel', { defaultValue: 'Cancel' }),
-      });
-
-      if (confirmed) {
-        setDeletedSections(sections[activeSection].name);
-        onDeleteSection();
-      }
-    }
+    onAddSection(sections.length);
   };
 
-  const handleDoubleClick = (event: React.MouseEvent<HTMLInputElement>) => {
-    const inputElement = event.target as HTMLInputElement;
-    inputElement.readOnly = false;
-  };
+  // aria-disabled, not native disabled: Chromium suppresses a native-disabled
+  // control's title tooltip, and this button needs its "can't delete the last
+  // section" tooltip reachable while inert. aria-disabled is advisory only, so
+  // the guard below — reading the same condition — is what actually stops the
+  // click.
+  const deleteDisabled = sections.length === 1;
 
-  const handleInputNameSection = (
-    event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    const inputElement = event.target as HTMLInputElement;
-    if (
-      ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') &&
-      inputElement.readOnly === false
-    ) {
-      const input = event.currentTarget;
-      const value = input.value;
-      if (value === '') {
-        input.value = sections[index].name;
-        input.readOnly = true;
-        onSetFieldError(`section-name-${index}`, 'Section name cannot be empty');
-      } else if (!isValidString(value)) {
-        input.value = sections[index].name;
-        input.readOnly = true;
-        onSetFieldError(
-          `section-name-${index}`,
-          'Section name can only contain letters, numbers, and underscores'
-        );
-      } else if (sections.map((section) => section.name).includes(value)) {
-        input.value = sections[index].name;
-        input.readOnly = true;
-        onSetFieldError(`section-name-${index}`, 'Section name already exists');
-      } else {
-        onClearFieldError(`section-name-${index}`);
-        input.readOnly = true;
-        onUpdateSection({ sectionName: value }, undefined);
-      }
-      input.readOnly = true;
-      const nextElement = document.getElementById(`${sections[index].name}-DRAW_LINE`);
-      nextElement?.focus();
+  const handleDeleteSection = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (deleteDisabled || !setDeletedSections) return;
+
+    const confirmed = await confirmDialog({
+      title: t('CrossSections.title'),
+      body: t('CrossSections.warning', { section_name: sections[activeSection].name }),
+      confirmLabel: t('CrossSections.deleteConfirm', { defaultValue: 'Delete section' }),
+      cancelLabel: t('CrossSections.deleteCancel', { defaultValue: 'Cancel' }),
+    });
+
+    if (confirmed) {
+      setDeletedSections(sections[activeSection].name);
+      onDeleteSection();
     }
   };
 
@@ -107,59 +70,46 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
 
   return (
     <>
-      <div className="sections">
-        <div className="sections-layer">
-          <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', paddingTop: '4px' }}>
+      <div style={{ width: '100%', overflowX: 'auto', overflowY: 'hidden', marginTop: 15, marginBottom: 15 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', minHeight: 50 }}>
+          <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
             <EyeBtn active={seeAll} action={() => onSetSeeAll(!seeAll)} noBorder={true} />
-          </div>
-          <span className="section" />
-          {sections.map((section, index: number) => {
-            return (
-              <div
-                key={index}
-                className={`section ${activeSection === index ? 'active' : ''}`}
-                id={section.name}
-                onClick={() => onClickSection(index)}
+            {canEdit && (
+              <button
+                type="button"
+                className="ibtn ibtn-sm ibtn-danger"
+                onClick={handleDeleteSection}
+                aria-disabled={deleteDisabled}
+                title={
+                  deleteDisabled
+                    ? t('CrossSections.deleteLastSection', { defaultValue: "Can't delete the last section" })
+                    : t('CrossSections.deleteConfirm', { defaultValue: 'Delete section' })
+                }
               >
-                <input
-                  type="text"
-                  className="input-section"
-                  defaultValue={section.name}
-                  id={`${section.name}-input`}
-                  {...register(`${section.name}-input`, { required: true })}
-                  readOnly
-                  onDoubleClick={handleDoubleClick}
-                  onKeyDown={(event) => handleInputNameSection(event, index)}
-                  onBlur={(event) => handleInputNameSection(event, index)}
-                />
-                {canEdit && (
-                  <button
-                    className="section-button1"
-                    id="delete"
-                    onClick={onClickButtonSection}
-                    disabled={!(activeSection === index) || sections.length === 1}
-                  >
-                    x
-                  </button>
-                )}
-              </div>
-            );
-          })}
-
-          {canEdit && (
-            <div className="section section-add">
-              <button className="section-button2" id="add" onClick={onClickButtonSection}>
-                {' '}
-                +{' '}
+                {Icons.Trash('currentColor')}
               </button>
-            </div>
+            )}
+          </div>
+          {sections.map((section, index: number) => (
+            <button
+              key={index}
+              type="button"
+              className="chip"
+              id={section.name}
+              aria-selected={activeSection === index}
+              onClick={() => onClickSection(index)}
+            >
+              {t('CrossSections.section', { defaultValue: 'Section' })} {index + 1}
+            </button>
+          ))}
+          {canEdit && (
+            <button type="button" className="chip" onClick={handleAddSection}>
+              + {t('CrossSections.addSection', { defaultValue: 'Add section' })}
+            </button>
           )}
           <span id="scroll-right" />
         </div>
       </div>
-      {sections.map((section, index: number) => (
-        <FieldError key={section.name} name={`section-name-${index}`} />
-      ))}
       {dialog}
     </>
   );
