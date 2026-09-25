@@ -6,9 +6,10 @@ interface EyeProps {
   action: (index?: number) => void;
   index?: number;
   noBorder?: boolean;
+  size?: 'md' | 'sm';
 }
 
-export function EyeBtn({ action, index, active, noBorder }: EyeProps) {
+export function EyeBtn({ action, index, active, noBorder, size = 'md' }: EyeProps) {
   const [rpl, fire] = useRipple();
 
   const handleClick = (e: React.MouseEvent) => {
@@ -20,8 +21,9 @@ export function EyeBtn({ action, index, active, noBorder }: EyeProps) {
   return (
     <button
       type="button"
-      className={`ib ${active ? '' : ''}`}
+      className={`ibtn${size === 'sm' ? ' ibtn-sm' : ''}`}
       style={noBorder ? { borderColor: 'transparent' } : undefined}
+      aria-pressed={active}
       onClick={handleClick}
     >
       {rpl}
