@@ -31,12 +31,19 @@ export const WizardButtons = ({
 
   return (
     <div className="wizard-container">
-      <button className="btn btn-tertiary" onClick={handlePreviuos} disabled={isFirstStep || isBackendWorking}>
+      {/* btn-lg, like every other wizard-screen button: these two were migrated in
+          6a before .btn-lg existed as the adopted size, which left the app's most
+          used controls 8px shorter than the buttons beside them. */}
+      <button
+        className="btn btn-lg btn-tertiary"
+        onClick={handlePreviuos}
+        disabled={isFirstStep || isBackendWorking}
+      >
         {t('Wizard.back')}
       </button>
 
       <button
-        className="btn btn-primary"
+        className="btn btn-lg btn-primary"
         disabled={!canFollow || isBackendWorking}
         form={formId}
         onClick={onClickNext}
