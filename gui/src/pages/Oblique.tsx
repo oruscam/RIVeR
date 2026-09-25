@@ -187,7 +187,7 @@ export const Oblique = () => {
 
         <div className="footer">
           <button
-            className="wizard-button form-button solver-button"
+            className="btn btn-lg btn-primary form-button solver-button"
             id="solve-oblique"
             disabled={isDefaultCoordinates || isBackendWorking}
             onClick={onClickSolveButton}

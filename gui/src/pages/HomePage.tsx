@@ -49,10 +49,10 @@ export const HomePage: React.FC = () => {
       {showCalibration && <CameraCalibration onClose={() => setShowCalibration(false)} />}
       <img src={theme === 'light' ? imageLigtht : image} className="home-page-image" alt="RIVeR Logo" />
       <div className="home-page-buttons">
-        <button className="button-1" onClick={handleNewProjectClick} id="new-project">
+        <button className="btn btn-lg btn-primary" onClick={handleNewProjectClick} id="new-project">
           {t('MainPage.start')}
         </button>
-        <button className="button-1" onClick={handleNewProjectClick} id="load-project">
+        <button className="btn btn-lg btn-secondary" onClick={handleNewProjectClick} id="load-project">
           {t('MainPage.loadProject')}
         </button>
       </div>

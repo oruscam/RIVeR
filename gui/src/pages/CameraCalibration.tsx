@@ -381,13 +381,21 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
         <h1 className="cal-panel-title">{t('Calibration.title')}</h1>
 
         <div className="cal-actions">
-          <button className="button-1" onClick={() => onOpenBoard()} disabled={status === 'solving'}>
+          <button
+            className="btn btn-lg btn-secondary"
+            onClick={() => onOpenBoard()}
+            disabled={status === 'solving'}
+          >
             {t('Calibration.board')}
           </button>
-          <button className="button-1" onClick={onOpenFolder} disabled={status === 'solving'}>
+          <button className="btn btn-lg btn-secondary" onClick={onOpenFolder} disabled={status === 'solving'}>
             {t('Calibration.import')}
           </button>
-          <button className="button-1" onClick={onSolve} disabled={status === 'solving' || images.length === 0}>
+          <button
+            className="btn btn-lg btn-primary"
+            onClick={onSolve}
+            disabled={status === 'solving' || images.length === 0}
+          >
             {t('Calibration.solve')}
           </button>
         </div>
@@ -519,12 +527,13 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
         )}
 
         <div className="cal-back-section">
-          <button className="wizard-button button-1" onClick={onClose}>
+          <button type="button" className="btn btn-lg btn-tertiary" onClick={onClose}>
             {t('Wizard.back')}
           </button>
           {status === 'solved' && (
             <button
-              className="wizard-button button-1"
+              type="button"
+              className="btn btn-lg btn-primary"
               onClick={async () => {
                 setSaveError(null);
                 const result = await onSaveProfile(cameraName, lensName);

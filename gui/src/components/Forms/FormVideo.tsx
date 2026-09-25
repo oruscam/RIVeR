@@ -163,7 +163,7 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
             <button
               type="button"
               onClick={handleClick}
-              className="wizard-button form-button me-1"
+              className="btn btn-lg btn-secondary form-button me-1"
               id="start-button"
             >
               {' '}
@@ -183,7 +183,12 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
             </div>
           </div>
           <div className="input-container-2 mt-1">
-            <button type="button" className="wizard-button form-button me-1" onClick={handleClick} id="end-button">
+            <button
+              type="button"
+              className="btn btn-lg btn-secondary form-button me-1"
+              onClick={handleClick}
+              id="end-button"
+            >
               {' '}
               {t('VideoRange.end')}{' '}
             </button>
