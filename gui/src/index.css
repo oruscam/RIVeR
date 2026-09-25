@@ -443,37 +443,6 @@ html {
 }
 
 /* =============================================================================
-   BUTTON-WITH-LOADER (modifier)
-   The one legacy button class that survives Phase 6b, per spec section 4/6b:
-   it carries the in-button progress layout, which the .btn family has no
-   equivalent for. Applied alongside .btn (className="btn btn-lg btn-primary
-   button-with-loader"), so everything .btn already sets - height, border,
-   radius, background, colour, font, hover, disabled - is deliberately absent
-   here. Adding any of them back would override the primitive this modifies.
-
-   min-width is the exception, and the reason this rule is not empty of sizing.
-   The spinner is a conditionally rendered child (`{running && <span
-   class="loader-little" />}`), so a content-sized loader button changes width
-   the moment it starts working - the button jumps under the cursor that just
-   clicked it. The legacy rule bought stability with `width: 165px`; min-width
-   buys the same stability without the clipping a fixed width causes once a
-   label is translated into a longer locale.
-   ============================================================================= */
-
-.button-with-loader {
-  min-width: 165px;
-  justify-content: space-around;
-  flex-shrink: 0;
-}
-
-.button-with-loader p {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-width: 0;
-}
-
-/* =============================================================================
    BUTTON COMPONENT (.btn family)
    Pill-shaped buttons from the design audit. .button-1, .wizard-button(-active)
    and .danger-button were the legacy equivalents; all call sites migrated in
@@ -561,6 +530,44 @@ html {
   width: 100%;
 }
 
+/* The modifier block below sits AFTER the .btn family on purpose. A modifier
+   declared before the base it modifies can never win an equal-specificity
+   tie: while this block sat above .btn, its `justify-content: space-around`
+   silently lost to .btn's `center` and the loader button grouped its label
+   and spinner instead of spreading them, while the comment claimed the
+   opposite. Source order is the whole contract here. */
+
+/* =============================================================================
+   BUTTON-WITH-LOADER (modifier)
+   The one legacy button class that survives Phase 6b, per spec section 4/6b:
+   it carries the in-button progress layout, which the .btn family has no
+   equivalent for. Applied alongside .btn (className="btn btn-lg btn-primary
+   button-with-loader"), so everything .btn already sets - height, border,
+   radius, background, colour, font, hover, disabled - is deliberately absent
+   here. Adding any of them back would override the primitive this modifies.
+
+   min-width is the exception, and the reason this rule is not empty of sizing.
+   The spinner is a conditionally rendered child (`{running && <span
+   class="loader-little" />}`), so a content-sized loader button changes width
+   the moment it starts working - the button jumps under the cursor that just
+   clicked it. The legacy rule bought stability with `width: 165px`; min-width
+   buys the same stability without the clipping a fixed width causes once a
+   label is translated into a longer locale.
+   ============================================================================= */
+
+.button-with-loader {
+  min-width: 165px;
+  justify-content: space-around;
+  flex-shrink: 0;
+}
+
+.button-with-loader p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
 .btn:disabled,
 .btn[aria-disabled="true"] {
   opacity: 0.38;
@@ -610,6 +617,14 @@ html {
   height: 32px;
   border-radius: 50%;
   border: 0;
+  /* Containment for the absolutely-positioned children the icon buttons render:
+     `.rpl` (click ripple) and `.progbar` (ExportBtn's progress) are
+     position: absolute with width: 100%, so they need a positioned ancestor and
+     a clip. Legacy `.ib` carried both and Task 10 deleted it with them; without
+     these two lines the ripple resolves against the enclosing panel and a click
+     flashes a panel-sized circle. */
+  position: relative;
+  overflow: hidden;
   background: transparent;
   color: var(--secondary-text-color);
   display: inline-grid;
@@ -1038,12 +1053,18 @@ html {
   background-color: var(--input-background-disabled);
 }
 
+/* Layout co-class only: width and flex behaviour, never height. `height: auto`
+   lived here for the legacy buttons that had no height of their own, and it sits
+   AFTER .btn-lg in this file at equal specificity (0,1,0), so source order handed
+   it the win and collapsed all 14 of these buttons to text height - 19px, or 29px
+   for the two bathimetry ones, against 48px neighbours. Found by the product
+   owner running the app; no test here renders a component, so nothing in the
+   suite could see it. Anything added to this rule must be width or flex. */
 .form-button {
   flex: 1 1 auto;
   min-width: 110px;
   max-width: 210px;
   cursor: pointer;
-  height: auto;
 }
 
 input::-webkit-inner-spin-button,
