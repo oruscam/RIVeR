@@ -81,6 +81,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   };
 
   const handleInterpolateToggle = () => {
+    if (!hasGaps) return;
     onUpdateSection({ interpolated: 'interpolated' }, undefined);
   };
 
@@ -95,7 +96,9 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
         <div id="result-info">
           <button
             type="button"
-            className={hasGaps ? `ib${interpolated ? ' active' : ''}` : 'ib ib-off'}
+            className="ibtn"
+            aria-pressed={interpolated}
+            aria-disabled={!hasGaps}
             title={
               hasGaps
                 ? t('Results.interpolateProfile')
@@ -106,7 +109,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
                 ? t('Results.interpolateProfile')
                 : t('Results.interpolateProfileDisabled', { technique: activeTechniqueLabel })
             }
-            onClick={hasGaps ? handleInterpolateToggle : undefined}
+            onClick={handleInterpolateToggle}
           >
             <LuSpline size={20} />
           </button>

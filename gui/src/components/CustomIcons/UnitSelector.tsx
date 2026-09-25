@@ -17,7 +17,7 @@ export function FolderBtn() {
   };
 
   return (
-    <button className="ib" style={{ border: 'none' }} title={currentPath} onClick={handleChoosePath}>
+    <button className="ibtn" title={currentPath} onClick={handleChoosePath}>
       {Icons.Folder('var(--primary-text-color)')}
     </button>
   );
@@ -54,7 +54,8 @@ export function UnitBtn() {
   return (
     <div className="lwrap" ref={ref}>
       <button
-        className={`ib ${open ? 'active' : ''}`}
+        className="ibtn"
+        aria-pressed={open}
         style={{ width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties}
         onClick={() => setOpen((v) => !v)}
       >

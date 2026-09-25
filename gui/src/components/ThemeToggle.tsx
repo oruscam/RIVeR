@@ -29,7 +29,8 @@ export const ThemeToggle = () => {
   return (
     <div className="lwrap" ref={ref}>
       <button
-        className={`ib ${open ? 'active' : ''}`}
+        className="ibtn"
+        aria-pressed={open}
         style={{ width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties}
         onClick={() => setOpen((v) => !v)}
       >

@@ -34,7 +34,9 @@ export const ExportBtn: React.FC<ExportBtnProps> = ({ isCreating, onClick, class
     <button
       {...props}
       type="button"
-      className={`ib ${phase === 'running' ? 'active' : ''} ${isDone ? 'is-success' : ''} ${className}`}
+      className={`ibtn ${className}`}
+      aria-busy={phase === 'running'}
+      data-state={isDone ? 'success' : undefined}
       style={{ cursor: phase === 'running' ? 'wait' : 'pointer', ...style } as React.CSSProperties}
       onClick={handleClick}
     >
