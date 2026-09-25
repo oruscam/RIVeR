@@ -33,25 +33,70 @@ const relative = (path: string): string => path.slice(SRC.length + 1);
  * stripping `//` safely would require distinguishing it from string/URL
  * content, which a source-text sweep cannot do reliably.
  *
- * String literals are blanked FIRST, and that order is the whole point. The
- * first version of this stripper ran the lazy `/\*[\s\S]*?\*\/` alone, which a
- * single unmatched `/*`-looking substring inside a string could defeat: given
- * `content: "see /* docs";` it opened a comment there and blanked everything up
- * to the next real `*\/` anywhere later in the file, swallowing whole rules. The
- * sweep then reported no offenders because it could no longer see them - a guard
- * that silently goes blind, which is the exact failure this phase has now found
- * four separate times. Blanking string bodies first means a `/*` inside a string
- * is gone before comment detection ever runs, and a retired class name inside a
- * string literal was never a real usage anyway.
+ * Written as a single pass that tracks string context, NOT as a regex, and the
+ * two rejected versions are worth recording because each failed in the same
+ * direction - blind, but still green.
  *
- * The canary test at the bottom of this file asserts the stripper still leaves
- * known-real rules intact, so this cannot regress unnoticed.
+ * v1 ran the lazy `/\*[\s\S]*?\*\/` alone. One unmatched `/*`-looking substring
+ * inside a string defeated it: given `content: "see /* docs";` it opened a
+ * comment there and blanked everything up to the next real close anywhere later,
+ * swallowing whole rules, and the sweep reported no offenders.
+ *
+ * v2 "fixed" that by blanking string bodies before comment detection. That was
+ * worse, and it is the mistake to learn from: class names LIVE in strings.
+ * `className="wizard-button"` - the shape 43 of 45 call sites use - became
+ * invisible, so the sweep guarding the retirement could no longer see the thing
+ * it guards. A lone apostrophe in a comment also blanked the closing `*\/`,
+ * hiding 143 further lines.
+ *
+ * So: strings are never blanked, only comments are. Inside a comment, quotes are
+ * ignored entirely (that is what makes an apostrophe in prose harmless). Inside
+ * a string, `/*` is not a comment opener. An unterminated string resets at the
+ * newline, which bounds the damage of a stray quote to its own line - and the
+ * failure mode there is a comment NOT blanked, i.e. a false positive that fails
+ * loudly, never a rule silently unseen. Bias every ambiguity that way.
+ *
+ * `//` line comments are deliberately not handled, as before: in CSS an unquoted
+ * `url(http://...)` would be read as one and blanked. The canary tests below
+ * assert the stripper still sees className strings and real rules, so neither
+ * rejected version could come back unnoticed.
  */
-const blankStringLiterals = (text: string): string =>
-  text.replace(/(['"])(?:\\.|(?!\1)[^\\\n])*\1?/g, (literal) => literal.replace(/[^\n'"]/g, ' '));
+const stripBlockComments = (text: string): string => {
+  let out = '';
+  let index = 0;
+  let stringDelimiter: string | null = null;
 
-const stripBlockComments = (text: string): string =>
-  blankStringLiterals(text).replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ' '));
+  while (index < text.length) {
+    const character = text[index];
+
+    if (stringDelimiter !== null) {
+      if (character === '\\') {
+        out += character + (text[index + 1] ?? '');
+        index += 2;
+        continue;
+      }
+      if (character === stringDelimiter || character === '\n') stringDelimiter = null;
+      out += character;
+      index += 1;
+      continue;
+    }
+
+    if (character === '/' && text[index + 1] === '*') {
+      let end = index + 2;
+      while (end < text.length && !(text[end] === '*' && text[end + 1] === '/')) end += 1;
+      end = Math.min(end + 2, text.length);
+      for (let cursor = index; cursor < end; cursor += 1) out += text[cursor] === '\n' ? '\n' : ' ';
+      index = end;
+      continue;
+    }
+
+    if (character === '"' || character === "'" || character === '`') stringDelimiter = character;
+    out += character;
+    index += 1;
+  }
+
+  return out;
+};
 
 const offenders = (extensions: string[], pattern: RegExp): string[] =>
   walk(SRC, extensions)
@@ -329,6 +374,28 @@ describe('the comment stripper cannot blind the sweeps', () => {
       '\n'
     );
     expect(stripBlockComments(css)).toContain('.wizard-button');
+  });
+
+  // The mutants that defeated the previous two strippers. Class names live in
+  // strings, so a stripper that blanks string bodies blinds the sweep to the
+  // shape almost every call site uses - and it passed while seeing nothing.
+  it('keeps className string contents, where the retired classes actually appear', () => {
+    const shapes = [
+      '<button className="wizard-button">x</button>',
+      "<button className={'wizard-button'}>x</button>",
+    ];
+    for (const source of shapes) {
+      expect(stripBlockComments(source)).toContain('wizard-button');
+    }
+  });
+
+  it('is not derailed by an apostrophe inside a comment', () => {
+    // A lone `'` in prose must not swallow the closing delimiter and everything
+    // after it: 143 brace-bearing lines went invisible that way.
+    const source = "/* don't name it here */\n.wizard-button { color: red; }";
+    const stripped = stripBlockComments(source);
+    expect(stripped).toContain('.wizard-button');
+    expect(stripped).not.toContain('name it here');
   });
 
   it('still blanks genuine block comments', () => {

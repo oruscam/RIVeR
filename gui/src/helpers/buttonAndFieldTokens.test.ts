@@ -67,14 +67,6 @@ const familyHoverSelectors = (): CssRule[] =>
     rule.selectors.some((selector) => /^\.(?:btn|ibtn)\b/.test(selector) && /:(?:hover|active)\b/.test(selector))
   );
 
-const STATE_ATTRIBUTES = [
-  'aria-pressed="true"',
-  'aria-selected="true"',
-  'aria-busy="true"',
-  'data-complete="true"',
-  'data-state="success"',
-];
-
 describe('.btn button component', () => {
   it('declares the base .btn using scale tokens for radius, gap and motion', () => {
     const body = ruleBody('.btn');
@@ -146,15 +138,26 @@ describe('.btn button component', () => {
    * `transform`, and a scale on a pressed button is correct.
    */
   it('a colour-painting hover rule in the family never repaints a state it out-specifies', () => {
+    // EVERY state the family paints must be excluded, not merely one of them.
+    // The first version of this asked `.some(...)`, which a guard narrowed to a
+    // single attribute would satisfy: narrowing `.btn-tertiary:hover` to
+    // `:not([aria-pressed="true"])` passed while a hovered data-complete tertiary
+    // button still took the 2.12:1 (light) label-on-fill that ruling R7 removed.
+    // A sweep that accepts one of five checks almost nothing.
+    const required = (selector: string): string[] =>
+      selector.startsWith('.ibtn')
+        ? ['aria-pressed="true"', 'aria-busy="true"', 'data-state="success"']
+        : ['aria-pressed="true"', 'aria-selected="true"', 'data-complete="true"', 'aria-busy="true"'];
+
     const offenders = familyHoverSelectors()
       .filter((rule) => /(^|[\s;])(background-)?color\s*:/.test(rule.body))
       .flatMap((rule) =>
-        rule.selectors.filter(
-          (selector) =>
-            /^\.(?:btn|ibtn)\b/.test(selector) &&
-            /:(?:hover|active)\b/.test(selector) &&
-            !STATE_ATTRIBUTES.some((attribute) => selector.includes(attribute))
-        )
+        rule.selectors
+          .filter((selector) => /^\.(?:btn|ibtn)\b/.test(selector) && /:(?:hover|active)\b/.test(selector))
+          .flatMap((selector) => {
+            const missing = required(selector).filter((attribute) => !selector.includes(attribute));
+            return missing.length > 0 ? [`${selector} (unguarded: ${missing.join(', ')})`] : [];
+          })
       );
     expect(offenders).toEqual([]);
   });
