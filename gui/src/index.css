@@ -669,9 +669,15 @@ html {
 /* Re-hooks the `wiggle` keyframes (declared globally in piv-icons.css) onto
    TrashBtn's `.cl` icon stack. `.ib-danger:hover .cl` was the only trigger
    before Task 10 deleted `.ib-danger`; this carries the same guard as the
-   `.ibtn-danger` fill above it so the icon only wiggles when the fill itself
-   is showing — no animation on a disabled, aria-disabled, pressed, busy or
-   already-armed control. */
+   `.ibtn-danger` fill above it: no animation on a disabled, aria-disabled,
+   pressed, busy or success-flashing control.
+
+   It does NOT exclude [data-armed="true"], and that is deliberate rather than an
+   oversight in the guard. Armed is the one state here that means "one more click
+   deletes this" — the wiggle is the warning, so suppressing it exactly when the
+   stakes are highest would be backwards. Legacy `.ib-danger:hover .cl` behaved
+   the same way. An earlier version of this comment claimed the armed state was
+   excluded; the review caught the comment, not the code. */
 .ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-busy="true"], [data-state="success"]) .cl {
   animation: wiggle 0.48s ease both;
 }
