@@ -158,7 +158,7 @@ export const Uav = () => {
 
         <div className="footer">
           <button
-            className="wizard-button form-button solver-button"
+            className="btn btn-lg btn-primary form-button solver-button"
             id="solve-pixelsize"
             disabled={dirPoints.length !== 2 || rwLength === 0 || isBackendWorking || solution !== null}
             onClick={onClickSolveButton}
