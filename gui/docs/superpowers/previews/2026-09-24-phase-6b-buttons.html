@@ -1,0 +1,140 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Phase 6b — button sizes, three themes</title>
+    <!-- Links the real stylesheet rather than copying rules, so this preview
+         cannot drift from what ships. -->
+    <link rel="stylesheet" href="../../../src/index.css" />
+    <!-- .ib lives here, not in index.css: it is imported per-component through
+         the bundler, so without this link the legacy icon row would render as
+         unstyled browser buttons and the comparison would be misleading. -->
+    <link rel="stylesheet" href="../../../src/components/CustomIcons/piv-icons.css" />
+    <style>
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .pane {
+        background: var(--surface-panel);
+        color: var(--text-primary);
+        padding: 24px;
+        min-height: 100vh;
+      }
+      h2 {
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--text-subdued);
+        margin: 0 0 4px;
+      }
+      h3 {
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--text-subdued);
+        margin: 20px 0 8px;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .note {
+        font-size: 11px;
+        color: var(--text-subdued);
+        margin: 0 0 12px;
+        line-height: 1.5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="pane" data-theme="dark"></div>
+    <div class="pane" data-theme="light"></div>
+    <div class="pane" data-theme="dracula"></div>
+    <script>
+      const body = (theme) => `
+        <h2>${theme}</h2>
+
+        <h3>before — legacy (50px tall, 20px font, fixed widths)</h3>
+        <div class="row">
+          <button class="wizard-button">Draw line</button>
+          <button class="wizard-button wizard-button-active">Draw line</button>
+          <button class="button-1">New project</button>
+          <button class="danger-button">Stop</button>
+        </div>
+
+        <h3>after — .btn-lg (48px, 16px) · the proposed size</h3>
+        <div class="row">
+          <button class="btn btn-lg btn-secondary">Draw line</button>
+          <button class="btn btn-lg btn-secondary" aria-pressed="true">Draw line</button>
+          <button class="btn btn-lg btn-secondary" data-complete="true">Import distances</button>
+          <button class="btn btn-lg btn-primary">New project</button>
+          <button class="btn btn-lg btn-danger">Stop</button>
+          <button class="btn btn-lg btn-tertiary">Back</button>
+          <button class="btn btn-lg btn-secondary" disabled>Unavailable</button>
+        </div>
+
+        <h3>after — .btn (40px, 14px), the audit's own size, for comparison</h3>
+        <div class="row">
+          <button class="btn btn-secondary">Draw line</button>
+          <button class="btn btn-secondary" aria-pressed="true">Draw line</button>
+          <button class="btn btn-primary">New project</button>
+          <button class="btn btn-danger">Stop</button>
+        </div>
+
+        <h3>a state on an already-filled variant is a ring, not a fill</h3>
+        <p class="note">
+          A fill-based pressed state is invisible on .btn-primary (its fill already IS the accent
+          colour) and would turn a destructive button accent blue. Those two take an inset ring in
+          their own on-colour instead. Resting / pressed pairs:
+        </p>
+        <div class="row">
+          <button class="btn btn-lg btn-primary">Analyze</button>
+          <button class="btn btn-lg btn-primary" aria-busy="true">Analyze</button>
+          <button class="btn btn-lg btn-danger">Stop</button>
+          <button class="btn btn-lg btn-danger" aria-pressed="true">Stop</button>
+        </div>
+
+        <h3>hover must not repaint a state — hover each pressed button below</h3>
+        <p class="note">
+          Every hover rule in the family out-specifies the state rules, so without explicit guards
+          the accent fill vanishes under the cursor. These should not change colour on hover.
+        </p>
+        <div class="row">
+          <button class="btn btn-lg btn-secondary" aria-pressed="true">secondary pressed</button>
+          <button class="btn btn-lg btn-tertiary" aria-pressed="true">tertiary pressed</button>
+        </div>
+
+        <h3>icon buttons — .ib (45px, legacy) then .ibtn (32px) and .ibtn-sm (24px)</h3>
+        <div class="row">
+          <button class="ib">&#9654;</button>
+          <button class="ib active">&#9654;</button>
+          <button class="ib ib-danger">&#128465;</button>
+          <button class="ib is-success">&#10003;</button>
+        </div>
+        <div class="row">
+          <button class="ibtn">&#9654;</button>
+          <button class="ibtn" aria-pressed="true">&#9654;</button>
+          <button class="ibtn" aria-busy="true">&#9654;</button>
+          <button class="ibtn ibtn-danger">&#128465;</button>
+          <button class="ibtn ibtn-danger" data-armed="true">&#128465;</button>
+          <button class="ibtn" data-state="success">&#10003;</button>
+          <button class="ibtn" aria-disabled="true" title="Run STIV first">&#9654;</button>
+          <button class="ibtn ibtn-sm">&#9654;</button>
+        </div>
+        <p class="note">
+          The last-but-one is aria-disabled, not disabled: hover it and the tooltip must still
+          appear. Chromium dispatches no pointer events on a natively disabled control, which is why
+          this phase supports both readings.
+        </p>
+      `;
+      document.querySelectorAll('.pane').forEach((pane) => {
+        pane.innerHTML = body(pane.dataset.theme);
+      });
+    </script>
+  </body>
+</html>
