@@ -291,8 +291,17 @@ describe('an aria-disabled button always pairs with an early-return guard', () =
     const isBareIdentifier = /^[A-Za-z_$][\w$]*$/.test(trimmed);
     if (!isBareIdentifier) return trimmed; // inline handler: the expression IS the body
 
+    // `(?:async\s+)?` before the parameter list: Task 9 (6c) found
+    // CrossSections/Sections.tsx's handleDeleteSection - a real, guarded handler -
+    // silently unresolved (ok: null, not ok: false) because it is declared
+    // `const handleDeleteSection = async (event) => {...}`, and the previous
+    // regex required `=` to be followed immediately by `(`. That made a real
+    // control invisible to this sweep rather than failing it, which is exactly
+    // the failure mode this file exists to avoid. Widening this, rather than
+    // leaving it "skip on the unusual style", is correct here because `async`
+    // arrow functions are not unusual in this codebase's click handlers.
     const arrowDef = content.match(
-      new RegExp(`\\bconst\\s+${trimmed}\\s*=\\s*\\([^)]*\\)\\s*(?::[^=]+)?=>\\s*\\{`)
+      new RegExp(`\\bconst\\s+${trimmed}\\s*=\\s*(?:async\\s+)?\\([^)]*\\)\\s*(?::[^=]+)?=>\\s*\\{`)
     );
     if (arrowDef) return balancedBraceValue(content, arrowDef.index! + arrowDef[0].length - 1).value;
 
