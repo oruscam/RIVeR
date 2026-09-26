@@ -91,20 +91,23 @@ export const ExportMp4 = () => {
     { label: `${originalWidth * 0.25}x${originalHeight * 0.25}`, factor: 0.25 },
   ];
 
+  const disabled = !isPosibleToCreateGif();
+
   return (
-    <div
-      className="lwrap"
-      ref={ref}
-      style={{
-        opacity: isPosibleToCreateGif() ? 1 : 0.5,
-        pointerEvents: isPosibleToCreateGif() ? 'auto' : 'none',
-      }}
-    >
+    <div className="lwrap" ref={ref}>
       <ExportBtn
-        className={open ? 'active' : ''}
+        className={`ibtn-sm${open ? ' active' : ''}`}
         isCreating={isCreatingGif}
-        onClick={() => setOpen((v) => !v)}
-        title={t('Report.Form.resolution')}
+        aria-disabled={disabled}
+        onClick={() => {
+          if (disabled) return;
+          setOpen((v) => !v);
+        }}
+        title={
+          disabled
+            ? t('Processing.exportRequiresLspiv', { defaultValue: 'Export needs an LSPIV result' })
+            : t('Report.Form.resolution')
+        }
       />
 
       <div
