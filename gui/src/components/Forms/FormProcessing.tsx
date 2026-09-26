@@ -1,7 +1,7 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { useTranslation } from 'react-i18next';
-import { AnalyzingProgress, HardModeProcessing } from './Components';
+import { AnalyzingProgress, ExportMp4, HardModeProcessing } from './Components';
 import { useEffect, useState } from 'react';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
@@ -208,7 +208,7 @@ export const FormProcessing = ({
               >
                 LSPIV
               </button>
-              <span className="tech-cell" />
+              <ExportMp4 />
               <button
                 type="button"
                 className={`technique-seed-flag${showMedian ? ' technique-seed-flag-seeded' : ''}${
