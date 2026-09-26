@@ -1,5 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { StabilizationRegion } from '../../../store/project/types';
+import { EditMaskBtn } from '../../CustomIcons/EditMaskBtn';
+import { TrashBtn } from '../../CustomIcons/TrashBtn';
 
 interface RegionListProps {
   regions: StabilizationRegion[];
@@ -36,22 +38,8 @@ export const RegionList = ({ regions, activeRegionIndex, onEdit, onDelete, onAdd
             {t('VideoRange.stabilizationRegion', { defaultValue: 'Region' })} {index + 1}
           </span>
           <div className="list-row-actions">
-            <button
-              type="button"
-              className="ibtn ibtn-sm"
-              onClick={() => onEdit(index)}
-              title={t('VideoRange.editRegion', { defaultValue: 'Edit region' })}
-            >
-              &#9998;
-            </button>
-            <button
-              type="button"
-              className="ibtn ibtn-sm ibtn-danger"
-              onClick={() => onDelete(index)}
-              title={t('VideoRange.deleteRegion', { defaultValue: 'Delete region' })}
-            >
-              &#128465;
-            </button>
+            <EditMaskBtn action={onEdit} active={index === activeRegionIndex} index={index} size="sm" />
+            <TrashBtn onClickFunction={() => onDelete(index)} size="sm" />
           </div>
         </div>
       ))}
