@@ -29,7 +29,7 @@ export const VideoRange = () => {
   // mode after having enabled it on a UAV project.
   const stabilizationOverlay =
     stabilization && type === 'uav'
-      ? ({ scale }: { scale: number }) => (
+      ? ({ scale, position }: { scale: number; position: { x: number; y: number } }) => (
           <StabilizationCanvas
             videoWidth={videoWidth}
             videoHeight={videoHeight}
@@ -42,6 +42,7 @@ export const VideoRange = () => {
                 onDeleteStabilizationRegion(stabilizationActiveRegionIndex);
             }}
             zoomScale={scale}
+            zoomPosition={position}
           />
         )
       : undefined;

@@ -10,9 +10,10 @@ import { useImageZoomPan } from '../../hooks';
 interface VideoPlayerProps {
   fileURL: string;
   duration: number;
-  /** Receives the current zoom scale so overlay controls (e.g. a confirm
-   *  button) can counteract it and keep a constant on-screen size. */
-  overlay?: (zoom: { scale: number }) => React.ReactNode;
+  /** Receives the current zoom scale and pan offset so overlay controls (e.g.
+   *  a shape toolbar) can counteract them: keep a constant on-screen size, and
+   *  stay inside the visible viewport when zoomed in. */
+  overlay?: (zoom: { scale: number; position: { x: number; y: number } }) => React.ReactNode;
 }
 
 export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
@@ -135,7 +136,7 @@ export const VideoPlayer = forwardRef<HTMLVideoElement, VideoPlayerProps>(
                   onTimeUpdate={onVideoTimeUpdate}
                   id="video"
                 ></video>
-                {overlay?.({ scale })}
+                {overlay?.({ scale, position })}
               </div>
             </div>
 

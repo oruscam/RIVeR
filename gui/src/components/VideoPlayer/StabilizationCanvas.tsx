@@ -140,6 +140,10 @@ interface Props {
   /** Current video zoom scale — used to counter-scale the shape toolbar so
    *  it keeps a constant on-screen size, same as the mask confirm button. */
   zoomScale: number;
+  /** Current video pan offset in screen px (VideoPlayer's `translate()`), used
+   *  with zoomScale to keep the shape toolbar pinned to the bottom-centre of
+   *  the *visible* viewport rather than of the (possibly off-screen) video. */
+  zoomPosition: { x: number; y: number };
 }
 
 export const StabilizationCanvas = ({
@@ -148,6 +152,7 @@ export const StabilizationCanvas = ({
   regions,
   activeRegionIndex,
   zoomScale,
+  zoomPosition,
   onUpdateRegion,
   onConfirm,
   onDelete,
@@ -370,14 +375,25 @@ export const StabilizationCanvas = ({
         // bottom:...), which needs its containing block to be the actual video box. Scaling
         // this wrapper around its bottom-center origin counteracts the video's own zoom scale
         // (applied by an ancestor) so the toolbar keeps a constant on-screen size at any zoom
-        // level, same idea as the mask confirm button used before it. pointer-events:none keeps
-        // this empty full-size layer from swallowing drags on the region beneath it — .shape-toolbar
-        // opts itself back in with pointer-events:auto.
+        // level, same idea as the mask confirm button used before it.
+        //
+        // The translate() in front of the scale() keeps the toolbar inside the visible
+        // viewport. The ancestor zoom is `translate(p) scale(s)` about the video's centre, so
+        // the video's own bottom-centre sits (s-1)*H/2 below the viewport at zoom s > 1 with
+        // no pan, and the toolbar went off-screen with it. Moving the wrapper's origin
+        // (bottom-centre) to the local point that maps back to the viewport's bottom-centre
+        // fixes that: dx = -p.x/s, dy = (1/s - 1)*H/2 - p.y/s, where H is this wrapper's own
+        // height (inset:0 of the video box), hence the percentage translateY. At s = 1, p = 0
+        // (the default, and the only state before any zoom) both terms are 0, so this is a
+        // no-op there.
+        //
+        // pointer-events:none keeps this empty full-size layer from swallowing drags on the
+        // region beneath it — .shape-toolbar opts itself back in with pointer-events:auto.
         <div
           style={{
             position: 'absolute',
             inset: 0,
-            transform: `scale(${1 / zoomScale})`,
+            transform: `translate(${-zoomPosition.x / zoomScale}px, ${-zoomPosition.y / zoomScale}px) translateY(${50 * (1 / zoomScale - 1)}%) scale(${1 / zoomScale})`,
             transformOrigin: 'center bottom',
             pointerEvents: 'none',
           }}
