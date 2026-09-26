@@ -56,7 +56,13 @@ const walk = (dir: string, extensions: string[]): string[] =>
     return extensions.some((extension) => entry.endsWith(extension)) ? [full] : [];
   });
 
-/** Sanity check that FILES hasn't drifted from the real tree (e.g. a rename). */
+/**
+ * Used both to assert every FILES entry actually exists on disk (see the
+ * dedicated test below - a stale/typo'd path must fail loudly, not silently
+ * drop that file out of the sweep with zero coverage and zero warning) and,
+ * defensively, to keep `allCandidates` from throwing in unrelated tests if
+ * that assertion is ever skipped.
+ */
 const existingFiles = new Set(walk(SRC, ['.tsx']).map((f) => f.slice(SRC.length + 1)));
 
 /**
@@ -141,25 +147,53 @@ const allCandidates = (): StyleAbsoluteCandidate[] =>
   );
 
 /**
+ * A genuine "does this subtree contain something clickable" scan of the
+ * bounded JSX window following the style-bearing tag - NOT a specific
+ * component name. It looks for three independent interactivity signals:
+ *  - a literal `<button` element;
+ *  - an ARIA `role="button"`;
+ *  - any prop following React's `onXxx` callback-prop naming convention
+ *    (`onClick=`, `onUndo=`, `onMouseDown=`, ...).
+ * The `onXxx` signal is what actually matters for
+ * StabilizationCanvas.tsx's `<ShapeToolbar onUndo={...} onDelete={...}
+ * onDone={...} .../>`: ShapeToolbar's own `<button>` elements are declared in
+ * a different file (ShapeToolbar.tsx), so a textual scan of
+ * StabilizationCanvas.tsx alone can never see a literal `<button` or
+ * `role="button"` for it - the callback-prop convention is the only signal
+ * this file's own source text carries about a wrapped custom component being
+ * interactive. Because this checks for the SHAPE of interactivity rather than
+ * the name `ShapeToolbar`, a future edit that wraps a *different*, unrelated
+ * component passing an `onXxx` handler inside a `pointerEvents:'none'`
+ * wrapper is still correctly treated as "has an interactive descendant" -
+ * i.e. NOT excluded here, so it must be explicitly allow-listed or it shows
+ * up as an offender. Mutation-tested against exactly that scenario (see the
+ * Task 9 report).
+ */
+const hasInteractiveDescendant = (contextAfter: string): boolean =>
+  /<button\b/i.test(contextAfter) ||
+  /role\s*=\s*["']button["']/.test(contextAfter) ||
+  /\bon[A-Z]\w*=\{/.test(contextAfter);
+
+/**
  * A candidate is excluded from the "must be allow-listed" set - i.e. it was
  * never a control in the first place - when either:
  *  - it's an `<svg>`: the drawing surface (region rects live inside it), not
  *    floating chrome, structurally necessary like the video/image element;
  *  - its own style object also sets `pointerEvents: 'none'` AND it has no
- *    nested `<ShapeToolbar`. Carousel.tsx's frame-marker badge is
- *    non-interactive by definition (pointerEvents: 'none', nothing to click).
- *    StabilizationCanvas.tsx's full-canvas wrapper around `<ShapeToolbar>`
- *    ALSO sets pointerEvents: 'none' on itself, but it is not a passive
- *    marker: `.shape-toolbar` re-enables `pointer-events: auto` via CSS, so
- *    the wrapper is the positioning mechanism for a real, clickable toolbar.
- *    The nested-ShapeToolbar check is what tells these two apart generically
- *    instead of hard-coding a line number.
+ *    interactive descendant (see `hasInteractiveDescendant` above).
+ *    Carousel.tsx's frame-marker badge is non-interactive by definition
+ *    (pointerEvents: 'none', nothing to click, no onXxx props on its
+ *    children). StabilizationCanvas.tsx's full-canvas wrapper around
+ *    `<ShapeToolbar>` ALSO sets pointerEvents: 'none' on itself, but it is
+ *    not a passive marker: `.shape-toolbar` re-enables `pointer-events: auto`
+ *    via CSS, so the wrapper is the positioning mechanism for a real,
+ *    clickable toolbar - which `hasInteractiveDescendant` detects via
+ *    ShapeToolbar's `onUndo`/`onDelete`/`onDone` props, not via its name.
  */
 const isExcludedNonControl = (candidate: StyleAbsoluteCandidate): boolean => {
   if (candidate.tagName === 'svg') return true;
   const hasPointerEventsNone = /pointerEvents\s*:\s*['"]none['"]/.test(candidate.styleValue);
-  const hasNestedShapeToolbar = /<ShapeToolbar\b/.test(candidate.contextAfter);
-  return hasPointerEventsNone && !hasNestedShapeToolbar;
+  return hasPointerEventsNone && !hasInteractiveDescendant(candidate.contextAfter);
 };
 
 interface AllowListEntry {
@@ -201,6 +235,15 @@ const offenders = (): StyleAbsoluteCandidate[] =>
     .filter((c) => !ALLOW_LIST.some((entry) => entry.matches(c)));
 
 describe('no inline-positioned control floats over an image canvas', () => {
+  // A stale or typo'd FILES entry must fail loudly, not silently drop that
+  // file's coverage to zero. `allCandidates`'s existence filter alone would
+  // make that failure invisible - every test above would just see fewer
+  // candidates and stay green. This is a real assertion, not a silent guard.
+  it('every entry in FILES actually exists on disk', () => {
+    const missing = FILES.filter((file) => !existingFiles.has(file));
+    expect(missing).toEqual([]);
+  });
+
   it('every remaining candidate is either not a control or explicitly allow-listed', () => {
     expect(offenders().map((c) => `${c.file}:${c.line} <${c.tagName}>`)).toEqual([]);
   });
@@ -229,5 +272,42 @@ describe('no inline-positioned control floats over an image canvas', () => {
     for (const entry of excluded) {
       expect(ALLOW_LIST.some((a) => a.matches(entry))).toBe(false);
     }
+  });
+});
+
+/**
+ * `hasInteractiveDescendant` is what stands between "excluded as a passive
+ * marker" and "must be allow-listed" for anything sitting inside a
+ * `pointerEvents:'none'` wrapper. A first draft of this file's exclusion
+ * rule string-matched the literal name `ShapeToolbar` there - it happened to
+ * resolve today's two known cases, but a DIFFERENT, unrelated component
+ * wrapped the same way would have been silently treated as non-interactive
+ * and never surfaced. These tests exercise the real function directly, with
+ * synthetic JSX, to prove the check is about shape (a button, an ARIA role,
+ * an onXxx callback prop), not a specific component name.
+ */
+describe('hasInteractiveDescendant is a genuine interactivity scan, not a ShapeToolbar name match', () => {
+  it('detects a literal <button>', () => {
+    expect(hasInteractiveDescendant('<button onClick={doThing}>Go</button>')).toBe(true);
+  });
+
+  it('detects role="button" on a non-button element', () => {
+    expect(hasInteractiveDescendant('<span role="button" onClick={doThing}>Go</span>')).toBe(true);
+  });
+
+  it('detects an onXxx callback prop on a wrapped custom component with a DIFFERENT, unrelated name', () => {
+    // The exact shape that defeated the first draft: a custom component,
+    // not named ShapeToolbar, whose own <button> lives in another file and
+    // is therefore invisible to a textual scan - only its onXxx props are
+    // visible here, which is exactly the signal this function uses.
+    expect(hasInteractiveDescendant('<SomeOtherWidget onUndo={handleUndo} onDelete={handleDelete} />')).toBe(true);
+  });
+
+  it('does NOT flag a passive marker with no button/role/onXxx prop', () => {
+    expect(hasInteractiveDescendant('<span title="hint" style={{ pointerEvents: "auto" }} />')).toBe(false);
+  });
+
+  it('does NOT flag plain text or non-interactive tags alone', () => {
+    expect(hasInteractiveDescendant('<div className="badge">3</div>')).toBe(false);
   });
 });
