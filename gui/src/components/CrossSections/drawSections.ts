@@ -12,6 +12,9 @@ interface DrawSvgStaticSectionProps {
   dirPoints: Point[];
   sectionPoints: Point[];
   name: string;
+  /** User-facing label drawn on the canvas ("Section N"). `name` stays the
+   *  internal identifier, used only for the per-section CSS class token. */
+  label: string;
   imageWidth: number;
   imageHeight: number;
   module: 'x-sections' | 'processing' | 'results' | 'report' | string;
@@ -395,6 +398,7 @@ const drawStaticSection = ({
   dirPoints,
   sectionPoints,
   name,
+  label,
   imageWidth,
   imageHeight,
   module,
@@ -477,7 +481,7 @@ const drawStaticSection = ({
   if (module !== 'report' && hasMeaningfulSectionPoints) {
     drawSectionLabel({
       uiLayer,
-      text: name,
+      text: label,
       points: [sectionPoints[0], sectionPoints[1]],
       viewport: { imageWidth, imageHeight, position, scale },
       factor,
