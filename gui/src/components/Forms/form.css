@@ -639,12 +639,6 @@
     margin-right: auto;
 }
 
-.mask-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
 .trash-icon {
     height: 100%;
     width: auto;
