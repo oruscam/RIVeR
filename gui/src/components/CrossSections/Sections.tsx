@@ -52,7 +52,9 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
 
     const confirmed = await confirmDialog({
       title: t('CrossSections.title'),
-      body: t('CrossSections.warning', { section_name: sections[activeSection].name }),
+      body: t('CrossSections.warning', {
+        section_name: `${t('CrossSections.section', { defaultValue: 'Section' })} ${activeSection + 1}`,
+      }),
       confirmLabel: t('CrossSections.deleteConfirm', { defaultValue: 'Delete section' }),
       cancelLabel: t('CrossSections.deleteCancel', { defaultValue: 'Cancel' }),
     });

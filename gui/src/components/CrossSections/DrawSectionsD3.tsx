@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import * as d3 from 'd3';
+import { useTranslation } from 'react-i18next';
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { drawInteractiveSection, drawStaticSection, getResizedPoint } from './drawSections';
 import type { OverlayLayers } from '../OverlaySvg';
@@ -28,6 +29,7 @@ export const DrawSectionsD3 = ({
   sectionIndex?: number;
   imageSrc: string;
 }) => {
+  const { t } = useTranslation();
   const { sections, activeSection, onSetDirPoints, onSetIsDraggingPoint } = useSectionSlice();
   const { seeAll, language } = useUiSlice();
   const { type } = useProjectSlice();
@@ -95,6 +97,7 @@ export const DrawSectionsD3 = ({
         dirPoints,
         sectionPoints,
         name,
+        label: `${t('CrossSections.section', { defaultValue: 'Section' })} ${index + 1}`,
         imageWidth: width,
         imageHeight: height,
         module,
@@ -119,6 +122,7 @@ export const DrawSectionsD3 = ({
     module,
     sectionIndex,
     language,
+    t,
   ]);
 
   // Interactive drawing

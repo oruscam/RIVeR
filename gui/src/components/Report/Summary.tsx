@@ -69,12 +69,14 @@ export const Summary = () => {
           </thead>
           <tbody>
             {sections.map((section, index) => {
-              const { name, data, alpha, bathimetry } = section;
+              const { data, alpha, bathimetry } = section;
               if (data === undefined) return null;
               const { mean_V, average_depth, max_depth, measured_Q, total_Q, total_A, mean_Vs } = data;
               return (
                 <tr key={index} className={index === sections.length - 1 ? 'summary-last-section' : ''}>
-                  <td> {name} </td>
+                  <td>
+                    {t('CrossSections.section', { defaultValue: 'Section' })} {index + 1}
+                  </td>
                   <td> {bathimetry.width != null ? cv(bathimetry.width, lF) : '-'} </td>
                   <td> {cv(total_A, aF)} </td>
                   <td> {cv(total_Q, qF)} </td>
