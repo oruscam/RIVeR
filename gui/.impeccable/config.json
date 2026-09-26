@@ -1,0 +1,32 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "src/index.css"
+        ],
+        "createdAt": "2026-09-24T12:12:46.307Z",
+        "reason": "Claude: the only three matches are .loader-little/-mid/-big, the standard CSS spinner idiom (border-radius:50% + contrasting border-top + animation:spin, git-blamed to 2026-03-24, untouched by Phase 6). The border is the spinner's visual substance, not a card accent; removing either property deletes the component."
+      },
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-09-24T12:15:41.921Z",
+        "reason": "User confirmed: the project's design audit explicitly weighed this critique ('Impeccable considers Inter overused') and kept Inter for interface text because of its tabular figures, which this numeric-heavy hydrology UI needs; Figtree was offered there and declined. Re-affirmed 2026-09-24 in Phase 6 decision D3 (Outfit for headings/numbers, Inter stays for body/UI text)."
+      },
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "src/components/components.css"
+        ],
+        "createdAt": "2026-09-26T02:30:08.179Z",
+        "reason": "loader-mid/loader-big are spinner controls: the differently-colored border-top plus border-radius:50% plus rotation animation IS the spinning-loader effect, not a decorative accent clashing with rounded corners. False positive — predates this session, unrelated to Phase 6c work."
+      }
+    ]
+  }
+}

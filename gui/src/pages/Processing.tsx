@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
 import { FormProcessing } from '../components/Forms';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
-import { ExportMp4 } from '../components/Forms/Components';
 import type { PreviewMode } from '../store/ui/types';
 import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
 
@@ -149,9 +148,6 @@ export const Processing = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 1000 }}>
-          <ExportMp4 />
-        </div>
         <ImageProcessing
           showMedian={showMedian}
           extraFields={extraFields}

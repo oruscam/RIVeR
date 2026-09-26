@@ -7,7 +7,6 @@ import { handleDragLeave, handleDragOver } from '../helpers';
 import { FormHeader } from '../components/Forms/Components';
 import { ImageCrossSections } from '../components/CrossSections/ImageCrossSections';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
-import { AddMaskButton } from '../components/Forms/Components';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 export const CrossSections = () => {
   const { activeSection, sections, isDraggingPoint, onGetBathimetry } = useSectionSlice();
@@ -65,9 +64,6 @@ export const CrossSections = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10 }}>
-          <AddMaskButton />
-        </div>
         <div style={{ position: 'relative', margin: 'auto 0' }}>
           <ImageCrossSections imageSrc={images.paths.length > 0 ? images.paths[activeFrame] : undefined} />
         </div>
