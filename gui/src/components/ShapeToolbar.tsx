@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Icons } from './CustomIcons/Icons';
 
 interface ShapeToolbarProps {
   /** Remove the most recently placed point. Mask-only: a region is a plain
@@ -19,10 +20,14 @@ interface ShapeToolbarProps {
 
 /**
  * The only control cluster allowed to sit over an image canvas besides the
- * mode-hint pill (spec section 2). Shared by masks and regions deliberately:
+ * mode-hint pill (spec section 2). Built to be shared by masks and regions:
  * before 6c, masks had a three-button toolbar and regions had a single green
  * tick, so a region could be confirmed but never undone or deleted from the
- * canvas. One component is what stops them diverging again.
+ * canvas. Today only regions consume it (StabilizationCanvas.tsx); masks are
+ * still on the separate, pre-existing MaskToolbar.tsx, with its own
+ * .mask-toolbar* CSS and CrossSections.* keys. Moving masks onto this
+ * component is deferred debt (spec §9, after A10), not something 6c did, so
+ * the two can still diverge until it happens.
  */
 export const ShapeToolbar = ({ onUndo, onDelete, onDone, canUndo, kind }: ShapeToolbarProps) => {
   const { t } = useTranslation();
@@ -37,8 +42,7 @@ export const ShapeToolbar = ({ onUndo, onDelete, onDone, canUndo, kind }: ShapeT
           aria-disabled={!canUndo}
           title={t('Canvas.undoPoint', { defaultValue: 'Undo last point' })}
         >
-          {/* Placeholder glyph: swap for the project's own icon component. */}
-          &#8630;
+          {Icons.Undo('currentColor')}
         </button>
       )}
       <button
@@ -51,7 +55,7 @@ export const ShapeToolbar = ({ onUndo, onDelete, onDone, canUndo, kind }: ShapeT
             : t('Canvas.deleteRegion', { defaultValue: 'Delete region' })
         }
       >
-        &#128465;
+        {Icons.Trash('currentColor')}
       </button>
       <button
         type="button"
@@ -59,7 +63,7 @@ export const ShapeToolbar = ({ onUndo, onDelete, onDone, canUndo, kind }: ShapeT
         onClick={onDone}
         title={t('Canvas.done', { defaultValue: 'Done' })}
       >
-        &#10003;
+        {Icons.Check('currentColor')}
       </button>
     </div>
   );
