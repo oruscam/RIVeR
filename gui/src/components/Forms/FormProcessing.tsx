@@ -158,6 +158,18 @@ export const FormProcessing = ({
     }
   };
 
+  // Technique toggles are icon-only (one ✓ glyph, D11), so each needs an
+  // explicit accessible name; the same text doubles as the hover tooltip.
+  const lspivToggleLabel = t('Processing.lspivAlwaysOn', { defaultValue: "LSPIV can't be turned off" });
+  const stivToggleLabel = !stivAvailable
+    ? t('Processing.stivWeightsMissing')
+    : stiv
+      ? t('Processing.stivToggleOn', { defaultValue: 'STIV is on (click to exclude from processing)' })
+      : t('Processing.stivToggleOff', { defaultValue: 'STIV is off (click to include in processing)' });
+  const iwaveToggleLabel = iwave
+    ? t('Processing.iwaveToggleOn', { defaultValue: 'iWave is on (click to exclude from processing)' })
+    : t('Processing.iwaveToggleOff', { defaultValue: 'iWave is off (click to include in processing)' });
+
   return (
     <div className="body mt-3" id="form-analizing">
       <div className="wrapper">
@@ -226,7 +238,8 @@ export const FormProcessing = ({
                 className="ibtn ibtn-sm"
                 aria-pressed="true"
                 aria-disabled="true"
-                title={t('Processing.lspivAlwaysOn', { defaultValue: "LSPIV can't be turned off" })}
+                aria-label={lspivToggleLabel}
+                title={lspivToggleLabel}
                 onClick={() => {
                   // LSPIV can never be turned off (D9) — permanently pressed/disabled above,
                   // this guard keeps that contract even if the attribute is ever bypassed.
@@ -286,7 +299,8 @@ export const FormProcessing = ({
                 className="ibtn ibtn-sm"
                 aria-pressed={stiv && stivAvailable}
                 aria-disabled={!stivAvailable}
-                title={!stivAvailable ? t('Processing.stivWeightsMissing') : undefined}
+                aria-label={stivToggleLabel}
+                title={stivToggleLabel}
                 onClick={() => {
                   if (!stivAvailable) return;
                   onUpdateProcessing({ stiv: !stiv });
@@ -318,6 +332,8 @@ export const FormProcessing = ({
                 type="button"
                 className="ibtn ibtn-sm"
                 aria-pressed={iwave}
+                aria-label={iwaveToggleLabel}
+                title={iwaveToggleLabel}
                 onClick={() => onUpdateProcessing({ iwave: !iwave })}
               >
                 {Icons.Check('currentColor')}
