@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "border-accent-on-rounded",
+        "value": "*",
+        "files": [
+          "gui/src/components/components.css"
+        ],
+        "createdAt": "2026-09-18T11:48:04.637Z",
+        "reason": "loader-mid/loader-big (L310, L355) are CSS spinners pre-dating this session (git blame: 2025-03-20, commit 29d6c5a) — the differently-colored border-top segment on a circular border IS the spinner's animated arc, not a stray accent border on a card. Confident false positive, unrelated to Phase 4b's canvas-overlays work."
+      }
+    ]
+  }
+}
