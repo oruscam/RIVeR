@@ -49,6 +49,11 @@ interface UIState {
   /** Interrogation-window size preview on the Processing image. Off by default —
    *  it's a reference overlay, not something needed on every frame. */
   showInterrogationWindow: boolean;
+  /** Which per-technique preview Processing's canvas is showing: Frames,
+   *  Space-time (STIV) or Spectrum (iWave). Lives here rather than as
+   *  component-local state because it's a user-visible view mode the
+   *  segmented control on the canvas both reads and writes (Phase 6d). */
+  previewMode: PreviewMode;
 }
 
 export type { ScreenSizes, UIState, ThemeType, PreviewMode, StepAlert };

@@ -26,8 +26,9 @@ import {
   setPinnedStation,
   toggleStationPin,
   setShowInterrogationWindow,
+  setPreviewMode,
 } from '../store/ui/uiSlice';
-import { ThemeType } from '../store/ui/types';
+import { ThemeType, UIState } from '../store/ui/types';
 import { RootState } from '../store/store';
 import { getNewImageResolution } from '../helpers';
 
@@ -52,6 +53,7 @@ export const useUiSlice = () => {
     hoveredStation,
     pinnedStation,
     showInterrogationWindow,
+    previewMode,
   } = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
 
@@ -236,6 +238,15 @@ export const useUiSlice = () => {
     dispatch(setShowInterrogationWindow(value));
   };
 
+  /**
+   * Switches which per-technique preview Processing's canvas shows. Written
+   * by the canvas segmented control (PreviewModeControl) and, on stale
+   * selections, by Processing.tsx's own reset effect.
+   */
+  const onSetPreviewMode = (mode: UIState['previewMode']) => {
+    dispatch(setPreviewMode(mode));
+  };
+
   const onCheckVersion = () => {
     // If isLatestVersion is already set, do not fetch the latest version
     if (isLatestVersion !== undefined) return;
@@ -276,6 +287,7 @@ export const useUiSlice = () => {
     hoveredStation,
     pinnedStation,
     showInterrogationWindow,
+    previewMode,
 
     // METHODS
     onChangeTheme,
@@ -299,5 +311,6 @@ export const useUiSlice = () => {
     onPinStation,
     onUnpinStation,
     onSetShowInterrogationWindow,
+    onSetPreviewMode,
   };
 };

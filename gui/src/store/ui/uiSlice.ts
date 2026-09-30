@@ -25,6 +25,7 @@ const initialState: UIState = {
   hoveredStation: null,
   pinnedStation: null,
   showInterrogationWindow: false,
+  previewMode: 'frames',
 };
 
 const uiSlice = createSlice({
@@ -110,6 +111,9 @@ const uiSlice = createSlice({
     setShowInterrogationWindow: (state, action: PayloadAction<boolean>) => {
       state.showInterrogationWindow = action.payload;
     },
+    setPreviewMode: (state, action: PayloadAction<UIState['previewMode']>) => {
+      state.previewMode = action.payload;
+    },
   },
   // A hovered/pinned station number is only meaningful for the section it was
   // set on — switching which section is active (chip click, adding/removing a
@@ -156,6 +160,7 @@ export const {
   setPinnedStation,
   toggleStationPin,
   setShowInterrogationWindow,
+  setPreviewMode,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;
