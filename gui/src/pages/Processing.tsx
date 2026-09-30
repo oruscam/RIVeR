@@ -7,13 +7,12 @@ import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
 import { FormProcessing } from '../components/Forms';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
-import type { PreviewMode } from '../store/ui/types';
 import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
 
 export const Processing = () => {
   const { t } = useTranslation();
   const { nextStep } = useWizard();
-  const { onAddStepAlert, onClearStepAlert, onSetSeeAll } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert, onSetSeeAll, previewMode, onSetPreviewMode } = useUiSlice();
   const {
     images,
     fullQuiver,
@@ -25,7 +24,6 @@ export const Processing = () => {
   } = useDataSlice();
   const { extraFields } = processing;
   const [showMedian, setShowMedian] = useState(fullQuiver !== null);
-  const [previewMode, setPreviewMode] = useState<PreviewMode>('frames');
   const [stiPaths, setStiPaths] = useState<string[]>([]);
   const [stiStations, setStiStations] = useState<number[]>([]);
   const [spectrumPaths, setSpectrumPaths] = useState<string[]>([]);
@@ -114,9 +112,9 @@ export const Processing = () => {
   }, []);
 
   useEffect(() => {
-    if (previewMode === 'sti' && stiPaths.length === 0) setPreviewMode('frames');
-    if (previewMode === 'iwave' && spectrumPaths.length === 0) setPreviewMode('frames');
-  }, [previewMode, stiPaths, spectrumPaths]);
+    if (previewMode === 'sti' && stiPaths.length === 0) onSetPreviewMode('frames');
+    if (previewMode === 'iwave' && spectrumPaths.length === 0) onSetPreviewMode('frames');
+  }, [previewMode, stiPaths, spectrumPaths, onSetPreviewMode]);
 
   const { paths, active } = images;
 
@@ -176,7 +174,7 @@ export const Processing = () => {
           showMedian={showMedian}
           setShowMedian={setShowMedian}
           previewMode={previewMode}
-          setPreviewMode={setPreviewMode}
+          setPreviewMode={onSetPreviewMode}
           canToggleSti={stiPaths.length > 0}
           canToggleIwave={spectrumPaths.length > 0}
           canToggleMedian={fullQuiver !== null}
