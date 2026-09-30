@@ -37,3 +37,43 @@ describe('CalibrationCanvas', () => {
     expect(canvas).not.toMatch(/position:\s*['"]absolute['"]/);
   });
 });
+
+describe('CalibrationStrip', () => {
+  const strip = read('components/Calibration/CalibrationStrip.tsx');
+  // .video-button lives in index.css, the rest in components.css.
+  const sharedCss = read('components/components.css') + read('index.css');
+  const pagesCss = read('pages/pages.css');
+
+  // The strip deliberately copies the shared Carousel's look instead of using
+  // the component (spec A12). These are the classes that make it look the
+  // same; each must exist in the shared stylesheet AND be used here, so a
+  // rename on either side fails this test instead of silently diverging.
+  const SHARED = [
+    'carousel-container',
+    'carousel-resize-handle',
+    'carousel-info',
+    'carousel',
+    'video-button',
+    'img-carousel-container',
+    'img-carousel',
+    'img-carousel-active',
+    'img-water-mark',
+  ];
+
+  it('uses every shared carousel class that gives the wizard strip its look', () => {
+    for (const name of SHARED) {
+      expect(sharedCss).toMatch(new RegExp(`\\.${name}[\\s{:,.]`));
+      expect(strip).toMatch(new RegExp(`(?<![\\w-])${name}(?![\\w-])`));
+    }
+  });
+
+  it('dims an unused photo with a selector that out-specifies the shared resting dim', () => {
+    // Shared: .img-carousel:not(.img-carousel-active):not(.img-carousel-second) = (0,3,0).
+    expect(pagesCss).toContain('.cal-strip .img-carousel.cal-strip-unused:not(.img-carousel-active) {');
+    expect(strip).toMatch(/cal-strip-unused/);
+  });
+
+  it('keeps the strip height the user already saved', () => {
+    expect(strip).toMatch(/storageKey:\s*['"]river-cal-carousel-height['"]/);
+  });
+});
