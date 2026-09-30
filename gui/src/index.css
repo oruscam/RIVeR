@@ -889,6 +889,7 @@ html {
    Only consumer (Phase 6d): PreviewModeControl.tsx. */
 .seg-float {
   position: absolute;
+  z-index: 5;
   top: var(--space-3);
   left: 50%;
   transform: translateX(-50%);
