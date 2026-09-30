@@ -4,7 +4,8 @@ import { join } from 'path';
 /**
  * Spec rule (docs/superpowers/specs/2026-09-23-ui-design-refresh-phase-6-design.md:32-34,134):
  * no inline-positioned CONTROL floats over any image canvas except the
- * mode-hint pill and per-shape toolbars. The operative word is "control" -
+ * mode-hint pill, per-shape toolbars, and (Phase 6d, amendment A4) the
+ * Processing preview segmented control. The operative word is "control" -
  * interactive chrome, not the drawing surface itself and not a passive marker.
  *
  * This sweep is deliberately scoped to the specific files this phase touched
@@ -25,7 +26,7 @@ import { join } from 'path';
  * control over a canvas, it needs a deliberate addition to FILES below, not
  * an automatic catch - the tradeoff is documented, not hidden.
  *
- * Two names in the spec's allow list never appear in this sweep's output at
+ * Three names in the spec's allow list never appear in this sweep's output at
  * all, and that is expected, not a bug to "fix":
  *  - `.mode-hint`'s positioning is CSS-class-based (messages.css:4), and
  *    `ModeHint.tsx` never sets an inline `position` - class-based rules are
@@ -33,8 +34,11 @@ import { join } from 'path';
  *  - `.mask-toolbar`'s positioning is likewise CSS-class-based
  *    (components.css:1306); `MaskToolbar.tsx`'s call site only ever passes a
  *    className, never an inline `position`.
- * Both are named here so a reader looking for "where is the mode pill /
- * mask toolbar allow-listed" finds the answer instead of a silent gap.
+ *  - `.seg-float`'s positioning is likewise CSS-class-based (index.css, Phase
+ *    6d); `PreviewModeControl.tsx` never sets an inline `position`.
+ * All three are named here so a reader looking for "where is the mode pill /
+ * mask toolbar / preview control allow-listed" finds the answer instead of a
+ * silent gap.
  */
 const SRC = join(__dirname, '..');
 
