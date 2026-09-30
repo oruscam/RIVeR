@@ -613,7 +613,10 @@
     -ms-user-select: none;
 }
 
-.image-with-data-container:first-child {
+.image-with-data-container:first-child,
+/* Processing renders PreviewModeControl (.seg-float) ahead of the image, so
+   :first-child alone no longer matches there. */
+.seg-float + .image-with-data-container {
     position: relative;
     width: 100%;
     height: 100%;
