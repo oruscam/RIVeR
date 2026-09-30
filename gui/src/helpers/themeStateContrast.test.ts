@@ -99,6 +99,38 @@ const STATE_PAIRS: StatePair[] = [
     floor: 3.0,
     ratio: (t) => contrastRatio(resolveRgb(t, '--status-bad'), panel(t)),
   },
+  {
+    label: '.badge-fair dot (--status-fair) vs panel',
+    floor: 3.0,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--status-fair'), panel(t)),
+  },
+  {
+    label: '.badge word (--primary-text-color) on its good tint (--status-good at 15%)',
+    floor: 7.5,
+    ratio: (t) =>
+      contrastRatio(
+        resolveRgb(t, '--primary-text-color'),
+        mixOverBackdrop(resolveRgb(t, '--status-good'), 0.15, panel(t))
+      ),
+  },
+  {
+    label: '.badge word (--primary-text-color) on its fair tint (--status-fair at 15%)',
+    floor: 7.5,
+    ratio: (t) =>
+      contrastRatio(
+        resolveRgb(t, '--primary-text-color'),
+        mixOverBackdrop(resolveRgb(t, '--status-fair'), 0.15, panel(t))
+      ),
+  },
+  {
+    label: '.badge word (--primary-text-color) on its bad tint (--status-bad at 15%)',
+    floor: 7.5,
+    ratio: (t) =>
+      contrastRatio(
+        resolveRgb(t, '--primary-text-color'),
+        mixOverBackdrop(resolveRgb(t, '--status-bad'), 0.15, panel(t))
+      ),
+  },
 ];
 
 describe('theme token parsing', () => {

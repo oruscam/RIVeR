@@ -1,10 +1,4 @@
-import {
-  badgeGrade,
-  CALIBRATION_VIEW_MODES,
-  footerAction,
-  viewAvailability,
-  viewForKey,
-} from './calibrationView';
+import { badgeGrade, CALIBRATION_VIEW_MODES, footerAction, viewAvailability, viewForKey } from './calibrationView';
 import type { CalibrationStatus } from '../store/calibration/types';
 
 describe('viewAvailability', () => {
@@ -75,8 +69,16 @@ describe('footerAction', () => {
   });
 
   it('lets Solve run once photos exist, including to retry after an error', () => {
-    expect(footerAction({ ...base, status: 'idle', imageCount: 3 })).toEqual({ kind: 'solve', blocker: null, busy: false });
-    expect(footerAction({ ...base, status: 'error', imageCount: 3 })).toEqual({ kind: 'solve', blocker: null, busy: false });
+    expect(footerAction({ ...base, status: 'idle', imageCount: 3 })).toEqual({
+      kind: 'solve',
+      blocker: null,
+      busy: false,
+    });
+    expect(footerAction({ ...base, status: 'error', imageCount: 3 })).toEqual({
+      kind: 'solve',
+      blocker: null,
+      busy: false,
+    });
     expect(footerAction({ ...base, status: 'error', imageCount: 0 }).blocker).toBe('noPhotos');
   });
 
@@ -97,10 +99,12 @@ describe('footerAction', () => {
   });
 
   it('enables Save once both names are filled', () => {
-    expect(footerAction({ status: 'solved', imageCount: 3, cameraName: 'DJI Mini 3', lensName: '24 mm' })).toEqual({
-      kind: 'save',
-      blocker: null,
-      busy: false,
-    });
+    expect(footerAction({ status: 'solved', imageCount: 3, cameraName: 'DJI Mini 3', lensName: '24 mm' })).toEqual(
+      {
+        kind: 'save',
+        blocker: null,
+        busy: false,
+      }
+    );
   });
 });

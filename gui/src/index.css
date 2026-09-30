@@ -1079,6 +1079,54 @@ html {
 }
 
 /* =============================================================================
+   BADGE (.badge family) — Phase 6e, spec amendment A12
+   A worded rating: a coloured dot, the word, and a light tint of the status
+   colour. The WORD is --primary-text-color in every theme, never the status
+   colour: as coloured text on its own tint the status colours measure
+   2.68-3.64:1 in light and 4.15:1 for dracula "bad", under the 4.5:1 text
+   floor. The colour lives on the dot (non-text, >= 3:1 against the panel in
+   every theme) and on the tint. Floors: themeStateContrast.test.ts.
+   First consumer: FormCalibration.tsx (Overall + six metric ratings).
+   ============================================================================= */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--primary-text-color);
+  white-space: nowrap;
+}
+
+.badge::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--badge-dot);
+}
+
+.badge-good {
+  --badge-dot: var(--status-good);
+  background-color: color-mix(in srgb, var(--status-good) 15%, transparent);
+}
+
+.badge-fair {
+  --badge-dot: var(--status-fair);
+  background-color: color-mix(in srgb, var(--status-fair) 15%, transparent);
+}
+
+.badge-bad {
+  --badge-dot: var(--status-bad);
+  background-color: color-mix(in srgb, var(--status-bad) 15%, transparent);
+}
+
+/* =============================================================================
    FORM INPUTS
    ============================================================================= */
 
