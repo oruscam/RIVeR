@@ -101,11 +101,10 @@ const classNameUses = (content: string): ClassNameUse[] => {
  * distinctive) retired button names. That matters here specifically:
  * `.section` is a short, common suffix that appears as part of many
  * unrelated, live, legitimate compound class names in this codebase -
- * `lens-correction-section`, `cal-save-section`, `cal-back-section`,
- * `summary-last-section` - and `\bsection\b` matches inside every one of
+ * `lens-correction-section`, `summary-last-section` - and `\bsection\b` matches inside every one of
  * them (`\b` only requires a word/non-word transition, and `-` counts as
  * non-word, so it matches immediately after any hyphen). A first draft of
- * this sweep using that pattern reported those four as false-positive
+ * this sweep using that pattern reported those as false-positive
  * offenders against code this task never touched. Splitting the class-list
  * string on whitespace and comparing each token for exact equality avoids
  * that: `lens-correction-section` is one token, not two, and it is not equal

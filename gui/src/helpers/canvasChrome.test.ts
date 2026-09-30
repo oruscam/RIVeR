@@ -14,10 +14,10 @@ import { join } from 'path';
  * `media-container` class directly (CrossSections, Processing, VideoRange),
  * plus the components rendered inside them that this phase's own diff touches
  * or that are known to float (VideoPlayer, StabilizationCanvas, Carousel,
- * ImageProcessing, FloatingPlot). CameraCalibration.tsx is out of scope: it
- * has zero `media-container` occurrences today (grep -c), so it isn't
- * rebuilt onto the standard workspace until a later phase (6e) - it is not
- * special-cased here, it simply never matches these 8 files.
+ * ImageProcessing, FloatingPlot). CameraCalibration.tsx and its three
+ * canvas-side components (components/Calibration/) joined the sweep in Phase
+ * 6e, when the calibration overlay was rebuilt onto the standard workspace;
+ * none of them sets an inline `position`, so they add no candidates.
  *
  * General cross-file "is this JSX node's ancestor chain a media-container"
  * tracing is a much harder, speculative problem (component composition can
