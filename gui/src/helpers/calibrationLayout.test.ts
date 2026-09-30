@@ -1,8 +1,15 @@
-import { readFileSync } from 'fs';
+import { readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
 const SRC = join(__dirname, '..');
 const read = (relPath: string) => readFileSync(join(SRC, relPath), 'utf8');
+
+const tsxFiles = (dir: string = SRC): string[] =>
+  readdirSync(dir).flatMap((entry) => {
+    const full = join(dir, entry);
+    if (statSync(full).isDirectory()) return tsxFiles(full);
+    return full.endsWith('.tsx') ? [full] : [];
+  });
 
 describe('CalibrationViewControl', () => {
   const control = read('components/Calibration/CalibrationViewControl.tsx');
@@ -109,5 +116,79 @@ describe('FormCalibration', () => {
     for (const file of ['CalibrationCanvas', 'CalibrationStrip', 'CalibrationViewControl']) {
       expect(read(`components/Calibration/${file}.tsx`)).not.toMatch(/Histogram/);
     }
+  });
+});
+
+describe('the calibration page', () => {
+  const page = read('pages/CameraCalibration.tsx');
+  const pagesCss = read('pages/pages.css');
+
+  it('is built on the standard workspace', () => {
+    expect(page).toMatch(/className=["']regular-page["']/);
+    expect(page).toMatch(/className=["']media-container["']/);
+    expect(page).toMatch(/className=\{`form-container/);
+    expect(page).toMatch(/<FormCalibration\b/);
+  });
+
+  it('no longer carries the old private layout anywhere in src', () => {
+    const OLD =
+      /(?<![\w-])(?:cal-left|cal-right|cal-body|cal-carousel|cal-thumb|cal-view-controls|cal-panel-title|cal-results|drag-over-cal)(?![\w-])/;
+    const offenders = tsxFiles().filter((f) => OLD.test(readFileSync(f, 'utf8')));
+    expect(offenders).toEqual([]);
+  });
+
+  // Every class a pages.css rule names under the cal- prefix must still be
+  // used by some .tsx, so a rule orphaned by a later edit fails here.
+  const calClasses = (): string[] => [...new Set(pagesCss.match(/\.cal-[a-z-]+/g) ?? [])].map((c) => c.slice(1));
+  const allTsx = (): string =>
+    tsxFiles()
+      .map((f) => readFileSync(f, 'utf8'))
+      .join('\n');
+
+  it('has no .cal-* rule that no component uses', () => {
+    const names = calClasses();
+    expect(names.length).toBeGreaterThanOrEqual(15); // canary: the sweep sees the block
+    const tsx = allTsx();
+    const unused = names.filter((n) => !new RegExp(`(?<![\\w-])${n}(?![\\w-])`).test(tsx));
+    expect(unused).toEqual([]);
+  });
+
+  it('keeps every .cal-* rule inside the Phase 6e block, each commented or continuing its class family', () => {
+    const start = pagesCss.indexOf('CAMERA CALIBRATION (Phase 6e');
+    const end = pagesCss.indexOf('/* ── Lens correction settings rows', start);
+    expect(start).toBeGreaterThan(-1);
+    expect(end).toBeGreaterThan(start);
+
+    // Nothing calibration-specific may live outside the block (this is also
+    // what proves the old block was deleted).
+    const outside = pagesCss.slice(0, start) + pagesCss.slice(end);
+    expect(outside.match(/\.cal-[a-z-]+/g) ?? []).toEqual([]);
+
+    const block = pagesCss.slice(pagesCss.indexOf('*/', start) + 2, end);
+    const rules = [...block.matchAll(/([^{}]*)\{[^{}]*\}/g)];
+    expect(rules.length).toBeGreaterThanOrEqual(20); // canary: the sweep sees the block
+
+    // A rule needs its own comment unless it continues the previous rule's
+    // class (e.g. `.cal-kv dt` after `.cal-kv`), which that comment covers.
+    const bare: string[] = [];
+    let previousFirstClass: string | null = null;
+    for (const [, prelude] of rules) {
+      const commented = prelude.includes('*/');
+      const selector = prelude.slice(prelude.lastIndexOf('*/') + 2).trim();
+      const firstClass = selector.match(/^\.[a-z-]+/)?.[0] ?? null;
+      if (!commented && firstClass !== previousFirstClass) bare.push(selector);
+      previousFirstClass = firstClass;
+    }
+    expect(bare).toEqual([]);
+  });
+
+  it('routes view keys through viewForKey and only selects an available view', () => {
+    expect(page).toMatch(/viewForKey\(e\.key\)/);
+    expect(page).toMatch(/availability\[mode\] === null/);
+  });
+
+  it('falls back to Original when the selected view stops being available, and resets the photo on a new folder', () => {
+    expect(page).toMatch(/if \(availability\[viewMode\] !== null\) setViewMode\(['"]original['"]\)/);
+    expect(page).toMatch(/useEffect\(\(\) => \{\s*setSelectedIdx\(0\);\s*\}, \[images\]\)/);
   });
 });
