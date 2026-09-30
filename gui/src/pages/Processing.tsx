@@ -6,6 +6,7 @@ import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
 import { FormProcessing } from '../components/Forms';
+import { PreviewModeControl } from '../components/PreviewModeControl';
 import { LockBtn } from '../components/CustomIcons/LockBtn';
 import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
 
@@ -146,6 +147,13 @@ export const Processing = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
+        <PreviewModeControl
+          previewMode={previewMode}
+          onSetPreviewMode={onSetPreviewMode}
+          canToggleSti={stiPaths.length > 0}
+          canToggleIwave={spectrumPaths.length > 0}
+          stivAvailable={stivAvailable}
+        />
         <ImageProcessing
           showMedian={showMedian}
           extraFields={extraFields}
