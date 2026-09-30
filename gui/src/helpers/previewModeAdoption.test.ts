@@ -57,3 +57,21 @@ describe('PreviewModeControl', () => {
     expect(component).toMatch(/className=["']seg-float["']/);
   });
 });
+
+describe('FormProcessing technique names are no longer clickable', () => {
+  const formProcessing = read('components/Forms/FormProcessing.tsx');
+
+  it('the three technique-name elements are spans, not buttons', () => {
+    const rowStarts = [...formProcessing.matchAll(/<TechniqueRow\b/g)].map((m) => m.index!);
+    expect(rowStarts).toHaveLength(3);
+    for (const start of rowStarts) {
+      const window = formProcessing.slice(start, start + 700);
+      expect(window).toMatch(/<span\s+className=["']field-title["']/);
+      expect(window).not.toMatch(/<button[^>]*className=["']field-title["']/);
+    }
+  });
+
+  it('setPreviewMode is never called from this file', () => {
+    expect(formProcessing).not.toMatch(/setPreviewMode\(/);
+  });
+});
