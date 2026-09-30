@@ -716,17 +716,23 @@
    comes from the shared .technique-row in components.css via the
    TechniqueRow component — this class only adds the whole-row-is-clickable
    cursor Processing needs that Results' rows don't. */
-/* .field-title is a plain heading everywhere else in this form too (Hard
-   mode's section labels, the stations counter). Inside a Processing
-   technique row it's the technique's name, non-interactive since Phase 6d
-   moved the canvas-preview switch onto PreviewModeControl.tsx. The explicit
-   font-size replaces the 1.17em an <h3> got for free; this is a <span>. */
+/* .field-title is a plain heading everywhere else in this form (Hard mode's
+   section labels, the stations counter). Inside a Processing technique row
+   it is also the technique's name control: clicking it switches the canvas
+   preview, in sync with PreviewModeControl.tsx (both write uiSlice's
+   previewMode). The button reset lives on this compound selector rather than
+   on the bare class. The explicit font-size replaces the 1.17em an <h3> got
+   for free. */
 .technique-row-processing .field-title {
     flex: 1;
     min-width: 0;
     color: var(--secondary-text-color);
+    background: none;
+    border: none;
+    padding: 0;
     font-size: 1.17em;
     text-align: left;
+    cursor: pointer;
 }
 
 /* Groups the STIV name button with its "reset angles" button in the row
@@ -751,6 +757,14 @@
 .technique-row-processing-disabled {
     cursor: not-allowed;
     opacity: 0.5;
+}
+
+/* The name button sets its own cursor:pointer, so the disabled row's
+   not-allowed cursor above no longer reaches it by inheritance; this restates
+   it. Scoped to -disabled only, not -unavailable: an unavailable
+   (weights-missing) STIV row with STIs on disk can still switch the preview. */
+.technique-row-processing-disabled .field-title {
+    cursor: not-allowed;
 }
 
 /* Compound with .technique-row (not bare) so this keeps beating the shared

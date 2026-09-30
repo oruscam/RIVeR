@@ -65,20 +65,26 @@ describe('PreviewModeControl', () => {
   });
 });
 
-describe('FormProcessing technique names are no longer clickable', () => {
+describe('FormProcessing technique names switch the canvas preview (synced with PreviewModeControl)', () => {
   const formProcessing = read('components/Forms/FormProcessing.tsx');
+  const rowStarts = [...formProcessing.matchAll(/<TechniqueRow\b/g)].map((m) => m.index!);
 
-  it('the three technique-name elements are spans, not buttons', () => {
-    const rowStarts = [...formProcessing.matchAll(/<TechniqueRow\b/g)].map((m) => m.index!);
+  it('the three technique-name elements are buttons', () => {
     expect(rowStarts).toHaveLength(3);
     for (const start of rowStarts) {
-      const window = formProcessing.slice(start, start + 700);
-      expect(window).toMatch(/<span\s+className=["']field-title["']/);
-      expect(window).not.toMatch(/<button[^>]*className=["']field-title["']/);
+      const window = formProcessing.slice(start, start + 1400);
+      expect(window).toMatch(/<button[^>]*className=["']field-title["']/s);
     }
   });
 
-  it('setPreviewMode is never called from this file', () => {
-    expect(formProcessing).not.toMatch(/setPreviewMode\(/);
+  it('each name writes the same previewMode the canvas control writes', () => {
+    for (const mode of ['frames', 'sti', 'iwave']) {
+      expect(formProcessing).toContain(`setPreviewMode('${mode}')`);
+    }
+  });
+
+  it('STIV and iWave names are gated with aria-disabled plus an early-return guard', () => {
+    expect(formProcessing).toMatch(/if \(!canToggleSti\) return;/);
+    expect(formProcessing).toMatch(/if \(!canToggleIwave\) return;/);
   });
 });
