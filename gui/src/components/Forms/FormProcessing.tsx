@@ -14,6 +14,7 @@ export const FormProcessing = ({
   showMedian,
   setShowMedian,
   previewMode,
+  setPreviewMode,
   canToggleSti,
   canToggleIwave,
   canToggleMedian,
@@ -23,6 +24,7 @@ export const FormProcessing = ({
   showMedian: boolean;
   setShowMedian: React.Dispatch<React.SetStateAction<boolean>>;
   previewMode: PreviewMode;
+  setPreviewMode: (value: PreviewMode) => void;
   canToggleSti: boolean;
   canToggleIwave: boolean;
   canToggleMedian: boolean;
@@ -208,12 +210,19 @@ export const FormProcessing = ({
               active={previewMode === 'frames'}
               className="tech-row technique-row-processing"
             >
-              <span
+              <button
+                type="button"
                 className="field-title"
+                aria-pressed={previewMode === 'frames'}
+                title={t('Processing.showLspivFrames')}
+                onClick={() => {
+                  if (previewMode === 'frames') return;
+                  setPreviewMode('frames');
+                }}
                 style={previewMode === 'frames' ? { color: 'var(--tech-lspiv)' } : undefined}
               >
                 LSPIV
-              </span>
+              </button>
               <ExportMp4 />
               <button
                 type="button"
@@ -251,12 +260,27 @@ export const FormProcessing = ({
               }${stivAvailable ? '' : ' technique-row-processing-unavailable'}`}
             >
               <span className="tech-name-cell">
-                <span
+                <button
+                  type="button"
                   className="field-title"
+                  aria-pressed={previewMode === 'sti'}
+                  aria-disabled={!canToggleSti}
+                  title={
+                    !stivAvailable
+                      ? t('Processing.stivWeightsMissing')
+                      : canToggleSti
+                        ? t('Processing.showStivStis')
+                        : t('Processing.noStisYet')
+                  }
+                  onClick={() => {
+                    if (!canToggleSti) return;
+                    if (previewMode === 'sti') return;
+                    setPreviewMode('sti');
+                  }}
                   style={previewMode === 'sti' ? { color: 'var(--tech-stiv)' } : undefined}
                 >
                   STIV
-                </span>
+                </button>
                 {hasAnyStivOverride && (
                   <button
                     type="button"
@@ -300,12 +324,21 @@ export const FormProcessing = ({
                 canToggleIwave ? '' : ' technique-row-processing-disabled'
               }`}
             >
-              <span
+              <button
+                type="button"
                 className="field-title"
+                aria-pressed={previewMode === 'iwave'}
+                aria-disabled={!canToggleIwave}
+                title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
+                onClick={() => {
+                  if (!canToggleIwave) return;
+                  if (previewMode === 'iwave') return;
+                  setPreviewMode('iwave');
+                }}
                 style={previewMode === 'iwave' ? { color: 'var(--tech-iwave)' } : undefined}
               >
                 iWave
-              </span>
+              </button>
               <span className="tech-cell" />
               <span className="tech-cell" />
               <button
