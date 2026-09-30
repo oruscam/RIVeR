@@ -23,3 +23,16 @@ describe('--canvas-chrome token', () => {
     expect(componentsCss).not.toMatch(/\.mask-toolbar\s*{[^}]*rgba\(10,\s*12,\s*14/s);
   });
 });
+
+describe('.seg-float', () => {
+  const indexCss = read('index.css');
+
+  it('exists as a canvas-chrome consumer, not a --surface-field one', () => {
+    expect(indexCss).toMatch(/\.seg-float\s*{[^}]*background:\s*var\(--canvas-chrome\)/s);
+  });
+
+  it('segment buttons carry a selected state and a disabled-with-tooltip state', () => {
+    expect(indexCss).toMatch(/\.seg-float button\[aria-selected=['"]true['"]\]/);
+    expect(indexCss).toMatch(/\.seg-float button\[aria-disabled=['"]true['"]\]/);
+  });
+});

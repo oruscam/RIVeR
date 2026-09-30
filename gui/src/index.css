@@ -67,6 +67,10 @@
      .mode-hint, 0.86 for .mask-toolbar) before Phase 6d unified them: see
      spec amendment A11. */
   --canvas-chrome: rgba(10, 12, 14, 0.84);
+  /* Resting label colour and drop shadow for .seg-float. Declared here, not
+     inline, because the .seg/.chip region is guarded against literal colours. */
+  --canvas-chrome-ink: rgba(255, 255, 255, 0.75);
+  --canvas-chrome-shadow: rgba(0, 0, 0, 0.35);
 }
 
 /* =============================================================================
@@ -871,6 +875,68 @@ html {
    0.38 is correct for them. */
 .seg button:disabled,
 .seg button[aria-disabled="true"] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* .seg-float: the same .seg control, on the translucent-dark-blur backdrop
+   canvas-overlay chrome uses instead of an opaque panel colour, which would
+   give no separation from video footage. Sized and spaced identically to
+   .seg (26px segments in a 32px track) so it reads as the same widget
+   family; only the backdrop and resting label colour differ, because
+   --text-subdued (the panel .seg's resting colour) is tuned for an opaque
+   surface, not arbitrary video footage behind a blur.
+   Only consumer (Phase 6d): PreviewModeControl.tsx. */
+.seg-float {
+  position: absolute;
+  top: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background: var(--canvas-chrome);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px var(--canvas-chrome-shadow);
+}
+
+.seg-float button {
+  height: 26px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--canvas-chrome-ink);
+  font-family: inherit;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.seg-float button:hover:not([aria-disabled='true']):not([aria-selected='true']) {
+  color: var(--overlay-line);
+}
+
+.seg-float button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.seg-float button[aria-selected='true'] {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+/* Same 0.7 deviation from the app's usual 0.38-disabled convention as .seg,
+   and for the same reason: a user must be able to read a disabled
+   "Space-time" segment and hover it for why. See the comment above
+   .seg button:disabled. */
+.seg-float button[aria-disabled='true'] {
   opacity: 0.7;
   cursor: not-allowed;
 }
