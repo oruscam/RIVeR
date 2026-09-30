@@ -36,3 +36,24 @@ describe('.seg-float', () => {
     expect(indexCss).toMatch(/\.seg-float button\[aria-disabled=['"]true['"]\]/);
   });
 });
+
+describe('PreviewModeControl', () => {
+  const component = read('components/PreviewModeControl.tsx');
+
+  it('is a tablist of three segments using role/aria-selected, not aria-pressed', () => {
+    expect(component).toMatch(/role=["']tablist["']/);
+    expect((component.match(/role=["']tab["']/g) ?? []).length).toBe(3);
+    expect(component).toMatch(/aria-selected=/);
+  });
+
+  it('gates Space-time and iWave with aria-disabled plus a matching early-return guard', () => {
+    // legacyButtonRetirement.test.ts sweeps every .tsx for guard pairing; this
+    // pins that the file uses the aria-disabled idiom at all, so a rewrite to
+    // native `disabled` (which silently kills the tooltip) is caught here.
+    expect((component.match(/aria-disabled=\{/g) ?? []).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it('renders on .seg-float, not the panel .seg', () => {
+    expect(component).toMatch(/className=["']seg-float["']/);
+  });
+});
