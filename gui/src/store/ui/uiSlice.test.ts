@@ -11,6 +11,7 @@ import reducer, {
   clearToast,
   setPinnedStation,
   toggleStationPin,
+  setPreviewMode,
 } from './uiSlice';
 import { UIState } from './types';
 
@@ -28,6 +29,7 @@ const baseState = (overrides: Partial<UIState> = {}): UIState =>
     hoveredStation: null,
     pinnedStation: null,
     showInterrogationWindow: false,
+    previewMode: 'frames',
     ...overrides,
   }) as UIState;
 
@@ -131,5 +133,26 @@ describe('pinnedStation', () => {
   it('setPinnedStation(null) always clears, regardless of toggle parity', () => {
     const pinned = baseState({ pinnedStation: 3 });
     expect(reducer(pinned, setPinnedStation(null)).pinnedStation).toBeNull();
+  });
+});
+
+describe('previewMode', () => {
+  it('defaults to frames', () => {
+    expect(baseState().previewMode).toBe('frames');
+  });
+
+  it('switches to sti', () => {
+    const state = reducer(baseState(), setPreviewMode('sti'));
+    expect(state.previewMode).toBe('sti');
+  });
+
+  it('switches to iwave', () => {
+    const state = reducer(baseState(), setPreviewMode('iwave'));
+    expect(state.previewMode).toBe('iwave');
+  });
+
+  it('switches back to frames', () => {
+    const withSti = baseState({ previewMode: 'sti' });
+    expect(reducer(withSti, setPreviewMode('frames')).previewMode).toBe('frames');
   });
 });
