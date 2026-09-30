@@ -712,10 +712,6 @@
     margin-right: auto;
 }
 
-/* The row's box (padding, corner radius, hover, active background) now
-   comes from the shared .technique-row in components.css via the
-   TechniqueRow component — this class only adds the whole-row-is-clickable
-   cursor Processing needs that Results' rows don't. */
 /* .field-title is a plain heading everywhere else in this form (Hard mode's
    section labels, the stations counter). Inside a Processing technique row
    it is also the technique's name control: clicking it switches the canvas
@@ -753,15 +749,13 @@
     font-weight: 700;
 }
 
-/* STIV/iWave before their STI images or spectra exist yet — nothing to preview. */
-.technique-row-processing-disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
-}
+/* STIV/iWave before their STI images or spectra exist yet — nothing to
+   preview. The row is deliberately NOT dimmed: its run switch is what creates
+   the STIs or spectra, so it must not look disabled. Only the name (below)
+   and the row hover signal that there is nothing to switch the canvas to. */
 
-/* The name button sets its own cursor:pointer, so the disabled row's
-   not-allowed cursor above no longer reaches it by inheritance; this restates
-   it. Scoped to -disabled only, not -unavailable: an unavailable
+/* The name button's cursor:pointer would otherwise show on a name with
+   nothing to preview yet. Scoped to -disabled only, not -unavailable: an unavailable
    (weights-missing) STIV row with STIs on disk can still switch the preview. */
 .technique-row-processing-disabled .field-title {
     cursor: not-allowed;

@@ -88,3 +88,11 @@ describe('FormProcessing technique names switch the canvas preview (synced with 
     expect(formProcessing).toMatch(/if \(!canToggleIwave\) return;/);
   });
 });
+
+describe('STIV/iWave rows before their first run', () => {
+  it('are not dimmed, since their run switch is what creates the STIs/spectra', () => {
+    const formCss = read('components/Forms/form.css');
+    const rule = formCss.match(/\.technique-row-processing-disabled\s*{([^}]*)}/s)?.[1] ?? '';
+    expect(rule).not.toMatch(/opacity/);
+  });
+});

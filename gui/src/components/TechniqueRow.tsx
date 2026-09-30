@@ -13,7 +13,7 @@ interface TechniqueRowProps extends Omit<HTMLAttributes<HTMLDivElement>, 'classN
   /** Whether this technique is currently hidden (Results only). Fades the row. */
   hidden?: boolean;
   /** Extra class(es) the caller wants on the row, e.g. Processing's
-   *  `technique-row-processing` (cursor) or `technique-row-processing-disabled`. */
+   *  `technique-row-processing` or `technique-row-processing-disabled`. */
   className?: string;
   /** The row's own content — Results passes its name button + trailing
    *  controls; Processing passes its field-title + trailing controls. Each
