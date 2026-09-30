@@ -43,6 +43,7 @@ import { join } from 'path';
 const SRC = join(__dirname, '..');
 
 const FILES = [
+  'pages/CameraCalibration.tsx',
   'pages/CrossSections.tsx',
   'pages/Processing.tsx',
   'pages/VideoRange.tsx',
@@ -51,6 +52,9 @@ const FILES = [
   'components/Carousel.tsx',
   'components/ImageProcessing.tsx',
   'components/FloatingPlot.tsx',
+  'components/Calibration/CalibrationCanvas.tsx',
+  'components/Calibration/CalibrationStrip.tsx',
+  'components/Calibration/CalibrationViewControl.tsx',
 ];
 
 const walk = (dir: string, extensions: string[]): string[] =>
