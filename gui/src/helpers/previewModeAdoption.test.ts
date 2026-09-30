@@ -31,6 +31,13 @@ describe('.seg-float', () => {
     expect(indexCss).toMatch(/\.seg-float\s*{[^}]*background:\s*var\(--canvas-chrome\)/s);
   });
 
+  it('stacks above the image it floats over (every other canvas-chrome element sets a z-index)', () => {
+    const body = indexCss.match(/\.seg-float\s*{([^}]*)}/s)?.[1] ?? '';
+    const z = Number(body.match(/z-index:\s*(\d+)/)?.[1]);
+    expect(z).toBeGreaterThanOrEqual(5);
+    expect(z).toBeLessThan(1001); // FloatingPlot draggable stays above
+  });
+
   it('segment buttons carry a selected state and a disabled-with-tooltip state', () => {
     expect(indexCss).toMatch(/\.seg-float button\[aria-selected=['"]true['"]\]/);
     expect(indexCss).toMatch(/\.seg-float button\[aria-disabled=['"]true['"]\]/);
