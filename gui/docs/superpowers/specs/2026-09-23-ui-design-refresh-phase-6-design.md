@@ -258,3 +258,13 @@ On A5's threshold, the ruling recorded in 6a's plan: states Phase 6 introduces g
 Two further corrections surfaced during this plan's execution, not by the preview review itself but worth recording alongside it: Task 9's guard test originally named `.technique-seed-flag`/`.technique-eye-btn`/`.technique-disclosure-btn` as classes this phase retires, which was wrong — all three have live, correct consumers outside this phase's scope (the Median button and `TechniqueLegend.tsx`) and stay. And the cross-section delete affordance (Task 5) was relocated out of the per-row chip to a standalone icon button, since sections remain single-choice with no per-row controls (§4/6c's A1 rule), unlike masks and regions.
 
 Known debt from 6c's final whole-branch review, not spec-sanctioned: masks still use the separate pre-existing `MaskToolbar.tsx` (its own `.mask-toolbar*` CSS and `CrossSections.*` i18n keys), not the shared `ShapeToolbar` this phase built and wired only to regions. No 6c task named `MaskToolbar.tsx`, so unifying the two is deferred, not part of this phase's scope. The same review found the region toolbar left the visible viewport when the video was zoomed in (it was pinned to the video's bottom-centre, which zoom pushes off-screen); that one was fixed in the review's fix wave by folding the pan offset into the toolbar's counter-transform, so it now tracks the viewport's bottom-centre, not the shape.
+
+### 2026-09-30 — after 6d's preview review
+
+6d's preview (`docs/superpowers/previews/2026-09-30-phase-6d-processing-preview-control.html`) was approved by the product owner 2026-09-30. It proposed two concrete values the spec text had left open; both are now locked in as amendment A11.
+
+| # | Amendment | Evidence that prompted it |
+|---|---|---|
+| **A11** | `--canvas-chrome: rgba(10, 12, 14, 0.84)` unifies `.mode-hint`'s prior 0.82 and `.mask-toolbar`'s prior 0.86 into one token (spec §4/6d already named this extraction; the preview fixed the number). `.seg-float` is placed top-centre on Processing's canvas, the one edge the mode-hint pill (bottom-centre), the shape toolbar (bottom-centre, different pages), and the colour bar (bottom-right) don't already claim. | Neither value was in the spec text. The preview proposed both explicitly, flagged them as open questions, and the product owner approved the preview as shown. |
+
+Also confirmed during 6d: the technique-row rebuild §4/6d's prose describes was already shipped in 6c (A10/D12), so 6d's actual diff is scoped to the segmented control, the `uiSlice` state move, and the row-click removal, not a rebuild of rows that already exist in their final shape.
