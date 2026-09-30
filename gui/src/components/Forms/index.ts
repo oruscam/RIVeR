@@ -1,4 +1,5 @@
 import { FormVideo } from './FormVideo';
+import { FormCalibration } from './FormCalibration';
 import { FormCrossSections } from './FormCrossSections';
 import { FormResults } from './FormResults';
 import { FormReport } from './FormReport';
@@ -10,6 +11,7 @@ import { FormProcessing } from './FormProcessing';
 
 export {
   FormAnalizing,
+  FormCalibration,
   FormCrossSections,
   FormIpcam,
   FormOblique,

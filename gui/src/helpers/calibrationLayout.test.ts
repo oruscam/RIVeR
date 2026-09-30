@@ -77,3 +77,37 @@ describe('CalibrationStrip', () => {
     expect(strip).toMatch(/storageKey:\s*['"]river-cal-carousel-height['"]/);
   });
 });
+
+describe('FormCalibration', () => {
+  const form = read('components/Forms/FormCalibration.tsx');
+
+  it('opens with the standard FormHeader, without the wizard stepper or section chips', () => {
+    expect(form).toMatch(/<FormHeader[^>]*showProgress=\{false\}[^>]*showSections=\{false\}/s);
+  });
+
+  it('puts Back and the single Solve/Save action in the standard footer', () => {
+    expect(form).toMatch(/className=["']footer["']/);
+    expect(form).toMatch(/className=["']wizard-container["']/);
+    expect(form).toMatch(/footerAction\(\{/);
+    expect(form).toMatch(/aria-disabled=\{action\.blocker !== null\}/);
+    expect(form).toMatch(/if \(action\.blocker !== null\) return;/);
+  });
+
+  it('renders ratings as .badge through badgeGrade, never as coloured text', () => {
+    expect(form).toMatch(/badgeGrade\(/);
+    expect(form).toMatch(/`badge badge-\$\{/);
+    expect(form).not.toMatch(/cal-metric-|cal-grade-pill/);
+  });
+
+  it('merges the recommendations into one titled warning alert', () => {
+    expect((form.match(/className=["']step-alert-title["']/g) ?? []).length).toBe(1);
+    expect(form).toMatch(/stepAlertClassName\(['"]warning['"]\)/);
+  });
+
+  it('keeps the histogram in the panel and off every canvas-side component', () => {
+    expect(form).toMatch(/<CalibrationHistogram\b/);
+    for (const file of ['CalibrationCanvas', 'CalibrationStrip', 'CalibrationViewControl']) {
+      expect(read(`components/Calibration/${file}.tsx`)).not.toMatch(/Histogram/);
+    }
+  });
+});
