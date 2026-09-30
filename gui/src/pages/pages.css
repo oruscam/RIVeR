@@ -779,6 +779,109 @@
     white-space: nowrap;
 }
 
+/* The panel body keeps .form-container .body's scrolling and adds side
+   padding, which the wizard forms get from their own inner wrappers. */
+.cal-panel-body {
+    padding: 0 18px;
+    box-sizing: border-box;
+}
+
+/* One-line instruction under the title. Calibration is the only
+   .form-container screen launched outside the wizard, so it has no stepper
+   to orient the user and says what to do instead. */
+.cal-sub {
+    margin: 4px 0 14px;
+    text-align: center;
+    color: var(--secondary-text-color);
+    font-size: var(--text-body);
+}
+
+/* Show board / Import images: two small secondary actions side by side,
+   above the state-dependent content. */
+.cal-top-actions {
+    display: flex;
+    justify-content: center;
+    gap: var(--space-2);
+    margin-bottom: 14px;
+}
+
+/* "24 photos loaded" — the photos-loaded, not-yet-solved state. */
+.cal-count {
+    margin-top: 10px;
+    text-align: center;
+    color: var(--secondary-text-color);
+    font-size: var(--text-body);
+}
+
+/* Section headings inside the solved results (histogram, save). */
+.cal-section-title {
+    margin: 18px 0 8px;
+    font-size: var(--text-body);
+    font-weight: 700;
+}
+
+/* Overall rating with Solve again pushed to the right. */
+.cal-overall {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+}
+
+.cal-overall b {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: var(--text-section);
+}
+
+/* The six metric ratings, two per row: label then badge. */
+.cal-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2) var(--space-3);
+    margin: 12px 0;
+    font-size: var(--text-meta);
+}
+
+/* One label + badge pair inside the grid. */
+.cal-metric {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    color: var(--secondary-text-color);
+}
+
+/* A metric the solver didn't grade: a neutral dash, never a badge. */
+.cal-grade-missing {
+    color: var(--secondary-text-color);
+}
+
+/* Camera name and Lens / zoom side by side. */
+.cal-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+/* Resolution: a read-only fact, shown as text rather than a greyed input. */
+.cal-kv {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0 0;
+    font-size: var(--text-meta);
+}
+
+.cal-kv dt {
+    color: var(--secondary-text-color);
+}
+
+.cal-kv dd {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
 /* ── Lens correction settings rows (VideoRange) ──────────────── */
 .lens-correction-section {
     width: 90%;
