@@ -723,6 +723,62 @@
     pointer-events: none;
 }
 
+/* The strip's row. The shared Carousel virtualises its list with react-window;
+   calibration sets are small (tens of photos), so a plain scrolling flex row
+   with lazy-loaded thumbnails is enough. --thumb-height/--thumb-width come
+   from useResizableCarousel via inline custom properties. */
+.cal-strip {
+    display: flex;
+    gap: var(--space-2);
+    flex: 1;
+    min-width: 0;
+    margin-top: 8px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+/* Each thumbnail is a real <button> (keyboard-reachable) wearing the shared
+   .img-carousel-container look, so the UA button chrome is reset here. */
+.cal-strip-thumb {
+    flex: 0 0 var(--thumb-width);
+    background: none;
+    border: 0;
+    padding: 0;
+}
+
+.cal-strip-thumb .img-carousel {
+    display: block;
+    width: 100%;
+    height: var(--thumb-height);
+    object-fit: cover;
+}
+
+/* A photo the solver rejected. Must read differently from "not selected",
+   which the shared carousel already shows as brightness(0.42), so it is also
+   desaturated. Selector is (0,4,0) to beat the shared resting-dim rule's
+   (0,3,0); a selected unused photo keeps the normal selected look. */
+.cal-strip .img-carousel.cal-strip-unused:not(.img-carousel-active) {
+    filter: grayscale(1) brightness(0.3);
+}
+
+/* The word that makes an unused photo's state explicit (not colour/dimming
+   alone). Sits on the same canvas-chrome backdrop as the other over-image
+   labels, since it overlays photo pixels. */
+.cal-strip-unused-tag {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    padding: 1px 6px;
+    border-radius: var(--radius-full);
+    background: var(--canvas-chrome);
+    color: var(--overlay-line);
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
 /* ── Lens correction settings rows (VideoRange) ──────────────── */
 .lens-correction-section {
     width: 90%;
