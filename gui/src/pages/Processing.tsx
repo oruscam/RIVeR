@@ -182,7 +182,6 @@ export const Processing = () => {
           showMedian={showMedian}
           setShowMedian={setShowMedian}
           previewMode={previewMode}
-          setPreviewMode={onSetPreviewMode}
           canToggleSti={stiPaths.length > 0}
           canToggleIwave={spectrumPaths.length > 0}
           canToggleMedian={fullQuiver !== null}

@@ -716,26 +716,17 @@
    comes from the shared .technique-row in components.css via the
    TechniqueRow component — this class only adds the whole-row-is-clickable
    cursor Processing needs that Results' rows don't. */
-.technique-row-processing {
-    cursor: pointer;
-}
-
-/* .field-title is a plain heading everywhere else in this form (Hard mode's
-   section labels, the stations counter) — only inside a Processing technique
-   row is it also the row's clickable name control (Task 7), so the button
-   reset lives on this compound selector rather than on the bare class. The
-   explicit font-size replaces the 1.17em an <h3> got for free from the UA
-   stylesheet, now that this is a <button>. */
+/* .field-title is a plain heading everywhere else in this form too (Hard
+   mode's section labels, the stations counter). Inside a Processing
+   technique row it's the technique's name, non-interactive since Phase 6d
+   moved the canvas-preview switch onto PreviewModeControl.tsx. The explicit
+   font-size replaces the 1.17em an <h3> got for free; this is a <span>. */
 .technique-row-processing .field-title {
     flex: 1;
     min-width: 0;
     color: var(--secondary-text-color);
-    background: none;
-    border: none;
-    padding: 0;
     font-size: 1.17em;
     text-align: left;
-    cursor: pointer;
 }
 
 /* Groups the STIV name button with its "reset angles" button in the row
@@ -760,17 +751,6 @@
 .technique-row-processing-disabled {
     cursor: not-allowed;
     opacity: 0.5;
-}
-
-/* The name button now sets its own cursor:pointer (it's a real button, not an
-   inert <h3>), so the disabled row's not-allowed cursor above no longer
-   reaches it by inheritance — this restates it directly. Scoped to -disabled
-   only, not -unavailable: an unavailable (weights-missing) STIV row still
-   lets its name button switch the preview, it only looks muted — the click
-   guard the name button carries is canToggleSti, the same condition
-   -disabled represents, not stivAvailable. */
-.technique-row-processing-disabled .field-title {
-    cursor: not-allowed;
 }
 
 /* Compound with .technique-row (not bare) so this keeps beating the shared
