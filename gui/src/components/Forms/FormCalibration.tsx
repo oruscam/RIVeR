@@ -152,15 +152,15 @@ export const FormCalibration = ({
     <>
       <FormHeader title={t('Calibration.title')} showProgress={false} showSections={false} />
 
-      <div className="body cal-panel-body">
+      <div className="body">
         <p className="cal-sub">
           {t('Calibration.subtitle', { defaultValue: 'Import photos of the board, then solve.' })}
         </p>
 
-        <div className="cal-top-actions">
+        <div className="input-container-2 mt-1">
           <button
             type="button"
-            className="btn btn-sm btn-secondary"
+            className="btn btn-lg btn-secondary form-button me-1"
             aria-disabled={busy}
             title={busy ? t('Calibration.solving') : undefined}
             onClick={() => {
@@ -172,7 +172,7 @@ export const FormCalibration = ({
           </button>
           <button
             type="button"
-            className="btn btn-sm btn-secondary"
+            className="btn btn-lg btn-secondary form-button"
             aria-disabled={busy}
             title={busy ? t('Calibration.solving') : undefined}
             onClick={() => {
@@ -189,9 +189,12 @@ export const FormCalibration = ({
         )}
 
         {imageCount > 0 && status === 'idle' && (
-          <p className="cal-count">
-            {t('Calibration.photosLoaded', { defaultValue: '{{count}} photos loaded', count: imageCount })}
-          </p>
+          <div className="form-video-extra-info cal-info">
+            <div className="form-video-extra-info-row">
+              <p>{t('Calibration.photos', { defaultValue: 'Photos' })}</p>
+              <p>{imageCount}</p>
+            </div>
+          </div>
         )}
 
         {status === 'solving' && (
@@ -213,23 +216,29 @@ export const FormCalibration = ({
 
         {status === 'solved' && summary && (
           <>
-            <div className="cal-overall">
-              <b>
-                {t('Calibration.overall', { defaultValue: 'Overall' })}
+            <div className="form-video-extra-info cal-info">
+              <div className="form-video-extra-info-row">
+                <p>
+                  <b>{t('Calibration.overall', { defaultValue: 'Overall' })}</b>
+                </p>
                 <GradeBadge grade={summary.verdict?.grade_overall} />
-              </b>
-              <button type="button" className="btn btn-sm btn-tertiary" onClick={onSolve}>
-                {t('Calibration.solveAgain', { defaultValue: 'Solve again' })}
-              </button>
+              </div>
+              {METRICS.map(([labelKey, gradeKey]) => (
+                <div key={labelKey} className="form-video-extra-info-row">
+                  <p>{t(labelKey)}</p>
+                  <GradeBadge grade={summary.verdict?.grades?.[gradeKey]} />
+                </div>
+              ))}
+              <div className="form-video-extra-info-row">
+                <p>{t('Calibration.resolution')}</p>
+                <p>{imageResolution ? `${imageResolution.width} × ${imageResolution.height} px` : '—'}</p>
+              </div>
             </div>
 
-            <div className="cal-metrics">
-              {METRICS.map(([labelKey, gradeKey]) => (
-                <span key={labelKey} className="cal-metric">
-                  <span>{t(labelKey)}</span>
-                  <GradeBadge grade={summary.verdict?.grades?.[gradeKey]} />
-                </span>
-              ))}
+            <div className="input-container-2 mt-2">
+              <button type="button" className="btn btn-lg btn-secondary form-button" onClick={onSolve}>
+                {t('Calibration.solveAgain', { defaultValue: 'Solve again' })}
+              </button>
             </div>
 
             {actions.length > 0 && (
@@ -249,19 +258,25 @@ export const FormCalibration = ({
 
             {csvRows.length > 0 && (
               <>
+                <span className="divider-line mt-2 mb-1" />
                 <h3 className="cal-section-title">{t('Calibration.histogram')}</h3>
                 <CalibrationHistogram rows={csvRows} />
               </>
             )}
 
+            <span className="divider-line mt-2 mb-1" />
             <h3 className="cal-section-title">
               {t('Calibration.saveSection', { defaultValue: 'Save as camera profile' })}
             </h3>
-            <div className="cal-fields">
-              <div className="simple-input-container cal-combo">
-                <label>{t('Calibration.cameraName')}</label>
+            <div className="input-container-2 mt-1">
+              <label className="read-only me-1" htmlFor="cal-camera-name">
+                {t('Calibration.cameraName')}
+              </label>
+              <div className="input-field-container cal-combo">
                 <input
+                  id="cal-camera-name"
                   type="text"
+                  className="input-field"
                   value={cameraName}
                   onChange={(e) => {
                     setCameraName(e.target.value);
@@ -269,7 +284,6 @@ export const FormCalibration = ({
                   }}
                   onFocus={() => setComboOpen(true)}
                   onBlur={() => setTimeout(() => setComboOpen(false), 150)}
-                  placeholder={t('Calibration.cameraName')}
                 />
                 {comboOpen && cameraSuggestions.length > 0 && (
                   <ul className="cal-combo-list">
@@ -287,20 +301,21 @@ export const FormCalibration = ({
                   </ul>
                 )}
               </div>
-              <div className="simple-input-container">
-                <label>{t('Calibration.lensName')}</label>
+            </div>
+            <div className="input-container-2 mt-1">
+              <label className="read-only me-1" htmlFor="cal-lens-name">
+                {t('Calibration.lensName')}
+              </label>
+              <div className="input-field-container">
                 <input
+                  id="cal-lens-name"
                   type="text"
+                  className="input-field"
                   value={lensName}
                   onChange={(e) => setLensName(e.target.value)}
-                  placeholder={t('Calibration.lensName')}
                 />
               </div>
             </div>
-            <dl className="cal-kv">
-              <dt>{t('Calibration.resolution')}</dt>
-              <dd>{imageResolution ? `${imageResolution.width} × ${imageResolution.height} px` : '—'}</dd>
-            </dl>
 
             {savedPath && (
               <SuccessBanner compact icon={LuCheckCircle} title={t('Calibration.savedTo')}>
