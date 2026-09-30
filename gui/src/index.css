@@ -58,6 +58,15 @@
      redeclared per [data-theme]. */
   --overlay-line: #FFFFFF;
   --overlay-dim:  rgba(0, 0, 0, 0.4);
+
+  /* Translucent-dark-plus-blur backdrop for chrome that sits directly over
+     video footage: the mode-hint pill, the mask/shape toolbar, and (Phase 6d)
+     the Processing preview segmented control. Like --overlay-line/-dim above,
+     this sits on footage rather than app chrome, so one value works in every
+     theme. Was two slightly different, un-tokenized literals (0.82 for
+     .mode-hint, 0.86 for .mask-toolbar) before Phase 6d unified them: see
+     spec amendment A11. */
+  --canvas-chrome: rgba(10, 12, 14, 0.84);
 }
 
 /* =============================================================================
