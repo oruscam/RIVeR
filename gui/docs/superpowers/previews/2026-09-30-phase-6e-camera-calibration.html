@@ -1,0 +1,536 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Phase 6e — Camera calibration re-layout, three themes</title>
+    <!-- The real stylesheets, not copies: every class below that is NOT in the
+         "NEW, PROPOSED" block is the shipped rule from src/. That is the point of
+         6e's "done means": the calibration screen should be built from the same
+         .regular-page / .media-container / .form-container / .footer / carousel /
+         .btn / .seg-float rules as every wizard step. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@700&display=swap" />
+    <link rel="stylesheet" href="../../../src/index.css" />
+    <link rel="stylesheet" href="../../../src/pages/pages.css" />
+    <link rel="stylesheet" href="../../../src/components/components.css" />
+    <link rel="stylesheet" href="../../../src/components/Forms/form.css" />
+    <link rel="stylesheet" href="../../../src/components/Messages/messages.css" />
+    <style>
+      /* ---------------- preview chrome (not part of the proposal) ---------------- */
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        background: #0b0c0e;
+        color: #e8ecf0;
+      }
+      .doc {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: 24px 20px 60px;
+      }
+      .doc h1 {
+        font: 700 26px Outfit, Inter, sans-serif;
+        margin: 0 0 6px;
+      }
+      .doc > p,
+      .state-head p {
+        color: #a9b1ba;
+        max-width: 90ch;
+        margin: 0 0 12px;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+      .toolbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        padding: 10px 0;
+        background: #0b0c0e;
+        font-size: 13px;
+      }
+      .toolbar button {
+        border: 1px solid #3a4048;
+        background: #16191d;
+        color: #e8ecf0;
+        border-radius: 999px;
+        padding: 6px 14px;
+        font: 600 13px Inter, sans-serif;
+        cursor: pointer;
+      }
+      .toolbar button[aria-pressed='true'] {
+        background: #58b8f0;
+        color: #04131d;
+        border-color: #58b8f0;
+      }
+      .state-head {
+        margin: 34px 0 10px;
+      }
+      .state-head h2 {
+        font: 700 18px Outfit, Inter, sans-serif;
+        margin: 0 0 4px;
+      }
+      .state-head h2 span {
+        font: 500 12px Inter, sans-serif;
+        color: #8a939d;
+        margin-left: 8px;
+      }
+      .frame-wrap {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid #262a30;
+      }
+      /* A fixed app-window-sized box so the real 70% / 29% workspace widths
+         resolve the way they do in the Electron window. */
+      .frame {
+        width: 1280px;
+        height: 760px;
+        background: var(--background-color);
+        color: var(--primary-text-color);
+        font-family: Inter, system-ui, sans-serif;
+        position: relative;
+      }
+      .note {
+        display: inline-block;
+        font: 600 11px Inter, sans-serif;
+        color: #04131d;
+        background: #f5bf61;
+        border-radius: 4px;
+        padding: 1px 6px;
+        margin-left: 6px;
+        vertical-align: 2px;
+      }
+      .compare {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+      .compare > div {
+        background: var(--secondary-background-color);
+        color: var(--primary-text-color);
+        border-radius: 12px;
+        padding: 16px;
+      }
+      .compare h3 {
+        margin: 0 0 10px;
+        font: 600 12px Inter, sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--secondary-text-color);
+      }
+      .compare .row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        flex-wrap: wrap;
+        margin-bottom: 10px;
+        font-size: 12px;
+      }
+      .compare .row > span:first-child {
+        width: 92px;
+        color: var(--secondary-text-color);
+      }
+
+      /* =====================================================================
+         NEW, PROPOSED — does not exist in src/ yet (spec amendment A12).
+         ===================================================================== */
+
+      /* .badge — worded rating. Dot + word + a light status tint. The WORD is
+         --primary-text-color in every theme: as coloured text on its own tint
+         the status colours measure below 4.5:1 in light (good 3.45, fair 2.68,
+         bad 3.64) and for dracula bad (4.15). The colour lives on the dot
+         (>= 3:1 against the panel in every theme, non-text floor) and the tint.
+         First consumer: calibration (7 badges). */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 22px;
+        padding: 0 8px;
+        border-radius: var(--radius-sm);
+        font: 600 12px Inter, sans-serif;
+        color: var(--primary-text-color);
+        white-space: nowrap;
+      }
+      .badge::before {
+        content: '';
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+        flex: none;
+      }
+      .badge-good { background: color-mix(in srgb, var(--status-good) 15%, transparent); }
+      .badge-fair { background: color-mix(in srgb, var(--status-fair) 15%, transparent); }
+      .badge-bad  { background: color-mix(in srgb, var(--status-bad) 15%, transparent); }
+      .badge-good::before { background: var(--status-good); }
+      .badge-fair::before { background: var(--status-fair); }
+      .badge-bad::before  { background: var(--status-bad); }
+      /* Comparison only (NOT proposed): the coloured-word variant. */
+      .badge.coloured.badge-good { color: var(--status-good); }
+      .badge.coloured.badge-fair { color: var(--status-fair); }
+      .badge.coloured.badge-bad  { color: var(--status-bad); }
+
+      /* .step-alert gains an optional title; body copy wraps under it.
+         Additive — existing single-line alerts are unchanged. */
+      .step-alert-content { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+      .step-alert-title { font-weight: 600; }
+      .step-alert-content ul { margin: 0; padding-left: 16px; color: var(--secondary-text-color); line-height: 1.45; }
+
+      /* Calibration-specific survivors (each would carry a comment in src/). */
+      .cal-overlay-demo { position: absolute; inset: 0; display: flex; padding: 8px; box-sizing: border-box; }
+      .cal-canvas {
+        flex: 1 1 0; min-height: 0; width: 98%;
+        display: flex; align-items: center; justify-content: center;
+        position: relative;
+      }
+      .cal-canvas svg { max-width: 100%; max-height: 100%; border-radius: 8px; }
+      .cal-empty-canvas {
+        color: var(--secondary-text-color); font-size: 14px; text-align: center;
+      }
+      /* "Not used" thumbnail: unused photos after solving. Stronger than the
+         carousel's normal brightness(0.42) resting state, plus a word, so an
+         unused photo never reads as merely unselected. */
+      .img-carousel.cal-thumb-unused { filter: grayscale(1) brightness(0.3) !important; }
+      .cal-thumb-unused-tag {
+        position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%);
+        font: 700 10px Inter, sans-serif; color: #fff; background: rgba(0,0,0,.7);
+        border-radius: 999px; padding: 1px 6px; z-index: 2; white-space: nowrap;
+      }
+      .cal-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; flex: 1; margin: 8px 6px 0; }
+      .cal-strip .img-carousel-container svg { width: 98%; height: auto; display: block; border-radius: 20px; }
+      .cal-strip .img-carousel-container .img-carousel { display: block; }
+
+      /* Panel pieces */
+      .cal-sub { color: var(--secondary-text-color); font-size: 14px; margin: 4px 0 14px; text-align: center; }
+      .cal-top-actions { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; }
+      .cal-section-title { font-weight: 700; font-size: 14px; margin: 18px 0 8px; display: flex; justify-content: space-between; align-items: baseline; }
+      .cal-section-title span { font-weight: 400; font-size: 12px; color: var(--secondary-text-color); }
+      .cal-overall { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .cal-overall b { font-size: 16px; display: inline-flex; gap: 10px; align-items: center; }
+      .cal-metrics { display: grid; grid-template-columns: 1fr auto 1fr auto; gap: 8px 10px; align-items: center; font-size: 13px; margin-top: 12px; }
+      .cal-metrics > span:not(.badge) { color: var(--secondary-text-color); }
+      .cal-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .cal-field label { display: block; font-size: 12px; color: var(--secondary-text-color); margin-bottom: 4px; }
+      .cal-field .input-mock {
+        height: 36px; border-radius: 8px; background: var(--input-background);
+        display: flex; align-items: center; padding: 0 10px; font-size: 14px;
+      }
+      .cal-field .input-mock.ph { color: var(--secondary-text-color); }
+      .cal-kv { display: flex; justify-content: space-between; font-size: 13px; margin-top: 10px; }
+      .cal-kv dt { color: var(--secondary-text-color); }
+      .cal-kv dd { margin: 0; font-variant-numeric: tabular-nums; }
+      .cal-count { text-align: center; color: var(--secondary-text-color); font-size: 14px; margin-top: 10px; }
+      .cal-drop {
+        border: 2px dashed var(--border-color); border-radius: 12px; padding: 28px 16px;
+        text-align: center; color: var(--secondary-text-color); font-size: 14px; line-height: 1.5;
+      }
+      .cal-progress { margin-top: 20px; text-align: center; }
+      .cal-progress .bar { height: 6px; border-radius: 3px; background: var(--input-background); overflow: hidden; margin: 10px 0 8px; }
+      .cal-progress .bar i { display: block; height: 100%; width: 62%; background: var(--accent-color); }
+      .cal-progress small { color: var(--secondary-text-color); }
+      .tooltip-demo {
+        position: absolute; right: 18px; bottom: 74px; z-index: 5;
+        background: #1b2430; color: #f2f5f8; font-size: 12px; border-radius: 6px;
+        padding: 5px 9px; box-shadow: 0 6px 16px rgba(0,0,0,.35); white-space: nowrap;
+      }
+      .tooltip-demo.top { top: 58px; bottom: auto; right: auto; left: 50%; transform: translateX(10%); }
+      .hist { display: block; width: 100%; height: auto; }
+      .hist rect { fill: var(--accent-color); }
+      .hist line { stroke: var(--border-color); }
+      .hist text { fill: var(--secondary-text-color); font: 10px Inter, sans-serif; }
+      .success-demo {
+        margin-top: 12px; display: flex; gap: 10px; align-items: flex-start;
+        background: color-mix(in srgb, var(--status-good) 12%, transparent);
+        border-radius: 8px; padding: 10px 12px; font-size: 13px;
+      }
+      .success-demo b { display: block; }
+      .success-demo a { color: var(--accent-color); word-break: break-all; }
+      .form-container .body.cal-body { padding: 0 18px; box-sizing: border-box; }
+    </style>
+  </head>
+  <body>
+    <div class="doc">
+      <h1>Phase 6e — Camera calibration re-layout</h1>
+      <p>
+        Calibration rebuilt on the standard workspace: canvas and strip on the left, panel on the right,
+        actions in the footer, the same as every wizard step (spec §4/6e, amendment A12). Every state is
+        drawn with the real stylesheets from <code>src/</code>. Only the block marked
+        <em>NEW, PROPOSED</em> in this file's source is new. Use the switch to view every state in each
+        theme. The last section puts the badges and the alert side by side in all three themes.
+      </p>
+      <div class="toolbar" role="group" aria-label="Theme">
+        <span style="color:#8a939d">Theme:</span>
+        <button data-set-theme="dark" aria-pressed="true">Dark</button>
+        <button data-set-theme="light" aria-pressed="false">Light</button>
+        <button data-set-theme="dracula" aria-pressed="false">Dracula</button>
+      </div>
+      <div id="states"></div>
+
+      <div class="state-head">
+        <h2>Badges and the titled alert <span>all three themes at once</span></h2>
+        <p>
+          Proposed: the word stays in the normal text colour, and the colour is carried by the dot and the tint.
+          The second row is the variant with coloured words, <strong>not proposed</strong>. The numbers are the
+          measured word-on-tint contrast (the target is 4.5:1).
+        </p>
+      </div>
+      <div class="compare" id="compare"></div>
+    </div>
+
+    <script>
+      /* ---------------- synthetic imagery ---------------- */
+      const board = (w, h, { skew = 0, rot = 0, corners = false, heat = false, dim = false } = {}) => {
+        const cols = 9, rows = 6, s = 34, bw = cols * s, bh = rows * s;
+        let cells = '';
+        for (let r = 0; r < rows; r++)
+          for (let c = 0; c < cols; c++)
+            if ((r + c) % 2 === 0) cells += `<rect x="${c * s}" y="${r * s}" width="${s}" height="${s}" fill="#111"/>`;
+        let marks = '';
+        if (corners) {
+          for (let r = 1; r < rows; r++)
+            for (let c = 1; c < cols; c++) {
+              const x = c * s, y = r * s, dx = ((r * 7 + c * 3) % 5) - 2, dy = ((r * 3 + c * 5) % 5) - 2;
+              marks += `<line x1="${x}" y1="${y}" x2="${x + dx}" y2="${y + dy}" stroke="rgba(50,180,255,.9)" stroke-width="1.5"/>`;
+              marks += `<circle cx="${x}" cy="${y}" r="4" fill="rgb(240,0,0)"/><circle cx="${x + dx}" cy="${y + dy}" r="3" fill="rgb(240,240,240)"/>`;
+            }
+        }
+        const heatLayer = heat
+          ? `<defs><radialGradient id="hg" cx="40%" cy="45%" r="60%"><stop offset="0" stop-color="#d7301f" stop-opacity=".9"/><stop offset=".45" stop-color="#fdae61" stop-opacity=".8"/><stop offset=".8" stop-color="#2c7bb6" stop-opacity=".7"/><stop offset="1" stop-color="#1a1a4a" stop-opacity=".9"/></radialGradient></defs><rect width="${w}" height="${h}" fill="url(#hg)"/>`
+          : '';
+        const bg = heat ? '#1a1a4a' : '#6b6f63';
+        const scene = heat
+          ? heatLayer + `<rect x="${(w - bw) / 2}" y="${(h - bh) / 2}" width="${bw}" height="${bh}" fill="none" stroke="#fff" stroke-dasharray="6 4" stroke-width="2"/>`
+          : `<g transform="translate(${w / 2} ${h / 2}) rotate(${rot}) skewX(${skew}) translate(${-bw / 2 - 14} ${-bh / 2 - 14})">
+               <rect width="${bw + 28}" height="${bh + 28}" rx="14" fill="#222"/>
+               <g transform="translate(14 14)"><rect width="${bw}" height="${bh}" fill="#f4f4f0"/>${cells}${marks}</g>
+             </g>`;
+        const rms = corners ? `<text x="10" y="22" fill="white" font="bold 13px Inter" font-weight="700" font-size="13">RMS 0.315 px</text>` : '';
+        return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg"><rect width="${w}" height="${h}" fill="${bg}"/>${scene}${rms}</svg>`;
+      };
+      const thumbPoses = [
+        { skew: -8, rot: -6 }, { skew: 6, rot: 4 }, { skew: 0, rot: 12 }, { skew: -14, rot: -2 },
+        { skew: 10, rot: -10 }, { skew: 3, rot: 20 }, { skew: -4, rot: 8 },
+      ];
+
+      /* ---------------- shared pieces ---------------- */
+      const seg = (sel, { solved, heatmap = true }) => {
+        const b = (id, label, dis, why) =>
+          `<button type="button" role="tab" aria-selected="${sel === id}"${dis ? ` aria-disabled="true" title="${why}"` : ''}>${label}</button>`;
+        return `<div class="seg-float" role="tablist" aria-label="View">
+          ${b('original', 'Original', false)}
+          ${b('corrected', 'Corrected', !solved, 'Solve the calibration first')}
+          ${b('heatmap', 'Heatmap', !solved || !heatmap, 'Solve the calibration first')}
+        </div>`;
+      };
+
+      const strip = ({ selected = 0, unused = [], count = 24 }) => `
+        <div class="carousel-container mt-1">
+          <div class="carousel-resize-handle"></div>
+          <div class="carousel-info"><div><input value="${selected + 1}" readonly /><p> / ${count} </p></div></div>
+          <div class="carousel">
+            <button class="video-button" title="Scroll back" style="width:28px">◀</button>
+            <div class="cal-strip">
+              ${thumbPoses
+                .map((p, i) => {
+                  const active = i === selected;
+                  const un = unused.includes(i);
+                  return `<div class="img-carousel-container" title="${un ? 'Not used by the solver' : 'photo_' + (i + 1) + '.jpg'}">
+                    <div class="img-carousel ${active ? 'img-carousel-active' : ''} ${un ? 'cal-thumb-unused' : ''}" style="overflow:hidden">${board(320, 200, p)}</div>
+                    <div class="img-water-mark">${i + 1}</div>
+                    ${un ? '<span class="cal-thumb-unused-tag">Not used</span>' : ''}
+                  </div>`;
+                })
+                .join('')}
+            </div>
+            <button class="video-button" title="Scroll forward" style="width:28px">▶</button>
+          </div>
+        </div>`;
+
+      const header = `
+        <div class="header"><h1 class="form-title">Camera calibration</h1></div>
+        <p class="cal-sub">Import photos of the board, then solve.</p>`;
+
+      const topActions = (busy) => `
+        <div class="cal-top-actions">
+          <button class="btn btn-sm btn-secondary"${busy ? ' aria-disabled="true" title="Solving…"' : ''}>Show board</button>
+          <button class="btn btn-sm btn-secondary"${busy ? ' aria-disabled="true" title="Solving…"' : ''}>Import images</button>
+        </div>`;
+
+      const footer = (right) => `
+        <div class="footer"><div class="wizard-container">
+          <button class="btn btn-lg btn-tertiary">Back</button>${right}
+        </div></div>`;
+
+      const hist = () => {
+        const bars = [2, 5, 11, 17, 14, 9, 5, 3, 1, 1];
+        const w = 300, h = 110, bw = 24;
+        return `<svg class="hist" viewBox="0 0 ${w} ${h}">
+          <line x1="20" y1="90" x2="${w - 6}" y2="90"/>
+          ${bars.map((v, i) => `<rect x="${24 + i * (bw + 3)}" y="${90 - v * 4.5}" width="${bw}" height="${v * 4.5}" rx="2"/>`).join('')}
+          <text x="24" y="104">0.1</text><text x="${w / 2 - 8}" y="104">0.5</text><text x="${w - 30}" y="104">1.0 px</text>
+        </svg>`;
+      };
+
+      const solvedPanel = ({ saved = false, named = false }) => `
+        <div class="body cal-body">
+          ${header}${topActions(false)}
+          <div class="cal-overall">
+            <b>Overall <span class="badge badge-fair">Fair</span></b>
+            <button class="btn btn-sm btn-tertiary">Solve again</button>
+          </div>
+          <div class="cal-metrics">
+            <span>Median RMS</span><span class="badge badge-good">Good</span>
+            <span>Coverage</span><span class="badge badge-bad">Bad</span>
+            <span>P90 RMS</span><span class="badge badge-good">Good</span>
+            <span>Edge reach</span><span class="badge badge-fair">Fair</span>
+            <span>Pose spread</span><span class="badge badge-good">Good</span>
+            <span>Centre offset</span><span class="badge badge-good">Good</span>
+          </div>
+          <div class="step-alert-list">
+            <div class="step-alert step-alert-warning" role="status">
+              <div class="step-alert-content">
+                <span class="step-alert-title">How to improve this calibration</span>
+                <ul>
+                  <li>Add frames hitting edges/corners; vary angle &amp; distance.</li>
+                  <li>Push board nearer sensor edges; allow some marker clipping.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="cal-section-title">Per-view error <span>reprojection error (px)</span></div>
+          ${hist()}
+          <div class="cal-section-title">Save as camera profile</div>
+          <div class="cal-fields">
+            <div class="cal-field"><label>Camera name</label><div class="input-mock ${named ? '' : 'ph'}">${named ? 'DJI Mini 3' : 'e.g. DJI Mini 3'}</div></div>
+            <div class="cal-field"><label>Lens / zoom</label><div class="input-mock ${named ? '' : 'ph'}">${named ? '24 mm' : 'e.g. 24 mm'}</div></div>
+          </div>
+          <dl class="cal-kv"><dt>Resolution</dt><dd>2560 × 1440 px</dd></dl>
+          ${
+            saved
+              ? `<div class="success-demo"><span style="color:var(--status-good)">✔</span><div><b>Saved to</b><a href="#">~/RIVeR/cameras/DJI Mini 3/24 mm/profile.json</a></div></div>`
+              : ''
+          }
+        </div>`;
+
+      /* ---------------- the states ---------------- */
+      const frame = (media, panel, extra = '') => `
+        <div class="frame-wrap"><div class="frame theme-target">
+          <div class="cal-overlay-demo"><div class="regular-page">
+            <div class="media-container">${media}</div>
+            <div class="form-container">${panel}</div>
+          </div></div>${extra}
+        </div></div>`;
+
+      const states = [
+        {
+          title: '1 · No photos yet',
+          tag: 'first open',
+          text: 'The canvas is empty and the panel does the talking. The whole panel stays a drop target, as today. <b>Solve</b> sits in the footer, where the wizard puts Next. It is <code>aria-disabled</code>, so its tooltip still shows on hover.',
+          html: frame(
+            `<div class="cal-canvas"><div class="cal-empty-canvas">No photos yet</div></div>`,
+            `<div class="body cal-body">${header}${topActions(false)}
+               <div class="cal-drop">Drop a folder of board photos here<br/>or use <b>Import images</b></div></div>
+             ${footer('<button class="btn btn-lg btn-primary" aria-disabled="true" title="Import photos first">Solve</button>')}`,
+            `<div class="tooltip-demo">Import photos first</div>`
+          ),
+        },
+        {
+          title: '2 · Photos loaded, not solved',
+          tag: 'Original is the only view',
+          text: 'Before solving, only <b>Original</b> exists. <b>Corrected</b> and <b>Heatmap</b> are dimmed on the same <code>.seg-float</code> as Processing, and their tooltips say why. The strip is the wizard strip: the same resize handle, <code>n / N</code> counter, accent ring and number watermark.',
+          html: frame(
+            `${seg('original', { solved: false })}
+             <div class="cal-canvas">${board(900, 500, thumbPoses[0])}</div>${strip({ selected: 0 })}`,
+            `<div class="body cal-body">${header}${topActions(false)}<p class="cal-count">24 photos loaded</p></div>
+             ${footer('<button class="btn btn-lg btn-primary">Solve</button>')}`,
+            `<div class="tooltip-demo top">Solve the calibration first</div>`
+          ),
+        },
+        {
+          title: '3 · Solving',
+          tag: 'busy',
+          text: 'The existing <code>Loading</code> progress sits in the panel. <b>Show board</b>, <b>Import</b> and <b>Solve</b> are unavailable while the solver runs. Solve reads as busy (<code>aria-busy</code>) rather than simply disabled.',
+          html: frame(
+            `${seg('original', { solved: false })}
+             <div class="cal-canvas">${board(900, 500, thumbPoses[3])}</div>${strip({ selected: 3 })}`,
+            `<div class="body cal-body">${header}${topActions(true)}
+               <div class="cal-progress"><b>Solving…</b><div class="bar"><i></i></div><small>62% · Remaining time 00:42</small></div></div>
+             ${footer('<button class="btn btn-lg btn-primary" aria-busy="true" aria-disabled="true">Solve</button>')}`
+          ),
+        },
+        {
+          title: '4 · Solved — Corrected view',
+          tag: 'Save disabled until named',
+          text: 'After solving, the view jumps to <b>Corrected</b>, showing the undistorted photo with the detected/projected corners and the RMS readout. Unused photos are muted in the strip and tagged <i>Not used</i>. The panel shows: Overall + <b>Solve again</b>, six worded badges, <b>one</b> titled alert, the histogram (kept in the panel under the canvas rule), then the save fields. The footer button is now <b>Save profile</b>, disabled with a tooltip naming what is missing.',
+          html: frame(
+            `${seg('corrected', { solved: true })}
+             <div class="cal-canvas">${board(900, 500, { corners: true })}</div>${strip({ selected: 0, unused: [2, 5] })}`,
+            `${solvedPanel({})}
+             ${footer('<button class="btn btn-lg btn-primary" aria-disabled="true" title="Name the camera and lens to save">Save profile</button>')}`,
+            `<div class="tooltip-demo">Name the camera and lens to save</div>`
+          ),
+        },
+        {
+          title: '5 · Solved — Heatmap view, after saving',
+          tag: 'saved',
+          text: '<b>Heatmap</b> shows where the board has covered the sensor. Both names are filled in, so <b>Save profile</b> is enabled. After saving, the existing success banner shows the path, and you can click it to reveal the file.',
+          html: frame(
+            `${seg('heatmap', { solved: true })}
+             <div class="cal-canvas">${board(900, 500, { heat: true })}</div>${strip({ selected: 0, unused: [2, 5] })}`,
+            `${solvedPanel({ saved: true, named: true })}
+             ${footer('<button class="btn btn-lg btn-primary">Save profile</button>')}`
+          ),
+        },
+      ];
+
+      document.getElementById('states').innerHTML = states
+        .map(
+          (s) => `<section><div class="state-head"><h2>${s.title}<span>${s.tag}</span></h2><p>${s.text}</p></div>${s.html}</section>`
+        )
+        .join('');
+
+      /* ---------------- all-three-themes comparison ---------------- */
+      const measured = {
+        dark: { good: '6.54', fair: '7.97', bad: '4.93' },
+        light: { good: '3.45', fair: '2.68', bad: '3.64' },
+        dracula: { good: '7.94', fair: '6.66', bad: '4.15' },
+      };
+      document.getElementById('compare').innerHTML = ['dark', 'light', 'dracula']
+        .map(
+          (th) => `<div data-theme="${th}">
+            <h3>${th}</h3>
+            <div class="row"><span>Proposed</span>
+              <span class="badge badge-good">Good</span><span class="badge badge-fair">Fair</span><span class="badge badge-bad">Bad</span></div>
+            <div class="row"><span>Coloured word<br/>(not proposed)</span>
+              ${['good', 'fair', 'bad']
+                .map((k) => {
+                  const v = measured[th][k];
+                  const fail = parseFloat(v) < 4.5;
+                  return `<span class="badge coloured badge-${k}">${k[0].toUpperCase() + k.slice(1)}</span><small style="color:${fail ? 'var(--status-bad)' : 'var(--secondary-text-color)'}">${v}${fail ? ' ✕' : ''}</small>`;
+                })
+                .join('')}
+            </div>
+            <div class="step-alert-list">
+              <div class="step-alert step-alert-warning"><div class="step-alert-content">
+                <span class="step-alert-title">How to improve this calibration</span>
+                <ul><li>Add frames hitting edges/corners; vary angle &amp; distance.</li></ul>
+              </div></div>
+              <div class="step-alert step-alert-error"><span>Calibration failed: not enough board corners detected.</span></div>
+            </div>
+          </div>`
+        )
+        .join('');
+
+      /* ---------------- theme switch ---------------- */
+      const setTheme = (th) => {
+        document.querySelectorAll('.theme-target').forEach((el) => el.setAttribute('data-theme', th));
+        document.querySelectorAll('[data-set-theme]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === th)));
+      };
+      document.querySelectorAll('[data-set-theme]').forEach((b) => b.addEventListener('click', () => setTheme(b.dataset.setTheme)));
+      setTheme('dark');
+    </script>
+  </body>
+</html>
