@@ -1,3 +1,4 @@
+import { CalibrationCanvas } from './CalibrationCanvas';
 import { CalibrationViewControl } from './CalibrationViewControl';
 
-export { CalibrationViewControl };
+export { CalibrationCanvas, CalibrationViewControl };

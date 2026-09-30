@@ -694,6 +694,35 @@
     opacity: 1 !important;
 }
 
+/* =============================================================================
+   CAMERA CALIBRATION (Phase 6e, spec amendment A12)
+   The overlay now sits on the standard workspace (.regular-page →
+   .media-container + .form-container + .footer). Every rule left here is
+   genuinely calibration-specific and says why; layout, buttons, the strip's
+   look and the view switch all come from the shared rules.
+   ============================================================================= */
+
+/* The corrected view stacks the corner-overlay canvas on the undistorted
+   image, so the image needs a positioned, centring box of its own. */
+.cal-undistorted-wrap {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Detected (red) vs projected (white) corners, drawn over the image. A drawing
+   surface, not a control: pointer events pass through to the image. Its
+   left/top/width/height are set per draw from the image's measured box. */
+.cal-corner-overlay {
+    position: absolute;
+    left: 0;
+    top: 0;
+    pointer-events: none;
+}
+
 /* ── Lens correction settings rows (VideoRange) ──────────────── */
 .lens-correction-section {
     width: 90%;
