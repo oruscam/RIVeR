@@ -23,3 +23,17 @@ describe('CalibrationViewControl', () => {
     expect(control).toMatch(/if \(availability\[mode\] !== null\) return;/);
   });
 });
+
+describe('CalibrationCanvas', () => {
+  const canvas = read('components/Calibration/CalibrationCanvas.tsx');
+
+  it('owns the corrected view and its corner overlay', () => {
+    expect(canvas).toMatch(/const UndistortedOverlay\b/);
+    expect(canvas).toMatch(/className=["']cal-corner-overlay["']/);
+    expect(canvas).toMatch(/import \{ toCalFileUrl \} from ['"]\.\.\/\.\.\/helpers\/calFileUrl['"]/);
+  });
+
+  it('positions nothing inline, so the canvas-chrome sweep has nothing to allow-list', () => {
+    expect(canvas).not.toMatch(/position:\s*['"]absolute['"]/);
+  });
+});
