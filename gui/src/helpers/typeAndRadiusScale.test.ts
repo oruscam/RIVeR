@@ -40,12 +40,11 @@ const PENDING: Record<string, { font: number; radius: number }> = {
   'components/Graphs/graphs.css': { font: 7, radius: 5 },
   'components/Messages/messages.css': { font: 6, radius: 0 },
   'components/components.css': { font: 22, radius: 21 },
-  'index.css': { font: 16, radius: 8 },
   'pages/pages.css': { font: 13, radius: 5 },
 };
 
 /** `file|selector|property: value` for every documented exception. */
-const EXCEPTIONS: string[] = [];
+const EXCEPTIONS: string[] = ['index.css|html|font-size: 16px', 'index.css|.info-icon|font-size: 30px'];
 
 const key = (file: string, d: CssDeclaration): string => `${file}|${d.selector}|${d.property}: ${d.value}`;
 

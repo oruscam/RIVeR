@@ -414,7 +414,7 @@
    ============================================================================= */
 
 html {
-  font-size: 16px;
+  font-size: 16px; /* scale-exception: root size that every rem in the app resolves against */
 }
 
 * {
@@ -477,7 +477,7 @@ html {
   border-radius: var(--radius-full);
   border: 0;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 700;
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -535,13 +535,13 @@ html {
 .btn-lg {
   height: 48px;
   padding: 0 var(--space-6);
-  font-size: 16px;
+  font-size: var(--text-section);
 }
 
 .btn-sm {
   height: 32px;
   padding: 0 var(--space-4);
-  font-size: 13px;
+  font-size: var(--text-meta);
 }
 
 .btn-block {
@@ -1139,9 +1139,9 @@ html {
   background-color: var(--input-background);
   color: var(--primary-text-color);
   border: none;
-  font-size: 20px;
+  font-size: var(--text-subtitle);
   text-align: center;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   flex: 1 1 auto;
   width: 150px;
   min-width: 70px;
@@ -1157,9 +1157,9 @@ html {
   background-color: var(--input-background);
   color: var(--primary-text-color);
   border: none;
-  font-size: 20px;
+  font-size: var(--text-subtitle);
   text-align: center;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   width: 100%;
   height: 50px;
 }
@@ -1172,9 +1172,9 @@ html {
   background-color: var(--input-background);
   color: var(--primary-text-color);
   border: none;
-  font-size: 20px;
+  font-size: var(--text-subtitle);
   text-align: center;
-  border-radius: 15px;
+  border-radius: var(--radius-lg);
   width: 90px;
   height: 35px;
   padding-left: 5px;
@@ -1189,9 +1189,9 @@ html {
   background-color: var(--input-background);
   color: var(--primary-text-color);
   border: none;
-  font-size: 20px;
+  font-size: var(--text-subtitle);
   text-align: center;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   flex: 1 1 auto;
   width: 150px;
   min-width: 70px;
@@ -1268,7 +1268,7 @@ textarea:focus-visible {
 
 .field-row > span:first-child {
   color: var(--secondary-text-color);
-  font-size: 14px;
+  font-size: var(--text-body);
 }
 
 .field {
@@ -1277,7 +1277,7 @@ textarea:focus-visible {
   background-color: var(--input-background);
   border: none;
   color: var(--primary-text-color);
-  font-size: 14px;
+  font-size: var(--text-body);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -1330,7 +1330,7 @@ textarea:focus-visible {
   background-color: var(--slider-bg);
   border: 1px solid var(--slider-border);
   transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-  border-radius: 28px;
+  border-radius: var(--radius-full);
 }
 
 .slider:hover {
@@ -1425,7 +1425,7 @@ input:disabled + .slider:hover {
 
 .loader-percentage-mid {
   position: absolute;
-  font-size: 1.2em;
+  font-size: var(--text-subtitle);
   color: var(--primary-text-color);
 }
 
@@ -1459,7 +1459,7 @@ input:disabled + .slider:hover {
 
 .loader-percentage-big {
   position: absolute;
-  font-size: 1.8em;
+  font-size: var(--text-title);
   font-weight: bold;
   color: var(--primary-text-color);
 }
@@ -1470,14 +1470,14 @@ input:disabled + .slider:hover {
 }
 
 .loader-remaining-time {
-  font-size: 1.6em !important;
+  font-size: var(--text-title) !important;
   font-weight: 500;
 }
 
 .analize-stage-breadcrumb {
   text-align: center;
   color: var(--secondary-text-color);
-  font-size: 0.85em;
+  font-size: var(--text-body);
   margin-bottom: 8px;
 }
 
@@ -1539,7 +1539,7 @@ input:disabled + .slider:hover {
   justify-content: space-between;
   gap: var(--space-2);
   margin-top: var(--space-1);
-  font-size: 12px;
+  font-size: var(--text-caption);
   color: var(--secondary-text-color);
 }
 
@@ -1610,7 +1610,7 @@ input:disabled + .slider:hover {
 ::-webkit-scrollbar-thumb {
   background: var(--primary-text-color);
   outline: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -1686,7 +1686,7 @@ input:disabled + .slider:hover {
    ============================================================================= */
 
 .info-icon {
-  font-size: 30px;
+  font-size: 30px; /* scale-exception: a "?" glyph sized as an icon, not as text */
   margin-left: 10px;
   margin-top: 5px;
   font-weight: bold;
@@ -1711,7 +1711,7 @@ input:disabled + .slider:hover {
 .info-gif {
   width: 100%;
   height: 100%;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
 }
 
 /* =============================================================================
@@ -1758,5 +1758,5 @@ svg.mask-mode-active .overlay-ui * {
     background: var(--secondary-background-color);
     border: 1px solid var(--readout-border);
     padding: 5px 10px;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
 }
