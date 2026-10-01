@@ -583,14 +583,6 @@
     width: 100%;
 }
 
-.spacer-div {
-    min-width: 165px;
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-    padding-right: 8px;
-}
-
 .add-mask-icon {
     width: 40px;
     height: 40px;
@@ -603,8 +595,7 @@
     background-color: var(--border-color);
 }
 
-#form-result .divider-line,
-#form-processing .divider-line {
+#form-result .divider-line {
     width: 96%;
     margin-left: auto;
     margin-right: auto;
@@ -809,4 +800,97 @@
 .processing-run .progress-readout {
     max-width: none;
     margin-top: var(--space-4);
+}
+
+/* Processing panel (preview 2026-10-01). The settings scroll; the run zone
+   below them and the footer never move. .body's height: 100% would push the
+   run zone off the panel, so this body flexes instead. */
+.form-container .body.processing-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.processing-form {
+    padding: 0 var(--space-4) var(--space-4);
+}
+
+.field-stepper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* D3: the disclosure column exists only in Advanced, so Basic keeps today's
+   five columns. */
+.processing-form.is-advanced .tech-row {
+    grid-template-columns: 12px 1fr 28px 78px 28px 28px;
+}
+
+.tech-disclose svg {
+    transition: transform 200ms var(--motion-ease);
+}
+
+.tech-disclose [aria-expanded='true'] svg {
+    transform: rotate(180deg);
+}
+
+.tech-status {
+    margin-left: var(--space-2);
+    font-size: var(--text-caption);
+    font-weight: 500;
+    color: var(--text-subdued);
+    white-space: nowrap;
+}
+
+.tech-status.tech-status-running {
+    color: var(--text-primary);
+}
+
+/* A technique's own settings, hung under its row. Labels start on the
+   technique name's edge (row inset + 12px swatch + gap); the 1px thread runs
+   through the swatch's centre in the technique's colour, which is what scales
+   to iWave when its settings arrive. */
+.tech-params {
+    position: relative;
+    margin: 2px 0 var(--space-3);
+    padding-left: calc(var(--space-2) + 12px + var(--space-2));
+}
+
+.tech-params::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--space-2) + 6px - 0.5px);
+    top: 0;
+    bottom: 4px;
+    width: 1px;
+    background: color-mix(in srgb, var(--tech) 55%, transparent);
+}
+
+.tech-params .field-row {
+    min-height: 36px;
+    padding-left: 0;
+}
+
+.tech-params .field-row.field-row-child {
+    padding-left: var(--space-4);
+}
+
+.tech-params .panel-group {
+    padding-left: 0;
+}
+
+.tech-params-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+/* Test PIV sits next to what it tests. .button-with-loader's 165px floor was
+   for a spinner child; the sweep is absolutely positioned and moves nothing. */
+.tech-params .button-with-loader {
+    min-width: 0;
+    margin-top: var(--space-3);
 }
