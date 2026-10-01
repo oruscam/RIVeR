@@ -59,3 +59,20 @@ describe('point dots are findable in every theme (D8)', () => {
     expect(decl('.point-dot-lightblue', 'background')).toBe('var(--d12)');
   });
 });
+
+describe('Video Advanced blocks (rules 2, 3, 6)', () => {
+  const frames = read(C + 'FramesResolution.tsx');
+  const lens = read(C + 'LensCorrection.tsx');
+
+  it('Frames resolution: a group label over one row', () => {
+    expect(frames).toMatch(/<p className="panel-group"/);
+    expect(frames).toMatch(/className="field-row"/);
+    expect(frames).not.toMatch(/field-title|lens-row\b|lens-row-label|lens-settings|style=\{\{/);
+  });
+
+  it('Lens correction: a compact switch, with camera and lens as its dependents', () => {
+    expect(lens).toMatch(/className="switch switch-sm"/);
+    expect(lens.match(/field-row field-row-child/g)!.length).toBeGreaterThanOrEqual(2);
+    expect(lens).not.toMatch(/switch-container|field-title|lens-row\b|lens-row-label|lens-settings/);
+  });
+});

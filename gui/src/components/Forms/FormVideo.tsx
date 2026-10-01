@@ -221,8 +221,13 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
           </div>
         </div>
         <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
-        {extraFields && <FramesResolution />}
-        {extraFields && <LensCorrection />}
+        {extraFields && (
+          <div className="panel-advanced">
+            <hr className="panel-rule" />
+            <FramesResolution />
+            <LensCorrection />
+          </div>
+        )}
         {/* Stabilization only makes sense for UAV footage — oblique/ipcam cameras are fixed.
             Not gated on extraFields/Advanced: regions must stay visible whenever stabilization
             is on, and the on/off switch itself must always be reachable to turn it on. */}

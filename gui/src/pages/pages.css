@@ -470,37 +470,6 @@
     background-color: transparent;
 }
 
-.lens-settings {
-    display: flex;
-    flex-direction: column;
-    margin-top: 8px;
-}
-
-.lens-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 9px 0;
-    border-bottom: 1px solid var(--border-color);
-}
-
-.lens-row:last-child {
-    border-bottom: none;
-}
-
-.lens-row-label {
-    color: var(--secondary-text-color);
-    font-size: var(--text-section);
-    flex-shrink: 0;
-}
-
-.lens-row-right {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    min-width: 0;
-}
-
 .lens-row-trigger {
     background: transparent;
     border: none;
