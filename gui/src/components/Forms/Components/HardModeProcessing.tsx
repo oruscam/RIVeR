@@ -62,7 +62,7 @@ export const HardModeProcessing = ({
           disabled={isBackendWorking && isTesting === false}
         >
           <p className="button-name"> {t('Processing.test')} </p>
-          {isBackendWorking && isTesting && <span className="loader-little" />}
+          {isBackendWorking && isTesting && <span className="btn-progress-sweep" aria-hidden="true" />}
         </button>
         <div className="spacer-div" />
       </div>

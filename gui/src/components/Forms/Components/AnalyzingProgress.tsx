@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDataSlice } from '../../../hooks';
-import { Loading } from '../../Loading';
+import { ProgressReadout } from '../../ProgressReadout';
 import { parseAnalyzeStage, StageKey } from '../../../helpers/parseAnalyzeStage';
 
 const STAGE_ORDER: StageKey[] = ['lspiv', 'stiv', 'iwave'];
@@ -88,8 +88,11 @@ export const AnalyzingProgress = ({ resetProgress }: { resetProgress: boolean })
     }
   }, [isBackendWorking, quiver]);
 
-  const percentageStr = state.percentage !== null ? `${state.percentage}%` : '';
-  const remainingStr = state.remaining ? `${t('Analizing.remainingTime')}${state.remaining}` : '';
+  const remainingStr = state.remaining ? `${t('Analizing.remainingTime')}${state.remaining}` : t('Analizing.estimating');
+  // The breadcrumb already names the active stage, so the footer prefers the finer detail.
+  const detail = state.station
+    ? `${state.station[0]} / ${state.station[1]}`
+    : (state.note ?? t(`Analizing.stage.${state.stage}`));
 
   return (
     <div className="analize-output mt-2">
@@ -101,24 +104,7 @@ export const AnalyzingProgress = ({ resetProgress }: { resetProgress: boolean })
           </span>
         ))}
       </p>
-      {percentageStr !== '' && (
-        <Loading percentage={percentageStr} size={'big'} isComplete={state.percentage === 100} />
-      )}
-      <p style={{ textAlign: 'center', fontWeight: 600, marginTop: '10px', marginBottom: '2px' }}>
-        {t(`Analizing.stage.${state.stage}`)}
-      </p>
-      {state.station ? (
-        <p style={{ textAlign: 'center' }}>
-          {state.station[0]} / {state.station[1]}
-        </p>
-      ) : (
-        state.note && <p style={{ textAlign: 'center' }}>{state.note}</p>
-      )}
-      {percentageStr !== '' && (
-        <p className="loader-remaining-time" style={{ textAlign: 'center' }}>
-          {remainingStr || t('Analizing.estimating')}
-        </p>
-      )}
+      <ProgressReadout percentage={state.percentage} label={detail} time={remainingStr} />
     </div>
   );
 };
