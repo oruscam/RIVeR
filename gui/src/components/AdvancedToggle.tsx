@@ -1,25 +1,24 @@
 import { useTranslation } from 'react-i18next';
-import { Icons } from './Icons';
-import { useSectionSlice } from '../../hooks';
+import { useSectionSlice } from '../hooks';
 import { useWizard } from 'react-use-wizard';
-import { MODULE_NUMBER } from '../../constants/constants';
-import { scrollBehavior } from '../../helpers/motion';
+import { MODULE_NUMBER } from '../constants/constants';
+import { scrollBehavior } from '../helpers/motion';
 
-interface LockButtonProps {
+interface AdvancedToggleProps {
   localExtraFields?: boolean;
   setLocalExtraFields?: any;
-  footerElementID: string;
-  headerElementID: string;
+  footerElementID?: string;
+  headerElementID?: string;
   disabled: boolean;
 }
 
-export function LockBtn({
+export function AdvancedToggle({
   localExtraFields,
   setLocalExtraFields,
   footerElementID,
   headerElementID,
   disabled,
-}: LockButtonProps) {
+}: AdvancedToggleProps) {
   const { onSetExtraFields, sections, activeSection } = useSectionSlice();
   const { extraFields, name } = sections[activeSection];
   const { activeStep } = useWizard();
@@ -72,15 +71,8 @@ export function LockBtn({
         break;
 
       case MODULE_NUMBER.PROCESSING:
-        if (localExtraFields) {
-          const headerElement = document.getElementById(headerElementID);
-          headerElement?.scrollIntoView({ behavior: scrollBehavior() });
-        } else {
-          const footerElement = document.getElementById(footerElementID);
-          setTimeout(() => {
-            footerElement?.scrollIntoView({ behavior: scrollBehavior() });
-          }, 50);
-        }
+        // Settings reveal in place under LSPIV, near the top of the panel, so
+        // there is nothing to scroll to (rule 7).
         setLocalExtraFields(!localExtraFields);
         break;
 
@@ -100,13 +92,18 @@ export function LockBtn({
   };
 
   return (
-    <div className="switch-container advanced-mode-toggle">
-      <span className="advanced-mode-label">
-        {Icons.Lock('currentColor')}
+    <div className="field-row advanced-mode-toggle">
+      <label className="field-row-label advanced-mode-label" htmlFor="advanced-toggle">
         {t('Commons.advancedSettings', { defaultValue: 'Advanced settings' })}
-      </span>
-      <label className="switch">
-        <input type="checkbox" checked={checked} onChange={handleOnChange} disabled={disabled} />
+      </label>
+      <label className="switch switch-sm">
+        <input
+          id="advanced-toggle"
+          type="checkbox"
+          checked={checked}
+          onChange={handleOnChange}
+          disabled={disabled}
+        />
         <span className="slider"></span>
       </label>
     </div>

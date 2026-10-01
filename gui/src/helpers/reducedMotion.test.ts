@@ -85,7 +85,8 @@ describe('reduced motion: JS smooth scrolling', () => {
       (n, { source }) => n + (source.match(/behavior:\s*scrollBehavior\(\)/g) ?? []).length,
       0
     );
-    expect(calls).toBeGreaterThanOrEqual(19);
+    // 19 before the Processing panel redesign dropped that panel's two scroll-to-footer calls.
+    expect(calls).toBeGreaterThanOrEqual(17);
   });
 
   it("has no hard-coded behavior: 'smooth'", () => {

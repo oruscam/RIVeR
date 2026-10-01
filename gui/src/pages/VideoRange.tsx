@@ -6,7 +6,7 @@ import { useProjectSlice } from '../hooks';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 import { FocusOverlay, WizardButtons, ModeHint, StepAlertList, Toast } from '../components';
-import { LockBtn } from '../components/CustomIcons/LockBtn';
+import { AdvancedToggle } from '../components/AdvancedToggle';
 
 export const VideoRange = () => {
   const {
@@ -58,7 +58,7 @@ export const VideoRange = () => {
         <StepAlertList />
         <FormVideo duration={duration} extraFields={extraFields} />
         <div className="footer">
-          <LockBtn
+          <AdvancedToggle
             localExtraFields={extraFields}
             setLocalExtraFields={onToggleVideoExtraFields}
             disabled={false}
