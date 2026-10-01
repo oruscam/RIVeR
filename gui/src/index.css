@@ -1569,6 +1569,7 @@ input:disabled + .slider:hover {
 
 .stepper {
   width: 90%;
+  margin-top: var(--space-3);
 }
 
 .stepper-bars {
@@ -1579,7 +1580,7 @@ input:disabled + .slider:hover {
 .stepper-bar {
   flex: 1;
   min-width: 0;
-  height: 4px;
+  height: 8px;
   padding: 0;
   border: 0;
   border-radius: var(--radius-sm);
