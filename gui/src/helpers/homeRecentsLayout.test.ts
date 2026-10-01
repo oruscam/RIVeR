@@ -160,15 +160,31 @@ describe('Home wiring', () => {
 describe('Home halo and layout CSS', () => {
   it('ends the halo on the page background, not a panel (A14.5)', () => {
     expect(ruleBody(pagesCss, '.default-app-container.home-halo')).toMatch(
-      /background:\s*radial-gradient\(120% 70% at 50% 0%, var\(--wash-2\) 0%, var\(--background-color\) 60%\)/
+      /background:\s*radial-gradient\(130% 95% at 50% 0%, var\(--wash-2\) 0%, var\(--background-color\) 70%\)/
     );
   });
 
   it('shrinks the logo and drops the dead left offset (A14.6)', () => {
     const logo = ruleBody(pagesCss, '.home-page-image');
-    expect(logo).toMatch(/width:\s*420px/);
+    expect(logo).toMatch(/width:\s*480px/);
     expect(logo).toMatch(/margin-top:\s*15vh/);
     expect(logo).not.toMatch(/left:/);
+  });
+
+  it('centres the version block on the window axis, not between unequal toolbar sides', () => {
+    const body = ruleBody(pagesCss, '.home-toolbar #version-block');
+    expect(body).toMatch(/position:\s*absolute/);
+    expect(body).toMatch(/left:\s*50%/);
+    expect(body).toMatch(/translate\(-50%, -50%\)/);
+  });
+
+  it('keeps the two start buttons the same width', () => {
+    expect(ruleBody(pagesCss, '.home-page-buttons .btn')).toMatch(/min-width:\s*148px/);
+  });
+
+  it('groups the buttons with the logo and separates recents', () => {
+    expect(ruleBody(pagesCss, '.home-page-buttons')).toMatch(/margin-top:\s*20px/);
+    expect(ruleBody(pagesCss, '.recents')).toMatch(/margin-top:\s*56px/);
   });
 
   it('puts the start buttons in a row (A14.6)', () => {
