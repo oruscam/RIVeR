@@ -104,13 +104,13 @@ export const drawVectors = (
   hoveredStation: number | null,
   onHoverStation: (station: number | null) => void,
   onPinStation: (station: number) => void
-) => {
+): Pt | null => {
   const { east, north, distance, check, streamwise_east, streamwise_north } = data;
-  if (!east || !north || !magnitude || !distance) return;
+  if (!east || !north || !magnitude || !distance) return null;
   // transformationMatrix defaults to [] until the section's homography is
   // resolved; invert3x3 below indexes into it unconditionally, so bail before
   // that rather than throwing out of a useEffect.
-  if (!transformationMatrix?.length) return;
+  if (!transformationMatrix?.length) return null;
 
   const fx = typeof factor === 'number' ? factor : factor.x;
   const fy = typeof factor === 'number' ? factor : factor.y;
@@ -125,6 +125,10 @@ export const drawVectors = (
   const norm = new Normalize(globalMin, globalMax);
   const range = Math.max(Math.abs(globalMin), Math.abs(globalMax)) || 1;
   const invMatrix = invert3x3(transformationMatrix);
+
+  // The badge is not drawn here: it lives in OverlaySvg's top layer, above the
+  // section line, so the caller draws it from this returned point.
+  let badgeBase: Pt | null = null;
 
   magnitude.forEach((v, i) => {
     if (v === null || isNaN(v)) return;
@@ -236,26 +240,36 @@ export const drawVectors = (
     // station location — always defined, unlike the tip, which collapses at
     // zero velocity). Drawn regardless of which of {canvas, chart, Grid} set
     // hoveredStation, since it now reads the one shared value.
-    if (hoveredStation === i) {
-      const geo = getStationBadgeGeometry(base);
-      const badge = group.append('g').attr('class', 'station-badge').attr('pointer-events', 'none');
-      badge
-        .append('circle')
-        .attr('cx', geo.circle.cx)
-        .attr('cy', geo.circle.cy)
-        .attr('r', geo.circle.r)
-        .attr('fill', 'rgba(0, 0, 0, 0.6)')
-        .attr('stroke', 'var(--accent-color)')
-        .attr('stroke-width', 2);
-      badge
-        .append('text')
-        .attr('x', geo.label.x)
-        .attr('y', geo.label.y)
-        .attr('text-anchor', 'middle')
-        .attr('font-size', 12)
-        .attr('font-weight', 700)
-        .attr('fill', '#fff')
-        .text(i + 1);
-    }
+    if (hoveredStation === i) badgeBase = base;
   });
+
+  return badgeBase;
+};
+
+/** Draws the hovered-station badge (dark circle, accent ring, 1-based number) into `layer`.
+ *  Kept separate from the chevrons because it has to live in a layer above the section line. */
+export const drawStationBadge = (
+  layer: d3.Selection<SVGGElement, unknown, null, undefined>,
+  base: Pt,
+  station: number
+) => {
+  const geo = getStationBadgeGeometry(base);
+  const badge = layer.append('g').attr('class', 'station-badge').attr('pointer-events', 'none');
+  badge
+    .append('circle')
+    .attr('cx', geo.circle.cx)
+    .attr('cy', geo.circle.cy)
+    .attr('r', geo.circle.r)
+    .attr('fill', 'rgba(0, 0, 0, 0.6)')
+    .attr('stroke', 'var(--accent-color)')
+    .attr('stroke-width', 2);
+  badge
+    .append('text')
+    .attr('x', geo.label.x)
+    .attr('y', geo.label.y)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', 12)
+    .attr('font-weight', 700)
+    .attr('fill', '#fff')
+    .text(station + 1);
 };

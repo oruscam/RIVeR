@@ -8,7 +8,6 @@ import { OverlaySvg } from './OverlaySvg';
 import { StationSearchLines } from './StationSearchLines';
 import { getQuiverValues, createColorMap, Normalize } from '../../commons/vectors';
 import { getStiColorScale } from '../helpers';
-import { FloatingPlot } from './FloatingPlot';
 import { StiViewer } from './StiViewer';
 import { IWaveViewer } from './IWaveViewer';
 import type { PreviewMode } from '../store/ui/types';
@@ -16,7 +15,6 @@ import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwav
 
 export const ImageProcessing = ({
   showMedian,
-  extraFields,
   previewMode = 'frames',
   stiPaths,
   stiStations,
@@ -25,7 +23,6 @@ export const ImageProcessing = ({
   spectraSidecar,
 }: {
   showMedian?: boolean;
-  extraFields?: boolean;
   previewMode?: PreviewMode;
   stiPaths?: string[];
   stiStations?: number[];
@@ -207,10 +204,6 @@ export const ImageProcessing = ({
       {/* ColorBar out of the container with zoom */}
       {min !== undefined && max !== undefined && data.length !== 0 && activeMaskIndex === null && (
         <ColorBar min={min} max={max} />
-      )}
-
-      {extraFields && activeMaskIndex === null && (
-        <FloatingPlot showMedian={showMedian ?? false} containerWidth={realWidth!} containerHeight={realHeight!} />
       )}
     </div>
   );

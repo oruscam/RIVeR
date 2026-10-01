@@ -35,7 +35,7 @@ describe('.seg-float', () => {
     const body = indexCss.match(/\.seg-float\s*{([^}]*)}/s)?.[1] ?? '';
     const z = Number(body.match(/z-index:\s*(\d+)/)?.[1]);
     expect(z).toBeGreaterThanOrEqual(5);
-    expect(z).toBeLessThan(1001); // FloatingPlot draggable stays above
+    expect(z).toBeLessThan(1001); // StationTag and other overlays stay above
   });
 
   it('segment buttons carry a selected state and a disabled-with-tooltip state', () => {

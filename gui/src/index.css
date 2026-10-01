@@ -656,6 +656,36 @@ html {
     background-color var(--motion-fast) var(--motion-ease);
 }
 
+/* Dropdown trigger (units, language, theme): an icon with a small chevron beside it. Not an
+   .ibtn: that is a 32px circle that clips its content and fills on hover, which cropped the
+   chevron and drew an oval. This one never fills. Hover and open are read from opacity and from
+   the chevron flipping, so the toolbar stays quiet. */
+.menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  height: 32px;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--primary-text-color); /* the Moon, Sun and Dracula icons are stroke=currentColor */
+  border-radius: var(--radius-md);
+  opacity: 0.75;
+  cursor: pointer;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+.menu-trigger:hover,
+.menu-trigger[aria-expanded="true"] {
+  opacity: 1;
+}
+
+.menu-trigger:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 /* --input-background sits at 1.05:1 against the panel in light theme (the
    same --surface-field collapse recorded at the LIST ROW section below), so
    the hover pill would be invisible there. A text-tinted wash stays visible

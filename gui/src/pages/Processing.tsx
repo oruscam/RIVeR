@@ -156,7 +156,6 @@ export const Processing = () => {
         />
         <ImageProcessing
           showMedian={showMedian}
-          extraFields={extraFields}
           previewMode={previewMode}
           stiPaths={stiPaths}
           stiStations={stiStations}

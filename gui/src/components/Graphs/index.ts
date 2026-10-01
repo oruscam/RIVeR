@@ -6,7 +6,6 @@ import { drawVectors } from './drawVectors';
 import { PointsMap } from './PointsMap';
 import { obliqueSvg } from './obliqueSvg';
 import { ipcamSvg } from './ipcamSvg';
-import { TestPlot } from './TestPlot';
 import { OrthoImage } from './OrthoImage';
 import { scaleBar } from './scaleBar';
 import { drawQuiver } from './drawQuiver';
@@ -22,6 +21,5 @@ export {
   OrthoImage,
   PointsMap,
   scaleBar,
-  TestPlot,
   VelocityVector,
 };

@@ -260,7 +260,10 @@ svg .bar-stroke-themed {
     right: 16px;
     z-index: 1000;
     min-width: 220px;
-    max-width: 280px;
+    /* Sized to the widest technique row (spread and quality text are nowrap), capped to the canvas. */
+    width: max-content;
+    max-width: calc(100% - 32px);
+    box-sizing: border-box;
     padding: 10px 12px;
     border-radius: var(--radius-lg);
     border: 1px solid var(--input-background);
@@ -359,6 +362,9 @@ svg .bar-stroke-themed {
 
 .station-tag-hint {
     margin: 7px 0 0;
+    /* Zero intrinsic width, so the hint wraps to the card instead of stretching it. */
+    width: 0;
+    min-width: 100%;
     color: var(--secondary-text-color);
     font-size: 10.5px; /* scale-exception: dense hint in a tag over the canvas, growing it covers the vectors */
 }

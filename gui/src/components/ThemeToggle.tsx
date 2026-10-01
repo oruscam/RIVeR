@@ -28,12 +28,7 @@ export const ThemeToggle = () => {
 
   return (
     <div className="lwrap" ref={ref}>
-      <button
-        className="ibtn"
-        aria-pressed={open}
-        style={{ width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties}
-        onClick={() => setOpen((v) => !v)}
-      >
+      <button className="menu-trigger" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
         <span style={{ fontSize: 'var(--text-section)' }}>{currentTheme.icon}</span>
         {Icons.ChevDown('var(--secondary-text-color)', open ? 180 : 0)}
       </button>
