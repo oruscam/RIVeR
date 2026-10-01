@@ -12,7 +12,7 @@ import { FormHeader } from '../components/Forms/Components/FormHeader.js';
 import { useTranslation } from 'react-i18next';
 import { Point } from '../types/index.js';
 import { ImageUavNew } from '../components/ImageUavNew.js';
-import { LockBtn } from '../components/CustomIcons/LockBtn.js';
+import { AdvancedToggle } from '../components/AdvancedToggle';
 
 const createDefaultState = (
   dirPoints: Point[],
@@ -165,7 +165,7 @@ export const Uav = () => {
           >
             {t('Commons.solve')}
           </button>
-          <LockBtn
+          <AdvancedToggle
             footerElementID="span-footer"
             headerElementID="uav-header"
             disabled={dirPoints.length === 0}

@@ -351,17 +351,21 @@
     background-color: var(--on-hover);
 }
 
-.advanced-mode-toggle {
-    width: 90%;
-    align-self: center;
+/* The footer's Advanced row: a plain panel row, no lock (rule 7). The footer
+   is a centred column, so the row stretches itself to the gutter. */
+.field-row.advanced-mode-toggle {
+    align-self: stretch;
+    padding: 0 calc(var(--space-4) + var(--space-2));
 }
 
 .advanced-mode-label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
     font-size: var(--text-meta);
-    color: var(--secondary-text-color);
+    color: var(--text-subdued);
+    cursor: pointer;
+}
+
+.advanced-mode-toggle:has(input:checked) .advanced-mode-label {
+    color: var(--text-primary);
 }
 
 /* Dracula theme: label text reflects toggle state (violet = on, muted = off) */

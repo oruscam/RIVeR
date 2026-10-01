@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { handleDragLeave, handleDragOver } from '../helpers';
 import { FormHeader } from '../components/Forms/Components';
 import { ImageCrossSections } from '../components/CrossSections/ImageCrossSections';
-import { LockBtn } from '../components/CustomIcons/LockBtn';
+import { AdvancedToggle } from '../components/AdvancedToggle';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 export const CrossSections = () => {
   const { activeSection, sections, isDraggingPoint, onGetBathimetry } = useSectionSlice();
@@ -89,7 +89,7 @@ export const CrossSections = () => {
         <CrossSectionsComponent deletedSections={deletedSections} setDeletedSections={setDeletedSections} />
 
         <div className="footer">
-          <LockBtn
+          <AdvancedToggle
             disabled={sections[activeSection].bathimetry.width === undefined}
             footerElementID="form-cross-section-footer"
             headerElementID="form-cross-section-header"

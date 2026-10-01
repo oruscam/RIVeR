@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
 import { FormProcessing } from '../components/Forms';
 import { PreviewModeControl } from '../components/PreviewModeControl';
-import { LockBtn } from '../components/CustomIcons/LockBtn';
+import { AdvancedToggle } from '../components/AdvancedToggle';
 import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
 
 export const Processing = () => {
@@ -188,11 +188,9 @@ export const Processing = () => {
           stivAvailable={stivAvailable}
         />
         <div className="footer">
-          <LockBtn
+          <AdvancedToggle
             setLocalExtraFields={onToggleProcessingExtraFields}
             localExtraFields={extraFields}
-            footerElementID="processing-footer"
-            headerElementID="processing-header"
             disabled={isBackendWorking}
           />
           <WizardButtons onClickNext={handleNext} canFollow={fullQuiver !== null} />

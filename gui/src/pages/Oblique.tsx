@@ -16,7 +16,7 @@ import { handleDragLeave, handleDragOver } from '../helpers';
 import { Point } from '../types';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
-import { LockBtn } from '../components/CustomIcons/LockBtn';
+import { AdvancedToggle } from '../components/AdvancedToggle';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
 const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates: Point[], unitSistem?: string) => {
@@ -194,7 +194,7 @@ export const Oblique = () => {
           >
             {t('Commons.solve')}
           </button>
-          <LockBtn
+          <AdvancedToggle
             footerElementID="span-footer"
             headerElementID="draw-coordinates"
             disabled={coordinates[0].x === 0}
