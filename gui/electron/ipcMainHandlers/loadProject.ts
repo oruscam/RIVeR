@@ -8,6 +8,7 @@ import { transformData } from './utils/transformCrossSectionsData';
 import { parseGrp3dPoints } from './utils/parseGrp3dPoints';
 import { parsedCameraSolution } from './utils/parsedCameraSolution';
 import { sanitizeNonStandardJsonTokens } from './utils/sanitizeJson';
+import { resolveProjectFolder } from './utils/resolveProjectFolder';
 import { PROJECT_CONFIG } from '../main';
 
 // Function to load and parse the settings.json file
@@ -108,14 +109,15 @@ function getMask(directory: string, type: 'npy' | 'png'): string | undefined {
 async function handleLoadProject(
   PROJECT_CONFIG: ProjectConfig,
   options: Electron.OpenDialogOptions,
-  win: BrowserWindow | null
+  win: BrowserWindow | null,
+  args?: unknown
 ) {
-  // Open a dialog to select a directory
-  const result = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options);
-  if (result.canceled || result.filePaths.length === 0)
-    return { success: false, message: 'No directory selected' };
-
-  const folderPath = result.filePaths[0];
+  // A recent project passes its directory; otherwise ask with the picker.
+  const folderPath = await resolveProjectFolder(args, async () => {
+    const result = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options);
+    return result.canceled || result.filePaths.length === 0 ? null : result.filePaths[0];
+  });
+  if (folderPath === null) return { success: false, message: 'No directory selected' };
   const settingsPath = path.join(folderPath, 'settings.json');
   if (!fs.existsSync(settingsPath)) throw new Error('noSettingsFile');
 
@@ -187,10 +189,10 @@ function loadProject() {
     defaultPath: PROJECT_CONFIG.mainDirectory,
   };
 
-  ipcMain.handle('load-project', async (event) => {
+  ipcMain.handle('load-project', async (event, args?: unknown) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     try {
-      return await handleLoadProject(PROJECT_CONFIG, options, win);
+      return await handleLoadProject(PROJECT_CONFIG, options, win, args);
     } catch (error: unknown) {
       console.error(error);
       return { success: false, message: (error as Error).message };

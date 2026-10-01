@@ -31,6 +31,7 @@ import {
   getResultData,
   getStis,
   loadResults,
+  projectsExist,
   createMaskAndBbox,
   recommendRoiHeight,
   getGif,
@@ -219,6 +220,7 @@ app.whenReady().then(async () => {
   initProject();
   loadProject();
   loadResults();
+  projectsExist();
   recommendRoiHeight(riverCli);
   saveReportHtml();
   saveTransformationMatrix();
