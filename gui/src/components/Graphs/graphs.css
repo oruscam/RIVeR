@@ -135,7 +135,7 @@ svg .bar-stroke-themed {
 .technique-name {
     flex: 1;
     font-family: inherit;
-    font-size: 16px;
+    font-size: var(--text-section);
     font-weight: 600;
     color: var(--secondary-text-color);
     cursor: pointer;
@@ -148,7 +148,7 @@ svg .bar-stroke-themed {
 .technique-name:focus-visible {
     outline: 2px solid var(--accent-color);
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
 }
 
 .technique-name-active {
@@ -160,7 +160,7 @@ svg .bar-stroke-themed {
 }
 
 .technique-row-total {
-    font-size: 13px;
+    font-size: var(--text-meta);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     color: var(--secondary-text-color);
@@ -170,7 +170,7 @@ svg .bar-stroke-themed {
 .technique-disclosure-btn {
     width: 22px;
     height: 22px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -200,10 +200,10 @@ svg .bar-stroke-themed {
 }
 
 .technique-row-body-toggle {
-    font-size: 12px;
+    font-size: var(--text-caption);
     font-weight: 600;
     padding: 4px 10px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--secondary-text-color);
     color: var(--secondary-text-color);
     background: transparent;
@@ -224,7 +224,7 @@ svg .bar-stroke-themed {
 .technique-eye-btn {
     width: 26px;
     height: 26px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -262,11 +262,11 @@ svg .bar-stroke-themed {
     min-width: 220px;
     max-width: 280px;
     padding: 10px 12px;
-    border-radius: 12px;
+    border-radius: var(--radius-lg);
     border: 1px solid var(--input-background);
     background: var(--secondary-background-color);
     box-shadow: 0 10px 32px rgba(0, 0, 0, 0.4);
-    font-size: 12px;
+    font-size: var(--text-caption);
 }
 
 .station-tag-header {
@@ -279,7 +279,7 @@ svg .bar-stroke-themed {
 }
 
 .station-tag-header b {
-    font-size: 13.5px;
+    font-size: var(--text-meta);
     white-space: nowrap;
 }
 
@@ -350,7 +350,7 @@ svg .bar-stroke-themed {
 
 .station-tag-row span {
     color: var(--secondary-text-color);
-    font-size: 11px;
+    font-size: 11px; /* scale-exception: dense readout in a tag over the canvas, growing it covers the vectors */
 }
 
 .station-tag-row .station-tag-warn {
@@ -360,7 +360,7 @@ svg .bar-stroke-themed {
 .station-tag-hint {
     margin: 7px 0 0;
     color: var(--secondary-text-color);
-    font-size: 10.5px;
+    font-size: 10.5px; /* scale-exception: dense hint in a tag over the canvas, growing it covers the vectors */
 }
 
 .hover-guide-line {

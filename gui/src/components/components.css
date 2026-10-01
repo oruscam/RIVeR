@@ -9,7 +9,7 @@
     align-items: center;
     gap: 6px;
     color: var(--secondary-text-color);
-    font-size: 13px;
+    font-size: var(--text-meta);
     font-weight: bold;
 }
 
@@ -31,7 +31,7 @@
 #source-offer {
     margin-top: 4px;
     color: var(--secondary-text-color);
-    font-size: 12px;
+    font-size: var(--text-caption);
     font-weight: normal;
     text-decoration: underline;
     cursor: pointer;
@@ -68,7 +68,7 @@
 .language-selector-select {
     background-color: transparent;
     border: none;
-    font-size: 18px;
+    font-size: var(--text-section);
     color: var(--primary-text-color);
 }
 
@@ -90,7 +90,7 @@
     height: 98%;
     width: 70%;
     background-color: var(--secondary-background-color);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     margin-right: 5px;
     display: flex;
     flex-direction: column;
@@ -135,7 +135,7 @@
     width: 30%;
     margin-top: 8px;
     margin-bottom: 5px;
-    font-size: 20px;
+    font-size: var(--text-subtitle);
     font-weight: 500;
     margin-left: 20px;
 }
@@ -155,7 +155,6 @@
     --seekbar-thumb-size: 15px;
     --seekbar-height: 12px;
     --seekbar-parent-height: var(--seekbar-thumb-size);
-    --border-radius: 2px;
 
     height: var(--seekbar-parent-height);
     position: relative;
@@ -174,7 +173,7 @@
     display: block;
     height: var(--seekbar-height);
     width: 100%;
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-sm);
     background-color: var(--bg-track-color);
     pointer-events: none;
     transform: translateY(-50%);
@@ -189,7 +188,7 @@
     height: var(--seekbar-height);
     background-color: var(--buffered-track-color);
     width: var(--buffer, 0);
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-sm);
     pointer-events: 0;
     transform: translateY(-50%);
 }
@@ -203,7 +202,7 @@
     height: var(--seekbar-height);
     background-color: var(--progress-track-color);
     width: var(--progress, 0);
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-sm);
     pointer-events: 0;
     transform: translateY(-50%);
 }
@@ -228,14 +227,14 @@
     opacity: 0;
     width: 60px;
     height: 30px;
-    font-size: 18px;
+    font-size: var(--text-section);
     left: var(--progress, 0);
     bottom: 5px;
     position: absolute;
     transform: translate(-50%, -50%);
     z-index: 7;
     pointer-events: 0;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     text-align: center;
 
 }
@@ -296,7 +295,7 @@
     width: 36px;
     height: 3px;
     background: var(--border-color);
-    border-radius: 2px;
+    border-radius: var(--radius-full);
     transition: background 0.15s;
 }
 
@@ -349,9 +348,9 @@
 }
 
 .carousel-info input {
-    font-size: 1.5rem;
+    font-size: var(--text-title);
     background-color: var(--input-background);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     width: 85px;
     border: none;
     color: var(--primary-text-color);
@@ -366,7 +365,7 @@
 }
 
 .carousel-info p {
-    font-size: 1.5rem;
+    font-size: var(--text-title);
 }
 
 .img-carousel-active,
@@ -401,7 +400,7 @@
 .img-carousel {
     width: 98%;
     height: auto;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     z-index: 1;
 }
 
@@ -413,12 +412,12 @@
     position: absolute;
     top: 6px;
     left: 6px;
-    font-size: 11px;
+    font-size: 11px; /* scale-exception: frame badge over a thumbnail, kept small so it does not cover the frame */
     font-weight: 700;
     line-height: 1;
     color: rgba(255, 255, 255, 0.92);
     background: rgba(0, 0, 0, 0.55);
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     padding: 2px 6px;
     white-space: nowrap;
     /* Must out-stack .img-carousel's z-index: 1. That z-index is inert while the
@@ -479,7 +478,7 @@
     gap: 8px;
     background-color: var(--colorbar-bg);
     padding: 4px 6px;
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
     z-index: 1000;
     min-width: 200px;
     max-width: 500px;
@@ -489,12 +488,12 @@
     background-color: transparent;
     border: none;
     color: var(--primary-text-color);
-    font-size: 20px;
+    font-size: var(--text-subtitle);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 4px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
 }
 
 .colorbar-container button:hover {
@@ -511,7 +510,7 @@
     position: relative;
     flex: 1;
     height: 14px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     cursor: crosshair;
 }
 
@@ -534,9 +533,9 @@
     background: #fff;
     color: var(--pin-ink);
     font-weight: 700;
-    font-size: 10.5px;
+    font-size: 10.5px; /* scale-exception: colour-bar tick label drawn against the bar, not panel text */
     padding: 1px 5px;
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     white-space: nowrap;
 }
 
@@ -544,8 +543,8 @@
     background-color: transparent;
     color: var(--primary-text-color);
     border: none;
-    border-radius: 8px;
-    font-size: 18px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-section);
     width: 60px;
     text-align: center;
 }
@@ -560,16 +559,16 @@
 
 .colorbar-unit-label {
     color: var(--primary-text-color);
-    font-size: 12px;
+    font-size: var(--text-caption);
     white-space: nowrap;
 }
 
 .colorbar-manual-badge {
     font-weight: 600;
-    font-size: 10.5px;
+    font-size: 10.5px; /* scale-exception: colour-bar badge sized to sit inside the bar */
     color: var(--primary-text-color);
     box-shadow: inset 0 0 0 1px var(--primary-text-color);
-    border-radius: 4px;
+    border-radius: var(--radius-sm);
     padding: 1px 6px;
     white-space: nowrap;
 }
@@ -602,7 +601,7 @@
     overflow-y: auto;
     overflow-x: hidden;
     flex-shrink: 0;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
@@ -655,7 +654,7 @@
     height: 100%;
     text-align: center;
     background-color: inherit;
-    font-size: 0.85rem;
+    font-size: var(--text-body);
     color: inherit;
     letter-spacing: 0.02em;
 }
@@ -689,7 +688,7 @@
 
 .header-subtech {
     display: block;
-    font-size: 0.65rem;
+    font-size: var(--text-caption);
     font-weight: 500;
     text-transform: none;
     color: var(--accent-color);
@@ -708,7 +707,7 @@
 /* Header accent border */
 .grid .rdg-header-row {
     border-bottom: 2px solid var(--accent-color);
-    font-size: 0.8rem;
+    font-size: var(--text-meta);
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -811,7 +810,7 @@
     display: flex;
     align-items: flex-start;
     padding: 25px 50px 30px 10px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     gap: 10px;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -850,7 +849,7 @@
 }
 
 .success-banner-title {
-    font-size: 1.4rem;
+    font-size: var(--text-title);
     margin: 0;
     color: var(--primary-text-color);
 }
@@ -896,7 +895,7 @@
 .sti-frame {
     position: relative;
     overflow: hidden;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     background: var(--background-color);
 }
 
@@ -937,7 +936,7 @@
 
 .sti-empty {
     color: var(--secondary-text-color);
-    font-size: 13px;
+    font-size: var(--text-meta);
     text-align: center;
     padding: 40px 0;
 }
@@ -969,9 +968,9 @@
     background: transparent;
     border: 1px solid var(--border-color);
     color: var(--primary-text-color);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     padding: 3px 9px;
-    font-size: 12px;
+    font-size: var(--text-caption);
     white-space: nowrap;
     cursor: pointer;
 }
@@ -1009,7 +1008,7 @@
 
 .iwave-axis {
     position: absolute;
-    font-size: 11px;
+    font-size: 11px; /* scale-exception: chart axis text sized to the spectrum plot */
     color: var(--secondary-text-color);
     pointer-events: none;
 }
@@ -1034,7 +1033,7 @@
     display: flex;
     flex-direction: column;
     gap: 2px;
-    font-size: 11px;
+    font-size: 11px; /* scale-exception: chart legend text sized to the spectrum plot */
     padding: 4px 8px;
 }
 
@@ -1058,7 +1057,7 @@
     align-items: center;
     gap: 10px;
     padding: 8px 12px;
-    border-radius: 9px;
+    border-radius: var(--radius-md);
     transition: background-color 0.14s ease;
 }
 
@@ -1091,7 +1090,7 @@
 }
 
 .technique-swatch.technique-swatch-stiv {
-    border-radius: 2px;
+    border-radius: 2px; /* scale-exception: swatch shape is the technique marker, circle versus rounded square versus square */
 }
 
 .technique-swatch.technique-swatch-iwave {
@@ -1146,6 +1145,6 @@
 .carousel-frame-pair-caption {
     align-self: center;
     margin-bottom: 6px;
-    font-size: 12px;
+    font-size: var(--text-caption);
     color: var(--secondary-text-color);
 }
