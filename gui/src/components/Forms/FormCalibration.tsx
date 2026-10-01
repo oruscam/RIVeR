@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCheckCircle } from 'react-icons/lu';
+import { LuCheckCircle, LuChevronDown, LuChevronRight } from 'react-icons/lu';
 import { DropHereText, FormHeader } from './Components';
 import { Loading, SuccessBanner } from '../index';
 import { CalibrationHistogram } from '../Graphs';
@@ -86,6 +86,7 @@ export const FormCalibration = ({
   const [saveError, setSaveError] = useState<string | null>(null);
   const [existingCameras, setExistingCameras] = useState<string[]>([]);
   const [comboOpen, setComboOpen] = useState(false);
+  const [showHistogram, setShowHistogram] = useState(false);
 
   // Existing camera names, for the Camera name suggestions.
   useEffect(() => {
@@ -152,11 +153,7 @@ export const FormCalibration = ({
     <>
       <FormHeader title={t('Calibration.title')} showProgress={false} showSections={false} />
 
-      <div className="body">
-        <p className="cal-sub">
-          {t('Calibration.subtitle', { defaultValue: 'Import photos of the board, then solve.' })}
-        </p>
-
+      <div className="body cal-panel-body">
         <div className="input-container-2 mt-1">
           <button
             type="button"
@@ -258,9 +255,16 @@ export const FormCalibration = ({
 
             {csvRows.length > 0 && (
               <>
-                <span className="divider-line mt-2 mb-1" />
-                <h3 className="cal-section-title">{t('Calibration.histogram')}</h3>
-                <CalibrationHistogram rows={csvRows} />
+                <button
+                  type="button"
+                  className="btn btn-sm btn-tertiary cal-disclosure"
+                  aria-expanded={showHistogram}
+                  onClick={() => setShowHistogram((v) => !v)}
+                >
+                  {showHistogram ? <LuChevronDown /> : <LuChevronRight />}
+                  {t('Calibration.histogram')}
+                </button>
+                {showHistogram && <CalibrationHistogram rows={csvRows} />}
               </>
             )}
 
