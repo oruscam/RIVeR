@@ -37,6 +37,7 @@ describe('scale tokens', () => {
     ['--radius-sm', '4px'],
     ['--radius-md', '8px'],
     ['--radius-lg', '12px'],
+    ['--radius-xl', '20px'],
     ['--radius-full', '999px'],
     ['--space-1', '4px'],
     ['--space-2', '8px'],

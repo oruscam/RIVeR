@@ -9,6 +9,11 @@
   --radius-sm:   4px;
   --radius-md:   8px;
   --radius-lg:   12px;
+  /* Phase 6g (spec A15, decision G1): this codebase's single most common
+     radius, on panels, input fields, the media container and the drop areas.
+     A step of its own keeps the sweep a token substitution, as --text-subtitle
+     did for 20px type (A2). */
+  --radius-xl:   20px;
   --radius-full: 999px;
 
   /* Spacing */
