@@ -384,15 +384,18 @@
     white-space: nowrap;
 }
 
-/* One-line instruction under the title. Calibration is the only
-   .form-container screen launched outside the wizard, so it has no stepper
-   to orient the user and says what to do instead. Sized like the wizard
-   forms' info rows so it does not read as a different typeface scale. */
-.cal-sub {
-    margin: 0 0 var(--space-3);
-    text-align: center;
-    color: var(--secondary-text-color);
-    font-size: clamp(0.85rem, 2.5vw, 1.2rem);
+/* The panel body is a scrolling flex column; without this its children
+   (info rows, alert, fields) shrink to fit a short window and clip their
+   contents instead of letting the body scroll. */
+.cal-panel-body > * {
+    flex-shrink: 0;
+}
+
+/* Collapsed-by-default toggle for the RMS distribution: the chart is
+   reference detail, so it stays out of the way until asked for. */
+.cal-disclosure {
+    align-self: center;
+    margin-top: var(--space-2);
 }
 
 /* The info-row list (photo count, ratings, resolution) reuses
