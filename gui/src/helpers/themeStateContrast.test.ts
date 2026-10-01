@@ -332,8 +332,9 @@ describe('documented alias collapse', () => {
 /**
  * Pre-existing field-surface debt, escalated to the product owner and
  * deliberately NOT fixed in Phase 6: in the light theme the field fill sits at
- * 1.05:1 against the panel it is drawn on, and `.input-field` and `.field`
- * carry `border: none`, so the boundary of every text input, value readout,
+ * 1.05:1 against the panel it is drawn on, and `.input-field` carries
+ * `border: none` (the panel-row `.field` has had a hairline since the
+ * Processing panel redesign, D1), so the boundary of every text input, value readout,
  * chip and seg track is invisible there.
  *
  * Recorded, not gated. If one of these assertions fails because the palette
