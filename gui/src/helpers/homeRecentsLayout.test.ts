@@ -178,3 +178,26 @@ describe('Home halo and layout CSS', () => {
     expect(btns).not.toMatch(/min-height/);
   });
 });
+
+describe('Results panel wash', () => {
+  const formCss = read('components', 'Forms', 'form.css');
+
+  it('canary: form.css still has .form-container', () => {
+    expect(ruleBody(formCss, '.form-container')).toMatch(
+      /background-color:\s*var\(--secondary-background-color\)/
+    );
+  });
+
+  it('adds the linear wash as a modifier', () => {
+    expect(ruleBody(formCss, '.form-container.results-wash')).toMatch(
+      /background:\s*linear-gradient\(180deg, var\(--wash-2\) 0%, var\(--surface-panel\) 26%\)/
+    );
+  });
+
+  it('applies it on Results only', () => {
+    expect(read('pages', 'Results.tsx')).toMatch(/<div className="form-container results-wash">/);
+    for (const page of ['Processing.tsx', 'CrossSections.tsx', 'VideoRange.tsx', 'CameraCalibration.tsx']) {
+      expect(read('pages', page)).not.toMatch(/results-wash/);
+    }
+  });
+});
