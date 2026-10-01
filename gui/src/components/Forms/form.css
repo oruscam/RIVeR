@@ -154,20 +154,8 @@
     height: 40px;
 }
 
-.form-subtitle {
-    font-weight: 400;
-    margin-left: 70px;
-    align-self: flex-start;
-}
-
 .field-title {
     font-weight: 400;
-}
-
-@media screen and (max-height : 1150px) {
-    .hard-mode-processing {
-        padding-top: 10px;
-    }
 }
 
 .btn-lock {
@@ -301,41 +289,12 @@
 
 
 
-.label-priority.form-button,
-.label-priority.read-only {
+.label-priority.form-button {
     flex: 3 1 auto;
-}
-
-.input-field-container.input-field-container-compact,
-.bg-transparent.input-field-container-compact {
-    flex: 0 0 130px;
-    width: 130px;
-    min-width: 130px;
-    max-width: 130px;
-}
-
-
-.input-field-container-compact .input-field:has(+ .unit-label) {
-    text-align: right;
-    padding-right: 30px;
-}
-
-.only-one-item {
-    display: flex;
-    align-self: flex-start;
-    margin-left: 82px;
 }
 
 .hidden {
     display: none;
-}
-
-.hard-mode-processing {
-    width: 100%;
-    padding: 50px;
-    padding-top: 0px;
-    display: flex;
-    flex-direction: column;
 }
 
 .switch-container {
@@ -893,4 +852,48 @@
 .tech-params .button-with-loader {
     min-width: 0;
     margin-top: var(--space-3);
+}
+
+/* Advanced blocks on the other panels: the same gutter as Processing. */
+.panel-advanced {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 var(--space-4) var(--space-4);
+}
+
+/* D8: the point colour rides on a dot, not a pill. The ring keeps the dot
+   findable in light, where the fills sit near the panel. */
+.point-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.point-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--text-subdued);
+}
+
+.point-dot-red { background: var(--d34); }
+.point-dot-green { background: var(--d23); }
+.point-dot-lightblue { background: var(--d12); }
+
+/* Coordinates need room for UTM-sized values. */
+.field.field-coord {
+    width: 120px;
+    text-align: right;
+}
+
+.field-with-unit {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.field-unit {
+    font-size: var(--text-caption);
+    color: var(--text-subdued);
 }
