@@ -35,14 +35,22 @@ const rel = (file: string): string => relative(SRC, file).split('\\').join('/');
 const EXEMPT_FILES = ['components/Report/report.css'];
 
 const PENDING: Record<string, { font: number; radius: number }> = {
-  'components/CustomIcons/piv-icons.css': { font: 2, radius: 4 },
-  'components/Graphs/graphs.css': { font: 7, radius: 5 },
-  'components/components.css': { font: 22, radius: 21 },
   'pages/pages.css': { font: 13, radius: 5 },
 };
 
 /** `file|selector|property: value` for every documented exception. */
-const EXCEPTIONS: string[] = ['index.css|html|font-size: 16px', 'index.css|.info-icon|font-size: 30px'];
+const EXCEPTIONS: string[] = [
+  'index.css|html|font-size: 16px',
+  'index.css|.info-icon|font-size: 30px',
+  'components/components.css|.img-water-mark|font-size: 11px',
+  'components/components.css|.colorbar-marker span|font-size: 10.5px',
+  'components/components.css|.colorbar-manual-badge|font-size: 10.5px',
+  'components/components.css|.iwave-axis|font-size: 11px',
+  'components/components.css|.iwave-legend|font-size: 11px',
+  'components/components.css|.technique-swatch.technique-swatch-stiv|border-radius: 2px',
+  'components/Graphs/graphs.css|.station-tag-row span|font-size: 11px',
+  'components/Graphs/graphs.css|.station-tag-hint|font-size: 10.5px',
+];
 
 const key = (file: string, d: CssDeclaration): string => `${file}|${d.selector}|${d.property}: ${d.value}`;
 

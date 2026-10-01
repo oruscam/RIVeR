@@ -23,7 +23,7 @@ describe('shared TechniqueRow CSS', () => {
     expect(body).toMatch(/display:\s*flex/);
     expect(body).toMatch(/gap:\s*10px/);
     expect(body).toMatch(/padding:\s*8px 12px/);
-    expect(body).toMatch(/border-radius:\s*9px/);
+    expect(body).toMatch(/border-radius:\s*var\(--radius-md\)/);
   });
 
   it('.technique-row is a real rule the browser parses, not a regex match on raw text', () => {

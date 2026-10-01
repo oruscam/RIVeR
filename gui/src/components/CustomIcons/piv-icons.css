@@ -177,7 +177,7 @@
     left: 0;
     height: 3px;
     background: black;
-    border-radius: 0 0 13px 13px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     animation: barfill 2s linear forwards
 }
 
@@ -193,7 +193,7 @@
     transform-origin: bottom;
     background: var(--secondary-background-color, #141414);
     border: 1px solid var(--input-background, #323232);
-    border-radius: 13px;
+    border-radius: var(--radius-lg);
     padding: 6px;
     min-width: 152px;
     z-index: 999;
@@ -225,9 +225,9 @@
     align-items: center;
     gap: 10px;
     padding: 8px 12px;
-    border-radius: 9px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    font-size: 13px;
+    font-size: var(--text-meta);
     transition: background .14s;
     color: var(--primary-text-color, #fff)
 }
@@ -249,9 +249,9 @@
 .pill {
     display: inline-block;
     font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
-    font-size: 10px;
+    font-size: var(--text-caption);
     padding: 3px 9px;
-    border-radius: 20px;
+    border-radius: var(--radius-full);
     border: 1px solid;
     letter-spacing: .06em
 }
