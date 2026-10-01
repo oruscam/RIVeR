@@ -10,6 +10,7 @@ import { HardModeCrossSections } from './HardModeCrossSections';
 import { HardModeOblique } from './HardModeOblique';
 import { FormHeader } from './FormHeader';
 import { AnalyzingProgress } from './AnalyzingProgress';
+import { ProcessingRunZone } from './ProcessingRunZone';
 import { MaskCreation } from './MaskCreation';
 import { MaskList } from './MaskList';
 import { ExportMp4 } from './ExportMp4';
@@ -31,6 +32,7 @@ export {
   MaskCreation,
   MaskList,
   PixelCoordinates,
+  ProcessingRunZone,
   RealWorldCoordinates,
   StabilizationRegions,
   VideoMetadata,

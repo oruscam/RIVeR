@@ -792,3 +792,21 @@
     opacity: 0.35;
     cursor: not-allowed;
 }
+
+/* Processing run zone: fixed between the scrolling settings and the footer.
+   One button and, while running, the readout under it, both spanning the
+   panel's gutter (rule 5). D6: the readout keeps --text-display. */
+.processing-run {
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-color);
+    padding: var(--space-4) var(--space-4) var(--space-2);
+}
+
+.processing-run .btn {
+    width: 100%;
+}
+
+.processing-run .progress-readout {
+    max-width: none;
+    margin-top: var(--space-4);
+}

@@ -5,6 +5,7 @@ import { AnalyzingProgress, ExportMp4, HardModeProcessing } from './Components';
 import { useEffect, useState } from 'react';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
+import { useAnalyzeStage } from '../../hooks/useAnalyzeStage';
 import { TechniqueRow } from '../TechniqueRow';
 import { FieldError } from '../index';
 import { Icons } from '../CustomIcons/Icons';
@@ -71,7 +72,7 @@ export const FormProcessing = ({
 
   const [isTesting, setIsTesting] = useState<boolean>(false);
 
-  const [resetProgress, setResetProgress] = useState<boolean>(false);
+  const runState = useAnalyzeStage(isBackendWorking && !isTesting);
 
   const methods = useForm({
     defaultValues: {
@@ -125,7 +126,6 @@ export const FormProcessing = ({
   const handleOnClickTest = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setIsTesting(true);
-    setResetProgress(true);
     onClearStepAlert('processing-backend-error');
     onSetQuiverTest()
       .then(() => setIsTesting(false))
@@ -147,8 +147,7 @@ export const FormProcessing = ({
     }
 
     if (id === 'stop-button') {
-      const result = await onKillBackend();
-      if (result === true) setResetProgress(true);
+      await onKillBackend();
     }
 
     if (id === 'add-mask-icon') {
@@ -375,7 +374,7 @@ export const FormProcessing = ({
                 <p className="button-name">{t('Processing.stop')}</p>
               </button>
             </div>
-            {isBackendWorking && isTesting === false && <AnalyzingProgress resetProgress={resetProgress} />}
+            {isBackendWorking && isTesting === false && <AnalyzingProgress state={runState} />}
 
             <HardModeProcessing active={extraFields} onClickTest={handleOnClickTest} isTesting={isTesting} />
           </form>
