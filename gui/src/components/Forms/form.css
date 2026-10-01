@@ -1,7 +1,7 @@
 .form-title {
     margin-top: 6vh;
     font-family: var(--font-display);
-    font-size: 24px;
+    font-size: var(--text-title);
     font-weight: 700;
 }
 
@@ -11,7 +11,7 @@
     width: 29%;
     height: 98%;
     background-color: var(--secondary-background-color);
-    border-radius: 1rem;
+    border-radius: var(--radius-lg);
     display: flex;
     flex-direction: column;
     overflow-y: hidden;
@@ -74,7 +74,7 @@
     border: 1px solid color-mix(in srgb, var(--primary-text-color) 45%, transparent);
     text-align: center;
     line-height: 50px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     flex: 1 1 auto;
     min-width: 100px;
     max-width: 210px;
@@ -82,7 +82,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: clamp(13px, 1.5vw, 20px);
+    font-size: clamp(var(--text-meta), 1.5vw, var(--text-subtitle));
     padding-inline: 8px;
 }
 
@@ -105,7 +105,7 @@
     display: flex;
     justify-content: space-between;
     margin-top: 5px;
-    font-size: clamp(0.85rem, 2.5vw, 1.2rem);
+    font-size: clamp(var(--text-body), 2.5vw, var(--text-subtitle));
     gap: 8px;
     min-width: 0;
 }
@@ -270,7 +270,7 @@
 }
 
 #result-info #result-number {
-    font-size: 2.2rem;
+    font-size: var(--text-display);
     font-weight: 700;
     font-family: var(--font-display);
 }
@@ -343,7 +343,7 @@
     justify-content: space-between;
     align-items: center;
     padding: 6px 10px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     transition: background-color 0.15s ease;
 }
 
@@ -360,7 +360,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 13px;
+    font-size: var(--text-meta);
     color: var(--secondary-text-color);
 }
 
@@ -391,7 +391,7 @@
     border: 1px solid var(--secondary-input-background);
     background: transparent;
     color: var(--secondary-text-color);
-    font-size: 16px;
+    font-size: var(--text-section);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -436,21 +436,21 @@
 }
 
 .simple-input-container label {
-    font-size: 20px;
+    font-size: var(--text-subtitle);
     font-weight: 500;
 }
 
 .simple-input-container input {
     width: 100%;
     height: 50px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     border: none;
     margin-top: 5px;
     margin-bottom: 10px;
     padding-left: 20px;
     background-color: var(--input-background);
     color: var(--primary-text-color);
-    font-size: 1.1em;
+    font-size: var(--text-section);
 }
 
 .last-settings-form-field-radio {
@@ -473,7 +473,7 @@
 .last-settings-form-field-radio label {
     margin-right: 20px;
     margin-bottom: 8px;
-    font-size: 18px;
+    font-size: var(--text-section);
 }
 
 .last-settings-form-field-radio input {
@@ -516,7 +516,7 @@
 }
 
 .analizing-output p {
-    font-size: 1.2rem;
+    font-size: var(--text-subtitle);
     margin-bottom: 5px;
 }
 
@@ -555,7 +555,7 @@
 
 .drop-here-text {
     margin: 8px auto;
-    font-size: 1.15rem;
+    font-size: var(--text-subtitle);
     width: 75%;
     color: var(--secondary-text-color);
     transition: all 0.5s ease;
@@ -660,7 +660,7 @@
    RESULTS PANEL — zone titles, alpha input, pill row.
    ============================================================================= */
 .zone-title {
-    font-size: 13px;
+    font-size: var(--text-meta);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--secondary-text-color);
@@ -672,7 +672,7 @@
 }
 
 .pill-alpha-label {
-    font-size: 18px;
+    font-size: var(--text-section);
     font-weight: 600;
     color: var(--primary-text-color);
 }
@@ -693,7 +693,8 @@
    preview, in sync with PreviewModeControl.tsx (both write uiSlice's
    previewMode). The button reset lives on this compound selector rather than
    on the bare class. The explicit font-size replaces the 1.17em an <h3> got
-   for free. */
+   for free, at --text-section to match .technique-name in the same row shell
+   on Results (Phase 6g). */
 .technique-row-processing .field-title {
     flex: 1;
     min-width: 0;
@@ -701,7 +702,7 @@
     background: none;
     border: none;
     padding: 0;
-    font-size: 1.17em;
+    font-size: var(--text-section);
     text-align: left;
     cursor: pointer;
 }
@@ -768,10 +769,10 @@
 }
 
 .technique-seed-flag {
-    font-size: 11px;
+    font-size: var(--text-caption);
     font-weight: 600;
     padding: 1px 6px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--secondary-text-color);
     color: var(--secondary-text-color);
     white-space: nowrap;

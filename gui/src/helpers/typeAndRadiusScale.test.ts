@@ -36,9 +36,7 @@ const EXEMPT_FILES = ['components/Report/report.css'];
 
 const PENDING: Record<string, { font: number; radius: number }> = {
   'components/CustomIcons/piv-icons.css': { font: 2, radius: 4 },
-  'components/Forms/form.css': { font: 15, radius: 5 },
   'components/Graphs/graphs.css': { font: 7, radius: 5 },
-  'components/Messages/messages.css': { font: 6, radius: 0 },
   'components/components.css': { font: 22, radius: 21 },
   'pages/pages.css': { font: 13, radius: 5 },
 };
