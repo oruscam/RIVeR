@@ -161,3 +161,41 @@ describe("the report's own components are insulated from the sweep (G2)", () => 
     expect([...new Set(sweptClasses)].filter((cls) => used.has(cls)).sort()).toEqual([]);
   });
 });
+
+describe('title and display sizes use Outfit 700 (D3)', () => {
+  const LARGE = /var\(--text-(title|display)\)/;
+  const largeSizes = (declarations: CssDeclaration[]) =>
+    declarations.filter((d) => d.property === 'font-size' && LARGE.test(d.value));
+  /** Title/display-sized rules missing the display font or weight 700, as `file|selector`. */
+  const titleOffenders = (file: string, declarations: CssDeclaration[]): string[] =>
+    largeSizes(declarations)
+      .filter((size) => {
+        const body = declarations.filter((d) => d.rule === size.rule);
+        const hasFont = body.some((d) => d.property === 'font-family' && d.value === 'var(--font-display)');
+        const hasWeight = body.some((d) => d.property === 'font-weight' && d.value === '700');
+        return !hasFont || !hasWeight;
+      })
+      .map((d) => `${file}|${d.selector}`);
+
+  it('finds the title-sized rules (canary)', () => {
+    const selectors = scanned.flatMap((s) => largeSizes(s.declarations).map((d) => d.selector));
+    expect(selectors).toEqual(expect.arrayContaining(['.form-title', '#result-info #result-number']));
+  });
+
+  it('every one declares the display font at weight 700', () => {
+    expect(scanned.flatMap((s) => titleOffenders(s.file, s.declarations))).toEqual([]);
+  });
+
+  it.each([
+    ['left on Inter', '.mutant-6g { font-size: var(--text-title); font-weight: 700; }'],
+    [
+      'in Outfit at a weight that is not bundled',
+      '.mutant-6g { font-size: var(--text-display); font-family: var(--font-display); font-weight: 600; }',
+    ],
+  ])('would catch a title-sized rule %s (mutation)', (_label, rule) => {
+    const real = readFileSync(join(SRC, 'index.css'), 'utf8');
+    expect(titleOffenders('index.css', scanCss(`${real}\n${rule}\n`).declarations)).toContain(
+      'index.css|.mutant-6g'
+    );
+  });
+});
