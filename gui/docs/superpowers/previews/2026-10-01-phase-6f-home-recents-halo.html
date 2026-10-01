@@ -1,0 +1,261 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Phase 6f — Home recents and halo, three themes</title>
+    <!-- The real stylesheets, not copies: every class below that is NOT in the
+         "NEW, PROPOSED" block is the shipped rule from src/. Home is drawn with
+         .default-app-container, .home-page-image, .btn, .home-toolbar, .ibtn and
+         #version-block exactly as HomePage.tsx renders them today. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap" />
+    <link rel="stylesheet" href="../../../src/index.css" />
+    <link rel="stylesheet" href="../../../src/pages/pages.css" />
+    <link rel="stylesheet" href="../../../src/components/components.css" />
+    <link rel="stylesheet" href="../../../src/components/Forms/form.css" />
+    <link rel="stylesheet" href="../../../src/components/CustomIcons/piv-icons.css" />
+    <style>
+      /* ---------------- preview chrome (not part of the proposal) ---------------- */
+      body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #0b0c0e; color: #e8ecf0; }
+      .doc { max-width: 1320px; margin: 0 auto; padding: 24px 20px 60px; }
+      .doc h1 { font: 700 26px Outfit, Inter, sans-serif; margin: 0 0 6px; }
+      .doc > p, .state-head p { color: #a9b1ba; max-width: 92ch; margin: 0 0 12px; font-size: 14px; line-height: 1.55; }
+      .doc code { font-size: 12.5px; color: #cfd6dd; }
+      .toolbar { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 0; background: #0b0c0e; font-size: 13px; }
+      .toolbar .sep { width: 1px; height: 20px; background: #3a4048; margin: 0 8px; }
+      .toolbar button { border: 1px solid #3a4048; background: #16191d; color: #e8ecf0; border-radius: 999px; padding: 6px 14px; font: 600 13px Inter, sans-serif; cursor: pointer; }
+      .toolbar button[aria-pressed='true'] { background: #58b8f0; color: #04131d; border-color: #58b8f0; }
+      .state-head { margin: 34px 0 10px; }
+      .state-head h2 { font: 700 18px Outfit, Inter, sans-serif; margin: 0 0 4px; }
+      .state-head h2 span { font: 500 12px Inter, sans-serif; color: #8a939d; margin-left: 8px; }
+      .frame-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid #262a30; }
+      .frame { width: 1280px; height: 760px; position: relative; overflow: hidden; background: var(--background-color); color: var(--primary-text-color); font-family: Inter, system-ui, sans-serif; }
+      .frame.min { width: 1150px; height: 700px; --vh: 7px; }
+      /* vh in a preview resolves against the browser window, not the frame;
+         --vh stands in for the Electron window's 1vh. */
+      .frame { --vh: 7.6px; }
+      .frame .default-app-container { height: 100%; }
+      .note { display: inline-block; font: 600 11px Inter, sans-serif; color: #04131d; background: #f5bf61; border-radius: 4px; padding: 1px 6px; margin-left: 6px; vertical-align: 2px; }
+      .stub { color: var(--secondary-text-color); font-size: 13px; }
+      .compare { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+      .compare > div { border-radius: 12px; overflow: hidden; border: 1px solid #262a30; }
+      .compare .mini { position: relative; height: 300px; background: var(--background-color); color: var(--primary-text-color); padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; }
+      .compare h3 { position: absolute; top: 14px; left: 16px; margin: 0; font: 600 12px Inter, sans-serif; text-transform: uppercase; letter-spacing: .08em; color: var(--secondary-text-color); }
+      .compare dl { display: grid; grid-template-columns: 1fr auto; gap: 3px 10px; margin: 12px 0 0; font-size: 12px; }
+      .compare dt { color: var(--secondary-text-color); }
+      .compare dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; }
+      .compare .mini .recents { width: 100%; margin-top: 0; }
+      .compare .mini .recents-grid { grid-template-columns: 1fr; }
+      /* Results stand-in: only the panel's background is the proposal. */
+      .results-ws { display: flex; gap: 8px; padding: 8px; height: 100%; box-sizing: border-box; }
+      .results-ws .canvas-stub { flex: 1; border-radius: 1rem; background: repeating-linear-gradient(135deg, #20262b 0 14px, #1a1f23 14px 28px); display: grid; place-items: center; color: #8a939d; font-size: 13px; }
+      .results-ws .form-container { height: 100%; }
+      .rs-title { font: 700 var(--text-title) var(--font-display); margin: calc(6 * var(--vh, 1vh)) 0 4px; text-align: center; }
+      .rs-sub { color: var(--secondary-text-color); font-size: 13px; text-align: center; margin: 0 0 18px; }
+      .rs-row { display: flex; justify-content: space-between; padding: 9px 22px; font-size: 14px; border-bottom: 1px solid var(--border-color); }
+      .rs-row span:first-child { color: var(--secondary-text-color); }
+
+      /* =====================================================================
+         NEW, PROPOSED — does not exist in src/ yet (spec §4/6f).
+         ===================================================================== */
+
+      /* Halo. The spec's gradient ramps --wash-2 to --surface-panel, but Home
+         has no panel: .default-app-container paints --background-color edge to
+         edge. Ramping to --surface-panel there leaves a hard step where the
+         ellipse ends (dark #141414 on #000). Proposed: end the ramp on the
+         page's own background, so the bloom fades into the window. The "inset
+         panel" switch shows the audit's literal version for comparison. */
+      .home-halo {
+        background: radial-gradient(120% 70% at 50% 0%, var(--wash-2) 0%, var(--background-color) 60%);
+      }
+      .home-halo.inset { background: var(--background-color); }
+      .home-halo.inset::before {
+        content: ''; position: absolute; inset: 8px; border-radius: var(--radius-lg);
+        background: radial-gradient(120% 70% at 50% 0%, var(--wash-2) 0%, var(--surface-panel) 60%);
+      }
+      .home-halo > * { position: relative; }
+      .home-halo > .home-toolbar { position: absolute; }
+
+      /* Home layout with recents: logo 420px (was 500), buttons in a row (were
+         stacked), so logo + actions + one row of tiles fit a 700px-tall window
+         with room above the toolbar. */
+      .home-halo .home-page-image { width: 420px; margin-top: calc(15 * var(--vh, 1vh)); left: auto; }
+      .home-halo .home-page-buttons { flex-direction: row; gap: 12px; min-height: 0; margin-top: 32px; margin-bottom: 0; }
+      .home-halo .home-spacer { margin-top: auto; }
+
+      .recents { width: 640px; margin-top: 40px; }
+      .recents-title { font: 700 var(--text-section) / 1.2 var(--font-display); margin: 0 0 10px; }
+      .recents-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+      /* Tile surface: --surface-raised == --surface-panel exactly in all three
+         themes (token collapse facts, §4/6a), and Home has no panel under it, so
+         the audit's var(--raised) has no equivalent. A translucent mix of the
+         text colour reads on both the halo and the bare background in every
+         theme, and its hover is a further mix, never a swapped token. */
+      .recent-tile {
+        display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 10px; align-items: center;
+        width: 100%; padding: 8px; border: 0; border-radius: var(--radius-md);
+        background: color-mix(in srgb, var(--primary-text-color) 7%, transparent);
+        color: var(--primary-text-color); text-align: left; font: inherit; cursor: pointer;
+        transition: background-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
+      }
+      .recent-tile:hover { background: color-mix(in srgb, var(--primary-text-color) 13%, transparent); }
+      .recent-tile:active { transform: scale(0.98); }
+      .recent-tile:focus-visible { outline: 2px solid var(--accent-color); outline-offset: 2px; }
+      .recent-tile-icon {
+        width: 48px; height: 48px; border-radius: var(--radius-sm); display: grid; place-items: center;
+        background: color-mix(in srgb, var(--primary-text-color) 8%, transparent); color: var(--secondary-text-color);
+      }
+      .recent-tile-icon svg { width: 24px; height: 24px; stroke-width: 1.5; }
+      .recent-tile-text { min-width: 0; }
+      .recent-tile-name { display: block; font-size: var(--text-body); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .recent-tile-meta { display: block; font-size: var(--text-caption); color: var(--secondary-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+      /* Results form panel: the audit's second use of the wash. */
+      .form-container.results-wash { background: linear-gradient(180deg, var(--wash-2) 0%, var(--surface-panel) 26%); }
+    </style>
+  </head>
+  <body>
+    <div class="doc">
+      <h1>Phase 6f — Home: recent projects and halo</h1>
+      <p>
+        Recent projects as the audit draws them: three tiles in a row under the two start buttons, each with a footage-type
+        icon, the folder name, and the type and date it was last opened. Clicking a tile opens the project with no
+        folder picker. The theme wash appears in two places: a bloom at the top of Home and a band at the top of the
+        Results panel. Every shipped element is drawn with the real stylesheets from <code>src/</code>. Only the block
+        marked <em>NEW, PROPOSED</em> in this file's source is new. Projects and dates below are example data.
+      </p>
+      <div class="toolbar" role="group" aria-label="Preview options">
+        <span style="color:#8a939d">Theme:</span>
+        <button data-set-theme="dark" aria-pressed="true">Dark</button>
+        <button data-set-theme="light" aria-pressed="false">Light</button>
+        <button data-set-theme="dracula" aria-pressed="false">Dracula</button>
+        <span class="sep"></span>
+        <span style="color:#8a939d">Halo ends on:</span>
+        <button data-set-halo="bleed" aria-pressed="true">Page background (proposed)</button>
+        <button data-set-halo="inset" aria-pressed="false">Inset panel (audit, spec text)</button>
+      </div>
+      <div id="states"></div>
+
+      <div class="state-head">
+        <h2>The wash and a tile in every theme <span>all three at once, measured</span></h2>
+        <p>
+          <code>--wash-2</code> is deliberately faint, so these numbers only confirm that the bloom exists. The thing to
+          judge is how it looks. The tile figure is its resting fill against the bare page background, which is where
+          the tiles sit, below the bloom.
+        </p>
+      </div>
+      <div class="compare" id="compare"></div>
+    </div>
+
+    <script>
+      const ICON = {
+        uav: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="5.5" r="3"/><circle cx="18.5" cy="5.5" r="3"/><circle cx="5.5" cy="18.5" r="3"/><circle cx="18.5" cy="18.5" r="3"/><path d="M7.8 7.8l2.2 2.2M16.2 7.8 14 10M7.8 16.2l2.2-2.2M16.2 16.2 14 14"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"/></svg>',
+        oblique: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="8.5" rx="1.8"/><circle cx="12" cy="6.75" r="2.1"/><path d="M12 11v3.2M12 14.2 6.5 21.5M12 14.2l5.5 7.3M12 14.2v7.3"/></svg>',
+        ipcam: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.75 12h3.632a1 1 0 0 1 .894 1.447l-2.034 4.069a1 1 0 0 1-1.708.134l-2.124-2.97"/><path d="M17.106 9.053a1 1 0 0 1 .447 1.341l-3.106 6.211a1 1 0 0 1-1.342.447L3.61 12.3a2.92 2.92 0 0 1-1.3-3.91L3.69 5.6a2.92 2.92 0 0 1 3.92-1.3z"/><path d="M2 19h3.76a2 2 0 0 0 1.8-1.1L9 15"/><path d="M2 21v-4"/><path d="M7 9h.01"/></svg>',
+      };
+      const I = (d) => `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${d}</svg>`;
+      const TB = {
+        camera: I('<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>'),
+        folder: I('<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>'),
+        ruler: I('<path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2M11.5 9.5l2-2M8.5 6.5l2-2M17.5 15.5l2-2"/>'),
+        globe: I('<circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/>'),
+        moon: I('<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>'),
+      };
+      const TYPE = { uav: 'Drone', oblique: 'Oblique', ipcam: 'Fixed camera' };
+      const RECENTS = [
+        { name: 'Yanuncay_CS1', type: 'uav', date: '29 Sep', path: '/Users/antoine/River/Yanuncay_CS1' },
+        { name: 'Station_04_cam', type: 'ipcam', date: '28 Jun', path: '/Users/antoine/River/Station_04_cam' },
+        { name: 'Rio_Suquia_puente_Centenario_2025', type: 'oblique', date: '3 Mar 2025', path: '/Users/antoine/River/Rio_Suquia_puente_Centenario_2025' },
+      ];
+
+      const tile = (r) => `
+        <li><button class="recent-tile" title="${r.path}">
+          <span class="recent-tile-icon" aria-hidden="true">${ICON[r.type]}</span>
+          <span class="recent-tile-text"><span class="recent-tile-name">${r.name}</span><span class="recent-tile-meta">${TYPE[r.type]} · ${r.date}</span></span>
+        </button></li>`;
+      const recents = (list) =>
+        list.length === 0 ? '' : `
+        <section class="recents" aria-labelledby="rp">
+          <h2 class="recents-title" id="rp">Recent projects</h2>
+          <ul class="recents-grid">${list.map(tile).join('')}</ul>
+        </section>`;
+      const logo = () => `<img src="../../../src/assets/${theme === 'light' ? 'logo_light' : 'logo'}.png" class="home-page-image" alt="RIVeR Logo" />`;
+      const home = (list) => `
+        <div class="default-app-container home-halo ${halo === 'inset' ? 'inset' : ''}">
+          ${logo()}
+          <div class="home-page-buttons">
+            <button class="btn btn-lg btn-primary">New project</button>
+            <button class="btn btn-lg btn-secondary">Load project</button>
+          </div>
+          ${recents(list)}
+          <div class="home-spacer"></div>
+          <div class="home-toolbar">
+            <button class="btn btn-tertiary">${TB.camera}Camera calibration</button>
+            <div id="version-block"><div id="version-message"><span id="version-number">3.7.0</span><span id="version-dot" data-status="ok"></span><p>Up to date</p></div><a id="source-offer" href="#">Source code</a></div>
+            <div class="home-toolbar-group">
+              <button class="ibtn" title="Projects folder">${TB.folder}</button><span class="home-toolbar-divider"></span>
+              <button class="ibtn" title="Units">${TB.ruler}</button><button class="ibtn" title="Language">${TB.globe}</button><button class="ibtn" title="Theme">${TB.moon}</button>
+            </div>
+          </div>
+        </div>`;
+      const results = () => `
+        <div class="results-ws">
+          <div class="canvas-stub">canvas (unchanged)</div>
+          <div class="form-container results-wash">
+            <div class="header"><div class="rs-title">Results</div><p class="rs-sub">Stand-in content · only the panel background is proposed</p></div>
+            <div class="rs-row"><span>Discharge</span><b>412.6 m³/s</b></div>
+            <div class="rs-row"><span>Mean velocity</span><b>1.84 m/s</b></div>
+            <div class="rs-row"><span>Wetted area</span><b>224.3 m²</b></div>
+            <div class="rs-row"><span>Measured fraction</span><b>86 %</b></div>
+          </div>
+        </div>`;
+
+      const STATES = [
+        { h: 'Home, three recents', s: '1280 × 760', p: 'The usual case. The third name is long on purpose: it truncates with an ellipsis, and the full folder path is the tile\'s tooltip. Hover the tiles to see the hover fill, and Tab to them to see the focus ring.', body: () => home(RECENTS) },
+        { h: 'Home, one recent', s: 'grid stays 3 columns', p: 'The tiles keep their size and sit on the left of the grid rather than stretching. One project does not become one wide bar.', body: () => home(RECENTS.slice(0, 1)) },
+        { h: 'Home, first launch', s: 'no recents yet', p: 'The section is left out entirely, with no heading and no empty-state text, since New and Load already say what to do. This is today\'s Home with the halo and the row of buttons.', body: () => home([]) },
+        { h: 'Home at the minimum window', s: '1150 × 700, the Electron minimum', p: 'The tightest the window gets. Logo, buttons and one row of tiles must clear the toolbar. This is why the logo drops to 420px and the buttons go in a row.', cls: 'min', body: () => home(RECENTS) },
+        { h: 'Results panel', s: 'second use of the wash', p: '<code>linear-gradient(180deg, var(--wash-2) 0%, var(--surface-panel) 26%)</code> on the Results <code>.form-container</code>, as in the audit. Only the panel\'s background changes.', body: results },
+      ];
+
+      let theme = ['dark', 'light', 'dracula'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'dark';
+      let halo = 'bleed';
+
+      function hex(c) { const m = c.match(/\d+(\.\d+)?/g).map(Number); return m; }
+      function lum([r, g, b]) { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); }
+      function ratio(a, b) { const [x, y] = [lum(a), lum(b)].sort((p, q) => q - p); return ((x + 0.05) / (y + 0.05)).toFixed(2); }
+      function probe(el, prop) { const d = document.createElement('div'); d.style.background = prop; el.appendChild(d); const c = hex(getComputedStyle(d).backgroundColor); d.remove(); return c; }
+      function over(fg, bg) { const a = fg[3] ?? 1; return [0, 1, 2].map((i) => fg[i] * a + bg[i] * (1 - a)); }
+
+      function render() {
+        document.documentElement.setAttribute('data-theme', theme);
+        document.getElementById('states').innerHTML = STATES.map((st) => `
+          <div class="state-head"><h2>${st.h}<span>${st.s}</span></h2><p>${st.p}</p></div>
+          <div class="frame-wrap"><div class="frame ${st.cls || ''}">${st.body()}</div></div>`).join('');
+        const cmp = document.getElementById('compare');
+        cmp.innerHTML = ['dark', 'light', 'dracula'].map((t) => `
+          <div data-theme="${t}"><div class="mini home-halo" data-m="${t}"><h3>${t}</h3>
+            ${recents(RECENTS.slice(0, 1))}
+            <dl data-dl="${t}"></dl></div></div>`).join('');
+        for (const t of ['dark', 'light', 'dracula']) {
+          const box = cmp.querySelector(`[data-m="${t}"]`);
+          const bg = probe(box, 'var(--background-color)');
+          const wash = probe(box, 'var(--wash-2)');
+          const panel = probe(box, 'var(--surface-panel)');
+          const tileC = over(probe(box, 'color-mix(in srgb, var(--primary-text-color) 7%, transparent)'), bg);
+          const hovC = over(probe(box, 'color-mix(in srgb, var(--primary-text-color) 13%, transparent)'), bg);
+          box.querySelector('dl').innerHTML = `
+            <dt>wash-2 vs page background (proposed end)</dt><dd>${ratio(wash, bg)}:1</dd>
+            <dt>wash-2 vs surface-panel (spec text end)</dt><dd>${ratio(wash, panel)}:1</dd>
+            <dt>tile rest vs page background</dt><dd>${ratio(tileC, bg)}:1</dd>
+            <dt>tile hover vs tile rest</dt><dd>${ratio(hovC, tileC)}:1</dd>`;
+        }
+        document.querySelectorAll('[data-set-theme]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setTheme === theme)));
+        document.querySelectorAll('[data-set-halo]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.setHalo === halo)));
+      }
+      document.querySelectorAll('[data-set-theme]').forEach((b) => b.addEventListener('click', () => { theme = b.dataset.setTheme; render(); }));
+      document.querySelectorAll('[data-set-halo]').forEach((b) => b.addEventListener('click', () => { halo = b.dataset.setHalo; render(); }));
+      render();
+    </script>
+  </body>
