@@ -64,6 +64,7 @@ import { onLoad3dRectification } from '../helpers/loadProjectHelpers';
 import { useTranslation } from 'react-i18next';
 import { setDefaultObliqueState, setObliquePoints } from '../store/oblique/obliqueSlice';
 import { resetAll } from '../store/global/globalSlice';
+import { recordRecentProject } from '../helpers/recentProjects';
 
 const createDefaultStabilizationRegion = (videoWidth: number, videoHeight: number): StabilizationRegion => {
   const size = 150;
@@ -209,6 +210,7 @@ export const useProjectSlice = () => {
 
       dispatch(setVideoData(videoData));
       dispatch(setProjectDirectory(result.directory));
+      recordRecentProject(localStorage, result.directory, videoInput.type, Date.now());
       dispatch(setProjectType(videoInput.type));
       dispatch(setLoading(false));
       dispatch(clearMessage());
@@ -353,12 +355,12 @@ export const useProjectSlice = () => {
    * @returns - number - The step to go to after loading the project.
    */
 
-  const onLoadProject = async () => {
+  const onLoadProject = async (directory?: string) => {
     dispatch(setLoading(true));
     const ipcRenderer = window.ipcRenderer;
 
     try {
-      const result = await ipcRenderer.invoke('load-project');
+      const result = await ipcRenderer.invoke('load-project', directory ? { directory } : undefined);
 
       if (result.success) {
         const {
@@ -379,6 +381,7 @@ export const useProjectSlice = () => {
         // Set project directory and type
         dispatch(setProjectDirectory(projectDirectory));
         dispatch(setProjectType(settings.footage));
+        recordRecentProject(localStorage, projectDirectory, settings.footage, Date.now());
 
         // Loading a project must never inherit a stabilization region left
         // "active" (in focus mode) from a previous project/session in this
