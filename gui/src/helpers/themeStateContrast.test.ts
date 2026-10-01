@@ -131,6 +131,58 @@ const STATE_PAIRS: StatePair[] = [
         mixOverBackdrop(resolveRgb(t, '--status-bad'), 0.15, panel(t))
       ),
   },
+  // Phase 6f — Home recents and halo. Home paints --background-color, not a
+  // panel, so every 6f pair is measured against that.
+  {
+    label: '6f --wash-2 vs --background-color (Home halo, deliberately faint)',
+    floor: 1.05, // 1.065 dracula; eyeballed visible in the approved preview
+    ratio: (t) => contrastRatio(resolveRgb(t, '--wash-2'), resolveRgb(t, '--background-color')),
+  },
+  {
+    label: '6f .recent-tile rest (text 7%) vs --background-color',
+    floor: 1.1, // 1.120 dark
+    ratio: (t) => {
+      const bg = resolveRgb(t, '--background-color');
+      return contrastRatio(mixOverBackdrop(resolveRgb(t, '--primary-text-color'), 0.07, bg), bg);
+    },
+  },
+  {
+    label: '6f .recent-tile hover (text 13%) vs rest (text 7%)',
+    floor: 1.1, // 1.111 light
+    ratio: (t) => {
+      const bg = resolveRgb(t, '--background-color');
+      const txt = resolveRgb(t, '--primary-text-color');
+      return contrastRatio(mixOverBackdrop(txt, 0.13, bg), mixOverBackdrop(txt, 0.07, bg));
+    },
+  },
+  {
+    label: '6f .recent-tile-meta (--secondary-text-color) on a hovered tile',
+    floor: 4.5, // 4.932 dracula
+    ratio: (t) => {
+      const bg = resolveRgb(t, '--background-color');
+      return contrastRatio(
+        resolveRgb(t, '--secondary-text-color'),
+        mixOverBackdrop(resolveRgb(t, '--primary-text-color'), 0.13, bg)
+      );
+    },
+  },
+  {
+    label: '6f .recent-tile-icon glyph (--secondary-text-color) on its box over a hovered tile',
+    floor: 3.0, // 3.941 dracula; a non-text graphic, 3:1 floor
+    ratio: (t) => {
+      const bg = resolveRgb(t, '--background-color');
+      const txt = resolveRgb(t, '--primary-text-color');
+      return contrastRatio(
+        resolveRgb(t, '--secondary-text-color'),
+        mixOverBackdrop(txt, 0.08, mixOverBackdrop(txt, 0.13, bg))
+      );
+    },
+  },
+  {
+    label: '6f .recent-tile focus ring (--accent-color) vs --background-color',
+    floor: 3.0, // 4.438 dark
+    ratio: (t) => contrastRatio(resolveRgb(t, '--accent-color'), resolveRgb(t, '--background-color')),
+  },
 ];
 
 describe('theme token parsing', () => {

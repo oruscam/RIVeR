@@ -544,3 +544,99 @@
     background: var(--border-color);
     margin: 0 6px;
 }
+
+/* =============================================================================
+   HOME — RECENT PROJECTS & HALO (Phase 6f)
+   Spec §4/6f, amendment A14; ported from the approved preview
+   docs/superpowers/previews/2026-10-01-phase-6f-home-recents-halo.html.
+   Home paints --background-color with no panel, and the raised and panel
+   surface tokens are identical in every theme, so tile states are
+   colour-mixes of the text colour, never surface tokens. Floors: themeStateContrast.test.ts "6f".
+   ============================================================================= */
+
+.recents {
+    width: 640px;
+    margin-top: 40px;
+}
+
+.recents-title {
+    font: 700 var(--text-section) / 1.2 var(--font-display);
+    margin: 0 0 10px;
+}
+
+.recents-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.recent-tile {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+    padding: 8px;
+    border: 0;
+    border-radius: var(--radius-md);
+    background: color-mix(in srgb, var(--primary-text-color) 7%, transparent);
+    color: var(--primary-text-color);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+    transition: background-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease);
+}
+
+.recent-tile:hover {
+    background: color-mix(in srgb, var(--primary-text-color) 13%, transparent);
+}
+
+.recent-tile:active {
+    transform: scale(0.98);
+}
+
+.recent-tile:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.recent-tile-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--radius-sm);
+    display: grid;
+    place-items: center;
+    background: color-mix(in srgb, var(--primary-text-color) 8%, transparent);
+    color: var(--secondary-text-color);
+}
+
+.recent-tile-icon svg {
+    width: 24px;
+    height: 24px;
+    stroke-width: 1.5;
+}
+
+.recent-tile-text {
+    min-width: 0;
+}
+
+.recent-tile-name {
+    display: block;
+    font-size: var(--text-body);
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recent-tile-meta {
+    display: block;
+    font-size: var(--text-caption);
+    color: var(--secondary-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
