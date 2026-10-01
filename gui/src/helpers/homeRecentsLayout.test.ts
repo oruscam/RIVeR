@@ -126,3 +126,55 @@ describe('recent tile CSS', () => {
     expect(name).toMatch(/white-space:\s*nowrap/);
   });
 });
+
+const home = read('pages', 'HomePage.tsx');
+
+describe('Home wiring', () => {
+  it('canary: HomePage still renders its toolbar', () => {
+    expect(home).toMatch(/<div className="home-toolbar">/);
+  });
+
+  it('puts the halo modifier on Home only', () => {
+    expect(home).toMatch(/<div className="default-app-container home-halo">/);
+    expect(read('pages', 'FootageMode.tsx')).not.toMatch(/home-halo/);
+    expect(read('App.tsx')).not.toMatch(/home-halo/);
+  });
+
+  it('opens recents and the Load button through one function', () => {
+    expect(home).toMatch(/const openProject = async \(directory\?: string\)/);
+    expect(home).toMatch(/await onLoadProject\(directory\)/);
+    expect(home).toMatch(/<RecentProjects onOpen=\{openProject\} \/>/);
+    expect(home).toMatch(/onClick=\{\(\) => openProject\(\)\}/);
+  });
+
+  it('renders recents after the buttons and before the alerts', () => {
+    const buttons = home.indexOf('className="home-page-buttons"');
+    const recents = home.indexOf('<RecentProjects');
+    const alerts = home.indexOf('<StepAlertList />');
+    expect(buttons).toBeGreaterThan(-1);
+    expect(recents).toBeGreaterThan(buttons);
+    expect(alerts).toBeGreaterThan(recents);
+  });
+});
+
+describe('Home halo and layout CSS', () => {
+  it('ends the halo on the page background, not a panel (A14.5)', () => {
+    expect(ruleBody(pagesCss, '.default-app-container.home-halo')).toMatch(
+      /background:\s*radial-gradient\(120% 70% at 50% 0%, var\(--wash-2\) 0%, var\(--background-color\) 60%\)/
+    );
+  });
+
+  it('shrinks the logo and drops the dead left offset (A14.6)', () => {
+    const logo = ruleBody(pagesCss, '.home-page-image');
+    expect(logo).toMatch(/width:\s*420px/);
+    expect(logo).toMatch(/margin-top:\s*15vh/);
+    expect(logo).not.toMatch(/left:/);
+  });
+
+  it('puts the start buttons in a row (A14.6)', () => {
+    const btns = ruleBody(pagesCss, '.home-page-buttons');
+    expect(btns).toMatch(/flex-direction:\s*row/);
+    expect(btns).toMatch(/gap:\s*12px/);
+    expect(btns).not.toMatch(/min-height/);
+  });
+});

@@ -16,19 +16,17 @@
 }
 
 .home-page-image {
-    margin-top: 20vh;
-    width: 500px;
+    margin-top: 15vh;
+    width: 420px;
     height: auto;
-    left: 506px;
 }
 
 .home-page-buttons {
-    margin-top: 5%;
+    margin-top: 32px;
     margin-bottom: auto;
     display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    min-height: 130px;
+    flex-direction: row;
+    gap: 12px;
 }
 
 .step-2 {
@@ -557,6 +555,7 @@
 .recents {
     width: 640px;
     margin-top: 40px;
+    margin-bottom: auto;
 }
 
 .recents-title {
@@ -639,4 +638,15 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* The buttons' margin-bottom: auto would push recents to the bottom of the
+   window; when recents exist they take the auto margin instead, so they sit
+   40px under the buttons and the free space stays above the toolbar. */
+.home-page-buttons:has(+ .recents) {
+    margin-bottom: 0;
+}
+
+.default-app-container.home-halo {
+    background: radial-gradient(120% 70% at 50% 0%, var(--wash-2) 0%, var(--background-color) 60%);
 }
