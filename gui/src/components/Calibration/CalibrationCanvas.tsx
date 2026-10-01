@@ -4,9 +4,6 @@ import { toCalFileUrl } from '../../helpers/calFileUrl';
 import type { CalibrationViewMode } from '../../helpers/calibrationView';
 import type { CalibrationStatus, FrameCorners } from '../../store/calibration/types';
 
-/** How much the detected-to-projected residual is stretched when drawn. */
-const RESIDUAL_GAIN = 10;
-
 interface UndistortedOverlayProps {
   src: string;
   corners: FrameCorners;
@@ -41,54 +38,31 @@ const UndistortedOverlay: FC<UndistortedOverlayProps> = ({ src, corners }) => {
 
     ctx.clearRect(0, 0, iw, ih);
 
-    // Residuals are sub-pixel at a good calibration, so the detected and
-    // projected points nearly coincide. Each mark gets a dark halo so it reads
-    // over both the white and black squares of the board, the projected point
-    // is a hollow ring so the detected dot inside it stays visible, and the
-    // detected-to-projected vector is stretched so its direction can be seen.
-    const HALO = 'rgba(0, 0, 0, 0.75)';
-    ctx.lineCap = 'round';
-
     corners.detected.forEach(([dx, dy], i) => {
+      const px = [corners.projected[i][0] * scaleX, corners.projected[i][1] * scaleY];
       const dp = [dx * scaleX, dy * scaleY];
-      const pp = [corners.projected[i][0] * scaleX, corners.projected[i][1] * scaleY];
-      const tip = [dp[0] + (pp[0] - dp[0]) * RESIDUAL_GAIN, dp[1] + (pp[1] - dp[1]) * RESIDUAL_GAIN];
 
+      ctx.strokeStyle = 'rgba(50, 180, 255, 0.9)';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(dp[0], dp[1]);
-      ctx.lineTo(tip[0], tip[1]);
-      ctx.strokeStyle = HALO;
-      ctx.lineWidth = 4;
-      ctx.stroke();
-      ctx.strokeStyle = 'rgb(50, 190, 255)';
-      ctx.lineWidth = 2;
+      ctx.lineTo(px[0], px[1]);
       ctx.stroke();
 
-      ctx.beginPath();
-      ctx.arc(pp[0], pp[1], 6, 0, Math.PI * 2);
-      ctx.strokeStyle = HALO;
-      ctx.lineWidth = 4;
-      ctx.stroke();
-      ctx.strokeStyle = 'rgb(245, 245, 245)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(dp[0], dp[1], 2.5, 0, Math.PI * 2);
       ctx.fillStyle = 'rgb(240, 0, 0)';
+      ctx.beginPath();
+      ctx.arc(dp[0], dp[1], 5, 0, Math.PI * 2);
       ctx.fill();
-      ctx.strokeStyle = HALO;
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
+
+      ctx.fillStyle = 'rgb(240, 240, 240)';
+      ctx.beginPath();
+      ctx.arc(px[0], px[1], 4, 0, Math.PI * 2);
+      ctx.fill();
     });
 
-    ctx.font = 'bold 13px Inter, sans-serif';
-    const label = `RMS ${corners.rms.toFixed(3)} px · residuals ×${RESIDUAL_GAIN}`;
-    ctx.lineWidth = 3;
-    ctx.strokeStyle = HALO;
-    ctx.strokeText(label, 10, 22);
     ctx.fillStyle = 'white';
-    ctx.fillText(label, 10, 22);
+    ctx.font = 'bold 13px Inter, sans-serif';
+    ctx.fillText(`RMS ${corners.rms.toFixed(3)} px`, 10, 22);
   }, [corners]);
 
   useEffect(() => {
