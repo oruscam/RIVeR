@@ -25,7 +25,7 @@ import { join } from 'path';
  * `.switch-container` and `.field-title` are also deliberately absent: both
  * are shared utility classes still used extensively elsewhere in the app
  * (FormProcessing.tsx, StabilizationRegions.tsx, LensCorrection.tsx,
- * HardModeProcessing.tsx, TechniqueRow.tsx, FramesResolution.tsx), unrelated
+ * LspivSettings.tsx, TechniqueRow.tsx, FramesResolution.tsx), unrelated
  * to the mask/region/section migration. Sweeping them would be a false
  * positive against legitimate, unrelated code, not a guard.
  */

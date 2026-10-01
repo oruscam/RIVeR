@@ -1,7 +1,7 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { useTranslation } from 'react-i18next';
-import { AnalyzingProgress, ExportMp4, HardModeProcessing } from './Components';
+import { AnalyzingProgress, ExportMp4, LspivSettings } from './Components';
 import { useEffect, useState } from 'react';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
@@ -376,7 +376,9 @@ export const FormProcessing = ({
             </div>
             {isBackendWorking && isTesting === false && <AnalyzingProgress state={runState} />}
 
-            <HardModeProcessing active={extraFields} onClickTest={handleOnClickTest} isTesting={isTesting} />
+            {extraFields && (
+              <LspivSettings id="lspiv-settings" onClickTest={handleOnClickTest} isTesting={isTesting} />
+            )}
           </form>
         </FormProvider>
       </div>
