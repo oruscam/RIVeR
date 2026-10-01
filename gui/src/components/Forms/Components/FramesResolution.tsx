@@ -25,22 +25,16 @@ export const FramesResolution = () => {
       ];
 
   return (
-    <div className="lens-correction-section mt-1" id="video-resolution">
-      <h3 className="field-title" style={{ padding: '6px 0' }}>
-        {t('VideoRange.framesResolution')}
-      </h3>
-      <div className="lens-settings">
-        <div className="lens-row" style={{ borderBottom: 'none' }}>
-          <span className="lens-row-label">{t('VideoRange.ExtraInfo.resolution').replace(':', '').trim()}</span>
-          <div className="lens-row-right">
-            <LensDropdown
-              options={resolutions}
-              value={readOnly ? 1 : factor}
-              onChange={(v) => onChangeFramesResolution(v as number)}
-              disabled={readOnly}
-            />
-          </div>
-        </div>
+    <div id="video-resolution">
+      <p className="panel-group">{t('VideoRange.framesResolution')}</p>
+      <div className="field-row">
+        <span className="field-row-label">{t('VideoRange.ExtraInfo.resolution').replace(':', '').trim()}</span>
+        <LensDropdown
+          options={resolutions}
+          value={readOnly ? 1 : factor}
+          onChange={(v) => onChangeFramesResolution(v as number)}
+          disabled={readOnly}
+        />
       </div>
     </div>
   );
