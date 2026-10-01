@@ -1282,54 +1282,113 @@ textarea:focus-visible {
 }
 
 /* =============================================================================
-   FIELD ROW (.field-row / .field)
-   Label + value + optional trailing icon button, from the design audit's
-   Field rows component sheet. Not consumed yet — existing .read-only label
-   pills and .input-field-* inputs keep their current classes until a later
-   phase migrates each screen onto this.
+   PANEL ROWS (.field-row / .field / .panel-group / .panel-rule)
+   The row grammar every wizard panel uses (Processing panel redesign, preview
+   2026-10-01). Label left, control right, 40px tall. Labels start at the 8px
+   row inset inside the panel's 16px gutter, and every control ends on the
+   same right edge (rules 1, 2). Built in 6a with no consumer; reworked here
+   rather than adding a sixth row class.
    ============================================================================= */
 
 .field-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 128px 32px;
-  gap: var(--space-2);
+  display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
   min-height: 40px;
+  padding: 0 var(--space-2);
 }
 
-.field-row > span:first-child {
-  color: var(--secondary-text-color);
+.field-row-label {
+  min-width: 0;
   font-size: var(--text-body);
+  color: var(--text-primary);
 }
 
+/* Section-level rows (Station number, ROI height) sit one step up. */
+.field-row-top .field-row-label {
+  font-size: var(--text-section);
+}
+
+/* Rule 6: a value that needs a switch sits 16px in, under that switch, and is
+   only rendered while the switch is on. */
+.field-row.field-row-child {
+  padding-left: calc(var(--space-2) + var(--space-4));
+}
+
+.field-row-child .field-row-label {
+  color: var(--text-subdued);
+}
+
+/* Rule 3: the group label is the quietest text in the block, not the loudest. */
+.panel-group {
+  margin: var(--space-3) 0 2px;
+  padding: 0 var(--space-2);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--text-subdued);
+}
+
+.panel-group:first-child {
+  margin-top: var(--space-1);
+}
+
+/* Rule 4: one divider style, between groups only. */
+.panel-rule {
+  height: 1px;
+  border: 0;
+  margin: var(--space-2) 0;
+  background: var(--border-color);
+}
+
+/* Rule 7: read-only values are text, never a field that looks editable. */
+.field-readonly {
+  padding-right: var(--space-2);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-subdued);
+}
+
+/* A parameter value is body text, not a headline: 14px in a 30px box, where
+   .input-field-little is 20px. The hairline is D1: light's field fill is
+   1.05:1 against the panel (debt A6), so without it the box has no edge. */
 .field {
-  height: 36px;
+  width: 64px;
+  height: 30px;
+  box-sizing: border-box;
+  padding: 0 var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--text-subdued) 22%, transparent);
   border-radius: var(--radius-md);
-  background-color: var(--input-background);
-  border: none;
-  color: var(--primary-text-color);
+  background-color: var(--surface-field);
+  color: var(--text-primary);
+  font-family: inherit;
   font-size: var(--text-body);
   font-weight: 500;
   font-variant-numeric: tabular-nums;
-  text-align: right;
-  padding: 0 var(--space-3);
-  width: 100%;
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: var(--space-2);
+  text-align: center;
 }
 
-.field em {
-  font-style: normal;
-  font-weight: 400;
-  color: var(--secondary-text-color);
+.field-wide {
+  width: 76px;
 }
 
-.field.focus,
-.field:focus-within {
-  box-shadow: 0 0 0 2px var(--accent-color);
+.field-select {
+  appearance: none;
+  text-align: left;
+  padding-left: 10px;
+  padding-right: 22px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.field:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+.field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* =============================================================================
@@ -1409,6 +1468,26 @@ input:disabled + .slider {
 input:disabled + .slider:hover {
   background-color: var(--slider-bg);
   border-color: var(--slider-border);
+}
+
+/* D2: the parameter-list switch. A size modifier only, so every state above
+   (hover, focus ring, checked, disabled) still applies. 36x20 against 52x28,
+   so the control no longer outweighs its 14px label. Each selector out-specifies
+   the base rule it overrides by one class. */
+.switch.switch-sm {
+  width: 36px;
+  height: 20px;
+  margin-left: 0;
+}
+
+.switch-sm .slider:before {
+  width: 14px;
+  height: 14px;
+  left: 2px;
+}
+
+.switch-sm input:checked + .slider:before {
+  transform: translateY(-50%) translateX(16px);
 }
 
 /* =============================================================================

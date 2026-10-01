@@ -233,21 +233,17 @@ describe('.btn button component', () => {
 });
 
 describe('.field-row component', () => {
-  it('lays out label / value / trailing action as a three-column grid', () => {
+  // Reworked from 6a's three-column grid into the panel row grammar;
+  // panelPrimitives.test.ts owns the detail.
+  it('is a label-left, control-right flex row', () => {
     const body = ruleBody('.field-row');
-    expect(body).toMatch(/display:\s*grid/);
-    expect(body).toMatch(/grid-template-columns:\s*minmax\(0,\s*1fr\)\s+128px\s+32px/);
+    expect(body).toMatch(/display:\s*flex/);
+    expect(body).toMatch(/justify-content:\s*space-between/);
   });
 
-  it('.field is a right-aligned value box using the field surface token', () => {
+  it('.field uses the field surface token and the medium radius', () => {
     const body = ruleBody('.field');
-    expect(body).toMatch(/background-color:\s*var\(--input-background\)/);
+    expect(body).toMatch(/background-color:\s*var\(--surface-field\)/);
     expect(body).toMatch(/border-radius:\s*var\(--radius-md\)/);
-    expect(body).toMatch(/text-align:\s*right/);
-  });
-
-  it('a focused field gets an accent ring, not the browser default', () => {
-    const focusWithin = ruleBody('.field:focus-within');
-    expect(focusWithin).toMatch(/box-shadow:\s*0 0 0 2px var\(--accent-color\)/);
   });
 });
