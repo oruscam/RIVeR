@@ -15,18 +15,23 @@ export const AddMaskButton = () => {
     }
   };
 
+  const editing = activeMaskIndex !== null;
+  const label = editing
+    ? t('CrossSections.doneEditingMask', { defaultValue: 'Done editing' })
+    : `+ ${t('CrossSections.addMask', { defaultValue: 'Add mask' })}`;
+
   return (
     <button
       type="button"
-      className="chip chip-sm"
+      className="btn btn-sm btn-tertiary panel-add"
       onClick={handleClick}
       title={
-        activeMaskIndex !== null
+        editing
           ? t('CrossSections.exitMaskMode', { defaultValue: 'Exit mask editing' })
           : t('CrossSections.addMask', { defaultValue: 'Add mask' })
       }
     >
-      + {t('CrossSections.addMask', { defaultValue: 'Add mask' })}
+      {label}
     </button>
   );
 };

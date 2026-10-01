@@ -887,13 +887,60 @@
     text-align: right;
 }
 
+/* The unit lives inside the box, pinned to its right edge, so every coordinate
+   box is the same 120px and ends on the same line as the pixel boxes. The
+   input reserves room for it. */
 .field-with-unit {
-    display: flex;
+    position: relative;
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-1);
+}
+
+.field-with-unit .field-coord {
+    padding-right: 30px;
 }
 
 .field-unit {
+    position: absolute;
+    right: var(--space-2);
     font-size: var(--text-caption);
     color: var(--text-subdued);
+    pointer-events: none;
+}
+
+/* A wizard panel's section: the same 16px gutter as .panel-advanced. */
+.panel-section {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 var(--space-4);
+}
+
+/* Two secondary actions side by side, equal width, on the row inset. */
+.panel-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    padding: 0 var(--space-2);
+    margin-bottom: var(--space-2);
+}
+
+.panel-actions .panel-action {
+    width: 100%;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+/* A file name is a read-only value: muted text under the buttons, truncated. */
+.panel-filename {
+    margin: 0 0 var(--space-2);
+    padding: 0 var(--space-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* A quiet add-action under its list. .btn-tertiary keeps its own 16px padding,
+   so the negative margin lands the text on the 8px row inset. */
+.btn.panel-add {
+    margin: var(--space-1) 0 var(--space-2) calc(var(--space-2) - var(--space-4));
 }

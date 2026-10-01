@@ -1067,6 +1067,13 @@ html {
 
 /* Section and mask names are free-text user input and the panel is a fixed
    width, so the label truncates instead of pushing the actions out of view. */
+/* A list that sits among panel rows takes their size: 40px tall, body text. A
+   modifier, so the other lists keep the 32px row. */
+.list-row.list-row-field {
+  min-height: 40px;
+  font-size: var(--text-body);
+}
+
 .list-row-label {
   flex: 1 1 auto;
   min-width: 0;

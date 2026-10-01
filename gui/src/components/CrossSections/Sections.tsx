@@ -73,9 +73,9 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
 
   return (
     <>
-      <div style={{ width: '100%', overflowX: 'auto', overflowY: 'hidden', marginTop: 15, marginBottom: 15 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', minHeight: 50 }}>
-          <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', gap: 'var(--space-1)' }}>
+      <div className="sections-scroller">
+        <div className="sections-row">
+          <div className="sections-tools">
             <EyeBtn active={seeAll} action={() => onSetSeeAll(!seeAll)} noBorder={true} />
             {canEdit && (
               <button

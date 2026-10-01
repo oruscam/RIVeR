@@ -15,7 +15,7 @@ export const HardModeUav = () => {
   return (
     <div id="hard-mode-uav" className="panel-advanced">
       <hr className="panel-rule" />
-      <RealWorldCoordinates step={3} onSetRealWorld={onSetPixelRealWorld} />
+      <RealWorldCoordinates step={3} onSetRealWorld={onSetPixelRealWorld} showUnitLabel />
       <PixelCoordinates step={3} onSetDirPoints={onSetPixelDirection} />
       <span id="span-footer"></span>
     </div>
