@@ -1,14 +1,3 @@
-.input-section{
-    border: none;
-    color: var(--primary-text-color);
-    background-color: transparent;
-    font-size: 18px;
-    outline: none;
-    min-width: 50px;
-    max-width: 108px;
-    cursor: pointer;
-}
-
 .active{
     border-top: solid 1px var(--primary-text-color);
     border-left: solid 1px var(--primary-text-color);

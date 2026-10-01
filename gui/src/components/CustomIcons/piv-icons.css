@@ -240,16 +240,6 @@
     color: var(--success-color, #62C655)
 }
 
-.card {
-    background: var(--card-surface);
-    border: 1px solid var(--border-color);
-    border-radius: 18px;
-    padding: 20px 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px
-}
-
 .row {
     display: flex;
     align-items: center;

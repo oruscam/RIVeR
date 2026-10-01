@@ -86,24 +86,6 @@
     padding-inline: 8px;
 }
 
-.read-only-oblique {
-    background-color: var(--input-background);
-    color: var(--primary-text-color);
-    border: 1px solid color-mix(in srgb, var(--primary-text-color) 45%, transparent);
-    font-size: 22px;
-    text-align: center;
-    line-height: 45px;
-    border-radius: 20px;
-    min-width: 175px;
-    height: 50px;
-    word-wrap: break-word;
-    font-size: auto;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 0;
-}
-
 .bg-transparent {
     background-color: transparent;
     border: none;
@@ -444,20 +426,6 @@
     margin-right: auto;
 }
 
-#apply-changes {
-    font-size: 1.1em;
-    padding: 8px 24px;
-    white-space: nowrap;
-    width: auto;
-    max-width: none;
-    text-align: center;
-}
-
-#apply-changes:hover {
-    background-color: var(--primary-text-color);
-    color: var(--background-color);
-}
-
 .simple-input-container {
     display: flex;
     flex-direction: column;
@@ -782,11 +750,6 @@
 .technique-row-processing-unavailable .field-title {
     color: var(--secondary-text-color);
     opacity: 0.6;
-}
-
-.technique-always {
-    font-size: 11px;
-    color: var(--secondary-text-color);
 }
 
 /* Eye/flag states for the Processing technique rows. The Results module's
