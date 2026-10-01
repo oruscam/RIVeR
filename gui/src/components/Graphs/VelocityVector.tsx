@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import './graphs.css';
 import { useProjectSlice, useSectionSlice, useUiSlice, useVelocityColorRange } from '../../hooks';
 import * as d3 from 'd3';
-import { drawVectors } from './index';
+import { drawStationBadge, drawVectors } from './drawVectors';
 import { Section } from '../../store/section/types';
 import { getEffectiveTechniqueData } from '../../helpers';
 import { OverlayLayers } from '../OverlaySvg';
@@ -26,7 +26,7 @@ export const VelocityVector = ({
   sectionIndex,
   layers,
 }: VelocityVectorProps) => {
-  const { interactiveLayerRef } = layers;
+  const { interactiveLayerRef, badgeLayerRef } = layers;
   const { video } = useProjectSlice();
   const { sections, activeSection, transformationMatrix } = useSectionSlice();
 
@@ -78,6 +78,8 @@ export const VelocityVector = ({
 
   useEffect(() => {
     d3.select(interactiveLayerRef.current).selectAll('*').remove();
+    d3.select(badgeLayerRef.current).selectAll('*').remove();
+    let hoveredBase: { x: number; y: number } | null = null;
     const svg = d3.select(interactiveLayerRef.current as SVGSVGElement);
     svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
 
@@ -106,7 +108,7 @@ export const VelocityVector = ({
       if (!magnitude) return;
 
       if (seeAll && isReport === false) {
-        drawVectors(
+        const base = drawVectors(
           svg,
           factor,
           activeSection,
@@ -125,10 +127,11 @@ export const VelocityVector = ({
           onSetHoveredStation,
           onPinStation
         );
+        if (base) hoveredBase = base;
       } else {
         if (isReport && sectionIndex !== index) return;
         if (activeSection === index || isReport) {
-          drawVectors(
+          const base = drawVectors(
             svg,
             factor,
             activeSection,
@@ -147,9 +150,19 @@ export const VelocityVector = ({
             onSetHoveredStation,
             onPinStation
           );
+          if (base) hoveredBase = base;
         }
       }
     });
+
+    // Top layer of the overlay, above the section line and station layer, so the number stays readable.
+    if (hoveredBase && hoveredStation !== null) {
+      drawStationBadge(
+        d3.select(badgeLayerRef.current as SVGGElement) as d3.Selection<SVGGElement, unknown, null, undefined>,
+        hoveredBase,
+        hoveredStation
+      );
+    }
     // onSetHoveredStation/onPinStation are recreated every render by useUiSlice but only ever
     // change together with the state they close over (already tracked); adding them directly
     // would redraw this chart on every unrelated re-render
@@ -164,6 +177,7 @@ export const VelocityVector = ({
     isReport,
     sectionIndex,
     interactiveLayerRef,
+    badgeLayerRef,
     transformationMatrix,
     imageWidth,
     imageHeight,

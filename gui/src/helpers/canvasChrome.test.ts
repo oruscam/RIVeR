@@ -14,7 +14,7 @@ import { join } from 'path';
  * `media-container` class directly (CrossSections, Processing, VideoRange),
  * plus the components rendered inside them that this phase's own diff touches
  * or that are known to float (VideoPlayer, StabilizationCanvas, Carousel,
- * ImageProcessing, FloatingPlot). CameraCalibration.tsx and its three
+ * ImageProcessing). CameraCalibration.tsx and its three
  * canvas-side components (components/Calibration/) joined the sweep in Phase
  * 6e, when the calibration overlay was rebuilt onto the standard workspace;
  * none of them sets an inline `position`, so they add no candidates.
@@ -51,7 +51,6 @@ const FILES = [
   'components/VideoPlayer/StabilizationCanvas.tsx',
   'components/Carousel.tsx',
   'components/ImageProcessing.tsx',
-  'components/FloatingPlot.tsx',
   'components/Calibration/CalibrationCanvas.tsx',
   'components/Calibration/CalibrationStrip.tsx',
   'components/Calibration/CalibrationViewControl.tsx',
@@ -227,14 +226,6 @@ const ALLOW_LIST: AllowListEntry[] = [
       "replacement; discovered in Task 6, escalated to the product owner, not this phase's to fix.",
     matches: (c) => c.file === 'components/VideoPlayer/VideoPlayer.tsx' && /SoundBtn/.test(c.contextAfter),
   },
-  {
-    file: 'components/FloatingPlot.tsx',
-    reason:
-      'KNOWN DEBT, not spec-sanctioned - the draggable floating plot panel floats over the ' +
-      'canvas with no prepared replacement; discovered in Task 6, escalated to the product ' +
-      "owner, not this phase's to fix.",
-    matches: (c) => c.file === 'components/FloatingPlot.tsx',
-  },
 ];
 
 const offenders = (): StyleAbsoluteCandidate[] =>
@@ -260,10 +251,10 @@ describe('no inline-positioned control floats over an image canvas', () => {
   // own canary for the same reasoning). Pin down that this sweep is actually
   // exercising real code: it must still find every allow-listed exception,
   // not merely fail to find offenders because it found nothing at all.
-  it('still finds all three allow-listed exceptions (the sweep is not vacuous)', () => {
+  it('still finds both allow-listed exceptions (the sweep is not vacuous)', () => {
     const found = allCandidates().filter((c) => !isExcludedNonControl(c));
     const matchedReasons = found.map((c) => ALLOW_LIST.find((entry) => entry.matches(c))?.reason ?? null);
-    expect(matchedReasons.filter(Boolean)).toHaveLength(3);
+    expect(matchedReasons.filter(Boolean)).toHaveLength(2);
     expect(matchedReasons.every((r) => r !== null)).toBe(true);
   });
 

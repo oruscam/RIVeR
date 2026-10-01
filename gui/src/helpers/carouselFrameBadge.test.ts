@@ -9,10 +9,10 @@ const ruleBody = (selector: string): string => {
   return match ? match[1] : '';
 };
 
-describe('filmstrip frame number is a small corner badge', () => {
-  it('.img-water-mark is a small badge pinned to the corner, not a large centred number', () => {
+describe('filmstrip frame number is a corner badge', () => {
+  it('.img-water-mark is a badge pinned to the corner, not a large centred number', () => {
     const body = ruleBody('.img-water-mark');
-    expect(body).toMatch(/font-size:\s*11px/);
+    expect(body).toMatch(/font-size:\s*var\(--text-body\)/);
     expect(body).toMatch(/top:\s*6px/);
     expect(body).toMatch(/left:\s*6px/);
     expect(body).toMatch(/background:/);

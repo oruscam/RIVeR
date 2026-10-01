@@ -415,13 +415,13 @@
     position: absolute;
     top: 6px;
     left: 6px;
-    font-size: 11px; /* scale-exception: frame badge over a thumbnail, kept small so it does not cover the frame */
+    font-size: var(--text-body);
     font-weight: 700;
     line-height: 1;
     color: rgba(255, 255, 255, 0.92);
     background: rgba(0, 0, 0, 0.55);
     border-radius: var(--radius-full);
-    padding: 2px 6px;
+    padding: 3px 8px;
     white-space: nowrap;
     /* Must out-stack .img-carousel's z-index: 1. That z-index is inert while the
        container is inline-block (it applies only to positioned elements), but the

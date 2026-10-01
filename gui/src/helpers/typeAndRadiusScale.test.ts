@@ -33,7 +33,6 @@ const EXEMPT_FILES = ['components/Report/report.css'];
 const EXCEPTIONS: string[] = [
   'index.css|html|font-size: 16px',
   'index.css|.info-icon|font-size: 30px',
-  'components/components.css|.img-water-mark|font-size: 11px',
   'components/components.css|.colorbar-marker span|font-size: 10.5px',
   'components/components.css|.colorbar-manual-badge|font-size: 10.5px',
   'components/components.css|.iwave-axis|font-size: 11px',

@@ -53,13 +53,8 @@ export function UnitBtn() {
 
   return (
     <div className="lwrap" ref={ref}>
-      <button
-        className="ibtn"
-        aria-pressed={open}
-        style={{ width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties}
-        onClick={() => setOpen((v) => !v)}
-      >
-        {Icons.Ruler(open ? 'var(--secondary-background-color)' : 'var(--primary-text-color)')}
+      <button className="menu-trigger" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        {Icons.Ruler('var(--primary-text-color)')}
         {Icons.ChevDown('var(--secondary-text-color)', open ? 180 : 0)}
       </button>
       <div className={`ldrop ${open ? 'open' : ''}`} style={{ minWidth: 130 }}>

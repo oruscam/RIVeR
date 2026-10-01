@@ -73,7 +73,7 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
             <button
               ref={drawPointsButtonRef}
               className="btn btn-lg btn-secondary form-button me-1"
-              aria-pressed={drawPoints}
+              aria-pressed={drawPoints && isDefaultCoordinates}
               id="draw-coordinates"
               type="button"
               onClick={onSetDrawPoints}
