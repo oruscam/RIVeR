@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectSlice } from '../../../hooks';
 import { LensDropdown } from './LensDropdown';
+import { scrollBehavior } from '../../../helpers/motion';
 
 type ProfileGroup = {
   camera: string;
@@ -49,14 +50,14 @@ export const LensCorrection = () => {
 
   useEffect(() => {
     if (enabled) {
-      setTimeout(() => settingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+      setTimeout(() => settingsRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: 'nearest' }), 50);
     }
   }, [enabled]);
   const selectedGroup = profiles.find((g) => g.camera === selectedCamera) ?? null;
 
   const scrollBodyToBottom = () => {
     const body = settingsRef.current?.closest('.body') as HTMLElement | null;
-    if (body) body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+    if (body) body.scrollTo({ top: body.scrollHeight, behavior: scrollBehavior() });
   };
 
   const handleToggle = (checked: boolean) => {

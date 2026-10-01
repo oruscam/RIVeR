@@ -4,6 +4,7 @@ import { useResizableCarousel } from '../../hooks';
 import { toCalFileUrl } from '../../helpers/calFileUrl';
 import { Icon } from '../Icon';
 import { back, play } from '../../assets/icons/icons';
+import { scrollBehavior } from '../../helpers/motion';
 
 interface ThumbProps {
   img: string;
@@ -81,7 +82,7 @@ export const CalibrationStrip = ({
   const scroll = useCallback((direction: 'backward' | 'forward') => {
     const el = listRef.current;
     if (!el) return;
-    el.scrollBy({ left: el.clientWidth * 0.8 * (direction === 'backward' ? -1 : 1), behavior: 'smooth' });
+    el.scrollBy({ left: el.clientWidth * 0.8 * (direction === 'backward' ? -1 : 1), behavior: scrollBehavior() });
   }, []);
 
   const notUsedLabel = t('Calibration.notUsed');

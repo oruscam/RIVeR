@@ -3,6 +3,7 @@ import { Icons } from './Icons';
 import { useSectionSlice } from '../../hooks';
 import { useWizard } from 'react-use-wizard';
 import { MODULE_NUMBER } from '../../constants/constants';
+import { scrollBehavior } from '../../helpers/motion';
 
 interface LockButtonProps {
   localExtraFields?: boolean;
@@ -32,13 +33,13 @@ export function LockBtn({
         if (extraFields) {
           const header = name + '-' + headerElementID;
           const headerElement = document.getElementById(header);
-          headerElement?.scrollIntoView({ behavior: 'smooth' });
+          headerElement?.scrollIntoView({ behavior: scrollBehavior() });
         } else {
           const footer = name + '-' + footerElementID;
 
           const footerElement = document.getElementById(footer);
           setTimeout(() => {
-            footerElement?.scrollIntoView({ behavior: 'smooth' });
+            footerElement?.scrollIntoView({ behavior: scrollBehavior() });
           }, 50);
         }
         onSetExtraFields();
@@ -47,11 +48,11 @@ export function LockBtn({
       case MODULE_NUMBER.PIXEL_SIZE:
         if (extraFields) {
           const headerElement = document.getElementById(headerElementID);
-          headerElement?.scrollIntoView({ behavior: 'smooth' });
+          headerElement?.scrollIntoView({ behavior: scrollBehavior() });
         } else {
           const footerElement = document.getElementById(footerElementID);
           setTimeout(() => {
-            footerElement?.scrollIntoView({ behavior: 'smooth' });
+            footerElement?.scrollIntoView({ behavior: scrollBehavior() });
           }, 100);
         }
         setLocalExtraFields();
@@ -60,11 +61,11 @@ export function LockBtn({
       case MODULE_NUMBER.VIDEO_RANGE:
         if (extraFields) {
           const headerElement = document.getElementById(headerElementID);
-          headerElement?.scrollIntoView({ behavior: 'smooth' });
+          headerElement?.scrollIntoView({ behavior: scrollBehavior() });
         } else {
           const footerElement = document.getElementById(footerElementID);
           setTimeout(() => {
-            footerElement?.scrollIntoView({ behavior: 'smooth' });
+            footerElement?.scrollIntoView({ behavior: scrollBehavior() });
           }, 50);
         }
         setLocalExtraFields(!localExtraFields);
@@ -73,11 +74,11 @@ export function LockBtn({
       case MODULE_NUMBER.PROCESSING:
         if (localExtraFields) {
           const headerElement = document.getElementById(headerElementID);
-          headerElement?.scrollIntoView({ behavior: 'smooth' });
+          headerElement?.scrollIntoView({ behavior: scrollBehavior() });
         } else {
           const footerElement = document.getElementById(footerElementID);
           setTimeout(() => {
-            footerElement?.scrollIntoView({ behavior: 'smooth' });
+            footerElement?.scrollIntoView({ behavior: scrollBehavior() });
           }, 50);
         }
         setLocalExtraFields(!localExtraFields);
@@ -86,11 +87,11 @@ export function LockBtn({
       default:
         if (localExtraFields) {
           const headerElement = document.getElementById(headerElementID);
-          headerElement?.scrollIntoView({ behavior: 'smooth' });
+          headerElement?.scrollIntoView({ behavior: scrollBehavior() });
         } else {
           const footerElement = document.getElementById(footerElementID);
           setTimeout(() => {
-            footerElement?.scrollIntoView({ behavior: 'smooth' });
+            footerElement?.scrollIntoView({ behavior: scrollBehavior() });
           }, 50);
         }
         setLocalExtraFields(!localExtraFields);
