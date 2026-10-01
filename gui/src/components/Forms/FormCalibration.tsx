@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LuCheckCircle, LuChevronDown, LuChevronRight } from 'react-icons/lu';
 import { DropHereText, FormHeader } from './Components';
-import { Loading, SuccessBanner } from '../index';
+import { SuccessBanner } from '../index';
+import { ProgressReadout } from '../ProgressReadout';
 import { CalibrationHistogram } from '../Graphs';
 import { stepAlertClassName } from '../Messages/stepAlertClassName';
 import { badgeGrade, footerAction, type BadgeGrade, type FooterBlocker } from '../../helpers/calibrationView';
@@ -147,6 +148,9 @@ export const FormCalibration = ({
   };
 
   const remainingTimeLabel = t('Analizing.remainingTime');
+  // The slice carries the backend's "42%" string, or '' before the first report.
+  const parsedPercentage = parseInt(progressPercentage);
+  const solvePercentage = Number.isNaN(parsedPercentage) ? null : parsedPercentage;
   const actions = summary?.verdict?.actions ?? [];
 
   return (
@@ -196,11 +200,10 @@ export const FormCalibration = ({
 
         {status === 'solving' && (
           <div className="cal-solving-loader">
-            <Loading
-              percentage={progressPercentage}
-              time={progressTime ? `${remainingTimeLabel}${progressTime}` : ''}
-              size="big"
-              isComplete={progressPercentage === '100%'}
+            <ProgressReadout
+              percentage={solvePercentage}
+              label={t('Calibration.solving')}
+              time={progressTime ? `${remainingTimeLabel}${progressTime}` : t('Analizing.estimating')}
             />
           </div>
         )}

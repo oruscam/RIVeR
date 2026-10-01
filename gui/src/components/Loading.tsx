@@ -1,34 +1,31 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useUiSlice } from '../hooks';
+import { FrameProgress, parseFrameProgress } from '../helpers/parseFrameProgress';
 
-interface LoadingProps {
-  time?: string;
-  percentage?: string;
-  size?: string;
-  isComplete?: boolean;
-}
-
-export const Loading = ({ time, percentage, size = 'mid', isComplete }: LoadingProps) => {
+/**
+ * Shown in place of a step while a module loads. A bar along the top edge
+ * sweeps while the wait is open-ended and fills once the frame extractor
+ * reports a counter. The whole block fades in late (see .module-loader), so
+ * quick module switches never flash it.
+ */
+export const Loading = () => {
   const { message, onSetMessage } = useUiSlice();
   const { t } = useTranslation();
-  const [progressText, setProgressText] = useState('');
+  const [frames, setFrames] = useState<FrameProgress | null>(null);
+  const [phaseText, setPhaseText] = useState('');
 
   useEffect(() => {
-    setProgressText('');
-
-    const handler = (_event: any, text: string) => {
+    const handler = (_event: unknown, text: string) => {
       const trimmed = text.trim();
       if (!trimmed) return;
 
-      const frameMatch = trimmed.match(/frame\s+(\d+)\/(\d+)/);
-      if (frameMatch) {
-        const current = parseInt(frameMatch[1]);
-        const total = parseInt(frameMatch[2]);
-        const pct = Math.min(100, Math.round((current / total) * 100));
-        setProgressText(`${current} / ${total} (${pct}%)`);
+      const counter = parseFrameProgress(trimmed);
+      if (counter) {
+        setFrames(counter);
       } else if (trimmed.startsWith('Extracting') || trimmed.startsWith('Stabilizing')) {
-        setProgressText(trimmed);
+        setFrames(null);
+        setPhaseText(trimmed);
         // The header message is set once before the backend call starts and
         // never updates on its own — switch it here once the backend reports
         // it has moved from extraction into the stabilization phase.
@@ -46,15 +43,24 @@ export const Loading = ({ time, percentage, size = 'mid', isComplete }: LoadingP
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const detail = frames
+    ? `${frames.current} / ${frames.total} (${Math.min(100, Math.round((frames.current / frames.total) * 100))}%)`
+    : phaseText;
+
   return (
-    <div className={`loader-container-${size}`}>
-      <div className={`loader-wrapper-${size}`}>
-        <div className={`loader-${size} ${isComplete ? `loader-complete-${size}` : ''}`}></div>
-        {percentage && <div className={`loader-percentage-${size}`}>{percentage}</div>}
+    <div className="module-loader" role="status" aria-live="polite">
+      <div className="module-loader-bar">
+        {frames ? (
+          <span
+            className="module-loader-fill"
+            style={{ transform: `scaleX(${Math.min(1, frames.current / frames.total)})` }}
+          />
+        ) : (
+          <span className="module-loader-sweep" />
+        )}
       </div>
-      {message && <p>{message}</p>}
-      {progressText && <p>{progressText}</p>}
-      {time && <p className="loader-remaining-time">{time}</p>}
+      {message && <p className="module-loader-message">{message}</p>}
+      <p className="module-loader-detail">{detail}</p>
     </div>
   );
 };

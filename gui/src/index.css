@@ -565,15 +565,17 @@ html {
    here. Adding any of them back would override the primitive this modifies.
 
    min-width is the exception, and the reason this rule is not empty of sizing.
-   The spinner is a conditionally rendered child (`{running && <span
-   class="loader-little" />}`), so a content-sized loader button changes width
-   the moment it starts working - the button jumps under the cursor that just
-   clicked it. The legacy rule bought stability with `width: 165px`; min-width
-   buys the same stability without the clipping a fixed width causes once a
-   label is translated into a longer locale.
+   The legacy rule bought a stable width with `width: 165px`; min-width keeps
+   it without the clipping a fixed width causes once a label is translated
+   into a longer locale. The busy indicator (`{running && <span
+   class="btn-progress-sweep" />}`) is absolutely positioned on the bottom
+   edge, so position and overflow below are what keep it inside the button
+   and out of the flex layout.
    ============================================================================= */
 
 .button-with-loader {
+  position: relative;
+  overflow: hidden;
   min-width: 165px;
   justify-content: space-around;
   flex-shrink: 0;
@@ -1381,105 +1383,142 @@ input:disabled + .slider:hover {
 
 /* =============================================================================
    LOADERS
+   One family, three forms, all thin lines that move with transform:
+   - .progress-readout: measurable runs (processing, calibration). A large
+     figure over a hairline. Every row renders from the first frame, so the
+     block never re-centres when the first percentage arrives.
+   - .module-loader: open-ended waits between modules. A bar on the top edge
+     that sweeps, or fills once the frame extractor reports a counter.
+   - .btn-progress-sweep: a busy button. The same sweep on its bottom edge.
    ============================================================================= */
 
-.loader-little {
-  border: 5px solid var(--secondary-background-color);
-  border-radius: 50%;
-  border-top: 5px solid var(--primary-text-color);
-  width: 40px;
-  height: 40px;
-  animation: spin 1.5s linear infinite;
-}
-
-/* MID */
-.loader-container-mid {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  align-items: center;
+.progress-readout {
   width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
   user-select: none;
 }
 
-.loader-wrapper-mid {
+.progress-readout-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.progress-readout-value.is-pending {
+  color: var(--text-subdued);
+}
+
+.progress-readout-track {
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 80px;
-  height: 80px;
-  margin-bottom: 40px;
+  height: 1px;
+  margin: var(--space-3) 0 var(--space-2);
+  background: var(--readout-border);
+  overflow: hidden;
 }
 
-.loader-mid {
-  border: 10px solid var(--primary-text-color);
-  border-radius: 50%;
-  border-top: 10px solid var(--secondary-background-color);
-  width: 80px;
-  height: 80px;
-  animation: spin 1.5s linear infinite;
-}
-
-.loader-percentage-mid {
+.progress-readout-fill {
   position: absolute;
-  font-size: var(--text-subtitle);
-  color: var(--primary-text-color);
+  inset: 0;
+  background: var(--text-primary);
+  transform-origin: left;
+  transition: transform 400ms var(--motion-ease);
 }
 
-/* BIG */
-.loader-container-big {
+.progress-readout-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 1.4em;
+  font-size: var(--text-meta);
+  color: var(--text-subdued);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-readout-foot span:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.module-loader {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 100%;
   align-items: center;
+  gap: var(--space-2);
   width: 100%;
+  height: 100%;
+  user-select: none;
+  animation: module-loader-in var(--motion-base) var(--motion-ease) 250ms both;
 }
 
-.loader-wrapper-big {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 160px;
-  height: 160px;
-}
-
-.loader-big {
-  border: 12px solid var(--primary-text-color);
-  border-radius: 50%;
-  border-top: 12px solid var(--secondary-background-color);
-  width: 120px;
-  height: 120px;
-  animation: spin 1.5s linear infinite;
-}
-
-.loader-percentage-big {
+.module-loader-bar {
   position: absolute;
-  font-family: var(--font-display);
-  font-size: var(--text-title);
-  font-weight: 700;
-  color: var(--primary-text-color);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  overflow: hidden;
 }
 
-.loader-complete-big {
-  animation: none;
-  border: 12px solid var(--primary-text-color);
+.module-loader-sweep,
+.btn-progress-sweep::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 35%;
+  background: var(--accent-color);
+  animation: loader-sweep 1.4s var(--motion-ease) infinite;
 }
 
-.loader-remaining-time {
-  font-family: var(--font-display);
-  font-size: var(--text-title) !important;
-  font-weight: 700;
+.module-loader-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent-color);
+  transform-origin: left;
+  transition: transform 400ms var(--motion-ease);
+}
+
+.module-loader-message {
+  margin: 0;
+  font-size: var(--text-section);
+  color: var(--text-primary);
+}
+
+.module-loader-detail {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: var(--text-meta);
+  color: var(--text-subdued);
+  font-variant-numeric: tabular-nums;
+}
+
+.btn-progress-sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  overflow: hidden;
+}
+
+.btn-progress-sweep::after {
+  content: '';
+  background: var(--on-accent);
 }
 
 .analize-stage-breadcrumb {
   text-align: center;
   color: var(--secondary-text-color);
   font-size: var(--text-body);
-  margin-bottom: 8px;
+  margin-bottom: var(--space-4);
 }
 
 .analize-stage-breadcrumb-active {
@@ -1487,9 +1526,14 @@ input:disabled + .slider:hover {
   font-weight: 600;
 }
 
-@keyframes spin {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+@keyframes loader-sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(290%); }
+}
+
+@keyframes module-loader-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* =============================================================================
@@ -1781,9 +1825,9 @@ svg.mask-mode-active .overlay-ui * {
   }
 
   /* A frozen spinner reads as a hang. Spinners keep turning, at half speed or
-     slower. .loader-complete-big's `animation: none` still wins, because only
-     the duration and count are set here, never the animation's name. */
-  .loader-little, .loader-mid, .loader-big, .spin {
+     slower. Only the duration and count are set here, never the animation's
+     name. */
+  .module-loader-sweep, .btn-progress-sweep::after, .spin {
     animation-duration: 3s !important;
     animation-iteration-count: infinite !important;
   }

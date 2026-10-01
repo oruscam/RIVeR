@@ -297,7 +297,7 @@
     padding: 20px;
 }
 
-/* Centres the existing Loading progress in the panel while the solver runs. */
+/* Centres the ProgressReadout in the panel while the solver runs. */
 .cal-solving-loader {
     display: flex;
     flex-direction: column;

@@ -16,7 +16,7 @@ const walk = (dir: string, ext: RegExp): string[] =>
   });
 
 /** Spinners: keep turning under reduced motion. Must match the exemption rule in index.css exactly. */
-const SPINNERS = ['.loader-little', '.loader-mid', '.loader-big', '.spin'];
+const SPINNERS = ['.module-loader-sweep', '.btn-progress-sweep::after', '.spin'];
 /** Decorative infinite animations that may stop after one cycle. */
 const DECORATIVE = ['.pulse'];
 
