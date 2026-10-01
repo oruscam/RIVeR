@@ -157,6 +157,7 @@
     "statusDone": "Done",
     "statusRunning": "Running",
     "statusQueued": "Queued",
+    "waitForTest": "Wait for Test PIV to finish",
     "artificialSeeding": "Artificial Seeding",
     "windowSizes": "Windows Sizes",
     "step1": "Step 1",
