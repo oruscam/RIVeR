@@ -154,6 +154,9 @@
   },
   "Processing": {
     "title": "Processing",
+    "statusDone": "Done",
+    "statusRunning": "Running",
+    "statusQueued": "Queued",
     "artificialSeeding": "Artificial Seeding",
     "windowSizes": "Windows Sizes",
     "step1": "Step 1",
@@ -209,6 +212,8 @@
     "stop": "Stop",
     "remainingTime": "Remaining Time: ",
     "estimating": "Estimating…",
+    "stationOf": "{{technique}} · station {{n}} of {{total}}",
+    "timeLeft": "{{time}} left",
     "stage": {
       "lspiv": "Computing LSPIV velocity field",
       "stiv": "Computing STIV velocities",
