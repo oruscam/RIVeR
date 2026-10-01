@@ -46,3 +46,83 @@ describe('useProjectSlice records recent projects', () => {
     expect(body).toMatch(/invoke\('load-project', directory \? \{ directory \} : undefined\)/);
   });
 });
+
+const comp = read('components', 'RecentProjects.tsx');
+const pagesCss = read('pages', 'pages.css');
+
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+/** Body of the first rule whose selector list is exactly `selector`. */
+const ruleBody = (css: string, selector: string): string => {
+  // The selector must follow the start of file, a closing brace or a closing
+  // comment, so `.a` never matches inside `.b .a` or `.a:hover`.
+  const m = css.match(new RegExp(`(?:^|\\}|\\*\\/)\\s*${escapeRegExp(selector)}\\s*\\{([^}]*)\\}`));
+  return m ? m[1] : '';
+};
+
+describe('RecentProjects component', () => {
+  it('canary: the component file renders the tile class', () => {
+    expect(comp).toMatch(/className="recent-tile"/);
+  });
+
+  it('validates through projects-exist and writes back only on success', () => {
+    expect(comp).toMatch(/invoke\(\s*'projects-exist',\s*stored\.map\(\(r\) => r\.directory\)\s*\)/);
+    const thenIdx = comp.indexOf('.then(');
+    const catchIdx = comp.indexOf('.catch(');
+    expect(thenIdx).toBeGreaterThan(-1);
+    expect(catchIdx).toBeGreaterThan(thenIdx);
+    expect(comp.slice(thenIdx, catchIdx)).toMatch(/writeRecentProjects\(localStorage, kept\)/);
+    expect(comp.slice(catchIdx)).not.toMatch(/writeRecentProjects/);
+  });
+
+  it('skips IPC when nothing is stored, and ignores a late result after unmount', () => {
+    expect(comp).toMatch(/if \(stored\.length === 0\) return;/);
+    expect(comp).toMatch(/let cancelled = false;/);
+    expect(comp).toMatch(/return \(\) => \{\s*cancelled = true;\s*\};/);
+  });
+
+  it('renders nothing when there are no recents', () => {
+    expect(comp).toMatch(/if \(recents\.length === 0\) return null;/);
+  });
+
+  it('labels the section, and gives each tile its full path as tooltip', () => {
+    expect(comp).toMatch(/<section className="recents" aria-labelledby="recent-projects-title">/);
+    expect(comp).toMatch(/t\('MainPage\.recentProjects', \{ defaultValue: 'Recent projects' \}\)/);
+    expect(comp).toMatch(/title=\{r\.directory\}/);
+    expect(comp).toMatch(/t\('Step-2\.footageType\.' \+ r\.type, \{ defaultValue: FOOTAGE_LABELS\[r\.type\] \}\)/);
+  });
+
+  it('is exported from the components barrel', () => {
+    const barrel = read('components', 'index.ts');
+    expect(barrel).toMatch(/import \{ RecentProjects \} from '\.\/RecentProjects';/);
+    expect(barrel).toMatch(/^\s*RecentProjects,$/m);
+  });
+});
+
+describe('recent tile CSS', () => {
+  it('canary: the Phase 6f block exists', () => {
+    expect(pagesCss).toMatch(/HOME — RECENT PROJECTS & HALO \(Phase 6f\)/);
+  });
+
+  it('lays out three equal columns', () => {
+    expect(ruleBody(pagesCss, '.recents-grid')).toMatch(/grid-template-columns:\s*repeat\(3, minmax\(0, 1fr\)\)/);
+  });
+
+  it('builds tile states from color-mix, never from a surface token', () => {
+    const rest = ruleBody(pagesCss, '.recent-tile');
+    const hover = ruleBody(pagesCss, '.recent-tile:hover');
+    expect(rest).toMatch(/background:\s*color-mix\(in srgb, var\(--primary-text-color\) 7%, transparent\)/);
+    expect(hover).toMatch(/background:\s*color-mix\(in srgb, var\(--primary-text-color\) 13%, transparent\)/);
+    const block = pagesCss.slice(pagesCss.indexOf('HOME — RECENT PROJECTS & HALO (Phase 6f)'));
+    expect(block).not.toMatch(/--surface-raised|--card-surface|--surface-field|--input-background/);
+  });
+
+  it('has a visible keyboard focus ring', () => {
+    expect(ruleBody(pagesCss, '.recent-tile:focus-visible')).toMatch(/outline:\s*2px solid var\(--accent-color\)/);
+  });
+
+  it('truncates long names instead of wrapping', () => {
+    const name = ruleBody(pagesCss, '.recent-tile-name');
+    expect(name).toMatch(/text-overflow:\s*ellipsis/);
+    expect(name).toMatch(/white-space:\s*nowrap/);
+  });
+});

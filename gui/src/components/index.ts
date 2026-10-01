@@ -10,6 +10,7 @@ import { Grid } from './Grid';
 import { Results } from './Results';
 import { SuccessBanner } from './SuccessBanner';
 import { IpcamGrid } from './IpcamGrid';
+import { RecentProjects } from './RecentProjects';
 import { VersionMessage } from './VersionMessage';
 import { Clipboard } from './Clipboard';
 import { ColorBar } from './ColorBar';
@@ -49,6 +50,7 @@ export {
   LanguageSelector,
   Loading,
   ModeHint,
+  RecentProjects,
   Results,
   StepAlertList,
   Stepper,
