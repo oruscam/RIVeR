@@ -39,7 +39,9 @@
 
 .step-2-title {
     margin-top: auto;
+    font-family: var(--font-display);
     font-size: var(--text-display);
+    font-weight: 700;
 }
 
 .hidden-file-input {
@@ -208,8 +210,9 @@
 }
 
 .browse-video-header p:first-child {
+    font-family: var(--font-display);
     font-size: var(--text-title);
-    font-weight: 600;
+    font-weight: 700;
 }
 
 .browse-video-header p:last-child {

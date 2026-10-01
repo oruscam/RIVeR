@@ -1459,8 +1459,9 @@ input:disabled + .slider:hover {
 
 .loader-percentage-big {
   position: absolute;
+  font-family: var(--font-display);
   font-size: var(--text-title);
-  font-weight: bold;
+  font-weight: 700;
   color: var(--primary-text-color);
 }
 
@@ -1470,8 +1471,9 @@ input:disabled + .slider:hover {
 }
 
 .loader-remaining-time {
+  font-family: var(--font-display);
   font-size: var(--text-title) !important;
-  font-weight: 500;
+  font-weight: 700;
 }
 
 .analize-stage-breadcrumb {

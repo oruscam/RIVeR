@@ -348,6 +348,7 @@
 }
 
 .carousel-info input {
+    font-family: var(--font-display);
     font-size: var(--text-title);
     background-color: var(--input-background);
     border-radius: var(--radius-xl);
@@ -357,7 +358,7 @@
     text-align: end;
     padding-right: 5px;
     margin-right: 5px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .carousel-info input:focus {
@@ -365,7 +366,9 @@
 }
 
 .carousel-info p {
+    font-family: var(--font-display);
     font-size: var(--text-title);
+    font-weight: 700;
 }
 
 .img-carousel-active,
@@ -849,7 +852,9 @@
 }
 
 .success-banner-title {
+    font-family: var(--font-display);
     font-size: var(--text-title);
+    font-weight: 700;
     margin: 0;
     color: var(--primary-text-color);
 }
