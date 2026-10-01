@@ -21,7 +21,7 @@ export const ConfirmMaskBtn: React.FC<ConfirmMaskBtnProps> = ({ onClick, classNa
       style={{
         background: 'var(--pin-muted)',
         border: 'none',
-        borderRadius: '8px',
+        borderRadius: 'var(--radius-md)',
         cursor: 'pointer',
         padding: '4px',
         display: 'flex',

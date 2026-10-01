@@ -81,7 +81,7 @@ export const FloatingPlot = ({ showMedian, containerWidth, containerHeight }: Fl
         zIndex: 1001,
         background: bgColor,
         border: `1px solid ${borderColor}`,
-        borderRadius: '10px',
+        borderRadius: 'var(--radius-md)',
         boxShadow: '0 4px 20px rgba(0,0,0,0.4)',
         cursor: isDragging ? 'grabbing' : 'grab',
         userSelect: 'none',

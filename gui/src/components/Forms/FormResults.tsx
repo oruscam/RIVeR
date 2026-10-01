@@ -121,7 +121,7 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
           </button>
           <div className="result-value-row">
             <p id="result-number">
-              {displayQ} <span style={{ fontSize: '0.45em', opacity: 0.7 }}>{flowUnit}</span>
+              {displayQ} <span style={{ fontSize: 'var(--text-section)', opacity: 0.7 }}>{flowUnit}</span>
             </p>
             <div>
               <p id="result-measured">

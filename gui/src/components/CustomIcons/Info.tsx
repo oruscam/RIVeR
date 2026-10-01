@@ -14,13 +14,20 @@ export const Info: React.FC<InfoProps> = ({ name, desc, pill }) => {
       <span
         style={{
           fontFamily: "ui-monospace, 'SF Mono', Menlo, Consolas, monospace",
-          fontSize: 12,
+          fontSize: 'var(--text-caption)',
           color: 'var(--accent-color)',
         }}
       >
         {name}
       </span>
-      <span style={{ fontSize: 12, color: 'var(--secondary-text-color)', lineHeight: 1.55, maxWidth: 270 }}>
+      <span
+        style={{
+          fontSize: 'var(--text-caption)',
+          color: 'var(--secondary-text-color)',
+          lineHeight: 1.55,
+          maxWidth: 270,
+        }}
+      >
         {desc}
       </span>
       {pill}
