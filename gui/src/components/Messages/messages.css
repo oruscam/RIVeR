@@ -15,7 +15,7 @@
     color: #fff;
     border-radius: var(--radius-full);
     padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
-    font-size: 13px;
+    font-size: var(--text-meta);
     font-weight: 500;
     white-space: nowrap;
     z-index: 5;
@@ -28,7 +28,7 @@
 
 .field-error {
     color: var(--status-bad);
-    font-size: 12.5px;
+    font-size: var(--text-caption);
     margin-top: var(--space-1);
     flex-basis: 100%;
     width: 100%;
@@ -48,7 +48,7 @@
     background: var(--surface-raised);
     border-radius: var(--radius-md);
     padding: var(--space-2) var(--space-3);
-    font-size: 13.5px;
+    font-size: var(--text-meta);
     color: var(--text-primary);
 }
 
@@ -104,7 +104,7 @@
     color: var(--text-primary);
     border-radius: var(--radius-md);
     padding: var(--space-2) var(--space-4);
-    font-size: 13.5px;
+    font-size: var(--text-meta);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     z-index: 30;
 }
@@ -139,13 +139,13 @@
 }
 
 .dialog b {
-    font-size: 16px;
+    font-size: var(--text-section);
     color: var(--text-primary);
 }
 
 .dialog p {
     color: var(--text-subdued);
-    font-size: 13px;
+    font-size: var(--text-meta);
     margin: var(--space-2) 0 var(--space-4);
 }
 

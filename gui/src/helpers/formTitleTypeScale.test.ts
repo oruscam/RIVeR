@@ -17,11 +17,11 @@ describe('Outfit display font powers the shared screen-title heading', () => {
     expect(index).toMatch(/--font-display:\s*'Outfit'/);
   });
 
-  it('.form-title uses the display font at 24px/700', () => {
+  it('.form-title uses the display font at --text-title/700', () => {
     const match = formCss.match(/\.form-title\s*\{([^}]*)\}/);
     expect(match).not.toBeNull();
     expect(match![1]).toMatch(/font-family:\s*var\(--font-display\)/);
-    expect(match![1]).toMatch(/font-size:\s*24px/);
+    expect(match![1]).toMatch(/font-size:\s*var\(--text-title\)/);
     expect(match![1]).toMatch(/font-weight:\s*700/);
   });
 
