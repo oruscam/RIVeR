@@ -19,7 +19,7 @@ export const Results = () => {
       <div className="media-container">
         <ImageResults />
       </div>
-      <div className="form-container results-wash">
+      <div className="form-container">
         <FormHeader title={t('Results.title')} canEdit={false} showSections={true} />
         <StepAlertList />
         <ResultsComponent />

@@ -20,7 +20,7 @@
 }
 
 /* Phase 6f: the audit's second use of the theme wash, a band at the top of
-   the Results panel. It ends on --surface-panel at 26%, the same colour the
+   the Report page's Summary panel. It ends on --surface-panel at 26%, the same colour the
    .footer paints, so there is no seam. */
 .form-container.results-wash {
     background: linear-gradient(180deg, var(--wash-2) 0%, var(--surface-panel) 26%);

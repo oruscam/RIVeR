@@ -179,7 +179,7 @@ describe('Home halo and layout CSS', () => {
   });
 });
 
-describe('Results panel wash', () => {
+describe('Summary panel wash', () => {
   const formCss = read('components', 'Forms', 'form.css');
 
   it('canary: form.css still has .form-container', () => {
@@ -194,9 +194,15 @@ describe('Results panel wash', () => {
     );
   });
 
-  it('applies it on Results only', () => {
-    expect(read('pages', 'Results.tsx')).toMatch(/<div className="form-container results-wash">/);
-    for (const page of ['Processing.tsx', 'CrossSections.tsx', 'VideoRange.tsx', 'CameraCalibration.tsx']) {
+  it('applies it on the Report Summary panel only', () => {
+    expect(read('pages', 'Report.tsx')).toMatch(/<div className="form-container results-wash">/);
+    for (const page of [
+      'Results.tsx',
+      'Processing.tsx',
+      'CrossSections.tsx',
+      'VideoRange.tsx',
+      'CameraCalibration.tsx',
+    ]) {
       expect(read('pages', page)).not.toMatch(/results-wash/);
     }
   });

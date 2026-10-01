@@ -146,7 +146,7 @@ export const Report = () => {
           </div>
         </div>
       </div>
-      <div className="form-container">
+      <div className="form-container results-wash">
         <FormHeader title={t('Report.Summary.title')} showSections={false} />
         <FormReport isReportSaved={isReportSaved} setIsReportSaved={setIsReportSaved} />
         <div className="footer">
