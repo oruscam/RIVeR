@@ -1,7 +1,8 @@
 import { DropHereText } from './DropHereText';
 import { FramesResolution } from './FramesResolution';
 import { LensCorrection } from './LensCorrection';
-import { HardModeProcessing } from './HardModeProcessing';
+import { LspivSettings } from './LspivSettings';
+import { RoiHeightRow } from './RoiHeightRow';
 import { PixelCoordinates } from './PixelCoordinates';
 import { RealWorldCoordinates } from './RealWorldCoordinates';
 import { VideoMetadata } from './VideoMetadata';
@@ -27,13 +28,14 @@ export {
   FramesResolution,
   HardModeCrossSections,
   HardModeOblique,
-  HardModeProcessing,
+  LspivSettings,
   HardModeUav,
   MaskCreation,
   MaskList,
   PixelCoordinates,
   ProcessingRunZone,
   RealWorldCoordinates,
+  RoiHeightRow,
   StabilizationRegions,
   VideoMetadata,
 };

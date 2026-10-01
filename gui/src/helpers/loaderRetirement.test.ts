@@ -63,7 +63,7 @@ describe('module loader is a top-edge bar', () => {
 
 describe('busy buttons sweep along their bottom edge', () => {
   it('the Test button shows the sweep while testing', () => {
-    expect(read('components/Forms/Components/HardModeProcessing.tsx')).toMatch(
+    expect(read('components/Forms/Components/LspivSettings.tsx')).toMatch(
       /isBackendWorking && isTesting && <span className="btn-progress-sweep"/
     );
   });

@@ -47,13 +47,13 @@ export const useDataSlice = () => {
   interface ProcessingValues {
     artificialSeeding?: boolean;
     clahe?: boolean;
-    clipLimit?: string;
+    clipLimit?: number;
     grayscale?: boolean;
     images?: string[];
     iwave?: boolean;
-    medianTestEpsilon?: string;
+    medianTestEpsilon?: number;
     medianTestFiltering?: boolean;
-    medianTestThreshold?: string;
+    medianTestThreshold?: number;
     removeBackground?: boolean;
     stdFiltering?: boolean;
     stdThreshold?: number;
