@@ -1,10 +1,3 @@
-.theme-toggle {
-    font-size: 40px;
-    position: absolute;
-    right: 40px;
-    bottom: 25px;
-}
-
 #version-block {
     display: flex;
     flex-direction: column;
@@ -288,145 +281,6 @@
     background-color: var(--background-color);
 }
 
-/* LOADER */
-
-/* MID  */
-
-.loader-container-mid {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    align-items: center;
-    width: 100%;
-    user-select: none;
-}
-
-.loader-wrapper-mid {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 80px;
-    height: 80px;
-    margin-bottom: 40px;
-}
-
-.loader-mid {
-    border: 10px solid var(--primary-text-color);
-    border-radius: 50%;
-    border-top: 10px solid var(--secondary-background-color);
-    width: 80px;
-    height: 80px;
-    animation: spin 1.5s linear infinite;
-}
-
-.loader-percentage-mid {
-    position: absolute;
-    font-size: 1.2em;
-    color: var(--primary-text-color);
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-/* BIG */
-
-.loader-container-big {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    align-items: center;
-    width: 100%;
-}
-
-.loader-wrapper-big {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 160px;
-    height: 160px;
-}
-
-.loader-big {
-    border: 12px solid var(--primary-text-color);
-    border-radius: 50%;
-    border-top: 12px solid var(--secondary-background-color);
-    width: 120px;
-    height: 120px;
-    animation: spin 1.5s linear infinite;
-}
-
-.loader-percentage-big {
-    position: absolute;
-    font-size: 1.8em;
-    font-weight: bold;
-    color: var(--primary-text-color);
-}
-
-.loader-complete-big {
-    animation: none;
-    border: 12px solid var(--success-color);
-    border: 12px solid var(--primary-text-color);
-}
-
-.loader-remaining-time {
-    font-size: 1.6em !important;
-    font-weight: 500;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-
-/* * PROVISIONAL  */
-.info-icon {
-    font-size: 30px;
-    margin-left: 10px;
-    margin-top: 5px;
-    font-weight: bold;
-    top: 150px;
-    left: 10px;
-    transition: transform 0.1s ease;
-}
-
-.info-icon:hover {
-    cursor: pointer;
-    transform: scaleX(1.1);
-    transform: scaleY(1.1);
-}
-
-.info-animation {
-    position: relative;
-    position: absolute;
-    top: 180px;
-    width: 150px;
-    height: 100px;
-    z-index: 10;
-}
-
-.info-gif {
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
-}
-
 .carousel-resize-handle {
     height: 8px;
     cursor: ns-resize;
@@ -515,17 +369,6 @@
     font-size: 1.5rem;
 }
 
-.carousel-input {
-    width: 50px;
-    text-align: end;
-    margin-right: 5px;
-    font-weight: bold;
-    font-size: 1.8rem;
-    color: var(--primary-text-color);
-    background-color: transparent;
-    border: none;
-}
-
 .img-carousel-active,
 .img-carousel-second {
     border: 4px solid var(--accent-color);
@@ -583,21 +426,6 @@
        STI carousel's container is a flex box, where z-index DOES apply to flex
        items — so without this the thumbnail paints over the badge. */
     z-index: 2;
-}
-
-.img-water-mark-ipcam {
-    position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--overlay-text-color);
-    width: 100%;
-    text-align: center;
-    white-space: normal;
-    word-wrap: break-word;
-    padding: 0 10px;
 }
 
 .image-with-data-container {
@@ -712,11 +540,6 @@
     white-space: nowrap;
 }
 
-#colorbar-label {
-    font-weight: 400;
-    font-size: 1.3rem;
-}
-
 .colorbar-input {
     background-color: transparent;
     color: var(--primary-text-color);
@@ -733,13 +556,6 @@
 
 .colorbar-input:hover {
     background-color: var(--input-background);
-}
-
-.colorbar-labels {
-    display: flex;
-    gap: 8px;
-    color: var(--primary-text-color);
-    font-size: 14px;
 }
 
 .colorbar-unit-label {

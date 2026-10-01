@@ -1207,23 +1207,6 @@ html {
   background-color: var(--input-background-disabled);
 }
 
-.input-field-little-read-only {
-  background-color: var(--input-background);
-  color: var(--primary-text-color);
-  border: none;
-  font-size: 20px;
-  text-align: center;
-  border-radius: 15px;
-  width: 90px;
-  height: 35px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.input-field-little-read-only:focus {
-  outline: none;
-}
-
 .input-field-little:disabled {
   background-color: var(--input-background-disabled);
 }
@@ -1262,8 +1245,7 @@ textarea:focus-visible {
 .input-field:focus-visible,
 .input-field-oblique:focus-visible,
 .input-field-little:focus-visible,
-.input-field-read-only:focus-visible,
-.input-field-little-read-only:focus-visible {
+.input-field-read-only:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 1px;
 }
@@ -1396,65 +1378,6 @@ input:disabled + .slider {
 input:disabled + .slider:hover {
   background-color: var(--slider-bg);
   border-color: var(--slider-border);
-}
-
-/* =============================================================================
-   THEME SEGMENTED CONTROL (3-way: Dark / Light / Dracula)
-   ============================================================================= */
-
-.theme-segmented-control {
-  display: inline-flex;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  background-color: var(--secondary-background-color);
-}
-
-.theme-segment-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 6px 14px;
-  border: none;
-  background-color: transparent;
-  color: var(--secondary-text-color);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  transition: background-color 0.15s ease, color 0.15s ease;
-  min-width: 60px;
-}
-
-.theme-segment-btn + .theme-segment-btn {
-  border-left: 1px solid var(--border-color);
-}
-
-.theme-segment-btn:hover {
-  background-color: var(--on-hover);
-  color: var(--primary-text-color);
-}
-
-.theme-segment-btn--active {
-  background-color: var(--accent-color);
-  color: var(--on-accent);
-}
-
-.theme-segment-btn--active:hover {
-  background-color: var(--accent-color);
-  opacity: 0.9;
-  color: var(--on-accent);
-}
-
-.theme-segment-icon {
-  font-size: 16px;
-  line-height: 1;
-}
-
-.theme-segment-label {
-  line-height: 1;
 }
 
 /* =============================================================================
