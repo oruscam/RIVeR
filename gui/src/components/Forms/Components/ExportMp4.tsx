@@ -117,7 +117,7 @@ export const ExportMp4 = () => {
         {resolutions.map((res, index) => (
           <div key={index} className="litem" onClick={(e) => handleSelectResolution(res.factor, e)}>
             <span>{res.factor * 100}%</span>
-            <span style={{ marginLeft: 'auto', opacity: 0.6, fontSize: '0.85em' }}>{res.label}</span>
+            <span style={{ marginLeft: 'auto', opacity: 0.6, fontSize: 'var(--text-caption)' }}>{res.label}</span>
           </div>
         ))}
       </div>

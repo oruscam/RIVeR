@@ -102,7 +102,7 @@ export const LensCorrection = () => {
       </div>
       {enabled &&
         (noProfiles ? (
-          <p className="mt-1" style={{ color: 'var(--secondary-text-color)', fontSize: '14px' }}>
+          <p className="mt-1" style={{ color: 'var(--secondary-text-color)', fontSize: 'var(--text-body)' }}>
             {t('VideoRange.noProfiles')}
           </p>
         ) : (

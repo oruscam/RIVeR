@@ -80,7 +80,7 @@ export function LangBtn() {
               setOpen(false);
             }}
           >
-            <span style={{ fontSize: 17 }}>{l.flag}</span>
+            <span style={{ fontSize: 'var(--text-section)' }}>{l.flag}</span>
             <span>{l.label}</span>
             {l.code === language && (
               <span style={{ marginLeft: 'auto', display: 'flex' }}>{Icons.Check('var(--success-color)')}</span>
