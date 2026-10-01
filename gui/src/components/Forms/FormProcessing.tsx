@@ -1,7 +1,7 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { useTranslation } from 'react-i18next';
-import { AnalyzingProgress, ExportMp4, LspivSettings } from './Components';
+import { AnalyzingProgress, ExportMp4, LspivSettings, ProcessingRunZone, RoiHeightRow } from './Components';
 import { useEffect, useState } from 'react';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
@@ -9,6 +9,20 @@ import { useAnalyzeStage } from '../../hooks/useAnalyzeStage';
 import { TechniqueRow } from '../TechniqueRow';
 import { FieldError } from '../index';
 import { Icons } from '../CustomIcons/Icons';
+import { enabledStages, techniqueRunStatus, TechniqueRunStatus } from '../../helpers/analyzeRunState';
+import type { StageKey } from '../../helpers/parseAnalyzeStage';
+
+/** A technique row's own run status, replacing the LSPIV → STIV → iWave breadcrumb. */
+const RunStatus = ({ status }: { status: TechniqueRunStatus | null }) => {
+  const { t } = useTranslation();
+  if (status === null) return null;
+  const text = {
+    done: t('Processing.statusDone', { defaultValue: 'Done' }),
+    running: t('Processing.statusRunning', { defaultValue: 'Running' }),
+    queued: t('Processing.statusQueued', { defaultValue: 'Queued' }),
+  }[status];
+  return <span className={`tech-status${status === 'running' ? ' tech-status-running' : ''}`}>{text}</span>;
+};
 
 export const FormProcessing = ({
   extraFields,
@@ -33,15 +47,8 @@ export const FormProcessing = ({
 }) => {
   const { t } = useTranslation();
   const { onSetFieldError, onClearFieldError, onAddStepAlert, onClearStepAlert, onShowToast } = useUiSlice();
-  const {
-    isBackendWorking,
-    processing,
-    onSetQuiverTest,
-    onSetQuiverAll,
-    onKillBackend,
-    onAddMask,
-    onUpdateProcessing,
-  } = useDataSlice();
+  const { isBackendWorking, processing, onSetQuiverTest, onSetQuiverAll, onKillBackend, onUpdateProcessing } =
+    useDataSlice();
   const { sections, activeSection, onUpdateSection } = useSectionSlice();
 
   const {
@@ -72,12 +79,17 @@ export const FormProcessing = ({
 
   const [isTesting, setIsTesting] = useState<boolean>(false);
 
-  const runState = useAnalyzeStage(isBackendWorking && !isTesting);
+  const running = isBackendWorking && !isTesting;
+  const runState = useAnalyzeStage(running);
+  const stages = enabledStages(stiv, iwave);
+  const statusOf = (technique: StageKey): TechniqueRunStatus | null =>
+    running ? techniqueRunStatus(technique, stages, runState.stage) : null;
+  // D5: open the first time Advanced turns on; a collapse lasts while this step is mounted.
+  const [lspivOpen, setLspivOpen] = useState<boolean>(true);
 
   const methods = useForm({
     defaultValues: {
       step_1: step1,
-      step_2: step1 / 2,
       roi_height: heightRoi,
       remove_background: removeBackground,
       clahe: clahe,
@@ -118,11 +130,6 @@ export const FormProcessing = ({
     }
   };
 
-  const handleTab = () => {
-    console.log('handle tab');
-    // Placeholder for future tab handling logic
-  };
-
   const handleOnClickTest = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setIsTesting(true);
@@ -132,29 +139,17 @@ export const FormProcessing = ({
       .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
   };
 
-  const handleOnClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    const id = event.currentTarget.id;
+  const handleAnalyze = () => {
+    if (isBackendWorking) return;
+    setIsTesting(false);
+    onClearStepAlert('processing-backend-error');
+    onSetQuiverAll()
+      .then(() => setShowMedian(true))
+      .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
+  };
 
-    if (id === 'analize-button') {
-      if (isBackendWorking) return;
-      setIsTesting(false);
-      onClearStepAlert('processing-backend-error');
-      onSetQuiverAll()
-        .then(() => {
-          setShowMedian(true);
-        })
-        .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
-    }
-
-    if (id === 'stop-button') {
-      await onKillBackend();
-    }
-
-    if (id === 'add-mask-icon') {
-      console.log('Add mask icon clicked');
-      // Placeholder for future add mask logic
-      onAddMask();
-    }
+  const handleStop = () => {
+    onKillBackend();
   };
 
   // Technique toggles are icon-only (one ✓ glyph, D11), so each needs an
@@ -170,218 +165,223 @@ export const FormProcessing = ({
     : t('Processing.iwaveToggleOff', { defaultValue: 'iWave is off (click to include in processing)' });
 
   return (
-    <div className="body mt-3" id="form-analizing">
-      <div className="wrapper">
-        <FormProvider {...methods}>
-          <form
-            id="form-processing"
-            style={{ overflowY: `${!extraFields ? 'hidden' : 'auto'}` }}
-            onKeyDown={handleTab}
-          >
-            <span id="processing-header" />
-            <div className="switch-container mt-2">
-              <h3 className="field-title">{t('Results.stationNumber')}</h3>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <button type="button" className="btn-step" onClick={() => handleStationsStep(-1)}>
-                  −
-                </button>
-                <input
-                  key={name}
-                  className="input-field-little"
-                  type="number"
-                  defaultValue={numStations}
-                  {...methods.register(`${name}_STATIONS_NUMBER`)}
-                  id="stations-number"
-                  onKeyDown={handleStationsChangeInput}
-                  onBlur={handleStationsChangeInput}
-                />
-                <button type="button" className="btn-step" onClick={() => handleStationsStep(1)}>
-                  +
-                </button>
+    <>
+      <div className={`body processing-body${extraFields ? ' is-advanced' : ''}`} id="form-analizing">
+        <div className="wrapper">
+          <FormProvider {...methods}>
+            <form id="form-processing" className={`processing-form${extraFields ? ' is-advanced' : ''}`}>
+              <div className="field-row field-row-top">
+                <label className="field-row-label" htmlFor="stations-number">
+                  {t('Results.stationNumber')}
+                </label>
+                <span className="field-stepper">
+                  <button type="button" className="btn-step" onClick={() => handleStationsStep(-1)}>
+                    −
+                  </button>
+                  <input
+                    key={name}
+                    className="field"
+                    type="number"
+                    defaultValue={numStations}
+                    {...methods.register(`${name}_STATIONS_NUMBER`)}
+                    id="stations-number"
+                    onKeyDown={handleStationsChangeInput}
+                    onBlur={handleStationsChangeInput}
+                  />
+                  <button type="button" className="btn-step" onClick={() => handleStationsStep(1)}>
+                    +
+                  </button>
+                </span>
               </div>
-            </div>
-            <FieldError name="stations-number" />
+              <FieldError name="stations-number" />
+              {extraFields && <RoiHeightRow />}
 
-            <span className="divider-line mt-2 mb-1" />
+              <hr className="panel-rule" />
 
-            <TechniqueRow
-              technique="lspiv"
-              active={previewMode === 'frames'}
-              className="tech-row technique-row-processing"
-            >
-              <button
-                type="button"
-                className="field-title"
-                aria-pressed={previewMode === 'frames'}
-                title={t('Processing.showLspivFrames')}
-                onClick={() => {
-                  if (previewMode === 'frames') return;
-                  setPreviewMode('frames');
-                }}
-                style={previewMode === 'frames' ? { color: 'var(--tech-lspiv)' } : undefined}
+              <TechniqueRow
+                technique="lspiv"
+                active={previewMode === 'frames'}
+                className="tech-row technique-row-processing"
               >
-                LSPIV
-              </button>
-              <ExportMp4 />
-              <button
-                type="button"
-                className={`technique-seed-flag${showMedian ? ' technique-seed-flag-seeded' : ''}${
-                  canToggleMedian ? '' : ' technique-flag-off'
-                }`}
-                title={t('Processing.medianHint')}
-                onClick={() => {
-                  if (canToggleMedian) setShowMedian(!showMedian);
-                }}
-              >
-                {t('Processing.carouselMedia')}
-              </button>
-              <button
-                type="button"
-                className="ibtn ibtn-sm"
-                aria-pressed="true"
-                aria-disabled="true"
-                aria-label={lspivToggleLabel}
-                title={lspivToggleLabel}
-                onClick={() => {
-                  // LSPIV can never be turned off (D9) — permanently pressed/disabled above,
-                  // this guard keeps that contract even if the attribute is ever bypassed.
-                  return;
-                }}
-              >
-                {Icons.Check('currentColor')}
-              </button>
-            </TechniqueRow>
-            <TechniqueRow
-              technique="stiv"
-              active={previewMode === 'sti'}
-              className={`tech-row technique-row-processing${
-                canToggleSti ? '' : ' technique-row-processing-disabled'
-              }${stivAvailable ? '' : ' technique-row-processing-unavailable'}`}
-            >
-              <span className="tech-name-cell">
-                <button
-                  type="button"
-                  className="field-title"
-                  aria-pressed={previewMode === 'sti'}
-                  aria-disabled={!canToggleSti}
-                  title={
-                    !stivAvailable
-                      ? t('Processing.stivWeightsMissing')
-                      : canToggleSti
-                        ? t('Processing.showStivStis')
-                        : t('Processing.noStisYet')
-                  }
-                  onClick={() => {
-                    if (!canToggleSti) return;
-                    if (previewMode === 'sti') return;
-                    setPreviewMode('sti');
-                  }}
-                  style={previewMode === 'sti' ? { color: 'var(--tech-stiv)' } : undefined}
-                >
-                  STIV
-                </button>
-                {hasAnyStivOverride && (
+                <span className="tech-name-cell">
                   <button
                     type="button"
-                    className="sti-angle-reset"
-                    title={t('Processing.stiAngleResetAllTitle')}
+                    className="field-title"
+                    aria-pressed={previewMode === 'frames'}
+                    title={t('Processing.showLspivFrames')}
                     onClick={() => {
-                      resetAllStivAngles();
-                      onShowToast(
-                        t('Processing.stiAngleResetAllToast', {
-                          defaultValue: 'Angles reset for {{section}}',
-                          section: name,
-                        })
-                      );
+                      if (previewMode === 'frames') return;
+                      setPreviewMode('frames');
                     }}
+                    style={previewMode === 'frames' ? { color: 'var(--tech-lspiv)' } : undefined}
                   >
-                    {t('Processing.stiAngleResetAll')}
+                    LSPIV
                   </button>
+                  <RunStatus status={statusOf('lspiv')} />
+                </span>
+                <ExportMp4 />
+                <button
+                  type="button"
+                  className={`technique-seed-flag${showMedian ? ' technique-seed-flag-seeded' : ''}${
+                    canToggleMedian ? '' : ' technique-flag-off'
+                  }`}
+                  title={t('Processing.medianHint')}
+                  onClick={() => {
+                    if (canToggleMedian) setShowMedian(!showMedian);
+                  }}
+                >
+                  {t('Processing.carouselMedia')}
+                </button>
+                <button
+                  type="button"
+                  className="ibtn ibtn-sm"
+                  aria-pressed="true"
+                  aria-disabled="true"
+                  aria-label={lspivToggleLabel}
+                  title={lspivToggleLabel}
+                  onClick={() => {
+                    // LSPIV can never be turned off (D9) — permanently pressed/disabled above,
+                    // this guard keeps that contract even if the attribute is ever bypassed.
+                    return;
+                  }}
+                >
+                  {Icons.Check('currentColor')}
+                </button>
+                {extraFields && (
+                  <span className="tech-cell tech-disclose">
+                    <button
+                      type="button"
+                      className="ibtn ibtn-sm"
+                      aria-expanded={lspivOpen}
+                      aria-controls="lspiv-settings"
+                      aria-label={t('Processing.lspivSettings', { defaultValue: 'LSPIV settings' })}
+                      title={t('Processing.lspivSettings', { defaultValue: 'LSPIV settings' })}
+                      onClick={() => setLspivOpen(!lspivOpen)}
+                    >
+                      {Icons.ChevDown('currentColor')}
+                    </button>
+                  </span>
                 )}
-              </span>
-              <span className="tech-cell" />
-              <span className="tech-cell" />
-              <button
-                type="button"
-                className="ibtn ibtn-sm"
-                aria-pressed={stiv && stivAvailable}
-                aria-disabled={!stivAvailable}
-                aria-label={stivToggleLabel}
-                title={stivToggleLabel}
-                onClick={() => {
-                  if (!stivAvailable) return;
-                  onUpdateProcessing({ stiv: !stiv });
-                }}
+              </TechniqueRow>
+              {extraFields && lspivOpen && (
+                <LspivSettings id="lspiv-settings" onClickTest={handleOnClickTest} isTesting={isTesting} />
+              )}
+              <TechniqueRow
+                technique="stiv"
+                active={previewMode === 'sti'}
+                className={`tech-row technique-row-processing${
+                  canToggleSti ? '' : ' technique-row-processing-disabled'
+                }${stivAvailable ? '' : ' technique-row-processing-unavailable'}`}
               >
-                {Icons.Check('currentColor')}
-              </button>
-            </TechniqueRow>
-            <TechniqueRow
-              technique="iwave"
-              active={previewMode === 'iwave'}
-              className={`tech-row technique-row-processing${
-                canToggleIwave ? '' : ' technique-row-processing-disabled'
-              }`}
-            >
-              <button
-                type="button"
-                className="field-title"
-                aria-pressed={previewMode === 'iwave'}
-                aria-disabled={!canToggleIwave}
-                title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
-                onClick={() => {
-                  if (!canToggleIwave) return;
-                  if (previewMode === 'iwave') return;
-                  setPreviewMode('iwave');
-                }}
-                style={previewMode === 'iwave' ? { color: 'var(--tech-iwave)' } : undefined}
+                <span className="tech-name-cell">
+                  <button
+                    type="button"
+                    className="field-title"
+                    aria-pressed={previewMode === 'sti'}
+                    aria-disabled={!canToggleSti}
+                    title={
+                      !stivAvailable
+                        ? t('Processing.stivWeightsMissing')
+                        : canToggleSti
+                          ? t('Processing.showStivStis')
+                          : t('Processing.noStisYet')
+                    }
+                    onClick={() => {
+                      if (!canToggleSti) return;
+                      if (previewMode === 'sti') return;
+                      setPreviewMode('sti');
+                    }}
+                    style={previewMode === 'sti' ? { color: 'var(--tech-stiv)' } : undefined}
+                  >
+                    STIV
+                  </button>
+                  {hasAnyStivOverride && (
+                    <button
+                      type="button"
+                      className="sti-angle-reset"
+                      title={t('Processing.stiAngleResetAllTitle')}
+                      onClick={() => {
+                        resetAllStivAngles();
+                        onShowToast(
+                          t('Processing.stiAngleResetAllToast', {
+                            defaultValue: 'Angles reset for {{section}}',
+                            section: name,
+                          })
+                        );
+                      }}
+                    >
+                      {t('Processing.stiAngleResetAll')}
+                    </button>
+                  )}
+                  <RunStatus status={statusOf('stiv')} />
+                </span>
+                <span className="tech-cell" />
+                <span className="tech-cell" />
+                <button
+                  type="button"
+                  className="ibtn ibtn-sm"
+                  aria-pressed={stiv && stivAvailable}
+                  aria-disabled={!stivAvailable}
+                  aria-label={stivToggleLabel}
+                  title={stivToggleLabel}
+                  onClick={() => {
+                    if (!stivAvailable) return;
+                    onUpdateProcessing({ stiv: !stiv });
+                  }}
+                >
+                  {Icons.Check('currentColor')}
+                </button>
+              </TechniqueRow>
+              <TechniqueRow
+                technique="iwave"
+                active={previewMode === 'iwave'}
+                className={`tech-row technique-row-processing${
+                  canToggleIwave ? '' : ' technique-row-processing-disabled'
+                }`}
               >
-                iWave
-              </button>
-              <span className="tech-cell" />
-              <span className="tech-cell" />
-              <button
-                type="button"
-                className="ibtn ibtn-sm"
-                aria-pressed={iwave}
-                aria-label={iwaveToggleLabel}
-                title={iwaveToggleLabel}
-                onClick={() => onUpdateProcessing({ iwave: !iwave })}
-              >
-                {Icons.Check('currentColor')}
-              </button>
-            </TechniqueRow>
-
-            <span className="divider-line mt-2 mb-1" />
-
-            <div className="input-container-2 mt-1">
-              <button
-                className="btn btn-lg btn-primary button-with-loader me-1"
-                type="button"
-                onClick={handleOnClick}
-                id="analize-button"
-                disabled={isBackendWorking}
-              >
-                <p className="button-name">{t('Processing.analize')}</p>
-              </button>
-              <button
-                id="stop-button"
-                className="btn btn-lg btn-danger"
-                disabled={!isBackendWorking || isTesting === true}
-                onClick={handleOnClick}
-                type="button"
-              >
-                <p className="button-name">{t('Processing.stop')}</p>
-              </button>
-            </div>
-            {isBackendWorking && isTesting === false && <AnalyzingProgress state={runState} />}
-
-            {extraFields && (
-              <LspivSettings id="lspiv-settings" onClickTest={handleOnClickTest} isTesting={isTesting} />
-            )}
-          </form>
-        </FormProvider>
+                <span className="tech-name-cell">
+                  <button
+                    type="button"
+                    className="field-title"
+                    aria-pressed={previewMode === 'iwave'}
+                    aria-disabled={!canToggleIwave}
+                    title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
+                    onClick={() => {
+                      if (!canToggleIwave) return;
+                      if (previewMode === 'iwave') return;
+                      setPreviewMode('iwave');
+                    }}
+                    style={previewMode === 'iwave' ? { color: 'var(--tech-iwave)' } : undefined}
+                  >
+                    iWave
+                  </button>
+                  <RunStatus status={statusOf('iwave')} />
+                </span>
+                <span className="tech-cell" />
+                <span className="tech-cell" />
+                <button
+                  type="button"
+                  className="ibtn ibtn-sm"
+                  aria-pressed={iwave}
+                  aria-label={iwaveToggleLabel}
+                  title={iwaveToggleLabel}
+                  onClick={() => onUpdateProcessing({ iwave: !iwave })}
+                >
+                  {Icons.Check('currentColor')}
+                </button>
+              </TechniqueRow>
+            </form>
+          </FormProvider>
+        </div>
       </div>
-    </div>
+      <ProcessingRunZone
+        running={running}
+        testing={isBackendWorking && isTesting}
+        onAnalyze={handleAnalyze}
+        onStop={handleStop}
+      >
+        <AnalyzingProgress state={runState} />
+      </ProcessingRunZone>
+    </>
   );
 };
