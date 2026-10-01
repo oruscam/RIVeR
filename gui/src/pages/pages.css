@@ -17,12 +17,12 @@
 
 .home-page-image {
     margin-top: 15vh;
-    width: 420px;
+    width: 480px;
     height: auto;
 }
 
 .home-page-buttons {
-    margin-top: 32px;
+    margin-top: 20px;
     margin-bottom: auto;
     display: flex;
     flex-direction: row;
@@ -554,7 +554,7 @@
 
 .recents {
     width: 640px;
-    margin-top: 40px;
+    margin-top: 56px;
     margin-bottom: auto;
 }
 
@@ -648,5 +648,18 @@
 }
 
 .default-app-container.home-halo {
-    background: radial-gradient(120% 70% at 50% 0%, var(--wash-2) 0%, var(--background-color) 60%);
+    background: radial-gradient(130% 95% at 50% 0%, var(--wash-2) 0%, var(--background-color) 70%);
+}
+
+.home-page-buttons .btn {
+    min-width: 148px;
+}
+
+/* The side groups differ in width, so space-between drifts the version block
+   off the logo's axis. Pin it to the window centre instead. */
+.home-toolbar #version-block {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
 }
