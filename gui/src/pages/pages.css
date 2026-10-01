@@ -39,7 +39,7 @@
 
 .step-2-title {
     margin-top: auto;
-    font-size: 35px;
+    font-size: var(--text-display);
 }
 
 .hidden-file-input {
@@ -60,9 +60,9 @@
     height: 30px;
     padding-left: 10px;
     padding-right: 10px;
-    font-size: 1.3rem;
+    font-size: var(--text-subtitle);
     background-color: var(--secondary-background-color);
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     align-items: center;
     display: flex;
     justify-content: center;
@@ -104,7 +104,7 @@
     align-items: center;
     justify-content: center;
     gap: 8px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     border: 1px solid var(--border-color);
     cursor: pointer;
     transition: transform 0.2s ease, border-color 0.1s ease, box-shadow 0.1s ease;
@@ -123,12 +123,12 @@
 }
 
 .footage-type-name {
-    font-size: 16px;
+    font-size: var(--text-section);
     font-weight: 600;
 }
 
 .footage-type-description {
-    font-size: 13px;
+    font-size: var(--text-meta);
     color: var(--secondary-text-color);
     text-align: center;
     max-width: 180px;
@@ -208,7 +208,7 @@
 }
 
 .browse-video-header p:first-child {
-    font-size: 1.4rem;
+    font-size: var(--text-title);
     font-weight: 600;
 }
 
@@ -223,7 +223,7 @@
     height: 200px;
 
     border: 1px dashed gray;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
 
     display: flex;
     flex-direction: column;
@@ -238,7 +238,7 @@
 }
 
 .browse-video-drop-area p {
-    font-size: 1.15rem;
+    font-size: var(--text-subtitle);
     color: var(--secondary-text-color);
     margin-bottom: 15px;
 }
@@ -269,7 +269,7 @@
     flex: 1 1 0;
     min-height: 0;
     width: 98%;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -289,7 +289,7 @@
 /* "No photos yet" / "Not used in calibration" in place of an image. */
 .cal-canvas-placeholder {
     color: var(--secondary-text-color);
-    font-size: 0.85rem;
+    font-size: var(--text-body);
     text-align: center;
     padding: 20px;
 }
@@ -377,7 +377,7 @@
     border-radius: var(--radius-full);
     background: var(--canvas-chrome);
     color: var(--overlay-line);
-    font-size: 10px;
+    font-size: var(--text-caption);
     font-weight: 700;
     white-space: nowrap;
 }
@@ -408,7 +408,7 @@
 .cal-section-title {
     margin: 0 0 var(--space-2);
     text-align: center;
-    font-size: clamp(0.85rem, 2.5vw, 1.2rem);
+    font-size: clamp(var(--text-body), 2.5vw, var(--text-subtitle));
     font-weight: 600;
 }
 
@@ -432,7 +432,7 @@
     z-index: 20;
     background: var(--secondary-background-color);
     border: 1px solid var(--border-color);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     list-style: none;
     margin: 0;
     padding: 4px 0;
@@ -441,7 +441,7 @@
 
 .cal-combo-list li {
     padding: 8px 18px;
-    font-size: 15px;
+    font-size: var(--text-body);
     color: var(--primary-text-color);
     cursor: pointer;
     transition: background 0.1s;
@@ -487,7 +487,7 @@
 
 .lens-row-label {
     color: var(--secondary-text-color);
-    font-size: 16px;
+    font-size: var(--text-section);
     flex-shrink: 0;
 }
 
@@ -502,7 +502,7 @@
     background: transparent;
     border: none;
     color: var(--primary-text-color);
-    font-size: 16px;
+    font-size: var(--text-section);
     font-family: inherit;
     cursor: pointer;
     display: flex;
@@ -513,7 +513,7 @@
 }
 
 .lens-row-chevron {
-    font-size: 14px;
+    font-size: var(--text-body);
     color: var(--secondary-text-color);
     pointer-events: none;
     flex-shrink: 0;

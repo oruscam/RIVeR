@@ -13,11 +13,6 @@ import {
  * Phase 6g (spec §4/6g, A15): every font-size, font shorthand and border
  * radius in src/**\/*.css is a scale token or a documented exception.
  *
- * PENDING is the ratchet. It holds the exact offender count each file still
- * owes. Each sweep task deletes its files' entries, and the last one deletes
- * the object. Counts are exact, not maximums, so a stale entry fails as loudly
- * as a new offender.
- *
  * EXCEPTIONS is the registry. A value that stays off-scale carries an inline
  * `/* scale-exception: <why, 3+ words> *\/` comment on its line *and* an entry
  * here, so every exception shows up in review as a diff to this file.
@@ -33,10 +28,6 @@ const rel = (file: string): string => relative(SRC, file).split('\\').join('/');
 
 /** Whole files outside the sweep. Each must open with a `scale-exempt-file:` comment saying why. */
 const EXEMPT_FILES = ['components/Report/report.css'];
-
-const PENDING: Record<string, { font: number; radius: number }> = {
-  'pages/pages.css': { font: 13, radius: 5 },
-};
 
 /** `file|selector|property: value` for every documented exception. */
 const EXCEPTIONS: string[] = [
@@ -59,11 +50,6 @@ const scanned = cssFiles(SRC)
   .filter(({ file }) => !EXEMPT_FILES.includes(file))
   .map(({ file, source }) => ({ file, ...scanCss(source) }));
 
-const tally = (offenders: CssDeclaration[]) => ({
-  font: offenders.filter((d) => d.property.startsWith('font')).length,
-  radius: offenders.filter((d) => !d.property.startsWith('font')).length,
-});
-
 describe('type and radius scale (Phase 6g)', () => {
   it('sees the stylesheets and the declarations it governs (canary)', () => {
     expect(scanned.length).toBeGreaterThanOrEqual(8);
@@ -78,16 +64,14 @@ describe('type and radius scale (Phase 6g)', () => {
     ).toBe(true);
   });
 
-  it.each(scanned.map((s) => [s.file, s] as const))('%s owes exactly its pending count', (file, s) => {
-    const offenders = scaleOffenders(s.declarations);
-    if (PENDING[file]) expect(tally(offenders)).toEqual(PENDING[file]);
-    else expect(offenders.map((d) => `${d.line} ${d.selector} ${d.property}: ${d.value}`)).toEqual([]);
-  });
-
-  it('has no PENDING entry for a file it does not scan', () => {
-    const files = scanned.map((s) => s.file);
-    expect(Object.keys(PENDING).filter((file) => !files.includes(file))).toEqual([]);
-  });
+  it.each(scanned.map((s) => [s.file, s] as const))(
+    '%s has no off-scale value without a documented exception',
+    (_file, s) => {
+      expect(
+        scaleOffenders(s.declarations).map((d) => `${d.line} ${d.selector} ${d.property}: ${d.value}`)
+      ).toEqual([]);
+    }
+  );
 
   it('lists every documented exception in EXCEPTIONS, and nothing else', () => {
     const found = scanned.flatMap((s) =>
@@ -107,8 +91,7 @@ describe('type and radius scale (Phase 6g)', () => {
     expect(stale).toEqual([]);
   });
 
-  // Task 7 adds report.css's exemption header; un-skip there.
-  it.skip.each(EXEMPT_FILES)('%s opens with a scale-exempt-file comment giving a reason', (file) => {
+  it.each(EXEMPT_FILES)('%s opens with a scale-exempt-file comment giving a reason', (file) => {
     const head = readFileSync(join(SRC, file), 'utf8').slice(0, 600);
     expect(head).toMatch(/\/\*[\s\S]*?scale-exempt-file:\s*\S+(\s+\S+){2,}[\s\S]*?\*\//);
   });
@@ -145,5 +128,36 @@ describe('type and radius scale (Phase 6g)', () => {
         true
       );
     });
+  });
+});
+
+describe("the report's own components are insulated from the sweep (G2)", () => {
+  // Report.tsx inlines every stylesheet into report.html. report.css is exempt,
+  // but if a Report/*.tsx component used a swept app class, the export would
+  // change anyway. The three shared widgets the report embeds (SuccessBanner,
+  // ImageResults, AllInOne) follow the app on purpose (G2) and live outside
+  // this directory, so they are not checked here.
+  const reportDir = join(SRC, 'components', 'Report');
+  const reportSources = readdirSync(reportDir)
+    .filter((name) => name.endsWith('.tsx'))
+    .map((name) => readFileSync(join(reportDir, name), 'utf8'))
+    .join('\n');
+  const sweptClasses = scanned
+    .flatMap((s) =>
+      // `inherit` carries no size or radius of its own (.success-banner-link's `font: inherit`), so it cannot change an export.
+      s.declarations.filter((d) => isScaleProperty(d.property) && d.value !== 'inherit').map((d) => d.selector)
+    )
+    .flatMap((selector) => [...selector.matchAll(/\.([a-zA-Z][\w-]*)/g)].map((m) => m[1]));
+
+  it('reads the report components (canary)', () => {
+    expect(reportSources).toMatch(/className=/);
+    expect(sweptClasses).toContain('btn');
+  });
+
+  it('uses no class whose size or radius this phase swept', () => {
+    const used = new Set(
+      [...reportSources.matchAll(/className=["{`']([^"}`']+)/g)].flatMap((m) => m[1].split(/\s+/))
+    );
+    expect([...new Set(sweptClasses)].filter((cls) => used.has(cls)).sort()).toEqual([]);
   });
 });

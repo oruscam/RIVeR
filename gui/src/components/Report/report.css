@@ -1,3 +1,7 @@
+/* scale-exempt-file: the report is a printable document with its own em-based
+   type scale, and Report.tsx inlines every stylesheet into the exported
+   report.html, so moving these values would change every report users export.
+   Exempt as a whole under Phase 6g decision G2 (spec A15). */
 body {
     background-color: #262626;
     -webkit-print-color-adjust: exact;
