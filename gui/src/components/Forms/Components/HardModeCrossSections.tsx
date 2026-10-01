@@ -7,10 +7,8 @@ export const HardModeCrossSections = ({ extraFields, name }: { extraFields: bool
   const { onSetRealWorld, onSetDirPoints } = useSectionSlice();
 
   return (
-    <div
-      className={extraFields ? 'mt-5 hard-mode-processing' : 'hidden'}
-      style={{ paddingLeft: 0, paddingRight: 0 }}
-    >
+    <div className={extraFields ? 'panel-advanced' : 'hidden'}>
+      <hr className="panel-rule" />
       <RealWorldCoordinates section={name} step={4} onSetRealWorld={onSetRealWorld} showUnitLabel />
 
       <PixelCoordinates section={name} step={4} onSetDirPoints={onSetDirPoints} />

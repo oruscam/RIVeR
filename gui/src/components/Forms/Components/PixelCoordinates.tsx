@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { useProjectSlice, useUiSlice } from '../../../hooks/index.ts';
 import { getLabelStyle, getPointNames } from '../../../helpers/index.ts';
@@ -65,32 +66,32 @@ export const PixelCoordinates = ({
 
   return (
     <>
-      <h2 className="form-subtitle mt-2 only-one-item" id="pixel-coordinates">
-        {' '}
-        {t(`${modeName}.Pixel.title`)}{' '}
-      </h2>
-
+      <p className="panel-group" id="pixel-coordinates">
+        {t(`${modeName}.Pixel.title`)}
+      </p>
       {pointsNames.map((name, i) => {
         const style = getLabelStyle(type, step, fields, i);
-
         const prefix = step === 3 ? type : section;
-
+        const next = `${pointsNames[i === fields - 1 ? i : i + 1]}`;
         return (
-          <div className="input-container-2 mt-1" key={i}>
-            <label className={`read-only me-1 ${style}`}> {t(`${modeName}.Pixel.${name}`)} </label>
-            <div className="input-field-container">
+          <Fragment key={i}>
+            <div className="field-row">
+              <label className="field-row-label point-label" htmlFor={name}>
+                {style && <span className={`point-dot point-dot-${style}`} aria-hidden="true" />}
+                {t(`${modeName}.Pixel.${name}`)}
+              </label>
               <input
                 type="number"
                 step="any"
-                className="input-field"
+                className="field field-coord"
                 id={`${name}`}
                 {...register(`${prefix}_${name}`)}
-                onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
-                onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
+                onKeyDown={(event) => handleInputField(event, next)}
+                onBlur={(event) => handleInputField(event, next)}
               />
-              <FieldError name={fieldErrorName(pointsNames[i])} />
             </div>
-          </div>
+            <FieldError name={fieldErrorName(pointsNames[i])} />
+          </Fragment>
         );
       })}
     </>

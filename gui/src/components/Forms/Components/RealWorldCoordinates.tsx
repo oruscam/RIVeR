@@ -1,3 +1,4 @@
+import { Fragment } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { getLabelStyle, getPointNames } from '../../../helpers/index';
 import { useProjectSlice, useUiSlice } from '../../../hooks/index.ts';
@@ -66,47 +67,35 @@ export const RealWorldCoordinates = ({
 
   return (
     <>
-      <h2 className="form-subtitle only-one-item" id="REAL_WORLD">
-        {' '}
+      <p className="panel-group" id="REAL_WORLD">
         {t(`${modeName}.RealWorld.title`)}
-      </h2>
-
+      </p>
       {pointsNames.map((name, i) => {
         const style = getLabelStyle(type, step, fields, i);
         const prefix = step === 3 ? type : section;
-
+        const next = `${pointsNames[i === fields - 1 ? i : i + 1]}`;
         return (
-          <div className="input-container-2 mt-1" key={i}>
-            <label className={`read-only me-1 ${style}`}> {t(`${modeName}.RealWorld.${name}`)} </label>
-            {showUnitLabel ? (
-              <div className="input-field-container">
+          <Fragment key={i}>
+            <div className="field-row">
+              <label className="field-row-label point-label" htmlFor={name}>
+                {style && <span className={`point-dot point-dot-${style}`} aria-hidden="true" />}
+                {t(`${modeName}.RealWorld.${name}`)}
+              </label>
+              <span className="field-with-unit">
                 <input
                   type="number"
                   step="any"
-                  className="input-field"
+                  className="field field-coord"
                   id={`${name}`}
                   {...register(`${prefix}_${name}`)}
-                  onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
-                  onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
+                  onKeyDown={(event) => handleInputField(event, next)}
+                  onBlur={(event) => handleInputField(event, next)}
                 />
-                <span className="unit-label">{unitLabel}</span>
-                <FieldError name={fieldErrorName(pointsNames[i])} />
-              </div>
-            ) : (
-              <div className="input-field-container">
-                <input
-                  type="number"
-                  step="any"
-                  className="input-field"
-                  id={`${name}`}
-                  {...register(`${prefix}_${name}`)}
-                  onKeyDown={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
-                  onBlur={(event) => handleInputField(event, `${pointsNames[i === fields - 1 ? i : i + 1]}`)}
-                />
-                <FieldError name={fieldErrorName(pointsNames[i])} />
-              </div>
-            )}
-          </div>
+                {showUnitLabel && <span className="field-unit">{unitLabel}</span>}
+              </span>
+            </div>
+            <FieldError name={fieldErrorName(pointsNames[i])} />
+          </Fragment>
         );
       })}
     </>
