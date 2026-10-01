@@ -13,7 +13,7 @@ interface FormCrossSectionsProps {
 }
 
 export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsProps) => {
-  const { register, setValue } = useFormContext();
+  const { register, setValue, watch } = useFormContext();
   const { sections, activeSection, onUpdateSection, onGetBathimetry, transformationMatrix } = useSectionSlice();
   const { drawLine, bathimetry, extraFields, pixelSize } = sections[index];
   const { onSetFieldError, onClearFieldError, onAddStepAlert, onClearStepAlert } = useUiSlice();
@@ -28,10 +28,10 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
   const isActiveSection = activeSection === index;
   const drawLineButtonRef = useAutoShrinkFont<HTMLButtonElement>([t, isActiveSection]);
   const importBathButtonRef = useAutoShrinkFont<HTMLButtonElement>([t, isActiveSection]);
-  const leftBankStationLabelRef = useAutoShrinkFont<HTMLLabelElement>([t, isActiveSection]);
 
   const { yMax, yMin, xMin, x1Intersection, leftBank, xMax } = bathimetry;
 
+  const unitLabel = projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE;
   const isImperial = projectDetails.unitSistem === 'imperial';
   const toSI = (value: number) => (isImperial ? value * UNIT_CONVERSIONS.FT_TO_M : value);
   const toDisplay = (value: number | undefined) =>
@@ -125,143 +125,93 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
       }
     }
   };
+  const isIpcam = type === 'ipcam';
+
+  const drawButton = (
+    <button
+      ref={drawLineButtonRef}
+      className="btn btn-secondary panel-action"
+      aria-pressed={drawLine}
+      type="button"
+      id={`${name}-DRAW_LINE`}
+      onClick={() => onUpdateSection({ drawLine: true }, undefined)}
+      disabled={transformationMatrix.length === 0 || (isIpcam && bathimetry.path === undefined)}
+    >
+      {t('CrossSections.drawLine')}
+    </button>
+  );
+
+  const importButton = (
+    <button
+      ref={importBathButtonRef}
+      className="btn btn-secondary panel-action"
+      data-complete={!!bathimetry.path}
+      onClick={handleImportBath}
+      disabled={transformationMatrix.length === 0 ? false : isIpcam ? false : pixelSize.rwLength === 0}
+    >
+      {t('CrossSections.importBath')}
+    </button>
+  );
+
   return (
     <div id="form-section-div" className={activeSection !== index ? 'hidden' : ''}>
       <form onSubmit={onSubmit} id="form-cross-section">
         <span id={`${name}-HEADER`} />
         <span id={`${name}-form-cross-section-header`} />
-        {type === 'ipcam' ? (
-          <>
-            <div className="input-container-2 mb-1">
-              <input
-                type="file"
-                id={`${name}_CS_BATHIMETRY`}
-                className="hidden-file-input"
-                accept=".csv"
-                {...register(`${name}_CS_BATHIMETRY`, {
-                  validate: (value) => {
-                    if (sections[index].bathimetry.path === '' && value.length === 0) {
-                      return t('CrossSections.Errors.bathimetryIsRequired', { section_name: name });
-                    }
-                    return true;
-                  },
-                })}
-              />
-              <button
-                ref={importBathButtonRef}
-                className="btn btn-lg btn-secondary form-button bathimetry-button mt-1 me-1"
-                data-complete={!!bathimetry.path}
-                onClick={handleImportBath}
-                disabled={
-                  transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
+        <div className="panel-section">
+          <input
+            type="file"
+            id={`${name}_CS_BATHIMETRY`}
+            className="hidden-file-input"
+            accept={isIpcam ? '.csv' : undefined}
+            {...register(`${name}_CS_BATHIMETRY`, {
+              validate: (value) => {
+                if (sections[index].bathimetry.path === '' && value.length === 0) {
+                  return t('CrossSections.Errors.bathimetryIsRequired', { section_name: name });
                 }
-              >
-                {' '}
-                {t('CrossSections.importBath')}{' '}
-              </button>
-              <label className="read-only bg-transparent mt-1">
-                {bathimetry.name !== '' ? bathimetry.name : ''}
-              </label>
-            </div>
-            <div className="input-container-2">
-              <button
-                ref={drawLineButtonRef}
-                className="btn btn-lg btn-secondary form-button me-1"
-                aria-pressed={drawLine}
-                type="button"
-                id={`${name}-DRAW_LINE`}
-                onClick={() => onUpdateSection({ drawLine: true }, undefined)}
-                disabled={transformationMatrix.length === 0 || bathimetry.path === undefined}
-              >
-                {' '}
-                {t('CrossSections.drawLine')}{' '}
-              </button>
-              <span className="read-only bg-transparent"></span>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="input-container-2">
-              <button
-                ref={drawLineButtonRef}
-                className="btn btn-lg btn-secondary form-button me-1"
-                aria-pressed={drawLine}
-                type="button"
-                id={`${name}-DRAW_LINE`}
-                onClick={() => onUpdateSection({ drawLine: true }, undefined)}
-                disabled={transformationMatrix.length === 0}
-              >
-                {' '}
-                {t('CrossSections.drawLine')}{' '}
-              </button>
-              <span className="read-only bg-transparent"></span>
-            </div>
+                return true;
+              },
+            })}
+          />
+          <div className="panel-actions">
+            {isIpcam ? importButton : drawButton}
+            {isIpcam ? drawButton : importButton}
+          </div>
+          {bathimetry.name !== '' && <p className="field-readonly panel-filename">{bathimetry.name}</p>}
 
-            <div className="input-container-2 mt-1">
+          <DropHereText text={t('Commons.dropHereText')} show={bathimetry.path === undefined} />
+
+          <div className="field-row field-row-top">
+            <label className="field-row-label" htmlFor="LEVEL">
+              {t('CrossSections.level')}
+            </label>
+            <span className="field-with-unit">
               <input
-                type="file"
-                id={`${name}_CS_BATHIMETRY`}
-                className="hidden-file-input"
-                {...register(`${name}_CS_BATHIMETRY`, {
-                  validate: (value) => {
-                    if (sections[index].bathimetry.path === '' && value.length === 0) {
-                      return t('CrossSections.Errors.bathimetryIsRequired', { section_name: name });
-                    }
-                    return true;
-                  },
+                type="number"
+                step="any"
+                className="field field-coord"
+                {...register(`${name}_LEVEL`, {
+                  validate: () =>
+                    bathimetry.level !== 0 || t('CrossSections.Errors.levelRequired', { section_name: name }),
                 })}
+                id="LEVEL"
+                onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
+                onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
               />
-              <button
-                ref={importBathButtonRef}
-                className="btn btn-lg btn-secondary form-button bathimetry-button me-1"
-                data-complete={!!bathimetry.path}
-                onClick={handleImportBath}
-                disabled={
-                  transformationMatrix.length === 0 ? false : type === 'ipcam' ? false : pixelSize.rwLength === 0
-                }
-              >
-                {' '}
-                {t('CrossSections.importBath')}{' '}
-              </button>
-              <label className="read-only bg-transparent">{bathimetry.name !== '' ? bathimetry.name : ''}</label>
-            </div>
-          </>
-        )}
-
-        <DropHereText text={t('Commons.dropHereText')} show={bathimetry.path === undefined} />
-
-        <div className="input-container-2 mt-2 mb-1">
-          <label className="read-only me-1" htmlFor="LEVEL">
-            {t('CrossSections.level')}
-          </label>
-          <div className="input-field-container">
-            <input
-              type="number"
-              step="any"
-              className="input-field"
-              {...register(`${name}_LEVEL`, {
-                validate: () =>
-                  bathimetry.level !== 0 || t('CrossSections.Errors.levelRequired', { section_name: name }),
-              })}
-              id="LEVEL"
-              onKeyDown={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
-              onBlur={(event) => handleKeyDownBathLevel(event, 'left-bank-station-input')}
-            />
-            <span className="unit-label">
-              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+              <span className="field-unit">{unitLabel}</span>
             </span>
           </div>
           <FieldError name={`${name}_Level`} />
-        </div>
 
-        <div className="input-container-2 mb-1">
-          <label className="read-only me-1" htmlFor="CS_LENGTH">
-            {t('CrossSections.width')}
-          </label>
-          <div className="input-field-container">
+          {/* Width is computed, so it reads as text (rule 7). The hidden input keeps it registered so
+              its validation still runs on submit. */}
+          <div className="field-row field-row-top">
+            <span className="field-row-label">{t('CrossSections.width')}</span>
+            <span className="field-readonly">
+              {watch(`${name}_CS_LENGTH`)} {unitLabel}
+            </span>
             <input
-              type="number"
-              className="input-field-read-only"
+              type="hidden"
               disabled={true}
               {...register(`${name}_CS_LENGTH`, {
                 validate: (value) => value != 0 || t('CrossSections.Errors.rwLength', { section_name: name }),
@@ -269,44 +219,41 @@ export const FormCrossSections = ({ onSubmit, name, index }: FormCrossSectionsPr
               id="CS_LENGTH"
               readOnly={true}
             />
-            <span className="unit-label">
-              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
-            </span>
           </div>
         </div>
 
         <Bathimetry showLeftBank={true} />
 
-        <div className="input-container-2 mb-4" id="left-bank-station-container">
-          <label
-            ref={leftBankStationLabelRef}
-            className="read-only me-1"
-            htmlFor="left-bank-station-input"
-            id="left-bank-station-label"
-          >
-            {t('CrossSections.leftBankStation')}
-          </label>
-          <div className="input-field-container">
-            <input
-              type="number"
-              className="input-field"
-              step="any"
-              id="left-bank-station-input"
-              {...register(`${name}_LEFT_BANK`)}
-              onKeyDown={handleLeftBankInput}
-              onBlur={handleLeftBankInput}
-            />
-            <span className="unit-label">
-              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+        <div className="panel-section">
+          <div className="field-row field-row-top" id="left-bank-station-container">
+            <label className="field-row-label" htmlFor="left-bank-station-input" id="left-bank-station-label">
+              {t('CrossSections.leftBankStation')}
+            </label>
+            <span className="field-with-unit">
+              <input
+                type="number"
+                className="field field-coord"
+                step="any"
+                id="left-bank-station-input"
+                {...register(`${name}_LEFT_BANK`)}
+                onKeyDown={handleLeftBankInput}
+                onBlur={handleLeftBankInput}
+              />
+              <span className="field-unit">{unitLabel}</span>
             </span>
           </div>
           <FieldError name={`${name}_LeftBank`} />
-        </div>
 
-        <span className="divider-line mt-2 mb-1" />
-        <MaskList />
-        <AddMaskButton />
-        <span className="divider-line mb-2" />
+          {/* Masks are global, so one list is rendered, in the section on screen. */}
+          {isActiveSection && (
+            <>
+              <hr className="panel-rule" />
+              <p className="panel-group">{t('CrossSections.masks', { defaultValue: 'Masks' })}</p>
+              <MaskList />
+              <AddMaskButton />
+            </>
+          )}
+        </div>
 
         <HardModeCrossSections extraFields={extraFields} name={name} />
       </form>

@@ -23,10 +23,10 @@ export const MaskList = () => {
   const { masks, visibleMaskIndices, activeMaskIndex } = processing;
 
   return (
-    <div className="mt-1">
+    <div>
       {masks !== undefined &&
         masks.map((_mask, index) => (
-          <div key={index} className="list-row" aria-selected={index === activeMaskIndex}>
+          <div key={index} className="list-row list-row-field" aria-selected={index === activeMaskIndex}>
             <span className="list-row-label">
               {t('CrossSections.mask')} {index + 1}
             </span>

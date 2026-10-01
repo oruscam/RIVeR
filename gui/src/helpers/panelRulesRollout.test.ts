@@ -76,3 +76,74 @@ describe('Video Advanced blocks (rules 2, 3, 6)', () => {
     expect(lens).not.toMatch(/switch-container|field-title|lens-row\b|lens-row-label|lens-settings/);
   });
 });
+
+describe('Cross Sections panel (review 2026-10-01)', () => {
+  const form = read('components/Forms/FormCrossSections.tsx');
+  const real = read(C + 'RealWorldCoordinates.tsx');
+  const maskList = read(C + 'MaskList.tsx');
+  const addMask = read(C + 'AddMaskButton.tsx');
+  const sections = read('components/CrossSections/Sections.tsx');
+  const { rules, declarations } = scanCss(read('components/Forms/form.css'));
+  const decl = (selector: string, property: string) => {
+    const rule = rules.filter((r) => r.prelude === selector).pop();
+    return rule && declarations.filter((d) => d.rule === rule.index && d.property === property).pop()?.value;
+  };
+
+  it('canary', () => expect(decl('.form-container', 'display')).toBe('flex'));
+
+  it('Basic is on the row grammar, with the legacy pill and field classes gone', () => {
+    expect(form).not.toMatch(/read-only|input-container-2|input-field|unit-label|divider-line|form-button/);
+    expect(form.match(/className="field field-coord"/g)!.length).toBe(2); // Level, Left bank station
+    expect(form).toMatch(/className="field-with-unit"/);
+    expect(form).toMatch(/className="field-readonly"/); // Width is text (rule 7)
+  });
+
+  it('Width stays registered for validation, but is not a visible field', () => {
+    expect(form).toMatch(/type="hidden"/);
+    expect(form).toMatch(/validate: \(value\) => value != 0/);
+  });
+
+  it('masks render once, in the active section, under a group caption and a gutter rule', () => {
+    expect(form).toMatch(/\{isActiveSection && \(/);
+    expect(form).toMatch(/<hr className="panel-rule" \/>\s*<p className="panel-group">/);
+    expect(form.match(/<MaskList \/>/g)).toHaveLength(1);
+  });
+
+  it('mask rows share the 40px/14px row size, as a modifier so other lists keep theirs', () => {
+    expect(maskList).toMatch(/className="list-row list-row-field"/);
+    const idx = read('index.css');
+    const s = scanCss(idx);
+    const rule = s.rules.filter((r) => r.prelude === '.list-row.list-row-field').pop();
+    const get = (p: string) =>
+      s.declarations.filter((d) => d.rule === rule?.index && d.property === p).pop()?.value;
+    expect(rule).toBeDefined();
+    expect(get('min-height')).toBe('40px');
+    expect(get('font-size')).toBe('var(--text-body)');
+  });
+
+  it('Add mask is a quiet row action that says what the next click does', () => {
+    expect(addMask).not.toMatch(/chip/);
+    expect(addMask).toMatch(/btn btn-sm btn-tertiary panel-add/);
+    expect(addMask).toMatch(/doneEditingMask/);
+  });
+
+  it('the unit sits inside the box: pinned right, with room reserved for it (D8 follow-up)', () => {
+    expect(decl('.field-with-unit', 'position')).toBe('relative');
+    expect(decl('.field-unit', 'position')).toBe('absolute');
+    expect(decl('.field-unit', 'right')).toBe('var(--space-2)');
+    expect(decl('.field-with-unit .field-coord', 'padding-right')).toBe('30px');
+  });
+
+  it('every real-world row shows its unit, UAV included', () => {
+    expect(read(C + 'HardModeUav.tsx')).toMatch(/<RealWorldCoordinates[^>]*showUnitLabel/);
+    expect(real).toMatch(/\{showUnitLabel && <span className="field-unit"/);
+  });
+
+  it('the tab row sits on the panel gutter via CSS, not inline styles', () => {
+    expect(sections).not.toMatch(/overflowX|marginRight: '15px'/);
+    const css = scanCss(read('components/CrossSections/crossSections.css'));
+    const rule = css.rules.filter((r) => r.prelude === '.sections-row').pop();
+    const pad = css.declarations.filter((d) => d.rule === rule?.index && d.property === 'padding').pop()?.value;
+    expect(pad).toBe('0 var(--space-4)');
+  });
+});
