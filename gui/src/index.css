@@ -1569,7 +1569,7 @@ input:disabled + .slider:hover {
 
 .stepper {
   width: 90%;
-  margin-top: var(--space-3);
+  margin-top: var(--space-5);
 }
 
 .stepper-bars {
