@@ -8,6 +8,7 @@ import '../../index.css';
 import { SuccessfulMessage } from '../Report';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
+import { scrollBehavior } from '../../helpers/motion';
 
 export const FormReport = ({
   isReportSaved,
@@ -99,7 +100,7 @@ export const FormReport = ({
     if (isReportSaved) {
       const el = document.getElementById('successful-message');
       if (el) {
-        el.scrollIntoView({ behavior: 'smooth' });
+        el.scrollIntoView({ behavior: scrollBehavior() });
       }
     }
   }, [isReportSaved]);

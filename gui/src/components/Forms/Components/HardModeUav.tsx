@@ -2,13 +2,14 @@ import { useEffect } from 'react';
 import { useUavSlice } from '../../../hooks';
 import { PixelCoordinates } from './PixelCoordinates';
 import { RealWorldCoordinates } from './RealWorldCoordinates';
+import { scrollBehavior } from '../../../helpers/motion';
 
 export const HardModeUav = () => {
   const { onSetPixelDirection, onSetPixelRealWorld } = useUavSlice();
 
   useEffect(() => {
     const element = document.getElementById('span-footer');
-    element?.scrollIntoView({ behavior: 'smooth' });
+    element?.scrollIntoView({ behavior: scrollBehavior() });
   }, []);
 
   return (

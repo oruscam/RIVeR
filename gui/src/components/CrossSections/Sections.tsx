@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { EyeBtn } from '../CustomIcons/EyeBtn';
 import { Icons } from '../CustomIcons/Icons';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
+import { scrollBehavior } from '../../helpers/motion';
 
 interface Sections {
   setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -22,13 +23,13 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
       const section = document.getElementById(sections[index + 1]?.name);
       if (section === null) {
         const element = document.getElementById('scroll-right');
-        element?.scrollIntoView({ behavior: 'smooth' });
+        element?.scrollIntoView({ behavior: scrollBehavior() });
       }
-      section?.scrollIntoView({ behavior: 'smooth' });
+      section?.scrollIntoView({ behavior: scrollBehavior() });
     } else {
       const section = document.getElementById(sections[index - 1]?.name);
       if (section !== null) {
-        section?.scrollIntoView({ behavior: 'smooth' });
+        section?.scrollIntoView({ behavior: scrollBehavior() });
       }
     }
     onSetActiveSection(index);
@@ -67,7 +68,7 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
 
   useEffect(() => {
     const element = document.getElementById('scroll-right');
-    element?.scrollIntoView({ behavior: 'smooth' });
+    element?.scrollIntoView({ behavior: scrollBehavior() });
   }, [sections.length]);
 
   return (

@@ -721,10 +721,9 @@ html {
    it costs a user with vestibular sensitivity a lurch on every hover over a
    delete button.
 
-   Scoped to this animation on purpose. The app's transitions and :active
-   transforms are also unguarded, but sweeping those is a change to every
-   interactive surface, which belongs to a sub-plan that can verify it rather
-   than to a CSS deletion pass. Recorded as branch debt. */
+   The app-wide opt-out at the end of this file (Phase 6g) now covers every
+   other transition and animation. This block stays because it removes the
+   wiggle outright rather than shortening it to one 0.01ms cycle. */
 @media (prefers-reduced-motion: reduce) {
   /* The selector repeats the trigger's guards verbatim, for two reasons. A media
      query adds no specificity, so the short `.ibtn-danger:hover .cl` this was
@@ -1761,4 +1760,31 @@ svg.mask-mode-active .overlay-ui * {
     border: 1px solid var(--readout-border);
     padding: 5px 10px;
     border-radius: var(--radius-sm);
+}
+
+/* =============================================================================
+   REDUCED MOTION — Phase 6g (A8's debt, spec A15)
+   One global opt-out instead of a per-rule sweep: every transition and
+   animation in the app finishes at once when the OS asks for less motion.
+   0.01ms, not 0, so transitionend/animationend still fire for any code that
+   waits on them. :active transforms stay, since with no transition they are
+   an instant state change rather than motion. A media query adds no
+   specificity, so everything here is !important; the spinner exemption
+   wins over `*` on specificity within !important.
+   ============================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* A frozen spinner reads as a hang. Spinners keep turning, at half speed or
+     slower. .loader-complete-big's `animation: none` still wins, because only
+     the duration and count are set here, never the animation's name. */
+  .loader-little, .loader-mid, .loader-big, .spin {
+    animation-duration: 3s !important;
+    animation-iteration-count: infinite !important;
+  }
 }

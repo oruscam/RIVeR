@@ -7,6 +7,7 @@ import { Section } from '../../store/section/types';
 import { getEffectiveTechniqueData } from '../../helpers';
 import { OverlayLayers } from '../OverlaySvg';
 import { DEFAULT_PERIOD_S } from '../../helpers/chevronGlyph';
+import { prefersReducedMotion } from '../../helpers/motion';
 
 interface VelocityVectorProps {
   height: number;
@@ -58,11 +59,7 @@ export const VelocityVector = ({
   // locked colour-bar range wins in both.
   const { min: globalMin, max: globalMax } = useVelocityColorRange();
 
-  const prefersReducedMotion =
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const animated = !isReport && !prefersReducedMotion;
+  const animated = !isReport && !prefersReducedMotion();
 
   const [phase, setPhase] = useState(0);
   const rafRef = useRef(0);
