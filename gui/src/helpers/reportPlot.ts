@@ -1,5 +1,7 @@
 import { REPORT_FLOW } from '../constants/constants';
-import type { Technique } from './techniqueDischarge';
+import { getEffectiveTechniqueData, type TechniqueOptions, type Technique } from './techniqueDischarge';
+import { TECHNIQUE_ORDER } from './reportModel';
+import type { SectionData } from '../store/section/types';
 
 export interface PlotTick {
   y: number;
@@ -178,5 +180,38 @@ export function buildProfilePlot(input: ProfilePlotInput): ProfilePlotGeometry {
     xTicks: xt.map((t) => ({ x: sx(t), label: formatTick(t, xStep) })),
     xAxisY: X_AXIS_Y,
     banks: { left: sx(xMin), right: sx(xMax) },
+  };
+}
+
+/** Everything the plot draws, in display units. The Results-screen show/hide toggles are ignored on purpose. */
+export function plotInputFromSection(
+  data: SectionData,
+  activeTechnique: Technique,
+  options: TechniqueOptions,
+  units: { length: number; flow: number },
+  titles: { q: string; v: string; d: string }
+): ProfilePlotInput | null {
+  const active = getEffectiveTechniqueData(data, activeTechnique, options);
+  if (!active) return null;
+  const scale = (values: (number | null)[], f: number) =>
+    values.map((v) => (typeof v === 'number' ? v * f : null));
+  const series = TECHNIQUE_ORDER.flatMap((technique) => {
+    const effective = technique === activeTechnique ? active : getEffectiveTechniqueData(data, technique, options);
+    if (!effective) return [];
+    return [
+      {
+        technique,
+        active: technique === activeTechnique,
+        v: scale(effective.resolved, units.length),
+        interp: effective.interpFlags,
+      },
+    ];
+  });
+  return {
+    x: data.distance.map((v) => v * units.length),
+    depth: data.depth.map((v) => v * units.length),
+    q: active.Q.map((q, i) => (active.resolved[i] === null ? null : q * units.flow)),
+    series,
+    titles,
   };
 }

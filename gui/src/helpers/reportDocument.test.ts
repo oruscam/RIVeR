@@ -175,3 +175,21 @@ describe('Report stylesheet reaches the export (Task 9 rulings)', () => {
     expect(css).toMatch(/\.report-doc\[data-theme-scope\]\s*\{[^}]*--background-color:\s*#ffffff/i);
   });
 });
+
+describe('Profile plot', () => {
+  const src = read('src/components/Report/ProfilePlot.tsx');
+  const css = read('src/components/Report/report.css');
+  test('colours come from CSS classes in the light scope, not from the app theme at render time', () => {
+    expect(src).not.toMatch(/getCSSVar|getTechniqueColors|getPinColors/);
+    expect(src).toContain('rp-line--');
+    expect(css).toMatch(/\.rp-line--lspiv\s*\{[^}]*stroke:\s*var\(--tech-lspiv\)/);
+    expect(css).toMatch(/\.rp-bank--left\s*\{[^}]*fill:\s*var\(--pin-left\)/);
+  });
+  test('distinct markers per technique; interpolated stations hollow', () => {
+    expect(src).toMatch(/lspiv[\s\S]*circle/);
+    expect(src).toContain('rp-marker--hollow');
+  });
+  test('does not reuse the app AllInOne plot', () => {
+    expect(src).not.toContain('AllInOne');
+  });
+});

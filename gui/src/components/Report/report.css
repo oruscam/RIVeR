@@ -301,6 +301,95 @@
   margin-top: auto;
 }
 
+/* Report profile plot (ProfilePlot.tsx). Colours resolve inside the light report scope. */
+.rp {
+  display: block;
+  overflow: visible;
+}
+.rp text {
+  font-family: var(--doc-font);
+  font-size: 8px;
+  fill: var(--doc-muted);
+}
+.rp .rp-title {
+  fill: var(--doc-ink);
+  font-weight: 600;
+}
+.rp .rp-legend {
+  fill: var(--doc-ink);
+}
+.rp-grid {
+  stroke: #e6eaef;
+  stroke-width: 0.6;
+}
+.rp-grid--zero {
+  stroke: #9aa6b4;
+  stroke-width: 0.8;
+}
+.rp-bar--lspiv {
+  fill: var(--tech-lspiv);
+  fill-opacity: 0.75;
+}
+.rp-bar--stiv {
+  fill: var(--tech-stiv);
+  fill-opacity: 0.75;
+}
+.rp-bar--iwave {
+  fill: var(--tech-iwave);
+  fill-opacity: 0.75;
+}
+.rp-line {
+  fill: none;
+  stroke-width: 1;
+}
+.rp-line--active {
+  stroke-width: 1.8;
+}
+.rp-line--lspiv {
+  stroke: var(--tech-lspiv);
+}
+.rp-line--stiv {
+  stroke: var(--tech-stiv);
+}
+.rp-line--iwave {
+  stroke: var(--tech-iwave);
+}
+.rp-marker {
+  stroke-width: 1;
+}
+.rp-marker--lspiv {
+  fill: var(--tech-lspiv);
+  stroke: var(--tech-lspiv);
+}
+.rp-marker--stiv {
+  fill: #ffffff;
+  stroke: var(--tech-stiv);
+}
+.rp-marker--iwave {
+  fill: #ffffff;
+  stroke: var(--tech-iwave);
+}
+.rp-marker--hollow {
+  fill: #ffffff;
+}
+.rp-water {
+  fill: #e3eef8;
+}
+.rp-bed {
+  fill: none;
+  stroke: #6b5c4a;
+  stroke-width: 1.2;
+}
+.rp .rp-bank {
+  font-weight: 700;
+}
+.rp .rp-bank--left {
+  fill: var(--pin-left);
+}
+.rp .rp-bank--right {
+  fill: var(--pin-right);
+}
+
 @media print {
   .report-doc {
     background: none;

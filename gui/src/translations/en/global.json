@@ -355,6 +355,10 @@
     },
     "Doc": {
       "page": "page",
+      "plotQ": "Discharge per station",
+      "plotV": "Surface velocity",
+      "plotD": "Depth",
+      "station": "Station",
       "footage": { "uav": "UAV (nadir)", "oblique": "Oblique", "ipcam": "IP camera", "none": "-" },
       "totalDischarge": "Total discharge",
       "sectionCount_one": "{{count}} section",
