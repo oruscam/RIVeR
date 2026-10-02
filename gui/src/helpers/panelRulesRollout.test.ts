@@ -239,3 +239,11 @@ describe('Solve button matches Analyze', () => {
     expect(src).not.toMatch(/form-button/);
   });
 });
+
+describe('Processing technique rows are minimal', () => {
+  const src = read('components/Forms/FormProcessing.tsx');
+  test('no check-icon buttons; STIV and iWave use the small switch, LSPIV has no control', () => {
+    expect(src).not.toMatch(/Icons\.Check/);
+    expect(src.match(/switch switch-sm/g)).toHaveLength(2);
+  });
+});

@@ -1113,7 +1113,7 @@ html {
    label's width changes once translated, and this app ships 12 locales. */
 .tech-row {
   display: grid;
-  grid-template-columns: 12px 1fr 28px 78px 28px;
+  grid-template-columns: 12px 1fr 28px 78px 36px;
   gap: var(--space-2);
   align-items: center;
   min-height: 40px;
