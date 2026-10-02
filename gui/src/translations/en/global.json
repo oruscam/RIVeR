@@ -373,7 +373,24 @@
       "continued": "continued",
       "stations": "stations",
       "reported": "reported",
-      "interpolatedStation": "interpolated station"
+      "interpolatedStation": "interpolated station",
+      "pixelSize": "Pixel size (GSD)",
+      "referenceLength": "Reference length",
+      "point": "Point",
+      "rectified": "Rectified frame",
+      "pair": "Pair",
+      "entered": "Entered",
+      "solved": "Solved",
+      "residual": "Residual",
+      "meanError": "Mean reprojection error",
+      "cameraPosition": "Camera position X / Y / Z",
+      "error": "Error",
+      "ortho": "Orthorectified view",
+      "calibration": "Calibration",
+      "footageAndParameters": "Footage and parameters",
+      "notRecorded": "Further parameters are not recorded in this version.",
+      "stivWeights": "STIV CNN weights",
+      "generatedWith": "Generated with RIVeR {{version}}"
     }
   },
   "ControlPoints": {
