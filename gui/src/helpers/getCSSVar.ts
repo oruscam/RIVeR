@@ -9,9 +9,14 @@ export const getCSSVar = (name: string, fallback = ''): string => {
   // Test environments in this repo run without jsdom, so document is
   // undefined — return the fallback rather than dereferencing it.
   if (typeof document === 'undefined') return fallback;
-  // data-theme is set on the app root div, not on <html>, so we must read
-  // computed styles from that element to get the correct theme variables.
-  const themedEl = (document.querySelector('[data-theme]') as HTMLElement | null) ?? document.documentElement;
+  // The exported report is a fixed light document: while it is mounted its
+  // root carries data-theme-scope (and data-theme="light"), and every chart
+  // drawn on that page must take its ink from there, not from the app theme.
+  // Otherwise data-theme is on the app root div, not on <html>.
+  const themedEl =
+    (document.querySelector('[data-theme-scope]') as HTMLElement | null) ??
+    (document.querySelector('[data-theme]') as HTMLElement | null) ??
+    document.documentElement;
   return getComputedStyle(themedEl).getPropertyValue(name).trim() || fallback;
 };
 
