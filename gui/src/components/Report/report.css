@@ -156,21 +156,22 @@
 
 .doc-table {
   width: 100%;
+  font-size: 9.5px;
   border-collapse: collapse;
 }
 
 .doc-table th {
-  padding: 3px 6px;
+  padding: 1px 4px;
   border-bottom: 1px solid var(--doc-ink);
   color: var(--doc-muted);
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 600;
   text-align: left;
   vertical-align: bottom;
 }
 
 .doc-table td {
-  padding: 2px 6px;
+  padding: 1px 4px;
   border-bottom: 1px solid var(--doc-rule);
 }
 
@@ -253,9 +254,8 @@
   display: flex;
   gap: 18px;
   margin: 0;
-  padding: 6px 0;
-  border-top: 1px solid var(--doc-rule);
-  border-bottom: 1px solid var(--doc-rule);
+  padding: 0;
+  border: none;
   list-style: none;
 }
 
@@ -299,6 +299,54 @@
 
 .doc-colophon {
   margin-top: auto;
+}
+
+/* Compact section block (spec §8). */
+.sec {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--doc-ink);
+}
+.sec-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
+}
+.sec-q {
+  color: var(--doc-accent);
+  font-size: 14px;
+  font-weight: 650;
+}
+.sec-q-unit {
+  color: var(--doc-muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+.sec-row {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+.sec-frame {
+  align-self: start;
+}
+.doc-cols--3 {
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+}
+.doc-note {
+  margin: 0;
+  color: var(--doc-muted);
+  font-size: 9px;
 }
 
 /* Report profile plot (ProfilePlot.tsx). Colours resolve inside the light report scope. */
