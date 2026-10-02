@@ -154,6 +154,7 @@ export const FormProcessing = ({
 
   // Technique toggles are icon-only (one ✓ glyph, D11), so each needs an
   // explicit accessible name; the same text doubles as the hover tooltip.
+  const lspivToggleLabel = t('Processing.lspivAlwaysOn', { defaultValue: "LSPIV can't be turned off" });
   const stivToggleLabel = !stivAvailable
     ? t('Processing.stivWeightsMissing')
     : stiv
@@ -231,7 +232,10 @@ export const FormProcessing = ({
                 >
                   {t('Processing.carouselMedia')}
                 </button>
-                <span className="tech-cell" />
+                <label className="switch switch-sm" title={lspivToggleLabel}>
+                  <input type="checkbox" checked readOnly aria-disabled="true" aria-label={lspivToggleLabel} />
+                  <span className="slider"></span>
+                </label>
                 {extraFields && (
                   <span className="tech-cell tech-disclose">
                     <button

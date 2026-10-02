@@ -242,8 +242,9 @@ describe('Solve button matches Analyze', () => {
 
 describe('Processing technique rows are minimal', () => {
   const src = read('components/Forms/FormProcessing.tsx');
-  test('no check-icon buttons; STIV and iWave use the small switch, LSPIV has no control', () => {
+  test('no check-icon buttons; every technique has the small switch; the LSPIV one is permanently on', () => {
     expect(src).not.toMatch(/Icons\.Check/);
-    expect(src.match(/switch switch-sm/g)).toHaveLength(2);
+    expect(src.match(/switch switch-sm/g)).toHaveLength(3);
+    expect(src).toMatch(/checked readOnly aria-disabled="true"/);
   });
 });
