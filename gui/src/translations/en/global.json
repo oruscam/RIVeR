@@ -338,6 +338,20 @@
     "Success": {
       "title": "Analysis Completed!",
       "message": "You can close RIVeR or go back "
+    },
+    "Saved": {
+      "title": "Report saved",
+      "showInFolder": "Show in folder",
+      "newAnalysis": "Start new analysis"
+    },
+    "Panel": {
+      "saveReport": "Save report",
+      "details": "Report details",
+      "totalDischarge": "Total discharge",
+      "sectionCount_one": "{{count}} section",
+      "sectionCount_other": "{{count}} sections",
+      "techniqueCount_one": "{{count}} technique",
+      "techniqueCount_other": "{{count}} techniques"
     }
   },
   "ControlPoints": {

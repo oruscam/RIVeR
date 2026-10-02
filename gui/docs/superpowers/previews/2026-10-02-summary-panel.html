@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Summary panel — last step proposal</title>
+    <!-- The real stylesheets: tokens and .btn come from src/. Everything new lives in the
+         "NEW, PROPOSED" block below under a sm- prefix, so the diff this preview asks for is
+         exactly that block. form.css is deliberately NOT linked: its .simple-input-container
+         and .success-banner rules are what this proposal replaces. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;700&display=swap"
+    />
+    <link rel="stylesheet" href="../../../src/index.css" />
+    <link rel="stylesheet" href="../../../src/components/components.css" />
+    <style>
+      /* ---------- Preview page chrome (not part of the proposal) ---------- */
+      html,
+      body {
+        margin: 0;
+        background: #0b0c0e;
+      }
+      body {
+        font-family: Inter, system-ui, sans-serif;
+        color: #e8e8e8;
+      }
+      .doc {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 40px 24px 16px;
+      }
+      .doc h1 {
+        font-family: Outfit, Inter, sans-serif;
+        font-weight: 700;
+        font-size: 28px;
+        margin: 0 0 6px;
+      }
+      .doc > p {
+        margin: 0 0 24px;
+        color: #a3a3a3;
+        font-size: 14px;
+        line-height: 1.6;
+        max-width: 72ch;
+      }
+      .rules {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 4px 32px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: r;
+      }
+      .rules li {
+        counter-increment: r;
+        display: grid;
+        grid-template-columns: 22px 1fr;
+        font-size: 13px;
+        line-height: 1.5;
+        color: #c9c9c9;
+        padding: 8px 0;
+        border-top: 1px solid #222;
+      }
+      .rules li::before {
+        content: counter(r);
+        color: #6b6b6b;
+        font-variant-numeric: tabular-nums;
+      }
+      .rules b {
+        color: #f2f2f2;
+        font-weight: 600;
+      }
+      .theme-band {
+        background: var(--surface-frame);
+        color: var(--text-primary);
+        padding: 32px 24px 40px;
+      }
+      .theme-band-inner {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .theme-name {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: var(--text-section);
+        margin: 0 0 20px;
+      }
+      .states {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 400px));
+        gap: 28px;
+        justify-content: start;
+      }
+      .state-name {
+        font-size: var(--text-meta);
+        font-weight: 600;
+        margin: 0 0 10px;
+      }
+      .notes {
+        margin: 14px 0 0;
+        padding: 0 0 0 16px;
+        font-size: var(--text-caption);
+        line-height: 1.55;
+        color: var(--text-subdued);
+      }
+      .notes li + li {
+        margin-top: 4px;
+      }
+
+      /* =========================================================
+         NEW, PROPOSED — none of this exists in src/ yet.
+         ========================================================= */
+      .sm-panel {
+        --sm-gutter: var(--space-4); /* the one left edge */
+        --sm-inset: var(--space-2);
+        display: flex;
+        flex-direction: column;
+        height: 760px;
+        background: var(--surface-panel);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        font-size: var(--text-body);
+        color: var(--text-primary);
+      }
+      .sm-steps {
+        padding: var(--space-3) var(--sm-gutter) 0;
+      }
+      .sm-steps-bar {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 4px;
+      }
+      .sm-steps-bar span {
+        height: 4px;
+        border-radius: var(--radius-full);
+        background: var(--readout-border);
+      }
+      .sm-steps-bar .done {
+        background: var(--accent-color);
+      }
+      .sm-steps-bar .now {
+        background: var(--text-primary);
+      }
+      .sm-steps-meta {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 6px;
+        font-size: var(--text-caption);
+        color: var(--text-subdued);
+      }
+      .sm-steps-meta b {
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+      .sm-title {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: var(--text-title);
+        text-align: center;
+        margin: var(--space-5) 0 var(--space-4);
+      }
+      .sm-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 0 var(--sm-gutter) var(--space-4);
+      }
+
+      /* 1. Result headline: what this report is about, before you name it. */
+      .sm-result {
+        padding: 0 var(--sm-inset) var(--space-3);
+      }
+      .sm-result-q {
+        font-family: var(--font-display);
+        font-weight: 700;
+        font-size: var(--text-display);
+        line-height: 1.1;
+      }
+      .sm-result-q small {
+        font-family: Inter, system-ui, sans-serif;
+        font-size: var(--text-section);
+        font-weight: 500;
+        opacity: 0.7;
+      }
+      .sm-result-sub {
+        margin-top: 4px;
+        font-size: var(--text-caption);
+        color: var(--text-subdued);
+      }
+
+      .sm-rule {
+        height: 1px;
+        border: 0;
+        margin: var(--space-2) 0;
+        background: var(--border-color);
+      }
+      .sm-group {
+        margin: var(--space-3) 0 2px;
+        padding: 0 var(--sm-inset);
+        font-size: var(--text-caption);
+        font-weight: 600;
+        color: var(--text-subdued);
+      }
+
+      /* 2. Row grammar: label left, standard field right, 40px+ tall. */
+      .sm-row {
+        display: grid;
+        grid-template-columns: 112px minmax(0, 1fr);
+        align-items: center;
+        gap: var(--space-3);
+        min-height: 44px;
+        padding: 0 var(--sm-inset);
+      }
+      .sm-label {
+        font-size: var(--text-section);
+      }
+      .sm-field {
+        width: 100%;
+        height: 34px;
+        box-sizing: border-box;
+        padding: 0 var(--space-3);
+        border: 1px solid color-mix(in srgb, var(--text-subdued) 22%, transparent);
+        border-radius: var(--radius-md);
+        background: var(--surface-field);
+        color: var(--text-primary);
+        font: 500 var(--text-body) / 1 Inter, system-ui, sans-serif;
+      }
+      .sm-field:focus-visible {
+        outline: 2px solid var(--accent-color);
+        outline-offset: 1px;
+      }
+      .sm-field-icon {
+        position: relative;
+      }
+      .sm-field-icon svg {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-subdued);
+        pointer-events: none;
+      }
+      .sm-field-icon .sm-field {
+        padding-right: 32px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      /* 4. Done state: calm, in-panel, no green block. */
+      .sm-done {
+        margin-top: var(--space-3);
+        padding: var(--space-3) var(--sm-inset) 0;
+        border-top: 1px solid var(--border-color);
+      }
+      .sm-done-head {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        font-size: var(--text-section);
+        font-weight: 600;
+      }
+      .sm-done-check {
+        width: 22px;
+        height: 22px;
+        border-radius: var(--radius-full);
+        display: grid;
+        place-items: center;
+        color: var(--accent-color);
+        border: 1.5px solid var(--accent-color);
+      }
+      .sm-done-file {
+        margin: 6px 0 var(--space-3) calc(22px + var(--space-2));
+        font-size: var(--text-caption);
+        color: var(--text-subdued);
+        overflow-wrap: anywhere;
+      }
+      .sm-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-2);
+      }
+
+      .sm-foot {
+        border-top: 1px solid var(--border-color);
+        padding: var(--space-3) var(--sm-gutter) var(--space-4);
+      }
+      .sm-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .sm-panel [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="doc">
+      <h1>Summary panel: the last step</h1>
+      <p>
+        Proposal, not shipped. The Summary step now uses the same row grammar as every other panel, says what its
+        one button does, and only claims success when a file was really written. Click
+        <b>Save report</b> in the left panel to see the saved state; <b>Start new analysis</b> returns to the form.
+      </p>
+      <ol class="rules">
+        <li><span><b>Know what this report is.</b> The total discharge leads the panel, so naming it feels like closing out a result.</span></li>
+        <li><span><b>Same row grammar.</b> Label left, standard field right. The old floating-label inputs and the separate date widget are gone.</span></li>
+        <li><span><b>The button says what it does.</b> “Finish” becomes “Save report”: it opens a Save dialog and writes report.html.</span></li>
+        <li><span><b>Honest success.</b> Cancelling the dialog shows nothing. A real save shows a calm done block with the file name.</span></li>
+        <li><span><b>Next actions are real buttons.</b> Show in folder, Start new analysis. No hyperlink word, no hard-coded Home translation.</span></li>
+        <li><span><b>No green block.</b> The one green banner in the app is replaced by the accent check used elsewhere.</span></li>
+      </ol>
+    </div>
+
+    <section class="theme-band" data-theme="dark"></section>
+    <section class="theme-band" data-theme="light"></section>
+    <section class="theme-band" data-theme="dracula"></section>
+
+    <script>
+      const svg = (d, size = 16, w = 2) =>
+        `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`;
+      const ICON = {
+        check: svg('<path d="M20 6L9 17l-5-5"/>', 13, 3),
+        cal: svg('<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>', 15),
+      };
+
+      const panel = (saved) => `
+        <div class="sm-panel">
+          <div class="sm-steps">
+            <div class="sm-steps-bar"><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="done"></span><span class="now"></span></div>
+            <div class="sm-steps-meta"><span><b>Summary</b> · Step 6 of 6</span><span></span></div>
+          </div>
+          <h2 class="sm-title">Summary</h2>
+          <div class="sm-scroll">
+            <div class="sm-result">
+              <div class="sm-result-q">46.86 <small>m³/s</small></div>
+              <div class="sm-result-sub">Total discharge · 1 section · 3 techniques</div>
+            </div>
+            <hr class="sm-rule" />
+            <p class="sm-group">Report details</p>
+            <div class="sm-row"><label class="sm-label" for="r${saved}">River</label><input id="r${saved}" class="sm-field" value="fre" /></div>
+            <div class="sm-row"><label class="sm-label" for="s${saved}">Site</label><input id="s${saved}" class="sm-field" value="efr" /></div>
+            <div class="sm-row"><label class="sm-label" for="d${saved}">Measured on</label><span class="sm-field-icon"><input id="d${saved}" class="sm-field" value="02/10/2026 15:30" />${ICON.cal}</span></div>
+            <div class="sm-done" ${saved ? '' : 'hidden'}>
+              <div class="sm-done-head"><span class="sm-done-check">${ICON.check}</span>Report saved</div>
+              <div class="sm-done-file">~/RIVeR/fre_efr/report.html</div>
+              <div class="sm-actions">
+                <button type="button" class="btn btn-secondary">Show in folder</button>
+                <button type="button" class="btn btn-secondary" data-act="reset">Start new analysis</button>
+              </div>
+            </div>
+          </div>
+          <div class="sm-foot">
+            <div class="sm-nav">
+              <button type="button" class="btn btn-lg btn-tertiary">Back</button>
+              <button type="button" class="btn btn-lg btn-primary" data-act="save">Save report</button>
+            </div>
+          </div>
+        </div>`;
+
+      const states = ['Before saving', 'After a real save'];
+      const notes = [
+        'Cancelling the Save dialog leaves this state as it is: no success message.',
+        'Done block replaces the green banner. “Save report” stays available to save again.',
+      ];
+
+      document.querySelectorAll('.theme-band').forEach((band) => {
+        const theme = band.dataset.theme;
+        band.innerHTML = `
+          <div class="theme-band-inner">
+            <h3 class="theme-name">${theme[0].toUpperCase() + theme.slice(1)}</h3>
+            <div class="states">
+              ${states
+                .map(
+                  (s, i) => `<div><p class="state-name">${s}</p>${panel(i === 1)}<ul class="notes"><li>${notes[i]}</li></ul></div>`
+                )
+                .join('')}
+            </div>
+          </div>`;
+        // Live: Save reveals the done block, Start new analysis hides it.
+        band.addEventListener('click', (e) => {
+          const act = e.target.closest('[data-act]')?.dataset.act;
+          if (!act) return;
+          const p = e.target.closest('.sm-panel');
+          p.querySelector('.sm-done').hidden = act === 'reset';
+        });
+      });
+    </script>
+  </body>
+</html>

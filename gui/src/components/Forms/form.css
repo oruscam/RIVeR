@@ -989,3 +989,71 @@
     padding: 0 var(--space-2);
     font-size: var(--text-meta);
 }
+
+/* Summary panel (preview 2026-10-02). The headline leads; the three report details are
+   ordinary rows whose control takes the width a text value needs, not a 64px number box. */
+.summary-result {
+    padding: var(--space-1) var(--space-2) var(--space-3);
+}
+
+.summary-result-q {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display);
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.summary-result-q small {
+    font-family: inherit;
+    font-size: var(--text-section);
+    font-weight: 500;
+    opacity: 0.7;
+}
+
+.summary-result-sub {
+    margin: 4px 0 0;
+    font-size: var(--text-caption);
+    color: var(--text-subdued);
+}
+
+.field.field-text {
+    width: 100%;
+    text-align: left;
+}
+
+.summary-control {
+    flex: 0 1 220px;
+    min-width: 0;
+}
+
+.summary-control .react-datepicker-wrapper {
+    width: 100%;
+}
+
+/* The saved state: a quiet in-panel block, a divider above it, no coloured banner. */
+.summary-saved {
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border-color);
+}
+
+.summary-saved-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-1);
+    padding: 0 var(--space-2);
+    font-size: var(--text-section);
+    font-weight: 600;
+}
+
+.summary-saved-check {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-full);
+    display: grid;
+    place-items: center;
+    color: var(--accent-color);
+    border: 1.5px solid var(--accent-color);
+}
