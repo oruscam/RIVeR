@@ -99,11 +99,8 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
             {distancesLabels.map((label, i) => {
               return (
                 <div className="field-row field-row-top" key={i}>
-                  <label
-                    className="field-row-label"
-                    id={'D' + distancesID[i]}
-                    htmlFor={'distance' + distancesID[i]}
-                  >
+                  <label className="field-row-label point-label" htmlFor={'distance' + distancesID[i]}>
+                    <span className={`dist-swatch dist-swatch-${distancesID[i]}`} aria-hidden="true" />
                     {label}
                   </label>
                   <span className="field-with-unit">
