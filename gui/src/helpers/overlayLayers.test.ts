@@ -52,3 +52,11 @@ describe('Frames canvas wiring', () => {
     expect(ctl).toContain("'display'");
   });
 });
+
+describe('hasVectors is about results, not the frame on screen', () => {
+  const src = readFileSync(join(__dirname, '../components/ImageProcessing.tsx'), 'utf8');
+  test('derived from the stored quivers, not from the per-frame data length', () => {
+    expect(src).toMatch(/const hasVectors = fullQuiver !== null \|\| quiver !== null/);
+    expect(src).not.toMatch(/hasVectors = data\.length/);
+  });
+});

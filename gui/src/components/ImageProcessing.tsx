@@ -116,7 +116,9 @@ export const ImageProcessing = ({
     keyboardStep: 25,
   });
 
-  const hasVectors = data.length > 0;
+  // Results exist, not "this frame has arrows": the Vectors chip and the STIV-lines default must not
+  // come and go as the active frame changes.
+  const hasVectors = fullQuiver !== null || quiver !== null;
 
   if (!width || !height || !factor) return null;
 
