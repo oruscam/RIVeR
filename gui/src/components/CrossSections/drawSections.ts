@@ -1,3 +1,4 @@
+import { BankLabels, resolvePinLabel } from '../../helpers/pinLabel';
 import * as d3 from 'd3';
 import { COLORS } from '../../constants/constants';
 import { drawPin, PinKind } from '../Graphs/drawPin';
@@ -6,6 +7,7 @@ import { showMagnifier, hideMagnifier } from '../Graphs/drawMagnifier';
 type Point = { x: number; y: number };
 
 interface DrawSvgStaticSectionProps {
+  bankLabels?: BankLabels;
   zoomLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
   uiLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
   factor: number | { x: number; y: number };
@@ -201,11 +203,12 @@ const drawIcon = (
   layer: d3.Selection<SVGGElement, unknown, null, undefined>,
   draggable: boolean,
   extraClass: string = '',
-  module: string
+  module: string,
+  bankLabels?: BankLabels
 ) => {
   const isLeft = type === 'L';
   const kind: PinKind = module === 'uav' ? 'point' : isLeft ? 'left' : 'right';
-  const label = module === 'uav' ? (isLeft ? '1' : '2') : isLeft ? 'L' : 'R';
+  const label = resolvePinLabel(module, type, bankLabels);
 
   const g = drawPin({
     layer,
@@ -392,6 +395,7 @@ const drawSectionLabel = ({
  * - Text/icons go in uiLayer (constant screen size).
  */
 const drawStaticSection = ({
+  bankLabels,
   zoomLayer,
   uiLayer,
   factor,
@@ -413,6 +417,8 @@ const drawStaticSection = ({
 
   const token = toSectionToken(name);
   const sectionClass = `section-${token}`;
+  // The interactive effect owns the draggable pins; a static redraw must not wipe them.
+  const interactiveUiClass = `interactive-ui-${token}`;
 
   const isXSections = module === 'x-sections';
   const isProcessing = module === 'processing';
@@ -420,19 +426,19 @@ const drawStaticSection = ({
 
   if (seeAll === false && module === 'x-sections') {
     zoomLayer.selectAll(`.${sectionClass}`).remove();
-    uiLayer.selectAll(`.${sectionClass}`).remove();
+    uiLayer.selectAll(`.${sectionClass}:not(.${interactiveUiClass})`).remove();
     return;
   }
 
   if (seeAll === false && !isActive && module === 'results') {
     zoomLayer.selectAll(`.${sectionClass}`).remove();
-    uiLayer.selectAll(`.${sectionClass}`).remove();
+    uiLayer.selectAll(`.${sectionClass}:not(.${interactiveUiClass})`).remove();
     return;
   }
 
   // Clean only this section to avoid duplicates
   zoomLayer.selectAll(`.${sectionClass}`).remove();
-  uiLayer.selectAll(`.${sectionClass}`).remove();
+  uiLayer.selectAll(`.${sectionClass}:not(.${interactiveUiClass})`).remove();
 
   // Group inside zoom layer for this section
   const g = zoomLayer.append('g').attr('class', `section-layer ${sectionClass}`);
@@ -497,8 +503,8 @@ const drawStaticSection = ({
     const p0 = toScreen(dirPoints[0]);
     const p1 = toScreen(dirPoints[1]);
 
-    drawIcon(p0, 'L', uiLayer, false, sectionClass, module);
-    drawIcon(p1, 'R', uiLayer, false, sectionClass, module);
+    drawIcon(p0, 'L', uiLayer, false, sectionClass, module, bankLabels);
+    drawIcon(p1, 'R', uiLayer, false, sectionClass, module, bankLabels);
   }
 };
 
@@ -524,6 +530,7 @@ const toScreenFromZoomFactory = ({
 };
 
 interface DrawSvgInteractiveSectionProps {
+  bankLabels?: BankLabels;
   layer: d3.Selection<SVGGElement, unknown, null, undefined>;
   uiLayer: d3.Selection<SVGGElement, unknown, null, undefined>;
   zoomLayerNode: SVGGElement;
@@ -548,6 +555,7 @@ interface DrawSvgInteractiveSectionProps {
 }
 
 const drawInteractiveSection = ({
+  bankLabels,
   layer,
   uiLayer,
   zoomLayerNode,
@@ -715,13 +723,13 @@ const drawInteractiveSection = ({
   // cleaned up on the next render without touching the static label.
   if (startPoint) {
     const pScreen = toScreenFromZoom(startPoint);
-    const c1 = drawIcon(pScreen, 'L', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module);
+    const c1 = drawIcon(pScreen, 'L', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module, bankLabels);
     c1.call(dragStartPoint as any);
   }
 
   if (endPoint) {
     const pScreen = toScreenFromZoom(endPoint);
-    const c2 = drawIcon(pScreen, 'R', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module);
+    const c2 = drawIcon(pScreen, 'R', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module, bankLabels);
     c2.call(dragEndPoint as any);
   }
 };
