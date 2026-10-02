@@ -139,6 +139,8 @@ export const REPORT_FLOW = {
   /** Stations per table-continuation block (three columns of 60). */
   CONTINUATION_CHUNK_STATIONS: 180,
   METHOD_IMAGE_WIDTH: 140,
+  /** Snapshot strip image width; matches the five-column grid in report.css. */
+  STRIP_IMAGE_WIDTH: 112,
   /** Used for a block until its height has been measured once. */
   FALLBACK_BLOCK_HEIGHT: 400,
 };

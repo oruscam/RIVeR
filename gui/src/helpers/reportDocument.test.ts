@@ -22,7 +22,9 @@ describe('report stylesheet', () => {
   });
 
   test('the report scope paints its own white paper for charts', () => {
-    expect(css).toMatch(/\.report-doc(\[data-theme-scope\])?\s*\{[^}]*--background-color:\s*#ffffff/i);
+    expect(css).toMatch(
+      /\.report-doc(\[data-theme-scope\])?(,\s*\.report-measure)?\s*\{[^}]*--background-color:\s*#ffffff/i
+    );
   });
 });
 
@@ -73,7 +75,9 @@ describe('Report stylesheet reaches the export (Task 9 rulings)', () => {
   test('the paper tokens outrank [data-theme="light"] whatever the bundle order', () => {
     const css = read('src/components/Report/report.css');
     // Two attribute/class parts beat the single [data-theme="light"] selector on specificity.
-    expect(css).toMatch(/\.report-doc\[data-theme-scope\]\s*\{[^}]*--background-color:\s*#ffffff/i);
+    expect(css).toMatch(
+      /\.report-doc\[data-theme-scope\](,\s*\.report-measure)?\s*\{[^}]*--background-color:\s*#ffffff/i
+    );
   });
 });
 
@@ -237,6 +241,16 @@ describe('Report page flow (compact)', () => {
   });
   test('the report font reaches the text despite the app-wide font rule', () => {
     expect(css).toMatch(/\.report-doc \*\s*\{[^}]*font-family:\s*inherit/);
+  });
+  test('the measuring column gets the report tokens, so it measures in the report font', () => {
+    expect(css).toMatch(/\.report-doc\[data-theme-scope\],\s*\.report-measure\s*\{[^}]*--doc-font:/);
+  });
+  test('snapshot strip images carry explicit width and height, so measuring does not wait for them', () => {
+    const method = read('src/components/Report/Method.tsx');
+    expect(method).toMatch(
+      /<img src=\{images\.paths\[s\.index\]\}\s+width=\{box\.width\}\s+height=\{box\.height\}/
+    );
+    expect(css).not.toMatch(/\.doc-strip img\s*\{[^}]*height:/);
   });
   test('old sheet-per-part layout is gone', () => {
     expect(page).not.toMatch(/buildSheets|<Cover|<SectionSheet|<FootageSheet|<CalibrationSheet/);

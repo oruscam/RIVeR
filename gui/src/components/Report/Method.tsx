@@ -103,13 +103,20 @@ export const SnapshotStrip = () => {
   const { images } = useDataSlice();
   const snapshots = snapshotFrames(images.paths.length, video.parameters.startTime, video.parameters.endTime);
   if (snapshots.length === 0) return null;
+  // Explicit size so the block measures the same before and after the images load.
+  const box = frameBox(
+    video.data.width,
+    video.data.height,
+    REPORT_FLOW.STRIP_IMAGE_WIDTH,
+    REPORT_FLOW.STRIP_IMAGE_WIDTH
+  );
   return (
     <section>
       <h3 className="mc-title">{t('Report.Doc.acrossRange', { defaultValue: 'Across the processed range' })}</h3>
       <figure className="doc-figure doc-strip">
         {snapshots.map((s) => (
           <div key={s.index}>
-            <img src={images.paths[s.index]} alt="" />
+            <img src={images.paths[s.index]} width={box.width} height={box.height} alt="" />
             <figcaption>{formatTime(s.time)}</figcaption>
           </div>
         ))}

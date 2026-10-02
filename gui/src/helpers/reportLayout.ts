@@ -1,5 +1,3 @@
-import type { ReportModel } from './reportModel';
-
 const round2 = (v: number) => Math.round(v * 100) / 100;
 
 export function frameBox(videoWidth: number, videoHeight: number, maxWidth: number, maxHeight: number) {
