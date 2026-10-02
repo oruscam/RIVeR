@@ -147,6 +147,28 @@ export const REPORT_SHEET = {
   IMAGE_MAX_WIDTH: 1600,
 };
 
+/**
+ * Compact report flow (spec §8). A4 at 96 dpi is 794 × 1123 px; with 11 mm top padding and the
+ * footer (~48 px incl. its 8 mm bottom margin) a page body is ~1033 px tall; BODY_HEIGHT keeps
+ * a small safety margin. The page body is 186 mm (~703 px) wide.
+ */
+export const REPORT_FLOW = {
+  BODY_HEIGHT: 1020,
+  GAP: 10,
+  FRAME_WIDTH: 300,
+  FRAME_MAX_HEIGHT: 200,
+  PLOT_WIDTH: 380,
+  PLOT_HEIGHT: 196,
+  TABLE_COLUMNS: 3,
+  /** Stations shown inside the section block itself (three columns of 16). */
+  FIRST_CHUNK_STATIONS: 48,
+  /** Stations per table-continuation block (three columns of 60). */
+  CONTINUATION_CHUNK_STATIONS: 180,
+  METHOD_IMAGE_WIDTH: 140,
+  /** Used for a block until its height has been measured once. */
+  FALLBACK_BLOCK_HEIGHT: 400,
+};
+
 export const WINDOW_SIZES = {
   BIG: 512,
   MEDIUM: 256,
