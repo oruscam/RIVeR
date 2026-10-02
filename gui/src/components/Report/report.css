@@ -110,6 +110,10 @@
   letter-spacing: -0.01em;
 }
 
+.doc-q--section {
+  font-size: 28px;
+}
+
 .doc-q-unit {
   margin-left: 6px;
   font-size: 16px;
