@@ -45,14 +45,8 @@ describe('uiSlice overlayVisibility', () => {
 });
 
 describe('Frames canvas wiring', () => {
-  const src = require('fs').readFileSync(
-    require('path').join(__dirname, '../components/ImageProcessing.tsx'),
-    'utf8'
-  );
-  const ctl = require('fs').readFileSync(
-    require('path').join(__dirname, '../components/OverlayLayersControl.tsx'),
-    'utf8'
-  );
+  const src = readFileSync(join(__dirname, '../components/ImageProcessing.tsx'), 'utf8');
+  const ctl = readFileSync(join(__dirname, '../components/OverlayLayersControl.tsx'), 'utf8');
   test('the chips and the visibility applier are rendered on the Frames canvas', () => {
     expect(src).toContain('<OverlayLayersControl');
     expect(src).toContain('<OverlayLayerVisibility');
