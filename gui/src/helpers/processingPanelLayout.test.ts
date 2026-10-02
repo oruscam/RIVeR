@@ -82,7 +82,7 @@ describe('Processing panel CSS', () => {
   it('technique rows are 40px (D7) and gain a disclosure column in Advanced (D3)', () => {
     expect(indexCss('.tech-row', 'min-height')).toBe('40px');
     expect(formCss('.processing-form.is-advanced .tech-row', 'grid-template-columns')).toBe(
-      '12px 1fr 28px 78px 28px 28px'
+      '12px 1fr 28px 78px 36px 28px'
     );
   });
 

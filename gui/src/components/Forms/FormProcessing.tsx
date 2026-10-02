@@ -154,7 +154,6 @@ export const FormProcessing = ({
 
   // Technique toggles are icon-only (one ✓ glyph, D11), so each needs an
   // explicit accessible name; the same text doubles as the hover tooltip.
-  const lspivToggleLabel = t('Processing.lspivAlwaysOn', { defaultValue: "LSPIV can't be turned off" });
   const stivToggleLabel = !stivAvailable
     ? t('Processing.stivWeightsMissing')
     : stiv
@@ -232,21 +231,7 @@ export const FormProcessing = ({
                 >
                   {t('Processing.carouselMedia')}
                 </button>
-                <button
-                  type="button"
-                  className="ibtn ibtn-sm"
-                  aria-pressed="true"
-                  aria-disabled="true"
-                  aria-label={lspivToggleLabel}
-                  title={lspivToggleLabel}
-                  onClick={() => {
-                    // LSPIV can never be turned off (D9) — permanently pressed/disabled above,
-                    // this guard keeps that contract even if the attribute is ever bypassed.
-                    return;
-                  }}
-                >
-                  {Icons.Check('currentColor')}
-                </button>
+                <span className="tech-cell" />
                 {extraFields && (
                   <span className="tech-cell tech-disclose">
                     <button
@@ -317,20 +302,19 @@ export const FormProcessing = ({
                 </span>
                 <span className="tech-cell" />
                 <span className="tech-cell" />
-                <button
-                  type="button"
-                  className="ibtn ibtn-sm"
-                  aria-pressed={stiv && stivAvailable}
-                  aria-disabled={!stivAvailable}
-                  aria-label={stivToggleLabel}
-                  title={stivToggleLabel}
-                  onClick={() => {
-                    if (!stivAvailable) return;
-                    onUpdateProcessing({ stiv: !stiv });
-                  }}
-                >
-                  {Icons.Check('currentColor')}
-                </button>
+                <label className="switch switch-sm" title={stivToggleLabel}>
+                  <input
+                    type="checkbox"
+                    checked={stiv && stivAvailable}
+                    aria-disabled={!stivAvailable || undefined}
+                    aria-label={stivToggleLabel}
+                    onChange={() => {
+                      if (!stivAvailable) return;
+                      onUpdateProcessing({ stiv: !stiv });
+                    }}
+                  />
+                  <span className="slider"></span>
+                </label>
               </TechniqueRow>
               <TechniqueRow
                 technique="iwave"
@@ -359,16 +343,17 @@ export const FormProcessing = ({
                 </span>
                 <span className="tech-cell" />
                 <span className="tech-cell" />
-                <button
-                  type="button"
-                  className="ibtn ibtn-sm"
-                  aria-pressed={iwave}
-                  aria-label={iwaveToggleLabel}
-                  title={iwaveToggleLabel}
-                  onClick={() => onUpdateProcessing({ iwave: !iwave })}
-                >
-                  {Icons.Check('currentColor')}
-                </button>
+                <label className="switch switch-sm" title={iwaveToggleLabel}>
+                  <input
+                    type="checkbox"
+                    checked={iwave}
+                    aria-label={iwaveToggleLabel}
+                    onChange={() => {
+                      onUpdateProcessing({ iwave: !iwave });
+                    }}
+                  />
+                  <span className="slider"></span>
+                </label>
               </TechniqueRow>
             </form>
           </FormProvider>
