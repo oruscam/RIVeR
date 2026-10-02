@@ -62,7 +62,7 @@ const UndistortedOverlay: FC<UndistortedOverlayProps> = ({ src, corners }) => {
 
     ctx.fillStyle = 'white';
     ctx.font = 'bold 13px Inter, sans-serif';
-    ctx.fillText(`RMS ${corners.rms.toFixed(3)} px`, 10, 22);
+    ctx.fillText(`RMS ${corners.rms.toFixed(2)} px`, 10, 22);
   }, [corners]);
 
   useEffect(() => {
