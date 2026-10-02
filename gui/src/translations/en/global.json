@@ -352,6 +352,24 @@
       "sectionCount_other": "{{count}} sections",
       "techniqueCount_one": "{{count}} technique",
       "techniqueCount_other": "{{count}} techniques"
+    },
+    "Doc": {
+      "page": "page",
+      "footage": { "uav": "UAV (nadir)", "oblique": "Oblique", "ipcam": "IP camera", "none": "-" },
+      "totalDischarge": "Total discharge",
+      "sectionCount_one": "{{count}} section",
+      "sectionCount_other": "{{count}} sections",
+      "section": "Section",
+      "technique": "Technique",
+      "seeded": "Seeded",
+      "skipped": "Not processed, left out:",
+      "applied": "Applied to the footage",
+      "lens": "Lens correction",
+      "stabilization_one": "Stabilized ({{count}} region)",
+      "stabilization_other": "Stabilized ({{count}} regions)",
+      "step": "Frame step",
+      "resize": "Resize factor",
+      "acrossSections": "Across sections"
     }
   },
   "ControlPoints": {
