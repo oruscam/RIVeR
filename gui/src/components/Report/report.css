@@ -44,7 +44,7 @@
   width: 210mm;
   height: 297mm;
   margin: 0 auto 24px;
-  padding: 15mm 15mm 0;
+  padding: 11mm 12mm 0;
   background: var(--doc-paper);
   box-shadow: 0 1px 3px rgba(31, 42, 55, 0.18);
   display: flex;
@@ -64,24 +64,49 @@
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+}
+
+.report-doc * {
+  /* index.css sets the app font on every element; the report keeps its own stack. */
+  font-family: inherit;
+}
+
+.report-measure {
+  position: absolute;
+  top: 0;
+  left: -10000px;
+  width: 186mm;
+  padding: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sheet-block {
+  flex: none;
+}
+
+.sheet-who {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sheet-logo {
+  display: block;
+  width: auto;
+  height: 12px;
+  opacity: 0.85;
 }
 
 .sheet-footer {
   display: flex;
   justify-content: space-between;
   border-top: 1px solid var(--doc-rule);
-  padding: 6px 0 10mm;
+  align-items: center;
+  padding: 5px 0 8mm;
   color: var(--doc-muted);
   font-size: 9px;
-}
-
-.doc-kicker {
-  margin: 0;
-  color: var(--doc-muted);
-  font-size: 9px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
 }
 
 .doc-h1 {
@@ -90,14 +115,6 @@
   font-weight: 650;
   line-height: 1.15;
   overflow-wrap: anywhere;
-}
-
-.doc-h2 {
-  margin: 0;
-  padding-bottom: 4px;
-  border-bottom: 1px solid var(--doc-ink);
-  font-size: 13px;
-  font-weight: 650;
 }
 
 .doc-meta {
@@ -112,10 +129,6 @@
   font-weight: 650;
   line-height: 1;
   letter-spacing: -0.01em;
-}
-
-.doc-q--section {
-  font-size: 28px;
 }
 
 .doc-q-unit {

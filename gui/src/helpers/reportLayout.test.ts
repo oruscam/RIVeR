@@ -1,41 +1,4 @@
-import { buildSheets, frameBox, frameFactor, snapshotFrames, splitColumns } from './reportLayout';
-import type { ReportModel } from './reportModel';
-
-const model = (stations: number[]): ReportModel =>
-  ({
-    sections: stations.map((n, i) => ({ index: i, numStations: n })),
-    skipped: [], totalQ: 0, qStdBetween: null, cov: null, techniquesUsed: ['lspiv'],
-  }) as unknown as ReportModel;
-
-describe('buildSheets', () => {
-  test('cover, one sheet per short section, calibration, footage', () => {
-    expect(buildSheets(model([10, 20]), true).map((s) => s.kind)).toEqual(['cover', 'section', 'section', 'calibration', 'footage']);
-  });
-
-  test('no calibration sheet when there is no calibration evidence', () => {
-    expect(buildSheets(model([10]), false).map((s) => s.kind)).toEqual(['cover', 'section', 'footage']);
-  });
-
-  test('a 130-station table continues onto two more sheets with exact row ranges', () => {
-    const sections = buildSheets(model([130]), true).filter((s) => s.kind === 'section');
-    expect(sections).toEqual([
-      { kind: 'section', sectionIndex: 0, rowStart: 0, rowEnd: 24, continued: false },
-      { kind: 'section', sectionIndex: 0, rowStart: 24, rowEnd: 120, continued: true },
-      { kind: 'section', sectionIndex: 0, rowStart: 120, rowEnd: 130, continued: true },
-    ]);
-  });
-
-  test('exactly FIRST_SHEET_ROWS stations makes no empty continuation sheet', () => {
-    expect(buildSheets(model([24]), true).filter((s) => s.kind === 'section')).toHaveLength(1);
-  });
-
-  test('sectionIndex points into model.sections, not the store', () => {
-    const m = model([5, 5]);
-    m.sections[1].index = 7;
-    const s = buildSheets(m, false).filter((x) => x.kind === 'section');
-    expect(s.map((x) => (x as { sectionIndex: number }).sectionIndex)).toEqual([0, 1]);
-  });
-});
+import { frameBox, frameFactor, snapshotFrames } from './reportLayout';
 
 describe('frameBox / frameFactor', () => {
   test('landscape video fills the width', () => {
@@ -47,16 +10,6 @@ describe('frameBox / frameFactor', () => {
   });
   test('factor maps resized-frame pixels to the box', () => {
     expect(frameFactor(1920, 1080, 0.5, { width: 480, height: 270 })).toEqual({ x: 2, y: 2 });
-  });
-});
-
-describe('splitColumns', () => {
-  test('two balanced columns, first one longer', () => {
-    expect(splitColumns(0, 5)).toEqual([[0, 3], [3, 5]]);
-    expect(splitColumns(24, 120)).toEqual([[24, 72], [72, 120]]);
-  });
-  test('one row stays one column', () => {
-    expect(splitColumns(0, 1)).toEqual([[0, 1]]);
   });
 });
 

@@ -115,34 +115,8 @@ export const MARKS = {
   STROKE_WIDTH: 3,
 };
 
-/**
- * Velocity Vector Section Report Sizes
- */
-
-export const REPORT_IMAGES = {
-  HORIZONTAL_IMAGES_WIDTH: 400,
-  HORIZONTAL_IMAGES_HEIGHT: 225,
-  VERTICAL_IMAGES_WIDTH: 225,
-  VERTICAL_IMAGES_HEIGHT: 400,
-  HORIZONTAL_IMAGES_IPCAM_WIDTH: 500,
-  HORIZONTAL_IMAGES_IPCAM_HEIGHT: 281.25,
-  VERTICAL_IMAGES_IPCAM_WIDTH: 281.25,
-  VERTICAL_IMAGES_IPCAM_HEIGHT: 500,
-  VELOCITY_VECTOR_RESIZE_FACTOR: 4.8,
-  VELOCITY_VECTOR_AMPLITUDE_FACTOR: 40,
-};
-
-/** Exported report: A4 portrait at 96 dpi is 794 × 1123 px; 15 mm margins leave ~680 px of width. */
+/** Exported report: images are re-encoded to WebP at this quality and width cap. */
 export const REPORT_SHEET = {
-  CONTENT_WIDTH: 680,
-  SECTION_FRAME_MAX_HEIGHT: 300,
-  CALIBRATION_FRAME_MAX_HEIGHT: 420,
-  FOOTAGE_FRAME_MAX_HEIGHT: 300,
-  PLOT_HEIGHT: 380,
-  /** Station rows that fit under the plots on a section's first sheet (two columns of 12). */
-  FIRST_SHEET_ROWS: 24,
-  /** Rows on a continuation sheet (two columns of 48). */
-  CONTINUATION_ROWS: 96,
   IMAGE_QUALITY: 0.8,
   IMAGE_MAX_WIDTH: 1600,
 };

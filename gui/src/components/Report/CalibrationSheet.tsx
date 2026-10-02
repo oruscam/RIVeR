@@ -258,6 +258,3 @@ export const CalibrationPanel = ({ measure = false }: { measure?: boolean }) => 
     </section>
   );
 };
-
-/** Temporary: Report.tsx still mounts the old sheet until Task 7 replaces it. */
-export const CalibrationSheet = () => <CalibrationPanel />;
