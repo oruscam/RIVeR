@@ -56,7 +56,8 @@ const RIGHT = 6;
 const PANEL = { q: { top: 10, height: 36 }, v: { top: 62, height: 58 }, d: { top: 136, height: 34 } };
 const X_AXIS_Y = 179;
 const r = (v: number) => Math.round(v * 100) / 100;
-const clean = (v: number) => +v.toFixed(10);
+// Strip floating-point noise; Math.round avoids toFixed precision policy
+const clean = (v: number) => Math.round(v * 1e10) / 1e10;
 
 const niceStep = (raw: number) => {
   const exp = Math.floor(Math.log10(raw));
