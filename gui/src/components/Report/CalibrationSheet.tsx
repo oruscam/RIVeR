@@ -3,11 +3,12 @@ import * as d3 from 'd3';
 import { useTranslation } from 'react-i18next';
 import { formatNumberToPrecision4, getUnit } from '../../helpers';
 import { useIpcamSlice, useObliqueSlice, useProjectSlice, useUavSlice } from '../../hooks';
-import { REPORT_SHEET, UNIT_CONVERSIONS } from '../../constants/constants';
+import { REPORT_FLOW, UNIT_CONVERSIONS } from '../../constants/constants';
 import { frameBox, frameFactor } from '../../helpers/reportLayout';
 import { obliqueResiduals } from '../../helpers/obliqueResiduals';
 import { ipcamPointErrors } from '../../helpers/ipcamPointErrors';
 import { ipcamSvg, obliqueSvg } from '../Graphs';
+import { FootageIcon } from './FootageIcon';
 
 export const hasCalibration = (type: string, ipcamSolved: boolean) =>
   type === 'uav' || type === 'oblique' || (type === 'ipcam' && ipcamSolved);
@@ -29,7 +30,7 @@ const useLength = () => {
 const useFrame = () => {
   const { video } = useProjectSlice();
   const { width, height } = video.data;
-  const box = frameBox(width, height, REPORT_SHEET.CONTENT_WIDTH, REPORT_SHEET.CALIBRATION_FRAME_MAX_HEIGHT);
+  const box = frameBox(width, height, REPORT_FLOW.METHOD_IMAGE_WIDTH, REPORT_FLOW.METHOD_IMAGE_WIDTH);
   return { box, factor: frameFactor(width, height, video.parameters.factor, box) };
 };
 
@@ -38,15 +39,16 @@ const Uav = () => {
   const { size, rwLength, rwPoints, dirPoints, solution } = useUavSlice();
   const { len, lF, l2 } = useLength();
   const ortho = solution
-    ? frameBox(
-        solution.width,
-        solution.height,
-        REPORT_SHEET.CONTENT_WIDTH,
-        REPORT_SHEET.CALIBRATION_FRAME_MAX_HEIGHT
-      )
+    ? frameBox(solution.width, solution.height, REPORT_FLOW.METHOD_IMAGE_WIDTH, REPORT_FLOW.METHOD_IMAGE_WIDTH)
     : null;
   return (
     <>
+      {solution && ortho && (
+        <figure className="doc-figure mc-img">
+          <img src={solution.orthoImage} width={ortho.width} height={ortho.height} />
+          <figcaption>{t('Report.Doc.rectified', { defaultValue: 'Rectified frame' })}</figcaption>
+        </figure>
+      )}
       <dl className="doc-kv">
         <dt>{t('Report.Doc.pixelSize', { defaultValue: 'Pixel size (GSD)' })}</dt>
         <dd>
@@ -80,17 +82,11 @@ const Uav = () => {
           ))}
         </tbody>
       </table>
-      {solution && ortho && (
-        <figure className="doc-figure">
-          <img src={solution.orthoImage} width={ortho.width} height={ortho.height} />
-          <figcaption>{t('Report.Doc.rectified', { defaultValue: 'Rectified frame' })}</figcaption>
-        </figure>
-      )}
     </>
   );
 };
 
-const Oblique = () => {
+const Oblique = ({ measure = false }: { measure?: boolean }) => {
   const { t } = useTranslation();
   const svgRef = useRef<SVGSVGElement>(null);
   const { firstFramePath } = useProjectSlice();
@@ -103,6 +99,7 @@ const Oblique = () => {
 
   useEffect(() => {
     d3.select(svgRef.current).selectAll('*').remove();
+    if (measure) return;
     if (svgRef.current) {
       obliqueSvg({
         factor,
@@ -113,11 +110,11 @@ const Oblique = () => {
         height: box.height,
       });
     }
-  }, [factor, coordinates, distances, box.width, box.height]);
+  }, [factor, coordinates, distances, box.width, box.height, measure]);
 
   return (
     <>
-      <figure className="doc-figure">
+      <figure className="doc-figure mc-img">
         <img src={firstFramePath} width={box.width} height={box.height} />
         <svg ref={svgRef} className="doc-overlay" width={box.width} height={box.height} />
       </figure>
@@ -177,7 +174,7 @@ const Oblique = () => {
   );
 };
 
-const Ipcam = () => {
+const Ipcam = ({ measure = false }: { measure?: boolean }) => {
   const { t } = useTranslation();
   const svgRef = useRef<SVGSVGElement>(null);
   const { firstFramePath } = useProjectSlice();
@@ -187,19 +184,20 @@ const Ipcam = () => {
 
   useEffect(() => {
     d3.select(svgRef.current).selectAll('*').remove();
+    if (measure) return;
     if (svgRef.current && points !== null) {
       ipcamSvg({ factor, points, svgElement: svgRef.current, width: box.width, height: box.height });
     }
-  }, [points, factor, box.width, box.height]);
+  }, [points, factor, box.width, box.height, measure]);
 
   if (!cameraSolution || !points) return null;
-  const { meanError, cameraPosition, reprojectionErrors, pointIndices, orthoImagePath } = cameraSolution;
+  const { meanError, cameraPosition, reprojectionErrors, pointIndices } = cameraSolution;
   const rows = ipcamPointErrors(points, { reprojectionErrors, pointIndices });
   const yes = t('Commons.yes');
 
   return (
     <>
-      <figure className="doc-figure">
+      <figure className="doc-figure mc-img">
         <img src={firstFramePath} width={box.width} height={box.height} />
         <svg ref={svgRef} className="doc-overlay" width={box.width} height={box.height} />
       </figure>
@@ -239,26 +237,27 @@ const Ipcam = () => {
             })}
           </tbody>
         </table>
-        {orthoImagePath && (
-          <figure className="doc-figure">
-            <img src={orthoImagePath} className="doc-ortho" />
-            <figcaption>{t('Report.Doc.ortho', { defaultValue: 'Orthorectified view' })}</figcaption>
-          </figure>
-        )}
       </div>
     </>
   );
 };
 
-export const CalibrationSheet = () => {
+export const CalibrationPanel = ({ measure = false }: { measure?: boolean }) => {
   const { t } = useTranslation();
   const { type } = useProjectSlice();
+  const label = { uav: 'UAV', oblique: 'Oblique', ipcam: 'IP camera' }[type as 'uav' | 'oblique' | 'ipcam'] ?? '';
   return (
-    <>
-      <h1 className="doc-h1">{t('Report.Doc.calibration', { defaultValue: 'Calibration' })}</h1>
+    <section className="mc">
+      <h3 className="mc-title">
+        <FootageIcon type={type as 'uav' | 'oblique' | 'ipcam' | ''} />
+        {t('Report.Doc.calibration', { defaultValue: 'Calibration' })} · {label}
+      </h3>
       {type === 'uav' && <Uav />}
-      {type === 'oblique' && <Oblique />}
-      {type === 'ipcam' && <Ipcam />}
-    </>
+      {type === 'oblique' && <Oblique measure={measure} />}
+      {type === 'ipcam' && <Ipcam measure={measure} />}
+    </section>
   );
 };
+
+/** Temporary: Report.tsx still mounts the old sheet until Task 7 replaces it. */
+export const CalibrationSheet = () => <CalibrationPanel />;
