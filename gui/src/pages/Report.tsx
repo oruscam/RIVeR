@@ -46,7 +46,7 @@ export const Report = () => {
   const { factor: imageReduceFactor } = video.parameters;
 
   const { screenSizes, theme } = useUiSlice();
-  const [isReportSaved, setIsReportSaved] = useState(false);
+  const [savedPath, setSavedPath] = useState<string | null>(null);
 
   const generateHTML = async () => {
     onSetAnalizing(true);
@@ -97,10 +97,13 @@ export const Report = () => {
       const blob = new Blob([htmlContent], { type: 'text/html' });
       const arrayBuffer = await blob.arrayBuffer();
 
-      await window.ipcRenderer.invoke('save-report-html', { arrayBuffer });
+      // Only a real write counts: cancelling the Save dialog resolves with no path.
+      const result = (await window.ipcRenderer.invoke('save-report-html', { arrayBuffer })) as
+        | { filePath: string | null }
+        | undefined;
+      setSavedPath(result?.filePath ?? null);
     }
     onSetAnalizing(false);
-    setIsReportSaved(true);
   };
 
   let factor = {
@@ -148,9 +151,12 @@ export const Report = () => {
       </div>
       <div className="form-container results-wash">
         <FormHeader title={t('Report.Summary.title')} showSections={false} />
-        <FormReport isReportSaved={isReportSaved} setIsReportSaved={setIsReportSaved} />
+        <FormReport savedPath={savedPath} setSavedPath={setSavedPath} />
         <div className="footer">
-          <WizardButtons onClickNext={generateHTML} />
+          <WizardButtons
+            onClickNext={generateHTML}
+            nextLabel={t('Report.Panel.saveReport', { defaultValue: 'Save report' })}
+          />
         </div>
       </div>
     </div>

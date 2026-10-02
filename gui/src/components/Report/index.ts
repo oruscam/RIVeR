@@ -9,7 +9,6 @@ import { ProcessingParameters } from './ProcessingParameters';
 import { Footer } from './Footer';
 import { ObliquePixelTransformation } from './ObliquePixelTransformation';
 import { IpcamPixelTransformation } from './IpcamPixelTransformation';
-import { SuccessfulMessage } from './SuccessfulMessage';
 
 export {
   Footer,
@@ -21,7 +20,6 @@ export {
   ProcessingParameters,
   ReportSection,
   ReportSectionTable,
-  SuccessfulMessage,
   Summary,
   VideoInfo,
 };

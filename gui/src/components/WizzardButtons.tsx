@@ -9,6 +9,8 @@ type Props = {
   formId?: string;
   button?: boolean;
   onClickNext: () => void;
+  /** Overrides the primary button's text (the last step says what it does). */
+  nextLabel: string;
 };
 
 export const WizardButtons = ({
@@ -16,6 +18,7 @@ export const WizardButtons = ({
   formId = '',
   button = false,
   onClickNext,
+  nextLabel,
 }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep, isLastStep } = useWizard();
   const { onSetActiveSection } = useSectionSlice();
@@ -50,7 +53,7 @@ export const WizardButtons = ({
         type={button ? 'button' : 'submit'}
         id="wizard-next"
       >
-        {isLastStep ? t('Wizard.save') : t('Wizard.next')}
+        {nextLabel ?? (isLastStep ? t('Wizard.save') : t('Wizard.next'))}
       </button>
     </div>
   );
