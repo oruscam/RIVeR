@@ -146,4 +146,15 @@ describe('Cross Sections panel (review 2026-10-01)', () => {
     const pad = css.declarations.filter((d) => d.rule === rule?.index && d.property === 'padding').pop()?.value;
     expect(pad).toBe('0 var(--space-4)');
   });
+
+  it('the button row leaves room for the hover scale, so the ring is not clipped by the scroll body', () => {
+    // .btn:hover grows the button 4%; the row is the first thing in an overflow:scroll body.
+    expect(decl('.panel-actions', 'padding')).toBe('var(--space-1) var(--space-2)');
+  });
+
+  it('the drop hint is quiet metadata, not a subtitle, and sits on the row inset in a panel section', () => {
+    expect(decl('.drop-here-text', 'font-size')).toBe('var(--text-meta)');
+    expect(decl('.panel-section .drop-here-text', 'width')).toBe('auto');
+    expect(decl('.panel-section .drop-here-text', 'padding')).toBe('0 var(--space-2)');
+  });
 });

@@ -510,10 +510,17 @@
 
 .drop-here-text {
     margin: 8px auto;
-    font-size: var(--text-subtitle);
+    font-size: var(--text-meta);
     width: 75%;
     color: var(--secondary-text-color);
     transition: all 0.5s ease;
+}
+
+/* Inside a panel section the hint lines up with the row labels (rule 1). */
+.panel-section .drop-here-text {
+    width: auto;
+    margin: 0 0 var(--space-2);
+    padding: 0 var(--space-2);
 }
 
 .drop-here-text.disabled {
@@ -920,8 +927,10 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--space-2);
-    padding: 0 var(--space-2);
-    margin-bottom: var(--space-2);
+    /* .btn:hover scales 4%; without this the grown ring is clipped by the
+       scrolling body at the top of the panel. */
+    padding: var(--space-1) var(--space-2);
+    margin-bottom: var(--space-1);
 }
 
 .panel-actions .panel-action {
