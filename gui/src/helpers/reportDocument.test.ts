@@ -33,3 +33,27 @@ describe('Sheet', () => {
     expect(src).toMatch(/\{page\}\s*\/\s*\{pages\}/);
   });
 });
+
+describe('Cover', () => {
+  const src = read('src/components/Report/Cover.tsx');
+  test('leads with the total, reads the model, never data.total_Q', () => {
+    expect(src).toContain('doc-q');
+    expect(src).toContain('model.totalQ');
+    expect(src).not.toContain('total_Q');
+  });
+  test('states the version, footage type and skipped sections', () => {
+    expect(src).toContain('version');
+    expect(src).toContain('model.skipped');
+    expect(src).toMatch(/Report\.Doc\.footage\./);
+  });
+  test('applied strip only lists what was applied', () => {
+    expect(src).toMatch(/applied\.lensCorrection\s*&&/);
+    expect(src).toMatch(/applied\.stabilizationRegions\s*!==\s*null\s*&&/);
+  });
+  test('summary table across sections, only when the model provides rows, LSPIV rows labelled', () => {
+    expect(src).toMatch(/summary\s*&&/);
+    expect(src).toContain('row.lspivOnly');
+    expect(src).toContain('Report.Summary.mean');
+    expect(src).toContain('Report.Summary.cov');
+  });
+});
