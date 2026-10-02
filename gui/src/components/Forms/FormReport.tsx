@@ -22,7 +22,10 @@ export const FormReport = ({
 }) => {
   const { video, onProjectDetailsChange, projectDetails, onSetDefaultProjectState } = useProjectSlice();
   const { sections } = useSectionSlice();
-  const headline = summarizeReport(sections, projectDetails.unitSistem || 'si');
+  const headline = summarizeReport(
+    { sections, step: video.parameters.step, fps: video.data.fps },
+    projectDetails.unitSistem || 'si'
+  );
   const flowUnit = projectDetails.unitSistem === 'imperial' ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
   const { creation } = video.data;
   const { t } = useTranslation();
