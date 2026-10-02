@@ -132,6 +132,21 @@ export const REPORT_IMAGES = {
   VELOCITY_VECTOR_AMPLITUDE_FACTOR: 40,
 };
 
+/** Exported report: A4 portrait at 96 dpi is 794 × 1123 px; 15 mm margins leave ~680 px of width. */
+export const REPORT_SHEET = {
+  CONTENT_WIDTH: 680,
+  SECTION_FRAME_MAX_HEIGHT: 300,
+  CALIBRATION_FRAME_MAX_HEIGHT: 420,
+  FOOTAGE_FRAME_MAX_HEIGHT: 300,
+  PLOT_HEIGHT: 380,
+  /** Station rows that fit under the plots on a section's first sheet (two columns of 12). */
+  FIRST_SHEET_ROWS: 24,
+  /** Rows on a continuation sheet (two columns of 48). */
+  CONTINUATION_ROWS: 96,
+  IMAGE_QUALITY: 0.8,
+  IMAGE_MAX_WIDTH: 1600,
+};
+
 export const WINDOW_SIZES = {
   BIG: 512,
   MEDIUM: 256,
