@@ -136,8 +136,11 @@ export const REPORT_FLOW = {
   TABLE_COLUMNS: 3,
   /** Stations shown inside the section block itself (three columns of 16). */
   FIRST_CHUNK_STATIONS: 48,
-  /** Stations per table-continuation block (three columns of 60). */
-  CONTINUATION_CHUNK_STATIONS: 180,
+  /** Stations per table-continuation block (three columns of 53), so the block fits one page body. */
+  CONTINUATION_CHUNK_STATIONS: 159,
+  /** Approximate station table row height and block overhead in px, measured in headless Chrome. */
+  TABLE_ROW_HEIGHT: 17,
+  TABLE_BLOCK_OVERHEAD: 80,
   METHOD_IMAGE_WIDTH: 140,
   /** Snapshot strip image width; matches the five-column grid in report.css. */
   STRIP_IMAGE_WIDTH: 112,

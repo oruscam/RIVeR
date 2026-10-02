@@ -27,11 +27,15 @@ const convertImageToDataURI = (url: string, quality: number, maxWidth: number) =
     img.crossOrigin = 'Anonymous';
     img.onload = () => {
       const scale = Math.min(1, maxWidth / img.width);
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.width * scale);
-      canvas.height = Math.round(img.height * scale);
-      canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height);
-      resolve(canvas.toDataURL('image/webp', quality));
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        resolve(canvas.toDataURL('image/webp', quality));
+      } catch (e) {
+        reject(e);
+      }
     };
     img.onerror = reject;
     img.src = url;
@@ -94,13 +98,19 @@ export const Report = () => {
   // Heights are measured in a hidden column of the page body's width, so translated labels that wrap
   // push a block to the next page instead of overflowing it.
   const measureRef = useRef<HTMLDivElement>(null);
+  const warnedRef = useRef<Set<string>>(new Set());
   const [heights, setHeights] = useState<Record<string, number>>({});
   useLayoutEffect(() => {
     const el = measureRef.current;
     if (!el) return;
     const next: Record<string, number> = {};
     el.querySelectorAll<HTMLElement>('[data-block]').forEach((b) => {
-      next[b.dataset.block as string] = b.offsetHeight;
+      const id = b.dataset.block as string;
+      next[id] = b.offsetHeight;
+      if (next[id] > REPORT_FLOW.BODY_HEIGHT && !warnedRef.current.has(id)) {
+        warnedRef.current.add(id);
+        console.warn(`Report block "${id}" is ${next[id]}px, taller than the page body; it will be clipped.`);
+      }
     });
     setHeights((prev) => {
       const keys = Object.keys(next);

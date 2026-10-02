@@ -1,3 +1,4 @@
+import { REPORT_FLOW } from '../constants/constants';
 import { paginate, splitInto, stationChunks } from './reportFlow';
 
 describe('paginate', () => {
@@ -28,11 +29,11 @@ describe('stationChunks', () => {
   test('exactly 48 stations makes no empty continuation', () => {
     expect(stationChunks(48)).toEqual([[0, 48]]);
   });
-  test('250 stations: 48 in the section block, then 180, then the rest', () => {
+  test('250 stations: 48 in the section block, then 159, then the rest', () => {
     expect(stationChunks(250)).toEqual([
       [0, 48],
-      [48, 228],
-      [228, 250],
+      [48, 207],
+      [207, 250],
     ]);
   });
   test('no stations: one empty chunk', () => {
@@ -63,5 +64,15 @@ describe('splitInto', () => {
   });
   test('empty range: no columns', () => {
     expect(splitInto(0, 0, 3)).toEqual([]);
+  });
+});
+
+describe('continuation block height', () => {
+  test('a full continuation chunk fits the page body', () => {
+    const { CONTINUATION_CHUNK_STATIONS, TABLE_COLUMNS, TABLE_ROW_HEIGHT, TABLE_BLOCK_OVERHEAD, BODY_HEIGHT } =
+      REPORT_FLOW;
+    expect(
+      Math.ceil(CONTINUATION_CHUNK_STATIONS / TABLE_COLUMNS) * TABLE_ROW_HEIGHT + TABLE_BLOCK_OVERHEAD
+    ).toBeLessThanOrEqual(BODY_HEIGHT);
   });
 });

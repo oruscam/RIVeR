@@ -87,6 +87,14 @@ export function niceTicks(min: number, max: number, target = 4): number[] {
 }
 
 export function formatTick(value: number, step: number): string {
+  // Plot-axis exception to the 2-decimal display rule (like the GSD exception): below 0.01 the
+  // tick step needs its own significant digits or every label would read 0.00.
+  if (step > 0 && step < 0.01) {
+    // Fewest decimals that show the step exactly (0.004 -> 3, 0.0025 -> 4).
+    let decimals = Math.ceil(-Math.log10(step));
+    while (decimals < 8 && Math.abs(+step.toFixed(decimals) - step) > step * 1e-6) decimals++;
+    return value.toFixed(decimals);
+  }
   const decimals = Math.min(2, (String(+step.toFixed(2)).split('.')[1] ?? '').length);
   return value.toFixed(decimals);
 }

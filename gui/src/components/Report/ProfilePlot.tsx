@@ -42,8 +42,6 @@ export const ProfilePlot = ({ storeIndex }: { storeIndex: number }) => {
   );
   if (!input) return null;
   const g = buildProfilePlot(input);
-  const lineLabel = (technique: Technique, active: boolean) =>
-    `${TECHNIQUE_LABEL[technique]}${active ? ` · ${t('Report.Doc.reported', { defaultValue: 'reported' })}` : ''}`;
   const legend = [...g.series].reverse();
 
   return (
@@ -58,8 +56,8 @@ export const ProfilePlot = ({ storeIndex }: { storeIndex: number }) => {
           <text className="rp-title" x={g.left} y={p.top - 4}>
             {p.title}
           </text>
-          {p.ticks.map((tk) => (
-            <g key={tk.label}>
+          {p.ticks.map((tk, i) => (
+            <g key={i}>
               <line
                 className={tk.zero ? 'rp-grid rp-grid--zero' : 'rp-grid'}
                 x1={g.left}
@@ -103,7 +101,7 @@ export const ProfilePlot = ({ storeIndex }: { storeIndex: number }) => {
             <g key={s.technique}>
               <Marker technique={s.technique} m={{ x, y, hollow: false }} />
               <text className="rp-legend" x={x + 6} y={y + 2.8}>
-                {lineLabel(s.technique, s.active)}
+                {TECHNIQUE_LABEL[s.technique]}
               </text>
             </g>
           );
@@ -114,8 +112,8 @@ export const ProfilePlot = ({ storeIndex }: { storeIndex: number }) => {
 
       {g.xTicks
         .filter((tk) => tk.x > g.banks.left + 12 && tk.x < g.banks.right - 12)
-        .map((tk) => (
-          <text key={tk.label} className="rp-tick" x={tk.x} y={g.xAxisY} textAnchor="middle">
+        .map((tk, i) => (
+          <text key={i} className="rp-tick" x={tk.x} y={g.xAxisY} textAnchor="middle">
             {tk.label}
           </text>
         ))}
