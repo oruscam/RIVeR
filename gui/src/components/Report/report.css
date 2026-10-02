@@ -362,11 +362,11 @@
   stroke: var(--tech-lspiv);
 }
 .rp-marker--stiv {
-  fill: #ffffff;
+  fill: var(--tech-stiv);
   stroke: var(--tech-stiv);
 }
 .rp-marker--iwave {
-  fill: #ffffff;
+  fill: var(--tech-iwave);
   stroke: var(--tech-iwave);
 }
 .rp-marker--hollow {
