@@ -122,14 +122,6 @@
     text-align: right;
 }
 
-.form-video-extra-in-row p {
-    margin-right: 5px;
-}
-
-.frames-info {
-    
-}
-
 .bathimetry-button p {
     text-align: center;
     margin-top: 10px;
@@ -949,4 +941,30 @@
    so the negative margin lands the text on the 8px row inset. */
 .btn.panel-add {
     margin: var(--space-1) 0 var(--space-2) calc(var(--space-2) - var(--space-4));
+}
+
+/* Video Range: a field with its action button beside it. The button sits left of
+   the field, so every field still ends on the same right edge. */
+.field-with-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+/* Content that belongs to the switch above it: 16px in, like a dependent row. */
+.panel-nested {
+    padding-left: var(--space-4);
+}
+
+/* One muted line of computed text under a group of fields. */
+.panel-summary {
+    margin: var(--space-1) 0 var(--space-2);
+    padding: 0 var(--space-2);
+    font-size: var(--text-meta);
+}
+
+.panel-hint {
+    margin: 0 0 var(--space-2);
+    padding: 0 var(--space-2);
+    font-size: var(--text-meta);
 }

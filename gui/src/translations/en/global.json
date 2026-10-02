@@ -46,6 +46,13 @@
   },
   "VideoRange": {
     "title": "Video Range",
+    "framesSummary": "{{count}} frames · every {{ms}} ms",
+    "useCurrentTime": "Set {{field}} to the current frame",
+    "sourceVideo": "Source video",
+    "regions": "Regions",
+    "doneEditingRegion": "Done editing",
+    "exitRegionEditing": "Exit region editing",
+    "minRegionsHint": "Add at least 2 regions to stabilize",
     "start": "Start",
     "end": "End",
     "step": "Step",

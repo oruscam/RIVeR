@@ -10,6 +10,7 @@ import { formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
 import { VideoMetadata, FramesResolution, LensCorrection, StabilizationRegions } from './Components/index';
 import { FieldError } from '../index';
+import { Icons } from '../CustomIcons/Icons';
 
 export const FormVideo = ({ duration, extraFields }: { duration: number; extraFields: boolean }) => {
   const { onSetVideoParameters, video: videoData, type } = useProjectSlice();
@@ -155,23 +156,30 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
     setVideo(document.getElementById('video') as HTMLVideoElement);
   }, [watchStep]);
 
+  const currentTimeLabel = (field: string) =>
+    t('VideoRange.useCurrentTime', { defaultValue: 'Set {{field}} to the current frame', field });
+
   return (
     <div className="body">
       <form onSubmit={handleSubmit(onSubmit, onError)} id="form-video">
-        <div className="form-video-fields">
-          <div className="input-container-2 mt-2">
-            <button
-              type="button"
-              onClick={handleClick}
-              className="btn btn-lg btn-secondary form-button me-1"
-              id="start-button"
-            >
-              {' '}
+        <div className="panel-section">
+          <div className="field-row field-row-top">
+            <label className="field-row-label" htmlFor="start">
               {t('VideoRange.start')}
-            </button>
-            <div className="input-field-container">
+            </label>
+            <span className="field-with-action">
+              <button
+                type="button"
+                className="ibtn ibtn-sm"
+                id="start-button"
+                onClick={handleClick}
+                aria-label={currentTimeLabel(t('VideoRange.start'))}
+                title={currentTimeLabel(t('VideoRange.start'))}
+              >
+                {Icons.Target('currentColor')}
+              </button>
               <input
-                className="input-field"
+                className="field field-coord"
                 defaultValue="00:00"
                 id="start"
                 type="text"
@@ -179,48 +187,69 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
               />
-              <FieldError name="start" />
-            </div>
+            </span>
           </div>
-          <div className="input-container-2 mt-1">
-            <button
-              type="button"
-              className="btn btn-lg btn-secondary form-button me-1"
-              onClick={handleClick}
-              id="end-button"
-            >
-              {' '}
-              {t('VideoRange.end')}{' '}
-            </button>
-            <div className="input-field-container">
+          <FieldError name="start" />
+
+          <div className="field-row field-row-top">
+            <label className="field-row-label" htmlFor="end">
+              {t('VideoRange.end')}
+            </label>
+            <span className="field-with-action">
+              <button
+                type="button"
+                className="ibtn ibtn-sm"
+                id="end-button"
+                onClick={handleClick}
+                aria-label={currentTimeLabel(t('VideoRange.end'))}
+                title={currentTimeLabel(t('VideoRange.end'))}
+              >
+                {Icons.Target('currentColor')}
+              </button>
               <input
                 type="text"
-                className="input-field"
+                className="field field-coord"
                 defaultValue="00:00"
                 id="end"
                 {...register('end', validationRules.end)}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
               />
-              <FieldError name="end" />
-            </div>
+            </span>
           </div>
-          <div className="input-container-2 mt-1">
-            <label className="read-only me-1"> {t('VideoRange.step')} </label>
-            <div className="input-field-container">
-              <input
-                type="number"
-                id="input-step"
-                defaultValue={1}
-                className="input-field"
-                onKeyDown={handleKeyDown}
-                {...register('step', validationRules.step)}
-              />
-              <FieldError name="step" />
-            </div>
+          <FieldError name="end" />
+
+          <div className="field-row field-row-top">
+            <label className="field-row-label" htmlFor="input-step">
+              {t('VideoRange.step')}
+            </label>
+            <input
+              type="number"
+              id="input-step"
+              defaultValue={1}
+              className="field field-coord"
+              onKeyDown={handleKeyDown}
+              {...register('step', validationRules.step)}
+            />
           </div>
+          <FieldError name="step" />
+
+          <p className="field-readonly panel-summary">
+            {t('VideoRange.framesSummary', {
+              defaultValue: '{{count}} frames · every {{ms}} ms',
+              count: numberOfFrames > 0 ? numberOfFrames : 0,
+              ms: timeBetweenFrames,
+            })}
+          </p>
         </div>
-        <VideoMetadata timeBetweenFrames={timeBetweenFrames} numberOfFrames={numberOfFrames} />
+
+        {/* Stabilization suits any moving camera, so UAV and oblique get it; a fixed ipcam never does.
+            Not gated on extraFields/Advanced: regions must stay visible whenever stabilization is on,
+            and the on/off switch itself must always be reachable to turn it on. */}
+        {type !== 'ipcam' && <StabilizationRegions />}
+
+        <VideoMetadata />
+
         {extraFields && (
           <div className="panel-advanced">
             <hr className="panel-rule" />
@@ -228,10 +257,6 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
             <LensCorrection />
           </div>
         )}
-        {/* Stabilization only makes sense for UAV footage — oblique/ipcam cameras are fixed.
-            Not gated on extraFields/Advanced: regions must stay visible whenever stabilization
-            is on, and the on/off switch itself must always be reachable to turn it on. */}
-        {type === 'uav' && <StabilizationRegions />}
       </form>
     </div>
   );

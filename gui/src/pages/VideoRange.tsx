@@ -24,11 +24,10 @@ export const VideoRange = () => {
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Stabilization only applies to UAV footage — oblique/ipcam cameras are fixed.
-  // Guards against stale `stabilization: true` left over from switching footage
-  // mode after having enabled it on a UAV project.
+  // Stabilization applies to UAV and oblique footage (a moving or handheld camera); an ipcam is
+  // fixed. Guards against stale `stabilization: true` left over from switching footage mode.
   const stabilizationOverlay =
-    stabilization && type === 'uav'
+    stabilization && type !== 'ipcam'
       ? ({ scale, position }: { scale: number; position: { x: number; y: number } }) => (
           <StabilizationCanvas
             videoWidth={videoWidth}
