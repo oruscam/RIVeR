@@ -29,6 +29,8 @@ interface StationSearchLinesProps {
  * that field is only assigned as a side effect of a code path that early-returns when
  * nothing has changed, so on a loaded, unedited project it is never set at all.
  */
+const LABEL_OFFSET_PX = 12;
+
 export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) => {
   const { sections, activeSection, transformationMatrix } = useSectionSlice();
   const { processing, colorbarLimits } = useDataSlice();
@@ -173,12 +175,22 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
       .enter()
       .append('g')
       .attr('class', 'station-search-label')
-      .attr('transform', (d) => `translate(${d.b.x / factor}, ${d.b.y / factor})`);
+      .attr('transform', (d) => {
+        // At the origin end (where the dot is), pushed outward along the line so the
+        // badge sits clear of the line and the cross section.
+        const ax = d.a.x / factor;
+        const ay = d.a.y / factor;
+        const len = Math.hypot(d.b.x / factor - ax, d.b.y / factor - ay) || 1;
+        const ux = (ax - d.b.x / factor) / len;
+        const uy = (ay - d.b.y / factor) / len;
+        return `translate(${ax + ux * LABEL_OFFSET_PX}, ${ay + uy * LABEL_OFFSET_PX})`;
+      });
 
     labelGroups
       .append('text')
-      .attr('x', 10)
+      .attr('x', 0)
       .attr('y', 0)
+      .attr('text-anchor', 'middle')
       .attr('dominant-baseline', 'central')
       .attr('fill', '#fff')
       .attr('font-size', '11px')
