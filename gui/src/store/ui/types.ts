@@ -1,3 +1,4 @@
+import type { OverlayVisibility } from '../../helpers/overlayLayers';
 // * Archivo para almacenar los tipos e interfaces.
 
 type ThemeType = 'dark' | 'light' | 'dracula';
@@ -54,6 +55,8 @@ interface UIState {
    *  component-local state because it's a user-visible view mode the
    *  segmented control on the canvas both reads and writes (Phase 6d). */
   previewMode: PreviewMode;
+  /** Which overlays Processing's Frames canvas draws (section, STIV search lines, vectors). */
+  overlayVisibility: OverlayVisibility;
 }
 
 export type { ScreenSizes, UIState, ThemeType, PreviewMode, StepAlert };
