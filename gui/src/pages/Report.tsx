@@ -1,51 +1,58 @@
 import { WizardButtons } from '../components';
-import {
-  ProcessedRange,
-  VideoInfo,
-  ReportSection,
-  Header,
-  Summary,
-  PixelTransformation,
-  ProcessingParameters,
-  Footer,
-} from '../components/Report';
+import { Sheet, Cover, SectionSheet, CalibrationSheet, FootageSheet, hasCalibration } from '../components/Report';
 import './pages.css';
-import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useIpcamSlice, useProjectSlice, useSectionSlice } from '../hooks';
 import { FormReport } from '../components/Forms/index';
-import { REPORT_IMAGES } from '../constants/constants';
+import { REPORT_SHEET } from '../constants/constants';
+import { buildReportModel, appliedCorrections, summaryRows } from '../helpers/reportModel';
+import { buildSheets, frameBox, frameFactor } from '../helpers/reportLayout';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { FormHeader } from '../components/Forms/Components';
 
-const convertImageToDataURI = (url: string, quality = 1.0) => {
+const convertImageToDataURI = (url: string, quality: number, maxWidth: number) => {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'Anonymous';
     img.onload = () => {
-      const maxWidth = 1920;
-      const scaleFactor = maxWidth / img.width;
+      const scale = Math.min(1, maxWidth / img.width);
       const canvas = document.createElement('canvas');
-      canvas.width = maxWidth;
-      canvas.height = img.height * scaleFactor;
-      const ctx = canvas.getContext('2d');
-      ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-      const dataURI = canvas.toDataURL('image/webp', quality);
-      resolve(dataURI);
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL('image/webp', quality));
     };
     img.onerror = reject;
     img.src = url;
   });
 };
 
+const escapeHtml = (s: string) =>
+  s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c] as string);
+
 export const Report = () => {
   const { t } = useTranslation();
-  const { sections } = useSectionSlice();
   const { onSetAnalizing } = useDataSlice();
-  const { onSaveProjectDetails, video } = useProjectSlice();
-  const { width: videoWidth, height: videoHeight } = video.data;
-  const { factor: imageReduceFactor } = video.parameters;
+  const { sections, summary: backendSummary } = useSectionSlice();
+  const { onSaveProjectDetails, video, projectDetails, type } = useProjectSlice();
+  const { cameraSolution } = useIpcamSlice();
+  const version = import.meta.env.VITE_APP_VERSION ?? '';
 
-  const { screenSizes, theme } = useUiSlice();
+  const model = buildReportModel({ sections, step: video.parameters.step, fps: video.data.fps });
+  const summary = summaryRows(backendSummary, model);
+  const applied = appliedCorrections({ ...video.parameters });
+  const sheets = buildSheets(model, hasCalibration(type, cameraSolution !== null));
+  const title = `${projectDetails.riverName} @ ${projectDetails.site}`;
+
+  const { width: videoWidth, height: videoHeight } = video.data;
+  const frame = frameBox(
+    videoWidth,
+    videoHeight,
+    REPORT_SHEET.CONTENT_WIDTH,
+    REPORT_SHEET.SECTION_FRAME_MAX_HEIGHT
+  );
+  const factor = frameFactor(videoWidth, videoHeight, video.parameters.factor, frame);
+
   const [savedPath, setSavedPath] = useState<string | null>(null);
 
   const generateHTML = async () => {
@@ -55,7 +62,9 @@ export const Report = () => {
     if (input) {
       // Convert all images to data URIs
       const images = Array.from(input.getElementsByTagName('img'));
-      const imagePromises = images.map((img) => convertImageToDataURI(img.src, 0.1));
+      const imagePromises = images.map((img) =>
+        convertImageToDataURI(img.src, REPORT_SHEET.IMAGE_QUALITY, REPORT_SHEET.IMAGE_MAX_WIDTH)
+      );
       const imageDataURIs = await Promise.all(imagePromises);
 
       // Replace image sources with data URIs
@@ -63,35 +72,32 @@ export const Report = () => {
         img.src = imageDataURIs[index] as string;
       });
 
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <meta name="color-scheme" content="light">
-          <title>Report</title>
-          <link rel="stylesheet" href="/src/components/Report/report.css">
-          <style>
-            ${Array.from(document.styleSheets)
-              .map((styleSheet) => {
-                try {
-                  return Array.from(styleSheet.cssRules)
-                    .map((rule) => rule.cssText)
-                    .join('');
-                } catch (e) {
-                  console.error(e);
-                  return '';
-                }
-              })
-              .join('')}
-          </style>
-        </head>
-        <body data-theme="${theme}" style="color: #000000; color-scheme: light only;">
-          ${input.outerHTML}
-        </body>
-        </html>
-      `;
+      const styles = Array.from(document.styleSheets)
+        .map((styleSheet) => {
+          try {
+            return Array.from(styleSheet.cssRules)
+              .map((rule) => rule.cssText)
+              .join('');
+          } catch (e) {
+            console.error(e);
+            return '';
+          }
+        })
+        .join('');
+
+      const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light">
+  <title>${escapeHtml(title)} · ${escapeHtml(projectDetails.meditionDate ?? '')}</title>
+  <style>${styles}</style>
+</head>
+<body style="margin:0">
+  ${input.outerHTML}
+</body>
+</html>`;
 
       // Save the HTML file
       const blob = new Blob([htmlContent], { type: 'text/html' });
@@ -106,46 +112,30 @@ export const Report = () => {
     onSetAnalizing(false);
   };
 
-  let factor = {
-    x: 1,
-    y: 1,
-  };
-
-  if (screenSizes.vertical === false) {
-    factor = {
-      x: (videoWidth * imageReduceFactor) / REPORT_IMAGES.HORIZONTAL_IMAGES_WIDTH,
-      y: (videoHeight * imageReduceFactor) / REPORT_IMAGES.HORIZONTAL_IMAGES_HEIGHT,
-    };
-  } else {
-    factor = {
-      x: (videoWidth * imageReduceFactor) / REPORT_IMAGES.VERTICAL_IMAGES_WIDTH,
-      y: (videoHeight * imageReduceFactor) / REPORT_IMAGES.VERTICAL_IMAGES_HEIGHT,
-    };
-  }
-
   return (
     <div className="regular-page">
       <div className="media-container">
         <div id="report-html-page">
-          <div id="report-html-container">
-            <Header />
-            <VideoInfo />
-            <ProcessedRange />
-            <div id="report-section-wrapper">
-              <h2 className="report-title-field mt-1"> {t('CrossSections.title')}</h2>
-              {[...sections.keys()].map((index) => (
-                <ReportSection key={index} index={index} factor={factor} vertical={screenSizes.vertical} />
-              ))}
-            </div>
-            <Summary />
-            <PixelTransformation
-              factor={factor}
-              videoWidth={videoWidth}
-              videoHeight={videoHeight}
-              vertical={screenSizes.vertical}
-            />
-            <ProcessingParameters />
-            <Footer />
+          <div id="report-html-container" className="report-doc" data-theme="light" data-theme-scope>
+            {sheets.map((sheet, i) => (
+              <Sheet key={i} page={i + 1} pages={sheets.length} title={title}>
+                {sheet.kind === 'cover' && (
+                  <Cover model={model} summary={summary} applied={applied} footage={type} version={version} />
+                )}
+                {sheet.kind === 'section' && (
+                  <SectionSheet
+                    result={model.sections[sheet.sectionIndex]}
+                    rowStart={sheet.rowStart}
+                    rowEnd={sheet.rowEnd}
+                    continued={sheet.continued}
+                    frame={frame}
+                    factor={factor}
+                  />
+                )}
+                {sheet.kind === 'calibration' && <CalibrationSheet />}
+                {sheet.kind === 'footage' && <FootageSheet model={model} version={version} />}
+              </Sheet>
+            ))}
           </div>
         </div>
       </div>

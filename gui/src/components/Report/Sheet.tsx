@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import './report.css';
 
 interface SheetProps {
   page: number;
