@@ -27,9 +27,11 @@ import {
   toggleStationPin,
   setShowInterrogationWindow,
   setPreviewMode,
+  setOverlayVisible,
 } from '../store/ui/uiSlice';
 import { ThemeType, UIState } from '../store/ui/types';
 import { RootState } from '../store/store';
+import type { OverlayLayer } from '../helpers/overlayLayers';
 import { getNewImageResolution } from '../helpers';
 
 /**
@@ -54,6 +56,7 @@ export const useUiSlice = () => {
     pinnedStation,
     showInterrogationWindow,
     previewMode,
+    overlayVisibility,
   } = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
 
@@ -247,6 +250,10 @@ export const useUiSlice = () => {
     dispatch(setPreviewMode(mode));
   };
 
+  const onSetOverlayVisible = (layer: OverlayLayer, visible: boolean) => {
+    dispatch(setOverlayVisible({ layer, visible }));
+  };
+
   const onCheckVersion = () => {
     // If isLatestVersion is already set, do not fetch the latest version
     if (isLatestVersion !== undefined) return;
@@ -288,6 +295,7 @@ export const useUiSlice = () => {
     pinnedStation,
     showInterrogationWindow,
     previewMode,
+    overlayVisibility,
 
     // METHODS
     onChangeTheme,
@@ -312,5 +320,6 @@ export const useUiSlice = () => {
     onUnpinStation,
     onSetShowInterrogationWindow,
     onSetPreviewMode,
+    onSetOverlayVisible,
   };
 };

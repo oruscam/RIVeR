@@ -2,6 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { UIState, ScreenSizes, ThemeType, StepAlert } from './types';
 import { setActiveSection, addSection, deleteSection } from '../section/sectionSlice';
 
+import { DEFAULT_OVERLAY_VISIBILITY, OverlayLayer } from '../../helpers/overlayLayers';
+
 const THEME_CYCLE: ThemeType[] = ['dark', 'light', 'dracula'];
 
 const savedLanguage = typeof localStorage !== 'undefined' ? localStorage.getItem('language') || 'en' : 'en';
@@ -26,6 +28,7 @@ const initialState: UIState = {
   pinnedStation: null,
   showInterrogationWindow: false,
   previewMode: 'frames',
+  overlayVisibility: DEFAULT_OVERLAY_VISIBILITY,
 };
 
 const uiSlice = createSlice({
@@ -111,6 +114,9 @@ const uiSlice = createSlice({
     setShowInterrogationWindow: (state, action: PayloadAction<boolean>) => {
       state.showInterrogationWindow = action.payload;
     },
+    setOverlayVisible: (state, action: PayloadAction<{ layer: OverlayLayer; visible: boolean }>) => {
+      state.overlayVisibility[action.payload.layer] = action.payload.visible;
+    },
     setPreviewMode: (state, action: PayloadAction<UIState['previewMode']>) => {
       state.previewMode = action.payload;
     },
@@ -161,6 +167,7 @@ export const {
   toggleStationPin,
   setShowInterrogationWindow,
   setPreviewMode,
+  setOverlayVisible,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

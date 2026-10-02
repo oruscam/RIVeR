@@ -1153,3 +1153,48 @@
     font-size: var(--text-caption);
     color: var(--secondary-text-color);
 }
+/* Layer chips on Processing's Frames canvas (hide/unhide section, STIV lines,
+   vectors). Same translucent chrome as .seg-float; a hidden layer dims. */
+.overlay-layers {
+  position: absolute;
+  z-index: 5;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background: var(--canvas-chrome);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px var(--canvas-chrome-shadow);
+}
+
+.overlay-layer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--canvas-chrome-ink);
+  font-family: inherit;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+.overlay-layer[aria-pressed='false'] {
+  opacity: 0.45;
+}
+
+.overlay-layer-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex: none;
+}

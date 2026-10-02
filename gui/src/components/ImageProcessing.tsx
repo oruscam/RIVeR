@@ -5,6 +5,7 @@ import { WindowSizesNew } from './WindowSizesNew';
 import { Quiver } from './Quiver';
 import { DrawSectionsD3 } from './CrossSections/DrawSectionsD3';
 import { OverlaySvg } from './OverlaySvg';
+import { OverlayLayersControl, OverlayLayerVisibility } from './OverlayLayersControl';
 import { StationSearchLines } from './StationSearchLines';
 import { getQuiverValues, createColorMap, Normalize } from '../../commons/vectors';
 import { getStiColorScale } from '../helpers';
@@ -30,7 +31,7 @@ export const ImageProcessing = ({
   spectrumStations?: number[];
   spectraSidecar?: IwaveSpectraSidecar | null;
 }) => {
-  const { screenSizes, showInterrogationWindow } = useUiSlice();
+  const { screenSizes, showInterrogationWindow, overlayVisibility, onSetOverlayVisible } = useUiSlice();
   const { video } = useProjectSlice();
   const { processing, images, quiver, fullQuiver, colorbarLimits } = useDataSlice();
   const { transformationMatrix, sections, activeSection } = useSectionSlice();
@@ -115,6 +116,8 @@ export const ImageProcessing = ({
     keyboardStep: 25,
   });
 
+  const hasVectors = data.length > 0;
+
   if (!width || !height || !factor) return null;
 
   if (previewMode === 'sti') {
@@ -175,6 +178,15 @@ export const ImageProcessing = ({
       )}
 
       {activeMaskIndex === null && (
+        <OverlayLayersControl
+          visibility={overlayVisibility}
+          hasStations={(sections[activeSection]?.numStations ?? 0) >= 2}
+          hasVectors={hasVectors}
+          onSetVisible={onSetOverlayVisible}
+        />
+      )}
+
+      {activeMaskIndex === null && (
         <OverlaySvg width={realWidth!} height={realHeight!} scale={scale} position={position}>
           {(layers) => (
             <>
@@ -196,6 +208,7 @@ export const ImageProcessing = ({
                 showMedian={showMedian}
                 layers={layers}
               />
+              <OverlayLayerVisibility layers={layers} visibility={overlayVisibility} hasVectors={hasVectors} />
             </>
           )}
         </OverlaySvg>
