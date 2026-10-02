@@ -157,14 +157,17 @@ export const Uav = () => {
         </FormProvider>
 
         <div className="footer">
-          <button
-            className="btn btn-lg btn-primary form-button solver-button"
-            id="solve-pixelsize"
-            disabled={dirPoints.length !== 2 || rwLength === 0 || isBackendWorking || solution !== null}
-            onClick={onClickSolveButton}
-          >
-            {t('Commons.solve')}
-          </button>
+          <div className="processing-run">
+            <button
+              type="button"
+              className="btn btn-lg btn-primary"
+              id="solve-pixelsize"
+              disabled={dirPoints.length !== 2 || rwLength === 0 || isBackendWorking || solution !== null}
+              onClick={onClickSolveButton}
+            >
+              {t('Commons.solve')}
+            </button>
+          </div>
           <AdvancedToggle
             footerElementID="span-footer"
             headerElementID="uav-header"

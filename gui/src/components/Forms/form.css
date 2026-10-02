@@ -738,6 +738,8 @@
    One button and, while running, the readout under it, both spanning the
    panel's gutter (rule 5). D6: the readout keeps --text-display. */
 .processing-run {
+    width: 100%;
+    box-sizing: border-box;
     flex-shrink: 0;
     border-top: 1px solid var(--border-color);
     padding: var(--space-4) var(--space-4) var(--space-2);

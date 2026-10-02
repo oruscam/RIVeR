@@ -230,3 +230,12 @@ describe('Control Points distances (Oblique): colour on a swatch, not a box', ()
     expect(draw).toMatch(/kind: i === 0 \? 'left' : 'point'/);
   });
 });
+
+describe('Solve button matches Analyze', () => {
+  test.each(['pages/Oblique.tsx', 'pages/Uav.tsx'])('%s puts Solve in the full-width run zone', (file) => {
+    const src = read(file);
+    expect(src).toMatch(/className="processing-run"/);
+    expect(src).not.toMatch(/solver-button/);
+    expect(src).not.toMatch(/form-button/);
+  });
+});
