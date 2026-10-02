@@ -64,3 +64,13 @@ describe('save-report-html handler', () => {
     expect(src).toContain('shell.showItemInFolder');
   });
 });
+
+describe('Summary panel alignment', () => {
+  const css = read('src/components/Forms/form.css');
+  test('rows stretch to the panel gutter instead of centring', () => {
+    const rule = css.match(/\.form-report \{[^}]*\}/)![0];
+    expect(rule).toContain('align-items: stretch');
+    expect(rule).not.toContain('align-items: center');
+    expect(rule).toContain('padding: 0 var(--space-4)');
+  });
+});
