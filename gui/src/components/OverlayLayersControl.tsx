@@ -9,14 +9,13 @@ import {
 } from '../helpers/overlayLayers';
 
 const LABELS: Record<OverlayLayer, { key: string; text: string; dot: string }> = {
-  section: { key: 'Processing.layerSection', text: 'Section', dot: 'var(--secondary-text-color)' },
   stivLines: { key: 'Processing.layerStivLines', text: 'STIV lines', dot: 'var(--tech-stiv)' },
   vectors: { key: 'Processing.layerVectors', text: 'Vectors', dot: 'var(--tech-lspiv)' },
 };
 
 /**
  * Show/hide for what the Frames canvas draws over the footage. A chip appears
- * only for a layer that exists. Quiet toggles on the same translucent chrome
+ * only for a layer that exists, and none when neither does. Quiet toggles on the same translucent chrome
  * as the Frames / Space-time / Spectrum switch; a dimmed chip is hidden.
  */
 export const OverlayLayersControl = ({
@@ -32,6 +31,7 @@ export const OverlayLayersControl = ({
 }) => {
   const { t } = useTranslation();
   const layers = availableOverlayLayers({ hasStations, hasVectors });
+  if (layers.length === 0) return null;
 
   return (
     <div
@@ -62,8 +62,7 @@ export const OverlayLayersControl = ({
 /**
  * Applies the toggles to the overlay's layer groups. The d3 children stay
  * mounted (they draw into these groups and do not clean up on unmount), so a
- * hidden layer is display:none rather than removed. The section is drawn in the
- * static, interactive and ui groups; STIV lines in the station group; vectors in
+ * hidden layer is display:none rather than removed. The section is never hidden. STIV lines in the station group; vectors in
  * the quiver group. Runs after every render because OverlaySvg rebuilds its
  * groups when the canvas is resized.
  */
@@ -81,7 +80,6 @@ export const OverlayLayerVisibility = ({
       const display = isOverlayVisible(visibility, layer, hasVectors) ? null : 'none';
       refs.forEach((ref) => ref.current?.style.setProperty('display', display));
     };
-    set([layers.staticLayerRef, layers.interactiveLayerRef, layers.uiLayerRef], 'section');
     set([layers.stationLayerRef], 'stivLines');
     set([layers.quiverLayerRef], 'vectors');
   });
