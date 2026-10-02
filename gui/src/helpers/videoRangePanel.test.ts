@@ -36,6 +36,21 @@ describe('Video Range panel is on the row grammar', () => {
   });
 });
 
+describe('the set-to-playhead buttons write to their own field', () => {
+  const form = read('components/Forms/FormVideo.tsx');
+  const handler = form.slice(form.indexOf('const handleClick'), form.indexOf('const handleBlur'));
+
+  it('reads the button, not the icon inside it (event.target is the svg and has no id)', () => {
+    expect(handler).toMatch(/event\.currentTarget\.id/);
+    expect(handler).not.toMatch(/event\.target/);
+  });
+
+  it('only start-button writes start, only end-button writes end', () => {
+    expect(handler).toMatch(/id === 'start-button'/);
+    expect(handler).toMatch(/id === 'end-button'/);
+  });
+});
+
 describe('Source video info is read-only text under a quiet caption (rules 3, 7)', () => {
   const meta = read(C + 'VideoMetadata.tsx');
   it('uses the shared row grammar, not the legacy info rows', () => {

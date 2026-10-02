@@ -47,17 +47,14 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
   const numberOfFrames = Math.floor(((parseTime(watchEndTime) - parseTime(watchStartTime)) * fps) / watchStep);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (video !== null) {
-      const number = video.currentTime;
-
-      const id = (event.target as HTMLButtonElement).id;
-      if (id === 'start-button') {
-        setValue('start', formatTime(number, 'mm:ss'), {
-          shouldValidate: true,
-        });
-      } else {
-        setValue('end', formatTime(number, 'mm:ss'), { shouldValidate: true });
-      }
+    if (video === null) return;
+    const number = video.currentTime;
+    // currentTarget is the button itself; the click's own target is the icon inside it, which has no id.
+    const id = event.currentTarget.id;
+    if (id === 'start-button') {
+      setValue('start', formatTime(number, 'mm:ss'), { shouldValidate: true });
+    } else if (id === 'end-button') {
+      setValue('end', formatTime(number, 'mm:ss'), { shouldValidate: true });
     }
   };
 
