@@ -140,12 +140,12 @@ export const drawOblique = ({
       .attr('pointer-events', 'none');
   });
 
-  // Every corner is the plain blue "point" pin — point 0 no longer gets its
-  // own red accent (see this plan's scoping decisions).
+  // Point 1 is upstream left, so it is the red "left" pin, the same red the
+  // right-hand canvas gives it; the other corners are the plain "point" pin.
   localPoints.forEach((point, i) => {
     if (isDefaultCoordinates && i !== 0) return;
 
-    const g = drawPin({ layer, tip: point, kind: 'point', label: `${i + 1}`, divisor: scale });
+    const g = drawPin({ layer, tip: point, kind: i === 0 ? 'left' : 'point', label: `${i + 1}`, divisor: scale });
     g.attr('cursor', 'move')
       .datum({ index: i })
       .call(dragPoint as any);

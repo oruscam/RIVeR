@@ -444,30 +444,22 @@
     height: 25px;
 }
 
-#D12 {
-    border-color: var(--d12);
-    border: solid 3px var(--d12);
+/* Control Points: a distance's colour is the colour of its line on the canvas,
+   shown as a short ringed bar beside a neutral label (the point dots' idiom). */
+.dist-swatch {
+    width: 16px;
+    height: 4px;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 0 1px var(--text-subdued);
 }
 
-#D13 {
-    border: solid 3px var(--d13);
-}
-
-#D41 {
-    border: solid 3px var(--d14);
-}
-
-#D23 {
-    border: solid 3px var(--d23);
-}
-
-#D24 {
-    border: solid 3px var(--d24);
-}
-
-#D34 {
-    border: solid 3px var(--d34);
-}
+.dist-swatch-12 { background: var(--d12); }
+.dist-swatch-23 { background: var(--d23); }
+.dist-swatch-34 { background: var(--d34); }
+.dist-swatch-41 { background: var(--d14); }
+.dist-swatch-13 { background: var(--d13); }
+.dist-swatch-24 { background: var(--d24); }
 
 .analizing-output {
     display: flex;

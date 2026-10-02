@@ -189,3 +189,44 @@ describe('Basic sections of Oblique, UAV and Ipcam follow Cross Sections', () =>
     expect(v).toBe('1fr');
   });
 });
+
+describe('Control Points distances (Oblique): colour on a swatch, not a box', () => {
+  const form = read('components/Forms/FormOblique.tsx');
+  const { rules, declarations } = scanCss(read('components/Forms/form.css'));
+  const decl = (selector: string, property: string) => {
+    const rule = rules.filter((r) => r.prelude === selector).pop();
+    return rule && declarations.filter((d) => d.rule === rule.index && d.property === property).pop()?.value;
+  };
+
+  it('canary', () => expect(decl('.form-container', 'display')).toBe('flex'));
+
+  it('the label is neutral text with a swatch; the id-based coloured borders are gone', () => {
+    expect(form).toMatch(/className=\{`dist-swatch dist-swatch-\$\{distancesID\[i\]\}`\}/);
+    expect(form).not.toMatch(/id=\{'D' \+ distancesID/);
+    const boxed = rules.filter((r) => /^#D(12|13|23|24|34|41)$/.test(r.prelude));
+    expect(boxed).toEqual([]);
+  });
+
+  it('each swatch carries the same token the canvas line is drawn with', () => {
+    const pairs: Record<string, string> = {
+      '12': '--d12',
+      '23': '--d23',
+      '34': '--d34',
+      '41': '--d14',
+      '13': '--d13',
+      '24': '--d24',
+    };
+    for (const [id, token] of Object.entries(pairs)) {
+      expect(decl(`.dist-swatch-${id}`, 'background')).toBe(`var(${token})`);
+    }
+  });
+
+  it('the swatch is ringed so it stays findable in light, like the point dots', () => {
+    expect(decl('.dist-swatch', 'box-shadow')).toBe('0 0 0 1px var(--text-subdued)');
+  });
+
+  it('the left canvas draws point 1 as the red upstream-left pin', () => {
+    const draw = read('components/Graphs/drawOblique.ts');
+    expect(draw).toMatch(/kind: i === 0 \? 'left' : 'point'/);
+  });
+});
