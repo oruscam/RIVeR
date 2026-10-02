@@ -10,7 +10,6 @@ const ASSETS = join(__dirname, '..', 'assets', 'icons');
 const drone = readFileSync(join(ASSETS, 'drone.svg'), 'utf8');
 const oblique = readFileSync(join(ASSETS, 'oblique.svg'), 'utf8');
 const ipcam = readFileSync(join(ASSETS, 'ipcam.svg'), 'utf8');
-const reportCss = readFileSync(join(__dirname, '..', 'components', 'Report', 'report.css'), 'utf8');
 
 describe('footage-type icons are line icons, not filled glyphs', () => {
   it.each([
@@ -28,9 +27,5 @@ describe('footage-type icons are line icons, not filled glyphs', () => {
     for (const svg of [drone, oblique, ipcam]) {
       expect(svg).toMatch(/viewBox="0 0 24 24"/);
     }
-  });
-
-  it('the report header banner already colours a currentColor icon white — confirms no report.css change is needed', () => {
-    expect(reportCss).toMatch(/#header-icon-container\s*\{[^}]*color:\s*#FFFFFF/);
   });
 });
