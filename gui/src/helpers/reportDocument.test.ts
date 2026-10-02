@@ -75,7 +75,7 @@ describe('Section sheet', () => {
   test('table velocity and Q come from the active technique, not the LSPIV arrays', () => {
     expect(table).toContain('getEffectiveTechniqueData');
     expect(table).not.toContain('streamwise_velocity_magnitude');
-    expect(table).toContain('splitColumns');
+    expect(table).toContain('splitInto(');
   });
 });
 
@@ -198,5 +198,37 @@ describe('Profile plot', () => {
   });
   test('does not reuse the app AllInOne plot', () => {
     expect(src).not.toContain('AllInOne');
+  });
+});
+
+describe('Section block (compact)', () => {
+  const block = read('src/components/Report/SectionBlock.tsx');
+  const cont = read('src/components/Report/TableContinuation.tsx');
+  const table = read('src/components/Report/StationTable.tsx');
+  test('one header line: technique by label and colour, seeded tag, Q, stats; comparison only with 2+ techniques', () => {
+    expect(block).toContain('TECHNIQUE_LABEL[result.technique]');
+    expect(block).toContain('result.seeded');
+    expect(block).toMatch(/result\.comparison\.length\s*>\s*1/);
+  });
+  test('frame and the report plot side by side; the app AllInOne is gone', () => {
+    expect(block).toContain('<ProfilePlot');
+    expect(block).toContain('<ImageResults');
+    expect(block).not.toContain('AllInOne');
+    expect(block).toContain('sec-row');
+  });
+  test('measuring pass draws no D3 overlay', () => {
+    expect(block).toMatch(/measure\s*\?/);
+  });
+  test('continuation names the section and says it continues', () => {
+    expect(cont).toContain('Report.Doc.continued');
+    expect(cont).toContain('<StationTable');
+  });
+  test('three columns; Q shows "-" where the velocity is missing, as on the Results grid', () => {
+    expect(table).toContain('splitInto(');
+    expect(table).toContain('REPORT_FLOW.TABLE_COLUMNS');
+    expect(table).toMatch(/resolved\[i\]\s*===\s*null\s*\?\s*'-'/);
+  });
+  test('the interpolated-station note only appears when a row carries a star', () => {
+    expect(table).toMatch(/interpFlags\.slice\(rowStart,\s*rowEnd\)\.some/);
   });
 });

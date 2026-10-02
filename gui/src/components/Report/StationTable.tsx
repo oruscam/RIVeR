@@ -1,8 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { getUnit } from '../../helpers';
 import { getEffectiveTechniqueData } from '../../helpers/techniqueDischarge';
-import { splitColumns } from '../../helpers/reportLayout';
+import { splitInto } from '../../helpers/reportFlow';
 import { useProjectSlice, useSectionSlice } from '../../hooks';
-import { UNIT_CONVERSIONS } from '../../constants/constants';
+import { REPORT_FLOW, UNIT_CONVERSIONS } from '../../constants/constants';
 
 interface StationTableProps {
   /** Index into the store's sections. */
@@ -12,6 +13,7 @@ interface StationTableProps {
 }
 
 export const StationTable = ({ storeIndex, rowStart, rowEnd }: StationTableProps) => {
+  const { t } = useTranslation();
   const { sections } = useSectionSlice();
   const { projectDetails, video } = useProjectSlice();
   const section = sections[storeIndex];
@@ -68,12 +70,24 @@ export const StationTable = ({ storeIndex, rowStart, rowEnd }: StationTableProps
             <td>{fmt(data.depth[i], lF)}</td>
             <td>{fmt(effective.A[i], aF)}</td>
             <td>{fmt(effective.resolved[i], lF)}</td>
-            <td>{fmt(effective.Q[i], qF)}</td>
+            <td>{effective.resolved[i] === null ? '-' : fmt(effective.Q[i], qF)}</td>
           </tr>
         ))}
       </tbody>
     </table>
   );
 
-  return <div className="doc-cols">{splitColumns(rowStart, rowEnd).map(column)}</div>;
+  const starred = effective.interpFlags.slice(rowStart, rowEnd).some(Boolean);
+  return (
+    <>
+      <div className="doc-cols doc-cols--3">
+        {splitInto(rowStart, rowEnd, REPORT_FLOW.TABLE_COLUMNS).map(column)}
+      </div>
+      {starred && (
+        <p className="doc-note">
+          * {t('Report.Doc.interpolatedStation', { defaultValue: 'interpolated station' })}
+        </p>
+      )}
+    </>
+  );
 };
