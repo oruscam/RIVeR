@@ -59,65 +59,62 @@ export const FormIpcam = () => {
     <div className="body">
       <div className="wrapper">
         <form id="form-control-points" className={`${isBackendWorking ? 'disabled' : ''}`}>
-          <div className="input-container-2">
-            <button
-              ref={importPointsButtonRef}
-              className="btn btn-lg btn-secondary form-button me-1"
-              data-complete={points !== null}
-              id="import-points"
-              type="button"
-              onClick={handleOnClickImport}
-            >
-              {' '}
-              {t('ControlPoints3d.importPoints')}{' '}
-            </button>
-            <span className="read-only bg-transparent" />
-          </div>
-          <div className="input-container-2 mt-1">
-            <button
-              ref={importImagesButtonRef}
-              className="btn btn-lg btn-secondary form-button me-1"
-              data-complete={imagesPath !== null}
-              id="import-images"
-              type="button"
-              onClick={handleOnClickImport}
-            >
-              {' '}
-              {t('ControlPoints3d.importImages')}{' '}
-            </button>
-            <span className="read-only bg-transparent" />
-          </div>
+          <div className="panel-section">
+            <div className="panel-actions">
+              <button
+                ref={importPointsButtonRef}
+                className="btn btn-secondary panel-action"
+                data-complete={points !== null}
+                id="import-points"
+                type="button"
+                onClick={handleOnClickImport}
+              >
+                {t('ControlPoints3d.importPoints')}
+              </button>
+              <button
+                ref={importImagesButtonRef}
+                className="btn btn-secondary panel-action"
+                data-complete={imagesPath !== null}
+                id="import-images"
+                type="button"
+                onClick={handleOnClickImport}
+              >
+                {t('ControlPoints3d.importImages')}
+              </button>
+            </div>
 
-          <DropHereText text={t('Commons.dropHereText')} show={pointsPath === null} />
+            <DropHereText text={t('Commons.dropHereText')} show={pointsPath === null} />
+          </div>
 
           <IpcamGrid />
 
           <PointsMap />
 
-          <div className="input-container-2 mt-1">
-            <button
-              ref={directSolveButtonRef}
-              className={`btn btn-lg btn-secondary me-1 button-rectification ${cameraSolution === null ? 'mb-2' : ''}`}
-              aria-pressed={cameraSolution?.mode === 'direct-solve' || mode === 'direct-solve'}
-              id="direct-solve"
-              type="button"
-              onClick={handleOnClickAction}
-              disabled={points === null || selectedCounter < 6}
-            >
-              {t('ControlPoints3d.directSolve')}
-            </button>
-            <button
-              ref={optimizeSolutionButtonRef}
-              className={`btn btn-lg btn-secondary button-rectification ${cameraSolution === null ? 'mb-2' : ''}`}
-              aria-pressed={cameraSolution?.mode === 'optimize-solution' || mode === 'optimize-solution'}
-              id="optimize-solution"
-              type="button"
-              onClick={handleOnClickAction}
-              disabled={points === null || selectedCounter < 7}
-            >
-              {' '}
-              {t('ControlPoints3d.optimize')}{' '}
-            </button>
+          <div className="panel-section">
+            <div className="panel-actions">
+              <button
+                ref={directSolveButtonRef}
+                className="btn btn-secondary panel-action"
+                aria-pressed={cameraSolution?.mode === 'direct-solve' || mode === 'direct-solve'}
+                id="direct-solve"
+                type="button"
+                onClick={handleOnClickAction}
+                disabled={points === null || selectedCounter < 6}
+              >
+                {t('ControlPoints3d.directSolve')}
+              </button>
+              <button
+                ref={optimizeSolutionButtonRef}
+                className="btn btn-secondary panel-action"
+                aria-pressed={cameraSolution?.mode === 'optimize-solution' || mode === 'optimize-solution'}
+                id="optimize-solution"
+                type="button"
+                onClick={handleOnClickAction}
+                disabled={points === null || selectedCounter < 7}
+              >
+                {t('ControlPoints3d.optimize')}
+              </button>
+            </div>
           </div>
 
           {cameraSolution && (

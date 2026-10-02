@@ -158,3 +158,34 @@ describe('Cross Sections panel (review 2026-10-01)', () => {
     expect(decl('.panel-section .drop-here-text', 'padding')).toBe('0 var(--space-2)');
   });
 });
+
+describe('Basic sections of Oblique, UAV and Ipcam follow Cross Sections', () => {
+  const FORMS = ['FormOblique.tsx', 'FormUav.tsx', 'FormIpcam.tsx'];
+  const legacy =
+    /read-only|input-container-2|input-field|unit-label|divider-line|form-button|button-rectification/;
+
+  it.each(FORMS)('%s: no legacy pill labels, fields, unit labels or button classes', (file) => {
+    const src = read('components/Forms/' + file);
+    expect(src).not.toMatch(legacy);
+    expect(src).toMatch(/className="panel-section"/);
+    expect(src).toMatch(/className="panel-actions/);
+  });
+
+  it.each(['FormOblique.tsx', 'FormUav.tsx'])('%s: value rows carry the unit inside the box', (file) => {
+    const src = read('components/Forms/' + file);
+    expect(src).toMatch(/className="field-with-unit"/);
+    expect(src).toMatch(/className="field field-coord"/);
+    expect(src).toMatch(/className="field-unit"/);
+    expect(src).toMatch(/className="field-row field-row-top"/);
+  });
+
+  it('a single action fills the row instead of sitting at half width', () => {
+    expect(read('components/Forms/FormUav.tsx')).toMatch(/className="panel-actions panel-actions-single"/);
+    const { rules, declarations } = scanCss(read('components/Forms/form.css'));
+    const rule = rules.filter((r) => r.prelude === '.panel-actions.panel-actions-single').pop();
+    const v = declarations
+      .filter((d) => d.rule === rule?.index && d.property === 'grid-template-columns')
+      .pop()?.value;
+    expect(v).toBe('1fr');
+  });
+});
