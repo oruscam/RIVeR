@@ -232,3 +232,36 @@ describe('Section block (compact)', () => {
     expect(table).toMatch(/interpFlags\.slice\(rowStart,\s*rowEnd\)\.some/);
   });
 });
+
+describe('Report header (compact)', () => {
+  const src = read('src/components/Report/ReportHeader.tsx');
+  const icon = read('src/components/Report/FootageIcon.tsx');
+  test('leads with the total from the model, never data.total_Q', () => {
+    expect(src).toContain('model.totalQ');
+    expect(src).not.toContain('total_Q');
+  });
+  test('footage type with its icon, date, version', () => {
+    expect(src).toContain('<FootageIcon');
+    expect(src).toMatch(/Report\.Doc\.footage\./);
+    expect(src).toContain('meditionDate');
+    expect(src).toContain('version');
+  });
+  test('the icons are the app footage-picker drawings, inline so the export stays self-contained', () => {
+    expect(icon).toContain('stroke="currentColor"');
+    expect(icon).toMatch(/uav[\s\S]*oblique[\s\S]*ipcam/);
+    expect(icon).not.toMatch(/import .*\.svg/);
+  });
+  test('applied line only lists what was applied', () => {
+    expect(src).toMatch(/applied\.lensCorrection\s*&&/);
+    expect(src).toMatch(/applied\.stabilizationRegions\s*!==\s*null\s*&&/);
+  });
+  test('section list and summary table only with 2+ sections', () => {
+    expect(src).toMatch(/model\.sections\.length\s*>\s*1\s*&&/);
+    expect(src).toMatch(/summary\s*&&/);
+    expect(src).toContain('row.lspivOnly');
+    expect(src).toContain('model.skipped');
+  });
+  test('no eyebrow labels', () => {
+    expect(src).not.toContain('doc-kicker');
+  });
+});
