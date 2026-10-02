@@ -186,14 +186,17 @@ export const Oblique = () => {
         </FormProvider>
 
         <div className="footer">
-          <button
-            className="btn btn-lg btn-primary form-button solver-button"
-            id="solve-oblique"
-            disabled={isDefaultCoordinates || isBackendWorking}
-            onClick={onClickSolveButton}
-          >
-            {t('Commons.solve')}
-          </button>
+          <div className="processing-run">
+            <button
+              type="button"
+              className="btn btn-lg btn-primary"
+              id="solve-oblique"
+              disabled={isDefaultCoordinates || isBackendWorking}
+              onClick={onClickSolveButton}
+            >
+              {t('Commons.solve')}
+            </button>
+          </div>
           <AdvancedToggle
             footerElementID="span-footer"
             headerElementID="draw-coordinates"
