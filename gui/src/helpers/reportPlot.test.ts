@@ -56,6 +56,10 @@ describe('buildProfilePlot', () => {
 
   test('the active technique is drawn last so it sits on top', () => {
     expect(g.series[g.series.length - 1].technique).toBe('lspiv');
+    // Verify reordering works when active comes first in input
+    const reversed = buildProfilePlot({ ...input, series: [...input.series].reverse() });
+    expect(reversed.series[reversed.series.length - 1].active).toBe(true);
+    expect(reversed.series[reversed.series.length - 1].technique).toBe('lspiv');
   });
 
   test('interpolated stations are hollow markers', () => {
