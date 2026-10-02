@@ -396,6 +396,11 @@
       "footageAndParameters": "Footage and parameters",
       "notRecorded": "Further parameters are not recorded in this version.",
       "stivWeights": "STIV CNN weights",
+      "stivModel": "CNN model, weights",
+      "howMeasured": "How this was measured",
+      "footageTitle": "Footage",
+      "acrossRange": "Across the processed range",
+      "processing": "Processing",
       "generatedWith": "Generated with RIVeR {{version}}",
       "inSolve": "In solve"
     }

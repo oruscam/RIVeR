@@ -265,3 +265,42 @@ describe('Report header (compact)', () => {
     expect(src).not.toContain('doc-kicker');
   });
 });
+
+describe('Method blocks (compact)', () => {
+  const method = read('src/components/Report/Method.tsx');
+  const cal = read('src/components/Report/CalibrationSheet.tsx');
+  test('method block: heading, calibration beside footage', () => {
+    expect(method).toContain('Report.Doc.howMeasured');
+    expect(method).toContain('<CalibrationPanel');
+    expect(method).toContain('committedStabilizationRegions');
+    expect(method).toContain('doc-region');
+  });
+  test('calibration panel keeps one block per footage type, with a small image beside the text', () => {
+    expect(cal).toMatch(/type === 'uav'/);
+    expect(cal).toMatch(/type === 'oblique'/);
+    expect(cal).toMatch(/type === 'ipcam'/);
+    expect(cal).toContain('REPORT_FLOW.METHOD_IMAGE_WIDTH');
+    expect(cal).toContain('<FootageIcon');
+  });
+  test('snapshot strip and processing blocks per technique used', () => {
+    expect(method).toContain('snapshotFrames');
+    expect(method).toContain('images.paths');
+    expect(method).toMatch(/techniquesUsed\.includes\('lspiv'\)/);
+    expect(method).toMatch(/techniquesUsed\.includes\('stiv'\)/);
+    expect(method).toMatch(/techniquesUsed\.includes\('iwave'\)/);
+    expect(method).toMatch(/<dt>\{t\('Processing\.grayscale'\)\}<\/dt>/);
+  });
+  test('colophon is one line: version, timestamp, GitHub; no DOI, authors or iWave credit in it', () => {
+    const colophon = method.slice(method.indexOf('export const Colophon'));
+    expect(colophon).toContain('github.com/oruscam/RIVeR');
+    expect(colophon).not.toContain('10.1016/j.cageo.2017.07.009');
+    expect(colophon).not.toContain('dataforwater');
+  });
+  test('STIV weights DOI stays in the STIV processing block', () => {
+    expect(method).toContain('10.5281/zenodo.22050810');
+  });
+  test('raw measured values go through the 2-decimal formatter', () => {
+    expect(method).toMatch(/formatNumberTo2Decimals\(fps\)/);
+    expect(method).toMatch(/formatNumberTo2Decimals\(form\.clipLimit\)/);
+  });
+});
