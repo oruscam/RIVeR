@@ -1052,7 +1052,7 @@
    TECHNIQUE ROW (shared shell — Results' TechniqueLegend + Processing's
    FormProcessing render through the TechniqueRow component onto this box).
    Screen-specific extras (Results: .technique-name/.technique-row-total/
-   .technique-disclosure-btn, the .technique-row-body family, .technique-eye-btn in
+   .technique-layer-chip family, .technique-eye-btn in
    Graphs/graphs.css; Processing: .technique-seed-flag, cursor/disabled/
    unavailable modifiers and .field-title in Forms/form.css) stay in their own
    files — only the row box and the swatch are shared.

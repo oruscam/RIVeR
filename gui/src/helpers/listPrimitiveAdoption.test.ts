@@ -214,8 +214,9 @@ describe('the three technique-legend classes are deliberately NOT swept here', (
     expect(fileHasClassToken('components/Graphs/TechniqueLegend.tsx', 'technique-eye-btn')).toBe(true);
   });
 
-  it('technique-disclosure-btn has a live consumer (TechniqueLegend.tsx)', () => {
-    expect(fileHasClassToken('components/Graphs/TechniqueLegend.tsx', 'technique-disclosure-btn')).toBe(true);
+  it('the Results layer chips are inline: no disclosure chevron any more', () => {
+    expect(fileHasClassToken('components/Graphs/TechniqueLegend.tsx', 'technique-layer-chip')).toBe(true);
+    expect(fileHasClassToken('components/Graphs/TechniqueLegend.tsx', 'technique-disclosure-btn')).toBe(false);
   });
 });
 

@@ -245,18 +245,37 @@
 
 .result-value-row {
     display: flex;
-    align-items: baseline;
-    gap: 10px;
+    align-items: center;
+    gap: 14px;
+}
+
+/* Measured / Interpolated: percentages right-aligned in their own column so the
+   labels start at the same x, and the pair is centred against the big number. */
+.result-split {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: var(--space-2);
+    row-gap: 2px;
+    margin: 0;
+    font-size: var(--text-meta);
+}
+
+.result-split dt {
+    text-align: right;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.result-split dd {
+    margin: 0;
+    color: var(--secondary-text-color);
 }
 
 #result-info #result-number {
+    margin: 0;
     font-size: var(--text-display);
     font-weight: 700;
     font-family: var(--font-display);
-}
-
-#result-measured {
-    margin-bottom: 3px;
 }
 
 .video-resolution {
