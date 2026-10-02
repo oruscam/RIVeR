@@ -27,111 +27,12 @@ describe('report stylesheet', () => {
 });
 
 describe('Sheet', () => {
-  test('footer carries title and page n / N', () => {
-    const src = read('src/components/Report/Sheet.tsx');
+  const src = read('src/components/Report/Sheet.tsx');
+  test('footer: discreet logo, title and date, page n / N', () => {
     expect(src).toContain('sheet-footer');
+    expect(src).toMatch(/import logo from '\.\.\/\.\.\/assets\/logo_footer\.png'/);
     expect(src).toMatch(/\{page\}\s*\/\s*\{pages\}/);
-  });
-});
-
-describe('Cover', () => {
-  const src = read('src/components/Report/Cover.tsx');
-  test('leads with the total, reads the model, never data.total_Q', () => {
-    expect(src).toContain('doc-q');
-    expect(src).toContain('model.totalQ');
-    expect(src).not.toContain('total_Q');
-  });
-  test('states the version, footage type and skipped sections', () => {
-    expect(src).toContain('version');
-    expect(src).toContain('model.skipped');
-    expect(src).toMatch(/Report\.Doc\.footage\./);
-  });
-  test('applied strip only lists what was applied', () => {
-    expect(src).toMatch(/applied\.lensCorrection\s*&&/);
-    expect(src).toMatch(/applied\.stabilizationRegions\s*!==\s*null\s*&&/);
-  });
-  test('summary table across sections, only when the model provides rows, LSPIV rows labelled', () => {
-    expect(src).toMatch(/summary\s*&&/);
-    expect(src).toContain('row.lspivOnly');
-    expect(src).toContain('Report.Summary.mean');
-    expect(src).toContain('Report.Summary.cov');
-  });
-});
-
-describe('Section sheet', () => {
-  const sheet = read('src/components/Report/SectionSheet.tsx');
-  const table = read('src/components/Report/StationTable.tsx');
-  test('header shows technique by label and colour, seeded tag, Q', () => {
-    expect(sheet).toContain('TECHNIQUE_LABEL[result.technique]');
-    expect(sheet).toContain('doc-tech--');
-    expect(sheet).toContain('result.seeded');
-  });
-  test('continuation sheets show only the table', () => {
-    expect(sheet).toMatch(/!continued\s*&&/);
-  });
-  test('comparison strip only when more than one technique was computed', () => {
-    expect(sheet).toMatch(/result\.comparison\.length\s*>\s*1/);
-  });
-  test('table velocity and Q come from the active technique, not the LSPIV arrays', () => {
-    expect(table).toContain('getEffectiveTechniqueData');
-    expect(table).not.toContain('streamwise_velocity_magnitude');
-    expect(table).toContain('splitInto(');
-  });
-});
-
-describe('Calibration sheet', () => {
-  const src = read('src/components/Report/CalibrationSheet.tsx');
-  test('one block per footage type', () => {
-    expect(src).toMatch(/type === 'uav'/);
-    expect(src).toMatch(/type === 'oblique'/);
-    expect(src).toMatch(/type === 'ipcam'/);
-  });
-  test('oblique shows real-world coordinates and residuals', () => {
-    expect(src).toContain('rwCoordinates');
-    expect(src).toContain('obliqueResiduals');
-  });
-  test('ip camera shows X/Y/Z, per-point error and camera position', () => {
-    expect(src).toContain('reprojectionErrors');
-    expect(src).toContain('cameraPosition');
-    expect(src).toMatch(/\.Z\b/);
-  });
-});
-
-describe('Footage sheet', () => {
-  const src = read('src/components/Report/FootageSheet.tsx');
-  test('snapshot strip across the processed range, with times', () => {
-    expect(src).toContain('snapshotFrames');
-    expect(src).toContain('doc-strip');
-    expect(src).toContain('images.paths');
-  });
-  test('video creation date is reported', () => {
-    expect(src).toContain('creation');
-  });
-  test('reports committed corrections and draws stabilization regions', () => {
-    expect(src).toContain('committedStabilizationRegions');
-    expect(src).toContain('doc-region');
-  });
-  test('parameter blocks per technique used; LSPIV block shows seeding', () => {
-    expect(src).toMatch(/techniquesUsed\.includes\('lspiv'\)/);
-    expect(src).toMatch(/techniquesUsed\.includes\('stiv'\)/);
-    expect(src).toMatch(/techniquesUsed\.includes\('iwave'\)/);
-    expect(src).toContain('artificialSeeding');
-  });
-  test('colophon: version, citation DOIs, IWaVE credit', () => {
-    expect(src).toContain('10.1016/j.cageo.2017.07.009');
-    expect(src).toContain('10.5281/zenodo.22050810');
-    expect(src).toContain('dataforwater');
-  });
-});
-
-describe('Footage sheet LSPIV block (fix round 1)', () => {
-  test('grayscale is always reported: the CLI applies it on every GUI run', () => {
-    const src = read('src/components/Report/FootageSheet.tsx');
-    expect(src).toMatch(/<dt>\{t\('Processing\.grayscale'\)\}<\/dt>/);
-    expect(src).not.toMatch(/form\.grayscale/);
-  });
-  test('ip camera errors go through the pinned mapping helper', () => {
-    expect(read('src/components/Report/CalibrationSheet.tsx')).toContain('ipcamPointErrors(');
+    expect(src).toContain('{date}');
   });
 });
 
@@ -269,6 +170,9 @@ describe('Report header (compact)', () => {
 describe('Method blocks (compact)', () => {
   const method = read('src/components/Report/Method.tsx');
   const cal = read('src/components/Report/CalibrationSheet.tsx');
+  test('ip camera errors go through the pinned mapping helper', () => {
+    expect(cal).toContain('ipcamPointErrors(');
+  });
   test('method block: heading, calibration beside footage', () => {
     expect(method).toContain('Report.Doc.howMeasured');
     expect(method).toContain('<CalibrationPanel');
@@ -302,5 +206,39 @@ describe('Method blocks (compact)', () => {
   test('raw measured values go through the 2-decimal formatter', () => {
     expect(method).toMatch(/formatNumberTo2Decimals\(fps\)/);
     expect(method).toMatch(/formatNumberTo2Decimals\(form\.clipLimit\)/);
+  });
+});
+
+describe('Report page flow (compact)', () => {
+  const page = read('src/pages/Report.tsx');
+  const css = read('src/components/Report/report.css');
+  test('blocks are measured, then paginated', () => {
+    expect(page).toContain('paginate(');
+    expect(page).toContain('stationChunks(');
+    expect(page).toMatch(/querySelectorAll<HTMLElement>\('\[data-block\]'\)/);
+    expect(page).toContain('offsetHeight');
+    expect(page).toContain('useLayoutEffect');
+  });
+  test('the measuring column is outside the exported container and draws no overlays', () => {
+    expect(page).toContain('report-measure');
+    expect(page).toContain('render(true)');
+    expect(page).toMatch(/className="report-doc report-measure"(?![^>]*data-theme-scope)/);
+    expect(css).toMatch(/\.report-measure\s*\{[^}]*visibility:\s*hidden/);
+  });
+  test('page count is the number of pages', () => {
+    expect(page).toMatch(/pages=\{pages\.length\}/);
+  });
+  test('the export never leaves the spinner on, and one bad image does not abort it', () => {
+    expect(page).toMatch(/finally\s*\{[\s\S]*onSetAnalizing\(false\)/);
+    expect(page).toMatch(/catch\(\(\)\s*=>\s*img\.src\)/);
+  });
+  test('the export rewrites a clone, not the live preview', () => {
+    expect(page).toContain('cloneNode(true)');
+  });
+  test('the report font reaches the text despite the app-wide font rule', () => {
+    expect(css).toMatch(/\.report-doc \*\s*\{[^}]*font-family:\s*inherit/);
+  });
+  test('old sheet-per-part layout is gone', () => {
+    expect(page).not.toMatch(/buildSheets|<Cover|<SectionSheet|<FootageSheet|<CalibrationSheet/);
   });
 });
