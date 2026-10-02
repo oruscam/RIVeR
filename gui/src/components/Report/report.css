@@ -7,10 +7,12 @@
   margin: 0;
 }
 
-.report-doc {
+.report-doc[data-theme-scope] {
   /* Fixed light document, whatever the app theme. data-theme="light" on the
      same element brings the light tokens; these override the ones charts
-     read as their ground and ink so plots sit on white paper. */
+     read as their ground and ink so plots sit on white paper. The extra
+     [data-theme-scope] makes this rule outrank [data-theme="light"] on
+     specificity, so the override holds whatever the stylesheet order. */
   --background-color: #ffffff;
   --secondary-background-color: #ffffff;
   --card-surface: #ffffff;
@@ -23,7 +25,9 @@
   --doc-paper: #ffffff;
   --doc-desk: #e6e9ee;
   --doc-font: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
 
+.report-doc {
   background: var(--doc-desk);
   color: var(--doc-ink);
   font-family: var(--doc-font);

@@ -22,7 +22,7 @@ describe('report stylesheet', () => {
   });
 
   test('the report scope paints its own white paper for charts', () => {
-    expect(css).toMatch(/\.report-doc\s*\{[^}]*--background-color:\s*#ffffff/i);
+    expect(css).toMatch(/\.report-doc(\[data-theme-scope\])?\s*\{[^}]*--background-color:\s*#ffffff/i);
   });
 });
 
@@ -132,5 +132,46 @@ describe('Footage sheet LSPIV block (fix round 1)', () => {
   });
   test('ip camera errors go through the pinned mapping helper', () => {
     expect(read('src/components/Report/CalibrationSheet.tsx')).toContain('ipcamPointErrors(');
+  });
+});
+
+describe('Report page export', () => {
+  const page = read('src/pages/Report.tsx');
+  test('the document root is a fixed light scope', () => {
+    expect(page).toMatch(/className="report-doc"[^>]*data-theme="light"/s);
+    expect(page).toContain('data-theme-scope');
+  });
+  test('the exported body does not carry the app theme', () => {
+    expect(page).not.toMatch(/<body data-theme="\$\{theme\}"/);
+  });
+  test('images export at print quality', () => {
+    expect(page).toContain('REPORT_SHEET.IMAGE_QUALITY');
+    expect(page).not.toMatch(/convertImageToDataURI\(img\.src, 0\.1\)/);
+  });
+  test('the old blocks are gone', () => {
+    [
+      'Header',
+      'VideoInfo',
+      'ProcessedRange',
+      'ReportSection',
+      'Summary',
+      'PixelTransformation',
+      'ProcessingParameters',
+      'Footer',
+    ].forEach((n) => expect(page).not.toMatch(new RegExp(`<${n}[\\s/>]`)));
+  });
+  test('the title of the exported file names the measurement', () => {
+    expect(page).toMatch(/<title>\$\{/);
+  });
+});
+
+describe('Report stylesheet reaches the export (Task 9 rulings)', () => {
+  test('a surviving report component imports report.css, so generateHTML can inline it', () => {
+    expect(read('src/components/Report/Sheet.tsx')).toMatch(/^import '\.\/report\.css';$/m);
+  });
+  test('the paper tokens outrank [data-theme="light"] whatever the bundle order', () => {
+    const css = read('src/components/Report/report.css');
+    // Two attribute/class parts beat the single [data-theme="light"] selector on specificity.
+    expect(css).toMatch(/\.report-doc\[data-theme-scope\]\s*\{[^}]*--background-color:\s*#ffffff/i);
   });
 });
