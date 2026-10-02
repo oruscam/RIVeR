@@ -248,3 +248,16 @@ describe('Processing technique rows are minimal', () => {
     expect(src).toMatch(/checked readOnly aria-disabled="true"/);
   });
 });
+
+describe('LSPIV locked switch', () => {
+  const src = read('components/Forms/FormProcessing.tsx');
+  const css = readFileSync(join(SRC, 'index.css'), 'utf8');
+  test('a click explains instead of doing nothing, and the switch is marked locked', () => {
+    expect(src).toMatch(/switch switch-sm switch-locked/);
+    expect(src).toMatch(/onShowToast\(lspivToggleLabel\)/);
+  });
+  test('locked look: muted track, lock glyph, plain cursor', () => {
+    expect(css).toMatch(/\.switch-locked \.slider \{[^}]*cursor: default/);
+    expect(css).toMatch(/\.switch-locked \.slider:after/);
+  });
+});

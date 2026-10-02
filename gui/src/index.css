@@ -1121,6 +1121,33 @@ html {
   border-radius: var(--radius-md);
 }
 
+/* A switch that is on by design and cannot be changed (LSPIV in Processing).
+   Reads as locked, not broken: the track stays on but muted, a small lock sits
+   on the knob, and the cursor is the plain arrow (a hand would promise an action). */
+.switch-locked .slider {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.switch-locked .slider:hover {
+  background-color: var(--toggle-active-color);
+  border-color: var(--toggle-active-color);
+}
+
+.switch-locked .slider:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 21px;
+  width: 8px;
+  height: 8px;
+  transform: translateY(-50%);
+  background-color: var(--toggle-active-color);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3' fill='none' stroke='black' stroke-width='3'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3' fill='none' stroke='black' stroke-width='3'/%3E%3C/svg%3E") center / contain no-repeat;
+  pointer-events: none;
+}
+
 /* =============================================================================
    BADGE (.badge family) — Phase 6e, spec amendment A12
    A worded rating: a coloured dot, the word, and a light tint of the status

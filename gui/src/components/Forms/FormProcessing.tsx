@@ -232,7 +232,14 @@ export const FormProcessing = ({
                 >
                   {t('Processing.carouselMedia')}
                 </button>
-                <label className="switch switch-sm" title={lspivToggleLabel}>
+                <label
+                  className="switch switch-sm switch-locked"
+                  title={lspivToggleLabel}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    onShowToast(lspivToggleLabel);
+                  }}
+                >
                   <input type="checkbox" checked readOnly aria-disabled="true" aria-label={lspivToggleLabel} />
                   <span className="slider"></span>
                 </label>
