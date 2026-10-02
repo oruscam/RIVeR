@@ -78,3 +78,48 @@ describe('Section sheet', () => {
     expect(table).toContain('splitColumns');
   });
 });
+
+describe('Calibration sheet', () => {
+  const src = read('src/components/Report/CalibrationSheet.tsx');
+  test('one block per footage type', () => {
+    expect(src).toMatch(/type === 'uav'/);
+    expect(src).toMatch(/type === 'oblique'/);
+    expect(src).toMatch(/type === 'ipcam'/);
+  });
+  test('oblique shows real-world coordinates and residuals', () => {
+    expect(src).toContain('rwCoordinates');
+    expect(src).toContain('obliqueResiduals');
+  });
+  test('ip camera shows X/Y/Z, per-point error and camera position', () => {
+    expect(src).toContain('reprojectionErrors');
+    expect(src).toContain('cameraPosition');
+    expect(src).toMatch(/\.Z\b/);
+  });
+});
+
+describe('Footage sheet', () => {
+  const src = read('src/components/Report/FootageSheet.tsx');
+  test('snapshot strip across the processed range, with times', () => {
+    expect(src).toContain('snapshotFrames');
+    expect(src).toContain('doc-strip');
+    expect(src).toContain('images.paths');
+  });
+  test('video creation date is reported', () => {
+    expect(src).toContain('creation');
+  });
+  test('reports committed corrections and draws stabilization regions', () => {
+    expect(src).toContain('committedStabilizationRegions');
+    expect(src).toContain('doc-region');
+  });
+  test('parameter blocks per technique used; LSPIV block shows seeding', () => {
+    expect(src).toMatch(/techniquesUsed\.includes\('lspiv'\)/);
+    expect(src).toMatch(/techniquesUsed\.includes\('stiv'\)/);
+    expect(src).toMatch(/techniquesUsed\.includes\('iwave'\)/);
+    expect(src).toContain('artificialSeeding');
+  });
+  test('colophon: version, citation DOIs, IWaVE credit', () => {
+    expect(src).toContain('10.1016/j.cageo.2017.07.009');
+    expect(src).toContain('10.5281/zenodo.22050810');
+    expect(src).toContain('dataforwater');
+  });
+});

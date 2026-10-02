@@ -265,6 +265,38 @@
   border: 1.5px dashed var(--doc-accent);
 }
 
+.doc-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.doc-ortho {
+  max-width: 100%;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+}
+
+.doc-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  align-self: stretch;
+}
+
+.doc-strip img {
+  width: 100%;
+  height: auto;
+}
+
+.doc-strip figcaption {
+  text-align: center;
+}
+
+.doc-colophon {
+  margin-top: auto;
+}
+
 @media print {
   .report-doc {
     background: none;
