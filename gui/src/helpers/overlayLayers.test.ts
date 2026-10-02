@@ -60,3 +60,15 @@ describe('hasVectors is about results, not the frame on screen', () => {
     expect(src).not.toMatch(/hasVectors = data\.length/);
   });
 });
+
+describe('station number labels', () => {
+  const src = readFileSync(join(__dirname, '../components/StationSearchLines.tsx'), 'utf8');
+  test('sit at the origin end of each search line, not the far end', () => {
+    const labels = src.slice(
+      src.indexOf("attr('class', 'station-search-label')"),
+      src.indexOf('labelGroups.each')
+    );
+    expect(labels).toContain('d.a.x / factor');
+    expect(labels).not.toMatch(/translate\(\$\{d\.b\.x/);
+  });
+});
