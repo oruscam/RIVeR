@@ -69,62 +69,62 @@ export const FormOblique = ({ onSubmit, onError }: FormChild) => {
           id="form-control-points"
           className={`${isBackendWorking ? 'disabled' : ''}`}
         >
-          <div className="input-container-2">
-            <button
-              ref={drawPointsButtonRef}
-              className="btn btn-lg btn-secondary form-button me-1"
-              aria-pressed={drawPoints && isDefaultCoordinates}
-              id="draw-coordinates"
-              type="button"
-              onClick={onSetDrawPoints}
-            >
-              {' '}
-              {t('ControlPoints.drawPoints')}{' '}
-            </button>
-            <span className="read-only bg-transparent" />
-          </div>
-          <div className="input-container-2 mt-1">
-            <button
-              ref={importDistancesButtonRef}
-              className="btn btn-lg btn-secondary form-button me-1"
-              data-complete={isDistancesLoaded}
-              id="import-distances"
-              type="button"
-              onClick={handleOnClickImportDistances}
-              disabled={drawPoints === false}
-            >
-              {' '}
-              {t('ControlPoints.importDistances')}{' '}
-            </button>
-            <span className="read-only bg-transparent" />
-          </div>
+          <div className="panel-section">
+            <div className="panel-actions">
+              <button
+                ref={drawPointsButtonRef}
+                className="btn btn-secondary panel-action"
+                aria-pressed={drawPoints && isDefaultCoordinates}
+                id="draw-coordinates"
+                type="button"
+                onClick={onSetDrawPoints}
+              >
+                {t('ControlPoints.drawPoints')}
+              </button>
+              <button
+                ref={importDistancesButtonRef}
+                className="btn btn-secondary panel-action"
+                data-complete={isDistancesLoaded}
+                id="import-distances"
+                type="button"
+                onClick={handleOnClickImportDistances}
+                disabled={drawPoints === false}
+              >
+                {t('ControlPoints.importDistances')}
+              </button>
+            </div>
 
-          <DropHereText text={t('Commons.dropHereText')} show={isDistancesLoaded === false} />
+            <DropHereText text={t('Commons.dropHereText')} show={isDistancesLoaded === false} />
 
-          {distancesLabels.map((label, i) => {
-            return (
-              <div className={`input-container-2 mt-${i > 0 ? 1 : 2}`} key={i}>
-                <label className="read-only me-1" id={'D' + distancesID[i]}>
-                  {label}
-                </label>
-                <div className="input-field-container">
-                  <input
-                    className="input-field-oblique"
-                    type="number"
-                    id={'distance' + distancesID[i]}
-                    disabled={isDefaultCoordinates}
-                    {...register('distance' + distancesID[i], validationRules.distances)}
-                    step={0.01}
-                    onKeyDown={(event) => handleInputBehavior(event, i + 1)}
-                    onBlur={(event) => handleInputBehavior(event, i + 1)}
-                  />
-                  <span className="unit-label">
-                    {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+            {distancesLabels.map((label, i) => {
+              return (
+                <div className="field-row field-row-top" key={i}>
+                  <label
+                    className="field-row-label"
+                    id={'D' + distancesID[i]}
+                    htmlFor={'distance' + distancesID[i]}
+                  >
+                    {label}
+                  </label>
+                  <span className="field-with-unit">
+                    <input
+                      className="field field-coord"
+                      type="number"
+                      id={'distance' + distancesID[i]}
+                      disabled={isDefaultCoordinates}
+                      {...register('distance' + distancesID[i], validationRules.distances)}
+                      step={0.01}
+                      onKeyDown={(event) => handleInputBehavior(event, i + 1)}
+                      onBlur={(event) => handleInputBehavior(event, i + 1)}
+                    />
+                    <span className="field-unit">
+                      {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+                    </span>
                   </span>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
 
           {solution && <OrthoImage solution={solution} coordinates={rwCoordinates} />}
 

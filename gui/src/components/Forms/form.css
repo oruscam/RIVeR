@@ -939,6 +939,11 @@
     white-space: nowrap;
 }
 
+/* A lone action fills the row; half a row beside nothing reads as unfinished. */
+.panel-actions.panel-actions-single {
+    grid-template-columns: 1fr;
+}
+
 /* A file name is a read-only value: muted text under the buttons, truncated. */
 .panel-filename {
     margin: 0 0 var(--space-2);
