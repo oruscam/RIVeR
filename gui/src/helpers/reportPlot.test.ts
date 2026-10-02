@@ -85,3 +85,49 @@ describe('buildProfilePlot', () => {
     labels.forEach((l) => expect(l).toMatch(/^-?\d+(\.\d{1,2})?$/));
   });
 });
+
+import { plotInputFromSection } from './reportPlot';
+import type { SectionData } from '../store/section/types';
+
+const data = {
+  num_stations: 4,
+  id: [1, 2, 3, 4],
+  distance: [0, 1, 2, 3],
+  depth: [0, 1, 1, 0],
+  check: [true, true, true, true],
+  activeCheck: [true, true, true, true],
+  streamwise_velocity_magnitude: [null, 0.5, 0.5, null],
+  stiv_velocity_profile: [0.2, 0.8, 0.8, 0.2],
+  total_Q: 999,
+} as unknown as SectionData;
+const options = { interpolated: false, artificialSeeding: false, alpha: 1, step: 1, fps: 30 };
+const titles = { q: 'Q', v: 'Vs', d: 'd' };
+
+describe('plotInputFromSection', () => {
+  test('one series per computed technique, active flagged; q from the active technique', () => {
+    const p = plotInputFromSection(data, 'stiv', options, { length: 1, flow: 1 }, titles)!;
+    expect(p.series.map((s) => [s.technique, s.active])).toEqual([
+      ['lspiv', false],
+      ['stiv', true],
+    ]);
+    expect(p.q[1]).toBeGreaterThan(0);
+  });
+
+  test('imperial: lengths and velocities by the length factor, discharge by the flow factor', () => {
+    const si = plotInputFromSection(data, 'lspiv', options, { length: 1, flow: 1 }, titles)!;
+    const imp = plotInputFromSection(data, 'lspiv', options, { length: 2, flow: 3 }, titles)!;
+    expect(imp.x[3]).toBeCloseTo(si.x[3] * 2);
+    expect(imp.depth[1]).toBeCloseTo(si.depth[1] * 2);
+    expect(imp.series[0].v[1]!).toBeCloseTo(si.series[0].v[1]! * 2);
+    expect(imp.q[1]!).toBeCloseTo(si.q[1]! * 3);
+  });
+
+  test('a station whose active velocity is null has no discharge bar', () => {
+    const p = plotInputFromSection(data, 'lspiv', options, { length: 1, flow: 1 }, titles)!;
+    expect(p.q[0]).toBeNull();
+  });
+
+  test('null when the active technique has no result', () => {
+    expect(plotInputFromSection(data, 'iwave', options, { length: 1, flow: 1 }, titles)).toBeNull();
+  });
+});
