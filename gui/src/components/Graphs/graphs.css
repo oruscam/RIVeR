@@ -133,7 +133,7 @@ svg .bar-stroke-themed {
 }
 
 .technique-name {
-    flex: 1;
+    flex: 0 0 auto;
     font-family: inherit;
     font-size: var(--text-section);
     font-weight: 600;
@@ -167,42 +167,21 @@ svg .bar-stroke-themed {
     white-space: nowrap;
 }
 
-.technique-disclosure-btn {
-    width: 22px;
-    height: 22px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: none;
-    background: transparent;
-    color: var(--secondary-text-color);
-    cursor: pointer;
-    flex-shrink: 0;
-    transition: transform 0.14s ease, color 0.14s ease, background-color 0.14s ease;
-}
-
-.technique-disclosure-btn:hover {
-    background: var(--input-background);
-    color: var(--primary-text-color);
-}
-
-.technique-disclosure-btn-open {
-    transform: rotate(90deg);
-    color: var(--primary-text-color);
-}
-
-.technique-row-body {
+/* The technique's layer chips, inline between the name and the total. flex:1 also keeps the
+   total and eye pushed right on rows that have no chips. Wraps (not overflows) when narrow. */
+.technique-row-layers {
+    flex: 1 1 0;
+    min-width: 0;
     display: flex;
     flex-wrap: wrap;
-    gap: 6px;
-    padding: 4px 8px 10px 34px;
+    justify-content: flex-end;
+    gap: 4px 6px;
 }
 
-.technique-row-body-toggle {
+.technique-layer-chip {
     font-size: var(--text-caption);
     font-weight: 600;
-    padding: 4px 10px;
+    padding: 2px 8px;
     border-radius: var(--radius-md);
     border: 1px solid var(--secondary-text-color);
     color: var(--secondary-text-color);
@@ -212,11 +191,11 @@ svg .bar-stroke-themed {
     transition: background-color 0.14s ease, color 0.14s ease, border-color 0.14s ease;
 }
 
-.technique-row-body-toggle:hover {
+.technique-layer-chip:hover {
     background: var(--input-background);
 }
 
-.technique-row-body-toggle-on {
+.technique-layer-chip-on {
     border-color: var(--accent-color);
     color: var(--accent-color);
 }

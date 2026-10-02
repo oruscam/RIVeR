@@ -123,16 +123,12 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
             <p id="result-number">
               {displayQ} <span style={{ fontSize: 'var(--text-section)', opacity: 0.7 }}>{flowUnit}</span>
             </p>
-            <div>
-              <p id="result-measured">
-                {' '}
-                {((effective?.measured_Q ?? 0) * 100).toFixed(1)}% {t('Results.measured')}
-              </p>
-              <p>
-                {' '}
-                {((effective?.interpolated_Q ?? 0) * 100).toFixed(1)}% {t('Results.interpolated')}{' '}
-              </p>
-            </div>
+            <dl className="result-split">
+              <dt>{((effective?.measured_Q ?? 0) * 100).toFixed(1)}%</dt>
+              <dd>{t('Results.measured')}</dd>
+              <dt>{((effective?.interpolated_Q ?? 0) * 100).toFixed(1)}%</dt>
+              <dd>{t('Results.interpolated')}</dd>
+            </dl>
           </div>
         </div>
 

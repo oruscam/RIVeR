@@ -261,3 +261,23 @@ describe('LSPIV locked switch', () => {
     expect(css).toMatch(/\.switch-locked \.slider:after/);
   });
 });
+
+describe('Results: inline layer chips and aligned discharge split', () => {
+  const legend = read('components/Graphs/TechniqueLegend.tsx');
+  const form = read('components/Forms/FormResults.tsx');
+  const css = readFileSync(join(SRC, 'components/Forms/form.css'), 'utf8');
+  const graphs = readFileSync(join(SRC, 'components/Graphs/graphs.css'), 'utf8');
+  test('no disclosure: chips live in the technique row itself', () => {
+    expect(legend).not.toMatch(/LuChevronRight|aria-expanded|technique-row-body|expanded/);
+    expect(legend).toContain('technique-row-layers');
+  });
+  test('the chip strip wraps instead of overflowing and keeps the total pushed right', () => {
+    expect(graphs).toMatch(/\.technique-row-layers \{[^}]*flex: 1 1 0;[^}]*flex-wrap: wrap/);
+  });
+  test('measured / interpolated are two aligned columns, centred on the big number', () => {
+    expect(form).toContain('result-split');
+    expect(css).toMatch(/\.result-split \{[^}]*grid-template-columns: auto auto/);
+    expect(css).toMatch(/\.result-split dt \{[^}]*text-align: right/);
+    expect(css).toMatch(/\.result-value-row \{[^}]*align-items: center/);
+  });
+});
