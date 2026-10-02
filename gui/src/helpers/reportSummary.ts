@@ -1,26 +1,20 @@
 import { UNIT_CONVERSIONS } from '../constants/constants';
-import type { Section } from '../store/section/types';
+import { buildReportModel, type ReportModelInput } from './reportModel';
 
 /**
- * What the Summary panel leads with. The total is the mean of the sections'
- * total_Q, exactly as the report header computes it, so the two always agree.
+ * What the Summary panel leads with. Built from the same model as the
+ * exported report, so the two always agree.
  */
 export const summarizeReport = (
-  sections: Pick<Section, 'data'>[],
+  input: ReportModelInput,
   unitSistem: string
 ): { totalQ: number; sectionCount: number; techniqueCount: number } => {
-  const valid = sections
-    .map((section) => section.data?.total_Q)
-    .filter((q): q is number => typeof q === 'number' && !Number.isNaN(q));
+  const model = buildReportModel(input);
   const factor = unitSistem === 'imperial' ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
-  const totalQ = valid.length === 0 ? 0 : (valid.reduce((a, q) => a + q, 0) / valid.length) * factor;
-
-  const hasStiv = sections.some((s) => !!s.data?.stiv_velocity_profile);
-  const hasIwave = sections.some((s) => !!s.data?.iwave_velocity_profile);
-
+  const techniques = new Set(model.sections.flatMap((s) => s.comparison.map((c) => c.technique)));
   return {
-    totalQ,
-    sectionCount: sections.length,
-    techniqueCount: 1 + (hasStiv ? 1 : 0) + (hasIwave ? 1 : 0),
+    totalQ: model.totalQ * factor,
+    sectionCount: input.sections.length,
+    techniqueCount: Math.max(1, techniques.size),
   };
 };

@@ -180,6 +180,7 @@ export type {
   Processing,
   SectionData,
   Summary,
+  SummaryStatistics,
   PixelSolution,
   Technique,
 };
