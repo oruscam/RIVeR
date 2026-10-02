@@ -7,7 +7,8 @@
   margin: 0;
 }
 
-.report-doc[data-theme-scope] {
+.report-doc[data-theme-scope],
+.report-measure {
   /* Fixed light document, whatever the app theme. data-theme="light" on the
      same element brings the light tokens; these override the ones charts
      read as their ground and ink so plots sit on white paper. The extra
@@ -302,8 +303,7 @@
 }
 
 .doc-strip img {
-  width: 112px;
-  height: auto;
+  display: block;
 }
 
 .doc-strip figcaption {
