@@ -86,7 +86,7 @@
 
 .doc-h1 {
   margin: 0;
-  font-size: 22px;
+  font-size: 19px;
   font-weight: 650;
   line-height: 1.15;
   overflow-wrap: anywhere;
@@ -108,7 +108,7 @@
 .doc-q {
   margin: 0;
   color: var(--doc-accent);
-  font-size: 44px;
+  font-size: 34px;
   font-weight: 650;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -120,14 +120,14 @@
 
 .doc-q-unit {
   margin-left: 6px;
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 500;
 }
 
 .doc-q-pm {
   margin-left: 10px;
   color: var(--doc-muted);
-  font-size: 16px;
+  font-size: 13px;
   font-weight: 500;
 }
 
@@ -227,12 +227,18 @@
 .doc-applied {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px 18px;
+  gap: 2px 14px;
   margin: 0;
-  padding: 8px 0;
+  padding: 4px 0;
   border-top: 1px solid var(--doc-rule);
   border-bottom: 1px solid var(--doc-rule);
+  color: var(--doc-muted);
   list-style: none;
+}
+
+.doc-applied b {
+  color: var(--doc-ink);
+  font-weight: 600;
 }
 
 .doc-kv {
@@ -447,4 +453,74 @@
     margin: 0;
     box-shadow: none;
   }
+}
+
+/* Report header (spec §8). */
+.rh {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rh-mast {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 4px 16px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--doc-ink);
+}
+.rh-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  color: var(--doc-muted);
+}
+.rh-meta b {
+  color: var(--doc-ink);
+  font-weight: 600;
+}
+.rh-footage {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--doc-ink);
+  font-weight: 600;
+}
+.doc-ficon {
+  width: 16px;
+  height: 16px;
+  color: var(--doc-accent);
+}
+.rh-verdict {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 22px;
+  align-items: center;
+}
+.rh-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 18px;
+  margin: 0;
+}
+.rh-facts div {
+  display: flex;
+  flex-direction: column;
+}
+.rh-facts dt {
+  color: var(--doc-muted);
+  font-size: 9px;
+}
+.rh-facts dd {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  font-weight: 600;
+}
+.rh-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
 }

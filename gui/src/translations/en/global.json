@@ -348,6 +348,8 @@
       "saveReport": "Save report",
       "details": "Report details",
       "totalDischarge": "Total discharge",
+      "sections": "Sections",
+      "stationsTitle": "Stations",
       "sectionCount_one": "{{count}} section",
       "sectionCount_other": "{{count}} sections",
       "techniqueCount_one": "{{count}} technique",
