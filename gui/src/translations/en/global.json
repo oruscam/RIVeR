@@ -348,14 +348,14 @@
       "saveReport": "Save report",
       "details": "Report details",
       "totalDischarge": "Total discharge",
-      "sections": "Sections",
-      "stationsTitle": "Stations",
       "sectionCount_one": "{{count}} section",
       "sectionCount_other": "{{count}} sections",
       "techniqueCount_one": "{{count}} technique",
       "techniqueCount_other": "{{count}} techniques"
     },
     "Doc": {
+      "sections": "Sections",
+      "stationsTitle": "Stations",
       "page": "page",
       "plotQ": "Discharge per station",
       "plotV": "Surface velocity",
