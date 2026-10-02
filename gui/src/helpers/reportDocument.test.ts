@@ -189,6 +189,13 @@ describe('Profile plot', () => {
     expect(src).toMatch(/lspiv[\s\S]*circle/);
     expect(src).toContain('rp-marker--hollow');
   });
+  test('measured markers are solid in the technique colour; hollow wins for interpolated', () => {
+    ['lspiv', 'stiv', 'iwave'].forEach((t) => {
+      expect(css).toMatch(new RegExp(`\\.rp-marker--${t}\\s*\\{[^}]*fill:\\s*var\\(--tech-${t}\\)`));
+    });
+    expect(css).toMatch(/\.rp-marker--hollow\s*\{[^}]*fill:\s*#ffffff/);
+    expect(css.indexOf('.rp-marker--hollow')).toBeGreaterThan(css.indexOf('.rp-marker--iwave'));
+  });
   test('does not reuse the app AllInOne plot', () => {
     expect(src).not.toContain('AllInOne');
   });
