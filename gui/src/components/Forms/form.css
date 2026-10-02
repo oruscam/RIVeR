@@ -548,8 +548,11 @@
 .form-report {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    /* stretch, not center: the rows are full-width and end on the panel's one right edge. */
+    align-items: stretch;
     width: 100%;
+    box-sizing: border-box;
+    padding: 0 var(--space-4) var(--space-4);
 }
 
 .add-mask-icon {
