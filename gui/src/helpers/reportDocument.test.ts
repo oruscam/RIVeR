@@ -123,3 +123,14 @@ describe('Footage sheet', () => {
     expect(src).toContain('dataforwater');
   });
 });
+
+describe('Footage sheet LSPIV block (fix round 1)', () => {
+  test('grayscale is always reported: the CLI applies it on every GUI run', () => {
+    const src = read('src/components/Report/FootageSheet.tsx');
+    expect(src).toMatch(/<dt>\{t\('Processing\.grayscale'\)\}<\/dt>/);
+    expect(src).not.toMatch(/form\.grayscale/);
+  });
+  test('ip camera errors go through the pinned mapping helper', () => {
+    expect(read('src/components/Report/CalibrationSheet.tsx')).toContain('ipcamPointErrors(');
+  });
+});

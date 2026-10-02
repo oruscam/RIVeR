@@ -6,6 +6,7 @@ import { useIpcamSlice, useObliqueSlice, useProjectSlice, useUavSlice } from '..
 import { REPORT_SHEET, UNIT_CONVERSIONS } from '../../constants/constants';
 import { frameBox, frameFactor } from '../../helpers/reportLayout';
 import { obliqueResiduals } from '../../helpers/obliqueResiduals';
+import { ipcamPointErrors } from '../../helpers/ipcamPointErrors';
 import { ipcamSvg, obliqueSvg } from '../Graphs';
 
 export const hasCalibration = (type: string, ipcamSolved: boolean) =>
@@ -193,9 +194,8 @@ const Ipcam = () => {
 
   if (!cameraSolution || !points) return null;
   const { meanError, cameraPosition, reprojectionErrors, pointIndices, orthoImagePath } = cameraSolution;
-  // reprojectionErrors[k] belongs to points[pointIndices[k]]; without indices they follow the used points in order.
-  const used = pointIndices ?? points.map((p, i) => (p.wasEstablished ? i : -1)).filter((i) => i >= 0);
-  const errorOf = new Map(used.map((pointIndex, k) => [pointIndex, reprojectionErrors[k]]));
+  const rows = ipcamPointErrors(points, { reprojectionErrors, pointIndices });
+  const yes = t('Commons.yes');
 
   return (
     <>
@@ -220,20 +220,23 @@ const Ipcam = () => {
               <th>Y {len}</th>
               <th>Z {len}</th>
               <th>{t('Report.Doc.error', { defaultValue: 'Error' })} px</th>
+              <th>{t('Report.Doc.inSolve', { defaultValue: 'In solve' })}</th>
             </tr>
           </thead>
           <tbody>
-            {points.map((p, i) =>
-              errorOf.has(i) ? (
-                <tr key={p.label}>
-                  <td>{p.label}</td>
+            {rows.map((r) => {
+              const p = points[r.index];
+              return (
+                <tr key={r.index}>
+                  <td>{r.label}</td>
                   <td>{l2(p.X)}</td>
                   <td>{l2(p.Y)}</td>
                   <td>{l2(p.Z)}</td>
-                  <td>{f2(errorOf.get(i))}</td>
+                  <td>{f2(r.error)}</td>
+                  <td>{r.used ? yes : '-'}</td>
                 </tr>
-              ) : null
-            )}
+              );
+            })}
           </tbody>
         </table>
         {orthoImagePath && (
