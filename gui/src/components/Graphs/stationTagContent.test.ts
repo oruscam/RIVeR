@@ -62,8 +62,8 @@ describe('buildStationTagContent', () => {
   it('includes LSPIV std and percentile spread', () => {
     const content = buildStationTagContent({ data: baseData(), stationIndex: 0, ...opts });
     const lspivRow = content?.rows.find((r) => r.key === 'lspiv');
-    expect(lspivRow?.spreadText).toContain('±0.200');
-    expect(lspivRow?.spreadText).toContain('P5–95 0.700–1.300');
+    expect(lspivRow?.spreadText).toContain('±0.20');
+    expect(lspivRow?.spreadText).toContain('P5–95 0.70–1.30');
   });
 
   it('labels LSPIV quality by artificial seeding', () => {
@@ -79,7 +79,7 @@ describe('buildStationTagContent', () => {
     const stivRow = content?.rows.find((r) => r.key === 'stiv');
     expect(stivRow?.qualityText).toBe('low confidence');
     expect(stivRow?.qualityWarn).toBe(true);
-    expect(stivRow?.spreadText).toBe('±0.500');
+    expect(stivRow?.spreadText).toBe('±0.50');
   });
 
   it('does not flag a STIV station as low confidence when it has been manually tuned', () => {

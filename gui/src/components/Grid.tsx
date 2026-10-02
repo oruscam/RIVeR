@@ -31,7 +31,7 @@ const rowKeyGetter = (row: TableRow): number => {
 
 const TECHNIQUE_LABEL = { lspiv: 'LSPIV', stiv: 'STIV', iwave: 'iWave' };
 
-const formatCell = (v: number | null) => (v === null ? '-' : v.toFixed(3));
+const formatCell = (v: number | null) => (v === null ? '-' : v.toFixed(2));
 
 export const Grid = () => {
   const [selectedRows, setSelectedRows] = useState((): ReadonlySet<number> => new Set());

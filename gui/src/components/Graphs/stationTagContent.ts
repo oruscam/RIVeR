@@ -86,7 +86,7 @@ export const buildStationTagContent = ({
   const qShare = activeEffective?.Q_portion[stationIndex];
   const dischargeText =
     qVal !== undefined && qVal !== null
-      ? `${(qVal * flowFactor).toFixed(3)} ${flowUnit}${
+      ? `${(qVal * flowFactor).toFixed(2)} ${flowUnit}${
           qShare !== undefined && qShare !== null && isFinite(qShare) ? `  ·  ${(qShare * 100).toFixed(1)}%` : ''
         }`
       : '—';
@@ -112,7 +112,7 @@ export const buildStationTagContent = ({
       const effective = getEffectiveTechniqueData(data, key, techOptions);
       if (!effective) return null;
       const v = effective.resolved[stationIndex];
-      const velocityText = v === null ? '—' : `${(v * lengthFactor).toFixed(3)} ${velocityUnit}`;
+      const velocityText = v === null ? '—' : `${(v * lengthFactor).toFixed(2)} ${velocityUnit}`;
 
       if (key === 'lspiv') {
         const minus = data.minus_std[stationIndex];
@@ -121,11 +121,11 @@ export const buildStationTagContent = ({
         const p95 = data.percentile_95th[stationIndex];
         const stdText =
           typeof minus === 'number' && typeof plus === 'number'
-            ? `±${(((plus - minus) / 2) * lengthFactor).toFixed(3)}`
+            ? `±${(((plus - minus) / 2) * lengthFactor).toFixed(2)}`
             : null;
         const pText =
           typeof p5 === 'number' && typeof p95 === 'number'
-            ? `P5–95 ${(p5 * lengthFactor).toFixed(3)}–${(p95 * lengthFactor).toFixed(3)}`
+            ? `P5–95 ${(p5 * lengthFactor).toFixed(2)}–${(p95 * lengthFactor).toFixed(2)}`
             : null;
         return {
           key,
@@ -147,7 +147,7 @@ export const buildStationTagContent = ({
           key,
           label: TECHNIQUE_LABEL[key],
           velocityText,
-          spreadText: typeof sigma === 'number' ? `±${(sigma * lengthFactor).toFixed(3)}` : '—',
+          spreadText: typeof sigma === 'number' ? `±${(sigma * lengthFactor).toFixed(2)}` : '—',
           qualityText: lowConf ? 'low confidence' : '—',
           qualityWarn: lowConf,
         };

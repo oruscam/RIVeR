@@ -37,7 +37,7 @@ export const ReportSection = ({ index, factor, vertical }: ReportSectionProps) =
           <h1 className="report-section-title"> {name} </h1>
           <h3 id="report-section-discharge-label">
             {' '}
-            {t('Report.dischargeQ')} {(total_Q * qFactor).toFixed(3)} {flowUnit} (&plusmn;{' '}
+            {t('Report.dischargeQ')} {(total_Q * qFactor).toFixed(2)} {flowUnit} (&plusmn;{' '}
             {(total_q_std * qFactor).toFixed(2)} {flowUnit})
           </h3>
           <div className={`top-left${vertical ? '-vertical' : ''}`}>
