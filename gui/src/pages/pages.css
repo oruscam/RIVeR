@@ -455,21 +455,6 @@
 }
 
 /* ── Lens correction settings rows (VideoRange) ──────────────── */
-.lens-correction-section {
-    width: 90%;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.lens-correction-section .switch-container {
-    padding-left: 0;
-    padding-right: 0;
-}
-
-.lens-correction-section .switch-container:hover {
-    background-color: transparent;
-}
-
 .lens-row-trigger {
     background: transparent;
     border: none;

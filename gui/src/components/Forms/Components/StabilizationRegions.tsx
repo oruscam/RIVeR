@@ -45,28 +45,43 @@ export const StabilizationRegions = () => {
     onSetStabilizationActiveRegionIndex(stabilizationActiveRegionIndex === index ? null : index);
   };
 
+  // While a region is being edited the add row reads "Done editing" and ends the edit, as a mask's does.
   const handleAddClick = () => {
+    if (stabilizationActiveRegionIndex !== null) {
+      onSetStabilizationActiveRegionIndex(null);
+      return;
+    }
     onAddStabilizationRegion();
   };
 
   return (
-    <div className="lens-correction-section mt-1">
-      <div className="switch-container">
-        <h3 className="field-title">{t('VideoRange.stabilizeVideo', { defaultValue: 'Stabilize video' })}</h3>
-        <label className="switch">
-          <input type="checkbox" checked={stabilization} onChange={(e) => handleToggle(e.target.checked)} />
+    <div className="panel-section">
+      <hr className="panel-rule" />
+      <div className="field-row field-row-top">
+        <label className="field-row-label" htmlFor="stabilization-toggle">
+          {t('VideoRange.stabilizeVideo', { defaultValue: 'Stabilize video' })}
+        </label>
+        <label className="switch switch-sm">
+          <input
+            id="stabilization-toggle"
+            type="checkbox"
+            checked={stabilization}
+            onChange={(e) => handleToggle(e.target.checked)}
+          />
           <span className="slider"></span>
         </label>
       </div>
 
       {stabilization && (
-        <RegionList
-          regions={stabilizationRegions}
-          activeRegionIndex={stabilizationActiveRegionIndex}
-          onEdit={handleEditClick}
-          onDelete={onDeleteStabilizationRegion}
-          onAdd={handleAddClick}
-        />
+        <div className="panel-nested">
+          <RegionList
+            regions={stabilizationRegions}
+            activeRegionIndex={stabilizationActiveRegionIndex}
+            onEdit={handleEditClick}
+            onDelete={onDeleteStabilizationRegion}
+            onAdd={handleAddClick}
+          />
+        </div>
       )}
     </div>
   );
