@@ -57,3 +57,24 @@ describe('Cover', () => {
     expect(src).toContain('Report.Summary.cov');
   });
 });
+
+describe('Section sheet', () => {
+  const sheet = read('src/components/Report/SectionSheet.tsx');
+  const table = read('src/components/Report/StationTable.tsx');
+  test('header shows technique by label and colour, seeded tag, Q', () => {
+    expect(sheet).toContain('TECHNIQUE_LABEL[result.technique]');
+    expect(sheet).toContain('doc-tech--');
+    expect(sheet).toContain('result.seeded');
+  });
+  test('continuation sheets show only the table', () => {
+    expect(sheet).toMatch(/!continued\s*&&/);
+  });
+  test('comparison strip only when more than one technique was computed', () => {
+    expect(sheet).toMatch(/result\.comparison\.length\s*>\s*1/);
+  });
+  test('table velocity and Q come from the active technique, not the LSPIV arrays', () => {
+    expect(table).toContain('getEffectiveTechniqueData');
+    expect(table).not.toContain('streamwise_velocity_magnitude');
+    expect(table).toContain('splitColumns');
+  });
+});

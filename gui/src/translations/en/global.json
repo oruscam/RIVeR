@@ -369,7 +369,11 @@
       "stabilization_other": "Stabilized ({{count}} regions)",
       "step": "Frame step",
       "resize": "Resize factor",
-      "acrossSections": "Across sections"
+      "acrossSections": "Across sections",
+      "continued": "continued",
+      "stations": "stations",
+      "reported": "reported",
+      "interpolatedStation": "interpolated station"
     }
   },
   "ControlPoints": {
