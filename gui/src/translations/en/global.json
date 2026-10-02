@@ -390,7 +390,8 @@
       "footageAndParameters": "Footage and parameters",
       "notRecorded": "Further parameters are not recorded in this version.",
       "stivWeights": "STIV CNN weights",
-      "generatedWith": "Generated with RIVeR {{version}}"
+      "generatedWith": "Generated with RIVeR {{version}}",
+      "inSolve": "In solve"
     }
   },
   "ControlPoints": {

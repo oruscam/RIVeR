@@ -100,6 +100,9 @@ export const FootageSheet = ({ model, version }: FootageSheetProps) => {
         <div>
           <h2 className="doc-h2">{TECHNIQUE_LABEL.lspiv}</h2>
           <dl className="doc-kv">
+            {/* Unconditional: the GUI never passes --no-filter-grayscale, so the CLI always converts to grayscale. */}
+            <dt>{t('Processing.grayscale')}</dt>
+            <dd>{yes}</dd>
             {form.clahe && (
               <>
                 <dt>{t('Processing.clahe')}</dt>
