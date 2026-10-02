@@ -15,6 +15,11 @@ describe('niceTicks', () => {
 });
 
 describe('formatTick', () => {
+  test('small steps keep consecutive ticks distinct', () => {
+    const labels = niceTicks(0, 0.004, 3).map((v, _i, a) => formatTick(v, a[1] - a[0]));
+    expect(new Set(labels).size).toBe(labels.length);
+    expect(formatTick(0.002, 0.001)).toBe('0.002');
+  });
   test('as many decimals as the step needs, never more than 2', () => {
     expect(formatTick(1, 1)).toBe('1');
     expect(formatTick(0.5, 0.5)).toBe('0.5');

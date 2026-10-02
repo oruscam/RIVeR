@@ -216,6 +216,9 @@ describe('Method blocks (compact)', () => {
 describe('Report page flow (compact)', () => {
   const page = read('src/pages/Report.tsx');
   const css = read('src/components/Report/report.css');
+  test('image conversion rejects when the canvas throws', () => {
+    expect(page).toMatch(/img\.onload = \(\) => \{[\s\S]*try \{[\s\S]*\} catch \(e\) \{\s*reject\(e\)/);
+  });
   test('blocks are measured, then paginated', () => {
     expect(page).toContain('paginate(');
     expect(page).toContain('stationChunks(');
