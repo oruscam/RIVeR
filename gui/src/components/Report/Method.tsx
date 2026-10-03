@@ -46,32 +46,45 @@ const FootagePanel = ({ measure = false }: { measure?: boolean }) => {
           </figcaption>
         </figure>
       )}
-      <dl className="doc-kv">
-        <dt>{t('Report.VideoInfo.name')}</dt>
-        <dd>{name ?? '-'}</dd>
-        <dt>{t('Report.VideoInfo.resolution')}</dt>
-        <dd>
-          {width} × {height} · {formatNumberTo2Decimals(fps)} fps · {formatTime(duration)}
-        </dd>
+      {/* A row of facts, label over value: the footage is a handful of short values, not a table. */}
+      <dl className="doc-facts">
+        <div>
+          <dt>{t('Report.VideoInfo.name')}</dt>
+          <dd>{name ?? '-'}</dd>
+        </div>
+        <div>
+          <dt>{t('Report.VideoInfo.resolution')}</dt>
+          <dd>
+            {width} × {height} · {formatNumberTo2Decimals(fps)} fps · {formatTime(duration)}
+          </dd>
+        </div>
         {created && (
-          <>
+          <div>
             <dt>{t('Report.VideoInfo.creationDate')}</dt>
             <dd>{stamp(created)}</dd>
-          </>
+          </div>
         )}
-        <dt>{t('Report.ProcessedRange.title')}</dt>
-        <dd>
-          {formatTime(p.startTime)} → {formatTime(p.endTime)} ·{' '}
-          {t('Report.Doc.step', { defaultValue: 'Frame step' })} {p.step} ·{' '}
-          {((p.step / (fps || 1)) * 1000).toFixed(2)} ms
-        </dd>
-        <dt>{t('Report.Doc.resize', { defaultValue: 'Resize factor' })}</dt>
-        <dd>{formatNumberTo2Decimals(p.committedFactor)}</dd>
+        <div>
+          <dt>{t('Report.ProcessedRange.title')}</dt>
+          <dd>
+            {formatTime(p.startTime)} → {formatTime(p.endTime)}
+          </dd>
+        </div>
+        <div>
+          <dt>{t('Report.Doc.step', { defaultValue: 'Frame step' })}</dt>
+          <dd>
+            {p.step} · {((p.step / (fps || 1)) * 1000).toFixed(2)} ms
+          </dd>
+        </div>
+        <div>
+          <dt>{t('Report.Doc.resize', { defaultValue: 'Resize factor' })}</dt>
+          <dd>{formatNumberTo2Decimals(p.committedFactor)}</dd>
+        </div>
         {lens && (
-          <>
+          <div>
             <dt>{t('Report.Doc.lens', { defaultValue: 'Lens correction' })}</dt>
             <dd>{lens}</dd>
-          </>
+          </div>
         )}
       </dl>
     </section>
@@ -89,10 +102,8 @@ export const MethodBlock = ({
   return (
     <section className="method">
       <h2 className="method-h">{t('Report.Doc.howMeasured', { defaultValue: 'How this was measured' })}</h2>
-      <div className="method-two">
-        {showCalibration && <CalibrationPanel measure={measure} />}
-        <FootagePanel measure={measure} />
-      </div>
+      {showCalibration && <CalibrationPanel measure={measure} />}
+      <FootagePanel measure={measure} />
     </section>
   );
 };
@@ -150,7 +161,9 @@ export const ProcessingBlock = ({ model }: { model: ReportModel }) => {
               <>
                 <dt>{t('Processing.clahe')}</dt>
                 <dd>
-                  {t('Processing.clipLimit')} {formatNumberTo2Decimals(form.clipLimit)}
+                  <span className="doc-nw">
+                    {t('Processing.clipLimit')} {formatNumberTo2Decimals(form.clipLimit)}
+                  </span>
                 </dd>
               </>
             )}
@@ -168,16 +181,21 @@ export const ProcessingBlock = ({ model }: { model: ReportModel }) => {
               <>
                 <dt>{t('Processing.stdFiltering')}</dt>
                 <dd>
-                  {t('Processing.threshold')} {formatNumberTo2Decimals(form.stdThreshold)}
+                  <span className="doc-nw">
+                    {t('Processing.threshold')} {formatNumberTo2Decimals(form.stdThreshold)}
+                  </span>
                 </dd>
               </>
             )}
             {form.medianTestFiltering && (
               <>
                 <dt>{t('Processing.medianTestFiltering')}</dt>
+                {/* Each half stays whole, so a narrow column breaks at the dot, never before the number. */}
                 <dd>
-                  ε {formatNumberTo2Decimals(form.medianTestEpsilon)} · {t('Processing.threshold')}{' '}
-                  {formatNumberTo2Decimals(form.medianTestThreshold)}
+                  <span className="doc-nw">ε {formatNumberTo2Decimals(form.medianTestEpsilon)}</span> ·{' '}
+                  <span className="doc-nw">
+                    {t('Processing.threshold')} {formatNumberTo2Decimals(form.medianTestThreshold)}
+                  </span>
                 </dd>
               </>
             )}
@@ -212,12 +230,13 @@ export const ProcessingBlock = ({ model }: { model: ReportModel }) => {
   );
 };
 
+/** Printed in every page footer, after the logo. */
 export const Colophon = ({ version }: { version: string }) => {
   const { t } = useTranslation();
   return (
-    <p className="doc-colophon">
+    <span className="doc-colophon">
       {t('Report.Doc.generatedWith', { version, defaultValue: 'Generated with RIVeR {{version}}' })} ·{' '}
       {stamp(new Date())} · github.com/oruscam/RIVeR
-    </p>
+    </span>
   );
 };

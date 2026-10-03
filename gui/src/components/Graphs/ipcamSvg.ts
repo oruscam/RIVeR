@@ -10,9 +10,11 @@ interface ipcamSvgProps {
   svgElement: SVGSVGElement;
   width: number;
   height: number;
+  /** Pin size divisor; larger draws smaller pins (the report's small frame). */
+  pinDivisor?: number;
 }
 
-export const ipcamSvg = ({ factor, points, svgElement, width, height }: ipcamSvgProps) => {
+export const ipcamSvg = ({ factor, points, svgElement, width, height, pinDivisor = 1.2 }: ipcamSvgProps) => {
   const svg = d3.select(svgElement);
 
   svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
@@ -72,7 +74,7 @@ export const ipcamSvg = ({ factor, points, svgElement, width, height }: ipcamSvg
         layer: clippedGroup, // already a Selection<SVGGElement, ...> — no cast needed
         tip: { x: x / factor.x, y: y / factor.y },
         kind: selected ? 'point' : 'muted',
-        divisor: 1.2,
+        divisor: pinDivisor,
       });
     }
   }

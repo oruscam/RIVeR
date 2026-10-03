@@ -91,8 +91,7 @@ export const Report = () => {
   blocks.push(
     { id: 'method', render: (measure) => <MethodBlock showCalibration={showCalibration} measure={measure} /> },
     { id: 'snapshots', render: () => <SnapshotStrip /> },
-    { id: 'processing', render: () => <ProcessingBlock model={model} /> },
-    { id: 'colophon', render: () => <Colophon version={version} /> }
+    { id: 'processing', render: () => <ProcessingBlock model={model} /> }
   );
 
   // Heights are measured in a hidden column of the page body's width, so translated labels that wrap
@@ -191,7 +190,14 @@ export const Report = () => {
         <div id="report-html-page">
           <div id="report-html-container" className="report-doc" data-theme="light" data-theme-scope>
             {pages.map((ids, i) => (
-              <Sheet key={i} page={i + 1} pages={pages.length} title={title} date={date}>
+              <Sheet
+                key={i}
+                page={i + 1}
+                pages={pages.length}
+                title={title}
+                date={date}
+                colophon={<Colophon version={version} />}
+              >
                 {ids.map((id) => (
                   <div key={id} className="sheet-block">
                     {byId.get(id)!.render(false)}

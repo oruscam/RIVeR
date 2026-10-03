@@ -89,8 +89,16 @@
 
 .sheet-who {
   display: flex;
+  flex: none;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+}
+
+.sheet-where {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sheet-logo {
@@ -103,6 +111,7 @@
 .sheet-footer {
   display: flex;
   justify-content: space-between;
+  gap: 16px;
   border-top: 1px solid var(--doc-rule);
   align-items: center;
   padding: 5px 0 8mm;
@@ -296,9 +305,9 @@
 
 .doc-strip {
   display: grid;
-  grid-template-columns: repeat(5, 112px);
+  grid-template-columns: repeat(5, 132px);
   justify-content: space-between;
-  gap: 6px;
+  gap: 10px;
   align-self: stretch;
 }
 
@@ -311,9 +320,31 @@
 }
 
 .doc-colophon {
+  white-space: nowrap;
+}
+
+/* A value phrase that must not break inside, e.g. "Threshold 2". */
+.doc-nw {
+  white-space: nowrap;
+}
+
+/* Row of facts, label over value (Footage). */
+.doc-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
   margin: 0;
+}
+.doc-facts div {
+  display: flex;
+  flex-direction: column;
+}
+.doc-facts dt {
   color: var(--doc-muted);
   font-size: 9px;
+}
+.doc-facts dd {
+  margin: 0;
 }
 
 /* Compact section block (spec §8). */
@@ -547,23 +578,19 @@
   font-size: 14px;
   font-weight: 650;
 }
-.method-two {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  align-items: start;
-}
 .method-three {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  /* auto-fit: one technique gets the full width, three share it. */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   align-items: start;
 }
 .mc {
   display: grid;
-  grid-template-columns: 140px 1fr;
+  /* Image column = REPORT_FLOW.METHOD_IMAGE_WIDTH. */
+  grid-template-columns: 240px 1fr;
   grid-auto-flow: row dense;
-  gap: 4px 10px;
+  gap: 6px 16px;
   align-content: start;
 }
 .mc--text {
@@ -579,6 +606,9 @@
 }
 .mc:not(.mc--text) > :not(.mc-title):not(.mc-img) {
   grid-column: 2;
+}
+.mc > .doc-cols {
+  gap: 20px;
 }
 .mc-title {
   display: flex;
