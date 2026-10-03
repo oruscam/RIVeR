@@ -46,6 +46,7 @@ export const fakeSelection = (node: FakeNode = { tag: 'g', attrs: {}, children: 
       const found = find(node, selector.replace(/^\./, ''));
       return fakeSelection(found ?? { tag: 'none', attrs: {}, children: [] });
     },
+    selectAll: () => ({ remove: () => undefined }),
     datum: () => sel,
     call: () => sel,
     raise: () => sel,

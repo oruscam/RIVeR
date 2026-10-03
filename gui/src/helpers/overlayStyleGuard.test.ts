@@ -77,3 +77,12 @@ describe('dead overlay drawers', () => {
     expect(existsSync(join(__dirname, '..', 'components', 'Graphs', 'drawSvgSectionLine.ts'))).toBe(false);
   });
 });
+
+describe('report section frame', () => {
+  test('DrawSectionsD3 gets the report frame height, so pin bounds are the frame box', () => {
+    const src = read('src/components/ImageResults.tsx');
+    const block = src.slice(src.indexOf('module="report"') - 200, src.indexOf('module="report"'));
+    expect(block).toContain('height={reportHeight!}');
+    expect(block).not.toContain('height={reportWidth!}');
+  });
+});

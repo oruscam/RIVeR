@@ -91,7 +91,7 @@ export const ImageResults = ({
             <>
               <DrawSectionsD3
                 width={reportWidth!}
-                height={reportWidth!}
+                height={reportHeight!}
                 factor={reportFactor!}
                 module="report"
                 scale={scale}
