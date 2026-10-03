@@ -135,8 +135,6 @@ export const REPORT_FLOW = {
   TABLE_BLOCK_OVERHEAD: 80,
   /** Calibration and stabilization frames; matches the image column of .mc in report.css. */
   METHOD_IMAGE_WIDTH: 240,
-  /** Pin size divisor on those frames: the app draws pins at 1.2, which would cover a 240 px frame. */
-  METHOD_PIN_DIVISOR: 2,
   /** Snapshot strip image width; five of these plus four 10 px gaps fill the 186 mm page body. */
   STRIP_IMAGE_WIDTH: 132,
   /** Used for a block until its height has been measured once. */

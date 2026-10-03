@@ -108,7 +108,6 @@ const Oblique = ({ measure = false }: { measure?: boolean }) => {
         svgElement: svgRef.current,
         width: box.width,
         height: box.height,
-        pinDivisor: REPORT_FLOW.METHOD_PIN_DIVISOR,
       });
     }
   }, [factor, coordinates, distances, box.width, box.height, measure]);
@@ -189,7 +188,6 @@ const Ipcam = ({ measure = false }: { measure?: boolean }) => {
         svgElement: svgRef.current,
         width: box.width,
         height: box.height,
-        pinDivisor: REPORT_FLOW.METHOD_PIN_DIVISOR,
       });
     }
   }, [points, factor, box.width, box.height, measure]);
