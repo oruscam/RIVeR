@@ -43,10 +43,7 @@ export const useCalibrationSlice = () => {
     return scanFolder(dir);
   }, [scanFolder]);
 
-  const onDropFolder = useCallback(
-    async (dir: string): Promise<number> => scanFolder(dir),
-    [scanFolder]
-  );
+  const onDropFolder = useCallback(async (dir: string): Promise<number> => scanFolder(dir), [scanFolder]);
 
   const onOpenBoard = useCallback(async (board = '20x15') => {
     await window.ipcRenderer.invoke('calibration-write-board', { board });
