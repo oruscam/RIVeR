@@ -183,7 +183,13 @@ export const CalibrationPrepare = ({
           type="button"
           className="btn btn-lg btn-primary"
           aria-disabled={!canSolve}
-          title={canSolve ? undefined : t('Calibration.importFirst')}
+          title={
+            canSolve
+              ? undefined
+              : scan === 'scanning'
+                ? t('Calibration.prepare.reading')
+                : t('Calibration.importFirst')
+          }
           onClick={() => {
             if (!canSolve) return;
             onSolve();
