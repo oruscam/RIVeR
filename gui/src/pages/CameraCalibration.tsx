@@ -16,6 +16,9 @@ import {
   type CalibrationViewMode,
 } from '../helpers/calibrationView';
 
+// Electron opens a file dropped on an unhandled area; the workspace is not a drop target, so a drop does nothing.
+const swallow = (e: React.DragEvent) => e.preventDefault();
+
 interface Props {
   onClose: () => void;
 }
@@ -93,7 +96,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     }
   }, [selectedIdx, images]);
 
-  // Keys: ←/→ photos, 1/2/H views, Esc leaves Heatmap or closes the screen.
+  // Keys: on Prepare, Esc closes. On the workspace, Esc leaves Heatmap first, otherwise
+  // returns to Prepare (never while a solve runs); arrows step photos; view keys pick an available view.
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
@@ -147,7 +151,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   }
 
   return (
-    <div className="cal-overlay">
+    <div className="cal-overlay" onDragOver={swallow} onDrop={swallow}>
       <div className="regular-page">
         <div className="media-container">
           {images.length > 0 && (
