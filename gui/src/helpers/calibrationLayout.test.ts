@@ -192,3 +192,14 @@ describe('the calibration page', () => {
     expect(page).toMatch(/useEffect\(\(\) => \{\s*setSelectedIdx\(0\);\s*\}, \[images\]\)/);
   });
 });
+
+describe('useCalibrationSlice folder loaders', () => {
+  const hook = read('hooks/useCalibrationSlice.ts');
+
+  it('return the photo count so Prepare can report an empty folder', () => {
+    expect(hook).toMatch(/const onOpenFolder = useCallback\(async \(\): Promise<number \| null> =>/);
+    expect(hook).toMatch(/if \(!dir\) return null;/);
+    expect(hook).toMatch(/const onDropFolder = useCallback\(\s*async \(dir: string\): Promise<number> =>/);
+    expect(hook).toMatch(/return images\.length;/);
+  });
+});
