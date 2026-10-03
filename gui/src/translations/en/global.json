@@ -480,6 +480,12 @@
       "tooFew_one": "Only {{count}} photo. {{min}} or more give a steadier calibration; you can still solve.",
       "tooFew_other": "Only {{count}} photos. {{min}} or more give a steadier calibration; you can still solve."
     },
+    "saved": {
+      "title": "Camera profile saved",
+      "showInFolder": "Show in folder",
+      "calibrateAnother": "Calibrate another",
+      "done": "Done"
+    },
     "close": "Close",
     "board": "Show board",
     "import": "Import Images",

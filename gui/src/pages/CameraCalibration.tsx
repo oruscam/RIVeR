@@ -30,12 +30,11 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     progressPercentage,
     progressTime,
     errorMsg,
-    onOpenFolder,
     onDropFolder,
-    onOpenBoard,
     onSolve,
     onSaveProfile,
     onRevealPath,
+    onReset,
   } = useCalibrationSlice();
 
   const [selectedIdx, setSelectedIdx] = useState(0);
@@ -180,12 +179,15 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
             progressPercentage={progressPercentage}
             progressTime={progressTime}
             errorMsg={errorMsg}
-            onOpenBoard={() => onOpenBoard()}
-            onOpenFolder={onOpenFolder}
             onSolve={onSolve}
             onSaveProfile={onSaveProfile}
             onRevealPath={onRevealPath}
-            onClose={onClose}
+            onBack={onClose}
+            onDone={() => {
+              onReset();
+              onClose();
+            }}
+            onCalibrateAnother={onReset}
           />
         </div>
       </div>

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { LuCheckCircle, LuChevronDown, LuChevronRight } from 'react-icons/lu';
-import { DropHereText, FormHeader } from './Components';
-import { SuccessBanner } from '../index';
+import { LuChevronDown, LuChevronRight } from 'react-icons/lu';
+import { FormHeader } from './Components';
+import { CalibrationSavedBlock } from './Components/CalibrationSavedBlock';
 import { ProgressReadout } from '../ProgressReadout';
 import { CalibrationHistogram } from '../Graphs';
 import { stepAlertClassName } from '../Messages/stepAlertClassName';
@@ -51,18 +51,21 @@ interface FormCalibrationProps {
   progressPercentage: string;
   progressTime: string;
   errorMsg: string;
-  onOpenBoard: () => void;
-  onOpenFolder: () => void;
   onSolve: () => void;
   onSaveProfile: (cameraName: string, lensName: string) => Promise<string | false>;
   onRevealPath: (path: string) => void;
-  onClose: () => void;
+  /** Back to the Prepare screen. */
+  onBack: () => void;
+  /** Saved: reset and close to Home. */
+  onDone: () => void;
+  /** Saved: reset and start over on an empty Prepare screen. */
+  onCalibrateAnother: () => void;
 }
 
 /**
- * Camera calibration's panel (spec amendment A12): the children of the page's
- * .form-container — header, scrolling body, and the standard footer whose
- * right-hand button is Solve until solved and Save profile after.
+ * Camera calibration's panel: header, scrolling body, and the standard footer
+ * whose right-hand button is Solve until solved, Save profile after, and Done
+ * once saved.
  */
 export const FormCalibration = ({
   status,
@@ -73,17 +76,17 @@ export const FormCalibration = ({
   progressPercentage,
   progressTime,
   errorMsg,
-  onOpenBoard,
-  onOpenFolder,
   onSolve,
   onSaveProfile,
   onRevealPath,
-  onClose,
+  onBack,
+  onDone,
+  onCalibrateAnother,
 }: FormCalibrationProps) => {
   const { t } = useTranslation();
   const [cameraName, setCameraName] = useState('');
   const [lensName, setLensName] = useState('');
-  const [savedPath, setSavedPath] = useState<string | null>(null);
+  const [saved, setSaved] = useState<{ path: string; camera: string; lens: string } | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [existingCameras, setExistingCameras] = useState<string[]>([]);
   const [comboOpen, setComboOpen] = useState(false);
@@ -102,7 +105,7 @@ export const FormCalibration = ({
   // A fresh solve clears the previous save's outcome.
   useEffect(() => {
     if (status === 'solved') {
-      setSavedPath(null);
+      setSaved(null);
       setSaveError(null);
     }
   }, [status]);
@@ -116,7 +119,7 @@ export const FormCalibration = ({
   );
 
   const busy = status === 'solving';
-  const action = footerAction({ status, imageCount, cameraName, lensName });
+  const action = footerAction({ status, imageCount, cameraName, lensName, saved: saved !== null });
 
   const blockerText = (blocker: FooterBlocker | null): string | undefined => {
     switch (blocker) {
@@ -137,9 +140,11 @@ export const FormCalibration = ({
 
   const handleSave = async () => {
     setSaveError(null);
+    const camera = cameraName.trim();
+    const lens = lensName.trim();
     const result = await onSaveProfile(cameraName, lensName);
     if (result) {
-      setSavedPath(result);
+      setSaved({ path: result, camera, lens });
       setCameraName('');
       setLensName('');
     } else {
@@ -158,46 +163,6 @@ export const FormCalibration = ({
       <FormHeader title={t('Calibration.title')} showProgress={false} showSections={false} />
 
       <div className="body cal-panel-body">
-        <div className="input-container-2 mt-1">
-          <button
-            type="button"
-            className="btn btn-lg btn-secondary form-button me-1"
-            aria-disabled={busy}
-            title={busy ? t('Calibration.solving') : undefined}
-            onClick={() => {
-              if (busy) return;
-              onOpenBoard();
-            }}
-          >
-            {t('Calibration.board')}
-          </button>
-          <button
-            type="button"
-            className="btn btn-lg btn-secondary form-button"
-            aria-disabled={busy}
-            title={busy ? t('Calibration.solving') : undefined}
-            onClick={() => {
-              if (busy) return;
-              onOpenFolder();
-            }}
-          >
-            {t('Calibration.import')}
-          </button>
-        </div>
-
-        {imageCount === 0 && (
-          <DropHereText text={`${t('Calibration.dropZone')} ${t('Calibration.dropHint')}`} show />
-        )}
-
-        {imageCount > 0 && status === 'idle' && (
-          <div className="form-video-extra-info cal-info">
-            <div className="form-video-extra-info-row">
-              <p>{t('Calibration.photos', { defaultValue: 'Photos' })}</p>
-              <p>{imageCount}</p>
-            </div>
-          </div>
-        )}
-
         {status === 'solving' && (
           <div className="cal-solving-loader">
             <ProgressReadout
@@ -271,65 +236,69 @@ export const FormCalibration = ({
               </>
             )}
 
-            <span className="divider-line mt-2 mb-1" />
-            <h3 className="cal-section-title">
-              {t('Calibration.saveSection', { defaultValue: 'Save as camera profile' })}
-            </h3>
-            <div className="input-container-2 mt-1">
-              <label className="read-only me-1" htmlFor="cal-camera-name">
-                {t('Calibration.cameraName')}
-              </label>
-              <div className="input-field-container cal-combo">
-                <input
-                  id="cal-camera-name"
-                  type="text"
-                  className="input-field"
-                  value={cameraName}
-                  onChange={(e) => {
-                    setCameraName(e.target.value);
-                    setComboOpen(true);
-                  }}
-                  onFocus={() => setComboOpen(true)}
-                  onBlur={() => setTimeout(() => setComboOpen(false), 150)}
-                />
-                {comboOpen && cameraSuggestions.length > 0 && (
-                  <ul className="cal-combo-list">
-                    {cameraSuggestions.map((c) => (
-                      <li
-                        key={c}
-                        onMouseDown={() => {
-                          setCameraName(c);
-                          setComboOpen(false);
-                        }}
-                      >
-                        {c}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-            <div className="input-container-2 mt-1">
-              <label className="read-only me-1" htmlFor="cal-lens-name">
-                {t('Calibration.lensName')}
-              </label>
-              <div className="input-field-container">
-                <input
-                  id="cal-lens-name"
-                  type="text"
-                  className="input-field"
-                  value={lensName}
-                  onChange={(e) => setLensName(e.target.value)}
-                />
-              </div>
-            </div>
-
-            {savedPath && (
-              <SuccessBanner compact icon={LuCheckCircle} title={t('Calibration.savedTo')}>
-                <button className="success-banner-link" onClick={() => onRevealPath(savedPath)}>
-                  {savedPath}
-                </button>
-              </SuccessBanner>
+            {saved ? (
+              <CalibrationSavedBlock
+                filePath={saved.path}
+                camera={saved.camera}
+                lens={saved.lens}
+                onShowInFolder={() => onRevealPath(saved.path)}
+                onCalibrateAnother={onCalibrateAnother}
+              />
+            ) : (
+              <>
+                <span className="divider-line mt-2 mb-1" />
+                <h3 className="cal-section-title">
+                  {t('Calibration.saveSection', { defaultValue: 'Save as camera profile' })}
+                </h3>
+                <div className="input-container-2 mt-1">
+                  <label className="read-only me-1" htmlFor="cal-camera-name">
+                    {t('Calibration.cameraName')}
+                  </label>
+                  <div className="input-field-container cal-combo">
+                    <input
+                      id="cal-camera-name"
+                      type="text"
+                      className="input-field"
+                      value={cameraName}
+                      onChange={(e) => {
+                        setCameraName(e.target.value);
+                        setComboOpen(true);
+                      }}
+                      onFocus={() => setComboOpen(true)}
+                      onBlur={() => setTimeout(() => setComboOpen(false), 150)}
+                    />
+                    {comboOpen && cameraSuggestions.length > 0 && (
+                      <ul className="cal-combo-list">
+                        {cameraSuggestions.map((c) => (
+                          <li
+                            key={c}
+                            onMouseDown={() => {
+                              setCameraName(c);
+                              setComboOpen(false);
+                            }}
+                          >
+                            {c}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                </div>
+                <div className="input-container-2 mt-1">
+                  <label className="read-only me-1" htmlFor="cal-lens-name">
+                    {t('Calibration.lensName')}
+                  </label>
+                  <div className="input-field-container">
+                    <input
+                      id="cal-lens-name"
+                      type="text"
+                      className="input-field"
+                      value={lensName}
+                      onChange={(e) => setLensName(e.target.value)}
+                    />
+                  </div>
+                </div>
+              </>
             )}
             {saveError && (
               <div className={stepAlertClassName('error')} role="alert">
@@ -342,7 +311,16 @@ export const FormCalibration = ({
 
       <div className="footer">
         <div className="wizard-container">
-          <button type="button" className="btn btn-lg btn-tertiary" onClick={onClose}>
+          <button
+            type="button"
+            className="btn btn-lg btn-tertiary"
+            aria-disabled={busy}
+            title={busy ? t('Calibration.solving') : undefined}
+            onClick={() => {
+              if (busy) return;
+              onBack();
+            }}
+          >
             {t('Wizard.back')}
           </button>
           <button
@@ -354,10 +332,15 @@ export const FormCalibration = ({
             onClick={() => {
               if (action.blocker !== null) return;
               if (action.kind === 'solve') onSolve();
-              else void handleSave();
+              else if (action.kind === 'save') void handleSave();
+              else if (action.kind === 'done') onDone();
             }}
           >
-            {action.kind === 'solve' ? t('Calibration.solve') : t('Calibration.saveProfile')}
+            {action.kind === 'solve'
+              ? t('Calibration.solve')
+              : action.kind === 'save'
+                ? t('Calibration.saveProfile')
+                : t('Calibration.saved.done')}
           </button>
         </div>
       </div>

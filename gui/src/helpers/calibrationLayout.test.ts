@@ -88,6 +88,21 @@ describe('CalibrationStrip', () => {
 describe('FormCalibration', () => {
   const form = read('components/Forms/FormCalibration.tsx');
 
+  it('leaves importing and the board to the Prepare screen', () => {
+    expect(form).not.toMatch(/onOpenBoard|onOpenFolder|DropHereText/);
+  });
+
+  it('ends with the saved block instead of the green banner', () => {
+    expect(form).not.toMatch(/SuccessBanner/);
+    expect(form).toMatch(/<CalibrationSavedBlock\b/);
+    expect(form).toMatch(/footerAction\(\{[^}]*saved: saved !== null/s);
+    expect(form).toMatch(/action\.kind === ['"]done['"]/);
+  });
+
+  it('blocks Back while a solve runs', () => {
+    expect(form).toMatch(/aria-disabled=\{busy\}[\s\S]*?if \(busy\) return;\s*onBack\(\);/);
+  });
+
   it('opens with the standard FormHeader, without the wizard stepper or section chips', () => {
     expect(form).toMatch(/<FormHeader[^>]*showProgress=\{false\}[^>]*showSections=\{false\}/s);
   });
@@ -244,5 +259,17 @@ describe('CalibrationPrepare', () => {
   it('takes the parent folder through parentDir, not a slash-only lastIndexOf', () => {
     expect(prepare).toMatch(/parentDir\(/);
     expect(prepare).not.toMatch(/lastIndexOf\(['"]\/['"]\)/);
+  });
+});
+
+describe('CalibrationSavedBlock', () => {
+  const block = read('components/Forms/Components/CalibrationSavedBlock.tsx');
+
+  it("uses the report's saved-block classes and two real buttons", () => {
+    expect(block).toMatch(/className=["']summary-saved["']/);
+    expect(block).toMatch(/className=["']summary-saved-check["']/);
+    expect(block).toMatch(/className=["']panel-actions["']/);
+    expect((block.match(/btn btn-secondary panel-action/g) ?? []).length).toBe(2);
+    expect(block).toMatch(/profileDisplayPath\(filePath\)/);
   });
 });
