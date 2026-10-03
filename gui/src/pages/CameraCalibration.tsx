@@ -1,23 +1,35 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useCalibrationSlice } from '../hooks';
 import { FormCalibration } from '../components/Forms';
-import { CalibrationCanvas, CalibrationStrip, CalibrationViewControl } from '../components/Calibration';
+import {
+  CalibrationCanvas,
+  CalibrationPrepare,
+  CalibrationStrip,
+  CalibrationViewControl,
+} from '../components/Calibration';
 import { toCalFileUrl } from '../helpers/calFileUrl';
-import { viewAvailability, viewForKey, type CalibrationViewMode } from '../helpers/calibrationView';
+import {
+  initialStage,
+  viewAvailability,
+  viewForKey,
+  type CalibrationStage,
+  type CalibrationViewMode,
+} from '../helpers/calibrationView';
 
 interface Props {
   onClose: () => void;
 }
 
 /**
- * Camera calibration, a full-screen overlay launched from Home, laid out on
- * the same workspace as every wizard step (spec §4/6e, amendment A12): the
- * canvas and strip on the left, FormCalibration's panel and footer on the right.
- * This page owns selection, view mode, keyboard and drag-and-drop.
+ * Camera calibration, a full-screen overlay launched from Home. It opens on the
+ * Prepare screen (show the board, import photos); Solve moves to the standard
+ * workspace (canvas and strip left, FormCalibration right). This page owns the
+ * stage, selection, view mode and keyboard.
  */
 export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   const {
     status,
+    imageDir,
     images,
     thumbs,
     usedImages,
@@ -30,6 +42,8 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     progressPercentage,
     progressTime,
     errorMsg,
+    onOpenBoard,
+    onOpenFolder,
     onDropFolder,
     onSolve,
     onSaveProfile,
@@ -39,7 +53,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
 
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [viewMode, setViewMode] = useState<CalibrationViewMode>('original');
-  const [dragOver, setDragOver] = useState(false);
+  const [stage, setStage] = useState<CalibrationStage>(() => initialStage(status));
 
   const usedSet = useMemo(() => new Set(usedImages), [usedImages]);
   const availability = useMemo(() => viewAvailability(status, Boolean(heatmapBase64)), [status, heatmapBase64]);
@@ -83,9 +97,13 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+      if (stage === 'prepare') {
+        if (e.key === 'Escape') onClose();
+        return;
+      }
       if (e.key === 'Escape') {
         if (viewMode === 'heatmap') setViewMode('original');
-        else onClose();
+        else if (status !== 'solving') setStage('prepare');
         return;
       }
       if (e.key === 'ArrowLeft') {
@@ -101,38 +119,32 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [images.length, viewMode, availability, onClose]);
-
-  const handleDrop = useCallback(
-    async (e: React.DragEvent) => {
-      e.preventDefault();
-      setDragOver(false);
-      const items = e.dataTransfer.items;
-      for (let i = 0; i < items.length; i++) {
-        const entry = items[i].webkitGetAsEntry?.();
-        if (entry?.isDirectory) {
-          const file = items[i].getAsFile();
-          if (file) {
-            await onDropFolder(window.webUtils.getPathForFile(file));
-            return;
-          }
-        }
-      }
-      // Fallback: individual image files → use parent directory of first file
-      const files = Array.from(e.dataTransfer.files);
-      const first = files.find((f) => /\.(jpg|jpeg|png)$/i.test(f.name));
-      if (first) {
-        const p = window.webUtils.getPathForFile(first);
-        await onDropFolder(p.substring(0, p.lastIndexOf('/')));
-      }
-    },
-    [onDropFolder]
-  );
+  }, [stage, status, images.length, viewMode, availability, onClose]);
 
   const selectedImg = images[selectedIdx];
   const usedIdx = selectedImg ? usedImages.indexOf(selectedImg) : -1;
   const undistortedPath = usedIdx >= 0 ? (undistortedPaths[usedIdx] ?? null) : null;
   const corners = usedIdx >= 0 ? perFrameCorners[usedIdx] : undefined;
+
+  if (stage === 'prepare') {
+    return (
+      <div className="cal-overlay">
+        <CalibrationPrepare
+          imageDir={imageDir}
+          imageCount={images.length}
+          imageResolution={imageResolution}
+          onOpenBoard={() => void onOpenBoard()}
+          onOpenFolder={onOpenFolder}
+          onDropFolder={onDropFolder}
+          onSolve={() => {
+            setStage('workspace');
+            void onSolve();
+          }}
+          onClose={onClose}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="cal-overlay">
@@ -160,16 +172,7 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
             />
           )}
         </div>
-        <div
-          className={`form-container${dragOver ? ' drag-over' : ''}`}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDragEnd={() => setDragOver(false)}
-          onDrop={handleDrop}
-        >
+        <div className="form-container">
           <FormCalibration
             status={status}
             imageCount={images.length}
@@ -182,12 +185,15 @@ export const CameraCalibration: React.FC<Props> = ({ onClose }) => {
             onSolve={onSolve}
             onSaveProfile={onSaveProfile}
             onRevealPath={onRevealPath}
-            onBack={onClose}
+            onBack={() => setStage('prepare')}
             onDone={() => {
               onReset();
               onClose();
             }}
-            onCalibrateAnother={onReset}
+            onCalibrateAnother={() => {
+              onReset();
+              setStage('prepare');
+            }}
           />
         </div>
       </div>
