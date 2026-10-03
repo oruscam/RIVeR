@@ -52,6 +52,7 @@ const FILES = [
   'components/Carousel.tsx',
   'components/ImageProcessing.tsx',
   'components/Calibration/CalibrationCanvas.tsx',
+  'components/Calibration/CalibrationPrepare.tsx',
   'components/Calibration/CalibrationStrip.tsx',
   'components/Calibration/CalibrationViewControl.tsx',
 ];

@@ -203,3 +203,41 @@ describe('useCalibrationSlice folder loaders', () => {
     expect(hook).toMatch(/return images\.length;/);
   });
 });
+
+describe('CalibrationPrepare', () => {
+  const prepare = read('components/Calibration/CalibrationPrepare.tsx');
+
+  it('sits on the footage screen frame with the standard Back/Solve row', () => {
+    expect(prepare).toMatch(/className=["']default-app-container cal-prepare["']/);
+    expect(prepare).toMatch(/className=["']wizard-container["']/);
+  });
+
+  it('gates Solve with aria-disabled, an early return and a reason', () => {
+    expect(prepare).toMatch(/aria-disabled=\{!canSolve\}/);
+    expect(prepare).toMatch(/if \(!canSolve\) return;/);
+    expect(prepare).toMatch(/title=\{canSolve \? undefined : t\(['"]Calibration\.importFirst['"]/);
+  });
+
+  it('accepts drops only on the drop box, and swallows stray drops everywhere else', () => {
+    expect((prepare.match(/onDrop=\{handleDrop\}/g) ?? []).length).toBe(1);
+    expect(prepare).toMatch(/className=\{`cal-prepare-drop/);
+    expect(prepare).toMatch(/onDragOver=\{swallow\}/);
+    expect(prepare).toMatch(/onDrop=\{swallow\}/);
+  });
+
+  it('ignores a second load while a scan runs, and does not treat a cancelled dialog as empty', () => {
+    expect(prepare).toMatch(/if \(scan === ['"]scanning['"]\) return;/);
+    expect(prepare).toMatch(/setScan\(count === 0 \? ['"]empty['"] : ['"]idle['"]\)/);
+  });
+
+  it('warns about too few photos without blocking, and reports an empty folder', () => {
+    expect(prepare).toMatch(/advice === ['"]tooFew['"]/);
+    expect(prepare).toMatch(/Errors\.imagesFolderEmpty/);
+    expect(prepare).not.toMatch(/canSolve = [^;]*tooFew/);
+  });
+
+  it('takes the parent folder through parentDir, not a slash-only lastIndexOf', () => {
+    expect(prepare).toMatch(/parentDir\(/);
+    expect(prepare).not.toMatch(/lastIndexOf\(['"]\/['"]\)/);
+  });
+});
