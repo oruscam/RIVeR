@@ -1,4 +1,16 @@
-import { badgeGrade, CALIBRATION_VIEW_MODES, footerAction, viewAvailability, viewForKey } from './calibrationView';
+import {
+  badgeGrade,
+  CALIBRATION_VIEW_MODES,
+  folderName,
+  footerAction,
+  initialStage,
+  MIN_RECOMMENDED_PHOTOS,
+  parentDir,
+  photoCountAdvice,
+  profileDisplayPath,
+  viewAvailability,
+  viewForKey,
+} from './calibrationView';
 import type { CalibrationStatus } from '../store/calibration/types';
 
 describe('viewAvailability', () => {
@@ -106,5 +118,79 @@ describe('footerAction', () => {
         busy: false,
       }
     );
+  });
+});
+
+describe('photoCountAdvice', () => {
+  it('says nothing before any photo is loaded', () => {
+    expect(photoCountAdvice(0)).toBe('none');
+  });
+
+  it('warns below the recommended minimum', () => {
+    expect(MIN_RECOMMENDED_PHOTOS).toBe(15);
+    expect(photoCountAdvice(1)).toBe('tooFew');
+    expect(photoCountAdvice(14)).toBe('tooFew');
+  });
+
+  it('is satisfied from the minimum up', () => {
+    expect(photoCountAdvice(15)).toBe('ok');
+    expect(photoCountAdvice(30)).toBe('ok');
+  });
+});
+
+describe('initialStage', () => {
+  it('opens Prepare unless a solve is running or finished', () => {
+    expect(initialStage('idle')).toBe('prepare');
+    expect(initialStage('error')).toBe('prepare');
+    expect(initialStage('solving')).toBe('workspace');
+    expect(initialStage('solved')).toBe('workspace');
+  });
+});
+
+describe('footerAction after a save', () => {
+  it('becomes Done, with nothing blocking it, whatever the name fields hold', () => {
+    expect(
+      footerAction({ status: 'solved', imageCount: 20, cameraName: '', lensName: '', saved: true })
+    ).toEqual({ kind: 'done', blocker: null, busy: false });
+  });
+
+  it('stays Save profile while not saved', () => {
+    expect(
+      footerAction({ status: 'solved', imageCount: 20, cameraName: 'A', lensName: 'B', saved: false }).kind
+    ).toBe('save');
+  });
+});
+
+describe('parentDir', () => {
+  it('drops the file name with either separator', () => {
+    expect(parentDir('/Users/a/calib/IMG_01.jpg')).toBe('/Users/a/calib');
+    expect(parentDir('C:\\Users\\a\\calib\\IMG_01.jpg')).toBe('C:\\Users\\a\\calib');
+  });
+});
+
+describe('folderName', () => {
+  it('returns the last segment with either separator, ignoring a trailing one', () => {
+    expect(folderName('/Users/a/gopro11_wide')).toBe('gopro11_wide');
+    expect(folderName('/Users/a/gopro11_wide/')).toBe('gopro11_wide');
+    expect(folderName('C:\\calib\\gopro11_wide')).toBe('gopro11_wide');
+  });
+
+  it('returns an empty string for no folder', () => {
+    expect(folderName('')).toBe('');
+  });
+});
+
+describe('profileDisplayPath', () => {
+  it('starts the path at calibration_profiles', () => {
+    expect(profileDisplayPath('/Users/a/RIVeR/calibration_profiles/GoPro/Wide/profile.json')).toBe(
+      'calibration_profiles/GoPro/Wide/profile.json'
+    );
+    expect(profileDisplayPath('C:\\RIVeR\\calibration_profiles\\GoPro\\Wide\\profile.json')).toBe(
+      'calibration_profiles\\GoPro\\Wide\\profile.json'
+    );
+  });
+
+  it('keeps any other path whole', () => {
+    expect(profileDisplayPath('/tmp/profile.json')).toBe('/tmp/profile.json');
   });
 });
