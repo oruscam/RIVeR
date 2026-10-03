@@ -138,11 +138,29 @@ describe('the calibration page', () => {
   const page = read('pages/CameraCalibration.tsx');
   const pagesCss = read('pages/pages.css');
 
-  it('is built on the standard workspace', () => {
+  it('opens on Prepare and shows the standard workspace only after Solve', () => {
+    expect(page).toMatch(/useState<CalibrationStage>\(\(\) => initialStage\(status\)\)/);
+    expect(page).toMatch(/if \(stage === ['"]prepare['"]\)/);
+    expect(page).toMatch(/<CalibrationPrepare\b/);
+    expect(page).toMatch(/setStage\(['"]workspace['"]\);\s*void onSolve\(\);/);
     expect(page).toMatch(/className=["']regular-page["']/);
     expect(page).toMatch(/className=["']media-container["']/);
-    expect(page).toMatch(/className=\{`form-container/);
+    expect(page).toMatch(/className=["']form-container["']/);
     expect(page).toMatch(/<FormCalibration\b/);
+  });
+
+  it('has no drop target outside Prepare', () => {
+    expect(page).not.toMatch(/onDrop=|onDragOver=|drag-over/);
+  });
+
+  it('sends Esc back to Prepare, never while a solve runs', () => {
+    expect(page).toMatch(/else if \(status !== ['"]solving['"]\) setStage\(['"]prepare['"]\)/);
+  });
+
+  it('starts over on Prepare from the saved block, and closes from Done', () => {
+    expect(page).toMatch(/onCalibrateAnother=\{\(\) => \{\s*onReset\(\);\s*setStage\(['"]prepare['"]\);/);
+    expect(page).toMatch(/onDone=\{\(\) => \{\s*onReset\(\);\s*onClose\(\);/);
+    expect(page).toMatch(/onBack=\{\(\) => setStage\(['"]prepare['"]\)\}/);
   });
 
   it('no longer carries the old private layout anywhere in src', () => {
