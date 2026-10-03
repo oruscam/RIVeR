@@ -113,13 +113,13 @@ export const drawOblique = ({
       className: 'oblique-distance',
     });
 
-    if (isDefaultCoordinates) return;
-    // Diagonales
+    // Diagonales: 1→3 and 2→4 once each (i = 0, 1), so their halo weighs the same as the sides'.
+    if (isDefaultCoordinates || i > 1) return;
     drawOverlayLine({
       layer,
       from: point,
       to: localPoints[(i + 2) % localPoints.length],
-      color: i === 3 ? DC.D24 : DC.D13,
+      color: i === 0 ? DC.D13 : DC.D24,
       size: 'app',
       zoom: scale,
       className: 'oblique-distance',
