@@ -107,14 +107,6 @@ export const VECTORS = {
  */
 export const STIV_DEFAULT_HEIGHT_ROI_M = 6.0;
 
-/**
- * Constants for marks
- */
-
-export const MARKS = {
-  STROKE_WIDTH: 3,
-};
-
 /** Exported report: images are re-encoded to WebP at this quality and width cap. */
 export const REPORT_SHEET = {
   IMAGE_QUALITY: 0.8,

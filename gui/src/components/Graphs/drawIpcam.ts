@@ -1,7 +1,9 @@
 import * as d3 from 'd3';
 import { COLORS } from '../../constants/constants';
 import { IpcamPoint, SetPointPixelCoordinatesProps } from '../../store/ipcam/types';
-import { drawPin, PinKind } from './drawPin';
+import { drawPin, PinKind, updatePinLean } from './drawPin';
+import { drawOverlayLine } from './overlayStyle';
+import { visibleImageBounds } from './pinLean';
 import { showMagnifier, hideMagnifier, NOT_MAGNIFIER } from './drawMagnifier';
 
 interface drawIpcamProps {
@@ -10,6 +12,7 @@ interface drawIpcamProps {
   localPoints: IpcamPoint[] | null;
   factor: number;
   scale: number;
+  position: { x: number; y: number };
   width: number;
   height: number;
   activePoint: number | null;
@@ -26,6 +29,7 @@ const drawIpcam = ({
   localPoints,
   factor,
   scale,
+  position,
   width,
   height,
   activePoint,
@@ -40,6 +44,7 @@ const drawIpcam = ({
 
   // Draw each point
   if (localPoints === null) return;
+  const bounds = visibleImageBounds({ width, height, position, scale }, 'image');
 
   const dragPoint = d3
     .drag<SVGGElement, { index: number }, { x: number; y: number }>()
@@ -62,6 +67,7 @@ const drawIpcam = ({
         'transform',
         `translate(${x - origin.x}, ${y - origin.y})`
       );
+      updatePinLean(d3.select<SVGGElement, unknown>(this), { x, y }, scale, bounds);
       showMagnifier({
         layer,
         point: { x, y },
@@ -108,6 +114,7 @@ const drawIpcam = ({
       tip: point,
       kind: getPinKind(index, point.selected),
       divisor: scale,
+      bounds,
       active: activePoint === index,
     });
     g.attr('cursor', 'default')
@@ -160,14 +167,16 @@ const drawProjectionPoint = (
   const [projectedX, projectedY] = projectedPoint;
 
   // Draw Line from ipcam point to projection point
-  layer
-    .append('line')
-    .attr('x1', x)
-    .attr('y1', y)
-    .attr('x2', projectedX / factor)
-    .attr('y2', projectedY / factor)
-    .attr('stroke', COLORS.RED)
-    .attr('stroke-width', 3 / scale);
+  drawOverlayLine({
+    layer,
+    from: { x, y },
+    to: { x: projectedX / factor, y: projectedY / factor },
+    color: COLORS.RED,
+    size: 'app',
+    thin: true,
+    zoom: scale,
+    className: 'ipcam-reprojection',
+  });
 
   // Draw projection point
   layer

@@ -70,6 +70,7 @@ export const DrawOblique = ({
       setMousePressed,
       setPointsInStore: onChangeCoordinates,
       scale,
+      position,
       isDefaultCoordinates,
       imageSrc,
       imageWidth: width,
