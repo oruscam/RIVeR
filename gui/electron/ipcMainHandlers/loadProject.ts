@@ -9,6 +9,7 @@ import { parseGrp3dPoints } from './utils/parseGrp3dPoints';
 import { parsedCameraSolution } from './utils/parsedCameraSolution';
 import { sanitizeNonStandardJsonTokens } from './utils/sanitizeJson';
 import { resolveProjectFolder } from './utils/resolveProjectFolder';
+import { pivResultsPath } from './utils/pivResultsPath';
 import { PROJECT_CONFIG } from '../main';
 
 // Function to load and parse the settings.json file
@@ -136,9 +137,8 @@ async function handleLoadProject(
   const xSections = settingsParsed.xsections
     ? transformData(await loadOptionalFile(settingsParsed.xsections, true), false)
     : undefined;
-  const piv_results = settingsParsed.piv_results
-    ? await readResultsPiv(settingsParsed.piv_results).catch(() => undefined)
-    : undefined;
+  const resultsPath = pivResultsPath(folderPath, settingsParsed);
+  const piv_results = resultsPath ? await readResultsPiv(resultsPath).catch(() => undefined) : undefined;
   const bbox = await loadOptionalFile(PROJECT_CONFIG.bboxPath, true);
   const grp3dData = settingsParsed.grp_3d
     ? parseGrp3dPoints(await loadOptionalFile(settingsParsed.grp_3d))

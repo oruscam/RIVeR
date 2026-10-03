@@ -46,7 +46,9 @@ async function getQuiver(riverCli: RiverCli) {
 
   ipcMain.handle('get-quiver-all', async (_event, args) => {
     const { formValues, numStationsList } = args;
-    const { settingsPath, logsPath, xsectionsPath } = PROJECT_CONFIG;
+    // Captured up front: another project can be loaded while the run is going,
+    // and the results must still be recorded against the project that ran.
+    const { settingsPath, logsPath, xsectionsPath, projectDirectory } = PROJECT_CONFIG;
 
     const options = await createOptions('all', PROJECT_CONFIG, [], formValues, numStationsList);
     await clearCrossSections(xsectionsPath);
@@ -62,13 +64,15 @@ async function getQuiver(riverCli: RiverCli) {
       }
 
       const { results_path } = data;
-      PROJECT_CONFIG.resultsPath = results_path;
+      if (PROJECT_CONFIG.projectDirectory === projectDirectory) {
+        PROJECT_CONFIG.resultsPath = results_path;
+      }
 
       const dataQuiver = await readResultsPiv(results_path);
 
       const settings = await fs.promises.readFile(settingsPath, 'utf-8');
       const settingsParsed = JSON.parse(settings);
-      settingsParsed.piv_results = path.join(PROJECT_CONFIG.projectDirectory, 'piv_results.json');
+      settingsParsed.piv_results = path.join(projectDirectory, 'piv_results.json');
       await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 2));
 
       return {
