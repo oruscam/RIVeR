@@ -454,6 +454,205 @@
     background: var(--on-hover);
 }
 
+/* Prepare screen (spec 2026-10-03): the footage screen's frame, top-aligned
+   so a warning appearing under the drop box moves nothing above it. */
+.default-app-container.cal-prepare {
+    justify-content: flex-start;
+    padding-top: var(--space-7);
+    overflow-y: auto;
+}
+
+/* Prepare's title: the footage screen's display size, at a fixed top margin. */
+.cal-prepare-title {
+    margin-top: var(--space-5);
+    font-family: var(--font-display);
+    font-size: var(--text-display);
+    font-weight: 700;
+    line-height: 1.1;
+    text-wrap: balance;
+}
+
+/* One subdued line under the title saying what a profile is for. */
+.cal-prepare-lede {
+    max-width: 60ch;
+    margin: var(--space-2) 0 var(--space-7);
+    font-size: var(--text-section);
+    color: var(--text-subdued);
+    text-align: center;
+    text-wrap: balance;
+}
+
+/* The two steps side by side, on the footage screen's 850px column. */
+.cal-prepare-steps {
+    width: 850px;
+    max-width: calc(100% - 2 * var(--space-5));
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-7);
+    align-items: start;
+}
+
+/* Step heading: numeral badge then the step name, at the browse header's size. */
+.cal-prepare-step-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0 0 var(--space-3);
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 700;
+}
+
+/* The step numeral: outlined while pending; the order is the instruction. */
+.cal-prepare-num {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    border-radius: var(--radius-full);
+    display: grid;
+    place-items: center;
+    border: 1.5px solid var(--text-subdued);
+    color: var(--text-subdued);
+    font-family: Inter, system-ui, sans-serif;
+    font-size: var(--text-meta);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.cal-prepare-num.done {
+    border-color: var(--accent-color);
+    background: var(--accent-color);
+    color: var(--on-accent);
+}
+
+/* The sentence under each step heading. */
+.cal-prepare-text {
+    margin: 0 0 var(--space-3);
+    font-size: var(--text-body);
+    line-height: 1.55;
+    color: var(--text-subdued);
+}
+
+/* Shooting tips: icon then text, the same things the solver later grades. */
+.cal-prepare-tips {
+    list-style: none;
+    margin: 0 0 var(--space-5);
+    padding: 0;
+    display: grid;
+    gap: var(--space-2);
+}
+
+.cal-prepare-tips li {
+    display: grid;
+    grid-template-columns: 18px 1fr;
+    gap: var(--space-2);
+    align-items: start;
+    font-size: var(--text-body);
+    line-height: 1.45;
+}
+
+.cal-prepare-tips svg {
+    margin-top: 1px;
+    color: var(--text-subdued);
+}
+
+/* "Already have photos?" caption under Show board. */
+.cal-prepare-skip {
+    margin: var(--space-3) 0 0;
+    font-size: var(--text-caption);
+    color: var(--text-subdued);
+}
+
+/* The only drop target in calibration: the footage screen's dashed box,
+   sized for a column. Solid on the panel surface once a folder is loaded. */
+.cal-prepare-drop {
+    height: 212px;
+    border: 1px dashed color-mix(in srgb, var(--text-subdued) 60%, transparent);
+    border-radius: var(--radius-xl);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+    padding: var(--space-4);
+    text-align: center;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.cal-prepare-drop.loaded {
+    border-style: solid;
+    border-color: var(--border-color);
+    background: var(--surface-panel);
+}
+
+.cal-prepare-drop.drag-over {
+    border-color: var(--text-primary);
+}
+
+/* "Drag a folder of photos here" / "Reading photos…" inside the box. */
+.cal-prepare-hint {
+    margin: 0;
+    font-size: var(--text-body);
+    color: var(--text-subdued);
+}
+
+/* The loaded folder's name, truncated; its full path is in the title. */
+.cal-prepare-folder {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    max-width: 100%;
+    margin: 0;
+    font-size: var(--text-section);
+    font-weight: 600;
+}
+
+.cal-prepare-folder span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.cal-prepare-folder svg {
+    flex: none;
+    color: var(--text-subdued);
+}
+
+/* "24 photos · 5312 × 2988 px" under the folder name. */
+.cal-prepare-count {
+    margin: calc(-1 * var(--space-2)) 0 0;
+    font-size: var(--text-meta);
+    color: var(--text-subdued);
+    font-variant-numeric: tabular-nums;
+}
+
+/* Too-few warning or empty-folder error under the box: icon then text. */
+.cal-prepare-note {
+    display: grid;
+    grid-template-columns: 16px 1fr;
+    gap: var(--space-2);
+    margin: var(--space-3) 0 0;
+    font-size: var(--text-meta);
+    line-height: 1.45;
+}
+
+/* The too-few icon takes the fair grade's colour; the text stays primary. */
+.cal-prepare-warn-icon {
+    margin-top: 1px;
+    color: var(--status-fair);
+}
+
+/* The empty-folder icon takes the bad grade's colour. */
+.cal-prepare-error-icon {
+    margin-top: 1px;
+    color: var(--status-bad);
+}
+
+/* Back/Solve sit a fixed step under the columns, not pushed to the window edge. */
+.cal-prepare .wizard-container {
+    margin-top: var(--space-6);
+}
+
 /* ── Lens correction settings rows (VideoRange) ──────────────── */
 .lens-row-trigger {
     background: transparent;
