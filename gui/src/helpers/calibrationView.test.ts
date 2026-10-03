@@ -156,6 +156,16 @@ describe('footerAction after a save', () => {
     });
   });
 
+  it('stays busy while a re-solve runs after a save', () => {
+    expect(footerAction({ status: 'solving', imageCount: 20, cameraName: '', lensName: '', saved: true })).toEqual(
+      {
+        kind: 'solve',
+        blocker: 'solving',
+        busy: true,
+      }
+    );
+  });
+
   it('stays Save profile while not saved', () => {
     expect(
       footerAction({ status: 'solved', imageCount: 20, cameraName: 'A', lensName: 'B', saved: false }).kind
