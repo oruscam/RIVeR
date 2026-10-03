@@ -61,6 +61,7 @@ export const DrawIpcam = ({
       localPoints,
       factor,
       scale,
+      position,
       width,
       height,
       activePoint,
