@@ -513,7 +513,7 @@
     place-items: center;
     border: 1.5px solid var(--text-subdued);
     color: var(--text-subdued);
-    font-family: Inter, system-ui, sans-serif;
+    font-family: inherit;
     font-size: var(--text-meta);
     font-weight: 600;
     font-variant-numeric: tabular-nums;
