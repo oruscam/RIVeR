@@ -11,7 +11,7 @@ const install = (withScope: boolean) => {
       sel === '[data-theme-scope]' ? (withScope ? reportRoot : null) : sel === '[data-theme]' ? appRoot : null,
   };
   (global as any).getComputedStyle = (el: El) => ({
-    getPropertyValue: () => (el.id === 'report' ? '#0072B2' : '#56B4E9'),
+    getPropertyValue: () => (el.id === 'report' ? '#1F78B4' : '#6CD4FF'),
   });
 };
 
@@ -22,10 +22,10 @@ afterEach(() => {
 
 test('reads from the app theme root when no report is mounted', () => {
   install(false);
-  expect(getCSSVar('--tech-lspiv')).toBe('#56B4E9');
+  expect(getCSSVar('--tech-lspiv')).toBe('#6CD4FF');
 });
 
 test('a mounted report scope wins over the app theme', () => {
   install(true);
-  expect(getCSSVar('--tech-lspiv')).toBe('#0072B2');
+  expect(getCSSVar('--tech-lspiv')).toBe('#1F78B4');
 });

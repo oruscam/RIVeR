@@ -56,6 +56,25 @@
      works everywhere and isn't redeclared per theme. */
   --pin-ink: #0B0D10;
 
+  /* Pin colours — cross-section left/right pins, and the plain "point" pin
+     used everywhere else (UAV pixel size, Oblique corners, ipcam control
+     points). Drawn on footage, so like --pin-ink they are the same in every
+     theme, Dracula included: red left / green right is RIVeR's historical
+     bank convention and must read the same whatever the chrome around it. */
+  --pin-left:  #ED6B57;
+  --pin-right: #62C655;
+  --pin-point: #6CD4FF;
+  --pin-muted: #808080;
+
+  /* Control point distance colours (Oblique 1–2 … 3–4). Drawn on footage and
+     repeated in the form's swatches; one fixed set in every theme. */
+  --d12: #6CD4FF;
+  --d13: #CC4BC2;
+  --d14: #F5BF61;
+  --d23: #62C655;
+  --d24: #7765E3;
+  --d34: #ED6B57;
+
   /* Mask overlay colours — white outline/hatch over a dimmed fill, per the
      design audit's Canvas overlays finding ("Masks use the same red as
      errors and the left bank"). Like --pin-ink, these sit on footage rather
@@ -114,11 +133,13 @@
   --on-success: #000000;
 
   /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
-     lines/markers, Processing technique rows. Deliberately its own set,
-     never the same colour as accent or the status pair above. */
-  --tech-lspiv: #56B4E9;
-  --tech-stiv:  #E69F00;
-  --tech-iwave: #009E73;
+     lines/markers, Processing technique rows. Cyan / gold / magenta, taken
+     from RIVeR's own distance palette (d12/d14/d13) and tuned per theme.
+     Never the accent; STIV may share the "fair" gold, since the ● ■ ▲
+     markers and the name always travel with the colour. */
+  --tech-lspiv: #6CD4FF;
+  --tech-stiv:  #F5BF61;
+  --tech-iwave: #E07BD6;
 
   /* Aliases Phase 3's components are written against — each one points at
      a token this theme block already declares above. No new colour values. */
@@ -168,25 +189,6 @@
   --report-gradient-1: #0678BE;
   --report-gradient-2: #033858;
 
-  /* Control point distance colors */
-  --d12: #6CD4FF;
-  --d13: #CC4BC2;
-  --d14: #F5BF61;
-  --d23: #62C655;
-  --d24: #7765E3;
-  --d34: #ED6B57;
-
-  /* Pin colours — cross-section left/right pins, and the plain "point" pin
-     used everywhere else (UAV pixel size, Oblique corners, ipcam control
-     points). Historically duplicated as pinRed.svg/pinGreen.svg/pin.svg/
-     pinGrey.svg and, separately, createPinsBase64.ts's inline SVG strings —
-     with the two reds actually different values (#ED6B57 vs #FF6C6C). One
-     set of tokens now. */
-  --pin-left:  #ED6B57;
-  --pin-right: #62C655;
-  --pin-point: #6CD4FF;
-  --pin-muted: #808080;
-
   /* Theme wash — the soft coloured bloom behind the Home screen's logo and at
      the top of the Results panel. Theme-specific, so unlike the type scale it
      cannot live in the bare :root block. Consumed in Phase 6f. */
@@ -225,11 +227,13 @@
   --on-success: #FFFFFF;
 
   /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
-     lines/markers, Processing technique rows. Deliberately its own set,
-     never the same colour as accent or the status pair above. */
-  --tech-lspiv: #0072B2;
-  --tech-stiv:  #B86E00;
-  --tech-iwave: #00795A;
+     lines/markers, Processing technique rows. Cyan / gold / magenta, taken
+     from RIVeR's own distance palette (d12/d14/d13) and tuned per theme.
+     Never the accent; STIV may share the "fair" gold, since the ● ■ ▲
+     markers and the name always travel with the colour. */
+  --tech-lspiv: #1F78B4;
+  --tech-stiv:  #9A6A0C;
+  --tech-iwave: #A23C99;
 
   /* Aliases Phase 3's components are written against — each one points at
      a token this theme block already declares above. No new colour values. */
@@ -281,21 +285,6 @@
   --report-gradient-1: #0678BE;
   --report-gradient-2: #033858;
 
-  /* Control point distance colors — same vivid values as dark theme */
-  --d12: #6CD4FF;
-  --d13: #CC4BC2;
-  --d14: #F5BF61;
-  --d23: #62C655;
-  --d24: #7765E3;
-  --d34: #ED6B57;
-
-  /* Pin colours — same vivid values as dark theme (canvas overlay colours
-     read against video footage, not the panel background). */
-  --pin-left:  #ED6B57;
-  --pin-right: #62C655;
-  --pin-point: #6CD4FF;
-  --pin-muted: #808080;
-
   /* Theme wash — see the dark theme's note. Corrected from the audit's literal
      #DDEBF7 (1.01:1 against this codebase's light panel #E3E9F1 — the audit's
      own value was taken from a document whose panel colour differs from
@@ -335,11 +324,13 @@
   --on-success: #282A36;
 
   /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
-     lines/markers, Processing technique rows. Deliberately its own set,
-     never the same colour as accent or the status pair above. */
+     lines/markers, Processing technique rows. Cyan / gold / magenta, taken
+     from RIVeR's own distance palette (d12/d14/d13) and tuned per theme.
+     Never the accent; STIV may share the "fair" gold, since the ● ■ ▲
+     markers and the name always travel with the colour. */
   --tech-lspiv: #8BE9FD;
-  --tech-stiv:  #E0954D;
-  --tech-iwave: #4DD9B0;
+  --tech-stiv:  #F1FA8C;
+  --tech-iwave: #FF79C6;
 
   /* Aliases Phase 3's components are written against — each one points at
      a token this theme block already declares above. No new colour values. */
@@ -388,22 +379,6 @@
   /* Report */
   --report-gradient-1: #bd93f9;
   --report-gradient-2: #6272a4;
-
-  /* Control point distance colors (matching Dracula palette) */
-  --d12: #8be9fd;   /* cyan */
-  --d13: #ff79c6;   /* pink */
-  --d14: #ffb86c;   /* orange */
-  --d23: #50fa7b;   /* green */
-  --d24: #bd93f9;   /* purple */
-  --d34: #ff5555;   /* red */
-
-  /* Pin colours — mapped onto Dracula's own red/green/cyan/comment-grey
-     (matching --background-error/--success-color/--tech-lspiv/--disabled-button
-     above) instead of the dark/light theme's literal hex values. */
-  --pin-left:  #ff5555;
-  --pin-right: #50fa7b;
-  --pin-point: #8be9fd;
-  --pin-muted: #6272a4;
 
   /* Theme wash — see the dark theme's note. */
   --wash-2: #33294F;
