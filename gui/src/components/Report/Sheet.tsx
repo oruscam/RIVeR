@@ -9,11 +9,13 @@ interface SheetProps {
   title: string;
   /** Measurement date as entered. */
   date: string;
+  /** Version, export time and GitHub link, beside the logo. */
+  colophon: React.ReactNode;
   children: React.ReactNode;
 }
 
 /** One printed A4 page. Report.tsx decides which blocks fit; the body never grows past the page. */
-export const Sheet = ({ page, pages, title, date, children }: SheetProps) => {
+export const Sheet = ({ page, pages, title, date, colophon, children }: SheetProps) => {
   const { t } = useTranslation();
   return (
     <section className="sheet">
@@ -21,12 +23,10 @@ export const Sheet = ({ page, pages, title, date, children }: SheetProps) => {
       <footer className="sheet-footer">
         <span className="sheet-who">
           <img className="sheet-logo" src={logo} alt="RIVeR" />
-          <span>
-            {title} · {date}
-          </span>
+          {colophon}
         </span>
-        <span>
-          {t('Report.Doc.page', { defaultValue: 'page' })} {page} / {pages}
+        <span className="sheet-where">
+          {title} · {date} · {t('Report.Doc.page', { defaultValue: 'page' })} {page} / {pages}
         </span>
       </footer>
     </section>

@@ -18,9 +18,18 @@ interface obliqueSvgProps {
   svgElement: SVGSVGElement;
   width: number;
   height: number;
+  /** Pin size divisor; larger draws smaller pins and thinner lines (the report's small frame). */
+  pinDivisor?: number;
 }
 
-export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: obliqueSvgProps) => {
+export const obliqueSvg = ({
+  factor,
+  coordinates,
+  svgElement,
+  width,
+  height,
+  pinDivisor = 1.2,
+}: obliqueSvgProps) => {
   const svg = d3.select(svgElement);
 
   svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
@@ -53,7 +62,7 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
             return COLORS.BLACK;
         }
       })
-      .attr('stroke-width', 2);
+      .attr('stroke-width', 2.4 / pinDivisor);
   }
 
   if (coordinates.length > 1) {
@@ -64,7 +73,7 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
       .attr('x2', coordinates[0].x / factor.x)
       .attr('y2', coordinates[0].y / factor.y)
       .attr('stroke', DC.D14)
-      .attr('stroke-width', 2);
+      .attr('stroke-width', 2.4 / pinDivisor);
 
     svg
       .append('line')
@@ -73,7 +82,7 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
       .attr('x2', coordinates[2].x / factor.x)
       .attr('y2', coordinates[2].y / factor.y)
       .attr('stroke', DC.D13)
-      .attr('stroke-width', 2);
+      .attr('stroke-width', 2.4 / pinDivisor);
 
     svg
       .append('line')
@@ -82,7 +91,7 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
       .attr('x2', coordinates[3].x / factor.x)
       .attr('y2', coordinates[3].y / factor.y)
       .attr('stroke', DC.D24)
-      .attr('stroke-width', 2);
+      .attr('stroke-width', 2.4 / pinDivisor);
   }
 
   // Every corner is the plain blue "point" pin, at the report's fixed
@@ -94,7 +103,7 @@ export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: o
       tip: { x: point.x / factor.x, y: point.y / factor.y },
       kind: 'point',
       label: `${i + 1}`,
-      divisor: 1.2,
+      divisor: pinDivisor,
     });
   });
 };

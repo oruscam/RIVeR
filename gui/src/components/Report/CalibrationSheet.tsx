@@ -108,6 +108,7 @@ const Oblique = ({ measure = false }: { measure?: boolean }) => {
         svgElement: svgRef.current,
         width: box.width,
         height: box.height,
+        pinDivisor: REPORT_FLOW.METHOD_PIN_DIVISOR,
       });
     }
   }, [factor, coordinates, distances, box.width, box.height, measure]);
@@ -152,9 +153,6 @@ const Oblique = ({ measure = false }: { measure?: boolean }) => {
                 <th>
                   {t('Report.Doc.solved', { defaultValue: 'Solved' })} {len}
                 </th>
-                <th>
-                  {t('Report.Doc.residual', { defaultValue: 'Residual' })} {len}
-                </th>
               </tr>
             </thead>
             <tbody>
@@ -163,7 +161,6 @@ const Oblique = ({ measure = false }: { measure?: boolean }) => {
                   <td>{r.label}</td>
                   <td>{l2(r.entered)}</td>
                   <td>{l2(r.solved)}</td>
-                  <td>{l2(r.residual)}</td>
                 </tr>
               ))}
             </tbody>
@@ -186,7 +183,14 @@ const Ipcam = ({ measure = false }: { measure?: boolean }) => {
     d3.select(svgRef.current).selectAll('*').remove();
     if (measure) return;
     if (svgRef.current && points !== null) {
-      ipcamSvg({ factor, points, svgElement: svgRef.current, width: box.width, height: box.height });
+      ipcamSvg({
+        factor,
+        points,
+        svgElement: svgRef.current,
+        width: box.width,
+        height: box.height,
+        pinDivisor: REPORT_FLOW.METHOD_PIN_DIVISOR,
+      });
     }
   }, [points, factor, box.width, box.height, measure]);
 
@@ -209,35 +213,33 @@ const Ipcam = ({ measure = false }: { measure?: boolean }) => {
           {cameraPosition.map(l2).join(' / ')} {len}
         </dd>
       </dl>
-      <div className="doc-cols">
-        <table className="doc-table doc-table--numeric">
-          <thead>
-            <tr>
-              <th>{t('Report.Doc.point', { defaultValue: 'Point' })}</th>
-              <th>X {len}</th>
-              <th>Y {len}</th>
-              <th>Z {len}</th>
-              <th>{t('Report.Doc.error', { defaultValue: 'Error' })} px</th>
-              <th>{t('Report.Doc.inSolve', { defaultValue: 'In solve' })}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r) => {
-              const p = points[r.index];
-              return (
-                <tr key={r.index}>
-                  <td>{r.label}</td>
-                  <td>{l2(p.X)}</td>
-                  <td>{l2(p.Y)}</td>
-                  <td>{l2(p.Z)}</td>
-                  <td>{f2(r.error)}</td>
-                  <td>{r.used ? yes : '-'}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+      <table className="doc-table doc-table--numeric">
+        <thead>
+          <tr>
+            <th>{t('Report.Doc.point', { defaultValue: 'Point' })}</th>
+            <th>X {len}</th>
+            <th>Y {len}</th>
+            <th>Z {len}</th>
+            <th>{t('Report.Doc.error', { defaultValue: 'Error' })} px</th>
+            <th>{t('Report.Doc.inSolve', { defaultValue: 'In solve' })}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => {
+            const p = points[r.index];
+            return (
+              <tr key={r.index}>
+                <td>{r.label}</td>
+                <td>{l2(p.X)}</td>
+                <td>{l2(p.Y)}</td>
+                <td>{l2(p.Z)}</td>
+                <td>{f2(r.error)}</td>
+                <td>{r.used ? yes : '-'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
     </>
   );
 };
