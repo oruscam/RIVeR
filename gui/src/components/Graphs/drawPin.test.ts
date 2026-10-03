@@ -38,7 +38,13 @@ describe('drawPin lean', () => {
 
   test('updatePinLean re-leans a dragged pin about the tip it was drawn at', () => {
     const layer = fakeSelection();
-    const pin = drawPin({ layer: layer as unknown as G, tip: { x: 100, y: 100 }, kind: 'point', label: '2', bounds: B });
+    const pin = drawPin({
+      layer: layer as unknown as G,
+      tip: { x: 100, y: 100 },
+      kind: 'point',
+      label: '2',
+      bounds: B,
+    });
     updatePinLean(pin, { x: 100, y: 5 }, 1, B);
     expect(layer.select('.pin-arm').node().attrs.transform).toBe('rotate(106, 100, 100)');
     expect(layer.select('.pin-label').node().attrs.transform).toBe('rotate(-106, 100, 66)');

@@ -1,5 +1,11 @@
 import type * as d3 from 'd3';
-import { OVERLAY_STYLE, OVERLAY_RATIOS, OVERLAY_HALO_COLOR, overlayLineParts, drawOverlayLine } from './overlayStyle';
+import {
+  OVERLAY_STYLE,
+  OVERLAY_RATIOS,
+  OVERLAY_HALO_COLOR,
+  overlayLineParts,
+  drawOverlayLine,
+} from './overlayStyle';
 import { fakeSelection, allTags } from './testing/fakeSelection';
 
 const seg = { from: { x: 0, y: 0 }, to: { x: 100, y: 0 }, color: '#F5BF61' };
@@ -49,7 +55,13 @@ describe('overlayLineParts', () => {
   });
 
   test('a zero-length segment gives finite ticks', () => {
-    const parts = overlayLineParts({ from: { x: 5, y: 5 }, to: { x: 5, y: 5 }, color: 'red', size: 'app', ticks: true });
+    const parts = overlayLineParts({
+      from: { x: 5, y: 5 },
+      to: { x: 5, y: 5 },
+      color: 'red',
+      size: 'app',
+      ticks: true,
+    });
     parts.forEach((p) => [p.x1, p.y1, p.x2, p.y2].forEach((v) => expect(Number.isFinite(v)).toBe(true)));
   });
 });
@@ -72,7 +84,13 @@ describe('drawOverlayLine', () => {
     expect(group.attrs['pointer-events']).toBe('none');
     const lines = allTags(layer.node(), 'line');
     expect(lines).toHaveLength(4);
-    expect(lines[0].attrs).toMatchObject({ stroke: 'rgba(0, 0, 0, 0.5)', 'stroke-width': 6, 'stroke-linecap': 'round', 'stroke-dasharray': '7.5,9', 'vector-effect': 'non-scaling-stroke' });
+    expect(lines[0].attrs).toMatchObject({
+      stroke: 'rgba(0, 0, 0, 0.5)',
+      'stroke-width': 6,
+      'stroke-linecap': 'round',
+      'stroke-dasharray': '7.5,9',
+      'vector-effect': 'non-scaling-stroke',
+    });
     expect(lines[1].attrs).toMatchObject({ stroke: '#F5BF61', 'stroke-width': 3 });
     expect(lines[2].attrs['stroke-dasharray']).toBeNull();
   });
