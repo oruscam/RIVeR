@@ -3,6 +3,7 @@ import { factor } from '../../types';
 import { IpcamPoint } from '../../store/ipcam/types';
 import { COLORS } from '../../constants/constants';
 import { drawPin } from './drawPin';
+import { drawOverlayLine, OVERLAY_STYLE } from './overlayStyle';
 
 interface ipcamSvgProps {
   factor: factor;
@@ -10,11 +11,9 @@ interface ipcamSvgProps {
   svgElement: SVGSVGElement;
   width: number;
   height: number;
-  /** Pin size divisor; larger draws smaller pins (the report's small frame). */
-  pinDivisor?: number;
 }
 
-export const ipcamSvg = ({ factor, points, svgElement, width, height, pinDivisor = 1.2 }: ipcamSvgProps) => {
+export const ipcamSvg = ({ factor, points, svgElement, width, height }: ipcamSvgProps) => {
   const svg = d3.select(svgElement);
 
   svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
@@ -58,14 +57,14 @@ export const ipcamSvg = ({ factor, points, svgElement, width, height, pinDivisor
         .attr('fill', COLORS.RED);
 
       if (x && y) {
-        clippedGroup
-          .append('line')
-          .attr('x1', x / factor.x)
-          .attr('y1', y / factor.y)
-          .attr('x2', projectedPoint[0] / factor.x)
-          .attr('y2', projectedPoint[1] / factor.y)
-          .attr('stroke', COLORS.RED)
-          .attr('stroke-width', 1);
+        drawOverlayLine({
+          layer: clippedGroup,
+          from: { x: x / factor.x, y: y / factor.y },
+          to: { x: projectedPoint[0] / factor.x, y: projectedPoint[1] / factor.y },
+          color: COLORS.RED,
+          size: 'report',
+          thin: true,
+        });
       }
     }
 
@@ -74,7 +73,8 @@ export const ipcamSvg = ({ factor, points, svgElement, width, height, pinDivisor
         layer: clippedGroup, // already a Selection<SVGGElement, ...> — no cast needed
         tip: { x: x / factor.x, y: y / factor.y },
         kind: selected ? 'point' : 'muted',
-        divisor: pinDivisor,
+        divisor: OVERLAY_STYLE.report.PIN_DIVISOR,
+        bounds: { x: 0, y: 0, width, height },
       });
     }
   }
