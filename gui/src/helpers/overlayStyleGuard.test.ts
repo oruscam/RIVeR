@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 const read = (p: string) => readFileSync(join(__dirname, '..', '..', p), 'utf8');
@@ -11,13 +11,17 @@ describe('drawSections uses the shared overlay style', () => {
     expect(src).not.toContain('resizeFactor');
   });
   test('L/R pins: x-sections and report always, results only for the active section', () => {
-    expect(src).toMatch(/module === 'x-sections' \|\| module === 'report' \|\| \(module === 'results' && isActive\)/);
+    expect(src).toMatch(
+      /module === 'x-sections' \|\| module === 'report' \|\| \(module === 'results' && isActive\)/
+    );
   });
   test('the "see all off" early return for inactive results sections stays ahead of the pins', () => {
-    expect(src.indexOf("seeAll === false && !isActive && module === 'results'")).toBeLessThan(src.indexOf('showBankPins'));
+    expect(src.indexOf("seeAll === false && !isActive && module === 'results'")).toBeLessThan(
+      src.indexOf('showBankPins')
+    );
   });
   test('every pin gets bounds, and dragged pins re-lean', () => {
-    expect(src).toContain("visibleImageBounds(");
+    expect(src).toContain('visibleImageBounds(');
     expect(src.match(/updatePinLean\(/g)?.length).toBe(2);
   });
 });
@@ -34,7 +38,7 @@ describe('oblique and ipcam canvases use the shared overlay style', () => {
   });
   test('pins get the visible image (image space) and re-lean while dragged', () => {
     for (const src of [oblique, ipcam]) {
-      expect(src).toContain("visibleImageBounds(");
+      expect(src).toContain('visibleImageBounds(');
       expect(src).toContain("'image'");
       expect(src).toContain('updatePinLean(');
     }
@@ -64,5 +68,12 @@ describe('report calibration overlays use the report size', () => {
   test('the report no longer carries its own pin divisor', () => {
     expect(read('src/components/Report/CalibrationSheet.tsx')).not.toContain('pinDivisor');
     expect(read('src/constants/constants.ts')).not.toContain('METHOD_PIN_DIVISOR');
+  });
+});
+
+describe('dead overlay drawers', () => {
+  test('LineAndText and drawSvgSectionLine are gone', () => {
+    expect(existsSync(join(__dirname, '..', 'components', 'LineAndText.tsx'))).toBe(false);
+    expect(existsSync(join(__dirname, '..', 'components', 'Graphs', 'drawSvgSectionLine.ts'))).toBe(false);
   });
 });

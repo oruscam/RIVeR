@@ -12,7 +12,12 @@ export interface FakeNode {
 
 const find = (node: FakeNode, cls: string): FakeNode | null => {
   for (const child of node.children) {
-    if (String(child.attrs.class ?? '').split(' ').includes(cls)) return child;
+    if (
+      String(child.attrs.class ?? '')
+        .split(' ')
+        .includes(cls)
+    )
+      return child;
     const deeper = find(child, cls);
     if (deeper) return deeper;
   }

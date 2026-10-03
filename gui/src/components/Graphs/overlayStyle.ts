@@ -10,10 +10,11 @@ export type OverlaySize = 'app' | 'report';
 
 type Point = { x: number; y: number };
 
-export const OVERLAY_STYLE: Record<OverlaySize, { LINE_WIDTH: number; THIN_WIDTH: number; PIN_DIVISOR: number }> = {
-  app: { LINE_WIDTH: 3, THIN_WIDTH: 1, PIN_DIVISOR: 1 },
-  report: { LINE_WIDTH: 1.5, THIN_WIDTH: 0.75, PIN_DIVISOR: 2 },
-};
+export const OVERLAY_STYLE: Record<OverlaySize, { LINE_WIDTH: number; THIN_WIDTH: number; PIN_DIVISOR: number }> =
+  {
+    app: { LINE_WIDTH: 3, THIN_WIDTH: 1, PIN_DIVISOR: 1 },
+    report: { LINE_WIDTH: 1.5, THIN_WIDTH: 0.75, PIN_DIVISOR: 2 },
+  };
 
 /** Multiples of the line width, so both sizes keep the same proportions. */
 export const OVERLAY_RATIOS = { HALO: 2, DASH_ON: 2.5, DASH_OFF: 3, TICK_HALF_LENGTH: 3, TICK_WIDTH: 0.6 };
@@ -62,7 +63,8 @@ export const overlayLineParts = ({
   const dash = dashed ? `${w * OVERLAY_RATIOS.DASH_ON},${w * OVERLAY_RATIOS.DASH_OFF}` : null;
 
   const parts: LinePart[] = [];
-  if (!thin) parts.push({ role: 'halo', ...segment, stroke: OVERLAY_HALO_COLOR, width: w * OVERLAY_RATIOS.HALO, dash });
+  if (!thin)
+    parts.push({ role: 'halo', ...segment, stroke: OVERLAY_HALO_COLOR, width: w * OVERLAY_RATIOS.HALO, dash });
   parts.push({ role: 'stroke', ...segment, stroke: color, width: w, dash });
 
   if (ticks) {

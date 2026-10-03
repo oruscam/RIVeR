@@ -561,7 +561,12 @@ const drawInteractiveSection = ({
     scale: viewport.scale,
   });
   const bounds = visibleImageBounds(
-    { width: viewport.imageWidth, height: viewport.imageHeight, position: viewport.position, scale: viewport.scale },
+    {
+      width: viewport.imageWidth,
+      height: viewport.imageHeight,
+      position: viewport.position,
+      scale: viewport.scale,
+    },
     'screen'
   );
 
@@ -666,13 +671,33 @@ const drawInteractiveSection = ({
   // cleaned up on the next render without touching the static label.
   if (startPoint) {
     const pScreen = toScreenFromZoom(startPoint);
-    const c1 = drawIcon(pScreen, 'L', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module, bankLabels, size, bounds);
+    const c1 = drawIcon(
+      pScreen,
+      'L',
+      uiLayer,
+      true,
+      `${sectionClass} ${interactiveUiClass}`,
+      module,
+      bankLabels,
+      size,
+      bounds
+    );
     c1.call(dragStartPoint as any);
   }
 
   if (endPoint) {
     const pScreen = toScreenFromZoom(endPoint);
-    const c2 = drawIcon(pScreen, 'R', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module, bankLabels, size, bounds);
+    const c2 = drawIcon(
+      pScreen,
+      'R',
+      uiLayer,
+      true,
+      `${sectionClass} ${interactiveUiClass}`,
+      module,
+      bankLabels,
+      size,
+      bounds
+    );
     c2.call(dragEndPoint as any);
   }
 };

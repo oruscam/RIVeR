@@ -131,7 +131,14 @@ export const drawOblique = ({
   localPoints.forEach((point, i) => {
     if (isDefaultCoordinates && i !== 0) return;
 
-    const g = drawPin({ layer, tip: point, kind: i === 0 ? 'left' : 'point', label: `${i + 1}`, divisor: scale, bounds });
+    const g = drawPin({
+      layer,
+      tip: point,
+      kind: i === 0 ? 'left' : 'point',
+      label: `${i + 1}`,
+      divisor: scale,
+      bounds,
+    });
     g.attr('cursor', 'move')
       .datum({ index: i })
       .call(dragPoint as any);
