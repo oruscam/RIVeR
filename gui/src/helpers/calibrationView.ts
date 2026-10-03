@@ -61,7 +61,7 @@ export const footerAction = ({
   lensName: string;
   saved?: boolean;
 }): FooterAction => {
-  if (saved) return { kind: 'done', blocker: null, busy: false };
+  if (saved && status === 'solved') return { kind: 'done', blocker: null, busy: false };
   if (status === 'solved') {
     const hasCamera = cameraName.trim().length > 0;
     const hasLens = lensName.trim().length > 0;
