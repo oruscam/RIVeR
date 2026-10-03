@@ -230,6 +230,11 @@ describe('CalibrationPrepare', () => {
     expect(prepare).toMatch(/setScan\(count === 0 \? ['"]empty['"] : ['"]idle['"]\)/);
   });
 
+  it('shows an error when the scan fails instead of silently resetting', () => {
+    expect(prepare).toMatch(/setScan\(['"]failed['"]\)/);
+    expect(prepare).toMatch(/Calibration\.errorGeneric/);
+  });
+
   it('warns about too few photos without blocking, and reports an empty folder', () => {
     expect(prepare).toMatch(/advice === ['"]tooFew['"]/);
     expect(prepare).toMatch(/Errors\.imagesFolderEmpty/);

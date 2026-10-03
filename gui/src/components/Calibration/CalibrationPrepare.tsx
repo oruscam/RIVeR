@@ -4,7 +4,7 @@ import { LuAlertTriangle, LuCheck, LuFolder, LuFrame, LuMonitor, LuScan } from '
 import { handleDragLeave, handleDragOver } from '../../helpers';
 import { folderName, MIN_RECOMMENDED_PHOTOS, parentDir, photoCountAdvice } from '../../helpers/calibrationView';
 
-type ScanState = 'idle' | 'scanning' | 'empty';
+type ScanState = 'idle' | 'scanning' | 'empty' | 'failed';
 
 interface CalibrationPrepareProps {
   imageDir: string;
@@ -64,7 +64,7 @@ export const CalibrationPrepare = ({
       const count = await run();
       setScan(count === 0 ? 'empty' : 'idle');
     } catch {
-      setScan('idle');
+      setScan('failed');
     }
   };
 
@@ -164,6 +164,12 @@ export const CalibrationPrepare = ({
             <p className="cal-prepare-note" role="alert">
               <LuAlertTriangle size={16} className="cal-prepare-error-icon" aria-hidden="true" />
               <span>{t('Errors.imagesFolderEmpty')}</span>
+            </p>
+          )}
+          {scan === 'failed' && (
+            <p className="cal-prepare-note" role="alert">
+              <LuAlertTriangle size={16} className="cal-prepare-error-icon" aria-hidden="true" />
+              <span>{t('Calibration.errorGeneric')}</span>
             </p>
           )}
         </section>
