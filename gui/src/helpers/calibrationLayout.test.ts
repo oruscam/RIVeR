@@ -149,8 +149,11 @@ describe('the calibration page', () => {
     expect(page).toMatch(/<FormCalibration\b/);
   });
 
-  it('has no drop target outside Prepare', () => {
-    expect(page).not.toMatch(/onDrop=|onDragOver=|drag-over/);
+  it('has no drop target outside Prepare, and swallows stray drops on the workspace', () => {
+    expect(page).toMatch(/onDragOver=\{swallow\} onDrop=\{swallow\}/);
+    expect(page.replace(/on(DragOver|Drop)=\{swallow\}/g, '')).not.toMatch(
+      /onDrop=|onDragOver=|onDragLeave=|drag-over/
+    );
   });
 
   it('sends Esc back to Prepare, never while a solve runs', () => {
@@ -248,7 +251,9 @@ describe('CalibrationPrepare', () => {
   it('gates Solve with aria-disabled, an early return and a reason', () => {
     expect(prepare).toMatch(/aria-disabled=\{!canSolve\}/);
     expect(prepare).toMatch(/if \(!canSolve\) return;/);
-    expect(prepare).toMatch(/title=\{canSolve \? undefined : t\(['"]Calibration\.importFirst['"]/);
+    expect(prepare).toMatch(
+      /title=\{\s*canSolve\s*\?\s*undefined\s*:\s*scan === ['"]scanning['"]\s*\?\s*t\(['"]Calibration\.prepare\.reading['"]\)\s*:\s*t\(['"]Calibration\.importFirst['"]\)/
+    );
   });
 
   it('accepts drops only on the drop box, and swallows stray drops everywhere else', () => {
