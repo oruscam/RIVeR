@@ -1,8 +1,10 @@
 import { BankLabels, resolvePinLabel } from '../../helpers/pinLabel';
 import * as d3 from 'd3';
 import { COLORS } from '../../constants/constants';
-import { drawPin, PinKind } from '../Graphs/drawPin';
+import { drawPin, PinKind, updatePinLean } from '../Graphs/drawPin';
 import { showMagnifier, hideMagnifier } from '../Graphs/drawMagnifier';
+import { drawOverlayLine, OVERLAY_STYLE, type OverlaySize } from '../Graphs/overlayStyle';
+import { visibleImageBounds, type Bounds } from '../Graphs/pinLean';
 
 type Point = { x: number; y: number };
 
@@ -55,70 +57,47 @@ const normalizeFactor = (factor: number | { x: number; y: number }) => {
 };
 
 /**
- * Style choices for lines and labels by module.
+ * Colour and size by module. Widths live in overlayStyle.ts; only the report
+ * draws at report size.
  */
 const getSectionStyles = (module: string) => {
-  let resizeFactor = 1;
   let lineColor = COLORS.BLACK;
   let textColor = COLORS.BLACK;
 
   switch (module) {
     case 'uav':
-      resizeFactor = 1;
       lineColor = COLORS.LIGHT_BLUE;
       textColor = COLORS.MARK_R;
       break;
-
     case 'x-sections':
-      resizeFactor = 1;
+    case 'results':
+    case 'report':
       lineColor = COLORS.YELLOW;
       textColor = COLORS.YELLOW;
       break;
-
     case 'processing':
-      resizeFactor = 1;
       lineColor = COLORS.DARK_GREY;
       textColor = COLORS.BLACK;
       break;
-
-    case 'results':
-      resizeFactor = 1;
-      lineColor = COLORS.YELLOW;
-      textColor = COLORS.YELLOW;
-      break;
-
-    case 'report':
-      resizeFactor = 1.2;
-      lineColor = COLORS.YELLOW;
-      textColor = COLORS.YELLOW;
-      break;
-
     default:
       break;
   }
 
-  return {
-    resizeFactor,
-    lineColor,
-    textColor,
-  };
+  const size: OverlaySize = module === 'report' ? 'report' : 'app';
+  return { size, lineColor, textColor };
 };
 
 /**
- * Append a line with standard attributes and optional dash.
- * Points are in "image space" unless fx/fy=1 (zoom space).
- *
- * Draws a dark contrast halo behind the colored line so it stays legible
- * over any video footage (a flat single-width stroke can wash out over
- * light or busy backgrounds), and — for the dashed section line — small
- * perpendicular ticks at both ends so it reads as a measurement transect
- * rather than an arbitrary segment.
+ * A section line in "image space" divided by fx/fy (pass 1/1 for points
+ * already in zoom space). The dashed transect gets end ticks so it reads as a
+ * measurement line; the solid direction line does not. Widths stay in screen
+ * pixels inside the zoom layer (non-scaling stroke), as before.
  */
 const drawLine = ({
   points,
   group,
   color,
-  resizeFactor,
+  size,
   fx,
   fy,
   dashed = false,
@@ -127,70 +106,23 @@ const drawLine = ({
   points: [Point, Point];
   group: d3.Selection<SVGGElement, unknown, null, undefined>;
   color: string;
-  resizeFactor: number;
+  size: OverlaySize;
   fx: number;
   fy: number;
   dashed?: boolean;
   className: string;
-}) => {
-  const x1 = points[0].x / fx;
-  const y1 = points[0].y / fy;
-  const x2 = points[1].x / fx;
-  const y2 = points[1].y / fy;
-  const strokeWidth = 4 / resizeFactor;
-
-  group
-    .append('line')
-    .attr('class', `${className}-halo`)
-    .attr('x1', x1)
-    .attr('y1', y1)
-    .attr('x2', x2)
-    .attr('y2', y2)
-    .attr('stroke', 'rgba(0, 0, 0, 0.45)')
-    .attr('stroke-width', strokeWidth + 3)
-    .attr('stroke-linecap', 'round')
-    .attr('vector-effect', 'non-scaling-stroke')
-    .attr('stroke-dasharray', dashed ? '5,10' : null);
-
-  group
-    .append('line')
-    .attr('class', className)
-    .attr('x1', x1)
-    .attr('y1', y1)
-    .attr('x2', x2)
-    .attr('y2', y2)
-    .attr('stroke', color)
-    .attr('stroke-width', strokeWidth)
-    .attr('stroke-linecap', 'round')
-    .attr('vector-effect', 'non-scaling-stroke')
-    .attr('stroke-dasharray', dashed ? '5,10' : null);
-
-  if (dashed) {
-    const dx = x2 - x1;
-    const dy = y2 - y1;
-    const len = Math.sqrt(dx * dx + dy * dy) || 1;
-    const perpX = -dy / len;
-    const perpY = dx / len;
-    const tickLen = 10 / resizeFactor;
-
-    [
-      [x1, y1],
-      [x2, y2],
-    ].forEach(([tx, ty]) => {
-      group
-        .append('line')
-        .attr('class', `${className}-tick`)
-        .attr('x1', tx - perpX * tickLen)
-        .attr('y1', ty - perpY * tickLen)
-        .attr('x2', tx + perpX * tickLen)
-        .attr('y2', ty + perpY * tickLen)
-        .attr('stroke', color)
-        .attr('stroke-width', 2 / resizeFactor)
-        .attr('stroke-linecap', 'round')
-        .attr('vector-effect', 'non-scaling-stroke');
-    });
-  }
-};
+}) =>
+  drawOverlayLine({
+    layer: group,
+    from: { x: points[0].x / fx, y: points[0].y / fy },
+    to: { x: points[1].x / fx, y: points[1].y / fy },
+    color,
+    size,
+    dashed,
+    ticks: dashed,
+    className,
+    nonScaling: true,
+  });
 
 /**
  * Draw one crosshair pin (L or R for cross-sections, 1/2 for UAV pixel
@@ -204,7 +136,9 @@ const drawIcon = (
   draggable: boolean,
   extraClass: string = '',
   module: string,
-  bankLabels?: BankLabels
+  bankLabels?: BankLabels,
+  size: OverlaySize = 'app',
+  bounds?: Bounds
 ) => {
   const isLeft = type === 'L';
   const kind: PinKind = module === 'uav' ? 'point' : isLeft ? 'left' : 'right';
@@ -215,6 +149,8 @@ const drawIcon = (
     tip: position,
     kind,
     label,
+    divisor: OVERLAY_STYLE[size].PIN_DIVISOR,
+    bounds,
     className: `pin-${draggable ? 'draggable' : 'static'} pin-${type} ${extraClass}`.trim(),
   });
   g.attr('cursor', draggable ? 'move' : 'default').attr('pointer-events', draggable ? 'all' : 'none');
@@ -277,7 +213,6 @@ const drawSectionLabel = ({
   points,
   viewport,
   factor,
-  resizeFactor,
   color,
   className,
 }: {
@@ -292,7 +227,6 @@ const drawSectionLabel = ({
     scale: number;
   };
   factor: number | { x: number; y: number };
-  resizeFactor: number;
   color: string;
   className: string;
 }) => {
@@ -351,7 +285,7 @@ const drawSectionLabel = ({
   const screenPoint = toScreen({ x: labelD.x * fx, y: labelD.y * fy });
 
   // --- Badge rendering — same style as the L / R pin badges ---
-  const FONT_SIZE = 13 / resizeFactor;
+  const FONT_SIZE = 13;
 
   const g = uiLayer.append('g').attr('class', className).attr('pointer-events', 'none');
 
@@ -413,7 +347,7 @@ const drawStaticSection = ({
   skipLine = false,
 }: DrawSvgStaticSectionProps) => {
   const { fx, fy } = normalizeFactor(factor);
-  const { resizeFactor, lineColor, textColor } = getSectionStyles(module);
+  const { size, lineColor, textColor } = getSectionStyles(module);
 
   const token = toSectionToken(name);
   const sectionClass = `section-${token}`;
@@ -459,7 +393,7 @@ const drawStaticSection = ({
         points: [sectionPoints[0], sectionPoints[1]],
         group: useZoomLayer ? g : uiLayer,
         color: lineColor,
-        resizeFactor,
+        size,
         fx,
         fy,
         dashed: true,
@@ -473,7 +407,7 @@ const drawStaticSection = ({
         points: [dirPoints[0], dirPoints[1]],
         group: useZoomLayer ? g : uiLayer,
         color: lineColor,
-        resizeFactor,
+        size,
         fx,
         fy,
         dashed: false,
@@ -491,20 +425,23 @@ const drawStaticSection = ({
       points: [sectionPoints[0], sectionPoints[1]],
       viewport: { imageWidth, imageHeight, position, scale },
       factor,
-      resizeFactor,
       color: textColor,
       className: `static-section-label ${sectionClass}`,
     });
   }
 
-  // Icons in UI (screen space) — only when not deferring to interactive layer
-  if (!skipLine && module === 'x-sections' && hasMeaningfulDirPoints) {
+  // Bank pins in UI (screen space). Results shows them on the active section
+  // only (several sections can be drawn at once); the report's frame shows
+  // one section, so it always gets them.
+  const showBankPins = module === 'x-sections' || module === 'report' || (module === 'results' && isActive);
+  if (!skipLine && showBankPins && hasMeaningfulDirPoints) {
     const toScreen = toScreenFactory({ imageWidth, imageHeight, position, scale, fx, fy });
     const p0 = toScreen(dirPoints[0]);
     const p1 = toScreen(dirPoints[1]);
+    const bounds = visibleImageBounds({ width: imageWidth, height: imageHeight, position, scale }, 'screen');
 
-    drawIcon(p0, 'L', uiLayer, false, sectionClass, module, bankLabels);
-    drawIcon(p1, 'R', uiLayer, false, sectionClass, module, bankLabels);
+    drawIcon(p0, 'L', uiLayer, false, sectionClass, module, bankLabels, size, bounds);
+    drawIcon(p1, 'R', uiLayer, false, sectionClass, module, bankLabels, size, bounds);
   }
 };
 
@@ -573,7 +510,7 @@ const drawInteractiveSection = ({
   module,
   imageSrc,
 }: DrawSvgInteractiveSectionProps) => {
-  const { resizeFactor, lineColor } = getSectionStyles(module);
+  const { size, lineColor } = getSectionStyles(module);
 
   const token = toSectionToken(name ? name : 'uav');
   const sectionClass = `section-${token}`;
@@ -594,7 +531,7 @@ const drawInteractiveSection = ({
       points: [sectionPoints[0], sectionPoints[1]],
       group: layer,
       color: lineColor,
-      resizeFactor,
+      size,
       fx: typeof factor === 'number' ? factor : factor.x,
       fy: typeof factor === 'number' ? factor : factor.y,
       dashed: true,
@@ -608,7 +545,7 @@ const drawInteractiveSection = ({
       points: [startPoint, endPoint],
       group: layer,
       color: lineColor,
-      resizeFactor,
+      size,
       fx: 1,
       fy: 1,
       dashed: false,
@@ -623,6 +560,10 @@ const drawInteractiveSection = ({
     position: viewport.position,
     scale: viewport.scale,
   });
+  const bounds = visibleImageBounds(
+    { width: viewport.imageWidth, height: viewport.imageHeight, position: viewport.position, scale: viewport.scale },
+    'screen'
+  );
 
   // The screen position each pin was actually drawn at, captured once per
   // render — the fixed point every 'drag' tick's transform is relative to.
@@ -647,6 +588,7 @@ const drawInteractiveSection = ({
           'transform',
           `translate(${pScreen.x - startScreenAtDraw.x}, ${pScreen.y - startScreenAtDraw.y})`
         );
+        updatePinLean(d3.select<SVGGElement, unknown>(this), pScreen, OVERLAY_STYLE[size].PIN_DIVISOR, bounds);
       }
       showMagnifier({
         layer: uiLayer,
@@ -698,6 +640,7 @@ const drawInteractiveSection = ({
           'transform',
           `translate(${pScreen.x - endScreenAtDraw.x}, ${pScreen.y - endScreenAtDraw.y})`
         );
+        updatePinLean(d3.select<SVGGElement, unknown>(this), pScreen, OVERLAY_STYLE[size].PIN_DIVISOR, bounds);
       }
       showMagnifier({
         layer: uiLayer,
@@ -723,13 +666,13 @@ const drawInteractiveSection = ({
   // cleaned up on the next render without touching the static label.
   if (startPoint) {
     const pScreen = toScreenFromZoom(startPoint);
-    const c1 = drawIcon(pScreen, 'L', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module, bankLabels);
+    const c1 = drawIcon(pScreen, 'L', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module, bankLabels, size, bounds);
     c1.call(dragStartPoint as any);
   }
 
   if (endPoint) {
     const pScreen = toScreenFromZoom(endPoint);
-    const c2 = drawIcon(pScreen, 'R', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module, bankLabels);
+    const c2 = drawIcon(pScreen, 'R', uiLayer, true, `${sectionClass} ${interactiveUiClass}`, module, bankLabels, size, bounds);
     c2.call(dragEndPoint as any);
   }
 };
