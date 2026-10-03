@@ -149,9 +149,11 @@ describe('initialStage', () => {
 
 describe('footerAction after a save', () => {
   it('becomes Done, with nothing blocking it, whatever the name fields hold', () => {
-    expect(
-      footerAction({ status: 'solved', imageCount: 20, cameraName: '', lensName: '', saved: true })
-    ).toEqual({ kind: 'done', blocker: null, busy: false });
+    expect(footerAction({ status: 'solved', imageCount: 20, cameraName: '', lensName: '', saved: true })).toEqual({
+      kind: 'done',
+      blocker: null,
+      busy: false,
+    });
   });
 
   it('stays Save profile while not saved', () => {
