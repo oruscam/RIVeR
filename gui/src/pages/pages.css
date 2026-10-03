@@ -653,6 +653,22 @@
     margin-top: var(--space-6);
 }
 
+/* Saved profile: "Camera · Lens" and the profile path, indented to the
+   saved block's text (past the 22px check and its gap). */
+.cal-saved-names {
+    margin: 0 0 var(--space-3);
+    padding: 0 var(--space-2) 0 calc(22px + var(--space-2) * 2);
+    font-size: var(--text-body);
+}
+
+.cal-saved-names small {
+    display: block;
+    margin-top: 2px;
+    font-size: var(--text-caption);
+    color: var(--text-subdued);
+    overflow-wrap: anywhere;
+}
+
 /* ── Lens correction settings rows (VideoRange) ──────────────── */
 .lens-row-trigger {
     background: transparent;
