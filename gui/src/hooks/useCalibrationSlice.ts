@@ -17,37 +17,35 @@ export const useCalibrationSlice = () => {
   const dispatch = useDispatch();
   const lastProgressRef = useRef({ percentage: '', time: '' });
 
-  const onOpenFolder = useCallback(async () => {
-    const dir: string | null = await window.ipcRenderer.invoke('calibration-open-folder');
-    if (!dir) return;
-
-    dispatch(setImageDir(dir));
-
-    const result: { images: string[]; thumbs: string[]; imageSize: { width: number; height: number } | null } =
-      await window.ipcRenderer.invoke('calibration-scan-images', { dir });
-    dispatch(
-      setImages({
-        images: result?.images ?? [],
-        thumbs: result?.thumbs ?? [],
-        imageResolution: result?.imageSize ?? null,
-      })
-    );
-  }, [dispatch]);
-
-  const onDropFolder = useCallback(
-    async (dir: string) => {
+  // Scans a folder into the store and reports how many photos it held, so the
+  // Prepare screen can say "No images found" instead of staying silent.
+  const scanFolder = useCallback(
+    async (dir: string): Promise<number> => {
       dispatch(setImageDir(dir));
       const result: { images: string[]; thumbs: string[]; imageSize: { width: number; height: number } | null } =
         await window.ipcRenderer.invoke('calibration-scan-images', { dir });
+      const images = result?.images ?? [];
       dispatch(
         setImages({
-          images: result?.images ?? [],
+          images,
           thumbs: result?.thumbs ?? [],
           imageResolution: result?.imageSize ?? null,
         })
       );
+      return images.length;
     },
     [dispatch]
+  );
+
+  const onOpenFolder = useCallback(async (): Promise<number | null> => {
+    const dir: string | null = await window.ipcRenderer.invoke('calibration-open-folder');
+    if (!dir) return null;
+    return scanFolder(dir);
+  }, [scanFolder]);
+
+  const onDropFolder = useCallback(
+    async (dir: string): Promise<number> => scanFolder(dir),
+    [scanFolder]
   );
 
   const onOpenBoard = useCallback(async (board = '20x15') => {
