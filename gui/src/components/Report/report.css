@@ -292,10 +292,36 @@
   font-weight: 650;
 }
 
+/* Same grammar as the report's overlay lines (overlayStyle 'report' size): a
+   1.5px light stroke centred on a 3px dark halo, so the box reads on bright
+   water and dark banks alike. The faint wash marks the area, not just its edge. */
 .doc-region {
   position: absolute;
   box-sizing: border-box;
-  border: 1.5px dashed var(--doc-accent);
+  border: 1.5px solid #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 0 0 0.75px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 0.75px rgba(0, 0, 0, 0.5);
+}
+
+/* Number chip on the top-left corner, as in the app's stabilization canvas. */
+.doc-region-n {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  border: 1px solid #ffffff;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  font-size: 7.5px;
+  font-weight: 700;
+  line-height: 10px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .doc-overlay {

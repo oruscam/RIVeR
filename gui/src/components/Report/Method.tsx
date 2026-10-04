@@ -35,7 +35,9 @@ const FootagePanel = ({ measure = false }: { measure?: boolean }) => {
               key={i}
               className="doc-region"
               style={{ left: r.x * sx, top: r.y * sy, width: r.width * sx, height: r.height * sy }}
-            />
+            >
+              {p.committedStabilizationRegions.length > 1 && <span className="doc-region-n">{i + 1}</span>}
+            </div>
           ))}
           <figcaption>
             {t('Report.Doc.stabilization', {
