@@ -38,7 +38,15 @@
     "addYourFootage": "Füge deine Aufnahme hinzu",
     "changeType": "Typ ändern",
     "dragAndDrop": "Ziehe deine Videodatei hierher und lasse sie los",
-    "openFolders": "Ordner öffnen"
+    "openFolders": "Ordner öffnen",
+    "footageType": {
+      "uav": "Drohne",
+      "uavDescription": "Senkrechte Ansicht von oben",
+      "oblique": "Schräg",
+      "obliqueDescription": "Stativ oder Kamera am Ufer",
+      "ipcam": "Feste Kamera",
+      "ipcamDescription": "IP- oder Überwachungsstation"
+    }
   },
   "Wizard": {
     "back": "Zurück",

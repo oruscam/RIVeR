@@ -38,7 +38,15 @@
     "addYourFootage": "वीडियो जोड़ें",
     "changeType": "प्रकार बदलें",
     "dragAndDrop": "अपनी वीडियो फ़ाइल यहाँ खींचें और छोड़ें",
-    "openFolders": "फ़ोल्डर खोलें"
+    "openFolders": "फ़ोल्डर खोलें",
+    "footageType": {
+      "uav": "ड्रोन",
+      "uavDescription": "ऊपर से सीधा दृश्य",
+      "oblique": "तिरछा",
+      "obliqueDescription": "किनारे पर तिपाई या कैमरा",
+      "ipcam": "स्थिर कैमरा",
+      "ipcamDescription": "IP या CCTV स्टेशन"
+    }
   },
   "Wizard": {
     "back": "पीछे",

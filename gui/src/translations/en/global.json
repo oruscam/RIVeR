@@ -38,7 +38,15 @@
     "addYourFootage": "Add your footage",
     "changeType": "Change type",
     "dragAndDrop": "Drag and drop your video file here",
-    "openFolders": "Open Folders"
+    "openFolders": "Open Folders",
+    "footageType": {
+      "uav": "Drone",
+      "uavDescription": "Top-down view from above",
+      "oblique": "Oblique",
+      "obliqueDescription": "Tripod or camera on the bank",
+      "ipcam": "Fixed camera",
+      "ipcamDescription": "IP or CCTV station"
+    }
   },
   "Wizard": {
     "back": "Back",

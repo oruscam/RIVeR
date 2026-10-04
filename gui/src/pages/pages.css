@@ -134,6 +134,12 @@
     color: var(--secondary-text-color);
     text-align: center;
     max-width: 180px;
+    /* Two lines at most, so a long translation never spills out of the tile. */
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
 }
 
 .footage-check-badge {

@@ -38,7 +38,15 @@
     "addYourFootage": "Añade tu video",
     "changeType": "Cambiar tipo",
     "dragAndDrop": "Arrastra y suelta tu archivo de video aquí",
-    "openFolders": "Abrir Carpeta"
+    "openFolders": "Abrir Carpeta",
+    "footageType": {
+      "uav": "Dron",
+      "uavDescription": "Vista cenital desde arriba",
+      "oblique": "Oblicua",
+      "obliqueDescription": "Trípode o cámara en la orilla",
+      "ipcam": "Cámara fija",
+      "ipcamDescription": "Estación IP o CCTV"
+    }
   },
   "Wizard": {
     "back": "Volver",

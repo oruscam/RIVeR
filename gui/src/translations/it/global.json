@@ -38,7 +38,15 @@
     "addYourFootage": "Aggiungi il tuo filmato",
     "changeType": "Cambia tipo",
     "dragAndDrop": "Trascina e rilascia qui il tuo file video",
-    "openFolders": "Apri cartella"
+    "openFolders": "Apri cartella",
+    "footageType": {
+      "uav": "Drone",
+      "uavDescription": "Vista zenitale dall'alto",
+      "oblique": "Obliqua",
+      "obliqueDescription": "Treppiede o fotocamera sulla sponda",
+      "ipcam": "Telecamera fissa",
+      "ipcamDescription": "Stazione IP o TVCC"
+    }
   },
   "Wizard": {
     "back": "Indietro",

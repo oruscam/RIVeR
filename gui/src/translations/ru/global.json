@@ -38,7 +38,15 @@
     "addYourFootage": "Добавить съёмку",
     "changeType": "Изменить тип",
     "dragAndDrop": "Перетащите видеофайл сюда",
-    "openFolders": "Открыть папки"
+    "openFolders": "Открыть папки",
+    "footageType": {
+      "uav": "БПЛА",
+      "uavDescription": "Вид сверху вниз",
+      "oblique": "Наклонная",
+      "obliqueDescription": "Штатив или камера на берегу",
+      "ipcam": "Стационарная камера",
+      "ipcamDescription": "IP-камера или видеонаблюдение"
+    }
   },
   "Wizard": {
     "back": "Назад",

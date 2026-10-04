@@ -38,7 +38,15 @@
     "addYourFootage": "영상 추가",
     "changeType": "유형 변경",
     "dragAndDrop": "동영상 파일을 여기에 드래그 앤 드롭하세요",
-    "openFolders": "폴더 열기"
+    "openFolders": "폴더 열기",
+    "footageType": {
+      "uav": "드론",
+      "uavDescription": "위에서 내려다본 영상",
+      "oblique": "경사",
+      "obliqueDescription": "강변의 삼각대 또는 카메라",
+      "ipcam": "고정 카메라",
+      "ipcamDescription": "IP 또는 CCTV 관측소"
+    }
   },
   "Wizard": {
     "back": "이전",
