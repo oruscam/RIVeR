@@ -23,10 +23,14 @@ const FOOTAGE_ICONS: Record<FootageType, string> = { uav: drone, oblique: obliqu
  * against the disk on mount and projects that no longer exist are dropped.
  * If that check itself fails, the stored list is shown as-is and left alone:
  * one failed IPC must not erase the history.
+ *
+ * Each tile shows a miniature of the project's first frame once the main
+ * process has made one; until then, or without frames, the footage icon stays.
  */
 export const RecentProjects = ({ onOpen }: { onOpen: (directory: string) => void }) => {
   const { t, i18n } = useTranslation();
   const [recents, setRecents] = useState<RecentProject[]>([]);
+  const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -51,6 +55,24 @@ export const RecentProjects = ({ onOpen }: { onOpen: (directory: string) => void
     };
   }, []);
 
+  useEffect(() => {
+    if (recents.length === 0) return;
+    let cancelled = false;
+    const dirs = recents.map((r) => r.directory);
+    window.ipcRenderer
+      .invoke('project-thumbnails', dirs)
+      .then((urls: string[]) => {
+        if (cancelled) return;
+        setThumbnails(Object.fromEntries(dirs.map((d, i) => [d, urls[i] ?? ''])));
+      })
+      .catch(() => {
+        // A missing miniature just leaves the footage icon in place.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [recents]);
+
   if (recents.length === 0) return null;
 
   const now = Date.now();
@@ -65,6 +87,7 @@ export const RecentProjects = ({ onOpen }: { onOpen: (directory: string) => void
           // what tells two tiles apart, so it leads and the timestamp follows.
           const video = videoFolderName(r.directory);
           const project = projectName(r.directory);
+          const thumbnail = thumbnails[r.directory];
           return (
             <li key={r.directory}>
               <button
@@ -75,6 +98,14 @@ export const RecentProjects = ({ onOpen }: { onOpen: (directory: string) => void
               >
                 <span className="recent-tile-icon" aria-hidden="true">
                   <Icon path={FOOTAGE_ICONS[r.type]} />
+                  {thumbnail && (
+                    <img
+                      className="recent-tile-thumb"
+                      src={thumbnail}
+                      alt=""
+                      onLoad={(e) => e.currentTarget.classList.add('is-loaded')}
+                    />
+                  )}
                 </span>
                 <span className="recent-tile-text">
                   <span className="recent-tile-name">{video || project}</span>

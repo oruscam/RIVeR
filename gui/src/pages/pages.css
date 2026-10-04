@@ -801,6 +801,48 @@
     stroke-width: 1.5;
 }
 
+/* The first frame, laid over the footage icon and faded in once decoded so a
+   slow read never flashes an empty square. A hairline ring keeps pale frames
+   (sky, foam) from bleeding into the tile in the light theme. */
+.recent-tile-icon {
+    position: relative;
+    overflow: hidden;
+}
+
+.recent-tile-thumb {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    filter: saturate(0.85);
+    transition: opacity var(--motion-base) var(--motion-ease), filter var(--motion-fast) var(--motion-ease);
+}
+
+.recent-tile-thumb.is-loaded {
+    opacity: 1;
+}
+
+.recent-tile-icon:has(.recent-tile-thumb)::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--primary-text-color) 12%, transparent);
+    pointer-events: none;
+}
+
+.recent-tile:hover .recent-tile-thumb {
+    filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .recent-tile-thumb {
+        transition: none;
+    }
+}
+
 .recent-tile-text {
     min-width: 0;
 }
