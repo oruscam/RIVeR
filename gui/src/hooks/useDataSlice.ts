@@ -5,6 +5,7 @@
 
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
+import type { IwaveManual } from '../../commons/iwave';
 import {
   updateProcessingPar,
   setActiveImage,
@@ -51,6 +52,7 @@ export const useDataSlice = () => {
     grayscale?: boolean;
     images?: string[];
     iwave?: boolean;
+    iwaveManual?: IwaveManual | null;
     medianTestEpsilon?: number;
     medianTestFiltering?: boolean;
     medianTestThreshold?: number;

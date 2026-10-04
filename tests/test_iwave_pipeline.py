@@ -1,4 +1,5 @@
 """Tests for river.core.iwave_pipeline geometry helpers (no iwave package required)."""
+import copy
 import cv2
 import json
 import numpy as np
@@ -119,6 +120,17 @@ def test_build_ortho_stack_without_save_dir_has_no_side_effects(tmp_path):
 
 	assert not would_be_dir.exists()
 	assert sorted(p.name for p in tmp_path.iterdir()) == ["frames"]
+
+
+def test_build_ortho_stack_uses_given_resolution(tmp_path):
+	frames_dir = tmp_path / "frames"
+	frames_dir.mkdir()
+	_write_fake_frames(frames_dir, 3)
+	H = [[0.05, 0.0, 0.0], [0.0, -0.05, 0.0], [0.0, 0.0, 1.0]]
+	xsections = {"CS1": {"east": [0.5], "north": [-0.5]}}
+	stack, grid = build_ortho_stack(str(frames_dir), H, xsections, resolution=0.1)
+	assert grid.resolution == 0.1
+	assert stack.shape[1:] == (grid.height_px, grid.width_px)
 
 
 def test_extract_ky0_slice_picks_row_nearest_zero():
@@ -397,7 +409,8 @@ except ImportError:
 	HAS_IWAVE = False
 
 if HAS_IWAVE:
-	from river.core.iwave_pipeline import run_iwave_analysis, IWAVE_COLUMNS
+	from river.core.iwave_pipeline import run_iwave_analysis, IWAVE_COLUMNS, IWAVE_PARAMS_KEY
+	from river.core.iwave_params import SceneParams
 
 
 def _synthetic_project(tmp_path, n_frames=128, size=96, speed_px=1.0):
@@ -489,3 +502,169 @@ def test_run_iwave_analysis_writes_nothing_without_spectra_dir(tmp_path):
 	)
 
 	assert not (tmp_path / "iwave_spectra").exists()
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_records_params(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	result = run_iwave_analysis(xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0)
+	record = result["CS1"][IWAVE_PARAMS_KEY]
+	# No LSPIV/STIV in the synthetic project -> fallbacks
+	assert record["u_est"] is None and record["smax"] == 5.0
+	assert record["gravity_waves"] is True
+	assert record["fps_eff"] == 20.0
+	assert record["time_size"] == 100  # 6.4 s clip -> 5 s segments at 20 fps
+	assert result["CS1"]["iwave_valid_profile"][0] in (True, False)
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_reruns_station_pinned_at_auto_smax(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	scene = SceneParams(
+		smax=0.6, smax_is_auto=True, window_m=2.4, window_px=48, resolution=0.05,
+		time_size=64, time_overlap=32, fps_eff=20.0, penalty_weight=1.0,
+	)
+	result = run_iwave_analysis(
+		xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0, scene=scene,
+	)
+	assert result["CS1"][IWAVE_PARAMS_KEY]["smax_reruns"] == 1
+	# true speed is 1.0 m/s, out of reach of the first 0.6 m/s bound
+	assert abs(abs(result["CS1"]["iwave_velocity_profile"][0]) - 1.0) < 0.5
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_keeps_user_smax(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	scene = SceneParams(
+		smax=0.6, smax_is_auto=False, window_m=2.4, window_px=48, resolution=0.05,
+		time_size=64, time_overlap=32, fps_eff=20.0, penalty_weight=1.0,
+	)
+	result = run_iwave_analysis(
+		xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0, scene=scene,
+	)
+	assert result["CS1"][IWAVE_PARAMS_KEY]["smax_reruns"] == 0
+	# pass 2 may move 0.1 m/s past the bound, never to the true 1.0 m/s
+	assert abs(result["CS1"]["iwave_velocity_profile"][0]) < 0.8
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_skips_dry_station(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	xsections["CS1"]["distance"] = [0.0]
+	xsections["CS1"]["depth"] = [-0.3]
+	result = run_iwave_analysis(xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0)
+	for col in IWAVE_COLUMNS:
+		assert result["CS1"][col] == [None]
+	assert result["CS1"][IWAVE_PARAMS_KEY]["skipped_dry"] == 1
+
+
+def test_run_iwave_analysis_rejects_stack_without_scene():
+	with pytest.raises(ValueError):
+		from river.core.iwave_pipeline import run_iwave_analysis as run
+		run({"CS1": {}}, [[1, 0, 0], [0, 1, 0], [0, 0, 1]], "unused", step=1, fps=1.0, id_section=0,
+			stack=np.zeros((2, 4, 4), np.uint8), grid=object())
+
+
+def test_prepare_iwave_scene_switches_on_full_clip_length(tmp_path, monkeypatch):
+	import river.core.iwave_pipeline as pipeline
+
+	monkeypatch.setattr(pipeline, "MAX_FRAMES", 10)
+	frames_dir = tmp_path / "frames"
+	_write_fake_frames(frames_dir, n=25)
+	xsections = {"CS1": {"east": [1.0, 4.0], "north": [2.0, 3.0], "alpha": 0.85}}
+	# 25 frames at 1 fps = 25 s clip (long) although only 10 frames are warped
+	_, scene = pipeline.prepare_iwave_scene(str(frames_dir), H_SIMPLE, xsections, step=1, fps=1.0)
+	assert scene.time_size == 10
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_is_reproducible(tmp_path):
+	# The spectral fit uses differential evolution; without a fixed seed the same
+	# project gave velocities up to 20 % apart between identical runs.
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	results = []
+	for _ in range(2):
+		result = run_iwave_analysis(copy.deepcopy(xsections), H, str(frames_dir), step=1, fps=20.0, id_section=0)
+		results.append((result["CS1"]["iwave_velocity_profile"], result["CS1"]["iwave_quality_profile"]))
+	assert results[0] == results[1]
+
+
+def _defaults_section(lspiv, depth):
+	n = len(lspiv)
+	return {
+		"id": list(range(1, n + 1)),
+		"east": [float(i) for i in range(n)],
+		"north": [1.0] * n,
+		"distance": [float(i) for i in range(n)],
+		"check": [True] * n,
+		"depth": depth,
+		"streamwise_velocity_magnitude": lspiv,
+		"alpha": 0.85,
+	}
+
+
+def test_iwave_defaults_without_estimate_use_fallbacks(tmp_path):
+	from river.core.iwave_pipeline import get_iwave_defaults
+
+	frames_dir = tmp_path / "frames"
+	_write_fake_frames(frames_dir, n=60)
+	xsections = {"CS1": {"east": [1.0, 4.0], "north": [2.0, 3.0], "alpha": 0.85}}
+	defaults = get_iwave_defaults(str(frames_dir), H_SIMPLE, xsections, step=1, fps=10.0)
+	assert set(defaults) == {"window_size", "smax", "flow_type", "estimated_from", "clip_s", "iwave_s", "short_clip"}
+	assert defaults["smax"] == pytest.approx(5.0)
+	assert defaults["flow_type"] == "waves"
+	assert defaults["estimated_from"] == "none"
+	assert defaults["window_size"] > 0
+	assert defaults["clip_s"] == pytest.approx(6.0)
+	assert defaults["short_clip"] is False
+
+
+def test_iwave_defaults_use_lspiv_estimate_and_supercritical_flow(tmp_path):
+	from river.core.iwave_pipeline import get_iwave_defaults
+
+	frames_dir = tmp_path / "frames"
+	_write_fake_frames(frames_dir, n=60)
+	# 2 m/s over 0.1 m depth: Froude about 2, clearly supercritical
+	xsections = {"CS1": _defaults_section([2.0] * 5, [0.1] * 5)}
+	defaults = get_iwave_defaults(str(frames_dir), H_SIMPLE, xsections, step=1, fps=10.0)
+	assert defaults["smax"] == pytest.approx(4.0)  # 2 x U_est
+	assert defaults["estimated_from"] == "lspiv"
+	assert defaults["flow_type"] == "no-waves"
+
+
+def test_iwave_defaults_keep_waves_when_any_section_is_subcritical(tmp_path):
+	from river.core.iwave_pipeline import get_iwave_defaults
+
+	frames_dir = tmp_path / "frames"
+	_write_fake_frames(frames_dir, n=60)
+	xsections = {
+		"CS1": _defaults_section([2.0] * 5, [0.1] * 5),
+		"CS2": _defaults_section([2.0] * 5, [10.0] * 5),  # Froude about 0.2
+	}
+	defaults = get_iwave_defaults(str(frames_dir), H_SIMPLE, xsections, step=1, fps=10.0)
+	assert defaults["flow_type"] == "waves"
+
+
+def test_iwave_defaults_short_clip_boundary(tmp_path):
+	from river.core.iwave_pipeline import get_iwave_defaults
+
+	xsections = {"CS1": {"east": [1.0, 4.0], "north": [2.0, 3.0], "alpha": 0.85}}
+	short_dir = tmp_path / "short"
+	_write_fake_frames(short_dir, n=49)  # 4.9 s at 10 fps
+	long_dir = tmp_path / "long"
+	_write_fake_frames(long_dir, n=50)  # 5.0 s
+	assert get_iwave_defaults(str(short_dir), H_SIMPLE, xsections, step=1, fps=10.0)["short_clip"] is True
+	assert get_iwave_defaults(str(long_dir), H_SIMPLE, xsections, step=1, fps=10.0)["short_clip"] is False
+
+
+def test_iwave_defaults_iwave_seconds_respect_frame_cap(tmp_path, monkeypatch):
+	import river.core.iwave_pipeline as pipeline
+
+	monkeypatch.setattr(pipeline, "MAX_FRAMES", 10)
+	frames_dir = tmp_path / "frames"
+	_write_fake_frames(frames_dir, n=25)
+	xsections = {"CS1": {"east": [1.0, 4.0], "north": [2.0, 3.0], "alpha": 0.85}}
+	defaults = pipeline.get_iwave_defaults(str(frames_dir), H_SIMPLE, xsections, step=2, fps=4.0)
+	# 2 frames of step per 4 fps -> 0.5 s per extracted frame
+	assert defaults["clip_s"] == pytest.approx(12.5)
+	assert defaults["iwave_s"] == pytest.approx(5.0)

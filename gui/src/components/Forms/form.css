@@ -1060,3 +1060,29 @@
     color: var(--accent-color);
     border: 1.5px solid var(--accent-color);
 }
+
+/* A muted line of explanation inside a technique's settings, or directly under
+   its row: starts on the technique name's edge, like the settings labels. */
+.tech-params-note {
+    margin: var(--space-1) 0 var(--space-2);
+    padding-right: var(--space-2);
+    font-size: var(--text-caption);
+    line-height: 1.35;
+    color: var(--text-subdued);
+}
+
+.tech-params-note.tech-params-note-warning {
+    color: var(--warning-color);
+}
+
+.tech-row-note {
+    margin-top: 0;
+    padding-left: calc(var(--space-2) + 12px + var(--space-2));
+}
+
+/* The flow-type names are words, not numbers: the select takes the width
+   they need and still ends on the panel's right edge. */
+.field.tech-params-select {
+    width: auto;
+    max-width: 60%;
+}

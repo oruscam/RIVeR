@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Carousel, StepAlertList, Toast, ImageProcessing, WizardButtons } from '../components';
-import { useDataSlice, useSectionSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useIwaveDefaults, useSectionSlice, useUiSlice } from '../hooks';
 import { flushStivAngleWrites } from '../hooks/useStivAngleOverride';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
@@ -25,6 +25,11 @@ export const Processing = () => {
   } = useDataSlice();
   const { extraFields } = processing;
   const [showMedian, setShowMedian] = useState(fullQuiver !== null);
+  const iwaveDefaults = useIwaveDefaults({
+    fullQuiver,
+    heightRoi: processing.form.heightRoi,
+    enabled: !isBackendWorking,
+  });
   const [stiPaths, setStiPaths] = useState<string[]>([]);
   const [stiStations, setStiStations] = useState<number[]>([]);
   const [spectrumPaths, setSpectrumPaths] = useState<string[]>([]);
@@ -186,6 +191,7 @@ export const Processing = () => {
           canToggleIwave={spectrumPaths.length > 0}
           canToggleMedian={fullQuiver !== null}
           stivAvailable={stivAvailable}
+          iwaveDefaults={iwaveDefaults}
         />
         <div className="footer">
           <AdvancedToggle

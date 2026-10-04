@@ -1,5 +1,6 @@
 import { Point } from '../../types';
 import { Quiver } from '../../../commons/types';
+import type { IwaveManual } from '../../../commons/iwave';
 
 interface FormProcessing {
   artificialSeeding: boolean;
@@ -7,6 +8,8 @@ interface FormProcessing {
   clipLimit: number;
   heightRoi: number;
   iwave: boolean;
+  /** null = automatic; otherwise the frozen manual set sent on every analysis. */
+  iwaveManual: IwaveManual | null;
   medianTestEpsilon: number;
   medianTestFiltering: boolean;
   medianTestThreshold: number;

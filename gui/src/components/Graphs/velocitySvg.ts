@@ -16,6 +16,9 @@ export interface VelocitySeriesPoint {
   /** STIV only: was this station's velocity derived from a user-set angle
    *  rather than the automatic fit. Always false for LSPIV/iWave. */
   tuned: boolean;
+  /** iWave only: raw velocity of a station excluded as low quality, drawn as a faded dashed
+   *  ring so it stays visible but reads as rejected. null otherwise. */
+  rejectedV: number | null;
 }
 
 export interface VelocityBand {
@@ -245,58 +248,70 @@ export const createVelocityChart = ({
     const markerStrokeWidth = (d: VelocitySeriesPoint): number =>
       showQuality && d.quality !== null ? 0.75 : isStivHollow(d) ? 1.5 : 0;
 
-    const markerPoints = s.points.filter((p) => p.v !== null);
     const shape = TECHNIQUE_MARKER_SHAPE[s.key];
 
     // One marker shape per technique (circle/square/triangle), matching the
     // swatch in TechniqueLegend/FormProcessing — colour is never the only signal.
-    if (shape === 'square') {
-      svg
-        .selectAll(`.marker-${s.key}`)
-        .data(markerPoints)
-        .enter()
-        .append('rect')
-        .attr('class', `marker-${s.key}`)
-        .attr('x', (d) => xScale(d.x) - markerRadius(d))
-        .attr('y', (d) => yScale((d.v as number) * velocityFactor) - markerRadius(d))
-        .attr('width', (d) => markerRadius(d) * 2)
-        .attr('height', (d) => markerRadius(d) * 2)
-        .attr('fill', markerFill)
-        .attr('stroke', markerStroke)
-        .attr('stroke-width', markerStrokeWidth)
-        .attr('opacity', baseOpacity);
-    } else if (shape === 'triangle') {
-      svg
-        .selectAll(`.marker-${s.key}`)
-        .data(markerPoints)
-        .enter()
-        .append('polygon')
-        .attr('class', `marker-${s.key}`)
-        .attr('points', (d) => {
-          const cx = xScale(d.x);
-          const cy = yScale((d.v as number) * velocityFactor);
-          const r = markerRadius(d) * 1.6;
-          return `${cx},${cy - r * 0.6} ${cx + r * 0.6},${cy + r * 0.4} ${cx - r * 0.6},${cy + r * 0.4}`;
-        })
-        .attr('fill', markerFill)
-        .attr('stroke', markerStroke)
-        .attr('stroke-width', markerStrokeWidth)
-        .attr('opacity', baseOpacity);
-    } else {
-      svg
-        .selectAll(`.marker-${s.key}`)
-        .data(markerPoints)
-        .enter()
+    const drawMarkers = (
+      className: string,
+      points: VelocitySeriesPoint[],
+      velocity: (d: VelocitySeriesPoint) => number,
+      radius: (d: VelocitySeriesPoint) => number
+    ) => {
+      const cy = (d: VelocitySeriesPoint) => yScale(velocity(d) * velocityFactor);
+      const selection = svg.selectAll(`.${className}`).data(points).enter();
+      if (shape === 'square') {
+        return selection
+          .append('rect')
+          .attr('class', className)
+          .attr('x', (d) => xScale(d.x) - radius(d))
+          .attr('y', (d) => cy(d) - radius(d))
+          .attr('width', (d) => radius(d) * 2)
+          .attr('height', (d) => radius(d) * 2);
+      }
+      if (shape === 'triangle') {
+        return selection
+          .append('polygon')
+          .attr('class', className)
+          .attr('points', (d) => {
+            const cx = xScale(d.x);
+            const y = cy(d);
+            const r = radius(d) * 1.6;
+            return `${cx},${y - r * 0.6} ${cx + r * 0.6},${y + r * 0.4} ${cx - r * 0.6},${y + r * 0.4}`;
+          });
+      }
+      return selection
         .append('circle')
-        .attr('class', `marker-${s.key}`)
+        .attr('class', className)
         .attr('cx', (d) => xScale(d.x))
-        .attr('cy', (d) => yScale((d.v as number) * velocityFactor))
-        .attr('r', markerRadius)
-        .attr('fill', markerFill)
-        .attr('stroke', markerStroke)
-        .attr('stroke-width', markerStrokeWidth)
-        .attr('opacity', baseOpacity);
-    }
+        .attr('cy', cy)
+        .attr('r', radius);
+    };
+
+    drawMarkers(
+      `marker-${s.key}`,
+      s.points.filter((p) => p.v !== null),
+      (d) => d.v as number,
+      markerRadius
+    )
+      .attr('fill', markerFill)
+      .attr('stroke', markerStroke)
+      .attr('stroke-width', markerStrokeWidth)
+      .attr('opacity', baseOpacity);
+
+    // iWave stations excluded as low quality: a faded dashed outline at their raw
+    // velocity, so they stay visible but read as rejected.
+    drawMarkers(
+      `marker-rejected-${s.key}`,
+      s.points.filter((p) => p.rejectedV !== null),
+      (d) => d.rejectedV as number,
+      () => (isActive ? 3 : 2.2)
+    )
+      .attr('fill', 'var(--background-color)')
+      .attr('stroke', strokeColor)
+      .attr('stroke-width', 1)
+      .attr('stroke-dasharray', '1.5 1')
+      .attr('opacity', 0.45);
   });
 
   // label for Velocity

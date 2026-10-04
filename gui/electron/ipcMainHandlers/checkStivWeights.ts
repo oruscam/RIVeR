@@ -14,7 +14,7 @@ function checkStivWeights(riverCli: RiverCli) {
     const { logsPath } = PROJECT_CONFIG;
 
     try {
-      const { data, error } = await riverCli(['stiv-status'], 'json', false, logsPath);
+      const { data, error } = await riverCli(['stiv-status'], 'json', false, logsPath, false);
       if (error?.message) {
         console.log(error.message);
         return { available: false, missing: [] };

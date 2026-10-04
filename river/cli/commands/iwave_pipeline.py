@@ -1,10 +1,12 @@
 import json
 from pathlib import Path
+from typing import Optional
 
 import click
 
+from river.cli.commands.iwave_options import build_iwave_options, iwave_option_flags
 from river.cli.commands.utils import render_response
-from river.core.iwave_pipeline import run_iwave_analysis
+from river.core.iwave_pipeline import get_iwave_defaults, run_iwave_analysis
 
 
 @click.command(help="Run iWave spectral velocimetry for the current cross-section.")
@@ -39,6 +41,7 @@ from river.core.iwave_pipeline import run_iwave_analysis
 	default=False,
 	help="Save per-station spectrum previews next to the frames directory.",
 )
+@iwave_option_flags
 @render_response
 def iwave_analyze(
 	xsections: str,
@@ -50,6 +53,11 @@ def iwave_analyze(
 	bbox,
 	write: bool,
 	save_spectra: bool,
+	iwave_window_size: Optional[float],
+	iwave_smax: Optional[float],
+	iwave_flow_type: str,
+	iwave_penalty_weight: float,
+	iwave_depth_mode: str,
 ) -> dict:
 	"""Run iWave analysis for the current cross-section."""
 	xsections_path = Path(xsections)
@@ -64,7 +72,30 @@ def iwave_analyze(
 		id_section=id_section,
 		bbox=json.loads(bbox.read()) if bbox is not None else None,
 		spectra_dir=spectra_dir,
+		options=build_iwave_options(
+			iwave_window_size, iwave_smax, iwave_flow_type, iwave_penalty_weight, iwave_depth_mode,
+		),
 	)
 	if write:
 		xsections_path.write_text(json.dumps(result))
 	return result
+
+
+@click.command(help="Print the automatic iWave parameters without running iWave.")
+@click.argument("frames-dir", type=click.Path(exists=True, file_okay=False, dir_okay=True, readable=True, resolve_path=True))
+@click.argument("xsections", type=click.File())
+@click.argument("transformation-matrix", type=click.File())
+@click.option("-s", "--step", type=int, required=True, help="Time step between frames.")
+@click.option("-f", "--fps", type=float, required=True, help="Frames per second of the source video.")
+@click.option("-bb", "--bbox", type=click.File(), default=None, help="ROI bounding box JSON.")
+@render_response
+def iwave_defaults(frames_dir: str, xsections, transformation_matrix, step: int, fps: float, bbox) -> dict:
+	"""Return the values the GUI prefills in its iWave advanced group."""
+	return get_iwave_defaults(
+		frames_dir=frames_dir,
+		transformation_matrix=json.loads(transformation_matrix.read()),
+		xsections=json.loads(xsections.read()),
+		step=step,
+		fps=fps,
+		bbox=json.loads(bbox.read()) if bbox is not None else None,
+	)

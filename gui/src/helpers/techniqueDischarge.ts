@@ -121,6 +121,9 @@ export interface TechniqueDischargeData {
   tunedFlags: boolean[];
   /** Per-station uncertainty, null where the station was tuned by hand. */
   sigma: (number | null)[];
+  /** Per-station: excluded because iWave flagged it low quality (always false for LSPIV/STIV,
+   *  and when the user includes low-quality stations). profile[i] keeps the raw value. */
+  lowQualityFlags: boolean[];
 }
 
 /**
@@ -164,13 +167,23 @@ export function getEffectiveTechniqueData(
       ? mergedSigmaProfile(data.stiv_sigma_profile, manualAngles)
       : baseProfile.map(() => null);
 
+  const lowQualityFlags = baseProfile.map(
+    (v, i) =>
+      technique === 'iwave' &&
+      !data.includeIwaveLowQuality &&
+      v !== null &&
+      data.iwave_valid_profile?.[i] === false
+  );
+  // An excluded station must not donate its value to the Froude fill of its neighbours either.
+  const usableProfile = baseProfile.map((v, i) => (lowQualityFlags[i] ? null : v));
+
   const activeCheck = data.activeCheck ?? data.check;
-  const filled = froudeFilledProfile(baseProfile, data.depth, activeCheck);
+  const filled = froudeFilledProfile(usableProfile, data.depth, activeCheck);
 
   const resolved: (number | null)[] = [];
   const interpFlags: boolean[] = [];
   baseProfile.forEach((v, i) => {
-    const isReal = v !== null && activeCheck[i];
+    const isReal = v !== null && activeCheck[i] && !lowQualityFlags[i];
     if (isReal) {
       resolved.push(v);
       interpFlags.push(false);
@@ -192,7 +205,7 @@ export function getEffectiveTechniqueData(
   const measured_Q = consideredCount ? measuredCount / consideredCount : 0;
   const interpolated_Q = consideredCount ? interpCount / consideredCount : 0;
 
-  const hasGaps = baseProfile.some((v, i) => v === null || !activeCheck[i]);
+  const hasGaps = baseProfile.some((v, i) => v === null || !activeCheck[i] || lowQualityFlags[i]);
 
   return {
     profile: baseProfile,
@@ -208,5 +221,6 @@ export function getEffectiveTechniqueData(
     hasGaps,
     tunedFlags,
     sigma,
+    lowQualityFlags,
   };
 }
