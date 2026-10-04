@@ -38,7 +38,15 @@
     "addYourFootage": "أضف لقطاتك",
     "changeType": "تغيير النوع",
     "dragAndDrop": "اسحب ملف الفيديو وأفلته هنا",
-    "openFolders": "فتح المجلدات"
+    "openFolders": "فتح المجلدات",
+    "footageType": {
+      "uav": "طائرة مسيّرة",
+      "uavDescription": "منظر عمودي من الأعلى",
+      "oblique": "مائل",
+      "obliqueDescription": "حامل ثلاثي أو كاميرا على الضفة",
+      "ipcam": "كاميرا ثابتة",
+      "ipcamDescription": "محطة IP أو مراقبة"
+    }
   },
   "Wizard": {
     "back": "رجوع",

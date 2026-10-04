@@ -38,7 +38,15 @@
     "addYourFootage": "添加影像",
     "changeType": "更改类型",
     "dragAndDrop": "将视频文件拖放至此处",
-    "openFolders": "打开文件夹"
+    "openFolders": "打开文件夹",
+    "footageType": {
+      "uav": "无人机",
+      "uavDescription": "从上方垂直俯视",
+      "oblique": "斜视",
+      "obliqueDescription": "岸边的三脚架或相机",
+      "ipcam": "固定摄像机",
+      "ipcamDescription": "IP 或监控站点"
+    }
   },
   "Wizard": {
     "back": "返回",

@@ -38,7 +38,15 @@
     "addYourFootage": "映像を追加",
     "changeType": "種類を変更",
     "dragAndDrop": "動画ファイルをここにドラッグ＆ドロップ",
-    "openFolders": "フォルダを開く"
+    "openFolders": "フォルダを開く",
+    "footageType": {
+      "uav": "ドローン",
+      "uavDescription": "真上からの映像",
+      "oblique": "斜め",
+      "obliqueDescription": "岸の三脚またはカメラ",
+      "ipcam": "固定カメラ",
+      "ipcamDescription": "IP / 監視カメラ局"
+    }
   },
   "Wizard": {
     "back": "戻る",

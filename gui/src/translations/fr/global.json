@@ -38,7 +38,15 @@
     "addYourFootage": "Ajoutez votre séquence",
     "changeType": "Changer le type",
     "dragAndDrop": "Glissez-déposez votre fichier vidéo ici",
-    "openFolders": "Ouvrir le dossier"
+    "openFolders": "Ouvrir le dossier",
+    "footageType": {
+      "uav": "Drone",
+      "uavDescription": "Vue verticale depuis le ciel",
+      "oblique": "Oblique",
+      "obliqueDescription": "Trépied ou caméra sur la berge",
+      "ipcam": "Caméra fixe",
+      "ipcamDescription": "Station IP ou vidéosurveillance"
+    }
   },
   "Wizard": {
     "back": "Retour",

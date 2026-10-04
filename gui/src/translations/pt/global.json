@@ -38,7 +38,15 @@
     "addYourFootage": "Adicione sua filmagem",
     "changeType": "Alterar tipo",
     "dragAndDrop": "Arraste e solte seu arquivo de vídeo aqui",
-    "openFolders": "Abrir pasta"
+    "openFolders": "Abrir pasta",
+    "footageType": {
+      "uav": "Drone",
+      "uavDescription": "Vista de cima, na vertical",
+      "oblique": "Oblíqua",
+      "obliqueDescription": "Tripé ou câmera na margem",
+      "ipcam": "Câmera fixa",
+      "ipcamDescription": "Estação IP ou CFTV"
+    }
   },
   "Wizard": {
     "back": "Voltar",
