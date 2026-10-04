@@ -11,6 +11,7 @@ import {
   keepExisting,
   projectName,
   readRecentProjects,
+  videoFolderName,
   writeRecentProjects,
 } from '../helpers/recentProjects';
 
@@ -59,22 +60,34 @@ export const RecentProjects = ({ onOpen }: { onOpen: (directory: string) => void
         {t('MainPage.recentProjects', { defaultValue: 'Recent projects' })}
       </h2>
       <ul className="recents-grid">
-        {recents.map((r) => (
-          <li key={r.directory}>
-            <button type="button" className="recent-tile" title={r.directory} onClick={() => onOpen(r.directory)}>
-              <span className="recent-tile-icon" aria-hidden="true">
-                <Icon path={FOOTAGE_ICONS[r.type]} />
-              </span>
-              <span className="recent-tile-text">
-                <span className="recent-tile-name">{projectName(r.directory)}</span>
-                <span className="recent-tile-meta">
-                  {t('Step-2.footageType.' + r.type, { defaultValue: FOOTAGE_LABELS[r.type] })} ·{' '}
-                  {formatOpenedDate(r.openedAt, now, i18n.language)}
+        {recents.map((r) => {
+          // Project folders are timestamps; the video folder above them is
+          // what tells two tiles apart, so it leads and the timestamp follows.
+          const video = videoFolderName(r.directory);
+          const project = projectName(r.directory);
+          return (
+            <li key={r.directory}>
+              <button
+                type="button"
+                className="recent-tile"
+                title={r.directory}
+                onClick={() => onOpen(r.directory)}
+              >
+                <span className="recent-tile-icon" aria-hidden="true">
+                  <Icon path={FOOTAGE_ICONS[r.type]} />
                 </span>
-              </span>
-            </button>
-          </li>
-        ))}
+                <span className="recent-tile-text">
+                  <span className="recent-tile-name">{video || project}</span>
+                  {video && <span className="recent-tile-project">{project}</span>}
+                  <span className="recent-tile-meta">
+                    {t('Step-2.footageType.' + r.type, { defaultValue: FOOTAGE_LABELS[r.type] })} ·{' '}
+                    {formatOpenedDate(r.openedAt, now, i18n.language)}
+                  </span>
+                </span>
+              </button>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );

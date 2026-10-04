@@ -93,6 +93,18 @@ export const projectName = (directory: string): string => {
   return parts.length > 0 ? parts[parts.length - 1] : directory;
 };
 
+/**
+ * The parent folder's name. New projects live in <video name>/<YYYYMMDDTHHMM>,
+ * so this names the footage the timestamped project was made from. '' when
+ * the project sits at a root (or a drive letter) and has no meaningful parent.
+ */
+export const videoFolderName = (directory: string): string => {
+  const parts = directory.split(/[\\/]+/).filter(Boolean);
+  if (parts.length < 2) return '';
+  const parent = parts[parts.length - 2];
+  return /^[A-Za-z]:$/.test(parent) ? '' : parent;
+};
+
 /** "28 Jun" inside the current year, "3 Mar 2025" otherwise, in the UI language. */
 export const formatOpenedDate = (openedAt: number, now: number, locale: string): string => {
   const sameYear = new Date(openedAt).getFullYear() === new Date(now).getFullYear();

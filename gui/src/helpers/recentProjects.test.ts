@@ -9,6 +9,7 @@ import {
   projectName,
   readRecentProjects,
   recordRecentProject,
+  videoFolderName,
   withRecentProject,
   writeRecentProjects,
 } from './recentProjects';
@@ -122,6 +123,19 @@ describe('projectName', () => {
     ['Solo', 'Solo'],
   ])('%s -> %s', (dir, name) => {
     expect(projectName(dir)).toBe(name);
+  });
+});
+
+describe('videoFolderName', () => {
+  it.each([
+    ['/Users/antoine/River/Yanuncay/20261004T1432', 'Yanuncay'],
+    ['/Users/antoine/River/Yanuncay/20261004T1432/', 'Yanuncay'],
+    ['C:\\Users\\x\\River\\Station_04\\20261004T1432', 'Station_04'],
+    ['C:\\20261004T1432', ''],
+    ['/20261004T1432', ''],
+    ['Solo', ''],
+  ])('%s -> %j', (dir, name) => {
+    expect(videoFolderName(dir)).toBe(name);
   });
 });
 
