@@ -454,17 +454,18 @@
     background: var(--on-hover);
 }
 
-/* Prepare screen (spec 2026-10-03): the footage screen's frame, top-aligned
-   so a warning appearing under the drop box moves nothing above it. */
+/* Prepare screen (spec 2026-10-03): the footage screen's frame. The title's
+   auto top margin and the shared .wizard-container's auto top margin centre
+   the steps between the window top and the bottom-pinned Back/Solve row.
+   Scrolls only when the window is too short for the steps. */
 .default-app-container.cal-prepare {
-    justify-content: flex-start;
-    padding-top: var(--space-7);
     overflow-y: auto;
 }
 
-/* Prepare's title: the footage screen's display size, at a fixed top margin. */
+/* Prepare's title: the footage screen's display size, pushed down like its
+   .step-2-title so the content block sits centred. */
 .cal-prepare-title {
-    margin-top: var(--space-5);
+    margin-top: auto;
     font-family: var(--font-display);
     font-size: var(--text-display);
     font-weight: 700;
@@ -626,6 +627,15 @@
     font-variant-numeric: tabular-nums;
 }
 
+/* A two-line slot under the drop box, held open while empty, so a warning
+   appearing does not shift the centred steps. flow-root keeps the note's
+   top margin inside the slot instead of collapsing through it. */
+.cal-prepare-notes {
+    display: flow-root;
+    min-height: calc(var(--space-3) + 2 * 1.45em);
+    font-size: var(--text-meta);
+}
+
 /* Too-few warning or empty-folder error under the box: icon then text. */
 .cal-prepare-note {
     display: grid;
@@ -646,11 +656,6 @@
 .cal-prepare-error-icon {
     margin-top: 1px;
     color: var(--status-bad);
-}
-
-/* Back/Solve sit a fixed step under the columns, not pushed to the window edge. */
-.cal-prepare .wizard-container {
-    margin-top: var(--space-6);
 }
 
 /* Saved profile: "Camera · Lens" and the profile path, indented to the

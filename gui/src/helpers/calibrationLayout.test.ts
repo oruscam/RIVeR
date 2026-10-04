@@ -242,6 +242,14 @@ describe('useCalibrationSlice folder loaders', () => {
 
 describe('CalibrationPrepare', () => {
   const prepare = read('components/Calibration/CalibrationPrepare.tsx');
+  const pagesCss = read('pages/pages.css');
+
+  it('centres its steps like the footage screen and keeps Back/Solve pinned to the bottom', () => {
+    expect(pagesCss).toMatch(/\.cal-prepare-title \{[^}]*margin-top: auto;/);
+    expect(pagesCss).not.toMatch(/\.cal-prepare \.wizard-container/);
+    expect(pagesCss).not.toMatch(/\.default-app-container\.cal-prepare \{[^}]*justify-content/);
+    expect(prepare).toMatch(/className=["']cal-prepare-notes["']/);
+  });
 
   it('sits on the footage screen frame with the standard Back/Solve row', () => {
     expect(prepare).toMatch(/className=["']default-app-container cal-prepare["']/);
