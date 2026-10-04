@@ -255,7 +255,23 @@
     "stiAngleResetAllToast": "Angles reset for {{section}}",
     "stiAngleResetToast": "Angle reset for station {{station}}",
     "stivToggleOff": "STIV is off (click to include in processing)",
-    "stivToggleOn": "STIV is on (click to exclude from processing)"
+    "stivToggleOn": "STIV is on (click to exclude from processing)",
+    "iwaveSettings": "iWave settings",
+    "iwaveValues": "Values",
+    "iwaveModeAuto": "Automatic",
+    "iwaveModeManual": "Manual",
+    "iwaveFlowType": "Flow type",
+    "iwaveFlowWaves": "Waves",
+    "iwaveFlowNoWaves": "No waves (supercritical)",
+    "iwaveWindowSize": "Window size (m)",
+    "iwaveSmax": "Max velocity (m/s)",
+    "iwaveHintPending": "Max velocity and flow type will be estimated from LSPIV/STIV when the analysis runs.",
+    "iwaveHintEstimated": "Estimated from LSPIV/STIV.",
+    "iwaveReset": "Reset to automatic",
+    "iwaveInvalidWindow": "Window size must be a number greater than 0.",
+    "iwaveInvalidSmax": "Max velocity must be a number greater than 0 and at most 10 m/s.",
+    "iwaveStaleWindow": "The region changed since these values were set; the automatic window is now {{window}} m.",
+    "iwaveShortClip": "Short clip ({{seconds}} s used): iWave results may be noisier."
   },
   "Analizing": {
     "title": "Analyzing",
@@ -314,7 +330,11 @@
     "showVelStdLabel": "σ band",
     "stationTagHint": "Click the station to keep this open while you change layers",
     "stationTagPinnedHint": "Pinned — click the pin to release",
-    "unpinStation": "Unpin"
+    "unpinStation": "Unpin",
+    "iwaveLowQualityExcluded": "{{count}} low-quality iWave stations excluded (click to include)",
+    "iwaveLowQualityIncluded": "Low-quality iWave stations included (click to exclude)",
+    "iwaveLowQualityLabel": "Low quality ({{count}})",
+    "iwaveLowQualityCell": "Low quality: excluded"
   },
   "Graphs": {
     "station": "Station",

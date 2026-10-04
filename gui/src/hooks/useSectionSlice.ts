@@ -687,6 +687,11 @@ export const useSectionSlice = () => {
         dispatch(changeSectionData({ ...data, showIwaveQuality: !data.showIwaveQuality }));
       }
     }
+    if (object.type === 'includeIwaveLowQuality') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, includeIwaveLowQuality: !data.includeIwaveLowQuality }));
+      }
+    }
   };
 
   /** Replace section.data wholesale. onChangeDataValues covers the fixed set of

@@ -8,6 +8,7 @@ const defaultFormProcessing = {
   clipLimit: 5,
   heightRoi: 0,
   iwave: true,
+  iwaveManual: null,
   medianTestEpsilon: 0.02,
   medianTestFiltering: true,
   medianTestThreshold: 2,

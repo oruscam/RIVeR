@@ -349,6 +349,24 @@ def test_num_stations_change_strips_stale_stiv_iwave_columns(tmp_path):
         assert col not in result["CS1"], f"{col} should have been dropped on a num_stations change"
 
 
+def test_num_stations_change_strips_iwave_params(tmp_path):
+    """iwave_params records the window and counters of the run that made the
+    profiles; once the profiles are dropped, the record describes nothing."""
+    x_sections, piv, T = _make_full_xsection_fixture(tmp_path)
+    _add_stiv_iwave_columns(x_sections)
+    x_sections["CS1"]["iwave_params"] = {"window_m": 2.5, "skipped_dry": 1}
+
+    result = update_current_x_section(
+        x_sections, piv, T,
+        step=1, fps=25.0, id_section=0,
+        interpolate=False, artificial_seeding=False, alpha=None,
+        num_stations=7,
+        stats_cache={},
+    )
+
+    assert "iwave_params" not in result["CS1"]
+
+
 def test_num_stations_unchanged_keeps_stiv_iwave_columns(tmp_path):
     x_sections, piv, T = _make_full_xsection_fixture(tmp_path)
     _add_stiv_iwave_columns(x_sections)

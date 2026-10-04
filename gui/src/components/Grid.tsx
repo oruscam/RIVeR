@@ -23,6 +23,7 @@ interface TableRow {
   Q: string;
   excluded: boolean;
   interpolated: boolean;
+  lowQuality: boolean;
 }
 
 const rowKeyGetter = (row: TableRow): number => {
@@ -95,6 +96,7 @@ export const Grid = () => {
 
   const getCellClass = (row: TableRow) => {
     if (row.interpolated) return 'centered-cell cell-interpolated-values';
+    if (row.lowQuality) return 'centered-cell cell-low-quality';
     if (row.excluded) return 'centered-cell disabled-cell';
     return 'centered-cell';
   };
@@ -143,6 +145,9 @@ export const Grid = () => {
           Vs<span className="header-subtech">({activeTechniqueLabel})</span>
         </span>
       ),
+      renderCell: ({ row }: { row: TableRow }) => (
+        <span title={row.lowQuality ? t('Results.iwaveLowQualityCell') : undefined}>{row.Vs}</span>
+      ),
     },
     {
       key: 'Q',
@@ -176,7 +181,7 @@ export const Grid = () => {
     if (!effective) return [];
 
     const { num_stations, distance, depth, activeCheck } = data;
-    const { resolved, A, Q, interpFlags } = effective;
+    const { resolved, A, Q, interpFlags, lowQualityFlags, profile } = effective;
 
     return Array.from({ length: num_stations }, (_, i) => ({
       key: i,
@@ -185,10 +190,18 @@ export const Grid = () => {
       x: typeof distance[i] === 'number' ? (distance[i] * lFactor).toFixed(2) : '-',
       d: typeof depth[i] === 'number' ? (depth[i] * lFactor).toFixed(2) : '-',
       A: typeof A[i] === 'number' ? (A[i] * aFactor).toFixed(2) : '-',
-      Vs: formatCell(resolved[i] === null ? null : resolved[i]! * lFactor),
+      // A low-quality iWave station still shows its (rejected) value, struck through and muted.
+      Vs: formatCell(
+        resolved[i] !== null
+          ? resolved[i]! * lFactor
+          : lowQualityFlags[i] && profile[i] !== null
+            ? profile[i]! * lFactor
+            : null
+      ),
       Q: formatCell(resolved[i] === null ? null : Q[i] * qFactor),
       interpolated: interpFlags[i],
       excluded: !activeCheck[i] && !interpFlags[i],
+      lowQuality: lowQualityFlags[i] && !interpFlags[i],
     }));
   }, [section, lFactor, aFactor, qFactor, video]);
 

@@ -15,6 +15,7 @@ import { getBathimetry } from './getBathimetry';
 import { calculate3dRectification } from './calculate3dRectification';
 import { checkStivWeights } from './checkStivWeights';
 import { getIpcamImages } from './getIpcamImages';
+import { getIwaveDefaults } from './getIwaveDefaults';
 import { getIwaveSpectra } from './getIwaveSpectra';
 import { getPoints } from './getPoints';
 import { getDistances } from './getDistances';
@@ -44,6 +45,7 @@ export {
   getGif,
   getImages,
   getIpcamImages,
+  getIwaveDefaults,
   getIwaveSpectra,
   getPoints,
   getQuiver,

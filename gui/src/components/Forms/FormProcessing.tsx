@@ -1,7 +1,14 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { useTranslation } from 'react-i18next';
-import { AnalyzingProgress, ExportMp4, LspivSettings, ProcessingRunZone, RoiHeightRow } from './Components';
+import {
+  AnalyzingProgress,
+  ExportMp4,
+  IwaveSettings,
+  LspivSettings,
+  ProcessingRunZone,
+  RoiHeightRow,
+} from './Components';
 import { useEffect, useState } from 'react';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
@@ -11,6 +18,7 @@ import { FieldError } from '../index';
 import { Icons } from '../CustomIcons/Icons';
 import { enabledStages, techniqueRunStatus, TechniqueRunStatus } from '../../helpers/analyzeRunState';
 import type { StageKey } from '../../helpers/parseAnalyzeStage';
+import type { IwaveDefaults } from '../../../commons/iwave';
 
 /** A technique row's own run status, replacing the LSPIV → STIV → iWave breadcrumb. */
 const RunStatus = ({ status }: { status: TechniqueRunStatus | null }) => {
@@ -34,6 +42,7 @@ export const FormProcessing = ({
   canToggleIwave,
   canToggleMedian,
   stivAvailable,
+  iwaveDefaults,
 }: {
   extraFields: boolean;
   showMedian: boolean;
@@ -44,6 +53,7 @@ export const FormProcessing = ({
   canToggleIwave: boolean;
   canToggleMedian: boolean;
   stivAvailable: boolean;
+  iwaveDefaults: IwaveDefaults;
 }) => {
   const { t } = useTranslation();
   const { onSetFieldError, onClearFieldError, onAddStepAlert, onClearStepAlert, onShowToast } = useUiSlice();
@@ -86,6 +96,7 @@ export const FormProcessing = ({
     running ? techniqueRunStatus(technique, stages, runState.stage) : null;
   // D5: open the first time Advanced turns on; a collapse lasts while this step is mounted.
   const [lspivOpen, setLspivOpen] = useState<boolean>(true);
+  const [iwaveOpen, setIwaveOpen] = useState<boolean>(true);
 
   const methods = useForm({
     defaultValues: {
@@ -365,7 +376,28 @@ export const FormProcessing = ({
                   />
                   <span className="slider"></span>
                 </label>
+                {extraFields && iwave && (
+                  <span className="tech-cell tech-disclose">
+                    <button
+                      type="button"
+                      className="ibtn ibtn-sm"
+                      aria-expanded={iwaveOpen}
+                      aria-controls="iwave-settings"
+                      aria-label={t('Processing.iwaveSettings', { defaultValue: 'iWave settings' })}
+                      title={t('Processing.iwaveSettings', { defaultValue: 'iWave settings' })}
+                      onClick={() => setIwaveOpen(!iwaveOpen)}
+                    >
+                      {Icons.ChevDown('currentColor')}
+                    </button>
+                  </span>
+                )}
               </TechniqueRow>
+              {iwave && iwaveDefaults.shortClip && iwaveDefaults.iwaveS !== null && (
+                <p className="tech-params-note tech-row-note">
+                  {t('Processing.iwaveShortClip', { seconds: iwaveDefaults.iwaveS.toFixed(1) })}
+                </p>
+              )}
+              {extraFields && iwave && iwaveOpen && <IwaveSettings id="iwave-settings" defaults={iwaveDefaults} />}
             </form>
           </FormProvider>
         </div>

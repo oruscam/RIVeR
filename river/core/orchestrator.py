@@ -16,11 +16,19 @@ import numpy as np
 from tqdm import tqdm
 
 from river.core.compute_section import update_current_x_section
-from river.core.iwave_pipeline import IWAVE_COLUMNS, build_ortho_stack, run_iwave_analysis
+from river.core.iwave_params import IwaveOptions
+from river.core.iwave_pipeline import (
+	IWAVE_COLUMNS,
+	IWAVE_PARAMS_KEY,
+	build_ortho_stack,
+	prepare_iwave_scene,
+	run_iwave_analysis,
+)
 from river.core.piv_pipeline import run_analyze_all
 from river.core.stiv_pipeline import STIV_COLUMNS, load_models, run_stiv_analysis
 
 PIV_HASH_KEY = "_piv_params_hash"
+IWAVE_STRIP_KEYS = IWAVE_COLUMNS + [IWAVE_PARAMS_KEY]
 
 
 def compute_piv_params_hash(
@@ -65,6 +73,7 @@ def run_full_analysis(
 	bbox: Optional[list] = None,
 	piv_options: Optional[dict] = None,
 	height_roi_stiv: float = 6.0,
+	iwave_options: Optional[IwaveOptions] = None,
 ) -> dict:
 	frames_dir = Path(frames_dir)
 	workdir = Path(workdir)
@@ -142,11 +151,16 @@ def run_full_analysis(
 	# ── Stage 4: iWave ──────────────────────────────────────────────────────
 	if iwave:
 		try:
+			# Resolved after STIV: the velocity estimate reads the LSPIV and STIV profiles.
+			estimate, scene = prepare_iwave_scene(
+				str(frames_dir), transformation_matrix, xsections, step, fps,
+				bbox=None, options=iwave_options,
+			)
 			_log("iWave: warping frames onto ortho grid")
 			spectra_root = frames_dir.parent / "iwave_spectra"
 			stack, grid = build_ortho_stack(
 				str(frames_dir), transformation_matrix, xsections, bbox=None,
-				save_dir=str(frames_dir.parent / "rectified"),
+				save_dir=str(frames_dir.parent / "rectified"), resolution=scene.resolution,
 			)
 			total_iwave_stations = sum(len(xsections[k]["id"]) for k in section_keys)
 			with tqdm(total=total_iwave_stations, desc="iWave", file=sys.stderr) as pbar:
@@ -164,13 +178,16 @@ def run_full_analysis(
 						grid=grid,
 						spectra_dir=str(spectra_root / _key),
 						progress=iwave_progress,
+						scene=scene,
+						estimate=estimate,
+						options=iwave_options,
 					)
 		except Exception as err:  # noqa: BLE001
 			errors["iwave"] = str(err)
-			_strip_columns(xsections, IWAVE_COLUMNS)
+			_strip_columns(xsections, IWAVE_STRIP_KEYS)
 			_log(f"iWave failed, continuing without it: {err}")
 	else:
-		_strip_columns(xsections, IWAVE_COLUMNS)
+		_strip_columns(xsections, IWAVE_STRIP_KEYS)
 
 	xsections_path.write_text(json.dumps(xsections))
 	return {"results_path": str(results_path), "piv_skipped": piv_skipped, "errors": errors}

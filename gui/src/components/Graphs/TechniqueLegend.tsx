@@ -43,6 +43,7 @@ export const TechniqueLegend = () => {
     step: video.parameters.step,
     fps: video.data.fps,
   };
+  const lowQualityCount = data.iwave_valid_profile?.filter((valid) => valid === false).length ?? 0;
 
   const hasData = (key: Technique): boolean => {
     if (key === 'lspiv') return true;
@@ -75,7 +76,7 @@ export const TechniqueLegend = () => {
           visible &&
           (key === 'lspiv' ||
             (key === 'stiv' && !!data.stiv_sigma_profile) ||
-            (key === 'iwave' && !!data.iwave_quality_profile));
+            (key === 'iwave' && (!!data.iwave_quality_profile || lowQualityCount > 0)));
 
         return (
           <TechniqueRow key={key} technique={key} active={isActive} hidden={!visible}>
@@ -146,6 +147,24 @@ export const TechniqueLegend = () => {
                       onClick={() => onChangeDataValues({ type: 'showIwaveQuality' })}
                     >
                       {t('Results.showIwaveQualityLabel', { defaultValue: 'Quality shading' })}
+                    </button>
+                  )}
+                  {key === 'iwave' && lowQualityCount > 0 && (
+                    <button
+                      type="button"
+                      className={`technique-layer-chip${data.includeIwaveLowQuality ? ' technique-layer-chip-on' : ''}`}
+                      aria-pressed={!!data.includeIwaveLowQuality}
+                      title={
+                        data.includeIwaveLowQuality
+                          ? t('Results.iwaveLowQualityIncluded')
+                          : t('Results.iwaveLowQualityExcluded', { count: lowQualityCount })
+                      }
+                      onClick={() => onChangeDataValues({ type: 'includeIwaveLowQuality' })}
+                    >
+                      {t('Results.iwaveLowQualityLabel', {
+                        defaultValue: 'Low quality ({{count}})',
+                        count: lowQualityCount,
+                      })}
                     </button>
                   )}
                 </>

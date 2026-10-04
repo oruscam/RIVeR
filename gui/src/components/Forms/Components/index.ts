@@ -9,6 +9,7 @@ import { VideoMetadata } from './VideoMetadata';
 import { HardModeUav } from './HardModeUav';
 import { HardModeCrossSections } from './HardModeCrossSections';
 import { HardModeOblique } from './HardModeOblique';
+import { IwaveSettings } from './IwaveSettings';
 import { FormHeader } from './FormHeader';
 import { AnalyzingProgress } from './AnalyzingProgress';
 import { ProcessingRunZone } from './ProcessingRunZone';
@@ -30,6 +31,7 @@ export {
   HardModeOblique,
   LspivSettings,
   HardModeUav,
+  IwaveSettings,
   MaskCreation,
   MaskList,
   PixelCoordinates,
