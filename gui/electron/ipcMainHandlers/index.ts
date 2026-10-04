@@ -6,6 +6,7 @@ import { setPixelSize } from './setPixelSize';
 import { realWorldToPixel } from './realWorldToPixel';
 import { pixelToRealWorld } from './pixelToRealWorld';
 import { projectsExist } from './projectsExist';
+import { projectThumbnails } from './projectThumbnails';
 import { setSections } from './setSections';
 import { firstFrame } from './firstFrame';
 import { getQuiver } from './getQuiver';
@@ -54,6 +55,7 @@ export {
   loadResults,
   pixelToRealWorld,
   projectsExist,
+  projectThumbnails,
   realWorldToPixel,
   recommendRoiHeight,
   saveReportHtml,
