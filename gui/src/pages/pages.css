@@ -814,6 +814,17 @@
     text-overflow: ellipsis;
 }
 
+/* The timestamped project folder: tabular digits so stacked tiles line up. */
+.recent-tile-project {
+    display: block;
+    font-size: var(--text-caption);
+    font-variant-numeric: tabular-nums;
+    color: var(--secondary-text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .recent-tile-meta {
     display: block;
     font-size: var(--text-caption);
