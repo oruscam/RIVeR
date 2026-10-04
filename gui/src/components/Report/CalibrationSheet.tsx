@@ -7,7 +7,7 @@ import { REPORT_FLOW, UNIT_CONVERSIONS } from '../../constants/constants';
 import { frameBox, frameFactor } from '../../helpers/reportLayout';
 import { obliqueResiduals } from '../../helpers/obliqueResiduals';
 import { ipcamPointErrors } from '../../helpers/ipcamPointErrors';
-import { ipcamSvg, obliqueSvg } from '../Graphs';
+import { ipcamSvg, obliqueSvg, uavSvg } from '../Graphs';
 import { FootageIcon } from './FootageIcon';
 
 export const hasCalibration = (type: string, ipcamSolved: boolean) =>
@@ -34,21 +34,28 @@ const useFrame = () => {
   return { box, factor: frameFactor(width, height, video.parameters.factor, box) };
 };
 
-const Uav = () => {
+const Uav = ({ measure = false }: { measure?: boolean }) => {
   const { t } = useTranslation();
-  const { size, rwLength, rwPoints, dirPoints, solution } = useUavSlice();
+  const svgRef = useRef<SVGSVGElement>(null);
+  const { firstFramePath } = useProjectSlice();
+  const { size, rwLength, rwPoints, dirPoints } = useUavSlice();
+  const { box, factor } = useFrame();
   const { len, lF, l2 } = useLength();
-  const ortho = solution
-    ? frameBox(solution.width, solution.height, REPORT_FLOW.METHOD_IMAGE_WIDTH, REPORT_FLOW.METHOD_IMAGE_WIDTH)
-    : null;
+
+  useEffect(() => {
+    d3.select(svgRef.current).selectAll('*').remove();
+    if (measure) return;
+    if (svgRef.current) {
+      uavSvg({ factor, dirPoints, svgElement: svgRef.current, width: box.width, height: box.height });
+    }
+  }, [factor, dirPoints, box.width, box.height, measure]);
+
   return (
     <>
-      {solution && ortho && (
-        <figure className="doc-figure mc-img">
-          <img src={solution.orthoImage} width={ortho.width} height={ortho.height} />
-          <figcaption>{t('Report.Doc.rectified', { defaultValue: 'Rectified frame' })}</figcaption>
-        </figure>
-      )}
+      <figure className="doc-figure mc-img">
+        <img src={firstFramePath} width={box.width} height={box.height} />
+        <svg ref={svgRef} className="doc-overlay" width={box.width} height={box.height} />
+      </figure>
       <dl className="doc-kv">
         <dt>{t('Report.Doc.pixelSize', { defaultValue: 'Pixel size (GSD)' })}</dt>
         <dd>
@@ -252,7 +259,7 @@ export const CalibrationPanel = ({ measure = false }: { measure?: boolean }) => 
         <FootageIcon type={type as 'uav' | 'oblique' | 'ipcam' | ''} />
         {t('Report.Doc.calibration', { defaultValue: 'Calibration' })} · {label}
       </h3>
-      {type === 'uav' && <Uav />}
+      {type === 'uav' && <Uav measure={measure} />}
       {type === 'oblique' && <Oblique measure={measure} />}
       {type === 'ipcam' && <Ipcam measure={measure} />}
     </section>
