@@ -154,24 +154,26 @@ export const CalibrationPrepare = ({
               </>
             )}
           </div>
-          {advice === 'tooFew' && scan !== 'scanning' && (
-            <p className="cal-prepare-note">
-              <LuAlertTriangle size={16} className="cal-prepare-warn-icon" aria-hidden="true" />
-              <span>{t('Calibration.prepare.tooFew', { count: imageCount, min: MIN_RECOMMENDED_PHOTOS })}</span>
-            </p>
-          )}
-          {scan === 'empty' && !hasPhotos && (
-            <p className="cal-prepare-note" role="alert">
-              <LuAlertTriangle size={16} className="cal-prepare-error-icon" aria-hidden="true" />
-              <span>{t('Errors.imagesFolderEmpty')}</span>
-            </p>
-          )}
-          {scan === 'failed' && (
-            <p className="cal-prepare-note" role="alert">
-              <LuAlertTriangle size={16} className="cal-prepare-error-icon" aria-hidden="true" />
-              <span>{t('Calibration.errorGeneric')}</span>
-            </p>
-          )}
+          <div className="cal-prepare-notes">
+            {advice === 'tooFew' && scan !== 'scanning' && (
+              <p className="cal-prepare-note">
+                <LuAlertTriangle size={16} className="cal-prepare-warn-icon" aria-hidden="true" />
+                <span>{t('Calibration.prepare.tooFew', { count: imageCount, min: MIN_RECOMMENDED_PHOTOS })}</span>
+              </p>
+            )}
+            {scan === 'empty' && !hasPhotos && (
+              <p className="cal-prepare-note" role="alert">
+                <LuAlertTriangle size={16} className="cal-prepare-error-icon" aria-hidden="true" />
+                <span>{t('Errors.imagesFolderEmpty')}</span>
+              </p>
+            )}
+            {scan === 'failed' && (
+              <p className="cal-prepare-note" role="alert">
+                <LuAlertTriangle size={16} className="cal-prepare-error-icon" aria-hidden="true" />
+                <span>{t('Calibration.errorGeneric')}</span>
+              </p>
+            )}
+          </div>
         </section>
       </div>
 
