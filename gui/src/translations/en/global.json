@@ -28,7 +28,8 @@
       "riverFolder": "RIVeR Folder",
       "si": "SI (default)",
       "imperial": "Imperial"
-    }
+    },
+    "recentProjects": "Recent projects"
   },
   "Step-2": {
     "title": "Select the kind of footage",
@@ -82,7 +83,8 @@
     "addRegion": "Add region",
     "exitRegionMode": "Exit region editing",
     "minRegionsWarning": "Add at least 2 regions for stabilization",
-    "editingRegionsWarning": "Editing stabilization regions"
+    "editingRegionsWarning": "Editing stabilization regions",
+    "minRegionsCount": "{{count}} of 2 min."
   },
   "PixelSize": {
     "title": "Pixel Size",
@@ -159,7 +161,16 @@
     "drawingSectionWarning": "Drawing section {{name}}",
     "modifyingSectionWarning": "Modifying section {{name}}",
     "bankRight": "R",
-    "bankLeft": "L"
+    "bankLeft": "L",
+    "addSection": "Add section",
+    "confirmMask": "Confirm mask",
+    "deleteCancel": "Cancel",
+    "deleteConfirm": "Delete section",
+    "deleteLastSection": "Can't delete the last section",
+    "deleteMask": "Delete mask",
+    "exitMaskMode": "Exit mask editing",
+    "section": "Section",
+    "undoPoint": "Undo point"
   },
   "Processing": {
     "title": "Processing",
@@ -220,7 +231,23 @@
     "Plot": {
       "u": "U Component",
       "v": "V Component"
-    }
+    },
+    "colorbarManual": "Manual",
+    "colorbarReset": "Reset to data range",
+    "exportRequiresLspiv": "Export needs an LSPIV result",
+    "framePairCaption": "Frame pair {{first}}–{{last}}",
+    "iwaveToggleOff": "iWave is off (click to include in processing)",
+    "iwaveToggleOn": "iWave is on (click to exclude from processing)",
+    "layersLabel": "Layers",
+    "lspivAlwaysOn": "LSPIV can't be turned off",
+    "previewFrames": "Frames",
+    "previewSpaceTime": "Space-time",
+    "previewSpectrum": "Spectrum",
+    "previewTablistLabel": "Preview",
+    "stiAngleResetAllToast": "Angles reset for {{section}}",
+    "stiAngleResetToast": "Angle reset for station {{station}}",
+    "stivToggleOff": "STIV is off (click to include in processing)",
+    "stivToggleOn": "STIV is on (click to exclude from processing)"
   },
   "Analizing": {
     "title": "Analyzing",
@@ -270,7 +297,16 @@
     "vsTooltip": "Surface velocity (m/s)",
     "qTooltip": "Discharge (m³/s)",
     "copyTable": "Copy table",
-    "copied": "Copied"
+    "copied": "Copied",
+    "depthArea": "Depth · area",
+    "pinStation": "Click the station to pin",
+    "showIwaveQualityLabel": "Quality shading",
+    "showProfileLabel": "5–95% band",
+    "showStivStdLabel": "σ band",
+    "showVelStdLabel": "σ band",
+    "stationTagHint": "Click the station to keep this open while you change layers",
+    "stationTagPinnedHint": "Pinned — click the pin to release",
+    "unpinStation": "Unpin"
   },
   "Graphs": {
     "station": "Station",
@@ -361,7 +397,12 @@
       "plotV": "Surface velocity",
       "plotD": "Depth",
       "station": "Station",
-      "footage": { "uav": "UAV (nadir)", "oblique": "Oblique", "ipcam": "IP camera", "none": "-" },
+      "footage": {
+        "uav": "UAV (nadir)",
+        "oblique": "Oblique",
+        "ipcam": "IP camera",
+        "none": "-"
+      },
       "section": "Section",
       "technique": "Technique",
       "seeded": "Seeded",
@@ -456,7 +497,10 @@
     "solve": "Solve",
     "resourceNotFound": "Resource not found",
     "randomError": "Something went wrong. Please try again",
-    "dropHereText": "Drop a file anywhere on this panel. I'll auto-detect where it belongs."
+    "dropHereText": "Drop a file anywhere on this panel. I'll auto-detect where it belongs.",
+    "advancedSettings": "Advanced settings",
+    "next": "Next: {{name}}",
+    "stepOf": "Step {{n}} of {{total}}"
   },
   "Calibration": {
     "title": "Camera Calibration",
@@ -530,6 +574,30 @@
       "varyViewpoints": "Capture from varied viewpoints (tilt/pan/roll) and distances.",
       "ensureCorners": "Ensure corners appear across the whole sensor; avoid heavy cropping.",
       "reshoot": "Re-shoot with better coverage; if persists, inspect image readout/metadata."
+    },
+    "improveTitle": "How to improve this calibration",
+    "nameCamera": "Name the camera to save",
+    "nameCameraAndLens": "Name the camera and lens to save",
+    "nameLens": "Name the lens to save",
+    "noHeatmap": "No heatmap was produced for this calibration",
+    "noPhotos": "No photos yet",
+    "notUsedTag": "Not used",
+    "overall": "Overall",
+    "photoNumber": "Photo",
+    "saveSection": "Save as camera profile",
+    "solveAgain": "Solve again",
+    "solveFirst": "Solve the calibration first",
+    "viewTablist": "View",
+    "grade": {
+      "good": "Good",
+      "fair": "Fair",
+      "bad": "Bad"
     }
+  },
+  "Canvas": {
+    "deleteMask": "Delete mask",
+    "deleteRegion": "Delete region",
+    "done": "Done",
+    "undoPoint": "Undo last point"
   }
 }
