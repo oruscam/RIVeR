@@ -139,6 +139,9 @@ export const IwaveSettings = ({ id, defaults }: { id: string; defaults: IwaveDef
           type="button"
           className="btn btn-sm btn-secondary button-with-loader"
           disabled={isBackendWorking}
+          // Keep focus in the field: its blur would clear an inline error, the
+          // button would move up under the cursor, and the click would miss.
+          onMouseDown={(event) => event.preventDefault()}
           onClick={() => {
             onClearFieldError(FIELD_ERROR.windowSize);
             onClearFieldError(FIELD_ERROR.smax);
