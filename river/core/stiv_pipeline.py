@@ -620,7 +620,7 @@ def run_stiv_analysis(
 ) -> dict:
 	"""Run STIV analysis for the current cross-section and return updated xsections.
 
-	Adds 4 new per-station lists: stiv_velocity_profile (signed streamwise, m/s), stiv_sigma_profile, stiv_angle_profile (degrees), stiv_sign_profile.
+	Adds 5 new per-station lists: stiv_velocity_profile (signed streamwise, m/s), stiv_sigma_profile, stiv_angle_profile (degrees), stiv_sign_profile, stiv_skip_profile.
 	If stis_dir is provided, each STI is saved as sti_<station_id>.npy in that directory.
 	Stations whose whole search line is hidden by mask are not computed; stiv_skip_profile records "masked" for them.
 	"""

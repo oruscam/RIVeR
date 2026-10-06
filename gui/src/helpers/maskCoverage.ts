@@ -29,8 +29,9 @@ export const isSegmentMasked = (raster: MaskRaster | null, a: Point, b: Point): 
 
 /**
  * Whether an iWave window (a real-world square aligned with east/north, like the
- * backend's ortho grid) is hidden at every sample. A preview only: the backend
- * decides with the exact crop.
+ * backend's ortho grid) is hidden at every sample. A preview only: it does not
+ * reproduce the backend's border clamping or window shrinking, nor the dry
+ * check, so near a bank or on a dry station it can differ from the run's record.
  */
 export const isWindowMasked = (
   raster: MaskRaster | null,

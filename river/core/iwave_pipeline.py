@@ -540,9 +540,10 @@ def run_iwave_analysis(
 ) -> dict:
     """Run iWave spectral velocimetry for one cross-section's stations.
 
-    Adds 4 per-station lists: iwave_velocity_profile (signed streamwise, m/s),
-    iwave_quality_profile, iwave_depth_profile, iwave_valid_profile, plus the
-    iwave_params dict of parameters actually used. Pass a prebuilt (stack, grid)
+    Adds 5 per-station lists: iwave_velocity_profile (signed streamwise, m/s),
+    iwave_quality_profile, iwave_depth_profile, iwave_valid_profile,
+    iwave_skip_profile, plus the iwave_params dict of parameters actually used
+    (including skipped_dry and skipped_masked counts). Pass a prebuilt (stack, grid)
     pair together with its scene to reuse the warped frames across sections;
     without them everything is resolved here. If spectra_dir is given, each
     station's ky=0 spectrum preview is saved there as spectrum_<station_id>.png
