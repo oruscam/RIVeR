@@ -273,7 +273,9 @@
     "iwaveInvalidWindow": "창 크기는 0보다 큰 숫자여야 합니다.",
     "iwaveInvalidSmax": "최대 유속은 0보다 크고 10 m/s 이하인 숫자여야 합니다.",
     "iwaveStaleWindow": "이 값을 설정한 후 영역이 변경되었습니다. 자동 창은 이제 {{window}} m입니다.",
-    "iwaveShortClip": "짧은 클립({{seconds}}초 사용): iWave 결과에 노이즈가 더 많을 수 있습니다."
+    "iwaveShortClip": "짧은 클립({{seconds}}초 사용): iWave 결과에 노이즈가 더 많을 수 있습니다.",
+    "maskedStations_other": "마스크 아래의 측점 {{count}}개는 건너뜁니다",
+    "allStationsMasked": "모든 측점이 마스크 아래에 있습니다: {{technique}}은(는) 아무것도 계산하지 않습니다"
   },
   "Analizing": {
     "title": "분석 중",

@@ -273,7 +273,10 @@
     "iwaveInvalidWindow": "Die Fenstergröße muss eine Zahl größer als 0 sein.",
     "iwaveInvalidSmax": "Die max. Geschwindigkeit muss eine Zahl größer als 0 und höchstens 10 m/s sein.",
     "iwaveStaleWindow": "Die Region hat sich seit dem Festlegen dieser Werte geändert; das automatische Fenster beträgt jetzt {{window}} m.",
-    "iwaveShortClip": "Kurzer Clip ({{seconds}} s verwendet): iWave-Ergebnisse können verrauschter sein."
+    "iwaveShortClip": "Kurzer Clip ({{seconds}} s verwendet): iWave-Ergebnisse können verrauschter sein.",
+    "maskedStations_one": "{{count}} Station unter einer Maske wird übersprungen",
+    "maskedStations_other": "{{count}} Stationen unter einer Maske werden übersprungen",
+    "allStationsMasked": "Alle Stationen liegen unter einer Maske: {{technique}} berechnet nichts"
   },
   "Analizing": {
     "title": "Analyse",

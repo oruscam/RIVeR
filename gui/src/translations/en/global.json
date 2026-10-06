@@ -271,7 +271,10 @@
     "iwaveInvalidWindow": "Window size must be a number greater than 0.",
     "iwaveInvalidSmax": "Max velocity must be a number greater than 0 and at most 10 m/s.",
     "iwaveStaleWindow": "The region changed since these values were set; the automatic window is now {{window}} m.",
-    "iwaveShortClip": "Short clip ({{seconds}} s used): iWave results may be noisier."
+    "iwaveShortClip": "Short clip ({{seconds}} s used): iWave results may be noisier.",
+    "maskedStations_one": "{{count}} station under a mask will be skipped",
+    "maskedStations_other": "{{count}} stations under a mask will be skipped",
+    "allStationsMasked": "Every station is under a mask: {{technique}} will compute nothing"
   },
   "Analizing": {
     "title": "Analyzing",

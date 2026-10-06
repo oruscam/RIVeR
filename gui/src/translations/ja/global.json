@@ -273,7 +273,9 @@
     "iwaveInvalidWindow": "ウィンドウサイズは 0 より大きい数値にしてください。",
     "iwaveInvalidSmax": "最大流速は 0 より大きく 10 m/s 以下の数値にしてください。",
     "iwaveStaleWindow": "これらの値を設定した後に領域が変更されました。自動ウィンドウは現在 {{window}} m です。",
-    "iwaveShortClip": "短いクリップ（{{seconds}} 秒使用）：iWave の結果はノイズが多くなる可能性があります。"
+    "iwaveShortClip": "短いクリップ（{{seconds}} 秒使用）：iWave の結果はノイズが多くなる可能性があります。",
+    "maskedStations_other": "マスク下の測点 {{count}} 件はスキップされます",
+    "allStationsMasked": "すべての測点がマスク下にあります：{{technique}} は何も計算しません"
   },
   "Analizing": {
     "title": "解析中",
