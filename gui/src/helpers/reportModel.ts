@@ -67,11 +67,6 @@ export function buildReportModel({ sections, step, fps }: ReportModelInput): Rep
       skipped.push(section.name);
       return;
     }
-    (['stiv', 'iwave'] as const).forEach((technique) => {
-      const profile = technique === 'stiv' ? data.stiv_skip_profile : data.iwave_skip_profile;
-      const stations = (profile ?? []).flatMap((reason, i) => (reason === 'masked' ? [i + 1] : []));
-      if (stations.length) (maskedStations[technique] ??= []).push({ section: section.name, stations });
-    });
     const options = { interpolated, artificialSeeding, alpha, step, fps };
     const comparison: TechniqueQ[] = [];
     let active: ReturnType<typeof getEffectiveTechniqueData> = null;
@@ -85,6 +80,11 @@ export function buildReportModel({ sections, step, fps }: ReportModelInput): Rep
       skipped.push(section.name);
       return;
     }
+    (['stiv', 'iwave'] as const).forEach((technique) => {
+      const profile = technique === 'stiv' ? data.stiv_skip_profile : data.iwave_skip_profile;
+      const stations = (profile ?? []).flatMap((reason, i) => (reason === 'masked' ? [i + 1] : []));
+      if (stations.length) (maskedStations[technique] ??= []).push({ section: section.name, stations });
+    });
     const isLspiv = activeTechnique === 'lspiv';
     const { total_Q, measured_Q, interpolated_Q } = active;
     results.push({
