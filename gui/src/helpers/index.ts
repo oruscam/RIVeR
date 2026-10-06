@@ -14,7 +14,13 @@ import {
   computeStationPixelPositions,
   computeStationSearchLines,
   computeSearchLinesFromCenters,
+  getSectionSearchLines,
+  searchLineCenters,
+  interpolateStationCenters,
 } from './stationPositions';
+import { isPixelHidden, isSegmentMasked, isWindowMasked } from './maskCoverage';
+import type { MaskRaster } from './maskCoverage';
+import { loadMaskRaster } from './loadMaskRaster';
 import { getStiColorScale, STI_FALLBACK_COLOR } from './stiColorScale';
 import type { StiColorScale } from './stiColorScale';
 import {
@@ -90,6 +96,7 @@ import { curveToPolylinePoints } from './spectrumGeometry';
 import type { SpectrumExtent } from './spectrumGeometry';
 
 export type {
+  MaskRaster,
   StiColorScale,
   StepLeaveHandlers,
   StepperContent,
@@ -128,6 +135,13 @@ export {
   clearOverride,
   computeDischarge,
   computeSearchLinesFromCenters,
+  getSectionSearchLines,
+  searchLineCenters,
+  interpolateStationCenters,
+  isPixelHidden,
+  isSegmentMasked,
+  isWindowMasked,
+  loadMaskRaster,
   computeStationPixelPositions,
   computeStationSearchLines,
   curveToPolylinePoints,

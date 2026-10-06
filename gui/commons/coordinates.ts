@@ -159,6 +159,7 @@ export {
   getDistanceBetweenPoints,
   getLinesCoordinates,
   getTransformationFromCameraMatrix,
+  invertMatrix,
   transformPixelToRealWorld,
   transformRealWorldToPixel,
 };

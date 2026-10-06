@@ -1,5 +1,5 @@
 import { Point } from '../types';
-import { transformRealWorldToPixel } from '../../commons/coordinates';
+import { transformPixelToRealWorld, transformRealWorldToPixel } from '../../commons/coordinates';
 
 /**
  * Distribute `numStations` points evenly along a cross-section and return their
@@ -33,6 +33,16 @@ export const computeStationPixelPositions = (
     positions.push({ x: px, y: py });
   }
   return positions;
+};
+
+/** Real-world station centres spread evenly from `rwStart` to `rwEnd`. */
+export const interpolateStationCenters = (rwStart: Point, rwEnd: Point, numStations: number): Point[] => {
+  const centers: Point[] = [];
+  for (let i = 0; i < numStations; i++) {
+    const t = i / (numStations - 1);
+    centers.push({ x: rwStart.x + t * (rwEnd.x - rwStart.x), y: rwStart.y + t * (rwEnd.y - rwStart.y) });
+  }
+  return centers;
 };
 
 export interface SearchLine {
@@ -103,11 +113,7 @@ export const computeStationSearchLines = (
   const ny = dx / span;
   const half = lengthM / 2;
 
-  const centers: Point[] = [];
-  for (let i = 0; i < numStations; i++) {
-    const t = i / (numStations - 1);
-    centers.push({ x: rwStart.x + t * dx, y: rwStart.y + t * dy });
-  }
+  const centers = interpolateStationCenters(rwStart, rwEnd, numStations);
   return centersToSearchLines(centers, nx, ny, half, matrix);
 };
 
@@ -139,3 +145,55 @@ export const computeSearchLinesFromCenters = (
 
   return centersToSearchLines(centers, nx, ny, half, matrix);
 };
+
+export interface SectionSearchLinesInput {
+  sectionPoints?: Point[];
+  numStations?: number;
+  data?: { num_stations?: number; east?: number[]; north?: number[] } | null;
+  heightRoiM: number;
+  matrix: number[][];
+}
+
+/**
+ * The STIV search lines for a section, as drawn on Processing: the backend's
+ * per-station centres once a run with this station count exists, else stations
+ * interpolated along the drawn line. Moved here from StationSearchLines so the
+ * mask preview uses the exact same geometry.
+ */
+export const getSectionSearchLines = ({
+  sectionPoints,
+  numStations,
+  data,
+  heightRoiM,
+  matrix,
+}: SectionSearchLinesInput): SearchLine[] => {
+  if (!numStations || numStations < 2) return [];
+  if (!sectionPoints || sectionPoints.length < 2) return [];
+  if (matrix.length !== 3) return [];
+  const [sx, sy] = transformPixelToRealWorld(sectionPoints[0].x, sectionPoints[0].y, matrix);
+  const [ex, ey] = transformPixelToRealWorld(sectionPoints[1].x, sectionPoints[1].y, matrix);
+  const hasAuthoritativeCenters =
+    !!data &&
+    data.num_stations === numStations &&
+    Array.isArray(data.east) &&
+    Array.isArray(data.north) &&
+    data.east.length === numStations &&
+    data.north.length === numStations;
+  return hasAuthoritativeCenters
+    ? computeSearchLinesFromCenters(
+        data!.east!.map((east, i) => ({ x: east, y: data!.north![i] })),
+        { x: sx, y: sy },
+        { x: ex, y: ey },
+        heightRoiM,
+        matrix
+      )
+    : computeStationSearchLines({ x: sx, y: sy }, { x: ex, y: ey }, numStations, heightRoiM, matrix);
+};
+
+/** Real-world centre of each search line (lines are symmetric about it in metres). */
+export const searchLineCenters = (lines: SearchLine[], matrix: number[][]): Point[] =>
+  lines.map(({ a, b }) => {
+    const [ax, ay] = transformPixelToRealWorld(a.x, a.y, matrix);
+    const [bx, by] = transformPixelToRealWorld(b.x, b.y, matrix);
+    return { x: (ax + bx) / 2, y: (ay + by) / 2 };
+  });
