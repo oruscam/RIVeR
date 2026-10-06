@@ -54,6 +54,7 @@ IWAVE_COLUMNS = [
     "iwave_quality_profile",
     "iwave_depth_profile",
     "iwave_valid_profile",
+    "iwave_skip_profile",
 ]
 # Per-section dict (not a per-station list), stripped together with IWAVE_COLUMNS.
 IWAVE_PARAMS_KEY = "iwave_params"
@@ -279,14 +280,56 @@ def get_iwave_defaults(
     }
 
 
-def _station_window(stack: np.ndarray, grid: OrthoGrid, east: float, north: float, win: int) -> np.ndarray:
+MASK_WINDOW_SAMPLES = 32
+
+
+def _station_window_origin(grid_shape: tuple, grid: OrthoGrid, east: float, north: float, win: int) -> tuple[int, int]:
+    """Top-left (row, col) of a station's window, clamped inside the grid."""
     col, row = grid.real_to_pixel(east, north)
     half = win // 2
     r0 = int(round(float(row))) - half
     c0 = int(round(float(col))) - half
-    r0 = min(max(r0, 0), stack.shape[1] - win)
-    c0 = min(max(c0, 0), stack.shape[2] - win)
+    r0 = min(max(r0, 0), grid_shape[0] - win)
+    c0 = min(max(c0, 0), grid_shape[1] - win)
+    return r0, c0
+
+
+def _station_window(stack: np.ndarray, grid: OrthoGrid, east: float, north: float, win: int) -> np.ndarray:
+    r0, c0 = _station_window_origin(stack.shape[1:], grid, east, north, win)
     return np.array(stack[:, r0:r0 + win, c0:c0 + win], dtype=np.float64)
+
+
+def is_window_masked(
+    grid: OrthoGrid,
+    grid_shape: tuple,
+    east: float,
+    north: float,
+    win: int,
+    transformation_matrix: list,
+    mask: np.ndarray,
+) -> bool:
+    """Whether a station's whole window is hidden in the raw frame (masked or off the image).
+
+    Args:
+        grid (OrthoGrid): Ortho grid the stack was warped onto.
+        grid_shape (tuple): (rows, cols) of that grid.
+        east (float): Station east (m).
+        north (float): Station north (m).
+        win (int): Window side (grid px), as cropped.
+        transformation_matrix (list): Pixel -> real-world homography.
+        mask (np.ndarray): Raw-frame binary mask, 1 = keep, 0 = masked.
+
+    Returns:
+        bool: True when no sampled point of the window lands on a kept pixel.
+    """
+    # Deferred: define_roi_masks -> compute_section -> iwave_pipeline imports this module.
+    from river.core.define_roi_masks import are_all_points_hidden
+
+    r0, c0 = _station_window_origin(grid_shape, grid, east, north, win)
+    offsets = np.linspace(0, win - 1, min(win, MASK_WINDOW_SAMPLES))
+    cols, rows = np.meshgrid(c0 + offsets, r0 + offsets)
+    x, y = _project_h(build_warp_matrix(grid, transformation_matrix), cols.ravel(), rows.ravel())
+    return are_all_points_hidden(x, y, mask)
 
 
 # ---------------------------------------------------------------------------
@@ -493,6 +536,7 @@ def run_iwave_analysis(
     scene: Optional[SceneParams] = None,
     estimate: Optional[VelocityEstimate] = None,
     options: Optional[IwaveOptions] = None,
+    mask: Optional[np.ndarray] = None,
 ) -> dict:
     """Run iWave spectral velocimetry for one cross-section's stations.
 
@@ -502,7 +546,8 @@ def run_iwave_analysis(
     pair together with its scene to reuse the warped frames across sections;
     without them everything is resolved here. If spectra_dir is given, each
     station's ky=0 spectrum preview is saved there as spectrum_<station_id>.png
-    alongside a spectra.json sidecar.
+    alongside a spectra.json sidecar. A station whose whole window is hidden by
+    mask is not fitted; iwave_skip_profile records "dry" or "masked" per station.
     """
     options = options or IwaveOptions()
     if (stack is None) != (grid is None):
@@ -551,13 +596,24 @@ def run_iwave_analysis(
     quality: list[Optional[float]] = [None] * n
     depth: list[Optional[float]] = [None] * n
     spectra_entries: list = []
+    skip: list[Optional[str]] = [None] * n
     skipped_dry = 0
+    skipped_masked = 0
     smax_reruns = 0
     depth_at_bound = 0
 
     for i in range(n):
         if is_dry_window(cs, i, window_m):
             skipped_dry += 1
+            skip[i] = "dry"
+            if progress is not None:
+                progress(i + 1, n)
+            continue
+        if mask is not None and is_window_masked(
+            grid, stack.shape[1:], east[i], north[i], win, transformation_matrix, mask,
+        ):
+            skipped_masked += 1
+            skip[i] = "masked"
             if progress is not None:
                 progress(i + 1, n)
             continue
@@ -609,9 +665,11 @@ def run_iwave_analysis(
     xsections[current_key]["iwave_quality_profile"] = quality
     xsections[current_key]["iwave_depth_profile"] = depth
     xsections[current_key]["iwave_valid_profile"] = get_quality_flags(quality)
+    xsections[current_key]["iwave_skip_profile"] = skip
     xsections[current_key][IWAVE_PARAMS_KEY] = build_params_record(
         scene, estimate, options,
         window_px=win, window_m=window_m, time_size=time_size, gravity_waves=gravity_waves,
         depth_at_bound=depth_at_bound, smax_reruns=smax_reruns, skipped_dry=skipped_dry,
+        skipped_masked=skipped_masked,
     )
     return xsections
