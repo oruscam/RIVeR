@@ -2,6 +2,8 @@ import {
   computeStationPixelPositions,
   computeStationSearchLines,
   computeSearchLinesFromCenters,
+  getSectionSearchLines,
+  searchLineCenters,
 } from './stationPositions';
 import { transformRealWorldToPixel } from '../../commons/coordinates';
 
@@ -183,5 +185,29 @@ describe('computeSearchLinesFromCenters', () => {
     const distB = Math.hypot(line.b.x - centerPx.x, line.b.y - centerPx.y);
 
     expect(Math.abs(distA - distB)).toBeGreaterThan(1e-6);
+  });
+});
+
+describe('getSectionSearchLines', () => {
+  const sectionPoints = [
+    { x: 0, y: 0 },
+    { x: 10, y: 0 },
+  ];
+
+  it('interpolates stations along the drawn line before any run', () => {
+    const lines = getSectionSearchLines({ sectionPoints, numStations: 3, data: null, heightRoiM: 2, matrix: IDENTITY });
+    expect(lines).toHaveLength(3);
+    expect(searchLineCenters(lines, IDENTITY).map((c) => Math.round(c.x))).toEqual([0, 5, 10]);
+  });
+
+  it('uses the backend centres once a matching run exists', () => {
+    const data = { num_stations: 3, east: [1, 4, 9], north: [0, 0, 0] };
+    const lines = getSectionSearchLines({ sectionPoints, numStations: 3, data, heightRoiM: 2, matrix: IDENTITY });
+    expect(searchLineCenters(lines, IDENTITY).map((c) => Math.round(c.x))).toEqual([1, 4, 9]);
+  });
+
+  it('returns nothing for an incomplete section', () => {
+    expect(getSectionSearchLines({ sectionPoints, numStations: 1, data: null, heightRoiM: 2, matrix: IDENTITY })).toEqual([]);
+    expect(getSectionSearchLines({ sectionPoints: [], numStations: 3, data: null, heightRoiM: 2, matrix: IDENTITY })).toEqual([]);
   });
 });
