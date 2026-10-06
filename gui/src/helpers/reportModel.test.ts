@@ -114,6 +114,17 @@ describe('maskedStations', () => {
     expect(model.maskedStations.iwave).toEqual([{ section: s.name, stations: [3] }]);
   });
 
+  test('a section the report drops (active technique has no results) is not listed', () => {
+    const dropped = section({
+      name: 'CS3',
+      activeTechnique: 'stiv' as const,
+      data: data({ stiv_skip_profile: [null, 'masked', null, null] }),
+    });
+    const model = buildReportModel(input([dropped]));
+    expect(model.skipped).toEqual(['CS3']);
+    expect(model.maskedStations).toEqual({});
+  });
+
   test('no skip profiles: nothing listed', () => {
     expect(buildReportModel(input([section()])).maskedStations).toEqual({});
   });
