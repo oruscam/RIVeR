@@ -21,7 +21,8 @@ export interface StationTagRow {
    *  ± sigma, or '—' for iWave (no per-station uncertainty measure exists). */
   spreadText: string;
   /** LSPIV: 'seeded'/'unseeded'. STIV: 'low confidence' or '—'. iWave: the
-   *  quality score, or '—'. */
+   *  quality score, or '—'. STIV/iWave: 'masked' (or iWave 'dry') when the
+   *  station was skipped, plus ' · interpolated' when its gap is filled. */
   qualityText: string;
   qualityWarn: boolean;
 }
@@ -113,6 +114,13 @@ export const buildStationTagContent = ({
       if (!effective) return null;
       const v = effective.resolved[stationIndex];
       const velocityText = v === null ? '—' : `${(v * lengthFactor).toFixed(2)} ${velocityUnit}`;
+      const skip =
+        key === 'stiv'
+          ? data.stiv_skip_profile?.[stationIndex]
+          : key === 'iwave'
+            ? data.iwave_skip_profile?.[stationIndex]
+            : null;
+      const skipText = skip ? `${skip}${effective.interpFlags[stationIndex] ? ' · interpolated' : ''}` : null;
 
       if (key === 'lspiv') {
         const minus = data.minus_std[stationIndex];
@@ -148,8 +156,8 @@ export const buildStationTagContent = ({
           label: TECHNIQUE_LABEL[key],
           velocityText,
           spreadText: typeof sigma === 'number' ? `±${(sigma * lengthFactor).toFixed(2)}` : '—',
-          qualityText: lowConf ? 'low confidence' : '—',
-          qualityWarn: lowConf,
+          qualityText: skipText ?? (lowConf ? 'low confidence' : '—'),
+          qualityWarn: !skipText && lowConf,
         };
       }
 
@@ -159,7 +167,7 @@ export const buildStationTagContent = ({
         label: TECHNIQUE_LABEL[key],
         velocityText,
         spreadText: '—',
-        qualityText: typeof quality === 'number' ? quality.toFixed(2) : '—',
+        qualityText: skipText ?? (typeof quality === 'number' ? quality.toFixed(2) : '—'),
         qualityWarn: false,
       };
     })
