@@ -113,4 +113,31 @@ describe('buildStationTagContent', () => {
     const content = buildStationTagContent({ data: baseData({ showStiv: false }), stationIndex: 0, ...opts });
     expect(content?.rows.find((r) => r.key === 'stiv')).toBeUndefined();
   });
+
+  describe('skipped stations', () => {
+    const skipData = baseData({
+      stiv_velocity_profile: [0.5, null, 0.6],
+      stiv_sigma_profile: undefined,
+      stiv_skip_profile: [null, 'masked', null],
+      iwave_velocity_profile: [0.4, null, null],
+      iwave_quality_profile: undefined,
+      iwave_skip_profile: [null, 'masked', 'dry'],
+    } as unknown as Partial<SectionData>);
+
+    it('names the skip reason, and adds interpolated when the gap is filled', () => {
+      const tag = buildStationTagContent({ ...opts, alpha: 0.85, data: skipData, stationIndex: 1, interpolated: true });
+      const stiv = tag!.rows.find((r) => r.key === 'stiv')!;
+      expect(stiv.qualityText).toBe('masked · interpolated');
+      expect(stiv.qualityWarn).toBe(false);
+      const iwave = tag!.rows.find((r) => r.key === 'iwave')!;
+      expect(iwave.qualityText).toBe('masked · interpolated');
+    });
+
+    it('shows the bare reason when the gap is left blank', () => {
+      const tag = buildStationTagContent({ ...opts, alpha: 0.85, data: skipData, stationIndex: 2, interpolated: false });
+      const iwave = tag!.rows.find((r) => r.key === 'iwave')!;
+      expect(iwave.qualityText).toBe('dry');
+      expect(iwave.velocityText).toBe('—');
+    });
+  });
 });
