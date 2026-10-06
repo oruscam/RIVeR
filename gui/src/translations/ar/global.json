@@ -273,7 +273,14 @@
     "iwaveInvalidWindow": "يجب أن يكون حجم النافذة رقمًا أكبر من 0.",
     "iwaveInvalidSmax": "يجب أن تكون السرعة القصوى رقمًا أكبر من 0 ولا تتجاوز 10 م/ث.",
     "iwaveStaleWindow": "تغيّرت المنطقة منذ تعيين هذه القيم؛ النافذة التلقائية الآن {{window}} م.",
-    "iwaveShortClip": "مقطع قصير (استُخدمت {{seconds}} ث): قد تكون نتائج iWave أكثر تشويشًا."
+    "iwaveShortClip": "مقطع قصير (استُخدمت {{seconds}} ث): قد تكون نتائج iWave أكثر تشويشًا.",
+    "maskedStations_zero": "لا توجد محطات تحت القناع",
+    "maskedStations_one": "محطة واحدة تحت القناع ستُتخطى",
+    "maskedStations_two": "محطتان تحت القناع ستُتخطيان",
+    "maskedStations_few": "{{count}} محطات تحت القناع ستُتخطى",
+    "maskedStations_many": "{{count}} محطة تحت القناع ستُتخطى",
+    "maskedStations_other": "{{count}} محطة تحت القناع ستُتخطى",
+    "allStationsMasked": "جميع المحطات تحت القناع: لن تحسب {{technique}} شيئًا"
   },
   "Analizing": {
     "title": "جارٍ التحليل",

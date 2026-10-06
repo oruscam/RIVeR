@@ -273,7 +273,10 @@
     "iwaveInvalidWindow": "El tamaño de ventana debe ser un número mayor que 0.",
     "iwaveInvalidSmax": "La velocidad máxima debe ser un número mayor que 0 y de hasta 10 m/s.",
     "iwaveStaleWindow": "La región cambió desde que se fijaron estos valores; la ventana automática ahora es {{window}} m.",
-    "iwaveShortClip": "Video corto ({{seconds}} s usados): los resultados de iWave pueden ser más ruidosos."
+    "iwaveShortClip": "Video corto ({{seconds}} s usados): los resultados de iWave pueden ser más ruidosos.",
+    "maskedStations_one": "Se omitirá {{count}} estación bajo una máscara",
+    "maskedStations_other": "Se omitirán {{count}} estaciones bajo una máscara",
+    "allStationsMasked": "Todas las estaciones están bajo una máscara: {{technique}} no calculará nada"
   },
   "Analizing": {
     "title": "Analizando",

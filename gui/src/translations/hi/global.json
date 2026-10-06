@@ -273,7 +273,10 @@
     "iwaveInvalidWindow": "विंडो आकार 0 से बड़ी संख्या होनी चाहिए।",
     "iwaveInvalidSmax": "अधिकतम वेग 0 से बड़ी और अधिकतम 10 मी/से की संख्या होनी चाहिए।",
     "iwaveStaleWindow": "ये मान सेट करने के बाद क्षेत्र बदल गया है; स्वचालित विंडो अब {{window}} मी है।",
-    "iwaveShortClip": "छोटी क्लिप ({{seconds}} से उपयोग): iWave परिणामों में अधिक शोर हो सकता है।"
+    "iwaveShortClip": "छोटी क्लिप ({{seconds}} से उपयोग): iWave परिणामों में अधिक शोर हो सकता है।",
+    "maskedStations_one": "मास्क के नीचे {{count}} स्टेशन छोड़ दिया जाएगा",
+    "maskedStations_other": "मास्क के नीचे {{count}} स्टेशन छोड़ दिए जाएँगे",
+    "allStationsMasked": "सभी स्टेशन मास्क के नीचे हैं: {{technique}} कुछ भी नहीं निकालेगा"
   },
   "Analizing": {
     "title": "विश्लेषण हो रहा है",

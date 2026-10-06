@@ -273,7 +273,9 @@
     "iwaveInvalidWindow": "窗口大小必须是大于 0 的数字。",
     "iwaveInvalidSmax": "最大流速必须是大于 0 且不超过 10 m/s 的数字。",
     "iwaveStaleWindow": "设置这些值后区域已更改；自动窗口现在为 {{window}} m。",
-    "iwaveShortClip": "视频较短（使用 {{seconds}} 秒）：iWave 结果可能噪声较大。"
+    "iwaveShortClip": "视频较短（使用 {{seconds}} 秒）：iWave 结果可能噪声较大。",
+    "maskedStations_other": "遮罩下的 {{count}} 个测点将被跳过",
+    "allStationsMasked": "所有测点都在遮罩下：{{technique}} 将不会计算任何内容"
   },
   "Analizing": {
     "title": "分析中",

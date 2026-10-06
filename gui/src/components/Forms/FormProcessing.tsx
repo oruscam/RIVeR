@@ -1,5 +1,6 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useDataSlice, useSectionSlice, useUiSlice, useMaskedStations } from '../../hooks';
+import { maskedNote } from '../../helpers/maskedNote';
 import { useTranslation } from 'react-i18next';
 import {
   AnalyzingProgress,
@@ -75,6 +76,14 @@ export const FormProcessing = ({
     stiv,
     iwave,
   } = processing.form;
+  const iwaveWindowM = processing.form.iwaveManual?.windowSize ?? iwaveDefaults.windowSize;
+  const masked = useMaskedStations(iwave ? iwaveWindowM : null);
+  const stivMasked = maskedNote(masked.stiv);
+  const iwaveMasked = maskedNote(masked.iwave);
+  const maskedText = (note: ReturnType<typeof maskedNote>, technique: string) =>
+    note.key === 'all'
+      ? t('Processing.allStationsMasked', { technique })
+      : t('Processing.maskedStations', { count: note.count });
   const { name, numStations } = sections[activeSection];
   // Station index is irrelevant for hasAny/resetAll — they operate on the whole
   // manual-angle array, not one station.
@@ -338,6 +347,9 @@ export const FormProcessing = ({
                   <span className="slider"></span>
                 </label>
               </TechniqueRow>
+              {stiv && stivAvailable && stivMasked.key !== 'none' && (
+                <p className="tech-params-note tech-row-note">{maskedText(stivMasked, 'STIV')}</p>
+              )}
               <TechniqueRow
                 technique="iwave"
                 active={previewMode === 'iwave'}
@@ -392,6 +404,9 @@ export const FormProcessing = ({
                   </span>
                 )}
               </TechniqueRow>
+              {iwave && iwaveMasked.key !== 'none' && (
+                <p className="tech-params-note tech-row-note">{maskedText(iwaveMasked, 'iWave')}</p>
+              )}
               {iwave && iwaveDefaults.shortClip && iwaveDefaults.iwaveS !== null && (
                 <p className="tech-params-note tech-row-note">
                   {t('Processing.iwaveShortClip', { seconds: iwaveDefaults.iwaveS.toFixed(1) })}
