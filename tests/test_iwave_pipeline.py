@@ -554,8 +554,63 @@ def test_run_iwave_analysis_skips_dry_station(tmp_path):
 	xsections["CS1"]["depth"] = [-0.3]
 	result = run_iwave_analysis(xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0)
 	for col in IWAVE_COLUMNS:
+		if col == "iwave_skip_profile":
+			continue
 		assert result["CS1"][col] == [None]
+	assert result["CS1"]["iwave_skip_profile"] == ["dry"]
 	assert result["CS1"][IWAVE_PARAMS_KEY]["skipped_dry"] == 1
+
+
+def test_is_window_masked_needs_the_whole_window_hidden():
+	from river.core.iwave_pipeline import Extent, OrthoGrid, is_window_masked
+	# Ortho grid == raw frame: 0.05 m/px, north up, origin at the top-left.
+	H = [[0.05, 0.0, 0.0], [0.0, -0.05, 0.0], [0.0, 0.0, 1.0]]
+	grid = OrthoGrid(extent=Extent(east_min=0.0, east_max=4.8, north_min=-4.8, north_max=0.0), resolution=0.05)
+	mask = np.ones((96, 96), dtype=np.uint8)
+	mask[:, :48] = 0
+	# 20 px window centred at col 20 -> cols 10..29: all masked.
+	assert is_window_masked(grid, (96, 96), 1.0, -2.4, 20, H, mask)
+	# Centred at col 48 -> cols 38..57: half visible.
+	assert not is_window_masked(grid, (96, 96), 2.4, -2.4, 20, H, mask)
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_skips_masked_station(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	spectra_dir = tmp_path / "iwave_spectra" / "CS1"
+	result = run_iwave_analysis(
+		xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0,
+		spectra_dir=str(spectra_dir), mask=np.zeros((96, 96), dtype=np.uint8),
+	)
+	cs = result["CS1"]
+	assert cs["iwave_skip_profile"] == ["masked"]
+	assert cs["iwave_velocity_profile"] == [None]
+	assert cs[IWAVE_PARAMS_KEY]["skipped_masked"] == 1
+	assert not list(spectra_dir.glob("spectrum_*.png"))
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_dry_wins_over_masked(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	xsections["CS1"]["distance"] = [0.0]
+	xsections["CS1"]["depth"] = [-0.3]
+	result = run_iwave_analysis(
+		xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0,
+		mask=np.zeros((96, 96), dtype=np.uint8),
+	)
+	assert result["CS1"]["iwave_skip_profile"] == ["dry"]
+	assert result["CS1"][IWAVE_PARAMS_KEY]["skipped_masked"] == 0
+
+
+@pytest.mark.skipif(not HAS_IWAVE, reason="iwave package not available")
+def test_run_iwave_analysis_open_mask_changes_nothing(tmp_path):
+	frames_dir, H, xsections = _synthetic_project(tmp_path)
+	result = run_iwave_analysis(
+		xsections, H, str(frames_dir), step=1, fps=20.0, id_section=0,
+		mask=np.ones((96, 96), dtype=np.uint8),
+	)
+	assert result["CS1"]["iwave_skip_profile"] == [None]
+	assert result["CS1"]["iwave_velocity_profile"][0] is not None
 
 
 def test_run_iwave_analysis_rejects_stack_without_scene():

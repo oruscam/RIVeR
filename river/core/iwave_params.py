@@ -557,6 +557,7 @@ def build_params_record(
 	depth_at_bound: int,
 	smax_reruns: int,
 	skipped_dry: int,
+	skipped_masked: int = 0,
 ) -> dict:
 	"""JSON-ready record of the parameters actually used for one section.
 
@@ -574,6 +575,7 @@ def build_params_record(
 		depth_at_bound (int): Stations whose depth hit a bound.
 		smax_reruns (int): Stations rerun with smax = SMAX_MAX.
 		skipped_dry (int): Stations skipped as dry.
+		skipped_masked (int): Stations skipped because their whole window is masked.
 
 	Returns:
 		dict: Plain Python values only.
@@ -599,4 +601,5 @@ def build_params_record(
 		"depth_at_bound": int(depth_at_bound),
 		"smax_reruns": int(smax_reruns),
 		"skipped_dry": int(skipped_dry),
+		"skipped_masked": int(skipped_masked),
 	}
