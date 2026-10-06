@@ -233,3 +233,20 @@ def test_mask_with_wrong_shape_is_dropped(fake_project, monkeypatch, capsys):
 	assert seen["stiv"] is None
 	assert calls["iwave_kwargs"]["mask"] is None
 	assert "mask shape" in capsys.readouterr().err
+
+
+def test_mask_with_wrong_shape_is_dropped_for_uppercase_jpg_frames(fake_project, monkeypatch):
+	tmp_path, calls = fake_project
+	frames = tmp_path / "frames"
+	for f in frames.glob("*.jpg"):
+		f.unlink()
+	for i in range(3):
+		cv2.imwrite(str(frames / f"frame_{i:04d}.JPG"), np.zeros((8, 8), dtype=np.uint8))
+	seen = {}
+	def fake_stiv(**kw):
+		seen["stiv"] = kw["mask"]
+		return kw["xsections"]
+	monkeypatch.setattr(orch, "run_stiv_analysis", fake_stiv)
+	_run(tmp_path, mask=np.ones((4, 4), dtype=np.uint8))
+	assert seen["stiv"] is None
+	assert calls["iwave_kwargs"]["mask"] is None

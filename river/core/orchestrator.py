@@ -26,7 +26,7 @@ from river.core.iwave_pipeline import (
 	run_iwave_analysis,
 )
 from river.core.piv_pipeline import run_analyze_all
-from river.core.stiv_pipeline import STIV_COLUMNS, load_models, run_stiv_analysis
+from river.core.stiv_pipeline import STIV_COLUMNS, _collect_frames, load_models, run_stiv_analysis
 
 PIV_HASH_KEY = "_piv_params_hash"
 IWAVE_STRIP_KEYS = IWAVE_COLUMNS + [IWAVE_PARAMS_KEY]
@@ -67,7 +67,7 @@ def _mask_for_frames(mask: Optional[np.ndarray], frames_dir: Path) -> Optional[n
 	"""
 	if mask is None:
 		return None
-	frames = sorted(Path(frames_dir).glob("*.jpg"))
+	frames = _collect_frames(str(frames_dir))
 	first = cv2.imread(str(frames[0]), cv2.IMREAD_GRAYSCALE) if frames else None
 	if first is None or first.shape[:2] == mask.shape[:2]:
 		return mask
