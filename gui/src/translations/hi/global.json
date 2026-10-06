@@ -477,6 +477,8 @@
       "stations": "मापन केंद्र",
       "reported": "रिपोर्ट किया गया",
       "interpolatedStation": "प्रक्षेपित मापन केंद्र",
+      "maskedStations": "मास्क के नीचे के मापन केंद्र (गणना नहीं की गई)",
+      "maskedStationNote": "मास्क के नीचे: {{technique}} की गणना नहीं की गई",
       "pixelSize": "पिक्सेल आकार (GSD)",
       "referenceLength": "संदर्भ लंबाई",
       "point": "बिंदु",

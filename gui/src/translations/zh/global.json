@@ -473,6 +473,8 @@
       "stations": "测点",
       "reported": "报告值",
       "interpolatedStation": "插值测点",
+      "maskedStations": "掩膜下的测点（未计算）",
+      "maskedStationNote": "掩膜下：{{technique}} 未计算",
       "pixelSize": "像素尺寸 (GSD)",
       "referenceLength": "参考长度",
       "point": "点",

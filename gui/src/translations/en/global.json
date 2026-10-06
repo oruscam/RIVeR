@@ -450,6 +450,8 @@
       "stations": "stations",
       "reported": "reported",
       "interpolatedStation": "interpolated station",
+      "maskedStations": "Stations under a mask (not computed)",
+      "maskedStationNote": "under a mask: {{technique}} not computed",
       "pixelSize": "Pixel size (GSD)",
       "referenceLength": "Reference length",
       "point": "Point",

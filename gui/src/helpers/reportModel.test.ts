@@ -101,6 +101,24 @@ describe('buildReportModel', () => {
   });
 });
 
+describe('maskedStations', () => {
+  test('lists masked stations per technique and section, 1-based; dry does not count', () => {
+    const s = section({
+      data: data({
+        stiv_skip_profile: [null, 'masked', 'masked', null],
+        iwave_skip_profile: ['dry', null, 'masked', null],
+      }),
+    });
+    const model = buildReportModel(input([s, section({ name: 'CS2' })]));
+    expect(model.maskedStations.stiv).toEqual([{ section: s.name, stations: [2, 3] }]);
+    expect(model.maskedStations.iwave).toEqual([{ section: s.name, stations: [3] }]);
+  });
+
+  test('no skip profiles: nothing listed', () => {
+    expect(buildReportModel(input([section()])).maskedStations).toEqual({});
+  });
+});
+
 describe('appliedCorrections', () => {
   const base = { committedLensCorrection: null, committedStabilization: false, committedStabilizationRegions: [], step: 2, committedFactor: 0.5 };
   test('reads the committed values only', () => {

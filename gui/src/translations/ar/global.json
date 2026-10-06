@@ -493,6 +493,8 @@
       "stations": "نقاط القياس",
       "reported": "مُبلّغ",
       "interpolatedStation": "نقطة قياس مُستكمَلة",
+      "maskedStations": "نقاط القياس تحت القناع (لم تُحسب)",
+      "maskedStationNote": "تحت القناع: لم يُحسب {{technique}}",
       "pixelSize": "حجم البكسل (GSD)",
       "referenceLength": "الطول المرجعي",
       "point": "نقطة",
