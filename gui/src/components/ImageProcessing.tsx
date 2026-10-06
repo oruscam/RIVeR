@@ -18,17 +18,21 @@ export const ImageProcessing = ({
   showMedian,
   previewMode = 'frames',
   stiPaths,
-  stiStations,
+  stiEmptyLabels,
   spectrumPaths,
-  spectrumStations,
+  spectrumEmptyLabels,
   spectraSidecar,
 }: {
   showMedian?: boolean;
   previewMode?: PreviewMode;
+  /** One slot per station ('' where STIV wrote no STI), so `active` is the station index. */
   stiPaths?: string[];
-  stiStations?: number[];
+  /** Why each station has no STI, index-aligned with stiPaths. */
+  stiEmptyLabels?: string[];
+  /** One slot per station ('' where iWave wrote no spectrum), so `active` is the station index. */
   spectrumPaths?: string[];
-  spectrumStations?: number[];
+  /** Why each station has no spectrum, index-aligned with spectrumPaths. */
+  spectrumEmptyLabels?: string[];
   spectraSidecar?: IwaveSpectraSidecar | null;
 }) => {
   const { screenSizes, showInterrogationWindow, overlayVisibility, onSetOverlayVisible } = useUiSlice();
@@ -135,7 +139,7 @@ export const ImageProcessing = ({
       <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>
         <StiViewer
           stiPaths={stiPaths ?? []}
-          stiStations={stiStations ?? []}
+          emptyLabel={stiEmptyLabels?.[active] ?? ''}
           activeStation={active}
           containerWidth={realWidth!}
           containerHeight={Math.max(0, realHeight! - 90)}
@@ -150,7 +154,7 @@ export const ImageProcessing = ({
       <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>
         <IWaveViewer
           spectrumPaths={spectrumPaths ?? []}
-          spectrumStations={spectrumStations ?? []}
+          emptyLabel={spectrumEmptyLabels?.[active] ?? ''}
           sidecar={spectraSidecar ?? null}
           activeStation={active}
           containerWidth={realWidth!}

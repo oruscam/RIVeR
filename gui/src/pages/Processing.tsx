@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Carousel, StepAlertList, Toast, ImageProcessing, WizardButtons } from '../components';
 import { useDataSlice, useIwaveDefaults, useSectionSlice, useUiSlice } from '../hooks';
 import { flushStivAngleWrites } from '../hooks/useStivAngleOverride';
@@ -9,6 +9,7 @@ import { FormProcessing } from '../components/Forms';
 import { PreviewModeControl } from '../components/PreviewModeControl';
 import { AdvancedToggle } from '../components/AdvancedToggle';
 import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
+import { alignStationImages, skipReasonLabelKey } from '../helpers/stationImages';
 
 export const Processing = () => {
   const { t } = useTranslation();
@@ -117,16 +118,43 @@ export const Processing = () => {
     };
   }, []);
 
+  // STIV and iWave write no image for a station they skipped, so the file lists
+  // can have gaps. Laying them out one slot per station keeps the carousel index
+  // equal to the station index in every mode, which the viewers, the angle tuner
+  // and the strip's markers all rely on.
+  const sectionData = sections[activeSection]?.data;
+  const stationCount = sectionData?.id?.length ?? 0;
+  const stiSlots = useMemo(
+    () => alignStationImages(stiStations, stiPaths, stationCount),
+    [stiStations, stiPaths, stationCount]
+  );
+  const spectrumSlots = useMemo(
+    () => alignStationImages(spectrumStations, spectrumPaths, stationCount),
+    [spectrumStations, spectrumPaths, stationCount]
+  );
+  const stiEmptyLabels = useMemo(
+    () => stiSlots.map((_, i) => t(skipReasonLabelKey(sectionData?.stiv_skip_profile?.[i]))),
+    [stiSlots, sectionData?.stiv_skip_profile, t]
+  );
+  const spectrumEmptyLabels = useMemo(
+    () => spectrumSlots.map((_, i) => t(skipReasonLabelKey(sectionData?.iwave_skip_profile?.[i]))),
+    [spectrumSlots, sectionData?.iwave_skip_profile, t]
+  );
+  // Gated on the files, not the slots: a run that skipped every station wrote
+  // none, and must not open a strip of placeholders.
+  const hasStis = stiPaths.length > 0;
+  const hasSpectra = spectrumPaths.length > 0;
+
   useEffect(() => {
-    if (previewMode === 'sti' && stiPaths.length === 0) onSetPreviewMode('frames');
-    if (previewMode === 'iwave' && spectrumPaths.length === 0) onSetPreviewMode('frames');
-  }, [previewMode, stiPaths, spectrumPaths, onSetPreviewMode]);
+    if (previewMode === 'sti' && !hasStis) onSetPreviewMode('frames');
+    if (previewMode === 'iwave' && !hasSpectra) onSetPreviewMode('frames');
+  }, [previewMode, hasStis, hasSpectra, onSetPreviewMode]);
 
   const { paths, active } = images;
 
   // Each mode has its own list length; a station index valid in one can be out
   // of range in another, so clamp whenever the active list changes.
-  const activeList = previewMode === 'sti' ? stiPaths : previewMode === 'iwave' ? spectrumPaths : paths;
+  const activeList = previewMode === 'sti' ? stiSlots : previewMode === 'iwave' ? spectrumSlots : paths;
 
   useEffect(() => {
     if (previewMode !== 'frames' && activeList.length > 0 && active >= activeList.length) {
@@ -155,21 +183,24 @@ export const Processing = () => {
         <PreviewModeControl
           previewMode={previewMode}
           onSetPreviewMode={onSetPreviewMode}
-          canToggleSti={stiPaths.length > 0}
-          canToggleIwave={spectrumPaths.length > 0}
+          canToggleSti={hasStis}
+          canToggleIwave={hasSpectra}
           stivAvailable={stivAvailable}
         />
         <ImageProcessing
           showMedian={showMedian}
           previewMode={previewMode}
-          stiPaths={stiPaths}
-          stiStations={stiStations}
-          spectrumPaths={spectrumPaths}
-          spectrumStations={spectrumStations}
+          stiPaths={stiSlots}
+          stiEmptyLabels={stiEmptyLabels}
+          spectrumPaths={spectrumSlots}
+          spectrumEmptyLabels={spectrumEmptyLabels}
           spectraSidecar={spectraSidecar}
         />
         <Carousel
           images={activeList}
+          emptyLabels={
+            previewMode === 'sti' ? stiEmptyLabels : previewMode === 'iwave' ? spectrumEmptyLabels : undefined
+          }
           active={active}
           setActiveImage={onSetActiveImage}
           showMedian={showMedian && fullQuiver !== null}
@@ -187,8 +218,8 @@ export const Processing = () => {
           setShowMedian={setShowMedian}
           previewMode={previewMode}
           setPreviewMode={onSetPreviewMode}
-          canToggleSti={stiPaths.length > 0}
-          canToggleIwave={spectrumPaths.length > 0}
+          canToggleSti={hasStis}
+          canToggleIwave={hasSpectra}
           canToggleMedian={fullQuiver !== null}
           stivAvailable={stivAvailable}
           iwaveDefaults={iwaveDefaults}
