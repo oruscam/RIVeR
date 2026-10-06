@@ -35,7 +35,8 @@ def fake_project(tmp_path, monkeypatch):
 			"iwave_quality_profile": [0.9, 0.9], "iwave_depth_profile": [1.0, 1.0],
 			"stiv_sigma_profile": [0.1, 0.1], "stiv_angle_profile": [45.0, 50.0],
 			"stiv_sign_profile": ["positive", "positive"],
-			"iwave_valid_profile": [True, True], "iwave_params": {"smax": 5.0}},
+			"iwave_valid_profile": [True, True], "iwave_params": {"smax": 5.0},
+			"stiv_skip_profile": [None, None], "iwave_skip_profile": [None, None]},
 	}
 	(tmp_path / "xsections.json").write_text(json.dumps(xsections))
 	(tmp_path / "transformation_matrix.json").write_text(json.dumps([[1, 0, 0], [0, 1, 0], [0, 0, 1]]))
