@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Point } from '../types/index.js';
 import { ImageUavNew } from '../components/ImageUavNew.js';
 import { AdvancedToggle } from '../components/AdvancedToggle';
+import { StabilizationViewControl } from '../components/StabilizationViewControl';
 
 const createDefaultState = (
   dirPoints: Point[],
@@ -135,6 +136,12 @@ export const Uav = () => {
     <div className="regular-page">
       <div className="media-container">
         <ImageUavNew imageSrc={activeImageSrc} />
+        {canToggleStabilization && (
+          <StabilizationViewControl
+            showStabilization={showStabilization}
+            onSetShowStabilization={setShowStabilization}
+          />
+        )}
         {images.paths.length > 0 && (
           <Carousel
             images={images.paths}
@@ -142,7 +149,6 @@ export const Uav = () => {
             setActiveImage={setActiveFrame}
             showMedian={showStabilization}
             setShowMedian={setShowStabilization}
-            canToggleMedian={canToggleStabilization}
             mode="select"
           />
         )}

@@ -491,10 +491,6 @@
     overflow-y: auto;
 }
 
-.button-rectification {
-    min-width: 175px;
-}
-
 .solver-button {
     width: 210px;
     margin-top: auto;

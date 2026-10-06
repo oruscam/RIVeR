@@ -17,6 +17,7 @@ import { Point } from '../types';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 import { AdvancedToggle } from '../components/AdvancedToggle';
+import { StabilizationViewControl } from '../components/StabilizationViewControl';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
 const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates: Point[], unitSistem?: string) => {
@@ -159,6 +160,12 @@ export const Oblique = () => {
     <div className="regular-page">
       <div className="media-container">
         <ImageOblique imageSrc={activeImageSrc} />
+        {canToggleStabilization && (
+          <StabilizationViewControl
+            showStabilization={showStabilization}
+            onSetShowStabilization={setShowStabilization}
+          />
+        )}
         {images.paths.length > 0 && (
           <Carousel
             images={images.paths}
@@ -166,7 +173,6 @@ export const Oblique = () => {
             setActiveImage={setActiveFrame}
             showMedian={showStabilization}
             setShowMedian={setShowStabilization}
-            canToggleMedian={canToggleStabilization}
             mode="select"
           />
         )}
