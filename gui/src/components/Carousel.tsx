@@ -1,7 +1,7 @@
 import { useDataSlice, useSectionSlice, useUiSlice, useResizableCarousel } from '../hooks';
 import React, { useRef, useState, useEffect } from 'react';
 import { FixedSizeList as List } from 'react-window';
-import { carouselClickImage, carouselKeyDown, isStationTuned } from '../helpers';
+import { carouselClickImage, carouselKeyDown, isStationTuned, measureImageAspect } from '../helpers';
 import { useTranslation } from 'react-i18next';
 import { carouselMouseDown, carouselMouseUp, setCarouselDimensions } from '../helpers/carouselFunctions';
 import { back, play as next } from '../assets/icons/icons';
@@ -67,6 +67,24 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   const itemWidth = Math.round(carouselHeight * ratioRef.current);
 
+  // A skipped station's tile copies the shape of the strip's real images (STIs
+  // are wide, spectra tall, and both vary per project), so it is measured from
+  // the first one rather than fixed in CSS. Only strips with a gap need it.
+  const firstImage = images.find(Boolean) ?? '';
+  const hasEmptyTile = images.some((src) => !src);
+  const [tileAspect, setTileAspect] = useState<number | null>(null);
+  useEffect(() => {
+    setTileAspect(null);
+    if (!hasEmptyTile) return;
+    let cancelled = false;
+    measureImageAspect(firstImage).then((aspect) => {
+      if (!cancelled) setTileAspect(aspect);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [firstImage, hasEmptyTile]);
+
   const [defaultValue, setDefaultValue] = useState<string | number>((active + 1) as string | number);
   const [scrollInterval, setScrollInterval] = useState<NodeJS.Timeout | null>(null);
   const [speedUpTimeout, setSpeedUpTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -123,7 +141,12 @@ export const Carousel: React.FC<CarouselProps> = ({
         {images[index] ? (
           <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
         ) : (
-          <div className={`${className} img-carousel-empty`}>{emptyLabels?.[index] ?? ''}</div>
+          <div
+            className={`${className} img-carousel-empty`}
+            style={tileAspect ? { aspectRatio: String(tileAspect) } : undefined}
+          >
+            {emptyLabels?.[index] ?? ''}
+          </div>
         )}
         {mode !== 'ipcam' && <div className="img-water-mark"> {index + 1}</div>}
         {showMarkers && (
