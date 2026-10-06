@@ -21,6 +21,7 @@ import {
 import { isPixelHidden, isSegmentMasked, isWindowMasked } from './maskCoverage';
 import type { MaskRaster } from './maskCoverage';
 import { loadMaskRaster } from './loadMaskRaster';
+import { measureImageAspect } from './measureImageAspect';
 import { getStiColorScale, STI_FALLBACK_COLOR } from './stiColorScale';
 import type { StiColorScale } from './stiColorScale';
 import {
@@ -142,6 +143,7 @@ export {
   isSegmentMasked,
   isWindowMasked,
   loadMaskRaster,
+  measureImageAspect,
   computeStationPixelPositions,
   computeStationSearchLines,
   curveToPolylinePoints,

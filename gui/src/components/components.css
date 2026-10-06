@@ -953,26 +953,37 @@
 }
 
 /* A station the run skipped (masked, dry, no fit): a quiet tile in the strip,
-   same footprint as an image so the strip keeps its rhythm. It sits in the
-   footage strip, not the app chrome, so it takes the theme-invariant
-   --canvas-chrome pair: --secondary-text-color is a dark grey in light theme
-   and would vanish on that dark fill. */
+   same footprint as an image so the strip keeps its rhythm. Carousel.tsx sets
+   aspect-ratio inline from the strip's own images (STIs are wide, spectra
+   tall, and both vary per project); 5 / 1 is only the fallback for a strip
+   with no image at all. max-height keeps a tall spectrum's ratio inside the
+   row, the way the row clips the spectra themselves; min-height keeps room
+   for the label on a very thin STI. It sits in the footage strip, not the app
+   chrome, so it takes the theme-invariant --canvas-chrome pair:
+   --secondary-text-color is a dark grey in light theme and would vanish on
+   that dark fill. */
 .img-carousel-empty {
     display: flex;
     align-items: center;
     justify-content: center;
     aspect-ratio: 5 / 1;
+    max-height: 100%;
+    min-height: calc(var(--text-meta) * 2);
     color: var(--canvas-chrome-ink);
     font-size: var(--text-meta);
     text-align: center;
     background: var(--canvas-chrome);
 }
 
-/* The strip dims every tile but the selected one. The label is already quiet,
-   so dimming it again would take it below a readable contrast; the accent
-   border alone marks the selected tile. Compounded to out-rank that rule. */
-.img-carousel.img-carousel-empty:not(.img-carousel-active) {
+/* The strip dims every tile but the selected one with brightness(0.42), which
+   would take this label below a readable contrast. So the placeholder is not
+   filtered; it recedes through its label instead, kept at 65% of the chrome
+   ink (about 5:1 on the chrome fill), and the selected one keeps full ink plus
+   the accent border. Four class-level parts against the dimming rule's three,
+   so it out-ranks that rule wherever either one sits. */
+.img-carousel.img-carousel-empty:not(.img-carousel-active):not(.img-carousel-second) {
     filter: none;
+    color: color-mix(in srgb, var(--canvas-chrome-ink) 65%, transparent);
 }
 
 /* STIV angle tuner — the bars over the STI, and the slider row that drives them.
