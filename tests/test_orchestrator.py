@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 
+import cv2
 import numpy as np
 import pytest
 
@@ -203,3 +204,31 @@ def test_iwave_scene_failure_strips_and_continues(fake_project, monkeypatch):
 	xs = json.loads((tmp_path / "xsections.json").read_text())
 	for col in orch.IWAVE_COLUMNS + [orch.IWAVE_PARAMS_KEY]:
 		assert col not in xs["CS1"]
+
+
+def test_mask_reaches_stiv_and_iwave(fake_project, monkeypatch):
+	tmp_path, calls = fake_project
+	seen = {}
+	def fake_stiv(**kw):
+		seen["stiv"] = kw["mask"]
+		return kw["xsections"]
+	monkeypatch.setattr(orch, "run_stiv_analysis", fake_stiv)
+	mask = np.ones((4, 4), dtype=np.uint8)
+	_run(tmp_path, mask=mask)
+	assert seen["stiv"] is mask
+	assert calls["iwave_kwargs"]["mask"] is mask
+
+
+def test_mask_with_wrong_shape_is_dropped(fake_project, monkeypatch, capsys):
+	tmp_path, calls = fake_project
+	frame = sorted((tmp_path / "frames").glob("*.jpg"))[0]
+	cv2.imwrite(str(frame), np.zeros((8, 8), dtype=np.uint8))
+	seen = {}
+	def fake_stiv(**kw):
+		seen["stiv"] = kw["mask"]
+		return kw["xsections"]
+	monkeypatch.setattr(orch, "run_stiv_analysis", fake_stiv)
+	_run(tmp_path, mask=np.ones((4, 4), dtype=np.uint8))
+	assert seen["stiv"] is None
+	assert calls["iwave_kwargs"]["mask"] is None
+	assert "mask shape" in capsys.readouterr().err

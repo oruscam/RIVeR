@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 from typing import Optional
 
+import cv2
 import numpy as np
 from tqdm import tqdm
 
@@ -56,6 +57,22 @@ def _strip_columns(xsections: dict, columns: list[str]) -> None:
 
 def _log(msg: str) -> None:
 	print(msg, file=sys.stderr, flush=True)
+
+
+def _mask_for_frames(mask: Optional[np.ndarray], frames_dir: Path) -> Optional[np.ndarray]:
+	"""The mask, or None when it does not match the frames' size.
+
+	A mask built on frames of another size would point at the wrong pixels, so
+	STIV and iWave then run without it rather than skip the wrong stations.
+	"""
+	if mask is None:
+		return None
+	frames = sorted(Path(frames_dir).glob("*.jpg"))
+	first = cv2.imread(str(frames[0]), cv2.IMREAD_GRAYSCALE) if frames else None
+	if first is None or first.shape[:2] == mask.shape[:2]:
+		return mask
+	_log(f"STIV/iWave: mask shape {mask.shape[:2]} differs from frames {first.shape[:2]}, not skipping masked stations")
+	return None
 
 
 def run_full_analysis(
@@ -117,6 +134,7 @@ def run_full_analysis(
 	stats_cache_path.write_text(json.dumps(stats_cache))
 
 	# ── Stage 3: STIV ───────────────────────────────────────────────────────
+	engine_mask = _mask_for_frames(mask, frames_dir)
 	if stiv:
 		try:
 			_log("STIV: loading models")
@@ -140,6 +158,7 @@ def run_full_analysis(
 						models=models,
 						stis_dir=str(stis_root / _key),
 						progress=stiv_progress,
+						mask=engine_mask,
 					)
 		except Exception as err:  # noqa: BLE001 — engine failure must not kill the run
 			errors["stiv"] = str(err)
@@ -181,6 +200,7 @@ def run_full_analysis(
 						scene=scene,
 						estimate=estimate,
 						options=iwave_options,
+						mask=engine_mask,
 					)
 		except Exception as err:  # noqa: BLE001
 			errors["iwave"] = str(err)
