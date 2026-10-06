@@ -1,7 +1,5 @@
-import { useAutoShrinkFont, useDataSlice, useSectionSlice, useUiSlice, useResizableCarousel } from '../hooks';
+import { useDataSlice, useSectionSlice, useUiSlice, useResizableCarousel } from '../hooks';
 import React, { useRef, useState, useEffect } from 'react';
-import { useWizard } from 'react-use-wizard';
-import { MODULE_NUMBER } from '../constants/constants';
 import { FixedSizeList as List } from 'react-window';
 import { carouselClickImage, carouselKeyDown, isStationTuned } from '../helpers';
 import { useTranslation } from 'react-i18next';
@@ -15,7 +13,6 @@ interface CarouselProps {
   setActiveImage: (index: number) => void;
   showMedian?: boolean;
   setShowMedian?: (value: boolean) => void;
-  canToggleMedian?: boolean;
   mode: 'processing' | 'analize' | 'ipcam' | 'select';
   /** True only for the STI station strip — `mode==='processing'` alone also
    *  covers the iWave strip, where these indices point at a different, sparser list. */
@@ -33,7 +30,6 @@ export const Carousel: React.FC<CarouselProps> = ({
   setActiveImage,
   showMedian,
   setShowMedian,
-  canToggleMedian,
   mode,
   showStivMarkers,
 }) => {
@@ -73,9 +69,6 @@ export const Carousel: React.FC<CarouselProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<List>(null);
   const listOuterRef = useRef<HTMLDivElement>(null);
-  const stabilizationButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
-
-  const { activeStep } = useWizard();
 
   // Only Processing pairs consecutive frames for PIV — every other mode is a plain single-frame browser.
   const isPairMode = mode === 'analize';
@@ -194,19 +187,6 @@ export const Carousel: React.FC<CarouselProps> = ({
     <div ref={containerRef} className={`carousel-container mt-1 ${isBackendWorking ? 'disabled' : ''}`}>
       <div className="carousel-resize-handle" onMouseDown={onDragHandleMouseDown} />
       <div className="carousel-info">
-        {/* Pixel Size reuses the same showMedian/setShowMedian/canToggleMedian wiring to
-            toggle the stabilization sanity-check image instead of a median composite. */}
-        {activeStep === MODULE_NUMBER.PIXEL_SIZE && canToggleMedian && (
-          <button
-            ref={stabilizationButtonRef}
-            className="btn btn-lg btn-secondary button-rectification"
-            aria-pressed={showMedian}
-            onClick={() => setShowMedian!(!showMedian)}
-          >
-            {' '}
-            {t('PixelSize.carouselStabilization')}{' '}
-          </button>
-        )}
         <div>
           <input
             value={defaultValue}

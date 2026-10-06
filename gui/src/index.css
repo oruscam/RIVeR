@@ -752,13 +752,11 @@ html {
 }
 
 /* The per-shape canvas toolbar. One of exactly two things allowed over footage
-   (spec section 2); the other is the mode-hint pill. Centred at the bottom so it
-   never covers the shape being edited, which is usually mid-frame.
-   pointer-events: auto is explicit, not the default no-op it looks like: a
-   zoomable canvas (StabilizationCanvas) wraps this in a full-size
-   pointer-events: none layer to counter-scale it against zoom without
-   swallowing drags elsewhere on the canvas, and inherited none would make the
-   toolbar itself unclickable without this override. */
+   (spec section 2); the other is the mode-hint pill. Centred at the bottom of
+   its containing block by default. StabilizationCanvas instead anchors it next
+   to the region being edited (.region-toolbar-anchor below), like the mask
+   toolbar. pointer-events: auto keeps it clickable under any wrapper that
+   turns pointer events off. */
 .shape-toolbar {
   position: absolute;
   bottom: var(--space-3);
@@ -771,6 +769,17 @@ html {
   background-color: var(--surface-panel);
   box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
   pointer-events: auto;
+}
+
+/* The anchor wrapper is already positioned at the toolbar's top-left corner
+   (regionToolbarPlacement), so the toolbar sits in normal flow inside it. */
+.region-toolbar-anchor {
+  z-index: 10;
+}
+
+.region-toolbar-anchor .shape-toolbar {
+  position: static;
+  transform: none;
 }
 
 /* =============================================================================

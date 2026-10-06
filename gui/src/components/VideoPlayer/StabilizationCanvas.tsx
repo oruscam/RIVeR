@@ -2,8 +2,17 @@ import { useRef, useState, useCallback, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StabilizationRegion } from '../../store/project/types';
 import { ShapeToolbar } from '../ShapeToolbar';
+import { regionToolbarPlacement } from '../../helpers/regionToolbarPlacement';
 
-const INACTIVE_COLOR = 'var(--pin-muted)';
+// Same grammar as the report's regions and the app's overlay lines: a light
+// stroke on a dark halo with a faint wash inside, so a box reads on bright
+// water and dark banks alike. White like the pins (theme-invariant); the
+// region being edited takes the accent.
+const INACTIVE_COLOR = 'var(--overlay-line)';
+const HALO_COLOR = 'rgba(0, 0, 0, 0.5)';
+const WASH_COLOR = 'rgba(255, 255, 255, 0.1)';
+const STROKE_PX = 2;
+const HALO_PX = 5;
 const HANDLE_RADIUS = 7;
 const HANDLE_HOVER_RADIUS = 11;
 const LABEL_OFFSET = 14;
@@ -99,7 +108,7 @@ const RegionLabel = ({
           height={box.height + padY * 2}
           rx={3}
           ry={3}
-          fill="rgba(50, 50, 50, 0.85)"
+          fill="var(--canvas-chrome)"
         />
       )}
       <text
@@ -138,11 +147,11 @@ interface Props {
    *  us as a prop. */
   onDelete: () => void;
   /** Current video zoom scale — used to counter-scale the shape toolbar so
-   *  it keeps a constant on-screen size, same as the mask confirm button. */
+   *  it keeps a constant on-screen size, same as the mask toolbar. */
   zoomScale: number;
   /** Current video pan offset in screen px (VideoPlayer's `translate()`), used
-   *  with zoomScale to keep the shape toolbar pinned to the bottom-centre of
-   *  the *visible* viewport rather than of the (possibly off-screen) video. */
+   *  with zoomScale to keep the shape toolbar inside the *visible* viewport
+   *  when the region runs past it. */
   zoomPosition: { x: number; y: number };
 }
 
@@ -267,6 +276,20 @@ export const StabilizationCanvas = ({
   const canUndoRegion = false;
   const handleUndoRegion = () => {};
 
+  // rect is the zoomed on-screen size; the box's own CSS size is that over the zoom.
+  const toolbarPos =
+    activeRegion && rect && rect.width > 0
+      ? regionToolbarPlacement({
+          region: activeRegion,
+          videoWidth,
+          videoHeight,
+          boxWidth: rect.width / zoomScale,
+          boxHeight: rect.height / zoomScale,
+          scale: zoomScale,
+          position: zoomPosition,
+        })
+      : null;
+
   return (
     <>
       <svg
@@ -296,14 +319,24 @@ export const StabilizationCanvas = ({
                 y={y}
                 width={width}
                 height={height}
-                fill="transparent"
+                fill="none"
+                stroke={HALO_COLOR}
+                strokeWidth={size(HALO_PX)}
+                style={{ pointerEvents: 'none' }}
+              />
+              <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                fill={WASH_COLOR}
                 stroke={isActive ? accentColor : INACTIVE_COLOR}
                 // Zoom here is a CSS `transform: scale()` on an ancestor div (see
                 // VideoPlayer.tsx), not an SVG-internal transform, so vector-effect:
                 // non-scaling-stroke (which only cancels the SVG's own coordinate
                 // system) can't counter it. Scale the width explicitly instead, same
                 // "constant on-screen px" trick used below for handles/labels.
-                strokeWidth={size(isActive ? 2 : 1.5)}
+                strokeWidth={size(STROKE_PX)}
                 style={{ cursor: isActive ? 'grab' : 'default' }}
                 onMouseDown={(e) => handleMouseDown(e, index, 'body')}
               />
@@ -369,33 +402,19 @@ export const StabilizationCanvas = ({
         })}
       </svg>
 
-      {activeRegion && (
-        // A full-canvas wrapper, not a small one positioned near the region: .shape-toolbar
-        // already centers itself at the bottom via its own CSS (position:absolute; left:50%;
-        // bottom:...), which needs its containing block to be the actual video box. Scaling
-        // this wrapper around its bottom-center origin counteracts the video's own zoom scale
-        // (applied by an ancestor) so the toolbar keeps a constant on-screen size at any zoom
-        // level, same idea as the mask confirm button used before it.
-        //
-        // The translate() in front of the scale() keeps the toolbar inside the visible
-        // viewport. The ancestor zoom is `translate(p) scale(s)` about the video's centre, so
-        // the video's own bottom-centre sits (s-1)*H/2 below the viewport at zoom s > 1 with
-        // no pan, and the toolbar went off-screen with it. Moving the wrapper's origin
-        // (bottom-centre) to the local point that maps back to the viewport's bottom-centre
-        // fixes that: dx = -p.x/s, dy = (1/s - 1)*H/2 - p.y/s, where H is this wrapper's own
-        // height (inset:0 of the video box), hence the percentage translateY. At s = 1, p = 0
-        // (the default, and the only state before any zoom) both terms are 0, so this is a
-        // no-op there.
-        //
-        // pointer-events:none keeps this empty full-size layer from swallowing drags on the
-        // region beneath it — .shape-toolbar opts itself back in with pointer-events:auto.
+      {toolbarPos && (
+        // Next to the region, like the mask toolbar: regionToolbarPlacement puts the
+        // top-left corner under (or above) the region, inside the visible view, in the
+        // box's unzoomed px. scale(1/zoom) about that corner cancels the ancestor zoom,
+        // so the toolbar keeps a constant on-screen size.
         <div
+          className="region-toolbar-anchor"
           style={{
             position: 'absolute',
-            inset: 0,
-            transform: `translate(${-zoomPosition.x / zoomScale}px, ${-zoomPosition.y / zoomScale}px) translateY(${50 * (1 / zoomScale - 1)}%) scale(${1 / zoomScale})`,
-            transformOrigin: 'center bottom',
-            pointerEvents: 'none',
+            left: toolbarPos.left,
+            top: toolbarPos.top,
+            transform: `scale(${1 / zoomScale})`,
+            transformOrigin: '0 0',
           }}
           onMouseDown={(e) => e.stopPropagation()}
         >
