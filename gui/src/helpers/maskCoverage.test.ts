@@ -35,4 +35,13 @@ describe('maskCoverage', () => {
     expect(isWindowMasked(null, { x: 2, y: 5 }, 3, identity)).toBe(false);
     expect(isWindowMasked(raster, { x: 2, y: 5 }, 0, identity)).toBe(false);
   });
+
+  it('masks nothing when the matrix is singular', () => {
+    const zeros = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0],
+    ];
+    expect(isWindowMasked(raster, { x: 2, y: 5 }, 3, zeros)).toBe(false);
+  });
 });
