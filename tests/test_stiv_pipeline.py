@@ -7,12 +7,14 @@ import numpy as np
 import pytest
 
 import river.core.stiv_pipeline as sp
+from river.core.define_roi_masks import are_all_points_hidden
 from river.core.stiv_pipeline import (
 	_downstream_from_banks_and_cs_tangent,
 	_norm01,
 	build_stis_for_cross_section,
 	central_tangent,
 	cross_z,
+	get_masked_station_ids,
 	preprocess_crop,
 	rot90_ccw,
 	run_stiv_analysis,
@@ -451,3 +453,72 @@ def test_profile_station_all_zero_signs_returns_zero_tuple(monkeypatch):
 	)
 
 	assert result == (0.0, sp.SIGMA_FLOOR, "zero", 0.0)
+
+
+# ---------------------------------------------------------------------------
+# Mask skipping
+# ---------------------------------------------------------------------------
+
+def test_are_all_points_hidden_counts_outside_image_as_hidden():
+	mask = np.ones((10, 10), dtype=np.uint8)
+	mask[:, :5] = 0
+	assert are_all_points_hidden(np.array([1.0, 2.0, -3.0]), np.array([1.0, 2.0, 4.0]), mask)
+	assert not are_all_points_hidden(np.array([1.0, 7.0]), np.array([1.0, 1.0]), mask)
+	assert are_all_points_hidden(np.array([-1.0, 50.0]), np.array([0.0, 0.0]), mask)
+
+
+def test_get_masked_station_ids_needs_the_whole_line_hidden():
+	with tempfile.TemporaryDirectory() as tmp:
+		cs, T, _ = _make_synthetic_session(tmp)
+	# Lines are vertical (along north = pixel y) at x = 5, 10, 15, spanning y 3..7 for a 4 m ROI.
+	mask = np.ones((64, 64), dtype=np.uint8)
+	mask[:, 8:12] = 0          # station 2 fully hidden
+	mask[3:6, 13:17] = 0       # station 3 only partly hidden
+	assert get_masked_station_ids(cs, T, mask, height_roi_m=4.0) == {2}
+
+
+def test_run_stiv_analysis_skips_masked_station():
+	with tempfile.TemporaryDirectory() as tmp:
+		cs, T, frames_dir = _make_synthetic_session(tmp, n_frames=30)
+		xsections = {"CS_default_1": dict(cs, num_stations=3), "summary": {}}
+		mask = np.ones((64, 64), dtype=np.uint8)
+		mask[:, 8:12] = 0
+		stis_dir = os.path.join(tmp, "stis")
+		progress_calls = []
+		result = run_stiv_analysis(
+			xsections=xsections, transformation_matrix=T, frames_dir=frames_dir,
+			step=3, fps=30.0, id_section=0, height_roi_m=0.4, stis_dir=stis_dir, mask=mask,
+			progress=lambda current, total: progress_calls.append((current, total)),
+		)
+		written = sorted(os.listdir(stis_dir))
+	cs_result = result["CS_default_1"]
+	assert cs_result["stiv_skip_profile"] == [None, "masked", None]
+	assert cs_result["stiv_velocity_profile"][1] is None
+	assert cs_result["stiv_angle_profile"][1] is None
+	assert written == ["sti_1.png", "sti_3.png"]
+	assert progress_calls == [(1, 3), (2, 3), (3, 3)]
+
+
+def test_run_stiv_analysis_all_masked_finishes_empty():
+	with tempfile.TemporaryDirectory() as tmp:
+		cs, T, frames_dir = _make_synthetic_session(tmp, n_frames=30)
+		xsections = {"CS_default_1": dict(cs, num_stations=3), "summary": {}}
+		mask = np.zeros((64, 64), dtype=np.uint8)
+		result = run_stiv_analysis(
+			xsections=xsections, transformation_matrix=T, frames_dir=frames_dir,
+			step=3, fps=30.0, id_section=0, height_roi_m=0.4, mask=mask,
+		)
+	cs_result = result["CS_default_1"]
+	assert cs_result["stiv_skip_profile"] == ["masked"] * 3
+	assert cs_result["stiv_velocity_profile"] == [None] * 3
+
+
+def test_run_stiv_analysis_without_mask_has_no_skips():
+	with tempfile.TemporaryDirectory() as tmp:
+		cs, T, frames_dir = _make_synthetic_session(tmp, n_frames=30)
+		xsections = {"CS_default_1": dict(cs, num_stations=3), "summary": {}}
+		result = run_stiv_analysis(
+			xsections=xsections, transformation_matrix=T, frames_dir=frames_dir,
+			step=3, fps=30.0, id_section=0, height_roi_m=0.4,
+		)
+	assert result["CS_default_1"]["stiv_skip_profile"] == [None, None, None]
