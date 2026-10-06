@@ -1,15 +1,13 @@
 import { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
-import { useDataSlice, useSectionSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useMaskedStations, useSectionSlice, useUiSlice } from '../hooks';
 import {
-  computeStationSearchLines,
-  computeSearchLinesFromCenters,
+  getSectionSearchLines,
   getStiColorScale,
   isLowConfidence,
   isStationTuned,
 } from '../helpers';
 import { getSearchLineVisual } from './Graphs/searchLineState';
-import { transformPixelToRealWorld } from '../../commons/coordinates';
 import { STIV_DEFAULT_HEIGHT_ROI_M } from '../constants/constants';
 import { getCSSVar, getOverlayColors } from '../helpers/getCSSVar';
 import { OverlayLayers } from './OverlaySvg';
@@ -36,6 +34,7 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
   const { processing, colorbarLimits } = useDataSlice();
   const { hoveredStation, onSetHoveredStation } = useUiSlice();
   const { stationLayerRef } = layers;
+  const { stiv: maskedStiv } = useMaskedStations(null);
 
   // Keep the dispatcher fresh without putting it in the main effect's deps —
   // its identity changes every render (useUiSlice doesn't memoize it), which
@@ -60,33 +59,18 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
     if (!sectionPoints || sectionPoints.length < 2) return;
     if (transformationMatrix.length !== 3) return;
 
-    const [sx, sy] = transformPixelToRealWorld(sectionPoints[0].x, sectionPoints[0].y, transformationMatrix);
-    const [ex, ey] = transformPixelToRealWorld(sectionPoints[1].x, sectionPoints[1].y, transformationMatrix);
-
     // ROI Height is 0 until the recommendation step runs; the backend omits the flag
     // in that case and the CLI applies its own default, so mirror that here.
-    const lengthM = heightRoi > 0 ? heightRoi : STIV_DEFAULT_HEIGHT_ROI_M;
-
+    const lines = getSectionSearchLines({
+      sectionPoints,
+      numStations,
+      data,
+      heightRoiM: heightRoi > 0 ? heightRoi : STIV_DEFAULT_HEIGHT_ROI_M,
+      matrix: transformationMatrix,
+    });
     // Once a matching-count analysis has run, the backend's authoritative per-station
-    // real-world coordinates take precedence over the interpolated preview: the backend
-    // spreads stations across the wetted width, which can differ from the drawn line.
-    const hasAuthoritativeCenters =
-      data &&
-      data.num_stations === numStations &&
-      Array.isArray(data.east) &&
-      Array.isArray(data.north) &&
-      data.east.length === numStations &&
-      data.north.length === numStations;
-
-    const lines = hasAuthoritativeCenters
-      ? computeSearchLinesFromCenters(
-          data.east!.map((east, i) => ({ x: east, y: data.north![i] })),
-          { x: sx, y: sy },
-          { x: ex, y: ey },
-          lengthM,
-          transformationMatrix
-        )
-      : computeStationSearchLines({ x: sx, y: sy }, { x: ex, y: ey }, numStations, lengthM, transformationMatrix);
+    // real-world coordinates take precedence over the interpolated preview.
+    const hasAuthoritativeCenters = !!data && data.num_stations === numStations && Array.isArray(data.east);
     if (lines.length === 0) return;
 
     const visualColors = {
@@ -120,6 +104,7 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
         lowConfidence: hasStivRun
           ? isLowConfidence(stivProfile?.[stationIndex], stivSigma?.[stationIndex])
           : false,
+        masked: maskedStiv[stationIndex] === true,
         colors: visualColors,
       });
     });
@@ -151,7 +136,8 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
       .attr('y2', (d) => d.b.y / factor)
       .attr('stroke', (_d, i) => visuals[i].strokeColor)
       .attr('stroke-width', (_d, i) => visuals[i].strokeWidth)
-      .attr('stroke-dasharray', (_d, i) => (visuals[i].dashed ? '5 4' : null));
+      .attr('stroke-dasharray', (_d, i) => (visuals[i].dotted ? '1 3' : visuals[i].dashed ? '5 4' : null))
+      .attr('stroke-linecap', (_d, i) => (visuals[i].dotted ? 'round' : null));
 
     layer
       .selectAll('circle.station-search-dot')
@@ -247,6 +233,7 @@ export const StationSearchLines = ({ factor, layers }: StationSearchLinesProps) 
     stationLayerRef,
     colorbarLimits,
     hoveredStation,
+    maskedStiv,
   ]);
 
   return null;

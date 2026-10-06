@@ -24,6 +24,7 @@ describe('getSearchLineVisual', () => {
       strokeWidth: 1.5,
       haloWidth: 3.5,
       dashed: false,
+      dotted: false,
       labelSuffix: '',
       badgeBackground: colors.badge,
     });
@@ -126,5 +127,31 @@ describe('getSearchLineVisual', () => {
     });
     expect(v.strokeColor).toBe(colors.preview);
     expect(v.haloColor).toBe(colors.accent);
+  });
+
+  it('is a muted dotted line with ⊘ when the whole line is masked, whatever STIV found', () => {
+    const v = getSearchLineVisual({
+      hasRun: true,
+      velocityColor: '#ff0000',
+      isHovered: false,
+      tuned: false,
+      lowConfidence: true,
+      masked: true,
+      colors,
+    });
+    expect(v.strokeColor).toBe(colors.muted);
+    expect(v.dotted).toBe(true);
+    expect(v.dashed).toBe(false);
+    expect(v.strokeWidth).toBe(1);
+    expect(v.labelSuffix).toBe(' ⊘');
+    expect(v.badgeBackground).toBe(colors.badge);
+  });
+
+  it('keeps the hover halo on a masked line', () => {
+    const v = getSearchLineVisual({
+      hasRun: false, velocityColor: null, isHovered: true, tuned: false, lowConfidence: false, masked: true, colors,
+    });
+    expect(v.haloColor).toBe(colors.accent);
+    expect(v.strokeWidth).toBe(2.5);
   });
 });

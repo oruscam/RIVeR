@@ -27,6 +27,8 @@ export interface SearchLineStateInput {
   /** The Carousel.tsx "low confidence" check for this station:
    *  sigma !== null && sigma > |velocity|, velocity !== 0. */
   lowConfidence: boolean;
+  /** The whole line is hidden by the mask, so the next run skips it. Overrides velocity, tuned and low-confidence. */
+  masked?: boolean;
   colors: SearchLineColors;
 }
 
@@ -36,6 +38,8 @@ export interface SearchLineVisual {
   strokeWidth: number;
   haloWidth: number;
   dashed: boolean;
+  /** Masked: drawn as a fine dotted line. */
+  dotted: boolean;
   /** Appended to the plain station number in the label, e.g. ' ✎' or ' !'. */
   labelSuffix: string;
   badgeBackground: string;
@@ -45,6 +49,7 @@ const BASE_STROKE_WIDTH = 1.5;
 const BASE_HALO_WIDTH = 3.5;
 const HOVER_STROKE_WIDTH = 2.5;
 const HOVER_HALO_WIDTH = 5;
+const MASKED_STROKE_WIDTH = 1;
 const BASE_HALO_COLOR = 'rgba(0, 0, 0, 0.45)';
 
 /**
@@ -60,8 +65,22 @@ export const getSearchLineVisual = ({
   isHovered,
   tuned,
   lowConfidence,
+  masked,
   colors,
 }: SearchLineStateInput): SearchLineVisual => {
+  if (masked) {
+    return {
+      strokeColor: colors.muted,
+      haloColor: isHovered ? colors.accent : BASE_HALO_COLOR,
+      strokeWidth: isHovered ? HOVER_STROKE_WIDTH : MASKED_STROKE_WIDTH,
+      haloWidth: isHovered ? HOVER_HALO_WIDTH : BASE_HALO_WIDTH,
+      dashed: false,
+      dotted: true,
+      labelSuffix: ' ⊘',
+      badgeBackground: colors.badge,
+    };
+  }
+
   const hasValue = hasRun && velocityColor !== null;
 
   const strokeColor = hasValue ? (velocityColor as string) : hasRun ? colors.muted : colors.preview;
@@ -75,6 +94,7 @@ export const getSearchLineVisual = ({
     strokeWidth: isHovered ? HOVER_STROKE_WIDTH : BASE_STROKE_WIDTH,
     haloWidth: isHovered ? HOVER_HALO_WIDTH : BASE_HALO_WIDTH,
     dashed,
+    dotted: false,
     labelSuffix,
     badgeBackground,
   };

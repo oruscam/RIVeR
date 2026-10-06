@@ -40,7 +40,12 @@ export const isWindowMasked = (
   samples = 16
 ): boolean => {
   if (!raster || !(windowM > 0) || matrix.length !== 3) return false;
-  const inv = invertMatrix(matrix);
+  let inv: number[][];
+  try {
+    inv = invertMatrix(matrix);
+  } catch {
+    return false; // singular matrix: nothing can be mapped, so nothing is masked
+  }
   const half = windowM / 2;
   for (let i = 0; i < samples; i++) {
     for (let j = 0; j < samples; j++) {
