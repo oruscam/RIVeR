@@ -3,6 +3,7 @@ import { formatNumberTo2Decimals, formatTime } from '../../helpers';
 import { useDataSlice, useProjectSlice } from '../../hooks';
 import { REPORT_FLOW } from '../../constants/constants';
 import { frameBox, snapshotFrames } from '../../helpers/reportLayout';
+import { formatStationRanges } from '../../helpers/stationRanges';
 import { TECHNIQUE_LABEL, lensLabel, type ReportModel } from '../../helpers/reportModel';
 import { CalibrationPanel } from './CalibrationSheet';
 
@@ -217,6 +218,7 @@ export const ProcessingBlock = ({ model }: { model: ReportModel }) => {
             <dt>{t('Report.Doc.stivModel', { defaultValue: 'CNN model, weights' })}</dt>
             <dd>doi:10.5281/zenodo.22050810</dd>
             <dd className="doc-kv-note">{notRecorded}</dd>
+            <MaskedStations entries={model.maskedStations.stiv} />
           </dl>
         )}
         {techniquesUsed.includes('iwave') && (
@@ -225,10 +227,23 @@ export const ProcessingBlock = ({ model }: { model: ReportModel }) => {
               <span className="doc-tech doc-tech--iwave">{TECHNIQUE_LABEL.iwave}</span>
             </dt>
             <dd className="doc-kv-note">{notRecorded}</dd>
+            <MaskedStations entries={model.maskedStations.iwave} />
           </dl>
         )}
       </div>
     </section>
+  );
+};
+
+/** Stations a technique skipped for sitting under the mask, per section. */
+const MaskedStations = ({ entries }: { entries: ReportModel['maskedStations']['stiv'] }) => {
+  const { t } = useTranslation();
+  if (!entries?.length) return null;
+  return (
+    <>
+      <dt>{t('Report.Doc.maskedStations', { defaultValue: 'Stations under a mask (not computed)' })}</dt>
+      <dd>{entries.map((m) => `${m.section}: ${formatStationRanges(m.stations)}`).join(' · ')}</dd>
+    </>
   );
 };
 

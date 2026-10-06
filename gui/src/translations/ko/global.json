@@ -473,6 +473,8 @@
       "stations": "측점",
       "reported": "보고값",
       "interpolatedStation": "보간된 측점",
+      "maskedStations": "마스크 아래 측점 (계산되지 않음)",
+      "maskedStationNote": "마스크 아래: {{technique}} 계산되지 않음",
       "pixelSize": "픽셀 크기 (GSD)",
       "referenceLength": "기준 길이",
       "point": "점",

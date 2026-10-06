@@ -46,6 +46,8 @@ export interface ReportModel {
   qStdBetween: number | null;
   cov: number | null;
   techniquesUsed: Technique[];
+  /** Stations STIV/iWave skipped because they were entirely under the mask, from the run's skip profiles. */
+  maskedStations: Partial<Record<'stiv' | 'iwave', { section: string; stations: number[] }[]>>;
 }
 
 export interface ReportModelInput {
@@ -57,6 +59,7 @@ export interface ReportModelInput {
 export function buildReportModel({ sections, step, fps }: ReportModelInput): ReportModel {
   const results: SectionResult[] = [];
   const skipped: string[] = [];
+  const maskedStations: ReportModel['maskedStations'] = {};
 
   sections.forEach((section, index) => {
     const { data, activeTechnique, interpolated, artificialSeeding, alpha } = section;
@@ -64,6 +67,11 @@ export function buildReportModel({ sections, step, fps }: ReportModelInput): Rep
       skipped.push(section.name);
       return;
     }
+    (['stiv', 'iwave'] as const).forEach((technique) => {
+      const profile = technique === 'stiv' ? data.stiv_skip_profile : data.iwave_skip_profile;
+      const stations = (profile ?? []).flatMap((reason, i) => (reason === 'masked' ? [i + 1] : []));
+      if (stations.length) (maskedStations[technique] ??= []).push({ section: section.name, stations });
+    });
     const options = { interpolated, artificialSeeding, alpha, step, fps };
     const comparison: TechniqueQ[] = [];
     let active: ReturnType<typeof getEffectiveTechniqueData> = null;
@@ -101,7 +109,7 @@ export function buildReportModel({ sections, step, fps }: ReportModelInput): Rep
   const cov = qStdBetween !== null && totalQ !== 0 ? qStdBetween / totalQ : null;
   const techniquesUsed = TECHNIQUE_ORDER.filter((t) => results.some((r) => r.technique === t));
 
-  return { sections: results, skipped, totalQ, qStdBetween, cov, techniquesUsed };
+  return { sections: results, skipped, totalQ, qStdBetween, cov, techniquesUsed, maskedStations };
 }
 
 export function lensLabel(path: string | null): string | null {

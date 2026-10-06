@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { getUnit } from '../../helpers';
 import { getEffectiveTechniqueData } from '../../helpers/techniqueDischarge';
+import { TECHNIQUE_LABEL } from '../../helpers/reportModel';
 import { splitInto } from '../../helpers/reportFlow';
 import { useProjectSlice, useSectionSlice } from '../../hooks';
 import { REPORT_FLOW, UNIT_CONVERSIONS } from '../../constants/constants';
@@ -35,6 +36,14 @@ export const StationTable = ({ storeIndex, rowStart, rowEnd }: StationTableProps
   });
   if (!effective) return null;
 
+  const skipProfile =
+    section.activeTechnique === 'stiv'
+      ? data.stiv_skip_profile
+      : section.activeTechnique === 'iwave'
+        ? data.iwave_skip_profile
+        : undefined;
+  const isMasked = (i: number) => skipProfile?.[i] === 'masked';
+
   const fmt = (v: number | null | undefined, f: number) => (typeof v === 'number' ? (v * f).toFixed(2) : '-');
 
   const column = ([start, end]: [number, number]) => (
@@ -65,6 +74,7 @@ export const StationTable = ({ storeIndex, rowStart, rowEnd }: StationTableProps
             <td>
               {i + 1}
               {effective.interpFlags[i] ? '*' : ''}
+              {isMasked(i) ? '†' : ''}
             </td>
             <td>{fmt(data.distance[i], lF)}</td>
             <td>{fmt(data.depth[i], lF)}</td>
@@ -86,6 +96,15 @@ export const StationTable = ({ storeIndex, rowStart, rowEnd }: StationTableProps
       {starred && (
         <p className="doc-note">
           * {t('Report.Doc.interpolatedStation', { defaultValue: 'interpolated station' })}
+        </p>
+      )}
+      {Array.from({ length: rowEnd - rowStart }, (_, k) => rowStart + k).some(isMasked) && (
+        <p className="doc-note">
+          †{' '}
+          {t('Report.Doc.maskedStationNote', {
+            technique: TECHNIQUE_LABEL[section.activeTechnique],
+            defaultValue: 'under a mask: {{technique}} not computed',
+          })}
         </p>
       )}
     </>

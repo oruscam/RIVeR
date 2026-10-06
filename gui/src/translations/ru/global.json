@@ -485,6 +485,8 @@
       "stations": "створы",
       "reported": "в отчёте",
       "interpolatedStation": "интерполированный створ",
+      "maskedStations": "Створы под маской (не рассчитаны)",
+      "maskedStationNote": "под маской: {{technique}} не рассчитан",
       "pixelSize": "Размер пикселя (GSD)",
       "referenceLength": "Опорная длина",
       "point": "Точка",

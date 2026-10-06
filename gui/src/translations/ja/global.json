@@ -473,6 +473,8 @@
       "stations": "測点",
       "reported": "報告値",
       "interpolatedStation": "補間された測点",
+      "maskedStations": "マスク下の測点（未計算）",
+      "maskedStationNote": "マスク下: {{technique}} は未計算",
       "pixelSize": "ピクセルサイズ (GSD)",
       "referenceLength": "基準長",
       "point": "点",

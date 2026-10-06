@@ -477,6 +477,8 @@
       "stations": "stazioni",
       "reported": "riportato",
       "interpolatedStation": "stazione interpolata",
+      "maskedStations": "Stazioni sotto una maschera (non calcolate)",
+      "maskedStationNote": "sotto una maschera: {{technique}} non calcolato",
       "pixelSize": "Dimensione pixel (GSD)",
       "referenceLength": "Lunghezza di riferimento",
       "point": "Punto",
