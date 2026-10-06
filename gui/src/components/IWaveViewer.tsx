@@ -7,10 +7,11 @@ import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwav
 import './components.css';
 
 interface IWaveViewerProps {
-  /** Renderer-loadable spectrum image paths, index-aligned with spectrumStations. */
+  /** Renderer-loadable spectrum image paths, one slot per station (station id k
+   *  at index k − 1), '' where iWave skipped the station or its fit failed. */
   spectrumPaths: string[];
-  /** Station ids parsed from the spectrum filenames, index-aligned with spectrumPaths. */
-  spectrumStations: number[];
+  /** Why the active station has no spectrum, shown in place of the plot. */
+  emptyLabel: string;
   /** Axis extents and dispersion curves; null when the sidecar is missing. */
   sidecar: IwaveSpectraSidecar | null;
   /** Index into the station list — which spectrum is currently selected. */
@@ -21,7 +22,7 @@ interface IWaveViewerProps {
 
 export const IWaveViewer = ({
   spectrumPaths,
-  spectrumStations,
+  emptyLabel,
   sidecar,
   activeStation,
   containerWidth,
@@ -36,26 +37,35 @@ export const IWaveViewer = ({
   const isImperial = projectDetails.unitSistem === 'imperial';
   const data = sections[activeSection]?.data;
 
-  const stationId = spectrumStations[activeStation];
+  const stationId = activeStation + 1;
   const entry = useMemo(
     () =>
       (Array.isArray(sidecar?.stations) ? sidecar.stations.find((s) => s.station === stationId) : null) ?? null,
     [sidecar, stationId]
   );
 
-  // Index the profiles by STATION ID, not by position in the spectrum list.
-  // Spectra are only written for stations whose fit succeeded, so a failed
-  // station leaves a gap: spectrumStations might be [1,2,4,5] while the
-  // profile arrays still have an entry for every station, 0-indexed with
-  // station id 1 at index 0 (ids come from np.arange(1, n+1),
-  // compute_section.py:567). Using the list position here would show the
-  // wrong station's velocity whenever any fit failed.
-  const profileIndex = stationId === undefined ? -1 : stationId - 1;
-  const velocity = profileIndex >= 0 ? (data?.iwave_velocity_profile?.[profileIndex] ?? null) : null;
-  const quality = profileIndex >= 0 ? (data?.iwave_quality_profile?.[profileIndex] ?? null) : null;
+  // Index the profiles by STATION ID. Spectra are only written for stations
+  // iWave fitted, so the files alone leave gaps; Processing lays them out one
+  // slot per station (alignStationImages), which makes the list position the
+  // station index too. The profile arrays have an entry for every station,
+  // 0-indexed with station id 1 at index 0 (ids come from np.arange(1, n+1),
+  // compute_section.py:567).
+  const profileIndex = stationId - 1;
+  const velocity = data?.iwave_velocity_profile?.[profileIndex] ?? null;
+  const quality = data?.iwave_quality_profile?.[profileIndex] ?? null;
 
-  if (spectrumPaths.length === 0) {
+  if (spectrumPaths.every((p) => !p)) {
     return <p className="sti-empty">{t('Processing.iwaveNoData')}</p>;
+  }
+
+  if (!spectrumPaths[activeStation]) {
+    return (
+      <div className="sti-viewer">
+        <p className="sti-empty">
+          {t('Processing.stiStation')} {stationId} · {emptyLabel}
+        </p>
+      </div>
+    );
   }
 
   // Fit the spectrum into the panel. Unlike the STI, a non-uniform fit is fine
@@ -102,7 +112,7 @@ export const IWaveViewer = ({
             </svg>
           )}
           <div className="sti-badge velocity-readout" style={{ color: iwaveColor }}>
-            {t('Processing.stiStation')} {stationId ?? activeStation + 1}
+            {t('Processing.stiStation')} {stationId}
             <br />
             {velocity === null
               ? '—'

@@ -15,8 +15,12 @@ interface CarouselProps {
   setShowMedian?: (value: boolean) => void;
   mode: 'processing' | 'analize' | 'ipcam' | 'select';
   /** True only for the STI station strip — `mode==='processing'` alone also
-   *  covers the iWave strip, where these indices point at a different, sparser list. */
+   *  covers the iWave strip. Both strips are one tile per station, but the markers
+   *  read STIV's profiles and mean nothing next to a spectrum. */
   showStivMarkers?: boolean;
+  /** Text for a tile whose image is '' (a station the run skipped), index-aligned
+   *  with images. Only the station strips pass it. */
+  emptyLabels?: string[];
 }
 
 interface RowProps {
@@ -32,6 +36,7 @@ export const Carousel: React.FC<CarouselProps> = ({
   setShowMedian,
   mode,
   showStivMarkers,
+  emptyLabels,
 }) => {
   const { t } = useTranslation();
   const { isBackendWorking } = useDataSlice();
@@ -115,7 +120,11 @@ export const Carousel: React.FC<CarouselProps> = ({
         }
         style={style}
       >
-        <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
+        {images[index] ? (
+          <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
+        ) : (
+          <div className={`${className} img-carousel-empty`}>{emptyLabels?.[index] ?? ''}</div>
+        )}
         {mode !== 'ipcam' && <div className="img-water-mark"> {index + 1}</div>}
         {showMarkers && (
           <div

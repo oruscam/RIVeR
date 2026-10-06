@@ -85,11 +85,15 @@ interface SectionData {
   /** Per-station angle set by the user in the STI viewer, in degrees. null = use
    *  the automatic fit. Written only by the GUI; never produced by the pipeline. */
   stiv_angle_manual_profile?: (number | null)[];
+  /** Why STIV did not compute a station: 'masked' = its whole search line was under the mask. */
+  stiv_skip_profile?: ('masked' | null)[];
   iwave_velocity_profile?: (number | null)[];
   iwave_quality_profile?: (number | null)[];
   iwave_depth_profile?: (number | null)[];
   /** Per-station iWave quality flag from the pipeline: false = low quality, null = no score. */
   iwave_valid_profile?: (boolean | null)[];
+  /** Why iWave did not fit a station: its window was mostly dry, or entirely under the mask. */
+  iwave_skip_profile?: ('masked' | 'dry' | null)[];
   /** Parameters iWave actually used for this section (pipeline record). Not displayed yet. */
   iwave_params?: Record<string, unknown>;
   showLspiv?: boolean;

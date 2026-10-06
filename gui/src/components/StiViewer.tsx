@@ -13,10 +13,11 @@ import { StiAngleTuner } from './StiAngleTuner';
 import './components.css';
 
 interface StiViewerProps {
-  /** Renderer-loadable STI image paths, index-aligned with stiStations. */
+  /** Renderer-loadable STI image paths, one slot per station (station id k at
+   *  index k − 1), '' where STIV skipped the station and wrote no STI. */
   stiPaths: string[];
-  /** Station ids parsed from the STI filenames, index-aligned with stiPaths. */
-  stiStations: number[];
+  /** Why the active station has no STI, shown in place of the image. */
+  emptyLabel: string;
   /** Index into the station list — which STI is currently selected. */
   activeStation: number;
   containerWidth: number;
@@ -35,7 +36,7 @@ const CONTROLS_HEIGHT = 32;
 
 export const StiViewer = ({
   stiPaths,
-  stiStations,
+  emptyLabel,
   activeStation,
   containerWidth,
   containerHeight,
@@ -96,8 +97,20 @@ export const StiViewer = ({
     return color && color !== 'transparent' ? color : STI_FALLBACK_COLOR;
   }, [velocity, min, max]);
 
-  if (stiPaths.length === 0) {
+  // Both early returns stay below every hook, so switching between a computed and
+  // a skipped station never changes the hook count.
+  if (stiPaths.every((p) => !p)) {
     return <p className="sti-empty">{t('Processing.stiNoData')}</p>;
+  }
+
+  if (!stiPaths[activeStation]) {
+    return (
+      <div className="sti-viewer">
+        <p className="sti-empty">
+          {t('Processing.stiStation')} {activeStation + 1} · {emptyLabel}
+        </p>
+      </div>
+    );
   }
 
   // Uniform scale on both axes. A non-uniform (stretched) fit would change the
@@ -166,14 +179,14 @@ export const StiViewer = ({
         />
         <StiAngleTuner
           stationIndex={activeStation}
-          stationId={stiStations[activeStation] ?? activeStation + 1}
+          stationId={activeStation + 1}
           viewW={viewW}
           viewH={viewH}
           color={readoutColor}
           rowContainer={viewerEl}
         />
         <div className="sti-badge velocity-readout" style={{ color: readoutColor }}>
-          {t('Processing.stiStation')} {stiStations[activeStation] ?? activeStation + 1}
+          {t('Processing.stiStation')} {activeStation + 1}
           <br />
           {angle === null ? (
             '—'

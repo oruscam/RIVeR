@@ -952,6 +952,29 @@
     padding: 40px 0;
 }
 
+/* A station the run skipped (masked, dry, no fit): a quiet tile in the strip,
+   same footprint as an image so the strip keeps its rhythm. It sits in the
+   footage strip, not the app chrome, so it takes the theme-invariant
+   --canvas-chrome pair: --secondary-text-color is a dark grey in light theme
+   and would vanish on that dark fill. */
+.img-carousel-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 5 / 1;
+    color: var(--canvas-chrome-ink);
+    font-size: var(--text-meta);
+    text-align: center;
+    background: var(--canvas-chrome);
+}
+
+/* The strip dims every tile but the selected one. The label is already quiet,
+   so dimming it again would take it below a readable contrast; the accent
+   border alone marks the selected tile. Compounded to out-rank that rule. */
+.img-carousel.img-carousel-empty:not(.img-carousel-active) {
+    filter: none;
+}
+
 /* STIV angle tuner — the bars over the STI, and the slider row that drives them.
    The overlay keeps .sti-overlay's pointer-events: none, so a drag over it reaches
    the frame and pans the image. */
