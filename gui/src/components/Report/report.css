@@ -222,7 +222,8 @@
   border-color: var(--doc-ink);
 }
 
-/* Technique identity: the label is always printed; the colour bar repeats it. */
+/* Technique identity: the label is always printed; the shape (● ■ ▲, as in the
+   plot and the Results screen) repeats it in the technique's colour. */
 .doc-tech {
   display: inline-flex;
   align-items: center;
@@ -232,9 +233,20 @@
 
 .doc-tech::before {
   content: '';
-  width: 3px;
-  height: 11px;
+  width: 8px;
+  height: 8px;
   background: currentColor;
+}
+.doc-tech--lspiv::before {
+  border-radius: 50%;
+}
+.doc-tech--stiv::before {
+  width: 7px;
+  height: 7px;
+}
+.doc-tech--iwave::before {
+  width: 9px;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 
 .doc-tech--lspiv::before {
@@ -474,23 +486,60 @@
 .rp-line--iwave {
   stroke: var(--tech-iwave);
 }
+/* Same grammar as the Results chart: dashed = interpolated, same colour. */
+.rp-line--interp {
+  stroke-dasharray: 3.5 2.5;
+}
+/* Measured marker: technique fill with a thin paper ring so it stays crisp on its line. */
 .rp-marker {
-  stroke-width: 1;
+  stroke: var(--doc-paper);
+  stroke-width: 0.75;
 }
 .rp-marker--lspiv {
   fill: var(--tech-lspiv);
-  stroke: var(--tech-lspiv);
 }
 .rp-marker--stiv {
   fill: var(--tech-stiv);
-  stroke: var(--tech-stiv);
 }
 .rp-marker--iwave {
   fill: var(--tech-iwave);
+}
+/* Rejected (low-quality iWave) station: hollow, not joined to the line. */
+.rp-marker--hollow {
+  fill: var(--doc-paper);
+}
+.rp-marker--hollow.rp-marker--lspiv,
+.rp-marker--ring.rp-marker--lspiv {
+  stroke: var(--tech-lspiv);
+}
+.rp-marker--hollow.rp-marker--stiv,
+.rp-marker--ring.rp-marker--stiv {
+  stroke: var(--tech-stiv);
+}
+.rp-marker--hollow.rp-marker--iwave,
+.rp-marker--ring.rp-marker--iwave {
   stroke: var(--tech-iwave);
 }
-.rp-marker--hollow {
-  fill: #ffffff;
+/* Hand-tuned STIV station: a thin outer ring. */
+.rp-marker--ring {
+  fill: none;
+  stroke-width: 0.7;
+}
+.rp-key-line {
+  fill: none;
+  stroke: var(--doc-muted);
+  stroke-width: 1.4;
+}
+.rp-key-line--interp {
+  stroke-dasharray: 3.5 2.5;
+}
+.rp-key-fill {
+  fill: var(--doc-muted);
+}
+.rp-key-hollow {
+  fill: none;
+  stroke: var(--doc-muted);
+  stroke-width: 0.75;
 }
 .rp-water {
   fill: #e3eef8;

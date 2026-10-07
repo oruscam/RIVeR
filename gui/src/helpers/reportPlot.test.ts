@@ -53,9 +53,11 @@ describe('buildProfilePlot', () => {
     expect(g.banks).toEqual({ left: 28, right: 374 });
   });
 
-  test('a null velocity breaks the line into separate segments', () => {
+  test('a null velocity breaks the line; an isolated station keeps its marker', () => {
     const stiv = g.series.find((s) => s.technique === 'stiv')!;
-    expect(stiv.path.match(/M/g)).toHaveLength(2);
+    expect(stiv.segments.map((seg) => [seg.interp, seg.d.match(/M/g)?.length, seg.d.match(/L/g)?.length])).toEqual(
+      [[false, 1, 1]]
+    );
     expect(stiv.markers).toHaveLength(3);
   });
 
@@ -67,9 +69,54 @@ describe('buildProfilePlot', () => {
     expect(reversed.series[reversed.series.length - 1].technique).toBe('lspiv');
   });
 
-  test('interpolated stations are hollow markers', () => {
+  test('segments touching an interpolated station are dashed and the station gets no marker', () => {
     const lspiv = g.series.find((s) => s.technique === 'lspiv')!;
-    expect(lspiv.markers.map((m) => m.hollow)).toEqual([false, true]);
+    expect(lspiv.segments.map((seg) => seg.interp)).toEqual([true]);
+    expect(lspiv.markers).toHaveLength(1);
+    expect(g.marks).toEqual({ interpolated: true, rejected: false, tuned: false });
+  });
+
+  test('consecutive segments of the same kind share one path', () => {
+    const run = buildProfilePlot({
+      ...input,
+      series: [{ technique: 'lspiv', active: true, v: [0.1, 0.2, 0.3, 0.4], interp: [false, false, false, true] }],
+    });
+    expect(run.series[0].segments.map((seg) => [seg.interp, seg.d.match(/L/g)?.length])).toEqual([
+      [false, 2],
+      [true, 1],
+    ]);
+  });
+
+  test('rejected stations are drawn at their raw velocity and widen the axis; tuned stations are flagged', () => {
+    const withMarks = buildProfilePlot({
+      ...input,
+      series: [
+        {
+          technique: 'iwave',
+          active: false,
+          v: [0.1, null, 0.3, 0.2],
+          interp: [false, false, false, false],
+          rejected: [null, 2.4, null, null],
+        },
+        {
+          technique: 'stiv',
+          active: true,
+          v: [0.1, 0.2, 0.3, 0.2],
+          interp: [false, false, false, false],
+          tuned: [false, true, false, false],
+        },
+      ],
+    });
+    const iwave = withMarks.series.find((s) => s.technique === 'iwave')!;
+    expect(iwave.rejected).toHaveLength(1);
+    expect(iwave.rejected[0].y).toBeGreaterThanOrEqual(withMarks.panels.v.top);
+    expect(withMarks.series.find((s) => s.technique === 'stiv')!.markers.map((m) => m.tuned)).toEqual([
+      false,
+      true,
+      false,
+      false,
+    ]);
+    expect(withMarks.marks).toEqual({ interpolated: false, rejected: true, tuned: true });
   });
 
   test('one bar per station with a non-zero discharge, rising from the zero line', () => {

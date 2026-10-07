@@ -90,15 +90,17 @@ describe('Profile plot', () => {
     expect(css).toMatch(/\.rp-line--lspiv\s*\{[^}]*stroke:\s*var\(--tech-lspiv\)/);
     expect(css).toMatch(/\.rp-bank--left\s*\{[^}]*fill:\s*var\(--pin-left\)/);
   });
-  test('distinct markers per technique; interpolated stations hollow', () => {
+  test('distinct markers per technique; interpolated stretches dashed, rejected stations hollow', () => {
     expect(src).toMatch(/lspiv[\s\S]*circle/);
+    expect(src).toContain('rp-line--interp');
     expect(src).toContain('rp-marker--hollow');
   });
-  test('measured markers are solid in the technique colour; hollow wins for interpolated', () => {
+  test('measured markers are solid in the technique colour; interpolated is dashed, rejected hollow', () => {
     ['lspiv', 'stiv', 'iwave'].forEach((t) => {
       expect(css).toMatch(new RegExp(`\\.rp-marker--${t}\\s*\\{[^}]*fill:\\s*var\\(--tech-${t}\\)`));
     });
-    expect(css).toMatch(/\.rp-marker--hollow\s*\{[^}]*fill:\s*#ffffff/);
+    expect(css).toMatch(/\.rp-line--interp\s*\{[^}]*stroke-dasharray/);
+    expect(css).toMatch(/\.rp-marker--hollow\s*\{[^}]*fill:\s*var\(--doc-paper\)/);
     expect(css.indexOf('.rp-marker--hollow')).toBeGreaterThan(css.indexOf('.rp-marker--iwave'));
   });
   test('does not reuse the app AllInOne plot', () => {

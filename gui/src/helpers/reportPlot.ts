@@ -17,13 +17,22 @@ export interface PlotPanel {
 export interface PlotMarker {
   x: number;
   y: number;
-  hollow: boolean;
+  /** STIV only: the station's angle was set by hand. */
+  tuned: boolean;
+}
+/** A run of consecutive segments that are all solid (between measured stations) or all dashed. */
+export interface PlotSegment {
+  d: string;
+  interp: boolean;
 }
 export interface PlotSeries {
   technique: Technique;
   active: boolean;
-  path: string;
+  segments: PlotSegment[];
+  /** Measured stations only; interpolated stations carry no marker. */
   markers: PlotMarker[];
+  /** iWave stations excluded as low quality, at their raw velocity. */
+  rejected: { x: number; y: number }[];
 }
 export interface PlotBar {
   x: number;
@@ -39,6 +48,8 @@ export interface ProfilePlotGeometry {
   panels: { q: PlotPanel; v: PlotPanel; d: PlotPanel };
   bars: PlotBar[];
   series: PlotSeries[];
+  /** Which marks the velocity key needs to explain (measured is always shown). */
+  marks: { interpolated: boolean; rejected: boolean; tuned: boolean };
   bed: { area: string; line: string };
   xTicks: { x: number; label: string }[];
   xAxisY: number;
@@ -49,7 +60,15 @@ export interface ProfilePlotInput {
   x: number[];
   depth: number[];
   q: (number | null)[];
-  series: { technique: Technique; active: boolean; v: (number | null)[]; interp: boolean[] }[];
+  series: {
+    technique: Technique;
+    active: boolean;
+    v: (number | null)[];
+    interp: boolean[];
+    tuned?: boolean[];
+    /** Raw velocity of a station excluded as low quality, null otherwise. */
+    rejected?: (number | null)[];
+  }[];
   titles: { q: string; v: string; d: string };
 }
 
@@ -129,7 +148,7 @@ export function buildProfilePlot(input: ProfilePlotInput): ProfilePlotGeometry {
 
   const qAxis = axis(finite(input.q), PANEL.q);
   const vAxis = axis(
-    input.series.flatMap((s) => finite(s.v)),
+    input.series.flatMap((s) => [...finite(s.v), ...finite(s.rejected ?? [])]),
     PANEL.v
   );
   const dAxis = axis(finite(input.depth), PANEL.d, true);
@@ -145,22 +164,42 @@ export function buildProfilePlot(input: ProfilePlotInput): ProfilePlotGeometry {
   });
 
   const ordered = [...input.series.filter((s) => !s.active), ...input.series.filter((s) => s.active)];
+  const marks = { interpolated: false, rejected: false, tuned: false };
   const series: PlotSeries[] = ordered.map((s) => {
-    let path = '';
-    let pen = false;
+    // A segment is solid only between two measured stations; any segment touching an
+    // interpolated station is dashed. Consecutive segments of the same kind share a path.
+    const segments: PlotSegment[] = [];
+    let run: PlotSegment | null = null;
+    let runEnd = -1;
+    const at = (i: number) => `${sx(input.x[i])},${vAxis.sy(s.v[i] as number)}`;
+    for (let i = 0; i < s.v.length - 1; i++) {
+      if (typeof s.v[i] !== 'number' || typeof s.v[i + 1] !== 'number') continue;
+      const interp = s.interp[i] === true || s.interp[i + 1] === true;
+      if (interp) marks.interpolated = true;
+      if (run && run.interp === interp && runEnd === i) run.d += `L${at(i + 1)}`;
+      else {
+        run = { d: `M${at(i)}L${at(i + 1)}`, interp };
+        segments.push(run);
+      }
+      runEnd = i + 1;
+    }
+
     const markers: PlotMarker[] = [];
     s.v.forEach((v, i) => {
-      if (typeof v !== 'number') {
-        pen = false;
-        return;
-      }
-      const x = sx(input.x[i]);
-      const y = vAxis.sy(v);
-      path += `${pen ? 'L' : 'M'}${x},${y}`;
-      pen = true;
-      markers.push({ x, y, hollow: s.interp[i] === true });
+      if (typeof v !== 'number' || s.interp[i] === true) return;
+      const tuned = s.tuned?.[i] === true;
+      if (tuned) marks.tuned = true;
+      markers.push({ x: sx(input.x[i]), y: vAxis.sy(v), tuned });
     });
-    return { technique: s.technique, active: s.active, path, markers };
+
+    const rejected: { x: number; y: number }[] = [];
+    (s.rejected ?? []).forEach((v, i) => {
+      if (typeof v !== 'number') return;
+      marks.rejected = true;
+      rejected.push({ x: sx(input.x[i]), y: vAxis.sy(v) });
+    });
+
+    return { technique: s.technique, active: s.active, segments, markers, rejected };
   });
 
   const bedPoints = input.x.map((x, i) => `${sx(x)},${dAxis.sy(input.depth[i] ?? 0)}`);
@@ -184,6 +223,7 @@ export function buildProfilePlot(input: ProfilePlotInput): ProfilePlotGeometry {
     },
     bars,
     series,
+    marks,
     bed: { area, line },
     xTicks: xt.map((t) => ({ x: sx(t), label: formatTick(t, xStep) })),
     xAxisY: X_AXIS_Y,
@@ -212,6 +252,11 @@ export function plotInputFromSection(
         active: technique === activeTechnique,
         v: scale(effective.resolved, units.length),
         interp: effective.interpFlags,
+        tuned: effective.tunedFlags,
+        rejected: scale(
+          effective.profile.map((v, i) => (effective.lowQualityFlags[i] ? v : null)),
+          units.length
+        ),
       },
     ];
   });
