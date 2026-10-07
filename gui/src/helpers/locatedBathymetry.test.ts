@@ -1,4 +1,9 @@
-import { applyLocatedBathymetry, hasMissingBathymetry, loadedBathymetry } from './locatedBathymetry';
+import {
+  applyLocatedBathymetry,
+  hasMissingBathymetry,
+  loadedBathymetry,
+  locatedBathymetryUpdates,
+} from './locatedBathymetry';
 import { getBathimetryValues } from './getBathimetryValues';
 
 const valley = [
@@ -50,21 +55,74 @@ describe('applyLocatedBathymetry', () => {
   });
 
   it('reports a profile that the saved level does not cross', () => {
-    const result = applyLocatedBathymetry({ ...previous, level: 50 }, { path: '/p/b.csv', name: 'b.csv', line: valley });
+    const result = applyLocatedBathymetry(
+      { ...previous, level: 50 },
+      { path: '/p/b.csv', name: 'b.csv', line: valley }
+    );
     expect(result).toEqual({ error: { message: 'bathimetryNotValid', value: 50 } });
   });
 });
 
 describe('hasMissingBathymetry', () => {
   it('is true only when a bathymetry is missing', () => {
-    expect(hasMissingBathymetry({ videoMissing: true, missingInputs: [{ kind: 'ipcamImages', path: '/x' }] })).toBe(
-      false
-    );
+    expect(
+      hasMissingBathymetry({ videoMissing: true, missingInputs: [{ kind: 'ipcamImages', path: '/x' }] })
+    ).toBe(false);
     expect(
       hasMissingBathymetry({
         videoMissing: false,
         missingInputs: [{ kind: 'bathymetry', section: 'CS_default_1', path: '/x' }],
       })
     ).toBe(true);
+  });
+});
+
+describe('locatedBathymetryUpdates', () => {
+  const missing = (section: string, path: string) => ({ kind: 'bathymetry' as const, section, path });
+  const sections = [
+    {
+      name: 'CS_default_1',
+      bathimetry: { path: '/gone/bathy.csv', name: 'bathy.csv', level: 6, leftBank: 2.5, line: [] },
+    },
+    {
+      name: 'CS_default_2',
+      bathimetry: { path: '/gone/bathy.csv', name: 'bathy.csv', level: 50, leftBank: 1, line: [] },
+    },
+    { name: 'CS_default_3', bathimetry: { path: '/gone/other.csv', name: 'other.csv', level: 6, line: [] } },
+  ];
+  const located = { path: '/p/new.csv', name: 'new.csv', line: valley, replaced: '/gone/bathy.csv' };
+
+  it('points every section that used the missing file at the located one, even when its level does not cross', () => {
+    const { updates, error } = locatedBathymetryUpdates(
+      sections,
+      [
+        missing('CS_default_1', '/gone/bathy.csv'),
+        missing('CS_default_2', '/gone/bathy.csv'),
+        missing('CS_default_3', '/gone/other.csv'),
+      ],
+      located
+    );
+
+    expect(updates.map((u) => u.index)).toEqual([0, 1]);
+    expect(updates[0].bathimetry.width).toBeGreaterThan(0);
+    // The level-error section still mirrors disk: new path, name and line; level and left bank kept.
+    expect(updates[1].bathimetry).toMatchObject({
+      path: '/p/new.csv',
+      name: 'new.csv',
+      line: valley,
+      level: 50,
+      leftBank: 1,
+    });
+    expect(error).toEqual({ message: 'bathimetryNotValid', value: 50 });
+  });
+
+  it('skips an issue whose section is no longer in the store', () => {
+    const { updates, error } = locatedBathymetryUpdates(
+      sections,
+      [missing('CS_gone', '/gone/bathy.csv')],
+      located
+    );
+    expect(updates).toEqual([]);
+    expect(error).toBeUndefined();
   });
 });
