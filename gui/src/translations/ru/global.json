@@ -676,5 +676,14 @@
     "deleteRegion": "Удалить область",
     "done": "Готово",
     "undoPoint": "Отменить последнюю точку"
+  },
+  "ProjectIssues": {
+    "locate": "Найти…",
+    "videoMissing": "Видео {{name}} не найдено. Извлечённые кадры по-прежнему доступны.",
+    "videoMismatch": "Это видео: {{foundWidth}}×{{foundHeight}}, {{foundFps}} кадр/с; проект создан для {{width}}×{{height}}, {{fps}} кадр/с.",
+    "videoLocked": "Видео отсутствует: найдите его, чтобы изменить диапазон, шаг или стабилизацию.",
+    "bathymetryMissing": "Батиметрия для {{section}} ({{file}}) отсутствует.",
+    "bathymetryBlocksProcessing": "Найдите недостающую батиметрию перед запуском анализа.",
+    "ipcamImagesMissing": "Папка с изображениями {{folder}} не найдена."
   }
 }

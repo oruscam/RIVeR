@@ -1,5 +1,6 @@
 import './messages.css';
 import { useUiSlice } from '../../hooks/useUiSlice';
+import type { StepAlert } from '../../store/ui/types';
 import { stepAlertClassName } from './stepAlertClassName';
 
 const URL_REGEX = /(https?:\/\/[^\s]+)/g;
@@ -18,20 +19,35 @@ const linkify = (text: string) => {
 };
 
 /**
- * Every current step alert, stacked in the panel. Replaces Error.tsx — every
- * former onSetErrorMessage call site becomes either this (multi-field or
- * non-field conditions) or FieldError (Task 4, one specific field).
+ * Every current step alert, stacked in the panel. `extra` holds cards derived for this
+ * step only (project issues); a card with an `action` gets a button that calls `onAction`.
  */
-export const StepAlertList = () => {
+export const StepAlertList = ({
+  extra = [],
+  onAction,
+}: {
+  extra?: StepAlert[];
+  onAction?: (action: string) => void;
+} = {}) => {
   const { stepAlerts } = useUiSlice();
+  const alerts = [...extra, ...stepAlerts];
 
-  if (stepAlerts.length === 0) return null;
+  if (alerts.length === 0) return null;
 
   return (
     <div className="step-alert-list" aria-live="assertive">
-      {stepAlerts.map((alert) => (
+      {alerts.map((alert) => (
         <div key={alert.id} className={stepAlertClassName(alert.level)} role="alert">
-          {linkify(alert.text)}
+          <span className="step-alert-text">{linkify(alert.text)}</span>
+          {alert.action && onAction && (
+            <button
+              type="button"
+              className="btn btn-tertiary btn-sm step-alert-action"
+              onClick={() => onAction(alert.action!.action)}
+            >
+              {alert.action.label}
+            </button>
+          )}
         </div>
       ))}
     </div>

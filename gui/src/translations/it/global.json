@@ -664,5 +664,14 @@
     "deleteRegion": "Elimina regione",
     "done": "Fatto",
     "undoPoint": "Annulla ultimo punto"
+  },
+  "ProjectIssues": {
+    "locate": "Individua…",
+    "videoMissing": "Video {{name}} non trovato. I fotogrammi estratti sono ancora disponibili.",
+    "videoMismatch": "Questo video è {{foundWidth}}×{{foundHeight}} a {{foundFps}} fps; il progetto è stato creato con {{width}}×{{height}} a {{fps}} fps.",
+    "videoLocked": "Il video manca: individualo per modificare l'intervallo, il passo o la stabilizzazione.",
+    "bathymetryMissing": "Manca la batimetria di {{section}} ({{file}}).",
+    "bathymetryBlocksProcessing": "Individua la batimetria mancante prima di eseguire l'analisi.",
+    "ipcamImagesMissing": "Cartella di immagini {{folder}} non trovata."
   }
 }

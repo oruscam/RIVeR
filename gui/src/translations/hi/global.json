@@ -664,5 +664,14 @@
     "deleteRegion": "क्षेत्र हटाएँ",
     "done": "हो गया",
     "undoPoint": "अंतिम बिंदु पूर्ववत करें"
+  },
+  "ProjectIssues": {
+    "locate": "खोजें…",
+    "videoMissing": "वीडियो {{name}} नहीं मिला। निकाले गए फ़्रेम अब भी उपलब्ध हैं।",
+    "videoMismatch": "यह वीडियो {{foundWidth}}×{{foundHeight}}, {{foundFps}} fps का है; प्रोजेक्ट {{width}}×{{height}}, {{fps}} fps के साथ बनाया गया था।",
+    "videoLocked": "वीडियो गायब है: रेंज, स्टेप या स्थिरीकरण बदलने के लिए उसे खोजें।",
+    "bathymetryMissing": "{{section}} ({{file}}) की बैथिमेट्री गायब है।",
+    "bathymetryBlocksProcessing": "विश्लेषण चलाने से पहले गायब बैथिमेट्री को खोजें।",
+    "ipcamImagesMissing": "इमेज फ़ोल्डर {{folder}} नहीं मिला।"
   }
 }

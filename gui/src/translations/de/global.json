@@ -664,5 +664,14 @@
     "deleteRegion": "Bereich löschen",
     "done": "Fertig",
     "undoPoint": "Letzten Punkt rückgängig"
+  },
+  "ProjectIssues": {
+    "locate": "Suchen…",
+    "videoMissing": "Video {{name}} nicht gefunden. Die extrahierten Einzelbilder sind weiterhin verfügbar.",
+    "videoMismatch": "Dieses Video hat {{foundWidth}}×{{foundHeight}} bei {{foundFps}} fps; das Projekt wurde mit {{width}}×{{height}} bei {{fps}} fps erstellt.",
+    "videoLocked": "Das Video fehlt: Suchen Sie es, um Bereich, Schrittweite oder Stabilisierung zu ändern.",
+    "bathymetryMissing": "Die Bathymetrie für {{section}} ({{file}}) fehlt.",
+    "bathymetryBlocksProcessing": "Suchen Sie die fehlende Bathymetrie, bevor Sie die Analyse ausführen.",
+    "ipcamImagesMissing": "Bildordner {{folder}} nicht gefunden."
   }
 }

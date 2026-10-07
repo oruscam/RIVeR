@@ -688,5 +688,14 @@
     "deleteRegion": "حذف المنطقة",
     "done": "تم",
     "undoPoint": "التراجع عن آخر نقطة"
+  },
+  "ProjectIssues": {
+    "locate": "تحديد الموقع…",
+    "videoMissing": "لم يُعثر على الفيديو {{name}}. الإطارات المستخرجة ما زالت متاحة.",
+    "videoMismatch": "هذا الفيديو بدقة {{foundWidth}}×{{foundHeight}} وبمعدل {{foundFps}} إطار/ث؛ أُنشئ المشروع بدقة {{width}}×{{height}} وبمعدل {{fps}} إطار/ث.",
+    "videoLocked": "الفيديو مفقود: حدّد موقعه لتغيير النطاق أو الخطوة أو التثبيت.",
+    "bathymetryMissing": "بيانات قياس الأعماق للمقطع {{section}} ({{file}}) مفقودة.",
+    "bathymetryBlocksProcessing": "حدّد موقع بيانات قياس الأعماق المفقودة قبل تشغيل التحليل.",
+    "ipcamImagesMissing": "لم يُعثر على مجلد الصور {{folder}}."
   }
 }
