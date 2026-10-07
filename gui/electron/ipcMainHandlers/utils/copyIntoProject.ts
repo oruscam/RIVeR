@@ -18,14 +18,32 @@ async function copyIntoProjectDetailed(
 ): Promise<{ path: string; written: boolean }> {
   if (isSameFolder(path.dirname(source), projectFolder)) return { path: source, written: false };
 
-  const ext = path.extname(source);
-  const stem = path.basename(source, ext);
   const content = await fs.promises.readFile(source);
+  return place(content, path.basename(source), projectFolder, (target) => fs.promises.copyFile(source, target));
+}
 
+/**
+ * Writes `content` into `projectFolder` as `fileName` and returns its path, with the
+ * same rule as copyIntoProject: an identical file with that name is reused, a different
+ * one is never overwritten and the new file gets `_2`, `_3`, …
+ */
+export async function placeIntoProject(content: string, fileName: string, projectFolder: string): Promise<string> {
+  const bytes = Buffer.from(content, 'utf-8');
+  return (await place(bytes, fileName, projectFolder, (target) => fs.promises.writeFile(target, bytes))).path;
+}
+
+async function place(
+  content: Buffer,
+  fileName: string,
+  projectFolder: string,
+  write: (target: string) => Promise<void>
+): Promise<{ path: string; written: boolean }> {
+  const ext = path.extname(fileName);
+  const stem = path.basename(fileName, ext);
   for (let n = 1; ; n++) {
     const target = path.join(projectFolder, n === 1 ? `${stem}${ext}` : `${stem}_${n}${ext}`);
     if (!fs.existsSync(target)) {
-      await fs.promises.copyFile(source, target);
+      await write(target);
       return { path: target, written: true };
     }
     if ((await fs.promises.readFile(target)).equals(content)) return { path: target, written: false };

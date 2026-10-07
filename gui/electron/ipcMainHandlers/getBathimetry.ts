@@ -1,10 +1,10 @@
 import { dialog, ipcMain } from 'electron';
-import { basename, extname, join } from 'path';
+import { basename, extname } from 'path';
 import { readFile, utils, set_fs } from 'xlsx';
 import * as fs from 'fs';
 import { EXTENSIONS, validateFile } from './utils/validateFile';
 import { PROJECT_CONFIG } from '../main';
-import { copyIntoProject } from './utils/copyIntoProject';
+import { copyIntoProject, placeIntoProject } from './utils/copyIntoProject';
 import { smartParseFloat } from './utils/parseDistancesData';
 
 // Set the file system for xlsx library
@@ -165,9 +165,6 @@ async function importBathymetry(
   const isSourceCsv = bathimetryExt.toLowerCase() === '.csv';
   let newFilePath = bathPath;
   if (changed || needsNormalization || isImperial || !isSourceCsv || !hadHeaderRow) {
-    // Generate a new file name with _modified.csv suffix (always CSV for Python compatibility)
-    newFilePath = join(PROJECT_CONFIG.projectDirectory, basename(bathPath, bathimetryExt) + '_modified.csv');
-
     // Write as plain CSV: a header row followed by "x,y" data rows. The header is
     // required — the backend always skips the first row, so writing the data
     // headerless would cost us the first station (see hadHeaderRow above).
@@ -175,7 +172,14 @@ async function importBathymetry(
       'station,stage',
       ...newLine.map((row: { x: number; y: number }) => `${row.x},${row.y}`),
     ].join('\n');
-    await fs.promises.writeFile(newFilePath, csvContent, 'utf-8');
+    // Named <source>_modified.csv (always CSV for Python compatibility). A same-named
+    // file may be another section's bathymetry, so it is reused only when identical,
+    // never overwritten (spec: nothing in the project folder is overwritten).
+    newFilePath = await placeIntoProject(
+      csvContent,
+      basename(bathPath, bathimetryExt) + '_modified.csv',
+      PROJECT_CONFIG.projectDirectory
+    );
 
     console.log(`New CSV file created: ${newFilePath}`);
   } else {

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
-import { copyIntoProject, resolveExternalFile } from './copyIntoProject';
+import { copyIntoProject, placeIntoProject, resolveExternalFile } from './copyIntoProject';
 
 let root: string;
 let project: string;
@@ -93,5 +93,28 @@ describe('resolveExternalFile', () => {
       path: path.join(project, 'bathy.csv'),
     });
     expect(fs.readdirSync(project)).toEqual(['bathy.csv']);
+  });
+});
+
+describe('placeIntoProject', () => {
+  it('writes the content under the wanted name', async () => {
+    const placed = await placeIntoProject('station,stage\n0,1', 'bathy_modified.csv', project);
+    expect(placed).toBe(path.join(project, 'bathy_modified.csv'));
+    expect(fs.readFileSync(placed, 'utf-8')).toBe('station,stage\n0,1');
+  });
+
+  it('reuses an identical file already there', async () => {
+    fs.writeFileSync(path.join(project, 'bathy_modified.csv'), 'station,stage\n0,1');
+    const placed = await placeIntoProject('station,stage\n0,1', 'bathy_modified.csv', project);
+    expect(placed).toBe(path.join(project, 'bathy_modified.csv'));
+    expect(fs.readdirSync(project)).toEqual(['bathy_modified.csv']);
+  });
+
+  it("never overwrites a different file with that name (another section's bathymetry)", async () => {
+    fs.writeFileSync(path.join(project, 'bathy_modified.csv'), 'station,stage\n0,9');
+    const placed = await placeIntoProject('station,stage\n0,1', 'bathy_modified.csv', project);
+    expect(placed).toBe(path.join(project, 'bathy_modified_2.csv'));
+    expect(fs.readFileSync(path.join(project, 'bathy_modified.csv'), 'utf-8')).toBe('station,stage\n0,9');
+    expect(fs.readFileSync(placed, 'utf-8')).toBe('station,stage\n0,1');
   });
 });
