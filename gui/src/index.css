@@ -133,13 +133,14 @@
   --on-success: #000000;
 
   /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
-     lines/markers, Processing technique rows. Cyan / gold / magenta, taken
-     from RIVeR's own distance palette (d12/d14/d13) and tuned per theme.
-     Never the accent; STIV may share the "fair" gold, since the ● ■ ▲
-     markers and the name always travel with the colour. */
-  --tech-lspiv: #6CD4FF;
-  --tech-stiv:  #F5BF61;
-  --tech-iwave: #E07BD6;
+     lines/markers, Processing technique rows. Azure / orange / orchid, tuned
+     per theme (user's choice, 2026-10-07); Dracula uses its own cyan /
+     orange / pink. Orange, not gold, because a yellow dark enough for the
+     light theme turns brown. Never the accent; STIV may share the "fair"
+     orange, since the ● ■ ▲ markers and the name always travel with the colour. */
+  --tech-lspiv: #5CB8FF;
+  --tech-stiv:  #FF9F43;
+  --tech-iwave: #F07CD3;
 
   /* Aliases Phase 3's components are written against — each one points at
      a token this theme block already declares above. No new colour values. */
@@ -227,13 +228,14 @@
   --on-success: #FFFFFF;
 
   /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
-     lines/markers, Processing technique rows. Cyan / gold / magenta, taken
-     from RIVeR's own distance palette (d12/d14/d13) and tuned per theme.
-     Never the accent; STIV may share the "fair" gold, since the ● ■ ▲
-     markers and the name always travel with the colour. */
-  --tech-lspiv: #1F78B4;
-  --tech-stiv:  #9A6A0C;
-  --tech-iwave: #A23C99;
+     lines/markers, Processing technique rows. Azure / orange / orchid, tuned
+     per theme (user's choice, 2026-10-07); Dracula uses its own cyan /
+     orange / pink. Orange, not gold, because a yellow dark enough for the
+     light theme turns brown. Never the accent; STIV may share the "fair"
+     orange, since the ● ■ ▲ markers and the name always travel with the colour. */
+  --tech-lspiv: #1668C7;
+  --tech-stiv:  #D35F0A;
+  --tech-iwave: #B02A98;
 
   /* Aliases Phase 3's components are written against — each one points at
      a token this theme block already declares above. No new colour values. */
@@ -324,12 +326,13 @@
   --on-success: #282A36;
 
   /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
-     lines/markers, Processing technique rows. Cyan / gold / magenta, taken
-     from RIVeR's own distance palette (d12/d14/d13) and tuned per theme.
-     Never the accent; STIV may share the "fair" gold, since the ● ■ ▲
-     markers and the name always travel with the colour. */
+     lines/markers, Processing technique rows. Azure / orange / orchid, tuned
+     per theme (user's choice, 2026-10-07); Dracula uses its own cyan /
+     orange / pink. Orange, not gold, because a yellow dark enough for the
+     light theme turns brown. Never the accent; STIV may share the "fair"
+     orange, since the ● ■ ▲ markers and the name always travel with the colour. */
   --tech-lspiv: #8BE9FD;
-  --tech-stiv:  #F1FA8C;
+  --tech-stiv:  #FFB86C;
   --tech-iwave: #FF79C6;
 
   /* Aliases Phase 3's components are written against — each one points at
