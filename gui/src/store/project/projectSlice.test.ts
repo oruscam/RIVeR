@@ -5,6 +5,7 @@ import {
   resolveVideoMissing,
   resolveBathymetry,
   resolveIpcamImages,
+  resolveSectionBathymetry,
 } from './projectSlice';
 import { ProjectState } from './types';
 
@@ -113,6 +114,14 @@ describe('project issues', () => {
       { kind: 'bathymetry', section: 'CS_default_3', path: '/gone/other.csv' },
       { kind: 'ipcamImages', path: '/gone/images' },
     ]);
+  });
+
+  it("clears one section's bathymetry issue (new import or deleted section), not others sharing the file", () => {
+    const state = reducer(reducer(baseState(), setProjectIssues(issues)), resolveSectionBathymetry('CS_default_1'));
+    expect(state.issues.missingInputs).toEqual(
+      issues.missingInputs.filter((input) => !(input.kind === 'bathymetry' && input.section === 'CS_default_1'))
+    );
+    expect(state.issues.missingInputs.some((input) => input.kind === 'bathymetry')).toBe(true);
   });
 
   it('clears the image-folder issue', () => {

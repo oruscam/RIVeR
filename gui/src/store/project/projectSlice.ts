@@ -109,6 +109,13 @@ const projectSlice = createSlice({
         (input) => !(input.kind === 'bathymetry' && input.path === action.payload)
       );
     },
+    /** One section stopped needing its missing file: a new bathymetry was imported for
+     *  it, or it was deleted. Other sections sharing the file keep their issue. */
+    resolveSectionBathymetry: (state, action: PayloadAction<string>) => {
+      state.issues.missingInputs = state.issues.missingInputs.filter(
+        (input) => !(input.kind === 'bathymetry' && input.section === action.payload)
+      );
+    },
     resolveIpcamImages: (state) => {
       state.issues.missingInputs = state.issues.missingInputs.filter((input) => input.kind !== 'ipcamImages');
     },
@@ -129,6 +136,7 @@ export const {
   setVideoMismatch,
   resolveVideoMissing,
   resolveBathymetry,
+  resolveSectionBathymetry,
   resolveIpcamImages,
 } = projectSlice.actions;
 
