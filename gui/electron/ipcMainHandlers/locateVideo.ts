@@ -20,7 +20,13 @@ function locateVideo() {
     if (picked.canceled || filePath === undefined) return { status: 'canceled' };
 
     const settings = JSON.parse(await fs.promises.readFile(PROJECT_CONFIG.settingsPath, 'utf-8'));
-    const metadata = await getVideoMetadata(filePath);
+    let metadata;
+    try {
+      metadata = await getVideoMetadata(filePath);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      return { status: 'error', message };
+    }
     const expected = settingsVideoSpec(settings.video);
     const found = { width: metadata.width, height: metadata.height, fps: metadata.fps };
     if (videoMismatch(expected, found)) return { status: 'mismatch', expected, found };
