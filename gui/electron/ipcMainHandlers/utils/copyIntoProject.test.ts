@@ -54,9 +54,8 @@ describe('copyIntoProject', () => {
 });
 
 describe('resolveExternalFile', () => {
-  it('prefers a file with the same name already in the project', async () => {
+  it('uses the same-named project file when the stored file is gone (moved project)', async () => {
     fs.writeFileSync(path.join(project, 'bathy.csv'), 'in project');
-    fs.writeFileSync(path.join(outside, 'bathy.csv'), 'outside');
     expect(await resolveExternalFile(path.join(outside, 'bathy.csv'), project)).toEqual({
       status: 'inProject',
       path: path.join(project, 'bathy.csv'),
@@ -73,5 +72,26 @@ describe('resolveExternalFile', () => {
 
   it('reports missing when neither exists', async () => {
     expect(await resolveExternalFile(path.join(outside, 'gone.csv'), project)).toEqual({ status: 'missing' });
+  });
+
+  it('copies under a suffix when the stored file differs from the same-named project file', async () => {
+    fs.writeFileSync(path.join(project, 'bathy.csv'), 'first');
+    fs.writeFileSync(path.join(outside, 'bathy.csv'), 'second');
+    expect(await resolveExternalFile(path.join(outside, 'bathy.csv'), project)).toEqual({
+      status: 'copied',
+      path: path.join(project, 'bathy_2.csv'),
+    });
+    expect(fs.readFileSync(path.join(project, 'bathy.csv'), 'utf-8')).toBe('first');
+    expect(fs.readFileSync(path.join(project, 'bathy_2.csv'), 'utf-8')).toBe('second');
+  });
+
+  it('reuses an identical same-named project file without writing', async () => {
+    fs.writeFileSync(path.join(project, 'bathy.csv'), 'same');
+    fs.writeFileSync(path.join(outside, 'bathy.csv'), 'same');
+    expect(await resolveExternalFile(path.join(outside, 'bathy.csv'), project)).toEqual({
+      status: 'inProject',
+      path: path.join(project, 'bathy.csv'),
+    });
+    expect(fs.readdirSync(project)).toEqual(['bathy.csv']);
   });
 });
