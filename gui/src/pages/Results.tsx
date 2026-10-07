@@ -1,5 +1,5 @@
 import { StepAlertList, Toast, ImageResults, Results as ResultsComponent, WizardButtons } from '../components';
-import { useUiSlice } from '../hooks';
+import { useProjectIssues, useUiSlice } from '../hooks';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 
@@ -11,6 +11,7 @@ export const Results = () => {
   const { screenSizes } = useUiSlice();
   const { imageWidth: width, imageHeight: height, factor } = screenSizes;
   const { t } = useTranslation();
+  const { alerts, onAction } = useProjectIssues('results');
 
   if (!width || !height || !factor) return null;
 
@@ -21,7 +22,7 @@ export const Results = () => {
       </div>
       <div className="form-container">
         <FormHeader title={t('Results.title')} canEdit={false} showSections={true} />
-        <StepAlertList />
+        <StepAlertList extra={alerts} onAction={onAction} />
         <ResultsComponent />
         <div className="footer">
           <WizardButtons formId="form-result" canFollow={true} />

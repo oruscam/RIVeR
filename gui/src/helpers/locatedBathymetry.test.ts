@@ -1,5 +1,6 @@
 import {
   applyLocatedBathymetry,
+  hasBathymetryProfile,
   hasMissingBathymetry,
   loadedBathymetry,
   locatedBathymetryUpdates,
@@ -124,5 +125,25 @@ describe('locatedBathymetryUpdates', () => {
     );
     expect(updates).toEqual([]);
     expect(error).toBeUndefined();
+  });
+});
+
+describe('hasBathymetryProfile', () => {
+  it('is false for a missing or empty profile and for a single point', () => {
+    expect(hasBathymetryProfile(undefined)).toBe(false);
+    expect(hasBathymetryProfile({ line: [] } as any)).toBe(false);
+    expect(hasBathymetryProfile({ line: undefined } as any)).toBe(false);
+    expect(hasBathymetryProfile({ line: [{ x: 0, y: 1 }] } as any)).toBe(false);
+  });
+
+  it('is true from two points on', () => {
+    expect(
+      hasBathymetryProfile({
+        line: [
+          { x: 0, y: 1 },
+          { x: 1, y: 2 },
+        ],
+      } as any)
+    ).toBe(true);
   });
 });

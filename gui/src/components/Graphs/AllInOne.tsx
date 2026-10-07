@@ -8,6 +8,7 @@ import { bathimetrySvg } from './bathimetrySvg';
 import { GRAPHS, UNIT_CONVERSIONS } from '../../constants/constants';
 import { getTechniqueColors } from '../../helpers/getCSSVar';
 import { adapterBathimetry, getEffectiveTechniqueData } from '../../helpers';
+import { hasBathymetryProfile } from '../../helpers/locatedBathymetry';
 import { generateXAxisTicks } from '../../helpers/graphsHelpers';
 import { Technique } from '../../store/section/types';
 
@@ -49,6 +50,8 @@ export const AllInOne = ({
   useEffect(() => {
     d3.select(svgRef.current).selectAll('*').remove();
     if (svgRef.current === null) return;
+    // A section whose bathymetry file is missing has no profile to draw (nor a meaningful x scale).
+    if (!hasBathymetryProfile(bathimetry)) return;
 
     if (data) {
       const svg = d3.select(svgRef.current);

@@ -17,6 +17,11 @@ export function loadedBathymetry(response: unknown, bath: string): { line: Point
   };
 }
 
+/** True when the section has a drawable profile; a missing file leaves `line` empty. */
+export function hasBathymetryProfile(bathimetry: Pick<Bathimetry, 'line'> | undefined): boolean {
+  return (bathimetry?.line?.length ?? 0) >= 2;
+}
+
 /** A located bathymetry replaces the profile but keeps the section's water level and left bank. */
 export function applyLocatedBathymetry(
   previous: Bathimetry,
