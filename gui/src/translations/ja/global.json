@@ -298,6 +298,8 @@
     "title": "結果",
     "measured": "実測値",
     "interpolated": "補間値",
+    "keyRejected": "除外",
+    "keyTuned": "調整済み角度",
     "alpha": "アルファ係数",
     "stationNumber": "測点番号",
     "showVelStd": "流速標準偏差を表示",

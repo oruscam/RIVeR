@@ -1,7 +1,6 @@
 import * as d3 from 'd3';
 import { GRAPHS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 import { generateYAxisTicks } from '../../helpers';
-import { getCSSVar } from '../../helpers/getCSSVar';
 import { TECHNIQUE_MARKER_SHAPE } from '../../helpers/techniqueMarkers';
 import { Technique } from '../../store/section/types';
 import './graphs.css';
@@ -57,11 +56,21 @@ interface CreateVelocityChartProps {
   hoveredStation?: number | null;
 }
 
+const VELOCITY_LINE = {
+  ACTIVE_WIDTH: 3.25,
+  INACTIVE_WIDTH: 2.25,
+  INACTIVE_OPACITY: 0.85,
+  ACTIVE_RADIUS: 3.75,
+  INACTIVE_RADIUS: 2.75,
+  OUTLINE_WIDTH: 1.25,
+  INTERP_DASH: '7 5',
+};
+
 /**
- * Unified velocity-profile panel: every visible technique renders with the same line
- * weight/marker geometry, differentiated only by color — the active technique in the theme
- * foreground color at full opacity, inactive ones in their own identity color at reduced
- * opacity. Uncertainty bands and iWave's quality shading are opt-in (goal 4) and controlled
+ * Unified velocity-profile panel: every visible technique keeps its own identity colour
+ * and marker shape; the active one is drawn heavier and on top, the others lighter and
+ * translucent. Interpolated stretches are dashed in the same colour, never recoloured, and
+ * a key above the plot explains the marks. Uncertainty bands and iWave's quality shading are opt-in (goal 4) and controlled
  * from TechniqueLegend, not from clickable swatches in the chart itself.
  *
  * Hover is driven by AllInOne.tsx's shared overlay (and, as of Phase 4c, the canvas
@@ -92,7 +101,11 @@ export const createVelocityChart = ({
       ...(s.percentileBand ? [...s.percentileBand.minus, ...s.percentileBand.plus] : []),
     ].filter((v): v is number => v !== null)
   );
-  const domainValues = [...allValues, ...bandValues].map((v) => v * velocityFactor);
+  // Rejected iWave stations are drawn at their raw velocity, so they must fit the axis too.
+  const rejectedValues = series.flatMap((s) =>
+    s.points.map((p) => p.rejectedV).filter((v): v is number => v !== null)
+  );
+  const domainValues = [...allValues, ...bandValues, ...rejectedValues].map((v) => v * velocityFactor);
   const minDomain = domainValues.length ? Math.min(...domainValues) : 0;
   const maxDomain = domainValues.length ? Math.max(...domainValues) : 1;
 
@@ -142,22 +155,16 @@ export const createVelocityChart = ({
     if (s.stdBand) drawBand(s, s.stdBand, 0.22);
   });
 
-  // ---- iWave quality → color + radius scale (green↔foreground gradient), stretched
-  // across the actual data range so real, if narrow, differences read clearly ----
+  // ---- iWave quality → marker size only (same hue), stretched across the actual data
+  // range so real, if narrow, differences read clearly ----
   const qualitySeries = series.find((s) => s.key === 'iwave' && s.showQuality);
-  let qualityColorScale: ((q: number) => string) | null = null;
   let qualityRadiusScale: ((q: number) => number) | null = null;
   if (qualitySeries) {
     const qVals = qualitySeries.points.map((p) => p.quality).filter((q): q is number => q !== null);
     if (qVals.length) {
       const qDomain: [number, number] = [Math.min(...qVals), Math.max(...qVals)];
-      const baseColor = qualitySeries.color;
-      const bg = getCSSVar('--background-color', '#000000');
-      const paleBase = d3.interpolateRgb(bg, baseColor)(0.3);
-      const colorInterp = d3.interpolateRgb(paleBase, baseColor);
-      const qualityNorm = d3.scaleLinear().domain(qDomain).range([0, 1]).clamp(true);
-      qualityColorScale = (q: number) => colorInterp(qualityNorm(q));
-      qualityRadiusScale = d3.scaleLinear().domain(qDomain).range([4, 8]).clamp(true) as (q: number) => number;
+      const range: [number, number] = qualitySeries.isActive ? [3, 6.5] : [2.5, 5.5];
+      qualityRadiusScale = d3.scaleLinear().domain(qDomain).range(range).clamp(true) as (q: number) => number;
     }
   }
 
@@ -179,74 +186,46 @@ export const createVelocityChart = ({
     }
   }
 
-  // ---- Lines + markers, one pass per visible technique ----
-  series.forEach((s) => {
+  // ---- Lines + markers, one pass per visible technique, active one drawn last ----
+  // One rule for the whole panel: a technique's hue and marker shape say which technique,
+  // line style says measured or interpolated, and nothing else recolours a series. A
+  // segment is solid only between two measured stations; any segment touching an
+  // interpolated station is dashed, and interpolated stations carry no marker.
+  const markerKnockout = 'var(--secondary-background-color)';
+  const drawOrder = [...series.filter((s) => !s.isActive), ...series.filter((s) => s.isActive)];
+  let hasInterpolated = false;
+  let hasRejected = false;
+  let hasTuned = false;
+
+  drawOrder.forEach((s) => {
     const isActive = s.isActive;
     const strokeColor = s.color;
-    const baseOpacity = isActive ? 1 : 0.55;
+    const lineWidth = isActive ? VELOCITY_LINE.ACTIVE_WIDTH : VELOCITY_LINE.INACTIVE_WIDTH;
+    const baseRadius = isActive ? VELOCITY_LINE.ACTIVE_RADIUS : VELOCITY_LINE.INACTIVE_RADIUS;
+    const group = svg
+      .append('g')
+      .attr('class', `velocity-series velocity-series-${s.key}`)
+      .attr('opacity', isActive ? 1 : VELOCITY_LINE.INACTIVE_OPACITY);
+    const y = (v: number) => yScale(v * velocityFactor);
 
-    const line = d3
-      .line<VelocitySeriesPoint>()
-      .defined((d) => d.v !== null)
-      .x((d) => xScale(d.x))
-      .y((d) => yScale((d.v as number) * velocityFactor));
-
-    svg
-      .append('path')
-      .datum(s.points)
-      .attr('d', line)
-      .attr('fill', 'none')
-      .attr('stroke', strokeColor)
-      .attr('stroke-width', isActive ? 2.75 : 1.8)
-      .attr('opacity', baseOpacity);
-
-    // Interpolated segments render in the theme accent color rather than a fixed hue —
-    // since STIV now owns RIVeR's own "clear red" as its identity color, reusing red here
-    // would read as "this is STIV" rather than "this point was estimated."
-    if (isActive) {
-      const segments: VelocitySeriesPoint[][] = [];
-      let current: VelocitySeriesPoint[] = [];
-      s.points.forEach((p) => {
-        if (p.interp) current.push(p);
-        else if (current.length) {
-          segments.push(current);
-          current = [];
-        }
-      });
-      if (current.length) segments.push(current);
-      segments.forEach((seg) => {
-        svg
-          .append('path')
-          .datum(seg)
-          .attr('d', line)
-          .attr('fill', 'none')
-          .attr('stroke', 'var(--accent-color)')
-          .attr('stroke-width', 2.75);
-      });
+    for (let k = 0; k < s.points.length - 1; k++) {
+      const a = s.points[k];
+      const b = s.points[k + 1];
+      if (a.v === null || b.v === null) continue;
+      if (a.interp || b.interp) hasInterpolated = true;
+      group
+        .append('path')
+        .attr('d', `M${xScale(a.x)},${y(a.v)}L${xScale(b.x)},${y(b.v)}`)
+        .attr('fill', 'none')
+        .attr('stroke', strokeColor)
+        .attr('stroke-width', lineWidth)
+        .attr('stroke-linecap', 'round')
+        .attr('stroke-dasharray', a.interp || b.interp ? VELOCITY_LINE.INTERP_DASH : null);
     }
 
-    const showQuality = s.key === 'iwave' && s.showQuality && qualityColorScale && qualityRadiusScale;
-
-    // STIV only: an automatic (untuned, non-estimated) station renders as an open
-    // ring rather than the solid dot every other point uses, so a hand-tuned
-    // station — which keeps the solid fill — reads as visibly different at a
-    // glance rather than only on hover.
-    const isStivHollow = (d: VelocitySeriesPoint) => s.key === 'stiv' && !d.interp && !d.tuned;
-
+    const showQuality = s.key === 'iwave' && s.showQuality && qualityRadiusScale;
     const markerRadius = (d: VelocitySeriesPoint): number =>
-      showQuality && d.quality !== null ? qualityRadiusScale!(d.quality) : isActive ? 3 : 2.2;
-    const markerFill = (d: VelocitySeriesPoint): string =>
-      d.interp
-        ? 'var(--accent-color)'
-        : showQuality && d.quality !== null
-          ? qualityColorScale!(d.quality)
-          : isStivHollow(d)
-            ? 'var(--background-color)'
-            : strokeColor;
-    const markerStroke = (d: VelocitySeriesPoint): string =>
-      showQuality && d.quality !== null ? 'var(--background-color)' : isStivHollow(d) ? strokeColor : 'none';
-    const markerStrokeWidth = (d: VelocitySeriesPoint): number =>
-      showQuality && d.quality !== null ? 0.75 : isStivHollow(d) ? 1.5 : 0;
+      showQuality && d.quality !== null ? qualityRadiusScale!(d.quality) : baseRadius;
 
     const shape = TECHNIQUE_MARKER_SHAPE[s.key];
 
@@ -258,8 +237,8 @@ export const createVelocityChart = ({
       velocity: (d: VelocitySeriesPoint) => number,
       radius: (d: VelocitySeriesPoint) => number
     ) => {
-      const cy = (d: VelocitySeriesPoint) => yScale(velocity(d) * velocityFactor);
-      const selection = svg.selectAll(`.${className}`).data(points).enter();
+      const cy = (d: VelocitySeriesPoint) => y(velocity(d));
+      const selection = group.selectAll(`.${className}`).data(points).enter();
       if (shape === 'square') {
         return selection
           .append('rect')
@@ -275,9 +254,9 @@ export const createVelocityChart = ({
           .attr('class', className)
           .attr('points', (d) => {
             const cx = xScale(d.x);
-            const y = cy(d);
-            const r = radius(d) * 1.6;
-            return `${cx},${y - r * 0.6} ${cx + r * 0.6},${y + r * 0.4} ${cx - r * 0.6},${y + r * 0.4}`;
+            const yy = cy(d);
+            const r = radius(d) * 1.25;
+            return `${cx},${yy - r * 1.05} ${cx + r},${yy + r * 0.7} ${cx - r},${yy + r * 0.7}`;
           });
       }
       return selection
@@ -288,31 +267,120 @@ export const createVelocityChart = ({
         .attr('r', radius);
     };
 
+    // iWave stations excluded as low quality: a hollow marker at their raw velocity,
+    // not joined to the line, so they stay visible but read as not used.
+    const rejected = s.points.filter((p) => p.rejectedV !== null);
+    if (rejected.length) hasRejected = true;
+    drawMarkers(
+      `marker-rejected-${s.key}`,
+      rejected,
+      (d) => d.rejectedV as number,
+      () => baseRadius
+    )
+      .attr('fill', markerKnockout)
+      .attr('stroke', strokeColor)
+      .attr('stroke-width', VELOCITY_LINE.OUTLINE_WIDTH);
+
+    // STIV: only a hand-tuned station is marked, with a thin outer ring; automatic
+    // stations are the plain case.
+    const tuned = s.key === 'stiv' ? s.points.filter((p) => p.v !== null && !p.interp && p.tuned) : [];
+    if (tuned.length) hasTuned = true;
+    drawMarkers(
+      `marker-tuned-${s.key}`,
+      tuned,
+      (d) => d.v as number,
+      (d) => markerRadius(d) + 3
+    )
+      .attr('fill', 'none')
+      .attr('stroke', strokeColor)
+      .attr('stroke-width', VELOCITY_LINE.OUTLINE_WIDTH);
+
     drawMarkers(
       `marker-${s.key}`,
-      s.points.filter((p) => p.v !== null),
+      s.points.filter((p) => p.v !== null && !p.interp),
       (d) => d.v as number,
       markerRadius
     )
-      .attr('fill', markerFill)
-      .attr('stroke', markerStroke)
-      .attr('stroke-width', markerStrokeWidth)
-      .attr('opacity', baseOpacity);
-
-    // iWave stations excluded as low quality: a faded dashed outline at their raw
-    // velocity, so they stay visible but read as rejected.
-    drawMarkers(
-      `marker-rejected-${s.key}`,
-      s.points.filter((p) => p.rejectedV !== null),
-      (d) => d.rejectedV as number,
-      () => (isActive ? 3 : 2.2)
-    )
-      .attr('fill', 'var(--background-color)')
-      .attr('stroke', strokeColor)
-      .attr('stroke-width', 1)
-      .attr('stroke-dasharray', '1.5 1')
-      .attr('opacity', 0.45);
+      .attr('fill', strokeColor)
+      .attr('stroke', markerKnockout)
+      .attr('stroke-width', 1.5);
   });
+
+  // ---- Key: explains the marks, not the techniques (the technique rows above already
+  // do that), in neutral ink, listing only what is on screen. ----
+  if (series.length) {
+    const ink = 'var(--secondary-text-color)';
+    const items: { label: string; glyph: (g: d3.Selection<SVGGElement, unknown, null, undefined>) => void }[] = [
+      {
+        label: t('Results.measured'),
+        glyph: (g) => {
+          g.append('path').attr('d', 'M0,0H22').attr('stroke', ink).attr('stroke-width', 2);
+          g.append('circle').attr('cx', 11).attr('r', 3).attr('fill', ink);
+        },
+      },
+    ];
+    if (hasInterpolated) {
+      items.push({
+        label: t('Results.interpolated'),
+        glyph: (g) =>
+          g
+            .append('path')
+            .attr('d', 'M0,0H22')
+            .attr('stroke', ink)
+            .attr('stroke-width', 2)
+            .attr('stroke-linecap', 'round')
+            .attr('stroke-dasharray', VELOCITY_LINE.INTERP_DASH),
+      });
+    }
+    if (hasRejected) {
+      items.push({
+        label: t('Results.keyRejected'),
+        glyph: (g) =>
+          g
+            .append('circle')
+            .attr('cx', 4)
+            .attr('r', 3.5)
+            .attr('fill', 'none')
+            .attr('stroke', ink)
+            .attr('stroke-width', VELOCITY_LINE.OUTLINE_WIDTH),
+      });
+    }
+    if (hasTuned) {
+      items.push({
+        label: t('Results.keyTuned'),
+        glyph: (g) => {
+          g.append('circle')
+            .attr('cx', 6)
+            .attr('r', 6)
+            .attr('fill', 'none')
+            .attr('stroke', ink)
+            .attr('stroke-width', 1.25);
+          g.append('circle').attr('cx', 6).attr('r', 3).attr('fill', ink);
+        },
+      });
+    }
+
+    const key = svg.append('g').attr('class', 'velocity-key');
+    const keyY = yScale.range()[1] - 14;
+    let cursor = 0;
+    items.forEach((item) => {
+      const glyph = key.append('g').attr('transform', `translate(${cursor},0)`);
+      item.glyph(glyph);
+      const glyphWidth = (glyph.node() as SVGGElement).getBBox().width;
+      const text = key
+        .append('text')
+        .attr('class', 'graph-text velocity-key-label')
+        .attr('x', cursor + glyphWidth + 6)
+        .attr('y', 0)
+        .attr('dy', '0.35em')
+        .attr('fill', ink)
+        .style('font-size', '12px')
+        .text(item.label);
+      cursor += glyphWidth + 6 + (text.node() as SVGTextElement).getComputedTextLength() + 16;
+    });
+    const plotRight = margin.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE + width - margin.left - margin.right * 2;
+    key.attr('transform', `translate(${plotRight - (cursor - 16)},${keyY})`);
+  }
 
   // label for Velocity
   const velocityLabel = svg

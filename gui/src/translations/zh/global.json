@@ -298,6 +298,8 @@
     "title": "结果",
     "measured": "实测值",
     "interpolated": "插值",
+    "keyRejected": "已剔除",
+    "keyTuned": "已调整角度",
     "alpha": "α 系数",
     "stationNumber": "测点编号",
     "showVelStd": "显示流速标准差",

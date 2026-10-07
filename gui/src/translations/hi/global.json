@@ -299,6 +299,8 @@
     "title": "परिणाम",
     "measured": "मापे गए मान",
     "interpolated": "अंतर्वेशित मान",
+    "keyRejected": "अस्वीकृत",
+    "keyTuned": "समायोजित कोण",
     "alpha": "अल्फा गुणांक",
     "stationNumber": "मापन केंद्र क्रमांक",
     "showVelStd": "वेग मानक विचलन दिखाएँ",

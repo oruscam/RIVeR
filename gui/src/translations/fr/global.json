@@ -299,6 +299,8 @@
     "title": "Résultats",
     "measured": "Mesuré",
     "interpolated": "Interpolé",
+    "keyRejected": "Rejeté",
+    "keyTuned": "Angle ajusté",
     "alpha": "Alpha",
     "stationNumber": "Points de Mesure",
     "showVelStd": "Afficher Écart-type Vitesse",

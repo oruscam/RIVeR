@@ -299,6 +299,8 @@
     "title": "Risultati",
     "measured": "Misurato",
     "interpolated": "Interpolato",
+    "keyRejected": "Scartato",
+    "keyTuned": "Angolo regolato",
     "alpha": "Alpha",
     "stationNumber": "Numero Stazione",
     "showVelStd": "Mostra Vel. Std",
