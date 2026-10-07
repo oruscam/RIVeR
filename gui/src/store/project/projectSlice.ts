@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { ProjectIssues, VideoSpec } from '../../../commons/projectIssues';
 import { ProjectDetails, ProjectState, VideoData, VideoParameters } from './types';
+
+const noIssues = () => ({ videoMissing: false, missingInputs: [], videoMismatch: null });
 
 const defaultVideo = {
   data: {
@@ -43,6 +46,7 @@ const initialState: ProjectState = {
     meditionDate: '',
   },
   stabilizationActiveRegionIndex: null,
+  issues: noIssues(),
 };
 
 const projectSlice = createSlice({
@@ -81,12 +85,32 @@ const projectSlice = createSlice({
       state.type = '';
       state.firstFramePath = '';
       state.stabilizationActiveRegionIndex = null;
+      state.issues = noIssues();
       state.projectDetails = {
         riverName: '',
         site: '',
         unitSistem: preservedUnitSystem,
         meditionDate: '',
       };
+    },
+    setProjectIssues: (state, action: PayloadAction<ProjectIssues>) => {
+      state.issues = { ...action.payload, videoMismatch: null };
+    },
+    setVideoMismatch: (state, action: PayloadAction<{ expected: VideoSpec; found: VideoSpec } | null>) => {
+      state.issues.videoMismatch = action.payload;
+    },
+    resolveVideoMissing: (state) => {
+      state.issues.videoMissing = false;
+      state.issues.videoMismatch = null;
+    },
+    /** Locating one file fixes every section that pointed at it. */
+    resolveBathymetry: (state, action: PayloadAction<string>) => {
+      state.issues.missingInputs = state.issues.missingInputs.filter(
+        (input) => !(input.kind === 'bathymetry' && input.path === action.payload)
+      );
+    },
+    resolveIpcamImages: (state) => {
+      state.issues.missingInputs = state.issues.missingInputs.filter((input) => input.kind !== 'ipcamImages');
     },
   },
 });
@@ -101,6 +125,11 @@ export const {
   setDefaultProjectState,
   setStabilizationActiveRegionIndex,
   toggleVideoExtraFields,
+  setProjectIssues,
+  setVideoMismatch,
+  resolveVideoMissing,
+  resolveBathymetry,
+  resolveIpcamImages,
 } = projectSlice.actions;
 
 export default projectSlice.reducer;

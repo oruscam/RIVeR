@@ -1,5 +1,6 @@
 import { PixelSize } from '../store/section/types';
 import { getBathimetryValues } from './getBathimetryValues';
+import { loadedBathymetry } from './locatedBathymetry';
 import { MODULE_NUMBER } from '../constants/constants';
 import { transformPixelToRealWorld } from '../../commons/coordinates';
 import { fromSettingsIwaveManual } from '../../commons/iwave';
@@ -232,9 +233,8 @@ const onLoadCrossSections = (
         return;
       }
 
-      const { line, name } = await ipcRenderer.invoke('get-bathimetry', {
-        path: bath,
-      });
+      // A missing bathymetry used to throw here and drop the whole section.
+      const { line, name } = loadedBathymetry(await ipcRenderer.invoke('get-bathimetry', { path: bath }), bath);
 
       const { data } = getBathimetryValues(line, level);
 

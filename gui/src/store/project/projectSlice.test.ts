@@ -1,4 +1,11 @@
 import reducer, { toggleVideoExtraFields, setDefaultProjectState } from './projectSlice';
+import {
+  setProjectIssues,
+  setVideoMismatch,
+  resolveVideoMissing,
+  resolveBathymetry,
+  resolveIpcamImages,
+} from './projectSlice';
 import { ProjectState } from './types';
 
 const baseState = (overrides: Partial<ProjectState> = {}): ProjectState =>
@@ -35,6 +42,7 @@ const baseState = (overrides: Partial<ProjectState> = {}): ProjectState =>
     firstFramePath: '',
     projectDetails: { riverName: '', site: '', unitSistem: 'si', meditionDate: '' },
     stabilizationActiveRegionIndex: null,
+    issues: { videoMissing: false, missingInputs: [], videoMismatch: null },
     ...overrides,
   }) as ProjectState;
 
@@ -62,5 +70,58 @@ describe('setDefaultProjectState', () => {
   it('resets extraFields to false along with the rest of video', () => {
     const state = baseState({ video: { ...baseState().video, extraFields: true } });
     expect(reducer(state, setDefaultProjectState()).video.extraFields).toBe(false);
+  });
+});
+
+describe('project issues', () => {
+  const issues = {
+    videoMissing: true,
+    missingInputs: [
+      { kind: 'bathymetry' as const, section: 'CS_default_1', path: '/gone/bathy.csv' },
+      { kind: 'bathymetry' as const, section: 'CS_default_2', path: '/gone/bathy.csv' },
+      { kind: 'bathymetry' as const, section: 'CS_default_3', path: '/gone/other.csv' },
+      { kind: 'ipcamImages' as const, path: '/gone/images' },
+    ],
+  };
+
+  it('stores what load-project reported and clears an old mismatch', () => {
+    const withMismatch = baseState({
+      issues: {
+        videoMissing: true,
+        missingInputs: [],
+        videoMismatch: { expected: { width: 1, height: 1, fps: 1 }, found: { width: 2, height: 2, fps: 2 } },
+      },
+    });
+    const state = reducer(withMismatch, setProjectIssues(issues));
+    expect(state.issues).toEqual({ ...issues, videoMismatch: null });
+  });
+
+  it('clears the video issue and its mismatch once located', () => {
+    let state = reducer(baseState(), setProjectIssues(issues));
+    state = reducer(
+      state,
+      setVideoMismatch({ expected: { width: 4096, height: 2160, fps: 30 }, found: { width: 1920, height: 1080, fps: 25 } })
+    );
+    state = reducer(state, resolveVideoMissing());
+    expect(state.issues.videoMissing).toBe(false);
+    expect(state.issues.videoMismatch).toBeNull();
+  });
+
+  it('clears every section that shared the located bathymetry, and only those', () => {
+    const state = reducer(reducer(baseState(), setProjectIssues(issues)), resolveBathymetry('/gone/bathy.csv'));
+    expect(state.issues.missingInputs).toEqual([
+      { kind: 'bathymetry', section: 'CS_default_3', path: '/gone/other.csv' },
+      { kind: 'ipcamImages', path: '/gone/images' },
+    ]);
+  });
+
+  it('clears the image-folder issue', () => {
+    const state = reducer(reducer(baseState(), setProjectIssues(issues)), resolveIpcamImages());
+    expect(state.issues.missingInputs.some((input) => input.kind === 'ipcamImages')).toBe(false);
+  });
+
+  it('starts with no issues after setDefaultProjectState', () => {
+    const state = reducer(reducer(baseState(), setProjectIssues(issues)), setDefaultProjectState());
+    expect(state.issues).toEqual({ videoMissing: false, missingInputs: [], videoMismatch: null });
   });
 });

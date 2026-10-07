@@ -16,6 +16,7 @@ import {
 import {
   setProjectDirectory,
   setProjectType,
+  setProjectIssues,
   setVideoData,
   setFirstFramePath,
   setVideoParameters,
@@ -113,7 +114,7 @@ const isSameStabilizationConfig = (
 
 export const useProjectSlice = () => {
   const dispatch = useDispatch();
-  const { projectDirectory, video, type, firstFramePath, projectDetails, stabilizationActiveRegionIndex } =
+  const { projectDirectory, video, type, firstFramePath, issues, projectDetails, stabilizationActiveRegionIndex } =
     useSelector((state: RootState) => state.project);
   const { sections } = useSelector((state: RootState) => state.section);
   const uav = useSelector((state: RootState) => state.uav);
@@ -376,11 +377,14 @@ export const useProjectSlice = () => {
           rectification3D,
           bbox,
           orthoImage,
+          videoMissing,
+          missingInputs,
         } = result.message;
 
         // Set project directory and type
         dispatch(setProjectDirectory(projectDirectory));
         dispatch(setProjectType(settings.footage));
+        dispatch(setProjectIssues({ videoMissing: videoMissing ?? false, missingInputs: missingInputs ?? [] }));
         recordRecentProject(localStorage, projectDirectory, settings.footage, Date.now());
 
         // Loading a project must never inherit a stabilization region left
@@ -398,7 +402,8 @@ export const useProjectSlice = () => {
             width: videoMetadata.width,
             height: videoMetadata.height,
             fps: videoMetadata.fps,
-            path: filePrefix + settings.video.filepath,
+            // No player for a missing video: VideoRange shows the first frame instead.
+            path: videoMissing ? '' : filePrefix + settings.video.filepath,
             duration: videoMetadata.duration,
             creation: videoMetadata.creation,
             name: videoMetadata.name,
@@ -824,6 +829,7 @@ export const useProjectSlice = () => {
   return {
     // ATRIBUTES
     firstFramePath,
+    issues,
     projectDetails,
     projectDirectory,
     stabilizationActiveRegionIndex,
