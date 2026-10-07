@@ -155,6 +155,7 @@
       "levelError": "Le niveau doit être entre {{yMin}} et {{yMax}}",
       "leftBank": "La rive gauche est hors limites",
       "bathimetryNotValid": "La bathymétrie n'est pas valide. Le niveau {{level}} n'existe pas dans ce fichier",
+      "sectionNotFound": "Cette section ne fait plus partie du projet.",
       "bathimetryIsRequired": "La bathymétrie est requise pour {{section_name}}",
       "rwLength": "La longueur de la section ne peut pas être 0 pour {{section_name}}",
       "levelRequired": "La valeur du niveau ne peut pas être 0 pour {{section_name}}"
@@ -672,6 +673,7 @@
     "videoLocked": "La vidéo est introuvable : localisez-la pour modifier la plage, le pas ou la stabilisation.",
     "bathymetryMissing": "La bathymétrie de {{section}} ({{file}}) est introuvable.",
     "bathymetryBlocksProcessing": "Localisez la bathymétrie manquante avant de lancer l'analyse.",
+    "videoUnreadable": "Ce fichier n'a pas pu être lu comme une vidéo.",
     "ipcamImagesMissing": "Dossier d'images {{folder}} introuvable."
   }
 }

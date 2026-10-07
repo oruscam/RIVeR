@@ -155,6 +155,7 @@
       "levelError": "수위는 {{yMin}}에서 {{yMax}} 사이여야 합니다",
       "leftBank": "좌안이 범위를 벗어났습니다",
       "bathimetryNotValid": "수심 데이터가 유효하지 않습니다. 수위 {{level}}이 이 파일에 존재하지 않습니다",
+      "sectionNotFound": "이 횡단면은 더 이상 프로젝트에 없습니다.",
       "bathimetryIsRequired": "{{section_name}}에 수심 데이터가 필요합니다",
       "rwLength": "{{section_name}}의 횡단면 길이는 0이 될 수 없습니다",
       "levelRequired": "{{section_name}}의 수위는 0이 될 수 없습니다"
@@ -666,6 +667,7 @@
     "videoLocked": "동영상이 없습니다. 범위, 단계 또는 안정화를 변경하려면 동영상 위치를 지정하세요.",
     "bathymetryMissing": "{{section}}의 수심 데이터({{file}})가 없습니다.",
     "bathymetryBlocksProcessing": "분석을 실행하기 전에 누락된 수심 데이터의 위치를 지정하세요.",
+    "videoUnreadable": "이 파일을 동영상으로 읽을 수 없습니다.",
     "ipcamImagesMissing": "이미지 폴더 {{folder}}을(를) 찾을 수 없습니다."
   }
 }

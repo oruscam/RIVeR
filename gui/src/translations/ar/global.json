@@ -155,6 +155,7 @@
       "levelError": "يجب أن يكون منسوب المياه بين {{yMin}} و {{yMax}}",
       "leftBank": "الضفة اليسرى خارج النطاق",
       "bathimetryNotValid": "بيانات القياس البتيمتري غير صالحة. منسوب المياه {{level}} غير موجود في هذا الملف",
+      "sectionNotFound": "لم يعد هذا المقطع موجودًا في المشروع.",
       "bathimetryIsRequired": "بيانات القياس البتيمتري مطلوبة في {{section_name}}",
       "rwLength": "لا يمكن أن يكون طول المقطع العرضي صفراً في {{section_name}}",
       "levelRequired": "لا يمكن أن تكون قيمة المستوى صفراً في {{section_name}}"
@@ -696,6 +697,7 @@
     "videoLocked": "الفيديو مفقود: حدّد موقعه لتغيير النطاق أو الخطوة أو التثبيت.",
     "bathymetryMissing": "بيانات قياس الأعماق للمقطع {{section}} ({{file}}) مفقودة.",
     "bathymetryBlocksProcessing": "حدّد موقع بيانات قياس الأعماق المفقودة قبل تشغيل التحليل.",
+    "videoUnreadable": "تعذّرت قراءة هذا الملف كفيديو.",
     "ipcamImagesMissing": "لم يُعثر على مجلد الصور {{folder}}."
   }
 }

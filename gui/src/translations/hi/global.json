@@ -155,6 +155,7 @@
       "levelError": "जल स्तर {{yMin}} और {{yMax}} के बीच होना चाहिए",
       "leftBank": "बायाँ किनारा सीमा से बाहर है",
       "bathimetryNotValid": "जल गहराई डेटा अमान्य है। जल स्तर {{level}} इस फ़ाइल में मौजूद नहीं है",
+      "sectionNotFound": "यह काट अब प्रोजेक्ट में नहीं है।",
       "bathimetryIsRequired": "{{section_name}} के लिए जल गहराई डेटा आवश्यक है",
       "rwLength": "{{section_name}} में अनुप्रस्थ काट की लंबाई 0 नहीं हो सकती",
       "levelRequired": "{{section_name}} में स्तर 0 नहीं हो सकता"
@@ -672,6 +673,7 @@
     "videoLocked": "वीडियो गायब है: रेंज, स्टेप या स्थिरीकरण बदलने के लिए उसे खोजें।",
     "bathymetryMissing": "{{section}} ({{file}}) की बैथिमेट्री गायब है।",
     "bathymetryBlocksProcessing": "विश्लेषण चलाने से पहले गायब बैथिमेट्री को खोजें।",
+    "videoUnreadable": "इस फ़ाइल को वीडियो के रूप में नहीं पढ़ा जा सका।",
     "ipcamImagesMissing": "इमेज फ़ोल्डर {{folder}} नहीं मिला।"
   }
 }

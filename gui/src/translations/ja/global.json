@@ -155,6 +155,7 @@
       "levelError": "水位は{{yMin}}から{{yMax}}の範囲でなければなりません",
       "leftBank": "左岸が範囲外です",
       "bathimetryNotValid": "測深データが無効です。水位{{level}}はこのファイルに存在しません",
+      "sectionNotFound": "この横断面はプロジェクトにもうありません。",
       "bathimetryIsRequired": "{{section_name}}には測深データが必要です",
       "rwLength": "{{section_name}}の横断面長さは0にできません",
       "levelRequired": "{{section_name}}の水位は0にできません"
@@ -666,6 +667,7 @@
     "videoLocked": "動画がありません。範囲、ステップ、スタビライゼーションを変更するには、動画の場所を指定してください。",
     "bathymetryMissing": "{{section}} の水深データ（{{file}}）が見つかりません。",
     "bathymetryBlocksProcessing": "解析を実行する前に、見つからない水深データの場所を指定してください。",
+    "videoUnreadable": "このファイルは動画として読み込めませんでした。",
     "ipcamImagesMissing": "画像フォルダー {{folder}} が見つかりません。"
   }
 }

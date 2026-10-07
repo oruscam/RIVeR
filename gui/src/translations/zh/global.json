@@ -155,6 +155,7 @@
       "levelError": "水位必须在 {{yMin}} 到 {{yMax}} 之间",
       "leftBank": "左岸超出范围",
       "bathimetryNotValid": "测深数据无效，水位 {{level}} 在此文件中不存在",
+      "sectionNotFound": "该横断面已不在项目中。",
       "bathimetryIsRequired": "{{section_name}} 需要测深数据",
       "rwLength": "{{section_name}} 的横断面长度不能为 0",
       "levelRequired": "{{section_name}} 的水位不能为 0"
@@ -666,6 +667,7 @@
     "videoLocked": "视频缺失：请先定位视频，才能更改范围、步长或稳定化设置。",
     "bathymetryMissing": "缺少 {{section}} 的测深数据（{{file}}）。",
     "bathymetryBlocksProcessing": "运行分析之前，请先定位缺失的测深数据。",
+    "videoUnreadable": "无法将此文件读取为视频。",
     "ipcamImagesMissing": "未找到图像文件夹 {{folder}}。"
   }
 }
