@@ -8,7 +8,7 @@ async function createFolderStructure(
   language: string,
   videoPath: string,
   videoName: string,
-  result: { width: number; height: number; fps: number; duration: string },
+  result: { width: number; height: number; fps: number; duration: number },
   unitSistem: string
 ) {
   const dateSuffix = getFormattedDate();
