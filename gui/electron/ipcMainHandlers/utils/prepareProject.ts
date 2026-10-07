@@ -3,6 +3,7 @@ import * as path from 'path';
 import { MissingInput, ProjectIssues } from '../../../commons/projectIssues';
 import { relocateOwnedPaths } from './relocateProject';
 import { resolveBathymetryPaths } from './resolveBathymetry';
+import { isSameFile } from './samePath';
 
 /**
  * Runs first on load-project (spec §1–§3): points project-owned paths at the opened
@@ -10,10 +11,12 @@ import { resolveBathymetryPaths } from './resolveBathymetry';
  * settings.json / xsections.json only when something changed, and logs it once in
  * river.log, in the same JSON-block shape executeRiverCli appends.
  */
-export async function prepareProject(projectFolder: string): Promise<{ settings: Record<string, any> } & ProjectIssues> {
+export async function prepareProject(
+  projectFolder: string
+): Promise<{ settings: Record<string, any> } & ProjectIssues> {
   const settingsPath = path.join(projectFolder, 'settings.json');
   const stored = JSON.parse(await fs.promises.readFile(settingsPath, 'utf-8'));
-  const { settings, changed, movedFrom } = relocateOwnedPaths(projectFolder, stored);
+  const { settings, changed, movedFrom } = relocateOwnedPaths(projectFolder, stored, isSameFile);
 
   const missingInputs: MissingInput[] = [];
   let copied: string[] = [];
@@ -39,7 +42,11 @@ export async function prepareProject(projectFolder: string): Promise<{ settings:
       copied.length > 0 ? `copied into the project: ${copied.join(', ')}` : undefined,
     ].filter(Boolean);
     const entry = { options: ['relocate-project'], output: notes.join('; '), error: '' };
-    await fs.promises.appendFile(path.join(projectFolder, 'river.log'), JSON.stringify(entry, null, 4) + '\n', 'utf-8');
+    await fs.promises.appendFile(
+      path.join(projectFolder, 'river.log'),
+      JSON.stringify(entry, null, 4) + '\n',
+      'utf-8'
+    );
   }
 
   const videoPath = settings.video?.filepath;

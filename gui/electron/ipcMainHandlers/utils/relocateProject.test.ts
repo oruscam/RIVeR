@@ -67,4 +67,19 @@ describe('relocateOwnedPaths', () => {
     relocateOwnedPaths(NEW, input);
     expect(input.xsections).toBe(`${OLD}/xsections.json`);
   });
+
+  it('keeps a stored path the samePath predicate says is the opened file', () => {
+    // e.g. /Users/a/River/... stored, /Users/a/river/... opened on a case-insensitive disk
+    const stored = { xsections: '/Users/a/River/case/xsections.json', piv_results: '/elsewhere/piv_results.json' };
+    const samePath = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+    const { settings, changed, movedFrom } = relocateOwnedPaths('/Users/a/river/case', stored, samePath);
+    expect(settings.xsections).toBe('/Users/a/River/case/xsections.json');
+    expect(settings.piv_results).toBe(path.join('/Users/a/river/case', 'piv_results.json'));
+    expect(changed).toBe(true);
+    expect(movedFrom).toBe('/elsewhere');
+
+    const caseOnly = relocateOwnedPaths('/Users/a/river/case', { xsections: stored.xsections }, samePath);
+    expect(caseOnly.changed).toBe(false);
+    expect(caseOnly.movedFrom).toBeUndefined();
+  });
 });
