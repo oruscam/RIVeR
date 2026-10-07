@@ -32,12 +32,17 @@ jest.mock('./utils/validateFile', () => ({
   EXTENSIONS: ['xlsx', 'csv'],
 }));
 
+jest.mock('./utils/copyIntoProject', () => ({
+  copyIntoProject: jest.fn(async (source: string, folder: string) => `${folder}/${source.split('/').pop()}`),
+}));
+
 jest.mock('../main', () => ({
   PROJECT_CONFIG: { defaultFilesPath: '/default/path', projectDirectory: '/default/path' },
 }));
 
 import { analyzeLine, transformLine, getBathimetry } from './getBathimetry';
 import { ipcMain } from 'electron';
+import { copyIntoProject } from './utils/copyIntoProject';
 import { utils } from 'xlsx';
 import * as fs from 'fs';
 import { validateFile } from './utils/validateFile';
@@ -351,17 +356,18 @@ describe('getBathimetry — non-CSV source is always rewritten as CSV', () => {
     expect(fs.promises.writeFile).toHaveBeenCalledTimes(1);
   });
 
-  it('does not rewrite an already-clean CSV that needs no changes', async () => {
-    // Must carry a header row: the Python backend always skips the first row, so a
-    // headerless file handed straight through would lose its first data point.
+  it('copies an already-clean CSV into the project instead of rewriting it', async () => {
+    // Must carry a header row: the Python backend always skips the first row.
     (fs.readFileSync as jest.Mock).mockReturnValue('station,stage\n0,10\n5,4\n10,1\n15,4\n20,10');
+    (copyIntoProject as jest.Mock).mockClear();
 
     const response = await trigger({ path: 'valid.csv', unitSistem: 'metric' });
 
     expect(response.error).toBeUndefined();
     expect(response.changed).toBe(false);
-    expect(response.path).toBe('valid.csv');
     expect(fs.promises.writeFile).not.toHaveBeenCalled();
+    expect(copyIntoProject).toHaveBeenCalledWith('valid.csv', '/default/path');
+    expect(response.path).toBe('/default/path/valid.csv');
   });
 });
 
