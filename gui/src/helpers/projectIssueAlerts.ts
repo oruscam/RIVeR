@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next';
 import type { ProjectIssuesState } from '../store/project/types';
 import type { StepAlert } from '../store/ui/types';
 
-export type IssueStep = 'video' | 'sections' | 'processing' | 'ipcam';
+export type IssueStep = 'video' | 'sections' | 'processing' | 'results' | 'ipcam';
 
 const fileName = (filePath: string) => filePath.split(/[\\/]/).pop() ?? filePath;
 
@@ -45,7 +45,7 @@ export function projectIssueAlerts(
   }
 
   for (const input of issues.missingInputs) {
-    if (input.kind === 'bathymetry' && (step === 'sections' || step === 'processing')) {
+    if (input.kind === 'bathymetry' && (step === 'sections' || step === 'processing' || step === 'results')) {
       alerts.push({
         id: `issue-bathymetry-${input.section}`,
         level: 'warning',

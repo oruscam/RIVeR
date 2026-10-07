@@ -42,8 +42,8 @@ describe('projectIssueAlerts', () => {
     });
   });
 
-  it('shows one bathymetry card per section on the sections and processing steps', () => {
-    for (const step of ['sections', 'processing'] as const) {
+  it('shows one bathymetry card per section on the sections, processing and results steps', () => {
+    for (const step of ['sections', 'processing', 'results'] as const) {
       expect(projectIssueAlerts(issues, step, t, '')).toEqual([
         {
           id: 'issue-bathymetry-CS_default_1',
@@ -74,7 +74,7 @@ describe('projectIssueAlerts', () => {
 
   it('shows nothing for a healthy project', () => {
     const healthy = { videoMissing: false, videoMismatch: null, missingInputs: [] };
-    for (const step of ['video', 'sections', 'processing', 'ipcam'] as const) {
+    for (const step of ['video', 'sections', 'processing', 'results', 'ipcam'] as const) {
       expect(projectIssueAlerts(healthy, step, t, 'x.mp4')).toEqual([]);
     }
   });
