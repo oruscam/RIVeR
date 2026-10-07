@@ -130,4 +130,23 @@ describe('prepareProject', () => {
     expect(fs.readdirSync(project).filter((f) => f.startsWith('bathy'))).toEqual(['bathy.csv']);
     expect(logOnDisk()).toBe('');
   });
+
+  it("keeps a copied project's own bathymetry when the original folder still exists and has changed", async () => {
+    fs.mkdirSync(oldFolder, { recursive: true });
+    write(path.join(oldFolder, 'bathy_modified.csv'), 'station,stage\n0,9'); // edited after the copy
+    write(path.join(project, 'bathy_modified.csv'), 'station,stage\n0,1');
+    write(
+      path.join(project, 'xsections.json'),
+      `{"CS_default_1": {"bath": ${JSON.stringify(path.join(oldFolder, 'bathy_modified.csv'))}}}`
+    );
+
+    const result = await prepareProject(project);
+
+    expect(result.missingInputs).toEqual([]);
+    const xs = fs.readFileSync(path.join(project, 'xsections.json'), 'utf-8');
+    expect(xs).toContain(JSON.stringify(path.join(project, 'bathy_modified.csv')));
+    expect(fs.readFileSync(path.join(project, 'bathy_modified.csv'), 'utf-8')).toBe('station,stage\n0,1');
+    expect(fs.readdirSync(project).filter((f) => f.startsWith('bathy'))).toEqual(['bathy_modified.csv']);
+    expect(logOnDisk()).not.toContain('copied into the project');
+  });
 });
