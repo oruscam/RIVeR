@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { Carousel, WizardButtons, ModeHint, StepAlertList, Toast, FocusOverlay } from '../components';
 import { CrossSections as CrossSectionsComponent } from '../components/CrossSections/index';
-import { useDataSlice, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
+import {
+  useDataSlice,
+  useIpcamSlice,
+  useProjectIssues,
+  useProjectSlice,
+  useSectionSlice,
+  useUiSlice,
+} from '../hooks';
 import { useTranslation } from 'react-i18next';
 import { handleDragLeave, handleDragOver } from '../helpers';
 import { FormHeader } from '../components/Forms/Components';
@@ -16,6 +23,7 @@ export const CrossSections = () => {
   const { onAddStepAlert, onClearStepAlert } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
   const { cameraSolution } = useIpcamSlice();
+  const { alerts, onAction } = useProjectIssues('sections');
   const { processing, images } = useDataSlice();
   const [activeFrame, setActiveFrame] = useState<number>(0);
 
@@ -85,7 +93,7 @@ export const CrossSections = () => {
           setDeletedSections={setDeletedSections}
           canEdit={true}
         />
-        <StepAlertList />
+        <StepAlertList extra={alerts} onAction={onAction} />
         <CrossSectionsComponent deletedSections={deletedSections} setDeletedSections={setDeletedSections} />
 
         <div className="footer">

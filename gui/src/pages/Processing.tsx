@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Carousel, StepAlertList, Toast, ImageProcessing, WizardButtons } from '../components';
-import { useDataSlice, useIwaveDefaults, useSectionSlice, useUiSlice } from '../hooks';
+import { useDataSlice, useIwaveDefaults, useProjectIssues, useSectionSlice, useUiSlice } from '../hooks';
 import { flushStivAngleWrites } from '../hooks/useStivAngleOverride';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
@@ -14,6 +14,7 @@ import { alignStationImages, skipReasonLabelKey } from '../helpers/stationImages
 export const Processing = () => {
   const { t } = useTranslation();
   const { nextStep } = useWizard();
+  const { alerts, onAction } = useProjectIssues('processing');
   const { onAddStepAlert, onClearStepAlert, onSetSeeAll, previewMode, onSetPreviewMode } = useUiSlice();
   const {
     images,
@@ -211,7 +212,7 @@ export const Processing = () => {
       </div>
       <div className="form-container">
         <FormHeader title={t('Processing.title')} showSections={false} />
-        <StepAlertList />
+        <StepAlertList extra={alerts} onAction={onAction} />
         <FormProcessing
           extraFields={extraFields}
           showMedian={showMedian}

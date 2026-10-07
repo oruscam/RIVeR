@@ -28,6 +28,7 @@ import { setHasChanged, setSectionData, setSummary } from '../store/section/sect
 import { CliError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
 import { verifyWindowsSizes } from '../helpers';
+import { hasMissingBathymetry } from '../helpers/locatedBathymetry';
 
 /**
  * @returns - Object with the methods and attributes to interact with the data slice
@@ -38,9 +39,14 @@ export const useDataSlice = () => {
   const { processing, images, quiver, fullQuiver, isBackendWorking, isDataLoaded, hasChanged, colorbarLimits } =
     useSelector((state: RootState) => state.data);
   const { sections, activeSection, transformationMatrix } = useSelector((state: RootState) => state.section);
-  const { video } = useSelector((state: RootState) => state.project);
+  const { video, issues } = useSelector((state: RootState) => state.project);
 
   const { t } = useTranslation();
+
+  // Python reads every section's bath file; a missing one fails deep in the backend.
+  const assertBathymetryPresent = () => {
+    if (hasMissingBathymetry(issues)) throw new Error(t('ProjectIssues.bathymetryBlocksProcessing'));
+  };
 
   let filePrefix = import.meta.env.VITE_FILE_PREFIX;
   filePrefix = filePrefix === undefined ? '' : filePrefix;
@@ -110,6 +116,7 @@ export const useDataSlice = () => {
    */
 
   const onSetQuiverTest = async () => {
+    assertBathymetryPresent();
     dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
     const { bbox, form } = processing;
@@ -165,6 +172,7 @@ export const useDataSlice = () => {
    */
 
   const onSetQuiverAll = async () => {
+    assertBathymetryPresent();
     dispatch(setBackendWorking(true));
     const ipcRenderer = window.ipcRenderer;
     try {
@@ -227,6 +235,7 @@ export const useDataSlice = () => {
   // type can be 'single' or 'all'
 
   const onGetResultData = async (type: string) => {
+    assertBathymetryPresent();
     if (isBackendWorking) return;
 
     const ipcRenderer = window.ipcRenderer;
@@ -352,6 +361,7 @@ export const useDataSlice = () => {
   };
 
   const onReCalculateMask = async (value: number) => {
+    assertBathymetryPresent();
     dispatch(setBackendWorking(true));
     onClearQuiver();
 
