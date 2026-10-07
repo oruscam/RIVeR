@@ -69,9 +69,12 @@ export const useIpcamSlice = () => {
       // Invoke the 'ipcam-images' IPC channel with the provided folder path
       // Folder path can be undefined, which the main process should handle
       // Opening a dialog to select the folder if folderPath is undefined
-      const { images, path, error } = await ipcRenderer.invoke('ipcam-images', {
+      const result = await ipcRenderer.invoke('ipcam-images', {
         folderPath,
       });
+      // A canceled folder picker is not an error: nothing changes.
+      if (result === undefined || result.canceled) return false;
+      const { images, path, error } = result;
       // If there's an error, throw it to be caught below
       if (error) {
         throw new Error(error.message);
