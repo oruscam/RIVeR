@@ -78,4 +78,26 @@ describe('locate-video', () => {
     expect(await mockHandlers['locate-video']({})).toEqual({ status: 'canceled' });
     expect(mockGetVideoMetadata).not.toHaveBeenCalled();
   });
+
+  it('reports an unreadable video when ffprobe fails', async () => {
+    mockShowOpenDialog.mockResolvedValue({ canceled: false, filePaths: ['/found/corrupt.MP4'] });
+    mockGetVideoMetadata.mockRejectedValue(new Error('ffprobe failed'));
+
+    const result = await mockHandlers['locate-video']({});
+
+    expect(result).toEqual({ status: 'error', message: 'ffprobe failed' });
+    expect(settings().video.filepath).toBe('/gone/DJI_0083.MP4');
+    expect(mockConfig.videoPath).toBe('/gone/DJI_0083.MP4');
+  });
+
+  it('reports an unreadable video when conversion fails', async () => {
+    mockShowOpenDialog.mockResolvedValue({ canceled: false, filePaths: ['/found/invalid.avi'] });
+    mockGetVideoMetadata.mockRejectedValue('No se pudo convertir el video a mp4');
+
+    const result = await mockHandlers['locate-video']({});
+
+    expect(result).toEqual({ status: 'error', message: 'No se pudo convertir el video a mp4' });
+    expect(settings().video.filepath).toBe('/gone/DJI_0083.MP4');
+    expect(mockConfig.videoPath).toBe('/gone/DJI_0083.MP4');
+  });
 });
