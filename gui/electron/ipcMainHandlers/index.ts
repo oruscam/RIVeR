@@ -28,6 +28,7 @@ import { getResultData } from './getResultData';
 import { getStis } from './getStis';
 import { loadResults } from './loadResults';
 import { locateBathymetry } from './locateBathymetry';
+import { locateVideo } from './locateVideo';
 import { recommendRoiHeight } from './recommendRoiHeight';
 import { saveReportHtml } from './saveReportHtml';
 import { getGif } from './getGif';
@@ -57,6 +58,7 @@ export {
   loadProject,
   loadResults,
   locateBathymetry,
+  locateVideo,
   pixelToRealWorld,
   projectsExist,
   projectThumbnails,
