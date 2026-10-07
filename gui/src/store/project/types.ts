@@ -1,3 +1,10 @@
+import type { ProjectIssues, VideoSpec } from '../../../commons/projectIssues';
+
+/** Missing inputs reported on load (spec §3–§4), plus the last refused video. */
+interface ProjectIssuesState extends ProjectIssues {
+  videoMismatch: { expected: VideoSpec; found: VideoSpec } | null;
+}
+
 interface VideoData {
   name: string | null;
   path: string;
@@ -58,6 +65,7 @@ interface ProjectState {
   firstFramePath: string;
   projectDetails: ProjectDetails;
   stabilizationActiveRegionIndex: number | null;
+  issues: ProjectIssuesState;
 }
 
-export type { ProjectState, VideoData, VideoParameters, Video, ProjectDetails, StabilizationRegion };
+export type { ProjectIssuesState, ProjectState, VideoData, VideoParameters, Video, ProjectDetails, StabilizationRegion };
