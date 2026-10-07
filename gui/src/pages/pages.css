@@ -899,3 +899,18 @@
     top: 50%;
     transform: translate(-50%, -50%);
 }
+
+/* Missing video: the first extracted frame stands in for the player (spec §3). */
+.video-missing-still {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+}
+
+.fieldset-plain {
+    border: 0;
+    margin: 0;
+    padding: 0;
+    min-width: 0;
+}

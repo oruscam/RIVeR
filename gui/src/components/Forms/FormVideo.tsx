@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useUiSlice } from '../../hooks/useUiSlice';
 import { useWizard } from 'react-use-wizard';
 import { getValidationRules } from '../../helpers/validationRules';
-import { useProjectSlice } from '../../hooks';
+import { useProjectSlice, useProjectIssues } from '../../hooks';
 import './form.css';
 import { formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
@@ -17,6 +17,7 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
   const { startTime, endTime, step } = videoData.parameters;
 
   const { fps } = videoData.data;
+  const { videoMissing } = useProjectIssues('video');
 
   const { handleSubmit, register, setValue, getValues, watch } = useForm({
     defaultValues: {
@@ -110,6 +111,11 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
   };
 
   const onSubmit = async (data: FieldValues) => {
+    // Frames can't be re-extracted without the video; keep the ones on disk (spec §3).
+    if (videoMissing) {
+      nextStep();
+      return;
+    }
     onClearStepAlert('lens-correction-mismatch');
     onClearStepAlert('stabilization-min-regions');
     const lensCorrection = videoData.parameters.lensCorrection;
@@ -159,101 +165,107 @@ export const FormVideo = ({ duration, extraFields }: { duration: number; extraFi
   return (
     <div className="body">
       <form onSubmit={handleSubmit(onSubmit, onError)} id="form-video">
-        <div className="panel-section">
-          <div className="field-row field-row-top">
-            <label className="field-row-label" htmlFor="start">
-              {t('VideoRange.start')}
-            </label>
-            <span className="field-with-action">
-              <button
-                type="button"
-                className="ibtn ibtn-sm"
-                id="start-button"
-                onClick={handleClick}
-                aria-label={currentTimeLabel(t('VideoRange.start'))}
-                title={currentTimeLabel(t('VideoRange.start'))}
-              >
-                {Icons.Target('currentColor')}
-              </button>
+        <fieldset
+          className="fieldset-plain"
+          disabled={videoMissing}
+          title={videoMissing ? t('ProjectIssues.videoLocked') : undefined}
+        >
+          <div className="panel-section">
+            <div className="field-row field-row-top">
+              <label className="field-row-label" htmlFor="start">
+                {t('VideoRange.start')}
+              </label>
+              <span className="field-with-action">
+                <button
+                  type="button"
+                  className="ibtn ibtn-sm"
+                  id="start-button"
+                  onClick={handleClick}
+                  aria-label={currentTimeLabel(t('VideoRange.start'))}
+                  title={currentTimeLabel(t('VideoRange.start'))}
+                >
+                  {Icons.Target('currentColor')}
+                </button>
+                <input
+                  className="field field-coord"
+                  defaultValue="00:00"
+                  id="start"
+                  type="text"
+                  {...register('start', validationRules.start)}
+                  onBlur={handleBlur}
+                  onKeyDown={handleKeyDown}
+                />
+              </span>
+            </div>
+            <FieldError name="start" />
+
+            <div className="field-row field-row-top">
+              <label className="field-row-label" htmlFor="end">
+                {t('VideoRange.end')}
+              </label>
+              <span className="field-with-action">
+                <button
+                  type="button"
+                  className="ibtn ibtn-sm"
+                  id="end-button"
+                  onClick={handleClick}
+                  aria-label={currentTimeLabel(t('VideoRange.end'))}
+                  title={currentTimeLabel(t('VideoRange.end'))}
+                >
+                  {Icons.Target('currentColor')}
+                </button>
+                <input
+                  type="text"
+                  className="field field-coord"
+                  defaultValue="00:00"
+                  id="end"
+                  {...register('end', validationRules.end)}
+                  onBlur={handleBlur}
+                  onKeyDown={handleKeyDown}
+                />
+              </span>
+            </div>
+            <FieldError name="end" />
+
+            <div className="field-row field-row-top">
+              <label className="field-row-label" htmlFor="input-step">
+                {t('VideoRange.step')}
+              </label>
               <input
+                type="number"
+                id="input-step"
+                defaultValue={1}
                 className="field field-coord"
-                defaultValue="00:00"
-                id="start"
-                type="text"
-                {...register('start', validationRules.start)}
-                onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
+                {...register('step', validationRules.step)}
               />
-            </span>
+            </div>
+            <FieldError name="step" />
+
+            <p className="field-readonly panel-summary">
+              {t('VideoRange.framesSummary', {
+                defaultValue: '{{count}} frames · every {{ms}} ms',
+                count: numberOfFrames > 0 ? numberOfFrames : 0,
+                ms: timeBetweenFrames,
+              })}
+            </p>
           </div>
-          <FieldError name="start" />
 
-          <div className="field-row field-row-top">
-            <label className="field-row-label" htmlFor="end">
-              {t('VideoRange.end')}
-            </label>
-            <span className="field-with-action">
-              <button
-                type="button"
-                className="ibtn ibtn-sm"
-                id="end-button"
-                onClick={handleClick}
-                aria-label={currentTimeLabel(t('VideoRange.end'))}
-                title={currentTimeLabel(t('VideoRange.end'))}
-              >
-                {Icons.Target('currentColor')}
-              </button>
-              <input
-                type="text"
-                className="field field-coord"
-                defaultValue="00:00"
-                id="end"
-                {...register('end', validationRules.end)}
-                onBlur={handleBlur}
-                onKeyDown={handleKeyDown}
-              />
-            </span>
-          </div>
-          <FieldError name="end" />
+          {/* Stabilization suits any moving camera, so UAV and oblique get it; a fixed ipcam never does.
+              Not gated on extraFields/Advanced: regions must stay visible whenever stabilization is on,
+              and the on/off switch itself must always be reachable to turn it on. */}
+          {type !== 'ipcam' && <StabilizationRegions />}
 
-          <div className="field-row field-row-top">
-            <label className="field-row-label" htmlFor="input-step">
-              {t('VideoRange.step')}
-            </label>
-            <input
-              type="number"
-              id="input-step"
-              defaultValue={1}
-              className="field field-coord"
-              onKeyDown={handleKeyDown}
-              {...register('step', validationRules.step)}
-            />
-          </div>
-          <FieldError name="step" />
+          <VideoMetadata />
 
-          <p className="field-readonly panel-summary">
-            {t('VideoRange.framesSummary', {
-              defaultValue: '{{count}} frames · every {{ms}} ms',
-              count: numberOfFrames > 0 ? numberOfFrames : 0,
-              ms: timeBetweenFrames,
-            })}
-          </p>
-        </div>
-
-        {/* Stabilization suits any moving camera, so UAV and oblique get it; a fixed ipcam never does.
-            Not gated on extraFields/Advanced: regions must stay visible whenever stabilization is on,
-            and the on/off switch itself must always be reachable to turn it on. */}
-        {type !== 'ipcam' && <StabilizationRegions />}
-
-        <VideoMetadata />
-
-        {extraFields && (
-          <div className="panel-advanced">
-            <hr className="panel-rule" />
-            <FramesResolution />
-            <LensCorrection />
-          </div>
-        )}
+          {extraFields && (
+            <div className="panel-advanced">
+              <hr className="panel-rule" />
+              <FramesResolution />
+              <LensCorrection />
+            </div>
+          )}
+        </fieldset>
       </form>
     </div>
   );

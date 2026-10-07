@@ -2,7 +2,7 @@ import { useRef } from 'react';
 import { VideoPlayer } from '../components/VideoPlayer/VideoPlayer';
 import { StabilizationCanvas } from '../components/VideoPlayer/StabilizationCanvas';
 import { FormVideo } from '../components/Forms/FormVideo';
-import { useProjectSlice } from '../hooks';
+import { useProjectSlice, useProjectIssues } from '../hooks';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 import { FocusOverlay, WizardButtons, ModeHint, StepAlertList, Toast } from '../components';
@@ -17,7 +17,9 @@ export const VideoRange = () => {
     onDeleteStabilizationRegion,
     onSetStabilizationActiveRegionIndex,
     onToggleVideoExtraFields,
+    firstFramePath,
   } = useProjectSlice();
+  const { alerts, onAction, videoMissing } = useProjectIssues('video');
   const { path, duration, width: videoWidth, height: videoHeight } = video.data;
   const { stabilization, stabilizationRegions } = video.parameters;
   const { extraFields } = video;
@@ -49,12 +51,16 @@ export const VideoRange = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        {path && <VideoPlayer ref={videoRef} fileURL={path} duration={duration} overlay={stabilizationOverlay} />}
+        {path ? (
+          <VideoPlayer ref={videoRef} fileURL={path} duration={duration} overlay={stabilizationOverlay} />
+        ) : (
+          videoMissing && firstFramePath && <img className="video-missing-still" src={firstFramePath} alt="" />
+        )}
         <ModeHint />
       </div>
       <div className="form-container">
         <FormHeader title={t('VideoRange.title')} showSections={false} />
-        <StepAlertList />
+        <StepAlertList extra={alerts} onAction={onAction} />
         <FormVideo duration={duration} extraFields={extraFields} />
         <div className="footer">
           <AdvancedToggle

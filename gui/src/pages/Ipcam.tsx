@@ -4,7 +4,7 @@ import { Carousel, ModeHint, StepAlertList, Toast, FocusOverlay, WizardButtons }
 import { useEffect, useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers/handleDragEvents.ts';
 import { useUiSlice } from '../hooks/useUiSlice.ts';
-import { useIpcamSlice } from '../hooks/index';
+import { useIpcamSlice, useProjectIssues } from '../hooks/index';
 import { useTranslation } from 'react-i18next';
 import { FormHeader } from '../components/Forms/Components/FormHeader.tsx';
 import { ImageIpcam } from '../components/index.ts';
@@ -22,6 +22,7 @@ export const Ipcam = () => {
   } = useIpcamSlice();
   const { onAddStepAlert, onClearStepAlert, onSetModeHint, onClearModeHint } = useUiSlice();
   const { t } = useTranslation();
+  const { alerts, onAction } = useProjectIssues('ipcam');
   const { nextStep } = useWizard();
 
   const [dragOver, setDragOver] = useState<boolean>(false);
@@ -95,7 +96,7 @@ export const Ipcam = () => {
         onDrop={handleDrop}
       >
         <FormHeader title={t('ControlPoints.title')} showSections={false} />
-        <StepAlertList />
+        <StepAlertList extra={alerts} onAction={onAction} />
         <FormIpcam />
         <div className="footer">
           <WizardButtons canFollow={cameraSolution !== null} onClickNext={handleOnClickNext} />
