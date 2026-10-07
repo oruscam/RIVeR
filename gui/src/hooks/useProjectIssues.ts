@@ -12,7 +12,7 @@ import {
 import { setBathimetry } from '../store/section/sectionSlice';
 import { addStepAlert, clearStepAlert } from '../store/ui/uiSlice';
 import { IssueStep, projectIssueAlerts } from '../helpers/projectIssueAlerts';
-import { applyLocatedBathymetry, hasMissingBathymetry } from '../helpers/locatedBathymetry';
+import { hasMissingBathymetry, locatedBathymetryUpdates } from '../helpers/locatedBathymetry';
 import { useIpcamSlice } from './useIpcamSlice';
 
 /** The project-issue cards for one step, and what their Locate… buttons do (spec §4). */
@@ -39,7 +39,12 @@ export const useProjectIssues = (step: IssueStep) => {
     } else if (result.status === 'ok') {
       const { metadata } = result;
       dispatch(
-        setVideoData({ ...video.data, path: filePrefix + metadata.path, name: metadata.name, creation: metadata.creation })
+        setVideoData({
+          ...video.data,
+          path: filePrefix + metadata.path,
+          name: metadata.name,
+          creation: metadata.creation,
+        })
       );
       dispatch(resolveVideoMissing());
     }
@@ -55,32 +60,28 @@ export const useProjectIssues = (step: IssueStep) => {
     });
     if (result.status === 'error') {
       dispatch(
-        addStepAlert({ id: 'bathymetry-import-error', level: 'error', text: t('CrossSections.Errors.' + result.message) })
+        addStepAlert({
+          id: 'bathymetry-import-error',
+          level: 'error',
+          text: t('CrossSections.Errors.' + result.message),
+        })
       );
       return;
     }
     if (result.status !== 'ok') return;
 
-    // Every section that used the missing file now points at the located one.
-    const affected = issues.missingInputs.filter(
-      (input) => input.kind === 'bathymetry' && input.path === result.replaced
-    );
-    for (const input of affected) {
-      if (input.kind !== 'bathymetry') continue;
-      const index = sections.findIndex((s) => s.name === input.section);
-      if (index === -1) continue;
-      const applied = applyLocatedBathymetry(sections[index].bathimetry, result);
-      if ('error' in applied) {
-        dispatch(
-          addStepAlert({
-            id: 'bathymetry-import-error',
-            level: 'error',
-            text: t('CrossSections.Errors.' + applied.error.message, { level: applied.error.value }),
-          })
-        );
-        continue;
-      }
-      dispatch(setBathimetry({ bathimetry: applied.bathimetry, index }));
+    // Every section that used the missing file now points at the located one, in the
+    // store as on disk, even when its saved level does not cross the new profile.
+    const { updates, error } = locatedBathymetryUpdates(sections, issues.missingInputs, result);
+    for (const { index, bathimetry } of updates) dispatch(setBathimetry({ bathimetry, index }));
+    if (error) {
+      dispatch(
+        addStepAlert({
+          id: 'bathymetry-import-error',
+          level: 'error',
+          text: t('CrossSections.Errors.' + error.message, { level: error.value }),
+        })
+      );
     }
     dispatch(resolveBathymetry(result.replaced));
   };
@@ -97,7 +98,8 @@ export const useProjectIssues = (step: IssueStep) => {
   const onAction = async (action: string) => {
     if (action === 'locate-video') return locateVideo();
     if (action === 'locate-ipcam-images') return locateIpcamImages();
-    if (action.startsWith('locate-bathymetry:')) return locateBathymetry(action.slice('locate-bathymetry:'.length));
+    if (action.startsWith('locate-bathymetry:'))
+      return locateBathymetry(action.slice('locate-bathymetry:'.length));
   };
 
   return {

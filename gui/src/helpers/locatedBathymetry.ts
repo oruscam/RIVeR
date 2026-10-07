@@ -1,4 +1,4 @@
-import type { ProjectIssues } from '../../commons/projectIssues';
+import type { MissingInput, ProjectIssues } from '../../commons/projectIssues';
 import type { Bathimetry } from '../store/section/types';
 import type { Point } from '../types';
 import { getBathimetryValues } from './getBathimetryValues';
@@ -34,6 +34,41 @@ export function applyLocatedBathymetry(
       line: located.line,
     },
   };
+}
+
+/**
+ * What a successful locate-bathymetry does to the store. Disk already points every
+ * section that used the missing file at the located one, so the store must too, even
+ * for a section whose saved level does not cross the new profile: that section keeps
+ * its level and left bank, takes the new path, name and line, and the first such
+ * level error is returned for an error card.
+ */
+export function locatedBathymetryUpdates(
+  sections: { name: string; bathimetry: Bathimetry }[],
+  missingInputs: MissingInput[],
+  located: { path: string; name: string; line: Point[]; replaced: string }
+): { updates: { index: number; bathimetry: Bathimetry }[]; error?: { message: string; value?: number } } {
+  const updates: { index: number; bathimetry: Bathimetry }[] = [];
+  let error: { message: string; value?: number } | undefined;
+
+  for (const input of missingInputs) {
+    if (input.kind !== 'bathymetry' || input.path !== located.replaced) continue;
+    const index = sections.findIndex((section) => section.name === input.section);
+    if (index === -1) continue;
+    const previous = sections[index].bathimetry;
+    const applied = applyLocatedBathymetry(previous, located);
+    if ('error' in applied) {
+      error ??= applied.error;
+      updates.push({
+        index,
+        bathimetry: { ...previous, path: located.path, name: located.name, line: located.line },
+      });
+    } else {
+      updates.push({ index, bathimetry: applied.bathimetry });
+    }
+  }
+
+  return { updates, error };
 }
 
 export const hasMissingBathymetry = (issues: ProjectIssues) =>
