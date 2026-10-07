@@ -1,0 +1,42 @@
+import * as path from 'path';
+
+/** settings.json keys whose file always lives in the project folder (spec §1). Order
+ *  matters: the first changed key names the folder the project was moved from. */
+const OWNED_KEYS: string[][] = [
+  ['xsections'],
+  ['piv_results'],
+  ['transformation', 'matrix'],
+  ['stabilization_regions_path'],
+  ['camera_solution_3d'],
+  ['grp_3d'],
+];
+
+/**
+ * Points every project-owned path in settings.json into `projectFolder`, whatever
+ * folder it was saved from. Never falls back to the stored path, so a project copied
+ * elsewhere edits its own files, not the original's. Pure: returns a new object.
+ */
+export function relocateOwnedPaths(
+  projectFolder: string,
+  settings: Record<string, any>
+): { settings: Record<string, any>; changed: boolean; movedFrom?: string } {
+  const next = structuredClone(settings);
+  let changed = false;
+  let movedFrom: string | undefined;
+
+  for (const keyPath of OWNED_KEYS) {
+    const parent = keyPath.slice(0, -1).reduce<any>((obj, key) => obj?.[key], next);
+    const key = keyPath[keyPath.length - 1];
+    const stored = parent?.[key];
+    if (typeof stored !== 'string' || stored === '') continue;
+
+    const resolved = path.join(projectFolder, path.basename(stored));
+    if (resolved !== stored) {
+      parent[key] = resolved;
+      changed = true;
+      movedFrom ??= path.dirname(stored);
+    }
+  }
+
+  return { settings: next, changed, movedFrom };
+}
