@@ -27,6 +27,7 @@ import { createMaskAndBbox } from './createMaskAndBbox';
 import { getResultData } from './getResultData';
 import { getStis } from './getStis';
 import { loadResults } from './loadResults';
+import { locateBathymetry } from './locateBathymetry';
 import { recommendRoiHeight } from './recommendRoiHeight';
 import { saveReportHtml } from './saveReportHtml';
 import { getGif } from './getGif';
@@ -55,6 +56,7 @@ export {
   initProject,
   loadProject,
   loadResults,
+  locateBathymetry,
   pixelToRealWorld,
   projectsExist,
   projectThumbnails,
