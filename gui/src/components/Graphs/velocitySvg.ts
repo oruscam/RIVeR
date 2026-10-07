@@ -197,7 +197,7 @@ export const createVelocityChart = ({
       .attr('d', line)
       .attr('fill', 'none')
       .attr('stroke', strokeColor)
-      .attr('stroke-width', isActive ? 2 : 1.2)
+      .attr('stroke-width', isActive ? 2.75 : 1.8)
       .attr('opacity', baseOpacity);
 
     // Interpolated segments render in the theme accent color rather than a fixed hue —
@@ -221,7 +221,7 @@ export const createVelocityChart = ({
           .attr('d', line)
           .attr('fill', 'none')
           .attr('stroke', 'var(--accent-color)')
-          .attr('stroke-width', 2);
+          .attr('stroke-width', 2.75);
       });
     }
 
