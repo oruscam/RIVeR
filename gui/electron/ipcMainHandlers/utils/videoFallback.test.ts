@@ -15,7 +15,7 @@ describe('videoMetadataFromSettings', () => {
       width: 4096,
       height: 2160,
       fps: 30,
-      duration: '21.5215',
+      duration: 21.5215,
       creation: '',
       name: 'DJI_0083.MP4',
       path: '/Users/a/Dropbox/Video_4/DJI_0083.MP4',

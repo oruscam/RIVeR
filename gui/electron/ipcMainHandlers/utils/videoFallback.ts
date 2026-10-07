@@ -17,7 +17,7 @@ export function videoMetadataFromSettings(video: SettingsVideo) {
     width: video.resolution?.width ?? 0,
     height: video.resolution?.height ?? 0,
     fps: video.fps ?? 0,
-    duration: String(video.total_length ?? 0),
+    duration: video.total_length ?? 0,
     creation: '',
     name: video.name ?? path.basename(filepath),
     path: filepath,

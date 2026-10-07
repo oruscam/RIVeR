@@ -18,7 +18,7 @@ async function getVideoMetadata(videoPath: string): Promise<{
   width: number;
   height: number;
   fps: number;
-  duration: string;
+  duration: number;
   creation: string;
   name: string;
   path: string;
@@ -40,7 +40,7 @@ async function getVideoMetadata(videoPath: string): Promise<{
     let width = 0;
     let height = 0;
     let r_frame_rate = '';
-    let duration = '';
+    let duration = 0;
 
     metadata.streams.forEach((stream) => {
       if (stream.codec_type === 'video') {

@@ -39,7 +39,7 @@ const meta = (width: number, height: number, fps: number) => ({
   width,
   height,
   fps,
-  duration: '21.5',
+  duration: 21.5,
   creation: '',
   name: 'DJI_0083.MP4',
   path: '/found/DJI_0083.MP4',
