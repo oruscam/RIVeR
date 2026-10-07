@@ -4,17 +4,17 @@ import { contrastRatio, parseThemeTokens, resolveRgb, type ThemeName } from './t
 
 /**
  * The three technique-identity colours (LSPIV/STIV/iWave), one theme-tuned
- * set per theme: cyan / gold / magenta from RIVeR's own distance palette
- * (user's choice, 2026-10-03, replacing Okabe–Ito). STIV may share the
- * "fair" gold; it must never be the error colour, and iWave never success.
+ * set per theme: azure / orange / orchid (user's choice, 2026-10-07,
+ * replacing cyan / gold / magenta, whose gold turned brown in light).
+ * STIV may share the "fair" orange; it must never be the error colour, and iWave never success.
  */
 const themes = parseThemeTokens(readFileSync(join(__dirname, '..', 'index.css'), 'utf8'));
 const NAMES: ThemeName[] = ['dark', 'light', 'dracula'];
 
 const PALETTE: Record<string, { lspiv: string; stiv: string; iwave: string }> = {
-  dark: { lspiv: '#6CD4FF', stiv: '#F5BF61', iwave: '#E07BD6' },
-  light: { lspiv: '#1F78B4', stiv: '#9A6A0C', iwave: '#A23C99' },
-  dracula: { lspiv: '#8BE9FD', stiv: '#F1FA8C', iwave: '#FF79C6' },
+  dark: { lspiv: '#5CB8FF', stiv: '#FF9F43', iwave: '#F07CD3' },
+  light: { lspiv: '#1668C7', stiv: '#D35F0A', iwave: '#B02A98' },
+  dracula: { lspiv: '#8BE9FD', stiv: '#FFB86C', iwave: '#FF79C6' },
 };
 
 describe('technique colour tokens', () => {
