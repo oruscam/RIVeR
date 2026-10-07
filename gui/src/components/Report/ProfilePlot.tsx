@@ -2,16 +2,37 @@ import { useTranslation } from 'react-i18next';
 import { getUnit } from '../../helpers';
 import { useProjectSlice, useSectionSlice } from '../../hooks';
 import { REPORT_FLOW, UNIT_CONVERSIONS } from '../../constants/constants';
-import { buildProfilePlot, plotInputFromSection, type PlotMarker } from '../../helpers/reportPlot';
-import { TECHNIQUE_LABEL } from '../../helpers/reportModel';
+import { buildProfilePlot, plotInputFromSection } from '../../helpers/reportPlot';
 import type { Technique } from '../../store/section/types';
 
-const Marker = ({ technique, m }: { technique: Technique; m: PlotMarker }) => {
-  const cls = `rp-marker rp-marker--${technique}${m.hollow ? ' rp-marker--hollow' : ''}`;
-  if (technique === 'lspiv') return <circle className={cls} cx={m.x} cy={m.y} r={2.2} />;
-  if (technique === 'stiv') return <rect className={cls} x={m.x - 2} y={m.y - 2} width={4} height={4} />;
-  return <path className={cls} d={`M${m.x},${m.y - 2.6}L${m.x + 2.4},${m.y + 1.8}L${m.x - 2.4},${m.y + 1.8}Z`} />;
+/** Same shape per technique as the Results chart (● ■ ▲); r is the circle radius. */
+const Marker = ({
+  technique,
+  x,
+  y,
+  r,
+  className,
+}: {
+  technique: Technique;
+  x: number;
+  y: number;
+  r: number;
+  className: string;
+}) => {
+  if (technique === 'lspiv') return <circle className={className} cx={x} cy={y} r={r} />;
+  if (technique === 'stiv')
+    return <rect className={className} x={x - r * 0.9} y={y - r * 0.9} width={r * 1.8} height={r * 1.8} />;
+  const s = r * 1.2;
+  return (
+    <path className={className} d={`M${x},${y - s * 1.05}L${x + s},${y + s * 0.7}L${x - s},${y + s * 0.7}Z`} />
+  );
 };
+
+/** Key glyphs, in neutral ink: they explain the marks, the technique row above the plot names the colours. */
+const KEY_GLYPH_WIDTH = { measured: 12, interpolated: 12, rejected: 5, tuned: 7 };
+// Rough advance of the 8px document font, enough to space the key items without measuring.
+const KEY_CHAR_WIDTH = 4.1;
+const KEY_GAP = 9;
 
 /** Discharge per station, surface velocity per technique and depth on one x axis, drawn for paper. */
 export const ProfilePlot = ({ storeIndex }: { storeIndex: number }) => {
@@ -42,7 +63,17 @@ export const ProfilePlot = ({ storeIndex }: { storeIndex: number }) => {
   );
   if (!input) return null;
   const g = buildProfilePlot(input);
-  const legend = [...g.series].reverse();
+
+  const keyItems = (
+    [
+      ['measured', t('Results.measured')],
+      ...(g.marks.interpolated ? [['interpolated', t('Results.interpolated')]] : []),
+      ...(g.marks.rejected ? [['rejected', t('Results.keyRejected')]] : []),
+      ...(g.marks.tuned ? [['tuned', t('Results.keyTuned')]] : []),
+    ] as [keyof typeof KEY_GLYPH_WIDTH, string][]
+  ).map(([kind, label]) => ({ kind, label, width: KEY_GLYPH_WIDTH[kind] + 3 + label.length * KEY_CHAR_WIDTH }));
+  const keyY = g.panels.v.top - 7;
+  let keyX = g.width - g.right - keyItems.reduce((sum, k, i) => sum + k.width + (i ? KEY_GAP : 0), 0);
 
   return (
     <svg
@@ -84,28 +115,82 @@ export const ProfilePlot = ({ storeIndex }: { storeIndex: number }) => {
         />
       ))}
 
-      {g.series.map((s) => (
-        <g key={s.technique}>
-          <path className={`rp-line rp-line--${s.technique}${s.active ? ' rp-line--active' : ''}`} d={s.path} />
-          {s.markers.map((m, i) => (
-            <Marker key={i} technique={s.technique} m={m} />
-          ))}
-        </g>
-      ))}
+      {g.series.map((s) => {
+        const r = s.active ? 2.2 : 1.8;
+        return (
+          <g key={s.technique}>
+            {s.segments.map((seg, i) => (
+              <path
+                key={i}
+                className={`rp-line rp-line--${s.technique}${s.active ? ' rp-line--active' : ''}${
+                  seg.interp ? ' rp-line--interp' : ''
+                }`}
+                d={seg.d}
+              />
+            ))}
+            {s.rejected.map((m, i) => (
+              <Marker
+                key={`r${i}`}
+                technique={s.technique}
+                x={m.x}
+                y={m.y}
+                r={r}
+                className={`rp-marker rp-marker--hollow rp-marker--${s.technique}`}
+              />
+            ))}
+            {s.markers.map((m, i) => (
+              <g key={i}>
+                {m.tuned && (
+                  <Marker
+                    technique={s.technique}
+                    x={m.x}
+                    y={m.y}
+                    r={r + 2}
+                    className={`rp-marker rp-marker--ring rp-marker--${s.technique}`}
+                  />
+                )}
+                <Marker
+                  technique={s.technique}
+                  x={m.x}
+                  y={m.y}
+                  r={r}
+                  className={`rp-marker rp-marker--${s.technique}`}
+                />
+              </g>
+            ))}
+          </g>
+        );
+      })}
 
-      {g.series.length > 1 &&
-        legend.map((s, k) => {
-          const x = g.width - g.right - 168 + k * 62;
-          const y = g.panels.v.top - 7;
+      <g className="rp-key">
+        {keyItems.map((k) => {
+          const x = keyX;
+          keyX += k.width + KEY_GAP;
           return (
-            <g key={s.technique}>
-              <Marker technique={s.technique} m={{ x, y, hollow: false }} />
-              <text className="rp-legend" x={x + 6} y={y + 2.8}>
-                {TECHNIQUE_LABEL[s.technique]}
+            <g key={k.kind}>
+              {k.kind === 'measured' && (
+                <>
+                  <path className="rp-key-line" d={`M${x},${keyY}H${x + 12}`} />
+                  <circle className="rp-key-fill" cx={x + 6} cy={keyY} r={1.8} />
+                </>
+              )}
+              {k.kind === 'interpolated' && (
+                <path className="rp-key-line rp-key-line--interp" d={`M${x},${keyY}H${x + 12}`} />
+              )}
+              {k.kind === 'rejected' && <circle className="rp-key-hollow" cx={x + 2.5} cy={keyY} r={2} />}
+              {k.kind === 'tuned' && (
+                <>
+                  <circle className="rp-key-hollow" cx={x + 3.5} cy={keyY} r={3.5} />
+                  <circle className="rp-key-fill" cx={x + 3.5} cy={keyY} r={1.6} />
+                </>
+              )}
+              <text className="rp-legend" x={x + KEY_GLYPH_WIDTH[k.kind] + 3} y={keyY + 2.8}>
+                {k.label}
               </text>
             </g>
           );
         })}
+      </g>
 
       <path className="rp-water" d={g.bed.area} />
       <path className="rp-bed" d={g.bed.line} />
