@@ -34,6 +34,7 @@ jest.mock('./utils/validateFile', () => ({
 
 jest.mock('./utils/copyIntoProject', () => ({
   copyIntoProject: jest.fn(async (source: string, folder: string) => `${folder}/${source.split('/').pop()}`),
+  placeIntoProject: jest.fn(async (_content: string, name: string, folder: string) => `${folder}/${name}`),
 }));
 
 jest.mock('../main', () => ({
@@ -42,7 +43,7 @@ jest.mock('../main', () => ({
 
 import { analyzeLine, transformLine, getBathimetry } from './getBathimetry';
 import { ipcMain } from 'electron';
-import { copyIntoProject } from './utils/copyIntoProject';
+import { copyIntoProject, placeIntoProject } from './utils/copyIntoProject';
 import { utils } from 'xlsx';
 import * as fs from 'fs';
 import { validateFile } from './utils/validateFile';
@@ -325,6 +326,7 @@ describe('getBathimetry — non-CSV source is always rewritten as CSV', () => {
   beforeEach(() => {
     (validateFile as jest.Mock).mockReturnValue(true);
     (fs.promises.writeFile as jest.Mock).mockClear();
+    (placeIntoProject as jest.Mock).mockClear();
   });
 
   const trigger = async (args: any) => {
@@ -353,7 +355,7 @@ describe('getBathimetry — non-CSV source is always rewritten as CSV', () => {
     expect(response.changed).toBe(false); // no depth inversion needed
     expect(response.path).not.toBe('valid.ods'); // but still rewritten
     expect(response.path.endsWith('_modified.csv')).toBe(true);
-    expect(fs.promises.writeFile).toHaveBeenCalledTimes(1);
+    expect(placeIntoProject).toHaveBeenCalledTimes(1);
   });
 
   it('copies an already-clean CSV into the project instead of rewriting it', async () => {
@@ -366,6 +368,7 @@ describe('getBathimetry — non-CSV source is always rewritten as CSV', () => {
     expect(response.error).toBeUndefined();
     expect(response.changed).toBe(false);
     expect(fs.promises.writeFile).not.toHaveBeenCalled();
+    expect(placeIntoProject).not.toHaveBeenCalled();
     expect(copyIntoProject).toHaveBeenCalledWith('valid.csv', '/default/path');
     expect(response.path).toBe('/default/path/valid.csv');
   });
@@ -384,6 +387,7 @@ describe('getBathimetry — files handed to the Python backend always carry a he
   beforeEach(() => {
     (validateFile as jest.Mock).mockReturnValue(true);
     (fs.promises.writeFile as jest.Mock).mockClear();
+    (placeIntoProject as jest.Mock).mockClear();
   });
 
   const trigger = async (args: any) => {
@@ -402,7 +406,7 @@ describe('getBathimetry — files handed to the Python backend always carry a he
     const response = await trigger({ path: 'valid.xlsx', unitSistem: 'metric' });
     expect(response.error).toBeUndefined();
 
-    const written = (fs.promises.writeFile as jest.Mock).mock.calls[0][1] as string;
+    const written = (placeIntoProject as jest.Mock).mock.calls[0][0] as string;
     const rows = written.split('\n');
 
     // First line must be a non-numeric header, so the backend's unconditional
@@ -424,9 +428,22 @@ describe('getBathimetry — files handed to the Python backend always carry a he
 
     expect(response.error).toBeUndefined();
     expect(response.path.endsWith('_modified.csv')).toBe(true);
-    expect(fs.promises.writeFile).toHaveBeenCalledTimes(1);
+    expect(placeIntoProject).toHaveBeenCalledTimes(1);
 
-    const written = (fs.promises.writeFile as jest.Mock).mock.calls[0][1] as string;
+    const written = (placeIntoProject as jest.Mock).mock.calls[0][0] as string;
     expect(written.split('\n')[1]).toBe('0,10');
+  });
+
+  it('places the normalized CSV through placeIntoProject, never writing over a file in the project', async () => {
+    // A same-named X_modified.csv may be another section's bathymetry: placeIntoProject
+    // reuses it only when identical, else picks X_modified_2.csv (copyIntoProject.test.ts).
+    (fs.readFileSync as jest.Mock).mockReturnValue('0,10\n5,4\n10,1\n15,4\n20,10');
+    (placeIntoProject as jest.Mock).mockResolvedValueOnce('/default/path/valid_modified_2.csv');
+
+    const response = await trigger({ path: '/data/valid.csv', unitSistem: 'metric' });
+
+    expect(fs.promises.writeFile).not.toHaveBeenCalled();
+    expect(placeIntoProject).toHaveBeenCalledWith(expect.any(String), 'valid_modified.csv', '/default/path');
+    expect(response.path).toBe('/default/path/valid_modified_2.csv');
   });
 });
