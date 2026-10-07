@@ -61,6 +61,21 @@ describe('resolveBathymetryPaths', () => {
     expect(fs.readdirSync(project)).toEqual(['bathy.csv']);
   });
 
+  it('keeps same-named bathymetries with different content apart', async () => {
+    fs.mkdirSync(path.join(outside, 'a'));
+    fs.mkdirSync(path.join(outside, 'b'));
+    const a = path.join(outside, 'a', 'bathy.csv');
+    const b = path.join(outside, 'b', 'bathy.csv');
+    fs.writeFileSync(a, 'AAA');
+    fs.writeFileSync(b, 'BBB');
+    const { raw, missing, copied } = await resolveBathymetryPaths(project, xsections(a, b));
+    expect(missing).toEqual([]);
+    expect(copied).toEqual([path.join(project, 'bathy.csv'), path.join(project, 'bathy_2.csv')]);
+    expect(sectionBath(raw, 'CS_default_1')).toBe(path.join(project, 'bathy.csv'));
+    expect(sectionBath(raw, 'CS_default_2')).toBe(path.join(project, 'bathy_2.csv'));
+    expect(fs.readFileSync(path.join(project, 'bathy_2.csv'), 'utf-8')).toBe('BBB');
+  });
+
   it('uses the project copy of a moved project without copying', async () => {
     fs.writeFileSync(path.join(project, 'bathy_modified.csv'), 'x');
     const { raw, copied } = await resolveBathymetryPaths(
