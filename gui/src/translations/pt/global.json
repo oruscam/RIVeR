@@ -155,6 +155,7 @@
       "levelError": "O nível deve estar entre {{yMin}} e {{yMax}}",
       "leftBank": "A margem esquerda está fora do intervalo",
       "bathimetryNotValid": "A batimetria não é válida. O nível {{level}} não existe neste arquivo",
+      "sectionNotFound": "Esta seção não está mais no projeto.",
       "bathimetryIsRequired": "A batimetria é obrigatória em {{section_name}}",
       "rwLength": "O valor do comprimento da seção não pode ser 0 em {{section_name}}",
       "levelRequired": "O valor do nível não pode ser 0 em {{section_name}}"
@@ -672,6 +673,7 @@
     "videoLocked": "O vídeo está ausente: localize-o para alterar o intervalo, o passo ou a estabilização.",
     "bathymetryMissing": "A batimetria de {{section}} ({{file}}) está ausente.",
     "bathymetryBlocksProcessing": "Localize a batimetria ausente antes de executar a análise.",
+    "videoUnreadable": "Este arquivo não pôde ser lido como vídeo.",
     "ipcamImagesMissing": "Pasta de imagens {{folder}} não encontrada."
   }
 }

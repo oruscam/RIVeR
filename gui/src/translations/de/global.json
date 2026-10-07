@@ -155,6 +155,7 @@
       "levelError": "Der Pegel muss zwischen {{yMin}} und {{yMax}} liegen",
       "leftBank": "Das linke Ufer liegt außerhalb des Bereichs",
       "bathimetryNotValid": "Die Bathymetrie ist ungültig. Der Pegel {{level}} existiert nicht in dieser Datei",
+      "sectionNotFound": "Dieses Querprofil ist nicht mehr im Projekt.",
       "bathimetryIsRequired": " Bathymetrie ist in {{section_name}} erforderlich",
       "rwLength": "Der Wert der Querschnittslänge darf in {{section_name}} nicht null sein",
       "levelRequired": "Der Wert des Pegels darf in {{section_name}} nicht null sein"
@@ -672,6 +673,7 @@
     "videoLocked": "Das Video fehlt: Suchen Sie es, um Bereich, Schrittweite oder Stabilisierung zu ändern.",
     "bathymetryMissing": "Die Bathymetrie für {{section}} ({{file}}) fehlt.",
     "bathymetryBlocksProcessing": "Suchen Sie die fehlende Bathymetrie, bevor Sie die Analyse ausführen.",
+    "videoUnreadable": "Diese Datei konnte nicht als Video gelesen werden.",
     "ipcamImagesMissing": "Bildordner {{folder}} nicht gefunden."
   }
 }

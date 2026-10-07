@@ -35,7 +35,11 @@ export const useProjectIssues = (step: IssueStep) => {
     if (result.status === 'mismatch') {
       dispatch(setVideoMismatch({ expected: result.expected, found: result.found }));
     } else if (result.status === 'error') {
-      dispatch(addStepAlert({ id: 'locate-video-error', level: 'error', text: result.message }));
+      // The raw ffprobe text means nothing to the user; keep it for the console.
+      console.log('locate-video:', result.message);
+      dispatch(
+        addStepAlert({ id: 'locate-video-error', level: 'error', text: t('ProjectIssues.videoUnreadable') })
+      );
     } else if (result.status === 'ok') {
       const { metadata } = result;
       dispatch(

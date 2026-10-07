@@ -155,6 +155,7 @@
       "levelError": "Level must be between {{yMin}} and {{yMax}}",
       "leftBank": "Left bank is out of range",
       "bathimetryNotValid": "The bathimetry is not valid. Level {{level}} do not exist in this file",
+      "sectionNotFound": "This section is no longer in the project.",
       "bathimetryIsRequired": "Bathimetry is required in {{section_name}}",
       "rwLength": "The value of CS Length can not be 0 in {{section_name}}",
       "levelRequired": "The value of Level can not be 0 in {{section_name}}"
@@ -645,6 +646,7 @@
     "videoLocked": "The video is missing: locate it to change the range, step or stabilization.",
     "bathymetryMissing": "Bathymetry for {{section}} ({{file}}) is missing.",
     "bathymetryBlocksProcessing": "Locate the missing bathymetry before running the analysis.",
+    "videoUnreadable": "This file could not be read as a video.",
     "ipcamImagesMissing": "Image folder {{folder}} not found."
   }
 }
