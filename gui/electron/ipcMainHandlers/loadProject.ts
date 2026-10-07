@@ -10,13 +10,9 @@ import { parsedCameraSolution } from './utils/parsedCameraSolution';
 import { sanitizeNonStandardJsonTokens } from './utils/sanitizeJson';
 import { resolveProjectFolder } from './utils/resolveProjectFolder';
 import { pivResultsPath } from './utils/pivResultsPath';
+import { prepareProject } from './utils/prepareProject';
+import { videoMetadataFromSettings } from './utils/videoFallback';
 import { PROJECT_CONFIG } from '../main';
-
-// Function to load and parse the settings.json file
-async function loadSettings(settingsPath: string) {
-  const data = await fs.promises.readFile(settingsPath, 'utf-8');
-  return JSON.parse(data);
-}
 
 // Function to load an optional file, with an option to parse it as JSON
 async function loadOptionalFile(filePath: string, parseJson = false) {
@@ -50,7 +46,7 @@ async function loadFrames(framesPath: string, filePrefix: string) {
 // Function to load rectification 3D images if the path exists in the settings
 async function loadRectification3D(settingsParsed: any, filePrefix: string) {
   const rectificationPath = settingsParsed.rectification_3d_images;
-  if (rectificationPath) {
+  if (rectificationPath && fs.existsSync(rectificationPath)) {
     const images = await fs.promises.readdir(rectificationPath);
     return images.map((image: string) => path.join(filePrefix, rectificationPath, image));
   }
@@ -122,8 +118,8 @@ async function handleLoadProject(
   const settingsPath = path.join(folderPath, 'settings.json');
   if (!fs.existsSync(settingsPath)) throw new Error('noSettingsFile');
 
-  // Load and parse the settings.json file
-  const settingsParsed = await loadSettings(settingsPath);
+  // Fix a moved project and bring its bathymetry in before anything reads a path.
+  const { settings: settingsParsed, videoMissing, missingInputs } = await prepareProject(folderPath);
   populateProjectConfig(PROJECT_CONFIG, folderPath, settingsPath, settingsParsed);
 
   const filePrefix = import.meta.env.VITE_FILE_PREFIX || '';
@@ -148,8 +144,11 @@ async function handleLoadProject(
     : undefined;
   const rectification3DImages = await loadRectification3D(settingsParsed, filePrefix);
 
-  // Extract metadata from the video file
-  const videoMetadata = await getVideoMetadata(settingsParsed.video.filepath);
+  // A missing video no longer fails the load: the extracted frames are enough for
+  // everything except playback and re-extraction (spec §3).
+  const videoMetadata = videoMissing
+    ? videoMetadataFromSettings(settingsParsed.video)
+    : await getVideoMetadata(settingsParsed.video.filepath);
 
   // Return the loaded project data
   return {
@@ -159,6 +158,8 @@ async function handleLoadProject(
       settings: settingsParsed,
       projectDirectory: folderPath,
       videoMetadata,
+      videoMissing,
+      missingInputs,
       firstFrame,
       mask: getMask(folderPath, 'png'),
       bbox,
