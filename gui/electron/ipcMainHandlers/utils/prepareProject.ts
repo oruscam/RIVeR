@@ -23,7 +23,7 @@ export async function prepareProject(
 
   if (typeof settings.xsections === 'string' && fs.existsSync(settings.xsections)) {
     const raw = await fs.promises.readFile(settings.xsections, 'utf-8');
-    const resolved = await resolveBathymetryPaths(projectFolder, raw);
+    const resolved = await resolveBathymetryPaths(projectFolder, raw, movedFrom);
     missingInputs.push(...resolved.missing);
     copied = resolved.copied;
     if (resolved.raw !== raw) await fs.promises.writeFile(settings.xsections, resolved.raw, 'utf-8');

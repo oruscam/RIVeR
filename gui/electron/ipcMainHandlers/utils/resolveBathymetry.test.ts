@@ -104,3 +104,26 @@ describe('resolveBathymetryPaths', () => {
     expect((await resolveBathymetryPaths(project, original)).raw).toBe(original);
   });
 });
+
+describe('resolveBathymetryPaths — project moved from a folder that still exists', () => {
+  it("uses the project's same-named file for a bath in the folder it was moved from", async () => {
+    fs.writeFileSync(path.join(outside, 'bathy.csv'), 'station,stage\n0,9');
+    fs.writeFileSync(path.join(project, 'bathy.csv'), 'station,stage\n0,1');
+    const old = path.join(outside, 'bathy.csv');
+
+    const { raw, copied } = await resolveBathymetryPaths(project, xsections(old, old), outside);
+
+    expect(copied).toEqual([]);
+    expect(sectionBath(raw, 'CS_default_1')).toBe(path.join(project, 'bathy.csv'));
+    expect(fs.readdirSync(project)).toEqual(['bathy.csv']);
+  });
+
+  it('still copies a file from the old folder that the project does not have', async () => {
+    fs.writeFileSync(path.join(outside, 'bathy.csv'), 'station,stage\n0,9');
+    const old = path.join(outside, 'bathy.csv');
+
+    const { copied } = await resolveBathymetryPaths(project, xsections(old, old), outside);
+
+    expect(copied).toEqual([path.join(project, 'bathy.csv')]);
+  });
+});
