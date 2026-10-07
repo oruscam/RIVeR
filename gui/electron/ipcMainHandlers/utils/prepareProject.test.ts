@@ -104,4 +104,30 @@ describe('prepareProject', () => {
     expect(fs.readFileSync(path.join(project, 'settings.json'), 'utf-8')).toBe(before);
     expect(logOnDisk()).toBe('');
   });
+
+  it('treats paths stored through another name for the same folder as unchanged', async () => {
+    // The user's projects store /Users/antoine/River/... while the folder is river/
+    // (case-insensitive disk); a symlink gives the same situation on any disk.
+    const alias = path.join(root, 'alias');
+    fs.symlinkSync(project, alias, 'dir');
+    const settings = settingsOnDisk();
+    settings.xsections = path.join(alias, 'xsections.json');
+    settings.piv_results = path.join(alias, 'piv_results.json');
+    write(path.join(project, 'settings.json'), JSON.stringify(settings, null, 4));
+    write(path.join(project, 'bathy.csv'), 'station,stage\n0,1');
+    write(
+      path.join(project, 'xsections.json'),
+      `{"CS_default_1": {"bath": ${JSON.stringify(path.join(alias, 'bathy.csv'))}}}`
+    );
+    const settingsBefore = fs.readFileSync(path.join(project, 'settings.json'), 'utf-8');
+    const xsBefore = fs.readFileSync(path.join(project, 'xsections.json'), 'utf-8');
+
+    const result = await prepareProject(project);
+
+    expect(result.missingInputs).toEqual([]);
+    expect(fs.readFileSync(path.join(project, 'settings.json'), 'utf-8')).toBe(settingsBefore);
+    expect(fs.readFileSync(path.join(project, 'xsections.json'), 'utf-8')).toBe(xsBefore);
+    expect(fs.readdirSync(project).filter((f) => f.startsWith('bathy'))).toEqual(['bathy.csv']);
+    expect(logOnDisk()).toBe('');
+  });
 });

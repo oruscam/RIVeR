@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { isSameFolder } from './samePath';
 
 /**
  * Copies `source` into `projectFolder` and returns the copy's path. A file already in
@@ -15,7 +16,7 @@ async function copyIntoProjectDetailed(
   source: string,
   projectFolder: string
 ): Promise<{ path: string; written: boolean }> {
-  if (path.resolve(path.dirname(source)) === path.resolve(projectFolder)) return { path: source, written: false };
+  if (isSameFolder(path.dirname(source), projectFolder)) return { path: source, written: false };
 
   const ext = path.extname(source);
   const stem = path.basename(source, ext);

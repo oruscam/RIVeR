@@ -15,10 +15,13 @@ const OWNED_KEYS: string[][] = [
  * Points every project-owned path in settings.json into `projectFolder`, whatever
  * folder it was saved from. Never falls back to the stored path, so a project copied
  * elsewhere edits its own files, not the original's. Pure: returns a new object.
+ * `samePath(stored, resolved)` says when a stored path already is the opened file under
+ * another spelling (prepareProject passes a disk-aware check); such a path is kept.
  */
 export function relocateOwnedPaths(
   projectFolder: string,
-  settings: Record<string, any>
+  settings: Record<string, any>,
+  samePath: (stored: string, resolved: string) => boolean = (a, b) => a === b
 ): { settings: Record<string, any>; changed: boolean; movedFrom?: string } {
   const next = structuredClone(settings);
   let changed = false;
@@ -31,7 +34,7 @@ export function relocateOwnedPaths(
     if (typeof stored !== 'string' || stored === '') continue;
 
     const resolved = path.join(projectFolder, path.basename(stored));
-    if (resolved !== stored) {
+    if (!samePath(stored, resolved)) {
       parent[key] = resolved;
       changed = true;
       movedFrom ??= path.dirname(stored);
