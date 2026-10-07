@@ -664,5 +664,14 @@
     "deleteRegion": "Eliminar región",
     "done": "Listo",
     "undoPoint": "Deshacer último punto"
+  },
+  "ProjectIssues": {
+    "locate": "Buscar…",
+    "videoMissing": "No se encuentra el video {{name}}. Los fotogramas extraídos siguen disponibles.",
+    "videoMismatch": "Este video es de {{foundWidth}}×{{foundHeight}} a {{foundFps}} fps; el proyecto se hizo con {{width}}×{{height}} a {{fps}} fps.",
+    "videoLocked": "Falta el video: búscalo para cambiar el rango, el paso o la estabilización.",
+    "bathymetryMissing": "Falta la batimetría de {{section}} ({{file}}).",
+    "bathymetryBlocksProcessing": "Busca la batimetría que falta antes de ejecutar el análisis.",
+    "ipcamImagesMissing": "No se encuentra la carpeta de imágenes {{folder}}."
   }
 }

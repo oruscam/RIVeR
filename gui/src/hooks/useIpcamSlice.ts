@@ -83,6 +83,7 @@ export const useIpcamSlice = () => {
           path: path,
         })
       );
+      return true;
     } catch (error) {
       // If the error is an instance of Error, wrap it in a ResourceNotFoundError with translation
       if (error instanceof Error) {

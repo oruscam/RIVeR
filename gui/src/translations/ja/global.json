@@ -658,5 +658,14 @@
     "deleteRegion": "領域を削除",
     "done": "完了",
     "undoPoint": "最後の点を元に戻す"
+  },
+  "ProjectIssues": {
+    "locate": "場所を指定…",
+    "videoMissing": "動画 {{name}} が見つかりません。抽出済みのフレームは引き続き利用できます。",
+    "videoMismatch": "この動画は {{foundWidth}}×{{foundHeight}}、{{foundFps}} fps です。プロジェクトは {{width}}×{{height}}、{{fps}} fps で作成されています。",
+    "videoLocked": "動画がありません。範囲、ステップ、スタビライゼーションを変更するには、動画の場所を指定してください。",
+    "bathymetryMissing": "{{section}} の水深データ（{{file}}）が見つかりません。",
+    "bathymetryBlocksProcessing": "解析を実行する前に、見つからない水深データの場所を指定してください。",
+    "ipcamImagesMissing": "画像フォルダー {{folder}} が見つかりません。"
   }
 }

@@ -26,6 +26,9 @@ interface StepAlert {
   id: string;
   level: 'info' | 'warning' | 'error';
   text: string;
+  /** Optional button on the card. `action` is a serializable id the page's onAction
+   *  maps to a call, e.g. `'locate-video'` or `'locate-bathymetry:CS_default_1'`. */
+  action?: { label: string; action: string };
 }
 
 interface UIState {

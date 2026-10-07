@@ -65,6 +65,17 @@
 .step-alert-warning::before { background: var(--status-fair); }
 .step-alert-error::before { background: var(--status-bad); }
 
+/* Project-issue cards (Locate…): text takes the room, the button sits at the end. */
+.step-alert-text {
+    flex: 1;
+    min-width: 0;
+}
+
+.step-alert-action {
+    flex: none;
+    align-self: center;
+}
+
 /* Optional title + body inside a .step-alert (Phase 6e, spec amendment A12).
    Additive: an alert whose only child is text renders exactly as before; an
    alert that needs a title wraps its content in .step-alert-content. First

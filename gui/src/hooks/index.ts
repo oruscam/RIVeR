@@ -11,6 +11,7 @@ import { useIpcamSlice } from './useIpcamSlice';
 import { useImageZoomPan } from './useImageZoomPan';
 import { useIwaveDefaults } from './useIwaveDefaults';
 import { useMaskedStations } from './useMaskedStations';
+import { useProjectIssues } from './useProjectIssues';
 import { useResizableCarousel } from './useResizableCarousel';
 import { useStivAngleOverride } from './useStivAngleOverride';
 import { useVelocityColorRange } from './useVelocityColorRange';
@@ -28,6 +29,7 @@ export {
   useStivAngleOverride,
   useUavSlice,
   useObliqueSlice,
+  useProjectIssues,
   useProjectSlice,
   useSectionSlice,
   useUiSlice,

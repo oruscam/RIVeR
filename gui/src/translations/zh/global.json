@@ -658,5 +658,14 @@
     "deleteRegion": "删除区域",
     "done": "完成",
     "undoPoint": "撤销上一个点"
+  },
+  "ProjectIssues": {
+    "locate": "定位…",
+    "videoMissing": "未找到视频 {{name}}。已提取的帧仍然可用。",
+    "videoMismatch": "此视频为 {{foundWidth}}×{{foundHeight}}，{{foundFps}} fps；该项目使用的是 {{width}}×{{height}}，{{fps}} fps。",
+    "videoLocked": "视频缺失：请先定位视频，才能更改范围、步长或稳定化设置。",
+    "bathymetryMissing": "缺少 {{section}} 的测深数据（{{file}}）。",
+    "bathymetryBlocksProcessing": "运行分析之前，请先定位缺失的测深数据。",
+    "ipcamImagesMissing": "未找到图像文件夹 {{folder}}。"
   }
 }

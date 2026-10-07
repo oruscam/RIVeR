@@ -664,5 +664,14 @@
     "deleteRegion": "Supprimer la région",
     "done": "Terminer",
     "undoPoint": "Annuler le dernier point"
+  },
+  "ProjectIssues": {
+    "locate": "Localiser…",
+    "videoMissing": "Vidéo {{name}} introuvable. Les images extraites sont toujours disponibles.",
+    "videoMismatch": "Cette vidéo fait {{foundWidth}}×{{foundHeight}} à {{foundFps}} i/s ; le projet a été créé avec {{width}}×{{height}} à {{fps}} i/s.",
+    "videoLocked": "La vidéo est introuvable : localisez-la pour modifier la plage, le pas ou la stabilisation.",
+    "bathymetryMissing": "La bathymétrie de {{section}} ({{file}}) est introuvable.",
+    "bathymetryBlocksProcessing": "Localisez la bathymétrie manquante avant de lancer l'analyse.",
+    "ipcamImagesMissing": "Dossier d'images {{folder}} introuvable."
   }
 }
