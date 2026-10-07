@@ -26,6 +26,7 @@ import {
   clearResults,
 } from '../store/section/sectionSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
+import { resolveSectionBathymetry } from '../store/project/projectSlice';
 import { FieldValues } from 'react-hook-form';
 import {
   adapterCrossSections,
@@ -619,6 +620,8 @@ export const useSectionSlice = () => {
    */
 
   const onDeleteSection = () => {
+    // A deleted section no longer needs its missing bathymetry.
+    dispatch(resolveSectionBathymetry(sections[activeSection].name));
     dispatch(deleteSection());
   };
 
@@ -772,6 +775,8 @@ export const useSectionSlice = () => {
             },
           })
         );
+        // A newly imported file replaces a missing one, so its Locate card goes.
+        dispatch(resolveSectionBathymetry(sections[activeSection].name));
 
         onUpdateSectionPoints(
           rwCalculated ? rwCalculated : rwPoints,
