@@ -298,6 +298,8 @@
     "title": "결과",
     "measured": "실측값",
     "interpolated": "보간값",
+    "keyRejected": "제외됨",
+    "keyTuned": "조정된 각도",
     "alpha": "알파 계수",
     "stationNumber": "측점 번호",
     "showVelStd": "유속 표준편차 표시",

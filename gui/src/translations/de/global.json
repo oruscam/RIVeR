@@ -299,6 +299,8 @@
     "title": "Ergebnisse",
     "measured": "Gemessen",
     "interpolated": "Interpoliert",
+    "keyRejected": "Verworfen",
+    "keyTuned": "Angepasster Winkel",
     "alpha": "Alpha",
     "stationNumber": "Stationsnummer",
     "showVelStd": "Zeige Geschw. Std.",

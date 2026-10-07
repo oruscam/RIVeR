@@ -303,6 +303,8 @@
     "title": "النتائج",
     "measured": "قيم مقيسة",
     "interpolated": "قيم محسوبة",
+    "keyRejected": "مستبعد",
+    "keyTuned": "زاوية معدّلة",
     "alpha": "معامل ألفا",
     "stationNumber": "رقم نقطة القياس",
     "showVelStd": "إظهار الانحراف المعياري للسرعة",

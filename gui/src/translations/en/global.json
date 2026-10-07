@@ -297,6 +297,8 @@
     "title": "Results",
     "measured": "Measured",
     "interpolated": "Interpolated",
+    "keyRejected": "Rejected",
+    "keyTuned": "Tuned angle",
     "alpha": "Alpha",
     "stationNumber": "Station Number",
     "showVelStd": "Show Vel. Std",
