@@ -33,6 +33,7 @@ import {
   getStis,
   loadResults,
   locateBathymetry,
+  locateVideo,
   projectsExist,
   projectThumbnails,
   createMaskAndBbox,
@@ -211,6 +212,7 @@ app.whenReady().then(async () => {
   firstFrame(riverCli);
   getBathimetry();
   locateBathymetry();
+  locateVideo();
   getDistances();
   getGif();
   getImages();
