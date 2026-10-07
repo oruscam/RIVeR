@@ -9,7 +9,7 @@ export const VideoMetadata = () => {
 
   const rows: Array<[string, string]> = [
     [t('VideoRange.ExtraInfo.fileName'), name],
-    [t('VideoRange.ExtraInfo.totalLength'), `${duration.toFixed(2)} s`],
+    [t('VideoRange.ExtraInfo.totalLength'), `${Number(duration).toFixed(2)} s`],
     [t('VideoRange.ExtraInfo.resolution'), `${width} × ${height}`],
     ['FPS', `${fps}`],
   ];
