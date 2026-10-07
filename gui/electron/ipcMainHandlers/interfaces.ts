@@ -35,7 +35,7 @@ interface Stream {
   start_pts: number;
   start_time: number;
   duration_ts: number;
-  duration: 'string';
+  duration: number;
   bit_rate: number;
   max_bit_rate: string;
   bits_per_raw_sample: number;
@@ -78,7 +78,7 @@ export interface Metadata {
     width: number;
     height: number;
     r_frame_rate: string;
-    duration: string;
+    duration: number;
     codec_type: string;
     rotation?: number;
   }[];
