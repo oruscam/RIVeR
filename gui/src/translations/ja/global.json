@@ -37,7 +37,7 @@
     "invalidFileType": "無効なファイル形式です。動画ファイルを選択してください。",
     "addYourFootage": "映像を追加",
     "changeType": "種類を変更",
-    "dragAndDrop": "動画ファイルをここにドラッグ＆ドロップ",
+    "dragAndDrop": "動画またはフレーム画像のフォルダーをここにドラッグ",
     "openFolders": "フォルダを開く",
     "footageType": {
       "uav": "ドローン",
@@ -46,6 +46,16 @@
       "obliqueDescription": "岸の三脚またはカメラ",
       "ipcam": "固定カメラ",
       "ipcamDescription": "IP / 監視カメラ局"
+    },
+    "chooseFramesFolder": "またはフレーム画像のフォルダーを選択",
+    "readingFolder": "フォルダーを読み込み中…",
+    "framesSummary": "{{count}} フレーム · {{width}} × {{height}}",
+    "timeBetweenFrames": "フレーム間隔",
+    "Errors": {
+      "noFrames": "このフォルダーには JPEG または PNG 画像が 2 枚未満しかありません。",
+      "mixedSizes": "このフォルダーの画像はサイズがそろっていません。",
+      "dropFolder": "画像ではなく、フレームが入ったフォルダーをドロップしてください。",
+      "unreadableFolder": "このフォルダーを読み込めませんでした。"
     }
   },
   "Wizard": {
@@ -66,14 +76,18 @@
       "step": "無効なステップ選択: 「ステップ」は1以上の整数でなければなりません。有効な値を入力してください。",
       "required": "すべてのフィールドは必須です。動画範囲フォームを確認してください。",
       "formatInput": "形式が正しくありません。「開始」と「終了」は「00:00」形式で入力してください。",
-      "profileResolutionMismatch": "プロファイルの解像度 ({{calW}}×{{calH}}) が動画と一致しません。別のカメラモデルを選択するか、この解像度でキャリブレーションしてください。"
+      "profileResolutionMismatch": "プロファイルの解像度 ({{calW}}×{{calH}}) が動画と一致しません。別のカメラモデルを選択するか、この解像度でキャリブレーションしてください。",
+      "frameRange": "開始と終了は 1 から {{count}} までの整数のフレーム番号で、開始は終了より前にしてください。",
+      "interval": "フレーム間隔は 0 より大きい数値にしてください。"
     },
     "ExtraInfo": {
       "fileName": "ファイル名:",
       "totalLength": "総再生時間: ",
       "timeBetweenFrame": "フレーム間隔: ",
       "resolution": "解像度: ",
-      "numberOfFrames": "フレーム数: "
+      "numberOfFrames": "フレーム数: ",
+      "folderName": "フォルダー",
+      "frameCount": "フレーム数"
     },
     "framesResolution": "フレーム解像度",
     "lensCorrection": "レンズ補正",
@@ -92,7 +106,8 @@
     "doneEditingRegion": "完了",
     "exitRegionEditing": "領域の編集を終了",
     "minRegionsHint": "安定化には 2 つ以上の領域を追加してください",
-    "minRegionsCount": "{{count}} / 最少 2"
+    "minRegionsCount": "{{count}} / 最少 2",
+    "sourceFrames": "元のフレーム"
   },
   "PixelSize": {
     "title": "ピクセルサイズ",
@@ -497,7 +512,9 @@
       "acrossRange": "処理範囲全体",
       "processing": "処理",
       "generatedWith": "RIVeR {{version}} で作成",
-      "inSolve": "計算に使用"
+      "inSolve": "計算に使用",
+      "sourceLabel": "ソース",
+      "imageSequence": "画像シーケンス · {{count}} フレーム · オペレーターが入力した間隔: {{ms}} ms"
     }
   },
   "ControlPoints": {
@@ -551,7 +568,8 @@
     "stabilizingFrames": "動画フレームを安定化中",
     "results": "流速プロファイル統計を生成中",
     "videoConversion": "動画をMP4形式に変換中です。しばらくお待ちください。",
-    "maskAndRoi": "ROIとマスクを定義中"
+    "maskAndRoi": "ROIとマスクを定義中",
+    "importingFrames": "フレームを取り込み中"
   },
   "Commons": {
     "yes": "はい",
@@ -668,6 +686,9 @@
     "bathymetryMissing": "{{section}} の水深データ（{{file}}）が見つかりません。",
     "bathymetryBlocksProcessing": "解析を実行する前に、見つからない水深データの場所を指定してください。",
     "videoUnreadable": "このファイルは動画として読み込めませんでした。",
-    "ipcamImagesMissing": "画像フォルダー {{folder}} が見つかりません。"
+    "ipcamImagesMissing": "画像フォルダー {{folder}} が見つかりません。",
+    "framesMissing": "フレームのフォルダー {{name}} が見つかりません。取り込み済みのフレームは引き続き利用できます。",
+    "framesMismatch": "このフォルダーは {{foundWidth}}×{{foundHeight}} の {{foundCount}} フレームです。プロジェクトは {{width}}×{{height}} の {{count}} フレームで作成されました。",
+    "framesLocked": "フレームのフォルダーがありません。範囲、ステップ、安定化を変更するには場所を指定してください。"
   }
 }

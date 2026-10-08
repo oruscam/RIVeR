@@ -37,7 +37,7 @@
     "invalidFileType": "유효하지 않은 파일 형식입니다. 동영상 파일을 선택해 주세요.",
     "addYourFootage": "영상 추가",
     "changeType": "유형 변경",
-    "dragAndDrop": "동영상 파일을 여기에 드래그 앤 드롭하세요",
+    "dragAndDrop": "동영상 또는 프레임 폴더를 여기로 끌어다 놓으세요",
     "openFolders": "폴더 열기",
     "footageType": {
       "uav": "드론",
@@ -46,6 +46,16 @@
       "obliqueDescription": "강변의 삼각대 또는 카메라",
       "ipcam": "고정 카메라",
       "ipcamDescription": "IP 또는 CCTV 관측소"
+    },
+    "chooseFramesFolder": "또는 프레임 폴더 선택",
+    "readingFolder": "폴더를 읽는 중…",
+    "framesSummary": "{{count}} 프레임 · {{width}} × {{height}}",
+    "timeBetweenFrames": "프레임 간 시간",
+    "Errors": {
+      "noFrames": "이 폴더에는 JPEG 또는 PNG 이미지가 2개 미만입니다.",
+      "mixedSizes": "이 폴더의 이미지 크기가 모두 같지 않습니다.",
+      "dropFolder": "이미지가 아니라 프레임이 들어 있는 폴더를 놓으세요.",
+      "unreadableFolder": "이 폴더를 읽을 수 없습니다."
     }
   },
   "Wizard": {
@@ -66,14 +76,18 @@
       "step": "유효하지 않은 단계 선택: '단계'는 1 이상의 정수여야 합니다. 유효한 값을 입력해 주세요.",
       "required": "모든 필드는 필수입니다. 동영상 범위 양식을 확인해 주세요.",
       "formatInput": "형식이 올바르지 않습니다. '시작'과 '종료' 값은 '00:00' 형식이어야 합니다.",
-      "profileResolutionMismatch": "프로파일 해상도({{calW}}×{{calH}})가 동영상과 일치하지 않습니다. 다른 카메라 모델을 선택하거나 이 해상도로 교정하세요."
+      "profileResolutionMismatch": "프로파일 해상도({{calW}}×{{calH}})가 동영상과 일치하지 않습니다. 다른 카메라 모델을 선택하거나 이 해상도로 교정하세요.",
+      "frameRange": "시작과 종료는 1부터 {{count}}까지의 정수 프레임 번호여야 하며, 시작이 종료보다 앞서야 합니다.",
+      "interval": "프레임 간 시간은 0보다 큰 숫자여야 합니다."
     },
     "ExtraInfo": {
       "fileName": "파일명:",
       "totalLength": "전체 길이: ",
       "timeBetweenFrame": "프레임 간격: ",
       "resolution": "해상도: ",
-      "numberOfFrames": "프레임 수: "
+      "numberOfFrames": "프레임 수: ",
+      "folderName": "폴더",
+      "frameCount": "프레임 수"
     },
     "framesResolution": "프레임 해상도",
     "lensCorrection": "렌즈 교정",
@@ -92,7 +106,8 @@
     "doneEditingRegion": "완료",
     "exitRegionEditing": "영역 편집 종료",
     "minRegionsHint": "안정화하려면 영역을 2개 이상 추가하세요",
-    "minRegionsCount": "{{count}} / 최소 2"
+    "minRegionsCount": "{{count}} / 최소 2",
+    "sourceFrames": "원본 프레임"
   },
   "PixelSize": {
     "title": "픽셀 크기",
@@ -497,7 +512,9 @@
       "acrossRange": "처리된 구간 전체",
       "processing": "처리",
       "generatedWith": "RIVeR {{version}}(으)로 생성",
-      "inSolve": "계산에 사용"
+      "inSolve": "계산에 사용",
+      "sourceLabel": "출처",
+      "imageSequence": "이미지 시퀀스 · {{count}} 프레임 · 운영자가 입력한 간격: {{ms}} ms"
     }
   },
   "ControlPoints": {
@@ -551,7 +568,8 @@
     "stabilizingFrames": "동영상 프레임 안정화 중",
     "results": "유속 프로파일 통계 생성 중",
     "videoConversion": "동영상을 MP4 형식으로 변환 중입니다. 잠시 기다려 주세요.",
-    "maskAndRoi": "관심 영역 및 마스크 정의 중"
+    "maskAndRoi": "관심 영역 및 마스크 정의 중",
+    "importingFrames": "프레임 가져오는 중"
   },
   "Commons": {
     "yes": "예",
@@ -668,6 +686,9 @@
     "bathymetryMissing": "{{section}}의 수심 데이터({{file}})가 없습니다.",
     "bathymetryBlocksProcessing": "분석을 실행하기 전에 누락된 수심 데이터의 위치를 지정하세요.",
     "videoUnreadable": "이 파일을 동영상으로 읽을 수 없습니다.",
-    "ipcamImagesMissing": "이미지 폴더 {{folder}}을(를) 찾을 수 없습니다."
+    "ipcamImagesMissing": "이미지 폴더 {{folder}}을(를) 찾을 수 없습니다.",
+    "framesMissing": "프레임 폴더 {{name}}을(를) 찾을 수 없습니다. 가져온 프레임은 계속 사용할 수 있습니다.",
+    "framesMismatch": "이 폴더에는 {{foundWidth}}×{{foundHeight}} 크기의 프레임이 {{foundCount}}개 있습니다. 프로젝트는 {{width}}×{{height}} 크기의 프레임 {{count}}개로 만들어졌습니다.",
+    "framesLocked": "프레임 폴더가 없습니다. 범위, 단계 또는 안정화를 변경하려면 폴더를 찾아 주세요."
   }
 }

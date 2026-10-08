@@ -37,7 +37,7 @@
     "invalidFileType": "अमान्य फ़ाइल प्रकार। कृपया एक वीडियो फ़ाइल चुनें।",
     "addYourFootage": "वीडियो जोड़ें",
     "changeType": "प्रकार बदलें",
-    "dragAndDrop": "अपनी वीडियो फ़ाइल यहाँ खींचें और छोड़ें",
+    "dragAndDrop": "यहाँ वीडियो या फ़्रेम का फ़ोल्डर खींचकर छोड़ें",
     "openFolders": "फ़ोल्डर खोलें",
     "footageType": {
       "uav": "ड्रोन",
@@ -46,6 +46,16 @@
       "obliqueDescription": "किनारे पर तिपाई या कैमरा",
       "ipcam": "स्थिर कैमरा",
       "ipcamDescription": "IP या CCTV स्टेशन"
+    },
+    "chooseFramesFolder": "या फ़्रेम का फ़ोल्डर चुनें",
+    "readingFolder": "फ़ोल्डर पढ़ा जा रहा है…",
+    "framesSummary": "{{count}} फ़्रेम · {{width}} × {{height}}",
+    "timeBetweenFrames": "फ़्रेम के बीच का समय",
+    "Errors": {
+      "noFrames": "इस फ़ोल्डर में 2 से कम JPEG या PNG चित्र हैं।",
+      "mixedSizes": "इस फ़ोल्डर के सभी चित्र एक ही आकार के नहीं हैं।",
+      "dropFolder": "चित्र नहीं, वह फ़ोल्डर छोड़ें जिसमें फ़्रेम हैं।",
+      "unreadableFolder": "यह फ़ोल्डर पढ़ा नहीं जा सका।"
     }
   },
   "Wizard": {
@@ -66,14 +76,18 @@
       "step": "अमान्य चरण चयन: 'चरण' 1 या उससे बड़ा पूर्णांक होना चाहिए। कृपया एक वैध मान दर्ज करें।",
       "required": "सभी फ़ील्ड अनिवार्य हैं। कृपया वीडियो सीमा फ़ॉर्म जाँचें।",
       "formatInput": "गलत प्रारूप। 'प्रारंभ' और 'समाप्ति' मान '00:00' प्रारूप में होने चाहिए।",
-      "profileResolutionMismatch": "प्रोफ़ाइल रिज़ॉल्यूशन ({{calW}}×{{calH}}) वीडियो से मेल नहीं खाता। कोई अन्य कैमरा मॉडल चुनें या इस रिज़ॉल्यूशन के लिए कैलिब्रेट करें।"
+      "profileResolutionMismatch": "प्रोफ़ाइल रिज़ॉल्यूशन ({{calW}}×{{calH}}) वीडियो से मेल नहीं खाता। कोई अन्य कैमरा मॉडल चुनें या इस रिज़ॉल्यूशन के लिए कैलिब्रेट करें।",
+      "frameRange": "प्रारंभ और समाप्ति 1 से {{count}} तक की पूर्ण फ़्रेम संख्याएँ होनी चाहिए, और प्रारंभ समाप्ति से पहले होना चाहिए।",
+      "interval": "फ़्रेम के बीच का समय 0 से बड़ी संख्या होनी चाहिए।"
     },
     "ExtraInfo": {
       "fileName": "फ़ाइल का नाम:",
       "totalLength": "कुल अवधि: ",
       "timeBetweenFrame": "फ़्रेम के बीच समय: ",
       "resolution": "रिज़ॉल्यूशन: ",
-      "numberOfFrames": "फ़्रेम की संख्या: "
+      "numberOfFrames": "फ़्रेम की संख्या: ",
+      "folderName": "फ़ोल्डर",
+      "frameCount": "फ़्रेम"
     },
     "framesResolution": "फ़्रेम रिज़ॉल्यूशन",
     "lensCorrection": "लेंस सुधार",
@@ -92,7 +106,8 @@
     "doneEditingRegion": "हो गया",
     "exitRegionEditing": "क्षेत्र संपादन से बाहर निकलें",
     "minRegionsHint": "स्थिर करने के लिए कम से कम 2 क्षेत्र जोड़ें",
-    "minRegionsCount": "न्यूनतम 2 में से {{count}}"
+    "minRegionsCount": "न्यूनतम 2 में से {{count}}",
+    "sourceFrames": "स्रोत फ़्रेम"
   },
   "PixelSize": {
     "title": "पिक्सेल आकार",
@@ -501,7 +516,9 @@
       "acrossRange": "संसाधित रेंज में",
       "processing": "प्रसंस्करण",
       "generatedWith": "RIVeR {{version}} से बनाया गया",
-      "inSolve": "गणना में"
+      "inSolve": "गणना में",
+      "sourceLabel": "स्रोत",
+      "imageSequence": "चित्र अनुक्रम · {{count}} फ़्रेम · ऑपरेटर द्वारा दर्ज अंतराल: {{ms}} ms"
     }
   },
   "ControlPoints": {
@@ -555,7 +572,8 @@
     "stabilizingFrames": "वीडियो फ़्रेम स्थिर किए जा रहे हैं",
     "results": "वेग प्रोफ़ाइल सांख्यिकी तैयार की जा रही है",
     "videoConversion": "वीडियो को MP4 प्रारूप में बदला जा रहा है। कृपया प्रतीक्षा करें।",
-    "maskAndRoi": "रुचि क्षेत्र और मास्क परिभाषित किए जा रहे हैं"
+    "maskAndRoi": "रुचि क्षेत्र और मास्क परिभाषित किए जा रहे हैं",
+    "importingFrames": "फ़्रेम आयात किए जा रहे हैं"
   },
   "Commons": {
     "yes": "हाँ",
@@ -674,6 +692,9 @@
     "bathymetryMissing": "{{section}} ({{file}}) की बैथिमेट्री गायब है।",
     "bathymetryBlocksProcessing": "विश्लेषण चलाने से पहले गायब बैथिमेट्री को खोजें।",
     "videoUnreadable": "इस फ़ाइल को वीडियो के रूप में नहीं पढ़ा जा सका।",
-    "ipcamImagesMissing": "इमेज फ़ोल्डर {{folder}} नहीं मिला।"
+    "ipcamImagesMissing": "इमेज फ़ोल्डर {{folder}} नहीं मिला।",
+    "framesMissing": "फ़्रेम फ़ोल्डर {{name}} नहीं मिला। आयात किए गए फ़्रेम अब भी उपलब्ध हैं।",
+    "framesMismatch": "इस फ़ोल्डर में {{foundWidth}}×{{foundHeight}} के {{foundCount}} फ़्रेम हैं; प्रोजेक्ट {{width}}×{{height}} के {{count}} फ़्रेम से बनाया गया था।",
+    "framesLocked": "फ़्रेम फ़ोल्डर नहीं मिल रहा: सीमा, चरण या स्थिरीकरण बदलने के लिए उसे खोजें।"
   }
 }

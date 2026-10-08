@@ -37,7 +37,7 @@
     "invalidFileType": "Tipo de archivo inválido. Por favor seleccione un archivo de video.",
     "addYourFootage": "Añade tu video",
     "changeType": "Cambiar tipo",
-    "dragAndDrop": "Arrastra y suelta tu archivo de video aquí",
+    "dragAndDrop": "Arrastra aquí un video o una carpeta de fotogramas",
     "openFolders": "Abrir Carpeta",
     "footageType": {
       "uav": "Dron",
@@ -46,6 +46,16 @@
       "obliqueDescription": "Trípode o cámara en la orilla",
       "ipcam": "Cámara fija",
       "ipcamDescription": "Estación IP o CCTV"
+    },
+    "chooseFramesFolder": "o elige una carpeta de fotogramas",
+    "readingFolder": "Leyendo la carpeta…",
+    "framesSummary": "{{count}} fotogramas · {{width}} × {{height}}",
+    "timeBetweenFrames": "Tiempo entre fotogramas",
+    "Errors": {
+      "noFrames": "Esta carpeta tiene menos de 2 imágenes JPEG o PNG.",
+      "mixedSizes": "Las imágenes de esta carpeta no tienen todas el mismo tamaño.",
+      "dropFolder": "Suelta la carpeta que contiene los fotogramas, no las imágenes.",
+      "unreadableFolder": "No se pudo leer esta carpeta."
     }
   },
   "Wizard": {
@@ -66,14 +76,18 @@
       "step": "Selección de Paso de Tiempo inválida: el parámetro 'Paso de Tiempo' debe ser un número entero mayor o igual que 1. Ingrese un valor válido.",
       "required": "Todos los campos son obligatorios. Por favor consulte el formato del intervalo de video.",
       "formatInput": "Formato incorrecto. El formato de 'Inicio' y 'Fin' debe ser '00:00'.",
-      "profileResolutionMismatch": "La resolución del perfil ({{calW}}×{{calH}}) no coincide con el video. Seleccioná otro modelo de cámara o calibrá para esta resolución."
+      "profileResolutionMismatch": "La resolución del perfil ({{calW}}×{{calH}}) no coincide con el video. Seleccioná otro modelo de cámara o calibrá para esta resolución.",
+      "frameRange": "Inicio y Fin deben ser números enteros de fotograma entre 1 y {{count}}, con Inicio antes que Fin.",
+      "interval": "El tiempo entre fotogramas debe ser un número mayor que 0."
     },
     "ExtraInfo": {
       "fileName": "Nombre de Archivo: ",
       "totalLength": "Duración Total: ",
       "timeBetweenFrame": "Tiempo entre Imágenes: ",
       "resolution": "Resolución: ",
-      "numberOfFrames": "Número de Imágenes: "
+      "numberOfFrames": "Número de Imágenes: ",
+      "folderName": "Carpeta",
+      "frameCount": "Fotogramas"
     },
     "framesResolution": "Resolución de Imágenes",
     "lensCorrection": "Corrección de lente",
@@ -92,7 +106,8 @@
     "doneEditingRegion": "Listo",
     "exitRegionEditing": "Salir de la edición de regiones",
     "minRegionsHint": "Agregue al menos 2 regiones para estabilizar",
-    "minRegionsCount": "{{count}} de 2 mín."
+    "minRegionsCount": "{{count}} de 2 mín.",
+    "sourceFrames": "Fotogramas de origen"
   },
   "PixelSize": {
     "title": "Tamaño de Píxel",
@@ -501,7 +516,9 @@
       "acrossRange": "En el rango procesado",
       "processing": "Procesamiento",
       "generatedWith": "Generado con RIVeR {{version}}",
-      "inSolve": "En el cálculo"
+      "inSolve": "En el cálculo",
+      "sourceLabel": "Origen",
+      "imageSequence": "Secuencia de imágenes · {{count}} fotogramas · intervalo ingresado por el operador: {{ms}} ms"
     }
   },
   "ControlPoints": {
@@ -555,7 +572,8 @@
     "stabilizingFrames": "Estabilizando imágenes de video.",
     "results": "Generando estadísticas del perfil de velocidad.",
     "videoConversion": "Convirtiendo el video a formato mp4. Por favor espere.",
-    "maskAndRoi": "Definiendo RDI y máscaras."
+    "maskAndRoi": "Definiendo RDI y máscaras.",
+    "importingFrames": "Importando fotogramas"
   },
   "Commons": {
     "yes": "Sí",
@@ -674,6 +692,9 @@
     "bathymetryMissing": "Falta la batimetría de {{section}} ({{file}}).",
     "bathymetryBlocksProcessing": "Busca la batimetría que falta antes de ejecutar el análisis.",
     "videoUnreadable": "Este archivo no se pudo leer como video.",
-    "ipcamImagesMissing": "No se encuentra la carpeta de imágenes {{folder}}."
+    "ipcamImagesMissing": "No se encuentra la carpeta de imágenes {{folder}}.",
+    "framesMissing": "No se encontró la carpeta de fotogramas {{name}}. Los fotogramas importados siguen disponibles.",
+    "framesMismatch": "Esta carpeta tiene {{foundCount}} fotogramas de {{foundWidth}}×{{foundHeight}}; el proyecto se hizo con {{count}} fotogramas de {{width}}×{{height}}.",
+    "framesLocked": "Falta la carpeta de fotogramas: ubícala para cambiar el rango, el paso o la estabilización."
   }
 }

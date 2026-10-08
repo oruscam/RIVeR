@@ -37,7 +37,7 @@
     "invalidFileType": "Tipo de arquivo inválido. Por favor selecione um arquivo de vídeo.",
     "addYourFootage": "Adicione sua filmagem",
     "changeType": "Alterar tipo",
-    "dragAndDrop": "Arraste e solte seu arquivo de vídeo aqui",
+    "dragAndDrop": "Arraste aqui um vídeo ou uma pasta de quadros",
     "openFolders": "Abrir pasta",
     "footageType": {
       "uav": "Drone",
@@ -46,6 +46,16 @@
       "obliqueDescription": "Tripé ou câmera na margem",
       "ipcam": "Câmera fixa",
       "ipcamDescription": "Estação IP ou CFTV"
+    },
+    "chooseFramesFolder": "ou escolha uma pasta de quadros",
+    "readingFolder": "Lendo a pasta…",
+    "framesSummary": "{{count}} quadros · {{width}} × {{height}}",
+    "timeBetweenFrames": "Tempo entre quadros",
+    "Errors": {
+      "noFrames": "Esta pasta tem menos de 2 imagens JPEG ou PNG.",
+      "mixedSizes": "As imagens desta pasta não têm todas o mesmo tamanho.",
+      "dropFolder": "Solte a pasta que contém os quadros, não as imagens.",
+      "unreadableFolder": "Não foi possível ler esta pasta."
     }
   },
   "Wizard": {
@@ -66,14 +76,18 @@
       "step": "Seleção de Passo Temporal inválida: o parâmetro 'Passo Temporal' deve ser um número inteiro maior ou igual a 1. Por favor, insira um valor válido.",
       "required": "Todos os campos são obrigatórios. Verifique o formulário do intervalo de vídeo.",
       "formatInput": "Formato incorreto. Os valores de 'Início' e 'Fim' devem estar no formato '00:00'.",
-      "profileResolutionMismatch": "A resolução do perfil ({{calW}}×{{calH}}) não corresponde ao vídeo. Selecione outro modelo de câmera ou calibre para esta resolução."
+      "profileResolutionMismatch": "A resolução do perfil ({{calW}}×{{calH}}) não corresponde ao vídeo. Selecione outro modelo de câmera ou calibre para esta resolução.",
+      "frameRange": "Início e Fim devem ser números inteiros de quadro entre 1 e {{count}}, com Início antes de Fim.",
+      "interval": "O tempo entre quadros deve ser um número maior que 0."
     },
     "ExtraInfo": {
       "fileName": "Nome do arquivo:",
       "totalLength": "Duração total: ",
       "timeBetweenFrame": "Tempo entre quadros: ",
       "resolution": "Resolução: ",
-      "numberOfFrames": "Número de quadros: "
+      "numberOfFrames": "Número de quadros: ",
+      "folderName": "Pasta",
+      "frameCount": "Quadros"
     },
     "framesResolution": "Resolução dos quadros",
     "lensCorrection": "Correção de lente",
@@ -92,7 +106,8 @@
     "doneEditingRegion": "Concluir",
     "exitRegionEditing": "Sair da edição de regiões",
     "minRegionsHint": "Adicione pelo menos 2 regiões para estabilizar",
-    "minRegionsCount": "{{count}} de 2 mín."
+    "minRegionsCount": "{{count}} de 2 mín.",
+    "sourceFrames": "Quadros de origem"
   },
   "PixelSize": {
     "title": "Tamanho do Pixel",
@@ -501,7 +516,9 @@
       "acrossRange": "No intervalo processado",
       "processing": "Processamento",
       "generatedWith": "Gerado com RIVeR {{version}}",
-      "inSolve": "No cálculo"
+      "inSolve": "No cálculo",
+      "sourceLabel": "Origem",
+      "imageSequence": "Sequência de imagens · {{count}} quadros · intervalo informado pelo operador: {{ms}} ms"
     }
   },
   "ControlPoints": {
@@ -555,7 +572,8 @@
     "stabilizingFrames": "Estabilizando Quadros do Vídeo",
     "results": "Gerando estatísticas do perfil de velocidade",
     "videoConversion": "Convertendo o vídeo para o formato mp4. Aguarde um momento.",
-    "maskAndRoi": "Definindo ROI e máscaras"
+    "maskAndRoi": "Definindo ROI e máscaras",
+    "importingFrames": "Importando quadros"
   },
   "Commons": {
     "yes": "Sim",
@@ -674,6 +692,9 @@
     "bathymetryMissing": "A batimetria de {{section}} ({{file}}) está ausente.",
     "bathymetryBlocksProcessing": "Localize a batimetria ausente antes de executar a análise.",
     "videoUnreadable": "Este arquivo não pôde ser lido como vídeo.",
-    "ipcamImagesMissing": "Pasta de imagens {{folder}} não encontrada."
+    "ipcamImagesMissing": "Pasta de imagens {{folder}} não encontrada.",
+    "framesMissing": "Pasta de quadros {{name}} não encontrada. Os quadros importados continuam disponíveis.",
+    "framesMismatch": "Esta pasta tem {{foundCount}} quadros de {{foundWidth}}×{{foundHeight}}; o projeto foi feito com {{count}} quadros de {{width}}×{{height}}.",
+    "framesLocked": "A pasta de quadros está ausente: localize-a para alterar o intervalo, o passo ou a estabilização."
   }
 }
