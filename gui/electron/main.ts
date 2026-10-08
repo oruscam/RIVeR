@@ -214,7 +214,7 @@ app.whenReady().then(async () => {
   framesFolder(riverCli);
   getBathimetry();
   locateBathymetry();
-  locateVideo();
+  locateVideo(riverCli);
   getDistances();
   getGif();
   getImages();

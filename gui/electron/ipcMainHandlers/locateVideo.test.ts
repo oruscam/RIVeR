@@ -8,7 +8,7 @@ jest.mock('electron', () => ({
 }));
 jest.mock('./utils/getVideoMetadata', () => ({ getVideoMetadata: (p: string) => mockGetVideoMetadata(p) }));
 
-const mockConfig = { settingsPath: '', videoPath: '', defaultFilesPath: '' };
+const mockConfig = { settingsPath: '', videoPath: '', defaultFilesPath: '', logsPath: '' };
 jest.mock('../main', () => ({ PROJECT_CONFIG: mockConfig }));
 
 import * as fs from 'fs';
@@ -18,7 +18,7 @@ import { locateVideo } from './locateVideo';
 
 let project: string;
 
-beforeAll(() => locateVideo());
+beforeAll(() => locateVideo(jest.fn() as any));
 
 beforeEach(() => {
   project = fs.mkdtempSync(path.join(os.tmpdir(), 'river-locate-video-'));
@@ -26,7 +26,9 @@ beforeEach(() => {
   mockConfig.videoPath = '/gone/DJI_0083.MP4';
   fs.writeFileSync(
     mockConfig.settingsPath,
-    JSON.stringify({ video: { filepath: '/gone/DJI_0083.MP4', fps: 30, resolution: { width: 4096, height: 2160 } } })
+    JSON.stringify({
+      video: { filepath: '/gone/DJI_0083.MP4', fps: 30, resolution: { width: 4096, height: 2160 } },
+    })
   );
   mockShowOpenDialog.mockReset();
   mockGetVideoMetadata.mockReset();
@@ -99,5 +101,74 @@ describe('locate-video', () => {
     expect(result).toEqual({ status: 'error', message: 'No se pudo convertir el video a mp4' });
     expect(settings().video.filepath).toBe('/gone/DJI_0083.MP4');
     expect(mockConfig.videoPath).toBe('/gone/DJI_0083.MP4');
+  });
+});
+
+describe('locate-video for a frames project', () => {
+  const riverCli = jest.fn();
+  const framesSettings = {
+    video: {
+      source: 'frames',
+      filepath: '/gone/gauging',
+      name: 'gauging',
+      frame_count: 240,
+      total_length: 9.6,
+      time_between_frames: 0.04,
+      fps: 25,
+      resolution: { width: 1920, height: 1080 },
+    },
+  };
+
+  beforeAll(() => locateVideo(riverCli as any));
+  beforeEach(() => {
+    riverCli.mockReset();
+    fs.writeFileSync(mockConfig.settingsPath, JSON.stringify(framesSettings));
+    mockShowOpenDialog.mockResolvedValue({ canceled: false, filePaths: ['/found/gauging'] });
+  });
+
+  it('opens a folder dialog and never probes a video', async () => {
+    riverCli.mockResolvedValue({ data: { count: 240, width: 1920, height: 1080, files: [] }, error: {} });
+
+    await mockHandlers['locate-video']({});
+
+    expect(mockShowOpenDialog.mock.calls[0][0].properties).toEqual(['openDirectory']);
+    expect(mockGetVideoMetadata).not.toHaveBeenCalled();
+    expect(riverCli.mock.calls[0][0]).toEqual(['frames-info', '/found/gauging']);
+  });
+
+  it('accepts a folder with the same resolution and frame count and saves its path', async () => {
+    riverCli.mockResolvedValue({ data: { count: 240, width: 1920, height: 1080, files: [] }, error: {} });
+
+    const result = await mockHandlers['locate-video']({});
+
+    expect(result.status).toBe('ok');
+    expect(result.metadata).toMatchObject({
+      path: '/found/gauging',
+      name: 'gauging',
+      source: 'frames',
+      frameCount: 240,
+    });
+    expect(settings().video.filepath).toBe('/found/gauging');
+    expect(settings().video.fps).toBe(25);
+    expect(mockConfig.videoPath).toBe('/found/gauging');
+  });
+
+  it('refuses a folder with another frame count and changes nothing', async () => {
+    riverCli.mockResolvedValue({ data: { count: 120, width: 1920, height: 1080, files: [] }, error: {} });
+
+    const result = await mockHandlers['locate-video']({});
+
+    expect(result).toEqual({
+      status: 'mismatch',
+      expected: { width: 1920, height: 1080, fps: 25, frameCount: 240 },
+      found: { width: 1920, height: 1080, fps: 25, frameCount: 120 },
+    });
+    expect(settings().video.filepath).toBe('/gone/gauging');
+  });
+
+  it('reports a folder that is not a frames folder', async () => {
+    riverCli.mockResolvedValue({ data: {}, error: { message: 'noFrames' } });
+
+    expect(await mockHandlers['locate-video']({})).toEqual({ status: 'error', message: 'noFrames' });
   });
 });
