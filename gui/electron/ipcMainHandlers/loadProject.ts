@@ -146,9 +146,11 @@ async function handleLoadProject(
 
   // A missing video no longer fails the load: the extracted frames are enough for
   // everything except playback and re-extraction (spec §3).
-  const videoMetadata = videoMissing
-    ? videoMetadataFromSettings(settingsParsed.video)
-    : await getVideoMetadata(settingsParsed.video.filepath);
+  // A frames project has no file to probe: settings.json already holds every fact.
+  const videoMetadata =
+    videoMissing || settingsParsed.video.source === 'frames'
+      ? videoMetadataFromSettings(settingsParsed.video)
+      : await getVideoMetadata(settingsParsed.video.filepath);
 
   // Return the loaded project data
   return {

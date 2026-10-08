@@ -14,4 +14,6 @@ export interface VideoSpec {
   width: number;
   height: number;
   fps: number;
+  /** Frames projects only: a located folder must hold the same number of frames. */
+  frameCount?: number;
 }
