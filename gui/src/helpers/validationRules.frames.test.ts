@@ -26,6 +26,15 @@ describe('getFrameValidationRules', () => {
     expect(rules({ start: '12', end: '10' }).start.validate('12')).toBe(true);
   });
 
+  it('refuses Start and End that Number() and parseInt() would read differently', () => {
+    expect(rules({ start: '1e1', end: '20' }).start.validate('1e1')).toBe('VideoRange.Errors.frameRange');
+    expect(rules({ start: '0x10', end: '20' }).start.validate('0x10')).toBe('VideoRange.Errors.frameRange');
+    expect(rules({ start: '1', end: '1e2' }).end.validate('1e2')).toBe('VideoRange.Errors.frameRange');
+    expect(rules({ start: '1', end: '0x10' }).end.validate('0x10')).toBe('VideoRange.Errors.frameRange');
+    expect(rules({ start: '1e1', end: '20' }).end.validate('20')).toBe('VideoRange.Errors.frameRange');
+    expect(rules({ start: ' 5 ', end: '10' }).start.validate(' 5 ')).toBe(true);
+  });
+
   it('accepts a decimal comma in the interval and refuses zero', () => {
     const r = rules({});
     expect(r.interval.validate('33,3')).toBe(true);
