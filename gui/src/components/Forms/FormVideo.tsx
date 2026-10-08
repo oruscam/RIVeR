@@ -3,11 +3,12 @@ import { FieldValues, useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useUiSlice } from '../../hooks/useUiSlice';
 import { useWizard } from 'react-use-wizard';
-import { getValidationRules } from '../../helpers/validationRules';
+import { getFrameValidationRules, getValidationRules } from '../../helpers/validationRules';
 import { useProjectSlice, useProjectIssues } from '../../hooks';
 import './form.css';
-import { formatTime } from '../../helpers';
+import { formatNumberTo2Decimals, formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
+import { fpsFromInterval, parseInterval, selectedFrameCount } from '../../../commons/framesSource';
 import { VideoMetadata, FramesResolution, LensCorrection, StabilizationRegions } from './Components/index';
 import { FieldError } from '../index';
 import { Icons } from '../CustomIcons/Icons';
@@ -21,19 +22,30 @@ export const FormVideo = ({
   extraFields: boolean;
   currentFrame?: number;
 }) => {
-  void currentFrame; // Task 10 reads it
   const { onSetVideoParameters, video: videoData, type } = useProjectSlice();
   const { startTime, endTime, step } = videoData.parameters;
+  const { startFrame, endFrame } = videoData.parameters;
 
   const { fps } = videoData.data;
+  const { source, frameCount = 0, intervalMs } = videoData.data;
+  const frames = source === 'frames';
   const { videoMissing } = useProjectIssues('video');
 
   const { handleSubmit, register, setValue, getValues, watch } = useForm({
-    defaultValues: {
-      start: formatTime(startTime, 'mm:ss'),
-      end: formatTime(endTime !== 0 ? endTime : duration, 'mm:ss'),
-      step: step,
-    },
+    defaultValues: frames
+      ? {
+          // 1-based frame numbers; endFrame is 0 until the first extraction.
+          start: String(startFrame + 1),
+          end: String(endFrame !== 0 ? endFrame : frameCount),
+          step: step,
+          interval: intervalMs ? String(intervalMs) : '',
+        }
+      : {
+          start: formatTime(startTime, 'mm:ss'),
+          end: formatTime(endTime !== 0 ? endTime : duration, 'mm:ss'),
+          step: step,
+          interval: '',
+        },
   });
 
   const [video, setVideo] = useState<HTMLVideoElement | null>(null);
@@ -44,31 +56,46 @@ export const FormVideo = ({
   const watchStep = watch('step');
   const watchStartTime = watch('start');
   const watchEndTime = watch('end');
+  const watchInterval = watch('interval');
 
   useEffect(() => {
     onClearFieldError('step');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchStep]);
 
-  const validationRules = getValidationRules(t, getValues, duration);
+  const frameRules = getFrameValidationRules(t, getValues, frameCount);
+  const validationRules = frames ? frameRules : getValidationRules(t, getValues, duration);
 
-  const timeBetweenFrames = ((1 / (fps || 0)) * watchStep * 1000).toFixed(2);
+  // What the user is typing right now, so the summary follows an edited interval.
+  const typedInterval = parseInterval(String(watchInterval ?? ''));
+  const timeBetweenFrames = frames
+    ? ((typedInterval ?? 0) * watchStep).toFixed(2)
+    : ((1 / (fps || 0)) * watchStep * 1000).toFixed(2);
 
-  const numberOfFrames = Math.floor(((parseTime(watchEndTime) - parseTime(watchStartTime)) * fps) / watchStep);
+  const numberOfFrames = frames
+    ? selectedFrameCount(Number(watchStartTime) - 1, Number(watchEndTime), Number(watchStep))
+    : Math.floor(((parseTime(watchEndTime) - parseTime(watchStartTime)) * fps) / watchStep);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-    if (video === null) return;
-    const number = video.currentTime;
     // currentTarget is the button itself; the click's own target is the icon inside it, which has no id.
     const id = event.currentTarget.id;
-    if (id === 'start-button') {
-      setValue('start', formatTime(number, 'mm:ss'), { shouldValidate: true });
-    } else if (id === 'end-button') {
-      setValue('end', formatTime(number, 'mm:ss'), { shouldValidate: true });
+    const field = id === 'start-button' ? 'start' : id === 'end-button' ? 'end' : null;
+    if (field === null) return;
+    if (frames) {
+      // The player's index is 0-based; the form shows 1-based frame numbers.
+      setValue(field, String(currentFrame + 1), { shouldValidate: true });
+      return;
     }
+    if (video === null) return;
+    setValue(field, formatTime(video.currentTime, 'mm:ss'), { shouldValidate: true });
   };
 
   const handleBlur = (event: React.FocusEvent<HTMLInputElement>) => {
+    if (frames) {
+      // Frame numbers are validated as typed; only a video's times are reformatted to mm:ss.
+      onClearFieldError(event.target.id);
+      return;
+    }
     let value = event.target.value;
     const id = event.target.id;
     const timeformat = identifyTimeFormat(value);
@@ -93,6 +120,11 @@ export const FormVideo = ({
       const id = (event.target as HTMLInputElement).id;
 
       if (id === 'step') return;
+      if (frames) {
+        onClearFieldError(id);
+        document.getElementById(id === 'start' ? 'end' : 'input-step')?.focus();
+        return;
+      }
 
       let value = (event.target as HTMLInputElement).value;
       const timeformat = identifyTimeFormat(value);
@@ -177,7 +209,7 @@ export const FormVideo = ({
         <fieldset
           className="fieldset-plain"
           disabled={videoMissing}
-          title={videoMissing ? t('ProjectIssues.videoLocked') : undefined}
+          title={videoMissing ? t(frames ? 'ProjectIssues.framesLocked' : 'ProjectIssues.videoLocked') : undefined}
         >
           <div className="panel-section">
             <div className="field-row field-row-top">
@@ -197,7 +229,8 @@ export const FormVideo = ({
                 </button>
                 <input
                   className="field field-coord"
-                  defaultValue="00:00"
+                  defaultValue={frames ? '1' : '00:00'}
+                  inputMode={frames ? 'numeric' : undefined}
                   id="start"
                   type="text"
                   {...register('start', validationRules.start)}
@@ -226,7 +259,8 @@ export const FormVideo = ({
                 <input
                   type="text"
                   className="field field-coord"
-                  defaultValue="00:00"
+                  defaultValue={frames ? '1' : '00:00'}
+                  inputMode={frames ? 'numeric' : undefined}
                   id="end"
                   {...register('end', validationRules.end)}
                   onBlur={handleBlur}
@@ -265,7 +299,32 @@ export const FormVideo = ({
               and the on/off switch itself must always be reachable to turn it on. */}
           {type !== 'ipcam' && <StabilizationRegions />}
 
-          <VideoMetadata />
+          <VideoMetadata
+            intervalField={
+              <>
+                <div className="field-row field-row-top">
+                  <label className="field-row-label" htmlFor="interval">
+                    {t('Step-2.timeBetweenFrames')}
+                  </label>
+                  <span className="field-with-unit">
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      autoComplete="off"
+                      id="interval"
+                      className="field field-coord"
+                      {...register('interval', frames ? frameRules.interval : undefined)}
+                    />
+                    <span className="field-unit">ms</span>
+                  </span>
+                </div>
+                <p className="field-readonly panel-summary">
+                  {typedInterval !== null ? `${formatNumberTo2Decimals(fpsFromInterval(typedInterval))} fps` : ''}
+                </p>
+                <FieldError name="interval" />
+              </>
+            }
+          />
 
           {extraFields && (
             <div className="panel-advanced">
