@@ -37,7 +37,7 @@
     "invalidFileType": "文件类型无效，请选择视频文件。",
     "addYourFootage": "添加影像",
     "changeType": "更改类型",
-    "dragAndDrop": "将视频文件拖放至此处",
+    "dragAndDrop": "将视频或帧图像文件夹拖到此处",
     "openFolders": "打开文件夹",
     "footageType": {
       "uav": "无人机",
@@ -46,6 +46,16 @@
       "obliqueDescription": "岸边的三脚架或相机",
       "ipcam": "固定摄像机",
       "ipcamDescription": "IP 或监控站点"
+    },
+    "chooseFramesFolder": "或选择帧图像文件夹",
+    "readingFolder": "正在读取文件夹…",
+    "framesSummary": "{{count}} 帧 · {{width}} × {{height}}",
+    "timeBetweenFrames": "帧间隔时间",
+    "Errors": {
+      "noFrames": "此文件夹中的 JPEG 或 PNG 图像少于 2 张。",
+      "mixedSizes": "此文件夹中的图像尺寸不一致。",
+      "dropFolder": "请拖入包含帧图像的文件夹，而不是图像本身。",
+      "unreadableFolder": "无法读取此文件夹。"
     }
   },
   "Wizard": {
@@ -66,14 +76,18 @@
       "step": "步长选择无效：「步长」必须为大于或等于 1 的整数，请输入有效值。",
       "required": "所有字段均为必填项，请检查视频范围表单。",
       "formatInput": "格式不正确，「开始」和「结束」值必须为「00:00」格式。",
-      "profileResolutionMismatch": "配置文件分辨率 ({{calW}}×{{calH}}) 与视频不匹配。请选择其他相机型号或针对此分辨率重新标定。"
+      "profileResolutionMismatch": "配置文件分辨率 ({{calW}}×{{calH}}) 与视频不匹配。请选择其他相机型号或针对此分辨率重新标定。",
+      "frameRange": "开始和结束必须是 1 到 {{count}} 之间的整数帧号，且开始早于结束。",
+      "interval": "帧间隔时间必须是大于 0 的数字。"
     },
     "ExtraInfo": {
       "fileName": "文件名:",
       "totalLength": "总时长: ",
       "timeBetweenFrame": "帧间隔: ",
       "resolution": "分辨率: ",
-      "numberOfFrames": "帧数: "
+      "numberOfFrames": "帧数: ",
+      "folderName": "文件夹",
+      "frameCount": "帧数"
     },
     "framesResolution": "帧分辨率",
     "lensCorrection": "镜头校正",
@@ -92,7 +106,8 @@
     "doneEditingRegion": "完成",
     "exitRegionEditing": "退出区域编辑",
     "minRegionsHint": "至少添加 2 个区域才能稳定",
-    "minRegionsCount": "{{count}} / 最少 2"
+    "minRegionsCount": "{{count}} / 最少 2",
+    "sourceFrames": "源帧"
   },
   "PixelSize": {
     "title": "像素尺寸",
@@ -497,7 +512,9 @@
       "acrossRange": "在已处理范围内",
       "processing": "处理",
       "generatedWith": "由 RIVeR {{version}} 生成",
-      "inSolve": "参与求解"
+      "inSolve": "参与求解",
+      "sourceLabel": "来源",
+      "imageSequence": "图像序列 · {{count}} 帧 · 操作员输入的间隔：{{ms}} 毫秒"
     }
   },
   "ControlPoints": {
@@ -551,7 +568,8 @@
     "stabilizingFrames": "正在稳定视频帧",
     "results": "正在生成流速剖面统计数据",
     "videoConversion": "正在将视频转换为 MP4 格式，请稍候。",
-    "maskAndRoi": "正在定义 ROI 与掩膜"
+    "maskAndRoi": "正在定义 ROI 与掩膜",
+    "importingFrames": "正在导入帧"
   },
   "Commons": {
     "yes": "是",
@@ -668,6 +686,9 @@
     "bathymetryMissing": "缺少 {{section}} 的测深数据（{{file}}）。",
     "bathymetryBlocksProcessing": "运行分析之前，请先定位缺失的测深数据。",
     "videoUnreadable": "无法将此文件读取为视频。",
-    "ipcamImagesMissing": "未找到图像文件夹 {{folder}}。"
+    "ipcamImagesMissing": "未找到图像文件夹 {{folder}}。",
+    "framesMissing": "未找到帧文件夹 {{name}}。已导入的帧仍然可用。",
+    "framesMismatch": "此文件夹有 {{foundCount}} 帧，尺寸为 {{foundWidth}}×{{foundHeight}}；项目创建时为 {{count}} 帧，尺寸为 {{width}}×{{height}}。",
+    "framesLocked": "帧文件夹缺失：请定位它以更改范围、步长或稳定设置。"
   }
 }

@@ -37,7 +37,7 @@
     "invalidFileType": "Ungültiger Dateityp. Bitte wählen Sie eine Videodatei aus.",
     "addYourFootage": "Füge deine Aufnahme hinzu",
     "changeType": "Typ ändern",
-    "dragAndDrop": "Ziehe deine Videodatei hierher und lasse sie los",
+    "dragAndDrop": "Video oder Ordner mit Bildern hierher ziehen",
     "openFolders": "Ordner öffnen",
     "footageType": {
       "uav": "Drohne",
@@ -46,6 +46,16 @@
       "obliqueDescription": "Stativ oder Kamera am Ufer",
       "ipcam": "Feste Kamera",
       "ipcamDescription": "IP- oder Überwachungsstation"
+    },
+    "chooseFramesFolder": "oder einen Ordner mit Bildern wählen",
+    "readingFolder": "Ordner wird gelesen…",
+    "framesSummary": "{{count}} Bilder · {{width}} × {{height}}",
+    "timeBetweenFrames": "Zeit zwischen Bildern",
+    "Errors": {
+      "noFrames": "Dieser Ordner enthält weniger als 2 JPEG- oder PNG-Bilder.",
+      "mixedSizes": "Die Bilder in diesem Ordner haben nicht alle dieselbe Größe.",
+      "dropFolder": "Ziehen Sie den Ordner mit den Bildern hierher, nicht die Bilder.",
+      "unreadableFolder": "Dieser Ordner konnte nicht gelesen werden."
     }
   },
   "Wizard": {
@@ -66,14 +76,18 @@
       "step": "Ungültige Zeitschrittauswahl: Der Parameter 'Zeitschritt' muss eine ganze Zahl größer oder gleich 1 sein. Bitte geben Sie einen gültigen Wert ein.",
       "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für den Video-Bereich.",
       "formatInput": "Falsches Format. 'Start'- und 'Ende'-Werte müssen im Format '00:00' sein.",
-      "profileResolutionMismatch": "Die Profilauflösung ({{calW}}×{{calH}}) stimmt nicht mit dem Video überein. Wählen Sie ein anderes Kameramodell oder kalibrieren Sie für diese Auflösung."
+      "profileResolutionMismatch": "Die Profilauflösung ({{calW}}×{{calH}}) stimmt nicht mit dem Video überein. Wählen Sie ein anderes Kameramodell oder kalibrieren Sie für diese Auflösung.",
+      "frameRange": "Start und Ende müssen ganze Bildnummern von 1 bis {{count}} sein, mit Start vor Ende.",
+      "interval": "Die Zeit zwischen Bildern muss eine Zahl größer als 0 sein."
     },
     "ExtraInfo": {
       "fileName": "Dateiname:",
       "totalLength": "Gesamtlänge: ",
       "timeBetweenFrame": "Zeit zwischen den Frames: ",
       "resolution": "Auflösung: ",
-      "numberOfFrames": "Anzahl der Frames: "
+      "numberOfFrames": "Anzahl der Frames: ",
+      "folderName": "Ordner",
+      "frameCount": "Bilder"
     },
     "framesResolution": "Auflösung der Frames",
     "lensCorrection": "Linsenkorrektur",
@@ -92,7 +106,8 @@
     "doneEditingRegion": "Fertig",
     "exitRegionEditing": "Bereichsbearbeitung beenden",
     "minRegionsHint": "Mindestens 2 Bereiche zum Stabilisieren hinzufügen",
-    "minRegionsCount": "{{count}} von mind. 2"
+    "minRegionsCount": "{{count}} von mind. 2",
+    "sourceFrames": "Quellbilder"
   },
   "PixelSize": {
     "title": "Pixelgröße",
@@ -501,7 +516,9 @@
       "acrossRange": "Über den verarbeiteten Bereich",
       "processing": "Verarbeitung",
       "generatedWith": "Erstellt mit RIVeR {{version}}",
-      "inSolve": "In der Berechnung"
+      "inSolve": "In der Berechnung",
+      "sourceLabel": "Quelle",
+      "imageSequence": "Bildsequenz · {{count}} Bilder · vom Bediener eingegebenes Intervall: {{ms}} ms"
     }
   },
   "ControlPoints": {
@@ -555,7 +572,8 @@
     "stabilizingFrames": "Videoframes werden stabilisiert",
     "results": "Erzeuge Geschwindigkeitsprofil-Statistiken",
     "videoConversion": "Das Video wird in das mp4-Format konvertiert. Bitte warten.",
-    "maskAndRoi": "ROI und Masken definieren"
+    "maskAndRoi": "ROI und Masken definieren",
+    "importingFrames": "Bilder werden importiert"
   },
   "Commons": {
     "yes": "Ja",
@@ -674,6 +692,9 @@
     "bathymetryMissing": "Die Bathymetrie für {{section}} ({{file}}) fehlt.",
     "bathymetryBlocksProcessing": "Suchen Sie die fehlende Bathymetrie, bevor Sie die Analyse ausführen.",
     "videoUnreadable": "Diese Datei konnte nicht als Video gelesen werden.",
-    "ipcamImagesMissing": "Bildordner {{folder}} nicht gefunden."
+    "ipcamImagesMissing": "Bildordner {{folder}} nicht gefunden.",
+    "framesMissing": "Bildordner {{name}} nicht gefunden. Die importierten Bilder sind weiterhin verfügbar.",
+    "framesMismatch": "Dieser Ordner enthält {{foundCount}} Bilder mit {{foundWidth}}×{{foundHeight}}; das Projekt wurde mit {{count}} Bildern mit {{width}}×{{height}} erstellt.",
+    "framesLocked": "Der Bildordner fehlt: Suchen Sie ihn, um Bereich, Schritt oder Stabilisierung zu ändern."
   }
 }

@@ -37,7 +37,7 @@
     "invalidFileType": "نوع الملف غير صالح. الرجاء تحديد ملف فيديو.",
     "addYourFootage": "أضف لقطاتك",
     "changeType": "تغيير النوع",
-    "dragAndDrop": "اسحب ملف الفيديو وأفلته هنا",
+    "dragAndDrop": "اسحب هنا فيديو أو مجلد إطارات",
     "openFolders": "فتح المجلدات",
     "footageType": {
       "uav": "طائرة مسيّرة",
@@ -46,6 +46,16 @@
       "obliqueDescription": "حامل ثلاثي أو كاميرا على الضفة",
       "ipcam": "كاميرا ثابتة",
       "ipcamDescription": "محطة IP أو مراقبة"
+    },
+    "chooseFramesFolder": "أو اختر مجلد إطارات",
+    "readingFolder": "جارٍ قراءة المجلد…",
+    "framesSummary": "{{count}} إطارًا · {{width}} × {{height}}",
+    "timeBetweenFrames": "الزمن بين الإطارات",
+    "Errors": {
+      "noFrames": "يحتوي هذا المجلد على أقل من صورتين بصيغة JPEG أو PNG.",
+      "mixedSizes": "صور هذا المجلد ليست كلها بالحجم نفسه.",
+      "dropFolder": "أفلت المجلد الذي يحتوي على الإطارات، لا الصور نفسها.",
+      "unreadableFolder": "تعذّرت قراءة هذا المجلد."
     }
   },
   "Wizard": {
@@ -66,14 +76,18 @@
       "step": "اختيار خطوة غير صالح: يجب أن تكون «الخطوة» عدداً صحيحاً يساوي 1 أو أكبر. الرجاء إدخال قيمة صالحة.",
       "required": "جميع الحقول إلزامية. الرجاء مراجعة نموذج نطاق الفيديو.",
       "formatInput": "تنسيق غير صحيح. يجب أن تكون قيم «البداية» و«النهاية» بتنسيق «00:00».",
-      "profileResolutionMismatch": "دقة الملف الشخصي ({{calW}}×{{calH}}) لا تتطابق مع الفيديو. حدد طراز كاميرا آخر أو أجرِ معايرة لهذه الدقة."
+      "profileResolutionMismatch": "دقة الملف الشخصي ({{calW}}×{{calH}}) لا تتطابق مع الفيديو. حدد طراز كاميرا آخر أو أجرِ معايرة لهذه الدقة.",
+      "frameRange": "يجب أن تكون البداية والنهاية رقمَي إطار صحيحين بين 1 و{{count}}، وأن تسبق البدايةُ النهايةَ.",
+      "interval": "يجب أن يكون الزمن بين الإطارات رقمًا أكبر من 0."
     },
     "ExtraInfo": {
       "fileName": "اسم الملف:",
       "totalLength": "المدة الإجمالية: ",
       "timeBetweenFrame": "الفاصل الزمني بين الإطارات: ",
       "resolution": "الدقة: ",
-      "numberOfFrames": "عدد الإطارات: "
+      "numberOfFrames": "عدد الإطارات: ",
+      "folderName": "المجلد",
+      "frameCount": "الإطارات"
     },
     "framesResolution": "دقة الإطارات",
     "lensCorrection": "تصحيح العدسة",
@@ -92,7 +106,8 @@
     "doneEditingRegion": "تم",
     "exitRegionEditing": "الخروج من تحرير المناطق",
     "minRegionsHint": "أضف منطقتين على الأقل للتثبيت",
-    "minRegionsCount": "{{count}} من 2 كحد أدنى"
+    "minRegionsCount": "{{count}} من 2 كحد أدنى",
+    "sourceFrames": "الإطارات المصدر"
   },
   "PixelSize": {
     "title": "حجم البكسل",
@@ -517,7 +532,9 @@
       "acrossRange": "عبر النطاق المعالج",
       "processing": "المعالجة",
       "generatedWith": "أُنشئ باستخدام RIVeR {{version}}",
-      "inSolve": "في الحل"
+      "inSolve": "في الحل",
+      "sourceLabel": "المصدر",
+      "imageSequence": "تسلسل صور · {{count}} إطارًا · الفاصل الزمني الذي أدخله المشغّل: {{ms}} مللي ثانية"
     }
   },
   "ControlPoints": {
@@ -571,7 +588,8 @@
     "stabilizingFrames": "جارٍ تثبيت إطارات الفيديو",
     "results": "جارٍ إنشاء إحصاءات مقطع السرعة",
     "videoConversion": "جارٍ تحويل الفيديو إلى تنسيق MP4. الرجاء الانتظار.",
-    "maskAndRoi": "جارٍ تحديد منطقة الاهتمام والأقنعة"
+    "maskAndRoi": "جارٍ تحديد منطقة الاهتمام والأقنعة",
+    "importingFrames": "جارٍ استيراد الإطارات"
   },
   "Commons": {
     "yes": "نعم",
@@ -698,6 +716,9 @@
     "bathymetryMissing": "بيانات قياس الأعماق للمقطع {{section}} ({{file}}) مفقودة.",
     "bathymetryBlocksProcessing": "حدّد موقع بيانات قياس الأعماق المفقودة قبل تشغيل التحليل.",
     "videoUnreadable": "تعذّرت قراءة هذا الملف كفيديو.",
-    "ipcamImagesMissing": "لم يُعثر على مجلد الصور {{folder}}."
+    "ipcamImagesMissing": "لم يُعثر على مجلد الصور {{folder}}.",
+    "framesMissing": "لم يُعثر على مجلد الإطارات {{name}}. الإطارات المستوردة ما زالت متاحة.",
+    "framesMismatch": "يحتوي هذا المجلد على {{foundCount}} إطارًا بحجم {{foundWidth}}×{{foundHeight}}؛ أُنشئ المشروع بـ {{count}} إطارًا بحجم {{width}}×{{height}}.",
+    "framesLocked": "مجلد الإطارات مفقود: حدّد موقعه لتغيير النطاق أو الخطوة أو التثبيت."
   }
 }
