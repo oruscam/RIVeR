@@ -12,6 +12,7 @@ import {
   checkStivWeights,
   initProject,
   firstFrame,
+  framesFolder,
   setPixelSize,
   getImages,
   setSections,
@@ -210,6 +211,7 @@ app.whenReady().then(async () => {
   createMaskAndBbox(riverCli);
   createWindow();
   firstFrame(riverCli);
+  framesFolder(riverCli);
   getBathimetry();
   locateBathymetry();
   locateVideo();

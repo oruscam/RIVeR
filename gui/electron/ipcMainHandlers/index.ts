@@ -9,6 +9,7 @@ import { projectsExist } from './projectsExist';
 import { projectThumbnails } from './projectThumbnails';
 import { setSections } from './setSections';
 import { firstFrame } from './firstFrame';
+import { framesFolder } from './framesFolder';
 import { getQuiver } from './getQuiver';
 import { getVideo } from './getVideo';
 import { getBathimetry } from './getBathimetry';
@@ -42,6 +43,7 @@ export {
   createFolderStructure,
   createMaskAndBbox,
   firstFrame,
+  framesFolder,
   getBathimetry,
   getDistances,
   getGif,
