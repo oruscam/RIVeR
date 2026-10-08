@@ -252,6 +252,52 @@
     margin-bottom: 15px;
 }
 
+/* Second way in: a text link under the Browse button. Same treatment as "Change type",
+   as a real button so the keyboard reaches it. */
+.browse-frames-link {
+    margin-top: var(--space-3);
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: var(--accent-color);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.browse-frames-link:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* A chosen frames folder: its name and facts on one line, the one required value under it. */
+.frames-source {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    width: min(520px, 100% - 60px);
+}
+
+.browse-video-drop-area .frames-source-name {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: var(--space-4);
+    margin-bottom: 0;
+    color: var(--text-primary);
+}
+
+.frames-source-name > span:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.frames-source-fps {
+    min-width: 72px;
+    text-align: right;
+}
+
 /* =============================================================================
    CAMERA CALIBRATION (Phase 6e, spec amendment A12)
    The overlay now sits on the standard workspace (.regular-page →

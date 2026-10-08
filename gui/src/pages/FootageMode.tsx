@@ -9,12 +9,16 @@ import { useState } from 'react';
 import { OperationCanceledError, UserSelectionError } from '../errors/errors.js';
 import { drone, ipcam, oblique } from '../assets/icons/icons';
 import './pages.css';
-import { handleDragLeave, handleDragOver } from '../helpers/index.js';
+import { formatNumberTo2Decimals, handleDragLeave, handleDragOver } from '../helpers/index.js';
+import { fpsFromInterval, parseInterval } from '../../commons/framesSource';
 
-type Video = {
+/** What the project starts from: one video file, or a folder of already-extracted frames. */
+type Source = {
+  kind: 'video' | 'frames';
   name: string;
   path: string;
   type: string;
+  frames?: { count: number; width: number; height: number };
 };
 
 const footageTypes = [
@@ -25,67 +29,121 @@ const footageTypes = [
 
 export const FootageMode = () => {
   const { handleSubmit } = useForm();
-  const { onInitProject, onGetVideo } = useProjectSlice();
+  const { onInitProject, onGetVideo, onGetFramesFolder, onInspectFramesFolder } = useProjectSlice();
   const { nextStep, previousStep } = useWizard();
   const formId = 'form-step-2';
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
 
   const [error, setError] = useState<string>('');
-  const [video, setVideo] = useState<Video | null>(null);
+  const [source, setSource] = useState<Source | null>(null);
+  // The interval is kept as typed: "33," must stay editable on the way to "33,3".
+  const [intervalText, setIntervalText] = useState<string>('');
+  const [reading, setReading] = useState<boolean>(false);
 
   const [dragOver, setDragOver] = useState<string | null>(null);
   const [footageType, setFootageType] = useState<string | null>(null);
 
+  const intervalMs = parseInterval(intervalText);
+  const ready = source !== null && (source.kind === 'video' || intervalMs !== null);
+
+  const flashError = (message: string) => {
+    setError(message);
+    setTimeout(() => setError(''), 3000);
+  };
+
   const onSubmit = async () => {
-    if (video) {
-      try {
-        const currentUnitSystem = localStorage.getItem('unitSystem') || 'si';
-        await onInitProject(video, currentLanguage, currentUnitSystem);
-        nextStep();
-      } catch (error) {
-        if (error instanceof OperationCanceledError) previousStep();
+    if (!source || !ready) return;
+    try {
+      const currentUnitSystem = localStorage.getItem('unitSystem') || 'si';
+      await onInitProject(
+        {
+          name: source.name,
+          path: source.path,
+          type: source.type,
+          frames:
+            source.kind === 'frames' && source.frames && intervalMs !== null
+              ? { ...source.frames, intervalMs }
+              : undefined,
+        },
+        currentLanguage,
+        currentUnitSystem
+      );
+      nextStep();
+    } catch (error) {
+      if (error instanceof OperationCanceledError) previousStep();
+    }
+  };
+
+  /** Checks a folder with the backend and, if it holds a usable sequence, makes it the source. */
+  const pickFramesFolder = async (path: string, name: string, type: string) => {
+    setSource(null);
+    setIntervalText('');
+    setReading(true);
+    const result = await onInspectFramesFolder(path);
+    setReading(false);
+    if ('error' in result) {
+      flashError(t(`Step-2.Errors.${result.error}`, { defaultValue: t('Step-2.Errors.unreadableFolder') }));
+      return;
+    }
+    setSource({
+      kind: 'frames',
+      name,
+      path,
+      type,
+      frames: { count: result.count, width: result.width, height: result.height },
+    });
+  };
+
+  const onClickBrowseVideo = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event?.preventDefault();
+    try {
+      const { path, name } = await onGetVideo();
+      setIntervalText('');
+      setSource({ kind: 'video', name, path, type: footageType as string });
+    } catch (error) {
+      if (error instanceof UserSelectionError) {
+        setSource(null);
+        flashError(t('Step-2.pleaseSelectVideo', { defaultValue: 'Commons.randomError' }));
       }
     }
   };
 
-  const onClickOpenFolder = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    event?.preventDefault();
-    try {
-      const { path, name } = await onGetVideo();
-      setVideo({ name, path, type: footageType as string });
-    } catch (error) {
-      if (error instanceof UserSelectionError) {
-        setVideo(null);
-        setError(t('Step-2.pleaseSelectVideo', { defaultValue: 'Commons.randomError' }));
-        setTimeout(() => setError(''), 3000);
-      }
-    }
+  const onClickBrowseFrames = async () => {
+    const folder = await onGetFramesFolder();
+    if (folder) await pickFramesFolder(folder.path, folder.name, footageType as string);
   };
 
   const handleDrop = (type: string) => (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setDragOver(null);
     const files = event.dataTransfer.files;
+    // Must be read before any await: the drag data is gone once the handler returns.
+    const isDirectory = event.dataTransfer.items?.[0]?.webkitGetAsEntry?.()?.isDirectory === true;
 
     setFootageType(type);
 
-    if (files.length > 0) {
-      const file = files[0];
+    if (files.length === 0) return;
+    const file = files[0];
 
-      if (file.type.includes('video')) {
-        const path = window.webUtils.getPathForFile(file);
-        setVideo({ name: file.name, path, type });
-      } else {
-        setVideo(null);
-        setError(t('Step-2.invalidFileType', { defaultValue: 'Commons.randomError' }));
-        setTimeout(() => setError(''), 3000);
-      }
+    if (isDirectory) {
+      void pickFramesFolder(window.webUtils.getPathForFile(file), file.name, type);
+    } else if (file.type.includes('video')) {
+      setIntervalText('');
+      setSource({ kind: 'video', name: file.name, path: window.webUtils.getPathForFile(file), type });
+    } else {
+      setSource(null);
+      flashError(
+        file.type.startsWith('image/')
+          ? t('Step-2.Errors.dropFolder')
+          : t('Step-2.invalidFileType', { defaultValue: 'Commons.randomError' })
+      );
     }
   };
 
   const onChangeType = () => {
-    setVideo(null);
+    setSource(null);
+    setIntervalText('');
     setFootageType(null);
   };
 
@@ -127,11 +185,11 @@ export const FootageMode = () => {
             </div>
           ))}
         </div>
-        <div className={`browse-video-container${footageType || video ? ' visible' : ''}`}>
+        <div className={`browse-video-container${footageType || source ? ' visible' : ''}`}>
           <div className="browse-video-header">
             {footageType !== null ? (
               <>
-                <p>{footageType && video === null ? t(`Step-2.addYourFootage`) : ''}</p>
+                <p>{footageType && source === null ? t(`Step-2.addYourFootage`) : ''}</p>
                 <p onClick={() => onChangeType()}>{footageType ? t(`Step-2.changeType`) : undefined} </p>
               </>
             ) : (
@@ -143,25 +201,66 @@ export const FootageMode = () => {
             onDragOver={(event) => handleDragOver(event, setDragOver, 'drop-area')}
             onDragLeave={(event) => handleDragLeave(event, setDragOver, true)}
             onDrop={handleDrop(footageType as string)}
+            aria-busy={reading || undefined}
             id="drop-area"
           >
-            {video === null && <p> {t('Step-2.dragAndDrop')}</p>}
-            {video && <p>{video.name}</p>}
+            {reading && <p>{t('Step-2.readingFolder')}</p>}
+            {!reading && source === null && <p> {t('Step-2.dragAndDrop')}</p>}
+            {!reading && source?.kind === 'video' && <p>{source.name}</p>}
 
-            <button
-              className="btn btn-lg btn-secondary"
-              data-complete={!!video}
-              onClick={onClickOpenFolder}
-              type="button"
-            >
-              {' '}
-              {t('Step-2.openFolders')}{' '}
-            </button>
+            {!reading && source?.kind === 'frames' && source.frames && (
+              <div className="frames-source">
+                <p className="frames-source-name">
+                  <span>{source.name}</span>
+                  <span className="field-readonly">{t('Step-2.framesSummary', source.frames)}</span>
+                </p>
+                <div className="field-row">
+                  <label className="field-row-label" htmlFor="frames-interval">
+                    {t('Step-2.timeBetweenFrames')}
+                  </label>
+                  <span className="field-with-unit">
+                    <input
+                      id="frames-interval"
+                      className="field field-coord"
+                      type="text"
+                      inputMode="decimal"
+                      autoComplete="off"
+                      autoFocus
+                      value={intervalText}
+                      onChange={(event) => setIntervalText(event.target.value)}
+                    />
+                    <span className="field-unit">ms</span>
+                  </span>
+                  <span className="field-readonly frames-source-fps">
+                    {intervalMs !== null ? `${formatNumberTo2Decimals(fpsFromInterval(intervalMs))} fps` : ''}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {source?.kind !== 'frames' && !reading && (
+              <>
+                <button
+                  className="btn btn-lg btn-secondary"
+                  data-complete={!!source}
+                  onClick={onClickBrowseVideo}
+                  type="button"
+                >
+                  {' '}
+                  {t('Step-2.openFolders')}{' '}
+                </button>
+                {source === null && (
+                  <button className="browse-frames-link" onClick={onClickBrowseFrames} type="button">
+                    {t('Step-2.chooseFramesFolder')}
+                  </button>
+                )}
+              </>
+            )}
           </div>
         </div>
       </form>
       {error && <p className="file-name mt-2">{error}</p>}
-      <WizardButtons canFollow={true} formId={formId} />
+      <WizardButtons canFollow={source === null || ready} formId={formId} />
     </div>
   );
 };
