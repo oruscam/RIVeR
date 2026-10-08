@@ -37,7 +37,7 @@
     "invalidFileType": "Invalid file type. Please select a video file.",
     "addYourFootage": "Add your footage",
     "changeType": "Change type",
-    "dragAndDrop": "Drag and drop your video file here",
+    "dragAndDrop": "Drag a video or a folder of frames here",
     "openFolders": "Open Folders",
     "footageType": {
       "uav": "Drone",
@@ -46,6 +46,16 @@
       "obliqueDescription": "Tripod or camera on the bank",
       "ipcam": "Fixed camera",
       "ipcamDescription": "IP or CCTV station"
+    },
+    "chooseFramesFolder": "or choose a frames folder",
+    "readingFolder": "Reading folder…",
+    "framesSummary": "{{count}} frames · {{width}} × {{height}}",
+    "timeBetweenFrames": "Time between frames",
+    "Errors": {
+      "noFrames": "This folder has fewer than 2 JPEG or PNG images.",
+      "mixedSizes": "The images in this folder do not all have the same size.",
+      "dropFolder": "Drop the folder that contains the frames, not the images.",
+      "unreadableFolder": "This folder could not be read."
     }
   },
   "Wizard": {
@@ -73,14 +83,18 @@
       "step": "Invalid Step Selection: The 'Step' parameter must be a whole number of 1 or more. Please enter a valid value.",
       "required": "All the fields are obligatory. Please check video range form.",
       "formatInput": "Incorrect format. 'Start' and 'End' values must be in '00:00' format.",
-      "profileResolutionMismatch": "The profile resolution ({{calW}}×{{calH}}) does not match video. Select another camera model or calibrate for this resolution."
+      "profileResolutionMismatch": "The profile resolution ({{calW}}×{{calH}}) does not match video. Select another camera model or calibrate for this resolution.",
+      "frameRange": "Start and End must be whole frame numbers from 1 to {{count}}, with Start before End.",
+      "interval": "Time between frames must be a number greater than 0."
     },
     "ExtraInfo": {
       "fileName": "File Name:",
       "totalLength": "Total Length: ",
       "timeBetweenFrame": "Time Between Frames: ",
       "resolution": "Resolution: ",
-      "numberOfFrames": "Number of Frames: "
+      "numberOfFrames": "Number of Frames: ",
+      "folderName": "Folder",
+      "frameCount": "Frames"
     },
     "framesResolution": "Frames Resolution",
     "lensCorrection": "Lens correction",
@@ -92,7 +106,8 @@
     "exitRegionMode": "Exit region editing",
     "minRegionsWarning": "Add at least 2 regions for stabilization",
     "editingRegionsWarning": "Editing stabilization regions",
-    "minRegionsCount": "{{count}} of 2 min."
+    "minRegionsCount": "{{count}} of 2 min.",
+    "sourceFrames": "Source frames"
   },
   "PixelSize": {
     "title": "Pixel Size",
@@ -474,7 +489,9 @@
       "acrossRange": "Across the processed range",
       "processing": "Processing",
       "generatedWith": "Generated with RIVeR {{version}}",
-      "inSolve": "In solve"
+      "inSolve": "In solve",
+      "sourceLabel": "Source",
+      "imageSequence": "Image sequence · {{count}} frames · interval entered by the operator: {{ms}} ms"
     }
   },
   "ControlPoints": {
@@ -528,7 +545,8 @@
     "stabilizingFrames": "Stabilizing Video Frames",
     "results": "Generating velocity profile statistics",
     "videoConversion": "We are converting the video to mp4 format. Please wait a moment.",
-    "maskAndRoi": "Defining ROI and masks"
+    "maskAndRoi": "Defining ROI and masks",
+    "importingFrames": "Importing Frames"
   },
   "Commons": {
     "yes": "Yes",
@@ -647,6 +665,9 @@
     "bathymetryMissing": "Bathymetry for {{section}} ({{file}}) is missing.",
     "bathymetryBlocksProcessing": "Locate the missing bathymetry before running the analysis.",
     "videoUnreadable": "This file could not be read as a video.",
-    "ipcamImagesMissing": "Image folder {{folder}} not found."
+    "ipcamImagesMissing": "Image folder {{folder}} not found.",
+    "framesMissing": "Frames folder {{name}} not found. The imported frames are still available.",
+    "framesMismatch": "This folder has {{foundCount}} frames at {{foundWidth}}×{{foundHeight}}; the project was made with {{count}} frames at {{width}}×{{height}}.",
+    "framesLocked": "The frames folder is missing: locate it to change the range, step or stabilization."
   }
 }

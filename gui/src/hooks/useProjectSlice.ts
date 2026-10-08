@@ -66,6 +66,8 @@ import { useTranslation } from 'react-i18next';
 import { setDefaultObliqueState, setObliquePoints } from '../store/oblique/obliqueSlice';
 import { resetAll } from '../store/global/globalSlice';
 import { recordRecentProject } from '../helpers/recentProjects';
+import { fpsFromInterval, frameRange, parseInterval } from '../../commons/framesSource';
+import type { FramesFolderError, FramesFolderInfo } from '../../electron/ipcMainHandlers/framesFolder';
 
 const createDefaultStabilizationRegion = (videoWidth: number, videoHeight: number): StabilizationRegion => {
   const size = 150;
@@ -148,15 +150,28 @@ export const useProjectSlice = () => {
     }
   };
 
+  /** Directory dialog for a folder of already-extracted frames; null when cancelled. */
+  const onGetFramesFolder = async (): Promise<{ path: string; name: string } | null> =>
+    window.ipcRenderer.invoke('get-frames-folder');
+
+  /** Count, resolution and ordered image paths of a frames folder (the open project's when no path). */
+  const onInspectFramesFolder = async (path?: string): Promise<FramesFolderInfo | { error: FramesFolderError }> =>
+    window.ipcRenderer.invoke('inspect-frames-folder', path ? { path } : undefined);
+
   const onInitProject = async (
-    videoInput: { path: string; name: string; type: string },
+    videoInput: {
+      path: string;
+      name: string;
+      type: string;
+      frames?: { count: number; width: number; height: number; intervalMs: number };
+    },
     language: string,
     unitSistem: string
   ) => {
     dispatch(setLoading(true));
 
     const extension = videoInput.name.split('.').pop();
-    if (extension?.toUpperCase() !== 'MP4') {
+    if (!videoInput.frames && extension?.toUpperCase() !== 'MP4') {
       dispatch(setMessage(t('Loader.videoConversion')));
     }
 
@@ -169,6 +184,7 @@ export const useProjectSlice = () => {
         type: videoInput.type,
         language: language,
         unitSistem: unitSistem,
+        frames: videoInput.frames,
       });
 
       if (error) {
@@ -185,6 +201,9 @@ export const useProjectSlice = () => {
         fps: result.fps,
         creation: result.creation,
         duration: result.duration,
+        source: result.source,
+        frameCount: result.frameCount,
+        intervalMs: result.intervalMs,
       };
 
       // Determine the best factor for the frames extraction.
@@ -248,7 +267,8 @@ export const useProjectSlice = () => {
 
   const onSetVideoParameters = async (data: FieldValues) => {
     dispatch(setLoading(true));
-    dispatch(setMessage(t('Loader.extractingFrames')));
+    const frames = video.data.source === 'frames';
+    dispatch(setMessage(t(frames ? 'Loader.importingFrames' : 'Loader.extractingFrames')));
 
     const {
       startTime,
@@ -264,16 +284,34 @@ export const useProjectSlice = () => {
       committedStabilizationRegions,
     } = video.parameters;
 
-    const parsedStart = parseTime(data.start);
-    const parsedEnd = parseTime(data.end);
+    // A frames project's form holds 1-based frame numbers and the interval; a video's holds mm:ss.
+    const intervalMs = frames ? (parseInterval(String(data.interval ?? '')) ?? video.data.intervalMs ?? 0) : 0;
+    const fps = frames && intervalMs > 0 ? fpsFromInterval(intervalMs) : video.data.fps;
+    const intervalChanged = frames && intervalMs !== video.data.intervalMs;
+    const range = frames
+      ? frameRange(parseInt(data.start, 10), parseInt(data.end, 10), fps)
+      : (() => {
+          const parsedStart = parseTime(data.start);
+          const parsedEnd = parseTime(data.end);
+          return {
+            startTime: parsedStart,
+            endTime: parsedEnd,
+            startFrame: Math.floor(parsedStart * video.data.fps),
+            endFrame: Math.floor(parsedEnd * video.data.fps),
+          };
+        })();
+    const sameRange = frames
+      ? range.startFrame === video.parameters.startFrame &&
+        range.endFrame === video.parameters.endFrame &&
+        !intervalChanged
+      : range.startTime === startTime && range.endTime === endTime;
 
     // Every field is compared directly against the config actually used for
     // the frames on disk (rather than an imperative "did the user touch this"
     // flag) — so toggling something and reverting it never forces a needless
     // re-extraction.
     if (
-      parsedStart === startTime &&
-      parsedEnd === endTime &&
+      sameRange &&
       parseFloat(data.step) === step &&
       factor === committedFactor &&
       lensCorrection === committedLensCorrection &&
@@ -296,10 +334,10 @@ export const useProjectSlice = () => {
 
     const parameters = {
       step: parseFloat(data.step),
-      startTime: parsedStart,
-      endTime: parsedEnd,
-      startFrame: Math.floor(parsedStart * video.data.fps),
-      endFrame: Math.floor(parsedEnd * video.data.fps),
+      startTime: range.startTime,
+      endTime: range.endTime,
+      startFrame: range.startFrame,
+      endFrame: range.endFrame,
       factor: factor,
       lensCorrection: lensCorrection,
       stabilization: stabilization,
@@ -325,6 +363,7 @@ export const useProjectSlice = () => {
         lensCorrection: lensCorrection,
         stabilization: effectiveStabilization,
         stabilizationRegions: effectiveStabilization ? stabilizationRegions : [],
+        intervalMs: frames ? intervalMs : undefined,
       });
 
       if (!result || result.error || !result.initial_frame) {
@@ -337,6 +376,16 @@ export const useProjectSlice = () => {
       dispatch(clearMessage());
       dispatch(setFirstFramePath(filePrefix + result.initial_frame));
       dispatch(setVideoParameters(parameters));
+      if (intervalChanged) {
+        dispatch(
+          setVideoData({
+            ...video.data,
+            fps,
+            intervalMs,
+            duration: ((video.data.frameCount ?? 0) * intervalMs) / 1000,
+          })
+        );
+      }
     } catch (error) {
       console.log(error);
       dispatch(addStepAlert({ id: 'first-frame-error', level: 'error', text: String(error) }));
@@ -407,6 +456,9 @@ export const useProjectSlice = () => {
             duration: videoMetadata.duration,
             creation: videoMetadata.creation,
             name: videoMetadata.name,
+            source: videoMetadata.source,
+            frameCount: videoMetadata.frameCount,
+            intervalMs: videoMetadata.intervalMs,
           })
         );
 
@@ -840,8 +892,10 @@ export const useProjectSlice = () => {
     onAddStabilizationRegion,
     onChangeFramesResolution,
     onDeleteStabilizationRegion,
+    onGetFramesFolder,
     onGetVideo,
     onInitProject,
+    onInspectFramesFolder,
     onLoadProject,
     onProjectDetailsChange,
     onSetDefaultProjectState,
