@@ -260,7 +260,7 @@
     border: 0;
     background: none;
     font: inherit;
-    color: var(--accent-color);
+    color: inherit;
     text-decoration: underline;
     cursor: pointer;
 }
