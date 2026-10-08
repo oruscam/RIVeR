@@ -85,7 +85,10 @@
       "formatInput": "Incorrect format. 'Start' and 'End' values must be in '00:00' format.",
       "profileResolutionMismatch": "The profile resolution ({{calW}}×{{calH}}) does not match video. Select another camera model or calibrate for this resolution.",
       "frameRange": "Start and End must be whole frame numbers from 1 to {{count}}, with Start before End.",
-      "interval": "Time between frames must be a number greater than 0."
+      "interval": "Time between frames must be a number greater than 0.",
+      "frameUnreadable": "{{file}} could not be read as an image. Remove or replace it, then import again.",
+      "frameSizeDiffers": "{{file}} is not the same size as the first frame. Remove or replace it, then import again.",
+      "noFramesSelected": "No frame falls within this Start, End and Step. Widen the range or lower the Step."
     },
     "ExtraInfo": {
       "fileName": "File Name:",

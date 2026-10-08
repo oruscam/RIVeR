@@ -78,7 +78,10 @@
       "formatInput": "格式不正确，「开始」和「结束」值必须为「00:00」格式。",
       "profileResolutionMismatch": "配置文件分辨率 ({{calW}}×{{calH}}) 与视频不匹配。请选择其他相机型号或针对此分辨率重新标定。",
       "frameRange": "开始和结束必须是 1 到 {{count}} 之间的整数帧号，且开始早于结束。",
-      "interval": "帧间隔时间必须是大于 0 的数字。"
+      "interval": "帧间隔时间必须是大于 0 的数字。",
+      "frameUnreadable": "无法将 {{file}} 读取为图像。请移除或替换该文件，然后重新导入。",
+      "frameSizeDiffers": "{{file}} 的尺寸与第一帧不同。请移除或替换该文件，然后重新导入。",
+      "noFramesSelected": "没有帧符合当前的开始、结束和步长。请扩大范围或减小步长。"
     },
     "ExtraInfo": {
       "fileName": "文件名:",

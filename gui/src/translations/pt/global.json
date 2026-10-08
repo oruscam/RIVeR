@@ -78,7 +78,10 @@
       "formatInput": "Formato incorreto. Os valores de 'Início' e 'Fim' devem estar no formato '00:00'.",
       "profileResolutionMismatch": "A resolução do perfil ({{calW}}×{{calH}}) não corresponde ao vídeo. Selecione outro modelo de câmera ou calibre para esta resolução.",
       "frameRange": "Início e Fim devem ser números inteiros de quadro entre 1 e {{count}}, com Início antes de Fim.",
-      "interval": "O tempo entre quadros deve ser um número maior que 0."
+      "interval": "O tempo entre quadros deve ser um número maior que 0.",
+      "frameUnreadable": "Não foi possível ler {{file}} como imagem. Remova-o ou substitua-o e importe novamente.",
+      "frameSizeDiffers": "{{file}} não tem o mesmo tamanho que o primeiro quadro. Remova-o ou substitua-o e importe novamente.",
+      "noFramesSelected": "Nenhum quadro cabe neste Início, Fim e Passo. Amplie o intervalo ou reduza o Passo."
     },
     "ExtraInfo": {
       "fileName": "Nome do arquivo:",

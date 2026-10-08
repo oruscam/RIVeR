@@ -67,6 +67,7 @@ import { setDefaultObliqueState, setObliquePoints } from '../store/oblique/obliq
 import { resetAll } from '../store/global/globalSlice';
 import { recordRecentProject } from '../helpers/recentProjects';
 import { fpsFromInterval, frameRange, parseInterval } from '../../commons/framesSource';
+import { framesImportError } from '../helpers/framesImportError';
 import type { FramesFolderError, FramesFolderInfo } from '../../electron/ipcMainHandlers/framesFolder';
 
 const createDefaultStabilizationRegion = (videoWidth: number, videoHeight: number): StabilizationRegion => {
@@ -369,7 +370,9 @@ export const useProjectSlice = () => {
       if (!result || result.error || !result.initial_frame) {
         const errMsg = result?.error ?? 'Frame extraction failed';
         console.log('first-frame error:', errMsg);
-        dispatch(addStepAlert({ id: 'first-frame-error', level: 'error', text: errMsg }));
+        // A frames import fails with a backend code; a video's message is already a sentence.
+        const text = frames ? framesImportError(errMsg, (key, values) => t(key, values)) : errMsg;
+        dispatch(addStepAlert({ id: 'first-frame-error', level: 'error', text }));
         return;
       }
 
