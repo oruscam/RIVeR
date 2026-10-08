@@ -97,6 +97,8 @@ export interface FirstFrameArgs {
   lensCorrection: string | false;
   stabilization: boolean;
   stabilizationRegions: Array<{ x: number; y: number; width: number; height: number }>;
+  /** Frames projects only: the interval typed in Video Range, written to settings before importing. */
+  intervalMs?: number;
 }
 
 export interface ProjectConfig {
