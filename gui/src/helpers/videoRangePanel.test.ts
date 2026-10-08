@@ -13,10 +13,10 @@ describe('Video Range panel is on the row grammar', () => {
     expect(form).not.toMatch(/read-only|input-container-2|input-field|form-button|btn-lg|form-video-fields/);
   });
 
-  it('Start, End and Step are rows with 120px fields on one right edge', () => {
+  it('Start, End, Step and the frames interval are rows with 120px fields on one right edge', () => {
     expect(form).toMatch(/className="panel-section"/);
-    expect(form.match(/className="field field-coord"/g)).toHaveLength(3);
-    expect(form.match(/className="field-row field-row-top"/g)).toHaveLength(3);
+    expect(form.match(/className="field field-coord"/g)).toHaveLength(4);
+    expect(form.match(/className="field-row field-row-top"/g)).toHaveLength(4);
   });
 
   it('Start and End keep their set-to-playhead buttons, as labelled icon buttons', () => {
