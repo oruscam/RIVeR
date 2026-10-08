@@ -21,3 +21,8 @@ const MIN_DELAY_MS = 40;
 export function playbackDelay(fps: number): number {
   return fps > 0 ? Math.max(MIN_DELAY_MS, 1000 / fps) : MIN_DELAY_MS;
 }
+
+/** `#`, `?` and `%` in a file name would cut or corrupt the URL, so only those are escaped. */
+export function frameUrl(filePrefix: string, filePath: string): string {
+  return filePrefix + filePath.replace(/[%#?]/g, encodeURIComponent);
+}
