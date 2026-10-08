@@ -25,8 +25,8 @@ export const useProjectIssues = (step: IssueStep) => {
   const filePrefix = import.meta.env.VITE_FILE_PREFIX ?? '';
 
   const alerts = useMemo(
-    () => projectIssueAlerts(issues, step, t, video.data.name ?? ''),
-    [issues, step, t, video.data.name]
+    () => projectIssueAlerts(issues, step, t, video.data.name ?? '', video.data.source ?? 'video'),
+    [issues, step, t, video.data.name, video.data.source]
   );
 
   const locateVideo = async () => {
@@ -38,7 +38,14 @@ export const useProjectIssues = (step: IssueStep) => {
       // The raw ffprobe text means nothing to the user; keep it for the console.
       console.log('locate-video:', result.message);
       dispatch(
-        addStepAlert({ id: 'locate-video-error', level: 'error', text: t('ProjectIssues.videoUnreadable') })
+        addStepAlert({
+          id: 'locate-video-error',
+          level: 'error',
+          text:
+            video.data.source === 'frames'
+              ? t(`Step-2.Errors.${result.message}`, { defaultValue: t('Step-2.Errors.unreadableFolder') })
+              : t('ProjectIssues.videoUnreadable'),
+        })
       );
     } else if (result.status === 'ok') {
       const { metadata } = result;

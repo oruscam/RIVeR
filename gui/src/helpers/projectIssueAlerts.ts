@@ -1,6 +1,7 @@
 import type { TFunction } from 'i18next';
 import type { ProjectIssuesState } from '../store/project/types';
 import type { StepAlert } from '../store/ui/types';
+import type { VideoSource } from '../../commons/framesSource';
 
 export type IssueStep = 'video' | 'sections' | 'processing' | 'results' | 'ipcam';
 
@@ -15,16 +16,18 @@ export function projectIssueAlerts(
   issues: ProjectIssuesState,
   step: IssueStep,
   t: TFunction,
-  videoName: string
+  videoName: string,
+  source: VideoSource = 'video'
 ): StepAlert[] {
   const locate = t('ProjectIssues.locate');
   const alerts: StepAlert[] = [];
+  const frames = source === 'frames';
 
   if (step === 'video' && issues.videoMissing) {
     alerts.push({
       id: 'issue-video-missing',
       level: 'warning',
-      text: t('ProjectIssues.videoMissing', { name: videoName }),
+      text: t(frames ? 'ProjectIssues.framesMissing' : 'ProjectIssues.videoMissing', { name: videoName }),
       action: { label: locate, action: 'locate-video' },
     });
     if (issues.videoMismatch) {
@@ -32,14 +35,23 @@ export function projectIssueAlerts(
       alerts.push({
         id: 'issue-video-mismatch',
         level: 'error',
-        text: t('ProjectIssues.videoMismatch', {
-          foundWidth: found.width,
-          foundHeight: found.height,
-          foundFps: found.fps,
-          width: expected.width,
-          height: expected.height,
-          fps: expected.fps,
-        }),
+        text: frames
+          ? t('ProjectIssues.framesMismatch', {
+              foundCount: found.frameCount ?? 0,
+              foundWidth: found.width,
+              foundHeight: found.height,
+              count: expected.frameCount ?? 0,
+              width: expected.width,
+              height: expected.height,
+            })
+          : t('ProjectIssues.videoMismatch', {
+              foundWidth: found.width,
+              foundHeight: found.height,
+              foundFps: found.fps,
+              width: expected.width,
+              height: expected.height,
+              fps: expected.fps,
+            }),
       });
     }
   }

@@ -1,4 +1,5 @@
 import type { ProjectIssues, VideoSpec } from '../../../commons/projectIssues';
+import type { VideoSource } from '../../../commons/framesSource';
 
 /** Missing inputs reported on load (spec §3–§4), plus the last refused video. */
 interface ProjectIssuesState extends ProjectIssues {
@@ -14,6 +15,12 @@ interface VideoData {
   blob?: string | null;
   duration: number;
   creation: string;
+  /** 'frames' when the project was started from a folder of frames; absent or 'video' otherwise. */
+  source?: VideoSource;
+  /** Frames projects only: images in the source folder. */
+  frameCount?: number;
+  /** Frames projects only: the time between frames in ms, exactly as typed. */
+  intervalMs?: number;
 }
 
 interface StabilizationRegion {
