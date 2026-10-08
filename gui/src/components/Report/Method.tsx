@@ -12,7 +12,8 @@ const stamp = (d: Date) => d.toISOString().slice(0, 16).replace('T', ' ');
 const FootagePanel = ({ measure = false }: { measure?: boolean }) => {
   const { t } = useTranslation();
   const { video, firstFramePath } = useProjectSlice();
-  const { name, width, height, fps, duration, creation } = video.data;
+  const { name, width, height, fps, duration, creation, source, frameCount, intervalMs } = video.data;
+  const isFrames = source === 'frames';
   const p = video.parameters;
   const box = frameBox(width, height, REPORT_FLOW.METHOD_IMAGE_WIDTH, REPORT_FLOW.METHOD_IMAGE_WIDTH);
   // Stabilization regions are stored in original-video pixels, so they scale straight onto the frame box.
@@ -58,9 +59,29 @@ const FootagePanel = ({ measure = false }: { measure?: boolean }) => {
         <div>
           <dt>{t('Report.VideoInfo.resolution')}</dt>
           <dd>
-            {width} × {height} · {formatNumberTo2Decimals(fps)} fps · {formatTime(duration)}
+            {isFrames ? (
+              <>
+                {width} × {height}
+              </>
+            ) : (
+              <>
+                {width} × {height} · {formatNumberTo2Decimals(fps)} fps · {formatTime(duration)}
+              </>
+            )}
           </dd>
         </div>
+        {isFrames && (
+          <div>
+            <dt>{t('Report.Doc.sourceLabel')}</dt>
+            <dd>
+              {/* The interval is declared by the operator, not measured: the report says so. */}
+              {t('Report.Doc.imageSequence', {
+                count: frameCount ?? 0,
+                ms: formatNumberTo2Decimals(intervalMs ?? 0),
+              })}
+            </dd>
+          </div>
+        )}
         {created && (
           <div>
             <dt>{t('Report.VideoInfo.creationDate')}</dt>
@@ -70,7 +91,15 @@ const FootagePanel = ({ measure = false }: { measure?: boolean }) => {
         <div>
           <dt>{t('Report.ProcessedRange.title')}</dt>
           <dd>
-            {formatTime(p.startTime)} → {formatTime(p.endTime)}
+            {isFrames ? (
+              <>
+                {p.startFrame + 1} → {p.endFrame}
+              </>
+            ) : (
+              <>
+                {formatTime(p.startTime)} → {formatTime(p.endTime)}
+              </>
+            )}
           </dd>
         </div>
         <div>
