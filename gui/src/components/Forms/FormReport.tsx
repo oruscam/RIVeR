@@ -3,7 +3,8 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useForm } from 'react-hook-form';
 import { useProjectSlice, useSectionSlice } from '../../hooks';
-import { dateToStringDate, stringDateToDate } from '../../helpers';
+import { dateToStringDate } from '../../helpers';
+import { defaultMeasurementDate } from '../../helpers/dateFunctions';
 import '../../index.css';
 import { SavedReportBlock } from './Components/SavedReportBlock';
 import { summarizeReport } from '../../helpers/reportSummary';
@@ -31,11 +32,7 @@ export const FormReport = ({
   const { t } = useTranslation();
 
   const today = new Date();
-  const defaultDate = projectDetails.meditionDate
-    ? stringDateToDate(projectDetails.meditionDate)
-    : creation !== undefined
-      ? new Date(creation)
-      : today;
+  const defaultDate = defaultMeasurementDate(projectDetails.meditionDate, creation, today);
 
   const [meditionDate, setMeditionDate] = useState<Date>(defaultDate);
   const [unitSistem, setUnitSistem] = useState<string>(projectDetails.unitSistem || 'si');
