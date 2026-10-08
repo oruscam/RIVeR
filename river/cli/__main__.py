@@ -8,6 +8,7 @@ from river.cli.commands.compute_section import update_xsection
 from river.cli.commands.stiv_pipeline import stiv_analyze, stiv_status
 from river.cli.commands.iwave_pipeline import iwave_analyze, iwave_defaults
 from river.cli.commands.orchestrator import analyze_all
+from river.cli.commands.frames_to_frames import frames_info, frames_to_frames
 from river.cli.commands.video_to_frames import video_to_frames
 
 from multiprocessing import freeze_support
@@ -21,6 +22,8 @@ def cli(ctx: click.Context, verbose: bool):
 
 
 cli.add_command(video_to_frames)
+cli.add_command(frames_info)
+cli.add_command(frames_to_frames)
 cli.add_command(ct.get_uav_transformation_matrix)
 cli.add_command(ct.get_oblique_transformation_matrix)
 cli.add_command(ct.transform_pixel_to_real_world)
