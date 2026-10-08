@@ -12,7 +12,16 @@ import { VideoMetadata, FramesResolution, LensCorrection, StabilizationRegions }
 import { FieldError } from '../index';
 import { Icons } from '../CustomIcons/Icons';
 
-export const FormVideo = ({ duration, extraFields }: { duration: number; extraFields: boolean }) => {
+export const FormVideo = ({
+  duration,
+  extraFields,
+  currentFrame = 0,
+}: {
+  duration: number;
+  extraFields: boolean;
+  currentFrame?: number;
+}) => {
+  void currentFrame; // Task 10 reads it
   const { onSetVideoParameters, video: videoData, type } = useProjectSlice();
   const { startTime, endTime, step } = videoData.parameters;
 

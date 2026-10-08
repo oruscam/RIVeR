@@ -13,6 +13,7 @@ import { useIwaveDefaults } from './useIwaveDefaults';
 import { useMaskedStations } from './useMaskedStations';
 import { useProjectIssues } from './useProjectIssues';
 import { useResizableCarousel } from './useResizableCarousel';
+import { useSourceFrames } from './useSourceFrames';
 import { useStivAngleOverride } from './useStivAngleOverride';
 import { useVelocityColorRange } from './useVelocityColorRange';
 
@@ -26,6 +27,7 @@ export {
   useIwaveDefaults,
   useMaskedStations,
   useResizableCarousel,
+  useSourceFrames,
   useStivAngleOverride,
   useUavSlice,
   useObliqueSlice,

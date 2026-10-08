@@ -1,8 +1,9 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { VideoPlayer } from '../components/VideoPlayer/VideoPlayer';
+import { FramePlayer } from '../components/VideoPlayer/FramePlayer';
 import { StabilizationCanvas } from '../components/VideoPlayer/StabilizationCanvas';
 import { FormVideo } from '../components/Forms/FormVideo';
-import { useProjectSlice, useProjectIssues } from '../hooks';
+import { useProjectSlice, useProjectIssues, useSourceFrames } from '../hooks';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 import { FocusOverlay, WizardButtons, ModeHint, StepAlertList, Toast } from '../components';
@@ -20,11 +21,14 @@ export const VideoRange = () => {
     firstFramePath,
   } = useProjectSlice();
   const { alerts, onAction, videoMissing } = useProjectIssues('video');
-  const { path, duration, width: videoWidth, height: videoHeight } = video.data;
+  const { path, duration, width: videoWidth, height: videoHeight, fps, source } = video.data;
   const { stabilization, stabilizationRegions } = video.parameters;
   const { extraFields } = video;
   const { t } = useTranslation();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isFrames = source === 'frames';
+  const sourceFrames = useSourceFrames(isFrames && !videoMissing);
+  const [currentFrame, setCurrentFrame] = useState(0);
 
   // Stabilization applies to UAV and oblique footage (a moving or handheld camera); an ipcam is
   // fixed. Guards against stale `stabilization: true` left over from switching footage mode.
@@ -51,7 +55,15 @@ export const VideoRange = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        {path ? (
+        {isFrames && sourceFrames.length > 0 ? (
+          <FramePlayer
+            frames={sourceFrames}
+            fps={fps}
+            currentFrame={currentFrame}
+            onFrameChange={setCurrentFrame}
+            overlay={stabilizationOverlay}
+          />
+        ) : path && !isFrames ? (
           <VideoPlayer ref={videoRef} fileURL={path} duration={duration} overlay={stabilizationOverlay} />
         ) : (
           videoMissing && firstFramePath && <img className="video-missing-still" src={firstFramePath} alt="" />
@@ -61,7 +73,7 @@ export const VideoRange = () => {
       <div className="form-container">
         <FormHeader title={t('VideoRange.title')} showSections={false} />
         <StepAlertList extra={alerts} onAction={onAction} />
-        <FormVideo duration={duration} extraFields={extraFields} />
+        <FormVideo duration={duration} extraFields={extraFields} currentFrame={currentFrame} />
         <div className="footer">
           <AdvancedToggle
             localExtraFields={extraFields}
