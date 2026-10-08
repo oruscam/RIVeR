@@ -78,7 +78,10 @@
       "formatInput": "Falsches Format. 'Start'- und 'Ende'-Werte müssen im Format '00:00' sein.",
       "profileResolutionMismatch": "Die Profilauflösung ({{calW}}×{{calH}}) stimmt nicht mit dem Video überein. Wählen Sie ein anderes Kameramodell oder kalibrieren Sie für diese Auflösung.",
       "frameRange": "Start und Ende müssen ganze Bildnummern von 1 bis {{count}} sein, mit Start vor Ende.",
-      "interval": "Die Zeit zwischen Bildern muss eine Zahl größer als 0 sein."
+      "interval": "Die Zeit zwischen Bildern muss eine Zahl größer als 0 sein.",
+      "frameUnreadable": "{{file}} konnte nicht als Bild gelesen werden. Entfernen oder ersetzen Sie die Datei und importieren Sie erneut.",
+      "frameSizeDiffers": "{{file}} hat nicht dieselbe Größe wie das erste Bild. Entfernen oder ersetzen Sie die Datei und importieren Sie erneut.",
+      "noFramesSelected": "Kein Bild liegt in diesem Bereich aus Start, Ende und Schritt. Erweitern Sie den Bereich oder verringern Sie den Schritt."
     },
     "ExtraInfo": {
       "fileName": "Dateiname:",

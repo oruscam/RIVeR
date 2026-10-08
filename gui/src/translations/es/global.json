@@ -78,7 +78,10 @@
       "formatInput": "Formato incorrecto. El formato de 'Inicio' y 'Fin' debe ser '00:00'.",
       "profileResolutionMismatch": "La resolución del perfil ({{calW}}×{{calH}}) no coincide con el video. Seleccioná otro modelo de cámara o calibrá para esta resolución.",
       "frameRange": "Inicio y Fin deben ser números enteros de fotograma entre 1 y {{count}}, con Inicio antes que Fin.",
-      "interval": "El tiempo entre fotogramas debe ser un número mayor que 0."
+      "interval": "El tiempo entre fotogramas debe ser un número mayor que 0.",
+      "frameUnreadable": "No se pudo leer {{file}} como imagen. Quítelo o reemplácelo y vuelva a importar.",
+      "frameSizeDiffers": "{{file}} no tiene el mismo tamaño que el primer fotograma. Quítelo o reemplácelo y vuelva a importar.",
+      "noFramesSelected": "Ningún fotograma entra en este Inicio, Fin y Paso. Amplíe el rango o reduzca el Paso."
     },
     "ExtraInfo": {
       "fileName": "Nombre de Archivo: ",
