@@ -3,6 +3,7 @@ import { FirstFrameArgs, RiverCli } from './interfaces';
 import * as fs from 'fs';
 import path from 'path';
 import { PROJECT_CONFIG } from '../main';
+import { extractionCommand, withInterval } from '../../commons/framesSource';
 
 function firstFrame(riverCli: RiverCli) {
   const mainWindow = BrowserWindow.getAllWindows()[0];
@@ -17,13 +18,31 @@ function firstFrame(riverCli: RiverCli) {
     }
 
     const { videoPath, framesPath, logsPath } = PROJECT_CONFIG;
-    const { start_frame, end_frame, step, factor, lensCorrection, stabilization, stabilizationRegions } = args;
+    const {
+      start_frame,
+      end_frame,
+      step,
+      factor,
+      lensCorrection,
+      stabilization,
+      stabilizationRegions,
+      intervalMs,
+    } = args;
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
     filePrefix = filePrefix === undefined ? '' : filePrefix;
 
+    const json = await fs.promises.readFile(PROJECT_CONFIG.settingsPath, 'utf-8');
+    const jsonParsed = JSON.parse(json);
+
+    // A frames project imports from its source folder; videoPath holds that folder.
+    const isFrames = jsonParsed.video?.source === 'frames';
+    if (isFrames && intervalMs) {
+      jsonParsed.video = withInterval(jsonParsed.video, intervalMs);
+    }
+
     const options: (string | number)[] = [
-      'video-to-frames',
+      extractionCommand(jsonParsed.video?.source),
       videoPath,
       framesPath,
       '--start-frame',
@@ -55,9 +74,6 @@ function firstFrame(riverCli: RiverCli) {
       );
       options.push('--stabilize', '--stabilization-regions', stabilizationRegionsPath, '--replace');
     }
-
-    const json = await fs.promises.readFile(PROJECT_CONFIG.settingsPath, 'utf-8');
-    const jsonParsed = JSON.parse(json);
 
     jsonParsed.video_range = {
       start: start_frame,
