@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useProjectSlice } from './useProjectSlice';
+import { frameUrl } from '../helpers/framePlayback';
 
 /**
  * The open frames project's source images, in import order, ready for <img src>.
@@ -20,7 +21,7 @@ export const useSourceFrames = (enabled: boolean): string[] => {
     }
     onInspectFramesFolder().then((result) => {
       if (cancelled) return;
-      setFrames('error' in result ? [] : result.files.map((file: string) => filePrefix + file));
+      setFrames('error' in result ? [] : result.files.map((file: string) => frameUrl(filePrefix, file)));
     });
     return () => {
       cancelled = true;

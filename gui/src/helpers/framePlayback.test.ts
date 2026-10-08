@@ -1,4 +1,4 @@
-import { clampIndex, indexFromProgress, playbackDelay, progressFromIndex } from './framePlayback';
+import { clampIndex, frameUrl, indexFromProgress, playbackDelay, progressFromIndex } from './framePlayback';
 
 describe('clampIndex', () => {
   it('keeps an index inside the sequence', () => {
@@ -43,5 +43,17 @@ describe('playbackDelay', () => {
   it('falls back to the cap for an unusable rate', () => {
     expect(playbackDelay(0)).toBe(40);
     expect(playbackDelay(NaN)).toBe(40);
+  });
+});
+
+describe('frameUrl', () => {
+  it('leaves an ordinary path as prefix + path', () => {
+    expect(frameUrl('/@fs', '/data/run 1/frame_2.jpg')).toBe('/@fs/data/run 1/frame_2.jpg');
+    expect(frameUrl('', 'C:\\data\\f_1.jpg')).toBe('C:\\data\\f_1.jpg');
+  });
+
+  it('escapes the characters that would cut the URL short', () => {
+    expect(frameUrl('', '/data/frame #1.jpg')).toBe('/data/frame %231.jpg');
+    expect(frameUrl('', '/data/50%/a?b.png')).toBe('/data/50%25/a%3Fb.png');
   });
 });
