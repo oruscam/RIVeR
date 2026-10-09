@@ -35,8 +35,6 @@ const EXCEPTIONS: string[] = [
   'index.css|.info-icon|font-size: 30px',
   'components/components.css|.colorbar-marker span|font-size: 10.5px',
   'components/components.css|.colorbar-manual-badge|font-size: 10.5px',
-  'components/components.css|.iwave-axis|font-size: 11px',
-  'components/components.css|.iwave-legend|font-size: 11px',
   'components/components.css|.technique-swatch.technique-swatch-stiv|border-radius: 2px',
   'components/Graphs/graphs.css|.station-tag-row span|font-size: 11px',
   'components/Graphs/graphs.css|.station-tag-hint|font-size: 10.5px',

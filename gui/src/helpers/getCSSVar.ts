@@ -72,3 +72,15 @@ export const getOverlayColors = () => ({
   line: getCSSVar('--overlay-line', '#FFFFFF'),
   dim: getCSSVar('--overlay-dim', 'rgba(0, 0, 0, 0.4)'),
 });
+
+/**
+ * Returns the iWave spectrum's colour ramp from the current theme's CSS
+ * variables, lowest energy first: the plot's ground, a mid blue, and the ink
+ * strong energy is drawn in. Kept as hex strings for the caller to parse;
+ * fallbacks are the dark theme's values.
+ */
+export const getSpectrumRamp = (): string[] => [
+  getCSSVar('--spectrum-0', '#0A0D12'),
+  getCSSVar('--spectrum-1', '#2E7DD6'),
+  getCSSVar('--spectrum-2', '#A9DCFF'),
+];
