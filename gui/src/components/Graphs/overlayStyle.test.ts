@@ -4,6 +4,8 @@ import {
   OVERLAY_RATIOS,
   OVERLAY_HALO_COLOR,
   overlayLineParts,
+  overlayEllipseParts,
+  drawOverlayEllipse,
   drawOverlayLine,
 } from './overlayStyle';
 import { fakeSelection, allTags } from './testing/fakeSelection';
@@ -12,8 +14,13 @@ const seg = { from: { x: 0, y: 0 }, to: { x: 100, y: 0 }, color: '#F5BF61' };
 
 describe('overlay size table', () => {
   test('app and report values from the spec', () => {
-    expect(OVERLAY_STYLE.app).toEqual({ LINE_WIDTH: 3, THIN_WIDTH: 1, PIN_DIVISOR: 1 });
-    expect(OVERLAY_STYLE.report).toEqual({ LINE_WIDTH: 1.5, THIN_WIDTH: 0.75, PIN_DIVISOR: 2 });
+    expect(OVERLAY_STYLE.app).toEqual({ LINE_WIDTH: 3, ELLIPSE_WIDTH: 1.5, RESIDUAL_WIDTH: 2.5, PIN_DIVISOR: 1 });
+    expect(OVERLAY_STYLE.report).toEqual({
+      LINE_WIDTH: 1.5,
+      ELLIPSE_WIDTH: 0.75,
+      RESIDUAL_WIDTH: 1.25,
+      PIN_DIVISOR: 2,
+    });
     expect(OVERLAY_RATIOS).toEqual({ HALO: 2, DASH_ON: 2.5, DASH_OFF: 3, TICK_HALF_LENGTH: 3, TICK_WIDTH: 0.6 });
     expect(OVERLAY_HALO_COLOR).toBe('rgba(0, 0, 0, 0.5)');
   });
@@ -45,13 +52,6 @@ describe('overlayLineParts', () => {
     expect(parts[1].dash).toBe('3.75,4.5');
     expect(parts[2]).toMatchObject({ y1: -4.5, y2: 4.5 });
     expect(parts[2].width).toBeCloseTo(0.9);
-  });
-
-  test('thin line has no halo', () => {
-    const parts = overlayLineParts({ ...seg, size: 'app', thin: true });
-    expect(parts).toHaveLength(1);
-    expect(parts[0]).toMatchObject({ role: 'stroke', width: 1 });
-    expect(overlayLineParts({ ...seg, size: 'report', thin: true })[0].width).toBe(0.75);
   });
 
   test('a zero-length segment gives finite ticks', () => {
@@ -93,5 +93,58 @@ describe('drawOverlayLine', () => {
     });
     expect(lines[1].attrs).toMatchObject({ stroke: '#F5BF61', 'stroke-width': 3 });
     expect(lines[2].attrs['stroke-dasharray']).toBeNull();
+  });
+});
+
+describe('line width override', () => {
+  test('the residual keeps its halo at its own width', () => {
+    const parts = overlayLineParts({ ...seg, size: 'app', width: OVERLAY_STYLE.app.RESIDUAL_WIDTH });
+    expect(parts.map((p) => p.role)).toEqual(['halo', 'stroke']);
+    expect(parts[0].width).toBe(5);
+    expect(parts[1].width).toBe(2.5);
+  });
+  test('zoom divides the override too', () => {
+    const parts = overlayLineParts({ ...seg, size: 'app', width: 2.5, zoom: 2 });
+    expect(parts[1].width).toBe(1.25);
+  });
+});
+
+describe('overlayEllipseParts', () => {
+  const e = { cx: 100, cy: 50, width: 40, height: 20, angle: -12, color: '#FFFFFF' };
+  test('axis lengths become radii; halo under the stroke', () => {
+    const parts = overlayEllipseParts({ ...e, size: 'app' });
+    expect(parts.map((p) => p.role)).toEqual(['halo', 'stroke']);
+    expect(parts[1]).toMatchObject({ cx: 100, cy: 50, rx: 20, ry: 10, stroke: '#FFFFFF', width: 1.5 });
+    expect(parts[1].rotate).toBe('rotate(-12, 100, 50)');
+    expect(parts[0]).toMatchObject({ stroke: 'rgba(0, 0, 0, 0.5)', width: 3, rx: 20, ry: 10 });
+  });
+  test('report size halves the widths, zoom divides them', () => {
+    expect(overlayEllipseParts({ ...e, size: 'report' })[1].width).toBe(0.75);
+    expect(overlayEllipseParts({ ...e, size: 'app', zoom: 3 })[1].width).toBe(0.5);
+  });
+  test.each([
+    ['zero width', { width: 0 }],
+    ['NaN height', { height: NaN }],
+    ['negative width', { width: -4 }],
+  ])('a degenerate ellipse (%s) draws nothing', (_name, bad) => {
+    expect(overlayEllipseParts({ ...e, ...bad, size: 'app' })).toEqual([]);
+  });
+  test('drawOverlayEllipse appends unfilled halo and stroke ellipses', () => {
+    const layer = fakeSelection();
+    drawOverlayEllipse({
+      layer: layer as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
+      ...e,
+      size: 'app',
+      className: 'ipcam-ellipse',
+    });
+    const ellipses = allTags(layer.node(), 'ellipse');
+    expect(ellipses).toHaveLength(2);
+    expect(ellipses[1].attrs).toMatchObject({
+      fill: 'none',
+      stroke: '#FFFFFF',
+      rx: 20,
+      ry: 10,
+      'stroke-width': 1.5,
+    });
   });
 });

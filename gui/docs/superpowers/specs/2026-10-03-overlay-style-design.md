@@ -36,7 +36,8 @@ New `src/components/Graphs/overlayStyle.ts`:
 | Section dash | 7.5 / 9 (2.5× / 3× line width) | 3.75 / 4.5 |
 | Section end ticks | 9 px each side, width 0.6 × line | 4.5 px each side, width 0.6 × line |
 | Pin divisor | 1 for screen-space pins; the zoom divisor inside zoomed layers, as today | 2 |
-| Thin reference line (ipcam reprojection) | 1 px, no halo | 0.75 px, no halo |
+| Ipcam residual (amended 2026-10-09) | 2.5 px with halo | 1.25 px with halo |
+| Ipcam uncertainty ellipse outline (added 2026-10-09) | 1.5 px with halo | 0.75 px with halo |
 
 Report values are the app values halved, except the pin divisor (1 → 2 at screen scale; the report frame is not zoomed).
 

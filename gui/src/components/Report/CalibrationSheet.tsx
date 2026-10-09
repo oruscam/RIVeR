@@ -195,9 +195,10 @@ const Ipcam = ({ measure = false }: { measure?: boolean }) => {
         svgElement: svgRef.current,
         width: box.width,
         height: box.height,
+        solution: cameraSolution ?? undefined,
       });
     }
-  }, [points, factor, box.width, box.height, measure]);
+  }, [points, factor, box.width, box.height, measure, cameraSolution]);
 
   if (!cameraSolution || !points) return null;
   const { meanError, cameraPosition, reprojectionErrors, pointIndices } = cameraSolution;
