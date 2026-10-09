@@ -1,5 +1,6 @@
 // src/helpers/reportModel.test.ts
-import { buildReportModel, appliedCorrections, lensLabel, summaryRows } from './reportModel';
+import { buildReportModel, appliedCorrections, imageSequenceText, lensLabel, summaryRows } from './reportModel';
+import en from '../translations/en/global.json';
 import type { SectionData } from '../store/section/types';
 
 // Minimal SectionData: 4 stations, 1 m apart, 1 m deep, all checked.
@@ -188,5 +189,32 @@ describe('summaryRows', () => {
   test('% measured is the mean of the sections’ active-technique percentages', () => {
     const m = buildReportModel(input([section(), section({ name: 'CS2' })]));
     expect(summaryRows(backend, m)!.find((r) => r.key === 'measured')!.mean).toBeCloseTo(100);
+  });
+});
+
+describe('imageSequenceText', () => {
+  // The English sentence, filled in the way i18next fills it.
+  const t = (key: string, values: Record<string, unknown>) =>
+    (key === 'Report.Doc.imageSequence' ? en.Report.Doc.imageSequence : key).replace(/{{(\w+)}}/g, (_, name) =>
+      String(values[name])
+    );
+
+  it('states the frame count and the interval', () => {
+    expect(imageSequenceText(240, 40, t)).toBe(
+      'Image sequence · 240 frames · interval entered by the operator: 40 ms'
+    );
+  });
+
+  it('prints the interval as the operator entered it, not rounded', () => {
+    expect(imageSequenceText(120, 16.6667, t)).toBe(
+      'Image sequence · 120 frames · interval entered by the operator: 16.6667 ms'
+    );
+    expect(imageSequenceText(120, 33.33, t)).toContain(': 33.33 ms');
+  });
+
+  it('stands on zeros when the facts are missing', () => {
+    expect(imageSequenceText(undefined, undefined, t)).toContain(
+      '0 frames · interval entered by the operator: 0 ms'
+    );
   });
 });
