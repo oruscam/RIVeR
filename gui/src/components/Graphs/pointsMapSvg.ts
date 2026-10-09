@@ -1,7 +1,9 @@
 import * as d3 from 'd3';
-import { COLORS } from '../../constants/constants';
+import { getOverlayColors, getPinColors } from '../../helpers/getCSSVar';
 import cam_marker from '../../assets/cam_marker.svg';
 import { scaleBar } from './scaleBar';
+import { OVERLAY_HALO_COLOR } from './overlayStyle';
+import { coordTick } from './pointsMapFormat';
 
 interface PointsMapSvgProps {
   svgElement: SVGSVGElement;
@@ -53,8 +55,6 @@ export const pointsMapSvg = ({
     orthoExtent?.[3] ?? 0,
   ].filter((d) => d !== 0 && d !== undefined);
 
-  svg.append('svg').attr('width', width).attr('height', height).attr('class', 'points-map');
-
   let xScale = d3
     .scaleLinear()
     .domain([d3.min(xPoints), d3.max(xPoints)])
@@ -96,7 +96,7 @@ export const pointsMapSvg = ({
       .attr('y1', 0)
       .attr('x2', (d) => xScale(d))
       .attr('y2', tickLength)
-      .attr('stroke', 'white');
+      .classed('points-map-frame', true);
 
     svg
       .selectAll('line.x-tick-bottom')
@@ -108,7 +108,7 @@ export const pointsMapSvg = ({
       .attr('y1', height - tickLength)
       .attr('x2', (d) => xScale(d))
       .attr('y2', height)
-      .attr('stroke', 'white');
+      .classed('points-map-frame', true);
 
     svg
       .selectAll('line.y-tick-left')
@@ -120,7 +120,7 @@ export const pointsMapSvg = ({
       .attr('y1', (d) => yScale(d))
       .attr('x2', tickLength)
       .attr('y2', (d) => yScale(d))
-      .attr('stroke', 'white');
+      .classed('points-map-frame', true);
 
     svg
       .selectAll('line.y-tick-right')
@@ -132,7 +132,7 @@ export const pointsMapSvg = ({
       .attr('y1', (d) => yScale(d))
       .attr('x2', width)
       .attr('y2', (d) => yScale(d))
-      .attr('stroke', 'white');
+      .classed('points-map-frame', true);
 
     // Add white border
     svg
@@ -140,7 +140,7 @@ export const pointsMapSvg = ({
       .attr('width', width)
       .attr('height', height)
       .attr('fill', 'none')
-      .attr('stroke', 'white')
+      .classed('points-map-frame', true)
       .attr('stroke-width', 2);
   }
 
@@ -165,39 +165,38 @@ const drawPoints = (
   xScale.domain([xDomain[0] - xPadding, xDomain[1] + xPadding]);
   yScale.domain([yDomain[0] - yPadding, yDomain[1] + yPadding]);
 
-  const line1 = svg
-    .selectAll('line.cross')
-    .data(points)
-    .enter()
-    .append('line')
-    .attr('x1', (d) => margin.left + xScale(d.X) - 5)
-    .attr('y1', (d) => margin.top + yScale(d.Y) - 5)
-    .attr('x2', (d) => margin.left + xScale(d.X) + 5)
-    .attr('y2', (d) => margin.top + yScale(d.Y) + 5)
-    .attr('stroke', (d, i) =>
-      i === activePoint ? COLORS.RED : d.selected === false ? COLORS.TRANSPARENT : COLORS.LIGHT_BLUE
-    )
-    .attr('stroke-width', 2);
+  const overlay = getOverlayColors();
+  const pins = getPinColors();
+  const hidden = 'transparent';
+  const crossColor = (d: { selected: boolean }, i: number) =>
+    i === activePoint ? overlay.line : d.selected === false ? hidden : pins.point;
+  const haloColor = (d: { selected: boolean }, i: number) =>
+    i === activePoint || d.selected ? OVERLAY_HALO_COLOR : hidden;
+  const crossWidth = (_d: unknown, i: number) => (i === activePoint ? 2.5 : 2);
 
-  const line2 = svg
-    .selectAll('line.cross')
-    .data(points)
-    .enter()
-    .append('line')
-    .attr('class', 'cross')
-    .attr('x1', (d) => margin.left + xScale(d.X) - 5)
-    .attr('y1', (d) => margin.top + yScale(d.Y) + 5)
-    .attr('x2', (d) => margin.left + xScale(d.X) + 5)
-    .attr('y2', (d) => margin.top + yScale(d.Y) - 5)
-    .attr('stroke', (d, i) =>
-      i === activePoint ? COLORS.RED : d.selected === false ? COLORS.TRANSPARENT : COLORS.LIGHT_BLUE
-    )
-    .attr('stroke-width', 2);
+  // One stroke of every cross; `dir` is +1 for the falling stroke, -1 for the rising one.
+  const stroke = (cls: string, dir: 1 | -1, color: typeof crossColor, strokeWidth: number | typeof crossWidth) =>
+    svg
+      .selectAll(`line.${cls}`)
+      .data(points)
+      .enter()
+      .append('line')
+      .attr('class', cls)
+      .attr('x1', (d) => margin.left + xScale(d.X) - 5)
+      .attr('y1', (d) => margin.top + yScale(d.Y) - 5 * dir)
+      .attr('x2', (d) => margin.left + xScale(d.X) + 5)
+      .attr('y2', (d) => margin.top + yScale(d.Y) + 5 * dir)
+      .attr('stroke', color)
+      .attr('stroke-width', strokeWidth as any)
+      .attr('stroke-linecap', 'round');
 
-  return {
-    line1,
-    line2,
-  };
+  // Halos first, so every coloured stroke sits on top of both.
+  const halo1 = stroke('cross-halo-a', 1, haloColor, 4);
+  const halo2 = stroke('cross-halo-b', -1, haloColor, 4);
+  const line1 = stroke('cross-a', 1, crossColor, crossWidth);
+  const line2 = stroke('cross-b', -1, crossColor, crossWidth);
+
+  return { line1, line2, halo1, halo2 };
 };
 
 const drawAnalizeResult = (
@@ -214,10 +213,10 @@ const drawAnalizeResult = (
   yScale: d3.ScaleLinear<number, number>,
   unitSistem?: string
 ) => {
-  margin.left = 80;
-  margin.bottom = 80;
-  margin.right = 20;
-  margin.top = 20;
+  margin.left = 62;
+  margin.bottom = 26;
+  margin.right = 8;
+  margin.top = 8;
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
 
@@ -253,7 +252,17 @@ const drawAnalizeResult = (
     .attr('height', Math.abs(yScale(y + imgHeight) - yScale(y)))
     .attr('clip-path', 'url(#clip)');
 
-  scaleBar(orthoExtent, svg.node() as SVGSVGElement, xScale, yScale, 'clip', margin.left, margin.top, unitSistem);
+  scaleBar(
+    orthoExtent,
+    svg.node() as SVGSVGElement,
+    xScale,
+    yScale,
+    'clip',
+    margin.left,
+    margin.top,
+    unitSistem,
+    'panel'
+  );
 
   // Append the camera icon
   const xOffset = -15;
@@ -274,8 +283,7 @@ const drawAnalizeResult = (
         .attr('id', 'tooltip')
         .attr('x', x + 10)
         .attr('y', y - 10)
-        .attr('fill', 'white')
-        .attr('font-size', '12px');
+        .classed('points-map-tip', true);
 
       tooltip
         .append('tspan')
@@ -300,12 +308,21 @@ const drawAnalizeResult = (
       svg.select('#tooltip').remove();
     });
 
-  const xAxis = d3.axisBottom(xScale).ticks(3);
-
-  const yAxis = d3.axisLeft(yScale).ticks(5);
+  const makeXAxis = (scale: d3.ScaleLinear<number, number>) =>
+    d3
+      .axisBottom(scale)
+      .ticks(3)
+      .tickSizeOuter(0)
+      .tickFormat((d) => coordTick(d as number));
+  const makeYAxis = (scale: d3.ScaleLinear<number, number>) =>
+    d3
+      .axisLeft(scale)
+      .ticks(3)
+      .tickSizeOuter(0)
+      .tickFormat((d) => coordTick(d as number));
 
   // Cross Points
-  const { line1, line2 } = drawPoints(points, activePoint, margin, svg, xScale, yScale);
+  const { line1, line2, halo1, halo2 } = drawPoints(points, activePoint, margin, svg, xScale, yScale);
 
   // Add zoom and pan functionality
   const zoom = d3
@@ -348,22 +365,26 @@ const drawAnalizeResult = (
       .attr('x', margin.left + newXScale(cameraPosition[0]) + xOffset)
       .attr('y', margin.top + newYScale(cameraPosition[1]) + yOffset);
 
-    line1
-      .attr('x1', (d) => margin.left + newXScale(d.X) - 5)
-      .attr('y1', (d) => margin.top + newYScale(d.Y) - 5)
-      .attr('x2', (d) => margin.left + newXScale(d.X) + 5)
-      .attr('y2', (d) => margin.top + newYScale(d.Y) + 5)
-      .attr('clip-path', 'url(#clip)');
+    [line1, halo1].forEach((line) =>
+      line
+        .attr('x1', (d) => margin.left + newXScale(d.X) - 5)
+        .attr('y1', (d) => margin.top + newYScale(d.Y) - 5)
+        .attr('x2', (d) => margin.left + newXScale(d.X) + 5)
+        .attr('y2', (d) => margin.top + newYScale(d.Y) + 5)
+        .attr('clip-path', 'url(#clip)')
+    );
 
-    line2
-      .attr('x1', (d) => margin.left + newXScale(d.X) - 5)
-      .attr('y1', (d) => margin.top + newYScale(d.Y) + 5)
-      .attr('x2', (d) => margin.left + newXScale(d.X) + 5)
-      .attr('y2', (d) => margin.top + newYScale(d.Y) - 5)
-      .attr('clip-path', 'url(#clip)');
+    [line2, halo2].forEach((line) =>
+      line
+        .attr('x1', (d) => margin.left + newXScale(d.X) - 5)
+        .attr('y1', (d) => margin.top + newYScale(d.Y) + 5)
+        .attr('x2', (d) => margin.left + newXScale(d.X) + 5)
+        .attr('y2', (d) => margin.top + newYScale(d.Y) - 5)
+        .attr('clip-path', 'url(#clip)')
+    );
 
-    svg.select('.x-axis').call(d3.axisBottom(newXScale).ticks(3));
-    svg.select('.y-axis').call(d3.axisLeft(newYScale).ticks(5));
+    svg.select<SVGGElement>('.x-axis').call(makeXAxis(newXScale));
+    svg.select<SVGGElement>('.y-axis').call(makeYAxis(newYScale));
 
     scaleBar(
       orthoExtent,
@@ -373,21 +394,20 @@ const drawAnalizeResult = (
       'clip',
       margin.left,
       margin.top,
-      unitSistem
+      unitSistem,
+      'panel'
     );
   }
 
   svg
     .append('g')
-    .attr('class', 'x-axis')
+    .attr('class', 'x-axis points-map-axis')
     .attr('transform', `translate(${margin.left}, ${height - margin.bottom})`)
-    .call(xAxis)
-    .attr('font-size', '12px');
+    .call(makeXAxis(xScale));
 
   svg
     .append('g')
-    .attr('class', 'y-axis')
+    .attr('class', 'y-axis points-map-axis')
     .attr('transform', `translate(${margin.left}, ${margin.top})`)
-    .call(yAxis)
-    .attr('font-size', '12px');
+    .call(makeYAxis(yScale));
 };

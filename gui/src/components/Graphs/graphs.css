@@ -361,3 +361,53 @@ svg .bar-stroke-themed {
   fill: var(--overlay-line);
   font-family: inherit;
 }
+
+/* Fixed-station points map: sized to the panel section, quiet axes in theme
+   tokens. It ignores the pointer, so wheel and drag over it scroll the panel. */
+.points-map-box {
+    margin-top: var(--space-3);
+}
+
+.points-map-svg {
+    display: block;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--grid-bg-odd);
+    box-sizing: border-box;
+    pointer-events: none;
+}
+
+.points-map-axis {
+    font-size: var(--text-caption);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-subdued);
+}
+
+.points-map-axis .domain,
+.points-map-axis .tick line {
+    stroke: var(--border-color);
+}
+
+.points-map-frame {
+    stroke: var(--text-subdued);
+}
+
+.points-map-tip {
+    fill: var(--text-primary);
+    font-size: var(--text-caption);
+}
+
+/* The map's scale bar reads on the photo and on the panel ground alike. */
+rect.scale-bar-panel {
+    fill: var(--overlay-line);
+    stroke: var(--pin-ink);
+}
+
+text.scale-bar-panel {
+    fill: var(--overlay-line);
+    stroke: var(--pin-ink);
+    stroke-width: 3px;
+    paint-order: stroke;
+    font-size: var(--text-caption);
+    font-weight: 600;
+}

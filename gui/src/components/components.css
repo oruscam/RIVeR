@@ -853,11 +853,6 @@
     cursor: pointer;
 }
 
-.points-map {
-    /* This map always has a white background regardless of theme (it's a map/chart canvas) */
-    background-color: #ffffff;
-}
-
 .header-fixed {
     position: sticky;
     top: 0;
