@@ -118,6 +118,18 @@ export function lensLabel(path: string | null): string | null {
   return base.replace(/\.[^.]+$/, '');
 }
 
+/**
+ * The footage row of a frames project. The interval is what the operator entered and the
+ * discharge was computed with, so it is printed as stored, never rounded.
+ */
+export function imageSequenceText(
+  frameCount: number | undefined,
+  intervalMs: number | undefined,
+  t: (key: string, values: Record<string, unknown>) => string
+): string {
+  return t('Report.Doc.imageSequence', { count: frameCount ?? 0, ms: String(intervalMs ?? 0) });
+}
+
 export function appliedCorrections(p: {
   committedLensCorrection: string | null;
   committedStabilization: boolean;

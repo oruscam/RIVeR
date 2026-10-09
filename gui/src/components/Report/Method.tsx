@@ -4,7 +4,7 @@ import { useDataSlice, useProjectSlice } from '../../hooks';
 import { REPORT_FLOW } from '../../constants/constants';
 import { frameBox, snapshotFrames } from '../../helpers/reportLayout';
 import { formatStationRanges } from '../../helpers/stationRanges';
-import { TECHNIQUE_LABEL, lensLabel, type ReportModel } from '../../helpers/reportModel';
+import { TECHNIQUE_LABEL, imageSequenceText, lensLabel, type ReportModel } from '../../helpers/reportModel';
 import { CalibrationPanel } from './CalibrationSheet';
 
 const stamp = (d: Date) => d.toISOString().slice(0, 16).replace('T', ' ');
@@ -75,10 +75,7 @@ const FootagePanel = ({ measure = false }: { measure?: boolean }) => {
             <dt>{t('Report.Doc.sourceLabel')}</dt>
             <dd>
               {/* The interval is declared by the operator, not measured: the report says so. */}
-              {t('Report.Doc.imageSequence', {
-                count: frameCount ?? 0,
-                ms: formatNumberTo2Decimals(intervalMs ?? 0),
-              })}
+              {imageSequenceText(frameCount, intervalMs, t)}
             </dd>
           </div>
         )}
