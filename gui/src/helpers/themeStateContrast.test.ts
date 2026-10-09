@@ -183,6 +183,16 @@ const STATE_PAIRS: StatePair[] = [
     floor: 3.0, // 4.438 dark
     ratio: (t) => contrastRatio(resolveRgb(t, '--accent-color'), resolveRgb(t, '--background-color')),
   },
+  {
+    label: 'ipcam grid: fair grade dot vs the odd row',
+    floor: 3,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--status-fair'), resolveRgb(t, '--grid-bg-odd')),
+  },
+  {
+    label: 'ipcam grid: bad grade dot vs the even row',
+    floor: 3,
+    ratio: (t) => contrastRatio(resolveRgb(t, '--status-bad'), resolveRgb(t, '--grid-bg-even')),
+  },
 ];
 
 describe('theme token parsing', () => {

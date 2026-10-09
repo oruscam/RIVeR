@@ -609,14 +609,131 @@
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
+/* IPCAM GRID (preview 2026-10-09). The control points table sits on the panel
+   section's width with the quiet chrome of the row grammar: no shadow, a
+   caption header, tabular numbers on the right. Scoped to this table; the
+   Results grid keeps the .grid look. */
 #ipcam-grid {
-    max-height: 450px;
-    width: 95%;
+    width: 100%;
+    max-height: none;
+    margin-top: var(--space-3);
+    overflow: hidden;
+    box-shadow: none;
 }
 
 #ipcam-grid .grid {
-    block-size: 400px;
+    block-size: clamp(190px, 34vh, 400px);
+    --rdg-font-size: var(--text-caption);
+    --rdg-header-background-color: var(--grid-header-bg);
+    font-variant-numeric: tabular-nums;
 }
+
+#ipcam-grid .grid .rdg-header-row {
+    border-bottom: 1px solid var(--border-color);
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-subdued);
+}
+
+#ipcam-grid .rdg-cell {
+    padding-inline: 6px;
+    border-inline-end: 0;
+    border-block-end: 0;
+}
+
+#ipcam-grid .cp-cell-num {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+#ipcam-grid .cp-cell-label {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+}
+
+#ipcam-grid .cp-cell-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0;
+}
+
+/* The header's sort control: the header text itself, as a button. */
+#ipcam-grid .cp-sort {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#ipcam-grid .cp-sort[aria-pressed="true"],
+#ipcam-grid .cp-sort:hover {
+    color: var(--text-primary);
+}
+
+#ipcam-grid .cp-sort:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* A grade dot before a fair or bad error; a good one carries none. */
+#ipcam-grid .cp-err {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+#ipcam-grid .cp-err-fair::before,
+#ipcam-grid .cp-err-bad::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+#ipcam-grid .cp-err-fair::before {
+    background-color: var(--status-fair);
+}
+
+#ipcam-grid .cp-err-bad::before {
+    background-color: var(--status-bad);
+}
+
+/* The active point: an accent tint and bar, the same point ringed on the
+   frame. color-mix, not a surface token: the surfaces collapse in light and
+   dracula. */
+#ipcam-grid .rdg-row.cp-row-active .rdg-cell {
+    background-color: color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+
+#ipcam-grid .rdg-row.cp-row-active .rdg-cell:first-child {
+    box-shadow: inset 2px 0 0 var(--accent-color);
+}
+
+/* A point left out of the solve keeps its values, subdued. */
+#ipcam-grid .rdg-row.cp-row-off .rdg-cell {
+    color: var(--text-subdued);
+}
+
+#ipcam-grid .cp-table-foot {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px var(--space-2);
+    border-top: 1px solid var(--border-color);
+    font-size: var(--text-caption);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-subdued);
+}
+/* END IPCAM GRID */
 
 .grid {
     width: 100%;
