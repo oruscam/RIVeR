@@ -19,16 +19,12 @@ describe('skipped-station placeholder tile', () => {
 
   it('undims through a selector that out-ranks the strip dimming rule', () => {
     // The dimming rule has three class-level parts; this one has four.
-    const body = ruleBody(
-      '.img-carousel.img-carousel-empty:not(.img-carousel-active):not(.img-carousel-second)'
-    );
+    const body = ruleBody('.img-carousel.img-carousel-empty:not(.img-carousel-active):not(.img-carousel-second)');
     expect(body).toMatch(/filter:\s*none/);
   });
 
   it('quiets the label of an unselected placeholder from the chrome ink', () => {
-    const body = ruleBody(
-      '.img-carousel.img-carousel-empty:not(.img-carousel-active):not(.img-carousel-second)'
-    );
+    const body = ruleBody('.img-carousel.img-carousel-empty:not(.img-carousel-active):not(.img-carousel-second)');
     expect(body).toMatch(/color:\s*color-mix\(in srgb, var\(--canvas-chrome-ink\)/);
   });
 });

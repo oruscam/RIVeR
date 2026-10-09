@@ -24,7 +24,7 @@ The step reads as part of RIVeR: the row grammar of the other panels, the shared
 4. **One Solve in the footer and a Method switch** (`All points` / `Optimized`), the two methods treated equally. Rejected: two buttons in the footer (differs from Oblique and UAV, two primary-weight buttons beside Next), one Solve that runs both methods and compares them (runs Optimize every time, store must hold two solutions).
 5. **Grades: good under 5 px, fair from 5 to 10 px, bad over 10 px**, for the mean and for each point.
 6. **Pixel x / y leave the table**; the active point's values show in a line under it.
-7. **Table cells keep 6 px side padding** so six columns fit the panel without a horizontal scrollbar.
+7. **Table cells keep tight side padding** so six columns fit the panel without a horizontal scrollbar. Amended after the in-app check at the 400 px minimum panel: 4 px, not 6 px, and the table extends 8 px past the row inset on each side; with 6 px the Error column was cut off.
 
 ## Design
 
@@ -61,7 +61,7 @@ Order inside `.panel-section`:
    - "Mean reprojection error": value at `--text-section`, 600, tabular, unit "px" in subdued caption text, then the `.badge` for its grade.
    - "Points used": `numPoints` "of" the number of placed points.
    - "Camera height": two decimals with the unit (m or ft).
-   - When the grade is fair or bad, one caption line: "Untick the points with the largest error, then solve again."
+   - When the grade is fair or bad and the solve was All points, one caption line (Optimized picks its own points, so unticking does not change it): "Untick the points with the largest error, then solve again."
    - If the method switch differs from `cameraSolution.mode`, the block stays as it is; it describes the last solve.
 4. **Points table**, then **map**.
 
@@ -76,7 +76,7 @@ The body takes the `processing-body` flex so the footer never moves.
 - The Error header sorts: first click worst first, second click best first, third click back to file order. Rows with no error go last. Sorting must keep `rowKeyGetter` on the point index so selection and `onChangePointSelected` still address the right point.
 - A point left out of the solve keeps its error, with the row in `--text-subdued`.
 - Active point: accent tint on the row and a 2 px accent bar on its left edge. Clicking anywhere on a row except the checkbox activates the point (today only the label cell does).
-- Chrome, scoped to `#ipcam-grid`: full width of the panel section, no box shadow, header at `--text-caption` 600 in `--text-subdued` with a 1 px `--border-color` rule (no uppercase, no accent rule), cells at `--text-caption` tabular, numbers right-aligned, label left-aligned, 6 px side padding, 30 px rows. No horizontal scrollbar at the 400 px minimum panel width.
+- Chrome, scoped to `#ipcam-grid`: full width of the panel section, no box shadow, header at `--text-caption` 600 in `--text-subdued` with a 1 px `--border-color` rule (no uppercase, no accent rule), cells at `--text-caption` tabular, numbers right-aligned, label left-aligned, 4 px side padding, 30 px rows. No horizontal scrollbar at the 400 px minimum panel width.
 - Footer line under the rows: "{label} on the frame" left, "x … · y … px" right, for the active point; hidden when none is active.
 - Before import: no placeholder rows. The table is not rendered and the drop hint stands alone.
 

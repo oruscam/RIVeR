@@ -1,4 +1,4 @@
-import { ipcamGridRows, nextErrorSort } from './ipcamGridRows';
+import { ipcamGridRows, nextErrorSort, rowClickActivates } from './ipcamGridRows';
 import { IpcamPoint } from '../store/ipcam/types';
 
 const point = (label: string, x: number, y: number, selected = true): IpcamPoint => ({
@@ -68,5 +68,17 @@ describe('nextErrorSort', () => {
     expect(nextErrorSort('none')).toBe('worst');
     expect(nextErrorSort('worst')).toBe('best');
     expect(nextErrorSort('best')).toBe('none');
+  });
+});
+
+describe('rowClickActivates', () => {
+  test('any cell of a placed point activates it; the checkbox never does', () => {
+    expect(rowClickActivates('X', true)).toBe(true);
+    expect(rowClickActivates('error', true)).toBe(true);
+    expect(rowClickActivates('select-row', true)).toBe(false);
+  });
+  test('a point not yet on the image is only dropped onto it from its label, as before', () => {
+    expect(rowClickActivates('label', false)).toBe(true);
+    expect(rowClickActivates('X', false)).toBe(false);
   });
 });

@@ -24,15 +24,18 @@ describe('projectIssueAlerts', () => {
         action: { label: 'ProjectIssues.locate', action: 'locate-video' },
       },
     ]);
-    expect(projectIssueAlerts(issues, 'processing', t, 'DJI_0083.MP4').some((a) => a.id === 'issue-video-missing')).toBe(
-      false
-    );
+    expect(
+      projectIssueAlerts(issues, 'processing', t, 'DJI_0083.MP4').some((a) => a.id === 'issue-video-missing')
+    ).toBe(false);
   });
 
   it('adds the refused-video card under the video card', () => {
     const withMismatch = {
       ...issues,
-      videoMismatch: { expected: { width: 4096, height: 2160, fps: 30 }, found: { width: 1920, height: 1080, fps: 25 } },
+      videoMismatch: {
+        expected: { width: 4096, height: 2160, fps: 30 },
+        found: { width: 1920, height: 1080, fps: 25 },
+      },
     };
     const alerts = projectIssueAlerts(withMismatch, 'video', t, 'DJI_0083.MP4');
     expect(alerts[1]).toEqual({

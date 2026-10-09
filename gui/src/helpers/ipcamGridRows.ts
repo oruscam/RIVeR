@@ -56,3 +56,11 @@ export const ipcamGridRows = (
     return sign * (a.error - b.error);
   });
 };
+
+/**
+ * Whether a click on a row's cell makes that point the active one. The checkbox only ticks. A point
+ * not yet on the image is dropped at its centre when activated, which changes the solve's inputs,
+ * so that stays on its label cell alone.
+ */
+export const rowClickActivates = (columnKey: string, wasEstablished: boolean) =>
+  columnKey !== 'select-row' && (wasEstablished || columnKey === 'label');

@@ -119,7 +119,11 @@ describe('computeSearchLinesFromCenters', () => {
     // Cross-section from x=0 to x=10, but the given centres (1, 7, 9) are NOT evenly
     // spaced — unlike computeStationSearchLines's interpolated preview, these must be
     // honored as-is.
-    const centers = [{ x: 1, y: 0 }, { x: 7, y: 0 }, { x: 9, y: 0 }];
+    const centers = [
+      { x: 1, y: 0 },
+      { x: 7, y: 0 },
+      { x: 9, y: 0 },
+    ];
     const lines = computeSearchLinesFromCenters(centers, { x: 0, y: 0 }, { x: 10, y: 0 }, 6, IDENTITY);
 
     expect(lines).toHaveLength(3);
@@ -132,7 +136,10 @@ describe('computeSearchLinesFromCenters', () => {
   });
 
   it('orients lines perpendicular to the cross-section tangent', () => {
-    const centers = [{ x: 2, y: 0 }, { x: 8, y: 0 }];
+    const centers = [
+      { x: 2, y: 0 },
+      { x: 8, y: 0 },
+    ];
     const lines = computeSearchLinesFromCenters(centers, { x: 0, y: 0 }, { x: 10, y: 0 }, 6, IDENTITY);
 
     // Cross-section runs along x, so each line must run along y (no x extent).
@@ -143,18 +150,26 @@ describe('computeSearchLinesFromCenters', () => {
   });
 
   it('numbers stations from 1', () => {
-    const centers = [{ x: 1, y: 0 }, { x: 4, y: 0 }, { x: 6, y: 0 }, { x: 9, y: 0 }];
+    const centers = [
+      { x: 1, y: 0 },
+      { x: 4, y: 0 },
+      { x: 6, y: 0 },
+      { x: 9, y: 0 },
+    ];
     const lines = computeSearchLinesFromCenters(centers, { x: 0, y: 0 }, { x: 10, y: 0 }, 6, IDENTITY);
     expect(lines.map((l) => l.station)).toEqual([1, 2, 3, 4]);
   });
 
   it('returns an empty array for fewer than 2 centres or a non-positive length', () => {
-    expect(
-      computeSearchLinesFromCenters([{ x: 1, y: 0 }], { x: 0, y: 0 }, { x: 10, y: 0 }, 6, IDENTITY)
-    ).toEqual([]);
+    expect(computeSearchLinesFromCenters([{ x: 1, y: 0 }], { x: 0, y: 0 }, { x: 10, y: 0 }, 6, IDENTITY)).toEqual(
+      []
+    );
     expect(
       computeSearchLinesFromCenters(
-        [{ x: 1, y: 0 }, { x: 9, y: 0 }],
+        [
+          { x: 1, y: 0 },
+          { x: 9, y: 0 },
+        ],
         { x: 0, y: 0 },
         { x: 10, y: 0 },
         0,
@@ -175,7 +190,10 @@ describe('computeSearchLinesFromCenters', () => {
       [0, 0.05, 1],
     ];
 
-    const centers = [{ x: 3, y: 0 }, { x: 8, y: 0 }];
+    const centers = [
+      { x: 3, y: 0 },
+      { x: 8, y: 0 },
+    ];
     const lines = computeSearchLinesFromCenters(centers, { x: 0, y: 0 }, { x: 10, y: 0 }, 6, PERSPECTIVE);
     const [px, py] = transformRealWorldToPixel(centers[0].x, centers[0].y, PERSPECTIVE);
     const centerPx = { x: px, y: py };
@@ -195,7 +213,13 @@ describe('getSectionSearchLines', () => {
   ];
 
   it('interpolates stations along the drawn line before any run', () => {
-    const lines = getSectionSearchLines({ sectionPoints, numStations: 3, data: null, heightRoiM: 2, matrix: IDENTITY });
+    const lines = getSectionSearchLines({
+      sectionPoints,
+      numStations: 3,
+      data: null,
+      heightRoiM: 2,
+      matrix: IDENTITY,
+    });
     expect(lines).toHaveLength(3);
     expect(searchLineCenters(lines, IDENTITY).map((c) => Math.round(c.x))).toEqual([0, 5, 10]);
   });
@@ -207,7 +231,11 @@ describe('getSectionSearchLines', () => {
   });
 
   it('returns nothing for an incomplete section', () => {
-    expect(getSectionSearchLines({ sectionPoints, numStations: 1, data: null, heightRoiM: 2, matrix: IDENTITY })).toEqual([]);
-    expect(getSectionSearchLines({ sectionPoints: [], numStations: 3, data: null, heightRoiM: 2, matrix: IDENTITY })).toEqual([]);
+    expect(
+      getSectionSearchLines({ sectionPoints, numStations: 1, data: null, heightRoiM: 2, matrix: IDENTITY })
+    ).toEqual([]);
+    expect(
+      getSectionSearchLines({ sectionPoints: [], numStations: 3, data: null, heightRoiM: 2, matrix: IDENTITY })
+    ).toEqual([]);
   });
 });

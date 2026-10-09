@@ -5,7 +5,7 @@ import { PointsMap } from '../Graphs';
 import { IpcamGrid } from '../index';
 import { DropHereText } from './Components/DropHereText';
 import { ipcamErrorGrade } from '../../helpers/ipcamErrorGrade';
-import { canSolve, SOLVE_MIN_POINTS, SolveMethod } from '../../helpers/ipcamSolve';
+import { canSolve, showUntickHint, SOLVE_MIN_POINTS, SolveMethod } from '../../helpers/ipcamSolve';
 
 const METHODS: { id: SolveMethod; labelKey: string }[] = [
   { id: 'direct-solve', labelKey: 'ControlPoints3d.allPoints' },
@@ -139,7 +139,7 @@ export const FormIpcam = ({
                     {(cameraSolution.cameraPosition[2] * heightFactor).toFixed(2)} <small>{lengthUnit}</small>
                   </span>
                 </div>
-                {!tooFew && (grade === 'fair' || grade === 'bad') && (
+                {!tooFew && showUntickHint(cameraSolution.mode, grade) && (
                   <p className="cp-hint">{t('ControlPoints3d.hintUntick')}</p>
                 )}
               </div>

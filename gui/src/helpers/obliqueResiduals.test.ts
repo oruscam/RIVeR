@@ -1,6 +1,11 @@
 import { obliqueResiduals } from './obliqueResiduals';
 
-const square = [{ x: 0, y: 0 }, { x: 10, y: 0 }, { x: 10, y: 10 }, { x: 0, y: 10 }];
+const square = [
+  { x: 0, y: 0 },
+  { x: 10, y: 0 },
+  { x: 10, y: 10 },
+  { x: 0, y: 10 },
+];
 const distances = { d12: 10, d23: 10, d34: 10, d41: 10.2, d13: 14.14, d24: 14.14 };
 
 test('solved distance from the real-world coordinates, minus the entered one', () => {

@@ -614,9 +614,11 @@
    caption header, tabular numbers on the right. Scoped to this table; the
    Results grid keeps the .grid look. */
 #ipcam-grid {
-    width: 100%;
+    /* Out to the row inset on both sides: at the 400px minimum panel the six
+       columns need those 16px to fit without a horizontal scrollbar. */
+    width: auto;
     max-height: none;
-    margin-top: var(--space-3);
+    margin: var(--space-3) calc(var(--space-2) * -1) 0;
     overflow: hidden;
     box-shadow: none;
 }
@@ -638,7 +640,7 @@
 }
 
 #ipcam-grid .rdg-cell {
-    padding-inline: 6px;
+    padding-inline: var(--space-1);
     border-inline-end: 0;
     border-block-end: 0;
 }

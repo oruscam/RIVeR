@@ -34,7 +34,10 @@ describe('ring loaders are retired', () => {
   });
 
   it('processing and calibration use ProgressReadout instead of Loading', () => {
-    for (const file of ['components/Forms/Components/AnalyzingProgress.tsx', 'components/Forms/FormCalibration.tsx']) {
+    for (const file of [
+      'components/Forms/Components/AnalyzingProgress.tsx',
+      'components/Forms/FormCalibration.tsx',
+    ]) {
       const src = read(file);
       expect(src).toMatch(/<ProgressReadout\b/);
       expect(src).not.toMatch(/<Loading\b/);
