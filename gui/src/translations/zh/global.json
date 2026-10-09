@@ -38,7 +38,7 @@
     "addYourFootage": "添加影像",
     "changeType": "更改类型",
     "dragAndDrop": "将视频或帧图像文件夹拖到此处",
-    "openFolders": "打开文件夹",
+    "openFolders": "选择视频",
     "footageType": {
       "uav": "无人机",
       "uavDescription": "从上方垂直俯视",

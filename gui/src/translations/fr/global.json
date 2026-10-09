@@ -38,7 +38,7 @@
     "addYourFootage": "Ajoutez votre séquence",
     "changeType": "Changer le type",
     "dragAndDrop": "Glissez ici une vidéo ou un dossier d'images",
-    "openFolders": "Ouvrir le dossier",
+    "openFolders": "Choisir une vidéo",
     "footageType": {
       "uav": "Drone",
       "uavDescription": "Vue verticale depuis le ciel",

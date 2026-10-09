@@ -38,7 +38,7 @@
     "addYourFootage": "영상 추가",
     "changeType": "유형 변경",
     "dragAndDrop": "동영상 또는 프레임 폴더를 여기로 끌어다 놓으세요",
-    "openFolders": "폴더 열기",
+    "openFolders": "동영상 선택",
     "footageType": {
       "uav": "드론",
       "uavDescription": "위에서 내려다본 영상",

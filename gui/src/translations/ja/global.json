@@ -38,7 +38,7 @@
     "addYourFootage": "映像を追加",
     "changeType": "種類を変更",
     "dragAndDrop": "動画またはフレーム画像のフォルダーをここにドラッグ",
-    "openFolders": "フォルダを開く",
+    "openFolders": "動画を選択",
     "footageType": {
       "uav": "ドローン",
       "uavDescription": "真上からの映像",

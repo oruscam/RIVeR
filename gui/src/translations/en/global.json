@@ -38,7 +38,7 @@
     "addYourFootage": "Add your footage",
     "changeType": "Change type",
     "dragAndDrop": "Drag a video or a folder of frames here",
-    "openFolders": "Open Folders",
+    "openFolders": "Browse video",
     "footageType": {
       "uav": "Drone",
       "uavDescription": "Top-down view from above",
