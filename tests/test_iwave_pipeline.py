@@ -11,8 +11,11 @@ from river.core.iwave_pipeline import (
 	build_ortho_stack,
 	build_warp_matrix,
 	build_spectra_sidecar,
+	calculate_branch_energy,
 	compute_extent,
+	extract_kx0_slice,
 	extract_ky0_slice,
+	get_display_max,
 	normalize_to_uint8,
 	pick_resolution,
 	_flow_direction_from_margins,
@@ -213,7 +216,7 @@ def test_build_spectra_sidecar_shape_and_extents():
 
 	out = build_spectra_sidecar(entries)
 
-	assert out["version"] == 1
+	assert out["version"] == 2
 	assert len(out["stations"]) == 1
 	st = out["stations"][0]
 	assert st["station"] == 3
@@ -264,7 +267,152 @@ def test_build_spectra_sidecar_skips_curves_with_nan():
 def test_build_spectra_sidecar_empty_entries():
 	out = build_spectra_sidecar([])
 
-	assert out == {"version": 1, "stations": []}
+	assert out == {"version": 2, "stations": []}
+
+
+def test_build_spectra_sidecar_v1_entry_has_no_planes():
+	# an entry without the kx=0 slice still describes a version 1 station
+	entries = [
+		{
+			"station": 3,
+			"kx": np.array([-1.0, 0.0, 1.0]),
+			"kt": np.array([0.0, 4.0]),
+			"kt_gw": np.array([2.0, 0.0, 2.0]),
+			"kt_turb": np.array([-1.0, 0.0, 1.0]),
+		}
+	]
+
+	st = build_spectra_sidecar(entries)["stations"][0]
+
+	assert "planes" not in st
+	assert "energy" not in st
+
+
+def _two_plane_entry():
+	return {
+		"station": 5,
+		"kx": np.array([-1.0, 0.0, 1.0]),
+		"ky": np.array([-2.0, 0.0, 2.0]),
+		"kt": np.array([0.0, 4.0], dtype=np.float32),
+		"slice": np.array([[0.0, 1.23456, 0.0], [0.0, np.nan, 2.0]], dtype=np.float32),
+		"slice_ky": np.array([[0.5, 0.0, 0.5], [0.0, 0.0, 0.0]], dtype=np.float32),
+		"kt_gw": np.array([2.0, 0.0, 2.0]),
+		"kt_turb": np.array([-1.0, 0.0, 1.0]),
+		"kt_gw_ky": np.array([3.0, 0.0, 3.0]),
+		"kt_turb_ky": np.array([0.0, 0.0, 0.0]),
+		"energy": {"waves": np.float64(0.25), "advected": np.float64(0.5)},
+		"vx": np.float64(1.0),
+		"vy": np.float64(-0.1),
+		"d": np.float64(0.8),
+	}
+
+
+def test_build_spectra_sidecar_writes_both_planes():
+	out = build_spectra_sidecar([_two_plane_entry()])
+	st = out["stations"][0]
+
+	json.dumps(out)  # must not raise
+	assert st["kt"] == [0.0, 4.0]
+	# rows follow kt (lowest frequency first), rounded, NaN written as 0
+	assert st["planes"]["kx"]["k"] == [-1.0, 0.0, 1.0]
+	assert st["planes"]["kx"]["values"] == [[0.0, 1.235, 0.0], [0.0, 0.0, 2.0]]
+	assert st["planes"]["ky"]["k"] == [-2.0, 0.0, 2.0]
+	assert st["planes"]["ky"]["values"] == [[0.5, 0.0, 0.5], [0.0, 0.0, 0.0]]
+	# each plane carries its own curves, against its own k axis
+	assert st["planes"]["ky"]["curves"]["gravity"] == [[-2.0, 3.0], [0.0, 0.0], [2.0, 3.0]]
+	assert st["planes"]["kx"]["curves"]["turbulence"] == st["curves"]["turbulence"]
+	assert st["fit"] == {"vx": 1.0, "vy": -0.1, "depth": 0.8}
+	assert st["energy"] == {"waves": 0.25, "advected": 0.5}
+	assert st["display_max"] > 0
+
+
+def test_extract_kx0_slice_picks_column_nearest_zero():
+	spec = np.arange(2 * 3 * 4, dtype=np.float32).reshape(2, 3, 4)
+	kx = np.array([-1.5, -0.4, 0.6, 1.6])
+
+	sl = extract_kx0_slice(spec, kx)
+
+	np.testing.assert_array_equal(sl, spec[:, :, 1])
+	assert sl.base is None
+
+
+def test_get_display_max_ignores_a_single_hot_cell():
+	arr = np.ones((20, 20))
+	arr[0, 0] = 500.0
+
+	assert get_display_max(arr) == pytest.approx(1.0)
+
+
+def test_get_display_max_without_positive_cells():
+	assert get_display_max(np.zeros((3, 3))) == 0.0
+	assert get_display_max(np.array([np.nan, -1.0])) == 0.0
+
+
+def test_calculate_branch_energy_splits_between_branches():
+	# one (ky, kx) column; the wave curve sits at kt=10, the advected at kt=2
+	kt = np.arange(0.0, 13.0)
+	spec = np.zeros((13, 1, 1))
+	spec[10, 0, 0] = 3.0  # on the wave curve
+	spec[2, 0, 0] = 1.0  # on the advected line
+
+	energy = calculate_branch_energy(spec, kt, np.array([[[10.0]]]), np.array([[[2.0]]]))
+
+	assert energy["waves"] == pytest.approx(0.75)
+	assert energy["advected"] == pytest.approx(0.25)
+
+
+def test_calculate_branch_energy_leaves_out_cells_far_from_both_curves():
+	kt = np.arange(0.0, 13.0)
+	spec = np.zeros((13, 1, 1))
+	spec[6, 0, 0] = 1.0  # four rad/s from either curve
+
+	energy = calculate_branch_energy(spec, kt, np.array([[[10.0]]]), np.array([[[2.0]]]))
+
+	assert energy["waves"] + energy["advected"] < 1e-6
+
+
+def test_calculate_branch_energy_without_the_wave_branch():
+	kt = np.arange(0.0, 13.0)
+	spec = np.zeros((13, 1, 1))
+	spec[10, 0, 0] = 3.0
+	spec[2, 0, 0] = 1.0
+
+	energy = calculate_branch_energy(
+		spec, kt, np.array([[[10.0]]]), np.array([[[2.0]]]), gravity_waves=False
+	)
+
+	assert energy["waves"] is None
+	assert energy["advected"] == pytest.approx(0.25)
+
+
+def test_calculate_branch_energy_empty_spectrum():
+	energy = calculate_branch_energy(np.zeros((4, 2, 2)), np.arange(4.0), np.ones((1, 2, 2)), np.ones((1, 2, 2)))
+
+	assert energy == {"waves": 0.0, "advected": 0.0}
+
+
+def test_write_spectra_thumbnail_survives_a_hot_cell(tmp_path):
+	# a single cell far above the rest used to leave every other pixel black
+	from river.core.iwave_pipeline import write_spectra
+
+	slice_ = np.linspace(1.0, 2.0, 400, dtype=np.float32).reshape(20, 20)
+	slice_[0, 0] = 500.0
+	entries = [
+		{
+			"station": 2,
+			"slice": slice_,
+			"kx": np.array([0.0, 1.0]),
+			"kt": np.array([0.0, 1.0]),
+			"kt_gw": np.array([0.0, 1.0]),
+			"kt_turb": np.array([0.0, 0.5]),
+		}
+	]
+	out = tmp_path / "spectra"
+
+	write_spectra(str(out), entries)
+
+	img = cv2.imread(str(out / "spectrum_2.png"), cv2.IMREAD_GRAYSCALE)
+	assert np.unique(img).size > 100
 
 
 def test_write_spectra_creates_images_and_sidecar(tmp_path):
