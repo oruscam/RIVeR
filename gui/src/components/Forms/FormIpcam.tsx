@@ -1,23 +1,26 @@
 import { useTranslation } from 'react-i18next';
 import { useAutoShrinkFont, useGlobalSlice, useIpcamSlice, useProjectSlice, useUiSlice } from '../../hooks';
-import { UNIT_CONVERSIONS } from '../../constants/constants';
+import { UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
 import { PointsMap } from '../Graphs';
 import { IpcamGrid } from '../index';
-import { useState } from 'react';
 import { DropHereText } from './Components/DropHereText';
+import { ipcamErrorGrade } from '../../helpers/ipcamErrorGrade';
+import { canSolve, SOLVE_MIN_POINTS, SolveMethod } from '../../helpers/ipcamSolve';
 
-export const FormIpcam = () => {
-  const [mode, setMode] = useState('');
-  const {
-    onGetPoints,
-    onGetImages,
-    onGetCameraSolution,
-    cameraSolution,
-    selectedCounter,
-    points,
-    imagesPath,
-    pointsPath,
-  } = useIpcamSlice();
+const METHODS: { id: SolveMethod; labelKey: string }[] = [
+  { id: 'direct-solve', labelKey: 'ControlPoints3d.allPoints' },
+  { id: 'optimize-solution', labelKey: 'ControlPoints3d.optimized' },
+];
+
+export const FormIpcam = ({
+  method,
+  onMethodChange,
+}: {
+  method: SolveMethod;
+  onMethodChange: (method: SolveMethod) => void;
+}) => {
+  const { onGetPoints, onGetImages, cameraSolution, selectedCounter, points, imagesPath, pointsPath } =
+    useIpcamSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { onAddStepAlert, onClearStepAlert } = useUiSlice();
   const { projectDetails } = useProjectSlice();
@@ -25,14 +28,13 @@ export const FormIpcam = () => {
 
   const importPointsButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
   const importImagesButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
-  const directSolveButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
-  const optimizeSolutionButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
 
   const isImperial = projectDetails.unitSistem === 'imperial';
   const heightFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
+  const lengthUnit = isImperial ? UNITS.IMPERIAL.LONGITUDE : UNITS.SI.LONGITUDE;
 
   const handleOnClickImport = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    const id = (event.target as HTMLButtonElement).id;
+    const id = event.currentTarget.id;
     if (id === 'import-points') {
       onClearStepAlert('ipcam-import-points');
       onGetPoints().catch((error) => onAddStepAlert('ipcam-import-points', 'error', error.message));
@@ -42,21 +44,12 @@ export const FormIpcam = () => {
     }
   };
 
-  const handleOnClickAction = (event: React.MouseEvent<HTMLButtonElement>) => {
-    const id = (event.target as HTMLButtonElement).id;
-    setMode(id);
-    onClearStepAlert('ipcam-camera-solution');
-    onGetCameraSolution(id)
-      .catch((error) => {
-        onAddStepAlert('ipcam-camera-solution', 'error', error.message);
-      })
-      .finally(() => {
-        setMode('');
-      });
-  };
+  const placed = points === null ? 0 : points.filter((p) => !(p.x === 0 && p.y === 0)).length;
+  const grade = cameraSolution ? ipcamErrorGrade(cameraSolution.meanError) : null;
+  const tooFew = points !== null && !canSolve(method, selectedCounter);
 
   return (
-    <div className="body">
+    <div className="body processing-body">
       <div className="wrapper">
         <form id="form-control-points" className={`${isBackendWorking ? 'disabled' : ''}`}>
           <div className="panel-section">
@@ -84,55 +77,78 @@ export const FormIpcam = () => {
             </div>
 
             <DropHereText text={t('Commons.dropHereText')} show={pointsPath === null} />
-          </div>
 
-          <IpcamGrid />
-
-          <PointsMap />
-
-          <div className="panel-section">
-            <div className="panel-actions">
-              <button
-                ref={directSolveButtonRef}
-                className="btn btn-secondary panel-action"
-                aria-pressed={cameraSolution?.mode === 'direct-solve' || mode === 'direct-solve'}
-                id="direct-solve"
-                type="button"
-                onClick={handleOnClickAction}
-                disabled={points === null || selectedCounter < 6}
-              >
-                {t('ControlPoints3d.directSolve')}
-              </button>
-              <button
-                ref={optimizeSolutionButtonRef}
-                className="btn btn-secondary panel-action"
-                aria-pressed={cameraSolution?.mode === 'optimize-solution' || mode === 'optimize-solution'}
-                id="optimize-solution"
-                type="button"
-                onClick={handleOnClickAction}
-                disabled={points === null || selectedCounter < 7}
-              >
-                {t('ControlPoints3d.optimize')}
-              </button>
+            <div className="field-row field-row-top">
+              <span className="field-row-label" id="ipcam-method-label">
+                {t('ControlPoints3d.method')}
+              </span>
+              <span className="seg" role="group" aria-labelledby="ipcam-method-label">
+                {METHODS.map(({ id, labelKey }) => {
+                  // A method that cannot run yet says why on hover; the one already chosen stays chosen.
+                  const needsPoints = points !== null && !canSolve(id, selectedCounter);
+                  const blocked = needsPoints && method !== id;
+                  return (
+                    <button
+                      key={id}
+                      type="button"
+                      id={`ipcam-method-${id}`}
+                      aria-pressed={method === id}
+                      aria-disabled={blocked ? true : undefined}
+                      title={
+                        needsPoints
+                          ? t('ControlPoints3d.optimizedNeedsPoints', { count: SOLVE_MIN_POINTS[id] })
+                          : undefined
+                      }
+                      onClick={() => {
+                        if (blocked) return;
+                        onMethodChange(id);
+                      }}
+                    >
+                      {t(labelKey)}
+                    </button>
+                  );
+                })}
+              </span>
             </div>
-          </div>
 
-          {cameraSolution && (
-            <div className="form-video-extra-info mt-3 mb-2">
-              <div className="form-video-extra-info-row">
-                <p> {t('ControlPoints3d.reprojectionErrors')} </p>
-                <p> {cameraSolution.meanError.toFixed(2)}px</p>
+            {tooFew && (
+              <p className="cp-hint" role="status">
+                {t('ControlPoints3d.hintMinPoints', { count: SOLVE_MIN_POINTS[method] })}
+              </p>
+            )}
+
+            {cameraSolution && (
+              <div className="cp-result">
+                <div className="field-row cp-headline">
+                  <span className="field-row-label">{t('ControlPoints3d.meanReprojectionError')}</span>
+                  <span className="cp-value">
+                    {cameraSolution.meanError.toFixed(2)} <small>px</small>
+                    {grade && <span className={`badge badge-${grade}`}>{t(`Calibration.grade.${grade}`)}</span>}
+                  </span>
+                </div>
+                <div className="field-row">
+                  <span className="field-row-label">{t('ControlPoints3d.pointsUsed')}</span>
+                  <span className="cp-value">
+                    {cameraSolution.numPoints ?? selectedCounter}{' '}
+                    <small>{t('ControlPoints3d.pointsUsedOf', { total: placed })}</small>
+                  </span>
+                </div>
+                <div className="field-row">
+                  <span className="field-row-label">{t('ControlPoints3d.cameraHeight')}</span>
+                  <span className="cp-value">
+                    {(cameraSolution.cameraPosition[2] * heightFactor).toFixed(2)} <small>{lengthUnit}</small>
+                  </span>
+                </div>
+                {!tooFew && (grade === 'fair' || grade === 'bad') && (
+                  <p className="cp-hint">{t('ControlPoints3d.hintUntick')}</p>
+                )}
               </div>
-              <div className="form-video-extra-info-row">
-                <p> {t('ControlPoints3d.numberOfPoints')} </p>
-                <p> {cameraSolution.numPoints} </p>
-              </div>
-              <div className="form-video-extra-info-row mb-2">
-                <p> {t('ControlPoints3d.cameraHeight')} </p>
-                <p> {(cameraSolution.cameraPosition[2] * heightFactor).toFixed(2)} </p>
-              </div>
-            </div>
-          )}
+            )}
+
+            <IpcamGrid />
+
+            <PointsMap />
+          </div>
         </form>
       </div>
     </div>

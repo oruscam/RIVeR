@@ -1082,3 +1082,46 @@
     width: auto;
     max-width: 60%;
 }
+
+/* FIXED STATION CONTROL POINTS (preview 2026-10-09).
+   Result rows: the row grammar, read-only. Label left, value right in tabular
+   600, unit in subdued caption text; 32px tall because nothing is edited. */
+.cp-result {
+    margin-top: var(--space-1);
+}
+
+.cp-result .field-row {
+    min-height: 32px;
+}
+
+.cp-value {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-body);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.cp-value small {
+    margin-left: calc(var(--space-1) * -1);
+    font-size: var(--text-caption);
+    font-weight: 400;
+    color: var(--text-subdued);
+}
+
+/* The headline row: the mean error one step up, with its grade badge. */
+.cp-result .cp-headline .field-row-label,
+.cp-result .cp-headline .cp-value {
+    font-size: var(--text-section);
+}
+
+.cp-hint {
+    margin: 0;
+    padding: 0 var(--space-2);
+    font-size: var(--text-caption);
+    line-height: 1.5;
+    color: var(--text-subdued);
+}

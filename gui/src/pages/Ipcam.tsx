@@ -4,7 +4,8 @@ import { Carousel, ModeHint, StepAlertList, Toast, FocusOverlay, WizardButtons }
 import { useEffect, useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers/handleDragEvents.ts';
 import { useUiSlice } from '../hooks/useUiSlice.ts';
-import { useIpcamSlice, useProjectIssues } from '../hooks/index';
+import { useGlobalSlice, useIpcamSlice, useProjectIssues } from '../hooks/index';
+import { canSolve, solveMethodOf, SolveMethod } from '../helpers/ipcamSolve';
 import { useTranslation } from 'react-i18next';
 import { FormHeader } from '../components/Forms/Components/FormHeader.tsx';
 import { ImageIpcam } from '../components/index.ts';
@@ -16,16 +17,29 @@ export const Ipcam = () => {
     activePoint,
     isDraggingPoint,
     points,
+    selectedCounter,
     onChangeActiveImage,
     onGetPoints,
     onGetImages,
+    onGetCameraSolution,
   } = useIpcamSlice();
+  const { isBackendWorking } = useGlobalSlice();
   const { onAddStepAlert, onClearStepAlert, onSetModeHint, onClearModeHint } = useUiSlice();
   const { t } = useTranslation();
   const { alerts, onAction } = useProjectIssues('ipcam');
   const { nextStep } = useWizard();
 
   const [dragOver, setDragOver] = useState<boolean>(false);
+  const [method, setMethod] = useState<SolveMethod>(() => solveMethodOf(cameraSolution?.mode));
+
+  const solveDisabled = points === null || isBackendWorking || !canSolve(method, selectedCounter);
+
+  const handleOnClickSolve = () => {
+    onClearStepAlert('ipcam-camera-solution');
+    onGetCameraSolution(method).catch((error) => {
+      onAddStepAlert('ipcam-camera-solution', 'error', error.message);
+    });
+  };
 
   const handleOnClickNext = () => {
     nextStep();
@@ -97,8 +111,19 @@ export const Ipcam = () => {
       >
         <FormHeader title={t('ControlPoints.title')} showSections={false} />
         <StepAlertList extra={alerts} onAction={onAction} />
-        <FormIpcam />
+        <FormIpcam method={method} onMethodChange={setMethod} />
         <div className="footer">
+          <div className="processing-run">
+            <button
+              type="button"
+              className="btn btn-lg btn-primary"
+              id="solve-ipcam"
+              disabled={solveDisabled}
+              onClick={handleOnClickSolve}
+            >
+              {t('Commons.solve')}
+            </button>
+          </div>
           <WizardButtons canFollow={cameraSolution !== null} onClickNext={handleOnClickNext} />
         </div>
         <FocusOverlay active={isDraggingPoint} />
