@@ -537,7 +537,7 @@ def make_report(report_dir: str, records: List[FrameRecord], K: np.ndarray, dist
 			und_clean = apply_undistort(rec.img, map1, map2, roi)
 			cv.imwrite(os.path.join(save_undistorted_dir, f"{i:03d}_undist.png"), und_clean)
 
-	# coverage heatmap (OpenCV INFERNO)
+	# coverage heatmap, single-channel: the GUI colours it with the active theme's ramp
 	H, W = records[0].img.shape[:2]
 	grid = np.zeros((max(36, H // 20), max(64, W // 20)), np.float32)
 	gh, gw = grid.shape
@@ -552,7 +552,6 @@ def make_report(report_dir: str, records: List[FrameRecord], K: np.ndarray, dist
 	norm = grid / (grid.max() + 1e-6)
 	heat = (norm * 255).astype(np.uint8)
 	heat = cv.resize(heat, (W, H), interpolation=cv.INTER_CUBIC)
-	heat = cv.applyColorMap(heat, cv.COLORMAP_INFERNO)
 	heatmap_path = os.path.join(report_dir, "coverage_heatmap.png")
 	cv.imwrite(heatmap_path, heat)
 
