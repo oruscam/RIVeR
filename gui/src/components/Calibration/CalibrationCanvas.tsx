@@ -1,6 +1,7 @@
 import { FC, useCallback, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { toCalFileUrl } from '../../helpers/calFileUrl';
+import { useFieldImage } from '../../hooks/useFieldImage';
 import type { CalibrationViewMode } from '../../helpers/calibrationView';
 import type { CalibrationStatus, FrameCorners } from '../../store/calibration/types';
 
@@ -116,6 +117,8 @@ export const CalibrationCanvas = ({
   heatmapBase64,
 }: CalibrationCanvasProps) => {
   const { t } = useTranslation();
+  // The backend writes the heatmap in grey; it is painted with the theme's ramp.
+  const heatmapSrc = useFieldImage(heatmapBase64 ? `data:image/png;base64,${heatmapBase64}` : undefined);
 
   if (!image) {
     return (
@@ -134,11 +137,9 @@ export const CalibrationCanvas = ({
   if (viewMode === 'heatmap') {
     return (
       <div className="cal-canvas">
-        {heatmapBase64 ? (
-          <img className="cal-canvas-img" src={`data:image/png;base64,${heatmapBase64}`} alt="Heatmap" />
-        ) : (
-          original
-        )}
+        {heatmapBase64
+          ? heatmapSrc && <img className="cal-canvas-img" src={heatmapSrc} alt="Heatmap" />
+          : original}
       </div>
     );
   }

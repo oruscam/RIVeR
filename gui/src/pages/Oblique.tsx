@@ -9,7 +9,14 @@ import {
   WizardButtons,
 } from '../components';
 import { FormOblique } from '../components/Forms';
-import { useDataSlice, useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
+import {
+  useDataSlice,
+  useGlobalSlice,
+  useObliqueSlice,
+  useProjectSlice,
+  useUiSlice,
+  useFieldImage,
+} from '../hooks';
 import { useWizard } from 'react-use-wizard';
 import { useEffect, useMemo, useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers';
@@ -88,8 +95,12 @@ export const Oblique = () => {
   const sanityCheckPath = `${filePrefix}${projectDirectory}/sanity_check.jpg?t=${sanityCheckCacheBust}`;
   const canToggleStabilization = video.parameters.committedStabilization;
 
+  // Undefined while the check is being painted with the theme's ramp: the
+  // canvas keeps a frame up for that instant.
+  const stabilizationSrc = useFieldImage(showStabilization ? sanityCheckPath : undefined);
+
   const activeImageSrc = showStabilization
-    ? sanityCheckPath
+    ? stabilizationSrc
     : images.paths.length > 0
       ? images.paths[activeFrame]
       : undefined;

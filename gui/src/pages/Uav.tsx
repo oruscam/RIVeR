@@ -2,7 +2,14 @@ import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { FormUav } from '../components/Forms/index';
 import { WizardButtons, ModeHint, StepAlertList, Toast, FocusOverlay, Carousel } from '../components/index';
-import { useDataSlice, useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../hooks/index';
+import {
+  useDataSlice,
+  useGlobalSlice,
+  useProjectSlice,
+  useUavSlice,
+  useUiSlice,
+  useFieldImage,
+} from '../hooks/index';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
 import './pages.css';
@@ -74,8 +81,12 @@ export const Uav = () => {
   const sanityCheckPath = `${filePrefix}${projectDirectory}/sanity_check.jpg?t=${sanityCheckCacheBust}`;
   const canToggleStabilization = video.parameters.committedStabilization;
 
+  // Undefined while the check is being painted with the theme's ramp: the
+  // canvas keeps a frame up for that instant.
+  const stabilizationSrc = useFieldImage(showStabilization ? sanityCheckPath : undefined);
+
   const activeImageSrc = showStabilization
-    ? sanityCheckPath
+    ? stabilizationSrc
     : images.paths.length > 0
       ? images.paths[activeFrame]
       : undefined;

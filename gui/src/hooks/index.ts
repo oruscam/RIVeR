@@ -10,6 +10,7 @@ import { useGlobalSlice } from './useGlobalSlice';
 import { useIpcamSlice } from './useIpcamSlice';
 import { useImageZoomPan } from './useImageZoomPan';
 import { useIwaveDefaults } from './useIwaveDefaults';
+import { useFieldImage } from './useFieldImage';
 import { useMaskedStations } from './useMaskedStations';
 import { useProjectIssues } from './useProjectIssues';
 import { useResizableCarousel } from './useResizableCarousel';
@@ -24,6 +25,7 @@ export {
   useGlobalSlice,
   useImageZoomPan,
   useIpcamSlice,
+  useFieldImage,
   useIwaveDefaults,
   useMaskedStations,
   useResizableCarousel,
