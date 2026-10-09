@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Technique colours</title>
+<style>
+  :root { --page: #0b0b0c; --ink: #e8e8e8; --sub: #8a8a8a; --rule: #232325; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--page); color: var(--ink); font: 14px/1.45 Inter, system-ui, sans-serif; padding: 32px 24px 64px; }
+  h1 { font: 600 24px/1.2 Outfit, 'Avenir Next', system-ui, sans-serif; margin: 0 0 6px; }
+  h2 { font: 600 20px/1.2 Outfit, 'Avenir Next', system-ui, sans-serif; margin: 48px 0 4px; }
+  p.lede { color: var(--sub); max-width: 760px; margin: 0 0 8px; }
+  .why { color: var(--sub); max-width: 760px; margin: 4px 0 16px; }
+  .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: 1fr; } }
+
+  .panel { border-radius: 12px; padding: 16px; border: 1px solid var(--border); background: var(--bg2); color: var(--text); }
+  .panel .tag { font-size: 12px; color: var(--sub2); margin-bottom: 10px; letter-spacing: .02em; }
+  .t-dark    { --bg: #000; --bg2: #141414; --text: #fff; --sub2: #9E9E9E; --border: #2a2a2a; --row: #232222; --grid: #262626; --bar: #d9d9d9;
+               --good: #62C655; --fair: #F5BF61; --bad: #ED6B57; --accent: #0678BE; }
+  .t-light   { --bg: #F0F4F9; --bg2: #E3E9F1; --text: #2E3A4D; --sub2: #4E5B6B; --border: #B9C6D6; --row: #D2DCE8; --grid: #C6D1DE; --bar: #6f7f95;
+               --good: #3F7A5E; --fair: #A97A2E; --bad: #B4453A; --accent: #3D6D9E; }
+  .t-dracula { --bg: #282a36; --bg2: #21222c; --text: #f8f8f2; --sub2: #B4B9D4; --border: #44475a; --row: #44475a; --grid: #3a3c4e; --bar: #c9cbe0;
+               --good: #50fa7b; --fair: #ffb86c; --bad: #ff5555; --accent: #bd93f9; }
+
+  .rows { display: grid; gap: 4px; margin-bottom: 12px; }
+  .row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; font-weight: 600; font-size: 15px; }
+  .row.active { background: var(--row); }
+  .row .v { margin-left: auto; font-weight: 600; font-size: 13px; color: var(--text); font-variant-numeric: tabular-nums; }
+  .mk { width: 9px; height: 9px; flex: none; }
+  .mk.c { border-radius: 50%; }
+  .mk.t { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-bottom: 9px solid currentColor; background: none !important; }
+  svg { display: block; width: 100%; height: auto; }
+  .status { display: flex; gap: 6px; margin-top: 10px; font-size: 12px; flex-wrap: wrap; }
+  .status span { padding: 2px 8px; border-radius: 999px; border: 1px solid currentColor; }
+  .doc { margin-top: 10px; background: #fff; color: #1d2733; border-radius: 8px; padding: 8px 10px; font-size: 12px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .doc b { display: inline-flex; align-items: center; gap: 5px; }
+  .doc b::before { content: ''; width: 3px; height: 11px; background: var(--c); }
+
+  .footage { position: relative; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden;
+             background: radial-gradient(120% 90% at 30% 70%, #3c4a3a 0%, #2a3532 40%, #1b2324 100%); }
+  .footage::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(170deg, rgba(255,255,255,.035) 0 3px, transparent 3px 11px); }
+  .sw { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 12px; }
+  .sw div { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 8px; background: var(--bg); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .sw i { width: 14px; height: 14px; border-radius: 4px; flex: none; }
+  .note { font-size: 12px; color: var(--sub2); margin-top: 8px; }
+  .strike { text-decoration: line-through; opacity: .6; }
+</style>
+</head>
+<body>
+<h1>Technique colours: three options</h1>
+<p class="lede">The current palette (Okabe–Ito: <code>#56B4E9</code> / <code>#E69F00</code> / <code>#009E73</code>) came from an outside colour-blind standard, not from RIVeR. Its orange and teal-green sit right next to the warning and success colours without matching them, which is why it looks foreign. Each option below takes its colours from RIVeR's own palette (the distance, pin and accent colours) and keeps the markers ● LSPIV, ■ STIV, ▲ iWave, so colour is never the only cue.</p>
+<p class="lede">Every row shows the Results legend, a velocity chart under greyscale discharge bars, the status chips the techniques must not be confused with, and the report (always light) at the bottom.</p>
+
+<div id="options"></div>
+
+<h2>Distances 1–2 … 3–4: one fixed set in every theme</h2>
+<p class="why">These six lines are drawn on the video, like the pins, so the theme panel behind them doesn't matter. The proposal is to use RIVeR's original vivid set everywhere (dark and light already use it) and stop swapping in Dracula's colours. The swatches in the Control points form use the same six colours.</p>
+<div class="grid" id="dist"></div>
+
+<script>
+const OPTIONS = [
+  { id: 'Current', name: 'Current: Okabe–Ito', why: 'For reference. The orange (STIV) is nearly the warning gold and the teal (iWave) is nearly success green, but neither one matches them.',
+    dark: ['#56B4E9', '#E69F00', '#009E73'], light: ['#0072B2', '#B86E00', '#00795A'], dracula: ['#8BE9FD', '#E0954D', '#4DD9B0'] },
+  { id: 'A', name: 'A · Cyan / gold / magenta', why: 'Taken directly from the distance palette (d12, d14, d13). This set is the most distinct, even for colour-blind readers, since the three colours are far apart in both hue and lightness. Trade-off: STIV gold is the same colour as the "fair" warning.',
+    dark: ['#6CD4FF', '#F5BF61', '#E07BD6'], light: ['#1F78B4', '#9A6A0C', '#A23C99'], dracula: ['#8be9fd', '#f1fa8c', '#ff79c6'] },
+  { id: 'B', name: 'B · Cyan / violet / sand', why: 'No warm status colour gets reused: STIV takes the d24 violet, and iWave a muted sand that reads as a neutral, not as a warning. In Dracula it becomes cyan, purple and yellow. Calmer than A, but violet and cyan are closer for blue-weak readers, so the markers do more of the work.',
+    dark: ['#6CD4FF', '#A699F5', '#E2C08D'], light: ['#1F78B4', '#5E4FC4', '#8A6A2E'], dracula: ['#8be9fd', '#bd93f9', '#f1fa8c'] },
+  { id: 'C', name: 'C · Muted instrument', why: 'The same hues as A but desaturated, so they sit quietly beside the greyscale bars and the black chrome. They read more like a plotting instrument than a UI, but they stand out less from each other on top of the footage.',
+    dark: ['#7DB9DE', '#D6A66B', '#B99AD9'], light: ['#3A6F95', '#8C6230', '#71559A'], dracula: ['#9ACBE0', '#D9B07A', '#C4A5E0'] },
+];
+const REPORT = { Current: ['#0072B2', '#B86E00', '#00795A'], A: ['#1F78B4', '#9A6A0C', '#A23C99'], B: ['#1F78B4', '#5E4FC4', '#8A6A2E'], C: ['#3A6F95', '#8C6230', '#71559A'] };
+const NAMES = ['LSPIV', 'STIV', 'iWave'];
+const VALUES = ['1.69', '5.82', '5.01'];
+const bars = [.14, .17, .21, .22, .225, .19, .12, .10, .085, .09, .085, .045];
+const series = [
+  [null, .33, .4, .42, .43, .43, .38, .27, .23, .21, .22, .21, .14, .06],
+  [.28, .73, .97, .95, .98, .96, .97, .9, .86, .62, .8, .71, .66, .43],
+  [.14, .73, .94, 1.0, .97, .96, .97, .98, .1, .1, .79, .76, .66, .18],
+];
+
+function chart(cols) {
+  const W = 300, H = 190, x0 = 10, x1 = 292;
+  const bw = (x1 - x0) / bars.length;
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Discharge bars and velocity lines">`;
+  for (const y of [8, 52, 96, 140, 184]) s += `<line x1="${x0}" x2="${x1}" y1="${y}" y2="${y}" stroke="var(--grid)" stroke-width="1"/>`;
+  bars.forEach((b, i) => {
+    const h = b / .23 * 70;
+    s += `<rect x="${x0 + i * bw + 3}" y="${82 - h}" width="${bw - 6}" height="${h}" fill="var(--bar)" opacity="${.45 + b * 2.4}"/>`;
+  });
+  const step = (x1 - x0) / (series[0].length - 1);
+  const yv = v => 184 - v / 1.05 * 82;
+  series.forEach((ser, k) => {
+    const pts = ser.map((v, i) => v == null ? null : [x0 + i * step, yv(v)]).filter(Boolean);
+    s += `<polyline fill="none" stroke="${cols[k]}" stroke-width="${k === 0 ? 2.2 : 1.4}" points="${pts.map(p => p.join(',')).join(' ')}"/>`;
+    pts.forEach(([x, y]) => {
+      if (k === 0) s += `<circle cx="${x}" cy="${y}" r="3" fill="${cols[k]}"/>`;
+      else if (k === 1) s += `<rect x="${x - 2.6}" y="${y - 2.6}" width="5.2" height="5.2" fill="none" stroke="${cols[k]}" stroke-width="1.2"/>`;
+      else s += `<path d="M${x} ${y - 3.4}L${x + 3.2} ${y + 2.4}L${x - 3.2} ${y + 2.4}Z" fill="${cols[k]}"/>`;
+    });
+  });
+  return s + '</svg>';
+}
+
+function panel(theme, cols, id) {
+  const mk = ['c', '', 't'];
+  return `<div class="panel t-${theme}">
+    <div class="tag">${theme}</div>
+    <div class="rows">${NAMES.map((n, i) => `
+      <div class="row ${i === 0 ? 'active' : ''}" style="color:${cols[i]}">
+        <span class="mk ${mk[i]}" style="background:${cols[i]};color:${cols[i]}"></span>${n}<span class="v">${VALUES[i]}</span>
+      </div>`).join('')}</div>
+    ${chart(cols)}
+    <div class="status"><span style="color:var(--good)">good</span><span style="color:var(--fair)">fair</span><span style="color:var(--bad)">bad</span><span style="color:var(--accent)">accent</span></div>
+    ${theme === 'light' ? `<div class="doc">Report: ${NAMES.map((n, i) => `<b style="--c:${REPORT[id][i]}">${n}</b>`).join('')}</div>` : ''}
+  </div>`;
+}
+
+document.getElementById('options').innerHTML = OPTIONS.map(o => `
+  <h2>${o.name}</h2>
+  <p class="why">${o.why}</p>
+  <div class="grid">${['dark', 'light', 'dracula'].map(t => panel(t, o[t], o.id)).join('')}</div>`).join('');
+
+const D = [['1–2', '#6CD4FF'], ['2–3', '#62C655'], ['3–4', '#ED6B57'], ['4–1', '#F5BF61'], ['1–3', '#CC4BC2'], ['2–4', '#7765E3']];
+const DRAC_OLD = ['#8be9fd', '#50fa7b', '#ff5555', '#ffb86c', '#ff79c6', '#bd93f9'];
+const P = [[70, 120], [250, 105], [285, 30], [40, 40]];
+function footage() {
+  const pairs = [[0, 1], [1, 2], [2, 3], [3, 0], [0, 2], [1, 3]];
+  let s = '<svg viewBox="0 0 320 160" style="position:absolute;inset:0;z-index:1">';
+  pairs.forEach(([a, b], i) => s += `<line x1="${P[a][0]}" y1="${P[a][1]}" x2="${P[b][0]}" y2="${P[b][1]}" stroke="${D[i][1]}" stroke-width="2.4"/>`);
+  P.forEach(([x, y], i) => s += `<circle cx="${x}" cy="${y}" r="7" fill="#6CD4FF"/><text x="${x}" y="${y + 3.5}" font-size="9" font-weight="700" text-anchor="middle" fill="#0B0D10">${i + 1}</text>`);
+  return s + '</svg>';
+}
+document.getElementById('dist').innerHTML = ['dark', 'light', 'dracula'].map(t => `
+  <div class="panel t-${t}">
+    <div class="tag">${t}</div>
+    <div class="footage">${footage()}</div>
+    <div class="sw">${D.map(([n, c]) => `<div><i style="background:${c}"></i>${n}</div>`).join('')}</div>
+    ${t === 'dracula' ? `<div class="note">Was: ${DRAC_OLD.map(c => `<i style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${c};vertical-align:-1px;margin:0 2px"></i>`).join('')} <span class="strike">Dracula's own six</span></div>` : ''}
+  </div>`).join('');
+</script>
+</body>
+</html>

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Technique colours v2</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #0b0b0c; color: #e8e8e8;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection { background: #0678BE; color: #fff; }
+  main { max-width: 1320px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .lede { color: #9a9a9a; margin: 0 0 22px; max-width: 76ch; }
+  .controls { display: flex; flex-wrap: wrap; gap: 18px 32px; margin-bottom: 26px; }
+  .control { display: flex; flex-direction: column; gap: 6px; }
+  .control > span { font-size: 12px; color: #8a8a8a; }
+  .seg { display: inline-flex; border: 1px solid #2a2a2a; border-radius: 8px; padding: 2px; background: #141414; }
+  .seg button { font: inherit; font-size: 13px; color: #8a8a8a; background: none; border: 0; padding: 5px 12px; border-radius: 6px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: #2a2a2a; color: #f2f2f2; }
+  .seg button:focus-visible { outline: 2px solid #0678BE; outline-offset: 1px; }
+
+  .option { margin-bottom: 34px; }
+  .option header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin-bottom: 10px; }
+  .option h2 { font-size: 16px; font-weight: 600; margin: 0; }
+  .option header p { margin: 0; color: #9a9a9a; font-size: 13px; }
+  .option.current h2::after { content: "today"; margin-left: 8px; font-size: 11px; font-weight: 500; color: #8a8a8a; border: 1px solid #333; border-radius: 99px; padding: 1px 7px; vertical-align: 2px; }
+  .cells { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 1100px) { .cells { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px) { .cells { grid-template-columns: 1fr; } }
+  .cell { border-radius: 10px; padding: 12px 12px 8px; border: 1px solid var(--rule); background: var(--bg); color: var(--ink); }
+  .cell .theme { font-size: 11px; color: var(--muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .rows { display: grid; gap: 2px; margin-bottom: 6px; }
+  .row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 6px; border-radius: 6px; color: var(--muted); }
+  .row.on { background: var(--rowbg); font-weight: 600; }
+  .row b { font-weight: inherit; }
+  .row .v { margin-left: auto; font-size: 12px; color: var(--muted); font-weight: 400; }
+  .cell svg.chart { width: 100%; height: auto; display: block; }
+  .swatches { display: flex; gap: 6px; margin-top: 6px; }
+  .swatches code { font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); }
+
+  .t-dark    { --bg: #141414; --ink: #f2f2f2; --muted: #9E9E9E; --rule: #262626; --grid: #2a2a2a; --rowbg: #262626; }
+  .t-light   { --bg: #E3E9F1; --ink: #1d2635; --muted: #45536B; --rule: #cfd8e4; --grid: #cdd6e2; --rowbg: #D3DCE8; }
+  .t-dracula { --bg: #21222c; --ink: #f8f8f2; --muted: #B4B9D4; --rule: #343746; --grid: #3a3d4f; --rowbg: #343746; }
+  .t-report  { --bg: #ffffff; --ink: #1f2a37; --muted: #5b6878; --rule: #d5dbe3; --grid: #d5dbe3; --rowbg: #eef1f5; }
+
+  .notes { margin-top: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .notes { grid-template-columns: 1fr; } }
+  .notes h2 { font-size: 14px; font-weight: 600; margin: 0 0 8px; }
+  .notes ul { margin: 0; padding-left: 18px; color: #a8a8a8; font-size: 13px; }
+  .notes li { margin-bottom: 5px; }
+  table { border-collapse: collapse; font-size: 12px; width: 100%; }
+  th, td { text-align: left; padding: 5px 8px 5px 0; border-bottom: 1px solid #262626; }
+  th { color: #8a8a8a; font-weight: 500; }
+  td { color: #c8c8c8; }
+  td.low { color: #ED6B57; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="deutan"><feColorMatrix type="matrix" values="0.367 0.861 -0.228 0 0  0.280 0.673 0.047 0 0  -0.012 0.043 0.969 0 0  0 0 0 1 0"/></filter>
+  <filter id="protan"><feColorMatrix type="matrix" values="0.152 1.053 -0.205 0 0  0.115 0.786 0.099 0 0  -0.004 -0.048 1.052 0 0  0 0 0 1 0"/></filter>
+  <filter id="tritan"><feColorMatrix type="matrix" values="1.256 -0.077 -0.179 0 0  -0.078 0.931 0.148 0 0  0.005 0.691 0.304 0 0  0 0 0 1 0"/></filter>
+  <filter id="grey"><feColorMatrix type="saturate" values="0"/></filter>
+</svg>
+<main>
+  <h1>Technique colours, second round</h1>
+  <p class="lede">The gold can't be rescued in light themes: any yellow dark enough to read on a pale background turns olive-brown. Every new option swaps it for a true orange, which stays vivid when darkened. Dracula uses Dracula's own palette (cyan, orange, pink) in every option so it never looks foreign there. Each cell is the real Results encoding (LSPIV selected, interpolated stretches dashed).</p>
+
+  <div class="controls">
+    <div class="control"><span>Vision / print check</span>
+      <div class="seg" data-group="vision">
+        <button data-v="none" aria-pressed="true">Normal</button>
+        <button data-v="deutan">Deuteranopia</button>
+        <button data-v="protan">Protanopia</button>
+        <button data-v="tritan">Tritanopia</button>
+        <button data-v="grey">Greyscale print</button>
+      </div>
+    </div>
+    <div class="control"><span>Selected technique</span>
+      <div class="seg" data-group="active">
+        <button data-v="lspiv" aria-pressed="true">LSPIV</button>
+        <button data-v="stiv">STIV</button>
+        <button data-v="iwave">iWave</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="options"></div>
+
+  <div class="notes">
+    <section>
+      <h2>Contrast against each background (graphics need 3:1)</h2>
+      <div id="contrast"></div>
+    </section>
+    <section>
+      <h2>Things to know</h2>
+      <ul>
+        <li>Orange sits close to the "fair" warning colour (dark <code>#F5BF61</code>, Dracula <code>#FFB86C</code>). Today's gold already shared it and you accepted that; the warning colour could move to amber-yellow in a follow-up if it bothers you.</li>
+        <li>Red and green stay reserved for the banks and good/error states, so no option uses them.</li>
+        <li>Blue + orange is the safest pair for colour-blind readers (it survives every simulation above); shapes ● ■ ▲ still separate techniques regardless.</li>
+        <li>Light theme and the report share one set, as today.</li>
+      </ul>
+    </section>
+  </div>
+</main>
+
+<script>
+const OPTIONS = [
+  { id: 'current', name: 'Cyan · Gold · Magenta', note: 'What ships today, for reference. Gold turns brown in light and the report.',
+    dark: ['#6CD4FF', '#F5BF61', '#E07BD6'], light: ['#1F78B4', '#9A6A0C', '#A23C99'], dracula: ['#8BE9FD', '#F1FA8C', '#FF79C6'] },
+  { id: 'a', name: 'A · Cyan · Orange · Magenta', note: 'Smallest change: keep your cyan and magenta, replace gold with orange.',
+    dark: ['#6CD4FF', '#FF9F43', '#E07BD6'], light: ['#1F78B4', '#D35F0A', '#A23C99'], dracula: ['#8BE9FD', '#FFB86C', '#FF79C6'] },
+  { id: 'b', name: 'B · Azure · Orange · Orchid', note: 'Deeper, more saturated blue and a pinker magenta; the most vivid set in light and print.',
+    dark: ['#5CB8FF', '#FF9F43', '#F07CD3'], light: ['#1668C7', '#D35F0A', '#B02A98'], dracula: ['#8BE9FD', '#FFB86C', '#FF79C6'] },
+  { id: 'c', name: 'C · Teal · Orange · Violet', note: 'Cooler and calmer. Teal stays clear of the blue accent and the selection highlight.',
+    dark: ['#2DD4BF', '#FF9F43', '#A78BFA'], light: ['#0B8577', '#D35F0A', '#6D46D6'], dracula: ['#8BE9FD', '#FFB86C', '#FF79C6'] },
+];
+const THEMES = [
+  { id: 'dark', label: 'Dark', set: 'dark' },
+  { id: 'light', label: 'Light', set: 'light' },
+  { id: 'dracula', label: 'Dracula', set: 'dracula' },
+  { id: 'report', label: 'Report', set: 'light' },
+];
+const BG = { dark: '#141414', light: '#E3E9F1', dracula: '#21222c', report: '#ffffff' };
+const KEYS = ['lspiv', 'stiv', 'iwave'];
+const LABEL = { lspiv: 'LSPIV', stiv: 'STIV', iwave: 'iWave' };
+const Q = { lspiv: '130.99', stiv: '79.88', iwave: '157.20' };
+const SHAPE = { lspiv: 'circle', stiv: 'square', iwave: 'triangle' };
+
+const N = 15;
+const DATA = {
+  lspiv: { v: [0, .52, .70, 1.17, 1.37, 1.32, 2.24, 2.22, 2.24, 2.19, 2.14, 2.03, 2.05, 1.52, 0], measured: [5, 6] },
+  stiv: { v: [0, 0, 0, 0, 0, 2.64, 2.28, 2.28, 2.07, .53, 0, 0, 0, 0, 0], measured: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13], tuned: [6] },
+  iwave: { v: [0, .75, 1.0, 1.65, 1.92, 1.86, 1.97, 1.65, 2.15, 2.12, 2.08, 1.98, 2.0, 1.45, 0], measured: [5, 6, 7, 8],
+    quality: { 5: .35, 6: .6, 7: .2, 8: .9 }, rejected: { 1: .28, 2: .23, 3: .12, 4: .07, 9: .25, 10: .47, 11: .22, 12: .23, 13: .02 } },
+};
+const state = { vision: 'none', active: 'lspiv' };
+
+const W = 300, H = 170, M = { l: 6, r: 6, t: 8, b: 8 };
+const x = (i) => M.l + (i / (N - 1)) * (W - M.l - M.r);
+const y = (v) => H - M.b - (v / 2.75) * (H - M.t - M.b);
+function shape(kind, cx, cy, r, attrs) {
+  const a = Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ');
+  if (kind === 'square') return `<rect x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}" ${a}/>`;
+  if (kind === 'triangle') { const s = r * 1.25; return `<polygon points="${cx},${cy - s * 1.05} ${cx + s},${cy + s * .7} ${cx - s},${cy + s * .7}" ${a}/>`; }
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" ${a}/>`;
+}
+function chart(cols) {
+  let s = '';
+  [0, .66, 1.32, 1.98, 2.64].forEach((t) => { s += `<line x1="${M.l}" x2="${W - M.r}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)"/>`; });
+  const order = KEYS.filter((k) => k !== state.active).concat(state.active);
+  order.forEach((k) => {
+    const d = DATA[k], act = k === state.active, col = cols[KEYS.indexOf(k)];
+    const isM = (i) => d.measured.includes(i), lw = act ? 3.25 : 2.25, base = act ? 3.75 : 2.75;
+    let g = '';
+    for (let i = 0; i < N - 1; i++) {
+      const dash = isM(i) && isM(i + 1) ? '' : 'stroke-dasharray="7 5"';
+      g += `<path d="M${x(i)},${y(d.v[i])}L${x(i + 1)},${y(d.v[i + 1])}" stroke="${col}" stroke-width="${lw}" stroke-linecap="round" fill="none" ${dash}/>`;
+    }
+    Object.entries(d.rejected || {}).forEach(([i, v]) => { g += shape(SHAPE[k], x(+i), y(v), base, { fill: 'var(--bg)', stroke: col, 'stroke-width': 1.25 }); });
+    d.measured.forEach((i) => {
+      const q = d.quality && d.quality[i] !== undefined ? d.quality[i] : null;
+      const r = q !== null ? (act ? 3 + q * 3.5 : 2.5 + q * 3) : base;
+      if ((d.tuned || []).includes(i)) g += shape(SHAPE[k], x(i), y(d.v[i]), r + 3, { fill: 'none', stroke: col, 'stroke-width': 1.25 });
+      g += shape(SHAPE[k], x(i), y(d.v[i]), r, { fill: col, stroke: 'var(--bg)', 'stroke-width': 1.5 });
+    });
+    s += `<g opacity="${act ? 1 : .6}">${g}</g>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}">${s}</svg>`;
+}
+function swatch(k, col) {
+  return `<svg width="12" height="12" viewBox="0 0 12 12">${shape(SHAPE[k], 6, 6.5, k === 'triangle' ? 4 : 4.2, { fill: col })}</svg>`;
+}
+function render() {
+  const filter = state.vision === 'none' ? '' : `url(#${state.vision})`;
+  document.getElementById('options').innerHTML = OPTIONS.map((o) => `
+    <section class="option ${o.id === 'current' ? 'current' : ''}">
+      <header><h2>${o.name}</h2><p>${o.note}</p></header>
+      <div class="cells" style="filter:${filter}">
+        ${THEMES.map((t) => {
+          const cols = o[t.set];
+          return `<div class="cell t-${t.id}">
+            <div class="theme"><span>${t.label}</span></div>
+            <div class="rows">${KEYS.map((k, i) => `<div class="row ${k === state.active ? 'on' : ''}">${swatch(k, cols[i])}<b style="color:${k === state.active ? cols[i] : 'inherit'}">${LABEL[k]}</b><span class="v">${Q[k]}</span></div>`).join('')}</div>
+            ${chart(cols)}
+            <div class="swatches">${cols.map((c) => `<code>${c}</code>`).join('')}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </section>`).join('');
+}
+function lum(h) {
+  const c = [1, 3, 5].map((o) => parseInt(h.slice(o, o + 2), 16) / 255).map((v) => (v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4));
+  return .2126 * c[0] + .7152 * c[1] + .0722 * c[2];
+}
+const cr = (a, b) => { const [A, B] = [lum(a), lum(b)]; return (Math.max(A, B) + .05) / (Math.min(A, B) + .05); };
+document.getElementById('contrast').innerHTML = `<table><tr><th>Option</th>${THEMES.map((t) => `<th>${t.label}</th>`).join('')}</tr>${OPTIONS.map((o) =>
+  `<tr><td>${o.name.replace(/^[A-C] · /, '')}</td>${THEMES.map((t) => `<td>${o[t.set].map((c) => { const v = cr(c, BG[t.id]); return `<span class="${v < 3 ? 'low' : ''}">${v.toFixed(1)}</span>`; }).join(' · ')}</td>`).join('')}</tr>`).join('')}</table>`;
+
+document.querySelectorAll('.seg').forEach((seg) => {
+  seg.addEventListener('click', (e) => {
+    const b = e.target.closest('button'); if (!b) return;
+    state[seg.dataset.group] = b.dataset.v;
+    seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    render();
+  });
+});
+new URLSearchParams(location.search).forEach((v, k) => { const b = document.querySelector(`[data-group="${k}"] [data-v="${v}"]`); if (b) b.click(); });
+render();
+</script>
+</body>
+</html>
