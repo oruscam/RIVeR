@@ -57,3 +57,36 @@ describe('translations', () => {
     expect(get(en, 'Report.Form.riverLocation')).toBe('Site');
   });
 });
+
+describe('fixed station control points copy', () => {
+  const KEYS = [
+    'method',
+    'allPoints',
+    'optimized',
+    'meanReprojectionError',
+    'pointsUsed',
+    'pointsUsedOf',
+    'errorPx',
+    'onTheFrame',
+    'hintUntick',
+    'hintMinPoints',
+    'optimizedNeedsPoints',
+    'cameraHeight',
+  ];
+  test.each(languages)('%s has every key, with no trailing colon or space', (lang) => {
+    const tree = load(lang);
+    for (const key of KEYS) {
+      const value = get(tree, `ControlPoints3d.${key}`);
+      expect(typeof value).toBe('string');
+      expect(value).toBe(value.trim());
+      expect(value).not.toMatch(/[:：]$/);
+    }
+  });
+  test.each(languages)('%s keeps its interpolation slots', (lang) => {
+    const tree = load(lang);
+    expect(get(tree, 'ControlPoints3d.pointsUsedOf')).toContain('{{total}}');
+    expect(get(tree, 'ControlPoints3d.onTheFrame')).toContain('{{label}}');
+    expect(get(tree, 'ControlPoints3d.hintMinPoints')).toContain('{{count}}');
+    expect(get(tree, 'ControlPoints3d.optimizedNeedsPoints')).toContain('{{count}}');
+  });
+});
