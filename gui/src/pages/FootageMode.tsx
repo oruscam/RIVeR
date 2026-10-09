@@ -5,7 +5,7 @@ import { useWizard } from 'react-use-wizard';
 import { useProjectSlice } from '../hooks/index.js';
 import { Icon } from '../components/Icon.js';
 import { Icons } from '../components/CustomIcons/Icons';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { OperationCanceledError, UserSelectionError } from '../errors/errors.js';
 import { drone, ipcam, oblique } from '../assets/icons/icons';
 import './pages.css';
@@ -40,6 +40,8 @@ export const FootageMode = () => {
   // The interval is kept as typed: "33," must stay editable on the way to "33,3".
   const [intervalText, setIntervalText] = useState<string>('');
   const [reading, setReading] = useState<boolean>(false);
+  // Counts every change of source, so a folder that finishes reading after one is ignored.
+  const sourceRequest = useRef(0);
 
   const [dragOver, setDragOver] = useState<string | null>(null);
   const [footageType, setFootageType] = useState<string | null>(null);
@@ -75,30 +77,45 @@ export const FootageMode = () => {
     }
   };
 
+  /** Another source, or none, was chosen: whatever folder is still being read no longer counts. */
+  const dropPendingFolder = () => {
+    sourceRequest.current++;
+    setReading(false);
+  };
+
   /** Checks a folder with the backend and, if it holds a usable sequence, makes it the source. */
   const pickFramesFolder = async (path: string, name: string, type: string) => {
+    const request = ++sourceRequest.current;
     setSource(null);
     setIntervalText('');
     setReading(true);
-    const result = await onInspectFramesFolder(path);
-    setReading(false);
-    if ('error' in result) {
-      flashError(t(`Step-2.Errors.${result.error}`, { defaultValue: t('Step-2.Errors.unreadableFolder') }));
-      return;
+    try {
+      const result = await onInspectFramesFolder(path);
+      if (request !== sourceRequest.current) return;
+      if ('error' in result) {
+        flashError(t(`Step-2.Errors.${result.error}`, { defaultValue: t('Step-2.Errors.unreadableFolder') }));
+        return;
+      }
+      setSource({
+        kind: 'frames',
+        name,
+        path,
+        type,
+        frames: { count: result.count, width: result.width, height: result.height },
+      });
+    } catch {
+      if (request === sourceRequest.current) flashError(t('Step-2.Errors.unreadableFolder'));
+    } finally {
+      // A newer folder is still being read; a newer video or Change type already cleared this.
+      if (request === sourceRequest.current) setReading(false);
     }
-    setSource({
-      kind: 'frames',
-      name,
-      path,
-      type,
-      frames: { count: result.count, width: result.width, height: result.height },
-    });
   };
 
   const onClickBrowseVideo = async (event: React.MouseEvent<HTMLButtonElement>) => {
     event?.preventDefault();
     try {
       const { path, name } = await onGetVideo();
+      dropPendingFolder();
       setIntervalText('');
       setSource({ kind: 'video', name, path, type: footageType as string });
     } catch (error) {
@@ -129,9 +146,11 @@ export const FootageMode = () => {
     if (isDirectory) {
       void pickFramesFolder(window.webUtils.getPathForFile(file), file.name, type);
     } else if (file.type.includes('video')) {
+      dropPendingFolder();
       setIntervalText('');
       setSource({ kind: 'video', name: file.name, path: window.webUtils.getPathForFile(file), type });
     } else {
+      dropPendingFolder();
       setSource(null);
       flashError(
         file.type.startsWith('image/')
@@ -142,6 +161,7 @@ export const FootageMode = () => {
   };
 
   const onChangeType = () => {
+    dropPendingFolder();
     setSource(null);
     setIntervalText('');
     setFootageType(null);
