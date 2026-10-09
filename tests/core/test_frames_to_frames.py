@@ -36,6 +36,16 @@ def test_natural_order_and_accepted_extensions(tmp_path):
 	assert names == ["frame_1.png", "frame_2.JPG", "frame_10.jpg"]
 
 
+def test_natural_order_survives_digit_like_characters(tmp_path):
+	# "²" is a digit to str.isdigit() but not a number to int().
+	for name in ["1²3.jpg", "10.jpg", "2.jpg"]:
+		(tmp_path / name).write_bytes(b"")
+
+	names = [p.name for p in list_source_frames(tmp_path)]
+
+	assert names == ["1²3.jpg", "2.jpg", "10.jpg"]
+
+
 def test_inspect_reports_count_size_and_ordered_files(tmp_path):
 	_sequence(tmp_path, n=3)
 
