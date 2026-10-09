@@ -213,7 +213,7 @@ const drawAnalizeResult = (
   yScale: d3.ScaleLinear<number, number>,
   unitSistem?: string
 ) => {
-  margin.left = 62;
+  margin.left = 68;
   margin.bottom = 26;
   margin.right = 8;
   margin.top = 8;
