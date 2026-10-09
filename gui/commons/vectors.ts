@@ -5,7 +5,7 @@
  */
 
 import { transformPixelToRealWorld } from './coordinates';
-import { Quiver } from './types';
+import { Quiver, QuiverData } from './types';
 
 /**
  * Generates a custom colormap with a smooth gradient transition between predefined colors.
@@ -163,7 +163,7 @@ const getQuiverValues = (
   transformationMatrix: number[][],
   colorBarLimits?: { min: number; max: number }
 ): {
-  data: Array<{ x: number; y: number; u: number; v: number; velocity: number; color: string }>;
+  data: QuiverData[];
   min: number;
   max: number;
 } => {
@@ -184,7 +184,8 @@ const getQuiverValues = (
       const dy = y1 - y0;
 
       if (u !== null && !isNaN(u) && v !== null && !isNaN(v)) {
-        const velocity = Math.sqrt(dx ** 2 + dy ** 2) / (step / fps);
+        const dt = step / fps;
+        const velocity = Math.sqrt(dx ** 2 + dy ** 2) / dt;
         return {
           x: xVal,
           y: yVal,
@@ -192,6 +193,10 @@ const getQuiverValues = (
           v,
           velocity,
           color: 'transparent',
+          east: x0,
+          north: y0,
+          velocityEast: dx / dt,
+          velocityNorth: dy / dt,
         };
       }
       return null;

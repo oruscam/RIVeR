@@ -5,6 +5,12 @@ interface QuiverData {
   v: number;
   velocity: number;
   color: string;
+  /** Real-world position of the vector's origin, in metres. */
+  east?: number;
+  north?: number;
+  /** Real-world velocity components, in m/s. */
+  velocityEast?: number;
+  velocityNorth?: number;
 }
 
 interface QuiverValuesResult {

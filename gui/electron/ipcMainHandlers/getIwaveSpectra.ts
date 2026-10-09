@@ -5,16 +5,42 @@ import { PROJECT_CONFIG } from '../main';
 
 const SPECTRUM_FILENAME = /^spectrum_(\d+)\.png$/;
 
+type SpectrumCurve = [number, number][];
+
+/** One wavenumber-frequency plane of a station's spectrum (sidecar version 2). */
+export interface IwaveSpectrumPlane {
+  /** Wavenumber axis (rad/m), cell centres. */
+  k: number[];
+  /** Normalised spectrum, one row per frequency (lowest first), one column per k. */
+  values: number[][];
+  curves: { gravity: SpectrumCurve; turbulence: SpectrumCurve };
+}
+
+export interface IwaveSpectraStation {
+  station: number;
+  kx_min: number;
+  kx_max: number;
+  kt_min: number;
+  kt_max: number;
+  /** The ky = 0 curves against kx. */
+  curves: { gravity: SpectrumCurve; turbulence: SpectrumCurve };
+  // Everything below is version 2: absent for a project last run with an
+  // older RIVeR, whose sidecar only describes the PNG.
+  /** Frequency axis (rad/s), cell centres, shared by both planes. */
+  kt?: number[];
+  /** `kx` is the ky = 0 plane, `ky` the kx = 0 plane. */
+  planes?: { kx: IwaveSpectrumPlane; ky: IwaveSpectrumPlane };
+  /** A robust maximum for the colour scale, over both planes. */
+  display_max?: number;
+  fit?: { vx: number | null; vy: number | null; depth: number | null };
+  /** Share (0..1) of the spectral energy within the fit band of each curve;
+   *  `waves` is null when the fit did not model gravity waves. */
+  energy?: { waves: number | null; advected: number | null };
+}
+
 export interface IwaveSpectraSidecar {
   version: number;
-  stations: {
-    station: number;
-    kx_min: number;
-    kx_max: number;
-    kt_min: number;
-    kt_max: number;
-    curves: { gravity: [number, number][]; turbulence: [number, number][] };
-  }[];
+  stations: IwaveSpectraStation[];
 }
 
 /**

@@ -93,8 +93,19 @@ import { getImageSize } from './getImageSize';
 import { handleDragLeave, handleDragOver } from './handleDragEvents';
 import { froudeFilledProfile, computeDischarge, getEffectiveTechniqueData } from './techniqueDischarge';
 import type { Technique, DischargeResult, TechniqueDischargeData, TechniqueOptions } from './techniqueDischarge';
-import { curveToPolylinePoints } from './spectrumGeometry';
-import type { SpectrumExtent } from './spectrumGeometry';
+import {
+  curveToPath,
+  describeSpectrumPoint,
+  fromPixel,
+  getCellExtent,
+  getNearestIndex,
+  getRampColor,
+  getSpectrumPixels,
+  getTicks,
+  parseColor,
+  toPixel,
+} from './spectrumGeometry';
+import type { RgbColor, SpectrumAxis, SpectrumPoint } from './spectrumGeometry';
 
 export type {
   MaskRaster,
@@ -108,7 +119,9 @@ export type {
   DischargeResult,
   TechniqueDischargeData,
   TechniqueOptions,
-  SpectrumExtent,
+  RgbColor,
+  SpectrumAxis,
+  SpectrumPoint,
 };
 
 export {
@@ -146,7 +159,16 @@ export {
   measureImageAspect,
   computeStationPixelPositions,
   computeStationSearchLines,
-  curveToPolylinePoints,
+  curveToPath,
+  describeSpectrumPoint,
+  fromPixel,
+  getCellExtent,
+  getNearestIndex,
+  getRampColor,
+  getSpectrumPixels,
+  getTicks,
+  parseColor,
+  toPixel,
   createSquare,
   DEFAULT_PERIOD_S,
   dateToStringDate,

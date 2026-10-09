@@ -142,6 +142,15 @@
   --tech-stiv:  #FF9F43;
   --tech-iwave: #F07CD3;
 
+  /* iWave spectrum ramp, lowest energy first: the plot's ground, a mid blue,
+     and the ink strong energy is drawn in. One hue, so it reads as magnitude;
+     the ground sits near the canvas so empty cells recede, and the ramp runs
+     toward the theme's high-contrast end (dark ink on the light theme, light
+     ink on the dark ones). The fitted curves stay --tech-iwave on top. */
+  --spectrum-0: #0A0D12;
+  --spectrum-1: #2E7DD6;
+  --spectrum-2: #A9DCFF;
+
   /* Aliases Phase 3's components are written against — each one points at
      a token this theme block already declares above. No new colour values. */
   --surface-frame:  var(--background-color);
@@ -236,6 +245,11 @@
   --tech-lspiv: #1668C7;
   --tech-stiv:  #D35F0A;
   --tech-iwave: #B02A98;
+
+  /* iWave spectrum ramp — see the dark theme's note. */
+  --spectrum-0: #F8FAFD;
+  --spectrum-1: #6FA3D8;
+  --spectrum-2: #0E2F6B;
 
   /* Aliases Phase 3's components are written against — each one points at
      a token this theme block already declares above. No new colour values. */
@@ -334,6 +348,11 @@
   --tech-lspiv: #8BE9FD;
   --tech-stiv:  #FFB86C;
   --tech-iwave: #FF79C6;
+
+  /* iWave spectrum ramp — see the dark theme's note. */
+  --spectrum-0: #1D1E27;
+  --spectrum-1: #5F86DE;
+  --spectrum-2: #C4E4FF;
 
   /* Aliases Phase 3's components are written against — each one points at
      a token this theme block already declares above. No new colour values. */
@@ -1904,24 +1923,6 @@ svg.mask-mode-active .overlay-ui * {
 .confirm-mask-btn:hover {
   opacity: 1;
   transform: scale(1.2);
-}
-
-/* =============================================================================
-   Velocity readout — the PIV arrow tooltip (drawQuiver.ts) and the STI badge.
-   One class so the two cannot drift apart.
-   Deliberately sets no font rules: all must inherit the app font identically,
-   which is what makes them look like the same control.
-   Background points straight at --secondary-background-color — the same
-   surface other chart overlays use — rather than a readout-specific variable,
-   so the two can never drift apart. It is fully opaque on purpose: these sit
-   over video frames, and any transparency let the imagery through badly
-   enough to make the number hard to read.
-   ============================================================================= */
-.velocity-readout {
-    background: var(--secondary-background-color);
-    border: 1px solid var(--readout-border);
-    padding: 5px 10px;
-    border-radius: var(--radius-sm);
 }
 
 /* =============================================================================

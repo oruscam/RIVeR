@@ -924,25 +924,136 @@
     pointer-events: none;
 }
 
-/* Box style (background, border, padding, radius) and font come from
-   .velocity-readout, shared with the PIV arrow tooltip. Only placement and the
-   multi-line layout are specific to the badge. */
-.sti-badge {
+/* READOUT STRIP — what the active station gave, on one line resting on the
+   plot and exactly as wide as it (the viewer sets the width). STIV and iWave
+   share it: station, then label/value pairs, then whatever is specific to the
+   view pushed to the far end. It replaces the card that was docked beside the
+   plot, which cost the plot a quarter of the canvas. */
+.readout-strip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex: none;
+    box-sizing: border-box;
+    height: 28px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--input-background);
+    border-radius: var(--radius-md);
+    background: var(--secondary-background-color);
+    color: var(--primary-text-color);
+    font-size: var(--text-caption);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.readout-strip-title {
+    flex: none;
+    font-size: var(--text-meta);
+    font-weight: 600;
+}
+
+.readout-strip-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    flex: none;
+}
+
+.readout-strip-item > span,
+.readout-strip-item > i {
+    color: var(--secondary-text-color);
+}
+
+.readout-strip-item > b {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* The station's colour on the bar below — the colour its bars over the STI,
+   or its vector on the frame, are drawn in. The value beside it stays in text
+   ink. */
+.readout-swatch {
+    display: inline-block;
+    align-self: center;
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-sm);
+    flex: none;
+}
+
+.readout-strip-flag {
+    flex: none;
+    color: var(--secondary-text-color);
+}
+
+/* The one part that gives way on a narrow plot: it takes what is left and
+   ends in an ellipsis, with the full sentence in its title. */
+.readout-strip-note {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+    color: var(--secondary-text-color);
+}
+
+.readout-strip-warn {
+    color: var(--status-fair);
+}
+
+/* POINT TIP — the values of the one thing under the cursor, read beside it: a
+   vector of the LSPIV field, a cell of an iWave spectrum. A grid of label and
+   value, in the station tag's surface. */
+.point-tip {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    line-height: 1.5;
-    /* A readout, not a target — otherwise it would swallow the pointer over its
-       corner of the angle overlay. */
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 2px var(--space-3);
+    align-items: baseline;
+    box-sizing: border-box;
+    padding: 6px 10px;
+    border: 1px solid var(--input-background);
+    border-radius: var(--radius-md);
+    background: var(--secondary-background-color);
+    box-shadow: 0 6px 18px var(--canvas-chrome-shadow);
+    color: var(--primary-text-color);
+    font-size: var(--text-caption);
+    white-space: nowrap;
     pointer-events: none;
 }
 
-/* The angle's warning mark. .sti-badge is pointer-events:none so it never
-   swallows a pan; the mark opts back in so its tooltip is reachable. */
-.sti-badge-warn {
-    color: var(--warning-color);
-    pointer-events: auto;
-    cursor: help;
+.point-tip > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--secondary-text-color);
+}
+
+.point-tip > b {
+    text-align: right;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+}
+
+/* LSPIV's vector tip. Streamwise is the component the discharge is computed
+   from, so it alone is in primary ink and weight, with the vector's colour
+   beside it; the position and the crosswise component recede. A hairline
+   parts where the vector is from what it measured. */
+.point-tip > .point-tip-key {
+    color: var(--primary-text-color);
+    font-weight: 600;
+}
+
+.point-tip > .point-tip-rule {
+    grid-column: 1 / -1;
+    height: 1px;
+    margin: 3px 0;
+    background: var(--input-background);
+}
+
+.point-tip > .point-tip-minor {
+    color: var(--secondary-text-color);
 }
 
 .sti-empty {
@@ -1029,63 +1140,197 @@
     cursor: default;
 }
 
-/* iWave spectrum preview — reuses .sti-viewer / .sti-frame / .sti-overlay /
-   .sti-badge from the STI viewer, and adds the axis labels and curve legend
-   that are specific to a spectrum. */
-.iwave-frame {
+/* iWave spectrum preview — the plot (one or two wavenumber-frequency panels
+   on a shared frequency axis) dressed in the chrome the other canvases use:
+   the station's readout strip resting on the panels, and the colour bar
+   bottom-right. Nothing sits on the data but the fitted curves, the hover
+   crosshair and the tip beside it. */
+.spectrum-viewer {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* The strip and the plot as one column, and the box the cell tip is placed in. */
+.spectrum-stage {
     position: relative;
+    flex-shrink: 0;
+}
+
+.spectrum-plot {
+    display: block;
+    flex-shrink: 0;
+    cursor: crosshair;
+}
+
+.spectrum-ground {
+    fill: var(--spectrum-0);
 }
 
 .iwave-spectrum-image {
-    display: block;
     /* The spectrum is a data image; smoothing would invent structure that is
        not in the underlying array. */
     image-rendering: pixelated;
 }
 
-.iwave-plot {
-    position: relative;
-    display: inline-block;
-    /* Room for the axis labels, which must sit OUTSIDE .sti-frame because
-       that element clips its overflow to keep STI angle lines contained. */
-    padding: 0 0 20px 16px;
+.spectrum-frame {
+    fill: none;
+    stroke: var(--readout-border);
+    stroke-width: 1;
 }
 
-.iwave-axis {
-    position: absolute;
-    font-size: 11px; /* scale-exception: chart axis text sized to the spectrum plot */
-    color: var(--secondary-text-color);
+/* Frequency gridlines and the k = 0 line: ink at low strength, so they read
+   on the ground and on the ridge without competing with either. */
+.spectrum-grid {
+    stroke: var(--spectrum-2);
+    stroke-opacity: 0.12;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+/* Axis text as on the Results charts: ticks at body size in primary ink, the
+   quantity larger with its unit smaller and dimmed beside it. */
+.spectrum-tick {
+    font-size: var(--text-body);
+    font-variant-numeric: tabular-nums;
+    fill: var(--primary-text-color);
+}
+
+.spectrum-axis-title {
+    fill: var(--primary-text-color);
+}
+
+.spectrum-axis-symbol {
+    font-size: var(--text-subtitle);
+    font-style: italic;
+}
+
+.spectrum-axis-sub {
+    font-size: var(--text-body);
+    font-style: italic;
+}
+
+.spectrum-axis-unit {
+    font-size: var(--text-body);
+    opacity: 0.7;
+}
+
+/* The fitted curves take iWave's colour. They run along the ridge, where the
+   ramp is at its strongest, so each is cased in the ground colour: the casing
+   is what keeps the curve legible over the densest cells in every theme. */
+.spectrum-curve {
+    fill: none;
+    stroke: var(--tech-iwave);
+    stroke-width: 2;
+    stroke-linejoin: round;
+}
+
+.spectrum-curve-casing {
+    fill: none;
+    stroke: var(--spectrum-0);
+    stroke-width: 4.5;
+    stroke-opacity: 0.85;
+    stroke-linejoin: round;
+}
+
+.spectrum-crosshair line {
+    stroke: var(--primary-text-color);
+    stroke-opacity: 0.55;
+    stroke-width: 1;
+    stroke-dasharray: 2 3;
+    shape-rendering: crispEdges;
     pointer-events: none;
 }
 
-.iwave-axis-x {
-    bottom: 0;
-    left: calc(50% + 8px);
-    transform: translateX(-50%);
+/* The spectrum's cell tip: two label/value pairs to a row, so five values
+   take three short rows beside the crosshair. */
+.point-tip.spectrum-tip {
+    grid-template-columns: auto auto auto auto;
 }
 
-.iwave-axis-y {
-    left: 0;
-    top: calc(50% - 10px);
-    transform: translateY(-50%) rotate(-90deg);
-    transform-origin: center;
+.point-tip.spectrum-tip > b {
+    padding-right: var(--space-2);
 }
 
-.iwave-legend {
-    position: absolute;
-    left: 8px;
-    bottom: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    font-size: 11px; /* scale-exception: chart legend text sized to the spectrum plot */
-    padding: 4px 8px;
+/* k's axis subscript must not push its row taller than the others. */
+.spectrum-tip sub {
+    line-height: 0;
 }
 
-.iwave-legend span {
-    display: flex;
+.readout-strip-curves {
+    display: inline-flex;
+    gap: var(--space-1);
+    flex: 0 1 auto;
+    min-width: 0;
+    margin-left: auto;
+    margin-right: -6px;
+}
+
+/* A curve's switch names it, gives its energy share, and hides it to look at
+   the ridge under it. Its name is what shortens on a narrow plot. */
+.spectrum-curve-toggle {
+    display: inline-flex;
     align-items: center;
     gap: 6px;
+    flex: 0 1 auto;
+    min-width: 44px;
+    height: 22px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--primary-text-color);
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+.spectrum-curve-toggle > svg {
+    flex: none;
+}
+
+.spectrum-curve-toggle > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.spectrum-curve-toggle > b {
+    flex: none;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.spectrum-curve-toggle:hover {
+    background: var(--input-background);
+}
+
+.spectrum-curve-toggle:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: -2px;
+}
+
+.spectrum-curve-toggle[aria-pressed="false"] {
+    opacity: 0.45;
+}
+
+.spectrum-colorbar {
+    background: linear-gradient(to right, var(--spectrum-0), var(--spectrum-1), var(--spectrum-2));
+    box-shadow: inset 0 0 0 1px var(--readout-border);
+}
+
+/* The lower limit is always zero, so it is text in the field's place, not a
+   field. */
+.spectrum-colorbar-zero {
+    flex: none;
+    width: 28px;
+}
+
+.spectrum-colorbar-zero:hover {
+    background-color: transparent;
 }
 
 /* =============================================================================
