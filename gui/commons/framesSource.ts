@@ -39,6 +39,19 @@ export function selectedFrameCount(startFrame: number, endFrame: number, step: n
   return Math.max(0, Math.ceil(endFrame / step) - Math.ceil(Math.max(startFrame, 0) / step));
 }
 
+/**
+ * The frame count the Video Range summary shows for the Start and End being typed (1-based,
+ * End included). Text that is not a plain frame number counts nothing, as an unreadable time
+ * does for a video, and End stops at the folder's last frame.
+ */
+export function summaryFrameCount(startText: string, endText: string, step: number, frameCount: number): number {
+  const isDigits = (text: string) => /^\d+$/.test(text.trim());
+  if (!isDigits(String(startText)) || !isDigits(String(endText))) return 0;
+  const start = Number(startText);
+  if (start < 1) return 0;
+  return selectedFrameCount(start - 1, Math.min(Number(endText), frameCount), Number(step));
+}
+
 /** `start` and `end` are the 1-based frame numbers the form shows; `end` is included. */
 export function frameRangeValid(start: number, end: number, count: number): boolean {
   return Number.isInteger(start) && Number.isInteger(end) && start >= 1 && start < end && end <= count;

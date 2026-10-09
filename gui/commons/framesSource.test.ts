@@ -7,6 +7,7 @@ import {
   intervalFromSettings,
   parseInterval,
   selectedFrameCount,
+  summaryFrameCount,
   withInterval,
 } from './framesSource';
 
@@ -49,6 +50,38 @@ describe('selectedFrameCount', () => {
     expect(selectedFrameCount(0, 10, 0)).toBe(0);
     expect(selectedFrameCount(0, 10, NaN)).toBe(0);
     expect(selectedFrameCount(8, 3, 1)).toBe(0);
+  });
+});
+
+describe('summaryFrameCount', () => {
+  it('counts the frames of the typed 1-based range', () => {
+    expect(summaryFrameCount('1', '20', 1, 20)).toBe(20);
+    expect(summaryFrameCount('13', '108', 2, 120)).toBe(48);
+    expect(summaryFrameCount(' 1 ', '120', 2, 120)).toBe(60);
+  });
+
+  it('never counts past the last frame of the folder', () => {
+    expect(summaryFrameCount('1', '500', 1, 20)).toBe(20);
+    expect(summaryFrameCount('11', '500', 2, 20)).toBe(5);
+  });
+
+  it.each([
+    ['1e1', '20'],
+    ['1', '1e1'],
+    ['0x1', '20'],
+    ['', '20'],
+    ['1', ''],
+    ['1.5', '20'],
+    ['-1', '20'],
+    ['a', 'b'],
+  ])('is 0 while Start %s / End %s are not plain frame numbers', (start, end) => {
+    expect(summaryFrameCount(start, end, 1, 20)).toBe(0);
+  });
+
+  it('is 0 for a range that selects nothing', () => {
+    expect(summaryFrameCount('0', '20', 1, 20)).toBe(0);
+    expect(summaryFrameCount('15', '3', 1, 20)).toBe(0);
+    expect(summaryFrameCount('1', '20', 0, 20)).toBe(0);
   });
 });
 
