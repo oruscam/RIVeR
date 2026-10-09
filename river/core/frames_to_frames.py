@@ -23,7 +23,8 @@ FRAME_EXTENSIONS = {".jpg", ".jpeg", ".png"}
 
 def _natural_key(name: str) -> list:
 	"""frame_2 before frame_10: digit runs compare as numbers, the rest case-insensitively."""
-	return [int(token) if token.isdigit() else token.lower() for token in re.split(r"(\d+)", name)]
+	# The split puts the digit runs at the odd positions; isdigit() would also take "²", which int() refuses.
+	return [int(token) if i % 2 else token.lower() for i, token in enumerate(re.split(r"(\d+)", name))]
 
 
 def list_source_frames(source_dir: Path) -> List[Path]:
