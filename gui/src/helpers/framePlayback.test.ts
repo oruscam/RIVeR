@@ -1,4 +1,11 @@
-import { clampIndex, frameUrl, indexFromProgress, playbackDelay, progressFromIndex } from './framePlayback';
+import {
+  clampIndex,
+  frameUrl,
+  indexFromProgress,
+  playableFrames,
+  playbackDelay,
+  progressFromIndex,
+} from './framePlayback';
 
 describe('clampIndex', () => {
   it('keeps an index inside the sequence', () => {
@@ -55,5 +62,23 @@ describe('frameUrl', () => {
   it('escapes the characters that would cut the URL short', () => {
     expect(frameUrl('', '/data/frame #1.jpg')).toBe('/data/frame %231.jpg');
     expect(frameUrl('', '/data/50%/a?b.png')).toBe('/data/50%25/a%3Fb.png');
+  });
+});
+
+describe('playableFrames', () => {
+  const files = ['/data/run/f_1.jpg', '/data/run/f #2.jpg'];
+
+  it('gives the source images as URLs when the folder still holds the project frames', () => {
+    expect(playableFrames({ files }, 2, '/@fs')).toEqual(['/@fs/data/run/f_1.jpg', '/@fs/data/run/f %232.jpg']);
+  });
+
+  it('gives nothing when the folder could not be read', () => {
+    expect(playableFrames({ error: 'unreadableFolder' }, 2, '')).toEqual([]);
+    expect(playableFrames({ error: 'noFrames' }, 2, '')).toEqual([]);
+  });
+
+  it('gives nothing when the folder no longer has the frame count the project was made from', () => {
+    expect(playableFrames({ files }, 240, '')).toEqual([]);
+    expect(playableFrames({ files: [...files, '/data/run/f_3.jpg'] }, 2, '')).toEqual([]);
   });
 });

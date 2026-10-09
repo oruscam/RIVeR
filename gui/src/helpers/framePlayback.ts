@@ -26,3 +26,17 @@ export function playbackDelay(fps: number): number {
 export function frameUrl(filePrefix: string, filePath: string): string {
   return filePrefix + filePath.replace(/[%#?]/g, encodeURIComponent);
 }
+
+/**
+ * The source images the player may show. None when the folder could not be read, or when it
+ * no longer holds as many frames as the project was made from: the range would not fit them.
+ */
+export function playableFrames(
+  result: { files: string[] } | { error: string },
+  frameCount: number | undefined,
+  filePrefix: string
+): string[] {
+  if ('error' in result) return [];
+  if (frameCount !== undefined && result.files.length !== frameCount) return [];
+  return result.files.map((file) => frameUrl(filePrefix, file));
+}
