@@ -66,7 +66,10 @@ export const VideoRange = () => {
         ) : path && !isFrames ? (
           <VideoPlayer ref={videoRef} fileURL={path} duration={duration} overlay={stabilizationOverlay} />
         ) : (
-          videoMissing && firstFramePath && <img className="video-missing-still" src={firstFramePath} alt="" />
+          // A frames project shows its first imported frame until its folder is read, and
+          // instead of the player when the folder is unreadable or no longer the same.
+          (videoMissing || isFrames) &&
+          firstFramePath && <img className="video-missing-still" src={firstFramePath} alt="" />
         )}
         <ModeHint />
       </div>

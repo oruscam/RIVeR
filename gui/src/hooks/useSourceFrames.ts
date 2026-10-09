@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useProjectSlice } from './useProjectSlice';
-import { frameUrl } from '../helpers/framePlayback';
+import { playableFrames } from '../helpers/framePlayback';
 
 /**
  * The open frames project's source images, in import order, ready for <img src>.
- * Empty until the folder has been read, and when the project is not a frames project.
+ * Empty while the folder is being read, when it cannot be read or no longer matches the
+ * project's frame count, and when the project is not a frames project.
  */
 export const useSourceFrames = (enabled: boolean): string[] => {
   const { onInspectFramesFolder, video } = useProjectSlice();
@@ -21,7 +22,7 @@ export const useSourceFrames = (enabled: boolean): string[] => {
     }
     onInspectFramesFolder().then((result) => {
       if (cancelled) return;
-      setFrames('error' in result ? [] : result.files.map((file: string) => frameUrl(filePrefix, file)));
+      setFrames(playableFrames(result, video.data.frameCount, filePrefix));
     });
     return () => {
       cancelled = true;
