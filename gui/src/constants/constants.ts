@@ -67,10 +67,6 @@ export const COLORS = {
   MARK_NUMBER: '#3396BF',
   MARK_L: '#6B120B',
   MARK_R: '#2D671B',
-  ELLIPSE: {
-    FILL: '#D2AF7970',
-    STROKE: '#D2AF79',
-  },
 };
 
 /**

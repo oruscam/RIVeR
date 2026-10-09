@@ -32,9 +32,12 @@ describe('oblique and ipcam canvases use the shared overlay style', () => {
   test('distance lines and the reprojection line go through drawOverlayLine', () => {
     expect(oblique.match(/drawOverlayLine\(/g)?.length).toBe(2);
     expect(oblique).not.toMatch(/\.attr\('stroke-width'/);
-    expect(ipcam).toMatch(/drawOverlayLine\(\{[\s\S]*thin: true/);
-    // the only literal width left in drawIpcam is the confidence ellipse (out of scope)
-    expect(ipcam.match(/\.attr\('stroke-width'/g)?.length).toBe(1);
+    expect(ipcam).toContain('drawOverlayEllipse(');
+    expect(ipcam).toMatch(/drawOverlayLine\(\{[\s\S]*width: OVERLAY_STYLE\.app\.RESIDUAL_WIDTH/);
+    expect(ipcam).not.toContain('thin:');
+    expect(ipcam).not.toContain('COLORS.');
+    expect(ipcam).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
+    expect(ipcam).not.toMatch(/factor \* 1\.8/);
   });
   test('pins get the visible image (image space) and re-lean while dragged', () => {
     for (const src of [oblique, ipcam]) {
@@ -54,8 +57,11 @@ describe('report calibration overlays use the report size', () => {
   test('lines through drawOverlayLine at report size, pins at the report divisor inside the frame', () => {
     expect(oblique).toContain("size: 'report'");
     expect(oblique).not.toMatch(/\.attr\('stroke-width'/);
-    expect(ipcam).toMatch(/drawOverlayLine\(\{[\s\S]*thin: true/);
-    expect(ipcam.match(/\.attr\('stroke-width'/g)?.length).toBe(1); // the ellipse
+    expect(ipcam).toContain('drawOverlayEllipse(');
+    expect(ipcam).toMatch(/drawOverlayLine\(\{[\s\S]*width: OVERLAY_STYLE\.report\.RESIDUAL_WIDTH/);
+    expect(ipcam).not.toContain('thin:');
+    expect(ipcam).not.toContain('COLORS.');
+    expect(ipcam).not.toMatch(/#[0-9a-fA-F]{3,8}\b/);
     for (const src of [oblique, ipcam]) {
       expect(src).toContain('OVERLAY_STYLE.report.PIN_DIVISOR');
       expect(src).toMatch(/bounds: \{ x: 0, y: 0, width, height \}/);
@@ -84,5 +90,11 @@ describe('report section frame', () => {
     const block = src.slice(src.indexOf('module="report"') - 200, src.indexOf('module="report"'));
     expect(block).toContain('height={reportHeight!}');
     expect(block).not.toContain('height={reportWidth!}');
+  });
+});
+
+describe('the tan ellipse colour is gone', () => {
+  test('COLORS.ELLIPSE is not declared or used', () => {
+    expect(read('src/constants/constants.ts')).not.toContain('ELLIPSE');
   });
 });

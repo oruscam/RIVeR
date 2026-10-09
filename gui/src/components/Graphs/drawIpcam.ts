@@ -1,9 +1,11 @@
 import * as d3 from 'd3';
-import { COLORS } from '../../constants/constants';
+import { getOverlayColors, getPinColors, getResidualColors } from '../../helpers/getCSSVar';
+import { ipcamErrorGrade } from '../../helpers/ipcamErrorGrade';
+import { ipcamPointErrors } from '../../helpers/ipcamPointErrors';
 import { IpcamPoint, SetPointPixelCoordinatesProps } from '../../store/ipcam/types';
 import { drawPin, PinKind, updatePinLean } from './drawPin';
-import { drawOverlayLine } from './overlayStyle';
-import { visibleImageBounds } from './pinLean';
+import { drawOverlayEllipse, drawOverlayLine, OVERLAY_STYLE } from './overlayStyle';
+import { Bounds, visibleImageBounds } from './pinLean';
 import { showMagnifier, hideMagnifier, NOT_MAGNIFIER } from './drawMagnifier';
 
 interface drawIpcamProps {
@@ -22,6 +24,9 @@ interface drawIpcamProps {
   cameraSolution: any | null;
   imageSrc: string;
 }
+
+/** A point left out of the solve keeps a smaller pin. */
+const MUTED_PIN_SCALE = 0.7;
 
 const drawIpcam = ({
   layer,
@@ -100,26 +105,37 @@ const drawIpcam = ({
     return selected ? 'point' : 'muted';
   };
 
+  const errors =
+    cameraSolution === null
+      ? new Map<number, number | null>()
+      : new Map(ipcamPointErrors(localPoints, cameraSolution).map((e) => [e.index, e.error]));
+
   localPoints.forEach((point, index) => {
     if (cameraSolution === null && point.selected === false) return;
     if (point.wasEstablished === false && activePoint !== index) return;
 
-    if (cameraSolution !== null) {
-      drawEllipses(point, layer, factor);
-      drawProjectionPoint(point, layer, factor, scale);
+    const error = errors.get(index) ?? null;
+    if (cameraSolution !== null && point.selected) {
+      drawEllipse(point, layer, factor, scale);
+      drawResidual(point, error, layer, factor, scale);
     }
 
+    const muted = !point.selected && activePoint !== index;
     const g = drawPin({
       layer,
       tip: point,
       kind: getPinKind(index, point.selected),
-      divisor: scale,
+      divisor: muted ? scale / MUTED_PIN_SCALE : scale,
       bounds,
       active: activePoint === index,
     });
     g.attr('cursor', 'default')
       .datum({ index })
       .call(dragPoint as any);
+
+    if (activePoint === index) {
+      drawPointChip({ layer, pin: g, point, error: cameraSolution === null ? undefined : error, scale, bounds });
+    }
   });
 };
 
@@ -128,63 +144,119 @@ const transformPointCoordinates = (points: IpcamPoint[] | null, factor: number):
   return points.map((point) => ({ ...point, x: point.x / factor, y: point.y / factor }));
 };
 
-const drawEllipses = (
+const drawEllipse = (
   point: IpcamPoint,
   layer: d3.Selection<SVGGElement, unknown, null, undefined>,
-  factor: number
+  factor: number,
+  scale: number
 ) => {
   const { ellipse } = point;
   if (ellipse === null || ellipse === undefined) return;
-  if (point.selected === false) return;
-
-  const [x, y] = ellipse.center;
-  const width = ellipse.width / (factor * 1.8);
-  const height = ellipse.height / (factor * 1.8);
-  const angle = ellipse.angle;
-
-  layer
-    .append('ellipse')
-    .attr('cx', x / factor)
-    .attr('cy', y / factor)
-    .attr('rx', width)
-    .attr('ry', height)
-    .attr('transform', `rotate(${angle}, ${x / factor}, ${y / factor})`)
-    .attr('fill', COLORS.ELLIPSE.FILL)
-    .attr('stroke', COLORS.ELLIPSE.STROKE)
-    .attr('stroke-width', 1);
+  drawOverlayEllipse({
+    layer,
+    cx: ellipse.center[0] / factor,
+    cy: ellipse.center[1] / factor,
+    width: ellipse.width / factor,
+    height: ellipse.height / factor,
+    angle: ellipse.angle,
+    color: getOverlayColors().line,
+    size: 'app',
+    zoom: scale,
+    className: 'ipcam-ellipse',
+  });
 };
 
-const drawProjectionPoint = (
+const drawResidual = (
   point: IpcamPoint,
+  error: number | null,
   layer: d3.Selection<SVGGElement, unknown, null, undefined>,
   factor: number,
   scale: number
 ) => {
   const { projectedPoint, x, y } = point;
   if (projectedPoint === null || projectedPoint === undefined) return;
-  if (point.selected === false) return;
+  const color = getResidualColors()[ipcamErrorGrade(error) ?? 'none'];
+  const to = { x: projectedPoint[0] / factor, y: projectedPoint[1] / factor };
 
-  const [projectedX, projectedY] = projectedPoint;
-
-  // Draw Line from ipcam point to projection point
   drawOverlayLine({
     layer,
     from: { x, y },
-    to: { x: projectedX / factor, y: projectedY / factor },
-    color: COLORS.RED,
+    to,
+    color,
     size: 'app',
-    thin: true,
+    width: OVERLAY_STYLE.app.RESIDUAL_WIDTH,
     zoom: scale,
     className: 'ipcam-reprojection',
   });
-
-  // Draw projection point
   layer
     .append('circle')
-    .attr('cx', projectedX / factor)
-    .attr('cy', projectedY / factor)
-    .attr('r', 3 / scale)
-    .attr('fill', COLORS.RED);
+    .attr('class', 'ipcam-reprojection-dot')
+    .attr('cx', to.x)
+    .attr('cy', to.y)
+    .attr('r', (OVERLAY_STYLE.app.RESIDUAL_WIDTH * 1.4) / scale)
+    .attr('fill', color)
+    .attr('stroke', getPinColors().ink)
+    .attr('stroke-width', 1 / scale)
+    .attr('pointer-events', 'none');
+};
+
+/**
+ * The active point's label and, after a solve, its error, on canvas chrome
+ * beside the pin head. `error` undefined means "no solve yet": label only.
+ */
+const drawPointChip = ({
+  layer,
+  pin,
+  point,
+  error,
+  scale,
+  bounds,
+}: {
+  layer: d3.Selection<SVGGElement, unknown, null, undefined>;
+  pin: d3.Selection<SVGGElement, unknown, null, undefined>;
+  point: IpcamPoint;
+  error: number | null | undefined;
+  scale: number;
+  bounds: Bounds;
+}) => {
+  const d = (n: number) => n / scale;
+  const headY = Number(pin.attr('data-head-y'));
+  const chip = layer.append('g').attr('class', 'ipcam-chip').attr('pointer-events', 'none');
+  const rect = chip.append('rect').attr('class', 'ipcam-chip-bg').attr('rx', d(6));
+  const text = chip
+    .append('text')
+    .attr('class', 'ipcam-chip-text')
+    .attr('font-size', d(12))
+    .attr('dominant-baseline', 'central');
+  const label = text.append('tspan').attr('font-weight', 600).text(point.label);
+
+  const grade = ipcamErrorGrade(error);
+  if (typeof error === 'number') {
+    text
+      .append('tspan')
+      .attr('dx', grade ? d(16) : d(8))
+      .text(`${error.toFixed(2)} px`);
+  }
+
+  // Laid out from the measured text, so the chip fits any label.
+  const width = (text.node()?.getComputedTextLength() ?? 0) + d(20);
+  const height = d(24);
+  const gap = d(22);
+  const fitsRight = point.x + gap + width <= bounds.x + bounds.width;
+  const left = fitsRight ? point.x + gap : point.x - gap - width;
+  const top = Math.max(bounds.y, Math.min(bounds.y + bounds.height - height, headY - height / 2));
+
+  rect.attr('x', left).attr('y', top).attr('width', width).attr('height', height);
+  text.attr('x', left + d(10)).attr('y', top + height / 2);
+
+  if (grade) {
+    chip
+      .append('circle')
+      .attr('cx', left + d(10) + (label.node()?.getComputedTextLength() ?? 0) + d(8))
+      .attr('cy', top + height / 2)
+      .attr('r', d(3.5))
+      .attr('fill', getResidualColors()[grade]);
+  }
 };
 
 export { drawIpcam, transformPointCoordinates };

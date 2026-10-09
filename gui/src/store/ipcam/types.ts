@@ -1,11 +1,11 @@
 interface Ellipse {
-  // Center of the ellipse [x, y]
+  // Center of the ellipse [x, y], in original image pixels
   center: number[];
-  // Length of the major axis
+  // Full length of the first axis (a diameter, not a radius)
   width: number;
-  // Length of the minor axis
+  // Full length of the second axis
   height: number;
-  // Rotation angle in radians
+  // Rotation angle in degrees
   angle: number;
 }
 

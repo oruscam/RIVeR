@@ -351,3 +351,13 @@ svg .bar-stroke-themed {
 .hover-guide-line {
     pointer-events: none;
 }
+/* Active control point chip on the fixed-station frame: canvas chrome, the
+   same in every theme. */
+.ipcam-chip-bg {
+  fill: var(--canvas-chrome);
+}
+
+.ipcam-chip-text {
+  fill: var(--overlay-line);
+  font-family: inherit;
+}
