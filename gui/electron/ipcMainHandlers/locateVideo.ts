@@ -24,19 +24,22 @@ function locateVideo(riverCli: RiverCli) {
       const folder = picked.filePaths[0];
       if (picked.canceled || folder === undefined) return { status: 'canceled' };
 
-      const { data, error } = await riverCli(
-        ['frames-info', folder],
-        'json',
-        false,
-        PROJECT_CONFIG.logsPath,
-        false
-      );
-      if (error?.message) return { status: 'error', message: error.message };
+      let data;
+      try {
+        // Rejects when the backend cannot be started.
+        const result = await riverCli(['frames-info', folder], 'json', false, PROJECT_CONFIG.logsPath, false);
+        if (result.error?.message) return { status: 'error', message: result.error.message };
+        data = result.data;
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return { status: 'error', message };
+      }
 
       const found = { width: data.width, height: data.height, fps: expected.fps, frameCount: data.count };
       if (videoMismatch(expected, found)) return { status: 'mismatch', expected, found };
 
       settings.video.filepath = folder;
+      settings.video.name = path.basename(folder);
       await fs.promises.writeFile(PROJECT_CONFIG.settingsPath, JSON.stringify(settings, null, 4), 'utf-8');
       PROJECT_CONFIG.videoPath = folder;
       PROJECT_CONFIG.defaultFilesPath = path.dirname(folder);

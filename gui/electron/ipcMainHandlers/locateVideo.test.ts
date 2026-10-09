@@ -171,4 +171,30 @@ describe('locate-video for a frames project', () => {
 
     expect(await mockHandlers['locate-video']({})).toEqual({ status: 'error', message: 'noFrames' });
   });
+
+  it('reports an error instead of rejecting when the backend cannot be started', async () => {
+    riverCli.mockRejectedValue(new Error('spawn python ENOENT'));
+
+    expect(await mockHandlers['locate-video']({})).toEqual({ status: 'error', message: 'spawn python ENOENT' });
+    expect(settings().video.filepath).toBe('/gone/gauging');
+    expect(mockConfig.videoPath).toBe('/gone/DJI_0083.MP4');
+  });
+
+  it('changes nothing when the folder picker is canceled', async () => {
+    mockShowOpenDialog.mockResolvedValue({ canceled: true, filePaths: [] });
+
+    expect(await mockHandlers['locate-video']({})).toEqual({ status: 'canceled' });
+    expect(riverCli).not.toHaveBeenCalled();
+    expect(settings().video.filepath).toBe('/gone/gauging');
+  });
+
+  it('names the source after the located folder', async () => {
+    mockShowOpenDialog.mockResolvedValue({ canceled: false, filePaths: ['/found/gauging_renamed'] });
+    riverCli.mockResolvedValue({ data: { count: 240, width: 1920, height: 1080, files: [] }, error: {} });
+
+    const result = await mockHandlers['locate-video']({});
+
+    expect(result.metadata.name).toBe('gauging_renamed');
+    expect(settings().video.name).toBe('gauging_renamed');
+  });
 });
