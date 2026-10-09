@@ -1,4 +1,4 @@
-import { canSolve, solveMethodOf, SOLVE_MIN_POINTS } from './ipcamSolve';
+import { canSolve, showUntickHint, solveMethodOf, SOLVE_MIN_POINTS } from './ipcamSolve';
 
 describe('solve method', () => {
   test('the limits the buttons had', () => {
@@ -19,5 +19,17 @@ describe('solve method', () => {
     expect(canSolve('direct-solve', 6)).toBe(true);
     expect(canSolve('optimize-solution', 6)).toBe(false);
     expect(canSolve('optimize-solution', 7)).toBe(true);
+  });
+});
+
+describe('the untick hint', () => {
+  test('shows for a fair or bad All points solve, where unticking changes the next solve', () => {
+    expect(showUntickHint('direct-solve', 'bad')).toBe(true);
+    expect(showUntickHint('direct-solve', 'fair')).toBe(true);
+  });
+  test('not for a good solve, and never for Optimized, which picks its own points', () => {
+    expect(showUntickHint('direct-solve', 'good')).toBe(false);
+    expect(showUntickHint('direct-solve', null)).toBe(false);
+    expect(showUntickHint('optimize-solution', 'bad')).toBe(false);
   });
 });

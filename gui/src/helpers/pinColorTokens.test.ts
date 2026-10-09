@@ -24,7 +24,14 @@ describe('pin colour tokens', () => {
 
   it('distance colours are theme-invariant, declared once in :root', () => {
     const rootMatch = css.match(/:root\s*\{([\s\S]*?)\n\}/);
-    const expected = { d12: '#6CD4FF', d13: '#CC4BC2', d14: '#F5BF61', d23: '#62C655', d24: '#7765E3', d34: '#ED6B57' };
+    const expected = {
+      d12: '#6CD4FF',
+      d13: '#CC4BC2',
+      d14: '#F5BF61',
+      d23: '#62C655',
+      d24: '#7765E3',
+      d34: '#ED6B57',
+    };
     for (const [name, hex] of Object.entries(expected)) {
       expect(rootMatch?.[1]).toMatch(new RegExp(`--${name}:\\s*${hex}`));
     }

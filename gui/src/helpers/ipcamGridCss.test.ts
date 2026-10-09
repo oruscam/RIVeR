@@ -39,3 +39,12 @@ describe('control points table columns', () => {
     expect(src).toMatch(/rowKeyGetter = \(row: IpcamGridRow\): number => row\.id/);
   });
 });
+
+describe('control points table behaviour', () => {
+  test('ticking a checkbox does not scroll back to the active row', () => {
+    expect(src).toMatch(/\}, \[activePoint, sort\]\);/);
+  });
+  test('the select column is pinned to its width, or the grid clamps it to 35px', () => {
+    expect(src).toMatch(/\.\.\.SelectColumn,[\s\S]{0,80}minWidth: 28,[\s\S]{0,40}maxWidth: 28/);
+  });
+});

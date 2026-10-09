@@ -3,7 +3,13 @@ import { useIpcamSlice, useProjectSlice } from '../hooks';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 import DataGrid, { SelectColumn, DataGridHandle } from 'react-data-grid';
 import { useTranslation } from 'react-i18next';
-import { ErrorSort, IpcamGridRow, ipcamGridRows, nextErrorSort } from '../helpers/ipcamGridRows';
+import {
+  ErrorSort,
+  IpcamGridRow,
+  ipcamGridRows,
+  nextErrorSort,
+  rowClickActivates,
+} from '../helpers/ipcamGridRows';
 
 const rowKeyGetter = (row: IpcamGridRow): number => row.id;
 
@@ -47,6 +53,8 @@ export const IpcamGrid = () => {
       {
         ...SelectColumn,
         name: 'select',
+        minWidth: 28,
+        maxWidth: 28,
         width: 28,
         cellClass: 'cp-cell-select',
         headerCellClass: 'cp-cell-select',
@@ -74,7 +82,7 @@ export const IpcamGrid = () => {
       {
         key: 'Z',
         name: 'Z',
-        width: 56,
+        width: 50,
         renderCell: coord('Z'),
         cellClass: 'cp-cell-num',
         headerCellClass: 'cp-cell-num',
@@ -82,7 +90,7 @@ export const IpcamGrid = () => {
       {
         key: 'error',
         name: t('ControlPoints3d.errorPx'),
-        width: 72,
+        width: 66,
         cellClass: 'cp-cell-num',
         headerCellClass: 'cp-cell-num',
         renderHeaderCell: () => (
@@ -112,7 +120,8 @@ export const IpcamGrid = () => {
       onChangePointSelected({ index: row.id });
       return;
     }
-    if (points && points[row.id].image != null) {
+    if (!points || !rowClickActivates(column.key, points[row.id].wasEstablished)) return;
+    if (points[row.id].image != null) {
       onChangeActiveImage(points[row.id].image!);
     }
     onSetPointPixelCoordinates({
@@ -134,7 +143,9 @@ export const IpcamGrid = () => {
     if (activePoint === null || activePoint === undefined) return;
     const rowIdx = rows.findIndex((row) => row.id === activePoint);
     if (rowIdx >= 0) ref.current?.scrollToCell({ rowIdx });
-  }, [activePoint, rows]);
+    // Not on `rows`: ticking a checkbox rebuilds them, and must not scroll away from where the user is.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activePoint, sort]);
 
   // The header checkbox has no event of its own: a jump to all or none selected is how it shows.
   useEffect(() => {

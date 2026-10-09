@@ -17,7 +17,15 @@ const data = (extra: Record<string, unknown> = {}) =>
   }) as never;
 
 const sec = (d: unknown, over: Record<string, unknown> = {}) =>
-  ({ name: 'CS', data: d, activeTechnique: 'lspiv', interpolated: false, artificialSeeding: false, alpha: 1, ...over }) as never;
+  ({
+    name: 'CS',
+    data: d,
+    activeTechnique: 'lspiv',
+    interpolated: false,
+    artificialSeeding: false,
+    alpha: 1,
+    ...over,
+  }) as never;
 
 const run = (sections: never[], unit = 'si') => summarizeReport({ sections, step: 1, fps: 30 }, unit);
 
