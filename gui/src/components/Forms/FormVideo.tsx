@@ -8,7 +8,7 @@ import { useProjectSlice, useProjectIssues } from '../../hooks';
 import './form.css';
 import { formatNumberTo2Decimals, formatTime } from '../../helpers';
 import { identifyTimeFormat, parseTime } from '../../helpers/formatTime';
-import { fpsFromInterval, parseInterval, selectedFrameCount } from '../../../commons/framesSource';
+import { fpsFromInterval, parseInterval, summaryFrameCount } from '../../../commons/framesSource';
 import { VideoMetadata, FramesResolution, LensCorrection, StabilizationRegions } from './Components/index';
 import { FieldError } from '../index';
 import { Icons } from '../CustomIcons/Icons';
@@ -63,6 +63,11 @@ export const FormVideo = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchStep]);
 
+  useEffect(() => {
+    onClearFieldError('interval');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [watchInterval]);
+
   const frameRules = getFrameValidationRules(t, getValues, frameCount);
   const validationRules = frames ? frameRules : getValidationRules(t, getValues, duration);
 
@@ -73,7 +78,7 @@ export const FormVideo = ({
     : ((1 / (fps || 0)) * watchStep * 1000).toFixed(2);
 
   const numberOfFrames = frames
-    ? selectedFrameCount(Number(watchStartTime) - 1, Number(watchEndTime), Number(watchStep))
+    ? summaryFrameCount(watchStartTime, watchEndTime, Number(watchStep), frameCount)
     : Math.floor(((parseTime(watchEndTime) - parseTime(watchStartTime)) * fps) / watchStep);
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
