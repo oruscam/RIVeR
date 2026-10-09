@@ -38,7 +38,7 @@
     "addYourFootage": "Adicione sua filmagem",
     "changeType": "Alterar tipo",
     "dragAndDrop": "Arraste aqui um vídeo ou uma pasta de quadros",
-    "openFolders": "Abrir pasta",
+    "openFolders": "Escolher um vídeo",
     "footageType": {
       "uav": "Drone",
       "uavDescription": "Vista de cima, na vertical",

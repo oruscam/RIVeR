@@ -52,4 +52,32 @@ describe('frames import copy', () => {
       }
     });
   });
+
+  // The button opens the video dialog; the folder dialog is the link under it.
+  describe('the Browse button names the video, not a folder', () => {
+    const FOLDER_LABELS: Record<string, string> = {
+      ar: 'فتح المجلدات',
+      de: 'Ordner öffnen',
+      en: 'Open Folders',
+      es: 'Abrir Carpeta',
+      fr: 'Ouvrir le dossier',
+      hi: 'फ़ोल्डर खोलें',
+      it: 'Apri cartella',
+      ja: 'フォルダを開く',
+      ko: '폴더 열기',
+      pt: 'Abrir pasta',
+      ru: 'Открыть папки',
+      zh: '打开文件夹',
+    };
+
+    it('reads "Browse video" in English', () => {
+      expect(read(load('en'), 'Step-2.openFolders')).toBe('Browse video');
+    });
+
+    it.each(LANGUAGES)('%s no longer says "open folder"', (language) => {
+      const value = read(load(language), 'Step-2.openFolders');
+      expect(value.trim()).not.toBe('');
+      expect(value).not.toBe(FOLDER_LABELS[language]);
+    });
+  });
 });

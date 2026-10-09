@@ -38,7 +38,7 @@
     "addYourFootage": "Добавить съёмку",
     "changeType": "Изменить тип",
     "dragAndDrop": "Перетащите сюда видео или папку с кадрами",
-    "openFolders": "Открыть папки",
+    "openFolders": "Выбрать видео",
     "footageType": {
       "uav": "БПЛА",
       "uavDescription": "Вид сверху вниз",
