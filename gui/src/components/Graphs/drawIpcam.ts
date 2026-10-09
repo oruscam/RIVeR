@@ -231,15 +231,17 @@ const drawPointChip = ({
   const label = text.append('tspan').attr('font-weight', 600).text(point.label);
 
   const grade = ipcamErrorGrade(error);
+  // The gap between label and error, which holds the grade dot; a dx is not part of the measured text.
+  const gapBeforeError = typeof error === 'number' ? (grade ? d(16) : d(8)) : 0;
   if (typeof error === 'number') {
     text
       .append('tspan')
-      .attr('dx', grade ? d(16) : d(8))
+      .attr('dx', gapBeforeError)
       .text(`${error.toFixed(2)} px`);
   }
 
   // Laid out from the measured text, so the chip fits any label.
-  const width = (text.node()?.getComputedTextLength() ?? 0) + d(20);
+  const width = (text.node()?.getComputedTextLength() ?? 0) + gapBeforeError + d(20);
   const height = d(24);
   const gap = d(22);
   const fitsRight = point.x + gap + width <= bounds.x + bounds.width;

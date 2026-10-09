@@ -7,6 +7,12 @@ import { ErrorSort, IpcamGridRow, ipcamGridRows, nextErrorSort } from '../helper
 
 const rowKeyGetter = (row: IpcamGridRow): number => row.id;
 
+/** Coordinates keep two decimals in every row, so the digits line up down the column. */
+const coord =
+  (key: 'X' | 'Y' | 'Z') =>
+  ({ row }: { row: IpcamGridRow }) =>
+    row[key].toFixed(2);
+
 const SORT_GLYPH: Record<ErrorSort, string> = { none: '', worst: ' ↓', best: ' ↑' };
 
 export const IpcamGrid = () => {
@@ -51,9 +57,28 @@ export const IpcamGrid = () => {
         cellClass: 'cp-cell-label',
         headerCellClass: 'cp-cell-label',
       },
-      { key: 'X', name: t('ControlPoints3d.east'), cellClass: 'cp-cell-num', headerCellClass: 'cp-cell-num' },
-      { key: 'Y', name: t('ControlPoints3d.north'), cellClass: 'cp-cell-num', headerCellClass: 'cp-cell-num' },
-      { key: 'Z', name: 'Z', width: 56, cellClass: 'cp-cell-num', headerCellClass: 'cp-cell-num' },
+      {
+        key: 'X',
+        name: t('ControlPoints3d.east'),
+        renderCell: coord('X'),
+        cellClass: 'cp-cell-num',
+        headerCellClass: 'cp-cell-num',
+      },
+      {
+        key: 'Y',
+        name: t('ControlPoints3d.north'),
+        renderCell: coord('Y'),
+        cellClass: 'cp-cell-num',
+        headerCellClass: 'cp-cell-num',
+      },
+      {
+        key: 'Z',
+        name: 'Z',
+        width: 56,
+        renderCell: coord('Z'),
+        cellClass: 'cp-cell-num',
+        headerCellClass: 'cp-cell-num',
+      },
       {
         key: 'error',
         name: t('ControlPoints3d.errorPx'),
