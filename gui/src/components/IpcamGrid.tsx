@@ -1,31 +1,28 @@
-import { useEffect, useState, useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useIpcamSlice, useProjectSlice } from '../hooks';
 import { UNIT_CONVERSIONS } from '../constants/constants';
-import DataGrid, { SelectColumn } from 'react-data-grid';
+import DataGrid, { SelectColumn, DataGridHandle } from 'react-data-grid';
 import { useTranslation } from 'react-i18next';
+import { ErrorSort, IpcamGridRow, ipcamGridRows, nextErrorSort } from '../helpers/ipcamGridRows';
 
-interface Row {
-  key: number;
-  id: number;
-  label: string;
-  x: number;
-  y: number;
-  X: number;
-  Y: number;
-  Z: number;
-}
+const rowKeyGetter = (row: IpcamGridRow): number => row.id;
 
-const rowKeyGetter = (row: Row): number => {
-  return row.id;
-};
+const SORT_GLYPH: Record<ErrorSort, string> = { none: '', worst: ' ↓', best: ' ↑' };
 
 export const IpcamGrid = () => {
-  const ref = useRef<typeof DataGrid | null>(null);
+  const ref = useRef<DataGridHandle | null>(null);
   const [selectedRows, setSelectedRows] = useState<ReadonlySet<number>>(() => new Set());
   const [previousSelectedRows, setPreviousSelectedRows] = useState<ReadonlySet<number>>(() => new Set());
+  const [sort, setSort] = useState<ErrorSort>('none');
 
-  const { points, activePoint, onChangePointSelected, onSetPointPixelCoordinates, onChangeActiveImage } =
-    useIpcamSlice();
+  const {
+    points,
+    activePoint,
+    cameraSolution,
+    onChangePointSelected,
+    onSetPointPixelCoordinates,
+    onChangeActiveImage,
+  } = useIpcamSlice();
 
   const { video, projectDetails } = useProjectSlice();
   const { width, height } = video.data;
@@ -34,122 +31,87 @@ export const IpcamGrid = () => {
   const coordFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
   const { t } = useTranslation();
 
-  const rows = useMemo(() => {
-    if (points === null) {
-      return Array.from({ length: 10 }, (_, index) => ({
-        key: index,
-        id: index,
-        label: '',
-        x: 0,
-        y: 0,
-        X: 0,
-        Y: 0,
-        Z: 0,
-      }));
-    } else {
-      return points.map((point, index) => ({
-        key: index,
-        id: index,
-        label: point.label,
-        x: point.x,
-        y: point.y,
-        X: parseFloat((point.X * coordFactor).toFixed(2)),
-        Y: parseFloat((point.Y * coordFactor).toFixed(2)),
-        Z: parseFloat((point.Z * coordFactor).toFixed(2)),
-      }));
-    }
-  }, [points, coordFactor]);
+  const rows = useMemo(
+    () => (points === null ? [] : ipcamGridRows(points, cameraSolution, coordFactor, sort)),
+    [points, cameraSolution, coordFactor, sort]
+  );
 
-  const columns = [
-    {
-      ...SelectColumn,
-      name: 'select',
-      cellClass: 'centered-cell',
-      headerCellClass: 'select-cell header-fixed',
-    },
-    {
-      key: 'label',
-      name: t('ControlPoints3d.label'),
-      cellClass: 'point-label-cell centered-cell label-cell',
-      headerCellClass: 'centered-cell label-cell header-fixed',
-      frozen: true,
-    },
-    {
-      key: 'X',
-      name: t('ControlPoints3d.east'),
-      cellClass: 'centered-cell common-cell',
-      headerCellClass: 'centered-cell common-cell header-fixed',
-    },
-    {
-      key: 'Y',
-      name: t('ControlPoints3d.north'),
-      cellClass: 'centered-cell common-cell',
-      headerCellClass: 'centered-cell common-cell header-fixed',
-    },
-    {
-      key: 'Z',
-      name: 'Z',
-      cellClass: 'centered-cell common-cell',
-      headerCellClass: 'centered-cell common-cell header-fixed',
-    },
-    {
-      key: 'x',
-      name: 'x',
-      cellClass: 'centered-cell common-cell',
-      headerCellClass: 'centered-cell common-cell header-fixed',
-    },
-    {
-      key: 'y',
-      name: 'y',
-      cellClass: 'centered-cell common-cell',
-      headerCellClass: 'centered-cell common-cell header-fixed',
-    },
-  ];
+  const columns = useMemo(
+    () => [
+      {
+        ...SelectColumn,
+        name: 'select',
+        width: 28,
+        cellClass: 'cp-cell-select',
+        headerCellClass: 'cp-cell-select',
+      },
+      {
+        key: 'label',
+        name: t('ControlPoints3d.label'),
+        cellClass: 'cp-cell-label',
+        headerCellClass: 'cp-cell-label',
+      },
+      { key: 'X', name: t('ControlPoints3d.east'), cellClass: 'cp-cell-num', headerCellClass: 'cp-cell-num' },
+      { key: 'Y', name: t('ControlPoints3d.north'), cellClass: 'cp-cell-num', headerCellClass: 'cp-cell-num' },
+      { key: 'Z', name: 'Z', width: 56, cellClass: 'cp-cell-num', headerCellClass: 'cp-cell-num' },
+      {
+        key: 'error',
+        name: t('ControlPoints3d.errorPx'),
+        width: 72,
+        cellClass: 'cp-cell-num',
+        headerCellClass: 'cp-cell-num',
+        renderHeaderCell: () => (
+          <button
+            type="button"
+            className="cp-sort"
+            aria-pressed={sort !== 'none' ? true : undefined}
+            onClick={() => setSort(nextErrorSort(sort))}
+          >
+            {t('ControlPoints3d.errorPx')}
+            {SORT_GLYPH[sort]}
+          </button>
+        ),
+        renderCell: ({ row }: { row: IpcamGridRow }) =>
+          row.error === null ? null : (
+            <span className={`cp-err${row.grade && row.grade !== 'good' ? ` cp-err-${row.grade}` : ''}`}>
+              {row.error.toFixed(2)}
+            </span>
+          ),
+      },
+    ],
+    [t, sort]
+  );
 
-  const handleCellClick = (cell: { row: any; column: any }) => {
-    const { row, column } = cell;
-
+  const handleCellClick = ({ row, column }: { row: IpcamGridRow; column: { key: string } }) => {
     if (column.key === 'select-row') {
       onChangePointSelected({ index: row.id });
+      return;
     }
-
-    if (column.key === 'label') {
-      if (points && points[row.id].image !== undefined) {
-        onChangeActiveImage(points[row.id].image!);
-      }
-      onSetPointPixelCoordinates({
-        index: row.id,
-        imageSize: {
-          width: width * imageReduceFactor,
-          height: height * imageReduceFactor,
-        },
-      });
+    if (points && points[row.id].image != null) {
+      onChangeActiveImage(points[row.id].image!);
     }
-  };
-
-  const changeSelectRow = (rowIndex: number | undefined) => {
-    if (rowIndex === undefined) return;
-    if (ref.current) {
-      // ref.current.scrollToCell( {idx: 1, rowIdx: rowIndex} );
-      ref.current.selectCell({ idx: 1, rowIdx: rowIndex });
-    }
+    onSetPointPixelCoordinates({
+      index: row.id,
+      imageSize: { width: width * imageReduceFactor, height: height * imageReduceFactor },
+    });
   };
 
   useEffect(() => {
     if (points !== null) {
-      const selectedRowIndices = points
-        .map((point, index) => (point.selected ? index : null))
-        .filter((index) => index !== null);
-      setSelectedRows(new Set(selectedRowIndices));
-      setPreviousSelectedRows(new Set(selectedRowIndices));
+      const selected = new Set(points.flatMap((point, index) => (point.selected ? [index] : [])));
+      setSelectedRows(selected);
+      setPreviousSelectedRows(selected);
     }
-    changeSelectRow(activePoint ? activePoint : undefined);
-  }, [points, activePoint]);
+  }, [points]);
 
-  // This use effect is used to trigger the action when all the points are selected or unselected
-  // I don't identify some event to capture the click on the header select-cell
-  // So, I'm using this useEffect to trigger the action when all the points are selected or unselected
+  // Keep the active point's row in view, wherever the sort has put it.
+  useEffect(() => {
+    if (activePoint === null || activePoint === undefined) return;
+    const rowIdx = rows.findIndex((row) => row.id === activePoint);
+    if (rowIdx >= 0) ref.current?.scrollToCell({ rowIdx });
+  }, [activePoint, rows]);
 
+  // The header checkbox has no event of its own: a jump to all or none selected is how it shows.
   useEffect(() => {
     if (selectedRows.size === points?.length || selectedRows.size === 0) {
       if (selectedRows.size !== previousSelectedRows.size) {
@@ -157,20 +119,37 @@ export const IpcamGrid = () => {
         setPreviousSelectedRows(selectedRows);
       }
     }
-  }, [selectedRows, rows.length, points?.length, previousSelectedRows.size, onChangePointSelected]);
+  }, [selectedRows, points?.length, previousSelectedRows.size, onChangePointSelected]);
+
+  if (points === null) return null;
+
+  const active = activePoint === null || activePoint === undefined ? null : points[activePoint];
 
   return (
-    <div className="grid-container mt-2 mb-2" id="ipcam-grid">
+    <div className="grid-container" id="ipcam-grid">
       <DataGrid
         columns={columns}
         rows={rows}
+        rowHeight={30}
+        headerRowHeight={30}
         selectedRows={selectedRows}
         onSelectedRowsChange={setSelectedRows}
         rowKeyGetter={rowKeyGetter}
-        className={`grid ${points === undefined ? 'disabled' : ''}`}
+        rowClass={(row) =>
+          [row.id === activePoint ? 'cp-row-active' : '', row.selected ? '' : 'cp-row-off'].join(' ').trim()
+        }
+        className="grid"
         onCellClick={handleCellClick}
         ref={ref}
       />
+      {active && !(active.x === 0 && active.y === 0) && (
+        <div className="cp-table-foot">
+          <span>{t('ControlPoints3d.onTheFrame', { label: active.label })}</span>
+          <span>
+            x {active.x.toFixed(1)} · y {active.y.toFixed(1)} px
+          </span>
+        </div>
+      )}
     </div>
   );
 };
