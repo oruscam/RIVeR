@@ -384,6 +384,95 @@ def normalize_to_uint8(arr: np.ndarray) -> np.ndarray:
     return ((arr - amin) / (amax - amin + 1e-12) * 255).astype(np.uint8)
 
 
+def extract_kx0_slice(spec: np.ndarray, kx: np.ndarray) -> np.ndarray:
+    """The kx=0 cross-section of a (n_kt, n_ky, n_kx) spectrum.
+
+    The lateral companion of extract_ky0_slice: together the two planes are
+    the pair the IWaVE authors read a window's spectrum from (ky=0 shows the
+    ridge along x, kx=0 the spread along y).
+    """
+    idx = int(np.argmin(np.abs(kx)))
+    # .copy() for the same reason as extract_ky0_slice: a view would pin the
+    # whole spectrum in memory.
+    return np.asarray(spec)[:, :, idx].copy()
+
+
+# Percentile of the positive cells taken as the display maximum. The cells
+# near the origin are typically an order of magnitude above the ridge, so a
+# plain min/max scale leaves the ridge itself almost black; at 98 the ridge
+# saturates and the background noise stays faint (checked on real spectra).
+DISPLAY_CLIP_PERCENTILE = 98.0
+
+
+def get_display_max(arr: np.ndarray) -> float:
+    """A robust upper bound for displaying a spectrum.
+
+    Args:
+        arr (np.ndarray): Spectrum values (any shape).
+
+    Returns:
+        float: The DISPLAY_CLIP_PERCENTILE-th percentile of the positive,
+            finite cells, or 0.0 when there are none.
+    """
+    values = np.asarray(arr, dtype=np.float64)
+    positive = values[np.isfinite(values) & (values > 0)]
+    if positive.size == 0:
+        return 0.0
+    return float(np.percentile(positive, DISPLAY_CLIP_PERCENTILE))
+
+
+def calculate_branch_energy(
+    spec: np.ndarray,
+    kt: np.ndarray,
+    kt_gw: np.ndarray,
+    kt_turb: np.ndarray,
+    gauss_width: float = 1.0,
+    gravity_waves: bool = True,
+) -> dict:
+    """Share of the measured spectral energy lying along each fitted branch.
+
+    Each cell is weighted by the same Gaussian kernel the iwave package
+    builds its synthetic spectrum with (iwave/dispersion.py,
+    gauss_spectrum_calc) and credited to the branch whose curve is closer,
+    so the two shares never count a cell twice and sum to at most 1.
+
+    Args:
+        spec (np.ndarray): Measured spectrum, shape (n_kt, n_ky, n_kx).
+        kt (np.ndarray): Frequency axis (rad/s), length n_kt.
+        kt_gw (np.ndarray): Gravity-capillary wave frequency per (ky, kx).
+        kt_turb (np.ndarray): Advected-pattern frequency per (ky, kx).
+        gauss_width (float): Kernel width, in rad/s (default: 1.0).
+        gravity_waves (bool): Whether the fit modelled the wave branch
+            (default: True).
+
+    Returns:
+        dict: {"waves": float or None, "advected": float}. "waves" is None
+            when the wave branch was not modelled.
+    """
+    values = np.nan_to_num(np.asarray(spec, dtype=np.float64), nan=0.0)
+    total = float(values.sum())
+    waves_modelled = bool(gravity_waves)
+    if total <= 0:
+        return {"waves": 0.0 if waves_modelled else None, "advected": 0.0}
+
+    kt_grid = np.asarray(kt, dtype=np.float64).reshape(-1, 1, 1)
+    plane_shape = (1,) + values.shape[1:]
+
+    def _kernel(kt_curve: np.ndarray) -> np.ndarray:
+        curve = np.nan_to_num(np.asarray(kt_curve, dtype=np.float64).reshape(plane_shape), nan=np.inf)
+        return np.exp(-((kt_grid - curve) ** 2) / gauss_width**2)
+
+    advected_kernel = _kernel(kt_turb)
+    if not waves_modelled:
+        return {"waves": None, "advected": float((values * advected_kernel).sum() / total)}
+
+    waves_kernel = _kernel(kt_gw)
+    is_waves = waves_kernel >= advected_kernel
+    waves = float((values * waves_kernel)[is_waves].sum() / total)
+    advected = float((values * advected_kernel)[~is_waves].sum() / total)
+    return {"waves": waves, "advected": advected}
+
+
 def _curve_points(kx: np.ndarray, kt_curve: np.ndarray) -> list:
     """Pair kx with a curve's frequencies, dropping non-finite points.
 
@@ -397,8 +486,37 @@ def _curve_points(kx: np.ndarray, kt_curve: np.ndarray) -> list:
     return pts
 
 
+# Decimals kept for the spectrum values in the sidecar. The normalised
+# spectrum is O(1), and the GUI only colours and reads it out.
+SIDECAR_VALUE_DECIMALS = 3
+
+
+def _plane_record(k: np.ndarray, values: np.ndarray, kt_gw: np.ndarray, kt_turb: np.ndarray) -> dict:
+    """One wavenumber-frequency plane of the sidecar: its k axis, the spectrum
+    values (one row per frequency, lowest first) and the two fitted curves."""
+    cells = np.nan_to_num(np.asarray(values, dtype=np.float64), nan=0.0)
+    return {
+        "k": [float(v) for v in np.asarray(k).ravel()],
+        "values": np.round(cells, SIDECAR_VALUE_DECIMALS).tolist(),
+        "curves": {
+            "gravity": _curve_points(k, kt_gw),
+            "turbulence": _curve_points(k, kt_turb),
+        },
+    }
+
+
+def _optional_float(value) -> Optional[float]:
+    return None if value is None else float(value)
+
+
 def build_spectra_sidecar(entries: list) -> dict:
     """JSON-serialisable description of one section's spectrum previews.
+
+    Version 2 adds, per station, the spectrum itself on two planes ("kx":
+    ky=0, "ky": kx=0) sharing one frequency axis, the fitted values and the
+    energy share of each branch. The version 1 fields (extents and the ky=0
+    curves) are still written, so a GUI that only knows version 1 keeps
+    working. Entries without the version 2 inputs yield version 1 stations.
 
     Everything is converted to plain Python scalars: json.dumps cannot
     serialise numpy types.
@@ -407,25 +525,45 @@ def build_spectra_sidecar(entries: list) -> dict:
     for e in entries:
         kx = np.asarray(e["kx"])
         kt = np.asarray(e["kt"])
-        stations.append(
-            {
-                "station": int(e["station"]),
-                "kx_min": float(kx.min()),
-                "kx_max": float(kx.max()),
-                "kt_min": float(kt.min()),
-                "kt_max": float(kt.max()),
-                "curves": {
-                    "gravity": _curve_points(kx, e["kt_gw"]),
-                    "turbulence": _curve_points(kx, e["kt_turb"]),
-                },
+        station = {
+            "station": int(e["station"]),
+            "kx_min": float(kx.min()),
+            "kx_max": float(kx.max()),
+            "kt_min": float(kt.min()),
+            "kt_max": float(kt.max()),
+            "curves": {
+                "gravity": _curve_points(kx, e["kt_gw"]),
+                "turbulence": _curve_points(kx, e["kt_turb"]),
+            },
+        }
+        if e.get("slice_ky") is not None and e.get("slice") is not None:
+            station["kt"] = [float(v) for v in kt.ravel()]
+            station["planes"] = {
+                "kx": _plane_record(kx, e["slice"], e["kt_gw"], e["kt_turb"]),
+                "ky": _plane_record(e["ky"], e["slice_ky"], e["kt_gw_ky"], e["kt_turb_ky"]),
             }
-        )
-    return {"version": 1, "stations": stations}
+            # One maximum over both planes, so their colours compare.
+            station["display_max"] = get_display_max(
+                np.concatenate([np.ravel(e["slice"]), np.ravel(e["slice_ky"])])
+            )
+            station["fit"] = {
+                "vx": _optional_float(e.get("vx")),
+                "vy": _optional_float(e.get("vy")),
+                "depth": _optional_float(e.get("d")),
+            }
+            energy = e.get("energy") or {}
+            station["energy"] = {
+                "waves": _optional_float(energy.get("waves")),
+                "advected": _optional_float(energy.get("advected")),
+            }
+        stations.append(station)
+    return {"version": 2, "stations": stations}
 
 
 def write_spectra(spectra_dir: str, entries: list) -> None:
-    """Write one section's spectrum previews: a bare grayscale PNG per
-    station plus a spectra.json sidecar.
+    """Write one section's spectrum previews: a grayscale PNG per station
+    (the thumbnail the GUI's strip shows) plus a spectra.json sidecar
+    holding the values the GUI plots.
 
     Stale spectrum images (from a prior run with more stations) are deleted
     so a re-run with fewer stations cannot leave old spectrum_*.png files
@@ -451,11 +589,14 @@ def write_spectra(spectra_dir: str, entries: list) -> None:
         # ascends from zero and is never fftshifted -- row 0 of the raw
         # slice is the LOWEST frequency. Flipping puts the HIGHEST frequency
         # in row 0 (the PNG's top edge), which is the conventional
-        # orientation for a spectrum plot and matches the GUI's y-axis
-        # inversion in spectrumGeometry.ts (SVG y grows downward while
-        # frequency grows upward). These two must be changed together.
-        img = normalize_to_uint8(e["slice"][::-1])
-        cv2.imwrite(str(out / f"spectrum_{int(e['station'])}.png"), img)
+        # orientation for a spectrum plot.
+        flipped = np.nan_to_num(np.asarray(e["slice"], dtype=np.float32), nan=0.0)[::-1]
+        # Clip at the robust maximum first, or one hot cell leaves the rest
+        # of the thumbnail black.
+        display_max = get_display_max(flipped)
+        if display_max > 0:
+            flipped = np.minimum(flipped, display_max)
+        cv2.imwrite(str(out / f"spectrum_{int(e['station'])}.png"), normalize_to_uint8(flipped))
 
     (out / "spectra.json").write_text(json.dumps(build_spectra_sidecar(entries)))
 
@@ -463,6 +604,11 @@ def write_spectra(spectra_dir: str, entries: list) -> None:
 # ---------------------------------------------------------------------------
 # Spectral fit (iwave package)
 # ---------------------------------------------------------------------------
+
+
+# Width (rad/s) of the Gaussian kernel around each dispersion curve, shared by
+# the fit and by the branch energy shares so both describe the same band.
+FIT_GAUSS_WIDTH = 1
 
 
 def _process_station(
@@ -478,14 +624,16 @@ def _process_station(
     penalty_weight: float = 1.0,
 ) -> dict:
     """Spectral velocity fit for one station window. Returns vy/vx/d/quality
-    (None on failure), plus the ky=0 spectrum slice, its kx/kt axes, and the
-    two theoretical dispersion curves for the preview."""
+    (None on failure), plus what the preview needs: the ky=0 and kx=0
+    spectrum slices, their axes, the two theoretical dispersion curves on
+    each plane, and the energy share of each branch."""
     from iwave import spectral, window as iw_window, optimise, dispersion as iw_dispersion
     from iwave.iwave import OPTIM_KWARGS_SADE
 
     empty = dict(
         vy=None, vx=None, d=None, quality=None,
         slice=None, kx=None, kt=None, kt_gw=None, kt_turb=None,
+        slice_ky=None, ky=None, kt_gw_ky=None, kt_turb_ky=None, energy=None,
     )
 
     win = crop.shape[-1]
@@ -502,14 +650,16 @@ def _process_station(
     vy, vx, d, cost, quality, status, msg = optimise.optimize_single_spectrum_velocity(
         spec[0], bnds, alpha, window_dims, resolution, fps_eff,
         penalty_weight=penalty_weight, gravity_waves_switch=gravity_waves, turbulence_switch=True,
-        pass_downsampling=[2, 1], gauss_width=1, kwargs=dict(OPTIM_KWARGS_SADE, seed=OPTIMIZER_SEED),
+        pass_downsampling=[2, 1], gauss_width=FIT_GAUSS_WIDTH, kwargs=dict(OPTIM_KWARGS_SADE, seed=OPTIMIZER_SEED),
     )
 
-    # Preview: the ky=0 cross-section with the fitted dispersion relations on
-    # top — the diagnostic the iwave package documents in iwave/plots.py.
+    # Preview: the ky=0 and kx=0 cross-sections with the fitted dispersion
+    # relations on top — the ky=0 one is the diagnostic the iwave package
+    # documents in iwave/plots.py.
     # dispersion() needs the 2D velocity, which the caller collapses away.
     kt_gw, kt_turb = iw_dispersion.dispersion(ky, kx, (vy, vx), d, alpha)
     ky0 = int(np.argmin(np.abs(ky)))
+    kx0 = int(np.argmin(np.abs(kx)))
 
     return dict(
         vy=float(vy), vx=float(vx), d=float(d), quality=float(quality),
@@ -518,6 +668,13 @@ def _process_station(
         kt=kt,
         kt_gw=np.asarray(kt_gw)[0, ky0, :],
         kt_turb=np.asarray(kt_turb)[0, ky0, :],
+        slice_ky=extract_kx0_slice(spec[0], kx),
+        ky=ky,
+        kt_gw_ky=np.asarray(kt_gw)[0, :, kx0],
+        kt_turb_ky=np.asarray(kt_turb)[0, :, kx0],
+        energy=calculate_branch_energy(
+            spec[0], kt, kt_gw, kt_turb, gauss_width=FIT_GAUSS_WIDTH, gravity_waves=gravity_waves,
+        ),
     )
 
 
@@ -546,8 +703,8 @@ def run_iwave_analysis(
     (including skipped_dry and skipped_masked counts). Pass a prebuilt (stack, grid)
     pair together with its scene to reuse the warped frames across sections;
     without them everything is resolved here. If spectra_dir is given, each
-    station's ky=0 spectrum preview is saved there as spectrum_<station_id>.png
-    alongside a spectra.json sidecar. A station whose whole window is hidden by
+    station's ky=0 spectrum thumbnail is saved there as spectrum_<station_id>.png
+    alongside a spectra.json sidecar holding the ky=0 and kx=0 planes. A station whose whole window is hidden by
     mask is not fitted; iwave_skip_profile records "dry" or "masked" per station.
     """
     options = options or IwaveOptions()
@@ -654,6 +811,14 @@ def run_iwave_analysis(
                         "kt": r["kt"],
                         "kt_gw": r["kt_gw"],
                         "kt_turb": r["kt_turb"],
+                        "slice_ky": r["slice_ky"],
+                        "ky": r["ky"],
+                        "kt_gw_ky": r["kt_gw_ky"],
+                        "kt_turb_ky": r["kt_turb_ky"],
+                        "energy": r["energy"],
+                        "vx": r["vx"],
+                        "vy": r["vy"],
+                        "d": r["d"],
                     }
                 )
         if progress is not None:
