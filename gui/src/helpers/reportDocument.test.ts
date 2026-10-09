@@ -192,12 +192,12 @@ describe('Method blocks (compact)', () => {
     expect(cal).toContain('REPORT_FLOW.METHOD_IMAGE_WIDTH');
     expect(cal).toContain('<FootageIcon');
   });
-  test('snapshot strip and processing blocks per technique used', () => {
+  test('snapshot strip and processing blocks per technique computed', () => {
     expect(method).toContain('snapshotFrames');
     expect(method).toContain('images.paths');
-    expect(method).toMatch(/techniquesUsed\.includes\('lspiv'\)/);
-    expect(method).toMatch(/techniquesUsed\.includes\('stiv'\)/);
-    expect(method).toMatch(/techniquesUsed\.includes\('iwave'\)/);
+    expect(method).toMatch(/techniquesComputed\.includes\('lspiv'\)/);
+    expect(method).toMatch(/techniquesComputed\.includes\('stiv'\)/);
+    expect(method).toMatch(/techniquesComputed\.includes\('iwave'\)/);
     expect(method).toMatch(/<dt>\{t\('Processing\.grayscale'\)\}<\/dt>/);
   });
   test('colophon is one line: version, timestamp, GitHub; no DOI, authors or iWave credit in it', () => {

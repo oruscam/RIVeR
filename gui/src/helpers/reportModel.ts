@@ -37,6 +37,40 @@ export interface AppliedCorrections {
   resizeFactor: number;
 }
 
+/** What iWave actually ran with on one section, read from the pipeline's iwave_params record. */
+export interface IwaveRecord {
+  /** The operator froze the values; otherwise the pipeline estimated them. */
+  manual: boolean;
+  /** Techniques the automatic estimate was drawn from. */
+  sources: Technique[];
+  /** m/s */
+  smax: number;
+  /** m */
+  windowM: number;
+  windowPx: number;
+  gravityWaves: boolean;
+  /** Length of one spectrum's time window, in seconds; null when the record lacks it. */
+  timeS: number | null;
+}
+
+export function parseIwaveRecord(raw: unknown): IwaveRecord | null {
+  if (raw === null || typeof raw !== 'object') return null;
+  const r = raw as Record<string, unknown>;
+  const num = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
+  if (!num(r.smax) || !num(r.window_m) || !num(r.window_px) || typeof r.gravity_waves !== 'boolean') return null;
+  const mode = (r.mode ?? {}) as Record<string, unknown>;
+  const sources = Array.isArray(r.u_sources) ? r.u_sources : [];
+  return {
+    manual: mode.window === 'user' || mode.smax === 'user',
+    sources: TECHNIQUE_ORDER.filter((t) => sources.includes(t)),
+    smax: r.smax,
+    windowM: r.window_m,
+    windowPx: r.window_px,
+    gravityWaves: r.gravity_waves,
+    timeS: num(r.time_size) && num(r.fps_eff) && r.fps_eff > 0 ? r.time_size / r.fps_eff : null,
+  };
+}
+
 export interface ReportModel {
   sections: SectionResult[];
   skipped: string[];
@@ -46,6 +80,12 @@ export interface ReportModel {
   qStdBetween: number | null;
   cov: number | null;
   techniquesUsed: Technique[];
+  /** Every technique computed on a reported section, whether or not its discharge was the one reported. */
+  techniquesComputed: Technique[];
+  /** iWave's recorded parameters, per section that has them. */
+  iwaveParams: { section: string; params: IwaveRecord }[];
+  /** Stations whose STIV angle the operator set by hand, per section. */
+  stivManualAngles: { section: string; stations: number[] }[];
   /** Stations STIV/iWave skipped because they were entirely under the mask, from the run's skip profiles. */
   maskedStations: Partial<Record<'stiv' | 'iwave', { section: string; stations: number[] }[]>>;
 }
@@ -60,6 +100,8 @@ export function buildReportModel({ sections, step, fps }: ReportModelInput): Rep
   const results: SectionResult[] = [];
   const skipped: string[] = [];
   const maskedStations: ReportModel['maskedStations'] = {};
+  const iwaveParams: ReportModel['iwaveParams'] = [];
+  const stivManualAngles: ReportModel['stivManualAngles'] = [];
 
   sections.forEach((section, index) => {
     const { data, activeTechnique, interpolated, artificialSeeding, alpha } = section;
@@ -85,6 +127,16 @@ export function buildReportModel({ sections, step, fps }: ReportModelInput): Rep
       const stations = (profile ?? []).flatMap((reason, i) => (reason === 'masked' ? [i + 1] : []));
       if (stations.length) (maskedStations[technique] ??= []).push({ section: section.name, stations });
     });
+    if (comparison.some((c) => c.technique === 'iwave')) {
+      const params = parseIwaveRecord(data.iwave_params);
+      if (params) iwaveParams.push({ section: section.name, params });
+    }
+    if (comparison.some((c) => c.technique === 'stiv')) {
+      const stations = (data.stiv_angle_manual_profile ?? []).flatMap((angle, i) =>
+        angle != null ? [i + 1] : []
+      );
+      if (stations.length) stivManualAngles.push({ section: section.name, stations });
+    }
     const isLspiv = activeTechnique === 'lspiv';
     const { total_Q, measured_Q, interpolated_Q } = active;
     results.push({
@@ -104,12 +156,25 @@ export function buildReportModel({ sections, step, fps }: ReportModelInput): Rep
 
   const qs = results.map((r) => r.totalQ);
   const totalQ = qs.length ? qs.reduce((a, q) => a + q, 0) / qs.length : 0;
-  const qStdBetween =
-    qs.length > 1 ? Math.sqrt(qs.reduce((a, q) => a + (q - totalQ) ** 2, 0) / qs.length) : null;
+  const qStdBetween = qs.length > 1 ? Math.sqrt(qs.reduce((a, q) => a + (q - totalQ) ** 2, 0) / qs.length) : null;
   const cov = qStdBetween !== null && totalQ !== 0 ? qStdBetween / totalQ : null;
   const techniquesUsed = TECHNIQUE_ORDER.filter((t) => results.some((r) => r.technique === t));
+  const techniquesComputed = TECHNIQUE_ORDER.filter((t) =>
+    results.some((r) => r.comparison.some((c) => c.technique === t))
+  );
 
-  return { sections: results, skipped, totalQ, qStdBetween, cov, techniquesUsed, maskedStations };
+  return {
+    sections: results,
+    skipped,
+    totalQ,
+    qStdBetween,
+    cov,
+    techniquesUsed,
+    techniquesComputed,
+    iwaveParams,
+    stivManualAngles,
+    maskedStations,
+  };
 }
 
 export function lensLabel(path: string | null): string | null {
@@ -166,15 +231,16 @@ const populationStats = (values: number[]) => {
   return { mean, std, cov: mean !== 0 ? std / mean : null };
 };
 
-const BACKEND_ROWS: { key: SummaryKey; field: keyof SummaryStatistics; unit: SummaryUnit; lspivOnly: boolean }[] = [
-  { key: 'W', field: 'total_W', unit: 'longitude', lspivOnly: false },
-  { key: 'A', field: 'total_A', unit: 'area', lspivOnly: false },
-  { key: 'meanV', field: 'mean_V', unit: 'velocity', lspivOnly: true },
-  { key: 'alpha', field: 'alpha', unit: 'none', lspivOnly: true },
-  { key: 'meanVs', field: 'mean_Vs', unit: 'velocity', lspivOnly: true },
-  { key: 'maxD', field: 'max_depth', unit: 'longitude', lspivOnly: false },
-  { key: 'meanD', field: 'average_depth', unit: 'longitude', lspivOnly: false },
-];
+const BACKEND_ROWS: { key: SummaryKey; field: keyof SummaryStatistics; unit: SummaryUnit; lspivOnly: boolean }[] =
+  [
+    { key: 'W', field: 'total_W', unit: 'longitude', lspivOnly: false },
+    { key: 'A', field: 'total_A', unit: 'area', lspivOnly: false },
+    { key: 'meanV', field: 'mean_V', unit: 'velocity', lspivOnly: true },
+    { key: 'alpha', field: 'alpha', unit: 'none', lspivOnly: true },
+    { key: 'meanVs', field: 'mean_Vs', unit: 'velocity', lspivOnly: true },
+    { key: 'maxD', field: 'max_depth', unit: 'longitude', lspivOnly: false },
+    { key: 'meanD', field: 'average_depth', unit: 'longitude', lspivOnly: false },
+  ];
 
 export function summaryRows(summary: Summary | undefined, model: ReportModel): SummaryRow[] | null {
   if (!summary || model.sections.length < 2) return null;
