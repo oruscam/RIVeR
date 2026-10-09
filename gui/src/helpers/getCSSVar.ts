@@ -64,6 +64,18 @@ export const getPinColors = () => ({
 });
 
 /**
+ * Returns the reprojection residual colours by error grade. Theme-invariant
+ * (bare :root block, like the pins); `none` is the overlay line colour, for a
+ * point whose error is unknown.
+ */
+export const getResidualColors = () => ({
+  good: getCSSVar('--residual-good', '#62C655'),
+  fair: getCSSVar('--residual-fair', '#F5BF61'),
+  bad: getCSSVar('--residual-bad', '#ED6B57'),
+  none: getCSSVar('--overlay-line', '#FFFFFF'),
+});
+
+/**
  * Returns the mask/region overlay drawing colours from the current theme's
  * CSS variables. Both are theme-invariant (declared once in the bare
  * :root block, like --pin-ink) — see index.css.

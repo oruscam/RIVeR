@@ -66,6 +66,13 @@
   --pin-point: #6CD4FF;
   --pin-muted: #808080;
 
+  /* Reprojection residual colours (fixed station control points), by the
+     point's own error grade. Drawn on footage, so one fixed set in every
+     theme, the same values as the pins. */
+  --residual-good: #62C655;
+  --residual-fair: #F5BF61;
+  --residual-bad:  #ED6B57;
+
   /* Control point distance colours (Oblique 1–2 … 3–4). Drawn on footage and
      repeated in the form's swatches; one fixed set in every theme. */
   --d12: #6CD4FF;
