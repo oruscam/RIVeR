@@ -26,3 +26,14 @@ export function saveRiverConfig(config: RiverConfig): void {
     console.error('[river] Failed to save config:', err);
   }
 }
+
+export const WORKSPACE_NAME = 'RIVeR';
+
+/**
+ * The workspace for a picked folder: a RIVeR folder inside it, so cases never land loose
+ * among the user's other files. A folder already called RIVeR (any case) is the workspace itself.
+ */
+export function workspaceFor(picked: string): string {
+  const isWorkspace = path.basename(picked).toLowerCase() === WORKSPACE_NAME.toLowerCase();
+  return isWorkspace ? picked : path.join(picked, WORKSPACE_NAME);
+}
