@@ -121,6 +121,7 @@ export const useProjectSlice = () => {
     useSelector((state: RootState) => state.project);
   const { sections } = useSelector((state: RootState) => state.section);
   const uav = useSelector((state: RootState) => state.uav);
+  const { images } = useSelector((state: RootState) => state.data);
   const { t } = useTranslation();
 
   let filePrefix = import.meta.env.VITE_FILE_PREFIX;
@@ -310,8 +311,10 @@ export const useProjectSlice = () => {
     // Every field is compared directly against the config actually used for
     // the frames on disk (rather than an imperative "did the user touch this"
     // flag) — so toggling something and reverting it never forces a needless
-    // re-extraction.
+    // re-extraction. A project without frames (a first run, or one whose
+    // extraction never succeeded) has nothing to keep, so it always extracts.
     if (
+      images.paths.length > 0 &&
       sameRange &&
       parseFloat(data.step) === step &&
       factor === committedFactor &&
@@ -328,6 +331,9 @@ export const useProjectSlice = () => {
       return false;
     }
 
+    // Emptied so App listens for 'all-frames'; a failed extraction keeps the
+    // previous frames on disk, so they are put back below.
+    const previousPaths = images.paths;
     dispatch(setImages({ paths: [] }));
 
     // Stabilization applies to UAV and oblique footage; an ipcam is fixed.
@@ -373,6 +379,7 @@ export const useProjectSlice = () => {
         // A frames import fails with a backend code; a video's message is already a sentence.
         const text = frames ? framesImportError(errMsg, (key, values) => t(key, values)) : errMsg;
         dispatch(addStepAlert({ id: 'first-frame-error', level: 'error', text }));
+        dispatch(setImages({ paths: previousPaths }));
         return;
       }
 
@@ -392,6 +399,7 @@ export const useProjectSlice = () => {
     } catch (error) {
       console.log(error);
       dispatch(addStepAlert({ id: 'first-frame-error', level: 'error', text: String(error) }));
+      dispatch(setImages({ paths: previousPaths }));
     } finally {
       dispatch(setLoading(false));
     }
