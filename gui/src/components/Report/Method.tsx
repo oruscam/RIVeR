@@ -1,11 +1,14 @@
 import { useTranslation } from 'react-i18next';
-import { formatNumberTo2Decimals, formatTime } from '../../helpers';
+import { formatNumberTo2Decimals, formatTime, getUnit } from '../../helpers';
 import { useDataSlice, useProjectSlice } from '../../hooks';
-import { REPORT_FLOW } from '../../constants/constants';
+import { REPORT_FLOW, UNIT_CONVERSIONS } from '../../constants/constants';
 import { frameBox, snapshotFrames } from '../../helpers/reportLayout';
 import { formatStationRanges } from '../../helpers/stationRanges';
 import { TECHNIQUE_LABEL, imageSequenceText, lensLabel, type ReportModel } from '../../helpers/reportModel';
+import type { Technique } from '../../helpers/techniqueDischarge';
 import { CalibrationPanel } from './CalibrationSheet';
+
+const STIV_WEIGHTS_DOI = '10.5281/zenodo.22050810';
 
 const stamp = (d: Date) => d.toISOString().slice(0, 16).replace('T', ' ');
 
@@ -165,11 +168,37 @@ export const SnapshotStrip = () => {
   );
 };
 
+/** One value when every section agrees, otherwise each section's own. */
+const acrossSections = <T,>(entries: { section: string; params: T }[], format: (params: T) => string) => {
+  const values = entries.map((e) => format(e.params));
+  if (values.every((v) => v === values[0])) return values[0];
+  return entries.map((e, i) => `${e.section}: ${values[i]}`).join(' · ');
+};
+
+/** The technique's name, and a note when its discharge was computed but is not the one reported. */
+const TechniqueHead = ({ technique, model }: { technique: Technique; model: ReportModel }) => {
+  const { t } = useTranslation();
+  return (
+    <dt className="doc-kv-head">
+      <span className={`doc-tech doc-tech--${technique}`}>{TECHNIQUE_LABEL[technique]}</span>
+      {!model.techniquesUsed.includes(technique) && (
+        <span className="doc-kv-aside">
+          {t('Report.Doc.comparisonOnly', { defaultValue: 'computed for comparison, not reported' })}
+        </span>
+      )}
+    </dt>
+  );
+};
+
 export const ProcessingBlock = ({ model }: { model: ReportModel }) => {
   const { t } = useTranslation();
   const { processing } = useDataSlice();
+  const { projectDetails } = useProjectSlice();
   const form = processing.form;
-  const { techniquesUsed } = model;
+  const { techniquesComputed, iwaveParams } = model;
+  const lF = projectDetails.unitSistem === 'imperial' ? UNIT_CONVERSIONS.M_TO_FT : 1;
+  const len = getUnit(projectDetails.unitSistem, 'longitude');
+  const vel = getUnit(projectDetails.unitSistem, 'velocity');
   const yes = t('Commons.yes');
   const notRecorded = t('Report.Doc.notRecorded', {
     defaultValue: 'Further parameters are not recorded in this version.',
@@ -178,11 +207,9 @@ export const ProcessingBlock = ({ model }: { model: ReportModel }) => {
     <section>
       <h3 className="mc-title">{t('Report.Doc.processing', { defaultValue: 'Processing' })}</h3>
       <div className="method-three">
-        {techniquesUsed.includes('lspiv') && (
+        {techniquesComputed.includes('lspiv') && (
           <dl className="doc-kv">
-            <dt className="doc-kv-head">
-              <span className="doc-tech doc-tech--lspiv">{TECHNIQUE_LABEL.lspiv}</span>
-            </dt>
+            <TechniqueHead technique="lspiv" model={model} />
             {/* Unconditional: the GUI never passes --no-filter-grayscale, so the CLI always converts to grayscale. */}
             <dt>{t('Processing.grayscale')}</dt>
             <dd>{yes}</dd>
@@ -236,23 +263,79 @@ export const ProcessingBlock = ({ model }: { model: ReportModel }) => {
             )}
           </dl>
         )}
-        {techniquesUsed.includes('stiv') && (
+        {techniquesComputed.includes('stiv') && (
           <dl className="doc-kv">
-            <dt className="doc-kv-head">
-              <span className="doc-tech doc-tech--stiv">{TECHNIQUE_LABEL.stiv}</span>
-            </dt>
+            <TechniqueHead technique="stiv" model={model} />
             <dt>{t('Report.Doc.stivModel', { defaultValue: 'CNN model, weights' })}</dt>
-            <dd>doi:10.5281/zenodo.22050810</dd>
-            <dd className="doc-kv-note">{notRecorded}</dd>
+            {/* The DOI may only break after its slash. */}
+            <dd className="doc-doi">
+              doi:{STIV_WEIGHTS_DOI.split('/')[0]}/<wbr />
+              {STIV_WEIGHTS_DOI.split('/')[1]}
+            </dd>
+            {form.heightRoi > 0 && (
+              <>
+                <dt>{t('Processing.roiHeight')}</dt>
+                <dd>
+                  {formatNumberTo2Decimals(form.heightRoi * lF)} {len}
+                </dd>
+              </>
+            )}
+            {model.stivManualAngles.length > 0 && (
+              <>
+                <dt>{t('Report.Doc.manualAngles', { defaultValue: 'Angle set by the operator (stations)' })}</dt>
+                <dd>
+                  {model.stivManualAngles
+                    .map((m) => `${m.section}: ${formatStationRanges(m.stations)}`)
+                    .join(' · ')}
+                </dd>
+              </>
+            )}
             <MaskedStations entries={model.maskedStations.stiv} />
           </dl>
         )}
-        {techniquesUsed.includes('iwave') && (
+        {techniquesComputed.includes('iwave') && (
           <dl className="doc-kv">
-            <dt className="doc-kv-head">
-              <span className="doc-tech doc-tech--iwave">{TECHNIQUE_LABEL.iwave}</span>
-            </dt>
-            <dd className="doc-kv-note">{notRecorded}</dd>
+            <TechniqueHead technique="iwave" model={model} />
+            {iwaveParams.length === 0 ? (
+              <dd className="doc-kv-note">{notRecorded}</dd>
+            ) : (
+              <>
+                <dt>{t('Processing.iwaveValues')}</dt>
+                <dd>
+                  {acrossSections(iwaveParams, (p) => {
+                    if (p.manual) return t('Processing.iwaveModeManual');
+                    if (p.sources.length === 0) return t('Processing.iwaveModeAuto');
+                    return t('Report.Doc.autoFrom', {
+                      sources: p.sources.map((s) => TECHNIQUE_LABEL[s]).join(' + '),
+                      defaultValue: 'Automatic, estimated from {{sources}}',
+                    });
+                  })}
+                </dd>
+                <dt>{t('Processing.windowSize')}</dt>
+                <dd>
+                  {acrossSections(
+                    iwaveParams,
+                    (p) => `${formatNumberTo2Decimals(p.windowM * lF)} ${len} | ${p.windowPx} px`
+                  )}
+                </dd>
+                <dt>{t('Report.Doc.maxVelocity', { defaultValue: 'Max velocity' })}</dt>
+                <dd>{acrossSections(iwaveParams, (p) => `${formatNumberTo2Decimals(p.smax * lF)} ${vel}`)}</dd>
+                <dt>{t('Processing.iwaveFlowType')}</dt>
+                <dd>
+                  {acrossSections(iwaveParams, (p) =>
+                    t(p.gravityWaves ? 'Processing.iwaveFlowWaves' : 'Processing.iwaveFlowNoWaves')
+                  )}
+                </dd>
+                {iwaveParams.every((e) => e.params.timeS !== null) && (
+                  <>
+                    <dt>{t('Report.Doc.timeWindow', { defaultValue: 'Time window' })}</dt>
+                    <dd>
+                      {acrossSections(iwaveParams, (p) => `${formatNumberTo2Decimals(p.timeS as number)} s`)}
+                    </dd>
+                  </>
+                )}
+              </>
+            )}
             <MaskedStations entries={model.maskedStations.iwave} />
           </dl>
         )}

@@ -660,6 +660,17 @@
   gap: 16px;
   align-items: start;
 }
+/* A column keeps its share: a long value wraps inside it instead of running into the next technique. */
+.method-three > .doc-kv {
+  min-width: 0;
+  grid-template-columns: fit-content(50%) minmax(0, 1fr);
+}
+.method-three > .doc-kv dd {
+  overflow-wrap: anywhere;
+}
+.method-three > .doc-kv dd.doc-doi {
+  overflow-wrap: normal;
+}
 .mc {
   display: grid;
   /* Image column = REPORT_FLOW.METHOD_IMAGE_WIDTH. */
@@ -701,6 +712,15 @@
 }
 .doc-kv-head {
   grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+}
+/* Says a technique was run but its discharge is not the reported one; the label keeps full ink. */
+.doc-kv-aside {
+  color: var(--doc-muted);
+  font-style: italic;
 }
 .doc-kv-note {
   grid-column: 1 / -1;

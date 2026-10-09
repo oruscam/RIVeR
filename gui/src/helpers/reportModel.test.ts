@@ -1,5 +1,12 @@
 // src/helpers/reportModel.test.ts
-import { buildReportModel, appliedCorrections, imageSequenceText, lensLabel, summaryRows } from './reportModel';
+import {
+  buildReportModel,
+  appliedCorrections,
+  imageSequenceText,
+  lensLabel,
+  parseIwaveRecord,
+  summaryRows,
+} from './reportModel';
 import en from '../translations/en/global.json';
 import type { SectionData } from '../store/section/types';
 
@@ -57,7 +64,10 @@ describe('buildReportModel', () => {
   test('comparison lists every computed technique, active one flagged, in LSPIV/STIV/iWave order', () => {
     const s = section({
       activeTechnique: 'stiv',
-      data: data({ stiv_velocity_profile: [0.5, 0.5, 0.5, 0.5], iwave_velocity_profile: [0.25, 0.25, 0.25, 0.25] }),
+      data: data({
+        stiv_velocity_profile: [0.5, 0.5, 0.5, 0.5],
+        iwave_velocity_profile: [0.25, 0.25, 0.25, 0.25],
+      }),
     });
     const { comparison } = buildReportModel(input([s])).sections[0];
     expect(comparison.map((c) => c.technique)).toEqual(['lspiv', 'stiv', 'iwave']);
@@ -69,7 +79,11 @@ describe('buildReportModel', () => {
     const m = buildReportModel(input([section({ artificialSeeding: true })]));
     expect(m.sections[0].seeded).toBe(true);
     expect(m.sections[0].totalQ).toBeCloseTo(8);
-    const s = section({ artificialSeeding: true, activeTechnique: 'stiv', data: data({ stiv_velocity_profile: [1, 1, 1, 1] }) });
+    const s = section({
+      artificialSeeding: true,
+      activeTechnique: 'stiv',
+      data: data({ stiv_velocity_profile: [1, 1, 1, 1] }),
+    });
     expect(buildReportModel(input([s])).sections[0].seeded).toBe(false);
   });
 
@@ -97,7 +111,11 @@ describe('buildReportModel', () => {
   });
 
   test('techniquesUsed is the set of active techniques, in fixed order', () => {
-    const s2 = section({ name: 'CS2', activeTechnique: 'iwave', data: data({ iwave_velocity_profile: [1, 1, 1, 1] }) });
+    const s2 = section({
+      name: 'CS2',
+      activeTechnique: 'iwave',
+      data: data({ iwave_velocity_profile: [1, 1, 1, 1] }),
+    });
     expect(buildReportModel(input([s2, section()])).techniquesUsed).toEqual(['lspiv', 'iwave']);
   });
 });
@@ -132,12 +150,28 @@ describe('maskedStations', () => {
 });
 
 describe('appliedCorrections', () => {
-  const base = { committedLensCorrection: null, committedStabilization: false, committedStabilizationRegions: [], step: 2, committedFactor: 0.5 };
+  const base = {
+    committedLensCorrection: null,
+    committedStabilization: false,
+    committedStabilizationRegions: [],
+    step: 2,
+    committedFactor: 0.5,
+  };
   test('reads the committed values only', () => {
-    expect(appliedCorrections(base)).toEqual({ lensCorrection: null, stabilizationRegions: null, step: 2, resizeFactor: 0.5 });
+    expect(appliedCorrections(base)).toEqual({
+      lensCorrection: null,
+      stabilizationRegions: null,
+      step: 2,
+      resizeFactor: 0.5,
+    });
   });
   test('stabilization reports its region count; lens reports a readable name', () => {
-    const a = appliedCorrections({ ...base, committedStabilization: true, committedStabilizationRegions: [{}, {}, {}], committedLensCorrection: '/x/lenses/DJI_Mavic_3.npz' });
+    const a = appliedCorrections({
+      ...base,
+      committedStabilization: true,
+      committedStabilizationRegions: [{}, {}, {}],
+      committedLensCorrection: '/x/lenses/DJI_Mavic_3.npz',
+    });
     expect(a.stabilizationRegions).toBe(3);
     expect(a.lensCorrection).toBe('DJI_Mavic_3');
   });
@@ -152,7 +186,15 @@ describe('lensLabel', () => {
 
 describe('summaryRows', () => {
   const stats = (v: number) => ({
-    total_W: v, total_A: v, total_Q: v, mean_V: v, alpha: v, mean_Vs: v, max_depth: v, average_depth: v, measured_Q: v,
+    total_W: v,
+    total_A: v,
+    total_Q: v,
+    mean_V: v,
+    alpha: v,
+    mean_Vs: v,
+    max_depth: v,
+    average_depth: v,
+    measured_Q: v,
   });
   const backend = { mean: stats(10), std: stats(1), cov: stats(0.1) };
 
@@ -168,7 +210,17 @@ describe('summaryRows', () => {
   test('rows in the old report order, LSPIV-only rows flagged', () => {
     const m = buildReportModel(input([section(), section({ name: 'CS2', alpha: 2 })]));
     const rows = summaryRows(backend, m)!;
-    expect(rows.map((r) => r.key)).toEqual(['W', 'A', 'Q', 'meanV', 'alpha', 'meanVs', 'maxD', 'meanD', 'measured']);
+    expect(rows.map((r) => r.key)).toEqual([
+      'W',
+      'A',
+      'Q',
+      'meanV',
+      'alpha',
+      'meanVs',
+      'maxD',
+      'meanD',
+      'measured',
+    ]);
     expect(rows.filter((r) => r.lspivOnly).map((r) => r.key)).toEqual(['meanV', 'alpha', 'meanVs']);
   });
 
@@ -216,5 +268,60 @@ describe('imageSequenceText', () => {
     expect(imageSequenceText(undefined, undefined, t)).toContain(
       '0 frames · interval entered by the operator: 0 ms'
     );
+  });
+});
+
+describe('techniques computed but not reported', () => {
+  const iwave_params = {
+    mode: { smax: 'auto', window: 'auto', flow_type: 'auto', depth: 'free' },
+    u_sources: ['lspiv', 'stiv'],
+    smax: 3.4,
+    window_m: 2.03,
+    window_px: 64,
+    time_size: 240,
+    fps_eff: 24,
+    gravity_waves: true,
+  };
+  const s = section({
+    data: data({
+      stiv_velocity_profile: [0.5, 0.5, 0.5, 0.5],
+      stiv_angle_manual_profile: [null, 12, 13, null],
+      iwave_velocity_profile: [0.25, 0.25, 0.25, 0.25],
+      iwave_params,
+    }),
+  });
+
+  test('techniquesComputed lists every technique run, techniquesUsed only the reported one', () => {
+    const m = buildReportModel(input([s]));
+    expect(m.techniquesUsed).toEqual(['lspiv']);
+    expect(m.techniquesComputed).toEqual(['lspiv', 'stiv', 'iwave']);
+  });
+
+  test('iWave parameters come from the pipeline record of a section that was not reported with iWave', () => {
+    const m = buildReportModel(input([s]));
+    expect(m.iwaveParams).toEqual([
+      {
+        section: 'CS1',
+        params: {
+          manual: false,
+          sources: ['lspiv', 'stiv'],
+          smax: 3.4,
+          windowM: 2.03,
+          windowPx: 64,
+          gravityWaves: true,
+          timeS: 10,
+        },
+      },
+    ]);
+  });
+
+  test('a manual run is flagged, and a malformed record is dropped', () => {
+    expect(parseIwaveRecord({ ...iwave_params, mode: { smax: 'user', window: 'user' } })?.manual).toBe(true);
+    expect(parseIwaveRecord({ smax: 3 })).toBeNull();
+    expect(parseIwaveRecord(undefined)).toBeNull();
+  });
+
+  test('stations with an operator-set STIV angle are listed per section', () => {
+    expect(buildReportModel(input([s])).stivManualAngles).toEqual([{ section: 'CS1', stations: [2, 3] }]);
   });
 });
