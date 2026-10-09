@@ -1,0 +1,324 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Phase 6d — Processing preview control, three themes</title>
+    <!-- The real stylesheets, not copies. .seg-float and --canvas-chrome do not
+         exist yet — this preview defines them inline under a clearly-marked
+         "NEW, PROPOSED" block so the diff this preview asks for is visible,
+         the same way 6a's preview did before .chip/.seg shipped. -->
+    <link rel="stylesheet" href="../../../src/index.css" />
+    <link rel="stylesheet" href="../../../src/components/components.css" />
+    <link rel="stylesheet" href="../../../src/components/Messages/messages.css" />
+    <link rel="stylesheet" href="../../../src/components/CustomIcons/piv-icons.css" />
+    <style>
+      body {
+        margin: 0;
+        font-family: Inter, system-ui, sans-serif;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .pane {
+        background: var(--surface-frame);
+        color: var(--text-primary);
+        padding: 20px;
+        min-height: 100vh;
+        border-right: 1px solid var(--border-color);
+      }
+      .theme-name {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-subdued);
+        margin: 0 0 16px;
+      }
+      .panel {
+        background: var(--surface-panel);
+        border-radius: var(--radius-lg);
+        padding: 14px;
+        margin-bottom: 18px;
+      }
+      .panel h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .sub {
+        font-size: 11px;
+        color: var(--text-subdued);
+        margin: 0 0 10px;
+        line-height: 1.5;
+      }
+      .verdict {
+        font-size: 11px;
+        border-left: 2px solid var(--accent-color);
+        padding-left: 8px;
+        margin: 10px 0 0;
+        color: var(--text-subdued);
+        line-height: 1.5;
+      }
+      .verdict.bad {
+        border-left-color: var(--status-bad);
+      }
+      /* Stand-in for the image canvas, at roughly the real aspect ratio. */
+      .canvas {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        background:
+          repeating-linear-gradient(
+            45deg,
+            color-mix(in srgb, var(--text-subdued) 8%, transparent) 0 6px,
+            transparent 6px 12px
+          ),
+          var(--surface-field);
+        border-radius: var(--radius-md);
+        display: grid;
+        place-items: center;
+        font-size: 11px;
+        color: var(--text-subdued);
+      }
+
+      /* =========================================================
+         NEW, PROPOSED — does not exist in src/ yet.
+         --canvas-chrome unifies the translucent-dark-plus-blur backdrop
+         already duplicated (un-tokenized) at messages.css:12-14 (.mode-hint)
+         and components.css:1287-1289 (.mask-toolbar). Spec §4/6d + A4.
+         The two existing rules use slightly different alphas (0.82 vs 0.86);
+         this preview proposes 0.84 as the single shared value — flag if that
+         reads wrong in any theme below, that is exactly what this pane is for.
+         ========================================================= */
+      :root {
+        --canvas-chrome: rgba(10, 12, 14, 0.84);
+      }
+      .seg-float {
+        position: absolute;
+        top: var(--space-3);
+        left: 50%;
+        transform: translateX(-50%);
+        display: inline-flex;
+        padding: 3px;
+        border-radius: var(--radius-full);
+        background: var(--canvas-chrome);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+      }
+      .seg-float button {
+        height: 26px;
+        padding: 0 var(--space-3);
+        border: 0;
+        border-radius: var(--radius-full);
+        background-color: transparent;
+        color: rgba(255, 255, 255, 0.75);
+        font-family: inherit;
+        font-size: var(--text-meta);
+        font-weight: 600;
+        white-space: nowrap;
+        cursor: pointer;
+      }
+      .seg-float button[aria-selected='true'] {
+        background-color: var(--accent-color);
+        color: var(--on-accent);
+      }
+      .seg-float button[aria-disabled='true'] {
+        opacity: 0.55;
+        cursor: not-allowed;
+      }
+      .mode-pill-demo {
+        position: absolute;
+        left: 50%;
+        bottom: var(--space-4);
+        transform: translateX(-50%);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        background: var(--canvas-chrome);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        color: #fff;
+        border-radius: var(--radius-full);
+        padding: var(--space-1) var(--space-4);
+        font-size: 13px;
+        font-weight: 500;
+      }
+
+      /* Row mock, to show the row title is no longer clickable. */
+      .tech-rows {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+      }
+      .tech-row {
+        display: grid;
+        grid-template-columns: 12px 1fr 28px 78px 28px;
+        gap: var(--space-2);
+        align-items: center;
+        min-height: 34px;
+        padding: 0 var(--space-2);
+        border-radius: var(--radius-md);
+        background: color-mix(in srgb, var(--text-subdued) 6%, transparent);
+      }
+      .swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      .tech-name-static {
+        font-size: var(--text-body);
+        font-weight: 600;
+        /* No button, no cursor: pointer, no hover colour — 6d removes the
+           click-to-preview affordance from this label entirely. */
+      }
+      .cell {
+        display: flex;
+        justify-content: center;
+      }
+      .cell.median {
+        justify-content: flex-end;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="pane" data-theme="dark"></div>
+    <div class="pane" data-theme="light"></div>
+    <div class="pane" data-theme="dracula"></div>
+    <script>
+      const iconBtn = (glyph, title) => `<button class="ibtn ibtn-sm" title="${title}">${glyph}</button>`;
+
+      const body = (theme) => `
+        <p class="theme-name">${theme}</p>
+
+        <!-- ================= A. THE CONTROL, ALL AVAILABLE ================= -->
+        <div class="panel">
+          <h3>Canvas — all three techniques have run</h3>
+          <p class="sub">
+            <code>.seg</code> (6a) on <code>.seg-float</code>'s translucent backdrop, tablist semantics
+            (<code>role="tablist"</code>/<code>aria-selected</code> — 6a's selected-state contract exists
+            for exactly this consumer, spec §4/6a). Selected segment takes the LSPIV accent fill via
+            <code>--accent-color</code>, matching the panel <code>.seg</code>'s own selected state, not a
+            per-technique colour — the control is one widget, not three.
+          </p>
+          <div class="canvas">
+            <span>image canvas — Frames view</span>
+            <div class="seg-float" role="tablist" aria-label="Preview">
+              <button role="tab" aria-selected="true">Frames</button>
+              <button role="tab" aria-selected="false">Space-time</button>
+              <button role="tab" aria-selected="false">Spectrum</button>
+            </div>
+          </div>
+          <p class="verdict">
+            Placed top-centre: the mode-hint pill and shape toolbar already own bottom-centre (mutually
+            exclusive with this view — masks/regions aren't drawn on Processing's canvas) and the colour
+            bar owns bottom-right. Top-centre is the one edge nothing else claims.
+          </p>
+        </div>
+
+        <!-- ================= B. THE CONTROL, PARTIALLY AVAILABLE ================= -->
+        <div class="panel">
+          <h3>Canvas — before Analyze, only Frames exists</h3>
+          <p class="sub">
+            Same contract .seg already ships (index.css comment above <code>.seg button:disabled</code>
+            names 6d by name): <code>aria-disabled</code>, not native <code>disabled</code>, so the
+            tooltip fires. Hover a dimmed segment below to read why.
+          </p>
+          <div class="canvas">
+            <span>image canvas — Frames view</span>
+            <div class="seg-float" role="tablist" aria-label="Preview">
+              <button role="tab" aria-selected="true">Frames</button>
+              <button role="tab" aria-selected="false" aria-disabled="true" title="Run STIV first">
+                Space-time
+              </button>
+              <button role="tab" aria-selected="false" aria-disabled="true" title="Run iWave first">
+                Spectrum
+              </button>
+            </div>
+          </div>
+          <p class="verdict">
+            Mirrors the audit's own convention for Space-time/Next disabled tooltips (spec §3, D5's
+            reconciliation). No separate copy to translate beyond what <code>Processing.stivWeightsMissing</code>
+            / <code>Processing.noStisYet</code> / <code>Processing.noSpectraYet</code> already carry —
+            6d reuses those strings as the segment tooltips rather than inventing new ones.
+          </p>
+        </div>
+
+        <!-- ================= C. WHAT THE ROWS LOSE ================= -->
+        <div class="panel">
+          <h3>Technique rows — same as 6c shipped, minus one behaviour</h3>
+          <p class="sub">
+            6c already rebuilt these as a grid with aligned toggles (D7/D8). 6d changes nothing about
+            their layout or colour identity — it removes exactly one thing: clicking the technique name
+            no longer changes what the canvas shows. That is now the segmented control's job alone.
+          </p>
+          <div class="tech-rows">
+            <div class="tech-row">
+              <span class="swatch" style="background: var(--tech-lspiv)"></span>
+              <span class="tech-name-static" style="color: var(--tech-lspiv)">LSPIV</span>
+              <span class="cell">${iconBtn('&#11123;', 'Export MP4')}</span>
+              <span class="cell median">
+                <button class="chip chip-sm" aria-pressed="true">Median</button>
+              </span>
+              <span class="cell">
+                <button class="ibtn ibtn-sm" aria-pressed="true" aria-disabled="true" title="LSPIV can't be turned off">
+                  &#10003;
+                </button>
+              </span>
+            </div>
+            <div class="tech-row">
+              <span class="swatch" style="background: var(--tech-stiv)"></span>
+              <span class="tech-name-static">STIV</span>
+              <span class="cell"></span>
+              <span class="cell median"></span>
+              <span class="cell">
+                <button class="ibtn ibtn-sm" aria-pressed="true" title="STIV is on (click to exclude from processing)">
+                  &#10003;
+                </button>
+              </span>
+            </div>
+            <div class="tech-row">
+              <span class="swatch" style="background: var(--tech-iwave)"></span>
+              <span class="tech-name-static">iWave</span>
+              <span class="cell"></span>
+              <span class="cell median"></span>
+              <span class="cell">
+                <button class="ibtn ibtn-sm" title="iWave is off (click to include in processing)">&#10003;</button>
+              </span>
+            </div>
+          </div>
+          <p class="verdict">
+            The row's switch still decides whether a technique <em>runs</em>. The segmented control alone
+            decides what the canvas <em>shows</em>. Today those are conflated in one click target — turn
+            STIV on and the row click also jumps the canvas to Space-time, whether or not that's what the
+            user wanted to look at next.
+          </p>
+          <p class="verdict">
+            <code>previewMode</code> moves out of <code>Processing.tsx</code>'s local <code>useState</code>
+            into <code>uiSlice</code> (spec §4/6d) — it's now a user-visible view mode the segmented
+            control reads and writes, not a value private to one component.
+          </p>
+        </div>
+
+        <!-- ================= D. SHARED BACKDROP ================= -->
+        <div class="panel">
+          <h3>--canvas-chrome — one token, three consumers</h3>
+          <p class="sub">
+            <code>.mode-hint</code> and <code>.mask-toolbar</code> already paint this exact translucent-dark-plus-blur
+            treatment, un-tokenized and at slightly different alphas (0.82 / 0.86). 6d extracts
+            <code>--canvas-chrome</code> and becomes its third consumer, per the governing rule (build a
+            primitive, adopt it in the same phase) — not a fourth undocumented copy.
+          </p>
+          <div class="canvas">
+            <span>image canvas</span>
+            <div class="mode-pill-demo">Click to place a point</div>
+          </div>
+          <p class="verdict">
+            Both existing rules move to the shared 0.84 value shown here. If either one reads visibly
+            different once unified, say so — that is what this pane exists to catch before it ships.
+          </p>
+        </div>
+      `;
+      document.querySelectorAll('.pane').forEach((pane) => {
+        pane.innerHTML = body(pane.dataset.theme);
+      });
+    </script>
+  </body>
+</html>

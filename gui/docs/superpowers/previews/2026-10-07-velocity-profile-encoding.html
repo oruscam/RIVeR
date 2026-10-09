@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Velocity profile encoding</title>
+<style>
+  :root {
+    --bg: #0a0a0a; --panel: #141414; --text: #e8e8e8; --muted: #8a8a8a; --line: #262626;
+    --grid: #2a2a2a; --accent: #0678BE;
+    --lspiv: #6CD4FF; --stiv: #F5BF61; --iwave: #E07BD6;
+  }
+  [data-theme="light"] {
+    --bg: #E4EAF2; --panel: #F0F4F9; --text: #1d2635; --muted: #5b6678; --line: #d3dbe6;
+    --grid: #d5dde8; --accent: #3D6D9E;
+    --lspiv: #1F78B4; --stiv: #9A6A0C; --iwave: #A23C99;
+  }
+  [data-theme="dracula"] {
+    --bg: #21222c; --panel: #282a36; --text: #f8f8f2; --muted: #9aa0bd; --line: #3a3d4f;
+    --grid: #3a3d4f; --accent: #bd93f9;
+    --lspiv: #8BE9FD; --stiv: #F1FA8C; --iwave: #FF79C6;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", sans-serif;
+    font-variant-numeric: tabular-nums;
+  }
+  ::selection { background: var(--accent); color: #fff; }
+  main { max-width: 1240px; margin: 0 auto; padding: 32px 16px 64px; }
+  h1 { font-size: 22px; font-weight: 600; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .lede { color: var(--muted); margin: 0 0 24px; max-width: 72ch; }
+  .controls { display: flex; flex-wrap: wrap; gap: 20px 32px; margin-bottom: 24px; }
+  .control { display: flex; flex-direction: column; gap: 6px; }
+  .control > span { font-size: 12px; color: var(--muted); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; padding: 2px; background: var(--panel); }
+  .seg button {
+    font: inherit; font-size: 13px; color: var(--muted); background: none; border: 0;
+    padding: 5px 12px; border-radius: 6px; cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--line); color: var(--text); }
+  .seg button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 900px) { .pair { grid-template-columns: 1fr; } }
+  figure { margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px 14px; }
+  figcaption { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  figcaption b { font-weight: 600; }
+  figcaption small { color: var(--muted); font-size: 12px; }
+  svg.chart { width: 100%; height: auto; display: block; }
+  .key { display: flex; flex-wrap: wrap; gap: 6px 18px; padding-top: 10px; margin-top: 6px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+  .key span { display: inline-flex; align-items: center; gap: 6px; }
+  .key svg { overflow: visible; }
+  .notes { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 28px; }
+  @media (max-width: 900px) { .notes { grid-template-columns: 1fr; } }
+  .notes section h2 { font-size: 15px; font-weight: 600; margin: 0 0 10px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 10px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 500; font-size: 12px; }
+  td:first-child { white-space: nowrap; color: var(--text); }
+  td { color: var(--muted); }
+  .bad { color: var(--text); }
+</style>
+</head>
+<body>
+<main>
+  <h1>Velocity profile encoding</h1>
+  <p class="lede">Data from Section 1 (LSPIV 130.99 m³/s, 80% interpolated). Left is today's chart, right is the proposal. The rule behind the proposal: <b>hue and shape say which technique</b>, <b>line style says measured or interpolated</b>, and nothing else uses colour.</p>
+
+  <div class="controls">
+    <div class="control"><span>Theme</span>
+      <div class="seg" data-group="theme">
+        <button data-v="dark" aria-pressed="true">Dark</button>
+        <button data-v="light">Light</button>
+        <button data-v="dracula">Dracula</button>
+      </div>
+    </div>
+    <div class="control"><span>Active technique</span>
+      <div class="seg" data-group="active">
+        <button data-v="lspiv" aria-pressed="true">LSPIV</button>
+        <button data-v="stiv">STIV</button>
+        <button data-v="iwave">iWave</button>
+      </div>
+    </div>
+    <div class="control"><span>Interpolated stretch (proposal)</span>
+      <div class="seg" data-group="interp">
+        <button data-v="dotted" aria-pressed="true">Dotted</button>
+        <button data-v="dashed">Dashed</button>
+        <button data-v="faded">Faded</button>
+      </div>
+    </div>
+    <div class="control"><span>iWave quality shading</span>
+      <div class="seg" data-group="quality">
+        <button data-v="on" aria-pressed="true">On</button>
+        <button data-v="off">Off</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pair">
+    <figure>
+      <figcaption><b>Current</b><small>accent-coloured interpolation, colour + size quality, hollow = automatic STIV</small></figcaption>
+      <svg class="chart" id="current" viewBox="0 0 560 300"></svg>
+    </figure>
+    <figure>
+      <figcaption><b>Proposed</b><small>one hue per technique, line style for interpolation</small></figcaption>
+      <svg class="chart" id="proposed" viewBox="0 0 560 300"></svg>
+      <div class="key" id="key"></div>
+    </figure>
+  </div>
+
+  <div class="notes">
+    <section>
+      <h2>Why it reads as noise today</h2>
+      <table>
+        <tr><th>Mark</th><th>Problem</th></tr>
+        <tr><td>Interpolated stretch</td><td>Recoloured in the theme accent. In dark, accent blue sits next to LSPIV cyan; in Dracula, accent violet sits next to iWave pink. With 80% interpolated, the technique's own hue is visible on one segment only.</td></tr>
+        <tr><td>Interpolated marker</td><td>Filled with the accent, so a dot at an <i>estimated</i> station looks like a <i>measured</i> one in another colour.</td></tr>
+        <tr><td>iWave quality</td><td>Encoded twice (pale→saturated <i>and</i> small→large). Pale large triangles read as a different series.</td></tr>
+        <tr><td>STIV automatic</td><td>Hollow square for the normal case, so almost every STIV marker looks "special".</td></tr>
+        <tr><td>Rejected iWave</td><td>Dashed outline at 45% is so faint it reads as a rendering artefact near the axis.</td></tr>
+      </table>
+    </section>
+    <section>
+      <h2>Proposed grammar</h2>
+      <table>
+        <tr><th>Signal</th><th>Encoding</th></tr>
+        <tr><td>Technique</td><td>Its own hue and shape (● ■ ▲), everywhere, including interpolated stretches and bands.</td></tr>
+        <tr><td>Selected technique</td><td>3.25 px line, full opacity, markers r 3.75, drawn on top. Others: 2.25 px, 60% opacity, markers r 2.75.</td></tr>
+        <tr><td>Measured station</td><td>Filled marker with a thin panel-coloured ring so it stays crisp on the line.</td></tr>
+        <tr><td>Interpolated station</td><td>No marker; the segments touching it are dotted (or dashed / faded). Same hue.</td></tr>
+        <tr><td>iWave quality</td><td>Marker size only (r 2.5 → 5.5), same hue.</td></tr>
+        <tr><td>Rejected iWave</td><td>Hollow marker in the iWave hue at its raw velocity, not connected.</td></tr>
+        <tr><td>STIV tuned angle</td><td>The exception is marked, not the rule: a tuned station gets a thin outer ring; automatic ones are plain filled squares.</td></tr>
+      </table>
+    </section>
+  </div>
+</main>
+
+<script>
+const N = 15;
+const DATA = {
+  lspiv: {
+    v: [0, .52, .70, 1.17, 1.37, 1.32, 2.24, 2.22, 2.24, 2.19, 2.14, 2.03, 2.05, 1.52, 0],
+    measured: [5, 6],
+  },
+  stiv: {
+    v: [0, 0, 0, 0, 0, 2.64, 2.28, 2.28, 2.07, .53, 0, 0, 0, 0, 0],
+    measured: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+    tuned: [6],
+  },
+  iwave: {
+    v: [0, .75, 1.0, 1.65, 1.92, 1.86, 1.97, 1.65, 2.15, 2.12, 2.08, 1.98, 2.0, 1.45, 0],
+    measured: [5, 6, 7, 8],
+    quality: { 5: .35, 6: .6, 7: .2, 8: .9 },
+    rejected: { 1: .28, 2: .23, 3: .12, 4: .07, 9: .25, 10: .47, 11: .22, 12: .23, 13: .02 },
+  },
+};
+const SHAPE = { lspiv: 'circle', stiv: 'square', iwave: 'triangle' };
+const state = { theme: 'dark', active: 'lspiv', interp: 'dotted', quality: 'on' };
+
+const W = 560, H = 300, M = { l: 48, r: 14, t: 14, b: 26 };
+const x = (i) => M.l + (i / (N - 1)) * (W - M.l - M.r);
+const y = (v) => H - M.b - (v / 2.8) * (H - M.t - M.b);
+const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+function shape(kind, cx, cy, r, attrs) {
+  const a = Object.entries(attrs).map(([k, v]) => `${k}="${v}"`).join(' ');
+  if (kind === 'square') return `<rect x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}" ${a}/>`;
+  if (kind === 'triangle') {
+    const s = r * 1.25;
+    return `<polygon points="${cx},${cy - s * 1.05} ${cx + s},${cy + s * .7} ${cx - s},${cy + s * .7}" ${a}/>`;
+  }
+  return `<circle cx="${cx}" cy="${cy}" r="${r}" ${a}/>`;
+}
+const path = (pts) => pts.map((p, k) => `${k ? 'L' : 'M'}${x(p[0])},${y(p[1])}`).join('');
+
+function axes() {
+  let s = '';
+  [0, .66, 1.32, 1.98, 2.64].forEach((t) => {
+    s += `<line x1="${M.l}" x2="${W - M.r}" y1="${y(t)}" y2="${y(t)}" stroke="var(--grid)" stroke-width="1"/>`;
+    s += `<text x="${M.l - 8}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="var(--muted)">${t.toFixed(2)}</text>`;
+  });
+  s += `<text x="${M.l}" y="${H - 6}" font-size="11" fill="var(--muted)">left bank</text>`;
+  s += `<text x="${W - M.r}" y="${H - 6}" text-anchor="end" font-size="11" fill="var(--muted)">right bank</text>`;
+  return s;
+}
+const order = () => ['lspiv', 'stiv', 'iwave'].filter((k) => k !== state.active).concat(state.active);
+
+/* ---- Today's rendering, mirrored from velocitySvg.ts ---- */
+function renderCurrent() {
+  const bg = css('--panel');
+  let s = axes();
+  order().forEach((k) => {
+    const d = DATA[k], act = k === state.active, col = `var(--${k})`, op = act ? 1 : .55;
+    const interp = (i) => !d.measured.includes(i);
+    s += `<path d="${path(d.v.map((v, i) => [i, v]))}" fill="none" stroke="${col}" stroke-width="${act ? 3.5 : 2.4}" opacity="${op}"/>`;
+    if (act) {
+      let run = [];
+      const flush = () => { if (run.length > 1) s += `<path d="${path(run)}" fill="none" stroke="var(--accent)" stroke-width="3.5"/>`; run = []; };
+      d.v.forEach((v, i) => (interp(i) ? run.push([i, v]) : flush()));
+      flush();
+    }
+    const q = k === 'iwave' && state.quality === 'on';
+    d.v.forEach((v, i) => {
+      const qq = q && d.quality && d.quality[i] !== undefined ? d.quality[i] : null;
+      const r = qq !== null ? 4 + qq * 4 : act ? 3 : 2.2;
+      let fill = col, stroke = 'none', sw = 0;
+      if (interp(i)) fill = 'var(--accent)';
+      else if (qq !== null) { fill = mix(bg, css(`--${k}`), .3 + qq * .7); stroke = bg; sw = .75; }
+      else if (k === 'stiv' && !(d.tuned || []).includes(i)) { fill = bg; stroke = col; sw = 1.5; }
+      s += shape(SHAPE[k], x(i), y(v), r, { fill, stroke, 'stroke-width': sw, opacity: op });
+    });
+    Object.entries(d.rejected || {}).forEach(([i, v]) => {
+      s += shape(SHAPE[k], x(+i), y(v), act ? 3 : 2.2, { fill: bg, stroke: col, 'stroke-width': 1, 'stroke-dasharray': '1.5 1', opacity: .45 });
+    });
+  });
+  document.getElementById('current').innerHTML = s;
+}
+
+/* ---- Proposal ---- */
+const DASH = { dotted: '0.01 6', dashed: '7 5', faded: '' };
+function renderProposed() {
+  let s = axes();
+  order().forEach((k) => {
+    const d = DATA[k], act = k === state.active, col = `var(--${k})`;
+    const isM = (i) => d.measured.includes(i);
+    const lw = act ? 3.25 : 2.25;
+    let g = '';
+    for (let i = 0; i < N - 1; i++) {
+      const solid = isM(i) && isM(i + 1);
+      const seg = `M${x(i)},${y(d.v[i])}L${x(i + 1)},${y(d.v[i + 1])}`;
+      if (solid) g += `<path d="${seg}" fill="none" stroke="${col}" stroke-width="${lw}" stroke-linecap="round"/>`;
+      else if (state.interp === 'faded') g += `<path d="${seg}" fill="none" stroke="${col}" stroke-width="${lw}" stroke-linecap="round" opacity=".38"/>`;
+      else g += `<path d="${seg}" fill="none" stroke="${col}" stroke-width="${lw}" stroke-linecap="round" stroke-dasharray="${DASH[state.interp]}"/>`;
+    }
+    Object.entries(d.rejected || {}).forEach(([i, v]) => {
+      g += shape(SHAPE[k], x(+i), y(v), act ? 3 : 2.5, { fill: 'var(--panel)', stroke: col, 'stroke-width': 1.25 });
+    });
+    const q = k === 'iwave' && state.quality === 'on';
+    d.measured.forEach((i) => {
+      const qq = q && d.quality && d.quality[i] !== undefined ? d.quality[i] : null;
+      const base = act ? 3.75 : 2.75;
+      const r = qq !== null ? 2.5 + qq * 3 : base;
+      if ((d.tuned || []).includes(i)) g += shape(SHAPE[k], x(i), y(d.v[i]), r + 3, { fill: 'none', stroke: col, 'stroke-width': 1.25 });
+      g += shape(SHAPE[k], x(i), y(d.v[i]), r, { fill: col, stroke: 'var(--panel)', 'stroke-width': 1.5 });
+    });
+    s += `<g opacity="${act ? 1 : .6}">${g}</g>`;
+  });
+  document.getElementById('proposed').innerHTML = s;
+
+  const col = `var(--${state.active})`, sh = SHAPE[state.active];
+  const glyph = (inner, w = 26) => `<svg width="${w}" height="12" viewBox="0 0 ${w} 12">${inner}</svg>`;
+  const interpLine = state.interp === 'faded'
+    ? `<path d="M1,6H25" stroke="${col}" stroke-width="2.5" stroke-linecap="round" opacity=".38"/>`
+    : `<path d="M1,6H25" stroke="${col}" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="${DASH[state.interp]}"/>`;
+  document.getElementById('key').innerHTML = [
+    `<span>${glyph(`<path d="M1,6H25" stroke="${col}" stroke-width="2.5"/>` + shape(sh, 13, 6, 3.5, { fill: col, stroke: 'var(--panel)', 'stroke-width': 1.5 }))}measured</span>`,
+    `<span>${glyph(interpLine)}interpolated</span>`,
+    `<span>${glyph(shape('triangle', 6, 6, 3, { fill: 'var(--panel)', stroke: 'var(--iwave)', 'stroke-width': 1.25 }), 12)}rejected (low quality)</span>`,
+    `<span>${glyph(shape('square', 8, 6, 6, { fill: 'none', stroke: 'var(--stiv)', 'stroke-width': 1.25 }) + shape('square', 8, 6, 3, { fill: 'var(--stiv)' }), 16)}tuned angle</span>`,
+  ].join('');
+}
+
+function mix(a, b, t) {
+  const p = (h) => [1, 3, 5].map((o) => parseInt(h.slice(o, o + 2), 16));
+  const [A, B] = [p(a), p(b)];
+  return `rgb(${A.map((c, i) => Math.round(c + (B[i] - c) * t)).join(',')})`;
+}
+
+function render() {
+  document.documentElement.dataset.theme = state.theme;
+  renderCurrent();
+  renderProposed();
+}
+document.querySelectorAll('.seg').forEach((seg) => {
+  seg.addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    state[seg.dataset.group] = b.dataset.v;
+    seg.querySelectorAll('button').forEach((x) => x.setAttribute('aria-pressed', x === b));
+    render();
+  });
+});
+new URLSearchParams(location.search).forEach((v, k) => {
+  const b = document.querySelector(`[data-group="${k}"] [data-v="${v}"]`);
+  if (b) b.click();
+});
+render();
+</script>
+</body>
+</html>

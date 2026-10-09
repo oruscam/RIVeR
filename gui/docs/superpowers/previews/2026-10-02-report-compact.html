@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light">
+<title>Report — compact proposal</title>
+<style>
+  :root {
+    --ink: #1f2a37;
+    --muted: #5b6878;
+    --rule: #d5dbe3;
+    --rule-strong: #1f2a37;
+    --accent: #3d6d9e;
+    --paper: #ffffff;
+    --desk: #e6e9ee;
+    --water: #e3eef8;
+    --bed: #8a7a66;
+    --lspiv: #0072b2;
+    --stiv: #b86e00;
+    --iwave: #00795a;
+    --pin-left: #c8432f;
+    --pin-right: #2f8a3a;
+    --font: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--desk); }
+  body { margin: 0; padding: 24px 0; color: var(--ink); font: 11px/1.4 var(--font); font-variant-numeric: tabular-nums; }
+  @page { size: A4 portrait; margin: 0; }
+
+  .note { width: 210mm; margin: 0 auto 16px; font-size: 13px; line-height: 1.5; color: #333; }
+  .note b { color: #000; }
+
+  .sheet { width: 210mm; height: 297mm; margin: 0 auto 24px; padding: 11mm 12mm 0; background: var(--paper);
+    box-shadow: 0 1px 3px rgba(31,42,55,.18); display: flex; flex-direction: column; overflow: hidden; }
+  .body { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+  .foot img { height: 12px; width: auto; display: block; opacity: .85; }
+  .foot .who { display: flex; align-items: center; gap: 10px; }
+  .foot { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--rule); padding: 5px 0 8mm; color: var(--muted); font-size: 8.5px; }
+
+  /* ---- masthead ---- */
+  .mast { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 4px 16px; padding-bottom: 6px; border-bottom: 2px solid var(--rule-strong); }
+  .mast h1 { margin: 0; font-size: 19px; font-weight: 650; line-height: 1.1; }
+  .mast .meta { color: var(--muted); text-align: right; line-height: 1.35; }
+  .mast .footage { display: inline-flex; align-items: center; gap: 5px; color: var(--ink); font-weight: 600; }
+  .mast .ftype { width: 16px; height: 16px; color: var(--accent); }
+  .mast .meta b { color: var(--ink); font-weight: 600; }
+
+  .verdict { display: grid; grid-template-columns: auto 1fr; gap: 0 22px; align-items: center; }
+  .q { margin: 0; color: var(--accent); font-size: 34px; font-weight: 650; line-height: 1; letter-spacing: -0.01em; white-space: nowrap; }
+  .q small { font-size: 13px; font-weight: 500; margin-left: 3px; }
+  .q .pm { color: var(--muted); font-size: 13px; font-weight: 500; margin-left: 8px; }
+  .facts { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 2px 18px; margin: 0; }
+  .facts div { display: flex; flex-direction: column; }
+  .facts dt { color: var(--muted); font-size: 8.5px; }
+  .facts dd { margin: 0; font-weight: 600; }
+
+  .applied { display: flex; flex-wrap: wrap; gap: 2px 14px; margin: 0; padding: 4px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); list-style: none; color: var(--muted); }
+  .applied b { color: var(--ink); font-weight: 600; }
+
+  /* ---- section block ---- */
+  .sec { display: flex; flex-direction: column; gap: 6px; }
+  .sec-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 14px; padding-bottom: 3px; border-bottom: 1px solid var(--rule-strong); }
+  .sec-head h2 { margin: 0; font-size: 14px; font-weight: 650; }
+  .sec-head .sq { font-size: 14px; font-weight: 650; color: var(--accent); }
+  .sec-head .sq span { font-size: 10px; font-weight: 500; color: var(--muted); }
+  .sec-head .stats { color: var(--muted); }
+  .tech { display: inline-flex; align-items: center; gap: 4px; font-weight: 600; }
+  .tech::before { content: ''; width: 8px; height: 8px; border-radius: 1px; background: currentColor; }
+  .tech.lspiv::before { background: var(--lspiv); }
+  .tech.stiv::before { background: var(--stiv); }
+  .tech.iwave::before { background: var(--iwave); }
+  .tag { border: 1px solid var(--ink); border-radius: 2px; padding: 0 4px; font-size: 8px; letter-spacing: .04em; text-transform: uppercase; }
+
+  .compare { display: flex; gap: 16px; margin: 0; padding: 0; list-style: none; color: var(--muted); }
+  .compare li b { color: var(--ink); }
+  .compare li.on { color: var(--ink); }
+
+  .sec-row { display: grid; grid-template-columns: 300px 1fr; gap: 14px; align-items: start; }
+  .frame { margin: 0; position: relative; }
+  .frame img { display: block; width: 300px; height: auto; border-radius: 1px; }
+  .frame svg { position: absolute; inset: 0; }
+  .frame figcaption, .cap { margin-top: 2px; color: var(--muted); font-size: 8px; }
+
+  table { border-collapse: collapse; width: 100%; font-size: 9.5px; }
+  th { padding: 1px 4px; border-bottom: 1px solid var(--rule-strong); color: var(--muted); font-weight: 600; font-size: 8px; text-align: right; vertical-align: bottom; line-height: 1.15; }
+  th:first-child, td:first-child { text-align: left; }
+  th span { display: block; font-weight: 400; }
+  td { padding: 0.5px 4px; border-bottom: 1px solid #edf0f4; text-align: right; line-height: 1.3; }
+  td.i { font-style: italic; color: var(--muted); }
+  .cols { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  .plot { display: block; width: 100%; height: auto; }
+  .plot text { font: 8px var(--font); fill: var(--muted); font-variant-numeric: tabular-nums; }
+  .plot .ttl { fill: var(--ink); font-weight: 600; font-size: 8.5px; }
+
+  .reserve { margin-top: auto; border: 1px dashed #c4ccd6; color: var(--muted); padding: 10px; font-size: 9px; text-align: center; border-radius: 2px; }
+
+  /* ---- method sheet ---- */
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+  h3 { margin: 0 0 4px; font-size: 11px; font-weight: 650; padding-bottom: 2px; border-bottom: 1px solid var(--rule-strong); }
+  dl.kv { display: grid; grid-template-columns: max-content 1fr; gap: 1px 12px; margin: 0; }
+  dl.kv dt { color: var(--muted); }
+  dl.kv dd { margin: 0; }
+  .strip { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+  .strip img { width: 100%; display: block; aspect-ratio: 16/9; object-fit: cover; }
+  .strip div { font-size: 8px; color: var(--muted); text-align: center; }
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .colophon { margin-top: auto; color: var(--muted); font-size: 8.5px; line-height: 1.5; padding-top: 5px; }
+
+  .method { display: flex; flex-direction: column; gap: 8px; }
+  .method-h { margin: 4px 0 0; font-size: 14px; font-weight: 650; padding-bottom: 3px; border-bottom: 2px solid var(--rule-strong); }
+  .method .two > section { display: grid; grid-template-columns: 140px 1fr; grid-auto-flow: row dense; gap: 4px 10px; align-content: start; }
+  .method .two > section > h3 { grid-column: 1 / -1; }
+  .method .two > section > .frame { grid-column: 1; grid-row: 2 / span 3; margin: 0 !important; }
+  .method .two > section > :not(h3):not(.frame) { grid-column: 2; margin: 0 !important; }
+  .method .two .frame img, .method .two .frame div { width: 140px !important; }
+  .method .strip { grid-template-columns: repeat(5, 112px); justify-content: space-between; }
+  .method h3 { margin-bottom: 3px; }
+  @media print { html, body { background: none; padding: 0; } .note { display: none; } .sheet { margin: 0; box-shadow: none; } }
+</style>
+</head>
+<body>
+
+<div class="note"><b>Compact report, single-section case.</b> The section, then how it was measured, on one A4 page. With more sections the blocks flow on, and the method part moves to wherever there is room.</div>
+
+<!-- ============ SHEET 1 ============ -->
+<section class="sheet">
+  <div class="body">
+    <header class="mast">
+      <h1>fygufgyu @ yugug</h1>
+      <div class="meta"><span class="footage"><svg class="ftype" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="5.5" r="3"/><circle cx="18.5" cy="5.5" r="3"/><circle cx="5.5" cy="18.5" r="3"/><circle cx="18.5" cy="18.5" r="3"/><path d="M7.8 7.8l2.2 2.2M16.2 7.8 14 10M7.8 16.2l2.2-2.2M16.2 16.2 14 14"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"/></svg>UAV (nadir)</span><br><b>02/10/2026 14:05</b> · RIVeR 3.2.0</div>
+    </header>
+
+    <div class="verdict">
+      <p class="q">1.69<small>m³/s</small><span class="pm">± 0.86 m³/s</span></p>
+      <dl class="facts">
+        <div><dt>Measured</dt><dd>100.00 %</dd></div>
+        <div><dt>Sections</dt><dd>1</dd></div>
+        <div><dt>Technique</dt><dd><span class="tech lspiv">LSPIV</span></dd></div>
+        <div><dt>Stations</dt><dd>15</dd></div>
+      </dl>
+    </div>
+
+    <ul class="applied">
+      <li>Lens <b>DJI_Mavic_3</b></li>
+      <li>Stabilized <b>2 regions</b></li>
+      <li>Frame step <b>2</b></li>
+      <li>Resize <b>0.5</b></li>
+    </ul>
+
+    <!-- section block -->
+    <article class="sec">
+      <div class="sec-head">
+        <h2>CS_default_1</h2>
+        <span class="tech lspiv">LSPIV</span>
+        <span class="sq">1.69 <span>± 0.86 m³/s</span></span>
+        <span class="stats">100.00 % measured · 0.00 % interpolated · 15 stations · α 0.85</span>
+      </div>
+      <ul class="compare">
+        <li class="on"><span class="tech lspiv">LSPIV</span> <b>1.69</b> m³/s · reported</li>
+        <li><span class="tech stiv">STIV</span> 5.82 m³/s</li>
+        <li><span class="tech iwave">iWave</span> 5.01 m³/s</li>
+      </ul>
+
+      <div class="sec-row">
+        <figure class="frame">
+          <img src="../../../../examples/results/yanuncay/orthorectified.png" alt="">
+          <svg id="frame-overlay" width="300" height="168.6" viewBox="0 0 250 140.5"></svg>
+          <figcaption>Section line and LSPIV vectors. Left bank red, right bank green.</figcaption>
+        </figure>
+        <svg class="plot" id="plot" viewBox="0 0 380 196"></svg>
+      </div>
+
+      <div class="cols" id="stations"></div>
+    </article>
+
+    <section class="method">
+      <h2 class="method-h">How this was measured</h2>
+      <div class="two">
+      <section>
+        <h3 style="display:flex;align-items:center;gap:5px"><svg class="ftype" style="width:13px;height:13px;color:var(--accent)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5.5" cy="5.5" r="3"/><circle cx="18.5" cy="5.5" r="3"/><circle cx="5.5" cy="18.5" r="3"/><circle cx="18.5" cy="18.5" r="3"/><path d="M7.8 7.8l2.2 2.2M16.2 7.8 14 10M7.8 16.2l2.2-2.2M16.2 16.2 14 14"/><rect x="9.5" y="9.5" width="5" height="5" rx="1.2"/></svg>Calibration · UAV</h3>
+        <figure class="frame" style="margin-bottom:6px">
+          <img src="../../../../examples/results/yanuncay/orthorectified.png" alt="" style="width:100%">
+        </figure>
+        <dl class="kv" style="margin-bottom:6px">
+          <dt>Pixel size (GSD)</dt><dd>0.01234 m/px</dd>
+          <dt>Reference length</dt><dd>4.20 m</dd>
+        </dl>
+        <table>
+          <thead><tr><th>Point</th><th>x<span>px</span></th><th>y<span>px</span></th><th>X<span>m</span></th><th>Y<span>m</span></th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>412.00</td><td>388.50</td><td>0.00</td><td>0.00</td></tr>
+            <tr><td>2</td><td>1310.25</td><td>402.00</td><td>4.20</td><td>0.00</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section>
+        <h3>Footage</h3>
+        <dl class="kv" style="margin-bottom:8px">
+          <dt>File</dt><dd>DJI_0042.MP4</dd>
+          <dt>Video</dt><dd>3840 × 2160 · 29.97 fps · 00:01:12</dd>
+          <dt>Recorded</dt><dd>2026-09-14 10:22</dd>
+          <dt>Processed</dt><dd>00:00:10 → 00:00:30 · step 2 · 66.73 ms</dd>
+          <dt>Resize</dt><dd>0.5</dd>
+          <dt>Lens</dt><dd>DJI_Mavic_3</dd>
+        </dl>
+        <figure class="frame">
+          <div style="position:relative">
+          <img src="../../../../examples/results/yanuncay/orthorectified.png" alt="" style="width:100%">
+          <svg viewBox="0 0 500 281" style="position:absolute;inset:0;width:100%;height:100%" preserveAspectRatio="none">
+            <rect x="20" y="20" width="110" height="70" fill="none" stroke="#3d6d9e" stroke-width="2" stroke-dasharray="6 4"/>
+            <rect x="370" y="190" width="110" height="70" fill="none" stroke="#3d6d9e" stroke-width="2" stroke-dasharray="6 4"/>
+          </svg>
+          </div>
+          <figcaption>Stabilization: 2 regions on the first frame</figcaption>
+        </figure>
+      </section>
+    </div>
+
+    <section>
+      <h3>Across the processed range</h3>
+      <div class="strip">
+        <div><img src="../../../../examples/results/yanuncay/orthorectified.png" alt="">00:00:10</div>
+        <div><img src="../../../../examples/results/yanuncay/orthorectified.png" alt="">00:00:15</div>
+        <div><img src="../../../../examples/results/yanuncay/orthorectified.png" alt="">00:00:20</div>
+        <div><img src="../../../../examples/results/yanuncay/orthorectified.png" alt="">00:00:25</div>
+        <div><img src="../../../../examples/results/yanuncay/orthorectified.png" alt="">00:00:30</div>
+      </div>
+    </section>
+
+    <section>
+      <h3>Processing</h3>
+      <div class="three">
+        <dl class="kv">
+          <dt><span class="tech lspiv">LSPIV</span></dt><dd></dd>
+          <dt>Grayscale</dt><dd>yes</dd>
+          <dt>CLAHE</dt><dd>clip limit 5.00</dd>
+          <dt>Window sizes</dt><dd>128 | 64 px</dd>
+          <dt>Std filter</dt><dd>threshold 4.00</dd>
+          <dt>Median test</dt><dd>ε 0.02 · threshold 2.00</dd>
+          <dt>Seeding</dt><dd>artificial</dd>
+        </dl>
+        <dl class="kv">
+          <dt><span class="tech stiv">STIV</span></dt><dd></dd>
+          <dt>Model</dt><dd>CNN, weights doi:10.5281/zenodo.22050810</dd>
+          <dt colspan="2" style="grid-column: 1 / -1">Further parameters are not recorded in this version.</dt>
+        </dl>
+        <dl class="kv">
+          <dt><span class="tech iwave">iWave</span></dt><dd></dd>
+          <dt style="grid-column: 1 / -1">Parameters are not recorded in this version.</dt>
+        </dl>
+      </div>
+    </section>
+
+
+    </section>
+    <p class="colophon">Generated with RIVeR 3.2.0 on 2026-10-02 17:24 · github.com/oruscam/RIVeR</p>
+  </div>
+  <footer class="foot"><span class="who"><img src="../../../src/assets/logo_footer.png" alt="RIVeR"><span>fygufgyu @ yugug · 02/10/2026</span></span><span>page 1 / 1</span></footer>
+</section>
+
+<script>
+  // Data from the screenshot's CS_default_1.
+  const x = [0, 0.43, 0.86, 1.29, 1.71, 2.14, 2.57, 3.0, 3.43, 3.86, 4.29, 4.71, 5.14, 5.57, 6.0];
+  const d = [0, 1.15, 1.16, 1.31, 1.33, 1.34, 1.36, 1.35, 1.42, 1.39, 1.38, 1.35, 1.36, 1.35, 0];
+  const A = [0, 0.49, 0.5, 0.56, 0.57, 0.57, 0.58, 0.58, 0.61, 0.6, 0.59, 0.58, 0.58, 0.58, 0];
+  const lspiv = [null, 0.33, 0.41, 0.43, 0.44, 0.45, 0.39, 0.24, 0.2, 0.18, 0.18, 0.18, 0.1, 0, null];
+  const stiv = [0.18, 0.72, 1.0, 1.02, 1.0, 0.99, 1.0, 0.86, 0.6, 0.78, 0.75, 0.68, 0.45, -0.33, null];
+  const iwave = [0.18, 0.72, 0.98, 1.03, 1.01, 0.98, 1.0, 1.01, 0.12, 0.12, 0.8, 0.76, 0.66, 0.2, 0.2];
+  const Q = [0, 0.14, 0.17, 0.21, 0.22, 0.22, 0.19, 0.12, 0.1, 0.09, 0.09, 0.09, 0.05, 0, 0];
+  const f2 = (v) => (v === null ? '–' : v.toFixed(2));
+
+  // Station table: two columns side by side.
+  const per = Math.ceil(x.length / 3);
+  const table = (from, to) => {
+    let rows = '';
+    for (let i = from; i < to; i++)
+      rows += `<tr><td>${i + 1}</td><td>${f2(x[i])}</td><td>${f2(d[i])}</td><td>${f2(A[i])}</td><td>${f2(lspiv[i])}</td><td>${lspiv[i] === null ? '–' : f2(Q[i])}</td></tr>`;
+    return `<table><thead><tr><th>#</th><th>x<span>m</span></th><th>d<span>m</span></th><th>A<span>m²</span></th><th>Vs<span>m/s</span></th><th>Q<span>m³/s</span></th></tr></thead><tbody>${rows}</tbody></table>`;
+  };
+  document.getElementById('stations').innerHTML = table(0, per) + table(per, 2 * per) + table(2 * per, x.length);
+
+  // Frame overlay: section line, bank pins, vectors.
+  (() => {
+    const s = document.getElementById('frame-overlay');
+    const x0 = 40, y0 = 70, x1 = 205, y1 = 82;
+    let g = `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="#f2a33a" stroke-width="2"/>`;
+    for (let i = 1; i < 14; i++) {
+      const t = i / 14, px = x0 + (x1 - x0) * t, py = y0 + (y1 - y0) * t, len = (lspiv[i] || 0) * 40;
+      g += `<line x1="${px}" y1="${py}" x2="${px - 2}" y2="${py + len}" stroke="#0072b2" stroke-width="1.6"/>`;
+    }
+    g += `<circle cx="${x0}" cy="${y0}" r="3.5" fill="var(--pin-left)" stroke="#fff"/><circle cx="${x1}" cy="${y1}" r="3.5" fill="var(--pin-right)" stroke="#fff"/>`;
+    s.innerHTML = g;
+  })();
+
+  // Print profile: three panels on one x axis. No rotated labels; titles carry the units.
+  (() => {
+    const svg = document.getElementById('plot');
+    const W = 380, L = 28, R = 6, plotW = W - L - R;
+    const sx = (v) => L + (v / 6) * plotW;
+    const panels = [
+      { top: 10, h: 36, title: 'Discharge per station  Q (m³/s)', min: 0, max: 0.25, ticks: [0, 0.1, 0.2] },
+      { top: 62, h: 58, title: 'Surface velocity  Vs (m/s)', min: -0.4, max: 1.2, ticks: [-0.4, 0, 0.4, 0.8, 1.2] },
+      { top: 136, h: 34, title: 'Depth  d (m)', min: 0, max: 1.5, ticks: [0, 0.75, 1.5], down: true },
+    ];
+    let o = '';
+    const sy = (p, v) => (p.down ? p.top + ((v - p.min) / (p.max - p.min)) * p.h : p.top + p.h - ((v - p.min) / (p.max - p.min)) * p.h);
+    panels.forEach((p) => {
+      o += `<text class="ttl" x="${L}" y="${p.top - 4}">${p.title}</text>`;
+      p.ticks.forEach((t) => {
+        const y = sy(p, t);
+        o += `<line x1="${L}" x2="${W - R}" y1="${y}" y2="${y}" stroke="${t === 0 ? '#9aa6b4' : '#e6eaef'}" stroke-width="${t === 0 ? 0.8 : 0.6}"/>`;
+        o += `<text x="${L - 4}" y="${y + 2.8}" text-anchor="end">${t.toFixed(t % 1 ? (Math.abs(t) < 0.1 ? 2 : 1) : 0)}</text>`;
+      });
+    });
+    // Q bars (active technique only)
+    const p0 = panels[0], bw = (plotW / 14) * 0.6;
+    Q.forEach((q, i) => { if (q > 0) o += `<rect x="${sx(x[i]) - bw / 2}" y="${sy(p0, q)}" width="${bw}" height="${sy(p0, 0) - sy(p0, q)}" fill="#0072b2" fill-opacity=".75"/>`; });
+    // Velocity: one line per technique, distinct markers, active drawn last and thicker.
+    const p1 = panels[1];
+    const series = [
+      { v: stiv, c: '#b86e00', m: 'sq', w: 1 },
+      { v: iwave, c: '#00795a', m: 'tri', w: 1 },
+      { v: lspiv, c: '#0072b2', m: 'dot', w: 1.8 },
+    ];
+    series.forEach((s) => {
+      let dpath = '', pen = false;
+      s.v.forEach((v, i) => { if (v === null) { pen = false; return; } dpath += `${pen ? 'L' : 'M'}${sx(x[i])},${sy(p1, v)}`; pen = true; });
+      o += `<path d="${dpath}" fill="none" stroke="${s.c}" stroke-width="${s.w}"/>`;
+      s.v.forEach((v, i) => {
+        if (v === null) return;
+        const cx = sx(x[i]), cy = sy(p1, v);
+        if (s.m === 'dot') o += `<circle cx="${cx}" cy="${cy}" r="2.2" fill="${s.c}"/>`;
+        if (s.m === 'sq') o += `<rect x="${cx - 2}" y="${cy - 2}" width="4" height="4" fill="#fff" stroke="${s.c}" stroke-width="1"/>`;
+        if (s.m === 'tri') o += `<path d="M${cx},${cy - 2.6}L${cx + 2.4},${cy + 1.8}L${cx - 2.4},${cy + 1.8}Z" fill="#fff" stroke="${s.c}" stroke-width="1"/>`;
+      });
+    });
+    // inline legend
+    const lg = [['LSPIV · reported', '#0072b2', 'dot'], ['STIV', '#b86e00', 'sq'], ['iWave', '#00795a', 'tri']];
+    let lx = W - R - 168;
+    lg.forEach(([name, c, m]) => {
+      const ly = p1.top - 7;
+      if (m === 'dot') o += `<circle cx="${lx}" cy="${ly}" r="2.2" fill="${c}"/>`;
+      if (m === 'sq') o += `<rect x="${lx - 2}" y="${ly - 2}" width="4" height="4" fill="#fff" stroke="${c}"/>`;
+      if (m === 'tri') o += `<path d="M${lx},${ly - 2.6}L${lx + 2.4},${ly + 1.8}L${lx - 2.4},${ly + 1.8}Z" fill="#fff" stroke="${c}"/>`;
+      o += `<text x="${lx + 6}" y="${ly + 2.8}" style="fill:#1f2a37">${name}</text>`;
+      lx += name.length * 4.2 + 14;
+    });
+    // Depth: water and bed
+    const p2 = panels[2];
+    let bed = `M${sx(0)},${sy(p2, 0)}`;
+    x.forEach((xv, i) => (bed += `L${sx(xv)},${sy(p2, d[i])}`));
+    o += `<path d="${bed}Z" fill="#e3eef8"/>`;
+    o += `<path d="${bed.replace(/^M[^L]+/, 'M' + sx(0) + ',' + sy(p2, 0))}" fill="none" stroke="#6b5c4a" stroke-width="1.2"/>`;
+    // x axis: ticks under the depth panel, banks marked at the ends, axis title on the right
+    const yAx = p2.top + p2.h + 9;
+    [1, 2, 3, 4, 5].forEach((t) => (o += `<text x="${sx(t)}" y="${yAx}" text-anchor="middle">${t}</text>`));
+    o += `<text x="${sx(0)}" y="${yAx}" text-anchor="start" style="fill:var(--pin-left);font-weight:700">L 0</text>`;
+    o += `<text x="${sx(6)}" y="${yAx}" text-anchor="end" style="fill:var(--pin-right);font-weight:700">6 R</text>`;
+    o += `<text x="${(sx(0) + sx(6)) / 2}" y="${yAx + 11}" text-anchor="middle">Station x (m)</text>`;
+    svg.innerHTML = o;
+  })();
+</script>
+</body>
+</html>
