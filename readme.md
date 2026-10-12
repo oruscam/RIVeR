@@ -5,22 +5,32 @@
 
   <p>
     <strong>Modern multi-technique toolkit (LSPIV, STIV and iWave) for water-surface velocity analysis and flow discharge measurements</strong>
-</div>
+  </p>
 
-[![Status](https://img.shields.io/badge/status-active-brightgreen)]()
-[![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
-[![Python Version](https://img.shields.io/badge/python-3.12+-blue.svg)](https://www.python.org/downloads/)
-[![React Version](https://img.shields.io/badge/react-18.0+-61DAFB.svg)](https://reactjs.org/)
-[![PyPI version](https://img.shields.io/pypi/v/river-cli.svg)](https://pypi.org/project/river-cli/)
-[![DOI](https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue)](https://doi.org/10.1016/j.cageo.2017.07.009)
-[![YouTube](https://img.shields.io/badge/YouTube-Subscribe-red?logo=youtube)](https://www.youtube.com/@orus-xm3dn)
+  <p>
+    <a href="#-download">Download</a> ·
+    <a href="user-manual.md">User Manual</a> ·
+    <a href="#-whats-new-in-38">What's new</a> ·
+    <a href="#cli-installation">CLI &amp; Development</a> ·
+    <a href="#-jupyter-examples">Examples</a> ·
+    <a href="#-citation">Citation</a>
+  </p>
+
+  <p>
+    <a href="https://github.com/oruscam/RIVeR/releases/latest"><img src="https://img.shields.io/github/v/release/oruscam/RIVeR" alt="Latest release"></a>
+    <a href="https://www.gnu.org/licenses/agpl-3.0"><img src="https://img.shields.io/badge/License-AGPL%20v3-blue.svg" alt="License: AGPL v3"></a>
+    <a href="https://www.python.org/downloads/"><img src="https://img.shields.io/badge/python-3.12+-blue.svg" alt="Python 3.12+"></a>
+    <a href="https://pypi.org/project/river-cli/"><img src="https://img.shields.io/pypi/v/river-cli.svg" alt="PyPI version"></a>
+    <a href="https://doi.org/10.1016/j.cageo.2017.07.009"><img src="https://img.shields.io/badge/DOI-10.1016%2Fj.cageo.2017.07.009-blue" alt="DOI"></a>
+    <a href="https://www.youtube.com/@orus-xm3dn"><img src="https://img.shields.io/badge/YouTube-Subscribe-red?logo=youtube" alt="YouTube"></a>
+  </p>
+</div>
 
 ---
 
 # RIVeR: Rectification of Image Velocity Results
 
 **RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for water-surface velocimetry distributed by [ORUS](https://orus.cam). It offers three techniques in one place: Large Scale Particle Image Velocimetry (**LSPIV**), Space-Time Image Velocimetry (**STIV**) and image wave velocimetry (**iWave**). Built with **Python** and **React**, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
-
 
 <figure>
     <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/screenshot_results.png" width=500>
@@ -48,7 +58,67 @@ RIVeR 3.8 brings the experimental multi-technique build of 3.7 to a regular rele
 - **New A4 report** with one block per cross section, its velocity and depth profile, and the calibration and parameter sheets.
 - **Redesigned interface** in dark, light and Dracula themes, in 12 languages.
 
-## The three techniques
+---
+
+## 📥 Download
+
+If you don't want to bother with code at all (we get it, sometimes you just want things to work!), pre-compiled standalone versions are available on the **[latest release page](https://github.com/oruscam/RIVeR/releases/latest)**:
+
+| ⊞ Windows | ⌘ macOS | ◆ Linux |
+|:---:|:---:|:---:|
+| [Setup `.exe`](https://github.com/oruscam/RIVeR/releases/latest) | [Installer `.dmg`](https://github.com/oruscam/RIVeR/releases/latest) | [Package `.deb`](https://github.com/oruscam/RIVeR/releases/latest) |
+
+These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application — no Python or JavaScript knowledge required!
+
+> **macOS users:** If Gatekeeper blocks the app after installing, open a terminal and run:
+> ```bash
+> xattr -rd com.apple.quarantine /Applications/RIVeR.app
+> ```
+> Or right-click the app → Open → Open anyway.
+
+For a step-by-step guide to the GUI, see the **[User Manual](user-manual.md)**.
+
+---
+
+## 💧 About
+
+RIVeR is a specialized tool for estimating discharge in rivers and channels from video footage, as a non-contact method. The software guides the process through intuitive defaults and pre-configured settings, enabling users to generate discharge calculations without extensive prior knowledge of the techniques. The workflow is a series of straightforward steps, culminating in a detailed visual report.
+
+Originally developed in MATLAB in 2015 and well-received by the hydrology community, RIVeR has now been reimplemented in Python and JavaScript to improve accessibility, performance, and cross-platform compatibility.
+
+<figure>
+    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/oblique_rectification.gif" width=700>
+    <p><i>Demonstration of interactive oblique image rectification process in RIVeR</i></p>
+</figure>
+
+---
+
+## ✨ Key Features
+
+* Three velocimetry techniques in one place: LSPIV, STIV and iWave, compared side by side
+* Process footage from multiple sources:
+  * UAV/drone aerial imagery
+  * Oblique view camera (from riverbank)
+  * Fixed station cameras (continuous monitoring)
+* Start from a video or from a folder of frames
+* Drag-and-drop interface for quick video and data imports
+* Frame extraction from videos with customizable parameters
+* FFT-based PIV analysis with multi-pass support for increased accuracy
+* STIV with a CNN angle model and manual angle tuning, and iWave with automatic parameters
+* Interactive result visualization with customizable vector fields
+* Georeferencing and coordinate transformations
+* Multiple cross-section flow analysis
+* Camera calibration tool for lens distortion correction, with reusable camera/lens profiles
+* Video stabilization (UAV, oblique and IP camera) to counter camera shake before analysis
+* Automated beautiful report generation ([like this one !](https://oruscam.github.io/RIVeR/sample_report.html))
+* Multi-platform support (**Windows**, **macOS**, **Linux**)
+* Multi-units support (SI, imperial)
+* Dark, light and Dracula themes
+* 12 languages, listed [below](#-multi-language-support)
+
+---
+
+## 🔬 The three techniques
 
 - **LSPIV:** RIVeR's original FFT-based particle image velocimetry.
 - **STIV:** a CNN-based Space-Time Image Velocimetry model, trained in-house, with a manual angle tuner in the STI viewer.
@@ -67,56 +137,7 @@ DOI: https://doi.org/10.5281/zenodo.22050810
 
 The weights are licensed separately from RIVeR's AGPLv3 license: research and non-commercial use, no redistribution, and cite the DOI if used in published work. Without the weights file the STIV option is unavailable (greyed out) in the app, see `river.core.stiv_pipeline.stiv_weights_available()`.
 
-### Citing
-
-- RIVeR software: DOI `10.1016/j.cageo.2017.07.009`, see [Citation](#-citation)
-- STIV weights: https://doi.org/10.5281/zenodo.22050810
-- iWave: see [dataforwater/iwave](https://github.com/dataforwater/iwave) for their own citation guidance.
-
----
-
-## 💧 Overview
-RIVeR is a specialized tool for applying Large Scale Particle Image Velocimetry (LSPIV) techniques as a non-contact method to estimate discharge in rivers and channels from video footage. The software guides the process through intuitive defaults and pre-configured settings, enabling users to generate discharge calculations without extensive prior knowledge of the technique. The workflow guides users through a series of straightforward steps culminating in comprehensive visual reports.
-
-Originally developed in MATLAB in 2015 and well-received by the hydrology community, RIVeR has now been reimplemented in Python and JavaScript to improve accessibility, performance, and cross-platform compatibility.
-<figure>
-    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/oblique_rectification.gif" width=700>
-    <p><i>Demonstration of interactive oblique image rectification process in RIVeR</i></p>
-</figure>
-
----
-
-
-## 📖 User Manual
-
-For a detailed step-by-step guide on using RIVeR's GUI (Graphical User Interface),
-please refer to the **[User Manual](user-manual.md)**.
-
----
-
-
-## ✨ Key Features
-
-* Three velocimetry techniques in one place: LSPIV, STIV and iWave, compared side by side
-* Process footage from multiple sources:
-  * UAV/drone aerial imagery
-  * Oblique view camera (from riverbank)
-  * Fixed station cameras (continous monitoring)
-* Start from a video or from a folder of frames
-* Drag-and-drop interface for quick video and data imports
-* Frame extraction from videos with customizable parameters
-* FFT-based PIV analysis with multi-pass support for increased accuracy
-* STIV with a CNN angle model and manual angle tuning, and iWave with automatic parameters
-* Interactive result visualization with customizable vector fields
-* Georeferencing and coordinate transformations
-* Multi Cross-sectional flow analysis
-* Camera calibration tool for lens distortion correction, with reusable camera/lens profiles
-* Video stabilization (UAV, oblique and IP camera) to counter camera shake before analysis
-* Automated beautiful report generation ([like this one !](https://oruscam.github.io/RIVeR/sample_report.html))
-* Multi-platform support (**Windows**, **macOS**, **Linux**)
-* Multi-units support (SI, imperial)
-* Dark, light and Dracula themes
-
+How to cite each technique is described in [Citation](#-citation).
 
 ---
 
@@ -124,32 +145,12 @@ please refer to the **[User Manual](user-manual.md)**.
 
 RIVeR is available in 12 languages, with technical terminology reviewed for hydrology, PIV and bathymetry domains:
 
-| | | | |
-|:---|:---|:---|:---|
-| 🇬🇧 English | 🇯🇵 Japanese | 🇸🇦 Arabic | 🇷🇺 Russian |
-| 🇦🇷 Spanish | 🇨🇳 Chinese | 🇰🇷 Korean | 🇮🇳 Hindi |
-| 🇫🇷 French | 🇩🇪 German | 🇮🇹 Italian | 🇧🇷 Portuguese |
+🇬🇧 English · 🇦🇷 Spanish · 🇫🇷 French · 🇯🇵 Japanese · 🇨🇳 Chinese · 🇩🇪 German · 🇸🇦 Arabic · 🇰🇷 Korean · 🇮🇹 Italian · 🇷🇺 Russian · 🇮🇳 Hindi · 🇧🇷 Portuguese
 
 Want to contribute a new language? Translation files are located in `gui/src/translations/` — add a new folder with a `global.json` file following the existing structure and open a Pull Request!
 
 ---
-## 📥 Download Compiled Releases
 
-If you don't want to bother with code at all (we get it, sometimes you just want things to work!), pre-compiled standalone versions are available:
-
-| ⊞ Windows | ⌘ macOS | ◆ Linux |
-|:---:|:---:|:---:|
-| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.5.2/RIVeR-Windows-3.5.2-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.5.2/RIVeR-Mac-3.5.2-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.5.2/RIVeR-Linux-3.5.2.deb) |
-
-These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application — no Python or JavaScript knowledge required!
-
-> **macOS users:** If Gatekeeper blocks the app after installing, open a terminal and run:
-> ```bash
-> xattr -rd com.apple.quarantine /Applications/RIVeR.app
-> ```
-> Or right-click the app → Open → Open anyway.
-
----
 ## 🧑‍💻 Developer Installation & Usage
 
 For those who prefer to work with the source code or contribute to RIVeR's development, here's how to get started:
@@ -161,26 +162,35 @@ For those who prefer to work with the source code or contribute to RIVeR's devel
 - Git (for cloning the repository)
 
 ### Development Installation
+
 ```bash
 git clone https://github.com/oruscam/RIVeR.git
 cd RIVeR
 pip install -e .
 ```
+
 ### CLI Installation
-RIVeR CLI provides a comprehensive set of commands for performing LSPIV analysis through the command line.
+
+RIVeR CLI provides commands for the whole workflow from the command line: frame extraction, camera calibration, transformations, masks, LSPIV, STIV, iWave and discharge calculation.
 
 ```bash
 pip install river-cli
 ```
+
 #### Basic Usage
+
 ```bash
 river-cli [OPTIONS] COMMAND [ARGS]...
 ```
+
 To see all available commands and options:
+
 ```bash
 river-cli --help
 ```
+
 #### Example Workflow
+
 ```bash
 # 1. Extract frames from video
 river-cli video-to-frames river_video.mp4 ./frames --every 2
@@ -247,9 +257,11 @@ river-cli video-to-frames river_video.mp4 ./frames --every 2 \
 
 ```
 
+The workflow above is LSPIV. STIV, iWave and the full multi-technique run are available as `stiv-analyze`, `iwave-analyze` and `analyze-all`; run `river-cli <command> --help` for their options.
+
 ### Graphical User Interface (GUI)
 
-RIVeR also provides a user-friendly graphical interface built with React. The GUI offers an intuitive way to perform LSPIV analysis without using command-line tools.
+RIVeR also provides a user-friendly graphical interface built with React. The GUI offers an intuitive way to perform water-surface velocity analysis without using command-line tools.
 
 Key GUI features include:
 - Interactive workflow interface
@@ -267,42 +279,48 @@ For detailed information about installation, usage, and features of the GUI, ple
 ## 📂 Project Structure
 
 ```
-river/
-.
-├── LICENSE
-├── examples       # Jupyter examples
-│   ├── 00_introduction.ipynb
-│   ├── 01_video_to_frames.ipynb
-│   ├── 02a_nadir_transformation.ipynb
-│   ├── 02b_oblique_transformation.ipynb
-│   ├── 02c_fixed_station_transformation.ipynb
-│   ├── 03_cross_sections.ipynb
-│   ├── 04_piv_analysis.ipynb
-│   ├── 05_discharge_calculation.ipynb
-│   ├── data
-│   ├── results
-│   └── utils
-├── gui
+RIVeR/
+├── river/                           # Python package (core algorithms + CLI)
+│   ├── core/
+│   │   ├── video_to_frames.py       # Video frame extraction
+│   │   ├── frames_to_frames.py      # Frame-folder import and resampling
+│   │   ├── stabilize_frames.py      # UAV frame stabilization (LK point tracking)
+│   │   ├── camera_calibration.py    # Intrinsic lens calibration from ChArUco images
+│   │   ├── coordinate_transform.py  # Pixel <-> real-world transformations
+│   │   ├── define_roi_masks.py      # ROI and mask definitions
+│   │   ├── compute_section.py       # Cross-section computation
+│   │   ├── image_preprocessing.py   # Image preparation tools
+│   │   ├── piv_fftmulti.py          # FFT-based PIV processing (LSPIV)
+│   │   ├── piv_loop.py              # PIV processing loop (LSPIV)
+│   │   ├── piv_pipeline.py          # Main PIV pipeline (LSPIV)
+│   │   ├── stiv_pipeline.py         # STIV pipeline
+│   │   ├── stiv_model/              # STIV network weights
+│   │   ├── iwave_params.py          # IWaVE parameter defaults
+│   │   ├── iwave_pipeline.py        # IWaVE pipeline
+│   │   ├── orchestrator.py          # Runs the selected techniques together
+│   │   ├── matlab_smoothn.py        # Smoothing algorithms
+│   │   └── exceptions.py            # Custom exceptions
+│   ├── cli/                         # river-cli entry point
+│   │   └── commands/                # One module per command
+│   └── docs/_static/                # README images and logo
+├── gui/                             # Electron + React desktop app
+│   ├── electron/                    # Main process and IPC handlers
+│   ├── src/                         # Renderer: pages, components, store, translations
+│   └── commons/                     # Types and helpers shared by both processes
+├── examples/                        # Jupyter notebooks (see below), with data/, results/, utils/
+├── tests/                           # pytest suite
+├── scripts/                         # Benchmarks and technique comparisons
+├── user-manual.md
+├── CHANGELOG.md
+├── CITATION.cff
+├── THIRD-PARTY-LICENSES.md
+├── sample_report.html
 ├── pyproject.toml
-├── readme.md
 ├── requirements.txt
-└── river
-    ├── cli
-    ├── core
-    │   ├── camera_calibration.py    # Intrinsic lens calibration from ChArUco images
-    │   ├── compute_section.py       # Section computation utilities
-    │   ├── coordinate_transform.py   # Coordinate system transformations
-    │   ├── define_roi_masks.py      # ROI and mask definitions
-    │   ├── exceptions.py            # Custom exceptions
-    │   ├── image_preprocessing.py   # Image preparation tools
-    │   ├── matlab_smoothn.py        # Smoothing algorithms
-    │   ├── piv_fftmulti.py         # FFT-based PIV processing
-    │   ├── piv_loop.py             # PIV processing loop
-    │   ├── piv_pipeline.py         # Main PIV pipeline
-    │   ├── stabilize_frames.py     # UAV frame stabilization via LK point tracking
-    │   └── video_to_frames.py      # Video frame extraction
-    └── docs
+├── LICENSE
+└── readme.md
 ```
+
 ---
 
 ## 📚 Jupyter Examples
@@ -323,7 +341,10 @@ pip install -e ".[examples]"
 - [Discharge Calculation](examples/05_discharge_calculation.ipynb)
 
 These interactive examples provide step-by-step guidance for common RIVeR workflows. To run them, make sure you've completed the development installation with the `examples` extra shown above.
-## 🔬 Citation
+
+---
+
+## 📝 Citation
 
 If you use RIVeR in your research, please cite:
 
@@ -358,15 +379,18 @@ iWave results, please also cite:
 }
 ```
 
+If you use **STIV** results, please also cite the model weights: https://doi.org/10.5281/zenodo.22050810
+
 See [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) for the licences of IWaVE and everything else
 RIVeR redistributes.
 
 ---
+
 ## 👥 Authors
 
 ### Core Team
-- **Antoine Patalano** - *Project Lead, Feature Development* - [UNC/ORUS]
-- **Leandro Massó** - *Feature Development* - [UNC/ORUS]
+- **Antoine Patalano** - *Project Lead, Feature Development* - UNC / ORUS
+- **Leandro Massó** - *Feature Development* - UNC / ORUS
 
 ### Development Team
 - **Nicolas Stefani** - *CLI & Backend Development*
@@ -382,6 +406,7 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 ---
 
 ## 📜 License
+
 RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-or-later).
 
 RIVeR redistributes third-party software inside its installers, including the
@@ -404,12 +429,12 @@ the source of a bundled third-party component, or a copy on physical media, writ
 
 ---
 
-## 💭Acknowledgments
+## 💭 Acknowledgments
+
 - Contributing organizations:
   - [UNC (National University of Córdoba)](https://www.unc.edu.ar/) - [Faculty of Exact, Physical and Natural Sciences](https://fcefyn.unc.edu.ar/)
   - [INA (National Institute of Water, Argentina)](https://www.argentina.gob.ar/ina)
   - [CONICET (National Scientific and Technical Research Council)](https://www.conicet.gov.ar/)
-
 
 - [WMO HydroHub](https://wmo.int/media/update/winner-of-wmo-hydrohub-innovation-call-latin-america-and-caribbean?book=21576): For funding the development of RIVeR 3 (2024-2025)
 - [PIVlab project](https://la.mathworks.com/matlabcentral/fileexchange/27659-pivlab-particle-image-velocimetry-piv-tool-with-gui): The pioneering PIV analysis tool that inspired aspects of RIVeR's development
