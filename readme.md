@@ -1,47 +1,10 @@
-
-# ⚠️ Experimental Branch — RIVeR with STIV & IWave
-
-This branch adds two new velocimetry techniques alongside RIVeR's original **LSPIV**:
-
-- **STIV** — a CNN-based Space-Time Image Velocimetry model, trained in-house.
-- **IWave** — a different velocimetry approach, developed by [dataforwater](https://github.com/dataforwater/iwave). Included here with credit to its original authors; not developed by the RIVeR team.
-
-This makes RIVeR the first software to offer all three techniques in one place.
-
-**Status:** Experimental. Not yet peer-reviewed or formally validated. Interfaces, outputs, and model performance may change before a stable release. Feedback is welcome via [Issues](https://github.com/oruscam/RIVeR/issues).
-
-## STIV model weights
-
-This branch includes STIV's code but not its trained weights, to keep the repo lean. Weights are hosted on Zenodo and downloaded automatically during the build (see `.github/scripts/download_stiv_weights.sh`).
-
-Manual download: https://zenodo.org/records/22050810
-DOI: https://doi.org/10.5281/zenodo.22050810
-
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22050810.svg)](https://doi.org/10.5281/zenodo.22050810)
-
-License and usage terms for the weights (separate from RIVeR's AGPLv3 license) are on the Zenodo record — research/non-commercial use, no redistribution, cite the DOI if used in published work.
-
-Without the weights file present, the STIV option will be unavailable (greyed out) in the app — see `river.core.stiv_pipeline.stiv_weights_available()`.
-
-## Citing this release
-
-- RIVeR software: use the DOI already referenced below (`10.1016/j.cageo.2017.07.009`)
-- STIV weights: https://doi.org/10.5281/zenodo.22050810
-- IWave: see [dataforwater/iwave](https://github.com/dataforwater/iwave) for their own citation guidance.
-
-## License
-
-RIVeR source code is licensed under **AGPLv3** (see LICENSE). STIV model weights are licensed separately — see the Zenodo record above.
-
----
-
 <div align="center">
   <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/river_logo.svg" width="350px">
   <br />
   <br />
 
   <p>
-    <strong>Modern LSPIV toolkit for water-surface velocity analysis and flow discharge measurements</strong>
+    <strong>Modern multi-technique toolkit (LSPIV, STIV and iWave) for water-surface velocity analysis and flow discharge measurements</strong>
 </div>
 
 [![Status](https://img.shields.io/badge/status-active-brightgreen)]()
@@ -56,13 +19,59 @@ RIVeR source code is licensed under **AGPLv3** (see LICENSE). STIV model weights
 
 # RIVeR: Rectification of Image Velocity Results
 
-**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for Large Scale Particle Image Velocimetry (**LSPIV**) distributed by [ORUS](https://orus.cam). Built with **Python** and **React**, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
+**RIVeR** (Rectification of Image Velocity Results) is a modern, open-source toolkit for water-surface velocimetry distributed by [ORUS](https://orus.cam). It offers three techniques in one place: Large Scale Particle Image Velocimetry (**LSPIV**), Space-Time Image Velocimetry (**STIV**) and image wave velocimetry (**iWave**). Built with **Python** and **React**, it provides a user-friendly interface for water-surface velocity analysis and flow discharge measurements in rivers and large-scale hydraulic models.
 
 
 <figure>
     <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/screenshot_results.png" width=500>
-    <p ><i>Example of RIVeR velocimetry analysis of river flow</i></p>
+    <p ><i>RIVeR 3.8 Results step: LSPIV, STIV and iWave discharge compared on one cross section</i></p>
 </figure>
+
+---
+
+## 🆕 What's new in 3.8
+
+RIVeR 3.8 brings the experimental multi-technique build of 3.7 to a regular release, with a redesigned interface. See the [changelog](CHANGELOG.md) for the full list.
+
+<p align="center">
+  <a href="https://youtu.be/Dge9oDnhd6c">
+    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/video_thumb.jpg" width="600" alt="Watch what's new in RIVeR 3.8.0 on YouTube">
+  </a>
+  <br />
+  <i>Watch what's new in 3.8.0 (YouTube)</i>
+</p>
+
+- **Three techniques side by side:** LSPIV, STIV and iWave, compared in one Results view. iWave parameters are chosen automatically and can be edited in Processing.
+- **Start from a folder of frames,** not only from a video, and reopen moved projects with a Locate button when an input is missing.
+- **Stations under the analysis mask are skipped** by STIV and iWave and listed in the report.
+- **Stabilization for oblique and IP camera footage,** plus a redesigned Control Points step for fixed stations that grades each point's reprojection error.
+- **New A4 report** with one block per cross section, its velocity and depth profile, and the calibration and parameter sheets.
+- **Redesigned interface** in dark, light and Dracula themes, in 12 languages.
+
+## The three techniques
+
+- **LSPIV:** RIVeR's original FFT-based particle image velocimetry.
+- **STIV:** a CNN-based Space-Time Image Velocimetry model, trained in-house, with a manual angle tuner in the STI viewer.
+- **iWave:** an image wave velocimetry approach developed by [dataforwater](https://github.com/dataforwater/iwave), included with credit to its original authors and not developed by the RIVeR team.
+
+STIV and iWave are new and not yet peer-reviewed or formally validated. Feedback is welcome via [Issues](https://github.com/oruscam/RIVeR/issues).
+
+### STIV model weights
+
+STIV's code is in this repository but its trained weights are not, to keep the repo lean. They are hosted on Zenodo and downloaded automatically during the build (see `.github/scripts/download_stiv_weights.sh`).
+
+Manual download: https://zenodo.org/records/22050810
+DOI: https://doi.org/10.5281/zenodo.22050810
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22050810.svg)](https://doi.org/10.5281/zenodo.22050810)
+
+The weights are licensed separately from RIVeR's AGPLv3 license: research and non-commercial use, no redistribution, and cite the DOI if used in published work. Without the weights file the STIV option is unavailable (greyed out) in the app, see `river.core.stiv_pipeline.stiv_weights_available()`.
+
+### Citing
+
+- RIVeR software: DOI `10.1016/j.cageo.2017.07.009`, see [Citation](#-citation)
+- STIV weights: https://doi.org/10.5281/zenodo.22050810
+- iWave: see [dataforwater/iwave](https://github.com/dataforwater/iwave) for their own citation guidance.
 
 ---
 
@@ -71,7 +80,7 @@ RIVeR is a specialized tool for applying Large Scale Particle Image Velocimetry 
 
 Originally developed in MATLAB in 2015 and well-received by the hydrology community, RIVeR has now been reimplemented in Python and JavaScript to improve accessibility, performance, and cross-platform compatibility.
 <figure>
-    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/oblique_rectification.gif" width=500>
+    <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/oblique_rectification.gif" width=700>
     <p><i>Demonstration of interactive oblique image rectification process in RIVeR</i></p>
 </figure>
 
@@ -88,21 +97,25 @@ please refer to the **[User Manual](user-manual.md)**.
 
 ## ✨ Key Features
 
+* Three velocimetry techniques in one place: LSPIV, STIV and iWave, compared side by side
 * Process footage from multiple sources:
   * UAV/drone aerial imagery
   * Oblique view camera (from riverbank)
   * Fixed station cameras (continous monitoring)
+* Start from a video or from a folder of frames
 * Drag-and-drop interface for quick video and data imports
 * Frame extraction from videos with customizable parameters
 * FFT-based PIV analysis with multi-pass support for increased accuracy
+* STIV with a CNN angle model and manual angle tuning, and iWave with automatic parameters
 * Interactive result visualization with customizable vector fields
 * Georeferencing and coordinate transformations
 * Multi Cross-sectional flow analysis
 * Camera calibration tool for lens distortion correction, with reusable camera/lens profiles
-* UAV video stabilization to counter camera shake before analysis
+* Video stabilization (UAV, oblique and IP camera) to counter camera shake before analysis
 * Automated beautiful report generation ([like this one !](https://oruscam.github.io/RIVeR/sample_report.html))
 * Multi-platform support (**Windows**, **macOS**, **Linux**)
 * Multi-units support (SI, imperial)
+* Dark, light and Dracula themes
 
 
 ---
@@ -243,7 +256,8 @@ Key GUI features include:
 - Visual cross-section creation
 - Real-time PIV analysis visualization
 - Camera calibration tool with reusable camera/lens profiles
-- UAV video stabilization with a sanity-check view
+- Video stabilization with a sanity-check view
+- LSPIV, STIV and iWave with a shared Results view
 - Result export capabilities
 
 For detailed information about installation, usage, and features of the GUI, please see the dedicated [GUI documentation](gui/README.md).

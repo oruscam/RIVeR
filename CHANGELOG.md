@@ -6,6 +6,100 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+# [3.8.0] - Unreleased
+
+## GUI
+
+### Added
+
+- Redesigned interface with a refreshed look across the dark, light and Dracula themes: new button, chip and segmented-control styles, a labelled and clickable step bar, and a Home screen with recent projects
+- Start a project from a folder of frames, with the range, step and resize rules of a video, an editable interval and a source-folder scrubber in the Video Range step
+- Open moved projects and projects with missing inputs: missing videos, bathymetries or frames folders show a card on their step with a Locate button
+- Automatic iWave parameters, editable in Processing as automatic or manual, with a toggle to include low-quality iWave stations in the discharge
+- Stations that fall under the analysis mask are skipped by STIV and iWave, and listed in Processing, Results and the report
+- Control Points redesign for fixed stations: choose the solve method on a switch, solve from the footer, and see each point's reprojection error graded in a sortable table
+- Stabilization for oblique and IP camera footage, with its check on a canvas view switch and on Control Points
+- Swap a cross section's left and right banks
+- Show or hide the section, STIV lines and vectors on the Processing canvas, and turn techniques on or off with switches
+- Drag magnifier for the Oblique and IP camera control points
+- Results: crosshair across the charts, a docked station tag you can pin, expandable technique rows with per-technique totals, and a velocity profile drawn with one encoding and a key
+- Processing readouts as a strip over the plot, with cursor tips and paired kx-w and ky-w iWave spectra
+- New report built on A4 pages: cover with total discharge, one block per cross section with its profile plot and station table, calibration and parameter sheets for each footage type, and a fixed light palette for export
+- Camera calibration opens on a Prepare screen and ends with a saved block in the report
+- Frames import and the new interface copy translated into all twelve languages
+
+### Changed
+
+- Technique colours are azure, orange and orchid in every theme
+- Masks, stabilization regions, section lines and pins share one overlay style, with pins leaning inward at the image border
+- Messages are split into mode hints, field errors, step alerts, toasts and in-app dialogs, replacing the old error, warning and info bars
+- Panels use one row layout, and Advanced settings is a labelled row that stays open between steps
+- Cases are kept in a RIVeR folder inside the chosen workspace folder
+- Displayed values show at most 2 decimals
+- Progress is shown as a number with a hairline or a top-edge bar instead of ring loaders
+- Motion respects the system's reduced-motion setting
+
+### Fixed
+
+- Quick status calls no longer kill a running analysis
+- A bathymetry import no longer overwrites another section's file, and a section with no profile draws no chart
+- Frame names whose digits cannot be read as integers, and frame files with `#`, `?` or `%` in their names, now load
+- Reports open for footage without a creation time
+- Each project loads its own PIV results
+
+## CLI
+
+### Added
+
+- `frames-info` and `frames-to-frames` commands for folders of frames
+- `iwave-defaults` command returning the automatic iWave parameters
+- `--iwave-*` options in `analyze-all` and `iwave-analyze`
+
+### Changed
+
+- iWave parameters are derived from the LSPIV and STIV results and from the full clip duration, and its optimizer is seeded so identical runs give identical results
+- Both iWave spectrum planes, the fit and the energy shares are written to the iWave sidecar
+
+
+# [3.7.0] - 2026-08-27
+
+Experimental build: the multi-technique GUI, published as a snapshot.
+
+## GUI
+
+### Added
+
+- STIV (space-time image velocimetry) as a second technique next to LSPIV, with a 3-seed angle model and a manual angle override and tuner in the STI viewer
+- iWave (spectral analysis) as a third technique, with a spectrum preview in Processing
+- Multi-technique Results view: computation zone pill row, per-technique eye toggles, per-section STIs with drag-to-pan, a shared velocity colour scale and an animated chevron velocity overlay
+- Multi-technique analysis progress in Processing, with a stage breadcrumb
+- STIV toggle greyed out when the model weights are missing
+
+### Changed
+
+- Reworked light theme and sharper image overlays
+- Station Number moved to Processing
+- GUI builds are marked as experimental
+
+### Fixed
+
+- Derived results not cleared when a cross section was edited
+- STIV data files (configs, weights) dropped from packaged builds
+
+## CLI
+
+### Added
+
+- `analyze-all` command running LSPIV, STIV and iWave from one orchestrator
+- STIV options and a cheap STIV weight-availability check
+- Cross-section statistics cache
+
+## Other
+
+- License compliance: AGPL text, third-party licences, citation file and source offer
+- CI publishes experimental snapshot builds and downloads the STIV weights from Zenodo
+
+
 # [3.6.0] - 2026-08-07
 
 ## GUI
