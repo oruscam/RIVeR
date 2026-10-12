@@ -213,3 +213,10 @@ snapshots/
 river/core/stiv_model/angle/*/best_model.pth
 river/core/stiv_model/sign/sign_model.pth
 angle.zip
+
+# Local tooling and promo work, not part of the product
+promo_video/
+.agents/
+skills-lock.json
+.impeccable/
+audit-output/
