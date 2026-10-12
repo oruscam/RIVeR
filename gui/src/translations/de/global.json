@@ -119,6 +119,7 @@
     "drawLine": "Linie zeichnen",
     "drawingLineWarning": "Linie wird gezeichnet",
     "modifyingLineWarning": "Linie wird geändert",
+    "carouselImages": "Bilder",
     "carouselStabilization": "Stabilisierungsprüfung",
     "Errors": {
       "required": "Alle Felder sind obligatorisch. Bitte überprüfen Sie das Formular für die Pixelgröße.",

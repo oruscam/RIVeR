@@ -63,23 +63,27 @@ describe('Source video info is read-only text under a quiet caption (rules 3, 7)
   });
 });
 
-describe('Stabilization is offered for oblique too, never for a fixed ipcam', () => {
-  const gated = [
-    ['components/Forms/FormVideo.tsx', /type !== 'ipcam' && <StabilizationRegions/],
-    ['pages/VideoRange.tsx', /stabilization && type !== 'ipcam'/],
-    ['hooks/useProjectSlice.ts', /type !== 'ipcam' && stabilization && stabilizationRegions\.length >= 2/],
-  ] as const;
+describe('Stabilization is offered for every footage type: UAV, oblique and ipcam', () => {
+  const files = ['components/Forms/FormVideo.tsx', 'pages/VideoRange.tsx', 'hooks/useProjectSlice.ts'];
 
-  it.each(gated)('%s', (file, pattern) => {
-    expect(read(file)).toMatch(pattern);
+  it.each(files)('%s has no footage-type gate on stabilization', (file) => {
+    expect(read(file)).not.toMatch(
+      /type (===|!==) '(uav|oblique|ipcam)'[^\n]*(stabiliz|Stabiliz)|stabilization && type (===|!==) '(uav|oblique|ipcam)'/
+    );
   });
 
-  it('no stabilization gate still says uav-only', () => {
-    for (const file of ['components/Forms/FormVideo.tsx', 'pages/VideoRange.tsx', 'hooks/useProjectSlice.ts']) {
-      expect(read(file)).not.toMatch(
-        /type === 'uav' (&&|\?)[^\n]*(stabiliz|Stabiliz)|stabilization && type === 'uav'/
-      );
-    }
+  it('the regions panel, the overlay and the extraction depend on the switch alone', () => {
+    expect(read(files[0])).toMatch(/^\s*<StabilizationRegions \/>/m);
+    expect(read(files[1])).toMatch(/const stabilizationOverlay = stabilization\s*\?/);
+    expect(read(files[2])).toMatch(
+      /const effectiveStabilization = stabilization && stabilizationRegions\.length >= 2/
+    );
+  });
+
+  it('the Control Points step can show the stabilization check, as Pixel Size does', () => {
+    const ipcam = read('pages/Ipcam.tsx');
+    expect(ipcam).toMatch(/<StabilizationViewControl/);
+    expect(ipcam).toMatch(/committedStabilization/);
   });
 });
 

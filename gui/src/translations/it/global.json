@@ -119,6 +119,7 @@
     "drawLine": "Disegna Linea",
     "drawingLineWarning": "Disegno della linea",
     "modifyingLineWarning": "Modifica della linea",
+    "carouselImages": "Immagini",
     "carouselStabilization": "Controllo stabilizzazione",
     "Errors": {
       "required": "Tutti i campi sono obbligatori. Controlla il modulo della Dimensione Pixel.",

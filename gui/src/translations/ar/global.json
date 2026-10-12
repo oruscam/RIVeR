@@ -119,6 +119,7 @@
     "drawLine": "رسم خط",
     "drawingLineWarning": "جارٍ رسم الخط",
     "modifyingLineWarning": "جارٍ تعديل الخط",
+    "carouselImages": "الصور",
     "carouselStabilization": "فحص التثبيت",
     "Errors": {
       "required": "جميع الحقول إلزامية. الرجاء مراجعة نموذج حجم البكسل.",

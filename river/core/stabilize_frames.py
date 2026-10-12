@@ -1,7 +1,7 @@
 """
 File Name:   stabilize_frames.py
 Project:     RIVeR - Rectification of Image Velocity Results
-Description: UAV frame stabilization via Lucas-Kanade point tracking and similarity transform.
+Description: Frame stabilization via Lucas-Kanade point tracking and similarity transform.
 Authors:     Antoine Patalano
 Institution: ORUS / UNC
 License:     AGPL-3.0-or-later

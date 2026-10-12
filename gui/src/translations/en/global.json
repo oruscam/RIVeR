@@ -119,6 +119,7 @@
     "drawLine": "Draw Line",
     "drawingLineWarning": "Drawing line",
     "modifyingLineWarning": "Modifying line",
+    "carouselImages": "Images",
     "carouselStabilization": "Stabilization check",
     "Errors": {
       "required": "All the fields are obligatory. Please check Pixel Size form.",

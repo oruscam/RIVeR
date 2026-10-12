@@ -119,6 +119,7 @@
     "drawLine": "선 그리기",
     "drawingLineWarning": "선 그리는 중",
     "modifyingLineWarning": "선 수정 중",
+    "carouselImages": "이미지",
     "carouselStabilization": "안정화 점검",
     "Errors": {
       "required": "모든 필드는 필수입니다. 픽셀 크기 양식을 확인해 주세요.",

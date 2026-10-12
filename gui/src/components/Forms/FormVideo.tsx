@@ -22,7 +22,7 @@ export const FormVideo = ({
   extraFields: boolean;
   currentFrame?: number;
 }) => {
-  const { onSetVideoParameters, video: videoData, type } = useProjectSlice();
+  const { onSetVideoParameters, video: videoData } = useProjectSlice();
   const { startTime, endTime, step } = videoData.parameters;
   const { startFrame, endFrame } = videoData.parameters;
 
@@ -299,10 +299,11 @@ export const FormVideo = ({
             </p>
           </div>
 
-          {/* Stabilization suits any moving camera, so UAV and oblique get it; a fixed ipcam never does.
+          {/* Every footage type gets stabilization: a UAV drifts, a handheld oblique camera shakes, and
+              a fixed ipcam still vibrates on its mast.
               Not gated on extraFields/Advanced: regions must stay visible whenever stabilization is on,
               and the on/off switch itself must always be reachable to turn it on. */}
-          {type !== 'ipcam' && <StabilizationRegions />}
+          <StabilizationRegions />
 
           <VideoMetadata
             intervalField={

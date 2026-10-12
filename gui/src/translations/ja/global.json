@@ -119,6 +119,7 @@
     "drawLine": "線を描く",
     "drawingLineWarning": "線を描画中",
     "modifyingLineWarning": "線を変更中",
+    "carouselImages": "画像",
     "carouselStabilization": "安定化チェック",
     "Errors": {
       "required": "すべてのフィールドは必須です。ピクセルサイズフォームを確認してください。",

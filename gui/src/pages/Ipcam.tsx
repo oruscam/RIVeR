@@ -1,10 +1,12 @@
 import { useWizard } from 'react-use-wizard';
 import { FormIpcam } from '../components/Forms/FormIpcam.tsx';
 import { Carousel, ModeHint, StepAlertList, Toast, FocusOverlay, WizardButtons } from '../components/index';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers/handleDragEvents.ts';
 import { useUiSlice } from '../hooks/useUiSlice.ts';
-import { useGlobalSlice, useIpcamSlice, useProjectIssues } from '../hooks/index';
+import { useDataSlice, useGlobalSlice, useIpcamSlice, useProjectIssues, useProjectSlice } from '../hooks/index';
+import { useFieldImage } from '../hooks/useFieldImage';
+import { StabilizationViewControl } from '../components/StabilizationViewControl';
 import { canSolve, solveMethodOf, SolveMethod } from '../helpers/ipcamSolve';
 import { useTranslation } from 'react-i18next';
 import { FormHeader } from '../components/Forms/Components/FormHeader.tsx';
@@ -24,6 +26,8 @@ export const Ipcam = () => {
     onGetCameraSolution,
   } = useIpcamSlice();
   const { isBackendWorking } = useGlobalSlice();
+  const { projectDirectory, video } = useProjectSlice();
+  const { images } = useDataSlice();
   const { onAddStepAlert, onClearStepAlert, onSetModeHint, onClearModeHint } = useUiSlice();
   const { t } = useTranslation();
   const { alerts, onAction } = useProjectIssues('ipcam');
@@ -31,6 +35,26 @@ export const Ipcam = () => {
 
   const [dragOver, setDragOver] = useState<boolean>(false);
   const [method, setMethod] = useState<SolveMethod>(() => solveMethodOf(cameraSolution?.mode));
+  const [showStabilization, setShowStabilization] = useState<boolean>(false);
+
+  let filePrefix = import.meta.env.VITE_FILE_PREFIX;
+  filePrefix = filePrefix === undefined ? '' : filePrefix;
+
+  // sanity_check.jpg is overwritten in place on every re-extraction, so bust the cache
+  // whenever a fresh set of frames arrives.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const sanityCheckCacheBust = useMemo(() => Date.now(), [images.paths]);
+  const sanityCheckPath = `${filePrefix}${projectDirectory}/sanity_check.jpg?t=${sanityCheckCacheBust}`;
+  const canToggleStabilization = video.parameters.committedStabilization;
+
+  // Undefined while the check is being painted with the theme's ramp: the
+  // canvas keeps the control image up for that instant.
+  const stabilizationSrc = useFieldImage(showStabilization ? sanityCheckPath : undefined);
+
+  // Picking a control image or a point is a request to see that image again.
+  useEffect(() => {
+    setShowStabilization(false);
+  }, [activeImage, activePoint]);
 
   const solveDisabled = points === null || isBackendWorking || !canSolve(method, selectedCounter);
 
@@ -92,12 +116,21 @@ export const Ipcam = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <ImageIpcam />
+        <ImageIpcam checkSrc={stabilizationSrc} showCheck={showStabilization} />
+        {canToggleStabilization && (
+          <StabilizationViewControl
+            showStabilization={showStabilization}
+            onSetShowStabilization={setShowStabilization}
+            baseLabel={t('PixelSize.carouselImages', { defaultValue: 'Images' })}
+          />
+        )}
         {importedImages !== null && (
           <Carousel
             images={importedImages}
             active={activeImage!}
             setActiveImage={onChangeActiveImage}
+            showMedian={showStabilization}
+            setShowMedian={setShowStabilization}
             mode="ipcam"
           />
         )}

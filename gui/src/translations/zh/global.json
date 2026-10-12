@@ -119,6 +119,7 @@
     "drawLine": "绘制线段",
     "drawingLineWarning": "正在绘制线段",
     "modifyingLineWarning": "正在修改线段",
+    "carouselImages": "图像",
     "carouselStabilization": "稳定检查",
     "Errors": {
       "required": "所有字段均为必填项，请检查像素尺寸表单。",
