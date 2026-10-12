@@ -12,7 +12,6 @@ import { AdvancedToggle } from '../components/AdvancedToggle';
 export const VideoRange = () => {
   const {
     video,
-    type,
     stabilizationActiveRegionIndex,
     onUpdateStabilizationRegion,
     onDeleteStabilizationRegion,
@@ -30,27 +29,25 @@ export const VideoRange = () => {
   const sourceFrames = useSourceFrames(isFrames && !videoMissing);
   const [currentFrame, setCurrentFrame] = useState(0);
 
-  // Stabilization applies to UAV and oblique footage (a moving or handheld camera); an ipcam is
-  // fixed. Guards against stale `stabilization: true` left over from switching footage mode.
-  const stabilizationOverlay =
-    stabilization && type !== 'ipcam'
-      ? ({ scale, position }: { scale: number; position: { x: number; y: number } }) => (
-          <StabilizationCanvas
-            videoWidth={videoWidth}
-            videoHeight={videoHeight}
-            regions={stabilizationRegions}
-            activeRegionIndex={stabilizationActiveRegionIndex}
-            onUpdateRegion={onUpdateStabilizationRegion}
-            onConfirm={() => onSetStabilizationActiveRegionIndex(null)}
-            onDelete={() => {
-              if (stabilizationActiveRegionIndex !== null)
-                onDeleteStabilizationRegion(stabilizationActiveRegionIndex);
-            }}
-            zoomScale={scale}
-            zoomPosition={position}
-          />
-        )
-      : undefined;
+  // Stabilization applies to every footage type: UAV, oblique and ipcam.
+  const stabilizationOverlay = stabilization
+    ? ({ scale, position }: { scale: number; position: { x: number; y: number } }) => (
+        <StabilizationCanvas
+          videoWidth={videoWidth}
+          videoHeight={videoHeight}
+          regions={stabilizationRegions}
+          activeRegionIndex={stabilizationActiveRegionIndex}
+          onUpdateRegion={onUpdateStabilizationRegion}
+          onConfirm={() => onSetStabilizationActiveRegionIndex(null)}
+          onDelete={() => {
+            if (stabilizationActiveRegionIndex !== null)
+              onDeleteStabilizationRegion(stabilizationActiveRegionIndex);
+          }}
+          zoomScale={scale}
+          zoomPosition={position}
+        />
+      )
+    : undefined;
 
   return (
     <div className="regular-page">

@@ -119,6 +119,7 @@
     "drawLine": "Нарисовать линию",
     "drawingLineWarning": "Рисование линии",
     "modifyingLineWarning": "Изменение линии",
+    "carouselImages": "Изображения",
     "carouselStabilization": "Проверка стабилизации",
     "Errors": {
       "required": "Все поля обязательны для заполнения. Пожалуйста, проверьте форму размера пикселя.",

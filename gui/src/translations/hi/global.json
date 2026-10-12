@@ -119,6 +119,7 @@
     "drawLine": "रेखा खींचें",
     "drawingLineWarning": "रेखा खींची जा रही है",
     "modifyingLineWarning": "रेखा संशोधित की जा रही है",
+    "carouselImages": "छवियाँ",
     "carouselStabilization": "स्थिरीकरण जांच",
     "Errors": {
       "required": "सभी फ़ील्ड अनिवार्य हैं। कृपया पिक्सेल आकार फ़ॉर्म जाँचें।",

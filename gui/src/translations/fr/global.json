@@ -119,6 +119,7 @@
     "drawLine": "Tracer une Ligne",
     "drawingLineWarning": "Dessin de la ligne",
     "modifyingLineWarning": "Modification de la ligne",
+    "carouselImages": "Images",
     "carouselStabilization": "Contrôle de stabilisation",
     "Errors": {
       "required": "Tous les champs sont obligatoires. Veuillez vérifier la Taille de Pixel.",
