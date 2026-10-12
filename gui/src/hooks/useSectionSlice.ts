@@ -41,6 +41,7 @@ import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS, UNIT_CONVERSIONS }
 import { CanvasPoint, FormPoint, onGetBathimetryTypes, Point } from '../types';
 import { Section, SectionData, Technique } from '../store/section/types';
 import { ResourceNotFoundError } from '../errors/errors';
+import { canSwapBanks, swapEnds } from '../helpers/swapSectionBanks';
 import { useTranslation } from 'react-i18next';
 import {
   transformPixelToRealWorld,
@@ -304,6 +305,35 @@ export const useSectionSlice = () => {
    * The active section is the section that is being modified by the user.
    * @param index | number - The index of the section to set as active.
    */
+
+  /**
+   * Exchanges the left and right banks of the active section, for a line drawn
+   * the wrong way round. Neither end moves; the stations and the bathymetry are
+   * laid out again from the new left bank.
+   */
+  const onSwapBanks = () => {
+    const { rwPoints, dirPoints, bathimetry, pixelSize } = sections[activeSection];
+    if (!canSwapBanks(dirPoints)) return;
+
+    // The orientation is part of the geometry every result was computed from,
+    // so the results go, exactly as when a pin is moved (see onSetDirPoints).
+    dispatch(setHasChanged({ value: true }));
+    dispatch(clearResults());
+
+    const swappedRw = swapEnds(rwPoints);
+    dispatch(setDirPoints(swapEnds(dirPoints)));
+    dispatch(setRealWorldPoints(swappedRw));
+
+    if (bathimetry.width) {
+      onUpdateSectionPoints(
+        swappedRw,
+        transformationMatrix,
+        pixelSize.rwLength,
+        bathimetry.width,
+        bathimetry.leftBank
+      );
+    }
+  };
 
   const onSetActiveSection = (index: number) => {
     dispatch(setActiveSection(index));
@@ -873,6 +903,7 @@ export const useSectionSlice = () => {
     onSetIsDraggingPoint,
     onSetRealWorld,
     onSetSections,
+    onSwapBanks,
     onUpdateSection,
   };
 };
