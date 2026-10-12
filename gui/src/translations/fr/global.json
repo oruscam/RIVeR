@@ -194,6 +194,7 @@
     "confirmMask": "Valider le masque",
     "deleteCancel": "Annuler",
     "deleteConfirm": "Supprimer la section",
+    "swapBanks": "Inverser rive gauche et rive droite",
     "deleteLastSection": "Impossible de supprimer la dernière section",
     "deleteMask": "Supprimer le masque",
     "exitMaskMode": "Quitter l'édition du masque",

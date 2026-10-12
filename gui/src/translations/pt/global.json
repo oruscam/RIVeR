@@ -194,6 +194,7 @@
     "confirmMask": "Confirmar máscara",
     "deleteCancel": "Cancelar",
     "deleteConfirm": "Excluir seção",
+    "swapBanks": "Trocar margem esquerda e direita",
     "deleteLastSection": "Não é possível excluir a última seção",
     "deleteMask": "Excluir máscara",
     "exitMaskMode": "Sair da edição de máscara",

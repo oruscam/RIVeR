@@ -5,6 +5,7 @@ import { EyeBtn } from '../CustomIcons/EyeBtn';
 import { Icons } from '../CustomIcons/Icons';
 import { useConfirmDialog } from '../../hooks/useConfirmDialog';
 import { scrollBehavior } from '../../helpers/motion';
+import { canSwapBanks } from '../../helpers/swapSectionBanks';
 
 interface Sections {
   setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -12,7 +13,8 @@ interface Sections {
 }
 
 export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
-  const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection } = useSectionSlice();
+  const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onSwapBanks } =
+    useSectionSlice();
   const { seeAll, onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();
   const [dialog, confirmDialog] = useConfirmDialog();
@@ -66,6 +68,15 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
     }
   };
 
+  // A line drawn from the right bank to the left has its points in the right
+  // places and its banks the wrong way round; this trades them without redrawing.
+  const canSwap = canSwapBanks(sections[activeSection]?.dirPoints ?? []);
+
+  const handleSwapBanks = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onSwapBanks();
+  };
+
   useEffect(() => {
     const element = document.getElementById('scroll-right');
     element?.scrollIntoView({ behavior: scrollBehavior() });
@@ -90,6 +101,18 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
                 }
               >
                 {Icons.Trash('currentColor')}
+              </button>
+            )}
+            {canEdit && (
+              <button
+                type="button"
+                className="ibtn ibtn-sm"
+                onClick={handleSwapBanks}
+                disabled={!canSwap}
+                title={t('CrossSections.swapBanks', { defaultValue: 'Swap left and right banks' })}
+                aria-label={t('CrossSections.swapBanks', { defaultValue: 'Swap left and right banks' })}
+              >
+                {Icons.Swap('currentColor')}
               </button>
             )}
           </div>

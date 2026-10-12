@@ -194,6 +194,7 @@
     "confirmMask": "确认掩膜",
     "deleteCancel": "取消",
     "deleteConfirm": "删除横断面",
+    "swapBanks": "交换左右岸",
     "deleteLastSection": "无法删除最后一个横断面",
     "deleteMask": "删除掩膜",
     "exitMaskMode": "退出掩膜编辑",

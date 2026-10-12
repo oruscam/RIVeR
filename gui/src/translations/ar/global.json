@@ -194,6 +194,7 @@
     "confirmMask": "تأكيد القناع",
     "deleteCancel": "إلغاء",
     "deleteConfirm": "حذف المقطع",
+    "swapBanks": "تبديل الضفة اليسرى واليمنى",
     "deleteLastSection": "لا يمكن حذف المقطع الأخير",
     "deleteMask": "حذف القناع",
     "exitMaskMode": "الخروج من تحرير القناع",

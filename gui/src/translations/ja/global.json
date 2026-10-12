@@ -194,6 +194,7 @@
     "confirmMask": "マスクを確定",
     "deleteCancel": "キャンセル",
     "deleteConfirm": "横断面を削除",
+    "swapBanks": "左岸と右岸を入れ替える",
     "deleteLastSection": "最後の横断面は削除できません",
     "deleteMask": "マスクを削除",
     "exitMaskMode": "マスクの編集を終了",

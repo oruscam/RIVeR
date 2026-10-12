@@ -194,6 +194,7 @@
     "confirmMask": "Confirm mask",
     "deleteCancel": "Cancel",
     "deleteConfirm": "Delete section",
+    "swapBanks": "Swap left and right banks",
     "deleteLastSection": "Can't delete the last section",
     "deleteMask": "Delete mask",
     "exitMaskMode": "Exit mask editing",

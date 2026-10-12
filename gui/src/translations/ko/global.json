@@ -194,6 +194,7 @@
     "confirmMask": "마스크 확정",
     "deleteCancel": "취소",
     "deleteConfirm": "횡단면 삭제",
+    "swapBanks": "좌안과 우안 바꾸기",
     "deleteLastSection": "마지막 횡단면은 삭제할 수 없습니다",
     "deleteMask": "마스크 삭제",
     "exitMaskMode": "마스크 편집 종료",
