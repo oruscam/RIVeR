@@ -37,3 +37,6 @@ river-cli.spec
 river-cli.exe
 
 ffmpeg
+# Playwright E2E
+e2e-results
+e2e-report

@@ -23,7 +23,9 @@
     "build-linux": "electron-builder --config electron-builder.json5 --linux",
     "clean": "rimraf dist dist-electron",
     "test": "jest",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watchAll",
+    "test:e2e": "playwright test",
+    "test:e2e:report": "playwright show-report e2e-report"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
@@ -51,6 +53,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "@types/d3": "^7.4.3",
     "@types/jest": "^30.0.0",
     "@types/react": "^18.2.64",
