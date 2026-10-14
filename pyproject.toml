@@ -144,3 +144,9 @@ push = true
 "gui/.env.example" = ["VITE_APP_VERSION={version}"]
 "gui/.env.development" = ["VITE_APP_VERSION={version}"]
 
+
+[tool.pytest.ini_options]
+markers = [
+    "realdata: needs real field data and reference results (opt-in with --realdata)",
+    "slow: takes several minutes",
+]
