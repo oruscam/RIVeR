@@ -21,6 +21,8 @@
     },
     "Version": {
       "experimental": "Build experimental.",
+      "latest": "Você está usando a versão mais recente.",
+      "update": "Uma nova versão está disponível: ",
       "source": "Software livre (AGPL-3.0) — código-fonte e licenças de terceiros"
     },
     "Settings": {

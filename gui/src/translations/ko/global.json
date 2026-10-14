@@ -21,6 +21,8 @@
     },
     "Version": {
       "experimental": "실험적 빌드.",
+      "latest": "최신 버전을 사용하고 있습니다.",
+      "update": "새 버전이 있습니다: ",
       "source": "자유 소프트웨어 (AGPL-3.0) — 소스 코드 및 제3자 라이선스"
     },
     "Settings": {

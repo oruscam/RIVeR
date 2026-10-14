@@ -119,6 +119,9 @@ jobs:
           # RIVeR's own licence and the third-party notice ship in the artifact.
           cp ../LICENSE ../THIRD-PARTY-LICENSES.md licenses/
 
+          # RIVeR's own licence and the third-party notice ship in the artifact.
+          cp ../LICENSE ../THIRD-PARTY-LICENSES.md licenses/
+
           # 3. Compile (ffmpeg is already in extraResources of electron-builder.json5)
           yarn build
           yarn build-linux

@@ -13,7 +13,7 @@ Licence texts ship inside the installers:
 |---|---|
 | Python components | `resources/river-cli/python/.../site-packages/<name>.dist-info/` |
 | Components without an upstream licence file, fonts, FFmpeg | `resources/licenses/` |
-| RIVeR itself | `resources/river-cli/python/.../site-packages/river_cli-*.dist-info/licenses/LICENSE` |
+| RIVeR itself | `resources/licenses/LICENSE`, and in `river_cli-*.dist-info/licenses/LICENSE` |
 
 ---
 
