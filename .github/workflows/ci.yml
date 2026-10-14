@@ -1,0 +1,79 @@
+name: CI
+
+# Runs tests and the GUI build on every PR targeting
+# develop/main and on every push to those branches. Each job is independent
+# so they run in parallel and report their own status in the PR checks.
+# Linters (ESLint, Ruff, tsc) are intentionally left for a follow-up PR.
+
+on:
+  pull_request:
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+# Cancel superseded runs of the same PR/branch to save minutes.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '20'   # project requires Node 18.18.0+
+  PYTHON_VERSION: '3.12'
+
+jobs:
+  jest:
+    name: Jest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: gui
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: gui/package-lock.json
+      - run: npm ci
+      - run: npm run test
+
+  gui-build:
+    name: GUI build
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: gui
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+          cache-dependency-path: gui/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  pytest:
+    name: Pytest
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      # STIV weights are gitignored; test_stiv_pipeline.py loads them from
+      # river/core/stiv_model/ (same script build.yml uses).
+      - run: .github/scripts/download_stiv_weights.sh
+      # CPU-only torch first: the default PyPI Linux wheel bundles several GB
+      # of CUDA libraries that tests never use (same trick as build.yml).
+      - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
+      - run: pip install -e ".[dev]"
+      - run: pytest
