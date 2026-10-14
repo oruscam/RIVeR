@@ -6,6 +6,7 @@ import pytest
 from click.testing import CliRunner
 
 from river.cli.__main__ import cli
+from tests.cli_helpers import make_runner
 
 
 def test_stabilize_without_regions_returns_error():
@@ -45,17 +46,17 @@ def test_stabilize_flag_calls_stabilize_frames(tmp_path):
 		mock_vtf.return_value = frames_dir / "0000000000.jpg"
 		mock_stab.return_value = mock_sanity
 
-		# mix_stderr=False: the command prints progress ("Extracting frames...")
-		# to stderr and its JSON response to stdout: result.output must be pure
+		# make_runner(): the command prints progress ("Extracting frames...")
+		# to stderr and its JSON response to stdout: result.stdout must be pure
 		# JSON here, so the two streams can't be merged as CliRunner does by
 		# default.
-		runner = CliRunner(mix_stderr=False)
+		runner = make_runner()
 		result = runner.invoke(cli, [
 			"video-to-frames", str(video_path), str(frames_dir),
 			"--stabilize", "--stabilization-regions", str(regions_path),
 		])
 
-	response = json.loads(result.output)
+	response = json.loads(result.stdout)
 	assert response["error"] == {}
 
 	expected_stabilized_dir = frames_dir.parent / (frames_dir.name + "_stabilized")
@@ -75,12 +76,12 @@ def test_no_stabilize_flag_does_not_call_stabilize_frames(tmp_path):
 		 patch("river.cli.commands.video_to_frames.stabilize_frames") as mock_stab:
 		mock_vtf.return_value = frames_dir / "0000000000.jpg"
 
-		# See the mix_stderr=False comment in test_stabilize_flag_calls_stabilize_frames above.
-		runner = CliRunner(mix_stderr=False)
+		# See the make_runner() comment in test_stabilize_flag_calls_stabilize_frames above.
+		runner = make_runner()
 		result = runner.invoke(cli, [
 			"video-to-frames", str(video_path), str(frames_dir),
 		])
 
 	mock_stab.assert_not_called()
-	response = json.loads(result.output)
+	response = json.loads(result.stdout)
 	assert "stabilized_dir" not in response.get("data", {})
