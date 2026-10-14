@@ -80,3 +80,16 @@ if not _real_import_ok("tablib"):
 	tablib_mod = types.ModuleType("tablib")
 	tablib_mod.Dataset = object
 	sys.modules["tablib"] = tablib_mod
+
+
+# ---------------------------------------------------------------------------
+# Reset scipy.fft backend at session end
+# river.core.piv_fftmulti installs pyfftw as scipy.fft's global backend at
+# import time. If pyfftw is still active at interpreter shutdown, the process
+# aborts with "_Py_GetConfig ... the GIL is released" (exit 134) even though
+# every test passed.
+# ---------------------------------------------------------------------------
+def pytest_sessionfinish(session, exitstatus):
+	fft = sys.modules.get("scipy.fft")
+	if fft is not None:
+		fft.set_global_backend("scipy")
