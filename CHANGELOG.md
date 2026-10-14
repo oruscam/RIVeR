@@ -6,6 +6,46 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+# [3.7.0] - 2026-10-14
+
+> Experimental GUI build. STIV and iWave are new techniques and may change.
+
+## GUI
+
+### Added
+
+- STIV (Space-Time Image Velocimetry) analysis with an embedded STI builder and angle/sign inference (3-seed `Wide5BlockAA` ensemble)
+- STIV manual angle override / tuner in the STI viewer
+- iWave spectral analysis, with a spectrum preview in Processing
+- Multi-technique Results view: computation zone pill row, per-section STIs, technique eye toggles, shared velocity colour scale, drag-to-pan and ROI Height wiring
+- Animated chevron velocity overlay and unified readouts in Results
+- Multi-technique progress indicator in Processing (stage breadcrumb, translated)
+- STIV toggle is greyed out when the model weights are not available
+
+### Changed
+
+- Reworked light theme and sharper image overlays
+- Station Number moved to Processing
+- LSPIV fusion removed from the STIV pipeline
+
+### Fixed
+
+- Derived results are now cleared when a cross-section is edited
+- STIV data files (configs, weights) being dropped from packaged builds
+
+## CLI
+
+### Added
+
+- STIV and iWave analysis flags, plus an analyze-all command that runs every technique
+- Lightweight check for STIV weight availability
+
+## Other
+
+- License compliance: AGPL text, third-party licences, citation file and source offer
+- Experimental snapshot builds in CI, with STIV weights downloaded from Zenodo
+
+
 # [3.6.0] - 2026-08-07
 
 ## GUI
