@@ -1,5 +1,6 @@
 import json
 from io import TextIOWrapper
+from pathlib import Path
 
 import click
 
@@ -51,11 +52,14 @@ def update_xsection(
 	    dict: Containing the updated xsections.
 	"""
 
+	stats_cache_path = Path(xsections.name).parent / "_stats_cache.json"
+	stats_cache = json.loads(stats_cache_path.read_text()) if stats_cache_path.exists() else {}
+
 	xsections = json.loads(xsections.read())
 	piv_results = json.loads(piv_results.read())
 	transformation_matrix = json.loads(transformation_matrix.read())
 
-	return update_current_x_section(
+	result = update_current_x_section(
 		xsections,
 		piv_results,
 		transformation_matrix,
@@ -66,4 +70,9 @@ def update_xsection(
 		artificial_seeding,
 		alpha,
 		num_stations,
+		stats_cache=stats_cache,
 	)
+
+	stats_cache_path.write_text(json.dumps(stats_cache))
+
+	return result

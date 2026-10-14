@@ -352,7 +352,9 @@ describe('getBathimetry — non-CSV source is always rewritten as CSV', () => {
   });
 
   it('does not rewrite an already-clean CSV that needs no changes', async () => {
-    (fs.readFileSync as jest.Mock).mockReturnValue('0,10\n5,4\n10,1\n15,4\n20,10');
+    // Must carry a header row: the Python backend always skips the first row, so a
+    // headerless file handed straight through would lose its first data point.
+    (fs.readFileSync as jest.Mock).mockReturnValue('station,stage\n0,10\n5,4\n10,1\n15,4\n20,10');
 
     const response = await trigger({ path: 'valid.csv', unitSistem: 'metric' });
 
@@ -360,5 +362,65 @@ describe('getBathimetry — non-CSV source is always rewritten as CSV', () => {
     expect(response.changed).toBe(false);
     expect(response.path).toBe('valid.csv');
     expect(fs.promises.writeFile).not.toHaveBeenCalled();
+  });
+});
+
+// river/core/compute_section.py's load_bathymetry() reads the profile with
+// `data.get_col(0)[1:]` — it unconditionally discards the first row as a header.
+// Any bathymetry file handed to the backend must therefore carry a header row, or
+// its first real data point (typically the left water edge) is silently eaten,
+// shrinking the cross-section and relocating every station.
+describe('getBathimetry — files handed to the Python backend always carry a header row', () => {
+  beforeAll(() => {
+    getBathimetry();
+  });
+
+  beforeEach(() => {
+    (validateFile as jest.Mock).mockReturnValue(true);
+    (fs.promises.writeFile as jest.Mock).mockClear();
+  });
+
+  const trigger = async (args: any) => {
+    // @ts-expect-error — test-only helper added to the electron mock
+    return await ipcMain._triggerGetBathimetry({}, args);
+  };
+
+  it('writes a header row and keeps every data point, including the first', async () => {
+    (utils.sheet_to_json as jest.Mock).mockReturnValue([
+      [0, 1.31],
+      [5, 0.86],
+      [24, 0],
+      [27, 1.31],
+    ]);
+
+    const response = await trigger({ path: 'valid.xlsx', unitSistem: 'metric' });
+    expect(response.error).toBeUndefined();
+
+    const written = (fs.promises.writeFile as jest.Mock).mock.calls[0][1] as string;
+    const rows = written.split('\n');
+
+    // First line must be a non-numeric header, so the backend's unconditional
+    // skip consumes it instead of a real station.
+    expect(Number.isNaN(parseFloat(rows[0].split(',')[0]))).toBe(true);
+    // Station 0 must survive as the first *data* row.
+    expect(rows[1]).toBe('0,1.31');
+    // All four points still present after the header.
+    expect(rows).toHaveLength(5);
+    expect(rows[4]).toBe('27,1.31');
+  });
+
+  it('rewrites an otherwise-clean CSV that has no header row', async () => {
+    // Nothing about the data needs fixing, but passing it through unchanged would
+    // let the backend eat station 0.
+    (fs.readFileSync as jest.Mock).mockReturnValue('0,10\n5,4\n10,1\n15,4\n20,10');
+
+    const response = await trigger({ path: 'valid.csv', unitSistem: 'metric' });
+
+    expect(response.error).toBeUndefined();
+    expect(response.path.endsWith('_modified.csv')).toBe(true);
+    expect(fs.promises.writeFile).toHaveBeenCalledTimes(1);
+
+    const written = (fs.promises.writeFile as jest.Mock).mock.calls[0][1] as string;
+    expect(written.split('\n')[1]).toBe('0,10');
   });
 });

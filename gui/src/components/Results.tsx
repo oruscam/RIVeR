@@ -11,16 +11,14 @@ const createInitialState = (sections: Section[]) => {
   sections.forEach((section) => {
     if (section.data) {
       const baseKey = section.name;
-      const { alpha, numStations, interpolated, artificialSeeding } = section;
+      const { alpha, interpolated } = section;
       const { showPercentile, showVelocityStd } = section.data;
       defaultValues = {
         ...defaultValues,
         [`${baseKey}_ALPHA`]: alpha,
-        [`${baseKey}_STATIONS_NUMBER`]: numStations,
         [`${baseKey}_SHOW_VELOCITY_STD`]: showVelocityStd ? ['on'] : ['off'],
         [`${baseKey}_SHOW_PERCENTILE`]: showPercentile ? ['on'] : ['off'],
         [`${baseKey}_INTERPOLATED_PROFILE`]: interpolated ? ['on'] : ['off'],
-        [`${baseKey}_ARTIFICIAL_SEEDING`]: artificialSeeding,
       };
     }
   });

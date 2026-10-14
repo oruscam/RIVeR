@@ -9,7 +9,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "river-cli"
-version = "3.6.0"
+version = "3.7.0"
 description = "A CLI application for Large Scale Particle Image Velocimetry (LSPIV)."
 readme = "readme.md"
 authors = [
@@ -25,7 +25,15 @@ dependencies = [
     "tqdm >= 4.67.0",
     "numba == 0.60.0",
     "tablib[xlsx,xls,ods] == 3.8.0",
-    "pyfftw == 0.15.0"
+    "pyfftw == 0.15.0",
+    "torch >= 2.0.0",
+    # Pinned to a tested range: river/core/iwave_pipeline.py calls IWaVE's
+    # internal modules (spectral, window, optimise) rather than the public
+    # Iwave class, so a minor release can change those signatures without
+    # notice. Re-test before widening. See THIRD-PARTY-LICENSES.md.
+    "iwave >= 0.4.0, < 0.5",
+    "numexpr",
+    "rocket-fft"
 ]
 license = "AGPL-3.0-or-later"
 classifiers = [
@@ -43,11 +51,30 @@ Homepage = "https://github.com/aPatal/RIVeR/"
 river-cli = "river.cli.__main__:cli"
 
 [project.optional-dependencies]
-dev = ["ruff", "bumpver", "pytest"]
+dev = ["ruff", "bumpver", "pytest", "pytest-timeout"]
 examples = ["pandas", "jupyter", "ipykernel"]
 
 [tool.setuptools]
-packages = ["river", "river.core", 'river.cli', 'river.cli.commands']
+packages = ["river", "river.core", "river.cli", "river.cli.commands", "river.core.stiv_model"]
+
+# river.core.stiv_model ships its model config/metadata (and, when present, the
+# downloaded weight files — see .github/workflows/build.yml) as data alongside
+# its .py files. Without this, `pip install` silently drops everything but the
+# .py files: STIV would fail at runtime in every packaged build, weights or
+# not, because load_models() also needs these JSON files to construct the
+# model before it ever gets to torch.load() on the weights.
+[tool.setuptools.package-data]
+"river.core.stiv_model" = [
+    "*.md",
+    "angle/seed1/*.json",
+    "angle/seed1/*.pth",
+    "angle/seed2/*.json",
+    "angle/seed2/*.pth",
+    "angle/seed3/*.json",
+    "angle/seed3/*.pth",
+    "sign/*.json",
+    "sign/*.pth",
+]
 
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
@@ -102,7 +129,7 @@ docstring-code-format = false
 docstring-code-line-length = "dynamic"
 
 [tool.bumpver]
-current_version = "3.6.0"
+current_version = "3.7.0"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message = "bump version {old_version} -> {new_version}"
 commit = true

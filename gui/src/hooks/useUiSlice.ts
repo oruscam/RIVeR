@@ -18,6 +18,8 @@ import {
   setLanguage,
   setIsLastVersion,
   setMessage,
+  setHoveredStation,
+  setShowInterrogationWindow,
 } from '../store/ui/uiSlice';
 import { ThemeType } from '../store/ui/types';
 import { RootState } from '../store/store';
@@ -40,6 +42,8 @@ export const useUiSlice = () => {
     language,
     isLatestVersion,
     latestVersion,
+    hoveredStation,
+    showInterrogationWindow,
   } = useSelector((state: RootState) => state.ui);
   const dispatch = useDispatch();
 
@@ -186,6 +190,24 @@ export const useUiSlice = () => {
     dispatch(setLanguage(language));
   };
 
+  /**
+   * Shared hover-station bridge between the Results table (Grid.tsx) and the charts
+   * (AllInOne.tsx/velocitySvg.ts) — hovering a row highlights the same station on the
+   * charts and vice versa. Lives in Redux rather than React Context, matching how every
+   * other piece of shared UI state in this app already works.
+   */
+  const onSetHoveredStation = (index: number | null) => {
+    dispatch(setHoveredStation(index));
+  };
+
+  /**
+   * Method to toggle the interrogation-window size preview on the Processing
+   * image. Off by default (see uiSlice initial state).
+   */
+  const onSetShowInterrogationWindow = (value: boolean) => {
+    dispatch(setShowInterrogationWindow(value));
+  };
+
   const onCheckVersion = () => {
     // If isLatestVersion is already set, do not fetch the latest version
     if (isLatestVersion !== undefined) return;
@@ -222,6 +244,8 @@ export const useUiSlice = () => {
     language,
     isLatestVersion,
     latestVersion,
+    hoveredStation,
+    showInterrogationWindow,
 
     // METHODS
     onChangeTheme,
@@ -235,5 +259,7 @@ export const useUiSlice = () => {
     onSetScreen,
     onSetLanguage,
     onCheckVersion,
+    onSetHoveredStation,
+    onSetShowInterrogationWindow,
   };
 };

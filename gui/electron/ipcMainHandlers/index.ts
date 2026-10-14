@@ -11,14 +11,19 @@ import { getQuiver } from './getQuiver';
 import { getVideo } from './getVideo';
 import { getBathimetry } from './getBathimetry';
 import { calculate3dRectification } from './calculate3dRectification';
+import { checkStivWeights } from './checkStivWeights';
 import { getIpcamImages } from './getIpcamImages';
+import { getIwaveSpectra } from './getIwaveSpectra';
 import { getPoints } from './getPoints';
 import { getDistances } from './getDistances';
 import { saveTransformationMatrix } from './saveTransformationMatrix';
 import { setControlPoints } from './setControlPoints';
 import { setProjectMetadata } from './setProjectMetadata';
+import { setStivManualAngles } from './setStivManualAngles';
 import { createMaskAndBbox } from './createMaskAndBbox';
 import { getResultData } from './getResultData';
+import { getStis } from './getStis';
+import { loadResults } from './loadResults';
 import { recommendRoiHeight } from './recommendRoiHeight';
 import { saveReportHtml } from './saveReportHtml';
 import { getGif } from './getGif';
@@ -28,6 +33,7 @@ import { cameraCalibration } from './cameraCalibration';
 export {
   cameraCalibration,
   calculate3dRectification,
+  checkStivWeights,
   createFolderStructure,
   createMaskAndBbox,
   firstFrame,
@@ -36,12 +42,15 @@ export {
   getGif,
   getImages,
   getIpcamImages,
+  getIwaveSpectra,
   getPoints,
   getQuiver,
   getResultData,
+  getStis,
   getVideo,
   initProject,
   loadProject,
+  loadResults,
   pixelToRealWorld,
   realWorldToPixel,
   recommendRoiHeight,
@@ -52,4 +61,5 @@ export {
   setPixelSize,
   setProjectMetadata,
   setSections,
+  setStivManualAngles,
 };

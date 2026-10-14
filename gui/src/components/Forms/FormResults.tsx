@@ -1,10 +1,14 @@
+import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
-import { useAutoShrinkFont, useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useDataSlice, useProjectSlice, useSectionSlice } from '../../hooks';
 import { AllInOne } from '../Graphs/AllInOne';
+import { TechniqueLegend } from '../Graphs/TechniqueLegend';
 import { Grid } from '../index';
 import { useTranslation } from 'react-i18next';
-import { LuWand2 } from 'react-icons/lu';
+import { LuSpline } from 'react-icons/lu';
 import { UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
+import { getEffectiveTechniqueData } from '../../helpers';
+import '../CustomIcons/piv-icons.css';
 
 interface FormResultProps {
   onSubmit: (data: React.SyntheticEvent<HTMLFormElement, Event>) => void;
@@ -14,41 +18,45 @@ interface FormResultProps {
 export const FormResults = ({ onSubmit, index }: FormResultProps) => {
   const { register, setValue } = useFormContext();
   const { sections, activeSection, onUpdateSection } = useSectionSlice();
-  const { name, data, numStations, alpha, artificialSeeding } = sections[activeSection];
+  const { name, data, alpha, artificialSeeding, activeTechnique, interpolated } = sections[activeSection];
   const { isBackendWorking } = useDataSlice();
-  const { onSetErrorMessage } = useUiSlice();
-  const { projectDetails } = useProjectSlice();
+  const { projectDetails, video } = useProjectSlice();
 
   const { t } = useTranslation();
 
-  // All sections mount together and the inactive ones are hidden via a parent
-  // display:none — re-fit once this section actually becomes the visible one.
-  const isActiveSection = activeSection === index;
-  const stationNumberLabelRef = useAutoShrinkFont<HTMLLabelElement>([t, isActiveSection]);
+  const chartContainerRef = useRef<HTMLDivElement>(null);
+  const [chartWidth, setChartWidth] = useState<number | undefined>(undefined);
+
+  useEffect(() => {
+    const el = chartContainerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        setChartWidth(entry.contentRect.width);
+      }
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const isImperial = projectDetails.unitSistem === 'imperial';
   const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
+
+  const effective = data
+    ? getEffectiveTechniqueData(data, activeTechnique, {
+        interpolated,
+        artificialSeeding,
+        alpha,
+        step: video.parameters.step,
+        fps: video.data.fps,
+      })
+    : null;
   const displayQ =
-    data?.total_Q != null
+    effective?.total_Q != null
       ? isImperial
-        ? (data.total_Q * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(3)
-        : data.total_Q.toFixed(2)
+        ? (effective.total_Q * UNIT_CONVERSIONS.M3_TO_FT3).toFixed(2)
+        : effective.total_Q.toFixed(2)
       : null;
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const id = e.target.id;
-    if (id === 'artificial-seeding') {
-      onUpdateSection({ artificialSeeding: 'artificial-seeding' }, undefined);
-    }
-  };
-
-  const handleStep = (delta: number) => {
-    const next = numStations + delta;
-    if (next >= 3) {
-      onUpdateSection({ numStations: next }, undefined);
-      setValue(`${name}_STATIONS_NUMBER`, next);
-    }
-  };
 
   const handleOnChangeInput = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
@@ -58,25 +66,12 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
       const value = parseFloat((event.target as HTMLInputElement).value);
       const id = (event.target as HTMLInputElement).id;
       switch (id) {
-        case 'stations-number':
-          if (isNaN(value) === false && value >= 3) {
-            if (value !== numStations) {
-              onUpdateSection({ numStations: value }, undefined);
-            }
-          } else {
-            setValue(`${name}_STATIONS_NUMBER`, numStations);
-            if (typeof value === 'number') {
-              onSetErrorMessage('The number of stations must be greater than 2');
-            }
-          }
-          break;
         case 'alpha':
           if (value !== 0 && value !== alpha && isNaN(value) === false) {
             onUpdateSection({ alpha: value }, undefined);
           } else {
             setValue(`${name}_ALPHA`, alpha);
           }
-          onUpdateSection({ alpha: value }, undefined);
           break;
 
         default:
@@ -85,86 +80,84 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
     }
   };
 
+  const handleInterpolateToggle = () => {
+    onUpdateSection({ interpolated: 'interpolated' }, undefined);
+  };
+
+  const activeTechniqueLabel =
+    activeTechnique === 'lspiv' ? 'LSPIV' : activeTechnique === 'stiv' ? 'STIV' : 'iWave';
+  const hasGaps = effective?.hasGaps ?? false;
+
   return (
     <div id="form-section-div" className={activeSection !== index ? 'hidden' : 'wrapper'}>
       <form className={`${isBackendWorking ? 'disabled' : ''}`} onSubmit={onSubmit} id="form-result">
+        {/* ZONE A — RESULT */}
         <div id="result-info">
-          <p id="result-number">
-            {displayQ} <span style={{ fontSize: '0.45em', opacity: 0.7 }}>{flowUnit}</span>
-          </p>
-          <div>
-            <p id="result-measured">
-              {' '}
-              {((data?.measured_Q ?? 0) * 100).toFixed(1)}% {t('Results.measured')}
+          <button
+            type="button"
+            className={hasGaps ? `ib${interpolated ? ' active' : ''}` : 'ib ib-off'}
+            title={
+              hasGaps
+                ? t('Results.interpolateProfile')
+                : t('Results.interpolateProfileDisabled', { technique: activeTechniqueLabel })
+            }
+            aria-label={
+              hasGaps
+                ? t('Results.interpolateProfile')
+                : t('Results.interpolateProfileDisabled', { technique: activeTechniqueLabel })
+            }
+            onClick={hasGaps ? handleInterpolateToggle : undefined}
+          >
+            <LuSpline size={20} />
+          </button>
+          <div className="result-value-row">
+            <p id="result-number">
+              {displayQ} <span style={{ fontSize: '0.45em', opacity: 0.7 }}>{flowUnit}</span>
             </p>
-            <p>
-              {' '}
-              {((data?.interpolated_Q ?? 0) * 100).toFixed(1)}% {t('Results.interpolated')}{' '}
-            </p>
+            <div>
+              <p id="result-measured">
+                {' '}
+                {((effective?.measured_Q ?? 0) * 100).toFixed(1)}% {t('Results.measured')}
+              </p>
+              <p>
+                {' '}
+                {((effective?.interpolated_Q ?? 0) * 100).toFixed(1)}% {t('Results.interpolated')}{' '}
+              </p>
+            </div>
           </div>
         </div>
 
-        <div className="input-container-2 mt-2">
-          <label className="read-only me-1" htmlFor="alpha">
-            {' '}
-            {t('Results.alpha')}{' '}
+        <span className="divider-line mt-2 mb-1" />
+
+        {/* ZONE B — COMPUTATION */}
+        <div className="pill-row">
+          <label className="pill-alpha-label" htmlFor="alpha">
+            α
           </label>
-          <div className="input-field-container">
-            <input
-              className="input-field"
-              id="alpha"
-              type="number"
-              step="any"
-              {...register(`${name}_ALPHA`)}
-              onKeyDown={handleOnChangeInput}
-              onBlur={handleOnChangeInput}
-            ></input>
-          </div>
+          <input
+            className="input-field-little"
+            id="alpha"
+            type="number"
+            step="any"
+            {...register(`${name}_ALPHA`)}
+            onKeyDown={handleOnChangeInput}
+            onBlur={handleOnChangeInput}
+          />
         </div>
 
-        <div className="input-container-2 mt-2">
-          <label ref={stationNumberLabelRef} className="read-only me-1" htmlFor="stations-number">
-            {t('Results.stationNumber')}
-          </label>
-          <div className="input-field-container" style={{ justifyContent: 'center', gap: '6px' }}>
-            <button type="button" className="btn-step" onClick={() => handleStep(-1)}>
-              −
-            </button>
-            <input
-              className="input-field-little"
-              type="number"
-              {...register(`${name}_STATIONS_NUMBER`)}
-              id="stations-number"
-              onKeyDown={handleOnChangeInput}
-              onBlur={handleOnChangeInput}
-            />
-            <button type="button" className="btn-step" onClick={() => handleStep(1)}>
-              +
-            </button>
-          </div>
+        <span className="divider-line mt-2 mb-1" />
+
+        {/* ZONE C — DISPLAY */}
+        <TechniqueLegend />
+
+        <div className="mt-1 all-in-one-container" ref={chartContainerRef} style={{ height: '720px' }}>
+          <AllInOne isReport={false} height={700} width={chartWidth} />
         </div>
 
-        <div className="mt-2 all-in-one-container" style={{ width: '100%', height: '720px' }}>
-          <AllInOne isReport={false} height={700} />
-        </div>
+        <span className="divider-line mt-2 mb-1" />
 
-        <div className="switch-container-results mt-2">
-          <h3 className="field-title" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-            <LuWand2 size={15} />
-            {t('Processing.artificialSeeding')}
-          </h3>
-          <label className="switch">
-            <input
-              type="checkbox"
-              {...register(`${name}_ARTIFICIAL_SEEDING`)}
-              id="artificial-seeding"
-              onChange={handleOnChange}
-              defaultChecked={artificialSeeding}
-            />
-            <span className="slider"></span>
-          </label>
-        </div>
-
+        {/* ZONE D — DATA */}
+        <h3 className="zone-title">{t('Results.data')}</h3>
         <Grid></Grid>
       </form>
     </div>

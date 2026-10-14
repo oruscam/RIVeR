@@ -25,6 +25,8 @@ import { ImageOblique } from './ImageOblique';
 import { DrawOblique } from './DrawOblique';
 import { ImageIpcam } from './ImageIpcam';
 import { DrawIpcam } from './DrawIpcam';
+import { IWaveViewer } from './IWaveViewer';
+import { StiAngleTuner } from './StiAngleTuner';
 
 export {
   Carousel,
@@ -39,6 +41,7 @@ export {
   FocusOverlay,
   Grid,
   Icon,
+  IWaveViewer,
   ImageIpcam,
   ImageOblique,
   ImageProcessing,
@@ -49,6 +52,7 @@ export {
   Loading,
   Progress,
   Results,
+  StiAngleTuner,
   SuccessBanner,
   ThemeToggle,
   VersionMessage,

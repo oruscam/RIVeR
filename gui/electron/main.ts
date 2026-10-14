@@ -9,6 +9,7 @@ const userDir = os.homedir();
 import { ProjectConfig } from './ipcMainHandlers/interfaces.js';
 import {
   cameraCalibration,
+  checkStivWeights,
   initProject,
   firstFrame,
   setPixelSize,
@@ -20,6 +21,7 @@ import {
   getBathimetry,
   calculate3dRectification,
   getIpcamImages,
+  getIwaveSpectra,
   getPoints,
   getDistances,
   saveTransformationMatrix,
@@ -27,10 +29,13 @@ import {
   setControlPoints,
   setProjectMetadata,
   getResultData,
+  getStis,
+  loadResults,
   createMaskAndBbox,
   recommendRoiHeight,
   getGif,
   setColorbarLimits,
+  setStivManualAngles,
 } from './ipcMainHandlers/index.js';
 import { executeRiverCli } from './ipcMainHandlers/utils/executeRiverCli.js';
 
@@ -210,6 +215,7 @@ app.whenReady().then(async () => {
 
   cameraCalibration(riverCli);
   calculate3dRectification(riverCli);
+  checkStivWeights(riverCli);
   createMaskAndBbox(riverCli);
   createWindow();
   firstFrame(riverCli);
@@ -218,16 +224,20 @@ app.whenReady().then(async () => {
   getGif();
   getImages();
   getIpcamImages();
+  getIwaveSpectra();
   getPoints();
   getQuiver(riverCli);
   getResultData(riverCli);
+  getStis();
   getVideo();
   initProject();
   loadProject();
+  loadResults();
   recommendRoiHeight(riverCli);
   saveReportHtml();
   saveTransformationMatrix();
   setColorbarLimits();
+  setStivManualAngles();
   setControlPoints(riverCli);
   setPixelSize(riverCli);
   setProjectMetadata();

@@ -263,15 +263,23 @@
 
 #result-info {
     display: flex;
-    align-self: flex-start;
-    margin-bottom: 30px;
-    padding-left: 60px;
+    align-items: center;
+    gap: 14px;
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0;
+}
+
+.result-value-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
 }
 
 #result-info #result-number {
     font-size: 2.2rem;
     font-weight: bold;
-    margin-right: 10px;
 }
 
 #result-measured {
@@ -350,41 +358,24 @@
 }
 
 /* Dracula theme: label text reflects toggle state (violet = on, muted = off) */
-[data-theme="dracula"] .switch-container p,
-[data-theme="dracula"] .switch-container-results p {
+[data-theme="dracula"] .switch-container p {
     color: var(--secondary-text-color);
     transition: color 0.2s ease;
 }
 
-[data-theme="dracula"] .switch-container:has(input:checked) p,
-[data-theme="dracula"] .switch-container-results:has(input:checked) p {
+[data-theme="dracula"] .switch-container:has(input:checked) p {
     color: var(--toggle-active-color);
 }
 
 /* Light theme: label text reflects toggle state (amber = on, muted = off) */
-[data-theme="light"] .switch-container p,
-[data-theme="light"] .switch-container-results p {
+[data-theme="light"] .switch-container p {
     color: var(--secondary-text-color);
     transition: color 0.2s ease;
 }
 
-[data-theme="light"] .switch-container:has(input:checked) p,
-[data-theme="light"] .switch-container-results:has(input:checked) p {
+[data-theme="light"] .switch-container:has(input:checked) p {
     color: var(--toggle-active-color);
 }
-
-.switch-container-results {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 65%;
-    margin-left: auto;
-    margin-right: auto;
-    padding: 6px 10px;
-    border-radius: 20px;
-    transition: background-color 0.15s ease;
-}
-
 
 .btn-step {
     width: 26px;
@@ -422,7 +413,10 @@
 .all-in-one-container {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #apply-changes {
@@ -614,10 +608,17 @@
 }
 
 .divider-line {
+    display: block;
     width: 100%;
     height: 1px;
     background-color: var(--border-color);
-    align-self: center;
+}
+
+#form-result .divider-line,
+#form-processing .divider-line {
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .mask-actions {
@@ -665,4 +666,111 @@
     width: 100%;
     max-width: none;
     flex: 1 1 auto;
+}
+
+/* =============================================================================
+   RESULTS PANEL — zone titles, alpha input, pill row.
+   ============================================================================= */
+.zone-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--secondary-text-color);
+    font-weight: 600;
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 8px;
+}
+
+.pill-alpha-label {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-text-color);
+}
+
+.pill-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 14px;
+    width: 96%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Same box as the Results module's .technique-row (Graphs/graphs.css) — padding,
+   corner radius, everything — so the two selectors read as one shared pattern. */
+.technique-row-processing {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background-color 0.14s ease;
+}
+
+.technique-row-processing:hover {
+    background-color: var(--on-hover);
+}
+
+/* Matches the Results module's TechniqueLegend: the inactive/active distinction is a
+   text colour swap, nothing more — see .technique-name / .technique-name-active in
+   Graphs/graphs.css. */
+.technique-row-processing .field-title {
+    flex: 1;
+    color: var(--secondary-text-color);
+}
+
+.technique-row-processing-active .field-title {
+    color: var(--primary-text-color);
+}
+
+/* STIV/iWave before their STI images or spectra exist yet — nothing to preview. */
+.technique-row-processing-disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.technique-row-processing-disabled:hover {
+    background-color: transparent;
+}
+
+/* STIV weights not present on disk (see stivAvailable in Processing.tsx) —
+   the whole row reads as inactive, not just the preview-click affordance,
+   since the toggle itself is disabled too. */
+.technique-row-processing-unavailable .field-title {
+    color: var(--secondary-text-color);
+    opacity: 0.6;
+}
+
+.technique-swatch-processing {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.technique-always {
+    font-size: 11px;
+    color: var(--secondary-text-color);
+}
+
+/* Eye/flag states for the Processing technique rows. The Results module's
+   .technique-eye-btn / .technique-seed-flag supply the base look; these add the
+   on/off states this panel needs without the native :disabled attribute, which
+   would suppress the title tooltips. */
+.technique-eye-btn.technique-eye-btn-on {
+    color: var(--accent-color);
+}
+
+.technique-eye-btn.technique-eye-btn-off {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+
+.technique-seed-flag.technique-flag-off {
+    opacity: 0.35;
+    cursor: not-allowed;
 }

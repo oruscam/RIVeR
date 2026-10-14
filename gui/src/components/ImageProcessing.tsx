@@ -5,14 +5,38 @@ import { WindowSizesNew } from './WindowSizesNew';
 import { Quiver } from './Quiver';
 import { DrawSectionsD3 } from './CrossSections/DrawSectionsD3';
 import { OverlaySvg } from './OverlaySvg';
+import { StationSearchLines } from './StationSearchLines';
 import { getQuiverValues, createColorMap, Normalize } from '../../commons/vectors';
+import { getStiColorScale } from '../helpers';
 import { FloatingPlot } from './FloatingPlot';
+import { StiViewer } from './StiViewer';
+import { IWaveViewer } from './IWaveViewer';
+import type { PreviewMode } from '../store/ui/types';
+import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
 
-export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: boolean; extraFields?: boolean }) => {
-  const { screenSizes } = useUiSlice();
+export const ImageProcessing = ({
+  showMedian,
+  extraFields,
+  previewMode = 'frames',
+  stiPaths,
+  stiStations,
+  spectrumPaths,
+  spectrumStations,
+  spectraSidecar,
+}: {
+  showMedian?: boolean;
+  extraFields?: boolean;
+  previewMode?: PreviewMode;
+  stiPaths?: string[];
+  stiStations?: number[];
+  spectrumPaths?: string[];
+  spectrumStations?: number[];
+  spectraSidecar?: IwaveSpectraSidecar | null;
+}) => {
+  const { screenSizes, showInterrogationWindow } = useUiSlice();
   const { video } = useProjectSlice();
   const { processing, images, quiver, fullQuiver, colorbarLimits } = useDataSlice();
-  const { transformationMatrix } = useSectionSlice();
+  const { transformationMatrix, sections, activeSection } = useSectionSlice();
   const {
     imageWidth: width,
     imageHeight: height,
@@ -96,6 +120,44 @@ export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: bool
 
   if (!width || !height || !factor) return null;
 
+  if (previewMode === 'sti') {
+    // Same bounds the STI's ticks, lines, and badge use, so the bar is a legend for
+    // exactly what is drawn. ColorBar writes through to the shared colorbarLimits,
+    // which is what makes manually locked limits apply to the PIV view too.
+    const { min: stiMin, max: stiMax } = getStiColorScale(
+      sections[activeSection]?.data?.stiv_velocity_profile,
+      colorbarLimits
+    );
+
+    return (
+      <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>
+        <StiViewer
+          stiPaths={stiPaths ?? []}
+          stiStations={stiStations ?? []}
+          activeStation={active}
+          containerWidth={realWidth!}
+          containerHeight={Math.max(0, realHeight! - 90)}
+        />
+        {stiMin !== null && stiMax !== null && <ColorBar min={stiMin} max={stiMax} />}
+      </div>
+    );
+  }
+
+  if (previewMode === 'iwave') {
+    return (
+      <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>
+        <IWaveViewer
+          spectrumPaths={spectrumPaths ?? []}
+          spectrumStations={spectrumStations ?? []}
+          sidecar={spectraSidecar ?? null}
+          activeStation={active}
+          containerWidth={realWidth!}
+          containerHeight={Math.max(0, realHeight! - 90)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div
       ref={containerRef}
@@ -111,7 +173,9 @@ export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: bool
         <img src={processing.maskPath} className="mask" draggable={false} />
       </div>
 
-      {data.length === 0 && activeMaskIndex === null && <WindowSizesNew width={realWidth!} height={realHeight!} />}
+      {data.length === 0 && activeMaskIndex === null && showInterrogationWindow && (
+        <WindowSizesNew width={realWidth!} height={realHeight!} />
+      )}
 
       {activeMaskIndex === null && (
         <OverlaySvg width={realWidth!} height={realHeight!} scale={scale} position={position}>
@@ -126,6 +190,7 @@ export const ImageProcessing = ({ showMedian, extraFields }: { showMedian?: bool
                 position={position}
                 layers={layers}
               />
+              <StationSearchLines factor={realFactor!} layers={layers} />
               <Quiver
                 width={realWidth!}
                 height={realHeight!}

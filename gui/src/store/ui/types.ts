@@ -16,6 +16,9 @@ interface ScreenSizes {
   factorReduced?: number;
 }
 
+/** Which per-technique preview the Processing left panel is showing. */
+type PreviewMode = 'frames' | 'sti' | 'iwave';
+
 interface UIState {
   screenSizes: ScreenSizes;
   theme: ThemeType;
@@ -28,6 +31,10 @@ interface UIState {
   language: string;
   isLatestVersion?: boolean;
   latestVersion?: string;
+  hoveredStation: number | null;
+  /** Interrogation-window size preview on the Processing image. Off by default —
+   *  it's a reference overlay, not something needed on every frame. */
+  showInterrogationWindow: boolean;
 }
 
-export type { ScreenSizes, UIState, ThemeType };
+export type { ScreenSizes, UIState, ThemeType, PreviewMode };

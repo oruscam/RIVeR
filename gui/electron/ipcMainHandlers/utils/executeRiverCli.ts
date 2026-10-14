@@ -2,6 +2,7 @@ import { app, ipcMain, webContents } from 'electron';
 import { ChildProcess, spawn } from 'child_process';
 import * as fs from 'fs';
 import { PROJECT_CONFIG } from '../../main';
+import { detectPhaseTransition } from './detectPhaseTransition';
 
 let python: ChildProcess;
 
@@ -29,6 +30,7 @@ async function executeRiverCli(
     let lastStderrMessage = '';
     let lastSentTime = 0;
     const THROTTLE_INTERVAL = 500; // 500ms = 2 mensajes por segundo
+    let lastDesc = '';
 
     python.stdout.on('data', (data) => {
       stdoutData += data.toString();
@@ -44,18 +46,19 @@ async function executeRiverCli(
 
       // Output con throttling
       if (output === true) {
-        // Phase-transition markers ("Extracting frames..." / "Stabilizing frames...")
-        // must always reach the renderer, even under throttling — with a long video
-        // a burst of frame-progress lines can otherwise overwrite this one-off line
-        // before the 500ms window opens, silently dropping the phase change.
-        const phaseLine = message
-          .split('\n')
-          .map((line: string) => line.trim())
-          .find((line: string) => line.startsWith('Extracting') || line.startsWith('Stabilizing'));
+        // Phase/stage-transition lines ("Extracting frames...", "Stabilizing frames...", the
+        // PIV:/STIV:/iWave: markers, and the first tqdm tick of a new stage) must always reach
+        // the renderer, even under throttling — with a long video or a multi-stage analyze-all
+        // run, a burst of progress lines can otherwise overwrite a one-off transition line
+        // before the 500ms window opens, silently dropping it.
+        const { phaseLines, desc } = detectPhaseTransition(message, lastDesc);
+        lastDesc = desc;
 
-        if (phaseLine) {
+        if (phaseLines.length > 0) {
           webContents.getAllWebContents().forEach((contents) => {
-            contents.send('river-cli-message', phaseLine);
+            phaseLines.forEach((phaseLine) => {
+              contents.send('river-cli-message', phaseLine);
+            });
           });
           lastSentTime = Date.now();
         } else {

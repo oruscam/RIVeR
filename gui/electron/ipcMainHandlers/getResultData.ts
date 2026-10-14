@@ -4,6 +4,7 @@ import { transformData } from './utils/transformCrossSectionsData';
 import { platform } from 'os';
 import { PROJECT_CONFIG } from '../main';
 import { RiverCli } from './interfaces';
+import { sanitizeNonStandardJsonTokens } from './utils/sanitizeJson';
 
 let encoding: BufferEncoding = 'utf-8';
 
@@ -33,7 +34,7 @@ async function getResultData(riverCli: RiverCli) {
     const logsPath = PROJECT_CONFIG.logsPath;
 
     const xSectionsFile = await fs.promises.readFile(xSections, { encoding: encoding });
-    const xSectionsFileParsed = JSON.parse(xSectionsFile);
+    const xSectionsFileParsed = JSON.parse(sanitizeNonStandardJsonTokens(xSectionsFile));
 
     if (!arraysAreEqual(xSectionsFileParsed[name].check, activeCheck)) {
       xSectionsFileParsed[name].check = activeCheck;
@@ -94,7 +95,7 @@ async function getResultData(riverCli: RiverCli) {
     const logsPath = PROJECT_CONFIG.logsPath;
 
     const xSectionsFile = await fs.promises.readFile(xSections, { encoding: encoding });
-    const xSectionsFileParsed = JSON.parse(xSectionsFile);
+    const xSectionsFileParsed = JSON.parse(sanitizeNonStandardJsonTokens(xSectionsFile));
 
     for (const sectionKey in xSectionsFileParsed) {
       if (sectionKey === 'summary') continue;
@@ -107,7 +108,7 @@ async function getResultData(riverCli: RiverCli) {
 
     let updatedSections = {};
 
-    const { step, fps, numSections } = args;
+    const { step, fps, numSections, numStationsList } = args;
 
     let finalData = null;
     let finalError = null;
@@ -121,6 +122,8 @@ async function getResultData(riverCli: RiverCli) {
         parseFloat(fps),
         '--id-section',
         i,
+        '--num-stations',
+        numStationsList[i],
         '--interpolate',
         xSections,
         pivResults,

@@ -3,10 +3,9 @@
 RIVeR is distributed under the GNU Affero General Public License v3.0 or later.
 See [`LICENSE`](LICENSE). Copyright (C) 2024 ORUS/UNC.
 
-RIVeR bundles and redistributes third-party software inside its installers. This file lists that
-software, its licence and its copyright holders. Nothing here grants or restricts rights beyond what the
-listed licences already say. Where a component is dual-licensed, the licence RIVeR elects is stated
-explicitly.
+RIVeR bundles and redistributes third-party software. This file lists that software, its licence and its
+copyright holders. Nothing here grants or restricts rights beyond what the listed licences already say.
+Where a component is dual-licensed, the licence RIVeR elects is stated explicitly.
 
 Licence texts ship inside the installers:
 
@@ -18,38 +17,97 @@ Licence texts ship inside the installers:
 
 ---
 
+## Velocimetry method — IWaVE
+
+RIVeR's **iWave** technique is an integration of the IWaVE package. IWaVE is redistributed
+**unmodified**, exactly as published on PyPI. No IWaVE source is vendored into this repository and no
+IWaVE file is patched.
+
+- **Package:** `iwave` — IWaVE: Image-based Wave Velocimetry Estimation
+- **Version bundled:** 0.4.0
+- **Upstream:** https://github.com/DataForWater/IWaVE
+- **Copyright:**
+
+  ```
+  Copyright (c) 2024 Giulio Dolcetti, Salvador Peña-Haro, Hessel Winsemius
+  ```
+
+- **Licence text:** `resources/licenses/MIT-iwave.txt`, and as shipped by upstream in
+  `iwave-0.4.0.dist-info/licenses/LICENSE`
+
+### A note on IWaVE's licence
+
+Upstream IWaVE 0.4.0 declares two different licences, and both statements are live as of 2026-08-05:
+
+- the `LICENSE` file — in the GitHub repository and inside the PyPI wheel — is the **MIT** licence;
+- the PyPI package metadata carries the classifier
+  `License :: OSI Approved :: GNU Affero General Public License v3`.
+
+RIVeR does not attempt to resolve this. Instead **RIVeR satisfies both readings at once**:
+
+- the MIT reading is satisfied because the MIT text and its copyright notice are reproduced above and
+  shipped with every copy (MIT's only condition);
+- the AGPL reading is satisfied because RIVeR is itself AGPL-3.0-or-later, redistributes IWaVE
+  unmodified, and makes the corresponding-source offer below available to every recipient.
+
+No further action is required of anyone receiving RIVeR. A clarification has been requested upstream.
+
+### Method citation
+
+The iWave technique implements the method of:
+
+> Dolcetti, G., Hortobágyi, B., Perks, M., Tait, S. J., & Dervilis, N. (2022).
+> Using Noncontact Measurement of Water Surface Dynamics to Estimate River Discharge.
+> *Water Resources Research*, 58(9), e2022WR032829. https://doi.org/10.1029/2022WR032829
+
+RIVeR is not affiliated with, nor endorsed by, the IWaVE authors or the DataForWater organisation.
+"IWaVE" is used descriptively to identify the method and the package RIVeR depends on.
+
+---
+
 ## Python components
 
-Bundled inside the portable Python interpreter shipped as `resources/river-cli/`. Direct dependencies
-are declared in `pyproject.toml`; the rest are pulled in transitively.
+Bundled inside the portable Python interpreter shipped as `resources/river-cli/`.
 
-| Package | Licence |
-|---|---|
-| click | BSD-3-Clause |
-| opencv-python-headless | Apache-2.0 for the wrapper. The wheel bundles third-party native libraries under separate terms — see `LICENSE-3RD-PARTY.txt` in its `.dist-info/` |
-| matplotlib | Matplotlib License (PSF-based) |
-| scipy | BSD-3-Clause |
-| numpy | BSD-3-Clause |
-| numba | BSD-2-Clause (also ships `LICENSES.third-party`) |
-| llvmlite | BSD-2-Clause |
-| pyFFTW | BSD-3-Clause |
-| tqdm | MPL-2.0 AND MIT. Upstream's wheel ships no licence file, so the text accompanies RIVeR as `resources/licenses/tqdm-LICENCE.txt` |
-| tablib | MIT |
-| openpyxl | MIT |
-| et_xmlfile | MIT |
-| odfpy | Apache-2.0 (dual with GPL-2.0+; **RIVeR elects Apache-2.0**) |
-| xlrd | BSD-3-Clause |
-| xlwt | BSD-3-Clause |
-| defusedxml | PSF-2.0 |
-| pillow | MIT-CMU |
-| fonttools | MIT |
-| contourpy | BSD-3-Clause |
-| cycler | BSD-3-Clause |
-| kiwisolver | BSD-3-Clause |
-| pyparsing | MIT |
-| python-dateutil | Apache-2.0 / BSD-3-Clause |
-| six | MIT |
-| packaging | Apache-2.0 OR BSD-2-Clause |
+| Package | Version | Licence |
+|---|---|---|
+| iwave | 0.4.0 | see above |
+| numpy | 2.0.2 | BSD-3-Clause |
+| scipy | 1.13.1 | BSD-3-Clause |
+| numba | 0.60.0 | BSD-2-Clause (also ships `LICENSES.third-party`) |
+| llvmlite | 0.43.0 | BSD-2-Clause |
+| rocket-fft | 0.3.1 | BSD-3-Clause |
+| numexpr | 2.14.1 | MIT |
+| pyFFTW | 0.15.0 | BSD-3-Clause |
+| torch | 2.12.0 | BSD-3-Clause |
+| sympy | 1.14.0 | BSD-3-Clause |
+| mpmath | 1.3.0 | BSD-3-Clause |
+| networkx | 3.6.1 | BSD-3-Clause |
+| fsspec | 2026.6.0 | BSD-3-Clause |
+| filelock | 3.29.4 | Unlicense |
+| typing_extensions | 4.15.0 | PSF-2.0 |
+| Jinja2 | 3.1.6 | BSD-3-Clause |
+| MarkupSafe | 3.0.3 | BSD-3-Clause |
+| opencv-python-headless | 4.10.0.84 | Apache-2.0 for the wrapper. The wheel bundles third-party native libraries under separate terms — see `LICENSE-3RD-PARTY.txt` in its `.dist-info/` |
+| matplotlib | 3.10.8 | Matplotlib License (PSF-based) |
+| contourpy | 1.3.3 | BSD-3-Clause |
+| cycler | 0.12.1 | BSD-3-Clause |
+| fonttools | 4.62.1 | MIT |
+| kiwisolver | 1.5.0 | BSD-3-Clause |
+| pillow | 12.2.0 | MIT-CMU |
+| pyparsing | 3.3.2 | MIT |
+| python-dateutil | 2.9.0 | Apache-2.0 / BSD-3-Clause |
+| six | 1.17.0 | MIT |
+| packaging | 26.0 | Apache-2.0 OR BSD-2-Clause |
+| click | 8.1.7 | BSD-3-Clause |
+| tqdm | 4.67.0 | MPL-2.0 AND MIT. Upstream's wheel ships no licence file, so the text accompanies RIVeR as `resources/licenses/tqdm-LICENCE.txt` |
+| tablib | 3.8.0 | MIT |
+| openpyxl | 3.1.5 | MIT |
+| et_xmlfile | 2.0.0 | MIT |
+| odfpy | 1.4.1 | Apache-2.0 (dual with GPL-2.0+; **RIVeR elects Apache-2.0**) |
+| xlrd | 2.0.2 | BSD-3-Clause |
+| xlwt | 1.3.0 | BSD-3-Clause |
+| defusedxml | 0.7.1 | PSF-2.0 |
 
 ### Python interpreter
 

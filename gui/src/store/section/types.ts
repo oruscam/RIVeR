@@ -1,6 +1,8 @@
 import { Point } from '../../types';
 import { WetSegment } from '../../helpers/getBathimetryValues';
 
+type Technique = 'lspiv' | 'stiv' | 'iwave';
+
 interface Bathimetry {
   path: string | undefined;
   name: string | undefined;
@@ -76,6 +78,21 @@ interface SectionData {
   streamwise_y: number[];
   seeded_vel_profile: number[];
   filled_seeded_vel_profile: number[];
+  stiv_velocity_profile?: (number | null)[];
+  stiv_sigma_profile?: (number | null)[];
+  stiv_angle_profile?: (number | null)[];
+  stiv_sign_profile?: string[];
+  /** Per-station angle set by the user in the STI viewer, in degrees. null = use
+   *  the automatic fit. Written only by the GUI; never produced by the pipeline. */
+  stiv_angle_manual_profile?: (number | null)[];
+  iwave_velocity_profile?: (number | null)[];
+  iwave_quality_profile?: (number | null)[];
+  iwave_depth_profile?: (number | null)[];
+  showLspiv?: boolean;
+  showStiv?: boolean;
+  showIwave?: boolean;
+  showStivStd?: boolean;
+  showIwaveQuality?: boolean;
   activeMagnitude: number[];
   activeCheck: boolean[];
   interpolated: boolean;
@@ -95,6 +112,7 @@ interface Section {
   numStations: number;
   interpolated: boolean;
   artificialSeeding: boolean;
+  activeTechnique: Technique;
   sectionPointsRW?: Point[];
   data?: SectionData;
   hasChanged: boolean;
@@ -163,4 +181,5 @@ export type {
   SectionData,
   Summary,
   PixelSolution,
+  Technique,
 };

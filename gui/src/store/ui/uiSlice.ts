@@ -19,6 +19,8 @@ const initialState: UIState = {
   seeAll: true,
   language: savedLanguage,
   isLatestVersion: undefined,
+  hoveredStation: null,
+  showInterrogationWindow: false,
 };
 
 const uiSlice = createSlice({
@@ -83,6 +85,12 @@ const uiSlice = createSlice({
       state.isLatestVersion = action.payload.isLatest;
       state.latestVersion = action.payload.latest;
     },
+    setHoveredStation: (state, action: PayloadAction<number | null>) => {
+      state.hoveredStation = action.payload;
+    },
+    setShowInterrogationWindow: (state, action: PayloadAction<boolean>) => {
+      state.showInterrogationWindow = action.payload;
+    },
   },
 });
 
@@ -102,6 +110,8 @@ export const {
   setSeeAll,
   setLanguage,
   setIsLastVersion,
+  setHoveredStation,
+  setShowInterrogationWindow,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

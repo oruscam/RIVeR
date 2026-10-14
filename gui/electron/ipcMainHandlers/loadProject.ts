@@ -7,6 +7,7 @@ import { readResultsPiv } from './utils/readResultsPiv';
 import { transformData } from './utils/transformCrossSectionsData';
 import { parseGrp3dPoints } from './utils/parseGrp3dPoints';
 import { parsedCameraSolution } from './utils/parsedCameraSolution';
+import { sanitizeNonStandardJsonTokens } from './utils/sanitizeJson';
 import { PROJECT_CONFIG } from '../main';
 
 // Function to load and parse the settings.json file
@@ -19,7 +20,7 @@ async function loadSettings(settingsPath: string) {
 async function loadOptionalFile(filePath: string, parseJson = false) {
   if (fs.existsSync(filePath)) {
     const data = await fs.promises.readFile(filePath, 'utf-8');
-    return parseJson ? JSON.parse(data) : data;
+    return parseJson ? JSON.parse(sanitizeNonStandardJsonTokens(data)) : data;
   }
   console.warn(`Warning: ${filePath} does not exist.`);
   return undefined;

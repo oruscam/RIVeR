@@ -10,6 +10,8 @@ import { useGlobalSlice } from './useGlobalSlice';
 import { useIpcamSlice } from './useIpcamSlice';
 import { useImageZoomPan } from './useImageZoomPan';
 import { useResizableCarousel } from './useResizableCarousel';
+import { useStivAngleOverride } from './useStivAngleOverride';
+import { useVelocityColorRange } from './useVelocityColorRange';
 
 export {
   useAutoShrinkFont,
@@ -19,9 +21,11 @@ export {
   useImageZoomPan,
   useIpcamSlice,
   useResizableCarousel,
+  useStivAngleOverride,
   useUavSlice,
   useObliqueSlice,
   useProjectSlice,
   useSectionSlice,
   useUiSlice,
+  useVelocityColorRange,
 };

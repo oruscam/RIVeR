@@ -23,6 +23,7 @@ import {
   setTransformationMatrix,
   setDefaultSectionState,
   setSectionWorking,
+  clearResults,
 } from '../store/section/sectionSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { FieldValues } from 'react-hook-form';
@@ -37,6 +38,7 @@ import {
 import { setProcessingMask, setQuiver, updateProcessingForm } from '../store/data/dataSlice';
 import { DEFAULT_ALPHA, DEFAULT_NUM_STATIONS, DEFAULT_POINTS, UNIT_CONVERSIONS } from '../constants/constants';
 import { CanvasPoint, FormPoint, onGetBathimetryTypes, Point } from '../types';
+import { Section, SectionData, Technique } from '../store/section/types';
 import { ResourceNotFoundError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
 import {
@@ -83,6 +85,16 @@ export const useSectionSlice = () => {
     // Clean section points for better visualization.
     onUpdateSectionPoints([]);
     dispatch(setHasChanged({ value: true }));
+
+    // Moving a marker changes the geometry every downstream result was computed
+    // from, so those results are now wrong. Drop them here rather than waiting
+    // for the next run: until they are cleared the UI keeps rendering them as
+    // if they described the new geometry — most visibly the station search
+    // lines, which take their positions from data.east/data.north and would
+    // otherwise stay pinned where the markers used to be.
+    // The mask and ROI height are rebuilt from ALL sections in onSetSections,
+    // which is why this invalidates every section's results, not just this one.
+    dispatch(clearResults());
 
     /**
      * The flags are used to avoid unnecessary calculations.
@@ -549,6 +561,19 @@ export const useSectionSlice = () => {
       updatedSection.extraFields = false;
     }
 
+    // num_stations and alpha are the two fields here that adapterCrossSections writes
+    // into xsections.json, and that write only happens via set-sections — which
+    // onSetSections skips wholesale when no section is flagged as changed. Without
+    // flagging, the new value lives in the store but never reaches the file, so the
+    // next Analize runs `--num-stations <new>` against an xsections.json still holding
+    // the old count and its old-length per-station arrays. Moving a bank point was the
+    // only way to set this flag, which is why nudging one "fixed" the error.
+    // interpolated/artificialSeeding are deliberately excluded: they reach the backend
+    // as CLI flags, not through xsections.json.
+    if (value.numStations !== undefined || value.alpha !== undefined) {
+      dispatch(setHasChanged({ value: true }));
+    }
+
     dispatch(updateSection(updatedSection));
   };
 
@@ -566,13 +591,12 @@ export const useSectionSlice = () => {
       sectionNumber += 1;
       str = `CS_default_${sectionNumber}`;
     }
-    const section = {
+    const section: Section = {
       name: str,
       drawLine: false,
       sectionPoints: DEFAULT_POINTS,
       dirPoints: DEFAULT_POINTS,
       bathimetry: {
-        blob: '',
         path: undefined,
         name: undefined,
       },
@@ -584,6 +608,7 @@ export const useSectionSlice = () => {
       interpolated: true,
       hasChanged: false,
       artificialSeeding: false,
+      activeTechnique: 'lspiv',
     };
     dispatch(addSection(section));
   };
@@ -600,6 +625,11 @@ export const useSectionSlice = () => {
   const onSetExtraFields = () => {
     const section = sections[activeSection];
     dispatch(updateSection({ ...section, extraFields: !section.extraFields }));
+  };
+
+  const onSetActiveTechnique = (technique: Technique) => {
+    const section = sections[activeSection];
+    dispatch(updateSection({ ...section, activeTechnique: technique }));
   };
 
   interface ChangeDataValues {
@@ -632,6 +662,38 @@ export const useSectionSlice = () => {
         dispatch(changeSectionData({ ...data, showPercentile: !data.showPercentile }));
       }
     }
+    if (object.type === 'showStiv') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, showStiv: data.showStiv === false ? true : false }));
+      }
+    }
+    if (object.type === 'showIwave') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, showIwave: data.showIwave === false ? true : false }));
+      }
+    }
+    if (object.type === 'showLspiv') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, showLspiv: data.showLspiv === false ? true : false }));
+      }
+    }
+    if (object.type === 'showStivStd') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, showStivStd: !data.showStivStd }));
+      }
+    }
+    if (object.type === 'showIwaveQuality') {
+      if (data) {
+        dispatch(changeSectionData({ ...data, showIwaveQuality: !data.showIwaveQuality }));
+      }
+    }
+  };
+
+  /** Replace section.data wholesale. onChangeDataValues covers the fixed set of
+   *  toggles it knows about; this is for callers that compute the next data
+   *  themselves, like the STIV angle override. */
+  const onChangeSectionData = (data: SectionData) => {
+    dispatch(changeSectionData(data));
   };
 
   const onGetBathimetry = async (values: onGetBathimetryTypes) => {
@@ -768,13 +830,6 @@ export const useSectionSlice = () => {
     dispatch(setSectionPoints({ points: sectionPoints, index }));
   };
 
-  const onCleanSectionsData = () => {
-    sections.map((section, index) => {
-      if (index === 0) return;
-      dispatch(updateSection({ ...section, data: undefined }));
-    });
-  };
-
   const onSetDefaultSectionState = () => {
     dispatch(setDefaultSectionState());
   };
@@ -797,11 +852,12 @@ export const useSectionSlice = () => {
 
     onAddSection,
     onChangeDataValues,
-    onCleanSectionsData,
+    onChangeSectionData,
     onDeleteSection,
     onGetBathimetry,
     onSetDefaultSectionState,
     onSetActiveSection,
+    onSetActiveTechnique,
     onSetDirPoints,
     onSetExtraFields,
     onSetIsDraggingPoint,

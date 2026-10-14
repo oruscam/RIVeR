@@ -82,6 +82,17 @@ export const COLORS = {
 };
 
 /**
+ * Per-technique identity color for the Results panel (legend, chart lines/markers).
+ * LSPIV = cyan, STIV = clear red, iWave = clear green — RIVeR's own palette above,
+ * not an arbitrary/matplotlib-style scheme.
+ */
+export const TECHNIQUE_COLORS = {
+  lspiv: COLORS.LIGHT_BLUE,
+  stiv: COLORS.RED,
+  iwave: COLORS.GREEN,
+};
+
+/**
  * Constants for GRAPHS
  */
 export const GRAPHS = {
@@ -106,6 +117,14 @@ export const VECTORS = {
   VELOCITY_AMPLITUDE_FACTOR: 10,
   QUIVER_AMPLITUDE_FACTOR: 10,
 };
+
+/**
+ * Fallback STIV sampling height in metres, used only when the processing form's
+ * ROI Height is unset (0). Mirrors the CLI's `--height-roi-stiv` default, so the
+ * drawn search-line preview matches what the backend will actually sample in that
+ * case — the GUI omits the flag when ROI Height is 0, letting the CLI default apply.
+ */
+export const STIV_DEFAULT_HEIGHT_ROI_M = 6.0;
 
 /**
  * Constants for marks

@@ -1,4 +1,40 @@
 
+# ⚠️ Experimental Branch — RIVeR with STIV & IWave
+
+This branch adds two new velocimetry techniques alongside RIVeR's original **LSPIV**:
+
+- **STIV** — a CNN-based Space-Time Image Velocimetry model, trained in-house.
+- **IWave** — a different velocimetry approach, developed by [dataforwater](https://github.com/dataforwater/iwave). Included here with credit to its original authors; not developed by the RIVeR team.
+
+This makes RIVeR the first software to offer all three techniques in one place.
+
+**Status:** Experimental. Not yet peer-reviewed or formally validated. Interfaces, outputs, and model performance may change before a stable release. Feedback is welcome via [Issues](https://github.com/oruscam/RIVeR/issues).
+
+## STIV model weights
+
+This branch includes STIV's code but not its trained weights, to keep the repo lean. Weights are hosted on Zenodo and downloaded automatically during the build (see `.github/scripts/download_stiv_weights.sh`).
+
+Manual download: https://zenodo.org/records/22050810
+DOI: https://doi.org/10.5281/zenodo.22050810
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22050810.svg)](https://doi.org/10.5281/zenodo.22050810)
+
+License and usage terms for the weights (separate from RIVeR's AGPLv3 license) are on the Zenodo record — research/non-commercial use, no redistribution, cite the DOI if used in published work.
+
+Without the weights file present, the STIV option will be unavailable (greyed out) in the app — see `river.core.stiv_pipeline.stiv_weights_available()`.
+
+## Citing this release
+
+- RIVeR software: use the DOI already referenced below (`10.1016/j.cageo.2017.07.009`)
+- STIV weights: https://doi.org/10.5281/zenodo.22050810
+- IWave: see [dataforwater/iwave](https://github.com/dataforwater/iwave) for their own citation guidance.
+
+## License
+
+RIVeR source code is licensed under **AGPLv3** (see LICENSE). STIV model weights are licensed separately — see the Zenodo record above.
+
+---
+
 <div align="center">
   <img src="https://raw.githubusercontent.com/oruscam/RIVeR/main/river/docs/_static/river_logo.svg" width="350px">
   <br />
@@ -90,7 +126,7 @@ If you don't want to bother with code at all (we get it, sometimes you just want
 
 | ⊞ Windows | ⌘ macOS | ◆ Linux |
 |:---:|:---:|:---:|
-| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.6.0/RIVeR-Windows-3.6.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.6.0/RIVeR-Mac-3.6.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.6.0/RIVeR-Linux-3.6.0.deb) |
+| [EXE](https://github.com/oruscam/RIVeR/releases/download/v3.7.0/RIVeR-Windows-3.7.0-Setup.exe) | [DMG](https://github.com/oruscam/RIVeR/releases/download/v3.7.0/RIVeR-Mac-3.7.0-Installer.dmg) | [DEB](https://github.com/oruscam/RIVeR/releases/download/v3.7.0/RIVeR-Linux-3.7.0.deb) |
 
 These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application — no Python or JavaScript knowledge required!
 
@@ -290,6 +326,27 @@ If you use RIVeR in your research, please cite:
     publisher={Elsevier}
 }
 ```
+
+RIVeR's **iWave** technique implements the image wave velocimetry method of Dolcetti et al., by way of
+the [IWaVE](https://github.com/DataForWater/IWaVE) package, which RIVeR bundles unmodified. If you use
+iWave results, please also cite:
+
+```bibtex
+@article{dolcetti2022noncontact,
+    title={Using Noncontact Measurement of Water Surface Dynamics to Estimate River Discharge},
+    author={Dolcetti, G. and Hortob{\'a}gyi, B. and Perks, M. and Tait, S. J. and Dervilis, N.},
+    journal={Water Resources Research},
+    volume={58},
+    number={9},
+    pages={e2022WR032829},
+    year={2022},
+    doi={10.1029/2022WR032829}
+}
+```
+
+See [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md) for the licences of IWaVE and everything else
+RIVeR redistributes.
+
 ---
 ## 👥 Authors
 
@@ -313,18 +370,23 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 ## 📜 License
 RIVeR is licensed under the [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0-or-later).
 
-RIVeR redistributes third-party software inside its installers, including static FFmpeg binaries. Their
+RIVeR redistributes third-party software inside its installers, including the
+[IWaVE](https://github.com/DataForWater/IWaVE) velocimetry package and static FFmpeg binaries. Their
 licences and copyright notices are listed in [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
 
 The complete corresponding source for any released version is this repository, at the matching tag. For
 the source of a bundled third-party component, or a copy on physical media, write to `contact@orus.cam`.
 
-### Data
+### Data and models
 
 - **Sample data** in `examples/data/` (videos, frames, bathymetry) is © UNC / CONICET / ORUS and is
   released under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - **Documentation images** in `river/docs/_static/` are © UNC / CONICET / ORUS, released under
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- **STIV model weights** were trained on data from UNC / CONICET / ORUS and are hosted separately on
+  [Zenodo](https://doi.org/10.5281/zenodo.22050810) under a research/non-commercial use license — **not**
+  RIVeR's AGPL-3.0-or-later. No redistribution; cite the DOI if used in published work. See the "STIV
+  model weights" section above and the Zenodo record for the full terms.
 
 ---
 
@@ -337,3 +399,4 @@ the source of a bundled third-party component, or a copy on physical media, writ
 
 - [WMO HydroHub](https://wmo.int/media/update/winner-of-wmo-hydrohub-innovation-call-latin-america-and-caribbean?book=21576): For funding the development of RIVeR 3 (2024-2025)
 - [PIVlab project](https://la.mathworks.com/matlabcentral/fileexchange/27659-pivlab-particle-image-velocimetry-piv-tool-with-gui): The pioneering PIV analysis tool that inspired aspects of RIVeR's development
+- [IWaVE](https://github.com/DataForWater/IWaVE) by Giulio Dolcetti (University of Trento), Salvador Peña-Haro and Hessel Winsemius, maintained under the [DataForWater](https://github.com/DataForWater) organisation: the image wave velocimetry engine behind RIVeR's iWave technique

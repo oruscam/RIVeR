@@ -20,6 +20,7 @@
       "default": "حدث خطأ أثناء محاولة تحميل المشروع"
     },
     "Version": {
+      "experimental": "إصدار تجريبي.",
       "latest": "أنت تستخدم أحدث إصدار.",
       "update": "يتوفر إصدار أحدث: ",
       "source": "برمجيات حرة (AGPL-3.0) — الشيفرة المصدرية وتراخيص الأطراف الثالثة"
@@ -159,7 +160,7 @@
     "windowSizes": "أحجام نافذة الارتباط",
     "step1": "الخطوة 1",
     "step2": "الخطوة 2",
-    "test": "اختبار",
+    "test": "Test PIV",
     "analize": "تحليل",
     "stop": "إيقاف",
     "roiAndMask": "منطقة الاهتمام والقناع",
@@ -175,6 +176,18 @@
     "epsilon": "إيبسيلون",
     "threshold": "العتبة",
     "carouselMedia": "الوسيط",
+    "carouselStis": "STIs",
+    "stiStation": "Station",
+    "stiNoData": "Run STIV to see space-time images",
+    "alwaysOn": "always",
+    "showLspivFrames": "Show LSPIV frames",
+    "showStivStis": "Show STIV space-time images",
+    "noStisYet": "Run STIV to see space-time images",
+    "stivWeightsMissing": "STIV model weights not found — download from Zenodo (see README)",
+    "iwaveNoPreview": "IWV has no per-station preview",
+    "medianHint": "Show the median velocity field",
+    "pivOnly": "PIV only",
+    "stationsCount": "{{count}} stations",
     "Plot": {
       "u": "المركبة U",
       "v": "المركبة V"
@@ -184,7 +197,13 @@
     "title": "جارٍ التحليل",
     "analize": "تحليل",
     "stop": "إيقاف",
-    "remainingTime": "الوقت المتبقي: "
+    "remainingTime": "الوقت المتبقي: ",
+    "estimating": "Estimating…",
+    "stage": {
+      "lspiv": "Computing LSPIV velocity field",
+      "stiv": "Computing STIV velocities",
+      "iwave": "Computing IWV velocities"
+    }
   },
   "Results": {
     "title": "النتائج",
@@ -195,7 +214,32 @@
     "showVelStd": "إظهار الانحراف المعياري للسرعة",
     "showProfile": "إظهار النسب المئوية 5% | 95%",
     "interpolateProfile": "استكمال المقطع",
-    "applyChanges": "تطبيق التغييرات"
+    "applyChanges": "تطبيق التغييرات",
+    "computation": "Computation",
+    "display": "Display",
+    "data": "Data",
+    "computationSettings": "Computation settings",
+    "alphaHelp": "Velocity index coefficient, applied to the active technique's surface velocity. Typical range 0.80–0.95.",
+    "interpolateProfileDisabled": "{{technique}} profile has no gaps to interpolate",
+    "activeTechnique": "Active technique",
+    "activateTechnique": "Click to make {{technique}} the active technique",
+    "showStivStd": "Show STIV ± sigma",
+    "showIwaveQuality": "Shade IWV markers by quality score",
+    "cantHideActiveTechnique": "Active technique can't be hidden — switch technique first",
+    "hideTechnique": "Hide {{technique}}",
+    "showTechnique": "Show {{technique}}",
+    "seeded": "seeded",
+    "unseeded": "unseeded",
+    "seededHint": "Artificial Seeding is on — LSPIV has tracer particles to track, giving a cleaner estimate.",
+    "unseededHint": "Artificial Seeding is off — LSPIV estimate is noisier and less certain (fewer trackable features on the water surface).",
+    "stationTooltip": "Station number",
+    "xTooltip": "Distance from left bank (m)",
+    "dTooltip": "Depth (m)",
+    "aTooltip": "Mid-section area (m²)",
+    "vsTooltip": "Surface velocity (m/s)",
+    "qTooltip": "Discharge (m³/s)",
+    "copyTable": "Copy table",
+    "copied": "Copied"
   },
   "Graphs": {
     "station": "نقطة القياس",
