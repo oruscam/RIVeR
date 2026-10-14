@@ -4,9 +4,9 @@ from unittest.mock import patch
 
 import cv2
 import numpy as np
-from click.testing import CliRunner
 
 from river.cli.__main__ import cli
+from tests.cli_helpers import make_runner
 
 
 def _sequence(folder: Path, n=4, w=64, h=48):
@@ -16,9 +16,9 @@ def _sequence(folder: Path, n=4, w=64, h=48):
 
 
 def _run(args):
-	# mix_stderr=False: progress goes to stderr, the JSON response to stdout.
-	result = CliRunner(mix_stderr=False).invoke(cli, args)
-	return json.loads(result.output)
+	# make_runner(): progress goes to stderr, the JSON response to stdout.
+	result = make_runner().invoke(cli, args)
+	return json.loads(result.stdout)
 
 
 def test_frames_info_reports_the_folder(tmp_path):
