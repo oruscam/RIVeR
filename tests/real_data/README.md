@@ -1,47 +1,47 @@
-# Tests con datos reales
+# Real-data tests
 
-Reproducen corridas reales de la GUI a través del CLI (`python -m river.cli ...`, igual que
-hace Electron) y comparan cada etapa contra los resultados guardados de esas corridas.
-Son opt-in: necesitan datos que viven en tu máquina.
+They replay real GUI runs through the CLI (`python -m river.cli ...`, exactly as
+Electron does) and compare each stage against the results saved from those runs.
+They are opt-in: they need data that lives on your machine.
 
 ```bash
-pytest tests/real_data --realdata                  # todo
-pytest tests/real_data --realdata -m "not slow"    # sin el 3D de 840 frames (~1 min)
-pytest tests/real_data --realdata -k uav           # un dataset
+pytest tests/real_data --realdata                  # everything
+pytest tests/real_data --realdata -m "not slow"    # skip the 840-frame 3D run (~1 min)
+pytest tests/real_data --realdata -k uav           # a single dataset
 ```
 
-Sin `--realdata` se saltean, así que `pytest tests/` sigue siendo rápido.
+Without `--realdata` they are skipped, so `pytest tests/` stays fast.
 
-## De dónde sale cada cosa
+## Where everything comes from
 
-| Variable | Default | Contenido |
+| Variable | Default | Contents |
 |---|---|---|
-| `RIVER_TEST_DATA` | `~/Documents/Datos-River` | videos, batimetrías, GRPs, imágenes ChArUco |
-| `RIVER_TEST_REFERENCE` | `~/River` | corridas anteriores usadas como referencia |
-| `RIVER_TEST_RTOL` | `1e-3` | tolerancia relativa vs. referencia |
+| `RIVER_TEST_DATA` | `~/Documents/Datos-River` | videos, bathymetries, GRPs, ChArUco images |
+| `RIVER_TEST_REFERENCE` | `~/River` | previous runs used as reference |
+| `RIVER_TEST_RTOL` | `1e-3` | relative tolerance vs. reference |
 
-Los parámetros de cada corrida (rango de frames, puntos de control, ventanas PIV, fps...)
-se leen del `settings.json` de la corrida de referencia, no están hardcodeados.
+The parameters of each run (frame range, control points, PIV windows, fps...)
+are read from the reference run's `settings.json`; they are not hardcoded.
 
-| Dataset | Video | Corrida de referencia |
+| Dataset | Video | Reference run |
 |---|---|---|
 | oblique | `oblique/P1060716.mp4` | `P1060716/20260805T1224` |
 | uav | `uav/Yanuncay_CS1.mp4` | `Yanuncay_CS1/20260828T1039` |
 | 3d (slow) | `3d/JUNCAL20260108T1440.mp4` | `JUNCAL20260108T1440/20260808T1530` |
 
-**No borres ni muevas esas carpetas de referencia**: son el "valor esperado". Si querés
-actualizar una referencia a propósito, apuntá `DATASETS` en `helpers.py` a una corrida nueva.
+**Do not delete or move those reference folders**: they are the "expected value". To
+update a reference on purpose, point `DATASETS` in `helpers.py` to a new run.
 
-## Qué se prueba
+## What is tested
 
-- `test_pipeline_regression.py` (por dataset): frames, matriz de transformación, altura de ROI,
-  máscara/bbox, vectores PIV, caudal/área/velocidad media y perfiles por estación.
-- `test_features.py`: extracción de frames de todos los videos, resize, estabilización,
-  transformaciones píxel↔mundo, solución de cámara 3D, `piv-test`, máscaras de usuario y
-  `compile-masks`, calibración de cámara ChArUco, STIV + iWave (requiere `torch` e `iwave`).
+- `test_pipeline_regression.py` (per dataset): frames, transformation matrix, ROI height,
+  mask/bbox, PIV vectors, discharge/area/mean velocity and per-station profiles.
+- `test_features.py`: frame extraction for all videos, resize, stabilization,
+  pixel↔world transformations, 3D camera solution, `piv-test`, user masks and
+  `compile-masks`, ChArUco camera calibration, STIV + iWave (requires `torch` and `iwave`).
 
-## Qué NO cubre
+## What is NOT covered
 
-La GUI (Electron/React): la construcción de la matriz 3D desde la solución de cámara
-(`createMatrix.ts`), el reporte HTML, la conversión de unidades imperiales y los componentes.
-Para eso están los tests de Jest en `gui/`.
+The GUI (Electron/React): building the 3D matrix from the camera solution
+(`createMatrix.ts`), the HTML report, imperial unit conversion and the components.
+Those are covered by the Jest tests in `gui/`.
