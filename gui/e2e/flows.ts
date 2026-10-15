@@ -88,15 +88,31 @@ export const sectionToResults = async (
   ref: ReturnType<typeof readReference>,
   bathymetry: string,
   project: string,
-  /** Relative tolerance against the reference discharge (the exact runs reproduce it to ~1e-6). */
-  tolerance = 1e-4
+  /**
+   * Relative tolerance against the reference discharge (the exact runs reproduce it to ~1e-6).
+   * null when the run uses fewer frames than the reference: only the geometry is compared then.
+   */
+  tolerance: number | null = 1e-4,
+  /** IPCam only enables "Draw Direction" once the bathymetry gave it a water level. */
+  bathFirst = false
 ) => {
   const refSection = firstSection(ref.xsections);
 
-  await page.getByRole('button', { name: 'Draw Direction' }).click();
-  await dragOnCanvas(page, [0.15, 0.78], [0.85, 0.55]);
-  await dialogs.push([bathymetry]);
-  await page.getByRole('button', { name: 'Import bath' }).click();
+  const drawDirection = async () => {
+    await page.getByRole('button', { name: 'Draw Direction' }).click();
+    await dragOnCanvas(page, [0.15, 0.78], [0.85, 0.55]);
+  };
+  const importBathymetry = async () => {
+    await dialogs.push([bathymetry]);
+    await page.getByRole('button', { name: 'Import bath' }).click();
+  };
+  if (bathFirst) {
+    await importBathymetry();
+    await drawDirection();
+  } else {
+    await drawDirection();
+    await importBathymetry();
+  }
   await expect(page.locator('#LEVEL')).toHaveValue(String(refSection.level));
   await page.getByText('Advanced settings').click();
   await setField(page, 'xPoint1', refSection.dir_xl);
@@ -128,7 +144,7 @@ export const sectionToResults = async (
       )
       .toBeLessThanOrEqual(tol);
   for (const key of ['total_W', 'max_depth', 'level', 'rw_length']) close(key, 1e-4);
-  for (const key of ['total_A', 'mean_V', 'total_Q']) close(key, tolerance);
+  if (tolerance !== null) for (const key of ['total_A', 'mean_V', 'total_Q']) close(key, tolerance);
 
   // Results: the screen recomputes discharge client-side (a TypeScript port of the Python
   // calculation) and starts without interpolating. With "Interpolate Profile" on, it has to

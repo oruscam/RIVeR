@@ -266,11 +266,6 @@ def test_write_charuco_board(tmp_path):
     assert cv2.imread(str(out)) is not None
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="Known bug: calibration downscales images to max_side=2500, so the profile of 2560x1440 "
-    "images is stored as 2500x1406 and video-to-frames --undistort rejects the 2560x1440 video.",
-)
 def test_undistorted_frames_use_calibration_profile(tmp_path):
     images = _need(DATA_DIR / "charuco/hikvision-ds2c-zoom_min")
     video = _need(DATA_DIR / "hikvision-zoom_min/hikvision_fixed.mp4")
