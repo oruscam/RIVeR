@@ -1,55 +1,53 @@
 import { useRef, useState, useCallback, useLayoutEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { StabilizationRegion } from '../../store/project/types';
-import { ConfirmMaskBtn } from '../CustomIcons/ConfirmMaskBtn';
+import { ShapeToolbar } from '../ShapeToolbar';
+import { regionToolbarPlacement } from '../../helpers/regionToolbarPlacement';
 
-const MASK_COLOR = 'var(--d12)';
+// Same grammar as the report's regions and the app's overlay lines: a light
+// stroke on a dark halo with a faint wash inside, so a box reads on bright
+// water and dark banks alike. White like the pins (theme-invariant); the
+// region being edited takes the accent.
+const INACTIVE_COLOR = 'var(--overlay-line)';
+const HALO_COLOR = 'rgba(0, 0, 0, 0.5)';
+const WASH_COLOR = 'rgba(255, 255, 255, 0.1)';
+const STROKE_PX = 2;
+const HALO_PX = 5;
 const HANDLE_RADIUS = 7;
 const HANDLE_HOVER_RADIUS = 11;
 const LABEL_OFFSET = 14;
-const CONFIRM_BTN_MARGIN_PX = 32;
-const CONFIRM_BTN_HALF_SIZE_PX = 20;
 
 type Handle = 'tl' | 'tr' | 'bl' | 'br' | 'body';
 
-// Picks a spot for the confirm button around the region (right/left/bottom/top,
-// in that order of preference) that keeps it fully inside the visible video
-// frame, same approach used for the mask confirm button in ImageCrossSections.
-function computeRegionConfirmBtnPos(
-  region: StabilizationRegion,
-  videoWidth: number,
-  videoHeight: number,
-  scaleX: number,
-  scaleY: number
-): { x: number; y: number } {
-  const marginX = CONFIRM_BTN_MARGIN_PX * scaleX;
-  const marginY = CONFIRM_BTN_MARGIN_PX * scaleY;
-  const halfW = CONFIRM_BTN_HALF_SIZE_PX * scaleX;
-  const halfH = CONFIRM_BTN_HALF_SIZE_PX * scaleY;
-
-  const centerX = region.x + region.width / 2;
-  const centerY = region.y + region.height / 2;
-
-  const candidates = [
-    { x: region.x + region.width + marginX, y: centerY }, // right
-    { x: region.x - marginX, y: centerY }, // left
-    { x: centerX, y: region.y + region.height + marginY }, // bottom
-    { x: centerX, y: region.y - marginY }, // top
-  ];
-
-  const inBounds = (c: { x: number; y: number }) =>
-    c.x - halfW >= 0 && c.x + halfW <= videoWidth && c.y - halfH >= 0 && c.y + halfH <= videoHeight;
-
-  const valid = candidates.find(inBounds);
-  if (valid) return valid;
-
-  // Fallback: clamp the preferred (right) candidate directly into bounds
-  const fallback = candidates[0];
-  return {
-    x: Math.min(Math.max(fallback.x, halfW), videoWidth - halfW),
-    y: Math.min(Math.max(fallback.y, halfH), videoHeight - halfH),
-  };
-}
+/** Small circular number chip at a region's top-left corner. */
+const RegionBadge = ({
+  x,
+  y,
+  n,
+  color,
+  size,
+}: {
+  x: number;
+  y: number;
+  n: number;
+  color: string;
+  size: (px: number) => number;
+}) => (
+  <g style={{ pointerEvents: 'none' }}>
+    <circle cx={x} cy={y} r={size(11)} fill="rgba(0, 0, 0, 0.6)" stroke={color} strokeWidth={size(1.5)} />
+    <text
+      x={x}
+      y={y}
+      textAnchor="middle"
+      dominantBaseline="central"
+      fontSize={size(11)}
+      fontWeight={700}
+      fill="#fff"
+    >
+      {n}
+    </text>
+  </g>
+);
 
 // Small floating badge above each region, same look as the pin labels
 // used elsewhere in the app (dark rounded chip, auto-sized to the text).
@@ -57,6 +55,7 @@ const RegionLabel = ({
   x,
   y,
   text,
+  color,
   size,
   videoWidth,
   videoHeight,
@@ -64,6 +63,7 @@ const RegionLabel = ({
   x: number;
   y: number;
   text: string;
+  color: string;
   /** Converts a desired constant on-screen pixel size into viewBox units — same
    *  helper used for the corner handles, so the label matches the mask label size. */
   size: (px: number) => number;
@@ -108,7 +108,7 @@ const RegionLabel = ({
           height={box.height + padY * 2}
           rx={3}
           ry={3}
-          fill="rgba(50, 50, 50, 0.85)"
+          fill="var(--canvas-chrome)"
         />
       )}
       <text
@@ -119,7 +119,7 @@ const RegionLabel = ({
         dominantBaseline="central"
         fontSize={size(13)}
         fontWeight={600}
-        fill={MASK_COLOR}
+        fill={color}
       >
         {text}
       </text>
@@ -142,9 +142,17 @@ interface Props {
   activeRegionIndex: number | null;
   onUpdateRegion: (index: number, region: StabilizationRegion) => void;
   onConfirm: () => void;
-  /** Current video zoom scale — used to counter-scale the confirm button so
-   *  it keeps a constant on-screen size, same as the mask confirm button. */
+  /** Deletes the active region. Only called while a region is being edited,
+   *  so the caller can resolve it against the same activeRegionIndex it hands
+   *  us as a prop. */
+  onDelete: () => void;
+  /** Current video zoom scale — used to counter-scale the shape toolbar so
+   *  it keeps a constant on-screen size, same as the mask toolbar. */
   zoomScale: number;
+  /** Current video pan offset in screen px (VideoPlayer's `translate()`), used
+   *  with zoomScale to keep the shape toolbar inside the *visible* viewport
+   *  when the region runs past it. */
+  zoomPosition: { x: number; y: number };
 }
 
 export const StabilizationCanvas = ({
@@ -153,13 +161,17 @@ export const StabilizationCanvas = ({
   regions,
   activeRegionIndex,
   zoomScale,
+  zoomPosition,
   onUpdateRegion,
   onConfirm,
+  onDelete,
 }: Props) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
   const [hoveredHandle, setHoveredHandle] = useState<Handle | null>(null);
   const { t } = useTranslation();
+
+  const accentColor = 'var(--accent-color)';
 
   const svgCoords = useCallback(
     (clientX: number, clientY: number): { x: number; y: number } => {
@@ -256,14 +268,27 @@ export const StabilizationCanvas = ({
   const scaleY = rect && rect.height > 0 ? videoHeight / rect.height : 1;
   const size = (px: number) => px * ((scaleX + scaleY) / 2);
 
-  let confirmBtnLeft = '0';
-  let confirmBtnTop = '0';
+  // Stabilization regions have no point history to undo — unlike a mask's
+  // polygon, a region is a plain {x,y,width,height} rect edited by dragging
+  // its corners/body, so there is nothing for "undo last point" to act on.
+  // ShapeToolbar omits its undo button entirely for kind="region", so these
+  // are unused placeholders satisfying its (mask-only) required props.
+  const canUndoRegion = false;
+  const handleUndoRegion = () => {};
 
-  if (activeRegion) {
-    const btnPos = computeRegionConfirmBtnPos(activeRegion, videoWidth, videoHeight, scaleX, scaleY);
-    confirmBtnLeft = `${(btnPos.x / videoWidth) * 100}%`;
-    confirmBtnTop = `${(btnPos.y / videoHeight) * 100}%`;
-  }
+  // rect is the zoomed on-screen size; the box's own CSS size is that over the zoom.
+  const toolbarPos =
+    activeRegion && rect && rect.width > 0
+      ? regionToolbarPlacement({
+          region: activeRegion,
+          videoWidth,
+          videoHeight,
+          boxWidth: rect.width / zoomScale,
+          boxHeight: rect.height / zoomScale,
+          scale: zoomScale,
+          position: zoomPosition,
+        })
+      : null;
 
   return (
     <>
@@ -294,22 +319,35 @@ export const StabilizationCanvas = ({
                 y={y}
                 width={width}
                 height={height}
-                fill="transparent"
-                stroke={MASK_COLOR}
+                fill="none"
+                stroke={HALO_COLOR}
+                strokeWidth={size(HALO_PX)}
+                style={{ pointerEvents: 'none' }}
+              />
+              <rect
+                x={x}
+                y={y}
+                width={width}
+                height={height}
+                fill={WASH_COLOR}
+                stroke={isActive ? accentColor : INACTIVE_COLOR}
                 // Zoom here is a CSS `transform: scale()` on an ancestor div (see
                 // VideoPlayer.tsx), not an SVG-internal transform, so vector-effect:
                 // non-scaling-stroke (which only cancels the SVG's own coordinate
                 // system) can't counter it. Scale the width explicitly instead, same
                 // "constant on-screen px" trick used below for handles/labels.
-                strokeWidth={size(isActive ? 2 : 1.5)}
+                strokeWidth={size(STROKE_PX)}
                 style={{ cursor: isActive ? 'grab' : 'default' }}
                 onMouseDown={(e) => handleMouseDown(e, index, 'body')}
               />
+
+              <RegionBadge x={x} y={y} n={index + 1} color={isActive ? accentColor : INACTIVE_COLOR} size={size} />
 
               <RegionLabel
                 x={x + width / 2}
                 y={y - size(LABEL_OFFSET)}
                 text={`${t('VideoRange.stabilizationRegion', { defaultValue: 'Region' })} ${index + 1}`}
+                color={isActive ? accentColor : INACTIVE_COLOR}
                 size={size}
                 videoWidth={videoWidth}
                 videoHeight={videoHeight}
@@ -321,7 +359,7 @@ export const StabilizationCanvas = ({
                     cx={x}
                     cy={y}
                     r={size(hoveredHandle === 'tl' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
-                    fill={MASK_COLOR}
+                    fill={accentColor}
                     style={{ cursor: 'nw-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('tl')}
                     onMouseLeave={() => setHoveredHandle(null)}
@@ -331,7 +369,7 @@ export const StabilizationCanvas = ({
                     cx={x + width}
                     cy={y}
                     r={size(hoveredHandle === 'tr' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
-                    fill={MASK_COLOR}
+                    fill={accentColor}
                     style={{ cursor: 'ne-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('tr')}
                     onMouseLeave={() => setHoveredHandle(null)}
@@ -341,7 +379,7 @@ export const StabilizationCanvas = ({
                     cx={x}
                     cy={y + height}
                     r={size(hoveredHandle === 'bl' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
-                    fill={MASK_COLOR}
+                    fill={accentColor}
                     style={{ cursor: 'sw-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('bl')}
                     onMouseLeave={() => setHoveredHandle(null)}
@@ -351,7 +389,7 @@ export const StabilizationCanvas = ({
                     cx={x + width}
                     cy={y + height}
                     r={size(hoveredHandle === 'br' ? HANDLE_HOVER_RADIUS : HANDLE_RADIUS)}
-                    fill={MASK_COLOR}
+                    fill={accentColor}
                     style={{ cursor: 'se-resize', transition: 'r 150ms' }}
                     onMouseEnter={() => setHoveredHandle('br')}
                     onMouseLeave={() => setHoveredHandle(null)}
@@ -364,20 +402,29 @@ export const StabilizationCanvas = ({
         })}
       </svg>
 
-      {activeRegion && (
+      {toolbarPos && (
+        // Next to the region, like the mask toolbar: regionToolbarPlacement puts the
+        // top-left corner under (or above) the region, inside the visible view, in the
+        // box's unzoomed px. scale(1/zoom) about that corner cancels the ancestor zoom,
+        // so the toolbar keeps a constant on-screen size.
         <div
+          className="region-toolbar-anchor"
           style={{
             position: 'absolute',
-            left: confirmBtnLeft,
-            top: confirmBtnTop,
-            // Counteract the video's own zoom scale (applied by an ancestor)
-            // so the button stays the same on-screen size at any zoom level.
-            transform: `translate(-50%, -50%) scale(${1 / zoomScale})`,
-            zIndex: 10,
+            left: toolbarPos.left,
+            top: toolbarPos.top,
+            transform: `scale(${1 / zoomScale})`,
+            transformOrigin: '0 0',
           }}
           onMouseDown={(e) => e.stopPropagation()}
         >
-          <ConfirmMaskBtn onClick={onConfirm} title="Confirm region" style={{ background: MASK_COLOR }} />
+          <ShapeToolbar
+            onUndo={handleUndoRegion}
+            onDelete={onDelete}
+            onDone={onConfirm}
+            canUndo={canUndoRegion}
+            kind="region"
+          />
         </div>
       )}
     </>

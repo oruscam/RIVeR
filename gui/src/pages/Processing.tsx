@@ -1,24 +1,37 @@
-import { useState, useEffect, useRef } from 'react';
-import { Carousel, Error, ImageProcessing, WizardButtons } from '../components';
-import { useDataSlice, useSectionSlice, useUiSlice } from '../hooks';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { Carousel, StepAlertList, Toast, ImageProcessing, WizardButtons } from '../components';
+import { useDataSlice, useIwaveDefaults, useProjectIssues, useSectionSlice, useUiSlice } from '../hooks';
 import { flushStivAngleWrites } from '../hooks/useStivAngleOverride';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
 import { useWizard } from 'react-use-wizard';
 import { FormProcessing } from '../components/Forms';
-import { LockBtn } from '../components/CustomIcons/LockBtn';
-import { ExportMp4 } from '../components/Forms/Components';
-import type { PreviewMode } from '../store/ui/types';
+import { PreviewModeControl } from '../components/PreviewModeControl';
+import { AdvancedToggle } from '../components/AdvancedToggle';
 import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwaveSpectra';
+import { alignStationImages, skipReasonLabelKey } from '../helpers/stationImages';
 
 export const Processing = () => {
   const { t } = useTranslation();
   const { nextStep } = useWizard();
-  const { onSetErrorMessage, onSetSeeAll } = useUiSlice();
-  const { images, fullQuiver, isBackendWorking, onSetActiveImage, onLoadResultData } = useDataSlice();
+  const { alerts, onAction } = useProjectIssues('processing');
+  const { onAddStepAlert, onClearStepAlert, onSetSeeAll, previewMode, onSetPreviewMode } = useUiSlice();
+  const {
+    images,
+    fullQuiver,
+    isBackendWorking,
+    onSetActiveImage,
+    onLoadResultData,
+    processing,
+    onToggleProcessingExtraFields,
+  } = useDataSlice();
+  const { extraFields } = processing;
   const [showMedian, setShowMedian] = useState(fullQuiver !== null);
-  const [extraFields, setExtraFields] = useState(false);
-  const [previewMode, setPreviewMode] = useState<PreviewMode>('frames');
+  const iwaveDefaults = useIwaveDefaults({
+    fullQuiver,
+    heightRoi: processing.form.heightRoi,
+    enabled: !isBackendWorking,
+  });
   const [stiPaths, setStiPaths] = useState<string[]>([]);
   const [stiStations, setStiStations] = useState<number[]>([]);
   const [spectrumPaths, setSpectrumPaths] = useState<string[]>([]);
@@ -106,16 +119,43 @@ export const Processing = () => {
     };
   }, []);
 
+  // STIV and iWave write no image for a station they skipped, so the file lists
+  // can have gaps. Laying them out one slot per station keeps the carousel index
+  // equal to the station index in every mode, which the viewers, the angle tuner
+  // and the strip's markers all rely on.
+  const sectionData = sections[activeSection]?.data;
+  const stationCount = sectionData?.id?.length ?? 0;
+  const stiSlots = useMemo(
+    () => alignStationImages(stiStations, stiPaths, stationCount),
+    [stiStations, stiPaths, stationCount]
+  );
+  const spectrumSlots = useMemo(
+    () => alignStationImages(spectrumStations, spectrumPaths, stationCount),
+    [spectrumStations, spectrumPaths, stationCount]
+  );
+  const stiEmptyLabels = useMemo(
+    () => stiSlots.map((_, i) => t(skipReasonLabelKey(sectionData?.stiv_skip_profile?.[i]))),
+    [stiSlots, sectionData?.stiv_skip_profile, t]
+  );
+  const spectrumEmptyLabels = useMemo(
+    () => spectrumSlots.map((_, i) => t(skipReasonLabelKey(sectionData?.iwave_skip_profile?.[i]))),
+    [spectrumSlots, sectionData?.iwave_skip_profile, t]
+  );
+  // Gated on the files, not the slots: a run that skipped every station wrote
+  // none, and must not open a strip of placeholders.
+  const hasStis = stiPaths.length > 0;
+  const hasSpectra = spectrumPaths.length > 0;
+
   useEffect(() => {
-    if (previewMode === 'sti' && stiPaths.length === 0) setPreviewMode('frames');
-    if (previewMode === 'iwave' && spectrumPaths.length === 0) setPreviewMode('frames');
-  }, [previewMode, stiPaths, spectrumPaths]);
+    if (previewMode === 'sti' && !hasStis) onSetPreviewMode('frames');
+    if (previewMode === 'iwave' && !hasSpectra) onSetPreviewMode('frames');
+  }, [previewMode, hasStis, hasSpectra, onSetPreviewMode]);
 
   const { paths, active } = images;
 
   // Each mode has its own list length; a station index valid in one can be out
   // of range in another, so clamp whenever the active list changes.
-  const activeList = previewMode === 'sti' ? stiPaths : previewMode === 'iwave' ? spectrumPaths : paths;
+  const activeList = previewMode === 'sti' ? stiSlots : previewMode === 'iwave' ? spectrumSlots : paths;
 
   useEffect(() => {
     if (previewMode !== 'frames' && activeList.length > 0 && active >= activeList.length) {
@@ -125,6 +165,7 @@ export const Processing = () => {
 
   const handleNext = async () => {
     try {
+      onClearStepAlert('processing-load-results');
       // onLoadResultData re-reads xsections.json and replaces section.data
       // wholesale, so any angle write still sitting in the debounce window has
       // to land on disk first or it would be read back as if it never happened.
@@ -133,28 +174,34 @@ export const Processing = () => {
       onSetSeeAll(false);
       nextStep();
     } catch (error) {
-      onSetErrorMessage((error as Error).message);
+      onAddStepAlert('processing-load-results', 'error', (error as Error).message);
     }
   };
 
   return (
     <div className="regular-page">
       <div className="media-container">
-        <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 1000 }}>
-          <ExportMp4 />
-        </div>
+        <PreviewModeControl
+          previewMode={previewMode}
+          onSetPreviewMode={onSetPreviewMode}
+          canToggleSti={hasStis}
+          canToggleIwave={hasSpectra}
+          stivAvailable={stivAvailable}
+        />
         <ImageProcessing
           showMedian={showMedian}
-          extraFields={extraFields}
           previewMode={previewMode}
-          stiPaths={stiPaths}
-          stiStations={stiStations}
-          spectrumPaths={spectrumPaths}
-          spectrumStations={spectrumStations}
+          stiPaths={stiSlots}
+          stiEmptyLabels={stiEmptyLabels}
+          spectrumPaths={spectrumSlots}
+          spectrumEmptyLabels={spectrumEmptyLabels}
           spectraSidecar={spectraSidecar}
         />
         <Carousel
           images={activeList}
+          emptyLabels={
+            previewMode === 'sti' ? stiEmptyLabels : previewMode === 'iwave' ? spectrumEmptyLabels : undefined
+          }
           active={active}
           setActiveImage={onSetActiveImage}
           showMedian={showMedian && fullQuiver !== null}
@@ -162,32 +209,32 @@ export const Processing = () => {
           mode={previewMode === 'frames' ? 'analize' : 'processing'}
           showStivMarkers={previewMode === 'sti'}
         />
-        <Error />
       </div>
       <div className="form-container">
         <FormHeader title={t('Processing.title')} showSections={false} />
+        <StepAlertList extra={alerts} onAction={onAction} />
         <FormProcessing
           extraFields={extraFields}
           showMedian={showMedian}
           setShowMedian={setShowMedian}
           previewMode={previewMode}
-          setPreviewMode={setPreviewMode}
-          canToggleSti={stiPaths.length > 0}
-          canToggleIwave={spectrumPaths.length > 0}
+          setPreviewMode={onSetPreviewMode}
+          canToggleSti={hasStis}
+          canToggleIwave={hasSpectra}
           canToggleMedian={fullQuiver !== null}
           stivAvailable={stivAvailable}
+          iwaveDefaults={iwaveDefaults}
         />
         <div className="footer">
-          <LockBtn
-            setLocalExtraFields={setExtraFields}
+          <AdvancedToggle
+            setLocalExtraFields={onToggleProcessingExtraFields}
             localExtraFields={extraFields}
-            footerElementID="processing-footer"
-            headerElementID="processing-header"
             disabled={isBackendWorking}
           />
           <WizardButtons onClickNext={handleNext} canFollow={fullQuiver !== null} />
         </div>
       </div>
+      <Toast />
     </div>
   );
 };

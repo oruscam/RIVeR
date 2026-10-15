@@ -1,3 +1,11 @@
+import type { ProjectIssues, VideoSpec } from '../../../commons/projectIssues';
+import type { VideoSource } from '../../../commons/framesSource';
+
+/** Missing inputs reported on load (spec §3–§4), plus the last refused video. */
+interface ProjectIssuesState extends ProjectIssues {
+  videoMismatch: { expected: VideoSpec; found: VideoSpec } | null;
+}
+
 interface VideoData {
   name: string | null;
   path: string;
@@ -7,6 +15,12 @@ interface VideoData {
   blob?: string | null;
   duration: number;
   creation: string;
+  /** 'frames' when the project was started from a folder of frames; absent or 'video' otherwise. */
+  source?: VideoSource;
+  /** Frames projects only: images in the source folder. */
+  frameCount?: number;
+  /** Frames projects only: the time between frames in ms, exactly as typed. */
+  intervalMs?: number;
 }
 
 interface StabilizationRegion {
@@ -38,6 +52,10 @@ interface VideoParameters {
 interface Video {
   data: VideoData;
   parameters: VideoParameters;
+  /** "Advanced settings" expanded state for Video Range's footer toggle.
+   *  Lives here (not component state) so it survives navigating away and
+   *  back, matching Cross Sections/UAV/Oblique's own extraFields. */
+  extraFields: boolean;
 }
 
 interface ProjectDetails {
@@ -54,6 +72,7 @@ interface ProjectState {
   firstFramePath: string;
   projectDetails: ProjectDetails;
   stabilizationActiveRegionIndex: number | null;
+  issues: ProjectIssuesState;
 }
 
-export type { ProjectState, VideoData, VideoParameters, Video, ProjectDetails, StabilizationRegion };
+export type { ProjectIssuesState, ProjectState, VideoData, VideoParameters, Video, ProjectDetails, StabilizationRegion };

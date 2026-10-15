@@ -1,105 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Outfit:wght@400;600;700&display=swap');
-
 *,
 *::before,
 *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0
-}
-
-:root {
-    --bg: #080c14;
-    --surf: #0d1623;
-    --border: rgba(99, 179, 237, 0.13);
-    --text: #cdd9f0;
-    --muted: rgba(255, 255, 255, 0.28);
-    --accent: #38bdf8;
-    --violet: #818cf8;
-    --green: #34d399;
-    --red: #f87171;
-    --amber: #fbbf24;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'Outfit', sans-serif;
-}
-
-body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans)
-}
-
-.ib {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 45px;
-    height: 45px;
-    border-radius: 8px;
-    border: 2px solid var(--primary-text-color, #fff);
-    background: transparent;
-    cursor: pointer;
-    overflow: hidden;
-    user-select: none;
-    flex-shrink: 0;
-    transition: background-color 0.2s, color 0.2s, transform 0.1s;
-    outline: none;
-    color: var(--primary-text-color, #fff);
-}
-
-.ib.is-success {
-    color: var(--green);
-    border-color: var(--green);
-    background-color: var(--primary-text-color);
-}
-
-
-.ib:active {
-    transform: scale(0.92);
-}
-
-.ib:disabled {
-    border-color: var(--disabled-button);
-    color: var(--disabled-button);
-    cursor: not-allowed;
-    pointer-events: none;
-}
-
-.ib-off {
-    border-color: var(--disabled-button);
-    color: var(--disabled-button);
-    cursor: not-allowed;
-}
-
-.ib-off:active {
-    transform: none;
-}
-
-.ib.active {
-    background: var(--primary-text-color, #fff);
-    color: var(--secondary-background-color, #000);
-
-}
-
-.ib-danger {
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s, transform 0.1s;
-}
-
-.ib-danger:hover {
-    background: var(--background-error, #ED6B57);
-    color: #fff;
-    border-color: var(--background-error, #ED6B57);
-}
-
-.ib-danger:hover .cl {
-    animation: wiggle 0.48s ease both;
-}
-
-.ib-danger.is-armed {
-    background: var(--background-error, #ED6B57);
-    color: #fff;
-    border-color: var(--background-error, #ED6B57);
 }
 
 .cl {
@@ -273,7 +177,7 @@ body {
     left: 0;
     height: 3px;
     background: black;
-    border-radius: 0 0 13px 13px;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     animation: barfill 2s linear forwards
 }
 
@@ -289,7 +193,7 @@ body {
     transform-origin: bottom;
     background: var(--secondary-background-color, #141414);
     border: 1px solid var(--input-background, #323232);
-    border-radius: 13px;
+    border-radius: var(--radius-lg);
     padding: 6px;
     min-width: 152px;
     z-index: 999;
@@ -321,9 +225,9 @@ body {
     align-items: center;
     gap: 10px;
     padding: 8px 12px;
-    border-radius: 9px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    font-size: 13px;
+    font-size: var(--text-meta);
     transition: background .14s;
     color: var(--primary-text-color, #fff)
 }
@@ -336,16 +240,6 @@ body {
     color: var(--success-color, #62C655)
 }
 
-.card {
-    background: var(--surf);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 20px 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px
-}
-
 .row {
     display: flex;
     align-items: center;
@@ -354,10 +248,10 @@ body {
 
 .pill {
     display: inline-block;
-    font-family: var(--mono);
-    font-size: 10px;
+    font-family: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    font-size: var(--text-caption);
     padding: 3px 9px;
-    border-radius: 20px;
+    border-radius: var(--radius-full);
     border: 1px solid;
     letter-spacing: .06em
 }

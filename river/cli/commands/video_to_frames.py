@@ -24,6 +24,41 @@ def _monitor_extraction(frames_dir: Path, expected: int, stop: threading.Event) 
 		stop.wait(timeout=2.0)
 
 
+def check_stabilize_options(stabilize: bool, stabilization_regions: Optional[str], replace: bool) -> None:
+	if stabilize and stabilization_regions is None:
+		raise RiverCLIException(
+			"--stabilization-regions is required when --stabilize is set"
+		)
+	if replace and not stabilize:
+		raise RiverCLIException(
+			"--replace requires --stabilize"
+		)
+
+
+def stabilize_extracted_frames(
+	frames_dir_path: Path, stabilization_regions: str, replace: bool, resize_factor: float, result: dict
+) -> None:
+	"""Stabilize the frames in frames_dir_path and record the outputs in result."""
+	regions_path = Path(stabilization_regions)
+	stabilized_dir = frames_dir_path.parent / (frames_dir_path.name + "_stabilized")
+
+	print("Stabilizing frames...", file=sys.stderr, flush=True)
+	sanity_path = stabilize_frames(frames_dir_path, regions_path, stabilized_dir, scale=resize_factor)
+	sanity_dest = frames_dir_path.parent / "sanity_check.jpg"
+	shutil.move(str(sanity_path), str(sanity_dest))
+
+	if replace:
+		for f in frames_dir_path.glob("*.jpg"):
+			f.unlink()
+		for f in stabilized_dir.glob("*.jpg"):
+			shutil.move(str(f), str(frames_dir_path / f.name))
+		shutil.rmtree(stabilized_dir)
+	else:
+		result["stabilized_dir"] = str(stabilized_dir)
+
+	result["sanity_check"] = str(sanity_dest)
+
+
 @click.command(help="Transforms the given video to frames and return the initial frame path.")
 @click.argument("video-path", type=click.Path(exists=True))
 @click.argument("frames-dir", type=click.Path(dir_okay=True, writable=True))
@@ -67,14 +102,7 @@ def video_to_frames(
 	profile_path: Optional[str],
 ) -> dict:
 	"""Command to process the given video into frames."""
-	if stabilize and stabilization_regions is None:
-		raise RiverCLIException(
-			"--stabilization-regions is required when --stabilize is set"
-		)
-	if replace and not stabilize:
-		raise RiverCLIException(
-			"--replace requires --stabilize"
-		)
+	check_stabilize_options(stabilize, stabilization_regions, replace)
 
 	frames_dir_path = Path(frames_dir)
 	if not frames_dir_path.exists():
@@ -110,23 +138,6 @@ def video_to_frames(
 	result: dict = {"initial_frame": str(initial_frame)}
 
 	if stabilize:
-		regions_path = Path(stabilization_regions)
-		stabilized_dir = frames_dir_path.parent / (frames_dir_path.name + "_stabilized")
-
-		print("Stabilizing frames...", file=sys.stderr, flush=True)
-		sanity_path = stabilize_frames(frames_dir_path, regions_path, stabilized_dir, scale=resize_factor)
-		sanity_dest = frames_dir_path.parent / "sanity_check.jpg"
-		shutil.move(str(sanity_path), str(sanity_dest))
-
-		if replace:
-			for f in frames_dir_path.glob("*.jpg"):
-				f.unlink()
-			for f in stabilized_dir.glob("*.jpg"):
-				shutil.move(str(f), str(frames_dir_path / f.name))
-			shutil.rmtree(stabilized_dir)
-		else:
-			result["stabilized_dir"] = str(stabilized_dir)
-
-		result["sanity_check"] = str(sanity_dest)
+		stabilize_extracted_frames(frames_dir_path, stabilization_regions, replace, resize_factor, result)
 
 	return result

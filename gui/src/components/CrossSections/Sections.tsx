@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useSectionSlice, useUiSlice } from '../../hooks';
-import { isValidString } from '../../helpers/regex';
 import { useTranslation } from 'react-i18next';
 import { EyeBtn } from '../CustomIcons/EyeBtn';
+import { Icons } from '../CustomIcons/Icons';
+import { useConfirmDialog } from '../../hooks/useConfirmDialog';
+import { scrollBehavior } from '../../helpers/motion';
+import { canSwapBanks } from '../../helpers/swapSectionBanks';
 
 interface Sections {
   setDeletedSections?: React.Dispatch<React.SetStateAction<any>>;
@@ -11,11 +13,11 @@ interface Sections {
 }
 
 export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
-  const { register } = useForm();
-  const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onUpdateSection } =
+  const { onSetActiveSection, sections, activeSection, onAddSection, onDeleteSection, onSwapBanks } =
     useSectionSlice();
-  const { onSetErrorMessage, seeAll, onSetSeeAll } = useUiSlice();
+  const { seeAll, onSetSeeAll } = useUiSlice();
   const { t } = useTranslation();
+  const [dialog, confirmDialog] = useConfirmDialog();
 
   // Set the active section, and logic for scrolling to the next section
   const onClickSection = (index: number) => {
@@ -23,137 +25,118 @@ export const Sections = ({ setDeletedSections, canEdit }: Sections) => {
       const section = document.getElementById(sections[index + 1]?.name);
       if (section === null) {
         const element = document.getElementById('scroll-right');
-        element?.scrollIntoView({ behavior: 'smooth' });
+        element?.scrollIntoView({ behavior: scrollBehavior() });
       }
-      section?.scrollIntoView({ behavior: 'smooth' });
+      section?.scrollIntoView({ behavior: scrollBehavior() });
     } else {
       const section = document.getElementById(sections[index - 1]?.name);
       if (section !== null) {
-        section?.scrollIntoView({ behavior: 'smooth' });
+        section?.scrollIntoView({ behavior: scrollBehavior() });
       }
     }
     onSetActiveSection(index);
   };
 
-  const onClickButtonSection = async (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleAddSection = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.stopPropagation();
-    if (event.currentTarget.id === 'add') {
-      onAddSection(sections.length);
-    }
-    if (event.currentTarget.id === 'delete' && setDeletedSections) {
-      const result = await window.ipcRenderer.invoke('delete-confirmation', {
-        message: t('CrossSections.warning', {
-          section_name: sections[activeSection].name,
-        }),
-        title: t('CrossSections.title'),
-      });
+    onAddSection(sections.length);
+  };
 
-      if (result === 0) {
-        setDeletedSections(sections[activeSection].name);
-        onDeleteSection();
-      }
+  // aria-disabled, not native disabled: Chromium suppresses a native-disabled
+  // control's title tooltip, and this button needs its "can't delete the last
+  // section" tooltip reachable while inert. aria-disabled is advisory only, so
+  // the guard below — reading the same condition — is what actually stops the
+  // click.
+  const deleteDisabled = sections.length === 1;
+
+  const handleDeleteSection = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    if (deleteDisabled || !setDeletedSections) return;
+
+    const confirmed = await confirmDialog({
+      title: t('CrossSections.title'),
+      body: t('CrossSections.warning', {
+        section_name: `${t('CrossSections.section', { defaultValue: 'Section' })} ${activeSection + 1}`,
+      }),
+      confirmLabel: t('CrossSections.deleteConfirm', { defaultValue: 'Delete section' }),
+      cancelLabel: t('CrossSections.deleteCancel', { defaultValue: 'Cancel' }),
+    });
+
+    if (confirmed) {
+      setDeletedSections(sections[activeSection].name);
+      onDeleteSection();
     }
   };
 
-  const handleDoubleClick = (event: React.MouseEvent<HTMLInputElement>) => {
-    const inputElement = event.target as HTMLInputElement;
-    inputElement.readOnly = false;
-  };
+  // A line drawn from the right bank to the left has its points in the right
+  // places and its banks the wrong way round; this trades them without redrawing.
+  const canSwap = canSwapBanks(sections[activeSection]?.dirPoints ?? []);
 
-  const handleInputNameSection = (
-    event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>,
-    index: number
-  ) => {
-    const inputElement = event.target as HTMLInputElement;
-    if (
-      ((event as React.KeyboardEvent<HTMLInputElement>).key === 'Enter' || event.type === 'blur') &&
-      inputElement.readOnly === false
-    ) {
-      const input = event.currentTarget;
-      const value = input.value;
-      if (value === '') {
-        input.value = sections[index].name;
-        input.readOnly = true;
-        onSetErrorMessage({
-          message: 'Section name can not be empty',
-        });
-      } else if (!isValidString(value)) {
-        input.value = sections[index].name;
-        input.readOnly = true;
-        onSetErrorMessage({
-          message: 'Section name can only contain letters, numbers, and under scores',
-        });
-      } else if (sections.map((section) => section.name).includes(value)) {
-        input.value = sections[index].name;
-        input.readOnly = true;
-        onSetErrorMessage({
-          message: 'Section name already exists',
-        });
-      } else {
-        input.readOnly = true;
-        onUpdateSection({ sectionName: value }, undefined);
-      }
-      input.readOnly = true;
-      const nextElement = document.getElementById(`${sections[index].name}-DRAW_LINE`);
-      nextElement?.focus();
-    }
+  const handleSwapBanks = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation();
+    onSwapBanks();
   };
 
   useEffect(() => {
     const element = document.getElementById('scroll-right');
-    element?.scrollIntoView({ behavior: 'smooth' });
+    element?.scrollIntoView({ behavior: scrollBehavior() });
   }, [sections.length]);
 
   return (
-    <div className="sections">
-      <div className="sections-layer">
-        <div style={{ marginRight: '15px', display: 'flex', alignItems: 'center', paddingTop: '4px' }}>
-          <EyeBtn active={seeAll} action={() => onSetSeeAll(!seeAll)} noBorder={true} />
-        </div>
-        <span className="section" />
-        {sections.map((section, index: number) => {
-          return (
-            <div
+    <>
+      <div className="sections-scroller">
+        <div className="sections-row">
+          <div className="sections-tools">
+            <EyeBtn active={seeAll} action={() => onSetSeeAll(!seeAll)} noBorder={true} />
+            {canEdit && (
+              <button
+                type="button"
+                className="ibtn ibtn-sm ibtn-danger"
+                onClick={handleDeleteSection}
+                aria-disabled={deleteDisabled}
+                title={
+                  deleteDisabled
+                    ? t('CrossSections.deleteLastSection', { defaultValue: "Can't delete the last section" })
+                    : t('CrossSections.deleteConfirm', { defaultValue: 'Delete section' })
+                }
+              >
+                {Icons.Trash('currentColor')}
+              </button>
+            )}
+            {canEdit && (
+              <button
+                type="button"
+                className="ibtn ibtn-sm"
+                onClick={handleSwapBanks}
+                disabled={!canSwap}
+                title={t('CrossSections.swapBanks', { defaultValue: 'Swap left and right banks' })}
+                aria-label={t('CrossSections.swapBanks', { defaultValue: 'Swap left and right banks' })}
+              >
+                {Icons.Swap('currentColor')}
+              </button>
+            )}
+          </div>
+          {sections.map((section, index: number) => (
+            <button
               key={index}
-              className={`section ${activeSection === index ? 'active' : ''}`}
+              type="button"
+              className="chip"
               id={section.name}
+              aria-selected={activeSection === index}
               onClick={() => onClickSection(index)}
             >
-              <input
-                type="text"
-                className="input-section"
-                defaultValue={section.name}
-                id={`${section.name}-input`}
-                {...register(`${section.name}-input`, { required: true })}
-                readOnly
-                onDoubleClick={handleDoubleClick}
-                onKeyDown={(event) => handleInputNameSection(event, index)}
-                onBlur={(event) => handleInputNameSection(event, index)}
-              />
-              {canEdit && (
-                <button
-                  className="section-button1"
-                  id="delete"
-                  onClick={onClickButtonSection}
-                  disabled={!(activeSection === index) || sections.length === 1}
-                >
-                  x
-                </button>
-              )}
-            </div>
-          );
-        })}
-
-        {canEdit && (
-          <div className="section section-add">
-            <button className="section-button2" id="add" onClick={onClickButtonSection}>
-              {' '}
-              +{' '}
+              {t('CrossSections.section', { defaultValue: 'Section' })} {index + 1}
             </button>
-          </div>
-        )}
-        <span id="scroll-right" />
+          ))}
+          {canEdit && (
+            <button type="button" className="chip" onClick={handleAddSection}>
+              + {t('CrossSections.addSection', { defaultValue: 'Add section' })}
+            </button>
+          )}
+          <span id="scroll-right" />
+        </div>
       </div>
-    </div>
+      {dialog}
+    </>
   );
 };

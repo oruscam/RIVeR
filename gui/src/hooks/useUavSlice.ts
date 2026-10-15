@@ -211,7 +211,9 @@ export const useUavSlice = () => {
           { x: 0, y: 0 },
           { x: rwLength, y: 0 },
         ];
-        updatedPixelSize.drawLine = true;
+        // The line is placed for the user, not drawn by them, so this must not
+        // enter "drawing line" mode (its hint, focus overlay and pressed button).
+        updatedPixelSize.drawLine = false;
         updatedPixelSize.solution = null;
       } else {
         const rwLength = computeRwDistance(dirPoints, pixelSizeInMeters);

@@ -8,13 +8,11 @@ import { transformData } from './utils/transformCrossSectionsData';
 import { parseGrp3dPoints } from './utils/parseGrp3dPoints';
 import { parsedCameraSolution } from './utils/parsedCameraSolution';
 import { sanitizeNonStandardJsonTokens } from './utils/sanitizeJson';
+import { resolveProjectFolder } from './utils/resolveProjectFolder';
+import { pivResultsPath } from './utils/pivResultsPath';
+import { prepareProject } from './utils/prepareProject';
+import { videoMetadataFromSettings } from './utils/videoFallback';
 import { PROJECT_CONFIG } from '../main';
-
-// Function to load and parse the settings.json file
-async function loadSettings(settingsPath: string) {
-  const data = await fs.promises.readFile(settingsPath, 'utf-8');
-  return JSON.parse(data);
-}
 
 // Function to load an optional file, with an option to parse it as JSON
 async function loadOptionalFile(filePath: string, parseJson = false) {
@@ -48,7 +46,7 @@ async function loadFrames(framesPath: string, filePrefix: string) {
 // Function to load rectification 3D images if the path exists in the settings
 async function loadRectification3D(settingsParsed: any, filePrefix: string) {
   const rectificationPath = settingsParsed.rectification_3d_images;
-  if (rectificationPath) {
+  if (rectificationPath && fs.existsSync(rectificationPath)) {
     const images = await fs.promises.readdir(rectificationPath);
     return images.map((image: string) => path.join(filePrefix, rectificationPath, image));
   }
@@ -108,19 +106,20 @@ function getMask(directory: string, type: 'npy' | 'png'): string | undefined {
 async function handleLoadProject(
   PROJECT_CONFIG: ProjectConfig,
   options: Electron.OpenDialogOptions,
-  win: BrowserWindow | null
+  win: BrowserWindow | null,
+  args?: unknown
 ) {
-  // Open a dialog to select a directory
-  const result = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options);
-  if (result.canceled || result.filePaths.length === 0)
-    return { success: false, message: 'No directory selected' };
-
-  const folderPath = result.filePaths[0];
+  // A recent project passes its directory; otherwise ask with the picker.
+  const folderPath = await resolveProjectFolder(args, async () => {
+    const result = win ? await dialog.showOpenDialog(win, options) : await dialog.showOpenDialog(options);
+    return result.canceled || result.filePaths.length === 0 ? null : result.filePaths[0];
+  });
+  if (folderPath === null) return { success: false, message: 'No directory selected' };
   const settingsPath = path.join(folderPath, 'settings.json');
   if (!fs.existsSync(settingsPath)) throw new Error('noSettingsFile');
 
-  // Load and parse the settings.json file
-  const settingsParsed = await loadSettings(settingsPath);
+  // Fix a moved project and bring its bathymetry in before anything reads a path.
+  const { settings: settingsParsed, videoMissing, missingInputs } = await prepareProject(folderPath);
   populateProjectConfig(PROJECT_CONFIG, folderPath, settingsPath, settingsParsed);
 
   const filePrefix = import.meta.env.VITE_FILE_PREFIX || '';
@@ -134,9 +133,8 @@ async function handleLoadProject(
   const xSections = settingsParsed.xsections
     ? transformData(await loadOptionalFile(settingsParsed.xsections, true), false)
     : undefined;
-  const piv_results = settingsParsed.piv_results
-    ? await readResultsPiv(settingsParsed.piv_results).catch(() => undefined)
-    : undefined;
+  const resultsPath = pivResultsPath(folderPath, settingsParsed);
+  const piv_results = resultsPath ? await readResultsPiv(resultsPath).catch(() => undefined) : undefined;
   const bbox = await loadOptionalFile(PROJECT_CONFIG.bboxPath, true);
   const grp3dData = settingsParsed.grp_3d
     ? parseGrp3dPoints(await loadOptionalFile(settingsParsed.grp_3d))
@@ -146,8 +144,13 @@ async function handleLoadProject(
     : undefined;
   const rectification3DImages = await loadRectification3D(settingsParsed, filePrefix);
 
-  // Extract metadata from the video file
-  const videoMetadata = await getVideoMetadata(settingsParsed.video.filepath);
+  // A missing video no longer fails the load: the extracted frames are enough for
+  // everything except playback and re-extraction (spec §3).
+  // A frames project has no file to probe: settings.json already holds every fact.
+  const videoMetadata =
+    videoMissing || settingsParsed.video.source === 'frames'
+      ? videoMetadataFromSettings(settingsParsed.video)
+      : await getVideoMetadata(settingsParsed.video.filepath);
 
   // Return the loaded project data
   return {
@@ -157,6 +160,8 @@ async function handleLoadProject(
       settings: settingsParsed,
       projectDirectory: folderPath,
       videoMetadata,
+      videoMissing,
+      missingInputs,
       firstFrame,
       mask: getMask(folderPath, 'png'),
       bbox,
@@ -187,10 +192,10 @@ function loadProject() {
     defaultPath: PROJECT_CONFIG.mainDirectory,
   };
 
-  ipcMain.handle('load-project', async (event) => {
+  ipcMain.handle('load-project', async (event, args?: unknown) => {
     const win = BrowserWindow.fromWebContents(event.sender);
     try {
-      return await handleLoadProject(PROJECT_CONFIG, options, win);
+      return await handleLoadProject(PROJECT_CONFIG, options, win, args);
     } catch (error: unknown) {
       console.error(error);
       return { success: false, message: (error as Error).message };

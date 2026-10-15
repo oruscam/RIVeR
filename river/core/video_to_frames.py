@@ -58,6 +58,29 @@ def undistort_frame(frame, map1, map2, roi):
 	return und
 
 
+def save_processed_frame(
+	frame,
+	save_path: str,
+	overwrite: bool,
+	encode_params: list,
+	map1=None,
+	map2=None,
+	roi=None,
+	resize_to: Optional[tuple] = None,
+) -> bool:
+	"""Undistort, resize and write one frame as JPEG. Returns True if a file was written."""
+	if map1 is not None:
+		frame = undistort_frame(frame, map1, map2, roi)
+
+	if resize_to is not None:
+		frame = cv2.resize(frame, resize_to, interpolation=cv2.INTER_AREA)
+
+	if not os.path.exists(save_path) or overwrite:
+		cv2.imwrite(save_path, frame, encode_params)
+		return True
+	return False
+
+
 def extract_frames(
 	video_path: Path,
 	frames_dir: Path,
@@ -112,6 +135,8 @@ def extract_frames(
 	else:
 		map1 = map2 = roi = None
 
+	resize_to = (new_width, new_height) if 0 < resize_factor < 1.0 else None
+
 	frame = start  # keep track of which frame we are up to, starting from start
 	while_safety = 0  # a safety counter to ensure we don't enter an infinite while loop
 	saved_count = 0  # a count of how many frames we have saved
@@ -128,20 +153,10 @@ def extract_frames(
 				while_safety += 1
 				continue
 
-			# Undistort the frame if needed
-			if undistort and map1 is not None:
-				temp_frame = undistort_frame(temp_frame, map1, map2, roi)
-
-			# Resize the frame if resize_factor is less than 1
-			if resize_factor < 1.0 and resize_factor > 0:
-				temp_frame = cv2.resize(temp_frame, (new_width, new_height), interpolation=cv2.INTER_AREA)
-
 			while_safety = 0  # reset the safety count
 			save_path = str(frames_dir / f"{frame:010d}.jpg")  # create the save path
 
-			if not os.path.exists(save_path) or overwrite:
-				# Use the encoding parameters for optimized JPEG writing
-				cv2.imwrite(save_path, temp_frame, encode_params)
+			if save_processed_frame(temp_frame, save_path, overwrite, encode_params, map1, map2, roi, resize_to):
 				saved_count += 1
 
 		frame += 1

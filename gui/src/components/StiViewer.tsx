@@ -8,15 +8,19 @@ import {
   thetaToSign,
   thetaToVelocity,
 } from '../helpers';
+import { isLowConfidence } from '../helpers/lowConfidence';
+import { isStationTuned } from '../helpers/stivAngle';
 import { UNIT_CONVERSIONS, UNITS } from '../constants/constants';
 import { StiAngleTuner } from './StiAngleTuner';
 import './components.css';
+import './Graphs/graphs.css';
 
 interface StiViewerProps {
-  /** Renderer-loadable STI image paths, index-aligned with stiStations. */
+  /** Renderer-loadable STI image paths, one slot per station (station id k at
+   *  index k − 1), '' where STIV skipped the station and wrote no STI. */
   stiPaths: string[];
-  /** Station ids parsed from the STI filenames, index-aligned with stiPaths. */
-  stiStations: number[];
+  /** Why the active station has no STI, shown in place of the image. */
+  emptyLabel: string;
   /** Index into the station list — which STI is currently selected. */
   activeStation: number;
   containerWidth: number;
@@ -33,9 +37,18 @@ const WINDOW_COLUMNS = 600;
  *  would push the row down onto the floating colour bar. */
 const CONTROLS_HEIGHT = 32;
 
+/** Height reserved above the frame for the station's readout strip and the gap
+ *  under it, with enough slack that the strip clears the mode switch floating
+ *  at the top of the canvas. */
+const STRIP_BAND = 44;
+
+/** Fewest columns the window narrows to on a small canvas; below this the
+ *  streaks are too short to judge an angle. */
+const MIN_WINDOW_COLUMNS = 200;
+
 export const StiViewer = ({
   stiPaths,
-  stiStations,
+  emptyLabel,
   activeStation,
   containerWidth,
   containerHeight,
@@ -96,17 +109,38 @@ export const StiViewer = ({
     return color && color !== 'transparent' ? color : STI_FALLBACK_COLOR;
   }, [velocity, min, max]);
 
-  if (stiPaths.length === 0) {
+  // Both early returns stay below every hook, so switching between a computed and
+  // a skipped station never changes the hook count.
+  if (stiPaths.every((p) => !p)) {
     return <p className="sti-empty">{t('Processing.stiNoData')}</p>;
+  }
+
+  if (!stiPaths[activeStation]) {
+    return (
+      <div className="sti-viewer">
+        <p className="sti-empty">
+          {t('Processing.stiStation')} {activeStation + 1} · {emptyLabel}
+        </p>
+      </div>
+    );
   }
 
   // Uniform scale on both axes. A non-uniform (stretched) fit would change the
   // apparent angle of the streaks, so the line drawn from stiv_angle_profile
   // would no longer align with the streaks it describes.
-  const cropWidth = Math.min(WINDOW_COLUMNS, natural?.w ?? WINDOW_COLUMNS);
+  //
+  // The window is WINDOW_COLUMNS wide where the canvas has room for it. Where
+  // it has not, the window shows fewer columns rather than a smaller image:
+  // the STI keeps its height, and a drag pans to the rest.
+  const stageWidth = Math.max(1, containerWidth);
   const cropHeight = natural?.h ?? 301;
-  const frameHeight = Math.max(1, containerHeight - CONTROLS_HEIGHT);
-  const scale = Math.min(containerWidth / cropWidth, frameHeight / cropHeight);
+  const frameHeight = Math.max(1, containerHeight - CONTROLS_HEIGHT - STRIP_BAND);
+  const columnsThatFit = Math.floor(stageWidth / (frameHeight / cropHeight));
+  const cropWidth = Math.min(
+    Math.max(MIN_WINDOW_COLUMNS, Math.min(WINDOW_COLUMNS, columnsThatFit)),
+    natural?.w ?? WINDOW_COLUMNS
+  );
+  const scale = Math.min(stageWidth / cropWidth, frameHeight / cropHeight);
   const viewW = cropWidth * scale;
   const viewH = cropHeight * scale;
 
@@ -144,8 +178,54 @@ export const StiViewer = ({
     setIsDragging(false);
   };
 
+  const tuned = isStationTuned(data?.stiv_angle_manual_profile, activeStation);
+  // sigma describes the automatic fit, so it says nothing about an angle the
+  // user set by hand.
+  const sigma = tuned ? null : (data?.stiv_sigma_profile?.[activeStation] ?? null);
+  const isLowConf = !tuned && isLowConfidence(data?.stiv_velocity_profile?.[activeStation], sigma);
+  const lengthFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
+  const velocityUnit = isImperial ? UNITS.IMPERIAL.VELOCITY : UNITS.SI.VELOCITY;
+
+  const warnings = [
+    isAngleWarned ? t('Processing.stiAngleWarnExtreme') : null,
+    isLowConf ? t('Processing.stiAngleLowConfidence') : null,
+  ]
+    .filter((warning): warning is string => warning !== null)
+    .join(' · ');
+
   return (
     <div className="sti-viewer" ref={setViewerEl}>
+      {/* The station's readout, one line resting on the frame and exactly as
+          wide as it. The swatch is the station's colour on the bar below, which
+          the bars over the STI are drawn in too. */}
+      <div className="readout-strip" style={{ width: viewW }}>
+        <b className="readout-strip-title">
+          {t('Processing.stiStation')} {activeStation + 1}
+        </b>
+        <span className="readout-strip-item">
+          <span>{t('Graphs.velocity')}</span>
+          {velocity !== null && <span className="readout-swatch" style={{ background: readoutColor }} />}
+          <b>
+            {velocity === null
+              ? '—'
+              : `${sign === 'negative' ? '−' : '+'}${Math.abs(velocity * lengthFactor).toFixed(2)} ${velocityUnit}`}
+          </b>
+        </span>
+        <span className="readout-strip-item">
+          <i>θ</i>
+          <b>{angle === null ? '—' : `${angle.toFixed(1)}°`}</b>
+        </span>
+        <span className="readout-strip-item">
+          <i>σ</i>
+          <b>{sigma === null ? '—' : `±${(sigma * lengthFactor).toFixed(2)} ${velocityUnit}`}</b>
+        </span>
+        {tuned && <span className="readout-strip-flag">{t('Processing.stiAngleTuned')}</span>}
+        {warnings !== '' && (
+          <span className="readout-strip-note readout-strip-warn" title={warnings}>
+            {warnings}
+          </span>
+        )}
+      </div>
       <div
         className="sti-frame"
         style={{ width: viewW, height: viewH, cursor: isDragging ? 'grabbing' : 'grab' }}
@@ -166,35 +246,12 @@ export const StiViewer = ({
         />
         <StiAngleTuner
           stationIndex={activeStation}
-          stationId={stiStations[activeStation] ?? activeStation + 1}
+          stationId={activeStation + 1}
           viewW={viewW}
           viewH={viewH}
           color={readoutColor}
           rowContainer={viewerEl}
         />
-        <div className="sti-badge velocity-readout" style={{ color: readoutColor }}>
-          {t('Processing.stiStation')} {stiStations[activeStation] ?? activeStation + 1}
-          <br />
-          {angle === null ? (
-            '—'
-          ) : (
-            <>
-              {angle.toFixed(1)}°
-              {isAngleWarned && (
-                <span className="sti-badge-warn" title={t('Processing.stiAngleWarnExtreme')}>
-                  {' '}
-                  ⚠
-                </span>
-              )}
-            </>
-          )}
-          <br />
-          {velocity === null
-            ? '—'
-            : `${sign === 'negative' ? '−' : '+'}${Math.abs(
-                isImperial ? velocity * UNIT_CONVERSIONS.M_TO_FT : velocity
-              ).toFixed(2)} ${isImperial ? UNITS.IMPERIAL.VELOCITY : UNITS.SI.VELOCITY}`}
-        </div>
       </div>
     </div>
   );

@@ -146,5 +146,6 @@ export const useStivAngleOverride = (stationIndex: number) => {
     setAngle: (deg: number) => persist(setOverride(manual, stationIndex, deg, n)),
     reset: () => persist(clearOverride(manual, stationIndex, n)),
     resetAll: () => persist(clearAllOverrides(n)),
+    restore: (angles: (number | null)[]) => persist(angles),
   };
 };

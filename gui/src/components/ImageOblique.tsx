@@ -63,6 +63,7 @@ export const ImageOblique = ({ imageSrc }: ImageObliqueProps) => {
             scale={scale}
             position={position}
             layers={layers}
+            imageSrc={src}
           />
         )}
       </OverlaySvg>

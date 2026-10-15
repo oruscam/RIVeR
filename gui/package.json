@@ -2,7 +2,7 @@
   "name": "river-gui",
   "productName": "RIVeR",
   "private": true,
-  "version": "3.7.0",
+  "version": "3.8.0",
   "type": "module",
   "description": "Software for calculating water discharge from videos using LSPIV technique",
   "license": "AGPL-3.0-or-later",
@@ -23,10 +23,13 @@
     "build-linux": "electron-builder --config electron-builder.json5 --linux",
     "clean": "rimraf dist dist-electron",
     "test": "jest",
-    "test:watch": "jest --watchAll"
+    "test:watch": "jest --watchAll",
+    "test:e2e": "playwright test",
+    "test:e2e:report": "playwright show-report e2e-report"
   },
   "dependencies": {
     "@fontsource/inter": "^5.2.8",
+    "@fontsource/outfit": "^5.3.0",
     "@reduxjs/toolkit": "^2.2.4",
     "@theme-toggles/react": "^4.1.0",
     "d3": "^7.9.0",
@@ -50,6 +53,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.0",
     "@types/d3": "^7.4.3",
     "@types/jest": "^30.0.0",
     "@types/react": "^18.2.64",
@@ -69,6 +73,7 @@
     "eslint-plugin-react": "^7.35.2",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.11",
+    "identity-obj-proxy": "^3.0.0",
     "jest": "^30.3.0",
     "prettier": "^3.5.3",
     "python-shell": "^5.0.0",

@@ -11,6 +11,7 @@ export type OverlayLayers = {
   staticMaskLayerRef: React.RefObject<SVGGElement>;
   maskLayerRef: React.RefObject<SVGGElement>;
   uiLayerRef: React.RefObject<SVGGElement>;
+  badgeLayerRef: React.RefObject<SVGGElement>;
 };
 
 type Props = {
@@ -32,6 +33,7 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
   const staticMaskLayerRef = useRef<SVGGElement | null>(null);
   const maskLayerRef = useRef<SVGGElement | null>(null);
   const uiLayerRef = useRef<SVGGElement | null>(null);
+  const badgeLayerRef = useRef<SVGGElement | null>(null);
 
   const cx = useMemo(() => width / 2, [width]);
   const cy = useMemo(() => height / 2, [height]);
@@ -65,6 +67,9 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
     const stationLayer = overlayZoom.append('g').attr('class', 'station-layer');
     const quiverLayer = overlayZoom.append('g').attr('class', 'quiver-layer'); // por encima de static
     const uiLayer = svg.append('g').attr('class', 'overlay-ui'); // SIEMPRE por encima de overlayZoom
+    // Above even the ui layer (where the section line is drawn), so the hovered-station badge is never
+    // covered. Lives outside overlayZoom, so it gets the same zoom transform in the effect below.
+    const badgeLayer = svg.append('g').attr('class', 'station-badge-layer').attr('pointer-events', 'none');
 
     interactiveLayerRef.current = interactiveLayer.node();
     staticMaskLayerRef.current = staticMaskLayer.node();
@@ -73,6 +78,7 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
     staticLayerRef.current = staticLayer.node();
     stationLayerRef.current = stationLayer.node();
     quiverLayerRef.current = quiverLayer.raise().node();
+    badgeLayerRef.current = badgeLayer.node();
 
     overlayZoomRef.current = overlayZoom.node();
     uiLayerRef.current = uiLayer.node();
@@ -81,6 +87,7 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
   useLayoutEffect(() => {
     if (!overlayZoomRef.current) return;
     d3.select(overlayZoomRef.current).attr('transform', zoomTransform);
+    d3.select(badgeLayerRef.current).attr('transform', zoomTransform);
   }, [zoomTransform]);
 
   const layers: OverlayLayers = {
@@ -93,6 +100,7 @@ export const OverlaySvg: React.FC<Props> = ({ width, height, scale, position, ch
     staticMaskLayerRef,
     maskLayerRef,
     uiLayerRef,
+    badgeLayerRef,
   };
 
   return <svg ref={svgRef}>{children(layers)}</svg>;

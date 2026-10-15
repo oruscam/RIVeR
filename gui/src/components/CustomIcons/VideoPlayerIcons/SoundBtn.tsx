@@ -20,7 +20,7 @@ export function SoundBtn({ videoRef, control, setControl }: SoundBtnProps) {
   };
 
   return (
-    <button type="button" className="ib" onClick={handleToggle}>
+    <button type="button" className="ibtn" onClick={handleToggle}>
       {rpl}
       <span className="cl show">
         {control.volume ? Icons.SoundOff('currentColor') : Icons.SoundOn('currentColor')}

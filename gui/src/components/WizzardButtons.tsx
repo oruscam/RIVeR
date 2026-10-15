@@ -2,13 +2,15 @@ import { useTranslation } from 'react-i18next';
 import './components.css';
 import { useWizard } from 'react-use-wizard';
 import { useDataSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
-import { MODULE_NUMBER } from '../constants/constants';
+import { getStepLeaveEffect } from '../helpers';
 
 type Props = {
   canFollow?: boolean;
   formId?: string;
   button?: boolean;
   onClickNext: () => void;
+  /** Overrides the primary button's text (the last step says what it does). */
+  nextLabel: string;
 };
 
 export const WizardButtons = ({
@@ -16,6 +18,7 @@ export const WizardButtons = ({
   formId = '',
   button = false,
   onClickNext,
+  nextLabel,
 }: Partial<Props> = {}) => {
   const { previousStep, isFirstStep, activeStep, isLastStep } = useWizard();
   const { onSetActiveSection } = useSectionSlice();
@@ -25,31 +28,17 @@ export const WizardButtons = ({
   const { t } = useTranslation();
 
   const handlePreviuos = () => {
-    switch (activeStep) {
-      case MODULE_NUMBER.CROSS_SECTIONS:
-        onSetActiveSection(0);
-        previousStep();
-        break;
-
-      case MODULE_NUMBER.PROCESSING:
-        onSetSeeAll(true);
-        previousStep();
-        break;
-
-      case MODULE_NUMBER.VIDEO_RANGE:
-        onSetDefaultProjectState();
-        previousStep();
-        break;
-
-      default:
-        previousStep();
-    }
+    getStepLeaveEffect(activeStep, { onSetActiveSection, onSetSeeAll, onSetDefaultProjectState })?.();
+    previousStep();
   };
 
   return (
     <div className="wizard-container">
+      {/* btn-lg, like every other wizard-screen button: these two were migrated in
+          6a before .btn-lg existed as the adopted size, which left the app's most
+          used controls 8px shorter than the buttons beside them. */}
       <button
-        className="wizard-button button-1"
+        className="btn btn-lg btn-tertiary"
         onClick={handlePreviuos}
         disabled={isFirstStep || isBackendWorking}
       >
@@ -57,14 +46,14 @@ export const WizardButtons = ({
       </button>
 
       <button
-        className="wizard-button button-1"
+        className="btn btn-lg btn-primary"
         disabled={!canFollow || isBackendWorking}
         form={formId}
         onClick={onClickNext}
         type={button ? 'button' : 'submit'}
         id="wizard-next"
       >
-        {isLastStep ? t('Wizard.save') : t('Wizard.next')}
+        {nextLabel ?? (isLastStep ? t('Wizard.save') : t('Wizard.next'))}
       </button>
     </div>
   );

@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import './graphs.css';
 import { useProjectSlice, useSectionSlice, useUiSlice, useVelocityColorRange } from '../../hooks';
 import * as d3 from 'd3';
-import { drawVectors } from './index';
+import { drawStationBadge, drawVectors } from './drawVectors';
 import { Section } from '../../store/section/types';
 import { getEffectiveTechniqueData } from '../../helpers';
 import { OverlayLayers } from '../OverlaySvg';
 import { DEFAULT_PERIOD_S } from '../../helpers/chevronGlyph';
+import { prefersReducedMotion } from '../../helpers/motion';
 
 interface VelocityVectorProps {
   height: number;
@@ -25,11 +26,11 @@ export const VelocityVector = ({
   sectionIndex,
   layers,
 }: VelocityVectorProps) => {
-  const { interactiveLayerRef } = layers;
-  const { video, projectDetails } = useProjectSlice();
+  const { interactiveLayerRef, badgeLayerRef } = layers;
+  const { video } = useProjectSlice();
   const { sections, activeSection, transformationMatrix } = useSectionSlice();
 
-  const { seeAll } = useUiSlice();
+  const { seeAll, hoveredStation, onSetHoveredStation, onPinStation } = useUiSlice();
 
   const { width: imageWidth, height: imageHeight } = video.data;
 
@@ -58,11 +59,7 @@ export const VelocityVector = ({
   // locked colour-bar range wins in both.
   const { min: globalMin, max: globalMax } = useVelocityColorRange();
 
-  const prefersReducedMotion =
-    typeof window !== 'undefined' &&
-    typeof window.matchMedia === 'function' &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const animated = !isReport && !prefersReducedMotion;
+  const animated = !isReport && !prefersReducedMotion();
 
   const [phase, setPhase] = useState(0);
   const rafRef = useRef(0);
@@ -79,50 +76,10 @@ export const VelocityVector = ({
     return () => cancelAnimationFrame(rafRef.current);
   }, [animated]);
 
-  // Hover lives here, not as a DOM mutation inside drawVectors: the draw
-  // effect below tears down and rebuilds every polygon on each animation
-  // frame, so any opacity change written directly onto a polygon is gone by
-  // the next frame. Keeping it as state means the next draw (triggered by
-  // this very state change, see the dependency array below) renders the
-  // hovered station's chevrons at full opacity instead.
-  // (Unrelated to the `hoveredStation` in the ui slice used for chart/grid
-  // sync — this one is local to the image overlay.)
-  const [hoveredStation, setHoveredStation] = useState<number | null>(null);
-
-  // Defensive recovery for a stuck tooltip: if hover ever ends without the
-  // hit area's mouseout firing (e.g. its element was destroyed by a redraw
-  // while the pointer sat on it), this still hides the tooltip as soon as
-  // `hoveredStation` is cleared.
-  useEffect(() => {
-    if (hoveredStation === null) {
-      d3.select<HTMLDivElement, unknown>('#vectors-tooltip').style('opacity', 0);
-    }
-  }, [hoveredStation]);
-
-  // A tooltip must never survive a genuine context change (switching the
-  // active/report section, toggling seeAll) even if the hit area that opened
-  // it is long gone. This deliberately does NOT depend on `phase`: the draw
-  // effect below re-runs on every animation frame, and hiding the tooltip
-  // there raced the mouseover fade-in transition — the tooltip could only
-  // ever flash for ~200ms after arrival and then go dark, since nothing
-  // repaints it once the transition finishes and the next frame's cleanup
-  // (~16ms later) zeroes it again. Keying on the actual context instead of
-  // the render clock keeps that recovery without breaking "stays visible
-  // while hovering".
-  useEffect(() => {
-    d3.select<HTMLDivElement, unknown>('#vectors-tooltip').style('opacity', 0);
-  }, [activeSection, seeAll, sectionIndex]);
-
-  // Unmount-only hide, so the tooltip node appended to <body> can never
-  // outlive this component.
-  useEffect(() => {
-    return () => {
-      d3.select<HTMLDivElement, unknown>('#vectors-tooltip').style('opacity', 0);
-    };
-  }, []);
-
   useEffect(() => {
     d3.select(interactiveLayerRef.current).selectAll('*').remove();
+    d3.select(badgeLayerRef.current).selectAll('*').remove();
+    let hoveredBase: { x: number; y: number } | null = null;
     const svg = d3.select(interactiveLayerRef.current as SVGSVGElement);
     svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
 
@@ -151,7 +108,7 @@ export const VelocityVector = ({
       if (!magnitude) return;
 
       if (seeAll && isReport === false) {
-        drawVectors(
+        const base = drawVectors(
           svg,
           factor,
           activeSection,
@@ -166,14 +123,15 @@ export const VelocityVector = ({
           globalMax,
           phase,
           animated,
-          hoveredStation,
-          setHoveredStation,
-          projectDetails.unitSistem
+          index === activeSection ? hoveredStation : null,
+          onSetHoveredStation,
+          onPinStation
         );
+        if (base) hoveredBase = base;
       } else {
         if (isReport && sectionIndex !== index) return;
         if (activeSection === index || isReport) {
-          drawVectors(
+          const base = drawVectors(
             svg,
             factor,
             activeSection,
@@ -189,12 +147,26 @@ export const VelocityVector = ({
             phase,
             animated,
             hoveredStation,
-            setHoveredStation,
-            projectDetails.unitSistem
+            onSetHoveredStation,
+            onPinStation
           );
+          if (base) hoveredBase = base;
         }
       }
     });
+
+    // Top layer of the overlay, above the section line and station layer, so the number stays readable.
+    if (hoveredBase && hoveredStation !== null) {
+      drawStationBadge(
+        d3.select(badgeLayerRef.current as SVGGElement) as d3.Selection<SVGGElement, unknown, null, undefined>,
+        hoveredBase,
+        hoveredStation
+      );
+    }
+    // onSetHoveredStation/onPinStation are recreated every render by useUiSlice but only ever
+    // change together with the state they close over (already tracked); adding them directly
+    // would redraw this chart on every unrelated re-render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     factor,
     seeAll,
@@ -205,13 +177,13 @@ export const VelocityVector = ({
     isReport,
     sectionIndex,
     interactiveLayerRef,
+    badgeLayerRef,
     transformationMatrix,
     imageWidth,
     imageHeight,
     globalMin,
     globalMax,
     resolvedPerSection,
-    projectDetails.unitSistem,
     phase,
     animated,
     hoveredStation,

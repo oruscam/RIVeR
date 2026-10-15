@@ -1,26 +1,34 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { UIState, ScreenSizes, ThemeType } from './types';
+import { UIState, ScreenSizes, ThemeType, StepAlert } from './types';
+import { setActiveSection, addSection, deleteSection } from '../section/sectionSlice';
+
+import { DEFAULT_OVERLAY_VISIBILITY, OverlayLayer } from '../../helpers/overlayLayers';
 
 const THEME_CYCLE: ThemeType[] = ['dark', 'light', 'dracula'];
 
-const savedLanguage = localStorage.getItem('language') || 'en';
-const savedTheme = (localStorage.getItem('theme') as ThemeType | null) || 'dark';
+const savedLanguage = typeof localStorage !== 'undefined' ? localStorage.getItem('language') || 'en' : 'en';
+const savedTheme =
+  typeof localStorage !== 'undefined' ? (localStorage.getItem('theme') as ThemeType | null) || 'dark' : 'dark';
 
 const initialState: UIState = {
   screenSizes: {
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0,
   },
   theme: THEME_CYCLE.includes(savedTheme) ? savedTheme : 'dark',
-  error: [],
-  info: [],
-  warning: [],
+  modeHint: null,
+  fieldErrors: {},
+  stepAlerts: [],
+  toast: null,
   isLoading: false,
   seeAll: true,
   language: savedLanguage,
   isLatestVersion: undefined,
   hoveredStation: null,
+  pinnedStation: null,
   showInterrogationWindow: false,
+  previewMode: 'frames',
+  overlayVisibility: DEFAULT_OVERLAY_VISIBILITY,
 };
 
 const uiSlice = createSlice({
@@ -36,31 +44,40 @@ const uiSlice = createSlice({
       state.theme = action.payload;
       localStorage.setItem('theme', action.payload);
     },
-    setErrorMessage: (state, action: PayloadAction<string[]>) => {
-      const errorDiv = document.getElementById('error-message-div');
-      if (errorDiv) {
-        errorDiv.scrollIntoView({ behavior: 'smooth' });
+    setModeHint: (state, action: PayloadAction<{ text: string; meta?: string }>) => {
+      state.modeHint = action.payload;
+    },
+    clearModeHint: (state) => {
+      state.modeHint = null;
+    },
+    setFieldError: (state, action: PayloadAction<{ name: string; message: string }>) => {
+      state.fieldErrors[action.payload.name] = action.payload.message;
+    },
+    clearFieldError: (state, action: PayloadAction<string>) => {
+      delete state.fieldErrors[action.payload];
+    },
+    clearAllFieldErrors: (state) => {
+      state.fieldErrors = {};
+    },
+    addStepAlert: (state, action: PayloadAction<StepAlert>) => {
+      const existingIndex = state.stepAlerts.findIndex((a) => a.id === action.payload.id);
+      if (existingIndex === -1) {
+        state.stepAlerts.push(action.payload);
+      } else {
+        state.stepAlerts[existingIndex] = action.payload;
       }
-      state.error = action.payload;
     },
-    clearErrorMessage: (state) => {
-      state.error = [];
+    clearStepAlert: (state, action: PayloadAction<string>) => {
+      state.stepAlerts = state.stepAlerts.filter((a) => a.id !== action.payload);
     },
-    setInfoMessage: (state, action: PayloadAction<string[]>) => {
-      const infoDiv = document.getElementById('info-message-div');
-      if (infoDiv) {
-        infoDiv.scrollIntoView({ behavior: 'smooth' });
-      }
-      state.info = action.payload;
+    clearAllStepAlerts: (state) => {
+      state.stepAlerts = [];
     },
-    clearInfoMessage: (state) => {
-      state.info = [];
+    showToast: (state, action: PayloadAction<{ text: string; actionLabel?: string }>) => {
+      state.toast = action.payload;
     },
-    setWarningMessage: (state, action: PayloadAction<string[]>) => {
-      state.warning = action.payload;
-    },
-    clearWarningMessage: (state) => {
-      state.warning = [];
+    clearToast: (state) => {
+      state.toast = null;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
@@ -88,30 +105,69 @@ const uiSlice = createSlice({
     setHoveredStation: (state, action: PayloadAction<number | null>) => {
       state.hoveredStation = action.payload;
     },
+    setPinnedStation: (state, action: PayloadAction<number | null>) => {
+      state.pinnedStation = action.payload;
+    },
+    toggleStationPin: (state, action: PayloadAction<number>) => {
+      state.pinnedStation = state.pinnedStation === action.payload ? null : action.payload;
+    },
     setShowInterrogationWindow: (state, action: PayloadAction<boolean>) => {
       state.showInterrogationWindow = action.payload;
     },
+    setOverlayVisible: (state, action: PayloadAction<{ layer: OverlayLayer; visible: boolean }>) => {
+      state.overlayVisibility[action.payload.layer] = action.payload.visible;
+    },
+    setPreviewMode: (state, action: PayloadAction<UIState['previewMode']>) => {
+      state.previewMode = action.payload;
+    },
+  },
+  // A hovered/pinned station number is only meaningful for the section it was
+  // set on — switching which section is active (chip click, adding/removing a
+  // section) must not leave a stale index silently retargeting to a different
+  // section's station of the same number.
+  extraReducers: (builder) => {
+    builder
+      .addCase(setActiveSection, (state) => {
+        state.hoveredStation = null;
+        state.pinnedStation = null;
+      })
+      .addCase(addSection, (state) => {
+        state.hoveredStation = null;
+        state.pinnedStation = null;
+      })
+      .addCase(deleteSection, (state) => {
+        state.hoveredStation = null;
+        state.pinnedStation = null;
+      });
   },
 });
 
 export const {
   changeTheme,
   setTheme,
-  clearErrorMessage,
-  clearInfoMessage,
+  setModeHint,
+  clearModeHint,
+  setFieldError,
+  clearFieldError,
+  clearAllFieldErrors,
+  addStepAlert,
+  clearStepAlert,
+  clearAllStepAlerts,
+  showToast,
+  clearToast,
   clearMessage,
-  clearWarningMessage,
-  setErrorMessage,
-  setInfoMessage,
   setLoading,
-  setWarningMessage,
   setMessage,
   setScreen,
   setSeeAll,
   setLanguage,
   setIsLastVersion,
   setHoveredStation,
+  setPinnedStation,
+  toggleStationPin,
   setShowInterrogationWindow,
+  setPreviewMode,
+  setOverlayVisible,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

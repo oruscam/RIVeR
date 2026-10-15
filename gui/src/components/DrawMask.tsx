@@ -3,6 +3,8 @@ import * as d3 from 'd3';
 import { useTranslation } from 'react-i18next';
 import { useDataSlice } from '../hooks';
 import { drawMask, drawMaskLabel } from './Graphs/drawMask';
+import { getOverlayColors } from '../helpers/getCSSVar';
+import { popLastMaskPoint } from '../helpers/maskPoints';
 import type { OverlayLayers } from './OverlaySvg';
 
 export const DrawMask = ({
@@ -12,6 +14,7 @@ export const DrawMask = ({
   imageWidth,
   imageHeight,
   onLivePoints,
+  registerActions,
 }: {
   factor: number;
   layers: OverlayLayers;
@@ -21,6 +24,10 @@ export const DrawMask = ({
   imageHeight: number;
   /** Called with current image-space points on every live update (including during drag) */
   onLivePoints?: (points: { x: number; y: number }[]) => void;
+  /** Called once (this effect's dependency array is `[registerActions]` only) to
+   *  register the undo action; safe because `undoLastPoint` uses a functional
+   *  `setState` update and never closes over `points`/`activeMaskIndex` directly. */
+  registerActions?: (actions: { undoLastPoint: () => void }) => void;
 }) => {
   const { processing, onUpdateMaskPoints } = useDataSlice();
   const { masks, activeMaskIndex, visibleMaskIndices } = processing;
@@ -77,7 +84,11 @@ export const DrawMask = ({
         .attr('patternUnits', 'userSpaceOnUse')
         .attr('width', 10)
         .attr('height', 10);
-      pattern.append('path').attr('d', 'M0 10 L10 0').attr('stroke', '#ED6B57').attr('stroke-width', 1);
+      pattern
+        .append('path')
+        .attr('d', 'M0 10 L10 0')
+        .attr('stroke', getOverlayColors().line)
+        .attr('stroke-width', 1);
     }
   }, [svgRef, masks]);
 
@@ -142,6 +153,7 @@ export const DrawMask = ({
     layer.selectAll('*').remove();
 
     const size = (px: number) => px / (scale || 1);
+    const overlay = getOverlayColors();
 
     masks.forEach((mask, i) => {
       // Skip: actively being edited (rendered interactively in maskLayerRef)
@@ -153,8 +165,15 @@ export const DrawMask = ({
       layer
         .append('polygon')
         .attr('points', pts)
+        .attr('fill', overlay.dim)
+        .attr('stroke', 'none')
+        .style('pointer-events', 'none');
+
+      layer
+        .append('polygon')
+        .attr('points', pts)
         .attr('fill', 'url(#dashFill)') // pattern defined on svgRef root — always available
-        .attr('stroke', '#ED6B57')
+        .attr('stroke', overlay.line)
         .attr('stroke-width', 1.5)
         .attr('opacity', 0.75)
         .style('pointer-events', 'none');
@@ -192,6 +211,12 @@ export const DrawMask = ({
   useEffect(() => {
     onLivePoints?.(points.map((p) => ({ x: p.x, y: p.y })));
   }, [points, onLivePoints]);
+
+  useEffect(() => {
+    registerActions?.({
+      undoLastPoint: () => setPoints((pts) => popLastMaskPoint(pts)),
+    });
+  }, [registerActions]);
 
   const addPoint = (index: number, xImg: number, yImg: number) => {
     const newPoints = [...points];

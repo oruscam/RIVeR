@@ -1,7 +1,8 @@
 import { factor, Point } from '../../types';
 import * as d3 from 'd3';
-import { COLORS, MARKS } from '../../constants/constants';
-import { createPinsBase64 } from './createPinsBase64';
+import { getDistanceColors } from '../../helpers/getCSSVar';
+import { drawPin } from './drawPin';
+import { drawOverlayLine, OVERLAY_STYLE } from './overlayStyle';
 
 interface obliqueSvgProps {
   factor: factor;
@@ -19,113 +20,37 @@ interface obliqueSvgProps {
   height: number;
 }
 
+/** The report's oblique calibration frame: the 6 distances and the 4 control points, at report size. */
 export const obliqueSvg = ({ factor, coordinates, svgElement, width, height }: obliqueSvgProps) => {
   const svg = d3.select(svgElement);
-
   svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
+  const layer = svg as unknown as d3.Selection<SVGGElement, unknown, null, undefined>;
 
-  const { pinRedSVGBase64, pinSVGBase64 } = createPinsBase64();
+  // getCSSVar reads the report root's light theme while the report is mounted.
+  const DC = getDistanceColors();
+  const at = (p: Point) => ({ x: p.x / factor.x, y: p.y / factor.y });
+  const pairs: [number, number, string][] = [
+    [0, 1, DC.D12],
+    [1, 2, DC.D23],
+    [2, 3, DC.D34],
+    [3, 0, DC.D14],
+    [0, 2, DC.D13],
+    [1, 3, DC.D24],
+  ];
+  pairs.forEach(([a, b, color]) => {
+    if (!coordinates[a] || !coordinates[b]) return;
+    drawOverlayLine({ layer, from: at(coordinates[a]), to: at(coordinates[b]), color, size: 'report' });
+  });
 
-  // Add lines between points
-  for (let i = 0; i < coordinates.length - 1; i++) {
-    svg
-      .append('line')
-      .attr('x1', coordinates[i].x / factor.x)
-      .attr('y1', coordinates[i].y / factor.y)
-      .attr('x2', coordinates[i + 1].x / factor.x)
-      .attr('y2', coordinates[i + 1].y / factor.y)
-      .attr('stroke', () => {
-        switch (i) {
-          case 0:
-            return COLORS.CONTROL_POINTS.D12;
-            break;
-
-          case 1:
-            return COLORS.CONTROL_POINTS.D23;
-            break;
-
-          case 2:
-            return COLORS.CONTROL_POINTS.D34;
-            break;
-
-          default:
-            return COLORS.BLACK;
-        }
-      })
-      .attr('stroke-width', 2);
-  }
-
-  if (coordinates.length > 1) {
-    svg
-      .append('line')
-      .attr('x1', coordinates[coordinates.length - 1].x / factor.x)
-      .attr('y1', coordinates[coordinates.length - 1].y / factor.y)
-      .attr('x2', coordinates[0].x / factor.x)
-      .attr('y2', coordinates[0].y / factor.y)
-      .attr('stroke', COLORS.CONTROL_POINTS.D14)
-      .attr('stroke-width', 2);
-
-    svg
-      .append('line')
-      .attr('x1', coordinates[0].x / factor.x)
-      .attr('y1', coordinates[0].y / factor.y)
-      .attr('x2', coordinates[2].x / factor.x)
-      .attr('y2', coordinates[2].y / factor.y)
-      .attr('stroke', COLORS.CONTROL_POINTS.D13)
-      .attr('stroke-width', 2);
-
-    svg
-      .append('line')
-      .attr('x1', coordinates[1].x / factor.x)
-      .attr('y1', coordinates[1].y / factor.y)
-      .attr('x2', coordinates[3].x / factor.x)
-      .attr('y2', coordinates[3].y / factor.y)
-      .attr('stroke', COLORS.CONTROL_POINTS.D24)
-      .attr('stroke-width', 2);
-  }
-
-  svg
-    .selectAll('image')
-    .data(coordinates)
-    .enter()
-    .append('image')
-    .attr('x', (d) => d.x / factor.x - MARKS.OFFSET_X_REPORT) // Adjusting for image width
-    .attr('y', (d) => d.y / factor.y - MARKS.OFFSET_Y_REPORT) // Adjusting for image height
-    .attr('width', MARKS.WIDTH_REPORT)
-    .attr('height', MARKS.HEIGHT_REPORT)
-    .attr('xlink:href', (_d, i: number) => {
-      if (i === 0) return pinRedSVGBase64;
-      return pinSVGBase64;
+  // Point 1 is upstream left: the red "left" pin, as on the Oblique canvas.
+  coordinates.forEach((point, i) => {
+    drawPin({
+      layer,
+      tip: at(point),
+      kind: i === 0 ? 'left' : 'point',
+      label: `${i + 1}`,
+      divisor: OVERLAY_STYLE.report.PIN_DIVISOR,
+      bounds: { x: 0, y: 0, width, height },
     });
-
-  // Badge background
-  svg
-    .selectAll('rect.pin-badge-bg')
-    .data(coordinates)
-    .enter()
-    .append('rect')
-    .attr('class', 'pin-badge-bg')
-    .attr('x', (d) => d.x / factor.x - 9)
-    .attr('y', (d) => d.y / factor.y - MARKS.OFFSET_Y_REPORT - 13)
-    .attr('width', 18)
-    .attr('height', 13)
-    .attr('rx', 2)
-    .attr('ry', 2)
-    .attr('fill', 'rgba(50,50,50,0.85)');
-
-  // Badge text
-  svg
-    .selectAll('text.pin-badge-text')
-    .data(coordinates)
-    .enter()
-    .append('text')
-    .attr('class', 'pin-badge-text')
-    .attr('x', (d) => d.x / factor.x)
-    .attr('y', (d) => d.y / factor.y - MARKS.OFFSET_Y_REPORT - 6.5)
-    .attr('text-anchor', 'middle')
-    .attr('dominant-baseline', 'central')
-    .attr('font-size', '9px')
-    .attr('font-weight', 'bold')
-    .attr('fill', (_d, i) => (i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE))
-    .text((_d, i) => i + 1);
+  });
 };

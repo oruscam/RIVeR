@@ -26,6 +26,7 @@ STIV_COLUMNS = [
 	"stiv_sigma_profile",
 	"stiv_angle_profile",
 	"stiv_sign_profile",
+	"stiv_skip_profile",
 	# Written by the GUI, not this pipeline — but it is pinned to station positions
 	# exactly like the arrays above, so it must be stripped with them when the
 	# geometry is rebuilt (see update_current_x_section in compute_section.py).
@@ -96,30 +97,19 @@ def _collect_frames(frames_dir: str) -> list[str]:
 	return frames
 
 
-def build_stis_for_cross_section(
+def compute_station_pixel_lines(
 	cs: dict,
 	transformation_matrix: list,
-	frames_dir: str,
 	height_roi_m: float = 6.0,
 	rw_step_m: float = RW_STEP_M,
-) -> dict[int, np.ndarray]:
-	"""Build STIs for all stations in a cross-section.
+) -> list[tuple[int, np.ndarray]]:
+	"""Pixel coordinates of every station's search line, one row per STI row.
 
-	Returns {station_id: sti_array} where sti_array has shape (n_rows, n_frames).
-	NaN values mark out-of-bounds pixel positions.
+	Returns [(station_id, pix_coords)] with pix_coords of shape (n_rows, 2).
 	"""
 	H = np.asarray(transformation_matrix, dtype=float)
 	if H.shape != (3, 3):
 		raise ValueError(f"transformation_matrix must be 3×3, got {H.shape}")
-
-	frames = _collect_frames(frames_dir)
-	if not frames:
-		raise FileNotFoundError(f"No frames (.jpg) found in {frames_dir}")
-
-	first = cv2.imread(frames[0], cv2.IMREAD_GRAYSCALE)
-	if first is None:
-		raise RuntimeError(f"Cannot read first frame: {frames[0]}")
-	img_h, img_w = first.shape
 
 	ids = list(cs["id"])
 	east_all = [float(e) for e in cs["east"]]
@@ -138,10 +128,9 @@ def build_stis_for_cross_section(
 
 	n_rows = int(np.ceil(height_roi_m / rw_step_m)) + 1
 	half = height_roi_m / 2.0
-	n_frames = len(frames)
 	bank_tan = unit(right_xy - left_xy)
 
-	station_data: list[tuple[int, np.ndarray, np.ndarray]] = []
+	lines: list[tuple[int, np.ndarray]] = []
 	for idx, (sid, E, N) in enumerate(zip(ids, east_all, north_all)):
 		tan_cs = central_tangent(east_all, north_all, idx)
 		if np.allclose(tan_cs, 0.0) or (
@@ -163,10 +152,61 @@ def build_stis_for_cross_section(
 			[ct.transform_real_world_to_pixel(float(rw[0]), float(rw[1]), H)[:2] for rw in rw_coords],
 			dtype=float,
 		)
+		lines.append((sid, pix_coords))
+	return lines
+
+
+def get_masked_station_ids(
+	cs: dict,
+	transformation_matrix: list,
+	mask: np.ndarray,
+	height_roi_m: float = 6.0,
+	rw_step_m: float = RW_STEP_M,
+) -> set[int]:
+	"""Stations whose whole search line is hidden by the mask (or off the image)."""
+	# Deferred: define_roi_masks -> compute_section -> iwave_pipeline imports this module.
+	from river.core.define_roi_masks import are_all_points_hidden
+
+	return {
+		sid
+		for sid, pix in compute_station_pixel_lines(cs, transformation_matrix, height_roi_m, rw_step_m)
+		if are_all_points_hidden(pix[:, 0], pix[:, 1], mask)
+	}
+
+
+def build_stis_for_cross_section(
+	cs: dict,
+	transformation_matrix: list,
+	frames_dir: str,
+	height_roi_m: float = 6.0,
+	rw_step_m: float = RW_STEP_M,
+	skip_ids: Optional[set[int]] = None,
+) -> dict[int, np.ndarray]:
+	"""Build STIs for the stations of a cross-section, except skip_ids.
+
+	Returns {station_id: sti_array} where sti_array has shape (n_rows, n_frames).
+	NaN values mark out-of-bounds pixel positions.
+	"""
+	skip_ids = skip_ids or set()
+	frames = _collect_frames(frames_dir)
+	if not frames:
+		raise FileNotFoundError(f"No frames (.jpg) found in {frames_dir}")
+
+	first = cv2.imread(frames[0], cv2.IMREAD_GRAYSCALE)
+	if first is None:
+		raise RuntimeError(f"Cannot read first frame: {frames[0]}")
+	img_h, img_w = first.shape
+
+	station_data: list[tuple[int, np.ndarray, np.ndarray]] = []
+	for sid, pix_coords in compute_station_pixel_lines(cs, transformation_matrix, height_roi_m, rw_step_m):
+		if sid in skip_ids:
+			continue
 		xs, ys = pix_coords[:, 0], pix_coords[:, 1]
 		inbounds = (xs >= 0) & (xs <= img_w - 1) & (ys >= 0) & (ys <= img_h - 1)
 		station_data.append((sid, pix_coords, inbounds))
 
+	n_rows = int(np.ceil(height_roi_m / rw_step_m)) + 1
+	n_frames = len(frames)
 	stis = {sid: np.full((n_rows, n_frames), np.nan, dtype=np.float32) for sid, _, _ in station_data}
 	map_x = {sid: pix[:, 0].astype(np.float32).reshape(-1, 1) for sid, pix, _ in station_data}
 	map_y = {sid: pix[:, 1].astype(np.float32).reshape(-1, 1) for sid, pix, _ in station_data}
@@ -576,17 +616,25 @@ def run_stiv_analysis(
 	plot_path: Optional[str] = None,
 	models: Optional[tuple] = None,
 	progress: Optional[Callable[[int, int], None]] = None,
+	mask: Optional[np.ndarray] = None,
 ) -> dict:
 	"""Run STIV analysis for the current cross-section and return updated xsections.
 
-	Adds 4 new per-station lists: stiv_velocity_profile (signed streamwise, m/s), stiv_sigma_profile, stiv_angle_profile (degrees), stiv_sign_profile.
+	Adds 5 new per-station lists: stiv_velocity_profile (signed streamwise, m/s), stiv_sigma_profile, stiv_angle_profile (degrees), stiv_sign_profile, stiv_skip_profile.
 	If stis_dir is provided, each STI is saved as sti_<station_id>.npy in that directory.
+	Stations whose whole search line is hidden by mask are not computed; stiv_skip_profile records "masked" for them.
 	"""
 	section_keys = [k for k in xsections if k != "summary"]
 	current_key = section_keys[id_section]
 	cs = xsections[current_key]
 
-	stis = build_stis_for_cross_section(cs, transformation_matrix, frames_dir, height_roi_m)
+	masked_ids = (
+		get_masked_station_ids(cs, transformation_matrix, mask, height_roi_m)
+		if mask is not None else set()
+	)
+	stis = build_stis_for_cross_section(
+		cs, transformation_matrix, frames_dir, height_roi_m, skip_ids=masked_ids,
+	)
 
 	if stis_dir is not None:
 		out = Path(stis_dir)
@@ -611,6 +659,7 @@ def run_stiv_analysis(
 	stiv_valid_arr = np.zeros(n, dtype=bool)
 	stiv_sign_list = ["zero"] * n
 	stiv_angle_list: list[Optional[float]] = [None] * n
+	stiv_skip_list: list[Optional[str]] = ["masked" if sid in masked_ids else None for sid in ids]
 
 	for idx, sid in enumerate(ids):
 		sti = stis.get(sid)
@@ -638,6 +687,7 @@ def run_stiv_analysis(
 		float(stiv_sigma_arr[i]) if stiv_valid_arr[i] else None for i in range(n)
 	]
 	xsections[current_key]["stiv_sign_profile"] = stiv_sign_list
+	xsections[current_key]["stiv_skip_profile"] = stiv_skip_list
 	xsections[current_key]["stiv_angle_profile"] = stiv_angle_list
 	# A manual angle was judged by eye against the STIs this run has just replaced,
 	# so it does not describe the new ones. Clearing is the honest default: silently

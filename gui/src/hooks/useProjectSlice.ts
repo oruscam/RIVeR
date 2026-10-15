@@ -6,9 +6,9 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store/store';
 import {
-  clearErrorMessage,
+  addStepAlert,
   clearMessage,
-  setErrorMessage,
+  clearStepAlert,
   setLanguage,
   setLoading,
   setMessage,
@@ -16,12 +16,14 @@ import {
 import {
   setProjectDirectory,
   setProjectType,
+  setProjectIssues,
   setVideoData,
   setFirstFramePath,
   setVideoParameters,
   setProjectDetails,
   setDefaultProjectState,
   setStabilizationActiveRegionIndex,
+  toggleVideoExtraFields,
 } from '../store/project/projectSlice';
 import { StabilizationRegion } from '../store/project/types';
 import { FieldValues } from 'react-hook-form';
@@ -63,6 +65,10 @@ import { onLoad3dRectification } from '../helpers/loadProjectHelpers';
 import { useTranslation } from 'react-i18next';
 import { setDefaultObliqueState, setObliquePoints } from '../store/oblique/obliqueSlice';
 import { resetAll } from '../store/global/globalSlice';
+import { recordRecentProject } from '../helpers/recentProjects';
+import { fpsFromInterval, frameRange, parseInterval } from '../../commons/framesSource';
+import { framesImportError } from '../helpers/framesImportError';
+import type { FramesFolderError, FramesFolderInfo } from '../../electron/ipcMainHandlers/framesFolder';
 
 const createDefaultStabilizationRegion = (videoWidth: number, videoHeight: number): StabilizationRegion => {
   const size = 150;
@@ -111,10 +117,11 @@ const isSameStabilizationConfig = (
 
 export const useProjectSlice = () => {
   const dispatch = useDispatch();
-  const { projectDirectory, video, type, firstFramePath, projectDetails, stabilizationActiveRegionIndex } =
+  const { projectDirectory, video, type, firstFramePath, issues, projectDetails, stabilizationActiveRegionIndex } =
     useSelector((state: RootState) => state.project);
   const { sections } = useSelector((state: RootState) => state.section);
   const uav = useSelector((state: RootState) => state.uav);
+  const { images } = useSelector((state: RootState) => state.data);
   const { t } = useTranslation();
 
   let filePrefix = import.meta.env.VITE_FILE_PREFIX;
@@ -145,15 +152,28 @@ export const useProjectSlice = () => {
     }
   };
 
+  /** Directory dialog for a folder of already-extracted frames; null when cancelled. */
+  const onGetFramesFolder = async (): Promise<{ path: string; name: string } | null> =>
+    window.ipcRenderer.invoke('get-frames-folder');
+
+  /** Count, resolution and ordered image paths of a frames folder (the open project's when no path). */
+  const onInspectFramesFolder = async (path?: string): Promise<FramesFolderInfo | { error: FramesFolderError }> =>
+    window.ipcRenderer.invoke('inspect-frames-folder', path ? { path } : undefined);
+
   const onInitProject = async (
-    videoInput: { path: string; name: string; type: string },
+    videoInput: {
+      path: string;
+      name: string;
+      type: string;
+      frames?: { count: number; width: number; height: number; intervalMs: number };
+    },
     language: string,
     unitSistem: string
   ) => {
     dispatch(setLoading(true));
 
     const extension = videoInput.name.split('.').pop();
-    if (extension?.toUpperCase() !== 'MP4') {
+    if (!videoInput.frames && extension?.toUpperCase() !== 'MP4') {
       dispatch(setMessage(t('Loader.videoConversion')));
     }
 
@@ -166,6 +186,7 @@ export const useProjectSlice = () => {
         type: videoInput.type,
         language: language,
         unitSistem: unitSistem,
+        frames: videoInput.frames,
       });
 
       if (error) {
@@ -182,6 +203,9 @@ export const useProjectSlice = () => {
         fps: result.fps,
         creation: result.creation,
         duration: result.duration,
+        source: result.source,
+        frameCount: result.frameCount,
+        intervalMs: result.intervalMs,
       };
 
       // Determine the best factor for the frames extraction.
@@ -208,6 +232,7 @@ export const useProjectSlice = () => {
 
       dispatch(setVideoData(videoData));
       dispatch(setProjectDirectory(result.directory));
+      recordRecentProject(localStorage, result.directory, videoInput.type, Date.now());
       dispatch(setProjectType(videoInput.type));
       dispatch(setLoading(false));
       dispatch(clearMessage());
@@ -244,7 +269,8 @@ export const useProjectSlice = () => {
 
   const onSetVideoParameters = async (data: FieldValues) => {
     dispatch(setLoading(true));
-    dispatch(setMessage(t('Loader.extractingFrames')));
+    const frames = video.data.source === 'frames';
+    dispatch(setMessage(t(frames ? 'Loader.importingFrames' : 'Loader.extractingFrames')));
 
     const {
       startTime,
@@ -260,16 +286,36 @@ export const useProjectSlice = () => {
       committedStabilizationRegions,
     } = video.parameters;
 
-    const parsedStart = parseTime(data.start);
-    const parsedEnd = parseTime(data.end);
+    // A frames project's form holds 1-based frame numbers and the interval; a video's holds mm:ss.
+    const intervalMs = frames ? (parseInterval(String(data.interval ?? '')) ?? video.data.intervalMs ?? 0) : 0;
+    const fps = frames && intervalMs > 0 ? fpsFromInterval(intervalMs) : video.data.fps;
+    const intervalChanged = frames && intervalMs !== video.data.intervalMs;
+    const range = frames
+      ? frameRange(parseInt(data.start, 10), parseInt(data.end, 10), fps)
+      : (() => {
+          const parsedStart = parseTime(data.start);
+          const parsedEnd = parseTime(data.end);
+          return {
+            startTime: parsedStart,
+            endTime: parsedEnd,
+            startFrame: Math.floor(parsedStart * video.data.fps),
+            endFrame: Math.floor(parsedEnd * video.data.fps),
+          };
+        })();
+    const sameRange = frames
+      ? range.startFrame === video.parameters.startFrame &&
+        range.endFrame === video.parameters.endFrame &&
+        !intervalChanged
+      : range.startTime === startTime && range.endTime === endTime;
 
     // Every field is compared directly against the config actually used for
     // the frames on disk (rather than an imperative "did the user touch this"
     // flag) — so toggling something and reverting it never forces a needless
-    // re-extraction.
+    // re-extraction. A project without frames (a first run, or one whose
+    // extraction never succeeded) has nothing to keep, so it always extracts.
     if (
-      parsedStart === startTime &&
-      parsedEnd === endTime &&
+      images.paths.length > 0 &&
+      sameRange &&
       parseFloat(data.step) === step &&
       factor === committedFactor &&
       lensCorrection === committedLensCorrection &&
@@ -285,17 +331,20 @@ export const useProjectSlice = () => {
       return false;
     }
 
+    // Emptied so App listens for 'all-frames'; a failed extraction keeps the
+    // previous frames on disk, so they are put back below.
+    const previousPaths = images.paths;
     dispatch(setImages({ paths: [] }));
 
-    // Stabilization only applies to UAV footage — oblique/ipcam cameras are fixed.
-    const effectiveStabilization = type === 'uav' && stabilization && stabilizationRegions.length >= 2;
+    // Stabilization applies to every footage type; it needs at least two regions to fit a transform.
+    const effectiveStabilization = stabilization && stabilizationRegions.length >= 2;
 
     const parameters = {
       step: parseFloat(data.step),
-      startTime: parsedStart,
-      endTime: parsedEnd,
-      startFrame: Math.floor(parsedStart * video.data.fps),
-      endFrame: Math.floor(parsedEnd * video.data.fps),
+      startTime: range.startTime,
+      endTime: range.endTime,
+      startFrame: range.startFrame,
+      endFrame: range.endFrame,
       factor: factor,
       lensCorrection: lensCorrection,
       stabilization: stabilization,
@@ -310,7 +359,7 @@ export const useProjectSlice = () => {
     };
     const ipcRenderer = window.ipcRenderer;
 
-    dispatch(clearErrorMessage());
+    dispatch(clearStepAlert('first-frame-error'));
 
     try {
       const result = await ipcRenderer.invoke('first-frame', {
@@ -321,21 +370,36 @@ export const useProjectSlice = () => {
         lensCorrection: lensCorrection,
         stabilization: effectiveStabilization,
         stabilizationRegions: effectiveStabilization ? stabilizationRegions : [],
+        intervalMs: frames ? intervalMs : undefined,
       });
 
       if (!result || result.error || !result.initial_frame) {
         const errMsg = result?.error ?? 'Frame extraction failed';
         console.log('first-frame error:', errMsg);
-        dispatch(setErrorMessage([errMsg]));
+        // A frames import fails with a backend code; a video's message is already a sentence.
+        const text = frames ? framesImportError(errMsg, (key, values) => t(key, values)) : errMsg;
+        dispatch(addStepAlert({ id: 'first-frame-error', level: 'error', text }));
+        dispatch(setImages({ paths: previousPaths }));
         return;
       }
 
       dispatch(clearMessage());
       dispatch(setFirstFramePath(filePrefix + result.initial_frame));
       dispatch(setVideoParameters(parameters));
+      if (intervalChanged) {
+        dispatch(
+          setVideoData({
+            ...video.data,
+            fps,
+            intervalMs,
+            duration: ((video.data.frameCount ?? 0) * intervalMs) / 1000,
+          })
+        );
+      }
     } catch (error) {
       console.log(error);
-      dispatch(setErrorMessage([String(error)]));
+      dispatch(addStepAlert({ id: 'first-frame-error', level: 'error', text: String(error) }));
+      dispatch(setImages({ paths: previousPaths }));
     } finally {
       dispatch(setLoading(false));
     }
@@ -352,12 +416,12 @@ export const useProjectSlice = () => {
    * @returns - number - The step to go to after loading the project.
    */
 
-  const onLoadProject = async () => {
+  const onLoadProject = async (directory?: string) => {
     dispatch(setLoading(true));
     const ipcRenderer = window.ipcRenderer;
 
     try {
-      const result = await ipcRenderer.invoke('load-project');
+      const result = await ipcRenderer.invoke('load-project', directory ? { directory } : undefined);
 
       if (result.success) {
         const {
@@ -373,11 +437,15 @@ export const useProjectSlice = () => {
           rectification3D,
           bbox,
           orthoImage,
+          videoMissing,
+          missingInputs,
         } = result.message;
 
         // Set project directory and type
         dispatch(setProjectDirectory(projectDirectory));
         dispatch(setProjectType(settings.footage));
+        dispatch(setProjectIssues({ videoMissing: videoMissing ?? false, missingInputs: missingInputs ?? [] }));
+        recordRecentProject(localStorage, projectDirectory, settings.footage, Date.now());
 
         // Loading a project must never inherit a stabilization region left
         // "active" (in focus mode) from a previous project/session in this
@@ -394,14 +462,18 @@ export const useProjectSlice = () => {
             width: videoMetadata.width,
             height: videoMetadata.height,
             fps: videoMetadata.fps,
-            path: filePrefix + settings.video.filepath,
+            // No player for a missing video: VideoRange shows the first frame instead.
+            path: videoMissing ? '' : filePrefix + settings.video.filepath,
             duration: videoMetadata.duration,
             creation: videoMetadata.creation,
             name: videoMetadata.name,
+            source: videoMetadata.source,
+            frameCount: videoMetadata.frameCount,
+            intervalMs: videoMetadata.intervalMs,
           })
         );
 
-        dispatch(clearErrorMessage());
+        dispatch(clearStepAlert('first-frame-error'));
 
         // Load paths for images
         if (paths && paths.length !== 0) {
@@ -797,6 +869,10 @@ export const useProjectSlice = () => {
     dispatch(setStabilizationActiveRegionIndex(index));
   };
 
+  const onToggleVideoExtraFields = () => {
+    dispatch(toggleVideoExtraFields());
+  };
+
   const onSetDefaultProjectState = () => {
     if (type === 'uav') {
       dispatch(setDefaultUavState());
@@ -816,6 +892,7 @@ export const useProjectSlice = () => {
   return {
     // ATRIBUTES
     firstFramePath,
+    issues,
     projectDetails,
     projectDirectory,
     stabilizationActiveRegionIndex,
@@ -826,8 +903,10 @@ export const useProjectSlice = () => {
     onAddStabilizationRegion,
     onChangeFramesResolution,
     onDeleteStabilizationRegion,
+    onGetFramesFolder,
     onGetVideo,
     onInitProject,
+    onInspectFramesFolder,
     onLoadProject,
     onProjectDetailsChange,
     onSetDefaultProjectState,
@@ -836,6 +915,7 @@ export const useProjectSlice = () => {
     onSetStabilization,
     onSetStabilizationActiveRegionIndex,
     onSetVideoParameters,
+    onToggleVideoExtraFields,
     onUpdateStabilizationRegion,
   };
 };

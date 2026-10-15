@@ -3,6 +3,7 @@ import { useObliqueSlice, useUiSlice } from '../hooks';
 import { OverlayLayers } from './OverlaySvg';
 import * as d3 from 'd3';
 import { drawOblique } from './Graphs/drawOblique';
+import { NOT_MAGNIFIER } from './Graphs/drawMagnifier';
 
 type Point = { x: number; y: number };
 
@@ -13,6 +14,7 @@ export const DrawOblique = ({
   scale,
   position,
   layers,
+  imageSrc,
 }: {
   width: number;
   height: number;
@@ -20,6 +22,7 @@ export const DrawOblique = ({
   scale: number;
   position: { x: number; y: number };
   layers: OverlayLayers;
+  imageSrc: string;
 }) => {
   const { interactiveLayerRef, uiLayerRef, svgRef } = layers;
 
@@ -56,7 +59,7 @@ export const DrawOblique = ({
     const interactiveLayerSel = d3.select(interactiveLayerRef.current);
     const uiLayerSel = d3.select(uiLayerRef.current);
 
-    interactiveLayerSel.selectAll('*').remove();
+    interactiveLayerSel.selectAll(NOT_MAGNIFIER).remove();
 
     drawOblique({
       layer: interactiveLayerSel,
@@ -67,7 +70,11 @@ export const DrawOblique = ({
       setMousePressed,
       setPointsInStore: onChangeCoordinates,
       scale,
+      position,
       isDefaultCoordinates,
+      imageSrc,
+      imageWidth: width,
+      imageHeight: height,
     });
     // onChangeCoordinates is recreated every render but only ever dispatches based on its
     // arguments, no render state captured — adding it would refire this effect on every render
@@ -85,6 +92,7 @@ export const DrawOblique = ({
     localPoints,
     isDefaultCoordinates,
     theme,
+    imageSrc,
   ]);
 
   // To create initial points

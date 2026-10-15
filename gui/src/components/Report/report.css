@@ -1,680 +1,728 @@
-body {
-    background-color: #262626;
-    -webkit-print-color-adjust: exact;
-    print-color-adjust: exact;
+/* scale-exempt-file: the report is a printable document with its own type
+   scale, and Report.tsx inlines every stylesheet into the exported
+   report.html. Exempt as a whole under Phase 6g decision G2 (spec A15). */
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+.report-doc[data-theme-scope],
+.report-measure {
+  /* Fixed light document, whatever the app theme. data-theme="light" on the
+     same element brings the light tokens; these override the ones charts
+     read as their ground and ink so plots sit on white paper. The extra
+     [data-theme-scope] makes this rule outrank [data-theme="light"] on
+     specificity, so the override holds whatever the stylesheet order. */
+  --background-color: #ffffff;
+  --secondary-background-color: #ffffff;
+  --card-surface: #ffffff;
+  --primary-text-color: #1f2a37;
+  --secondary-text-color: #5b6878;
+  --doc-ink: #1f2a37;
+  --doc-muted: #5b6878;
+  --doc-rule: #d5dbe3;
+  --doc-accent: #3d6d9e;
+  --doc-paper: #ffffff;
+  --doc-desk: #e6e9ee;
+  --doc-font: -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.report-doc {
+  background: var(--doc-desk);
+  color: var(--doc-ink);
+  font-family: var(--doc-font);
+  font-size: 11px;
+  line-height: 1.45;
+  font-variant-numeric: tabular-nums;
+  padding: 24px 0;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.sheet {
+  box-sizing: border-box;
+  width: 210mm;
+  height: 297mm;
+  margin: 0 auto 24px;
+  padding: 11mm 12mm 0;
+  background: var(--doc-paper);
+  box-shadow: 0 1px 3px rgba(31, 42, 55, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  break-after: page;
+  page-break-after: always;
+}
+
+.sheet:last-child {
+  break-after: auto;
+  page-break-after: auto;
+}
+
+.sheet-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.report-doc * {
+  /* index.css sets the app font on every element; the report keeps its own stack. */
+  font-family: inherit;
+}
+
+.report-measure {
+  position: absolute;
+  top: 0;
+  left: -10000px;
+  width: 186mm;
+  padding: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.sheet-block {
+  flex: none;
 }
-
-/* Cuando terminemos el componente, pasar lo de repot-html-page a body, dejando un solo div. Renombrar el container a page*/
-#report-html-page {
-    overflow-y: auto;
-    overflow-x: auto;
-    width: 98%;
-    height: 100vh;
-    margin: 20px;
-    color: #000;
-    margin-top: 20px;
-    margin-bottom: 20px;
-}
-
-#report-html-container {
-    margin-left: auto;
-    margin-right: auto;
-    width: 1050px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 40px;
-    padding-bottom: 20px;
-    padding-right: 20px;
-    padding-left: 20px;
-    background-color: #FFFFFF;
-}
 
+.sheet-who {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 8px;
+}
 
-#report-header-container {
-    width: 100%;
-    border-radius: 20px;
-    background: linear-gradient(to right, #0678BE, #0A5A8A);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px 70px;
-}
-
-#header-icon-container {
-    color: #FFFFFF;
-}
-
-#header-icon svg {
-    width: 65px;
-    height: 65px;
+.sheet-where {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-#header-title-container {
-    height: 100px;
-    flex: 1;
-    min-width: 0;
-    margin-left: 20px;
-    margin-right: 20px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+.sheet-logo {
+  display: block;
+  width: auto;
+  height: 12px;
+  opacity: 0.85;
 }
 
-.header-title-text {
-    color: #FFFFFF;
+.sheet-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  border-top: 1px solid var(--doc-rule);
+  align-items: center;
+  padding: 5px 0 8mm;
+  color: var(--doc-muted);
+  font-size: 9px;
 }
 
-#header-title-date {
-    color: #FFFFFF;
-    margin-top: 5px;
-    font-weight: 500;
+.doc-h1 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 650;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
-
-#header-total {
-    height: 100px;
-    margin-left: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+.doc-meta {
+  margin: 0;
+  color: var(--doc-muted);
 }
 
-.report-title-field {
-    align-self: flex-start;
-    margin-bottom: -15px;
-    font-weight: 900;
-    font-size: 1.7em;
+.doc-q {
+  margin: 0;
+  color: var(--doc-accent);
+  font-size: 34px;
+  font-weight: 650;
+  line-height: 1;
+  letter-spacing: -0.01em;
 }
 
-#report-video-info-container {
-    width: 100%;
-    border: solid #000000;
-    border-radius: 20px;
-    margin-top: 20px;
+.doc-q-unit {
+  margin-left: 6px;
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.report-grid-1 {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: auto 1px auto;
-    /* Añade una fila para la línea divisoria */
-    gap: 5px;
-    position: relative;
-    padding-left: 40px;
-    padding-right: 40px;
-    padding-top: 5px;
-    padding-bottom: 5px;
+.doc-q-pm {
+  margin-left: 10px;
+  color: var(--doc-muted);
+  font-size: 13px;
+  font-weight: 500;
 }
 
-.report-grid-1::before {
-    content: "";
-    grid-column: 1 / -1;
-    /* Ocupa todas las columnas */
-    grid-row: 2;
-    /* Segunda fila */
-    height: 0.3px;
-    background-color: #00000054;
-    /* Color de la línea divisoria */
+.doc-figure {
+  margin: 0;
+  position: relative;
+  align-self: center;
 }
 
-.report-info-item {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 30px;
+.doc-figure img {
+  display: block;
 }
 
-.report-info-item:nth-child(-n+5) {
-    grid-row: 1;
-    /* Primera fila */
+.doc-figure figcaption {
+  margin-top: 4px;
+  color: var(--doc-muted);
+  font-size: 9px;
 }
 
-#report-processed-range-container {
-    width: 100%;
-    border: solid #000000;
-    border-radius: 20px;
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    padding-top: 10px;
-    padding-bottom: 20px;
+.doc-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
 }
 
-#report-carousel {
-    align-self: center;
-    margin-top: 10px;
-    width: 95%;
+.doc-table {
+  width: 100%;
+  font-size: 9.5px;
+  border-collapse: collapse;
 }
 
-.report-carousel-img {
-    width: calc(100% / 5);
-    height: auto;
+.doc-table th {
+  padding: 1px 4px;
+  border-bottom: 1px solid var(--doc-ink);
+  color: var(--doc-muted);
+  font-size: 8.5px;
+  font-weight: 600;
+  text-align: left;
+  vertical-align: bottom;
 }
 
-#first-img-carousel {
-    border-top-left-radius: 20px;
-    border-bottom-left-radius: 20px;
+.doc-table td {
+  padding: 1px 4px;
+  border-bottom: 1px solid var(--doc-rule);
 }
 
-#last-img-carousel {
-    border-top-right-radius: 20px;
-    border-bottom-right-radius: 20px;
+.doc-table--numeric th:not(:first-child),
+.doc-table--numeric td:not(:first-child) {
+  text-align: right;
 }
 
-#report-carousel-footer {
-    display: flex;
-    width: 95%;
-    align-self: center;
+.doc-table .doc-unit {
+  display: block;
+  font-weight: 400;
 }
 
-#report-carousel-footer p {
-    width: calc(100% / 5);
-    text-align: center;
+.doc-tag {
+  display: inline-block;
+  padding: 0 5px;
+  border: 1px solid var(--doc-rule);
+  border-radius: 3px;
+  font-size: 9px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-#report-section-wrapper {
-    width: 100%;
+.doc-tag--seeded {
+  border-color: var(--doc-ink);
 }
 
-#report-section-container {
-    width: 100%;
-    margin-top: 25px;
-    background: linear-gradient(to right, #0678BE, #0A5A8A);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    border-radius: 20px;
-    padding-top: 20px;
-    padding-left: 40px;
-    padding-right: 40px;
-    padding-bottom: 10px;
-    color: #FFFFFF;
+/* Technique identity: the label is always printed; the shape (● ■ ▲, as in the
+   plot and the Results screen) repeats it in the technique's colour. */
+.doc-tech {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
 }
 
-#report-section-top-container {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
+.doc-tech::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  background: currentColor;
 }
-
-#report-section-top-left-container {
-    margin-left: 12px;
-    margin-top: 40px;
-    width: 50%;
+.doc-tech--lspiv::before {
+  border-radius: 50%;
 }
-
-.top-left-vertical {
-    display: flex;
-    margin-top: 20px;
+.doc-tech--stiv::before {
+  width: 7px;
+  height: 7px;
 }
-
-.top-left-medition-info-vertical {
-    order: 2;
-    margin-left: 15px;
+.doc-tech--iwave::before {
+  width: 9px;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 
-#report-section-top-right-container {
-    margin-right: 12px;
-    margin-top: 8px;
+.doc-tech--lspiv::before {
+  background: var(--tech-lspiv);
 }
-
-#report-section-discharge-label {
-    margin-top: 12px;
-    font-weight: 480;
+.doc-tech--stiv::before {
+  background: var(--tech-stiv);
 }
-
-.report-section-title {
-    font-size: 45px;
+.doc-tech--iwave::before {
+  background: var(--tech-iwave);
 }
 
-.report-section-title-1 {
-    font-size: 20px;
-    font-weight: 500;
+.doc-applied {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+  margin: 0;
+  padding: 4px 0;
+  border-top: 1px solid var(--doc-rule);
+  border-bottom: 1px solid var(--doc-rule);
+  color: var(--doc-muted);
+  list-style: none;
 }
 
-#report-section-img {
-    margin-top: 40px;
-    width: 85%;
-    height: auto;
-    border-radius: 20px;
+.doc-applied b {
+  color: var(--doc-ink);
+  font-weight: 600;
 }
 
-#report-section-top-left-container h4 {
-    font-size: 16px;
-    font-weight: 400;
+.doc-kv {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 2px 14px;
+  margin: 0;
 }
 
-
-#report-section-velocity {
-    margin-top: -70px;
-    margin-left: -30px
+.doc-kv dt {
+  color: var(--doc-muted);
 }
 
-#report-section-discharge {
-    margin-left: -30px
+.doc-kv dd {
+  margin: 0;
 }
 
-#report-section-bath {
-    margin-top: -50px;
-    margin-left: -26px
+.doc-compare {
+  display: flex;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  list-style: none;
 }
-
 
-#report-section-table {
-    margin-top: 10px;
-    text-align: center;
-    /* Centra el contenido del contenedor */
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
+.doc-compare li[data-active='true'] {
+  font-weight: 650;
 }
 
-
-#report-section-table table {
-    width: 45%;
-    border-collapse: collapse;
-    margin: 0 auto;
-    /* Centra la tabla horizontalmente */
+/* Same grammar as the report's overlay lines (overlayStyle 'report' size): a
+   1.5px light stroke centred on a 3px dark halo, so the box reads on bright
+   water and dark banks alike. The faint wash marks the area, not just its edge. */
+.doc-region {
+  position: absolute;
+  box-sizing: border-box;
+  border: 1.5px solid #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow:
+    0 0 0 0.75px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 0.75px rgba(0, 0, 0, 0.5);
 }
-
 
-#report-section-table th,
-#report-section-table td {
-    border: none;
-    padding: 2px;
-    text-align: center;
-    /* Centra el texto en las celdas */
+/* Number chip on the top-left corner, as in the app's stabilization canvas. */
+.doc-region-n {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 12px;
+  height: 12px;
+  transform: translate(-50%, -50%);
+  border: 1px solid #ffffff;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #ffffff;
+  font-size: 7.5px;
+  font-weight: 700;
+  line-height: 10px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
-#report-section-table thead {
-    border-bottom: 2px solid;
+.doc-overlay {
+  position: absolute;
+  inset: 0;
 }
 
-#report-section-table tbody tr {
-    border: none;
+.doc-strip {
+  display: grid;
+  grid-template-columns: repeat(5, 132px);
+  justify-content: space-between;
+  gap: 10px;
+  align-self: stretch;
 }
 
-#report-section-table tbody tr td {
-    border: none;
+.doc-strip img {
+  display: block;
 }
 
-#report-section-table th div {
-    display: block;
-    text-align: center;
+.doc-strip figcaption {
+  text-align: center;
 }
 
-#report-section-table th div:first-child {
-    font-weight: bold;
-    font-size: 1.5em;
+.doc-colophon {
+  white-space: nowrap;
 }
 
-#report-section-table th div:last-child {
-    font-size: 1.1em;
-    /* Opcional: para hacer la 'm' más pequeña */
-    font-weight: 400;
-    margin-top: 2px;
+/* A value phrase that must not break inside, e.g. "Threshold 2". */
+.doc-nw {
+  white-space: nowrap;
 }
 
-
-#report-section-table td {
-    font-size: 1.2em;
+/* Row of facts, label over value (Footage). */
+.doc-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 22px;
+  margin: 0;
 }
-
-.mt--1 {
-    margin-top: -20px;
+.doc-facts div {
+  display: flex;
+  flex-direction: column;
 }
-
-#download-button {
-    position: absolute;
-    height: 60px;
-    width: 100px;
-    top: 10px;
-    right: 200px;
-
+.doc-facts dt {
+  color: var(--doc-muted);
+  font-size: 9px;
 }
-
-#text-report {
-    margin-top: 40px;
-    width: 80%;
+.doc-facts dd {
+  margin: 0;
 }
 
-#report-section-summary-container {
-    margin-top: 25px;
-    width: 100%;
-    height: auto;
-    border: solid #000000;
-    border-radius: 20px;
-    padding: 15px;
+/* Compact section block (spec §8). */
+.sec {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
-
-
-#report-section-summary-container th,
-#report-section-summary-container td {
-    border: none;
-    padding: 2px;
-    text-align: center;
-    /* Centra el texto en las celdas */
+.sec-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid var(--doc-ink);
 }
-
-#report-section-summary-container table {
-    color: black;
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0 auto;
-    /* Centra la tabla horizontalmente */
+.sec-name {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 650;
 }
-
-#report-section-summary-container thead {
-    border-bottom: solid 1px #00000054;
+.sec-q {
+  color: var(--doc-accent);
+  font-size: 14px;
+  font-weight: 650;
 }
-
-#report-section-summary-container th div:first-child {
-    font-weight: bold;
-    font-size: 1.2em;
+.sec-q-unit {
+  color: var(--doc-muted);
+  font-size: 11px;
+  font-weight: 500;
 }
-
-#report-section-summary-container th div:last-child {
-    font-size: 1.1em;
-    /* Opcional: para hacer la 'm' más pequeña */
-    font-weight: 400;
-    margin-top: 1.5px;
-    margin-bottom: 5px;
+.sec-row {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 14px;
+  align-items: start;
 }
-
-#report-section-summary-container tr th:first-child {
-    vertical-align: top;
-    font-size: 1.2em;
-    word-wrap: break-word;
-    /* Permite que las palabras largas se dividan */
-    overflow-wrap: break-word;
-    /* Asegura que el texto se ajuste dentro del contenedor */
-    max-width: 14ch;
-    /* Limita el ancho del texto a 80 caracteres */
+.sec-frame {
+  align-self: start;
 }
-
-#report-section-summary-container tbody tr {
-    height: 40px;
+.doc-cols--3 {
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
 }
-
-.summary-last-section {
-    border-bottom: solid 1px #00000054;
+.doc-note {
+  margin: 0;
+  color: var(--doc-muted);
+  font-size: 9px;
 }
-
 
-#report-pixel-transformation-container {
-    margin-top: 25px;
-    color: #000000;
-    width: 100%;
-    border: solid #000000;
-    border-radius: 20px;
-    display: flex;
-    padding: 15px;
-    padding-left: 20px;
-    padding-right: 20px;
+/* Report profile plot (ProfilePlot.tsx). Colours resolve inside the light report scope. */
+.rp {
+  display: block;
+  overflow: visible;
 }
-
-#transformation-uav {
-    width: 33%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: #000000;
-    padding-left: 10px;
-    padding-right: 20px;
-    height: 30px;
-    border-right: solid 1px #00000054;
+.rp text {
+  font-family: var(--doc-font);
+  font-size: 8px;
+  fill: var(--doc-muted);
 }
-
-#transformation-uav p {
-    color: #000000;
+.rp .rp-title {
+  fill: var(--doc-ink);
+  font-weight: 600;
 }
-
-#transformation-uav-last-child {
-    border-right: solid 1px #00000054;
-    width: 33%;
+.rp .rp-legend {
+  fill: var(--doc-ink);
 }
-
-
-#report-processing-parameters-container {
-    margin-top: 25px;
-    color: #000000;
-    width: 100%;
-    border: solid #000000;
-    border-radius: 20px;
-    display: flex;
-    padding: 15px;
-    padding-left: 20px;
-    padding-right: 20px;
+.rp-grid {
+  stroke: #e6eaef;
+  stroke-width: 0.6;
 }
-
-#report-processing-parameters-container>div {
-    width: 33%;
-    display: flex;
-    align-items: center;
-    flex-direction: column;
+.rp-grid--zero {
+  stroke: #9aa6b4;
+  stroke-width: 0.8;
 }
-
-#report-processing-parameters-container>div:first-child {
-    border-right: solid 1px #00000054;
+.rp-bar--lspiv {
+  fill: var(--tech-lspiv);
+  fill-opacity: 0.75;
 }
-
-#report-processing-parameters-container>div:last-child {
-    border-left: solid 1px #00000054;
+.rp-bar--stiv {
+  fill: var(--tech-stiv);
+  fill-opacity: 0.75;
 }
-
-
-#report-processing-parameters-container>div>div {
-    width: 80%;
-    display: flex;
-    justify-content: space-between;
-    margin-top: 10px;
-    padding-right: 20px;
-    padding-left: 20px;
+.rp-bar--iwave {
+  fill: var(--tech-iwave);
+  fill-opacity: 0.75;
 }
-
-#report-processing-parameters-container>div>div>p {
-    color: #000000;
+.rp-line {
+  fill: none;
+  stroke-width: 1;
 }
-
-#report-processing-parameters-container>div>h2 {
-    font-weight: 400;
+.rp-line--active {
+  stroke-width: 1.8;
 }
-
-.report-processing-parameters-subfield {
-    padding-left: 60px !important;
+.rp-line--lspiv {
+  stroke: var(--tech-lspiv);
 }
-
-#report-footer-container {
-    width: 100%;
-    border-radius: 20px;
-    margin-top: 80px;
-    display: flex;
-    background-color: #F5F5F5;
-    padding: 20px 40px;
-    color: #000000;
-    align-items: center;
+.rp-line--stiv {
+  stroke: var(--tech-stiv);
 }
-
-#report-footer-river-logo {
-    width: 150px;
-    height: auto;
+.rp-line--iwave {
+  stroke: var(--tech-iwave);
 }
-
-#report-footer-container div {
-    width: 33%;
+/* Same grammar as the Results chart: dashed = interpolated, same colour. */
+.rp-line--interp {
+  stroke-dasharray: 3.5 2.5;
 }
-
-#report-footer-container div:nth-child(2) {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    color: #000;
+/* Measured marker: technique fill with a thin paper ring so it stays crisp on its line. */
+.rp-marker {
+  stroke: var(--doc-paper);
+  stroke-width: 0.75;
 }
-
-#report-footer-container div:last-child {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    color: #000;
+.rp-marker--lspiv {
+  fill: var(--tech-lspiv);
 }
-
-#report-footer-container div:last-child a {
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    width: 40%;
-    text-decoration: none;
-    color: #000;
+.rp-marker--stiv {
+  fill: var(--tech-stiv);
 }
-
-#report-footer-container div:last-child a>span {
-    font-size: 1.2em;
-    font-weight: 500;
-    color: #000;
+.rp-marker--iwave {
+  fill: var(--tech-iwave);
 }
-
-#report-footer-github-logo {
-    width: 50px;
-    height: auto;
+/* Rejected (low-quality iWave) station: hollow, not joined to the line. */
+.rp-marker--hollow {
+  fill: var(--doc-paper);
 }
-
+.rp-marker--hollow.rp-marker--lspiv,
+.rp-marker--ring.rp-marker--lspiv {
+  stroke: var(--tech-lspiv);
+}
+.rp-marker--hollow.rp-marker--stiv,
+.rp-marker--ring.rp-marker--stiv {
+  stroke: var(--tech-stiv);
+}
+.rp-marker--hollow.rp-marker--iwave,
+.rp-marker--ring.rp-marker--iwave {
+  stroke: var(--tech-iwave);
+}
+/* Hand-tuned STIV station: a thin outer ring. */
+.rp-marker--ring {
+  fill: none;
+  stroke-width: 0.7;
+}
+.rp-key-line {
+  fill: none;
+  stroke: var(--doc-muted);
+  stroke-width: 1.4;
+}
+.rp-key-line--interp {
+  stroke-dasharray: 3.5 2.5;
+}
+.rp-key-fill {
+  fill: var(--doc-muted);
+}
+.rp-key-hollow {
+  fill: none;
+  stroke: var(--doc-muted);
+  stroke-width: 0.75;
+}
+.rp-water {
+  fill: #e3eef8;
+}
+.rp-bed {
+  fill: none;
+  stroke: #6b5c4a;
+  stroke-width: 1.2;
+}
+.rp .rp-bank {
+  font-weight: 700;
+}
+.rp .rp-bank--left {
+  fill: var(--pin-left);
+}
+.rp .rp-bank--right {
+  fill: var(--pin-right);
+}
 
 @media print {
-    @page {
-        margin: 0;
-        size: A4;
-    }
-
-    #report-section-container {
-        page-break-inside: avoid;
-        /* Evita que el contenedor se divida entre páginas */
-    }
-
-    #report-section-wrapper {
-        page-break-inside: avoid;
-        /* Evita que el contenedor se divida entre páginas */
-    }
-
-    #summary-title {
-        page-break-before: always;
-        /* Comienza una nueva página antes de este contenedor */
-        page-break-inside: avoid;
-        /* Evita que el contenedor se divida entre páginas */
-    }
-
-    #report-footer-container {
-        position: fixed;
-        bottom: 0;
-        width: 100%;
-        margin-bottom: 15px;
-
-    }
-
-    #report-footer-container div:nth-child(2) {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    #report-footer-container div:last-child {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-
-    #report-section-table {
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
-    }
-
-
-    /* Asegurarse de que los colores de fondo y bordes se impriman */
-    * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    img {
-        image-rendering: pixelated;
-        /* Opción para reducir la calidad de las imágenes */
-    }
-
-    /* Asegura que el fondo de la última página sea consistente */
-    body {
-        background-color: #fff !important;
-        /* Cambia este color según tus necesidades */
-    }
+  .report-doc {
+    background: none;
+    padding: 0;
+  }
+  .sheet {
+    margin: 0;
+    box-shadow: none;
+  }
 }
 
-.image-border-radius {
-    border-radius: 20px;
+/* Report header (spec §8). */
+.rh {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.rh-mast {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: end;
+  gap: 4px 16px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--doc-ink);
+}
+.rh-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  color: var(--doc-muted);
+}
+.rh-meta b {
+  color: var(--doc-ink);
+  font-weight: 600;
+}
+.rh-footage {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--doc-ink);
+  font-weight: 600;
+}
+.doc-ficon {
+  width: 16px;
+  height: 16px;
+  color: var(--doc-accent);
+}
+.rh-verdict {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 22px;
+  align-items: center;
+}
+.rh-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 18px;
+  margin: 0;
+}
+.rh-facts div {
+  display: flex;
+  flex-direction: column;
+}
+.rh-facts dt {
+  color: var(--doc-muted);
+  font-size: 9px;
+}
+.rh-facts dd {
+  display: flex;
+  gap: 8px;
+  margin: 0;
+  font-weight: 600;
+}
+.rh-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
 }
 
-.pixel-transformation-with-image {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 90%;
+/* Method blocks (spec §8). */
+.method {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
-
-.pixel-transformation-with-image-vertical {
-    display: flex;
-    width: auto;
-    width: 50%;
-    border-right: 1px solid #00000054;
+.method-h {
+  margin: 4px 0 0;
+  padding-bottom: 3px;
+  border-bottom: 2px solid var(--doc-ink);
+  font-size: 14px;
+  font-weight: 650;
 }
-
-#oblique-transformation-info {
-    width: 50%;
-    height: 95%;
-    margin-top: 20px;
+.method-three {
+  display: grid;
+  /* auto-fit: one technique gets the full width, three share it. */
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  align-items: start;
 }
-
-#oblique-transformation-info table {
-    width: 50%;
-    border-collapse: collapse;
-    margin: 0 auto;
-    /* Centra la tabla horizontalmente */
+/* A column keeps its share: a long value wraps inside it instead of running into the next technique. */
+.method-three > .doc-kv {
+  min-width: 0;
+  grid-template-columns: fit-content(50%) minmax(0, 1fr);
 }
-
-#oblique-transformation-info thead tr th {
-    font-size: 18px;
-    font-weight: 500;
+.method-three > .doc-kv dd {
+  overflow-wrap: anywhere;
 }
-
-#oblique-transformation-info th,
-#oblique-transformation-info td {
-    border: none;
-    padding: 3px;
-    text-align: center;
-    /* Centra el texto en las celdas */
+.method-three > .doc-kv dd.doc-doi {
+  overflow-wrap: normal;
 }
-
-#oblique-transformation-info tbody tr:first-child {
-    height: 8px;
-    /* Pequeño margen entre la fila 1 y 2 */
+.mc {
+  display: grid;
+  /* Image column = REPORT_FLOW.METHOD_IMAGE_WIDTH. */
+  grid-template-columns: 240px 1fr;
+  grid-auto-flow: row dense;
+  gap: 6px 16px;
+  align-content: start;
 }
-
-#oblique-transformation-info tbody td:first-child {
-    border-right: 1px solid #00000054;
-    /* Línea divisoria entre columna 1 y 2 */
+.mc--text {
+  grid-template-columns: 1fr;
 }
-
-#ipcam-transformation-info {
-    width: 100%;
-    height: 95%;
-    margin-left: 7.5%;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    /* Cambiado a flex-start para alinear a la izquierda */
-    justify-content: center;
-    font-size: 20px;
-    font-weight: 400;
+.mc > .mc-title {
+  grid-column: 1 / -1;
 }
-
-#ipcam-transformation-info p {
-    margin-bottom: 8px;
+.mc > .mc-img {
+  grid-column: 1;
+  grid-row: 2 / span 4;
+  align-self: start;
+}
+.mc:not(.mc--text) > :not(.mc-title):not(.mc-img) {
+  grid-column: 2;
+}
+.mc > .doc-cols {
+  gap: 20px;
+}
+.mc-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 3px;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--doc-ink);
+  font-size: 11px;
+  font-weight: 650;
+}
+.mc-title .doc-ficon {
+  width: 13px;
+  height: 13px;
+}
+.doc-kv-head {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 8px;
+}
+/* Says a technique was run but its discharge is not the reported one; the label keeps full ink. */
+.doc-kv-aside {
+  color: var(--doc-muted);
+  font-style: italic;
+}
+.doc-kv-note {
+  grid-column: 1 / -1;
+  color: var(--doc-muted);
 }

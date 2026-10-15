@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { COLORS, UNIT_CONVERSIONS, UNITS } from '../constants/constants';
 import { useDataSlice, useProjectSlice, useUiSlice } from '../hooks';
-import { GrRefresh } from 'react-icons/gr';
+import { Icons } from './CustomIcons/Icons';
 import { useWizard } from 'react-use-wizard';
+import { useTranslation } from 'react-i18next';
 
 const colors = [
   COLORS.LIGHT_BLUE, // Light Blue - Lowest
@@ -12,6 +13,7 @@ const colors = [
 ];
 
 export const ColorBar = ({ min, max }: { min: number; max: number }) => {
+  const { t } = useTranslation();
   const { projectDetails } = useProjectSlice();
   const isImperial = projectDetails.unitSistem === 'imperial';
   const toDisplay = (v: number) => (isImperial ? v * UNIT_CONVERSIONS.M_TO_FT : v);
@@ -20,6 +22,19 @@ export const ColorBar = ({ min, max }: { min: number; max: number }) => {
 
   const [defaultMin, setDefaultMin] = useState(toDisplay(min).toFixed(2));
   const [defaultMax, setDefaultMax] = useState(toDisplay(max).toFixed(2));
+
+  const [hoverFraction, setHoverFraction] = useState<number | null>(null);
+
+  const handleGradientMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const fraction = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+    setHoverFraction(fraction);
+  };
+
+  const handleGradientMouseLeave = () => setHoverFraction(null);
+
+  const hoveredValue =
+    hoverFraction === null ? null : toDisplay(min) + hoverFraction * (toDisplay(max) - toDisplay(min));
 
   const { activeStep } = useWizard();
   const { screenSizes } = useUiSlice();
@@ -71,7 +86,18 @@ export const ColorBar = ({ min, max }: { min: number; max: number }) => {
         onKeyDown={(e) => e.key === 'Enter' && applyChanges()}
         onBlur={applyChanges}
       />
-      <div className="colorbar" style={{ background: gradient }} />
+      <div
+        className="colorbar"
+        style={{ background: gradient }}
+        onMouseMove={handleGradientMouseMove}
+        onMouseLeave={handleGradientMouseLeave}
+      >
+        {hoverFraction !== null && (
+          <div className="colorbar-marker" style={{ left: `${hoverFraction * 100}%` }}>
+            <span>{hoveredValue!.toFixed(2)}</span>
+          </div>
+        )}
+      </div>
       <input
         value={defaultMax}
         className="colorbar-input"
@@ -83,9 +109,16 @@ export const ColorBar = ({ min, max }: { min: number; max: number }) => {
       />
       <span className="colorbar-unit-label">{unitLabel}</span>
 
+      {colorbarLimits.default === false && activeStep !== 7 && (
+        <span className="colorbar-manual-badge">{t('Processing.colorbarManual', { defaultValue: 'Manual' })}</span>
+      )}
       {activeStep !== 7 && (
-        <button onClick={onRefresh} disabled={colorbarLimits.default}>
-          <GrRefresh />
+        <button
+          onClick={onRefresh}
+          disabled={colorbarLimits.default}
+          title={t('Processing.colorbarReset', { defaultValue: 'Reset to data range' })}
+        >
+          {Icons.Undo('currentColor')}
         </button>
       )}
     </div>

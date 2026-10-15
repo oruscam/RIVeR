@@ -3,26 +3,60 @@ import { createFolderStructure } from './createFolderStructure';
 import { join, dirname } from 'path';
 import { getVideoMetadata } from './utils/getVideoMetadata';
 import { PROJECT_CONFIG } from '../main';
+import { withInterval } from '../../commons/framesSource';
+
+/** A frames folder described in the shape getVideoMetadata returns for a video. */
+function framesMetadata(
+  folder: string,
+  name: string,
+  frames: { count: number; width: number; height: number; intervalMs: number }
+) {
+  const timing = withInterval({ frame_count: frames.count }, frames.intervalMs);
+  return {
+    width: frames.width,
+    height: frames.height,
+    fps: timing.fps,
+    duration: timing.total_length,
+    creation: '',
+    name,
+    path: folder,
+    source: 'frames' as const,
+    frameCount: frames.count,
+    intervalMs: frames.intervalMs,
+  };
+}
 
 function initProject() {
   ipcMain.handle(
     'init-project',
-    async (_event, args: { path: string; name: string; type: string; language: string; unitSistem: string }) => {
-      const { name, path, type, language, unitSistem } = args;
+    async (
+      _event,
+      args: {
+        path: string;
+        name: string;
+        type: string;
+        language: string;
+        unitSistem: string;
+        frames?: { count: number; width: number; height: number; intervalMs: number };
+      }
+    ) => {
+      const { name, path, type, language, unitSistem, frames } = args;
 
-      const [videoName] = name.split('.');
-      const newDirectory = join(PROJECT_CONFIG.mainDirectory, videoName);
+      // A video's project is named after the file without its extension; a folder name is kept whole.
+      const projectName = frames ? name : name.split('.')[0];
+      const newDirectory = join(PROJECT_CONFIG.mainDirectory, projectName);
 
       try {
-        const result = await getVideoMetadata(path);
+        const result = frames ? framesMetadata(path, name, frames) : await getVideoMetadata(path);
         const directory = await createFolderStructure(
           newDirectory,
           type,
           language,
           result.path,
           name,
-          result,
-          unitSistem
+          { width: result.width, height: result.height, fps: result.fps, duration: result.duration },
+          unitSistem,
+          frames ? { count: frames.count, intervalMs: frames.intervalMs } : undefined
         );
 
         PROJECT_CONFIG.projectDirectory = directory;

@@ -1,7 +1,7 @@
 """
 File Name:   stabilize_frames.py
 Project:     RIVeR - Rectification of Image Velocity Results
-Description: UAV frame stabilization via Lucas-Kanade point tracking and similarity transform.
+Description: Frame stabilization via Lucas-Kanade point tracking and similarity transform.
 Authors:     Antoine Patalano
 Institution: ORUS / UNC
 License:     AGPL-3.0-or-later
@@ -72,9 +72,10 @@ def _fit_similarity(src: np.ndarray, dst: np.ndarray) -> Optional[np.ndarray]:
 
 
 def _make_sanity_check(stabilized_dir: Path, n_frames: int = 50) -> Path:
-	"""Write a temporal std-dev false-colour image to stabilized_dir/sanity_check.jpg.
+	"""Write a temporal std-dev image to stabilized_dir/sanity_check.jpg.
 
 	Dark regions = locked static areas; bright = residual motion or failed tracking.
+	The image is single-channel: the GUI colours it with the active theme's ramp.
 	"""
 	frame_files = sorted(f for f in stabilized_dir.glob("*.jpg") if f.name != "sanity_check.jpg")
 	if not frame_files:
@@ -97,10 +98,9 @@ def _make_sanity_check(stabilized_dir: Path, n_frames: int = 50) -> Path:
 
 	stddev = stack.std(axis=0)
 	stddev_norm = cv2.normalize(stddev, None, 0, 255, cv2.NORM_MINMAX).astype(np.uint8)
-	coloured = cv2.applyColorMap(stddev_norm, cv2.COLORMAP_INFERNO)
 
 	out_path = stabilized_dir / "sanity_check.jpg"
-	cv2.imwrite(str(out_path), coloured)
+	cv2.imwrite(str(out_path), stddev_norm, [int(cv2.IMWRITE_JPEG_QUALITY), 95])
 	return out_path
 
 

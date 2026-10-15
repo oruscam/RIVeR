@@ -162,6 +162,7 @@ class RiverCalibrator:
 
 		records: List[FrameRecord] = []
 		image_size = None
+		orig_size = None
 
 		for p in tqdm(sorted(image_paths), desc="Detecting calibration corners"):
 			img = cv.imread(p, cv.IMREAD_COLOR)
@@ -173,6 +174,8 @@ class RiverCalibrator:
 				img = cv.rotate(img, rot_map[rotate % 360])
 
 			h, w = img.shape[:2]
+			if orig_size is None:
+				orig_size = (w, h)
 			if max(h, w) > self.max_side:
 				scale = self.max_side / float(max(h, w))
 				img = cv.resize(img, (int(w * scale), int(h * scale)), interpolation=cv.INTER_AREA)
@@ -268,8 +271,12 @@ class RiverCalibrator:
 		K, dist, rms, rvecs, tvecs, keep_idx = self._solve_charuco(image_size, all_corners, all_ids, robust=True)
 
 		used_records = [sel_records[i] for i in keep_idx]
-		result = CalibrationResult(K=K, dist=dist, model="pinhole_rational", rms=rms,
-								   image_size=image_size, frames_used=len(used_records), timestamp=time.time())
+		# Profile is stored at the original resolution; K above stays at the downscaled one for the report.
+		K_out = K.copy()
+		K_out[0, :] *= orig_size[0] / image_size[0]
+		K_out[1, :] *= orig_size[1] / image_size[1]
+		result = CalibrationResult(K=K_out, dist=dist, model="pinhole_rational", rms=rms,
+								   image_size=orig_size, frames_used=len(used_records), timestamp=time.time())
 		return result, used_records, (K, dist, rvecs, tvecs)
 
 	# --- core solve with robust per-view filtering ---
@@ -537,7 +544,7 @@ def make_report(report_dir: str, records: List[FrameRecord], K: np.ndarray, dist
 			und_clean = apply_undistort(rec.img, map1, map2, roi)
 			cv.imwrite(os.path.join(save_undistorted_dir, f"{i:03d}_undist.png"), und_clean)
 
-	# coverage heatmap (OpenCV INFERNO)
+	# coverage heatmap, single-channel: the GUI colours it with the active theme's ramp
 	H, W = records[0].img.shape[:2]
 	grid = np.zeros((max(36, H // 20), max(64, W // 20)), np.float32)
 	gh, gw = grid.shape
@@ -552,7 +559,6 @@ def make_report(report_dir: str, records: List[FrameRecord], K: np.ndarray, dist
 	norm = grid / (grid.max() + 1e-6)
 	heat = (norm * 255).astype(np.uint8)
 	heat = cv.resize(heat, (W, H), interpolation=cv.INTER_CUBIC)
-	heat = cv.applyColorMap(heat, cv.COLORMAP_INFERNO)
 	heatmap_path = os.path.join(report_dir, "coverage_heatmap.png")
 	cv.imwrite(heatmap_path, heat)
 

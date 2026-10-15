@@ -1,11 +1,37 @@
 import { FormProvider, useForm } from 'react-hook-form';
-import { useDataSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { useDataSlice, useSectionSlice, useUiSlice, useMaskedStations } from '../../hooks';
+import { maskedNote } from '../../helpers/maskedNote';
 import { useTranslation } from 'react-i18next';
-import { AnalyzingProgress, HardModeProcessing } from './Components';
+import {
+  AnalyzingProgress,
+  ExportMp4,
+  IwaveSettings,
+  LspivSettings,
+  ProcessingRunZone,
+  RoiHeightRow,
+} from './Components';
 import { useEffect, useState } from 'react';
-import { TECHNIQUE_COLORS } from '../../constants/constants';
 import type { PreviewMode } from '../../store/ui/types';
 import { useStivAngleOverride } from '../../hooks';
+import { useAnalyzeStage } from '../../hooks/useAnalyzeStage';
+import { TechniqueRow } from '../TechniqueRow';
+import { FieldError } from '../index';
+import { Icons } from '../CustomIcons/Icons';
+import { enabledStages, techniqueRunStatus, TechniqueRunStatus } from '../../helpers/analyzeRunState';
+import type { StageKey } from '../../helpers/parseAnalyzeStage';
+import type { IwaveDefaults } from '../../../commons/iwave';
+
+/** A technique row's own run status, replacing the LSPIV → STIV → iWave breadcrumb. */
+const RunStatus = ({ status }: { status: TechniqueRunStatus | null }) => {
+  const { t } = useTranslation();
+  if (status === null) return null;
+  const text = {
+    done: t('Processing.statusDone', { defaultValue: 'Done' }),
+    running: t('Processing.statusRunning', { defaultValue: 'Running' }),
+    queued: t('Processing.statusQueued', { defaultValue: 'Queued' }),
+  }[status];
+  return <span className={`tech-status${status === 'running' ? ' tech-status-running' : ''}`}>{text}</span>;
+};
 
 export const FormProcessing = ({
   extraFields,
@@ -17,6 +43,7 @@ export const FormProcessing = ({
   canToggleIwave,
   canToggleMedian,
   stivAvailable,
+  iwaveDefaults,
 }: {
   extraFields: boolean;
   showMedian: boolean;
@@ -27,18 +54,12 @@ export const FormProcessing = ({
   canToggleIwave: boolean;
   canToggleMedian: boolean;
   stivAvailable: boolean;
+  iwaveDefaults: IwaveDefaults;
 }) => {
   const { t } = useTranslation();
-  const { onSetErrorMessage } = useUiSlice();
-  const {
-    isBackendWorking,
-    processing,
-    onSetQuiverTest,
-    onSetQuiverAll,
-    onKillBackend,
-    onAddMask,
-    onUpdateProcessing,
-  } = useDataSlice();
+  const { onSetFieldError, onClearFieldError, onAddStepAlert, onClearStepAlert, onShowToast } = useUiSlice();
+  const { isBackendWorking, processing, onSetQuiverTest, onSetQuiverAll, onKillBackend, onUpdateProcessing } =
+    useDataSlice();
   const { sections, activeSection, onUpdateSection } = useSectionSlice();
 
   const {
@@ -55,6 +76,14 @@ export const FormProcessing = ({
     stiv,
     iwave,
   } = processing.form;
+  const iwaveWindowM = processing.form.iwaveManual?.windowSize ?? iwaveDefaults.windowSize;
+  const masked = useMaskedStations(iwave ? iwaveWindowM : null);
+  const stivMasked = maskedNote(masked.stiv);
+  const iwaveMasked = maskedNote(masked.iwave);
+  const maskedText = (note: ReturnType<typeof maskedNote>, technique: string) =>
+    note.key === 'all'
+      ? t('Processing.allStationsMasked', { technique })
+      : t('Processing.maskedStations', { count: note.count });
   const { name, numStations } = sections[activeSection];
   // Station index is irrelevant for hasAny/resetAll — they operate on the whole
   // manual-angle array, not one station.
@@ -69,12 +98,18 @@ export const FormProcessing = ({
 
   const [isTesting, setIsTesting] = useState<boolean>(false);
 
-  const [resetProgress, setResetProgress] = useState<boolean>(false);
+  const running = isBackendWorking && !isTesting;
+  const runState = useAnalyzeStage(running);
+  const stages = enabledStages(stiv, iwave);
+  const statusOf = (technique: StageKey): TechniqueRunStatus | null =>
+    running ? techniqueRunStatus(technique, stages, runState.stage) : null;
+  // D5: open the first time Advanced turns on; a collapse lasts while this step is mounted.
+  const [lspivOpen, setLspivOpen] = useState<boolean>(true);
+  const [iwaveOpen, setIwaveOpen] = useState<boolean>(true);
 
   const methods = useForm({
     defaultValues: {
       step_1: step1,
-      step_2: step1 / 2,
       roi_height: heightRoi,
       remove_background: removeBackground,
       clahe: clahe,
@@ -102,199 +137,294 @@ export const FormProcessing = ({
       event.preventDefault();
       const value = parseFloat((event.target as HTMLInputElement).value);
       if (isNaN(value) === false && value >= 3) {
+        onClearFieldError('stations-number');
         if (value !== numStations) {
           onUpdateSection({ numStations: value }, undefined);
         }
       } else {
         methods.setValue(`${name}_STATIONS_NUMBER`, numStations);
         if (typeof value === 'number') {
-          onSetErrorMessage('The number of stations must be greater than 2');
+          onSetFieldError('stations-number', 'The number of stations must be greater than 2');
         }
       }
     }
   };
 
-  const handleTab = () => {
-    console.log('handle tab');
-    // Placeholder for future tab handling logic
-  };
-
   const handleOnClickTest = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setIsTesting(true);
-    setResetProgress(true);
+    onClearStepAlert('processing-backend-error');
     onSetQuiverTest()
       .then(() => setIsTesting(false))
-      .catch((error) => onSetErrorMessage(error.message));
+      .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
   };
 
-  const handleOnClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
-    const id = event.currentTarget.id;
-
-    if (id === 'analize-button') {
-      if (isBackendWorking) return;
-      setIsTesting(false);
-      onSetQuiverAll()
-        .then(() => {
-          setShowMedian(true);
-        })
-        .catch((error) => onSetErrorMessage(error.message));
-    }
-
-    if (id === 'stop-button') {
-      const result = await onKillBackend();
-      if (result === true) setResetProgress(true);
-    }
-
-    if (id === 'add-mask-icon') {
-      console.log('Add mask icon clicked');
-      // Placeholder for future add mask logic
-      onAddMask();
-    }
+  const handleAnalyze = () => {
+    if (isBackendWorking) return;
+    setIsTesting(false);
+    onClearStepAlert('processing-backend-error');
+    onSetQuiverAll()
+      .then(() => setShowMedian(true))
+      .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
   };
+
+  const handleStop = () => {
+    onKillBackend();
+  };
+
+  // Technique toggles are icon-only (one ✓ glyph, D11), so each needs an
+  // explicit accessible name; the same text doubles as the hover tooltip.
+  const lspivToggleLabel = t('Processing.lspivAlwaysOn', { defaultValue: "LSPIV can't be turned off" });
+  const stivToggleLabel = !stivAvailable
+    ? t('Processing.stivWeightsMissing')
+    : stiv
+      ? t('Processing.stivToggleOn', { defaultValue: 'STIV is on (click to exclude from processing)' })
+      : t('Processing.stivToggleOff', { defaultValue: 'STIV is off (click to include in processing)' });
+  const iwaveToggleLabel = iwave
+    ? t('Processing.iwaveToggleOn', { defaultValue: 'iWave is on (click to exclude from processing)' })
+    : t('Processing.iwaveToggleOff', { defaultValue: 'iWave is off (click to include in processing)' });
 
   return (
-    <div className="body mt-3" id="form-analizing">
-      <div className="wrapper">
-        <FormProvider {...methods}>
-          <form
-            id="form-processing"
-            style={{ overflowY: `${!extraFields ? 'hidden' : 'auto'}` }}
-            onKeyDown={handleTab}
-          >
-            <span id="processing-header" />
-            <div className="switch-container mt-2">
-              <h3 className="field-title">{t('Results.stationNumber')}</h3>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <button type="button" className="btn-step" onClick={() => handleStationsStep(-1)}>
-                  −
-                </button>
-                <input
-                  key={name}
-                  className="input-field-little"
-                  type="number"
-                  defaultValue={numStations}
-                  {...methods.register(`${name}_STATIONS_NUMBER`)}
-                  id="stations-number"
-                  onKeyDown={handleStationsChangeInput}
-                  onBlur={handleStationsChangeInput}
-                />
-                <button type="button" className="btn-step" onClick={() => handleStationsStep(1)}>
-                  +
-                </button>
+    <>
+      <div className={`body processing-body${extraFields ? ' is-advanced' : ''}`} id="form-analizing">
+        <div className="wrapper">
+          <FormProvider {...methods}>
+            <form id="form-processing" className={`processing-form${extraFields ? ' is-advanced' : ''}`}>
+              <div className="field-row field-row-top">
+                <label className="field-row-label" htmlFor="stations-number">
+                  {t('Results.stationNumber')}
+                </label>
+                <span className="field-stepper">
+                  <button type="button" className="btn-step" onClick={() => handleStationsStep(-1)}>
+                    −
+                  </button>
+                  <input
+                    key={name}
+                    className="field"
+                    type="number"
+                    defaultValue={numStations}
+                    {...methods.register(`${name}_STATIONS_NUMBER`)}
+                    id="stations-number"
+                    onKeyDown={handleStationsChangeInput}
+                    onBlur={handleStationsChangeInput}
+                  />
+                  <button type="button" className="btn-step" onClick={() => handleStationsStep(1)}>
+                    +
+                  </button>
+                </span>
               </div>
-            </div>
+              <FieldError name="stations-number" />
+              {extraFields && <RoiHeightRow />}
 
-            <span className="divider-line mt-2 mb-1" />
+              <hr className="panel-rule" />
 
-            <div
-              className={`technique-row-processing${previewMode === 'frames' ? ' technique-row-processing-active' : ''}`}
-              title={t('Processing.showLspivFrames')}
-              onClick={() => previewMode !== 'frames' && setPreviewMode('frames')}
-            >
-              <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.lspiv }} />
-              <h3 className="field-title">LSPIV</h3>
-              <button
-                type="button"
-                className={`technique-seed-flag${showMedian ? ' technique-seed-flag-seeded' : ''}${
-                  canToggleMedian ? '' : ' technique-flag-off'
-                }`}
-                title={t('Processing.medianHint')}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  if (canToggleMedian) setShowMedian(!showMedian);
-                }}
+              <TechniqueRow
+                technique="lspiv"
+                active={previewMode === 'frames'}
+                className="tech-row technique-row-processing"
               >
-                {t('Processing.carouselMedia')}
-              </button>
-            </div>
-            <div
-              className={`technique-row-processing${previewMode === 'sti' ? ' technique-row-processing-active' : ''}${
-                canToggleSti ? '' : ' technique-row-processing-disabled'
-              }${stivAvailable ? '' : ' technique-row-processing-unavailable'}`}
-              title={
-                !stivAvailable
-                  ? t('Processing.stivWeightsMissing')
-                  : canToggleSti
-                    ? t('Processing.showStivStis')
-                    : t('Processing.noStisYet')
-              }
-              onClick={() => canToggleSti && previewMode !== 'sti' && setPreviewMode('sti')}
-            >
-              <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.stiv }} />
-              <h3 className="field-title">STIV</h3>
-              {hasAnyStivOverride && (
+                <span className="tech-name-cell">
+                  <button
+                    type="button"
+                    className="field-title"
+                    aria-pressed={previewMode === 'frames'}
+                    title={t('Processing.showLspivFrames')}
+                    onClick={() => {
+                      if (previewMode === 'frames') return;
+                      setPreviewMode('frames');
+                    }}
+                    style={previewMode === 'frames' ? { color: 'var(--tech-lspiv)' } : undefined}
+                  >
+                    LSPIV
+                  </button>
+                  <RunStatus status={statusOf('lspiv')} />
+                </span>
+                <ExportMp4 />
                 <button
                   type="button"
-                  className="sti-angle-reset"
-                  title={t('Processing.stiAngleResetAllTitle')}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    resetAllStivAngles();
+                  className={`technique-seed-flag${showMedian ? ' technique-seed-flag-seeded' : ''}${
+                    canToggleMedian ? '' : ' technique-flag-off'
+                  }`}
+                  title={t('Processing.medianHint')}
+                  onClick={() => {
+                    if (canToggleMedian) setShowMedian(!showMedian);
                   }}
                 >
-                  {t('Processing.stiAngleResetAll')}
+                  {t('Processing.carouselMedia')}
                 </button>
+                <label
+                  className="switch switch-sm switch-locked"
+                  title={lspivToggleLabel}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    onShowToast(lspivToggleLabel);
+                  }}
+                >
+                  <input type="checkbox" checked readOnly aria-disabled="true" aria-label={lspivToggleLabel} />
+                  <span className="slider"></span>
+                </label>
+                {extraFields && (
+                  <span className="tech-cell tech-disclose">
+                    <button
+                      type="button"
+                      className="ibtn ibtn-sm"
+                      aria-expanded={lspivOpen}
+                      aria-controls="lspiv-settings"
+                      aria-label={t('Processing.lspivSettings', { defaultValue: 'LSPIV settings' })}
+                      title={t('Processing.lspivSettings', { defaultValue: 'LSPIV settings' })}
+                      onClick={() => setLspivOpen(!lspivOpen)}
+                    >
+                      {Icons.ChevDown('currentColor')}
+                    </button>
+                  </span>
+                )}
+              </TechniqueRow>
+              {extraFields && lspivOpen && (
+                <LspivSettings id="lspiv-settings" onClickTest={handleOnClickTest} isTesting={isTesting} />
               )}
-              <label className="switch" onClick={(event) => event.stopPropagation()}>
-                <input
-                  type="checkbox"
-                  checked={stiv && stivAvailable}
-                  disabled={!stivAvailable}
-                  onChange={(event) => onUpdateProcessing({ stiv: event.currentTarget.checked })}
-                />
-                <span className="slider"></span>
-              </label>
-            </div>
-            <div
-              className={`technique-row-processing${previewMode === 'iwave' ? ' technique-row-processing-active' : ''}${
-                canToggleIwave ? '' : ' technique-row-processing-disabled'
-              }`}
-              title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
-              onClick={() => canToggleIwave && previewMode !== 'iwave' && setPreviewMode('iwave')}
-            >
-              <span className="technique-swatch-processing" style={{ background: TECHNIQUE_COLORS.iwave }} />
-              <h3 className="field-title">
-                IWV<span className="technique-name-note"> (iWave)</span>
-              </h3>
-              <label className="switch" onClick={(event) => event.stopPropagation()}>
-                <input
-                  type="checkbox"
-                  checked={iwave}
-                  onChange={(event) => onUpdateProcessing({ iwave: event.currentTarget.checked })}
-                />
-                <span className="slider"></span>
-              </label>
-            </div>
-
-            <span className="divider-line mt-2 mb-1" />
-
-            <div className="input-container-2 mt-1">
-              <button
-                className="button-with-loader me-1"
-                type="button"
-                onClick={handleOnClick}
-                id="analize-button"
-                disabled={isBackendWorking}
+              <TechniqueRow
+                technique="stiv"
+                active={previewMode === 'sti'}
+                className={`tech-row technique-row-processing${
+                  canToggleSti ? '' : ' technique-row-processing-disabled'
+                }${stivAvailable ? '' : ' technique-row-processing-unavailable'}`}
               >
-                <p className="button-name">{t('Processing.analize')}</p>
-              </button>
-              <button
-                id="stop-button"
-                className="danger-button"
-                disabled={!isBackendWorking || isTesting === true}
-                onClick={handleOnClick}
-                type="button"
+                <span className="tech-name-cell">
+                  <button
+                    type="button"
+                    className="field-title"
+                    aria-pressed={previewMode === 'sti'}
+                    aria-disabled={!canToggleSti}
+                    title={
+                      !stivAvailable
+                        ? t('Processing.stivWeightsMissing')
+                        : canToggleSti
+                          ? t('Processing.showStivStis')
+                          : t('Processing.noStisYet')
+                    }
+                    onClick={() => {
+                      if (!canToggleSti) return;
+                      if (previewMode === 'sti') return;
+                      setPreviewMode('sti');
+                    }}
+                    style={previewMode === 'sti' ? { color: 'var(--tech-stiv)' } : undefined}
+                  >
+                    STIV
+                  </button>
+                  {hasAnyStivOverride && (
+                    <button
+                      type="button"
+                      className="sti-angle-reset"
+                      title={t('Processing.stiAngleResetAllTitle')}
+                      onClick={() => {
+                        resetAllStivAngles();
+                        onShowToast(
+                          t('Processing.stiAngleResetAllToast', {
+                            defaultValue: 'Angles reset for {{section}}',
+                            section: name,
+                          })
+                        );
+                      }}
+                    >
+                      {t('Processing.stiAngleResetAll')}
+                    </button>
+                  )}
+                  <RunStatus status={statusOf('stiv')} />
+                </span>
+                <span className="tech-cell" />
+                <span className="tech-cell" />
+                <label className="switch switch-sm" title={stivToggleLabel}>
+                  <input
+                    type="checkbox"
+                    checked={stiv && stivAvailable}
+                    aria-disabled={!stivAvailable || undefined}
+                    aria-label={stivToggleLabel}
+                    onChange={() => {
+                      if (!stivAvailable) return;
+                      onUpdateProcessing({ stiv: !stiv });
+                    }}
+                  />
+                  <span className="slider"></span>
+                </label>
+              </TechniqueRow>
+              {stiv && stivAvailable && stivMasked.key !== 'none' && (
+                <p className="tech-params-note tech-row-note">{maskedText(stivMasked, 'STIV')}</p>
+              )}
+              <TechniqueRow
+                technique="iwave"
+                active={previewMode === 'iwave'}
+                className={`tech-row technique-row-processing${
+                  canToggleIwave ? '' : ' technique-row-processing-disabled'
+                }`}
               >
-                <p className="button-name">{t('Processing.stop')}</p>
-              </button>
-            </div>
-            {isBackendWorking && isTesting === false && <AnalyzingProgress resetProgress={resetProgress} />}
-
-            <HardModeProcessing active={extraFields} onClickTest={handleOnClickTest} isTesting={isTesting} />
-          </form>
-        </FormProvider>
+                <span className="tech-name-cell">
+                  <button
+                    type="button"
+                    className="field-title"
+                    aria-pressed={previewMode === 'iwave'}
+                    aria-disabled={!canToggleIwave}
+                    title={canToggleIwave ? t('Processing.showIwaveSpectra') : t('Processing.noSpectraYet')}
+                    onClick={() => {
+                      if (!canToggleIwave) return;
+                      if (previewMode === 'iwave') return;
+                      setPreviewMode('iwave');
+                    }}
+                    style={previewMode === 'iwave' ? { color: 'var(--tech-iwave)' } : undefined}
+                  >
+                    iWave
+                  </button>
+                  <RunStatus status={statusOf('iwave')} />
+                </span>
+                <span className="tech-cell" />
+                <span className="tech-cell" />
+                <label className="switch switch-sm" title={iwaveToggleLabel}>
+                  <input
+                    type="checkbox"
+                    checked={iwave}
+                    aria-label={iwaveToggleLabel}
+                    onChange={() => {
+                      onUpdateProcessing({ iwave: !iwave });
+                    }}
+                  />
+                  <span className="slider"></span>
+                </label>
+                {extraFields && iwave && (
+                  <span className="tech-cell tech-disclose">
+                    <button
+                      type="button"
+                      className="ibtn ibtn-sm"
+                      aria-expanded={iwaveOpen}
+                      aria-controls="iwave-settings"
+                      aria-label={t('Processing.iwaveSettings', { defaultValue: 'iWave settings' })}
+                      title={t('Processing.iwaveSettings', { defaultValue: 'iWave settings' })}
+                      onClick={() => setIwaveOpen(!iwaveOpen)}
+                    >
+                      {Icons.ChevDown('currentColor')}
+                    </button>
+                  </span>
+                )}
+              </TechniqueRow>
+              {iwave && iwaveMasked.key !== 'none' && (
+                <p className="tech-params-note tech-row-note">{maskedText(iwaveMasked, 'iWave')}</p>
+              )}
+              {iwave && iwaveDefaults.shortClip && iwaveDefaults.iwaveS !== null && (
+                <p className="tech-params-note tech-row-note">
+                  {t('Processing.iwaveShortClip', { seconds: iwaveDefaults.iwaveS.toFixed(1) })}
+                </p>
+              )}
+              {extraFields && iwave && iwaveOpen && <IwaveSettings id="iwave-settings" defaults={iwaveDefaults} />}
+            </form>
+          </FormProvider>
+        </div>
       </div>
-    </div>
+      <ProcessingRunZone
+        running={running}
+        testing={isBackendWorking && isTesting}
+        onAnalyze={handleAnalyze}
+        onStop={handleStop}
+      >
+        <AnalyzingProgress state={runState} />
+      </ProcessingRunZone>
+    </>
   );
 };

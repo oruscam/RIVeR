@@ -35,7 +35,7 @@ interface Stream {
   start_pts: number;
   start_time: number;
   duration_ts: number;
-  duration: 'string';
+  duration: number;
   bit_rate: number;
   max_bit_rate: string;
   bits_per_raw_sample: number;
@@ -78,7 +78,7 @@ export interface Metadata {
     width: number;
     height: number;
     r_frame_rate: string;
-    duration: string;
+    duration: number;
     codec_type: string;
     rotation?: number;
   }[];
@@ -97,6 +97,8 @@ export interface FirstFrameArgs {
   lensCorrection: string | false;
   stabilization: boolean;
   stabilizationRegions: Array<{ x: number; y: number; width: number; height: number }>;
+  /** Frames projects only: the interval typed in Video Range, written to settings before importing. */
+  intervalMs?: number;
 }
 
 export interface ProjectConfig {
@@ -155,7 +157,8 @@ export type RiverCli = (
   options: (string | number)[],
   mode?: 'json' | 'text',
   output?: boolean | string,
-  logFile?: string
+  logFile?: string,
+  tracked?: boolean
 ) => Promise<{ data: any; error: any }>;
 
 interface Point {

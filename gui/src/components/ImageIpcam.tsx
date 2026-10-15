@@ -3,7 +3,13 @@ import { useImageZoomPan, useIpcamSlice, useProjectSlice, useUiSlice } from '../
 import { OverlaySvg } from './OverlaySvg';
 import { DrawIpcam } from './DrawIpcam';
 
-export const ImageIpcam = () => {
+interface ImageIpcamProps {
+  /** The stabilization check, shown in place of the control image and without its points. */
+  checkSrc?: string;
+  showCheck?: boolean;
+}
+
+export const ImageIpcam = ({ checkSrc, showCheck = false }: ImageIpcamProps) => {
   const { screenSizes } = useUiSlice();
   const { imageWidth, imageHeight, factor } = screenSizes;
   const { importedImages, activeImage } = useIpcamSlice();
@@ -54,25 +60,28 @@ export const ImageIpcam = () => {
         }}
       >
         <img
-          src={newImageSrc}
+          src={showCheck ? (checkSrc ?? newImageSrc) : newImageSrc}
           className="simple-image"
           draggable={false}
           onDragStart={handleDragStart}
           style={{ display: 'block', userSelect: 'none', pointerEvents: 'none' }}
         />
       </div>
-      <OverlaySvg width={imageWidth!} height={imageHeight!} scale={scale} position={position}>
-        {(layers) => (
-          <DrawIpcam
-            factor={factor!}
-            width={imageWidth!}
-            height={imageHeight!}
-            scale={scale}
-            position={position}
-            layers={layers}
-          />
-        )}
-      </OverlaySvg>
+      {!showCheck && (
+        <OverlaySvg width={imageWidth!} height={imageHeight!} scale={scale} position={position}>
+          {(layers) => (
+            <DrawIpcam
+              factor={factor!}
+              width={imageWidth!}
+              height={imageHeight!}
+              scale={scale}
+              position={position}
+              layers={layers}
+              imageSrc={newImageSrc}
+            />
+          )}
+        </OverlaySvg>
+      )}
     </div>
   );
 };

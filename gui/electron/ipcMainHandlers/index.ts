@@ -5,14 +5,18 @@ import { loadProject } from './loadProject';
 import { setPixelSize } from './setPixelSize';
 import { realWorldToPixel } from './realWorldToPixel';
 import { pixelToRealWorld } from './pixelToRealWorld';
+import { projectsExist } from './projectsExist';
+import { projectThumbnails } from './projectThumbnails';
 import { setSections } from './setSections';
 import { firstFrame } from './firstFrame';
+import { framesFolder } from './framesFolder';
 import { getQuiver } from './getQuiver';
 import { getVideo } from './getVideo';
 import { getBathimetry } from './getBathimetry';
 import { calculate3dRectification } from './calculate3dRectification';
 import { checkStivWeights } from './checkStivWeights';
 import { getIpcamImages } from './getIpcamImages';
+import { getIwaveDefaults } from './getIwaveDefaults';
 import { getIwaveSpectra } from './getIwaveSpectra';
 import { getPoints } from './getPoints';
 import { getDistances } from './getDistances';
@@ -24,6 +28,8 @@ import { createMaskAndBbox } from './createMaskAndBbox';
 import { getResultData } from './getResultData';
 import { getStis } from './getStis';
 import { loadResults } from './loadResults';
+import { locateBathymetry } from './locateBathymetry';
+import { locateVideo } from './locateVideo';
 import { recommendRoiHeight } from './recommendRoiHeight';
 import { saveReportHtml } from './saveReportHtml';
 import { getGif } from './getGif';
@@ -37,11 +43,13 @@ export {
   createFolderStructure,
   createMaskAndBbox,
   firstFrame,
+  framesFolder,
   getBathimetry,
   getDistances,
   getGif,
   getImages,
   getIpcamImages,
+  getIwaveDefaults,
   getIwaveSpectra,
   getPoints,
   getQuiver,
@@ -51,7 +59,11 @@ export {
   initProject,
   loadProject,
   loadResults,
+  locateBathymetry,
+  locateVideo,
   pixelToRealWorld,
+  projectsExist,
+  projectThumbnails,
   realWorldToPixel,
   recommendRoiHeight,
   saveReportHtml,

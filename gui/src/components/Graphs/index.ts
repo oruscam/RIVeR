@@ -5,9 +5,8 @@ import { AllInOne } from './AllInOne';
 import { drawVectors } from './drawVectors';
 import { PointsMap } from './PointsMap';
 import { obliqueSvg } from './obliqueSvg';
-import { createPinsBase64 } from './createPinsBase64';
 import { ipcamSvg } from './ipcamSvg';
-import { TestPlot } from './TestPlot';
+import { uavSvg } from './uavSvg';
 import { OrthoImage } from './OrthoImage';
 import { scaleBar } from './scaleBar';
 import { drawQuiver } from './drawQuiver';
@@ -16,7 +15,6 @@ export {
   AllInOne,
   Bathimetry,
   CalibrationHistogram,
-  createPinsBase64,
   drawQuiver,
   drawVectors,
   ipcamSvg,
@@ -24,6 +22,6 @@ export {
   OrthoImage,
   PointsMap,
   scaleBar,
-  TestPlot,
+  uavSvg,
   VelocityVector,
 };

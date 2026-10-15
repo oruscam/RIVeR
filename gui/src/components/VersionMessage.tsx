@@ -14,19 +14,22 @@ export const VersionMessage = () => {
   return (
     <div id="version-block">
       <div id="version-message">
-        <p style={{ color: isLatestVersion === false ? COLORS.RED : '' }}>
-          {t(`MainPage.Version.${versionMessage}`)}
-        </p>
-        {isLatestVersion === false && (
-          <a
-            href={latestLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{ color: isLatestVersion === false ? COLORS.RED : '' }}
-          >
-            {' '}
-            {latestVersion}{' '}
-          </a>
+        <span id="version-number">{import.meta.env.VITE_APP_VERSION}</span>
+        {isLatestVersion !== undefined && (
+          <>
+            <span id="version-dot" data-status={isLatestVersion ? 'ok' : 'update'} aria-hidden="true" />
+            <p style={{ color: isLatestVersion === false ? COLORS.RED : '' }}>
+              {t(`MainPage.Version.${versionMessage}`, {
+                defaultValue: isLatestVersion ? 'Up to date' : 'Update available',
+              })}
+            </p>
+            {isLatestVersion === false && (
+              <a href={latestLink} target="_blank" rel="noopener noreferrer" style={{ color: COLORS.RED }}>
+                {' '}
+                {latestVersion}{' '}
+              </a>
+            )}
+          </>
         )}
       </div>
       {/* AGPL-3.0 requires that recipients of a binary can reach the

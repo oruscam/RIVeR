@@ -1,28 +1,36 @@
 import { useState } from 'react';
-import { Carousel, WizardButtons, Error, Warning, FocusOverlay } from '../components';
+import { Carousel, WizardButtons, ModeHint, StepAlertList, Toast, FocusOverlay } from '../components';
 import { CrossSections as CrossSectionsComponent } from '../components/CrossSections/index';
-import { useDataSlice, useIpcamSlice, useProjectSlice, useSectionSlice, useUiSlice } from '../hooks';
+import {
+  useDataSlice,
+  useIpcamSlice,
+  useProjectIssues,
+  useProjectSlice,
+  useSectionSlice,
+  useUiSlice,
+} from '../hooks';
 import { useTranslation } from 'react-i18next';
 import { handleDragLeave, handleDragOver } from '../helpers';
 import { FormHeader } from '../components/Forms/Components';
 import { ImageCrossSections } from '../components/CrossSections/ImageCrossSections';
-import { LockBtn } from '../components/CustomIcons/LockBtn';
-import { AddMaskButton } from '../components/Forms/Components';
+import { AdvancedToggle } from '../components/AdvancedToggle';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 export const CrossSections = () => {
   const { activeSection, sections, isDraggingPoint, onGetBathimetry } = useSectionSlice();
   const [dragOver, setDragOver] = useState<boolean>(false);
   const [deletedSections, setDeletedSections] = useState('');
   const { t } = useTranslation();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert } = useUiSlice();
   const { type, projectDetails } = useProjectSlice();
   const { cameraSolution } = useIpcamSlice();
+  const { alerts, onAction } = useProjectIssues('sections');
   const { processing, images } = useDataSlice();
   const [activeFrame, setActiveFrame] = useState<number>(0);
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setDragOver(false);
+    onClearStepAlert('bathymetry-import-error');
 
     const bathimetry = sections[activeSection].bathimetry;
 
@@ -49,18 +57,13 @@ export const CrossSections = () => {
                       : error.value
                     ).toFixed(2)
                   : error?.value;
-              onSetErrorMessage({
-                Bathimetry: {
-                  type: 'error',
-                  message: t(message, { level: displayLevel }),
-                },
-              });
+              onAddStepAlert('bathymetry-import-error', 'error', t(message, { level: displayLevel }));
             }
           })
-          .catch((error) => onSetErrorMessage(error.message));
+          .catch((error) => onAddStepAlert('bathymetry-import-error', 'error', error.message));
       } else {
         onGetBathimetry({ bathimetryPath: path, unitSistem: projectDetails.unitSistem }).catch((error) =>
-          onSetErrorMessage(error.message)
+          onAddStepAlert('bathymetry-import-error', 'error', error.message)
         );
       }
     }
@@ -69,19 +72,13 @@ export const CrossSections = () => {
   return (
     <div className="regular-page">
       <div className="media-container">
-        <div style={{ position: 'absolute', top: '12px', right: '12px', zIndex: 10 }}>
-          <AddMaskButton />
-        </div>
         <div style={{ position: 'relative', margin: 'auto 0' }}>
           <ImageCrossSections imageSrc={images.paths.length > 0 ? images.paths[activeFrame] : undefined} />
         </div>
         {images.paths.length > 0 && (
           <Carousel images={images.paths} active={activeFrame} setActiveImage={setActiveFrame} mode="select" />
         )}
-        <div className="message-stack">
-          <Error />
-          <Warning />
-        </div>
+        <ModeHint />
       </div>
       <div
         className={`form-container ${dragOver ? 'drag-over' : ''}`}
@@ -96,10 +93,11 @@ export const CrossSections = () => {
           setDeletedSections={setDeletedSections}
           canEdit={true}
         />
+        <StepAlertList extra={alerts} onAction={onAction} />
         <CrossSectionsComponent deletedSections={deletedSections} setDeletedSections={setDeletedSections} />
 
         <div className="footer">
-          <LockBtn
+          <AdvancedToggle
             disabled={sections[activeSection].bathimetry.width === undefined}
             footerElementID="form-cross-section-footer"
             headerElementID="form-cross-section-header"
@@ -110,6 +108,7 @@ export const CrossSections = () => {
           active={sections[activeSection].drawLine || isDraggingPoint || processing.activeMaskIndex !== null}
         />
       </div>
+      <Toast />
     </div>
   );
 };

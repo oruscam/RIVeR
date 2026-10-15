@@ -9,7 +9,7 @@ async function recommendRoiHeight(riverCli: RiverCli) {
     const options = ['recommend-height-roi', 128, xsectionsPath, matrixPath];
 
     try {
-      const { data } = await riverCli(options, 'json', false, logsPath);
+      const { data } = await riverCli(options, 'json', false, logsPath, false);
       return { height_roi: (data as any).height_roi };
     } catch (error) {
       console.log(error);

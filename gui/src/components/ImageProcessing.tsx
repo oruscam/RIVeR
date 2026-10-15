@@ -5,10 +5,10 @@ import { WindowSizesNew } from './WindowSizesNew';
 import { Quiver } from './Quiver';
 import { DrawSectionsD3 } from './CrossSections/DrawSectionsD3';
 import { OverlaySvg } from './OverlaySvg';
+import { OverlayLayersControl, OverlayLayerVisibility } from './OverlayLayersControl';
 import { StationSearchLines } from './StationSearchLines';
 import { getQuiverValues, createColorMap, Normalize } from '../../commons/vectors';
 import { getStiColorScale } from '../helpers';
-import { FloatingPlot } from './FloatingPlot';
 import { StiViewer } from './StiViewer';
 import { IWaveViewer } from './IWaveViewer';
 import type { PreviewMode } from '../store/ui/types';
@@ -16,24 +16,26 @@ import type { IwaveSpectraSidecar } from '../../electron/ipcMainHandlers/getIwav
 
 export const ImageProcessing = ({
   showMedian,
-  extraFields,
   previewMode = 'frames',
   stiPaths,
-  stiStations,
+  stiEmptyLabels,
   spectrumPaths,
-  spectrumStations,
+  spectrumEmptyLabels,
   spectraSidecar,
 }: {
   showMedian?: boolean;
-  extraFields?: boolean;
   previewMode?: PreviewMode;
+  /** One slot per station ('' where STIV wrote no STI), so `active` is the station index. */
   stiPaths?: string[];
-  stiStations?: number[];
+  /** Why each station has no STI, index-aligned with stiPaths. */
+  stiEmptyLabels?: string[];
+  /** One slot per station ('' where iWave wrote no spectrum), so `active` is the station index. */
   spectrumPaths?: string[];
-  spectrumStations?: number[];
+  /** Why each station has no spectrum, index-aligned with spectrumPaths. */
+  spectrumEmptyLabels?: string[];
   spectraSidecar?: IwaveSpectraSidecar | null;
 }) => {
-  const { screenSizes, showInterrogationWindow } = useUiSlice();
+  const { screenSizes, showInterrogationWindow, overlayVisibility, onSetOverlayVisible } = useUiSlice();
   const { video } = useProjectSlice();
   const { processing, images, quiver, fullQuiver, colorbarLimits } = useDataSlice();
   const { transformationMatrix, sections, activeSection } = useSectionSlice();
@@ -118,6 +120,10 @@ export const ImageProcessing = ({
     keyboardStep: 25,
   });
 
+  // Results exist, not "this frame has arrows": the Vectors chip and the STIV-lines default must not
+  // come and go as the active frame changes.
+  const hasVectors = fullQuiver !== null || quiver !== null;
+
   if (!width || !height || !factor) return null;
 
   if (previewMode === 'sti') {
@@ -133,7 +139,7 @@ export const ImageProcessing = ({
       <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>
         <StiViewer
           stiPaths={stiPaths ?? []}
-          stiStations={stiStations ?? []}
+          emptyLabel={stiEmptyLabels?.[active] ?? ''}
           activeStation={active}
           containerWidth={realWidth!}
           containerHeight={Math.max(0, realHeight! - 90)}
@@ -148,7 +154,7 @@ export const ImageProcessing = ({
       <div className="image-with-data-container" style={{ width: realWidth, height: realHeight }}>
         <IWaveViewer
           spectrumPaths={spectrumPaths ?? []}
-          spectrumStations={spectrumStations ?? []}
+          emptyLabel={spectrumEmptyLabels?.[active] ?? ''}
           sidecar={spectraSidecar ?? null}
           activeStation={active}
           containerWidth={realWidth!}
@@ -178,6 +184,15 @@ export const ImageProcessing = ({
       )}
 
       {activeMaskIndex === null && (
+        <OverlayLayersControl
+          visibility={overlayVisibility}
+          hasStations={(sections[activeSection]?.numStations ?? 0) >= 2}
+          hasVectors={hasVectors}
+          onSetVisible={onSetOverlayVisible}
+        />
+      )}
+
+      {activeMaskIndex === null && (
         <OverlaySvg width={realWidth!} height={realHeight!} scale={scale} position={position}>
           {(layers) => (
             <>
@@ -199,16 +214,15 @@ export const ImageProcessing = ({
                 showMedian={showMedian}
                 layers={layers}
               />
+              <OverlayLayerVisibility layers={layers} visibility={overlayVisibility} hasVectors={hasVectors} />
             </>
           )}
         </OverlaySvg>
       )}
 
       {/* ColorBar out of the container with zoom */}
-      {min !== undefined && max !== undefined && activeMaskIndex === null && <ColorBar min={min} max={max} />}
-
-      {extraFields && activeMaskIndex === null && (
-        <FloatingPlot showMedian={showMedian ?? false} containerWidth={realWidth!} containerHeight={realHeight!} />
+      {min !== undefined && max !== undefined && data.length !== 0 && activeMaskIndex === null && (
+        <ColorBar min={min} max={max} />
       )}
     </div>
   );

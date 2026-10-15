@@ -135,6 +135,8 @@ def test_stabilize_frames_creates_output_files(tmp_path):
 	assert len(output_jpgs) == 5
 	assert sanity_path == stabilized_dir / "sanity_check.jpg"
 	assert sanity_path.exists()
+	# Single-channel: the GUI colours it, so no colour map may be burnt in.
+	assert cv2.imread(str(sanity_path), cv2.IMREAD_UNCHANGED).ndim == 2
 
 
 def test_stabilize_frames_preserves_filenames(tmp_path):

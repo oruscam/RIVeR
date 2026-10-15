@@ -1,5 +1,8 @@
 .form-title {
     margin-top: 6vh;
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 700;
 }
 
 .form-container {
@@ -8,12 +11,19 @@
     width: 29%;
     height: 98%;
     background-color: var(--secondary-background-color);
-    border-radius: 1rem;
+    border-radius: var(--radius-lg);
     display: flex;
     flex-direction: column;
     overflow-y: hidden;
     overflow-x: hidden;
     flex-shrink: 0;
+}
+
+/* Phase 6f: the audit's second use of the theme wash, a band at the top of
+   the Report page's Summary panel. It ends on --surface-panel at 26%, the same colour the
+   .footer paints, so there is no seam. */
+.form-container.results-wash {
+    background: linear-gradient(180deg, var(--wash-2) 0%, var(--surface-panel) 26%);
 }
 
 .form-container .header {
@@ -61,10 +71,10 @@
     width: 132px;
     background-color: var(--input-background);
     color: var(--primary-text-color);
-    border: solid 0.1px;
+    border: 1px solid color-mix(in srgb, var(--primary-text-color) 45%, transparent);
     text-align: center;
     line-height: 50px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     flex: 1 1 auto;
     min-width: 100px;
     max-width: 210px;
@@ -72,26 +82,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    font-size: clamp(13px, 1.5vw, 20px);
+    font-size: clamp(var(--text-meta), 1.5vw, var(--text-subtitle));
     padding-inline: 8px;
-}
-
-.read-only-oblique {
-    background-color: var(--input-background);
-    color: var(--primary-text-color);
-    border: solid 0.1px;
-    font-size: 22px;
-    text-align: center;
-    line-height: 45px;
-    border-radius: 20px;
-    min-width: 175px;
-    height: 50px;
-    word-wrap: break-word;
-    font-size: auto;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex-shrink: 0;
 }
 
 .bg-transparent {
@@ -113,7 +105,7 @@
     display: flex;
     justify-content: space-between;
     margin-top: 5px;
-    font-size: clamp(0.85rem, 2.5vw, 1.2rem);
+    font-size: clamp(var(--text-body), 2.5vw, var(--text-subtitle));
     gap: 8px;
     min-width: 0;
 }
@@ -128,14 +120,6 @@
 .form-video-extra-info-row p:last-child {
     flex-shrink: 0;
     text-align: right;
-}
-
-.form-video-extra-in-row p {
-    margin-right: 5px;
-}
-
-.frames-info {
-    
 }
 
 .bathimetry-button p {
@@ -162,20 +146,8 @@
     height: 40px;
 }
 
-.form-subtitle {
-    font-weight: 400;
-    margin-left: 70px;
-    align-self: flex-start;
-}
-
 .field-title {
     font-weight: 400;
-}
-
-@media screen and (max-height : 1150px) {
-    .hard-mode-processing {
-        padding-top: 10px;
-    }
 }
 
 .btn-lock {
@@ -273,17 +245,37 @@
 
 .result-value-row {
     display: flex;
-    align-items: baseline;
-    gap: 10px;
+    align-items: center;
+    gap: 14px;
+}
+
+/* Measured / Interpolated: percentages right-aligned in their own column so the
+   labels start at the same x, and the pair is centred against the big number. */
+.result-split {
+    display: grid;
+    grid-template-columns: auto auto;
+    column-gap: var(--space-2);
+    row-gap: 2px;
+    margin: 0;
+    font-size: var(--text-meta);
+}
+
+.result-split dt {
+    text-align: right;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.result-split dd {
+    margin: 0;
+    color: var(--secondary-text-color);
 }
 
 #result-info #result-number {
-    font-size: 2.2rem;
-    font-weight: bold;
-}
-
-#result-measured {
-    margin-bottom: 3px;
+    margin: 0;
+    font-size: var(--text-display);
+    font-weight: 700;
+    font-family: var(--font-display);
 }
 
 .video-resolution {
@@ -298,6 +290,7 @@
 .input-container-2 {
     width: 100%;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     padding-left: clamp(10px, 6%, 60px);
@@ -307,41 +300,12 @@
 
 
 
-.label-priority.form-button,
-.label-priority.read-only {
+.label-priority.form-button {
     flex: 3 1 auto;
-}
-
-.input-field-container.input-field-container-compact,
-.bg-transparent.input-field-container-compact {
-    flex: 0 0 130px;
-    width: 130px;
-    min-width: 130px;
-    max-width: 130px;
-}
-
-
-.input-field-container-compact .input-field:has(+ .unit-label) {
-    text-align: right;
-    padding-right: 30px;
-}
-
-.only-one-item {
-    display: flex;
-    align-self: flex-start;
-    margin-left: 82px;
 }
 
 .hidden {
     display: none;
-}
-
-.hard-mode-processing {
-    width: 100%;
-    padding: 50px;
-    padding-top: 0px;
-    display: flex;
-    flex-direction: column;
 }
 
 .switch-container {
@@ -349,12 +313,29 @@
     justify-content: space-between;
     align-items: center;
     padding: 6px 10px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     transition: background-color 0.15s ease;
 }
 
 .switch-container:hover {
     background-color: var(--on-hover);
+}
+
+/* The footer's Advanced row: a plain panel row, no lock (rule 7). The footer
+   is a centred column, so the row stretches itself to the gutter. */
+.field-row.advanced-mode-toggle {
+    align-self: stretch;
+    padding: 0 calc(var(--space-4) + var(--space-2));
+}
+
+.advanced-mode-label {
+    font-size: var(--text-meta);
+    color: var(--text-subdued);
+    cursor: pointer;
+}
+
+.advanced-mode-toggle:has(input:checked) .advanced-mode-label {
+    color: var(--text-primary);
 }
 
 /* Dracula theme: label text reflects toggle state (violet = on, muted = off) */
@@ -384,7 +365,7 @@
     border: 1px solid var(--secondary-input-background);
     background: transparent;
     color: var(--secondary-text-color);
-    font-size: 16px;
+    font-size: var(--text-section);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -419,20 +400,6 @@
     margin-right: auto;
 }
 
-#apply-changes {
-    font-size: 1.1em;
-    padding: 8px 24px;
-    white-space: nowrap;
-    width: auto;
-    max-width: none;
-    text-align: center;
-}
-
-#apply-changes:hover {
-    background-color: var(--primary-text-color);
-    color: var(--background-color);
-}
-
 .simple-input-container {
     display: flex;
     flex-direction: column;
@@ -443,21 +410,21 @@
 }
 
 .simple-input-container label {
-    font-size: 20px;
+    font-size: var(--text-subtitle);
     font-weight: 500;
 }
 
 .simple-input-container input {
     width: 100%;
     height: 50px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     border: none;
     margin-top: 5px;
     margin-bottom: 10px;
     padding-left: 20px;
     background-color: var(--input-background);
     color: var(--primary-text-color);
-    font-size: 1.1em;
+    font-size: var(--text-section);
 }
 
 .last-settings-form-field-radio {
@@ -480,7 +447,7 @@
 .last-settings-form-field-radio label {
     margin-right: 20px;
     margin-bottom: 8px;
-    font-size: 18px;
+    font-size: var(--text-section);
 }
 
 .last-settings-form-field-radio input {
@@ -488,30 +455,22 @@
     height: 25px;
 }
 
-#D12 {
-    border-color: var(--d12);
-    border: solid 3px var(--d12);
+/* Control Points: a distance's colour is the colour of its line on the canvas,
+   shown as a short ringed bar beside a neutral label (the point dots' idiom). */
+.dist-swatch {
+    width: 16px;
+    height: 4px;
+    flex-shrink: 0;
+    border-radius: var(--radius-full);
+    box-shadow: 0 0 0 1px var(--text-subdued);
 }
 
-#D13 {
-    border: solid 3px var(--d13);
-}
-
-#D41 {
-    border: solid 3px var(--d14);
-}
-
-#D23 {
-    border: solid 3px var(--d23);
-}
-
-#D24 {
-    border: solid 3px var(--d24);
-}
-
-#D34 {
-    border: solid 3px var(--d34);
-}
+.dist-swatch-12 { background: var(--d12); }
+.dist-swatch-23 { background: var(--d23); }
+.dist-swatch-34 { background: var(--d34); }
+.dist-swatch-41 { background: var(--d14); }
+.dist-swatch-13 { background: var(--d13); }
+.dist-swatch-24 { background: var(--d24); }
 
 .analizing-output {
     display: flex;
@@ -523,25 +482,13 @@
 }
 
 .analizing-output p {
-    font-size: 1.2rem;
+    font-size: var(--text-subtitle);
     margin-bottom: 5px;
 }
 
 #form-control-points {
     margin-top: 3vh;
     overflow-y: auto;
-}
-
-.button-rectification {
-    min-width: 175px;
-}
-
-#import-distances,
-#import-images,
-#draw-coordinates {
-    height: auto;
-    padding-top: 5px;
-    padding-bottom: 5px;
 }
 
 .solver-button {
@@ -562,10 +509,17 @@
 
 .drop-here-text {
     margin: 8px auto;
-    font-size: 1.15rem;
+    font-size: var(--text-meta);
     width: 75%;
     color: var(--secondary-text-color);
     transition: all 0.5s ease;
+}
+
+/* Inside a panel section the hint lines up with the row labels (rule 1). */
+.panel-section .drop-here-text {
+    width: auto;
+    margin: 0 0 var(--space-2);
+    padding: 0 var(--space-2);
 }
 
 .drop-here-text.disabled {
@@ -590,16 +544,11 @@
 .form-report {
     display: flex;
     flex-direction: column;
-    align-items: center;
+    /* stretch, not center: the rows are full-width and end on the panel's one right edge. */
+    align-items: stretch;
     width: 100%;
-}
-
-.spacer-div {
-    min-width: 165px;
-    display: flex;
-    flex-direction: column;
-    align-items: end;
-    padding-right: 8px;
+    box-sizing: border-box;
+    padding: 0 var(--space-4) var(--space-4);
 }
 
 .add-mask-icon {
@@ -614,17 +563,10 @@
     background-color: var(--border-color);
 }
 
-#form-result .divider-line,
-#form-processing .divider-line {
+#form-result .divider-line {
     width: 96%;
     margin-left: auto;
     margin-right: auto;
-}
-
-.mask-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
 }
 
 .trash-icon {
@@ -644,6 +586,7 @@
 .input-field-container {
     position: relative;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     flex: 1 1 auto;
     width: 150px;
@@ -672,7 +615,7 @@
    RESULTS PANEL — zone titles, alpha input, pill row.
    ============================================================================= */
 .zone-title {
-    font-size: 13px;
+    font-size: var(--text-meta);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--secondary-text-color);
@@ -684,7 +627,7 @@
 }
 
 .pill-alpha-label {
-    font-size: 18px;
+    font-size: var(--text-section);
     font-weight: 600;
     color: var(--primary-text-color);
 }
@@ -699,41 +642,61 @@
     margin-right: auto;
 }
 
-/* Same box as the Results module's .technique-row (Graphs/graphs.css) — padding,
-   corner radius, everything — so the two selectors read as one shared pattern. */
-.technique-row-processing {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    border-radius: 9px;
-    cursor: pointer;
-    transition: background-color 0.14s ease;
-}
-
-.technique-row-processing:hover {
-    background-color: var(--on-hover);
-}
-
-/* Matches the Results module's TechniqueLegend: the inactive/active distinction is a
-   text colour swap, nothing more — see .technique-name / .technique-name-active in
-   Graphs/graphs.css. */
+/* .field-title is a plain heading everywhere else in this form (Hard mode's
+   section labels, the stations counter). Inside a Processing technique row
+   it is also the technique's name control: clicking it switches the canvas
+   preview, in sync with PreviewModeControl.tsx (both write uiSlice's
+   previewMode). The button reset lives on this compound selector rather than
+   on the bare class. The explicit font-size replaces the 1.17em an <h3> got
+   for free, at --text-section to match .technique-name in the same row shell
+   on Results (Phase 6g). */
 .technique-row-processing .field-title {
     flex: 1;
+    min-width: 0;
     color: var(--secondary-text-color);
+    background: none;
+    border: none;
+    padding: 0;
+    font-size: var(--text-section);
+    text-align: left;
+    cursor: pointer;
 }
 
-.technique-row-processing-active .field-title {
-    color: var(--primary-text-color);
+/* Groups the STIV name button with its "reset angles" button in the row
+   grid's single 1fr name column — that column has no sub-tracks of its own,
+   so the two controls need their own flex row. */
+.tech-name-cell {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-width: 0;
 }
 
-/* STIV/iWave before their STI images or spectra exist yet — nothing to preview. */
-.technique-row-processing-disabled {
+/* The active row's background comes from the shared .technique-row-active
+   in components.css (added by TechniqueRow); this just bolds this screen's
+   own label element. Colour stays the technique's own, set inline in
+   FormProcessing.tsx. */
+.technique-row-active .field-title {
+    font-weight: 700;
+}
+
+/* STIV/iWave before their STI images or spectra exist yet — nothing to
+   preview. The row is deliberately NOT dimmed: its run switch is what creates
+   the STIs or spectra, so it must not look disabled. Only the name (below)
+   and the row hover signal that there is nothing to switch the canvas to. */
+
+/* The name button's cursor:pointer would otherwise show on a name with
+   nothing to preview yet. Scoped to -disabled only, not -unavailable: an unavailable
+   (weights-missing) STIV row with STIs on disk can still switch the preview. */
+.technique-row-processing-disabled .field-title {
     cursor: not-allowed;
-    opacity: 0.5;
 }
 
-.technique-row-processing-disabled:hover {
+/* Compound with .technique-row (not bare) so this keeps beating the shared
+   .technique-row:hover in components.css regardless of which file's CSS
+   import runs first — the same cross-file specificity tie Phase 3a found
+   and fixed once already for the active-row background. */
+.technique-row.technique-row-processing-disabled:hover {
     background-color: transparent;
 }
 
@@ -745,20 +708,10 @@
     opacity: 0.6;
 }
 
-.technique-swatch-processing {
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    flex-shrink: 0;
-}
-
-.technique-always {
-    font-size: 11px;
-    color: var(--secondary-text-color);
-}
-
 /* Eye/flag states for the Processing technique rows. The Results module's
-   .technique-eye-btn / .technique-seed-flag supply the base look; these add the
+   .technique-eye-btn supplies the base look for the eye button; .technique-seed-flag's
+   base look lives right below, in this same file, since Results no longer uses it
+   (Processing's "Median" pill is its only remaining consumer). These add the
    on/off states this panel needs without the native :disabled attribute, which
    would suppress the title tooltips. */
 .technique-eye-btn.technique-eye-btn-on {
@@ -770,7 +723,405 @@
     cursor: not-allowed;
 }
 
+.technique-seed-flag {
+    font-size: var(--text-caption);
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--secondary-text-color);
+    color: var(--secondary-text-color);
+    white-space: nowrap;
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 0.14s ease;
+}
+
+.technique-seed-flag:hover {
+    background: var(--input-background);
+}
+
+/* Seeded = normal/positive state, takes the theme accent color; unseeded stays a neutral
+   gray above — it's an expected mode, not a warning. */
+.technique-seed-flag-seeded {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+}
+
 .technique-seed-flag.technique-flag-off {
     opacity: 0.35;
     cursor: not-allowed;
+}
+
+/* Processing run zone: fixed between the scrolling settings and the footer.
+   One button and, while running, the readout under it, both spanning the
+   panel's gutter (rule 5). D6: the readout keeps --text-display. */
+.processing-run {
+    width: 100%;
+    box-sizing: border-box;
+    flex-shrink: 0;
+    border-top: 1px solid var(--border-color);
+    padding: var(--space-4) var(--space-4) var(--space-2);
+}
+
+.processing-run .btn {
+    width: 100%;
+}
+
+.processing-run .progress-readout {
+    max-width: none;
+    margin-top: var(--space-4);
+}
+
+/* Processing panel (preview 2026-10-01). The settings scroll; the run zone
+   below them and the footer never move. .body's height: 100% would push the
+   run zone off the panel, so this body flexes instead. */
+.form-container .body.processing-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.processing-form {
+    padding: 0 var(--space-4) var(--space-4);
+}
+
+.field-stepper {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* D3: the disclosure column exists only in Advanced, so Basic keeps today's
+   five columns. */
+.processing-form.is-advanced .tech-row {
+    grid-template-columns: 12px 1fr 28px 78px 36px 28px;
+}
+
+.tech-disclose svg {
+    transition: transform 200ms var(--motion-ease);
+}
+
+.tech-disclose [aria-expanded='true'] svg {
+    transform: rotate(180deg);
+}
+
+.tech-status {
+    margin-left: var(--space-2);
+    font-size: var(--text-caption);
+    font-weight: 500;
+    color: var(--text-subdued);
+    white-space: nowrap;
+}
+
+.tech-status.tech-status-running {
+    color: var(--text-primary);
+}
+
+/* A technique's own settings, hung under its row. Labels start on the
+   technique name's edge (row inset + 12px swatch + gap); the 1px thread runs
+   through the swatch's centre in the technique's colour, which is what scales
+   to iWave when its settings arrive. */
+.tech-params {
+    position: relative;
+    margin: 2px 0 var(--space-3);
+    padding-left: calc(var(--space-2) + 12px + var(--space-2));
+}
+
+.tech-params::before {
+    content: '';
+    position: absolute;
+    left: calc(var(--space-2) + 6px - 0.5px);
+    top: 0;
+    bottom: 4px;
+    width: 1px;
+    background: color-mix(in srgb, var(--tech) 55%, transparent);
+}
+
+.tech-params .field-row {
+    min-height: 36px;
+    padding-left: 0;
+}
+
+.tech-params .field-row.field-row-child {
+    padding-left: var(--space-4);
+}
+
+.tech-params .panel-group {
+    padding-left: 0;
+}
+
+.tech-params-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+/* Test PIV sits next to what it tests. .button-with-loader's 165px floor was
+   for a spinner child; the sweep is absolutely positioned and moves nothing. */
+.tech-params .button-with-loader {
+    min-width: 0;
+    margin-top: var(--space-3);
+}
+
+/* Advanced blocks on the other panels: the same gutter as Processing. */
+.panel-advanced {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 var(--space-4) var(--space-4);
+}
+
+/* D8: the point colour rides on a dot, not a pill. The ring keeps the dot
+   findable in light, where the fills sit near the panel. */
+.point-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.point-dot {
+    width: 10px;
+    height: 10px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    box-shadow: 0 0 0 1px var(--text-subdued);
+}
+
+.point-dot-red { background: var(--d34); }
+.point-dot-green { background: var(--d23); }
+.point-dot-lightblue { background: var(--d12); }
+
+/* Coordinates need room for UTM-sized values. */
+.field.field-coord {
+    width: 120px;
+    text-align: right;
+}
+
+/* The unit lives inside the box, pinned to its right edge, so every coordinate
+   box is the same 120px and ends on the same line as the pixel boxes. The
+   input reserves room for it. */
+.field-with-unit {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.field-with-unit .field-coord {
+    padding-right: 30px;
+}
+
+.field-unit {
+    position: absolute;
+    right: var(--space-2);
+    font-size: var(--text-caption);
+    color: var(--text-subdued);
+    pointer-events: none;
+}
+
+/* A wizard panel's section: the same 16px gutter as .panel-advanced. */
+.panel-section {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0 var(--space-4);
+}
+
+/* Two secondary actions side by side, equal width, on the row inset. */
+.panel-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2);
+    /* .btn:hover scales 4%; without this the grown ring is clipped by the
+       scrolling body at the top of the panel. */
+    padding: var(--space-1) var(--space-2);
+    margin-bottom: var(--space-1);
+}
+
+.panel-actions .panel-action {
+    width: 100%;
+    min-width: 0;
+    white-space: nowrap;
+}
+
+/* A lone action fills the row; half a row beside nothing reads as unfinished. */
+.panel-actions.panel-actions-single {
+    grid-template-columns: 1fr;
+}
+
+/* A file name is a read-only value: muted text under the buttons, truncated. */
+.panel-filename {
+    margin: 0 0 var(--space-2);
+    padding: 0 var(--space-2);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* A quiet add-action under its list. .btn-tertiary keeps its own 16px padding,
+   so the negative margin lands the text on the 8px row inset. */
+.btn.panel-add {
+    margin: var(--space-1) 0 var(--space-2) calc(var(--space-2) - var(--space-4));
+}
+
+/* Video Range: a field with its action button beside it. The button sits left of
+   the field, so every field still ends on the same right edge. */
+.field-with-action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+/* Content that belongs to the switch above it: 16px in, like a dependent row. */
+.panel-nested {
+    padding-left: var(--space-4);
+}
+
+/* One muted line of computed text under a group of fields. */
+.panel-summary {
+    margin: var(--space-1) 0 var(--space-2);
+    padding: 0 var(--space-2);
+    font-size: var(--text-meta);
+}
+
+.panel-hint {
+    margin: 0 0 var(--space-2);
+    padding: 0 var(--space-2);
+    font-size: var(--text-meta);
+}
+
+/* Summary panel (preview 2026-10-02). The headline leads; the three report details are
+   ordinary rows whose control takes the width a text value needs, not a 64px number box. */
+.summary-result {
+    padding: var(--space-1) var(--space-2) var(--space-3);
+}
+
+.summary-result-q {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: var(--text-display);
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.summary-result-q small {
+    font-family: inherit;
+    font-size: var(--text-section);
+    font-weight: 500;
+    opacity: 0.7;
+}
+
+.summary-result-sub {
+    margin: 4px 0 0;
+    font-size: var(--text-caption);
+    color: var(--text-subdued);
+}
+
+.field.field-text {
+    width: 100%;
+    text-align: left;
+}
+
+.summary-control {
+    flex: 0 1 220px;
+    min-width: 0;
+}
+
+.summary-control .react-datepicker-wrapper {
+    width: 100%;
+}
+
+/* The saved state: a quiet in-panel block, a divider above it, no coloured banner. */
+.summary-saved {
+    margin-top: var(--space-3);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--border-color);
+}
+
+.summary-saved-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-1);
+    padding: 0 var(--space-2);
+    font-size: var(--text-section);
+    font-weight: 600;
+}
+
+.summary-saved-check {
+    width: 22px;
+    height: 22px;
+    border-radius: var(--radius-full);
+    display: grid;
+    place-items: center;
+    color: var(--accent-color);
+    border: 1.5px solid var(--accent-color);
+}
+
+/* A muted line of explanation inside a technique's settings, or directly under
+   its row: starts on the technique name's edge, like the settings labels. */
+.tech-params-note {
+    margin: var(--space-1) 0 var(--space-2);
+    padding-right: var(--space-2);
+    font-size: var(--text-caption);
+    line-height: 1.35;
+    color: var(--text-subdued);
+}
+
+.tech-params-note.tech-params-note-warning {
+    color: var(--warning-color);
+}
+
+.tech-row-note {
+    margin-top: 0;
+    padding-left: calc(var(--space-2) + 12px + var(--space-2));
+}
+
+/* The flow-type names are words, not numbers: the select takes the width
+   they need and still ends on the panel's right edge. */
+.field.tech-params-select {
+    width: auto;
+    max-width: 60%;
+}
+
+/* FIXED STATION CONTROL POINTS (preview 2026-10-09).
+   Result rows: the row grammar, read-only. Label left, value right in tabular
+   600, unit in subdued caption text; 32px tall because nothing is edited. */
+.cp-result {
+    margin-top: var(--space-1);
+}
+
+.cp-result .field-row {
+    min-height: 32px;
+}
+
+.cp-value {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    font-size: var(--text-body);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-primary);
+    white-space: nowrap;
+}
+
+.cp-value small {
+    margin-left: calc(var(--space-1) * -1);
+    font-size: var(--text-caption);
+    font-weight: 400;
+    color: var(--text-subdued);
+}
+
+/* The headline row: the mean error one step up, with its grade badge. */
+.cp-result .cp-headline .field-row-label,
+.cp-result .cp-headline .cp-value {
+    font-size: var(--text-section);
+}
+
+.cp-hint {
+    margin: 0;
+    padding: 0 var(--space-2);
+    font-size: var(--text-caption);
+    line-height: 1.5;
+    color: var(--text-subdued);
 }

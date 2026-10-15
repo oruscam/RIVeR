@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectSlice } from '../../../hooks';
 import { LensDropdown } from './LensDropdown';
+import { scrollBehavior } from '../../../helpers/motion';
 
 type ProfileGroup = {
   camera: string;
@@ -49,14 +50,14 @@ export const LensCorrection = () => {
 
   useEffect(() => {
     if (enabled) {
-      setTimeout(() => settingsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+      setTimeout(() => settingsRef.current?.scrollIntoView({ behavior: scrollBehavior(), block: 'nearest' }), 50);
     }
   }, [enabled]);
   const selectedGroup = profiles.find((g) => g.camera === selectedCamera) ?? null;
 
   const scrollBodyToBottom = () => {
     const body = settingsRef.current?.closest('.body') as HTMLElement | null;
-    if (body) body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+    if (body) body.scrollTo({ top: body.scrollHeight, behavior: scrollBehavior() });
   };
 
   const handleToggle = (checked: boolean) => {
@@ -87,11 +88,14 @@ export const LensCorrection = () => {
   };
 
   return (
-    <div className="lens-correction-section mt-1">
-      <div className="switch-container">
-        <h3 className="field-title">{t('VideoRange.lensCorrection')}</h3>
-        <label className="switch">
+    <div>
+      <div className="field-row">
+        <label className="field-row-label" htmlFor="lens-correction-toggle">
+          {t('VideoRange.lensCorrection')}
+        </label>
+        <label className="switch switch-sm">
           <input
+            id="lens-correction-toggle"
             type="checkbox"
             checked={enabled}
             disabled={noProfiles && !enabled}
@@ -102,33 +106,27 @@ export const LensCorrection = () => {
       </div>
       {enabled &&
         (noProfiles ? (
-          <p className="mt-1" style={{ color: 'var(--secondary-text-color)', fontSize: '14px' }}>
-            {t('VideoRange.noProfiles')}
-          </p>
+          <p className="field-row field-row-child field-row-label">{t('VideoRange.noProfiles')}</p>
         ) : (
-          <div className="lens-settings" ref={settingsRef}>
-            <div className="lens-row">
-              <span className="lens-row-label">{t('Calibration.cameraName')}</span>
-              <div className="lens-row-right">
-                <LensDropdown
-                  options={profiles.map((g) => ({ label: g.camera, value: g.camera }))}
-                  value={selectedCamera}
-                  onChange={(v) => handleCameraChange(v as string)}
-                  onOpen={scrollBodyToBottom}
-                />
-              </div>
+          <div ref={settingsRef}>
+            <div className="field-row field-row-child">
+              <span className="field-row-label">{t('Calibration.cameraName')}</span>
+              <LensDropdown
+                options={profiles.map((g) => ({ label: g.camera, value: g.camera }))}
+                value={selectedCamera}
+                onChange={(v) => handleCameraChange(v as string)}
+                onOpen={scrollBodyToBottom}
+              />
             </div>
             {selectedGroup && !selectedGroup.isLegacy && (
-              <div className="lens-row">
-                <span className="lens-row-label">{t('Calibration.lensName')}</span>
-                <div className="lens-row-right">
-                  <LensDropdown
-                    options={selectedGroup.lenses!.map((l) => ({ label: l.name, value: l.path }))}
-                    value={lensCorrection ?? ''}
-                    onChange={(v) => onSetLensCorrection(v as string)}
-                    onOpen={scrollBodyToBottom}
-                  />
-                </div>
+              <div className="field-row field-row-child">
+                <span className="field-row-label">{t('Calibration.lensName')}</span>
+                <LensDropdown
+                  options={selectedGroup.lenses!.map((l) => ({ label: l.name, value: l.path }))}
+                  value={lensCorrection ?? ''}
+                  onChange={(v) => onSetLensCorrection(v as string)}
+                  onOpen={scrollBodyToBottom}
+                />
               </div>
             )}
           </div>

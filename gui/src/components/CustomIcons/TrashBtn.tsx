@@ -4,9 +4,10 @@ import { Icons } from './Icons';
 
 type TrashBtnProps = {
   onClickFunction: () => void;
+  size?: 'md' | 'sm';
 };
 
-export function TrashBtn({ onClickFunction }: TrashBtnProps) {
+export function TrashBtn({ onClickFunction, size = 'md' }: TrashBtnProps) {
   const [armed, setArmed] = useState(false);
   const [rpl, fire] = useRipple();
   const timerRef = useRef<any>(null);
@@ -25,7 +26,12 @@ export function TrashBtn({ onClickFunction }: TrashBtnProps) {
     onClickFunction();
   };
   return (
-    <button type="button" className={`ib ib-danger ${armed ? 'is-armed' : ''}`} onClick={onClick}>
+    <button
+      type="button"
+      className={`ibtn ibtn-danger${size === 'sm' ? ' ibtn-sm' : ''}`}
+      data-armed={armed}
+      onClick={onClick}
+    >
       {rpl}
       <span className="cl show" style={{ display: 'flex' }}>
         {Icons.Trash('currentColor')}

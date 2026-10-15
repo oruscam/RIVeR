@@ -10,32 +10,54 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 import json
 
 import cv2
 import numpy as np
 
 from river.core.stiv_pipeline import _collect_frames
+from river.core.iwave_params import (
+    DEPTH_FALLBACK,
+    MAX_GRID,
+    SHORT_CLIP_S,
+    SMAX_FALLBACK,
+    SMAX_MAX,
+    IwaveOptions,
+    SceneParams,
+    VelocityEstimate,
+    build_params_record,
+    estimate_velocity,
+    get_depth_bounds,
+    get_quality_flags,
+    get_section_gravity_waves,
+    get_section_items,
+    get_window_depth_reference,
+    is_depth_at_bound,
+    is_dry_window,
+    needs_smax_rerun,
+    resolve_scene_params,
+)
 
 # ---------------------------------------------------------------------------
-# Constants (tuned values from analysis/iwave_stations.py)
+# Constants
 # ---------------------------------------------------------------------------
 
 MAX_FRAMES = 512
-MAX_GRID = 700
 EXTENT_MARGIN_M = 2.0
-WIN_TARGET_M = 2.5
-WIN_MIN = 32
-WIN_MAX = 64
-SMAX = 4.0
-DMIN, DMAX = 0.01, 3.0
+# Fixed seed for iWave's differential evolution: without it the same project gave
+# velocities up to 20 % apart between identical runs (2026-09-23 benchmark).
+OPTIMIZER_SEED = 0
 
 IWAVE_COLUMNS = [
     "iwave_velocity_profile",
     "iwave_quality_profile",
     "iwave_depth_profile",
+    "iwave_valid_profile",
+    "iwave_skip_profile",
 ]
+# Per-section dict (not a per-station list), stripped together with IWAVE_COLUMNS.
+IWAVE_PARAMS_KEY = "iwave_params"
 
 # ---------------------------------------------------------------------------
 # Ortho grid geometry
@@ -134,11 +156,14 @@ def build_ortho_stack(
     bbox: Optional[list] = None,
     max_frames: int = MAX_FRAMES,
     save_dir: Optional[str] = None,
+    resolution: Optional[float] = None,
 ) -> tuple[np.ndarray, OrthoGrid]:
     """Warp frames onto an ortho grid. Returns (stack uint8 (n, H, W), grid).
 
-    If save_dir is provided, each warped (rectified) frame is also written to
-    that directory as a zero-padded JPEG (e.g. "000000.jpg").
+    resolution (m/px) normally comes from resolve_scene_params; when omitted the
+    grid falls back to the ROI-size rule of pick_resolution. If save_dir is
+    provided, each warped (rectified) frame is also written to that directory
+    as a zero-padded JPEG (e.g. "000000.jpg").
     """
     frames = _collect_frames(frames_dir)
     if not frames:
@@ -146,7 +171,7 @@ def build_ortho_stack(
     frames = frames[:max_frames]
 
     extent = compute_extent(xsections, transformation_matrix, bbox)
-    grid = OrthoGrid(extent=extent, resolution=pick_resolution(extent))
+    grid = OrthoGrid(extent=extent, resolution=resolution if resolution is not None else pick_resolution(extent))
     matrix = build_warp_matrix(grid, transformation_matrix)
     size = (grid.width_px, grid.height_px)
 
@@ -165,14 +190,146 @@ def build_ortho_stack(
     return stack, grid
 
 
-def _station_window(stack: np.ndarray, grid: OrthoGrid, east: float, north: float, win: int) -> np.ndarray:
+def prepare_iwave_scene(
+    frames_dir: str,
+    transformation_matrix: list,
+    xsections: dict,
+    step: int,
+    fps: float,
+    bbox: Optional[list] = None,
+    options: Optional[IwaveOptions] = None,
+) -> Tuple[VelocityEstimate, SceneParams]:
+    """Resolve the scene-wide iWave parameters before any frame is warped.
+
+    Must run after the LSPIV and STIV stages have filled xsections, since the
+    velocity estimate is read from their profiles.
+
+    Args:
+        frames_dir (str): Directory of extracted frames.
+        transformation_matrix (list): 3x3 pixel -> real-world homography.
+        xsections (dict): Cross-sections.
+        step (int): Frame step used at extraction.
+        fps (float): Source video frame rate.
+        bbox (Optional[list]): Pixel-space ROI bbox.
+        options (Optional[IwaveOptions]): User overrides.
+
+    Returns:
+        Tuple[VelocityEstimate, SceneParams]: Estimate and resolved parameters.
+    """
+    n_frames_total = len(_collect_frames(frames_dir))
+    n_frames = min(n_frames_total, MAX_FRAMES)
+    if n_frames == 0:
+        raise FileNotFoundError(f"No frames (.jpg) found in {frames_dir}")
+    extent = compute_extent(xsections, transformation_matrix, bbox)
+    span_m = max(extent.east_max - extent.east_min, extent.north_max - extent.north_min)
+    # Effective fps of the extracted frames is raw fps divided by the frame step.
+    fps_eff = float(fps) / float(step or 1)
+    estimate = estimate_velocity(xsections)
+    scene = resolve_scene_params(
+        estimate, n_frames, fps_eff, span_m, options or IwaveOptions(),
+        clip_duration_s=n_frames_total / fps_eff,
+    )
+    return estimate, scene
+
+
+def get_iwave_defaults(
+    frames_dir: str,
+    transformation_matrix: list,
+    xsections: dict,
+    step: int,
+    fps: float,
+    bbox: Optional[list] = None,
+) -> dict:
+    """Automatic iWave parameters, as the GUI shows them, without running iWave.
+
+    smax and flow type come from the LSPIV/STIV profiles already in xsections, so
+    before any analysis they fall back to 5 m/s and gravity waves on. A manual
+    flow type applies to every section, so "no-waves" is only suggested when
+    every section is supercritical.
+
+    Args:
+        frames_dir (str): Directory of extracted frames.
+        transformation_matrix (list): 3x3 pixel -> real-world homography.
+        xsections (dict): Cross-sections.
+        step (int): Frame step used at extraction.
+        fps (float): Source video frame rate.
+        bbox (Optional[list]): Pixel-space ROI bbox.
+
+    Returns:
+        dict: window_size (m), smax (m/s), flow_type, estimated_from, clip_s,
+            iwave_s (seconds of frames iWave uses) and short_clip.
+    """
+    estimate, scene = prepare_iwave_scene(
+        frames_dir, transformation_matrix, xsections, step, fps, bbox, IwaveOptions(),
+    )
+    n_frames_total = len(_collect_frames(frames_dir))
+    seconds_per_frame = float(step or 1) / float(fps)
+    iwave_s = min(n_frames_total, MAX_FRAMES) * seconds_per_frame
+    sections = get_section_items(xsections)
+    every_section_supercritical = bool(sections) and all(
+        not get_section_gravity_waves(section, estimate, "auto") for section in sections
+    )
+    return {
+        "window_size": float(scene.window_m),
+        "smax": float(scene.smax),
+        "flow_type": "no-waves" if every_section_supercritical else "waves",
+        "estimated_from": "+".join(estimate.sources) if estimate.sources else "none",
+        "clip_s": n_frames_total * seconds_per_frame,
+        "iwave_s": iwave_s,
+        "short_clip": iwave_s < SHORT_CLIP_S,
+    }
+
+
+MASK_WINDOW_SAMPLES = 32
+
+
+def _station_window_origin(grid_shape: tuple, grid: OrthoGrid, east: float, north: float, win: int) -> tuple[int, int]:
+    """Top-left (row, col) of a station's window, clamped inside the grid."""
     col, row = grid.real_to_pixel(east, north)
     half = win // 2
     r0 = int(round(float(row))) - half
     c0 = int(round(float(col))) - half
-    r0 = min(max(r0, 0), stack.shape[1] - win)
-    c0 = min(max(c0, 0), stack.shape[2] - win)
+    r0 = min(max(r0, 0), grid_shape[0] - win)
+    c0 = min(max(c0, 0), grid_shape[1] - win)
+    return r0, c0
+
+
+def _station_window(stack: np.ndarray, grid: OrthoGrid, east: float, north: float, win: int) -> np.ndarray:
+    r0, c0 = _station_window_origin(stack.shape[1:], grid, east, north, win)
     return np.array(stack[:, r0:r0 + win, c0:c0 + win], dtype=np.float64)
+
+
+def is_window_masked(
+    grid: OrthoGrid,
+    grid_shape: tuple,
+    east: float,
+    north: float,
+    win: int,
+    transformation_matrix: list,
+    mask: np.ndarray,
+) -> bool:
+    """Whether a station's whole window is hidden in the raw frame (masked or off the image).
+
+    Args:
+        grid (OrthoGrid): Ortho grid the stack was warped onto.
+        grid_shape (tuple): (rows, cols) of that grid.
+        east (float): Station east (m).
+        north (float): Station north (m).
+        win (int): Window side (grid px), as cropped.
+        transformation_matrix (list): Pixel -> real-world homography.
+        mask (np.ndarray): Raw-frame binary mask, 1 = keep, 0 = masked.
+
+    Returns:
+        bool: True when no sampled point of the window lands on a kept pixel.
+    """
+    # Deferred: define_roi_masks -> compute_section -> iwave_pipeline imports this module.
+    from river.core.define_roi_masks import are_all_points_hidden
+
+    r0, c0 = _station_window_origin(grid_shape, grid, east, north, win)
+    offsets = np.linspace(0, win - 1, min(win, MASK_WINDOW_SAMPLES))
+    cols, rows = np.meshgrid(c0 + offsets, r0 + offsets)
+    x, y = _project_h(build_warp_matrix(grid, transformation_matrix), cols.ravel(), rows.ravel())
+    return are_all_points_hidden(x, y, mask)
 
 
 # ---------------------------------------------------------------------------
@@ -227,6 +384,95 @@ def normalize_to_uint8(arr: np.ndarray) -> np.ndarray:
     return ((arr - amin) / (amax - amin + 1e-12) * 255).astype(np.uint8)
 
 
+def extract_kx0_slice(spec: np.ndarray, kx: np.ndarray) -> np.ndarray:
+    """The kx=0 cross-section of a (n_kt, n_ky, n_kx) spectrum.
+
+    The lateral companion of extract_ky0_slice: together the two planes are
+    the pair the IWaVE authors read a window's spectrum from (ky=0 shows the
+    ridge along x, kx=0 the spread along y).
+    """
+    idx = int(np.argmin(np.abs(kx)))
+    # .copy() for the same reason as extract_ky0_slice: a view would pin the
+    # whole spectrum in memory.
+    return np.asarray(spec)[:, :, idx].copy()
+
+
+# Percentile of the positive cells taken as the display maximum. The cells
+# near the origin are typically an order of magnitude above the ridge, so a
+# plain min/max scale leaves the ridge itself almost black; at 98 the ridge
+# saturates and the background noise stays faint (checked on real spectra).
+DISPLAY_CLIP_PERCENTILE = 98.0
+
+
+def get_display_max(arr: np.ndarray) -> float:
+    """A robust upper bound for displaying a spectrum.
+
+    Args:
+        arr (np.ndarray): Spectrum values (any shape).
+
+    Returns:
+        float: The DISPLAY_CLIP_PERCENTILE-th percentile of the positive,
+            finite cells, or 0.0 when there are none.
+    """
+    values = np.asarray(arr, dtype=np.float64)
+    positive = values[np.isfinite(values) & (values > 0)]
+    if positive.size == 0:
+        return 0.0
+    return float(np.percentile(positive, DISPLAY_CLIP_PERCENTILE))
+
+
+def calculate_branch_energy(
+    spec: np.ndarray,
+    kt: np.ndarray,
+    kt_gw: np.ndarray,
+    kt_turb: np.ndarray,
+    gauss_width: float = 1.0,
+    gravity_waves: bool = True,
+) -> dict:
+    """Share of the measured spectral energy lying along each fitted branch.
+
+    Each cell is weighted by the same Gaussian kernel the iwave package
+    builds its synthetic spectrum with (iwave/dispersion.py,
+    gauss_spectrum_calc) and credited to the branch whose curve is closer,
+    so the two shares never count a cell twice and sum to at most 1.
+
+    Args:
+        spec (np.ndarray): Measured spectrum, shape (n_kt, n_ky, n_kx).
+        kt (np.ndarray): Frequency axis (rad/s), length n_kt.
+        kt_gw (np.ndarray): Gravity-capillary wave frequency per (ky, kx).
+        kt_turb (np.ndarray): Advected-pattern frequency per (ky, kx).
+        gauss_width (float): Kernel width, in rad/s (default: 1.0).
+        gravity_waves (bool): Whether the fit modelled the wave branch
+            (default: True).
+
+    Returns:
+        dict: {"waves": float or None, "advected": float}. "waves" is None
+            when the wave branch was not modelled.
+    """
+    values = np.nan_to_num(np.asarray(spec, dtype=np.float64), nan=0.0)
+    total = float(values.sum())
+    waves_modelled = bool(gravity_waves)
+    if total <= 0:
+        return {"waves": 0.0 if waves_modelled else None, "advected": 0.0}
+
+    kt_grid = np.asarray(kt, dtype=np.float64).reshape(-1, 1, 1)
+    plane_shape = (1,) + values.shape[1:]
+
+    def _kernel(kt_curve: np.ndarray) -> np.ndarray:
+        curve = np.nan_to_num(np.asarray(kt_curve, dtype=np.float64).reshape(plane_shape), nan=np.inf)
+        return np.exp(-((kt_grid - curve) ** 2) / gauss_width**2)
+
+    advected_kernel = _kernel(kt_turb)
+    if not waves_modelled:
+        return {"waves": None, "advected": float((values * advected_kernel).sum() / total)}
+
+    waves_kernel = _kernel(kt_gw)
+    is_waves = waves_kernel >= advected_kernel
+    waves = float((values * waves_kernel)[is_waves].sum() / total)
+    advected = float((values * advected_kernel)[~is_waves].sum() / total)
+    return {"waves": waves, "advected": advected}
+
+
 def _curve_points(kx: np.ndarray, kt_curve: np.ndarray) -> list:
     """Pair kx with a curve's frequencies, dropping non-finite points.
 
@@ -240,8 +486,37 @@ def _curve_points(kx: np.ndarray, kt_curve: np.ndarray) -> list:
     return pts
 
 
+# Decimals kept for the spectrum values in the sidecar. The normalised
+# spectrum is O(1), and the GUI only colours and reads it out.
+SIDECAR_VALUE_DECIMALS = 3
+
+
+def _plane_record(k: np.ndarray, values: np.ndarray, kt_gw: np.ndarray, kt_turb: np.ndarray) -> dict:
+    """One wavenumber-frequency plane of the sidecar: its k axis, the spectrum
+    values (one row per frequency, lowest first) and the two fitted curves."""
+    cells = np.nan_to_num(np.asarray(values, dtype=np.float64), nan=0.0)
+    return {
+        "k": [float(v) for v in np.asarray(k).ravel()],
+        "values": np.round(cells, SIDECAR_VALUE_DECIMALS).tolist(),
+        "curves": {
+            "gravity": _curve_points(k, kt_gw),
+            "turbulence": _curve_points(k, kt_turb),
+        },
+    }
+
+
+def _optional_float(value) -> Optional[float]:
+    return None if value is None else float(value)
+
+
 def build_spectra_sidecar(entries: list) -> dict:
     """JSON-serialisable description of one section's spectrum previews.
+
+    Version 2 adds, per station, the spectrum itself on two planes ("kx":
+    ky=0, "ky": kx=0) sharing one frequency axis, the fitted values and the
+    energy share of each branch. The version 1 fields (extents and the ky=0
+    curves) are still written, so a GUI that only knows version 1 keeps
+    working. Entries without the version 2 inputs yield version 1 stations.
 
     Everything is converted to plain Python scalars: json.dumps cannot
     serialise numpy types.
@@ -250,25 +525,45 @@ def build_spectra_sidecar(entries: list) -> dict:
     for e in entries:
         kx = np.asarray(e["kx"])
         kt = np.asarray(e["kt"])
-        stations.append(
-            {
-                "station": int(e["station"]),
-                "kx_min": float(kx.min()),
-                "kx_max": float(kx.max()),
-                "kt_min": float(kt.min()),
-                "kt_max": float(kt.max()),
-                "curves": {
-                    "gravity": _curve_points(kx, e["kt_gw"]),
-                    "turbulence": _curve_points(kx, e["kt_turb"]),
-                },
+        station = {
+            "station": int(e["station"]),
+            "kx_min": float(kx.min()),
+            "kx_max": float(kx.max()),
+            "kt_min": float(kt.min()),
+            "kt_max": float(kt.max()),
+            "curves": {
+                "gravity": _curve_points(kx, e["kt_gw"]),
+                "turbulence": _curve_points(kx, e["kt_turb"]),
+            },
+        }
+        if e.get("slice_ky") is not None and e.get("slice") is not None:
+            station["kt"] = [float(v) for v in kt.ravel()]
+            station["planes"] = {
+                "kx": _plane_record(kx, e["slice"], e["kt_gw"], e["kt_turb"]),
+                "ky": _plane_record(e["ky"], e["slice_ky"], e["kt_gw_ky"], e["kt_turb_ky"]),
             }
-        )
-    return {"version": 1, "stations": stations}
+            # One maximum over both planes, so their colours compare.
+            station["display_max"] = get_display_max(
+                np.concatenate([np.ravel(e["slice"]), np.ravel(e["slice_ky"])])
+            )
+            station["fit"] = {
+                "vx": _optional_float(e.get("vx")),
+                "vy": _optional_float(e.get("vy")),
+                "depth": _optional_float(e.get("d")),
+            }
+            energy = e.get("energy") or {}
+            station["energy"] = {
+                "waves": _optional_float(energy.get("waves")),
+                "advected": _optional_float(energy.get("advected")),
+            }
+        stations.append(station)
+    return {"version": 2, "stations": stations}
 
 
 def write_spectra(spectra_dir: str, entries: list) -> None:
-    """Write one section's spectrum previews: a bare grayscale PNG per
-    station plus a spectra.json sidecar.
+    """Write one section's spectrum previews: a grayscale PNG per station
+    (the thumbnail the GUI's strip shows) plus a spectra.json sidecar
+    holding the values the GUI plots.
 
     Stale spectrum images (from a prior run with more stations) are deleted
     so a re-run with fewer stations cannot leave old spectrum_*.png files
@@ -294,11 +589,14 @@ def write_spectra(spectra_dir: str, entries: list) -> None:
         # ascends from zero and is never fftshifted -- row 0 of the raw
         # slice is the LOWEST frequency. Flipping puts the HIGHEST frequency
         # in row 0 (the PNG's top edge), which is the conventional
-        # orientation for a spectrum plot and matches the GUI's y-axis
-        # inversion in spectrumGeometry.ts (SVG y grows downward while
-        # frequency grows upward). These two must be changed together.
-        img = normalize_to_uint8(e["slice"][::-1])
-        cv2.imwrite(str(out / f"spectrum_{int(e['station'])}.png"), img)
+        # orientation for a spectrum plot.
+        flipped = np.nan_to_num(np.asarray(e["slice"], dtype=np.float32), nan=0.0)[::-1]
+        # Clip at the robust maximum first, or one hot cell leaves the rest
+        # of the thumbnail black.
+        display_max = get_display_max(flipped)
+        if display_max > 0:
+            flipped = np.minimum(flipped, display_max)
+        cv2.imwrite(str(out / f"spectrum_{int(e['station'])}.png"), normalize_to_uint8(flipped))
 
     (out / "spectra.json").write_text(json.dumps(build_spectra_sidecar(entries)))
 
@@ -308,6 +606,11 @@ def write_spectra(spectra_dir: str, entries: list) -> None:
 # ---------------------------------------------------------------------------
 
 
+# Width (rad/s) of the Gaussian kernel around each dispersion curve, shared by
+# the fit and by the branch energy shares so both describe the same band.
+FIT_GAUSS_WIDTH = 1
+
+
 def _process_station(
     crop: np.ndarray,
     resolution: float,
@@ -315,16 +618,22 @@ def _process_station(
     alpha: float,
     time_size: int,
     time_overlap: int,
+    smax: float = SMAX_FALLBACK,
+    depth_bounds: Tuple[float, float] = DEPTH_FALLBACK,
+    gravity_waves: bool = True,
+    penalty_weight: float = 1.0,
 ) -> dict:
     """Spectral velocity fit for one station window. Returns vy/vx/d/quality
-    (None on failure), plus the ky=0 spectrum slice, its kx/kt axes, and the
-    two theoretical dispersion curves for the preview."""
+    (None on failure), plus what the preview needs: the ky=0 and kx=0
+    spectrum slices, their axes, the two theoretical dispersion curves on
+    each plane, and the energy share of each branch."""
     from iwave import spectral, window as iw_window, optimise, dispersion as iw_dispersion
     from iwave.iwave import OPTIM_KWARGS_SADE
 
     empty = dict(
         vy=None, vx=None, d=None, quality=None,
         slice=None, kx=None, kt=None, kt_gw=None, kt_turb=None,
+        slice_ky=None, ky=None, kt_gw_ky=None, kt_turb_ky=None, energy=None,
     )
 
     win = crop.shape[-1]
@@ -336,19 +645,21 @@ def _process_station(
     spec = spectral.sliding_window_spectrum(w, time_size, time_overlap)
     window_dims = (time_size, win, win)
     kt, ky, kx = spectral.wave_numbers(window_dims, resolution, fps_eff)
-    spec = spectral.spectrum_preprocessing(spec, kt, ky, kx, SMAX * 3, spectrum_threshold=1.0)
-    bnds = ((-SMAX, SMAX), (-SMAX, SMAX), (DMIN, DMAX))
+    spec = spectral.spectrum_preprocessing(spec, kt, ky, kx, smax * 3, spectrum_threshold=1.0)
+    bnds = ((-smax, smax), (-smax, smax), tuple(depth_bounds))
     vy, vx, d, cost, quality, status, msg = optimise.optimize_single_spectrum_velocity(
         spec[0], bnds, alpha, window_dims, resolution, fps_eff,
-        penalty_weight=1, gravity_waves_switch=True, turbulence_switch=True,
-        pass_downsampling=[2, 1], gauss_width=1, kwargs=dict(OPTIM_KWARGS_SADE),
+        penalty_weight=penalty_weight, gravity_waves_switch=gravity_waves, turbulence_switch=True,
+        pass_downsampling=[2, 1], gauss_width=FIT_GAUSS_WIDTH, kwargs=dict(OPTIM_KWARGS_SADE, seed=OPTIMIZER_SEED),
     )
 
-    # Preview: the ky=0 cross-section with the fitted dispersion relations on
-    # top — the diagnostic the iwave package documents in iwave/plots.py.
+    # Preview: the ky=0 and kx=0 cross-sections with the fitted dispersion
+    # relations on top — the ky=0 one is the diagnostic the iwave package
+    # documents in iwave/plots.py.
     # dispersion() needs the 2D velocity, which the caller collapses away.
     kt_gw, kt_turb = iw_dispersion.dispersion(ky, kx, (vy, vx), d, alpha)
     ky0 = int(np.argmin(np.abs(ky)))
+    kx0 = int(np.argmin(np.abs(kx)))
 
     return dict(
         vy=float(vy), vx=float(vx), d=float(d), quality=float(quality),
@@ -357,6 +668,13 @@ def _process_station(
         kt=kt,
         kt_gw=np.asarray(kt_gw)[0, ky0, :],
         kt_turb=np.asarray(kt_turb)[0, ky0, :],
+        slice_ky=extract_kx0_slice(spec[0], kx),
+        ky=ky,
+        kt_gw_ky=np.asarray(kt_gw)[0, :, kx0],
+        kt_turb_ky=np.asarray(kt_turb)[0, :, kx0],
+        energy=calculate_branch_energy(
+            spec[0], kt, kt_gw, kt_turb, gauss_width=FIT_GAUSS_WIDTH, gravity_waves=gravity_waves,
+        ),
     )
 
 
@@ -372,34 +690,57 @@ def run_iwave_analysis(
     grid: Optional[OrthoGrid] = None,
     spectra_dir: Optional[str] = None,
     progress: Optional[Callable[[int, int], None]] = None,
+    scene: Optional[SceneParams] = None,
+    estimate: Optional[VelocityEstimate] = None,
+    options: Optional[IwaveOptions] = None,
+    mask: Optional[np.ndarray] = None,
 ) -> dict:
     """Run iWave spectral velocimetry for one cross-section's stations.
 
-    Adds 3 per-station lists: iwave_velocity_profile (signed streamwise, m/s),
-    iwave_quality_profile, iwave_depth_profile. Pass a prebuilt (stack, grid)
-    pair to reuse the warped frames across sections. If spectra_dir is given,
-    each station's ky=0 spectrum preview is saved there as
-    spectrum_<station_id>.png alongside a spectra.json sidecar.
+    Adds 5 per-station lists: iwave_velocity_profile (signed streamwise, m/s),
+    iwave_quality_profile, iwave_depth_profile, iwave_valid_profile,
+    iwave_skip_profile, plus the iwave_params dict of parameters actually used
+    (including skipped_dry and skipped_masked counts). Pass a prebuilt (stack, grid)
+    pair together with its scene to reuse the warped frames across sections;
+    without them everything is resolved here. If spectra_dir is given, each
+    station's ky=0 spectrum thumbnail is saved there as spectrum_<station_id>.png
+    alongside a spectra.json sidecar holding the ky=0 and kx=0 planes. A station whose whole window is hidden by
+    mask is not fitted; iwave_skip_profile records "dry" or "masked" per station.
     """
+    options = options or IwaveOptions()
+    if (stack is None) != (grid is None):
+        raise ValueError("run_iwave_analysis: pass both stack and grid, or neither")
+    if stack is not None and scene is None:
+        raise ValueError("run_iwave_analysis: a prebuilt stack needs the scene it was built with")
+    if scene is None:
+        estimate, scene = prepare_iwave_scene(
+            frames_dir, transformation_matrix, xsections, step, fps, bbox, options,
+        )
+    elif estimate is None:
+        estimate = estimate_velocity(xsections)
+
     section_keys = [k for k in xsections if k != "summary"]
     current_key = section_keys[id_section]
     cs = xsections[current_key]
 
-    if stack is None or grid is None:
-        stack, grid = build_ortho_stack(frames_dir, transformation_matrix, xsections, bbox)
+    if stack is None:
+        stack, grid = build_ortho_stack(
+            frames_dir, transformation_matrix, xsections, bbox, resolution=scene.resolution,
+        )
 
-    # Effective fps of the extracted frames is raw fps divided by the frame step.
-    fps_eff = float(fps) / float(step or 1)
     resolution = grid.resolution
-    time_size = min(256, stack.shape[0])
+    time_size = min(scene.time_size, stack.shape[0] - stack.shape[0] % 2)
     time_overlap = time_size // 2
-    win = int(np.clip(round(WIN_TARGET_M / resolution / 2) * 2, WIN_MIN, WIN_MAX))
-    win = min(win, (min(stack.shape[1], stack.shape[2]) // 2) * 2)
+    win = min(scene.window_px, (min(stack.shape[1], stack.shape[2]) // 2) * 2)
+    # Rules that look at neighbouring stations use the window actually cut, which
+    # can be smaller than the target on a small grid.
+    window_m = win * resolution
 
     east = [float(e) for e in cs["east"]]
     north = [float(n) for n in cs["north"]]
     n = len(east)
     alpha = float(cs.get("alpha", 0.85))
+    gravity_waves = get_section_gravity_waves(cs, estimate, options.flow_type)
 
     _, u_stream = _crosswise_streamwise_unit(cs)
     dir_e, dir_n = _flow_direction_from_margins(
@@ -413,10 +754,44 @@ def run_iwave_analysis(
     quality: list[Optional[float]] = [None] * n
     depth: list[Optional[float]] = [None] * n
     spectra_entries: list = []
+    skip: list[Optional[str]] = [None] * n
+    skipped_dry = 0
+    skipped_masked = 0
+    smax_reruns = 0
+    depth_at_bound = 0
 
     for i in range(n):
+        if is_dry_window(cs, i, window_m):
+            skipped_dry += 1
+            skip[i] = "dry"
+            if progress is not None:
+                progress(i + 1, n)
+            continue
+        if mask is not None and is_window_masked(
+            grid, stack.shape[1:], east[i], north[i], win, transformation_matrix, mask,
+        ):
+            skipped_masked += 1
+            skip[i] = "masked"
+            if progress is not None:
+                progress(i + 1, n)
+            continue
+
+        depth_reference = get_window_depth_reference(cs, i, window_m)
+        depth_bounds = get_depth_bounds(depth_reference, options.depth_mode)
         crop = _station_window(stack, grid, east[i], north[i], win)
-        r = _process_station(crop, resolution, fps_eff, alpha, time_size, time_overlap)
+        station_kwargs = dict(
+            depth_bounds=depth_bounds, gravity_waves=gravity_waves, penalty_weight=scene.penalty_weight,
+        )
+        r = _process_station(
+            crop, resolution, scene.fps_eff, alpha, time_size, time_overlap, smax=scene.smax, **station_kwargs,
+        )
+        if r["vy"] is not None and needs_smax_rerun(r["vx"], r["vy"], scene):
+            # Pinned against an auto bound: LSPIV and STIV probably both underestimated.
+            smax_reruns += 1
+            r = _process_station(
+                crop, resolution, scene.fps_eff, alpha, time_size, time_overlap, smax=SMAX_MAX, **station_kwargs,
+            )
+
         if r["vy"] is not None:
             # pipeline convention (run_iwave.grid_to_real): v_north = -vy, v_east = vx
             v_e, v_n = r["vx"], -r["vy"]
@@ -425,6 +800,8 @@ def run_iwave_analysis(
             vel[i] = float(v_e * u_stream[0] + v_n * u_stream[1])
             quality[i] = r["quality"]
             depth[i] = r["d"]
+            if options.depth_mode == "range" and depth_reference is not None and is_depth_at_bound(r["d"], depth_bounds):
+                depth_at_bound += 1
             if spectra_dir is not None and r["slice"] is not None:
                 spectra_entries.append(
                     {
@@ -434,6 +811,14 @@ def run_iwave_analysis(
                         "kt": r["kt"],
                         "kt_gw": r["kt_gw"],
                         "kt_turb": r["kt_turb"],
+                        "slice_ky": r["slice_ky"],
+                        "ky": r["ky"],
+                        "kt_gw_ky": r["kt_gw_ky"],
+                        "kt_turb_ky": r["kt_turb_ky"],
+                        "energy": r["energy"],
+                        "vx": r["vx"],
+                        "vy": r["vy"],
+                        "d": r["d"],
                     }
                 )
         if progress is not None:
@@ -445,4 +830,12 @@ def run_iwave_analysis(
     xsections[current_key]["iwave_velocity_profile"] = vel
     xsections[current_key]["iwave_quality_profile"] = quality
     xsections[current_key]["iwave_depth_profile"] = depth
+    xsections[current_key]["iwave_valid_profile"] = get_quality_flags(quality)
+    xsections[current_key]["iwave_skip_profile"] = skip
+    xsections[current_key][IWAVE_PARAMS_KEY] = build_params_record(
+        scene, estimate, options,
+        window_px=win, window_m=window_m, time_size=time_size, gravity_waves=gravity_waves,
+        depth_at_bound=depth_at_bound, smax_reruns=smax_reruns, skipped_dry=skipped_dry,
+        skipped_masked=skipped_masked,
+    )
     return xsections

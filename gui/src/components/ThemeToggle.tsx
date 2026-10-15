@@ -28,14 +28,8 @@ export const ThemeToggle = () => {
 
   return (
     <div className="lwrap" ref={ref}>
-      <button
-        className={`ib ${open ? 'active' : ''}`}
-        style={
-          { '--hi': 'var(--accent)', width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties
-        }
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span style={{ fontSize: 17 }}>{currentTheme.icon}</span>
+      <button className="menu-trigger" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        <span style={{ fontSize: 'var(--text-section)' }}>{currentTheme.icon}</span>
         {Icons.ChevDown('var(--secondary-text-color)', open ? 180 : 0)}
       </button>
       <div className={`ldrop ${open ? 'open' : ''}`}>
@@ -48,7 +42,7 @@ export const ThemeToggle = () => {
               setOpen(false);
             }}
           >
-            <span style={{ fontSize: 17 }}>{t.icon}</span>
+            <span style={{ fontSize: 'var(--text-section)' }}>{t.icon}</span>
             <span>{t.label}</span>
             {t.value === theme && (
               <span style={{ marginLeft: 'auto', display: 'flex' }}>{Icons.Check('var(--success-color)')}</span>

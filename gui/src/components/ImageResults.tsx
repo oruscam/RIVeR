@@ -2,6 +2,7 @@ import { useImageZoomPan, useProjectSlice, useUiSlice, useVelocityColorRange } f
 import { ColorBar } from './ColorBar';
 import { DrawSectionsD3 } from './CrossSections/DrawSectionsD3';
 import { VelocityVector } from './Graphs';
+import { StationTag } from './Graphs/StationTag';
 import { OverlaySvg } from './OverlaySvg';
 
 export const ImageResults = ({
@@ -28,7 +29,7 @@ export const ImageResults = ({
   // `VelocityVector` uses for the chevrons themselves, via one shared hook so
   // the two can't drift apart. A manually locked range wins in both, exactly
   // as it does in Processing.
-  const { min, max } = useVelocityColorRange();
+  const { min, max, hasData } = useVelocityColorRange();
 
   const { scale, position } = useImageZoomPan({
     containerWidth: imageWidth!,
@@ -90,7 +91,7 @@ export const ImageResults = ({
             <>
               <DrawSectionsD3
                 width={reportWidth!}
-                height={reportWidth!}
+                height={reportHeight!}
                 factor={reportFactor!}
                 module="report"
                 scale={scale}
@@ -110,8 +111,9 @@ export const ImageResults = ({
           )}
         </OverlaySvg>
       )}
-      {/* Outside the zoomed element so the bar keeps its size and corner. */}
-      {isReport === false && <ColorBar min={min} max={max} />}
+      {/* Outside the zoomed element so the bar/tag keep their size and corner. */}
+      {isReport === false && hasData && <ColorBar min={min} max={max} />}
+      {isReport === false && <StationTag />}
     </div>
   );
 };

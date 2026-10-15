@@ -1,9 +1,7 @@
-import { useAutoShrinkFont, useDataSlice, useSectionSlice, useUiSlice, useResizableCarousel } from '../hooks';
+import { useDataSlice, useSectionSlice, useUiSlice, useResizableCarousel } from '../hooks';
 import React, { useRef, useState, useEffect } from 'react';
-import { useWizard } from 'react-use-wizard';
-import { MODULE_NUMBER } from '../constants/constants';
 import { FixedSizeList as List } from 'react-window';
-import { carouselClickImage, carouselKeyDown, isStationTuned } from '../helpers';
+import { carouselClickImage, carouselKeyDown, isStationTuned, measureImageAspect } from '../helpers';
 import { useTranslation } from 'react-i18next';
 import { carouselMouseDown, carouselMouseUp, setCarouselDimensions } from '../helpers/carouselFunctions';
 import { back, play as next } from '../assets/icons/icons';
@@ -15,11 +13,14 @@ interface CarouselProps {
   setActiveImage: (index: number) => void;
   showMedian?: boolean;
   setShowMedian?: (value: boolean) => void;
-  canToggleMedian?: boolean;
   mode: 'processing' | 'analize' | 'ipcam' | 'select';
   /** True only for the STI station strip — `mode==='processing'` alone also
-   *  covers the iWave strip, where these indices point at a different, sparser list. */
+   *  covers the iWave strip. Both strips are one tile per station, but the markers
+   *  read STIV's profiles and mean nothing next to a spectrum. */
   showStivMarkers?: boolean;
+  /** Text for a tile whose image is '' (a station the run skipped), index-aligned
+   *  with images. Only the station strips pass it. */
+  emptyLabels?: string[];
 }
 
 interface RowProps {
@@ -33,9 +34,9 @@ export const Carousel: React.FC<CarouselProps> = ({
   setActiveImage,
   showMedian,
   setShowMedian,
-  canToggleMedian,
   mode,
   showStivMarkers,
+  emptyLabels,
 }) => {
   const { t } = useTranslation();
   const { isBackendWorking } = useDataSlice();
@@ -66,6 +67,24 @@ export const Carousel: React.FC<CarouselProps> = ({
 
   const itemWidth = Math.round(carouselHeight * ratioRef.current);
 
+  // A skipped station's tile copies the shape of the strip's real images (STIs
+  // are wide, spectra tall, and both vary per project), so it is measured from
+  // the first one rather than fixed in CSS. Only strips with a gap need it.
+  const firstImage = images.find(Boolean) ?? '';
+  const hasEmptyTile = images.some((src) => !src);
+  const [tileAspect, setTileAspect] = useState<number | null>(null);
+  useEffect(() => {
+    setTileAspect(null);
+    if (!hasEmptyTile) return;
+    let cancelled = false;
+    measureImageAspect(firstImage).then((aspect) => {
+      if (!cancelled) setTileAspect(aspect);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [firstImage, hasEmptyTile]);
+
   const [defaultValue, setDefaultValue] = useState<string | number>((active + 1) as string | number);
   const [scrollInterval, setScrollInterval] = useState<NodeJS.Timeout | null>(null);
   const [speedUpTimeout, setSpeedUpTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -73,9 +92,6 @@ export const Carousel: React.FC<CarouselProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<List>(null);
   const listOuterRef = useRef<HTMLDivElement>(null);
-  const stabilizationButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
-
-  const { activeStep } = useWizard();
 
   // Only Processing pairs consecutive frames for PIV — every other mode is a plain single-frame browser.
   const isPairMode = mode === 'analize';
@@ -122,7 +138,16 @@ export const Carousel: React.FC<CarouselProps> = ({
         }
         style={style}
       >
-        <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
+        {images[index] ? (
+          <img src={images[index]} alt={`Slide ${index}`} className={className}></img>
+        ) : (
+          <div
+            className={`${className} img-carousel-empty`}
+            style={tileAspect ? { aspectRatio: String(tileAspect) } : undefined}
+          >
+            {emptyLabels?.[index] ?? ''}
+          </div>
+        )}
         {mode !== 'ipcam' && <div className="img-water-mark"> {index + 1}</div>}
         {showMarkers && (
           <div
@@ -194,18 +219,6 @@ export const Carousel: React.FC<CarouselProps> = ({
     <div ref={containerRef} className={`carousel-container mt-1 ${isBackendWorking ? 'disabled' : ''}`}>
       <div className="carousel-resize-handle" onMouseDown={onDragHandleMouseDown} />
       <div className="carousel-info">
-        {/* Pixel Size reuses the same showMedian/setShowMedian/canToggleMedian wiring to
-            toggle the stabilization sanity-check image instead of a median composite. */}
-        {activeStep === MODULE_NUMBER.PIXEL_SIZE && canToggleMedian && (
-          <button
-            ref={stabilizationButtonRef}
-            className={`wizard-button button-rectification ${showMedian ? 'wizard-button-active' : ''}`}
-            onClick={() => setShowMedian!(!showMedian)}
-          >
-            {' '}
-            {t('PixelSize.carouselStabilization')}{' '}
-          </button>
-        )}
         <div>
           <input
             value={defaultValue}
@@ -218,6 +231,15 @@ export const Carousel: React.FC<CarouselProps> = ({
           <p> / {images.length} </p>
         </div>
       </div>
+      {isPairMode && !showMedian && (
+        <p className="carousel-frame-pair-caption">
+          {t('Processing.framePairCaption', {
+            defaultValue: 'Frame pair {{first}}–{{last}}',
+            first: active + 1,
+            last: active + 2,
+          })}
+        </p>
+      )}
       <div className="carousel">
         <button
           id="carousel-backward"

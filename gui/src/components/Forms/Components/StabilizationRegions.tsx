@@ -1,9 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectSlice, useUiSlice } from '../../../hooks';
-import { EditMaskBtn } from '../../CustomIcons/EditMaskBtn';
-import { TrashBtn } from '../../CustomIcons/TrashBtn';
-import { MaskBtn } from '../../CustomIcons/MaskBtn';
+import { RegionList } from './RegionList';
 
 export const StabilizationRegions = () => {
   const { t } = useTranslation();
@@ -15,35 +13,29 @@ export const StabilizationRegions = () => {
     onDeleteStabilizationRegion,
     onSetStabilizationActiveRegionIndex,
   } = useProjectSlice();
-  const { onSetInfoMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
+  const { onSetModeHint, onClearModeHint } = useUiSlice();
 
   const { stabilization, stabilizationRegions } = video.parameters;
 
-  // While a region is actively being placed/edited: briefly show the green
-  // "add 2 regions" hint, then hand off to a persistent yellow "editing
-  // regions" status until that region is confirmed (or editing is exited).
+  // While a region is actively being placed/edited: show a persistent mode hint
+  // with the live region count as meta. When editing is exited, clear the hint.
   useEffect(() => {
     if (!stabilization || stabilizationActiveRegionIndex === null) {
-      onClearWarningMessage();
+      onClearModeHint();
       return;
     }
 
-    onSetInfoMessage(
-      t('VideoRange.minRegionsWarning', { defaultValue: 'Add at least 2 regions for stabilization' })
+    onSetModeHint(
+      t('VideoRange.editingRegionsWarning', { defaultValue: 'Editing regions' }),
+      t('VideoRange.minRegionsCount', {
+        defaultValue: '{{count}} of 2 min.',
+        count: stabilizationRegions.length,
+      })
     );
 
-    const timer = setTimeout(() => {
-      onSetWarningMessage(
-        t('VideoRange.editingRegionsWarning', { defaultValue: 'Editing stabilization regions' })
-      );
-    }, 5000);
-
-    return () => {
-      clearTimeout(timer);
-      onClearWarningMessage();
-    };
+    return () => onClearModeHint();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stabilization, stabilizationActiveRegionIndex]);
+  }, [stabilization, stabilizationActiveRegionIndex, stabilizationRegions.length]);
 
   const handleToggle = (checked: boolean) => {
     onSetStabilization(checked);
@@ -53,46 +45,43 @@ export const StabilizationRegions = () => {
     onSetStabilizationActiveRegionIndex(stabilizationActiveRegionIndex === index ? null : index);
   };
 
+  // While a region is being edited the add row reads "Done editing" and ends the edit, as a mask's does.
   const handleAddClick = () => {
+    if (stabilizationActiveRegionIndex !== null) {
+      onSetStabilizationActiveRegionIndex(null);
+      return;
+    }
     onAddStabilizationRegion();
   };
 
   return (
-    <div className="lens-correction-section mt-1">
-      <div className="switch-container">
-        <h3 className="field-title">{t('VideoRange.stabilizeVideo', { defaultValue: 'Stabilize video' })}</h3>
-        <label className="switch">
-          <input type="checkbox" checked={stabilization} onChange={(e) => handleToggle(e.target.checked)} />
+    <div className="panel-section">
+      <hr className="panel-rule" />
+      <div className="field-row field-row-top">
+        <label className="field-row-label" htmlFor="stabilization-toggle">
+          {t('VideoRange.stabilizeVideo', { defaultValue: 'Stabilize video' })}
+        </label>
+        <label className="switch switch-sm">
+          <input
+            id="stabilization-toggle"
+            type="checkbox"
+            checked={stabilization}
+            onChange={(e) => handleToggle(e.target.checked)}
+          />
           <span className="slider"></span>
         </label>
       </div>
 
       {stabilization && (
-        <>
-          {stabilizationRegions.map((_region, index) => (
-            <div key={index} className="switch-container mt-1">
-              <h3 className="field-title">
-                {t('VideoRange.stabilizationRegion', { defaultValue: 'Region' })} {index + 1}
-              </h3>
-              <div className="mask-actions">
-                <EditMaskBtn
-                  action={handleEditClick}
-                  active={stabilizationActiveRegionIndex === index}
-                  index={index}
-                />
-                <TrashBtn onClickFunction={() => onDeleteStabilizationRegion(index)} />
-              </div>
-            </div>
-          ))}
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
-            <MaskBtn
-              onClick={handleAddClick}
-              disabled={stabilizationActiveRegionIndex !== null}
-              title={t('VideoRange.addRegion', { defaultValue: 'Add region' })}
-            />
-          </div>
-        </>
+        <div className="panel-nested">
+          <RegionList
+            regions={stabilizationRegions}
+            activeRegionIndex={stabilizationActiveRegionIndex}
+            onEdit={handleEditClick}
+            onDelete={onDeleteStabilizationRegion}
+            onAdd={handleAddClick}
+          />
+        </div>
       )}
     </div>
   );

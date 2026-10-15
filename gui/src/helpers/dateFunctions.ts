@@ -54,3 +54,13 @@ export const stringDateToDate = (dateString: string): Date => {
   // Crea el objeto Date
   return new Date(dateTimeString);
 };
+
+/**
+ * The date the report form starts with: the one saved with the project, else the footage's
+ * creation time, else today. A folder of frames and a missing video have no creation time.
+ */
+export const defaultMeasurementDate = (saved: string, creation: string | undefined, today: Date): Date => {
+  if (saved) return stringDateToDate(saved);
+  const created = creation ? new Date(creation) : null;
+  return created && !Number.isNaN(created.getTime()) ? created : today;
+};

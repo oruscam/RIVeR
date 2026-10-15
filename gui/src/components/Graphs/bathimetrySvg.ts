@@ -37,6 +37,17 @@ interface BathimetryChartProps {
   x2Intersection?: number;
   wetSegments?: WetSegment[];
   unitSistem?: string;
+  /** Station currently hovered anywhere in the Results panel (chart, Grid,
+   *  or canvas) — draws this chart's own segment of the crosshair plus a
+   *  marker on the bed line at that station. Only meaningful in the
+   *  xScaleAllInOne branch (this chart is never hover-aware standalone/report). */
+  hoveredStation?: number | null;
+  /** That station's x position, matching the shared xScale — same shifted
+   *  distance the discharge/velocity charts use. */
+  stationDistances?: number[];
+  /** That station's stage (level − depth), pre-computed by the caller since
+   *  this module only receives the dense bed-profile line, not per-station depth. */
+  stationStage?: (number | null)[];
 }
 
 export const bathimetrySvg = ({
@@ -53,6 +64,9 @@ export const bathimetrySvg = ({
   x2Intersection,
   wetSegments,
   unitSistem,
+  hoveredStation,
+  stationDistances,
+  stationStage,
 }: BathimetryChartProps) => {
   // Data and scale domains stay in SI; only tick labels are converted for display.
   const displayFactor = unitSistem === 'imperial' ? UNIT_CONVERSIONS.M_TO_FT : 1;
@@ -102,6 +116,37 @@ export const bathimetrySvg = ({
       .text(`${lengthUnit}`);
 
     translateX = marginAllInOne.left + GRAPHS.GRID_Y_OFFSET_ALL_IN_ONE;
+
+    if (
+      hoveredStation !== null &&
+      hoveredStation !== undefined &&
+      stationDistances &&
+      stationStage &&
+      stationDistances[hoveredStation] !== undefined &&
+      typeof stationStage[hoveredStation] === 'number'
+    ) {
+      const hoveredX = stationDistances[hoveredStation];
+      const hoveredY = stationStage[hoveredStation] as number;
+      svg
+        .append('line')
+        .attr('class', 'hover-guide-line')
+        .attr('x1', xScale(hoveredX))
+        .attr('x2', xScale(hoveredX))
+        .attr('y1', graphHeight * 2)
+        .attr('y2', heightSizes - marginAllInOne.bottom)
+        .attr('stroke', 'var(--accent-color)')
+        .attr('stroke-width', 1)
+        .attr('stroke-dasharray', '3,3');
+      svg
+        .append('circle')
+        .attr('class', 'hover-guide-marker')
+        .attr('cx', xScale(hoveredX))
+        .attr('cy', yScale(hoveredY))
+        .attr('r', 4)
+        .attr('fill', 'var(--accent-color)')
+        .attr('stroke', 'var(--background-color)')
+        .attr('stroke-width', 1.2);
+    }
   } else {
     xScale = d3
       .scaleLinear()

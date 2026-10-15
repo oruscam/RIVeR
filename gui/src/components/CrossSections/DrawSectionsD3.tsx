@@ -1,8 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import * as d3 from 'd3';
+import { useTranslation } from 'react-i18next';
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { drawInteractiveSection, drawStaticSection, getResizedPoint } from './drawSections';
 import type { OverlayLayers } from '../OverlaySvg';
+import { NOT_MAGNIFIER } from '../Graphs/drawMagnifier';
+
+// The static redraw clears the UI layer but leaves the interactive pins (and their
+// children) to the interactive effect.
+const NOT_MAGNIFIER_OR_INTERACTIVE = `${NOT_MAGNIFIER}:not([class*='interactive-ui-']):not([class*='interactive-ui-'] *)`;
 
 type Point = { x: number; y: number };
 
@@ -15,6 +21,7 @@ export const DrawSectionsD3 = ({
   position,
   layers,
   sectionIndex,
+  imageSrc,
 }: {
   width: number;
   height: number;
@@ -24,10 +31,21 @@ export const DrawSectionsD3 = ({
   position: { x: number; y: number };
   layers: OverlayLayers;
   sectionIndex?: number;
+  imageSrc: string;
 }) => {
+  const { t } = useTranslation();
   const { sections, activeSection, onSetDirPoints, onSetIsDraggingPoint } = useSectionSlice();
   const { seeAll, language } = useUiSlice();
   const { type } = useProjectSlice();
+
+  // The language's own initial for the left and right bank (I/D, G/D, 左/右 ...).
+  const bankLabels = useMemo(
+    () => ({
+      left: t('CrossSections.bankLeft', { defaultValue: 'L' }),
+      right: t('CrossSections.bankRight', { defaultValue: 'R' }),
+    }),
+    [t]
+  );
 
   const { svgRef, overlayZoomRef, staticLayerRef, interactiveLayerRef, uiLayerRef } = layers;
 
@@ -72,7 +90,7 @@ export const DrawSectionsD3 = ({
     const uiLayerSel = d3.select(uiLayerRef.current);
 
     staticLayerSel.selectAll('*').remove();
-    uiLayerSel.selectAll('*').remove();
+    uiLayerSel.selectAll(NOT_MAGNIFIER_OR_INTERACTIVE).remove();
 
     sections.forEach((section, index) => {
       if (module === 'report' && sectionIndex !== undefined && index !== sectionIndex) return;
@@ -86,12 +104,14 @@ export const DrawSectionsD3 = ({
       const skipLine = module === 'x-sections' && isActive;
 
       drawStaticSection({
+        bankLabels,
         zoomLayer: staticLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
         uiLayer: uiLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
         factor,
         dirPoints,
         sectionPoints,
         name,
+        label: `${t('CrossSections.section', { defaultValue: 'Section' })} ${index + 1}`,
         imageWidth: width,
         imageHeight: height,
         module,
@@ -116,6 +136,8 @@ export const DrawSectionsD3 = ({
     module,
     sectionIndex,
     language,
+    t,
+    bankLabels,
   ]);
 
   // Interactive drawing
@@ -130,6 +152,7 @@ export const DrawSectionsD3 = ({
     layerSel.selectAll('*').remove();
 
     drawInteractiveSection({
+      bankLabels,
       layer: layerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
       uiLayer: uiLayerSel as unknown as d3.Selection<SVGGElement, unknown, null, undefined>,
       zoomLayerNode,
@@ -150,6 +173,7 @@ export const DrawSectionsD3 = ({
         scale,
       },
       module: 'x-sections',
+      imageSrc,
     });
 
     return () => {
@@ -175,6 +199,9 @@ export const DrawSectionsD3 = ({
     uiLayerRef,
     overlayZoomRef,
     seeAll,
+    imageSrc,
+    language,
+    bankLabels,
   ]);
 
   // Attach root SVG listeners for section creation (namespaced)

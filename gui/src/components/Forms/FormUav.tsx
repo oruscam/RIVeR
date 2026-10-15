@@ -4,6 +4,7 @@ import { useFormContext } from 'react-hook-form';
 import { useAutoShrinkFont, useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../../hooks';
 import { HardModeUav } from './Components/index';
 import { OrthoImage } from '../Graphs';
+import { FieldError } from '../index';
 import { UNITS } from '../../constants/constants';
 
 interface MyFormProps {
@@ -15,7 +16,7 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
   const { t } = useTranslation();
   const { extraFields, dirPoints, drawLine, solution, onUpdatePixelSize } = useUavSlice();
   const { video, projectDetails } = useProjectSlice();
-  const { onSetErrorMessage } = useUiSlice();
+  const { onSetFieldError, onClearFieldError } = useUiSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { width, height } = video.data;
   const { factor: imageReducedFactor } = video.parameters;
@@ -23,8 +24,6 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
   const { register } = useFormContext();
 
   const drawLineButtonRef = useAutoShrinkFont<HTMLButtonElement>([t]);
-  const lineLengthLabelRef = useAutoShrinkFont<HTMLLabelElement>([t]);
-  const pixelSizeLabelRef = useAutoShrinkFont<HTMLLabelElement>([t]);
 
   const handleLineLengthInput = (
     event: React.KeyboardEvent<HTMLInputElement> | React.FocusEvent<HTMLInputElement>
@@ -34,15 +33,10 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
       // Pass the raw user value — unit conversion is handled inside onUpdatePixelSize (useUavSlice)
       const rawValue = parseFloat(event.currentTarget.value);
       if (rawValue > 0) {
+        onClearFieldError('uav_lineLength');
         onUpdatePixelSize({ length: rawValue });
       } else {
-        const error = {
-          uav_lineLength: {
-            type: 'required',
-            message: t('PixelSize.Errors.lineLength'),
-          },
-        };
-        onSetErrorMessage(error);
+        onSetFieldError('uav_lineLength', t('PixelSize.Errors.lineLength'));
       }
       (event.target as HTMLInputElement).blur();
     }
@@ -56,19 +50,14 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
       const value = parseFloat((event.target as HTMLInputElement).value);
 
       if (value > 0) {
+        onClearFieldError('uav_pixelSize');
         onUpdatePixelSize({
           pixelSize: value,
           imageWidth: width * imageReducedFactor,
           imageHeight: height * imageReducedFactor,
         });
       } else {
-        const error = {
-          uav_pixelSize: {
-            type: 'required',
-            message: t('PixelSize.Errors.pixelSize'),
-          },
-        };
-        onSetErrorMessage(error);
+        onSetFieldError('uav_pixelSize', t('PixelSize.Errors.pixelSize'));
       }
     }
   };
@@ -87,66 +76,70 @@ export const FormUav = ({ onSubmit, onError }: MyFormProps) => {
         id="form-pixel-size"
         className={`${isBackendWorking ? 'disabled' : ''}`}
       >
-        <div className="input-container-2">
-          <button
-            ref={drawLineButtonRef}
-            className={`wizard-button form-button me-1 ${drawLine ? 'wizard-button-active' : ''}`}
-            type="button"
-            onClick={onClickDrawLine}
-            id="draw-line-pixel"
-          >
-            {t('PixelSize.drawLine')}
-          </button>
-          <span className="read-only bg-transparent" />
-        </div>
+        <div className="panel-section">
+          <div className="panel-actions panel-actions-single">
+            <button
+              ref={drawLineButtonRef}
+              className="btn btn-secondary panel-action"
+              aria-pressed={drawLine}
+              type="button"
+              onClick={onClickDrawLine}
+              id="draw-line-pixel"
+            >
+              {t('PixelSize.drawLine')}
+            </button>
+          </div>
 
-        <div className="input-container-2 mt-2">
-          <label ref={lineLengthLabelRef} className="read-only me-1">
-            {t('PixelSize.lineLength')}
-          </label>
-          <div className="input-field-container">
-            <input
-              className="input-field"
-              disabled={dirPoints.length === 0}
-              type="number"
-              step="any"
-              id="UAV-LINE_LENGTH"
-              {...register('uav_lineLength', {
-                required: t('PixelSize.Errors.required'),
-                validate: (value: string) => {
-                  if (parseFloat(value) <= 0) {
-                    return t('PixelSize.Errors.lineLength');
-                  }
-                  return true;
-                },
-              })}
-              onKeyDown={handleLineLengthInput}
-              onBlur={handleLineLengthInput}
-            ></input>
-            <span className="unit-label">
-              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+          <div className="field-row field-row-top">
+            <label className="field-row-label" htmlFor="UAV-LINE_LENGTH">
+              {t('PixelSize.lineLength')}
+            </label>
+            <span className="field-with-unit">
+              <input
+                className="field field-coord"
+                disabled={dirPoints.length === 0}
+                type="number"
+                step="any"
+                id="UAV-LINE_LENGTH"
+                {...register('uav_lineLength', {
+                  required: t('PixelSize.Errors.required'),
+                  validate: (value: string) => {
+                    if (parseFloat(value) <= 0) {
+                      return t('PixelSize.Errors.lineLength');
+                    }
+                    return true;
+                  },
+                })}
+                onKeyDown={handleLineLengthInput}
+                onBlur={handleLineLengthInput}
+              ></input>
+              <span className="field-unit">
+                {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+              </span>
             </span>
           </div>
-        </div>
+          <FieldError name="uav_lineLength" />
 
-        <div className="input-container-2 mt-1 mb-2">
-          <label ref={pixelSizeLabelRef} className="read-only me-1">
-            {t('PixelSize.pixelSize')}
-          </label>
-          <div className="input-field-container">
-            <input
-              className="input-field"
-              {...register('uav_pixelSize')}
-              type="number"
-              id="UAV-PIXEL_SIZE"
-              step="any"
-              onKeyDown={handlePixelSizeInput}
-              onBlur={handlePixelSizeInput}
-            />
-            <span className="unit-label">
-              {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+          <div className="field-row field-row-top">
+            <label className="field-row-label" htmlFor="UAV-PIXEL_SIZE">
+              {t('PixelSize.pixelSize')}
+            </label>
+            <span className="field-with-unit">
+              <input
+                className="field field-coord"
+                {...register('uav_pixelSize')}
+                type="number"
+                id="UAV-PIXEL_SIZE"
+                step="any"
+                onKeyDown={handlePixelSizeInput}
+                onBlur={handlePixelSizeInput}
+              />
+              <span className="field-unit">
+                {projectDetails.unitSistem === 'si' ? UNITS.SI.LONGITUDE : UNITS.IMPERIAL.LONGITUDE}
+              </span>
             </span>
           </div>
+          <FieldError name="uav_pixelSize" />
         </div>
       </form>
 

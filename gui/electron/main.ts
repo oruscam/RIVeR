@@ -1,8 +1,9 @@
 import { app, BrowserWindow, dialog, ipcMain, net, protocol, screen } from 'electron';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 import * as os from 'os';
-import { readRiverConfig, saveRiverConfig } from './riverConfig.js';
+import { readRiverConfig, saveRiverConfig, workspaceFor, WORKSPACE_NAME } from './riverConfig.js';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const userDir = os.homedir();
 
@@ -12,6 +13,7 @@ import {
   checkStivWeights,
   initProject,
   firstFrame,
+  framesFolder,
   setPixelSize,
   getImages,
   setSections,
@@ -21,6 +23,7 @@ import {
   getBathimetry,
   calculate3dRectification,
   getIpcamImages,
+  getIwaveDefaults,
   getIwaveSpectra,
   getPoints,
   getDistances,
@@ -31,6 +34,10 @@ import {
   getResultData,
   getStis,
   loadResults,
+  locateBathymetry,
+  locateVideo,
+  projectsExist,
+  projectThumbnails,
   createMaskAndBbox,
   recommendRoiHeight,
   getGif,
@@ -125,7 +132,7 @@ if (filePrefix === undefined) {
 }
 
 export const PROJECT_CONFIG: ProjectConfig = {
-  mainDirectory: path.join(userDir, 'River'),
+  mainDirectory: path.join(userDir, WORKSPACE_NAME),
   projectDirectory: '',
   type: '',
   videoPath: '',
@@ -156,28 +163,22 @@ export const PROJECT_CONFIG: ProjectConfig = {
       ),
 };
 
-// General window dialog to confirm deletes.
-ipcMain.handle('delete-confirmation', async (_event, args) => {
-  const { message, title } = args;
-  const { response } = await dialog.showMessageBox({
-    type: 'warning',
-    buttons: ['Yes', 'No'],
-    defaultId: 1,
-    title: title,
-    message: message,
-  });
-
-  return response;
-});
-
 ipcMain.handle('choose-river-path', async () => {
   const result = await dialog.showOpenDialog({
-    title: 'Choose River data folder',
+    title: 'Choose where to keep the RIVeR folder',
+    defaultPath: PROJECT_CONFIG.mainDirectory,
     properties: ['openDirectory', 'createDirectory'],
     buttonLabel: 'Choose Folder',
   });
   if (result.canceled) return null;
-  const newPath = path.join(result.filePaths[0], 'River');
+  const newPath = workspaceFor(result.filePaths[0]);
+  // Created now, so the folder is there to see as soon as it is chosen.
+  try {
+    fs.mkdirSync(newPath, { recursive: true });
+  } catch (err) {
+    console.error('[river] Failed to create workspace folder:', err);
+    return null;
+  }
   PROJECT_CONFIG.mainDirectory = newPath;
   saveRiverConfig({ riverPath: newPath });
   return newPath;
@@ -208,7 +209,7 @@ app.whenReady().then(async () => {
   if (config) {
     PROJECT_CONFIG.mainDirectory = config.riverPath;
   } else {
-    const defaultPath = path.join(userDir, 'River');
+    const defaultPath = path.join(userDir, WORKSPACE_NAME);
     PROJECT_CONFIG.mainDirectory = defaultPath;
     saveRiverConfig({ riverPath: defaultPath });
   }
@@ -219,11 +220,15 @@ app.whenReady().then(async () => {
   createMaskAndBbox(riverCli);
   createWindow();
   firstFrame(riverCli);
+  framesFolder(riverCli);
   getBathimetry();
+  locateBathymetry();
+  locateVideo(riverCli);
   getDistances();
   getGif();
   getImages();
   getIpcamImages();
+  getIwaveDefaults(riverCli);
   getIwaveSpectra();
   getPoints();
   getQuiver(riverCli);
@@ -233,6 +238,8 @@ app.whenReady().then(async () => {
   initProject();
   loadProject();
   loadResults();
+  projectsExist();
+  projectThumbnails();
   recommendRoiHeight(riverCli);
   saveReportHtml();
   saveTransformationMatrix();

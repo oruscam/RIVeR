@@ -67,29 +67,6 @@ export const COLORS = {
   MARK_NUMBER: '#3396BF',
   MARK_L: '#6B120B',
   MARK_R: '#2D671B',
-  CONTROL_POINTS: {
-    D12: '#6CD4FF',
-    D13: '#CC4BC2',
-    D14: '#F5BF61',
-    D23: '#62C655',
-    D24: '#7765E3',
-    D34: '#ED6B57',
-  },
-  ELLIPSE: {
-    FILL: '#D2AF7970',
-    STROKE: '#D2AF79',
-  },
-};
-
-/**
- * Per-technique identity color for the Results panel (legend, chart lines/markers).
- * LSPIV = cyan, STIV = clear red, iWave = clear green — RIVeR's own palette above,
- * not an arbitrary/matplotlib-style scheme.
- */
-export const TECHNIQUE_COLORS = {
-  lspiv: COLORS.LIGHT_BLUE,
-  stiv: COLORS.RED,
-  iwave: COLORS.GREEN,
 };
 
 /**
@@ -126,45 +103,38 @@ export const VECTORS = {
  */
 export const STIV_DEFAULT_HEIGHT_ROI_M = 6.0;
 
-/**
- * Constants for marks
- */
-
-export const MARKS = {
-  WIDTH: 34,
-  HEIGHT: 34,
-  OFFSET_X: 20,
-  OFFSET_Y: 36,
-  NUMBER_OFFSET_X: 5,
-  NUMBER_OFFSET_Y: 35,
-  NUMBER_FONT_SIZE: 13,
-  LETTER_FONT_SIZE: 13,
-  WIDTH_REPORT: 20,
-  HEIGHT_REPORT: 20,
-  OFFSET_X_REPORT: 10,
-  OFFSET_Y_REPORT: 18,
-  NUMBER_OFFSET_X_REPORT: 2.5,
-  NUMBER_OFFSET_Y_REPORT: 6,
-  STROKE_WIDTH: 3,
-  IPCAM_OFFSET_X: 17,
-  IPCAM_OFFSET_Y: 31,
+/** Exported report: images are re-encoded to WebP at this quality and width cap. */
+export const REPORT_SHEET = {
+  IMAGE_QUALITY: 0.8,
+  IMAGE_MAX_WIDTH: 1600,
 };
 
 /**
- * Velocity Vector Section Report Sizes
+ * Compact report flow (spec §8). A4 at 96 dpi is 794 × 1123 px; with 11 mm top padding and the
+ * footer (~48 px incl. its 8 mm bottom margin) a page body is ~1033 px tall; BODY_HEIGHT keeps
+ * a small safety margin. The page body is 186 mm (~703 px) wide.
  */
-
-export const REPORT_IMAGES = {
-  HORIZONTAL_IMAGES_WIDTH: 400,
-  HORIZONTAL_IMAGES_HEIGHT: 225,
-  VERTICAL_IMAGES_WIDTH: 225,
-  VERTICAL_IMAGES_HEIGHT: 400,
-  HORIZONTAL_IMAGES_IPCAM_WIDTH: 500,
-  HORIZONTAL_IMAGES_IPCAM_HEIGHT: 281.25,
-  VERTICAL_IMAGES_IPCAM_WIDTH: 281.25,
-  VERTICAL_IMAGES_IPCAM_HEIGHT: 500,
-  VELOCITY_VECTOR_RESIZE_FACTOR: 4.8,
-  VELOCITY_VECTOR_AMPLITUDE_FACTOR: 40,
+export const REPORT_FLOW = {
+  BODY_HEIGHT: 1020,
+  GAP: 10,
+  FRAME_WIDTH: 300,
+  FRAME_MAX_HEIGHT: 200,
+  PLOT_WIDTH: 380,
+  PLOT_HEIGHT: 196,
+  TABLE_COLUMNS: 3,
+  /** Stations shown inside the section block itself (three columns of 16). */
+  FIRST_CHUNK_STATIONS: 48,
+  /** Stations per table-continuation block (three columns of 53), so the block fits one page body. */
+  CONTINUATION_CHUNK_STATIONS: 159,
+  /** Approximate station table row height and block overhead in px, measured in headless Chrome. */
+  TABLE_ROW_HEIGHT: 17,
+  TABLE_BLOCK_OVERHEAD: 80,
+  /** Calibration and stabilization frames; matches the image column of .mc in report.css. */
+  METHOD_IMAGE_WIDTH: 240,
+  /** Snapshot strip image width; five of these plus four 10 px gaps fill the 186 mm page body. */
+  STRIP_IMAGE_WIDTH: 132,
+  /** Used for a block until its height has been measured once. */
+  FALLBACK_BLOCK_HEIGHT: 400,
 };
 
 export const WINDOW_SIZES = {

@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
+import { hasBathymetryProfile } from '../../helpers/locatedBathymetry';
 import { bathimetrySvg } from './bathimetrySvg';
 import * as d3 from 'd3';
 import { GRAPHS } from '../../constants/constants';
@@ -31,7 +32,7 @@ export const Bathimetry = ({ showLeftBank, height = 340 }: BathimetryProps) => {
 
   useEffect(() => {
     d3.select(svgRef.current).selectAll('*').remove();
-    if (line) {
+    if (hasBathymetryProfile(bathimetry)) {
       if (svgRef.current) {
         bathimetrySvg({
           svgElement: svgRef.current,

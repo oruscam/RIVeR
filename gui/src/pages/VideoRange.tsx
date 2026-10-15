@@ -1,66 +1,83 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { VideoPlayer } from '../components/VideoPlayer/VideoPlayer';
+import { FramePlayer } from '../components/VideoPlayer/FramePlayer';
 import { StabilizationCanvas } from '../components/VideoPlayer/StabilizationCanvas';
 import { FormVideo } from '../components/Forms/FormVideo';
-import { Error } from '../components/Error';
-import { Info } from '../components/Info';
-import { Warning } from '../components/Warning';
-import { useProjectSlice } from '../hooks';
+import { useProjectSlice, useProjectIssues, useSourceFrames } from '../hooks';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
-import { FocusOverlay, WizardButtons } from '../components';
-import { useState } from 'react';
-import { LockBtn } from '../components/CustomIcons/LockBtn';
+import { FocusOverlay, WizardButtons, ModeHint, StepAlertList, Toast } from '../components';
+import { AdvancedToggle } from '../components/AdvancedToggle';
 
 export const VideoRange = () => {
   const {
     video,
-    type,
     stabilizationActiveRegionIndex,
     onUpdateStabilizationRegion,
+    onDeleteStabilizationRegion,
     onSetStabilizationActiveRegionIndex,
+    onToggleVideoExtraFields,
+    firstFramePath,
   } = useProjectSlice();
-  const { path, duration, width: videoWidth, height: videoHeight } = video.data;
+  const { alerts, onAction, videoMissing } = useProjectIssues('video');
+  const { path, duration, width: videoWidth, height: videoHeight, fps, source } = video.data;
   const { stabilization, stabilizationRegions } = video.parameters;
+  const { extraFields } = video;
   const { t } = useTranslation();
-  const [extraFields, setExtraFields] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const isFrames = source === 'frames';
+  const sourceFrames = useSourceFrames(isFrames && !videoMissing);
+  const [currentFrame, setCurrentFrame] = useState(0);
 
-  // Stabilization only applies to UAV footage — oblique/ipcam cameras are fixed.
-  // Guards against stale `stabilization: true` left over from switching footage
-  // mode after having enabled it on a UAV project.
-  const stabilizationOverlay =
-    stabilization && type === 'uav'
-      ? ({ scale }: { scale: number }) => (
-          <StabilizationCanvas
-            videoWidth={videoWidth}
-            videoHeight={videoHeight}
-            regions={stabilizationRegions}
-            activeRegionIndex={stabilizationActiveRegionIndex}
-            onUpdateRegion={onUpdateStabilizationRegion}
-            onConfirm={() => onSetStabilizationActiveRegionIndex(null)}
-            zoomScale={scale}
-          />
-        )
-      : undefined;
+  // Stabilization applies to every footage type: UAV, oblique and ipcam.
+  const stabilizationOverlay = stabilization
+    ? ({ scale, position }: { scale: number; position: { x: number; y: number } }) => (
+        <StabilizationCanvas
+          videoWidth={videoWidth}
+          videoHeight={videoHeight}
+          regions={stabilizationRegions}
+          activeRegionIndex={stabilizationActiveRegionIndex}
+          onUpdateRegion={onUpdateStabilizationRegion}
+          onConfirm={() => onSetStabilizationActiveRegionIndex(null)}
+          onDelete={() => {
+            if (stabilizationActiveRegionIndex !== null)
+              onDeleteStabilizationRegion(stabilizationActiveRegionIndex);
+          }}
+          zoomScale={scale}
+          zoomPosition={position}
+        />
+      )
+    : undefined;
 
   return (
     <div className="regular-page">
       <div className="media-container">
-        {path && <VideoPlayer ref={videoRef} fileURL={path} duration={duration} overlay={stabilizationOverlay} />}
-        <div className="message-stack">
-          <Error />
-          <Info />
-          <Warning />
-        </div>
+        {isFrames && sourceFrames.length > 0 ? (
+          <FramePlayer
+            frames={sourceFrames}
+            fps={fps}
+            currentFrame={currentFrame}
+            onFrameChange={setCurrentFrame}
+            overlay={stabilizationOverlay}
+          />
+        ) : path && !isFrames ? (
+          <VideoPlayer ref={videoRef} fileURL={path} duration={duration} overlay={stabilizationOverlay} />
+        ) : (
+          // A frames project shows its first imported frame until its folder is read, and
+          // instead of the player when the folder is unreadable or no longer the same.
+          (videoMissing || isFrames) &&
+          firstFramePath && <img className="video-missing-still" src={firstFramePath} alt="" />
+        )}
+        <ModeHint />
       </div>
       <div className="form-container">
         <FormHeader title={t('VideoRange.title')} showSections={false} />
-        <FormVideo duration={duration} extraFields={extraFields} />
+        <StepAlertList extra={alerts} onAction={onAction} />
+        <FormVideo duration={duration} extraFields={extraFields} currentFrame={currentFrame} />
         <div className="footer">
-          <LockBtn
+          <AdvancedToggle
             localExtraFields={extraFields}
-            setLocalExtraFields={setExtraFields}
+            setLocalExtraFields={onToggleVideoExtraFields}
             disabled={false}
             headerElementID="start"
             footerElementID="video-resolution"
@@ -69,6 +86,7 @@ export const VideoRange = () => {
         </div>
         <FocusOverlay active={stabilizationActiveRegionIndex !== null} />
       </div>
+      <Toast />
     </div>
   );
 };

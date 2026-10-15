@@ -1,4 +1,5 @@
 import { parseTime } from './formatTime';
+import { frameRangeValid, parseInterval } from '../../commons/framesSource';
 
 /**
  * Generates validation rules for video range inputs.
@@ -85,6 +86,40 @@ export const getValidationRules = (t: any, getValues: any, duration: number) => 
         notZero: (value: number) => value !== 0 || t('ControlPoints.Errors.notZero'),
         positive: (value: number) => value > 0 || t('ControlPoints.Errors.positive'),
       },
+    },
+  };
+};
+
+/**
+ * Video Range rules for a project made from a folder of frames: Start and End are
+ * 1-based frame numbers, and the time between frames is editable.
+ */
+export const getFrameValidationRules = (t: any, getValues: any, count: number) => {
+  // Plain digits only: the store reads these with parseInt, which disagrees with Number on 1e1 or 0x10.
+  const isDigits = (value: unknown) => /^\d+$/.test(String(value).trim());
+  const rangeError = () => t('VideoRange.Errors.frameRange', { count });
+  return {
+    start: {
+      required: t('VideoRange.Errors.required'),
+      // A Start that is merely past End is reported once, on End.
+      validate: (value: string) => {
+        const start = Number(value);
+        return isDigits(value) && start >= 1 && start < count ? true : rangeError();
+      },
+    },
+    end: {
+      required: t('VideoRange.Errors.required'),
+      validate: (value: string) =>
+        isDigits(value) &&
+        isDigits(getValues('start')) &&
+        frameRangeValid(Number(getValues('start')), Number(value), count)
+          ? true
+          : rangeError(),
+    },
+    step: getValidationRules(t, getValues, 0).step,
+    interval: {
+      validate: (value: string) =>
+        parseInterval(String(value)) !== null ? true : t('VideoRange.Errors.interval'),
     },
   };
 };

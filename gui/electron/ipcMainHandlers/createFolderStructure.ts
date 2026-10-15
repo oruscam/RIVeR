@@ -1,6 +1,7 @@
 import { BrowserWindow, dialog } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
+import { framesVideoBlock } from '../../commons/framesSource';
 
 async function createFolderStructure(
   newDirPath: string,
@@ -8,8 +9,9 @@ async function createFolderStructure(
   language: string,
   videoPath: string,
   videoName: string,
-  result: { width: number; height: number; fps: number; duration: string },
-  unitSistem: string
+  result: { width: number; height: number; fps: number; duration: number },
+  unitSistem: string,
+  frames?: { count: number; intervalMs: number }
 ) {
   const dateSuffix = getFormattedDate();
   const datedDirPath = path.join(newDirPath, dateSuffix);
@@ -80,17 +82,26 @@ async function createFolderStructure(
     footage: type,
     language: language,
     unit_system: unitSistem,
-    video: {
-      filepath: videoPath,
-      name: videoName,
-      total_length: result.duration,
-      time_between_frames: parseFloat((1 / result.fps).toFixed(2)),
-      fps: result.fps,
-      resolution: {
-        width: result.width,
-        height: result.height,
-      },
-    },
+    video: frames
+      ? framesVideoBlock({
+          folder: videoPath,
+          name: videoName,
+          count: frames.count,
+          width: result.width,
+          height: result.height,
+          intervalMs: frames.intervalMs,
+        })
+      : {
+          filepath: videoPath,
+          name: videoName,
+          total_length: result.duration,
+          time_between_frames: parseFloat((1 / result.fps).toFixed(2)),
+          fps: result.fps,
+          resolution: {
+            width: result.width,
+            height: result.height,
+          },
+        },
   };
 
   try {

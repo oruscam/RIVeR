@@ -45,7 +45,7 @@ export function FrameBtn({ direction, onClick, videoRef }: FrameBtnProps) {
   };
 
   return (
-    <button type="button" className="ib" onClick={handleClick}>
+    <button type="button" className="ibtn" onClick={handleClick}>
       {rpl}
       <span className="cl show">
         {direction === 'back' ? Icons.FrameBack('currentColor') : Icons.FrameNext('currentColor')}

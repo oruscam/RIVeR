@@ -1,8 +1,11 @@
 import * as d3 from 'd3';
 import { factor } from '../../types';
 import { IpcamPoint } from '../../store/ipcam/types';
-import { COLORS, MARKS } from '../../constants/constants';
-import { createPinsBase64 } from './createPinsBase64';
+import { getOverlayColors, getPinColors, getResidualColors } from '../../helpers/getCSSVar';
+import { ipcamErrorGrade } from '../../helpers/ipcamErrorGrade';
+import { ipcamPointErrors } from '../../helpers/ipcamPointErrors';
+import { drawPin } from './drawPin';
+import { drawOverlayEllipse, drawOverlayLine, OVERLAY_STYLE } from './overlayStyle';
 
 interface ipcamSvgProps {
   factor: factor;
@@ -10,9 +13,11 @@ interface ipcamSvgProps {
   svgElement: SVGSVGElement;
   width: number;
   height: number;
+  /** The stored solve, to grade each residual. Without it residuals draw in the neutral line colour. */
+  solution?: { reprojectionErrors: number[]; pointIndices?: number[] };
 }
 
-export const ipcamSvg = ({ factor, points, svgElement, width, height }: ipcamSvgProps) => {
+export const ipcamSvg = ({ factor, points, svgElement, width, height, solution }: ipcamSvgProps) => {
   const svg = d3.select(svgElement);
 
   svg.attr('width', width).attr('height', height).style('background-color', 'transparent');
@@ -28,60 +33,56 @@ export const ipcamSvg = ({ factor, points, svgElement, width, height }: ipcamSvg
 
   const clippedGroup = svg.append('g').attr('clip-path', 'url(#clip)');
 
+  const errors = solution
+    ? new Map(ipcamPointErrors(points, solution).map((e) => [e.index, e.error]))
+    : new Map<number, number | null>();
+  const residual = getResidualColors();
+
   for (let i = 0; i < points.length; i++) {
     const { ellipse, projectedPoint, x, y, selected } = points[i];
 
     if (ellipse && selected) {
-      clippedGroup
-        .append('ellipse')
-        .attr('cx', ellipse.center[0] / factor.x)
-        .attr('cy', ellipse.center[1] / factor.y)
-        .attr('rx', ellipse.width / factor.x)
-        .attr('ry', ellipse.height / factor.y)
-        .attr(
-          'transform',
-          `rotate(${ellipse.angle}, ${ellipse.center[0] / factor.x}, ${ellipse.center[1] / factor.y})`
-        )
-        .attr('fill', COLORS.ELLIPSE.FILL)
-        .attr('stroke', COLORS.ELLIPSE.STROKE)
-        .attr('stroke-width', 1);
+      drawOverlayEllipse({
+        layer: clippedGroup,
+        cx: ellipse.center[0] / factor.x,
+        cy: ellipse.center[1] / factor.y,
+        width: ellipse.width / factor.x,
+        height: ellipse.height / factor.y,
+        angle: ellipse.angle,
+        color: getOverlayColors().line,
+        size: 'report',
+      });
     }
 
-    if (projectedPoint && selected) {
+    if (projectedPoint && selected && x && y) {
+      const color = residual[ipcamErrorGrade(errors.get(i) ?? null) ?? 'none'];
+      const to = { x: projectedPoint[0] / factor.x, y: projectedPoint[1] / factor.y };
+      drawOverlayLine({
+        layer: clippedGroup,
+        from: { x: x / factor.x, y: y / factor.y },
+        to,
+        color,
+        size: 'report',
+        width: OVERLAY_STYLE.report.RESIDUAL_WIDTH,
+      });
       clippedGroup
         .append('circle')
-        .attr('cx', projectedPoint[0] / factor.x)
-        .attr('cy', projectedPoint[1] / factor.y)
-        .attr('r', 2)
-        .attr('fill', COLORS.RED);
-
-      if (x && y) {
-        clippedGroup
-          .append('line')
-          .attr('x1', x / factor.x)
-          .attr('y1', y / factor.y)
-          .attr('x2', projectedPoint[0] / factor.x)
-          .attr('y2', projectedPoint[1] / factor.y)
-          .attr('stroke', COLORS.RED)
-          .attr('stroke-width', 1);
-      }
+        .attr('cx', to.x)
+        .attr('cy', to.y)
+        .attr('r', OVERLAY_STYLE.report.RESIDUAL_WIDTH * 1.4)
+        .attr('fill', color)
+        .attr('stroke', getPinColors().ink)
+        .attr('stroke-width', 0.5);
     }
 
     if (x && y) {
-      const { pinSVGBase64, pinGreySVGBase64 } = createPinsBase64();
-      clippedGroup
-        .append('image')
-        .attr('x', x / factor.x - MARKS.OFFSET_X_REPORT)
-        .attr('y', y / factor.y - MARKS.OFFSET_Y_REPORT)
-        .attr('width', MARKS.WIDTH_REPORT)
-        .attr('height', MARKS.HEIGHT_REPORT)
-        .attr('xlink:href', () => {
-          if (selected) {
-            return pinSVGBase64;
-          } else {
-            return pinGreySVGBase64;
-          }
-        });
+      drawPin({
+        layer: clippedGroup, // already a Selection<SVGGElement, ...> — no cast needed
+        tip: { x: x / factor.x, y: y / factor.y },
+        kind: selected ? 'point' : 'muted',
+        divisor: OVERLAY_STYLE.report.PIN_DIVISOR,
+        bounds: { x: 0, y: 0, width, height },
+      });
     }
   }
 };

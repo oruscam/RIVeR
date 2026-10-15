@@ -80,13 +80,20 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
     }
   };
 
+  // Declared above the handler that closes over it, not below. aria-disabled is
+  // advisory only, so this guard is the one thing actually stopping the click —
+  // it and the attribute have to read the same expression, and a const the
+  // handler references from further down the body only works because a click
+  // cannot land before render finishes. That is a refactor away from a TDZ crash.
+  const hasGaps = effective?.hasGaps ?? false;
+
   const handleInterpolateToggle = () => {
+    if (!hasGaps) return;
     onUpdateSection({ interpolated: 'interpolated' }, undefined);
   };
 
   const activeTechniqueLabel =
     activeTechnique === 'lspiv' ? 'LSPIV' : activeTechnique === 'stiv' ? 'STIV' : 'iWave';
-  const hasGaps = effective?.hasGaps ?? false;
 
   return (
     <div id="form-section-div" className={activeSection !== index ? 'hidden' : 'wrapper'}>
@@ -95,7 +102,9 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
         <div id="result-info">
           <button
             type="button"
-            className={hasGaps ? `ib${interpolated ? ' active' : ''}` : 'ib ib-off'}
+            className="ibtn"
+            aria-pressed={interpolated}
+            aria-disabled={!hasGaps}
             title={
               hasGaps
                 ? t('Results.interpolateProfile')
@@ -106,24 +115,20 @@ export const FormResults = ({ onSubmit, index }: FormResultProps) => {
                 ? t('Results.interpolateProfile')
                 : t('Results.interpolateProfileDisabled', { technique: activeTechniqueLabel })
             }
-            onClick={hasGaps ? handleInterpolateToggle : undefined}
+            onClick={handleInterpolateToggle}
           >
             <LuSpline size={20} />
           </button>
           <div className="result-value-row">
             <p id="result-number">
-              {displayQ} <span style={{ fontSize: '0.45em', opacity: 0.7 }}>{flowUnit}</span>
+              {displayQ} <span style={{ fontSize: 'var(--text-section)', opacity: 0.7 }}>{flowUnit}</span>
             </p>
-            <div>
-              <p id="result-measured">
-                {' '}
-                {((effective?.measured_Q ?? 0) * 100).toFixed(1)}% {t('Results.measured')}
-              </p>
-              <p>
-                {' '}
-                {((effective?.interpolated_Q ?? 0) * 100).toFixed(1)}% {t('Results.interpolated')}{' '}
-              </p>
-            </div>
+            <dl className="result-split">
+              <dt>{((effective?.measured_Q ?? 0) * 100).toFixed(1)}%</dt>
+              <dd>{t('Results.measured')}</dd>
+              <dt>{((effective?.interpolated_Q ?? 0) * 100).toFixed(1)}%</dt>
+              <dd>{t('Results.interpolated')}</dd>
+            </dl>
           </div>
         </div>
 

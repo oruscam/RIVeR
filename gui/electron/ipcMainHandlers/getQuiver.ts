@@ -5,6 +5,7 @@ import * as path from 'path';
 import { clearCrossSections } from './utils/clearCrossSections';
 import { PROJECT_CONFIG } from '../main';
 import { ProjectConfig, RiverCli } from './interfaces';
+import { buildIwaveArgs, toSettingsIwaveManual } from '../../commons/iwave';
 
 async function getQuiver(riverCli: RiverCli) {
   ipcMain.handle('get-quiver-test', async (_event, args) => {
@@ -46,7 +47,9 @@ async function getQuiver(riverCli: RiverCli) {
 
   ipcMain.handle('get-quiver-all', async (_event, args) => {
     const { formValues, numStationsList } = args;
-    const { settingsPath, logsPath, xsectionsPath } = PROJECT_CONFIG;
+    // Captured up front: another project can be loaded while the run is going,
+    // and the results must still be recorded against the project that ran.
+    const { settingsPath, logsPath, xsectionsPath, projectDirectory } = PROJECT_CONFIG;
 
     const options = await createOptions('all', PROJECT_CONFIG, [], formValues, numStationsList);
     await clearCrossSections(xsectionsPath);
@@ -62,13 +65,15 @@ async function getQuiver(riverCli: RiverCli) {
       }
 
       const { results_path } = data;
-      PROJECT_CONFIG.resultsPath = results_path;
+      if (PROJECT_CONFIG.projectDirectory === projectDirectory) {
+        PROJECT_CONFIG.resultsPath = results_path;
+      }
 
       const dataQuiver = await readResultsPiv(results_path);
 
       const settings = await fs.promises.readFile(settingsPath, 'utf-8');
       const settingsParsed = JSON.parse(settings);
-      settingsParsed.piv_results = path.join(PROJECT_CONFIG.projectDirectory, 'piv_results.json');
+      settingsParsed.piv_results = path.join(projectDirectory, 'piv_results.json');
       await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 2));
 
       return {
@@ -121,6 +126,8 @@ async function createOptions(
     median_test_threshold: medianTestThreshold,
     stiv: formValues.stiv,
     iwave: formValues.iwave,
+    // null = automatic (the CLI computes every iWave value); otherwise the frozen manual set.
+    iwave_manual: toSettingsIwaveManual(formValues.iwaveManual ?? null),
   };
 
   await fs.promises.writeFile(settingsPath, JSON.stringify(settingsParsed, null, 2));
@@ -128,10 +135,14 @@ async function createOptions(
   if (mode === 'test') {
     const options = [
       'piv-test',
-      '--bbox', bboxPath,
-      '--mask', maskPath,
-      '--interrogation-area-1', step1,
-      '--interrogation-area-2', step1 / 2,
+      '--bbox',
+      bboxPath,
+      '--mask',
+      maskPath,
+      '--interrogation-area-1',
+      step1,
+      '--interrogation-area-2',
+      step1 / 2,
       stdFiltering ? '--standard-threshold' : '--no-standard-filter',
       stdFiltering ? stdThreshold : '',
       medianTestFiltering ? '--epsilon' : '--no-median-test-filter',
@@ -153,11 +164,16 @@ async function createOptions(
 
   const options = [
     'analyze-all',
-    '--workdir', projectDirectory,
-    '--bbox', bboxPath,
-    '--mask', maskPath,
-    '--interrogation-area-1', step1,
-    '--interrogation-area-2', step1 / 2,
+    '--workdir',
+    projectDirectory,
+    '--bbox',
+    bboxPath,
+    '--mask',
+    maskPath,
+    '--interrogation-area-1',
+    step1,
+    '--interrogation-area-2',
+    step1 / 2,
     stdFiltering ? '--standard-threshold' : '--no-standard-filter',
     stdFiltering ? stdThreshold : '',
     medianTestFiltering ? '--epsilon' : '--no-median-test-filter',
@@ -167,12 +183,15 @@ async function createOptions(
     clahe ? '--clip-limit-clahe' : '--no-filter-clahe',
     clahe ? clipLimit : '',
     removeBackground ? '--filter-sub-background' : '',
-    '--step', step,
-    '--fps', fps,
+    '--step',
+    step,
+    '--fps',
+    fps,
     ...(heightRoi > 0 ? ['--height-roi-stiv', heightRoi] : []),
     ...numStationsList.flatMap((ns: number) => ['--num-stations', ns]),
     stiv ? '--stiv' : '--no-stiv',
     iwave ? '--iwave' : '--no-iwave',
+    ...buildIwaveArgs(iwave, formValues.iwaveManual ?? null),
     '--interpolate',
     framesPath,
     PROJECT_CONFIG.xsectionsPath,

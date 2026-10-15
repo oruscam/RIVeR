@@ -1,7 +1,9 @@
 import * as d3 from 'd3';
-import { pin, pinRed } from '../../assets/icons/icons';
-import { COLORS, MARKS } from '../../constants/constants';
 import { getDistanceColors } from '../../helpers/getCSSVar';
+import { drawPin, updatePinLean } from './drawPin';
+import { drawOverlayLine } from './overlayStyle';
+import { visibleImageBounds } from './pinLean';
+import { showMagnifier, hideMagnifier, NOT_MAGNIFIER } from './drawMagnifier';
 
 interface drawObliqueProps {
   layer: d3.Selection<SVGGElement, unknown, null, undefined>;
@@ -15,7 +17,11 @@ interface drawObliqueProps {
     event: any
   ) => void;
   scale: number;
+  position: { x: number; y: number };
   isDefaultCoordinates: boolean;
+  imageSrc: string;
+  imageWidth: number;
+  imageHeight: number;
 }
 
 export const drawOblique = ({
@@ -27,33 +33,57 @@ export const drawOblique = ({
   setMousePressed,
   setPointsInStore,
   scale,
+  position,
   isDefaultCoordinates,
+  imageSrc,
+  imageWidth,
+  imageHeight,
 }: drawObliqueProps) => {
+  // Pins live in the zoomed layer, so their bounds are the visible image in image space.
+  const bounds = visibleImageBounds({ width: imageWidth, height: imageHeight, position, scale }, 'image');
+
   const dragPoint = d3
-    .drag<SVGImageElement, { index: number }, { x: number; y: number }>()
+    .drag<SVGGElement, { index: number }, { x: number; y: number }>()
     .subject((event, d) => {
       const p = localPoints[d.index];
       return { x: p.x, y: p.y };
     })
     .on('start', function () {
       setMousePressed(true);
-      // Trae la imagen al frente al iniciar el drag
-      d3.select<SVGImageElement, { index: number }>(this).raise();
+      d3.select<SVGGElement, { index: number }>(this).raise();
     })
     .on('drag', function (event, d) {
       const x = event.x;
       const y = event.y;
+      // Where this pin was actually drawn (this render's localPoints) — the
+      // transform below is relative to that fixed point, so the existing
+      // <g> can just be moved instead of torn down and repainted every tick
+      // (drawPin returns several children with coordinates baked in, unlike
+      // the old single <image>'s x/y attrs).
+      const origin = localPoints[d.index];
 
       const next = [...localPoints];
       next[d.index] = { x, y };
       setLocalPoints?.(next);
 
-      d3.select<SVGImageElement, { index: number }>(this)
-        .attr('x', x - MARKS.OFFSET_X)
-        .attr('y', y - MARKS.OFFSET_Y);
+      d3.select<SVGGElement, { index: number }>(this).attr(
+        'transform',
+        `translate(${x - origin.x}, ${y - origin.y})`
+      );
+      updatePinLean(d3.select<SVGGElement, unknown>(this), { x, y }, scale, bounds);
+      showMagnifier({
+        layer,
+        point: { x, y },
+        imageSrc,
+        imageWidth,
+        imageHeight,
+        coordinateFactor: factor,
+        divisor: scale,
+      });
     })
     .on('end', function (event, d) {
       setMousePressed(false);
+      hideMagnifier(layer);
 
       const x = event.x;
       const y = event.y;
@@ -63,7 +93,7 @@ export const drawOblique = ({
       setPointsInStore({ points: next, factor, index: d.index }, null);
     });
 
-  layer.selectAll('*').remove();
+  layer.selectAll(NOT_MAGNIFIER).remove();
   uiLayer.selectAll('*').remove();
 
   // Dibuja líneas y pins — colors read from current theme's CSS variables
@@ -72,93 +102,45 @@ export const drawOblique = ({
   localPoints.forEach((point, i) => {
     if (isDefaultCoordinates && i !== 0) return;
     // Líneas de los lados
-    layer
-      .append('line')
-      .attr('x1', point.x)
-      .attr('y1', point.y)
-      .attr('x2', localPoints[(i + 1) % localPoints.length].x)
-      .attr('y2', localPoints[(i + 1) % localPoints.length].y)
-      .attr('stroke', () => {
-        switch (i) {
-          case 0:
-            return DC.D12;
-          case 1:
-            return DC.D23;
-          case 2:
-            return DC.D34;
-          case 3:
-            return DC.D14;
-          default:
-            return DC.D12;
-        }
-      })
-      .attr('stroke-width', MARKS.STROKE_WIDTH / scale)
-      .attr('pointer-events', 'none');
+    const sideColors = [DC.D12, DC.D23, DC.D34, DC.D14];
+    drawOverlayLine({
+      layer,
+      from: point,
+      to: localPoints[(i + 1) % localPoints.length],
+      color: sideColors[i] ?? DC.D12,
+      size: 'app',
+      zoom: scale,
+      className: 'oblique-distance',
+    });
 
-    if (isDefaultCoordinates) return;
-    // Diagonales
-    layer
-      .append('line')
-      .attr('x1', point.x)
-      .attr('y1', point.y)
-      .attr('x2', localPoints[(i + 2) % localPoints.length].x)
-      .attr('y2', localPoints[(i + 2) % localPoints.length].y)
-      .attr('stroke', () => {
-        switch (i) {
-          case 2:
-            return DC.D13;
-          case 3:
-            return DC.D24;
-          default:
-            return DC.D13;
-        }
-      })
-      .attr('stroke-width', MARKS.STROKE_WIDTH / scale)
-      .attr('pointer-events', 'none');
+    // Diagonales: 1→3 and 2→4 once each (i = 0, 1), so their halo weighs the same as the sides'.
+    if (isDefaultCoordinates || i > 1) return;
+    drawOverlayLine({
+      layer,
+      from: point,
+      to: localPoints[(i + 2) % localPoints.length],
+      color: i === 0 ? DC.D13 : DC.D24,
+      size: 'app',
+      zoom: scale,
+      className: 'oblique-distance',
+    });
   });
 
+  // Point 1 is upstream left, so it is the red "left" pin, the same red the
+  // right-hand canvas gives it; the other corners are the plain "point" pin.
   localPoints.forEach((point, i) => {
     if (isDefaultCoordinates && i !== 0) return;
 
-    // Pin
-    layer
-      .append('image')
-      .attr('href', i === 0 ? pinRed : pin)
-      .attr('width', (MARKS.WIDTH + 5) / scale)
-      .attr('height', (MARKS.HEIGHT + 5) / scale)
+    const g = drawPin({
+      layer,
+      tip: point,
+      kind: i === 0 ? 'left' : 'point',
+      label: `${i + 1}`,
+      divisor: scale,
+      bounds,
+    });
+    g.attr('cursor', 'move')
       .datum({ index: i })
-      .attr('x', point.x - MARKS.OFFSET_X / scale)
-      .attr('y', point.y - MARKS.OFFSET_Y / scale)
-      .attr('cursor', 'move')
       .call(dragPoint as any);
-
-    // Badge label
-    const badgeWidth = 18 / scale;
-    const badgeHeight = 14 / scale;
-    const badgeX = point.x - badgeWidth / 2;
-    const badgeY = point.y - (MARKS.OFFSET_Y + 14) / scale;
-
-    layer
-      .append('rect')
-      .attr('x', badgeX)
-      .attr('y', badgeY)
-      .attr('width', badgeWidth)
-      .attr('height', badgeHeight)
-      .attr('rx', 3 / scale)
-      .attr('ry', 3 / scale)
-      .attr('fill', 'rgba(50,50,50,0.85)')
-      .attr('pointer-events', 'none');
-
-    layer
-      .append('text')
-      .attr('x', point.x)
-      .attr('y', badgeY + badgeHeight / 2)
-      .attr('text-anchor', 'middle')
-      .attr('dominant-baseline', 'central')
-      .attr('font-size', 10 / scale)
-      .attr('font-weight', '600')
-      .attr('fill', i === 0 ? COLORS.RED : COLORS.LIGHT_BLUE)
-      .attr('pointer-events', 'none')
-      .text(`${i + 1}`);
   });
 };

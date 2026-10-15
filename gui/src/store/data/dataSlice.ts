@@ -8,6 +8,7 @@ const defaultFormProcessing = {
   clipLimit: 5,
   heightRoi: 0,
   iwave: true,
+  iwaveManual: null,
   medianTestEpsilon: 0.02,
   medianTestFiltering: true,
   medianTestThreshold: 2,
@@ -26,6 +27,7 @@ const defaultProcessing = {
   masks: [],
   activeMaskIndex: null,
   visibleMaskIndices: [] as number[],
+  extraFields: false,
 };
 
 const initialState: DataState = {
@@ -61,6 +63,9 @@ const dataSlice = createSlice({
     },
     setBackendWorking: (state, action: PayloadAction<boolean>) => {
       state.isBackendWorking = action.payload;
+    },
+    toggleProcessingExtraFields: (state) => {
+      state.processing.extraFields = !state.processing.extraFields;
     },
     setProcessingMask: (state, action: PayloadAction<{ mask: string; bbox: number[] }>) => {
       state.processing.maskPath = action.payload.mask + `?t=${new Date().getTime()}`;
@@ -186,6 +191,7 @@ export const {
   loadMasks,
   setColorbarLimits,
   toggleMaskVisibility,
+  toggleProcessingExtraFields,
 } = dataSlice.actions;
 
 export default dataSlice.reducer;

@@ -129,6 +129,9 @@ export const buildWetSegmentsProfile = (line: Point[], wetSegments: WetSegment[]
 };
 
 export const getBathimetryValues = (line: Point[], level?: number) => {
+  // A bathymetry that could not be read (missing file) has no profile to measure.
+  if (line.length === 0) return { error: { message: 'bathimetryNotValid', value: level } };
+
   const yLimits = getBathimetryLimitsY(line);
   const xLimits = getBathimetryLimitsX(line);
 

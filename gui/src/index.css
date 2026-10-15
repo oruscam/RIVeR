@@ -1,6 +1,112 @@
 /* =============================================================================
+   SCALE TOKENS
+   Spacing, radius and motion — identical across all three themes, so they
+   live in one bare :root block instead of being repeated per [data-theme].
+   Consumed starting in Phase 3a.
+   ============================================================================= */
+:root {
+  /* Radius */
+  --radius-sm:   4px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  /* Phase 6g (spec A15, decision G1): this codebase's single most common
+     radius, on panels, input fields, the media container and the drop areas.
+     A step of its own keeps the sweep a token substitution, as --text-subtitle
+     did for 20px type (A2). */
+  --radius-xl:   20px;
+  --radius-full: 999px;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  /* Motion */
+  --motion-fast:  120ms;
+  --motion-base:  200ms;
+  --motion-slow:  320ms;
+  --motion-ease:  cubic-bezier(.2,0,0,1);
+
+  /* Type — Outfit for prominent headings/numbers (bundled via @fontsource/outfit,
+     matching how @fontsource/inter is bundled rather than loaded at runtime).
+     Body/interface text stays on the existing global Inter stack, untouched. */
+  --font-display: 'Outfit', 'Avenir Next', system-ui, sans-serif;
+
+  /* Type scale — seven steps (six from the design audit, plus this
+     codebase's own --text-subtitle at 20px). Sizes only: weight and colour
+     stay with the consuming rule, because the same size appears at different
+     weights (14px Inter 400 body text vs. a 14px 600 value readout). Adopted
+     across the codebase in Phase 6g; declared here first so 6b-6f can use them
+     as they go. */
+  --text-display:  40px;
+  --text-title:    24px;
+  --text-subtitle: 20px;
+  --text-section:  16px;
+  --text-body:     14px;
+  --text-meta:     13px;
+  --text-caption:  12px;
+
+  /* Pin ink — the label colour drawn inside a pin's head. Always a near-black,
+     since every pin fill (left/right/point) is a light, saturated colour in
+     every theme; unlike --pin-left/right/point/muted below, this one value
+     works everywhere and isn't redeclared per theme. */
+  --pin-ink: #0B0D10;
+
+  /* Pin colours — cross-section left/right pins, and the plain "point" pin
+     used everywhere else (UAV pixel size, Oblique corners, ipcam control
+     points). Drawn on footage, so like --pin-ink they are the same in every
+     theme, Dracula included: red left / green right is RIVeR's historical
+     bank convention and must read the same whatever the chrome around it. */
+  --pin-left:  #ED6B57;
+  --pin-right: #62C655;
+  --pin-point: #6CD4FF;
+  --pin-muted: #808080;
+
+  /* Reprojection residual colours (fixed station control points), by the
+     point's own error grade. Drawn on footage, so one fixed set in every
+     theme, the same values as the pins. */
+  --residual-good: #62C655;
+  --residual-fair: #F5BF61;
+  --residual-bad:  #ED6B57;
+
+  /* Control point distance colours (Oblique 1–2 … 3–4). Drawn on footage and
+     repeated in the form's swatches; one fixed set in every theme. */
+  --d12: #6CD4FF;
+  --d13: #CC4BC2;
+  --d14: #F5BF61;
+  --d23: #62C655;
+  --d24: #7765E3;
+  --d34: #ED6B57;
+
+  /* Mask overlay colours — white outline/hatch over a dimmed fill, per the
+     design audit's Canvas overlays finding ("Masks use the same red as
+     errors and the left bank"). Like --pin-ink, these sit on footage rather
+     than app chrome, so one value works in every theme and isn't
+     redeclared per [data-theme]. */
+  --overlay-line: #FFFFFF;
+  --overlay-dim:  rgba(0, 0, 0, 0.4);
+
+  /* Translucent-dark-plus-blur backdrop for chrome that sits directly over
+     video footage: the mode-hint pill, the mask/shape toolbar, and (Phase 6d)
+     the Processing preview segmented control. Like --overlay-line/-dim above,
+     this sits on footage rather than app chrome, so one value works in every
+     theme. Was two slightly different, un-tokenized literals (0.82 for
+     .mode-hint, 0.86 for .mask-toolbar) before Phase 6d unified them: see
+     spec amendment A11. */
+  --canvas-chrome: rgba(10, 12, 14, 0.84);
+  /* Resting label colour and drop shadow for .seg-float. Declared here, not
+     inline, because the .seg/.chip region is guarded against literal colours. */
+  --canvas-chrome-ink: rgba(255, 255, 255, 0.75);
+  --canvas-chrome-shadow: rgba(0, 0, 0, 0.35);
+}
+
+/* =============================================================================
    THEME SYSTEM
-   Three themes: dark (default), light (warm cream), dracula
+   Three themes: dark (default), light (cool blue-grey), dracula
    All themes define the same set of CSS custom properties.
    ============================================================================= */
 
@@ -18,7 +124,7 @@
 
   /* Text */
   --primary-text-color:   #ffffff;
-  --secondary-text-color: #797979;
+  --secondary-text-color: #9E9E9E;
 
   /* Interactive states */
   --on-hover:        #232222;
@@ -26,6 +132,43 @@
 
   /* Accent (buttons, progress, selection) */
   --accent-color: #0678BE;
+
+  /* Text drawn on top of filled accent / semantic backgrounds */
+  --on-accent:  #FFFFFF;
+  --on-warning: #000000;
+  --on-error:   #000000;
+  --on-success: #000000;
+
+  /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
+     lines/markers, Processing technique rows. Azure / orange / orchid, tuned
+     per theme (user's choice, 2026-10-07); Dracula uses its own cyan /
+     orange / pink. Orange, not gold, because a yellow dark enough for the
+     light theme turns brown. Never the accent; STIV may share the "fair"
+     orange, since the ● ■ ▲ markers and the name always travel with the colour. */
+  --tech-lspiv: #5CB8FF;
+  --tech-stiv:  #FF9F43;
+  --tech-iwave: #F07CD3;
+
+  /* iWave spectrum ramp, lowest energy first: the plot's ground, a mid blue,
+     and the ink strong energy is drawn in. One hue, so it reads as magnitude;
+     the ground sits near the canvas so empty cells recede, and the ramp runs
+     toward the theme's high-contrast end (dark ink on the light theme, light
+     ink on the dark ones). The fitted curves stay --tech-iwave on top. */
+  --spectrum-0: #0A0D12;
+  --spectrum-1: #2E7DD6;
+  --spectrum-2: #A9DCFF;
+
+  /* Aliases Phase 3's components are written against — each one points at
+     a token this theme block already declares above. No new colour values. */
+  --surface-frame:  var(--background-color);
+  --surface-panel:  var(--secondary-background-color);
+  --surface-raised: var(--card-surface);
+  --surface-field:  var(--input-background);
+  --text-primary:   var(--primary-text-color);
+  --text-subdued:   var(--secondary-text-color);
+  --status-good:    var(--success-color);
+  --status-fair:    var(--warning-color);
+  --status-bad:     var(--background-error);
 
   /* Toggle switch active color — lighter cyan blue */
   --toggle-active-color: #6CD4FF;
@@ -63,17 +206,14 @@
   --report-gradient-1: #0678BE;
   --report-gradient-2: #033858;
 
-  /* Control point distance colors */
-  --d12: #6CD4FF;
-  --d13: #CC4BC2;
-  --d14: #F5BF61;
-  --d23: #62C655;
-  --d24: #7765E3;
-  --d34: #ED6B57;
+  /* Theme wash — the soft coloured bloom behind the Home screen's logo and at
+     the top of the Results panel. Theme-specific, so unlike the type scale it
+     cannot live in the bare :root block. Consumed in Phase 6f. */
+  --wash-2: #0B2D52;
 }
 
 /* --------------------------------------------------------------------------
-   LIGHT THEME (warm cream — inspired by Claude's interface background)
+   LIGHT THEME (cool blue-grey)
    -------------------------------------------------------------------------- */
 [data-theme="light"] {
   /* Backgrounds — cool blue, stronger contrast against the text/borders below */
@@ -88,7 +228,7 @@
      neutral black. Buttons/toggles use this directly as their border/fill
      (see components.css). */
   --primary-text-color:   #2E3A4D;
-  --secondary-text-color: #64748A;
+  --secondary-text-color: #4E5B6B;
 
   /* Interactive states */
   --on-hover:        #D2DCE8;
@@ -96,6 +236,39 @@
 
   /* Accent (deeper, more saturated blue, no orange) */
   --accent-color: #3D6D9E;
+
+  /* Text drawn on top of filled accent / semantic backgrounds */
+  --on-accent:  #FFFFFF;
+  --on-warning: #2E3A4D;
+  --on-error:   #FFFFFF;
+  --on-success: #FFFFFF;
+
+  /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
+     lines/markers, Processing technique rows. Azure / orange / orchid, tuned
+     per theme (user's choice, 2026-10-07); Dracula uses its own cyan /
+     orange / pink. Orange, not gold, because a yellow dark enough for the
+     light theme turns brown. Never the accent; STIV may share the "fair"
+     orange, since the ● ■ ▲ markers and the name always travel with the colour. */
+  --tech-lspiv: #1668C7;
+  --tech-stiv:  #D35F0A;
+  --tech-iwave: #B02A98;
+
+  /* iWave spectrum ramp — see the dark theme's note. */
+  --spectrum-0: #F8FAFD;
+  --spectrum-1: #6FA3D8;
+  --spectrum-2: #0E2F6B;
+
+  /* Aliases Phase 3's components are written against — each one points at
+     a token this theme block already declares above. No new colour values. */
+  --surface-frame:  var(--background-color);
+  --surface-panel:  var(--secondary-background-color);
+  --surface-raised: var(--card-surface);
+  --surface-field:  var(--input-background);
+  --text-primary:   var(--primary-text-color);
+  --text-subdued:   var(--secondary-text-color);
+  --status-good:    var(--success-color);
+  --status-fair:    var(--warning-color);
+  --status-bad:     var(--background-error);
 
   /* Toggle switch active color — matches accent */
   --toggle-active-color: #3D6D9E;
@@ -135,13 +308,13 @@
   --report-gradient-1: #0678BE;
   --report-gradient-2: #033858;
 
-  /* Control point distance colors — same vivid values as dark theme */
-  --d12: #6CD4FF;
-  --d13: #CC4BC2;
-  --d14: #F5BF61;
-  --d23: #62C655;
-  --d24: #7765E3;
-  --d34: #ED6B57;
+  /* Theme wash — see the dark theme's note. Corrected from the audit's literal
+     #DDEBF7 (1.01:1 against this codebase's light panel #E3E9F1 — the audit's
+     own value was taken from a document whose panel colour differs from
+     this one and would render as a complete no-op here) to the audit's own
+     light --wash-1, #BFDDF5 (1.16:1) — soft, which suits a decorative bloom,
+     but actually visible. */
+  --wash-2: #BFDDF5;
 }
 
 /* --------------------------------------------------------------------------
@@ -158,7 +331,7 @@
 
   /* Text */
   --primary-text-color:   #f8f8f2;
-  --secondary-text-color: #6272a4;
+  --secondary-text-color: #B4B9D4;
 
   /* Interactive states */
   --on-hover:        #44475a;
@@ -166,6 +339,39 @@
 
   /* Accent (using Dracula purple) */
   --accent-color: #bd93f9;
+
+  /* Text drawn on top of filled accent / semantic backgrounds */
+  --on-accent:  #282A36;
+  --on-warning: #282A36;
+  --on-error:   #191A21;
+  --on-success: #282A36;
+
+  /* Per-technique identity colour (LSPIV/STIV/iWave) — Results legend, chart
+     lines/markers, Processing technique rows. Azure / orange / orchid, tuned
+     per theme (user's choice, 2026-10-07); Dracula uses its own cyan /
+     orange / pink. Orange, not gold, because a yellow dark enough for the
+     light theme turns brown. Never the accent; STIV may share the "fair"
+     orange, since the ● ■ ▲ markers and the name always travel with the colour. */
+  --tech-lspiv: #8BE9FD;
+  --tech-stiv:  #FFB86C;
+  --tech-iwave: #FF79C6;
+
+  /* iWave spectrum ramp — see the dark theme's note. */
+  --spectrum-0: #1D1E27;
+  --spectrum-1: #5F86DE;
+  --spectrum-2: #C4E4FF;
+
+  /* Aliases Phase 3's components are written against — each one points at
+     a token this theme block already declares above. No new colour values. */
+  --surface-frame:  var(--background-color);
+  --surface-panel:  var(--secondary-background-color);
+  --surface-raised: var(--card-surface);
+  --surface-field:  var(--input-background);
+  --text-primary:   var(--primary-text-color);
+  --text-subdued:   var(--secondary-text-color);
+  --status-good:    var(--success-color);
+  --status-fair:    var(--warning-color);
+  --status-bad:     var(--background-error);
 
   /* Toggle switch active color — Dracula purple */
   --toggle-active-color: #bd93f9;
@@ -181,7 +387,7 @@
   --grid-bg-even:         #252736;
   --grid-bg-odd:          #282a36;
   --grid-header-bg:       #21222c;
-  --grid-header-color:    #6272a4;
+  --grid-header-color:    #B4B9D4;
   --grid-selection-color: #bd93f9;
 
   /* Component-specific surfaces */
@@ -203,13 +409,8 @@
   --report-gradient-1: #bd93f9;
   --report-gradient-2: #6272a4;
 
-  /* Control point distance colors (matching Dracula palette) */
-  --d12: #8be9fd;   /* cyan */
-  --d13: #ff79c6;   /* pink */
-  --d14: #ffb86c;   /* orange */
-  --d23: #50fa7b;   /* green */
-  --d24: #bd93f9;   /* purple */
-  --d34: #ff5555;   /* red */
+  /* Theme wash — see the dark theme's note. */
+  --wash-2: #33294F;
 }
 
 /* =============================================================================
@@ -217,7 +418,7 @@
    ============================================================================= */
 
 html {
-  font-size: 16px;
+  font-size: 16px; /* scale-exception: root size that every rem in the app resolves against */
 }
 
 * {
@@ -245,118 +446,6 @@ html {
    BUTTONS
    ============================================================================= */
 
-.danger-button {
-  min-width: 165px;
-  height: auto;
-  min-height: 50px;
-  background-color: var(--background-error);
-  border: 2px solid;
-  border-radius: 20px;
-  font-size: 18px;
-  font-weight: 400;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: transform 0.1s;
-}
-
-.danger-button:hover {
-  color: var(--inverse-text);
-}
-
-.danger-button:active {
-  transform: translateY(4px);
-}
-
-.danger-button:disabled {
-  background-color: var(--disabled-button);
-  color: var(--background-color);
-  transform: none;
-}
-
-.button-transparent {
-  background-color: transparent;
-  color: var(--primary-text-color);
-  border: none;
-  transition: transform 0.3s ease;
-}
-
-.button-1 {
-  width: 232px;
-  height: 50px;
-  background-color: var(--background-color);
-  border: 2px solid;
-  border-color: var(--primary-text-color);
-  color: var(--primary-text-color);
-  border-radius: 20px;
-  font-size: 20px;
-  font-weight: 400;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background-color 0.1s, color 0.1s, transform 0.1s;
-}
-
-.button-1:hover {
-  background-color: var(--primary-text-color);
-  color: var(--background-color);
-}
-
-.button-1:active {
-  background-color: var(--primary-text-color);
-  color: var(--background-color);
-  transform: translateY(4px);
-}
-
-.label-1 {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.wizard-button {
-  width: 132px;
-  height: auto;
-  min-height: 50px;
-  background-color: var(--background-color);
-  border: 2px solid;
-  border-color: var(--primary-text-color);
-  color: var(--primary-text-color);
-  border-radius: 20px;
-  font-size: 20px;
-  font-weight: 400;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  transition: background-color 0.1s, color 0.1s, transform 0.1s;
-  cursor: pointer;
-  padding: 3px;
-}
-
-.wizard-button:hover:not(:disabled) {
-  background-color: var(--inverse-bg);
-  color: var(--inverse-text);
-}
-
-.wizard-button:active {
-  background-color: var(--inverse-bg);
-  color: var(--inverse-text);
-  transform: translateY(4px);
-}
-
-.wizard-button-active {
-  background-color: var(--inverse-bg);
-  color: var(--inverse-text);
-  transform: translateY(4px);
-}
-
-.wizard-button:disabled {
-  background-color: var(--background-color);
-  color: var(--disabled-button);
-  border-color: var(--disabled-button);
-  transform: translateY(0px);
-}
-
 .video-button {
   background-color: transparent;
   border: none;
@@ -375,46 +464,749 @@ html {
   transform: scale(0.9);
 }
 
-.button-with-loader {
-  display: flex;
-  width: 165px;
-  height: auto;
-  min-height: 50px;
-  background-color: var(--background-color);
-  color: var(--primary-text-color);
-  border: 2px solid;
-  border-radius: 20px;
+/* =============================================================================
+   BUTTON COMPONENT (.btn family)
+   Pill-shaped buttons from the design audit. .button-1, .wizard-button(-active)
+   and .danger-button were the legacy equivalents; all call sites migrated in
+   Phase 6b Tasks 1-9 and the rules themselves were deleted in Task 10.
+   ============================================================================= */
+
+.btn {
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  height: 40px;
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-full);
+  border: 0;
+  font-family: inherit;
+  font-size: var(--text-body);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.btn:hover:not(:disabled):not([aria-disabled="true"]) {
+  transform: scale(1.04);
+}
+
+.btn:active:not(:disabled):not([aria-disabled="true"]) {
+  transform: scale(0.98);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.btn-primary {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--primary-text-color);
+  box-shadow: inset 0 0 0 1px var(--secondary-text-color);
+}
+
+.btn-secondary:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-selected="true"], [data-complete="true"], [aria-busy="true"]) {
+  box-shadow: inset 0 0 0 1px var(--primary-text-color);
+}
+
+.btn-danger {
+  background-color: var(--status-bad);
+  color: var(--on-error);
+}
+
+.btn-tertiary {
+  background-color: transparent;
+  color: var(--secondary-text-color);
+  padding: 0 var(--space-3);
+}
+
+.btn-tertiary:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-selected="true"], [data-complete="true"], [aria-busy="true"]) {
+  color: var(--primary-text-color);
+}
+
+.btn-lg {
+  height: 48px;
+  padding: 0 var(--space-6);
+  font-size: var(--text-section);
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-meta);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+/* The modifier block below sits AFTER the .btn family on purpose. A modifier
+   declared before the base it modifies can never win an equal-specificity
+   tie: while this block sat above .btn, its `justify-content: space-around`
+   silently lost to .btn's `center` and the loader button grouped its label
+   and spinner instead of spreading them, while the comment claimed the
+   opposite. Source order is the whole contract here. */
+
+/* =============================================================================
+   BUTTON-WITH-LOADER (modifier)
+   The one legacy button class that survives Phase 6b, per spec section 4/6b:
+   it carries the in-button progress layout, which the .btn family has no
+   equivalent for. Applied alongside .btn (className="btn btn-lg btn-primary
+   button-with-loader"), so everything .btn already sets - height, border,
+   radius, background, colour, font, hover, disabled - is deliberately absent
+   here. Adding any of them back would override the primitive this modifies.
+
+   min-width is the exception, and the reason this rule is not empty of sizing.
+   The legacy rule bought a stable width with `width: 165px`; min-width keeps
+   it without the clipping a fixed width causes once a label is translated
+   into a longer locale. The busy indicator (`{running && <span
+   class="btn-progress-sweep" />}`) is absolutely positioned on the bottom
+   edge, so position and overflow below are what keep it inside the button
+   and out of the flex layout.
+   ============================================================================= */
+
+.button-with-loader {
+  position: relative;
+  overflow: hidden;
+  min-width: 165px;
   justify-content: space-around;
-  padding-left: 10px;
-  padding-right: 10px;
   flex-shrink: 0;
 }
 
 .button-with-loader p {
-  font-size: 20px;
-  font-weight: 400;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
 }
 
-.button-with-loader:hover {
-  background-color: var(--primary-text-color);
-  color: var(--background-color);
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.38;
+  transform: none;
+  cursor: not-allowed;
 }
 
-.button-with-loader-active {
-  background-color: var(--primary-text-color);
-  color: var(--background-color);
+/* Pressed / selected / complete / busy — one fill, four meanings.
+   `.wizard-button-active` carried all four before Phase 6b and rendered them
+   identically; the attributes keep them distinguishable in the DOM so a later
+   sub-plan can separate the visuals without re-auditing every call site.
+   aria-selected is here because 6d's Frames|Space-time|Spectrum is a tablist,
+   matching the contract .chip and .seg already declare.
+   Both colours are gated in themeStateContrast.test.ts (accent vs panel >= 3.0,
+   on-accent on accent >= 4.5).
+
+   Excludes the two variants that are ALREADY filled: on .btn-primary this rule
+   would be a byte-identical no-op, and on .btn-danger it would repaint a
+   destructive button accent blue. Those two show the state as an inset ring
+   instead, below. The hover rules of the transparent variants carry matching
+   :not() guards, because .btn-tertiary:hover would otherwise win on
+   specificity and put a 2.12:1 label on the accent fill. */
+.btn:is([aria-pressed="true"], [aria-selected="true"], [data-complete="true"], [aria-busy="true"]):not(
+    .btn-primary,
+    .btn-danger
+  ) {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+  /* Drops .btn-secondary's resting ring, so a pressed secondary reads as a
+     filled button rather than a filled button wearing an outline. */
+  box-shadow: none;
 }
 
-.button-with-loader:disabled {
-  background-color: var(--input-background);
-  color: var(--background-color);
-  border-color: var(--border-color);
+/* An already-filled variant cannot show the state by filling, so it takes an
+   inset ring in its own on-colour. Both pairs are already gated: on-accent on
+   accent >= 4.5 (measured 4.73 worst) and on-error on status-bad (5.45 worst). */
+.btn-primary:is([aria-pressed="true"], [aria-selected="true"], [data-complete="true"], [aria-busy="true"]) {
+  box-shadow: inset 0 0 0 2px var(--on-accent);
+}
+
+.btn-danger:is([aria-pressed="true"], [aria-selected="true"], [data-complete="true"], [aria-busy="true"]) {
+  box-shadow: inset 0 0 0 2px var(--on-error);
+}
+
+.ibtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 0;
+  /* Containment for the absolutely-positioned children the icon buttons render:
+     `.rpl` (click ripple) and `.progbar` (ExportBtn's progress) are
+     position: absolute with width: 100%, so they need a positioned ancestor and
+     a clip. Legacy `.ib` carried both and Task 10 deleted it with them; without
+     these two lines the ripple resolves against the enclosing panel and a click
+     flashes a panel-sized circle. */
+  position: relative;
+  overflow: hidden;
+  background: transparent;
+  color: var(--secondary-text-color);
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  cursor: pointer;
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
+}
+
+/* Dropdown trigger (units, language, theme): an icon with a small chevron beside it. Not an
+   .ibtn: that is a 32px circle that clips its content and fills on hover, which cropped the
+   chevron and drew an oval. This one never fills. Hover and open are read from opacity and from
+   the chevron flipping, so the toolbar stays quiet. */
+.menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  height: 32px;
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--primary-text-color); /* the Moon, Sun and Dracula icons are stroke=currentColor */
+  border-radius: var(--radius-md);
+  opacity: 0.75;
+  cursor: pointer;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+.menu-trigger:hover,
+.menu-trigger[aria-expanded="true"] {
+  opacity: 1;
+}
+
+.menu-trigger:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+/* --input-background sits at 1.05:1 against the panel in light theme (the
+   same --surface-field collapse recorded at the LIST ROW section below), so
+   the hover pill would be invisible there. A text-tinted wash stays visible
+   on any panel surface regardless of theme.
+
+   The state guards matter more here than anywhere else in the family: this
+   selector is (0,4,0) and would out-specify the (0,2,0) state rules below,
+   repainting them away in every theme. ExportBtn's running fill and its 2.5s
+   success flash are both entered by the user's own click, so the pointer is
+   still on the button — without these guards they would be invisible exactly
+   when they fire. .chip, .seg button and .list-row all carry the same guards. */
+.ibtn:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-busy="true"], [data-state="success"]) {
+  color: var(--primary-text-color);
+  background-color: color-mix(in srgb, var(--primary-text-color) 10%, transparent);
+}
+
+.ibtn:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.ibtn:disabled,
+.ibtn[aria-disabled="true"] {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* aria-busy is here, not added later by Task 8, so that no task has to perform
+   surgery on another task's rule. ExportBtn (Task 8) is its only consumer. */
+.ibtn[aria-pressed="true"],
+.ibtn[aria-busy="true"] {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+/* Replaces .ib-danger. The fill must not appear on an aria-disabled control:
+   this codebase uses aria-disabled rather than :disabled wherever a title
+   tooltip has to survive, because Chromium dispatches no pointer events on a
+   natively disabled control (see form.css:769-774). */
+.ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-busy="true"], [data-state="success"]),
+.ibtn-danger[data-armed="true"]:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--status-bad);
+  color: var(--on-error);
+}
+
+/* Re-hooks the `wiggle` keyframes (declared globally in piv-icons.css) onto
+   TrashBtn's `.cl` icon stack. `.ib-danger:hover .cl` was the only trigger
+   before Task 10 deleted `.ib-danger`; this carries the same guard as the
+   `.ibtn-danger` fill above it: no animation on a disabled, aria-disabled,
+   pressed, busy or success-flashing control.
+
+   It does NOT exclude [data-armed="true"], and that is deliberate rather than an
+   oversight in the guard. Armed is the one state here that means "one more click
+   deletes this" — the wiggle is the warning, so suppressing it exactly when the
+   stakes are highest would be backwards. Legacy `.ib-danger:hover .cl` behaved
+   the same way. An earlier version of this comment claimed the armed state was
+   excluded; the review caught the comment, not the code. */
+.ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-busy="true"], [data-state="success"]) .cl {
+  animation: wiggle 0.48s ease both;
+}
+
+/* The one motion opt-out in the codebase, added with the one animation this
+   phase re-introduces. A wiggle is decorative — it repeats the meaning the red
+   fill already carries — so honouring the OS setting costs nothing and removing
+   it costs a user with vestibular sensitivity a lurch on every hover over a
+   delete button.
+
+   The app-wide opt-out at the end of this file (Phase 6g) now covers every
+   other transition and animation. This block stays because it removes the
+   wiggle outright rather than shortening it to one 0.01ms cycle. */
+@media (prefers-reduced-motion: reduce) {
+  /* The selector repeats the trigger's guards verbatim, for two reasons. A media
+     query adds no specificity, so the short `.ibtn-danger:hover .cl` this was
+     first written as would have lost to the (0,6,0) rule above and silently done
+     nothing. And the family sweep in buttonAndFieldTokens.test.ts requires every
+     hover rule here to exclude [aria-disabled] — it flagged the short form,
+     which was harmless in this one case but is the check earning its keep, so
+     the rule matches the contract rather than the contract bending to the rule. */
+  .ibtn-danger:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"], [aria-busy="true"], [data-state="success"]) .cl {
+    animation: none;
+  }
+}
+
+/* Replaces .ib.is-success. Icon-only, so WCAG 1.4.11 non-text applies: gated at
+   3.0 like the other non-text pairs in this phase, not at the measured value.
+   Measured worst case is 4.136:1 (light). */
+.ibtn[data-state="success"] {
+  color: var(--status-good);
+}
+
+/* The per-shape canvas toolbar. One of exactly two things allowed over footage
+   (spec section 2); the other is the mode-hint pill. Centred at the bottom of
+   its containing block by default. StabilizationCanvas instead anchors it next
+   to the region being edited (.region-toolbar-anchor below), like the mask
+   toolbar. pointer-events: auto keeps it clickable under any wrapper that
+   turns pointer events off. */
+.shape-toolbar {
+  position: absolute;
+  bottom: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: var(--space-1);
+  padding: var(--space-1);
+  border-radius: var(--radius-full);
+  background-color: var(--surface-panel);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 0.3);
+  pointer-events: auto;
+}
+
+/* The anchor wrapper is already positioned at the toolbar's top-left corner
+   (regionToolbarPlacement), so the toolbar sits in normal flow inside it. */
+.region-toolbar-anchor {
+  z-index: 10;
+}
+
+.region-toolbar-anchor .shape-toolbar {
+  position: static;
+  transform: none;
+}
+
+/* =============================================================================
+   CHIP (.chip family)
+   Small selectable pill from the design audit, for lists the user picks from —
+   cross sections, masks — where a row of options with an "Add" at the end reads
+   better than the browser-style tabs those lists use today. Consumers arrive in
+   Phase 6c.
+   ============================================================================= */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 32px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-full);
+  border: 0;
+  background-color: var(--surface-field);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.chip:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {
+  box-shadow: inset 0 0 0 1px var(--primary-text-color);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.chip[aria-pressed="true"],
+.chip[aria-selected="true"] {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+.chip-sm {
+  height: 28px;
+  font-size: var(--text-caption);
+}
+
+.chip:disabled,
+.chip[aria-disabled="true"] {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   SEGMENTED CONTROL (.seg)
+   Mutually exclusive view switch from the design audit, for places where one
+   canvas can show several things (Processing's Frames / Space-time / Spectrum,
+   calibration's Corrected / Heatmap). Deliberately distinct from .chip: a
+   segment is a view the canvas adopts, a chip is an object the user selects.
+   Consumers arrive in Phase 6d and 6e.
+   ============================================================================= */
+
+.seg {
+  display: inline-flex;
+  /* 3px is the track inset that centres a 26px segment in a 32px track, not a
+     spacing-scale value — hence the literal. */
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background-color: var(--surface-field);
+}
+
+.seg button {
+  height: 26px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--text-subdued);
+  font-family: inherit;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.seg button:hover:not(:disabled):not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {
+  color: var(--text-primary);
+}
+
+.seg button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.seg button[aria-pressed="true"],
+.seg button[aria-selected="true"] {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+/* This family deviates from the codebase's 0.38-disabled convention: .seg
+   button's resting colour is already --text-subdued, so 0.38 on top of that
+   compounds to an unreadable 1.7-1.9:1. 0.7 keeps the label legible (6d needs
+   a user to read a disabled "Space-time" segment and hover it for why it's
+   disabled) while still reading as dimmed. Do not apply this elsewhere —
+   .btn, .ibtn, .chip and .list-row rest on full-contrast colours already, so
+   0.38 is correct for them. */
+.seg button:disabled,
+.seg button[aria-disabled="true"] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* .seg-float: the same .seg control, on the translucent-dark-blur backdrop
+   canvas-overlay chrome uses instead of an opaque panel colour, which would
+   give no separation from video footage. Sized and spaced identically to
+   .seg (26px segments in a 32px track) so it reads as the same widget
+   family; only the backdrop and resting label colour differ, because
+   --text-subdued (the panel .seg's resting colour) is tuned for an opaque
+   surface, not arbitrary video footage behind a blur.
+   Only consumer (Phase 6d): PreviewModeControl.tsx. */
+.seg-float {
+  position: absolute;
+  z-index: 5;
+  top: var(--space-3);
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background: var(--canvas-chrome);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px var(--canvas-chrome-shadow);
+}
+
+.seg-float button {
+  height: 26px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--canvas-chrome-ink);
+  font-family: inherit;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.seg-float button:hover:not([aria-disabled='true']):not([aria-selected='true']) {
+  color: var(--overlay-line);
+}
+
+.seg-float button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.seg-float button[aria-selected='true'] {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+/* Same 0.7 deviation from the app's usual 0.38-disabled convention as .seg,
+   and for the same reason: a user must be able to read a disabled
+   "Space-time" segment and hover it for why. See the comment above
+   .seg button:disabled. */
+.seg-float button[aria-disabled='true'] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* =============================================================================
+   LIST ROW (.list-row family)
+   A row in a panel-side list of user-created objects — masks, stabilization
+   regions, cross sections — carrying a label and one to three per-row icon
+   actions. Deliberately not a .chip: a chip is a single-action <button>, and a
+   button may not nest the icon buttons and rename input these rows contain, so
+   the row is a plain container whose state travels on ARIA attributes and which
+   hosts its own focusable children.
+   Selection tints the row with a faint accent wash plus an accent ring; the
+   ring does the real work. A flat surface token cannot be made reliably
+   visible here — this codebase's semantic aliases collapse onto each other:
+   --surface-field is exactly --input-background in all three themes;
+   --surface-raised resolves through --card-surface to exactly --surface-panel
+   in all three themes (1.00:1, a total no-op — the audit's own "--raised"
+   selected-row surface has no distinct equivalent in this codebase, so do not
+   "correct" this rule toward a --surface-raised/--raised token, which would
+   silently delete the selection state); and in dracula specifically
+   --border-color, --on-hover and --input-background are all the same
+   #44475a. Do not rely on swapping between these tokens to make a state
+   visible; use color-mix() or an inset ring instead.
+   Consumers arrive in Phase 6c.
+   ============================================================================= */
+
+.list-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 32px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+  background-color: transparent;
+  color: var(--text-primary);
+  font-size: var(--text-meta);
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+/* A modest accent tint plus an accent ring — the ring carries the real
+   contrast. The tint alone (14% color-mix) only reaches 1.13-1.29:1 across
+   the three themes; against the light theme's panel in particular, filling
+   with --surface-field (an alias of --input-background) is 1.05:1 against
+   the panel's own #E3E9F1 and would make a selected row pixel-identical to
+   an unselected one whenever it has no badge (6c's mask rows have none). */
+.list-row[aria-selected="true"],
+.list-row[aria-pressed="true"] {
+  background-color: color-mix(in srgb, var(--accent-color) 14%, transparent);
+  box-shadow: inset 0 0 0 1px var(--accent-color);
+}
+
+.list-row:hover:not([aria-disabled="true"]):not([aria-pressed="true"]):not([aria-selected="true"]) {
+  box-shadow: inset 0 0 0 1px var(--primary-text-color);
+}
+
+.list-row:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
+.list-row[aria-disabled="true"] {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+/* Leading slot for a number or a swatch. Fills solidly with the accent colour
+   when its row is selected, unlike the row itself, which only tints — see the
+   note above about why an accent-filled row is avoided. */
+.list-row-badge {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  background-color: var(--surface-field);
+  color: var(--text-primary);
+  font-size: var(--text-caption);
+  font-weight: 700;
+}
+
+.list-row[aria-selected="true"] .list-row-badge,
+.list-row[aria-pressed="true"] .list-row-badge {
+  background-color: var(--accent-color);
+  color: var(--on-accent);
+}
+
+/* Section and mask names are free-text user input and the panel is a fixed
+   width, so the label truncates instead of pushing the actions out of view. */
+/* A list that sits among panel rows takes their size: 40px tall, body text. A
+   modifier, so the other lists keep the 32px row. */
+.list-row.list-row-field {
+  min-height: 40px;
+  font-size: var(--text-body);
+}
+
+.list-row-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.list-row-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  flex: none;
+}
+
+/* 24px icon button for use inside a 32px row, where .ibtn's own 32px would fill
+   the row edge to edge. Size only — applied alongside .ibtn, which keeps the
+   colour, hover, focus and disabled behaviour. */
+.ibtn-sm {
+  width: 24px;
+  height: 24px;
+}
+
+/* =============================================================================
+   TECHNIQUE ROW GRID — Processing screen only. Overrides the shared flex
+   .technique-row shell (components.css) for the rows that also carry this
+   class; TechniqueLegend's Results rows never carry it and stay flex. Relies
+   on index.css loading after components.css (via TechniqueRow.tsx's own
+   `import './components.css'`), the same cascade every other primitive here
+   (.chip, .list-row, .ibtn) already depends on.
+   ============================================================================= */
+
+/* Reserved trailing columns, not a flex run. Only LSPIV carries Median and the
+   MP4 export, so in a flex row STIV's and iWave's toggles would slide left by
+   the width of two controls and the aligned toggle column the design requires
+   would not exist. The Median cell is a fixed width for the same reason: a text
+   label's width changes once translated, and this app ships 12 locales. */
+.tech-row {
+  display: grid;
+  grid-template-columns: 12px 1fr 28px 78px 36px;
+  gap: var(--space-2);
+  align-items: center;
+  min-height: 40px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-md);
+}
+
+/* A switch that is on by design and cannot be changed (LSPIV in Processing).
+   Reads as locked, not broken: the track stays on but muted, a small lock sits
+   on the knob, and the cursor is the plain arrow (a hand would promise an action). */
+.switch-locked .slider {
   cursor: default;
+  opacity: 0.55;
+}
+
+.switch-locked .slider:hover {
+  background-color: var(--toggle-active-color);
+  border-color: var(--toggle-active-color);
+}
+
+.switch-locked .slider:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 21px;
+  width: 8px;
+  height: 8px;
+  transform: translateY(-50%);
+  background-color: var(--toggle-active-color);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3' fill='none' stroke='black' stroke-width='3'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3' fill='none' stroke='black' stroke-width='3'/%3E%3C/svg%3E") center / contain no-repeat;
+  pointer-events: none;
+}
+
+/* =============================================================================
+   BADGE (.badge family) — Phase 6e, spec amendment A12
+   A worded rating: a coloured dot, the word, and a light tint of the status
+   colour. The WORD is --primary-text-color in every theme, never the status
+   colour: as coloured text on its own tint the status colours measure
+   2.68-3.64:1 in light and 4.15:1 for dracula "bad", under the 4.5:1 text
+   floor. The colour lives on the dot (non-text, >= 3:1 against the panel in
+   every theme) and on the tint. Floors: themeStateContrast.test.ts.
+   First consumer: FormCalibration.tsx (Overall + six metric ratings).
+   ============================================================================= */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  line-height: 1;
+  color: var(--primary-text-color);
+  white-space: nowrap;
+}
+
+.badge::before {
+  content: "";
+  flex: none;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: var(--badge-dot);
+}
+
+.badge-good {
+  --badge-dot: var(--status-good);
+  background-color: color-mix(in srgb, var(--status-good) 15%, transparent);
+}
+
+.badge-fair {
+  --badge-dot: var(--status-fair);
+  background-color: color-mix(in srgb, var(--status-fair) 15%, transparent);
+}
+
+.badge-bad {
+  --badge-dot: var(--status-bad);
+  background-color: color-mix(in srgb, var(--status-bad) 15%, transparent);
 }
 
 /* =============================================================================
@@ -425,9 +1217,9 @@ html {
   background-color: var(--input-background);
   color: var(--primary-text-color);
   border: none;
-  font-size: 20px;
+  font-size: var(--text-subtitle);
   text-align: center;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   flex: 1 1 auto;
   width: 150px;
   min-width: 70px;
@@ -443,9 +1235,9 @@ html {
   background-color: var(--input-background);
   color: var(--primary-text-color);
   border: none;
-  font-size: 20px;
+  font-size: var(--text-subtitle);
   text-align: center;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   width: 100%;
   height: 50px;
 }
@@ -458,9 +1250,9 @@ html {
   background-color: var(--input-background);
   color: var(--primary-text-color);
   border: none;
-  font-size: 20px;
+  font-size: var(--text-subtitle);
   text-align: center;
-  border-radius: 15px;
+  border-radius: var(--radius-lg);
   width: 90px;
   height: 35px;
   padding-left: 5px;
@@ -475,9 +1267,9 @@ html {
   background-color: var(--input-background);
   color: var(--primary-text-color);
   border: none;
-  font-size: 20px;
+  font-size: var(--text-subtitle);
   text-align: center;
-  border-radius: 20px;
+  border-radius: var(--radius-xl);
   flex: 1 1 auto;
   width: 150px;
   min-width: 70px;
@@ -493,33 +1285,22 @@ html {
   background-color: var(--input-background-disabled);
 }
 
-.input-field-little-read-only {
-  background-color: var(--input-background);
-  color: var(--primary-text-color);
-  border: none;
-  font-size: 20px;
-  text-align: center;
-  border-radius: 15px;
-  width: 90px;
-  height: 35px;
-  padding-left: 5px;
-  padding-right: 5px;
-}
-
-.input-field-little-read-only:focus {
-  outline: none;
-}
-
 .input-field-little:disabled {
   background-color: var(--input-background-disabled);
 }
 
+/* Layout co-class only: width and flex behaviour, never height. `height: auto`
+   lived here for the legacy buttons that had no height of their own, and it sits
+   AFTER .btn-lg in this file at equal specificity (0,1,0), so source order handed
+   it the win and collapsed all 14 of these buttons to text height - 19px, or 29px
+   for the two bathimetry ones, against 48px neighbours. Found by the product
+   owner running the app; no test here renders a component, so nothing in the
+   suite could see it. Anything added to this rule must be width or flex. */
 .form-button {
   flex: 1 1 auto;
   min-width: 110px;
   max-width: 210px;
   cursor: pointer;
-  height: auto;
 }
 
 input::-webkit-inner-spin-button,
@@ -534,6 +1315,127 @@ select:not(.input-field-oblique):not(.input-field-select):not(.lens-row-select):
 textarea:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 1px;
+}
+
+/* The input classes above drop the outline on mouse focus; keyboard focus
+   still needs a visible ring. Same specificity as their :focus rules and
+   declared later, so it wins when focus comes from the keyboard. */
+.input-field:focus-visible,
+.input-field-oblique:focus-visible,
+.input-field-little:focus-visible,
+.input-field-read-only:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+/* =============================================================================
+   PANEL ROWS (.field-row / .field / .panel-group / .panel-rule)
+   The row grammar every wizard panel uses (Processing panel redesign, preview
+   2026-10-01). Label left, control right, 40px tall. Labels start at the 8px
+   row inset inside the panel's 16px gutter, and every control ends on the
+   same right edge (rules 1, 2). Built in 6a with no consumer; reworked here
+   rather than adding a sixth row class.
+   ============================================================================= */
+
+.field-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 40px;
+  padding: 0 var(--space-2);
+}
+
+.field-row-label {
+  min-width: 0;
+  font-size: var(--text-body);
+  color: var(--text-primary);
+}
+
+/* Section-level rows (Station number, ROI height) sit one step up. */
+.field-row-top .field-row-label {
+  font-size: var(--text-section);
+}
+
+/* Rule 6: a value that needs a switch sits 16px in, under that switch, and is
+   only rendered while the switch is on. */
+.field-row.field-row-child {
+  padding-left: calc(var(--space-2) + var(--space-4));
+}
+
+.field-row-child .field-row-label {
+  color: var(--text-subdued);
+}
+
+/* Rule 3: the group label is the quietest text in the block, not the loudest. */
+.panel-group {
+  margin: var(--space-3) 0 2px;
+  padding: 0 var(--space-2);
+  font-size: var(--text-caption);
+  font-weight: 600;
+  color: var(--text-subdued);
+}
+
+.panel-group:first-child {
+  margin-top: var(--space-1);
+}
+
+/* Rule 4: one divider style, between groups only. */
+.panel-rule {
+  height: 1px;
+  border: 0;
+  margin: var(--space-2) 0;
+  background: var(--border-color);
+}
+
+/* Rule 7: read-only values are text, never a field that looks editable. */
+.field-readonly {
+  padding-right: var(--space-2);
+  font-variant-numeric: tabular-nums;
+  color: var(--text-subdued);
+}
+
+/* A parameter value is body text, not a headline: 14px in a 30px box, where
+   .input-field-little is 20px. The hairline is D1: light's field fill is
+   1.05:1 against the panel (debt A6), so without it the box has no edge. */
+.field {
+  width: 64px;
+  height: 30px;
+  box-sizing: border-box;
+  padding: 0 var(--space-2);
+  border: 1px solid color-mix(in srgb, var(--text-subdued) 22%, transparent);
+  border-radius: var(--radius-md);
+  background-color: var(--surface-field);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: var(--text-body);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.field-wide {
+  width: 76px;
+}
+
+.field-select {
+  appearance: none;
+  text-align: left;
+  padding-left: 10px;
+  padding-right: 22px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.field:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+.field:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 /* =============================================================================
@@ -565,7 +1467,7 @@ textarea:focus-visible {
   background-color: var(--slider-bg);
   border: 1px solid var(--slider-border);
   transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
-  border-radius: 28px;
+  border-radius: var(--radius-full);
 }
 
 .slider:hover {
@@ -615,201 +1517,224 @@ input:disabled + .slider:hover {
   border-color: var(--slider-border);
 }
 
-/* =============================================================================
-   THEME SEGMENTED CONTROL (3-way: Dark / Light / Dracula)
-   ============================================================================= */
-
-.theme-segmented-control {
-  display: inline-flex;
-  border-radius: 10px;
-  overflow: hidden;
-  border: 1px solid var(--border-color);
-  background-color: var(--secondary-background-color);
+/* D2: the parameter-list switch. A size modifier only, so every state above
+   (hover, focus ring, checked, disabled) still applies. 36x20 against 52x28,
+   so the control no longer outweighs its 14px label. Each selector out-specifies
+   the base rule it overrides by one class. */
+.switch.switch-sm {
+  width: 36px;
+  height: 20px;
+  margin-left: 0;
 }
 
-.theme-segment-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 2px;
-  padding: 6px 14px;
-  border: none;
-  background-color: transparent;
-  color: var(--secondary-text-color);
-  cursor: pointer;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  transition: background-color 0.15s ease, color 0.15s ease;
-  min-width: 60px;
+.switch-sm .slider:before {
+  width: 14px;
+  height: 14px;
+  left: 2px;
 }
 
-.theme-segment-btn + .theme-segment-btn {
-  border-left: 1px solid var(--border-color);
-}
-
-.theme-segment-btn:hover {
-  background-color: var(--on-hover);
-  color: var(--primary-text-color);
-}
-
-.theme-segment-btn--active {
-  background-color: var(--accent-color);
-  color: #ffffff;
-}
-
-.theme-segment-btn--active:hover {
-  background-color: var(--accent-color);
-  opacity: 0.9;
-  color: #ffffff;
-}
-
-.theme-segment-icon {
-  font-size: 16px;
-  line-height: 1;
-}
-
-.theme-segment-label {
-  line-height: 1;
+.switch-sm input:checked + .slider:before {
+  transform: translateY(-50%) translateX(16px);
 }
 
 /* =============================================================================
    LOADERS
+   One family, three forms, all thin lines that move with transform:
+   - .progress-readout: measurable runs (processing, calibration). A large
+     figure over a hairline. Every row renders from the first frame, so the
+     block never re-centres when the first percentage arrives.
+   - .module-loader: open-ended waits between modules. A bar on the top edge
+     that sweeps, or fills once the frame extractor reports a counter.
+   - .btn-progress-sweep: a busy button. The same sweep on its bottom edge.
    ============================================================================= */
 
-.loader-little {
-  border: 5px solid var(--secondary-background-color);
-  border-radius: 50%;
-  border-top: 5px solid var(--primary-text-color);
-  width: 40px;
-  height: 40px;
-  animation: spin 1.5s linear infinite;
-}
-
-/* MID */
-.loader-container-mid {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  align-items: center;
+.progress-readout {
   width: 100%;
+  max-width: 320px;
+  margin: 0 auto;
   user-select: none;
 }
 
-.loader-wrapper-mid {
+.progress-readout-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.progress-readout-value.is-pending {
+  color: var(--text-subdued);
+}
+
+.progress-readout-track {
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 80px;
-  height: 80px;
-  margin-bottom: 40px;
+  height: 1px;
+  margin: var(--space-3) 0 var(--space-2);
+  background: var(--readout-border);
+  overflow: hidden;
 }
 
-.loader-mid {
-  border: 10px solid var(--primary-text-color);
-  border-radius: 50%;
-  border-top: 10px solid var(--secondary-background-color);
-  width: 80px;
-  height: 80px;
-  animation: spin 1.5s linear infinite;
-}
-
-.loader-percentage-mid {
+.progress-readout-fill {
   position: absolute;
-  font-size: 1.2em;
-  color: var(--primary-text-color);
+  inset: 0;
+  background: var(--text-primary);
+  transform-origin: left;
+  transition: transform 400ms var(--motion-ease);
 }
 
-/* BIG */
-.loader-container-big {
+.progress-readout-foot {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: 1.4em;
+  font-size: var(--text-meta);
+  color: var(--text-subdued);
+  font-variant-numeric: tabular-nums;
+}
+
+.progress-readout-foot span:last-child {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.module-loader {
+  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  height: 100%;
   align-items: center;
+  gap: var(--space-2);
   width: 100%;
+  height: 100%;
+  user-select: none;
+  animation: module-loader-in var(--motion-base) var(--motion-ease) 250ms both;
 }
 
-.loader-wrapper-big {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 160px;
-  height: 160px;
-}
-
-.loader-big {
-  border: 12px solid var(--primary-text-color);
-  border-radius: 50%;
-  border-top: 12px solid var(--secondary-background-color);
-  width: 120px;
-  height: 120px;
-  animation: spin 1.5s linear infinite;
-}
-
-.loader-percentage-big {
+.module-loader-bar {
   position: absolute;
-  font-size: 1.8em;
-  font-weight: bold;
-  color: var(--primary-text-color);
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  overflow: hidden;
 }
 
-.loader-complete-big {
-  animation: none;
-  border: 12px solid var(--primary-text-color);
+.module-loader-sweep,
+.btn-progress-sweep::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 35%;
+  background: var(--accent-color);
+  animation: loader-sweep 1.4s var(--motion-ease) infinite;
 }
 
-.loader-remaining-time {
-  font-size: 1.6em !important;
-  font-weight: 500;
+.module-loader-fill {
+  position: absolute;
+  inset: 0;
+  background: var(--accent-color);
+  transform-origin: left;
+  transition: transform 400ms var(--motion-ease);
 }
 
-.analize-stage-breadcrumb {
-  text-align: center;
-  color: var(--secondary-text-color);
-  font-size: 0.85em;
-  margin-bottom: 8px;
+.module-loader-message {
+  margin: 0;
+  font-size: var(--text-section);
+  color: var(--text-primary);
 }
 
-.analize-stage-breadcrumb-active {
-  color: var(--primary-text-color);
-  font-weight: 600;
+.module-loader-detail {
+  margin: 0;
+  min-height: 1.4em;
+  font-size: var(--text-meta);
+  color: var(--text-subdued);
+  font-variant-numeric: tabular-nums;
 }
 
-@keyframes spin {
-  0%   { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.btn-progress-sweep {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  overflow: hidden;
+}
+
+.btn-progress-sweep::after {
+  content: '';
+  background: var(--on-accent);
+}
+
+@keyframes loader-sweep {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(290%); }
+}
+
+@keyframes module-loader-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* =============================================================================
-   PROGRESS INDICATORS
+   STEPPER
    ============================================================================= */
 
-.progress-indicator-container {
-  position: absolute;
-  top: 15px;
+.stepper {
   width: 90%;
-  height: 10px;
+  margin-top: var(--space-5);
+}
+
+.stepper-bars {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.stepper-bar {
+  flex: 1;
+  min-width: 0;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background-color: var(--secondary-input-background);
+  cursor: default;
+}
+
+.stepper-bar-done {
+  background-color: var(--accent-color);
+  cursor: pointer;
+}
+
+.stepper-bar-done:hover {
+  opacity: 0.8;
+}
+
+.stepper-bar-done:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.stepper-bar-current {
+  background-color: var(--primary-text-color);
+}
+
+.stepper-caption {
   display: flex;
   justify-content: space-between;
-  flex-shrink: 0;
+  gap: var(--space-2);
+  margin-top: var(--space-1);
+  font-size: var(--text-caption);
+  color: var(--secondary-text-color);
 }
 
-.progress-indicator {
-  background-color: var(--secondary-input-background);
-  width: auto;
-  min-width: 56px;
-  height: 10px;
-  border-radius: 5px;
-  max-width: 65px;
-}
-
-.progress-indicator-active {
-  background-color: var(--primary-text-color);
+.stepper-caption b {
+  color: var(--primary-text-color);
+  font-weight: 600;
 }
 
 /* =============================================================================
@@ -874,7 +1799,7 @@ input:disabled + .slider:hover {
 ::-webkit-scrollbar-thumb {
   background: var(--primary-text-color);
   outline: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius-md);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -950,7 +1875,7 @@ input:disabled + .slider:hover {
    ============================================================================= */
 
 .info-icon {
-  font-size: 30px;
+  font-size: 30px; /* scale-exception: a "?" glyph sized as an icon, not as text */
   margin-left: 10px;
   margin-top: 5px;
   font-weight: bold;
@@ -975,7 +1900,7 @@ input:disabled + .slider:hover {
 .info-gif {
   width: 100%;
   height: 100%;
-  border-radius: 5px;
+  border-radius: var(--radius-sm);
 }
 
 /* =============================================================================
@@ -1008,20 +1933,28 @@ svg.mask-mode-active .overlay-ui * {
 }
 
 /* =============================================================================
-   Velocity readout — the PIV arrow tooltip (drawQuiver.ts), the Results chevron
-   tooltip (drawVectors.ts) and the STI badge. One class so the three cannot
-   drift apart.
-   Deliberately sets no font rules: all must inherit the app font identically,
-   which is what makes them look like the same control.
-   Background points straight at --secondary-background-color — the same surface
-   the chart tooltip (.velocity-tooltip) uses — rather than a readout-specific
-   variable, so the two can never drift apart. It is fully opaque on purpose:
-   these sit over video frames, and any transparency let the imagery through
-   badly enough to make the number hard to read.
+   REDUCED MOTION — Phase 6g (A8's debt, spec A15)
+   One global opt-out instead of a per-rule sweep: every transition and
+   animation in the app finishes at once when the OS asks for less motion.
+   0.01ms, not 0, so transitionend/animationend still fire for any code that
+   waits on them. :active transforms stay, since with no transition they are
+   an instant state change rather than motion. A media query adds no
+   specificity, so everything here is !important; the spinner exemption
+   wins over `*` on specificity within !important.
    ============================================================================= */
-.velocity-readout {
-    background: var(--secondary-background-color);
-    border: 1px solid var(--readout-border);
-    padding: 5px 10px;
-    border-radius: 5px;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* A frozen spinner reads as a hang. Spinners keep turning, at half speed or
+     slower. Only the duration and count are set here, never the animation's
+     name. */
+  .module-loader-sweep, .btn-progress-sweep::after, .spin {
+    animation-duration: 3s !important;
+    animation-iteration-count: infinite !important;
+  }
 }

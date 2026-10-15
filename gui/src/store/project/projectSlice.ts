@@ -1,5 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import type { ProjectIssues, VideoSpec } from '../../../commons/projectIssues';
 import { ProjectDetails, ProjectState, VideoData, VideoParameters } from './types';
+
+const noIssues = () => ({ videoMissing: false, missingInputs: [], videoMismatch: null });
 
 const defaultVideo = {
   data: {
@@ -26,9 +29,10 @@ const defaultVideo = {
     committedStabilization: false,
     committedStabilizationRegions: [],
   },
+  extraFields: false,
 };
 
-const savedUnitSystem = localStorage.getItem('unitSystem') || 'si';
+const savedUnitSystem = typeof localStorage !== 'undefined' ? localStorage.getItem('unitSystem') || 'si' : 'si';
 
 const initialState: ProjectState = {
   projectDirectory: '',
@@ -42,6 +46,7 @@ const initialState: ProjectState = {
     meditionDate: '',
   },
   stabilizationActiveRegionIndex: null,
+  issues: noIssues(),
 };
 
 const projectSlice = createSlice({
@@ -69,19 +74,50 @@ const projectSlice = createSlice({
     setStabilizationActiveRegionIndex: (state, action: PayloadAction<number | null>) => {
       state.stabilizationActiveRegionIndex = action.payload;
     },
+    toggleVideoExtraFields: (state) => {
+      state.video.extraFields = !state.video.extraFields;
+    },
     setDefaultProjectState: (state) => {
-      const preservedUnitSystem = localStorage.getItem('unitSystem') || 'si';
+      const preservedUnitSystem =
+        typeof localStorage !== 'undefined' ? localStorage.getItem('unitSystem') || 'si' : 'si';
       state.projectDirectory = '';
       state.video = defaultVideo;
       state.type = '';
       state.firstFramePath = '';
       state.stabilizationActiveRegionIndex = null;
+      state.issues = noIssues();
       state.projectDetails = {
         riverName: '',
         site: '',
         unitSistem: preservedUnitSystem,
         meditionDate: '',
       };
+    },
+    setProjectIssues: (state, action: PayloadAction<ProjectIssues>) => {
+      state.issues = { ...action.payload, videoMismatch: null };
+    },
+    setVideoMismatch: (state, action: PayloadAction<{ expected: VideoSpec; found: VideoSpec } | null>) => {
+      state.issues.videoMismatch = action.payload;
+    },
+    resolveVideoMissing: (state) => {
+      state.issues.videoMissing = false;
+      state.issues.videoMismatch = null;
+    },
+    /** Locating one file fixes every section that pointed at it. */
+    resolveBathymetry: (state, action: PayloadAction<string>) => {
+      state.issues.missingInputs = state.issues.missingInputs.filter(
+        (input) => !(input.kind === 'bathymetry' && input.path === action.payload)
+      );
+    },
+    /** One section stopped needing its missing file: a new bathymetry was imported for
+     *  it, or it was deleted. Other sections sharing the file keep their issue. */
+    resolveSectionBathymetry: (state, action: PayloadAction<string>) => {
+      state.issues.missingInputs = state.issues.missingInputs.filter(
+        (input) => !(input.kind === 'bathymetry' && input.section === action.payload)
+      );
+    },
+    resolveIpcamImages: (state) => {
+      state.issues.missingInputs = state.issues.missingInputs.filter((input) => input.kind !== 'ipcamImages');
     },
   },
 });
@@ -95,6 +131,13 @@ export const {
   setVideoParameters,
   setDefaultProjectState,
   setStabilizationActiveRegionIndex,
+  toggleVideoExtraFields,
+  setProjectIssues,
+  setVideoMismatch,
+  resolveVideoMissing,
+  resolveBathymetry,
+  resolveSectionBathymetry,
+  resolveIpcamImages,
 } = projectSlice.actions;
 
 export default projectSlice.reducer;

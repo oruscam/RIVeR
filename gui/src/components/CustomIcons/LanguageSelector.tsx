@@ -60,14 +60,8 @@ export function LangBtn() {
 
   return (
     <div className="lwrap" ref={ref}>
-      <button
-        className={`ib ${open ? 'active' : ''}`}
-        style={
-          { '--hi': 'var(--accent)', width: 60, gap: 3, paddingInline: 10, border: 'none' } as React.CSSProperties
-        }
-        onClick={() => setOpen((v) => !v)}
-      >
-        {Icons.Globe(open ? 'var(--secondary-background-color)' : 'var(--primary-text-color)')}
+      <button className="menu-trigger" aria-expanded={open} onClick={() => setOpen((v) => !v)}>
+        {Icons.Globe('var(--primary-text-color)')}
         {Icons.ChevDown('var(--secondary-text-color)', open ? 180 : 0)}
       </button>
       <div className={`ldrop ${open ? 'open' : ''}`}>
@@ -81,7 +75,7 @@ export function LangBtn() {
               setOpen(false);
             }}
           >
-            <span style={{ fontSize: 17 }}>{l.flag}</span>
+            <span style={{ fontSize: 'var(--text-section)' }}>{l.flag}</span>
             <span>{l.label}</span>
             {l.code === language && (
               <span style={{ marginLeft: 'auto', display: 'flex' }}>{Icons.Check('var(--success-color)')}</span>

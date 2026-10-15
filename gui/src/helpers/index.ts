@@ -5,11 +5,23 @@ import { formatTime, parseTime } from './formatTime';
 import { adaptStringDate, dateToStringDate, recortStringDate, stringDateToDate } from './dateFunctions';
 import { getUnit } from './unitSistem';
 import { getDirectionVector } from './getDirectionVector';
+import { applyStepLeaveEffects, getStepLeaveEffect } from './stepLeaveEffects';
+import type { StepLeaveHandlers } from './stepLeaveEffects';
+import { buildStepperContent } from './stepperContent';
+import type { StepperContent, StepperStep, StepStatus } from './stepperContent';
+import { isLowConfidence } from './lowConfidence';
 import {
   computeStationPixelPositions,
   computeStationSearchLines,
   computeSearchLinesFromCenters,
+  getSectionSearchLines,
+  searchLineCenters,
+  interpolateStationCenters,
 } from './stationPositions';
+import { isPixelHidden, isSegmentMasked, isWindowMasked } from './maskCoverage';
+import type { MaskRaster } from './maskCoverage';
+import { loadMaskRaster } from './loadMaskRaster';
+import { measureImageAspect } from './measureImageAspect';
 import { getStiColorScale, STI_FALLBACK_COLOR } from './stiColorScale';
 import type { StiColorScale } from './stiColorScale';
 import {
@@ -81,17 +93,35 @@ import { getImageSize } from './getImageSize';
 import { handleDragLeave, handleDragOver } from './handleDragEvents';
 import { froudeFilledProfile, computeDischarge, getEffectiveTechniqueData } from './techniqueDischarge';
 import type { Technique, DischargeResult, TechniqueDischargeData, TechniqueOptions } from './techniqueDischarge';
-import { curveToPolylinePoints } from './spectrumGeometry';
-import type { SpectrumExtent } from './spectrumGeometry';
+import {
+  curveToPath,
+  describeSpectrumPoint,
+  fromPixel,
+  getCellExtent,
+  getNearestIndex,
+  getRampColor,
+  getSpectrumPixels,
+  getTicks,
+  parseColor,
+  toPixel,
+} from './spectrumGeometry';
+import type { RgbColor, SpectrumAxis, SpectrumPoint } from './spectrumGeometry';
 
 export type {
+  MaskRaster,
   StiColorScale,
+  StepLeaveHandlers,
+  StepperContent,
+  StepperStep,
+  StepStatus,
   StivSign,
   Technique,
   DischargeResult,
   TechniqueDischargeData,
   TechniqueOptions,
-  SpectrumExtent,
+  RgbColor,
+  SpectrumAxis,
+  SpectrumPoint,
 };
 
 export {
@@ -106,6 +136,8 @@ export {
   ANGLE_WARN_HIGH,
   ANGLE_WARN_LOW,
   angleFromPointer,
+  applyStepLeaveEffects,
+  buildStepperContent,
   buildWetSegmentsProfile,
   calculateArrowWidth,
   calculateMultipleArrowsAdaptative,
@@ -117,9 +149,26 @@ export {
   clearOverride,
   computeDischarge,
   computeSearchLinesFromCenters,
+  getSectionSearchLines,
+  searchLineCenters,
+  interpolateStationCenters,
+  isPixelHidden,
+  isSegmentMasked,
+  isWindowMasked,
+  loadMaskRaster,
+  measureImageAspect,
   computeStationPixelPositions,
   computeStationSearchLines,
-  curveToPolylinePoints,
+  curveToPath,
+  describeSpectrumPoint,
+  fromPixel,
+  getCellExtent,
+  getNearestIndex,
+  getRampColor,
+  getSpectrumPixels,
+  getTicks,
+  parseColor,
+  toPixel,
   createSquare,
   DEFAULT_PERIOD_S,
   dateToStringDate,
@@ -146,6 +195,7 @@ export {
   getOrthoImageDimensions,
   getPointNames,
   getPointsDistances,
+  getStepLeaveEffect,
   getStiColorScale,
   getUnit,
   getValidationRules,
@@ -154,6 +204,7 @@ export {
   handleDragOver,
   hasAnyOverride,
   isAnglePoorlyConstrained,
+  isLowConfidence,
   isStationTuned,
   MAX_CHEVRON_COUNT,
   mergeAngleProfile,

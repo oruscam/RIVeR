@@ -1,8 +1,15 @@
 import { FieldValues, FormProvider, useForm } from 'react-hook-form';
 import { useWizard } from 'react-use-wizard';
 import { FormUav } from '../components/Forms/index';
-import { WizardButtons, Error, Warning, FocusOverlay, Carousel } from '../components/index';
-import { useDataSlice, useGlobalSlice, useProjectSlice, useUavSlice, useUiSlice } from '../hooks/index';
+import { WizardButtons, ModeHint, StepAlertList, Toast, FocusOverlay, Carousel } from '../components/index';
+import {
+  useDataSlice,
+  useGlobalSlice,
+  useProjectSlice,
+  useUavSlice,
+  useUiSlice,
+  useFieldImage,
+} from '../hooks/index';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
 import './pages.css';
@@ -12,7 +19,8 @@ import { FormHeader } from '../components/Forms/Components/FormHeader.js';
 import { useTranslation } from 'react-i18next';
 import { Point } from '../types/index.js';
 import { ImageUavNew } from '../components/ImageUavNew.js';
-import { LockBtn } from '../components/CustomIcons/LockBtn.js';
+import { AdvancedToggle } from '../components/AdvancedToggle';
+import { StabilizationViewControl } from '../components/StabilizationViewControl';
 
 const createDefaultState = (
   dirPoints: Point[],
@@ -73,8 +81,12 @@ export const Uav = () => {
   const sanityCheckPath = `${filePrefix}${projectDirectory}/sanity_check.jpg?t=${sanityCheckCacheBust}`;
   const canToggleStabilization = video.parameters.committedStabilization;
 
+  // Undefined while the check is being painted with the theme's ramp: the
+  // canvas keeps a frame up for that instant.
+  const stabilizationSrc = useFieldImage(showStabilization ? sanityCheckPath : undefined);
+
   const activeImageSrc = showStabilization
-    ? sanityCheckPath
+    ? stabilizationSrc
     : images.paths.length > 0
       ? images.paths[activeFrame]
       : undefined;
@@ -83,17 +95,21 @@ export const Uav = () => {
   const methods = useForm({ defaultValues: createDefaultState(dirPoints, rwPoints, rwLength, size, unitSistem) });
 
   const { nextStep } = useWizard();
-  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
+  const { onSetModeHint, onClearModeHint, onAddStepAlert, onClearStepAlert } = useUiSlice();
 
   const onSubmit = () => {
+    onClearStepAlert('uav-form-error');
     console.log(rwPoints);
     nextStep();
   };
 
-  const onError = (error: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
+  const onError = (errors: FieldValues, event: React.FormEvent<HTMLFormElement>) => {
     if (event === undefined) return;
 
-    onSetErrorMessage(error);
+    const messages = Object.values(errors)
+      .map((value) => (value as { message?: string })?.message)
+      .filter((message): message is string => Boolean(message));
+    onAddStepAlert('uav-form-error', 'error', messages.join(' '));
   };
 
   const onClickSolveButton = () => {
@@ -114,16 +130,16 @@ export const Uav = () => {
   // the initial draw's own drag is in progress (isDraggingPoint is true then too).
   useEffect(() => {
     if (drawLine) {
-      onSetWarningMessage(t('PixelSize.drawingLineWarning', { defaultValue: 'Drawing line' }));
-      return () => onClearWarningMessage();
+      onSetModeHint(t('PixelSize.drawingLineWarning', { defaultValue: 'Drawing line' }));
+      return () => onClearModeHint();
     }
 
     if (isDraggingPoint) {
-      onSetWarningMessage(t('PixelSize.modifyingLineWarning', { defaultValue: 'Modifying line' }));
-      return () => onClearWarningMessage();
+      onSetModeHint(t('PixelSize.modifyingLineWarning', { defaultValue: 'Modifying line' }));
+      return () => onClearModeHint();
     }
 
-    onClearWarningMessage();
+    onClearModeHint();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawLine, isDraggingPoint]);
 
@@ -131,6 +147,12 @@ export const Uav = () => {
     <div className="regular-page">
       <div className="media-container">
         <ImageUavNew imageSrc={activeImageSrc} />
+        {canToggleStabilization && (
+          <StabilizationViewControl
+            showStabilization={showStabilization}
+            onSetShowStabilization={setShowStabilization}
+          />
+        )}
         {images.paths.length > 0 && (
           <Carousel
             images={images.paths}
@@ -138,32 +160,32 @@ export const Uav = () => {
             setActiveImage={setActiveFrame}
             showMedian={showStabilization}
             setShowMedian={setShowStabilization}
-            canToggleMedian={canToggleStabilization}
             mode="select"
           />
         )}
-        <div className="message-stack">
-          <Error />
-          <Warning />
-        </div>
+        <ModeHint />
       </div>
       <div className="form-container">
         <FormHeader title={t('PixelSize.title')} showSections={false} />
+        <StepAlertList />
 
         <FormProvider {...methods}>
           <FormUav onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
 
         <div className="footer">
-          <button
-            className="wizard-button form-button solver-button"
-            id="solve-pixelsize"
-            disabled={dirPoints.length !== 2 || rwLength === 0 || isBackendWorking || solution !== null}
-            onClick={onClickSolveButton}
-          >
-            {t('Commons.solve')}
-          </button>
-          <LockBtn
+          <div className="processing-run">
+            <button
+              type="button"
+              className="btn btn-lg btn-primary"
+              id="solve-pixelsize"
+              disabled={dirPoints.length !== 2 || rwLength === 0 || isBackendWorking || solution !== null}
+              onClick={onClickSolveButton}
+            >
+              {t('Commons.solve')}
+            </button>
+          </div>
+          <AdvancedToggle
             footerElementID="span-footer"
             headerElementID="uav-header"
             disabled={dirPoints.length === 0}
@@ -174,6 +196,7 @@ export const Uav = () => {
         </div>
         <FocusOverlay active={drawLine || isDraggingPoint} />
       </div>
+      <Toast />
     </div>
   );
 };

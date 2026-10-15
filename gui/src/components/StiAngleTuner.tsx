@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { useStivAngleOverride } from '../hooks';
+import { useStivAngleOverride, useUiSlice } from '../hooks';
 import { ANGLE_MAX, ANGLE_MIN, nextAngleFromSlider } from '../helpers';
 import './components.css';
 
@@ -49,6 +49,7 @@ export const StiAngleTuner = ({
 }: StiAngleTunerProps) => {
   const { t } = useTranslation();
   const { angle, autoAngle, isTuned, setAngle, reset } = useStivAngleOverride(stationIndex);
+  const { onShowToast } = useUiSlice();
 
   const centres = useMemo(() => BAR_FRACTIONS.map((fraction) => viewW * fraction), [viewW]);
   const cy = viewH / 2;
@@ -120,7 +121,20 @@ export const StiAngleTuner = ({
                 style={{ accentColor: color }}
                 onChange={(event) => setAngle(nextAngleFromSlider(parseFloat(event.target.value), displayAngle))}
               />
-              <button type="button" className="sti-angle-reset" disabled={!isTuned} onClick={reset}>
+              <button
+                type="button"
+                className="sti-angle-reset"
+                disabled={!isTuned}
+                onClick={() => {
+                  reset();
+                  onShowToast(
+                    t('Processing.stiAngleResetToast', {
+                      defaultValue: 'Angle reset for station {{station}}',
+                      station: stationId,
+                    })
+                  );
+                }}
+              >
                 {t('Processing.stiAngleReset')}
               </button>
             </div>

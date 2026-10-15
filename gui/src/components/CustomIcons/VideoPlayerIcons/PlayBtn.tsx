@@ -29,11 +29,7 @@ export function PlayBtn({ videoRef, control, setControl }: PlayBtnProps) {
 
   const [rpl, fire] = useRipple();
   return (
-    <button
-      type="button"
-      className={`ib ${control.play ? '' : ''}`}
-      onClick={control.play ? handlePause : handlePlay}
-    >
+    <button type="button" className="ibtn" onClick={control.play ? handlePause : handlePlay}>
       {rpl}
       <span className="cl show">{control.play ? Icons.Pause('currentColor') : Icons.Play('currentColor')}</span>
     </button>

@@ -28,6 +28,7 @@ function getIpcamImages() {
 
       if (imagesPath === undefined) {
         const result = await dialog.showOpenDialog(options);
+        if (result.canceled || result.filePaths[0] === undefined) return { canceled: true };
         imagesPath = result.filePaths[0];
       }
 

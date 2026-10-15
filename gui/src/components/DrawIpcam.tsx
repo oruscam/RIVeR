@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { useIpcamSlice } from '../hooks';
 import { OverlayLayers } from './OverlaySvg';
 import { drawIpcam, transformPointCoordinates } from './Graphs/drawIpcam';
+import { NOT_MAGNIFIER } from './Graphs/drawMagnifier';
 import { IpcamPoint } from '../store/ipcam/types';
 
 export const DrawIpcam = ({
@@ -12,6 +13,7 @@ export const DrawIpcam = ({
   scale,
   position,
   layers,
+  imageSrc,
 }: {
   width: number;
   height: number;
@@ -19,6 +21,7 @@ export const DrawIpcam = ({
   scale: number;
   position: { x: number; y: number };
   layers: OverlayLayers;
+  imageSrc: string;
 }) => {
   const {
     points,
@@ -50,7 +53,7 @@ export const DrawIpcam = ({
     const interactiveLayerSel = d3.select(interactiveLayerRef.current);
     const uiLayerSel = d3.select(uiLayerRef.current);
 
-    interactiveLayerSel.selectAll('*').remove();
+    interactiveLayerSel.selectAll(NOT_MAGNIFIER).remove();
 
     drawIpcam({
       layer: interactiveLayerSel,
@@ -58,6 +61,7 @@ export const DrawIpcam = ({
       localPoints,
       factor,
       scale,
+      position,
       width,
       height,
       activePoint,
@@ -65,6 +69,7 @@ export const DrawIpcam = ({
       onSetPointInStore: onSetPointPixelCoordinates,
       onSetActivePoint,
       cameraSolution,
+      imageSrc,
     });
     // onSetActivePoint/onSetPointPixelCoordinates are recreated every render; adding them would
     // clear and redraw the interactive layer on every parent re-render, interrupting an active drag
@@ -80,6 +85,7 @@ export const DrawIpcam = ({
     cameraSolution,
     interactiveLayerRef,
     uiLayerRef,
+    imageSrc,
   ]);
 
   useEffect(() => {

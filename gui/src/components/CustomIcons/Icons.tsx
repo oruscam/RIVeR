@@ -38,10 +38,15 @@ export const Icons = {
       extra={['M18 21H10a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2z']}
     />
   ),
+  Target: (c?: string) => (
+    <I color={c} d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" extra={['M12 2v3', 'M12 19v3', 'M2 12h3', 'M19 12h3']} />
+  ),
   Check: (c?: string) => <I color={c} d="M20 6L9 17l-5-5" />,
   Trash: (c?: string) => (
     <I color={c} d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6M10 11v6M14 11v6" />
   ),
+  Swap: (c?: string) => <I color={c} d="M8 3L4 7l4 4" extra={['M4 7h16', 'M16 21l4-4-4-4', 'M20 17H4']} />,
+  Undo: (c?: string) => <I color={c} d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" extra={['M3 3v5h5']} />,
   BoxSel: (c?: string) => (
     <svg
       width={21}

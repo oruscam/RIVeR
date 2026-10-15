@@ -1,14 +1,30 @@
-import { FormProvider, useForm } from 'react-hook-form';
-import { Carousel, Error, FocusOverlay, ImageOblique, Warning, WizardButtons } from '../components';
+import { FieldValues, FormProvider, useForm } from 'react-hook-form';
+import {
+  Carousel,
+  ModeHint,
+  StepAlertList,
+  Toast,
+  FocusOverlay,
+  ImageOblique,
+  WizardButtons,
+} from '../components';
 import { FormOblique } from '../components/Forms';
-import { useDataSlice, useGlobalSlice, useObliqueSlice, useProjectSlice, useUiSlice } from '../hooks';
+import {
+  useDataSlice,
+  useGlobalSlice,
+  useObliqueSlice,
+  useProjectSlice,
+  useUiSlice,
+  useFieldImage,
+} from '../hooks';
 import { useWizard } from 'react-use-wizard';
 import { useEffect, useMemo, useState } from 'react';
 import { handleDragLeave, handleDragOver } from '../helpers';
 import { Point } from '../types';
 import { FormHeader } from '../components/Forms/Components';
 import { useTranslation } from 'react-i18next';
-import { LockBtn } from '../components/CustomIcons/LockBtn';
+import { AdvancedToggle } from '../components/AdvancedToggle';
+import { StabilizationViewControl } from '../components/StabilizationViewControl';
 import { UNIT_CONVERSIONS } from '../constants/constants';
 
 const createDefaultState = (distances: any, coordinates: Point[], rwCoordinates: Point[], unitSistem?: string) => {
@@ -60,7 +76,7 @@ export const Oblique = () => {
   } = useObliqueSlice();
   const { isBackendWorking } = useGlobalSlice();
   const { projectDetails, projectDirectory, video } = useProjectSlice();
-  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
+  const { onAddStepAlert, onClearStepAlert, onSetModeHint, onClearModeHint } = useUiSlice();
   const { nextStep } = useWizard();
   const { t } = useTranslation();
   const { images } = useDataSlice();
@@ -79,8 +95,12 @@ export const Oblique = () => {
   const sanityCheckPath = `${filePrefix}${projectDirectory}/sanity_check.jpg?t=${sanityCheckCacheBust}`;
   const canToggleStabilization = video.parameters.committedStabilization;
 
+  // Undefined while the check is being painted with the theme's ramp: the
+  // canvas keeps a frame up for that instant.
+  const stabilizationSrc = useFieldImage(showStabilization ? sanityCheckPath : undefined);
+
   const activeImageSrc = showStabilization
-    ? sanityCheckPath
+    ? stabilizationSrc
     : images.paths.length > 0
       ? images.paths[activeFrame]
       : undefined;
@@ -90,15 +110,22 @@ export const Oblique = () => {
   });
 
   const onSubmit = () => {
+    onClearStepAlert('oblique-form-error');
     nextStep();
   };
 
-  const onError = (error: string) => {
-    onSetErrorMessage(error);
+  const onError = (errors: FieldValues) => {
+    const messages = Object.values(errors)
+      .map((value) => (value as { message?: string })?.message)
+      .filter((message): message is string => Boolean(message));
+    onAddStepAlert('oblique-form-error', 'error', messages.join(' '));
   };
 
   const onClickSolveButton = () => {
-    onGetObliqueTransformationMatrix(methods.getValues()).catch((error) => onSetErrorMessage(error.message));
+    onClearStepAlert('oblique-solve');
+    onGetObliqueTransformationMatrix(methods.getValues()).catch((error) =>
+      onAddStepAlert('oblique-solve', 'error', error.message)
+    );
   };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -110,7 +137,8 @@ export const Oblique = () => {
       const file = files[0];
       const path = window.webUtils.getPathForFile(file);
 
-      onGetDistances(path).catch((error) => onSetErrorMessage(error.message));
+      onClearStepAlert('oblique-import-distances');
+      onGetDistances(path).catch((error) => onAddStepAlert('oblique-import-distances', 'error', error.message));
     }
   };
 
@@ -126,16 +154,16 @@ export const Oblique = () => {
   // since dragging the square's corner during the initial draw sets both.
   useEffect(() => {
     if (drawPoints && isDefaultCoordinates) {
-      onSetWarningMessage(t('ControlPoints.drawingPointsWarning', { defaultValue: 'Drawing points' }));
-      return () => onClearWarningMessage();
+      onSetModeHint(t('ControlPoints.drawingPointsWarning', { defaultValue: 'Drawing points' }));
+      return () => onClearModeHint();
     }
 
     if (isDraggingPoint) {
-      onSetWarningMessage(t('ControlPoints.modifyingPointsWarning', { defaultValue: 'Modifying points' }));
-      return () => onClearWarningMessage();
+      onSetModeHint(t('ControlPoints.modifyingPointsWarning', { defaultValue: 'Modifying points' }));
+      return () => onClearModeHint();
     }
 
-    onClearWarningMessage();
+    onClearModeHint();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [drawPoints, isDefaultCoordinates, isDraggingPoint]);
 
@@ -143,6 +171,12 @@ export const Oblique = () => {
     <div className="regular-page">
       <div className="media-container">
         <ImageOblique imageSrc={activeImageSrc} />
+        {canToggleStabilization && (
+          <StabilizationViewControl
+            showStabilization={showStabilization}
+            onSetShowStabilization={setShowStabilization}
+          />
+        )}
         {images.paths.length > 0 && (
           <Carousel
             images={images.paths}
@@ -150,14 +184,10 @@ export const Oblique = () => {
             setActiveImage={setActiveFrame}
             showMedian={showStabilization}
             setShowMedian={setShowStabilization}
-            canToggleMedian={canToggleStabilization}
             mode="select"
           />
         )}
-        <div className="message-stack">
-          <Error />
-          <Warning />
-        </div>
+        <ModeHint />
       </div>
       <div
         className={`form-container ${dragOver ? 'drag-over' : ''}`}
@@ -166,21 +196,25 @@ export const Oblique = () => {
         onDrop={handleDrop}
       >
         <FormHeader title={t('ControlPoints.title')} showSections={false} />
+        <StepAlertList />
 
         <FormProvider {...methods}>
           <FormOblique onSubmit={methods.handleSubmit(onSubmit, onError)} onError={onError} />
         </FormProvider>
 
         <div className="footer">
-          <button
-            className="wizard-button form-button solver-button"
-            id="solve-oblique"
-            disabled={isDefaultCoordinates || isBackendWorking}
-            onClick={onClickSolveButton}
-          >
-            {t('Commons.solve')}
-          </button>
-          <LockBtn
+          <div className="processing-run">
+            <button
+              type="button"
+              className="btn btn-lg btn-primary"
+              id="solve-oblique"
+              disabled={isDefaultCoordinates || isBackendWorking}
+              onClick={onClickSolveButton}
+            >
+              {t('Commons.solve')}
+            </button>
+          </div>
+          <AdvancedToggle
             footerElementID="span-footer"
             headerElementID="draw-coordinates"
             disabled={coordinates[0].x === 0}
@@ -191,6 +225,7 @@ export const Oblique = () => {
         </div>
         <FocusOverlay active={(drawPoints && isDefaultCoordinates) || isDraggingPoint} />
       </div>
+      <Toast />
     </div>
   );
 };

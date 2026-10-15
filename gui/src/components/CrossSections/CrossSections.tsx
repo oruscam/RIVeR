@@ -7,6 +7,7 @@ import { useCallback, useEffect } from 'react';
 import { Section } from '../../store/section/types';
 import { useTranslation } from 'react-i18next';
 import { formatNumberTo2Decimals } from '../../helpers';
+import { hasMissingBathymetry } from '../../helpers/locatedBathymetry';
 import { UNIT_CONVERSIONS } from '../../constants/constants';
 
 const createInitialState = (sections: Section[], unitSistem: string) => {
@@ -47,8 +48,8 @@ type CrossSectionsProps = {
 
 export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSectionsProps) => {
   const { sections, activeSection, onSetSections, isDraggingPoint } = useSectionSlice(); // Wrap the sections variable inside an array
-  const { onSetErrorMessage, onSetWarningMessage, onClearWarningMessage } = useUiSlice();
-  const { type, projectDetails } = useProjectSlice();
+  const { onAddStepAlert, onClearStepAlert, onSetModeHint, onClearModeHint } = useUiSlice();
+  const { type, projectDetails, issues } = useProjectSlice();
 
   const methods = useForm({ defaultValues: createInitialState(sections, projectDetails.unitSistem) });
   const { nextStep } = useWizard();
@@ -71,17 +72,23 @@ export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSect
   );
 
   const onSubmit = (data: FieldValues) => {
+    onClearStepAlert('cross-sections-waiting-for-frames');
+    onClearStepAlert('cross-sections-form-error');
     if (images.paths.length === 0) {
-      onSetErrorMessage(t('Errors.waitingForFrames'));
+      onAddStepAlert('cross-sections-waiting-for-frames', 'error', t('Errors.waitingForFrames'));
       return;
     }
+    // The mask and the discharge need every bathymetry; its card is already on screen.
+    if (hasMissingBathymetry(issues)) return;
     onSetSections(data, type);
     nextStep();
   };
 
-  const onError = (errors: any) => {
-    console.log(errors);
-    onSetErrorMessage(errors);
+  const onError = (errors: FieldValues) => {
+    const messages = Object.values(errors)
+      .map((value) => (value as { message?: string })?.message)
+      .filter((message): message is string => Boolean(message));
+    onAddStepAlert('cross-sections-form-error', 'error', messages.join(' '));
   };
 
   // * Desregistra las secciones eliminadas
@@ -108,26 +115,26 @@ export const CrossSections = ({ deletedSections, setDeletedSections }: CrossSect
   // drag is in progress (isDraggingPoint is true then too).
   useEffect(() => {
     if (activeSectionData.drawLine) {
-      onSetWarningMessage(
+      onSetModeHint(
         t('CrossSections.drawingSectionWarning', {
           defaultValue: 'Drawing section {{name}}',
           name: activeSectionData.name,
         })
       );
-      return () => onClearWarningMessage();
+      return () => onClearModeHint();
     }
 
     if (isDraggingPoint) {
-      onSetWarningMessage(
+      onSetModeHint(
         t('CrossSections.modifyingSectionWarning', {
           defaultValue: 'Modifying section {{name}}',
           name: activeSectionData.name,
         })
       );
-      return () => onClearWarningMessage();
+      return () => onClearModeHint();
     }
 
-    onClearWarningMessage();
+    onClearModeHint();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeSectionData.drawLine, activeSectionData.name, isDraggingPoint]);
 

@@ -480,3 +480,24 @@ def compile_masks(
 # rect = patches.Rectangle((bbox[0],bbox[1]),bbox[2],bbox[3], linewidth=2, edgecolor='red', facecolor='none')
 # ax.add_patch(rect)
 # ax.add_patch(rect)
+
+
+def are_all_points_hidden(x: np.ndarray, y: np.ndarray, mask: np.ndarray) -> bool:
+	"""
+	Whether every point is hidden: outside the image or on a masked (0) pixel.
+
+	Args:
+		x (np.ndarray): Pixel x coordinates.
+		y (np.ndarray): Pixel y coordinates.
+		mask (np.ndarray): Binary mask (H, W), 1 = keep, 0 = masked.
+
+	Returns:
+		bool: True when no point lands on a kept pixel.
+	"""
+	h, w = mask.shape[:2]
+	xs = np.rint(np.asarray(x, dtype=float)).astype(int)
+	ys = np.rint(np.asarray(y, dtype=float)).astype(int)
+	inside = (xs >= 0) & (xs < w) & (ys >= 0) & (ys < h)
+	if not inside.any():
+		return True
+	return not bool(np.any(mask[ys[inside], xs[inside]] != 0))

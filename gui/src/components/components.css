@@ -1,36 +1,37 @@
-.theme-toggle {
-    font-size: 40px;
-    position: absolute;
-    right: 40px;
-    bottom: 25px;
-}
-
-#version-number {
-    margin-top: auto;
-    margin-bottom: 10px;
-    color: var(--secondary-text-color);
-    font-size: 20px;
-    font-weight: bold;
-}
-
 #version-block {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-bottom: 50px;
 }
 
 #version-message {
     display: flex;
+    align-items: center;
+    gap: 6px;
     color: var(--secondary-text-color);
-    font-size: 16px;
+    font-size: var(--text-meta);
     font-weight: bold;
+}
+
+#version-number {
+    font-weight: bold;
+}
+
+#version-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--status-good);
+}
+
+#version-dot[data-status="update"] {
+    background: var(--status-bad);
 }
 
 #source-offer {
     margin-top: 4px;
     color: var(--secondary-text-color);
-    font-size: 13px;
+    font-size: var(--text-caption);
     font-weight: normal;
     text-decoration: underline;
     cursor: pointer;
@@ -42,7 +43,7 @@
 }
 
 #version-message p {
-    margin-right: 5px;
+    margin: 0 5px 0 0;
 }
 
 #version-message a {
@@ -67,7 +68,7 @@
 .language-selector-select {
     background-color: transparent;
     border: none;
-    font-size: 18px;
+    font-size: var(--text-section);
     color: var(--primary-text-color);
 }
 
@@ -89,7 +90,7 @@
     height: 98%;
     width: 70%;
     background-color: var(--secondary-background-color);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     margin-right: 5px;
     display: flex;
     flex-direction: column;
@@ -134,7 +135,7 @@
     width: 30%;
     margin-top: 8px;
     margin-bottom: 5px;
-    font-size: 20px;
+    font-size: var(--text-subtitle);
     font-weight: 500;
     margin-left: 20px;
 }
@@ -154,7 +155,6 @@
     --seekbar-thumb-size: 15px;
     --seekbar-height: 12px;
     --seekbar-parent-height: var(--seekbar-thumb-size);
-    --border-radius: 2px;
 
     height: var(--seekbar-parent-height);
     position: relative;
@@ -173,7 +173,7 @@
     display: block;
     height: var(--seekbar-height);
     width: 100%;
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-sm);
     background-color: var(--bg-track-color);
     pointer-events: none;
     transform: translateY(-50%);
@@ -188,7 +188,7 @@
     height: var(--seekbar-height);
     background-color: var(--buffered-track-color);
     width: var(--buffer, 0);
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-sm);
     pointer-events: 0;
     transform: translateY(-50%);
 }
@@ -202,7 +202,7 @@
     height: var(--seekbar-height);
     background-color: var(--progress-track-color);
     width: var(--progress, 0);
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-sm);
     pointer-events: 0;
     transform: translateY(-50%);
 }
@@ -227,14 +227,14 @@
     opacity: 0;
     width: 60px;
     height: 30px;
-    font-size: 18px;
+    font-size: var(--text-section);
     left: var(--progress, 0);
     bottom: 5px;
     position: absolute;
     transform: translate(-50%, -50%);
     z-index: 7;
     pointer-events: 0;
-    border-radius: 5px;
+    border-radius: var(--radius-sm);
     text-align: center;
 
 }
@@ -247,30 +247,6 @@
     opacity: 1;
 }
 
-
-/* Stacks Error/Info/Warning on top of each other (instead of one after another)
-   so a higher-priority banner (e.g. error) can overlap a persistent one
-   (e.g. warning) for a few seconds without pushing it out of the layout. */
-.message-stack {
-    position: relative;
-    width: 100%;
-    min-height: 35px;
-    margin-top: auto;
-}
-
-.message-stack .error,
-.message-stack .info,
-.message-stack .warning {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    margin-top: 0;
-}
-
-.message-stack .error { z-index: 3; }
-.message-stack .warning { z-index: 2; }
-.message-stack .info { z-index: 1; }
 
 /* Generic "focus mode" overlay: place inside any position:relative container
    (e.g. .form-container) and toggle .focus-overlay-active to blur/dim its
@@ -296,248 +272,12 @@
     -webkit-backdrop-filter: blur(14px);
 }
 
-.error {
-    background-color: var(--background-error);
-    width: 100%;
-    min-height: 35px;
-    height: auto;
-    margin-top: auto;
-    border-bottom-right-radius: 20px;
-    border-bottom-left-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: first baseline;
-    padding: 5px;
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
-.error-text {
-    margin-left: 25px;
-    font-size: 18px;
-    font-weight: bold;
-    margin-top: 1px;
-    height: auto;
-}
-
-.info {
-    background-color: var(--success-color);
-    width: 100%;
-    min-height: 35px;
-    height: auto;
-    margin-top: auto;
-    border-bottom-right-radius: 20px;
-    border-bottom-left-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: first baseline;
-    padding: 5px;
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
-.info-text {
-    margin-left: 25px;
-    font-size: 18px;
-    font-weight: bold;
-    font-style: normal;
-    margin-top: 1px;
-    height: auto;
-}
-
-.warning {
-    background-color: var(--d14);
-    width: 100%;
-    min-height: 35px;
-    height: auto;
-    margin-top: auto;
-    border-bottom-right-radius: 20px;
-    border-bottom-left-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: first baseline;
-    padding: 5px;
-    overflow-x: hidden;
-    overflow-y: hidden;
-}
-
-.warning-text {
-    margin-left: 25px;
-    font-size: 18px;
-    font-weight: bold;
-    font-style: normal;
-    margin-top: 1px;
-    height: auto;
-}
-
 .image-with-marks {
     margin: auto 0;
 }
 
 .image-rectification-3d {
     background-color: var(--background-color);
-}
-
-/* LOADER */
-
-/* MID  */
-
-.loader-container-mid {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    align-items: center;
-    width: 100%;
-    user-select: none;
-}
-
-.loader-wrapper-mid {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 80px;
-    height: 80px;
-    margin-bottom: 40px;
-}
-
-.loader-mid {
-    border: 10px solid var(--primary-text-color);
-    border-radius: 50%;
-    border-top: 10px solid var(--secondary-background-color);
-    width: 80px;
-    height: 80px;
-    animation: spin 1.5s linear infinite;
-}
-
-.loader-percentage-mid {
-    position: absolute;
-    font-size: 1.2em;
-    color: var(--primary-text-color);
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-/* BIG */
-
-.loader-container-big {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    height: 100%;
-    align-items: center;
-    width: 100%;
-}
-
-.loader-wrapper-big {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 160px;
-    height: 160px;
-}
-
-.loader-big {
-    border: 12px solid var(--primary-text-color);
-    border-radius: 50%;
-    border-top: 12px solid var(--secondary-background-color);
-    width: 120px;
-    height: 120px;
-    animation: spin 1.5s linear infinite;
-}
-
-.loader-percentage-big {
-    position: absolute;
-    font-size: 1.8em;
-    font-weight: bold;
-    color: var(--primary-text-color);
-}
-
-.loader-complete-big {
-    animation: none;
-    border: 12px solid var(--success-color);
-    border: 12px solid var(--primary-text-color);
-}
-
-.loader-remaining-time {
-    font-size: 1.6em !important;
-    font-weight: 500;
-}
-
-@keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
-
-    100% {
-        transform: rotate(360deg);
-    }
-}
-
-
-.progress-indicator-container {
-    position: absolute;
-    top: 15px;
-    width: 90%;
-    height: 10px;
-    display: flex;
-    justify-content: space-between;
-    flex-shrink: 0;
-}
-
-.progress-indicator {
-    background-color: var(--secondary-input-background);
-    width: auto;
-    min-width: 56px;
-    height: 10px;
-    border-radius: 5px;
-    max-width: 65px;
-}
-
-.progress-indicator-active {
-    background-color: var(--primary-text-color);
-}
-
-/* * PROVISIONAL  */
-.info-icon {
-    font-size: 30px;
-    margin-left: 10px;
-    margin-top: 5px;
-    font-weight: bold;
-    top: 150px;
-    left: 10px;
-    transition: transform 0.1s ease;
-}
-
-.info-icon:hover {
-    cursor: pointer;
-    transform: scaleX(1.1);
-    transform: scaleY(1.1);
-}
-
-.info-animation {
-    position: relative;
-    position: absolute;
-    top: 180px;
-    width: 150px;
-    height: 100px;
-    z-index: 10;
-}
-
-.info-gif {
-    width: 100%;
-    height: 100%;
-    border-radius: 5px;
 }
 
 .carousel-resize-handle {
@@ -555,7 +295,7 @@
     width: 36px;
     height: 3px;
     background: var(--border-color);
-    border-radius: 2px;
+    border-radius: var(--radius-full);
     transition: background 0.15s;
 }
 
@@ -608,16 +348,17 @@
 }
 
 .carousel-info input {
-    font-size: 1.5rem;
+    font-family: var(--font-display);
+    font-size: var(--text-title);
     background-color: var(--input-background);
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     width: 85px;
     border: none;
     color: var(--primary-text-color);
     text-align: end;
     padding-right: 5px;
     margin-right: 5px;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .carousel-info input:focus {
@@ -625,18 +366,9 @@
 }
 
 .carousel-info p {
-    font-size: 1.5rem;
-}
-
-.carousel-input {
-    width: 50px;
-    text-align: end;
-    margin-right: 5px;
-    font-weight: bold;
-    font-size: 1.8rem;
-    color: var(--primary-text-color);
-    background-color: transparent;
-    border: none;
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 700;
 }
 
 .img-carousel-active,
@@ -653,9 +385,8 @@
 }
 
 /* STI strips are far wider than they are tall, so inside the fixed row height that
-   react-window sets inline they render at the top while .img-water-mark (top: 45%)
-   and the carousel arrows sit near the middle — three different vertical positions.
-   Centring the strip puts all three on one line.
+   react-window sets inline they render at the top while the carousel arrows sit
+   near the middle. Centring the strip aligns it with the arrows.
    The base class is compounded on deliberately: .img-carousel-container sets
    display: inline-block at the same specificity, and relying on source order to win
    would break the moment either rule moves. */
@@ -672,7 +403,7 @@
 .img-carousel {
     width: 98%;
     height: auto;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     z-index: 1;
 }
 
@@ -682,35 +413,21 @@
 
 .img-water-mark {
     position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 50px;
-    font-weight: 900;
-    color: var(--overlay-text-color);
-    width: 100%;
-    text-align: center;
+    top: 6px;
+    left: 6px;
+    font-size: var(--text-body);
+    font-weight: 700;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.92);
+    background: rgba(0, 0, 0, 0.55);
+    border-radius: var(--radius-full);
+    padding: 3px 8px;
     white-space: nowrap;
     /* Must out-stack .img-carousel's z-index: 1. That z-index is inert while the
        container is inline-block (it applies only to positioned elements), but the
        STI carousel's container is a flex box, where z-index DOES apply to flex
-       items — so without this the thumbnail paints over the station number. */
+       items — so without this the thumbnail paints over the badge. */
     z-index: 2;
-}
-
-.img-water-mark-ipcam {
-    position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--overlay-text-color);
-    width: 100%;
-    text-align: center;
-    white-space: normal;
-    word-wrap: break-word;
-    padding: 0 10px;
 }
 
 .image-with-data-container {
@@ -726,7 +443,10 @@
     -ms-user-select: none;
 }
 
-.image-with-data-container:first-child {
+.image-with-data-container:first-child,
+/* Processing renders PreviewModeControl (.seg-float) ahead of the image, so
+   :first-child alone no longer matches there. */
+.seg-float + .image-with-data-container {
     position: relative;
     width: 100%;
     height: 100%;
@@ -761,7 +481,7 @@
     gap: 8px;
     background-color: var(--colorbar-bg);
     padding: 4px 6px;
-    border-radius: 15px;
+    border-radius: var(--radius-lg);
     z-index: 1000;
     min-width: 200px;
     max-width: 500px;
@@ -771,12 +491,12 @@
     background-color: transparent;
     border: none;
     color: var(--primary-text-color);
-    font-size: 20px;
+    font-size: var(--text-subtitle);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 4px;
-    border-radius: 8px;
+    border-radius: var(--radius-md);
 }
 
 .colorbar-container button:hover {
@@ -790,22 +510,44 @@
 }
 
 .colorbar {
+    position: relative;
     flex: 1;
     height: 14px;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
+    cursor: crosshair;
 }
 
-#colorbar-label {
-    font-weight: 400;
-    font-size: 1.3rem;
+.colorbar-marker {
+    position: absolute;
+    top: -4px;
+    bottom: -4px;
+    width: 2px;
+    background: #fff;
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7);
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.colorbar-marker span {
+    position: absolute;
+    bottom: 19px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    color: var(--pin-ink);
+    font-weight: 700;
+    font-size: 10.5px; /* scale-exception: colour-bar tick label drawn against the bar, not panel text */
+    padding: 1px 5px;
+    border-radius: var(--radius-sm);
+    white-space: nowrap;
 }
 
 .colorbar-input {
     background-color: transparent;
     color: var(--primary-text-color);
     border: none;
-    border-radius: 8px;
-    font-size: 18px;
+    border-radius: var(--radius-md);
+    font-size: var(--text-section);
     width: 60px;
     text-align: center;
 }
@@ -818,16 +560,19 @@
     background-color: var(--input-background);
 }
 
-.colorbar-labels {
-    display: flex;
-    gap: 8px;
-    color: var(--primary-text-color);
-    font-size: 14px;
-}
-
 .colorbar-unit-label {
     color: var(--primary-text-color);
-    font-size: 12px;
+    font-size: var(--text-caption);
+    white-space: nowrap;
+}
+
+.colorbar-manual-badge {
+    font-weight: 600;
+    font-size: 10.5px; /* scale-exception: colour-bar badge sized to sit inside the bar */
+    color: var(--primary-text-color);
+    box-shadow: inset 0 0 0 1px var(--primary-text-color);
+    border-radius: var(--radius-sm);
+    padding: 1px 6px;
     white-space: nowrap;
 }
 
@@ -859,19 +604,138 @@
     overflow-y: auto;
     overflow-x: hidden;
     flex-shrink: 0;
-    border-radius: 10px;
+    border-radius: var(--radius-md);
     border: 1px solid var(--border-color);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
+/* IPCAM GRID (preview 2026-10-09). The control points table sits on the panel
+   section's width with the quiet chrome of the row grammar: no shadow, a
+   caption header, tabular numbers on the right. Scoped to this table; the
+   Results grid keeps the .grid look. */
 #ipcam-grid {
-    max-height: 450px;
-    width: 95%;
+    /* Out to the row inset on both sides: at the 400px minimum panel the six
+       columns need those 16px to fit without a horizontal scrollbar. */
+    width: auto;
+    max-height: none;
+    margin: var(--space-3) calc(var(--space-2) * -1) 0;
+    overflow: hidden;
+    box-shadow: none;
 }
 
 #ipcam-grid .grid {
-    block-size: 400px;
+    block-size: clamp(190px, 34vh, 400px);
+    --rdg-font-size: var(--text-caption);
+    --rdg-header-background-color: var(--grid-header-bg);
+    font-variant-numeric: tabular-nums;
 }
+
+#ipcam-grid .grid .rdg-header-row {
+    border-bottom: 1px solid var(--border-color);
+    font-size: var(--text-caption);
+    font-weight: 600;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--text-subdued);
+}
+
+#ipcam-grid .rdg-cell {
+    padding-inline: var(--space-1);
+    border-inline-end: 0;
+    border-block-end: 0;
+}
+
+#ipcam-grid .cp-cell-num {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+#ipcam-grid .cp-cell-label {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+}
+
+#ipcam-grid .cp-cell-select {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 0;
+}
+
+/* The header's sort control: the header text itself, as a button. */
+#ipcam-grid .cp-sort {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#ipcam-grid .cp-sort[aria-pressed="true"],
+#ipcam-grid .cp-sort:hover {
+    color: var(--text-primary);
+}
+
+#ipcam-grid .cp-sort:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* A grade dot before a fair or bad error; a good one carries none. */
+#ipcam-grid .cp-err {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+
+#ipcam-grid .cp-err-fair::before,
+#ipcam-grid .cp-err-bad::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+}
+
+#ipcam-grid .cp-err-fair::before {
+    background-color: var(--status-fair);
+}
+
+#ipcam-grid .cp-err-bad::before {
+    background-color: var(--status-bad);
+}
+
+/* The active point: an accent tint and bar, the same point ringed on the
+   frame. color-mix, not a surface token: the surfaces collapse in light and
+   dracula. */
+#ipcam-grid .rdg-row.cp-row-active .rdg-cell {
+    background-color: color-mix(in srgb, var(--accent-color) 16%, transparent);
+}
+
+#ipcam-grid .rdg-row.cp-row-active .rdg-cell:first-child {
+    box-shadow: inset 2px 0 0 var(--accent-color);
+}
+
+/* A point left out of the solve keeps its values, subdued. */
+#ipcam-grid .rdg-row.cp-row-off .rdg-cell {
+    color: var(--text-subdued);
+}
+
+#ipcam-grid .cp-table-foot {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px var(--space-2);
+    border-top: 1px solid var(--border-color);
+    font-size: var(--text-caption);
+    font-variant-numeric: tabular-nums;
+    color: var(--text-subdued);
+}
+/* END IPCAM GRID */
 
 .grid {
     width: 100%;
@@ -912,7 +776,7 @@
     height: 100%;
     text-align: center;
     background-color: inherit;
-    font-size: 0.85rem;
+    font-size: var(--text-body);
     color: inherit;
     letter-spacing: 0.02em;
 }
@@ -944,9 +808,15 @@
     font-style: italic;
 }
 
+.cell-low-quality {
+    color: var(--secondary-text-color);
+    text-decoration: line-through;
+    opacity: 0.7;
+}
+
 .header-subtech {
     display: block;
-    font-size: 0.65rem;
+    font-size: var(--text-caption);
     font-weight: 500;
     text-transform: none;
     color: var(--accent-color);
@@ -965,7 +835,7 @@
 /* Header accent border */
 .grid .rdg-header-row {
     border-bottom: 2px solid var(--accent-color);
-    font-size: 0.8rem;
+    font-size: var(--text-meta);
     font-weight: 600;
     letter-spacing: 0.06em;
     text-transform: uppercase;
@@ -983,25 +853,6 @@
 
 .point-label-cell {
     cursor: pointer;
-}
-
-.selected {
-    background-color: red;
-}
-
-.highlighted-row {
-    background-color: yellow;
-    /* Puedes cambiar el color según tus necesidades */
-}
-
-.points-map {
-    /* This map always has a white background regardless of theme (it's a map/chart canvas) */
-    background-color: #ffffff;
-}
-
-#error-message-link {
-    color: var(--primary-text-color);
-    font-weight: bold;
 }
 
 .header-fixed {
@@ -1082,7 +933,7 @@
     display: flex;
     align-items: flex-start;
     padding: 25px 50px 30px 10px;
-    border-radius: 20px;
+    border-radius: var(--radius-xl);
     gap: 10px;
     word-wrap: break-word;
     overflow-wrap: break-word;
@@ -1121,7 +972,9 @@
 }
 
 .success-banner-title {
-    font-size: 1.4rem;
+    font-family: var(--font-display);
+    font-size: var(--text-title);
+    font-weight: 700;
     margin: 0;
     color: var(--primary-text-color);
 }
@@ -1167,7 +1020,7 @@
 .sti-frame {
     position: relative;
     overflow: hidden;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     background: var(--background-color);
 }
 
@@ -1185,32 +1038,177 @@
     pointer-events: none;
 }
 
-/* Box style (background, border, padding, radius) and font come from
-   .velocity-readout, shared with the PIV arrow tooltip. Only placement and the
-   multi-line layout are specific to the badge. */
-.sti-badge {
+/* READOUT STRIP — what the active station gave, on one line resting on the
+   plot and exactly as wide as it (the viewer sets the width). STIV and iWave
+   share it: station, then label/value pairs, then whatever is specific to the
+   view pushed to the far end. It replaces the card that was docked beside the
+   plot, which cost the plot a quarter of the canvas. */
+.readout-strip {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    flex: none;
+    box-sizing: border-box;
+    height: 28px;
+    padding: 0 var(--space-3);
+    border: 1px solid var(--input-background);
+    border-radius: var(--radius-md);
+    background: var(--secondary-background-color);
+    color: var(--primary-text-color);
+    font-size: var(--text-caption);
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.readout-strip-title {
+    flex: none;
+    font-size: var(--text-meta);
+    font-weight: 600;
+}
+
+.readout-strip-item {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+    flex: none;
+}
+
+.readout-strip-item > span,
+.readout-strip-item > i {
+    color: var(--secondary-text-color);
+}
+
+.readout-strip-item > b {
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+/* The station's colour on the bar below — the colour its bars over the STI,
+   or its vector on the frame, are drawn in. The value beside it stays in text
+   ink. */
+.readout-swatch {
+    display: inline-block;
+    align-self: center;
+    width: 10px;
+    height: 10px;
+    border-radius: var(--radius-sm);
+    flex: none;
+}
+
+.readout-strip-flag {
+    flex: none;
+    color: var(--secondary-text-color);
+}
+
+/* The one part that gives way on a narrow plot: it takes what is left and
+   ends in an ellipsis, with the full sentence in its title. */
+.readout-strip-note {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+    color: var(--secondary-text-color);
+}
+
+.readout-strip-warn {
+    color: var(--status-fair);
+}
+
+/* POINT TIP — the values of the one thing under the cursor, read beside it: a
+   vector of the LSPIV field, a cell of an iWave spectrum. A grid of label and
+   value, in the station tag's surface. */
+.point-tip {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    line-height: 1.5;
-    /* A readout, not a target — otherwise it would swallow the pointer over its
-       corner of the angle overlay. */
+    z-index: 1000;
+    display: grid;
+    grid-template-columns: auto auto;
+    gap: 2px var(--space-3);
+    align-items: baseline;
+    box-sizing: border-box;
+    padding: 6px 10px;
+    border: 1px solid var(--input-background);
+    border-radius: var(--radius-md);
+    background: var(--secondary-background-color);
+    box-shadow: 0 6px 18px var(--canvas-chrome-shadow);
+    color: var(--primary-text-color);
+    font-size: var(--text-caption);
+    white-space: nowrap;
     pointer-events: none;
 }
 
-/* The angle's warning mark. .sti-badge is pointer-events:none so it never
-   swallows a pan; the mark opts back in so its tooltip is reachable. */
-.sti-badge-warn {
-    color: var(--warning-color);
-    pointer-events: auto;
-    cursor: help;
+.point-tip > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--secondary-text-color);
+}
+
+.point-tip > b {
+    text-align: right;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
+}
+
+/* LSPIV's vector tip. Streamwise is the component the discharge is computed
+   from, so it alone is in primary ink and weight, with the vector's colour
+   beside it; the position and the crosswise component recede. A hairline
+   parts where the vector is from what it measured. */
+.point-tip > .point-tip-key {
+    color: var(--primary-text-color);
+    font-weight: 600;
+}
+
+.point-tip > .point-tip-rule {
+    grid-column: 1 / -1;
+    height: 1px;
+    margin: 3px 0;
+    background: var(--input-background);
+}
+
+.point-tip > .point-tip-minor {
+    color: var(--secondary-text-color);
 }
 
 .sti-empty {
     color: var(--secondary-text-color);
-    font-size: 13px;
+    font-size: var(--text-meta);
     text-align: center;
     padding: 40px 0;
+}
+
+/* A station the run skipped (masked, dry, no fit): a quiet tile in the strip,
+   same footprint as an image so the strip keeps its rhythm. Carousel.tsx sets
+   aspect-ratio inline from the strip's own images (STIs are wide, spectra
+   tall, and both vary per project); 5 / 1 is only the fallback for a strip
+   with no image at all. max-height keeps a tall spectrum's ratio inside the
+   row, the way the row clips the spectra themselves; min-height keeps room
+   for the label on a very thin STI. It sits in the footage strip, not the app
+   chrome, so it takes the theme-invariant --canvas-chrome pair:
+   --secondary-text-color is a dark grey in light theme and would vanish on
+   that dark fill. */
+.img-carousel-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 5 / 1;
+    max-height: 100%;
+    min-height: calc(var(--text-meta) * 2);
+    color: var(--canvas-chrome-ink);
+    font-size: var(--text-meta);
+    text-align: center;
+    background: var(--canvas-chrome);
+}
+
+/* The strip dims every tile but the selected one with brightness(0.42), which
+   would take this label below a readable contrast. So the placeholder is not
+   filtered; it recedes through its label instead, kept at 65% of the chrome
+   ink (about 5:1 on the chrome fill), and the selected one keeps full ink plus
+   the accent border. Four class-level parts against the dimming rule's three,
+   so it out-ranks that rule wherever either one sits. */
+.img-carousel.img-carousel-empty:not(.img-carousel-active):not(.img-carousel-second) {
+    filter: none;
+    color: color-mix(in srgb, var(--canvas-chrome-ink) 65%, transparent);
 }
 
 /* STIV angle tuner — the bars over the STI, and the slider row that drives them.
@@ -1240,9 +1238,9 @@
     background: transparent;
     border: 1px solid var(--border-color);
     color: var(--primary-text-color);
-    border-radius: 3px;
+    border-radius: var(--radius-sm);
     padding: 3px 9px;
-    font-size: 12px;
+    font-size: var(--text-caption);
     white-space: nowrap;
     cursor: pointer;
 }
@@ -1256,61 +1254,346 @@
     cursor: default;
 }
 
-/* iWave spectrum preview — reuses .sti-viewer / .sti-frame / .sti-overlay /
-   .sti-badge from the STI viewer, and adds the axis labels and curve legend
-   that are specific to a spectrum. */
-.iwave-frame {
+/* iWave spectrum preview — the plot (one or two wavenumber-frequency panels
+   on a shared frequency axis) dressed in the chrome the other canvases use:
+   the station's readout strip resting on the panels, and the colour bar
+   bottom-right. Nothing sits on the data but the fitted curves, the hover
+   crosshair and the tip beside it. */
+.spectrum-viewer {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+/* The strip and the plot as one column, and the box the cell tip is placed in. */
+.spectrum-stage {
     position: relative;
+    flex-shrink: 0;
+}
+
+.spectrum-plot {
+    display: block;
+    flex-shrink: 0;
+    cursor: crosshair;
+}
+
+.spectrum-ground {
+    fill: var(--spectrum-0);
 }
 
 .iwave-spectrum-image {
-    display: block;
     /* The spectrum is a data image; smoothing would invent structure that is
        not in the underlying array. */
     image-rendering: pixelated;
 }
 
-.iwave-plot {
-    position: relative;
-    display: inline-block;
-    /* Room for the axis labels, which must sit OUTSIDE .sti-frame because
-       that element clips its overflow to keep STI angle lines contained. */
-    padding: 0 0 20px 16px;
+.spectrum-frame {
+    fill: none;
+    stroke: var(--readout-border);
+    stroke-width: 1;
 }
 
-.iwave-axis {
-    position: absolute;
-    font-size: 11px;
-    color: var(--secondary-text-color);
+/* Frequency gridlines and the k = 0 line: ink at low strength, so they read
+   on the ground and on the ridge without competing with either. */
+.spectrum-grid {
+    stroke: var(--spectrum-2);
+    stroke-opacity: 0.12;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+}
+
+/* Axis text as on the Results charts: ticks at body size in primary ink, the
+   quantity larger with its unit smaller and dimmed beside it. */
+.spectrum-tick {
+    font-size: var(--text-body);
+    font-variant-numeric: tabular-nums;
+    fill: var(--primary-text-color);
+}
+
+.spectrum-axis-title {
+    fill: var(--primary-text-color);
+}
+
+.spectrum-axis-symbol {
+    font-size: var(--text-subtitle);
+    font-style: italic;
+}
+
+.spectrum-axis-sub {
+    font-size: var(--text-body);
+    font-style: italic;
+}
+
+.spectrum-axis-unit {
+    font-size: var(--text-body);
+    opacity: 0.7;
+}
+
+/* The fitted curves take iWave's colour. They run along the ridge, where the
+   ramp is at its strongest, so each is cased in the ground colour: the casing
+   is what keeps the curve legible over the densest cells in every theme. */
+.spectrum-curve {
+    fill: none;
+    stroke: var(--tech-iwave);
+    stroke-width: 2;
+    stroke-linejoin: round;
+}
+
+.spectrum-curve-casing {
+    fill: none;
+    stroke: var(--spectrum-0);
+    stroke-width: 4.5;
+    stroke-opacity: 0.85;
+    stroke-linejoin: round;
+}
+
+.spectrum-crosshair line {
+    stroke: var(--primary-text-color);
+    stroke-opacity: 0.55;
+    stroke-width: 1;
+    stroke-dasharray: 2 3;
+    shape-rendering: crispEdges;
     pointer-events: none;
 }
 
-.iwave-axis-x {
-    bottom: 0;
-    left: calc(50% + 8px);
-    transform: translateX(-50%);
+/* The spectrum's cell tip: two label/value pairs to a row, so five values
+   take three short rows beside the crosshair. */
+.point-tip.spectrum-tip {
+    grid-template-columns: auto auto auto auto;
 }
 
-.iwave-axis-y {
-    left: 0;
-    top: calc(50% - 10px);
-    transform: translateY(-50%) rotate(-90deg);
-    transform-origin: center;
+.point-tip.spectrum-tip > b {
+    padding-right: var(--space-2);
 }
 
-.iwave-legend {
-    position: absolute;
-    left: 8px;
-    bottom: 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    font-size: 11px;
-    padding: 4px 8px;
+/* k's axis subscript must not push its row taller than the others. */
+.spectrum-tip sub {
+    line-height: 0;
 }
 
-.iwave-legend span {
-    display: flex;
+.readout-strip-curves {
+    display: inline-flex;
+    gap: var(--space-1);
+    flex: 0 1 auto;
+    min-width: 0;
+    margin-left: auto;
+    margin-right: -6px;
+}
+
+/* A curve's switch names it, gives its energy share, and hides it to look at
+   the ridge under it. Its name is what shortens on a narrow plot. */
+.spectrum-curve-toggle {
+    display: inline-flex;
     align-items: center;
     gap: 6px;
+    flex: 0 1 auto;
+    min-width: 44px;
+    height: 22px;
+    padding: 0 6px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--primary-text-color);
+    font-family: inherit;
+    font-size: inherit;
+    cursor: pointer;
+    transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+.spectrum-curve-toggle > svg {
+    flex: none;
+}
+
+.spectrum-curve-toggle > span {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.spectrum-curve-toggle > b {
+    flex: none;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.spectrum-curve-toggle:hover {
+    background: var(--input-background);
+}
+
+.spectrum-curve-toggle:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: -2px;
+}
+
+.spectrum-curve-toggle[aria-pressed="false"] {
+    opacity: 0.45;
+}
+
+.spectrum-colorbar {
+    background: linear-gradient(to right, var(--spectrum-0), var(--spectrum-1), var(--spectrum-2));
+    box-shadow: inset 0 0 0 1px var(--readout-border);
+}
+
+/* The lower limit is always zero, so it is text in the field's place, not a
+   field. */
+.spectrum-colorbar-zero {
+    flex: none;
+    width: 28px;
+}
+
+.spectrum-colorbar-zero:hover {
+    background-color: transparent;
+}
+
+/* =============================================================================
+   TECHNIQUE ROW (shared shell — Results' TechniqueLegend + Processing's
+   FormProcessing render through the TechniqueRow component onto this box).
+   Screen-specific extras (Results: .technique-name/.technique-row-total/
+   .technique-layer-chip family, .technique-eye-btn in
+   Graphs/graphs.css; Processing: .technique-seed-flag, cursor/disabled/
+   unavailable modifiers and .field-title in Forms/form.css) stay in their own
+   files — only the row box and the swatch are shared.
+   ============================================================================= */
+.technique-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    transition: background-color 0.14s ease;
+}
+
+.technique-row:hover {
+    background-color: var(--on-hover);
+}
+
+/* Active row keeps its own technique colour (set inline by each caller) and
+   gains a background instead of recolouring text — see techniqueActiveColor
+   .test.ts. */
+.technique-row.technique-row-active {
+    background-color: var(--surface-field);
+}
+
+.technique-row-hidden {
+    opacity: 0.4;
+}
+
+.technique-swatch {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* Compound with .technique-swatch (not a bare class) so shape always wins
+   over the base rule's border-radius:50% regardless of rule order. */
+.technique-swatch.technique-swatch-lspiv {
+    border-radius: 50%;
+}
+
+.technique-swatch.technique-swatch-stiv {
+    border-radius: 2px; /* scale-exception: swatch shape is the technique marker, circle versus rounded square versus square */
+}
+
+.technique-swatch.technique-swatch-iwave {
+    border-radius: 0;
+    clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+
+.mask-toolbar {
+    position: absolute;
+    display: flex;
+    gap: 2px;
+    background: var(--canvas-chrome);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: var(--radius-full);
+    padding: 3px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    z-index: 10;
+}
+
+.mask-toolbar-btn {
+    border: 0;
+    background: transparent;
+    color: #fff;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-full);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color var(--motion-fast) var(--motion-ease);
+}
+
+.mask-toolbar-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.mask-toolbar-btn:disabled {
+    opacity: 0.38;
+    cursor: not-allowed;
+}
+
+.mask-toolbar-btn-danger:hover {
+    color: var(--status-bad);
+}
+
+.mask-toolbar-btn-done {
+    color: var(--status-good);
+}
+
+.carousel-frame-pair-caption {
+    align-self: center;
+    margin-bottom: 6px;
+    font-size: var(--text-caption);
+    color: var(--secondary-text-color);
+}
+/* Layer chips on Processing's Frames canvas (hide/unhide section, STIV lines,
+   vectors). Same translucent chrome as .seg-float; a hidden layer dims. */
+.overlay-layers {
+  position: absolute;
+  z-index: 5;
+  top: var(--space-3);
+  right: var(--space-3);
+  display: inline-flex;
+  gap: var(--space-1);
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background: var(--canvas-chrome);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px var(--canvas-chrome-shadow);
+}
+
+.overlay-layer {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-full);
+  background-color: transparent;
+  color: var(--canvas-chrome-ink);
+  font-family: inherit;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: opacity var(--motion-fast) var(--motion-ease);
+}
+
+.overlay-layer[aria-pressed='false'] {
+  opacity: 0.45;
+}
+
+.overlay-layer-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  flex: none;
 }

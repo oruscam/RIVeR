@@ -5,12 +5,12 @@ import { useProjectSlice, useSectionSlice, useUiSlice } from '../../hooks';
 import { createDischargeChart } from './dischargeSvg';
 import { createVelocityChart, VelocitySeries } from './velocitySvg';
 import { bathimetrySvg } from './bathimetrySvg';
-import { GRAPHS, TECHNIQUE_COLORS, UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
+import { GRAPHS, UNIT_CONVERSIONS } from '../../constants/constants';
+import { getTechniqueColors } from '../../helpers/getCSSVar';
 import { adapterBathimetry, getEffectiveTechniqueData } from '../../helpers';
+import { hasBathymetryProfile } from '../../helpers/locatedBathymetry';
 import { generateXAxisTicks } from '../../helpers/graphsHelpers';
 import { Technique } from '../../store/section/types';
-import { t } from 'i18next';
-import { getThemedHost } from '../../helpers/themedHost';
 
 /**
  * * Version 0.0.1
@@ -20,21 +20,6 @@ import { getThemedHost } from '../../helpers/themedHost';
 
 const TECHNIQUE_ORDER: Technique[] = ['lspiv', 'stiv', 'iwave'];
 const TECHNIQUE_LABEL: Record<Technique, string> = { lspiv: 'LSPIV', stiv: 'STIV', iwave: 'iWave' };
-
-function getOrCreateTooltip(): d3.Selection<HTMLDivElement, unknown, HTMLElement, any> {
-  let el = d3.select<HTMLDivElement, unknown>('.combined-chart-tooltip');
-  if (el.empty()) {
-    // Appended to the themed host, not <body>: the app's CSS custom properties
-    // are declared on [data-theme] (a div inside body), so a tooltip parented to
-    // body falls outside that scope and its var()-driven background and border
-    // resolve to nothing. See helpers/themedHost.ts.
-    el = d3
-      .select(getThemedHost())
-      .append('div')
-      .attr('class', 'velocity-tooltip graph-tooltip-text combined-chart-tooltip') as any;
-  }
-  return el;
-}
 
 export const AllInOne = ({
   width,
@@ -52,7 +37,7 @@ export const AllInOne = ({
   const section = sections[index !== undefined ? index : activeSection];
   const { data, bathimetry, name, activeTechnique, interpolated, artificialSeeding, alpha } = section;
   const { level, x1Intersection, x2Intersection, width: bathWidth, wetSegments } = bathimetry;
-  const { screenSizes, theme, language, hoveredStation, onSetHoveredStation } = useUiSlice();
+  const { screenSizes, theme, language, hoveredStation, onSetHoveredStation, onPinStation } = useUiSlice();
   const { projectDetails, video } = useProjectSlice();
   const { unitSistem } = projectDetails;
   const { width: screenWidth } = screenSizes;
@@ -65,6 +50,8 @@ export const AllInOne = ({
   useEffect(() => {
     d3.select(svgRef.current).selectAll('*').remove();
     if (svgRef.current === null) return;
+    // A section whose bathymetry file is missing has no profile to draw (nor a meaningful x scale).
+    if (!hasBathymetryProfile(bathimetry)) return;
 
     if (data) {
       const svg = d3.select(svgRef.current);
@@ -150,6 +137,8 @@ export const AllInOne = ({
         iwave: data.showIwave !== false,
       };
 
+      const technique = getTechniqueColors();
+
       const series: VelocitySeries[] = TECHNIQUE_ORDER.filter((key) => visibility[key])
         .map((key): VelocitySeries | null => {
           const effective = getEffectiveTechniqueData(data, key, techOptions);
@@ -163,12 +152,13 @@ export const AllInOne = ({
             i,
             quality: key === 'iwave' ? (data.iwave_quality_profile?.[i] ?? null) : null,
             tuned: effective.tunedFlags[i],
+            rejectedV: effective.lowQualityFlags[i] ? effective.profile[i] : null,
           }));
 
           const s: VelocitySeries = {
             key,
             label: TECHNIQUE_LABEL[key],
-            color: TECHNIQUE_COLORS[key],
+            color: technique[key],
             isActive,
             points,
           };
@@ -214,84 +204,29 @@ export const AllInOne = ({
         xScaleAllInOne: xScale,
         isReport,
         unitSistem,
+        hoveredStation,
+        stationDistances: shiftedDistance,
+        stationStage: shiftedDistance.map((_, i) => (level ?? 0) - data.depth[i]),
       });
 
-      // ---- Unified hover: one overlay spanning all three panels, one combined tooltip
-      // (Q + every visible velocity + stage), instead of a tooltip per chart. ----
+      // ---- Unified hover: one overlay spanning all three panels, driving
+      // uiSlice.hoveredStation/pinnedStation. The readout itself (Q + every
+      // visible velocity + stage) is rendered by the docked StationTag, not here. ----
       if (!isReport) {
-        const isImperial = unitSistem === 'imperial';
-        const velocityFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
-        const flowFactor = isImperial ? UNIT_CONVERSIONS.M3_TO_FT3 : 1;
-        const lengthFactor = isImperial ? UNIT_CONVERSIONS.M_TO_FT : 1;
-        const unitLabel = isImperial ? UNITS.IMPERIAL.VELOCITY : UNITS.SI.VELOCITY;
-        const flowUnit = isImperial ? UNITS.IMPERIAL.FLOW : UNITS.SI.FLOW;
-        const lengthUnit = isImperial ? UNITS.IMPERIAL.LONGITUDE : UNITS.SI.LONGITUDE;
-        const formatValue = d3.format('.3f');
-        const tooltip = getOrCreateTooltip();
-
-        const showTooltip = (i: number, clientX: number, clientY: number) => {
-          const rows = series
-            .map((s) => {
-              const p = s.points.find((pt) => pt.i === i);
-              if (!p) return '';
-              const valueText = p.v === null ? '—' : `${formatValue(p.v * velocityFactor)} ${unitLabel}`;
-              const dotColor = s.isActive ? 'var(--primary-text-color)' : s.color;
-              return `<div class="velocity-tooltip-row${s.isActive ? ' velocity-tooltip-row-active' : ''}">
-                <span class="velocity-tooltip-dot" style="background:${dotColor}"></span>
-                <span class="velocity-tooltip-label" style="color:${dotColor}">${s.label}</span>
-                <span class="velocity-tooltip-val">${valueText}</span>
-              </div>`;
-            })
-            .join('');
-          const qVal = activeQ[i];
-          const stageVal = (level ?? 0) - data.depth[i];
-          // Share of the section's total discharge, from the same resolved
-          // computation the bars are drawn from.
-          const qShare = activeEffective?.Q_portion?.[i];
-          const qShareText =
-            qShare !== null && qShare !== undefined && isFinite(qShare)
-              ? `  ·  ${(qShare * 100).toFixed(1)}%`
-              : '';
-          const qText =
-            qVal !== null && qVal !== undefined
-              ? `${(qVal * flowFactor).toFixed(3)} ${flowUnit}${qShareText}`
-              : '—';
-          tooltip
-            .html(
-              `<div class="velocity-tooltip-head">${t('Graphs.station')} ${i + 1}</div>
-              <div class="velocity-tooltip-row">
-                <span class="velocity-tooltip-dot" style="background:var(--primary-text-color)"></span>
-                <span class="velocity-tooltip-label">${t('Graphs.discharge')}</span>
-                <span class="velocity-tooltip-val">${qText}</span>
-              </div>
-              ${rows}
-              <div class="velocity-tooltip-row">
-                <span class="velocity-tooltip-dot" style="background:var(--secondary-text-color)"></span>
-                <span class="velocity-tooltip-label">${t('Graphs.stage')}</span>
-                <span class="velocity-tooltip-val">${(stageVal * lengthFactor).toFixed(2)} ${lengthUnit}</span>
-              </div>`
-            )
-            .style('display', 'block');
-
-          // Place it only after the content is in and visible, so the measured
-          // box is the real one. The tooltip is position:fixed, so clientX/Y and
-          // window bounds are the same coordinate space. Flip to the pointer's
-          // left (and clamp vertically) rather than letting it run off the
-          // window edge, which hid it entirely near the right border.
-          const GAP = 14;
-          const EDGE = 8;
-          const node = tooltip.node() as HTMLElement | null;
-          const box = node?.getBoundingClientRect();
-          const tw = box?.width ?? 0;
-          const th = box?.height ?? 0;
-          let left = clientX + GAP;
-          if (left + tw > window.innerWidth - EDGE) left = clientX - tw - GAP;
-          left = Math.max(EDGE, Math.min(left, window.innerWidth - tw - EDGE));
-          let top = clientY - 10;
-          top = Math.max(EDGE, Math.min(top, window.innerHeight - th - EDGE));
-          tooltip.style('left', `${left}px`).style('top', `${top}px`);
+        const findNearestStation = (event: MouseEvent): number => {
+          const [mx] = d3.pointer(event, svg.node());
+          const x0 = xScale.invert(mx);
+          let idx = 0;
+          let best = Infinity;
+          shiftedDistance.forEach((d, i) => {
+            const diff = Math.abs(d - x0);
+            if (diff < best) {
+              best = diff;
+              idx = i;
+            }
+          });
+          return idx;
         };
-        const hideTooltip = () => tooltip.style('display', 'none');
 
         svg
           .append('rect')
@@ -303,28 +238,19 @@ export const AllInOne = ({
           .attr('fill', 'transparent')
           .style('cursor', 'crosshair')
           .on('mousemove', function (event) {
-            const [mx] = d3.pointer(event, svg.node());
-            const x0 = xScale.invert(mx);
-            let idx = 0,
-              best = Infinity;
-            shiftedDistance.forEach((d, i) => {
-              const diff = Math.abs(d - x0);
-              if (diff < best) {
-                best = diff;
-                idx = i;
-              }
-            });
-            onSetHoveredStation(idx);
-            showTooltip(idx, event.clientX, event.clientY);
+            onSetHoveredStation(findNearestStation(event));
           })
           .on('mouseleave', () => {
             onSetHoveredStation(null);
-            hideTooltip();
+          })
+          .on('click', function (event) {
+            onPinStation(findNearestStation(event));
           });
       }
     }
-    // onChangeDataValues is recreated every render but only ever changes together with `data`
-    // (already tracked); adding it directly would redraw this chart on every unrelated re-render
+    // onSetHoveredStation/onPinStation are recreated every render by useUiSlice but only ever
+    // change together with the state they close over (already tracked); adding them directly
+    // would redraw this chart on every unrelated re-render
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     activeSection,

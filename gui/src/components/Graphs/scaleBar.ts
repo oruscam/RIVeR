@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { UNIT_CONVERSIONS, UNITS } from '../../constants/constants';
+import { scaleBarLabel } from './pointsMapFormat';
 
 export const scaleBar = (
   extent: number[],
@@ -9,7 +10,9 @@ export const scaleBar = (
   clipPath: string,
   marginLeft: number,
   marginTop: number,
-  unitSistem?: string
+  unitSistem?: string,
+  /** 'image' sits on an orthoimage (UAV, Oblique); 'panel' is the fixed-station map, styled from CSS. */
+  variant: 'image' | 'panel' = 'image'
 ) => {
   // extent/scales live in SI (m). The bar geometry is chosen in SI so the on-screen
   // length stays identical across unit systems; only the *label* is converted to
@@ -40,21 +43,28 @@ export const scaleBar = (
     scaleBarGroup.attr('clip-path', `url(#${clipPath})`);
   }
 
-  scaleBarGroup
+  const rect = scaleBarGroup
     .append('rect')
     .attr('x', marginLeft + xScale(xPos))
     .attr('y', marginTop + yScale(yPos))
     .attr('width', xScale(scaleLength) - xScale(0))
-    .attr('height', yScale(0) - yScale(barHeight))
-    .attr('fill', 'white')
-    .attr('stroke', 'black');
+    .attr('height', yScale(0) - yScale(barHeight));
 
-  scaleBarGroup
+  const text = scaleBarGroup
     .append('text')
     .classed('scale-bar-text', true)
     .attr('x', marginLeft + xScale(xPos + scaleLength / 2))
     .attr('y', marginTop + yScale(yPos) - 10)
-    .attr('text-anchor', 'middle')
+    .attr('text-anchor', 'middle');
+
+  if (variant === 'panel') {
+    rect.classed('scale-bar-panel', true);
+    text.classed('scale-bar-panel', true).text(scaleBarLabel(scaleLength * displayFactor, unitLabel));
+    return;
+  }
+
+  rect.attr('fill', 'white').attr('stroke', 'black');
+  text
     .style('font-size', '14px')
     .attr('fill', 'white')
     .attr('font-weight', 'bold')
