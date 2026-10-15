@@ -221,3 +221,6 @@ skills-lock.json
 .impeccable/
 audit-output/
 PRODUCT.md
+
+# Superpowers plans/specs (local AI workflow docs)
+gui/docs/superpowers/
