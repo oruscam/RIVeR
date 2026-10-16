@@ -89,10 +89,8 @@ def _natural_sort_key(s):
 
 
 def _collect_frames(frames_dir: str) -> list[str]:
-	p = Path(frames_dir)
-	frames = []
-	for ext in ("*.jpg", "*.JPG", "*.jpeg", "*.JPEG"):
-		frames.extend(str(f) for f in p.glob(ext))
+	# Suffix check, not one glob per case: Windows globs ignore case, so "*.jpg" and "*.JPG" listed every frame twice.
+	frames = [str(f) for f in Path(frames_dir).iterdir() if f.is_file() and f.suffix.lower() in (".jpg", ".jpeg")]
 	frames.sort(key=_natural_sort_key)
 	return frames
 

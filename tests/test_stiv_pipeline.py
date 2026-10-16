@@ -522,3 +522,12 @@ def test_run_stiv_analysis_without_mask_has_no_skips():
 			step=3, fps=30.0, id_section=0, height_roi_m=0.4,
 		)
 	assert result["CS_default_1"]["stiv_skip_profile"] == [None, None, None]
+
+
+def test_collect_frames_lists_each_frame_once(tmp_path):
+	# Mixed-case suffixes; a per-case glob listed each frame twice on Windows.
+	for name in ("frame_10.jpg", "frame_2.JPG", "frame_1.jpeg", "notes.txt"):
+		(tmp_path / name).write_bytes(b"")
+	(tmp_path / "sub.jpg").mkdir()
+	frames = sp._collect_frames(str(tmp_path))
+	assert [os.path.basename(f) for f in frames] == ["frame_1.jpeg", "frame_2.JPG", "frame_10.jpg"]
