@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+# [3.8.1] - 2026-10-16
+
+## CLI
+
+### Fixed
+
+- iWave failed on Windows: numba could not load rocket-fft's FFT module, so every run continued without iWave
+- STIV and iWave read every frame twice on Windows, which skewed their velocities
+
+
 # [3.8.0] - 2026-10-15
 
 ## GUI
