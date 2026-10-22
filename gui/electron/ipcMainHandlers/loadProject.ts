@@ -10,7 +10,6 @@ import { parsedCameraSolution } from './utils/parsedCameraSolution';
 import { sanitizeNonStandardJsonTokens } from './utils/sanitizeJson';
 import { resolveProjectFolder } from './utils/resolveProjectFolder';
 import { pivResultsPath } from './utils/pivResultsPath';
-import { resetProjectPaths } from './utils/resetProjectPaths';
 import { prepareProject } from './utils/prepareProject';
 import { videoMetadataFromSettings } from './utils/videoFallback';
 import { PROJECT_CONFIG } from '../main';
@@ -61,7 +60,6 @@ function populateProjectConfig(
   settingsPath: string,
   settingsParsed: any
 ) {
-  resetProjectPaths(PROJECT_CONFIG);
   PROJECT_CONFIG.projectDirectory = folderPath;
   PROJECT_CONFIG.settingsPath = settingsPath;
   PROJECT_CONFIG.framesPath = path.join(folderPath, 'frames');

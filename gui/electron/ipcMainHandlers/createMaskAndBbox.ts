@@ -15,8 +15,8 @@ async function createMaskAndBbox(riverCli: RiverCli) {
       await clearCrossSections(xsectionsPath);
     }
 
-    if (resultsPath) {
-      await clearResultsPiv(resultsPath, settingsPath);
+    if (resultsPath !== undefined || resultsPath !== '') {
+      clearResultsPiv(resultsPath, settingsPath);
     }
 
     const maskAndBboxArgs = [

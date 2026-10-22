@@ -3,7 +3,6 @@ import { createFolderStructure } from './createFolderStructure';
 import { join, dirname } from 'path';
 import { getVideoMetadata } from './utils/getVideoMetadata';
 import { PROJECT_CONFIG } from '../main';
-import { resetProjectPaths } from './utils/resetProjectPaths';
 import { withInterval } from '../../commons/framesSource';
 
 /** A frames folder described in the shape getVideoMetadata returns for a video. */
@@ -60,7 +59,6 @@ function initProject() {
           frames ? { count: frames.count, intervalMs: frames.intervalMs } : undefined
         );
 
-        resetProjectPaths(PROJECT_CONFIG);
         PROJECT_CONFIG.projectDirectory = directory;
         PROJECT_CONFIG.type = type;
         PROJECT_CONFIG.videoPath = path;
