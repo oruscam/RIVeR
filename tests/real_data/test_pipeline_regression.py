@@ -18,7 +18,7 @@ from tests.real_data.helpers import (
     mean_abs_diff,
 )
 
-pytestmark = pytest.mark.realdata
+pytestmark = [pytest.mark.realdata, pytest.mark.portable]
 
 
 def test_frames_extracted(workspace):
@@ -34,9 +34,10 @@ def test_frames_match_reference(workspace):
         assert diff < 1.0, f"{name} differs from the reference frame (mean abs diff {diff:.2f})"
 
 
-def test_transformation_matrix(workspace):
-    if workspace.dataset.kind == "3d":
-        pytest.skip("3D matrix is built by the GUI; covered by test_camera_solution_3d")
+# Not 3D: its matrix is built by the GUI (covered by test_camera_solution_3d).
+@pytest.mark.parametrize("key", ["oblique", "uav"])
+def test_transformation_matrix(workspaces, key):
+    workspace = workspaces(key)
     actual = load_json(workspace.workdir / "transformation_matrix.json")
     expected = load_json(workspace.ref / "transformation_matrix.json")
     assert_close(actual, expected, "transformation matrix", rtol=1e-6)

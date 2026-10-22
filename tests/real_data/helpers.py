@@ -26,8 +26,15 @@ from typing import Any, Optional
 
 import numpy as np
 
-DATA_DIR = Path(os.environ.get("RIVER_TEST_DATA", "~/Documents/Datos-River")).expanduser()
-REFERENCE_DIR = Path(os.environ.get("RIVER_TEST_REFERENCE", "~/River")).expanduser()
+# Portable bundle (see scripts/pack_test_data.py): its manifest.json replaces
+# both directories and the dataset table below. Used by the multi-OS smoke CI.
+MANIFEST = Path(os.environ["RIVER_TEST_MANIFEST"]).expanduser() if os.environ.get("RIVER_TEST_MANIFEST") else None
+
+if MANIFEST:
+    DATA_DIR = REFERENCE_DIR = MANIFEST.parent
+else:
+    DATA_DIR = Path(os.environ.get("RIVER_TEST_DATA", "~/Documents/Datos-River")).expanduser()
+    REFERENCE_DIR = Path(os.environ.get("RIVER_TEST_REFERENCE", "~/River")).expanduser()
 
 # Relative tolerance when comparing against reference results. The same code on
 # the same machine reproduces them bit for bit; the slack only absorbs
@@ -65,6 +72,16 @@ DATASETS = {
 
 # Run that also produced STIV and iWave profiles (needs torch + iwave installed).
 UAV_ALL_METHODS = Dataset("uav_all_methods", "uav", "uav/Yanuncay_CS1.mp4", "Yanuncay_CS1/20260828T0921")
+
+if MANIFEST:
+    _manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    DATASETS = {key: Dataset(key=key, **entry) for key, entry in _manifest["datasets"].items()}
+    _all = _manifest.get("all_methods")
+    # Missing entry -> unavailable dataset, so the STIV/iWave test skips (or fails with --fail-on-skip).
+    UAV_ALL_METHODS = (
+        Dataset(key="uav_all_methods", **_all) if _all
+        else Dataset("uav_all_methods", "uav", "missing", "missing")
+    )
 
 
 # --------------------------------------------------------------------------- CLI
@@ -144,11 +161,12 @@ class Workspace:
         return self.frames / "0000000000.jpg"
 
 
-def _bathymetry_source(ref_xsections: dict) -> Path:
+def _bathymetry_source(ref_xsections: dict, ref_dir: Path) -> Path:
     section = next(v for k, v in ref_xsections.items() if k != "summary")
     bath = Path(section["bath"])
-    # Older runs stored an absolute path; fall back to the same file name in the run dir.
-    return bath
+    # Runs store an absolute path from the machine that made them; fall back to
+    # the same file name in the run dir (always the case in the portable bundle).
+    return bath if bath.is_absolute() and bath.exists() else ref_dir / bath.name
 
 
 def build_workspace(ds: Dataset, workdir: Path, all_methods: bool = False) -> Workspace:
@@ -205,7 +223,7 @@ def build_workspace(ds: Dataset, workdir: Path, all_methods: bool = False) -> Wo
     # geometry and bathymetry) without its computed summary, pointing at a local copy.
     xs = load_json(ds.ref_dir / "xsections.json")
     xs.pop("summary", None)
-    bath_src = _bathymetry_source(xs)
+    bath_src = _bathymetry_source(xs, ds.ref_dir)
     bath_dst = workdir / bath_src.name
     shutil.copy(bath_src, bath_dst)
     for section in xs.values():

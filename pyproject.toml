@@ -149,4 +149,5 @@ push = true
 markers = [
     "realdata: needs real field data and reference results (opt-in with --realdata)",
     "slow: takes several minutes",
+    "portable: runs on the portable test-data bundle alone (multi-OS smoke CI)",
 ]

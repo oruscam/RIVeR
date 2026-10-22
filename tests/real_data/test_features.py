@@ -104,6 +104,7 @@ def test_stabilization_requires_regions(tmp_path):
 
 # --------------------------------------------------------------- coordinate transforms
 
+@pytest.mark.portable
 def test_pixel_world_roundtrip_uav(workspaces):
     ws = workspaces("uav")
     matrix = ws.workdir / "transformation_matrix.json"
@@ -125,6 +126,7 @@ def test_pixel_world_roundtrip_uav(workspaces):
         assert back == pytest.approx([px, py], abs=1e-3)
 
 
+@pytest.mark.portable
 def test_oblique_matrix_reproduces_surveyed_distances(workspaces):
     ws = workspaces("oblique")
     matrix = np.array(load_json(ws.workdir / "transformation_matrix.json"))
@@ -143,6 +145,7 @@ def test_oblique_matrix_reproduces_surveyed_distances(workspaces):
         assert measured[k] * scale == pytest.approx(d[k], rel=0.02), k
 
 
+@pytest.mark.portable
 def test_camera_solution_3d_matches_reference(workspaces):
     ws = workspaces("3d")
     actual = ws.responses["camera_solution"]["data"]
@@ -156,6 +159,7 @@ def test_camera_solution_3d_matches_reference(workspaces):
 
 # ------------------------------------------------------------------------------ PIV
 
+@pytest.mark.portable
 def test_piv_test_matches_first_pair(workspace):
     """piv-test (the GUI's preview) must equal the first pair of the full analysis."""
     frames = sorted(workspace.frames.glob("*.jpg"))
@@ -176,6 +180,7 @@ def test_piv_test_matches_first_pair(workspace):
     assert_close(preview["v"], full["v"][0], "preview v", atol=1e-3)
 
 
+@pytest.mark.portable
 def test_piv_without_clahe_differs_but_stays_close(workspaces):
     """Turning CLAHE off must change the vectors slightly, not wreck them."""
     ws = workspaces("oblique")
@@ -260,6 +265,7 @@ def test_camera_calibration_matches_reference(camera, tmp_path):
     assert response["data"]
 
 
+@pytest.mark.portable
 def test_write_charuco_board(tmp_path):
     out = tmp_path / "board.png"
     run_cli("write-charuco-board", "--output", out, "--board", "20x15")
@@ -283,6 +289,7 @@ def test_undistorted_frames_use_calibration_profile(tmp_path):
 
 # ----------------------------------------------------------------------- STIV + iWave
 
+@pytest.mark.portable
 def test_stiv_and_iwave_match_reference(tmp_path):
     """PIV + STIV + iWave in one run (needs torch and iwave, see pyproject)."""
     pytest.importorskip("torch")
