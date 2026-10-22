@@ -11,6 +11,7 @@ import numpy as np
 import pytest
 
 from tests.real_data.helpers import (
+    CROSS_PLATFORM,
     DATA_DIR,
     REFERENCE_DIR,
     RTOL,
@@ -153,7 +154,7 @@ def test_camera_solution_3d_matches_reference(workspaces):
     assert_close(actual["camera_matrix"], expected["camera_matrix"], "camera matrix", rtol=1e-3)
     # 1e-4: the solver lands ~1 cm apart across OSes (BLAS/LAPACK builds).
     assert_close(actual["camera_position"], expected["camera_position"], "camera position", rtol=1e-4)
-    assert actual["error"] == pytest.approx(expected["error"], rel=RTOL)
+    assert actual["error"] == pytest.approx(expected["error"], rel=1e-2 if CROSS_PLATFORM else RTOL)
     assert_close(actual["reprojection_errors"], expected["reprojection_errors"], "reprojection errors", rtol=1e-2, atol=1e-3)
     assert (ws.workdir / "ortho_image.png").exists()
 

@@ -41,6 +41,11 @@ else:
 # FFT/BLAS differences between machines and library versions.
 RTOL = float(os.environ.get("RIVER_TEST_RTOL", "1e-3"))
 
+# Set by the multi-OS smoke CI: references come from one CPU (ARM) and are compared
+# on others (x86), where float rounding moves PIV by a few cells and discharge by
+# ~0.2%. Velocity-derived results then use the looser checks below; geometry stays exact.
+CROSS_PLATFORM = os.environ.get("RIVER_TEST_CROSS_PLATFORM") == "1"
+
 
 @dataclass(frozen=True)
 class Dataset:
@@ -131,6 +136,31 @@ def assert_close(actual, expected, what: str, rtol: float = RTOL, atol: float = 
     a, e = as_array(actual), as_array(expected)
     assert a.shape == e.shape, f"{what}: shape {a.shape} != reference {e.shape}"
     np.testing.assert_allclose(a, e, rtol=rtol, atol=atol, equal_nan=True, err_msg=what)
+
+
+def assert_similar_field(actual, expected, what: str, tol_px: float = 0.05) -> None:
+    """Cross-platform PIV field check: most cells agree, a few outliers may not."""
+    a, e = as_array(actual), as_array(expected)
+    assert a.shape == e.shape, f"{what}: shape {a.shape} != reference {e.shape}"
+    valid_agree = float(np.mean(np.isfinite(a) == np.isfinite(e)))
+    assert valid_agree >= 0.9, f"{what}: valid/NaN cells agree on only {valid_agree:.1%}"
+    both = np.isfinite(a) & np.isfinite(e)
+    d = np.abs(a[both] - e[both])
+    close = float(np.mean(d < tol_px))
+    assert np.median(d) < tol_px, f"{what}: median |diff| {np.median(d):.4f} px >= {tol_px}"
+    assert close >= 0.5, f"{what}: only {close:.1%} of cells within {tol_px} px"
+    assert abs(a[both].mean() - e[both].mean()) <= 0.02 * abs(e[both].mean()) + 0.01, f"{what}: mean differs"
+
+
+def assert_similar_profile(actual, expected, what: str, rel: float = 0.10) -> None:
+    """Cross-platform station profile check: each station within rel, plus 2% of the peak."""
+    a, e = as_array(actual), as_array(expected)
+    assert a.shape == e.shape, f"{what}: shape {a.shape} != reference {e.shape}"
+    assert np.array_equal(np.isfinite(a), np.isfinite(e)), f"{what}: different stations are NaN"
+    ok = np.isfinite(e)
+    tol = rel * np.abs(e[ok]) + 0.02 * np.max(np.abs(e[ok]))
+    worst = float(np.max(np.abs(a[ok] - e[ok]) - tol))
+    assert worst <= 0, f"{what}: a station exceeds the tolerance by {worst:.4f}"
 
 
 def mean_abs_diff(img_a: Path, img_b: Path) -> float:

@@ -10,9 +10,12 @@ import numpy as np
 import pytest
 
 from tests.real_data.helpers import (
+    CROSS_PLATFORM,
     RTOL,
     as_array,
     assert_close,
+    assert_similar_field,
+    assert_similar_profile,
     first_section,
     load_json,
     mean_abs_diff,
@@ -67,6 +70,10 @@ def test_piv_vectors(workspace):
     assert len(actual["u"]) == len(expected["u"]), "different number of frame pairs"
     for key in ("x", "y"):
         assert_close(actual[key], expected[key], f"piv grid {key}", rtol=1e-9)
+    if CROSS_PLATFORM:
+        for key in ("u_median", "v_median"):
+            assert_similar_field(actual[key], expected[key], f"piv {key}")
+        return
     for key in ("u_median", "v_median"):
         assert_close(actual[key], expected[key], f"piv {key}", atol=1e-3)
     # Per-pair vectors: compare the aggregate and the worst-case deviation.
@@ -80,15 +87,22 @@ def test_piv_vectors(workspace):
 def test_discharge_summary(workspace):
     actual = first_section(load_json(workspace.workdir / "xsections.json"))
     expected = first_section(load_json(workspace.ref / "xsections.json"))
-    for key in ("total_Q", "total_A", "total_W", "mean_V", "mean_Vs", "max_depth", "average_depth"):
+    for key in ("total_A", "total_W", "max_depth", "average_depth"):  # geometry: exact everywhere
         assert actual[key] == pytest.approx(expected[key], rel=RTOL), key
+    for key in ("total_Q", "mean_V", "mean_Vs"):  # from PIV: ~0.2% across CPUs
+        assert actual[key] == pytest.approx(expected[key], rel=0.01 if CROSS_PLATFORM else RTOL), key
 
 
 def test_discharge_profiles(workspace):
     actual = first_section(load_json(workspace.workdir / "xsections.json"))
     expected = first_section(load_json(workspace.ref / "xsections.json"))
-    for key in ("streamwise_velocity_magnitude", "Q", "A", "depth", "check"):
+    for key in ("A", "depth", "check"):  # geometry and user flags: exact everywhere
         assert_close(actual[key], expected[key], f"profile {key}", atol=1e-6)
+    for key in ("streamwise_velocity_magnitude", "Q"):  # from PIV
+        if CROSS_PLATFORM:
+            assert_similar_profile(actual[key], expected[key], f"profile {key}")
+        else:
+            assert_close(actual[key], expected[key], f"profile {key}", atol=1e-6)
 
 
 def test_discharge_is_physical(workspace):

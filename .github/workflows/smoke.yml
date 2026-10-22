@@ -107,6 +107,9 @@ jobs:
           echo "RIVER_TEST_MANIFEST=$RUNNER_TEMP/test-data/river-test-data/manifest.json" >> "$GITHUB_ENV"
 
       - name: Regression vs. reference results
+        env:
+          # References are made on ARM (macOS); x86 rounds slightly differently.
+          RIVER_TEST_CROSS_PLATFORM: '1'
         run: |
           "$PY" -m pytest tests/real_data --realdata --fail-on-skip -m portable \
             -ra --durations=10 -p no:cacheprovider
