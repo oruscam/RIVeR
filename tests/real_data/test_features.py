@@ -11,6 +11,7 @@ import numpy as np
 import pytest
 
 from tests.real_data.helpers import (
+    CROSS_PLATFORM,
     DATA_DIR,
     REFERENCE_DIR,
     RTOL,
@@ -104,6 +105,7 @@ def test_stabilization_requires_regions(tmp_path):
 
 # --------------------------------------------------------------- coordinate transforms
 
+@pytest.mark.portable
 def test_pixel_world_roundtrip_uav(workspaces):
     ws = workspaces("uav")
     matrix = ws.workdir / "transformation_matrix.json"
@@ -125,6 +127,7 @@ def test_pixel_world_roundtrip_uav(workspaces):
         assert back == pytest.approx([px, py], abs=1e-3)
 
 
+@pytest.mark.portable
 def test_oblique_matrix_reproduces_surveyed_distances(workspaces):
     ws = workspaces("oblique")
     matrix = np.array(load_json(ws.workdir / "transformation_matrix.json"))
@@ -143,22 +146,29 @@ def test_oblique_matrix_reproduces_surveyed_distances(workspaces):
         assert measured[k] * scale == pytest.approx(d[k], rel=0.02), k
 
 
+@pytest.mark.portable
 def test_camera_solution_3d_matches_reference(workspaces):
     ws = workspaces("3d")
     actual = ws.responses["camera_solution"]["data"]
     expected = load_json(ws.ref / "camera_solution_3d.json")
     assert_close(actual["camera_matrix"], expected["camera_matrix"], "camera matrix", rtol=1e-3)
-    assert_close(actual["camera_position"], expected["camera_position"], "camera position", rtol=1e-6)
-    assert actual["error"] == pytest.approx(expected["error"], rel=RTOL)
-    assert_close(actual["reprojection_errors"], expected["reprojection_errors"], "reprojection errors", rtol=1e-2, atol=1e-3)
+    # 1e-4: the solver lands ~1 cm apart across OSes (BLAS/LAPACK builds).
+    assert_close(actual["camera_position"], expected["camera_position"], "camera position", rtol=1e-4)
+    assert actual["error"] == pytest.approx(expected["error"], rel=1e-2 if CROSS_PLATFORM else RTOL)
+    # Per-point errors are 2-40 px; across CPUs the iterative solver moves them up to ~0.4 px.
+    assert_close(
+        actual["reprojection_errors"], expected["reprojection_errors"], "reprojection errors",
+        rtol=1e-2, atol=1.0 if CROSS_PLATFORM else 1e-3,
+    )
     assert (ws.workdir / "ortho_image.png").exists()
 
 
 # ------------------------------------------------------------------------------ PIV
 
+@pytest.mark.portable
 def test_piv_test_matches_first_pair(workspace):
     """piv-test (the GUI's preview) must equal the first pair of the full analysis."""
-    frames = sorted(workspace.frames.glob("*.jpg"))
+    frames = sorted(workspace.inputs.glob("*.jpg"))
     proc = workspace.settings["processing"]
     args = [
         "piv-test", "--bbox", workspace.workdir / "bbox.json", "--mask", workspace.workdir / "mask.npy",
@@ -176,11 +186,12 @@ def test_piv_test_matches_first_pair(workspace):
     assert_close(preview["v"], full["v"][0], "preview v", atol=1e-3)
 
 
+@pytest.mark.portable
 def test_piv_without_clahe_differs_but_stays_close(workspaces):
     """Turning CLAHE off must change the vectors slightly, not wreck them."""
     ws = workspaces("oblique")
     proc = ws.settings["processing"]
-    first, second = sorted(ws.frames.glob("*.jpg"))[:2]
+    first, second = sorted(ws.inputs.glob("*.jpg"))[:2]
     base = [
         "piv-test", "--bbox", ws.workdir / "bbox.json", "--mask", ws.workdir / "mask.npy",
         "--interrogation-area-1", proc["interrogation_area_1"], "--interrogation-area-2", proc["interrogation_area_2"],
@@ -260,6 +271,7 @@ def test_camera_calibration_matches_reference(camera, tmp_path):
     assert response["data"]
 
 
+@pytest.mark.portable
 def test_write_charuco_board(tmp_path):
     out = tmp_path / "board.png"
     run_cli("write-charuco-board", "--output", out, "--board", "20x15")
@@ -283,6 +295,7 @@ def test_undistorted_frames_use_calibration_profile(tmp_path):
 
 # ----------------------------------------------------------------------- STIV + iWave
 
+@pytest.mark.portable
 def test_stiv_and_iwave_match_reference(tmp_path):
     """PIV + STIV + iWave in one run (needs torch and iwave, see pyproject)."""
     pytest.importorskip("torch")

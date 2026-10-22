@@ -10,15 +10,18 @@ import numpy as np
 import pytest
 
 from tests.real_data.helpers import (
+    CROSS_PLATFORM,
     RTOL,
     as_array,
     assert_close,
+    assert_similar_field,
+    assert_similar_profile,
     first_section,
     load_json,
     mean_abs_diff,
 )
 
-pytestmark = pytest.mark.realdata
+pytestmark = [pytest.mark.realdata, pytest.mark.portable]
 
 
 def test_frames_extracted(workspace):
@@ -31,12 +34,15 @@ def test_frames_match_reference(workspace):
     names = sorted(p.name for p in workspace.frames.glob("*.jpg"))
     for name in (names[0], names[len(names) // 2], names[-1]):
         diff = mean_abs_diff(workspace.frames / name, workspace.ref / "frames" / name)
-        assert diff < 1.0, f"{name} differs from the reference frame (mean abs diff {diff:.2f})"
+        # < 3 grey levels: decoders/JPEG encoders differ ~1 level across OSes; a wrong
+        # frame, resize or colour order gives far more.
+        assert diff < 3.0, f"{name} differs from the reference frame (mean abs diff {diff:.2f})"
 
 
-def test_transformation_matrix(workspace):
-    if workspace.dataset.kind == "3d":
-        pytest.skip("3D matrix is built by the GUI; covered by test_camera_solution_3d")
+# Not 3D: its matrix is built by the GUI (covered by test_camera_solution_3d).
+@pytest.mark.parametrize("key", ["oblique", "uav"])
+def test_transformation_matrix(workspaces, key):
+    workspace = workspaces(key)
     actual = load_json(workspace.workdir / "transformation_matrix.json")
     expected = load_json(workspace.ref / "transformation_matrix.json")
     assert_close(actual, expected, "transformation matrix", rtol=1e-6)
@@ -64,6 +70,10 @@ def test_piv_vectors(workspace):
     assert len(actual["u"]) == len(expected["u"]), "different number of frame pairs"
     for key in ("x", "y"):
         assert_close(actual[key], expected[key], f"piv grid {key}", rtol=1e-9)
+    if CROSS_PLATFORM:
+        for key in ("u_median", "v_median"):
+            assert_similar_field(actual[key], expected[key], f"piv {key}")
+        return
     for key in ("u_median", "v_median"):
         assert_close(actual[key], expected[key], f"piv {key}", atol=1e-3)
     # Per-pair vectors: compare the aggregate and the worst-case deviation.
@@ -77,15 +87,22 @@ def test_piv_vectors(workspace):
 def test_discharge_summary(workspace):
     actual = first_section(load_json(workspace.workdir / "xsections.json"))
     expected = first_section(load_json(workspace.ref / "xsections.json"))
-    for key in ("total_Q", "total_A", "total_W", "mean_V", "mean_Vs", "max_depth", "average_depth"):
+    for key in ("total_A", "total_W", "max_depth", "average_depth"):  # geometry: exact everywhere
         assert actual[key] == pytest.approx(expected[key], rel=RTOL), key
+    for key in ("total_Q", "mean_V", "mean_Vs"):  # from PIV: ~0.2% across CPUs
+        assert actual[key] == pytest.approx(expected[key], rel=0.01 if CROSS_PLATFORM else RTOL), key
 
 
 def test_discharge_profiles(workspace):
     actual = first_section(load_json(workspace.workdir / "xsections.json"))
     expected = first_section(load_json(workspace.ref / "xsections.json"))
-    for key in ("streamwise_velocity_magnitude", "Q", "A", "depth", "check"):
+    for key in ("A", "depth", "check"):  # geometry and user flags: exact everywhere
         assert_close(actual[key], expected[key], f"profile {key}", atol=1e-6)
+    for key in ("streamwise_velocity_magnitude", "Q"):  # from PIV
+        if CROSS_PLATFORM:
+            assert_similar_profile(actual[key], expected[key], f"profile {key}")
+        else:
+            assert_close(actual[key], expected[key], f"profile {key}", atol=1e-6)
 
 
 def test_discharge_is_physical(workspace):
