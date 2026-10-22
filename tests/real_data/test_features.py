@@ -155,7 +155,11 @@ def test_camera_solution_3d_matches_reference(workspaces):
     # 1e-4: the solver lands ~1 cm apart across OSes (BLAS/LAPACK builds).
     assert_close(actual["camera_position"], expected["camera_position"], "camera position", rtol=1e-4)
     assert actual["error"] == pytest.approx(expected["error"], rel=1e-2 if CROSS_PLATFORM else RTOL)
-    assert_close(actual["reprojection_errors"], expected["reprojection_errors"], "reprojection errors", rtol=1e-2, atol=1e-3)
+    # Per-point errors are 2-40 px; across CPUs the iterative solver moves them up to ~0.4 px.
+    assert_close(
+        actual["reprojection_errors"], expected["reprojection_errors"], "reprojection errors",
+        rtol=1e-2, atol=1.0 if CROSS_PLATFORM else 1e-3,
+    )
     assert (ws.workdir / "ortho_image.png").exists()
 
 
