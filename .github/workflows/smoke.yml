@@ -26,9 +26,9 @@ permissions:
   contents: read
 
 env:
-  TEST_DATA_S3: s3://river-e2e-tests-data/river-test-data-v2.zip
+  TEST_DATA_S3: s3://river-e2e-tests-data/river-test-data-v3.zip
   AWS_DEFAULT_REGION: us-east-1
-  TEST_DATA_SHA256: 7b0184b3bf3310067bb5480a0003e699c9520991f6527d0882ad556e76666459
+  TEST_DATA_SHA256: aaf224bcec53f20b3eb876c99a37dd3c463709aaf33a89717aa6f3300f47b95b
 
 jobs:
   smoke:
@@ -90,6 +90,8 @@ jobs:
           "$PY" -m river.cli --help
           # river first: its __init__ preloads the rocket_fft DLLs on Windows.
           "$PY" -c "import river, iwave, rocket_fft, torch, pyfftw, numba; print('deps OK')"
+          # A second OpenCV package would silently replace the pinned cv2 (see pyproject.toml).
+          "$PY" -c "import importlib.metadata as m, cv2; d = sorted(x.metadata['Name'] for x in m.distributions() if x.metadata['Name'].lower().startswith('opencv')); print('cv2', cv2.__version__, d); assert len(d) == 1, f'more than one OpenCV installed: {d}'"
 
       - name: Download test data
         # Secrets only in this step, not in the rest of the job.
