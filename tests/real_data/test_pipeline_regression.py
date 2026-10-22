@@ -31,7 +31,9 @@ def test_frames_match_reference(workspace):
     names = sorted(p.name for p in workspace.frames.glob("*.jpg"))
     for name in (names[0], names[len(names) // 2], names[-1]):
         diff = mean_abs_diff(workspace.frames / name, workspace.ref / "frames" / name)
-        assert diff < 1.0, f"{name} differs from the reference frame (mean abs diff {diff:.2f})"
+        # < 3 grey levels: decoders/JPEG encoders differ ~1 level across OSes; a wrong
+        # frame, resize or colour order gives far more.
+        assert diff < 3.0, f"{name} differs from the reference frame (mean abs diff {diff:.2f})"
 
 
 # Not 3D: its matrix is built by the GUI (covered by test_camera_solution_3d).

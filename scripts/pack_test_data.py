@@ -85,14 +85,11 @@ def pack_run(run: Path, kind: str, dest: Path) -> dict:
         section["bath"] = src.name
     (dest / "xsections.json").write_text(json.dumps(xs, indent=2), encoding="utf-8")
 
-    # Only the frames test_frames_match_reference compares: first, middle and last.
+    # All frames: the tests feed them to PIV (decoding differs slightly across OSes).
     frames = sorted((run / "frames").glob("*.jpg"))
-    if frames:
-        if len(frames) != n_frames:
-            print(f"warning: {run.name} has {len(frames)} frames, settings.json implies {n_frames}")
-        (dest / "frames").mkdir()
-        for f in {frames[0], frames[len(frames) // 2], frames[-1]}:
-            shutil.copy2(f, dest / "frames" / f.name)
+    if len(frames) != n_frames:
+        fail(f"{run} has {len(frames)} frames, settings.json implies {n_frames}")
+    shutil.copytree(run / "frames", dest / "frames", ignore=shutil.ignore_patterns(".*"))
 
     (dest / "settings.json").write_text(json.dumps(settings, indent=2), encoding="utf-8")
     for path in dest.glob("*.json"):

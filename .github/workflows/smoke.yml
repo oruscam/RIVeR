@@ -26,9 +26,9 @@ permissions:
   contents: read
 
 env:
-  TEST_DATA_S3: s3://river-e2e-tests-data/river-test-data-v1.zip
+  TEST_DATA_S3: s3://river-e2e-tests-data/river-test-data-v2.zip
   AWS_DEFAULT_REGION: us-east-1
-  TEST_DATA_SHA256: 73703e36c11b88f37815a6fdd2870e26b048c19dbba0b207dbd555e4136fddf4
+  TEST_DATA_SHA256: 7b0184b3bf3310067bb5480a0003e699c9520991f6527d0882ad556e76666459
 
 jobs:
   smoke:

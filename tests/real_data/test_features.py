@@ -151,7 +151,8 @@ def test_camera_solution_3d_matches_reference(workspaces):
     actual = ws.responses["camera_solution"]["data"]
     expected = load_json(ws.ref / "camera_solution_3d.json")
     assert_close(actual["camera_matrix"], expected["camera_matrix"], "camera matrix", rtol=1e-3)
-    assert_close(actual["camera_position"], expected["camera_position"], "camera position", rtol=1e-6)
+    # 1e-4: the solver lands ~1 cm apart across OSes (BLAS/LAPACK builds).
+    assert_close(actual["camera_position"], expected["camera_position"], "camera position", rtol=1e-4)
     assert actual["error"] == pytest.approx(expected["error"], rel=RTOL)
     assert_close(actual["reprojection_errors"], expected["reprojection_errors"], "reprojection errors", rtol=1e-2, atol=1e-3)
     assert (ws.workdir / "ortho_image.png").exists()
@@ -162,7 +163,7 @@ def test_camera_solution_3d_matches_reference(workspaces):
 @pytest.mark.portable
 def test_piv_test_matches_first_pair(workspace):
     """piv-test (the GUI's preview) must equal the first pair of the full analysis."""
-    frames = sorted(workspace.frames.glob("*.jpg"))
+    frames = sorted(workspace.inputs.glob("*.jpg"))
     proc = workspace.settings["processing"]
     args = [
         "piv-test", "--bbox", workspace.workdir / "bbox.json", "--mask", workspace.workdir / "mask.npy",
@@ -185,7 +186,7 @@ def test_piv_without_clahe_differs_but_stays_close(workspaces):
     """Turning CLAHE off must change the vectors slightly, not wreck them."""
     ws = workspaces("oblique")
     proc = ws.settings["processing"]
-    first, second = sorted(ws.frames.glob("*.jpg"))[:2]
+    first, second = sorted(ws.inputs.glob("*.jpg"))[:2]
     base = [
         "piv-test", "--bbox", ws.workdir / "bbox.json", "--mask", ws.workdir / "mask.npy",
         "--interrogation-area-1", proc["interrogation_area_1"], "--interrogation-area-2", proc["interrogation_area_2"],

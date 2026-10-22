@@ -113,6 +113,11 @@ def run_cli(*args: Any, check: bool = True) -> dict:
 
 # --------------------------------------------------------------------- utilities
 
+def write_like_gui(path: Path, data: Any) -> None:
+    """Write JSON as Electron does: UTF-8 with accents unescaped (e.g. "batimetría.csv")."""
+    path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+
+
 def load_json(path: Path) -> Any:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
@@ -147,9 +152,11 @@ class Workspace:
     workdir: Path
     settings: dict  # reference settings.json
     responses: dict  # CLI responses by step name
+    inputs: Path  # frames fed to the analysis (see _analysis_frames)
 
     @property
     def frames(self) -> Path:
+        """Frames extracted from the video in this run."""
         return self.workdir / "frames"
 
     @property
@@ -158,7 +165,22 @@ class Workspace:
 
     @property
     def first_frame(self) -> Path:
-        return self.frames / "0000000000.jpg"
+        return self.inputs / "0000000000.jpg"
+
+
+def _analysis_frames(ds: Dataset, extracted: Path, workdir: Path, expected: int) -> Path:
+    """Frames for transformation, mask, PIV, STIV and iWave.
+
+    The reference frames when the run ships all of them: JPEG decoding differs
+    slightly between OSes (~1 grey level) and PIV amplifies it, so feeding the
+    same input keeps PIV a like-for-like check. Extraction is tested on its own.
+    """
+    ref_frames = ds.ref_dir / "frames"
+    if len(list(ref_frames.glob("*.jpg"))) != expected:
+        return extracted
+    copy = workdir / "ref_frames"  # never write next to the reference
+    shutil.copytree(ref_frames, copy)
+    return copy
 
 
 def _bathymetry_source(ref_xsections: dict, ref_dir: Path) -> Path:
@@ -187,7 +209,8 @@ def build_workspace(ds: Dataset, workdir: Path, all_methods: bool = False) -> Wo
         "--start-frame", vr["start"], "--end-frame", vr["end"],
         "--every", vr["step"], "--resize-factor", vr["factor"], "--overwrite",
     )
-    first_frame = frames / "0000000000.jpg"
+    inputs = _analysis_frames(ds, frames, workdir, (vr["end"] - vr["start"]) // vr["step"])
+    first_frame = inputs / "0000000000.jpg"
 
     matrix_path = workdir / "transformation_matrix.json"
     if ds.kind == "oblique":
@@ -229,7 +252,7 @@ def build_workspace(ds: Dataset, workdir: Path, all_methods: bool = False) -> Wo
     for section in xs.values():
         section["bath"] = str(bath_dst)
     xsections_path = workdir / "xsections.json"
-    xsections_path.write_text(json.dumps(xs))
+    write_like_gui(xsections_path, xs)
 
     responses["height_roi"] = run_cli(
         "recommend-height-roi", proc["interrogation_area_1"], xsections_path, matrix_path
@@ -257,18 +280,18 @@ def build_workspace(ds: Dataset, workdir: Path, all_methods: bool = False) -> Wo
             "analyze-all", *piv_options,
             "--step", vr["step"], "--fps", fps, "--height-roi-stiv", proc["roi_height"],
             "--num-stations", 15, "--stiv", "--iwave", "--interpolate",
-            frames, xsections_path, matrix_path,
+            inputs, xsections_path, matrix_path,
         )
-        return Workspace(ds, workdir, settings, responses)
+        return Workspace(ds, workdir, settings, responses, inputs)
 
-    responses["piv"] = run_cli("piv-analyze", *piv_options, frames)
+    responses["piv"] = run_cli("piv-analyze", *piv_options, inputs)
     responses["discharge"] = run_cli(
         "update-xsection", "--step", vr["step"], "--fps", fps, "--id-section", 0, "--interpolate",
         xsections_path, workdir / "piv_results.json", matrix_path,
     )
     # The GUI persists the updated sections; do the same so tests can read them.
-    xsections_path.write_text(json.dumps(responses["discharge"]["data"]))
-    return Workspace(ds, workdir, settings, responses)
+    write_like_gui(xsections_path, responses["discharge"]["data"])
+    return Workspace(ds, workdir, settings, responses, inputs)
 
 
 def first_section(xsections: dict) -> dict:
