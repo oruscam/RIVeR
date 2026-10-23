@@ -68,25 +68,17 @@ class Dataset:
         return self.video_path.exists() and self.ref_dir.joinpath("settings.json").exists()
 
 
-# One reference run per footage type: the latest complete PIV run of each project.
+# One reference run per footage type (PIV + STIV + iWave, OpenCV 5.0): the same
+# runs packed in the smoke-CI bundle (river-test-data-v3).
 DATASETS = {
-    "oblique": Dataset("oblique", "oblique", "oblique/P1060716.mp4", "P1060716/20260805T1224"),
-    "uav": Dataset("uav", "uav", "uav/Yanuncay_CS1.mp4", "Yanuncay_CS1/20260828T1039"),
-    "3d": Dataset("3d", "3d", "3d/JUNCAL20260108T1440.mp4", "JUNCAL20260108T1440/20260808T1530", slow=True),
+    "oblique": Dataset("oblique", "oblique", "oblique/P1060716.mp4", "P1060716/20261022T1223"),
+    "uav": Dataset("uav", "uav", "uav/Yanuncay_CS1.mp4", "Yanuncay_CS1/20261022T1222"),
+    "3d": Dataset("3d", "3d", "3d/JUNCAL20260108T1440.mp4", "JUNCAL20260108T1440/20261022T1226"),
 }
-
-# Run that also produced STIV and iWave profiles (needs torch + iwave installed).
-UAV_ALL_METHODS = Dataset("uav_all_methods", "uav", "uav/Yanuncay_CS1.mp4", "Yanuncay_CS1/20260828T0921")
 
 if MANIFEST:
     _manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
     DATASETS = {key: Dataset(key=key, **entry) for key, entry in _manifest["datasets"].items()}
-    _all = _manifest.get("all_methods")
-    # Missing entry -> unavailable dataset, so the STIV/iWave test skips (or fails with --fail-on-skip).
-    UAV_ALL_METHODS = (
-        Dataset(key="uav_all_methods", **_all) if _all
-        else Dataset("uav_all_methods", "uav", "missing", "missing")
-    )
 
 
 # --------------------------------------------------------------------------- CLI

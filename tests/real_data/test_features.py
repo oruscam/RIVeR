@@ -12,10 +12,10 @@ import pytest
 
 from tests.real_data.helpers import (
     CROSS_PLATFORM,
+    DATASETS,
     DATA_DIR,
     REFERENCE_DIR,
     RTOL,
-    UAV_ALL_METHODS,
     CliError,
     as_array,
     assert_close,
@@ -295,32 +295,38 @@ def test_undistorted_frames_use_calibration_profile(tmp_path):
 
 # ----------------------------------------------------------------------- STIV + iWave
 
+# Every footage type: STIV and iWave project through the transformation matrix, and
+# only oblique/3D exercise perspective, varying m/px and large real-world coordinates.
+# UAV is the quick one (~20 s) and always runs; oblique/3D are `slow` (smoke CI: PRs to main).
 @pytest.mark.portable
-def test_stiv_and_iwave_match_reference(tmp_path):
+@pytest.mark.parametrize(
+    "key",
+    [pytest.param(k, marks=[pytest.mark.slow] if ds.slow or k != "uav" else []) for k, ds in DATASETS.items()],
+)
+def test_stiv_and_iwave_match_reference(key, tmp_path):
     """PIV + STIV + iWave in one run (needs torch and iwave, see pyproject)."""
     pytest.importorskip("torch")
     pytest.importorskip("iwave")
-    ds = UAV_ALL_METHODS
+    ds = DATASETS[key]
     if not ds.available:
-        pytest.skip(f"missing data for {ds.key}")
+        pytest.skip(f"missing data for {key}")
+    expected = first_section(load_json(ds.ref_dir / "xsections.json"))
+    if "stiv_velocity_profile" not in expected or "iwave_velocity_profile" not in expected:
+        pytest.skip(f"{key} reference was processed without STIV/iWave")
     status = run_cli("stiv-status")["data"]
     if not status.get("available"):
         pytest.skip(f"STIV model weights missing: {status.get('missing')}")
 
     ws = build_workspace(ds, tmp_path, all_methods=True)
     actual = first_section(load_json(ws.workdir / "xsections.json"))
-    expected = first_section(load_json(ws.ref / "xsections.json"))
 
-    # This reference predates several pipeline changes (its PIV vectors already differ today
-    # on ~15% of the cells although every input is identical), so compare with a wider band
-    # than the exact-match tests above.
     assert actual["total_Q"] == pytest.approx(expected["total_Q"], rel=0.03)
     # STIV / iWave involve optimisation and worker pools: allow a looser band.
-    for key in ("stiv_velocity_profile", "iwave_velocity_profile"):
-        a, e = as_array(actual[key]), as_array(expected[key])
-        assert a.shape == e.shape, key
+    for name in ("stiv_velocity_profile", "iwave_velocity_profile"):
+        a, e = as_array(actual[name]), as_array(expected[name])
+        assert a.shape == e.shape, name
         both = np.isfinite(a) & np.isfinite(e) & (np.abs(e) > 0.05)
-        assert both.sum() > 0, f"{key}: no comparable stations"
-        assert np.median(np.abs(a[both] - e[both]) / np.abs(e[both])) < 0.10, key
+        assert both.sum() > 0, f"{name}: no comparable stations"
+        assert np.median(np.abs(a[both] - e[both]) / np.abs(e[both])) < 0.10, name
     assert list((ws.workdir / "stis").rglob("*")), "STIs not written"
     assert list((ws.workdir / "iwave_spectra").rglob("*")), "iWave spectra not written"

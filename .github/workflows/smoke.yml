@@ -110,6 +110,8 @@ jobs:
         env:
           # References are made on ARM (macOS); x86 rounds slightly differently.
           RIVER_TEST_CROSS_PLATFORM: '1'
+          # Slow tests (STIV + iWave on oblique/3D, ~3-5 min per OS) only on PRs to main.
+          MARKERS: ${{ github.base_ref == 'main' && 'portable' || 'portable and not slow' }}
         run: |
-          "$PY" -m pytest tests/real_data --realdata --fail-on-skip -m portable \
+          "$PY" -m pytest tests/real_data --realdata --fail-on-skip -m "$MARKERS" \
             -ra --durations=10 -p no:cacheprovider

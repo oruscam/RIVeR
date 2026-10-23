@@ -6,10 +6,10 @@ multi-OS smoke CI (.github/workflows/smoke.yml).
         --oblique ~/River/<project>/<run> \
         --uav     ~/River/<project>/<run> \
         --3d      ~/River/<project>/<run> \
-        --all-methods ~/River/<project>/<run> \
         --out river-test-data.zip
 
-Each run is a folder the GUI wrote under ~/River. The source video is read from
+Each run is a folder the GUI wrote under ~/River, processed with PIV, STIV and
+iWave enabled (the tests replay all three). The source video is read from
 its settings.json and trimmed with ffmpeg stream copy (no re-encode, so the
 decoded frames match the reference). Keep runs short (~20-60 frames).
 
@@ -116,7 +116,6 @@ def main() -> None:
     parser.add_argument("--oblique", type=Path, required=True)
     parser.add_argument("--uav", type=Path, required=True)
     parser.add_argument("--3d", dest="three_d", type=Path, required=True)
-    parser.add_argument("--all-methods", type=Path, help="UAV run with STIV + iWave enabled")
     parser.add_argument("--out", type=Path, default=Path("river-test-data.zip"))
     args = parser.parse_args()
 
@@ -124,31 +123,19 @@ def main() -> None:
         fail("ffmpeg not found in PATH")
 
     runs = {"oblique": (args.oblique, "oblique"), "uav": (args.uav, "uav"), "3d": (args.three_d, "3d")}
-    if args.all_methods:
-        runs["all_methods"] = (args.all_methods, "uav")
 
     with tempfile.TemporaryDirectory() as tmp:
         root = Path(tmp) / "river-test-data"
         manifest: dict = {"version": 1, "datasets": {}}
         videos: dict[Path, tuple[str, int, float]] = {}  # source -> (bundle path, last frame, fps)
-        packed: dict[Path, str] = {}  # run -> bundle path, so a run given twice is stored once
 
         for key, (run, kind) in runs.items():
-            run = run.expanduser().resolve()
-            if run in packed:
-                reference = packed[run]
-                settings = json.loads((run / "settings.json").read_text(encoding="utf-8"))
-            else:
-                reference = packed[run] = f"{key}/reference"
-                settings = pack_run(run, kind, root / reference)
+            reference = f"{key}/reference"
+            settings = pack_run(run.expanduser().resolve(), kind, root / reference)
             src = Path(settings["video"]["filepath"])
             rel, last, fps = videos.get(src, (f"videos/{src.name}", 0, settings["video"]["fps"]))
             videos[src] = (rel, max(last, settings["video_range"]["end"]), fps)
-            entry = {"kind": kind, "video": rel, "reference": reference}
-            if key == "all_methods":
-                manifest["all_methods"] = entry
-            else:
-                manifest["datasets"][key] = entry
+            manifest["datasets"][key] = {"kind": kind, "video": rel, "reference": reference}
 
         for src, (rel, last, fps) in videos.items():
             trim_video(src, root / rel, last, fps)
