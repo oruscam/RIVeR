@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+# [3.8.2] - 2026-10-23
+
+## GUI
+
+### Fixed
+
+- Creating a new project could delete the previous project's PIV results, because paths from the last opened project were kept
+
+## CLI
+
+### Changed
+
+- The CLI depends on `opencv-python` 5.0.0.93 alone (no longer `opencv-python-headless`), the same single OpenCV the app has shipped since 3.7.0, so a second OpenCV can no longer replace it silently
+
+### Added
+
+- Smoke tests now run on Windows, macOS and Linux on every pull request to develop or main
+
+
 # [3.8.1] - 2026-10-16
 
 ## CLI
