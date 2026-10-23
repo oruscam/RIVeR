@@ -6,7 +6,7 @@ They are opt-in: they need data that lives on your machine.
 
 ```bash
 pytest tests/real_data --realdata                  # everything
-pytest tests/real_data --realdata -m "not slow"    # skip the 840-frame 3D run (~1 min)
+pytest tests/real_data --realdata -m portable      # only what the multi-OS CI runs
 pytest tests/real_data --realdata -k uav           # a single dataset
 ```
 
@@ -25,9 +25,12 @@ are read from the reference run's `settings.json`; they are not hardcoded.
 
 | Dataset | Video | Reference run |
 |---|---|---|
-| oblique | `oblique/P1060716.mp4` | `P1060716/20260805T1224` |
-| uav | `uav/Yanuncay_CS1.mp4` | `Yanuncay_CS1/20260828T1039` |
-| 3d (slow) | `3d/JUNCAL20260108T1440.mp4` | `JUNCAL20260108T1440/20260808T1530` |
+| oblique | `oblique/P1060716.mp4` | `P1060716/20261022T1223` |
+| uav | `uav/Yanuncay_CS1.mp4` | `Yanuncay_CS1/20261022T1222` |
+| 3d | `3d/JUNCAL20260108T1440.mp4` | `JUNCAL20260108T1440/20261022T1226` |
+
+They were processed with PIV, STIV and iWave and OpenCV 5.0 (the version pinned in
+`pyproject.toml`), and are the same runs packed in the CI bundle.
 
 **Do not delete or move those reference folders**: they are the "expected value". To
 update a reference on purpose, point `DATASETS` in `helpers.py` to a new run.
@@ -38,12 +41,12 @@ update a reference on purpose, point `DATASETS` in `helpers.py` to a new run.
 macOS, with Python and dependencies installed exactly like the installers. It uses a
 self-contained zip instead of the folders above:
 
-1. In the GUI, make one short run (~20-60 frames) per footage type: oblique, UAV, 3D,
-   plus one UAV run with STIV and iWave enabled.
+1. In the GUI, make one short run (~20-60 frames) per footage type: oblique, UAV and 3D,
+   with PIV, STIV and iWave enabled (15 stations).
 2. Pack them (the videos are trimmed without re-encoding):
    ```bash
    python scripts/pack_test_data.py --oblique ~/River/<proj>/<run> --uav ~/River/<proj>/<run> \
-       --3d ~/River/<proj>/<run> --all-methods ~/River/<proj>/<run> --out river-test-data.zip
+       --3d ~/River/<proj>/<run> --out river-test-data.zip
    ```
 3. Check it locally:
    ```bash
@@ -57,6 +60,9 @@ self-contained zip instead of the folders above:
    checks the hash and would fail. CI reads the bucket with the `AWS_ACCESS_KEY_ID`
    and `AWS_SECRET_ACCESS_KEY` repository secrets.
 
+PRs to `main` run every `portable` test; other runs skip the `slow` ones (STIV + iWave
+on oblique and 3D; UAV always runs).
+
 `--fail-on-skip` turns skips into failures: in CI a missing dependency (e.g. iWave
 failing to import) must fail, not be skipped.
 
@@ -66,7 +72,8 @@ failing to import) must fail, not be skipped.
   mask/bbox, PIV vectors, discharge/area/mean velocity and per-station profiles.
 - `test_features.py`: frame extraction for all videos, resize, stabilization,
   pixel↔world transformations, 3D camera solution, `piv-test`, user masks and
-  `compile-masks`, ChArUco camera calibration, STIV + iWave (requires `torch` and `iwave`).
+  `compile-masks`, ChArUco camera calibration, STIV + iWave for every footage type
+  (requires `torch` and `iwave`).
 
 ## What is NOT covered
 
