@@ -4,7 +4,7 @@ import importlib.util
 import os
 import sys
 
-__version__ = "3.8.1"
+__version__ = "3.8.2"
 
 # rocket_fft loads its .pyd through llvmlite, which ignores the os.add_dll_directory() that
 # delvewheel relies on; preload its vendored DLLs so numba can compile np.fft (needed by iWave).
