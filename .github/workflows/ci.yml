@@ -1,15 +1,15 @@
 name: CI
 
 # Runs tests and the GUI build on every PR targeting
-# develop/main and on every push to those branches. Each job is independent
+# main and release/** and on every push to those branches. Each job is independent
 # so they run in parallel and report their own status in the PR checks.
 # Linters (ESLint, Ruff, tsc) are intentionally left for a follow-up PR.
 
 on:
   pull_request:
-    branches: [develop, main]
+    branches: [main, 'release/**']
   push:
-    branches: [develop, main]
+    branches: [main, 'release/**']
 
 # Cancel superseded runs of the same PR/branch to save minutes.
 concurrency:
