@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Smoke tests now run on Windows, macOS and Linux on every push to dev or main
+- Smoke tests now run on Windows, macOS and Linux on every pull request to develop or main
 
 
 # [3.8.1] - 2026-10-16
