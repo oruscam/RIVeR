@@ -26,13 +26,25 @@ from typing import Any, Optional
 
 import numpy as np
 
-DATA_DIR = Path(os.environ.get("RIVER_TEST_DATA", "~/Documents/Datos-River")).expanduser()
-REFERENCE_DIR = Path(os.environ.get("RIVER_TEST_REFERENCE", "~/River")).expanduser()
+# Portable bundle (see scripts/pack_test_data.py): its manifest.json replaces
+# both directories and the dataset table below. Used by the multi-OS smoke CI.
+MANIFEST = Path(os.environ["RIVER_TEST_MANIFEST"]).expanduser() if os.environ.get("RIVER_TEST_MANIFEST") else None
+
+if MANIFEST:
+    DATA_DIR = REFERENCE_DIR = MANIFEST.parent
+else:
+    DATA_DIR = Path(os.environ.get("RIVER_TEST_DATA", "~/Documents/Datos-River")).expanduser()
+    REFERENCE_DIR = Path(os.environ.get("RIVER_TEST_REFERENCE", "~/River")).expanduser()
 
 # Relative tolerance when comparing against reference results. The same code on
 # the same machine reproduces them bit for bit; the slack only absorbs
 # FFT/BLAS differences between machines and library versions.
 RTOL = float(os.environ.get("RIVER_TEST_RTOL", "1e-3"))
+
+# Set by the multi-OS smoke CI: references come from one CPU (ARM) and are compared
+# on others (x86), where float rounding moves PIV by a few cells and discharge by
+# ~0.2%. Velocity-derived results then use the looser checks below; geometry stays exact.
+CROSS_PLATFORM = os.environ.get("RIVER_TEST_CROSS_PLATFORM") == "1"
 
 
 @dataclass(frozen=True)
@@ -66,6 +78,16 @@ DATASETS = {
 # Run that also produced STIV and iWave profiles (needs torch + iwave installed).
 UAV_ALL_METHODS = Dataset("uav_all_methods", "uav", "uav/Yanuncay_CS1.mp4", "Yanuncay_CS1/20260828T0921")
 
+if MANIFEST:
+    _manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    DATASETS = {key: Dataset(key=key, **entry) for key, entry in _manifest["datasets"].items()}
+    _all = _manifest.get("all_methods")
+    # Missing entry -> unavailable dataset, so the STIV/iWave test skips (or fails with --fail-on-skip).
+    UAV_ALL_METHODS = (
+        Dataset(key="uav_all_methods", **_all) if _all
+        else Dataset("uav_all_methods", "uav", "missing", "missing")
+    )
+
 
 # --------------------------------------------------------------------------- CLI
 
@@ -96,6 +118,11 @@ def run_cli(*args: Any, check: bool = True) -> dict:
 
 # --------------------------------------------------------------------- utilities
 
+def write_like_gui(path: Path, data: Any) -> None:
+    """Write JSON as Electron does: UTF-8 with accents unescaped (e.g. "batimetría.csv")."""
+    path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+
+
 def load_json(path: Path) -> Any:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
@@ -109,6 +136,31 @@ def assert_close(actual, expected, what: str, rtol: float = RTOL, atol: float = 
     a, e = as_array(actual), as_array(expected)
     assert a.shape == e.shape, f"{what}: shape {a.shape} != reference {e.shape}"
     np.testing.assert_allclose(a, e, rtol=rtol, atol=atol, equal_nan=True, err_msg=what)
+
+
+def assert_similar_field(actual, expected, what: str, tol_px: float = 0.05) -> None:
+    """Cross-platform PIV field check: most cells agree, a few outliers may not."""
+    a, e = as_array(actual), as_array(expected)
+    assert a.shape == e.shape, f"{what}: shape {a.shape} != reference {e.shape}"
+    valid_agree = float(np.mean(np.isfinite(a) == np.isfinite(e)))
+    assert valid_agree >= 0.9, f"{what}: valid/NaN cells agree on only {valid_agree:.1%}"
+    both = np.isfinite(a) & np.isfinite(e)
+    d = np.abs(a[both] - e[both])
+    close = float(np.mean(d < tol_px))
+    assert np.median(d) < tol_px, f"{what}: median |diff| {np.median(d):.4f} px >= {tol_px}"
+    assert close >= 0.5, f"{what}: only {close:.1%} of cells within {tol_px} px"
+    assert abs(a[both].mean() - e[both].mean()) <= 0.02 * abs(e[both].mean()) + 0.01, f"{what}: mean differs"
+
+
+def assert_similar_profile(actual, expected, what: str, rel: float = 0.10) -> None:
+    """Cross-platform station profile check: each station within rel, plus 2% of the peak."""
+    a, e = as_array(actual), as_array(expected)
+    assert a.shape == e.shape, f"{what}: shape {a.shape} != reference {e.shape}"
+    assert np.array_equal(np.isfinite(a), np.isfinite(e)), f"{what}: different stations are NaN"
+    ok = np.isfinite(e)
+    tol = rel * np.abs(e[ok]) + 0.02 * np.max(np.abs(e[ok]))
+    worst = float(np.max(np.abs(a[ok] - e[ok]) - tol))
+    assert worst <= 0, f"{what}: a station exceeds the tolerance by {worst:.4f}"
 
 
 def mean_abs_diff(img_a: Path, img_b: Path) -> float:
@@ -130,9 +182,11 @@ class Workspace:
     workdir: Path
     settings: dict  # reference settings.json
     responses: dict  # CLI responses by step name
+    inputs: Path  # frames fed to the analysis (see _analysis_frames)
 
     @property
     def frames(self) -> Path:
+        """Frames extracted from the video in this run."""
         return self.workdir / "frames"
 
     @property
@@ -141,14 +195,30 @@ class Workspace:
 
     @property
     def first_frame(self) -> Path:
-        return self.frames / "0000000000.jpg"
+        return self.inputs / "0000000000.jpg"
 
 
-def _bathymetry_source(ref_xsections: dict) -> Path:
+def _analysis_frames(ds: Dataset, extracted: Path, workdir: Path, expected: int) -> Path:
+    """Frames for transformation, mask, PIV, STIV and iWave.
+
+    The reference frames when the run ships all of them: JPEG decoding differs
+    slightly between OSes (~1 grey level) and PIV amplifies it, so feeding the
+    same input keeps PIV a like-for-like check. Extraction is tested on its own.
+    """
+    ref_frames = ds.ref_dir / "frames"
+    if len(list(ref_frames.glob("*.jpg"))) != expected:
+        return extracted
+    copy = workdir / "ref_frames"  # never write next to the reference
+    shutil.copytree(ref_frames, copy)
+    return copy
+
+
+def _bathymetry_source(ref_xsections: dict, ref_dir: Path) -> Path:
     section = next(v for k, v in ref_xsections.items() if k != "summary")
     bath = Path(section["bath"])
-    # Older runs stored an absolute path; fall back to the same file name in the run dir.
-    return bath
+    # Runs store an absolute path from the machine that made them; fall back to
+    # the same file name in the run dir (always the case in the portable bundle).
+    return bath if bath.is_absolute() and bath.exists() else ref_dir / bath.name
 
 
 def build_workspace(ds: Dataset, workdir: Path, all_methods: bool = False) -> Workspace:
@@ -169,7 +239,8 @@ def build_workspace(ds: Dataset, workdir: Path, all_methods: bool = False) -> Wo
         "--start-frame", vr["start"], "--end-frame", vr["end"],
         "--every", vr["step"], "--resize-factor", vr["factor"], "--overwrite",
     )
-    first_frame = frames / "0000000000.jpg"
+    inputs = _analysis_frames(ds, frames, workdir, (vr["end"] - vr["start"]) // vr["step"])
+    first_frame = inputs / "0000000000.jpg"
 
     matrix_path = workdir / "transformation_matrix.json"
     if ds.kind == "oblique":
@@ -205,13 +276,13 @@ def build_workspace(ds: Dataset, workdir: Path, all_methods: bool = False) -> Wo
     # geometry and bathymetry) without its computed summary, pointing at a local copy.
     xs = load_json(ds.ref_dir / "xsections.json")
     xs.pop("summary", None)
-    bath_src = _bathymetry_source(xs)
+    bath_src = _bathymetry_source(xs, ds.ref_dir)
     bath_dst = workdir / bath_src.name
     shutil.copy(bath_src, bath_dst)
     for section in xs.values():
         section["bath"] = str(bath_dst)
     xsections_path = workdir / "xsections.json"
-    xsections_path.write_text(json.dumps(xs))
+    write_like_gui(xsections_path, xs)
 
     responses["height_roi"] = run_cli(
         "recommend-height-roi", proc["interrogation_area_1"], xsections_path, matrix_path
@@ -239,18 +310,18 @@ def build_workspace(ds: Dataset, workdir: Path, all_methods: bool = False) -> Wo
             "analyze-all", *piv_options,
             "--step", vr["step"], "--fps", fps, "--height-roi-stiv", proc["roi_height"],
             "--num-stations", 15, "--stiv", "--iwave", "--interpolate",
-            frames, xsections_path, matrix_path,
+            inputs, xsections_path, matrix_path,
         )
-        return Workspace(ds, workdir, settings, responses)
+        return Workspace(ds, workdir, settings, responses, inputs)
 
-    responses["piv"] = run_cli("piv-analyze", *piv_options, frames)
+    responses["piv"] = run_cli("piv-analyze", *piv_options, inputs)
     responses["discharge"] = run_cli(
         "update-xsection", "--step", vr["step"], "--fps", fps, "--id-section", 0, "--interpolate",
         xsections_path, workdir / "piv_results.json", matrix_path,
     )
     # The GUI persists the updated sections; do the same so tests can read them.
-    xsections_path.write_text(json.dumps(responses["discharge"]["data"]))
-    return Workspace(ds, workdir, settings, responses)
+    write_like_gui(xsections_path, responses["discharge"]["data"])
+    return Workspace(ds, workdir, settings, responses, inputs)
 
 
 def first_section(xsections: dict) -> dict:

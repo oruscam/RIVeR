@@ -19,7 +19,10 @@ authors = [
 ]
 dependencies = [
     "click >= 8.1.3",
-    "opencv-python-headless == 4.10.0.84",
+    # Not -headless: iwave requires opencv-python, and both install the same
+    # cv2 module, so a second OpenCV would silently replace this one. 5.0's
+    # remap interpolates exactly (4.x approximates sub-pixel positions).
+    "opencv-python == 5.0.0.93",
     "matplotlib >= 3.9.0",
     "scipy < 1.14",
     "tqdm >= 4.67.0",
@@ -149,4 +152,5 @@ push = true
 markers = [
     "realdata: needs real field data and reference results (opt-in with --realdata)",
     "slow: takes several minutes",
+    "portable: runs on the portable test-data bundle alone (multi-OS smoke CI)",
 ]

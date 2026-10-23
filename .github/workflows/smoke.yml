@@ -1,0 +1,115 @@
+name: Smoke (multi-OS)
+
+# Replays short reference GUI runs (oblique, UAV, 3D, plus PIV+STIV+iWave)
+# through the CLI on Linux, Windows and macOS and compares every stage with the
+# saved results (tests/real_data, `portable` marker). Python and dependencies
+# are installed exactly like build.yml does for the installers, so a dependency
+# that is missing or broken on one OS (e.g. the rocket_fft DLLs in 3.8.0) fails
+# here instead of in a release.
+#
+# Test data: a zip built with scripts/pack_test_data.py and uploaded to the
+# private S3 bucket below (read with the AWS_* repo secrets). New references ->
+# new file name, new TEST_DATA_S3 and SHA-256 below.
+#
+# To run by hand: Actions tab -> "Smoke (multi-OS)" -> Run workflow -> any branch.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [develop, main]
+
+concurrency:
+  group: smoke-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  TEST_DATA_S3: s3://river-e2e-tests-data/river-test-data-v3.zip
+  AWS_DEFAULT_REGION: us-east-1
+  TEST_DATA_SHA256: aaf224bcec53f20b3eb876c99a37dd3c463709aaf33a89717aa6f3300f47b95b
+
+jobs:
+  smoke:
+    name: ${{ matrix.os }}
+    # Forks get no secrets, so the test data cannot be downloaded there.
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Python versions mirror build.yml (the interpreter each installer ships).
+          - os: ubuntu-24.04
+            python: '3.12.1'
+          - os: windows-latest
+            python: '3.12.1'
+          - os: macos-latest
+            python: '3.11'
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v8.1.0
+
+      - name: Install portable Python (same build as the installer)
+        run: |
+          uv python install ${{ matrix.python }}
+          PY=$(uv python find --managed-python ${{ matrix.python }})
+          if [ "$RUNNER_OS" = "Windows" ]; then PY=$(cygpath -u "$PY"); fi
+          echo "PY=$PY" >> "$GITHUB_ENV"
+          "$PY" --version
+
+      - name: Download STIV weights
+        if: runner.os != 'Windows'
+        run: .github/scripts/download_stiv_weights.sh
+
+      - name: Download STIV weights (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: .github\scripts\download_stiv_weights.ps1
+
+      - name: Install dependencies and RIVeR CLI (as build.yml)
+        run: |
+          # CPU-only torch first (see build.yml); macOS wheels are CPU-only already.
+          if [ "$RUNNER_OS" != "macOS" ]; then
+            "$PY" -m pip install --break-system-packages torch --index-url https://download.pytorch.org/whl/cpu
+          fi
+          "$PY" -m pip install --break-system-packages -r requirements.txt
+          "$PY" -m pip install --break-system-packages .
+          "$PY" -m pip install --break-system-packages pytest pytest-timeout
+
+      - name: CLI imports (installed package, outside the source tree)
+        working-directory: ${{ runner.temp }}
+        run: |
+          "$PY" -m river.cli --help
+          # river first: its __init__ preloads the rocket_fft DLLs on Windows.
+          "$PY" -c "import river, iwave, rocket_fft, torch, pyfftw, numba; print('deps OK')"
+          # A second OpenCV package would silently replace the pinned cv2 (see pyproject.toml).
+          "$PY" -c "import importlib.metadata as m, cv2; d = sorted(x.metadata['Name'] for x in m.distributions() if x.metadata['Name'].lower().startswith('opencv')); print('cv2', cv2.__version__, d); assert len(d) == 1, f'more than one OpenCV installed: {d}'"
+
+      - name: Download test data
+        # Secrets only in this step, not in the rest of the job.
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 cp "$TEST_DATA_S3" "$RUNNER_TEMP/river-test-data.zip"
+          # Fails if the bucket file changed: references must not move silently.
+          "$PY" -c "import hashlib, sys; h = hashlib.sha256(open(sys.argv[1], 'rb').read()).hexdigest(); sys.exit(0 if h == sys.argv[2] else f'sha256 {h} != expected {sys.argv[2]}')" \
+            "$RUNNER_TEMP/river-test-data.zip" "$TEST_DATA_SHA256"
+          "$PY" -m zipfile -e "$RUNNER_TEMP/river-test-data.zip" "$RUNNER_TEMP/test-data"
+          echo "RIVER_TEST_MANIFEST=$RUNNER_TEMP/test-data/river-test-data/manifest.json" >> "$GITHUB_ENV"
+
+      - name: Regression vs. reference results
+        env:
+          # References are made on ARM (macOS); x86 rounds slightly differently.
+          RIVER_TEST_CROSS_PLATFORM: '1'
+        run: |
+          "$PY" -m pytest tests/real_data --realdata --fail-on-skip -m portable \
+            -ra --durations=10 -p no:cacheprovider

@@ -15,11 +15,25 @@ from tests.real_data.helpers import DATA_DIR, DATASETS, REFERENCE_DIR, build_wor
 
 def pytest_addoption(parser):
     parser.addoption("--realdata", action="store_true", default=False, help="Run the real-data regression tests.")
+    parser.addoption(
+        "--fail-on-skip", action="store_true", default=False,
+        help="Turn skips into failures (CI: a missing dependency or dataset must not pass silently).",
+    )
 
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "realdata: needs real field data and reference results (use --realdata)")
     config.addinivalue_line("markers", "slow: takes several minutes")
+    config.addinivalue_line("markers", "portable: runs on the portable bundle alone (multi-OS smoke CI)")
+
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
+    if report.skipped and item.config.getoption("--fail-on-skip") and not hasattr(report, "wasxfail"):
+        report.outcome = "failed"
+        report.longrepr = f"skipped under --fail-on-skip: {report.longrepr}"
 
 
 def pytest_collection_modifyitems(config, items):

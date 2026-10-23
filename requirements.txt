@@ -1,4 +1,4 @@
-opencv-python-headless==4.10.0.84
+opencv-python==5.0.0.93
 matplotlib>=3.9.0
 scipy<=1.14
 click==8.1.7
