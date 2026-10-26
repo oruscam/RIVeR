@@ -1,7 +1,7 @@
-<!-- 1. Instalar Node 18.18.00 o superior
+<!-- 1. Instalar Node 22.12.0 o superior
   1.1 - Instalar nvm, manejador de versiones node
-  1.2 - nvm install 18.18.00
-  1.3 - nvm use 18.18.00
+  1.2 - nvm install 22.12.0
+  1.3 - nvm use 22.12.0
 
 2 - Instalar yarn
   1 - Si tienes npm, simple, npm install yarn
@@ -24,7 +24,7 @@ Listo, app corriendo. -->
 
 ## Installation
 
-To get started with RIVeR-gui in development mode, ensure you have Node 18.18.0 or newer installed. If you have an earlier version of Node, you can change it or install another with nvm.
+To get started with RIVeR-gui in development mode, ensure you have Node 22.12.0 or newer installed. If you have an earlier version of Node, you can change it or install another with nvm.
 
 Additionally, ensure that FFMPEG is installed on your system. 
 
