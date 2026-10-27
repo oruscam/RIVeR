@@ -40,7 +40,7 @@ def _need(path):
 VIDEOS = [
     "oblique/P1060716.mp4",
     "uav/Yanuncay_CS1.mp4",
-    "3d/JUNCAL20260108T1440.mp4",
+    "3d/JUNCAL/JUNCAL20260108T1440.mp4",
     "hikvision-zoom_min/hikvision_fixed.mp4",
     "hikvision-zoom_max/video_fixed.mp4",
     "sheffield/sheaf20190314_13040 (1).mp4",

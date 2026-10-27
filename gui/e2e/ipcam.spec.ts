@@ -7,7 +7,7 @@ import { dragOnCanvas, latestRun, mmss, next, readJson, readReference, sectionTo
 // solution and the section geometry are compared, not the discharge.
 const REFERENCE_RUN = 'JUNCAL20260108T1440/20260808T1530';
 const PROJECT = 'JUNCAL20260108T1440';
-const DIR_3D = path.join(DATA_DIR, '3d');
+const DIR_3D = path.join(DATA_DIR, '3d', 'JUNCAL');
 const FT = 0.3048;
 
 const solveCamera = async ({ page, dialogs }: River, points: string) => {

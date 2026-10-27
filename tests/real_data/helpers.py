@@ -73,7 +73,7 @@ class Dataset:
 DATASETS = {
     "oblique": Dataset("oblique", "oblique", "oblique/P1060716.mp4", "P1060716/20261022T1223"),
     "uav": Dataset("uav", "uav", "uav/Yanuncay_CS1.mp4", "Yanuncay_CS1/20261022T1222"),
-    "3d": Dataset("3d", "3d", "3d/JUNCAL20260108T1440.mp4", "JUNCAL20260108T1440/20261022T1226"),
+    "3d": Dataset("3d", "3d", "3d/JUNCAL/JUNCAL20260108T1440.mp4", "JUNCAL20260108T1440/20261022T1226"),
 }
 
 if MANIFEST:
