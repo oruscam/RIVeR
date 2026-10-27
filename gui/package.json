@@ -50,7 +50,7 @@
     "skia-canvas": "^3.0.8",
     "tree-kill": "^1.2.2",
     "use-image": "^1.1.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",
