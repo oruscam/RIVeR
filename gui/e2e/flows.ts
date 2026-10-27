@@ -78,10 +78,29 @@ export const setField = async (page: Page, id: string, value: number | string) =
   await input.blur();
 };
 
+const TECHNIQUES = ['lspiv', 'stiv', 'iwave'] as const;
+
+/**
+ * STIV / iWave involve optimisation and worker pools, so profiles are compared loosely, like
+ * tests/real_data: median relative error over stations where both are finite and > 0.05 m/s.
+ */
+const expectProfileClose = (name: string, actual: (number | null)[], expected: (number | null)[]) => {
+  expect.soft(actual, `${name}: length`).toHaveLength(expected.length);
+  const errors = expected
+    .map((e, i) => [actual[i], e] as const)
+    .filter((pair): pair is readonly [number, number] => pair.every((v) => Number.isFinite(v)))
+    .filter(([, e]) => Math.abs(e) > 0.05)
+    .map(([a, e]) => Math.abs(a - e) / Math.abs(e))
+    .sort((x, y) => x - y);
+  expect.soft(errors.length, `${name}: no comparable stations`).toBeGreaterThan(0);
+  const median = errors[Math.floor(errors.length / 2)];
+  expect.soft(median, `${name}: median relative error`).toBeLessThan(0.1);
+};
+
 /**
  * Cross Sections -> Processing -> Results, replaying a reference run: draws the section
- * direction, imports the bathymetry, types the reference pixels, runs LSPIV only and checks
- * both the written xsections.json and the discharge shown on screen against the reference.
+ * direction, imports the bathymetry, types the reference pixels, runs LSPIV + STIV + iWave and
+ * checks both the written xsections.json and the discharge shown on screen against the reference.
  */
 export const sectionToResults = async (
   { page, dialogs, workspace }: River,
@@ -122,20 +141,22 @@ export const sectionToResults = async (
   await expect(page.locator('#CS_LENGTH')).toHaveValue(refSection.rw_length.toFixed(2));
   await next(page);
 
-  // Processing: LSPIV only, like the reference run. The STIV / iWave rows each end in a
-  // switch (label.switch) that starts on.
+  // Processing: LSPIV + STIV + iWave, like the reference run. The STIV / iWave switches start on;
+  // the recommended ROI height (STIV's search band) has to match the reference's.
   for (const technique of ['stiv', 'iwave']) {
-    await page.locator(`.technique-row:has(.technique-swatch-${technique}) label.switch`).click();
     await expect(
       page.locator(`.technique-row:has(.technique-swatch-${technique}) input[type=checkbox]`)
-    ).not.toBeChecked();
+    ).toBeChecked();
   }
   await expect(page.locator('#stations-number')).toHaveValue(String(refSection.num_stations));
+  await page.locator('label.switch:has(#advanced-toggle)').click();
+  await expect(page.locator('#processing-roi-height')).toHaveValue(String(ref.settings.processing.roi_height));
   await page.locator('#analize-button').click();
-  await expect(page.locator('#wizard-next')).toBeEnabled({ timeout: 180_000 });
+  await expect(page.locator('#wizard-next')).toBeEnabled({ timeout: 480_000 });
 
   // The analysis wrote its results into the project folder.
-  const actual = firstSection(readJson(path.join(latestRun(workspace, project), 'xsections.json')));
+  const run = latestRun(workspace, project);
+  const actual = firstSection(readJson(path.join(run, 'xsections.json')));
   const close = (key: string, tol: number) =>
     expect
       .soft(
@@ -145,6 +166,10 @@ export const sectionToResults = async (
       .toBeLessThanOrEqual(tol);
   for (const key of ['total_W', 'max_depth', 'level', 'rw_length']) close(key, 1e-4);
   if (tolerance !== null) for (const key of ['total_A', 'mean_V', 'total_Q']) close(key, tolerance);
+  for (const name of ['stiv_velocity_profile', 'iwave_velocity_profile'])
+    expectProfileClose(name, actual[name] ?? [], refSection[name]);
+  for (const dir of ['stis', 'iwave_spectra'])
+    expect.soft(fs.readdirSync(path.join(run, dir)).length, `${dir} written`).toBeGreaterThan(0);
 
   // Results: the screen recomputes discharge client-side (a TypeScript port of the Python
   // calculation) and starts without interpolating. With "Interpolate Profile" on, it has to
@@ -152,6 +177,11 @@ export const sectionToResults = async (
   await next(page);
   const shown = async () => parseFloat((await page.locator('#result-number').innerText()).replace(',', '.'));
   await expect(page.locator('#result-number')).toBeVisible();
+  // One legend row per technique, each with its own discharge.
+  for (const technique of TECHNIQUES)
+    await expect(
+      page.locator(`.technique-legend .technique-row:has(.technique-swatch-${technique}) .technique-row-total`)
+    ).toHaveText(/^\d/);
   const withoutInterpolation = await shown();
   await page.getByRole('button', { name: 'Interpolate Profile' }).click();
   // ...and the on-screen figure has to equal the discharge the backend wrote for this very run.

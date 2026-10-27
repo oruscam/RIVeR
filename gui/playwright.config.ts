@@ -7,7 +7,7 @@ export const E2E_PORT = 5199;
 
 export default defineConfig({
   testDir: './e2e',
-  timeout: 5 * 60_000,
+  timeout: 10 * 60_000,
   expect: { timeout: 15_000 },
   workers: 1,
   retries: 0,

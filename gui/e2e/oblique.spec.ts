@@ -2,7 +2,7 @@ import * as path from 'node:path';
 import { test, expect, DATA_DIR } from './fixtures';
 import { dragOnCanvas, mmss, next, readReference, sectionToResults, setField } from './flows';
 
-const REFERENCE_RUN = 'P1060716/20261026T1236';
+const REFERENCE_RUN = 'P1060716/20261022T1223';
 
 test('oblique: full wizard reproduces the reference discharge', async ({ river }) => {
   const { page, dialogs } = river;
