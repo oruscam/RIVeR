@@ -63,7 +63,8 @@ export async function resolveExternalFile(
     const { path: target, written } = await copyIntoProjectDetailed(stored, projectFolder);
     return { status: written ? 'copied' : 'inProject', path: target };
   }
-  const candidate = path.join(projectFolder, path.basename(stored));
+  // win32 splits on both / and \, so a path saved on Windows still finds its file.
+  const candidate = path.join(projectFolder, path.win32.basename(stored));
   if (fs.existsSync(candidate)) return { status: 'inProject', path: candidate };
   return { status: 'missing' };
 }

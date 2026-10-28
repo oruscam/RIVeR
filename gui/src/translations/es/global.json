@@ -16,6 +16,7 @@
     "hindi": "Hindi",
     "Errors": {
       "noSettingsFile": "El directorio seleccionado no contiene un archivo settings.json",
+      "noXsectionsFile": "Falta el archivo xsections.json del proyecto",
       "notValidDirectory": "Por favor seleccione un directorio válido",
       "default": "Ocurrió un error al intentar cargar el proyecto"
     },

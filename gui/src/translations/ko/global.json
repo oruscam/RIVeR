@@ -16,6 +16,7 @@
     "hindi": "힌디어",
     "Errors": {
       "noSettingsFile": "선택한 디렉토리에 settings.json 파일이 없습니다",
+      "noXsectionsFile": "프로젝트의 xsections.json 파일이 없습니다",
       "notValidDirectory": "유효한 디렉토리를 선택해 주세요",
       "default": "프로젝트를 불러오는 중 오류가 발생했습니다"
     },

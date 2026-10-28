@@ -16,6 +16,7 @@
     "hindi": "हिंदी",
     "Errors": {
       "noSettingsFile": "चुने गए फ़ोल्डर में settings.json फ़ाइल नहीं है",
+      "noXsectionsFile": "प्रोजेक्ट की xsections.json फ़ाइल मौजूद नहीं है",
       "notValidDirectory": "कृपया एक वैध फ़ोल्डर चुनें",
       "default": "प्रोजेक्ट लोड करते समय एक त्रुटि हुई"
     },

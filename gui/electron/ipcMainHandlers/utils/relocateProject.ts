@@ -11,6 +11,11 @@ const OWNED_KEYS: string[][] = [
   ['grp_3d'],
 ];
 
+/** Older versions saved `<project>/C:\...` after a failed load; returns the Windows path. */
+function unmangle(stored: string): string {
+  return stored.match(/^\/.*?\/([A-Za-z]:\\.*)$/)?.[1] ?? stored;
+}
+
 /**
  * Points every project-owned path in settings.json into `projectFolder`, whatever
  * folder it was saved from. Never falls back to the stored path, so a project copied
@@ -30,14 +35,15 @@ export function relocateOwnedPaths(
   for (const keyPath of OWNED_KEYS) {
     const parent = keyPath.slice(0, -1).reduce<any>((obj, key) => obj?.[key], next);
     const key = keyPath[keyPath.length - 1];
-    const stored = parent?.[key];
-    if (typeof stored !== 'string' || stored === '') continue;
+    if (typeof parent?.[key] !== 'string' || parent[key] === '') continue;
+    const stored = unmangle(parent[key]);
 
-    const resolved = path.join(projectFolder, path.basename(stored));
+    // win32 splits on both / and \, so paths saved on Windows work on macOS/Linux.
+    const resolved = path.join(projectFolder, path.win32.basename(stored));
     if (!samePath(stored, resolved)) {
       parent[key] = resolved;
       changed = true;
-      movedFrom ??= path.dirname(stored);
+      movedFrom ??= path.win32.dirname(stored);
     }
   }
 

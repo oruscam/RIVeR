@@ -24,8 +24,9 @@ export function sectionBath(raw: string, section: string): string | undefined {
 
 /** The project's same-named file for a bath stored in the folder it was moved from. */
 function ownFile(bath: string, movedFrom: string, projectFolder: string) {
-  if (!isSameFolder(path.dirname(bath), movedFrom)) return undefined;
-  const candidate = path.join(projectFolder, path.basename(bath));
+  // win32 splits on both / and \, so baths saved on Windows work on macOS/Linux.
+  if (!isSameFolder(path.win32.dirname(bath), movedFrom)) return undefined;
+  const candidate = path.join(projectFolder, path.win32.basename(bath));
   return fs.existsSync(candidate) ? { status: 'inProject' as const, path: candidate } : undefined;
 }
 

@@ -126,4 +126,17 @@ describe('resolveBathymetryPaths — project moved from a folder that still exis
 
     expect(copied).toEqual([path.join(project, 'bathy.csv')]);
   });
+
+  it('uses the project file for a bath saved on Windows', async () => {
+    const WIN = 'C:\\Users\\leand\\River\\case';
+    fs.writeFileSync(path.join(project, 'bathy.csv'), 'x');
+    const bath = `${WIN}\\bathy.csv`;
+
+    for (const movedFrom of [WIN, undefined]) {
+      const { raw, missing, copied } = await resolveBathymetryPaths(project, xsections(bath, bath), movedFrom);
+      expect(missing).toEqual([]);
+      expect(copied).toEqual([]);
+      expect(sectionBath(raw, 'CS_default_1')).toBe(path.join(project, 'bathy.csv'));
+    }
+  });
 });
