@@ -1,5 +1,6 @@
 opencv-python==5.0.0.93
 matplotlib>=3.9.0
+pillow>=13.0.0
 scipy<=1.14
 click==8.1.7
 numba==0.60.0
