@@ -50,7 +50,7 @@
     "skia-canvas": "^3.0.8",
     "tree-kill": "^1.2.2",
     "use-image": "^1.1.1",
-    "xlsx": "^0.18.5"
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
   },
   "devDependencies": {
     "@playwright/test": "^1.64.0",
@@ -63,9 +63,9 @@
     "@types/react-window": "^1.8.8",
     "@typescript-eslint/eslint-plugin": "^8.4.0",
     "@typescript-eslint/parser": "^8.4.0",
-    "@vitejs/plugin-react": "^4.2.1",
-    "electron": "^32.0.2",
-    "electron-builder": "^24.13.3",
+    "@vitejs/plugin-react": "^5.2.0",
+    "electron": "^44.9.3",
+    "electron-builder": "^26.18.0",
     "electron-devtools-installer": "^3.2.0",
     "eslint": "^9.22.0",
     "eslint-config-prettier": "^10.1.1",
@@ -80,9 +80,9 @@
     "rimraf": "^5.0.0",
     "ts-jest": "^29.4.9",
     "typescript": "^5.2.2",
-    "vite": "^5.1.6",
-    "vite-plugin-electron": "^0.28.6",
-    "vite-plugin-electron-renderer": "^0.14.5"
+    "vite": "^8.3.5",
+    "vite-plugin-electron": "^1.1.2",
+    "vite-plugin-electron-renderer": "^1.0.0"
   },
   "main": "dist-electron/main.js"
 }

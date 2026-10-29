@@ -3,7 +3,7 @@ import { test, expect, DATA_DIR } from './fixtures';
 import { dragOnCanvas, mmss, next, readReference, sectionToResults, setField } from './flows';
 
 // Raw bathymetry is uav/batimetría.ods; the reference's _modified.csv is the app's own rewrite of it.
-const REFERENCE_RUN = 'Yanuncay_CS1/20260828T1039';
+const REFERENCE_RUN = 'Yanuncay_CS1/20261022T1222';
 
 test('uav: full wizard reproduces the reference discharge', async ({ river }) => {
   const { page, dialogs } = river;
@@ -34,7 +34,5 @@ test('uav: full wizard reproduces the reference discharge', async ({ river }) =>
   await page.getByRole('button', { name: 'Solve' }).click();
   await next(page);
 
-  await sectionToResults(river, ref, path.join(DATA_DIR, 'uav/batimetría.ods'), 'Yanuncay_CS1', 0.05);
-  // 5% instead of the exact match oblique gets: with this .ods the current app keeps the bank-side
-  // point (station 0, 0.542 m) that the reference run left out, which moves Q by ~3% (1.81 vs 1.87 m3/s).
+  await sectionToResults(river, ref, path.join(DATA_DIR, 'uav/batimetría.ods'), 'Yanuncay_CS1');
 });

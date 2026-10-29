@@ -16,7 +16,7 @@ name: Smoke (multi-OS)
 on:
   workflow_dispatch:
   pull_request:
-    branches: [develop, main]
+    branches: [main, 'release/**']
 
 concurrency:
   group: smoke-${{ github.ref }}

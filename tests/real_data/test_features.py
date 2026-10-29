@@ -40,7 +40,7 @@ def _need(path):
 VIDEOS = [
     "oblique/P1060716.mp4",
     "uav/Yanuncay_CS1.mp4",
-    "3d/JUNCAL20260108T1440.mp4",
+    "3d/JUNCAL/JUNCAL20260108T1440.mp4",
     "hikvision-zoom_min/hikvision_fixed.mp4",
     "hikvision-zoom_max/video_fixed.mp4",
     "sheffield/sheaf20190314_13040 (1).mp4",
@@ -289,8 +289,13 @@ def test_undistorted_frames_use_calibration_profile(tmp_path):
     run_cli("video-to-frames", video, plain, *common)
     run_cli("video-to-frames", video, corrected, *common, "--undistort", "--profile-path", profile)
 
+    # Undistortion crops to the valid ROI, whose size depends on the calibration (±2 px).
     name = "0000000000.jpg"
-    assert mean_abs_diff(plain / name, corrected / name) > 0.1, "undistortion had no effect"
+    a, b = cv2.imread(str(plain / name)), cv2.imread(str(corrected / name))
+    assert abs(a.shape[0] - b.shape[0]) <= 2 and abs(a.shape[1] - b.shape[1]) <= 2
+    h, w = min(a.shape[0], b.shape[0]), min(a.shape[1], b.shape[1])
+    a, b = a[:h, :w].astype(float), b[:h, :w].astype(float)
+    assert np.abs(a - b).mean() > 0.1, "undistortion had no effect"
 
 
 # ----------------------------------------------------------------------- STIV + iWave

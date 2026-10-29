@@ -20,7 +20,7 @@ permissions:
   contents: read
 
 env:
-  NODE_VERSION: '20'   # project requires Node 18.18.0+
+  NODE_VERSION: '22'   # project requires Node 22.12.0+ (Electron 44)
   PYTHON_VERSION: '3.12'
 
 jobs:

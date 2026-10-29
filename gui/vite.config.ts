@@ -24,17 +24,17 @@ export default defineConfig({
         // si el plugin tiene opciones de build/vite para main, podemos también pasar externals ahí:
         vite: {
           build: {
-            rollupOptions: {
+            rolldownOptions: {
               external: EXTERNAL_NATIVE,
             },
           },
         },
       },
       preload: {
-        input: path.join(__dirname, 'electron/preload.ts'),
+        input: path.join(import.meta.dirname, 'electron/preload.ts'),
         vite: {
           build: {
-            rollupOptions: {
+            rolldownOptions: {
               external: EXTERNAL_NATIVE,
             },
           },
@@ -44,6 +44,12 @@ export default defineConfig({
       renderer: process.env.NODE_ENV === 'test' ? undefined : {},
     }),
   ],
+  resolve: {
+    alias: [
+      // Its `browser` field points to a UMD build whose default export breaks under Vite 8's CJS interop
+      { find: /^react-datepicker$/, replacement: 'react-datepicker/dist/es/index.js' },
+    ],
+  },
   // Evita que Vite pre-bundlee canvas en dev (esbuild prebundle)
   optimizeDeps: {
     exclude: EXTERNAL_NATIVE,
@@ -53,7 +59,7 @@ export default defineConfig({
     external: EXTERNAL_NATIVE,
   },
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       external: EXTERNAL_NATIVE,
     },
   },

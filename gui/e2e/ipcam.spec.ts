@@ -3,11 +3,10 @@ import { test, expect, DATA_DIR, type River } from './fixtures';
 import { dragOnCanvas, latestRun, mmss, next, readJson, readReference, sectionToResults } from './flows';
 
 // IPCam is the 3D mode: GRPs (3D points + pixels) and field photos give the camera solution.
-// Reference: the 840-frame run of the same video. Here only 1 s is extracted, so the camera
-// solution and the section geometry are compared, not the discharge.
-const REFERENCE_RUN = 'JUNCAL20260108T1440/20260808T1530';
+// Reference: the 30-frame (1 s) PIV + STIV + iWave run of the same video.
+const REFERENCE_RUN = 'JUNCAL20260108T1440/20261022T1226';
 const PROJECT = 'JUNCAL20260108T1440';
-const DIR_3D = path.join(DATA_DIR, '3d');
+const DIR_3D = path.join(DATA_DIR, '3d', 'JUNCAL');
 const FT = 0.3048;
 
 const solveCamera = async ({ page, dialogs }: River, points: string) => {
@@ -51,7 +50,7 @@ test('ipcam: full wizard up to results with the metric GRP and bathymetry', asyn
   const ref = readReference(REFERENCE_RUN);
   await solveCamera(river, 'GRP.csv');
   await next(river.page);
-  await sectionToResults(river, ref, path.join(DIR_3D, 'CS3_Bath.csv'), PROJECT, null, true);
+  await sectionToResults(river, ref, path.join(DIR_3D, 'CS3_Bath.csv'), PROJECT, 1e-4, true);
 });
 
 test('ipcam: imperial GRP gives the same camera as metric', async ({ river }) => {

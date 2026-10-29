@@ -9,7 +9,7 @@ import react from '@vitejs/plugin-react';
 import baseConfig from './vite.config';
 
 const EXTERNAL_NATIVE = ['skia-canvas'];
-const external = { build: { rollupOptions: { external: EXTERNAL_NATIVE } } };
+const external = { build: { rolldownOptions: { external: EXTERNAL_NATIVE } } };
 
 export default mergeConfig(
   { ...baseConfig, plugins: [] },
@@ -18,7 +18,7 @@ export default mergeConfig(
       react(),
       electron({
         main: { entry: 'electron/main.ts', onstart() {}, vite: external },
-        preload: { input: path.join(__dirname, 'electron/preload.ts'), vite: external },
+        preload: { input: path.join(import.meta.dirname, 'electron/preload.ts'), vite: external },
       }),
     ],
   })
