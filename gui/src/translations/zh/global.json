@@ -16,6 +16,7 @@
     "hindi": "印地语",
     "Errors": {
       "noSettingsFile": "所选目录不包含 settings.json 文件",
+      "noXsectionsFile": "缺少项目的 xsections.json 文件",
       "notValidDirectory": "请选择一个有效的目录",
       "default": "加载项目时发生错误"
     },

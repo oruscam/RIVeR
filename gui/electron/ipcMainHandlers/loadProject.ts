@@ -132,6 +132,7 @@ async function handleLoadProject(
 
   // Load optional files and other project data
   const matrix = await loadOptionalFile(PROJECT_CONFIG.matrixPath, true);
+  if (settingsParsed.xsections && !fs.existsSync(settingsParsed.xsections)) throw new Error('noXsectionsFile');
   const xSections = settingsParsed.xsections
     ? transformData(await loadOptionalFile(settingsParsed.xsections, true), false)
     : undefined;

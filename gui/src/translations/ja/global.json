@@ -16,6 +16,7 @@
     "hindi": "ヒンディー語",
     "Errors": {
       "noSettingsFile": "選択したディレクトリにsettings.jsonファイルが含まれていません",
+      "noXsectionsFile": "プロジェクトのxsections.jsonファイルが見つかりません",
       "notValidDirectory": "有効なディレクトリを選択してください",
       "default": "プロジェクトの読み込み中にエラーが発生しました"
     },

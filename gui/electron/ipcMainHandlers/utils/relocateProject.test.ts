@@ -82,4 +82,33 @@ describe('relocateOwnedPaths', () => {
     expect(caseOnly.changed).toBe(false);
     expect(caseOnly.movedFrom).toBeUndefined();
   });
+
+  it('relocates paths saved on Windows', () => {
+    const WIN = 'C:\\Users\\leand\\River\\case\\20261027T1017';
+    const stored = {
+      xsections: `${WIN}\\xsections.json`,
+      piv_results: `${WIN}\\piv_results.json`,
+      transformation: { matrix: `${WIN}\\transformation_matrix.json` },
+      stabilization_regions_path: `${WIN}\\stabilization_regions.json`,
+      camera_solution_3d: `${WIN}\\camera_solution_3d.json`,
+      grp_3d: `${WIN}\\grp_3d.json`,
+    };
+    const { settings, changed, movedFrom } = relocateOwnedPaths(NEW, stored);
+    expect(changed).toBe(true);
+    expect(movedFrom).toBe(WIN);
+    expect(settings.xsections).toBe(path.join(NEW, 'xsections.json'));
+    expect(settings.piv_results).toBe(path.join(NEW, 'piv_results.json'));
+    expect(settings.transformation.matrix).toBe(path.join(NEW, 'transformation_matrix.json'));
+    expect(settings.stabilization_regions_path).toBe(path.join(NEW, 'stabilization_regions.json'));
+    expect(settings.camera_solution_3d).toBe(path.join(NEW, 'camera_solution_3d.json'));
+    expect(settings.grp_3d).toBe(path.join(NEW, 'grp_3d.json'));
+  });
+
+  it('repairs a Windows path an older version joined onto the project folder', () => {
+    const WIN = 'C:\\Users\\leand\\River\\case\\20261027T1017';
+    const stored = { xsections: `/Users/a/old/20261027T1017/${WIN}\\xsections.json` };
+    const { settings, movedFrom } = relocateOwnedPaths(NEW, stored);
+    expect(settings.xsections).toBe(path.join(NEW, 'xsections.json'));
+    expect(movedFrom).toBe(WIN);
+  });
 });

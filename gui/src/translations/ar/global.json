@@ -16,6 +16,7 @@
     "hindi": "الهندية",
     "Errors": {
       "noSettingsFile": "المجلد المحدد لا يحتوي على ملف settings.json",
+      "noXsectionsFile": "ملف xsections.json الخاص بالمشروع مفقود",
       "notValidDirectory": "الرجاء اختيار مجلد صالح",
       "default": "حدث خطأ أثناء محاولة تحميل المشروع"
     },
