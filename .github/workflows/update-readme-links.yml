@@ -1,6 +1,8 @@
 name: Update README download links
 
 on:
+  # Started by tag-release.yml with --ref vX.Y.Z
+  workflow_dispatch:
   push:
     tags:
       - 'v*'

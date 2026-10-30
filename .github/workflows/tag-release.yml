@@ -1,0 +1,65 @@
+name: Tag release
+
+# Tags main when its version has no tag yet (release/hotfix merges), then
+# starts the release builds. Merges that don't bump the version are skipped.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  tag:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: 1. Checkout
+        uses: actions/checkout@v6
+
+      - name: 2. Read version
+        id: v
+        run: |
+          VERSION=$(node -p "require('./gui/package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: 3. Skip if version already tagged
+        id: check
+        run: |
+          if git ls-remote --exit-code --tags origin "refs/tags/${{ steps.v.outputs.tag }}" > /dev/null; then
+            echo "${{ steps.v.outputs.tag }} already exists, nothing to release."
+            echo "new=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "new=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 4. Check version files and changelog
+        if: steps.check.outputs.new == 'true'
+        run: |
+          VERSION=${{ steps.v.outputs.version }}
+          FAIL=0
+          grep -q "^version = \"$VERSION\"" pyproject.toml || { echo "::error::pyproject.toml is not $VERSION"; FAIL=1; }
+          grep -q "\"$VERSION\"" river/__init__.py || { echo "::error::river/__init__.py is not $VERSION"; FAIL=1; }
+          grep -q "RIVeR $VERSION" gui/index.html || { echo "::error::gui/index.html is not $VERSION"; FAIL=1; }
+          grep -q "^# \[$VERSION\] - [0-9]" CHANGELOG.md || { echo "::error::CHANGELOG.md has no dated [$VERSION] entry"; FAIL=1; }
+          exit $FAIL
+
+      - name: 5. Create and push tag
+        if: steps.check.outputs.new == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag -a "${{ steps.v.outputs.tag }}" -m "Release ${{ steps.v.outputs.version }}"
+          git push origin "${{ steps.v.outputs.tag }}"
+
+      # Tags pushed with GITHUB_TOKEN don't trigger workflows, so start them here.
+      - name: 6. Start build and README update
+        if: steps.check.outputs.new == 'true'
+        run: |
+          gh workflow run build.yml --ref "${{ steps.v.outputs.tag }}"
+          gh workflow run update-readme-links.yml --ref "${{ steps.v.outputs.tag }}"
