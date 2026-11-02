@@ -449,3 +449,48 @@ jobs:
   #       with:
   #         name: RIVeR-Mac-x64
   #         path: gui/release/**/*.dmg
+  # ─────────────────────────────────────────────
+  #  Draft GitHub Release (v* tags only)
+  # ─────────────────────────────────────────────
+  publish:
+    needs: [build-linux, build-windows, build-mac]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: 1. Checkout
+        uses: actions/checkout@v6
+
+      - name: 2. Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: 3. Extract changelog notes
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          # Lines between "# [VERSION]" and the next "# [" heading
+          awk -v v="$VERSION" '
+            index($0, "# [" v "]") == 1 { on = 1; next }
+            on && /^# \[/ { exit }
+            on { print }
+          ' CHANGELOG.md > notes.md
+          if [ ! -s notes.md ]; then
+            echo "::error::CHANGELOG.md has no [$VERSION] entry"
+            exit 1
+          fi
+
+      - name: 4. Create draft release
+        run: |
+          shopt -s globstar
+          gh release create "$GITHUB_REF_NAME" \
+            artifacts/**/*.deb artifacts/**/*.exe artifacts/**/*.dmg \
+            --draft \
+            --verify-tag \
+            --title "RIVeR ${GITHUB_REF_NAME#v}" \
+            --notes-file notes.md

@@ -72,15 +72,10 @@ Once the planned features are merged, the release branch is frozen for new featu
 ### 4. Publishing the release
 
 1. Open a PR from `release/X.Y.Z` into `main`; merge once approved and CI is green (merge commit, do not squash).
-2. Tag the merge commit on `main` and push the tag:
-   ```bash
-   git checkout main && git pull
-   git tag -a vX.Y.Z -m "Release X.Y.Z"
-   git push origin vX.Y.Z
-   ```
-   Pushing a `v*` tag triggers the build workflow and the README link update workflow.
-3. Delete the release branch (the tag preserves the history).
-4. Start the next cycle by creating the next `release/*` branch from the new `main`.
+2. The merge triggers the tag workflow, which creates the `vX.Y.Z` tag from `gui/package.json` and starts the build and README link update workflows. It only runs when that version has no tag yet, so merges that don't bump the version are skipped. It fails if `pyproject.toml`, `river/__init__.py` or `gui/index.html` disagree with `gui/package.json`, or if `CHANGELOG.md` has no dated `[X.Y.Z]` entry.
+3. Once the Linux, Windows and macOS builds pass, a **draft** GitHub Release is created with the installers and the `CHANGELOG.md` notes. Review it and publish it.
+4. Delete the release branch (the tag preserves the history).
+5. Start the next cycle by creating the next `release/*` branch from the new `main`.
 
 ### 5. Hotfixes
 
@@ -92,7 +87,7 @@ For critical bugs in the released version that cannot wait for the current relea
    git checkout -b hotfix/short-description
    ```
 2. Fix the issue with a regression test, bump the patch version and update the changelog.
-3. Open a PR into `main`, merge, and tag `vX.Y.(Z+1)`.
+3. Open a PR into `main` and merge it; the tag `vX.Y.(Z+1)` and the draft release are created automatically.
 4. Merge `main` into the open `release/*` branch so it includes the fix.
 5. Delete the hotfix branch.
 
