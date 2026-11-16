@@ -60,9 +60,8 @@ export interface DischargeResult {
 
 /**
  * Width/area/discharge from a velocity profile. Direct port of add_w_a_q() in
- * river/core/compute_section.py:911-983. Pass alpha=1 for any technique other than LSPIV —
- * the backend's own docstring is explicit that alpha is specifically LSPIV's
- * superficial-to-mean velocity correction, not a general coefficient.
+ * river/core/compute_section.py:911-983. Alpha is the surface-to-mean velocity correction;
+ * it applies to every technique, since all of them measure surface velocity.
  */
 export function computeDischarge(
   profile: (number | null)[],
@@ -94,7 +93,7 @@ export interface TechniqueOptions {
   interpolated: boolean;
   /** Section.artificialSeeding — LSPIV-only: picks seeded_vel_profile as the base profile. */
   artificialSeeding: boolean;
-  /** Section.alpha — LSPIV-only; ignored for STIV/iWave. */
+  /** Section.alpha — applied to the discharge of every technique. */
   alpha: number;
   /** Frame step and video fps — needed to turn a manual STIV angle into a velocity. */
   step: number;
@@ -196,8 +195,8 @@ export function getEffectiveTechniqueData(
     }
   });
 
-  const alpha = technique === 'lspiv' ? options.alpha : 1;
-  const { A, W, Q, Q_portion, total_Q } = computeDischarge(resolved, data.depth, data.distance, alpha);
+  // All techniques measure surface velocity, so alpha applies to every one.
+  const { A, W, Q, Q_portion, total_Q } = computeDischarge(resolved, data.depth, data.distance, options.alpha);
 
   const consideredCount = resolved.filter((v) => v !== null).length;
   const interpCount = interpFlags.filter(Boolean).length;

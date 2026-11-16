@@ -58,7 +58,7 @@ describe('buildReportModel', () => {
     expect(m.sections[0].technique).toBe('stiv');
     expect(m.sections[0].totalQ).toBeCloseTo(2);
     expect(m.sections[0].qStd).toBeNull();
-    expect(m.sections[0].alpha).toBeNull();
+    expect(m.sections[0].alpha).toBe(1);
   });
 
   test('comparison lists every computed technique, active one flagged, in LSPIV/STIV/iWave order', () => {
@@ -221,7 +221,7 @@ describe('summaryRows', () => {
       'meanD',
       'measured',
     ]);
-    expect(rows.filter((r) => r.lspivOnly).map((r) => r.key)).toEqual(['meanV', 'alpha', 'meanVs']);
+    expect(rows.filter((r) => r.lspivOnly).map((r) => r.key)).toEqual(['meanV', 'meanVs']);
   });
 
   test('Q comes from the active techniques, not the backend total_Q', () => {
