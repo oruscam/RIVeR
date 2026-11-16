@@ -119,3 +119,17 @@ describe('getEffectiveTechniqueData with the iWave quality flag', () => {
     expect(r.lowQualityFlags).toEqual([false, false, false]);
   });
 });
+
+describe('getEffectiveTechniqueData alpha', () => {
+  const data = {
+    ...baseData(),
+    streamwise_velocity_magnitude: [1, 1, 1],
+    iwave_velocity_profile: [1, 1, 1],
+  } as unknown as SectionData;
+
+  it.each(['lspiv', 'stiv', 'iwave'] as const)('scales %s discharge by alpha', (technique) => {
+    const base = getEffectiveTechniqueData(data, technique, { ...opts, alpha: 1 })!;
+    const scaled = getEffectiveTechniqueData(data, technique, { ...opts, alpha: 0.5 })!;
+    expect(scaled.total_Q).toBeCloseTo(base.total_Q * 0.5, 10);
+  });
+});

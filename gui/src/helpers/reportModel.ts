@@ -23,7 +23,7 @@ export interface SectionResult {
   measuredPct: number;
   interpolatedPct: number;
   seeded: boolean;
-  /** LSPIV only: alpha does not apply to STIV or IWaVE. */
+  /** Surface-to-mean velocity coefficient used for the discharge (all techniques). */
   alpha: number | null;
   numStations: number;
   comparison: TechniqueQ[];
@@ -148,7 +148,7 @@ export function buildReportModel({ sections, step, fps }: ReportModelInput): Rep
       measuredPct: measured_Q * 100,
       interpolatedPct: interpolated_Q * 100,
       seeded: isLspiv && artificialSeeding,
-      alpha: isLspiv ? alpha : null,
+      alpha,
       numStations: data.num_stations,
       comparison,
     });
@@ -236,7 +236,7 @@ const BACKEND_ROWS: { key: SummaryKey; field: keyof SummaryStatistics; unit: Sum
     { key: 'W', field: 'total_W', unit: 'longitude', lspivOnly: false },
     { key: 'A', field: 'total_A', unit: 'area', lspivOnly: false },
     { key: 'meanV', field: 'mean_V', unit: 'velocity', lspivOnly: true },
-    { key: 'alpha', field: 'alpha', unit: 'none', lspivOnly: true },
+    { key: 'alpha', field: 'alpha', unit: 'none', lspivOnly: false },
     { key: 'meanVs', field: 'mean_Vs', unit: 'velocity', lspivOnly: true },
     { key: 'maxD', field: 'max_depth', unit: 'longitude', lspivOnly: false },
     { key: 'meanD', field: 'average_depth', unit: 'longitude', lspivOnly: false },
