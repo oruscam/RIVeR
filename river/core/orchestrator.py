@@ -16,7 +16,7 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 
-from river.core.compute_section import update_current_x_section
+from river.core.compute_section import PIV_HASH_KEY, update_current_x_section
 from river.core.iwave_params import IwaveOptions
 from river.core.iwave_pipeline import (
 	IWAVE_COLUMNS,
@@ -28,7 +28,6 @@ from river.core.iwave_pipeline import (
 from river.core.piv_pipeline import run_analyze_all
 from river.core.stiv_pipeline import STIV_COLUMNS, _collect_frames, load_models, run_stiv_analysis
 
-PIV_HASH_KEY = "_piv_params_hash"
 IWAVE_STRIP_KEYS = IWAVE_COLUMNS + [IWAVE_PARAMS_KEY]
 
 
