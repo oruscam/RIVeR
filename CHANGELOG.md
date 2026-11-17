@@ -6,6 +6,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+# [3.8.3] - 2026-11-16
+
+## GUI
+
+### Fixed
+
+- Alpha now applies to the STIV and iWave discharge, not only LSPIV, since all three techniques measure surface velocity. STIV and iWave discharges of existing projects change accordingly (about 15% lower with the default alpha of 0.85)
+- The report shows the alpha used for every technique
+
+
 # [3.8.2] - 2026-10-23
 
 ## GUI
