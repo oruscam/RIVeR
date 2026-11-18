@@ -4,6 +4,8 @@ import * as fs from 'fs';
 import path from 'path';
 import { PROJECT_CONFIG } from '../main';
 import { extractFrames } from './utils/extractFrames';
+import { clearResultsPiv } from './utils/clearResultsPiv';
+import { clearCrossSections } from './utils/clearCrossSections';
 
 function firstFrame(riverCli: RiverCli) {
   const mainWindow = BrowserWindow.getAllWindows()[0];
@@ -35,6 +37,12 @@ function firstFrame(riverCli: RiverCli) {
       console.log(error);
       return { error, initial_frame: '' };
     }
+
+    // New frames: drop every result computed from the old ones.
+    const { xsectionsPath } = PROJECT_CONFIG;
+    await clearResultsPiv(path.join(projectDirectory, 'piv_results.json'), settingsPath);
+    if (xsectionsPath && fs.existsSync(xsectionsPath)) await clearCrossSections(xsectionsPath);
+    await fs.promises.rm(path.join(projectDirectory, '_stats_cache.json'), { force: true });
 
     const files = fileNames.map((file) => path.join(filePrefix, framesPath, file));
 

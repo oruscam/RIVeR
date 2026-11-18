@@ -29,6 +29,7 @@ import { StabilizationRegion } from '../store/project/types';
 import { FieldValues } from 'react-hook-form';
 import {
   addSection,
+  clearResults,
   setDefaultSectionState,
   setSummary,
   setTransformationMatrix,
@@ -386,6 +387,9 @@ export const useProjectSlice = () => {
       dispatch(clearMessage());
       dispatch(setFirstFramePath(filePrefix + result.initial_frame));
       dispatch(setVideoParameters(parameters));
+      // Results came from the old frames (removed on disk by first-frame).
+      dispatch(setQuiver({ quiver: null }));
+      dispatch(clearResults());
       if (intervalChanged) {
         dispatch(
           setVideoData({
