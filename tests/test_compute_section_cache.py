@@ -60,6 +60,12 @@ def test_geometry_hash_different_matrix_different_hash():
     assert h1 != h2
 
 
+def test_geometry_hash_different_piv_run_different_hash():
+    h1 = _compute_geometry_hash(**_base_hash_inputs(), piv_hash="run-a")
+    h2 = _compute_geometry_hash(**_base_hash_inputs(), piv_hash="run-b")
+    assert h1 != h2
+
+
 def test_n_cache_points_is_200():
     assert N_CACHE_POINTS == 200
 
@@ -320,6 +326,51 @@ def test_no_legacy_cache_completes_without_error(tmp_path):
 # iWave arrays from a previous, differently-sized Analize run would silently
 # survive the merge, misaligned against the newly-rebuilt station positions.
 # ---------------------------------------------------------------------------
+
+def _stats_fixture(tmp_path):
+    """Section without stored stats, so stats come from the cache path."""
+    x_sections, _, T = _make_full_xsection_fixture(tmp_path, embed_legacy_cache=False)
+    for key in ("minus_std", "plus_std", "5th_percentile", "95th_percentile", "seeded_vel_profile"):
+        x_sections["CS1"].pop(key)
+    return x_sections, T
+
+
+def _piv_run(speed, piv_hash):
+    """Synthetic PIV run with diagonal flow, optionally signed."""
+    piv = _make_synthetic_piv(n_grid=5, n_frames=3, u_val=speed)
+    piv["v"] = piv["u"]
+    piv["v_median"] = piv["u_median"]
+    if piv_hash is not None:
+        piv["_piv_params_hash"] = piv_hash
+    return piv
+
+
+def _p95(x_sections, piv, T, stats_cache):
+    out = _call_update(copy.deepcopy(x_sections), piv, T, stats_cache)
+    return np.array(out["CS1"]["95th_percentile"], dtype=float)
+
+
+@pytest.mark.parametrize("hash_a, hash_b", [("run-a", "run-b"), (None, None)])
+def test_new_piv_run_does_not_reuse_cached_stats(tmp_path, hash_a, hash_b):
+    # Same geometry, new vectors: stats must match a fresh run, not the cached one.
+    x_sections, T = _stats_fixture(tmp_path)
+    cache = {}
+    old = _p95(x_sections, _piv_run(0.1, hash_a), T, cache)
+    reused = _p95(x_sections, _piv_run(0.3, hash_b), T, cache)
+    fresh = _p95(x_sections, _piv_run(0.3, hash_b), T, {})
+    assert not np.allclose(old, fresh, equal_nan=True)
+    np.testing.assert_allclose(reused, fresh)
+
+
+def test_same_piv_run_reuses_cached_stats(tmp_path):
+    # Same signature: the cache is still used (the speed-up is kept).
+    x_sections, T = _stats_fixture(tmp_path)
+    cache = {}
+    first = _p95(x_sections, _piv_run(0.1, "run-a"), T, cache)
+    # Different vectors under the same signature can only come from the cache.
+    second = _p95(x_sections, _piv_run(0.3, "run-a"), T, cache)
+    np.testing.assert_allclose(second, first)
+
 
 _STIV_IWAVE_COLUMNS = (
     "stiv_velocity_profile", "stiv_sigma_profile", "stiv_angle_profile", "stiv_sign_profile",

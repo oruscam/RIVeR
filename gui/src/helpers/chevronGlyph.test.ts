@@ -23,6 +23,14 @@ describe('flowDirection', () => {
     expect(d.y).toBeCloseTo(-0.8, 6);
   });
 
+  it('ignores the sign of a reversed LSPIV vector: only velocity sets the sense', () => {
+    // LSPIV negative (vector points -north) but the shown technique is positive.
+    const d = flowDirection(2, 3.3, east, north, [0, 0, 0, 0, 0], [0, 0, -1, 0, 0]);
+    expect(d.y).toBeCloseTo(1, 6);
+    // LSPIV negative and shown value negative: reverse flow.
+    expect(flowDirection(2, -0.67, east, north, [0, 0, 0, 0, 0], [0, 0, -1, 0, 0]).y).toBeCloseTo(-1, 6);
+  });
+
   it('falls back to the section perpendicular when no streamwise vector is given', () => {
     const d = flowDirection(2, 1.0, east, north);
     expect(Math.abs(d.x)).toBeCloseTo(0, 6);

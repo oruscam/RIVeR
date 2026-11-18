@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+# [3.8.4] - 2026-11-18
+
+## GUI
+
+### Fixed
+
+- Results no longer go blank when opening a project whose sections have no results yet: Next in Processing stays disabled until every section has been analyzed
+- Re-extracting frames (video range, lens correction, stabilization or resolution) now clears the previous PIV and section results, so Analize computes them from the new frames
+- Velocity arrows point by the sign of the value shown, for LSPIV, STIV and iWave. Stations where LSPIV was negative drew the arrows backwards
+
+## CLI
+
+### Fixed
+
+- Section statistics (std, percentiles and seeded profile) are recomputed when the PIV results change, instead of reusing the previous run's values
+
+
 # [3.8.3] - 2026-11-16
 
 ## GUI

@@ -44,19 +44,20 @@ export function flowDirection(
   streamwiseNorth?: number[]
 ): Vec {
   let dir: Vec = { x: 0, y: 0 };
+  const a = Math.max(0, i - 1);
+  const b = Math.min(east.length - 1, i + 1);
+  const tangent = unit(east[b] - east[a], north[b] - north[a]);
+  const normal = { x: -tangent.y, y: tangent.x };
 
   const se = streamwiseEast?.[i];
   const sn = streamwiseNorth?.[i];
   if (typeof se === 'number' && typeof sn === 'number' && !isNaN(se) && !isNaN(sn)) {
     dir = unit(se, sn);
+    // LSPIV's vector carries its own sign: orient it downstream so only `velocity` sets the sense.
+    if (dir.x * normal.x + dir.y * normal.y < 0) dir = { x: -dir.x, y: -dir.y };
   }
 
-  if (dir.x === 0 && dir.y === 0) {
-    const a = Math.max(0, i - 1);
-    const b = Math.min(east.length - 1, i + 1);
-    const tangent = unit(east[b] - east[a], north[b] - north[a]);
-    dir = { x: -tangent.y, y: tangent.x };
-  }
+  if (dir.x === 0 && dir.y === 0) dir = normal;
 
   return velocity < 0 ? { x: -dir.x, y: -dir.y } : dir;
 }
