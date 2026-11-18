@@ -44,6 +44,8 @@ export const Processing = () => {
 
   const { sections, activeSection } = useSectionSlice();
   const activeSectionName = sections[activeSection]?.name;
+  // Next needs every section's results, not just the PIV vectors.
+  const hasSectionResults = sections.every((s) => s.data?.distance !== undefined);
 
   // Track the previously-seen fullQuiver reference so we can tell "a new Analize
   // just completed" apart from "this component happened to mount/remount while
@@ -231,7 +233,7 @@ export const Processing = () => {
             localExtraFields={extraFields}
             disabled={isBackendWorking}
           />
-          <WizardButtons onClickNext={handleNext} canFollow={fullQuiver !== null} />
+          <WizardButtons onClickNext={handleNext} canFollow={fullQuiver !== null && hasSectionResults} />
         </div>
       </div>
       <Toast />

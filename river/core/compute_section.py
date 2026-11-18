@@ -25,6 +25,9 @@ from river.core.stiv_pipeline import STIV_COLUMNS
 
 N_CACHE_POINTS = 200
 
+# Signature of the PIV run, stored in piv_results.json by the orchestrator.
+PIV_HASH_KEY = "_piv_params_hash"
+
 
 def _compute_geometry_hash(
     east_l: float,
@@ -36,11 +39,12 @@ def _compute_geometry_hash(
     step: int,
     fps: float,
     transformation_matrix,
+    piv_hash: Optional[str] = None,
 ) -> str:
     # Note: bathymetry file content is not hashed — changes to the bath file
     # without changing bank coords or level will not invalidate the cache.
     tm_flat = ",".join(str(v) for v in np.array(transformation_matrix).flatten())
-    data = f"{east_l},{north_l},{east_r},{north_r},{level},{left_station},{step},{fps},{tm_flat}"
+    data = f"{east_l},{north_l},{east_r},{north_r},{level},{left_station},{step},{fps},{tm_flat},{piv_hash}"
     return hashlib.md5(data.encode()).hexdigest()
 
 
@@ -1536,14 +1540,17 @@ def update_current_x_section(
         dense_east = np.array(dense_table["east"])
         dense_north = np.array(dense_table["north"])
 
-        # Check whether the cached per-frame data is still valid
+        # Check whether the cached per-frame data is still valid.
+        # The PIV signature is part of the key: new vectors must not reuse old stats.
+        piv_hash = piv_results.get(PIV_HASH_KEY)
         geometry_hash = _compute_geometry_hash(
             east_l, north_l, east_r, north_r, level,
-            left_station, step, fps, transformation_matrix,
+            left_station, step, fps, transformation_matrix, piv_hash,
         )
         existing_cache = stats_cache.get(current_x_section)
 
-        if existing_cache and existing_cache.get("geometry_hash") == geometry_hash:
+        # Without a PIV signature (pre-3.7 results) runs can't be told apart: recompute.
+        if piv_hash and existing_cache and existing_cache.get("geometry_hash") == geometry_hash:
             # dtype=float64 is required: NaN values in the cache round-trip through the
             # Electron layer as JSON null (JSON has no NaN), which np.array() would
             # otherwise load as dtype=object instead of coercing back to nan.
