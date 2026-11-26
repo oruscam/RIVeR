@@ -2,6 +2,7 @@ import { app, dialog, ipcMain } from 'electron';
 import * as fs from 'fs';
 import * as path from 'path';
 import { createVideoFromFrames } from './utils/createVideoFromFrames';
+import { VC_REDIST_MESSAGE } from './utils/executeRiverCli';
 
 import {
   drawColorBar,
@@ -29,12 +30,9 @@ async function getGif() {
     try {
       skia = await import('skia-canvas');
     } catch (error) {
-      const message =
-        'Video export is unavailable: the Microsoft Visual C++ Redistributable (x64) is missing.\n' +
-        'Install it from https://aka.ms/vs/17/release/vc_redist.x64.exe and restart RIVeR.';
-      dialog.showErrorBox('Video export unavailable', message);
+      dialog.showErrorBox('Video export unavailable', VC_REDIST_MESSAGE);
       console.error(error);
-      throw new Error(message);
+      throw new Error(VC_REDIST_MESSAGE);
     }
     const { Canvas, loadImage } = skia;
 
