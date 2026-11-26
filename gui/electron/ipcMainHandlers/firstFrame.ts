@@ -1,4 +1,4 @@
-import { ipcMain, BrowserWindow } from 'electron';
+import { ipcMain } from 'electron';
 import { FirstFrameArgs, RiverCli } from './interfaces';
 import * as fs from 'fs';
 import path from 'path';
@@ -8,14 +8,12 @@ import { clearResultsPiv } from './utils/clearResultsPiv';
 import { clearCrossSections } from './utils/clearCrossSections';
 
 function firstFrame(riverCli: RiverCli) {
-  const mainWindow = BrowserWindow.getAllWindows()[0];
-
-  ipcMain.handle('first-frame', async (_event, args: FirstFrameArgs) => {
+  ipcMain.handle('first-frame', async (event, args: FirstFrameArgs) => {
     PROJECT_CONFIG.framesPath = PROJECT_CONFIG.projectDirectory + '/frames';
     const { projectDirectory, videoPath, framesPath, settingsPath, logsPath } = PROJECT_CONFIG;
 
-    let filePrefix = import.meta.env.VITE_FILE_PREFIX;
-    filePrefix = filePrefix === undefined ? '' : filePrefix;
+    // Set once in main.ts from VITE_FILE_PREFIX; read here so Jest can load this module.
+    const { filePrefix } = PROJECT_CONFIG;
 
     console.time('Extracting frames');
 
@@ -48,7 +46,8 @@ function firstFrame(riverCli: RiverCli) {
 
     // Send all-frames BEFORE returning so that images.paths is populated
     // in the renderer before isBackendWorking flips back to false.
-    mainWindow.webContents.send('all-frames', files);
+    // Reply to the window that asked: on macOS a window closed and reopened is a new one.
+    event.sender.send('all-frames', files);
 
     const firstFrame = fileNames.length > 0 ? path.join(framesPath, fileNames[0]) : '';
     PROJECT_CONFIG.firstFrame = firstFrame;
