@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+# [Unreleased]
+
+## GUI
+
+### Fixed
+
+- Stop and quitting the app now end the whole analysis, including the PIV worker processes, which used to keep running and slow the computer down (#246)
+
+
 # [3.8.4] - 2026-11-18
 
 ## GUI

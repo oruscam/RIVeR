@@ -3,8 +3,11 @@ import { ChildProcess, spawn } from 'child_process';
 import * as fs from 'fs';
 import { PROJECT_CONFIG } from '../../main';
 import { detectPhaseTransition } from './detectPhaseTransition';
+import { killProcessTree } from './killProcessTree';
 
 let python: ChildProcess | undefined;
+/** Runs ended by Stop or quit. On Windows they exit with a code, not a signal, so we remember them. */
+const stoppedRuns = new WeakSet<ChildProcess>();
 
 async function executeRiverCli(
   options: (string | number)[],
@@ -25,7 +28,8 @@ async function executeRiverCli(
   console.log('EJECUTANDO COMANDO:', args.join(' '));
 
   const result = await new Promise((resolve, reject) => {
-    const child = spawn(PROJECT_CONFIG.pythonPath, args);
+    // A tracked run leads its own process group (macOS, Linux), so Stop can end its workers too.
+    const child = spawn(PROJECT_CONFIG.pythonPath, args, { detached: tracked && process.platform !== 'win32' });
     if (tracked) python = child;
 
     let stdoutData = '';
@@ -89,7 +93,10 @@ async function executeRiverCli(
       }
 
       if (code !== 0) {
-        const errMsg = code === null ? 'Process was killed' : stderrData || `Process exited with code ${code}`;
+        const errMsg =
+          code === null || stoppedRuns.has(child)
+            ? 'Process was killed'
+            : stderrData || `Process exited with code ${code}`;
         if (python === child) python = undefined;
         resolve({ error: { message: errMsg } });
         appendLog(logFile, args, stdoutData, stderrData);
@@ -114,9 +121,10 @@ async function executeRiverCli(
   return result as { data: any; error: any };
 }
 
-async function killRiverCli() {
+async function killRiverCli(force: boolean = false) {
   if (python) {
-    python.kill();
+    stoppedRuns.add(python);
+    killProcessTree(python, force);
     console.log('Process killed successfully');
     return true;
   }
@@ -131,7 +139,8 @@ ipcMain.handle('kill-river-cli', async () => {
 app.on('before-quit', async () => {
   if (python) {
     console.log('App is quitting. Killing river-cli process');
-    await killRiverCli();
+    // Forced: app.exit() below would cancel a delayed follow-up.
+    await killRiverCli(true);
   }
   app.exit(); // Ensure the app exits after handling the process
 });
