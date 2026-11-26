@@ -70,6 +70,10 @@ If you don't want to bother with code at all (we get it, sometimes you just want
 
 These packages include both the GUI and CLI tools in a ready-to-use application. Simply download, extract (if needed), and run the application — no Python or JavaScript knowledge required!
 
+> **Windows users:** RIVeR requires the **Microsoft Visual C++ Redistributable (x64)**. If it is missing, the app may fail on startup with:
+> `A JavaScript error occurred in the main process — Uncaught Exception: Error: The specified module could not be found.`
+> Download and install it then restart RIVeR.
+
 > **macOS users:** If Gatekeeper blocks the app after installing, open a terminal and run:
 > ```bash
 > xattr -rd com.apple.quarantine /Applications/RIVeR.app
