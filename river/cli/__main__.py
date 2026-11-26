@@ -1,3 +1,10 @@
+import os
+
+# PIV starts one process per core. If each also starts an OpenBLAS thread pool, the cores are so
+# oversubscribed that the run stalls. OpenBLAS reads this when NumPy or SciPy load it, so it has
+# to come before those imports; worker processes inherit it. A value set by the user is kept.
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+
 import click
 
 import river.cli.commands.coordinate_transform as ct
