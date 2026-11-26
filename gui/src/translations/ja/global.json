@@ -246,6 +246,7 @@
     "statusRunning": "実行中",
     "statusQueued": "待機中",
     "waitForTest": "Test PIV の完了を待ってください",
+    "analysisFailed": "解析に失敗しました: {{error}}。詳細は river.log をご確認ください",
     "preProcessing": "前処理",
     "filtering": "フィルタリング",
     "interrogationWindow": "検査窓",

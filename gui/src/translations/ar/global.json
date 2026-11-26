@@ -246,6 +246,7 @@
     "statusRunning": "قيد التشغيل",
     "statusQueued": "في الانتظار",
     "waitForTest": "انتظر انتهاء Test PIV",
+    "analysisFailed": "فشل التحليل: {{error}}. التفاصيل في river.log",
     "preProcessing": "المعالجة المسبقة",
     "filtering": "الترشيح",
     "interrogationWindow": "نافذة الاستجواب",

@@ -246,6 +246,7 @@
     "statusRunning": "运行中",
     "statusQueued": "排队中",
     "waitForTest": "请等待 Test PIV 完成",
+    "analysisFailed": "分析失败：{{error}}。详情请见 river.log",
     "preProcessing": "预处理",
     "filtering": "滤波",
     "interrogationWindow": "判读窗口",

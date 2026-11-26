@@ -8,6 +8,7 @@ import {
   IwaveSettings,
   LspivSettings,
   ProcessingRunZone,
+  PROCESSING_ERROR_ALERT_ID,
   RoiHeightRow,
 } from './Components';
 import { useEffect, useState } from 'react';
@@ -57,7 +58,8 @@ export const FormProcessing = ({
   iwaveDefaults: IwaveDefaults;
 }) => {
   const { t } = useTranslation();
-  const { onSetFieldError, onClearFieldError, onAddStepAlert, onClearStepAlert, onShowToast } = useUiSlice();
+  const { onSetFieldError, onClearFieldError, onAddStepAlert, onClearStepAlert, onShowToast, stepAlerts } =
+    useUiSlice();
   const { isBackendWorking, processing, onSetQuiverTest, onSetQuiverAll, onKillBackend, onUpdateProcessing } =
     useDataSlice();
   const { sections, activeSection, onUpdateSection } = useSectionSlice();
@@ -153,19 +155,19 @@ export const FormProcessing = ({
   const handleOnClickTest = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
     setIsTesting(true);
-    onClearStepAlert('processing-backend-error');
+    onClearStepAlert(PROCESSING_ERROR_ALERT_ID);
     onSetQuiverTest()
       .then(() => setIsTesting(false))
-      .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
+      .catch((error) => onAddStepAlert(PROCESSING_ERROR_ALERT_ID, 'error', error.message));
   };
 
   const handleAnalyze = () => {
     if (isBackendWorking) return;
     setIsTesting(false);
-    onClearStepAlert('processing-backend-error');
+    onClearStepAlert(PROCESSING_ERROR_ALERT_ID);
     onSetQuiverAll()
       .then(() => setShowMedian(true))
-      .catch((error) => onAddStepAlert('processing-backend-error', 'error', error.message));
+      .catch((error) => onAddStepAlert(PROCESSING_ERROR_ALERT_ID, 'error', error.message));
   };
 
   const handleStop = () => {
@@ -422,6 +424,7 @@ export const FormProcessing = ({
         testing={isBackendWorking && isTesting}
         onAnalyze={handleAnalyze}
         onStop={handleStop}
+        error={stepAlerts.find((alert) => alert.id === PROCESSING_ERROR_ALERT_ID)?.text}
       >
         <AnalyzingProgress state={runState} />
       </ProcessingRunZone>

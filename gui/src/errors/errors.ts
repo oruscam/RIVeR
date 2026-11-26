@@ -27,6 +27,25 @@ export class CliError extends Error {
   }
 }
 
+const MAX_REASON_LENGTH = 200;
+
+/** A failed PIV run: a known cause keeps its translation, any other one shows what the backend said. */
+export class AnalysisError extends Error {
+  constructor(message: string, t: any) {
+    // A process that crashes sends its whole output; the cause is on the last line.
+    const lines = message.split(/[\r\n]+/).filter((line) => line.trim() !== '');
+    const reason = (lines[lines.length - 1] ?? '')
+      .trim()
+      .replace(/^Unexpected error:\s*/, '')
+      .replace(/\.$/, '')
+      .slice(0, MAX_REASON_LENGTH);
+    const knownCause = t('Errors.Cli.' + message.trim().replace(':', ''), { defaultValue: '' });
+    super(knownCause || t('Processing.analysisFailed', { error: reason }));
+    this.name = 'AnalysisError';
+    this.stack = '';
+  }
+}
+
 export class CliErrorMessage extends Error {
   constructor(message?: string) {
     super(message);

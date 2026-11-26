@@ -246,6 +246,7 @@
     "statusRunning": "चल रहा है",
     "statusQueued": "कतार में",
     "waitForTest": "Test PIV पूरा होने तक प्रतीक्षा करें",
+    "analysisFailed": "विश्लेषण विफल: {{error}}. विवरण river.log में",
     "preProcessing": "पूर्व-प्रसंस्करण",
     "filtering": "फ़िल्टरिंग",
     "interrogationWindow": "इंटरोगेशन विंडो",
