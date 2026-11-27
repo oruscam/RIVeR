@@ -591,6 +591,7 @@
     "invalidBathimetryDepthNotAllowed": "I file di batimetria di profondità non sono supportati in questa modalità. Importa invece un profilo di livello/quota.",
     "invalidImageExtension": "La directory contiene file che non sono immagini",
     "imagesFolderEmpty": "Nessuna immagine trovata nella cartella selezionata",
+    "grpResolutionMismatch": "Le immagini GRP non hanno la stessa risoluzione dei fotogrammi del video.",
     "waitingForFrames": "Stiamo caricando i fotogrammi. Riprova tra qualche secondo",
     "Cli": {
       "windowsSizesError": "La dimensione della finestra è troppo grande per la Regione di Interesse selezionata.",

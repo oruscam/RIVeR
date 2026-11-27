@@ -564,6 +564,7 @@
     "invalidBathimetryDepthNotAllowed": "Depth bathymetry files aren't supported in this mode. Import a level/elevation profile instead.",
     "invalidImageExtension": "The directory contains files that are not images",
     "imagesFolderEmpty": "No images found in the selected folder",
+    "grpResolutionMismatch": "The GRP images do not have the same resolution as the video frames.",
     "waitingForFrames": "We are waiting for the frames to be loaded. Please try again in a few seconds",
     "Cli": {
       "windowsSizesError": "The window size is too large for the selected Region Of Interest.",

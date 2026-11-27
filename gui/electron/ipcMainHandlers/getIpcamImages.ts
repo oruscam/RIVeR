@@ -1,6 +1,6 @@
-import { dialog, ipcMain } from 'electron';
+import { dialog, ipcMain, nativeImage } from 'electron';
 import * as fs from 'fs';
-import { extname, join } from 'path';
+import { extname } from 'path';
 import { PROJECT_CONFIG } from '../main';
 import { RiverCli } from './interfaces';
 import { processGrpImages } from './utils/processGrpImages';
@@ -50,11 +50,21 @@ function getIpcamImages(riverCli: RiverCli) {
       const processed = await processGrpImages(imagesPath, projectDirectory, jsonParsed, riverCli, logsPath);
       if (processed.error) return { error: { message: processed.error, backend: true } };
 
+      // The camera is solved on these images and applied to the frames: same size required.
+      const { firstFrame } = PROJECT_CONFIG;
+      if (firstFrame && processed.files.length > 0) {
+        const grpSize = nativeImage.createFromPath(processed.files[0]).getSize();
+        const frameSize = nativeImage.createFromPath(firstFrame).getSize();
+        if (frameSize.width > 0 && (grpSize.width !== frameSize.width || grpSize.height !== frameSize.height)) {
+          return { error: { message: 'grpResolutionMismatch' } };
+        }
+      }
+
       const updatedContent = JSON.stringify(jsonParsed, null, 2);
       await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
 
       return {
-        images: processed.files.map((file) => join(filePrefix, file)),
+        images: processed.files.map((file) => filePrefix + file),
         path: imagesPath,
       };
     } catch (error) {

@@ -583,6 +583,7 @@
   },
   "Errors": {
     "imagesFolderEmpty": "No se encontraron imágenes en la carpeta seleccionada.",
+    "grpResolutionMismatch": "Las imágenes GRP no tienen la misma resolución que los frames del video.",
     "invalidImageExtension": "El directorio contiene archivos que no son imágenes.",
     "waitingForFrames": "Esperando que se carguen las imágenes. Intente nuevamente en unos segundos.",
     "invalidPointsFileFormat": "Formato de puntos inválido.",

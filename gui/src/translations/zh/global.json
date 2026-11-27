@@ -587,6 +587,7 @@
     "invalidBathimetryDepthNotAllowed": "此模式不支持深度测深文件。请改为导入水位/高程剖面。",
     "invalidImageExtension": "所选目录包含非图像文件",
     "imagesFolderEmpty": "所选文件夹中未找到图像",
+    "grpResolutionMismatch": "GRP 图像与视频帧的分辨率不一致。",
     "waitingForFrames": "正在等待帧加载完成，请数秒后重试",
     "Cli": {
       "windowsSizesError": "相关窗口尺寸对于所选感兴趣区域过大。",
