@@ -246,6 +246,7 @@
     "statusRunning": "Em andamento",
     "statusQueued": "Na fila",
     "waitForTest": "Aguarde o Test PIV terminar",
+    "analysisFailed": "A análise falhou: {{error}}. Detalhes em river.log",
     "preProcessing": "Pré-processamento",
     "filtering": "Filtragem",
     "interrogationWindow": "Janela de interrogação",

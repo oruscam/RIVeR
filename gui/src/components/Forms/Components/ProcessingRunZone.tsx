@@ -1,6 +1,9 @@
 import { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 
+/** Step alert id of a failed Test PIV or Analyze; the run zone shows it instead of the panel's top list. */
+export const PROCESSING_ERROR_ALERT_ID = 'processing-backend-error';
+
 /**
  * The Processing panel's run zone: fixed above the footer, outside the
  * scrolling settings, so the button never moves with what is open above it.
@@ -12,12 +15,14 @@ export const ProcessingRunZone = ({
   testing,
   onAnalyze,
   onStop,
+  error,
   children,
 }: {
   running: boolean;
   testing: boolean;
   onAnalyze: () => void;
   onStop: () => void;
+  error?: string;
   children?: ReactNode;
 }) => {
   const { t } = useTranslation();
@@ -25,6 +30,11 @@ export const ProcessingRunZone = ({
 
   return (
     <div className="processing-run">
+      {error && (
+        <div className="step-alert step-alert-error processing-run-error" role="alert">
+          <span className="step-alert-text">{error}</span>
+        </div>
+      )}
       {running ? (
         <button id="stop-button" type="button" className="btn btn-lg btn-danger" onClick={onStop}>
           {t('Processing.stop')}

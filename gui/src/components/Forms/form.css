@@ -767,6 +767,11 @@
     width: 100%;
 }
 
+.processing-run-error {
+    margin-bottom: var(--space-3);
+    overflow-wrap: anywhere;
+}
+
 .processing-run .progress-readout {
     max-width: none;
     margin-top: var(--space-4);

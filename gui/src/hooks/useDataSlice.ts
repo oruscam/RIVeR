@@ -25,7 +25,7 @@ import {
 } from '../store/data/dataSlice';
 import { clearMessage, setLoading, setMessage } from '../store/ui/uiSlice';
 import { setHasChanged, setSectionData, setSummary } from '../store/section/sectionSlice';
-import { CliError } from '../errors/errors';
+import { AnalysisError, CliError } from '../errors/errors';
 import { useTranslation } from 'react-i18next';
 import { verifyWindowsSizes } from '../helpers';
 import { hasMissingBathymetry } from '../helpers/locatedBathymetry';
@@ -158,7 +158,7 @@ export const useDataSlice = () => {
       console.log(error);
       dispatch(setBackendWorking(false));
       if (error instanceof Error) {
-        throw new CliError(error.message, t);
+        throw new AnalysisError(error.message, t);
       }
     }
   };
@@ -210,7 +210,7 @@ export const useDataSlice = () => {
     } catch (error) {
       dispatch(setBackendWorking(false));
       if (error instanceof Error) {
-        throw new CliError(error.message, t);
+        throw new AnalysisError(error.message, t);
       }
     }
   };

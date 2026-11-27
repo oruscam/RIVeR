@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+# [Unreleased]
+
+## GUI
+
+### Changed
+
+- A failed Test PIV or Analize now says why, right above the Analize button, and points to river.log, instead of a generic message at the top of the panel (#123)
+
+
 # [3.8.4] - 2026-11-18
 
 ## GUI

@@ -53,6 +53,30 @@ describe('ProcessingRunZone (rule 5)', () => {
   });
 });
 
+describe('ProcessingRunZone error', () => {
+  const renderWithError = (error?: string) =>
+    renderToStaticMarkup(
+      createElement(ProcessingRunZone, {
+        running: false,
+        testing: false,
+        onAnalyze: () => {},
+        onStop: () => {},
+        error,
+      })
+    );
+
+  it('shows the error right above the Analyze button', () => {
+    const html = renderWithError('Analysis failed: boom');
+    expect(html).toMatch(/class="step-alert step-alert-error[^"]*" role="alert"/);
+    expect(html.indexOf('Analysis failed: boom')).toBeGreaterThan(-1);
+    expect(html.indexOf('Analysis failed: boom')).toBeLessThan(html.indexOf('analize-button'));
+  });
+
+  it('draws no alert without an error', () => {
+    expect(renderWithError()).not.toContain('role="alert"');
+  });
+});
+
 describe('ProcessingRunZone source', () => {
   const src = readFileSync(
     join(__dirname, '..', 'components', 'Forms', 'Components', 'ProcessingRunZone.tsx'),

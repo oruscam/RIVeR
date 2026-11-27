@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Carousel, StepAlertList, Toast, ImageProcessing, WizardButtons } from '../components';
+import { PROCESSING_ERROR_ALERT_ID } from '../components/Forms/Components/ProcessingRunZone';
 import { useDataSlice, useIwaveDefaults, useProjectIssues, useSectionSlice, useUiSlice } from '../hooks';
 import { flushStivAngleWrites } from '../hooks/useStivAngleOverride';
 import { FormHeader } from '../components/Forms/Components';
@@ -214,7 +215,7 @@ export const Processing = () => {
       </div>
       <div className="form-container">
         <FormHeader title={t('Processing.title')} showSections={false} />
-        <StepAlertList extra={alerts} onAction={onAction} />
+        <StepAlertList extra={alerts} onAction={onAction} exclude={[PROCESSING_ERROR_ALERT_ID]} />
         <FormProcessing
           extraFields={extraFields}
           showMedian={showMedian}

@@ -21,16 +21,19 @@ const linkify = (text: string) => {
 /**
  * Every current step alert, stacked in the panel. `extra` holds cards derived for this
  * step only (project issues); a card with an `action` gets a button that calls `onAction`.
+ * `exclude` names the alerts another part of the panel shows.
  */
 export const StepAlertList = ({
   extra = [],
   onAction,
+  exclude = [],
 }: {
   extra?: StepAlert[];
   onAction?: (action: string) => void;
+  exclude?: string[];
 } = {}) => {
   const { stepAlerts } = useUiSlice();
-  const alerts = [...extra, ...stepAlerts];
+  const alerts = [...extra, ...stepAlerts].filter((alert) => !exclude.includes(alert.id));
 
   if (alerts.length === 0) return null;
 

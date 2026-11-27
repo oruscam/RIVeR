@@ -12,7 +12,7 @@ import { HardModeOblique } from './HardModeOblique';
 import { IwaveSettings } from './IwaveSettings';
 import { FormHeader } from './FormHeader';
 import { AnalyzingProgress } from './AnalyzingProgress';
-import { ProcessingRunZone } from './ProcessingRunZone';
+import { ProcessingRunZone, PROCESSING_ERROR_ALERT_ID } from './ProcessingRunZone';
 import { MaskCreation } from './MaskCreation';
 import { MaskList } from './MaskList';
 import { ExportMp4 } from './ExportMp4';
@@ -36,6 +36,7 @@ export {
   MaskList,
   PixelCoordinates,
   ProcessingRunZone,
+  PROCESSING_ERROR_ALERT_ID,
   RealWorldCoordinates,
   RoiHeightRow,
   StabilizationRegions,

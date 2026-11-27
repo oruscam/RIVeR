@@ -246,6 +246,7 @@
     "statusRunning": "Выполняется",
     "statusQueued": "В очереди",
     "waitForTest": "Дождитесь завершения Test PIV",
+    "analysisFailed": "Ошибка анализа: {{error}}. Подробности в river.log",
     "preProcessing": "Предобработка",
     "filtering": "Фильтрация",
     "interrogationWindow": "Окно опроса",
