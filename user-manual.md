@@ -68,6 +68,10 @@ No Python or developer tools are required.
 > 💡 **Note:**  
 > If your OS blocks the app because it’s unsigned, allow it manually via your security settings.  
 > **MacOS users:** check the discussion and workaround here → [GitHub Discussions #76](https://github.com/oruscam/RIVeR/discussions/76).
+
+> **Windows users:** RIVeR requires the **Microsoft Visual C++ Redistributable (x64)**. If it is missing, the app may fail on startup with:
+> `A JavaScript error occurred in the main process — Uncaught Exception: Error: The specified module could not be found.`
+> Download and install it, then restart RIVeR.
 ## Additional Resources
 
 For a deeper understanding of LSPIV measurement techniques, rectification methods, and camera setup principles, refer to our official guidelines:

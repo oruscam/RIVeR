@@ -6,6 +6,11 @@ import { detectPhaseTransition } from './detectPhaseTransition';
 
 let python: ChildProcess | undefined;
 
+// Shown when a native module can't load because the MSVC runtime is missing (Windows)
+const VC_REDIST_MESSAGE =
+  'The Microsoft Visual C++ Redistributable (x64) is missing. ' +
+  'Install it from https://aka.ms/vs/17/release/vc_redist.x64.exe and restart RIVeR.';
+
 async function executeRiverCli(
   options: (string | number)[],
   // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for positional compatibility with callers
@@ -89,7 +94,8 @@ async function executeRiverCli(
       }
 
       if (code !== 0) {
-        const errMsg = code === null ? 'Process was killed' : stderrData || `Process exited with code ${code}`;
+        let errMsg = code === null ? 'Process was killed' : stderrData || `Process exited with code ${code}`;
+        if (/Could not find\/load shared object file|DLL load failed/.test(stderrData)) errMsg = VC_REDIST_MESSAGE;
         if (python === child) python = undefined;
         resolve({ error: { message: errMsg } });
         appendLog(logFile, args, stdoutData, stderrData);
@@ -192,4 +198,4 @@ function appendLog(path: string, args: string[], data: string, error: string = '
   fs.promises.appendFile(path, parsedLog, 'utf-8');
 }
 
-export { executeRiverCli, killRiverCli };
+export { executeRiverCli, killRiverCli, VC_REDIST_MESSAGE };
