@@ -555,6 +555,7 @@
     }
   },
   "ControlPoints3d": {
+    "grpImagesReprocessed": "レンズ補正またはリサイズが変更されたため、GRP 画像を再処理しました。GRP ポイントを確認し、カメラを再計算してください。",
     "importPoints": "点を読み込む",
     "importImages": "画像を読み込む",
     "east": "東",

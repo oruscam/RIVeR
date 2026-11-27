@@ -559,6 +559,7 @@
     }
   },
   "ControlPoints3d": {
+    "grpImagesReprocessed": "Cambió la corrección de lente o el factor de escala, así que las imágenes GRP se volvieron a procesar. Revisá los puntos GRP y volvé a calcular la cámara.",
     "importPoints": "Importar Puntos",
     "importImages": "Importar Imágenes",
     "east": "Este",

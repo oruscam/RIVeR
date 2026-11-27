@@ -575,6 +575,7 @@
     }
   },
   "ControlPoints3d": {
+    "grpImagesReprocessed": "تغيّر تصحيح العدسة أو تغيير الحجم، لذلك أُعيدت معالجة صور GRP. راجع نقاط GRP وأعد حساب الكاميرا.",
     "importPoints": "استيراد نقاط التحكم",
     "importImages": "استيراد الصور",
     "east": "شرق",

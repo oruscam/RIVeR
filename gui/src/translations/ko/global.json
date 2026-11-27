@@ -555,6 +555,7 @@
     }
   },
   "ControlPoints3d": {
+    "grpImagesReprocessed": "렌즈 보정 또는 크기 조정이 변경되어 GRP 이미지를 다시 처리했습니다. GRP 포인트를 확인하고 카메라를 다시 계산하세요.",
     "importPoints": "기준점 가져오기",
     "importImages": "이미지 가져오기",
     "east": "동향",

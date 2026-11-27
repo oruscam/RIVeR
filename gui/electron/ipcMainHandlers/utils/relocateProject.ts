@@ -9,6 +9,7 @@ const OWNED_KEYS: string[][] = [
   ['stabilization_regions_path'],
   ['camera_solution_3d'],
   ['grp_3d'],
+  ['rectification_3d_images_processed'],
 ];
 
 /** Older versions saved `<project>/C:\...` after a failed load; returns the Windows path. */

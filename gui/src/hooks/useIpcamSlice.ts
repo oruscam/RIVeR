@@ -12,6 +12,8 @@ import {
   setPoints,
 } from '../store/ipcam/ipcamSlice';
 import { CliError, ResourceNotFoundError } from '../errors/errors';
+import { framesImportError } from '../helpers/framesImportError';
+import { clearStepAlert } from '../store/ui/uiSlice';
 import { setHasChanged, setIsBackendWorking } from '../store/global/globalSlice';
 import { BackendCameraSolution, SetPointPixelCoordinatesProps } from '../store/ipcam/types';
 import { appendSolutionToIpcamPoints } from '../helpers/appendSolutionsToImportedPoints';
@@ -75,6 +77,11 @@ export const useIpcamSlice = () => {
       // A canceled folder picker is not an error: nothing changes.
       if (result === undefined || result.canceled) return false;
       const { images, path, error } = result;
+      // Backend errors (e.g. lens profile resolution) are already readable;
+      // returned, not thrown, so the catch below does not re-translate them.
+      if (error?.backend) {
+        return Promise.reject(new Error(framesImportError(error.message, (key, values) => t(key, values))));
+      }
       // If there's an error, throw it to be caught below
       if (error) {
         throw new Error(error.message);
@@ -270,6 +277,7 @@ export const useIpcamSlice = () => {
           numPoints: numPoints,
         })
       );
+      dispatch(clearStepAlert('ipcam-grp-reprocessed'));
       // Reset the section state to default
       dispatch(setDefaultSectionState());
     } catch (error) {

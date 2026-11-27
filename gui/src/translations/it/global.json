@@ -559,6 +559,7 @@
     }
   },
   "ControlPoints3d": {
+    "grpImagesReprocessed": "La correzione dell'obiettivo o il ridimensionamento sono cambiati, quindi le immagini GRP sono state rielaborate. Controlla i punti GRP e ricalcola la fotocamera.",
     "importPoints": "Importa Punti",
     "importImages": "Importa Immagini",
     "east": "Est",

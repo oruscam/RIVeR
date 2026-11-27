@@ -96,3 +96,49 @@ def test_stabilize_runs_on_the_imported_frames(tmp_path):
 	assert response["error"] == {}
 	mock_stab.assert_called_once_with(frames_dir, regions_path, stabilized_dir, scale=0.5)
 	assert response["data"]["sanity_check"] == str(tmp_path / "sanity_check.jpg")
+
+
+def _profile(path: Path, w=64, h=48):
+	K = [[50.0, 0, w / 2], [0, 50.0, h / 2], [0, 0, 1]]
+	path.write_text(json.dumps({"K": K, "dist": [-0.2, 0.05, 0, 0, 0], "image_size": [w, h]}))
+	return path
+
+
+def test_process_images_keeps_names_and_matches_the_frames(tmp_path):
+	# frames-to-frames needs two frames; process-images takes any count.
+	_sequence(tmp_path / "source", n=2)
+	profile = _profile(tmp_path / "profile.json")
+
+	response = _run([
+		"process-images", str(tmp_path / "source"), str(tmp_path / "grp"),
+		"--profile-path", str(profile), "--resize-factor", "0.5",
+	])
+	frames = _run([
+		"frames-to-frames", str(tmp_path / "source"), str(tmp_path / "frames"), "--overwrite",
+		"--undistort", "--profile-path", str(profile), "--resize-factor", "0.5",
+	])
+
+	assert response["error"] == {}
+	assert response["data"]["files"] == ["frame_1.jpg", "frame_2.jpg"]
+	grp = cv2.imread(str(tmp_path / "grp" / "frame_1.jpg"))
+	frame = cv2.imread(frames["data"]["initial_frame"])
+	assert grp.shape == frame.shape
+	assert np.abs(grp.astype(int) - frame.astype(int)).max() <= 2
+
+
+def test_process_images_rejects_a_profile_of_another_resolution(tmp_path):
+	_sequence(tmp_path / "source", n=1)
+	profile = _profile(tmp_path / "profile.json", w=100, h=80)
+
+	response = _run(["process-images", str(tmp_path / "source"), str(tmp_path / "grp"), "--profile-path", str(profile)])
+
+	assert "does not match" in response["error"]["message"]
+
+
+def test_process_images_takes_a_single_image(tmp_path):
+	_sequence(tmp_path / "source", n=1)
+
+	response = _run(["process-images", str(tmp_path / "source"), str(tmp_path / "grp")])
+
+	assert response["error"] == {}
+	assert (tmp_path / "grp" / "frame_1.jpg").exists()

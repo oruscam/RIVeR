@@ -227,7 +227,7 @@ app.whenReady().then(async () => {
   getDistances();
   getGif();
   getImages();
-  getIpcamImages();
+  getIpcamImages(riverCli);
   getIwaveDefaults(riverCli);
   getIwaveSpectra();
   getPoints();

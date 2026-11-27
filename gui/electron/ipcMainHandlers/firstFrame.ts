@@ -6,6 +6,7 @@ import { PROJECT_CONFIG } from '../main';
 import { extractFrames } from './utils/extractFrames';
 import { clearResultsPiv } from './utils/clearResultsPiv';
 import { clearCrossSections } from './utils/clearCrossSections';
+import { processGrpImages } from './utils/processGrpImages';
 
 function firstFrame(riverCli: RiverCli) {
   const mainWindow = BrowserWindow.getAllWindows()[0];
@@ -16,6 +17,9 @@ function firstFrame(riverCli: RiverCli) {
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
     filePrefix = filePrefix === undefined ? '' : filePrefix;
+
+    const readSettings = async () => JSON.parse(await fs.promises.readFile(settingsPath, 'utf-8'));
+    const before = await readSettings();
 
     console.time('Extracting frames');
 
@@ -53,8 +57,24 @@ function firstFrame(riverCli: RiverCli) {
     const firstFrame = fileNames.length > 0 ? path.join(framesPath, fileNames[0]) : '';
     PROJECT_CONFIG.firstFrame = firstFrame;
 
+    // New lens or resize: bring the GRP images to the new frame geometry.
+    const settings = await readSettings();
+    const grpSource = settings.rectification_3d_images;
+    const geometryChanged =
+      (before.lens_correction || null) !== (settings.lens_correction || null) ||
+      Number(before.video_range?.factor ?? 1) !== Number(settings.video_range?.factor ?? 1);
+    let grpImages: { images: string[]; path: string } | undefined;
+    if (geometryChanged && grpSource && fs.existsSync(grpSource)) {
+      const processed = await processGrpImages(grpSource, projectDirectory, settings, riverCli, logsPath);
+      if (!processed.error) {
+        await fs.promises.writeFile(settingsPath, JSON.stringify(settings, null, 4), 'utf-8');
+        grpImages = { images: processed.files.map((file) => path.join(filePrefix, file)), path: grpSource };
+      }
+    }
+
     return {
       initial_frame: firstFrame,
+      grpImages,
     };
   });
 

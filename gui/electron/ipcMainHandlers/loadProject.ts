@@ -46,9 +46,12 @@ async function loadFrames(framesPath: string, filePrefix: string) {
 
 // Function to load rectification 3D images if the path exists in the settings
 async function loadRectification3D(settingsParsed: any, filePrefix: string) {
-  const rectificationPath = settingsParsed.rectification_3d_images;
+  // The lens-corrected copy when there is one, else the user's folder.
+  const processedPath = settingsParsed.rectification_3d_images_processed;
+  const rectificationPath =
+    processedPath && fs.existsSync(processedPath) ? processedPath : settingsParsed.rectification_3d_images;
   if (rectificationPath && fs.existsSync(rectificationPath)) {
-    const images = await fs.promises.readdir(rectificationPath);
+    const images = (await fs.promises.readdir(rectificationPath)).sort();
     return images.map((image: string) => path.join(filePrefix, rectificationPath, image));
   }
   return undefined;
