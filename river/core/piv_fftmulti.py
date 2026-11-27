@@ -693,7 +693,10 @@ def normalize_to_uint8(result_conv: np.ndarray) -> np.ndarray:
 	# Compute min and max per channel (along height and width)
 	minres = np.amin(result_conv, axis=(0, 1))
 	maxres = np.amax(result_conv, axis=(0, 1))
-	deltares = maxres - minres + 1e-10  # Add epsilon to avoid division by zero
+	deltares = maxres - minres
+	# A flat window has no range, so divide by 1 and leave it at zero. Adding an epsilon
+	# instead left the peak of low-valued windows at 254, and the peak search only takes 255.
+	deltares = np.where(deltares == 0, 1, deltares)
 
 	# Reshape for broadcasting
 	minres = minres[np.newaxis, np.newaxis, :]
@@ -749,7 +752,9 @@ def subpixgauss(
 	try:
 		# Create mask for valid values (not -1)
 		valid_mask = (x1 != -1) & (y1 != -1) & (z1 != -1)
-		valid_indices = np.where(valid_mask)[0]
+		# Place each vector by its window number (1-based z1), not by its position in the list:
+		# windows without a peak are absent from x1/y1/z1, which would shift every later vector.
+		valid_indices = z1[valid_mask].astype(int) - 1
 
 		if len(valid_indices) == 0:
 			return vector
@@ -850,8 +855,8 @@ def process_result_conv(
 
 	z1 = np.sort(z, kind="mergesort")
 	zi = np.argsort(z, kind="mergesort")
-	dz1 = abs(np.diff(z1))
-	dz1 = np.insert(dz1, 0, z1[0])
+	# prepend=0 flags the first window too (z is 1-based) and still works when no window has a peak.
+	dz1 = np.diff(z1, prepend=0)
 	i0 = np.flatnonzero(dz1)
 	x1 = x[zi[i0]]
 	y1 = y[zi[i0]]
