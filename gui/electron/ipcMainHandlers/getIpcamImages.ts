@@ -46,7 +46,7 @@ function getIpcamImages(riverCli: RiverCli) {
         }
       });
 
-      // Lens correction and resize, like the frames.
+      // Same lens correction as the frames.
       const processed = await processGrpImages(imagesPath, projectDirectory, jsonParsed, riverCli, logsPath);
       if (processed.error) return { error: { message: processed.error, backend: true } };
 

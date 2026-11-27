@@ -559,7 +559,7 @@
     }
   },
   "ControlPoints3d": {
-    "grpImagesReprocessed": "La correction d'objectif ou le redimensionnement a changé : les images GRP ont été retraitées. Vérifiez les points GRP et recalculez la caméra.",
+    "grpImagesReprocessed": "La correction d'objectif a changé : les images GRP ont été retraitées. Vérifiez les points GRP et recalculez la caméra.",
     "importPoints": "Importer Points",
     "importImages": "Importer Images",
     "east": "Est",

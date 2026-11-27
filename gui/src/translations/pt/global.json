@@ -559,7 +559,7 @@
     }
   },
   "ControlPoints3d": {
-    "grpImagesReprocessed": "A correção de lente ou o redimensionamento mudou, então as imagens GRP foram reprocessadas. Revise os pontos GRP e calcule a câmera novamente.",
+    "grpImagesReprocessed": "A correção de lente mudou, então as imagens GRP foram reprocessadas. Revise os pontos GRP e calcule a câmera novamente.",
     "importPoints": "Importar Pontos",
     "importImages": "Importar Imagens",
     "east": "Leste",

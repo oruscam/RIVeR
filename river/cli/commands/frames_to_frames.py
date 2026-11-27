@@ -12,7 +12,7 @@ from river.cli.commands.video_to_frames import (
 	stabilize_extracted_frames,
 )
 from river.core.frames_to_frames import frames_to_frames as ftf
-from river.core.frames_to_frames import inspect_frames, list_source_frames, process_images, selected_indices
+from river.core.frames_to_frames import inspect_frames, list_source_frames, selected_indices, undistort_images
 
 
 @click.command(help="Report the frame count, resolution and ordered file names of a frames folder.")
@@ -108,17 +108,11 @@ def frames_to_frames(
 	return result
 
 
-@click.command("process-images", help="Undistort and resize a folder of images (e.g. GRP images) like the project frames.")
+@click.command("undistort-images", help="Undistort a folder of images (e.g. GRP images) like the project frames.")
 @click.argument("source-dir", type=click.Path(exists=True, file_okay=False))
 @click.argument("output-dir", type=click.Path(dir_okay=True, writable=True))
-@click.option("--profile-path", type=click.Path(exists=True), default=None, help="Path to calibration profile.json.")
-@click.option(
-	"--resize-factor", type=click.FloatRange(min=0.0, max=1.0), default=1.0, help="Factor to resize the images."
-)
+@click.option("--profile-path", type=click.Path(exists=True), required=True, help="Path to calibration profile.json.")
 @click.pass_context
 @render_response
-def process_images_cmd(
-	ctx: click.Context, source_dir: str, output_dir: str, profile_path: Optional[str], resize_factor: float
-) -> dict:
-	files = process_images(Path(source_dir), Path(output_dir), profile_path, resize_factor)
-	return {"files": files}
+def undistort_images_cmd(ctx: click.Context, source_dir: str, output_dir: str, profile_path: str) -> dict:
+	return {"files": undistort_images(Path(source_dir), Path(output_dir), profile_path)}

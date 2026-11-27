@@ -131,49 +131,31 @@ def frames_to_frames(
 	return frames_dir / f"{indices[0]:010d}.jpg"
 
 
-def process_images(
-	source_dir: Path,
-	output_dir: Path,
-	profile_path: Optional[str] = None,
-	resize_factor: float = 1.0,
-	undistort_alpha: float = 0.0,
-) -> List[str]:
-	"""Undistort and resize every image of source_dir into output_dir, keeping file names.
+def undistort_images(source_dir: Path, output_dir: Path, profile_path: str, undistort_alpha: float = 0.0) -> List[str]:
+	"""Undistort every image of source_dir into output_dir, keeping file names.
 
-	Same undistort/resize as frames_to_frames, so the output matches the project frames.
+	Same undistortion as the frames, so the output matches the project frames.
 	"""
-	if resize_factor > 1.0 or resize_factor <= 0:
-		raise ValueError("resize_factor must be between 0 and 1.0")
-
 	files = list_source_frames(source_dir)
 	if not files:
 		raise RiverCoreException("noFrames")
 
+	K, dist, cal_size = load_profile(profile_path)
+	map1, map2, roi = build_undistort_maps(K, dist, cal_size, undistort_alpha)
+	encode_params = [int(cv2.IMWRITE_JPEG_QUALITY), 95]
+
 	output_dir = Path(output_dir)
 	output_dir.mkdir(parents=True, exist_ok=True)
-
-	cache: dict = {}  # (width, height) -> (map1, map2, roi)
-	profile = load_profile(profile_path) if profile_path else None
-	encode_params = [int(cv2.IMWRITE_JPEG_QUALITY), 95]
 
 	for path in files:
 		frame = _read_frame(path)
 		height, width = frame.shape[:2]
-		if (width, height) not in cache:
-			maps = (None, None, None)
-			if profile is not None:
-				K, dist, cal_size = profile
-				if cal_size != (width, height):
-					raise ValueError(
-						f"The profile resolution ({cal_size[0]}×{cal_size[1]}) "
-						f"does not match the image {path.name} ({width}×{height}). "
-						"Select another camera model or calibrate for this resolution."
-					)
-				maps = build_undistort_maps(K, dist, (width, height), undistort_alpha)
-			cache[(width, height)] = maps
-		map1, map2, roi = cache[(width, height)]
-		# Same rule as the frames: scale from the source size.
-		resize_to = (int(width * resize_factor), int(height * resize_factor)) if resize_factor < 1.0 else None
-		save_processed_frame(frame, str(output_dir / path.name), True, encode_params, map1, map2, roi, resize_to)
+		if cal_size != (width, height):
+			raise ValueError(
+				f"The profile resolution ({cal_size[0]}×{cal_size[1]}) "
+				f"does not match the image {path.name} ({width}×{height}). "
+				"Select another camera model or calibrate for this resolution."
+			)
+		save_processed_frame(frame, str(output_dir / path.name), True, encode_params, map1, map2, roi)
 
 	return [p.name for p in files]

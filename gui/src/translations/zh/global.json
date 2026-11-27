@@ -555,7 +555,7 @@
     }
   },
   "ControlPoints3d": {
-    "grpImagesReprocessed": "镜头校正或缩放已更改，GRP 图像已重新处理。请检查 GRP 点并重新求解相机。",
+    "grpImagesReprocessed": "镜头校正已更改，GRP 图像已重新处理。请检查 GRP 点并重新求解相机。",
     "importPoints": "导入控制点",
     "importImages": "导入图像",
     "east": "东向",

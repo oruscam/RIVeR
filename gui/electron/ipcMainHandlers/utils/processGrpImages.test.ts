@@ -25,9 +25,9 @@ beforeEach(() => {
 
 afterEach(() => fs.rmSync(project, { recursive: true, force: true }));
 
-test('without lens correction or resize, uses the source images as they are', async () => {
+test('without lens correction, uses the source images as they are', async () => {
   const riverCli = copyingCli();
-  const settings: Record<string, any> = { lens_correction: null, video_range: { factor: 1 } };
+  const settings: Record<string, any> = { lens_correction: null };
 
   const result = await processGrpImages(source, project, settings, riverCli);
 
@@ -38,19 +38,17 @@ test('without lens correction or resize, uses the source images as they are', as
   expect(settings.rectification_3d_images_processed).toBeNull();
 });
 
-test('with lens correction, processes into the project with the frames profile and factor', async () => {
+test('with lens correction, undistorts into the project with the frames profile', async () => {
   const riverCli = copyingCli();
-  const settings: Record<string, any> = { lens_correction: '/profiles/cam.json', video_range: { factor: 0.5 } };
+  const settings: Record<string, any> = { lens_correction: '/profiles/cam.json' };
   const output = path.join(project, 'grp_images');
 
   const result = await processGrpImages(source, project, settings, riverCli);
 
   expect(riverCli.mock.calls[0][0]).toEqual([
-    'process-images',
+    'undistort-images',
     source,
     output,
-    '--resize-factor',
-    0.5,
     '--profile-path',
     '/profiles/cam.json',
   ]);

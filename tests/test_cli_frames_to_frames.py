@@ -104,18 +104,15 @@ def _profile(path: Path, w=64, h=48):
 	return path
 
 
-def test_process_images_keeps_names_and_matches_the_frames(tmp_path):
-	# frames-to-frames needs two frames; process-images takes any count.
+def test_undistort_images_keeps_names_and_matches_the_frames(tmp_path):
+	# frames-to-frames needs two frames; undistort-images takes any count.
 	_sequence(tmp_path / "source", n=2)
 	profile = _profile(tmp_path / "profile.json")
 
-	response = _run([
-		"process-images", str(tmp_path / "source"), str(tmp_path / "grp"),
-		"--profile-path", str(profile), "--resize-factor", "0.5",
-	])
+	response = _run(["undistort-images", str(tmp_path / "source"), str(tmp_path / "grp"), "--profile-path", str(profile)])
 	frames = _run([
 		"frames-to-frames", str(tmp_path / "source"), str(tmp_path / "frames"), "--overwrite",
-		"--undistort", "--profile-path", str(profile), "--resize-factor", "0.5",
+		"--undistort", "--profile-path", str(profile),
 	])
 
 	assert response["error"] == {}
@@ -126,19 +123,20 @@ def test_process_images_keeps_names_and_matches_the_frames(tmp_path):
 	assert np.abs(grp.astype(int) - frame.astype(int)).max() <= 2
 
 
-def test_process_images_rejects_a_profile_of_another_resolution(tmp_path):
+def test_undistort_images_takes_a_single_image(tmp_path):
 	_sequence(tmp_path / "source", n=1)
-	profile = _profile(tmp_path / "profile.json", w=100, h=80)
+	profile = _profile(tmp_path / "profile.json")
 
-	response = _run(["process-images", str(tmp_path / "source"), str(tmp_path / "grp"), "--profile-path", str(profile)])
-
-	assert "does not match" in response["error"]["message"]
-
-
-def test_process_images_takes_a_single_image(tmp_path):
-	_sequence(tmp_path / "source", n=1)
-
-	response = _run(["process-images", str(tmp_path / "source"), str(tmp_path / "grp")])
+	response = _run(["undistort-images", str(tmp_path / "source"), str(tmp_path / "grp"), "--profile-path", str(profile)])
 
 	assert response["error"] == {}
 	assert (tmp_path / "grp" / "frame_1.jpg").exists()
+
+
+def test_undistort_images_rejects_a_profile_of_another_resolution(tmp_path):
+	_sequence(tmp_path / "source", n=1)
+	profile = _profile(tmp_path / "profile.json", w=100, h=80)
+
+	response = _run(["undistort-images", str(tmp_path / "source"), str(tmp_path / "grp"), "--profile-path", str(profile)])
+
+	assert "does not match" in response["error"]["message"]

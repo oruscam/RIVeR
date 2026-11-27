@@ -532,7 +532,7 @@
     }
   },
   "ControlPoints3d": {
-    "grpImagesReprocessed": "Lens correction or resize changed, so the GRP images were re-processed. Check the GRP points and solve the camera again.",
+    "grpImagesReprocessed": "Lens correction changed, so the GRP images were re-processed. Check the GRP points and solve the camera again.",
     "importPoints": "Import Points",
     "importImages": "Import Images",
     "east": "East",

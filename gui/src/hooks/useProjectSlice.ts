@@ -391,7 +391,7 @@ export const useProjectSlice = () => {
       // Results came from the old frames (removed on disk by first-frame).
       dispatch(setQuiver({ quiver: null }));
       dispatch(clearResults());
-      // GRP images re-processed for the new lens/resize: points were picked on the old ones.
+      // GRP images re-processed for the new lens: points were picked on the old ones.
       if (result.grpImages) {
         dispatch(setIpcamImages(result.grpImages));
         if (ipcamPoints?.some((point) => point.wasEstablished)) {

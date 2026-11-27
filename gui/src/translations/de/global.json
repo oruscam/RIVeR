@@ -559,7 +559,7 @@
     }
   },
   "ControlPoints3d": {
-    "grpImagesReprocessed": "Objektivkorrektur oder Skalierung hat sich geändert, daher wurden die GRP-Bilder neu verarbeitet. Prüfen Sie die GRP-Punkte und berechnen Sie die Kamera erneut.",
+    "grpImagesReprocessed": "Die Objektivkorrektur hat sich geändert, daher wurden die GRP-Bilder neu verarbeitet. Prüfen Sie die GRP-Punkte und berechnen Sie die Kamera erneut.",
     "importPoints": "Punkte importieren",
     "importImages": "Bilder importieren",
     "east": "Ost",
