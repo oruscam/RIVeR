@@ -26,22 +26,27 @@ export async function processGrpImages(
 ): Promise<ProcessGrpImagesResult> {
   const lens: string | null = settings.lens_correction || null;
   const outputPath = path.join(projectDirectory, GRP_IMAGES_FOLDER);
-
-  await fs.promises.rm(outputPath, { recursive: true, force: true });
+  // Swapped in only on success, so a failed run keeps the current copy.
+  const importingPath = outputPath + '_importing';
+  const remove = (dir: string) => fs.promises.rm(dir, { recursive: true, force: true });
 
   const listFiles = async (dir: string) =>
     (await fs.promises.readdir(dir)).sort().map((file) => path.join(dir, file));
 
   let imagesPath = sourcePath;
   if (lens) {
-    const options = ['undistort-images', sourcePath, outputPath, '--profile-path', lens];
+    await remove(importingPath);
+    const options = ['undistort-images', sourcePath, importingPath, '--profile-path', lens];
     const result = await riverCli(options, 'json', false, logsPath);
     if (result?.error?.message) {
-      await fs.promises.rm(outputPath, { recursive: true, force: true });
-      // The previous copy is already gone: the source images are what is left to show.
+      await remove(importingPath);
       return { imagesPath: sourcePath, files: await listFiles(sourcePath), error: result.error.message };
     }
+    await remove(outputPath);
+    await fs.promises.rename(importingPath, outputPath);
     imagesPath = outputPath;
+  } else {
+    await remove(outputPath);
   }
 
   settings.rectification_3d_images = sourcePath;

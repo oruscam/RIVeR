@@ -6,7 +6,7 @@ import { PROJECT_CONFIG } from '../main';
 import { extractFrames } from './utils/extractFrames';
 import { clearResultsPiv } from './utils/clearResultsPiv';
 import { clearCrossSections } from './utils/clearCrossSections';
-import { processGrpImages } from './utils/processGrpImages';
+import { GRP_IMAGES_FOLDER, processGrpImages } from './utils/processGrpImages';
 
 function firstFrame(riverCli: RiverCli) {
   const mainWindow = BrowserWindow.getAllWindows()[0];
@@ -67,10 +67,12 @@ function firstFrame(riverCli: RiverCli) {
       const processed = await processGrpImages(grpSource, projectDirectory, settings, riverCli, logsPath);
       if (processed.error) {
         grpImagesError = processed.error;
+        // The old copy was undistorted with the previous lens: drop it.
+        await fs.promises.rm(path.join(projectDirectory, GRP_IMAGES_FOLDER), { recursive: true, force: true });
       } else {
         await fs.promises.writeFile(settingsPath, JSON.stringify(settings, null, 4), 'utf-8');
       }
-      // On error these are the source images: the old undistorted copy was removed.
+      // On error these are the source images.
       grpImages = { images: processed.files.map((file) => filePrefix + file), path: grpSource };
     }
 

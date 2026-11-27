@@ -48,7 +48,7 @@ test('with lens correction, undistorts into the project with the frames profile'
   expect(riverCli.mock.calls[0][0]).toEqual([
     'undistort-images',
     source,
-    output,
+    output + '_importing',
     '--profile-path',
     '/profiles/cam.json',
   ]);
@@ -68,4 +68,16 @@ test('a backend error is returned and leaves no processed folder', async () => {
   expect(result.files).toEqual([path.join(source, 'a.jpg'), path.join(source, 'b.jpg')]);
   expect(fs.existsSync(path.join(project, 'grp_images'))).toBe(false);
   expect(settings.rectification_3d_images_processed).toBeUndefined();
+});
+
+test('a failed run keeps the previous undistorted copy', async () => {
+  const output = path.join(project, 'grp_images');
+  fs.mkdirSync(output);
+  fs.writeFileSync(path.join(output, 'a.jpg'), 'previous');
+  const riverCli = jest.fn(async () => ({ data: {}, error: { message: 'profile does not match' } }));
+
+  await processGrpImages(source, project, { lens_correction: '/profiles/cam.json' }, riverCli);
+
+  expect(fs.readFileSync(path.join(output, 'a.jpg'), 'utf-8')).toBe('previous');
+  expect(fs.existsSync(output + '_importing')).toBe(false);
 });
