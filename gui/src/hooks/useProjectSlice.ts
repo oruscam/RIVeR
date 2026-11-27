@@ -394,7 +394,11 @@ export const useProjectSlice = () => {
       // GRP images re-processed for the new lens: points were picked on the old ones.
       if (result.grpImages) {
         dispatch(setIpcamImages(result.grpImages));
-        if (ipcamPoints?.some((point) => point.wasEstablished)) {
+        dispatch(clearStepAlert('ipcam-grp-reprocessed'));
+        if (result.grpImagesError) {
+          // Lens correction could not be applied (e.g. profile resolution): say why.
+          dispatch(addStepAlert({ id: 'ipcam-grp-reprocessed', level: 'error', text: result.grpImagesError }));
+        } else if (ipcamPoints?.some((point) => point.wasEstablished)) {
           dispatch(
             addStepAlert({
               id: 'ipcam-grp-reprocessed',

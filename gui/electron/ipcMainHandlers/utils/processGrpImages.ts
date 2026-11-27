@@ -29,13 +29,17 @@ export async function processGrpImages(
 
   await fs.promises.rm(outputPath, { recursive: true, force: true });
 
+  const listFiles = async (dir: string) =>
+    (await fs.promises.readdir(dir)).sort().map((file) => path.join(dir, file));
+
   let imagesPath = sourcePath;
   if (lens) {
     const options = ['undistort-images', sourcePath, outputPath, '--profile-path', lens];
     const result = await riverCli(options, 'json', false, logsPath);
     if (result?.error?.message) {
       await fs.promises.rm(outputPath, { recursive: true, force: true });
-      return { imagesPath: sourcePath, files: [], error: result.error.message };
+      // The previous copy is already gone: the source images are what is left to show.
+      return { imagesPath: sourcePath, files: await listFiles(sourcePath), error: result.error.message };
     }
     imagesPath = outputPath;
   }
@@ -43,6 +47,5 @@ export async function processGrpImages(
   settings.rectification_3d_images = sourcePath;
   settings.rectification_3d_images_processed = imagesPath === outputPath ? outputPath : null;
 
-  const files = (await fs.promises.readdir(imagesPath)).sort().map((file) => path.join(imagesPath, file));
-  return { imagesPath, files };
+  return { imagesPath, files: await listFiles(imagesPath) };
 }

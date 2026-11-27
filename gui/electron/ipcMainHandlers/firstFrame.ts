@@ -62,17 +62,22 @@ function firstFrame(riverCli: RiverCli) {
     const grpSource = settings.rectification_3d_images;
     const lensChanged = (before.lens_correction || null) !== (settings.lens_correction || null);
     let grpImages: { images: string[]; path: string } | undefined;
+    let grpImagesError: string | undefined;
     if (lensChanged && grpSource && fs.existsSync(grpSource)) {
       const processed = await processGrpImages(grpSource, projectDirectory, settings, riverCli, logsPath);
-      if (!processed.error) {
+      if (processed.error) {
+        grpImagesError = processed.error;
+      } else {
         await fs.promises.writeFile(settingsPath, JSON.stringify(settings, null, 4), 'utf-8');
-        grpImages = { images: processed.files.map((file) => path.join(filePrefix, file)), path: grpSource };
       }
+      // On error these are the source images: the old undistorted copy was removed.
+      grpImages = { images: processed.files.map((file) => path.join(filePrefix, file)), path: grpSource };
     }
 
     return {
       initial_frame: firstFrame,
       grpImages,
+      grpImagesError,
     };
   });
 

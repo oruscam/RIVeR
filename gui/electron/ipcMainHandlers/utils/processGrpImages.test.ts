@@ -65,6 +65,7 @@ test('a backend error is returned and leaves no processed folder', async () => {
   const result = await processGrpImages(source, project, settings, riverCli);
 
   expect(result.error).toBe('profile does not match');
+  expect(result.files).toEqual([path.join(source, 'a.jpg'), path.join(source, 'b.jpg')]);
   expect(fs.existsSync(path.join(project, 'grp_images'))).toBe(false);
   expect(settings.rectification_3d_images_processed).toBeUndefined();
 });
