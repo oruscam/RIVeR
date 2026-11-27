@@ -560,6 +560,7 @@
     }
   },
   "ControlPoints3d": {
+    "grpImagesReprocessed": "Die Objektivkorrektur hat sich geändert, daher wurden die GRP-Bilder neu verarbeitet. Prüfen Sie die GRP-Punkte und berechnen Sie die Kamera erneut.",
     "importPoints": "Punkte importieren",
     "importImages": "Bilder importieren",
     "east": "Ost",
@@ -591,6 +592,7 @@
     "invalidBathimetryDepthNotAllowed": "Tiefen-Bathymetriedateien werden in diesem Modus nicht unterstützt. Importieren Sie stattdessen ein Pegel-/Höhenprofil.",
     "invalidImageExtension": "Der Ordner enthält keine Bilddateien",
     "imagesFolderEmpty": "Keine Bilder im ausgewählten Ordner gefunden",
+    "grpResolutionMismatch": "Die GRP-Bilder haben nicht dieselbe Auflösung wie die Videobilder.",
     "waitingForFrames": " Warten auf das Laden der Frames. Bitte versuchen Sie es in wenigen Sekunden erneut",
     "Cli": {
       "windowsSizesError": " Die Fenstergröße ist zu groß für die ausgewählte Region of Interest (ROI).“.",

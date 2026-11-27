@@ -1,9 +1,11 @@
-import { dialog, ipcMain } from 'electron';
+import { dialog, ipcMain, nativeImage } from 'electron';
 import * as fs from 'fs';
-import { extname, join } from 'path';
+import { extname } from 'path';
 import { PROJECT_CONFIG } from '../main';
+import { RiverCli } from './interfaces';
+import { processGrpImages } from './utils/processGrpImages';
 
-function getIpcamImages() {
+function getIpcamImages(riverCli: RiverCli) {
   const options: Electron.OpenDialogOptions = {
     properties: ['openDirectory'],
   };
@@ -13,7 +15,7 @@ function getIpcamImages() {
 
     options.defaultPath = PROJECT_CONFIG.defaultFilesPath;
 
-    const { settingsPath } = PROJECT_CONFIG;
+    const { settingsPath, projectDirectory, logsPath } = PROJECT_CONFIG;
 
     const json = await fs.promises.readFile(settingsPath, 'utf-8');
     const jsonParsed = JSON.parse(json);
@@ -32,25 +34,37 @@ function getIpcamImages() {
         imagesPath = result.filePaths[0];
       }
 
-      let images = await fs.promises.readdir(imagesPath);
+      const images = await fs.promises.readdir(imagesPath);
 
       if (images.length === 0) {
         throw new Error('imagesFolderEmpty');
       }
 
-      images = images.map((file) => {
+      images.forEach((file) => {
         if (validImageExtensions.includes(extname(file)) === false) {
           throw new Error('invalidImageExtension');
         }
-        return join(filePrefix, imagesPath, file);
       });
 
-      jsonParsed.rectification_3d_images = imagesPath;
+      // Same lens correction as the frames.
+      const processed = await processGrpImages(imagesPath, projectDirectory, jsonParsed, riverCli, logsPath);
+      if (processed.error) return { error: { message: processed.error, backend: true } };
+
+      // The camera is solved on these images and applied to the frames: same size required.
+      const { firstFrame } = PROJECT_CONFIG;
+      if (firstFrame && processed.files.length > 0) {
+        const grpSize = nativeImage.createFromPath(processed.files[0]).getSize();
+        const frameSize = nativeImage.createFromPath(firstFrame).getSize();
+        if (frameSize.width > 0 && (grpSize.width !== frameSize.width || grpSize.height !== frameSize.height)) {
+          return { error: { message: 'grpResolutionMismatch' } };
+        }
+      }
+
       const updatedContent = JSON.stringify(jsonParsed, null, 2);
       await fs.promises.writeFile(settingsPath, updatedContent, 'utf-8');
 
       return {
-        images: images,
+        images: processed.files.map((file) => filePrefix + file),
         path: imagesPath,
       };
     } catch (error) {

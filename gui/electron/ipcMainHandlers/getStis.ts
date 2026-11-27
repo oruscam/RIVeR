@@ -36,7 +36,7 @@ function getStis() {
 
       return {
         stations: entries.map((entry) => entry.station),
-        paths: entries.map((entry) => path.join(prefix, stisDir, entry.file)),
+        paths: entries.map((entry) => prefix + path.join(stisDir, entry.file)),
       };
     } catch {
       return { stations: [], paths: [] };

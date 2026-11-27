@@ -6,6 +6,7 @@ import { PROJECT_CONFIG } from '../main';
 import { extractFrames } from './utils/extractFrames';
 import { clearResultsPiv } from './utils/clearResultsPiv';
 import { clearCrossSections } from './utils/clearCrossSections';
+import { GRP_IMAGES_FOLDER, processGrpImages } from './utils/processGrpImages';
 
 function firstFrame(riverCli: RiverCli) {
   const mainWindow = BrowserWindow.getAllWindows()[0];
@@ -16,6 +17,9 @@ function firstFrame(riverCli: RiverCli) {
 
     let filePrefix = import.meta.env.VITE_FILE_PREFIX;
     filePrefix = filePrefix === undefined ? '' : filePrefix;
+
+    const readSettings = async () => JSON.parse(await fs.promises.readFile(settingsPath, 'utf-8'));
+    const before = await readSettings();
 
     console.time('Extracting frames');
 
@@ -44,7 +48,7 @@ function firstFrame(riverCli: RiverCli) {
     if (xsectionsPath && fs.existsSync(xsectionsPath)) await clearCrossSections(xsectionsPath);
     await fs.promises.rm(path.join(projectDirectory, '_stats_cache.json'), { force: true });
 
-    const files = fileNames.map((file) => path.join(filePrefix, framesPath, file));
+    const files = fileNames.map((file) => filePrefix + path.join(framesPath, file));
 
     // Send all-frames BEFORE returning so that images.paths is populated
     // in the renderer before isBackendWorking flips back to false.
@@ -53,8 +57,29 @@ function firstFrame(riverCli: RiverCli) {
     const firstFrame = fileNames.length > 0 ? path.join(framesPath, fileNames[0]) : '';
     PROJECT_CONFIG.firstFrame = firstFrame;
 
+    // New lens correction: bring the GRP images to the new frame geometry.
+    const settings = await readSettings();
+    const grpSource = settings.rectification_3d_images;
+    const lensChanged = (before.lens_correction || null) !== (settings.lens_correction || null);
+    let grpImages: { images: string[]; path: string } | undefined;
+    let grpImagesError: string | undefined;
+    if (lensChanged && grpSource && fs.existsSync(grpSource)) {
+      const processed = await processGrpImages(grpSource, projectDirectory, settings, riverCli, logsPath);
+      if (processed.error) {
+        grpImagesError = processed.error;
+        // The old copy was undistorted with the previous lens: drop it.
+        await fs.promises.rm(path.join(projectDirectory, GRP_IMAGES_FOLDER), { recursive: true, force: true });
+      } else {
+        await fs.promises.writeFile(settingsPath, JSON.stringify(settings, null, 4), 'utf-8');
+      }
+      // On error these are the source images.
+      grpImages = { images: processed.files.map((file) => filePrefix + file), path: grpSource };
+    }
+
     return {
       initial_frame: firstFrame,
+      grpImages,
+      grpImagesError,
     };
   });
 

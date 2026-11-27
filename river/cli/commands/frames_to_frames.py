@@ -12,7 +12,7 @@ from river.cli.commands.video_to_frames import (
 	stabilize_extracted_frames,
 )
 from river.core.frames_to_frames import frames_to_frames as ftf
-from river.core.frames_to_frames import inspect_frames, list_source_frames, selected_indices
+from river.core.frames_to_frames import inspect_frames, list_source_frames, selected_indices, undistort_images
 
 
 @click.command(help="Report the frame count, resolution and ordered file names of a frames folder.")
@@ -106,3 +106,13 @@ def frames_to_frames(
 		stabilize_extracted_frames(frames_dir_path, stabilization_regions, replace, resize_factor, result)
 
 	return result
+
+
+@click.command("undistort-images", help="Undistort a folder of images (e.g. GRP images) like the project frames.")
+@click.argument("source-dir", type=click.Path(exists=True, file_okay=False))
+@click.argument("output-dir", type=click.Path(dir_okay=True, writable=True))
+@click.option("--profile-path", type=click.Path(exists=True), required=True, help="Path to calibration profile.json.")
+@click.pass_context
+@render_response
+def undistort_images_cmd(ctx: click.Context, source_dir: str, output_dir: str, profile_path: str) -> dict:
+	return {"files": undistort_images(Path(source_dir), Path(output_dir), profile_path)}

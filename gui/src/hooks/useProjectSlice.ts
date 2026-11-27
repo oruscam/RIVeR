@@ -122,6 +122,7 @@ export const useProjectSlice = () => {
     useSelector((state: RootState) => state.project);
   const { sections } = useSelector((state: RootState) => state.section);
   const uav = useSelector((state: RootState) => state.uav);
+  const ipcamPoints = useSelector((state: RootState) => state.ipcam.points);
   const { images } = useSelector((state: RootState) => state.data);
   const { t } = useTranslation();
 
@@ -390,6 +391,23 @@ export const useProjectSlice = () => {
       // Results came from the old frames (removed on disk by first-frame).
       dispatch(setQuiver({ quiver: null }));
       dispatch(clearResults());
+      // GRP images re-processed for the new lens: points were picked on the old ones.
+      if (result.grpImages) {
+        dispatch(setIpcamImages(result.grpImages));
+        dispatch(clearStepAlert('ipcam-grp-reprocessed'));
+        if (result.grpImagesError) {
+          // Lens correction could not be applied (e.g. profile resolution): say why.
+          dispatch(addStepAlert({ id: 'ipcam-grp-reprocessed', level: 'error', text: result.grpImagesError }));
+        } else if (ipcamPoints?.some((point) => point.wasEstablished)) {
+          dispatch(
+            addStepAlert({
+              id: 'ipcam-grp-reprocessed',
+              level: 'warning',
+              text: t('ControlPoints3d.grpImagesReprocessed'),
+            })
+          );
+        }
+      }
       if (intervalChanged) {
         dispatch(
           setVideoData({

@@ -36,7 +36,7 @@ async function loadFrames(framesPath: string, filePrefix: string) {
           return undefined;
         }
 
-        return path.join(filePrefix, framesPath, image);
+        return filePrefix + path.join(framesPath, image);
       })
       .filter((image) => image !== undefined);
     return { firstFrame, paths };
@@ -46,10 +46,13 @@ async function loadFrames(framesPath: string, filePrefix: string) {
 
 // Function to load rectification 3D images if the path exists in the settings
 async function loadRectification3D(settingsParsed: any, filePrefix: string) {
-  const rectificationPath = settingsParsed.rectification_3d_images;
+  // The lens-corrected copy when there is one, else the user's folder.
+  const processedPath = settingsParsed.rectification_3d_images_processed;
+  const rectificationPath =
+    processedPath && fs.existsSync(processedPath) ? processedPath : settingsParsed.rectification_3d_images;
   if (rectificationPath && fs.existsSync(rectificationPath)) {
-    const images = await fs.promises.readdir(rectificationPath);
-    return images.map((image: string) => path.join(filePrefix, rectificationPath, image));
+    const images = (await fs.promises.readdir(rectificationPath)).sort();
+    return images.map((image: string) => filePrefix + path.join(rectificationPath, image));
   }
   return undefined;
 }
@@ -171,7 +174,7 @@ async function handleLoadProject(
       piv_results,
       paths,
       matrix,
-      orthoImage: matrix ? path.join(filePrefix, folderPath, 'transformed_image.png') : undefined,
+      orthoImage: matrix ? filePrefix + path.join(folderPath, 'transformed_image.png') : undefined,
       rectification3D: {
         points: grp3dData.points,
         mode: grp3dData.mode,

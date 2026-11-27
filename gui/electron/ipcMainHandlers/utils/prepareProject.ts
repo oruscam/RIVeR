@@ -30,7 +30,9 @@ export async function prepareProject(
   }
 
   const images = settings.rectification_3d_images;
-  if (typeof images === 'string' && images !== '' && !fs.existsSync(images)) {
+  const processed = settings.rectification_3d_images_processed;
+  const hasProcessed = typeof processed === 'string' && fs.existsSync(processed);
+  if (typeof images === 'string' && images !== '' && !hasProcessed && !fs.existsSync(images)) {
     missingInputs.push({ kind: 'ipcamImages', path: images });
   }
 

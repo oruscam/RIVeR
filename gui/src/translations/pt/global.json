@@ -560,6 +560,7 @@
     }
   },
   "ControlPoints3d": {
+    "grpImagesReprocessed": "A correção de lente mudou, então as imagens GRP foram reprocessadas. Revise os pontos GRP e calcule a câmera novamente.",
     "importPoints": "Importar Pontos",
     "importImages": "Importar Imagens",
     "east": "Leste",
@@ -591,6 +592,7 @@
     "invalidBathimetryDepthNotAllowed": "Arquivos de batimetria de profundidade não são suportados neste modo. Importe um perfil de nível/elevação.",
     "invalidImageExtension": "A pasta contém arquivos que não são imagens",
     "imagesFolderEmpty": "Nenhuma imagem encontrada na pasta selecionada",
+    "grpResolutionMismatch": "As imagens GRP não têm a mesma resolução que os frames do vídeo.",
     "waitingForFrames": "Aguardando o carregamento dos quadros. Tente novamente em alguns segundos",
     "Cli": {
       "windowsSizesError": "O tamanho da janela é muito grande para a Região de Interesse selecionada.",

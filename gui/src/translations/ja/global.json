@@ -556,6 +556,7 @@
     }
   },
   "ControlPoints3d": {
+    "grpImagesReprocessed": "レンズ補正が変更されたため、GRP 画像を再処理しました。GRP ポイントを確認し、カメラを再計算してください。",
     "importPoints": "点を読み込む",
     "importImages": "画像を読み込む",
     "east": "東",
@@ -587,6 +588,7 @@
     "invalidBathimetryDepthNotAllowed": "このモードでは深度の測深ファイルはサポートされていません。代わりに水位/標高プロファイルをインポートしてください。",
     "invalidImageExtension": "ディレクトリに画像以外のファイルが含まれています",
     "imagesFolderEmpty": "選択したフォルダに画像が見つかりません",
+    "grpResolutionMismatch": "GRP 画像の解像度が動画フレームと一致しません。",
     "waitingForFrames": "フレームの読み込みを待っています。数秒後に再試行してください",
     "Cli": {
       "windowsSizesError": "選択した関心領域に対して相関窓サイズが大きすぎます。",

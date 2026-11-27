@@ -129,3 +129,33 @@ def frames_to_frames(
 			pass
 
 	return frames_dir / f"{indices[0]:010d}.jpg"
+
+
+def undistort_images(source_dir: Path, output_dir: Path, profile_path: str, undistort_alpha: float = 0.0) -> List[str]:
+	"""Undistort every image of source_dir into output_dir, keeping file names.
+
+	Same undistortion as the frames, so the output matches the project frames.
+	"""
+	files = list_source_frames(source_dir)
+	if not files:
+		raise RiverCoreException("noFrames")
+
+	K, dist, cal_size = load_profile(profile_path)
+	map1, map2, roi = build_undistort_maps(K, dist, cal_size, undistort_alpha)
+	encode_params = [int(cv2.IMWRITE_JPEG_QUALITY), 95]
+
+	output_dir = Path(output_dir)
+	output_dir.mkdir(parents=True, exist_ok=True)
+
+	for path in files:
+		frame = _read_frame(path)
+		height, width = frame.shape[:2]
+		if cal_size != (width, height):
+			raise ValueError(
+				f"The profile resolution ({cal_size[0]}×{cal_size[1]}) "
+				f"does not match the image {path.name} ({width}×{height}). "
+				"Select another camera model or calibrate for this resolution."
+			)
+		save_processed_frame(frame, str(output_dir / path.name), True, encode_params, map1, map2, roi)
+
+	return [p.name for p in files]
