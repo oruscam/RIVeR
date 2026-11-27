@@ -48,7 +48,7 @@ function firstFrame(riverCli: RiverCli) {
     if (xsectionsPath && fs.existsSync(xsectionsPath)) await clearCrossSections(xsectionsPath);
     await fs.promises.rm(path.join(projectDirectory, '_stats_cache.json'), { force: true });
 
-    const files = fileNames.map((file) => path.join(filePrefix, framesPath, file));
+    const files = fileNames.map((file) => filePrefix + path.join(framesPath, file));
 
     // Send all-frames BEFORE returning so that images.paths is populated
     // in the renderer before isBackendWorking flips back to false.
@@ -71,7 +71,7 @@ function firstFrame(riverCli: RiverCli) {
         await fs.promises.writeFile(settingsPath, JSON.stringify(settings, null, 4), 'utf-8');
       }
       // On error these are the source images: the old undistorted copy was removed.
-      grpImages = { images: processed.files.map((file) => path.join(filePrefix, file)), path: grpSource };
+      grpImages = { images: processed.files.map((file) => filePrefix + file), path: grpSource };
     }
 
     return {

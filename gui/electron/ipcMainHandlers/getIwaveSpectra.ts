@@ -86,7 +86,7 @@ function getIwaveSpectra() {
 
     return {
       stations: entries.map((entry) => entry.station),
-      paths: entries.map((entry) => path.join(prefix, spectraDir, entry.file)),
+      paths: entries.map((entry) => prefix + path.join(spectraDir, entry.file)),
       sidecar,
     };
   });
