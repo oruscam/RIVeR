@@ -93,6 +93,8 @@ export const useIpcamSlice = () => {
           path: path,
         })
       );
+      // New images, processed with the current lens: the reprocess notice no longer applies.
+      dispatch(clearStepAlert('ipcam-grp-reprocessed'));
       return true;
     } catch (error) {
       // If the error is an instance of Error, wrap it in a ResourceNotFoundError with translation
